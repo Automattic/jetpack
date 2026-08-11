@@ -679,7 +679,7 @@ class Manager {
 	 * class must not reference Error_Handler constants introduced along with that method
 	 * ('xmlrpc', 'rest', 'local_state', 'incoming', 'outgoing') — use the literal values.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.10.0
 	 *
 	 * @param array  $signature_details Details of the request signature being verified.
 	 * @param string $error_type        The transport of the request: 'xmlrpc' or 'rest'.
@@ -991,7 +991,7 @@ class Manager {
 	/**
 	 * Fetch the site's own record from the WordPress.com `/sites/%d` endpoint.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.10.0
 	 *
 	 * @return object|WP_Error The decoded site record, or an error describing the failure.
 	 */
@@ -1050,7 +1050,7 @@ class Manager {
 		 * The record is passed as an array rather than the object this method returns, so that a
 		 * listener cannot mutate the instance that becomes the REST response.
 		 *
-		 * @since $$next-version$$
+		 * @since 8.10.0
 		 *
 		 * @param array $record The decoded site record from the WordPress.com `/sites/%d` endpoint.
 		 */

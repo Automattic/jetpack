@@ -453,7 +453,7 @@ class Error_Handler {
 	 *   the default admin notice only. Only used when the notice shows this error's
 	 *   default message (a filtered message keeps full control of the copy).
 	 *
-	 * @since $$next-version$$
+	 * @since 8.10.0
 	 *
 	 * @param string $error_code The error code.
 	 * @return array|null Display configuration, or null for the default presentation.
@@ -487,7 +487,7 @@ class Error_Handler {
 	 * HTTP status the site returned) and the resolution steps, so the message only
 	 * names the condition and points there.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.10.0
 	 *
 	 * @param array $error The stored error array (unused; part of the message_callback contract).
 	 * @return string The message.
@@ -1281,7 +1281,7 @@ class Error_Handler {
 	 * condition is gone (e.g. a passing connection test clearing
 	 * `xmlrpc_request_blocked`) without touching unrelated errors.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.10.0
 	 *
 	 * @param string $error_code The error code to delete.
 	 * @return bool True if any stored or verified error was deleted.
@@ -1469,7 +1469,7 @@ class Error_Handler {
 		 * Return an empty value to disable the message.
 		 *
 		 * @since 8.9.0
-		 * @since $$next-version$$ The default message is no longer always empty.
+		 * @since 8.10.0 The default message is no longer always empty.
 		 *
 		 * @param string $message The error message.
 		 * @param array  $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.

@@ -57,7 +57,7 @@ class Site_Health {
 	 * the error would only update on Site Health page visits and Core's weekly
 	 * Site Health cron, and would expire (ERROR_LIFE_TIME) while still unresolved.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.10.0
 	 */
 	public static function do_daily_connection_check() {
 		if ( ! ( new Manager() )->is_connected() ) {
