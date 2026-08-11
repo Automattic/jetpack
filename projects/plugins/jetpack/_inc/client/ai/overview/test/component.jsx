@@ -127,8 +127,13 @@ describe( 'AiOverview', () => {
 		render( <AiOverview { ...PROPS } blogId={ 0 } /> );
 
 		await expect(
-			screen.findByText( 'Connect this site to WordPress.com to see your AI usage.', IGNORE_A11Y )
+			screen.findByText( 'Jetpack is not connected to WordPress.com.', IGNORE_A11Y )
 		).resolves.toBeInTheDocument();
+		// Same next step the Features view offers, so the two tabs agree.
+		expect( screen.getByRole( 'link', { name: 'Connect Jetpack' } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=my-jetpack#/connection'
+		);
 		expect( apiFetch ).not.toHaveBeenCalled();
 		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 		// The rest of the tab is still useful while disconnected.

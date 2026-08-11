@@ -9,7 +9,7 @@ import { Button, ExternalLink, ProgressBar, Spinner } from '@wordpress/component
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
-import { Card, Notice, Stack, Text } from '@wordpress/ui';
+import { Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import NavRow from '../components/nav-row';
 import buildPageThumb from './images/build-page.png';
 import connectClaudeThumb from './images/connect-claude.png';
@@ -196,8 +196,14 @@ export default function AiOverview( { blogId, activityLogUrl, upgradeUrl } ) {
 				<Card.Root>
 					<Card.Content>
 						<Notice.Root intent="warning">
+							<Notice.Title>
+								{ __( 'Jetpack is not connected to WordPress.com.', 'jetpack' ) }
+							</Notice.Title>
 							<Notice.Description>
-								{ __( 'Connect this site to WordPress.com to see your AI usage.', 'jetpack' ) }
+								{ __( 'Connect the site to see your AI usage.', 'jetpack' ) }{ ' ' }
+								<Link href="admin.php?page=my-jetpack#/connection">
+									{ __( 'Connect Jetpack', 'jetpack' ) }
+								</Link>
 							</Notice.Description>
 						</Notice.Root>
 					</Card.Content>
