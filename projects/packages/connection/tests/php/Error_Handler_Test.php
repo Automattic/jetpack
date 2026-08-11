@@ -1472,6 +1472,7 @@ class Error_Handler_Test extends BaseTestCase {
 			array(
 				'user_id'          => 0,
 				'site_http_status' => $site_http_status,
+				'action'           => 'none',
 			)
 		);
 	}
@@ -1513,10 +1514,9 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$error = $displayable_errors['xmlrpc_request_blocked']['0'];
 
-		// The message names the real cause with the HTTP status, warns that
-		// reconnecting won't help, and points at Site Health for re-verification.
-		$this->assertStringContainsString( '403', $error['error_message'] );
-		$this->assertStringContainsString( 'Reconnecting will not fix this', $error['error_message'] );
+		// The message is deliberately brief — Site Health carries the detailed
+		// diagnosis — but names the condition and points there.
+		$this->assertStringContainsString( 'blocked', $error['error_message'] );
 		$this->assertStringContainsString( 'Site Health', $error['error_message'] );
 
 		// No reconnect CTA.
@@ -1527,18 +1527,126 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test the blocked-request message omits the HTTP status when it is unknown.
+	 * Test the admin notice appends a Site Health link to the default blocked-request message.
 	 */
-	public function test_displayable_errors_blocked_request_without_status() {
+	public function test_generic_admin_notice_appends_site_health_link() {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
-		$this->error_handler->report_error( $this->get_blocked_request_error( 0 ), false, true );
+		$this->error_handler->report_error( $this->get_blocked_request_error( 403 ), false, true );
 
-		$displayable_errors = $this->error_handler->get_displayable_errors();
-		$error              = $displayable_errors['xmlrpc_request_blocked']['0'];
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin_link_test',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		wp_get_current_user()->add_cap( 'jetpack_connect' );
 
-		$this->assertStringNotContainsString( 'HTTP', $error['error_message'] );
-		$this->assertStringContainsString( 'blocked', $error['error_message'] );
+		ob_start();
+		$this->error_handler->generic_admin_notice_error();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'site-health.php', $output );
+		$this->assertStringContainsString( 'Visit Site Health', $output );
+	}
+
+	/**
+	 * Test the admin notice omits the action link when a filter overrides the message.
+	 */
+	public function test_generic_admin_notice_no_link_when_message_filtered() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->report_error( $this->get_blocked_request_error( 403 ), false, true );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin_filtered_test',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		wp_get_current_user()->add_cap( 'jetpack_connect' );
+
+		add_filter(
+			'jetpack_connection_error_notice_message',
+			static function () {
+				return 'Custom consumer message.';
+			}
+		);
+
+		ob_start();
+		$this->error_handler->generic_admin_notice_error();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Custom consumer message.', $output );
+		$this->assertStringNotContainsString( 'site-health.php', $output );
+	}
+
+	/**
+	 * Test delete_error_by_code reopens the reporting gate so a recurrence is reportable immediately.
+	 */
+	public function test_delete_error_by_code_clears_reporting_gate() {
+		// No gate bypass here on purpose: the gate is the subject of the test.
+		$this->error_handler->report_error( $this->get_blocked_request_error( 403 ), false, true );
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', $this->error_handler->get_verified_errors() );
+
+		$this->error_handler->delete_error_by_code( 'xmlrpc_request_blocked' );
+		$this->assertArrayNotHasKey( 'xmlrpc_request_blocked', $this->error_handler->get_verified_errors() );
+
+		// With the gate still closed this second report would be suppressed.
+		$this->error_handler->report_error( $this->get_blocked_request_error( 403 ), false, true );
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', $this->error_handler->get_verified_errors() );
+	}
+
+	/**
+	 * Test the admin notice survives a consumer filter injecting a non-array under an error code.
+	 */
+	public function test_generic_admin_notice_survives_non_array_user_errors() {
+		// Platform-gated consumers (WoA/VIP/Newspack) can reshape the displayable
+		// errors; simulate one injecting a malformed entry.
+		$handler = new class() extends Error_Handler {
+			/**
+			 * Public constructor bypassing the singleton's hook registration.
+			 */
+			public function __construct() {
+			}
+
+			/**
+			 * Pretend we are on a platform where error filtering is allowed.
+			 *
+			 * @return bool
+			 */
+			protected function should_allow_error_filtering() {
+				return true;
+			}
+		};
+
+		add_filter(
+			'jetpack_connection_get_verified_errors',
+			static function () {
+				return array( 'xmlrpc_request_blocked' => 'not-an-array' );
+			}
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin_malformed_test',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		wp_get_current_user()->add_cap( 'jetpack_connect' );
+
+		ob_start();
+		$handler->generic_admin_notice_error();
+		$output = ob_get_clean();
+
+		// No fatal, and no default message could be derived from the malformed entry.
+		$this->assertSame( '', $output );
 	}
 
 	/**

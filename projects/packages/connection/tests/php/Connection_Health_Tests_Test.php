@@ -617,6 +617,8 @@ class Connection_Health_Tests_Test extends TestCase {
 		$this->assertSame( Error_Handler::ERROR_TYPE_LOCAL_STATE, $error['error_type'] );
 		$this->assertSame( '', $error['error_direction'] );
 		$this->assertSame( 403, $error['error_data']['site_http_status'] );
+		// The reporter declares the remedy with the error: no reconnect CTA.
+		$this->assertSame( 'none', $error['error_data']['action'] );
 	}
 
 	/**
@@ -638,6 +640,34 @@ class Connection_Health_Tests_Test extends TestCase {
 
 		$this->assertArrayNotHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
 		$this->assertArrayNotHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_stored_errors() );
+	}
+
+	/**
+	 * Test a definitive non-blocked failure clears a previously reported blocked error.
+	 *
+	 * WP.com ran its test and reported something other than a blockage, so a
+	 * lingering blocked error (with its "don't reconnect" advice) is stale.
+	 */
+	public function test_wpcom_connection_test_other_failure_clears_blocked_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'        => false,
+				'error_code'       => 'xmlrpc_request_blocked',
+				'site_http_status' => 403,
+			)
+		);
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+
+		$this->evaluate_response(
+			array(
+				'connected' => false,
+				'message'   => 'Invalid token.',
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
 	}
 
 	/**

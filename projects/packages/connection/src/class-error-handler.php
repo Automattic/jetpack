@@ -343,13 +343,8 @@ class Error_Handler {
 					$action  = null;
 
 					$display_config = $this->get_error_display_config( $error_code );
-					if ( $display_config ) {
-						if ( isset( $display_config['message_callback'] ) ) {
-							$message = call_user_func( $display_config['message_callback'], $error );
-						}
-						if ( isset( $display_config['action'] ) ) {
-							$action = $display_config['action'];
-						}
+					if ( $display_config && isset( $display_config['message_callback'] ) ) {
+						$message = call_user_func( $display_config['message_callback'], $error );
 					}
 
 					// A secondary admin looking at the connection owner's token error, on a
@@ -441,14 +436,22 @@ class Error_Handler {
 	 * special error code means adding one entry here — no branching in the display or
 	 * notice paths.
 	 *
+	 * Everything here is display-time state that cannot be stored with the error:
+	 * copy must resolve in each viewer's locale and follow current code, and the
+	 * notice flags describe how this package renders, not the error itself. The
+	 * error's *action* is deliberately NOT configured here — reporters declare it
+	 * at creation time in `error_data['action']` (see `wp_error_to_array()`), since
+	 * it is a stable machine token.
+	 *
 	 * Recognized keys, all optional:
 	 * - `message_callback` (callable): receives the stored error array, returns the
 	 *   displayable message. Omit to keep the generic reconnect copy.
-	 * - `action` (string): value for `error_data['action']`, e.g. 'none' to suppress
-	 *   the reconnect CTA. Omit to keep the default reconnect behavior.
 	 * - `default_admin_notice` (bool): when true, generic_admin_notice_error() shows
 	 *   this error's message even when no consumer supplies one via the
 	 *   `jetpack_connection_error_notice_message` filter (which still overrides).
+	 * - `notice_link` (array): presentational `label` and `url` for a link appended to
+	 *   the default admin notice only. Only used when the notice shows this error's
+	 *   default message (a filtered message keeps full control of the copy).
 	 *
 	 * @since $$next-version$$
 	 *
@@ -462,11 +465,15 @@ class Error_Handler {
 			// a reconnect would be rejected the same way: suppress the reconnect CTA
 			// and surface the real cause. Ships a default admin notice because this
 			// error is invisible to every other detection path — WP.com's requests
-			// never reach the site.
+			// never reach the site. The message stays brief on purpose: Site Health
+			// is the source of truth with the detailed diagnosis and resolution steps.
 			'xmlrpc_request_blocked' => array(
 				'message_callback'     => array( $this, 'get_blocked_request_message' ),
-				'action'               => 'none',
 				'default_admin_notice' => true,
+				'notice_link'          => array(
+					'label' => __( 'Visit Site Health', 'jetpack-connection' ),
+					'url'   => admin_url( 'site-health.php' ),
+				),
 			),
 		);
 
@@ -476,23 +483,17 @@ class Error_Handler {
 	/**
 	 * Builds the displayable message for the blocked-request error.
 	 *
+	 * Deliberately brief: Site Health holds the detailed diagnosis (including the
+	 * HTTP status the site returned) and the resolution steps, so the message only
+	 * names the condition and points there.
+	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $error The stored error array.
+	 * @param array $error The stored error array (unused; part of the message_callback contract).
 	 * @return string The message.
 	 */
-	private function get_blocked_request_message( $error ) {
-		$site_http_status = isset( $error['error_data']['site_http_status'] ) ? (int) $error['error_data']['site_http_status'] : 0;
-
-		if ( $site_http_status ) {
-			return sprintf(
-				/* translators: %d is the HTTP status code (e.g. 403) the site returned to WordPress.com. */
-				__( 'WordPress.com is unable to communicate with your site: requests are being blocked (HTTP %d), usually by a firewall, security plugin, or server rule. Reconnecting will not fix this. Ask your host to allow requests from WordPress.com to your site\'s xmlrpc.php file, then confirm the fix on your site\'s Site Health page.', 'jetpack-connection' ),
-				$site_http_status
-			);
-		}
-
-		return __( 'WordPress.com is unable to communicate with your site: requests are being blocked, usually by a firewall, security plugin, or server rule. Reconnecting will not fix this. Ask your host to allow requests from WordPress.com to your site\'s xmlrpc.php file, then confirm the fix on your site\'s Site Health page.', 'jetpack-connection' );
+	private function get_blocked_request_message( $error ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return __( 'WordPress.com requests to your site are being blocked, usually by a firewall or security rule. See Site Health for details and next steps.', 'jetpack-connection' );
 	}
 
 	/**
@@ -1007,6 +1008,13 @@ class Error_Handler {
 			$error_data['site_http_status'] = (int) $data['site_http_status'];
 		}
 
+		// The display action declared by the reporter at creation time, e.g. 'none'
+		// to suppress the reconnect CTA. Only our own reporters set this (it is never
+		// derived from request data); readers treat a missing action as 'reconnect'.
+		if ( isset( $data['action'] ) && is_string( $data['action'] ) ) {
+			$error_data['action'] = $data['action'];
+		}
+
 		return $this->build_error_array(
 			$error->get_error_code(),
 			$error->get_error_message(),
@@ -1281,6 +1289,11 @@ class Error_Handler {
 	public function delete_error_by_code( $error_code ) {
 		$deleted = false;
 
+		// Reopen the reporting gate for this code: deletion means the condition was
+		// positively confirmed cleared, so a recurrence must be reportable immediately
+		// rather than suppressed for up to an hour.
+		delete_transient( self::ERROR_REPORTING_GATE . $error_code );
+
 		$stored_errors = $this->get_stored_errors();
 		if ( isset( $stored_errors[ $error_code ] ) ) {
 			unset( $stored_errors[ $error_code ] );
@@ -1428,14 +1441,21 @@ class Error_Handler {
 		// display config sets `default_admin_notice` provide their own message and
 		// do not depend on a consumer supplying one.
 		$default_message = '';
+		$notice_link     = null;
 		foreach ( $displayable_errors as $error_code => $user_errors ) {
 			$display_config = $this->get_error_display_config( $error_code );
 			if ( empty( $display_config['default_admin_notice'] ) ) {
 				continue;
 			}
+			// On selected hosting platforms the displayable errors pass through a
+			// consumer filter, so the shape is not guaranteed.
+			if ( ! is_array( $user_errors ) ) {
+				continue;
+			}
 			$first_error = reset( $user_errors );
 			if ( is_array( $first_error ) && ! empty( $first_error['error_message'] ) ) {
 				$default_message = $first_error['error_message'];
+				$notice_link     = $display_config['notice_link'] ?? null;
 				break;
 			}
 		}
@@ -1471,8 +1491,20 @@ class Error_Handler {
 			return;
 		}
 
+		$notice_content = esc_html( $message );
+
+		// Append the link only when the notice is showing the unmodified default
+		// message — a filtered message keeps full control of the copy.
+		if ( $notice_link && $message === $default_message && ! empty( $notice_link['url'] ) && ! empty( $notice_link['label'] ) ) {
+			$notice_content .= sprintf(
+				' <a href="%1$s">%2$s</a>',
+				esc_url( $notice_link['url'] ),
+				esc_html( $notice_link['label'] )
+			);
+		}
+
 		wp_admin_notice(
-			esc_html( $message ),
+			$notice_content,
 			array(
 				'type'               => 'error',
 				'dismissible'        => true,

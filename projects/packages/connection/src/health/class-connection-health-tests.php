@@ -514,6 +514,9 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 					array(
 						'user_id'          => 0,
 						'site_http_status' => $site_http_status,
+						// Reconnecting would be rejected by the same rule that blocks WP.com,
+						// so the error carries its remedy: no reconnect CTA on any surface.
+						'action'           => 'none',
 					)
 				),
 				false,
@@ -522,6 +525,11 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 
 			return $this->blocked_request_failing_test( $name, $site_http_status );
 		}
+
+		// WP.com answered with a definitive, non-blocked failure: its test ran and
+		// did not report the request as blocked, so a lingering blocked error is
+		// stale — and its "don't reconnect" advice would be wrong for this failure.
+		Error_Handler::get_instance()->delete_error_by_code( 'xmlrpc_request_blocked' );
 
 		$message = isset( $result->message ) && '' !== $result->message
 			? $result->message

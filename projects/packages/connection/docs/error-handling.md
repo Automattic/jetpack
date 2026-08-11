@@ -101,7 +101,12 @@ Storage limits and hygiene:
 
 Verified, displayable errors are surfaced on admin pages through `handle_verified_errors()`: a generic admin notice, and an entry in the React dashboard's initial state. Only a subset of error codes is user-displayable (see `get_displayable_errors()`), and each displayable error is classified by audience — `site` (blog token), `owner` (the connection owner's token), or `user` (another user's token) — so consumers can render viewer-appropriate copy.
 
-Most displayable errors share a default presentation: generic "please reconnect" copy with a reconnect CTA. Error codes that need to deviate — different copy, a suppressed CTA, or a default admin notice — are declared in the `get_error_display_config()` table inside `Error_Handler`, so adding a special code is one entry rather than new branches in the display paths. Copy is always resolved at display time (never stored with the error), so messages follow the viewer's locale and stay current across package updates. Currently `xmlrpc_request_blocked` is the only entry: reconnecting would be rejected by the same firewall rule that broke the connection, so its message names the real cause, suppresses the reconnect CTA, and directs the user to Site Health.
+Most displayable errors share a default presentation: generic "please reconnect" copy with a reconnect CTA. Deviations split by their nature:
+
+* **The action** is declared by the *reporter* at creation time, stored in `error_data['action']` (e.g. `'none'` to suppress the reconnect CTA — readers treat a missing action as `'reconnect'`). It's a stable, locale-independent machine token, so storing it is safe, and this matches how consumer-injected errors already carry their actions (see `build_action_error_data()`).
+* **Display-time state** — custom copy, a default admin notice, or an action link on that notice — is declared in the `get_error_display_config()` table inside `Error_Handler`. Copy cannot be stored with the error: it must resolve in each viewer's locale (errors are often reported from cron, where there is no viewer) and follow current code rather than what was stored up to a day ago.
+
+Currently `xmlrpc_request_blocked` is the only special code: reconnecting would be rejected by the same firewall rule that broke the connection, so its reporter stores `action => 'none'`, and its (deliberately brief) display message names the real cause and points at Site Health — the source of truth with the detailed diagnosis — which the admin notice also links to.
 
 ### Enabling the error message
 
