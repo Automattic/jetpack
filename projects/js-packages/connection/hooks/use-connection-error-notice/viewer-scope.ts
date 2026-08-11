@@ -24,12 +24,14 @@ export function isOtherUsersConnectionError(
 	error: ConnectionErrorObject | undefined,
 	currentUserId: number | undefined
 ): boolean {
-	if ( error?.audience !== 'user' || currentUserId === undefined ) {
+	if ( error?.audience !== 'user' || currentUserId === undefined || ! error.user_id ) {
 		return false;
 	}
 
 	// `user_id` arrives as a string from the REST payload, the viewer's ID as a
-	// number, so the comparison has to coerce.
+	// number, so the comparison has to coerce. The `!error.user_id` check above
+	// rules out `undefined` and `''` before this runs, so an empty string can't
+	// coerce to `0` and collide with a real user ID.
 	const errorUserId = Number( error.user_id );
 
 	return Number.isFinite( errorUserId ) && errorUserId !== Number( currentUserId );

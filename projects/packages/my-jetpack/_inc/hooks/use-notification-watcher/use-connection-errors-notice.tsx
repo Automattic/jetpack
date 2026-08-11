@@ -137,9 +137,18 @@ const useConnectionErrorsNotice = (
 
 		// Report the error the CTA belongs to rather than whichever came first in the
 		// map — unless that error is one we filtered out, in which case reporting it
-		// would describe something the viewer was never shown.
+		// would describe something the viewer was never shown. Matched by error code
+		// + user ID (the store's own keying) rather than object identity, since
+		// `errorList` isn't guaranteed to hold the same references `connectionError`
+		// came from.
+		const trackedErrorKey = `${ connectionError?.error_code }:${ connectionError?.user_id ?? '' }`;
 		const trackedError =
-			connectionError && errorList.includes( connectionError ) ? connectionError : errorList[ 0 ];
+			connectionError &&
+			errorList.some(
+				error => `${ error.error_code }:${ error.user_id ?? '' }` === trackedErrorKey
+			)
+				? connectionError
+				: errorList[ 0 ];
 
 		const noticeOptions: NoticeOptions = {
 			id: 'connection-error-notice',
