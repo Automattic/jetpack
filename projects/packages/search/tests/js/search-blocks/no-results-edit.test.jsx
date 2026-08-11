@@ -46,8 +46,7 @@ jest.mock( '@wordpress/i18n', () => ( {
 
 let mockInnerBlockCount = 0;
 jest.mock( '@wordpress/data', () => ( {
-	useSelect: callback =>
-		callback( () => ( { getBlocks: () => new Array( mockInnerBlockCount ) } ) ),
+	useSelect: callback => callback( () => ( { getBlockCount: () => mockInnerBlockCount } ) ),
 } ) );
 
 const UNFILTERED_DEFAULT = 'No results found. Try a different search.';

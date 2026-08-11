@@ -19,6 +19,7 @@ import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { Button, PanelBody, RadioControl, TextControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { noResultsDefaultMessages } from '../default-messages';
 
 // `product` is WC-only. On non-Woo sites it's pruned from the picker and a
 // saved `product` value collapses to `expanded` — the renderer applies the
@@ -170,33 +171,50 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 	// can see what scope is in effect and jump straight to the parent's panel
 	// to change it. Single source of truth — the attribute lives on the parent;
 	// this is read-only + a navigation affordance.
-	const { parentScopeBlockId, parentScopeAttributes, noResultsBlockId } = useSelect(
-		select => {
-			const blockEditor = select( 'core/block-editor' );
-			const parents = blockEditor.getBlockParentsByBlockName(
-				clientId,
-				'jetpack-search/search-results',
-				true
-			);
-			const parentId = parents[ 0 ];
-			if ( ! parentId ) {
+	// `noResultsCoverage` mirrors the per-filter-state seeding in
+	// `no-results/render.php`: a field is only dead once a block actually
+	// covers that state, so a lone block scoped to "Filters are active" leaves
+	// the unfiltered field editable — it is still what renders.
+	const { parentScopeBlockId, parentScopeAttributes, noResultsBlockId, noResultsCoverage } =
+		useSelect(
+			select => {
+				const blockEditor = select( 'core/block-editor' );
+				const parents = blockEditor.getBlockParentsByBlockName(
+					clientId,
+					'jetpack-search/search-results',
+					true
+				);
+				const parentId = parents[ 0 ];
+				if ( ! parentId ) {
+					return {
+						parentScopeBlockId: null,
+						parentScopeAttributes: null,
+						noResultsBlockId: null,
+						noResultsCoverage: { unfiltered: false, filtered: false },
+					};
+				}
+				const noResultsIds = blockEditor
+					.getClientIdsOfDescendants( [ parentId ] )
+					.filter( id => blockEditor.getBlockName( id ) === 'jetpack-search/no-results' );
+				const coverage = { unfiltered: false, filtered: false };
+				noResultsIds.forEach( id => {
+					const filterState = blockEditor.getBlockAttributes( id )?.filterState;
+					if ( filterState !== 'filtered' ) {
+						coverage.unfiltered = true;
+					}
+					if ( filterState !== 'unfiltered' ) {
+						coverage.filtered = true;
+					}
+				} );
 				return {
-					parentScopeBlockId: null,
-					parentScopeAttributes: null,
-					noResultsBlockId: null,
+					parentScopeBlockId: parentId,
+					parentScopeAttributes: blockEditor.getBlockAttributes( parentId ),
+					noResultsBlockId: noResultsIds[ 0 ] ?? null,
+					noResultsCoverage: coverage,
 				};
-			}
-			return {
-				parentScopeBlockId: parentId,
-				parentScopeAttributes: blockEditor.getBlockAttributes( parentId ),
-				noResultsBlockId:
-					blockEditor
-						.getClientIdsOfDescendants( [ parentId ] )
-						.find( id => blockEditor.getBlockName( id ) === 'jetpack-search/no-results' ) ?? null,
-			};
-		},
-		[ clientId ]
-	);
+			},
+			[ clientId ]
+		);
 	const { selectBlock } = useDispatch( 'core/block-editor' );
 	const stored = attributes?.layout ?? DEFAULT_LAYOUT;
 	// Pre-rename block markup used `card` for what the picker now calls
@@ -210,11 +228,7 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 	} );
 	// Defaults mirror render.php so the inspector placeholder matches what
 	// visitors actually see when the field is left empty.
-	const noResultsDefault = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
-	const noResultsWithFiltersDefault = __(
-		'No results match these filters. Try clearing some, or searching for something else.',
-		'jetpack-search-pkg'
-	);
+	const noResultsDefaults = noResultsDefaultMessages();
 	const errorDefault = __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' );
 	return (
 		<>
@@ -226,11 +240,39 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 						options={ LAYOUT_OPTIONS() }
 						onChange={ value => setAttributes( { layout: value } ) }
 					/>
-					{ noResultsBlockId ? (
+					{ ! noResultsCoverage.unfiltered && (
+						<TextControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'No-results message', 'jetpack-search-pkg' ) }
+							value={ attributes?.noResultsMessage || '' }
+							placeholder={ noResultsDefaults.unfiltered }
+							onChange={ value => setAttributes( { noResultsMessage: value } ) }
+							help={ __(
+								'Shown when a search returns nothing. Leave empty for the default.',
+								'jetpack-search-pkg'
+							) }
+						/>
+					) }
+					{ ! noResultsCoverage.filtered && (
+						<TextControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'No-results message (when filters are active)', 'jetpack-search-pkg' ) }
+							value={ attributes?.noResultsWithFiltersMessage || '' }
+							placeholder={ noResultsDefaults.filtered }
+							onChange={ value => setAttributes( { noResultsWithFiltersMessage: value } ) }
+							help={ __(
+								'Shown when active filters return zero results. Leave empty for the default.',
+								'jetpack-search-pkg'
+							) }
+						/>
+					) }
+					{ noResultsBlockId && (
 						<>
 							<p className="components-base-control__help">
 								{ __(
-									'The empty state is handled by the No Results block, which accepts any content — links, images, buttons.',
+									'The No Results block handles the empty state it covers, and accepts any content — links, images, buttons.',
 									'jetpack-search-pkg'
 								) }
 							</p>
@@ -241,33 +283,6 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 							>
 								{ __( 'Edit No Results block', 'jetpack-search-pkg' ) }
 							</Button>
-						</>
-					) : (
-						<>
-							<TextControl
-								__next40pxDefaultSize
-								__nextHasNoMarginBottom
-								label={ __( 'No-results message', 'jetpack-search-pkg' ) }
-								value={ attributes?.noResultsMessage || '' }
-								placeholder={ noResultsDefault }
-								onChange={ value => setAttributes( { noResultsMessage: value } ) }
-								help={ __(
-									'Shown when a search returns nothing. Leave empty for the default.',
-									'jetpack-search-pkg'
-								) }
-							/>
-							<TextControl
-								__next40pxDefaultSize
-								__nextHasNoMarginBottom
-								label={ __( 'No-results message (when filters are active)', 'jetpack-search-pkg' ) }
-								value={ attributes?.noResultsWithFiltersMessage || '' }
-								placeholder={ noResultsWithFiltersDefault }
-								onChange={ value => setAttributes( { noResultsWithFiltersMessage: value } ) }
-								help={ __(
-									'Shown when active filters return zero results. Leave empty for the default.',
-									'jetpack-search-pkg'
-								) }
-							/>
 						</>
 					) }
 					<TextControl

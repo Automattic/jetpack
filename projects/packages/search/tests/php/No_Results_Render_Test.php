@@ -49,6 +49,26 @@ class No_Results_Render_Test extends TestCase {
 	}
 
 	/**
+	 * Reset the Interactivity state singleton between tests. Every render here
+	 * seeds coverage flags and `wp_interactivity_state()` deep-merges, so
+	 * without a hard reset one case's coverage bleeds into the next — and into
+	 * any class that runs after this one. Same Reflection handle
+	 * `Search_Results_Render_Test` uses; `state_data` is private on WP core.
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		$interactivity = wp_interactivity();
+		$ref           = new \ReflectionClass( $interactivity );
+		if ( $ref->hasProperty( 'state_data' ) ) {
+			$prop = $ref->getProperty( 'state_data' );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$prop->setAccessible( true );
+			}
+			$prop->setValue( $interactivity, array() );
+		}
+	}
+
+	/**
 	 * Render the block via `do_blocks`.
 	 *
 	 * @param array  $attributes   Block attributes.
@@ -158,23 +178,60 @@ class No_Results_Render_Test extends TestCase {
 	}
 
 	/**
-	 * The region is `role="status"` and hidden pre-hydration so it never
-	 * paints on a page that does have results.
+	 * The region is hidden pre-hydration so it never paints on a page that
+	 * does have results.
 	 */
-	public function test_region_is_hidden_and_announced() {
+	public function test_region_is_hidden_pre_hydration() {
 		$markup = $this->render();
-		$this->assertStringContainsString( 'role="status"', $markup );
 		$this->assertStringContainsString( 'hidden', $markup );
 		$this->assertStringContainsString( 'data-wp-interactive="jetpack-search"', $markup );
 	}
 
 	/**
-	 * Rendering seeds `hasNoResultsBlock`, which is what stands down
-	 * `results-list`'s legacy message region on pages carrying this block.
+	 * An unscoped block covers both empty states, so `results-list`'s legacy
+	 * region stands down entirely.
 	 */
-	public function test_render_seeds_has_no_results_block_state() {
+	public function test_unscoped_block_seeds_coverage_for_both_filter_states() {
 		$this->render();
 		$state = wp_interactivity_state( 'jetpack-search' );
-		$this->assertTrue( $state['hasNoResultsBlock'] );
+		$this->assertTrue( $state['hasNoResultsUnfiltered'] );
+		$this->assertTrue( $state['hasNoResultsFiltered'] );
+	}
+
+	/**
+	 * A block scoped to one filter state must only claim that state. Seeding a
+	 * flat "a block exists" flag would stand the legacy region down for both,
+	 * leaving the uncovered state with no empty message at all.
+	 */
+	public function test_scoped_block_seeds_coverage_only_for_its_own_filter_state() {
+		$this->render( array( 'filterState' => 'filtered' ) );
+		$state = wp_interactivity_state( 'jetpack-search' );
+		$this->assertArrayNotHasKey( 'hasNoResultsUnfiltered', $state );
+		$this->assertTrue( $state['hasNoResultsFiltered'] );
+	}
+
+	/**
+	 * Two scoped blocks compose into full coverage — `wp_interactivity_state()`
+	 * deep-merges and nothing ever seeds `false`.
+	 */
+	public function test_two_scoped_blocks_compose_into_full_coverage() {
+		$this->render( array( 'filterState' => 'filtered' ) );
+		$this->render( array( 'filterState' => 'unfiltered' ) );
+		$state = wp_interactivity_state( 'jetpack-search' );
+		$this->assertTrue( $state['hasNoResultsUnfiltered'] );
+		$this->assertTrue( $state['hasNoResultsFiltered'] );
+	}
+
+	/**
+	 * The live region wraps the plain fallback copy only — announcing an
+	 * author's whole composition verbatim on every empty search is worse than
+	 * not announcing it, and `core/query-no-results` has no live region.
+	 */
+	public function test_live_region_is_scoped_to_the_default_copy() {
+		$this->assertStringContainsString( 'role="status"', $this->render() );
+		$this->assertStringNotContainsString(
+			'role="status"',
+			$this->render( array(), '<!-- wp:paragraph --><p>Nothing here.</p><!-- /wp:paragraph -->' )
+		);
 	}
 }

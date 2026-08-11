@@ -698,14 +698,19 @@ const { state, actions } = store( NAMESPACE, {
 
 		/**
 		 * Visibility for `results-list`'s built-in message region, which
-		 * predates the `no-results` block. `hasNoResultsBlock` is seeded by
-		 * that block's render, so a page carrying one retires the legacy
-		 * region rather than showing two empty states.
+		 * predates the `no-results` block. Each `no-results` block seeds the
+		 * filter states it covers, and the legacy region fills whatever is
+		 * left — so a page whose only block is scoped to one filter state
+		 * still shows a message in the other, and a page with full coverage
+		 * never shows two empty states at once.
 		 *
 		 * @return {boolean} True when the legacy region should show.
 		 */
 		get showLegacyNoResults() {
-			return state.showNoResults && ! state.hasNoResultsBlock;
+			if ( ! state.showNoResults ) {
+				return false;
+			}
+			return state.hasActiveFilters ? ! state.hasNoResultsFiltered : ! state.hasNoResultsUnfiltered;
 		},
 
 		/**

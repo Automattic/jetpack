@@ -1,4 +1,17 @@
 .jetpack-search-no-results {
+	margin: 0;
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+// Presentation for the copy `render.php` falls back to when the block has no
+// inner blocks, so a stock install keeps the exact look `results-list` has
+// always shipped. Authored content gets none of it — centering, a 12rem floor,
+// a 36ch measure, and dimming would all fight a Columns row, a full-width
+// image, or a deliberately placed button.
+.jetpack-search-no-results--default {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -6,16 +19,15 @@
 	text-align: center;
 	gap: 0.25rem;
 	min-height: 12rem;
-	margin: 0;
 	padding: 2rem 1rem;
-
-	&[hidden] {
-		display: none;
-	}
+	opacity: 0.6;
 
 	p {
 		max-width: 36ch;
 		margin: 0;
+		// `rem` (not `em`) so the size is anchored to the root font-size rather
+		// than the theme's body font. Mirrors `results-list`'s legacy region.
+		font-size: 0.875rem;
 		line-height: 1.5;
 
 		&[hidden] {
@@ -24,33 +36,12 @@
 	}
 }
 
-// The muted treatment applies only to the copy `render.php` falls back to when
-// the block has no inner blocks, so a stock install keeps the exact look
-// `results-list` has always shipped. Authored content renders at full strength
-// — dimming a link or button the author deliberately placed here would defeat
-// the point of the block.
-.jetpack-search-no-results--default {
-	opacity: 0.6;
-
-	p {
-		// `rem` (not `em`) so the size is anchored to the root font-size rather
-		// than the theme's body font. Mirrors `results-list`'s legacy region.
-		font-size: 0.875rem;
-	}
-}
-
 // Editor-canvas-only boundary: `render.php` never emits these classes, so the
 // rules are inert on the front end despite `style.scss` loading there too.
 .jetpack-search-no-results__editor-canvas {
 	border: 1px dashed color-mix(in sRGB, currentColor 40%, transparent);
 	border-radius: 2px;
-	// The front-end rule centers the region; in the canvas the label has to
-	// stay pinned to the top-left so it reads as a boundary marker.
-	align-items: stretch;
-	justify-content: flex-start;
-	min-height: 0;
 	padding: 0.5rem;
-	text-align: initial;
 }
 
 .jetpack-search-no-results__editor-label {
@@ -58,7 +49,7 @@
 	font-size: 0.6875rem;
 	font-weight: 600;
 	letter-spacing: 0.04em;
-	margin-bottom: 0.5rem;
+	margin-block-end: 0.5rem;
 	opacity: 0.6;
 	text-transform: uppercase;
 }
@@ -70,5 +61,6 @@
 	p {
 		font-size: 0.875rem;
 		margin-inline: auto;
+		max-width: 36ch;
 	}
 }

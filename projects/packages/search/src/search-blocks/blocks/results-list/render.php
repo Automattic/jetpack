@@ -110,9 +110,10 @@ $skeleton_count     = 'compact' === $layout ? 6 : 4;
 //
 // `trim()` so a whitespace-only attribute (e.g. an author who saved spaces)
 // still falls back to the default copy instead of rendering a blank message.
-$no_results_message = trim( (string) ( $attrs['noResultsMessage'] ?? '' ) );
+$no_results_defaults = Search_Blocks::no_results_default_messages();
+$no_results_message  = trim( (string) ( $attrs['noResultsMessage'] ?? '' ) );
 if ( '' === $no_results_message ) {
-	$no_results_message = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
+	$no_results_message = $no_results_defaults['unfiltered'];
 }
 
 // Filter-aware variant — shown when `state.hasActiveFilters` is true. Both
@@ -120,7 +121,7 @@ if ( '' === $no_results_message ) {
 // which `<p>` is visible without a store-side message-resolution branch.
 $no_results_with_filters_message = trim( (string) ( $attrs['noResultsWithFiltersMessage'] ?? '' ) );
 if ( '' === $no_results_with_filters_message ) {
-	$no_results_with_filters_message = __( 'No results match these filters. Try clearing some, or searching for something else.', 'jetpack-search-pkg' );
+	$no_results_with_filters_message = $no_results_defaults['filtered'];
 }
 
 $error_message = trim( (string) ( $attrs['errorMessage'] ?? '' ) );

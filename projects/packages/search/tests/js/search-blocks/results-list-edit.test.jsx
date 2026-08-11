@@ -84,13 +84,18 @@ let mockSearchResultsParent = null;
 let mockSearchResultsAttrs = null;
 // Client id of a sibling `no-results` block, when the results region has one.
 let mockNoResultsBlockId = null;
+// That block's `filterState`, which decides which legacy field it retires.
+let mockNoResultsFilterState = 'any';
 const mockSelectBlock = jest.fn();
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: callback =>
 		callback( () => ( {
 			getBlockParentsByBlockName: () =>
 				mockSearchResultsParent ? [ mockSearchResultsParent ] : [],
-			getBlockAttributes: () => mockSearchResultsAttrs,
+			getBlockAttributes: id =>
+				id === mockNoResultsBlockId
+					? { filterState: mockNoResultsFilterState }
+					: mockSearchResultsAttrs,
 			getClientIdsOfDescendants: () => ( mockNoResultsBlockId ? [ mockNoResultsBlockId ] : [] ),
 			getBlockName: id =>
 				id === mockNoResultsBlockId ? 'jetpack-search/no-results' : 'core/paragraph',
@@ -108,6 +113,7 @@ describe( 'ResultsListEdit', () => {
 		mockSearchResultsParent = null;
 		mockSearchResultsAttrs = null;
 		mockNoResultsBlockId = null;
+		mockNoResultsFilterState = 'any';
 		mockSelectBlock.mockClear();
 	} );
 	afterEach( () => {
@@ -218,12 +224,13 @@ describe( 'ResultsListEdit', () => {
 		} );
 	} );
 
-	// Once a No Results block is in the results region it is what renders the
-	// empty state, so leaving the legacy text fields editable would let an
-	// author type copy that never appears.
-	it( 'hands the empty-state fields off to the No Results block when one exists', () => {
+	// Once a No Results block covers an empty state it is what renders, so
+	// leaving that legacy text field editable would let an author type copy
+	// that never appears.
+	it( 'hands both empty-state fields off to an unscoped No Results block', () => {
 		mockSearchResultsParent = 'sr-1';
 		mockNoResultsBlockId = 'nr-1';
+		mockNoResultsFilterState = 'any';
 		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
 
 		expect(
@@ -238,6 +245,20 @@ describe( 'ResultsListEdit', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Edit No Results block' } ) );
 		expect( mockSelectBlock ).toHaveBeenCalledWith( 'nr-1' );
+	} );
+
+	// A block scoped to one filter state only retires that state's field —
+	// the other message is still what renders, so it has to stay editable.
+	it( 'keeps the uncovered empty-state field editable for a scoped No Results block', () => {
+		mockSearchResultsParent = 'sr-1';
+		mockNoResultsBlockId = 'nr-1';
+		mockNoResultsFilterState = 'filtered';
+		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
+
+		expect( screen.getByRole( 'textbox', { name: 'No-results message' } ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'textbox', { name: 'No-results message (when filters are active)' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the empty-state fields editable for saved content with no No Results block', () => {

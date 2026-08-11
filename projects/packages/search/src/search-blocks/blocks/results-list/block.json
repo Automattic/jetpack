@@ -2,7 +2,7 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "jetpack-search/results-list",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"title": "Results List",
 	"category": "jetpack-search",
 	"description": "Renders search results, plus the error message for the same region. The empty state comes from the No Results block. Powered by Jetpack Search.",

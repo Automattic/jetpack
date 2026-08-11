@@ -2347,6 +2347,23 @@ HTML;
 	}
 
 	/**
+	 * Default empty-state copy, keyed by whether filters are active.
+	 *
+	 * Single source for the two renderers that can emit it — the `no-results`
+	 * block's fallback and `results-list`'s legacy region — so the strings
+	 * can't drift into two near-identical translator entries that disagree.
+	 * The editor-side mirror lives in `blocks/default-messages.js`.
+	 *
+	 * @return array{unfiltered:string, filtered:string}
+	 */
+	public static function no_results_default_messages(): array {
+		return array(
+			'unfiltered' => __( 'No results found. Try a different search.', 'jetpack-search-pkg' ),
+			'filtered'   => __( 'No results match these filters. Try clearing some, or searching for something else.', 'jetpack-search-pkg' ),
+		);
+	}
+
+	/**
 	 * Whether the URL carries a search query, filter, or price range — i.e.
 	 * the JS store will fire an initial fetch on hydration. Render callbacks
 	 * use this to emit pre-hydration affordances (skeleton, "Searching…").

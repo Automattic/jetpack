@@ -15,23 +15,20 @@ import { InnerBlocks, InspectorControls, useBlockProps } from '@wordpress/block-
 import { PanelBody, RadioControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { noResultsDefaultMessages } from '../default-messages';
 
 const FILTER_STATES = [ 'any', 'unfiltered', 'filtered' ];
 
 // Mirrors the fallback copy in render.php so the canvas shows what a visitor
 // would get from an untouched block.
 const defaultMessages = filterState => {
+	const defaults = noResultsDefaultMessages();
 	const messages = [];
 	if ( filterState !== 'filtered' ) {
-		messages.push( __( 'No results found. Try a different search.', 'jetpack-search-pkg' ) );
+		messages.push( defaults.unfiltered );
 	}
 	if ( filterState !== 'unfiltered' ) {
-		messages.push(
-			__(
-				'No results match these filters. Try clearing some, or searching for something else.',
-				'jetpack-search-pkg'
-			)
-		);
+		messages.push( defaults.filtered );
 	}
 	return messages;
 };
@@ -66,7 +63,7 @@ export default function NoResultsEdit( { attributes, setAttributes, clientId } )
 	const stored = attributes?.filterState;
 	const filterState = FILTER_STATES.includes( stored ) ? stored : 'any';
 	const hasInnerBlocks = useSelect(
-		select => select( 'core/block-editor' ).getBlocks( clientId ).length > 0,
+		select => select( 'core/block-editor' ).getBlockCount( clientId ) > 0,
 		[ clientId ]
 	);
 	const blockProps = useBlockProps( {

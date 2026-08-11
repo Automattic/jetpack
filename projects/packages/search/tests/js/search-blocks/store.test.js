@@ -955,18 +955,36 @@ describe( 'store getters', () => {
 		expect( state.showNoResultsFiltered ).toBe( false );
 	} );
 
-	it( 'stands the legacy results-list message down once a no-results block is on the page', () => {
-		// `hasNoResultsBlock` is seeded server-side by the block's render, and
-		// is what keeps a page from showing two empty states at once. It is
-		// deliberately absent from the store's literal state — see AGENTS.md
-		// on seeded keys — so the getter must treat "unset" as false.
+	it( 'stands the legacy results-list message down only for states a no-results block covers', () => {
+		// The coverage flags are seeded server-side by each block's render, and
+		// are deliberately absent from the store's literal state — see AGENTS.md
+		// on seeded keys — so the getter must treat "unset" as "not covered".
 		state.results = [];
 		state.isLoading = false;
 		state.hasError = false;
-		delete state.hasNoResultsBlock;
+		state.activeFilters = {};
+		delete state.hasNoResultsUnfiltered;
+		delete state.hasNoResultsFiltered;
 		expect( state.showLegacyNoResults ).toBe( true );
 
-		state.hasNoResultsBlock = true;
+		// A block scoped to "filters active" must not retire the unfiltered
+		// message — otherwise an unfiltered empty search renders nothing at all.
+		state.hasNoResultsFiltered = true;
+		expect( state.showLegacyNoResults ).toBe( true );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.showLegacyNoResults ).toBe( false );
+
+		// Full coverage retires it in both directions.
+		state.hasNoResultsUnfiltered = true;
+		expect( state.showLegacyNoResults ).toBe( false );
+		state.activeFilters = {};
+		expect( state.showLegacyNoResults ).toBe( false );
+
+		// Never escapes the base gate.
+		state.results = [ { title: 'Existing result' } ];
+		delete state.hasNoResultsUnfiltered;
+		delete state.hasNoResultsFiltered;
 		expect( state.showLegacyNoResults ).toBe( false );
 	} );
 
