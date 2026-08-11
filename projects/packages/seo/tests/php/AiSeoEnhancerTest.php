@@ -82,4 +82,44 @@ class AiSeoEnhancerTest extends SeoTestCase {
 
 		$this->assertFalse( AI_SEO_Enhancer::is_available() );
 	}
+
+	/**
+	 * An absent option is not "switched off": the enhancer pre-dates its toggle,
+	 * so most sites have never stored a value, and hiding the editor feature on
+	 * absence would take it away from all of them. Only a deliberate off hides.
+	 */
+	public function test_is_switched_off_false_when_option_absent() {
+		delete_option( AI_SEO_Enhancer::OPTION );
+
+		$this->assertFalse( AI_SEO_Enhancer::is_switched_off() );
+	}
+
+	/**
+	 * A stored falsy value is a deliberate off. The module-settings endpoint
+	 * stores `(int) 0`.
+	 */
+	public function test_is_switched_off_true_when_option_stored_off() {
+		update_option( AI_SEO_Enhancer::OPTION, 0 );
+
+		$this->assertTrue( AI_SEO_Enhancer::is_switched_off() );
+	}
+
+	/**
+	 * The AI feature settings endpoint stores a sanitized bool, which
+	 * `update_option()` persists as an empty string — still a deliberate off.
+	 */
+	public function test_is_switched_off_true_when_option_stored_as_empty_string() {
+		update_option( AI_SEO_Enhancer::OPTION, '' );
+
+		$this->assertTrue( AI_SEO_Enhancer::is_switched_off() );
+	}
+
+	/**
+	 * A stored on is not off.
+	 */
+	public function test_is_switched_off_false_when_option_stored_on() {
+		update_option( AI_SEO_Enhancer::OPTION, 1 );
+
+		$this->assertFalse( AI_SEO_Enhancer::is_switched_off() );
+	}
 }
