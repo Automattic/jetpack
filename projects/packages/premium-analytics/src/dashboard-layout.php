@@ -361,13 +361,15 @@ function get_dashboard_default_section_layouts() {
 				1,
 				1
 			),
-			// Row 5: daily views heatmap, two rows tall to fit its 61x40 cells.
+			// Row 5: daily views heatmap. One row tall, as in the prototype: at this
+			// height it renders compact squares, so the tile's width buys years of
+			// history instead of the ~14 weeks labelled cells would fit.
 			get_dashboard_default_widget_instance(
 				'default-traffic-views-activity-widget-instance',
 				'jpa/traffic-views-activity',
 				8,
 				4,
-				2
+				1
 			),
 			// Row 6: the comment leaderboards, shares, and tags.
 			get_dashboard_default_widget_instance(

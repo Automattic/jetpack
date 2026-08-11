@@ -161,6 +161,7 @@ export {
 	defaultPeriodForInterval,
 	buildMetricTab,
 	withoutComparison,
+	compactCalendarHeatmapCapacity,
 	computeCalendarHeatmapLayout,
 	fitCompactCalendarHeatmapColumns,
 	buildDenseDaySeries,

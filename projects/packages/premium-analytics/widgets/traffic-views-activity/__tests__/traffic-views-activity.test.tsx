@@ -21,10 +21,12 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 		...actual,
 		HeatmapChartUnresponsive: ( {
 			data,
+			compact,
 			showValues,
 			renderTooltip,
 		}: {
 			data: { data: { label?: string; value: number | null }[] }[];
+			compact?: boolean;
 			showValues?: boolean;
 			renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;
 		} ) => (
@@ -37,6 +39,7 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 						.filter( cell => cell.value !== null )
 						.map( cell => `${ cell.label }:${ cell.value }` )
 						.join( '|' ) }
+					data-compact={ String( Boolean( compact ) ) }
 					data-show-values={ String( showValues ) }
 				/>
 				<div data-testid="tooltip-empty">
@@ -112,10 +115,35 @@ function chartDayValues() {
 	return screen.getByTestId( 'heatmap' ).getAttribute( 'data-day-values' );
 }
 
+// The fetch window is sized from the viewport: the tile is never wider, and the
+// grid only renders the week columns that fit.
+function setViewportWidth( width: number ) {
+	Object.defineProperty( window, 'innerWidth', { value: width, configurable: true } );
+}
+
+// jsdom reports every element as 0x0, so the tile has to be faked to reach the
+// expanded branch. Returns a restore callback.
+function stubTileSize( width: number, height: number ) {
+	const original = Element.prototype.getBoundingClientRect;
+
+	Element.prototype.getBoundingClientRect = () => ( { width, height } ) as DOMRect;
+
+	return () => {
+		Element.prototype.getBoundingClientRect = original;
+	};
+}
+
 describe( 'TrafficViewsActivityWidget', () => {
+	const originalInnerWidth = window.innerWidth;
+
 	beforeEach( () => {
 		mockUseStatsVisits.mockReset();
 		mockUseStatsVisits.mockReturnValue( visitsResult( report( [ [ '2025-06-02', 120 ] ] ) ) );
+		setViewportWidth( 1024 );
+	} );
+
+	afterEach( () => {
+		setViewportWidth( originalInnerWidth );
 	} );
 
 	describe( 'request parameters', () => {
@@ -134,15 +162,45 @@ describe( 'TrafficViewsActivityWidget', () => {
 			expect( params ).not.toHaveProperty( 'endDate' );
 		} );
 
-		it( 'caps an all-time range at the most recent year', () => {
+		it( 'caps an all-time range at the years the viewport can render', () => {
 			renderWidget( {
 				...REPORT_PARAMS,
-				from: '2021-01-01',
+				from: '2018-01-01',
+				to: '2026-08-10',
+			} as unknown as ReportParams );
+
+			// 1024px holds 76 compact columns — 532 days, rounded up to two years.
+			expect( mockUseStatsVisits.mock.calls[ 0 ][ 0 ] ).toMatchObject( {
+				from: '2024-08-09',
+				to: '2026-08-10',
+			} );
+		} );
+
+		it( 'requests more history on a wider viewport', () => {
+			setViewportWidth( 2560 );
+			renderWidget( {
+				...REPORT_PARAMS,
+				from: '2018-01-01',
+				to: '2026-08-10',
+			} as unknown as ReportParams );
+
+			// 194 compact columns fit, so four years are worth requesting.
+			expect( mockUseStatsVisits.mock.calls[ 0 ][ 0 ] ).toMatchObject( {
+				from: '2022-08-08',
+				to: '2026-08-10',
+			} );
+		} );
+
+		it( 'stops widening the window past the maximum', () => {
+			setViewportWidth( 100000 );
+			renderWidget( {
+				...REPORT_PARAMS,
+				from: '2000-01-01',
 				to: '2026-08-10',
 			} as unknown as ReportParams );
 
 			expect( mockUseStatsVisits.mock.calls[ 0 ][ 0 ] ).toMatchObject( {
-				from: '2025-08-10',
+				from: '2020-08-06',
 				to: '2026-08-10',
 			} );
 		} );
@@ -261,10 +319,31 @@ describe( 'TrafficViewsActivityWidget', () => {
 	} );
 
 	describe( 'cell presentation', () => {
-		it( 'hides values when cells are too narrow', () => {
+		it( 'renders compact squares in a tile too short for labelled cells', () => {
 			renderWidget();
 
-			expect( screen.getByTestId( 'heatmap' ) ).toHaveAttribute( 'data-show-values', 'false' );
+			// jsdom reports no height, which is below the expanded threshold.
+			expect( screen.getByTestId( 'heatmap' ) ).toHaveAttribute( 'data-compact', 'true' );
+			expect( screen.getByTestId( 'heatmap' ) ).not.toHaveAttribute( 'data-show-values', 'true' );
+		} );
+
+		it( 'labels the cells once the tile is tall enough, trimming to the columns that fit', () => {
+			const restoreTileSize = stubTileSize( 1000, 300 );
+
+			try {
+				renderWidget();
+			} finally {
+				restoreTileSize();
+			}
+
+			const heatmap = screen.getByTestId( 'heatmap' );
+
+			expect( heatmap ).toHaveAttribute( 'data-compact', 'false' );
+			expect( heatmap ).toHaveAttribute( 'data-show-values', 'true' );
+			// The 53-week window does not fit at this cell size, so the oldest
+			// columns drop instead of the cells shrinking.
+			expect( Number( heatmap.getAttribute( 'data-columns' ) ) ).toBeGreaterThan( 0 );
+			expect( Number( heatmap.getAttribute( 'data-columns' ) ) ).toBeLessThan( 53 );
 		} );
 
 		it( 'renders empty, singular, and formatted plural tooltips', () => {

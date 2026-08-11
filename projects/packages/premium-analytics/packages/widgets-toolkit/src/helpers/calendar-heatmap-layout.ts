@@ -65,6 +65,27 @@ export type FitCalendarHeatmapColumnsInput = {
 const ROW_LABEL_WIDTH = 32;
 const COMPACT_CELL_SIZE = 11;
 const COMPACT_CELL_GAP = 2;
+
+/**
+ * How many compact cells a width can hold, ignoring how many the range has.
+ *
+ * Compact is the smallest the cells ever get, so this is also the most week
+ * columns the heatmap can ever show at that width — which is what bounds how much
+ * history is worth requesting.
+ */
+export function compactCalendarHeatmapCapacity( availWidth: number ): number {
+	if ( ! isPositiveFinite( availWidth ) ) {
+		return 0;
+	}
+
+	// Each rendered column occupies a cell plus one grid gap; floor so the row of
+	// cells never exceeds the available width.
+	return Math.max(
+		0,
+		Math.floor( ( availWidth - ROW_LABEL_WIDTH ) / ( COMPACT_CELL_SIZE + COMPACT_CELL_GAP ) )
+	);
+}
+
 /**
  * How many fixed-size cells fit the width without overflowing. Returns 0 for a
  * degenerate input.
@@ -76,14 +97,11 @@ export function fitCompactCalendarHeatmapColumns( input: FitCalendarHeatmapColum
 		return 0;
 	}
 
-	const safeGap =
-		Number.isFinite( COMPACT_CELL_GAP ) && COMPACT_CELL_GAP > 0 ? COMPACT_CELL_GAP : 0;
-
-	// Each rendered column occupies a cell plus one grid gap; floor so the row of
-	// cells never exceeds the available width.
-	const fit = Math.floor( ( availWidth - ROW_LABEL_WIDTH ) / ( COMPACT_CELL_SIZE + safeGap ) );
-
-	return clamp( fit, Math.min( minColumns, dataColumns ), dataColumns );
+	return clamp(
+		compactCalendarHeatmapCapacity( availWidth ),
+		Math.min( minColumns, dataColumns ),
+		dataColumns
+	);
 }
 
 const CELL_GAP = 4;

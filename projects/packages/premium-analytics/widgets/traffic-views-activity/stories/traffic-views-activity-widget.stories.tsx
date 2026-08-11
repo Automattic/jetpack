@@ -129,14 +129,15 @@ function TrafficViewsActivityDashboardStory( dashboardArgs: WidgetDashboardWithW
 }
 
 /**
- * The widget at its production size: full width and two rows.
+ * The widget at its production size: full width and one row. Raise `widgetHeight`
+ * to 2 to see it switch from compact squares to labelled cells.
  */
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
 	render: args => <TrafficViewsActivityDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		widgetWidth: 4,
-		widgetHeight: 2,
+		widgetHeight: 1,
 		rowHeight: 200,
 	},
 	argTypes: {

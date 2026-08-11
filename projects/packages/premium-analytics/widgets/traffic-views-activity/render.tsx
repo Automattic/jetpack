@@ -9,8 +9,10 @@ import {
 	WidgetState,
 	buildCalendarHeatmapData,
 	buildDenseDaySeries,
+	compactCalendarHeatmapCapacity,
 	computeCalendarHeatmapLayout,
 	describeError,
+	fitCompactCalendarHeatmapColumns,
 	resolveCalendarHeatmapWindow,
 	useElementSize,
 	useWidgetRootContext,
@@ -33,12 +35,35 @@ type TrafficViewsActivityRenderAttributes = TrafficViewsActivityAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type TrafficViewsActivityWidgetProps = WidgetRenderProps< TrafficViewsActivityRenderAttributes >;
 
-// Avoid fetching years the widget cannot display; 366 preserves a complete leap year.
-const MAX_WINDOW_DAYS = 366;
-
 // Preserve the design's 61:40 cell ratio.
-const CELL_HEIGHT = 40;
-const CELL_ASPECT_RATIO = 61 / CELL_HEIGHT;
+const EXPANDED_CELL_HEIGHT = 40;
+const EXPANDED_ASPECT_RATIO = 61 / EXPANDED_CELL_HEIGHT;
+// Below this the tile cannot fit a row of labelled cells, so it renders the
+// chart's compact squares instead. The shipped one-row tile is deliberately here:
+// compact fits years of history across the tile, where labelled cells fit weeks.
+const EXPANDED_MIN_HEIGHT = 220;
+
+// A whole leap year, so a selected leap year never loses 1 January.
+const WINDOW_YEAR_DAYS = 366;
+// Six years fills a ~4100px-wide tile, past any display worth planning for; beyond
+// it the request grows faster than the columns it buys.
+const MAX_WINDOW_YEARS = 6;
+
+/**
+ * How many days of history are worth requesting at a given viewport width.
+ *
+ * The grid keeps its cell size and trims to the week columns that fit, so history
+ * beyond what the widest possible tile can show would be fetched and thrown away.
+ * Compact cells are the smallest, so they set that ceiling; the tile is never wider
+ * than the viewport; and the result is quantized to whole years so resizing the
+ * window cannot fire a fresh request per column gained.
+ */
+function resolveWindowDays( viewportWidth: number ): number {
+	const capacityDays = compactCalendarHeatmapCapacity( viewportWidth ) * 7;
+	const years = Math.ceil( capacityDays / WINDOW_YEAR_DAYS );
+
+	return Math.min( Math.max( years, 1 ), MAX_WINDOW_YEARS ) * WINDOW_YEAR_DAYS;
+}
 
 // Show the exact count before the date instead of the chart's default ordering.
 function renderCellTooltip( { value, cellLabel }: HeatmapTooltipData ) {
@@ -61,14 +86,16 @@ function renderCellTooltip( { value, cellLabel }: HeatmapTooltipData ) {
 function TrafficViewsActivityInner() {
 	const { reportParams } = useWidgetRootContext();
 
+	const maxWindowDays = resolveWindowDays( typeof window === 'undefined' ? 0 : window.innerWidth );
+
 	const fetchWindow = useMemo(
 		() =>
 			resolveCalendarHeatmapWindow(
 				reportParams,
-				{ maxDays: MAX_WINDOW_DAYS },
+				{ maxDays: maxWindowDays },
 				format( new Date(), 'yyyy-MM-dd' )
 			),
-		[ reportParams ]
+		[ reportParams, maxWindowDays ]
 	);
 
 	// stats/visits reads from/to; startDate/endDate are specific to stats/streak.
@@ -107,25 +134,43 @@ function TrafficViewsActivityInner() {
 
 	const [ setRef, size ] = useElementSize< HTMLDivElement >();
 
-	const layout = useMemo(
-		() =>
-			computeCalendarHeatmapLayout( {
-				availWidth: size.width,
-				availHeight: size.height,
-				dataColumns: heatmapData.length,
-				aspectRatio: CELL_ASPECT_RATIO,
-				maxCellHeight: CELL_HEIGHT,
-				// Avoid shrinking the cells for a legend this widget does not render.
-				legendHeight: 0,
-			} ),
-		[ size.width, size.height, heatmapData.length ]
-	);
+	// Height picks the cell size, width the column count. Compact renders the
+	// chart's own fixed squares (so it sizes itself); expanded is sized to the
+	// rectangle its scaled 61:40 cells fill.
+	const { columns, sizingProps } = useMemo( () => {
+		if ( size.height < EXPANDED_MIN_HEIGHT ) {
+			return {
+				columns: fitCompactCalendarHeatmapColumns( {
+					availWidth: size.width,
+					dataColumns: heatmapData.length,
+				} ),
+				sizingProps: { compact: true },
+			};
+		}
 
+		const layout = computeCalendarHeatmapLayout( {
+			availWidth: size.width,
+			availHeight: size.height,
+			dataColumns: heatmapData.length,
+			aspectRatio: EXPANDED_ASPECT_RATIO,
+			maxCellHeight: EXPANDED_CELL_HEIGHT,
+			// Avoid shrinking the cells for a legend this widget does not render.
+			legendHeight: 0,
+		} );
+
+		return {
+			columns: layout.columns,
+			sizingProps: {
+				width: layout.heatmapWidth,
+				height: layout.heatmapHeight,
+				showValues: layout.cellWidth > 30,
+			},
+		};
+	}, [ size.width, size.height, heatmapData.length ] );
+
+	// Keep the most recent weeks, dropping the oldest columns the tile can't fit.
 	// slice( -0 ) keeps the data intact until the tile has a measurable width.
-	const trimmedData = useMemo(
-		() => heatmapData.slice( -layout.columns ),
-		[ heatmapData, layout.columns ]
-	);
+	const trimmedData = useMemo( () => heatmapData.slice( -columns ), [ heatmapData, columns ] );
 
 	return (
 		<div className={ styles.root }>
@@ -155,9 +200,7 @@ function TrafficViewsActivityInner() {
 						primaryColor="var(--wp-admin-theme-color, #3858e9)"
 						withTooltips
 						renderTooltip={ renderCellTooltip }
-						showValues={ layout.cellWidth > 30 }
-						width={ layout.heatmapWidth }
-						height={ layout.heatmapHeight }
+						{ ...sizingProps }
 					/>
 				</WidgetState>
 			</div>
