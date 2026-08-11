@@ -353,12 +353,13 @@ class Results_List_Render_Test extends TestCase {
 	 * every page authored before the `no-results` block existed.
 	 */
 	public function test_deprecated_no_results_attributes_remain_registered() {
-		$block_json = json_decode(
+		$block_json = (array) json_decode(
 			(string) file_get_contents( __DIR__ . '/../../src/search-blocks/blocks/results-list/block.json' ),
 			true
 		);
-		$this->assertArrayHasKey( 'noResultsMessage', $block_json['attributes'] );
-		$this->assertArrayHasKey( 'noResultsWithFiltersMessage', $block_json['attributes'] );
+		$attributes = (array) ( $block_json['attributes'] ?? array() );
+		$this->assertArrayHasKey( 'noResultsMessage', $attributes );
+		$this->assertArrayHasKey( 'noResultsWithFiltersMessage', $attributes );
 	}
 
 	/**
