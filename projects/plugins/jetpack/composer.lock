@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9120e03940796025cccc1323fc8b0f81",
+    "content-hash": "55f0e4bd5dbe25f4710a9791bcac00ef",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -1035,16 +1035,16 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "v8.9.0",
+            "version": "v8.9.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-connection.git",
-                "reference": "7ae1107bd529a750aa244bf0054ce68d996e3e5c"
+                "reference": "15f7dddf776b8b76b667ca783e6346fae9fcab42"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/7ae1107bd529a750aa244bf0054ce68d996e3e5c",
-                "reference": "7ae1107bd529a750aa244bf0054ce68d996e3e5c",
+                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/15f7dddf776b8b76b667ca783e6346fae9fcab42",
+                "reference": "15f7dddf776b8b76b667ca783e6346fae9fcab42",
                 "shasum": ""
             },
             "require": {
@@ -1105,9 +1105,9 @@
             ],
             "description": "Everything needed to connect to the Jetpack infrastructure",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-connection/tree/v8.9.0"
+                "source": "https://github.com/Automattic/jetpack-connection/tree/v8.9.0.1"
             },
-            "time": "2026-08-06T11:32:59+00:00"
+            "time": "2026-08-11T12:43:27+00:00"
         },
         {
             "name": "automattic/jetpack-constants",
