@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.1.1 - 2026-08-11
+### Bug fixes
+- Error Handler: Prevent a fatal error when a request runs during a plugin update and an older version of the Error_Handler class is already loaded.
+
 ## 16.1 - 2026-08-10
 ### Enhancements
 - Account Protection: Add additional context to Verify your identity page to reduce user confusion. [#50338]
