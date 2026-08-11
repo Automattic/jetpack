@@ -894,7 +894,8 @@
 		.grunion-field-select-wrap,
 		.grunion-field-file-wrap,
 		.grunion-field-phone-wrap,
-		.grunion-field-slider-wrap
+		.grunion-field-slider-wrap,
+		.grunion-field-rating-wrap
 	) {
 		position: relative;
 		display: flex;
@@ -1254,7 +1255,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 /* fields with multiple options */
-.wp-block-jetpack-contact-form:not(.is-style-outlined) .jetpack-field-multiple__fieldset {
+.wp-block-jetpack-contact-form .jetpack-field-multiple__fieldset {
 	padding: 8px 0 0 0;
 	border: 0;
 	margin: 0;

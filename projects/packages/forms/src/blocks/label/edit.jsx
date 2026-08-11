@@ -28,8 +28,10 @@ const OPTIONS_FIELDS = [ 'jetpack/field-radio', 'jetpack/field-checkbox-multiple
 
 // Field blocks whose input is not a single text-like box, so an inset
 // (notched/animated) label would overlap the control rather than sit in it.
-// Keep in sync with Contact_Form_Field::TYPES_WITHOUT_INSET_LABEL.
-const FIELDS_WITHOUT_INSET_LABEL = [ 'jetpack/field-slider' ];
+// The slider's front-end counterpart is Contact_Form_Field::TYPES_WITHOUT_INSET_LABEL.
+// The rating field needs no entry there: it renders its label as a legend via
+// render_legend_as_label() and never reaches render_label().
+const FIELDS_WITHOUT_INSET_LABEL = [ 'jetpack/field-slider', 'jetpack/field-rating' ];
 
 // Stable reference for "no input block found", so useSelect's shallow comparison
 // does not see a new object on every store change.
@@ -117,9 +119,10 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 
 	const { inputBlock, parentName } = useFieldContext( clientId );
 
-	// The slider is not a text-like input: it has no empty state to rest in and its
-	// range input is nested inside a wrapper, so an inset (notched/animated) label
-	// would sit on top of the track instead of animating. Keep the default label.
+	// Neither field is a text-like input: the slider has no empty state to rest in
+	// and its range input is nested inside a wrapper, and the rating field is a group
+	// of radio inputs. An inset (notched/animated) label would sit on top of the
+	// control instead of animating, so keep the default label.
 	// 'below' renders the label outside the field, so it still applies.
 	const hasInsetLabel = ! FIELDS_WITHOUT_INSET_LABEL.includes( parentName );
 
