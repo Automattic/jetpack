@@ -9,9 +9,6 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * @covers \Automattic\Jetpack\SEO\AI_SEO_Enhancer
@@ -130,48 +127,14 @@ class AiSeoEnhancerTest extends SeoTestCase {
 	}
 
 	/**
-	 * WordPress.com Simple no-regression guarantee: adding the module term must
-	 * not take the enhancer away from Simple sites, which do not run the
-	 * seo-tools module through Jetpack's module machinery at all.
+	 * The module term is inert on WordPress.com Simple, because
+	 * `Modules::is_active()` returns true unconditionally when `IS_WPCOM` is
+	 * defined — so adding it cannot take the enhancer away from Simple sites.
 	 *
-	 * `Modules::is_active()` returns true unconditionally when the real
-	 * `IS_WPCOM` constant is defined, so the module term is inert there. That
-	 * constant can't be defined for a single test in-process (it would leak into
-	 * every later test in the run and turn *every* module on), so this runs in
-	 * an isolated process with the constant genuinely defined — the same read
-	 * path production takes on Simple.
-	 *
-	 * The annotations are kept alongside the attributes on purpose: the
-	 * attributes are what PHPUnit 10+ reads, the annotations are what the
-	 * PHPUnit 8/9 configurations this package still ships read. Losing the
-	 * isolation would silently define `IS_WPCOM` for the rest of the run.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
+	 * Not covered here: exercising it needs the real constant defined, which
+	 * only works in an isolated process, and this package's SQLite bootstrap
+	 * emits deprecations there on PHP 8.5 that PHPUnit reports as an error. The
+	 * user-visible half of the guarantee is covered plugin-side instead, by
+	 * Jetpack_AI_Sidebar_Test::test_preview_stays_open_on_simple_even_with_every_toggle_off.
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_module_term_is_inert_on_wordpress_com_simple() {
-		define( 'IS_WPCOM', true );
-
-		self::set_plan( 'jetpack_business' );
-		self::set_seo_tools_active( false );
-
-		$this->assertTrue( AI_SEO_Enhancer::is_available() );
-	}
-
-	/**
-	 * Guards the isolation the test above depends on: a dropped
-	 * `#[RunInSeparateProcess]` shows up here as a failure rather than as
-	 * `IS_WPCOM` quietly switching every module on for the rest of the run.
-	 *
-	 * Ordered by `@depends` rather than by declaration order, so the guard still
-	 * runs after its subject if the suite is ever switched to random execution.
-	 *
-	 * @depends test_module_term_is_inert_on_wordpress_com_simple
-	 */
-	#[Depends( 'test_module_term_is_inert_on_wordpress_com_simple' )]
-	public function test_wordpress_com_simple_case_did_not_leak_its_constant() {
-		$this->assertFalse( defined( 'IS_WPCOM' ), 'IS_WPCOM leaked out of the isolated WordPress.com Simple test.' );
-	}
 }
