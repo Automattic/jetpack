@@ -679,7 +679,7 @@ class Manager {
 	 * class must not reference Error_Handler constants introduced along with that method
 	 * ('xmlrpc', 'rest', 'local_state', 'incoming', 'outgoing') — use the literal values.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.9.0.1
 	 *
 	 * @param array  $signature_details Details of the request signature being verified.
 	 * @param string $error_type        The transport of the request: 'xmlrpc' or 'rest'.
