@@ -179,7 +179,7 @@ class Current_Plan {
 	/**
 	 * Given a decoded `/sites/%d` record, attempt to set the site's plan and products from it.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @param array $record The decoded site record from the WordPress.com `/sites/%d` endpoint.
 	 * @return bool Was the plan successfully updated?
