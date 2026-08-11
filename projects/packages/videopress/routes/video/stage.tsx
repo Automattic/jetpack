@@ -14,6 +14,8 @@ import HeaderActions from '../../src/dashboard/components/video-details/header-a
 import PreviewPlayer from '../../src/dashboard/components/video-details/preview-player';
 import PrivacySharingCard from '../../src/dashboard/components/video-details/privacy-sharing-card';
 import RatingCard from '../../src/dashboard/components/video-details/rating-card';
+import SubtitlesCard from '../../src/dashboard/components/video-details/subtitles-card';
+import ThumbnailCard from '../../src/dashboard/components/video-details/thumbnail-card';
 import { useVideoDetailsForm } from '../../src/dashboard/components/video-details/use-video-details-form';
 import VideoDetailsCard from '../../src/dashboard/components/video-details/video-details-card';
 import VideoInfoCard from '../../src/dashboard/components/video-details/video-info-card';
@@ -197,18 +199,22 @@ const Editor = ( {
 			) }
 			<div className="vp-video-details">
 				{ /*
-				 * Placement rule for this screen: the canvas holds this video —
-				 * the frame, what it is called, what it says, and the still it
-				 * is represented by. The inspector holds settings that are
-				 * picked once from a fixed set, plus the reference values
-				 * (link, shortcode, upload date, subtitles) nobody edits inline.
-				 * The split is one grid — the same route and the same component
-				 * tree serve a video uploaded two seconds ago and one uploaded
-				 * two years ago.
+				 * Placement rule for this screen: the canvas holds everything a
+				 * person changes about this video, roughly in the order they
+				 * are likely to want it — what it says, what it looks like, who
+				 * can see it. The right-hand column holds the video itself and
+				 * the four values that address it, none of which are edited
+				 * here.
+				 *
+				 * The player used to lead the canvas. It was measured at 502px
+				 * tall on a 1080p display — over half the visible page before a
+				 * single field had been read — while the settings it pushed
+				 * down could not fit their own column and grew a second
+				 * scrollbar with no visible boundary. Those are the same
+				 * problem, and moving one element fixes both.
 				 */ }
 				<div className="vp-video-details__layout">
 					<div className="vp-video-details__canvas">
-						<PreviewPlayer video={ video } />
 						<VideoDetailsCard
 							video={ video }
 							title={ values.title }
@@ -217,19 +223,28 @@ const Editor = ( {
 							onOpenChapters={ openChapters }
 							confirmNavigation={ confirmNavigation }
 						/>
-					</div>
-					<aside
-						className="vp-video-details__inspector"
-						aria-label={ __( 'Video settings', 'jetpack-videopress-pkg' ) }
-					>
+						<ThumbnailCard video={ video } />
+						<SubtitlesCard video={ video } onManageSubtitles={ onManageCaptions } />
 						<PrivacySharingCard
 							privacy={ values.privacy }
 							displayEmbed={ values.displayEmbed }
 							allowDownloads={ values.allowDownloads }
 							onChange={ update }
 						/>
-						<VideoInfoCard video={ video } onManageSubtitles={ onManageCaptions } />
 						<RatingCard value={ values.rating } onChange={ onRatingChange } />
+					</div>
+					{ /*
+					 * Deliberately a sibling of the canvas rather than the first
+					 * child of the aside: it is placed by grid area, so the stacked
+					 * layout below 1100px can lead with the player while these
+					 * read-outs stay at the bottom.
+					 */ }
+					<PreviewPlayer video={ video } />
+					<aside
+						className="vp-video-details__inspector"
+						aria-label={ __( 'Video information', 'jetpack-videopress-pkg' ) }
+					>
+						<VideoInfoCard video={ video } />
 					</aside>
 				</div>
 			</div>

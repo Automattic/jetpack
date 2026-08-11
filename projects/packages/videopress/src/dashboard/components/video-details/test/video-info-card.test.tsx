@@ -1,21 +1,6 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { createElement, type ReactNode } from 'react';
 import { makeLibraryItem } from '../../../test-utils/library-item';
 import VideoInfoCard from '../video-info-card';
-
-/*
- * Mocked so the subtitles row doesn't reach the network; the hook's fetch
- * behavior is covered by its own suite.
- */
-let mockTracksResult: { managedTracks: unknown[]; isLoading: boolean } = {
-	managedTracks: [],
-	isLoading: false,
-};
-jest.mock( '../../../../client/components/caption-manager-modal/use-video-tracks', () => ( {
-	useVideoTracks: () => mockTracksResult,
-} ) );
 
 // Variables referenced inside jest.mock() factories must be prefixed with "mock"
 // (case-insensitive) to satisfy Jest's babel-jest hoisting restrictions.
@@ -29,83 +14,50 @@ jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
 } ) );
 
 const baseVideo = makeLibraryItem( {
-	thumbnailUrl: 'https://example.test/poster.jpg',
-	durationSeconds: 60,
+	filename: 'holiday-clip.mp4',
 	shortcode: '[videopress abc123]',
-	sourceUrl: 'https://example.test/movie.mp4',
+	uploadDate: '2026-01-01T00:00:00',
 } );
-
-/**
- * Minimal React Query wrapper for tests.
- *
- * @param root0          - Component props.
- * @param root0.children - Child elements to render inside the provider.
- * @return The QueryClientProvider element.
- */
-function wrapper( { children }: { children: ReactNode } ) {
-	const client = new QueryClient( {
-		defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-	} );
-	return createElement( QueryClientProvider, { client }, children );
-}
 
 beforeEach( () => {
 	mockSuccessNotice.mockReset();
 	mockErrorNotice.mockReset();
-	mockTracksResult = { managedTracks: [], isLoading: false };
 } );
 
-describe( 'VideoInfoCard — subtitles row', () => {
-	it( 'lists the subtitle languages and opens the manager from the Manage action', async () => {
-		const user = userEvent.setup();
-		mockTracksResult = {
-			managedTracks: [
-				{ kind: 'captions', srcLang: 'en-US', label: '', src: 'en.vtt' },
-				{ kind: 'subtitles', srcLang: 'de', label: 'German', src: 'de.vtt' },
-				{ kind: 'chapters', srcLang: 'en', label: '', src: 'chapters.vtt' },
-			],
-			isLoading: false,
-		};
-		const onManageSubtitles = jest.fn();
-		render( <VideoInfoCard video={ baseVideo } onManageSubtitles={ onManageSubtitles } />, {
-			wrapper,
-		} );
+describe( 'VideoInfoCard', () => {
+	it( 'renders the four values that address the video', () => {
+		render( <VideoInfoCard video={ baseVideo } /> );
 
-		// Chapters are not subtitles; only the caption/subtitle languages show.
-		expect( screen.getByText( 'English (US), German' ) ).toBeInTheDocument();
-
-		await user.click( screen.getByRole( 'button', { name: 'Manage subtitles' } ) );
-		expect( onManageSubtitles ).toHaveBeenCalledTimes( 1 );
-	} );
-
-	it( 'collapses long language lists into the first two and a count', () => {
-		mockTracksResult = {
-			managedTracks: [
-				{ kind: 'captions', srcLang: 'en-US', label: '', src: '' },
-				{ kind: 'subtitles', srcLang: 'de', label: '', src: '' },
-				{ kind: 'subtitles', srcLang: 'fr', label: '', src: '' },
-				{ kind: 'subtitles', srcLang: 'es', label: '', src: '' },
-			],
-			isLoading: false,
-		};
-		render( <VideoInfoCard video={ baseVideo } onManageSubtitles={ jest.fn() } />, { wrapper } );
-
-		expect( screen.getByText( 'English (US), German, and 2 more' ) ).toBeInTheDocument();
-	} );
-
-	it( 'shows None when the video has no subtitle tracks', () => {
-		render( <VideoInfoCard video={ baseVideo } onManageSubtitles={ jest.fn() } />, { wrapper } );
-
-		expect( screen.getByText( 'Subtitles' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'None' ) ).toBeInTheDocument();
-	} );
-
-	it( 'omits the row for items without a VideoPress GUID', () => {
-		render(
-			<VideoInfoCard video={ { ...baseVideo, guid: undefined } } onManageSubtitles={ jest.fn() } />,
-			{ wrapper }
+		expect( screen.getByLabelText( 'Link to video' ) ).toHaveValue(
+			'https://videopress.com/v/abc123'
 		);
+		expect( screen.getByLabelText( 'Shortcode' ) ).toHaveValue( '[videopress abc123]' );
+		expect( screen.getByText( 'File name' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'holiday-clip.mp4' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Uploaded on' ) ).toBeInTheDocument();
+	} );
+
+	// Private videos are served from a different host, and the link is the
+	// thing people copy out of this card.
+	it( 'links a private video to video.wordpress.com', () => {
+		render( <VideoInfoCard video={ { ...baseVideo, isPrivate: true } } /> );
+
+		expect( screen.getByLabelText( 'Link to video' ) ).toHaveValue(
+			'https://video.wordpress.com/v/abc123'
+		);
+	} );
+
+	// Both left this card: "Add to a post or page" moved to the page header,
+	// and Subtitles got a card of its own on the canvas. The copy buttons stay
+	// — copying a read-out is part of reading it. Neither of the other two
+	// should quietly reappear here.
+	it( 'no longer carries the subtitles row or the add-to-content menu', () => {
+		render( <VideoInfoCard video={ baseVideo } /> );
 
 		expect( screen.queryByText( 'Subtitles' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /manage subtitles/i } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: /add to a post or page/i } )
+		).not.toBeInTheDocument();
 	} );
 } );
