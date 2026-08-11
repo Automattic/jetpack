@@ -48,6 +48,8 @@ minimumReleaseAgeExclude:
   - postcss@8.5.23
   # Renovate security update: undici@7.29.0
   - undici@7.29.0
+  # Renovate security update: dompurify@3.4.13
+  - dompurify@3.4.13
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
