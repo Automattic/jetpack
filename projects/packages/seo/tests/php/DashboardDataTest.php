@@ -30,6 +30,8 @@ class DashboardDataTest extends SeoTestCase {
 		delete_option( 'advanced_seo_title_formats' );
 		remove_all_filters( 'jetpack_active_modules' );
 
+		self::reset_plan();
+
 		parent::tearDown();
 	}
 
@@ -109,6 +111,62 @@ class DashboardDataTest extends SeoTestCase {
 			$this->assertIsBool( $ai['crawlers']['pathBasedMultisite'] );
 		} finally {
 			remove_filter( 'ai_seo_enhancer_enabled', '__return_false' );
+		}
+	}
+
+	/**
+	 * The enhancer's availability includes the seo-tools module, the same term
+	 * the AI feature settings endpoint and the legacy Traffic page apply: with
+	 * the feature filter on and the plan granting `ai-seo-enhancer`, the module
+	 * alone decides whether the AI tab offers the row.
+	 *
+	 * `Modules::is_active()` returns true unconditionally under `IS_WPCOM`, so
+	 * the module term is inert on WordPress.com Simple — proven separately in
+	 * AiSeoEnhancerTest, which owns the predicate this delegates to.
+	 */
+	public function test_get_ai_data_enhancer_availability_follows_seo_tools_module() {
+		self::set_plan( 'jetpack_business' );
+
+		self::set_seo_tools_active( true );
+		$this->assertTrue( Dashboard_Data::get_ai_data()['enhancer']['available'] );
+
+		self::set_seo_tools_active( false );
+		$this->assertFalse( Dashboard_Data::get_ai_data()['enhancer']['available'] );
+	}
+
+	/**
+	 * The feature filter still vetoes availability on its own, so a host that
+	 * kills the enhancer hides the row even with the module and plan in place.
+	 */
+	public function test_get_ai_data_enhancer_unavailable_when_filter_off_despite_module_and_plan() {
+		self::set_plan( 'jetpack_business' );
+		self::set_seo_tools_active( true );
+		add_filter( 'ai_seo_enhancer_enabled', '__return_false' );
+
+		try {
+			$this->assertFalse( Dashboard_Data::get_ai_data()['enhancer']['available'] );
+		} finally {
+			remove_filter( 'ai_seo_enhancer_enabled', '__return_false' );
+		}
+	}
+
+	/**
+	 * `enabled` is the raw stored toggle, never ANDed with availability: the AI
+	 * tab renders the switch in the position the admin left it, and an
+	 * unavailable feature must not silently flip it to off.
+	 */
+	public function test_get_ai_data_enabled_is_the_raw_toggle_even_when_unavailable() {
+		self::set_plan( 'jetpack_business' );
+		self::set_seo_tools_active( false );
+		update_option( AI_SEO_Enhancer::OPTION, 1 );
+
+		try {
+			$ai = Dashboard_Data::get_ai_data();
+
+			$this->assertFalse( $ai['enhancer']['available'] );
+			$this->assertTrue( $ai['enhancer']['enabled'] );
+		} finally {
+			delete_option( AI_SEO_Enhancer::OPTION );
 		}
 	}
 

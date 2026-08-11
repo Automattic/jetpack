@@ -257,27 +257,27 @@ class Dashboard_Data {
 	 *
 	 * The AI SEO Enhancer auto-generates SEO titles/descriptions/alt-text in the
 	 * editor (the generation itself is wpcom/AI-Assistant side); this exposes only
-	 * its persisted on/off toggle and whether it's available. Availability mirrors
-	 * the legacy Traffic page: the `ai_seo_enhancer_enabled` feature filter must be
-	 * on (it still depends on AI being available) AND the site's plan must support
-	 * the `ai-seo-enhancer` feature. The toggle writes through the existing
-	 * `/jetpack/v4/settings` endpoint (`ai_seo_enhancer_enabled`).
+	 * its persisted on/off toggle and whether it's available. Both come from
+	 * {@see AI_SEO_Enhancer}, the single predicate this package owns, so the AI tab
+	 * gives the same answer as the plugin's AI feature settings page. Available
+	 * means the `ai_seo_enhancer_enabled` feature filter is on, the seo-tools
+	 * module is active, SEO tools have not been ceded to a conflicting SEO plugin
+	 * via `jetpack_disable_seo_tools`, and the plan supports `ai-seo-enhancer`.
+	 * The module and filter terms are what this tab did not previously check.
+	 *
+	 * `enabled` stays the raw stored toggle, deliberately not ANDed with
+	 * availability: it is the switch position to render, and folding availability
+	 * in would flip a switched-on site's toggle to off in the UI. The toggle writes
+	 * through the existing `/jetpack/v4/settings` endpoint
+	 * (`ai_seo_enhancer_enabled`).
 	 *
 	 * @return array
 	 */
 	public static function get_ai_data() {
-		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
-
-		// Current_Plan comes from the jetpack-plans package (a dependency of this
-		// package since the plan-gating work), so it's always available here; the
-		// class_exists guard is kept as belt-and-suspenders for older bundled snapshots.
-		$plan_supports = class_exists( 'Automattic\\Jetpack\\Current_Plan' )
-			&& \Automattic\Jetpack\Current_Plan::supports( 'ai-seo-enhancer' );
-
 		return array(
 			'enhancer' => array(
-				'available' => $filter_on && $plan_supports,
-				'enabled'   => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
+				'available' => AI_SEO_Enhancer::is_available(),
+				'enabled'   => AI_SEO_Enhancer::is_toggled_on(),
 			),
 			'llmsTxt'  => array(
 				'enabled'  => Llms_Txt::is_enabled(),
