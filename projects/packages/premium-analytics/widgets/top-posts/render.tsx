@@ -468,7 +468,7 @@ function ArchivesReport( { max }: { max: number } ) {
 				resolved = false;
 				break;
 			}
-			label = previousStep ?? __( 'All Archives', 'jetpack-premium-analytics-pkg' );
+			label = previousStep ?? __( 'All archives', 'jetpack-premium-analytics-pkg' );
 			list = parent.children;
 			previousStep = step;
 		}
@@ -505,7 +505,7 @@ function ArchivesReport( { max }: { max: number } ) {
 	const backLink =
 		activeRows === rows ? null : (
 			<WidgetBackLink
-				label={ backLabel ?? __( 'All Archives', 'jetpack-premium-analytics-pkg' ) }
+				label={ backLabel ?? __( 'All archives', 'jetpack-premium-analytics-pkg' ) }
 				ariaLabel={ __( 'Back to the previous archive list', 'jetpack-premium-analytics-pkg' ) }
 				onClick={ handleBack }
 			/>

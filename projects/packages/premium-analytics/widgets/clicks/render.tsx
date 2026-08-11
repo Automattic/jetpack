@@ -274,7 +274,7 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
-			label={ __( 'All Clicks', 'jetpack-premium-analytics-pkg' ) }
+			label={ __( 'All clicks', 'jetpack-premium-analytics-pkg' ) }
 			ariaLabel={ __( 'View all clicks', 'jetpack-premium-analytics-pkg' ) }
 			onClick={ clearSelectedClick }
 		/>
