@@ -11,13 +11,14 @@ import { getCommentFollowersFields } from './comment-followers/config/fields';
 import { getCommentsFields } from './comments/config/fields';
 import { getDownloadsFields } from './downloads/config/fields';
 import { getEmailsFields } from './emails/config/fields';
+import { getLocationFields } from './locations/config/fields';
 import { getArchivesFields, getPostsFields } from './posts/config/fields';
 import { getReferrerFields } from './referrers/config/fields';
 import { getSearchTermsFields } from './search-terms/config/fields';
 import { getTagsFields } from './tags/config/fields';
 import { getUtmFields } from './utm/config/fields';
 import { getVideosFields } from './videos/config/fields';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
 /**
  * Render a report table's numeric field for one row.
@@ -48,24 +49,25 @@ describe( 'report table count fields', () => {
 			throw new Error( 'Browser-locale formatting should not be used' );
 		} );
 
-		renderCountField( getPostsFields(), 'views', { views: 12345 } as never );
+		renderCountField( getPostsFields( false, 'posts-pages' ), 'views', { views: 12345 } as never );
 		renderCountField( getArchivesFields(), 'views', { views: 12345 } as never );
 		renderCountField( getCommentFollowersFields(), 'subscribers', { followers: 12345 } as never );
 		renderCountField( getVideosFields(), 'plays', { plays: 12345 } as never );
 		renderCountField( getVideosFields(), 'impressions', { impressions: 12345 } as never );
 		renderCountField( getDownloadsFields(), 'downloads', { downloads: 12345 } as never );
 		renderCountField( getClicksFields(), 'clicks', { clicks: 12345 } as never );
-		renderCountField( getCommentsFields(), 'comments', { value: 12345 } as never );
+		renderCountField( getCommentsFields( 'authors' ), 'comments', { value: 12345 } as never );
 		renderCountField( getTagsFields(), 'views', { value: 12345 } as never );
 		renderCountField( getReferrerFields(), 'views', { views: 12345 } as never );
 		renderCountField( getSearchTermsFields(), 'views', { views: 12345 } as never );
 		renderCountField( getUtmFields( 'source-medium' ), 'views', { views: 12345 } as never );
 		renderCountField( getEmailsFields(), 'opens', { opens: 12345 } as never );
+		renderCountField( getLocationFields(), 'views', { views: 12345 } as never );
 		renderCountField( getAnnualInsightsFields(), 'total_posts', {
 			total_posts: 12345,
 		} as never );
 
-		expect( screen.getAllByText( '12,345' ) ).toHaveLength( 14 );
+		expect( screen.getAllByText( '12,345' ) ).toHaveLength( 15 );
 	} );
 
 	it( 'formats Emails rates with the shared formatter', () => {

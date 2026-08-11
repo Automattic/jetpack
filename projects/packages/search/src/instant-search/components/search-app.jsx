@@ -61,6 +61,10 @@ class SearchApp extends Component {
 			// TODO: Migrate visibility state to Redux.
 			isVisible: !! this.props.initialIsVisible, // initialIsVisible can be undefined
 			overlayOptionsCustomizerOverride: {},
+			// True from the moment a new query/sort/filter is requested until the
+			// debounced request actually dispatches, covering the gap where
+			// isLoading is still false and the response is stale/empty.
+			isQueryPending: false,
 			// AI Answers state — brief (fast) answer
 			aiBriefStatus: 'idle', // 'idle' | 'loading' | 'streaming' | 'done' | 'error'
 			aiBriefText: '',
@@ -149,6 +153,7 @@ class SearchApp extends Component {
 			this.aiExtendedController.abort();
 		}
 		this.getAiAnswer.clear();
+		this.getResults.clear();
 	}
 
 	initializeAnalytics() {
@@ -225,7 +230,14 @@ class SearchApp extends Component {
 	showResults = this.toggleResults.bind( this, true );
 
 	onChangeQueryString = isHistoryNav => {
-		this.getResults();
+		// Only for a non-empty query: pending-tracking an empty-query change
+		// (e.g. a filter-link click that clears the query) clobbers the overlay's
+		// isVisible update, which is set directly by that same click handler.
+		if ( this.props.searchQuery ) {
+			this.requestResults();
+		} else {
+			this.getResults();
+		}
 
 		if ( this.props.hasActiveQuery && ! this.state.isVisible ) {
 			this.showResults();
@@ -243,6 +255,13 @@ class SearchApp extends Component {
 
 	loadNextPage = () => {
 		this.props.hasNextPage && this.getResults( { pageHandle: this.props.response.page_handle } );
+	};
+
+	// Marks a new query as pending immediately, so the UI can reflect the
+	// upcoming request before the debounced getResults() actually dispatches it.
+	requestResults = () => {
+		this.setState( { isQueryPending: true } );
+		this.getResults();
 	};
 
 	getResults = ( { pageHandle } = {} ) => {
@@ -266,6 +285,7 @@ class SearchApp extends Component {
 			customResults: this.props.options.customResults,
 			isInCustomizer: this.props.isInCustomizer,
 		} );
+		this.setState( { isQueryPending: false } );
 	};
 
 	/**
@@ -649,6 +669,7 @@ class SearchApp extends Component {
 							hasNextPage={ this.props.hasNextPage }
 							highlightColor={ this.state.overlayOptions.highlightColor }
 							isLoading={ this.props.isLoading }
+							isQueryPending={ this.state.isQueryPending }
 							isPhotonEnabled={ this.props.options.isPhotonEnabled }
 							isPrivateSite={ this.props.options.isPrivateSite }
 							isVisible={ this.state.isVisible }

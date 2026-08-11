@@ -9,7 +9,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { scheduled } from '@wordpress/icons';
-import { Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -42,9 +42,6 @@ type HighlightProps = {
 /**
  * A single "best day" / "best hour" highlight: a label, the peak value rendered
  * as a large display figure, and its share of total views.
- *
- * @param {HighlightProps} props - The component props.
- * @return The highlight block.
  */
 function Highlight( { label, value, percent }: HighlightProps ) {
 	return (
@@ -70,8 +67,6 @@ function Highlight( { label, value, percent }: HighlightProps ) {
  * Fetches the insights report through the `useStatsInsights` Stats hook and
  * renders the most-popular-time highlights — the peak day and hour, each with
  * its share of views.
- *
- * @return The widget content.
  */
 function MostPopularTimeReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsInsights();
@@ -127,14 +122,9 @@ function MostPopularTimeReport() {
 }
 
 /**
- * Widget render entry point.
- *
  * Passes host attributes into `WidgetRoot` for the widget contract. The insights
  * report takes no parameters, so the inner component reads nothing from
  * `attributes`.
- *
- * @param {MostPopularTimeWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function MostPopularTime( { attributes = {} }: MostPopularTimeWidgetProps ) {
 	return (

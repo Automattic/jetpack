@@ -1,0 +1,59 @@
+// Preview player for the chapters editors: a bare video stage (the transport
+// lives in the timeline toolbar). The stage letterboxes the video against a
+// dark background like a normal player surface; playback failures overlay it.
+.vp-chapters-preview {
+	// Keep the whole screen (preview + timeline) inside the viewport on wide
+	// windows: cap the stage height against the viewport (minus admin chrome
+	// and timeline) and derive a matching 16:9 width, centered, so the
+	// timeline never falls below the fold. Declared here (not on the stage)
+	// so the page layout can compose it into the preview's max-width.
+	--vp-chapters-stage-max-height: clamp(204px, calc((100vh - 420px) * 0.85), 612px);
+
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.vp-chapters-preview__stage {
+	position: relative;
+	aspect-ratio: 16 / 9;
+	background: #000;
+	border-radius: 2px;
+	overflow: hidden;
+	box-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.05),
+		0 2px 3px rgba(0, 0, 0, 0.04),
+		0 6px 6px rgba(0, 0, 0, 0.03),
+		0 8px 8px rgba(0, 0, 0, 0.02);
+	max-height: var(--vp-chapters-stage-max-height);
+	max-width: calc(var(--vp-chapters-stage-max-height) * 16 / 9);
+	margin-inline: auto;
+}
+
+.vp-chapters-preview__video {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+.vp-chapters-preview__placeholder {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+}
+
+// Playback failures surface on the stage itself now that there is no
+// transport row here: a translucent strip pinned to the bottom edge.
+.vp-chapters-preview__error {
+	position: absolute;
+	inset: auto 12px 12px;
+	padding: 6px 12px;
+	border-radius: var(--vp-radius-small, 2px);
+	background: rgba(0, 0, 0, 0.72);
+	color: #fff;
+	font-size: 13px;
+	text-align: center;
+}

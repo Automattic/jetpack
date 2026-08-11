@@ -12,9 +12,6 @@ export type ReportTabDefinition< TabId extends string > = {
 	getLabel: () => string;
 };
 
-/**
- * A resolved report tab ({ id, label }).
- */
 export type ReportTab< TabId extends string > = {
 	id: TabId;
 	label: string;
@@ -36,27 +33,13 @@ export type ReportTabs< TabId extends string > = {
 	 */
 	resolve: ( value: string | undefined ) => TabId;
 
-	/**
-	 * Build the ordered list of tab definitions ({ id, label }). Labels are
-	 * resolved lazily (at call time) so translations apply after the i18n locale
-	 * data has loaded.
-	 */
 	getTabs: () => ReportTab< TabId >[];
 
-	/**
-	 * Get the translated display label for a single tab (also resolved lazily).
-	 */
 	getTabLabel: ( id: TabId ) => string;
 };
 
 /**
  * Capture a report page's tab machinery from an ordered list of definitions.
- *
- * Given an ordered list of `{ id, getLabel }` definitions and a default id,
- * returns `{ ids, resolve, getTabs, getTabLabel }`. Labels stay lazy — they are
- * resolved only when `getTabs`/`getTabLabel` is called — so translations apply
- * after the locale data loads. The definitions array is the source of truth for
- * which tabs exist and in what order.
  *
  * @param definitions - Ordered tab definitions with lazy label getters.
  * @param defaultId   - The tab shown when the URL has no (or an unknown) tab value.

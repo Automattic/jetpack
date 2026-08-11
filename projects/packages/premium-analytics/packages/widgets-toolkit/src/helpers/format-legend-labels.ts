@@ -8,30 +8,11 @@ import type { LegendLabels } from '../components/chart-leaderboard';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 /**
- * Internal dependencies
- */
-
-/**
- * Formats legend labels from report parameters.
- *
- * Creates human-readable legend labels for chart comparisons based on the
- * date ranges in the report parameters. If date ranges are not available,
- * returns default period labels.
+ * Formats chart legend labels from a report's date ranges, falling back to
+ * generic "Current period" / "Previous period" labels when a range is missing.
  *
  * @param reportParams - Report parameters containing date ranges
  * @return Object with primary and comparison legend labels
- *
- * @example
- * ```ts
- * const labels = formatLegendLabels({
- *   from: '2024-01-01',
- *   to: '2024-01-31',
- *   compare_from: '2023-12-01',
- *   compare_to: '2023-12-31',
- *   interval: 'day'
- * });
- * // Returns: { primary: 'January 1, 2024 – January 31, 2024', … }
- * ```
  */
 export function formatLegendLabels( reportParams: ReportParams ): LegendLabels {
 	const primaryLabel =

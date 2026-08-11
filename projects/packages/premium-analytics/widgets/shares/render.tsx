@@ -12,7 +12,7 @@ import {
 import { megaphone } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -27,9 +27,6 @@ type SharesWidgetProps = WidgetRenderProps< SharesRenderAttributes >;
 /**
  * Shares widget inner component. The share counts come from the all-time site
  * summary, so there is no date range or comparison period to read from context.
- *
- * @param {SharesAttributes} attributes - The widget attributes.
- * @return The rendered widget content.
  */
 function SharesInner( { max = 10 }: SharesAttributes ) {
 	const { data, isLoading, isFetching, isError, refetch } = useShareViews( { max } );
@@ -92,9 +89,6 @@ function SharesInner( { max = 10 }: SharesAttributes ) {
 /**
  * Shares widget: the number of times the site's content was shared to each social
  * network, ranked by share count. Ported from the Jetpack Stats "Shares" module.
- *
- * @param {SharesWidgetProps} props - The widget render props.
- * @return The rendered Shares widget.
  */
 export default function Shares( { attributes = {} }: SharesWidgetProps ) {
 	return (

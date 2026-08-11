@@ -79,8 +79,7 @@
 		"ai-correct-spelling",
 		"paypal-payment-buttons",
 		"image-studio",
-		"block-notes",
-		"zoom-scheduler"
+    "zoom-scheduler"
 	],
 	"beta": [
 		"google-docs-embed",

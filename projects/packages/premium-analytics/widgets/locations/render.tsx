@@ -4,7 +4,9 @@
 import {
 	GeoChart,
 	LeaderboardChart,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
@@ -24,7 +26,7 @@ import {
 import { location as locationIcon } from '@jetpack-premium-analytics/icons';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -75,9 +77,6 @@ type LocationsInnerProps = Required< Pick< LocationsAttributes, 'max' | 'geoGran
  * Locations widget inner component. Reads report params from WidgetRoot
  * context. Attributes arrive already normalized by the outer component, so
  * defaults are applied in exactly one place.
- *
- * @param {LocationsInnerProps} props - The normalized widget attributes.
- * @return The rendered widget content.
  */
 function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -380,9 +379,6 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
  * Locations widget: visitor views by country/region/city, as a map plus a
  * leaderboard. Click a country to drill into its regions. Ported from the
  * Jetpack Stats Locations module.
- *
- * @param {LocationsWidgetProps} props - The widget render props.
- * @return The rendered Locations widget.
  */
 export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 	const max = attributes?.max ?? 10;
@@ -392,6 +388,12 @@ export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<LocationsInner max={ max } geoGranularity={ geoGranularity } />
+				<WidgetFooter>
+					<ReportLink
+						report="locations"
+						section={ geoGranularity === 'city' ? 'cities' : 'countries' }
+					/>
+				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

@@ -18,7 +18,6 @@ import { encodeDateToSearchParam } from '../../search/date-range';
 /**
  * The report search params the date filters read and stage.
  */
-
 export type ReportQuerySearchParams = Partial<
 	ReportQueryParams & {
 		preset?: PrimaryPresetId;
@@ -28,9 +27,6 @@ export type ReportQuerySearchParams = Partial<
 >;
 
 type BuildRangePatchArgs = {
-	/**
-	 * The next primary range, when the change includes one.
-	 */
 	nextRange?: DateRange;
 
 	/**
@@ -76,21 +72,19 @@ export function buildRangePatch( {
 		patch.to = rangeTo;
 
 		/*
-		 * Without a granularity picker, a carried-over interval can't be told
-		 * apart from one inherited from the previous preset: last-7-days
-		 * (`day`) into last-24-hours would bucket 24 hours into a single daily
-		 * point. Keep it only within the same preset, where it is deliberate.
+		 * The interval carries across the change and the new range's rules
+		 * decide: a bucket it still allows survives, one it does not coerces to
+		 * the finest allowed.
 		 */
-		const presetChanged = nextPresetId !== effective.preset;
-
 		patch.interval = resolveIntervalForRange(
 			nextPresetId,
 			rangeFrom,
 			rangeTo,
-			presetChanged ? undefined : effective.interval
+			effective.interval
 		);
 
-		if ( effective.comp === '1' ) {
+		// Loose `comp` check: an unquoted URL delivers number 1, not '1'.
+		if ( String( effective.comp ) === '1' ) {
 			const derived = deriveComparisonRange( { ...effective, from: rangeFrom, to: rangeTo } );
 			if ( derived ) {
 				patch.compare_from = derived.compare_from;

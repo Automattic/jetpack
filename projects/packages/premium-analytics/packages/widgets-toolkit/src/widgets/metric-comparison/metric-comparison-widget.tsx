@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Stack } from '@wordpress/ui';
+import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -15,9 +15,6 @@ import type { DataFormat } from '../../types';
 import type { DateFormatName } from '@jetpack-premium-analytics/formatters';
 
 export type MetricComparisonWidgetProps = {
-	/**
-	 * Primary metric value
-	 */
 	value: number;
 
 	/**
@@ -25,9 +22,6 @@ export type MetricComparisonWidgetProps = {
 	 */
 	comparisonValue?: number | null;
 
-	/**
-	 * Chart display props
-	 */
 	series: ComparativeLineChartSeries[];
 
 	/**

@@ -6,14 +6,12 @@ import {
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
-	ChartEmptyState,
 	defaultPeriodForInterval,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { customer } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
-import { trendingUp } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -25,11 +23,11 @@ import useSubscribersChart, {
 	type SubscribersPeriod,
 } from './use-subscribers-chart';
 import {
-	DEFAULT_SUBSCRIBERS_CHART_METRICS,
 	SUBSCRIBERS_CHART_METRICS,
 	type SubscribersChartAttributes,
 	type SubscribersChartGranularity,
 	type SubscribersChartMetricId,
+	type SubscribersChartType,
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -60,10 +58,6 @@ const SUBSCRIBERS_PERIODS = [
 /**
  * The latest value of a metric in a window — each point is the cumulative count
  * as of that period, so the headline value is the last point, not a sum.
- *
- * @param points   - Chart points, oldest first.
- * @param accessor - Pulls the metric value off a point.
- * @return The latest value, or 0 when the window is empty.
  */
 function latest(
 	points: SubscribersChartPoint[],
@@ -73,8 +67,8 @@ function latest(
 }
 
 /**
- * Pulls each metric's value off a chart point. Ids and labels are shared with
- * the settings checkboxes via `SUBSCRIBERS_CHART_METRICS` in `widget.ts`.
+ * Pulls each metric's value off a chart point. Ids and labels come from
+ * `SUBSCRIBERS_CHART_METRICS` in `widget.ts`.
  */
 const METRIC_ACCESSORS: Record<
 	SubscribersChartMetricId,
@@ -85,36 +79,27 @@ const METRIC_ACCESSORS: Record<
 };
 
 /**
- * Build the metric tabs from the fetched state: the selected metrics, in
- * canonical order, with Paid subscribers only when the site has any. Each tab
- * carries its headline total + the previous-window total for the delta, and
- * the per-period points for the chart.
- *
- * @param state     - The fetched subscribers state.
- * @param metricIds - Selected metric tab ids.
- * @return The metric tabs.
+ * Build the metric tabs from the fetched state, in canonical order, with Paid
+ * subscribers only when the site has any. Each tab carries its headline total +
+ * the previous-window total for the delta, and the per-period points for the
+ * chart.
  */
-function buildMetrics(
-	state: SubscribersChartState,
-	metricIds: SubscribersChartMetricId[]
-): MetricTab[] {
-	const selected = new Set( metricIds );
-
-	return SUBSCRIBERS_CHART_METRICS.filter(
-		( { id } ) => selected.has( id ) && ( id !== 'paid' || state.hasPaid )
-	).map( ( { id, label } ) => {
-		const accessor = METRIC_ACCESSORS[ id ];
-		return {
-			key: id,
-			label,
-			value: latest( state.current, accessor ),
-			previousValue: state.previous.length ? latest( state.previous, accessor ) : undefined,
-			current: state.current.map( point => ( { date: point.date, value: accessor( point ) } ) ),
-			previous: state.previous.length
-				? state.previous.map( point => ( { date: point.date, value: accessor( point ) } ) )
-				: undefined,
-		};
-	} );
+function buildMetrics( state: SubscribersChartState ): MetricTab[] {
+	return SUBSCRIBERS_CHART_METRICS.filter( ( { id } ) => id !== 'paid' || state.hasPaid ).map(
+		( { id, label } ) => {
+			const accessor = METRIC_ACCESSORS[ id ];
+			return {
+				key: id,
+				label,
+				value: latest( state.current, accessor ),
+				previousValue: state.previous.length ? latest( state.previous, accessor ) : undefined,
+				current: state.current.map( point => ( { date: point.date, value: accessor( point ) } ) ),
+				previous: state.previous.length
+					? state.previous.map( point => ( { date: point.date, value: accessor( point ) } ) )
+					: undefined,
+			};
+		}
+	);
 }
 
 type SubscribersChartInnerProps = {
@@ -123,25 +108,17 @@ type SubscribersChartInnerProps = {
 	 */
 	granularity: SubscribersChartGranularity;
 	/**
-	 * Selected metric tab ids; defaults to every metric.
+	 * How to draw the selected metric. `MetricTabsChart` owns the default.
 	 */
-	metrics?: SubscribersChartMetricId[];
+	chartType?: SubscribersChartType;
 };
 
 /**
- * Subscribers chart inner component. Reads the dashboard date range + comparison
- * state from `useWidgetRootContext()` and hands the selected metric tabs to the
- * shared `MetricTabsChart`. The "Group by" control is the `granularity`
- * attribute and the tab selection is the `metrics` attribute (both
- * `relevance: 'high'`), rendered by the widget host.
- *
- * @param {SubscribersChartInnerProps} props - The component props.
- * @return The widget body.
+ * The "Group by" control is the `granularity` attribute and the "Chart type"
+ * control is the `chartType` attribute (both `relevance: 'high'`), rendered by
+ * the widget host. Which metric is plotted is the chart's own tab selection.
  */
-function SubscribersChartInner( {
-	granularity,
-	metrics: metricIds = DEFAULT_SUBSCRIBERS_CHART_METRICS,
-}: SubscribersChartInnerProps ) {
+function SubscribersChartInner( { granularity, chartType }: SubscribersChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	// `auto` means "follow the dashboard range"; an explicit value sticks
 	// across range changes. This keeps a wide range from staying stuck on
@@ -153,40 +130,8 @@ function SubscribersChartInner( {
 			: granularity;
 
 	const state = useSubscribersChart( reportParams, period );
-	const metricTabs = useMemo( () => buildMetrics( state, metricIds ), [ state, metricIds ] );
+	const metricTabs = useMemo( () => buildMetrics( state ), [ state ] );
 	const groupLabel = __( 'Subscriber metric', 'jetpack-premium-analytics-pkg' );
-
-	// An empty selection is a configuration state, not a data state: it stands
-	// whatever the fetch is doing.
-	if ( ! metricIds.length ) {
-		return (
-			<ChartEmptyState
-				icon={ trendingUp }
-				text={ __(
-					'No metric selected. Please select a metric from the metrics list.',
-					'jetpack-premium-analytics-pkg'
-				) }
-			/>
-		);
-	}
-
-	// Metrics are selected but every tab was filtered out — today that means
-	// Paid subscribers is the sole selection on a site with no paid subscribers
-	// in the window. Wait out the first fetch before claiming so, and let a
-	// failed fetch fall through to `WidgetState`'s error rather than reporting
-	// the absence of paid subscribers we never managed to load.
-	if ( ! metricTabs.length && ! state.isError ) {
-		if ( state.isLoading ) {
-			return null;
-		}
-
-		return (
-			<ChartEmptyState
-				icon={ trendingUp }
-				text={ __( 'No paid subscribers in this date range.', 'jetpack-premium-analytics-pkg' ) }
-			/>
-		);
-	}
 
 	return (
 		<div className={ styles.root }>
@@ -220,6 +165,7 @@ function SubscribersChartInner( {
 					<MetricTabsChart
 						metrics={ metricTabs }
 						dataFormat={ DATA_FORMAT }
+						chartType={ chartType }
 						loading
 						groupLabel={ groupLabel }
 					/>
@@ -230,6 +176,7 @@ function SubscribersChartInner( {
 				<MetricTabsChart
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
 					loading={ state.isFetching }
 					groupLabel={ groupLabel }
 				/>
@@ -238,17 +185,6 @@ function SubscribersChartInner( {
 	);
 }
 
-/**
- * Widget render entry point.
- *
- * `WidgetRoot` provides the analytics query client and resolves the dashboard's
- * `reportParams`; the inner component reads that range/comparison state. The
- * granularity is the `granularity` attribute (`relevance: 'high'`), exposed as
- * a control by the widget host.
- *
- * @param {SubscribersChartWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function SubscribersChart( {
 	attributes = {},
 	setError,
@@ -257,7 +193,7 @@ export default function SubscribersChart( {
 
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<SubscribersChartInner granularity={ granularity } metrics={ attributes.metrics } />
+			<SubscribersChartInner granularity={ granularity } chartType={ attributes.chartType } />
 		</WidgetRoot>
 	);
 }

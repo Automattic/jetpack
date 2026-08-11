@@ -1,7 +1,9 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { usePostSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
+
+let mockSearch: Record< string, unknown > = {};
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
@@ -9,13 +11,22 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
+	// Spread the real module so the report registry's tab configs, which call
+	// `defineReportTabs`, still resolve now that the registry is not mocked.
+	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: () => ( {} ),
 } ) );
 
+// Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: () => <div>Date filters</div>,
+	DateFiltersPanel: ( { showComparison }: { showComparison?: boolean } ) => (
+		<div>{ showComparison === false ? 'Date filters without comparison' : 'Date filters' }</div>
+	),
 	SectionTabPanel: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
+		.StatsBreadcrumbs,
+	StatsPageIcon: () => null,
 	// The real guard is covered in the ui package; keep the scheme check here so
 	// the header still refuses a non-http URL.
 	safeHttpUrl: ( value?: string | null ) =>
@@ -24,7 +35,25 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
 
-jest.mock( '@wordpress/data', () => ( { useSelect: () => [] } ) );
+// Falls through to the real module for everything but `useSelect`. Reaching the
+// externals passthrough pulls `@wordpress/components` -> `@wordpress/rich-text`
+// into the graph, whose store calls `combineReducers` at import time; a
+// `useSelect`-only mock leaves that undefined and the suite fails to load.
+// `requireActual` has to stay lazy — calling it in the factory body re-enters
+// the module while it is still initialising.
+jest.mock(
+	'@wordpress/data',
+	() =>
+		new Proxy(
+			{ useSelect: () => [] },
+			{
+				get: ( overrides, prop ) =>
+					prop in overrides
+						? overrides[ prop as keyof typeof overrides ]
+						: jest.requireActual( '@wordpress/data' )[ prop ],
+			}
+		)
+);
 
 jest.mock( '@wordpress/widget-dashboard', () => {
 	const WidgetDashboard = ( { children }: { children: ReactNode } ) => <>{ children }</>;
@@ -42,13 +71,22 @@ jest.mock( '@wordpress/widget-primitives', () => ( {
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
-	Breadcrumbs: ( { items }: { items: Array< { label: string } > } ) => (
+	Breadcrumbs: ( { items }: { items: Array< { label: string; to?: string } > } ) => (
 		<nav aria-label="Breadcrumbs">
-			{ items.map( item => (
-				<span key={ item.label } role="listitem">
-					{ item.label }
-				</span>
-			) ) }
+			{ items.map( ( item, index ) => {
+				let content: ReactNode = item.label;
+				if ( item.to ) {
+					content = <a href={ item.to }>{ item.label }</a>;
+				} else if ( index === items.length - 1 ) {
+					content = <h1>{ item.label }</h1>;
+				}
+
+				return (
+					<span key={ index } role="listitem">
+						{ content }
+					</span>
+				);
+			} ) }
 		</nav>
 	),
 	Page: ( {
@@ -70,7 +108,11 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 
 jest.mock( '@wordpress/route', () => ( {
 	useParams: () => ( { postId: '41' } ),
+	useSearch: () => mockSearch,
 } ) );
+
+// The report registry is deliberately not mocked so the breadcrumb exercises
+// the real report-origin validation.
 
 jest.mock( './components', () => ( {
 	PostDetailTabs: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
@@ -106,9 +148,21 @@ function mockSummary( overrides: Record< string, unknown > = {} ) {
 	} );
 }
 
+/**
+ * Read the breadcrumb labels rendered by the page, in order.
+ *
+ * @return The visible breadcrumb labels.
+ */
+function getBreadcrumbLabels(): ( string | null )[] {
+	const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
+
+	return breadcrumbs.getAllByRole( 'listitem' ).map( crumb => crumb.textContent );
+}
+
 describe( 'post detail stage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockSearch = { from: '2026-06-01', to: '2026-06-16', post_id: '41' };
 	} );
 
 	it( 'puts a View post action in the page header, opening the live post in a new tab', () => {
@@ -150,13 +204,46 @@ describe( 'post detail stage', () => {
 		expect( screen.queryByRole( 'link', { name: /^View (post|page)$/ } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'renders the breadcrumb trail with the resolved title', () => {
+	it( 'renders the date filters without the comparison control', () => {
 		mockSummary();
 
 		render( stage() );
 
-		const nav = screen.getByRole( 'navigation', { name: 'Breadcrumbs' } );
-		expect( nav ).toHaveTextContent( 'Stats' );
-		expect( nav ).toHaveTextContent( 'Hello world' );
+		expect( screen.getByText( 'Date filters without comparison' ) ).toBeInTheDocument();
 	} );
+
+	it( 'keeps the two-crumb trail when no report origin is present', () => {
+		mockSummary();
+
+		render( stage() );
+
+		expect( getBreadcrumbLabels() ).toEqual( [ 'Stats', 'Hello world' ] );
+	} );
+
+	it( 'adds the referring report between Stats and the resolved title', () => {
+		mockSummary();
+		mockSearch = { ...mockSearch, ref: 'posts' };
+
+		render( stage() );
+
+		expect( getBreadcrumbLabels() ).toEqual( [ 'Stats', 'Posts & Pages', 'Hello world' ] );
+	} );
+
+	it.each( [ { title: undefined, isLoading: true }, { title: '' } ] )(
+		'keeps the Stats crumb linked while the post title is unresolved or empty',
+		summary => {
+			mockSummary( summary );
+
+			render( stage() );
+
+			const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
+			const crumbs = breadcrumbs.getAllByRole( 'listitem' );
+			expect( crumbs ).toHaveLength( 1 );
+			expect( within( crumbs[ 0 ] ).getByRole( 'link', { name: 'Stats' } ) ).toHaveAttribute(
+				'href',
+				'/?from=2026-06-01&to=2026-06-16'
+			);
+			expect( breadcrumbs.queryByRole( 'heading', { level: 1 } ) ).not.toBeInTheDocument();
+		}
+	);
 } );

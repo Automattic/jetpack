@@ -42,6 +42,9 @@
 		<testsuite name="infinite-scroll">
 			<directory suffix="Test.php">tests/php/modules/infinite-scroll</directory>
 		</testsuite>
+		<testsuite name="theme-tools">
+			<directory suffix="Test.php">tests/php/modules/theme-tools</directory>
+		</testsuite>
 		<testsuite name="comment-likes">
 			<directory suffix="Test.php">tests/php/modules/comment-likes</directory>
 		</testsuite>
@@ -83,6 +86,9 @@
 		</testsuite>
 		<testsuite name="subscriptions">
 			<directory suffix="Test.php">tests/php/modules/subscriptions</directory>
+		</testsuite>
+		<testsuite name="memberships">
+			<directory suffix="Test.php">tests/php/modules/memberships</directory>
 		</testsuite>
 		<testsuite name="verification-tools">
 			<directory suffix="Test.php">tests/php/modules/verification-tools</directory>

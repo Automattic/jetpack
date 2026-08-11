@@ -6,8 +6,8 @@ import {
 	type StatsVideoPlaysItem,
 	type StatsVideoPlaysComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportPageLayout,
@@ -18,8 +18,7 @@ import {
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 /**
@@ -85,6 +84,10 @@ function VideosReport(): JSX.Element {
 	const csvColumns = useMemo< CsvColumn< StatsVideoPlaysItem >[] >(
 		() => [
 			{
+				label: __( 'Video ID', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.id ?? '',
+			},
+			{
 				label: __( 'Video', 'jetpack-premium-analytics-pkg' ),
 				getValue: row =>
 					typeof row.label === 'string' && row.label
@@ -95,6 +98,14 @@ function VideosReport(): JSX.Element {
 			{
 				label: __( 'Impressions', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.impressions,
+			},
+			{
+				label: __( 'Watch time (hours)', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.watch_time,
+			},
+			{
+				label: __( 'Retention rate (%)', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.retention_rate,
 			},
 			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
 		],
@@ -114,20 +125,12 @@ function VideosReport(): JSX.Element {
 	const isTableLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
-
 	return (
 		<ReportPageShell
+			visual={ <StatsPageIcon /> }
 			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{
-							label: __( 'Stats', 'jetpack-premium-analytics-pkg' ),
-							to: dashboardLink,
-						},
-						{ label: __( 'Videos', 'jetpack-premium-analytics-pkg' ) },
-					] }
+				<StatsBreadcrumbs
+					items={ [ { label: __( 'Videos', 'jetpack-premium-analytics-pkg' ) } ] }
 				/>
 			}
 			subTitle={ __( 'See how your videos perform.', 'jetpack-premium-analytics-pkg' ) }
@@ -137,13 +140,7 @@ function VideosReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
-			>
+			<ReportPageLayout filters={ <DateFiltersPanel { ...dateFilters } /> }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load videos', 'jetpack-premium-analytics-pkg' ) }

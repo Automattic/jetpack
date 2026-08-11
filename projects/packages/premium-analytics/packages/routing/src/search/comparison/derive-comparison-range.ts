@@ -26,9 +26,6 @@ const toComparisonPresetId = ( value?: string ): ComparisonPresetId | undefined 
 		case 'previous-period':
 		case 'previous_period':
 			return 'previous-period';
-		case 'previous-week':
-		case 'previous_week':
-			return 'previous-week';
 		case 'previous-month':
 		case 'previous_month':
 			return 'previous-month';
@@ -56,13 +53,13 @@ export function deriveComparisonRange( opts: ReportParams ):
 			compare_to: string;
 	  }
 	| undefined {
-	// Require comparison enabled + preset
+	// Require comparison enabled + preset. `comp` is compared loosely: the
+	// router JSON-parses search values, so an unquoted URL delivers number 1.
 	const presetId = toComparisonPresetId( opts.compare_preset );
-	if ( opts.comp !== '1' || ! presetId ) {
+	if ( String( opts.comp ) !== '1' || ! presetId ) {
 		return undefined;
 	}
 
-	// Need valid main range
 	if ( ! opts.from || ! opts.to ) {
 		return undefined;
 	}
@@ -85,7 +82,6 @@ export function deriveComparisonRange( opts: ReportParams ):
 		to: localTZDate( toInstant.getTime(), timezone ),
 	};
 
-	// Compute comparison range (Dates)
 	const cmp = getComparisonRangeFromPreset( reference, presetId );
 	if ( ! cmp?.from || ! cmp?.to ) {
 		return undefined;

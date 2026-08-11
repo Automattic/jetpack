@@ -32,6 +32,7 @@ type GrowTuple< T extends unknown[], Max extends number > = T[ 'length' ] extend
 type DateParts = GrowTuple< [ number, number ], 7 >;
 
 /**
+ * Build a TZDate from `DateParts` in the given timezone, UTC when omitted.
  *
  * @param root0
  * @param root0."0"
@@ -108,7 +109,6 @@ export function dateToISOStringWithTZ( date: Date, timezone: string ): string {
  * @return A Date object representing midnight in the specified timezone
  */
 export function startOfDayTZ( date: Date | number, timeZone: string ): Date {
-	// Create TZDate in the target timezone - this interprets the input date in that timezone
 	const tzDate = new TZDateMini( new Date( date ).getTime(), timeZone );
 	// startOfDay from date-fns respects the timezone context in TZDate
 	return startOfDay( tzDate );
@@ -122,7 +122,6 @@ export function startOfDayTZ( date: Date | number, timeZone: string ): Date {
  * @return A Date object representing the last millisecond of the day in the specified timezone
  */
 export function endOfDayTZ( date: Date | number, timeZone: string ): Date {
-	// Create TZDate in the target timezone - this interprets the input date in that timezone
 	const tzDate = new TZDateMini( new Date( date ).getTime(), timeZone );
 	// endOfDay from date-fns respects the timezone context in TZDate
 	return endOfDay( tzDate );

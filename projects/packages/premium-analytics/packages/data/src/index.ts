@@ -25,7 +25,7 @@ export type {
 export { useStatsPostLikes } from './hooks/use-stats-post-likes';
 export type { StatsPostLikesParams, StatsPostLikesResponse } from './hooks/use-stats-post-likes';
 export { useStatsQuery } from './hooks/use-stats-query';
-export { latestPostQuery } from './queries/latest-post-query';
+export { latestPostQuery, postContentQuery } from './queries/latest-post-query';
 export type { LatestPost, LatestPostResponse } from './processing/latest-post';
 export { useStatsTopPosts } from './hooks/use-stats-top-posts';
 export { useStatsReferrers } from './hooks/use-stats-referrers';
@@ -79,8 +79,11 @@ export { useStatsFollowers } from './hooks/use-stats-followers';
 export type { StatsFollowersParams, StatsFollowersResponse } from './hooks/use-stats-followers';
 export {
 	useStatsComments,
+	useStatsCommentsRows,
 	type StatsCommentsParams,
 	type StatsCommentsResponse,
+	type UseStatsCommentsRowsArgs,
+	type UseStatsCommentsRowsResult,
 } from './hooks/use-stats-comments';
 export {
 	useStatsSubscribersCounts,
@@ -110,6 +113,7 @@ export {
 	flattenStatsLeaves,
 	getStatsChartBucketKey,
 	getStatsReportItems,
+	selectStatsCommentsRows,
 	sliceWordAdsStatsReport,
 } from './processing/stats';
 export type { FlattenStatsLeavesContext, FlattenStatsLeavesOptions } from './processing/stats';
@@ -191,6 +195,7 @@ export {
 	type StatsSingleVideoPost,
 	type StatsSingleVideoParams,
 	type StatsSingleVideoResponse,
+	type StatsSingleVideoTotals,
 } from './hooks/use-stats-single-video';
 export {
 	useStatsEmailOpensTimeSeries,
@@ -224,6 +229,7 @@ export {
 	hasComparisonEnabled,
 	type PresetType,
 	type ReportParams,
+	type ReportPresetId,
 } from './utils/search';
 export {
 	dateToISOStringWithLocalTZ,
@@ -247,6 +253,7 @@ export type { FilterCondition } from './types/filter-condition';
 export type { ProductType } from './types/product-type';
 export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-fetch';
 export {
+	getAllowedIntervalsForPreset,
 	getDateFormatFromInterval,
 	getDefaultIntervalForPeriod,
 	resolveIntervalForRange,
@@ -274,6 +281,7 @@ export type {
 	StatsCommentFollowersRawPost,
 	StatsCommentFollowersRawResponse,
 	StatsCommentsAuthorItem,
+	StatsCommentsGroup,
 	StatsCommentsGroupItem,
 	StatsCommentsItem,
 	StatsCommentsPostItem,
@@ -281,6 +289,7 @@ export type {
 	StatsCommentsRawFollowData,
 	StatsCommentsRawPost,
 	StatsCommentsRawResponse,
+	StatsCommentsRow,
 	StatsEmailBreakdownItem,
 	StatsDevicesComparisonItem,
 	StatsDevicesItem,

@@ -2,13 +2,14 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { trendingUp } from '@wordpress/icons';
+import { people } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Internal dependencies
  */
-import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fields';
+import { SelectField } from '@jetpack-premium-analytics/fields';
+import type { MetricTabsChartType } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Granularity the chart can be grouped by. `auto` follows the dashboard date
@@ -18,10 +19,27 @@ import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fiel
 export type SubscribersChartGranularity = 'auto' | 'day' | 'week' | 'month';
 
 /**
- * The metric tabs the chart can show, in display order: the persisted id and
- * label of each metric. Single source for the settings checkboxes and the
- * chart tabs so the two cannot drift apart. The Paid subscribers tab only
- * renders when the site has paid subscribers, even while selected.
+ * The chart types the widget offers, in display order. Single source for the
+ * settings dropdown and the `SubscribersChartType` union so the two cannot
+ * drift apart. Matches the Traffic summary chart's own switch, so the two
+ * summary charts on the dashboard offer the same choice.
+ */
+export const SUBSCRIBERS_CHART_TYPES = [
+	{ id: 'line', label: __( 'Line chart', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'bar', label: __( 'Bar chart', 'jetpack-premium-analytics-pkg' ) },
+] as const satisfies readonly { id: MetricTabsChartType; label: string }[];
+
+/**
+ * How the selected metric is drawn. Derived from the list above, which
+ * `satisfies` the toolkit's own union, so a value the chart cannot draw fails
+ * to compile here rather than shipping as a broken dropdown option.
+ */
+export type SubscribersChartType = ( typeof SUBSCRIBERS_CHART_TYPES )[ number ][ 'id' ];
+
+/**
+ * The metric tabs the chart shows, in display order: the id and label of each
+ * metric. The Paid subscribers tab only renders when the site has paid
+ * subscribers.
  */
 export const SUBSCRIBERS_CHART_METRICS = [
 	{ id: 'subscribers', label: __( 'Subscribers', 'jetpack-premium-analytics-pkg' ) },
@@ -29,7 +47,7 @@ export const SUBSCRIBERS_CHART_METRICS = [
 ] as const satisfies readonly { id: string; label: string }[];
 
 /**
- * Identifier persisted in the widget's `metrics` attribute for one metric tab.
+ * Identifier of one metric tab.
  */
 export type SubscribersChartMetricId = ( typeof SUBSCRIBERS_CHART_METRICS )[ number ][ 'id' ];
 
@@ -40,18 +58,12 @@ export type SubscribersChartMetricId = ( typeof SUBSCRIBERS_CHART_METRICS )[ num
  * dashboard previews).
  *
  * @property granularity - Bucket size within the dashboard range. Defaults to `auto`.
- * @property metrics     - Metric tabs to show in the chart. Defaults to every metric.
+ * @property chartType   - How to draw the selected metric. Defaults to `line`.
  */
 export type SubscribersChartAttributes = {
 	granularity?: SubscribersChartGranularity;
-	metrics?: SubscribersChartMetricId[];
+	chartType?: SubscribersChartType;
 };
-
-/**
- * Default selection for new widget instances: every metric enabled.
- */
-export const DEFAULT_SUBSCRIBERS_CHART_METRICS: SubscribersChartMetricId[] =
-	SUBSCRIBERS_CHART_METRICS.map( metric => metric.id );
 
 /**
  * Widget type definition.
@@ -60,12 +72,12 @@ export const DEFAULT_SUBSCRIBERS_CHART_METRICS: SubscribersChartMetricId[] =
  * wp-calypso. The date range and previous-period comparison follow the
  * dashboard picker; the legacy interval segmented control is the
  * `granularity` attribute (`relevance: 'high'`), so the widget host renders
- * its control. It only chooses the bucket size within that range. The
- * `metrics` attribute selects which tabs render; `example.attributes` doubles
- * as the defaults applied to new instances.
+ * its control. It only chooses the bucket size within that range. Which metric
+ * is plotted is the chart's own tab selection, not an attribute;
+ * `example.attributes` doubles as the defaults applied to new instances.
  */
 export default {
-	icon: trendingUp,
+	icon: people,
 	attributes: [
 		{
 			id: 'granularity',
@@ -93,21 +105,21 @@ export default {
 			relevance: 'high',
 		},
 		{
-			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
-			type: 'array',
-			relevance: 'high',
-			Edit: ArrayCheckboxField,
-			elements: SUBSCRIBERS_CHART_METRICS.map( metric => ( {
-				value: metric.id,
-				label: metric.label,
+			id: 'chartType',
+			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
+			type: 'text',
+			Edit: SelectField,
+			elements: SUBSCRIBERS_CHART_TYPES.map( chartType => ( {
+				value: chartType.id,
+				label: chartType.label,
 			} ) ),
+			relevance: 'high',
 		},
 	] as WidgetAttributeField< SubscribersChartAttributes >[],
 	example: {
 		attributes: {
 			granularity: 'auto',
-			metrics: DEFAULT_SUBSCRIBERS_CHART_METRICS,
+			chartType: 'line',
 		},
 	},
 };

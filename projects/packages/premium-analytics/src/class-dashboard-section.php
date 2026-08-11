@@ -17,6 +17,33 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 final class Dashboard_Section {
 
 	/**
+	 * Date-filter surface offering the rolling date-range picker (today, last 7
+	 * days, a custom range, …) plus the comparison control. The default.
+	 *
+	 * @since 0.2.0
+	 * @var string
+	 */
+	const DATE_FILTER_RANGE = 'range';
+
+	/**
+	 * Date-filter surface offering all time plus one entry per calendar year,
+	 * for sections whose data is read as whole history rather than as a
+	 * rolling window.
+	 *
+	 * @since 0.2.0
+	 * @var string
+	 */
+	const DATE_FILTER_YEAR = 'year';
+
+	/**
+	 * Date-filter surfaces a section may declare.
+	 *
+	 * @since 0.2.0
+	 * @var string[]
+	 */
+	const DATE_FILTERS = array( self::DATE_FILTER_RANGE, self::DATE_FILTER_YEAR );
+
+	/**
 	 * Dashboard identifier.
 	 *
 	 * @var string
@@ -38,11 +65,28 @@ final class Dashboard_Section {
 	public $slug;
 
 	/**
-	 * Display label.
+	 * Display label, naming the section's tab.
 	 *
 	 * @var string
 	 */
 	public $label;
+
+	/**
+	 * Section heading, deliberately distinct from the tab label: the tab reads
+	 * `Traffic` where the heading reads `Site traffic`. Null falls back to the label.
+	 *
+	 * @since $$next-version$$
+	 * @var string|null
+	 */
+	public $title = null;
+
+	/**
+	 * Section description, shown as the page subtitle while this section is active.
+	 *
+	 * @since $$next-version$$
+	 * @var string|null
+	 */
+	public $description = null;
 
 	/**
 	 * Sort order.
@@ -50,6 +94,14 @@ final class Dashboard_Section {
 	 * @var int
 	 */
 	public $order = 10;
+
+	/**
+	 * Which date filter the section's header offers, as one of self::DATE_FILTERS.
+	 *
+	 * @since 0.2.0
+	 * @var string
+	 */
+	public $date_filter = self::DATE_FILTER_RANGE;
 
 	/**
 	 * Availability flag or callback.
@@ -129,7 +181,10 @@ final class Dashboard_Section {
 			'id'             => $this->id,
 			'slug'           => $this->slug,
 			'label'          => $this->label,
+			'title'          => $this->title,
+			'description'    => $this->description,
 			'order'          => (int) $this->order,
+			'date_filter'    => $this->date_filter,
 			'default_layout' => $this->get_default_layout(),
 		);
 	}
@@ -149,8 +204,26 @@ final class Dashboard_Section {
 			$this->label = (string) $args['label'];
 		}
 
+		// An empty string is a registrant saying "none", not a heading: kept as-is it
+		// would defeat the label fallback and render an `<h2>` with no accessible name.
+		if ( isset( $args['title'] ) ) {
+			$title       = (string) $args['title'];
+			$this->title = '' === $title ? null : $title;
+		}
+
+		if ( isset( $args['description'] ) ) {
+			$description       = (string) $args['description'];
+			$this->description = '' === $description ? null : $description;
+		}
+
 		if ( isset( $args['order'] ) ) {
 			$this->order = (int) $args['order'];
+		}
+
+		// An unrecognized surface keeps the default rather than reaching the
+		// dashboard, where the frontend has no filter to render for it.
+		if ( isset( $args['date_filter'] ) && in_array( $args['date_filter'], self::DATE_FILTERS, true ) ) {
+			$this->date_filter = (string) $args['date_filter'];
 		}
 
 		if ( array_key_exists( 'is_available', $args ) ) {

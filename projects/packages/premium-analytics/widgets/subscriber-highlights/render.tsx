@@ -15,7 +15,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { envelope, payment, people, share } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
+import { Text } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -62,9 +62,6 @@ const TILE_CONFIG: Record<
  * error / empty states rendered through `<WidgetState>`. The counts module has
  * no comparison period, so each tile shows a bare formatted count. Which tiles
  * appear is controlled by the `metrics` attribute.
- *
- * @param {SubscriberMetricId[]} metrics - Enabled metric tile ids.
- * @return The widget content.
  */
 function SubscriberHighlightsReport( {
 	metrics = DEFAULT_SUBSCRIBER_METRICS,
@@ -122,14 +119,8 @@ function SubscriberHighlightsReport( {
 }
 
 /**
- * Widget render entry point.
- *
- * WidgetRoot provides the analytics query client and chart theme consumed by the
- * inner report. Host attributes are forwarded so any injected report params are
- * preserved even though the counts endpoint is not period-scoped.
- *
- * @param {SubscriberHighlightsWidgetProps} props - The widget render props.
- * @return The rendered widget.
+ * Host attributes are forwarded even though the counts endpoint is not
+ * period-scoped, so injected report params survive the WidgetRoot boundary.
  */
 export default function SubscriberHighlights( {
 	attributes = {},

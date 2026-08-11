@@ -13,6 +13,8 @@ import {
 	formatMetricValue,
 	formatDate,
 	formatDateRange,
+	formatDateRangeLong,
+	getDateRangeSpan,
 	type DateFormatName,
 } from '@jetpack-premium-analytics/formatters';
 ```
@@ -65,12 +67,18 @@ formatDate( date ); // '21 de junio de 2025'
 formatDate( date, 'short' ); // '21 de junio'
 ```
 
-| Name     | Purpose                                         |
-| -------- | ----------------------------------------------- |
-| `medium` | Default. The site's `date_format` verbatim.     |
-| `short`  | The site format minus its year.                 |
-| `year`   | Year alone.                                     |
-| `iso`    | Machine-readable `YYYY-MM-DD`. Never localized. |
+| Name         | Purpose                                             |
+| ------------ | --------------------------------------------------- |
+| `medium`     | Default. The site's `date_format` verbatim.         |
+| `short`      | The site format minus its year.                     |
+| `full`       | The site format led by the weekday.                 |
+| `fullNoYear` | `short` led by the weekday.                         |
+| `year`       | Year alone.                                         |
+| `iso`        | Machine-readable `YYYY-MM-DD`. Never localized.     |
+
+The two weekday forms are derived, since core publishes no weekday-bearing
+format. The weekday name itself still comes from WordPress's translation
+tables; only the comma joining it to the date is ours.
 
 There is no custom-pattern escape hatch: a hand-written pattern fixes the
 day/month order to whatever the author happened to type, which is the problem
@@ -89,15 +97,100 @@ Format a date range into a human-readable string.
 Returns `''` when range or dates are missing.
 
 ```typescript
+// On a site left on its locale's default date format:
 formatDateRange( { from, to } );
-// same day: 'June 21, 2025'
-// range:    'June 21, 2025 – June 25, 2025'
+// same day:    'June 21, 2025'
+// same month:  'June 21 – 25, 2025'
+// same year:   'June 21 – July 25, 2025'
+// cross-year:  'June 21, 2024 – July 25, 2025'
+
+// The same-month range above on an es_ES site:
+// '21–25 de junio de 2025'
 ```
 
-Both ends are spelled out in full. Eliding the shared month or year
-("Jun 21-25, 2025") is an English typographic convention that does not carry
-over — on an es_ES site it yields "21 de junio-25 de junio de 2025" — and
-WordPress publishes no per-locale elision rules to draw on.
+A month or year shared by both ends is elided where the site's locale has a
+rule for it. Those rules are not written by hand — "Jun 21-25, 2025" is an
+English convention that, translated literally, gives the wrong result in
+Spanish. They are borrowed from CLDR via `Intl.DateTimeFormat.formatRange()`,
+which only holds where WordPress and CLDR agree on how dates look. Two checks
+establish that per site, so no allowlist of trusted locales has to be
+maintained:
+
+1. `Intl` renders representative dates exactly as `formatDate` does. A site
+   with a custom `date_format` or different month translations fails here and
+   keeps the format it asked for.
+2. `Intl` builds an un-elidable range out of that same rendering. `ja` and `zh`
+   fail here because their range patterns switch to numeric dates and
+   locale-specific separators.
+
+Where either check fails, both ends are spelled out in full using the
+translated WordPress range pattern instead:
+
+```typescript
+// Site with a custom `date_format` of 'd/m/Y':
+// '21/06/2025 – 25/06/2025'
+```
+
+| Parameter | Type                         | Description       |
+| --------- | ---------------------------- | ----------------- |
+| `range`   | `{ from?: Date; to?: Date }` | Date range object |
+
+## `formatDateRangeLong( range?, options? )`
+
+Format a date range in explicit, readable form, for prominent surfaces such as
+the section header subtitle. Returns `''` when range or dates are missing.
+
+The shape follows the range's own length: day-scale ranges lead with the
+weekday and omit the year while they sit in the reference year; longer ranges
+drop the weekday and always carry the year. A window of a day or less is named
+by a single date rather than two endpoints.
+
+```typescript
+formatDateRangeLong( { from, to } );
+// 24 hours:    'Tuesday, July 28'
+// today:       'Wednesday, July 29'
+// 7 days:      'Tuesday, July 21 – Monday, July 27'
+// past year:   'Tuesday, July 16, 2024 – Monday, July 22, 2024'
+// 12 months:   'July 1, 2025 – June 30, 2026'
+```
+
+Pass `calendarScale` for a selection whose scale is a property of the selection
+rather than of the dates. A calendar year still running ends at the end of
+today, so its measured unit, and with it the shape, would otherwise change from
+one day to the next:
+
+```typescript
+formatDateRangeLong( { from, to }, { calendarScale: true } );
+// read mid-month:      'January 1, 2026 – July 30, 2026'
+// read on a month end: 'January 1, 2026 – July 31, 2026'
+// without the flag, the first of those reads 'Thursday, January 1 – Thursday, July 30'
+```
+
+| Parameter               | Type                         | Default      | Description                                    |
+| ----------------------- | ---------------------------- | ------------ | ---------------------------------------------- |
+| `range`                 | `{ from?: Date; to?: Date }` |              | Date range object                              |
+| `options.referenceYear` | `number`                     | current year | Year against which the year is redundant       |
+| `options.calendarScale` | `boolean`                    | `false`      | Force the calendar shape whatever it measures  |
+
+## `getDateRangeSpan( range? )`
+
+Measure how long a range is, in the coarsest unit that divides it evenly.
+Returns `null` when range or dates are missing.
+
+Derived from the range itself rather than the preset that produced it, so a
+window stepped back off a preset still reports its own length.
+
+```typescript
+getDateRangeSpan( { from, to } );
+// 24 hours:  { unit: 'hour', value: 24 }
+// 7 days:    { unit: 'day', value: 7 }
+// 12 months: { unit: 'month', value: 12 }
+// all time:  { unit: 'year', value: 6 }
+```
+
+A whole-month range stays in days below two months, so "Last 30 days" does not
+become "1 month", and only collapses into years from two years up, so a
+twelve-month window keeps reading as "12 months".
 
 | Parameter | Type                         | Description       |
 | --------- | ---------------------------- | ----------------- |

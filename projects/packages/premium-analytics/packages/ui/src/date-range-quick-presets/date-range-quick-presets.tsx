@@ -8,13 +8,13 @@ import {
 	type PrimaryPresetId,
 	type SelectablePresetId,
 } from '@jetpack-premium-analytics/datetime';
+import { Button } from '@jetpack-premium-analytics/externals';
 import { Composite } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import { Button, SelectControl } from '@wordpress/ui';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import type { PresetLabelMode } from '../date-range-layout';
 import type { DateRange } from '../date-range-popover';
 import './date-range-quick-presets.scss';
 
@@ -35,31 +35,29 @@ type DateRangeQuickPresetsProps = {
 	timeZone: string;
 
 	/**
-	 * When true, presets render as a select instead of composite pills.
+	 * How much room the labels have. Measured and owned by `DateFiltersPanel`;
+	 * this component never measures.
 	 */
-	isCompact?: boolean;
+	labelMode?: PresetLabelMode;
 };
 
 export function DateRangeQuickPresets( {
 	value,
 	onSelect,
 	timeZone,
-	isCompact = false,
+	labelMode = 'full',
 }: DateRangeQuickPresetsProps ) {
 	const presets = useMemo( () => getQuickSurfacePresets( timeZone ), [ timeZone ] );
 
-	const items = useMemo(
-		() =>
-			presets.map( ( { id, label } ) => ( {
-				value: id,
-				label,
-			} ) ),
-		[ presets ]
-	);
-
-	const selectedItem = useMemo(
-		() => items.find( item => item.value === value ) ?? null,
-		[ items, value ]
+	/*
+	 * The whole group switches together. A row mixing "Last 24 hours" with "7D"
+	 * reads as a rendering fault rather than as a deliberate abbreviation, so no
+	 * pill picks its own form.
+	 */
+	const pillLabel = useCallback(
+		( preset: { label: string; shortLabel?: string } ) =>
+			labelMode === 'abbreviated' ? preset.shortLabel ?? preset.label : preset.label,
+		[ labelMode ]
 	);
 
 	/*
@@ -79,45 +77,32 @@ export function DateRangeQuickPresets( {
 		[ onSelect, presets, timeZone ]
 	);
 
-	if ( isCompact ) {
-		return (
-			<SelectControl
-				className="date-range-quick-presets__select"
-				items={ items }
-				value={ selectedItem }
-				onValueChange={ item => {
-					if ( item?.value ) {
-						selectPreset( item.value );
-					}
-				} }
-				label={ __( 'Period', 'jetpack-premium-analytics-pkg' ) }
-				hideLabelFromVision
-				placeholder={ __( 'Select period', 'jetpack-premium-analytics-pkg' ) }
-			/>
-		);
-	}
-
 	/*
 	 * Each pill joins the roving tabindex of the surrounding `Composite`
 	 * group that `DateRangeFilter` renders.
 	 */
 	return (
 		<>
-			{ presets.map( ( { id, label } ) => (
+			{ presets.map( preset => (
 				<Composite.Item
-					key={ id }
+					key={ preset.id }
 					render={
 						<Button
 							className="date-range-quick-presets__pill"
 							variant="minimal"
 							tone="neutral"
 							size="small"
-							aria-pressed={ value === id }
-							onClick={ () => selectPreset( id ) }
+							aria-pressed={ value === preset.id }
+							/*
+							 * Abbreviated pills lose the wording that named the period, so
+							 * carry the full label for anyone not reading the glyphs.
+							 */
+							aria-label={ labelMode === 'abbreviated' ? preset.label : undefined }
+							onClick={ () => selectPreset( preset.id ) }
 						/>
 					}
 				>
-					{ label }
+					{ pillLabel( preset ) }
 				</Composite.Item>
 			) ) }
 		</>

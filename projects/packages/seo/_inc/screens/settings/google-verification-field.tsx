@@ -16,6 +16,11 @@ interface Props {
 	disabled?: boolean;
 }
 
+// Names the auto-verify group for assistive tech. Static, matching the
+// `jetpack-seo-settings-*` ids used elsewhere in this folder — there's only ever
+// one Google field on the tab, so it can't collide.
+const GROUP_LABEL_ID = 'jetpack-seo-settings-google-verification-label';
+
 // Matches the wording of the other services' hints in `verification-card`: both
 // a whole pasted meta tag and a bare code are accepted on save.
 const manualHelp = __(
@@ -83,10 +88,20 @@ const GoogleVerificationField: FC< Props > = ( { value, onChange, onCommit, disa
 		);
 	}
 
+	// Named as a group: unlike the other four services, this branch is a name over
+	// several controls (verify, manual entry, and the revealed code field), so it needs
+	// to attach to them for a screen reader. The `Text` inside is styled as a field
+	// label, which on its own would say "label" without saying what it labels.
 	return (
-		<Stack direction="column" gap="md">
+		<Stack direction="column" gap="md" role="group" aria-labelledby={ GROUP_LABEL_ID }>
 			<Stack direction="row" justify="space-between" align="center" gap="sm">
-				<Text variant="heading-md" render={ <strong /> }>
+				{ /* `heading-sm` is the field-label treatment — 11px uppercase, the same
+				     size and casing as the `TextControl` labels the other four services
+				     render, and as this field's own manual-entry branch above (also a
+				     `TextControl`). Not pixel-identical: `heading-sm` is weight 499 against
+				     the control label's 600. It previously used `heading-md`, so "Google"
+				     changed typography depending on whether the site was Jetpack-connected. */ }
+				<Text variant="heading-sm" render={ <span /> } id={ GROUP_LABEL_ID }>
 					{ __( 'Google', 'jetpack-seo' ) }
 				</Text>
 				{ state === 'verified' && (

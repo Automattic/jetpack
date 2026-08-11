@@ -17,12 +17,17 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 
 ## How it works
 
-`Analytics::init()` loads the generated `build/build.php`, which registers an `admin_init`
-interceptor for `?page=jetpack-premium-analytics`. The interceptor takes over the request
-before WordPress renders the admin chrome; `@wordpress/boot` provides the SPA shell and
-routing; each route under `routes/<name>/` is a lazy-loaded ES module discovered at build time
-from its `package.json`. WordPress core or Jetpack's wp-build polyfills provide the WordPress
-script handles/modules used by the dashboard, so the Gutenberg plugin is not required.
+`Analytics::init()` loads the generated `build/build.php` on requests that render an admin screen
+(not on front-end page views, REST, cron, `admin-ajax.php`, or `admin-post.php` — see
+`renders_admin_chrome()`), which registers an `admin_init` interceptor for
+`?page=jetpack-premium-analytics`. REST requests reach the
+dashboard's data without it: `Dashboard_Support_Routes::boot_routes()` registers the routes on
+`rest_api_init`, and `ensure_widget_registry_ready()` loads the widget manifest lazily, when a
+route callback actually reads it. The interceptor takes over the request before WordPress renders
+the admin chrome; `@wordpress/boot` provides the SPA shell and routing; each route under
+`routes/<name>/` is a lazy-loaded ES module discovered at build time from its `package.json`.
+WordPress core or Jetpack's wp-build polyfills provide the WordPress script handles/modules used
+by the dashboard, so the Gutenberg plugin is not required.
 
 ## Structure
 
@@ -32,6 +37,7 @@ src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
 src/Sync/                               # interim woocommerce_analytics sync (WOOA7S-1550)
 packages/data/src/api/                  # frontend fetch helpers (apiFetch)
+packages/externals/                     # passthrough module for shared third-party libraries
 routes/                                 # lazy-loaded SPA pages; build/ is generated
 ```
 
@@ -68,16 +74,16 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 - `<prefix>` must be allowlisted in `PREFIX_CONFIG` or the route 404s. This is the security
   boundary — the blog token is only forwarded for these.
 
-| Prefix                                                            | Capability         | Writes (POST)                   |
-| ----------------------------------------------------------------- | ------------------ | ------------------------------- |
-| `analytics` (Woo store reports)                                   | `manage_options`   | —                               |
-| `stats`                                                           | `view_stats`       | `stats/referrers/spam/`         |
-| `wordads`                                                         | `activate_wordads` | —                               |
-| `subscribers` / `site-has-never-published-post` / `jetpack-stats` | `view_stats`       | —                               |
-| `jetpack-stats-dashboard`                                         | `view_stats`       | whole prefix (busts read cache) |
-| `commercial-classification`                                       | `view_stats`       | exact path                      |
-| `upgrades` (not under `/sites/`)                                  | `view_stats`       | —                               |
-| `posts` (pattern-constrained: only `<id>/likes`)                  | `view_stats`       | —                               |
+| Prefix                                                            | Capability                 | Writes (POST)                   |
+| ----------------------------------------------------------------- | -------------------------- | ------------------------------- |
+| `analytics` (Woo store reports)                                   | `view_woocommerce_reports` | —                               |
+| `stats`                                                           | `view_stats`               | `stats/referrers/spam/`         |
+| `wordads`                                                         | `activate_wordads`         | —                               |
+| `subscribers` / `site-has-never-published-post` / `jetpack-stats` | `view_stats`               | —                               |
+| `jetpack-stats-dashboard`                                         | `view_stats`               | whole prefix (busts read cache) |
+| `commercial-classification`                                       | `view_stats`               | exact path                      |
+| `upgrades` (not under `/sites/`)                                  | `view_stats`               | —                               |
+| `posts` (pattern-constrained: only `<id>/likes`)                  | `view_stats`               | —                               |
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
 Writes column. Query params pass through except control params (`endpoint`, `version`,
@@ -169,7 +175,54 @@ See Automattic/jetpack#50266 for the PR that established this contract.
 - Don't edit dashboard React in Calypso — it lives here now.
 - Internal package names use `@jetpack-premium-analytics/*` aliases throughout the package —
   never `@automattic/jetpack-premium-analytics-*`.
+- Never import `@automattic/ui`, `@wordpress/ui`, or `@wordpress/dataviews` directly from
+  anything under `packages/`, `widgets/`, or `routes/` — go through
+  `@jetpack-premium-analytics/externals`. A direct import compiles the whole library into that
+  bundle again; ESLint enforces this. `@automattic/charts` follows the same rule under
+  `packages/`, but under `widgets/` and `routes/` it must come from
+  `@jetpack-premium-analytics/widgets-toolkit` instead. See `packages/externals/README.md`.
+
+## Comments and documentation
+
+Code explains what; comments explain why. Keep them minimal.
+
+- Document non-obvious rules, constraints, invariants, risks, and workarounds — not names,
+  types, or signatures. Prefer a clearer name over an explanatory comment.
+- Private functions do not need a docstring by default. One sentence is usually enough.
+- Never invent rationale. Treat a stale comment as a bug: one that contradicts the code is
+  worse than no comment at all.
 - All source code comments must be in English.
+
+Load-bearing here and easy to delete by mistake: the `max = 0` semantics, the
+`undefined`-not-`0` comparison rules, `safeHttpUrl` guards (including the ones explaining why a
+URL needs _no_ guard), import-boundary notes (WOOA7S-1836), and the WPCOM Simple route guards.
+
+### What lint requires you to keep
+
+Deleting a whole JSDoc block is only safe where `eslint.config.mjs` softens the jsdoc rules,
+and the softening is uneven. Those overrides are temporary scaffolding that let the ports land
+with their upstream JSDoc style; they are meant to come off as the ported code is cleaned up,
+so treat the table as "what lint tolerates today", not as the standard to write new code to:
+
+| Path                                                                    | Whole block deletable?                         |
+| ----------------------------------------------------------------------- | ---------------------------------------------- |
+| `widgets/**`, `packages/{data,ui,fields,widgets-toolkit}/**`            | Yes                                            |
+| `packages/routing/**`                                                   | Yes, but a surviving block needs a description |
+| `packages/{datetime,formatters}/**`                                     | No — `require-jsdoc` is on; shorten instead    |
+| `routes/**`, `packages/{icons,externals,init,site-sync}/**`, `types/**` | No — base rules apply; shorten instead         |
+
+Two constraints hold everywhere:
+
+- **PHP** is linted by WordPress Coding Standards, so file/class/function docblocks and their
+  `@param` / `@return` / `@since` / `@package` tags are structural — trim the prose, keep the
+  tags. Hook docblocks above `apply_filters()` / `do_action()` are required.
+- A JSDoc block containing `@param props` must document every destructured property
+  (`jsdoc/check-param-names`). Dropping the `@param props.X` list means dropping the root
+  `@param props` line with it.
+
+Not commentary, so not candidates for trimming: `// translators:` comments (the build reads
+them), `eslint-disable` / `@ts-expect-error` justifications, and JSDoc on exported Storybook
+stories or `docs.description.component` — Storybook renders those as user-visible docs.
 
 ## Widgets
 
@@ -508,7 +561,8 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
 - Importing `@automattic/charts` directly from a widget — chart components must come through
   `@jetpack-premium-analytics/widgets-toolkit` (a shared script module). A direct import
   bundles the entire charting stack into that widget's render bundle; add a re-export to the
-  toolkit's "Charts passthrough" section instead.
+  toolkit's "Charts passthrough" section instead. The toolkit in turn takes charts from
+  `@jetpack-premium-analytics/externals`, so a passthrough export costs nothing.
 - Porting a Stats widget and forgetting to add its endpoint to `routeStatsReport()` in
   `register-report-mocks.ts` — stories will render an error state instead of mock data because
   the middleware only intercepts Woo analytics paths by default.

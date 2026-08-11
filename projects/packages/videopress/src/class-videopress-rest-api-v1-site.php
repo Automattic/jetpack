@@ -40,12 +40,18 @@ class VideoPress_Rest_Api_V1_Site {
 	}
 
 	/**
-	 * Checks wether the user have permissions to see the site info
+	 * Checks whether the user has permission to see the site information.
+	 *
+	 * The response is the full WordPress.com site payload (site options,
+	 * plan/product entitlements, etc.), which is administrative data, so the
+	 * endpoint requires `manage_options`. The VideoPress dashboard is the only
+	 * legitimate consumer of this route, and its admin page requires the same
+	 * capability.
 	 *
 	 * @return boolean
 	 */
 	public static function permissions_callback() {
-		return current_user_can( 'read' ); // TODO: confirm this
+		return current_user_can( 'manage_options' );
 	}
 
 	/**

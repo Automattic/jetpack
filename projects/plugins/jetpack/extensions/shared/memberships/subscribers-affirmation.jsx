@@ -5,6 +5,7 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../_inc/shared/analytics-url';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import {
 	accessOptions,
@@ -489,12 +490,16 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		} );
 	}
 
+	// An anchor with no href renders styled but non-actionable, so fall back to
+	// plain text when there is nowhere to link.
+	const emailStatsLink = getJetpackEmailStatsLink( blogId, postId );
+
 	return (
 		<>
 			<p>
 				{ createInterpolateElement( text, {
 					strong: <strong />,
-					link: <a href={ getJetpackEmailStatsLink( blogId, postId ) } />,
+					link: emailStatsLink ? <a href={ emailStatsLink } /> : <span />,
 					visibilityLink: <a href={ getSiteVisibilitySettingsLink() } />,
 				} ) }
 			</p>
@@ -514,14 +519,21 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 }
 
 /**
- * Get the Jetpack email stats link for the given post ID.
+ * Get the email stats link for the given post.
+ *
+ * Points at the Premium Analytics dashboard where that is the site's analytics
+ * UI, and at the Stats deep link everywhere else.
  *
  * @param {number} blogId - The ID of the blog.
  * @param {number} postId - The ID of the post.
  *
- * @return {string} - The Jetpack email stats link for the given post.
+ * @return {?string} - The link, or null when the dashboard is the analytics UI but this user cannot open it.
  */
 export function getJetpackEmailStatsLink( blogId, postId ) {
+	if ( hasAnalyticsDashboard() ) {
+		return getAnalyticsUrl( { view: 'post', id: postId, section: 'email-opens' } );
+	}
+
 	return getAdminUrl( `admin.php?page=stats#!/stats/email/opens/day/${ postId }/${ blogId }` );
 }
 

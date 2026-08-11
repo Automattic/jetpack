@@ -1154,6 +1154,53 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Get the default recipient email address for the editor, together with the rule that produced it.
+	 *
+	 * The editor needs to explain why an address is being suggested, not merely what it is, so the
+	 * resolution branch is returned alongside the address instead of being discarded.
+	 *
+	 * @param mixed|null $post Optional post data (object or array).
+	 *
+	 * @return array{to: string, source: string} The address, and its source: 'post_author' or 'site_admin'.
+	 *
+	 * @since 7.24.0
+	 */
+	public static function get_default_to_with_source( $post = null ) {
+		$site_admin = array(
+			'to'     => get_option( 'admin_email' ),
+			'source' => 'site_admin',
+		);
+
+		if ( empty( $post ) ) {
+			return $site_admin;
+		}
+
+		$post_author_id = self::get_post_property( $post, 'post_author' );
+		$post_id        = self::get_post_property( $post, 'ID' );
+		$post_author    = get_user( $post_author_id );
+
+		// Check that the user has edit permissions for this blog and has an email address
+		if ( empty( $post_author ) || empty( $post_author->user_email ) ) {
+			return $site_admin;
+		}
+
+		// Check that the user is still a member of the blog.
+		if ( ! is_user_member_of_blog( $post_author_id ) ) {
+			return $site_admin;
+		}
+
+		// Check that the author can still edit the post or page.
+		if ( user_can( $post_author_id, 'edit_post', $post_id ) ) {
+			return array(
+				'to'     => $post_author->user_email,
+				'source' => 'post_author',
+			);
+		}
+
+		return $site_admin;
+	}
+
+	/**
 	 * Get the default recipient email address for the contact form based on post data.
 	 *
 	 * This is used when we load the post or page in the editor, and we don't have the post author ID directly.
@@ -1163,32 +1210,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string The default recipient email address.
 	 */
 	public static function get_default_to_for_editor( $post = null ) {
-		$default_to = get_option( 'admin_email' );
+		$resolved = self::get_default_to_with_source( $post );
 
-		if ( empty( $post ) ) {
-			return $default_to;
-		}
-
-		$post_author_id = self::get_post_property( $post, 'post_author' );
-		$post_id        = self::get_post_property( $post, 'ID' );
-		$post_author    = get_user( $post_author_id );
-
-		// Check that the user has edit permissions for this blog and has an email address
-		if ( empty( $post_author ) || empty( $post_author->user_email ) ) {
-			return $default_to;
-		}
-
-		// Check that the user is still a member of the blog.
-		if ( ! is_user_member_of_blog( $post_author_id ) ) {
-			return $default_to;
-		}
-
-		// Check that the author can still edit the post or page.
-		if ( user_can( $post_author_id, 'edit_post', $post_id ) ) {
-			return $post_author->user_email;
-		}
-
-		return $default_to;
+		return $resolved['to'];
 	}
 
 	/**
@@ -1520,6 +1544,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			id='contact-form-$id'
 			class='{$container_classes_string}'
 			data-wp-interactive='jetpack/form' " . wp_interactivity_data_wp_context( $context ) . "
+			data-wp-on--focusin=\"actions.trackFirstInteraction\"
 			data-wp-watch--scroll-to-wrapper=\"callbacks.scrollToWrapper\"
 		>\n";
 
@@ -1608,6 +1633,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$r .= '<input type="submit" style="display: none;" />';
 			}
 			$r .= "<input type='hidden' name='jetpack_contact_form_jwt' value='" . esc_attr( $form->get_jwt() ) . "' />\n";
+			// Left empty on purpose: the view script fills this in on submit. An empty
+			// value is stored as null so "never interacted with" stays distinguishable
+			// from "filled out in under a second".
+			$r .= "<input type='hidden' name='" . esc_attr( Feedback::FORM_FILL_DURATION_FIELD ) . "' value='' />\n";
 			$r .= $form->body;
 
 			if ( $is_multistep ) {

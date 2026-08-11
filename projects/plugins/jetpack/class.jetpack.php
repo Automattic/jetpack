@@ -122,6 +122,9 @@ class Jetpack {
 		'latex'               => array(
 			array( 'wp-latex/wp-latex.php', 'WP LaTeX' ),
 		),
+		'random-redirect'     => array(
+			array( 'random-redirect/random-redirect.php', 'Random Redirect' ),
+		),
 		'sharedaddy'          => array(
 			array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
 			array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
@@ -210,6 +213,9 @@ class Jetpack {
 			'Wordfence Security'                => 'wordfence/wordfence.php',
 			'All In One WP Security & Firewall' => 'all-in-one-wp-security-and-firewall/wp-security.php',
 			'iThemes Security'                  => 'better-wp-security/better-wp-security.php',
+		),
+		'random-redirect'    => array(
+			'Random Redirect 2' => 'random-redirect-2/random-redirect.php',
 		),
 		'related-posts'      => array(
 			'YARPP'                       => 'yet-another-related-posts-plugin/yarpp.php',
@@ -442,7 +448,7 @@ class Jetpack {
 	/**
 	 * Resolved answer for `is_premium_analytics_enabled()`, or null before the first call.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.1
 	 * @var bool|null
 	 */
 	private static $premium_analytics_enabled = null;
@@ -489,7 +495,7 @@ class Jetpack {
 					self::update_active_modules( $modules );
 				}
 
-				add_action( 'init', array( __CLASS__, 'activate_new_modules' ) );
+				self::register_upgrade_init_hooks();
 
 				// Upgrade to 4.3.0.
 				if ( Jetpack_Options::get_option( 'identity_crisis_whitelist' ) ) {
@@ -726,6 +732,9 @@ class Jetpack {
 		// Update the site's Jetpack plan and products from API on heartbeats.
 		add_action( 'jetpack_heartbeat', array( Jetpack_Plan::class, 'refresh_from_wpcom' ) );
 
+		// The Connection package fetches the site record for `jetpack/v4/site`; reuse it to refresh the plan.
+		add_action( 'jetpack_site_data_fetched', array( Jetpack_Plan::class, 'update_from_site_record' ) );
+
 		// Actually push the stats on shutdown.
 		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
 			add_action( 'shutdown', array( $this, 'push_stats' ) );
@@ -790,6 +799,13 @@ class Jetpack {
 		// Jetpack plugin for now: the Connection package no longer auto-wires these, so
 		// connection-only consumers (Boost, Protect, Search, etc.) do not register them yet.
 		\Automattic\Jetpack\Connection\Abilities\Connection_Abilities::init();
+
+		// Register Reprint export support on Pressable and WordPress.com (Atomic)
+		// hosts (overridable via the `jetpack_reprint_export_available` filter), so
+		// generic self-hosted Jetpack sites never expose the export endpoint.
+		if ( \Automattic\Jetpack\Reprint_Export\Reprint_Exporter::is_available() ) {
+			\Automattic\Jetpack\Reprint_Export\Reprint_Exporter::init();
+		}
 	}
 
 	/**
@@ -842,22 +858,20 @@ class Jetpack {
 	}
 
 	/**
-	 * Whether the bundled Premium Analytics dashboard is enabled.
+	 * Whether the bundled Stats v2 dashboard is enabled.
 	 *
-	 * Premium Analytics ships with the plugin behind this flag while it rolls
-	 * out (WOOA7S-1595). When enabled it replaces the Stats wp-admin UI (menu,
-	 * admin-bar entries, post-list column, and WP dashboard widget); the Stats
-	 * module's tracking is unaffected — Premium Analytics depends on it.
+	 * Stats v2 (formerly "Premium Analytics") ships with the plugin behind this
+	 * flag while it rolls out (WOOA7S-1595). When enabled it adds its own admin
+	 * menu alongside the existing Stats UI; it never replaces or hides the
+	 * legacy Stats menu, admin-bar entries, post-list column, or WP dashboard
+	 * widget. The Stats module's tracking is unaffected either way — Stats v2
+	 * depends on it.
 	 *
-	 * The package has to be loadable for this to be true. The same answer both
-	 * tears the Stats UI down and brings the dashboard up, so if the two could
-	 * disagree a site missing the package would end up with neither.
+	 * The package has to be loadable for this to be true, so a site with the
+	 * flag on but a missing package answers false here and never adds the
+	 * Stats v2 menu (a warning is logged instead).
 	 *
-	 * Resolved once per request: `configure()` asks first, on `plugins_loaded`,
-	 * and the Stats module and dashboard widget ask much later. Without the
-	 * cache a filter registered in between would be seen by only some of them.
-	 *
-	 * @since $$next-version$$
+	 * @since 16.1
 	 *
 	 * @return bool
 	 */
@@ -873,7 +887,7 @@ class Jetpack {
 		 * this from a mu-plugin or a plugin's main file — a callback added on
 		 * `plugins_loaded` or later runs too late to be seen.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.1
 		 *
 		 * @param bool $enabled Defaults to the `jetpack_premium_analytics_enabled` option (false).
 		 */
@@ -996,11 +1010,12 @@ class Jetpack {
 		}
 
 		/*
-		 * Premium Analytics (WOOA7S-1595): bundled behind a flag while it rolls
-		 * out. Unlike Stats above it must initialize on every request when
-		 * enabled: its WooCommerce store-event tracker listens on the front end
-		 * and its REST surfaces self-gate on rest_api_init. When enabled it
-		 * replaces the Stats wp-admin UI (see modules/stats.php).
+		 * Stats v2 (WOOA7S-1595): bundled behind a flag while it rolls out.
+		 * Unlike Stats above it must initialize on every request when enabled:
+		 * its WooCommerce store-event tracker listens on the front end and its
+		 * REST surfaces self-gate on rest_api_init. It adds its own admin menu
+		 * alongside the existing Stats UI (see modules/stats.php) rather than
+		 * replacing it.
 		 */
 		if ( self::is_premium_analytics_enabled() ) {
 			// No menu_title here: the package labels its own menu on admin_menu.
@@ -3011,6 +3026,74 @@ p {
 		if ( self::is_module_active( 'subscriptions' ) || self::activate_module( 'subscriptions', false, false ) ) {
 			update_option( 'jetpack_subscriptions_default_on_migrated', true );
 		}
+	}
+
+	/**
+	 * Option flag that records the AI master-switch opt-out reconciliation has run,
+	 * so it never runs twice.
+	 *
+	 * @var string
+	 */
+	const AI_MASTER_OPTOUT_MIGRATED_OPTION = 'jetpack_ai_master_optout_migrated';
+
+	/**
+	 * Register the on-upgrade init hooks whose relative ORDER matters, extracted so
+	 * the ordering can be asserted in tests without invoking plugin_upgrade() (whose
+	 * guards make it unreliable to trigger under test). activate_new_modules()
+	 * (init, default priority 10) auto-activates "Auto Activate: Yes" modules
+	 * including the `ai` master; reconcile_ai_master_optout() must run at a LATER
+	 * priority to honor an explicit AI opt-out.
+	 *
+	 * @return void
+	 */
+	public static function register_upgrade_init_hooks() {
+		add_action( 'init', array( __CLASS__, 'activate_new_modules' ) );
+		add_action( 'init', array( __CLASS__, 'reconcile_ai_master_optout' ), 20 );
+	}
+
+	/**
+	 * Preserves an explicit Jetpack AI opt-out when the `ai` module becomes the site-wide
+	 * master switch off WordPress.com Simple (self-hosted and Atomic).
+	 *
+	 * The `ai` module is "Auto Activate: Yes", so on upgrade {@see self::activate_new_modules()}
+	 * turns it on for connected sites — the desired default-on / auto-enable-on-connection
+	 * behavior, which this method deliberately leaves alone. The one case it corrects is a site
+	 * that had explicitly disabled Jetpack AI (the `jetpack_ai_enabled` option present and falsey)
+	 * before the module shipped: that opt-out must survive the module becoming the master, so the
+	 * module is deactivated for exactly those sites. An absent or truthy option is left untouched.
+	 *
+	 * Ordering is the whole point. `activate_new_modules()` is hooked on `init` at priority 10 and
+	 * auto-activates the module there; this method is hooked on `init` at priority 20 (see
+	 * {@see self::plugin_upgrade()}), so it runs AFTER the auto-activation and its deactivation is
+	 * the final state. A version-guarded block that ran inline during `plugins_loaded` would be
+	 * undone by the later auto-activation, which is why this is a late-init hook rather than an
+	 * inline upgrade step.
+	 *
+	 * WordPress.com Simple never runs modules — the option stays the master there — so this is a
+	 * no-op on Simple. The {@see self::AI_MASTER_OPTOUT_MIGRATED_OPTION} flag makes it run exactly
+	 * once, which matters because off-Simple the option is no longer the master after this runs:
+	 * a stale falsey option must not keep re-deactivating a module the user later turns back on.
+	 *
+	 * @return void
+	 */
+	public static function reconcile_ai_master_optout() {
+		if ( get_option( self::AI_MASTER_OPTOUT_MIGRATED_OPTION ) ) {
+			return;
+		}
+
+		// Simple keeps the `jetpack_ai_enabled` option as the master; modules don't run there.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		// A sentinel default distinguishes an absent option (leave auto-activation alone) from one
+		// explicitly stored falsey (an opt-out to preserve).
+		$stored = get_option( 'jetpack_ai_enabled', 'not-set' );
+		if ( 'not-set' !== $stored && ! (bool) $stored ) {
+			( new Modules() )->deactivate( 'ai' );
+		}
+
+		update_option( self::AI_MASTER_OPTOUT_MIGRATED_OPTION, true );
 	}
 
 	/**

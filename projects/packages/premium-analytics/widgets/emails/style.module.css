@@ -33,16 +33,3 @@
 	min-block-size: 0;
 	overflow: hidden;
 }
-
-/* The label fills its row; vertical padding sets the overlay bar height (there
-   is no image to size it) and the inline padding insets the text from the bar's
-   rounded left edge. */
-.label {
-	display: block;
-	padding-block: var(--wpds-dimension-padding-md);
-	padding-inline-start: var(--wpds-dimension-padding-sm);
-	overflow: hidden;
-	color: inherit;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}

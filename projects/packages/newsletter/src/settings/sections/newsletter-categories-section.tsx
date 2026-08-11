@@ -2,22 +2,28 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
-import {
-	getAdminUrl,
-	getSiteData,
-	getSiteType,
-	isWpcomPlatformSite,
-} from '@automattic/jetpack-script-data';
+import { getSiteData, getSiteType, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components/wpcom-support-link';
 import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews';
-import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Card, Fieldset, Link, Notice, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import { fetchCategories } from '../api';
+import {
+	CreatableCategoriesControl,
+	CreatableCategoryContext,
+} from './creatable-categories-control';
 import type { NewsletterSettings, WordPressCategory } from '../types';
+import type { CreatableCategoryContextValue } from './creatable-categories-control';
 
 interface NewsletterCategoriesSectionProps {
 	data: NewsletterSettings;
@@ -49,6 +55,8 @@ export function NewsletterCategoriesSection( {
 	const [ categories, setCategories ] = useState< WordPressCategory[] >( [] );
 	const [ isFetchingCategories, setIsFetchingCategories ] = useState( true );
 	const [ categoriesError, setCategoriesError ] = useState< string | null >( null );
+	// Error surfaced by the combined create/search control when a creation fails.
+	const [ createCategoryError, setCreateCategoryError ] = useState< string | null >( null );
 
 	// Track section save with the keys that changed since the last save.
 	const handleSave = useCallback( () => {
@@ -60,6 +68,31 @@ export function NewsletterCategoriesSection( {
 		} );
 		onSave();
 	}, [ changedKeys, onSave, siteType ] );
+
+	// Append a freshly created category to the list so it renders as a token
+	// without a page refresh (deduped in case it already slipped in).
+	const appendCategory = useCallback( ( category: WordPressCategory ) => {
+		setCategories( prev =>
+			prev.some( cat => cat.id === category.id ) ? prev : [ ...prev, category ]
+		);
+	}, [] );
+
+	// Fired by the control when a category is successfully created.
+	const handleCategoryCreated = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_newsletter_category_created', {
+			site_type: siteType,
+		} );
+	}, [ siteType ] );
+
+	// Stable wiring handed to the combined control via context.
+	const creatableContext = useMemo< CreatableCategoryContextValue >(
+		() => ( {
+			appendCategory,
+			onError: setCreateCategoryError,
+			onCreated: handleCategoryCreated,
+		} ),
+		[ appendCategory, handleCategoryCreated ]
+	);
 
 	// Fetch WordPress categories on mount
 	useEffect( () => {
@@ -94,16 +127,22 @@ export function NewsletterCategoriesSection( {
 			id: 'wpcom_newsletter_categories',
 			label: __( 'Newsletter categories', 'jetpack-newsletter' ),
 			description: __(
-				'Which categories will you use for newsletter subscribers? Select all that apply.',
+				'Search to add existing categories, or create a new one.',
 				'jetpack-newsletter'
 			),
 			type: 'array' as const,
+			// Custom control: one field that both searches existing categories and
+			// creates new ones (via a "Create ‘…’" suggestion row), replacing the
+			// separate "Add new category" link.
+			Edit: CreatableCategoriesControl as unknown as Field< NewsletterSettings >[ 'Edit' ],
 			elements: categories.map( cat => ( {
 				value: cat.id,
 				label: cat.name,
 			} ) ),
 			isValid: {
-				elements: true,
+				// No `elements: true` — the custom control creates categories and
+				// appends them to `elements` before selecting, so a selected value is
+				// never out of range. Only the "select at least one" rule applies.
 				custom: ( item: NewsletterSettings ) => {
 					if (
 						item.wpcom_newsletter_categories_enabled &&
@@ -146,11 +185,13 @@ export function NewsletterCategoriesSection( {
 	const savingText = __( 'Saving…', 'jetpack-newsletter' );
 	const saveText = __( 'Save', 'jetpack-newsletter' );
 
-	// Build subscribe block documentation URL and component
+	// Build subscribe block documentation URL and component. Deep-link to the
+	// "Subscribe to specific categories" section, since that's what this copy is
+	// about (the redirect service appends the fragment via its `anchor` param).
 	const isWpcom = isWpcomPlatformSite();
 	const subscribeBlockUrl = isWpcom
-		? 'https://wordpress.com/support/wordpress-editor/blocks/subscribe-block/'
-		: `https://jetpack.com/redirect/?source=jetpack-support-subscribe-block&site=${
+		? 'https://wordpress.com/support/wordpress-editor/blocks/subscribe-block/#subscribe-to-specific-categories'
+		: `https://jetpack.com/redirect/?source=jetpack-support-subscribe-block&anchor=subscribe-to-specific-categories&site=${
 				getSiteData()?.wpcom?.blog_id || ''
 		  }`;
 
@@ -185,25 +226,20 @@ export function NewsletterCategoriesSection( {
 					</Notice.Root>
 				) }
 				<Fieldset.Root disabled={ ! isNewsletterEnabled || !! categoriesError }>
-					<DataForm
-						data={ data }
-						fields={ newsletterCategoriesFields }
-						form={ newsletterCategoriesForm }
-						onChange={ onChange }
-						validity={ validity }
-					/>
+					<CreatableCategoryContext.Provider value={ creatableContext }>
+						<DataForm
+							data={ data }
+							fields={ newsletterCategoriesFields }
+							form={ newsletterCategoriesForm }
+							onChange={ onChange }
+							validity={ validity }
+						/>
+					</CreatableCategoryContext.Provider>
 
-					{ data.wpcom_newsletter_categories_enabled && (
-						<p>
-							<Link
-								openInNewTab
-								href={ getAdminUrl(
-									'edit-tags.php?taxonomy=category&referer=newsletter-categories'
-								) }
-							>
-								{ __( 'Add new category', 'jetpack-newsletter' ) }
-							</Link>
-						</p>
+					{ data.wpcom_newsletter_categories_enabled && createCategoryError && (
+						<Notice.Root intent="error">
+							<Notice.Description>{ createCategoryError }</Notice.Description>
+						</Notice.Root>
 					) }
 				</Fieldset.Root>
 				<div className="newsletter-card-footer">

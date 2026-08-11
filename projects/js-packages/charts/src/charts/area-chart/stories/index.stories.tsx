@@ -225,17 +225,17 @@ Animation.args = {
 	legendInteractive: true,
 };
 
-export const RescaleYOnLegendToggle: StoryObj< StoryArgs > = {
-	name: 'Y-axis rescales when legends toggle (default)',
+export const RescaleYOnVisibilityChange: StoryObj< StoryArgs > = {
+	name: 'Y-axis rescales when visible series change (default)',
 	render: args => (
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
-				<h4>rescaleYOnLegendToggle: true (default)</h4>
-				<AreaChart { ...args } rescaleYOnLegendToggle />
+				<h4>rescaleYOnVisibilityChange: true (default)</h4>
+				<AreaChart { ...args } rescaleYOnVisibilityChange />
 			</div>
 			<div>
-				<h4>rescaleYOnLegendToggle: false (pinned)</h4>
-				<AreaChart { ...args } rescaleYOnLegendToggle={ false } />
+				<h4>rescaleYOnVisibilityChange: false (pinned)</h4>
+				<AreaChart { ...args } rescaleYOnVisibilityChange={ false } />
 			</div>
 		</div>
 	),
@@ -553,6 +553,48 @@ MismatchedXDomains.parameters = {
 		description: {
 			story:
 				'Series with non-matching x-domains. d3-stack treats missing values as zero; the hover-glyph overlay matches that convention so subsequent series glyphs stay on the correct stacked edge.',
+		},
+	},
+};
+
+// A single hourly bucket: with no spacing to measure, inference falls back to
+// date ticks, so only the declared `tickResolution` yields an hour tick.
+const loneHourlyBucket: SeriesData[] = [
+	{
+		label: 'Views',
+		data: [ { date: new Date( 2026, 7, 2, 13 ), value: 42 } ],
+		options: {},
+	},
+];
+
+export const TimeAxisTickResolution: StoryObj< StoryArgs > = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
+			<div>
+				<h3>Lone hourly bucket, resolution inferred → date tick</h3>
+				<AreaChart width={ 460 } height={ 220 } data={ loneHourlyBucket } />
+			</div>
+			<div>
+				<h3>Same point, tickResolution: &apos;hour&apos; → hour tick</h3>
+				<AreaChart
+					width={ 460 }
+					height={ 220 }
+					data={ loneHourlyBucket }
+					options={ { axis: { x: { tickResolution: 'hour' } } } }
+				/>
+			</div>
+		</div>
+	),
+	args: {
+		containerWidth: '1020px',
+		containerHeight: '320px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"When the caller already knows the data's bucket resolution, `options.axis.x.tickResolution` declares it and the automatic formatter uses it instead of inferring the resolution from point spacing. An explicit `tickFormat` takes precedence over the hint.",
+			},
 		},
 	},
 };

@@ -19,13 +19,6 @@ export type StreakRange = {
  *
  * Pure and date-injectable so it can be unit-tested without a clock: `todayIso`
  * is only the fallback end date when the report has no `to`.
- *
- * @param params      - The report params (`yyyy-MM-dd` or ISO dates).
- * @param params.from - Picker start date, when present.
- * @param params.to   - Picker end date, when present.
- * @param minDays     - Minimum number of days the window must span.
- * @param todayIso    - Fallback end date (`yyyy-MM-dd`) when `params.to` is absent.
- * @return The floored `{ startDate, endDate }` window.
  */
 export function resolveStreakRange(
 	params: { from?: string; to?: string },

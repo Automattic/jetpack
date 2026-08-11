@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { seen } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -27,16 +27,14 @@ export type PostViewsAttributes = {
 };
 
 /**
- * Widget type definition.
- *
  * The post detail Traffic view's view-trend card, the legacy Calypso post
  * summary chart (`stats-post-summary`): the scoped post's views over the
- * dashboard date range as a comparative line chart. The series comes from
+ * dashboard date range as a line chart. The series comes from
  * the `stats/post/{id}` daily history, bucketed client-side; the
  * `granularity` attribute (`relevance: 'high'`) chooses the bucket size.
  */
 export default {
-	icon: chartBar,
+	icon: seen,
 	attributes: [
 		{
 			id: 'granularity',

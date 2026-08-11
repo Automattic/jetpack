@@ -18,6 +18,14 @@
 /vendor/nojimage/**                                      production-include
 /vendor/scssphp/**                                       production-include
 /vendor/wikimedia/aho-corasick/**                        production-include
+/vendor/wp-php-toolkit/bytestream/**                     production-include
+/vendor/wp-php-toolkit/data-liberation/**                production-include
+/vendor/wp-php-toolkit/encoding/**                       production-include
+/vendor/wp-php-toolkit/filesystem/**                     production-include
+/vendor/wp-php-toolkit/html/**                           production-include
+/vendor/wp-php-toolkit/http-client/**                    production-include
+/vendor/wp-php-toolkit/reprint-exporter/**               production-include
+/vendor/wp-php-toolkit/xml/**                            production-include
 
 # Files to exclude from Automattic/jetpack-production.
 # (see also entries in the monorepo root .gitattributes)
@@ -55,3 +63,19 @@
 /to-test.md                                              production-exclude
 /tools/**                                                production-exclude
 /wp-cli-templates/**                                     production-exclude
+
+# Cruft from poorly-cleaned wp-php-toolkit vendor packages (reprint exporter).
+/vendor/wp-php-toolkit/*/Tests/**                        production-exclude
+/vendor/wp-php-toolkit/*/*.sh                            production-exclude
+/vendor/wp-php-toolkit/*/bin/**                          production-exclude
+/vendor/wp-php-toolkit/*/**/phpstan.neon                 production-exclude
+/vendor/wp-php-toolkit/*/**/phpunit.xml                  production-exclude
+/vendor/wp-php-toolkit/*/**/tests/**                     production-exclude
+
+# rowbot (URL/IDNA parser) + brick/math + psr/log add ~1.25 MB but are only
+# reached through data-liberation's URL rewriting, which the Reprint export path
+# (raw DB dump + file tree) never invokes. Also removed from the class map via
+# composer.json's exclude-from-classmap, so the autoloader never references them.
+/vendor/wp-php-toolkit/data-liberation/vendor-patched/rowbot/**   production-exclude
+/vendor/wp-php-toolkit/data-liberation/vendor-patched/brick/**    production-exclude
+/vendor/wp-php-toolkit/data-liberation/vendor-patched/psr/log/**  production-exclude

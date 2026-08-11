@@ -1,7 +1,13 @@
 /**
  * External dependencies
  */
-import { getSiteTimezone, localTZDate } from '@jetpack-premium-analytics/data';
+import {
+	getAllowedIntervalsForPreset,
+	getSiteTimezone,
+	hasComparisonEnabled,
+	localTZDate,
+	resolveIntervalForRange,
+} from '@jetpack-premium-analytics/data';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { isValid } from 'date-fns';
@@ -15,27 +21,59 @@ import { buildRangePatch, type ReportQuerySearchParams } from './build-range-pat
 import type {
 	ComparisonPresetId,
 	DateRange,
+	IntervalType,
 	PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 
-/**
- * The values and callbacks that drive `DateFiltersPanel`, minus the
- * `containerElement` ref which the consuming page owns.
- */
 type PickerRange = { from: Date | undefined; to: Date | undefined };
 
+/**
+ * The values and callbacks that drive `DateFiltersPanel`.
+ */
 export type ReportDateFilters = {
 	presetId?: PrimaryPresetId;
 	range: PickerRange;
 	appliedPresetId?: PrimaryPresetId;
 	appliedRange: PickerRange;
 	comparisonPresetId?: ComparisonPresetId;
+	appliedComparisonPresetId?: ComparisonPresetId;
+
+	/**
+	 * The chart interval the control shows as checked.
+	 */
+	interval: IntervalType;
+
+	/**
+	 * The applied chart interval, for surfaces describing what the widgets are
+	 * currently drawing rather than what the picker is holding.
+	 */
+	appliedInterval: IntervalType;
+
+	/**
+	 * The intervals the applied range allows, finest first — what the control
+	 * lists.
+	 */
+	intervalOptions: IntervalType[];
+
 	onChange: ( range?: DateRange, presetId?: PrimaryPresetId ) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
+	onIntervalChange: ( interval: IntervalType ) => void;
 	onApply: () => void;
 	onCancel: () => void;
 	canApply: boolean;
 	timeZone: string;
+
+	/**
+	 * Stage a primary range change and commit it in the same tick, replacing the
+	 * current history entry instead of pushing one.
+	 *
+	 * For range changes the page makes on the user's behalf rather than in
+	 * response to a date edit — reconciling the preset with what the current
+	 * screen can show, for instance. Those must not leave a Back step, or Back
+	 * would return to the state that triggered the reconciliation and be
+	 * corrected straight back out of.
+	 */
+	replaceRange: ( range: DateRange, presetId: PrimaryPresetId ) => void;
 };
 
 /**
@@ -72,8 +110,7 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
  *
  * Edits are staged locally and committed atomically on Apply (or immediately
  * for comparison changes), so widgets re-fetch only on commit. The hook returns
- * everything `DateFiltersPanel` needs except the responsive-measurement
- * `containerElement`, which the page owns. Shared by every analytics page that
+ * everything `DateFiltersPanel` needs. Shared by every analytics page that
  * mounts the panel so the staged-search behavior stays identical across them.
  *
  * @param from - The route path the search params are bound to (e.g. `/`).
@@ -128,6 +165,65 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		[ effective.compare_preset ]
 	);
 
+	/*
+	 * The applied comparison, for surfaces that describe what the widgets are
+	 * actually showing rather than what the picker is drafting. A comparison
+	 * change normally commits on its own, but it rides along uncommitted when a
+	 * primary edit is already staged, so this cannot read `effective`.
+	 *
+	 * Gated on the same predicate the report params run through, so a surface
+	 * can never announce a comparison the widgets did not request.
+	 */
+	const appliedComparisonPresetId = useMemo(
+		() => ( hasComparisonEnabled( committed ) ? committed.compare_preset ?? undefined : undefined ),
+		[ committed ]
+	);
+
+	/*
+	 * Whether the primary picker holds an un-applied edit. The comparison and
+	 * interval controls commit on their own, so both check this first rather
+	 * than committing a range draft along with their own change.
+	 */
+	const hasPrimaryDraft =
+		effective.from !== committed.from ||
+		effective.to !== committed.to ||
+		effective.preset !== committed.preset;
+
+	/*
+	 * The buckets the interval control lists, and the one it checks. Both read
+	 * the applied range: the control sits outside the picker, so a range being
+	 * drafted must not reshape the menu, and resolving the value through the
+	 * same range that produced the options keeps the checked item a listed one.
+	 */
+	const intervalOptions = useMemo(
+		() => getAllowedIntervalsForPreset( appliedPresetId, committed.from ?? '', committed.to ?? '' ),
+		[ appliedPresetId, committed.from, committed.to ]
+	);
+
+	const appliedInterval = useMemo(
+		() =>
+			resolveIntervalForRange(
+				appliedPresetId,
+				committed.from ?? '',
+				committed.to ?? '',
+				committed.interval
+			),
+		[ appliedPresetId, committed.from, committed.to, committed.interval ]
+	);
+
+	// The staged value, so the check mark moves on the click that stages it even
+	// when a primary draft keeps that click from committing.
+	const interval = useMemo(
+		() =>
+			resolveIntervalForRange(
+				appliedPresetId,
+				committed.from ?? '',
+				committed.to ?? '',
+				effective.interval
+			),
+		[ appliedPresetId, committed.from, committed.to, effective.interval ]
+	);
+
 	/**
 	 * Comparison changes commit immediately — but only when the primary date
 	 * isn't mid-edit. If a primary edit is staged but not yet applied, the
@@ -143,20 +239,46 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 				comp: nextComparisonRange ? '1' : undefined,
 			} );
 
-			const hasPrimaryDraft =
-				effective.from !== committed.from ||
-				effective.to !== committed.to ||
-				effective.preset !== committed.preset;
+			if ( ! hasPrimaryDraft ) {
+				commit();
+			}
+		},
+		[ stage, commit, hasPrimaryDraft ]
+	);
+
+	/**
+	 * The interval applies on click, the way the preset pills do. With a primary
+	 * edit staged it rides along and commits with it on Apply.
+	 */
+	const onIntervalChange = useCallback(
+		( nextInterval: IntervalType ) => {
+			stage( { interval: nextInterval } );
 
 			if ( ! hasPrimaryDraft ) {
 				commit();
 			}
 		},
-		[ stage, commit, effective, committed ]
+		[ stage, commit, hasPrimaryDraft ]
 	);
 
 	const onApply = useCallback( () => commit(), [ commit ] );
 	const onCancel = useCallback( () => revert(), [ revert ] );
+
+	/*
+	 * `commit()` reads the staged buffer synchronously, so staging and committing
+	 * in the same tick lands both as one navigation.
+	 */
+	const replaceRange = useCallback(
+		( nextRange: DateRange, nextPresetId: PrimaryPresetId ) => {
+			const patch = buildRangePatch( { nextRange, nextPresetId, effective } );
+
+			if ( patch ) {
+				stage( patch );
+				commit( { replace: true } );
+			}
+		},
+		[ stage, commit, effective ]
+	);
 
 	return {
 		presetId,
@@ -164,11 +286,17 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		appliedPresetId,
 		appliedRange,
 		comparisonPresetId,
+		appliedComparisonPresetId,
+		interval,
+		appliedInterval,
+		intervalOptions,
 		onChange,
 		onComparisonChange,
+		onIntervalChange,
 		onApply,
 		onCancel,
 		canApply: isDirty,
 		timeZone,
+		replaceRange,
 	};
 }

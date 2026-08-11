@@ -96,9 +96,6 @@ interface TagViewsState {
  * `@jetpack-premium-analytics/data`, then maps the normalized rows onto the
  * leaderboard shape and trims to `max`. The `stats/tags` endpoint is a single
  * period query with no comparison, so rows carry current-period views only.
- *
- * @param {UseTagViewsArgs} args - Hook arguments.
- * @return The current data/loading/error state.
  */
 export default function useTagViews( { reportParams, max }: UseTagViewsArgs ): TagViewsState {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsTags( {

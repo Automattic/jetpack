@@ -814,6 +814,13 @@ class Contact_Form_Block {
 		// Count and store form steps
 		self::$form_step_count = self::count_form_steps_in_block( $parsed_block );
 
+		if ( isset( $parsed_block['attrs']['ref'] ) || null === $pre_render ) {
+			// This happends only important for lagacy reasons and when code is programatically generated.
+			// Since it can include the previous jetpack button.
+			// Which by default renders as a link instead of a button resulting in the form not submitting.
+			add_filter( 'jetpack_button_default_element', array( __CLASS__, 'submit_button_element' ) );
+		}
+
 		// For ref (synced) forms, render here via pre_render_block to short-circuit
 		// render_block(). This prevents wp_render_layout_support_flag from adding
 		// layout classes to the outer ref block's container div. The synced form's
@@ -899,6 +906,17 @@ class Contact_Form_Block {
 	}
 
 	/**
+	 * The element a Button block inside a form falls back to when it doesn't set one.
+	 *
+	 * Filters `jetpack_button_default_element` for the duration of a form's render.
+	 *
+	 * @return string
+	 */
+	public static function submit_button_element() {
+		return 'button';
+	}
+
+	/**
 	 * Render the gutenblock form.
 	 *
 	 * @param array  $atts - the block attributes.
@@ -907,6 +925,24 @@ class Contact_Form_Block {
 	 * @return string
 	 */
 	public static function gutenblock_render_form( $atts, $content ) {
+		$form = self::render_form( $atts, $content );
+
+		// The form and its buttons are rendered by now, so stop defaulting Button blocks
+		// to `button` — any further button on the page is not a submit button.
+		remove_filter( 'jetpack_button_default_element', array( __CLASS__, 'submit_button_element' ) );
+
+		return $form;
+	}
+
+	/**
+	 * Render the gutenblock form markup.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string
+	 */
+	private static function render_form( $atts, $content ) {
 		// We should not render block if the module is disabled on a site using the Jetpack plugin.
 		// Exception: allow rendering in preview mode so form previews work.
 		if ( class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'contact-form' ) && ! Form_Preview::is_preview_mode() ) {
@@ -977,10 +1013,15 @@ class Contact_Form_Block {
 		$akismet_active_with_key = Jetpack::is_akismet_active();
 		$akismet_key_url         = admin_url( 'admin.php?page=akismet-key-config' );
 
+		$default_recipient = Contact_Form::get_default_to_with_source( $post );
+
 		$data = array(
 			'defaults' => array(
-				'to'                   => Contact_Form::get_default_to_for_editor( $post ),
-				'subject'              => Contact_Form::get_default_subject( array() ),
+				'to'                   => $default_recipient['to'],
+				'toSource'             => $default_recipient['source'],
+				// Decoded for display only: get_option( 'blogname' ) stores the site title HTML-encoded,
+				// which would otherwise surface raw entities such as &#039; in the editor's placeholder.
+				'subject'              => wp_specialchars_decode( Contact_Form::get_default_subject( array() ), ENT_QUOTES ),
 				'formsResponsesUrl'    => $form_responses_url,
 				'akismetActiveWithKey' => $akismet_active_with_key,
 				'akismetUrl'           => $akismet_key_url,

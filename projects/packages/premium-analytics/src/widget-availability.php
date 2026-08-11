@@ -32,6 +32,17 @@ const WOOCOMMERCE_WIDGET_CATEGORIES = array( 'store', 'orders', 'coupons' );
 const WOOCOMMERCE_BOOKINGS_WIDGET_CATEGORIES = array( 'bookings' );
 
 /**
+ * Widget categories whose data counts as a store report.
+ *
+ * The membership rule is the data source, not the subject matter: every
+ * category here reaches WPCOM through the proxy's `analytics` prefix, which
+ * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller} gates
+ * on `view_woocommerce_reports`. That is why `visitors` is in the list: its
+ * widgets read `sessions/…` from the same prefix.
+ */
+const STORE_REPORT_WIDGET_CATEGORIES = array( 'store', 'orders', 'coupons', 'bookings', 'visitors' );
+
+/**
  * Removes developer-only candidates in production.
  *
  * Split from the hook callback so both branches are testable without touching
@@ -154,3 +165,50 @@ function filter_registrable_widget_types_by_plugin( $widget_candidates ) {
 }
 
 add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrable_widget_types_by_plugin' );
+
+/**
+ * Removes candidates the reader could not load data for anyway.
+ *
+ * Split from the hook callback so both branches are testable without a user.
+ *
+ * @since 0.1.0
+ *
+ * @param array $widget_candidates      Manifest candidates, each with a `category`.
+ * @param bool  $can_view_store_reports Whether the reader may see the store reports.
+ * @return array The candidates, minus the store-report categories for readers who can't.
+ */
+function remove_capability_gated_widget_types( $widget_candidates, $can_view_store_reports ) {
+	if ( $can_view_store_reports ) {
+		return $widget_candidates;
+	}
+
+	return array_values(
+		array_filter(
+			$widget_candidates,
+			static function ( $widget ) {
+				return ! in_array( $widget['category'] ?? '', STORE_REPORT_WIDGET_CATEGORIES, true );
+			}
+		)
+	);
+}
+
+/**
+ * Registry-time callback: hides widgets whose data the reader cannot fetch.
+ *
+ * A `view_stats` reader reaching one of them would only collect 403s from the
+ * proxy's `analytics` prefix, so the types are never registered for them. The
+ * registry is request-scoped, so filtering on the current user is safe here.
+ *
+ * @since 0.1.0
+ *
+ * @param array $widget_candidates Manifest candidates.
+ * @return array The candidates, minus the store-report categories for readers who can't see them.
+ */
+function filter_registrable_widget_types_by_capability( $widget_candidates ) {
+	return remove_capability_gated_widget_types(
+		$widget_candidates,
+		Capabilities::current_user_can_view_store_reports()
+	);
+}
+
+add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrable_widget_types_by_capability' );

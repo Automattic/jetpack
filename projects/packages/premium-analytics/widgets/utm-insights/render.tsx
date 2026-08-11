@@ -3,12 +3,13 @@
  */
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Text } from '@jetpack-premium-analytics/externals';
 import {
 	calculateDelta,
 	describeError,
 	getCombinedPeriodMax,
 	LeaderboardChart,
+	LeaderboardPostLabel,
 	ReportLink,
 	WidgetBackLink,
 	WidgetFooter,
@@ -78,12 +79,6 @@ function getUtmReportSection( utmDimension: StatsUtmParam ): UtmReportSection {
 	}
 }
 
-/**
- * Inner component — rendered inside WidgetRoot.
- *
- * @param {UtmInsightsInnerProps} props - The component props.
- * @return The rendered leaderboard or state placeholder.
- */
 function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const {
@@ -135,13 +130,22 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 
 		return activeData.map( ( item, index ) => {
 			const previousValue = item.previousValue;
+			const postRow = 'postId' in item ? item : null;
 
 			return {
 				id: `${ index }-${ item.label }`,
-				label: (
-					<Stack align="center" className={ styles.itemLabel }>
+				label: postRow ? (
+					<LeaderboardPostLabel
+						id={ postRow.postId }
+						label={ postRow.label }
+						link={ postRow.href }
+						variant="overlay"
+						className={ styles.itemLabelInset }
+					/>
+				) : (
+					<span className={ styles.itemLabel }>
 						<Text className={ styles.itemLabelText }>{ item.label }</Text>
-					</Stack>
+					</span>
 				),
 				currentValue: item.value,
 				currentShare: sharePercentage( item.value, maxValue ),
@@ -216,14 +220,9 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 }
 
 /**
- * UTM Insights widget render component.
- *
- * Shows traffic breakdown by UTM parameter as a ranked leaderboard. The active
+ * Traffic breakdown by UTM parameter as a ranked leaderboard. The active
  * dimension (source/medium, campaign, etc.) is the `utmDimension` attribute
  * (`relevance: 'high'`), exposed as a control by the widget host.
- *
- * @param {UtmInsightsWidgetProps} props - The widget render props.
- * @return The rendered widget content.
  */
 export default function UtmInsightsWidget( { attributes = {} }: UtmInsightsWidgetProps ) {
 	const utmDimension = attributes.utmDimension ?? DEFAULT_UTM_DIMENSION;

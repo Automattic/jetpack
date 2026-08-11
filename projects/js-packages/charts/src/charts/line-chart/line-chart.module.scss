@@ -24,7 +24,7 @@
 	}
 
 	&__tooltip-date {
-		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		font-weight: var(--wpds-typography-font-weight-emphasis, 499);
 		padding-bottom: var(--wpds-dimension-padding-md, 12px);
 	}
 
@@ -33,7 +33,7 @@
 	}
 
 	&__tooltip-label {
-		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		font-weight: var(--wpds-typography-font-weight-emphasis, 499);
 		padding-right: var(--wpds-dimension-padding-lg, 16px);
 	}
 
@@ -65,7 +65,7 @@
 		border: none;
 		border-radius: var(--wpds-border-radius-md, 4px);
 		font-size: var(--wpds-typography-font-size-md, 13px);
-		box-shadow: var(--wpds-elevation-sm, 0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005);
+		box-shadow: var(--a8c-charts-elevation-sm, 0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005);
 		position: fixed;
 		// Without margin set, the popover has margin:auto which upsets the
 		// positioning relative to the trigger button. A gap token is appropriate

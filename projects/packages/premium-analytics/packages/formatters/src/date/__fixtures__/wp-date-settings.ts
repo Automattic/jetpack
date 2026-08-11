@@ -40,6 +40,8 @@ const ES_MONTHS = [
 	'diciembre',
 ];
 
+const ES_WEEKDAYS = [ 'domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado' ];
+
 /**
  * Build a settings object for a locale.
  *
@@ -52,12 +54,15 @@ const ES_MONTHS = [
  * @param dateFormat - The site's `date_format` option, in PHP tokens.
  * @param months     - Translated month names, January first. Defaults to the
  *                   package's English names.
+ * @param weekdays   - Translated weekday names, Sunday first. Defaults to the
+ *                   package's English names.
  * @return Settings ready for `setSettings`.
  */
 export const settingsFor = (
 	locale: string,
 	dateFormat: string,
-	months: string[] = DEFAULT_MONTHS
+	months: string[] = DEFAULT_MONTHS,
+	weekdays: string[] = DEFAULTS.l10n.weekdays as string[]
 ): DateSettings => ( {
 	...DEFAULTS,
 	l10n: {
@@ -65,19 +70,26 @@ export const settingsFor = (
 		locale,
 		months,
 		monthsShort: months.map( month => month.slice( 0, 3 ) ),
+		weekdays,
+		weekdaysShort: weekdays.map( weekday => weekday.slice( 0, 3 ) ),
 	},
 	formats: { ...DEFAULTS.formats, date: dateFormat },
 	timezone: { offset: 0, offsetFormatted: '0', string: 'UTC', abbr: 'UTC' },
 } );
 
 /** A site left on the US English default. */
-export const EN_US_SETTINGS = settingsFor( 'en-us-test', 'F j, Y' );
+export const EN_US_SETTINGS = settingsFor( 'en_US_test', 'F j, Y' );
 
 /**
  * A Spanish site. Its `date_format` puts the day first and spells "de" with
  * escaped literals (`\d\e`), which double as the day and timezone tokens.
  */
-export const ES_ES_SETTINGS = settingsFor( 'es-es-test', 'j \\d\\e F \\d\\e Y', ES_MONTHS );
+export const ES_ES_SETTINGS = settingsFor(
+	'es_ES_test',
+	'j \\d\\e F \\d\\e Y',
+	ES_MONTHS,
+	ES_WEEKDAYS
+);
 
 /**
  * Build a UTC date, matching the fixtures' timezone so no day shift is in play.

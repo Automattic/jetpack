@@ -23,14 +23,7 @@ type VisitorsByLocationWidgetProps = WidgetRenderProps< VisitorsByLocationRender
 };
 
 /**
- * Visitors by location widget.
- *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; VisitorsByLocationWidget
- * fetches the visitors-by-location reports and renders the location map.
- *
- * @param {VisitorsByLocationWidgetProps} props - The widget render props.
- * @return The rendered widget.
+ * Where visitors are located, rendered as a map.
  */
 export default function VisitorsByLocationRender( {
 	attributes = {},
