@@ -7,8 +7,11 @@
 
 namespace Automattic\Jetpack\Forms\Dashboard;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -18,6 +21,20 @@ use WorDBless\BaseTestCase;
  */
 #[CoversClass( Dashboard::class )]
 class Dashboard_Test extends BaseTestCase {
+
+	/**
+	 * Function names captured from _doing_it_wrong() during a test.
+	 *
+	 * @var string[]
+	 */
+	private $doing_it_wrong = array();
+
+	/**
+	 * The Dashboard instance the submenu was registered from.
+	 *
+	 * @var Dashboard|null
+	 */
+	private $dashboard = null;
 
 	/**
 	 * Clean up after each test.
@@ -354,5 +371,118 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertStringContainsString( '&p=%2Fresponses%2Finbox', $url_feedback );
 
 		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+	}
+
+	/**
+	 * Register the wp-build submenu and hand back its entry.
+	 *
+	 * Runs with the missing-build report captured, because a test process never has
+	 * the real build/build.php and would otherwise trip the suite's warning gate.
+	 *
+	 * @return array|null The registered menu entry.
+	 */
+	private function register_wp_build_submenu() {
+		add_filter( 'jetpack_forms_alpha', '__return_true' );
+		$this->capture_doing_it_wrong();
+
+		$this->dashboard = new Dashboard();
+		$this->dashboard->add_admin_submenu();
+
+		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		return Admin_Menu::remove_menu( Dashboard::FORMS_WPBUILD_ADMIN_SLUG );
+	}
+
+	/**
+	 * Point the build-entry lookup at a path of our choosing.
+	 *
+	 * The real build/ is gitignored and CI runs no build step, so without this the
+	 * result would depend on whether the developer happens to have built the package.
+	 *
+	 * @param string $path Path to stand in for build/build.php.
+	 */
+	private function set_wp_build_index( $path ) {
+		$property = new \ReflectionProperty( Dashboard::class, 'wp_build_index' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $path );
+	}
+
+	/**
+	 * Record _doing_it_wrong() calls instead of letting them raise.
+	 */
+	private function capture_doing_it_wrong() {
+		$this->doing_it_wrong = array();
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		add_action(
+			'doing_it_wrong_run',
+			function ( $function_name ) {
+				$this->doing_it_wrong[] = $function_name;
+			}
+		);
+	}
+
+	/**
+	 * With no generated callback, the page must fall back to the notice — never to the
+	 * legacy mount point, which would render blank because load_admin_scripts() does
+	 * not enqueue the legacy bundle on this screen.
+	 *
+	 * Runs isolated so the callback is reliably absent: a sibling test requires
+	 * build/build.php when a local build exists, which would otherwise define it.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_add_admin_submenu_registers_the_notice_without_the_generated_callback() {
+		$this->set_wp_build_index( __DIR__ . '/../fixtures/build-entry/absent.php' );
+		$this->assertFalse( function_exists( 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page' ) );
+
+		$menu_item = $this->register_wp_build_submenu();
+
+		$this->assertIsArray( $menu_item );
+		$this->assertSame( array( $this->dashboard, 'render_wp_build_unavailable' ), $menu_item['function'] );
+		$this->assertContains( Dashboard::class . '::add_admin_submenu', $this->doing_it_wrong );
+	}
+
+	/**
+	 * With the generated callback present, the page must wire it directly.
+	 *
+	 * This is the half that catches drift: the callback name is derived from the page
+	 * slug at build time, so a rename on either side silently drops every user onto the
+	 * missing-assets notice. Asserting the literal name is what makes that fail loudly.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_add_admin_submenu_wires_the_generated_render_callback() {
+		$fixture = __DIR__ . '/../fixtures/build-entry/build.php';
+		$this->set_wp_build_index( $fixture );
+		require_once $fixture;
+
+		$menu_item = $this->register_wp_build_submenu();
+
+		$this->assertIsArray( $menu_item );
+		$this->assertSame( 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page', $menu_item['function'] );
+		$this->assertSame( array(), $this->doing_it_wrong, 'A present build must not report a missing one.' );
+	}
+
+	/**
+	 * Test the fallback renders an error notice rather than an empty container.
+	 */
+	public function test_render_wp_build_unavailable_outputs_error_notice() {
+		$dashboard = new Dashboard();
+
+		ob_start();
+		$dashboard->render_wp_build_unavailable();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'notice-error', $output );
+		$this->assertStringContainsString( 'missing the files it needs', $output );
+		$this->assertStringNotContainsString( 'jp-forms-dashboard', $output );
 	}
 }
