@@ -17,7 +17,7 @@ namespace Automattic\Jetpack\Search;
 
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable
 $filter_state = ( (array) $attributes )['filterState'] ?? 'any';
-if ( ! in_array( $filter_state, array( 'any', 'filtered' ), true ) ) {
+if ( ! in_array( $filter_state, array( 'any', 'filtered', 'error' ), true ) ) {
 	$filter_state = 'any';
 }
 
@@ -32,12 +32,21 @@ if ( ! in_array( $filter_state, array( 'any', 'filtered' ), true ) ) {
 // this block, one level up. Without that, the pairing the inspector suggests
 // (keep the template's `any` block, add a `filtered` one) would stack two
 // messages on a filtered empty search.
+// `error` is a different region entirely — `showNoResults` and `showError` are
+// mutually exclusive in the store, so an error-scoped block covers neither
+// no-results case and stands down `results-list`'s legacy *error* message
+// instead. Keeping the two disjoint is what lets `any` stay the safe default:
+// a page whose only block is unscoped still shows the legacy error copy.
 if ( function_exists( 'wp_interactivity_state' ) ) {
-	$coverage = array( 'hasNoResultsFiltered' => true );
-	if ( 'filtered' === $filter_state ) {
-		$coverage['hasScopedNoResultsFiltered'] = true;
+	if ( 'error' === $filter_state ) {
+		$coverage = array( 'hasErrorBlock' => true );
 	} else {
-		$coverage['hasNoResultsUnfiltered'] = true;
+		$coverage = array( 'hasNoResultsFiltered' => true );
+		if ( 'filtered' === $filter_state ) {
+			$coverage['hasScopedNoResultsFiltered'] = true;
+		} else {
+			$coverage['hasNoResultsUnfiltered'] = true;
+		}
 	}
 	wp_interactivity_state( 'jetpack-search', $coverage );
 }
@@ -45,6 +54,7 @@ if ( function_exists( 'wp_interactivity_state' ) ) {
 $visibility_getters = array(
 	'any'      => 'state.showNoResultsAny',
 	'filtered' => 'state.showNoResultsFiltered',
+	'error'    => 'state.showError',
 );
 
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable -- $content is provided by WP at block render.
@@ -65,7 +75,12 @@ $defaults = Search_Blocks::no_results_default_messages();
 	// whole composition — heading, image, button — verbatim on every empty
 	// search is worse than not announcing it; `core/query-no-results` has no
 	// live region at all for the same reason.
-	echo $is_default ? 'role="status"' : '';
+	//
+	// A failure is assertive, an empty result set is not — same split
+	// `results-list` has always emitted between its two regions.
+	if ( $is_default ) {
+		echo 'error' === $filter_state ? 'role="alert"' : 'role="status"';
+	}
 	?>
 	hidden
 >
@@ -76,6 +91,10 @@ $defaults = Search_Blocks::no_results_default_messages();
 	} elseif ( 'filtered' === $filter_state ) {
 		?>
 		<p><?php echo esc_html( $defaults['filtered'] ); ?></p>
+		<?php
+	} elseif ( 'error' === $filter_state ) {
+		?>
+		<p><?php echo esc_html( $defaults['error'] ); ?></p>
 		<?php
 	} else {
 		// An empty block left at the default `any` covers both cases, so it

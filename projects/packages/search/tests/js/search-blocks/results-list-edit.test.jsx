@@ -183,54 +183,29 @@ describe( 'ResultsListEdit', () => {
 		expect( screen.getByText( '$19.99' ) ).toBeInTheDocument();
 	} );
 
-	it( 'exposes the error-state message control in the inspector', () => {
-		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
-
-		expect( screen.getByRole( 'textbox', { name: 'Error message' } ) ).toBeInTheDocument();
-	} );
-
-	it( 'updates the errorMessage attribute when the error control changes', () => {
-		const setAttributes = jest.fn();
-		render( <ResultsListEdit attributes={ {} } setAttributes={ setAttributes } /> );
-
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
-		fireEvent.change( screen.getByRole( 'textbox', { name: 'Error message' } ), {
-			target: { value: 'Search is offline right now.' },
-		} );
-		expect( setAttributes ).toHaveBeenCalledWith( {
-			errorMessage: 'Search is offline right now.',
-		} );
-	} );
-
-	// The empty-state fields are deprecated: `render.php` still emits saved
+	// All three message fields are deprecated: `render.php` still emits saved
 	// values, but nothing new can set one, so the inspector never offers them —
 	// not even for content that carries a legacy message.
-	it( 'never offers the deprecated empty-state fields', () => {
+	it( 'never offers the deprecated message fields', () => {
 		mockSearchResultsParent = 'sr-1';
 		render(
 			<ResultsListEdit
 				attributes={ {
 					noResultsMessage: 'Try a broader query.',
 					noResultsWithFiltersMessage: 'Clear a filter to see results.',
+					errorMessage: 'Search is offline right now.',
 				} }
 				setAttributes={ jest.fn() }
 			/>
 		);
 
-		expect(
-			screen.queryByRole( 'textbox', { name: 'No-results message' } )
-		).not.toBeInTheDocument();
-		expect(
-			screen.queryByRole( 'textbox', { name: 'No-results message (when filters are active)' } )
-		).not.toBeInTheDocument();
-		// The error message has no block counterpart and stays editable here.
-		expect( screen.getByRole( 'textbox', { name: 'Error message' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'textbox' ) ).not.toBeInTheDocument();
 	} );
 
 	// Editing anything else must leave the deprecated values alone — clearing
-	// them here would drop the empty state of every page saved before the
-	// No Results block, which is exactly what the compat path exists to hold.
-	it( 'preserves saved empty-state messages when other settings change', () => {
+	// them here would drop the empty and error states of every page saved
+	// before the No Results block, which is what the compat path exists to hold.
+	it( 'preserves saved messages when other settings change', () => {
 		const setAttributes = jest.fn();
 		render(
 			<ResultsListEdit
@@ -238,6 +213,7 @@ describe( 'ResultsListEdit', () => {
 					layout: 'expanded',
 					noResultsMessage: 'Nothing here, sorry.',
 					noResultsWithFiltersMessage: 'Clear a filter to see results.',
+					errorMessage: 'Search is offline right now.',
 				} }
 				setAttributes={ setAttributes }
 			/>
@@ -245,15 +221,12 @@ describe( 'ResultsListEdit', () => {
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
 		fireEvent.click( screen.getByRole( 'radio', { name: 'Compact' } ) );
-		// eslint-disable-next-line testing-library/prefer-user-event -- see above.
-		fireEvent.change( screen.getByRole( 'textbox', { name: 'Error message' } ), {
-			target: { value: 'Search is offline right now.' },
-		} );
 
-		expect( setAttributes ).toHaveBeenCalledTimes( 2 );
+		expect( setAttributes ).toHaveBeenCalledTimes( 1 );
 		setAttributes.mock.calls.forEach( ( [ payload ] ) => {
 			expect( payload ).not.toHaveProperty( 'noResultsMessage' );
 			expect( payload ).not.toHaveProperty( 'noResultsWithFiltersMessage' );
+			expect( payload ).not.toHaveProperty( 'errorMessage' );
 		} );
 	} );
 
@@ -276,7 +249,7 @@ describe( 'ResultsListEdit', () => {
 
 		expect(
 			screen.getByText(
-				'The empty state is a plain message. Add a No Results block to use any content — links, images, buttons.'
+				'The empty and error states are plain messages. Add a No Results block to use any content — links, images, buttons.'
 			)
 		).toBeInTheDocument();
 		expect(

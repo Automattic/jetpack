@@ -371,7 +371,7 @@ class Results_List_Render_Test extends TestCase {
 		$markup = $this->render();
 		$this->assertStringContainsString( 'jetpack-search-results__error', $markup );
 		$this->assertStringContainsString( 'Something went wrong. Please try again.', $markup );
-		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showError"', $markup );
+		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showLegacyError"', $markup );
 		$this->assertStringContainsString( 'role="alert"', $markup );
 	}
 

@@ -2347,19 +2347,21 @@ HTML;
 	}
 
 	/**
-	 * Default empty-state copy, keyed by whether filters are active.
+	 * Default copy for the states the results region can show instead of
+	 * results, keyed by state.
 	 *
-	 * Single source for the two renderers that can emit it — the `no-results`
-	 * block's fallback and `results-list`'s legacy region — so the strings
-	 * can't drift into two near-identical translator entries that disagree.
-	 * The editor-side mirror lives in `blocks/no-results/edit.jsx`.
+	 * Single source for the two renderers that can emit them — the
+	 * `no-results` block's fallback and `results-list`'s legacy regions — so
+	 * the strings can't drift into near-identical translator entries that
+	 * disagree. The editor-side mirror lives in `blocks/no-results/edit.jsx`.
 	 *
-	 * @return array{unfiltered:string, filtered:string}
+	 * @return array{unfiltered:string, filtered:string, error:string}
 	 */
 	public static function no_results_default_messages(): array {
 		return array(
 			'unfiltered' => __( 'No results found. Try a different search.', 'jetpack-search-pkg' ),
 			'filtered'   => __( 'No results match these filters. Try clearing some, or searching for something else.', 'jetpack-search-pkg' ),
+			'error'      => __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' ),
 		);
 	}
 

@@ -103,10 +103,11 @@ if ( function_exists( 'wp_interactivity_state' ) ) {
 $is_initial_loading = Search_Blocks::is_initial_loading();
 $skeleton_count     = 'compact' === $layout ? 6 : 4;
 
-// Superseded by the `jetpack-search/no-results` block, which accepts any inner
-// blocks instead of a plain string. Kept rendering for saved content that
-// predates it — `state.showLegacyNoResults` hides this region on pages that do
-// carry the block, so the two never both show.
+// All three messages are superseded by the `jetpack-search/no-results` block,
+// which accepts any inner blocks instead of a plain string. Kept rendering for
+// saved content that predates it — `state.showLegacyNoResults` and
+// `state.showLegacyError` hide these regions on pages carrying a block that
+// covers the case, so the two never both show.
 //
 // `trim()` so a whitespace-only attribute (e.g. an author who saved spaces)
 // still falls back to the default copy instead of rendering a blank message.
@@ -126,7 +127,7 @@ if ( '' === $no_results_with_filters_message ) {
 
 $error_message = trim( (string) ( $attrs['errorMessage'] ?? '' ) );
 if ( '' === $error_message ) {
-	$error_message = __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' );
+	$error_message = $no_results_defaults['error'];
 }
 ?>
 <div
@@ -357,7 +358,7 @@ if ( '' === $error_message ) {
 	</div>
 	<div
 		class="jetpack-search-results__error"
-		data-wp-bind--hidden="!state.showError"
+		data-wp-bind--hidden="!state.showLegacyError"
 		role="alert"
 		hidden
 	>

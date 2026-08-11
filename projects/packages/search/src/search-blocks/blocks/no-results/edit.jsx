@@ -16,13 +16,16 @@ import { PanelBody, RadioControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
-const FILTER_STATES = [ 'any', 'filtered' ];
+const FILTER_STATES = [ 'any', 'filtered', 'error' ];
 
 // Mirrors `Search_Blocks::no_results_default_messages()` so the canvas shows
 // what a visitor would get from an untouched block. A function, not a
 // constant, so the `__()` calls run after the editor's i18n is loaded rather
 // than being cached in the source locale at module init.
 const defaultMessages = filterState => {
+	if ( filterState === 'error' ) {
+		return [ __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' ) ];
+	}
 	const messages = [];
 	if ( filterState !== 'filtered' ) {
 		messages.push( __( 'No results found. Try a different search.', 'jetpack-search-pkg' ) );
@@ -39,6 +42,7 @@ const defaultMessages = filterState => {
 const displayWhenOptions = () => [
 	{ label: __( 'Any empty search', 'jetpack-search-pkg' ), value: 'any' },
 	{ label: __( 'Filters are active', 'jetpack-search-pkg' ), value: 'filtered' },
+	{ label: __( 'Search failed', 'jetpack-search-pkg' ), value: 'error' },
 ];
 
 // Canvas labels, so two No Results blocks in one results region are tellable
@@ -49,6 +53,7 @@ const displayWhenOptions = () => [
 const editorLabels = () => ( {
 	any: __( 'No Results', 'jetpack-search-pkg' ),
 	filtered: __( 'No Results — filters active', 'jetpack-search-pkg' ),
+	error: __( 'No Results — search failed', 'jetpack-search-pkg' ),
 } );
 
 /**
@@ -78,7 +83,7 @@ export default function NoResultsEdit( { attributes, setAttributes, clientId } )
 					<RadioControl
 						label={ __( 'Display when', 'jetpack-search-pkg' ) }
 						help={ __(
-							'Add a second No Results block set to "Filters are active" to show different content when a filtered search comes back empty.',
+							'Add another No Results block to show different content when a filtered search comes back empty, or when the search request fails.',
 							'jetpack-search-pkg'
 						) }
 						selected={ filterState }

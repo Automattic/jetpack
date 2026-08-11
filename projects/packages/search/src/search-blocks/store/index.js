@@ -711,6 +711,18 @@ const { state, actions } = store( NAMESPACE, {
 		 *
 		 * @return {boolean} True when the legacy region should show.
 		 */
+		/**
+		 * Visibility for `results-list`'s built-in error region, which predates
+		 * the `no-results` block. Mirrors `showLegacyNoResults`, but there is
+		 * only one error case to cover, so a flat "a block claimed it" flag is
+		 * enough — no per-case seeding.
+		 *
+		 * @return {boolean} True when the legacy error region should show.
+		 */
+		get showLegacyError() {
+			return state.showError && ! state.hasErrorBlock;
+		},
+
 		get showLegacyNoResults() {
 			if ( ! state.showNoResults ) {
 				return false;

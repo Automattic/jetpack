@@ -2,11 +2,9 @@
  * Editor preview for jetpack-search/results-list.
  *
  * The block owns three runtime states (results, empty, error) but the
- * editor canvas always shows the success-state preview — the error copy
- * lives in the Inspector so authors can edit it without a dedicated preview
- * mode. The empty state is the No Results block's job; the deprecated
- * message attributes still render for saved content but are no longer
- * editable here.
+ * editor canvas always shows the success-state preview. The empty and error
+ * states are the No Results block's job now; all three deprecated message
+ * attributes still render for saved content but are no longer editable here.
  *
  * Each layout has its own template function below. Duplication is
  * intentional — the templates are short and rarely change, and keeping
@@ -18,7 +16,7 @@
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { Button, PanelBody, RadioControl, TextControl } from '@wordpress/components';
+import { Button, PanelBody, RadioControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 
@@ -35,14 +33,14 @@ const NO_RESULTS_BLOCK = 'jetpack-search/no-results';
 const emptyStateCopy = () => ( {
 	present: {
 		help: __(
-			'The empty state comes from the No Results block, which accepts any content — links, images, buttons.',
+			'The empty and error states come from the No Results block, which accepts any content — links, images, buttons.',
 			'jetpack-search-pkg'
 		),
 		action: __( 'Edit No Results block', 'jetpack-search-pkg' ),
 	},
 	absent: {
 		help: __(
-			'The empty state is a plain message. Add a No Results block to use any content — links, images, buttons.',
+			'The empty and error states are plain messages. Add a No Results block to use any content — links, images, buttons.',
 			'jetpack-search-pkg'
 		),
 		action: __( 'Add No Results block', 'jetpack-search-pkg' ),
@@ -253,7 +251,6 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 	const blockProps = useBlockProps( {
 		className: `jetpack-search-results--${ layout }`,
 	} );
-	const errorDefault = __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' );
 	const emptyStateNotice = emptyStateCopy()[ noResultsBlockId ? 'present' : 'absent' ];
 	return (
 		<>
@@ -279,18 +276,6 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 							{ emptyStateNotice.action }
 						</Button>
 					) }
-					<TextControl
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-						label={ __( 'Error message', 'jetpack-search-pkg' ) }
-						value={ attributes?.errorMessage || '' }
-						placeholder={ errorDefault }
-						onChange={ value => setAttributes( { errorMessage: value } ) }
-						help={ __(
-							'Shown when a search request fails. Leave empty for the default.',
-							'jetpack-search-pkg'
-						) }
-					/>
 				</PanelBody>
 				{ parentScopeBlockId && (
 					<PanelBody title={ __( 'Search scope', 'jetpack-search-pkg' ) } initialOpen={ false }>

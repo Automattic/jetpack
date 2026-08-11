@@ -254,6 +254,50 @@ class No_Results_Render_Test extends TestCase {
 	}
 
 	/**
+	 * The error state is a different region entirely — `showNoResults` and
+	 * `showError` are mutually exclusive in the store, so an error-scoped block
+	 * binds to the error getter and falls back to the error copy.
+	 */
+	public function test_error_state_binds_to_the_error_getter_and_copy() {
+		$markup = $this->render( array( 'filterState' => 'error' ) );
+		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showError"', $markup );
+		$this->assertStringContainsString( 'Something went wrong. Please try again.', $markup );
+		$this->assertStringNotContainsString( 'No results found. Try a different search.', $markup );
+	}
+
+	/**
+	 * A failure is assertive, an empty result set is not — the same split
+	 * `results-list` has always emitted between its two regions.
+	 */
+	public function test_error_state_uses_an_assertive_live_region() {
+		$this->assertStringContainsString( 'role="alert"', $this->render( array( 'filterState' => 'error' ) ) );
+		$this->assertStringNotContainsString( 'role="status"', $this->render( array( 'filterState' => 'error' ) ) );
+	}
+
+	/**
+	 * An error-scoped block stands down `results-list`'s legacy *error* region
+	 * and covers neither no-results case — keeping the two disjoint is what
+	 * lets a page whose only block is unscoped keep its legacy error copy.
+	 */
+	public function test_error_block_seeds_only_the_error_claim() {
+		$this->render( array( 'filterState' => 'error' ) );
+		$state = wp_interactivity_state( 'jetpack-search' );
+		$this->assertTrue( $state['hasErrorBlock'] );
+		$this->assertArrayNotHasKey( 'hasNoResultsUnfiltered', $state );
+		$this->assertArrayNotHasKey( 'hasNoResultsFiltered', $state );
+	}
+
+	/**
+	 * Symmetrically, a no-results block must not retire the legacy error
+	 * region — otherwise a failed search on a stock template renders nothing.
+	 */
+	public function test_no_results_block_does_not_claim_the_error_state() {
+		$this->render();
+		$state = wp_interactivity_state( 'jetpack-search' );
+		$this->assertArrayNotHasKey( 'hasErrorBlock', $state );
+	}
+
+	/**
 	 * The live region wraps the plain fallback copy only — announcing an
 	 * author's whole composition verbatim on every empty search is worse than
 	 * not announcing it, and `core/query-no-results` has no live region.

@@ -975,6 +975,24 @@ describe( 'store getters', () => {
 		expect( state.showNoResultsAny ).toBe( false );
 	} );
 
+	it( 'stands the legacy results-list error region down only for an error-scoped block', () => {
+		// Seeded server-side, so "unset" has to read as "not covered" — the
+		// store never declares it, per AGENTS.md on seeded keys.
+		state.hasError = true;
+		state.isLoading = false;
+		state.isLoadingMore = false;
+		delete state.hasErrorBlock;
+		expect( state.showLegacyError ).toBe( true );
+
+		state.hasErrorBlock = true;
+		expect( state.showLegacyError ).toBe( false );
+
+		// Never escapes the base gate.
+		delete state.hasErrorBlock;
+		state.hasError = false;
+		expect( state.showLegacyError ).toBe( false );
+	} );
+
 	it( 'stands the legacy results-list message down only for states a no-results block covers', () => {
 		// The coverage flags are seeded server-side by each block's render, and
 		// are deliberately absent from the store's literal state — see AGENTS.md

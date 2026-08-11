@@ -5,13 +5,13 @@
 	"version": "0.1.0",
 	"title": "No Results",
 	"category": "jetpack-search",
-	"description": "Content shown when a search returns nothing — put any blocks inside, including links, images, and buttons. Powered by Jetpack Search.",
+	"description": "Content shown when a search returns nothing or fails — put any blocks inside, including links, images, and buttons. Powered by Jetpack Search.",
 	"keywords": [ "search", "empty", "no results" ],
 	"ancestor": [ "jetpack-search/search-results" ],
 	"attributes": {
 		"filterState": {
 			"type": "string",
-			"enum": [ "any", "filtered" ],
+			"enum": [ "any", "filtered", "error" ],
 			"default": "any"
 		}
 	},
