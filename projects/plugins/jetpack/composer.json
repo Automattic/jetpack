@@ -63,8 +63,7 @@
 		"automattic/jetpack-videopress": "^0.45.0",
 		"automattic/jetpack-waf": "^0.28.11",
 		"automattic/jetpack-wp-abilities": "^0.1.5",
-		"automattic/woocommerce-analytics": "^0.16",
-		"wp-php-toolkit/reprint-exporter": "^0.9.1"
+		"automattic/woocommerce-analytics": "^0.16"
 	},
 	"require-dev": {
 		"antecedent/patchwork": "^2.2",
@@ -101,11 +100,6 @@
 	"autoload": {
 		"classmap": [
 			"src"
-		],
-		"exclude-from-classmap": [
-			"vendor/wp-php-toolkit/data-liberation/vendor-patched/psr/log/",
-			"vendor/wp-php-toolkit/data-liberation/vendor-patched/rowbot/",
-			"vendor/wp-php-toolkit/data-liberation/vendor-patched/brick/"
 		]
 	},
 	"minimum-stability": "dev",

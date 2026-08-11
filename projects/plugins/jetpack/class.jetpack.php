@@ -796,13 +796,6 @@ class Jetpack {
 		// Jetpack plugin for now: the Connection package no longer auto-wires these, so
 		// connection-only consumers (Boost, Protect, Search, etc.) do not register them yet.
 		\Automattic\Jetpack\Connection\Abilities\Connection_Abilities::init();
-
-		// Register Reprint export support on Pressable and WordPress.com (Atomic)
-		// hosts (overridable via the `jetpack_reprint_export_available` filter), so
-		// generic self-hosted Jetpack sites never expose the export endpoint.
-		if ( \Automattic\Jetpack\Reprint_Export\Reprint_Exporter::is_available() ) {
-			\Automattic\Jetpack\Reprint_Export\Reprint_Exporter::init();
-		}
 	}
 
 	/**
