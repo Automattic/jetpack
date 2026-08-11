@@ -85,6 +85,7 @@ let mockSearchResultsAttrs = null;
 // Client id of a sibling `no-results` block, when the results region has one.
 let mockNoResultsBlockId = null;
 const mockSelectBlock = jest.fn();
+const mockInsertBlock = jest.fn();
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: callback =>
 		callback( () => ( {
@@ -97,10 +98,16 @@ jest.mock( '@wordpress/data', () => ( {
 				mockNoResultsBlockId && rootClientId === mockSearchResultsParent
 					? [ mockNoResultsBlockId ]
 					: [],
+			getBlockRootClientId: () => 'sr-1',
+			getBlockIndex: () => 2,
 			getBlockName: id =>
 				id === mockNoResultsBlockId ? 'jetpack-search/no-results' : 'core/paragraph',
 		} ) ),
-	useDispatch: () => ( { selectBlock: mockSelectBlock } ),
+	useDispatch: () => ( { selectBlock: mockSelectBlock, insertBlock: mockInsertBlock } ),
+} ) );
+
+jest.mock( '@wordpress/blocks', () => ( {
+	createBlock: name => ( { name } ),
 } ) );
 
 describe( 'ResultsListEdit', () => {
@@ -114,6 +121,7 @@ describe( 'ResultsListEdit', () => {
 		mockSearchResultsAttrs = null;
 		mockNoResultsBlockId = null;
 		mockSelectBlock.mockClear();
+		mockInsertBlock.mockClear();
 	} );
 	afterEach( () => {
 		delete globalThis.JetpackSearchBlocksConfig;
@@ -259,10 +267,39 @@ describe( 'ResultsListEdit', () => {
 		expect( mockSelectBlock ).toHaveBeenCalledWith( 'nr-1' );
 	} );
 
-	it( 'omits the shortcut when the results region has no No Results block', () => {
+	// A layout saved before the block existed still renders the deprecated
+	// message, so the panel has to advertise the block — otherwise the empty
+	// state reads as unconfigurable now that the text fields are gone.
+	it( 'offers to add a No Results block to a layout that has none', () => {
 		mockSearchResultsParent = 'sr-1';
+		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } clientId="rl-1" /> );
+
+		expect(
+			screen.getByText(
+				'The empty state is a plain message. Add a No Results block to use any content — links, images, buttons.'
+			)
+		).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: 'Edit No Results block' } )
+		).not.toBeInTheDocument();
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Add No Results block' } ) );
+		// Inserted as the results-list block's own next sibling, not appended to
+		// the search-results ancestor.
+		expect( mockInsertBlock ).toHaveBeenCalledWith(
+			{ name: 'jetpack-search/no-results' },
+			3,
+			'sr-1'
+		);
+	} );
+
+	it( 'omits both affordances when there is no search-results ancestor', () => {
 		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
 
+		expect(
+			screen.queryByRole( 'button', { name: 'Add No Results block' } )
+		).not.toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'button', { name: 'Edit No Results block' } )
 		).not.toBeInTheDocument();

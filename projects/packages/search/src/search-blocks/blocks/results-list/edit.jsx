@@ -17,9 +17,37 @@
  * names.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
 import { Button, PanelBody, RadioControl, TextControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
+
+const NO_RESULTS_BLOCK = 'jetpack-search/no-results';
+
+// Keyed rather than branched, for the reason spelled out in `no-results/edit.jsx`:
+// the production minifier folds a `__()` per branch into a single call with a
+// computed msgid, which `i18n-check-webpack-plugin` rejects.
+//
+// `absent` covers a layout saved before the block existed (or one an author
+// deleted it from). Those pages still render `results-list`'s deprecated
+// message, so the panel has to say the block exists — otherwise the empty state
+// looks unconfigurable now that the text fields are gone.
+const emptyStateCopy = () => ( {
+	present: {
+		help: __(
+			'The empty state comes from the No Results block, which accepts any content — links, images, buttons.',
+			'jetpack-search-pkg'
+		),
+		action: __( 'Edit No Results block', 'jetpack-search-pkg' ),
+	},
+	absent: {
+		help: __(
+			'The empty state is a plain message. Add a No Results block to use any content — links, images, buttons.',
+			'jetpack-search-pkg'
+		),
+		action: __( 'Add No Results block', 'jetpack-search-pkg' ),
+	},
+} );
 
 // `product` is WC-only. On non-Woo sites it's pruned from the picker and a
 // saved `product` value collapses to `expanded` — the renderer applies the
@@ -175,37 +203,46 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 	// output with `isShallowEqual`, and a fresh nested object fails that on every
 	// editor store change, re-rendering this block on each keystroke anywhere in
 	// the canvas.
-	const { parentScopeBlockId, parentScopeAttributes, noResultsBlockId } = useSelect(
-		select => {
-			const blockEditor = select( 'core/block-editor' );
-			const parents = blockEditor.getBlockParentsByBlockName(
-				clientId,
-				'jetpack-search/search-results',
-				true
-			);
-			const parentId = parents[ 0 ];
-			if ( ! parentId ) {
+	const { parentScopeBlockId, parentScopeAttributes, noResultsBlockId, insertRootId, insertIndex } =
+		useSelect(
+			select => {
+				const blockEditor = select( 'core/block-editor' );
+				const parents = blockEditor.getBlockParentsByBlockName(
+					clientId,
+					'jetpack-search/search-results',
+					true
+				);
+				const parentId = parents[ 0 ];
+				if ( ! parentId ) {
+					return {
+						parentScopeBlockId: null,
+						parentScopeAttributes: null,
+						noResultsBlockId: null,
+						insertRootId: null,
+						insertIndex: 0,
+					};
+				}
+				// Single client id, not an array — current `@wordpress/block-editor`
+				// normalizes both, but the string form is what the selector is
+				// documented to take.
+				const noResultsId = blockEditor
+					.getClientIdsOfDescendants( parentId )
+					.find( id => blockEditor.getBlockName( id ) === 'jetpack-search/no-results' );
 				return {
-					parentScopeBlockId: null,
-					parentScopeAttributes: null,
-					noResultsBlockId: null,
+					parentScopeBlockId: parentId,
+					parentScopeAttributes: blockEditor.getBlockAttributes( parentId ),
+					noResultsBlockId: noResultsId ?? null,
+					// Insert as this block's own next sibling rather than appending to
+					// the `search-results` ancestor: the empty state reads as part of
+					// the results region, and a nested layout (a Group around the list)
+					// would otherwise put it somewhere the author didn't expect.
+					insertRootId: blockEditor.getBlockRootClientId( clientId ),
+					insertIndex: blockEditor.getBlockIndex( clientId ) + 1,
 				};
-			}
-			// Single client id, not an array — current `@wordpress/block-editor`
-			// normalizes both, but the string form is what the selector is
-			// documented to take.
-			const noResultsId = blockEditor
-				.getClientIdsOfDescendants( parentId )
-				.find( id => blockEditor.getBlockName( id ) === 'jetpack-search/no-results' );
-			return {
-				parentScopeBlockId: parentId,
-				parentScopeAttributes: blockEditor.getBlockAttributes( parentId ),
-				noResultsBlockId: noResultsId ?? null,
-			};
-		},
-		[ clientId ]
-	);
-	const { selectBlock } = useDispatch( 'core/block-editor' );
+			},
+			[ clientId ]
+		);
+	const { insertBlock, selectBlock } = useDispatch( 'core/block-editor' );
 	const stored = attributes?.layout ?? DEFAULT_LAYOUT;
 	// Pre-rename block markup used `card` for what the picker now calls
 	// `expanded`. Promote the legacy value so saved content keeps its first-
@@ -217,6 +254,7 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 		className: `jetpack-search-results--${ layout }`,
 	} );
 	const errorDefault = __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' );
+	const emptyStateNotice = emptyStateCopy()[ noResultsBlockId ? 'present' : 'absent' ];
 	return (
 		<>
 			<InspectorControls>
@@ -227,19 +265,18 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 						options={ LAYOUT_OPTIONS() }
 						onChange={ value => setAttributes( { layout: value } ) }
 					/>
-					<p className="components-base-control__help">
-						{ __(
-							'The empty state comes from the No Results block, which accepts any content — links, images, buttons.',
-							'jetpack-search-pkg'
-						) }
-					</p>
-					{ noResultsBlockId && (
+					<p className="components-base-control__help">{ emptyStateNotice.help }</p>
+					{ parentScopeBlockId && (
 						<Button
 							__next40pxDefaultSize
 							variant="secondary"
-							onClick={ () => selectBlock( noResultsBlockId ) }
+							onClick={
+								noResultsBlockId
+									? () => selectBlock( noResultsBlockId )
+									: () => insertBlock( createBlock( NO_RESULTS_BLOCK ), insertIndex, insertRootId )
+							}
 						>
-							{ __( 'Edit No Results block', 'jetpack-search-pkg' ) }
+							{ emptyStateNotice.action }
 						</Button>
 					) }
 					<TextControl
