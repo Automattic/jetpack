@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add the registration failure reason to the connection status type.
