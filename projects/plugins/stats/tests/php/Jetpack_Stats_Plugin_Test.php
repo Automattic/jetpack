@@ -92,7 +92,13 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	 */
 	private function reset_dashboard_initialization() {
 		$initialized = new ReflectionProperty( Stats_Dashboard::class, 'initialized' );
-		$initialized->setAccessible( true );
+
+		// Reflection cannot write a private property before PHP 8.1 without this, and the
+		// method is deprecated from PHP 8.5. The plugin supports 7.2, so both ends apply.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+
 		$initialized->setValue( null, false );
 	}
 
