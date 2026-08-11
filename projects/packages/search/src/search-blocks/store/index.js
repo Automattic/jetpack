@@ -677,6 +677,23 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * No-results visibility for an unscoped `no-results` block. Yields
+		 * wherever a scoped block claimed the current filter state, so the
+		 * suggested "keep the default block, add a filters-active one" pairing
+		 * shows one message rather than stacking both.
+		 *
+		 * @return {boolean} True when the unscoped variant should show.
+		 */
+		get showNoResultsAny() {
+			if ( ! state.showNoResults ) {
+				return false;
+			}
+			return state.hasActiveFilters
+				? ! state.hasScopedNoResultsFiltered
+				: ! state.hasScopedNoResultsUnfiltered;
+		},
+
+		/**
 		 * No-results visibility for a `no-results` block scoped to searches
 		 * with no filters applied.
 		 *

@@ -26,6 +26,12 @@ if ( ! in_array( $filter_state, array( 'any', 'unfiltered', 'filtered' ), true )
 // one filter state doesn't leave the other state with no message at all.
 // `wp_interactivity_state()` deep-merges and nothing ever seeds `false`, so two
 // blocks compose into full coverage.
+//
+// Scoped blocks additionally claim their state, and an unscoped (`any`) block
+// yields wherever something more specific claimed it — same relationship the
+// legacy region has with this block, one level up. Without that, the pairing
+// the inspector actively suggests (keep the template's `any` block, add a
+// `filtered` one) would stack two messages on a filtered empty search.
 if ( function_exists( 'wp_interactivity_state' ) ) {
 	$coverage = array();
 	if ( 'filtered' !== $filter_state ) {
@@ -34,11 +40,17 @@ if ( function_exists( 'wp_interactivity_state' ) ) {
 	if ( 'unfiltered' !== $filter_state ) {
 		$coverage['hasNoResultsFiltered'] = true;
 	}
+	if ( 'unfiltered' === $filter_state ) {
+		$coverage['hasScopedNoResultsUnfiltered'] = true;
+	}
+	if ( 'filtered' === $filter_state ) {
+		$coverage['hasScopedNoResultsFiltered'] = true;
+	}
 	wp_interactivity_state( 'jetpack-search', $coverage );
 }
 
 $visibility_getters = array(
-	'any'        => 'state.showNoResults',
+	'any'        => 'state.showNoResultsAny',
 	'unfiltered' => 'state.showNoResultsUnfiltered',
 	'filtered'   => 'state.showNoResultsFiltered',
 );

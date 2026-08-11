@@ -96,7 +96,12 @@ jest.mock( '@wordpress/data', () => ( {
 				id === mockNoResultsBlockId
 					? { filterState: mockNoResultsFilterState }
 					: mockSearchResultsAttrs,
-			getClientIdsOfDescendants: () => ( mockNoResultsBlockId ? [ mockNoResultsBlockId ] : [] ),
+			// Argument-aware on purpose: the selector takes a single client id, and
+			// a mock that ignores its argument would hide a wrong call shape.
+			getClientIdsOfDescendants: rootClientId =>
+				mockNoResultsBlockId && rootClientId === mockSearchResultsParent
+					? [ mockNoResultsBlockId ]
+					: [],
 			getBlockName: id =>
 				id === mockNoResultsBlockId ? 'jetpack-search/no-results' : 'core/paragraph',
 		} ) ),

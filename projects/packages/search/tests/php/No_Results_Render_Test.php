@@ -69,6 +69,23 @@ class No_Results_Render_Test extends TestCase {
 	}
 
 	/**
+	 * Same reset on the way out — `setUp()` alone protects this class, but the
+	 * last test's seeded coverage would still escape into whatever runs next.
+	 */
+	protected function tearDown(): void {
+		$interactivity = wp_interactivity();
+		$ref           = new \ReflectionClass( $interactivity );
+		if ( $ref->hasProperty( 'state_data' ) ) {
+			$prop = $ref->getProperty( 'state_data' );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$prop->setAccessible( true );
+			}
+			$prop->setValue( $interactivity, array() );
+		}
+		parent::tearDown();
+	}
+
+	/**
 	 * Render the block via `do_blocks`.
 	 *
 	 * @param array  $attributes   Block attributes.
@@ -154,7 +171,7 @@ class No_Results_Render_Test extends TestCase {
 	 */
 	public function test_filter_state_selects_the_matching_visibility_getter() {
 		$this->assertStringContainsString(
-			'data-wp-bind--hidden="!state.showNoResults"',
+			'data-wp-bind--hidden="!state.showNoResultsAny"',
 			$this->render()
 		);
 		$this->assertStringContainsString(
@@ -174,7 +191,7 @@ class No_Results_Render_Test extends TestCase {
 	 */
 	public function test_unknown_filter_state_falls_back_to_any() {
 		$markup = $this->render( array( 'filterState' => 'bogus' ) );
-		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showNoResults"', $markup );
+		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showNoResultsAny"', $markup );
 	}
 
 	/**
@@ -220,6 +237,30 @@ class No_Results_Render_Test extends TestCase {
 		$state = wp_interactivity_state( 'jetpack-search' );
 		$this->assertTrue( $state['hasNoResultsUnfiltered'] );
 		$this->assertTrue( $state['hasNoResultsFiltered'] );
+	}
+
+	/**
+	 * Only a scoped block claims its state outright. The unscoped block reads
+	 * that claim and yields, so the pairing the inspector suggests — keep the
+	 * template's default block, add a filters-active one — shows one message
+	 * instead of stacking both.
+	 */
+	public function test_scoped_block_claims_its_state_so_an_unscoped_block_yields() {
+		$this->render( array( 'filterState' => 'filtered' ) );
+		$state = wp_interactivity_state( 'jetpack-search' );
+		$this->assertTrue( $state['hasScopedNoResultsFiltered'] );
+		$this->assertArrayNotHasKey( 'hasScopedNoResultsUnfiltered', $state );
+	}
+
+	/**
+	 * An unscoped block never claims a state exclusively — it is the fallback,
+	 * so it must not suppress a scoped sibling.
+	 */
+	public function test_unscoped_block_claims_neither_state_exclusively() {
+		$this->render();
+		$state = wp_interactivity_state( 'jetpack-search' );
+		$this->assertArrayNotHasKey( 'hasScopedNoResultsUnfiltered', $state );
+		$this->assertArrayNotHasKey( 'hasScopedNoResultsFiltered', $state );
 	}
 
 	/**

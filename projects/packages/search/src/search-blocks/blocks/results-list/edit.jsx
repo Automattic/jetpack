@@ -171,50 +171,57 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 	// can see what scope is in effect and jump straight to the parent's panel
 	// to change it. Single source of truth — the attribute lives on the parent;
 	// this is read-only + a navigation affordance.
-	// `noResultsCoverage` mirrors the per-filter-state seeding in
-	// `no-results/render.php`: a field is only dead once a block actually
-	// covers that state, so a lone block scoped to "Filters are active" leaves
-	// the unfiltered field editable — it is still what renders.
-	const { parentScopeBlockId, parentScopeAttributes, noResultsBlockId, noResultsCoverage } =
-		useSelect(
-			select => {
-				const blockEditor = select( 'core/block-editor' );
-				const parents = blockEditor.getBlockParentsByBlockName(
-					clientId,
-					'jetpack-search/search-results',
-					true
-				);
-				const parentId = parents[ 0 ];
-				if ( ! parentId ) {
-					return {
-						parentScopeBlockId: null,
-						parentScopeAttributes: null,
-						noResultsBlockId: null,
-						noResultsCoverage: { unfiltered: false, filtered: false },
-					};
-				}
-				const noResultsIds = blockEditor
-					.getClientIdsOfDescendants( [ parentId ] )
-					.filter( id => blockEditor.getBlockName( id ) === 'jetpack-search/no-results' );
-				const coverage = { unfiltered: false, filtered: false };
-				noResultsIds.forEach( id => {
-					const filterState = blockEditor.getBlockAttributes( id )?.filterState;
-					if ( filterState !== 'filtered' ) {
-						coverage.unfiltered = true;
-					}
-					if ( filterState !== 'unfiltered' ) {
-						coverage.filtered = true;
-					}
-				} );
+	// Coverage mirrors the per-filter-state seeding in `no-results/render.php`:
+	// a field is only dead once a block actually covers that state, so a lone
+	// block scoped to "Filters are active" leaves the unfiltered field
+	// editable — it is still what renders.
+	// Flat booleans rather than a nested object: `useSelect` compares the
+	// mapper's output with `isShallowEqual`, and a fresh nested object fails
+	// that on every editor store change, re-rendering this block on each
+	// keystroke anywhere in the canvas.
+	const {
+		parentScopeBlockId,
+		parentScopeAttributes,
+		noResultsBlockId,
+		coversUnfiltered,
+		coversFiltered,
+	} = useSelect(
+		select => {
+			const blockEditor = select( 'core/block-editor' );
+			const parents = blockEditor.getBlockParentsByBlockName(
+				clientId,
+				'jetpack-search/search-results',
+				true
+			);
+			const parentId = parents[ 0 ];
+			if ( ! parentId ) {
 				return {
-					parentScopeBlockId: parentId,
-					parentScopeAttributes: blockEditor.getBlockAttributes( parentId ),
-					noResultsBlockId: noResultsIds[ 0 ] ?? null,
-					noResultsCoverage: coverage,
+					parentScopeBlockId: null,
+					parentScopeAttributes: null,
+					noResultsBlockId: null,
+					coversUnfiltered: false,
+					coversFiltered: false,
 				};
-			},
-			[ clientId ]
-		);
+			}
+			// Single client id, not an array — current `@wordpress/block-editor`
+			// normalizes both, but the string form is what the selector is
+			// documented to take.
+			const noResultsIds = blockEditor
+				.getClientIdsOfDescendants( parentId )
+				.filter( id => blockEditor.getBlockName( id ) === 'jetpack-search/no-results' );
+			const filterStates = noResultsIds.map(
+				id => blockEditor.getBlockAttributes( id )?.filterState
+			);
+			return {
+				parentScopeBlockId: parentId,
+				parentScopeAttributes: blockEditor.getBlockAttributes( parentId ),
+				noResultsBlockId: noResultsIds[ 0 ] ?? null,
+				coversUnfiltered: filterStates.some( filterState => filterState !== 'filtered' ),
+				coversFiltered: filterStates.some( filterState => filterState !== 'unfiltered' ),
+			};
+		},
+		[ clientId ]
+	);
 	const { selectBlock } = useDispatch( 'core/block-editor' );
 	const stored = attributes?.layout ?? DEFAULT_LAYOUT;
 	// Pre-rename block markup used `card` for what the picker now calls
@@ -240,7 +247,7 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 						options={ LAYOUT_OPTIONS() }
 						onChange={ value => setAttributes( { layout: value } ) }
 					/>
-					{ ! noResultsCoverage.unfiltered && (
+					{ ! coversUnfiltered && (
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
@@ -254,7 +261,7 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 							) }
 						/>
 					) }
-					{ ! noResultsCoverage.filtered && (
+					{ ! coversFiltered && (
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom

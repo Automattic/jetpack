@@ -955,6 +955,30 @@ describe( 'store getters', () => {
 		expect( state.showNoResultsFiltered ).toBe( false );
 	} );
 
+	it( 'yields the unscoped no-results block to a scoped one for the state it claims', () => {
+		state.results = [];
+		state.isLoading = false;
+		state.hasError = false;
+		state.activeFilters = {};
+		delete state.hasScopedNoResultsUnfiltered;
+		delete state.hasScopedNoResultsFiltered;
+		expect( state.showNoResultsAny ).toBe( true );
+
+		// A "Filters are active" block alongside the template's default one:
+		// the scoped block owns the filtered case, the unscoped one the rest.
+		state.hasScopedNoResultsFiltered = true;
+		expect( state.showNoResultsAny ).toBe( true );
+		expect( state.showNoResultsFiltered ).toBe( false );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.showNoResultsAny ).toBe( false );
+		expect( state.showNoResultsFiltered ).toBe( true );
+
+		// Never escapes the base gate.
+		state.results = [ { title: 'Existing result' } ];
+		expect( state.showNoResultsAny ).toBe( false );
+	} );
+
 	it( 'stands the legacy results-list message down only for states a no-results block covers', () => {
 		// The coverage flags are seeded server-side by each block's render, and
 		// are deliberately absent from the store's literal state — see AGENTS.md
