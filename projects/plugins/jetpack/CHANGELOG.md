@@ -6,6 +6,9 @@
 ### Bug fixes
 - Error Handler: Prevent a fatal error when a request runs during a plugin update and an older version of the Error_Handler class is already loaded.
 
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Remove Reprint full-site export support and its `jetpack/v4` REST routes. [#51179]
+
 ## 16.1 - 2026-08-10
 ### Enhancements
 - Account Protection: Add additional context to Verify your identity page to reduce user confusion. [#50338]
