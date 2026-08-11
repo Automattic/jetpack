@@ -954,6 +954,19 @@ class Jetpack_Gutenberg {
 	 * @return string[] Feature names, or an empty array when the preset is unavailable.
 	 */
 	private static function get_no_post_editor_extensions() {
+		/*
+		 * get_preset() reads the built _inc/blocks/index.json manifest. Skip its file
+		 * read (and the warning it would raise) when that build artifact is absent —
+		 * e.g. a source checkout under tests — unless a preset is already cached or has
+		 * been injected. Production ships the manifest, so the list loads normally there.
+		 */
+		if (
+			! self::$preset_cache
+			&& ! file_exists( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . 'index.json' )
+		) {
+			return array();
+		}
+
 		$preset = self::get_preset();
 		if ( is_object( $preset ) && isset( $preset->{'no-post-editor'} ) && is_array( $preset->{'no-post-editor'} ) ) {
 			return $preset->{'no-post-editor'};
