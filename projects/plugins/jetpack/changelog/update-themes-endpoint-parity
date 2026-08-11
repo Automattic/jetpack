@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Themes API: bring theme updates to parity with plugin updates — skip themes with no pending update, add upgrade locking, surface upgrade errors, honor core auto-update settings, and add a dedicated update route.
