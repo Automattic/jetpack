@@ -134,6 +134,36 @@ describe( 'MetricTabsChart', () => {
 		expect( recordedSeries( mockBarSpy )[ 1 ].options?.gradient ).toBeUndefined();
 	} );
 
+	it( 'replaces an unavailable metric with its reason instead of drawing a zero line', () => {
+		const reason = "Hourly data isn't available for this metric.";
+		const unavailable = { ...METRIC, unavailable: reason };
+
+		render( <MetricTabsChart metrics={ [ unavailable ] } dataFormat={ DATA_FORMAT } /> );
+
+		expect( screen.queryByTestId( 'line-chart' ) ).not.toBeInTheDocument();
+		expect( screen.getAllByText( reason ) ).not.toHaveLength( 0 );
+		// The headline stands down to a placeholder rather than reporting a total
+		// the endpoint never returned.
+		expect( screen.queryByText( '300' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps an unavailable metric selectable, so its reason stays reachable', () => {
+		const unavailable = {
+			...METRIC,
+			key: 'likes',
+			label: 'Likes',
+			unavailable: "Hourly data isn't available for this metric.",
+		};
+
+		render( <MetricTabsChart metrics={ [ METRIC, unavailable ] } dataFormat={ DATA_FORMAT } /> );
+
+		const tabs = screen.getAllByRole( 'tab' );
+		expect( tabs ).toHaveLength( 2 );
+		for ( const tab of tabs ) {
+			expect( tab ).toBeEnabled();
+		}
+	} );
+
 	it( 'emits a single series when the metric has no previous period', () => {
 		const withoutPrevious = { ...METRIC, previous: undefined };
 
