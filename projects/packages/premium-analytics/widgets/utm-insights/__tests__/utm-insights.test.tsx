@@ -33,11 +33,11 @@ describe( 'UtmInsightsWidget', () => {
 	it( 'links to the UTM report', () => {
 		render( <UtmInsightsWidget attributes={ {} } /> );
 
-		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining( '/reports/utm' )
 		);
-		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining( 'section=source-medium' )
 		);
@@ -48,7 +48,7 @@ describe( 'UtmInsightsWidget', () => {
 			<UtmInsightsWidget attributes={ { utmDimension: 'utm_campaign,utm_source,utm_medium' } } />
 		);
 
-		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining( 'section=campaign-source-medium' )
 		);
@@ -57,7 +57,7 @@ describe( 'UtmInsightsWidget', () => {
 	it( 'hides the report link when the host composition opts out', () => {
 		render( <UtmInsightsWidget attributes={ { showReportLink: false } } /> );
 
-		expect( screen.queryByRole( 'link', { name: 'See report' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'View all' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'links a drilled-in post to its detail page and carries the report window', async () => {

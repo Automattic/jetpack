@@ -86,7 +86,7 @@ describe( 'AuthorsWidget', () => {
 	it( 'links to the Authors report', () => {
 		renderInDashboard( <AuthorsWidget attributes={ { max: 7 } } /> );
 
-		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining( '/reports/authors' )
 		);
