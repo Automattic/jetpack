@@ -13,7 +13,7 @@
  * WooCommerce runtime guard, full-sync policy, and any additional Sync data
  * configuration. The module provides the minimum option and post meta requirements.
  *
- * WooCommerce is a runtime (not composer) dependency. The WC classes/traits
+ * WooCommerce is a runtime (not composer) dependency. The WC classes
  * referenced here resolve via WooCommerce's autoloader at runtime; registration is
  * guarded so this class is only instantiated when WooCommerce is active.
  *
@@ -26,7 +26,6 @@ use Automattic\WooCommerce\Admin\API\Reports\Coupons\DataStore as CouponsDataSto
 use Automattic\WooCommerce\Admin\API\Reports\Orders\Stats\DataStore as OrderStatsDataStore;
 use Automattic\WooCommerce\Enums\OrderInternalStatus;
 use Automattic\WooCommerce\Internal\Fulfillments\FulfillmentUtils;
-use Automattic\WooCommerce\Internal\Traits\OrderAttributionMeta;
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
 use Automattic\WooCommerce\Utilities\OrderUtil;
 use DateTimeZone;
@@ -45,9 +44,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * WooCommerce Analytics Module class.
  */
 class WooCommerce_Analytics extends Module {
-
-	// @phan-suppress-next-line PhanUndeclaredTrait -- Provided by WooCommerce at runtime; absent from the older WooCommerce stubs used by the "old Woo" Phan job.
-	use OrderAttributionMeta;
 
 	/**
 	 * Options required by WooCommerce Analytics Sync.
@@ -584,10 +580,10 @@ class WooCommerce_Analytics extends Module {
 			return false;
 		}
 
-		$this->set_fields_and_prefix();
-		$order_id     = $order->get_id();
-		$type         = $order->get_type();
-		$allowed_keys = array(
+		$order_id           = $order->get_id();
+		$type               = $order->get_type();
+		$attribution_prefix = $this->get_order_attribution_meta_prefix();
+		$allowed_keys       = array(
 			'utm_campaign',
 			'utm_source',
 			'utm_medium',
@@ -610,11 +606,32 @@ class WooCommerce_Analytics extends Module {
 		);
 
 		foreach ( $allowed_keys as $key ) {
-			$meta_key                 = $this->get_meta_prefixed_field_name( $key );
+			$meta_key                 = $attribution_prefix . $key;
 			$attribution_data[ $key ] = $order_object_to_use->get_meta( $meta_key, true );
 		}
 
 		return $attribution_data;
+	}
+
+	/**
+	 * Get the filtered WooCommerce order attribution meta prefix.
+	 *
+	 * @return string The normalized meta prefix.
+	 */
+	private function get_order_attribution_meta_prefix() {
+		/**
+		 * Filters the prefix used for order attribution meta keys.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $prefix The order attribution meta key prefix.
+		 */
+		$prefix = (string) apply_filters(
+			'wc_order_attribution_tracking_field_prefix',
+			'wc_order_attribution_'
+		);
+
+		return '_' . trim( $prefix, '_' ) . '_';
 	}
 
 	/**

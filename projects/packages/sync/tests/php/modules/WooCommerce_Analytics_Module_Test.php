@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Sync;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -28,13 +30,10 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	private $module;
 
 	/**
-	 * Runs once before the tests. Loads the OrderAttributionMeta stub so the module
-	 * class (which composes that WooCommerce trait) can be autoloaded without
-	 * WooCommerce present.
+	 * Runs once before the tests.
 	 */
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
-		require_once __DIR__ . '/../stubs/trait-order-attribution-meta.php';
 		require_once __DIR__ . '/../stubs/class-wc-datetime.php';
 		require_once __DIR__ . '/../stubs/woocommerce-analytics-functions.php';
 	}
@@ -62,6 +61,19 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	public function test_registers_minimum_data_requirements() {
 		$this->assertSame( 10, has_filter( 'jetpack_sync_options_whitelist', array( $this->module, 'add_woocommerce_analytics_options_whitelist' ) ) );
 		$this->assertSame( 10, has_filter( 'jetpack_sync_post_meta_whitelist', array( $this->module, 'add_woocommerce_analytics_post_meta_whitelist' ) ) );
+	}
+
+	/**
+	 * The module can load without WooCommerce's OrderAttributionMeta trait.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_module_does_not_require_order_attribution_meta_trait() {
+		$this->assertFalse( trait_exists( 'Automattic\\WooCommerce\\Internal\\Traits\\OrderAttributionMeta', false ) );
+		$this->assertInstanceOf( Modules\WooCommerce_Analytics::class, $this->module );
 	}
 
 	/**
@@ -168,6 +180,36 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Attribution data uses WooCommerce's default meta prefix.
+	 */
+	public function test_order_attribution_uses_default_meta_prefix() {
+		$data = $this->invoke_instance_helper( 'get_order_attribution_data', $this->get_order_stub() );
+
+		$this->assertSame( '_wc_order_attribution_utm_campaign', $data['utm_campaign'] );
+		$this->assertSame( '_wc_order_attribution_source_type', $data['source_type'] );
+	}
+
+	/**
+	 * Attribution data preserves WooCommerce's filtered prefix behavior.
+	 */
+	public function test_order_attribution_normalizes_filtered_meta_prefix() {
+		$filter = static function () {
+			return '__custom_attribution__';
+		};
+		$data   = array();
+		add_filter( 'wc_order_attribution_tracking_field_prefix', $filter );
+
+		try {
+			$data = $this->invoke_instance_helper( 'get_order_attribution_data', $this->get_order_stub() );
+		} finally {
+			remove_filter( 'wc_order_attribution_tracking_field_prefix', $filter );
+		}
+
+		$this->assertSame( '_custom_attribution_utm_source', $data['utm_source'] );
+		$this->assertSame( '_custom_attribution_device_type', $data['device_type'] );
+	}
+
+	/**
 	 * The size filter always lets the first object through, then stops at the cap.
 	 */
 	public function test_filter_analytics_objects_by_size_always_allows_first_object() {
@@ -210,5 +252,59 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 		}
 
 		return $method->invoke( null, $argument );
+	}
+
+	/**
+	 * Invoke a protected instance helper on the Analytics module.
+	 *
+	 * @param string $method_name Helper method name.
+	 * @param mixed  $argument    Helper argument.
+	 * @return mixed
+	 */
+	private function invoke_instance_helper( $method_name, $argument ) {
+		$method = new \ReflectionMethod( Modules\WooCommerce_Analytics::class, $method_name );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method->invoke( $this->module, $argument );
+	}
+
+	/**
+	 * Get an order stub that returns each requested meta key as its value.
+	 *
+	 * @return object
+	 */
+	private function get_order_stub() {
+		return new class() {
+			/**
+			 * Get the order ID.
+			 *
+			 * @return int
+			 */
+			public function get_id() {
+				return 123;
+			}
+
+			/**
+			 * Get the order type.
+			 *
+			 * @return string
+			 */
+			public function get_type() {
+				return 'shop_order';
+			}
+
+			/**
+			 * Return the requested meta key.
+			 *
+			 * @param string $key    Meta key.
+			 * @param bool   $single Whether to return a single value.
+			 * @return string
+			 */
+			public function get_meta( $key, $single = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return $key;
+			}
+		};
 	}
 }
