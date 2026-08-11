@@ -332,8 +332,9 @@ function get_dashboard_default_section_layouts() {
 				2,
 				2
 			),
-			// Row 4: the period totals + the two most-popular cards. The
-			// most-popular cards still crop at this height (WOOA7S-1846).
+			// Row 4: the period totals, the weekday distribution, and the
+			// all-time best day. The most-popular-day card still crops at this
+			// height (WOOA7S-1846).
 			get_dashboard_default_widget_instance(
 				'default-total-views-widget-instance',
 				'jpa/total-views',
@@ -349,8 +350,8 @@ function get_dashboard_default_section_layouts() {
 				1
 			),
 			get_dashboard_default_widget_instance(
-				'default-most-popular-time-widget-instance',
-				'jpa/most-popular-time',
+				'default-popular-days-widget-instance',
+				'jpa/popular-days',
 				6,
 				1,
 				1

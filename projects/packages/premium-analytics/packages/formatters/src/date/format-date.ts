@@ -88,3 +88,15 @@ function formatFor( name: DateFormatName ): string {
  */
 export const formatDate = ( date: DateInput, name: DateFormatName = 'medium' ): string =>
 	dateI18n( formatFor( name ), date );
+
+/**
+ * Return a full weekday name in the site's locale.
+ *
+ * @param weekday - Sunday-based weekday index (`0` = Sunday).
+ * @return The localized full weekday name.
+ */
+export const formatWeekday = ( weekday: number ): string => {
+	const weekdays = getSettings().l10n.weekdays as string[];
+
+	return weekdays[ weekday ] ?? '';
+};
