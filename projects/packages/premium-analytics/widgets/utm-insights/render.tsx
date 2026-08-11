@@ -174,7 +174,7 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
-			label={ __( 'All UTM Insights', 'jetpack-premium-analytics-pkg' ) }
+			label={ __( 'All UTM insights', 'jetpack-premium-analytics-pkg' ) }
 			ariaLabel={ __( 'View all UTM insights', 'jetpack-premium-analytics-pkg' ) }
 			onClick={ clearSelectedUtm }
 			className={ styles.backLink }

@@ -1,4 +1,9 @@
-export { resolveSectionId, type DashboardSection, type DashboardSectionId } from './sections';
+export {
+	resolveSectionHeading,
+	resolveSectionId,
+	type DashboardSection,
+	type DashboardSectionId,
+} from './sections';
 
 export {
 	DATE_FILTER_RANGE,

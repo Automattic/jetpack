@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import { SelectControl, Tabs, Text } from '@jetpack-premium-analytics/externals';
+import { SelectControl, Tabs, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
@@ -260,6 +261,43 @@ export function MetricTabsChart( {
 		[ metrics ]
 	);
 
+	if ( metrics.length === 1 && activeMetric ) {
+		return (
+			<div className={ styles.root }>
+				<div className={ styles.header }>
+					<div className={ clsx( styles.tabs, styles.singleMetric ) }>
+						<div className={ styles.tab }>
+							<span className={ styles.tabContent }>
+								<Text className={ styles.tabLabel }>{ activeMetric.label }</Text>
+								<MetricWithComparison
+									className={ styles.metricComparison }
+									value={ activeMetric.value }
+									previousValue={ activeMetric.previousValue }
+									dataFormat={ activeMetric.dataFormat ?? dataFormat }
+									fontSize="2xl"
+									direction="row"
+									align="flex-end"
+								/>
+								{ activeMetric.description && (
+									<VisuallyHidden>{ activeMetric.description }</VisuallyHidden>
+								) }
+							</span>
+						</div>
+					</div>
+					{ controls }
+				</div>
+				<div className={ styles.chart }>
+					<MetricChart
+						metric={ activeMetric }
+						dataFormat={ dataFormat }
+						loading={ loading }
+						chartType={ chartType }
+					/>
+				</div>
+			</div>
+		);
+	}
+
 	if ( useDropdown ) {
 		// `value` must be a reference into `metricItems` for the select to match it.
 		const activeItem =
@@ -311,6 +349,7 @@ export function MetricTabsChart( {
 									<span className={ styles.tabContent }>
 										<Text className={ styles.tabLabel }>{ activeMetric.label }</Text>
 										<MetricWithComparison
+											className={ styles.metricComparison }
 											value={ activeMetric.value }
 											previousValue={ activeMetric.previousValue }
 											dataFormat={ activeMetric.dataFormat ?? dataFormat }
@@ -357,9 +396,11 @@ export function MetricTabsChart( {
 							<span className={ styles.tabContent }>
 								<Text className={ styles.tabLabel }>{ metric.label }</Text>
 								<MetricWithComparison
+									className={ styles.metricComparison }
 									value={ metric.value }
 									previousValue={ metric.previousValue }
 									dataFormat={ metric.dataFormat ?? dataFormat }
+									fontSize="2xl"
 									direction="row"
 									align="flex-end"
 								/>

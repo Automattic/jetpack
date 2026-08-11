@@ -307,7 +307,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 
 	const backLink = renderSelectedCountry ? (
 		<WidgetBackLink
-			label={ __( 'All Locations', 'jetpack-premium-analytics-pkg' ) }
+			label={ __( 'All locations', 'jetpack-premium-analytics-pkg' ) }
 			ariaLabel={ __( 'View all locations', 'jetpack-premium-analytics-pkg' ) }
 			onClick={ clearSelectedCountry }
 			className={ styles.backLink }

@@ -13,6 +13,18 @@ require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/Jetpack_REST_TestCase.php';
 #[CoversClass( Jetpack_Core_API_Data::class )]
 class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCase {
 	/**
+	 * These tests call update_data() directly, bypassing the permission callback that
+	 * guards it in production. Writing settings requires an administrator.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		wp_set_current_user(
+			self::factory()->user->create( array( 'role' => 'administrator' ) )
+		);
+	}
+
+	/**
 	 * @author zinigor
 	 * @dataProvider api_routes
 	 */
@@ -71,6 +83,59 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 
 		$this->assertTrue( isset( $settings->data[ $option_name ] ) );
 		$this->assertTrue( $settings->data[ $option_name ] );
+	}
+
+	/**
+	 * Every `jetpack_waf_*` option, plus the Protect options carrying the same data.
+	 *
+	 * `jetpack_protect_global_whitelist` is populated from `jetpack_waf_ip_allow_list`,
+	 * and `jetpack_protect_key` is a shared secret.
+	 */
+	public static function restricted_options() {
+		return array(
+			'automatic rules'    => array( 'jetpack_waf_automatic_rules' ),
+			'block list enabled' => array( 'jetpack_waf_ip_block_list_enabled' ),
+			'block list'         => array( 'jetpack_waf_ip_block_list' ),
+			'allow list enabled' => array( 'jetpack_waf_ip_allow_list_enabled' ),
+			'allow list'         => array( 'jetpack_waf_ip_allow_list' ),
+			'share data'         => array( 'jetpack_waf_share_data' ),
+			'share debug data'   => array( 'jetpack_waf_share_debug_data' ),
+			'protect key'        => array( 'jetpack_protect_key' ),
+			'protect allow list' => array( 'jetpack_protect_global_whitelist' ),
+		);
+	}
+
+	/**
+	 * Tests that firewall settings are stripped for users without `manage_options`.
+	 *
+	 * @dataProvider restricted_options
+	 *
+	 * @param string $option The option name.
+	 */
+	#[DataProvider( 'restricted_options' )]
+	public function test_restricted_options_hidden_from_non_admins( $option ) {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'contributor' ) ) );
+
+		$settings = ( new Jetpack_Core_API_Data() )->get_all_options()->get_data();
+
+		$this->assertArrayHasKey( 'wpcom_reader_views_enabled', $settings );
+		$this->assertArrayNotHasKey( $option, $settings );
+	}
+
+	/**
+	 * Tests that firewall settings are still returned to administrators.
+	 *
+	 * @dataProvider restricted_options
+	 *
+	 * @param string $option The option name.
+	 */
+	#[DataProvider( 'restricted_options' )]
+	public function test_restricted_options_returned_to_admins( $option ) {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+		$settings = ( new Jetpack_Core_API_Data() )->get_all_options()->get_data();
+
+		$this->assertArrayHasKey( $option, $settings );
 	}
 
 	/**

@@ -1163,7 +1163,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 *
 	 * @return array{to: string, source: string} The address, and its source: 'post_author' or 'site_admin'.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.24.0
 	 */
 	public static function get_default_to_with_source( $post = null ) {
 		$site_admin = array(

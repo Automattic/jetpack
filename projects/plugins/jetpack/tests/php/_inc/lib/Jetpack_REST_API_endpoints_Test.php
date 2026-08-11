@@ -725,6 +725,96 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A request mixing a Post by Email option with an admin-only one needs the admin capability.
+	 *
+	 * @return void
+	 */
+	public function test_settings_post_by_email_bundle_does_not_lower_capability() {
+		$user = $this->create_and_get_user( 'contributor' );
+		wp_set_current_user( $user->ID );
+
+		update_option( 'jetpack_portfolio', 0 );
+
+		$response = $this->create_and_get_request(
+			'settings',
+			array(
+				'post_by_email_address' => 'regenerate',
+				'jetpack_portfolio'     => true,
+			),
+			'POST'
+		);
+
+		$this->assertResponseStatus( 403, $response );
+		$this->assertSame( '0', (string) get_option( 'jetpack_portfolio' ) );
+	}
+
+	/**
+	 * The write loop refuses options outside the Post by Email group without the admin capability.
+	 *
+	 * @return void
+	 */
+	public function test_update_data_skips_admin_only_options_for_non_admin() {
+		$user = $this->create_and_get_user( 'contributor' );
+		wp_set_current_user( $user->ID );
+
+		update_option( 'jetpack_portfolio', 0 );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'jetpack_portfolio' => true ), JSON_UNESCAPED_SLASHES ) );
+
+		$endpoint = new Jetpack_Core_API_Data();
+		$result   = $endpoint->update_data( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'some_updated', $result->get_error_code() );
+		$this->assertSame( '0', (string) get_option( 'jetpack_portfolio' ) );
+	}
+
+	/**
+	 * A Contributor may still regenerate their own Post by Email address.
+	 *
+	 * @return void
+	 */
+	public function test_settings_post_by_email_alone_is_still_allowed_for_contributor() {
+		$user = $this->create_and_get_user( 'contributor' );
+		wp_set_current_user( $user->ID );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'post_by_email_address' => 'regenerate' ), JSON_UNESCAPED_SLASHES ) );
+
+		$endpoint = new Jetpack_Core_API_Data();
+		$this->assertTrue( $endpoint->can_request( $request ) );
+	}
+
+	/**
+	 * An administrator can still save a bundled payload.
+	 *
+	 * @return void
+	 */
+	public function test_settings_post_by_email_bundle_is_allowed_for_admin() {
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_configure_modules' );
+		wp_set_current_user( $user->ID );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'post_by_email_address' => 'regenerate',
+					'jetpack_portfolio'     => true,
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+
+		$endpoint = new Jetpack_Core_API_Data();
+		$this->assertTrue( $endpoint->can_request( $request ) );
+	}
+
+	/**
 	 * Regression for NL-618: re-posting newsletter categories with the same selection the option
 	 * already holds must return 200, not a `some_updated` 400. The previous code left `$updated`
 	 * false on the "values equal" short-circuit, so any save without an actual change blew up.
@@ -1323,5 +1413,146 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 
 		$test_names = array_keys( $tests );
 		$this->assertContains( 'test__sync_health', $test_names, 'Jetpack sync health test should be registered on the connection test suite.' );
+	}
+
+	/**
+	 * Register a subscription service that reports a valid subscriber token, so
+	 * set_subscriber_cookie_and_redirect() reaches its redirect logic without a
+	 * live Jetpack connection. Filter is removed automatically at tear_down.
+	 */
+	private function mock_valid_subscriber_token() {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+
+		add_filter(
+			'earn_premium_content_subscription_service',
+			static function () {
+				return new class() extends \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service {
+					public function get_and_set_token_from_request() {
+						return 'valid-token';
+					}
+					public function decode_token( $token ) {
+						return 'valid-token' === $token
+							? array(
+								'blog_id'       => 123,
+								'subscriptions' => array(),
+							)
+							: null;
+					}
+				};
+			},
+			99
+		);
+	}
+
+	/**
+	 * The subscriber auth endpoint must not redirect to an external host.
+	 *
+	 * Regression test for NL-761: a valid subscriber token combined with an
+	 * attacker-controlled redirect_url turned the endpoint into an open redirect.
+	 */
+	public function test_subscriber_auth_rejects_external_redirect() {
+		$this->load_rest_endpoints_direct();
+		$this->mock_valid_subscriber_token();
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/subscribers/auth' );
+		$request->set_param( 'redirect_url', 'https://attacker.example/phishing' );
+
+		$response = Jetpack_Core_Json_Api_Endpoints::set_subscriber_cookie_and_redirect( $request );
+
+		$this->assertInstanceOf( 'WP_Error', $response, 'An external redirect target must be rejected.' );
+		$this->assertSame( 'invalid-redirect', $response->get_error_code() );
+		$error_data = $response->get_error_data();
+		$this->assertSame( 400, $error_data['status'], 'A rejected redirect must surface as an HTTP 400.' );
+	}
+
+	/**
+	 * A protocol-relative redirect_url (//attacker.example) must also be rejected,
+	 * since browsers treat it as an absolute cross-host redirect.
+	 */
+	public function test_subscriber_auth_rejects_protocol_relative_redirect() {
+		$this->load_rest_endpoints_direct();
+		$this->mock_valid_subscriber_token();
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/subscribers/auth' );
+		$request->set_param( 'redirect_url', '//attacker.example/phishing' );
+
+		$response = Jetpack_Core_Json_Api_Endpoints::set_subscriber_cookie_and_redirect( $request );
+
+		$this->assertInstanceOf( 'WP_Error', $response, 'A protocol-relative redirect target must be rejected.' );
+		$this->assertSame( 'invalid-redirect', $response->get_error_code() );
+	}
+
+	/**
+	 * A redirect to the site's own host is still allowed.
+	 */
+	public function test_subscriber_auth_allows_same_host_redirect() {
+		$this->load_rest_endpoints_direct();
+		$this->mock_valid_subscriber_token();
+
+		$redirect_url = home_url( '/?p=123' );
+		$request      = new WP_REST_Request( 'GET', '/jetpack/v4/subscribers/auth' );
+		$request->set_param( 'redirect_url', $redirect_url );
+
+		$response = Jetpack_Core_Json_Api_Endpoints::set_subscriber_cookie_and_redirect( $request );
+
+		$this->assertInstanceOf( 'WP_REST_Response', $response, 'A same-host redirect target must be allowed.' );
+		$this->assertSame( 302, $response->get_status() );
+		$headers = $response->get_headers();
+		$this->assertSame( $redirect_url, $headers['location'] );
+	}
+
+	/**
+	 * A backslash-obfuscated host (https:/\attacker.example) must also be rejected.
+	 * Browsers can normalize backslashes to forward slashes, so this is a known
+	 * open-redirect bypass class; wp_validate_redirect() strips the backslash and
+	 * the result no longer resolves to an allowed host.
+	 */
+	public function test_subscriber_auth_rejects_backslash_redirect() {
+		$this->load_rest_endpoints_direct();
+		$this->mock_valid_subscriber_token();
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/subscribers/auth' );
+		$request->set_param( 'redirect_url', 'https:/\\attacker.example/phishing' );
+
+		$response = Jetpack_Core_Json_Api_Endpoints::set_subscriber_cookie_and_redirect( $request );
+
+		$this->assertInstanceOf( 'WP_Error', $response, 'A backslash-obfuscated redirect target must be rejected.' );
+		$this->assertSame( 'invalid-redirect', $response->get_error_code() );
+	}
+
+	/**
+	 * An invalid/expired subscriber token must be rejected before any redirect,
+	 * and must surface as an HTTP 403 rather than a server error. Guards the
+	 * inverted token branch introduced alongside the NL-761 open-redirect fix.
+	 */
+	public function test_subscriber_auth_rejects_invalid_token() {
+		$this->load_rest_endpoints_direct();
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+
+		add_filter(
+			'earn_premium_content_subscription_service',
+			static function () {
+				return new class() extends \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service {
+					public function get_and_set_token_from_request() {
+						return 'invalid-token';
+					}
+					public function decode_token( $token ) {
+						// Only a 'valid-token' decodes; anything else is treated as invalid/expired.
+						return 'valid-token' === $token ? array( 'blog_id' => 123 ) : null;
+					}
+				};
+			},
+			99
+		);
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/subscribers/auth' );
+		$request->set_param( 'redirect_url', home_url( '/?p=123' ) );
+
+		$response = Jetpack_Core_Json_Api_Endpoints::set_subscriber_cookie_and_redirect( $request );
+
+		$this->assertInstanceOf( 'WP_Error', $response, 'An invalid token must be rejected.' );
+		$this->assertSame( 'invalid-token', $response->get_error_code() );
+		$error_data = $response->get_error_data();
+		$this->assertSame( 403, $error_data['status'], 'An invalid token must surface as an HTTP 403.' );
 	}
 } // class end

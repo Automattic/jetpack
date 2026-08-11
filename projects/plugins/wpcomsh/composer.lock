@@ -1977,7 +1977,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "97e1aeed34f0c26cd1ff399149a5ab6c88ac6114"
+                "reference": "a88eb719c066f4bdbbe6cf711f6ca06b589c21de"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -2007,7 +2007,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 }
             },
             "autoload": {
@@ -2560,7 +2560,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-build-polyfills",
-                "reference": "f2ec3c289e3adfada76eec1c12d2e93824904bc0"
+                "reference": "612e7e489598cb13c86143bb12d83dea93587241"
             },
             "require": {
                 "php": ">=7.2"
@@ -2579,7 +2579,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 }
             },
             "autoload": {
