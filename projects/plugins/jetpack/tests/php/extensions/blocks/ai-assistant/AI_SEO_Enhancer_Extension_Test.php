@@ -60,6 +60,7 @@ class AI_SEO_Enhancer_Extension_Test extends WP_UnitTestCase {
 		remove_all_filters( 'ai_seo_enhancer_enabled' );
 		remove_all_filters( 'pre_option_' . Current_Plan::PLAN_OPTION, self::PLAN_FILTER_PRIORITY );
 		self::reset_active_plan_cache();
+		Status_Cache::clear();
 		$this->deactivate_ai_module_for_test();
 		Jetpack_Gutenberg::reset();
 
