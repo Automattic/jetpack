@@ -2,21 +2,33 @@
  * WordPress dependencies
  */
 import { store, getContext, withScope, getElement, getConfig } from '@wordpress/interactivity';
+/**
+ * Internal dependencies
+ */
+import { isEmptyValue } from '../../contact-form/js/validate-helper.js';
 
-const NAMESPACE = 'jetpack/field-file';
+// The file field lives in the shared form store, like every other field module. It keeps its own
+// namespace only for `wp_interactivity_config()` — the upload endpoint, icon path and per-file
+// error strings — which is the same split `jetpack/field-phone` uses.
+const NAMESPACE = 'jetpack/form';
+const CONFIG_NAMESPACE = 'jetpack/field-file';
 
 const ENTER = 13;
 const SPACE = 32;
 
 let uploadToken = null;
 let tokenExpiry = null;
-
-const jetpackFormStore = store( 'jetpack/form' );
+// Set while a token request is in flight so several files added at once share a single request
+// instead of each firing its own.
+let pendingTokenRequest = null;
 
 /**
- * Retuns the upload token. Sometimes it has to fetch a new one if it expired. Or we haven't needed one just yet.
+ * Returns the upload token, fetching a new one if it expired or was never fetched.
  *
- * @return {string} The upload token.
+ * The token authorizes uploads for the whole site rather than for one field, so it is cached at
+ * module scope and shared by every file field on the page.
+ *
+ * @return {Promise<string|null>} The upload token, or null if one could not be obtained.
  */
 const getUploadToken = async () => {
 	// Check if the token exists and is not expired
@@ -24,18 +36,25 @@ const getUploadToken = async () => {
 		return uploadToken;
 	}
 
-	const { token, expiresAt } = await fetchUploadToken();
+	if ( ! pendingTokenRequest ) {
+		pendingTokenRequest = fetchUploadToken().finally( () => {
+			pendingTokenRequest = null;
+		} );
+	}
+
+	const { token, expiresAt } = await pendingTokenRequest;
 	uploadToken = token;
 	tokenExpiry = expiresAt * 1000; // Convert expiry timestamp to milliseconds
 	return uploadToken;
 };
+
 /**
  * Fetches the upload token from the server.
  *
  * @return {{ token: string, expiresAt: number }} The upload token and its expiration time.
  */
 const fetchUploadToken = async () => {
-	const { endpoint } = getConfig( NAMESPACE );
+	const { endpoint } = getConfig( CONFIG_NAMESPACE );
 
 	const tokenError = {
 		token: null, // Assuming the token is in the `token` field
@@ -76,7 +95,7 @@ const fetchUploadToken = async () => {
  * @return {string} The formatted file size.
  */
 const formatBytes = ( size, decimals = 2 ) => {
-	const config = getConfig( NAMESPACE );
+	const config = getConfig( CONFIG_NAMESPACE );
 	if ( size === 0 ) return config.i18n.zeroBytes;
 	const k = 1024;
 	const dm = decimals < 0 ? 0 : decimals;
@@ -91,7 +110,7 @@ const formatBytes = ( size, decimals = 2 ) => {
 };
 
 const getFileIcon = file => {
-	const config = getConfig( NAMESPACE );
+	const config = getConfig( CONFIG_NAMESPACE );
 	const fileType = file.type.split( '/' )[ 0 ];
 	const fileExtension = file.name.split( '.' ).pop().toLowerCase();
 
@@ -122,13 +141,28 @@ const getFileIcon = file => {
 };
 
 /**
+ * Reads the file field's configuration from the standard `fieldExtra` context entry, the same
+ * place the date field finds its format and the number field its min/max.
+ *
+ * @return {{ maxFiles: number, allowedMimeTypes: string[] }} The field's configuration.
+ */
+const getFileFieldExtra = () => {
+	const { maxFiles, allowedMimeTypes } = getContext().fieldExtra || {};
+	return {
+		maxFiles: maxFiles ?? 1,
+		allowedMimeTypes: allowedMimeTypes ?? [],
+	};
+};
+
+/**
  * Add the file to the context.
  *
  * @param {File} file - The file to add.
  */
 const addFileToContext = file => {
-	const config = getConfig( NAMESPACE );
+	const config = getConfig( CONFIG_NAMESPACE );
 	const context = getContext();
+	const { maxFiles, allowedMimeTypes } = getFileFieldExtra();
 
 	let error = null;
 
@@ -138,7 +172,7 @@ const addFileToContext = file => {
 	}
 
 	// Check that the file type is allowed.
-	if ( ! context.allowedMimeTypes.includes( file.type ) ) {
+	if ( ! allowedMimeTypes.includes( file.type ) ) {
 		error = config.i18n.invalidType;
 	}
 
@@ -146,7 +180,7 @@ const addFileToContext = file => {
 	const validFiles = context.files.filter( fileInfo => ! fileInfo.error );
 
 	// Check if the user is trying to add more files then allowed.
-	if ( context.maxFiles < validFiles.length + 1 ) {
+	if ( maxFiles < validFiles.length + 1 ) {
 		error = config.i18n.maxFiles;
 	}
 
@@ -167,7 +201,7 @@ const addFileToContext = file => {
 		error,
 	} );
 
-	jetpackFormStore.actions.updateFieldValue( context.fieldId, context.files );
+	actions.updateField( context.fieldId, context.files );
 
 	// Start the upload if we don't have any errors.
 	! error && actions.uploadFile( file, clientFileId );
@@ -200,6 +234,10 @@ const onProgress = ( clientFileId, event ) => {
 const onReadyStateChange = ( clientFileId, event ) => {
 	const xhr = event.target;
 	if ( xhr.readyState === 4 ) {
+		// The request has settled either way, so its controller can never abort anything again.
+		// Dropping it here keeps the map from growing for the lifetime of the page.
+		uploadControllers.delete( clientFileId );
+
 		if ( xhr.status === 200 ) {
 			const response = JSON.parse( xhr.responseText );
 			if ( response.success ) {
@@ -222,7 +260,7 @@ const onReadyStateChange = ( clientFileId, event ) => {
 				return;
 			}
 		} else {
-			const config = getConfig( NAMESPACE );
+			const config = getConfig( CONFIG_NAMESPACE );
 			updateFileContext( { error: config.i18n.uploadFailed, hasError: true }, clientFileId );
 			return;
 		}
@@ -244,36 +282,57 @@ const updateFileContext = ( updatedFile, clientFileId ) => {
 	const index = context.files.findIndex( file => file.id === clientFileId );
 	context.files[ index ] = Object.assign( context.files[ index ], updatedFile );
 
-	jetpackFormStore.actions.updateFieldValue( context.fieldId, context.files );
+	actions.updateField( context.fieldId, context.files );
 };
 
-const { state, actions } = store( NAMESPACE, {
+const { actions } = store( NAMESPACE, {
 	state: {
-		get isInlineForm() {
-			const { ref } = getElement();
-			const form = ref.closest( '.wp-block-jetpack-contact-form' );
-			return (
-				( form && form.classList.contains( 'is-style-outlined' ) ) ||
-				form.classList.contains( 'is-style-animated' )
-			);
+		validators: {
+			/**
+			 * Validates the file field's value: the array of files held in context.
+			 *
+			 * Mirrors `validators.phone` — a registered validator owns its own empty/required
+			 * handling rather than leaning on the shared `validateField()` helper.
+			 *
+			 * @param {Array}   value      - The field's files.
+			 * @param {boolean} isRequired - Whether the field is required.
+			 * @return {string} The validation result.
+			 */
+			file: ( value, isRequired ) => {
+				if ( isEmptyValue( value ) ) {
+					return isRequired ? 'is_required' : 'yes';
+				}
+
+				if ( value.some( file => file.error ) ) {
+					return 'invalid_file_has_errors';
+				}
+
+				if ( value.some( file => ! file.isUploaded ) ) {
+					return 'invalid_file_uploading';
+				}
+
+				return 'yes';
+			},
 		},
-		get hasFiles() {
-			return !! getContext().files.length > 0;
+
+		get hasFileFieldFiles() {
+			return getContext().files.length > 0;
 		},
 
 		get hasMaxFiles() {
 			const context = getContext();
-			return context.maxFiles <= context.files.length;
+			return getFileFieldExtra().maxFiles <= context.files.length;
 		},
 	},
 
 	actions: {
-		handleKeyDown: event => {
+		onFileDropzoneKeyDown: event => {
 			if ( event.keyCode === ENTER || event.keyCode === SPACE ) {
 				event.preventDefault();
 				actions.openFilePicker( event );
 			}
 		},
+
 		/**
 		 * Open the file picker dialog.
 		 */
@@ -307,7 +366,7 @@ const { state, actions } = store( NAMESPACE, {
 			// A drop fires no focus event, so the form's `focusin` handler never sees it.
 			// Without this, dropping a file and submitting would report the fill as starting
 			// at the submit button rather than at the drop.
-			jetpackFormStore.actions.trackFirstInteraction();
+			actions.trackFirstInteraction();
 			if ( event.dataTransfer ) {
 				for ( const item of Array.from( event.dataTransfer.items ) ) {
 					if ( item.webkitGetAsEntry()?.isDirectory ) {
@@ -325,7 +384,7 @@ const { state, actions } = store( NAMESPACE, {
 		 *
 		 * @param {DragEvent} event - The drag event object.
 		 */
-		dragOver: event => {
+		onFileDragOver: event => {
 			const context = getContext();
 			context.isDropping = true;
 			event.preventDefault();
@@ -334,7 +393,7 @@ const { state, actions } = store( NAMESPACE, {
 		/**
 		 * Handle drag leave event.
 		 */
-		dragLeave: () => {
+		onFileDragLeave: () => {
 			const context = getContext();
 			context.isDropping = false;
 		},
@@ -349,7 +408,7 @@ const { state, actions } = store( NAMESPACE, {
 		 * @yield {Promise<string>} The upload token.
 		 */
 		uploadFile: function* ( file, clientFileId ) {
-			const { endpoint, i18n } = getConfig( NAMESPACE );
+			const { endpoint, i18n } = getConfig( CONFIG_NAMESPACE );
 
 			const token = yield getUploadToken();
 
@@ -417,7 +476,7 @@ const { state, actions } = store( NAMESPACE, {
 			}
 
 			if ( file && file.file_id ) {
-				const { endpoint } = getConfig( NAMESPACE );
+				const { endpoint } = getConfig( CONFIG_NAMESPACE );
 				const token = yield getUploadToken();
 				if ( token ) {
 					const formData = new FormData();
@@ -429,12 +488,10 @@ const { state, actions } = store( NAMESPACE, {
 					} );
 				}
 			}
-			// Remove the file from the context
+			// Remove the file from the context. An empty array is a legitimate value here — the
+			// registered validator turns it into `is_required` or `yes` as appropriate.
 			context.files = context.files.filter( fileObject => fileObject.id !== clientFileId );
-			jetpackFormStore.actions.updateFieldValue(
-				context.fieldId,
-				state.hasFiles ? context.files : ''
-			);
+			actions.updateField( context.fieldId, context.files );
 		},
 
 		removeFileKeydown: event => {
@@ -446,20 +503,18 @@ const { state, actions } = store( NAMESPACE, {
 	},
 
 	callbacks: {
-		focusElement: function () {
+		/**
+		 * Move focus to a newly added file preview.
+		 *
+		 * The preview carries `tabindex="0"` and an `aria-label` of the file name, so it is the
+		 * only meaningful focus target once a file is added — the dropzone is hidden as soon as
+		 * `state.hasMaxFiles` becomes true, and focusing a hidden element strands keyboard users.
+		 */
+		focusFilePreview: () => {
 			const { ref } = getElement();
 			setTimeout( () => {
 				ref.focus( { focusVisible: true } );
 			}, 100 );
-
-			return withScope( function () {
-				const dropzone = ref
-					.closest( '.jetpack-form-file-field__container' )
-					.querySelector( '.jetpack-form-file-field__dropzone-inner' );
-				setTimeout( () => {
-					dropzone.focus( { focusVisible: true } );
-				}, 100 );
-			} );
 		},
 	},
 } );

@@ -78,6 +78,18 @@ const updateField = ( fieldId, value, showFieldError = false, validatorCallback 
 	}
 };
 
+/**
+ * Resolve the validator for a field type.
+ *
+ * A field module that registers `state.validators[ type ]` owns validation for that type
+ * outright — including the empty/required check — and it applies on every update, not just on
+ * blur. Types with no registered validator fall through to the shared `validateField()` helper.
+ *
+ * @param {string} fieldType - The field type.
+ * @return {Function|null} The registered validator, or null to use the shared helper.
+ */
+const getValidator = fieldType => state.validators?.[ fieldType ] ?? null;
+
 const setSubmissionData = ( data = [] ) => {
 	const context = getContext();
 
@@ -138,6 +150,8 @@ const registerField = (
 			}
 		}
 
+		const validator = getValidator( type );
+
 		context.fields[ fieldId ] = {
 			id: fieldId,
 			type,
@@ -145,7 +159,9 @@ const registerField = (
 			value,
 			isRequired,
 			extra,
-			error: validateField( type, value, isRequired, extra ),
+			error: validator
+				? validator( value, isRequired, extra )
+				: validateField( type, value, isRequired, extra ),
 			step: context?.step ? context.step : 1,
 			isOtherSelected,
 			otherLabel,
@@ -510,12 +526,7 @@ const { state, actions } = store( NAMESPACE, {
 		updateField: ( fieldId, value, showFieldError ) => {
 			const context = getContext();
 			const { fieldType } = context;
-			updateField(
-				fieldId,
-				value,
-				showFieldError,
-				showFieldError ? state.validators?.[ fieldType ] : null
-			);
+			updateField( fieldId, value, showFieldError, getValidator( fieldType ) );
 		},
 		updateFieldValue: ( fieldId, value ) => {
 			actions.updateField( fieldId, value );
@@ -675,7 +686,7 @@ const { state, actions } = store( NAMESPACE, {
 		 * Start the fill timer on the submitter's first interaction with the form.
 		 *
 		 * Bound to `focusin` on the form wrapper, which covers every focusable control. File
-		 * drag-and-drop fires no focus event, so `jetpack/field-file` calls this directly.
+		 * drag-and-drop fires no focus event, so the file field module calls this directly.
 		 *
 		 * Uses `performance.now()` rather than `Date.now()`: it is monotonic, so a wall-clock
 		 * step backward mid-fill cannot produce a negative duration. Compared against null

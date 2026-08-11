@@ -123,18 +123,6 @@ export const validateField = ( type, value, isRequired, extra = null ) => {
 		return validateNumber( value, extra );
 	}
 
-	if ( 'file' === type ) {
-		if ( value.some( file => file.error ) ) {
-			return 'invalid_file_has_errors';
-		}
-
-		if ( value.some( file => ! file.isUploaded ) ) {
-			return 'invalid_file_uploading';
-		}
-
-		return 'yes';
-	}
-
 	let regex = null;
 	switch ( type ) {
 		case 'url':

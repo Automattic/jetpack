@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+File upload field: align the field's Interactivity API surface with the other form fields.
