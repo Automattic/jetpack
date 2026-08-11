@@ -17,6 +17,17 @@ export type ConnectionScriptData = {
 			wpLocalConstant: boolean;
 		};
 		isPublic: boolean;
+		/** Why the last registration attempt failed; null when it did not. */
+		registrationError: {
+			code: string;
+			message: string;
+			/** Whether retrying could ever succeed without the site's environment changing. */
+			isPermanent: boolean;
+			attempts: number;
+			lastAttemptAt: number;
+			/** Unix timestamp of the next automatic attempt; null when there will not be one. */
+			nextRetryAfter: number | null;
+		} | null;
 	};
 	userConnectionData: {
 		currentUser: {
