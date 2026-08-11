@@ -93,8 +93,7 @@ const resolveWidgetModule: ResolveWidgetModule = moduleId =>
 		: Promise.reject( new Error( `Unknown story widget module: ${ moduleId }` ) );
 
 // In product the section list is server-driven (the dashboardSection entity);
-// the story pins a static list mirroring that response shape. Store registers
-// no description, the way it does in product.
+// the story pins a static list mirroring that response shape.
 const storySections = [
 	{
 		id: 'analytics/traffic',
@@ -120,7 +119,14 @@ const storySections = [
 		order: 30,
 		default_layout: [],
 	},
-	{ id: 'woocommerce/store', slug: 'store', label: 'Store', order: 40, default_layout: [] },
+	{
+		id: 'woocommerce/store',
+		slug: 'store',
+		label: 'Store',
+		description: 'Sales, orders, and what your customers are buying.',
+		order: 40,
+		default_layout: [],
+	},
 ];
 
 /**

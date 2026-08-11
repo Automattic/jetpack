@@ -128,10 +128,10 @@ function register_default_dashboard_sections() {
 				return get_dashboard_default_layout_for( 'analytics/subscribers' );
 			},
 		),
-		// Store registers no copy of its own: its heading falls back to the label,
-		// and it shows no page description, until copy exists for it.
+		// Store registers no heading of its own, so it falls back to the label.
 		'woocommerce/store'     => array(
 			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
+			'description'    => __( 'Sales, orders, and what your customers are buying.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 40,
 			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available_to_current_user',
 			'default_layout' => __NAMESPACE__ . '\\get_woocommerce_dashboard_section_default_layout',

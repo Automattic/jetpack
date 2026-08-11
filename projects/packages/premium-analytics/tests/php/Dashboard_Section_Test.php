@@ -281,7 +281,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$descriptions = array_column( $sections, 'description', 'slug' );
 		$this->assertSame( 'Views, visitors, and where they came from.', $descriptions['traffic'] );
-		$this->assertNull( $descriptions['store'] );
+		$this->assertSame( 'Sales, orders, and what your customers are buying.', $descriptions['store'] );
 	}
 
 	/**

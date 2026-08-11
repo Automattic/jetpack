@@ -34,13 +34,13 @@ const SECTIONS: DashboardSection[] = [
 	},
 ];
 
-// Registers no copy of its own, the way Store does.
+// Registers no heading of its own, the way Store does.
 const STORE: DashboardSection = {
 	id: 'woocommerce/store',
 	slug: 'store',
 	label: 'Store',
 	title: null,
-	description: null,
+	description: 'Sales, orders, and what your customers are buying.',
 	order: 40,
 	date_filter: 'range',
 	default_layout: [],
