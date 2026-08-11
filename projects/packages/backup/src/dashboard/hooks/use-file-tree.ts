@@ -28,12 +28,15 @@ type Result = {
  * we surface it as `lastModified` so the FileInfoCard can render the
  * date without a separate path-info call.
  *
+ * Exported for tests: it's a pure transform of one untrusted WPCOM entry,
+ * and the timestamp guard below is worth asserting directly.
+ *
  * @param name       - The entry's filename (the key in the parent contents map).
  * @param raw        - The WPCOM ls entry.
  * @param parentPath - Path of the folder the entry lives in.
  * @return The mapped `FileNode`.
  */
-function toFileNode( name: string, raw: WpcomFileNode, parentPath: string ): FileNode {
+export function toFileNode( name: string, raw: WpcomFileNode, parentPath: string ): FileNode {
 	const fullPath = parentPath === BASE_FOLDER_PATH ? `/${ name }` : `${ parentPath }/${ name }`;
 
 	const isFolder = raw.type === 'dir' || raw.has_children === true;
@@ -45,8 +48,15 @@ function toFileNode( name: string, raw: WpcomFileNode, parentPath: string ): Fil
 		};
 	}
 
-	const lastModified = raw.period
-		? new Date( Number.parseInt( raw.period, 10 ) * 1000 ).toISOString()
+	// `period` is unix seconds as a string, but it comes straight from a
+	// WPCOM manifest and nothing validates it. A non-numeric value makes
+	// `new Date( NaN ).toISOString()` throw `RangeError: Invalid time
+	// value` — and this runs inside a `useMemo` on the render path with no
+	// error boundary above it, so one malformed entry would blank the whole
+	// file browser rather than dropping a single timestamp.
+	const periodSeconds = raw.period ? Number.parseInt( raw.period, 10 ) : NaN;
+	const lastModified = Number.isFinite( periodSeconds )
+		? new Date( periodSeconds * 1000 ).toISOString()
 		: undefined;
 	return {
 		type: 'file',

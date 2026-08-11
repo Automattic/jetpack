@@ -42,9 +42,24 @@ class Activity_Log_Bridge {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( __CLASS__, 'get_activity_log' ),
 				'permission_callback' => array( Rest_Controller::class, 'permission_check' ),
+				// Bounds mirror what WPCOM's own `get_stream_args()`
+				// validate_callback enforces on `/activity/rewindable`, and
+				// the sibling `jetpack-activity-log` package's declaration.
+				// Declaring them here turns an out-of-range value into a 400
+				// with a useful message instead of a round-trip that WPCOM
+				// rejects.
 				'args'                => array(
-					'number' => array( 'type' => 'integer' ),
-					'page'   => array( 'type' => 'integer' ),
+					'number' => array(
+						'description' => __( 'Number of items to return per page.', 'jetpack-backup-pkg' ),
+						'type'        => 'integer',
+						'minimum'     => 1,
+						'maximum'     => 1000,
+					),
+					'page'   => array(
+						'description' => __( '1-indexed page number.', 'jetpack-backup-pkg' ),
+						'type'        => 'integer',
+						'minimum'     => 1,
+					),
 				),
 			)
 		);
