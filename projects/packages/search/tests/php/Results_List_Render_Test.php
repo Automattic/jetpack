@@ -252,13 +252,14 @@ class Results_List_Render_Test extends TestCase {
 	/**
 	 * The block renders the no-results region with the default copy when no
 	 * custom message is provided. The region is hidden by default and gated
-	 * by `state.showNoResults` on hydration.
+	 * by `state.showLegacyNoResults` on hydration, which also stands it down
+	 * on pages carrying a `jetpack-search/no-results` block.
 	 */
 	public function test_no_results_region_falls_back_to_default_message() {
 		$markup = $this->render();
 		$this->assertStringContainsString( 'jetpack-search-results__no-results', $markup );
 		$this->assertStringContainsString( 'No results found. Try a different search.', $markup );
-		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showNoResults"', $markup );
+		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showLegacyNoResults"', $markup );
 	}
 
 	/**

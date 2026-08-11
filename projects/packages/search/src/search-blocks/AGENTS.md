@@ -149,6 +149,14 @@ A saved post that contains a WC-only block on a site that later deactivates WooC
 - **`hasOwn` + null prototype for filter-key gates.** `gateActiveFilters()` uses `Object.hasOwn` and `Object.create( null )` so `__proto__` / `constructor` / `toString` URL keys can't smuggle through prototype-chain hits.
 - **Don't give a seeded key a literal default in `store()`'s state object.** The framework's server→client state merge is additive-only (`deepMerge(..., override:false)` — server values only fill in keys the client hasn't already declared), but the block bundle's own `store(NAMESPACE, { state: {...} })` call merges with `override:true` and runs *after* the server seed is applied. A literal default for a seeded key (e.g. `resultsPerPage: 10`) silently clobbers the per-page seeded value back to the default on every load. Read the fallback at the call site instead (`state.resultsPerPage ?? 10`), matching the `staticPostTypes` pattern — no default in `state {}`, only a `?? null`/`?? fallback` where it's consumed.
 
+## One block suppressing another's region
+
+`no-results` supersedes the message region `results-list` renders from its legacy `noResultsMessage` attributes, but a block can't see its siblings at render time: `WP_Block` carries no parent pointer, `render_block_data` doesn't fire for nested blocks, and by the time a container's `render.php` runs its `$content` is already a rendered string.
+
+Seeded state is the escape hatch. `no-results/render.php` sets `state.hasNoResultsBlock`; `results-list` binds its legacy region to `state.showLegacyNoResults` (`showNoResults && ! hasNoResultsBlock`). Because the whole interactivity state is serialized once at footer time, this resolves the same way regardless of which block rendered first — no HTML surgery, no parent walking, and the surviving region stays in its authored position.
+
+Reach for this shape whenever two blocks contend over one region. The cost is a little dead (always-`hidden`) markup on pages that carry both, which is cheaper than any of the alternatives.
+
 ## Editor ↔ render parity
 
 Block edit components mirror the server `render.php` so the canvas preview matches what visitors see. A few patterns recur:

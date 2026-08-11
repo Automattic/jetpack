@@ -82,6 +82,8 @@ jest.mock( '@wordpress/i18n', () => ( {
 // id) and `__mockSearchResultsAttrs` to drive the useSelect call.
 let mockSearchResultsParent = null;
 let mockSearchResultsAttrs = null;
+// Client id of a sibling `no-results` block, when the results region has one.
+let mockNoResultsBlockId = null;
 const mockSelectBlock = jest.fn();
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: callback =>
@@ -89,6 +91,9 @@ jest.mock( '@wordpress/data', () => ( {
 			getBlockParentsByBlockName: () =>
 				mockSearchResultsParent ? [ mockSearchResultsParent ] : [],
 			getBlockAttributes: () => mockSearchResultsAttrs,
+			getClientIdsOfDescendants: () => ( mockNoResultsBlockId ? [ mockNoResultsBlockId ] : [] ),
+			getBlockName: id =>
+				id === mockNoResultsBlockId ? 'jetpack-search/no-results' : 'core/paragraph',
 		} ) ),
 	useDispatch: () => ( { selectBlock: mockSelectBlock } ),
 } ) );
@@ -102,6 +107,7 @@ describe( 'ResultsListEdit', () => {
 		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: true };
 		mockSearchResultsParent = null;
 		mockSearchResultsAttrs = null;
+		mockNoResultsBlockId = null;
 		mockSelectBlock.mockClear();
 	} );
 	afterEach( () => {
@@ -210,6 +216,38 @@ describe( 'ResultsListEdit', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			errorMessage: 'Search is offline right now.',
 		} );
+	} );
+
+	// Once a No Results block is in the results region it is what renders the
+	// empty state, so leaving the legacy text fields editable would let an
+	// author type copy that never appears.
+	it( 'hands the empty-state fields off to the No Results block when one exists', () => {
+		mockSearchResultsParent = 'sr-1';
+		mockNoResultsBlockId = 'nr-1';
+		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
+
+		expect(
+			screen.queryByRole( 'textbox', { name: 'No-results message' } )
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'textbox', { name: 'No-results message (when filters are active)' } )
+		).not.toBeInTheDocument();
+		// The error message has no block counterpart and stays editable here.
+		expect( screen.getByRole( 'textbox', { name: 'Error message' } ) ).toBeInTheDocument();
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Edit No Results block' } ) );
+		expect( mockSelectBlock ).toHaveBeenCalledWith( 'nr-1' );
+	} );
+
+	it( 'keeps the empty-state fields editable for saved content with no No Results block', () => {
+		mockSearchResultsParent = 'sr-1';
+		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
+
+		expect( screen.getByRole( 'textbox', { name: 'No-results message' } ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: 'Edit No Results block' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'omits the Search-scope hint panel when no search-results parent is found', () => {

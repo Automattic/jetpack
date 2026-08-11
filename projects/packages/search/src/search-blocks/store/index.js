@@ -677,6 +677,38 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * No-results visibility for a `no-results` block scoped to searches
+		 * with no filters applied.
+		 *
+		 * @return {boolean} True when the unfiltered variant should show.
+		 */
+		get showNoResultsUnfiltered() {
+			return state.showNoResults && ! state.hasActiveFilters;
+		},
+
+		/**
+		 * No-results visibility for a `no-results` block scoped to searches
+		 * with filters applied.
+		 *
+		 * @return {boolean} True when the filtered variant should show.
+		 */
+		get showNoResultsFiltered() {
+			return state.showNoResults && state.hasActiveFilters;
+		},
+
+		/**
+		 * Visibility for `results-list`'s built-in message region, which
+		 * predates the `no-results` block. `hasNoResultsBlock` is seeded by
+		 * that block's render, so a page carrying one retires the legacy
+		 * region rather than showing two empty states.
+		 *
+		 * @return {boolean} True when the legacy region should show.
+		 */
+		get showLegacyNoResults() {
+			return state.showNoResults && ! state.hasNoResultsBlock;
+		},
+
+		/**
 		 * Visibility for the filters empty state.
 		 *
 		 * @return {boolean} True when the empty state should show.

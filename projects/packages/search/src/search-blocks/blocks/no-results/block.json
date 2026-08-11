@@ -1,0 +1,41 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack-search/no-results",
+	"version": "0.1.0",
+	"title": "No Results",
+	"category": "jetpack-search",
+	"description": "Content shown when a search returns nothing — put any blocks inside, including links, images, and buttons. Powered by Jetpack Search.",
+	"keywords": [ "search", "empty", "no results" ],
+	"ancestor": [ "jetpack-search/search-results" ],
+	"attributes": {
+		"filterState": {
+			"type": "string",
+			"enum": [ "any", "unfiltered", "filtered" ],
+			"default": "any"
+		}
+	},
+	"supports": {
+		"html": false,
+		"interactivity": true,
+		"color": {
+			"background": true,
+			"text": true,
+			"link": true
+		},
+		"spacing": {
+			"padding": true,
+			"margin": true,
+			"blockGap": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"fontFamily": true
+		}
+	},
+	"textdomain": "jetpack-search-pkg",
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/no-results.js",
+	"style": "file:../../../../build/search-blocks/no-results.css"
+}

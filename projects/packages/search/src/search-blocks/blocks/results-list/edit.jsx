@@ -4,7 +4,8 @@
  * The block owns three runtime states (results, empty, error) but the
  * editor canvas always shows the success-state preview — the empty and
  * error copy lives in the Inspector so authors can edit it without a
- * dedicated preview mode.
+ * dedicated preview mode. Once a No Results block is present the empty-state
+ * fields hand off to it, since it is what renders.
  *
  * Each layout has its own template function below. Duplication is
  * intentional — the templates are short and rarely change, and keeping
@@ -169,7 +170,7 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 	// can see what scope is in effect and jump straight to the parent's panel
 	// to change it. Single source of truth — the attribute lives on the parent;
 	// this is read-only + a navigation affordance.
-	const { parentScopeBlockId, parentScopeAttributes } = useSelect(
+	const { parentScopeBlockId, parentScopeAttributes, noResultsBlockId } = useSelect(
 		select => {
 			const blockEditor = select( 'core/block-editor' );
 			const parents = blockEditor.getBlockParentsByBlockName(
@@ -179,11 +180,19 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 			);
 			const parentId = parents[ 0 ];
 			if ( ! parentId ) {
-				return { parentScopeBlockId: null, parentScopeAttributes: null };
+				return {
+					parentScopeBlockId: null,
+					parentScopeAttributes: null,
+					noResultsBlockId: null,
+				};
 			}
 			return {
 				parentScopeBlockId: parentId,
 				parentScopeAttributes: blockEditor.getBlockAttributes( parentId ),
+				noResultsBlockId:
+					blockEditor
+						.getClientIdsOfDescendants( [ parentId ] )
+						.find( id => blockEditor.getBlockName( id ) === 'jetpack-search/no-results' ) ?? null,
 			};
 		},
 		[ clientId ]
@@ -217,30 +226,50 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 						options={ LAYOUT_OPTIONS() }
 						onChange={ value => setAttributes( { layout: value } ) }
 					/>
-					<TextControl
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-						label={ __( 'No-results message', 'jetpack-search-pkg' ) }
-						value={ attributes?.noResultsMessage || '' }
-						placeholder={ noResultsDefault }
-						onChange={ value => setAttributes( { noResultsMessage: value } ) }
-						help={ __(
-							'Shown when a search returns nothing. Leave empty for the default.',
-							'jetpack-search-pkg'
-						) }
-					/>
-					<TextControl
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-						label={ __( 'No-results message (when filters are active)', 'jetpack-search-pkg' ) }
-						value={ attributes?.noResultsWithFiltersMessage || '' }
-						placeholder={ noResultsWithFiltersDefault }
-						onChange={ value => setAttributes( { noResultsWithFiltersMessage: value } ) }
-						help={ __(
-							'Shown when active filters return zero results. Leave empty for the default.',
-							'jetpack-search-pkg'
-						) }
-					/>
+					{ noResultsBlockId ? (
+						<>
+							<p className="components-base-control__help">
+								{ __(
+									'The empty state is handled by the No Results block, which accepts any content — links, images, buttons.',
+									'jetpack-search-pkg'
+								) }
+							</p>
+							<Button
+								__next40pxDefaultSize
+								variant="secondary"
+								onClick={ () => selectBlock( noResultsBlockId ) }
+							>
+								{ __( 'Edit No Results block', 'jetpack-search-pkg' ) }
+							</Button>
+						</>
+					) : (
+						<>
+							<TextControl
+								__next40pxDefaultSize
+								__nextHasNoMarginBottom
+								label={ __( 'No-results message', 'jetpack-search-pkg' ) }
+								value={ attributes?.noResultsMessage || '' }
+								placeholder={ noResultsDefault }
+								onChange={ value => setAttributes( { noResultsMessage: value } ) }
+								help={ __(
+									'Shown when a search returns nothing. Leave empty for the default.',
+									'jetpack-search-pkg'
+								) }
+							/>
+							<TextControl
+								__next40pxDefaultSize
+								__nextHasNoMarginBottom
+								label={ __( 'No-results message (when filters are active)', 'jetpack-search-pkg' ) }
+								value={ attributes?.noResultsWithFiltersMessage || '' }
+								placeholder={ noResultsWithFiltersDefault }
+								onChange={ value => setAttributes( { noResultsWithFiltersMessage: value } ) }
+								help={ __(
+									'Shown when active filters return zero results. Leave empty for the default.',
+									'jetpack-search-pkg'
+								) }
+							/>
+						</>
+					) }
 					<TextControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom

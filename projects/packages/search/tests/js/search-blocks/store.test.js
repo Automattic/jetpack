@@ -936,6 +936,40 @@ describe( 'store getters', () => {
 		expect( state.showNoResults ).toBe( false );
 	} );
 
+	it( 'splits no-results visibility by filter state for the no-results block', () => {
+		state.results = [];
+		state.isLoading = false;
+		state.hasError = false;
+		state.activeFilters = {};
+		expect( state.showNoResultsUnfiltered ).toBe( true );
+		expect( state.showNoResultsFiltered ).toBe( false );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.showNoResultsUnfiltered ).toBe( false );
+		expect( state.showNoResultsFiltered ).toBe( true );
+
+		// Neither variant escapes the base gate — a search that returned
+		// results must not surface an empty state on either binding.
+		state.results = [ { title: 'Existing result' } ];
+		expect( state.showNoResultsUnfiltered ).toBe( false );
+		expect( state.showNoResultsFiltered ).toBe( false );
+	} );
+
+	it( 'stands the legacy results-list message down once a no-results block is on the page', () => {
+		// `hasNoResultsBlock` is seeded server-side by the block's render, and
+		// is what keeps a page from showing two empty states at once. It is
+		// deliberately absent from the store's literal state — see AGENTS.md
+		// on seeded keys — so the getter must treat "unset" as false.
+		state.results = [];
+		state.isLoading = false;
+		state.hasError = false;
+		delete state.hasNoResultsBlock;
+		expect( state.showLegacyNoResults ).toBe( true );
+
+		state.hasNoResultsBlock = true;
+		expect( state.showLegacyNoResults ).toBe( false );
+	} );
+
 	it( 'hasActiveFilters counts the priceRange (including half-open) as a filter', () => {
 		state.activeFilters = {};
 		state.priceRange = null;

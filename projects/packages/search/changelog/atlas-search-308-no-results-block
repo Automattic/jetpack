@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search Blocks: add a No Results block so the empty state can contain any blocks — links, images, buttons — instead of a plain-text message.

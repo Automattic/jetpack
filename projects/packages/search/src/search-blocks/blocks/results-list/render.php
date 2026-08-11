@@ -4,7 +4,8 @@
  *
  * Renders three sibling regions inside a single block wrapper:
  *  - the results list (skeleton while loading, then live results),
- *  - the empty-state message (gated by `state.showNoResults`),
+ *  - the legacy empty-state message (gated by `state.showLegacyNoResults`,
+ *    so it stands down for pages carrying a `no-results` block),
  *  - the error message (gated by `state.showError`).
  *
  * The store's existing visibility flags ensure exactly one message is
@@ -102,6 +103,11 @@ if ( function_exists( 'wp_interactivity_state' ) ) {
 $is_initial_loading = Search_Blocks::is_initial_loading();
 $skeleton_count     = 'compact' === $layout ? 6 : 4;
 
+// Superseded by the `jetpack-search/no-results` block, which accepts any inner
+// blocks instead of a plain string. Kept rendering for saved content that
+// predates it — `state.showLegacyNoResults` hides this region on pages that do
+// carry the block, so the two never both show.
+//
 // `trim()` so a whitespace-only attribute (e.g. an author who saved spaces)
 // still falls back to the default copy instead of rendering a blank message.
 $no_results_message = trim( (string) ( $attrs['noResultsMessage'] ?? '' ) );
@@ -333,7 +339,7 @@ if ( '' === $error_message ) {
 	</ul>
 	<div
 		class="jetpack-search-results__no-results"
-		data-wp-bind--hidden="!state.showNoResults"
+		data-wp-bind--hidden="!state.showLegacyNoResults"
 		role="status"
 		hidden
 	>
