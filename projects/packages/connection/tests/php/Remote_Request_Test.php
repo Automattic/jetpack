@@ -54,6 +54,7 @@ class Remote_Request_Test extends BaseTestCase {
 
 		Jetpack_Options::delete_option( 'blog_token' );
 		Jetpack_Options::delete_option( 'user_tokens' );
+		Jetpack_Options::delete_option( 'master_user' );
 
 		// `Manager::is_connected()` memoizes its result and hook registration.
 		// Reset both so later tests can re-register the hooks and invalidate the cache.
@@ -159,8 +160,6 @@ class Remote_Request_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( '12', $stored_errors['no_user_tokens'] );
 		$this->assertArrayNotHasKey( '0', $stored_errors['no_user_tokens'] );
-
-		Jetpack_Options::delete_option( 'master_user' );
 	}
 
 	/**

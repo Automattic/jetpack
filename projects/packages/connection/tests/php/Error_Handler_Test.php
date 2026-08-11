@@ -54,6 +54,8 @@ class Error_Handler_Test extends BaseTestCase {
 		// Reset viewer/owner state used by the audience-aware display tests.
 		wp_set_current_user( 0 );
 		\Jetpack_Options::delete_option( 'master_user' );
+
+		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'malformed_token' );
 	}
 
 	/**
@@ -674,8 +676,6 @@ class Error_Handler_Test extends BaseTestCase {
 		);
 
 		$this->assertEmpty( $this->error_handler->get_stored_errors(), 'the gate should suppress a second report within the hour' );
-
-		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'malformed_token' );
 	}
 
 	/**
@@ -2453,7 +2453,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$verified_errors = array(
 			'invalid_token'       => array( '0' => $make_error( 'invalid_token', 0 ) ),
 			'no_valid_user_token' => array( '7' => $make_error( 'no_valid_user_token', 7 ) ),
-			'no_token_for_user'   => array( '3' => $make_error( 'no_token_for_user', 3 ) ),
+			'token_mismatch'      => array( '3' => $make_error( 'token_mismatch', 3 ) ),
 		);
 		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
 
@@ -2461,7 +2461,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->assertSame( 'site', $result['invalid_token']['0']['audience'], 'A blog-token error (user 0) is site-wide.' );
 		$this->assertSame( 'owner', $result['no_valid_user_token']['7']['audience'], "The connection owner's token error is owner-scoped." );
-		$this->assertSame( 'user', $result['no_token_for_user']['3']['audience'], "A non-owner user's token error is user-scoped." );
+		$this->assertSame( 'user', $result['token_mismatch']['3']['audience'], "A non-owner user's token error is user-scoped." );
 	}
 
 	/**

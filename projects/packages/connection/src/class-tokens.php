@@ -377,15 +377,16 @@ class Tokens {
 		$user_tokens             = $this->get_user_tokens();
 
 		if ( $user_id ) {
+			$resolved_user_id = true === $user_id ? (int) Jetpack_Options::get_option( 'master_user' ) : (int) $user_id;
+
 			if ( ! $user_tokens ) {
-				$attributed_user_id = true === $user_id ? (int) Jetpack_Options::get_option( 'master_user' ) : (int) $user_id;
-				return $suppress_errors ? false : new WP_Error( 'no_user_tokens', __( 'No user tokens found', 'jetpack-connection' ), array( 'user_id' => $attributed_user_id ) );
+				return $suppress_errors ? false : new WP_Error( 'no_user_tokens', __( 'No user tokens found', 'jetpack-connection' ), array( 'user_id' => $resolved_user_id ) );
 			}
 			if ( true === $user_id ) { // connection owner.
-				$user_id = Jetpack_Options::get_option( 'master_user' );
-				if ( ! $user_id ) {
+				if ( ! $resolved_user_id ) {
 					return $suppress_errors ? false : new WP_Error( 'empty_master_user_option', __( 'No primary user defined', 'jetpack-connection' ) );
 				}
+				$user_id = $resolved_user_id;
 			}
 			if ( ! isset( $user_tokens[ $user_id ] ) || ! $user_tokens[ $user_id ] ) {
 				// translators: %s is the user ID.
@@ -456,7 +457,7 @@ class Tokens {
 		if ( ! $valid_token ) {
 			if ( $user_id ) {
 				// translators: %d is the user ID.
-				return $suppress_errors ? false : new WP_Error( 'no_valid_user_token', sprintf( __( 'Invalid token for user %d', 'jetpack-connection' ), $user_id ) );
+				return $suppress_errors ? false : new WP_Error( 'no_valid_user_token', sprintf( __( 'Invalid token for user %d', 'jetpack-connection' ), $user_id ), array( 'user_id' => (int) $user_id ) );
 			} else {
 				return $suppress_errors ? false : new WP_Error( 'no_valid_blog_token', __( 'Invalid blog token', 'jetpack-connection' ) );
 			}

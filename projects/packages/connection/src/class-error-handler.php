@@ -305,9 +305,9 @@ class Error_Handler {
 		// (e.g. wpcomsh) can inject errors into an empty set.
 		if ( ! empty( $verified_errors ) ) {
 			// Only process error codes that are meant to be displayed to users.
-			// `no_user_tokens` is deliberately excluded: with an empty user_tokens option the
-			// site already behaves as site-only connected, and the connection UI prompts users
-			// to connect their accounts. The owner flavor is covered by `invalid_connection_owner`.
+			// `no_user_tokens` and `no_token_for_user` are deliberately excluded: both mean the
+			// targeted user simply never connected their WordPress.com account, which is expected.
+			// The owner flavor is covered by `invalid_connection_owner`.
 			$displayable_error_codes = array(
 				'malformed_token',
 				'token_malformed',
@@ -320,7 +320,6 @@ class Error_Handler {
 				'token_mismatch',
 				'invalid_signature',
 				'signature_mismatch',
-				'no_token_for_user',
 				'invalid_connection_owner',
 				'xmlrpc_request_blocked',
 			);
@@ -753,8 +752,13 @@ class Error_Handler {
 
 		$stored_errors = $this->get_stored_errors();
 		$error_array   = $this->wp_error_to_array( $error );
-		$error_code    = $error->get_error_code();
-		$user_id       = $error_array['user_id'];
+
+		if ( ! $error_array ) {
+			return false;
+		}
+
+		$error_code = $error->get_error_code();
+		$user_id    = $error_array['user_id'];
 
 		if ( ! isset( $stored_errors[ $error_code ] ) || ! is_array( $stored_errors[ $error_code ] ) ) {
 			$stored_errors[ $error_code ] = array();
