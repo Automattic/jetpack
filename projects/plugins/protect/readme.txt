@@ -178,33 +178,35 @@ The new Jetpack Protect plugin is different from the Jetpack feature formerly kn
 4. The Jetpack Firewall is a web application firewall (known as WAF) designed to protect your WordPress site from malicious requests.
 
 == Changelog ==
-### 5.0.0 - 2026-04-11
-#### Security
-- WAF: Fix issue that potentially allowed bypassing WAF rules.
-
+### 6.0.0 - 2026-08-11
 #### Added
-- Add `jetpack_account_protection_send_auth_email` filter to allow custom handling of the verification email.
-- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin.
-- IDC: Add revalidation for IDCs.
+- Account Protection: Add additional context to "Verify your identity" page to reduce user confusion.
 
 #### Changed
-- Dependencies: Update lock file to keep root requirements in sync.
-- Migrate admin page header to use unified header pattern.
-- My Jetpack: Check red bubble notification async when cache is not available.
-- Remove translated product names from admin page headers and footers.
-- Replace license activation link with a "Use license key" button in the header actions area.
-- Switch to Native TypeScript compiler based on Go.
-- Update composer.lock.
-- Update dependencies.
-- Update design of the sidebar upsell.
+- Unify layout of Jetpack admin pages.
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink.
+- Firewall: Add accessible names to the Brute force protection, Block IP addresses, and Trusted IP addresses toggles.
+- General: Update minimum WordPress version to 6.9.
+- Internal: Migrate Notice usages to @wordpress/ui.
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency.
+- Components: Migrate `ToggleControl` to @wordpress/components
+- Protect: Normalize page tabs onto shared minimal variant. Bump @wordpress/ui to 0.13.0.
+- Protect: Migrate Status indicator to @wordpress/ui Text.
+- Protect: Remove translation wrappers from the "Protect" product name.
+- Protect now reports its threat count to the central menu-badges registry instead of writing admin-menu markup directly.
+- Remove Jetpack color overrides on core WordPress components.
+- Replace deprecated jetpack-components Spinner with WordPress Core Spinner.
+- Replace Gridicon with Icon and named icon exports from `@wordpress/icons`.
+- Replace internal ContextualUpgradeTrigger upgrade prompts with @wordpress/ui Notice composition. Internal refactor with a Notice-style visual refresh.
+- Tested up to WordPress 7.0.
+- Update composer.lock files.
 - Update package dependencies.
-
-#### Removed
-- General: Update minimum WordPress version to 6.8.
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names.
 
 #### Fixed
-- Admin Page: Restore border on header component.
-- Constrain license activation link width on mobile to prevent header overflow.
-- Ensure proper flags are used with `json_encode()`.
-- Fix TypeScript errors detected by tsgo.
+- Firewall: Fix "Enable Firewall" notice CTA missing loading/disabled state, which let users double-click and toggle the WAF back off.
+- Firewall: Show 0 instead of NaN on the stat cards when there are no blocked requests.
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active.
+- Protect: Fix route changes in Chrome when scroll APIs return promises.
+- Switch to wp/ui Text for wrapping account protection settings
 

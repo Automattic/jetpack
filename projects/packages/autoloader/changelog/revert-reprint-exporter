@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Stop applying the root package's `exclude-from-classmap` autoload setting when generating the Jetpack class map.
