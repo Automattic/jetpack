@@ -21,7 +21,11 @@ export type CalendarHeatmapLayoutInput = {
 	dataColumns?: number;
 	/** Weekday rows. Defaults to 7. */
 	rows?: number;
-	/** Cell width / height: 1 (compact) or 61/40 (expanded). Always preserved. */
+	/**
+	 * Cell width / height: 1 (compact) or 61/40 (expanded). Sets the cell's shape
+	 * before the width an integer column count leaves over is shared out, so the
+	 * rendered cell can be a little wider than this.
+	 */
 	aspectRatio: number;
 	/** Cap on cell height, in px. Omit to fill the available height. */
 	maxCellHeight?: number;
@@ -115,10 +119,12 @@ const DEFAULT_LEGEND_HEIGHT = 44;
 /**
  * Computes the calendar-heatmap layout for a tile.
  *
- * Height drives the cell size (capped per mode); width trims the column count.
- * The aspect ratio is always preserved — when even the minimum column count will
- * not fit at the aspect-preserving cell width, the whole cell is scaled down
- * instead of scrolling or distorting.
+ * Height drives the cell size; width drives the column count. The grid fills the
+ * tile in both directions: the cells take the height, and the width left over by
+ * an integer column count goes back into the cells rather than showing as a gap.
+ * `aspectRatio` therefore sets the cell's shape before that last adjustment, not
+ * after. When even the minimum column count will not fit, the whole cell is scaled
+ * down instead of scrolling.
  */
 export function computeCalendarHeatmapLayout(
 	input: CalendarHeatmapLayoutInput
@@ -148,37 +154,43 @@ export function computeCalendarHeatmapLayout(
 
 	const safeMaxCellHeight = isPositiveFinite( maxCellHeight ) ? maxCellHeight : Infinity;
 
-	// Height drives the cell size: fill the available height (minus overhead and
-	// inter-row gaps) up to the per-mode cap, floored at 0.
+	// The rows always take the height (minus overhead and inter-row gaps), whatever
+	// the width turns out to allow — a narrow tile must not leave the lower two
+	// thirds of a tall widget empty.
 	const heightForRows = availHeight - HEADER_HEIGHT - legendHeight - ( rows - 1 ) * CELL_GAP;
-	let cellHeight = Math.max( 0, Math.min( heightForRows / rows, safeMaxCellHeight ) );
-	let cellWidth = cellHeight * aspectRatio;
+	const cellHeight = Math.max( 0, Math.min( heightForRows / rows, safeMaxCellHeight ) );
+
+	// Too short to draw a row of cells at all — nothing coherent to lay out.
+	if ( cellHeight <= 0 ) {
+		return ZERO_LAYOUT;
+	}
+
+	// The cell the aspect ratio asks for at that height. It decides how many columns
+	// to draw; the rendered width is settled afterwards.
+	const targetCellWidth = cellHeight * aspectRatio;
 
 	// Never fewer than this many columns unless the range has fewer weeks.
 	const requiredMinColumns =
 		dataColumns === undefined ? minColumns : Math.min( minColumns, dataColumns );
 
-	// How many aspect-preserving cells fit the available width.
 	const widthForCells = availWidth - ROW_LABEL_WIDTH + CELL_GAP;
-	const fitColumns =
-		cellWidth + CELL_GAP > 0 ? Math.floor( widthForCells / ( cellWidth + CELL_GAP ) ) : 0;
+	const fitColumns = Math.floor( widthForCells / ( targetCellWidth + CELL_GAP ) );
+	const columns = Math.max(
+		requiredMinColumns,
+		dataColumns === undefined ? fitColumns : Math.min( fitColumns, dataColumns )
+	);
 
-	let columns: number;
-	if ( fitColumns < requiredMinColumns ) {
-		// Minimum-column shrink: the aspect-preserving cell is too wide for the
-		// minimum column count, so scale the whole cell down (ratio kept) until
-		// exactly that many columns fit the width — never scroll, never distort.
-		columns = requiredMinColumns;
-		const innerWidth = availWidth - ROW_LABEL_WIDTH - ( columns - 1 ) * CELL_GAP;
-		cellWidth = columns > 0 ? Math.max( 0, innerWidth / columns ) : 0;
-		cellHeight = cellWidth / aspectRatio;
-	} else {
-		// Aspect-preserving cell fits: keep as many columns as the width allows,
-		// bounded by the weeks in range when a bound was given. This branch is only
-		// reached when `fitColumns >= requiredMinColumns`, so the minimum needs no
-		// re-clamping.
-		columns = dataColumns === undefined ? fitColumns : Math.min( fitColumns, dataColumns );
-	}
+	// The width is what limited the column count whenever the grid draws at least as
+	// many columns as the target cell would fit — including the narrow tile forced up
+	// to `minColumns`. Then the columns share out the whole width: an integer count
+	// otherwise leaves up to a cell of it as a band at the edge, and a tile too narrow
+	// for the minimum needs the cells narrower than the ratio rather than shorter than
+	// the tile. A grid trimmed to its data keeps the ratio instead, or a few weeks
+	// would stretch across the whole tile.
+	const cellWidth =
+		columns >= fitColumns
+			? Math.max( 0, ( availWidth - ROW_LABEL_WIDTH - ( columns - 1 ) * CELL_GAP ) / columns )
+			: targetCellWidth;
 
 	const heatmapWidth =
 		columns > 0 ? ROW_LABEL_WIDTH + columns * cellWidth + ( columns - 1 ) * CELL_GAP : 0;

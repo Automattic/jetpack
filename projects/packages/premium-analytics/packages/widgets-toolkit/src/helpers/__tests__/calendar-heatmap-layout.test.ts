@@ -71,27 +71,33 @@ describe( 'computeCalendarHeatmapLayout unbounded inputs', () => {
 
 		expect( capped.cellHeight ).toBe( expandedBase.maxCellHeight );
 		expect( uncapped.cellHeight ).toBeGreaterThan( capped.cellHeight );
-		// Aspect ratio survives the growth.
-		expect( uncapped.cellWidth ).toBeCloseTo( uncapped.cellHeight * EXPANDED_ASPECT );
-		// Rows plus overhead account for the whole tile height.
+		// The ratio sets the cell before the leftover width is shared out, so the
+		// grown cell is that shape or a little wider — never narrower.
+		expect( uncapped.cellWidth ).toBeGreaterThanOrEqual(
+			uncapped.cellHeight * EXPANDED_ASPECT - 0.01
+		);
+		// Both axes account for the whole tile.
 		expect( uncapped.heatmapHeight ).toBeCloseTo( 600 );
+		expect( uncapped.heatmapWidth ).toBeCloseTo( 3000 );
 	} );
 } );
 
 describe( 'computeCalendarHeatmapLayout', () => {
-	it( 'a tall-narrow tile hits the cell-height cap and preserves the 1:1 ratio', () => {
+	it( 'a tall-narrow tile hits the cell-height cap and shares out the leftover width', () => {
 		const layout = computeCalendarHeatmapLayout( {
 			...compactBase,
 			availWidth: 280,
 			availHeight: 600,
 		} );
 
-		// Height is ample, so the cell grows to the compact cap, not past it.
+		// Height is ample, so the cell grows to the cap, not past it.
 		expect( layout.cellHeight ).toBe( 35 );
-		// Aspect ratio preserved: square cells.
-		expect( layout.cellWidth ).toBeCloseTo( layout.cellHeight * COMPACT_ASPECT );
-		// It is narrow, so it keeps only the minimum column count.
+		// It is narrow, so it keeps only the minimum column count — and those columns
+		// take the width left over, which is why the cell ends up wider than the 1:1
+		// ratio asked for. The ratio sizes the cell; the tile decides the rest.
 		expect( layout.columns ).toBe( 6 );
+		expect( layout.cellWidth ).toBeGreaterThan( layout.cellHeight * COMPACT_ASPECT );
+		expect( layout.heatmapWidth ).toBeCloseTo( 280 );
 	} );
 
 	it( 'a wide-short (1:4) tile is height-limited yet fits many columns', () => {
@@ -108,7 +114,7 @@ describe( 'computeCalendarHeatmapLayout', () => {
 		expect( layout.columns ).toBe( 52 );
 	} );
 
-	it( 'a narrow-but-large tile triggers the min-column shrink instead of scrolling', () => {
+	it( 'a narrow tile narrows the cells rather than shortening them', () => {
 		const layout = computeCalendarHeatmapLayout( {
 			...expandedBase,
 			availWidth: 250,
@@ -117,13 +123,33 @@ describe( 'computeCalendarHeatmapLayout', () => {
 
 		// Falls back to the minimum column count.
 		expect( layout.columns ).toBe( 6 );
-		// The whole cell scaled down below the cap to make the minimum columns fit.
-		expect( layout.cellHeight ).toBeLessThan( expandedBase.maxCellHeight );
-		// Aspect ratio is still preserved (never distorted).
-		expect( layout.cellWidth / layout.cellHeight ).toBeCloseTo( EXPANDED_ASPECT );
-		// The shrunk grid fills the available width rather than overflowing it.
+		// The rows still take the height (here, up to this mode's cap): deriving the
+		// cell from the width instead left the lower two thirds of a tall widget
+		// empty.
+		expect( layout.cellHeight ).toBe( expandedBase.maxCellHeight );
+		// The cells give up width instead — narrower than the ratio asks for, so six
+		// columns fit without overflowing or scrolling.
+		expect( layout.cellWidth ).toBeLessThan( layout.cellHeight * EXPANDED_ASPECT );
 		expect( layout.heatmapWidth ).toBeLessThanOrEqual( 250 + 0.01 );
 		expect( layout.heatmapWidth ).toBeCloseTo( 250 );
+	} );
+
+	it( 'fills the height of a narrow tile taller than any cap', () => {
+		const layout = computeCalendarHeatmapLayout( {
+			...expandedBase,
+			availWidth: 250,
+			availHeight: 900,
+			maxCellHeight: undefined,
+			legendHeight: 0,
+		} );
+
+		// The case a one-column-wide widget dragged very tall used to get wrong: six
+		// tall, narrow cells filling the tile, not a small grid with a band of empty
+		// space under it.
+		expect( layout.columns ).toBe( 6 );
+		expect( layout.heatmapHeight ).toBeCloseTo( 900 );
+		expect( layout.heatmapWidth ).toBeCloseTo( 250 );
+		expect( layout.cellHeight ).toBeGreaterThan( layout.cellWidth );
 	} );
 
 	it( 'shows every column when the range has fewer than the minimum', () => {
@@ -151,14 +177,17 @@ describe( 'computeCalendarHeatmapLayout', () => {
 		expect( layout.columns ).toBeLessThan( 52 );
 	} );
 
-	it( 'preserves the aspect ratio and reports coherent total dimensions', () => {
+	it( 'fills the tile width and reports coherent total dimensions', () => {
 		const layout = computeCalendarHeatmapLayout( {
 			...expandedBase,
 			availWidth: 900,
 			availHeight: 320,
 		} );
 
-		expect( layout.cellWidth / layout.cellHeight ).toBeCloseTo( EXPANDED_ASPECT );
+		// The cells share out the width an integer column count leaves over, so they
+		// end up at the ratio or slightly wider, and the grid reaches the tile's edge.
+		expect( layout.cellWidth / layout.cellHeight ).toBeGreaterThanOrEqual( EXPANDED_ASPECT );
+		expect( layout.heatmapWidth ).toBeCloseTo( 900 );
 		// Totals follow the documented formulas exactly.
 		const expectedWidth =
 			ROW_LABEL_WIDTH + layout.columns * layout.cellWidth + ( layout.columns - 1 ) * CELL_GAP;
@@ -305,7 +334,9 @@ describe( 'computeCalendarHeatmapLayout legend allowance', () => {
 
 		const noLegend = computeCalendarHeatmapLayout( { ...trafficViewsBase, legendHeight: 0 } );
 		expect( noLegend.cellHeight ).toBe( 40 );
-		expect( noLegend.cellWidth ).toBe( 61 );
+		// At least the design's 61px: the cells also take the width left over by an
+		// integer column count.
+		expect( noLegend.cellWidth ).toBeGreaterThanOrEqual( 61 );
 	} );
 
 	it( 'leaves no legend gap under the grid when the allowance is zero', () => {

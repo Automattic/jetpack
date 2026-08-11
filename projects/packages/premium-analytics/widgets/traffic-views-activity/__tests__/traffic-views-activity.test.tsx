@@ -21,13 +21,15 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 		...actual,
 		HeatmapChartUnresponsive: ( {
 			data,
-			compact,
+			height,
 			showValues,
+			width,
 			renderTooltip,
 		}: {
 			data: { data: { label?: string; value: number | null }[] }[];
-			compact?: boolean;
+			height?: number;
 			showValues?: boolean;
+			width?: number;
 			renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;
 		} ) => (
 			<>
@@ -39,8 +41,9 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 						.filter( cell => cell.value !== null )
 						.map( cell => `${ cell.label }:${ cell.value }` )
 						.join( '|' ) }
-					data-compact={ String( Boolean( compact ) ) }
+					data-height={ String( height ) }
 					data-show-values={ String( showValues ) }
+					data-width={ String( width ) }
 				/>
 				<div data-testid="tooltip-empty">
 					{ renderTooltip?.( {
@@ -319,12 +322,23 @@ describe( 'TrafficViewsActivityWidget', () => {
 	} );
 
 	describe( 'cell presentation', () => {
-		it( 'renders compact squares in a tile too short for labelled cells', () => {
-			renderWidget();
+		it( 'fits the grid inside the shipped one-row tile', () => {
+			// A 200px grid row less the widget's own chrome — the size this widget
+			// ships at, and the tightest it has to fit. The grid is sized to the tile
+			// so it cannot overflow and have its month labels clipped away.
+			const restoreTileSize = stubTileSize( 1000, 86 );
 
-			// jsdom reports no height, which is below the expanded threshold.
-			expect( screen.getByTestId( 'heatmap' ) ).toHaveAttribute( 'data-compact', 'true' );
-			expect( screen.getByTestId( 'heatmap' ) ).not.toHaveAttribute( 'data-show-values', 'true' );
+			try {
+				renderWidget();
+			} finally {
+				restoreTileSize();
+			}
+
+			const heatmap = screen.getByTestId( 'heatmap' );
+
+			expect( Number( heatmap.getAttribute( 'data-height' ) ) ).toBeLessThanOrEqual( 86 );
+			// Cells this small have no room for a number.
+			expect( heatmap ).not.toHaveAttribute( 'data-show-values', 'true' );
 		} );
 
 		it( 'labels the cells once the tile is tall enough, trimming to the columns that fit', () => {
@@ -338,7 +352,6 @@ describe( 'TrafficViewsActivityWidget', () => {
 
 			const heatmap = screen.getByTestId( 'heatmap' );
 
-			expect( heatmap ).toHaveAttribute( 'data-compact', 'false' );
 			expect( heatmap ).toHaveAttribute( 'data-show-values', 'true' );
 			// The 53-week window does not fit at this cell size, so the oldest
 			// columns drop instead of the cells shrinking.
@@ -346,8 +359,45 @@ describe( 'TrafficViewsActivityWidget', () => {
 			expect( Number( heatmap.getAttribute( 'data-columns' ) ) ).toBeLessThan( 53 );
 		} );
 
+		it( 'keeps growing the cells as the tile gets taller', () => {
+			const columnsAt = ( height: number ) => {
+				const restoreTileSize = stubTileSize( 1000, height );
+
+				try {
+					renderWidget();
+				} finally {
+					restoreTileSize();
+				}
+
+				const columns = Number( screen.getByTestId( 'heatmap' ).getAttribute( 'data-columns' ) );
+				screen.getByTestId( 'heatmap' ).remove();
+
+				return columns;
+			};
+
+			// The cells take the height, so a taller tile trades week columns for cell
+			// size — as the prototype does, all the way up.
+			expect( columnsAt( 600 ) ).toBeLessThan( columnsAt( 300 ) );
+			expect( columnsAt( 1200 ) ).toBeLessThan( columnsAt( 600 ) );
+		} );
+
+		it( 'spans the full width of the tile, leaving no band at the edge', () => {
+			const restoreTileSize = stubTileSize( 1000, 300 );
+
+			try {
+				renderWidget();
+			} finally {
+				restoreTileSize();
+			}
+
+			// An integer column count leaves width over; the cells absorb it rather
+			// than the grid stopping short of the edge.
+			expect( screen.getByTestId( 'heatmap' ) ).toHaveAttribute( 'data-width', '1000' );
+		} );
+
 		it( 'pads a period shorter than the tile instead of leaving it part-filled', () => {
-			// One month selected: five week columns of data in a tile that fits ~74.
+			// One month selected: five week columns of data in a tile with room for
+			// many more.
 			const restoreTileSize = stubTileSize( 1000, 110 );
 
 			try {
@@ -363,7 +413,7 @@ describe( 'TrafficViewsActivityWidget', () => {
 			const heatmap = screen.getByTestId( 'heatmap' );
 
 			// The columns the width can hold, not the five the period holds.
-			expect( heatmap ).toHaveAttribute( 'data-columns', '74' );
+			expect( Number( heatmap.getAttribute( 'data-columns' ) ) ).toBeGreaterThan( 5 );
 			// The padding carries no values — only June's day is populated.
 			expect( chartDayValues() ).toBe( 'Mon, Jun 2, 2025:120' );
 		} );

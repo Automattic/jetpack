@@ -34,14 +34,10 @@ type TrafficViewsActivityRenderAttributes = TrafficViewsActivityAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type TrafficViewsActivityWidgetProps = WidgetRenderProps< TrafficViewsActivityRenderAttributes >;
 
-// The design's labelled cell is 61:40; the ratio is preserved as the cells grow to
-// fill the tile's height.
-const EXPANDED_ASPECT_RATIO = 61 / 40;
-// Below this the tile cannot fit a row of labelled cells, so it renders the
-// chart's compact squares instead. The shipped one-row tile is deliberately here:
-// compact fits years of history across the tile, where labelled cells fit weeks.
-const EXPANDED_MIN_HEIGHT = 220;
-// Labelled cells narrower than this have no room for a number.
+// The design's cell is 61:40. The cells grow or shrink from that shape to fill the
+// tile — the height exactly, and the width an integer column count leaves over.
+const CELL_ASPECT_RATIO = 61 / 40;
+// Cells narrower than this have no room for a number.
 const VALUE_MIN_CELL_WIDTH = 30;
 
 // A whole leap year, so a selected leap year never loses 1 January.
@@ -53,11 +49,11 @@ const MAX_WINDOW_YEARS = 6;
 /**
  * How many days of history are worth requesting at a given viewport width.
  *
- * The grid keeps its cell size and trims to the week columns that fit, so history
- * beyond what the widest possible tile can show would be fetched and thrown away.
- * Compact cells are the smallest, so they set that ceiling; the tile is never wider
- * than the viewport; and the result is quantized to whole years so resizing the
- * window cannot fire a fresh request per column gained.
+ * The grid only draws the week columns that fit, so history beyond what the widest
+ * possible tile could show would be fetched and thrown away. The design's 11px
+ * square is the smallest cell the grid ever shrinks to, so it bounds that ceiling;
+ * the tile is never wider than the viewport; and the result is quantized to whole
+ * years so resizing the window cannot fire a fresh request per column gained.
  */
 function resolveWindowDays( viewportWidth: number ): number {
 	const capacityDays = compactCalendarHeatmapCapacity( viewportWidth ) * 7;
@@ -119,24 +115,29 @@ function TrafficViewsActivityInner() {
 	// tile, not as wide as the selected period.
 	const [ setRef, size ] = useElementSize< HTMLDivElement >();
 
-	// Height picks the cell size, width the column count. Compact renders the
-	// chart's own fixed squares (so it sizes itself); expanded fills the height with
-	// 61:40 cells and is sized to the rectangle they fill.
+	// Height picks the cell size, width the column count, and the grid is sized to
+	// the rectangle it occupies — so it fills the tile without ever overflowing it.
+	//
+	// The chart's own `compact` mode is deliberately not used. Its cell size is fixed
+	// by the chart theme (11px square, 2px gap), which needs ~104px of body height
+	// once the month-label header is counted; the shipped one-row tile only offers
+	// ~86px, so the grid overflowed and `overflow: hidden` sliced the month labels
+	// off the top and the last weekday row off the bottom. Sizing every tile lets the
+	// cells shrink to fit instead.
 	const { columns, sizingProps } = useMemo( () => {
-		if ( size.height < EXPANDED_MIN_HEIGHT ) {
-			return {
-				columns: compactCalendarHeatmapCapacity( size.width ),
-				sizingProps: { compact: true },
-			};
-		}
-
 		const layout = computeCalendarHeatmapLayout( {
 			availWidth: size.width,
 			availHeight: size.height,
-			aspectRatio: EXPANDED_ASPECT_RATIO,
+			aspectRatio: CELL_ASPECT_RATIO,
 			// Avoid shrinking the cells for a legend this widget does not render.
 			legendHeight: 0,
 		} );
+
+		// Before the first measurement there is no rectangle to size to, so leave the
+		// chart unsized for that one paint rather than handing it a zero box.
+		if ( layout.columns <= 0 ) {
+			return { columns: 0, sizingProps: {} };
+		}
 
 		return {
 			columns: layout.columns,
