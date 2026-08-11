@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.1.1 - 2026-08-11
+### Bug fixes
+- Error Handler: Prevent a fatal error when a request runs during a plugin update and an older version of the Error_Handler class is already loaded.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Remove Reprint full-site export support and its `jetpack/v4` REST routes. [#51179]
+
 ## 16.1-beta - 2026-08-03
 ### Enhancements
 - AI Sidebar: Align Editorial Review enablement with the other writing-assistance features. [#50901]
