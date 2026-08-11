@@ -56,12 +56,16 @@ class Client {
 			// The request was never made, so it has no response to check. Report the signing
 			// failure; attribution comes from the error itself — see
 			// `Error_Handler::check_signed_request_for_errors()`.
-			Error_Handler::get_instance()->check_signed_request_for_errors(
-				$result,
-				empty( $args['url'] ) ? '' : $args['url'],
-				empty( $args['method'] ) ? 'POST' : $args['method'],
-				$error_type
-			);
+			// Reporting is best-effort and must never fatal a request running mid-plugin-update:
+			// skip it when the already-loaded Error_Handler is a stale version predating this method.
+			if ( method_exists( Error_Handler::class, 'check_signed_request_for_errors' ) ) {
+				Error_Handler::get_instance()->check_signed_request_for_errors(
+					$result,
+					empty( $args['url'] ) ? '' : $args['url'],
+					empty( $args['method'] ) ? 'POST' : $args['method'],
+					$error_type
+				);
+			}
 
 			return $result;
 		}
