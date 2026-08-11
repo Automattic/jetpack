@@ -630,6 +630,90 @@ class WPCOM_JSON_API_Media_Endpoints_Authorization_Test extends WP_UnitTestCase 
 	}
 
 	/**
+	 * An ordinary post is not media, so the media endpoints must refuse it even when the
+	 * caller may edit it. `get_post()` resolves any post type, and `get_media_item()` only
+	 * 404s on a *missing* post, so the post-type test is the only thing standing between
+	 * these endpoints and the whole posts table.
+	 *
+	 * The `edit_post` assertion is what gives this test its teeth: the caller passes every
+	 * other arm of the gate, so a failure here can only mean the post-type test is gone.
+	 *
+	 * @param string $class Endpoint class name.
+	 *
+	 * @dataProvider media_endpoint_classes
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	#[DataProvider( 'media_endpoint_classes' )]
+	public function test_ordinary_post_is_not_editable_as_media( $class ) {
+		$post_id = self::factory()->post->create( array( 'post_author' => self::$owner_id ) );
+		wp_set_current_user( self::$owner_id );
+
+		$this->assertTrue( current_user_can( 'upload_files' ) );
+		$this->assertTrue( current_user_can( 'edit_post', $post_id ), 'The caller must otherwise pass the gate.' );
+
+		$this->assertFalse( $this->invoke_can_edit( $this->make_endpoint( $class ), $post_id ) );
+	}
+
+	/**
+	 * A revision is not media either, and it is the sharper case: `map_meta_cap` maps
+	 * `edit_post` on a revision to its parent, so a caller who may edit the parent passes
+	 * the capability arm. Only the post-type test rejects it.
+	 *
+	 * @param string $class Endpoint class name.
+	 *
+	 * @dataProvider media_endpoint_classes
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	#[DataProvider( 'media_endpoint_classes' )]
+	public function test_revision_is_not_editable_as_media( $class ) {
+		$post_id     = self::factory()->post->create( array( 'post_author' => self::$owner_id ) );
+		$revision_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'revision',
+				'post_status' => 'inherit',
+				'post_parent' => $post_id,
+				'post_author' => self::$owner_id,
+			)
+		);
+
+		wp_set_current_user( self::$owner_id );
+
+		$this->assertTrue( current_user_can( 'edit_post', $revision_id ), 'edit_post on a revision maps to its parent.' );
+
+		$this->assertFalse( $this->invoke_can_edit( $this->make_endpoint( $class ), $revision_id ) );
+	}
+
+	/**
+	 * V1.1 end to end: an ordinary post comes back 403 and is left untouched, rather than
+	 * being renamed through a media endpoint.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_v1_1_callback_rejects_an_ordinary_post() {
+		global $blog_id;
+
+		$post_id = self::factory()->post->create(
+			array(
+				'post_author' => self::$owner_id,
+				'post_title'  => 'Original post title',
+			)
+		);
+		wp_set_current_user( self::$owner_id );
+
+		$endpoint = $this->make_endpoint( WPCOM_JSON_API_Update_Media_v1_1_Endpoint::class );
+		$this->set_input( array( 'title' => 'Renamed through the media endpoint' ) );
+
+		$response = $endpoint->callback( sprintf( '/sites/%d/media/%d', $blog_id, $post_id ), $blog_id, $post_id );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'unauthorized', $response->get_error_code() );
+		$this->assertSame( 'Original post title', get_post( $post_id )->post_title );
+	}
+
+	/**
 	 * V1.1: editors can still rename media uploaded by someone else.
 	 *
 	 * @group json-api

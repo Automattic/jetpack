@@ -67,6 +67,11 @@ class WPCOM_JSON_API_Update_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * the endpoint's own 404 rather than a 403. A userless request gets no exemption:
 	 * `edit_post` fails closed for user 0 like any other caller.
 	 *
+	 * Non-attachments are refused outright. `get_post()` resolves any post type, so
+	 * without this test a media endpoint edits ordinary posts, pages and revisions.
+	 * The post-type test must stay below the missing-post passthrough: that branch
+	 * returns true, so testing there would skip `edit_post` for ordinary posts.
+	 *
 	 * Do not move this into a trait: this file instantiates the endpoint above the
 	 * class declaration, and `use Trait;` disables PHP early binding, which makes the
 	 * file fatal with "Class not found".
@@ -79,8 +84,14 @@ class WPCOM_JSON_API_Update_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return false;
 		}
 
-		if ( ! get_post( $media_id ) ) {
+		$post = get_post( $media_id );
+
+		if ( ! $post ) {
 			return true;
+		}
+
+		if ( 'attachment' !== $post->post_type ) {
+			return false;
 		}
 
 		return current_user_can( 'edit_post', $media_id );
