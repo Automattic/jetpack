@@ -20,6 +20,7 @@ jest.mock( '@wordpress/i18n', () => ( {
 } ) );
 
 let mockInnerBlockCount = 0;
+let mockInnerBlocks = [];
 // Expanded by default so the existing preview assertions read the selected
 // state; the collapsed cases opt out explicitly.
 let mockIsSelected = true;
@@ -29,6 +30,7 @@ jest.mock( '@wordpress/data', () => ( {
 			mockSelectedStores.push( store );
 			return {
 				getBlockCount: () => mockInnerBlockCount,
+				getBlocks: () => mockInnerBlocks,
 				isBlockSelected: () => mockIsSelected,
 				hasSelectedInnerBlock: () => false,
 			};
@@ -44,6 +46,7 @@ describe( 'NoResultsSlotEdit', () => {
 	beforeEach( () => {
 		InnerBlocks.mockClear();
 		mockInnerBlockCount = 0;
+		mockInnerBlocks = [];
 		mockIsSelected = true;
 	} );
 
@@ -148,14 +151,37 @@ describe( 'NoResultsSlotEdit', () => {
 		expect( InnerBlocks.mock.calls[ 0 ][ 0 ].renderAppender ).not.toBe( false );
 	} );
 
-	// Collapsing a variant an author has filled in would put their own blocks
-	// out of sight, so content always wins over the compact form.
-	it( 'never collapses a variant that has authored content', () => {
+	// An authored variant collapses too — three stacked messages are three times
+	// the height the front end will ever use — but the row summarises the
+	// author's own copy so it still says what's inside.
+	it( 'summarises an authored variant with its own first line of copy', () => {
 		mockIsSelected = false;
 		mockInnerBlockCount = 1;
+		mockInnerBlocks = [ { attributes: { content: '<strong>Nothing</strong> matched' } } ];
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( screen.getByText( 'Nothing matched' ) ).toBeInTheDocument();
+		expect( screen.queryByText( UNFILTERED_DEFAULT ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'reads the summary out of a nested block', () => {
+		mockIsSelected = false;
+		mockInnerBlockCount = 1;
+		mockInnerBlocks = [
+			{ attributes: {}, innerBlocks: [ { attributes: { content: 'Buried copy' } } ] },
+		];
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( screen.getByText( 'Buried copy' ) ).toBeInTheDocument();
+	} );
+
+	// Hidden, not unmounted — see the drop-target note in edit.jsx.
+	it( 'keeps authored blocks mounted while collapsed', () => {
+		mockIsSelected = false;
+		mockInnerBlockCount = 1;
+		mockInnerBlocks = [ { attributes: { content: 'Authored' } } ];
 		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
 
 		expect( screen.getByTestId( 'variant-inner-blocks' ) ).toBeInTheDocument();
-		expect( screen.queryByText( UNFILTERED_DEFAULT ) ).not.toBeInTheDocument();
 	} );
 } );

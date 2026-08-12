@@ -102,6 +102,12 @@
 	white-space: nowrap;
 }
 
+// Authored blocks stay mounted while the variant is collapsed — see the note in
+// `slot/edit.jsx` — so they're hidden here rather than unmounted there.
+.jetpack-search-no-results__editor-blocks--collapsed {
+	display: none;
+}
+
 .jetpack-search-no-results__default-preview {
 	opacity: 0.6;
 	text-align: center;

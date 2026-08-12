@@ -42,6 +42,25 @@ const defaultMessages = condition => {
 	return messages;
 };
 
+// First line of real copy inside a variant, for the collapsed row's summary.
+// Depth-first so a paragraph inside a Group still reads.
+const firstText = blocks => {
+	for ( const block of blocks ?? [] ) {
+		const raw = block.attributes?.content ?? block.attributes?.text ?? '';
+		const text = String( raw?.toString ? raw.toString() : raw )
+			.replace( /<[^>]*>/g, '' )
+			.trim();
+		if ( text ) {
+			return text;
+		}
+		const nested = firstText( block.innerBlocks );
+		if ( nested ) {
+			return nested;
+		}
+	}
+	return '';
+};
+
 // Keyed rather than branched: a `return __( … )` per branch reads better but
 // the production minifier folds the identical calls into one `__()` with a
 // computed msgid, which `i18n-check-webpack-plugin` rejects and which would
@@ -63,22 +82,25 @@ export const conditionLabels = () => ( {
 export default function NoResultsSlotEdit( { attributes, clientId } ) {
 	const stored = attributes?.condition;
 	const condition = CONDITIONS.includes( stored ) ? stored : 'any';
-	const { hasInnerBlocks, isActive } = useSelect(
+	const { hasInnerBlocks, isActive, authoredSummary } = useSelect(
 		select => {
 			const editor = select( blockEditorStore );
 			return {
 				hasInnerBlocks: editor.getBlockCount( clientId ) > 0,
 				isActive:
 					editor.isBlockSelected( clientId ) || editor.hasSelectedInnerBlock( clientId, true ),
+				// A plain string, so `useSelect`'s shallow compare doesn't see a
+				// fresh value on every store change.
+				authoredSummary: firstText( editor.getBlocks( clientId ) ),
 			};
 		},
 		[ clientId ]
 	);
-	// Three stacked previews push the rest of the template off-screen, and only
-	// one of them can ever be on screen for a visitor. An untouched variant is
-	// a one-liner until it's selected; one with authored content always renders
-	// in full, so nothing an author wrote is ever out of sight.
-	const isCollapsed = ! hasInnerBlocks && ! isActive;
+	// Only one condition can ever be on screen for a visitor, so three stacked
+	// messages are three times the height the page will ever use. Every message
+	// is a one-liner until it's selected — authored ones summarised by their own
+	// first line of copy, so the row still says what's in there.
+	const isCollapsed = ! isActive;
 	const blockProps = useBlockProps( {
 		className: [
 			'jetpack-search-no-results__variant',
@@ -96,7 +118,9 @@ export default function NoResultsSlotEdit( { attributes, clientId } ) {
 				{ conditionLabels()[ condition ] }
 			</span>
 			{ isCollapsed && (
-				<span className="jetpack-search-no-results__editor-summary">{ messages[ 0 ] }</span>
+				<span className="jetpack-search-no-results__editor-summary">
+					{ authoredSummary || messages[ 0 ] }
+				</span>
 			) }
 			{ ! isCollapsed && ! hasInnerBlocks && (
 				<div className="jetpack-search-no-results__default-preview">
@@ -105,11 +129,21 @@ export default function NoResultsSlotEdit( { attributes, clientId } ) {
 					) ) }
 				</div>
 			) }
-			{ /* Mounted even while collapsed — the inner drop target comes from
+			{ /* Always mounted: the inner drop target comes from
 			     `useInnerBlocksProps`, so unmounting it makes a drag onto a
 			     collapsed variant resolve to the container, whose `allowedBlocks`
-			     then rejects it. Empty and appender-less, it has no size. */ }
-			<InnerBlocks renderAppender={ isCollapsed ? false : InnerBlocks.ButtonBlockAppender } />
+			     then rejects it. Empty it has no size, so only a variant with
+			     authored content needs hiding — and that one is summarised in the
+			     row above rather than dropped silently. */ }
+			<div
+				className={
+					isCollapsed && hasInnerBlocks
+						? 'jetpack-search-no-results__editor-blocks jetpack-search-no-results__editor-blocks--collapsed'
+						: 'jetpack-search-no-results__editor-blocks'
+				}
+			>
+				<InnerBlocks renderAppender={ isCollapsed ? false : InnerBlocks.ButtonBlockAppender } />
+			</div>
 		</div>
 	);
 }
