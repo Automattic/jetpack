@@ -76,6 +76,17 @@ class Main {
 	}
 
 	/**
+	 * Whether the site can talk to WordPress.com.
+	 *
+	 * Simple sites always can, and hold no Jetpack blog token to check.
+	 *
+	 * @return bool
+	 */
+	public static function is_site_connected() {
+		return ( new Host() )->is_wpcom_simple() || ( new Manager( 'jetpack' ) )->is_connected();
+	}
+
+	/**
 	 * Whether Stats has to register its own dashboard because nothing else will.
 	 *
 	 * The Jetpack plugin registers the Stats menu from its stats module, and modules are not
@@ -85,12 +96,7 @@ class Main {
 	 * @return bool
 	 */
 	private static function needs_own_dashboard() {
-		// Simple sites are always connected, and register the menu from a subclass of Dashboard.
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			return false;
-		}
-
-		return ! ( new Manager( 'jetpack' ) )->is_connected();
+		return ! self::is_site_connected();
 	}
 
 	/**

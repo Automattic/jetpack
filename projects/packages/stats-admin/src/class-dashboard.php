@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
-use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 
 /**
@@ -92,16 +91,7 @@ class Dashboard {
 	 * @return string
 	 */
 	protected function get_capability() {
-		return $this->is_site_connected() ? 'view_stats' : 'manage_options';
-	}
-
-	/**
-	 * Whether the site is connected to WordPress.com.
-	 *
-	 * @return bool
-	 */
-	protected function is_site_connected() {
-		return ( new Manager( 'jetpack' ) )->is_connected();
+		return Main::is_site_connected() ? 'view_stats' : 'manage_options';
 	}
 
 	/**
@@ -112,7 +102,7 @@ class Dashboard {
 		// purpose of showing feedback notice. Views before the site is connected show the plan
 		// choice rather than the dashboard, and there is nothing to give feedback on yet.
 		$views = intval( Stats_Options::get_option( 'views' ) ) + 1;
-		if ( $views <= Notices::VIEWS_TO_SHOW_FEEDBACK && $this->is_site_connected() ) {
+		if ( $views <= Notices::VIEWS_TO_SHOW_FEEDBACK && Main::is_site_connected() ) {
 			Stats_Options::set_option( 'views', $views );
 		}
 

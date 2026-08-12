@@ -62,6 +62,19 @@ class Odyssey_Config_Data_Test extends Stats_TestCase {
 	}
 
 	/**
+	 * A site that disconnects keeps its blog ID, but the app cannot sign a single request with
+	 * it, so it has to be told there is no site rather than handed one that does not work.
+	 */
+	public function test_config_data_when_a_connected_site_disconnects() {
+		$this->disconnect_site_keeping_blog_id();
+
+		$data = ( new Odyssey_Config_Data() )->get_data();
+
+		$this->assertSame( 0, $data['blog_id'] );
+		$this->assertArrayNotHasKey( 'intial_state', $data );
+	}
+
+	/**
 	 * Without a connection there is no site to describe, and a record keyed on a blog ID of 0
 	 * would only make every lookup in the app miss.
 	 */

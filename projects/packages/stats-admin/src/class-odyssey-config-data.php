@@ -37,19 +37,34 @@ class Odyssey_Config_Data {
 	 * Return the config for the app.
 	 */
 	public function get_data() {
-		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+		$blog_id = $this->get_connected_blog_id();
 		$data    = $this->get_site_agnostic_data( $blog_id );
 
 		/*
-		 * A site with no WordPress.com connection has no record to seed the app's store with.
-		 * Emitting one anyway would key every entry on a blog ID of 0 and make each lookup miss,
-		 * so leave it out and let the app fall back to the screens it shows without a site.
+		 * A site the app cannot reach has no record to seed its store with. Emitting one anyway
+		 * would key every entry on a blog ID of 0 and make each lookup miss, so leave it out and
+		 * let the app fall back to the screens it shows without a site.
 		 */
 		if ( $blog_id ) {
 			$data['intial_state'] = $this->get_initial_state( $blog_id );
 		}
 
 		return $data;
+	}
+
+	/**
+	 * The WordPress.com blog ID the app can talk to, or 0 when there is none.
+	 *
+	 * A site keeps its blog ID when it disconnects, but every request the app would make with it
+	 * has to be signed with a token the site no longer holds. Such a site has no more to offer
+	 * the app than one that was never connected.
+	 *
+	 * @return int
+	 */
+	protected function get_connected_blog_id() {
+		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+
+		return Main::is_site_connected() ? $blog_id : 0;
 	}
 
 	/**

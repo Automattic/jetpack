@@ -107,6 +107,21 @@ abstract class TestCase extends PHPUnit_TestCase {
 	}
 
 	/**
+	 * Drop the mocked tokens but keep the blog ID, as disconnecting a site actually leaves it.
+	 */
+	protected function disconnect_site_keeping_blog_id() {
+		$this->disconnect_site();
+		add_filter(
+			'jetpack_options',
+			static function ( $value, $name ) {
+				return 'id' === $name ? '999' : $value;
+			},
+			10,
+			2
+		);
+	}
+
+	/**
 	 * Intercept the `Jetpack_Options` call and mock the values.
 	 * Site-level connection set-up.
 	 *
