@@ -14,7 +14,6 @@ import {
 	formatDate,
 	formatDateRange,
 	formatDateRangeLong,
-	getDateRangeSpan,
 	type DateFormatName,
 } from '@jetpack-premium-analytics/formatters';
 ```
@@ -171,30 +170,6 @@ formatDateRangeLong( { from, to }, { calendarScale: true } );
 | `range`                 | `{ from?: Date; to?: Date }` |              | Date range object                              |
 | `options.referenceYear` | `number`                     | current year | Year against which the year is redundant       |
 | `options.calendarScale` | `boolean`                    | `false`      | Force the calendar shape whatever it measures  |
-
-## `getDateRangeSpan( range? )`
-
-Measure how long a range is, in the coarsest unit that divides it evenly.
-Returns `null` when range or dates are missing.
-
-Derived from the range itself rather than the preset that produced it, so a
-window stepped back off a preset still reports its own length.
-
-```typescript
-getDateRangeSpan( { from, to } );
-// 24 hours:  { unit: 'hour', value: 24 }
-// 7 days:    { unit: 'day', value: 7 }
-// 12 months: { unit: 'month', value: 12 }
-// all time:  { unit: 'year', value: 6 }
-```
-
-A whole-month range stays in days below two months, so "Last 30 days" does not
-become "1 month", and only collapses into years from two years up, so a
-twelve-month window keeps reading as "12 months".
-
-| Parameter | Type                         | Description       |
-| --------- | ---------------------------- | ----------------- |
-| `range`   | `{ from?: Date; to?: Date }` | Date range object |
 
 ## Implementation
 

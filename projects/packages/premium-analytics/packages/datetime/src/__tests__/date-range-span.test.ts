@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { getDateRangeSpan } from '../get-date-range-span';
+import { getDateRangeSpan } from '../date-range-span';
 
 /**
  * Build a local-time date. Dates are constructed from parts rather than parsed
@@ -53,6 +53,16 @@ describe( 'getDateRangeSpan', () => {
 		// `last-24-hours` ends at the current time, not at a day boundary.
 		expect(
 			getDateRangeSpan( { from: at( 2026, 7, 28, 14, 30 ), to: at( 2026, 7, 29, 14, 30 ) } )
+		).toEqual( { unit: 'hour', value: 24 } );
+	} );
+
+	it( 'measures an hour-snapped window a millisecond short as its full length', () => {
+		// `last-24-hours` snaps to hour boundaries and ends on an `endOfHour`.
+		expect(
+			getDateRangeSpan( {
+				from: at( 2026, 7, 28, 19 ),
+				to: new Date( 2026, 6, 29, 18, 59, 59, 999 ),
+			} )
 		).toEqual( { unit: 'hour', value: 24 } );
 	} );
 

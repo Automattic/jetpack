@@ -7,7 +7,7 @@ import { __, sprintf } from '@wordpress/i18n';
  */
 import { elideRange, type RangeFormatName } from './elide-range';
 import { formatDate } from './format-date';
-import type { DateRange } from './types';
+import type { DateRange } from '@jetpack-premium-analytics/datetime';
 
 /**
  * Format a date range in one of the forms `elideRange` can elide.

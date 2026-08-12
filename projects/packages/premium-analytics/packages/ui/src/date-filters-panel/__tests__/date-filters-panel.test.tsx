@@ -1,4 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { DateFiltersPanel } from '../date-filters-panel';
 import type { ComponentProps } from 'react';
 
@@ -117,5 +118,33 @@ describe( 'DateFiltersPanel', () => {
 		unmount();
 
 		expect( unobserved ).toContain( external );
+	} );
+
+	it( 'steps the applied window from the navigation arrows', async () => {
+		mockContainerResize();
+		const onStep = jest.fn();
+		const user = userEvent.setup();
+
+		// A window whose next one has fully happened, so both arrows render.
+		renderPanel( {
+			onStep,
+			appliedRange: {
+				from: new Date( '2020-07-01T00:00:00.000Z' ),
+				to: new Date( '2020-07-30T23:59:59.999Z' ),
+			},
+		} );
+
+		await user.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
+		expect( onStep ).toHaveBeenCalledWith( 'previous' );
+
+		await user.click( screen.getByRole( 'button', { name: 'Next period' } ) );
+		expect( onStep ).toHaveBeenCalledWith( 'next' );
+	} );
+
+	it( 'renders no period navigation without onStep', () => {
+		mockContainerResize();
+		renderPanel();
+
+		expect( screen.queryByRole( 'button', { name: 'Previous period' } ) ).not.toBeInTheDocument();
 	} );
 } );
