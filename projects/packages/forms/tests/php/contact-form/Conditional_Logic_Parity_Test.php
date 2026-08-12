@@ -114,5 +114,4 @@ class Conditional_Logic_Parity_Test extends TestCase {
 			'Field type mapping drift between field-types.ts and Conditional_Logic.'
 		);
 	}
-
 }
