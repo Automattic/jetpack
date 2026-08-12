@@ -29,13 +29,42 @@ class Customize_Feed {
 	private static $registered = false;
 
 	/**
+	 * Blocks that are chrome rather than show notes: they're dropped from
+	 * `<content:encoded>` so only the surrounding prose survives.
+	 *
+	 * @var string[]
+	 */
+	private const CHROME_BLOCKS = array(
+		'jetpack/podcast-episode',
+		'jetpack/podcast-player',
+		'jetpack/subscriptions',
+	);
+
+	/**
 	 * Enclosure URLs already emitted in the current feed render, keyed by post
 	 * ID then URL. Reset on `rss2_head` so each feed starts clean — see
-	 * {@see self::is_duplicate_enclosure()}.
+	 * {@see self::rewrite_enclosure()}.
 	 *
 	 * @var array<int, array<string, true>>
 	 */
 	private static $seen_enclosures = array();
+
+	/**
+	 * `<description>` values already rendered this feed, keyed by post ID, so
+	 * `<itunes:summary>` can reuse them instead of rebuilding the excerpt — see
+	 * {@see self::capture_item_summary()}.
+	 *
+	 * @var array<int, string>
+	 */
+	private static $item_summaries = array();
+
+	/**
+	 * Enclosure URL → attachment ID for every episode in this feed, resolved in
+	 * one batch by {@see self::prime_feed_caches()}.
+	 *
+	 * @var array<string, int>
+	 */
+	private static $attachment_ids = array();
 
 	/**
 	 * Wire the late-binding `wp` action that decides whether to register the
@@ -84,15 +113,16 @@ class Customize_Feed {
 		add_action( 'rss2_ns', array( __CLASS__, 'output_namespaces' ) );
 		add_filter( 'wp_title_rss', array( __CLASS__, 'feed_title' ) );
 		add_filter( 'bloginfo_rss', array( __CLASS__, 'feed_description' ), 10, 2 );
-		add_action( 'rss2_head', array( __CLASS__, 'reset_enclosure_dedup' ), 0 );
+		add_action( 'rss2_head', array( __CLASS__, 'prime_feed_caches' ), 0 );
 		add_action( 'rss2_head', array( __CLASS__, 'output_channel_tags' ) );
 		add_action( 'rss2_item', array( __CLASS__, 'output_item_tags' ) );
 		add_filter( 'rss_enclosure', array( __CLASS__, 'rewrite_enclosure' ) );
+		add_filter( 'the_excerpt_rss', array( __CLASS__, 'capture_item_summary' ) );
 
 		add_filter( 'option_rss_use_excerpt', '__return_false' );
 		// Request-scoped to the feed: only the queried episodes render here, so
 		// this never touches block output outside the podcast feed response.
-		add_filter( 'render_block', array( __CLASS__, 'strip_block_from_feed' ), 10, 2 );
+		add_filter( 'pre_render_block', array( __CLASS__, 'skip_block_in_feed' ), 10, 2 );
 		add_filter( 'comments_open', '__return_false' );
 		add_filter( 'get_comments_number', '__return_zero' );
 		add_filter( 'the_category_rss', '__return_empty_string' );
@@ -205,10 +235,14 @@ class Customize_Feed {
 			echo '<itunes:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</itunes:author>\n";
 		}
 
-		// Re-applying `the_excerpt_rss` so `<itunes:summary>` matches whatever
-		// the item's `<description>` ends up emitting — `get_the_excerpt()`
-		// doesn't run the filter chain itself.
-		$excerpt = (string) apply_filters( 'the_excerpt_rss', get_the_excerpt() );
+		// `<itunes:summary>` mirrors the item's `<description>`, which the feed
+		// template rendered a few lines earlier — reuse that string rather than
+		// rebuild it. Regenerating means a second `wp_trim_excerpt()` pass over
+		// the whole post body, per item. Recompute only if `<description>` never
+		// ran (a replaced feed template), where `get_the_excerpt()` needs the
+		// filter chain applied on top since it doesn't run it itself.
+		$excerpt = self::$item_summaries[ (int) $post->ID ]
+			?? (string) apply_filters( 'the_excerpt_rss', get_the_excerpt() );
 		if ( '' !== $excerpt ) {
 			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $excerpt ) ) . "</itunes:summary>\n";
 		}
@@ -233,23 +267,41 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Strip the episode, feed-player, and subscribe blocks from
+	 * Keep the episode, feed-player, and subscribe blocks out of
 	 * `<content:encoded>`, leaving the surrounding show-note prose.
 	 *
-	 * @param string $block_content Rendered block HTML.
-	 * @param array  $block         Parsed block, including its `blockName`.
-	 * @return string
+	 * Short-circuits on `pre_render_block` rather than blanking the result on
+	 * `render_block`: the output is discarded either way, so running the render
+	 * callback first is pure waste — and an expensive kind. The episode block
+	 * validates its media URLs through `wp_http_validate_url()`, which resolves
+	 * DNS, and the player block server-renders by fetching a feed over HTTP.
+	 * Per item, across a full catalogue, that dominated the feed's build time.
+	 *
+	 * @param string|null $pre_render   Short-circuit value; `null` renders normally.
+	 * @param array       $parsed_block Parsed block, including its `blockName`.
+	 * @return string|null
 	 */
-	public static function strip_block_from_feed( $block_content, $block ) {
-		static $chrome = array(
-			'jetpack/podcast-episode',
-			'jetpack/podcast-player',
-			'jetpack/subscriptions',
-		);
-		if ( isset( $block['blockName'] ) && in_array( $block['blockName'], $chrome, true ) ) {
+	public static function skip_block_in_feed( $pre_render, $parsed_block ) {
+		if ( isset( $parsed_block['blockName'] ) && in_array( $parsed_block['blockName'], self::CHROME_BLOCKS, true ) ) {
 			return '';
 		}
-		return $block_content;
+		return $pre_render;
+	}
+
+	/**
+	 * Record the `<description>` the feed template just rendered for the current
+	 * item so {@see self::output_item_tags()} can reuse it for
+	 * `<itunes:summary>`. Pass-through filter — the value is never modified.
+	 *
+	 * @param string $excerpt Filtered item excerpt.
+	 * @return string
+	 */
+	public static function capture_item_summary( $excerpt ) {
+		$post_id = (int) get_the_ID();
+		if ( $post_id > 0 ) {
+			self::$item_summaries[ $post_id ] = (string) $excerpt;
+		}
+		return $excerpt;
 	}
 
 	/**
@@ -329,7 +381,7 @@ class Customize_Feed {
 
 		// Drop repeats: rows keyed per post, by final URL, so distinct enclosures
 		// survive while the duplicate stats URLs collapse to one. Registry is
-		// cleared per render — see `reset_enclosure_dedup()`.
+		// cleared per render — see `reset_render_state()`.
 		$post_id = null !== $post_obj ? (int) $post_obj->ID : 0;
 		if ( isset( self::$seen_enclosures[ $post_id ][ $final_url ] ) ) {
 			return '';
@@ -349,13 +401,187 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Clear the per-render enclosure dedup registry. Hooked on `rss2_head` (at
-	 * priority 0, before any item renders) so re-generating a feed within a
-	 * single long-lived process — WP-CLI, a warm worker — starts fresh instead
-	 * of dropping every enclosure as already-seen.
+	 * Clear every per-render registry. Called at the top of each feed render so
+	 * re-generating a feed within a single long-lived process — WP-CLI, a warm
+	 * worker — starts fresh instead of dropping every enclosure as already-seen
+	 * or reusing the previous render's summaries.
 	 */
-	public static function reset_enclosure_dedup() {
+	public static function reset_render_state() {
 		self::$seen_enclosures = array();
+		self::$item_summaries  = array();
+		self::$attachment_ids  = array();
+	}
+
+	/**
+	 * Resolve, in bulk, the per-episode data the item loop would otherwise fetch
+	 * one row at a time. Hooked on `rss2_head` at priority 0 — after the query
+	 * has run and primed its post caches, before the first item renders.
+	 *
+	 * Item rendering needs, for every episode: the attachment behind each
+	 * enclosure URL, that attachment's metadata (for `<itunes:duration>`), and
+	 * the featured image (for `<itunes:image>`). Left alone that's several
+	 * uncached queries per item, and the enclosure lookup is the expensive one —
+	 * an unindexed `meta_value` comparison that some hosts extend with a
+	 * `guid LIKE` fallback scan. Here it's a handful of queries for the whole
+	 * feed instead.
+	 */
+	public static function prime_feed_caches() {
+		self::reset_render_state();
+
+		$query = $GLOBALS['wp_query'] ?? null;
+		if ( ! $query instanceof \WP_Query || empty( $query->posts ) ) {
+			return;
+		}
+
+		$post_ids = array();
+		foreach ( $query->posts as $post ) {
+			if ( $post instanceof WP_Post ) {
+				$post_ids[] = (int) $post->ID;
+			}
+		}
+		if ( empty( $post_ids ) ) {
+			return;
+		}
+
+		// No-op when the query already primed these; covers the paths where it didn't.
+		update_meta_cache( 'post', $post_ids );
+
+		// Mirror how `rss_enclosure()` builds the URL it hands to `rss_enclosure`
+		// filters, so the primed keys match what `rewrite_enclosure()` looks up.
+		$urls = array();
+		foreach ( $post_ids as $post_id ) {
+			foreach ( (array) get_post_meta( $post_id, 'enclosure', false ) as $enclosure ) {
+				$url = esc_url( trim( (string) explode( "\n", (string) $enclosure )[0] ) );
+				if ( '' !== $url ) {
+					$urls[ $url ] = true;
+				}
+			}
+		}
+
+		$attachment_ids = self::prime_attachment_ids( array_keys( $urls ) );
+
+		foreach ( $post_ids as $post_id ) {
+			$thumbnail_id = (int) get_post_thumbnail_id( $post_id );
+			if ( $thumbnail_id > 0 ) {
+				$attachment_ids[] = $thumbnail_id;
+			}
+		}
+
+		$attachment_ids = array_values( array_unique( $attachment_ids ) );
+		if ( ! empty( $attachment_ids ) ) {
+			// Terms aren't read off attachments here; metadata is (duration, image src).
+			_prime_post_caches( $attachment_ids, false, true );
+		}
+
+		// Registered only now that the map is built, so the `apply_filters()`
+		// calls inside `prime_attachment_ids()` can't recurse into it.
+		add_filter( 'pre_attachment_url_to_postid', array( __CLASS__, 'primed_attachment_id' ), 10, 2 );
+	}
+
+	/**
+	 * Resolve a batch of enclosure URLs to attachment IDs in one query, caching
+	 * the answers in {@see self::$attachment_ids}.
+	 *
+	 * Reproduces `attachment_url_to_postid()` exactly — same URL-to-path
+	 * normalization, same preference for a case-sensitive match among rows a
+	 * case-insensitive collation returns together, same two filters in the same
+	 * order — so a primed answer is the one core would have given. The only
+	 * difference is that the `meta_value` comparison happens once for the whole
+	 * feed rather than once per episode.
+	 *
+	 * @param string[] $urls Enclosure URLs to resolve.
+	 * @return int[] Attachment IDs that resolved, for cache priming.
+	 */
+	private static function prime_attachment_ids( array $urls ): array {
+		if ( empty( $urls ) ) {
+			return array();
+		}
+
+		global $wpdb;
+
+		$dir          = wp_get_upload_dir();
+		$base         = $dir['baseurl'] . '/';
+		$site_scheme  = (string) wp_parse_url( $dir['url'], PHP_URL_SCHEME );
+		$paths_by_url = array();
+
+		foreach ( $urls as $url ) {
+			$path       = $url;
+			$url_scheme = (string) wp_parse_url( $path, PHP_URL_SCHEME );
+			if ( '' !== $url_scheme && $url_scheme !== $site_scheme ) {
+				$path = str_replace( $url_scheme, $site_scheme, $path );
+			}
+			if ( 0 === strpos( $path, $base ) ) {
+				$path = substr( $path, strlen( $base ) );
+			}
+			$paths_by_url[ $url ] = $path;
+		}
+
+		$paths        = array_values( array_unique( $paths_by_url ) );
+		$placeholders = implode( ', ', array_fill( 0, count( $paths ), '%s' ) );
+		$rows         = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Batched replacement for N uncached `attachment_url_to_postid()` lookups; results are cached in `self::$attachment_ids` for the render.
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- `$placeholders` is a generated list of `%s`, one per path; the sniff can't see through the interpolation.
+				"SELECT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = '_wp_attached_file' AND meta_value IN ( {$placeholders} )",
+				$paths
+			)
+		);
+
+		// A case-insensitive collation can return several rows for one path.
+		// Keep the first, but let an exact match displace it — as core does.
+		$wanted = array();
+		foreach ( $paths as $path ) {
+			$wanted[ strtolower( $path ) ] = $path;
+		}
+		$first = array();
+		$exact = array();
+		foreach ( (array) $rows as $row ) {
+			$value = (string) $row->meta_value;
+			$path  = $wanted[ strtolower( $value ) ] ?? null;
+			if ( null === $path ) {
+				continue;
+			}
+			if ( ! isset( $first[ $path ] ) ) {
+				$first[ $path ] = (int) $row->post_id;
+			}
+			if ( $path === $value && ! isset( $exact[ $path ] ) ) {
+				$exact[ $path ] = (int) $row->post_id;
+			}
+		}
+		$ids_by_path = $exact + $first;
+
+		$resolved = array();
+		foreach ( $paths_by_url as $url => $path ) {
+			/** This filter is documented in wp-includes/media.php */
+			$post_id = apply_filters( 'pre_attachment_url_to_postid', null, $url );
+			if ( null === $post_id ) {
+				/** This filter is documented in wp-includes/media.php */
+				$post_id = apply_filters( 'attachment_url_to_postid', $ids_by_path[ $path ] ?? null, $url );
+			}
+
+			$post_id                      = (int) $post_id;
+			self::$attachment_ids[ $url ] = $post_id;
+			if ( $post_id > 0 ) {
+				$resolved[] = $post_id;
+			}
+		}
+
+		return $resolved;
+	}
+
+	/**
+	 * Serve `attachment_url_to_postid()` from the batch resolved in
+	 * {@see self::prime_attachment_ids()}.
+	 *
+	 * A primed `0` short-circuits too: the full filter chain already ran against
+	 * that URL during priming, so re-running the lookup would only repeat a miss
+	 * we've already paid for. URLs we never primed fall through to core.
+	 *
+	 * @param int|null $post_id Result so far; `null` when no lookup has run.
+	 * @param string   $url     URL being looked up.
+	 * @return int|null
+	 */
+	public static function primed_attachment_id( $post_id, $url ) {
+		return self::$attachment_ids[ $url ] ?? $post_id;
 	}
 
 	/**
