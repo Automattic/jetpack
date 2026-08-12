@@ -2,7 +2,8 @@
  * External dependencies
  */
 import { useStatsVisits, type StatsVisitsResponse } from '@jetpack-premium-analytics/data';
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	HeatmapChartUnresponsive,
 	WidgetRoot,
@@ -63,17 +64,26 @@ function resolveWindowDays( viewportWidth: number ): number {
 }
 
 // Show the exact count before the date instead of the chart's default ordering.
+//
+// An empty cell gets the date alone. It covers two days the grid cannot tell apart:
+// a day the request covered that had no views, and a padding day added to fill the
+// tile, which was never requested and may well have traffic. "No views" would speak
+// for both.
 function renderCellTooltip( { value, cellLabel }: HeatmapTooltipData ) {
+	// The same element the valued cells put the date in, so the weight does not jump
+	// as the pointer crosses between them.
+	if ( value === null ) {
+		return <div>{ cellLabel }</div>;
+	}
+
 	return (
 		<>
 			<strong>
-				{ value === null
-					? __( 'No views', 'jetpack-premium-analytics-pkg' )
-					: sprintf(
-							/* translators: %s: number of views, e.g. "2,033". */
-							_n( '%s view', '%s views', value, 'jetpack-premium-analytics-pkg' ),
-							formatMetricValue( value, 'number', { decimals: 0 } )
-					  ) }
+				{ sprintf(
+					/* translators: %s: number of views, e.g. "2,033". */
+					_n( '%s view', '%s views', value, 'jetpack-premium-analytics-pkg' ),
+					formatMetricValue( value, 'number', { decimals: 0 } )
+				) }
 			</strong>
 			<div>{ cellLabel }</div>
 		</>
@@ -85,15 +95,23 @@ function TrafficViewsActivityInner() {
 
 	const maxWindowDays = resolveWindowDays( typeof window === 'undefined' ? 0 : window.innerWidth );
 
+	// One reading for every window below, so a render across midnight cannot resolve
+	// them against different days.
+	const today = format( new Date(), 'yyyy-MM-dd' );
+
 	const fetchWindow = useMemo(
-		() =>
-			resolveCalendarHeatmapWindow(
-				reportParams,
-				{ maxDays: maxWindowDays },
-				format( new Date(), 'yyyy-MM-dd' )
-			),
-		[ reportParams, maxWindowDays ]
+		() => resolveCalendarHeatmapWindow( reportParams, { maxDays: maxWindowDays }, today ),
+		[ reportParams, maxWindowDays, today ]
 	);
+
+	// The period as selected, before the viewport cap, and the only use for it: All
+	// time on a long-dormant site reaches back past the cap, and the empty state has
+	// to know the response says nothing about the years the request left out.
+	const periodWindow = useMemo(
+		() => resolveCalendarHeatmapWindow( reportParams, {}, today ),
+		[ reportParams, today ]
+	);
+	const isWindowClipped = periodWindow.startDate < fetchWindow.startDate;
 
 	// stats/visits reads from/to; startDate/endDate are specific to stats/streak.
 	const params = useMemo(
@@ -162,12 +180,8 @@ function TrafficViewsActivityInner() {
 
 		const days = ( columns + 1 ) * 7;
 
-		return resolveCalendarHeatmapWindow(
-			reportParams,
-			{ minDays: days, maxDays: days },
-			format( new Date(), 'yyyy-MM-dd' )
-		);
-	}, [ reportParams, fetchWindow, columns ] );
+		return resolveCalendarHeatmapWindow( reportParams, { minDays: days, maxDays: days }, today );
+	}, [ reportParams, fetchWindow, columns, today ] );
 
 	const { data: heatmapData, rowLabels } = useMemo( () => {
 		const viewsByDay = new Map< string, number | null >(
@@ -193,6 +207,22 @@ function TrafficViewsActivityInner() {
 	// views — "No views in this period" would be a lie there.
 	const hasViews = ( report?.data ?? [] ).some( row => Number( row.views ?? 0 ) > 0 );
 
+	// And where the cap clipped the period, the message names the days the request
+	// covers instead of the period: the site may well have views outside them. Both
+	// ends are named — the clipped end is the start, but the period can also end
+	// before today, and "since" would speak for the days after it.
+	const windowStart = parseSiteDateTime( fetchWindow.startDate );
+	const windowEnd = parseSiteDateTime( fetchWindow.endDate );
+	const emptyDescription =
+		isWindowClipped && windowStart && windowEnd
+			? sprintf(
+					/* translators: 1: first date the request covers, e.g. "Aug 9, 2024". 2: last date it covers. */
+					__( 'No views between %1$s and %2$s.', 'jetpack-premium-analytics-pkg' ),
+					formatDate( windowStart, 'compact' ),
+					formatDate( windowEnd, 'compact' )
+			  )
+			: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' );
+
 	return (
 		<div className={ styles.root }>
 			<div className={ styles.content } ref={ setRef }>
@@ -211,7 +241,7 @@ function TrafficViewsActivityInner() {
 					} ) }
 					empty={ {
 						icon: seen,
-						description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
+						description: emptyDescription,
 					} }
 				>
 					<HeatmapChartUnresponsive

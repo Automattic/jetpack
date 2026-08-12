@@ -283,6 +283,33 @@ describe( 'TrafficViewsActivityWidget', () => {
 			expect( screen.queryByTestId( 'heatmap' ) ).not.toBeInTheDocument();
 		} );
 
+		it( 'names the days requested when the cap clipped the period', () => {
+			mockUseStatsVisits.mockReturnValue( visitsResult( report( [] ) ) );
+			renderWidget( {
+				...REPORT_PARAMS,
+				from: '2018-01-01',
+				to: '2026-08-10',
+			} as unknown as ReportParams );
+
+			// The request only covers 2024-08-09 onwards, so an all-time period with
+			// older traffic would make "No views in this period." a lie.
+			expect(
+				screen.getByText( 'No views between Aug 9, 2024 and Aug 10, 2026.' )
+			).toBeInTheDocument();
+		} );
+
+		it( 'speaks for the whole period when the cap did not clip it', () => {
+			mockUseStatsVisits.mockReturnValue( visitsResult( report( [] ) ) );
+			// 1024px buys two years, so this period ends exactly on the cap.
+			renderWidget( {
+				...REPORT_PARAMS,
+				from: '2024-08-09',
+				to: '2026-08-10',
+			} as unknown as ReportParams );
+
+			expect( screen.getByText( 'No views in this period.' ) ).toBeInTheDocument();
+		} );
+
 		it( 'keeps rendering the grid when a refetch fails with data on screen', () => {
 			mockUseStatsVisits.mockReturnValue(
 				visitsResult( report( [ [ '2025-06-02', 120 ] ] ), { isError: true } )
@@ -440,9 +467,10 @@ describe( 'TrafficViewsActivityWidget', () => {
 		it( 'renders empty, singular, and formatted plural tooltips', () => {
 			renderWidget();
 
-			expect( screen.getByTestId( 'tooltip-empty' ) ).toHaveTextContent(
-				'No viewsMon, Jun 2, 2025'
-			);
+			// An empty cell is either a day with no views or a padding day the request
+			// never covered, so the tooltip claims neither and shows the date alone.
+			expect( screen.getByTestId( 'tooltip-empty' ) ).toHaveTextContent( 'Mon, Jun 2, 2025' );
+			expect( screen.getByTestId( 'tooltip-empty' ) ).not.toHaveTextContent( 'No views' );
 			expect( screen.getByTestId( 'tooltip-singular' ) ).toHaveTextContent(
 				'1 viewTue, Jun 3, 2025'
 			);
