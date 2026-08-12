@@ -11,10 +11,10 @@ import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
 import { Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import NavRow from '../components/nav-row';
-import buildPageThumb from './images/build-page.png';
-import connectClaudeThumb from './images/connect-claude.png';
-import mediaLibraryThumb from './images/media-library.png';
-import optimizeSiteThumb from './images/optimize-site.png';
+import buildPageThumb from './images/build-page.webp';
+import connectClaudeThumb from './images/connect-claude.webp';
+import mediaLibraryThumb from './images/media-library.webp';
+import optimizeSiteThumb from './images/optimize-site.webp';
 import { normalizeUsage, useAiUsage } from './use-ai-usage';
 
 import './style.scss';
@@ -91,9 +91,12 @@ function UsageCard( { upgradeUrl } ) {
 	const { isLoading, data, error } = useAiUsage();
 	const usage = normalizeUsage( data );
 	const hasNumbers = usage.requestsAvailable !== null && usage.requestsLimit > 0;
+	// normalizeUsage floors availability at 0 and it can never exceed the
+	// limit, so the ratio needs no clamping here.
+	const showMeter = usage.unlimited || hasNumbers;
 	const meterValue = usage.unlimited
 		? 100
-		: hasNumbers && Math.min( ( usage.requestsAvailable / usage.requestsLimit ) * 100, 100 );
+		: ( usage.requestsAvailable / usage.requestsLimit ) * 100;
 
 	return (
 		<Card.Root>
@@ -138,7 +141,7 @@ function UsageCard( { upgradeUrl } ) {
 									</>
 								) }
 							</Stack>
-							{ ( usage.unlimited || hasNumbers ) && (
+							{ showMeter && (
 								<ProgressBar
 									aria-label={ __( 'Available requests', 'jetpack' ) }
 									className="jetpack-ai-overview__meter"
@@ -228,6 +231,7 @@ export default function AiOverview( { blogId, activityLogUrl, upgradeUrl } ) {
 							'jetpack'
 						) }
 						href={ activityLogUrl }
+						tone="neutral"
 					/>
 				</Card.Root>
 			) }
@@ -240,7 +244,14 @@ export default function AiOverview( { blogId, activityLogUrl, upgradeUrl } ) {
 					{ WALKTHROUGH_VIDEOS.map( ( { slug, title, duration, thumbnail } ) => (
 						<a className="jetpack-ai-overview__video" href={ getRedirectUrl( slug ) } key={ slug }>
 							{ /* Decorative: the card's title carries the meaning. */ }
-							<img className="jetpack-ai-overview__video-thumb" src={ thumbnail } alt="" />
+							<img
+								className="jetpack-ai-overview__video-thumb"
+								src={ thumbnail }
+								alt=""
+								width="644"
+								height="357"
+								loading="lazy"
+							/>
 							<span className="jetpack-ai-overview__video-meta">
 								<Text as="span" variant="body-md">
 									{ title }

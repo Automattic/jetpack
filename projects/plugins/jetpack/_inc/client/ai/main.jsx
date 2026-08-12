@@ -25,7 +25,7 @@ import { recordMcpTracksEvent } from './mcp/tracks';
 import McpUpsell from './mcp/upsell';
 import { useMcpSettings } from './mcp/use-mcp-settings';
 import McpWrite from './mcp/write';
-import AiOverview from './overview/index';
+import AiOverview from './overview';
 
 // Matches the `ref` value convention used by the MCP upsell events.
 const SETTINGS_REF = 'jetpack-ai-mcp-settings';
@@ -238,16 +238,16 @@ export default function App() {
 							{ tabViews.map( tab => (
 								<Tabs.Tab key={ tab } value={ tab }>
 									{ VIEW_TITLES[ tab ] }
-									{ /* Overview and Features ship behind the internal-testing gate
-									     (showFeaturesView); while gated, label them so Automatticians
-									     don't mistake them for public UI. Read at render time so the
-									     flag reflects the injected page data. Remove with the gate. */ }
-									{ GATED_VIEWS.includes( tab ) &&
-										!! window?.jetpackAiSettings?.showFeaturesView && (
-											<Badge intent="medium" className="jetpack-ai-admin__tab-badge">
-												{ __( 'A12s only', 'jetpack' ) }
-											</Badge>
-										) }
+									{ /* Overview and Features ship behind the internal-testing gate;
+									     while gated, label them so Automatticians don't mistake them
+									     for public UI. getTabViews() only emits these two when the
+									     flag is on, so their presence is the check. Remove with
+									     the gate. */ }
+									{ GATED_VIEWS.includes( tab ) && (
+										<Badge intent="medium" className="jetpack-ai-admin__tab-badge">
+											{ __( 'A12s only', 'jetpack' ) }
+										</Badge>
+									) }
 								</Tabs.Tab>
 							) ) }
 						</Tabs.List>

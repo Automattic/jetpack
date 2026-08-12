@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import AiOverview from '../index';
+import { freePayload, tieredPayload } from './fixtures';
 
 // The usage hook fetches through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the response.
@@ -8,23 +9,6 @@ jest.mock( '@wordpress/api-fetch' );
 
 afterEach( () => {
 	jest.resetAllMocks();
-} );
-
-// Payload shapes mirror the wpcom/v2/jetpack-ai/ai-assistant-feature response.
-const freePayload = () => ( {
-	'requests-count': 12,
-	'requests-limit': 20,
-	'usage-period': { 'requests-count': 3, 'next-start': '2026-09-01' },
-	'current-tier': { value: 0, limit: 20 },
-	'next-tier': { value: 100, limit: 100 },
-} );
-
-const tieredPayload = () => ( {
-	'requests-count': 950,
-	'requests-limit': 20,
-	'usage-period': { 'requests-count': 340, 'next-start': '2026-09-01' },
-	'current-tier': { value: 500, limit: 500, readableLimit: '500' },
-	'next-tier': { value: 750, limit: 750 },
 } );
 
 const PROPS = {

@@ -1,6 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { normalizeUsage, useAiUsage } from '../use-ai-usage';
+import { freePayload, tieredPayload } from './fixtures';
 
 // The hook fetches through @wordpress/api-fetch; stub it so nothing hits the
 // network and each test controls the response.
@@ -10,32 +11,12 @@ afterEach( () => {
 	jest.resetAllMocks();
 } );
 
-// Payload shapes mirror the wpcom/v2/jetpack-ai/ai-assistant-feature response
-// (dash-cased keys, straight from the WPCOM usage helper).
-const freePayload = () => ( {
-	'has-feature': false,
-	'requests-count': 12,
-	'requests-limit': 20,
-	'usage-period': { 'requests-count': 3, 'next-start': '2026-09-01' },
-	'current-tier': { value: 0, limit: 20 },
-	'next-tier': { value: 100, limit: 100 },
-} );
-
-const tieredPayload = () => ( {
-	'has-feature': true,
-	'requests-count': 950,
-	'requests-limit': 20,
-	'usage-period': { 'requests-count': 340, 'next-start': '2026-09-01' },
-	'current-tier': { value: 500, limit: 500, readableLimit: '500' },
-	'next-tier': { value: 750, limit: 750 },
-} );
-
 describe( 'normalizeUsage', () => {
 	test( 'free tier: counts remaining requests against the free limit and offers upgrade', () => {
 		const usage = normalizeUsage( freePayload() );
 
 		expect( usage.unlimited ).toBe( false );
-		expect( usage.isFree ).toBe( true );
+		expect( usage.planLabel ).toBe( 'Free' );
 		expect( usage.requestsCount ).toBe( 12 );
 		expect( usage.requestsLimit ).toBe( 20 );
 		expect( usage.requestsAvailable ).toBe( 8 );
@@ -47,7 +28,7 @@ describe( 'normalizeUsage', () => {
 		const usage = normalizeUsage( tieredPayload() );
 
 		expect( usage.unlimited ).toBe( false );
-		expect( usage.isFree ).toBe( false );
+
 		expect( usage.requestsCount ).toBe( 340 );
 		expect( usage.requestsLimit ).toBe( 500 );
 		expect( usage.requestsAvailable ).toBe( 160 );

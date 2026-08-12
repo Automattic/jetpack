@@ -45,15 +45,6 @@
 	// Clip the row's hover background to the card's rounded corners.
 	&__row-card {
 		overflow: hidden;
-
-		// Design settled on one token for row icons and carets across the AI
-		// Hub (sanjagrbic, i4 thread, 3 Aug). Scoped to this view rather than
-		// applied in the shared row: the MCP rows ship publicly and their
-		// pass is a separate, wider change.
-		.jetpack-ai-nav-row__icon,
-		.jetpack-ai-nav-row__chevron {
-			color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
-		}
 	}
 
 	&__videos {
@@ -78,7 +69,6 @@
 		border: 1px solid var(--wpds-color-stroke-surface-neutral, #c3c4c7);
 		border-radius: var(--wpds-border-radius-lg, 8px);
 		overflow: hidden;
-		text-decoration: none;
 
 		&,
 		&:visited,
@@ -93,10 +83,14 @@
 		}
 	}
 
-	// Placeholder panel until the walkthrough artwork lands.
+	// The thumbnails share this tint, so it stands in while they load and
+	// fills the sliver the 16:9 box leaves around them.
 	&__video-thumb {
 		display: block;
+		inline-size: 100%;
+		block-size: auto;
 		aspect-ratio: 16 / 9;
+		object-fit: cover;
 		background: var(--wpds-color-background-surface-neutral-strong, #e9ebf5);
 	}
 

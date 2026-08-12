@@ -24,9 +24,9 @@
 		background: var(--color-surface-backdrop, #f0f0f1);
 	}
 
-	// Colours deliberately mirror the MCP rows this is modelled on: the
-	// leading icon inherits, the chevron is a step lighter. They differ, but
-	// changing that is a design decision, not this component's to make.
+	// Default colours mirror the MCP rows this is modelled on: the leading
+	// icon inherits, the chevron is a step lighter. Changing those on the
+	// shipped surface is a design decision, so new surfaces opt in instead.
 	&__icon {
 		flex-shrink: 0;
 		margin-block-start: 2px;
@@ -36,6 +36,13 @@
 		flex-shrink: 0;
 		margin-block-start: 2px;
 		color: var(--color-neutral-60, #50575e);
+	}
+
+	// Design settled on one token for row icons and carets across the AI Hub
+	// (sanjagrbic, i4 thread, 3 Aug).
+	&--neutral &__icon,
+	&--neutral &__chevron {
+		color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
 	}
 
 	&__text {

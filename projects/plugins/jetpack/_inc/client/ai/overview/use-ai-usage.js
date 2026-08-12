@@ -25,7 +25,7 @@ const TIER_VALUE_UNLIMITED = 1;
  * card displays what is AVAILABLE (limit − used), so that is derived here.
  *
  * @param {object} data - Raw endpoint payload (dash-cased keys).
- * @return {object} { unlimited, isFree, requestsCount, requestsLimit, requestsAvailable, renewsOn, planLabel, showUpgrade }
+ * @return {object} { unlimited, requestsCount, requestsLimit, requestsAvailable, renewsOn, planLabel, showUpgrade }
  */
 export function normalizeUsage( data ) {
 	const currentTier = data?.[ 'current-tier' ] ?? null;
@@ -65,7 +65,6 @@ export function normalizeUsage( data ) {
 
 	return {
 		unlimited,
-		isFree,
 		requestsCount,
 		requestsLimit,
 		requestsAvailable,
