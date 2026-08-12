@@ -65,17 +65,13 @@ const COMPACT_CELL_GAP = 2;
 export type FitWeekColumnsInput = {
 	/** Width the grid has to work with, in px. */
 	availWidth: number;
-	/** Width of one rendered cell, in px. */
 	cellWidth: number;
-	/** Gap between cells, in px. */
 	cellGap: number;
 	/**
-	 * Width to reserve for the weekday-label column, in px.
-	 *
-	 * The chart lays that column out as an `auto` grid track, so its real width is
-	 * the label text plus its padding and is not knowable from here. Each caller
-	 * passes the allowance its own cell size was designed against — which is why
-	 * the compact and design-cell heatmaps reserve different amounts.
+	 * Width to reserve for the weekday-label column, in px. The chart lays that
+	 * column out as an `auto` grid track, so its real width is not knowable from
+	 * here — each caller passes the allowance its own cell size was designed
+	 * against, which is why the callers disagree.
 	 */
 	labelGutter: number;
 	/** Never return fewer than this many columns. Defaults to 0. */
@@ -85,16 +81,13 @@ export type FitWeekColumnsInput = {
 };
 
 /**
- * How many whole week columns a width can draw.
- *
- * Every calendar heatmap answers this with the same arithmetic and its own cell
- * metrics, so the formula lives here while the constants stay with each caller.
+ * How many whole week columns a width can draw. The arithmetic is shared; each
+ * caller keeps its own cell metrics.
  */
 export function fitWeekColumns( input: FitWeekColumnsInput ): number {
 	const { availWidth, cellWidth, cellGap, labelGutter, minColumns = 0, dataColumns } = input;
 
-	// A range holding fewer weeks than the minimum caps it; the minimum cannot
-	// conjure columns the data does not have.
+	// The minimum cannot conjure columns the range does not have.
 	const floorColumns = dataColumns === undefined ? minColumns : Math.min( minColumns, dataColumns );
 
 	if (

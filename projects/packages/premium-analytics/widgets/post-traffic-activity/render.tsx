@@ -113,11 +113,10 @@ function PostTrafficActivityInner() {
 	const from = toDay( reportParams.from );
 	const to = toDay( reportParams.to );
 
-	// Blank cells split by what the blank means: inside the range a day with no
-	// recorded views really had none ("No views"), while the filler days padding
-	// the grid before the range start are masked, not measured — claiming "No
-	// views" there could be false, so they say "No data". Cells map back to
-	// `days` by grid position: the page start is always week-aligned, so
+	// Blank cells split by what the blank means: a day inside the range really had
+	// no views, while the filler days padding the grid before the range start were
+	// masked rather than measured, so "No views" there could be false. Cells map
+	// back to `days` by grid position — the page start is week-aligned, so
 	// `column * 7 + row` indexes the flat series.
 	const renderCellTooltip = useCallback(
 		( { value, cellLabel, row, column }: HeatmapTooltipData ) => {

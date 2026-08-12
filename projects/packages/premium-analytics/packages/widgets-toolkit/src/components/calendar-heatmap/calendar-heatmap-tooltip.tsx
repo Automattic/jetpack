@@ -4,7 +4,6 @@
 import type { ReactNode } from 'react';
 
 export type CalendarHeatmapTooltipProps = {
-	/** The cell's value, or `null` for a day with nothing to report. */
 	value: number | null;
 	/** The chart's own label for the cell, normally its date. */
 	cellLabel?: ReactNode;
@@ -15,22 +14,12 @@ export type CalendarHeatmapTooltipProps = {
 };
 
 /**
- * The shared body of a calendar heatmap's cell tooltip.
+ * A calendar heatmap cell tooltip, leading with the count where the chart's own
+ * tooltip would lead with the date.
  *
- * The chart's own tooltip leads with the date; every calendar heatmap here leads
- * with the count instead, so the shape lives in one place and the three widgets
- * cannot drift apart.
- *
- * The strings stay with the caller on purpose: `__()` and `_n()` need literal
- * arguments for the build to extract them, so neither the empty label nor the
- * plural forms can be assembled here.
- *
- * @param props             - Component props.
- * @param props.value       - The cell's value, or `null`.
- * @param props.cellLabel   - The chart's own label for the cell.
- * @param props.emptyLabel  - Shown when `value` is `null`.
- * @param props.formatValue - Renders a non-null count.
- * @return The tooltip body.
+ * The copy stays with the caller because `__()` and `_n()` need literal arguments
+ * to be extracted, so neither the empty label nor the plural forms can be built
+ * here.
  */
 export function CalendarHeatmapTooltip( {
 	value,

@@ -20,8 +20,6 @@ describe( 'CalendarHeatmapTooltip', () => {
 			/>
 		);
 
-		// The count is the emphasized line; the chart's own tooltip would have put
-		// the date there instead.
 		expect( screen.getByText( '2033 views' ).tagName ).toBe( 'STRONG' );
 		expect( screen.getByText( 'June 2, 2025' ) ).toBeInTheDocument();
 	} );
@@ -40,8 +38,8 @@ describe( 'CalendarHeatmapTooltip', () => {
 	} );
 
 	it( 'renders a counted zero rather than treating it as empty', () => {
-		// Only `null` means "nothing to report"; a real zero is a measured value
-		// and must not borrow the empty label.
+		// Only `null` is empty; a real zero was measured and must not borrow the
+		// empty label.
 		render(
 			<CalendarHeatmapTooltip
 				value={ 0 }
