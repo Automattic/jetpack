@@ -21,11 +21,27 @@ namespace Automattic\Jetpack\Search;
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable -- $content is provided by WP at block render.
-$variants   = trim( $content );
-$is_default = '' === $variants;
+$variants = trim( $content );
 
-// An empty container stands in for an unscoped variant, so it seeds the same
-// coverage. With variants present each one seeds its own.
+// Inner blocks that aren't variants — hand-edited markup, or content saved
+// before the container took variants — are treated as one unscoped variant
+// rather than emitted bare, which would put them behind the region-level
+// binding and show them on an error too. `allowedBlocks` keeps the editor from
+// producing this, so it is a robustness floor, not a migration: a legacy
+// per-condition scope is not recovered, only a defined condition.
+// @phan-suppress-next-line PhanUndeclaredGlobalVariable -- $block is provided by WP at block render.
+$inner_blocks = ( $block instanceof \WP_Block ) ? $block->parsed_block['innerBlocks'] ?? array() : array();
+$has_variants = false;
+foreach ( $inner_blocks as $inner_block ) {
+	if ( 'jetpack-search/no-results-slot' === ( $inner_block['blockName'] ?? '' ) ) {
+		$has_variants = true;
+		break;
+	}
+}
+
+// Without variants the container stands in for an unscoped one, so it seeds
+// the same coverage and wraps whatever it holds in that condition's region.
+$is_default = ! $has_variants;
 if ( $is_default ) {
 	Search_Blocks::seed_no_results_coverage( 'any' );
 }
@@ -45,14 +61,25 @@ if ( $is_default ) {
 >
 	<?php
 	if ( $is_default ) {
+		$default_class = 'jetpack-search-no-results__variant';
+		if ( '' === $variants ) {
+			$default_class .= ' jetpack-search-no-results--default';
+		}
 		?>
 		<div
-			class="jetpack-search-no-results__variant jetpack-search-no-results--default"
+			class="<?php echo esc_attr( $default_class ); ?>"
 			data-wp-bind--hidden="!state.showNoResultsAny"
-			role="status"
+			<?php echo '' === $variants ? 'role="status"' : ''; ?>
 			hidden
 		>
-			<?php Search_Blocks::render_no_results_default_copy( 'any' ); ?>
+			<?php
+			if ( '' === $variants ) {
+				Search_Blocks::render_no_results_default_copy( 'any' );
+			} else {
+				// @phan-suppress-next-line PhanUndeclaredGlobalVariable -- $content is provided by WP at block render.
+				echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner block HTML is already escaped by each child block's renderer.
+			}
+			?>
 		</div>
 		<?php
 	} else {

@@ -24,7 +24,7 @@ class No_Results_Render_Test extends TestCase {
 			'jetpack-search/no-results',
 			array(
 				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-				'render_callback' => static function ( $attributes, $content ) {
+				'render_callback' => static function ( $attributes, $content, $block ) {
 					ob_start();
 					include __DIR__ . '/../../src/search-blocks/blocks/no-results/render.php';
 					return (string) ob_get_clean();
@@ -173,6 +173,26 @@ class No_Results_Render_Test extends TestCase {
 		$this->assertTrue( $state['hasErrorBlock'] );
 		$this->assertArrayNotHasKey( 'hasNoResultsUnfiltered', $state );
 		$this->assertArrayNotHasKey( 'hasNoResultsFiltered', $state );
+	}
+
+	/**
+	 * Inner blocks that aren't variants — hand-edited markup, or content saved
+	 * before the container took variants — are wrapped as one unscoped variant
+	 * rather than emitted bare. Emitting them bare would leave them behind the
+	 * region-level binding, so they would also show on a failed request.
+	 */
+	public function test_non_variant_content_is_treated_as_the_unscoped_condition() {
+		$markup = $this->render( '<!-- wp:paragraph --><p>Hand-written copy.</p><!-- /wp:paragraph -->' );
+		$this->assertStringContainsString( 'Hand-written copy.', $markup );
+		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showNoResultsAny"', $markup );
+		// Authored content keeps its own presentation, so no muted default class
+		// and no live region wrapping someone's composition.
+		$this->assertStringNotContainsString( 'jetpack-search-no-results--default', $markup );
+		$this->assertStringNotContainsString( 'role="status"', $markup );
+
+		$state = wp_interactivity_state( 'jetpack-search' );
+		$this->assertTrue( $state['hasNoResultsUnfiltered'] );
+		$this->assertTrue( $state['hasNoResultsFiltered'] );
 	}
 
 	/**

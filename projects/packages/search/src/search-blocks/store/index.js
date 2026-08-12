@@ -713,19 +713,9 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Visibility for `results-list`'s built-in message region, which
-		 * predates the `no-results` block. Each `no-results` block seeds the
-		 * filter states it covers, and the legacy region fills whatever is
-		 * left — so a page whose only block is scoped to one filter state
-		 * still shows a message in the other, and a page with full coverage
-		 * never shows two empty states at once.
-		 *
-		 * @return {boolean} True when the legacy region should show.
-		 */
-		/**
 		 * Visibility for `results-list`'s built-in error region, which predates
 		 * the `no-results` block. Mirrors `showLegacyNoResults`, but there is
-		 * only one error case to cover, so a flat "a block claimed it" flag is
+		 * only one error case to cover, so a flat "a variant claimed it" flag is
 		 * enough — no per-case seeding.
 		 *
 		 * @return {boolean} True when the legacy error region should show.
@@ -734,6 +724,16 @@ const { state, actions } = store( NAMESPACE, {
 			return state.showError && ! state.hasErrorBlock;
 		},
 
+		/**
+		 * Visibility for `results-list`'s built-in message region, which
+		 * predates the `no-results` block. Each variant seeds the filter states
+		 * it covers, and the legacy region fills whatever is left — so a page
+		 * whose only variant is scoped to one filter state still shows a
+		 * message in the other, and a page with full coverage never shows two
+		 * empty states at once.
+		 *
+		 * @return {boolean} True when the legacy region should show.
+		 */
 		get showLegacyNoResults() {
 			if ( ! state.showNoResults ) {
 				return false;

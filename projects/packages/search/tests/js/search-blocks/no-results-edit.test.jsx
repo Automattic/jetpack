@@ -40,9 +40,12 @@ jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( { insertBlock: mockInsertBlock } ),
 } ) );
 
-const UNFILTERED_DEFAULT = 'No results found. Try a different search.';
-const FILTERED_DEFAULT =
-	'No results match these filters. Try clearing some, or searching for something else.';
+const CONDITIONS = [ 'any', 'filtered', 'error' ];
+const LABELS = {
+	any: 'Any empty search',
+	filtered: 'Filters are active',
+	error: 'Search failed',
+};
 
 describe( 'NoResultsEdit', () => {
 	beforeEach( () => {
@@ -51,32 +54,41 @@ describe( 'NoResultsEdit', () => {
 		mockSlots = [];
 	} );
 
-	// An empty container renders the filter-aware default pair, so the canvas
-	// has to show the same thing rather than an empty box.
-	it( 'previews the default pair while the container has no variants', () => {
+	// Every condition is created up front so an author sees all three empty
+	// states without adding anything.
+	it( 'seeds a variant for each condition', () => {
 		render( <NoResultsEdit clientId="nr-1" /> );
 
-		expect( screen.getByText( UNFILTERED_DEFAULT ) ).toBeInTheDocument();
-		expect( screen.getByText( FILTERED_DEFAULT ) ).toBeInTheDocument();
+		const props = InnerBlocks.mock.calls[ 0 ][ 0 ];
+		expect( props.template ).toEqual( [
+			[ 'jetpack-search/no-results-slot', { condition: 'any' } ],
+			[ 'jetpack-search/no-results-slot', { condition: 'filtered' } ],
+			[ 'jetpack-search/no-results-slot', { condition: 'error' } ],
+		] );
 	} );
 
-	it( 'drops the preview once a variant is added', () => {
+	it( 'offers a button to bring back a condition that was removed', () => {
 		mockSlots = [ { attributes: { condition: 'any' } } ];
-		render( <NoResultsEdit clientId="nr-1" /> );
-
-		expect( screen.queryByText( UNFILTERED_DEFAULT ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'offers a button per condition and inserts the matching variant', () => {
 		render( <NoResultsEdit clientId="nr-1" /> );
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Filters are active' } ) );
 		expect( mockInsertBlock ).toHaveBeenCalledWith(
 			{ name: 'jetpack-search/no-results-slot', attributes: { condition: 'filtered' } },
-			0,
+			1,
 			'nr-1'
 		);
+	} );
+
+	it( 'offers nothing to add while every condition is covered', () => {
+		mockSlots = CONDITIONS.map( condition => ( { attributes: { condition } } ) );
+		render( <NoResultsEdit clientId="nr-1" /> );
+
+		CONDITIONS.forEach( condition => {
+			expect(
+				screen.queryByRole( 'button', { name: LABELS[ condition ] } )
+			).not.toBeInTheDocument();
+		} );
 	} );
 
 	// The renderer would just stack a second variant for a condition that is
@@ -99,10 +111,14 @@ describe( 'NoResultsEdit', () => {
 		expect( mockInsertBlock ).toHaveBeenCalledWith( expect.anything(), 2, 'nr-1' );
 	} );
 
-	// A variant missing its attribute still occupies the unscoped condition —
-	// treating it as uncovered would offer a button that stacks a duplicate.
-	it( 'treats a variant with no saved condition as the unscoped one', () => {
-		mockSlots = [ { attributes: {} } ];
+	// A variant with no attribute — or an unrecognized one — still renders as
+	// the unscoped condition, so the panel must read it as taken. Offering the
+	// button again would stack a duplicate `any` variant.
+	it.each( [
+		[ 'no saved condition', {} ],
+		[ 'an unknown condition', { condition: 'bogus' } ],
+	] )( 'treats a variant with %s as the unscoped one', ( _label, attributes ) => {
+		mockSlots = [ { attributes } ];
 		render( <NoResultsEdit clientId="nr-1" /> );
 
 		expect( screen.queryByRole( 'button', { name: 'Any empty search' } ) ).not.toBeInTheDocument();
