@@ -211,8 +211,22 @@ class No_Results_Render_Test extends TestCase {
 	 * page that is about to render results.
 	 */
 	public function test_region_is_hidden_pre_hydration() {
-		// `preg_match` rather than `assertMatchesRegularExpression`, which was
-		// added in PHPUnit 9.1 — the PHP 7.2 CI matrix still runs PHPUnit 8.5.
-		$this->assertSame( 1, preg_match( '/<div[^>]*\shidden\s*>/', $this->render() ) );
+		$markup = $this->render();
+		// Anchored per element: the default render emits two divs carrying a
+		// bare `hidden`, so an unanchored match would keep passing with either
+		// one of them stripped. `preg_match` rather than
+		// `assertMatchesRegularExpression`, which was added in PHPUnit 9.1 —
+		// the PHP 7.2 CI matrix still runs PHPUnit 8.5. `hidden` has to be
+		// preceded by whitespace so `data-wp-bind--hidden` can't satisfy it.
+		$this->assertSame(
+			1,
+			preg_match( '/<div[^>]*state\.showEmptyStateRegion[^>]*\shidden(?=\s|>)/', $markup ),
+			'the container must be hidden pre-hydration'
+		);
+		$this->assertSame(
+			1,
+			preg_match( '/<div[^>]*\bjetpack-search-no-results__variant\b[^>]*\shidden(?=\s|>)/', $markup ),
+			'the default copy must be hidden pre-hydration'
+		);
 	}
 }
