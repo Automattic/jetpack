@@ -18,3 +18,4 @@ When reviewing these files:
 - Do NOT suggest changes to the Significance or Type header format.
 - DO review the entry text for grammar, clarity, and adherence to project conventions (imperative mood, capital letter, ends with period, user-facing description).
 - Note: Jetpack plugin (`projects/plugins/jetpack/`) uses custom types: major, enhancement, compat, bugfix, other.
+- If the entry is in a package (`projects/packages/`) and describes a user-facing change, check that the PR also adds entries to the plugins that ship that package — an entry only appears in the CHANGELOG of the project it lives in, so otherwise the change is invisible in the plugin changelog. See "User-Facing Package Changes Also Need Plugin Entries" in `AGENTS.md`.

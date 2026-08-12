@@ -173,6 +173,30 @@ Every PR touching `/projects` MUST include a changelog file in the project's `ch
 
 Two gates enforce this, both running `tools/check-changelogger-use.php`: the pre-push hook (see "Linting & Formatting" above) and the `linting.yml` CI job. The repo-gardening bot also comments on the PR listing any projects still missing entries. There is no AI-generated-changelog checkbox in the PR template — that feature was removed. Write the entries yourself, with `jp changelog add`.
 
+### User-Facing Package Changes Also Need Plugin Entries
+
+An entry only lands in the CHANGELOG of the project it was added to. A package-only PR therefore appears in that package's CHANGELOG and, in the plugins that bundle the package, as nothing more than "Update package dependencies." — invisible to the users, release posts, and support documentation that read the plugin changelog.
+
+**When a change to a package is user-facing — a new block, new or changed UI, a behavior change, a bug fix someone would notice — add a changelog entry to every plugin that ships that package, on top of the package's own entry.** Write each one from that plugin's user's perspective; the wording rarely needs to be identical.
+
+List the plugins that ship a package:
+
+```bash
+jp dependencies list packages/search --add-dependents --extra build --no-dev | grep '^plugins/'
+```
+
+Then add one entry per plugin. Each project defines its own types — `plugins/jetpack` uses `major` | `enhancement` | `compat` | `bugfix` | `other`:
+
+```bash
+jp changelog add packages/search -s minor -t added       -e "Add a Search Results block."
+jp changelog add plugins/search  -s minor -t added       -e "Add a Search Results block."
+jp changelog add plugins/jetpack -s minor -t enhancement -e "Search: Add a Search Results block."
+```
+
+**The non-interactive form never prompts for this.** Interactive `jp changelog add` (no project argument) asks "The following plugins are indirectly affected by this commit: … Is this change something an end user or site administrator of a site using any of those plugins would like to know about?", and answering yes writes the plugin entries for you. Naming a project disables that check, so `jp changelog add <project> -s … -t … -e …` silently skips the dependent plugins. Anyone — human or agent — using the non-interactive form MUST add the plugin entries themselves. To be asked again after the fact, run `jp changelog add --check-indirect-plugins`.
+
+The package entry alone is correct only when nothing is observable to a site owner: internal refactors, tests, tooling, type fixes.
+
 ### Interactive Mode
 
 Run `jp changelog add` and follow the prompts.
@@ -245,6 +269,7 @@ The exception is the **WordPress.com Tests** check (the TeamCity `JetpackPreFlig
 
 When reviewing code, check for:
 - Adherence to `docs/coding-guidelines.md`
+- User-facing package changes missing changelog entries in the plugins that ship the package (see "User-Facing Package Changes Also Need Plugin Entries" above) — CI only checks the directly-touched project, so this gap is reviewer-only
 - Missing documentation for public APIs, or missing explanations for non-obvious logic
 - Typos in user-facing strings, comments, and docs — PHPCS and ESLint check naming and formatting, not spelling, so this needs human eyes
 - Performance hazards that no sniff catches: uncached `wp_remote_*` calls, queries inside loops, `meta_query`/`tax_query`/`orderby => rand` on large tables, and newly autoloaded options. `WordPress.DB.SlowDBQuery` is excluded from the Jetpack ruleset as too noisy, so this is reviewer-only
