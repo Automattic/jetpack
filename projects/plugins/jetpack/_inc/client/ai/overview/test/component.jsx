@@ -108,7 +108,7 @@ describe( 'AiOverview', () => {
 			screen.findByText( 'Unable to fetch the requested data.', IGNORE_A11Y )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /Activity log/ } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: /API reference/ } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /Available capabilities/ } ) ).toBeInTheDocument();
 	} );
 
 	test( 'activity log: renders as a link to the site activity log', async () => {
@@ -220,7 +220,7 @@ describe( 'AiOverview', () => {
 			'AI features overview': 'jetpack-ai-hub-overview-docs-features',
 			'Setting up agentic workflows': 'jetpack-ai-hub-overview-docs-agent-setup',
 			'Billing & plans': 'jetpack-ai-hub-overview-docs-billing',
-			'API reference': 'jetpack-ai-hub-overview-docs-mcp-tools',
+			'Available capabilities': 'jetpack-ai-hub-overview-docs-mcp-tools',
 		};
 		for ( const [ name, slug ] of Object.entries( slugByName ) ) {
 			const link = screen.getByRole( 'link', { name: new RegExp( name ) } );

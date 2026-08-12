@@ -69,7 +69,12 @@ const DOC_LINKS = [
 		title: __( 'Setting up agentic workflows', 'jetpack' ),
 	},
 	{ slug: 'jetpack-ai-hub-overview-docs-billing', title: __( 'Billing & plans', 'jetpack' ) },
-	{ slug: 'jetpack-ai-hub-overview-docs-mcp-tools', title: __( 'API reference', 'jetpack' ) },
+	{
+		slug: 'jetpack-ai-hub-overview-docs-mcp-tools',
+		// Names the target honestly: it lists what agents can do, and is not
+		// an API reference (sanjagrbic on the i4 thread, 12 Aug).
+		title: __( 'Available capabilities', 'jetpack' ),
+	},
 ];
 
 /**
