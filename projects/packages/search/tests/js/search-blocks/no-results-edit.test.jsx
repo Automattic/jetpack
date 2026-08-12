@@ -1,11 +1,14 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, store as blockEditorStore } from '@wordpress/block-editor';
 import NoResultsEdit from '../../../src/search-blocks/blocks/no-results/edit';
+
+const mockSelectedStores = [];
 
 jest.mock( '@wordpress/block-editor', () => {
 	const mockInnerBlocks = jest.fn( () => <div data-testid="no-results-inner-blocks" /> );
 	mockInnerBlocks.ButtonBlockAppender = () => null;
 	return {
+		store: { name: 'core/block-editor' },
 		useBlockProps: props => ( { ...props, className: props?.className } ),
 		InspectorControls: ( { children } ) => <div data-testid="inspector">{ children }</div>,
 		InnerBlocks: mockInnerBlocks,
@@ -36,7 +39,11 @@ jest.mock( '@wordpress/blocks', () => ( {
 let mockSlots = [];
 const mockInsertBlock = jest.fn();
 jest.mock( '@wordpress/data', () => ( {
-	useSelect: callback => callback( () => ( { getBlocks: () => mockSlots } ) ),
+	useSelect: callback =>
+		callback( store => {
+			mockSelectedStores.push( store );
+			return { getBlocks: () => mockSlots };
+		} ),
 	useDispatch: () => ( { insertBlock: mockInsertBlock } ),
 } ) );
 
@@ -56,6 +63,14 @@ describe( 'NoResultsEdit', () => {
 
 	// Every condition is created up front so an author sees all three empty
 	// states without adding anything.
+	// Selecting by store object rather than the 'core/block-editor' string
+	// keeps the dependency explicit and survives a store rename.
+	it( 'selects state through the block-editor store object', () => {
+		render( <NoResultsEdit clientId="nr-1" /> );
+
+		expect( mockSelectedStores ).toContain( blockEditorStore );
+	} );
+
 	it( 'seeds a variant for each condition', () => {
 		render( <NoResultsEdit clientId="nr-1" /> );
 

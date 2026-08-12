@@ -13,7 +13,12 @@
  * suppressed — it would insert a second `Any empty search` variant, which the
  * renderer would just stack on the first.
  */
-import { InnerBlocks, InspectorControls, useBlockProps } from '@wordpress/block-editor';
+import {
+	InnerBlocks,
+	InspectorControls,
+	store as blockEditorStore,
+	useBlockProps,
+} from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Button, PanelBody } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -35,7 +40,7 @@ const TEMPLATE = CONDITIONS.map( condition => [ SLOT_BLOCK, { condition } ] );
 export default function NoResultsEdit( { clientId } ) {
 	const { used, count } = useSelect(
 		select => {
-			const blockEditor = select( 'core/block-editor' );
+			const blockEditor = select( blockEditorStore );
 			const slots = blockEditor.getBlocks( clientId );
 			return {
 				// Normalized the same way `render.php` and the variant's own edit
@@ -53,7 +58,7 @@ export default function NoResultsEdit( { clientId } ) {
 		},
 		[ clientId ]
 	);
-	const { insertBlock } = useDispatch( 'core/block-editor' );
+	const { insertBlock } = useDispatch( blockEditorStore );
 	const blockProps = useBlockProps( {
 		className: 'jetpack-search-no-results jetpack-search-no-results__editor-container',
 	} );

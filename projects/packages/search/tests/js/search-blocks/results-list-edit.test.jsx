@@ -1,7 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import ResultsListEdit from '../../../src/search-blocks/blocks/results-list/edit';
 
+const mockSelectedStores = [];
+
 jest.mock( '@wordpress/block-editor', () => ( {
+	store: { name: 'core/block-editor' },
 	useBlockProps: props => ( { ...props, className: props?.className } ),
 	InspectorControls: ( { children } ) => <div data-testid="inspector">{ children }</div>,
 } ) );
@@ -88,21 +92,24 @@ const mockSelectBlock = jest.fn();
 const mockInsertBlock = jest.fn();
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: callback =>
-		callback( () => ( {
-			getBlockParentsByBlockName: () =>
-				mockSearchResultsParent ? [ mockSearchResultsParent ] : [],
-			getBlockAttributes: () => mockSearchResultsAttrs,
-			// Argument-aware on purpose: the selector takes a single client id, and
-			// a mock that ignores its argument would hide a wrong call shape.
-			getClientIdsOfDescendants: rootClientId =>
-				mockNoResultsBlockId && rootClientId === mockSearchResultsParent
-					? [ mockNoResultsBlockId ]
-					: [],
-			getBlockRootClientId: () => 'sr-1',
-			getBlockIndex: () => 2,
-			getBlockName: id =>
-				id === mockNoResultsBlockId ? 'jetpack-search/no-results' : 'core/paragraph',
-		} ) ),
+		callback( store => {
+			mockSelectedStores.push( store );
+			return {
+				getBlockParentsByBlockName: () =>
+					mockSearchResultsParent ? [ mockSearchResultsParent ] : [],
+				getBlockAttributes: () => mockSearchResultsAttrs,
+				// Argument-aware on purpose: the selector takes a single client id, and
+				// a mock that ignores its argument would hide a wrong call shape.
+				getClientIdsOfDescendants: rootClientId =>
+					mockNoResultsBlockId && rootClientId === mockSearchResultsParent
+						? [ mockNoResultsBlockId ]
+						: [],
+				getBlockRootClientId: () => 'sr-1',
+				getBlockIndex: () => 2,
+				getBlockName: id =>
+					id === mockNoResultsBlockId ? 'jetpack-search/no-results' : 'core/paragraph',
+			};
+		} ),
 	useDispatch: () => ( { selectBlock: mockSelectBlock, insertBlock: mockInsertBlock } ),
 } ) );
 
@@ -151,6 +158,14 @@ describe( 'ResultsListEdit', () => {
 		expect( screen.getByText( 'Older archived entry' ) ).toBeInTheDocument();
 	} );
 	/* eslint-enable testing-library/no-container, testing-library/no-node-access */
+
+	// Selecting by store object rather than the 'core/block-editor' string
+	// keeps the dependency explicit and survives a store rename.
+	it( 'selects state through the block-editor store object', () => {
+		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
+
+		expect( mockSelectedStores ).toContain( blockEditorStore );
+	} );
 
 	it( 'renders the layout picker in the inspector', () => {
 		render( <ResultsListEdit attributes={ { layout: 'expanded' } } setAttributes={ jest.fn() } /> );

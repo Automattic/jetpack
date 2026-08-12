@@ -11,7 +11,12 @@
  * The outline + label and `ButtonBlockAppender` are the container-boundary
  * mitigation described in AGENTS.md's "InnerBlocks appender boundary trap".
  */
-import { InnerBlocks, InspectorControls, useBlockProps } from '@wordpress/block-editor';
+import {
+	InnerBlocks,
+	InspectorControls,
+	store as blockEditorStore,
+	useBlockProps,
+} from '@wordpress/block-editor';
 import { PanelBody, RadioControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -65,7 +70,7 @@ export default function NoResultsSlotEdit( { attributes, setAttributes, clientId
 	const stored = attributes?.condition;
 	const condition = CONDITIONS.includes( stored ) ? stored : 'any';
 	const hasInnerBlocks = useSelect(
-		select => select( 'core/block-editor' ).getBlockCount( clientId ) > 0,
+		select => select( blockEditorStore ).getBlockCount( clientId ) > 0,
 		[ clientId ]
 	);
 	const blockProps = useBlockProps( {

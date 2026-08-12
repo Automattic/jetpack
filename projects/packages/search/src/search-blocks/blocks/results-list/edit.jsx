@@ -14,7 +14,11 @@
  * reviewers can read each card design end-to-end without resolving flag
  * names.
  */
-import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
+import {
+	InspectorControls,
+	store as blockEditorStore,
+	useBlockProps,
+} from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Button, PanelBody, RadioControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -204,7 +208,7 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 	const { parentScopeBlockId, parentScopeAttributes, noResultsBlockId, insertRootId, insertIndex } =
 		useSelect(
 			select => {
-				const blockEditor = select( 'core/block-editor' );
+				const blockEditor = select( blockEditorStore );
 				const parents = blockEditor.getBlockParentsByBlockName(
 					clientId,
 					'jetpack-search/search-results',
@@ -240,7 +244,7 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 			},
 			[ clientId ]
 		);
-	const { insertBlock, selectBlock } = useDispatch( 'core/block-editor' );
+	const { insertBlock, selectBlock } = useDispatch( blockEditorStore );
 	const stored = attributes?.layout ?? DEFAULT_LAYOUT;
 	// Pre-rename block markup used `card` for what the picker now calls
 	// `expanded`. Promote the legacy value so saved content keeps its first-

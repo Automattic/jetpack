@@ -1,11 +1,14 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, store as blockEditorStore } from '@wordpress/block-editor';
 import NoResultsSlotEdit from '../../../src/search-blocks/blocks/no-results/slot/edit';
+
+const mockSelectedStores = [];
 
 jest.mock( '@wordpress/block-editor', () => {
 	const mockInnerBlocks = jest.fn( () => <div data-testid="variant-inner-blocks" /> );
 	mockInnerBlocks.ButtonBlockAppender = () => null;
 	return {
+		store: { name: 'core/block-editor' },
 		useBlockProps: props => ( { ...props, className: props?.className } ),
 		InspectorControls: ( { children } ) => <div data-testid="inspector">{ children }</div>,
 		InnerBlocks: mockInnerBlocks,
@@ -46,7 +49,11 @@ jest.mock( '@wordpress/i18n', () => ( {
 
 let mockInnerBlockCount = 0;
 jest.mock( '@wordpress/data', () => ( {
-	useSelect: callback => callback( () => ( { getBlockCount: () => mockInnerBlockCount } ) ),
+	useSelect: callback =>
+		callback( store => {
+			mockSelectedStores.push( store );
+			return { getBlockCount: () => mockInnerBlockCount };
+		} ),
 } ) );
 
 const UNFILTERED_DEFAULT = 'No results found. Try a different search.';
@@ -62,6 +69,14 @@ describe( 'NoResultsSlotEdit', () => {
 
 	// The canvas preview mirrors render.php's fallback, so an author can see
 	// what a visitor gets from a variant they haven't filled in yet.
+	// Selecting by store object rather than the 'core/block-editor' string
+	// keeps the dependency explicit and survives a store rename.
+	it( 'selects state through the block-editor store object', () => {
+		render( <NoResultsSlotEdit attributes={ {} } setAttributes={ jest.fn() } clientId="v-1" /> );
+
+		expect( mockSelectedStores ).toContain( blockEditorStore );
+	} );
+
 	it( 'previews the filter-aware pair for an empty unscoped variant', () => {
 		render( <NoResultsSlotEdit attributes={ {} } setAttributes={ jest.fn() } clientId="v-1" /> );
 
