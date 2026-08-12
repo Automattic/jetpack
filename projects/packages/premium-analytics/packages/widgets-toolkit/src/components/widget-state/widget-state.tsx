@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
-import { Button, Icon, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -51,15 +51,6 @@ export interface WidgetStateProps {
  * overlay. The empty state carries no icon by default (staying visually distinct
  * from the error state's glyph); a caller opts in via `empty.icon`.
  *
- * @param props               - Component props.
- * @param props.isLoading     - A fetch is in flight and there is no data yet.
- * @param props.isFetching    - A background refetch is in flight while data is shown.
- * @param props.isError       - Whether the fetch failed.
- * @param props.isEmpty       - Resolved, but there is nothing meaningful to show.
- * @param props.error         - Error descriptor shown when `isError` is true.
- * @param props.empty         - Empty-state descriptor; renders no icon unless `empty.icon` is set.
- * @param props.renderLoading - Optional per-widget loading override.
- * @param props.children      - Success content, rendered only when the state is `ready`.
  * @return The rendered widget state.
  */
 export function WidgetState( {
@@ -84,7 +75,7 @@ export function WidgetState( {
 					{ error?.description ??
 						__(
 							"We couldn't load this data. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						) }
 				</div>
 				{ !! error?.actions?.length && (

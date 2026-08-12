@@ -12,6 +12,14 @@
 		cursor: not-allowed;
 	}
 
+	// At-limit upgrade notice rendered above the listing. The tabpanel is a
+	// column flex (see dashboard-layout/style.scss), so the notice stacks on
+	// top of the flex-growing viewport; the margin matches the Overview
+	// tab's 24px gutter.
+	&__notice {
+		margin: 24px 24px 0;
+	}
+
 	&__viewport {
 		display: flex;
 		flex-direction: column;

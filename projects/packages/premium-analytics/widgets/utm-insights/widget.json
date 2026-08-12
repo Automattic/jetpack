@@ -1,6 +1,6 @@
 {
 	"name": "jpa/utm-insights",
-	"title": "UTM Insights",
+	"title": "Top UTM",
 	"description": "Traffic breakdown by UTM parameters — source, medium, campaign, and combinations.",
 	"help": {
 		"content": "Your top UTM campaigns, sorted by views.",

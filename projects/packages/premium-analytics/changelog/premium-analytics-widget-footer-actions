@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: restyle the footer actions to match the dashboard design — a "View all" link and an icon-only CSV download.

@@ -25,6 +25,7 @@ const UNTRACKED_AUTHORS_SENTINEL = 'Untracked Authors';
  */
 export interface AuthorPost {
 	id: string;
+	postId?: string | number;
 	title: string;
 	link: string | null;
 	currentValue: number;
@@ -56,15 +57,12 @@ export interface AuthorLeaderboardRow {
 /**
  * Resolve a display label for an author, translating the untracked-authors
  * sentinel (and any empty label) into a localized string.
- *
- * @param author - The merged top-authors row.
- * @return The author's display label.
  */
 function getAuthorLabel( author: StatsTopAuthorsComparisonItem ) {
 	const label = typeof author.label === 'string' ? author.label : '';
 
 	if ( ! label || label === UNTRACKED_AUTHORS_SENTINEL ) {
-		return __( 'Untracked authors', 'jetpack-premium-analytics' );
+		return __( 'Untracked authors', 'jetpack-premium-analytics-pkg' );
 	}
 
 	return label;
@@ -74,9 +72,6 @@ function getAuthorLabel( author: StatsTopAuthorsComparisonItem ) {
  * Map an author's merged posts (aligned across periods by the Stats data
  * layer, including posts that only existed in the comparison period) onto the
  * drill-down row shape.
- *
- * @param posts - The author's merged posts.
- * @return The author's drill-down rows.
  */
 function toAuthorPostRows( posts: StatsTopAuthorsPostComparisonItem[] ): AuthorPost[] {
 	const maxValue = getCombinedPeriodMax(
@@ -89,6 +84,7 @@ function toAuthorPostRows( posts: StatsTopAuthorsPostComparisonItem[] ): AuthorP
 
 		return {
 			id: post.id != null ? String( post.id ) : post.link ?? `post-${ index }`,
+			postId: post.id ?? undefined,
 			title: typeof post.label === 'string' ? post.label : String( post.label ?? '' ),
 			link: post.link ?? null,
 			currentValue: post.views,
@@ -110,9 +106,6 @@ function toAuthorPostRows( posts: StatsTopAuthorsPostComparisonItem[] ): AuthorP
  * layer can show a name + picture label and drill down into the author's
  * posts; rows without a comparison match keep `previousValue`, `previousShare`,
  * and `delta` as `undefined`.
- *
- * @param authors - Merged top-authors rows from the Stats data layer.
- * @return Normalized author rows ready for the render layer.
  */
 export function buildTopAuthorsData(
 	authors: StatsTopAuthorsComparisonItem[] = []

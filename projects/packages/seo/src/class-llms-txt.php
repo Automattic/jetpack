@@ -81,7 +81,7 @@ class Llms_Txt {
 		 * intercept root-level paths before WordPress runs can return false to
 		 * surface the honest "can't take effect" state in the SEO dashboard.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.7.0
 		 *
 		 * @param bool $can_serve Whether WordPress can serve `/llms.txt`.
 		 */

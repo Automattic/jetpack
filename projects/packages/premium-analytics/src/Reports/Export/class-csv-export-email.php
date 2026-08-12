@@ -30,7 +30,7 @@ if ( ! class_exists( 'WC_Email', false ) && function_exists( 'WC' ) ) {
 /**
  * CSV Export Email class.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 
@@ -63,21 +63,18 @@ class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 	 */
 	public function __construct( ?Logger_Interface $logger = null ) {
 		$this->id             = 'csv_export_ready';
-		$this->title          = __( 'CSV Export Ready', 'jetpack-premium-analytics' );
-		$this->description    = __( 'Email sent, with the CSV attached, when a report export is ready.', 'jetpack-premium-analytics' );
+		$this->title          = __( 'CSV Export Ready', 'jetpack-premium-analytics-pkg' );
+		$this->description    = __( 'Email sent, with the CSV attached, when a report export is ready.', 'jetpack-premium-analytics-pkg' );
 		$this->template_html  = 'csv-export-email.php';
 		$this->template_plain = 'csv-export-email-plain.php';
 		$this->template_base  = __DIR__ . '/templates/';
 
-		// Call parent constructor.
 		parent::__construct();
 
-		// Set logger.
 		if ( null !== $logger ) {
 			$this->logger = $logger;
 		}
 
-		// Other settings.
 		$this->recipient = $this->get_option( 'recipient', get_option( 'admin_email' ) );
 	}
 
@@ -98,7 +95,7 @@ class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 	 * @return string
 	 */
 	public function get_default_subject(): string {
-		return __( 'Your export is ready!', 'jetpack-premium-analytics' );
+		return __( 'Your export is ready!', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -107,7 +104,7 @@ class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 	 * @return string
 	 */
 	public function get_default_heading(): string {
-		return __( 'Your export is ready!', 'jetpack-premium-analytics' );
+		return __( 'Your export is ready!', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -119,7 +116,7 @@ class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 		if ( ! empty( $this->report_label ) ) {
 			return sprintf(
 				/* translators: %s: Report name */
-				__( 'Your %s export is ready!', 'jetpack-premium-analytics' ),
+				__( 'Your %s export is ready!', 'jetpack-premium-analytics-pkg' ),
 				$this->report_label
 			);
 		}
@@ -135,7 +132,7 @@ class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 		if ( ! empty( $this->report_label ) ) {
 			return sprintf(
 				/* translators: %s: Report name */
-				__( 'Your %s export is ready!', 'jetpack-premium-analytics' ),
+				__( 'Your %s export is ready!', 'jetpack-premium-analytics-pkg' ),
 				$this->report_label
 			);
 		}
@@ -157,10 +154,9 @@ class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 		array $params,
 		string $file_path
 	): bool {
-		// Set recipient.
 		$this->recipient = $recipient;
 
-		// Store data for template.
+		// Read back by get_content_html() / get_content_plain() when rendering the template.
 		$this->report_label = $report_label;
 		$this->params       = $params;
 
@@ -179,7 +175,6 @@ class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 
 		$attachments = array( $file_path );
 
-		// Send email.
 		$sent = $this->send(
 			$this->get_recipient(),
 			$this->get_subject(),
@@ -188,12 +183,10 @@ class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 			$attachments
 		);
 
-		// Simply return if no logger available.
 		if ( null === $this->logger ) {
 			return $sent;
 		}
 
-		// Log the result.
 		if ( $sent ) {
 			$this->logger->log_message(
 				sprintf( 'Export email sent to: %s', $recipient ),

@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { desktop } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -29,25 +29,25 @@ export type TopPlatformsAttributes = {
  * so the widget host renders its control.
  */
 export default {
-	icon: chartBar,
+	icon: desktop,
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 		{
 			id: 'platformDimension',
-			label: __( 'View by', 'jetpack-premium-analytics' ),
+			label: __( 'View by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Browser', 'jetpack-premium-analytics' ),
+					label: __( 'Browser', 'jetpack-premium-analytics-pkg' ),
 					value: 'browser',
 				},
 				{
-					label: __( 'OS', 'jetpack-premium-analytics' ),
+					label: __( 'OS', 'jetpack-premium-analytics-pkg' ),
 					value: 'platform',
 				},
 			],

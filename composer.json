@@ -112,6 +112,13 @@
 		"sort-packages": true,
 		"allow-plugins": {
 			"dealerdirect/phpcodesniffer-composer-installer": true
+		},
+		"policy": {
+			"advisories": {
+				"ignore-id": [
+					"PKSA-rdkp-vv9z-mjkg"
+				]
+			}
 		}
 	},
 	"require": {

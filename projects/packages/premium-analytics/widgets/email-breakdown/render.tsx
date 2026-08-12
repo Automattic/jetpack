@@ -47,18 +47,14 @@ const MAP_MIN_WIDTH = 720;
 
 /**
  * Builds the complete country dataset consumed by `GeoChart`.
- *
- * @param rows   - All normalized rows from the country breakdown report.
- * @param metric - Whether the map represents opens or clicks.
- * @return GeoChart header and country rows.
  */
 function buildEmailGeoData( rows: EmailBreakdownRow[], metric: EmailBreakdownMetric ): GeoData {
 	return [
 		[
-			__( 'Country', 'jetpack-premium-analytics' ),
+			__( 'Country', 'jetpack-premium-analytics-pkg' ),
 			metric === 'clicks'
-				? __( 'Clicks', 'jetpack-premium-analytics' )
-				: __( 'Opens', 'jetpack-premium-analytics' ),
+				? __( 'Clicks', 'jetpack-premium-analytics-pkg' )
+				: __( 'Opens', 'jetpack-premium-analytics-pkg' ),
 		],
 		...rows
 			.filter( row => Boolean( row.countryCode ) )
@@ -74,10 +70,6 @@ function buildEmailGeoData( rows: EmailBreakdownRow[], metric: EmailBreakdownMet
  *
  * The `countries` view renders a flag next to each label; the `links` view
  * renders each row as an external link; other views render a plain label.
- *
- * @param rows - The normalized breakdown rows.
- * @param view - The active breakdown view.
- * @return The leaderboard chart data.
  */
 function buildLeaderboardData(
 	rows: EmailBreakdownRow[],
@@ -117,21 +109,18 @@ function buildLeaderboardData(
 /**
  * The per-view empty-state copy shown when the selected email has no data for
  * the active breakdown.
- *
- * @param view - The active breakdown view.
- * @return The empty-state text.
  */
 function emptyStateText( view: EmailBreakdownView ): string {
 	switch ( view ) {
 		case 'devices':
-			return __( 'No device data for this email yet.', 'jetpack-premium-analytics' );
+			return __( 'No device data for this email yet.', 'jetpack-premium-analytics-pkg' );
 		case 'clients':
-			return __( 'No email client data for this email yet.', 'jetpack-premium-analytics' );
+			return __( 'No email client data for this email yet.', 'jetpack-premium-analytics-pkg' );
 		case 'links':
-			return __( 'No link clicks for this email yet.', 'jetpack-premium-analytics' );
+			return __( 'No link clicks for this email yet.', 'jetpack-premium-analytics-pkg' );
 		case 'countries':
 		default:
-			return __( 'No country data for this email yet.', 'jetpack-premium-analytics' );
+			return __( 'No country data for this email yet.', 'jetpack-premium-analytics-pkg' );
 	}
 }
 
@@ -187,9 +176,6 @@ type EmailBreakdownLeaderboardProps = {
  * Storybook can exercise those states with fixture rows (there is no analytics
  * backend in Storybook, so the data-connected entry point would only ever show
  * chrome).
- *
- * @param {EmailBreakdownLeaderboardProps} props - The component props.
- * @return The rendered leaderboard.
  */
 export const EmailBreakdownLeaderboard = ( {
 	rows = [],
@@ -230,17 +216,17 @@ export const EmailBreakdownLeaderboard = ( {
 				error={ {
 					description: __(
 						"We couldn't load this email's breakdown. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					actions: onRetry
-						? [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: onRetry } ]
+						? [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: onRetry } ]
 						: undefined,
 				} }
 				empty={ {
 					icon: envelope,
 					description: hasEmail
 						? emptyStateText( view )
-						: __( 'Select an email to see its breakdown.', 'jetpack-premium-analytics' ),
+						: __( 'Select an email to see its breakdown.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<div className={ renderMap ? styles.locationContent : styles.content }>
@@ -275,9 +261,6 @@ type EmailBreakdownReportProps = {
  * then hands them to the presentational `EmailBreakdownLeaderboard`. The email
  * is scoped by the host through `reportParams.post_id` — the shared
  * single-resource "detail page" param — so the widget needs no id attribute.
- *
- * @param {EmailBreakdownReportProps} props - The component props.
- * @return The widget content.
  */
 function EmailBreakdownReport( { view, metric, max, showMap }: EmailBreakdownReportProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -307,8 +290,6 @@ function EmailBreakdownReport( { view, metric, max, showMap }: EmailBreakdownRep
 }
 
 /**
- * Widget render entry point.
- *
  * The breakdown is scoped to a single email by the host through
  * `reportParams.post_id` (the shared single-resource "detail page" param); the
  * `view` attribute (`relevance: 'high'`) is exposed as a control by the widget
@@ -316,9 +297,6 @@ function EmailBreakdownReport( { view, metric, max, showMap }: EmailBreakdownRep
  * The endpoints report across the whole lifetime of the email, so the date range
  * and comparison period are ignored — `reportParams` is passed into `WidgetRoot`,
  * which exposes it to the inner report, but only `post_id` is read from it.
- *
- * @param {EmailBreakdownWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function EmailBreakdown( { attributes = {} }: EmailBreakdownWidgetProps ) {
 	const view = attributes.view ?? 'countries';

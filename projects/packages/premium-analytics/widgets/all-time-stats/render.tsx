@@ -68,9 +68,6 @@ type AllTimeStatsTile = {
  * appear is controlled by the `metrics` attribute; fields absent from the
  * response are skipped. There is no comparison period for this module, so each
  * value renders as a bare number.
- *
- * @param {AllTimeStatsMetricId[]} metrics - Enabled metric row ids.
- * @return The widget content.
  */
 function AllTimeStatsReport( {
 	metrics = DEFAULT_ALL_TIME_STATS_METRICS,
@@ -116,9 +113,9 @@ function AllTimeStatsReport( {
 				error={ {
 					description: __(
 						"We couldn't load all-time stats. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: trendingUp,
@@ -126,8 +123,8 @@ function AllTimeStatsReport( {
 					// data — prompt to pick one rather than implying there are no stats.
 					description:
 						enabledMetrics.length === 0
-							? __( 'Select at least one metric to display.', 'jetpack-premium-analytics' )
-							: __( 'No stats recorded yet.', 'jetpack-premium-analytics' ),
+							? __( 'Select at least one metric to display.', 'jetpack-premium-analytics-pkg' )
+							: __( 'No stats recorded yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
@@ -137,15 +134,10 @@ function AllTimeStatsReport( {
 }
 
 /**
- * Widget render entry point.
- *
  * WidgetRoot provides the analytics query client and chart theme the inner
  * report needs. This widget is all-time, so it does not read the dashboard date
  * range; report params still flow into WidgetRoot for parity with the other
  * Stats widgets.
- *
- * @param {AllTimeStatsWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function AllTimeStats( { attributes = {} }: AllTimeStatsWidgetProps ) {
 	return (

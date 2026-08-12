@@ -18,7 +18,7 @@ import {
 import { search } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -32,9 +32,6 @@ type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes >;
 
 /**
  * Search Terms widget inner component. Reads report params from WidgetRoot context.
- *
- * @param {SearchTermsAttributes} attributes - The widget attributes.
- * @return The rendered widget content.
  */
 function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 	const { reportParams } = useWidgetRootContext();
@@ -87,13 +84,13 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 					error={ describeError( error, {
 						retryDescription: __(
 							"We couldn't load search terms. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 						onRetry: refetch,
 					} ) }
 					empty={ {
 						icon: search,
-						description: __( 'No search terms in this period.', 'jetpack-premium-analytics' ),
+						description: __( 'No search terms in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
 				>
 					<LeaderboardChart
@@ -118,9 +115,6 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 /**
  * Search Terms widget: the top search queries visitors used to reach the site,
  * ranked by view count. Ported from the Jetpack Stats "Search Terms" module.
- *
- * @param {SearchTermsWidgetProps} props - The widget render props.
- * @return The rendered Search Terms widget.
  */
 export default function SearchTerms( { attributes = {} }: SearchTermsWidgetProps ) {
 	return (

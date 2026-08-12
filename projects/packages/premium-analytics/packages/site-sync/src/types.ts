@@ -33,9 +33,6 @@ export type SyncStatus = {
 	hasStoreData: boolean;
 };
 
-/**
- * Return type for the useSyncStatus hook.
- */
 export type UseSyncStatusReturn = {
 	data: SyncStatus | undefined;
 	error: Error | null;

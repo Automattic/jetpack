@@ -18,7 +18,7 @@ class Help_Center {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.0';
+	const PACKAGE_VERSION = '0.3.2';
 
 	/**
 	 * Class instance.
@@ -33,6 +33,20 @@ class Help_Center {
 	 * @var Wpcom_Request_Client
 	 */
 	private $wpcom_request_client;
+
+	/**
+	 * Bot slug for new interactions.
+	 *
+	 * @var string|null
+	 */
+	private $new_interactions_bot_slug;
+
+	/**
+	 * Bot slug for new logged-out interactions.
+	 *
+	 * @var string|null
+	 */
+	private $new_logged_out_interactions_bot_slug;
 
 	/**
 	 * Whether the current site is a support site.
@@ -58,10 +72,14 @@ class Help_Center {
 	/**
 	 * Help_Center constructor.
 	 *
-	 * @param Wpcom_Request_Client|null $wpcom_request_client WP.com request client.
+	 * @param Wpcom_Request_Client|null $wpcom_request_client                 WP.com request client.
+	 * @param string|null               $new_interactions_bot_slug            Bot slug for new interactions.
+	 * @param string|null               $new_logged_out_interactions_bot_slug Bot slug for new logged-out interactions.
 	 */
-	public function __construct( ?Wpcom_Request_Client $wpcom_request_client = null ) {
-		$this->wpcom_request_client = $wpcom_request_client ?? new Jetpack_Wpcom_Request_Client();
+	public function __construct( ?Wpcom_Request_Client $wpcom_request_client = null, ?string $new_interactions_bot_slug = null, ?string $new_logged_out_interactions_bot_slug = null ) {
+		$this->wpcom_request_client                 = $wpcom_request_client ?? new Jetpack_Wpcom_Request_Client();
+		$this->new_interactions_bot_slug            = $new_interactions_bot_slug;
+		$this->new_logged_out_interactions_bot_slug = $new_logged_out_interactions_bot_slug;
 
 		if ( function_exists( 'wpcom_get_site_purchases' ) ) {
 			$this->purchases = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
@@ -177,10 +195,12 @@ class Help_Center {
 	/**
 	 * Creates instance.
 	 *
-	 * @param Wpcom_Request_Client|null $wpcom_request_client WP.com request client.
+	 * @param Wpcom_Request_Client|null $wpcom_request_client                 WP.com request client.
+	 * @param string|null               $new_interactions_bot_slug            Bot slug for new interactions.
+	 * @param string|null               $new_logged_out_interactions_bot_slug Bot slug for new logged-out interactions.
 	 * @return self|null
 	 */
-	public static function init( ?Wpcom_Request_Client $wpcom_request_client = null ) {
+	public static function init( ?Wpcom_Request_Client $wpcom_request_client = null, ?string $new_interactions_bot_slug = null, ?string $new_logged_out_interactions_bot_slug = null ) {
 		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 
 		if ( str_contains( $request_uri, 'wp-content/plugins/gutenberg-core' ) || str_contains( $request_uri, 'preview=true' ) ) {
@@ -208,7 +228,7 @@ class Help_Center {
 				}
 			}
 
-			self::$instance = new self( $wpcom_request_client );
+			self::$instance = new self( $wpcom_request_client, $new_interactions_bot_slug, $new_logged_out_interactions_bot_slug );
 		}
 
 		return self::$instance;
@@ -369,7 +389,7 @@ class Help_Center {
 			$result = $experiment_variation === \ExPlat\assign_current_user( $experiment_name );
 		} elseif ( $this->wpcom_request_client->is_user_connected() ) {
 			$request_path = '/experiments/0.1.0/assignments/calypso';
-			$response     = $this->wpcom_request_client->request_as_user(
+			$response     = $this->wpcom_request_client->request(
 				add_query_arg( array( 'experiment_name' => $experiment_name ), $request_path ),
 				'v2'
 			);
@@ -493,6 +513,14 @@ class Help_Center {
 			'site'             => $this->get_current_site(),
 			'locale'           => self::determine_iso_639_locale(),
 		);
+
+		if ( null !== $this->new_interactions_bot_slug ) {
+			$data['newInteractionsBotSlug'] = $this->new_interactions_bot_slug;
+		}
+
+		if ( null !== $this->new_logged_out_interactions_bot_slug ) {
+			$data['newLoggedOutInteractionsBotSlug'] = $this->new_logged_out_interactions_bot_slug;
+		}
 
 		return array_replace( $data, $overrides );
 	}
@@ -650,7 +678,7 @@ class Help_Center {
 	private static function get_assets_json( $filepath ) {
 		$accessible_directly = file_exists( ABSPATH . '/' . $filepath );
 		if ( $accessible_directly ) {
-			return json_decode( file_get_contents( ABSPATH . $filepath ), true );
+			return json_decode( file_get_contents( ABSPATH . '/' . $filepath ), true );
 		}
 		$request = wp_remote_get( 'https://' . $filepath );
 		if ( is_wp_error( $request ) ) {
@@ -672,9 +700,9 @@ class Help_Center {
 		$cache_key  = 'help-center-asset-' . $variant . '.asset.json';
 		$asset_file = get_transient( $cache_key );
 
-		if ( ! $asset_file ) {
+		if ( false === $asset_file ) {
 			$asset_file = self::get_assets_json( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
-			if ( ! $asset_file ) {
+			if ( null === $asset_file ) {
 				return;
 			}
 			set_transient( $cache_key, $asset_file, HOUR_IN_SECONDS );
@@ -708,23 +736,38 @@ class Help_Center {
 		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
 		$is_p2          = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );
 
+		/**
+		 * Filters whether to load the logged-out Help Center bundle on the current frontend request.
+		 *
+		 * Consumers can use this filter to opt public-facing surfaces into the
+		 * Help Center without taking ownership of its asset-loading logic.
+		 *
+		 * @since 0.2.0
+		 *
+		 * @param bool $should_load Whether to load the logged-out Help Center bundle.
+		 */
+		$should_load_logged_out = ! is_admin()
+			&& (bool) apply_filters( 'jetpack_help_center_should_load_logged_out', false );
+
 		// We will show the help center icon in the admin bar when;
 		// 1. On wp-admin
 		// 2. On the front end of the site if the current user can edit posts
 		// 3. On the front end of the site and the theme is not P2
 		// 4. If it is the frontend we show the disconnected version of the help center.
-		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) && ! $this->is_support_site ) {
+		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) && ! $this->is_support_site && ! $should_load_logged_out ) {
 			return;
 		}
 
 		// Do not load Help Center for logged-out users if we are not on support sites.
-		if ( ! is_user_logged_in() && ! $this->is_support_site ) {
+		if ( ! is_user_logged_in() && ! $this->is_support_site && ! $should_load_logged_out ) {
 			return;
 		}
 
 		$suffix = $this->is_jetpack_disconnected() ? '-disconnected' : '';
 
-		if ( $this->is_support_site ) {
+		if ( $should_load_logged_out ) {
+			$variant = 'logged-out';
+		} elseif ( $this->is_support_site ) {
 			if ( ! is_user_logged_in() ) {
 				$variant = 'logged-out';
 			} else {
@@ -739,9 +782,9 @@ class Help_Center {
 		$cache_key  = 'help-center-asset-' . $variant . '.asset.json';
 		$asset_file = get_transient( $cache_key );
 
-		if ( ! $asset_file ) {
+		if ( false === $asset_file ) {
 			$asset_file = self::get_assets_json( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
-			if ( ! $asset_file ) {
+			if ( null === $asset_file ) {
 				return;
 			}
 			set_transient( $cache_key, $asset_file, HOUR_IN_SECONDS );

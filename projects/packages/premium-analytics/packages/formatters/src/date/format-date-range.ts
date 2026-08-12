@@ -1,55 +1,86 @@
 /**
+ * External dependencies
+ */
+import { __, sprintf } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
+import { elideRange, type RangeFormatName } from './elide-range';
 import { formatDate } from './format-date';
+import type { DateRange } from './types';
 
 /**
- * A date range with optional start and end.
+ * Format a date range in one of the forms `elideRange` can elide.
  *
- * Defined locally to avoid a cross-package import on
- * `@jetpack-premium-analytics/datetime` (which exports an identical
- * `DateRange` type). Switch to that import once the sibling-package
- * `link:` wiring is settled.
+ * @param name  - The form to render in.
+ * @param range - The range to format.
+ * @return The formatted range.
  */
-type DateRange = { from?: Date; to?: Date };
-
-/**
- * Format a date range into a human-readable string.
- * Adjusts output based on whether dates share the same day, month, or year.
- * Returns `''` when `range`, `from`, or `to` is missing.
- *
- * @example
- * formatDateRange( { from, to } ) // same day:    'Jun 21, 2025'
- *                                  // same month:  'Jun 21-25, 2025'
- *                                  // same year:   'Jun 21-Jul 25, 2025'
- *                                  // cross-year:  'Jun 21, 2024-Jul 25, 2025'
- */
-export const formatDateRange = ( range?: DateRange ): string => {
-	if ( ! range ) {
-		return '';
-	}
-
-	const { from, to } = range;
+const formatRange = ( name: RangeFormatName, range?: DateRange ): string => {
+	const { from, to } = range ?? {};
 
 	if ( ! from || ! to ) {
 		return '';
 	}
 
-	const sameYear = from.getFullYear() === to.getFullYear();
-	const sameMonth = sameYear && from.getMonth() === to.getMonth();
-	const sameDay = sameMonth && from.getDate() === to.getDate();
-
-	if ( sameDay ) {
-		return formatDate( from, 'medium' );
+	// Compare complete site-local dates because the display format may omit the year.
+	if ( formatDate( from, 'iso' ) === formatDate( to, 'iso' ) ) {
+		return formatDate( from, name );
 	}
 
-	if ( sameMonth ) {
-		return `${ formatDate( from, 'short' ) }-${ formatDate( to, 'd, yyyy' ) }`;
-	}
-
-	if ( sameYear ) {
-		return `${ formatDate( from, 'short' ) }-${ formatDate( to ) }`;
-	}
-
-	return `${ formatDate( from ) }-${ formatDate( to ) }`;
+	return (
+		elideRange( from, to, name ) ??
+		sprintf(
+			/* translators: 1: Start date. 2: End date. */
+			__( '%1$s – %2$s', 'jetpack-premium-analytics-pkg' ),
+			formatDate( from, name ),
+			formatDate( to, name )
+		)
+	);
 };
+
+/**
+ * Format a date range into a human-readable string.
+ *
+ * A shared month or year is elided where the site's locale has a rule for it —
+ * see `elideRange`, which borrows those rules from CLDR rather than inventing
+ * them. Eliding by hand is not an option: "Jun 21-25, 2025" is an English
+ * typographic convention that, applied to a Spanish site, yields
+ * "21 de junio-25 de junio de 2025". Where no rule can be trusted — a custom
+ * `date_format`, or a locale whose ranges do not read like its single dates —
+ * both ends are spelled out in full instead.
+ *
+ * Returns `''` when `range`, `from`, or `to` is missing.
+ *
+ * @param range - The range to format.
+ * @return The formatted range.
+ *
+ * @example
+ * formatDateRange( { from, to } ) // same day:  'June 21, 2025'
+ *                                 // elided:    'June 21 – 25, 2025'
+ *                                 // spelt out: 'June 21, 2025 – June 25, 2025'
+ */
+export const formatDateRange = ( range?: DateRange ): string => formatRange( 'medium', range );
+
+/**
+ * Format a date range with the month abbreviated.
+ *
+ * For controls sized by the row they sit in rather than by their content, where
+ * a spelled-out month costs width the row does not have. Everything else
+ * follows `formatDateRange`, including the elision, so the two stay one
+ * typographic system.
+ *
+ * The abbreviation comes from WordPress's translation tables, so a locale that
+ * does not shorten its month names is left with the full form and simply reads
+ * the same as `formatDateRange`.
+ *
+ * @param range - The range to format.
+ * @return The formatted range.
+ *
+ * @example
+ * formatDateRangeCompact( { from, to } ) // same day:  'Jun 21, 2025'
+ *                                        // elided:    'Jun 21 – 25, 2025'
+ *                                        // spelt out: 'Jun 21, 2025 – Jun 25, 2025'
+ */
+export const formatDateRangeCompact = ( range?: DateRange ): string =>
+	formatRange( 'compact', range );

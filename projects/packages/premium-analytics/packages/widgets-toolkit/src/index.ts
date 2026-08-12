@@ -8,6 +8,9 @@ export {
 	MetricWithComparison,
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
+	ComparativeBarChart,
+	type ComparativeBarChartProps,
+	type ComparativeBarChartSeries,
 	DonutChart,
 	Legend,
 	ReportMetricWidget,
@@ -15,6 +18,7 @@ export {
 	type MetricTab,
 	type MetricTabDatum,
 	type MetricTabsChartProps,
+	type MetricTabsChartType,
 	WidgetRoot,
 	WidgetRootContext,
 	useWidgetRootContext,
@@ -36,11 +40,15 @@ export {
 	type LeaderboardRowChartProps,
 	type LeaderboardRowMedia,
 	type LeaderboardRowProps,
+	type LeaderboardRowVariant,
 	BarChart,
 	type BarChartProps,
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
+	AdaptiveCalendarHeatmap,
+	type AdaptiveCalendarHeatmapChartProps,
+	type AdaptiveCalendarHeatmapProps,
 	ChartEmptyState,
 	type ChartEmptyStateProps,
 	WidgetState,
@@ -53,6 +61,17 @@ export {
 	type WidgetFooterProps,
 	ReportLink,
 	type ReportLinkProps,
+	PostTitleLink,
+	POST_URL_SEARCH_PARAM,
+	type PostTitleLinkProps,
+	PostDetailLink,
+	type PostDetailLinkProps,
+	LeaderboardPostLabel,
+	type LeaderboardPostLabelProps,
+	type LeaderboardPostLabelVariant,
+	PostHighlightCard,
+	type PostHighlightCardMetric,
+	type PostHighlightCardProps,
 	VideoTitleLink,
 	type VideoTitleLinkProps,
 	SubscriberList,
@@ -82,7 +101,8 @@ export {
 	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
-	isCsvExportEnabled,
+	ReportCsvAction,
+	type ReportCsvActionProps,
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
 	RowsCsvDownloadButton,
@@ -143,6 +163,15 @@ export {
 	toDay,
 	defaultPeriodForInterval,
 	buildMetricTab,
+	withoutComparison,
+	computeCalendarHeatmapLayout,
+	buildDenseDaySeries,
+	resolveCalendarHeatmapWindow,
+	resolveCalendarHeatmapWindowDays,
+	type CalendarHeatmapLayout,
+	type CalendarHeatmapLayoutInput,
+	type CalendarHeatmapWindow,
+	type CalendarHeatmapWindowBounds,
 } from './helpers';
 
 /**
@@ -155,8 +184,8 @@ export {
 	type ElementSize,
 	useSegmentStyles,
 	useSeriesStyles,
+	useViewportWidth,
 	useWidgetDrillDown,
-	usePostDetailHrefBuilder,
 } from './hooks';
 
 /**
@@ -198,20 +227,24 @@ export type { MetricKey, OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat
  *
  * Widgets must import chart components from here, never from
  * `@automattic/charts` directly: the toolkit is a shared script module, so
- * charts is bundled once instead of once per widget.
+ * charts is bundled once instead of once per widget. The toolkit itself takes
+ * charts from `@jetpack-premium-analytics/externals`, which is where the
+ * library is actually compiled in.
  */
 export {
 	GeoChart,
 	GlobalChartsProvider,
 	HeatmapChart,
 	HeatmapChartUnresponsive,
+	Sparkline,
 	buildCalendarHeatmapData,
 	type DataPointDate,
 	type GeoChartError,
 	type GeoData,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
-} from '@automattic/charts';
+	type HeatmapTooltipData,
+} from '@jetpack-premium-analytics/externals';
 
 /**
  * UI passthrough

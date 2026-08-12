@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { useReportCustomersByDate } from '@jetpack-premium-analytics/data';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { customer } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import { useMemo } from 'react';
 import { DonutChart, WidgetState } from '../../components';
 /**
@@ -16,19 +16,10 @@ import { useSegmentStyles } from '../common';
 import styles from '../common/donut-widget.module.scss';
 
 /**
- * New vs Returning Customer Widget Component
- *
  * Displays a donut chart showing the breakdown of unique customers
  * by type (new vs returning) over the selected time period.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <NewVsReturningCustomerWidget />
- * </WidgetRoot>
- * ```
  */
 export function NewVsReturningCustomerWidget() {
 	const { reportParams } = useWidgetRootContext();
@@ -55,13 +46,13 @@ export function NewVsReturningCustomerWidget() {
 			error={ {
 				description: __(
 					"We couldn't load customer data. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: customer,
-				description: __( 'No customer data in this period.', 'jetpack-premium-analytics' ),
+				description: __( 'No customer data in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">

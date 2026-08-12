@@ -27,8 +27,8 @@ const DEFAULT_TAB_ID: ReportPostsTabId = 'posts-pages';
  */
 const reportPostsTabs = defineReportTabs< ReportPostsTabId >(
 	[
-		{ id: 'posts-pages', getLabel: () => __( 'Posts & Pages', 'jetpack-premium-analytics' ) },
-		{ id: 'archives', getLabel: () => __( 'Archives', 'jetpack-premium-analytics' ) },
+		{ id: 'posts-pages', getLabel: () => __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' ) },
+		{ id: 'archives', getLabel: () => __( 'Archives', 'jetpack-premium-analytics-pkg' ) },
 	],
 	DEFAULT_TAB_ID
 );
@@ -39,8 +39,7 @@ const reportPostsTabs = defineReportTabs< ReportPostsTabId >(
 export const getTabLabel = reportPostsTabs.getTabLabel;
 
 /**
- * Build the ordered list of tab definitions ({ id, label }), with labels
- * resolved lazily so translations apply after the locale data has loaded.
+ * Build the ordered list of tab definitions ({ id, label }).
  */
 export const getReportPostsTabs = reportPostsTabs.getTabs;
 

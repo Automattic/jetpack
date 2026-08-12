@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { type ReportQueryParams } from '@jetpack-premium-analytics/data';
+import { resolveIntervalForRange, type ReportQueryParams } from '@jetpack-premium-analytics/data';
 import {
 	isSelectablePreset,
 	type ComparisonPresetId,
@@ -18,7 +18,6 @@ import { encodeDateToSearchParam } from '../../search/date-range';
 /**
  * The report search params the date filters read and stage.
  */
-
 export type ReportQuerySearchParams = Partial<
 	ReportQueryParams & {
 		preset?: PrimaryPresetId;
@@ -28,9 +27,6 @@ export type ReportQuerySearchParams = Partial<
 >;
 
 type BuildRangePatchArgs = {
-	/**
-	 * The next primary range, when the change includes one.
-	 */
 	nextRange?: DateRange;
 
 	/**
@@ -40,13 +36,16 @@ type BuildRangePatchArgs = {
 
 	/**
 	 * The current effective search params, used to re-derive the comparison
-	 * range when comparison is enabled.
+	 * range and to resolve the interval for the next range.
 	 */
 	effective: ReportQuerySearchParams;
 };
 
 /**
  * Builds the search-param patch to stage for a date-range change.
+ *
+ * When the change carries a range, the patch also stages an interval valid
+ * for it.
  *
  * @param {BuildRangePatchArgs} args - The change and the current search state.
  * @return The patch to stage, or null when there is nothing to stage.
@@ -72,7 +71,20 @@ export function buildRangePatch( {
 		patch.from = rangeFrom;
 		patch.to = rangeTo;
 
-		if ( effective.comp === '1' ) {
+		/*
+		 * The interval carries across the change and the new range's rules
+		 * decide: a bucket it still allows survives, one it does not coerces to
+		 * the finest allowed.
+		 */
+		patch.interval = resolveIntervalForRange(
+			nextPresetId,
+			rangeFrom,
+			rangeTo,
+			effective.interval
+		);
+
+		// Loose `comp` check: an unquoted URL delivers number 1, not '1'.
+		if ( String( effective.comp ) === '1' ) {
 			const derived = deriveComparisonRange( { ...effective, from: rangeFrom, to: rangeTo } );
 			if ( derived ) {
 				patch.compare_from = derived.compare_from;

@@ -8,10 +8,10 @@ import {
 	type PrimaryPresetId,
 	type YearSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
+import { Button, SelectControl } from '@jetpack-premium-analytics/externals';
 import { Composite } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { Button, SelectControl } from '@wordpress/ui';
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -74,9 +74,6 @@ type PillsMeasurement = {
 /**
  * Content-box width of an element, the same box a ResizeObserver reports, so
  * the first read and the observed updates can't disagree on a padded container.
- *
- * @param element - The element to measure.
- * @return The content width in pixels.
  */
 function getContentWidth( element: HTMLElement ): number {
 	const style = getComputedStyle( element );
@@ -221,9 +218,9 @@ export function DateYearFilter( {
 						selectPreset( item.value );
 					}
 				} }
-				label={ __( 'Time period', 'jetpack-premium-analytics' ) }
+				label={ __( 'Time period', 'jetpack-premium-analytics-pkg' ) }
 				hideLabelFromVision
-				placeholder={ __( 'Select period', 'jetpack-premium-analytics' ) }
+				placeholder={ __( 'Select period', 'jetpack-premium-analytics-pkg' ) }
 			/>
 		);
 	}
@@ -237,7 +234,7 @@ export function DateYearFilter( {
 			ref={ measurePills }
 			className="date-year-filter__group"
 			role="toolbar"
-			aria-label={ __( 'Time period', 'jetpack-premium-analytics' ) }
+			aria-label={ __( 'Time period', 'jetpack-premium-analytics-pkg' ) }
 			orientation="horizontal"
 		>
 			{ presets.map( ( { id, label } ) => (

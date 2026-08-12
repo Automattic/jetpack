@@ -45,6 +45,83 @@ export function pickReportDateParams(
 }
 
 /**
+ * The subset of `REPORT_DATE_PARAM_KEYS` that carries the period-over-period
+ * comparison.
+ */
+const COMPARISON_PARAM_KEYS = [ 'comp', 'compare_from', 'compare_to', 'compare_preset' ] as const;
+
+/**
+ * Drop the comparison params from a search object, keeping everything else.
+ *
+ * Detail pages have no period-over-period comparison by design. The params
+ * stay in the URL so the breadcrumb round trip preserves the dashboard's
+ * comparison state, but the page strips them from the `reportParams` it
+ * injects into its widgets, so no widget can render comparison data — the
+ * page-wide invariant holds by construction instead of relying on every
+ * widget to ignore them.
+ *
+ * @param search - The current route search params.
+ * @return A new object without the comparison params.
+ */
+export function omitComparisonReportParams(
+	search: Record< string, unknown > | undefined
+): Record< string, unknown > {
+	if ( ! search ) {
+		return {};
+	}
+
+	const stripped: Record< string, unknown > = { ...search };
+	for ( const key of COMPARISON_PARAM_KEYS ) {
+		delete stripped[ key ];
+	}
+	return stripped;
+}
+
+/**
+ * Serialize one search value the way the router does.
+ *
+ * The router JSON-parses every search value on read, so a string that itself
+ * parses as JSON (e.g. `comp: '1'`) must be written JSON-quoted (`comp="1"`)
+ * or it comes back as a different type (`comp: 1`) and strict checks like
+ * `comp === '1'` silently fail. Strings that don't parse (dates, presets)
+ * stay raw, matching the router's own stringifier.
+ *
+ * @param value - The search value to serialize.
+ * @return The querystring-ready value.
+ */
+function stringifySearchValue( value: unknown ): string {
+	if ( typeof value === 'string' ) {
+		try {
+			JSON.parse( value );
+			return JSON.stringify( value );
+		} catch {
+			return value;
+		}
+	}
+	return String( value );
+}
+
+/**
+ * Add the shared report-window querystring and any page-specific params to a path.
+ *
+ * @param path        - The path to link to.
+ * @param search      - The current route search params.
+ * @param extraParams - Optional destination-specific query params.
+ * @return The path with its serialized querystring.
+ */
+function buildReportWindowLink(
+	path: string,
+	search: Record< string, unknown > | undefined,
+	extraParams: Record< string, string > = {}
+): string {
+	const params = { ...pickReportDateParams( search ), ...extraParams };
+	const query = new URLSearchParams(
+		Object.entries( params ).map( ( [ key, value ] ) => [ key, stringifySearchValue( value ) ] )
+	).toString();
+	return query ? `${ path }?${ query }` : path;
+}
+
+/**
  * Build the `to` link back to the dashboard, preserving the shared report window.
  *
  * Serializes the date range and comparison (via `pickReportDateParams`) into a
@@ -55,9 +132,25 @@ export function pickReportDateParams(
  * @return A dashboard `to` path (e.g. `/?from=…&to=…`), or `/` when none are set.
  */
 export function buildDashboardLink( search: Record< string, unknown > | undefined ): string {
-	const params = pickReportDateParams( search );
-	const query = new URLSearchParams(
-		Object.entries( params ).map( ( [ key, value ] ) => [ key, String( value ) ] )
-	).toString();
-	return query ? `/?${ query }` : '/';
+	return buildReportWindowLink( '/', search );
+}
+
+/**
+ * Build the `to` link to a report, preserving the shared report window.
+ *
+ * @param reportId - The report registry id.
+ * @param search   - The current route search params.
+ * @param section  - The referring report's validated section.
+ * @return A report `to` path with the shared report-window querystring.
+ */
+export function buildReportLink(
+	reportId: string,
+	search: Record< string, unknown > | undefined,
+	section?: string
+): string {
+	return buildReportWindowLink(
+		`/reports/${ reportId }`,
+		search,
+		section ? { section } : undefined
+	);
 }

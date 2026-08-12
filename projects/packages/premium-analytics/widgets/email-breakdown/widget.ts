@@ -70,40 +70,40 @@ export default {
 	attributes: [
 		{
 			id: 'view',
-			label: __( 'Break down by', 'jetpack-premium-analytics' ),
+			label: __( 'Break down by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Countries', 'jetpack-premium-analytics' ),
+					label: __( 'Countries', 'jetpack-premium-analytics-pkg' ),
 					value: 'countries',
 				},
 				{
-					label: __( 'Devices', 'jetpack-premium-analytics' ),
+					label: __( 'Devices', 'jetpack-premium-analytics-pkg' ),
 					value: 'devices',
 				},
 				{
-					label: __( 'Email clients', 'jetpack-premium-analytics' ),
+					label: __( 'Email clients', 'jetpack-premium-analytics-pkg' ),
 					value: 'clients',
 				},
 				{
-					label: __( 'Links', 'jetpack-premium-analytics' ),
+					label: __( 'Links', 'jetpack-premium-analytics-pkg' ),
 					value: 'links',
 				},
 			],
 		},
 		{
 			id: 'metric',
-			label: __( 'Metric', 'jetpack-premium-analytics' ),
+			label: __( 'Metric', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Opens', 'jetpack-premium-analytics' ),
+					label: __( 'Opens', 'jetpack-premium-analytics-pkg' ),
 					value: 'opens',
 				},
 				{
-					label: __( 'Clicks', 'jetpack-premium-analytics' ),
+					label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ),
 					value: 'clicks',
 				},
 			],
@@ -113,7 +113,7 @@ export default {
 		},
 		{
 			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 	] as WidgetAttributeField< EmailBreakdownAttributes >[],

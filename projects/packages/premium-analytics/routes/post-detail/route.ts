@@ -1,15 +1,17 @@
 /**
  * External dependencies
  */
-import { ensureCoreSettingsReady, normalizeReportParams } from '@jetpack-premium-analytics/data';
-import { store as coreStore } from '@wordpress/core-data';
-import { dispatch, select } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import {
+	ensureCoreSettingsReady,
+	needsReportDateParamsSeed,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
+import { pickReportOriginParams } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { DASHBOARD_REST_NAMESPACE } from '../dashboard/hooks/constants';
+import { ensureDashboardEntities } from '../dashboard-entities';
 import {
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
@@ -70,7 +72,7 @@ export const route = {
 		const resolvedSection = currentSearch.section
 			? resolveTabId( currentSearch.section )
 			: undefined;
-		const needsDateSeed = ! currentSearch.from || ! currentSearch.to || ! currentSearch.interval;
+		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
 		const needsPostSeed = currentSearch.post_id !== postId;
 		const needsSectionSeed = !! currentSearch.section && resolvedSection !== currentSearch.section;
 
@@ -91,13 +93,24 @@ export const route = {
 			// known report-window params, and the path-derived `post_id` is the
 			// single source of scope. This contains any foreign params a link
 			// carried in (e.g. a dashboard `section`) instead of persisting them.
+			// The report origin is part of that allowlist, so the breadcrumb keeps
+			// its link back to the referring report across this seed.
 			const seeded: Record< string, unknown > = {
 				...normalizeReportParams(
 					currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
 				),
+				...pickReportOriginParams( currentSearch ),
 				...( resolvedSection ? { section: resolvedSection } : {} ),
 				post_id: postId,
 			};
+
+			/*
+			 * Comparison params ride along untouched: this page renders no
+			 * comparison (its widgets ignore them), but the breadcrumb's
+			 * dashboard link carries the URL state back out, so stripping them
+			 * here would silently lose the user's comparison settings on a
+			 * Dashboard → Post → Dashboard round trip.
+			 */
 
 			throw redirect( {
 				to: '/post/$postId',
@@ -113,26 +126,6 @@ export const route = {
 			} );
 		}
 
-		const coreSelect = select( coreStore ) as unknown as {
-			getEntityConfig: ( kind: string, name: string ) => unknown;
-		};
-		if ( coreSelect.getEntityConfig( 'root', 'widgetModule' ) ) {
-			return;
-		}
-
-		const coreDispatch = dispatch( coreStore ) as unknown as {
-			addEntities: ( entities: object[] ) => void;
-		};
-		coreDispatch.addEntities( [
-			{
-				name: 'widgetModule',
-				kind: 'root',
-				key: 'name',
-				baseURL: `/${ DASHBOARD_REST_NAMESPACE }/widget-modules`,
-				plural: 'widgetModules',
-				label: __( 'Widget modules', 'jetpack-premium-analytics' ),
-				supportsPagination: false,
-			},
-		] );
+		ensureDashboardEntities();
 	},
 };

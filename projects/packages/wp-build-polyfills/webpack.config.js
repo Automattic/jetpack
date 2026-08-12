@@ -185,6 +185,18 @@ const classicPolyfills = [
 		library: [ 'wp', 'privateApis' ],
 	},
 	{
+		name: 'rich-text',
+		packageName: '@wordpress/rich-text',
+		library: [ 'wp', 'richText' ],
+		// rich-text unlocks `privateApis` from @wordpress/compose at module
+		// scope, and Core versions this polyfill targets ship compose without
+		// that export — externalizing compose would make the polyfill throw
+		// the very "Cannot unlock an undefined object" it exists to fix.
+		// Core's compose does not opt into private-apis at all, so the
+		// bundled copy's opt-in cannot collide with it.
+		bundlePackages: [ '@wordpress/compose' ],
+	},
+	{
 		name: 'theme',
 		packageName: '@wordpress/theme',
 		library: [ 'wp', 'theme' ],
@@ -205,6 +217,7 @@ const modulePolyfills = [
 		// a11y's wpScriptModuleExports points to a separate module entry.
 		subEntry: 'build-module/module/index.mjs',
 	},
+	{ name: 'widget-primitives', packageName: '@wordpress/widget-primitives' },
 ];
 
 // ── IIFE configs (classic scripts) ──────────────────────────────────────────
@@ -230,9 +243,12 @@ const iifeConfigs = classicPolyfills.map( polyfill => ( {
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: {
-				requestMap: {
-					[ polyfill.packageName ]: { external: false },
-				},
+				requestMap: Object.fromEntries(
+					[ polyfill.packageName, ...( polyfill.bundlePackages ?? [] ) ].map( pkg => [
+						pkg,
+						{ external: false },
+					] )
+				),
 			},
 			...disabledPlugins,
 		} ),

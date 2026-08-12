@@ -67,6 +67,20 @@ function is_woocommerce_dashboard_section_available() {
 }
 
 /**
+ * Whether the current user should be shown the WooCommerce dashboard section.
+ *
+ * The sibling is_woocommerce_dashboard_section_available() answers "is
+ * WooCommerce here"; this adds "and may this reader see store data".
+ *
+ * @since 0.1.0
+ *
+ * @return bool
+ */
+function is_woocommerce_dashboard_section_available_to_current_user() {
+	return is_woocommerce_dashboard_section_available() && Capabilities::current_user_can_view_store_reports();
+}
+
+/**
  * Returns the default widget layout for the WooCommerce dashboard section.
  *
  * @return array Array of widget instances.
@@ -85,30 +99,41 @@ function register_default_dashboard_sections() {
 
 	$sections = array(
 		'analytics/traffic'     => array(
-			'label'          => __( 'Traffic', 'jetpack-premium-analytics' ),
+			'label'          => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
+			'title'          => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
+			'description'    => __( 'Views, visitors, and where they came from.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 10,
 			'default_layout' => static function () {
 				return get_dashboard_default_layout_for( 'analytics/traffic' );
 			},
 		),
 		'analytics/insights'    => array(
-			'label'          => __( 'Insights', 'jetpack-premium-analytics' ),
+			'label'          => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
+			'title'          => __( 'Activity insights', 'jetpack-premium-analytics-pkg' ),
+			'description'    => __( 'Longer-term patterns in your content and audience.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 20,
+			// Insights reads whole history, so it offers all time and single
+			// years instead of the rolling date-range picker.
+			'date_filter'    => Dashboard_Section::DATE_FILTER_YEAR,
 			'default_layout' => static function () {
 				return get_dashboard_default_layout_for( 'analytics/insights' );
 			},
 		),
 		'analytics/subscribers' => array(
-			'label'          => __( 'Subscribers', 'jetpack-premium-analytics' ),
+			'label'          => __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
+			'title'          => __( 'Subscribers stats', 'jetpack-premium-analytics-pkg' ),
+			'description'    => __( 'How your subscriber list is growing, and how your emails land.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 30,
 			'default_layout' => static function () {
 				return get_dashboard_default_layout_for( 'analytics/subscribers' );
 			},
 		),
+		// Store registers no heading of its own, so it falls back to the label.
 		'woocommerce/store'     => array(
-			'label'          => __( 'Store', 'jetpack-premium-analytics' ),
+			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
+			'description'    => __( 'Sales, orders, and what your customers are buying.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 40,
-			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available',
+			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available_to_current_user',
 			'default_layout' => __NAMESPACE__ . '\\get_woocommerce_dashboard_section_default_layout',
 		),
 	);
@@ -139,7 +164,7 @@ function bootstrap_dashboard_sections() {
  * @return bool
  */
 function check_dashboard_sections_permission() {
-	return current_user_can( 'manage_options' );
+	return Capabilities::current_user_can_view_analytics();
 }
 
 /**
@@ -155,7 +180,7 @@ function get_available_dashboard_section_for_route( $dashboard_name, $section_id
 	if ( ! $section ) {
 		return new \WP_Error(
 			'dashboard_section_not_found',
-			__( 'Dashboard section not found.', 'jetpack-premium-analytics' ),
+			__( 'Dashboard section not found.', 'jetpack-premium-analytics-pkg' ),
 			array( 'status' => 404 )
 		);
 	}
@@ -163,12 +188,76 @@ function get_available_dashboard_section_for_route( $dashboard_name, $section_id
 	if ( ! $section->is_available() ) {
 		return new \WP_Error(
 			'dashboard_section_unavailable',
-			__( 'Dashboard section is not available.', 'jetpack-premium-analytics' ),
+			__( 'Dashboard section is not available.', 'jetpack-premium-analytics-pkg' ),
 			array( 'status' => 404 )
 		);
 	}
 
 	return $section;
+}
+
+/**
+ * REST schema for one dashboard section, as returned by the sections route.
+ *
+ * The dashboard's frontend mirrors this shape in
+ * `routes/dashboard/config/sections.ts`, and WPCOM serves the same route for
+ * Simple sites (see AGENTS.md), so both are consumers of this contract.
+ *
+ * @since 0.2.0
+ *
+ * @return array The JSON schema for a dashboard section.
+ */
+function get_dashboard_section_schema() {
+	return array(
+		'$schema'    => 'http://json-schema.org/draft-04/schema#',
+		'title'      => 'jetpack-premium-analytics-dashboard-section',
+		'type'       => 'object',
+		'properties' => array(
+			'id'             => array(
+				'description' => __( 'Namespaced section identifier.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'slug'           => array(
+				'description' => __( 'URL-facing section slug, derived from the identifier.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'label'          => array(
+				'description' => __( 'Translated display label, naming the section tab.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'title'          => array(
+				'description' => __( 'Translated section heading, distinct from the tab label. Null falls back to the label.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => array( 'string', 'null' ),
+				'readonly'    => true,
+			),
+			'description'    => array(
+				'description' => __( 'Translated section description, shown as the page subtitle while the section is active.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => array( 'string', 'null' ),
+				'readonly'    => true,
+			),
+			'order'          => array(
+				'description' => __( 'Sort order, ascending.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'integer',
+				'readonly'    => true,
+			),
+			'date_filter'    => array(
+				'description' => __( 'Which date filter the section header offers: the rolling date range, or all time plus single years.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'string',
+				'enum'        => Dashboard_Section::DATE_FILTERS,
+				'default'     => Dashboard_Section::DATE_FILTER_RANGE,
+				'readonly'    => true,
+			),
+			'default_layout' => array(
+				'description' => __( 'Bundled default widget layout.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'array',
+				'items'       => array( 'type' => 'object' ),
+				'readonly'    => true,
+			),
+		),
+	);
 }
 
 /**
@@ -214,15 +303,21 @@ function register_dashboard_sections_rest_routes() {
 		DASHBOARD_REST_NAMESPACE,
 		'/dashboards/(?P<name>' . get_dashboard_name_pattern() . ')/sections',
 		array(
-			'methods'             => \WP_REST_Server::READABLE,
-			'callback'            => __NAMESPACE__ . '\\get_dashboard_sections_response',
-			'permission_callback' => __NAMESPACE__ . '\\check_dashboard_sections_permission',
-			'args'                => array(
-				'name' => array(
-					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics' ),
-					'type'        => 'string',
+			array(
+				// A route-level `schema` beside the numerically keyed endpoint list is
+				// register_rest_route()'s own signature, reading to Phan as a mixed array.
+				// @phan-suppress-next-line PhanPluginMixedKeyNoKey
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __NAMESPACE__ . '\\get_dashboard_sections_response',
+				'permission_callback' => __NAMESPACE__ . '\\check_dashboard_sections_permission',
+				'args'                => array(
+					'name' => array(
+						'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics-pkg' ),
+						'type'        => 'string',
+					),
 				),
 			),
+			'schema' => __NAMESPACE__ . '\\get_dashboard_section_schema',
 		)
 	);
 
@@ -235,11 +330,11 @@ function register_dashboard_sections_rest_routes() {
 			'permission_callback' => __NAMESPACE__ . '\\check_dashboard_sections_permission',
 			'args'                => array(
 				'name'    => array(
-					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics' ),
+					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics-pkg' ),
 					'type'        => 'string',
 				),
 				'section' => array(
-					'description' => __( 'Dashboard section identifier.', 'jetpack-premium-analytics' ),
+					'description' => __( 'Dashboard section identifier.', 'jetpack-premium-analytics-pkg' ),
 					'type'        => 'string',
 				),
 			),

@@ -46,6 +46,25 @@ class Admin_UI {
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_videopress';
 
 	/**
+	 * Filter name that gates the chapters editor.
+	 *
+	 * When this filter returns true, the chapters editor is exposed in both
+	 * places it lives: the dashboard's Editor tab (and the `/video/$id/editor`
+	 * route behind it) and the block editor's chapter manager modal. Unlike the
+	 * modernization filter, this defaults to false.
+	 */
+	const CHAPTERS_EDITOR_FILTER = 'jetpack_videopress_chapters_editor';
+
+	/**
+	 * Route paths that belong to the chapters editor.
+	 *
+	 * Kept in sync with the wp-build route registry (`build/routes/registry.php`);
+	 * entries with these paths are stripped from the registry when the chapters
+	 * editor filter is off, so the routes never register.
+	 */
+	const CHAPTERS_EDITOR_ROUTE_PATHS = array( '/video/$id/editor' );
+
+	/**
 	 * Initializes the Admin UI of VideoPress
 	 *
 	 * This method is called only once by the Initializer class
@@ -102,6 +121,14 @@ class Admin_UI {
 		}
 
 		self::load_wp_build();
+
+		// wp-build registers standalone modules (e.g. the init module) on
+		// wp_default_scripts, which has already fired by admin_menu. Register them
+		// directly so the init module makes it into the import map.
+		if ( function_exists( 'jetpack_videopress_register_script_modules' ) ) {
+			jetpack_videopress_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
 		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 	}
 
@@ -345,15 +372,23 @@ class Admin_UI {
 			// footer) regardless of whether it uses DashboardLayout. Without this,
 			// non-tabbed routes (e.g. Video details) would only get the layout
 			// after a sibling route's chunk happened to inject the same CSS.
-			$shell_css = dirname( __DIR__ ) . '/build/dashboard-shell/index.css';
-			if ( file_exists( $shell_css ) ) {
+			// Pick the flipped build ourselves on RTL locales rather than leaning on
+			// `wp_style_add_data( …, 'rtl', 'replace' )`: core resolves that by
+			// rewriting `index.css` to `index-rtl.css` (hyphenated) *and* dropping
+			// the LTR tag, but webpack emits the flipped file as `index.rtl.css`
+			// (dotted, the same convention `Assets::register_script()`'s `css_path`
+			// follows). The hyphenated file never exists, so RTL sites used to load
+			// no shell stylesheet at all — the layout flex chain never formed and
+			// the dashboard rendered as a blank page.
+			$shell_dir  = dirname( __DIR__ ) . '/build/dashboard-shell/';
+			$shell_file = is_rtl() && file_exists( $shell_dir . 'index.rtl.css' ) ? 'index.rtl.css' : 'index.css';
+			if ( file_exists( $shell_dir . $shell_file ) ) {
 				wp_register_style(
 					'jetpack-videopress-dashboard-shell',
-					plugins_url( 'build/dashboard-shell/index.css', __DIR__ ),
+					plugins_url( 'build/dashboard-shell/' . $shell_file, __DIR__ ),
 					array(),
-					(string) filemtime( $shell_css )
+					(string) filemtime( $shell_dir . $shell_file )
 				);
-				wp_style_add_data( 'jetpack-videopress-dashboard-shell', 'rtl', 'replace' );
 				wp_enqueue_style( 'jetpack-videopress-dashboard-shell' );
 			}
 
@@ -361,6 +396,12 @@ class Admin_UI {
 			// media library (via window.wp.media) for the "Upload image"
 			// action, so the media scripts must be present here too.
 			wp_enqueue_media();
+
+			// The i18n loader is registered on every admin page by jetpack-assets but
+			// only enqueued when depended on; the esbuild bundles don't pull it in.
+			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+				wp_enqueue_script( 'wp-jp-i18n-loader' );
+			}
 
 			// Beyond the shell stylesheet and the media library, wp-build
 			// manages its own enqueue pipeline. The legacy script, initial
@@ -662,11 +703,78 @@ class Admin_UI {
 
 		require_once $build_index;
 
+		// Defer the chapters-editor route stripping to the page init actions, at a
+		// priority ahead of the `build/routes.php` readers (default 10). Those
+		// actions fire from the page's `admin_enqueue_scripts` callback, one
+		// priority before `Initial_State` mirrors the chapters-editor filter to
+		// the client (priority 11), so both evaluations of the filter happen at
+		// the same request stage and a filter registered after this method
+		// runs (`init`, `admin_init`, …) is honored consistently by both.
+		add_action( 'jetpack-videopress-dashboard_init', array( __CLASS__, 'maybe_strip_chapters_editor_routes' ), 5 );
+		add_action( 'jetpack-videopress-dashboard-wp-admin_init', array( __CLASS__, 'maybe_strip_chapters_editor_routes' ), 5 );
+
 		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
 			'jetpack-videopress',
 			array_merge(
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
+			)
+		);
+	}
+
+	/**
+	 * Remove the chapters editor routes from the generated route registry when
+	 * the chapters editor filter is off.
+	 *
+	 * The wp-build routes loader (`build/routes.php`) stores each page's route
+	 * list in `$GLOBALS['jetpack_videopress_jetpack_videopress_dashboard_routes_data']`
+	 * and reads it back on the page init hooks at default priority, so
+	 * `load_wp_build()` hooks this on those same actions at priority 5 —
+	 * filtering the global just before it is consumed keeps the chapters editor
+	 * route modules from ever being registered.
+	 *
+	 * @since 0.45.0
+	 *
+	 * @internal Only public so the wp-build page init actions can invoke it.
+	 *
+	 * @return void
+	 */
+	public static function maybe_strip_chapters_editor_routes() {
+		if ( self::is_chapters_editor_enabled() ) {
+			return;
+		}
+
+		$global_name = 'jetpack_videopress_jetpack_videopress_dashboard_routes_data';
+
+		// Guard against a build change renaming the generated global: the
+		// chapters editor route would leak, but nothing fatals.
+		if ( empty( $GLOBALS[ $global_name ] ) || ! is_array( $GLOBALS[ $global_name ] ) ) {
+			return;
+		}
+
+		$GLOBALS[ $global_name ] = self::strip_chapters_editor_routes( $GLOBALS[ $global_name ] );
+	}
+
+	/**
+	 * Filter the chapters editor route entries out of a wp-build route registry array.
+	 *
+	 * Pure helper extracted from `maybe_strip_chapters_editor_routes()` so the
+	 * filtering logic is unit-testable without the generated global.
+	 *
+	 * @since 0.45.0
+	 *
+	 * @internal For use by `maybe_strip_chapters_editor_routes()` and tests only.
+	 *
+	 * @param array $routes Route entries as generated by `build/routes.php`, each an array with a `path` key.
+	 * @return array Route entries with the chapters editor paths removed.
+	 */
+	public static function strip_chapters_editor_routes( $routes ) {
+		return array_values(
+			array_filter(
+				$routes,
+				static function ( $route ) {
+					return ! isset( $route['path'] ) || ! in_array( $route['path'], self::CHAPTERS_EDITOR_ROUTE_PATHS, true );
+				}
 			)
 		);
 	}
@@ -700,6 +808,31 @@ class Admin_UI {
 	 */
 	public static function is_modernized() {
 		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
+	}
+
+	/**
+	 * Returns true when the chapters editor feature filter is enabled.
+	 *
+	 * Note the default is false: the dashboard Editor tab, the
+	 * `/video/$id/editor` route, the Details-tab deep link, and the block
+	 * editor's "Manage chapters" toolbar button all stay hidden unless a site
+	 * explicitly opts in via the filter.
+	 *
+	 * @since 0.45.0
+	 *
+	 * @return bool
+	 */
+	public static function is_chapters_editor_enabled() {
+		/**
+		 * Whether the VideoPress chapters editor UI is available.
+		 *
+		 * Gates UI only — the chapters REST surface stays registered either way.
+		 *
+		 * @since 0.45.0
+		 *
+		 * @param bool $enabled Whether the chapters editor UI is enabled. Default false.
+		 */
+		return (bool) apply_filters( self::CHAPTERS_EDITOR_FILTER, false );
 	}
 
 	/**

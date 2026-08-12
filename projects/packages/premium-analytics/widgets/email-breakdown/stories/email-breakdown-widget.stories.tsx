@@ -47,9 +47,6 @@ const MOCK_EMAIL_ID = 1234;
  * Read an attribute's declared element values off the widget definition, so the
  * story controls always mirror the schema (a newly added view or metric shows
  * up as a control option without touching this file).
- *
- * @param id - The attribute id on the widget definition.
- * @return The attribute's element values.
  */
 function attributeElementValues< Value extends string >( id: string ): Value[] {
 	return (
@@ -137,7 +134,9 @@ export const Default: Story = {
 };
 
 /**
- * The wide Location clicks card used by the fixed Email clicks composition.
+ * The optional map beside the countries leaderboard. No fixed composition
+ * enables it anymore (the Email clicks Locations card is a plain leaderboard
+ * per the design mocks); the story keeps the capability covered.
  */
 export const LocationClicksWithMap: Story = {
 	render: renderEmailBreakdown,

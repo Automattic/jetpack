@@ -2,54 +2,122 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 16.1-a.3 - 2026-07-20
-### Enhancements
-- AI Sidebar: Add Jetpack AI abilities in the page and site editors. [#49979]
-- Content Guidelines: Add a Read more support link to the page description. [#50574]
-- Content Guidelines AI: Show AI buttons in the correct locked/unlocked state on first paint, omitting the AI UI for that load when the plan lookup fails. [#50494]
-- Content Guidelines AI: Show the Generate/Improve buttons in a locked state for sites without an AI plan, and open the upgrade notice when clicked (even after dismissal). Prevent the AI buttons from briefly appearing unlocked while the feature check resolves. [#50224]
-- Podcast: Release Podcast to self-hosted sites, enabled by default on new installations and available but disabled on existing installations. [#50447]
-
+## 16.1.1 - 2026-08-11
 ### Bug fixes
-- Content Guidelines AI: Read the banner-dismissed flag from user meta directly when preloading, so the empty-state banner and upgrade notice are no longer permanently suppressed on WordPress.com Simple sites. [#50223]
-- Likes: Restore the per-post Likes toggle in the block editor, which failed to register when withSelect returned a memo object. [#50495]
-- Normalize the size, weight, centering, and alignment of block inserter icons across Jetpack monetize blocks (Donations, Tips, Payment Button, Paid Content, Tock, WhatsApp Button, and others) so they render consistently. [#50528]
-- Paid Content: Expire subscription access at the end of the `end_date` day (UTC) rather than the exact purchase timestamp, so a same-day auto-renewal completes before access is cut. [#50460]
-- Related Posts: Enqueue the block stylesheet whenever the block renders, so it is styled on pages and classic themes where the module's front-end asset gate does not run. [#50420]
+- Error Handler: Prevent a fatal error when a request runs during a plugin update and an older version of the Error_Handler class is already loaded.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Blaze: Point the settings card link to the new Blaze Ads menu location under admin.php. [#49584]
-- Connection: Ensure Jetpack dashboard connection components styles do not conflict with Connection package styles. [#50370]
-- Heartbeat: Site environment stats are now provided by the Connection package. [#50006]
-- JSON API: Support path-parameter endpoints over the REST transport, so single-item and action routes can migrate off XML-RPC. [#50400]
-- Update package dependencies. [#50510] [#50529]
+- Remove Reprint full-site export support and its `jetpack/v4` REST routes. [#51179]
 
-## 16.1-a.1 - 2026-07-13
+## 16.1 - 2026-08-10
 ### Enhancements
 - Account Protection: Add additional context to Verify your identity page to reduce user confusion. [#50338]
+- Add aria-label to hidden Carousel download link for better accessibility. [#50181]
 - Admin menu: Surface notification counts from the central menu-badges registry in the admin-menu REST endpoint. [#50190]
+- AI Sidebar: Add Jetpack AI abilities in the page and site editors. [#49979]
+- AI Sidebar: Align Editorial Review enablement with the other writing-assistance features. [#50901]
+- AI Sidebar: Enable writing and SEO suggestions, the block toolbar button, and page and site editor support for all eligible users. [#50901]
+- Change empty h2 and h3 tags in Carousel to div tags to fix SEO and accessibility warnings. [#50199]
+- Content Guidelines: Add a Read more support link to the page description. [#50574]
+- Content Guidelines AI: Make AI guideline suggestions available on WordPress.com Simple and Atomic sites, with a paid Jetpack AI or Complete plan required to generate guidelines. [#49933]
+- Content Guidelines AI: Show AI buttons in the correct locked/unlocked state on first paint, omitting the AI UI for that load when the plan lookup fails. [#50494]
+- Content Guidelines AI: Show the Generate/Improve buttons in a locked state for sites without an AI plan, and open the upgrade notice when clicked (even after dismissal). Prevent the AI buttons from briefly appearing unlocked while the feature check resolves. [#50224]
 - Expose the AI Launchpad state options (enabled, dismissed, completed) in the /sites endpoint options. [#50455]
+- Memberships: Add support for the Malaysian ringgit (MYR) currency. [#50741]
+- Modules: Debounce the modules page search so results update smoothly while typing. [#50927]
+- Modules: Hide the legacy VaultPress module row from the modules page, as it is permanently unavailable and superseded by the VaultPress Backup product. [#50927]
+- Modules: In Offline Mode, surface the Modules page as the first Jetpack menu item so it loads by default, add an Offline Mode breadcrumb and explanatory notice, and add an "Available in offline mode" filter. [#50927]
+- Modules: Refresh the modules page with a modern, core-UI look. [#50927]
+- Modules: Update the tag filter counts on the modules page to reflect the currently-applied filters, and grey out tags with no matching modules. [#50927]
+- Newsletter: Allow sending the test email to a chosen address, gated by the same abuse checks used when adding a subscriber. [#50969]
 - Newsletter: Enable the modernized wp-admin dashboard and subscriber management for all sites by default. [#50091]
+- Podcast: Release Podcast to self-hosted sites, enabled by default on new installations and available but disabled on existing installations. [#50447]
+- Random Redirect: Restore module previously removed in Jetpack 13.6. [#50940]
+- Reprint: Add full-site export support for Pressable and WordPress.com (Atomic) sites, so an authenticated client can pull a complete copy of a site. [#50369]
+- REST API: Defer loading of WPCOM REST endpoint files to REST requests, saving execution time on every non-REST page load. [#48363]
+- SEO: Add AI crawler management — free per-bot allow/block toggles (answer and mixed-use crawlers allowed, training crawlers blocked by default) that write robots.txt directives. [#50186]
+- SEO: Add custom post type support and llms.txt generation. [#50185]
+- SEO: Honor the per-site WordPress.com feature flag in plugin search suggestions. [#50899]
+- Site Chat: Rename the public feature text from Reader Chat to Site Chat. [#50854]
 - Site endpoint: Return `hosting_provider_guess` and `environment_type` from the single-site endpoint when explicitly requested via the `fields` parameter, matching `/me/sites`. [#50226]
 - Social: Enable or disable the Social module directly from the Social dashboard, so it can be turned back on in environments where Jetpack Settings is unreachable. [#50376]
+- Social: Surface a visible error when fetching the keyring result fails during a connection, instead of failing silently. [#50822]
+- Social: The block editor sidebar now uses the same connection management UI as the Social admin page. [#50731]
 - Stats: Add a link to the site-name admin bar menu. [#50264]
+- Stats v2: Add a separate menu instead of replacing the existing Stats menu. [#50915]
 - Update the license activation screen to use @wordpress/ui components. [#50348]
+- VideoPress: Keep the VideoPress item under the Jetpack menu when the module is not active, linking to the My Jetpack page to activate it. [#50740]
+- VideoPress: Upload videos added via the classic media-new.php uploader directly to VideoPress, matching the Media Library behavior. [#50700]
+
+### Improved compatibility
+- Content Guidelines AI: Restore compatibility with the Gutenberg 23.6 Guidelines page by reading section drafts from the page DOM instead of the removed core/guidelines store. [#50658]
+- Notifications: Show the notification bell in the admin bar on the Post editor and Site editor. [#50686]
 
 ### Bug fixes
+- Blocks: Fix an infinite refresh loop in the Goodreads block editor that regenerated the widget ID on every re-render and hammered the REST API.
+- Blocks: Restrict Goodreads scripts to the expected Goodreads widget endpoints.
 - Bundle @wordpress/theme and @wordpress/private-apis into the admin build so the Jetpack dashboard script still loads on WordPress versions that do not register those script handles. [#50348]
+- Calendly: Fix Button style rendering as inline calendar on Premium+ plans. [#49161]
 - Carousel: Fix images not rendering in portrait orientation on mobile when a gallery image has no data-large-file attribute. [#50415]
 - Carousel: Fix inconsistent behavior between keyboard and mouse for images linked to an attachment page. [#50220]
+- Carousel: Show the already-loaded thumbnail while the full-size image downloads, so slides are no longer blank when moving quickly through a gallery. [#50760]
+- Carousel: Stop adding a duplicate set of image data attributes to galleries. [#50981]
+- Change EXIF data rendering to be dynamic via JavaScript to resolve empty list accessibility warning. [#50201]
+- Content Guidelines AI: Read the banner-dismissed flag from user meta directly when preloading, so the empty-state banner and upgrade notice are no longer permanently suppressed on WordPress.com Simple sites. [#50223]
+- Display WordPress Posts widget: Escape remote site data before output.
+- Escape the Premium Content block login button label on output.
 - Forms: Prevent duplicate field Name/IDs (from duplicating or copy/pasting a field) from collapsing into one another, which dropped fields from stored responses and email notifications. [#50247]
+- Harden the subscriber authentication endpoint so it only redirects within the current site.
+- Jetpack AI: Fix content guidelines generation failing on private sites. [#50933]
+- Jetpack AI: Skip the AI sidebar bundle, provider registration, and toolbar button for users without a connected WordPress.com account. [#50898]
+- Likes: Do not show the Like button on password-protected posts, even for viewers who can read the post (owners, admins, or after unlocking). [#50670]
+- Likes: Restore the per-post Likes toggle in the block editor, which failed to register when withSelect returned a memo object. [#50495]
+- Memberships: Ensure the configured post access level is evaluated correctly before authorizing access to paywalled content.
+- Newsletter: Show a connect prompt when a WordPress.com user connection is required for email preview and test emails, and disable the "Send" button until connected. [#50767]
+- Newsletter: Show which newsletter categories a subscriber receives emails for in the subscriber details panel. [#50877]
+- Normalize the size, weight, centering, and alignment of block inserter icons across Jetpack monetize blocks (Donations, Tips, Payment Button, Paid Content, Tock, WhatsApp Button, and others) so they render consistently. [#50528]
+- Paid Content: Expire subscription access at the end of the `end_date` day (UTC) rather than the exact purchase timestamp, so a same-day auto-renewal completes before access is cut. [#50460]
 - Paid content: Preserve non-ASCII characters (emoji, Chinese, etc.) in the post URL when a subscriber logs in via "Already a paid subscriber?", so they are redirected back to the correct post instead of a 404. [#50244]
+- Random Redirect: Avoid a fatal error when a theme or plugin already declares the module's redirect function. [#51037]
+- Related Posts: Enqueue the block stylesheet whenever the block renders, so it is styled on pages and classic themes where the module's front-end asset gate does not run. [#50420]
+- Reprint: Avoid a fatal error when another plugin loads an older version of the Status package. [#51028]
+- Require a Jetpack site (blog) token for JSON API endpoints that declare no capabilities, such as the Backup helper script endpoints, and reject user tokens regardless of privilege.
+- Resolve Redirect endpoint: Validate every redirect hop, and return a 400 error when a URL cannot be fetched, is blocked, or exceeds the redirect limit, instead of a 200 response with an empty URL.
+- REST API: Require the admin capability for all settings in a request that also updates Post by Email.
+- Security: Enforce per-item permission checks when editing media through the JSON API.
+- Security: External Media: Ensure imported files are always saved under a safe file name.
+- Security: Verify attachment ownership before removing an uploaded package in the plugin and theme install endpoints.
+- SEO: Fix custom per-page SEO title being ignored when the page is set as the site's homepage and the Front Page title format in Jetpack Settings is blank. [#50845]
+- SEO: Preserve legacy homepage description storage and length limits when saving dashboard settings. [#50808]
+- SEO: Preserve Sitemaps and Canonical URLs settings when runtime filters temporarily suppress their modules. [#50781]
+- Sharing: Escape Tumblr share title, URL, and button label in official button output.
 - Sharing: Guide block-theme users from legacy sharing buttons to the Sharing Buttons block. [#50355]
 - Subscriptions: Fix `wp_maybe_inline_styles` notice for the `jetpack-subscriptions` stylesheet by registering a filesystem path instead of a URL. [#47988]
+- Subscriptions: Stop the site settings endpoint from saving unchanged subscription message defaults; translate the default subscription options using the user locale. [#50909]
+- Tiled Gallery: Fix images collapsing to ~105px in the editor when the canvas is not iframed. [#50682]
+- Tiled Gallery: Fix rows rendering at partial width after an alignment change, and correct the srcset on published galleries. [#50981]
+- VideoPress: Fix legacy video block previews in the editor. [#50651]
+- WAF: Restrict firewall settings to administrators.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add testing instructions for the Jetpack 16.1 release. [#50910]
+- AI Launchpad: Enable on all sites of a user in the ai_launchpad experiment variation, matching wp-admin. [#50838]
 - AI Sidebar: Add an internal Proofreader (spelling and grammar) feature flag, gated to internal testing environments. [#49825]
+- Blaze: Point the settings card link to the new Blaze Ads menu location under admin.php. [#49584]
+- Carousel: Run the overlay fade as a CSS transition instead of a main-thread animation loop, and honour prefers-reduced-motion. [#50827]
+- Connection: Ensure Jetpack dashboard connection components styles do not conflict with Connection package styles. [#50370]
+- Connection: Render informational-only connection error notices (no reconnect button) in the dashboard when an error's action is "none". [#50662]
 - Don't load the editor's AI image and media tools for users who have not connected their WordPress.com account, so they are no longer offered tools that would only error out. [#50079]
+- Heartbeat: Site environment stats are now provided by the Connection package. [#50006]
+- JSON API: Support path-parameter endpoints over the REST transport, so single-item and action routes can migrate off XML-RPC. [#50400]
+- Keep the Reprint exporter's bundled `psr/log` out of the global class map so it does not conflict with other `psr/log` copies (e.g. on WordPress.com). [#50369]
 - Podcast: Make the module active-state the single load gate, so the podcast feed keeps serving even while disconnected. [#50242]
 - Prefix --color-* variables into --jetpack-social-logo-color-* CSS variables to avoid name collisions. [#50413]
+- Premium Analytics: Bundle the package behind the `jetpack_premium_analytics_enabled` flag; when enabled it replaces the Stats wp-admin UI. [#50768]
+- Reprint exporter: Exclude the unused URL-parsing dependencies (`rowbot`, `brick/math`, `psr/log`) from the production build, trimming ~1.2 MB the export path never loads. [#50369]
 - Update package dependencies. [#50248] [#49272] [#49864] [#50407] [#50436]
+- Update package dependencies. [#50510] [#50529]
+- Update package dependencies. [#50825] [#50751] [#50753] [#50792]
 - Update react-redux to 9.3.0, redux to 5.0.1, and redux-thunk to 3.1.0. [#50246]
 - Update the @react-spring/web dependency to v10 for React 19 compatibility. [#50288]
 - Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]

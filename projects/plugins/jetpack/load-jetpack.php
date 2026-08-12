@@ -59,6 +59,10 @@ Jetpack_Connection_Status::init();
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-application-password-extras.php';
 Jetpack_Application_Password_Extras::init();
 
+// Also required directly by the AI extension files because on WordPress.com
+// Simple this bootstrap never runs. The class self-initializes when loaded.
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-settings.php';
+
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-recommendations.php';
 
 if ( is_admin() ) {

@@ -15,7 +15,7 @@ $spacing-lg: variables.$grid-unit-20;      // 16px
 	}
 
 	&__heading {
-		font-weight: var(--wpds-typography-font-weight-medium, 499) !important;
+		font-weight: var(--wpds-typography-font-weight-emphasis, 499) !important;
 	}
 
 	&__footer {
@@ -94,7 +94,7 @@ $spacing-lg: variables.$grid-unit-20;      // 16px
 	}
 
 	&__tooltip-date {
-		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		font-weight: var(--wpds-typography-font-weight-emphasis, 499);
 		margin-bottom: $spacing-xs;
 	}
 

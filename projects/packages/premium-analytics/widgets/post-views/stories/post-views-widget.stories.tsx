@@ -1,14 +1,17 @@
 /**
  * The Post views widget is the post detail Traffic view's view-trend card:
- * the scoped post's views over the dashboard date range as a comparative
- * line chart. The post scope arrives through `reportParams.post_id` (seeded
- * from the detail page URL in product); the `hasPostScope` control toggles it
- * to exercise the scopeless empty state.
+ * the scoped post's views over the dashboard date range as a line chart. The
+ * post scope arrives through `reportParams.post_id` (seeded from the detail
+ * page URL in product); the `hasPostScope` control toggles it to exercise the
+ * scopeless empty state.
  *
  * Data comes from the proxied `stats/post/{id}` endpoint, covered by the
  * shared report mocks' `stats-post` fixture (a deterministic daily series
- * ending today, so relative date presets always intersect it). The comparison
- * window is sliced client-side from the same request.
+ * ending today, so relative date presets always intersect it). The post
+ * detail design has no period-over-period comparison, so the widget maps no
+ * comparison rows; the dashboard story still passes comparison params so the
+ * widget stays covered against crashing or inventing an overlay when a host
+ * supplies them.
  */
 /**
  * External dependencies
@@ -42,7 +45,6 @@ const MOCK_POST_ID = 779;
 const POST_VIEWS_RENDER_MODULE = 'storybook/post-views';
 
 interface PostViewsStoryControls {
-	withComparison: boolean;
 	hasPostScope: boolean;
 	granularity: PostViewsGranularity;
 }
@@ -50,16 +52,13 @@ interface PostViewsStoryControls {
 /**
  * Builds the widget attributes: the granularity attribute plus report params
  * with the post scope the detail page seeds from its URL when `hasPostScope`
- * is on.
- *
- * @param {PostViewsStoryControls} controls - The story controls.
- * @return The widget attributes.
+ * is on. Comparison stays a parameter so the dashboard story can pass host
+ * comparison params without duplicating the scoping rule.
  */
-function getPostViewsAttributes( {
-	withComparison,
-	hasPostScope,
-	granularity,
-}: PostViewsStoryControls ): ComponentProps< typeof PostViewsRender >[ 'attributes' ] {
+function getPostViewsAttributes(
+	{ hasPostScope, granularity }: PostViewsStoryControls,
+	withComparison = false
+): ComponentProps< typeof PostViewsRender >[ 'attributes' ] {
 	return {
 		granularity,
 		reportParams: {
@@ -69,12 +68,6 @@ function getPostViewsAttributes( {
 	};
 }
 
-/**
- * Renders the data-connected widget with the composed attributes.
- *
- * @param {PostViewsStoryControls} controls - The story controls.
- * @return The rendered widget.
- */
 function renderPostViews( controls: PostViewsStoryControls ) {
 	return <PostViewsRender attributes={ getPostViewsAttributes( controls ) } />;
 }
@@ -84,10 +77,6 @@ const meta = {
 	component: PostViewsRender,
 	tags: [ 'autodocs' ],
 	argTypes: {
-		withComparison: {
-			control: 'boolean',
-			description: 'Include previous-period comparison report params.',
-		},
 		hasPostScope: {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the post detail page seeds from its URL.',
@@ -102,7 +91,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Post views" widget: the scoped post\'s view trend over the dashboard date range as a comparative line chart — the legacy Calypso post summary chart. The view series comes from `stats/post`\'s full daily history, zero-filled and bucketed client-side per the host-rendered "Group by" control, with the comparison window sliced from the same request. Without a post scope the widget renders a scopeless empty state.',
+					'The "Post views" widget: the scoped post\'s view trend over the dashboard date range as a line chart — the legacy Calypso post summary chart. The view series comes from `stats/post`\'s full daily history, zero-filled and bucketed client-side per the host-rendered "Group by" control. The post detail page has no comparison control, so comparison report params are ignored. Without a post scope the widget renders a scopeless empty state.',
 			},
 		},
 	},
@@ -113,23 +102,12 @@ export default meta;
 type Story = StoryObj< PostViewsStoryControls >;
 
 /**
- * Default — the scoped post's views for the primary period only: a single
- * "Views" line with no overlay.
+ * Default — the scoped post's views for the selected period: a single
+ * "Views" line.
  */
 export const Default: Story = {
 	render: renderPostViews,
-	args: { withComparison: false, hasPostScope: true, granularity: 'day' },
-	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * WithComparison — the previous-period comparison from the date range picker;
- * the chart adds a dashed previous-period overlay and the legend switches to
- * date-range labels.
- */
-export const WithComparison: Story = {
-	render: renderPostViews,
-	args: { withComparison: true, hasPostScope: true, granularity: 'day' },
+	args: { hasPostScope: true, granularity: 'day' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -140,7 +118,7 @@ export const WithComparison: Story = {
  */
 export const NoPostScope: Story = {
 	render: renderPostViews,
-	args: { withComparison: false, hasPostScope: false, granularity: 'day' },
+	args: { hasPostScope: false, granularity: 'day' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -151,13 +129,11 @@ interface PostViewsDashboardStoryProps
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders
  * exactly as it does in product (framed card, host "Group by" toolbar
- * control, sizing, edit mode).
- *
- * @param {PostViewsDashboardStoryProps} props - The dashboard story controls.
- * @return The widget mounted inside the real dashboard.
+ * control, sizing, edit mode). It passes comparison params unconditionally,
+ * so the widget stays covered against crashing or inventing an overlay when
+ * a host supplies comparison dates.
  */
 function PostViewsDashboardStory( {
-	withComparison,
 	hasPostScope,
 	granularity,
 	...dashboardArgs
@@ -168,7 +144,7 @@ function PostViewsDashboardStory( {
 			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ POST_VIEWS_RENDER_MODULE }
 			renderComponent={ PostViewsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ getPostViewsAttributes( { withComparison, hasPostScope, granularity } ) }
+			attributes={ getPostViewsAttributes( { hasPostScope, granularity }, true ) }
 		/>
 	);
 }
@@ -179,16 +155,11 @@ export const WidgetDashboardWithWidget: StoryObj< PostViewsDashboardStoryProps >
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		widgetWidth: 2,
 		widgetHeight: 2,
-		withComparison: true,
 		hasPostScope: true,
 		granularity: 'day',
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: {
-			control: 'boolean',
-			description: 'Include previous-period comparison report params.',
-		},
 		hasPostScope: {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the post detail page seeds from its URL.',

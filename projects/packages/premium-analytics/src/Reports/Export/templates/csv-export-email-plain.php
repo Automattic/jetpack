@@ -22,28 +22,28 @@ defined( 'ABSPATH' ) || exit;
 
 echo '= ' . esc_html( $email_heading ) . " =\n\n";
 
-esc_html_e( 'Your CSV export is attached to this email.', 'jetpack-premium-analytics' );
+esc_html_e( 'Your CSV export is attached to this email.', 'jetpack-premium-analytics-pkg' );
 echo "\n\n";
 
 echo esc_html( $report_label ) . "\n\n";
 
-echo esc_html__( 'Date Range:', 'jetpack-premium-analytics' ) . ' ';
+echo esc_html__( 'Date Range:', 'jetpack-premium-analytics-pkg' ) . ' ';
 $from = empty( $params['from'] ) ? '' : gmdate( 'F j, Y', (int) strtotime( $params['from'] ) );
 $to   = empty( $params['to'] ) ? '' : gmdate( 'F j, Y', (int) strtotime( $params['to'] ) );
 /* translators: 1: Start date, 2: End date */
-echo esc_html( sprintf( __( '%1$s to %2$s', 'jetpack-premium-analytics' ), $from, $to ) );
+echo esc_html( sprintf( __( '%1$s to %2$s', 'jetpack-premium-analytics-pkg' ), $from, $to ) );
 echo "\n\n";
 
 if ( $is_comparison ) {
-	echo esc_html__( 'Comparison Period:', 'jetpack-premium-analytics' ) . ' ';
+	echo esc_html__( 'Comparison Period:', 'jetpack-premium-analytics-pkg' ) . ' ';
 	$compare_from = empty( $params['compare_from'] ) ? '' : gmdate( 'F j, Y', (int) strtotime( $params['compare_from'] ) );
 	$compare_to   = empty( $params['compare_to'] ) ? '' : gmdate( 'F j, Y', (int) strtotime( $params['compare_to'] ) );
 	/* translators: 1: Start date, 2: End date */
-	echo esc_html( sprintf( __( '%1$s to %2$s', 'jetpack-premium-analytics' ), $compare_from, $compare_to ) );
+	echo esc_html( sprintf( __( '%1$s to %2$s', 'jetpack-premium-analytics-pkg' ), $compare_from, $compare_to ) );
 	echo "\n\n";
 }
 
-esc_html_e( 'The report is attached as a CSV file.', 'jetpack-premium-analytics' );
+esc_html_e( 'The report is attached as a CSV file.', 'jetpack-premium-analytics-pkg' );
 echo "\n\n";
 
 echo "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n";

@@ -17,6 +17,14 @@ export interface SettingsResponse {
 	// when otherwise plan-gated (the value stays live). Read-only, never sent back.
 	has_legacy_front_page_meta: boolean;
 	title_formats: Record< string, TitleFormatToken[] >;
+	// Separator WordPress joins document-title parts with (`document_title_separator`,
+	// default `-`). Used to preview the default title of a page type that has no
+	// stored format. Read-only, never sent back.
+	title_separator: string;
+	// Server-owned conflict state. False keeps saved formats visible but read-only
+	// and prevents them from being included in a save payload.
+	title_formats_editable: boolean;
+	verification_tools_active: boolean;
 	verification: {
 		google: string;
 		bing: string;

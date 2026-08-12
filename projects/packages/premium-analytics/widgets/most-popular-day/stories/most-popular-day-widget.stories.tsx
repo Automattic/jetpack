@@ -48,9 +48,6 @@ const SITE_SUMMARY_PATH_FRAGMENT = 'proxy/v1.1/stats';
  * shared query client so the widget re-fetches and hits the forced mock, and
  * drop it again on cleanup so a forced empty/error result doesn't leak into the
  * other stories' shared cache entry.
- *
- * @param state - The forced report-mock state.
- * @return The `beforeEach` cleanup callback.
  */
 function forceSiteSummaryState( state: 'loading' | 'error' | 'empty' ) {
 	queryClient.removeQueries( { queryKey: [ 'stats', 'site' ] } );
@@ -61,10 +58,6 @@ function forceSiteSummaryState( state: 'loading' | 'error' | 'empty' ) {
 	};
 }
 
-/**
- * Renders the data-connected widget for the close-up stories.
- * @return The rendered widget.
- */
 function renderMostPopularDay() {
 	return <MostPopularDayRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
@@ -129,13 +122,6 @@ export const Empty: Story = {
 	beforeEach: () => forceSiteSummaryState( 'empty' ),
 };
 
-/**
- * Renders the data-connected widget through the shared dashboard harness, so it
- * appears exactly as it does in product (framed card, sizing, edit mode).
- *
- * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
- * @return The widget mounted inside the real `WidgetDashboard`.
- */
 function MostPopularDayDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory

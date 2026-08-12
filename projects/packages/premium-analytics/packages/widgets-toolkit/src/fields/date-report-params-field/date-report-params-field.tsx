@@ -12,13 +12,12 @@ import {
 	isPrimaryPreset,
 	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
+import { Stack, type DataFormControlProps } from '@jetpack-premium-analytics/externals';
 import { deriveComparisonRange, encodeDateToSearchParam } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import { Stack } from '@wordpress/ui';
 import { endOfDay } from 'date-fns';
-import { useCallback, useMemo, useState, useEffect } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { getStoreInfo } from '../../helpers/store-info';
-import type { DataFormControlProps } from '@wordpress/dataviews';
 
 /**
  * Inferred types
@@ -79,7 +78,6 @@ export function ReportParamsField( {
 		[ stagedReportParams, reportParams.comp ]
 	);
 
-	// Basic check if the date range has been changed.
 	const isDateRangeDirty = useMemo( () => {
 		return (
 			attributes?.reportParams?.from !== stagedReportParams?.from ||
@@ -118,18 +116,6 @@ export function ReportParamsField( {
 		setStagedReportParams( attributes?.reportParams );
 	}, [ setStagedReportParams, attributes ] );
 
-	/*
-	 * Get the dashboard layout surface for responsive calculations.
-	 * This is a temporary workaround until @automattic/dashboard exposes
-	 * a Context provider. See WOOA7S-1008 for the upstream solution.
-	 */
-	const [ containerElement, setContainerElement ] = useState< HTMLElement | null >( null );
-
-	useEffect( () => {
-		const node = document.querySelector< HTMLElement >( '.next-admin-layout__surface' );
-		setContainerElement( node );
-	}, [] );
-
 	return (
 		<Stack direction="column" gap="sm">
 			<DateFiltersPanel
@@ -142,7 +128,6 @@ export function ReportParamsField( {
 				canApply={ isDateRangeDirty }
 				onCancel={ clear }
 				timeZone={ getSiteTimezone() }
-				containerElement={ containerElement }
 			/>
 		</Stack>
 	);

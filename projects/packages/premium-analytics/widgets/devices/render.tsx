@@ -49,12 +49,6 @@ type DevicesInnerProps = {
 	max: number;
 };
 
-/**
- * Inner component — rendered inside WidgetRoot.
- *
- * @param {DevicesInnerProps} props - The component props.
- * @return The rendered widget content.
- */
 function DevicesInner( { max }: DevicesInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useDeviceViews( {
@@ -98,13 +92,13 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 				error={ describeError( error, {
 					retryDescription: __(
 						"We couldn't load device data. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					onRetry: refetch,
 				} ) }
 				empty={ {
 					icon: device,
-					description: __( 'No device data in this period.', 'jetpack-premium-analytics' ),
+					description: __( 'No device data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<div className={ styles.chartWrap }>
@@ -114,6 +108,7 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 							styles={ segmentStyles }
 							showLegend={ false }
 							showMetric={ false }
+							withTooltips
 							dataFormat={ PERCENTAGE_DATA_FORMAT }
 						/>
 						<Legend items={ styledLegendData } withComparison={ hasComparison } />
@@ -125,12 +120,7 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 }
 
 /**
- * Devices widget render component.
- *
  * Shows screen size breakdown (Desktop / Mobile / Tablet) as a semi-circle chart.
- *
- * @param {DevicesWidgetProps} props - The widget render props.
- * @return The rendered widget content.
  */
 export default function DevicesWidget( { attributes = {} }: DevicesWidgetProps ) {
 	const max = attributes?.max ?? 5;

@@ -4,6 +4,7 @@
 import { useStatsEmailSummary, type StatsEmailSummary } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardPostLabel,
 	ReportLink,
 	WidgetFooter,
 	WidgetRoot,
@@ -36,6 +37,14 @@ export type EmailRow = {
 	 */
 	id: string | number;
 	/**
+	 * Post ID of the newsletter, when the report carries one.
+	 */
+	postId?: string | number;
+	/**
+	 * Public URL of the newsletter.
+	 */
+	link?: string | null;
+	/**
 	 * Email subject line.
 	 */
 	label: string;
@@ -54,10 +63,6 @@ export type EmailRow = {
  * selected metric drives both the displayed value and the overlay bar width
  * (shares are relative to the highest rate in the set). The emails summary has
  * no comparison period, so the comparison fields are zeroed.
- *
- * @param rows   - The normalized email rows.
- * @param metric - Which rate to display (`opens` or `clicks`).
- * @return The leaderboard chart data.
  */
 function buildLeaderboardData( rows: EmailRow[], metric: EmailMetric ): LeaderboardChartData {
 	const rateOf = ( row: EmailRow ) => ( metric === 'opens' ? row.opensRate : row.clicksRate );
@@ -71,9 +76,13 @@ function buildLeaderboardData( rows: EmailRow[], metric: EmailMetric ): Leaderbo
 		return {
 			id: String( row.id ),
 			label: (
-				<span className={ styles.label } title={ row.label }>
-					{ row.label }
-				</span>
+				<LeaderboardPostLabel
+					id={ row.postId }
+					label={ row.label }
+					link={ row.link }
+					section={ metric === 'clicks' ? 'email-clicks' : 'email-opens' }
+					variant="overlay"
+				/>
 			),
 			// `LeaderboardChart` formats the value as a percentage, so the rate
 			// is expressed as a fraction here.
@@ -106,9 +115,6 @@ type EmailsLeaderboardProps = {
  * Storybook can exercise the chart with fixture rows (there is no analytics
  * backend in Storybook, so the data-connected entry point would only ever show
  * chrome).
- *
- * @param {EmailsLeaderboardProps} props - The component props.
- * @return The rendered leaderboard.
  */
 export const EmailsLeaderboard = ( { rows = [], metric = 'opens' }: EmailsLeaderboardProps ) => {
 	const data = useMemo( () => buildLeaderboardData( rows, metric ), [ rows, metric ] );
@@ -133,11 +139,7 @@ export const EmailsLeaderboard = ( { rows = [], metric = 'opens' }: EmailsLeader
 /**
  * Flatten the `useStatsEmailSummary` report into the `{ id, label, opensRate,
  * clicksRate }` rows the leaderboard renders, keeping the endpoint's
- * newest-first order and trimming to `max`.
- *
- * @param report - The normalized email-summary report, or undefined while loading.
- * @param max    - Maximum rows to display; `0` keeps all rows.
- * @return The normalized email rows.
+ * newest-first order and trimming to `max` (`max = 0` keeps all rows).
  */
 function toEmailRows( report: StatsEmailSummary | undefined, max: number ): EmailRow[] {
 	const items = report?.data?.[ 0 ]?.items ?? [];
@@ -146,6 +148,8 @@ function toEmailRows( report: StatsEmailSummary | undefined, max: number ): Emai
 	// `max = 0 → all rows` convention and a guard against an over-long response.
 	return items.slice( 0, max > 0 ? max : undefined ).map( ( item, index ) => ( {
 		id: item.id ?? index,
+		postId: item.id,
+		link: typeof item.link === 'string' ? item.link : null,
 		label: String( item.label ?? '' ),
 		opensRate: item.opens_rate,
 		clicksRate: item.clicks_rate,
@@ -160,9 +164,6 @@ type EmailsReportProps = {
  * Fetches the email-summary report through the `useStatsEmailSummary` Stats
  * hook and hands the normalized rows to the presentational `EmailsLeaderboard`,
  * with the loading / error / empty states rendered through `<WidgetState>`.
- *
- * @param {EmailsReportProps} props - The component props.
- * @return The widget content.
  */
 function EmailsReport( { attributes }: EmailsReportProps ) {
 	const max = attributes?.max ?? 10;
@@ -189,15 +190,17 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 					error={ {
 						description: __(
 							"We couldn't load email stats. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					empty={ {
 						icon: envelope,
 						description: __(
 							'Your latest emails will appear here once you send a newsletter.',
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 					} }
 				>
@@ -212,14 +215,9 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 }
 
 /**
- * Widget render entry point.
- *
  * The displayed rate is the `metric` attribute (`relevance: 'high'`), exposed
  * as a control by the widget host. The email summary still reads `max` from
  * props because it does not use report params.
- *
- * @param {EmailsWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function Emails( { attributes = {} }: EmailsWidgetProps ) {
 	return (

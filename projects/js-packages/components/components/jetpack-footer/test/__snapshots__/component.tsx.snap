@@ -45,7 +45,7 @@ exports[`JetpackFooter Render the component should match the snapshot: all props
     >
       <li>
         <a
-          class="_2c0831b0499dbd6e__a _336cd3e4e743482f__box-sizing _08e8a2e44959f892__outset-ring--focus d4250949359b05ce__link c6055659b8e2cd2c__is-brand _83ed8a8da5dd50ea__text e97669c6d9a38497__heading _43cec3e1eec1066d__p _131101940be12424__body-md jetpack-footer__menu-item"
+          class="_2c0831b0499dbd6e__a _336cd3e4e743482f__box-sizing e25b2bdd7aa21721__outset-ring--focus-except-active d4250949359b05ce__link c6055659b8e2cd2c__is-brand _83ed8a8da5dd50ea__text e97669c6d9a38497__heading _43cec3e1eec1066d__p _131101940be12424__body-md jetpack-footer__menu-item"
           href="undefinedadmin.php?page=my-jetpack#/products"
           title=""
         >
@@ -54,7 +54,7 @@ exports[`JetpackFooter Render the component should match the snapshot: all props
       </li>
       <li>
         <a
-          class="_2c0831b0499dbd6e__a _336cd3e4e743482f__box-sizing _08e8a2e44959f892__outset-ring--focus d4250949359b05ce__link c6055659b8e2cd2c__is-brand _83ed8a8da5dd50ea__text e97669c6d9a38497__heading _43cec3e1eec1066d__p _131101940be12424__body-md jetpack-footer__menu-item"
+          class="_2c0831b0499dbd6e__a _336cd3e4e743482f__box-sizing e25b2bdd7aa21721__outset-ring--focus-except-active d4250949359b05ce__link c6055659b8e2cd2c__is-brand _83ed8a8da5dd50ea__text e97669c6d9a38497__heading _43cec3e1eec1066d__p _131101940be12424__body-md jetpack-footer__menu-item"
           href="undefinedadmin.php?page=my-jetpack#/help"
           title=""
         >
@@ -63,7 +63,7 @@ exports[`JetpackFooter Render the component should match the snapshot: all props
       </li>
       <li>
         <a
-          class="_2c0831b0499dbd6e__a _336cd3e4e743482f__box-sizing _08e8a2e44959f892__outset-ring--focus d4250949359b05ce__link c6055659b8e2cd2c__is-brand _83ed8a8da5dd50ea__text e97669c6d9a38497__heading _43cec3e1eec1066d__p _131101940be12424__body-md jetpack-footer__menu-item"
+          class="_2c0831b0499dbd6e__a _336cd3e4e743482f__box-sizing e25b2bdd7aa21721__outset-ring--focus-except-active d4250949359b05ce__link c6055659b8e2cd2c__is-brand _83ed8a8da5dd50ea__text e97669c6d9a38497__heading _43cec3e1eec1066d__p _131101940be12424__body-md jetpack-footer__menu-item"
           href="/"
           title=""
         >
@@ -72,7 +72,7 @@ exports[`JetpackFooter Render the component should match the snapshot: all props
       </li>
       <li>
         <span
-          class="_2c0831b0499dbd6e__a _336cd3e4e743482f__box-sizing _08e8a2e44959f892__outset-ring--focus d4250949359b05ce__link c6055659b8e2cd2c__is-brand _83ed8a8da5dd50ea__text e97669c6d9a38497__heading _43cec3e1eec1066d__p _131101940be12424__body-md jetpack-footer__menu-item"
+          class="_2c0831b0499dbd6e__a _336cd3e4e743482f__box-sizing e25b2bdd7aa21721__outset-ring--focus-except-active d4250949359b05ce__link c6055659b8e2cd2c__is-brand _83ed8a8da5dd50ea__text e97669c6d9a38497__heading _43cec3e1eec1066d__p _131101940be12424__body-md jetpack-footer__menu-item"
           role="button"
           tabindex="0"
           title=""

@@ -1,10 +1,12 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import {
 	startOfDay,
 	endOfDay,
+	startOfHour,
+	endOfHour,
 	subDays,
 	subHours,
 	subMonths,
@@ -61,23 +63,26 @@ type DateContext = {
  */
 export const DEFAULT_YEAR_SURFACE_COUNT = 6;
 
-/**
- * Preset definition with label getter and range calculator.
- */
 type PresetDefinition = {
 	id: SelectablePresetId;
 	getLabel: () => string;
+	/**
+	 * Short label for the surface pills. Only the quick surface presets carry
+	 * one: they are the only presets rendered in a fixed-width row. Translated
+	 * separately rather than truncated, since the English forms are initials.
+	 */
+	getShortLabel?: () => string;
 	getRange: ( ctx: DateContext ) => Required< DateRange >;
 };
 
 /**
- * Canonical preset definitions with labels and range calculators.
- * Labels are defined once here and reused by all consumers.
+ * Canonical preset definitions. Labels are defined once here and reused by all
+ * consumers.
  */
 export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	{
 		id: PRESET_TODAY,
-		getLabel: () => __( 'Today', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Today', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfToday } ) => ( {
 			from: initOfToday,
 			to: endOfToday,
@@ -85,7 +90,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_YESTERDAY,
-		getLabel: () => __( 'Yesterday', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Yesterday', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
 			from: subDays( initOfToday, 1 ),
 			to: endOfYesterday,
@@ -93,15 +98,33 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_24_HOURS,
-		getLabel: () => __( 'Last 24 hours', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Last 24 hours', 'jetpack-premium-analytics-pkg' ),
+		getShortLabel: () =>
+			/* translators: abbreviation for "Last 24 hours". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
+			_x( '24H', 'short date range preset', 'jetpack-premium-analytics-pkg' ),
+		// Snapped to the hour rather than taken from the raw instant. The range
+		// ends up in `start_date`/`end_date`, which are sent verbatim and form
+		// part of the request's React Query key: off a raw `now` every widget
+		// (and every remount) resolves a different millisecond, so identical
+		// requests never dedupe and never hit the cache. The hour is the natural
+		// granularity — this is the only preset that buckets hourly — and the
+		// open-ended `endOfHour` keeps the in-progress hour visible, matching how
+		// `today` runs to `endOfToday`.
+		//
+		// `subHours` counts elapsed time, so the window spans 24 real hours even
+		// across a DST transition, where the local clock reads 23 or 25 hour
+		// labels over the same span.
 		getRange: ( { now } ) => ( {
-			from: subHours( now, 24 ),
-			to: now,
+			from: subHours( startOfHour( now ), 23 ),
+			to: endOfHour( now ),
 		} ),
 	},
 	{
 		id: PRESET_LAST_7_DAYS,
-		getLabel: () => __( 'Last 7 days', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Last 7 days', 'jetpack-premium-analytics-pkg' ),
+		getShortLabel: () =>
+			/* translators: abbreviation for "Last 7 days". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
+			_x( '7D', 'short date range preset', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
 			from: subDays( initOfToday, 7 ),
 			to: endOfYesterday,
@@ -109,7 +132,10 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_30_DAYS,
-		getLabel: () => __( 'Last 30 days', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Last 30 days', 'jetpack-premium-analytics-pkg' ),
+		getShortLabel: () =>
+			/* translators: abbreviation for "Last 30 days". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
+			_x( '30D', 'short date range preset', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
 			from: subDays( initOfToday, 30 ),
 			to: endOfYesterday,
@@ -117,7 +143,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_90_DAYS,
-		getLabel: () => __( 'Last 90 days', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Last 90 days', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
 			from: subDays( initOfToday, 90 ),
 			to: endOfYesterday,
@@ -125,7 +151,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_365_DAYS,
-		getLabel: () => __( 'Last 365 days', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Last 365 days', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
 			from: subDays( initOfToday, 365 ),
 			to: endOfYesterday,
@@ -133,7 +159,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_MONTH,
-		getLabel: () => __( 'Last month', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Last month', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { lastMonth, endOfLastMonth } ) => ( {
 			from: startOfMonth( lastMonth ),
 			to: endOfLastMonth,
@@ -141,7 +167,10 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_12_MONTHS,
-		getLabel: () => __( 'Last 12 months', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Last 12 months', 'jetpack-premium-analytics-pkg' ),
+		getShortLabel: () =>
+			/* translators: abbreviation for "Last 12 months". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
+			_x( '12M', 'short date range preset', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
 			from: subMonths( initOfToday, 12 ),
 			to: endOfYesterday,
@@ -149,7 +178,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_YEAR,
-		getLabel: () => __( 'Last year', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Last year', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { lastYear } ) => ( {
 			from: startOfYear( lastYear ),
 			to: endOfYear( lastYear ),
@@ -166,7 +195,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
  */
 function getYearSurfaceLabel( id: YearSurfacePresetId ): string {
 	return id === PRESET_ALL_TIME
-		? __( 'All time', 'jetpack-premium-analytics' )
+		? __( 'All time', 'jetpack-premium-analytics-pkg' )
 		: String( getPresetYear( id ) );
 }
 
@@ -215,12 +244,16 @@ function buildDateContext( timeZone: string ): DateContext {
 }
 
 /**
- * Represents a date range preset option.
  * Preset ranges always have both `from` and `to` defined.
  */
 export type DateRangePreset< TId extends ComputablePresetId = SelectablePresetId > = {
 	id: TId;
 	label: string;
+	/**
+	 * Abbreviated label, present only on presets that render as surface pills.
+	 * Consumers that never run out of room can ignore it.
+	 */
+	shortLabel?: string;
 	range: Required< DateRange >;
 };
 
@@ -282,9 +315,10 @@ function computeAllTimeRange( startYear: number, ctx: DateContext ): Required< D
 export function getDefaultDateRangePresets( timeZone: string ): DateRangePreset[] {
 	const ctx = buildDateContext( timeZone );
 
-	return PRESET_DEFINITIONS.map( ( { id, getLabel, getRange } ) => ( {
+	return PRESET_DEFINITIONS.map( ( { id, getLabel, getShortLabel, getRange } ) => ( {
 		id,
 		label: getLabel(),
+		shortLabel: getShortLabel?.(),
 		range: getRange( ctx ),
 	} ) );
 }

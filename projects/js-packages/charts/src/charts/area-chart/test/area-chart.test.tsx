@@ -333,6 +333,35 @@ describe( 'AreaChart', () => {
 			expect( afterToggleDomain ).toEqual( initialDomain );
 		} );
 
+		test( 'y-axis stays pinned when rescaleYOnVisibilityChange is false', async () => {
+			const user = userEvent.setup();
+			const ref = createRef< SingleChartRef >();
+			render(
+				<GlobalChartsProvider>
+					<AreaChartUnresponsive
+						{ ...defaultProps }
+						showLegend
+						chartId="test-interactive-domain-pin-new"
+						legend={ { interactive: true } }
+						rescaleYOnVisibilityChange={ false }
+						ref={ ref }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const initialDomain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( initialDomain ).toBeDefined();
+
+			await user.click( screen.getByText( 'Series A' ) );
+
+			const afterToggleDomain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( afterToggleDomain ).toEqual( initialDomain );
+		} );
+
 		test( 'supports negative stacked values without clipping (with pinned Y)', () => {
 			// The mixed-sign full-extent pin only kicks in when the consumer
 			// opts into pinned-Y behavior; visx's natural domain derivation for
@@ -543,5 +572,78 @@ describe( 'AreaChart', () => {
 			'clip-path',
 			'url(#chart-zoom-clip-zoomtest)'
 		);
+	} );
+
+	describe( 'Legend group collapsing', () => {
+		const groupedData = [
+			{
+				label: 'Views',
+				group: 'views',
+				data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+			},
+			{
+				label: 'Views — previous',
+				group: 'views',
+				options: { type: 'comparison' as const },
+				data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+			},
+		];
+
+		test( 'renders one legend item per series by default', () => {
+			renderWithProvider( { showLegend: true, data: groupedData } );
+
+			expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Views — previous' ) ).toBeInTheDocument();
+		} );
+
+		test( 'collapses a group to one item when legend.collapseGroups is set', () => {
+			renderWithProvider( {
+				showLegend: true,
+				legend: { collapseGroups: true },
+				data: groupedData,
+			} );
+
+			expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Views — previous' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'All series hidden', () => {
+		it( 'drops the grid so it does not collapse when every series is hidden', async () => {
+			const user = userEvent.setup();
+
+			renderWithProvider( {
+				showLegend: true,
+				legend: { interactive: true },
+				chartId: 'area-hidden-axes',
+				data: [
+					{
+						label: 'Series A',
+						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+					},
+					{
+						label: 'Series B',
+						data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+					},
+				],
+			} );
+
+			// The visx grid has no role/testid, so query its internal class from within the plot.
+			/* eslint-disable testing-library/no-node-access */
+			const plot = screen.getByRole( 'grid' );
+			expect( plot.querySelector( '.visx-rows' ) ).toBeInTheDocument();
+
+			const buttons = screen.getAllByRole( 'button' );
+			await user.click( buttons[ 0 ] );
+			await user.click( buttons[ 1 ] );
+
+			// With no visible data the value scale collapses, so the grid is removed rather than
+			// rendered squished at the top behind the empty state.
+			expect( plot.querySelector( '.visx-rows' ) ).not.toBeInTheDocument();
+			/* eslint-enable testing-library/no-node-access */
+			expect(
+				screen.getByText( /all series are hidden.*click legend items to show data/i )
+			).toBeInTheDocument();
+		} );
 	} );
 } );

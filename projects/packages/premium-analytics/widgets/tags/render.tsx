@@ -19,7 +19,7 @@ import { tag as tagIllustration } from '@jetpack-premium-analytics/icons';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { category, tag as tagGlyph } from '@wordpress/icons';
-import { Icon, Link, Stack } from '@wordpress/ui';
+import { Icon, Link, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -50,9 +50,6 @@ interface TagGroupMembersProps {
  * Icon + label for a single tag/category, shared by the leaderboard rows and the
  * drilled-in group members. A member with an archive URL renders an external
  * link; one without renders plain text.
- *
- * @param {TagLabelProps} props - The component props.
- * @return The rendered label.
  */
 function TagLabel( { labelIcon, label, link }: TagLabelProps ) {
 	const href = safeHttpUrl( link );
@@ -83,9 +80,6 @@ function TagLabel( { labelIcon, label, link }: TagLabelProps ) {
  * Drilled-in view for a grouped row: the individual tags and categories that
  * share the selected group. The Stats endpoint reports only the group's
  * combined views, so members are listed as links without their own values.
- *
- * @param {TagGroupMembersProps} props - The component props.
- * @return The rendered member list.
  */
 function TagGroupMembers( { members }: TagGroupMembersProps ) {
 	return (
@@ -99,14 +93,6 @@ function TagGroupMembers( { members }: TagGroupMembersProps ) {
 	);
 }
 
-/**
- * Tags & categories widget inner component. Reads report params from WidgetRoot
- * context, fetches the ranked tags/categories, and drills grouped rows down to
- * their members.
- *
- * @param {TagsAttributes} attributes - The widget attributes.
- * @return The rendered widget content.
- */
 function TagsInner( { max = 10 }: TagsAttributes ) {
 	const { reportParams } = useWidgetRootContext();
 	const { data, isLoading, isFetching, isError, refetch } = useTagViews( { reportParams, max } );
@@ -152,7 +138,7 @@ function TagsInner( { max = 10 }: TagsAttributes ) {
 					onClick: () => selectGroup( row.label ),
 					ariaLabel: sprintf(
 						/* translators: %s is the grouped tags and categories label */
-						__( 'View the tags and categories in %s', 'jetpack-premium-analytics' ),
+						__( 'View the tags and categories in %s', 'jetpack-premium-analytics-pkg' ),
 						row.label
 					),
 				} ),
@@ -165,7 +151,7 @@ function TagsInner( { max = 10 }: TagsAttributes ) {
 			<div className={ styles.content }>
 				{ selectedGroup && (
 					<WidgetBackLink
-						label={ __( 'All tags & categories', 'jetpack-premium-analytics' ) }
+						label={ __( 'All tags & categories', 'jetpack-premium-analytics-pkg' ) }
 						onClick={ clearSelection }
 					/>
 				) }
@@ -177,15 +163,17 @@ function TagsInner( { max = 10 }: TagsAttributes ) {
 					error={ {
 						description: __(
 							"We couldn't load tags & categories. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					empty={ {
 						icon: tagIllustration,
 						description: __(
 							'Learn about your most visited tags & categories to track engaging topics.',
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 					} }
 				>
@@ -216,9 +204,6 @@ function TagsInner( { max = 10 }: TagsAttributes ) {
  * selected period, ranked by views. Ported from the Jetpack Stats "Tags &
  * categories" module. Grouped rows (several tags/categories sharing a post) drill
  * down to their individual members.
- *
- * @param {TagsWidgetProps} props - The widget render props.
- * @return The rendered Tags & categories widget.
  */
 export default function Tags( { attributes = {} }: TagsWidgetProps ) {
 	return (

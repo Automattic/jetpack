@@ -12,9 +12,6 @@ import type { DataFormat } from '../../types';
 import type { FontSize } from '@wordpress/theme';
 
 export type MetricValueProps = {
-	/**
-	 * The numeric value to display
-	 */
 	value: number;
 
 	/**
@@ -28,9 +25,6 @@ export type MetricValueProps = {
 	 */
 	currencyCode?: string;
 
-	/**
-	 * CSS class for styling
-	 */
 	className?: string;
 
 	/**
@@ -62,9 +56,6 @@ export function MetricValue( {
 	fontSize = 'lg',
 	color = 'neutral',
 }: MetricValueProps ) {
-	/**
-	 * Create display value using dataFormat configuration
-	 */
 	const displayValue = useMemo(
 		() =>
 			formatMetricValue( value, dataFormat.type, {

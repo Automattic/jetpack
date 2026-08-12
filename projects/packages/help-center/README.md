@@ -22,9 +22,26 @@ add_action( 'init', array( Help_Center::class, 'init' ), 10, 0 );
 
 The package expects the consuming plugin to load its Composer autoloader. Jetpack Autoloader is recommended when multiple plugins may ship Jetpack packages.
 
+### Public Frontend Surfaces
+
+Consumers can opt a frontend request into the existing logged-out Help Center
+bundle. The package continues to own variant selection and asset loading:
+
+```php
+add_filter(
+	'jetpack_help_center_should_load_logged_out',
+	static function ( $should_load ) {
+		return is_front_page() || $should_load;
+	}
+);
+```
+
 ### Custom WordPress.com Authentication
 
-By default, the package sends authenticated WordPress.com requests through Jetpack Connection. Consumers with another authentication system can implement `Wpcom_Request_Client` and provide it before Help Center initializes:
+By default, the package sends logged-in WordPress.com requests through Jetpack
+Connection and logged-out requests anonymously. Consumers with another
+authentication system can implement `Wpcom_Request_Client` and provide it before
+Help Center initializes:
 
 ```php
 use Automattic\Jetpack\Help_Center\Wpcom_Request_Client;
@@ -34,14 +51,18 @@ final class My_Help_Center_Request_Client implements Wpcom_Request_Client {
 		return my_wpcom_access_token() !== null;
 	}
 
-	public function request_as_user(
+	public function request(
 		$path,
 		$version = '2',
 		$args = array(),
 		$body = null,
 		$base_api_path = 'wpcom'
 	) {
-		return my_authenticated_wpcom_request( $path, $version, $args, $body, $base_api_path );
+		if ( is_user_logged_in() ) {
+			return my_authenticated_wpcom_request( $path, $version, $args, $body, $base_api_path );
+		}
+
+		return my_anonymous_wpcom_request( $path, $version, $args, $body, $base_api_path );
 	}
 }
 
@@ -60,7 +81,7 @@ Standalone consumers may instead pass the client directly to `Help_Center::init(
 - Loads Help Center bundles in wp-admin, the block editor, the customizer, and supported frontend contexts.
 - Adds the Help Center entry point to the WordPress admin bar.
 - Provides connected and disconnected variants based on Jetpack connection state.
-- Registers the `/help-center` REST namespace used by the frontend.
+- Registers the `/help-center` REST namespace used by the frontend, including anonymous proxy requests for logged-out users.
 - Limits persisted Help Center router history to 50 entries.
 
 ## Development

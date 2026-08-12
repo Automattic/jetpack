@@ -184,7 +184,7 @@ export const ErrorRetryable: StoryObj< TopPlatformsStoryControls > = {
  * glyph and "No platform data in this period.").
  */
 export const Empty: StoryObj< TopPlatformsStoryControls > = {
-	render: () => renderTopPlatformsOnPreset( 'last-365-days' ),
+	render: () => renderTopPlatformsOnPreset( 'last-year' ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {

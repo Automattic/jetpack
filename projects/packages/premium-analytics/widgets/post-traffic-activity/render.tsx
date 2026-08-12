@@ -2,20 +2,22 @@
  * External dependencies
  */
 import { toPostId } from '@jetpack-premium-analytics/data';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	HeatmapChartUnresponsive,
 	WidgetRoot,
 	WidgetState,
 	buildCalendarHeatmapData,
+	toDay,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useResizeObserver } from '@wordpress/compose';
-import { useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useCallback, useMemo, useState } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
-import { Button, Stack } from '@wordpress/ui';
+import { Button, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -42,9 +44,6 @@ const DEFAULT_PAGE_WEEKS = 16;
 
 /**
  * Whole week columns that fit the measured card width.
- *
- * @param width - The measured content width, if known yet.
- * @return The page width in week columns.
  */
 function weeksForWidth( width?: number ): number {
 	if ( ! width ) {
@@ -58,15 +57,10 @@ function weeksForWidth( width?: number ): number {
 }
 
 /**
- * Traffic activity inner component. Reads the post scope and date range from
- * WidgetRoot context and renders one page of the post's daily views as a
- * calendar heatmap through `<WidgetState>` — week columns, weekday rows, and
- * view counts inside the cells. Ranges longer than one page grow a header
- * pager stepping through the range; without a post scope (e.g. the widget
- * added outside a post detail page) the query never enables and the empty
- * state shows.
- *
- * @return The rendered widget content.
+ * Renders one page of the post's daily views as a calendar heatmap. Ranges
+ * longer than one page grow a header pager stepping through the range; without
+ * a post scope (e.g. the widget added outside a post detail page) the query
+ * never enables and the empty state shows.
  */
 function PostTrafficActivityInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -103,6 +97,55 @@ function PostTrafficActivityInner() {
 		[ days ]
 	);
 
+	const from = toDay( reportParams.from );
+	const to = toDay( reportParams.to );
+
+	// Show the exact count before the date instead of the chart's default
+	// ordering, mirroring the Insights daily-views heatmap. Blank cells split
+	// by what the blank means: inside the range a day with no recorded views
+	// really had none ("No views"), while the filler days padding the grid
+	// before the range start are masked, not measured — claiming "No views"
+	// there could be false, so they say "No data". Cells map back to `days`
+	// by grid position: the page start is always week-aligned, so
+	// `column * 7 + row` indexes the flat series.
+	const renderCellTooltip = useCallback(
+		( {
+			value,
+			cellLabel,
+			row,
+			column,
+		}: {
+			value: number | null;
+			cellLabel?: string;
+			row: number;
+			column: number;
+		} ) => {
+			let label;
+			if ( value !== null ) {
+				label = sprintf(
+					/* translators: %s: number of views, e.g. "2,033". */
+					_n( '%s view', '%s views', value, 'jetpack-premium-analytics-pkg' ),
+					formatMetricValue( value, 'number', { decimals: 0 } )
+				);
+			} else {
+				const day = days[ column * 7 + row ];
+				const inRange =
+					!! day && !! from && !! to && day.dateString >= from && day.dateString <= to;
+				label = inRange
+					? __( 'No views', 'jetpack-premium-analytics-pkg' )
+					: __( 'No data', 'jetpack-premium-analytics-pkg' );
+			}
+
+			return (
+				<>
+					<strong>{ label }</strong>
+					<div>{ cellLabel }</div>
+				</>
+			);
+		},
+		[ days, from, to ]
+	);
+
 	return (
 		<div ref={ measureRef } className={ styles.root }>
 			<div className={ styles.body }>
@@ -114,9 +157,11 @@ function PostTrafficActivityInner() {
 					error={ {
 						description: __(
 							"We couldn't load this traffic activity. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					// A post with no traffic renders the all-blank grid (the sparse
 					// treatment), so the empty state only covers the missing scope.
@@ -124,7 +169,7 @@ function PostTrafficActivityInner() {
 						icon: reports,
 						description: __(
 							'Open a post or page report to see its traffic activity here.',
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 					} }
 				>
@@ -141,7 +186,7 @@ function PostTrafficActivityInner() {
 									size="small"
 									onClick={ showOlder }
 									disabled={ ! canShowOlder }
-									aria-label={ __( 'Older activity', 'jetpack-premium-analytics' ) }
+									aria-label={ __( 'Older activity', 'jetpack-premium-analytics-pkg' ) }
 								>
 									<Button.Icon icon={ chevronLeft } size={ 16 } />
 								</Button>
@@ -152,7 +197,7 @@ function PostTrafficActivityInner() {
 									size="small"
 									onClick={ showNewer }
 									disabled={ ! canShowNewer }
-									aria-label={ __( 'Newer activity', 'jetpack-premium-analytics' ) }
+									aria-label={ __( 'Newer activity', 'jetpack-premium-analytics-pkg' ) }
 								>
 									<Button.Icon icon={ chevronRight } size={ 16 } />
 								</Button>
@@ -171,6 +216,7 @@ function PostTrafficActivityInner() {
 							// sized to the card, so tracks never need to shrink below it.
 							maxCellWidth={ 64 }
 							maxCellHeight={ 42 }
+							renderTooltip={ renderCellTooltip }
 							className={ styles.heatmap }
 						/>
 					</div>
@@ -180,14 +226,6 @@ function PostTrafficActivityInner() {
 	);
 }
 
-/**
- * Traffic activity widget: the scoped post's daily views as a calendar
- * heatmap — the post detail Traffic view's activity card, replacing the
- * legacy months table.
- *
- * @param {PostTrafficActivityWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function PostTrafficActivity( { attributes = {} }: PostTrafficActivityWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

@@ -443,6 +443,48 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * Test that `authorize` deletes cached connected user data, so a cached
+	 * `error` sentinel from a previously broken token does not linger after
+	 * the user reconnects.
+	 */
+	public function test_authorize_deletes_cached_connected_user_data() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_authorize_deletes_cached_user_data',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		set_transient( "jetpack_connected_user_data_$user_id", 'error', 5 * MINUTE_IN_SECONDS );
+
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'get', 'update_user_token' ) )
+			->getMock();
+		$tokens->method( 'get' )->willReturn( 'usertoken.secret' );
+		$tokens->method( 'update_user_token' )->willReturn( true );
+
+		$manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id' ) )
+			->getMock();
+		$manager->method( 'get_tokens' )->willReturn( $tokens );
+		$manager->method( 'get_connection_owner_id' )->willReturn( 123 );
+
+		$result = $manager->authorize(
+			array(
+				'state' => (string) $user_id,
+				'code'  => 'authorization_code',
+			)
+		);
+
+		$cached = get_transient( "jetpack_connected_user_data_$user_id" );
+
+		$this->assertSame( 'linked', $result );
+		$this->assertFalse( $cached );
+	}
+
+	/**
 	 * Unit test for the "Delete all tokens" functionality.
 	 */
 	public function test_delete_all_connection_tokens() {

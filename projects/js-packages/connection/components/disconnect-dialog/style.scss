@@ -9,21 +9,18 @@
 		font-weight: 600;
 	}
 
-	h2 {
-		margin: 0;
-		line-height: 1.2;
-		font-size: var(--font-title-small);
-		font-weight: 400;
-	}
-
 	p {
 		margin-top: 0;
 		font-size: var(--font-body);
 	}
 
+	// `line-height` has to be restated here rather than inherited: @wordpress/ui's
+	// `Text` applies a fixed 24px line-height to the element itself, which an
+	// inherited value cannot override.
 	&__large-text,
 	p.jp-connection__disconnect-dialog__large-text {
 		font-size: 1.25rem;
+		line-height: 1.5;
 		display: block;
 		margin-block: 0 1em;
 	}
@@ -48,12 +45,6 @@
 		&--bold {
 			font-weight: 700;
 		}
-	}
-
-	.components-button {
-		height: 40px;
-		font-size: var(--font-body-small);
-		border-radius: 4px;
 	}
 
 	.components-modal {
@@ -107,8 +98,7 @@
 		}
 	}
 
-	&__btn-dismiss,
-	&__btn-dismiss.components-button { // override the components-button class
+	&__btn-dismiss {
 		background: var(--jp-black) !important;
 		margin-right: 10px;
 	}
@@ -144,12 +134,14 @@
 		min-width: 0;
 	}
 
-	// The thank-you step wraps its copy in a @wordpress/ui Stack, so let the
-	// Stack `gap` token own the vertical rhythm rather than element margins.
+	// The thank-you and disconnect-confirm steps wrap their copy in a
+	// @wordpress/ui Stack, so let the Stack `gap` token own the vertical rhythm
+	// rather than element margins.
 	&__copy {
 
 		h1,
-		p {
+		p,
+		.jp-connection__disconnect-dialog__large-text {
 			margin: 0;
 		}
 	}

@@ -1,16 +1,16 @@
 /**
  * External dependencies
  */
+import { Link, Stack } from '@jetpack-premium-analytics/externals';
 import { DrilldownLeafCell, safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './fields.module.css';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
 /**
  * A flattened referrer group, source, or domain shown in the records table.
@@ -75,7 +75,7 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 	return [
 		{
 			id: 'referrer',
-			label: __( 'Referrer', 'jetpack-premium-analytics' ),
+			label: __( 'Referrer', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,
@@ -109,7 +109,7 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 		},
 		{
 			id: 'views',
-			label: __( 'Views', 'jetpack-premium-analytics' ),
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.views,
 			render: ( { item } ) => (
 				<MetricWithComparison

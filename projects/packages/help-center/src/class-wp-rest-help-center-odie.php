@@ -35,7 +35,7 @@ class WP_REST_Help_Center_Odie extends WP_REST_Help_Center_Controller {
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_chat' ),
-					'permission_callback' => 'is_user_logged_in',
+					'permission_callback' => '__return_true',
 					'args'                => array(
 						'bot_id'           => array(
 							'description' => __( 'The bot id to get the chat for.', 'jetpack-help-center' ),
@@ -70,7 +70,7 @@ class WP_REST_Help_Center_Odie extends WP_REST_Help_Center_Controller {
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'send_chat_message' ),
-					'permission_callback' => 'is_user_logged_in',
+					'permission_callback' => '__return_true',
 					'args'                => array(
 						'bot_id'  => array(
 							'description' => __( 'The bot id to chat with.', 'jetpack-help-center' ),
@@ -105,7 +105,7 @@ class WP_REST_Help_Center_Odie extends WP_REST_Help_Center_Controller {
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'save_chat_message_feedback' ),
-					'permission_callback' => 'is_user_logged_in',
+					'permission_callback' => '__return_true',
 					'args'                => array(
 						'bot_id'       => array(
 							'description' => __( 'The bot id to chat with.', 'jetpack-help-center' ),
@@ -139,7 +139,7 @@ class WP_REST_Help_Center_Odie extends WP_REST_Help_Center_Controller {
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'send_chat_message' ),
-					'permission_callback' => 'is_user_logged_in',
+					'permission_callback' => '__return_true',
 					'args'                => array(
 						'bot_id'  => array(
 							'description' => __( 'The bot id to chat with.', 'jetpack-help-center' ),
@@ -174,7 +174,7 @@ class WP_REST_Help_Center_Odie extends WP_REST_Help_Center_Controller {
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_conversations' ),
-					'permission_callback' => 'is_user_logged_in',
+					'permission_callback' => '__return_true',
 					'args'                => array(
 						'bot_ids'        => array(
 							'description' => __( 'The bot id(s) to get the conversations for, separated by commas.', 'jetpack-help-center' ),
@@ -207,20 +207,27 @@ class WP_REST_Help_Center_Odie extends WP_REST_Help_Center_Controller {
 	public function send_chat_message( \WP_REST_Request $request ) {
 		$bot_name_slug = $request->get_param( 'bot_id' );
 		$chat_id       = $request->get_param( 'chat_id' );
+		$request_body  = array(
+			'message' => $request->get_param( 'message' ),
+			'context' => $request->get_param( 'context' ) ?? array(),
+		);
+
+		foreach ( array( 'version', 'session_id', 'external_chat_provider', 'external_chat_id' ) as $optional_param ) {
+			$value = $request->get_param( $optional_param );
+			if ( null !== $value ) {
+				$request_body[ $optional_param ] = $value;
+			}
+		}
 
 		// Forward the request body to the support chat endpoint.
-		$body = $this->wpcom_request_client->request_as_user(
+		$body = $this->wpcom_request_client->request(
 			'/odie/chat/' . $bot_name_slug . '/' . $chat_id,
 			'2',
 			array(
 				'method'  => 'POST',
 				'timeout' => 60,
 			),
-			array(
-				'message' => $request->get_param( 'message' ),
-				'context' => $request->get_param( 'context' ) ?? array(),
-				'version' => $request->get_param( 'version' ),
-			)
+			$request_body
 		);
 
 		if ( is_wp_error( $body ) ) {
@@ -249,10 +256,12 @@ class WP_REST_Help_Center_Odie extends WP_REST_Help_Center_Controller {
 				'page_number'      => $page_number,
 				'items_per_page'   => $items_per_page,
 				'include_feedback' => $include_feedback,
+				'version'          => $request->get_param( 'version' ),
+				'session_id'       => $request->get_param( 'session_id' ),
 			)
 		);
 
-		$body = $this->wpcom_request_client->request_as_user(
+		$body = $this->wpcom_request_client->request(
 			'/odie/chat/' . $bot_name_slug . '/' . $chat_id . '?' . $url_query_params
 		);
 
@@ -277,7 +286,7 @@ class WP_REST_Help_Center_Odie extends WP_REST_Help_Center_Controller {
 		$rating_value = $request->get_param( 'rating_value' );
 
 		// Forward the request body to the feedback endpoint.
-		$body = $this->wpcom_request_client->request_as_user(
+		$body = $this->wpcom_request_client->request(
 			'/odie/chat/' . $bot_id . '/' . $chat_id . '/' . $message_id . '/feedback',
 			'2',
 			array( 'method' => 'POST' ),
@@ -314,7 +323,7 @@ class WP_REST_Help_Center_Odie extends WP_REST_Help_Center_Controller {
 			)
 		);
 
-		$body = $this->wpcom_request_client->request_as_user(
+		$body = $this->wpcom_request_client->request(
 			'/odie/conversations/' . $bot_ids . '?' . $url_query_params
 		);
 

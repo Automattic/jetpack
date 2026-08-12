@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "26a28963f05fd6563512fc376bb7fced",
+    "content-hash": "852808280846e51f74ebd623d545ca0f",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -477,7 +477,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "b73cc2a68522658c6693f035e7a8c0d5b6984688"
+                "reference": "30d5d0b73e2401a4b3446668362469af7089fa2e"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -514,7 +514,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "8.8.x-dev"
+                    "dev-trunk": "8.10.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -844,7 +844,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "65140eaa3f8196b645d464edf243e9282a392e13"
+                "reference": "a2464237fbb0416b5830d62f9a1291d41eaa913c"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -866,7 +866,7 @@
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-premium-analytics",
-                "textdomain": "jetpack-premium-analytics",
+                "textdomain": "jetpack-premium-analytics-pkg",
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-analytics.php"
                 },
@@ -874,7 +874,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 }
             },
             "autoload": {
@@ -1032,7 +1032,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "0ebd3991d1a99f1843f5071fdda658e0ca77abc6"
+                "reference": "cabc204d02f8c619d6d22adc12aa323ae42ffb0c"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1062,7 +1062,7 @@
                 "branch-alias": {
                     "dev-trunk": "0.20.x-dev"
                 },
-                "textdomain": "jetpack-stats"
+                "textdomain": "jetpack-stats-pkg"
             },
             "autoload": {
                 "classmap": [
@@ -1099,7 +1099,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "30e50be852b4f6b22a2a47ed7ab3ef6daa4074b6"
+                "reference": "26b69f4d41e748bdf466e89bf85f1d92823b7d34"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -1124,7 +1124,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.1.x-dev"
+                    "dev-trunk": "6.3.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1293,7 +1293,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-build-polyfills",
-                "reference": "116ceba3c357f49d40854f3083f60faa372f5c25"
+                "reference": "70cb1e74eafd173c0b2d3b8b0f25cf5a96421ba2"
             },
             "require": {
                 "php": ">=7.2"
@@ -1312,7 +1312,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 }
             },
             "autoload": {

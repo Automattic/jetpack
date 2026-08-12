@@ -631,10 +631,18 @@ class Search_Blocks {
 	 * URL param key the inline search experience uses for the current request.
 	 * On the WP search route `s`; elsewhere `q` (see `NON_SEARCH_QUERY_PARAM`).
 	 *
+	 * Uses direct property access on `$wp_query` rather than the `is_search()`
+	 * global function, because the function calls `_doing_it_wrong()` when
+	 * invoked before the query has finished running (e.g. during block render).
+	 *
 	 * @return string
 	 */
 	public static function get_search_param_name(): string {
-		return function_exists( 'is_search' ) && is_search() ? 's' : self::NON_SEARCH_QUERY_PARAM;
+		global $wp_query;
+		if ( isset( $wp_query ) && ! empty( $wp_query->is_search ) ) {
+			return 's';
+		}
+		return self::NON_SEARCH_QUERY_PARAM;
 	}
 
 	/**
@@ -1210,9 +1218,13 @@ class Search_Blocks {
 	 * theme paints on the browser canvas) or when bg equals ink (vintage
 	 * frame-themes like Twenty Sixteen use body as a colored border around a
 	 * lighter `.site` content wrapper). See AGENTS.md § Theme tokens.
+	 *
+	 * The `wp_body_open` hook registers unconditionally in `init()`, before
+	 * the module-active check in `Initializer::init_search_blocks()` — so the
+	 * module gate lives here instead, front-end only.
 	 */
 	public static function print_theme_token_sampler(): void {
-		if ( is_admin() ) {
+		if ( is_admin() || ! ( new Module_Control() )->is_active() ) {
 			return;
 		}
 		echo "<script id='jetpack-search-theme-token-sampler'>(function(){try{var c=getComputedStyle(document.body),r=document.documentElement,ink=c.color,bg=c.backgroundColor;if(ink){r.style.setProperty('--jp-search-page-ink',ink);}if(bg&&bg!==ink&&bg!=='rgba(0, 0, 0, 0)'&&bg!=='transparent'){r.style.setProperty('--jp-search-page-surface',bg);}}catch(e){}})();</script>";
@@ -2107,7 +2119,8 @@ HTML;
 			return array();
 		}
 		// Bail if any helper is missing — half-loaded feature would ship inconsistent filterConfigs.
-		foreach ( static::filter_block_helpers() as $helper ) {
+		$helpers = static::filter_block_helpers();
+		foreach ( $helpers as $helper ) {
 			if ( ! class_exists( $helper ) ) {
 				return array();
 			}
@@ -2116,9 +2129,29 @@ HTML;
 		if ( ! $post || empty( $post->post_content ) ) {
 			return array();
 		}
+		if ( ! static::post_content_has_filter_block( $post, array_keys( $helpers ) ) ) {
+			return array();
+		}
 		$configs = array();
 		static::walk_blocks_for_filter_configs( parse_blocks( $post->post_content ), $configs );
 		return $configs;
+	}
+
+	/**
+	 * Does the post contain any of the given block names? SEARCH-295: a
+	 * has_block() scan to gate parse_blocks() on large, filter-less posts.
+	 *
+	 * @param \WP_Post $post        Post to scan.
+	 * @param string[] $block_names Block names to scan for.
+	 * @return bool
+	 */
+	protected static function post_content_has_filter_block( \WP_Post $post, array $block_names ): bool {
+		foreach ( $block_names as $block_name ) {
+			if ( has_block( $block_name, $post ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -2194,6 +2227,7 @@ HTML;
 		$price_range               = static::parse_url_price_range();
 		$is_initial_loading        = static::is_initial_loading();
 		$searching_text            = function_exists( '__' ) ? __( 'Searching…', 'jetpack-search-pkg' ) : 'Searching…';
+		$query_options             = static::get_instant_search_query_options();
 
 		return array(
 			// Connection / routing config.
@@ -2263,7 +2297,30 @@ HTML;
 			'aiExtendedLoadingHints'     => static::build_ai_extended_loading_hints(),
 
 			'wcStockStatusLabels'        => static::build_stock_status_labels(),
+
+			// Query customization from `jetpack_instant_search_options` — same
+			// keys Instant Search / Inline Search honor, so Embedded and the
+			// blocks Overlay stay compatible with those filters.
+			'highlightPhraseOnly'        => $query_options['highlightPhraseOnly'],
+			'highlightFilterStopwords'   => $query_options['highlightFilterStopwords'],
+			'highlightFields'            => $query_options['highlightFields'],
+			'additionalBlogIds'          => $query_options['additionalBlogIds'],
+			'adminQueryFilter'           => $query_options['adminQueryFilter'],
+			'customResults'              => $query_options['customResults'],
 		);
+	}
+
+	/**
+	 * Read Instant Search query-customization options for the blocks store.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array Query options with keys:
+	 *               `highlightPhraseOnly`, `highlightFilterStopwords`, `highlightFields`,
+	 *               `additionalBlogIds`, `adminQueryFilter`, and `customResults`.
+	 */
+	public static function get_instant_search_query_options(): array {
+		return Helper::get_instant_search_query_options();
 	}
 
 	/**

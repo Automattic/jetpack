@@ -1,4 +1,8 @@
 /**
+ * Internal dependencies
+ */
+import type { DateFilterSurface } from './date-filter';
+/**
  * External dependencies
  */
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
@@ -6,7 +10,7 @@ import type { DashboardWidget } from '@wordpress/widget-dashboard';
 /**
  * A dashboard section, served by `GET /dashboards/{name}/sections` and read
  * through the `dashboardSection` core-data entity. The server-side registry is
- * the source of truth for which sections exist, their order, and labels.
+ * the source of truth for which sections exist, their order, and their copy.
  */
 export type DashboardSection = {
 	/**
@@ -22,14 +26,41 @@ export type DashboardSection = {
 	slug: string;
 
 	/**
-	 * Translated display label.
+	 * Translated display label. Names the section's tab.
 	 */
 	label: string;
+
+	/**
+	 * Translated section heading, deliberately not the tab label: the `Traffic`
+	 * tab heads its section `Site traffic`. Read it through
+	 * `resolveSectionHeading`. Optional for the same reason as `date_filter`
+	 * below.
+	 */
+	title?: string | null;
+
+	/**
+	 * Translated section description, rendered as the page subtitle while this
+	 * section is active. Missing or `null` renders no subtitle — there is no
+	 * default copy behind it.
+	 */
+	description?: string | null;
 
 	/**
 	 * Sort order (ascending).
 	 */
 	order: number;
+
+	/**
+	 * Which date filter this section's header offers. Server-registered per
+	 * section, so a section reporting on whole history can ask for the year
+	 * surface while the rest keep the rolling date-range picker.
+	 *
+	 * Optional because the field can genuinely be absent: WPCOM's public-api
+	 * registers this route from its own checkout, so a Simple site can be served
+	 * a sections payload built before the field existed. A missing value means
+	 * the date-range surface.
+	 */
+	date_filter?: DateFilterSurface;
 
 	/**
 	 * Bundled default widget layout, consumed by the reset action.
@@ -42,6 +73,19 @@ export type DashboardSection = {
  * Server-driven, so an open string.
  */
 export type DashboardSectionId = string;
+
+/**
+ * The heading a section shows above its widgets. Sections that register no
+ * heading of their own — Store today — head the section with their tab label.
+ *
+ * @param section - The section to head.
+ * @return The heading text.
+ */
+export function resolveSectionHeading( section: DashboardSection ): string {
+	// `||` rather than `??`: an empty string is a registrant meaning "none", and
+	// heading the section with it would render an `<h2>` with no accessible name.
+	return section.title || section.label;
+}
 
 /**
  * Narrow a candidate slug to an available section, falling back to the first

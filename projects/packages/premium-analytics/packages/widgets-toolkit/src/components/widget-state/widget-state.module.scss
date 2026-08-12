@@ -1,3 +1,5 @@
+@use "../../styles/widget-container" as *;
+
 .state {
 	block-size: 100%;
 
@@ -18,9 +20,9 @@
 // On short tiles the icon steals the room the text needs, and a state showing
 // icon + text next to one that fits text-only reads as misaligned. Below the
 // threshold drop the glyph so every state degrades the same way: text only,
-// vertically centered. 140px keeps height-1 tiles (≈100px body) icon-free and
-// height-2 tiles (≈300px) untouched.
-@container (max-block-size: 140px) {
+// vertically centered. The threshold is shared with the other components that
+// shed chrome on a height-1 widget — see `$widget-short-max-block-size`.
+@container (max-block-size: #{$widget-short-max-block-size}) {
 
 	.stateIcon {
 		display: none;

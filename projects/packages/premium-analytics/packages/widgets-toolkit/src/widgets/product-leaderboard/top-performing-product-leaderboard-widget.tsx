@@ -6,9 +6,9 @@ import {
 	useProductImages,
 	type FilterCondition,
 } from '@jetpack-premium-analytics/data';
+import { Icon } from '@jetpack-premium-analytics/externals';
 import { productBlouse } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
-import { Icon } from '@wordpress/ui';
 import { useMemo } from 'react';
 import { buildLeaderboardRow, LeaderboardChart } from '../../components/chart-leaderboard';
 import { useWidgetRootContext } from '../../components/widget-root';
@@ -24,9 +24,6 @@ import {
 } from '../../helpers';
 
 export type TopPerformingProductLeaderboardWidgetProps = {
-	/**
-	 * Maximum number of products to display
-	 */
 	limit?: number;
 
 	/**
@@ -57,44 +54,11 @@ export type TopPerformingProductLeaderboardWidgetProps = {
 };
 
 /**
- * Top Performing Product Leaderboard Widget
+ * Leaderboard of top-performing products by net revenue, with images and
+ * period-over-period comparison. Shared by every product-based leaderboard
+ * (regular products, bookings, …) through the `filter` prop.
  *
- * Displays top-performing products by net revenue in a leaderboard format.
- * Shows product images, names, and revenue with comparison to previous period.
- *
- * This is a reusable component that can be used for any product-based leaderboard
- * (regular products, bookings, etc.).
- *
- * Features:
- * - Automatic product data fetching
- * - Product image loading
- * - Revenue-based ranking
- * - Comparison support
- * - Product type filtering
- *
- * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @param props                - Component props
- * @param props.limit          - Maximum number of products to display (default: 5)
- * @param props.filter         - Optional product type filter
- * @param props.emptyStateIcon - Icon to display in empty state (default: productBlouse)
- * @param props.emptyStateText - Text to display in empty state
- * @param props.errorText      - Text to display in error state
- *
- * @example
- * // All product types
- * <WidgetRoot attributes={ attributes }>
- *   <TopPerformingProductLeaderboardWidget limit={ 5 } />
- * </WidgetRoot>
- *
- * @example
- * // Bookings only
- * <WidgetRoot attributes={ attributes }>
- *   <TopPerformingProductLeaderboardWidget
- *     limit={ 5 }
- *     filter={ BOOKINGS_FILTER }
- *   />
- * </WidgetRoot>
+ * Must render within a WidgetRoot, which provides reportParams via context.
  */
 export function TopPerformingProductLeaderboardWidget( {
 	limit = 5,
@@ -119,13 +83,11 @@ export function TopPerformingProductLeaderboardWidget( {
 	const { data } = primary;
 	const { data: comparisonData } = comparison;
 
-	// Extract product IDs for fetching images
 	const productIds = useMemo(
 		() => data?.data?.map( item => item.product_id ) || [],
 		[ data?.data ]
 	);
 
-	// Fetch product images
 	const { data: productImages, isLoading: imagesLoading } = useProductImages( {
 		productIds,
 	} );
@@ -134,7 +96,6 @@ export function TopPerformingProductLeaderboardWidget( {
 		const primaryItems = data?.data || [];
 		const comparisonItems = comparisonData?.data || [];
 
-		// Create a map of product_id to comparison data for efficient lookup
 		const comparisonMap = new Map( comparisonItems.map( item => [ item.product_id, item ] ) );
 
 		const maxValue = getCombinedPeriodMax(
@@ -213,14 +174,15 @@ export function TopPerformingProductLeaderboardWidget( {
 					errorText ??
 					__(
 						"We couldn't load product data. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: emptyStateIcon,
 				description:
-					emptyStateText ?? __( 'No product sales in this period.', 'jetpack-premium-analytics' ),
+					emptyStateText ??
+					__( 'No product sales in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<LeaderboardChart

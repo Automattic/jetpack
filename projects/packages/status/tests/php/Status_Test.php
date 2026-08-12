@@ -69,6 +69,11 @@ class Status_Test extends TestCase {
 		);
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'production' );
 		Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
+
+		// Default to a front-end request with no persistent object cache (no seeding).
+		Functions\when( 'wp_using_ext_object_cache' )->justReturn( false );
+		Functions\when( 'is_admin' )->justReturn( false );
+		Functions\when( 'wp_doing_cron' )->justReturn( false );
 		Functions\expect( 'defined' )->andReturnUsing(
 			function ( $const ) {
 				return array_key_exists( $const, $this->mocked_constants ) ? true : defined( $const );
@@ -100,7 +105,57 @@ class Status_Test extends TestCase {
 	 * Test is_offline_mode when not using any filter
 	 */
 	public function test_is_offline_mode_default() {
-		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( false );
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', \Mockery::type( 'object' ) )->andReturnUsing(
+			function ( $name, $default ) {
+				return $default;
+			}
+		);
+		// Front-end request: the absent option is not seeded.
+		Functions\expect( 'add_option' )->never();
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
+
+		$this->assertFalse( $this->status_obj->is_offline_mode() );
+	}
+
+	/**
+	 * Test that an absent option is seeded as an autoloaded default in a write context.
+	 */
+	public function test_is_offline_mode_seeds_default_in_write_context() {
+		Functions\when( 'wp_doing_cron' )->justReturn( true );
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', \Mockery::type( 'object' ) )->andReturnUsing(
+			function ( $name, $default ) {
+				return $default;
+			}
+		);
+		Functions\expect( 'add_option' )->once()->with( 'jetpack_offline_mode', false, '', true );
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
+
+		$this->assertFalse( $this->status_obj->is_offline_mode() );
+	}
+
+	/**
+	 * Test that the absent option is not seeded when a persistent object cache is present.
+	 */
+	public function test_is_offline_mode_does_not_seed_with_object_cache() {
+		Functions\when( 'wp_doing_cron' )->justReturn( true );
+		Functions\when( 'wp_using_ext_object_cache' )->justReturn( true );
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', \Mockery::type( 'object' ) )->andReturnUsing(
+			function ( $name, $default ) {
+				return $default;
+			}
+		);
+		Functions\expect( 'add_option' )->never();
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
+
+		$this->assertFalse( $this->status_obj->is_offline_mode() );
+	}
+
+	/**
+	 * Test that a non-scalar value (e.g. from a default_option filter) does not enable offline mode.
+	 */
+	public function test_is_offline_mode_non_scalar_is_not_offline() {
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', \Mockery::type( 'object' ) )->andReturn( new \stdClass() );
+		Functions\expect( 'add_option' )->never();
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
 
 		$this->assertFalse( $this->status_obj->is_offline_mode() );
@@ -120,7 +175,12 @@ class Status_Test extends TestCase {
 	 * Test when using a bool value for the jetpack_offline_mode filter.
 	 */
 	public function test_is_offline_mode_filter_bool() {
-		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( false );
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', \Mockery::type( 'object' ) )->andReturnUsing(
+			function ( $name, $default ) {
+				return $default;
+			}
+		);
+		Functions\expect( 'add_option' )->never();
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( 0 );
 
 		$this->assertFalse( $this->status_obj->is_offline_mode() );
@@ -211,7 +271,7 @@ class Status_Test extends TestCase {
 	 * Test that `is_offline_mode()` returns true when the `jetpack_offline_mode` option is set.
 	 */
 	public function test_is_offline_mode_option() {
-		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( '1' );
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', \Mockery::type( 'object' ) )->andReturn( '1' );
 
 		$this->assertTrue( $this->status_obj->is_offline_mode() );
 	}
@@ -220,7 +280,17 @@ class Status_Test extends TestCase {
 	 * Test that `is_offline_mode()` returns false when the `jetpack_offline_mode` option exists, but set to '0'.
 	 */
 	public function test_is_offline_mode_option_inactive() {
-		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( '0' );
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', \Mockery::type( 'object' ) )->andReturn( '0' );
+
+		$this->assertFalse( $this->status_obj->is_offline_mode() );
+	}
+
+	/**
+	 * Test that a stored (previously-seeded) empty value is not re-seeded.
+	 */
+	public function test_is_offline_mode_option_present_not_reseeded() {
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', \Mockery::type( 'object' ) )->andReturn( '' );
+		Functions\expect( 'add_option' )->never();
 
 		$this->assertFalse( $this->status_obj->is_offline_mode() );
 	}
@@ -456,6 +526,9 @@ class Status_Test extends TestCase {
 		if ( $one_call ) {
 			Functions\expect( $one_call )->once();
 		}
+
+		// is_offline_mode() seeds the jetpack_offline_mode option when it is absent.
+		Functions\when( 'add_option' )->justReturn( false );
 
 		$ret = $this->status_obj->$func();
 		$this->assertSame( $ret, $this->status_obj->$func() );
