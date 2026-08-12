@@ -64,12 +64,21 @@ const withCanvas: Decorator = Story => (
 
 /**
  * Widget card wrapper for the skeleton stories, simulating a dashboard widget
- * container so the shape is shown within typical widget dimensions.
+ * container so the shape is shown within typical widget dimensions. The width
+ * decides which header shape the skeleton draws, so each story sets it.
  */
-const WidgetCard = ( { height, children }: { height: string; children: React.ReactNode } ) => (
+const WidgetCard = ( {
+	width,
+	height,
+	children,
+}: {
+	width: string;
+	height: string;
+	children: React.ReactNode;
+} ) => (
 	<div
 		style={ {
-			width: '360px',
+			width,
 			height,
 			border: '1px solid var(--wpds-color-stroke-surface-neutral-weak)',
 			borderRadius: 'var(--wpds-border-radius-md)',
@@ -134,11 +143,26 @@ type SkeletonStory = StoryObj< typeof MetricTabsChartSkeleton >;
 
 /**
  * The loading shape widgets pass through `WidgetState`'s `renderLoading`: a card
- * per metric tab over a chart block, matching this component's own layout.
+ * per metric tab over a chart block, matching this component's own layout. Wide
+ * enough (4 tabs × 120px) for the card grid the loaded component will draw.
  */
 export const Skeleton: SkeletonStory = {
 	render: args => (
-		<WidgetCard height="320px">
+		<WidgetCard width="720px" height="320px">
+			<MetricTabsChartSkeleton { ...args } />
+		</WidgetCard>
+	),
+	args: { tabs: 4 },
+};
+
+/**
+ * Below 4 tabs × 120px the loaded component collapses its cards into a single
+ * dropdown, so the skeleton draws that trigger instead of a stack of cards —
+ * the strip and the dropdown differ by ~150px, which would land as a jump.
+ */
+export const SkeletonNarrowTile: SkeletonStory = {
+	render: args => (
+		<WidgetCard width="360px" height="320px">
 			<MetricTabsChartSkeleton { ...args } />
 		</WidgetCard>
 	),
@@ -151,7 +175,7 @@ export const Skeleton: SkeletonStory = {
  */
 export const SkeletonShortTile: SkeletonStory = {
 	render: args => (
-		<WidgetCard height="140px">
+		<WidgetCard width="360px" height="140px">
 			<MetricTabsChartSkeleton { ...args } />
 		</WidgetCard>
 	),

@@ -1,7 +1,23 @@
+/* Width budgeted per metric card, from `MIN_TAB_WIDTH` in
+ * `metric-tabs-chart.tsx`: the real header swaps its card grid for a single
+ * dropdown trigger below `metrics.length` times this. */
+$min-tab-width: 120px;
+
+/* Height of a card's value bar; the dropdown placeholder is sized from it. */
+$tab-value-block-size: 22px;
+
 /* `SkeletonRoot` already supplies the column flow; this adds the gap the real
  * component keeps between its tab strip and its chart. */
 .root {
 	gap: var(--wpds-dimension-gap-md);
+}
+
+/* Both header shapes ship in the DOM and a container query keeps exactly one,
+ * so the skeleton lands on the shape the data will land on without measuring
+ * the tile. */
+.header {
+	container-type: inline-size;
+	flex-shrink: 0;
 }
 
 /* Same grid rule as `metric-tabs-chart.module.scss`'s `.tabs`, so the cards sit
@@ -9,7 +25,6 @@
 .tabs {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
-	flex-shrink: 0;
 	gap: var(--wpds-dimension-gap-sm);
 	min-inline-size: 0;
 }
@@ -22,10 +37,42 @@
 
 .tabValue {
 	inline-size: 80%;
-	block-size: 22px;
+	block-size: $tab-value-block-size;
 	margin-block-start: var(--wpds-dimension-gap-sm);
 	border-radius: var(--wpds-border-radius-md);
 }
+
+/* The trigger the narrow header collapses to: one card's content inside the
+ * select trigger's padding (`.metricSelect [class*="trigger-wrapper"]` in
+ * `metric-tabs-chart.module.scss`). Hidden until a rule below picks it. */
+.picker {
+	display: none;
+	block-size: calc(var(--wpds-typography-line-height-xs) + var(--wpds-dimension-gap-sm) + $tab-value-block-size + 2 * var(--wpds-dimension-padding-md));
+	border-radius: var(--wpds-border-radius-lg);
+}
+
+/* One rule per tab count, since CSS cannot multiply the count by
+ * `$min-tab-width`. Counts start at 2: a single metric never collapses, the
+ * real component renders it as a static headline card. Widgets with more than
+ * the largest covered count carry that count and collapse at its width. */
+@mixin collapse-below($tabs) {
+
+	@container (inline-size < #{$tabs * $min-tab-width}) {
+		.header[data-tabs="#{$tabs}"] .tabs {
+			display: none;
+		}
+
+		.header[data-tabs="#{$tabs}"] .picker {
+			display: block;
+		}
+	}
+}
+
+@include collapse-below(2);
+@include collapse-below(3);
+@include collapse-below(4);
+@include collapse-below(5);
+@include collapse-below(6);
 
 /* No minimum: on a short tile the chart block gives up its room rather than
  * pushing past the widget body. */
