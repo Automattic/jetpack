@@ -3,6 +3,7 @@
  */
 import {
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -159,17 +160,9 @@ function SubscribersChartInner( { granularity, chartType }: SubscribersChartInne
 					icon: customer,
 					description: __( 'No subscriber data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
-				// First load keeps the widget's chart-shaped skeleton (the metric tabs
-				// over the chart's own loading overlay) instead of the default overlay.
-				renderLoading={
-					<MetricTabsChart
-						metrics={ metricTabs }
-						dataFormat={ DATA_FORMAT }
-						chartType={ chartType }
-						loading
-						groupLabel={ groupLabel }
-					/>
-				}
+				// First load draws the chart-shaped skeleton — a card per metric tab
+				// over a chart block — instead of the generic one.
+				renderLoading={ <MetricTabsChartSkeleton tabs={ metricTabs.length } /> }
 			>
 				{ /* Background refetches keep the overlay scoped to the chart area so
 				     the metric tabs stay usable, matching the pre-WidgetState behavior. */ }

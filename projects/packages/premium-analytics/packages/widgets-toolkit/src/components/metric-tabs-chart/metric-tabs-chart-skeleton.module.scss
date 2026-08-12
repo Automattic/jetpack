@@ -1,0 +1,41 @@
+/* `SkeletonRoot` already supplies the column flow; this adds the gap the real
+ * component keeps between its tab strip and its chart. */
+.root {
+	gap: var(--wpds-dimension-gap-md);
+}
+
+/* Same grid rule as `metric-tabs-chart.module.scss`'s `.tabs`, so the cards sit
+ * where the metric cards will. */
+.tabs {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+	flex-shrink: 0;
+	gap: var(--wpds-dimension-gap-sm);
+	min-inline-size: 0;
+}
+
+.tabLabel {
+	inline-size: 60%;
+	block-size: var(--wpds-typography-line-height-xs);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+.tabValue {
+	inline-size: 80%;
+	block-size: 22px;
+	margin-block-start: var(--wpds-dimension-gap-sm);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+/* No minimum: on a short tile the chart block gives up its room rather than
+ * pushing past the widget body. */
+.chart {
+	flex: 1 1 auto;
+	min-block-size: 0;
+}
+
+.chartBlock {
+	inline-size: 100%;
+	block-size: 100%;
+	border-radius: var(--wpds-border-radius-md);
+}

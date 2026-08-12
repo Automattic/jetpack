@@ -8,6 +8,7 @@ import {
 import {
 	BOOKINGS_FILTER,
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	buildTimeSeriesChartData,
@@ -328,16 +329,9 @@ function StorePerformanceContent() {
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
-				// First load keeps the widget's chart-shaped skeleton (the metric tabs
-				// over the chart's own loading overlay) instead of the default overlay.
-				renderLoading={
-					<MetricTabsChart
-						metrics={ metricTabs }
-						dataFormat={ DEFAULT_DATA_FORMAT }
-						loading
-						groupLabel={ __( 'Store metric', 'jetpack-premium-analytics-pkg' ) }
-					/>
-				}
+				// First load draws the chart-shaped skeleton — a card per metric tab
+				// over a chart block — instead of the generic one.
+				renderLoading={ <MetricTabsChartSkeleton tabs={ metricTabs.length } /> }
 			>
 				{ /* Background refetches keep the overlay scoped to the chart area so
 				     the metric tabs stay usable, matching the pre-WidgetState behavior. */ }

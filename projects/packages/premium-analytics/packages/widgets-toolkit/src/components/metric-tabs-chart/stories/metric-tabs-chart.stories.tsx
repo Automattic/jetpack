@@ -1,5 +1,6 @@
 import { withChartTheme } from '../../../stories/with-chart-theme';
 import { MetricTabsChart, type MetricTab } from '../metric-tabs-chart';
+import { MetricTabsChartSkeleton } from '../metric-tabs-chart-skeleton';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
@@ -61,6 +62,27 @@ const withCanvas: Decorator = Story => (
 	</div>
 );
 
+/**
+ * Widget card wrapper for the skeleton stories, simulating a dashboard widget
+ * container so the shape is shown within typical widget dimensions.
+ */
+const WidgetCard = ( { height, children }: { height: string; children: React.ReactNode } ) => (
+	<div
+		style={ {
+			width: '360px',
+			height,
+			border: '1px solid var(--wpds-color-stroke-surface-neutral-weak)',
+			borderRadius: 'var(--wpds-border-radius-md)',
+			background: 'var(--wpds-color-background-surface-neutral)',
+			display: 'flex',
+			flexDirection: 'column',
+			overflow: 'hidden',
+		} }
+	>
+		<div style={ { position: 'relative', flex: 1, minHeight: 0 } }>{ children }</div>
+	</div>
+);
+
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/MetricTabsChart',
 	component: MetricTabsChart,
@@ -113,6 +135,34 @@ export const Bars: Story = {
  */
 export const Loading: Story = {
 	args: { metrics: METRICS, dataFormat: DATA_FORMAT, loading: true },
+};
+
+type SkeletonStory = StoryObj< typeof MetricTabsChartSkeleton >;
+
+/**
+ * The loading shape widgets pass through `WidgetState`'s `renderLoading`: a card
+ * per metric tab over a chart block, matching this component's own layout.
+ */
+export const Skeleton: SkeletonStory = {
+	render: args => (
+		<WidgetCard height="320px">
+			<MetricTabsChartSkeleton { ...args } />
+		</WidgetCard>
+	),
+	args: { tabs: 4 },
+};
+
+/**
+ * A height-1 dashboard tile. The chart block gives up its room rather than
+ * pushing the shape past the widget body.
+ */
+export const SkeletonShortTile: SkeletonStory = {
+	render: args => (
+		<WidgetCard height="140px">
+			<MetricTabsChartSkeleton { ...args } />
+		</WidgetCard>
+	),
+	args: { tabs: 4 },
 };
 
 /**

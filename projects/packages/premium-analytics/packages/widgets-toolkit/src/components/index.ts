@@ -25,9 +25,11 @@ export { DonutChart, type DonutChartData } from './chart-donut';
 export { ReportMetricWidget } from './report-metric';
 export {
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	type MetricTab,
 	type MetricTabDatum,
 	type MetricTabsChartProps,
+	type MetricTabsChartSkeletonProps,
 	type MetricTabsChartType,
 } from './metric-tabs-chart';
 export {
