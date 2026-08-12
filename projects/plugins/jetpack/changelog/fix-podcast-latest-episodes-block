@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Podcast Player: read episodes from the site's own database instead of fetching its feed over HTTP, so the block keeps rendering when that feed is slow or unreachable.

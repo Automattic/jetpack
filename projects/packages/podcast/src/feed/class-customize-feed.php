@@ -474,7 +474,7 @@ class Customize_Feed {
 	 * @param string $original_url Original enclosure URL — extension is pulled from here.
 	 * @return string
 	 */
-	private static function build_stats_url( int $blog_id, int $post_id, string $original_url ): string {
+	public static function build_stats_url( int $blog_id, int $post_id, string $original_url ): string {
 		$path = (string) wp_parse_url( $original_url, PHP_URL_PATH );
 		$ext  = (string) preg_replace( '/[^a-z0-9]/', '', strtolower( (string) pathinfo( $path, PATHINFO_EXTENSION ) ) );
 		if ( ! in_array( $ext, array( 'mp3', 'm4a', 'm4b', 'aac', 'ogg', 'oga', 'opus', 'wav', 'flac', 'mp4', 'm4v', 'mov' ), true ) ) {
@@ -523,7 +523,7 @@ class Customize_Feed {
 	 * @param int $post_id Episode post ID.
 	 * @return string
 	 */
-	private static function episode_image_url( int $post_id ): string {
+	public static function episode_image_url( int $post_id ): string {
 		if ( ! has_post_thumbnail( $post_id ) ) {
 			return '';
 		}
