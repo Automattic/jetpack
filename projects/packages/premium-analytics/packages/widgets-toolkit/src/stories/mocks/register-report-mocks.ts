@@ -174,24 +174,10 @@ type ReportMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
 const mockStateOverrides = new Map< string, ReportMockState >();
 
 /**
- * Drops every entry from the shared query cache, so the story whose forced state
- * was just set or cleared refetches instead of reading a sibling story's result.
+ * Clear cached queries after a forced mock override changes.
  *
- * Storybook keeps one `queryClient` for the whole session, and a report response
- * stays fresh in it for `DEFAULT_STALE_TIME`. Without this, a forced-state story
- * only renders its own state when its query key happens to differ from every
- * story shown before it — which is why widgets have variously reached for a
- * distinct date preset, `max`, or `post_id`. Those axes are easy to get wrong
- * (`last-365-days` and `last-12-months` compute the same range outside a leap
- * window, so an `Empty` story silently served its cached rows to the
- * `ErrorRetryable` one) and some endpoints offer no axis at all. Evicting on both
- * edges makes the isolation unconditional: nothing a story does to its query key
- * can bring the bleed back.
- *
- * Clearing everything rather than one key is deliberate — forced-state stories
- * are scoped out of the autodocs page, so no sibling widget is on screen to lose
- * a useful cache entry, and a per-key list would have to be kept in step with
- * each widget's queries by hand.
+ * Forced-state stories are excluded from autodocs, so clearing the shared cache
+ * is safe and avoids coupling mocks to widget query keys.
  */
 export function resetForcedStateQueries(): void {
 	queryClient.clear();
@@ -203,8 +189,6 @@ export function resetForcedStateQueries(): void {
  * (set on enter, clear on cleanup). Because the override is keyed by path, scope
  * stories that use it out of the shared autodocs page (`tags: [ '!autodocs' ]`)
  * so it cannot bleed into sibling stories rendered alongside it.
- *
- * Both edges evict the shared query cache — see `resetForcedStateQueries()`.
  *
  * @param pathFragment - Substring matched against the request path (e.g. `stats/search-terms`).
  * @param state        - The forced state, or `null` to clear.
@@ -282,7 +266,6 @@ const mockResponseOverrides = new Map< string, unknown >();
  * over-limit reading, a specific row shape) the default fixture doesn't cover.
  * Same scoping caveat: keyed by path, so scope such stories out of the shared
  * autodocs page (`tags: [ '!autodocs' ]`) and clear the override on cleanup.
- * Both edges evict the shared query cache — see `resetForcedStateQueries()`.
  *
  * @param pathFragment - Substring matched against the request path.
  * @param response     - The response body to resolve with, or `null` to clear.

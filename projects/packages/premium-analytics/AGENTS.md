@@ -526,15 +526,9 @@ autodocs page (`tags: [ '!autodocs' ]`, since the override is keyed by path and 
 force the sibling stories into the same state). See `widgets/search-terms/stories/` for the
 reference.
 
-Setting or clearing a forced state evicts the shared query cache, so a forced-state story always
-refetches under its own state — you do not have to make its query key unique to keep it from
-reading a sibling story's cached response. Widgets still render each state on its own date preset
-(or `max`, or `post_id`) so the states read as separate periods rather than the same one four
-times; keep doing that, but treat it as presentation, not isolation. It was isolation once, and it
-silently failed: the query key is built from the computed `from`/`to`, not the preset id, and
-`last-365-days` and `last-12-months` resolve to the same range except in the year following a
-leap February — so six widgets' `ErrorRetryable` stories served their `Empty` story's cached rows
-for most of every four years (WOOA7S-1899).
+Setting or clearing a forced state evicts the shared query cache, so unique query keys are not
+required for isolation. Different presets or parameters can still help distinguish stories, but
+do not rely on them: distinct preset IDs may compute the same date range (WOOA7S-1899).
 
 `error` mocks a permission-gated 403 and `error-retryable` the proxy's `no_connection` 403. A
 widget that maps its error through `describeError` renders a Retry action only for the latter, so

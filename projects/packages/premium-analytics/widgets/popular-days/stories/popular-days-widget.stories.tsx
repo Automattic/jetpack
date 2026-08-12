@@ -127,9 +127,7 @@ export const ErrorRetryable: Story = {
  * Resolved with no buckets: the widget shows its empty state.
  */
 export const Empty: Story = {
-	// A calendar year, not a rolling window: `last-365-days` and `last-12-months`
-	// resolve to the same dates most years, so the two would read as the same
-	// period side by side.
+	// Avoid presenting the same date range as ErrorRetryable in most years.
 	render: () => renderPopularDaysOnPreset( 'last-year' ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],

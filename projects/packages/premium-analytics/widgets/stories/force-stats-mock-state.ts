@@ -53,36 +53,13 @@ const forcedStateMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 };
 
 /**
- * Story-side counterpart of `setReportMockState` for endpoints owned by
- * story-local or legacy stats mocks, e.g. `stats/clicks`, `stats/referrers`,
- * `reports/products`, or `latest-post`.
+ * Force a state for requests handled by story-local or legacy mocks.
  *
- * The shared override in `register-report-mocks.ts` can miss those requests:
- * the last-registered `apiFetch` middleware runs first, so legacy stats mocks or
- * story-local endpoint mocks can answer before the shared override loop sees
- * the request. Storybook can lazy-load more story modules later, so this helper
- * re-registers its shared middleware whenever a forced state is set. The
- * duplicate registrations are intentional: they share the same override map and
- * keep the forced-state middleware ahead of any later endpoint-specific
- * middleware.
+ * Re-register the middleware when setting a state because the most recently
+ * registered `apiFetch` middleware runs first and stories load lazily.
  *
- * Same contract as `setReportMockState`: call it in a story's `beforeEach` and
- * clear the override with `null` in the returned cleanup.
- *
- * Conventions for the forced-state stories that drive this helper (the per-story
- * comments point here rather than repeating the rationale in every widget file):
- * - Tag them `!autodocs`. The override is keyed by path, so on the shared
- *   autodocs page it would force every sibling story into the same state.
- * - Correctness does not depend on the story's query key being unique: both
- *   edges evict the shared query cache, so a forced-state story always refetches
- *   under its own state. Widgets still render each state on its own date preset
- *   (or `max`, or `post_id`) so the states read as separate periods rather than
- *   the same one four times — keep that up, but do not rely on it for isolation.
- *   It is easy to get wrong: `last-365-days` and `last-12-months` compute the
- *   same range outside a leap window.
- * - `'error'` mocks a permission-gated 403 and `'error-retryable'` the proxy's
- *   `no_connection` 403. Widgets on `describeError` render a Retry action only
- *   for the latter, so give those widgets a story for each.
+ * Use in `beforeEach`, clear on cleanup, and exclude the story from autodocs
+ * because overrides are keyed by path. Cache isolation is automatic.
  *
  * @param pathFragment - Substring matched against the request path (e.g. `stats/clicks`).
  * @param state        - The forced state, or `null` to clear.
