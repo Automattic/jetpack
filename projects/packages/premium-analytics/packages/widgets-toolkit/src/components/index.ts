@@ -49,6 +49,11 @@ export {
 } from './chart-leaderboard';
 export { BarChart, type BarChartProps, type BarChartData, type BarChartStyle } from './chart-bar';
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';
+export {
+	AdaptiveCalendarHeatmap,
+	type AdaptiveCalendarHeatmapChartProps,
+	type AdaptiveCalendarHeatmapProps,
+} from './calendar-heatmap';
 export { WidgetLoadingOverlay } from './widget-loading-overlay';
 export {
 	WidgetState,

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Connection Health: Surface the blocked-request connection failure (host blocking WordPress.com requests) as a verified connection error with an admin notice, and re-check the connection daily on the heartbeat cron.

@@ -622,11 +622,13 @@ class Feedback_Email_Renderer {
 			'jetpack_version' => JETPACK__VERSION,
 		);
 
-		// Only send the site ID when the site is connected. Sending an empty value would have Tracks
-		// record `blogid` as a string, which makes the property unusable for analysis.
+		// Tracks promotes `blog_id` to the top-level `blogid` column; sending it as `blogid` leaves it
+		// as an ordinary event property and the column stays empty. Only send the site ID when the site
+		// is connected: an empty value would have Tracks record the property as a string, which makes it
+		// unusable for analysis.
 		$blog_id = Manager::get_site_id( true );
 		if ( $blog_id ) {
-			$event_props['blogid'] = $blog_id;
+			$event_props['blog_id'] = $blog_id;
 		}
 
 		$event = new Jetpack_Tracks_Event( (object) $event_props );

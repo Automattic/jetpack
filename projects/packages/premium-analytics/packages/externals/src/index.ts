@@ -39,6 +39,8 @@ export {
 	type GeoData,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
+	type HeatmapColumn,
+	type HeatmapTooltipData,
 	type LineStyles,
 	type SeriesData,
 } from '@automattic/charts';

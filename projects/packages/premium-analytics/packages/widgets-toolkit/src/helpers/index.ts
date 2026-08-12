@@ -71,3 +71,15 @@ export {
 	type ChartDisplayChartType,
 	type ChartGranularityOption,
 } from './chart-display-attribute-fields';
+	compactCalendarHeatmapCapacity,
+	computeCalendarHeatmapLayout,
+	type CalendarHeatmapLayout,
+	type CalendarHeatmapLayoutInput,
+} from './calendar-heatmap-layout';
+export {
+	buildDenseDaySeries,
+	resolveCalendarHeatmapWindow,
+	resolveCalendarHeatmapWindowDays,
+	type CalendarHeatmapWindow,
+	type CalendarHeatmapWindowBounds,
+} from './calendar-heatmap-window';
