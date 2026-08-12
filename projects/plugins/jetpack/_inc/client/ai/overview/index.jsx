@@ -115,7 +115,7 @@ function UsageCard( { upgradeUrl } ) {
 				{ ! isLoading && ! error && (
 					<div className="jetpack-ai-overview__usage">
 						<div className="jetpack-ai-overview__usage-cell">
-							<Text as="p" variant="body-sm" className="jetpack-ai-overview__eyebrow">
+							<Text as="p" variant="heading-sm" className="jetpack-ai-overview__eyebrow">
 								{ __( 'Available requests', 'jetpack' ) }
 							</Text>
 							<Stack direction="row" justify="space-between" align="baseline">
@@ -150,7 +150,7 @@ function UsageCard( { upgradeUrl } ) {
 						</div>
 
 						<div className="jetpack-ai-overview__usage-cell jetpack-ai-overview__usage-cell--plan">
-							<Text as="p" variant="body-sm" className="jetpack-ai-overview__eyebrow">
+							<Text as="p" variant="heading-sm" className="jetpack-ai-overview__eyebrow">
 								{ __( 'Plan', 'jetpack' ) }
 							</Text>
 							<Stack direction="row" justify="space-between" align="flex-end" gap="md">
