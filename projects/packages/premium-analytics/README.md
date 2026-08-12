@@ -43,19 +43,17 @@ jetpack build packages/premium-analytics   # via Jetpack CLI
 ### Adding a route
 
 1. Create `routes/<name>/package.json`:
-
    ```json
    {
-   	"name": "<name>-route",
-   	"route": {
-   		"path": "/<name>",
-   		"page": "jetpack-premium-analytics"
-   	}
+     "name": "<name>-route",
+     "route": {
+       "path": "/<name>",
+       "page": "jetpack-premium-analytics"
+     }
    }
    ```
 
 2. Create `routes/<name>/stage.tsx` exporting `stage()`:
-
    ```tsx
    export const stage = () => <div>My new page</div>;
    ```
@@ -76,7 +74,6 @@ Package `automattic/jetpack-wp-build-polyfills` provides a fixed version.
 ### Init module (`packages/init/`)
 
 Serves two purposes:
-
 1. Sets the dashboard menu icon via `@wordpress/boot` store
 2. Forces `@wordpress/build` to track `@wordpress/boot` as a module
    dependency — without an init module that imports boot, the build
