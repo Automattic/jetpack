@@ -71,6 +71,7 @@ export {
 	type ChartDisplayChartType,
 	type ChartGranularityOption,
 } from './chart-display-attribute-fields';
+export {
 	compactCalendarHeatmapCapacity,
 	computeCalendarHeatmapLayout,
 	type CalendarHeatmapLayout,
