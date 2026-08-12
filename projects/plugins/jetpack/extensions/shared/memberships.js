@@ -1,4 +1,7 @@
+const MODAL_LOAD_TIMEOUT_MS = 5000;
 let premiumContentJWTTokenForCookie = '';
+/** @type {?{ iframe: HTMLIFrameElement, timeoutId: number }} */
+let pendingModalWatch = null;
 
 /**
  * @typedef globalThis
@@ -14,6 +17,14 @@ export function handleIframeResult( eventFromIframe ) {
 			} catch {
 				return;
 			}
+		}
+		if ( data && data.action === 'loaded' ) {
+			// This listener is page-wide and other blocks frame the same origin, so
+			// only our own frame's announcement proves this modal rendered.
+			if ( eventFromIframe.source === pendingModalWatch?.iframe.contentWindow ) {
+				stopModalWatch();
+			}
+			return;
 		}
 		if ( data && data.result && data.result.jwt_token ) {
 			// We save the token for now, doing nothing.
@@ -36,6 +47,9 @@ export function handleIframeResult( eventFromIframe ) {
 
 export function showModal( url ) {
 	return new Promise( resolvePromise => {
+		// Stop waiting for any previous modal's frame to announce itself.
+		stopModalWatch();
+
 		const existingModal = document.getElementById( 'memberships-modal-window' );
 		if ( existingModal ) {
 			document.body.removeChild( existingModal );
@@ -57,7 +71,14 @@ export function showModal( url ) {
 		// to all nested origins, not just 'src'.
 		iframe.setAttribute( 'allow', 'payment *' );
 
+		// A frame the browser refuses to display still fires `load` for the error
+		// document it renders instead, so this tells us nothing about whether our
+		// window actually appeared — only the announcement below does. We track it
+		// so we can tell a refused frame from a request that never came back.
+		let frameLoadFired = false;
+
 		iframe.addEventListener( 'load', function () {
+			frameLoadFired = true;
 			// prevent double scroll bars. We use the entire viewport for the modal so we need to hide overflow on the body element.
 			document.body.classList.add( 'jetpack-memberships-modal-open' );
 			dialog.classList.remove( 'is-loading' );
@@ -78,6 +99,15 @@ export function showModal( url ) {
 
 		window.addEventListener( 'message', handleIframeResult, false );
 		dialog.showModal();
+
+		// Purely observational — the visitor still sees whatever the browser put in the frame. This only tells us how often that is nothing.
+		pendingModalWatch = {
+			iframe,
+			timeoutId: setTimeout( () => {
+				pendingModalWatch = null;
+				recordBlockedModal( url, frameLoadFired );
+			}, MODAL_LOAD_TIMEOUT_MS ),
+		};
 	} );
 }
 
@@ -172,3 +202,47 @@ export const reloadPageWithPremiumContentQueryString = function (
 	}
 	document.location.href = newQueryString;
 };
+
+/**
+ * Stop waiting for the open modal's frame to announce itself.
+ */
+function stopModalWatch() {
+	clearTimeout( pendingModalWatch?.timeoutId );
+	pendingModalWatch = null;
+}
+
+/**
+ * Record that the framed window never rendered.
+ *
+ * Pushed straight onto the Tracks queue rather than through a Jetpack analytics
+ * helper because those are all gated on a connected, logged-in user, and the
+ * visitors this fires for are neither. q qq
+ *
+ * @param {string}  url            - The URL the modal tried to frame.
+ * @param {boolean} frameLoadFired - Whether the iframe fired its `load` event. A blocked
+ *                                 frame usually still "loads" the browser's error document,
+ *                                 so this separates a refused frame from a stalled request.
+ */
+function recordBlockedModal( url, frameLoadFired ) {
+	try {
+		// eslint-disable-next-line no-console
+		console.log( 'Recording blocked modal for', url, 'frameLoadFired:', frameLoadFired );
+		const params = new URL( url ).searchParams;
+		window._tkq = window._tkq || [];
+		window._tkq.push( [
+			'recordEvent',
+			'jetpack_memberships_modal_blocked',
+			{
+				blog_id: params.get( 'blog' ) || '',
+				plan: params.get( 'plan' ) || '',
+				source: params.get( 'source' ) || '',
+				app_source: params.get( 'app_source' ) || '',
+				host: window.location.host,
+				frame_load_fired: frameLoadFired,
+			},
+		] );
+	} catch {
+		// No Tracks client on this page, or a URL we can't parse. Either way there is
+		// nothing to report and nothing to do about it.
+	}
+}
