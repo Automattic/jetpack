@@ -844,6 +844,25 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * A site with no connection fails before a request leaves it, so there is no remote call to
+	 * spare by remembering the failure -- and it stops being true the moment the site connects.
+	 */
+	public function test_get_stats_does_not_cache_a_missing_token() {
+		$expected_error = new WP_Error( 'missing_token' );
+
+		$this->wpcom_stats
+			->expects( $this->exactly( 2 ) )
+			->method( 'fetch_remote_stats' )
+			->willReturn( $expected_error );
+
+		$this->assertSame( $expected_error, $this->wpcom_stats->get_stats() );
+		$this->assertFalse( self::get_stats_transient( '/sites/1234/stats/' ) );
+
+		// A second call asks again rather than serving what the first one saw.
+		$this->assertSame( $expected_error, $this->wpcom_stats->get_stats() );
+	}
+
+	/**
 	 * Test get_stats with arguments.
 	 */
 	public function test_get_stats_with_arguments() {

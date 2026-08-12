@@ -462,6 +462,15 @@ class WPCOM_Stats {
 
 		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args );
 
+		/*
+		 * A site with no connection fails before a request leaves it, so remembering that failure
+		 * saves no remote call -- and the answer stops being true the moment the site connects.
+		 * Caching it left a freshly connected site staring at an empty dashboard until it expired.
+		 */
+		if ( is_wp_error( $wpcom_stats ) && 'missing_token' === $wpcom_stats->get_error_code() ) {
+			return $wpcom_stats;
+		}
+
 		// To reduce size in storage: store with time as key, store JSON encoded data.
 		$cached_value = is_wp_error( $wpcom_stats ) ? $wpcom_stats : wp_json_encode( $wpcom_stats, JSON_UNESCAPED_SLASHES );
 
