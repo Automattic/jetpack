@@ -38,7 +38,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
 		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
 		Jetpack_Options::delete_option( 'id' );
-		Customize_Feed::reset_render_state();
+		Customize_Feed::reset_enclosure_dedup();
 		wp_cache_flush();
 		unset( $GLOBALS['post'] );
 		parent::tearDown();
@@ -397,7 +397,7 @@ class Customize_Feed_Test extends BaseTestCase {
 	 * on `rss2_head`) clears it so re-generating the same feed within one
 	 * long-lived process emits enclosures again instead of dropping them all.
 	 */
-	public function test_reset_render_state_lets_the_same_url_emit_on_a_fresh_render() {
+	public function test_reset_enclosure_dedup_lets_the_same_url_emit_on_a_fresh_render() {
 		global $post;
 		$post = new WP_Post(
 			(object) array(
@@ -413,7 +413,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'url="https://example.com/episode.mp3"', Customize_Feed::rewrite_enclosure( $markup ) );
 		$this->assertSame( '', Customize_Feed::rewrite_enclosure( $markup ) );
 
-		Customize_Feed::reset_render_state();
+		Customize_Feed::reset_enclosure_dedup();
 
 		$this->assertStringContainsString( 'url="https://example.com/episode.mp3"', Customize_Feed::rewrite_enclosure( $markup ) );
 	}
@@ -727,7 +727,10 @@ class Customize_Feed_Test extends BaseTestCase {
 	public function test_skip_block_in_feed_strips_episode_block() {
 		$this->assertSame(
 			'',
-			Customize_Feed::skip_block_in_feed( null, array( 'blockName' => 'jetpack/podcast-episode' ) )
+			Customize_Feed::skip_block_in_feed(
+				'<figure class="wp-block-jetpack-podcast-episode">player widget</figure>',
+				array( 'blockName' => 'jetpack/podcast-episode' )
+			)
 		);
 	}
 
@@ -735,21 +738,25 @@ class Customize_Feed_Test extends BaseTestCase {
 		foreach ( array( 'jetpack/podcast-player', 'jetpack/subscriptions' ) as $block_name ) {
 			$this->assertSame(
 				'',
-				Customize_Feed::skip_block_in_feed( null, array( 'blockName' => $block_name ) ),
+				Customize_Feed::skip_block_in_feed( 'rendered widget', array( 'blockName' => $block_name ) ),
 				"Expected {$block_name} to be stripped from the feed body."
 			);
 		}
 	}
 
-	/**
-	 * Returning `null` leaves `render_block()` to render as usual — anything else
-	 * would short-circuit the block away.
-	 */
 	public function test_skip_block_in_feed_keeps_prose_blocks() {
-		$this->assertNull( Customize_Feed::skip_block_in_feed( null, array( 'blockName' => 'core/paragraph' ) ) );
+		$html = '<p>Real show notes prose listeners should see.</p>';
+		$this->assertSame(
+			$html,
+			Customize_Feed::skip_block_in_feed( $html, array( 'blockName' => 'core/paragraph' ) )
+		);
 	}
 
 	public function test_skip_block_in_feed_keeps_classic_freeform_content() {
-		$this->assertNull( Customize_Feed::skip_block_in_feed( null, array( 'blockName' => null ) ) );
+		$html = '<p>Classic editor content.</p>';
+		$this->assertSame(
+			$html,
+			Customize_Feed::skip_block_in_feed( $html, array( 'blockName' => null ) )
+		);
 	}
 }
