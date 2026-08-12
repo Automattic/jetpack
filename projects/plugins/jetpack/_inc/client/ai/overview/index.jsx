@@ -52,9 +52,8 @@ const WALKTHROUGH_VIDEOS = [
 	},
 ];
 
-// Redirect-service sources for the documentation links. NOTE: these slugs
-// are chosen for this page but not yet registered in the redirect service —
-// register them before the gate comes off.
+// Redirect-service sources for the documentation links. All five are
+// registered and resolving (as are the four video sources above).
 const DOC_LINKS = [
 	{
 		slug: 'jetpack-ai-hub-overview-docs-mcp-guide',
@@ -130,7 +129,7 @@ function UsageCard( { upgradeUrl } ) {
 									</Text>
 								) : (
 									<>
-										<Text as="p" variant="heading-2xl">
+										<Text as="p" variant="heading-xl">
 											{ hasNumbers ? usage.requestsAvailable : '—' }
 										</Text>
 										{ hasNumbers && (
@@ -154,9 +153,9 @@ function UsageCard( { upgradeUrl } ) {
 							<Text as="p" variant="body-sm" className="jetpack-ai-overview__eyebrow">
 								{ __( 'Plan', 'jetpack' ) }
 							</Text>
-							<Stack direction="row" justify="space-between" align="center" gap="md">
+							<Stack direction="row" justify="space-between" align="flex-end" gap="md">
 								{ usage.planLabel && (
-									<Text as="p" variant="heading-2xl">
+									<Text as="p" variant="heading-xl">
 										{ usage.planLabel }
 									</Text>
 								) }
@@ -194,7 +193,7 @@ function UsageCard( { upgradeUrl } ) {
  */
 export default function AiOverview( { blogId, activityLogUrl, upgradeUrl } ) {
 	return (
-		<Stack direction="column" gap="md">
+		<Stack direction="column" gap="xl">
 			{ blogId ? (
 				<UsageCard upgradeUrl={ upgradeUrl } />
 			) : (
@@ -237,7 +236,7 @@ export default function AiOverview( { blogId, activityLogUrl, upgradeUrl } ) {
 			) }
 
 			<div className="jetpack-ai-overview__videos">
-				<Text as="h3" variant="heading-md">
+				<Text as="h3" variant="heading-lg">
 					{ __( 'Walkthrough videos', 'jetpack' ) }
 				</Text>
 				<div className="jetpack-ai-overview__video-grid">
@@ -249,7 +248,7 @@ export default function AiOverview( { blogId, activityLogUrl, upgradeUrl } ) {
 								src={ thumbnail }
 								alt=""
 								width="644"
-								height="357"
+								height="346"
 								loading="lazy"
 							/>
 							<span className="jetpack-ai-overview__video-meta">
@@ -266,7 +265,7 @@ export default function AiOverview( { blogId, activityLogUrl, upgradeUrl } ) {
 			</div>
 
 			<div className="jetpack-ai-overview__docs">
-				<Text as="h3" variant="heading-md">
+				<Text as="h3" variant="heading-lg">
 					{ __( 'Documentation', 'jetpack' ) }
 				</Text>
 				<Stack direction="column" gap="sm" align="flex-start">
