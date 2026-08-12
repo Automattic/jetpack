@@ -122,7 +122,12 @@ class No_Results_Test extends TestCase {
 	 * this class exists to prevent.
 	 */
 	public function test_a_nested_self_contained_render_restores_its_parent_scope() {
-		$seen = array();
+		// Keys declared up front: the closure fills them by reference from a
+		// filter, which static analysis can't follow.
+		$seen = array(
+			'during'       => null,
+			'after_nested' => null,
+		);
 
 		// Nest for real: run the inner render from inside the outer render's
 		// own `do_blocks()` pass, then read the scope back.
