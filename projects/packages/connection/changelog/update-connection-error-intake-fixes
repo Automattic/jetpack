@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Report connection errors that happen while signing an outgoing request, record the specific reason the token could not be loaded, and store the request body hash with them.
