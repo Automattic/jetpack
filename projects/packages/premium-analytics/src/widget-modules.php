@@ -119,5 +119,4 @@ function add_widget_modules_to_boot_deps( $boot_dependencies ) {
 
 	return $boot_dependencies;
 }
-// The in-admin variant (page-wp-admin.php) uses the `{page-id}-wp-admin` filter.
 add_filter( 'jetpack-premium-analytics-wp-admin_boot_dependencies', __NAMESPACE__ . '\\add_widget_modules_to_boot_deps' );

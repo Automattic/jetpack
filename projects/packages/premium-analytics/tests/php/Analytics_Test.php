@@ -255,10 +255,7 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * The build's full-page interceptor is unhooked once the build has loaded.
-	 *
-	 * Left hooked, ?page=jetpack-premium-analytics renders the dashboard shell for
-	 * any logged-in user. See Analytics::remove_full_page_interceptor().
+	 * The build's full-page interceptor is unhooked.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -408,8 +405,7 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * The full-page slug is no longer a dashboard request: the menu never registered
-	 * it, and its build interceptor is unhooked, so nothing renders there.
+	 * The removed full-page slug is not a dashboard request.
 	 */
 	public function test_is_dashboard_request_false_for_full_page_slug() {
 		set_current_screen( 'toplevel_page_jetpack-premium-analytics' );

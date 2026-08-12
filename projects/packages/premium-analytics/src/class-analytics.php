@@ -356,15 +356,10 @@ class Analytics {
 	}
 
 	/**
-	 * Unhook the wp-build full-page render interceptor.
+	 * Unhook wp-build's full-page render interceptor.
 	 *
-	 * The second page variant wp-build emits — with no switch to turn it off —
-	 * renders `?page=jetpack-premium-analytics` from admin_init and exits, ahead
-	 * of the `$_registered_pages` check that would have refused the unregistered
-	 * slug. Unhooked, the URL falls through to core's own refusal.
-	 *
-	 * The function name derives from the page slug, so a rename re-exposes the
-	 * URL. test_full_page_interceptor_is_unhooked() guards that.
+	 * It runs on admin_init before Core rejects the unregistered slug. The callback
+	 * name depends on the page slug, so the test guards against name drift.
 	 *
 	 * @return void
 	 */
@@ -448,11 +443,9 @@ class Analytics {
 	/**
 	 * Register the admin menu page.
 	 *
-	 * Uses the wp-build "wp-admin integrated" variant (`-wp-admin` slug) so the
-	 * dashboard renders inside the native wp-admin shell, not the full-page
-	 * variant that takes over the screen via admin_init. The render callback
-	 * comes from the generated build; when that is missing we say so rather
-	 * than render an empty page, since the two look identical from the outside.
+	 * Uses wp-build's `-wp-admin` variant so Core applies the menu capability check.
+	 * The generated build provides the render callback; a missing build shows a
+	 * notice instead of an empty page.
 	 *
 	 * Report missing page and widget build artifacts independently because the
 	 * build loader includes each one conditionally.

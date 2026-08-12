@@ -6,11 +6,8 @@
  * reached the build on a given request type. The real build/ is gitignored and
  * CI runs no build step, so without this there is nothing to observe.
  *
- * Also declares the page render callback register_admin_menu() looks for, and
- * hooks the full-page interceptor the way the generated page.php does. wp-build
- * derives both names from the page slug, which is why they need covering: a
- * rename silently drops the menu to the missing-build notice, and silently
- * re-exposes the ungated full-page URL.
+ * Also provides the generated render callback and full-page interceptor. Their
+ * names depend on the page slug, so both behaviors need test coverage.
  *
  * @package automattic/jetpack-premium-analytics
  */

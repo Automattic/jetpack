@@ -1,4 +1,4 @@
 Significance: patch
 Type: security
 
-Serve the dashboard only from its capability-gated admin page, so the ungated full-page URL no longer renders it.
+Serve the dashboard only from its capability-gated admin page.

@@ -4,7 +4,7 @@ Guidance for AI coding agents working in this package.
 
 ## Overview
 
-Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connected sites — a full-page React SPA in wp-admin. It consolidates two older surfaces:
+Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connected sites — a React SPA in wp-admin. It consolidates two older surfaces:
 
 - **Jetpack Stats** — the Odyssey dashboard; backend from the `stats-admin` package, frontend built from `apps/odyssey-stats` in Calypso. Covers traffic, posts, subscribers, email stats, WordAds, and more.
 - **Woo Analytics** — store reports (orders, products, customers, coupons, order attribution), from the private repo at https://github.com/woocommerce/woocommerce-analytics.
@@ -29,10 +29,9 @@ under `routes/<name>/` is a lazy-loaded ES module discovered at build time from 
 WordPress core or Jetpack's wp-build polyfills provide the WordPress script handles/modules used
 by the dashboard, so the Gutenberg plugin is not required.
 
-wp-build also emits an ungated full-page variant that renders `?page=jetpack-premium-analytics`
-from `admin_init`. `Analytics::remove_full_page_interceptor()` unhooks it once the build loads, so
-don't hook that variant's `jetpack-premium-analytics_init` action or its `_boot_dependencies`
-filter — use the `-wp-admin` ones.
+wp-build also generates an ungated full-page route at `?page=jetpack-premium-analytics`;
+`Analytics::remove_full_page_interceptor()` disables it. Use only the `-wp-admin` page hooks and
+filters.
 
 ## Structure
 
