@@ -146,11 +146,13 @@ class No_Results {
 	 * @return string Getter path.
 	 */
 	public static function visibility_getter( string $condition ): string {
+		$coverage = self::$self_contained_coverage;
+
 		// `showNoResultsAny` yields to whichever variant claimed the filtered
 		// state, which it reads from flags a self-contained render never
 		// writes. That render knows the answer outright.
-		if ( 'any' === $condition && null !== self::$self_contained_coverage ) {
-			return self::$self_contained_coverage['filtered'] ? 'state.showNoResultsUnfiltered' : 'state.showNoResults';
+		if ( 'any' === $condition && null !== $coverage ) {
+			return $coverage['filtered'] ? 'state.showNoResultsUnfiltered' : 'state.showNoResults';
 		}
 
 		$getters = array(
@@ -168,13 +170,14 @@ class No_Results {
 	 * @return string Getter path, or '' to drop the region.
 	 */
 	public static function legacy_no_results_getter(): string {
-		if ( null === self::$self_contained_coverage ) {
+		$coverage = self::$self_contained_coverage;
+		if ( null === $coverage ) {
 			return 'state.showLegacyNoResults';
 		}
-		if ( self::$self_contained_coverage['any'] ) {
+		if ( $coverage['any'] ) {
 			return '';
 		}
-		return self::$self_contained_coverage['filtered'] ? 'state.showNoResultsUnfiltered' : 'state.showNoResults';
+		return $coverage['filtered'] ? 'state.showNoResultsUnfiltered' : 'state.showNoResults';
 	}
 
 	/**
@@ -184,10 +187,11 @@ class No_Results {
 	 * @return string Getter path, or '' to drop the region.
 	 */
 	public static function legacy_error_getter(): string {
-		if ( null === self::$self_contained_coverage ) {
+		$coverage = self::$self_contained_coverage;
+		if ( null === $coverage ) {
 			return 'state.showLegacyError';
 		}
-		return self::$self_contained_coverage['error'] ? '' : 'state.showError';
+		return $coverage['error'] ? '' : 'state.showError';
 	}
 
 	/**
