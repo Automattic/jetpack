@@ -161,6 +161,7 @@ class Status {
 			'#\.lndo\.site$#i',    // Lando.
 			'#\.ddev\.site$#i',    // DDEV.
 			'#^https?://127\.0\.0\.1$#',
+			'#^https?://playground\.wordpress\.net(/|$)#i', // WordPress Playground, which runs entirely in the browser.
 		);
 
 		if ( ! $is_local ) {
