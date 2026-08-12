@@ -45,6 +45,15 @@
 	// Clip the row's hover background to the card's rounded corners.
 	&__row-card {
 		overflow: hidden;
+
+		// Design settled on one token for row icons and carets across the AI
+		// Hub (sanjagrbic, i4 thread, 3 Aug). Scoped to this view rather than
+		// applied in the shared row: the MCP rows ship publicly and their
+		// pass is a separate, wider change.
+		.jetpack-ai-nav-row__icon,
+		.jetpack-ai-nav-row__chevron {
+			color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+		}
 	}
 
 	&__videos {
