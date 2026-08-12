@@ -1,0 +1,11 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"compilerOptions": {
+		"target": "ES2020",
+		"checkJs": true,
+		"jsxImportSource": "preact"
+	},
+	"typeRoots": [ "./src/comment-form/components", "./node_modules/@types" ],
+	"include": [ "src/**/*" ],
+	"exclude": [ "build" ]
+}

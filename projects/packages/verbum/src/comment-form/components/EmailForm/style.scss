@@ -1,0 +1,166 @@
+.comment-form__verbum .verbum-subscriptions .verbum-form {
+
+	.verbum-form__content {
+		// protect the button from style leaks from the site; reset all.
+		all: unset;
+		background-color: var(--verbum-content-background-color);
+		display: flex;
+		flex-direction: column;
+		border: solid 1px var(--verbum-border-color);
+		border-radius: 4px;
+
+		.verbum__label {
+			all: unset;
+			position: relative;
+			height: 45px;
+			border-bottom: 1px solid var(--verbum-border-color);
+
+			&:last-of-type {
+				border-bottom: none;
+			}
+
+			svg {
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				left: 22px;
+				margin: auto 0;
+			}
+
+			input {
+				color: var(--verbum-font-color);
+				background-color: transparent;
+				width: 100%;
+				height: 100%;
+				padding-left: 48px;
+
+				/* Override border styling */
+				border: none !important;
+				font-size: 14px;
+				box-sizing: border-box;
+
+				&::placeholder {
+					color: var(--verbum-font-color);
+					opacity: 0.7;
+				}
+
+				&.invalid-form-data {
+					border: solid 1px #e65054;
+				}
+
+				&:focus-visible {
+					outline: 1px solid var(--verbum-focus-color) !important;
+				}
+			}
+		}
+
+		.verbum-subscriptions__options {
+			border-top: 1px solid var(--verbum-border-color);
+			padding: 16px 21px;
+		}
+
+		.verbum-form__profile {
+			border: none;
+			background: none;
+			padding: 0;
+
+			img {
+				display: none;
+				position: absolute;
+				left: 16px;
+				top: 10px;
+				width: 24px;
+				height: 24px;
+				border-radius: 50%;
+				border: 2px solid transparent;
+				cursor: pointer;
+				animation: borderFlashAndGrow 1s ease-in-out 2;
+
+				&:hover {
+					border-color: var(--verbum-focus-color);
+				}
+			}
+
+			&.loading img {
+				background-color: var(--verbum-background-color);
+				animation: gravatar-pulse 2s infinite ease-in-out;
+				border-color: var(--verbum-background-color);
+			}
+		}
+	}
+
+	&.has-profile {
+
+		.verbum-form__profile img {
+			display: block;
+		}
+	}
+
+	.verbum-mail-form-cookie-consent {
+		margin-bottom: 16px;
+		padding: 0 21px;
+
+		.verbum-toggle-control {
+			padding: 0 21px;
+		}
+
+		.verbum-toggle-control__text {
+			font-size: 0.875rem;
+			font-weight: 500;
+			display: block;
+		}
+	}
+
+	label[for="verbum-email-form-email"].verbum__label {
+		display: flex;
+	}
+
+	&.loading label[for="verbum-email-form-email"] {
+
+		svg {
+			animation: spin 1s linear infinite;
+		}
+	}
+}
+
+@keyframes borderFlashAndGrow {
+
+	0%,
+	100% {
+		border-color: transparent;
+		transform: scale(1);
+	}
+
+	25%,
+	50%,
+	75% {
+		border-color: var(--verbum-focus-color);
+		transform: scale(1.1);
+	}
+}
+
+@keyframes spin {
+
+	0% {
+		transform: rotate(0deg);
+	}
+
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes gravatar-pulse {
+
+	0% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0.2;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
