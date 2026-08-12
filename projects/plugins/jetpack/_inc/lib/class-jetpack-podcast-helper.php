@@ -105,6 +105,10 @@ class Jetpack_Podcast_Helper {
 		$transient_key = 'jetpack_podcast_' . md5( $this->feed . implode( ',', $guids ) . "-$episode_options" );
 		$player_data   = get_transient( $transient_key );
 
+		if ( is_wp_error( $player_data ) && ! static::should_cache_errors() ) {
+			$player_data = false;
+		}
+
 		// Fetch data if we don't have any cached.
 		if ( false === $player_data || ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
 			// Load feed.
@@ -189,9 +193,24 @@ class Jetpack_Podcast_Helper {
 	 * @return WP_Error
 	 */
 	protected function cache_error( $transient_key, $error ) {
-		set_transient( $transient_key, $error, static::ERROR_CACHE_TIMEOUT );
+		if ( static::should_cache_errors() ) {
+			set_transient( $transient_key, $error, static::ERROR_CACHE_TIMEOUT );
+		}
 
 		return $error;
+	}
+
+	/**
+	 * Whether feed failures should be cached for this request.
+	 *
+	 * Skipped for REST requests: the editor retries by resubmitting the same URL,
+	 * which rebuilds the same cache key, so a remembered failure would outlive the
+	 * fix it is telling the author to make.
+	 *
+	 * @return bool
+	 */
+	protected static function should_cache_errors() {
+		return ! ( defined( 'REST_REQUEST' ) && REST_REQUEST );
 	}
 
 	/**
