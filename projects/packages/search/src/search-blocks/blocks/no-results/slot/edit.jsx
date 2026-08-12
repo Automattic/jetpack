@@ -10,14 +10,12 @@
  *
  * The outline + label and `ButtonBlockAppender` are the container-boundary
  * mitigation described in AGENTS.md's "InnerBlocks appender boundary trap".
+ *
+ * `condition` is set once, by whatever created the variant, and deliberately
+ * has no editing control: every condition already exists in the container, so
+ * repointing one could only duplicate a condition or vacate another.
  */
-import {
-	InnerBlocks,
-	InspectorControls,
-	store as blockEditorStore,
-	useBlockProps,
-} from '@wordpress/block-editor';
-import { PanelBody, RadioControl } from '@wordpress/components';
+import { InnerBlocks, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
@@ -54,19 +52,15 @@ export const conditionLabels = () => ( {
 	error: __( 'Search failed', 'jetpack-search-pkg' ),
 } );
 
-const displayWhenOptions = () =>
-	CONDITIONS.map( value => ( { label: conditionLabels()[ value ], value } ) );
-
 /**
  * Edit component for the no-results-slot block.
  *
- * @param {object}   props               - Block props.
- * @param {object}   props.attributes    - Block attributes.
- * @param {Function} props.setAttributes - Attribute setter.
- * @param {string}   props.clientId      - Block client id.
+ * @param {object} props            - Block props.
+ * @param {object} props.attributes - Block attributes.
+ * @param {string} props.clientId   - Block client id.
  * @return {object} Rendered element.
  */
-export default function NoResultsSlotEdit( { attributes, setAttributes, clientId } ) {
+export default function NoResultsSlotEdit( { attributes, clientId } ) {
 	const stored = attributes?.condition;
 	const condition = CONDITIONS.includes( stored ) ? stored : 'any';
 	const hasInnerBlocks = useSelect(
@@ -78,35 +72,19 @@ export default function NoResultsSlotEdit( { attributes, setAttributes, clientId
 	} );
 
 	return (
-		<>
-			<InspectorControls>
-				<PanelBody title={ __( 'Settings', 'jetpack-search-pkg' ) }>
-					<RadioControl
-						label={ __( 'Display when', 'jetpack-search-pkg' ) }
-						help={ __(
-							'Each variant covers one condition. The No Results block above adds the ones this search page is missing.',
-							'jetpack-search-pkg'
-						) }
-						selected={ condition }
-						options={ displayWhenOptions() }
-						onChange={ value => setAttributes( { condition: value } ) }
-					/>
-				</PanelBody>
-			</InspectorControls>
-			<div { ...blockProps }>
-				<span className="jetpack-search-no-results__editor-label">
-					{ conditionLabels()[ condition ] }
-				</span>
-				{ ! hasInnerBlocks && (
-					<div className="jetpack-search-no-results__default-preview">
-						{ defaultMessages( condition ).map( message => (
-							<p key={ message }>{ message }</p>
-						) ) }
-					</div>
-				) }
-				<InnerBlocks renderAppender={ InnerBlocks.ButtonBlockAppender } />
-			</div>
-		</>
+		<div { ...blockProps }>
+			<span className="jetpack-search-no-results__editor-label">
+				{ conditionLabels()[ condition ] }
+			</span>
+			{ ! hasInnerBlocks && (
+				<div className="jetpack-search-no-results__default-preview">
+					{ defaultMessages( condition ).map( message => (
+						<p key={ message }>{ message }</p>
+					) ) }
+				</div>
+			) }
+			<InnerBlocks renderAppender={ InnerBlocks.ButtonBlockAppender } />
+		</div>
 	);
 }
 
