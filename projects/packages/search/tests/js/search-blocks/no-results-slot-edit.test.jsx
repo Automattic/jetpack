@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { InnerBlocks } from '@wordpress/block-editor';
-import NoResultsSlotEdit from '../../../src/search-blocks/blocks/no-results-slot/edit';
+import NoResultsSlotEdit from '../../../src/search-blocks/blocks/no-results/slot/edit';
 
 jest.mock( '@wordpress/block-editor', () => {
 	const mockInnerBlocks = jest.fn( () => <div data-testid="variant-inner-blocks" /> );

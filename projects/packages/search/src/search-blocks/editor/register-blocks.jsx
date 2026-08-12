@@ -32,7 +32,7 @@ import FiltersEdit, { save as filtersSave } from '../blocks/filters/edit';
 import FiltersPopoverEdit, { save as filtersPopoverSave } from '../blocks/filters-popover/edit';
 import FiltersProductEdit, { save as filtersProductSave } from '../blocks/filters-product/edit';
 import NoResultsEdit, { save as noResultsSave } from '../blocks/no-results/edit';
-import NoResultsSlotEdit, { save as noResultsSlotSave } from '../blocks/no-results-slot/edit';
+import NoResultsSlotEdit, { save as noResultsSlotSave } from '../blocks/no-results/slot/edit';
 import PoweredByEdit from '../blocks/powered-by/edit';
 import ResultsCountEdit from '../blocks/results-count/edit';
 import ResultsListEdit from '../blocks/results-list/edit';

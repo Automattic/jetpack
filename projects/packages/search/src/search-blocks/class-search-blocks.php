@@ -747,6 +747,18 @@ class Search_Blocks {
 				continue;
 			}
 			register_block_type( $block_dir );
+
+			// A block directory may nest child blocks that only ever render
+			// inside it (`no-results/slot`). They live there rather than beside
+			// their parent so the relationship is obvious in the tree, and they
+			// inherit the parent's gating for free — a skipped parent never
+			// reaches this line.
+			$child_dirs = glob( $block_dir . '/*', GLOB_ONLYDIR );
+			foreach ( (array) $child_dirs as $child_dir ) {
+				if ( file_exists( $child_dir . '/block.json' ) ) {
+					register_block_type( $child_dir );
+				}
+			}
 		}
 
 		add_filter( 'get_block_type_variations', array( static::class, 'inject_filter_checkbox_variations' ), 10, 2 );

@@ -33,6 +33,5 @@
 		}
 	},
 	"textdomain": "jetpack-search-pkg",
-	"render": "file:./render.php",
-	"viewScriptModule": "file:../../../../build/search-blocks/no-results-slot.js"
+	"render": "file:./render.php"
 }

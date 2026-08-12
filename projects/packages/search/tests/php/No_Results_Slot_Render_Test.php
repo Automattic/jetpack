@@ -32,7 +32,7 @@ class No_Results_Slot_Render_Test extends TestCase {
 				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				'render_callback' => static function ( $attributes, $content ) {
 					ob_start();
-					include __DIR__ . '/../../src/search-blocks/blocks/no-results-slot/render.php';
+					include __DIR__ . '/../../src/search-blocks/blocks/no-results/slot/render.php';
 					return (string) ob_get_clean();
 				},
 				// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable

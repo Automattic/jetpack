@@ -18,7 +18,7 @@ import { createBlock } from '@wordpress/blocks';
 import { Button, PanelBody } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { conditionLabels } from '../no-results-slot/edit';
+import { conditionLabels } from './slot/edit';
 
 const SLOT_BLOCK = 'jetpack-search/no-results-slot';
 const CONDITIONS = [ 'any', 'filtered', 'error' ];
