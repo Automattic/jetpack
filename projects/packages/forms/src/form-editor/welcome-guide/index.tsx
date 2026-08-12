@@ -12,7 +12,7 @@ import { PluginMoreMenuItem } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getWelcomeGuidePages } from './pages';
-import { isWelcomeGuideForced, shouldShowWelcomeGuide } from './should-show';
+import { isWelcomeGuideForced, isWelcomeGuideOpen, shouldPersistDismissal } from './should-show';
 import './style.scss';
 
 export const JETPACK_FORM_WELCOME_GUIDE = 'jetpack-form-welcome-guide';
@@ -53,17 +53,28 @@ export const FormWelcomeGuide = () => {
 	// that a forced guide can still be dismissed.
 	const [ isClosed, setIsClosed ] = useState( false );
 
+	// Reopening from the Options menu is deliberately session-only — it does not
+	// write the preference back to true, which would make the guide auto-open on
+	// every later load and undo the user's dismissal.
+	const [ isReopened, setIsReopened ] = useState( false );
+
 	const handleFinish = useCallback( () => {
+		setIsReopened( false );
 		setIsClosed( true );
-		set( PREFERENCE_SCOPE, PREFERENCE_NAME, false );
-	}, [ set ] );
+
+		// Only persist the dismissal the first time; re-writing false on every
+		// reopen would queue a pointless preference save.
+		if ( shouldPersistDismissal( preference ) ) {
+			set( PREFERENCE_SCOPE, PREFERENCE_NAME, false );
+		}
+	}, [ preference, set ] );
 
 	const handleReopen = useCallback( () => {
 		setIsClosed( false );
-		set( PREFERENCE_SCOPE, PREFERENCE_NAME, true );
-	}, [ set ] );
+		setIsReopened( true );
+	}, [] );
 
-	const isOpen = ! isClosed && shouldShowWelcomeGuide( { preference, isForced } );
+	const isOpen = isWelcomeGuideOpen( { preference, isForced, isClosed, isReopened } );
 
 	return (
 		<>
