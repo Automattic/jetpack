@@ -139,7 +139,7 @@ class Status {
 			return $cached;
 		}
 
-		$site_url = site_url();
+		$site_url = trim( (string) site_url() );
 
 		/*
 		 * Every check below cares about the host, not the rest of the URL. Matching the host
@@ -148,8 +148,15 @@ class Status {
 		 */
 		$host = wp_parse_url( $site_url, PHP_URL_HOST );
 		if ( ! is_string( $host ) || '' === $host ) {
-			// site_url() should always be absolute, but fall back to the raw value if it isn't.
-			$host = (string) $site_url;
+			// site_url() should always be absolute. If it isn't, read the value as a bare host.
+			$host = wp_parse_url( '//' . ltrim( $site_url, '/' ), PHP_URL_HOST );
+		}
+		if ( ! is_string( $host ) ) {
+			/*
+			 * Nothing host-shaped to test. Treat the site as remote rather than matching the
+			 * raw URL: a false "local" silently drops a live site into offline mode.
+			 */
+			$host = '';
 		}
 
 		// Check for localhost and sites using an IP only first.

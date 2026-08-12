@@ -590,6 +590,49 @@ class Status_Test extends TestCase {
 				'https://jetpack.com/127.0.0.1',
 				false,
 			),
+			// Hosts are compared case-insensitively; parse_url does not lowercase them for us.
+			'uppercase_host'                 => array(
+				'HTTPS://JETPACK.TEST',
+				true,
+			),
+			'uppercase_production_host'      => array(
+				'HTTPS://JETPACK.COM',
+				false,
+			),
+			// Userinfo must not be mistaken for the host.
+			'localhost_as_userinfo'          => array(
+				'https://localhost@jetpack.com/',
+				false,
+			),
+			'userinfo_on_local_host'         => array(
+				'http://user:pass@jetpack.localhost:8080',
+				true,
+			),
+
+			/*
+			 * site_url() is always absolute in practice. When it isn't, the value is read as a
+			 * bare host, so a known local domain in the path still must not match.
+			 */
+			'schemeless_host'                => array(
+				'localhost',
+				true,
+			),
+			'schemeless_host_with_port'      => array(
+				'localhost:8080',
+				true,
+			),
+			'schemeless_local_domain'        => array(
+				'jetpack.test',
+				true,
+			),
+			'schemeless_local_in_path'       => array(
+				'jetpack.com/foo.test',
+				false,
+			),
+			'empty_site_url'                 => array(
+				'',
+				false,
+			),
 		);
 	}
 
