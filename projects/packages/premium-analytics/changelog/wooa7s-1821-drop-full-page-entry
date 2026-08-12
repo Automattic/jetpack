@@ -1,4 +1,4 @@
 Significance: patch
-Type: security
+Type: changed
 
-Serve the dashboard only from its capability-gated admin page.
+Serve the dashboard only from its registered, capability-gated admin page.

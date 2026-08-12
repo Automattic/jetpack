@@ -17,8 +17,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 /**
  * Main Analytics class.
  *
- * Loads the wp-build output and registers an admin page.
- * The build interceptor handles full-page rendering via admin_init.
+ * Loads the wp-build output and registers the dashboard's admin page.
  */
 class Analytics {
 
@@ -358,8 +357,15 @@ class Analytics {
 	/**
 	 * Unhook wp-build's full-page render interceptor.
 	 *
-	 * It runs on admin_init before Core rejects the unregistered slug. The callback
-	 * name depends on the page slug, so the test guards against name drift.
+	 * It renders `?page=jetpack-premium-analytics` — a slug the menu never
+	 * registers — from admin_init, with no capability check of its own. On
+	 * wp-admin screens Core already refuses that slug first, in
+	 * wp-admin/includes/menu.php, which admin.php requires before admin_init;
+	 * admin-post.php and admin-ajax.php reach admin_init without that check, and
+	 * renders_admin_chrome() is what currently keeps the build off both. Unhooking
+	 * removes the reliance on that single guard.
+	 *
+	 * The callback name depends on the page slug, so the test guards name drift.
 	 *
 	 * @return void
 	 */

@@ -273,7 +273,7 @@ class Analytics_Test extends TestCase {
 		$this->assertArrayHasKey( 'jpa_test_build_loaded', $GLOBALS );
 		$this->assertFalse(
 			has_action( 'admin_init', 'jpa_jetpack_premium_analytics_intercept_render' ),
-			'The wp-build full-page interceptor is still hooked, so ?page=jetpack-premium-analytics renders for any logged-in user.'
+			'The wp-build full-page interceptor is still hooked, leaving ?page=jetpack-premium-analytics renderable wherever admin_init runs without Core\'s menu access check.'
 		);
 	}
 
