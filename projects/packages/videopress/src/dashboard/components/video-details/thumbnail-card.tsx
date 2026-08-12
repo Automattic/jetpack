@@ -1,11 +1,12 @@
 import { __ } from '@wordpress/i18n';
-import { Card, Field, Skeleton, Stack } from '@wordpress/ui';
+import { media, upload } from '@wordpress/icons';
+import { Card, Field, Skeleton, Stack, Text } from '@wordpress/ui';
 import { useState } from 'react';
 import { usePosterUrl } from '../../hooks/use-poster-url';
 import { useUpdateVideoPoster } from '../../hooks/use-update-video-poster';
 import { selectImageFromMediaLibrary } from '../../utils/select-image-from-media-library';
 import SelectFrameDialog from './select-frame-dialog';
-import ThumbnailUpdateButton from './thumbnail-update-button';
+import ThumbnailTile from './thumbnail-tile';
 import type { LibraryItem } from '../../types/library';
 import type { ReactElement } from 'react';
 
@@ -60,6 +61,8 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 		} );
 	};
 
+	const isBusy = updatePoster.isPending;
+
 	return (
 		<Card.Root>
 			<Card.Header>
@@ -67,15 +70,22 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 			</Card.Header>
 			<Card.Content>
 				{ /*
-				 * No Field.Label — the card title already names this, and a
-				 * second "Thumbnail" above the same control would be noise. The
+				 * No Field.Label — the card title already names this. The
 				 * Field.Root/Field.Description pair is kept so the caption gets
 				 * the same treatment as the help text under every other control
 				 * on the page.
 				 */ }
 				<Field.Root>
-					<Stack direction="row" gap="md" align="center" className="vp-video-details__thumbnail">
-						<div className="vp-video-details__poster">
+					<Text className="vp-thumbnail-picker__intro">
+						{ __( 'Pick the still that represents this video.', 'jetpack-videopress-pkg' ) }
+					</Text>
+					<Stack direction="row" gap="md" className="vp-thumbnail-picker">
+						{ /*
+						 * The current poster, shown at the same 16:9 size as the
+						 * two actions so the row reads as a set. Solid-bordered
+						 * rather than dashed: it is content, not an affordance.
+						 */ }
+						<div className="vp-thumbnail-picker__current">
 							{ posterUrl && (
 								<img
 									src={ posterUrl }
@@ -83,13 +93,27 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 								/>
 							) }
 							{ isPosterPending && <Skeleton /> }
+							{ ! posterUrl && ! isPosterPending && (
+								<span className="vp-thumbnail-picker__empty">
+									{ __( 'No thumbnail yet', 'jetpack-videopress-pkg' ) }
+								</span>
+							) }
 						</div>
-						<ThumbnailUpdateButton
-							canSelectFromVideo={ Boolean( video.sourceUrl ) }
-							canUploadImage={ Boolean( ( window.wp as WpGlobal | undefined )?.media ) }
-							isBusy={ updatePoster.isPending }
-							onSelectFromVideo={ () => setDialogOpen( true ) }
-							onUploadImage={ handleUploadImage }
+						<ThumbnailTile
+							icon={ upload }
+							label={
+								isBusy
+									? __( 'Updating…', 'jetpack-videopress-pkg' )
+									: __( 'Upload image', 'jetpack-videopress-pkg' )
+							}
+							disabled={ isBusy || ! ( window.wp as WpGlobal | undefined )?.media }
+							onClick={ handleUploadImage }
+						/>
+						<ThumbnailTile
+							icon={ media }
+							label={ __( 'Select from video', 'jetpack-videopress-pkg' ) }
+							disabled={ isBusy || ! video.sourceUrl }
+							onClick={ () => setDialogOpen( true ) }
 						/>
 					</Stack>
 					<Field.Description>
@@ -112,21 +136,21 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 
 /**
  * The Thumbnail card: the still this video is currently represented by, and
- * the "Update thumbnail" menu (Select from video / Upload image) that
- * replaces it, plus the frame picker that menu opens and the poster mutation
- * both modes drive.
+ * the two ways to replace it — Upload image (WP media modal) and Select from
+ * video (frame scrubber) — as a row of 16:9 tiles.
  *
- * It is a card of its own rather than a row inside Video details for two
- * reasons. The obvious one is that showing the current poster next to the
- * control that changes it is the whole job, and a labelled row with a single
- * button in it — which is what this was — showed nothing at all. The other is
- * that this is the one control on the screen that does NOT go through Save:
- * the poster endpoint is keyed by GUID while the meta patch is keyed by
- * attachment id, and the mutation polls for up to 60s, so folding it into
- * Save would mean a button that either spins for a minute or claims success
- * while the poster is still generating. Two honest save models beat one
- * dishonest one, and a card boundary says so more clearly than the hairline
- * rule this used to draw for itself.
+ * Tiles rather than a dropdown because the choice is visual. Both actions
+ * produce an image, the current one is sitting right there to compare
+ * against, and a menu hides all of that behind a label. This is the shape
+ * YouTube Studio uses for the same two actions.
+ *
+ * It is a card of its own rather than a row inside Video details because this
+ * is the one control on the screen that does NOT go through Save: the poster
+ * endpoint is keyed by GUID while the meta patch is keyed by attachment id,
+ * and the mutation polls for up to 60s. Folding it into Save would mean a
+ * button that either spins for a minute or claims success while the poster is
+ * still generating. Two honest save models beat one dishonest one, and a card
+ * boundary says so more clearly than a hairline rule.
  *
  * Renders nothing when the video can't take a new poster. A disabled control
  * would be wrong: there is no user action that would enable it.

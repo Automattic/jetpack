@@ -86,11 +86,11 @@ describe( 'SubtitlesCard', () => {
 		expect( screen.getByText( 'English (US), German, and 2 more' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows None when the video has no subtitle tracks', () => {
+	it( 'says "No subtitles yet." when the video has no subtitle tracks', () => {
 		render( <SubtitlesCard video={ baseVideo } onManageSubtitles={ jest.fn() } />, { wrapper } );
 
 		expect( screen.getByText( 'Subtitles' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'None' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'No subtitles yet.' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders nothing for items without a VideoPress GUID', () => {

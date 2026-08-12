@@ -246,31 +246,39 @@ describe( 'video stage', () => {
 
 	/*
 	 * The layout contract. The player is a grid sibling of the canvas and the
-	 * panel, not a child of either, because it is placed by grid area — that is
-	 * what lets the stacked layout below 1100px lead with the player while the
-	 * read-outs stay last. Nesting it inside the panel would look equivalent and
-	 * silently invert the narrow-viewport order, so pin that it is outside.
+	 * settings panel, not a child of either, because it is placed by grid area —
+	 * that is what lets the stacked layout below 1100px lead with the player
+	 * while the settings stay last. Nesting it inside the panel would look
+	 * equivalent and silently invert the narrow-viewport order, so pin that it
+	 * is outside.
 	 */
-	it( 'keeps the player out of the information panel', async () => {
+	it( 'keeps the player out of the settings panel', async () => {
 		await renderReadyStage();
 
-		const panel = screen.getByRole( 'complementary', { name: 'Video information' } );
+		const panel = screen.getByRole( 'complementary', { name: 'Video settings' } );
 
 		expect( within( panel ).getByTestId( 'video-info-card' ) ).toBeInTheDocument();
 		expect( within( panel ).queryByTestId( 'preview-player' ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'preview-player' ) ).toBeInTheDocument();
 	} );
 
-	// Everything a person edits moved to the canvas; the panel is read-outs
-	// only. Named cards rather than a count, so adding one to the wrong column
-	// fails here.
-	it( 'leaves only the read-outs in the information panel', async () => {
+	/*
+	 * The split is authoring vs. configuring, not editable vs. read-only. The
+	 * canvas holds what a person writes; the panel holds the read-outs plus the
+	 * settings picked once from a fixed set. Named cards rather than a count, so
+	 * putting one in the wrong column fails here.
+	 */
+	it( 'groups the settings with the read-outs, and the authoring outside them', async () => {
 		await renderReadyStage();
 
-		const panel = screen.getByRole( 'complementary', { name: 'Video information' } );
+		const panel = screen.getByRole( 'complementary', { name: 'Video settings' } );
 
-		expect( within( panel ).queryByTestId( 'privacy-sharing-card' ) ).not.toBeInTheDocument();
-		expect( within( panel ).queryByTestId( 'rating-card' ) ).not.toBeInTheDocument();
+		// Configured once, then left alone.
+		expect( within( panel ).getByTestId( 'privacy-sharing-card' ) ).toBeInTheDocument();
+		expect( within( panel ).getByTestId( 'rating-card' ) ).toBeInTheDocument();
+
+		// Authored — on the canvas, so present on the page but not in the panel.
+		expect( screen.getByTestId( 'thumbnail-card' ) ).toBeInTheDocument();
 		expect( within( panel ).queryByTestId( 'thumbnail-card' ) ).not.toBeInTheDocument();
 		expect( within( panel ).queryByTestId( 'subtitles-card' ) ).not.toBeInTheDocument();
 		expect( within( panel ).queryByLabelText( 'Title' ) ).not.toBeInTheDocument();

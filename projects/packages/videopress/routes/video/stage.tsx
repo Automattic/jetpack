@@ -199,12 +199,15 @@ const Editor = ( {
 			) }
 			<div className="vp-video-details">
 				{ /*
-				 * Placement rule for this screen: the canvas holds everything a
-				 * person changes about this video, roughly in the order they
-				 * are likely to want it — what it says, what it looks like, who
-				 * can see it. The right-hand column holds the video itself and
-				 * the four values that address it, none of which are edited
-				 * here.
+				 * Placement rule for this screen: the canvas holds what a person
+				 * authors about this video — the words, the still, the captions.
+				 * The right-hand column holds the video itself, the values that
+				 * address it, and the settings picked once from a fixed set.
+				 *
+				 * The split is authoring vs. configuring rather than editable vs.
+				 * read-only, which is why Privacy & sharing and Rating sit beside
+				 * the read-outs: all three are things you set and leave, not
+				 * things you write.
 				 *
 				 * The player used to lead the canvas. It was measured at 502px
 				 * tall on a 1080p display — over half the visible page before a
@@ -225,6 +228,19 @@ const Editor = ( {
 						/>
 						<ThumbnailCard video={ video } />
 						<SubtitlesCard video={ video } onManageSubtitles={ onManageCaptions } />
+					</div>
+					{ /*
+					 * Deliberately a sibling of the canvas rather than the first
+					 * child of the aside: it is placed by grid area, so the stacked
+					 * layout below 1100px can lead with the player while the
+					 * settings stay at the bottom.
+					 */ }
+					<PreviewPlayer video={ video } />
+					<aside
+						className="vp-video-details__inspector"
+						aria-label={ __( 'Video settings', 'jetpack-videopress-pkg' ) }
+					>
+						<VideoInfoCard video={ video } />
 						<PrivacySharingCard
 							privacy={ values.privacy }
 							displayEmbed={ values.displayEmbed }
@@ -232,19 +248,6 @@ const Editor = ( {
 							onChange={ update }
 						/>
 						<RatingCard value={ values.rating } onChange={ onRatingChange } />
-					</div>
-					{ /*
-					 * Deliberately a sibling of the canvas rather than the first
-					 * child of the aside: it is placed by grid area, so the stacked
-					 * layout below 1100px can lead with the player while these
-					 * read-outs stay at the bottom.
-					 */ }
-					<PreviewPlayer video={ video } />
-					<aside
-						className="vp-video-details__inspector"
-						aria-label={ __( 'Video information', 'jetpack-videopress-pkg' ) }
-					>
-						<VideoInfoCard video={ video } />
 					</aside>
 				</div>
 			</div>

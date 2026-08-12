@@ -1,5 +1,5 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Button, Card, Stack, Text } from '@wordpress/ui';
+import { Button, Card, Skeleton, Stack, Text } from '@wordpress/ui';
 import { useVideoTracks } from '../../../client/components/caption-manager-modal/use-video-tracks';
 import {
 	getLanguageDisplayName,
@@ -52,7 +52,7 @@ function SubtitlesCardContent( { video, onManageSubtitles }: Props ): ReactEleme
 	];
 	const shownLanguages = subtitleLanguages.slice( 0, MAX_SUBTITLE_LANGUAGES_SHOWN ).join( ', ' );
 	const moreLanguagesCount = subtitleLanguages.length - MAX_SUBTITLE_LANGUAGES_SHOWN;
-	let subtitleSummary = shownLanguages || __( 'None', 'jetpack-videopress-pkg' );
+	let subtitleSummary = shownLanguages || __( 'No subtitles yet.', 'jetpack-videopress-pkg' );
 	if ( moreLanguagesCount > 0 ) {
 		subtitleSummary = sprintf(
 			/* translators: 1: list of subtitle language names. 2: how many further languages exist. */
@@ -74,14 +74,16 @@ function SubtitlesCardContent( { video, onManageSubtitles }: Props ): ReactEleme
 			</Card.Header>
 			<Card.Content>
 				{ /*
-				 * Left-aligned rather than pushed to the two ends of the card.
-				 * The canvas is ~830px wide, and `space-between` left 600px of
-				 * nothing between a one-word summary and its button.
+				 * State first, then the action — the same rhythm as the
+				 * Thumbnail card above this one. The two used to share a row,
+				 * which read as fragments ("None [Manage subtitles]").
 				 */ }
-				<Stack direction="row" gap="md" align="center">
-					<Text className="vp-video-details__readout">
-						{ isLoading ? __( 'Loading…', 'jetpack-videopress-pkg' ) : subtitleSummary }
-					</Text>
+				<Stack direction="column" gap="md" align="start">
+					{ isLoading ? (
+						<Skeleton className="vp-subtitles__loading" />
+					) : (
+						<Text className="vp-subtitles__summary">{ subtitleSummary }</Text>
+					) }
 					{ /*
 					 * The full string, not "Manage". The label used to read
 					 * "Manage" with "Manage subtitles" hidden in an aria-label,

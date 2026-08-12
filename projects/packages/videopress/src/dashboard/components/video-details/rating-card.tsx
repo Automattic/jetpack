@@ -1,6 +1,6 @@
 import { RadioControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Card } from '@wordpress/ui';
+import { Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
 import type { VideoRating } from '../../types/library';
 import type { ReactElement } from 'react';
 
@@ -12,6 +12,11 @@ type Props = {
 /**
  * Rating radio group. Single tab stop; arrow keys cycle G / PG-13 / R.
  *
+ * Collapsible, and collapsed by default — the rating is set once and rarely
+ * revisited, and the three descriptions make it the tallest card in a column
+ * that was already outrunning the canvas beside it. The selected rating shows
+ * in the header, so the collapsed state still answers "what is this rated?".
+ *
  * @param props          - Component props.
  * @param props.value    - Currently selected rating.
  * @param props.onChange - Receives the new rating.
@@ -19,11 +24,16 @@ type Props = {
  */
 export default function RatingCard( { value, onChange }: Props ): ReactElement {
 	return (
-		<Card.Root>
-			<Card.Header>
-				<Card.Title>{ __( 'Rating', 'jetpack-videopress-pkg' ) }</Card.Title>
-			</Card.Header>
-			<Card.Content>
+		<CollapsibleCard.Root>
+			<CollapsibleCard.Header>
+				<Stack direction="row" gap="sm" align="center" justify="space-between">
+					<Card.Title>{ __( 'Rating', 'jetpack-videopress-pkg' ) }</Card.Title>
+					<CollapsibleCard.HeaderDescription>
+						<Text className="vp-video-details__summary">{ value }</Text>
+					</CollapsibleCard.HeaderDescription>
+				</Stack>
+			</CollapsibleCard.Header>
+			<CollapsibleCard.Content>
 				<RadioControl
 					selected={ value }
 					onChange={ next => onChange( next as VideoRating ) }
@@ -61,7 +71,7 @@ export default function RatingCard( { value, onChange }: Props ): ReactElement {
 						},
 					] }
 				/>
-			</Card.Content>
-		</Card.Root>
+			</CollapsibleCard.Content>
+		</CollapsibleCard.Root>
 	);
 }
