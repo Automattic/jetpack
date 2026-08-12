@@ -114,4 +114,39 @@ class No_Results_Test extends TestCase {
 		$this->assertSame( 'state.showLegacyError', No_Results::legacy_error_getter() );
 		$this->assertSame( 'state.showNoResultsAny', No_Results::visibility_getter( 'any' ) );
 	}
+
+	/**
+	 * The scope is restored rather than cleared, so a nested self-contained
+	 * render can't drop its parent back onto the page-global getters — which
+	 * would also let the parent resume seeding, reintroducing the very leak
+	 * this class exists to prevent.
+	 */
+	public function test_a_nested_self_contained_render_restores_its_parent_scope() {
+		$seen = array();
+
+		// Nest for real: run the inner render from inside the outer render's
+		// own `do_blocks()` pass, then read the scope back.
+		$probe = static function ( $html, $block ) use ( &$seen ) {
+			if ( 'core/separator' === ( $block['blockName'] ?? '' ) ) {
+				$seen['during'] = No_Results::legacy_no_results_getter();
+				No_Results::render_self_contained( '<!-- wp:paragraph --><p>inner</p><!-- /wp:paragraph -->' );
+				$seen['after_nested'] = No_Results::legacy_no_results_getter();
+			}
+			return $html;
+		};
+		\add_filter( 'render_block', $probe, 10, 2 );
+
+		// The outer markup covers `any`, so its legacy region is dropped ('').
+		// The inner markup covers nothing, so a scope that reset to null — or
+		// leaked the inner value — shows up as a different getter afterwards.
+		No_Results::render_self_contained(
+			'<!-- wp:jetpack-search/no-results /--><!-- wp:separator /-->'
+		);
+
+		\remove_filter( 'render_block', $probe, 10 );
+
+		$this->assertSame( '', $seen['during'], 'the outer render drops its legacy region' );
+		$this->assertSame( '', $seen['after_nested'], 'the outer scope must survive the nested render' );
+		$this->assertSame( 'state.showLegacyNoResults', No_Results::legacy_no_results_getter() );
+	}
 }

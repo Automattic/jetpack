@@ -44,11 +44,16 @@ class No_Results {
 	 * @return string Rendered HTML.
 	 */
 	public static function render_self_contained( string $content ): string {
+		// Restored, not cleared: a nested call that reset to null would drop the
+		// outer render back onto the page-global getters *and* let it resume
+		// seeding — silently reintroducing the leak this exists to prevent.
+		// Nothing nests today; this keeps that cheap to add.
+		$previous                      = self::$self_contained_coverage;
 		self::$self_contained_coverage = self::collect_coverage( $content );
 		try {
 			return do_blocks( $content );
 		} finally {
-			self::$self_contained_coverage = null;
+			self::$self_contained_coverage = $previous;
 		}
 	}
 
