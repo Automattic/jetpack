@@ -34,7 +34,11 @@ import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import EmailTimeSeriesRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
-import type { EmailTimeSeriesGranularity, EmailTimeSeriesMetric } from '../widget';
+import type {
+	EmailTimeSeriesChartType,
+	EmailTimeSeriesGranularity,
+	EmailTimeSeriesMetric,
+} from '../widget';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -70,6 +74,7 @@ const GRANULARITY_OPTIONS: EmailTimeSeriesGranularity[] =
 interface EmailTimeSeriesStoryControls {
 	metric: EmailTimeSeriesMetric;
 	granularity: EmailTimeSeriesGranularity;
+	chartType: EmailTimeSeriesChartType;
 }
 
 /**
@@ -77,13 +82,14 @@ interface EmailTimeSeriesStoryControls {
  * story can pass host comparison params without duplicating the scoping rule.
  */
 function getEmailTimeSeriesAttributes(
-	{ metric, granularity }: EmailTimeSeriesStoryControls,
+	{ metric, granularity, chartType }: EmailTimeSeriesStoryControls,
 	withComparison = false
 ): ComponentProps< typeof EmailTimeSeriesRender >[ 'attributes' ] {
 	return {
 		reportParams: { ...getDefaultQueryParams( withComparison ), post_id: MOCK_EMAIL_ID },
 		metric,
 		granularity,
+		chartType,
 	};
 }
 
@@ -113,6 +119,7 @@ const meta = {
 	argTypes: {
 		metric: { control: 'select', options: METRIC_OPTIONS },
 		granularity: { control: 'select', options: GRANULARITY_OPTIONS },
+		chartType: { control: 'radio', options: [ 'line', 'bar' ] },
 	},
 	parameters: {
 		docs: {
@@ -134,7 +141,7 @@ type Story = StoryObj< EmailTimeSeriesStoryControls >;
  */
 export const Default: Story = {
 	render: renderEmailTimeSeries,
-	args: { metric: 'opens', granularity: 'day' },
+	args: { metric: 'opens', granularity: 'day', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -143,7 +150,7 @@ export const Default: Story = {
  */
 export const Clicks: Story = {
 	render: renderEmailTimeSeries,
-	args: { metric: 'clicks', granularity: 'day' },
+	args: { metric: 'clicks', granularity: 'day', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -152,7 +159,7 @@ export const Clicks: Story = {
  */
 export const ByWeeks: Story = {
 	render: renderEmailTimeSeries,
-	args: { metric: 'opens', granularity: 'week' },
+	args: { metric: 'opens', granularity: 'week', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -223,6 +230,7 @@ interface EmailTimeSeriesDashboardStoryProps
 function EmailTimeSeriesDashboardStory( {
 	metric,
 	granularity,
+	chartType,
 	...dashboardArgs
 }: EmailTimeSeriesDashboardStoryProps ) {
 	return (
@@ -231,7 +239,7 @@ function EmailTimeSeriesDashboardStory( {
 			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ EMAIL_TIME_SERIES_RENDER_MODULE }
 			renderComponent={ EmailTimeSeriesRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ getEmailTimeSeriesAttributes( { metric, granularity }, true ) }
+			attributes={ getEmailTimeSeriesAttributes( { metric, granularity, chartType }, true ) }
 		/>
 	);
 }
@@ -242,10 +250,12 @@ export const WidgetDashboardWithWidget: StoryObj< EmailTimeSeriesDashboardStoryP
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		metric: 'opens',
 		granularity: 'day',
+		chartType: 'line',
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
 		metric: { control: 'select', options: METRIC_OPTIONS },
 		granularity: { control: 'select', options: GRANULARITY_OPTIONS },
+		chartType: { control: 'radio', options: [ 'line', 'bar' ] },
 	},
 };

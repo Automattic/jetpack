@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Detail pages: give the post and video views charts the metric total headline and the chart-type control, sharing one chart-display attribute definition across the chart widgets.
+Detail pages: give the post views, video views and email timeline charts the metric total headline and the chart-type control, sharing one chart-display attribute definition across the chart widgets.

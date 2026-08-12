@@ -9,6 +9,11 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * Internal dependencies
  */
 import { SelectField } from '@jetpack-premium-analytics/fields';
+import {
+	chartTypeAttributeField,
+	granularityAttributeField,
+	type ChartDisplayChartType,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Which timeline the chart draws for the selected email.
@@ -20,6 +25,12 @@ export type EmailTimeSeriesMetric = 'opens' | 'clicks';
  * buckets; weeks and months aggregate the daily buckets client-side.
  */
 export type EmailTimeSeriesGranularity = 'day' | 'week' | 'month';
+
+/**
+ * How the timeline is drawn. The shared chart-display list keeps every chart
+ * widget's dropdown identical and ties it to the toolkit's own union.
+ */
+export type EmailTimeSeriesChartType = ChartDisplayChartType;
 
 /**
  * Configurable attributes for the Email performance widget.
@@ -36,15 +47,20 @@ export type EmailTimeSeriesAttributes = {
 	 * control). Defaults to `day`.
 	 */
 	granularity?: EmailTimeSeriesGranularity;
+	/**
+	 * How to draw the timeline (`relevance: 'high'`). Defaults to `line`.
+	 */
+	chartType?: EmailTimeSeriesChartType;
 };
 
 /**
  * Widget type definition.
  *
  * The opens/clicks-over-time chart from the legacy email detail page
- * (`stats-email-chart-tabs`). The email is scoped by the host through
- * `reportParams.post_id` (the shared single-resource "detail page" param);
- * the timeline spans the dashboard date range.
+ * (`stats-email-chart-tabs`), with the window total as the metric headline.
+ * The email is scoped by the host through `reportParams.post_id` (the shared
+ * single-resource "detail page" param); the timeline spans the dashboard
+ * date range.
  */
 export default {
 	icon: envelope,
@@ -59,23 +75,14 @@ export default {
 				{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ), value: 'clicks' },
 			],
 		},
-		{
-			id: 'granularity',
-			label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
-			type: 'text',
-			Edit: SelectField,
-			elements: [
-				{ label: __( 'By days', 'jetpack-premium-analytics-pkg' ), value: 'day' },
-				{ label: __( 'By weeks', 'jetpack-premium-analytics-pkg' ), value: 'week' },
-				{ label: __( 'By months', 'jetpack-premium-analytics-pkg' ), value: 'month' },
-			],
-			relevance: 'high',
-		},
+		granularityAttributeField( [ 'day', 'week', 'month' ] ),
+		chartTypeAttributeField(),
 	] as WidgetAttributeField< EmailTimeSeriesAttributes >[],
 	example: {
 		attributes: {
 			metric: 'opens',
 			granularity: 'day',
+			chartType: 'line',
 		},
 	},
 };
