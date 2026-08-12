@@ -10,6 +10,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Error_Handler;
 use Automattic\Jetpack\Connection\Manager;
 
 /**
@@ -126,6 +127,20 @@ class Jetpack_IXR_Client extends IXR_Client {
 		// Is the message a fault?
 		if ( 'fault' === $this->message->messageType ) {
 			$this->error = new IXR_Error( $this->message->faultCode, $this->message->faultString );
+
+			// Faults arrive as HTTP 200 responses with an XML body, so they never reach
+			// Error_Handler::check_api_response_for_errors() (called on this same request by
+			// Client::remote_request()); report them here instead.
+			if ( method_exists( Error_Handler::class, 'check_xmlrpc_fault_for_errors' ) ) {
+				Error_Handler::get_instance()->check_xmlrpc_fault_for_errors(
+					$this->message->faultCode,
+					$this->message->faultString,
+					$this->jetpack_args['url'],
+					'POST',
+					empty( $this->jetpack_args['user_id'] ) ? 0 : (int) $this->jetpack_args['user_id']
+				);
+			}
+
 			return false;
 		}
 

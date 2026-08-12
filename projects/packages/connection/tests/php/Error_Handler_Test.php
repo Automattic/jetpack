@@ -718,6 +718,169 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that an XML-RPC fault carrying the `Jetpack: [code] message` convention is reported.
+	 *
+	 * Faults arrive as HTTP 200 responses with an XML body, so they never reach
+	 * `check_api_response_for_errors()`.
+	 */
+	public function test_check_xmlrpc_fault_for_errors_stores_the_fault() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_xmlrpc_fault_for_errors(
+			-10520,
+			'Jetpack: [invalid_token] The token is not valid',
+			'https://jetpack.wordpress.com/xmlrpc.php',
+			'POST'
+		);
+
+		$stored_errors   = $this->error_handler->get_stored_errors();
+		$verified_errors = $this->error_handler->get_verified_errors();
+
+		$this->assertArrayHasKey( 'invalid_token', $stored_errors );
+
+		// The fault carries no token, so the error falls back to the caller's $user_id
+		// (defaulted to 0, the blog-token/site attribution).
+		$stored = $stored_errors['invalid_token']['0'];
+
+		$this->assertSame( 'The token is not valid', $stored['error_message'] );
+		$this->assertSame( Error_Handler::ERROR_TYPE_XMLRPC, $stored['error_type'] );
+		$this->assertSame( Error_Handler::DIRECTION_OUTGOING, $stored['error_direction'] );
+		$this->assertSame( 'https://jetpack.wordpress.com/xmlrpc.php', $stored['error_data']['url'] );
+		$this->assertSame( 'POST', $stored['error_data']['method'] );
+
+		// The fault is evidence from WP.com itself, so it is verified without a round-trip.
+		$this->assertArrayHasKey( 'invalid_token', $verified_errors );
+	}
+
+	/**
+	 * Test that a fault string not following the convention is ignored.
+	 *
+	 * This is the guard for WP.com emitting faults in some other shape: nothing is stored,
+	 * rather than something wrong being stored.
+	 */
+	public function test_check_xmlrpc_fault_for_errors_ignores_a_foreign_fault_string() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_xmlrpc_fault_for_errors(
+			-32601,
+			'server error. requested method jetpack.fetchSiteOptions does not exist.',
+			'https://jetpack.wordpress.com/xmlrpc.php',
+			'POST'
+		);
+
+		$this->assertEmpty( $this->error_handler->get_stored_errors() );
+	}
+
+	/**
+	 * Test that a well-formed fault carrying an unrecognized code is not stored.
+	 */
+	public function test_check_xmlrpc_fault_for_errors_ignores_an_unknown_code() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_xmlrpc_fault_for_errors(
+			-10520,
+			'Jetpack: [failed_publicize_action] Could not publicize',
+			'https://jetpack.wordpress.com/xmlrpc.php',
+			'POST'
+		);
+
+		$this->assertEmpty( $this->error_handler->get_stored_errors() );
+	}
+
+	/**
+	 * Test that a fault with no message after the code gets a generic one.
+	 */
+	public function test_check_xmlrpc_fault_for_errors_falls_back_to_a_generic_message() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_xmlrpc_fault_for_errors(
+			-10520,
+			'Jetpack: [invalid_token]',
+			'https://jetpack.wordpress.com/xmlrpc.php',
+			'POST'
+		);
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertSame( 'The request faulted.', $stored_errors['invalid_token']['0']['error_message'] );
+	}
+
+	/**
+	 * Test that a fault is attributed to the user whose token made the request.
+	 */
+	public function test_check_xmlrpc_fault_for_errors_attributes_to_the_given_user() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_xmlrpc_fault_for_errors(
+			-10520,
+			'Jetpack: [invalid_token] The token is not valid',
+			'https://jetpack.wordpress.com/xmlrpc.php',
+			'POST',
+			42
+		);
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertArrayHasKey( '42', $stored_errors['invalid_token'] );
+		$this->assertArrayNotHasKey( '0', $stored_errors['invalid_token'] );
+	}
+
+	/**
+	 * Test that faults go through the hourly reporting gate like every other error.
+	 */
+	public function test_check_xmlrpc_fault_for_errors_respects_the_gate() {
+		// No gate-bypass filter here: this test is about the gate.
+		$this->error_handler->check_xmlrpc_fault_for_errors(
+			-10520,
+			'Jetpack: [invalid_token] The token is not valid',
+			'https://jetpack.wordpress.com/xmlrpc.php',
+			'POST'
+		);
+
+		$this->assertArrayHasKey( 'invalid_token', $this->error_handler->get_stored_errors() );
+
+		$this->error_handler->delete_all_errors();
+
+		$this->error_handler->check_xmlrpc_fault_for_errors(
+			-10520,
+			'Jetpack: [invalid_token] The token is not valid',
+			'https://jetpack.wordpress.com/xmlrpc.php',
+			'POST'
+		);
+
+		$this->assertEmpty( $this->error_handler->get_stored_errors(), 'the gate should suppress a second report within the hour' );
+
+		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token' );
+	}
+
+	/**
+	 * Test that a code shared with the incoming path is recorded as outgoing.
+	 *
+	 * WP.com emits some of the same codes `Manager::internal_verify_xml_rpc_signature()`
+	 * raises for incoming requests. They share the storage bucket, so the stored
+	 * `error_direction` is what tells the two apart.
+	 */
+	public function test_check_xmlrpc_fault_for_errors_marks_a_shared_code_as_outgoing() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		// The same code, reported first from an incoming request.
+		$this->error_handler->report_error( $this->get_sample_error( 'unknown_user', 1, Error_Handler::ERROR_TYPE_XMLRPC ) );
+
+		$this->error_handler->check_xmlrpc_fault_for_errors(
+			-10520,
+			'Jetpack: [unknown_user] The user is unknown',
+			'https://jetpack.wordpress.com/xmlrpc.php',
+			'POST'
+		);
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertCount( 2, $stored_errors['unknown_user'] );
+		$this->assertSame( Error_Handler::DIRECTION_INCOMING, $stored_errors['unknown_user']['1']['error_direction'] );
+		$this->assertSame( Error_Handler::DIRECTION_OUTGOING, $stored_errors['unknown_user']['0']['error_direction'] );
+	}
+
+	/**
 	 * Test storing errors
 	 */
 	public function test_delete_all_api_errors() {
