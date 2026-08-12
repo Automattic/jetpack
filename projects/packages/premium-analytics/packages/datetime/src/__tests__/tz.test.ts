@@ -119,6 +119,13 @@ describe( 'toLocalTZ', () => {
 		it( 'rejects a non-date string', () => {
 			expect( toLocalTZ( 'not a date', 'America/New_York' ).getTime() ).toBeNaN();
 		} );
+
+		it.each( [ '2026-06-29T24:00:00', '2026-06-29T12:60:00', '2026-06-29T12:30:60' ] )(
+			'rejects the invalid wall time %s',
+			value => {
+				expect( toLocalTZ( value, 'America/New_York' ).getTime() ).toBeNaN();
+			}
+		);
 	} );
 
 	it( 'returns the current instant in the zone when no value is given', () => {

@@ -4,16 +4,14 @@
 import {
 	getAllowedIntervalsForPreset,
 	hasComparisonEnabled,
-	localTZDate,
 	resolveIntervalForRange,
 } from '@jetpack-premium-analytics/data';
 import { PRESET_CUSTOM, siteTimeZone, stepDateRange } from '@jetpack-premium-analytics/datetime';
-import { isValid } from 'date-fns';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { encodeDateToSearchParam } from '../../search/date-range';
+import { decodeDateSearchParam, encodeDateToSearchParam } from '../../search/date-range';
 import { useStagedSearch } from '../use-staged-search';
 import { buildRangePatch, type ReportQuerySearchParams } from './build-range-patch';
 import type {
@@ -95,17 +93,9 @@ export type ReportDateFilters = {
  * @return The parsed range, with invalid endpoints as `undefined`.
  */
 function toPickerRange( from: string | undefined, to: string | undefined, timeZone: string ) {
-	const parse = ( value?: string ) => {
-		if ( ! value ) {
-			return undefined;
-		}
-		const date = localTZDate( value, timeZone );
-		return isValid( date ) ? date : undefined;
-	};
-
 	return {
-		from: parse( from ),
-		to: parse( to ),
+		from: decodeDateSearchParam( from, timeZone ),
+		to: decodeDateSearchParam( to, timeZone ),
 	};
 }
 

@@ -91,6 +91,17 @@ function offsetlessToTZDate( value: string, timeZone: string ): TZDate | null {
 		Number( seconds ?? 0 ),
 		Number( ( milliseconds ?? '' ).slice( 0, 3 ).padEnd( 3, '0' ) ),
 	];
+	const hasValidTime =
+		parts[ 3 ] >= 0 &&
+		parts[ 3 ] <= 23 &&
+		parts[ 4 ] >= 0 &&
+		parts[ 4 ] <= 59 &&
+		parts[ 5 ] >= 0 &&
+		parts[ 5 ] <= 59;
+
+	if ( ! hasValidTime ) {
+		return new TZDateMini( NaN, timeZone );
+	}
 
 	const date = createTZDateFromParts( parts, timeZone );
 
