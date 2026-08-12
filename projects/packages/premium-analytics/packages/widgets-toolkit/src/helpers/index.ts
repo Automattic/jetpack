@@ -67,14 +67,13 @@ export { withoutComparison } from './without-comparison';
 export {
 	compactCalendarHeatmapCapacity,
 	computeCalendarHeatmapLayout,
-	fitCompactCalendarHeatmapColumns,
 	type CalendarHeatmapLayout,
 	type CalendarHeatmapLayoutInput,
-	type FitCalendarHeatmapColumnsInput,
 } from './calendar-heatmap-layout';
 export {
 	buildDenseDaySeries,
 	resolveCalendarHeatmapWindow,
+	resolveCalendarHeatmapWindowDays,
 	type CalendarHeatmapWindow,
 	type CalendarHeatmapWindowBounds,
 } from './calendar-heatmap-window';

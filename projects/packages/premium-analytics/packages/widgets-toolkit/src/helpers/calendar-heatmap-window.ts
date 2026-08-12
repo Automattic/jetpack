@@ -3,6 +3,10 @@
  */
 import { getDatePart } from '@jetpack-premium-analytics/datetime';
 import { format, parseISO, subDays } from 'date-fns';
+/**
+ * Internal dependencies
+ */
+import { compactCalendarHeatmapCapacity } from './calendar-heatmap-layout';
 import type { DataPointDate } from '@jetpack-premium-analytics/externals';
 
 export type CalendarHeatmapWindow = {
@@ -78,4 +82,30 @@ export function buildDenseDaySeries(
 	}
 
 	return series;
+}
+
+// A whole leap year, so a selected leap year never loses 1 January.
+const WINDOW_YEAR_DAYS = 366;
+// Six years fills a ~4100px-wide tile, past any display worth planning for; beyond
+// it the request grows faster than the columns it buys.
+const MAX_WINDOW_YEARS = 6;
+
+/**
+ * How many days of history a calendar heatmap is worth requesting at a given
+ * viewport width.
+ *
+ * The grid only draws the week columns that fit, so history beyond what the widest
+ * possible tile could show would be fetched and thrown away. Compact-cell capacity
+ * is a stable proxy for that ceiling; adaptive cells can shrink further in unusually
+ * short tiles. The result is quantized to whole years so resizing the window cannot
+ * fire a fresh request per column gained.
+ *
+ * @param viewportWidth - Viewport width in px.
+ * @return Days of history to request.
+ */
+export function resolveCalendarHeatmapWindowDays( viewportWidth: number ): number {
+	const capacityDays = compactCalendarHeatmapCapacity( viewportWidth ) * 7;
+	const years = Math.ceil( capacityDays / WINDOW_YEAR_DAYS );
+
+	return Math.min( Math.max( years, 1 ), MAX_WINDOW_YEARS ) * WINDOW_YEAR_DAYS;
 }

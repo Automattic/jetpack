@@ -4,8 +4,8 @@
  * Given the tile's available width and height, this decides the cell size, how
  * many week columns to render, and the exact pixel rectangle the heatmap should
  * occupy. It is intentionally dependency-free (no React, no charts imports) so it
- * can be lifted into `@automattic/charts` later; each widget owns all policy (mode
- * switching, trimming) around it.
+ * can be lifted into `@automattic/charts` later; the adaptive component owns the
+ * trimming policy around it.
  */
 
 export type CalendarHeatmapLayoutInput = {
@@ -58,18 +58,6 @@ const ZERO_LAYOUT: CalendarHeatmapLayout = {
 
 const isPositiveFinite = ( value: number ): boolean => Number.isFinite( value ) && value > 0;
 
-const clamp = ( value: number, min: number, max: number ): number =>
-	Math.min( Math.max( value, min ), max );
-
-export type FitCalendarHeatmapColumnsInput = {
-	/** Width the tile offers the heatmap, in px. */
-	availWidth: number;
-	/** Week columns available in the selected range. */
-	dataColumns: number;
-	/** Minimum columns to keep. Defaults to 6. */
-	minColumns?: number;
-};
-
 const ROW_LABEL_WIDTH = 32;
 const COMPACT_CELL_SIZE = 11;
 const COMPACT_CELL_GAP = 2;
@@ -77,9 +65,9 @@ const COMPACT_CELL_GAP = 2;
 /**
  * How many compact cells a width can hold, ignoring how many the range has.
  *
- * Compact is the smallest the cells ever get, so this is also the most week
- * columns the heatmap can ever show at that width — which is what bounds how much
- * history is worth requesting.
+ * Compact cell dimensions provide a stable proxy for the most week columns worth
+ * planning for at this width. Adaptive cells can shrink further in very short
+ * tiles, so this is a request-sizing heuristic rather than a layout invariant.
  */
 export function compactCalendarHeatmapCapacity( availWidth: number ): number {
 	if ( ! isPositiveFinite( availWidth ) ) {
@@ -91,24 +79,6 @@ export function compactCalendarHeatmapCapacity( availWidth: number ): number {
 	return Math.max(
 		0,
 		Math.floor( ( availWidth - ROW_LABEL_WIDTH ) / ( COMPACT_CELL_SIZE + COMPACT_CELL_GAP ) )
-	);
-}
-
-/**
- * How many fixed-size cells fit the width without overflowing. Returns 0 for a
- * degenerate input.
- */
-export function fitCompactCalendarHeatmapColumns( input: FitCalendarHeatmapColumnsInput ): number {
-	const { availWidth, dataColumns, minColumns = 6 } = input;
-
-	if ( ! isPositiveFinite( availWidth ) || ! isPositiveFinite( dataColumns ) ) {
-		return 0;
-	}
-
-	return clamp(
-		compactCalendarHeatmapCapacity( availWidth ),
-		Math.min( minColumns, dataColumns ),
-		dataColumns
 	);
 }
 

@@ -46,6 +46,9 @@ export {
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
+	AdaptiveCalendarHeatmap,
+	type AdaptiveCalendarHeatmapChartProps,
+	type AdaptiveCalendarHeatmapProps,
 	ChartEmptyState,
 	type ChartEmptyStateProps,
 	WidgetState,
@@ -161,16 +164,14 @@ export {
 	defaultPeriodForInterval,
 	buildMetricTab,
 	withoutComparison,
-	compactCalendarHeatmapCapacity,
 	computeCalendarHeatmapLayout,
-	fitCompactCalendarHeatmapColumns,
 	buildDenseDaySeries,
 	resolveCalendarHeatmapWindow,
+	resolveCalendarHeatmapWindowDays,
 	type CalendarHeatmapLayout,
 	type CalendarHeatmapLayoutInput,
 	type CalendarHeatmapWindow,
 	type CalendarHeatmapWindowBounds,
-	type FitCalendarHeatmapColumnsInput,
 } from './helpers';
 
 /**
@@ -183,6 +184,7 @@ export {
 	type ElementSize,
 	useSegmentStyles,
 	useSeriesStyles,
+	useViewportWidth,
 	useWidgetDrillDown,
 } from './hooks';
 
