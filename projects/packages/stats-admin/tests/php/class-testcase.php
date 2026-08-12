@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use PHPUnit\Framework\TestCase as PHPUnit_TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
@@ -60,6 +61,9 @@ abstract class TestCase extends PHPUnit_TestCase {
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
 		add_filter( 'pre_http_request', array( $this, 'plan_http_response_fixture' ), 10, 3 );
 		delete_option( Odyssey_Assets::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
+
+		// The connection status is memoized in a static, so it outlives the mocked options.
+		( new Connection_Manager() )->reset_connection_status();
 	}
 
 	/**
@@ -76,6 +80,14 @@ abstract class TestCase extends PHPUnit_TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'plan_http_response_fixture' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
 		delete_option( Odyssey_Assets::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
+	}
+
+	/**
+	 * Drop the mocked tokens, leaving a site that was never connected to WordPress.com.
+	 */
+	protected function disconnect_site() {
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10 );
+		( new Connection_Manager() )->reset_connection_status();
 	}
 
 	/**

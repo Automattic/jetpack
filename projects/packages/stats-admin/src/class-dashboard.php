@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 
 /**
@@ -68,7 +70,7 @@ class Dashboard {
 		$page_suffix = add_menu_page(
 			__( 'Stats', 'jetpack-stats-admin' ),
 			_x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' ),
-			'view_stats',
+			$this->get_capability(),
 			'stats',
 			array( $this, 'render' ),
 			'dashicons-chart-bar',
@@ -78,6 +80,19 @@ class Dashboard {
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 		}
+	}
+
+	/**
+	 * Capability a user needs to reach the dashboard.
+	 *
+	 * Until the site is connected the page exists to pick a plan and connect, which only a user
+	 * who can manage the connection can act on. Once connected it is a reporting page, open to
+	 * everyone allowed to view stats.
+	 *
+	 * @return string
+	 */
+	protected function get_capability() {
+		return ( new Manager( 'jetpack' ) )->is_connected() ? 'view_stats' : 'manage_options';
 	}
 
 	/**
@@ -138,5 +153,10 @@ class Dashboard {
 	 */
 	public function load_admin_scripts() {
 		( new Odyssey_Assets() )->load_admin_scripts( 'jp-stats-dashboard', 'build.min', array( 'config_variable_name' => 'jetpackStatsOdysseyAppConfigData' ) );
+
+		// The app is served from our CDN and so cannot bundle the connection package. Print the
+		// state Search and Protect print on their own pages, so it can read the connection status
+		// and register the site through the connection REST API itself.
+		Connection_Initial_State::render_script( 'jp-stats-dashboard' );
 	}
 }

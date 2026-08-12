@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -68,6 +69,28 @@ class Main {
 
 		// Register stats-admin transient prefix for cleanup by the stats package.
 		add_filter( 'jetpack_stats_transient_cleanup_prefixes', array( $this, 'register_transient_cleanup_prefix' ) );
+
+		if ( self::needs_own_dashboard() ) {
+			Dashboard::init();
+		}
+	}
+
+	/**
+	 * Whether Stats has to register its own dashboard because nothing else will.
+	 *
+	 * The Jetpack plugin registers the Stats menu from its stats module, and modules are not
+	 * loaded until the site is connected. Registering the dashboard here keeps Stats reachable
+	 * before that happens, where the app offers a plan and drives the connection itself.
+	 *
+	 * @return bool
+	 */
+	private static function needs_own_dashboard() {
+		// Simple sites are always connected, and register the menu from a subclass of Dashboard.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return false;
+		}
+
+		return ! ( new Manager( 'jetpack' ) )->is_connected();
 	}
 
 	/**

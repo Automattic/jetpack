@@ -81,6 +81,17 @@ class WPCOM_Client {
 		);
 
 		if ( is_wp_error( $response ) ) {
+			// `Client` fails before sending anything when the site holds no blog token, and that
+			// error carries no status, which the REST API renders as a 500. Say what actually
+			// happened so callers can tell an unconnected site from a broken one.
+			if ( 'missing_token' === $response->get_error_code() ) {
+				return new WP_Error(
+					'site_not_connected',
+					__( 'This site is not connected to WordPress.com.', 'jetpack-stats-admin' ),
+					array( 'status' => 400 )
+				);
+			}
+
 			return $response;
 		}
 
