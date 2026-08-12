@@ -85,27 +85,61 @@ afterEach( () => {
 } );
 
 describe( 'ThumbnailCard — update flow', () => {
-	it( 'renders the Update thumbnail button when video is editable', () => {
+	it( 'renders both action tiles when the video is editable', () => {
 		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
-		expect( screen.getByRole( 'button', { name: /update thumbnail/i } ) ).toBeInTheDocument();
+
+		expect( screen.getByRole( 'button', { name: /upload image/i } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /select from video/i } ) ).toBeInTheDocument();
 	} );
 
-	it( 'hides the Update thumbnail button while the video is processing', () => {
-		render( <ThumbnailCard video={ { ...baseVideo, isProcessing: true } } />, { wrapper } );
-		expect( screen.queryByRole( 'button', { name: /update thumbnail/i } ) ).not.toBeInTheDocument();
+	/*
+	 * Without a source file there is no footage to scrub, so that tile is
+	 * disabled rather than hidden — the other one still works.
+	 *
+	 * Asserted via `aria-disabled`, not `toBeDisabled()`: `@wordpress/ui`'s
+	 * Button defaults to `focusableWhenDisabled`, so it deliberately omits the
+	 * native attribute and keeps the control reachable by keyboard. That is
+	 * the better pattern — a disabled control a screen-reader user can't land
+	 * on is a control they never learn exists — so pin the behaviour rather
+	 * than override it.
+	 */
+	it( 'disables Select from video when the item has no source file', async () => {
+		const user = userEvent.setup();
+		render( <ThumbnailCard video={ { ...baseVideo, sourceUrl: undefined } } />, { wrapper } );
+
+		const disabled = screen.getByRole( 'button', { name: /select from video/i } );
+		expect( disabled ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByRole( 'button', { name: /upload image/i } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+
+		// Focusable is not the same as actionable.
+		await user.click( disabled );
+		expect( screen.queryByTestId( 'select-frame-dialog' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'hides the Update thumbnail button for local (non-VideoPress) items', () => {
-		render( <ThumbnailCard video={ { ...baseVideo, type: 'local', guid: '' } } />, { wrapper } );
-		expect( screen.queryByRole( 'button', { name: /update thumbnail/i } ) ).not.toBeInTheDocument();
+	it( 'renders nothing while the video is processing', () => {
+		const { container } = render(
+			<ThumbnailCard video={ { ...baseVideo, isProcessing: true } } />,
+			{ wrapper }
+		);
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
+	it( 'renders nothing for local (non-VideoPress) items', () => {
+		const { container } = render(
+			<ThumbnailCard video={ { ...baseVideo, type: 'local', guid: '' } } />,
+			{ wrapper }
+		);
+		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'frame mode: fires the mutation with at_time + is_millisec, shows a success toast', async () => {
 		const user = userEvent.setup();
 		mockedApiFetch.mockResolvedValueOnce( {} );
 		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
-		await user.click( screen.getByRole( 'button', { name: /update thumbnail/i } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: /select from video/i } ) );
+		await user.click( screen.getByRole( 'button', { name: /select from video/i } ) );
 		await user.click( screen.getByText( 'confirm-frame' ) );
 
 		await waitFor( () =>
@@ -125,8 +159,7 @@ describe( 'ThumbnailCard — update flow', () => {
 		mockedSelectImage.mockResolvedValueOnce( { id: 17, url: 'x' } );
 		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
 
-		await user.click( screen.getByRole( 'button', { name: /update thumbnail/i } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: /upload image/i } ) );
+		await user.click( screen.getByRole( 'button', { name: /upload image/i } ) );
 
 		await waitFor( () =>
 			expect( mockedApiFetch ).toHaveBeenCalledWith( {
@@ -143,8 +176,7 @@ describe( 'ThumbnailCard — update flow', () => {
 		mockedSelectImage.mockResolvedValueOnce( null );
 		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
 
-		await user.click( screen.getByRole( 'button', { name: /update thumbnail/i } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: /upload image/i } ) );
+		await user.click( screen.getByRole( 'button', { name: /upload image/i } ) );
 
 		expect( mockedApiFetch ).not.toHaveBeenCalled();
 		expect( mockSuccessNotice ).not.toHaveBeenCalled();
@@ -154,8 +186,7 @@ describe( 'ThumbnailCard — update flow', () => {
 		const user = userEvent.setup();
 		mockedApiFetch.mockRejectedValueOnce( new Error( 'boom' ) );
 		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
-		await user.click( screen.getByRole( 'button', { name: /update thumbnail/i } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: /select from video/i } ) );
+		await user.click( screen.getByRole( 'button', { name: /select from video/i } ) );
 		await user.click( screen.getByText( 'confirm-frame' ) );
 
 		await waitFor( () => expect( mockErrorNotice ).toHaveBeenCalledTimes( 1 ) );
@@ -206,8 +237,9 @@ describe( 'ThumbnailCard — current poster', () => {
 		render( <ThumbnailCard video={ { ...baseVideo, thumbnailUrl: '' } } />, { wrapper } );
 
 		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
-		// The control is still there — a video with no poster is exactly the
+		expect( screen.getByText( /no thumbnail yet/i ) ).toBeInTheDocument();
+		// The actions are still there — a video with no poster is exactly the
 		// one most in need of getting one.
-		expect( screen.getByRole( 'button', { name: /update thumbnail/i } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /upload image/i } ) ).toBeInTheDocument();
 	} );
 } );
