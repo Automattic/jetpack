@@ -385,10 +385,10 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Clear every per-render registry. Called at the top of each feed render so
-	 * re-generating a feed within a single long-lived process — WP-CLI, a warm
-	 * worker — starts fresh instead of dropping every enclosure as already-seen
-	 * or reusing the previous render's summaries.
+	 * Clear the per-render registries. Hooked on `rss2_head` (at priority 0,
+	 * before any item renders) so re-generating a feed within a single
+	 * long-lived process — WP-CLI, a warm worker — starts fresh instead of
+	 * dropping every enclosure as already-seen or reusing stale summaries.
 	 */
 	public static function reset_render_state() {
 		self::$seen_enclosures = array();
