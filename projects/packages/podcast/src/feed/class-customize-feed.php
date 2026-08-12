@@ -357,7 +357,7 @@ class Customize_Feed {
 
 		// Drop repeats: rows keyed per post, by final URL, so distinct enclosures
 		// survive while the duplicate stats URLs collapse to one. Registry is
-		// cleared per render — see `reset_render_state()`.
+		// cleared per render — see `reset_enclosure_dedup()`.
 		$post_id = null !== $post_obj ? (int) $post_obj->ID : 0;
 		if ( isset( self::$seen_enclosures[ $post_id ][ $final_url ] ) ) {
 			return '';
