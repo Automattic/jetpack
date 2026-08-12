@@ -153,14 +153,14 @@ class Status {
 		// Then check for usual usual domains used by local dev tools.
 		$known_local = array(
 			'#\.local$#i',
-			'#\.localhost$#i',
+			'#^https?://([^/]+\.)?localhost(:\d+)?(/|$)#i', // localhost and its subdomains, on any port.
 			'#\.test$#i',
 			'#\.docksal$#i',      // Docksal.
 			'#\.docksal\.site$#i', // Docksal.
 			'#\.dev\.cc$#i',       // ServerPress.
 			'#\.lndo\.site$#i',    // Lando.
 			'#\.ddev\.site$#i',    // DDEV.
-			'#^https?://127\.0\.0\.1$#',
+			'#^https?://127\.0\.0\.1(:\d+)?(/|$)#', // Loopback, on any port.
 		);
 
 		if ( ! $is_local ) {

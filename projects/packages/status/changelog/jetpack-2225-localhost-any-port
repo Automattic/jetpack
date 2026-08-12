@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Status: detect localhost and 127.0.0.1 as local sites on any port.

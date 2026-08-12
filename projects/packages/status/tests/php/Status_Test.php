@@ -429,28 +429,84 @@ class Status_Test extends TestCase {
 	 */
 	public static function get_is_local_site_known_tld() {
 		return array(
-			'vvv'            => array(
+			'vvv'                            => array(
 				'http://jetpack.test',
 				true,
 			),
-			'docksal'        => array(
+			'docksal'                        => array(
 				'http://jetpack.docksal',
 				true,
 			),
-			'serverpress'    => array(
+			'serverpress'                    => array(
 				'http://jetpack.dev.cc',
 				true,
 			),
-			'lando'          => array(
+			'lando'                          => array(
 				'http://jetpack.lndo.site',
 				true,
 			),
-			'test_subdomain' => array(
+			'localhost'                      => array(
+				'http://localhost',
+				true,
+			),
+			'localhost_trailing_slash'       => array(
+				'http://localhost/',
+				true,
+			),
+			'localhost_with_port'            => array(
+				'http://localhost:8080',
+				true,
+			),
+			'localhost_with_port_and_path'   => array(
+				'https://localhost:8443/wordpress',
+				true,
+			),
+			'localhost_subdomain'            => array(
+				'http://jetpack.localhost',
+				true,
+			),
+			'localhost_subdomain_with_port'  => array(
+				'http://jetpack.localhost:8080',
+				true,
+			),
+			'loopback_ip'                    => array(
+				'http://127.0.0.1',
+				true,
+			),
+			'loopback_ip_trailing_slash'     => array(
+				'http://127.0.0.1/',
+				true,
+			),
+			'loopback_ip_with_port'          => array(
+				'http://127.0.0.1:8080',
+				true,
+			),
+			'loopback_ip_with_port_and_path' => array(
+				'https://127.0.0.1:8443/wordpress',
+				true,
+			),
+			'test_subdomain'                 => array(
 				'https://test.jetpack.com',
 				false,
 			),
-			'test_in_domain' => array(
+			'test_in_domain'                 => array(
 				'https://jetpack.test.jetpack.com',
+				false,
+			),
+			'localhost_in_domain'            => array(
+				'https://localhost.jetpack.com',
+				false,
+			),
+			'localhost_in_path'              => array(
+				'https://jetpack.com/localhost',
+				false,
+			),
+			'localhost_in_dotted_path'       => array(
+				'https://jetpack.com/foo.localhost',
+				false,
+			),
+			'loopback_ip_in_domain'          => array(
+				'https://127.0.0.1.jetpack.com',
 				false,
 			),
 		);
