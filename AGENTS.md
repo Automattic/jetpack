@@ -64,21 +64,10 @@ Use `jp generate` to create new projects:
 
 Detailed guidelines are in `docs/coding-guidelines.md`.
 
-### Naming Conventions
-
-- Use WordPress naming conventions for functions and classes
-- Prefix global PHP functions and hooks with `jetpack_`
-- Use lowercase with underscores for PHP functions
-- Follow WordPress React component naming patterns
-- Use BEM-like naming for SCSS
-
 ### PHP Standards
 
-- Follow WordPress PHP Coding Standards
-- Use proper WordPress prefix for functions and classes
-- Implement WordPress nonce verification for form handling and AJAX
-- Follow WordPress database operations best practices (`$wpdb` prepared statements)
-- Structure plugin hooks logically
+- Prefix global PHP functions and hooks with `jetpack_`
+- WordPress PHP Coding Standards apply and are enforced by PHPCS (see "Linting & Formatting" below), including nonce verification on form/AJAX handlers and `$wpdb` prepared statements
 
 #### Version Annotations
 
@@ -93,11 +82,9 @@ The `$$next-version$$` placeholder is automatically replaced with the correct ve
 
 ### JavaScript & React Standards
 
-- Write modern ES6+ code following WordPress JS standards
 - Importing from `react` directly is fine. `@wordpress/element` also works but is no longer required — follow the convention used in the package you're working in
 - Use WordPress data stores (`@wordpress/data`) for state management
 - Use `@wordpress/i18n` for translations with an appropriate unique text domain
-- Follow WordPress component lifecycle patterns and accessibility guidelines
 - When using TypeScript with Webpack, use `@babel/preset-typescript` rather than `ts-loader`
 
 ### CSS / SCSS
@@ -158,19 +145,33 @@ See `docs/automated-testing.md` for full testing guidelines.
 
 See `projects/packages/my-jetpack/_inc/components/connection-status-card/test/component.tsx` for a representative example.
 
+## Linting & Formatting
+
+Run from the monorepo root:
+
+```bash
+pnpm run lint-changed             # ESLint, changed files only (fastest)
+pnpm run lint                     # ESLint, everything
+pnpm run lint-style               # Stylelint (CSS/SCSS)
+pnpm run typecheck                # TypeScript, every project that defines it
+composer phpcs:changed            # PHPCS on changed files
+composer phpcs:lint               # PHPCS, everything
+composer phpcs:fix                # PHPCS autofix (phpcbf)
+composer phpcs:compatibility      # PHP cross-version compatibility
+```
+
+- `composer php:lint` is a PHP **syntax** check (parallel-lint), NOT PHPCS. The other `php:*` composer scripts (`php:autofix`, `php:changed`, `php:lint:errors`, `php:requirelist`) are deprecated aliases that print a warning — use the `phpcs:*` names.
+- Watch the runner: `pnpm run php:lint` is PHPCS (it forwards to `composer phpcs:lint`), while `composer php:lint` is the syntax check. Same name, opposite tool. Prefer the `composer phpcs:*` names above, which are unambiguous.
+- A husky **pre-commit hook** runs most of this on staged files and rewrites them in place: Prettier, `eslint --fix`, `stylelint --fix`, and `phpcs:fix`, plus `phpcs:compatibility`, `shellcheck`, and repo consistency checks. It fails the commit on anything left unfixed, so expect files to be reformatted and re-staged under you.
+- A husky **pre-push hook** blocks the push on two things the pre-commit hook does not check: filename collisions that only break case-insensitive filesystems, and missing changelog entries (see "Changelog Entries" below). On a TTY the changelog check offers to run `jp changelog add` for you and commits the result as a separate `changelog` commit, then asks you to push again — so a push can leave you one commit ahead of where you thought you were.
+- **post-checkout / post-merge** hooks don't run anything; they just print a `jp install ...` line when lock files changed. Run it, or builds pick up stale dependencies.
+- `jp draft enable` relaxes both hooks for work in progress — ESLint tolerates up to 100 warnings, PHPCS failures stop blocking, and the pre-push changelog gate is skipped. `jp draft disable` restores them.
+
 ## Changelog Entries
 
 Every PR touching `/projects` MUST include a changelog file in the project's `changelog/` directory. Changes outside `/projects` (e.g., `tools/`, `docs/`, `.github/`) do NOT need changelog entries.
 
-### AI-Generated Changelog Entries
-
-The PR template includes a checkbox: "Generate changelog entries for this PR (using AI)." When checked, a CI workflow uses AI to generate and commit changelog entries automatically. This workflow only runs for pull requests from branches in this repository (not from forks).
-
-**When filling out a PR description:**
-- Do NOT check this box if changelog files already exist in `changelog/` directories for the affected projects.
-- Do NOT check this box if you have already created changelog entries (e.g., via `jp changelog add`).
-- Only check this box if the PR needs changelog entries and you want them auto-generated.
-- When in doubt, leave it unchecked -- the bot will flag missing entries.
+Two gates enforce this, both running `tools/check-changelogger-use.php`: the pre-push hook (see "Linting & Formatting" above) and the `linting.yml` CI job. The repo-gardening bot also comments on the PR listing any projects still missing entries. There is no AI-generated-changelog checkbox in the PR template — that feature was removed. Write the entries yourself, with `jp changelog add`.
 
 ### Interactive Mode
 
@@ -244,10 +245,9 @@ The exception is the **WordPress.com Tests** check (the TeamCity `JetpackPreFlig
 
 When reviewing code, check for:
 - Adherence to `docs/coding-guidelines.md`
-- Inconsistent naming conventions and typos
-- Missing documentation for public APIs
-- Missing explanations for complex or non-obvious logic
-- Inefficient algorithms
+- Missing documentation for public APIs, or missing explanations for non-obvious logic
+- Typos in user-facing strings, comments, and docs — PHPCS and ESLint check naming and formatting, not spelling, so this needs human eyes
+- Performance hazards that no sniff catches: uncached `wp_remote_*` calls, queries inside loops, `meta_query`/`tax_query`/`orderby => rand` on large tables, and newly autoloaded options. `WordPress.DB.SlowDBQuery` is excluded from the Jetpack ruleset as too noisy, so this is reviewer-only
 - CSS/SCSS files not using logical properties for RTL
 
 Do NOT suggest modifying `$$next-version$$` placeholders — these are intentionally used and replaced during release.
@@ -263,8 +263,6 @@ Before introducing new dependencies:
 ## Common Pitfalls
 
 - **Do NOT edit WordPress core files** — all changes must be in plugins/packages
-- **Do NOT modify `$$next-version$$` placeholders** — they are replaced automatically at release time
-- **Reuse monorepo packages** before adding external dependencies — check `projects/packages/` and `projects/js-packages/` first
 - **Git merge conflicts**: after resolving, use `git commit --no-edit --no-verify` — pre-commit hooks can make unintended changes to merge commit files
 - **Do NOT hand-edit generated Phan stubs** — `.phan/stubs/wpcom-stubs.php` (and other generated stub files) are regenerated from the wpcom repo; any manual edit is overwritten. See *Referencing wpcom-only symbols from Jetpack* below.
 
