@@ -4,19 +4,10 @@
 import { getSettings } from '@wordpress/date';
 
 /**
- * The site's timezone, as an identifier `Intl` accepts.
+ * Get the site's timezone from WordPress date settings.
  *
- * This is the only accessor for the site zone. It reads the settings WordPress
- * installs synchronously at page load — the same ones every formatter renders
- * in — so date maths and rendered labels agree on the calendar day from the
- * first paint, with no entity fetch to wait on.
- *
- * Sites configured with a manual UTC offset instead of a city have no
- * `timezone_string` at all, so WordPress sends an empty string and carries the
- * zone in `offset` alone. `Intl` rejects `''` as a `timeZone`, so the offset is
- * rendered as a fixed `±HH:MM` identifier instead. Absent settings entirely,
- * `@wordpress/date`'s own defaults yield `+00:00`: never the visitor's zone,
- * which is never the right answer for a site-scoped value.
+ * Sites configured with a UTC offset have no timezone name, so format their
+ * offset as an identifier accepted by `Intl`.
  *
  * @return An IANA zone name, or a `±HH:MM` offset.
  */

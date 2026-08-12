@@ -10,25 +10,15 @@ import { dateToISOStringWithLocalTZ, formatToTimezoneNaiveString, localTZDate } 
 
 const DEFAULTS = getSettings();
 
-/**
- * Put the site on a timezone, the way WordPress does at page load.
- *
- * @param string - IANA zone name, empty for offset-configured sites.
- * @param offset - Offset in hours.
- */
 const siteOn = ( string: string, offset: number ) =>
 	setSettings( {
 		...DEFAULTS,
 		timezone: { string, offset, offsetFormatted: String( offset ), abbr: '' },
 	} );
 
-/** The calendar day and clock time the value resolves to in its own zone. */
 const wallTime = ( date: Date ) => format( date, "yyyy-MM-dd'T'HH:mm:ss.SSS" );
 
 describe( 'localTZDate', () => {
-	// These helpers read the site zone straight from the `@wordpress/date`
-	// settings WordPress installs synchronously, so there is no core-data entity
-	// to await and no window in which they answer in the visitor's zone.
 	it( 'reads a date-only value as site midnight, west of Greenwich', () => {
 		siteOn( 'America/New_York', -4 );
 

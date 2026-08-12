@@ -15,8 +15,6 @@ const wallTime = ( date: Date ) => format( date, "yyyy-MM-dd'T'HH:mm:ss.SSS" );
 
 describe( 'toLocalTZ', () => {
 	describe( 'offset-less values are read as wall time in the target zone', () => {
-		// The regression this guards: `new Date( '2026-06-29' )` is UTC midnight,
-		// which every zone west of Greenwich renders as June 28.
 		it.each( [ 'Europe/Amsterdam', 'America/New_York', 'Pacific/Kiritimati', '+00:00' ] )(
 			'keeps a date-only value on its own calendar day in %s',
 			timeZone => {
@@ -76,8 +74,6 @@ describe( 'toLocalTZ', () => {
 	} );
 
 	describe( 'malformed values', () => {
-		// The constructor rolls impossible dates over, so without the round-trip
-		// check these would silently become real dates instead of invalid ones.
 		it.each( [ '2026-02-31', '2026-13-01', '2026-06-00' ] )(
 			'rejects the impossible date %s',
 			value => {

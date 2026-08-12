@@ -60,22 +60,15 @@ export function createTZDateFromParts(
 	return new TZDateMini( ...datePartsTrimmed, tzid );
 }
 
-/**
- * Offset-less `YYYY-MM-DD`, optionally with a `T`- or space-separated time.
- *
- * Values carrying their own offset are deliberately excluded: they already
- * identify an instant, so re-anchoring them would move it.
- */
 const OFFSETLESS_TIMESTAMP =
 	/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?)?$/;
 
 /**
- * Read an offset-less timestamp as wall time in the given timezone.
+ * Read an offset-less timestamp as wall time in a timezone.
  *
  * @param value    - The timestamp.
  * @param timeZone - The timezone the wall time belongs to.
- * @return The instant, an invalid date when the calendar date does not exist,
- * or null when the value is not an offset-less timestamp at all.
+ * @return The zoned date, or null when the value has another format.
  */
 function offsetlessToTZDate( value: string, timeZone: string ): TZDate | null {
 	const match = OFFSETLESS_TIMESTAMP.exec( value );
@@ -97,11 +90,8 @@ function offsetlessToTZDate( value: string, timeZone: string ): TZDate | null {
 
 	const date = createTZDateFromParts( parts, timeZone );
 
-	// The constructor rolls impossible dates over rather than rejecting them, so
-	// `2026-02-31` would silently become March 3 — and callers that guard a URL
-	// param with `isValid()` would accept it. Report a date that didn't survive
-	// the round trip as invalid instead. A wall time skipped by a DST jump still
-	// lands on the same calendar day, so this doesn't reject those.
+	// Reject calendar dates normalized by the constructor. Compare only date
+	// parts so DST-normalized wall times remain valid.
 	const survivedRoundTrip =
 		date.getFullYear() === parts[ 0 ] &&
 		date.getMonth() === parts[ 1 ] &&
@@ -111,13 +101,7 @@ function offsetlessToTZDate( value: string, timeZone: string ): TZDate | null {
 }
 
 /**
- * Create a TZDate in the provided timezone.
- * Defaults to UTC when no timezone is given.
- *
- * A value that states no offset is read as wall time in `timeZone`. Left to
- * `Date`, a bare `YYYY-MM-DD` resolves to UTC midnight instead, and `TZDate`
- * only re-renders that instant — so every zone west of Greenwich would show the
- * previous day.
+ * Create a TZDate, reading offset-less strings as wall time in the timezone.
  *
  * @param value
  * @param timeZone
