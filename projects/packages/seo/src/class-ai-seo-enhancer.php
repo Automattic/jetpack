@@ -3,11 +3,12 @@
  * The AI SEO Enhancer's availability gate — the editor feature that
  * auto-generates SEO titles, meta descriptions and image alt text.
  *
- * The AI feature settings endpoint and the SEO dashboard each carried their own
- * copy of this predicate and drifted apart. Both now delegate here. Other
- * surfaces still resolve the enhancer themselves: the AI Assistant block's
- * extension registration, the legacy settings endpoint, and the AI sidebar's
- * SEO suggestions, which asks a deliberately different question (see below).
+ * Several surfaces each carried their own copy of this predicate and drifted
+ * apart. The AI feature settings endpoint delegates here. Everything else still
+ * resolves the enhancer itself for now: the SEO dashboard's AI tab, the AI
+ * Assistant block's extension registration, the legacy settings endpoint, and
+ * the AI sidebar's SEO suggestions, which asks a deliberately different
+ * question (see below).
  *
  * This package owns the `ai_seo_enhancer_enabled` option and already depends on
  * jetpack-plans and jetpack-status, so the predicate lives here and the plugin
@@ -68,16 +69,10 @@ class AI_SEO_Enhancer {
 	 */
 	public static function is_available() {
 		/** This filter is documented in projects/plugins/jetpack/_inc/lib/class.core-rest-api-endpoints.php */
-		if ( ! apply_filters( 'ai_seo_enhancer_enabled', true ) ) {
-			return false;
-		}
-
-		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
-		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
-			return false;
-		}
-
-		return ( new Modules() )->is_active( 'seo-tools' )
+		return (bool) apply_filters( 'ai_seo_enhancer_enabled', true )
+			/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
+			&& ! apply_filters( 'jetpack_disable_seo_tools', false )
+			&& ( new Modules() )->is_active( 'seo-tools' )
 			&& Current_Plan::supports( 'ai-seo-enhancer' );
 	}
 

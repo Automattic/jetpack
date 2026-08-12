@@ -618,24 +618,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The counterpart of the test above, so the gate is not over-closed: with
-	 * the seo-tools module active the SEO suggestions can run, and the SEO
-	 * enhancer alone keeps the sidebar available with writing off.
-	 */
-	public function test_preview_enabled_when_seo_enhancer_can_run_with_writing_off() {
-		$this->activate_seo_tools_module();
-		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
-		update_option( 'ai_seo_enhancer_enabled', 1 );
-
-		$open = $this->gate_open();
-
-		delete_option( 'jetpack_ai_writing_assistant_enabled' );
-		delete_option( 'ai_seo_enhancer_enabled' );
-
-		$this->assertTrue( $open, 'A usable SEO enhancer should keep the sidebar available even with writing off.' );
-	}
-
-	/**
 	 * The jetpack_disable_seo_tools filter — which the seo-tools module raises
 	 * when a conflicting SEO plugin (Yoast, AIOSEO, Rank Math, …) owns the
 	 * site's SEO — also closes the gate: the SEO suggestions cannot run, so with

@@ -1,7 +1,14 @@
 <?php
 /**
- * Tests for the canonical AI SEO Enhancer gate: the three availability terms,
- * the stored toggle, and the combination of the two.
+ * Tests for the AI SEO Enhancer gate: each availability term falsified on its
+ * own, and the stored toggle.
+ *
+ * Not covered here: that the module term is inert on WordPress.com Simple.
+ * Exercising it needs the real `IS_WPCOM` constant, which only works in an
+ * isolated process, and this package's SQLite bootstrap emits deprecations
+ * there on PHP 8.5 that PHPUnit reports as an error. The user-visible half of
+ * that guarantee is covered plugin-side by
+ * Jetpack_AI_Sidebar_Test::test_preview_stays_open_on_simple_even_with_every_toggle_off.
  *
  * @package automattic/jetpack-seo
  */
@@ -40,7 +47,7 @@ class AiSeoEnhancerTest extends SeoTestCase {
 	}
 
 	/**
-	 * Availability ANDs three independent inputs; with all three satisfied the
+	 * Availability ANDs four independent inputs; with all of them satisfied the
 	 * enhancer is available.
 	 */
 	public function test_is_available_when_all_inputs_true() {
@@ -59,11 +66,7 @@ class AiSeoEnhancerTest extends SeoTestCase {
 		self::set_seo_tools_active( true );
 		add_filter( 'ai_seo_enhancer_enabled', '__return_false' );
 
-		try {
-			$this->assertFalse( AI_SEO_Enhancer::is_available() );
-		} finally {
-			remove_filter( 'ai_seo_enhancer_enabled', '__return_false' );
-		}
+		$this->assertFalse( AI_SEO_Enhancer::is_available() );
 	}
 
 	/**
@@ -100,11 +103,7 @@ class AiSeoEnhancerTest extends SeoTestCase {
 		self::set_seo_tools_active( true );
 		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
 
-		try {
-			$this->assertFalse( AI_SEO_Enhancer::is_available() );
-		} finally {
-			remove_filter( 'jetpack_disable_seo_tools', '__return_true' );
-		}
+		$this->assertFalse( AI_SEO_Enhancer::is_available() );
 	}
 
 	/**
@@ -125,16 +124,4 @@ class AiSeoEnhancerTest extends SeoTestCase {
 
 		$this->assertTrue( AI_SEO_Enhancer::is_toggled_on() );
 	}
-
-	/**
-	 * The module term is inert on WordPress.com Simple, because
-	 * `Modules::is_active()` returns true unconditionally when `IS_WPCOM` is
-	 * defined — so adding it cannot take the enhancer away from Simple sites.
-	 *
-	 * Not covered here: exercising it needs the real constant defined, which
-	 * only works in an isolated process, and this package's SQLite bootstrap
-	 * emits deprecations there on PHP 8.5 that PHPUnit reports as an error. The
-	 * user-visible half of the guarantee is covered plugin-side instead, by
-	 * Jetpack_AI_Sidebar_Test::test_preview_stays_open_on_simple_even_with_every_toggle_off.
-	 */
 }
