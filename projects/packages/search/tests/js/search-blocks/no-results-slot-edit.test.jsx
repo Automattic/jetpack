@@ -20,11 +20,18 @@ jest.mock( '@wordpress/i18n', () => ( {
 } ) );
 
 let mockInnerBlockCount = 0;
+// Expanded by default so the existing preview assertions read the selected
+// state; the collapsed cases opt out explicitly.
+let mockIsSelected = true;
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: callback =>
 		callback( store => {
 			mockSelectedStores.push( store );
-			return { getBlockCount: () => mockInnerBlockCount };
+			return {
+				getBlockCount: () => mockInnerBlockCount,
+				isBlockSelected: () => mockIsSelected,
+				hasSelectedInnerBlock: () => false,
+			};
 		} ),
 } ) );
 
@@ -37,6 +44,7 @@ describe( 'NoResultsSlotEdit', () => {
 	beforeEach( () => {
 		InnerBlocks.mockClear();
 		mockInnerBlockCount = 0;
+		mockIsSelected = true;
 	} );
 
 	// The canvas preview mirrors render.php's fallback, so an author can see
@@ -101,5 +109,40 @@ describe( 'NoResultsSlotEdit', () => {
 		render( <NoResultsSlotEdit attributes={ { condition: 'filtered' } } clientId="v-1" /> );
 
 		expect( screen.getAllByText( 'Filters are active' ).length ).toBeGreaterThan( 0 );
+	} );
+
+	// Three stacked previews push the rest of the template off-screen, and only
+	// one condition can ever be on screen for a visitor.
+	it( 'collapses an untouched variant to a single summary line', () => {
+		mockIsSelected = false;
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( screen.getByText( UNFILTERED_DEFAULT ) ).toBeInTheDocument();
+		// The second line and the appender are what the collapse buys back.
+		expect( screen.queryByText( FILTERED_DEFAULT ) ).not.toBeInTheDocument();
+		expect( InnerBlocks ).not.toHaveBeenCalled();
+	} );
+
+	it( 'expands the variant once it is selected', () => {
+		mockIsSelected = false;
+		const { unmount } = render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+		unmount();
+
+		mockIsSelected = true;
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( screen.getByText( FILTERED_DEFAULT ) ).toBeInTheDocument();
+		expect( InnerBlocks ).toHaveBeenCalled();
+	} );
+
+	// Collapsing a variant an author has filled in would put their own blocks
+	// out of sight, so content always wins over the compact form.
+	it( 'never collapses a variant that has authored content', () => {
+		mockIsSelected = false;
+		mockInnerBlockCount = 1;
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( screen.getByTestId( 'variant-inner-blocks' ) ).toBeInTheDocument();
+		expect( screen.queryByText( UNFILTERED_DEFAULT ) ).not.toBeInTheDocument();
 	} );
 } );

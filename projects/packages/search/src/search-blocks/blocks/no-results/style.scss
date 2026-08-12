@@ -80,6 +80,28 @@
 	text-transform: uppercase;
 }
 
+// Collapsed row: label and a one-line summary of what the condition renders,
+// side by side. Only reachable for an untouched variant, so nothing an author
+// wrote is ever behind it.
+.jetpack-search-no-results__editor-canvas--collapsed {
+	align-items: baseline;
+	display: flex;
+	gap: 0.5rem;
+
+	.jetpack-search-no-results__editor-label {
+		flex-shrink: 0;
+		margin-block-end: 0;
+	}
+}
+
+.jetpack-search-no-results__editor-summary {
+	font-size: 0.8125rem;
+	opacity: 0.6;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .jetpack-search-no-results__default-preview {
 	opacity: 0.6;
 	text-align: center;

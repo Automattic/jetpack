@@ -21,7 +21,7 @@ import { __ } from '@wordpress/i18n';
 
 const CONDITIONS = [ 'any', 'filtered', 'error' ];
 
-// Mirrors `Search_Blocks::render_no_results_default_copy()` so the canvas shows
+// Mirrors `No_Results::render_default_copy()` so the canvas shows
 // what a visitor would get from an untouched variant. A function, not a
 // constant, so the `__()` calls run after the editor's i18n is loaded rather
 // than being cached in the source locale at module init.
@@ -63,27 +63,53 @@ export const conditionLabels = () => ( {
 export default function NoResultsSlotEdit( { attributes, clientId } ) {
 	const stored = attributes?.condition;
 	const condition = CONDITIONS.includes( stored ) ? stored : 'any';
-	const hasInnerBlocks = useSelect(
-		select => select( blockEditorStore ).getBlockCount( clientId ) > 0,
+	const { hasInnerBlocks, isActive } = useSelect(
+		select => {
+			const editor = select( blockEditorStore );
+			return {
+				hasInnerBlocks: editor.getBlockCount( clientId ) > 0,
+				isActive:
+					editor.isBlockSelected( clientId ) || editor.hasSelectedInnerBlock( clientId, true ),
+			};
+		},
 		[ clientId ]
 	);
+	// Three stacked previews push the rest of the template off-screen, and only
+	// one of them can ever be on screen for a visitor. An untouched variant is
+	// a one-liner until it's selected; one with authored content always renders
+	// in full, so nothing an author wrote is ever out of sight.
+	const isCollapsed = ! hasInnerBlocks && ! isActive;
 	const blockProps = useBlockProps( {
-		className: 'jetpack-search-no-results__variant jetpack-search-no-results__editor-canvas',
+		className: [
+			'jetpack-search-no-results__variant',
+			'jetpack-search-no-results__editor-canvas',
+			isCollapsed ? 'jetpack-search-no-results__editor-canvas--collapsed' : '',
+		]
+			.filter( Boolean )
+			.join( ' ' ),
 	} );
+	const messages = defaultMessages( condition );
 
 	return (
 		<div { ...blockProps }>
 			<span className="jetpack-search-no-results__editor-label">
 				{ conditionLabels()[ condition ] }
 			</span>
-			{ ! hasInnerBlocks && (
-				<div className="jetpack-search-no-results__default-preview">
-					{ defaultMessages( condition ).map( message => (
-						<p key={ message }>{ message }</p>
-					) ) }
-				</div>
+			{ isCollapsed && (
+				<span className="jetpack-search-no-results__editor-summary">{ messages[ 0 ] }</span>
 			) }
-			<InnerBlocks renderAppender={ InnerBlocks.ButtonBlockAppender } />
+			{ ! isCollapsed && (
+				<>
+					{ ! hasInnerBlocks && (
+						<div className="jetpack-search-no-results__default-preview">
+							{ messages.map( message => (
+								<p key={ message }>{ message }</p>
+							) ) }
+						</div>
+					) }
+					<InnerBlocks renderAppender={ InnerBlocks.ButtonBlockAppender } />
+				</>
+			) }
 		</div>
 	);
 }
