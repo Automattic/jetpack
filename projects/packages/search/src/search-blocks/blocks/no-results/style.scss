@@ -4,6 +4,15 @@
 	&[hidden] {
 		display: none;
 	}
+
+	// Every variant hides itself independently, so a container whose variants
+	// miss the live condition is revealed holding nothing — and block supports
+	// would paint that as a bare band of background and padding. Collapse it.
+	// Keyed on the binding so it can't reach the editor canvas, where an empty
+	// container has to stay selectable.
+	&[data-wp-bind--hidden]:not(:has(> :not([hidden]))) {
+		display: none;
+	}
 }
 
 // Editor-canvas-only: `render.php` never emits this class, so the rule is

@@ -51,10 +51,10 @@ if ( $is_default ) {
 	data-wp-interactive="jetpack-search"
 	<?php
 	// The container spans every condition its variants cover, so it binds to
-	// the region-level getter and each variant hides itself. A container whose
-	// variants don't cover the live condition renders empty rather than hidden
-	// — harmless, since block supports are opt-in and an unstyled empty div has
-	// no size.
+	// the region-level getter and each variant hides itself. That leaves it
+	// revealed with no visible child when the live condition is uncovered — an
+	// author's background and padding would paint an empty band — so
+	// `style.scss` collapses a container whose children are all hidden.
 	?>
 	data-wp-bind--hidden="!state.showEmptyStateRegion"
 	hidden
