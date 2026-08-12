@@ -211,6 +211,8 @@ class No_Results_Render_Test extends TestCase {
 	 * page that is about to render results.
 	 */
 	public function test_region_is_hidden_pre_hydration() {
-		$this->assertMatchesRegularExpression( '/<div[^>]*\shidden\s*>/', $this->render() );
+		// `preg_match` rather than `assertMatchesRegularExpression`, which was
+		// added in PHPUnit 9.1 — the PHP 7.2 CI matrix still runs PHPUnit 8.5.
+		$this->assertSame( 1, preg_match( '/<div[^>]*\shidden\s*>/', $this->render() ) );
 	}
 }
