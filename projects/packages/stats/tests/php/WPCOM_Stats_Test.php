@@ -875,11 +875,8 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 		$this->wpcom_stats->get_stats();
 
 		$_GET['force_refresh'] = '1';
-		try {
-			$stats = $this->wpcom_stats->get_stats();
-		} finally {
-			unset( $_GET['force_refresh'] );
-		}
+		$stats                 = $this->wpcom_stats->get_stats();
+		unset( $_GET['force_refresh'] );
 
 		$this->assertArrayHasKey( 'dummy', $stats );
 		$this->assertArrayNotHasKey( 'cached_at', $stats );
@@ -898,11 +895,8 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 		$this->wpcom_stats->get_stats();
 
 		$_SERVER['HTTP_REFERER'] = 'https://example.com/wp-admin/admin.php?page=stats&force_refresh=1';
-		try {
-			$stats = $this->wpcom_stats->get_stats();
-		} finally {
-			unset( $_SERVER['HTTP_REFERER'] );
-		}
+		$stats                   = $this->wpcom_stats->get_stats();
+		unset( $_SERVER['HTTP_REFERER'] );
 
 		$this->assertArrayNotHasKey( 'cached_at', $stats );
 	}
