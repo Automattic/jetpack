@@ -184,7 +184,7 @@ class Conditional_Logic {
 			$visible[ $field_id ] = true;
 		}
 
-		$with_logic  = array();
+		$with_logic    = array();
 		$field_types   = array();
 		$field_formats = array();
 		foreach ( $fields as $field_id => $descriptor ) {
@@ -255,6 +255,7 @@ class Conditional_Logic {
 	 * @param array  $rule     The rule.
 	 * @param string $type_key Comparison behavior of the rule's subject field.
 	 * @param mixed  $actual   The subject field's current value.
+	 * @param string $format   Subject field's date format: `mm/dd/yy`, `dd/mm/yy` or `yy-mm-dd`.
 	 *
 	 * @return bool|null True or false, or null when the rule must be ignored.
 	 */
@@ -403,6 +404,7 @@ class Conditional_Logic {
 	 * @param mixed  $actual   The submitted value.
 	 * @param mixed  $expected The value configured on the rule.
 	 * @param string $type_key Either `date` or `time`.
+	 * @param string $format   Subject field's date format: `mm/dd/yy`, `dd/mm/yy` or `yy-mm-dd`.
 	 *
 	 * @return array|null Both sides as ints, or null when either side cannot be parsed.
 	 */
@@ -423,6 +425,7 @@ class Conditional_Logic {
 	 *
 	 * @param mixed  $value    The value to parse.
 	 * @param string $type_key Either `date` or `time`.
+	 * @param string $format   Subject field's date format: `mm/dd/yy`, `dd/mm/yy` or `yy-mm-dd`.
 	 *
 	 * @return int|null Comparable integer, or null when unparseable.
 	 */
