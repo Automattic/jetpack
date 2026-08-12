@@ -29,18 +29,6 @@ class Customize_Feed {
 	private static $registered = false;
 
 	/**
-	 * Blocks that are chrome rather than show notes: they're dropped from
-	 * `<content:encoded>` so only the surrounding prose survives.
-	 *
-	 * @var string[]
-	 */
-	private const CHROME_BLOCKS = array(
-		'jetpack/podcast-episode',
-		'jetpack/podcast-player',
-		'jetpack/subscriptions',
-	);
-
-	/**
 	 * Enclosure URLs already emitted in the current feed render, keyed by post
 	 * ID then URL. Reset on `rss2_head` so each feed starts clean — see
 	 * {@see self::rewrite_enclosure()}.
@@ -282,7 +270,11 @@ class Customize_Feed {
 	 * @return string|null
 	 */
 	public static function skip_block_in_feed( $pre_render, $parsed_block ) {
-		if ( isset( $parsed_block['blockName'] ) && in_array( $parsed_block['blockName'], self::CHROME_BLOCKS, true ) ) {
+		if ( isset( $parsed_block['blockName'] ) && in_array(
+			$parsed_block['blockName'],
+			array( 'jetpack/podcast-episode', 'jetpack/podcast-player', 'jetpack/subscriptions' ),
+			true
+		) ) {
 			return '';
 		}
 		return $pre_render;
@@ -467,7 +459,7 @@ class Customize_Feed {
 			}
 		}
 
-		$attachment_ids = array_values( array_unique( $attachment_ids ) );
+		$attachment_ids = array_unique( $attachment_ids );
 		if ( ! empty( $attachment_ids ) ) {
 			// Terms aren't read off attachments here; metadata is (duration, image src).
 			_prime_post_caches( $attachment_ids, false, true );
