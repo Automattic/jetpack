@@ -46,12 +46,6 @@ const METRIC_FIELDS: Record< EmailTimeSeriesMetric, 'opens_count' | 'clicks_coun
 	clicks: 'clicks_count',
 };
 
-/**
- * The chart line's label for a metric.
- *
- * @param metric - The active metric.
- * @return Translated series label.
- */
 function metricLabel( metric: EmailTimeSeriesMetric ): string {
 	return metric === 'clicks'
 		? __( 'Total clicks', 'jetpack-premium-analytics-pkg' )
@@ -71,9 +65,6 @@ type EmailTimeSeriesReportProps = {
  * comparison, so comparison report params are ignored — they ride along in
  * the URL untouched so dashboard state survives the round trip, and every
  * widget on this page disregards them.
- *
- * @param {EmailTimeSeriesReportProps} props - The component props.
- * @return The widget content.
  */
 function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -165,9 +156,6 @@ function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportPr
 /**
  * Email performance widget: a single email's opens or clicks over time —
  * the chart section of the legacy email detail page.
- *
- * @param {EmailTimeSeriesWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function EmailTimeSeries( { attributes = {} }: EmailTimeSeriesWidgetProps ) {
 	const metric = attributes.metric ?? 'opens';

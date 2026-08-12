@@ -74,4 +74,30 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 		$this->assertTrue( $settings['showFeaturesView'] );
 	}
+
+	/**
+	 * The Tracks audience properties ride the same payload (AIINT-586): isTest
+	 * is the environment flag, isA11n the identity flag. The test environment
+	 * defines no is_automattician() and connects no user, so isA11n is false.
+	 */
+	public function test_tracks_audience_properties_default_to_false() {
+		$settings = $this->get_injected_settings();
+
+		$this->assertArrayHasKey( 'isA11n', $settings );
+		$this->assertArrayHasKey( 'isTest', $settings );
+		$this->assertFalse( $settings['isA11n'] );
+		$this->assertFalse( $settings['isTest'] );
+	}
+
+	/**
+	 * A proxied request is a test environment regardless of who made it, so
+	 * isTest follows jetpack_is_internal_testing_environment().
+	 */
+	public function test_tracks_is_test_follows_internal_testing_environment() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['isTest'] );
+	}
 }

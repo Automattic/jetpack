@@ -69,15 +69,12 @@ class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 		$this->template_plain = 'csv-export-email-plain.php';
 		$this->template_base  = __DIR__ . '/templates/';
 
-		// Call parent constructor.
 		parent::__construct();
 
-		// Set logger.
 		if ( null !== $logger ) {
 			$this->logger = $logger;
 		}
 
-		// Other settings.
 		$this->recipient = $this->get_option( 'recipient', get_option( 'admin_email' ) );
 	}
 
@@ -157,10 +154,9 @@ class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 		array $params,
 		string $file_path
 	): bool {
-		// Set recipient.
 		$this->recipient = $recipient;
 
-		// Store data for template.
+		// Read back by get_content_html() / get_content_plain() when rendering the template.
 		$this->report_label = $report_label;
 		$this->params       = $params;
 
@@ -179,7 +175,6 @@ class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 
 		$attachments = array( $file_path );
 
-		// Send email.
 		$sent = $this->send(
 			$this->get_recipient(),
 			$this->get_subject(),
@@ -188,12 +183,10 @@ class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 			$attachments
 		);
 
-		// Simply return if no logger available.
 		if ( null === $this->logger ) {
 			return $sent;
 		}
 
-		// Log the result.
 		if ( $sent ) {
 			$this->logger->log_message(
 				sprintf( 'Export email sent to: %s', $recipient ),

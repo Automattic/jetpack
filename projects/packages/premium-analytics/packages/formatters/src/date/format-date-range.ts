@@ -5,9 +5,39 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { elideRange } from './elide-range';
+import { elideRange, type RangeFormatName } from './elide-range';
 import { formatDate } from './format-date';
 import type { DateRange } from './types';
+
+/**
+ * Format a date range in one of the forms `elideRange` can elide.
+ *
+ * @param name  - The form to render in.
+ * @param range - The range to format.
+ * @return The formatted range.
+ */
+const formatRange = ( name: RangeFormatName, range?: DateRange ): string => {
+	const { from, to } = range ?? {};
+
+	if ( ! from || ! to ) {
+		return '';
+	}
+
+	// Compare complete site-local dates because the display format may omit the year.
+	if ( formatDate( from, 'iso' ) === formatDate( to, 'iso' ) ) {
+		return formatDate( from, name );
+	}
+
+	return (
+		elideRange( from, to, name ) ??
+		sprintf(
+			/* translators: 1: Start date. 2: End date. */
+			__( '%1$s – %2$s', 'jetpack-premium-analytics-pkg' ),
+			formatDate( from, name ),
+			formatDate( to, name )
+		)
+	);
+};
 
 /**
  * Format a date range into a human-readable string.
@@ -30,25 +60,27 @@ import type { DateRange } from './types';
  *                                 // elided:    'June 21 – 25, 2025'
  *                                 // spelt out: 'June 21, 2025 – June 25, 2025'
  */
-export const formatDateRange = ( range?: DateRange ): string => {
-	const { from, to } = range ?? {};
+export const formatDateRange = ( range?: DateRange ): string => formatRange( 'medium', range );
 
-	if ( ! from || ! to ) {
-		return '';
-	}
-
-	// Compare complete site-local dates because the display format may omit the year.
-	if ( formatDate( from, 'iso' ) === formatDate( to, 'iso' ) ) {
-		return formatDate( from );
-	}
-
-	return (
-		elideRange( from, to ) ??
-		sprintf(
-			/* translators: 1: Start date. 2: End date. */
-			__( '%1$s – %2$s', 'jetpack-premium-analytics-pkg' ),
-			formatDate( from ),
-			formatDate( to )
-		)
-	);
-};
+/**
+ * Format a date range with the month abbreviated.
+ *
+ * For controls sized by the row they sit in rather than by their content, where
+ * a spelled-out month costs width the row does not have. Everything else
+ * follows `formatDateRange`, including the elision, so the two stay one
+ * typographic system.
+ *
+ * The abbreviation comes from WordPress's translation tables, so a locale that
+ * does not shorten its month names is left with the full form and simply reads
+ * the same as `formatDateRange`.
+ *
+ * @param range - The range to format.
+ * @return The formatted range.
+ *
+ * @example
+ * formatDateRangeCompact( { from, to } ) // same day:  'Jun 21, 2025'
+ *                                        // elided:    'Jun 21 – 25, 2025'
+ *                                        // spelt out: 'Jun 21, 2025 – Jun 25, 2025'
+ */
+export const formatDateRangeCompact = ( range?: DateRange ): string =>
+	formatRange( 'compact', range );

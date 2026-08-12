@@ -3,9 +3,6 @@
  *
  * WordPress REST API errors and fetch errors can expose the status in
  * different places depending on which layer produced the failure.
- *
- * @param error - Unknown thrown error.
- * @return HTTP status code, or null when unavailable.
  */
 export function getApiErrorStatus( error: unknown ): number | null {
 	if ( ! error || typeof error !== 'object' ) {
@@ -40,9 +37,6 @@ export function getApiErrorStatus( error: unknown ): number | null {
  *
  * WPCOM pass-through errors (every real Stats failure) put the code in `error`,
  * while our own `WP_Error` responses use `code`.
- *
- * @param error - Unknown thrown error.
- * @return Error code, or null when unavailable.
  */
 export function getApiErrorCode( error: unknown ): string | null {
 	if ( ! error || typeof error !== 'object' ) {
@@ -74,10 +68,6 @@ export function getApiErrorCode( error: unknown ): string | null {
  *
  * Authentication, authorization and not-found failures are deterministic for the
  * current user/session, so retrying only delays the widget-specific error UI.
- *
- * @param failureCount - Number of failed attempts so far.
- * @param error        - Unknown thrown error.
- * @return Whether React Query should retry.
  */
 export function shouldRetryApiError( failureCount: number, error: unknown ): boolean {
 	const status = getApiErrorStatus( error );

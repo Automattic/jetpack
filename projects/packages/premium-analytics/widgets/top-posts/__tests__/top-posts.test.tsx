@@ -143,7 +143,7 @@ describe( 'TopPostsWidget', () => {
 	it( 'links to the Posts & Pages report', () => {
 		render( <TopPostsWidget attributes={ { max: 10 } } /> );
 
-		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining( '/reports/posts' )
 		);
@@ -273,7 +273,7 @@ describe( 'TopPostsWidget', () => {
 			within( toolbar ).queryByRole( 'button', { name: /Download CSV/ } )
 		).not.toBeInTheDocument();
 		const downloadButton = screen.getByRole( 'button', { name: /Download CSV/ } );
-		const reportLink = screen.getByRole( 'link', { name: 'See report' } );
+		const reportLink = screen.getByRole( 'link', { name: 'View all' } );
 		// The shared parent is the footer layout contract under test.
 		// eslint-disable-next-line testing-library/no-node-access
 		expect( downloadButton.parentElement ).toBe( reportLink.parentElement );

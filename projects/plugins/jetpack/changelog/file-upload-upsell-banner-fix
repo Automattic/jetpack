@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix the premium block upgrade banner rendering collapsed and too narrow on the site frontend.

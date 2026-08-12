@@ -63,7 +63,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "d9cddf2f8607377d801588c63c7d1951dd37d087"
+                "reference": "0f1e6c789c704afeb9533643e1f41b52ec687a27"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -195,7 +195,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "72cdb43773a1ccc86f44e57ff87ef8e5aa787a03"
+                "reference": "abd2135645d94bd39f5b2f8a5b54f15d63efc9df"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -225,7 +225,7 @@
                     "@composer phpunit"
                 ],
                 "test-php-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. -dauto_prepend_file=tests/php/coverage-bootstrap.php ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ]
             },
             "license": [

@@ -15,17 +15,20 @@ import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
-import analytics from 'lib/analytics';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
 import McpHub from './mcp/index';
 import McpRead from './mcp/read';
 import McpSetup from './mcp/setup';
+import { recordMcpTracksEvent } from './mcp/tracks';
 import McpUpsell from './mcp/upsell';
 import { useMcpSettings } from './mcp/use-mcp-settings';
 import McpWrite from './mcp/write';
 
 const { blogId, activityLogUrl, apiRoot, apiNonce } = window?.jetpackAiSettings ?? {};
+
+// Matches the `ref` value convention used by the MCP upsell events.
+const SETTINGS_REF = 'jetpack-ai-mcp-settings';
 
 const MCP_SUB_VIEWS = [ 'read', 'write', 'setup' ];
 
@@ -143,7 +146,11 @@ export default function App() {
 	useEffect( () => {
 		if ( ! isLoading && hasMcpAccess && isMcpContext && ! mcpViewedRecorded.current ) {
 			mcpViewedRecorded.current = true;
-			analytics.tracks.recordEvent( 'jetpack_mcp_settings_viewed' );
+			// blog_id is attached automatically by the analytics library from
+			// window.jpTracksContext, which the page sets via an inline script.
+			recordMcpTracksEvent( 'jetpack_mcp_settings_viewed', {
+				ref: SETTINGS_REF,
+			} );
 		}
 	}, [ isLoading, hasMcpAccess, isMcpContext ] );
 

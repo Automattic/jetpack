@@ -5,6 +5,7 @@ import {
 	getComparisonPresetLabel,
 	isYearSurfacePresetId,
 	type ComparisonPresetId,
+	type IntervalType,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import {
@@ -30,13 +31,16 @@ type SectionSubtitleArgs = {
 	 * whose length is not a property of the selection.
 	 */
 	presetId?: PrimaryPresetId;
+
+	/**
+	 * The applied chart interval. Omit it on a surface carrying no interval
+	 * control, so the subtitle never states a bucket the reader cannot change.
+	 */
+	interval?: IntervalType;
 };
 
 /**
  * Spell out a range's length, e.g. "7 days".
- *
- * @param span - The measured span.
- * @return The localized length.
  */
 function getSpanLabel( span: DateRangeSpan ): string {
 	switch ( span.unit ) {
@@ -68,6 +72,32 @@ function getSpanLabel( span: DateRangeSpan ): string {
 }
 
 /**
+ * Name the interval as a cadence, e.g. "daily".
+ *
+ * A cadence rather than the menu's "By days": the window length sits beside it
+ * in the same units, where "(24 hours, by hours)" reads as a stutter.
+ *
+ * @param interval - The applied bucket.
+ * @return The localized cadence.
+ */
+function getIntervalCadenceLabel( interval: IntervalType ): string {
+	switch ( interval ) {
+		case 'hour':
+			return __( 'hourly', 'jetpack-premium-analytics-pkg' );
+		case 'day':
+			return __( 'daily', 'jetpack-premium-analytics-pkg' );
+		case 'week':
+			return __( 'weekly', 'jetpack-premium-analytics-pkg' );
+		case 'month':
+			return __( 'monthly', 'jetpack-premium-analytics-pkg' );
+		case 'quarter':
+			return __( 'quarterly', 'jetpack-premium-analytics-pkg' );
+		case 'year':
+			return __( 'yearly', 'jetpack-premium-analytics-pkg' );
+	}
+}
+
+/**
  * Describe the applied date configuration for a section header subtitle.
  *
  * Reads the applied range rather than the preset, so a window stepped back off
@@ -83,20 +113,18 @@ function getSpanLabel( span: DateRangeSpan ): string {
  * "(12 months)" adds nothing and the whole surface is treated alike.
  *
  * @example
- * getSectionSubtitle( { range } )  // 'Tuesday, July 21 – Monday, July 27 (7 days)'
- *                                  // with comparison: '… (7 days) vs. Previous period'
- *                                  // year surface: 'January 1, 2021 – July 30, 2026'
+ * getSectionSubtitle( { range, interval } )
+ *   // 'Tuesday, July 21 – Monday, July 27 (7 days, daily)'
+ *   // with comparison: '… (7 days, daily) vs. Previous period'
+ *   // year surface: 'January 1, 2021 – July 30, 2026 (quarterly)'
  *
- * @param args                    - The applied date configuration.
- * @param args.range              - The applied date range.
- * @param args.comparisonPresetId - The applied comparison preset, when active.
- * @param args.presetId           - The applied primary preset, when there is one.
  * @return The subtitle, or undefined when the range is incomplete.
  */
 export function getSectionSubtitle( {
 	range,
 	comparisonPresetId,
 	presetId,
+	interval,
 }: SectionSubtitleArgs ): string | undefined {
 	/*
 	 * The year surface is described by its selection, not by measuring it: both
@@ -111,14 +139,35 @@ export function getSectionSubtitle( {
 	}
 
 	const span = isYearSurface ? null : getDateRangeSpan( range );
-	const dateConfiguration = span
-		? sprintf(
-				// translators: %1$s is a date range, %2$s is how long it is, e.g. "7 days".
-				__( '%1$s (%2$s)', 'jetpack-premium-analytics-pkg' ),
-				rangeLabel,
-				getSpanLabel( span )
-		  )
-		: rangeLabel;
+
+	/*
+	 * The parenthetical holds how long the window is and how the charts bucket
+	 * it. Either can be absent, so the shapes are spelled out as whole format
+	 * strings rather than joined, leaving the separator to translators.
+	 */
+	const details = [
+		span ? getSpanLabel( span ) : null,
+		interval ? getIntervalCadenceLabel( interval ) : null,
+	].filter( ( detail ): detail is string => detail !== null );
+
+	let dateConfiguration = rangeLabel;
+
+	if ( details.length === 2 ) {
+		dateConfiguration = sprintf(
+			// translators: %1$s is a date range, %2$s is how long it is, e.g. "7 days", %3$s is the chart interval, e.g. "daily".
+			__( '%1$s (%2$s, %3$s)', 'jetpack-premium-analytics-pkg' ),
+			rangeLabel,
+			details[ 0 ],
+			details[ 1 ]
+		);
+	} else if ( details.length === 1 ) {
+		dateConfiguration = sprintf(
+			// translators: %1$s is a date range, %2$s is either how long it is, e.g. "7 days", or the chart interval, e.g. "daily".
+			__( '%1$s (%2$s)', 'jetpack-premium-analytics-pkg' ),
+			rangeLabel,
+			details[ 0 ]
+		);
+	}
 
 	const comparisonLabel = comparisonPresetId
 		? getComparisonPresetLabel( comparisonPresetId )

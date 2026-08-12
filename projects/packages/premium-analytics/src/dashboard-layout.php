@@ -299,8 +299,7 @@ function get_dashboard_default_section_layouts() {
 		),
 		DASHBOARD_INSIGHTS_SECTION_ID    => array(
 			// Follows the prototype's rows (WOOA7S-1786). Emails lives on the
-			// Subscribers tab, and the site-wide views heatmap has no widget
-			// yet (WOOA7S-1787), so that row is absent.
+			// Subscribers tab, so that row is absent.
 			// Row 1: highlights banner.
 			get_dashboard_default_widget_instance(
 				'default-annual-highlights-widget-instance',
@@ -332,8 +331,9 @@ function get_dashboard_default_section_layouts() {
 				2,
 				2
 			),
-			// Row 4: the period totals + the two most-popular cards. The
-			// most-popular cards still crop at this height (WOOA7S-1846).
+			// Row 4: the period totals, the weekday distribution, and the
+			// all-time best day. The most-popular-day card still crops at this
+			// height (WOOA7S-1846).
 			get_dashboard_default_widget_instance(
 				'default-total-views-widget-instance',
 				'jpa/total-views',
@@ -349,8 +349,8 @@ function get_dashboard_default_section_layouts() {
 				1
 			),
 			get_dashboard_default_widget_instance(
-				'default-most-popular-time-widget-instance',
-				'jpa/most-popular-time',
+				'default-popular-days-widget-instance',
+				'jpa/popular-days',
 				6,
 				1,
 				1
@@ -362,11 +362,21 @@ function get_dashboard_default_section_layouts() {
 				1,
 				1
 			),
-			// Row 5: the comment leaderboards, shares, and tags.
+			// Row 5: daily views heatmap. One row tall, as in the prototype: at this
+			// height it renders compact squares, so the tile's width buys years of
+			// history instead of the ~14 weeks labelled cells would fit.
+			get_dashboard_default_widget_instance(
+				'default-traffic-views-activity-widget-instance',
+				'jpa/traffic-views-activity',
+				8,
+				4,
+				1
+			),
+			// Row 6: the comment leaderboards, shares, and tags.
 			get_dashboard_default_widget_instance(
 				'default-most-commented-posts-widget-instance',
 				'jpa/most-commented-posts',
-				8,
+				9,
 				1,
 				2,
 				array(
@@ -376,7 +386,7 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-most-commented-authors-widget-instance',
 				'jpa/most-commented-authors',
-				9,
+				10,
 				1,
 				2,
 				array(
@@ -386,7 +396,7 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-shares-widget-instance',
 				'jpa/shares',
-				10,
+				11,
 				1,
 				2,
 				array(
@@ -396,7 +406,7 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-tags-widget-instance',
 				'jpa/tags',
-				11,
+				12,
 				1,
 				2,
 				array(

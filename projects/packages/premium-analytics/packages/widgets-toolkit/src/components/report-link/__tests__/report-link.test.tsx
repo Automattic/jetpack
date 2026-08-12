@@ -66,7 +66,7 @@ describe( 'ReportLink', () => {
 	it( 'links to the report with shared date params and no page-owned params', () => {
 		render( <ReportLink report="posts" /> );
 
-		const link = screen.getByRole( 'link', { name: 'See report' } );
+		const link = screen.getByRole( 'link', { name: 'View all' } );
 		const href = link.getAttribute( 'href' ) ?? '';
 		const search = new URL( href, 'https://example.com' ).searchParams;
 
@@ -82,6 +82,14 @@ describe( 'ReportLink', () => {
 		expect( search.get( 'date_type' ) ).toBe( 'created' );
 		expect( search.has( 'period' ) ).toBe( false );
 		expect( search.has( 'section' ) ).toBe( false );
+	} );
+
+	it( 'renders through the design system link so it inherits the brand tone', () => {
+		render( <ReportLink report="posts" className="custom-link" /> );
+
+		const link = screen.getByRole( 'link', { name: 'View all' } );
+		expect( link ).toHaveClass( /is-brand/ );
+		expect( link ).toHaveClass( 'custom-link' );
 	} );
 
 	it( 'appends a section and renders custom visible and accessible labels', () => {

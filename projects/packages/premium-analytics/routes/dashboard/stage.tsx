@@ -3,6 +3,7 @@ import { Stack } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
+	DateIntervalDropdown,
 	DateYearFilter,
 	SectionHeader,
 	SectionTabPanel,
@@ -15,12 +16,11 @@ import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { DashboardSections } from './components';
-import { DATE_FILTER_YEAR } from './config';
+import { DATE_FILTER_YEAR, resolveSectionHeading } from './config';
 import {
 	useActiveSection,
 	useDashboardGridSettings,
@@ -79,15 +79,14 @@ function Dashboard(): JSX.Element {
 	 */
 	const dateFilters = useReportDateFilters( '/' );
 
+	const activeSectionRecord = sections.find( section => section.slug === activeSection );
+
 	/*
 	 * Which date filter the active section's header shows. Also reconciles the
 	 * preset in the URL with that filter's surface, so a section switch never
 	 * leaves the visible control unable to represent the selection.
 	 */
-	const dateFilterSurface = useSectionDateFilter(
-		sections.find( section => section.slug === activeSection ),
-		dateFilters
-	);
+	const dateFilterSurface = useSectionDateFilter( activeSectionRecord, dateFilters );
 
 	/*
 	 * The subtitle states what the widgets are currently showing, so it follows
@@ -105,8 +104,16 @@ function Dashboard(): JSX.Element {
 				range: dateFilters.appliedRange,
 				presetId: dateFilters.appliedPresetId,
 				comparisonPresetId,
+				// The interval control renders as a glyph, so the subtitle is
+				// where the active bucket is readable. Both surfaces carry it.
+				interval: dateFilters.appliedInterval,
 			} ),
-		[ dateFilters.appliedRange, dateFilters.appliedPresetId, comparisonPresetId ]
+		[
+			dateFilters.appliedRange,
+			dateFilters.appliedPresetId,
+			dateFilters.appliedInterval,
+			comparisonPresetId,
+		]
 	);
 
 	/*
@@ -146,21 +153,39 @@ function Dashboard(): JSX.Element {
 	const dateControls =
 		dateFilterSurface === DATE_FILTER_YEAR ? (
 			/*
-			 * `startYear` is left out on purpose: nothing in this package knows how
-			 * far back the site's data goes yet (`getStoreInfo()` is still a stub),
-			 * so the surface falls back to `DEFAULT_YEAR_SURFACE_COUNT` — six years,
-			 * which is the window the design shows. Pass the site's oldest year of
-			 * content here once a source for it exists, so a younger site stops
-			 * offering years it has nothing to show for.
+			 * The year surface carries the interval control but no comparison.
+			 * Composed here rather than inside `DateYearFilter`, which stays the
+			 * preset surface alone.
 			 */
-			<DateYearFilter
-				value={ dateFilters.appliedPresetId }
-				onSelect={ selectYear }
-				timeZone={ dateFilters.timeZone }
-				containerElement={ containerElement }
-			/>
+			<Stack direction="row" align="center" gap="sm">
+				{ /*
+				 * `startYear` is left out on purpose: nothing in this package knows how
+				 * far back the site's data goes yet (`getStoreInfo()` is still a stub),
+				 * so the surface falls back to `DEFAULT_YEAR_SURFACE_COUNT` — six years,
+				 * which is the window the design shows. Pass the site's oldest year of
+				 * content here once a source for it exists, so a younger site stops
+				 * offering years it has nothing to show for.
+				 */ }
+				<DateYearFilter
+					value={ dateFilters.appliedPresetId }
+					onSelect={ selectYear }
+					timeZone={ dateFilters.timeZone }
+					containerElement={ containerElement }
+				/>
+
+				<DateIntervalDropdown
+					options={ dateFilters.intervalOptions }
+					value={ dateFilters.interval }
+					onChange={ dateFilters.onIntervalChange }
+				/>
+			</Stack>
 		) : (
-			<DateFiltersPanel { ...dateFilters } />
+			/*
+			 * The dashboard's widgets are charts bucketed by the interval. The
+			 * report pages mount this same panel over records tables, which are
+			 * not, so the control is asked for rather than implied by the props.
+			 */
+			<DateFiltersPanel { ...dateFilters } withIntervalControl />
 		);
 
 	return (
@@ -179,10 +204,7 @@ function Dashboard(): JSX.Element {
 				<Page
 					visual={ <StatsPageIcon /> }
 					breadcrumbs={ <StatsBreadcrumbs isRoot /> }
-					subTitle={ __(
-						'Track your site performance and visitor insights.',
-						'jetpack-premium-analytics-pkg'
-					) }
+					subTitle={ activeSectionRecord?.description }
 					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.dashboard }
 				>
@@ -198,7 +220,10 @@ function Dashboard(): JSX.Element {
 								className={ styles.content }
 							>
 								<div ref={ setContainerElement } className={ styles.sectionHeader }>
-									<SectionHeader title={ section.label } subtitle={ sectionSubtitle }>
+									<SectionHeader
+										title={ resolveSectionHeading( section ) }
+										subtitle={ sectionSubtitle }
+									>
 										{ dateControls }
 									</SectionHeader>
 								</div>

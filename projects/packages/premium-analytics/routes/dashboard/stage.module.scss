@@ -1,5 +1,45 @@
 .dashboard {
 	min-block-size: 0;
+
+	/*
+	 * Tweak Card layout to make it fit the screen.
+	 * TODO: consider adding this upstream to the Card component.
+	 */
+	section:first-of-type {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+		--wp-ui-card-header-content-margin: var(--wpds-dimension-padding-lg);
+
+		> div {
+			margin-block-start: 0;
+		}
+	}
+
+	// Overlay WidgetHeader re-declares padding to 2xl; match Card tweak.
+	// TODO: fix upstream in @wordpress/widget-dashboard.
+	[class*="__widget-header"][class*="__overlay"] {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+	}
+}
+
+/*
+ * Widget inserter DataViewsPicker: preview tiles are Cards whose default
+ * padding is too roomy. Scope via the admin body class because the dialog
+ * portals outside `.dashboard`. :global — class is not a CSS Module local.
+ * TODO: consider adding this upstream to the Card / widget-dashboard picker.
+ */
+:global(
+	.toplevel_page_jetpack-premium-analytics-wp-admin
+	.dataviews-picker-wrapper
+) {
+
+	section:first-of-type {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-md);
+		--wp-ui-card-header-content-margin: var(--wpds-dimension-padding-md);
+
+		> div {
+			margin-block-start: 0;
+		}
+	}
 }
 
 .loading {
@@ -10,14 +50,17 @@
 }
 
 .content {
+	// Grows to fill a short section, but never shrinks below the widget grid:
+	// `min-block-size: 0` here would let the panel end above its own content, so
+	// the scroll container's end landed on the last widget and the padding below
+	// never rendered.
 	flex: 1 1 auto;
-	min-block-size: 0;
 
 	// Reserve paint space for the widget host's outer focus outline.
 	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
+	padding-block-end: var(--wpds-dimension-padding-3xl);
 	// Match the horizontal padding of the page header and the section tabs so the
 	// widget grid lines up with them instead of sitting flush to the edge.
-	padding-block-end: 24px;
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 

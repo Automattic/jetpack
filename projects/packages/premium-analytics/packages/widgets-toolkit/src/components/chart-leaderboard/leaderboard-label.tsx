@@ -74,10 +74,6 @@ function getMediaDetails( media: Exclude< LeaderboardRowMedia, { kind: 'none' } 
 /**
  * Render media and truncating text outside a leaderboard chart row.
  *
- * @param props                 - Component props.
- * @param props.label           - Label text.
- * @param props.media           - Optional media rendered before the label.
- * @param props.decorativeMedia - Whether assistive technology should ignore the image.
  * @return The rendered label.
  */
 export function LeaderboardLabel( {

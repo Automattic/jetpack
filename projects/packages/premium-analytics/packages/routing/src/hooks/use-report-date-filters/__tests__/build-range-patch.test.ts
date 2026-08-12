@@ -95,26 +95,35 @@ describe( 'buildRangePatch', () => {
 		expect( patch?.interval ).toBe( 'hour' );
 	} );
 
-	it( 'resets the interval to the range default when the preset changes', () => {
+	it( 'carries a still-allowed interval across a preset change', () => {
 		const patch = buildRangePatch( {
 			nextRange: { from, to },
 			nextPresetId: 'last-24-hours',
 			effective: { preset: 'last-7-days', interval: 'day' },
 		} );
 
-		// `day` is allowed for last-24-hours, but it was inherited from
-		// last-7-days rather than chosen, so it must not survive the switch.
+		// `day` is allowed for last-24-hours, so the selection survives.
+		expect( patch?.interval ).toBe( 'day' );
+	} );
+
+	it( 'coerces an interval the new preset disallows', () => {
+		const patch = buildRangePatch( {
+			nextRange: { from, to },
+			nextPresetId: 'last-24-hours',
+			effective: { preset: 'last-30-days', interval: 'week' },
+		} );
+
 		expect( patch?.interval ).toBe( 'hour' );
 	} );
 
-	it( 'resets the interval when a manual edit leaves a preset', () => {
+	it( 'carries the interval through a manual edit that leaves a preset', () => {
 		const patch = buildRangePatch( {
 			nextRange: { from, to },
 			nextPresetId: 'custom',
 			effective: { preset: 'last-7-days', interval: 'day' },
 		} );
 
-		expect( patch?.interval ).toBe( 'hour' );
+		expect( patch?.interval ).toBe( 'day' );
 	} );
 
 	it( 'extends calendar and manual edits to the end of the day', () => {

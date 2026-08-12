@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Post detail page: apply the video-page parity fixes — inline date filters on the title row with row-width degradation and no comparison, long-title overflow and featured-image sizing fixes, and the post-views day-shift fix.

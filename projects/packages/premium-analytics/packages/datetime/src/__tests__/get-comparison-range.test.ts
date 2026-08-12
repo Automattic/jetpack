@@ -46,13 +46,6 @@ describe( 'getComparisonRangeFromPreset', () => {
 			} );
 		} );
 
-		it( 'keeps the time of day for previous-week', () => {
-			expect( getComparisonRangeFromPreset( reference, 'previous-week' ) ).toEqual( {
-				from: new Date( 2026, 6, 2, 14, 30, 0, 0 ),
-				to: new Date( 2026, 6, 3, 14, 30, 0, 0 ),
-			} );
-		} );
-
 		it( 'keeps the time of day for previous-month', () => {
 			expect( getComparisonRangeFromPreset( reference, 'previous-month' ) ).toEqual( {
 				from: new Date( 2026, 5, 9, 14, 30, 0, 0 ),

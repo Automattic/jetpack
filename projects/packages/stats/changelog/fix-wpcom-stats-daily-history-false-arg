@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Pass a valid first argument to the WordPress.com Simple daily history lookup.

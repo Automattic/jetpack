@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Likes: Fix Like buttons sometimes getting stuck on "Loading…" and never appearing.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Content Guidelines AI: Keep the empty-state banner from painting over the sticky page header while scrolling.

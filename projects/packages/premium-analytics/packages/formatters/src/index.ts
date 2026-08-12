@@ -1,6 +1,8 @@
 export {
 	formatDate,
+	formatWeekday,
 	formatDateRange,
+	formatDateRangeCompact,
 	formatDateRangeLong,
 	getDateRangeSpan,
 	type DateFormatName,

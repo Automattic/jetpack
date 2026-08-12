@@ -29,12 +29,10 @@ const DEFAULT_GC_TIME = 10 * 60 * 1000;
  * - 503: Service unavailable (server overloaded or under maintenance)
  * - 504: Gateway timeout (request took too long)
  *
- * This is QueryClient configuration (not a side effect subscription), so it's
- * appropriate at module level. The globalErrorManager singleton is used here
- * because QueryClient must be instantiated once (singleton pattern), but the
- * error state is safely consumed via useSyncExternalStore in GlobalErrorProvider.
- *
- * Network errors are handled separately in GlobalErrorProvider via onlineManager.
+ * Module level is safe: this is QueryClient configuration rather than a side-effect
+ * subscription, and QueryClient must be instantiated once. The error state itself is
+ * consumed via useSyncExternalStore in GlobalErrorProvider, which also handles
+ * network errors via onlineManager.
  */
 const queryCache = new QueryCache( {
 	onError: error => {
@@ -71,18 +69,8 @@ export const queryClient = new QueryClient( {
 	queryCache,
 	defaultOptions: {
 		queries: {
-			/*
-			 * Stale time is the time after which the data
-			 * is considered stale and a new request is made.
-			 * Stale time: 5 minutes
-			 */
 			staleTime: DEFAULT_STALE_TIME,
 
-			/*
-			 * GC time is the time after which the data is considered garbage
-			 * collected and removed from the cache.
-			 * GC time: 10 minutes
-			 */
 			gcTime: DEFAULT_GC_TIME,
 
 			/**

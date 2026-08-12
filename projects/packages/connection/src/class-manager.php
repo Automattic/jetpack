@@ -482,7 +482,7 @@ class Manager {
 		// REST authentication into verify_xml_rpc_signature()), so the stored error type is
 		// derived from the actual request context rather than hardcoded.
 		$error_type      = $this->get_current_request_transport();
-		$error_direction = Error_Handler::DIRECTION_INCOMING;
+		$error_direction = 'incoming'; // Matches Error_Handler::DIRECTION_INCOMING — see build_connection_error_data() for why the constant is not referenced.
 
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
@@ -495,7 +495,7 @@ class Manager {
 				|| empty( $version )
 				|| (string) $jetpack_api_version !== $version
 		) {
-			return new \WP_Error( 'malformed_token', 'Malformed token in request', Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction ) );
+			return new \WP_Error( 'malformed_token', 'Malformed token in request', $this->build_connection_error_data( $signature_details, $error_type, $error_direction ) );
 		}
 
 		if ( '0' === $user_id ) {
@@ -507,7 +507,7 @@ class Manager {
 				return new \WP_Error(
 					'malformed_user_id',
 					'Malformed user_id in request',
-					Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction )
+					$this->build_connection_error_data( $signature_details, $error_type, $error_direction )
 				);
 			}
 			$user_id = (int) $user_id;
@@ -517,20 +517,20 @@ class Manager {
 				return new \WP_Error(
 					'unknown_user',
 					sprintf( 'User %d does not exist', $user_id ),
-					Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction )
+					$this->build_connection_error_data( $signature_details, $error_type, $error_direction )
 				);
 			}
 		}
 
 		$token = $this->get_tokens()->get_access_token( $user_id, $token_key, false );
 		if ( is_wp_error( $token ) ) {
-			$token->add_data( Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction ) );
+			$token->add_data( $this->build_connection_error_data( $signature_details, $error_type, $error_direction ) );
 			return $token;
 		} elseif ( ! $token ) {
 			return new \WP_Error(
 				'unknown_token',
 				sprintf( 'Token %s:%s:%d does not exist', $token_key, $version, $user_id ),
-				Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction )
+				$this->build_connection_error_data( $signature_details, $error_type, $error_direction )
 			);
 		}
 
@@ -572,7 +572,7 @@ class Manager {
 			return new \WP_Error(
 				'could_not_sign',
 				'Unknown signature error',
-				Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction )
+				$this->build_connection_error_data( $signature_details, $error_type, $error_direction )
 			);
 		} elseif ( is_wp_error( $signature ) ) {
 			// Jetpack_Signature errors carry their own signature_details (or, for some codes,
@@ -582,7 +582,7 @@ class Manager {
 			if ( isset( $signature_error_data['signature_details'] ) && is_array( $signature_error_data['signature_details'] ) ) {
 				$signature_details = array_merge( $signature_details, $signature_error_data['signature_details'] );
 			}
-			$signature->add_data( Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction ) );
+			$signature->add_data( $this->build_connection_error_data( $signature_details, $error_type, $error_direction ) );
 			return $signature;
 		}
 
@@ -596,7 +596,7 @@ class Manager {
 			return new \WP_Error(
 				'invalid_nonce',
 				'Could not add nonce',
-				Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction )
+				$this->build_connection_error_data( $signature_details, $error_type, $error_direction )
 			);
 		}
 
@@ -610,7 +610,7 @@ class Manager {
 			return new \WP_Error(
 				'signature_mismatch',
 				'Signature mismatch',
-				Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction )
+				$this->build_connection_error_data( $signature_details, $error_type, $error_direction )
 			);
 		}
 
@@ -664,7 +664,33 @@ class Manager {
 			$is_rest            = $has_rest_route_arg || false !== strpos( $request_path, '/' . rest_get_url_prefix() . '/' );
 		}
 
-		return $is_rest ? Error_Handler::ERROR_TYPE_REST : Error_Handler::ERROR_TYPE_XMLRPC;
+		// The literals match Error_Handler::ERROR_TYPE_REST / ERROR_TYPE_XMLRPC — see
+		// build_connection_error_data() for why the constants are not referenced.
+		return $is_rest ? 'rest' : 'xmlrpc';
+	}
+
+	/**
+	 * Builds the standardized connection error data attached to signature-verification errors.
+	 *
+	 * Wraps `Error_Handler::build_connection_error_data()`, falling back to the legacy
+	 * error-data shape when the loaded Error_Handler predates that method: during a plugin
+	 * update, an older version of the class can already be in memory while this file is the
+	 * new one, and a mid-update request must never fatal. For the same reason, code in this
+	 * class must not reference Error_Handler constants introduced along with that method
+	 * ('xmlrpc', 'rest', 'local_state', 'incoming', 'outgoing') — use the literal values.
+	 *
+	 * @since 8.10.0
+	 *
+	 * @param array  $signature_details Details of the request signature being verified.
+	 * @param string $error_type        The transport of the request: 'xmlrpc' or 'rest'.
+	 * @param string $error_direction   The direction of the request: 'incoming' or 'outgoing'.
+	 * @return array Error data for `WP_Error`.
+	 */
+	private function build_connection_error_data( $signature_details, $error_type, $error_direction ) {
+		if ( ! method_exists( Error_Handler::class, 'build_connection_error_data' ) ) {
+			return compact( 'signature_details', 'error_type' );
+		}
+		return Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction );
 	}
 
 	/**
@@ -963,6 +989,77 @@ class Manager {
 	}
 
 	/**
+	 * Fetch the site's own record from the WordPress.com `/sites/%d` endpoint.
+	 *
+	 * @since 8.10.0
+	 *
+	 * @return object|WP_Error The decoded site record, or an error describing the failure.
+	 */
+	public function get_connected_site_data() {
+		$site_id = \Jetpack_Options::get_option( 'id' );
+
+		if ( ! $site_id ) {
+			return new WP_Error( 'site_id_missing', '', array( 'api_error_code' => 'site_id_missing' ) );
+		}
+
+		$args = array( 'headers' => array() );
+
+		// Allow use a store sandbox. Internal ref: PCYsg-IA-p2.
+		if ( isset( $_COOKIE ) && isset( $_COOKIE['store_sandbox'] ) ) {
+			// Keep only RFC 6265 cookie-octets so the value cannot break out of the Cookie header.
+			$secret                    = preg_replace( '/[^\x21-\x7E]|[";,\\\\]/', '', filter_var( wp_unslash( $_COOKIE['store_sandbox'] ) ) );
+			$args['headers']['Cookie'] = "store_sandbox=$secret;";
+		}
+
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ) . '?force=wpcom', '1.1', $args );
+		$body     = wp_remote_retrieve_body( $response );
+		$data     = $body ? json_decode( $body ) : null;
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			$error_info = array(
+				'api_error_code' => null,
+				'api_http_code'  => wp_remote_retrieve_response_code( $response ),
+			);
+
+			if ( is_wp_error( $response ) ) {
+				$error_info['api_error_code'] = $response->get_error_code() ? wp_strip_all_tags( $response->get_error_code() ) : null;
+			} elseif ( $data && ! empty( $data->error ) ) {
+				$error_info['api_error_code'] = is_string( $data->error ) ? wp_strip_all_tags( $data->error ) : null;
+			}
+
+			return new WP_Error( 'site_data_fetch_failed', '', $error_info );
+		}
+
+		if ( ! is_object( $data ) ) {
+			return new WP_Error(
+				'site_data_fetch_failed',
+				'',
+				array(
+					'api_error_code' => 'invalid_body',
+					'api_http_code'  => 200,
+				)
+			);
+		}
+
+		/**
+		 * Fires after the site record was fetched from WordPress.com.
+		 *
+		 * Consumers that cache anything derived from the record, such as the current plan,
+		 * can refresh it here.
+		 *
+		 * The record is passed as an array rather than the object this method returns, so that a
+		 * listener cannot mutate the instance that becomes the REST response.
+		 *
+		 * @since 8.10.0
+		 *
+		 * @param array $record The decoded site record from the WordPress.com `/sites/%d` endpoint.
+		 */
+		do_action( 'jetpack_site_data_fetched', json_decode( $body, true ) );
+
+		return $data;
+	}
+
+	/**
 	 * Returns a user object of the connection owner.
 	 *
 	 * @return WP_User|false False if no connection owner found.
@@ -982,13 +1079,15 @@ class Manager {
 			$connection_owner = get_userdata( $user_token->external_user_id );
 		}
 
-		if ( $connection_owner === false ) {
+		// Reporting is best-effort and must never fatal a request running mid-plugin-update:
+		// skip it when the already-loaded Error_Handler is a stale version predating the factory.
+		if ( $connection_owner === false && method_exists( Error_Handler::class, 'build_connection_wp_error' ) ) {
 			Error_Handler::get_instance()->report_error(
 				Error_Handler::build_connection_wp_error(
 					'invalid_connection_owner',
 					'Invalid connection owner',
 					array( 'token' => '' ),
-					Error_Handler::ERROR_TYPE_LOCAL_STATE,
+					'local_state', // Error_Handler::ERROR_TYPE_LOCAL_STATE.
 					'', // Local-state errors describe the site's database, not a request, so they have no direction.
 					array(
 						'user_id'        => $user_id,

@@ -59,7 +59,7 @@ class Feedback {
 	 * fields, whose names a site owner can set by hand. An unprefixed `form_fill_duration`
 	 * field would silently overwrite this one.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.24.0
 	 *
 	 * @var string
 	 */
@@ -2303,7 +2303,7 @@ class Feedback {
 	 * The value is left empty when the submitter never interacted with the form, or ran without
 	 * JavaScript, which is also an unknown duration.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.24.0
 	 *
 	 * @param array $post_data The post data from the form submission.
 	 * @return int|null

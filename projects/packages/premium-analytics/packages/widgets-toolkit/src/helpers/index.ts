@@ -45,6 +45,7 @@ export {
 } from './build-visitors-by-location-data';
 export { flagUrl } from './flag-url';
 export { isEmptyChartData, isEmptyPieChartData, getEmptyChartDomain } from './chart-empty-state';
+export { getFixedYAxis, type FixedYAxis } from './fixed-y-axis';
 export { formatDisplayLabel } from './format-display-label';
 export {
 	buildCsv,
@@ -63,3 +64,16 @@ export { toDay } from './to-day';
 export { defaultPeriodForInterval } from './default-period-for-interval';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
 export { withoutComparison } from './without-comparison';
+export {
+	compactCalendarHeatmapCapacity,
+	computeCalendarHeatmapLayout,
+	type CalendarHeatmapLayout,
+	type CalendarHeatmapLayoutInput,
+} from './calendar-heatmap-layout';
+export {
+	buildDenseDaySeries,
+	resolveCalendarHeatmapWindow,
+	resolveCalendarHeatmapWindowDays,
+	type CalendarHeatmapWindow,
+	type CalendarHeatmapWindowBounds,
+} from './calendar-heatmap-window';

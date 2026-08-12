@@ -71,8 +71,6 @@ type ComparisonFixtures = {
 /**
  * Route each of the two concurrent requests (and their comparison variants) to
  * its own fixture.
- *
- * @param comparison - Optional per-pair comparison fixtures.
  */
 function routeRequests( comparison?: ComparisonFixtures ) {
 	mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) => {
@@ -190,18 +188,5 @@ describe( 'useTrafficChart', () => {
 			expect( metric.previous ).toBeUndefined();
 			expect( metric.previousValue ).toBeUndefined();
 		}
-	} );
-
-	it( 'yields only the selected metrics, in canonical order', async () => {
-		// Ids passed out of canonical order to prove the order comes from the
-		// definitions, not the selection.
-		const { result } = renderHook(
-			() => useTrafficChart( RANGE, 'month', [ 'comments', 'views' ] ),
-			{ wrapper }
-		);
-
-		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
-
-		expect( result.current.metrics.map( metric => metric.key ) ).toEqual( [ 'views', 'comments' ] );
 	} );
 } );

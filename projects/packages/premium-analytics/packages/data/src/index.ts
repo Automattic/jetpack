@@ -229,6 +229,7 @@ export {
 	hasComparisonEnabled,
 	type PresetType,
 	type ReportParams,
+	type ReportPresetId,
 } from './utils/search';
 export {
 	dateToISOStringWithLocalTZ,
@@ -252,6 +253,7 @@ export type { FilterCondition } from './types/filter-condition';
 export type { ProductType } from './types/product-type';
 export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-fetch';
 export {
+	getAllowedIntervalsForPreset,
 	getDateFormatFromInterval,
 	getDefaultIntervalForPeriod,
 	resolveIntervalForRange,
