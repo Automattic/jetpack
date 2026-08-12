@@ -31,7 +31,10 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import VideoDetailViewsPerformanceRender from '../render';
-import widgetDefinition, { type VideoDetailViewsPerformanceGranularity } from '../widget';
+import widgetDefinition, {
+	type VideoDetailViewsPerformanceChartType,
+	type VideoDetailViewsPerformanceGranularity,
+} from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -48,6 +51,7 @@ const VIDEO_DETAIL_VIEWS_PERFORMANCE_RENDER_MODULE = 'storybook/video-detail-vie
 interface VideoDetailViewsPerformanceStoryControls {
 	hasVideoScope: boolean;
 	granularity: VideoDetailViewsPerformanceGranularity;
+	chartType: VideoDetailViewsPerformanceChartType;
 }
 
 /**
@@ -57,11 +61,12 @@ interface VideoDetailViewsPerformanceStoryControls {
  * can pass host comparison params without duplicating the scoping rule.
  */
 function getVideoDetailViewsPerformanceAttributes(
-	{ hasVideoScope, granularity }: VideoDetailViewsPerformanceStoryControls,
+	{ hasVideoScope, granularity, chartType }: VideoDetailViewsPerformanceStoryControls,
 	withComparison = false
 ): ComponentProps< typeof VideoDetailViewsPerformanceRender >[ 'attributes' ] {
 	return {
 		granularity,
+		chartType,
 		reportParams: {
 			...getDefaultQueryParams( withComparison ),
 			...( hasVideoScope ? { post_id: MOCK_VIDEO_ID } : {} ),
@@ -91,6 +96,11 @@ const meta = {
 			options: [ 'day', 'week', 'month' ],
 			description: 'The "Group by" toolbar attribute rendered by the widget host.',
 		},
+		chartType: {
+			control: 'radio',
+			options: [ 'line', 'bar' ],
+			description: 'The "Chart type" toolbar attribute rendered by the widget host.',
+		},
 	},
 	parameters: {
 		docs: {
@@ -115,7 +125,7 @@ type Story = StoryObj< VideoDetailViewsPerformanceStoryControls >;
  */
 export const Default: Story = {
 	render: renderVideoDetailViewsPerformance,
-	args: { hasVideoScope: true, granularity: 'day' },
+	args: { hasVideoScope: true, granularity: 'day', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -126,7 +136,7 @@ export const Default: Story = {
  */
 export const NoVideoScope: Story = {
 	render: renderVideoDetailViewsPerformance,
-	args: { hasVideoScope: false, granularity: 'day' },
+	args: { hasVideoScope: false, granularity: 'day', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -144,6 +154,7 @@ interface VideoDetailViewsPerformanceDashboardStoryProps
 function VideoDetailViewsPerformanceDashboardStory( {
 	hasVideoScope,
 	granularity,
+	chartType,
 	...dashboardArgs
 }: VideoDetailViewsPerformanceDashboardStoryProps ) {
 	return (
@@ -155,7 +166,7 @@ function VideoDetailViewsPerformanceDashboardStory( {
 				VideoDetailViewsPerformanceRender as ComponentType< WidgetRenderProps< unknown > >
 			}
 			attributes={ getVideoDetailViewsPerformanceAttributes(
-				{ hasVideoScope, granularity },
+				{ hasVideoScope, granularity, chartType },
 				true
 			) }
 		/>

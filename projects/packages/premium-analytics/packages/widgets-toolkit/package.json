@@ -15,6 +15,7 @@
 		"@jetpack-premium-analytics/data": "workspace:*",
 		"@jetpack-premium-analytics/datetime": "workspace:*",
 		"@jetpack-premium-analytics/externals": "workspace:*",
+		"@jetpack-premium-analytics/fields": "link:../fields",
 		"@jetpack-premium-analytics/formatters": "workspace:*",
 		"@jetpack-premium-analytics/icons": "workspace:*",
 		"@jetpack-premium-analytics/routing": "workspace:*",
