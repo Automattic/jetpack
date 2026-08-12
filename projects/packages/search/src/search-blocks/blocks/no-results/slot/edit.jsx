@@ -98,18 +98,18 @@ export default function NoResultsSlotEdit( { attributes, clientId } ) {
 			{ isCollapsed && (
 				<span className="jetpack-search-no-results__editor-summary">{ messages[ 0 ] }</span>
 			) }
-			{ ! isCollapsed && (
-				<>
-					{ ! hasInnerBlocks && (
-						<div className="jetpack-search-no-results__default-preview">
-							{ messages.map( message => (
-								<p key={ message }>{ message }</p>
-							) ) }
-						</div>
-					) }
-					<InnerBlocks renderAppender={ InnerBlocks.ButtonBlockAppender } />
-				</>
+			{ ! isCollapsed && ! hasInnerBlocks && (
+				<div className="jetpack-search-no-results__default-preview">
+					{ messages.map( message => (
+						<p key={ message }>{ message }</p>
+					) ) }
+				</div>
 			) }
+			{ /* Mounted even while collapsed — the inner drop target comes from
+			     `useInnerBlocksProps`, so unmounting it makes a drag onto a
+			     collapsed variant resolve to the container, whose `allowedBlocks`
+			     then rejects it. Empty and appender-less, it has no size. */ }
+			<InnerBlocks renderAppender={ isCollapsed ? false : InnerBlocks.ButtonBlockAppender } />
 		</div>
 	);
 }

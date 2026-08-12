@@ -120,7 +120,19 @@ describe( 'NoResultsSlotEdit', () => {
 		expect( screen.getByText( UNFILTERED_DEFAULT ) ).toBeInTheDocument();
 		// The second line and the appender are what the collapse buys back.
 		expect( screen.queryByText( FILTERED_DEFAULT ) ).not.toBeInTheDocument();
-		expect( InnerBlocks ).not.toHaveBeenCalled();
+		expect( InnerBlocks.mock.calls[ 0 ][ 0 ].renderAppender ).toBe( false );
+	} );
+
+	// The inner drop target comes from `useInnerBlocksProps`, so unmounting
+	// InnerBlocks while collapsed would make a drag onto the variant resolve to
+	// the container instead — whose `allowedBlocks` rejects everything but a
+	// variant. It stays mounted; only the appender goes.
+	it( 'keeps a drop target while collapsed', () => {
+		mockIsSelected = false;
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( InnerBlocks ).toHaveBeenCalled();
+		expect( screen.getByTestId( 'variant-inner-blocks' ) ).toBeInTheDocument();
 	} );
 
 	it( 'expands the variant once it is selected', () => {
@@ -129,10 +141,11 @@ describe( 'NoResultsSlotEdit', () => {
 		unmount();
 
 		mockIsSelected = true;
+		InnerBlocks.mockClear();
 		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
 
 		expect( screen.getByText( FILTERED_DEFAULT ) ).toBeInTheDocument();
-		expect( InnerBlocks ).toHaveBeenCalled();
+		expect( InnerBlocks.mock.calls[ 0 ][ 0 ].renderAppender ).not.toBe( false );
 	} );
 
 	// Collapsing a variant an author has filled in would put their own blocks
