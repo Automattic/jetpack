@@ -338,6 +338,7 @@ class Jetpack_Podcast_Helper {
 		}
 		// Add action: detect the podcast feed from the provided feed URL.
 		add_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
+		add_action( 'wp_feed_options', array( __CLASS__, 'set_cache_fallback' ) );
 
 		$cache_timeout_filter_added = false;
 		if ( $this->cache_timeout !== null ) {
@@ -361,6 +362,7 @@ class Jetpack_Podcast_Helper {
 
 		// Remove added actions from wp_feed_options hook.
 		remove_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
+		remove_action( 'wp_feed_options', array( __CLASS__, 'set_cache_fallback' ) );
 		if ( true === $force_refresh ) {
 			remove_action( 'wp_feed_options', array( __CLASS__, 'reset_simplepie_cache' ) );
 		}
@@ -423,6 +425,23 @@ class Jetpack_Podcast_Helper {
 		}
 
 		$feed->get_registry()->register( SimplePie\Locator::class, 'Jetpack_Podcast_Feed_Locator' );
+	}
+
+	/**
+	 * Action handler to keep SimplePie's cached feed when a revalidation fails.
+	 *
+	 * A warm cache is revalidated on every fetch, at a tenth of the timeout. When
+	 * that request fails SimplePie retries at the full timeout, and a failure there
+	 * sets an error even though it loaded the cached copy successfully — which
+	 * `fetch_feed()` turns into a `WP_Error`, discarding a usable feed.
+	 *
+	 * @param SimplePie\SimplePie $feed The SimplePie object, passed by reference.
+	 * @return void
+	 */
+	public static function set_cache_fallback( &$feed ) {
+		if ( property_exists( $feed, 'force_cache_fallback' ) ) {
+			$feed->force_cache_fallback = true;
+		}
 	}
 
 	/**

@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Podcast Player: briefly cache feed failures so a slow or unreachable feed is not re-fetched on every page view.
+Podcast Player: keep showing episodes when a podcast feed becomes slow or unreachable, instead of failing to load.
