@@ -248,7 +248,7 @@ export default function AiOverview( { blogId, activityLogUrl, upgradeUrl } ) {
 								src={ thumbnail }
 								alt=""
 								width="644"
-								height="346"
+								height="348"
 								loading="lazy"
 							/>
 							<span className="jetpack-ai-overview__video-meta">
