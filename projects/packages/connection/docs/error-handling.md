@@ -25,7 +25,10 @@ Note: XML-RPC faults arrive as HTTP 200 responses with an XML body, so they are 
 
 ### Connection-state errors
 
-Some errors describe broken local state rather than a failed request — for example `invalid_connection_owner`, reported by `Manager::get_connection_owner()` when the connection owner cannot be resolved (missing owner token, or the owner's WP user was deleted). These are stored with `error_type` set to `local_state` and are reported with `report_error()` skipping the WordPress.com round-trip: the evidence is the site's own database, so there is nothing for WordPress.com to confirm.
+Some errors describe a broken connection state that a successful outgoing request cannot disprove, rather than an individual failed request. These are stored with `error_type` set to `local_state` and are reported with `report_error()` skipping the WordPress.com round-trip, because the error is self-evidencing:
+
+* `invalid_connection_owner` — reported by `Manager::get_connection_owner()` when the connection owner cannot be resolved (missing owner token, or the owner's WP user was deleted). The evidence is the site's own database.
+* `xmlrpc_request_blocked` — reported by the connection health tests (`Connection_Health_Tests::evaluate_wpcom_connection_result()`) when WordPress.com reports that its request to the site was rejected (firewall, WAF, or server rule blocking `xmlrpc.php`). The evidence is WordPress.com's response to a signed request this site initiated. This error is invisible to both request flows above — the failing incoming requests never arrive, and outgoing requests keep succeeding — which is exactly why the health test reports it explicitly.
 
 ## Error classification
 
@@ -33,7 +36,7 @@ Each stored error carries two orthogonal classification fields:
 
 | Field | Values | Meaning |
 |---|---|---|
-| `error_type` | `xmlrpc`, `rest`, `local_state`, `''` | The transport of the failed request; `local_state` marks connection-state errors that involve no request (stored as `connection` by package versions ≤ 8.8); `''` appears on entries stored by older package versions. |
+| `error_type` | `xmlrpc`, `rest`, `local_state`, `''` | The transport of the failed request; `local_state` marks connection-state errors that a successful outgoing request cannot disprove (stored as `connection` by package versions ≤ 8.8); `''` appears on entries stored by older package versions. |
 | `error_direction` | `incoming`, `outgoing`, `''` | Whether the failed request was made to the site or by the site; `''` appears on legacy entries and `local_state`-type errors, which have no direction — the error factory discards any direction passed for them. |
 
 ## Supported error codes
@@ -43,7 +46,7 @@ Only a fixed list of error codes is handled: the `Error_Handler::$known_errors` 
 * **Incoming request token problems** — the token in the incoming request is malformed or references an unknown user (e.g. `malformed_token`, `unknown_user`).
 * **Locally stored token problems** — the token stored on this site is missing or corrupt (e.g. `no_user_tokens`, `token_malformed`, `no_valid_blog_token`).
 * **Signature problems** — signing or signature verification failed, either for an incoming request or reported by WordPress.com for an outgoing one (e.g. `invalid_token`, `signature_mismatch`, `invalid_nonce`).
-* **Connection state problems** — local connection state is broken (`invalid_connection_owner`).
+* **Connection state problems** — the connection state is broken in a way requests can't disprove (`invalid_connection_owner`, `xmlrpc_request_blocked`).
 
 If WordPress.com starts returning a new error code, it will be invisible to this system until the code is added to the allowlist. When debugging missing errors, check the response body against this list first (see [Debugging](#debugging)).
 
@@ -98,9 +101,16 @@ Storage limits and hygiene:
 
 Verified, displayable errors are surfaced on admin pages through `handle_verified_errors()`: a generic admin notice, and an entry in the React dashboard's initial state. Only a subset of error codes is user-displayable (see `get_displayable_errors()`), and each displayable error is classified by audience — `site` (blog token), `owner` (the connection owner's token), or `user` (another user's token) — so consumers can render viewer-appropriate copy.
 
+Most displayable errors share a default presentation: generic "please reconnect" copy with a reconnect CTA. Deviations split by their nature:
+
+* **The action** is declared by the *reporter* at creation time, stored in `error_data['action']` (e.g. `'none'` to suppress the reconnect CTA — readers treat a missing action as `'reconnect'`). It's a stable, locale-independent machine token, so storing it is safe, and this matches how consumer-injected errors already carry their actions (see `build_action_error_data()`).
+* **Display-time state** — custom copy, a default admin notice, or an action link on that notice — is declared in the `get_error_display_config()` table inside `Error_Handler`. Copy cannot be stored with the error: it must resolve in each viewer's locale (errors are often reported from cron, where there is no viewer) and follow current code rather than what was stored up to a day ago.
+
+Currently `xmlrpc_request_blocked` is the only special code: reconnecting would be rejected by the same firewall rule that broke the connection, so its reporter stores `action => 'none'`, and its (deliberately brief) display message names the real cause and points at Site Health — the source of truth with the detailed diagnosis — which the admin notice also links to.
+
 ### Enabling the error message
 
-By default, no admin notice text is shown. To enable it, use the `jetpack_connection_error_notice_message` filter. The second argument is an array with the details of all the errors (if more than one).
+By default, no admin notice text is shown — except for error codes whose [display config](#displaying-errors) opts into a default message (currently `xmlrpc_request_blocked`, which would otherwise be invisible outside Site Health). To enable text for other errors, or to override a default, use the `jetpack_connection_error_notice_message` filter. The second argument is an array with the details of all the errors (if more than one).
 
 This basic example shows how to display a simple error message no matter the specific error type:
 
@@ -185,7 +195,9 @@ Check [the class file](../src/class-error-handler.php) for further documentation
 
 ## When errors are cleared
 
-Stored errors are deleted automatically when the connection is restored or torn down — on site registration, reconnection, disconnection, token deletion, user unlink, and user-token update. Additionally, a successful API request (`jetpack_get_site_data_success`) clears all `xmlrpc` and `rest` type errors via `delete_all_api_errors()`; `local_state`-type errors are deliberately kept there, because a successful API round-trip refutes token/signature problems but says nothing about local state such as a missing connection owner.
+Stored errors are deleted automatically when the connection is restored or torn down — on site registration, reconnection, disconnection, token deletion, user unlink, and user-token update. Additionally, a successful API request (`jetpack_get_site_data_success`) clears all `xmlrpc` and `rest` type errors via `delete_all_api_errors()`; `local_state`-type errors are deliberately kept there, because a successful API round-trip refutes token/signature problems but says nothing about state such as a missing connection owner or WordPress.com being blocked from reaching the site.
+
+`local_state` errors are instead cleared by whatever detects their condition. For `xmlrpc_request_blocked`, a passing WP.com connection test deletes the error via `delete_error_by_code()`; the test runs on Site Health page loads, Core's weekly Site Health cron, and a daily check on the `jetpack_heartbeat` cron (see the [connection health tests doc](connection-health-tests.md)), so the error both stays fresh while the blockage persists and clears within a day of the host resolving it. As a safety net, all errors expire 24 hours after they were last stored.
 
 ## Debugging
 

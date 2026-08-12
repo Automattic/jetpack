@@ -523,9 +523,12 @@ To review a widget's loading / error / empty state directly, force it with
 `setReportMockState( '<endpoint>', 'loading' | 'error' | 'error-retryable' | 'empty' )` in the
 story's `beforeEach`, clearing it in the returned cleanup. Keep such stories off the shared
 autodocs page (`tags: [ '!autodocs' ]`, since the override is keyed by path and would otherwise
-force the sibling stories into the same state) and give each one a date preset distinct from the
-other stories so it hits the mock fresh instead of reading their cached success. See
-`widgets/search-terms/stories/` for the reference.
+force the sibling stories into the same state). See `widgets/search-terms/stories/` for the
+reference.
+
+Setting or clearing a forced state evicts the shared query cache, so unique query keys are not
+required for isolation. Different presets or parameters can still help distinguish stories, but
+do not rely on them: distinct preset IDs may compute the same date range (WOOA7S-1899).
 
 `error` mocks a permission-gated 403 and `error-retryable` the proxy's `no_connection` 403. A
 widget that maps its error through `describeError` renders a Retry action only for the latter, so

@@ -1,14 +1,17 @@
 /**
  * External dependencies
  */
+import { Link } from '@jetpack-premium-analytics/externals';
 import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import { __ } from '@wordpress/i18n';
 import { Link as RouteLink } from '@wordpress/route';
+import clsx from 'clsx';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../widget-root';
+import styles from './report-link.module.scss';
 
 export type ReportLinkProps = {
 	/**
@@ -22,12 +25,12 @@ export type ReportLinkProps = {
 	section?: string;
 
 	/**
-	 * Visible link label. Defaults to "See report".
+	 * Visible link label. Defaults to "View all".
 	 */
 	label?: string;
 
 	/**
-	 * Optional accessible label to disambiguate identical "See report" links on one page.
+	 * Optional accessible label to disambiguate identical "View all" links on one page.
 	 */
 	ariaLabel?: string;
 
@@ -56,14 +59,18 @@ export function ReportLink( { report, section, label, ariaLabel, className }: Re
 	);
 
 	return (
-		<RouteLink
-			to="/reports/$report"
-			params={ { report } as unknown as never }
-			search={ search as unknown as never }
-			className={ className }
+		<Link
+			render={
+				<RouteLink
+					to="/reports/$report"
+					params={ { report } as unknown as never }
+					search={ search as unknown as never }
+				/>
+			}
+			className={ clsx( styles.reportLink, className ) }
 			aria-label={ ariaLabel }
 		>
-			{ label ?? __( 'See report', 'jetpack-premium-analytics-pkg' ) }
-		</RouteLink>
+			{ label ?? __( 'View all', 'jetpack-premium-analytics-pkg' ) }
+		</Link>
 	);
 }

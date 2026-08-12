@@ -4,24 +4,24 @@
 import { useStatsStreak } from '@jetpack-premium-analytics/data';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
+	AdaptiveCalendarHeatmap,
 	HeatmapChartUnresponsive,
 	WidgetRoot,
 	WidgetState,
-	buildCalendarHeatmapData,
-	useElementSize,
+	describeError,
+	resolveCalendarHeatmapWindow,
+	resolveCalendarHeatmapWindowDays,
+	useViewportWidth,
 	useWidgetRootContext,
+	type HeatmapTooltipData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { computeCalendarHeatmapLayout, fitCompactCalendarHeatmapColumns } from './layout';
-import { resolveStreakRange } from './streak-range';
-import { buildStreakSeries } from './streak-series';
-import styles from './style.module.css';
 import type { PostingActivityAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -31,147 +31,113 @@ type PostingActivityRenderAttributes = PostingActivityAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type PostingActivityWidgetProps = WidgetRenderProps< PostingActivityRenderAttributes >;
 
-// Heatmap sizing tuning.
-const EXPANDED_ASPECT_RATIO = 61 / 40;
-const EXPANDED_MAX_CELL_HEIGHT = 48;
-// If the tile is at least this tall, use expanded cells ( not compact ).
-const EXPANDED_MIN_HEIGHT = 220;
+// Shared so a pending or failed fetch doesn't hand the heatmap a fresh object
+// every render, which would rebuild the whole dense day series each time.
+const NO_POSTS_BY_DAY: Record< string, number | null > = {};
 
-// Minimum span, in days.
-const MIN_STREAK_DAYS = 365;
+// Lead with the count, as the other calendar heatmap does; the chart's own tooltip
+// puts the date first.
+function renderCellTooltip( { value, cellLabel }: HeatmapTooltipData ) {
+	return (
+		<>
+			<strong>
+				{ value === null
+					? __( 'No posts', 'jetpack-premium-analytics-pkg' )
+					: sprintf(
+							/* translators: %d: number of posts published that day, e.g. "3". */
+							_n( '%d post', '%d posts', value, 'jetpack-premium-analytics-pkg' ),
+							value
+					  ) }
+			</strong>
+			<div>{ cellLabel }</div>
+		</>
+	);
+}
 
 /**
  * The `stats/streak` endpoint returns a `{ 'yyyy-MM-dd': count }` map of posts
  * per day, with no comparison period.
  *
- * The date range comes from the dashboard picker via `reportParams`, but the
- * fetch window is floored to at least a year (`MIN_STREAK_DAYS`) ending on the
- * picker's end date — a calendar heatmap needs a span of weeks, not a 7-day slice.
+ * The date range comes from the dashboard picker via `reportParams`, but the fetch
+ * window spans as much history as the widest possible tile could draw — a calendar
+ * heatmap needs a span of weeks, not a 7-day slice, and the grid fills the tile
+ * rather than stopping where the period does.
  *
- * The heatmap adapts to the tile: it measures the available space and picks
- * compact (fixed-size squares) or expanded (scaled 61:40 cells with numbers) from
- * the available height, trimming the data to the columns that fit the width.
+ * `AdaptiveCalendarHeatmap` fits the grid to the tile: the height picks the cell
+ * size, the width picks how many week columns are drawn.
  */
 function PostingActivityInner() {
 	const { reportParams } = useWidgetRootContext();
 
-	// Floor the fetch window to a full year ending on the picker's end date.
+	// Same window rule as the other calendar heatmap: floor and cap the picker's
+	// range at the history the viewport could show, so the two widgets fill their
+	// tiles with the same span instead of one running out of data early.
+	const viewportWidth = useViewportWidth();
+	const windowDays = resolveCalendarHeatmapWindowDays( viewportWidth );
 	const streakRange = useMemo(
-		() => resolveStreakRange( reportParams, MIN_STREAK_DAYS, format( new Date(), 'yyyy-MM-dd' ) ),
-		[ reportParams ]
+		() =>
+			resolveCalendarHeatmapWindow(
+				reportParams,
+				{ minDays: windowDays, maxDays: windowDays },
+				format( new Date(), 'yyyy-MM-dd' )
+			),
+		[ reportParams, windowDays ]
 	);
 	const streakParams = useMemo(
 		() => ( { ...reportParams, startDate: streakRange.startDate, endDate: streakRange.endDate } ),
 		[ reportParams, streakRange ]
 	);
 
-	const { data, isLoading, isFetching, isError, refetch } = useStatsStreak( streakParams );
+	const { data, isLoading, isFetching, isError, error, refetch } = useStatsStreak( streakParams );
 
-	const { data: heatmapData, rowLabels } = useMemo( () => {
-		// The endpoint returns only days with posts; densify to the full window so
-		// the heatmap spans every week column, not just the weeks that have posts.
-		const series = buildStreakSeries( data ?? {}, streakRange.startDate, streakRange.endDate );
-		return buildCalendarHeatmapData( series );
-	}, [ data, streakRange ] );
-
-	const hasData = heatmapData.length > 0;
-	const dataColumns = heatmapData.length;
-
-	// Measure the tile; the parent div fills the widget slot (with no padding of its
-	// own), so its size is the space the heatmap has to work with.
-	const [ setRef, size ] = useElementSize< HTMLDivElement >();
-
-	// Height drives the mode. Expanded: a scaled 61:40 grid sized to the computed
-	// rectangle (numbers shown). Compact: the chart's own fixed-size squares — we
-	// don't size it, only compute how many columns fit so the data is trimmed to
-	// avoid a scroll.
-	const isExpanded = size.height >= EXPANDED_MIN_HEIGHT;
-
-	// Expanded is sized to the computed rectangle so its `minmax(0, 1fr)` tracks
-	// fill it with 61:40 cells; compact renders the chart's own fixed squares and
-	// sizes itself. The measured parent centers whichever one, so a grid smaller
-	// than the tile sits in centered whitespace.
-	const { columns, sizingProps } = useMemo( () => {
-		if ( isExpanded ) {
-			const layout = computeCalendarHeatmapLayout( {
-				availWidth: size.width,
-				availHeight: size.height,
-				dataColumns,
-				aspectRatio: EXPANDED_ASPECT_RATIO,
-				maxCellHeight: EXPANDED_MAX_CELL_HEIGHT,
-			} );
-			return {
-				columns: layout.columns,
-				sizingProps: {
-					width: layout.heatmapWidth,
-					height: layout.heatmapHeight,
-					showValues: layout.cellWidth > 30,
-				},
-			};
-		}
-
-		const fitColumns = fitCompactCalendarHeatmapColumns( {
-			availWidth: size.width,
-			dataColumns,
-		} );
-		return { columns: fitColumns, sizingProps: { compact: true } };
-	}, [ isExpanded, size.width, size.height, dataColumns ] );
-
-	// Keep the most-recent weeks: drop the oldest week columns from the left when
-	// the tile can't fit them all. `slice( -0 )` returns the whole array, so a zero
-	// column count (degenerate tile) leaves the data untouched.
-	const trimmedData = useMemo( () => heatmapData.slice( -columns ), [ heatmapData, columns ] );
+	// The endpoint returns only days with posts, so an empty response means the
+	// window has none — the component densifies the rest into empty cells.
+	const postsByDay = data ?? NO_POSTS_BY_DAY;
+	const hasData = Object.keys( postsByDay ).length > 0;
 
 	return (
-		<div className={ styles.content } ref={ setRef }>
-			<WidgetState
-				isLoading={ isLoading }
-				isFetching={ isFetching }
-				// The query keeps the previous response via `placeholderData`, so only
-				// surface the error when there is nothing to show.
-				isError={ isError && ! hasData }
-				isEmpty={ ! hasData }
-				error={ {
-					description: __(
-						"We couldn't load posting activity. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					actions: [
-						{
-							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
-							onClick: () => void refetch(),
-						},
-					],
-				} }
-				empty={ {
-					icon: calendar,
-					description: __( 'No posts published in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
-			>
-				<HeatmapChartUnresponsive
-					data={ trimmedData }
-					rowLabels={ rowLabels }
-					className={ styles.heatmap }
-					primaryColor="var(--wp-admin-theme-color, #3858e9)"
-					withTooltips
-					{ ...sizingProps }
+		<AdaptiveCalendarHeatmap valueByDay={ postsByDay } period={ streakRange }>
+			{ chartProps => (
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// The query keeps the previous response via `placeholderData`, so only
+					// surface the error when there is nothing to show.
+					isError={ isError && ! hasData }
+					isEmpty={ ! hasData }
+					error={ describeError( error, {
+						retryDescription: __(
+							"We couldn't load posting activity. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						onRetry: refetch,
+					} ) }
+					empty={ {
+						icon: calendar,
+						description: __(
+							'No posts published in this period.',
+							'jetpack-premium-analytics-pkg'
+						),
+					} }
 				>
-					<HeatmapChartUnresponsive.Legend
-						lessLabel={ __( 'Fewer Posts', 'jetpack-premium-analytics-pkg' ) }
-						moreLabel={ __( 'More Posts', 'jetpack-premium-analytics-pkg' ) }
+					{ /* No legend: the cell tooltips carry the counts, and the legend's
+					     44px comes out of the cells. */ }
+					<HeatmapChartUnresponsive
+						{ ...chartProps }
+						primaryColor="var(--wp-admin-theme-color, #3858e9)"
+						withTooltips
+						renderTooltip={ renderCellTooltip }
 					/>
-				</HeatmapChartUnresponsive>
-			</WidgetState>
-		</div>
+				</WidgetState>
+			) }
+		</AdaptiveCalendarHeatmap>
 	);
 }
 
 export default function PostingActivity( { attributes = {} }: PostingActivityWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<div className={ styles.root }>
-				<PostingActivityInner />
-			</div>
+			<PostingActivityInner />
 		</WidgetRoot>
 	);
 }

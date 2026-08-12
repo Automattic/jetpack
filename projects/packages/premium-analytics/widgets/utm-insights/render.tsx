@@ -58,7 +58,7 @@ type UtmInsightsInnerProps = {
 	 */
 	max: number;
 	/**
-	 * Whether to render the "See report" footer link.
+	 * Whether to render the "View all" footer link.
 	 */
 	showReportLink: boolean;
 };

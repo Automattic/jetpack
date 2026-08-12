@@ -36,8 +36,8 @@ export type SiteOverviewAttributes = {
 export const SITE_OVERVIEW_METRICS: { id: SiteOverviewMetricId; label: string }[] = [
 	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
 	{ id: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ) },
-	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
 	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
 ];
 
 /**

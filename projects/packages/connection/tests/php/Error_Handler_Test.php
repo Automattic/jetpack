@@ -54,6 +54,8 @@ class Error_Handler_Test extends BaseTestCase {
 		// Reset viewer/owner state used by the audience-aware display tests.
 		wp_set_current_user( 0 );
 		\Jetpack_Options::delete_option( 'master_user' );
+
+		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'malformed_token' );
 	}
 
 	/**
@@ -458,6 +460,261 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->assertEmpty( $this->error_handler->get_stored_errors() );
 		$this->assertEmpty( $this->error_handler->get_verified_errors() );
+	}
+
+	/**
+	 * Test that the body hash of the failed request is stored.
+	 */
+	public function test_check_api_response_for_errors_stores_body_hash() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_api_response_for_errors(
+			array(
+				'response' => array(
+					'code' => 400,
+				),
+				'body'     => '{"error":"invalid_token","message":"The token is invalid."}',
+			),
+			array(
+				'token'     => 'broken:1:0',
+				'timestamp' => 1234567890,
+				'nonce'     => 'asd3d32d',
+				'body-hash' => 'dsf34frf',
+			),
+			'https://localhost/',
+			'POST',
+			'rest'
+		);
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertSame( 'dsf34frf', $stored_errors['invalid_token']['0']['error_data']['body_hash'] );
+	}
+
+	/**
+	 * Test that the stored `signature_details` shape (`body_hash`) is still accepted.
+	 */
+	public function test_check_api_response_for_errors_accepts_snake_case_body_hash() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_api_response_for_errors(
+			array(
+				'response' => array(
+					'code' => 400,
+				),
+				'body'     => '{"error":"invalid_token","message":"The token is invalid."}',
+			),
+			array(
+				'token'     => 'broken:1:0',
+				'body_hash' => 'dsf34frf',
+			),
+			'https://localhost/',
+			'POST',
+			'rest'
+		);
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertSame( 'dsf34frf', $stored_errors['invalid_token']['0']['error_data']['body_hash'] );
+	}
+
+	/**
+	 * Test that a request that could not be signed is reported.
+	 *
+	 * These failures happen before the request is made, so they never reach
+	 * `check_api_response_for_errors()`.
+	 */
+	public function test_check_signed_request_for_errors_stores_signing_failure() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_signed_request_for_errors(
+			new \WP_Error( 'malformed_token' ),
+			'https://jetpack.wordpress.com/jetpack.token/1/',
+			'POST',
+			Error_Handler::ERROR_TYPE_REST
+		);
+
+		$stored_errors   = $this->error_handler->get_stored_errors();
+		$verified_errors = $this->error_handler->get_verified_errors();
+
+		$this->assertArrayHasKey( 'malformed_token', $stored_errors );
+
+		// No token was found to attribute the error to a specific user, and the error carries
+		// no `user_id` of its own (`Client` raises `malformed_token` with no data), so it falls
+		// back to 0, the blog-token/site attribution.
+		$stored = $stored_errors['malformed_token']['0'];
+
+		$this->assertSame( 'An error occurred with the connection.', $stored['error_message'] );
+		$this->assertSame( Error_Handler::ERROR_TYPE_REST, $stored['error_type'] );
+		$this->assertSame( Error_Handler::DIRECTION_OUTGOING, $stored['error_direction'] );
+		$this->assertSame( 'https://jetpack.wordpress.com/jetpack.token/1/', $stored['error_data']['url'] );
+		$this->assertSame( 'POST', $stored['error_data']['method'] );
+		$this->assertSame( '', $stored['error_data']['token'] );
+
+		// The evidence is local, so the error is verified without the WP.com round-trip.
+		$this->assertArrayHasKey( 'malformed_token', $verified_errors );
+	}
+
+	/**
+	 * Test that the request details carried by a `Jetpack_Signature` error are preserved.
+	 */
+	public function test_check_signed_request_for_errors_keeps_signature_details() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_signed_request_for_errors(
+			new \WP_Error(
+				'unknown_scheme_port',
+				"The scheme's port is unknown",
+				array(
+					'signature_details' => array(
+						'token'     => 'dhj938djh938d:1:5',
+						'timestamp' => 1234567890,
+						'nonce'     => 'asd3d32d',
+						'body_hash' => 'dsf34frf',
+						'url'       => 'gopher://localhost/',
+					),
+				)
+			),
+			'https://localhost/',
+			'POST',
+			Error_Handler::ERROR_TYPE_XMLRPC
+		);
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertArrayHasKey( 'unknown_scheme_port', $stored_errors );
+
+		// The token in the signature details attributes the error to its user.
+		$stored = $stored_errors['unknown_scheme_port']['5'];
+
+		$this->assertSame( "The scheme's port is unknown", $stored['error_message'] );
+		$this->assertSame( Error_Handler::ERROR_TYPE_XMLRPC, $stored['error_type'] );
+		// The details of the request that failed to sign win over the caller's arguments.
+		$this->assertSame( 'gopher://localhost/', $stored['error_data']['url'] );
+		$this->assertSame( 'dsf34frf', $stored['error_data']['body_hash'] );
+		$this->assertSame( 'POST', $stored['error_data']['method'] );
+	}
+
+	/**
+	 * Test that an error with no token to attribute is stored under the user_id carried in
+	 * the error's own data (as `Tokens::get_access_token()` attaches it), rather than
+	 * falling back to 'invalid'.
+	 */
+	public function test_check_signed_request_for_errors_attributes_to_the_given_user() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_signed_request_for_errors(
+			new \WP_Error( 'no_user_tokens', '', array( 'user_id' => 42 ) ),
+			'https://localhost/',
+			'POST',
+			Error_Handler::ERROR_TYPE_REST
+		);
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertArrayHasKey( '42', $stored_errors['no_user_tokens'] );
+		$this->assertArrayNotHasKey( 'invalid', $stored_errors['no_user_tokens'] );
+	}
+
+	/**
+	 * Test that a successful signing result is ignored.
+	 */
+	public function test_check_signed_request_for_errors_ignores_success() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_signed_request_for_errors(
+			array(
+				'url'     => 'https://localhost/',
+				'request' => array(),
+				'auth'    => array(),
+			),
+			'https://localhost/',
+			'POST',
+			Error_Handler::ERROR_TYPE_REST
+		);
+
+		$this->assertEmpty( $this->error_handler->get_stored_errors() );
+	}
+
+	/**
+	 * Test that a signing failure with an unknown error code is not stored.
+	 */
+	public function test_check_signed_request_for_errors_ignores_unknown_code() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_signed_request_for_errors(
+			new \WP_Error( 'http_request_failed', 'cURL error 28' ),
+			'https://localhost/',
+			'POST',
+			Error_Handler::ERROR_TYPE_REST
+		);
+
+		$this->assertEmpty( $this->error_handler->get_stored_errors() );
+	}
+
+	/**
+	 * Test that signing failures go through the hourly reporting gate like every other error.
+	 */
+	public function test_check_signed_request_for_errors_respects_the_gate() {
+		// No gate-bypass filter here: this test is about the gate.
+		$this->error_handler->check_signed_request_for_errors(
+			new \WP_Error( 'malformed_token' ),
+			'https://localhost/',
+			'POST',
+			Error_Handler::ERROR_TYPE_REST
+		);
+
+		$this->assertArrayHasKey( 'malformed_token', $this->error_handler->get_stored_errors() );
+
+		$this->error_handler->delete_all_errors();
+
+		$this->error_handler->check_signed_request_for_errors(
+			new \WP_Error( 'malformed_token' ),
+			'https://localhost/',
+			'POST',
+			Error_Handler::ERROR_TYPE_REST
+		);
+
+		$this->assertEmpty( $this->error_handler->get_stored_errors(), 'the gate should suppress a second report within the hour' );
+	}
+
+	/**
+	 * Test that only displayable signing errors surface notices.
+	 * `invalid_body` and `unknown_scheme_port` should not, even with valid attribution.
+	 */
+	public function test_signing_failures_are_not_displayable() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		foreach ( array( 'invalid_body', 'unknown_scheme_port' ) as $error_code ) {
+			$this->error_handler->check_signed_request_for_errors(
+				new \WP_Error( $error_code ),
+				'https://localhost/',
+				'POST',
+				Error_Handler::ERROR_TYPE_REST
+			);
+		}
+
+		$this->assertCount( 2, $this->error_handler->get_stored_errors() );
+		$this->assertEmpty( $this->error_handler->get_displayable_errors() );
+	}
+
+	/**
+	 * Test that a displayable signing error is shown once it has valid attribution.
+	 */
+	public function test_displayable_signing_failure_surfaces_a_notice() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_signed_request_for_errors(
+			new \WP_Error( 'malformed_token' ),
+			'https://localhost/',
+			'POST',
+			Error_Handler::ERROR_TYPE_REST
+		);
+
+		$displayable = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayHasKey( 'malformed_token', $displayable );
+		$this->assertSame( 'site', $displayable['malformed_token']['0']['audience'] );
 	}
 
 	/**
@@ -1457,6 +1714,265 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Builds the blocked-request error the connection health tests report.
+	 *
+	 * @param int $site_http_status The HTTP status the site returned to WP.com.
+	 * @return \WP_Error
+	 */
+	private function get_blocked_request_error( $site_http_status = 403 ) {
+		return Error_Handler::build_connection_wp_error(
+			'xmlrpc_request_blocked',
+			'WordPress.com requests to the site are blocked',
+			array( 'token' => '' ),
+			Error_Handler::ERROR_TYPE_LOCAL_STATE,
+			'',
+			array(
+				'user_id'          => 0,
+				'site_http_status' => $site_http_status,
+				'action'           => 'none',
+			)
+		);
+	}
+
+	/**
+	 * Test delete_error_by_code removes one code and leaves others intact.
+	 */
+	public function test_delete_error_by_code() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->report_error( $this->get_sample_error( 'invalid_token', 1 ), false, true );
+		$this->error_handler->report_error( $this->get_sample_error( 'unknown_token', 2 ), false, true );
+
+		$this->assertArrayHasKey( 'invalid_token', $this->error_handler->get_verified_errors() );
+		$this->assertArrayHasKey( 'unknown_token', $this->error_handler->get_verified_errors() );
+
+		$this->assertTrue( $this->error_handler->delete_error_by_code( 'invalid_token' ) );
+
+		$this->assertArrayNotHasKey( 'invalid_token', $this->error_handler->get_stored_errors() );
+		$this->assertArrayNotHasKey( 'invalid_token', $this->error_handler->get_verified_errors() );
+		$this->assertArrayHasKey( 'unknown_token', $this->error_handler->get_stored_errors() );
+		$this->assertArrayHasKey( 'unknown_token', $this->error_handler->get_verified_errors() );
+
+		// Deleting a code with no errors reports nothing was deleted.
+		$this->assertFalse( $this->error_handler->delete_error_by_code( 'invalid_token' ) );
+	}
+
+	/**
+	 * Test the blocked-request error is displayable with its own message and no reconnect CTA.
+	 */
+	public function test_displayable_errors_blocked_request() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->report_error( $this->get_blocked_request_error( 403 ), false, true );
+
+		$displayable_errors = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', $displayable_errors );
+
+		$error = $displayable_errors['xmlrpc_request_blocked']['0'];
+
+		// The message is deliberately brief — Site Health carries the detailed
+		// diagnosis — but names the condition and points there.
+		$this->assertStringContainsString( 'blocked', $error['error_message'] );
+		$this->assertStringContainsString( 'Site Health', $error['error_message'] );
+
+		// No reconnect CTA.
+		$this->assertSame( 'none', $error['error_data']['action'] );
+
+		// Site-wide audience: the blog, not a specific user, is affected.
+		$this->assertSame( 'site', $error['audience'] );
+	}
+
+	/**
+	 * Test the admin notice appends a Site Health link to the default blocked-request message.
+	 */
+	public function test_generic_admin_notice_appends_site_health_link() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->report_error( $this->get_blocked_request_error( 403 ), false, true );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin_link_test',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		wp_get_current_user()->add_cap( 'jetpack_connect' );
+
+		ob_start();
+		$this->error_handler->generic_admin_notice_error();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'site-health.php', $output );
+		$this->assertStringContainsString( 'Visit Site Health', $output );
+	}
+
+	/**
+	 * Test the admin notice omits the action link when a filter overrides the message.
+	 */
+	public function test_generic_admin_notice_no_link_when_message_filtered() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->report_error( $this->get_blocked_request_error( 403 ), false, true );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin_filtered_test',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		wp_get_current_user()->add_cap( 'jetpack_connect' );
+
+		add_filter(
+			'jetpack_connection_error_notice_message',
+			static function () {
+				return 'Custom consumer message.';
+			}
+		);
+
+		ob_start();
+		$this->error_handler->generic_admin_notice_error();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Custom consumer message.', $output );
+		$this->assertStringNotContainsString( 'site-health.php', $output );
+	}
+
+	/**
+	 * Test delete_error_by_code reopens the reporting gate so a recurrence is reportable immediately.
+	 */
+	public function test_delete_error_by_code_clears_reporting_gate() {
+		// No gate bypass here on purpose: the gate is the subject of the test.
+		$this->error_handler->report_error( $this->get_blocked_request_error( 403 ), false, true );
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', $this->error_handler->get_verified_errors() );
+
+		$this->error_handler->delete_error_by_code( 'xmlrpc_request_blocked' );
+		$this->assertArrayNotHasKey( 'xmlrpc_request_blocked', $this->error_handler->get_verified_errors() );
+
+		// With the gate still closed this second report would be suppressed.
+		$this->error_handler->report_error( $this->get_blocked_request_error( 403 ), false, true );
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', $this->error_handler->get_verified_errors() );
+	}
+
+	/**
+	 * Test the admin notice survives a consumer filter injecting a non-array under an error code.
+	 */
+	public function test_generic_admin_notice_survives_non_array_user_errors() {
+		// Platform-gated consumers (WoA/VIP/Newspack) can reshape the displayable
+		// errors; simulate one injecting a malformed entry.
+		$handler = new class() extends Error_Handler {
+			/**
+			 * Public constructor bypassing the singleton's hook registration.
+			 */
+			public function __construct() {
+			}
+
+			/**
+			 * Pretend we are on a platform where error filtering is allowed.
+			 *
+			 * @return bool
+			 */
+			protected function should_allow_error_filtering() {
+				return true;
+			}
+		};
+
+		add_filter(
+			'jetpack_connection_get_verified_errors',
+			static function () {
+				return array( 'xmlrpc_request_blocked' => 'not-an-array' );
+			}
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin_malformed_test',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		wp_get_current_user()->add_cap( 'jetpack_connect' );
+
+		ob_start();
+		$handler->generic_admin_notice_error();
+		$output = ob_get_clean();
+
+		// No fatal, and no default message could be derived from the malformed entry.
+		$this->assertSame( '', $output );
+	}
+
+	/**
+	 * Test the admin notice provides a default message for the blocked-request error.
+	 */
+	public function test_generic_admin_notice_default_message_for_blocked_request() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->report_error( $this->get_blocked_request_error( 403 ), false, true );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin_blocked_test',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		wp_get_current_user()->add_cap( 'jetpack_connect' );
+
+		$received_default = null;
+		add_filter(
+			'jetpack_connection_error_notice_message',
+			static function ( $message ) use ( &$received_default ) {
+				$received_default = $message;
+				return ''; // Suppress the actual notice output.
+			}
+		);
+
+		$this->error_handler->generic_admin_notice_error();
+
+		$this->assertIsString( $received_default );
+		$this->assertStringContainsString( 'blocked', $received_default );
+		$this->assertStringContainsString( 'Site Health', $received_default );
+	}
+
+	/**
+	 * Test the admin notice default message stays empty for other error codes.
+	 */
+	public function test_generic_admin_notice_no_default_message_for_other_errors() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->report_error( $this->get_sample_error( 'invalid_token', 1 ), false, true );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin_default_test',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		wp_get_current_user()->add_cap( 'jetpack_connect' );
+
+		$received_default = null;
+		add_filter(
+			'jetpack_connection_error_notice_message',
+			static function ( $message ) use ( &$received_default ) {
+				$received_default = $message;
+				return '';
+			}
+		);
+
+		$this->error_handler->generic_admin_notice_error();
+
+		$this->assertSame( '', $received_default );
+	}
+
+	/**
 	 * Test caching functionality of get_displayable_errors method
 	 */
 	public function test_get_displayable_errors_caching() {
@@ -1937,7 +2453,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$verified_errors = array(
 			'invalid_token'       => array( '0' => $make_error( 'invalid_token', 0 ) ),
 			'no_valid_user_token' => array( '7' => $make_error( 'no_valid_user_token', 7 ) ),
-			'no_token_for_user'   => array( '3' => $make_error( 'no_token_for_user', 3 ) ),
+			'token_mismatch'      => array( '3' => $make_error( 'token_mismatch', 3 ) ),
 		);
 		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
 
@@ -1945,7 +2461,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->assertSame( 'site', $result['invalid_token']['0']['audience'], 'A blog-token error (user 0) is site-wide.' );
 		$this->assertSame( 'owner', $result['no_valid_user_token']['7']['audience'], "The connection owner's token error is owner-scoped." );
-		$this->assertSame( 'user', $result['no_token_for_user']['3']['audience'], "A non-owner user's token error is user-scoped." );
+		$this->assertSame( 'user', $result['token_mismatch']['3']['audience'], "A non-owner user's token error is user-scoped." );
 	}
 
 	/**

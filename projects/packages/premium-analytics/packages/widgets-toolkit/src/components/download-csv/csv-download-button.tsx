@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button } from '@jetpack-premium-analytics/externals';
+import { Button, IconButton } from '@jetpack-premium-analytics/externals';
 import { useRegistry } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
@@ -16,7 +16,8 @@ export type CsvDownloadButtonProps = {
 	onDownload: () => Promise< unknown > | void;
 
 	/**
-	 * Visible label. Defaults to "Download CSV".
+	 * Label for the action. Defaults to "Download CSV". Without `showLabel` it
+	 * becomes the icon button's tooltip and accessible name.
 	 */
 	label?: string;
 
@@ -28,9 +29,16 @@ export type CsvDownloadButtonProps = {
 	variant?: ComponentProps< typeof Button >[ 'variant' ];
 
 	/**
-	 * Whether to show the download icon. Defaults to true.
+	 * Whether to show the download icon alongside a visible label. Ignored
+	 * without `showLabel`, where the icon is the whole button.
 	 */
 	showIcon?: boolean;
+
+	/**
+	 * Whether to render the label as text. Defaults to false, the icon-only
+	 * widget footer action; page-level actions opt into a labelled button.
+	 */
+	showLabel?: boolean;
 };
 
 function getErrorMessage( error: unknown ): string {
@@ -61,6 +69,7 @@ export function CsvDownloadButton( {
 	className,
 	variant = 'minimal',
 	showIcon = true,
+	showLabel = false,
 }: CsvDownloadButtonProps ) {
 	const [ isBusy, setIsBusy ] = useState( false );
 	const registry = useRegistry();
@@ -84,15 +93,21 @@ export function CsvDownloadButton( {
 		}
 	};
 
+	const buttonProps = {
+		variant,
+		tone: 'neutral',
+		size: 'compact',
+		onClick,
+		loading: isBusy,
+		className: clsx( styles.downloadCsv, className ),
+	} as const;
+
+	if ( ! showLabel ) {
+		return <IconButton { ...buttonProps } icon={ download } label={ label } />;
+	}
+
 	return (
-		<Button
-			variant={ variant }
-			tone="neutral"
-			size="compact"
-			onClick={ onClick }
-			loading={ isBusy }
-			className={ clsx( styles.downloadCsv, className ) }
-		>
+		<Button { ...buttonProps }>
 			{ showIcon ? <Button.Icon icon={ download } /> : null }
 			<span className={ styles.label }>{ label }</span>
 		</Button>

@@ -30,6 +30,32 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public $shortcode_name = 'contact-field';
 
 	/**
+	 * Field types that never render a style-specific label.
+	 *
+	 * These have no single labellable input — they are groups of inputs, or a
+	 * control with its own labelling — so every non-default form style falls back
+	 * to the plain default label.
+	 *
+	 * @var string[]
+	 */
+	const TYPES_WITHOUT_STYLED_LABEL = array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' );
+
+	/**
+	 * Field types that never render an *inset* (Outlined / Animated) label.
+	 *
+	 * Their input is not a single text-like box for a label to sit inside, so an
+	 * inset label would overlap the control. Styles that render the label outside
+	 * the field, such as 'below', still apply — unlike TYPES_WITHOUT_STYLED_LABEL,
+	 * this only opts out of the inset styles.
+	 *
+	 * Keep in sync with the editor (`blocks/label/edit.jsx`) and the wrapper
+	 * exclusion list in `contact-form/css/grunion.scss`.
+	 *
+	 * @var string[]
+	 */
+	const TYPES_WITHOUT_INSET_LABEL = array( 'slider' );
+
+	/**
 	 * The parent form.
 	 *
 	 * @var Contact_Form
@@ -833,12 +859,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$form_style = $this->get_form_style();
 
 		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
-			if ( ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' ), true ) ) {
+			if ( ! in_array( $type, self::TYPES_WITHOUT_STYLED_LABEL, true ) ) {
 				switch ( $form_style ) {
 					case 'outlined':
-						return $this->render_outline_label( $id, $label, $required, $required_field_text, $required_indicator );
+						if ( $this->type_has_inset_label( $type ) ) {
+							return $this->render_outline_label( $id, $label, $required, $required_field_text, $required_indicator );
+						}
+						break;
 					case 'animated':
-						return $this->render_animated_label( $id, $label, $required, $required_field_text, $required_indicator );
+						if ( $this->type_has_inset_label( $type ) ) {
+							return $this->render_animated_label( $id, $label, $required, $required_field_text, $required_indicator );
+						}
+						break;
 					case 'below':
 						return $this->render_below_label( $id, $label, $required, $required_field_text, $required_indicator );
 				}
@@ -3082,7 +3114,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Checks if the field has an inset label, i.e., a label displayed inside the field instead of above.
+	 * Checks if the form style renders labels inside the field rather than above it.
+	 *
+	 * This is a property of the *style* alone: it stays true for a field type that
+	 * opts out of the inset label itself, because it also governs the extra
+	 * `.contact-form__inset-label-wrap` wrapper, which those fields still need (it
+	 * carries the field width). Use type_has_inset_label() to decide whether a given
+	 * field actually renders an inset label.
 	 *
 	 * @return boolean
 	 */
@@ -3090,6 +3128,19 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$form_style = $this->get_form_style();
 
 		return in_array( $form_style, array( 'outlined', 'animated' ), true );
+	}
+
+	/**
+	 * Checks whether a field type renders an inset label under the current form style.
+	 *
+	 * @param string $type The field type.
+	 *
+	 * @return boolean
+	 */
+	private function type_has_inset_label( $type ) {
+		return $this->has_inset_label()
+			&& ! in_array( $type, self::TYPES_WITHOUT_STYLED_LABEL, true )
+			&& ! in_array( $type, self::TYPES_WITHOUT_INSET_LABEL, true );
 	}
 
 	/**
@@ -3265,7 +3316,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$min_text_label = $extra_attrs['minLabel'] ?? '';
 		$max_text_label = $extra_attrs['maxLabel'] ?? '';
 
-		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
+		// $always_render must be true: 'slider' is excluded from inset labels in
+		// render_label(), so without it the label would be dropped entirely when the
+		// form uses the Outlined or Animated style.
+		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text, array(), true, $required_indicator );
 
 		ob_start();
 		?>

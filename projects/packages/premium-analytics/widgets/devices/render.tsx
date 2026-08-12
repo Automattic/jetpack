@@ -108,6 +108,7 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 							styles={ segmentStyles }
 							showLegend={ false }
 							showMetric={ false }
+							withTooltips
 							dataFormat={ PERCENTAGE_DATA_FORMAT }
 						/>
 						<Legend items={ styledLegendData } withComparison={ hasComparison } />

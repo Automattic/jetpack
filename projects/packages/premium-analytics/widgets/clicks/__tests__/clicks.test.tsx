@@ -92,7 +92,7 @@ describe( 'ClicksWidget', () => {
 	it( 'links to the Clicks report', () => {
 		render( <ClicksWidget attributes={ { max: 10 } } /> );
 
-		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining( '/reports/clicks' )
 		);

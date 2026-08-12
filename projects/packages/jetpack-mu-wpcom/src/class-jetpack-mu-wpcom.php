@@ -99,16 +99,6 @@ class Jetpack_Mu_Wpcom {
 		// Filter to populate JetpackScriptData.site.wpcom.blog_id with the actual WP.com blog ID.
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'set_wpcom_blog_id_script_data' ), 10, 1 );
 
-		// Allow sites with the `classic-block-inserter-support` blog sticker to insert the Classic block.
-		if ( wpcom_has_blog_sticker( 'classic-block-inserter-support', get_wpcom_blog_id() ) ) {
-			add_filter( 'wp_classic_block_supports_inserter', '__return_true' );
-		}
-
-		// Enable the `gutenberg-classic-block-deprecation` Gutenberg experiment for all sites, with an opt-out via the `disable-classic-block-deprecation` blog sticker.
-		// Both filters are needed: `default_option_` fires when the option doesn't exist in the DB, `option_` fires when it does.
-		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
-		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
-
 		// Enable the `gutenberg-react-19` Gutenberg experiment on selected sites.
 		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
 		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
@@ -849,26 +839,6 @@ class Jetpack_Mu_Wpcom {
 			$data['site']['wpcom']['blog_id'] = $blog_id;
 		}
 		return $data;
-	}
-
-	/**
-	 * Add `gutenberg-classic-block-deprecation` to the list of enabled Gutenberg experiments.
-	 * Skip sites that have the `disable-classic-block-deprecation` sticker enabled.
-	 *
-	 * @param mixed $experiments The current value of the gutenberg-experiments option.
-	 * @return mixed Original option value or the filtered experiments.
-	 */
-	public static function enable_gutenberg_classic_block_deprecation_experiment( $experiments ) {
-		if ( wpcom_has_blog_sticker( 'disable-classic-block-deprecation', get_wpcom_blog_id() ) ) {
-			return $experiments;
-		}
-
-		if ( ! is_array( $experiments ) ) {
-			$experiments = array();
-		}
-
-		$experiments['gutenberg-classic-block-deprecation'] = true;
-		return $experiments;
 	}
 
 	/**
