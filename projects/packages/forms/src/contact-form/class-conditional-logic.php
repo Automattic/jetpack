@@ -40,6 +40,15 @@ class Conditional_Logic {
 	const OP_IS_NOT_CHECKED   = 'is_not_checked';
 
 	/**
+	 * The rule type this release understands.
+	 *
+	 * Rules carry their own type so further condition kinds -- query string, user role, date
+	 * and time -- become new rule types inside the existing groups rather than another
+	 * reshape of the stored attribute.
+	 */
+	const RULE_TYPE_FIELD_VALUE = 'fieldValue';
+
+	/**
 	 * Shortcode field type to comparison behavior.
 	 *
 	 * Mirrors TYPE_KEY_BY_FIELD_TYPE in
@@ -117,47 +126,71 @@ class Conditional_Logic {
 			return true;
 		}
 
-		$rules = array();
-		if ( isset( $logic['controls']['fieldValue']['rules'] ) && is_array( $logic['controls']['fieldValue']['rules'] ) ) {
-			$rules = $logic['controls']['fieldValue']['rules'];
-		}
+		$groups = isset( $logic['groups'] ) && is_array( $logic['groups'] ) ? $logic['groups'] : array();
 
-		if ( empty( $rules ) ) {
+		if ( empty( $groups ) ) {
 			return true;
 		}
 
-		$outcomes = array();
-		foreach ( $rules as $rule ) {
-			if ( ! is_array( $rule ) || empty( $rule['field'] ) || empty( $rule['operator'] ) ) {
+		// Each group reduces its own rules with its own operator; the groups then reduce with
+		// the top-level one. With a single group -- all the V1 panel writes -- the outer
+		// reduction is a no-op, so this behaves exactly as a flat rule list until a second
+		// group exists.
+		$group_outcomes = array();
+
+		foreach ( $groups as $group ) {
+			$rules = isset( $group['rules'] ) && is_array( $group['rules'] ) ? $group['rules'] : array();
+
+			$outcomes = array();
+			foreach ( $rules as $rule ) {
+				if ( ! is_array( $rule ) || empty( $rule['field'] ) || empty( $rule['operator'] ) ) {
+					continue;
+				}
+
+				// A condition kind this release does not know: ignore that rule, so a form
+				// saved by a newer editor degrades to its remaining conditions.
+				if ( ! empty( $rule['type'] ) && self::RULE_TYPE_FIELD_VALUE !== $rule['type'] ) {
+					continue;
+				}
+
+				$field_id = (string) $rule['field'];
+				if ( ! array_key_exists( $field_id, $field_types ) ) {
+					continue; // Subject field no longer exists: ignore this rule.
+				}
+
+				$type_key = self::type_key_for_field_type( $field_types[ $field_id ] );
+				$actual   = array_key_exists( $field_id, $form_values ) ? $form_values[ $field_id ] : '';
+				// A date field's value is written in its own format, so the comparison needs it.
+				$format  = isset( $field_formats[ $field_id ] ) ? (string) $field_formats[ $field_id ] : '';
+				$outcome = self::evaluate_rule_value( $rule, $type_key, $actual, $format );
+
+				if ( null !== $outcome ) {
+					$outcomes[] = $outcome;
+				}
+			}
+
+			// A group with nothing evaluable is ignored, the same way a single unusable rule
+			// is, so deleting a subject field cannot silently hide the field referencing it.
+			if ( empty( $outcomes ) ) {
 				continue;
 			}
 
-			$field_id = (string) $rule['field'];
-			if ( ! array_key_exists( $field_id, $field_types ) ) {
-				continue; // Subject field no longer exists: ignore this rule.
-			}
-
-			$type_key = self::type_key_for_field_type( $field_types[ $field_id ] );
-			$actual   = array_key_exists( $field_id, $form_values ) ? $form_values[ $field_id ] : '';
-			// A date field's value is written in its own format, so the comparison needs it.
-			$format  = isset( $field_formats[ $field_id ] ) ? (string) $field_formats[ $field_id ] : '';
-			$outcome = self::evaluate_rule_value( $rule, $type_key, $actual, $format );
-
-			if ( null !== $outcome ) {
-				$outcomes[] = $outcome;
-			}
+			$group_operator   = $group['logicalOperator'] ?? 'any';
+			$group_outcomes[] = 'all' === $group_operator
+				? ! in_array( false, $outcomes, true )
+				: in_array( true, $outcomes, true );
 		}
 
-		if ( empty( $outcomes ) ) {
+		if ( empty( $group_outcomes ) ) {
 			return true;
 		}
 
 		$logical_operator = $logic['logicalOperator'] ?? 'any';
 
 		if ( 'all' === $logical_operator ) {
-			$matched = ! in_array( false, $outcomes, true );
+			$matched = ! in_array( false, $group_outcomes, true );
 		} else {
-			$matched = in_array( true, $outcomes, true );
+			$matched = in_array( true, $group_outcomes, true );
 		}
 
 		$action = $logic['action'] ?? 'show';

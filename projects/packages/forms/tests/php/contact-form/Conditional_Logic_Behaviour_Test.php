@@ -48,9 +48,10 @@ class Conditional_Logic_Behaviour_Test extends BaseTestCase {
 			'enabled'         => true,
 			'action'          => 'show',
 			'logicalOperator' => 'all',
-			'controls'        => array(
-				'fieldValue' => array(
-					'rules' => array(
+			'groups'   => array(
+				array(
+					'logicalOperator' => 'all',
+					'rules'           => array(
 						array(
 							'field'    => 'subject',
 							'operator' => $case['operator'],

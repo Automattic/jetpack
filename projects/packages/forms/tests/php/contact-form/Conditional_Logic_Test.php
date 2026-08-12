@@ -30,12 +30,23 @@ class Conditional_Logic_Test extends TestCase {
 	 * @return array
 	 */
 	private function logic( array $rules, array $overrides = array() ): array {
+		// One group holding every rule, which is what the V1 panel writes. A logicalOperator
+		// override sets that group's operator, since with a single group the top-level one is
+		// inert -- it combines groups with each other.
+		$group_operator = $overrides['logicalOperator'] ?? 'all';
+		unset( $overrides['logicalOperator'] );
+
 		return array_merge(
 			array(
 				'enabled'         => true,
 				'action'          => 'show',
-				'logicalOperator' => 'all',
-				'controls'        => array( 'fieldValue' => array( 'rules' => $rules ) ),
+				'logicalOperator' => 'any',
+				'groups'          => array(
+					array(
+						'logicalOperator' => $group_operator,
+						'rules'           => $rules,
+					),
+				),
 			),
 			$overrides
 		);
@@ -645,9 +656,10 @@ class Conditional_Logic_Test extends TestCase {
 					'enabled'         => true,
 					'action'          => 'show',
 					'logicalOperator' => 'all',
-					'controls'        => array(
-						'fieldValue' => array(
-							'rules' => array(
+					'groups'   => array(
+						array(
+							'logicalOperator' => 'all',
+							'rules'           => array(
 								array(
 									'field'    => 'f' . ( $i - 1 ),
 									'operator' => 'is',
@@ -670,5 +682,194 @@ class Conditional_Logic_Test extends TestCase {
 				"Field f$i is downstream of a false condition and must be hidden."
 			);
 		}
+	}
+
+	/**
+	 * Build two groups over three fields.
+	 *
+	 * @param string $outer  How the groups combine.
+	 * @param string $first  How the first group's own rules combine.
+	 * @param string $second How the second group's own rules combine.
+	 *
+	 * @return array
+	 */
+	private function two_groups( string $outer, string $first, string $second ): array {
+		return array(
+			'enabled'         => true,
+			'action'          => 'show',
+			'logicalOperator' => $outer,
+			'groups'          => array(
+				array(
+					'logicalOperator' => $first,
+					'rules'           => array(
+						array(
+							'field'    => 'a',
+							'operator' => 'is',
+							'value'    => 'yes',
+						),
+						array(
+							'field'    => 'b',
+							'operator' => 'is',
+							'value'    => 'yes',
+						),
+					),
+				),
+				array(
+					'logicalOperator' => $second,
+					'rules'           => array(
+						array(
+							'field'    => 'c',
+							'operator' => 'is',
+							'value'    => 'yes',
+						),
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * The shape stores groups so that "any of these AND all of those" becomes possible without
+	 * another migration. The V1 panel writes one group, but the evaluator has to handle
+	 * several already. Mirrored in evaluate.test.js.
+	 */
+	public function test_groups_combine_with_all() {
+		$types = array(
+			'a' => 'text',
+			'b' => 'text',
+			'c' => 'text',
+		);
+
+		$this->assertTrue(
+			Conditional_Logic::evaluate(
+				$this->two_groups( 'all', 'any', 'all' ),
+				$types,
+				array(
+					'a' => 'no',
+					'b' => 'yes',
+					'c' => 'yes',
+				)
+			),
+			'First group satisfied by b alone, second by c.'
+		);
+
+		$this->assertFalse(
+			Conditional_Logic::evaluate(
+				$this->two_groups( 'all', 'any', 'all' ),
+				$types,
+				array(
+					'a' => 'no',
+					'b' => 'yes',
+					'c' => 'no',
+				)
+			),
+			'The second group fails, so the whole condition fails.'
+		);
+	}
+
+	public function test_groups_combine_with_any() {
+		$types = array(
+			'a' => 'text',
+			'b' => 'text',
+			'c' => 'text',
+		);
+
+		$this->assertTrue(
+			Conditional_Logic::evaluate(
+				$this->two_groups( 'any', 'all', 'all' ),
+				$types,
+				array(
+					'a' => 'no',
+					'b' => 'yes',
+					'c' => 'yes',
+				)
+			),
+			'The first group needs both and gets one; the second carries it.'
+		);
+
+		$this->assertFalse(
+			Conditional_Logic::evaluate(
+				$this->two_groups( 'any', 'all', 'all' ),
+				$types,
+				array(
+					'a' => 'no',
+					'b' => 'yes',
+					'c' => 'no',
+				)
+			)
+		);
+	}
+
+	/**
+	 * A group naming a field that no longer exists drops out rather than dragging the field
+	 * into hiding under an `all`.
+	 */
+	public function test_a_group_with_nothing_evaluable_is_ignored() {
+		$logic = array(
+			'enabled'         => true,
+			'action'          => 'show',
+			'logicalOperator' => 'all',
+			'groups'          => array(
+				array(
+					'logicalOperator' => 'all',
+					'rules'           => array(
+						array(
+							'field'    => 'a',
+							'operator' => 'is',
+							'value'    => 'yes',
+						),
+					),
+				),
+				array(
+					'logicalOperator' => 'all',
+					'rules'           => array(
+						array(
+							'field'    => 'gone',
+							'operator' => 'is',
+							'value'    => 'yes',
+						),
+					),
+				),
+			),
+		);
+
+		$this->assertTrue(
+			Conditional_Logic::evaluate( $logic, array( 'a' => 'text' ), array( 'a' => 'yes' ) )
+		);
+	}
+
+	/**
+	 * A form saved by a newer editor degrades to the conditions this release understands
+	 * rather than breaking on the ones it does not.
+	 */
+	public function test_a_rule_of_an_unknown_kind_is_ignored() {
+		$logic = array(
+			'enabled'         => true,
+			'action'          => 'show',
+			'logicalOperator' => 'all',
+			'groups'          => array(
+				array(
+					'logicalOperator' => 'all',
+					'rules'           => array(
+						array(
+							'type'     => 'fieldValue',
+							'field'    => 'a',
+							'operator' => 'is',
+							'value'    => 'yes',
+						),
+						array(
+							'type'     => 'queryString',
+							'field'    => 'utm_source',
+							'operator' => 'is',
+							'value'    => 'ads',
+						),
+					),
+				),
+			),
+		);
+
+		$this->assertTrue(
+			Conditional_Logic::evaluate( $logic, array( 'a' => 'text' ), array( 'a' => 'yes' ) )
+		);
 	}
 }

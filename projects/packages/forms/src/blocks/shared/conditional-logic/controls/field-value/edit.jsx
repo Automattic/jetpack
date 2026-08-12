@@ -3,6 +3,7 @@ import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { closeSmall, plus } from '@wordpress/icons';
 import { Button, IconButton, Stack, Text } from '@wordpress/ui';
+import { RULE_TYPE_FIELD_VALUE } from '../../constants.js';
 import { useEnsureFieldId } from '../../hooks/use-subject-fields.js';
 import {
 	OPERATORS,
@@ -296,41 +297,44 @@ const RuleRow = ( { rule, index, fields, ownFieldId, onChange, onRemove } ) => {
  * The Field Value control: a list of conditions comparing sibling fields.
  *
  * @param {object}   props            - Component props.
- * @param {object}   props.value      - This control's stored config, `{ rules }`.
- * @param {Function} props.onChange   - Called with the control's next config.
+ * @param {Array}    props.rules      - The rules of the group being edited.
+ * @param {Function} props.onChange   - Called with the group's next rules.
  * @param {Array}    props.fields     - Available subject fields.
  * @param {string}   props.ownFieldId - Id of the field the panel belongs to.
  * @return {object} The rendered control.
  */
-const FieldValueControl = ( { value, onChange, fields, ownFieldId } ) => {
-	const rules = useMemo( () => ( Array.isArray( value?.rules ) ? value.rules : [] ), [ value ] );
+const FieldValueControl = ( { rules: storedRules, onChange, fields, ownFieldId } ) => {
+	const rules = useMemo(
+		() => ( Array.isArray( storedRules ) ? storedRules : [] ),
+		[ storedRules ]
+	);
 
 	const updateRule = useCallback(
 		( index, patch ) => {
-			onChange( {
-				...value,
-				rules: rules.map( ( rule, i ) => ( i === index ? { ...rule, ...patch } : rule ) ),
-			} );
+			onChange( rules.map( ( rule, i ) => ( i === index ? { ...rule, ...patch } : rule ) ) );
 		},
-		[ onChange, rules, value ]
+		[ onChange, rules ]
 	);
 
 	const removeRule = useCallback(
 		index => {
-			onChange( { ...value, rules: rules.filter( ( _, i ) => i !== index ) } );
+			onChange( rules.filter( ( _, i ) => i !== index ) );
 		},
-		[ onChange, rules, value ]
+		[ onChange, rules ]
 	);
 
 	// A new condition starts without a subject rather than guessing the first field: choosing
 	// one may have to assign that field an id, which should follow a deliberate pick and not
 	// happen as a side effect of clicking "Add condition".
+	//
+	// The rule records its own type, so a future condition kind is another type in this same
+	// list rather than a reshape of what is stored.
 	const addRule = useCallback( () => {
-		onChange( {
-			...value,
-			rules: [ ...rules, { field: '', operator: OPERATORS.IS, value: '' } ],
-		} );
-	}, [ onChange, rules, value ] );
+		onChange( [
+			...rules,
+			{ type: RULE_TYPE_FIELD_VALUE, field: '', operator: OPERATORS.IS, value: '' },
+		] );
+	}, [ onChange, rules ] );
 
 	if ( ! fields.length ) {
 		return (

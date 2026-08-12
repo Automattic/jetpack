@@ -3,8 +3,13 @@ import { PanelBody, SelectControl } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
-import { normalizeLogic } from '../constants.js';
-import { CONTROLS } from '../controls/index.js';
+import {
+	countRules,
+	getPrimaryGroup,
+	normalizeLogic,
+	withPrimaryGroupRules,
+} from '../constants.js';
+import FieldValueControl from '../controls/field-value/edit.jsx';
 import useSubjectFields from '../hooks/use-subject-fields.js';
 import '../editor.scss';
 
@@ -17,18 +22,6 @@ const MATCH_OPTIONS = [
 	{ value: 'any', label: __( 'if any', 'jetpack-forms' ) },
 	{ value: 'all', label: __( 'if all', 'jetpack-forms' ) },
 ];
-
-/**
- * Count the rules stored across every control.
- *
- * @param {object} controls - The `controls` map from the attribute.
- * @return {number} Total rule count.
- */
-const countRules = controls =>
-	Object.values( controls || {} ).reduce(
-		( total, control ) => total + ( Array.isArray( control?.rules ) ? control.rules.length : 0 ),
-		0
-	);
 
 /**
  * The "Conditional logic" inspector panel, injected into every field block.
@@ -57,29 +50,22 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 		[ logic, updateLogic ]
 	);
 
+	// The panel edits one group, so its Any/All selector is that group's operator. The
+	// top-level operator combines groups with each other and only starts to matter once a
+	// second group is editable.
+	const group = getPrimaryGroup( logic );
+
 	const handleMatchChange = useCallback(
-		logicalOperator => updateLogic( { ...logic, logicalOperator } ),
-		[ logic, updateLogic ]
+		logicalOperator => updateLogic( withPrimaryGroupRules( logic, group.rules, logicalOperator ) ),
+		[ group.rules, logic, updateLogic ]
 	);
 
-	/**
-	 * Store a control's config, keeping `enabled` in step with whether any rule exists.
-	 *
-	 * Deriving it here rather than exposing a toggle means a field only carries conditional
-	 * logic once it actually has a condition, so untouched fields add nothing to the page.
-	 *
-	 * @param {string} slug - The control slug.
-	 * @param {object} next - The control's next config.
-	 */
-	const handleControlChange = useCallback(
-		( slug, next ) => {
-			const controls = { ...logic.controls, [ slug ]: next };
-			updateLogic( { ...logic, controls, enabled: countRules( controls ) > 0 } );
-		},
-		[ logic, updateLogic ]
+	const handleRulesChange = useCallback(
+		rules => updateLogic( withPrimaryGroupRules( logic, rules, group.logicalOperator ) ),
+		[ group.logicalOperator, logic, updateLogic ]
 	);
 
-	const hasConditions = countRules( logic.controls ) > 0;
+	const hasConditions = countRules( logic ) > 0;
 
 	return (
 		<InspectorControls>
@@ -108,7 +94,7 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 							<SelectControl
 								label={ __( 'When', 'jetpack-forms' ) }
 								hideLabelFromVision
-								value={ logic.logicalOperator }
+								value={ group.logicalOperator }
 								options={ MATCH_OPTIONS }
 								onChange={ handleMatchChange }
 								__nextHasNoMarginBottom={ true }
@@ -128,18 +114,12 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 					</Text>
 				) }
 
-				{ CONTROLS.map( control => {
-					const { Edit, slug } = control;
-					return (
-						<Edit
-							key={ slug }
-							value={ logic.controls[ slug ] }
-							fields={ fields }
-							ownFieldId={ attributes.id }
-							onChange={ next => handleControlChange( slug, next ) }
-						/>
-					);
-				} ) }
+				<FieldValueControl
+					rules={ group.rules }
+					fields={ fields }
+					ownFieldId={ attributes.id }
+					onChange={ handleRulesChange }
+				/>
 			</PanelBody>
 		</InspectorControls>
 	);
