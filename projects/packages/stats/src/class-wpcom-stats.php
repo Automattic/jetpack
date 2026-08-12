@@ -447,7 +447,7 @@ class WPCOM_Stats {
 		$api_version    = self::STATS_REST_API_VERSION;
 		$cache_key      = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ) ) ) );
 		$transient_name = self::STATS_CACHE_TRANSIENT_PREFIX . $cache_key;
-		$stats_cache    = get_transient( $transient_name );
+		$stats_cache    = $this->should_bypass_cache() ? false : get_transient( $transient_name );
 
 		if ( $stats_cache ) {
 			$time = key( $stats_cache );
@@ -572,6 +572,34 @@ class WPCOM_Stats {
 		update_post_meta( $post_id, $meta_name, array( time() => $wpcom_stats ) );
 
 		return $wpcom_stats;
+	}
+
+	/**
+	 * Whether the caller has asked for an answer newer than the cached one.
+	 *
+	 * A site that has just connected, or just bought a plan, carries answers from before it did
+	 * -- including failures, which are cached like any other answer. Both markers are the ones
+	 * `Stats_Admin\WPCOM_Client` already honours, so a page load clears every layer or none.
+	 *
+	 * The dashboard asks for its data over REST, and those requests carry none of the page's
+	 * query, so the marker has to be read from the page that sent them as well.
+	 *
+	 * @return bool
+	 */
+	protected function should_bypass_cache() {
+		foreach ( array( 'force_refresh', 'statsPurchaseSuccess' ) as $marker ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( isset( $_GET[ $marker ] ) ) {
+				return true;
+			}
+
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			if ( isset( $_SERVER['HTTP_REFERER'] ) && false !== strpos( (string) $_SERVER['HTTP_REFERER'], $marker ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

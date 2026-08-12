@@ -863,6 +863,51 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * A site returning through the connection or checkout flow carries answers from before it
+	 * had one, failures included, and has to be able to ask again.
+	 */
+	public function test_get_stats_ignores_the_cache_when_asked_to_refresh() {
+		$this->wpcom_stats
+			->expects( $this->exactly( 2 ) )
+			->method( 'fetch_remote_stats' )
+			->willReturn( array( 'dummy' => 'test' ) );
+
+		$this->wpcom_stats->get_stats();
+
+		$_GET['force_refresh'] = '1';
+		try {
+			$stats = $this->wpcom_stats->get_stats();
+		} finally {
+			unset( $_GET['force_refresh'] );
+		}
+
+		$this->assertArrayHasKey( 'dummy', $stats );
+		$this->assertArrayNotHasKey( 'cached_at', $stats );
+	}
+
+	/**
+	 * The dashboard asks for its data over REST, and those requests carry none of the query the
+	 * page was loaded with, so the marker has to be read from the page that sent them.
+	 */
+	public function test_get_stats_ignores_the_cache_when_the_page_asked_to_refresh() {
+		$this->wpcom_stats
+			->expects( $this->exactly( 2 ) )
+			->method( 'fetch_remote_stats' )
+			->willReturn( array( 'dummy' => 'test' ) );
+
+		$this->wpcom_stats->get_stats();
+
+		$_SERVER['HTTP_REFERER'] = 'https://example.com/wp-admin/admin.php?page=stats&force_refresh=1';
+		try {
+			$stats = $this->wpcom_stats->get_stats();
+		} finally {
+			unset( $_SERVER['HTTP_REFERER'] );
+		}
+
+		$this->assertArrayNotHasKey( 'cached_at', $stats );
+	}
+
+	/**
 	 * Test get_stats with arguments.
 	 */
 	public function test_get_stats_with_arguments() {
