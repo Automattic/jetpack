@@ -127,7 +127,7 @@ export const ErrorRetryable: Story = {
  * Resolved with no buckets: the widget shows its empty state.
  */
 export const Empty: Story = {
-	render: () => renderTotalViewsOnPreset( 'last-365-days' ),
+	render: () => renderTotalViewsOnPreset( 'last-year' ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {

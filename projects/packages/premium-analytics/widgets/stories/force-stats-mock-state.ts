@@ -2,6 +2,10 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+/**
+ * Internal dependencies
+ */
+import { resetForcedStateQueries } from '../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 
 type ForcedMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
@@ -69,13 +73,13 @@ const forcedStateMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
  * comments point here rather than repeating the rationale in every widget file):
  * - Tag them `!autodocs`. The override is keyed by path, so on the shared
  *   autodocs page it would force every sibling story into the same state.
- * - Render each on a date preset distinct from the widget's other stories. The
- *   query key derives from the date range, so a unique preset gives the story
- *   its own cache entry and it hits the mock fresh instead of reading another
- *   story's cached success from the shared query client. When a widget's query
- *   key carries no date params, a distinct preset can't isolate it — evict the
- *   query from the shared client on enter and cleanup instead (see the
- *   `latest-post` stories).
+ * - Correctness does not depend on the story's query key being unique: both
+ *   edges evict the shared query cache, so a forced-state story always refetches
+ *   under its own state. Widgets still render each state on its own date preset
+ *   (or `max`, or `post_id`) so the states read as separate periods rather than
+ *   the same one four times — keep that up, but do not rely on it for isolation.
+ *   It is easy to get wrong: `last-365-days` and `last-12-months` compute the
+ *   same range outside a leap window.
  * - `'error'` mocks a permission-gated 403 and `'error-retryable'` the proxy's
  *   `no_connection` 403. Widgets on `describeError` render a Retry action only
  *   for the latter, so give those widgets a story for each.
@@ -90,4 +94,5 @@ export function forceStatsMockState( pathFragment: string, state: ForcedMockStat
 		apiFetch.use( forcedStateMiddleware );
 		stateOverrides.set( pathFragment, state );
 	}
+	resetForcedStateQueries();
 }

@@ -128,8 +128,8 @@ export const ErrorRetryable: Story = {
  */
 export const Empty: Story = {
 	// A calendar year, not a rolling window: `last-365-days` and `last-12-months`
-	// resolve to the same dates most years, which would share ErrorRetryable's
-	// query key and serve this story's cached empty result there instead.
+	// resolve to the same dates most years, so the two would read as the same
+	// period side by side.
 	render: () => renderPopularDaysOnPreset( 'last-year' ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],

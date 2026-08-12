@@ -523,9 +523,18 @@ To review a widget's loading / error / empty state directly, force it with
 `setReportMockState( '<endpoint>', 'loading' | 'error' | 'error-retryable' | 'empty' )` in the
 story's `beforeEach`, clearing it in the returned cleanup. Keep such stories off the shared
 autodocs page (`tags: [ '!autodocs' ]`, since the override is keyed by path and would otherwise
-force the sibling stories into the same state) and give each one a date preset distinct from the
-other stories so it hits the mock fresh instead of reading their cached success. See
-`widgets/search-terms/stories/` for the reference.
+force the sibling stories into the same state). See `widgets/search-terms/stories/` for the
+reference.
+
+Setting or clearing a forced state evicts the shared query cache, so a forced-state story always
+refetches under its own state — you do not have to make its query key unique to keep it from
+reading a sibling story's cached response. Widgets still render each state on its own date preset
+(or `max`, or `post_id`) so the states read as separate periods rather than the same one four
+times; keep doing that, but treat it as presentation, not isolation. It was isolation once, and it
+silently failed: the query key is built from the computed `from`/`to`, not the preset id, and
+`last-365-days` and `last-12-months` resolve to the same range except in the year following a
+leap February — so six widgets' `ErrorRetryable` stories served their `Empty` story's cached rows
+for most of every four years (WOOA7S-1899).
 
 `error` mocks a permission-gated 403 and `error-retryable` the proxy's `no_connection` 403. A
 widget that maps its error through `describeError` renders a Retry action only for the latter, so
