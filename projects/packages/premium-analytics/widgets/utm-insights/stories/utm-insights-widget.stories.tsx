@@ -150,7 +150,7 @@ export const ErrorRetryable: Story = {
  * glyph and "No UTM data in this period.").
  */
 export const Empty: Story = {
-	render: () => renderUtmInsightsOnPreset( 'last-365-days' ),
+	render: () => renderUtmInsightsOnPreset( 'last-year' ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {

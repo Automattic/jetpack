@@ -153,7 +153,7 @@ export const ErrorRetryable: StoryObj< DevicesStoryControls > = {
  * glyph and "No device data in this period.").
  */
 export const Empty: StoryObj< DevicesStoryControls > = {
-	render: () => renderDevicesOnPreset( 'last-365-days' ),
+	render: () => renderDevicesOnPreset( 'last-year' ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
