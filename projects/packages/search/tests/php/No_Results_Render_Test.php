@@ -231,6 +231,54 @@ class No_Results_Render_Test extends TestCase {
 	}
 
 	/**
+	 * Stray blocks alongside variants — the document Code Editor bypasses
+	 * `allowedBlocks`, so this arrives from hand-edited or imported markup.
+	 * Emitted bare they'd sit behind the region-level binding alone, showing on
+	 * a failed request as well, and their lack of a `hidden` attribute would
+	 * defeat the container's collapse rule for good.
+	 */
+	public function test_stray_blocks_beside_variants_are_wrapped_as_unscoped() {
+		$markup = $this->render(
+			'<!-- wp:paragraph --><p>STRAY COPY</p><!-- /wp:paragraph -->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"filtered"} /-->'
+		);
+
+		// The stray sits inside a variant wrapper bound to the unscoped
+		// condition, not loose in the container.
+		$this->assertSame(
+			1,
+			preg_match(
+				'/<div class="jetpack-search-no-results__variant"[^>]*>\s*<p>STRAY COPY<\/p>\s*<\/div>/',
+				$markup
+			),
+			'the stray block must be wrapped in an unscoped variant'
+		);
+		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showNoResultsFiltered"', $markup );
+
+		// And it now covers the unscoped condition, so the legacy region stands
+		// down for it rather than rendering a second message.
+		$state = wp_interactivity_state( 'jetpack-search' );
+		$this->assertTrue( $state['hasNoResultsUnfiltered'] );
+	}
+
+	/**
+	 * Document order survives the repair — an author's stray content stays
+	 * where they put it rather than being collected at one end.
+	 */
+	public function test_stray_blocks_keep_their_position_among_the_variants() {
+		$markup = $this->render(
+			'<!-- wp:jetpack-search/no-results-slot {"condition":"filtered"} /-->'
+			. '<!-- wp:paragraph --><p>STRAY COPY</p><!-- /wp:paragraph -->'
+		);
+
+		$this->assertLessThan(
+			strpos( $markup, 'STRAY COPY' ),
+			strpos( $markup, 'state.showNoResultsFiltered' ),
+			'the variant must still render before the stray that followed it'
+		);
+	}
+
+	/**
 	 * The block-template overlay is pre-rendered on every front-end request, so
 	 * its variants must not write coverage into the page-global state — that
 	 * would retire the legacy regions of unrelated in-page results markup. It

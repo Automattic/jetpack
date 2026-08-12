@@ -28,14 +28,21 @@ $variants = trim( $content );
 // rather than emitted bare, which would put them behind the region-level
 // binding and show them on an error too. `allowedBlocks` keeps the editor from
 // producing this, so it is a robustness floor, not a migration: a legacy
-// per-condition scope is not recovered, only a defined condition.
+// per-condition scope is not recovered, only a defined condition. The document
+// Code Editor bypasses `allowedBlocks`, so stray blocks can arrive alongside
+// variants and not just instead of them.
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable -- $block is provided by WP at block render.
 $inner_blocks = ( $block instanceof \WP_Block ) ? $block->parsed_block['innerBlocks'] ?? array() : array();
 $has_variants = false;
+$has_strays   = false;
 foreach ( $inner_blocks as $inner_block ) {
-	if ( 'jetpack-search/no-results-slot' === ( $inner_block['blockName'] ?? '' ) ) {
+	$inner_name = $inner_block['blockName'] ?? '';
+	if ( 'jetpack-search/no-results-slot' === $inner_name ) {
 		$has_variants = true;
-		break;
+	} elseif ( ! empty( $inner_name ) || '' !== trim( (string) ( $inner_block['innerHTML'] ?? '' ) ) ) {
+		// `parse_blocks()` yields whitespace between blocks as nameless
+		// entries; those aren't content and mustn't force the repair path.
+		$has_strays = true;
 	}
 }
 
@@ -82,9 +89,44 @@ if ( $is_default ) {
 			?>
 		</div>
 		<?php
-	} else {
+	} elseif ( ! $has_strays ) {
 		// @phan-suppress-next-line PhanUndeclaredGlobalVariable -- $content is provided by WP at block render.
 		echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner block HTML is already escaped by each child block's renderer.
+	} else {
+		// Variants and stray blocks together. `$content` is one concatenated
+		// string, so the strays can't be lifted out of it — re-render each
+		// child in document order instead, gathering runs of strays into an
+		// unscoped variant. Re-rendering re-seeds coverage, which is
+		// idempotent.
+		$stray_run = '';
+		/**
+		 * Emit a run of stray blocks inside an unscoped variant wrapper.
+		 *
+		 * @param string $html Rendered stray markup.
+		 * @return void
+		 */
+		$flush_strays = static function ( $html ) {
+			if ( '' === trim( $html ) ) {
+				return;
+			}
+			No_Results::seed_coverage( 'any' );
+			printf(
+				'<div class="jetpack-search-no-results__variant" data-wp-bind--hidden="!%s" hidden>',
+				esc_attr( No_Results::visibility_getter( 'any' ) )
+			);
+			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner block HTML is already escaped by each child block's renderer.
+			echo '</div>';
+		};
+		foreach ( $inner_blocks as $inner_block ) {
+			if ( 'jetpack-search/no-results-slot' === ( $inner_block['blockName'] ?? '' ) ) {
+				$flush_strays( $stray_run );
+				$stray_run = '';
+				echo render_block( $inner_block ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner block HTML is already escaped by each child block's renderer.
+				continue;
+			}
+			$stray_run .= render_block( $inner_block );
+		}
+		$flush_strays( $stray_run );
 	}
 	?>
 </div>
