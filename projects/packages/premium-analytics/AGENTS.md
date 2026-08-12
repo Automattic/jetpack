@@ -19,15 +19,22 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 
 `Analytics::init()` loads the generated `build/build.php` on requests that render an admin screen
 (not on front-end page views, REST, cron, `admin-ajax.php`, or `admin-post.php` — see
-`renders_admin_chrome()`), which registers an `admin_init` interceptor for
-`?page=jetpack-premium-analytics`. REST requests reach the
-dashboard's data without it: `Dashboard_Support_Routes::boot_routes()` registers the routes on
+`renders_admin_chrome()`). The dashboard is served from one URL,
+`?page=jetpack-premium-analytics-wp-admin` (`Analytics::MENU_PAGE_SLUG`), registered with
+`add_menu_page()` and gated on `view_jetpack_analytics`. REST requests reach the dashboard's data
+without the build: `Dashboard_Support_Routes::boot_routes()` registers the routes on
 `rest_api_init`, and `ensure_widget_registry_ready()` loads the widget manifest lazily, when a
-route callback actually reads it. The interceptor takes over the request before WordPress renders
-the admin chrome; `@wordpress/boot` provides the SPA shell and routing; each route under
-`routes/<name>/` is a lazy-loaded ES module discovered at build time from its `package.json`.
+route callback actually reads it. `@wordpress/boot` provides the SPA shell and routing; each route
+under `routes/<name>/` is a lazy-loaded ES module discovered at build time from its `package.json`.
 WordPress core or Jetpack's wp-build polyfills provide the WordPress script handles/modules used
 by the dashboard, so the Gutenberg plugin is not required.
+
+wp-build also emits a second, full-page variant of every page: an `admin_init` interceptor that
+renders `?page=jetpack-premium-analytics` and exits, ahead of WordPress's own access check and
+with no capability check of its own. There is no per-variant switch in `wpPlugin.pages`, so
+`Analytics::remove_full_page_interceptor()` unhooks it right after the build loads. Don't hook
+that variant's `jetpack-premium-analytics_init` action or its `_boot_dependencies` filter — use
+the `-wp-admin` ones.
 
 ## Structure
 
