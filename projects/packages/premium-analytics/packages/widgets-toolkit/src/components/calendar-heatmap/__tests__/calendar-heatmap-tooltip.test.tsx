@@ -11,7 +11,7 @@ const formatValue = ( value: number ) => `${ value } views`;
 
 describe( 'CalendarHeatmapTooltip', () => {
 	it( 'leads with the count and follows with the cell label', () => {
-		render(
+		const { container } = render(
 			<CalendarHeatmapTooltip
 				value={ 2033 }
 				cellLabel="June 2, 2025"
@@ -20,14 +20,21 @@ describe( 'CalendarHeatmapTooltip', () => {
 			/>
 		);
 
+		// The concatenation is what pins the order the component exists to hold:
+		// count first, date second.
 		expect( screen.getByText( '2033 views' ).tagName ).toBe( 'STRONG' );
-		expect( screen.getByText( 'June 2, 2025' ) ).toBeInTheDocument();
+		expect( container ).toHaveTextContent( '2033 viewsJune 2, 2025' );
 	} );
 
-	it( 'shows the empty label instead of a count for a blank cell', () => {
+	it.each( [
+		[ 'null', null ],
+		// The package builds without `strictNullChecks`, so `undefined` type-checks
+		// here; outside the empty branch it would format as "NaN views".
+		[ 'undefined', undefined ],
+	] )( 'shows the empty label instead of a count for a %s cell', ( _label, value ) => {
 		render(
 			<CalendarHeatmapTooltip
-				value={ null }
+				value={ value }
 				cellLabel="June 3, 2025"
 				emptyLabel="No views"
 				formatValue={ formatValue }

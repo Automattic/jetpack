@@ -72,6 +72,7 @@ export {
 	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
 } from './calendar-heatmap-layout';
+export { formatViewCount } from './format-view-count';
 export {
 	buildDenseDaySeries,
 	resolveCalendarHeatmapWindow,

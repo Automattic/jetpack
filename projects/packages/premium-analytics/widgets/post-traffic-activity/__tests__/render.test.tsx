@@ -14,6 +14,21 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 jest.mock( '../use-post-traffic-activity' );
 
+let mockCardWidth: number | undefined;
+
+// jsdom's ResizeObserver never fires, so the real hook leaves the card unmeasured
+// and the width-driven page span is unreachable from a test. Drive it directly.
+jest.mock( '@wordpress/compose', () => ( {
+	...jest.requireActual( '@wordpress/compose' ),
+	useResizeObserver:
+		( onResize: ( entries: { contentRect: { width: number } }[] ) => void ) =>
+		( element: HTMLElement | null ) => {
+			if ( element && mockCardWidth !== undefined ) {
+				onResize( [ { contentRect: { width: mockCardWidth } } ] );
+			}
+		},
+} ) );
+
 type TooltipData = { value: number | null; cellLabel?: string; row: number; column: number };
 
 // Keep visx out of jsdom while exercising the widget's tooltip renderer with
@@ -83,24 +98,25 @@ const REPORT_PARAMS = {
 	to: '2026-07-19T23:59:59.999+08:00',
 } as unknown as ReportParams;
 
-describe( 'PostTrafficActivity tooltip', () => {
-	beforeEach( () => {
-		mockUsePostTrafficActivity.mockReset();
-		mockUsePostTrafficActivity.mockReturnValue( {
-			days: twoWeeksOfDays(),
-			isPaged: false,
-			canShowOlder: false,
-			canShowNewer: false,
-			showOlder: jest.fn(),
-			showNewer: jest.fn(),
-			isLoading: false,
-			isFetching: false,
-			isError: false,
-			hasData: true,
-			refetch: jest.fn(),
-		} );
+beforeEach( () => {
+	mockCardWidth = undefined;
+	mockUsePostTrafficActivity.mockReset();
+	mockUsePostTrafficActivity.mockReturnValue( {
+		days: twoWeeksOfDays(),
+		isPaged: false,
+		canShowOlder: false,
+		canShowNewer: false,
+		showOlder: jest.fn(),
+		showNewer: jest.fn(),
+		isLoading: false,
+		isFetching: false,
+		isError: false,
+		hasData: true,
+		refetch: jest.fn(),
 	} );
+} );
 
+describe( 'PostTrafficActivity tooltip', () => {
 	it( 'labels blanks by what the blank means, and leads counted cells with the count', () => {
 		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
 
@@ -114,5 +130,36 @@ describe( 'PostTrafficActivity tooltip', () => {
 
 		// The date stays in the tooltip, below the count.
 		expect( screen.getByTestId( 'tooltip-filler-blank' ) ).toHaveTextContent( 'Mon, Jul 6, 2026' );
+	} );
+} );
+
+describe( 'PostTrafficActivity page span', () => {
+	// The days the widget asked the hook for — one page, seven days a column.
+	function requestedDays() {
+		return mockUsePostTrafficActivity.mock.calls.at( -1 )?.[ 2 ];
+	}
+
+	it( 'asks for the whole week columns the card width can draw', () => {
+		mockCardWidth = 1000;
+
+		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+
+		// floor( (1000 - 48) / (64 + 4) ) = 14 columns.
+		expect( requestedDays() ).toBe( 14 * 7 );
+	} );
+
+	it( 'holds the minimum page rather than shrink to what a narrow card fits', () => {
+		mockCardWidth = 200;
+
+		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+
+		// The width only draws 2 columns; the minimum keeps the page at 4.
+		expect( requestedDays() ).toBe( 4 * 7 );
+	} );
+
+	it( 'asks for the default page before the card is measured', () => {
+		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+
+		expect( requestedDays() ).toBe( 16 * 7 );
 	} );
 } );

@@ -1,13 +1,8 @@
-/**
- * External dependencies
- */
-import type { ReactNode } from 'react';
-
 export type CalendarHeatmapTooltipProps = {
 	value: number | null;
 	/** The chart's own label for the cell, normally its date. */
-	cellLabel?: ReactNode;
-	/** Shown in place of a count when `value` is `null`. */
+	cellLabel?: string;
+	/** Shown in place of a count when there is no value. */
 	emptyLabel: string;
 	/** Renders a non-null count, already formatted and pluralized. */
 	formatValue: ( value: number ) => string;
@@ -29,7 +24,9 @@ export function CalendarHeatmapTooltip( {
 }: CalendarHeatmapTooltipProps ) {
 	return (
 		<>
-			<strong>{ value === null ? emptyLabel : formatValue( value ) }</strong>
+			{ /* `== null` on purpose: the package builds without `strictNullChecks`, so an
+			     `undefined` value type-checks here and would otherwise reach `formatValue`. */ }
+			<strong>{ value == null ? emptyLabel : formatValue( value ) }</strong>
 			<div>{ cellLabel }</div>
 		</>
 	);

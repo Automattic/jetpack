@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { toPostId } from '@jetpack-premium-analytics/data';
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	CalendarHeatmapTooltip,
@@ -11,6 +10,7 @@ import {
 	WidgetState,
 	buildCalendarHeatmapData,
 	fitWeekColumns,
+	formatViewCount,
 	toDay,
 	useWidgetRootContext,
 	type HeatmapTooltipData,
@@ -18,7 +18,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useResizeObserver } from '@wordpress/compose';
 import { useCallback, useMemo, useState } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Button, Stack } from '@jetpack-premium-analytics/externals';
 /**
@@ -44,13 +44,6 @@ const CELL_GAP = 4;
 const LABEL_GUTTER = 48;
 const MIN_PAGE_WEEKS = 4;
 const DEFAULT_PAGE_WEEKS = 16;
-
-const formatViewCount = ( count: number ) =>
-	sprintf(
-		/* translators: %s: number of views, e.g. "2,033". */
-		_n( '%s view', '%s views', count, 'jetpack-premium-analytics-pkg' ),
-		formatMetricValue( count, 'number', { decimals: 0 } )
-	);
 
 /**
  * Whole week columns that fit the measured card width.

@@ -57,6 +57,8 @@ const ZERO_LAYOUT: CalendarHeatmapLayout = {
 };
 
 const isPositiveFinite = ( value: number ): boolean => Number.isFinite( value ) && value > 0;
+// Gaps and gutters are legitimately zero, so they need a wider test than a width.
+const isNonNegativeFinite = ( value: number ): boolean => Number.isFinite( value ) && value >= 0;
 
 const ROW_LABEL_WIDTH = 32;
 const COMPACT_CELL_SIZE = 11;
@@ -74,39 +76,40 @@ export type FitWeekColumnsInput = {
 	 * against, which is why the callers disagree.
 	 */
 	labelGutter: number;
-	/** Never return fewer than this many columns. Defaults to 0. */
+	/**
+	 * Floor for the returned count, and the count returned when the metrics are
+	 * unusable. Defaults to 0.
+	 */
 	minColumns?: number;
-	/** Cap at the weeks the range holds. Omit to let the width decide alone. */
-	dataColumns?: number;
 };
 
 /**
- * How many whole week columns a width can draw. The arithmetic is shared; each
- * caller keeps its own cell metrics.
+ * How many whole week columns a width can draw at a fixed cell size. The
+ * arithmetic is shared; each caller keeps its own cell metrics.
+ *
+ * A column costs a cell plus a gap: the grid is `auto repeat(n, …)`, so n columns
+ * carry n gaps, counting the one before the first column.
+ * `computeCalendarHeatmapLayout` keeps its own arithmetic — it sizes the cell from
+ * the height first, so it cannot start from a fixed cell.
  */
 export function fitWeekColumns( input: FitWeekColumnsInput ): number {
-	const { availWidth, cellWidth, cellGap, labelGutter, minColumns = 0, dataColumns } = input;
+	const { availWidth, cellWidth, cellGap, labelGutter, minColumns = 0 } = input;
 
-	// The minimum cannot conjure columns the range does not have.
-	const floorColumns = dataColumns === undefined ? minColumns : Math.min( minColumns, dataColumns );
-
+	// Guard every metric the arithmetic touches: an unchecked one divides by zero or
+	// carries a NaN out to the caller, which sizes a data request with it.
 	if (
 		! isPositiveFinite( availWidth ) ||
 		! isPositiveFinite( cellWidth ) ||
-		( dataColumns !== undefined && ! isPositiveFinite( dataColumns ) )
+		! isNonNegativeFinite( cellGap ) ||
+		! isNonNegativeFinite( labelGutter )
 	) {
-		return Math.max( 0, floorColumns );
+		return Math.max( 0, minColumns );
 	}
 
-	// Each rendered column occupies a cell plus one grid gap; floor so the row of
-	// cells never exceeds the available width.
+	// Floor so the row of cells never exceeds the available width.
 	const fitting = Math.floor( ( availWidth - labelGutter ) / ( cellWidth + cellGap ) );
 
-	return Math.max(
-		floorColumns,
-		0,
-		dataColumns === undefined ? fitting : Math.min( fitting, dataColumns )
-	);
+	return Math.max( minColumns, 0, fitting );
 }
 
 /**

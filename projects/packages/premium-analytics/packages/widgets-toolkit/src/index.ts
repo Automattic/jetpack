@@ -168,6 +168,7 @@ export {
 	withoutComparison,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
+	formatViewCount,
 	buildDenseDaySeries,
 	resolveCalendarHeatmapWindow,
 	resolveCalendarHeatmapWindowDays,

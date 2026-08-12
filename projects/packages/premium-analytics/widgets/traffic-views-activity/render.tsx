@@ -3,7 +3,7 @@
  */
 import { useStatsVisits, type StatsVisitsResponse } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
-import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { formatDate } from '@jetpack-premium-analytics/formatters';
 import {
 	AdaptiveCalendarHeatmap,
 	CalendarHeatmapTooltip,
@@ -11,6 +11,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	describeError,
+	formatViewCount,
 	resolveCalendarHeatmapWindow,
 	resolveCalendarHeatmapWindowDays,
 	useViewportWidth,
@@ -19,7 +20,7 @@ import {
 	type HeatmapTooltipData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { seen } from '@wordpress/icons';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
@@ -32,13 +33,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type TrafficViewsActivityRenderAttributes = TrafficViewsActivityAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type TrafficViewsActivityWidgetProps = WidgetRenderProps< TrafficViewsActivityRenderAttributes >;
-
-const formatViewCount = ( count: number ) =>
-	sprintf(
-		/* translators: %s: number of views, e.g. "2,033". */
-		_n( '%s view', '%s views', count, 'jetpack-premium-analytics-pkg' ),
-		formatMetricValue( count, 'number', { decimals: 0 } )
-	);
 
 function renderCellTooltip( { value, cellLabel }: HeatmapTooltipData ) {
 	return (

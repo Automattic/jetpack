@@ -277,18 +277,30 @@ describe( 'fitWeekColumns', () => {
 		expect( fitWeekColumns( { availWidth: 0, ...DESIGN_CELLS, minColumns: 4 } ) ).toBe( 4 );
 	} );
 
-	it( 'caps at the weeks the range actually holds', () => {
-		expect( fitWeekColumns( { availWidth: 1000, ...DESIGN_CELLS, dataColumns: 6 } ) ).toBe( 6 );
-	} );
-
-	it( 'lets a short range undercut the minimum rather than invent columns', () => {
-		expect(
-			fitWeekColumns( { availWidth: 200, ...DESIGN_CELLS, minColumns: 4, dataColumns: 2 } )
-		).toBe( 2 );
-	} );
-
 	it( 'returns 0 with no minimum to fall back on', () => {
 		expect( fitWeekColumns( { availWidth: Number.NaN, ...DESIGN_CELLS } ) ).toBe( 0 );
+	} );
+
+	// Every metric divides or subtracts, so an unguarded one leaves the caller with a
+	// NaN or an absurd count to size a data request with — never a visible failure.
+	it.each( [
+		[ 'a zero cell width', { cellWidth: 0 } ],
+		[ 'a NaN cell width', { cellWidth: Number.NaN } ],
+		[ 'a NaN cell gap', { cellGap: Number.NaN } ],
+		[ 'a cell gap cancelling the cell', { cellGap: -64 } ],
+		[ 'a NaN label gutter', { labelGutter: Number.NaN } ],
+		[ 'an infinite label gutter', { labelGutter: Number.POSITIVE_INFINITY } ],
+	] )( 'holds the minimum rather than compute from %s', ( _label, override ) => {
+		expect(
+			fitWeekColumns( { availWidth: 1000, ...DESIGN_CELLS, minColumns: 4, ...override } )
+		).toBe( 4 );
+	} );
+
+	it( 'accepts a heatmap drawn with no gap and no gutter', () => {
+		// 0 is a real value for both, so they cannot share the width's positive test.
+		expect(
+			fitWeekColumns( { availWidth: 1000, cellWidth: 64, cellGap: 0, labelGutter: 0 } )
+		).toBe( 15 );
 	} );
 } );
 
