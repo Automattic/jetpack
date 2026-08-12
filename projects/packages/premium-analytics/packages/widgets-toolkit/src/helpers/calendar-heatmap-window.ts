@@ -1,0 +1,81 @@
+/**
+ * External dependencies
+ */
+import { getDatePart } from '@jetpack-premium-analytics/datetime';
+import { format, parseISO, subDays } from 'date-fns';
+import type { DataPointDate } from '@jetpack-premium-analytics/externals';
+
+export type CalendarHeatmapWindow = {
+	startDate: string;
+	endDate: string;
+};
+
+export type CalendarHeatmapWindowBounds = {
+	minDays?: number;
+	maxDays?: number;
+};
+
+/**
+ * Clamps a report range to inclusive minimum and maximum day counts.
+ */
+export function resolveCalendarHeatmapWindow(
+	params: { from?: string; to?: string },
+	bounds: CalendarHeatmapWindowBounds,
+	todayIso: string
+): CalendarHeatmapWindow {
+	const { minDays, maxDays } = bounds;
+	const endDate = getDatePart( params.to ) ?? todayIso;
+	const end = parseISO( endDate );
+
+	// ISO date-only strings sort chronologically.
+	let startDate = getDatePart( params.from ) ?? endDate;
+
+	if ( minDays !== undefined ) {
+		// Bounds count inclusive dates, hence the subtraction of one day.
+		const floor = format( subDays( end, minDays - 1 ), 'yyyy-MM-dd' );
+		if ( startDate > floor ) {
+			startDate = floor;
+		}
+	}
+
+	if ( maxDays !== undefined ) {
+		const cap = format( subDays( end, maxDays - 1 ), 'yyyy-MM-dd' );
+		if ( startDate < cap ) {
+			startDate = cap;
+		}
+	}
+
+	return { startDate: startDate > endDate ? endDate : startDate, endDate };
+}
+
+/**
+ * Fills missing dates in a window with null-valued points.
+ */
+export function buildDenseDaySeries(
+	valueByDay: Record< string, number | null > | Map< string, number | null >,
+	from?: string,
+	to?: string
+): DataPointDate[] {
+	const lookup = valueByDay instanceof Map ? valueByDay : new Map( Object.entries( valueByDay ) );
+	const fromPart = getDatePart( from );
+	const toPart = getDatePart( to );
+
+	if ( ! fromPart || ! toPart || fromPart > toPart ) {
+		return [ ...lookup ].map( ( [ dateString, value ] ) => ( { dateString, value } ) );
+	}
+
+	const series: DataPointDate[] = [];
+	// Walk in UTC so daylight-saving transitions cannot skip or repeat a date.
+	const end = new Date( `${ toPart }T00:00:00Z` );
+
+	for (
+		let day = new Date( `${ fromPart }T00:00:00Z` );
+		day <= end;
+		day.setUTCDate( day.getUTCDate() + 1 )
+	) {
+		const dateString = day.toISOString().slice( 0, 10 );
+		series.push( { dateString, value: lookup.get( dateString ) ?? null } );
+	}
+
+	return series;
+}

@@ -161,6 +161,16 @@ export {
 	defaultPeriodForInterval,
 	buildMetricTab,
 	withoutComparison,
+	compactCalendarHeatmapCapacity,
+	computeCalendarHeatmapLayout,
+	fitCompactCalendarHeatmapColumns,
+	buildDenseDaySeries,
+	resolveCalendarHeatmapWindow,
+	type CalendarHeatmapLayout,
+	type CalendarHeatmapLayoutInput,
+	type CalendarHeatmapWindow,
+	type CalendarHeatmapWindowBounds,
+	type FitCalendarHeatmapColumnsInput,
 } from './helpers';
 
 /**
@@ -231,6 +241,7 @@ export {
 	type GeoData,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
+	type HeatmapTooltipData,
 } from '@jetpack-premium-analytics/externals';
 
 /**
