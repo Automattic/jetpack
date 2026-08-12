@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Search Blocks: hold each No Results condition in its own variant inside a single block, instead of one block per condition.

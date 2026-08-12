@@ -1,4 +1,0 @@
-Significance: minor
-Type: deprecated
-
-Search Blocks: deprecate the Results List no-results message settings in favor of the No Results block. Saved messages keep rendering.
