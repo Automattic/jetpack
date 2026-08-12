@@ -97,7 +97,10 @@ class Customize_Feed {
 		add_action( 'rss2_head', array( __CLASS__, 'output_channel_tags' ) );
 		add_action( 'rss2_item', array( __CLASS__, 'output_item_tags' ) );
 		add_filter( 'rss_enclosure', array( __CLASS__, 'rewrite_enclosure' ) );
-		add_filter( 'the_excerpt_rss', array( __CLASS__, 'capture_item_summary' ) );
+		// Last, so the captured value is what `<description>` actually printed —
+		// a filter above priority 10 would otherwise leave us caching an
+		// intermediate string and `<itunes:summary>` disagreeing with it.
+		add_filter( 'the_excerpt_rss', array( __CLASS__, 'capture_item_summary' ), PHP_INT_MAX );
 
 		add_filter( 'option_rss_use_excerpt', '__return_false' );
 		// Request-scoped to the feed: only the queried episodes render here, so
