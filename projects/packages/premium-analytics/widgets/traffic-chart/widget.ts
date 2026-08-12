@@ -43,8 +43,8 @@ export type TrafficChartType = ( typeof TRAFFIC_CHART_TYPES )[ number ][ 'id' ];
 export const TRAFFIC_CHART_METRICS = [
 	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
 	{ id: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ) },
-	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
 	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
 ] as const satisfies readonly { id: string; label: string }[];
 
 /**
@@ -65,9 +65,9 @@ export type TrafficChartAttributes = {
  * Widget type definition.
  *
  * Ported from the Jetpack Stats `stats-chart-tabs` card in wp-calypso (the chart
- * above the Traffic page). Renders the selected period's Views, Visitors, Likes,
- * and Comments as selectable metric tabs over a comparative chart. The date
- * range and comparison state come from the dashboard via `reportParams`; the
+ * above the Traffic page). Renders the selected period's Views, Visitors,
+ * Comments, and Likes as selectable metric tabs over a comparative chart. The
+ * date range and comparison state come from the dashboard via `reportParams`; the
  * `granularity` attribute (`relevance: 'high'`) chooses the bucket size within
  * that range, and `chartType` switches between lines and bars. Which metric is
  * plotted is the chart's own tab selection, not an attribute.
