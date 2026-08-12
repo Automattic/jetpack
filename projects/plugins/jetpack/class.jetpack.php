@@ -3618,12 +3618,21 @@ p {
 	/**
 	 * Return stat data for WPCOM sync.
 	 *
+	 * The Sync stats module was this method's last caller and moved to the Connection package's
+	 * `Heartbeat::generate_stats_array()`, which assembles the heartbeat data through the
+	 * `jetpack_heartbeat_stats_array` filter. Note the package method does not include the extended
+	 * data from `get_additional_stat_data()`, so callers relying on `$extended` need to add it themselves.
+	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @param bool $encode JSON encode the result.
 	 * @param bool $extended Adds additional stats data.
 	 *
 	 * @return array|string Stats data. Array if $encode is false. JSON-encoded string is $encode is true.
 	 */
 	public static function get_stat_data( $encode = true, $extended = true ) {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Heartbeat::generate_stats_array' );
+
 		// Site environment stats now live in the Connection package; merge them with the Jetpack-specific stats.
 		$data = array_merge( Jetpack_Heartbeat::generate_stats_array(), Heartbeat::get_environment_stats() );
 
@@ -5588,13 +5597,18 @@ endif;
 	/**
 	 * Checks if the site is currently in an identity crisis.
 	 *
+	 * Now delegates to the Connection package so this matches what the heartbeat itself reports.
+	 * Note the package guards on `Connection\Manager::is_connected()` where this used to guard on
+	 * `Jetpack::is_connection_ready()`, so the `jetpack_is_connection_ready` filter no longer applies.
+	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @return array|bool Array of options that are in a crisis, or false if everything is OK.
 	 */
 	public static function check_identity_crisis() {
-		if ( ! self::is_connection_ready() || ( new Status() )->is_offline_mode() || ! Identity_Crisis::validate_sync_error_idc_option() ) {
-			return false;
-		}
-		return Jetpack_Options::get_option( 'sync_error_idc' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Identity_Crisis::check_identity_crisis' );
+
+		return Identity_Crisis::check_identity_crisis();
 	}
 
 	/**
@@ -6126,8 +6140,18 @@ endif;
 	 * $return array $filtered_data
 	 */
 	public static function jetpack_check_heartbeat_data() {
-		// Site environment stats (incl. wp-version/php-version checked below) now live in the Connection package.
-		$raw_data = array_merge( Jetpack_Heartbeat::generate_stats_array(), Heartbeat::get_environment_stats() );
+		/*
+		 * Site environment stats (incl. wp-version/php-version checked below) now live in the Connection package,
+		 * and the IDC stat is contributed by the Connection package's `jetpack_heartbeat_stats_array` filter
+		 * callback. We rebuild the stat here rather than running that filter: the filter's callbacks have side
+		 * effects (Connection\Manager::add_stats_to_heartbeat() consumes and deletes the `xmlrpc_errors` option)
+		 * and return non-scalar values, neither of which is appropriate for this read-only diagnostic.
+		 */
+		$raw_data = array_merge(
+			Jetpack_Heartbeat::generate_stats_array(),
+			Heartbeat::get_environment_stats(),
+			array( 'identitycrisis' => Identity_Crisis::check_identity_crisis() ? 'yes' : 'no' )
+		);
 
 		$good    = array();
 		$caution = array();
