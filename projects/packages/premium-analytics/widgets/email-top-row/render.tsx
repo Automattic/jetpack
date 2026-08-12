@@ -250,11 +250,11 @@ type EmailTopRowTilesProps = {
 	 */
 	hasSelection?: boolean;
 	/**
-	 * First load with no data yet — shows the loading overlay.
+	 * First load with no data yet — shows the loading state.
 	 */
 	isLoading?: boolean;
 	/**
-	 * Background refetch with data shown — a non-blocking busy overlay.
+	 * Refetch over data already shown — shows the loading state too.
 	 */
 	isFetching?: boolean;
 	/**

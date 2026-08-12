@@ -7,7 +7,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { ChartEmptyState } from '../chart-empty-state';
-import { WidgetLoadingOverlay } from '../widget-loading-overlay';
 import { GenericSkeleton } from '../widget-skeleton';
 import { errorStateIcon } from './error-state-icon';
 import styles from './widget-state.module.scss';
@@ -28,7 +27,7 @@ export interface WidgetStateEmpty {
 export interface WidgetStateProps {
 	/** A fetch is in flight and there is no data yet (React Query `isLoading`). */
 	isLoading: boolean;
-	/** A background refetch is in flight while data is shown (React Query `isFetching`). */
+	/** A refetch is in flight over data already shown (React Query `isFetching`). */
 	isFetching?: boolean;
 	isError: boolean;
 	/** Resolved, but there is nothing meaningful to show. */
@@ -47,11 +46,12 @@ export interface WidgetStateProps {
  * nothing about the data layer — callers map their fetch result to the signals
  * and pass generic `error` / `empty` descriptors.
  *
- * Priority: error → loading (first load) → empty → ready. First load renders a
- * skeleton placeholder; during a background refetch (`isFetching` with data) the
- * children stay visible under a busy overlay instead. The empty state carries no
- * icon by default (staying visually distinct from the error state's glyph); a
- * caller opts in via `empty.icon`.
+ * Priority: error → loading → empty → ready. Any fetch in flight renders the
+ * skeleton, refetches included: a refetch here almost always follows a date range
+ * or comparison change, which should read as a fresh load rather than stale
+ * numbers dimmed under a spinner. The empty state carries no icon by default
+ * (staying visually distinct from the error state's glyph); a caller opts in via
+ * `empty.icon`.
  *
  * @return The rendered widget state.
  */
@@ -99,14 +99,10 @@ export function WidgetState( {
 		);
 	}
 
-	// `isLoading` blocks unconditionally — it means "no data yet", so there is
-	// nothing to keep visible regardless of how the caller derived `isEmpty`.
-	// `isFetching` only blocks when the resolved data is empty; with rows shown
-	// it falls through to the ready branch's non-blocking busy overlay.
 	// The wrapper stays positioned for `renderLoading` overrides that layer an
 	// absolute overlay — without a positioned ancestor one would reach the
 	// framed host card and cover the header title.
-	if ( isLoading || ( isEmpty && isFetching ) ) {
+	if ( isLoading || isFetching ) {
 		return <div className={ styles.loading }>{ renderLoading ?? <GenericSkeleton /> }</div>;
 	}
 
@@ -126,14 +122,5 @@ export function WidgetState( {
 		);
 	}
 
-	return (
-		<div className={ styles.ready }>
-			{ children }
-			{ isFetching && (
-				<div className={ styles.busy } aria-hidden="true">
-					<WidgetLoadingOverlay />
-				</div>
-			) }
-		</div>
-	);
+	return <div className={ styles.ready }>{ children }</div>;
 }

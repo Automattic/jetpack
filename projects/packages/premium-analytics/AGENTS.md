@@ -615,8 +615,8 @@ interpolated into a shared frame) so translators see the whole sentence:
 	isLoading={ isLoading }            // first load, no data yet
 	isError={ isError }
 	isEmpty={ data.length === 0 }
-	// isFetching is optional: a background refetch shows a non-blocking busy overlay
-	// over the existing rows instead of hiding them.
+	// isFetching is optional: passing it shows the loading state during a refetch too,
+	// so a date-range or comparison change reads as a fresh load.
 	error={ describeError( error, {
 		retryDescription: __( "We couldn't load search terms. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
 		onRetry: refetch,
@@ -627,8 +627,8 @@ interpolated into a shared frame) so translators see the whole sentence:
 </WidgetState>
 ```
 
-`<WidgetState>` derives one state (error → loading → empty → ready, plus a busy overlay while
-`isFetching` and data are shown) and swaps only the content area. Notes:
+`<WidgetState>` derives one state (error → loading → empty → ready, with `isFetching` counting as
+loading) and swaps only the content area. Notes:
 
 - Expose `refetch` from the data/view hook so the error state's Retry can re-run the query.
 - When a view hook masks `isError` (e.g. `rows.length === 0 && isError` to keep placeholder

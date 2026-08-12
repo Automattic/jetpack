@@ -180,14 +180,14 @@ describe( 'WidgetState', () => {
 		expect( svgPathOf( errorContainer ) ).toBe( errorGlyphPath );
 	} );
 
-	it( 'overlays a spinner on visible children during a background refetch (busy)', () => {
+	it( 'replaces visible children with the skeleton during a background refetch', () => {
 		render(
 			<WidgetState isLoading={ false } isFetching isError={ false } isEmpty={ false }>
 				{ CONTENT }
 			</WidgetState>
 		);
-		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'presentation', { hidden: true } ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
 	} );
 
 	it( 'error wins over loading and empty (retry in flight after a failed fetch)', () => {

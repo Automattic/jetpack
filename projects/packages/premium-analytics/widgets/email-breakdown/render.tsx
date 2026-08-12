@@ -148,8 +148,7 @@ type EmailBreakdownLeaderboardProps = {
 	 */
 	isLoading?: boolean;
 	/**
-	 * When `true`, a non-blocking busy overlay is shown over existing rows during
-	 * a background refetch.
+	 * When `true`, a refetch is in flight and the loading state replaces the rows.
 	 */
 	isFetching?: boolean;
 	/**

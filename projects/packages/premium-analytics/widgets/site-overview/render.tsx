@@ -143,14 +143,11 @@ function SiteOverviewReport( {
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				// `isPending` covers the query being disabled before a date resolves;
-				// once a period's totals are on screen a date-range change refetches in
-				// the background and the busy overlay layers over the stale tiles.
+				// `isPending` covers the query being disabled before a date resolves.
 				isLoading={ ( isLoading || primary.isPending ) && ! summary }
 				isFetching={ isFetching }
-				// As with `isLoading` above: the stale totals stay on screen through a
-				// transient refetch failure, so only surface the error when there is
-				// nothing to show.
+				// The stale totals stay on screen through a transient refetch failure,
+				// so only surface the error when there is nothing to show.
 				isError={ ! summary && isError }
 				isEmpty={ isEmpty }
 				error={ {

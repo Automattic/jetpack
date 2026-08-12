@@ -65,7 +65,7 @@ const meta: Meta< typeof WidgetState > = {
 		docs: {
 			description: {
 				component:
-					'Data-agnostic widget content-area state. Derives one state (error → loading → empty → ready, plus a busy overlay on background refetch) from four boolean signals and renders it. Callers map their fetch result to the signals and pass generic `error` / `empty` descriptors. Stories render it inside a mock widget card; the ready and busy states show a mock bar chart standing in for real widget content.',
+					'Data-agnostic widget content-area state. Derives one state (error → loading → empty → ready) from four boolean signals and renders it; any fetch in flight shows the loading skeleton, refetches included. Callers map their fetch result to the signals and pass generic `error` / `empty` descriptors. Stories render it inside a mock widget card; the ready state shows a mock bar chart standing in for real widget content.',
 			},
 		},
 	},
@@ -112,8 +112,8 @@ const MockChart = () => (
 );
 
 /**
- * First load: a fetch is in flight and there is no data yet, so the loading
- * overlay is shown instead of the children.
+ * First load: a fetch is in flight and there is no data yet, so the skeleton is
+ * shown instead of the children.
  */
 export const Loading: Story = {
 	args: {
@@ -217,10 +217,11 @@ export const Ready: Story = {
 };
 
 /**
- * Background refetch: the chart stays visible under a non-blocking busy overlay
- * while fresh data loads.
+ * Background refetch over data already on screen. It renders the same skeleton
+ * as the first load: a refetch here follows a date range or comparison change,
+ * so it should read as a fresh load rather than stale numbers under a spinner.
  */
-export const Busy: Story = {
+export const Refetching: Story = {
 	args: {
 		isLoading: false,
 		isFetching: true,

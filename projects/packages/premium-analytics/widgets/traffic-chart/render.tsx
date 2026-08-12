@@ -77,8 +77,8 @@ function TrafficChartInner( { granularity, chartType }: TrafficChartInnerProps )
 			<WidgetState
 				isLoading={ isLoading }
 				// `isFetching` is deliberately not passed: the chart renders its own
-				// scoped overlay below, so WidgetState's full-widget one would double
-				// up and cover the metric tabs.
+				// scoped overlay below, so WidgetState would swap the whole body for a
+				// skeleton and take the metric tabs with it.
 				//
 				// `useTrafficChart` already gates `isError` per query on that query
 				// having no rows, so a transient refetch failure keeps the chart.

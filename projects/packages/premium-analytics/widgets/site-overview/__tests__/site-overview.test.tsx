@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -216,7 +216,7 @@ describe( 'SiteOverviewWidget', () => {
 		expect( screen.getByText( '-20%' ) ).toBeInTheDocument();
 	} );
 
-	it( 'keeps the stale tiles and overlays a spinner while a new date range loads', async () => {
+	it( 'shows the skeleton instead of the stale tiles while a new date range loads', async () => {
 		// Hold the second period's fetch open so the refetch state is observable.
 		let resolveNextPeriod: ( () => void ) | undefined;
 		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
@@ -228,19 +228,13 @@ describe( 'SiteOverviewWidget', () => {
 			} );
 		} );
 
-		const { container, rerender } = render(
+		const { rerender } = render(
 			<SiteOverviewWidget
 				attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
 			/>
 		);
 
 		await expect( screen.findByText( '420' ) ).resolves.toBeInTheDocument();
-
-		// The overlay's spinner is decorative (`role="presentation"`), so there is
-		// no accessible role/text to query — assert on its stable class instead.
-		const hasOverlaySpinner = () =>
-			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- decorative spinner, no accessible query target
-			container.querySelector( '.components-spinner' ) !== null;
 
 		// Switch the date range: the new fetch is in flight but not yet resolved.
 		rerender(
@@ -249,15 +243,14 @@ describe( 'SiteOverviewWidget', () => {
 			/>
 		);
 
-		// The previous period's tiles stay put rather than blanking to a spinner…
-		expect( screen.getByText( '420' ) ).toBeInTheDocument();
-		// …and the refetch overlay spinner is layered on top.
-		await waitFor( () => expect( hasOverlaySpinner() ).toBe( true ) );
+		// A date-range change reads as a fresh load: the skeleton takes over rather
+		// than the previous period's totals lingering under a spinner.
+		await expect( screen.findByRole( 'status' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( '420' ) ).not.toBeInTheDocument();
 
-		// Once the new period resolves, its totals replace the stale ones and the
-		// overlay clears.
+		// Once the new period resolves, its totals render in place of the skeleton.
 		resolveNextPeriod?.();
 		await expect( screen.findByText( '999' ) ).resolves.toBeInTheDocument();
-		expect( hasOverlaySpinner() ).toBe( false );
+		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 	} );
 } );
