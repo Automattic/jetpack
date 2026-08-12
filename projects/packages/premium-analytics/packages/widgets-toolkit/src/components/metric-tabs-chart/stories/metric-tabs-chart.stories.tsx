@@ -130,13 +130,6 @@ export const Bars: Story = {
 	args: { metrics: METRICS, dataFormat: DATA_FORMAT, chartType: 'bar' },
 };
 
-/**
- * The loading overlay shown over the chart while data resolves.
- */
-export const Loading: Story = {
-	args: { metrics: METRICS, dataFormat: DATA_FORMAT, loading: true },
-};
-
 type SkeletonStory = StoryObj< typeof MetricTabsChartSkeleton >;
 
 /**

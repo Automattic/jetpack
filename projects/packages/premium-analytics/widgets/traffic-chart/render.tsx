@@ -77,10 +77,7 @@ function TrafficChartInner( { granularity, chartType }: TrafficChartInnerProps )
 		<div className={ styles.root }>
 			<WidgetState
 				isLoading={ isLoading }
-				// `isFetching` is deliberately not passed: the chart renders its own
-				// scoped overlay below, so WidgetState would swap the whole body for a
-				// skeleton and take the metric tabs with it.
-				//
+				isFetching={ isFetching }
 				// `useTrafficChart` already gates `isError` per query on that query
 				// having no rows, so a transient refetch failure keeps the chart.
 				isError={ isError }
@@ -96,17 +93,14 @@ function TrafficChartInner( { granularity, chartType }: TrafficChartInnerProps )
 					icon: reports,
 					description: __( 'No traffic data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
-				// First load draws the chart-shaped skeleton — a card per metric tab
-				// over a chart block — instead of the generic one.
+				// Draw the chart-shaped skeleton — a card per metric tab over a chart
+				// block — instead of the generic one.
 				renderLoading={ <MetricTabsChartSkeleton tabs={ metricTabs.length } /> }
 			>
-				{ /* Background refetches keep the overlay scoped to the chart area so
-				     the metric tabs stay usable, matching the pre-WidgetState behavior. */ }
 				<MetricTabsChart
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
-					loading={ isFetching }
 					groupLabel={ groupLabel }
 				/>
 			</WidgetState>
