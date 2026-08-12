@@ -17,6 +17,11 @@
 	"supports": {
 		"html": false,
 		"interactivity": true,
+		"layout": {
+			"default": {
+				"type": "constrained"
+			}
+		},
 		"color": {
 			"background": true,
 			"text": true,
@@ -24,7 +29,8 @@
 		},
 		"spacing": {
 			"padding": true,
-			"margin": true
+			"margin": true,
+			"blockGap": true
 		},
 		"typography": {
 			"fontSize": true,

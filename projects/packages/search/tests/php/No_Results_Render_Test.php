@@ -231,6 +231,23 @@ class No_Results_Render_Test extends TestCase {
 	}
 
 	/**
+	 * A message holds arbitrary blocks, and alignment is a property of the
+	 * layout its parent provides — without layout support an author can't
+	 * centre an image inside one, and `alignwide`/`alignfull` never appear.
+	 * `blockGap` is meaningful for the same reason.
+	 */
+	public function test_a_variant_supports_layout_so_its_content_can_be_aligned() {
+		$block_json = (array) json_decode(
+			(string) file_get_contents( __DIR__ . '/../../src/search-blocks/blocks/no-results/slot/block.json' ),
+			true
+		);
+		$supports   = (array) ( $block_json['supports'] ?? array() );
+
+		$this->assertSame( 'constrained', $supports['layout']['default']['type'] ?? null );
+		$this->assertTrue( $supports['spacing']['blockGap'] ?? false );
+	}
+
+	/**
 	 * Stray blocks alongside variants — the document Code Editor bypasses
 	 * `allowedBlocks`, so this arrives from hand-edited or imported markup.
 	 * Emitted bare they'd sit behind the region-level binding alone, showing on
