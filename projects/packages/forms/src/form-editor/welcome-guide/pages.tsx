@@ -62,7 +62,7 @@ export function getWelcomeGuidePages(): GuidePage[] {
 					</h1>
 					<p className="jetpack-forms-welcome-guide__text">
 						{ __(
-							'Start with a template — Contact, RSVP, Registration, and more. From there, add any extra fields from the inserter, where they’re grouped into Basic, Contact info, Choice, Advanced, and Multi-step. Everything you add goes inside the form automatically.',
+							'Start from a template like Contact, RSVP, or Registration, then add extra fields from the inserter. Everything you add lands inside the form automatically.',
 							'jetpack-forms'
 						) }
 					</p>
@@ -78,7 +78,7 @@ export function getWelcomeGuidePages(): GuidePage[] {
 					</h1>
 					<p className="jetpack-forms-welcome-guide__text">
 						{ __(
-							'Select a field to set its label, its placeholder, and whether it’s required. Field settings live in the sidebar on the right.',
+							'Select any field to change its label, add placeholder text, or make it required. Field settings live in the sidebar on the right.',
 							'jetpack-forms'
 						) }
 					</p>
@@ -94,7 +94,7 @@ export function getWelcomeGuidePages(): GuidePage[] {
 					</h1>
 					<p className="jetpack-forms-welcome-guide__text">
 						{ __(
-							'Select the form itself to choose a confirmation message or a redirect, turn on email and push notifications, connect integrations, and control whether responses are saved.',
+							'Select the form itself to set what happens when someone submits: show a message or redirect, send email and push notifications, and connect your integrations.',
 							'jetpack-forms'
 						) }
 					</p>
@@ -110,7 +110,7 @@ export function getWelcomeGuidePages(): GuidePage[] {
 					</h1>
 					<p className="jetpack-forms-welcome-guide__text">
 						{ __(
-							'When you publish, you can add the form to a new page, drop it onto an existing one, or copy the embed code. Responses land in your inbox — open it any time with “View responses”.',
+							'When you publish, add the form to a new or existing page, or copy the embed code. Responses land in your inbox. Open it anytime with “View responses”.',
 							'jetpack-forms'
 						) }
 					</p>

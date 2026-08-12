@@ -43,6 +43,48 @@ export function shouldShowWelcomeGuide( context: WelcomeGuideContext ): boolean 
 	return context.preference !== false;
 }
 
+export interface GuideOpenStateContext extends WelcomeGuideContext {
+	/** Whether the guide has been closed during this page load. */
+	isClosed: boolean;
+	/** Whether the user reopened the guide from the Options menu this page load. */
+	isReopened: boolean;
+}
+
+/**
+ * Resolves whether the guide is currently open.
+ *
+ * Reopening from the Options menu wins over both the stored preference and an
+ * earlier dismissal, so a user who already dismissed the guide can bring it
+ * back without that reopen being persisted.
+ *
+ * @param context - Current guide state
+ * @return Whether the guide is open
+ */
+export function isWelcomeGuideOpen( context: GuideOpenStateContext ): boolean {
+	if ( context.isReopened ) {
+		return true;
+	}
+
+	if ( context.isClosed ) {
+		return false;
+	}
+
+	return shouldShowWelcomeGuide( context );
+}
+
+/**
+ * Determines whether closing the guide needs to write the preference.
+ *
+ * The dismissal only has to be stored once. Re-writing it every time the guide
+ * is reopened and closed again would queue redundant preference saves.
+ *
+ * @param preference - The stored `jetpack/forms` → `welcomeGuide` preference
+ * @return Whether the dismissal should be persisted
+ */
+export function shouldPersistDismissal( preference: boolean | undefined ): boolean {
+	return preference !== false;
+}
+
 /**
  * Reads the force query argument from a URL search string.
  *

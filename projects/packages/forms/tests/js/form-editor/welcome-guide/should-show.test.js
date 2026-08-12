@@ -8,6 +8,8 @@
 import {
 	FORCE_QUERY_ARG,
 	isWelcomeGuideForced,
+	isWelcomeGuideOpen,
+	shouldPersistDismissal,
 	shouldShowWelcomeGuide,
 } from '../../../../src/form-editor/welcome-guide/should-show';
 
@@ -27,6 +29,44 @@ describe( 'welcome-guide/should-show', () => {
 
 		test( 'forcing overrides a dismissed preference', () => {
 			expect( shouldShowWelcomeGuide( { preference: false, isForced: true } ) ).toBe( true );
+		} );
+	} );
+
+	describe( 'isWelcomeGuideOpen', () => {
+		const base = { preference: undefined, isForced: false, isClosed: false, isReopened: false };
+
+		test( 'is open on first run', () => {
+			expect( isWelcomeGuideOpen( base ) ).toBe( true );
+		} );
+
+		test( 'is closed after dismissal within the same page load', () => {
+			expect( isWelcomeGuideOpen( { ...base, isClosed: true } ) ).toBe( false );
+		} );
+
+		test( 'is closed on a later load once the preference is false', () => {
+			expect( isWelcomeGuideOpen( { ...base, preference: false } ) ).toBe( false );
+		} );
+
+		test( 'reopening brings it back for a user who already dismissed it', () => {
+			expect( isWelcomeGuideOpen( { ...base, preference: false, isReopened: true } ) ).toBe( true );
+		} );
+
+		test( 'reopening overrides a dismissal made earlier in the same page load', () => {
+			expect( isWelcomeGuideOpen( { ...base, isClosed: true, isReopened: true } ) ).toBe( true );
+		} );
+	} );
+
+	describe( 'shouldPersistDismissal', () => {
+		test( 'persists the first dismissal, when nothing is stored yet', () => {
+			expect( shouldPersistDismissal( undefined ) ).toBe( true );
+		} );
+
+		test( 'persists when the guide is still pending', () => {
+			expect( shouldPersistDismissal( true ) ).toBe( true );
+		} );
+
+		test( 'does not re-persist a dismissal that is already stored', () => {
+			expect( shouldPersistDismissal( false ) ).toBe( false );
 		} );
 	} );
 
