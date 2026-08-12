@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Agents_Manager;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Visitor;
 
 /**
  * Class Agents_Manager
@@ -326,6 +327,7 @@ class Agents_Manager {
 			'agentProviders'       => $agent_providers,
 			'useUnifiedExperience' => $use_unified_experience,
 			'isDevMode'            => self::is_dev_mode(),
+			'isA11n'               => ( new Visitor() )->is_automattician_for_tracking(),
 			'isWpcomPlatform'      => ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform(),
 			'sectionName'          => apply_filters( 'agents_manager_section_name', $variant ),
 			'currentUser'          => $this->get_current_user_data(),

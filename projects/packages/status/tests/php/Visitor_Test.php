@@ -222,5 +222,6 @@ class Visitor_Test extends TestCase {
 
 		$is_a11n = $this->visitor_obj->is_automattician_feature_flags_only();
 		$this->assertTrue( $is_a11n );
+		$this->assertTrue( $this->visitor_obj->is_automattician_for_tracking() );
 	}
 }

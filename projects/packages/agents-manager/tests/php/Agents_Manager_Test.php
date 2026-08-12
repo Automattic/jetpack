@@ -98,6 +98,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 				return Constants::is_true( 'A8C_PROXIED_REQUEST' );
 			}
 		);
+		Functions\when( 'is_automattician' )->justReturn( false );
 
 		$this->agents_manager = Agents_Manager::init();
 
@@ -420,6 +421,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts adds script with empty providers and useUnifiedExperience false by default.
 	 */
 	public function test_enqueue_scripts_with_empty_providers() {
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+
 		// Set admin context - scripts only enqueue in admin.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
@@ -445,6 +448,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'const agentsManagerData =', $inline_script );
 		$this->assertStringContainsString( '"agentProviders":[]', $inline_script );
+		$this->assertStringContainsString( '"isA11n":false', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 	}
@@ -501,6 +505,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts includes useUnifiedExperience true when filter returns true.
 	 */
 	public function test_enqueue_scripts_includes_use_unified_experience_when_enabled() {
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+		Functions\when( 'is_automattician' )->justReturn( true );
+
 		// Set admin context - scripts only enqueue in admin.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
@@ -530,6 +537,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'const agentsManagerData =', $inline_script );
 		$this->assertStringContainsString( '"useUnifiedExperience":true', $inline_script );
+		$this->assertStringContainsString( '"isA11n":true', $inline_script );
 
 		// Clean up the filter.
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
