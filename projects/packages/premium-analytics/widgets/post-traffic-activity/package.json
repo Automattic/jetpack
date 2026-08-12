@@ -6,6 +6,7 @@
 	"dependencies": {
 		"@jetpack-premium-analytics/data": "link:../../packages/data",
 		"@jetpack-premium-analytics/externals": "link:../../packages/externals",
+		"@jetpack-premium-analytics/formatters": "link:../../packages/formatters",
 		"@jetpack-premium-analytics/icons": "link:../../packages/icons",
 		"@jetpack-premium-analytics/widgets-toolkit": "link:../../packages/widgets-toolkit",
 		"@wordpress/compose": "8.4.0",

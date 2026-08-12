@@ -52,24 +52,24 @@ describe( 'usePostTrafficActivity', () => {
 
 		const { days } = result.current;
 
-		// The 4-day range pads backward to the grid span (168 days), with the
-		// page snapped to week boundaries (Monday 2026-01-19 → Sunday
-		// 2026-07-05) so it lays out exactly 24 columns.
-		expect( days ).toHaveLength( 168 );
+		// The 4-day range pads backward with the page snapped to week
+		// boundaries (Monday 2026-01-19), but stops at the range end: the
+		// week-completion days past it (2026-07-05) emit no points, so the
+		// chart's ragged-edge option hides their cells.
+		expect( days ).toHaveLength( 167 );
 		expect( days[ 0 ].dateString ).toBe( '2026-01-19' );
 
-		// Values render only inside the selected range; the in-range gap and
-		// the trailing week-completion day are blank.
-		expect( days.slice( -5 ) ).toEqual( [
+		// Values render only inside the selected range; the in-range gap is
+		// blank, and the series ends on the range's last day.
+		expect( days.slice( -4 ) ).toEqual( [
 			{ dateString: '2026-07-01', value: 2 },
 			{ dateString: '2026-07-02', value: null },
 			{ dateString: '2026-07-03', value: 5 },
 			{ dateString: '2026-07-04', value: null },
-			{ dateString: '2026-07-05', value: null },
 		] );
 
 		// Filler days stay blank even where the history has views (2026-06-30).
-		expect( days.slice( 0, -5 ).every( day => day.value === null ) ).toBe( true );
+		expect( days.slice( 0, -4 ).every( day => day.value === null ) ).toBe( true );
 
 		// One page covers the range, so no pager.
 		expect( result.current.isPaged ).toBe( false );
@@ -92,13 +92,14 @@ describe( 'usePostTrafficActivity', () => {
 
 		await waitFor( () => expect( result.current.hasData ).toBe( true ) );
 
-		// Newest page first: ends at the end of the range's last week
-		// (Sunday 2026-07-05), no newer page.
+		// Newest page first: the page window ends at the end of the range's
+		// last week (Sunday 2026-07-05) but the series stops at the range end,
+		// so the trailing cells hide. No newer page.
 		expect( result.current.isPaged ).toBe( true );
 		expect( result.current.canShowNewer ).toBe( false );
 		expect( result.current.canShowOlder ).toBe( true );
-		expect( result.current.days ).toHaveLength( 168 );
-		expect( result.current.days.at( -1 )?.dateString ).toBe( '2026-07-05' );
+		expect( result.current.days ).toHaveLength( 167 );
+		expect( result.current.days.at( -1 )?.dateString ).toBe( '2026-07-04' );
 
 		act( () => result.current.showOlder() );
 
