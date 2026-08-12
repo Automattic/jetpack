@@ -229,4 +229,25 @@ class No_Results_Render_Test extends TestCase {
 			'the default copy must be hidden pre-hydration'
 		);
 	}
+
+	/**
+	 * The block-template overlay is pre-rendered on every front-end request, so
+	 * its variants must not write coverage into the page-global state — that
+	 * would retire the legacy regions of unrelated in-page results markup. It
+	 * resolves against its own composition instead.
+	 */
+	public function test_a_self_contained_render_seeds_nothing() {
+		$markup = No_Results::render_self_contained(
+			'<!-- wp:jetpack-search/no-results -->'
+			. '<!-- wp:jetpack-search/no-results-slot /-->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"filtered"} /-->'
+			. '<!-- /wp:jetpack-search/no-results -->'
+		);
+
+		$this->assertSame( array(), wp_interactivity_state( 'jetpack-search' ) );
+		// The unscoped variant yields to the `filtered` one, which it can't read
+		// off flags this render never wrote.
+		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showNoResultsUnfiltered"', $markup );
+		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showNoResultsFiltered"', $markup );
+	}
 }

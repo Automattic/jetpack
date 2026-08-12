@@ -15,9 +15,9 @@ namespace Automattic\Jetpack\Search;
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable
-$condition = Search_Blocks::normalize_no_results_condition( ( (array) $attributes )['condition'] ?? '' );
+$condition = No_Results::normalize_condition( ( (array) $attributes )['condition'] ?? '' );
 
-Search_Blocks::seed_no_results_coverage( $condition );
+No_Results::seed_coverage( $condition );
 
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable -- $content is provided by WP at block render.
 $authored_content = trim( $content );
@@ -30,13 +30,13 @@ if ( $is_default ) {
 <div
 	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => $wrapper_class ) ) ); ?>
 	data-wp-interactive="jetpack-search"
-	data-wp-bind--hidden="!<?php echo esc_attr( Search_Blocks::no_results_visibility_getter( $condition ) ); ?>"
-	<?php echo $is_default ? wp_kses_data( Search_Blocks::no_results_live_region_attribute( $condition ) ) : ''; ?>
+	data-wp-bind--hidden="!<?php echo esc_attr( No_Results::visibility_getter( $condition ) ); ?>"
+	<?php echo $is_default ? wp_kses_data( No_Results::live_region_attribute( $condition ) ) : ''; ?>
 	hidden
 >
 	<?php
 	if ( $is_default ) {
-		Search_Blocks::render_no_results_default_copy( $condition );
+		No_Results::render_default_copy( $condition );
 	} else {
 		// @phan-suppress-next-line PhanUndeclaredGlobalVariable -- $content is provided by WP at block render.
 		echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner block HTML is already escaped by each child block's renderer.

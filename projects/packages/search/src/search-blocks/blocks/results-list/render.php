@@ -105,14 +105,14 @@ $skeleton_count     = 'compact' === $layout ? 6 : 4;
 
 // All three messages are superseded by the `jetpack-search/no-results` block,
 // which accepts any inner blocks instead of a plain string. Kept rendering for
-// saved content that predates it — `Search_Blocks::legacy_no_results_getter()`
+// saved content that predates it — `No_Results::legacy_no_results_getter()`
 // and `legacy_error_getter()` pick the binding that hides these regions
 // wherever a block covers the case, or drop them outright when the surrounding
 // markup's coverage is already known, so the two never both show.
 //
 // `trim()` so a whitespace-only attribute (e.g. an author who saved spaces)
 // still falls back to the default copy instead of rendering a blank message.
-$no_results_defaults = Search_Blocks::no_results_default_messages();
+$no_results_defaults = No_Results::default_messages();
 $no_results_message  = trim( (string) ( $attrs['noResultsMessage'] ?? '' ) );
 if ( '' === $no_results_message ) {
 	$no_results_message = $no_results_defaults['unfiltered'];
@@ -131,8 +131,8 @@ if ( '' === $error_message ) {
 	$error_message = $no_results_defaults['error'];
 }
 
-$legacy_no_results_getter = Search_Blocks::legacy_no_results_getter();
-$legacy_error_getter      = Search_Blocks::legacy_error_getter();
+$legacy_no_results_getter = No_Results::legacy_no_results_getter();
+$legacy_error_getter      = No_Results::legacy_error_getter();
 ?>
 <div
 	<?php echo wp_kses_data( $wrapper_attrs ); ?>

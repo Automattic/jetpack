@@ -43,7 +43,7 @@ foreach ( $inner_blocks as $inner_block ) {
 // the same coverage and wraps whatever it holds in that condition's region.
 $is_default = ! $has_variants;
 if ( $is_default ) {
-	Search_Blocks::seed_no_results_coverage( 'any' );
+	No_Results::seed_coverage( 'any' );
 }
 ?>
 <div
@@ -68,13 +68,13 @@ if ( $is_default ) {
 		?>
 		<div
 			class="<?php echo esc_attr( $default_class ); ?>"
-			data-wp-bind--hidden="!<?php echo esc_attr( Search_Blocks::no_results_visibility_getter( 'any' ) ); ?>"
+			data-wp-bind--hidden="!<?php echo esc_attr( No_Results::visibility_getter( 'any' ) ); ?>"
 			<?php echo '' === $variants ? 'role="status"' : ''; ?>
 			hidden
 		>
 			<?php
 			if ( '' === $variants ) {
-				Search_Blocks::render_no_results_default_copy( 'any' );
+				No_Results::render_default_copy( 'any' );
 			} else {
 				// @phan-suppress-next-line PhanUndeclaredGlobalVariable -- $content is provided by WP at block render.
 				echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner block HTML is already escaped by each child block's renderer.

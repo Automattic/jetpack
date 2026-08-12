@@ -547,41 +547,44 @@ class Results_List_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Rendered inside the overlay's pre-render pass, the legacy regions resolve
-	 * against that template's own composition instead of the page-global flags:
-	 * fully covered means they aren't rendered at all, and a lone `filtered`
-	 * variant leaves the unfiltered state to the legacy region.
+	 * Rendered as a self-contained region — the block-template overlay, which is
+	 * pre-rendered outside the page's own state — the legacy regions resolve
+	 * against that markup's own composition instead of the seeded flags: fully
+	 * covered means they aren't rendered at all, and a lone `filtered` variant
+	 * leaves the unfiltered state to the legacy region.
 	 */
-	public function test_legacy_regions_follow_the_overlay_render_scope() {
-		$prop = new \ReflectionProperty( Search_Blocks::class, 'overlay_render_coverage' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$prop->setAccessible( true );
-		}
-
-		$prop->setValue(
-			null,
-			array(
-				'any'      => true,
-				'filtered' => true,
-				'error'    => true,
-			)
+	public function test_legacy_regions_follow_a_self_contained_render() {
+		$covered = No_Results::render_self_contained(
+			'<!-- wp:jetpack-search/results-list /-->'
+			. '<!-- wp:jetpack-search/no-results -->'
+			. '<!-- wp:jetpack-search/no-results-slot /-->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"filtered"} /-->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"error"} /-->'
+			. '<!-- /wp:jetpack-search/no-results -->'
 		);
-		$covered = $this->render();
-
-		$prop->setValue(
-			null,
-			array(
-				'any'      => false,
-				'filtered' => true,
-				'error'    => false,
-			)
+		$partial = No_Results::render_self_contained(
+			'<!-- wp:jetpack-search/results-list /-->'
+			. '<!-- wp:jetpack-search/no-results -->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"filtered"} /-->'
+			. '<!-- /wp:jetpack-search/no-results -->'
 		);
-		$partial = $this->render();
-		$prop->setValue( null, null );
 
 		$this->assertStringNotContainsString( 'jetpack-search-results__no-results', $covered );
 		$this->assertStringNotContainsString( 'jetpack-search-results__error', $covered );
 		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showNoResultsUnfiltered"', $partial );
 		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showError"', $partial );
+	}
+
+	/**
+	 * And the scope is per-render, not sticky — a page render that follows one
+	 * has to be back on the seeded flags.
+	 */
+	public function test_a_self_contained_render_does_not_leak_into_the_next() {
+		No_Results::render_self_contained( '<!-- wp:jetpack-search/no-results /-->' );
+
+		$this->assertStringContainsString(
+			'data-wp-bind--hidden="!state.showLegacyNoResults"',
+			$this->render()
+		);
 	}
 }
