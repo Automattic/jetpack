@@ -45,12 +45,22 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 					data-show-values={ String( showValues ) }
 					data-width={ String( width ) }
 				/>
-				<div data-testid="tooltip-empty">
+				{ /* Probed by grid position: the widget maps a blank cell back to its
+				    day to tell a day with no views from unrequested filler. */ }
+				<div data-testid="tooltip-oldest">
 					{ renderTooltip?.( {
 						value: null,
-						cellLabel: 'Mon, Jun 2, 2025',
+						cellLabel: data[ 0 ]?.data[ 0 ]?.label,
 						row: 0,
 						column: 0,
+					} ) }
+				</div>
+				<div data-testid="tooltip-newest">
+					{ renderTooltip?.( {
+						value: null,
+						cellLabel: data[ data.length - 1 ]?.data[ 0 ]?.label,
+						row: 0,
+						column: data.length - 1,
 					} ) }
 				</div>
 				<div data-testid="tooltip-singular">
@@ -464,19 +474,55 @@ describe( 'TrafficViewsActivityWidget', () => {
 			expect( screen.queryByText( 'No views in this period.' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'renders empty, singular, and formatted plural tooltips', () => {
+		it( 'renders singular and formatted plural tooltips', () => {
 			renderWidget();
 
-			// An empty cell is either a day with no views or a padding day the request
-			// never covered, so the tooltip claims neither and shows the date alone.
-			expect( screen.getByTestId( 'tooltip-empty' ) ).toHaveTextContent( 'Mon, Jun 2, 2025' );
-			expect( screen.getByTestId( 'tooltip-empty' ) ).not.toHaveTextContent( 'No views' );
 			expect( screen.getByTestId( 'tooltip-singular' ) ).toHaveTextContent(
 				'1 viewTue, Jun 3, 2025'
 			);
 			expect( screen.getByTestId( 'tooltip-plural' ) ).toHaveTextContent(
 				'1,234 viewsWed, Jun 4, 2025'
 			);
+		} );
+
+		it( 'tells a day with no views from a padding day the request never covered', () => {
+			// One month selected in a tile with room for many more weeks, so the oldest
+			// columns are padding.
+			const restoreTileSize = stubTileSize( 1000, 110 );
+
+			try {
+				renderWidget( {
+					...REPORT_PARAMS,
+					from: '2025-06-01',
+					to: '2025-06-30',
+				} as unknown as ReportParams );
+			} finally {
+				restoreTileSize();
+			}
+
+			// Padding, months before the selected June: masked, not measured.
+			expect( screen.getByTestId( 'tooltip-oldest' ) ).toHaveTextContent( 'No data' );
+			// Inside the request, so a blank cell there really is a day without views.
+			expect( screen.getByTestId( 'tooltip-newest' ) ).toHaveTextContent( 'No views' );
+		} );
+
+		it( 'counts the columns from the grid the chart is given, not the one built', () => {
+			// Two days selected in a wide tile: everything but the newest column is
+			// filler, and the request is too short to survive an off-by-a-column read
+			// of the grid — Monday 2025-06-30 is the only requested day in row 0.
+			const restoreTileSize = stubTileSize( 1000, 110 );
+
+			try {
+				renderWidget( {
+					...REPORT_PARAMS,
+					from: '2025-06-29',
+					to: '2025-06-30',
+				} as unknown as ReportParams );
+			} finally {
+				restoreTileSize();
+			}
+
+			expect( screen.getByTestId( 'tooltip-newest' ) ).toHaveTextContent( 'No views' );
 		} );
 	} );
 } );

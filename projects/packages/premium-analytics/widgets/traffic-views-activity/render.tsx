@@ -22,8 +22,8 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { seen } from '@wordpress/icons';
-import { format } from 'date-fns';
-import { useMemo } from 'react';
+import { addDays, format, parseISO, startOfWeek } from 'date-fns';
+import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -61,33 +61,6 @@ function resolveWindowDays( viewportWidth: number ): number {
 	const years = Math.ceil( capacityDays / WINDOW_YEAR_DAYS );
 
 	return Math.min( Math.max( years, 1 ), MAX_WINDOW_YEARS ) * WINDOW_YEAR_DAYS;
-}
-
-// Show the exact count before the date instead of the chart's default ordering.
-//
-// An empty cell gets the date alone. It covers two days the grid cannot tell apart:
-// a day the request covered that had no views, and a padding day added to fill the
-// tile, which was never requested and may well have traffic. "No views" would speak
-// for both.
-function renderCellTooltip( { value, cellLabel }: HeatmapTooltipData ) {
-	// The same element the valued cells put the date in, so the weight does not jump
-	// as the pointer crosses between them.
-	if ( value === null ) {
-		return <div>{ cellLabel }</div>;
-	}
-
-	return (
-		<>
-			<strong>
-				{ sprintf(
-					/* translators: %s: number of views, e.g. "2,033". */
-					_n( '%s view', '%s views', value, 'jetpack-premium-analytics-pkg' ),
-					formatMetricValue( value, 'number', { decimals: 0 } )
-				) }
-			</strong>
-			<div>{ cellLabel }</div>
-		</>
-	);
 }
 
 function TrafficViewsActivityInner() {
@@ -201,6 +174,49 @@ function TrafficViewsActivityInner() {
 
 	// slice( -0 ) keeps the data intact until the tile has a measurable width.
 	const trimmedData = useMemo( () => heatmapData.slice( -columns ), [ heatmapData, columns ] );
+	const trimmedColumns = columns > 0 ? heatmapData.length - trimmedData.length : 0;
+
+	// Show the exact count before the date instead of the chart's default ordering,
+	// and split the empty cells by what the blank means. A day the request covered
+	// really had no views; a day outside it — the padding that fills the tile, and
+	// the history the viewport cap left out — was masked rather than measured, so it
+	// says "No data" instead of claiming a zero nobody counted.
+	//
+	// Cells map back to dates by grid position: the chart lays seven rows down each
+	// column from the Monday of the display window's first week, and the trim above
+	// drops whole columns off the front.
+	const renderCellTooltip = useCallback(
+		( { value, cellLabel, row, column }: HeatmapTooltipData ) => {
+			let label;
+
+			if ( value !== null ) {
+				label = sprintf(
+					/* translators: %s: number of views, e.g. "2,033". */
+					_n( '%s view', '%s views', value, 'jetpack-premium-analytics-pkg' ),
+					formatMetricValue( value, 'number', { decimals: 0 } )
+				);
+			} else {
+				const gridStart = startOfWeek( parseISO( displayWindow.startDate ), { weekStartsOn: 1 } );
+				const day = format(
+					addDays( gridStart, ( trimmedColumns + column ) * 7 + row ),
+					'yyyy-MM-dd'
+				);
+
+				label =
+					day >= fetchWindow.startDate && day <= fetchWindow.endDate
+						? __( 'No views', 'jetpack-premium-analytics-pkg' )
+						: __( 'No data', 'jetpack-premium-analytics-pkg' );
+			}
+
+			return (
+				<>
+					<strong>{ label }</strong>
+					<div>{ cellLabel }</div>
+				</>
+			);
+		},
+		[ displayWindow.startDate, fetchWindow, trimmedColumns ]
+	);
 
 	// Scoped to the period, not to the weeks on screen: the grid pads to fill the
 	// tile, so a wide tile can show only empty padding for a period that does have
