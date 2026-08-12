@@ -78,15 +78,6 @@ class Podcast {
 	}
 
 	/**
-	 * Whether `init()` has run. Callers that mirror the feed's output need this:
-	 * with the module inactive the feed customizations are never wired, so the
-	 * site's real feed looks nothing like what they'd produce.
-	 */
-	public static function is_initialized(): bool {
-		return self::$initialized;
-	}
-
-	/**
 	 * Whether the Posts to Podcast feature (Create AI Podcast page + REST
 	 * proxy) is enabled for the current request.
 	 *

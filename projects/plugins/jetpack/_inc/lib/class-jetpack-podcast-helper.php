@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Podcast\Feed\Local_Feed;
-
 /**
  * Class Jetpack_Podcast_Helper
  */
@@ -19,14 +17,6 @@ class Jetpack_Podcast_Helper {
 	 * @var int
 	 */
 	const ERROR_CACHE_TIMEOUT = 5 * MINUTE_IN_SECONDS;
-
-	/**
-	 * Seconds to wait for a remote feed. More generous than SimplePie's default
-	 * of 10, which large feeds routinely exceed on a cold cache.
-	 *
-	 * @var int
-	 */
-	const FEED_TIMEOUT = 15;
 
 	/**
 	 * The RSS feed of the podcast.
@@ -111,11 +101,6 @@ class Jetpack_Podcast_Helper {
 		$guids           = isset( $args['guids'] ) && $args['guids'] ? $args['guids'] : array();
 		$episode_options = isset( $args['episode-options'] ) && $args['episode-options'];
 
-		$local_data = $this->get_local_player_data( $guids, $episode_options );
-		if ( null !== $local_data ) {
-			return $local_data;
-		}
-
 		// Try loading data from the cache.
 		$transient_key = 'jetpack_podcast_' . md5( $this->feed . implode( ',', $guids ) . "-$episode_options" );
 		$player_data   = get_transient( $transient_key );
@@ -194,29 +179,6 @@ class Jetpack_Podcast_Helper {
 		}
 
 		return $player_data;
-	}
-
-	/**
-	 * Player data built from the database when the configured feed is this
-	 * site's own, avoiding an HTTP round trip to our own public feed. Returns
-	 * null whenever that isn't possible, so the caller keeps the fetch path.
-	 *
-	 * @param array $guids           Specific episode GUIDs, if any.
-	 * @param bool  $episode_options Whether the episode picker list was requested.
-	 * @return array|null
-	 */
-	protected function get_local_player_data( $guids, $episode_options ) {
-		if ( ! class_exists( Local_Feed::class ) || ! Local_Feed::is_local_feed( $this->feed ) ) {
-			return null;
-		}
-
-		return Local_Feed::get_player_data(
-			array(
-				'limit'           => static::get_tracks_quantity(),
-				'guids'           => $guids,
-				'episode_options' => $episode_options,
-			)
-		);
 	}
 
 	/**
@@ -376,7 +338,6 @@ class Jetpack_Podcast_Helper {
 		}
 		// Add action: detect the podcast feed from the provided feed URL.
 		add_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
-		add_action( 'wp_feed_options', array( __CLASS__, 'set_feed_options' ) );
 
 		$cache_timeout_filter_added = false;
 		if ( $this->cache_timeout !== null ) {
@@ -400,7 +361,6 @@ class Jetpack_Podcast_Helper {
 
 		// Remove added actions from wp_feed_options hook.
 		remove_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
-		remove_action( 'wp_feed_options', array( __CLASS__, 'set_feed_options' ) );
 		if ( true === $force_refresh ) {
 			remove_action( 'wp_feed_options', array( __CLASS__, 'reset_simplepie_cache' ) );
 		}
@@ -463,28 +423,6 @@ class Jetpack_Podcast_Helper {
 		}
 
 		$feed->get_registry()->register( SimplePie\Locator::class, 'Jetpack_Podcast_Feed_Locator' );
-	}
-
-	/**
-	 * Action handler to set the timeout and stale-cache behaviour for the fetch.
-	 *
-	 * `force_cache_fallback` keeps SimplePie serving its expired copy when the
-	 * revalidation request fails. Without it SimplePie leaves an error set even
-	 * though it loaded that copy successfully, and `fetch_feed()` turns any error
-	 * into a `WP_Error` — discarding a perfectly usable feed and rendering
-	 * nothing because an optional refresh timed out.
-	 *
-	 * @param SimplePie\SimplePie $feed The SimplePie object, passed by reference.
-	 * @return void
-	 */
-	public static function set_feed_options( &$feed ) {
-		if ( method_exists( $feed, 'set_timeout' ) ) {
-			$feed->set_timeout( static::FEED_TIMEOUT );
-		}
-
-		if ( property_exists( $feed, 'force_cache_fallback' ) ) {
-			$feed->force_cache_fallback = true;
-		}
 	}
 
 	/**
