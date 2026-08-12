@@ -6,12 +6,10 @@
  * reached the build on a given request type. The real build/ is gitignored and
  * CI runs no build step, so without this there is nothing to observe.
  *
- * Also declares the page render callback the real build generates, so the
- * "build is present" half of register_admin_menu() has something to find, and
- * hooks the full-page interceptor the way the generated page.php does, so
- * remove_full_page_interceptor() has something to unhook. Both names are derived
- * from the page slug by wp-build, which is exactly why they need covering: a slug
- * rename silently drops the menu back to the missing-build notice, and silently
+ * Also declares the page render callback register_admin_menu() looks for, and
+ * hooks the full-page interceptor the way the generated page.php does. wp-build
+ * derives both names from the page slug, which is why they need covering: a
+ * rename silently drops the menu to the missing-build notice, and silently
  * re-exposes the ungated full-page URL.
  *
  * @package automattic/jetpack-premium-analytics

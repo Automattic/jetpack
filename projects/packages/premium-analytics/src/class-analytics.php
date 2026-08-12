@@ -358,16 +358,13 @@ class Analytics {
 	/**
 	 * Unhook the wp-build full-page render interceptor.
 	 *
-	 * Two variants of every page come out of wp-build, with no per-variant switch,
-	 * so alongside the `-wp-admin` one the menu registers it hooks admin_init for
-	 * `?page=jetpack-premium-analytics` and exits there. That is ahead of the
-	 * `$_registered_pages` check in wp-admin/admin.php, and the full-page slug is
-	 * never passed to add_menu_page(), so the URL rendered the dashboard shell for
-	 * any logged-in user. Unhooked, it falls through to core's own refusal.
+	 * The second page variant wp-build emits — with no switch to turn it off —
+	 * renders `?page=jetpack-premium-analytics` from admin_init and exits, ahead
+	 * of the `$_registered_pages` check that would have refused the unregistered
+	 * slug. Unhooked, the URL falls through to core's own refusal.
 	 *
-	 * Depends on the generated function name, which wp-build derives from the page
-	 * slug: a slug rename silently re-exposes the URL, which is what
-	 * test_full_page_interceptor_is_unhooked() guards.
+	 * The function name derives from the page slug, so a rename re-exposes the
+	 * URL. test_full_page_interceptor_is_unhooked() guards that.
 	 *
 	 * @return void
 	 */

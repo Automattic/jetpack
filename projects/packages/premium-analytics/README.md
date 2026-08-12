@@ -24,9 +24,9 @@ Renders as an SPA inside wp-admin using route-based code splitting.
 Boot mounts inside the standard admin chrome; routes are discovered at
 build time from `package.json` metadata.
 
-wp-build also emits a second, full-page variant that renders
-`?page=jetpack-premium-analytics` from `admin_init`, ahead of WordPress's
-own access check. It is unhooked at load — the dashboard has one URL.
+wp-build also emits an ungated full-page variant at
+`?page=jetpack-premium-analytics`. It is unhooked at load — the dashboard
+has one URL.
 
 ## Requirements
 

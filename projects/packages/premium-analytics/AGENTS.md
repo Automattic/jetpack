@@ -29,12 +29,10 @@ under `routes/<name>/` is a lazy-loaded ES module discovered at build time from 
 WordPress core or Jetpack's wp-build polyfills provide the WordPress script handles/modules used
 by the dashboard, so the Gutenberg plugin is not required.
 
-wp-build also emits a second, full-page variant of every page: an `admin_init` interceptor that
-renders `?page=jetpack-premium-analytics` and exits, ahead of WordPress's own access check and
-with no capability check of its own. There is no per-variant switch in `wpPlugin.pages`, so
-`Analytics::remove_full_page_interceptor()` unhooks it right after the build loads. Don't hook
-that variant's `jetpack-premium-analytics_init` action or its `_boot_dependencies` filter — use
-the `-wp-admin` ones.
+wp-build also emits an ungated full-page variant that renders `?page=jetpack-premium-analytics`
+from `admin_init`. `Analytics::remove_full_page_interceptor()` unhooks it once the build loads, so
+don't hook that variant's `jetpack-premium-analytics_init` action or its `_boot_dependencies`
+filter — use the `-wp-admin` ones.
 
 ## Structure
 

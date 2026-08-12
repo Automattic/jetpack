@@ -257,11 +257,8 @@ class Analytics_Test extends TestCase {
 	/**
 	 * The build's full-page interceptor is unhooked once the build has loaded.
 	 *
-	 * A second, ungated page variant comes out of wp-build, rendering
-	 * ?page=jetpack-premium-analytics from admin_init and exiting — ahead of the
-	 * $_registered_pages check that would have refused the slug, and with no
-	 * capability check of its own. Left hooked, any logged-in user reaches the
-	 * dashboard shell there; unhooked, WordPress refuses the URL itself.
+	 * Left hooked, ?page=jetpack-premium-analytics renders the dashboard shell for
+	 * any logged-in user. See Analytics::remove_full_page_interceptor().
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -275,7 +272,7 @@ class Analytics_Test extends TestCase {
 		Analytics::init();
 		do_action( 'init' );
 
-		// Guards the assertion below against a fixture that stopped hooking it at all.
+		// Guards against a fixture that stopped hooking it at all.
 		$this->assertArrayHasKey( 'jpa_test_build_loaded', $GLOBALS );
 		$this->assertFalse(
 			has_action( 'admin_init', 'jpa_jetpack_premium_analytics_intercept_render' ),
