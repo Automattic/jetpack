@@ -23,16 +23,35 @@ use WorDBless\BaseTestCase;
 class Conditional_Logic_Behaviour_Test extends BaseTestCase {
 
 	/**
+	 * Read the rows of the shared table.
+	 *
+	 * Throws rather than returning an empty list: a fixture that cannot be read would
+	 * otherwise turn every case below into a silent pass, which is the one failure mode a
+	 * shared parity table must not have.
+	 *
+	 * @throws \RuntimeException When the fixture is missing or does not hold a case list.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function load_cases(): array {
+		$path = __DIR__ . '/../../fixtures/conditional-logic-behaviour.json';
+		$data = json_decode( (string) file_get_contents( $path ), true );
+
+		if ( ! is_array( $data ) || ! isset( $data['cases'] ) || ! is_array( $data['cases'] ) ) {
+			throw new \RuntimeException( 'conditional-logic-behaviour.json is missing its cases array.' );
+		}
+
+		return $data['cases'];
+	}
+
+	/**
 	 * The shared case table.
 	 *
 	 * @return array<string, array{0: array<string, mixed>}>
 	 */
 	public static function behaviour_cases(): array {
-		$path = __DIR__ . '/../../fixtures/conditional-logic-behaviour.json';
-		$data = json_decode( (string) file_get_contents( $path ), true );
-
 		$cases = array();
-		foreach ( $data['cases'] as $case ) {
+		foreach ( self::load_cases() as $case ) {
 			$cases[ $case['name'] ] = array( $case );
 		}
 
@@ -40,6 +59,8 @@ class Conditional_Logic_Behaviour_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @dataProvider behaviour_cases
+	 *
 	 * @param array<string, mixed> $case One row of the shared table.
 	 */
 	#[\PHPUnit\Framework\Attributes\DataProvider( 'behaviour_cases' )]
@@ -82,11 +103,7 @@ class Conditional_Logic_Behaviour_Test extends BaseTestCase {
 	 * The table is only worth anything if both sides actually read it.
 	 */
 	public function test_the_shared_table_covers_every_comparison_family() {
-		$data  = json_decode(
-			(string) file_get_contents( __DIR__ . '/../../fixtures/conditional-logic-behaviour.json' ),
-			true
-		);
-		$types = array_unique( array_column( $data['cases'], 'type' ) );
+		$types = array_unique( array_column( self::load_cases(), 'type' ) );
 
 		foreach ( array( 'date', 'time', 'number', 'consent', 'checkbox', 'text', 'select' ) as $type ) {
 			$this->assertContains( $type, $types, "The shared table lost its $type cases." );

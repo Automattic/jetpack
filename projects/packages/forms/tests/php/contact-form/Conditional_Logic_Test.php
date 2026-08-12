@@ -670,7 +670,7 @@ class Conditional_Logic_Test extends TestCase {
 					),
 				),
 			);
-			$values[ "f$i" ] = 'yes';
+			$values[ "f$i" ]      = 'yes';
 		}
 
 		$visible = Conditional_Logic::resolve_visibility( $descriptors, $values );
