@@ -567,6 +567,10 @@ class Status_Test extends TestCase {
 				'https://jetpack.notlocalhost.com',
 				false,
 			),
+			'lookalike_localhost_with_port'  => array(
+				'https://jetpack.notlocalhost.com:8080',
+				false,
+			),
 			'host_ending_in_localhost'       => array(
 				'https://jetpack.notlocalhost',
 				false,
