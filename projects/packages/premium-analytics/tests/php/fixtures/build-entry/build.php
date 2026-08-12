@@ -29,3 +29,7 @@ if ( ! function_exists( 'jpa_jetpack_premium_analytics_intercept_render' ) ) {
 }
 
 add_action( 'admin_init', 'jpa_jetpack_premium_analytics_intercept_render' );
+
+// Record the priority it went on at. Without this the removal test cannot tell
+// "hooked, then removed" from "never hooked", and would pass either way.
+$GLOBALS['jpa_test_interceptor_priority'] = has_action( 'admin_init', 'jpa_jetpack_premium_analytics_intercept_render' );

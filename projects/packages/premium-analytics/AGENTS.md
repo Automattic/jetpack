@@ -21,7 +21,7 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 (not on front-end page views, REST, cron, `admin-ajax.php`, or `admin-post.php` — see
 `renders_admin_chrome()`). The dashboard is served from one URL,
 `?page=jetpack-premium-analytics-wp-admin` (`Analytics::MENU_PAGE_SLUG`), registered with
-`add_menu_page()` and gated on `view_jetpack_analytics`. REST requests reach the dashboard's data
+`add_menu_page()` and gated on `Capabilities::VIEW_ANALYTICS`. REST requests reach the dashboard's data
 without the build: `Dashboard_Support_Routes::boot_routes()` registers the routes on
 `rest_api_init`, and `ensure_widget_registry_ready()` loads the widget manifest lazily, when a
 route callback actually reads it. `@wordpress/boot` provides the SPA shell and routing; each route

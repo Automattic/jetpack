@@ -365,12 +365,26 @@ class Analytics {
 	 * renders_admin_chrome() is what currently keeps the build off both. Unhooking
 	 * removes the reliance on that single guard.
 	 *
-	 * The callback name depends on the page slug, so the test guards name drift.
+	 * wp-build derives the callback name from the page slug, and remove_action() is
+	 * a no-op on a name or priority it doesn't find — so drift would put the second
+	 * entry point back silently. Nothing to remove is normal (the build may be
+	 * absent), but a live interceptor we failed to unhook is not, so say so the way
+	 * register_admin_menu() reports incomplete build output.
 	 *
 	 * @return void
 	 */
 	private static function remove_full_page_interceptor() {
-		remove_action( 'admin_init', 'jpa_jetpack_premium_analytics_intercept_render' );
+		if ( remove_action( 'admin_init', 'jpa_jetpack_premium_analytics_intercept_render' ) ) {
+			return;
+		}
+
+		if ( function_exists( 'jpa_jetpack_premium_analytics_intercept_render' ) ) {
+			_doing_it_wrong(
+				__METHOD__,
+				'The Premium Analytics full-page interceptor could not be unhooked: wp-build changed the generated callback name or its admin_init priority.',
+				''
+			);
+		}
 	}
 
 	/**

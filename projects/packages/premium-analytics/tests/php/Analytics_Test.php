@@ -64,7 +64,7 @@ class Analytics_Test extends TestCase {
 			'The fixture build leaked from an earlier test: process isolation is not working.'
 		);
 
-		unset( $GLOBALS['jpa_test_build_loaded'] );
+		unset( $GLOBALS['jpa_test_build_loaded'], $GLOBALS['jpa_test_interceptor_priority'] );
 	}
 
 	/**
@@ -269,8 +269,13 @@ class Analytics_Test extends TestCase {
 		Analytics::init();
 		do_action( 'init' );
 
-		// Guards against a fixture that stopped hooking it at all.
-		$this->assertArrayHasKey( 'jpa_test_build_loaded', $GLOBALS );
+		// Without this the assertion below passes on a fixture that never hooked the
+		// interceptor, which is the state it is supposed to detect.
+		$this->assertSame(
+			10,
+			$GLOBALS['jpa_test_interceptor_priority'] ?? null,
+			'The fixture build did not hook the interceptor, so removing it proves nothing.'
+		);
 		$this->assertFalse(
 			has_action( 'admin_init', 'jpa_jetpack_premium_analytics_intercept_render' ),
 			'The wp-build full-page interceptor is still hooked, leaving ?page=jetpack-premium-analytics renderable wherever admin_init runs without Core\'s menu access check.'
