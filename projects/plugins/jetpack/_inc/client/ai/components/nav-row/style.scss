@@ -24,13 +24,18 @@
 		background: var(--color-surface-backdrop, #f0f0f1);
 	}
 
-	&__icon,
+	// Colours deliberately mirror the MCP rows this is modelled on: the
+	// leading icon inherits, the chevron is a step lighter. They differ, but
+	// changing that is a design decision, not this component's to make.
+	&__icon {
+		flex-shrink: 0;
+		margin-block-start: 2px;
+	}
+
 	&__chevron {
 		flex-shrink: 0;
 		margin-block-start: 2px;
-		// One token for the leading icon and the chevron (the Icon component
-		// renders fill: currentColor, so color covers both).
-		color: var(--color-neutral-70, #3c434a);
+		color: var(--color-neutral-60, #50575e);
 	}
 
 	&__text {

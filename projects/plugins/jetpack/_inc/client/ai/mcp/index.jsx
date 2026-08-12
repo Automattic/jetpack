@@ -131,6 +131,36 @@ function SummaryRow( { icon, title, badge, onClick } ) {
 }
 
 /**
+ * A card row for the "Connect external AI agent" action — shows title + description.
+ *
+ * @param {object}   props             - Component props.
+ * @param {string}   props.title       - Row title.
+ * @param {string}   props.description - Row description.
+ * @param {Function} props.onClick     - Click handler.
+ * @return {object} Component markup.
+ */
+function ConnectRow( { title, description, onClick } ) {
+	return (
+		<button className="jetpack-ai-mcp__connect-row" onClick={ onClick } type="button">
+			<span className="jetpack-ai-mcp__connect-row-icon">
+				<Icon icon={ connection } size={ 24 } />
+			</span>
+			<span className="jetpack-ai-mcp__connect-row-text">
+				<Text as="p" className="jetpack-ai-mcp__connect-row-title" weight={ 600 }>
+					{ title }
+				</Text>
+				<Text as="p" className="jetpack-ai-mcp__connect-row-description" variant="muted">
+					{ description }
+				</Text>
+			</span>
+			<span className="jetpack-ai-mcp__connect-row-chevron">
+				<Icon icon={ chevronRight } size={ 24 } />
+			</span>
+		</button>
+	);
+}
+
+/**
  * MCP hub component.
  *
  * @param {object}   props                   - Component props.
@@ -254,8 +284,7 @@ export default function McpHub( {
 
 			{ isMcpEnabled && (
 				<Card className="jetpack-ai-mcp__action-card">
-					<NavRow
-						icon={ connection }
+					<ConnectRow
 						title={ __( 'Connect external AI agent', 'jetpack' ) }
 						description={ __(
 							'Get instructions for connecting your external AI agent.',
