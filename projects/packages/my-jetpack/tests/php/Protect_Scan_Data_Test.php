@@ -289,6 +289,42 @@ class Protect_Scan_Data_Test extends TestCase {
 	}
 
 	/**
+	 * The endpoint filters the scan status by property name, so a rename in Protect_Models
+	 * would silently drop an allowlisted property from the non-admin response rather than
+	 * fail. Assert both allowlists still name properties the models really declare.
+	 *
+	 * The reverse direction needs no guard: `array_intersect_key()` denies by default, so a
+	 * property added to a model is admin-only until someone allowlists it deliberately.
+	 */
+	public function test_non_admin_allowlists_match_the_real_model_properties() {
+		$reflection       = new \ReflectionClass( Products\Protect::class );
+		$scan_allowlist   = $reflection->getConstant( 'NON_ADMIN_SCAN_DATA_KEYS' );
+		$threat_allowlist = $reflection->getConstant( 'NON_ADMIN_THREAT_KEYS' );
+
+		$this->assertNotEmpty( $scan_allowlist );
+		$this->assertNotEmpty( $threat_allowlist );
+
+		$status_properties = array_keys( get_object_vars( new Status_Model() ) );
+		$threat_properties = array_keys( get_object_vars( new Threat_Model( array() ) ) );
+
+		foreach ( $scan_allowlist as $key ) {
+			$this->assertContains(
+				$key,
+				$status_properties,
+				"Protect::NON_ADMIN_SCAN_DATA_KEYS lists '$key', which Status_Model no longer declares."
+			);
+		}
+
+		foreach ( $threat_allowlist as $key ) {
+			$this->assertContains(
+				$key,
+				$threat_properties,
+				"Protect::NON_ADMIN_THREAT_KEYS lists '$key', which Threat_Model no longer declares."
+			);
+		}
+	}
+
+	/**
 	 * Administrators keep receiving the full scan status.
 	 */
 	public function test_administrator_receives_full_scan_data() {

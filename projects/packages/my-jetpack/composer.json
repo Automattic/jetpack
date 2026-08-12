@@ -28,6 +28,7 @@
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/jetpack-search": "@dev",
 		"automattic/jetpack-videopress": "@dev",
+		"automattic/jetpack-waf": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
 	"suggest": {
@@ -93,7 +94,8 @@
 		"dependencies": {
 			"test-only": [
 				"packages/search",
-				"packages/videopress"
+				"packages/videopress",
+				"packages/waf"
 			]
 		}
 	},
