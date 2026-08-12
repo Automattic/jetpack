@@ -54,7 +54,7 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'presentation', { hidden: true } ) ).toBeInTheDocument(); // spinner wrapper
+		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the loading state whenever isLoading, regardless of the caller-derived isEmpty', () => {
@@ -67,7 +67,7 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'presentation', { hidden: true } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows loading, not the empty state, while refetching over an empty result', () => {
@@ -83,17 +83,17 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		expect( screen.queryByText( 'No posts here.' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'presentation', { hidden: true } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the caller loading override instead of the default spinner', () => {
+	it( 'renders the caller loading override instead of the default skeleton', () => {
 		render(
-			<WidgetState isLoading isError={ false } isEmpty renderLoading={ <div>skeleton</div> }>
+			<WidgetState isLoading isError={ false } isEmpty renderLoading={ <div>override</div> }>
 				{ CONTENT }
 			</WidgetState>
 		);
-		expect( screen.getByText( 'skeleton' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'override' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the empty state (not error) when resolved with no rows', () => {
@@ -202,5 +202,6 @@ describe( 'WidgetState', () => {
 		expect( screen.getByText( 'Failed.' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 	} );
 } );

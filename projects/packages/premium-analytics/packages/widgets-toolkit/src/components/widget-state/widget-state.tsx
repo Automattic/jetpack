@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { ChartEmptyState } from '../chart-empty-state';
 import { WidgetLoadingOverlay } from '../widget-loading-overlay';
+import { GenericSkeleton } from '../widget-skeleton';
 import { errorStateIcon } from './error-state-icon';
 import styles from './widget-state.module.scss';
 import type { ComponentProps, ReactNode } from 'react';
@@ -34,7 +35,7 @@ export interface WidgetStateProps {
 	isEmpty: boolean;
 	error?: WidgetStateError;
 	empty?: WidgetStateEmpty;
-	/** Optional per-widget loading override (e.g. a chart skeleton). */
+	/** Optional content-shaped loading override; defaults to `GenericSkeleton`. */
 	renderLoading?: ReactNode;
 	/** Success content, rendered only when the state is `ready`. */
 	children: ReactNode;
@@ -46,10 +47,11 @@ export interface WidgetStateProps {
  * nothing about the data layer — callers map their fetch result to the signals
  * and pass generic `error` / `empty` descriptors.
  *
- * Priority: error → loading (first load) → empty → ready. During a background
- * refetch (`isFetching` with data) the children stay visible under a busy
- * overlay. The empty state carries no icon by default (staying visually distinct
- * from the error state's glyph); a caller opts in via `empty.icon`.
+ * Priority: error → loading (first load) → empty → ready. First load renders a
+ * skeleton placeholder; during a background refetch (`isFetching` with data) the
+ * children stay visible under a busy overlay instead. The empty state carries no
+ * icon by default (staying visually distinct from the error state's glyph); a
+ * caller opts in via `empty.icon`.
  *
  * @return The rendered widget state.
  */
@@ -105,7 +107,7 @@ export function WidgetState( {
 	// positioned ancestor it would reach the framed host card and cover the
 	// header title.
 	if ( isLoading || ( isEmpty && isFetching ) ) {
-		return <div className={ styles.loading }>{ renderLoading ?? <WidgetLoadingOverlay /> }</div>;
+		return <div className={ styles.loading }>{ renderLoading ?? <GenericSkeleton /> }</div>;
 	}
 
 	if ( isEmpty ) {
