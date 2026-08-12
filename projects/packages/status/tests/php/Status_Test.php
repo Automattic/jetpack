@@ -69,58 +69,7 @@ class Status_Test extends TestCase {
 		);
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'production' );
 
-		/*
-		 * Core's wp_parse_url() is not a plain parse_url() alias: it rewrites protocol-relative
-		 * and root-relative URLs behind a placeholder scheme. Mirror that, so these tests
-		 * exercise the function the production code actually calls.
-		 */
-		Functions\when( 'wp_parse_url' )->alias(
-			function ( $url, $component = -1 ) {
-				$to_unset = array();
-				$url      = (string) $url;
-
-				if ( 0 === strpos( $url, '//' ) ) {
-					$to_unset[] = 'scheme';
-					$url        = 'placeholder:' . $url;
-				} elseif ( 0 === strpos( $url, '/' ) ) {
-					$to_unset[] = 'scheme';
-					$to_unset[] = 'host';
-					$url        = 'placeholder://placeholder' . $url;
-				}
-
-				$parts = parse_url( $url );
-				if ( false === $parts ) {
-					return $parts;
-				}
-
-				foreach ( $to_unset as $key ) {
-					unset( $parts[ $key ] );
-				}
-
-				if ( -1 === $component ) {
-					return $parts;
-				}
-
-				$key = array(
-					PHP_URL_SCHEME   => 'scheme',
-					PHP_URL_HOST     => 'host',
-					PHP_URL_PORT     => 'port',
-					PHP_URL_USER     => 'user',
-					PHP_URL_PASS     => 'pass',
-					PHP_URL_PATH     => 'path',
-					PHP_URL_QUERY    => 'query',
-					PHP_URL_FRAGMENT => 'fragment',
-				);
-
-				if ( ! isset( $key[ $component ] ) ) {
-					return null;
-				}
-
-				$name = $key[ $component ];
-
-				return isset( $parts[ $name ] ) ? $parts[ $name ] : null;
-			}
-		);
+		Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
 
 		// Default to a front-end request with no persistent object cache (no seeding).
 		Functions\when( 'wp_using_ext_object_cache' )->justReturn( false );
