@@ -19,6 +19,15 @@ class Jetpack_Podcast_Helper {
 	const ERROR_CACHE_TIMEOUT = 5 * MINUTE_IN_SECONDS;
 
 	/**
+	 * How long to keep the last successful response as a fallback. SimplePie's
+	 * own cache cannot serve one: it drops a feed the moment it goes stale, which
+	 * is also the moment we refetch, so there is never an expired copy to reuse.
+	 *
+	 * @var int
+	 */
+	const FALLBACK_CACHE_TIMEOUT = WEEK_IN_SECONDS;
+
+	/**
 	 * The RSS feed of the podcast.
 	 *
 	 * @var string
@@ -105,7 +114,7 @@ class Jetpack_Podcast_Helper {
 		$transient_key = 'jetpack_podcast_' . md5( $this->feed . implode( ',', $guids ) . "-$episode_options" );
 		$player_data   = get_transient( $transient_key );
 
-		if ( is_wp_error( $player_data ) && ! static::should_cache_errors() ) {
+		if ( is_wp_error( $player_data ) && static::is_rest_request() ) {
 			$player_data = false;
 		}
 
@@ -115,7 +124,7 @@ class Jetpack_Podcast_Helper {
 			$rss = $this->load_feed();
 
 			if ( is_wp_error( $rss ) ) {
-				return $this->cache_error( $transient_key, $rss );
+				return $this->handle_failure( $transient_key, $rss );
 			}
 
 			// Get a list of episodes by guid or all tracks in feed.
@@ -132,11 +141,11 @@ class Jetpack_Podcast_Helper {
 			}
 
 			if ( is_wp_error( $tracks ) ) {
-				return $this->cache_error( $transient_key, $tracks );
+				return $this->handle_failure( $transient_key, $tracks );
 			}
 
 			if ( empty( $tracks ) ) {
-				return $this->cache_error(
+				return $this->handle_failure(
 					$transient_key,
 					new WP_Error( 'no_tracks', __( 'Your Podcast couldn\'t be embedded as it doesn\'t contain any tracks. Please double check your URL.', 'jetpack' ) )
 				);
@@ -180,37 +189,58 @@ class Jetpack_Podcast_Helper {
 
 			// Cache for 1 hour.
 			set_transient( $transient_key, $player_data, HOUR_IN_SECONDS );
+			set_transient( static::fallback_key( $transient_key ), $player_data, static::FALLBACK_CACHE_TIMEOUT );
 		}
 
 		return $player_data;
 	}
 
 	/**
-	 * Remember a feed failure briefly, then return it unchanged.
+	 * Falls back to the last successful response, or remembers the failure briefly.
+	 *
+	 * Both are skipped for REST requests: the editor retries by resubmitting the
+	 * same URL, which rebuilds the same cache key, so a remembered failure would
+	 * outlive the fix it is telling the author to make — and stale episodes would
+	 * hide the broken feed from the person able to fix it.
 	 *
 	 * @param string   $transient_key Cache key for this feed/args combination.
-	 * @param WP_Error $error         The error to cache.
-	 * @return WP_Error
+	 * @param WP_Error $error         The error to fall back from.
+	 * @return array|WP_Error The last known player data, or the error.
 	 */
-	protected function cache_error( $transient_key, $error ) {
-		if ( static::should_cache_errors() ) {
-			set_transient( $transient_key, $error, static::ERROR_CACHE_TIMEOUT );
+	protected function handle_failure( $transient_key, $error ) {
+		if ( static::is_rest_request() ) {
+			return $error;
 		}
 
-		return $error;
+		$fallback = get_transient( static::fallback_key( $transient_key ) );
+
+		// Retry on the same cadence either way, so a recovered feed is picked up.
+		set_transient(
+			$transient_key,
+			is_array( $fallback ) ? $fallback : $error,
+			static::ERROR_CACHE_TIMEOUT
+		);
+
+		return is_array( $fallback ) ? $fallback : $error;
 	}
 
 	/**
-	 * Whether feed failures should be cached for this request.
+	 * Cache key holding the last successful response for a feed/args combination.
 	 *
-	 * Skipped for REST requests: the editor retries by resubmitting the same URL,
-	 * which rebuilds the same cache key, so a remembered failure would outlive the
-	 * fix it is telling the author to make.
+	 * @param string $transient_key The regular cache key.
+	 * @return string
+	 */
+	protected static function fallback_key( $transient_key ) {
+		return $transient_key . '_last';
+	}
+
+	/**
+	 * Whether this is a REST request.
 	 *
 	 * @return bool
 	 */
-	protected static function should_cache_errors() {
-		return ! ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+	protected static function is_rest_request() {
+		return defined( 'REST_REQUEST' ) && REST_REQUEST;
 	}
 
 	/**
@@ -357,7 +387,6 @@ class Jetpack_Podcast_Helper {
 		}
 		// Add action: detect the podcast feed from the provided feed URL.
 		add_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
-		add_action( 'wp_feed_options', array( __CLASS__, 'set_cache_fallback' ) );
 
 		$cache_timeout_filter_added = false;
 		if ( $this->cache_timeout !== null ) {
@@ -381,7 +410,6 @@ class Jetpack_Podcast_Helper {
 
 		// Remove added actions from wp_feed_options hook.
 		remove_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
-		remove_action( 'wp_feed_options', array( __CLASS__, 'set_cache_fallback' ) );
 		if ( true === $force_refresh ) {
 			remove_action( 'wp_feed_options', array( __CLASS__, 'reset_simplepie_cache' ) );
 		}
@@ -444,23 +472,6 @@ class Jetpack_Podcast_Helper {
 		}
 
 		$feed->get_registry()->register( SimplePie\Locator::class, 'Jetpack_Podcast_Feed_Locator' );
-	}
-
-	/**
-	 * Action handler to keep SimplePie's cached feed when a revalidation fails.
-	 *
-	 * A warm cache is revalidated on every fetch, at a tenth of the timeout. When
-	 * that request fails SimplePie retries at the full timeout, and a failure there
-	 * sets an error even though it loaded the cached copy successfully — which
-	 * `fetch_feed()` turns into a `WP_Error`, discarding a usable feed.
-	 *
-	 * @param SimplePie\SimplePie $feed The SimplePie object, passed by reference.
-	 * @return void
-	 */
-	public static function set_cache_fallback( &$feed ) {
-		if ( property_exists( $feed, 'force_cache_fallback' ) ) {
-			$feed->force_cache_fallback = true;
-		}
 	}
 
 	/**
