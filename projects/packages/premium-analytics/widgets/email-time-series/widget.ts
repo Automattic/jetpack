@@ -1,14 +1,12 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Internal dependencies
  */
-import { SelectField } from '@jetpack-premium-analytics/fields';
 import {
 	chartTypeAttributeField,
 	granularityAttributeField,
@@ -38,8 +36,9 @@ export type EmailTimeSeriesChartType = ChartDisplayChartType;
 export type EmailTimeSeriesAttributes = {
 	/**
 	 * Which timeline to draw: opens (default) or clicks. The post detail page
-	 * pins one per email tab, so the attribute stays at the default (low)
-	 * relevance rather than growing a header control.
+	 * pins one per email tab through the tab layout, so this is not a
+	 * user-facing control — exposing it would let a pinned tab contradict its
+	 * own title.
 	 */
 	metric?: EmailTimeSeriesMetric;
 	/**
@@ -65,16 +64,6 @@ export type EmailTimeSeriesAttributes = {
 export default {
 	icon: envelope,
 	attributes: [
-		{
-			id: 'metric',
-			label: __( 'Metric', 'jetpack-premium-analytics-pkg' ),
-			type: 'text',
-			Edit: SelectField,
-			elements: [
-				{ label: __( 'Opens', 'jetpack-premium-analytics-pkg' ), value: 'opens' },
-				{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ), value: 'clicks' },
-			],
-		},
 		granularityAttributeField( [ 'day', 'week', 'month' ] ),
 		chartTypeAttributeField(),
 	] as WidgetAttributeField< EmailTimeSeriesAttributes >[],

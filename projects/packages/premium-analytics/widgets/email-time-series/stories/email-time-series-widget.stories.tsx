@@ -62,8 +62,10 @@ function attributeElementValues< Value extends string >( id: string ): Value[] {
 	);
 }
 
-const METRIC_OPTIONS: EmailTimeSeriesMetric[] =
-	attributeElementValues< EmailTimeSeriesMetric >( 'metric' );
+// Not read from the schema: `metric` is pinned per email tab by the post detail
+// layout rather than exposed as a user-facing attribute, so the story enumerates
+// the union directly to preview both tab instances.
+const METRIC_OPTIONS: EmailTimeSeriesMetric[] = [ 'opens', 'clicks' ];
 const GRANULARITY_OPTIONS: EmailTimeSeriesGranularity[] =
 	attributeElementValues< EmailTimeSeriesGranularity >( 'granularity' );
 
