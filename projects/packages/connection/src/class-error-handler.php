@@ -1677,7 +1677,6 @@ class Error_Handler {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param int    $fault_code   The XML-RPC fault code.
 	 * @param string $fault_string The XML-RPC fault string.
 	 * @param string $url          Request URL.
 	 * @param string $method       Request method.
@@ -1685,9 +1684,9 @@ class Error_Handler {
 	 *
 	 * @return void
 	 */
-	public function check_xmlrpc_fault_for_errors( $fault_code, $fault_string, $url, $method, $user_id = 0 ) {
+	public function check_xmlrpc_fault_for_errors( string $fault_string, string $url, string $method, int $user_id = 0 ) {
 		// Same preg_match check as in Jetpack_IXR_Client::get_jetpack_error().
-		if ( ! preg_match( '#jetpack:\s+\[(\w+)\]\s*(.*)?$#i', (string) $fault_string, $match ) ) {
+		if ( ! preg_match( '#jetpack:\s+\[(\w+)\]\s*(.*)?$#i', $fault_string, $match ) ) {
 			return;
 		}
 

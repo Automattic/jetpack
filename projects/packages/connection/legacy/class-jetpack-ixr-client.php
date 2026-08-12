@@ -133,8 +133,7 @@ class Jetpack_IXR_Client extends IXR_Client {
 			// Client::remote_request()); report them here instead.
 			if ( method_exists( Error_Handler::class, 'check_xmlrpc_fault_for_errors' ) ) {
 				Error_Handler::get_instance()->check_xmlrpc_fault_for_errors(
-					$this->message->faultCode,
-					$this->message->faultString,
+					(string) $this->message->faultString,
 					$this->jetpack_args['url'],
 					'POST',
 					empty( $this->jetpack_args['user_id'] ) ? 0 : (int) $this->jetpack_args['user_id']

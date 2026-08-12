@@ -727,7 +727,6 @@ class Error_Handler_Test extends BaseTestCase {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		$this->error_handler->check_xmlrpc_fault_for_errors(
-			-10520,
 			'Jetpack: [invalid_token] The token is not valid',
 			'https://jetpack.wordpress.com/xmlrpc.php',
 			'POST'
@@ -762,7 +761,6 @@ class Error_Handler_Test extends BaseTestCase {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		$this->error_handler->check_xmlrpc_fault_for_errors(
-			-32601,
 			'server error. requested method jetpack.fetchSiteOptions does not exist.',
 			'https://jetpack.wordpress.com/xmlrpc.php',
 			'POST'
@@ -778,7 +776,6 @@ class Error_Handler_Test extends BaseTestCase {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		$this->error_handler->check_xmlrpc_fault_for_errors(
-			-10520,
 			'Jetpack: [failed_publicize_action] Could not publicize',
 			'https://jetpack.wordpress.com/xmlrpc.php',
 			'POST'
@@ -794,7 +791,6 @@ class Error_Handler_Test extends BaseTestCase {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		$this->error_handler->check_xmlrpc_fault_for_errors(
-			-10520,
 			'Jetpack: [invalid_token]',
 			'https://jetpack.wordpress.com/xmlrpc.php',
 			'POST'
@@ -812,7 +808,6 @@ class Error_Handler_Test extends BaseTestCase {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		$this->error_handler->check_xmlrpc_fault_for_errors(
-			-10520,
 			'Jetpack: [invalid_token] The token is not valid',
 			'https://jetpack.wordpress.com/xmlrpc.php',
 			'POST',
@@ -831,7 +826,6 @@ class Error_Handler_Test extends BaseTestCase {
 	public function test_check_xmlrpc_fault_for_errors_respects_the_gate() {
 		// No gate-bypass filter here: this test is about the gate.
 		$this->error_handler->check_xmlrpc_fault_for_errors(
-			-10520,
 			'Jetpack: [invalid_token] The token is not valid',
 			'https://jetpack.wordpress.com/xmlrpc.php',
 			'POST'
@@ -842,7 +836,6 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->error_handler->delete_all_errors();
 
 		$this->error_handler->check_xmlrpc_fault_for_errors(
-			-10520,
 			'Jetpack: [invalid_token] The token is not valid',
 			'https://jetpack.wordpress.com/xmlrpc.php',
 			'POST'
@@ -867,7 +860,6 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->error_handler->report_error( $this->get_sample_error( 'unknown_user', 1, Error_Handler::ERROR_TYPE_XMLRPC ) );
 
 		$this->error_handler->check_xmlrpc_fault_for_errors(
-			-10520,
 			'Jetpack: [unknown_user] The user is unknown',
 			'https://jetpack.wordpress.com/xmlrpc.php',
 			'POST'
