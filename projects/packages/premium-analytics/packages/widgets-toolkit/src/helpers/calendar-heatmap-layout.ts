@@ -62,6 +62,60 @@ const ROW_LABEL_WIDTH = 32;
 const COMPACT_CELL_SIZE = 11;
 const COMPACT_CELL_GAP = 2;
 
+export type FitWeekColumnsInput = {
+	/** Width the grid has to work with, in px. */
+	availWidth: number;
+	/** Width of one rendered cell, in px. */
+	cellWidth: number;
+	/** Gap between cells, in px. */
+	cellGap: number;
+	/**
+	 * Width to reserve for the weekday-label column, in px.
+	 *
+	 * The chart lays that column out as an `auto` grid track, so its real width is
+	 * the label text plus its padding and is not knowable from here. Each caller
+	 * passes the allowance its own cell size was designed against — which is why
+	 * the compact and design-cell heatmaps reserve different amounts.
+	 */
+	labelGutter: number;
+	/** Never return fewer than this many columns. Defaults to 0. */
+	minColumns?: number;
+	/** Cap at the weeks the range holds. Omit to let the width decide alone. */
+	dataColumns?: number;
+};
+
+/**
+ * How many whole week columns a width can draw.
+ *
+ * Every calendar heatmap answers this with the same arithmetic and its own cell
+ * metrics, so the formula lives here while the constants stay with each caller.
+ */
+export function fitWeekColumns( input: FitWeekColumnsInput ): number {
+	const { availWidth, cellWidth, cellGap, labelGutter, minColumns = 0, dataColumns } = input;
+
+	// A range holding fewer weeks than the minimum caps it; the minimum cannot
+	// conjure columns the data does not have.
+	const floorColumns = dataColumns === undefined ? minColumns : Math.min( minColumns, dataColumns );
+
+	if (
+		! isPositiveFinite( availWidth ) ||
+		! isPositiveFinite( cellWidth ) ||
+		( dataColumns !== undefined && ! isPositiveFinite( dataColumns ) )
+	) {
+		return Math.max( 0, floorColumns );
+	}
+
+	// Each rendered column occupies a cell plus one grid gap; floor so the row of
+	// cells never exceeds the available width.
+	const fitting = Math.floor( ( availWidth - labelGutter ) / ( cellWidth + cellGap ) );
+
+	return Math.max(
+		floorColumns,
+		0,
+		dataColumns === undefined ? fitting : Math.min( fitting, dataColumns )
+	);
+}
+
 /**
  * How many compact cells a width can hold, ignoring how many the range has.
  *
@@ -70,16 +124,12 @@ const COMPACT_CELL_GAP = 2;
  * tiles, so this is a request-sizing heuristic rather than a layout invariant.
  */
 export function compactCalendarHeatmapCapacity( availWidth: number ): number {
-	if ( ! isPositiveFinite( availWidth ) ) {
-		return 0;
-	}
-
-	// Each rendered column occupies a cell plus one grid gap; floor so the row of
-	// cells never exceeds the available width.
-	return Math.max(
-		0,
-		Math.floor( ( availWidth - ROW_LABEL_WIDTH ) / ( COMPACT_CELL_SIZE + COMPACT_CELL_GAP ) )
-	);
+	return fitWeekColumns( {
+		availWidth,
+		cellWidth: COMPACT_CELL_SIZE,
+		cellGap: COMPACT_CELL_GAP,
+		labelGutter: ROW_LABEL_WIDTH,
+	} );
 }
 
 const CELL_GAP = 4;

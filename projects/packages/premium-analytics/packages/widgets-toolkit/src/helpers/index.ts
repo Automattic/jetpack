@@ -67,8 +67,10 @@ export { withoutComparison } from './without-comparison';
 export {
 	compactCalendarHeatmapCapacity,
 	computeCalendarHeatmapLayout,
+	fitWeekColumns,
 	type CalendarHeatmapLayout,
 	type CalendarHeatmapLayoutInput,
+	type FitWeekColumnsInput,
 } from './calendar-heatmap-layout';
 export {
 	buildDenseDaySeries,

@@ -6,6 +6,7 @@ import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	AdaptiveCalendarHeatmap,
+	CalendarHeatmapTooltip,
 	HeatmapChartUnresponsive,
 	WidgetRoot,
 	WidgetState,
@@ -32,21 +33,21 @@ type TrafficViewsActivityRenderAttributes = TrafficViewsActivityAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type TrafficViewsActivityWidgetProps = WidgetRenderProps< TrafficViewsActivityRenderAttributes >;
 
-// Show the exact count before the date instead of the chart's default ordering.
+const formatViewCount = ( count: number ) =>
+	sprintf(
+		/* translators: %s: number of views, e.g. "2,033". */
+		_n( '%s view', '%s views', count, 'jetpack-premium-analytics-pkg' ),
+		formatMetricValue( count, 'number', { decimals: 0 } )
+	);
+
 function renderCellTooltip( { value, cellLabel }: HeatmapTooltipData ) {
 	return (
-		<>
-			<strong>
-				{ value === null
-					? __( 'No views', 'jetpack-premium-analytics-pkg' )
-					: sprintf(
-							/* translators: %s: number of views, e.g. "2,033". */
-							_n( '%s view', '%s views', value, 'jetpack-premium-analytics-pkg' ),
-							formatMetricValue( value, 'number', { decimals: 0 } )
-					  ) }
-			</strong>
-			<div>{ cellLabel }</div>
-		</>
+		<CalendarHeatmapTooltip
+			value={ value }
+			cellLabel={ cellLabel }
+			emptyLabel={ __( 'No views', 'jetpack-premium-analytics-pkg' ) }
+			formatValue={ formatViewCount }
+		/>
 	);
 }
 

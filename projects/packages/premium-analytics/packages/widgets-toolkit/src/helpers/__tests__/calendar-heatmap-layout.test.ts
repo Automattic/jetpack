@@ -4,6 +4,7 @@
 import {
 	compactCalendarHeatmapCapacity,
 	computeCalendarHeatmapLayout,
+	fitWeekColumns,
 } from '../calendar-heatmap-layout';
 import type { CalendarHeatmapLayoutInput } from '../calendar-heatmap-layout';
 
@@ -256,6 +257,38 @@ describe( 'compactCalendarHeatmapCapacity', () => {
 		[ 'NaN width', Number.NaN ],
 	] )( 'returns 0 for %s', ( _label, width ) => {
 		expect( compactCalendarHeatmapCapacity( width ) ).toBe( 0 );
+	} );
+} );
+
+describe( 'fitWeekColumns', () => {
+	// The post traffic activity heatmap's design cells.
+	const DESIGN_CELLS = { cellWidth: 64, cellGap: 4, labelGutter: 48 };
+
+	it( 'counts the whole columns the width can draw', () => {
+		// floor( (1000 - 48) / (64 + 4) ) = floor( 14 ) = 14.
+		expect( fitWeekColumns( { availWidth: 1000, ...DESIGN_CELLS } ) ).toBe( 14 );
+	} );
+
+	it( 'never returns fewer than the minimum for a usable width', () => {
+		expect( fitWeekColumns( { availWidth: 200, ...DESIGN_CELLS, minColumns: 4 } ) ).toBe( 4 );
+	} );
+
+	it( 'holds the minimum when the width is unusable, so a page still renders', () => {
+		expect( fitWeekColumns( { availWidth: 0, ...DESIGN_CELLS, minColumns: 4 } ) ).toBe( 4 );
+	} );
+
+	it( 'caps at the weeks the range actually holds', () => {
+		expect( fitWeekColumns( { availWidth: 1000, ...DESIGN_CELLS, dataColumns: 6 } ) ).toBe( 6 );
+	} );
+
+	it( 'lets a short range undercut the minimum rather than invent columns', () => {
+		expect(
+			fitWeekColumns( { availWidth: 200, ...DESIGN_CELLS, minColumns: 4, dataColumns: 2 } )
+		).toBe( 2 );
+	} );
+
+	it( 'returns 0 with no minimum to fall back on', () => {
+		expect( fitWeekColumns( { availWidth: Number.NaN, ...DESIGN_CELLS } ) ).toBe( 0 );
 	} );
 } );
 
