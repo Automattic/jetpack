@@ -29,7 +29,6 @@ export {
 	type MetricTab,
 	type MetricTabDatum,
 	type MetricTabsChartProps,
-	type MetricTabsChartSkeletonProps,
 	type MetricTabsChartType,
 } from './metric-tabs-chart';
 export {

@@ -7,28 +7,22 @@ import { render, screen } from '@testing-library/react';
  */
 import { MetricTabsChartSkeleton } from '../metric-tabs-chart-skeleton';
 
-/**
- * The header carrying the container-query key. It has no accessible name of its
- * own, and the attribute is the contract between the shape and its stylesheet.
- *
- * @return The element whose `data-tabs` the stylesheet keys off.
- */
-function skeletonHeader(): HTMLElement | null {
-	return screen.getByRole( 'status' ).querySelector( '[data-tabs]' );
-}
-
 describe( 'MetricTabsChartSkeleton', () => {
-	it( 'keys the header off the tab count', () => {
-		render( <MetricTabsChartSkeleton tabs={ 3 } /> );
+	it( 'draws a single chart block inside a status region', () => {
+		render( <MetricTabsChartSkeleton /> );
 
-		expect( skeletonHeader() ).toHaveAttribute( 'data-tabs', '3' );
+		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.getAllByTestId( 'skeleton-chart-block' ) ).toHaveLength( 1 );
 	} );
 
-	it( 'collapses tab counts past the widest rule onto it', () => {
-		// The stylesheet stops at six; more tabs share the widest threshold
-		// rather than falling through to the card grid on every width.
-		render( <MetricTabsChartSkeleton tabs={ 9 } /> );
+	it( 'draws no metric card placeholders', () => {
+		// The card count is only known once data lands, and the real header
+		// collapses to a dropdown at a width the skeleton cannot predict, so a
+		// card-shaped stand-in would land as a jump rather than prevent one.
+		const { container } = render( <MetricTabsChartSkeleton /> );
 
-		expect( skeletonHeader() ).toHaveAttribute( 'data-tabs', '6' );
+		expect( screen.queryByTestId( 'skeleton-line' ) ).not.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the absence of a container-query key is the assertion; there is no element to query for.
+		expect( container.querySelector( '[data-tabs]' ) ).toBeNull();
 	} );
 } );

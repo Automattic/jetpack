@@ -84,9 +84,9 @@ function WordAdsChartTabsInner( { granularity }: WordAdsChartTabsInnerProps ) {
 					icon: megaphone,
 					description: __( 'No WordAds data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
-				// Draw the chart-shaped skeleton — a card per metric tab over a chart
-				// block — instead of the generic one.
-				renderLoading={ <MetricTabsChartSkeleton tabs={ metrics.length } /> }
+				// The chart is the whole content here, so its block replaces the generic
+				// stacked lines.
+				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart
 					metrics={ metrics }

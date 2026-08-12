@@ -19,7 +19,6 @@ export {
 	type MetricTab,
 	type MetricTabDatum,
 	type MetricTabsChartProps,
-	type MetricTabsChartSkeletonProps,
 	type MetricTabsChartType,
 	WidgetRoot,
 	WidgetRootContext,

@@ -5,7 +5,4 @@ export {
 	type MetricTabsChartProps,
 	type MetricTabsChartType,
 } from './metric-tabs-chart';
-export {
-	MetricTabsChartSkeleton,
-	type MetricTabsChartSkeletonProps,
-} from './metric-tabs-chart-skeleton';
+export { MetricTabsChartSkeleton } from './metric-tabs-chart-skeleton';

@@ -330,9 +330,9 @@ function StorePerformanceContent() {
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
-				// Draw the chart-shaped skeleton — a card per metric tab over a chart
-				// block — instead of the generic one.
-				renderLoading={ <MetricTabsChartSkeleton tabs={ metricTabs.length } /> }
+				// The chart is the whole content here, so its block replaces the generic
+				// stacked lines.
+				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart
 					metrics={ metricTabs }

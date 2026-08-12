@@ -96,6 +96,26 @@ describe( 'WidgetState', () => {
 		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'uses the caller loading override during a refetch too, not just the first load', () => {
+		// The chart widgets rely on this: re-splitting the branch so the override
+		// only covered `isLoading` would silently drop them back to the generic
+		// shape on every date-range change.
+		render(
+			<WidgetState
+				isLoading={ false }
+				isFetching
+				isError={ false }
+				isEmpty={ false }
+				renderLoading={ <div>override</div> }
+			>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect( screen.getByText( 'override' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'renders the empty state (not error) when resolved with no rows', () => {
 		render(
 			<WidgetState
