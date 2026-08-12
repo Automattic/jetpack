@@ -31,7 +31,7 @@ class Customize_Feed {
 	/**
 	 * Enclosure URLs already emitted in the current feed render, keyed by post
 	 * ID then URL. Reset on `rss2_head` so each feed starts clean — see
-	 * {@see self::is_duplicate_enclosure()}.
+	 * {@see self::reset_render_state()}.
 	 *
 	 * @var array<int, array<string, true>>
 	 */
@@ -41,6 +41,8 @@ class Customize_Feed {
 	 * The `<description>` most recently rendered, as `[ post ID, value ]`, for
 	 * {@see self::output_item_tags()} to reuse. One slot: the template emits
 	 * `<description>` immediately before `rss2_item` fires for the same item.
+	 * Reset per render — see {@see self::reset_render_state()} — so a template
+	 * that skips `<description>` can't match a previous render's post ID.
 	 *
 	 * @var array{0: int, 1: string}
 	 */
@@ -93,7 +95,7 @@ class Customize_Feed {
 		add_action( 'rss2_ns', array( __CLASS__, 'output_namespaces' ) );
 		add_filter( 'wp_title_rss', array( __CLASS__, 'feed_title' ) );
 		add_filter( 'bloginfo_rss', array( __CLASS__, 'feed_description' ), 10, 2 );
-		add_action( 'rss2_head', array( __CLASS__, 'reset_enclosure_dedup' ), 0 );
+		add_action( 'rss2_head', array( __CLASS__, 'reset_render_state' ), 0 );
 		add_action( 'rss2_head', array( __CLASS__, 'output_channel_tags' ) );
 		add_action( 'rss2_item', array( __CLASS__, 'output_item_tags' ) );
 		add_filter( 'rss_enclosure', array( __CLASS__, 'rewrite_enclosure' ) );
@@ -360,7 +362,7 @@ class Customize_Feed {
 
 		// Drop repeats: rows keyed per post, by final URL, so distinct enclosures
 		// survive while the duplicate stats URLs collapse to one. Registry is
-		// cleared per render — see `reset_enclosure_dedup()`.
+		// cleared per render — see `reset_render_state()`.
 		$post_id = null !== $post_obj ? (int) $post_obj->ID : 0;
 		if ( isset( self::$seen_enclosures[ $post_id ][ $final_url ] ) ) {
 			return '';
@@ -380,13 +382,14 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Clear the per-render enclosure dedup registry. Hooked on `rss2_head` (at
-	 * priority 0, before any item renders) so re-generating a feed within a
-	 * single long-lived process — WP-CLI, a warm worker — starts fresh instead
-	 * of dropping every enclosure as already-seen.
+	 * Clear the per-render statics. Hooked on `rss2_head` (at priority 0, before
+	 * any item renders) so re-generating a feed within a single long-lived
+	 * process — WP-CLI, a warm worker — starts fresh instead of dropping every
+	 * enclosure as already-seen or reusing the last render's summary.
 	 */
-	public static function reset_enclosure_dedup() {
+	public static function reset_render_state() {
 		self::$seen_enclosures = array();
+		self::$item_summary    = array( 0, '' );
 	}
 
 	/**

@@ -38,7 +38,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
 		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
 		Jetpack_Options::delete_option( 'id' );
-		Customize_Feed::reset_enclosure_dedup();
+		Customize_Feed::reset_render_state();
 		wp_cache_flush();
 		unset( $GLOBALS['post'] );
 		parent::tearDown();
@@ -393,11 +393,11 @@ class Customize_Feed_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The dedup registry is per feed render: `reset_enclosure_dedup()` (hooked
+	 * The dedup registry is per feed render: `reset_render_state()` (hooked
 	 * on `rss2_head`) clears it so re-generating the same feed within one
 	 * long-lived process emits enclosures again instead of dropping them all.
 	 */
-	public function test_reset_enclosure_dedup_lets_the_same_url_emit_on_a_fresh_render() {
+	public function test_reset_render_state_lets_the_same_url_emit_on_a_fresh_render() {
 		global $post;
 		$post = new WP_Post(
 			(object) array(
@@ -413,7 +413,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'url="https://example.com/episode.mp3"', Customize_Feed::rewrite_enclosure( $markup ) );
 		$this->assertSame( '', Customize_Feed::rewrite_enclosure( $markup ) );
 
-		Customize_Feed::reset_enclosure_dedup();
+		Customize_Feed::reset_render_state();
 
 		$this->assertStringContainsString( 'url="https://example.com/episode.mp3"', Customize_Feed::rewrite_enclosure( $markup ) );
 	}
@@ -722,6 +722,50 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'Body prose that listeners should see.', $output );
 		$this->assertStringNotContainsString( 'mediaUrl', $output );
 		$this->assertStringNotContainsString( 'example.com/ep.mp3', $output );
+	}
+
+	/**
+	 * `<itunes:summary>` reuses the `<description>` captured for the same item,
+	 * and `reset_render_state()` drops it — otherwise a second render in one
+	 * long-lived process could match a stale post ID and emit the previous
+	 * feed's text instead of falling back to a fresh excerpt.
+	 */
+	public function test_reset_render_state_drops_the_captured_item_summary() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Episode with Excerpt',
+				'post_status'  => 'publish',
+				'post_excerpt' => 'Authored summary for this episode.',
+				'post_content' => '<!-- wp:jetpack/podcast-episode {"mediaUrl":"https://example.com/ep.mp3"} /-->',
+			)
+		);
+
+		global $post;
+		$post = get_post( $post_id );
+		setup_postdata( $post );
+
+		Customize_Feed::capture_item_summary( 'Summary the description actually printed.' );
+
+		ob_start();
+		Customize_Feed::output_item_tags();
+		$reused = (string) ob_get_clean();
+
+		Customize_Feed::reset_render_state();
+
+		ob_start();
+		Customize_Feed::output_item_tags();
+		$after_reset = (string) ob_get_clean();
+
+		wp_reset_postdata();
+
+		$this->assertStringContainsString(
+			'<itunes:summary>Summary the description actually printed.</itunes:summary>',
+			$reused
+		);
+		$this->assertStringContainsString(
+			'<itunes:summary>Authored summary for this episode.</itunes:summary>',
+			$after_reset
+		);
 	}
 
 	public function test_skip_block_in_feed_strips_episode_block() {
