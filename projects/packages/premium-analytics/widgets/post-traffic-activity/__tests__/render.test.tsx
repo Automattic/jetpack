@@ -26,10 +26,13 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 		...actual,
 		HeatmapChartUnresponsive: ( {
 			renderTooltip,
+			maxCellHeight,
 		}: {
 			renderTooltip?: ( data: TooltipData ) => ReactNode;
+			maxCellHeight?: number;
 		} ) => (
 			<>
+				<div data-testid="max-cell-height">{ maxCellHeight }</div>
 				<div data-testid="tooltip-filler-blank">
 					{ renderTooltip?.( {
 						value: null,
@@ -114,5 +117,65 @@ describe( 'PostTrafficActivity tooltip', () => {
 
 		// The date stays in the tooltip, below the count.
 		expect( screen.getByTestId( 'tooltip-filler-blank' ) ).toHaveTextContent( 'Mon, Jul 6, 2026' );
+	} );
+} );
+
+// The cell-height cap follows the measured chart area so the grid — month-label
+// header row included — never outgrows the tile and clips. jsdom reports a zero
+// rect by default, which doubles as the unmeasured initial render.
+describe( 'PostTrafficActivity cell sizing', () => {
+	beforeEach( () => {
+		mockUsePostTrafficActivity.mockReset();
+		mockUsePostTrafficActivity.mockReturnValue( {
+			days: twoWeeksOfDays(),
+			isPaged: false,
+			canShowOlder: false,
+			canShowNewer: false,
+			showOlder: jest.fn(),
+			showNewer: jest.fn(),
+			isLoading: false,
+			isFetching: false,
+			isError: false,
+			hasData: true,
+			refetch: jest.fn(),
+		} );
+	} );
+
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
+	function mockMeasuredHeight( height: number ) {
+		jest
+			.spyOn( HTMLDivElement.prototype, 'getBoundingClientRect' )
+			.mockReturnValue( { width: 700, height } as DOMRect );
+	}
+
+	it( 'keeps the design cap while the area is unmeasured', () => {
+		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+
+		expect( screen.getByTestId( 'max-cell-height' ) ).toHaveTextContent( '42' );
+	} );
+
+	it( 'shrinks the cells so a short tile still fits the month-label row', () => {
+		// 200px minus the 44px grid overhead leaves 156px for seven rows → 22px.
+		mockMeasuredHeight( 200 );
+		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+
+		expect( screen.getByTestId( 'max-cell-height' ) ).toHaveTextContent( '22' );
+	} );
+
+	it( 'keeps the design cap when the tile offers more than enough height', () => {
+		mockMeasuredHeight( 600 );
+		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+
+		expect( screen.getByTestId( 'max-cell-height' ) ).toHaveTextContent( '42' );
+	} );
+
+	it( 'clamps to the minimum readable cell on a collapsed tile', () => {
+		mockMeasuredHeight( 50 );
+		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+
+		expect( screen.getByTestId( 'max-cell-height' ) ).toHaveTextContent( '8' );
 	} );
 } );

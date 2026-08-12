@@ -10,6 +10,7 @@ import {
 	WidgetState,
 	buildCalendarHeatmapData,
 	toDay,
+	useElementSize,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -56,6 +57,30 @@ function weeksForWidth( width?: number ): number {
 	);
 }
 
+const MAX_CELL_HEIGHT = 42;
+const MIN_CELL_HEIGHT = 8;
+// The grid's vertical overhead around the seven cell tracks: the auto header
+// row holding the month labels (16px, matching the shared layout helper's
+// allowance) plus its gap and the six inter-row gaps.
+const GRID_VERTICAL_OVERHEAD = 16 + 7 * CELL_GAP;
+
+/**
+ * Cell height that keeps the whole grid — month-label header row included —
+ * inside the measured chart area, capped at the design's 42px. A fixed cap
+ * alone overflows short tiles, and the content's centering then pushes the
+ * month labels above the scroll origin where they clip.
+ */
+function cellHeightForArea( height: number ): number {
+	if ( ! height ) {
+		return MAX_CELL_HEIGHT;
+	}
+
+	return Math.max(
+		MIN_CELL_HEIGHT,
+		Math.min( MAX_CELL_HEIGHT, Math.floor( ( height - GRID_VERTICAL_OVERHEAD ) / 7 ) )
+	);
+}
+
 /**
  * Renders one page of the post's daily views as a calendar heatmap. Ranges
  * longer than one page grow a header pager stepping through the range; without
@@ -91,6 +116,12 @@ function PostTrafficActivityInner() {
 		hasData,
 		refetch,
 	} = usePostTrafficActivity( postId, reportParams, weeksForWidth( width ) * 7 );
+
+	// The height left for the grid once the pager row has taken its share. Only
+	// the cell height reads it — the page span stays width-derived, so paging
+	// cannot feed back into the measurement and oscillate.
+	const [ chartAreaRef, chartAreaSize ] = useElementSize< HTMLDivElement >();
+	const maxCellHeight = cellHeightForArea( chartAreaSize.height );
 
 	const { data: heatmapData, rowLabels } = useMemo(
 		() => buildCalendarHeatmapData( days ),
@@ -174,9 +205,9 @@ function PostTrafficActivityInner() {
 					} }
 				>
 					<div className={ styles.content }>
-						{ /* The pager centers with the grid as one block; it only exists
-						     when the range exceeds one page (and only in the ready state,
-						     where the grid it steps is visible). */ }
+						{ /* The pager only exists when the range exceeds one page (and
+						     only in the ready state, where the grid it steps is
+						     visible); the grid centers in the height it leaves over. */ }
 						{ isPaged && (
 							<Stack align="center" justify="flex-end" gap="sm" className={ styles.pager }>
 								<Button
@@ -206,19 +237,24 @@ function PostTrafficActivityInner() {
 						{ /* The unresponsive chart export: the capped grid is
 						     content-sized and the page span is derived from the widget's
 						     own measurement, so the responsive wrapper's full-height
-						     measuring container would only break the centered block. */ }
-						<HeatmapChartUnresponsive
-							data={ heatmapData }
-							rowLabels={ rowLabels }
-							primaryColor="var(--wp-admin-theme-color, #3858e9)"
-							withTooltips
-							// Cap cells at the design's 64x42; the page span is already
-							// sized to the card, so tracks never need to shrink below it.
-							maxCellWidth={ 64 }
-							maxCellHeight={ 42 }
-							renderTooltip={ renderCellTooltip }
-							className={ styles.heatmap }
-						/>
+						     measuring container would only break the centered grid. */ }
+						<div ref={ chartAreaRef } className={ styles.chartArea }>
+							<HeatmapChartUnresponsive
+								data={ heatmapData }
+								rowLabels={ rowLabels }
+								primaryColor="var(--wp-admin-theme-color, #3858e9)"
+								withTooltips
+								// Cap cells at the design's 64px width; the page span is
+								// already sized to the card, so tracks never need to
+								// shrink below it. The height cap follows the measured
+								// area so short tiles get flatter cells, not a clipped
+								// month-label row.
+								maxCellWidth={ 64 }
+								maxCellHeight={ maxCellHeight }
+								renderTooltip={ renderCellTooltip }
+								className={ styles.heatmap }
+							/>
+						</div>
 					</div>
 				</WidgetState>
 			</div>

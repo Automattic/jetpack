@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Post traffic activity: fit the heatmap cells to the tile height so the month labels are no longer clipped.

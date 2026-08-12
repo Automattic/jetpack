@@ -31,18 +31,32 @@
 	flex-direction: column;
 	height: 100%;
 	min-height: 0;
-
-	/* The pager + content-sized grid center as one block in the leftover
-	   tile height. */
-	justify-content: center;
 	gap: var(--wpds-dimension-gap-sm);
 
 	/* Safety net for sub-minimum widths (the page floor is 4 week columns). */
 	overflow-x: auto;
 }
 
+/* The rectangle the grid may occupy: the tile height the pager leaves over.
+   Its measured height drives the cell height, so the grid — month-label row
+   included — always fits it. */
+.chartArea {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-height: 0;
+}
+
 .heatmap {
 	flex: 0 0 auto;
 	min-width: 0;
 	min-height: 0;
+
+	/* Overflow-safe vertical centering: auto margins collapse to zero when
+	   the grid outgrows the area (a rounding edge), falling back to top
+	   alignment. `justify-content: center` instead pushes the overflow past
+	   the scroll origin — `overflow-x: auto` above makes `.content` a scroll
+	   container, so that start-side overflow (the month labels) is
+	   unreachable and renders clipped. */
+	margin-block: auto;
 }
