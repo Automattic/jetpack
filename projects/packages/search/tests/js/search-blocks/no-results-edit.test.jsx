@@ -18,25 +18,10 @@ jest.mock( '@wordpress/components', () => ( {
 			{ children }
 		</section>
 	),
-	RadioControl: ( { label, selected, options, onChange } ) => (
-		<fieldset aria-label={ label }>
-			{ options.map( option => {
-				const id = `filter-state-${ option.value }`;
-				return (
-					<label key={ option.value } htmlFor={ id }>
-						<input
-							id={ id }
-							type="radio"
-							name="filterState"
-							value={ option.value }
-							checked={ selected === option.value }
-							onChange={ () => onChange( option.value ) }
-						/>
-						{ option.label }
-					</label>
-				);
-			} ) }
-		</fieldset>
+	Button: ( { children, onClick } ) => (
+		<button type="button" onClick={ onClick }>
+			{ children }
+		</button>
 	),
 } ) );
 
@@ -44,9 +29,15 @@ jest.mock( '@wordpress/i18n', () => ( {
 	__: text => text,
 } ) );
 
-let mockInnerBlockCount = 0;
+jest.mock( '@wordpress/blocks', () => ( {
+	createBlock: ( name, attributes ) => ( { name, attributes } ),
+} ) );
+
+let mockSlots = [];
+const mockInsertBlock = jest.fn();
 jest.mock( '@wordpress/data', () => ( {
-	useSelect: callback => callback( () => ( { getBlockCount: () => mockInnerBlockCount } ) ),
+	useSelect: callback => callback( () => ( { getBlocks: () => mockSlots } ) ),
+	useDispatch: () => ( { insertBlock: mockInsertBlock } ),
 } ) );
 
 const UNFILTERED_DEFAULT = 'No results found. Try a different search.';
@@ -56,84 +47,73 @@ const FILTERED_DEFAULT =
 describe( 'NoResultsEdit', () => {
 	beforeEach( () => {
 		InnerBlocks.mockClear();
-		mockInnerBlockCount = 0;
+		mockInsertBlock.mockClear();
+		mockSlots = [];
 	} );
 
-	// The block carries no InnerBlocks template on purpose: an auto-inserted
-	// placeholder paragraph would serialize as an empty `<p>` and displace the
-	// localized fallback render.php emits for an untouched block.
-	it( 'renders InnerBlocks with no template so an untouched block stays empty', () => {
-		render( <NoResultsEdit attributes={ {} } setAttributes={ jest.fn() } clientId="nr-1" /> );
+	// An empty container renders the filter-aware default pair, so the canvas
+	// has to show the same thing rather than an empty box.
+	it( 'previews the default pair while the container has no variants', () => {
+		render( <NoResultsEdit clientId="nr-1" /> );
 
-		expect( screen.getByTestId( 'no-results-inner-blocks' ) ).toBeInTheDocument();
+		expect( screen.getByText( UNFILTERED_DEFAULT ) ).toBeInTheDocument();
+		expect( screen.getByText( FILTERED_DEFAULT ) ).toBeInTheDocument();
+	} );
+
+	it( 'drops the preview once a variant is added', () => {
+		mockSlots = [ { attributes: { condition: 'any' } } ];
+		render( <NoResultsEdit clientId="nr-1" /> );
+
+		expect( screen.queryByText( UNFILTERED_DEFAULT ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers a button per condition and inserts the matching variant', () => {
+		render( <NoResultsEdit clientId="nr-1" /> );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Filters are active' } ) );
+		expect( mockInsertBlock ).toHaveBeenCalledWith(
+			{ name: 'jetpack-search/no-results-slot', attributes: { condition: 'filtered' } },
+			0,
+			'nr-1'
+		);
+	} );
+
+	// The renderer would just stack a second variant for a condition that is
+	// already covered, so the button for it has to disappear.
+	it( 'hides the button for a condition a variant already covers', () => {
+		mockSlots = [ { attributes: { condition: 'any' } }, { attributes: { condition: 'error' } } ];
+		render( <NoResultsEdit clientId="nr-1" /> );
+
+		expect( screen.queryByRole( 'button', { name: 'Any empty search' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Search failed' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Filters are active' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'appends new variants after the existing ones', () => {
+		mockSlots = [ { attributes: { condition: 'any' } }, { attributes: { condition: 'filtered' } } ];
+		render( <NoResultsEdit clientId="nr-1" /> );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- see above.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Search failed' } ) );
+		expect( mockInsertBlock ).toHaveBeenCalledWith( expect.anything(), 2, 'nr-1' );
+	} );
+
+	// A variant missing its attribute still occupies the unscoped condition —
+	// treating it as uncovered would offer a button that stacks a duplicate.
+	it( 'treats a variant with no saved condition as the unscoped one', () => {
+		mockSlots = [ { attributes: {} } ];
+		render( <NoResultsEdit clientId="nr-1" /> );
+
+		expect( screen.queryByRole( 'button', { name: 'Any empty search' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'restricts inner blocks to variants and suppresses the default appender', () => {
+		render( <NoResultsEdit clientId="nr-1" /> );
+
+		expect( InnerBlocks ).toHaveBeenCalled();
 		const props = InnerBlocks.mock.calls[ 0 ][ 0 ];
-		expect( props.template ).toBeUndefined();
-		expect( props.renderAppender ).toBe( InnerBlocks.ButtonBlockAppender );
-	} );
-
-	it( 'previews both default messages while the block is empty', () => {
-		render( <NoResultsEdit attributes={ {} } setAttributes={ jest.fn() } clientId="nr-1" /> );
-
-		expect( screen.getByText( UNFILTERED_DEFAULT ) ).toBeInTheDocument();
-		expect( screen.getByText( FILTERED_DEFAULT ) ).toBeInTheDocument();
-	} );
-
-	it( 'narrows the preview to the message matching the chosen filter state', () => {
-		render(
-			<NoResultsEdit
-				attributes={ { filterState: 'filtered' } }
-				setAttributes={ jest.fn() }
-				clientId="nr-1"
-			/>
-		);
-
-		expect( screen.getByText( FILTERED_DEFAULT ) ).toBeInTheDocument();
-		expect( screen.queryByText( UNFILTERED_DEFAULT ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'drops the default preview once the author adds content', () => {
-		mockInnerBlockCount = 1;
-		render( <NoResultsEdit attributes={ {} } setAttributes={ jest.fn() } clientId="nr-1" /> );
-
-		expect( screen.queryByText( UNFILTERED_DEFAULT ) ).not.toBeInTheDocument();
-		expect( screen.getByTestId( 'no-results-inner-blocks' ) ).toBeInTheDocument();
-	} );
-
-	it( 'updates the filterState attribute from the Display when control', () => {
-		const setAttributes = jest.fn();
-		render( <NoResultsEdit attributes={ {} } setAttributes={ setAttributes } clientId="nr-1" /> );
-
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; the sibling block tests use fireEvent for the same reason.
-		fireEvent.click( screen.getByRole( 'radio', { name: 'Filters are active' } ) );
-		expect( setAttributes ).toHaveBeenCalledWith( { filterState: 'filtered' } );
-	} );
-
-	// A hand-edited or future-version attribute must not leave the canvas
-	// blank; the unscoped state is the safe read.
-	it( 'falls back to the unscoped state for an unknown filterState', () => {
-		render(
-			<NoResultsEdit
-				attributes={ { filterState: 'bogus' } }
-				setAttributes={ jest.fn() }
-				clientId="nr-1"
-			/>
-		);
-
-		expect( screen.getByRole( 'radio', { name: 'Any empty search' } ) ).toBeChecked();
-		expect( screen.getByText( UNFILTERED_DEFAULT ) ).toBeInTheDocument();
-	} );
-
-	// Two No Results blocks in one results region look identical on the
-	// canvas without this, so the label carries the distinguishing state.
-	it( 'labels the block with its filter state on the canvas', () => {
-		render(
-			<NoResultsEdit
-				attributes={ { filterState: 'filtered' } }
-				setAttributes={ jest.fn() }
-				clientId="nr-1"
-			/>
-		);
-
-		expect( screen.getByText( 'No Results — filters active' ) ).toBeInTheDocument();
+		expect( props.allowedBlocks ).toEqual( [ 'jetpack-search/no-results-slot' ] );
+		expect( props.renderAppender ).toBe( false );
 	} );
 } );

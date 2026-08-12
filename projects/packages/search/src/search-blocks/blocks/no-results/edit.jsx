@@ -1,109 +1,98 @@
 /**
  * Editor preview for jetpack-search/no-results.
  *
- * Deliberately no `InnerBlocks` template, unlike `core/query-no-results`: an
- * auto-inserted placeholder paragraph serializes as an empty `<p>`, which
- * would displace the localized default copy `render.php` falls back to the
- * moment an author so much as clicks into a shipped template. The block stays
- * genuinely empty until the author adds something, and the preview below
- * stands in for what visitors would see meanwhile.
+ * A container of `no-results-slot` variants, one per condition. The inspector
+ * is the only way to add one — the default appender would insert a second
+ * `Any empty search` variant, which the renderer would just stack on the
+ * first. Choosing a condition adds the slot for it and nothing else.
  *
- * The outline + label and `ButtonBlockAppender` are the container-boundary
- * mitigation described in AGENTS.md's "InnerBlocks appender boundary trap".
+ * Deliberately no `InnerBlocks` template: an empty container renders the same
+ * filter-aware default pair `results-list` always emitted, so the shipped
+ * templates can carry a self-closing block and still translate. Auto-inserting
+ * a variant would dirty every template the moment an author clicked into it.
  */
 import { InnerBlocks, InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, RadioControl } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { createBlock } from '@wordpress/blocks';
+import { Button, PanelBody } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { conditionLabels } from '../no-results-slot/edit';
 
-const FILTER_STATES = [ 'any', 'filtered', 'error' ];
-
-// Mirrors `Search_Blocks::no_results_default_messages()` so the canvas shows
-// what a visitor would get from an untouched block. A function, not a
-// constant, so the `__()` calls run after the editor's i18n is loaded rather
-// than being cached in the source locale at module init.
-const defaultMessages = filterState => {
-	if ( filterState === 'error' ) {
-		return [ __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' ) ];
-	}
-	const messages = [];
-	if ( filterState !== 'filtered' ) {
-		messages.push( __( 'No results found. Try a different search.', 'jetpack-search-pkg' ) );
-	}
-	messages.push(
-		__(
-			'No results match these filters. Try clearing some, or searching for something else.',
-			'jetpack-search-pkg'
-		)
-	);
-	return messages;
-};
-
-const displayWhenOptions = () => [
-	{ label: __( 'Any empty search', 'jetpack-search-pkg' ), value: 'any' },
-	{ label: __( 'Filters are active', 'jetpack-search-pkg' ), value: 'filtered' },
-	{ label: __( 'Search failed', 'jetpack-search-pkg' ), value: 'error' },
-];
-
-// Canvas labels, so two No Results blocks in one results region are tellable
-// apart. Keyed rather than branched: a `return __( … )` per branch reads better
-// but the production minifier folds the identical calls into one `__()` with a
-// computed msgid, which `i18n-check-webpack-plugin` rejects and which would
-// leave the strings untranslatable.
-const editorLabels = () => ( {
-	any: __( 'No Results', 'jetpack-search-pkg' ),
-	filtered: __( 'No Results — filters active', 'jetpack-search-pkg' ),
-	error: __( 'No Results — search failed', 'jetpack-search-pkg' ),
-} );
+const SLOT_BLOCK = 'jetpack-search/no-results-slot';
+const CONDITIONS = [ 'any', 'filtered', 'error' ];
+const ALLOWED = [ SLOT_BLOCK ];
 
 /**
  * Edit component for the no-results block.
  *
- * @param {object}   props               - Block props.
- * @param {object}   props.attributes    - Block attributes.
- * @param {Function} props.setAttributes - Attribute setter.
- * @param {string}   props.clientId      - Block client id.
+ * @param {object} props          - Block props.
+ * @param {string} props.clientId - Block client id.
  * @return {object} Rendered element.
  */
-export default function NoResultsEdit( { attributes, setAttributes, clientId } ) {
-	const stored = attributes?.filterState;
-	const filterState = FILTER_STATES.includes( stored ) ? stored : 'any';
-	const hasInnerBlocks = useSelect(
-		select => select( 'core/block-editor' ).getBlockCount( clientId ) > 0,
+export default function NoResultsEdit( { clientId } ) {
+	const { used, count } = useSelect(
+		select => {
+			const blockEditor = select( 'core/block-editor' );
+			const slots = blockEditor.getBlocks( clientId );
+			return {
+				// Joined rather than an array so `useSelect`'s `isShallowEqual`
+				// comparison doesn't see a fresh object on every store change.
+				used: slots.map( s => s.attributes?.condition ?? 'any' ).join( ',' ),
+				count: slots.length,
+			};
+		},
 		[ clientId ]
 	);
+	const { insertBlock } = useDispatch( 'core/block-editor' );
 	const blockProps = useBlockProps( {
-		className: 'jetpack-search-no-results jetpack-search-no-results__editor-canvas',
+		className: 'jetpack-search-no-results jetpack-search-no-results__editor-container',
 	} );
+	const taken = used ? used.split( ',' ) : [];
+	const available = CONDITIONS.filter( c => ! taken.includes( c ) );
+	const labels = conditionLabels();
 
 	return (
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack-search-pkg' ) }>
-					<RadioControl
-						label={ __( 'Display when', 'jetpack-search-pkg' ) }
-						help={ __(
-							'Add another No Results block to show different content when a filtered search comes back empty, or when the search request fails.',
+					<p className="components-base-control__help">
+						{ __(
+							'Add a variant for each condition you want to word differently. With none added, the default message covers every empty search.',
 							'jetpack-search-pkg'
 						) }
-						selected={ filterState }
-						options={ displayWhenOptions() }
-						onChange={ value => setAttributes( { filterState: value } ) }
-					/>
+					</p>
+					{ available.map( condition => (
+						<Button
+							key={ condition }
+							__next40pxDefaultSize
+							variant="secondary"
+							onClick={ () =>
+								insertBlock( createBlock( SLOT_BLOCK, { condition } ), count, clientId )
+							}
+						>
+							{ labels[ condition ] }
+						</Button>
+					) ) }
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>
-				<span className="jetpack-search-no-results__editor-label">
-					{ editorLabels()[ filterState ] }
-				</span>
-				{ ! hasInnerBlocks && (
-					<div className="jetpack-search-no-results__default-preview">
-						{ defaultMessages( filterState ).map( message => (
-							<p key={ message }>{ message }</p>
-						) ) }
+				{ count === 0 && (
+					<div className="jetpack-search-no-results__variant jetpack-search-no-results__editor-canvas">
+						<span className="jetpack-search-no-results__editor-label">
+							{ __( 'No Results', 'jetpack-search-pkg' ) }
+						</span>
+						<div className="jetpack-search-no-results__default-preview">
+							<p>{ __( 'No results found. Try a different search.', 'jetpack-search-pkg' ) }</p>
+							<p>
+								{ __(
+									'No results match these filters. Try clearing some, or searching for something else.',
+									'jetpack-search-pkg'
+								) }
+							</p>
+						</div>
 					</div>
 				) }
-				<InnerBlocks renderAppender={ InnerBlocks.ButtonBlockAppender } />
+				<InnerBlocks allowedBlocks={ ALLOWED } renderAppender={ false } />
 			</div>
 		</>
 	);

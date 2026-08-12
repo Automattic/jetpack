@@ -677,6 +677,17 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * Whether the results region is showing something other than results —
+		 * an empty state or an error. Binds the `no-results` container, whose
+		 * variants then hide themselves per condition.
+		 *
+		 * @return {boolean} True when any empty-state variant could show.
+		 */
+		get showEmptyStateRegion() {
+			return state.showNoResults || state.showError;
+		},
+
+		/**
 		 * No-results visibility for an unscoped `no-results` block. Yields on a
 		 * filtered empty search when a `filtered` block claimed it, so the
 		 * suggested "keep the default block, add a filters-active one" pairing

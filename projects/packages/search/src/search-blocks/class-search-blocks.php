@@ -2366,6 +2366,101 @@ HTML;
 	}
 
 	/**
+	 * Store getter that decides whether an empty-state condition is showing.
+	 *
+	 * `data-wp-bind` only evaluates simple property paths, so each condition
+	 * needs its own getter rather than an inline expression.
+	 *
+	 * @param string $condition One of `any`, `filtered`, `error`.
+	 * @return string Getter path.
+	 */
+	public static function no_results_visibility_getter( string $condition ): string {
+		$getters = array(
+			'any'      => 'state.showNoResultsAny',
+			'filtered' => 'state.showNoResultsFiltered',
+			'error'    => 'state.showError',
+		);
+		return $getters[ $condition ] ?? $getters['any'];
+	}
+
+	/**
+	 * Live-region attribute for an empty-state condition's default copy.
+	 *
+	 * A failure is assertive, an empty result set is not — the same split
+	 * `results-list` has always emitted between its two regions. Only the
+	 * default copy gets one: announcing an author's whole composition verbatim
+	 * on every empty search is worse than not announcing it.
+	 *
+	 * @param string $condition One of `any`, `filtered`, `error`.
+	 * @return string Attribute markup.
+	 */
+	public static function no_results_live_region_attribute( string $condition ): string {
+		return 'error' === $condition ? 'role="alert"' : 'role="status"';
+	}
+
+	/**
+	 * Seed which empty states a `no-results` variant covers.
+	 *
+	 * `results-list`'s legacy regions stand down only for the cases actually
+	 * covered, so a lone variant scoped to one condition doesn't leave the
+	 * others with no message at all. `wp_interactivity_state()` deep-merges and
+	 * nothing ever seeds `false`, so variants compose into full coverage.
+	 *
+	 * A `filtered` variant additionally claims that state, and an unscoped
+	 * (`any`) one yields where it did — otherwise the two would stack on a
+	 * filtered empty search. `error` is disjoint from both: it retires only the
+	 * legacy error region, which keeps `any` the safe default.
+	 *
+	 * @param string $condition One of `any`, `filtered`, `error`.
+	 * @return void
+	 */
+	public static function seed_no_results_coverage( string $condition ): void {
+		if ( ! function_exists( 'wp_interactivity_state' ) ) {
+			return;
+		}
+		if ( 'error' === $condition ) {
+			$coverage = array( 'hasErrorBlock' => true );
+		} else {
+			$coverage = array( 'hasNoResultsFiltered' => true );
+			if ( 'filtered' === $condition ) {
+				$coverage['hasScopedNoResultsFiltered'] = true;
+			} else {
+				$coverage['hasNoResultsUnfiltered'] = true;
+			}
+		}
+		wp_interactivity_state( 'jetpack-search', $coverage );
+	}
+
+	/**
+	 * Emit the localized default copy for an empty-state condition.
+	 *
+	 * The unscoped case keeps the filter-aware pair `results-list` has always
+	 * rendered, so a stock install reads the same as before the block existed.
+	 * Neither `<p>` carries an initial `hidden` — the wrapper's covers the SSR
+	 * path and the Interactivity runtime resolves the inner binds atomically on
+	 * reveal; adding one here makes the other flash.
+	 *
+	 * @param string $condition One of `any`, `filtered`, `error`.
+	 * @return void
+	 */
+	public static function render_no_results_default_copy( string $condition ): void {
+		$defaults = self::no_results_default_messages();
+		if ( 'filtered' === $condition ) {
+			printf( '<p>%s</p>', esc_html( $defaults['filtered'] ) );
+			return;
+		}
+		if ( 'error' === $condition ) {
+			printf( '<p>%s</p>', esc_html( $defaults['error'] ) );
+			return;
+		}
+		printf(
+			'<p data-wp-bind--hidden="state.hasActiveFilters">%s</p><p data-wp-bind--hidden="!state.hasActiveFilters">%s</p>',
+			esc_html( $defaults['unfiltered'] ),
+			esc_html( $defaults['filtered'] )
+		);
+	}
+
+	/**
 	 * Whether the URL carries a search query, filter, or price range — i.e.
 	 * the JS store will fire an initial fetch on hydration. Render callbacks
 	 * use this to emit pre-hydration affordances (skeleton, "Searching…").

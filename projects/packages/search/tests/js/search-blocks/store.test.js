@@ -975,6 +975,24 @@ describe( 'store getters', () => {
 		expect( state.showNoResultsAny ).toBe( false );
 	} );
 
+	it( 'shows the no-results container whenever the region is not showing results', () => {
+		state.results = [];
+		state.isLoading = false;
+		state.isLoadingMore = false;
+		state.hasError = false;
+		state.activeFilters = {};
+		expect( state.showEmptyStateRegion ).toBe( true );
+
+		// The container spans both kinds of empty state; its variants pick.
+		state.hasError = true;
+		expect( state.showEmptyStateRegion ).toBe( true );
+
+		// A search that returned results shows neither.
+		state.hasError = false;
+		state.results = [ { title: 'Existing result' } ];
+		expect( state.showEmptyStateRegion ).toBe( false );
+	} );
+
 	it( 'stands the legacy results-list error region down only for an error-scoped block', () => {
 		// Seeded server-side, so "unset" has to read as "not covered" — the
 		// store never declares it, per AGENTS.md on seeded keys.

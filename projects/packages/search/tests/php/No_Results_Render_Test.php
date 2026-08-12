@@ -23,8 +23,21 @@ class No_Results_Render_Test extends TestCase {
 		\register_block_type(
 			'jetpack-search/no-results',
 			array(
+				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				'render_callback' => static function ( $attributes, $content ) {
+					ob_start();
+					include __DIR__ . '/../../src/search-blocks/blocks/no-results/render.php';
+					return (string) ob_get_clean();
+				},
+				// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			)
+		);
+		// The container emits its variants' markup, so they have to render too.
+		\register_block_type(
+			'jetpack-search/no-results-slot',
+			array(
 				'attributes'      => array(
-					'filterState' => array(
+					'condition' => array(
 						'type'    => 'string',
 						'default' => 'any',
 					),
@@ -32,7 +45,7 @@ class No_Results_Render_Test extends TestCase {
 				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				'render_callback' => static function ( $attributes, $content ) {
 					ob_start();
-					include __DIR__ . '/../../src/search-blocks/blocks/no-results/render.php';
+					include __DIR__ . '/../../src/search-blocks/blocks/no-results-slot/render.php';
 					return (string) ob_get_clean();
 				},
 				// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -45,6 +58,7 @@ class No_Results_Render_Test extends TestCase {
 	 */
 	public static function tearDownAfterClass(): void {
 		\unregister_block_type( 'jetpack-search/no-results' );
+		\unregister_block_type( 'jetpack-search/no-results-slot' );
 		parent::tearDownAfterClass();
 	}
 
@@ -88,199 +102,73 @@ class No_Results_Render_Test extends TestCase {
 	/**
 	 * Render the block via `do_blocks`.
 	 *
-	 * @param array  $attributes   Block attributes.
 	 * @param string $inner_blocks Serialized inner block markup.
 	 * @return string Rendered markup.
 	 */
-	private function render( array $attributes = array(), string $inner_blocks = '' ): string {
-		$json = empty( $attributes )
-			? ''
-			: wp_json_encode( $attributes, JSON_UNESCAPED_SLASHES );
+	private function render( string $inner_blocks = '' ): string {
 		if ( '' === $inner_blocks ) {
-			return do_blocks( '<!-- wp:jetpack-search/no-results ' . $json . ' /-->' );
+			return do_blocks( '<!-- wp:jetpack-search/no-results /-->' );
 		}
 		return do_blocks(
-			'<!-- wp:jetpack-search/no-results ' . $json . ' -->'
+			'<!-- wp:jetpack-search/no-results -->'
 			. $inner_blocks
 			. '<!-- /wp:jetpack-search/no-results -->'
 		);
 	}
 
 	/**
-	 * A block with no inner blocks stands in for both empty states, so it
-	 * renders the same filter-aware pair `results-list` has always shipped.
-	 * Keeping the copy in PHP is what lets the block sit in a static template
-	 * file and still translate.
+	 * An empty container stands in for an unscoped variant, so it renders the
+	 * same filter-aware pair `results-list` has always shipped. This is the
+	 * shape the shipped templates carry — a self-closing block — so a stock
+	 * install must read exactly as it did before the block existed.
 	 */
-	public function test_empty_block_renders_both_default_messages() {
+	public function test_empty_container_renders_both_default_messages() {
 		$markup = $this->render();
 		$this->assertStringContainsString( 'No results found. Try a different search.', $markup );
-		$this->assertStringContainsString(
-			'No results match these filters. Try clearing some, or searching for something else.',
-			$markup
-		);
+		$this->assertStringContainsString( 'No results match these filters.', $markup );
 		$this->assertStringContainsString( 'data-wp-bind--hidden="state.hasActiveFilters"', $markup );
-		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.hasActiveFilters"', $markup );
+		$this->assertStringContainsString( 'role="status"', $markup );
 	}
 
 	/**
-	 * Scoping an empty block to "filters are active" narrows the fallback to
-	 * the matching message instead of rendering the pair.
+	 * An empty container also seeds the coverage an unscoped variant would, so
+	 * `results-list`'s legacy message stands down on a stock template.
 	 */
-	public function test_empty_block_scoped_to_filter_state_renders_one_default_message() {
-		$filtered = $this->render( array( 'filterState' => 'filtered' ) );
-		$this->assertStringContainsString( 'No results match these filters.', $filtered );
-		$this->assertStringNotContainsString( 'No results found. Try a different search.', $filtered );
+	public function test_empty_container_seeds_unscoped_coverage() {
+		$this->render();
+		$state = wp_interactivity_state( 'jetpack-search' );
+		$this->assertTrue( $state['hasNoResultsUnfiltered'] );
+		$this->assertTrue( $state['hasNoResultsFiltered'] );
+		// Disjoint from the error state, so the legacy error region survives.
+		$this->assertArrayNotHasKey( 'hasErrorBlock', $state );
 	}
 
 	/**
-	 * Authored inner blocks replace the fallback copy entirely — that is the
-	 * whole point of the block, so a link survives to the front end intact.
+	 * With variants present the container emits them instead of the fallback —
+	 * each one carries its own condition binding.
 	 */
-	public function test_inner_blocks_replace_the_default_message() {
+	public function test_container_emits_its_variants() {
 		$markup = $this->render(
-			array(),
-			'<!-- wp:paragraph --><p>Try <a href="/archive">the archive</a>.</p><!-- /wp:paragraph -->'
+			'<!-- wp:jetpack-search/no-results-slot --><!-- wp:paragraph --><p>Nothing matched.</p><!-- /wp:paragraph --><!-- /wp:jetpack-search/no-results-slot -->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"error"} --><!-- wp:paragraph --><p>Search is down.</p><!-- /wp:paragraph --><!-- /wp:jetpack-search/no-results-slot -->'
 		);
-		$this->assertStringContainsString( '<a href="/archive">the archive</a>', $markup );
-		$this->assertStringNotContainsString( 'No results found. Try a different search.', $markup );
-	}
-
-	/**
-	 * The muted treatment is scoped to the fallback copy so a stock install
-	 * keeps its existing look while authored content renders at full strength.
-	 */
-	public function test_default_modifier_class_tracks_authored_content() {
-		$this->assertStringContainsString(
-			'jetpack-search-no-results--default',
-			$this->render()
-		);
-		$this->assertStringNotContainsString(
-			'jetpack-search-no-results--default',
-			$this->render( array(), '<!-- wp:paragraph --><p>Nothing here.</p><!-- /wp:paragraph -->' )
-		);
-	}
-
-	/**
-	 * Each filter state binds to its own store getter — `data-wp-bind` only
-	 * evaluates simple property paths, so the condition can't be inlined.
-	 */
-	public function test_filter_state_selects_the_matching_visibility_getter() {
-		$this->assertStringContainsString(
-			'data-wp-bind--hidden="!state.showNoResultsAny"',
-			$this->render()
-		);
-		$this->assertStringContainsString(
-			'data-wp-bind--hidden="!state.showNoResultsFiltered"',
-			$this->render( array( 'filterState' => 'filtered' ) )
-		);
-	}
-
-	/**
-	 * An unknown `filterState` (hand-edited markup, or an attribute from a
-	 * future version) falls back to the unscoped getter rather than emitting
-	 * a binding no getter answers, which would leave the region stuck open.
-	 */
-	public function test_unknown_filter_state_falls_back_to_any() {
-		$markup = $this->render( array( 'filterState' => 'bogus' ) );
+		$this->assertStringContainsString( 'Nothing matched.', $markup );
+		$this->assertStringContainsString( 'Search is down.', $markup );
 		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showNoResultsAny"', $markup );
-	}
-
-	/**
-	 * The region is hidden pre-hydration so it never paints on a page that
-	 * does have results.
-	 */
-	public function test_region_is_hidden_pre_hydration() {
-		$markup = $this->render();
-		$this->assertStringContainsString( 'hidden', $markup );
-		$this->assertStringContainsString( 'data-wp-interactive="jetpack-search"', $markup );
-	}
-
-	/**
-	 * An unscoped block covers both empty states, so `results-list`'s legacy
-	 * region stands down entirely.
-	 */
-	public function test_unscoped_block_seeds_coverage_for_both_filter_states() {
-		$this->render();
-		$state = wp_interactivity_state( 'jetpack-search' );
-		$this->assertTrue( $state['hasNoResultsUnfiltered'] );
-		$this->assertTrue( $state['hasNoResultsFiltered'] );
-	}
-
-	/**
-	 * A block scoped to one filter state must only claim that state. Seeding a
-	 * flat "a block exists" flag would stand the legacy region down for both,
-	 * leaving the uncovered state with no empty message at all.
-	 */
-	public function test_scoped_block_seeds_coverage_only_for_its_own_filter_state() {
-		$this->render( array( 'filterState' => 'filtered' ) );
-		$state = wp_interactivity_state( 'jetpack-search' );
-		$this->assertArrayNotHasKey( 'hasNoResultsUnfiltered', $state );
-		$this->assertTrue( $state['hasNoResultsFiltered'] );
-	}
-
-	/**
-	 * The suggested pairing composes into full coverage —
-	 * `wp_interactivity_state()` deep-merges and nothing ever seeds `false`.
-	 */
-	public function test_the_suggested_pairing_composes_into_full_coverage() {
-		$this->render( array( 'filterState' => 'filtered' ) );
-		$this->render();
-		$state = wp_interactivity_state( 'jetpack-search' );
-		$this->assertTrue( $state['hasNoResultsUnfiltered'] );
-		$this->assertTrue( $state['hasNoResultsFiltered'] );
-	}
-
-	/**
-	 * Only a scoped block claims its state outright. The unscoped block reads
-	 * that claim and yields, so the pairing the inspector suggests — keep the
-	 * template's default block, add a filters-active one — shows one message
-	 * instead of stacking both.
-	 */
-	public function test_scoped_block_claims_its_state_so_an_unscoped_block_yields() {
-		$this->render( array( 'filterState' => 'filtered' ) );
-		$state = wp_interactivity_state( 'jetpack-search' );
-		$this->assertTrue( $state['hasScopedNoResultsFiltered'] );
-	}
-
-	/**
-	 * An unscoped block never claims a state exclusively — it is the fallback,
-	 * so it must not suppress a scoped sibling.
-	 */
-	public function test_unscoped_block_claims_neither_state_exclusively() {
-		$this->render();
-		$state = wp_interactivity_state( 'jetpack-search' );
-		$this->assertArrayNotHasKey( 'hasScopedNoResultsFiltered', $state );
-	}
-
-	/**
-	 * The error state is a different region entirely — `showNoResults` and
-	 * `showError` are mutually exclusive in the store, so an error-scoped block
-	 * binds to the error getter and falls back to the error copy.
-	 */
-	public function test_error_state_binds_to_the_error_getter_and_copy() {
-		$markup = $this->render( array( 'filterState' => 'error' ) );
 		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showError"', $markup );
-		$this->assertStringContainsString( 'Something went wrong. Please try again.', $markup );
+		// The container's own fallback stands down once a variant is present.
 		$this->assertStringNotContainsString( 'No results found. Try a different search.', $markup );
 	}
 
 	/**
-	 * A failure is assertive, an empty result set is not — the same split
-	 * `results-list` has always emitted between its two regions.
+	 * A container holding variants must not seed coverage itself — each
+	 * variant seeds only what it covers, so a page with a lone error variant
+	 * still shows the legacy no-results message.
 	 */
-	public function test_error_state_uses_an_assertive_live_region() {
-		$this->assertStringContainsString( 'role="alert"', $this->render( array( 'filterState' => 'error' ) ) );
-		$this->assertStringNotContainsString( 'role="status"', $this->render( array( 'filterState' => 'error' ) ) );
-	}
-
-	/**
-	 * An error-scoped block stands down `results-list`'s legacy *error* region
-	 * and covers neither no-results case — keeping the two disjoint is what
-	 * lets a page whose only block is unscoped keep its legacy error copy.
-	 */
-	public function test_error_block_seeds_only_the_error_claim() {
-		$this->render( array( 'filterState' => 'error' ) );
+	public function test_container_with_variants_defers_seeding_to_them() {
+		$this->render(
+			'<!-- wp:jetpack-search/no-results-slot {"condition":"error"} /-->'
+		);
 		$state = wp_interactivity_state( 'jetpack-search' );
 		$this->assertTrue( $state['hasErrorBlock'] );
 		$this->assertArrayNotHasKey( 'hasNoResultsUnfiltered', $state );
@@ -288,25 +176,21 @@ class No_Results_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Symmetrically, a no-results block must not retire the legacy error
-	 * region — otherwise a failed search on a stock template renders nothing.
+	 * The container spans every condition its variants cover, so it binds to
+	 * the region-level getter and lets each variant hide itself.
 	 */
-	public function test_no_results_block_does_not_claim_the_error_state() {
-		$this->render();
-		$state = wp_interactivity_state( 'jetpack-search' );
-		$this->assertArrayNotHasKey( 'hasErrorBlock', $state );
+	public function test_container_binds_to_the_region_getter() {
+		$this->assertStringContainsString(
+			'data-wp-bind--hidden="!state.showEmptyStateRegion"',
+			$this->render()
+		);
 	}
 
 	/**
-	 * The live region wraps the plain fallback copy only — announcing an
-	 * author's whole composition verbatim on every empty search is worse than
-	 * not announcing it, and `core/query-no-results` has no live region.
+	 * The region is hidden pre-hydration so the empty state never flashes on a
+	 * page that is about to render results.
 	 */
-	public function test_live_region_is_scoped_to_the_default_copy() {
-		$this->assertStringContainsString( 'role="status"', $this->render() );
-		$this->assertStringNotContainsString(
-			'role="status"',
-			$this->render( array(), '<!-- wp:paragraph --><p>Nothing here.</p><!-- /wp:paragraph -->' )
-		);
+	public function test_region_is_hidden_pre_hydration() {
+		$this->assertMatchesRegularExpression( '/<div[^>]*\shidden\s*>/', $this->render() );
 	}
 }

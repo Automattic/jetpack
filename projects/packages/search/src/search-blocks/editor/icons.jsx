@@ -54,6 +54,7 @@ const BLOCK_ICONS = {
 	// Same glyph core gives `core/query-no-results`, so the block reads as the
 	// familiar Query Loop counterpart in the inserter.
 	'jetpack-search/no-results': loop,
+	'jetpack-search/no-results-slot': loop,
 	'jetpack-search/results-count': info,
 	'jetpack-search/results-sort': chevronUpDown,
 	'jetpack-search/results-load-more': plus,
