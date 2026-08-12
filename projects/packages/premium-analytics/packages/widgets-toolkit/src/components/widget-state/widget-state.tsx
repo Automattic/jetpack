@@ -99,9 +99,6 @@ export function WidgetState( {
 		);
 	}
 
-	// The wrapper stays positioned for `renderLoading` overrides that layer an
-	// absolute overlay — without a positioned ancestor one would reach the
-	// framed host card and cover the header title.
 	if ( isLoading || isFetching ) {
 		return <div className={ styles.loading }>{ renderLoading ?? <GenericSkeleton /> }</div>;
 	}

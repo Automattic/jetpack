@@ -631,6 +631,13 @@ interpolated into a shared frame) so translators see the whole sentence:
 loading) and swaps only the content area. Notes:
 
 - Expose `refetch` from the data/view hook so the error state's Retry can re-run the query.
+- The loading state defaults to `GenericSkeleton`. Where the widget's content has a distinct
+  shape, pass a content-shaped skeleton via `renderLoading` (e.g. `<MetricTabsChartSkeleton />`).
+  Build new shapes on `SkeletonRoot`, which supplies the `role="status"` region and the column
+  flow — note its visually hidden label is a real element, so index repeated rows inside your own
+  wrapper rather than with `:nth-child()` on `SkeletonRoot`'s children. Only shape what the
+  widget can predict before the data lands: a placeholder whose count or breakpoint depends on
+  the response reads as the layout jump it was meant to prevent.
 - When a view hook masks `isError` (e.g. `rows.length === 0 && isError` to keep placeholder
   rows), gate `error` with the same predicate (`error: showError ? error : null`) so the two
   fields can't disagree.

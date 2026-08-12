@@ -12,7 +12,7 @@ const LINE_COUNT = 4;
 
 /**
  * Fallback shape for widgets with no content-specific skeleton: four stacked
- * lines of decreasing width.
+ * lines of varying width.
  *
  * @return The rendered skeleton.
  */

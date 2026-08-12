@@ -82,8 +82,9 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 	 * escapes the generic `TData`, which cannot be constrained without breaking
 	 * existing callers.
 	 *
-	 * Queries set `placeholderData`, so this alone decides between "render the
-	 * data (with a busy indicator while fetching)" and "render a skeleton".
+	 * Queries set `placeholderData`, so this alone decides whether a first load
+	 * or a failed fetch has anything to fall back on: with data, the widget keeps
+	 * rendering rather than dropping to the loading or error state.
 	 */
 	const hasData =
 		Boolean( ( primary.data as any )?.summary ) ||

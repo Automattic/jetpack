@@ -112,7 +112,7 @@ export default meta;
 type Story = StoryObj< typeof ReportMetricWidget >;
 
 /**
- * Loading state - shows initial loading skeleton overlay
+ * Loading state - shows the initial loading skeleton
  * Triggered when `isLoading: true` and `hasData: false`
  */
 export const Loading: Story = {
@@ -130,10 +130,11 @@ export const Loading: Story = {
 };
 
 /**
- * Updating state - shows spinner overlay while refetching
+ * Refetching over data already on screen - renders the same skeleton as the
+ * first load, so a range change reads as a fresh load rather than stale numbers
  * Triggered when `isLoading: true` (or `isFetching: true`) and `hasData: true`
  */
-export const Updating: Story = {
+export const Refetching: Story = {
 	args: {
 		metricKey: 'total_sales',
 		data: createMockData( {

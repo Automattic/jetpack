@@ -7,8 +7,8 @@
 	overflow-y: auto;
 }
 
-/* Host box for <WidgetState>: fills the widget frame and anchors the busy
- * overlay. The ready-state layout stays on the inner .root Stack. */
+/* Host box for <WidgetState>: fills the widget frame. The ready-state layout
+ * stays on the inner .root Stack. */
 .content {
 	position: relative;
 	display: flex;
