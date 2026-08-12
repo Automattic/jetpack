@@ -3991,8 +3991,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		foreach ( $this->fields as $field_id => $field ) {
 			$descriptors[ $field_id ] = array(
-				'logic' => $field->get_attribute( 'conditionallogic' ),
-				'type'  => $field->get_attribute( 'type' ),
+				'logic'  => $field->get_attribute( 'conditionallogic' ),
+				'type'   => $field->get_attribute( 'type' ),
 				// A date field's value is written in its own format, and the comparison has
 				// to read it the same way the datepicker wrote it.
 				'format' => $field->get_attribute( 'dateformat' ),
