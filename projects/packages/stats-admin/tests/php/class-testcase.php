@@ -8,7 +8,9 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use PHPUnit\Framework\TestCase as PHPUnit_TestCase;
+use ReflectionProperty;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
@@ -62,8 +64,22 @@ abstract class TestCase extends PHPUnit_TestCase {
 		add_filter( 'pre_http_request', array( $this, 'plan_http_response_fixture' ), 10, 3 );
 		delete_option( Odyssey_Assets::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
 
-		// The connection status is memoized in a static, so it outlives the mocked options.
+		// The connection status and the stats options are both memoized in statics, so they
+		// outlive the mocked options and the cleared database.
 		( new Connection_Manager() )->reset_connection_status();
+		$this->reset_stats_options();
+	}
+
+	/**
+	 * Drop the stats options `Stats\Options` holds on to between calls.
+	 */
+	private function reset_stats_options() {
+		$options = new ReflectionProperty( Stats_Options::class, 'options' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$options->setAccessible( true );
+		}
+		$options->setValue( null, array() );
 	}
 
 	/**

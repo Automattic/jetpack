@@ -92,16 +92,27 @@ class Dashboard {
 	 * @return string
 	 */
 	protected function get_capability() {
-		return ( new Manager( 'jetpack' ) )->is_connected() ? 'view_stats' : 'manage_options';
+		return $this->is_site_connected() ? 'view_stats' : 'manage_options';
+	}
+
+	/**
+	 * Whether the site is connected to WordPress.com.
+	 *
+	 * @return bool
+	 */
+	protected function is_site_connected() {
+		return ( new Manager( 'jetpack' ) )->is_connected();
 	}
 
 	/**
 	 * Override render funtion
 	 */
 	public function render() {
-		// Record the number of views of the stats dashboard on the initial several loads for the purpose of showing feedback notice.
+		// Record the number of views of the stats dashboard on the initial several loads for the
+		// purpose of showing feedback notice. Views before the site is connected show the plan
+		// choice rather than the dashboard, and there is nothing to give feedback on yet.
 		$views = intval( Stats_Options::get_option( 'views' ) ) + 1;
-		if ( $views <= Notices::VIEWS_TO_SHOW_FEEDBACK ) {
+		if ( $views <= Notices::VIEWS_TO_SHOW_FEEDBACK && $this->is_site_connected() ) {
 			Stats_Options::set_option( 'views', $views );
 		}
 

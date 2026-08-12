@@ -1,6 +1,7 @@
 <?php
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats_Admin\TestCase as Stats_TestCase;
 use ReflectionProperty;
 
@@ -39,6 +40,19 @@ class Dashboard_Test extends Stats_TestCase {
 	public function test_render() {
 		$this->expectOutputRegex( '/<div id="wpcom" class="jp-stats-dashboard".*>/i' );
 		( new Dashboard() )->render();
+	}
+
+	/**
+	 * The view count decides when to ask what the user makes of the dashboard, so a page that
+	 * only offered them a plan must not count towards it.
+	 */
+	public function test_render_does_not_count_views_before_the_site_is_connected() {
+		$this->disconnect_site();
+
+		$this->expectOutputRegex( '/<div id="wpcom"/i' );
+		( new Dashboard() )->render();
+
+		$this->assertSame( 0, intval( Stats_Options::get_option( 'views' ) ) );
 	}
 
 	/**
