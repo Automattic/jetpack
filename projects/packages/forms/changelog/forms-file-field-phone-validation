@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Phone field: validate a required field that has a default value against what the input actually shows, so it can no longer be submitted empty.

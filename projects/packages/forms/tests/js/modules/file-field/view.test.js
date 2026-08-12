@@ -59,19 +59,39 @@ describe( 'File Field View', () => {
 
 		mockGetContext.mockReturnValue( mockContext );
 		mockGetElement.mockReturnValue( mockElement );
-		mockGetConfig.mockReturnValue( {
-			endpoint: 'https://example.test/upload',
-			iconsPath: 'https://example.test/icons/',
-			maxUploadSize: 1024,
-			i18n: {
-				zeroBytes: '0 Bytes',
-				fileSizeUnits: [ 'B', 'KB', 'MB', 'GB' ],
-				fileTooLarge: 'File is too large.',
-				invalidType: 'This file type is not allowed.',
-				maxFiles: 'Too many files.',
-				uploadFailed: 'File upload failed, try again.',
-			},
+
+		// Namespace-aware on purpose: the field's config lives under `jetpack/field-file` while
+		// its store lives under `jetpack/form`. A namespace-agnostic mock would let that split
+		// silently collapse, which is the exact thing this module is meant to establish.
+		mockGetConfig.mockImplementation( namespace => {
+			if ( namespace !== 'jetpack/field-file' ) {
+				throw new Error( `Unexpected config namespace: ${ namespace }` );
+			}
+			return {
+				endpoint: 'https://example.test/upload',
+				iconsPath: 'https://example.test/icons/',
+				maxUploadSize: 1024,
+				i18n: {
+					zeroBytes: '0 Bytes',
+					fileSizeUnits: [ 'B', 'KB', 'MB', 'GB' ],
+					fileTooLarge: 'File is too large.',
+					invalidType: 'This file type is not allowed.',
+					maxFiles: 'Too many files.',
+					uploadFailed: 'File upload failed, try again.',
+				},
+			};
 		} );
+
+		// jsdom implements neither of these, so they have to be defined before they can be spied
+		// on. Without them every file silently takes the non-image icon path, and an
+		// image-preview assertion would pass for the wrong reason.
+		global.URL.createObjectURL ??= () => '';
+		global.URL.revokeObjectURL ??= () => {};
+		jest.spyOn( global.URL, 'createObjectURL' ).mockImplementation( () => 'blob:mock' );
+		jest.spyOn( global.URL, 'revokeObjectURL' ).mockImplementation();
+
+		// Likewise absent from this jsdom environment; define so individual tests can spy.
+		global.fetch ??= () => Promise.resolve();
 
 		// `updateField` and `trackFirstInteraction` are contributed by the form module. Because the
 		// file field now shares that store, it reaches them through the same `actions` object.
@@ -161,24 +181,24 @@ describe( 'File Field View', () => {
 			expect( state.hasFileFieldFiles ).toBe( true );
 		} );
 
-		test( 'hasMaxFiles reads maxFiles from fieldExtra', () => {
-			expect( state.hasMaxFiles ).toBe( false );
+		test( 'isFileFieldFull reads maxFiles from fieldExtra', () => {
+			expect( state.isFileFieldFull ).toBe( false );
 			mockContext.files = [ { id: '1' } ];
-			expect( state.hasMaxFiles ).toBe( true );
+			expect( state.isFileFieldFull ).toBe( true );
 		} );
 
-		test( 'hasMaxFiles honours a larger maxFiles from fieldExtra', () => {
+		test( 'isFileFieldFull honours a larger maxFiles from fieldExtra', () => {
 			mockContext.fieldExtra.maxFiles = 3;
 			mockContext.files = [ { id: '1' }, { id: '2' } ];
-			expect( state.hasMaxFiles ).toBe( false );
+			expect( state.isFileFieldFull ).toBe( false );
 			mockContext.files.push( { id: '3' } );
-			expect( state.hasMaxFiles ).toBe( true );
+			expect( state.isFileFieldFull ).toBe( true );
 		} );
 
 		test( 'falls back to a single file when fieldExtra is absent', () => {
 			delete mockContext.fieldExtra;
 			mockContext.files = [ { id: '1' } ];
-			expect( state.hasMaxFiles ).toBe( true );
+			expect( state.isFileFieldFull ).toBe( true );
 		} );
 	} );
 
@@ -235,7 +255,26 @@ describe( 'File Field View', () => {
 		test( 'pushes the value through the shared updateField action', () => {
 			storeConfig.actions.fileAdded( { target: { files: [ makeFile() ] } } );
 
-			expect( mockUpdateField ).toHaveBeenCalledWith( 'test-file', mockContext.files );
+			// Snapshot the argument rather than comparing `mockContext.files` to itself, which
+			// would pass for any contents.
+			expect( mockUpdateField ).toHaveBeenCalledTimes( 1 );
+			const [ fieldId, value ] = mockUpdateField.mock.calls[ 0 ];
+			expect( fieldId ).toBe( 'test-file' );
+			expect( value ).toHaveLength( 1 );
+			expect( value[ 0 ] ).toMatchObject( { name: 'doc.pdf', isUploaded: false, error: null } );
+		} );
+
+		test( 'builds an object URL preview for image types', () => {
+			storeConfig.actions.fileAdded( {
+				target: { files: [ makeFile( { name: 'photo.png', type: 'image/png' } ) ] },
+			} );
+
+			expect( global.URL.createObjectURL ).toHaveBeenCalled();
+			expect( mockContext.files[ 0 ] ).toMatchObject( {
+				hasIcon: false,
+				url: 'url(blob:mock)',
+				mask: null,
+			} );
 		} );
 	} );
 
@@ -264,7 +303,9 @@ describe( 'File Field View', () => {
 			expect( mockTrackFirstInteraction ).toHaveBeenCalled();
 		} );
 
-		test( 'a dropped directory is ignored', () => {
+		test( 'a dropped directory is skipped', () => {
+			mockContext.isDropping = true;
+
 			storeConfig.actions.fileDropped( {
 				preventDefault: jest.fn(),
 				dataTransfer: {
@@ -278,6 +319,28 @@ describe( 'File Field View', () => {
 			} );
 
 			expect( mockContext.files ).toHaveLength( 0 );
+			// Bailing out of the loop used to skip this, stranding the dropzone in drag-hover.
+			expect( mockContext.isDropping ).toBe( false );
+		} );
+
+		test( 'a directory does not discard the rest of a mixed drop', () => {
+			const item = ( isDirectory, file ) => ( {
+				webkitGetAsEntry: () => ( { isDirectory } ),
+				getAsFile: () => file,
+			} );
+
+			storeConfig.actions.fileDropped( {
+				preventDefault: jest.fn(),
+				dataTransfer: {
+					items: [
+						item( true, { name: 'folder', type: '', size: 0 } ),
+						item( false, { name: 'doc.pdf', type: 'application/pdf', size: 10 } ),
+					],
+				},
+			} );
+
+			expect( mockContext.files ).toHaveLength( 1 );
+			expect( mockContext.files[ 0 ] ).toMatchObject( { name: 'doc.pdf' } );
 		} );
 	} );
 
@@ -312,15 +375,123 @@ describe( 'File Field View', () => {
 		} );
 	} );
 
-	describe( 'Upload token', () => {
-		test( 'concurrent uploads share a single token request', async () => {
-			const fetchMock = jest.fn( () =>
+	describe( 'Removing files', () => {
+		/**
+		 * Drive the `removeFile` generator to completion.
+		 *
+		 * @param {string} id - The client file ID to remove.
+		 * @return {Promise} Resolves when the generator is done.
+		 */
+		const removeFile = async id => {
+			const event = {
+				preventDefault: jest.fn(),
+				target: { dataset: { id } },
+			};
+			const generator = storeConfig.actions.removeFile( event );
+			let step = generator.next();
+			while ( ! step.done ) {
+				step = generator.next( await step.value );
+			}
+		};
+
+		test( 'removes the file and reports the remaining list, not an empty string', async () => {
+			mockContext.files = [
+				{ id: 'a', url: null, error: null },
+				{ id: 'b', url: null, error: null },
+			];
+
+			await removeFile( 'a' );
+
+			expect( mockContext.files.map( f => f.id ) ).toEqual( [ 'b' ] );
+			// An empty array is a legitimate value now — the registered validator turns it into
+			// `is_required` or `yes`, so there is no need to substitute ''.
+			await removeFile( 'b' );
+			const [ , lastValue ] = mockUpdateField.mock.calls.at( -1 );
+			expect( lastValue ).toEqual( [] );
+		} );
+
+		test( 'revokes the object URL of a removed image preview', async () => {
+			mockContext.files = [ { id: 'a', url: 'url(blob:mock)', error: null } ];
+
+			await removeFile( 'a' );
+
+			expect( global.URL.revokeObjectURL ).toHaveBeenCalledWith( 'blob:mock' );
+		} );
+	} );
+
+	describe( 'Upload lifecycle', () => {
+		/**
+		 * A minimal XMLHttpRequest double that lets a test drive readystatechange.
+		 *
+		 * @return {object} The fake request and its captured listeners.
+		 */
+		const installFakeXhr = () => {
+			const listeners = {};
+			const xhr = {
+				readyState: 4,
+				status: 200,
+				responseText: JSON.stringify( {
+					success: true,
+					data: { file_id: 'server-1', name: 'doc.pdf', size: 10, type: 'application/pdf' },
+				} ),
+				open: jest.fn(),
+				send: jest.fn(),
+				abort: jest.fn(),
+				upload: { addEventListener: jest.fn() },
+				addEventListener: jest.fn( ( name, cb ) => {
+					listeners[ name ] = cb;
+				} ),
+			};
+			jest.spyOn( global, 'XMLHttpRequest' ).mockImplementation( () => xhr );
+			return { xhr, listeners };
+		};
+
+		test( 'a settled request marks the file uploaded and drops its abort controller', async () => {
+			jest.spyOn( global, 'fetch' ).mockImplementation( () =>
 				Promise.resolve( {
 					ok: true,
 					json: () => Promise.resolve( { token: 'abc', expiration: 0 } ),
 				} )
 			);
-			global.fetch = fetchMock;
+			const { xhr, listeners } = installFakeXhr();
+			mockContext.files = [ { id: 'client-1', error: null, isUploaded: false } ];
+
+			const generator = storeConfig.actions.uploadFile( { name: 'doc.pdf' }, 'client-1' );
+			let step = generator.next();
+			while ( ! step.done ) {
+				step = generator.next( await step.value );
+			}
+
+			// Settle the request the way the browser would.
+			listeners.readystatechange( { target: xhr } );
+
+			expect( mockContext.files[ 0 ] ).toMatchObject( {
+				isUploaded: true,
+				file_id: 'server-1',
+			} );
+
+			// The controller is gone, so a later remove cannot abort an already-finished request.
+			await ( async () => {
+				const event = { preventDefault: jest.fn(), target: { dataset: { id: 'client-1' } } };
+				const gen = storeConfig.actions.removeFile( event );
+				let s = gen.next();
+				while ( ! s.done ) {
+					s = gen.next( await s.value );
+				}
+			} )();
+
+			expect( xhr.abort ).not.toHaveBeenCalled();
+		} );
+	} );
+
+	describe( 'Upload token', () => {
+		test( 'concurrent uploads share a single token request', async () => {
+			const fetchMock = jest.spyOn( global, 'fetch' ).mockImplementation( () =>
+				Promise.resolve( {
+					ok: true,
+					json: () => Promise.resolve( { token: 'abc', expiration: 0 } ),
+				} )
+			);
 
 			// Drive two uploads up to their first yield, which is the token request.
 			const first = storeConfig.actions.uploadFile( { name: 'a.pdf' }, 'client-1' );

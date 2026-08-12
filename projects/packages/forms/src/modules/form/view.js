@@ -85,6 +85,14 @@ const updateField = ( fieldId, value, showFieldError = false, validatorCallback 
  * outright — including the empty/required check — and it applies on every update, not just on
  * blur. Types with no registered validator fall through to the shared `validateField()` helper.
  *
+ * SCOPE CONTRACT: a validator is called from two different places, and they do not see the same
+ * context. `registerField()` runs from `callbacks.initializeField`, bound on the field wrapper;
+ * `actions.updateField()` runs from whichever element the user interacted with, which is usually
+ * a descendant. Because Interactivity API context only inherits downwards, a validator that
+ * reads `getContext()` cannot rely on anything a descendant provides — during registration those
+ * keys are undefined. Validators should derive their answer from the `value`, `isRequired` and
+ * `extra` arguments, and any `getContext()` read must tolerate missing keys.
+ *
  * @param {string} fieldType - The field type.
  * @return {Function|null} The registered validator, or null to use the shared helper.
  */

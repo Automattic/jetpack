@@ -155,6 +155,13 @@ const getFileFieldExtra = () => {
 };
 
 /**
+ * The files currently held by the field, or an empty list outside a file field's scope.
+ *
+ * @return {Array} The field's files.
+ */
+const getFileFieldFiles = () => getContext().files ?? [];
+
+/**
  * Add the file to the context.
  *
  * @param {File} file - The file to add.
@@ -315,13 +322,14 @@ const { actions } = store( NAMESPACE, {
 			},
 		},
 
+		// Both getters tolerate a missing `files`: they live in the shared form store now, so a
+		// stray binding from a non-file field would otherwise throw rather than read as "empty".
 		get hasFileFieldFiles() {
-			return getContext().files.length > 0;
+			return getFileFieldFiles().length > 0;
 		},
 
-		get hasMaxFiles() {
-			const context = getContext();
-			return getFileFieldExtra().maxFiles <= context.files.length;
+		get isFileFieldFull() {
+			return getFileFieldExtra().maxFiles <= getFileFieldFiles().length;
 		},
 	},
 
@@ -369,8 +377,11 @@ const { actions } = store( NAMESPACE, {
 			actions.trackFirstInteraction();
 			if ( event.dataTransfer ) {
 				for ( const item of Array.from( event.dataTransfer.items ) ) {
+					// Directories are skipped rather than aborting the whole drop: returning here
+					// discarded every remaining file in a mixed selection and left `isDropping`
+					// set, stranding the dropzone in its drag-hover style.
 					if ( item.webkitGetAsEntry()?.isDirectory ) {
-						return;
+						continue;
 					}
 					addFileToContext( item.getAsFile() );
 				}
@@ -508,7 +519,7 @@ const { actions } = store( NAMESPACE, {
 		 *
 		 * The preview carries `tabindex="0"` and an `aria-label` of the file name, so it is the
 		 * only meaningful focus target once a file is added — the dropzone is hidden as soon as
-		 * `state.hasMaxFiles` becomes true, and focusing a hidden element strands keyboard users.
+		 * `state.isFileFieldFull` becomes true, and focusing a hidden element strands keyboard users.
 		 */
 		focusFilePreview: () => {
 			const { ref } = getElement();

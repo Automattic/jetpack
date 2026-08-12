@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+File upload field: move focus to the new file preview instead of the hidden dropzone after a file is added.

@@ -116,25 +116,29 @@ const { actions } = store( NAMESPACE, {
 	state: {
 		validators: {
 			phone: ( value, isRequired ) => {
-				const context = getContext();
+				// Defaults matter here: this validator also runs from `registerField()`, which is
+				// scoped to the field wrapper rather than to the phone wrapper that provides these
+				// keys, so during registration they are all undefined. See the scope contract on
+				// `getValidator()` in ../form/view.js.
+				const {
+					phoneNumber = '',
+					fullPhoneNumber = '',
+					showCountrySelector = false,
+				} = getContext();
 
-				if ( isEmptyValue( context.phoneNumber ) && isRequired ) {
+				if ( isEmptyValue( phoneNumber ) && isRequired ) {
 					// this is not triggering any error, but then no other input does either
 					return 'is_required';
 				}
-				if ( ! isRequired && isEmptyValue( context.phoneNumber ) ) {
+				if ( ! isRequired && isEmptyValue( phoneNumber ) ) {
 					// No need to validate anything.
 					return 'yes';
 				}
 
 				// from this point on, we discard the value as we
 				// use our internal full phone number state getter:
-				value = context.fullPhoneNumber;
-				if (
-					context.showCountrySelector ||
-					value.indexOf( '+' ) === 0 ||
-					value.indexOf( '00' ) === 0
-				) {
+				value = fullPhoneNumber;
+				if ( showCountrySelector || value.indexOf( '+' ) === 0 || value.indexOf( '00' ) === 0 ) {
 					const internationalNumber = parsePhoneNumber( value );
 					if ( ! internationalNumber || ! internationalNumber.isValid() ) {
 						return 'invalid_phone';
