@@ -133,8 +133,11 @@
 	font-weight: 700;
 }
 
-.contact-form :where(legend.grunion-field-label) {
-	padding: 0;
+/* Browsers give <legend> 2px of inline padding that <label> does not get, so a
+ * grouped field's label would sit indented from every other field's. Neutralise
+ * just that, at zero specificity so themes and global styles still win. */
+:where(.contact-form legend.grunion-field-label) {
+	padding-inline: 0;
 }
 
 .contact-form :where(label.consent) {
