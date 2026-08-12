@@ -103,9 +103,9 @@ export function WidgetState( {
 	// nothing to keep visible regardless of how the caller derived `isEmpty`.
 	// `isFetching` only blocks when the resolved data is empty; with rows shown
 	// it falls through to the ready branch's non-blocking busy overlay.
-	// The wrapper anchors the absolute overlay to the widget body — without a
-	// positioned ancestor it would reach the framed host card and cover the
-	// header title.
+	// The wrapper stays positioned for `renderLoading` overrides that layer an
+	// absolute overlay — without a positioned ancestor one would reach the
+	// framed host card and cover the header title.
 	if ( isLoading || ( isEmpty && isFetching ) ) {
 		return <div className={ styles.loading }>{ renderLoading ?? <GenericSkeleton /> }</div>;
 	}
