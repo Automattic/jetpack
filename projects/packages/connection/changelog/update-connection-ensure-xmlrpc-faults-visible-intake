@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Report errors from XML-RPC faults, which were invisible to the existing intake.
