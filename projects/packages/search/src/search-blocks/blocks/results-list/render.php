@@ -6,7 +6,7 @@
  *  - the results list (skeleton while loading, then live results),
  *  - the legacy empty-state message (gated by `state.showLegacyNoResults`,
  *    so it stands down for pages carrying a `no-results` block),
- *  - the error message (gated by `state.showError`).
+ *  - the legacy error message (gated by `state.showLegacyError`).
  *
  * The store's existing visibility flags ensure exactly one message is
  * visible at a time, so the regions can coexist without extra wiring.

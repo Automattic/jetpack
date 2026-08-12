@@ -266,7 +266,12 @@ export default function ResultsListEdit( { attributes, setAttributes, clientId }
 						options={ LAYOUT_OPTIONS() }
 						onChange={ value => setAttributes( { layout: value } ) }
 					/>
-					<p className="components-base-control__help">{ emptyStateNotice.help }</p>
+					{ /* Outside a Search Results ancestor there's nowhere to insert
+					     a No Results block, so the Button below is suppressed —
+					     don't offer copy that names an action that isn't there. */ }
+					{ ( noResultsBlockId || parentScopeBlockId ) && (
+						<p className="components-base-control__help">{ emptyStateNotice.help }</p>
+					) }
 					{ parentScopeBlockId && (
 						<Button
 							__next40pxDefaultSize
