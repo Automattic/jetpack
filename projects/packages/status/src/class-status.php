@@ -147,8 +147,12 @@ class Status {
 		 * and a known local domain sitting in the path can't trigger them by accident.
 		 */
 		$host = wp_parse_url( $site_url, PHP_URL_HOST );
-		if ( ! is_string( $host ) || '' === $host ) {
-			// site_url() should always be absolute. If it isn't, read the value as a bare host.
+		if ( ( ! is_string( $host ) || '' === $host ) && ! preg_match( '#^[a-z][a-z0-9+.\-]*:#i', $site_url ) ) {
+			/*
+			 * No scheme, so site_url() isn't absolute. Read the value as a bare host.
+			 * A value that does carry a scheme but still won't parse is malformed, and
+			 * guessing at it would read "https:/example.com" as the host "https".
+			 */
 			$host = wp_parse_url( '//' . ltrim( $site_url, '/' ), PHP_URL_HOST );
 		}
 		if ( ! is_string( $host ) ) {
