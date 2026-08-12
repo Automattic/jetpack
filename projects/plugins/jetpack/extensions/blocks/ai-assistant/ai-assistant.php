@@ -104,7 +104,17 @@ add_action(
 				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-image-extension' );
 			}
 
-			if ( apply_filters( 'ai_seo_enhancer_enabled', true ) && ! AI_SEO_Enhancer::is_switched_off() ) {
+			// The stored toggle only governs the editor inside internal testing
+			// environments while the AI feature settings ship dark — real sites
+			// keep the pre-toggle behavior until the flag lifts. Guarded with
+			// function_exists because this file also loads through wpcom's own
+			// loader on Simple, where the plugin bootstrap (and so
+			// functions.global.php) never runs.
+			$enhancer_switched_off = function_exists( 'jetpack_is_internal_testing_environment' )
+				&& jetpack_is_internal_testing_environment()
+				&& AI_SEO_Enhancer::is_switched_off();
+
+			if ( apply_filters( 'ai_seo_enhancer_enabled', true ) && ! $enhancer_switched_off ) {
 				Jetpack_Gutenberg::set_availability_for_plan( 'ai-seo-enhancer' );
 			} else {
 				// A deliberate admin off (or a host veto) withholds the extension,

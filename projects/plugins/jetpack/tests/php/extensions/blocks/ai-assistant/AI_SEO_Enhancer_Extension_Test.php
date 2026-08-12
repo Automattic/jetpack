@@ -35,6 +35,10 @@ class AI_SEO_Enhancer_Extension_Test extends WP_UnitTestCase {
 		parent::set_up();
 
 		Jetpack_Gutenberg::reset();
+		// The toggle ships dark behind the internal-testing flag this release, so
+		// the option-state tests below need to run inside one; individual tests
+		// unset this to exercise the outside-internal-testing (real site) path.
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 		// `get_availability()` walks `get_extensions()`, which is empty under
 		// `TESTING_IN_JETPACK` unless the allowed list is filtered back in, and
@@ -52,6 +56,7 @@ class AI_SEO_Enhancer_Extension_Test extends WP_UnitTestCase {
 	 * Tear down: drop the option, filters, plan pin and availability state.
 	 */
 	public function tear_down() {
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		delete_option( AI_SEO_Enhancer::OPTION );
 		remove_filter( 'jetpack_offline_mode', '__return_false' );
 		remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
@@ -181,5 +186,20 @@ class AI_SEO_Enhancer_Extension_Test extends WP_UnitTestCase {
 
 		$this->assertFalse( $row['available'] );
 		$this->assertSame( 'ai_seo_enhancer_disabled', $row['unavailable_reason'] );
+	}
+
+	/**
+	 * The toggle ships dark behind the internal-testing flag this release:
+	 * outside an internal testing environment a stored off must not change
+	 * the editor, so real sites keep the pre-toggle behavior until the flag
+	 * lifts.
+	 */
+	public function test_switched_off_option_is_available_outside_internal_testing_environment() {
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		update_option( AI_SEO_Enhancer::OPTION, 0 );
+
+		$row = $this->register_and_get_availability();
+
+		$this->assertTrue( $row['available'] );
 	}
 }
