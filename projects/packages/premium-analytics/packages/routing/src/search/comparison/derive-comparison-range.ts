@@ -64,23 +64,24 @@ export function deriveComparisonRange( opts: ReportParams ):
 		return undefined;
 	}
 
-	// Parse URL params (ISO+offset) to instants
-	const fromInstant = new Date( opts.from );
-	const toInstant = new Date( opts.to );
-	if ( isNaN( fromInstant.getTime() ) || isNaN( toInstant.getTime() ) ) {
-		return undefined;
-	}
-
 	/*
-	 * Interpret the instants in the site timezone so day boundaries resolve
-	 * site-locally. Day-aligned ranges keep day-aligned comparisons; rolling
-	 * windows (e.g. last-24-hours) mirror the exact window.
+	 * Parse the URL params through the same reader the picker uses, so an
+	 * offset-less `from`/`to` anchors to the site zone here too. Parsing them as
+	 * raw instants would put a date-only deep link on UTC midnight, which is a
+	 * different calendar day — and a different alignment — than the picker shows.
+	 * Day boundaries then resolve site-locally: day-aligned ranges keep
+	 * day-aligned comparisons; rolling windows (e.g. last-24-hours) mirror the
+	 * exact window.
 	 */
 	const timezone = siteTimeZone();
 	const reference = {
-		from: localTZDate( fromInstant.getTime(), timezone ),
-		to: localTZDate( toInstant.getTime(), timezone ),
+		from: localTZDate( opts.from, timezone ),
+		to: localTZDate( opts.to, timezone ),
 	};
+
+	if ( isNaN( reference.from.getTime() ) || isNaN( reference.to.getTime() ) ) {
+		return undefined;
+	}
 
 	const cmp = getComparisonRangeFromPreset( reference, presetId );
 	if ( ! cmp?.from || ! cmp?.to ) {

@@ -60,15 +60,19 @@ export function createTZDateFromParts(
 	return new TZDateMini( ...datePartsTrimmed, tzid );
 }
 
+// The fractional second is matched at any length, and truncated below. Capping
+// it here would drop a value like `.123456` through to `Date`, which reads an
+// offset-less string in the *browser's* zone — the shift this module avoids.
 const OFFSETLESS_TIMESTAMP =
-	/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?)?$/;
+	/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?)?$/;
 
 /**
  * Read an offset-less timestamp as wall time in a timezone.
  *
  * @param value    - The timestamp.
  * @param timeZone - The timezone the wall time belongs to.
- * @return The zoned date, or null when the value has another format.
+ * @return The zoned date, an invalid date when the calendar date does not
+ * exist, or null when the value has another format.
  */
 function offsetlessToTZDate( value: string, timeZone: string ): TZDate | null {
 	const match = OFFSETLESS_TIMESTAMP.exec( value );
@@ -85,7 +89,7 @@ function offsetlessToTZDate( value: string, timeZone: string ): TZDate | null {
 		Number( hours ?? 0 ),
 		Number( minutes ?? 0 ),
 		Number( seconds ?? 0 ),
-		Number( ( milliseconds ?? '' ).padEnd( 3, '0' ) ),
+		Number( ( milliseconds ?? '' ).slice( 0, 3 ).padEnd( 3, '0' ) ),
 	];
 
 	const date = createTZDateFromParts( parts, timeZone );

@@ -60,9 +60,10 @@ export const route = {
 
 		if ( needsDateSeed || needsPostSeed ) {
 			/*
-			 * Seed dates in the site timezone, not the browser's, by waiting for
-			 * core `site` settings. A rejection here shouldn't error the whole
-			 * page, so fall back to the default seed.
+			 * Warm the core `site` record before the stage renders, so
+			 * `useSiteHomeUrl()` has it. A rejection here shouldn't error the
+			 * whole page, so fall through to the seed. The seed's own dates do
+			 * not depend on this; they resolve from the WordPress date settings.
 			 */
 			try {
 				await ensureCoreSettingsReady();

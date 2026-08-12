@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix report dates shifting by a day, and briefly using the visitor's timezone on load, for sites west of UTC.
+Fix report dates shifting by a day on sites west of UTC, and stop the date picker briefly using the visitor's timezone on load.

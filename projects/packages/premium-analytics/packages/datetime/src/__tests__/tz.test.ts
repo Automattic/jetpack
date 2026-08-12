@@ -40,8 +40,43 @@ describe( 'toLocalTZ', () => {
 			);
 		} );
 
+		// Sub-millisecond precision must not drop the value through to `Date`,
+		// which would read it in the browser's zone instead of the site's.
+		it( 'truncates a sub-millisecond field rather than rejecting it', () => {
+			expect( wallTime( toLocalTZ( '2026-07-09T09:42:57.123456', 'America/New_York' ) ) ).toBe(
+				'2026-07-09T09:42:57.123'
+			);
+		} );
+
 		it( 'anchors to UTC when no timezone is given', () => {
 			expect( toLocalTZ( '2026-06-29' ).toISOString() ).toBe( '2026-06-29T00:00:00.000Z' );
+		} );
+	} );
+
+	describe( 'daylight-saving wall times', () => {
+		// Where DST starts at midnight, a date-only value names a wall time that
+		// does not exist. It normalizes forward to 01:00, and the round-trip
+		// guard has to accept that rather than read it as an impossible date.
+		it.each( [
+			[ 'America/Santiago', '2026-09-06' ],
+			[ 'America/Havana', '2026-03-08' ],
+		] )( 'keeps a date-only value on its day when %s has no midnight', ( timeZone, value ) => {
+			const date = toLocalTZ( value, timeZone );
+
+			expect( date.getTime() ).not.toBeNaN();
+			expect( format( date, 'yyyy-MM-dd' ) ).toBe( value );
+		} );
+
+		it( 'normalizes a wall time skipped by a spring-forward jump', () => {
+			expect( wallTime( toLocalTZ( '2026-03-08 02:30:00', 'America/New_York' ) ) ).toBe(
+				'2026-03-08T03:30:00.000'
+			);
+		} );
+
+		it( 'takes the first occurrence of an ambiguous fall-back wall time', () => {
+			expect( toLocalTZ( '2026-11-01 01:30:00', 'America/New_York' ).toISOString() ).toBe(
+				'2026-11-01T05:30:00.000Z'
+			);
 		} );
 	} );
 

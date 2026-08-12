@@ -15,7 +15,7 @@ import {
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { deriveComparisonRange, encodeDateToSearchParam } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import { endOfDay } from 'date-fns';
+import { endOfDay, isValid } from 'date-fns';
 import { useCallback, useMemo, useState } from 'react';
 import { getStoreInfo } from '../helpers/store-info';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
@@ -35,6 +35,26 @@ export type ReportParamsFieldAttributes = {
 	reportParams: ReportParams;
 };
 
+/**
+ * Parse a stored report-param date for the picker.
+ *
+ * `normalizeReportParams` passes `from`/`to` through untouched, so a malformed
+ * value reaches this far. The picker renders an invalid date through
+ * `formatToTimezoneNaiveString`, which throws, so drop it instead.
+ *
+ * @param value - The stored `from` or `to`.
+ * @return The parsed date, or undefined when it is missing or malformed.
+ */
+function toPickerDate( value?: string ) {
+	if ( ! value ) {
+		return undefined;
+	}
+
+	const date = localTZDate( value );
+
+	return isValid( date ) ? date : undefined;
+}
+
 export function ReportParamsField( {
 	data: attributes,
 	onChange,
@@ -49,8 +69,8 @@ export function ReportParamsField( {
 	const reportParams = normalizeReportParams( stagedReportParams, defaultPreset );
 
 	const range = {
-		from: localTZDate( reportParams.from ),
-		to: localTZDate( reportParams.to ),
+		from: toPickerDate( reportParams.from ),
+		to: toPickerDate( reportParams.to ),
 	};
 
 	const stageDateRange = useCallback(
