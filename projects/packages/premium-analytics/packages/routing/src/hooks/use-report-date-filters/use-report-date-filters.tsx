@@ -3,14 +3,11 @@
  */
 import {
 	getAllowedIntervalsForPreset,
-	getSiteTimezone,
 	hasComparisonEnabled,
 	localTZDate,
 	resolveIntervalForRange,
 } from '@jetpack-premium-analytics/data';
-import { PRESET_CUSTOM, stepDateRange } from '@jetpack-premium-analytics/datetime';
-import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
+import { PRESET_CUSTOM, siteTimeZone, stepDateRange } from '@jetpack-premium-analytics/datetime';
 import { isValid } from 'date-fns';
 import { useCallback, useMemo } from 'react';
 /**
@@ -130,20 +127,7 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		TFrom
 	>( { from } );
 
-	/*
-	 * Read the site timezone reactively. A fully-specified deep link skips the
-	 * seed's `ensureCoreSettingsReady()` await, so core `site` settings may not
-	 * be loaded on first paint. Rebuild picker dates when the real timezone
-	 * resolves instead of leaving them anchored to the browser fallback.
-	 */
-	const timeZone = useSelect( select => {
-		void (
-			select( coreStore ) as unknown as {
-				getEntityRecord: ( kind: string, name: string ) => unknown;
-			}
-		 ).getEntityRecord( 'root', 'site' );
-		return getSiteTimezone();
-	}, [] );
+	const timeZone = siteTimeZone();
 
 	const presetId = useMemo( () => effective.preset ?? undefined, [ effective.preset ] );
 	const range = useMemo(

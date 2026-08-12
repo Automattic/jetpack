@@ -38,8 +38,8 @@ export function getStatsChartBucketKey( date: string, period: StatsChartBucketPe
  * The caller maps each data point to its chart metrics, including the required
  * headline `value`. Metrics are summed when daily points share a chart bucket.
  * Each bucket's `date_start` combines the bucket-key date with the first daily
- * point's time and offset. This keeps `localTZDate()` anchored to the bucket-key
- * calendar date; a bare `YYYY-MM-DD` would instead be parsed as a UTC instant.
+ * point's time and offset, so the bucket carries the offset its payload stated
+ * rather than being re-anchored to whatever zone the site is on now.
  *
  * @param report          - The normalized daily Stats report.
  * @param period          - The chart bucket period.

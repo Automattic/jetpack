@@ -4,11 +4,11 @@
 import {
 	normalizeReportParams,
 	dateToISOStringWithLocalTZ,
-	getSiteTimezone,
 	localTZDate,
 } from '@jetpack-premium-analytics/data';
 import {
 	getComparisonRangeFromPreset,
+	siteTimeZone,
 	type ComparisonPresetId,
 } from '@jetpack-premium-analytics/datetime';
 
@@ -76,7 +76,7 @@ export function deriveComparisonRange( opts: ReportParams ):
 	 * site-locally. Day-aligned ranges keep day-aligned comparisons; rolling
 	 * windows (e.g. last-24-hours) mirror the exact window.
 	 */
-	const timezone = getSiteTimezone();
+	const timezone = siteTimeZone();
 	const reference = {
 		from: localTZDate( fromInstant.getTime(), timezone ),
 		to: localTZDate( toInstant.getTime(), timezone ),

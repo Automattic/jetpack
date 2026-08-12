@@ -5,11 +5,11 @@ import {
 	getDefaultPreset,
 	normalizeReportParams,
 	localTZDate,
-	getSiteTimezone,
 } from '@jetpack-premium-analytics/data';
 import {
 	type ComparisonPresetId,
 	isPrimaryPreset,
+	siteTimeZone,
 	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
@@ -130,7 +130,7 @@ export function ReportParamsField( {
 				onApply={ commit }
 				canApply={ isDateRangeDirty }
 				onCancel={ clear }
-				timeZone={ getSiteTimezone() }
+				timeZone={ siteTimeZone() }
 			/>
 		</Stack>
 	);

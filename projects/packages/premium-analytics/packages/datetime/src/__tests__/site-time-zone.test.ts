@@ -1,12 +1,18 @@
 /**
  * External dependencies
  */
-import { setSettings } from '@wordpress/date';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
-import { EN_US_SETTINGS } from '../__fixtures__/wp-date-settings';
 import { siteTimeZone } from '../site-time-zone';
+
+/**
+ * The package's own defaults, captured before any test installs settings over
+ * them, so the "no settings installed" case asserts against what
+ * `@wordpress/date` actually ships rather than a restated copy of it.
+ */
+const DEFAULTS = getSettings();
 
 /**
  * Install settings carrying a specific timezone.
@@ -17,7 +23,7 @@ import { siteTimeZone } from '../site-time-zone';
  */
 const withTimezone = ( timezone: { offset: number; string: string } ) =>
 	setSettings( {
-		...EN_US_SETTINGS,
+		...DEFAULTS,
 		timezone: { ...timezone, offsetFormatted: String( timezone.offset ), abbr: '' },
 	} );
 
@@ -56,6 +62,14 @@ describe( 'siteTimeZone', () => {
 
 	it( 'formats a zero offset', () => {
 		withTimezone( { offset: 0, string: '' } );
+
+		expect( siteTimeZone() ).toBe( '+00:00' );
+	} );
+
+	// The visitor's zone is never the right answer for a site-scoped value, so
+	// the no-settings path has to land on UTC for everyone alike.
+	it( 'resolves to UTC when WordPress installed no settings', () => {
+		setSettings( DEFAULTS );
 
 		expect( siteTimeZone() ).toBe( '+00:00' );
 	} );

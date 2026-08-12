@@ -234,8 +234,6 @@ export {
 export {
 	dateToISOStringWithLocalTZ,
 	ensureCoreSettingsReady,
-	getSiteTimezone,
-	getSiteGmtOffset,
 	localTZDate,
 	hasProductFilters,
 	isSelectablePreset,

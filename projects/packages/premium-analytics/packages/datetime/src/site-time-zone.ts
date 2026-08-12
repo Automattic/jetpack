@@ -6,17 +6,17 @@ import { getSettings } from '@wordpress/date';
 /**
  * The site's timezone, as an identifier `Intl` accepts.
  *
+ * This is the only accessor for the site zone. It reads the settings WordPress
+ * installs synchronously at page load — the same ones every formatter renders
+ * in — so date maths and rendered labels agree on the calendar day from the
+ * first paint, with no entity fetch to wait on.
+ *
  * Sites configured with a manual UTC offset instead of a city have no
  * `timezone_string` at all, so WordPress sends an empty string and carries the
  * zone in `offset` alone. `Intl` rejects `''` as a `timeZone`, so the offset is
- * rendered as a fixed `±HH:MM` identifier instead.
- *
- * This reads the same settings `formatDate` renders in, so a range built here
- * and a single date formatted there agree on the calendar day. Note that
- * `getSiteTimezone()` in `@jetpack-premium-analytics/data` answers the same
- * question from a different source — the core-data `root/site` entity, falling
- * back to the *browser* zone before it loads — so it cannot replace this
- * settings-backed accessor.
+ * rendered as a fixed `±HH:MM` identifier instead. Absent settings entirely,
+ * `@wordpress/date`'s own defaults yield `+00:00`: never the visitor's zone,
+ * which is never the right answer for a site-scoped value.
  *
  * @return An IANA zone name, or a `±HH:MM` offset.
  */
