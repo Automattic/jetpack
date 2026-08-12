@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -14,19 +14,30 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 jest.mock( '../use-post-traffic-activity' );
 
+// Width the mocked observer reports when the card is first attached; `undefined`
+// leaves the card unmeasured, as jsdom does.
 let mockCardWidth: number | undefined;
+// Reports a later width, so a test can drive a resize rather than only a mount.
+let mockFireResize: ( ( width: number ) => void ) | undefined;
+let mockAttachRef: ( ( element: HTMLElement | null ) => void ) | undefined;
 
 // jsdom's ResizeObserver never fires, so the real hook leaves the card unmeasured
 // and the width-driven page span is unreachable from a test. Drive it directly.
 jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
-	useResizeObserver:
-		( onResize: ( entries: { contentRect: { width: number } }[] ) => void ) =>
-		( element: HTMLElement | null ) => {
+	useResizeObserver: ( onResize: ( entries: { contentRect: { width: number } }[] ) => void ) => {
+		mockFireResize = width => onResize( [ { contentRect: { width } } ] );
+		// One stable ref callback for the whole file. A fresh arrow per render would
+		// make React detach and re-attach on every commit, replaying the mount width
+		// and undoing whatever a test fired.
+		mockAttachRef ??= element => {
 			if ( element && mockCardWidth !== undefined ) {
-				onResize( [ { contentRect: { width: mockCardWidth } } ] );
+				mockFireResize?.( mockCardWidth );
 			}
-		},
+		};
+
+		return mockAttachRef;
+	},
 } ) );
 
 type TooltipData = { value: number | null; cellLabel?: string; row: number; column: number };
@@ -100,6 +111,7 @@ const REPORT_PARAMS = {
 
 beforeEach( () => {
 	mockCardWidth = undefined;
+	mockFireResize = undefined;
 	mockUsePostTrafficActivity.mockReset();
 	mockUsePostTrafficActivity.mockReturnValue( {
 		days: twoWeeksOfDays(),
@@ -144,8 +156,21 @@ describe( 'PostTrafficActivity page span', () => {
 
 		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
 
-		// floor( (1000 - 48) / (64 + 4) ) = 14 columns.
+		// floor( (1000 - 32) / (64 + 4) ) = 14 columns.
 		expect( requestedDays() ).toBe( 14 * 7 );
+	} );
+
+	it( 'repages on resize, measuring the card in whole pixels', () => {
+		mockCardWidth = 1000;
+
+		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+		expect( requestedDays() ).toBe( 14 * 7 );
+
+		// A real observer reports subpixels, and 439.6 straddles a column boundary:
+		// round( 439.6 ) = 440 draws 6 columns, while the unrounded width floors to 5.
+		act( () => mockFireResize?.( 439.6 ) );
+
+		expect( requestedDays() ).toBe( 6 * 7 );
 	} );
 
 	it( 'holds the minimum page rather than shrink to what a narrow card fits', () => {

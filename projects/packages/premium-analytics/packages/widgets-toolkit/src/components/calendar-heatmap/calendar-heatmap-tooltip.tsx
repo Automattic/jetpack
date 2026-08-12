@@ -1,7 +1,12 @@
-export type CalendarHeatmapTooltipProps = {
-	value: number | null;
-	/** The chart's own label for the cell, normally its date. */
-	cellLabel?: string;
+/**
+ * External dependencies
+ */
+import type { HeatmapTooltipData } from '@jetpack-premium-analytics/externals';
+
+// The chart's own payload fields are picked, not restated: every caller forwards
+// them straight from a `HeatmapTooltipData`, and the package builds without
+// `strictNullChecks`, so a copy that drifted from upstream would not error here.
+export type CalendarHeatmapTooltipProps = Pick< HeatmapTooltipData, 'value' | 'cellLabel' > & {
 	/** Shown in place of a count when there is no value. */
 	emptyLabel: string;
 	/** Renders a non-null count, already formatted and pluralized. */

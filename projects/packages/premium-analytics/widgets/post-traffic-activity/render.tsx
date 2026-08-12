@@ -35,13 +35,12 @@ type PostTrafficActivityWidgetProps = WidgetRenderProps< PostTrafficActivityRend
 
 /**
  * Sizing the page to the card: one page shows as many whole week columns as
- * fit at the design's cell width. The constants mirror the chart's
- * non-compact metrics — 64px design cells, the 4px cell gap, and an
- * allowance for the weekday-label gutter.
+ * fit at the design's cell width. The constants mirror the chart's non-compact
+ * metrics — 64px design cells and the 4px cell gap. The weekday-label gutter is
+ * the chart's own, so `fitWeekColumns` owns it.
  */
 const CELL_WIDTH = 64;
 const CELL_GAP = 4;
-const LABEL_GUTTER = 48;
 const MIN_PAGE_WEEKS = 4;
 const DEFAULT_PAGE_WEEKS = 16;
 
@@ -57,7 +56,6 @@ function weeksForWidth( width?: number ): number {
 		availWidth: width,
 		cellWidth: CELL_WIDTH,
 		cellGap: CELL_GAP,
-		labelGutter: LABEL_GUTTER,
 		minColumns: MIN_PAGE_WEEKS,
 	} );
 }

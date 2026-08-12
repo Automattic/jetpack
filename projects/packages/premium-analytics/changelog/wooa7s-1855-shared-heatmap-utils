@@ -1,5 +1,4 @@
 Significance: patch
 Type: changed
-Comment: Internal refactor: share the calendar heatmap tooltip and week-column fitting across the three heatmap widgets. No user-facing change.
 
-
+Post traffic activity: show more weeks per page in the views heatmap.
