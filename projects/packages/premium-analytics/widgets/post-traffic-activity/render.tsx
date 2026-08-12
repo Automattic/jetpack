@@ -9,11 +9,12 @@ import {
 	WidgetRoot,
 	WidgetState,
 	buildCalendarHeatmapData,
+	toDay,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useResizeObserver } from '@wordpress/compose';
-import { useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Button, Stack } from '@jetpack-premium-analytics/externals';
@@ -40,27 +41,6 @@ const CELL_GAP = 4;
 const LABEL_GUTTER = 48;
 const MIN_PAGE_WEEKS = 4;
 const DEFAULT_PAGE_WEEKS = 16;
-
-// Show the exact count before the date instead of the chart's default
-// ordering, mirroring the Insights daily-views heatmap. "No views" rather
-// than a literal 0: the filler cells before the range start share the blank
-// rendering, and a "0 views" claim would be wrong for them.
-function renderCellTooltip( { value, cellLabel }: { value: number | null; cellLabel?: string } ) {
-	return (
-		<>
-			<strong>
-				{ value === null
-					? __( 'No views', 'jetpack-premium-analytics-pkg' )
-					: sprintf(
-							/* translators: %s: number of views, e.g. "2,033". */
-							_n( '%s view', '%s views', value, 'jetpack-premium-analytics-pkg' ),
-							formatMetricValue( value, 'number', { decimals: 0 } )
-					  ) }
-			</strong>
-			<div>{ cellLabel }</div>
-		</>
-	);
-}
 
 /**
  * Whole week columns that fit the measured card width.
@@ -115,6 +95,55 @@ function PostTrafficActivityInner() {
 	const { data: heatmapData, rowLabels } = useMemo(
 		() => buildCalendarHeatmapData( days ),
 		[ days ]
+	);
+
+	const from = toDay( reportParams.from );
+	const to = toDay( reportParams.to );
+
+	// Show the exact count before the date instead of the chart's default
+	// ordering, mirroring the Insights daily-views heatmap. Blank cells split
+	// by what the blank means: inside the range a day with no recorded views
+	// really had none ("No views"), while the filler days padding the grid
+	// before the range start are masked, not measured — claiming "No views"
+	// there could be false, so they say "No data". Cells map back to `days`
+	// by grid position: the page start is always week-aligned, so
+	// `column * 7 + row` indexes the flat series.
+	const renderCellTooltip = useCallback(
+		( {
+			value,
+			cellLabel,
+			row,
+			column,
+		}: {
+			value: number | null;
+			cellLabel?: string;
+			row: number;
+			column: number;
+		} ) => {
+			let label;
+			if ( value !== null ) {
+				label = sprintf(
+					/* translators: %s: number of views, e.g. "2,033". */
+					_n( '%s view', '%s views', value, 'jetpack-premium-analytics-pkg' ),
+					formatMetricValue( value, 'number', { decimals: 0 } )
+				);
+			} else {
+				const day = days[ column * 7 + row ];
+				const inRange =
+					!! day && !! from && !! to && day.dateString >= from && day.dateString <= to;
+				label = inRange
+					? __( 'No views', 'jetpack-premium-analytics-pkg' )
+					: __( 'No data', 'jetpack-premium-analytics-pkg' );
+			}
+
+			return (
+				<>
+					<strong>{ label }</strong>
+					<div>{ cellLabel }</div>
+				</>
+			);
+		},
+		[ days, from, to ]
 	);
 
 	return (
