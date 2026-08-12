@@ -410,18 +410,15 @@ class Jetpack_Gutenberg {
 
 		/*
 		 * The manifest is a build artifact and is absent in a source checkout (e.g. when
-		 * running the test suite). Return false — as documented — rather than letting
-		 * file_get_contents() raise a warning and decode to null.
+		 * running the test suite). Return false — as documented — rather than calling
+		 * wp_json_file_decode() on a missing file, which triggers _doing_it_wrong().
 		 */
 		$preset_file = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . 'index.json';
 		if ( ! file_exists( $preset_file ) ) {
 			return false;
 		}
 
-		self::$preset_cache = json_decode(
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			file_get_contents( $preset_file )
-		);
+		self::$preset_cache = wp_json_file_decode( $preset_file );
 		return self::$preset_cache;
 	}
 
