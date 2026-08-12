@@ -56,6 +56,10 @@ class Odyssey_Config_Data_Test extends Stats_TestCase {
 		$this->assertArrayHasKey( 'stats_admin_version', $data );
 		$this->assertArrayHasKey( 'software_version', $data );
 		$this->assertSame(
+			$data['intial_state']['sites']['items']['999']['options']['admin_url'],
+			$data['admin_url']
+		);
+		$this->assertSame(
 			$data['intial_state']['sites']['items']['999']['options']['stats_admin_version'],
 			$data['stats_admin_version']
 		);
@@ -87,6 +91,7 @@ class Odyssey_Config_Data_Test extends Stats_TestCase {
 		$this->assertArrayNotHasKey( 'intial_state', $data );
 		$this->assertArrayHasKey( 'api_root', $data );
 		$this->assertArrayHasKey( 'nonce', $data );
+		$this->assertArrayHasKey( 'admin_url', $data );
 		$this->assertArrayHasKey( 'stats_admin_version', $data );
 	}
 }

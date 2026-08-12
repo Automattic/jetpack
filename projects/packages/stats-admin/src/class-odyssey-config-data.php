@@ -100,6 +100,7 @@ class Odyssey_Config_Data {
 			'gmt_offset'                     => $this->get_gmt_offset(),
 			'odyssey_stats_base_url'         => admin_url( 'admin.php?page=stats' ),
 			// Repeated in the site record below, which a site without a connection never gets.
+			'admin_url'                      => admin_url(),
 			'jetpack_version'                => defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '',
 			'stats_admin_version'            => Main::VERSION,
 			'software_version'               => $wp_version,
