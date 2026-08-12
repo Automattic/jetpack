@@ -97,6 +97,10 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 	 * The post-type test must stay below the missing-post passthrough: that branch
 	 * returns true, so testing there would skip `edit_post` for ordinary posts.
 	 *
+	 * A non-attachment yields 403, not the 404 a missing item gets. This is a boolean
+	 * gate, and `get_media_item*()` resolves any post type, so a passthrough would
+	 * return 200 rather than 404. Revisit if clients conflate it with an auth failure.
+	 *
 	 * Do not move this into a trait: this file instantiates the endpoint above the
 	 * class declaration, and `use Trait;` disables PHP early binding, which makes the
 	 * file fatal with "Class not found".

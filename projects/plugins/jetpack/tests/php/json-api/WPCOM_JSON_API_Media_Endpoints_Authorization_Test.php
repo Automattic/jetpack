@@ -710,6 +710,7 @@ class WPCOM_JSON_API_Media_Endpoints_Authorization_Test extends WP_UnitTestCase 
 
 		$this->assertInstanceOf( WP_Error::class, $response );
 		$this->assertSame( 'unauthorized', $response->get_error_code() );
+		$this->assertSame( 403, $response->get_error_data() );
 		$this->assertSame( 'Original post title', get_post( $post_id )->post_title );
 	}
 
