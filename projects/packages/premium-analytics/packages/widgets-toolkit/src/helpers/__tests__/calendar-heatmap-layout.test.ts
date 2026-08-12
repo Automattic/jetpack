@@ -4,7 +4,6 @@
 import {
 	compactCalendarHeatmapCapacity,
 	computeCalendarHeatmapLayout,
-	fitCompactCalendarHeatmapColumns,
 } from '../calendar-heatmap-layout';
 import type { CalendarHeatmapLayoutInput } from '../calendar-heatmap-layout';
 
@@ -251,59 +250,12 @@ describe( 'compactCalendarHeatmapCapacity', () => {
 		expect( compactCalendarHeatmapCapacity( 1024 ) ).toBe( 76 );
 	} );
 
-	it( 'is the ceiling fitCompactCalendarHeatmapColumns trims against', () => {
-		expect( fitCompactCalendarHeatmapColumns( { availWidth: 1024, dataColumns: 500 } ) ).toBe(
-			compactCalendarHeatmapCapacity( 1024 )
-		);
-	} );
-
 	it.each( [
 		[ 'a width narrower than the row labels', 20 ],
 		[ 'zero width', 0 ],
 		[ 'NaN width', Number.NaN ],
 	] )( 'returns 0 for %s', ( _label, width ) => {
 		expect( compactCalendarHeatmapCapacity( width ) ).toBe( 0 );
-	} );
-} );
-
-describe( 'fitCompactCalendarHeatmapColumns', () => {
-	const base = {
-		dataColumns: 52,
-	};
-
-	it( 'fits as many fixed cells as the width allows, never overflowing', () => {
-		const columns = fitCompactCalendarHeatmapColumns( { ...base, availWidth: 200 } );
-
-		// floor( (200 - 32) / (11 + 2) ) = floor( 12.9 ) = 12.
-		expect( columns ).toBe( 12 );
-		// The trimmed row of cells stays within the available width.
-		expect( 32 + columns * 11 + columns * 2 ).toBeLessThanOrEqual( 200 );
-	} );
-
-	it( 'never returns more columns than weeks in range', () => {
-		expect(
-			fitCompactCalendarHeatmapColumns( { ...base, availWidth: 2000, dataColumns: 20 } )
-		).toBe( 20 );
-	} );
-
-	it( 'keeps the column minimum on a narrow tile', () => {
-		expect( fitCompactCalendarHeatmapColumns( { ...base, availWidth: 60 } ) ).toBe( 6 );
-	} );
-
-	it( 'shows all available when the range has fewer than the minimum', () => {
-		expect( fitCompactCalendarHeatmapColumns( { ...base, availWidth: 60, dataColumns: 2 } ) ).toBe(
-			2
-		);
-	} );
-
-	it.each( [
-		[ 'zero width', { availWidth: 0 } ],
-		[ 'zero data columns', { availWidth: 500, dataColumns: 0 } ],
-		[ 'NaN width', { availWidth: Number.NaN } ],
-	] )( 'returns 0 for %s', ( _label, override ) => {
-		expect( fitCompactCalendarHeatmapColumns( { ...base, availWidth: 500, ...override } ) ).toBe(
-			0
-		);
 	} );
 } );
 

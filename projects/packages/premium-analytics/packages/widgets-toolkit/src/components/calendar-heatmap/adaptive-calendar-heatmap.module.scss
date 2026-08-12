@@ -1,5 +1,4 @@
 .root {
-	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
 	height: 100%;
@@ -19,9 +18,8 @@
 	min-height: 0;
 }
 
-/* Center the grid within the chart. Expanded is already sized to its rectangle;
-   compact fills the width with fixed squares, so this keeps that grid centered
-   rather than hugging the start edge. */
+/* Center a grid whose covered period is too short to fill the measured
+   width. */
 .heatmap {
 	min-width: 0;
 	justify-content: center;
