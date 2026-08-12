@@ -15,10 +15,7 @@ namespace Automattic\Jetpack\Search;
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable
-$condition = ( (array) $attributes )['condition'] ?? 'any';
-if ( ! in_array( $condition, array( 'any', 'filtered', 'error' ), true ) ) {
-	$condition = 'any';
-}
+$condition = Search_Blocks::normalize_no_results_condition( ( (array) $attributes )['condition'] ?? '' );
 
 Search_Blocks::seed_no_results_coverage( $condition );
 

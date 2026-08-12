@@ -3677,4 +3677,201 @@ class Search_Blocks_Test extends TestCase {
 		$this->assertContains( 'filters-product', $on );
 		$this->assertNotContains( 'filters-product', $off );
 	}
+
+	/**
+	 * Enter (or leave) the render scope `enqueue_block_template_overlay_assets()`
+	 * sets around the overlay's `do_blocks()` call. Reflection because the
+	 * property is an implementation detail of that one pass — production code
+	 * has no reason to set it from outside the class.
+	 *
+	 * @param array<string,bool>|null $coverage Coverage map, or null to leave.
+	 * @return void
+	 */
+	private function set_overlay_render_scope( $coverage ) {
+		$prop = new \ReflectionProperty( Search_Blocks::class, 'overlay_render_coverage' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
+		$prop->setValue( null, $coverage );
+	}
+
+	/**
+	 * The overlay template ships a variant per condition, so a render of it
+	 * needs no help from `results-list`'s legacy regions.
+	 */
+	public function test_collect_no_results_coverage_reads_every_variant() {
+		$coverage = Search_Blocks::collect_no_results_coverage(
+			'<!-- wp:jetpack-search/no-results -->'
+			. '<!-- wp:jetpack-search/no-results-slot /-->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"filtered"} /-->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"error"} /-->'
+			. '<!-- /wp:jetpack-search/no-results -->'
+		);
+
+		$this->assertSame(
+			array(
+				'any'      => true,
+				'filtered' => true,
+				'error'    => true,
+			),
+			$coverage
+		);
+	}
+
+	/**
+	 * The block sits several levels down in every shipped template, so the walk
+	 * has to descend rather than scan the top level.
+	 */
+	public function test_collect_no_results_coverage_descends_into_inner_blocks() {
+		$coverage = Search_Blocks::collect_no_results_coverage(
+			'<!-- wp:group --><div class="wp-block-group">'
+			. '<!-- wp:jetpack-search/search-results -->'
+			. '<!-- wp:jetpack-search/no-results -->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"filtered"} /-->'
+			. '<!-- /wp:jetpack-search/no-results -->'
+			. '<!-- /wp:jetpack-search/search-results -->'
+			. '</div><!-- /wp:group -->'
+		);
+
+		$this->assertTrue( $coverage['filtered'] );
+		$this->assertFalse( $coverage['any'] );
+		$this->assertFalse( $coverage['error'] );
+	}
+
+	/**
+	 * A container with no variants stands in for an unscoped one — the shape the
+	 * templates carried before they gained variants.
+	 */
+	public function test_collect_no_results_coverage_treats_an_empty_container_as_unscoped() {
+		$coverage = Search_Blocks::collect_no_results_coverage( '<!-- wp:jetpack-search/no-results /-->' );
+
+		$this->assertTrue( $coverage['any'] );
+		$this->assertFalse( $coverage['error'] );
+	}
+
+	/**
+	 * Markup with no block at all covers nothing, which is what keeps the legacy
+	 * regions rendering for content that predates it.
+	 */
+	public function test_collect_no_results_coverage_of_markup_without_the_block() {
+		$coverage = Search_Blocks::collect_no_results_coverage( '<!-- wp:jetpack-search/results-list /-->' );
+
+		$this->assertSame(
+			array(
+				'any'      => false,
+				'filtered' => false,
+				'error'    => false,
+			),
+			$coverage
+		);
+	}
+
+	/**
+	 * Outside the overlay pass the hand-off runs through the seeded coverage
+	 * flags, exactly as it did before that pass had a scope of its own.
+	 */
+	public function test_legacy_getters_default_to_the_seeded_flags() {
+		$this->assertSame( 'state.showLegacyNoResults', Search_Blocks::legacy_no_results_getter() );
+		$this->assertSame( 'state.showLegacyError', Search_Blocks::legacy_error_getter() );
+	}
+
+	/**
+	 * The overlay is pre-rendered on every front-end request. Seeding from it
+	 * would retire the legacy regions of in-page results markup that has no
+	 * `no-results` block of its own, leaving a visitor who searches through the
+	 * in-page input with a blank results area.
+	 */
+	public function test_seeding_is_suppressed_inside_the_overlay_render_scope() {
+		// `wp_interactivity_state()` deep-merges across the whole process, so
+		// the assertion only means anything from a cleared store.
+		$interactivity = wp_interactivity();
+		$state_data    = new \ReflectionProperty( $interactivity, 'state_data' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$state_data->setAccessible( true );
+		}
+		$before = $state_data->getValue( $interactivity );
+		$state_data->setValue( $interactivity, array() );
+
+		$this->set_overlay_render_scope(
+			array(
+				'any'      => true,
+				'filtered' => true,
+				'error'    => true,
+			)
+		);
+		Search_Blocks::seed_no_results_coverage( 'any' );
+		$this->set_overlay_render_scope( null );
+
+		$state = wp_interactivity_state( 'jetpack-search' );
+		$state_data->setValue( $interactivity, $before );
+
+		$this->assertArrayNotHasKey( 'hasNoResultsUnfiltered', $state );
+		$this->assertArrayNotHasKey( 'hasNoResultsFiltered', $state );
+	}
+
+	/**
+	 * Full coverage means nothing is left for the legacy regions, so the overlay
+	 * drops them instead of shipping markup pinned hidden by flags it never set.
+	 */
+	public function test_overlay_scope_drops_fully_covered_legacy_regions() {
+		$this->set_overlay_render_scope(
+			array(
+				'any'      => true,
+				'filtered' => true,
+				'error'    => true,
+			)
+		);
+		$no_results = Search_Blocks::legacy_no_results_getter();
+		$error      = Search_Blocks::legacy_error_getter();
+		$this->set_overlay_render_scope( null );
+
+		$this->assertSame( '', $no_results );
+		$this->assertSame( '', $error );
+	}
+
+	/**
+	 * A lone `filtered` variant leaves the unfiltered empty state to the legacy
+	 * region — the same split the seeded flags produce on a page render.
+	 */
+	public function test_overlay_scope_leaves_the_uncovered_state_to_the_legacy_region() {
+		$this->set_overlay_render_scope(
+			array(
+				'any'      => false,
+				'filtered' => true,
+				'error'    => false,
+			)
+		);
+		$no_results = Search_Blocks::legacy_no_results_getter();
+		$error      = Search_Blocks::legacy_error_getter();
+		$any        = Search_Blocks::no_results_visibility_getter( 'any' );
+		$this->set_overlay_render_scope( null );
+
+		$this->assertSame( 'state.showNoResultsUnfiltered', $no_results );
+		$this->assertSame( 'state.showError', $error );
+		// The unscoped variant yields where the `filtered` one claimed, which
+		// it can't read off flags this pass doesn't write.
+		$this->assertSame( 'state.showNoResultsUnfiltered', $any );
+	}
+
+	/**
+	 * An overlay carrying no `no-results` block at all keeps both legacy regions
+	 * on their unconditional getters.
+	 */
+	public function test_overlay_scope_without_the_block_keeps_both_legacy_regions() {
+		$this->set_overlay_render_scope(
+			array(
+				'any'      => false,
+				'filtered' => false,
+				'error'    => false,
+			)
+		);
+		$no_results = Search_Blocks::legacy_no_results_getter();
+		$error      = Search_Blocks::legacy_error_getter();
+		$any        = Search_Blocks::no_results_visibility_getter( 'any' );
+		$this->set_overlay_render_scope( null );
+
+		$this->assertSame( 'state.showNoResults', $no_results );
+		$this->assertSame( 'state.showError', $error );
+		$this->assertSame( 'state.showNoResults', $any );
+	}
 }

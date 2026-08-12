@@ -105,9 +105,10 @@ $skeleton_count     = 'compact' === $layout ? 6 : 4;
 
 // All three messages are superseded by the `jetpack-search/no-results` block,
 // which accepts any inner blocks instead of a plain string. Kept rendering for
-// saved content that predates it — `state.showLegacyNoResults` and
-// `state.showLegacyError` hide these regions on pages carrying a block that
-// covers the case, so the two never both show.
+// saved content that predates it — `Search_Blocks::legacy_no_results_getter()`
+// and `legacy_error_getter()` pick the binding that hides these regions
+// wherever a block covers the case, or drop them outright when the surrounding
+// markup's coverage is already known, so the two never both show.
 //
 // `trim()` so a whitespace-only attribute (e.g. an author who saved spaces)
 // still falls back to the default copy instead of rendering a blank message.
@@ -129,6 +130,9 @@ $error_message = trim( (string) ( $attrs['errorMessage'] ?? '' ) );
 if ( '' === $error_message ) {
 	$error_message = $no_results_defaults['error'];
 }
+
+$legacy_no_results_getter = Search_Blocks::legacy_no_results_getter();
+$legacy_error_getter      = Search_Blocks::legacy_error_getter();
 ?>
 <div
 	<?php echo wp_kses_data( $wrapper_attrs ); ?>
@@ -339,9 +343,10 @@ if ( '' === $error_message ) {
 			</li>
 		</template>
 	</ul>
+	<?php if ( '' !== $legacy_no_results_getter ) : ?>
 	<div
 		class="jetpack-search-results__no-results"
-		data-wp-bind--hidden="!state.showLegacyNoResults"
+		data-wp-bind--hidden="!<?php echo esc_attr( $legacy_no_results_getter ); ?>"
 		role="status"
 		hidden
 	>
@@ -356,12 +361,15 @@ if ( '' === $error_message ) {
 		<p data-wp-bind--hidden="state.hasActiveFilters"><?php echo esc_html( $no_results_message ); ?></p>
 		<p data-wp-bind--hidden="!state.hasActiveFilters"><?php echo esc_html( $no_results_with_filters_message ); ?></p>
 	</div>
+	<?php endif; ?>
+	<?php if ( '' !== $legacy_error_getter ) : ?>
 	<div
 		class="jetpack-search-results__error"
-		data-wp-bind--hidden="!state.showLegacyError"
+		data-wp-bind--hidden="!<?php echo esc_attr( $legacy_error_getter ); ?>"
 		role="alert"
 		hidden
 	>
 		<p><?php echo esc_html( $error_message ); ?></p>
 	</div>
+	<?php endif; ?>
 </div>

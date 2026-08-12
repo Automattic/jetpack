@@ -713,6 +713,18 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		/**
+		 * No-results visibility for an unscoped variant sitting beside one
+		 * scoped to filtered searches, where the pairing is known at render
+		 * time rather than through the seeded coverage flags — the overlay
+		 * template, which is pre-rendered outside the page's own state.
+		 *
+		 * @return {boolean} True when the unfiltered empty state should show.
+		 */
+		get showNoResultsUnfiltered() {
+			return state.showNoResults && ! state.hasActiveFilters;
+		},
+
+		/**
 		 * Visibility for `results-list`'s built-in error region, which predates
 		 * the `no-results` block. Mirrors `showLegacyNoResults`, but there is
 		 * only one error case to cover, so a flat "a variant claimed it" flag is

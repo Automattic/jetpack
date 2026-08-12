@@ -68,7 +68,7 @@ if ( $is_default ) {
 		?>
 		<div
 			class="<?php echo esc_attr( $default_class ); ?>"
-			data-wp-bind--hidden="!state.showNoResultsAny"
+			data-wp-bind--hidden="!<?php echo esc_attr( Search_Blocks::no_results_visibility_getter( 'any' ) ); ?>"
 			<?php echo '' === $variants ? 'role="status"' : ''; ?>
 			hidden
 		>

@@ -75,6 +75,14 @@ class Search_Blocks {
 	private static $overlay_template_content_cache = array();
 
 	/**
+	 * Empty-state conditions the overlay template covers, set only while that
+	 * template is being pre-rendered. Null the rest of the time.
+	 *
+	 * @var array<string,bool>|null
+	 */
+	private static $overlay_render_coverage = null;
+
+	/**
 	 * Per-request memo for `is_free_plan()`. Avoids the cold-cache hazard where
 	 * `Plan::get_plan_info()` falls back to a synchronous WPCOM HTTP call —
 	 * render callbacks hit the plan gate on every inner render.
@@ -1192,9 +1200,19 @@ class Search_Blocks {
 		// Render here (during `wp_enqueue_scripts`) so view-module enqueues
 		// from `do_blocks()` land before the importmap prints — see
 		// AGENTS.md § Hydration & SSR seeding.
-		self::$block_template_overlay_rendered_html = trim(
-			do_blocks( static::get_overlay_template_content() )
-		);
+		$overlay_content = static::get_overlay_template_content();
+
+		// This runs on every front-end request, so the overlay's variants must
+		// not seed the page-global coverage flags — they'd retire the legacy
+		// regions of any in-page results markup that has no `no-results` block
+		// of its own. The overlay knows its own composition, so both sides of
+		// the hand-off resolve server-side for this pass instead.
+		self::$overlay_render_coverage = static::collect_no_results_coverage( $overlay_content );
+		try {
+			self::$block_template_overlay_rendered_html = trim( do_blocks( $overlay_content ) );
+		} finally {
+			self::$overlay_render_coverage = null;
+		}
 	}
 
 	/**
@@ -2405,7 +2423,106 @@ HTML;
 			'filtered' => 'state.showNoResultsFiltered',
 			'error'    => 'state.showError',
 		);
+
+		// `showNoResultsAny` yields to whichever variant claimed the filtered
+		// state, which it reads from the page-global flags the overlay pass
+		// doesn't write. That pass knows the answer outright.
+		if ( 'any' === $condition && null !== self::$overlay_render_coverage ) {
+			return self::$overlay_render_coverage['filtered']
+				? 'state.showNoResultsUnfiltered'
+				: 'state.showNoResults';
+		}
+
 		return $getters[ $condition ] ?? $getters['any'];
+	}
+
+	/**
+	 * Store getter that shows `results-list`'s legacy empty-state region, or an
+	 * empty string when nothing is left for it to cover.
+	 *
+	 * A page render defers to the coverage flags each variant seeds. The overlay
+	 * is pre-rendered in a pass of its own, against markup whose composition is
+	 * already known, so it resolves the hand-off without consulting them.
+	 *
+	 * @return string Getter path, or '' to drop the region.
+	 */
+	public static function legacy_no_results_getter(): string {
+		if ( null === self::$overlay_render_coverage ) {
+			return 'state.showLegacyNoResults';
+		}
+		if ( self::$overlay_render_coverage['any'] ) {
+			return '';
+		}
+		return self::$overlay_render_coverage['filtered'] ? 'state.showNoResultsUnfiltered' : 'state.showNoResults';
+	}
+
+	/**
+	 * Store getter that shows `results-list`'s legacy error region, or an empty
+	 * string when a variant covers the failure case.
+	 *
+	 * @return string Getter path, or '' to drop the region.
+	 */
+	public static function legacy_error_getter(): string {
+		if ( null === self::$overlay_render_coverage ) {
+			return 'state.showLegacyError';
+		}
+		return self::$overlay_render_coverage['error'] ? '' : 'state.showError';
+	}
+
+	/**
+	 * Normalize a saved `no-results-slot` condition.
+	 *
+	 * @param mixed $condition Saved attribute value.
+	 * @return string One of `any`, `filtered`, `error`.
+	 */
+	public static function normalize_no_results_condition( $condition ): string {
+		return in_array( $condition, array( 'filtered', 'error' ), true ) ? $condition : 'any';
+	}
+
+	/**
+	 * Which empty-state conditions the `no-results` blocks in a chunk of block
+	 * markup cover.
+	 *
+	 * @param string $content Block markup.
+	 * @return array<string,bool> Keyed `any`, `filtered`, `error`.
+	 */
+	public static function collect_no_results_coverage( string $content ): array {
+		$coverage = array(
+			'any'      => false,
+			'filtered' => false,
+			'error'    => false,
+		);
+		self::walk_no_results_coverage( parse_blocks( $content ), $coverage );
+		return $coverage;
+	}
+
+	/**
+	 * Accumulate `no-results` coverage across a parsed block tree.
+	 *
+	 * @param array              $blocks   Parsed blocks.
+	 * @param array<string,bool> $coverage Coverage accumulator, by reference.
+	 * @return void
+	 */
+	private static function walk_no_results_coverage( array $blocks, array &$coverage ): void {
+		foreach ( $blocks as $block ) {
+			$inner_blocks = $block['innerBlocks'] ?? array();
+			if ( 'jetpack-search/no-results' !== ( $block['blockName'] ?? '' ) ) {
+				self::walk_no_results_coverage( $inner_blocks, $coverage );
+				continue;
+			}
+
+			$conditions = array();
+			foreach ( $inner_blocks as $inner_block ) {
+				if ( 'jetpack-search/no-results-slot' === ( $inner_block['blockName'] ?? '' ) ) {
+					$conditions[] = self::normalize_no_results_condition( $inner_block['attrs']['condition'] ?? '' );
+				}
+			}
+			// A container with no variants stands in for an unscoped one, the
+			// same way its own renderer treats it.
+			foreach ( $conditions ? $conditions : array( 'any' ) as $condition ) {
+				$coverage[ $condition ] = true;
+			}
+		}
 	}
 
 	/**
@@ -2441,6 +2558,12 @@ HTML;
 	 */
 	public static function seed_no_results_coverage( string $condition ): void {
 		if ( ! function_exists( 'wp_interactivity_state' ) ) {
+			return;
+		}
+		// The overlay resolves its own hand-off server-side; seeding here would
+		// leak its coverage onto unrelated in-page markup, since the state is a
+		// single page-global namespace.
+		if ( null !== self::$overlay_render_coverage ) {
 			return;
 		}
 		if ( 'error' === $condition ) {

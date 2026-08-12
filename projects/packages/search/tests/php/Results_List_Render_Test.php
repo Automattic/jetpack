@@ -545,4 +545,43 @@ class Results_List_Render_Test extends TestCase {
 		$hidden_skeletons = preg_match_all( '/<li[^>]*--skeleton[^>]*\s+hidden(?=\s|\/|>|=)/', $markup );
 		$this->assertSame( $total_skeletons, $hidden_skeletons );
 	}
+
+	/**
+	 * Rendered inside the overlay's pre-render pass, the legacy regions resolve
+	 * against that template's own composition instead of the page-global flags:
+	 * fully covered means they aren't rendered at all, and a lone `filtered`
+	 * variant leaves the unfiltered state to the legacy region.
+	 */
+	public function test_legacy_regions_follow_the_overlay_render_scope() {
+		$prop = new \ReflectionProperty( Search_Blocks::class, 'overlay_render_coverage' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
+
+		$prop->setValue(
+			null,
+			array(
+				'any'      => true,
+				'filtered' => true,
+				'error'    => true,
+			)
+		);
+		$covered = $this->render();
+
+		$prop->setValue(
+			null,
+			array(
+				'any'      => false,
+				'filtered' => true,
+				'error'    => false,
+			)
+		);
+		$partial = $this->render();
+		$prop->setValue( null, null );
+
+		$this->assertStringNotContainsString( 'jetpack-search-results__no-results', $covered );
+		$this->assertStringNotContainsString( 'jetpack-search-results__error', $covered );
+		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showNoResultsUnfiltered"', $partial );
+		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showError"', $partial );
+	}
 }

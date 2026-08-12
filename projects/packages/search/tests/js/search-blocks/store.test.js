@@ -952,6 +952,25 @@ describe( 'store getters', () => {
 		expect( state.showNoResultsFiltered ).toBe( false );
 	} );
 
+	// The overlay template is pre-rendered outside the page's own state, so it
+	// resolves the unscoped/scoped pairing server-side and binds here instead of
+	// to `showNoResultsAny`, which reads the flags that pass never writes.
+	it( 'shows the unfiltered no-results block only on an unfiltered search', () => {
+		state.results = [];
+		state.isLoading = false;
+		state.hasError = false;
+		state.activeFilters = {};
+		expect( state.showNoResultsUnfiltered ).toBe( true );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.showNoResultsUnfiltered ).toBe( false );
+
+		// Never escapes the base gate.
+		state.activeFilters = {};
+		state.results = [ { title: 'Existing result' } ];
+		expect( state.showNoResultsUnfiltered ).toBe( false );
+	} );
+
 	it( 'yields the unscoped no-results block to a scoped one for the state it claims', () => {
 		state.results = [];
 		state.isLoading = false;
