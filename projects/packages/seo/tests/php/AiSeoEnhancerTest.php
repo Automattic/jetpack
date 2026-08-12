@@ -1,7 +1,6 @@
 <?php
 /**
- * Tests for the AI SEO Enhancer gate: each availability term falsified on its
- * own, and the stored toggle.
+ * Tests for the AI SEO Enhancer gate: each availability term falsified on its own.
  *
  * Not covered here: that the module term is inert on WordPress.com Simple.
  * Exercising it needs the real `IS_WPCOM` constant, which only works in an
@@ -27,7 +26,7 @@ class AiSeoEnhancerTest extends SeoTestCase {
 	 * Reset the option, filters and plan pin every test touches.
 	 */
 	protected function tearDown(): void {
-		delete_option( AI_SEO_Enhancer::OPTION );
+		delete_option( 'ai_seo_enhancer_enabled' );
 		remove_all_filters( 'ai_seo_enhancer_enabled' );
 		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( 'jetpack_disable_seo_tools' );
@@ -35,15 +34,6 @@ class AiSeoEnhancerTest extends SeoTestCase {
 		self::reset_plan();
 
 		parent::tearDown();
-	}
-
-	/**
-	 * The option name is the one the settings endpoints round-trip, so the
-	 * package copy of the gate can never read a different store than the
-	 * plugin's AI feature settings.
-	 */
-	public function test_option_constant_is_the_shared_toggle() {
-		$this->assertSame( 'ai_seo_enhancer_enabled', AI_SEO_Enhancer::OPTION );
 	}
 
 	/**
@@ -104,24 +94,5 @@ class AiSeoEnhancerTest extends SeoTestCase {
 		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
 
 		$this->assertFalse( AI_SEO_Enhancer::is_available() );
-	}
-
-	/**
-	 * The stored toggle is opt-in: absent means off, matching the `false`
-	 * default `Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' )` reads.
-	 */
-	public function test_is_toggled_on_defaults_to_false() {
-		delete_option( AI_SEO_Enhancer::OPTION );
-
-		$this->assertFalse( AI_SEO_Enhancer::is_toggled_on() );
-	}
-
-	/**
-	 * A stored `1` reads as on, and as a real bool rather than the raw option.
-	 */
-	public function test_is_toggled_on_reads_the_stored_option() {
-		update_option( AI_SEO_Enhancer::OPTION, 1 );
-
-		$this->assertTrue( AI_SEO_Enhancer::is_toggled_on() );
 	}
 }

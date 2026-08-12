@@ -24,17 +24,9 @@ use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 
 /**
- * Whether the AI SEO Enhancer is offered, and whether it is switched on.
+ * Whether the AI SEO Enhancer is offered on this site.
  */
 class AI_SEO_Enhancer {
-
-	/**
-	 * The user-facing toggle, round-tripped through `/jetpack/v4/settings`.
-	 * Opt-in: absent means off.
-	 *
-	 * @var string
-	 */
-	const OPTION = 'ai_seo_enhancer_enabled';
 
 	/**
 	 * Whether the site can offer the enhancer at all, independent of the admin's
@@ -74,23 +66,5 @@ class AI_SEO_Enhancer {
 			&& ! apply_filters( 'jetpack_disable_seo_tools', false )
 			&& ( new Modules() )->is_active( 'seo-tools' )
 			&& Current_Plan::supports( 'ai-seo-enhancer' );
-	}
-
-	/**
-	 * Whether the admin has switched the enhancer on. The raw stored toggle, with
-	 * no availability folded in, so a UI renders the switch where the admin left
-	 * it even while the feature is unavailable.
-	 *
-	 * Reads exactly what `Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' )`
-	 * reads: `seo_enhancer` is not among that class's owned features, so its
-	 * WordPress.com Simple short-circuit does not apply and it falls through to
-	 * this same option and default.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return bool
-	 */
-	public static function is_toggled_on() {
-		return (bool) get_option( self::OPTION, false );
 	}
 }
