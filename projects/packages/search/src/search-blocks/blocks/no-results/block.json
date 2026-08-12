@@ -5,7 +5,7 @@
 	"version": "0.1.0",
 	"title": "No Results",
 	"category": "jetpack-search",
-	"description": "Content shown when a search returns nothing or fails — add a variant per condition and put any blocks inside. Powered by Jetpack Search.",
+	"description": "Content shown when a search returns nothing or fails — one message per condition, each holding any blocks. Powered by Jetpack Search.",
 	"keywords": [ "search", "empty", "no results" ],
 	"ancestor": [ "jetpack-search/search-results" ],
 	"supports": {
