@@ -433,16 +433,56 @@ class Status_Test extends TestCase {
 				'http://jetpack.test',
 				true,
 			),
+			'vvv_with_port'                  => array(
+				'http://jetpack.test:8080',
+				true,
+			),
+			'wp_local'                       => array(
+				'http://jetpack.local',
+				true,
+			),
+			'wp_local_with_port'             => array(
+				'http://jetpack.local:8080',
+				true,
+			),
 			'docksal'                        => array(
 				'http://jetpack.docksal',
+				true,
+			),
+			'docksal_with_port'              => array(
+				'http://jetpack.docksal:8080',
+				true,
+			),
+			'docksal_site'                   => array(
+				'http://jetpack.docksal.site',
+				true,
+			),
+			'docksal_site_with_port'         => array(
+				'http://jetpack.docksal.site:8080',
 				true,
 			),
 			'serverpress'                    => array(
 				'http://jetpack.dev.cc',
 				true,
 			),
+			'serverpress_with_port'          => array(
+				'http://jetpack.dev.cc:8080',
+				true,
+			),
 			'lando'                          => array(
 				'http://jetpack.lndo.site',
+				true,
+			),
+			'lando_with_port'                => array(
+				'http://jetpack.lndo.site:8080',
+				true,
+			),
+			'ddev'                           => array(
+				'https://jetpack.ddev.site',
+				true,
+			),
+			'ddev_with_port'                 => array(
+				'https://jetpack.ddev.site:8443',
 				true,
 			),
 			'localhost'                      => array(
@@ -485,19 +525,28 @@ class Status_Test extends TestCase {
 				'https://127.0.0.1:8443/wordpress',
 				true,
 			),
-			'playground'                => array(
+			// A host with no dot at all can't be a public domain, so it is treated as local.
+			'dotless_host'                   => array(
+				'http://intranet',
+				true,
+			),
+			'dotless_host_with_port'         => array(
+				'http://intranet:8080',
+				true,
+			),
+			'playground'                     => array(
 				'https://playground.wordpress.net/scope:0.8362470763364798',
 				true,
 			),
-			'playground_root'           => array(
+			'playground_root'                => array(
 				'https://playground.wordpress.net',
 				true,
 			),
-			'playground_lookalike_host' => array(
+			'playground_lookalike_host'      => array(
 				'https://notplayground.wordpress.net',
 				false,
 			),
-			'playground_in_domain'      => array(
+			'playground_in_domain'           => array(
 				'https://playground.wordpress.net.example.com',
 				false,
 			),
@@ -513,6 +562,18 @@ class Status_Test extends TestCase {
 				'https://localhost.jetpack.com',
 				false,
 			),
+			'lookalike_localhost_host'       => array(
+				'https://jetpack.notlocalhost.com',
+				false,
+			),
+			'host_ending_in_localhost'       => array(
+				'https://jetpack.notlocalhost',
+				false,
+			),
+			'loopback_ip_in_domain'          => array(
+				'https://127.0.0.1.jetpack.com',
+				false,
+			),
 			'localhost_in_path'              => array(
 				'https://jetpack.com/localhost',
 				false,
@@ -521,8 +582,12 @@ class Status_Test extends TestCase {
 				'https://jetpack.com/foo.localhost',
 				false,
 			),
-			'loopback_ip_in_domain'          => array(
-				'https://127.0.0.1.jetpack.com',
+			'known_tld_in_path'              => array(
+				'https://jetpack.com/jetpack.test',
+				false,
+			),
+			'loopback_ip_in_path'            => array(
+				'https://jetpack.com/127.0.0.1',
 				false,
 			),
 		);

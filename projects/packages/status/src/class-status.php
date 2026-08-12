@@ -141,9 +141,20 @@ class Status {
 
 		$site_url = site_url();
 
+		/*
+		 * Every check below cares about the host, not the rest of the URL. Matching the host
+		 * alone means a port, a subdirectory install, or a trailing slash can't defeat them,
+		 * and a known local domain sitting in the path can't trigger them by accident.
+		 */
+		$host = wp_parse_url( $site_url, PHP_URL_HOST );
+		if ( ! is_string( $host ) || '' === $host ) {
+			// site_url() should always be absolute, but fall back to the raw value if it isn't.
+			$host = (string) $site_url;
+		}
+
 		// Check for localhost and sites using an IP only first.
 		// Note: str_contains() is not used here, as wp-includes/compat.php is not loaded in this file.
-		$is_local = $site_url && false === strpos( $site_url, '.' );
+		$is_local = '' !== $host && false === strpos( $host, '.' );
 
 		// Use Core's environment check, if available.
 		if ( 'local' === wp_get_environment_type() ) {
@@ -153,20 +164,20 @@ class Status {
 		// Then check for usual usual domains used by local dev tools.
 		$known_local = array(
 			'#\.local$#i',
-			'#^https?://([^/]+\.)?localhost(:\d+)?(/|$)#i', // localhost and its subdomains, on any port.
+			'#(^|\.)localhost$#i', // localhost and any subdomain of it.
 			'#\.test$#i',
-			'#\.docksal$#i',      // Docksal.
+			'#\.docksal$#i',       // Docksal.
 			'#\.docksal\.site$#i', // Docksal.
 			'#\.dev\.cc$#i',       // ServerPress.
 			'#\.lndo\.site$#i',    // Lando.
 			'#\.ddev\.site$#i',    // DDEV.
-			'#^https?://127\.0\.0\.1(:\d+)?(/|$)#', // Loopback, on any port.
-			'#^https?://playground\.wordpress\.net(/|$)#i', // WordPress Playground, which runs entirely in the browser.
+			'#^127\.0\.0\.1$#',
+			'#^playground\.wordpress\.net$#i', // WordPress Playground, which runs entirely in the browser.
 		);
 
-		if ( ! $is_local ) {
+		if ( ! $is_local && '' !== $host ) {
 			foreach ( $known_local as $url ) {
-				if ( preg_match( $url, $site_url ) ) {
+				if ( preg_match( $url, $host ) ) {
 					$is_local = true;
 					break;
 				}
