@@ -74,6 +74,7 @@ export {
 	Input,
 	Link,
 	SelectControl,
+	Skeleton,
 	Stack,
 	Tabs,
 	Text,

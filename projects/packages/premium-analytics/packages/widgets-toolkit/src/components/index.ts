@@ -119,3 +119,4 @@ export {
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
 } from './wordads-earnings-history';
+export { GenericSkeleton, SkeletonRoot, type SkeletonRootProps } from './widget-skeleton';
