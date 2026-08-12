@@ -1692,7 +1692,7 @@ class Error_Handler {
 
 		$error = self::build_connection_wp_error(
 			$match[1],
-			isset( $match[2] ) && '' !== $match[2] ? $match[2] : 'The request faulted.',
+			isset( $match[2] ) && '' !== $match[2] ? $match[2] : __( 'The request faulted.', 'jetpack-connection' ),
 			array(
 				'method' => $method,
 				'url'    => $url,
