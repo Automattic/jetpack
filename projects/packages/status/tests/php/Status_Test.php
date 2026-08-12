@@ -485,6 +485,22 @@ class Status_Test extends TestCase {
 				'https://127.0.0.1:8443/wordpress',
 				true,
 			),
+			'playground'                => array(
+				'https://playground.wordpress.net/scope:0.8362470763364798',
+				true,
+			),
+			'playground_root'           => array(
+				'https://playground.wordpress.net',
+				true,
+			),
+			'playground_lookalike_host' => array(
+				'https://notplayground.wordpress.net',
+				false,
+			),
+			'playground_in_domain'      => array(
+				'https://playground.wordpress.net.example.com',
+				false,
+			),
 			'test_subdomain'                 => array(
 				'https://test.jetpack.com',
 				false,
