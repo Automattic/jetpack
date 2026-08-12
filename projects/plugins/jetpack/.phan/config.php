@@ -23,6 +23,7 @@ $config = make_phan_config(
 			'tests/php/lib/class-wpcom-features.php',
 			'tests/php/lib/class-email-verification.php',
 			'tests/php/lib/mock-functions.php',
+			'tests/php/extensions/plugins/ai-sidebar/fixtures/class-helper.php',
 			// Temporary duplicated defintions of classes.
 			'_inc/lib/class.color.php',
 			// We have a stub for this because the real file has duplicate trait definitions.

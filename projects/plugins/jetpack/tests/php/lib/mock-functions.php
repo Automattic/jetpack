@@ -28,6 +28,10 @@ if ( ! function_exists( 'wpcom_site_has_feature' ) && false === getenv( 'JETPACK
 	 * @param string $feature The feature to check.
 	 */
 	function wpcom_site_has_feature( $feature, $blog_id = 0 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( WPCOM_Features::BIG_SKY === $feature ) {
+			return (bool) apply_filters( 'jetpack_test_wpcom_has_big_sky', false, $blog_id );
+		}
+
 		switch ( $feature ) {
 			case WPCOM_Features::ATOMIC:
 			case WPCOM_Features::MANAGE_PLUGINS:

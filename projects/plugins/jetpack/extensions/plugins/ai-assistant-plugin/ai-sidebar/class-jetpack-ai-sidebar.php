@@ -30,6 +30,8 @@ const AI_SIDEBAR_JS_URL                   = 'https://' . AM_ASSET_BASE_PATH . 'j
 const AI_SIDEBAR_CSS_URL                  = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
 const AI_SIDEBAR_RTL_CSS_URL              = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
 const AI_SIDEBAR_PROVIDER_URL             = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
+const AI_SIDEBAR_LIMITED_PROVIDER_URL     = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar-limited.provider.mjs';
+const AI_SIDEBAR_LIMITED_VARIANT          = 'gutenberg-jetpack-ai';
 const AI_SIDEBAR_AGENT_ID                 = 'wp-orchestrator';
 const AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION = 'ai-sidebar-toolbar-button';
 
@@ -56,6 +58,11 @@ class Jetpack_AI_Sidebar {
 		// is idempotent: on WordPress.com and Atomic, jetpack-mu-wpcom may have
 		// already initialized it, in which case this is a no-op.
 		Agents_Manager::init();
+
+		// Free Simple sites get the writing-only entry. The full Gutenberg entry
+		// statically imports the WordPress Agent experience, so the choice must
+		// happen before the Agents Manager script is enqueued.
+		add_filter( 'agents_manager_variant', array( __CLASS__, 'select_agents_manager_variant' ), 20 );
 
 		// Register as Agents Manager provider. The filter fires inside
 		// Agents_Manager::enqueue_scripts(). Priority 20 so Jetpack loads
@@ -97,6 +104,12 @@ class Jetpack_AI_Sidebar {
 	 */
 	public static function maybe_enqueue_abilities_script(): void {
 		if ( ! self::should_expose_provider() ) {
+			return;
+		}
+
+		// The limited provider is self-contained. Loading the broad abilities IIFE
+		// here would advertise abilities that Free Simple must not expose.
+		if ( self::is_limited_experience() ) {
 			return;
 		}
 
@@ -228,6 +241,13 @@ class Jetpack_AI_Sidebar {
 			return $providers;
 		}
 
+		if ( self::is_limited_experience() ) {
+			// Preserve earlier filter values for compatibility. The limited frontend
+			// entry imports only jetpackAiWritingProviderUrl, not this generic list.
+			$providers[] = AI_SIDEBAR_LIMITED_PROVIDER_URL;
+			return $providers;
+		}
+
 		// Don't register if the IIFE bundle cannot be loaded. The ESM wrapper
 		// re-exports from window.__JetpackAIProvider at import time; if the
 		// IIFE never ran, toolProvider is still a truthy Proxy and AM would
@@ -243,6 +263,20 @@ class Jetpack_AI_Sidebar {
 		$providers[] = AI_SIDEBAR_PROVIDER_URL;
 
 		return $providers;
+	}
+
+	/**
+	 * Select the writing-only Agents Manager entry for Free Simple sites.
+	 *
+	 * @param string|null $variant Existing variant.
+	 * @return string|null
+	 */
+	public static function select_agents_manager_variant( $variant ) {
+		if ( ! self::is_limited_experience() || 'gutenberg' !== $variant ) {
+			return $variant;
+		}
+
+		return AI_SIDEBAR_LIMITED_VARIANT;
 	}
 
 	/**
@@ -348,13 +382,12 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * UI feature flag for the public Jetpack AI Sidebar Preview surface.
 	 *
-	 * Defaults to enabled only on WordPress.com platform sites (Simple or WoA)
-	 * that have the Big Sky plugin present and enabled. Big Sky defaults on for
-	 * Simple sites and off on WoA/Atomic. The jetpack_ai_sidebar_enabled filter
-	 * is a host-level override of that default, respected by init() and every
-	 * sidebar surface that gates on this method. Independently of the filter,
-	 * the sidebar requires at least one of its features (writing assistant or
-	 * SEO enhancer) to be enabled.
+	 * Defaults to enabled on WordPress.com Simple so Jetpack writing tools do not
+	 * depend on Big Sky. On WoA/Atomic, the existing Big Sky setting remains the
+	 * default. The jetpack_ai_sidebar_enabled filter is a host-level override of
+	 * that default, respected by init() and every sidebar surface that gates on
+	 * this method. Independently of the filter, the sidebar requires at least one
+	 * of its features (writing assistant or SEO enhancer) to be enabled.
 	 *
 	 * @return bool
 	 */
@@ -362,7 +395,13 @@ class Jetpack_AI_Sidebar {
 		$host = new Host();
 
 		$enabled = false;
-		if ( $host->is_wpcom_platform() && class_exists( 'Big_Sky' ) ) {
+		if ( $host->is_wpcom_simple() ) {
+			// Free Simple must retain Jetpack writing tools even when Big Sky is
+			// unavailable or disabled. Entitled sites retain the existing toggle.
+			$enabled = self::is_limited_experience()
+				? true
+				: class_exists( 'Big_Sky' ) && (bool) get_option( 'big_sky_enable', '1' );
+		} elseif ( $host->is_wpcom_platform() && class_exists( 'Big_Sky' ) ) {
 			$default = $host->is_wpcom_simple() ? '1' : '0';
 			$enabled = (bool) get_option( 'big_sky_enable', $default );
 		}
@@ -370,11 +409,11 @@ class Jetpack_AI_Sidebar {
 		/**
 		 * Filter to enable or disable the Jetpack AI sidebar feature.
 		 *
-		 * Defaults to true only on WordPress.com platform sites with Big Sky
-		 * present and enabled. Acts as a host-level override that can force the
-		 * sidebar on (e.g. for local development) or off, and is respected by
-		 * init() and every sidebar surface. The override cannot force the
-		 * sidebar on while the writing-assistant and SEO enhancer features are
+		 * Defaults to true on WordPress.com Simple and follows Big Sky on other
+		 * WordPress.com platform sites. Acts as a host-level override that can
+		 * force the sidebar on (e.g. for local development) or off, and is
+		 * respected by init() and every sidebar surface. The override cannot force
+		 * the sidebar on while the writing-assistant and SEO enhancer features are
 		 * both off — a featureless sidebar never loads.
 		 *
 		 * @param bool $enabled Whether the Jetpack AI sidebar is enabled.
@@ -387,6 +426,53 @@ class Jetpack_AI_Sidebar {
 		return $enabled
 			&& \Jetpack_AI_Settings::apply_master_gates( true )
 			&& self::has_enabled_sidebar_features();
+	}
+
+	/**
+	 * Whether this request must use the writing-only Free Simple experience.
+	 *
+	 * The full WordPress Agent entitlement is site-owned and must be resolved
+	 * server-side. Non-WPCOM hosts retain the existing integration.
+	 *
+	 * @return bool
+	 */
+	private static function is_limited_experience(): bool {
+		$host = new Host();
+		if ( ! $host->is_wpcom_simple() ) {
+			return false;
+		}
+
+		return ! self::has_full_wordpress_agent_entitlement();
+	}
+
+	/**
+	 * Whether the current site has the full WordPress Agent entitlement.
+	 *
+	 * WordPress.com Simple and Atomic can resolve this from their server-owned
+	 * purchase data. Self-hosted sites do not have this WordPress.com entitlement
+	 * and therefore remain on Jetpack AI metering.
+	 *
+	 * @return bool
+	 */
+	private static function has_full_wordpress_agent_entitlement(): bool {
+		$host = new Host();
+		if ( ! $host->is_wpcom_platform() ) {
+			return false;
+		}
+
+		return self::can_resolve_full_wordpress_agent_entitlement()
+			&& wpcom_site_has_feature( \WPCOM_Features::BIG_SKY );
+	}
+
+	/**
+	 * Whether the current request can resolve WordPress Agent entitlement.
+	 *
+	 * @return bool
+	 */
+	private static function can_resolve_full_wordpress_agent_entitlement(): bool {
+		return function_exists( 'wpcom_site_has_feature' )
+			&& class_exists( '\\WPCOM_Features' )
+			&& defined( '\\WPCOM_Features::BIG_SKY' );
 	}
 
 	/**
@@ -560,9 +646,52 @@ class Jetpack_AI_Sidebar {
 		if ( empty( $data['agentId'] ) ) {
 			$fields['agentId'] = AI_SIDEBAR_AGENT_ID;
 		}
+
 		$fields['jetpackAiSidebar'] = self::get_jetpack_ai_sidebar_preview_config();
+		$host                       = new Host();
+		if ( ! $host->is_wpcom_platform() ) {
+			// Self-hosted sites have no WordPress.com Agent entitlement. They always
+			// use Jetpack AI metering, even when WPCOM helpers are not installed.
+			$fields['jetpackAiMeteringEnabled'] = true;
+		} elseif ( self::can_resolve_full_wordpress_agent_entitlement() ) {
+			// WordPress.com sites may bypass Jetpack AI metering only from the
+			// server-owned Big Sky entitlement. If that resolver is unavailable,
+			// omit the flag so clients fail closed instead of guessing the mode.
+			$fields['jetpackAiMeteringEnabled'] = ! self::has_full_wordpress_agent_entitlement();
+		}
+		if ( self::is_limited_experience() ) {
+			$fields['jetpackAiWritingProviderUrl'] = AI_SIDEBAR_LIMITED_PROVIDER_URL;
+			$quota                                 = self::get_initial_jetpack_ai_quota();
+			if ( null !== $quota ) {
+				$fields['jetpackAiQuota'] = $quota;
+			}
+		}
 
 		return $fields;
+	}
+
+	/**
+	 * Return the server-owned quota snapshot needed before the limited UI mounts.
+	 *
+	 * This only runs for WordPress.com Simple. Atomic and self-hosted sites fetch
+	 * quota after mount so an external request cannot delay the editor response.
+	 *
+	 * @return array|null
+	 */
+	private static function get_initial_jetpack_ai_quota(): ?array {
+		// Match the canonical WPCOM helper path already used by Jetpack_AI_Helper.
+		$helper_file = WP_CONTENT_DIR . '/lib/jetpack-ai/usage/helper.php';
+		if ( ! class_exists( '\\WPCOM\\Jetpack_AI\\Usage\\Helper' ) && is_readable( $helper_file ) ) {
+			require_once $helper_file;
+		}
+
+		if ( ! method_exists( '\\WPCOM\\Jetpack_AI\\Usage\\Helper', 'get_agent_quota_client_state' ) ) {
+			return null;
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredStaticMethod -- This WPCOM method is guarded by method_exists() above.
+		$quota = \WPCOM\Jetpack_AI\Usage\Helper::get_agent_quota_client_state( get_current_blog_id() );
+		return is_array( $quota ) ? $quota : null;
 	}
 
 	/**

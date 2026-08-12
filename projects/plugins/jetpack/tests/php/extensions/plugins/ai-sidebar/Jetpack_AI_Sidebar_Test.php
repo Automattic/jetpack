@@ -5,10 +5,13 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Agents_Manager\Agents_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin;
 use Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_AI_Sidebar;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-sidebar/class-jetpack-ai-sidebar.php';
 
@@ -117,6 +120,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'agents_manager_enabled_in_block_editor' );
 		remove_all_filters( 'agents_manager_variant' );
+		remove_all_filters( 'jetpack_test_wpcom_has_big_sky' );
 		remove_all_filters( 'jetpack_ai_sidebar_preview_enabled' );
 		remove_all_filters( 'jetpack_ai_sidebar_preview_features' );
 		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
@@ -191,6 +195,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	private function set_site_editor_screen() {
 		set_current_screen( 'site-editor' );
+		get_current_screen()->is_block_editor = true;
 	}
 
 	/**
@@ -441,17 +446,35 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * The preview gate is closed on the wpcom platform when Big Sky is absent.
+	 * Free Simple keeps Jetpack writing tools when Big Sky is absent.
 	 *
 	 * Declared first in this section so it runs before any test that declares the
 	 * Big_Sky stub (a class cannot be undeclared once it exists).
 	 */
-	public function test_preview_disabled_without_big_sky() {
+	public function test_preview_enabled_without_big_sky() {
 		if ( class_exists( 'Big_Sky' ) ) {
 			$this->markTestSkipped( 'Big_Sky was declared by an earlier test in this process and cannot be undeclared.' );
 		}
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		$this->simulate_wpcom_simple();
+
+		$this->assertTrue( $this->gate_open() );
+	}
+
+	/**
+	 * Entitled Simple sites do not enable the full sidebar without Big Sky loaded.
+	 *
+	 * Declared before tests that create the Big_Sky stub because PHP classes cannot
+	 * be undeclared within the process.
+	 */
+	public function test_paid_simple_preview_disabled_without_big_sky() {
+		if ( class_exists( 'Big_Sky' ) ) {
+			$this->markTestSkipped( 'Big_Sky was declared by an earlier test in this process and cannot be undeclared.' );
+		}
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_wpcom_simple();
+		add_filter( 'jetpack_test_wpcom_has_big_sky', '__return_true' );
+		update_option( 'big_sky_enable', '1' );
 
 		$this->assertFalse( $this->gate_open() );
 	}
@@ -495,12 +518,24 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The preview gate is closed when Big Sky is explicitly turned off.
+	 * Free Simple keeps Jetpack writing tools when Big Sky is explicitly off.
 	 */
-	public function test_preview_disabled_when_big_sky_option_off() {
+	public function test_preview_enabled_when_big_sky_option_off() {
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		$this->simulate_wpcom_simple();
 		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '0' );
+
+		$this->assertTrue( $this->gate_open() );
+	}
+
+	/**
+	 * Entitled Simple sites retain the WordPress Agent toggle.
+	 */
+	public function test_paid_simple_preview_respects_big_sky_option_off() {
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_wpcom_simple();
+		add_filter( 'jetpack_test_wpcom_has_big_sky', '__return_true' );
 		update_option( 'big_sky_enable', '0' );
 
 		$this->assertFalse( $this->gate_open() );
@@ -992,6 +1027,59 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Free Simple selects the writing-only entry before Agents Manager enqueues.
+	 */
+	public function test_free_simple_selects_limited_agents_manager_variant() {
+		$this->set_block_editor_screen();
+		$this->simulate_wpcom_simple();
+
+		$this->assertSame(
+			AiAssistantPlugin\AI_SIDEBAR_LIMITED_VARIANT,
+			Jetpack_AI_Sidebar::select_agents_manager_variant( 'gutenberg' )
+		);
+	}
+
+	/**
+	 * The Site Editor resolves the Gutenberg base variant before the limited filter runs.
+	 */
+	public function test_free_simple_site_editor_resolves_limited_agents_manager_variant() {
+		$this->set_site_editor_screen();
+		$this->simulate_wpcom_simple();
+		Jetpack_AI_Sidebar::init();
+
+		$this->assertSame( AiAssistantPlugin\AI_SIDEBAR_LIMITED_VARIANT, Agents_Manager::get_active_variant() );
+	}
+
+	/**
+	 * Free Simple does not turn a skipped Agents Manager request into an editor request.
+	 */
+	public function test_free_simple_preserves_null_agents_manager_variant() {
+		$this->simulate_wpcom_simple();
+
+		$this->assertNull( Jetpack_AI_Sidebar::select_agents_manager_variant( null ) );
+	}
+
+	/**
+	 * Free Simple does not load the writing-only editor entry on wp-admin screens.
+	 */
+	public function test_free_simple_preserves_wp_admin_agents_manager_variant() {
+		$this->simulate_wpcom_simple();
+
+		$this->assertSame( 'wp-admin', Jetpack_AI_Sidebar::select_agents_manager_variant( 'wp-admin' ) );
+	}
+
+	/**
+	 * A full Agent entitlement retains the existing Agents Manager entry.
+	 */
+	public function test_paid_simple_preserves_full_agents_manager_variant() {
+		$this->set_block_editor_screen();
+		$this->simulate_wpcom_simple();
+		add_filter( 'jetpack_test_wpcom_has_big_sky', '__return_true' );
+
+		$this->assertSame( 'gutenberg', Jetpack_AI_Sidebar::select_agents_manager_variant( 'gutenberg' ) );
+	}
+
+	/**
 	 * Test that the provider remains disabled when no editor screen is available.
 	 */
 	public function test_enable_agents_manager_on_provider_surfaces_skips_without_current_screen() {
@@ -1366,6 +1454,46 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
+		$this->assertTrue( $data['jetpackAiMeteringEnabled'] );
+		$this->assertSame( AiAssistantPlugin\AI_SIDEBAR_LIMITED_PROVIDER_URL, $data['jetpackAiWritingProviderUrl'] );
+	}
+
+	/**
+	 * Free Simple sends canonical quota before the limited UI mounts.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_add_agents_manager_data_includes_initial_quota_for_free_simple() {
+		if ( class_exists( '\\WPCOM\\Jetpack_AI\\Usage\\Helper' ) ) {
+			$this->markTestSkipped( 'The WPCOM usage helper is already loaded and cannot be stubbed.' );
+		}
+
+		require_once __DIR__ . '/fixtures/class-helper.php';
+
+		$this->set_page_block_editor_screen();
+		$this->simulate_wpcom_simple();
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertSame(
+			array(
+				'product'   => 'jetpack-ai',
+				'plan'      => 'free',
+				'metered'   => true,
+				'limit'     => 20,
+				'used'      => 3,
+				'remaining' => 17,
+				'exhausted' => false,
+				'upgrade'   => array(
+					'kind' => 'jetpack-ai',
+					'url'  => 'https://jetpack.com/redirect/?source=jetpack-ai-yearly-tier-upgrade-nudge&site=example.wordpress.com&path=jetpack_ai_yearly',
+				),
+			),
+			$data['jetpackAiQuota']
+		);
 	}
 
 	/**
@@ -1400,6 +1528,115 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
+		$this->assertTrue( $data['jetpackAiMeteringEnabled'] );
+		$this->assertSame( AiAssistantPlugin\AI_SIDEBAR_LIMITED_PROVIDER_URL, $data['jetpackAiWritingProviderUrl'] );
+	}
+
+	/**
+	 * Full WordPress Agent entitlement bypasses Jetpack AI metering.
+	 */
+	public function test_add_agents_manager_data_disables_jetpack_metering_for_paid_simple() {
+		$this->set_page_block_editor_screen();
+		$this->simulate_wpcom_simple();
+		add_filter( 'jetpack_test_wpcom_has_big_sky', '__return_true' );
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertFalse( $data['jetpackAiMeteringEnabled'] );
+		$this->assertArrayNotHasKey( 'jetpackAiWritingProviderUrl', $data );
+	}
+
+	/**
+	 * Atomic uses Jetpack AI metering when the site has no full Agent entitlement.
+	 */
+	public function test_add_agents_manager_data_enables_jetpack_metering_for_atomic_without_big_sky() {
+		$this->set_page_block_editor_screen();
+		$this->simulate_wpcom_platform();
+		$this->enable_sidebar();
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertTrue( $data['jetpackAiMeteringEnabled'] );
+		$this->assertArrayNotHasKey( 'jetpackAiWritingProviderUrl', $data );
+	}
+
+	/**
+	 * Atomic bypasses Jetpack AI metering when its purchase data grants Big Sky.
+	 */
+	public function test_add_agents_manager_data_disables_jetpack_metering_for_atomic_with_big_sky() {
+		$this->set_page_block_editor_screen();
+		$this->simulate_wpcom_platform();
+		$this->enable_sidebar();
+		$resolved_blog_id = null;
+		add_filter(
+			'jetpack_test_wpcom_has_big_sky',
+			function ( $has_big_sky, $blog_id ) use ( &$resolved_blog_id ) {
+				$resolved_blog_id = $blog_id;
+				return true;
+			},
+			10,
+			2
+		);
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertFalse( $data['jetpackAiMeteringEnabled'] );
+		$this->assertArrayNotHasKey( 'jetpackAiWritingProviderUrl', $data );
+		$this->assertSame( 0, $resolved_blog_id, 'Atomic must let wpcom_site_has_feature resolve the WPCOM site ID.' );
+	}
+
+	/**
+	 * Self-hosted provider requests use Jetpack AI metering.
+	 */
+	public function test_add_agents_manager_data_enables_jetpack_metering_for_self_hosted() {
+		$this->set_page_block_editor_screen();
+		$this->simulate_self_hosted();
+		$this->enable_sidebar();
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertTrue( $data['jetpackAiMeteringEnabled'] );
+		$this->assertArrayNotHasKey( 'jetpackAiWritingProviderUrl', $data );
+	}
+
+	/**
+	 * A real self-hosted install does not include the WordPress.com feature resolver.
+	 *
+	 * Run this test with JETPACK_TEST_WPCOMSH=0 so the bootstrap does not define
+	 * the test double or load wpcomsh.
+	 */
+	public function test_add_agents_manager_data_enables_jetpack_metering_without_wpcom_feature_resolver() {
+		if ( function_exists( 'wpcom_site_has_feature' ) ) {
+			$this->markTestSkipped( 'Run with JETPACK_TEST_WPCOMSH=0 to test the no-resolver path.' );
+		}
+
+		$this->set_page_block_editor_screen();
+		$this->simulate_self_hosted();
+		$this->enable_sidebar();
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertTrue( $data['jetpackAiMeteringEnabled'] );
+	}
+
+	/**
+	 * WordPress.com hosts must not guess entitlement when the resolver is absent.
+	 *
+	 * Run this test with JETPACK_TEST_WPCOMSH=0 so the bootstrap does not define
+	 * the test double or load wpcomsh.
+	 */
+	public function test_add_agents_manager_data_omits_jetpack_metering_for_wpcom_without_feature_resolver() {
+		if ( function_exists( 'wpcom_site_has_feature' ) ) {
+			$this->markTestSkipped( 'Run with JETPACK_TEST_WPCOMSH=0 to test the no-resolver path.' );
+		}
+
+		$this->set_page_block_editor_screen();
+		$this->simulate_wpcom_platform();
+		$this->enable_sidebar();
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		$this->assertArrayNotHasKey( 'jetpackAiMeteringEnabled', $data );
 	}
 
 	/**
@@ -1664,6 +1901,20 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
 
+		$this->assertFalse( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
+	}
+
+	/**
+	 * A full Agent entitlement retains the broad abilities provider.
+	 */
+	public function test_abilities_script_enqueues_for_paid_simple() {
+		$this->set_block_editor_screen();
+		$this->cache_sidebar_asset_data();
+		$this->simulate_wpcom_simple();
+		add_filter( 'jetpack_test_wpcom_has_big_sky', '__return_true' );
+
+		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
+
 		$this->assertTrue( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
 	}
 
@@ -1842,6 +2093,22 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertCount( 2, $providers );
 		$this->assertSame( 'https://example.com/provider-a.mjs', $providers[0] );
 		$this->assert_jetpack_provider_url( $providers[1] );
+	}
+
+	/**
+	 * Free Simple appends the writing provider without replacing earlier filter values.
+	 */
+	public function test_free_simple_registers_limited_provider() {
+		$this->set_site_editor_screen();
+		$this->simulate_wpcom_simple();
+
+		$existing  = array( 'https://example.com/image-provider.mjs' );
+		$providers = Jetpack_AI_Sidebar::register_provider( $existing );
+
+		$this->assertSame(
+			array( 'https://example.com/image-provider.mjs', AiAssistantPlugin\AI_SIDEBAR_LIMITED_PROVIDER_URL ),
+			$providers
+		);
 	}
 
 	/**

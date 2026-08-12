@@ -390,9 +390,10 @@ class Jetpack_AI_Helper {
 	/**
 	 * Get an object with useful data about the requests made to the AI.
 	 *
+	 * @param bool $skip_cache Skip the local Jetpack feature cache.
 	 * @return mixed
 	 */
-	public static function get_ai_assistance_feature() {
+	public static function get_ai_assistance_feature( $skip_cache = false ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			// On WPCOM, we can get the ID from the site.
 			$blog_id                  = get_current_blog_id();
@@ -423,7 +424,7 @@ class Jetpack_AI_Helper {
 			// Determine the upgrade type
 			$upgrade_type = wpcom_is_vip( $blog_id ) ? 'vip' : 'default';
 
-			return array(
+			$response = array(
 				'has-feature'          => $has_ai_assistant_feature,
 				'is-over-limit'        => WPCOM\Jetpack_AI\Usage\Helper::is_over_limit( $blog_id ),
 				'requests-count'       => WPCOM\Jetpack_AI\Usage\Helper::get_all_time_requests_count( $blog_id ),
@@ -439,6 +440,13 @@ class Jetpack_AI_Helper {
 				'costs'                => WPCOM\Jetpack_AI\Usage\Helper::get_costs(),
 				'features-control'     => WPCOM\Jetpack_AI\Feature_Control::get_features(),
 			);
+			if ( method_exists( WPCOM\Jetpack_AI\Usage\Helper::class, 'get_agent_quota_client_state' ) ) {
+				// Keep the Agents Manager client-state key unchanged at this transport boundary.
+				// @phan-suppress-next-line PhanUndeclaredStaticMethod -- This WPCOM method is guarded by method_exists() above.
+				$response['jetpackAiQuota'] = WPCOM\Jetpack_AI\Usage\Helper::get_agent_quota_client_state( $blog_id );
+			}
+
+			return $response;
 		}
 
 		// Outside of WPCOM, we need to fetch the data from the site.
@@ -447,11 +455,11 @@ class Jetpack_AI_Helper {
 		// Try to pick the AI Assistant feature from cache.
 		$transient_name = self::transient_name_for_ai_assistance_feature( $blog_id );
 		$cache          = get_transient( $transient_name );
-		if ( $cache ) {
+		if ( $cache && ! $skip_cache ) {
 			return $cache;
 		}
 
-		if ( null !== static::$ai_assistant_failed_request ) {
+		if ( null !== static::$ai_assistant_failed_request && ! $skip_cache ) {
 			return static::$ai_assistant_failed_request;
 		}
 
@@ -473,7 +481,8 @@ class Jetpack_AI_Helper {
 
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 		if ( 200 === $response_code ) {
-			$ai_assistant_feature_data = json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
+			$ai_assistant_feature_data           = json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
+			static::$ai_assistant_failed_request = null;
 
 			// Cache the AI Assistant feature, for Jetpack sites.
 			set_transient( $transient_name, $ai_assistant_feature_data, self::$ai_assistant_feature_cache_timeout );
@@ -489,10 +498,15 @@ class Jetpack_AI_Helper {
 				)
 			);
 
-			// Cache the AI Assistant feature error, for Jetpack sites, avoid API hammering.
-			set_transient( $transient_name, $error, self::$ai_assistant_feature_error_cache_timeout );
+			// Keep an existing cache when a forced refresh fails. Without one,
+			// cache the error for ordinary requests to avoid API hammering.
+			if ( ! $skip_cache || ! $cache ) {
+				set_transient( $transient_name, $error, self::$ai_assistant_feature_error_cache_timeout );
+			}
 
-			static::$ai_assistant_failed_request = $error;
+			if ( ! $skip_cache ) {
+				static::$ai_assistant_failed_request = $error;
+			}
 
 			return $error;
 		}
