@@ -3,39 +3,32 @@ import { addQueryArgs } from '@wordpress/url';
 import type { ReactElement } from 'react';
 
 /*
- * The intro clip that heads the welcome modal.
+ * The intro film that heads the welcome modal.
  *
  * Two sources, in preference order:
  *
- * 1. A VideoPress GUID. This is the one we want — the modal's whole argument is
- *    "look at the player", and a VideoPress-hosted asset means the thing doing
- *    the arguing IS the player, captions, quality selector and all. It also
- *    dogfoods the product on the screen that sells it.
- * 2. A file bundled into the build. The honest fallback while the hosted asset
- *    doesn't exist: a native `<video>` shows the content but NOT the player, so
- *    it makes the pitch without proving it.
+ * 1. A VideoPress GUID. This is the one we want — the modal's whole argument
+ *    is "look at the player", and a VideoPress-hosted asset means the thing
+ *    doing the arguing IS the player: captions, quality selector and all. It
+ *    also dogfoods the product on the screen that sells it.
+ * 2. The film bundled into the build. The honest fallback while the hosted
+ *    asset doesn't exist: a native `<video>` shows the film but NOT the
+ *    player, so it makes the pitch without proving it.
  *
- * TODO(VIDP-###): upload the finished 30s explainer to a VideoPress account we
- * control and set `INTRO_VIDEO_GUID`. Until then the bundled file ships, and
- * the modal still works with neither (the media band simply doesn't render).
+ * TODO(VIDP): upload the finished 28s intro film (v7, this same bundled
+ * file — source of truth in the design repo) to a VideoPress account the
+ * team controls and set `INTRO_VIDEO_GUID`. Until then the bundled file
+ * ships.
  */
-const INTRO_VIDEO_GUID = 'VmccXaww';
+const INTRO_VIDEO_GUID = '';
 
-// Lives beside the modal's images so it rides the same CopyWebpackPlugin rule.
-// That pattern is extension-scoped — `.mp4` had to be added to it, or this
+// Lives beside the modal's images so it rides the same CopyWebpackPlugin
+// rule. That pattern is extension-scoped — `.mp4` is listed there, or this
 // silently 404s. See webpack.config.js.
 const INTRO_VIDEO_FILE = 'videopress-intro.mp4';
-const INTRO_POSTER_FILE = 'videopress-cover-2x.png';
 
-/*
- * The shape of the media band, as a CSS `aspect-ratio` value.
- *
- * Not a constant 16/9, because the band must match whatever asset is actually
- * playing or the difference shows up as black bars. The placeholder is a screen
- * recording cropped to its own content (952x660), which is nearer 3:2; the
- * finished VideoPress-hosted asset will be 16:9.
- */
-export const INTRO_VIDEO_ASPECT = INTRO_VIDEO_GUID ? '16 / 9' : '952 / 660';
+// The intro film is 1920x1080; the band takes its shape from the asset.
+export const INTRO_VIDEO_ASPECT = '16 / 9';
 
 /**
  * Build the public URL for a file shipped in the dashboard build.
@@ -53,7 +46,13 @@ function getAssetUrl( file: string ): string | undefined {
 		return undefined;
 	}
 
-	return new URL( `dashboard/onboarding-modal/images/${ file }`, buildUrl ).href;
+	// `new URL` THROWS on a malformed or relative base. A bad buildUrl must
+	// cost the modal its video band, not take down the dashboard with it.
+	try {
+		return new URL( `dashboard/onboarding-modal/images/${ file }`, buildUrl ).href;
+	} catch {
+		return undefined;
+	}
 }
 
 /*
@@ -93,9 +92,11 @@ export default function IntroVideo(): ReactElement | null {
 		<video
 			className="vp-onboarding-modal__player"
 			src={ src }
-			poster={ getAssetUrl( INTRO_POSTER_FILE ) }
 			controls
 			playsInline
+			muted
+			autoPlay
+			loop
 			preload="metadata"
 		/>
 	);
