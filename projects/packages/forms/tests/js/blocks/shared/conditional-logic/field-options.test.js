@@ -124,3 +124,21 @@ describe( 'getFieldOptions', () => {
 		).toEqual( [ { value: 'Only', label: 'Only' } ] );
 	} );
 } );
+
+describe( 'getFieldOptions — rating', () => {
+	/**
+	 * A rating has no option blocks. Its choices are its own scale, so a rule can only be
+	 * built against it if the scale is offered as the values.
+	 */
+	it( 'offers the configured scale', () => {
+		expect( getFieldOptions( { name: 'jetpack/field-rating', attributes: { max: 3 } } ) ).toEqual( [
+			{ value: '1', label: '1' },
+			{ value: '2', label: '2' },
+			{ value: '3', label: '3' },
+		] );
+	} );
+
+	it( 'falls back to five when no maximum is set', () => {
+		expect( getFieldOptions( { name: 'jetpack/field-rating', attributes: {} } ) ).toHaveLength( 5 );
+	} );
+} );
