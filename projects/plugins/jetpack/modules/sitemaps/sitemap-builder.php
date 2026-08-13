@@ -859,12 +859,17 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 				}
 			}
 
-			// Free the posts array and clear WordPress in-memory caches to
-			// prevent resident memory from growing linearly across sitemap
-			// chunks on sites with large media libraries (100k+ items).
+			// Free the posts array so memory is reclaimed before the next batch.
 			unset( $posts );
-			self::clear_runtime_cache();
 		}
+
+		// Clear WordPress in-memory caches once per sitemap file to prevent
+		// memory accumulation across sitemap chunks on sites with large media
+		// libraries (100k+ items). Calling this inside the while loop caused
+		// ~20 flushes per file (~2,000 per cron run), each wiping the options
+		// group and triggering expensive wp_load_alloptions() DB queries that
+		// re-allocated the very memory being freed.
+		self::clear_runtime_cache();
 
 		// If no items were added, return false.
 		if ( true === $buffer->is_empty() ) {
