@@ -70,12 +70,16 @@ export function getReachForAccessLevelKey( {
  * @return {string} Description of the current access level.
  */
 export function getAccessDescription( accessLevel, postHasPaywallBlock = false ) {
+	// The unused third argument to __() keeps the two calls in each branch from being
+	// merged into a single __( cond ? a : b ) by the production minifier, which would
+	// leave a non-literal msgid and fail the i18n check.
 	switch ( accessLevel ) {
 		case accessOptions.subscribers.key:
 			return postHasPaywallBlock
 				? __(
 						'Only subscribers can read the content below the paywall. Subscribers receive it by email.',
-						'jetpack'
+						'jetpack',
+						0
 				  )
 				: __(
 						'Only subscribers can read this post. Others see a preview and can subscribe. Subscribers receive it by email.',
@@ -85,7 +89,8 @@ export function getAccessDescription( accessLevel, postHasPaywallBlock = false )
 			return postHasPaywallBlock
 				? __(
 						'Only paid subscribers can read the content below the paywall. Subscribers receive it by email.',
-						'jetpack'
+						'jetpack',
+						0
 				  )
 				: __(
 						'Only paid subscribers can read this post. Others see a preview and can subscribe. Only paid subscribers receive it by email.',
