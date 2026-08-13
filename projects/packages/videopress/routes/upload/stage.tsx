@@ -37,6 +37,10 @@ import type { LibraryItem } from '../../src/dashboard/types/library';
 import type { ReactNode } from 'react';
 
 type Step = 'upload' | 'uploading' | 'edit' | 'details' | 'success';
+
+// Tags this flow's uploads in the shared queue so a remounted flow instance
+// can re-find them. See the batchQueueIds initializer.
+const UPLOAD_CONTEXT = 'upload-onboarding';
 type UploadStatus = 'pending' | 'uploading' | 'success' | 'failed';
 
 type UploadedMedia = {
@@ -1485,7 +1489,13 @@ const UploadOnboarding = ( {
 	// plain wp/v2/media XHR below survives only as the disconnected-site
 	// fallback (tus needs a WordPress.com upload JWT).
 	const { uploadQueue, startUpload, retryUpload, acknowledgeUpload } = useUpload();
-	const [ batchQueueIds, setBatchQueueIds ] = useState< string[] >( [] );
+	// Adopt any of this flow's own items already in the queue: uploading the
+	// first video flips the first-run state (the library count goes 1), the
+	// tab order changes, and this component remounts mid-upload — the queue
+	// survives that, so the batch pointer must be recoverable from it.
+	const [ batchQueueIds, setBatchQueueIds ] = useState< string[] >( () =>
+		uploadQueue.filter( item => item.context === UPLOAD_CONTEXT ).map( item => item.id )
+	);
 	const isConnected = isWpcomConnected();
 	const allowMultiple = ! isFree || isUnlimited;
 	const firstRunState = useFirstRunState();
@@ -1543,7 +1553,7 @@ const UploadOnboarding = ( {
 
 			if ( isConnected ) {
 				setUploads( [] );
-				setBatchQueueIds( selectedForPlan.map( file => startUpload( file ) ) );
+				setBatchQueueIds( selectedForPlan.map( file => startUpload( file, UPLOAD_CONTEXT ) ) );
 				// One file: skip the interstitial and cross-fade straight to the
 				// edit surface — the upload carries on in its player slot, and
 				// the user can write while it runs. Multi-file batches keep the
