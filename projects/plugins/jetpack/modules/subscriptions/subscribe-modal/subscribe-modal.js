@@ -3,10 +3,46 @@ const { domReady } = wp;
 domReady( () => {
 	const modal = document.querySelector( '.jetpack-subscribe-modal' );
 	const modalDismissedCookie = 'jetpack_post_subscribe_modal_dismissed';
+	const knownSubscriberKey = `jetpack_post_subscribe_known_subscriber_${ Jetpack_Subscriptions.siteId }`;
 	const skipUrlParam = 'jetpack_skip_subscription_popup';
 
+	function getLocalStorageItem( key ) {
+		try {
+			return localStorage.getItem( key );
+		} catch {
+			return null;
+		}
+	}
+
+	function storeCloseTimestamp() {
+		try {
+			localStorage.setItem( modalDismissedCookie, Date.now() );
+		} catch {
+			// Dismissal timing is best-effort when browser storage is unavailable.
+		}
+	}
+
+	function hasKnownSubscriber() {
+		try {
+			return (
+				localStorage.getItem( knownSubscriberKey ) === 'true' ||
+				document.cookie.split( '; ' ).includes( `${ knownSubscriberKey }=true` )
+			);
+		} catch {
+			return document.cookie.split( '; ' ).includes( `${ knownSubscriberKey }=true` );
+		}
+	}
+
+	function storeKnownSubscriber() {
+		try {
+			localStorage.setItem( knownSubscriberKey, 'true' );
+		} catch {
+			document.cookie = `${ knownSubscriberKey }=true; max-age=31536000; path=/; SameSite=Lax`;
+		}
+	}
+
 	function hasEnoughTimePassed() {
-		const lastDismissed = localStorage.getItem( modalDismissedCookie );
+		const lastDismissed = getLocalStorageItem( modalDismissedCookie );
 		return lastDismissed ? Date.now() - lastDismissed > Jetpack_Subscriptions.modalInterval : true;
 	}
 
@@ -17,14 +53,14 @@ domReady( () => {
 		if ( url.searchParams.has( skipUrlParam ) ) {
 			url.searchParams.delete( skipUrlParam );
 			window.history.replaceState( {}, '', url );
-			storeCloseTimestamp();
+			storeKnownSubscriber();
 			return true;
 		}
 
 		return false;
 	}
 
-	if ( ! modal || ! hasEnoughTimePassed() || skipModal() ) {
+	if ( skipModal() || ! modal || hasKnownSubscriber() || ! hasEnoughTimePassed() ) {
 		return;
 	}
 
@@ -54,12 +90,20 @@ domReady( () => {
 
 	// This take care of the case where the user has multiple tabs open.
 	function onLocalStorage( event ) {
-		if ( event.key === modalDismissedCookie ) {
+		if ( event.key === modalDismissedCookie || event.key === knownSubscriberKey ) {
 			closeModal();
 			removeEventListeners();
 		}
 	}
 	window.addEventListener( 'storage', onLocalStorage );
+
+	function onFocus() {
+		if ( hasKnownSubscriber() ) {
+			closeModal();
+			removeEventListeners();
+		}
+	}
+	window.addEventListener( 'focus', onFocus );
 
 	// When the form is submitted, and next modal loads, it'll fire "subscription-modal-loaded" signalling that this form can be hidden.
 	const form = modal.querySelector( 'form' );
@@ -90,6 +134,11 @@ domReady( () => {
 	}
 
 	function openModal() {
+		if ( hasKnownSubscriber() ) {
+			removeEventListeners();
+			return;
+		}
+
 		// If the user is typing in a form, don't open the modal or has anything else focused.
 		if ( document.activeElement && document.activeElement.tagName !== 'BODY' ) {
 			return;
@@ -107,6 +156,7 @@ domReady( () => {
 		document.body.classList.remove( 'jetpack-subscribe-modal-open' );
 		window.removeEventListener( 'keydown', closeModalOnEscapeKeydown );
 		window.removeEventListener( 'storage', onLocalStorage );
+		window.removeEventListener( 'focus', onFocus );
 		window.removeEventListener( 'click', closeOnWindowClick );
 		storeCloseTimestamp();
 	}
@@ -115,9 +165,5 @@ domReady( () => {
 	function removeEventListeners() {
 		window.removeEventListener( 'scroll', onScroll );
 		clearTimeout( modalLoadTimeout );
-	}
-
-	function storeCloseTimestamp() {
-		localStorage.setItem( modalDismissedCookie, Date.now() );
 	}
 } );
