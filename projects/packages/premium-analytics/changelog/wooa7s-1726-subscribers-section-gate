@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Dashboard: Show the Subscribers tab only when the Jetpack subscriptions module is active.

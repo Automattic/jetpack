@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Modules;
+
 require_once __DIR__ . '/dashboard-layout.php';
 require_once __DIR__ . '/dashboard-grammar.php';
 require_once __DIR__ . '/class-dashboard-section.php';
@@ -81,6 +83,22 @@ function is_woocommerce_dashboard_section_available_to_current_user() {
 }
 
 /**
+ * Whether the Subscribers dashboard section should be exposed.
+ *
+ * Mirrors the Calypso Stats gate on the same tab. Modules::is_active() reads the
+ * `jetpack_active_modules` option that Sync ships to WPCOM as `active_modules`,
+ * the value Calypso gates on, and returns true on WPCOM Simple, where modules
+ * are not a concept and the tab always shows.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool True when the subscriptions module is active.
+ */
+function is_subscribers_dashboard_section_available() {
+	return ( new Modules() )->is_active( 'subscriptions' );
+}
+
+/**
  * Returns the default widget layout for the WooCommerce dashboard section.
  *
  * @return array Array of widget instances.
@@ -127,6 +145,7 @@ function register_default_dashboard_sections() {
 			'title'          => __( 'Subscribers stats', 'jetpack-premium-analytics-pkg' ),
 			'description'    => __( 'How your subscriber list is growing, and how your emails land.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 30,
+			'is_available'   => __NAMESPACE__ . '\\is_subscribers_dashboard_section_available',
 			'default_layout' => static function () {
 				return get_dashboard_default_layout_for( 'analytics/subscribers' );
 			},

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Jetpack_Options;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -63,6 +64,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
+		remove_all_filters( 'jetpack_get_available_standalone_modules' );
+		Jetpack_Options::delete_option( 'active_modules' );
 
 		// Drops the package's mapping along with any per-user view_stats grant a
 		// test added; set_up() hooks the mapping again.
@@ -71,6 +74,27 @@ class Dashboard_Section_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Turn the `subscriptions` Jetpack module on, the way a standalone plugin sees it.
+	 *
+	 * Both levers are needed because Modules::get_active() intersects the option
+	 * with the modules available to the site, and without the Jetpack plugin that
+	 * list is only what standalone plugins register.
+	 *
+	 * @return void
+	 */
+	private function activate_subscriptions_module() {
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		add_filter(
+			'jetpack_get_available_standalone_modules',
+			static function ( $modules ) {
+				$modules[] = 'subscriptions';
+
+				return $modules;
+			}
+		);
 	}
 
 	/**
@@ -224,10 +248,12 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * The built-in Insights section offers the year date filter; the rest keep the range.
 	 */
 	public function test_built_in_sections_declare_their_date_filters() {
-		// Store needs both gates: the filter stands in for WooCommerce being active,
-		// and the admin user satisfies the capability check added in #50889.
+		// Every conditional section needs its gate satisfied to appear here: Store
+		// takes the filter standing in for WooCommerce plus the admin user for the
+		// capability check added in #50889, and Subscribers takes its module.
 		$this->set_admin_user();
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		$this->activate_subscriptions_module();
 
 		register_default_dashboard_sections();
 
@@ -305,10 +331,12 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Insights drops the comparison control; the rest keep it.
 	 */
 	public function test_built_in_sections_declare_their_date_filter_options() {
-		// Store needs both gates: the filter stands in for WooCommerce being active,
-		// and the admin user satisfies the capability check added in #50889.
+		// Every conditional section needs its gate satisfied to appear here: Store
+		// takes the filter standing in for WooCommerce plus the admin user for the
+		// capability check added in #50889, and Subscribers takes its module.
 		$this->set_admin_user();
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		$this->activate_subscriptions_module();
 
 		register_default_dashboard_sections();
 
@@ -336,10 +364,12 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * The analytics sections carry their own heading; Store still falls back to its label.
 	 */
 	public function test_built_in_sections_declare_their_headings() {
-		// Store needs both gates: the filter stands in for WooCommerce being active,
-		// and the admin user satisfies the capability check added in #50889.
+		// Every conditional section needs its gate satisfied to appear here: Store
+		// takes the filter standing in for WooCommerce plus the admin user for the
+		// capability check added in #50889, and Subscribers takes its module.
 		$this->set_admin_user();
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		$this->activate_subscriptions_module();
 
 		register_default_dashboard_sections();
 
@@ -663,6 +693,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	public function test_registers_built_in_dashboard_sections() {
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+		$this->activate_subscriptions_module();
 
 		register_default_dashboard_sections();
 
@@ -719,6 +750,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	public function test_registers_woocommerce_dashboard_section_when_available() {
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
 		$this->set_admin_user();
+		$this->activate_subscriptions_module();
 
 		register_default_dashboard_sections();
 
@@ -749,10 +781,90 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The Subscribers section is available once the subscriptions module is on.
+	 */
+	public function test_registers_subscribers_dashboard_section_when_module_is_active() {
+		$this->activate_subscriptions_module();
+
+		register_default_dashboard_sections();
+
+		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
+		$this->assertTrue( $subscribers->is_available() );
+		$this->assertContains(
+			'analytics/subscribers',
+			array_map(
+				static function ( Dashboard_Section $section ) {
+					return $section->id;
+				},
+				get_available_dashboard_sections( DASHBOARD_NAME )
+			)
+		);
+	}
+
+	/**
+	 * A site with the subscriptions module off has no subscriber data, so the
+	 * section is registered but never offered — matching the Calypso Stats tab.
+	 */
+	public function test_omits_subscribers_dashboard_section_when_module_is_inactive() {
+		register_default_dashboard_sections();
+
+		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
+		$this->assertFalse( $subscribers->is_available() );
+		$this->assertSame(
+			array(
+				'analytics/traffic',
+				'analytics/insights',
+			),
+			array_map(
+				static function ( Dashboard_Section $section ) {
+					return $section->id;
+				},
+				get_available_dashboard_sections( DASHBOARD_NAME )
+			)
+		);
+	}
+
+	/**
+	 * The sections route drops the Subscribers tab with the module off.
+	 */
+	public function test_sections_route_reflects_subscribers_module_state() {
+		$this->set_admin_user();
+
+		register_default_dashboard_sections();
+
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/sections' )
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array( 'traffic', 'insights' ),
+			array_column( $response->get_data(), 'slug' )
+		);
+
+		$this->activate_subscriptions_module();
+
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/sections' )
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array( 'traffic', 'insights', 'subscribers' ),
+			array_column( $response->get_data(), 'slug' )
+		);
+	}
+
+	/**
 	 * The WooCommerce section is omitted from available sections when WooCommerce is unavailable.
 	 */
 	public function test_omits_woocommerce_dashboard_section_when_unavailable() {
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+		$this->activate_subscriptions_module();
 
 		register_default_dashboard_sections();
 
@@ -915,6 +1027,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Sections route includes the store section only when WooCommerce is detected.
 	 */
 	public function test_sections_route_reflects_woocommerce_availability() {
+		$this->activate_subscriptions_module();
+
 		register_default_dashboard_sections();
 
 		$this->set_admin_user();
