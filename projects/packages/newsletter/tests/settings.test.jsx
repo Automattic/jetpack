@@ -28,6 +28,21 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 	},
 } ) );
 
+const mockCreateNotice = jest.fn();
+
+jest.mock( '@wordpress/data', () => ( {
+	useDispatch: () => ( { createNotice: mockCreateNotice } ),
+} ) );
+
+jest.mock( '@wordpress/components', () => ( {
+	Disabled: ( { children } ) => <div>{ children }</div>,
+	Spinner: () => <div role="status" />,
+} ) );
+
+jest.mock( '@wordpress/notices', () => ( {
+	store: {},
+} ) );
+
 jest.mock( '@automattic/jetpack-components', () => ( {
 	AdminPage: ( { children } ) => <div data-testid="admin-page">{ children }</div>,
 	Col: ( { children } ) => <div>{ children }</div>,
@@ -44,10 +59,14 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 // `saveSubscribeModal`, and `hasSubscribeModalChanges` without going through
 // the real card UI.
 const subscribeModalProps = { current: null };
+const emailContentProps = { current: null };
 
 jest.mock( '../src/settings/sections', () => ( {
 	EmailBylineSection: () => <div data-testid="email-byline-section" />,
-	EmailContentSection: () => <div data-testid="email-content-section" />,
+	EmailContentSection: props => {
+		emailContentProps.current = props;
+		return <div data-testid="email-content-section" />;
+	},
 	EmailDefaultsSection: () => <div data-testid="email-defaults-section" />,
 	EmailReplyToSettingsSection: () => <div data-testid="email-reply-to-settings-section" />,
 	EmailSenderSettingsSection: () => <div data-testid="email-sender-settings-section" />,
@@ -257,6 +276,58 @@ describe( 'NewsletterSettingsApp', () => {
 				expect( subscribeModalProps.current.hasChanges ).toBe( false );
 			} );
 			expect( subscribeModalProps.current.isSaving ).toBe( false );
+		} );
+	} );
+
+	describe( 'save notices', () => {
+		beforeEach( () => {
+			useConnection.mockReturnValue( {
+				hasConnectedOwner: true,
+				isRegistered: true,
+				isUserConnected: true,
+			} );
+			subscribeModalProps.current = null;
+		} );
+
+		it( 'uses a section-specific message after saving subscribe modal settings', async () => {
+			updateSettings.mockResolvedValue( {} );
+			render( <NewsletterSettingsApp /> );
+
+			await waitFor( () => expect( subscribeModalProps.current ).not.toBeNull() );
+
+			act( () => {
+				subscribeModalProps.current.onChange( {
+					subscription_options: {
+						invitation: '',
+						welcome: '',
+						comment_follow: '',
+						subscribe_modal_heading: 'New heading',
+					},
+				} );
+			} );
+
+			await act( async () => subscribeModalProps.current.onSave() );
+
+			expect( mockCreateNotice ).toHaveBeenCalledWith( 'success', 'Subscribe modal saved', {
+				type: 'snackbar',
+			} );
+		} );
+
+		it( 'names the section after auto-saving email content settings', async () => {
+			updateSettings.mockResolvedValue( {} );
+			render( <NewsletterSettingsApp /> );
+
+			await waitFor( () => expect( emailContentProps.current ).not.toBeNull() );
+
+			await act( async () => {
+				emailContentProps.current.onChange( { wpcom_featured_image_in_email: true } );
+			} );
+
+			await waitFor( () => {
+				expect( mockCreateNotice ).toHaveBeenCalledWith( 'success', 'Email content saved', {
+					type: 'snackbar',
+				} );
+			} );
 		} );
 	} );
 } );

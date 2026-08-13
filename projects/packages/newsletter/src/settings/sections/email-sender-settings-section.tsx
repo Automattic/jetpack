@@ -11,6 +11,7 @@ import { Button, Card, Fieldset, Text } from '@wordpress/ui';
  * Internal dependencies
  */
 import type { NewsletterSettings } from '../types';
+import type { FormEvent } from 'react';
 
 interface EmailSenderSettingsSectionProps {
 	data: NewsletterSettings;
@@ -57,6 +58,16 @@ export function EmailSenderSettingsSection( {
 		onSave();
 	}, [ changedKeys, onSave, siteType ] );
 
+	const handleSubmit = useCallback(
+		( event: FormEvent< HTMLFormElement > ) => {
+			event.preventDefault();
+			if ( isNewsletterEnabled && hasChanges && ! isSaving ) {
+				handleSave();
+			}
+		},
+		[ handleSave, hasChanges, isNewsletterEnabled, isSaving ]
+	);
+
 	const siteName = getSiteData()?.title;
 
 	const fields: Field< NewsletterSettings >[] = [
@@ -81,47 +92,52 @@ export function EmailSenderSettingsSection( {
 				<Card.Title>{ __( 'Sender settings', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<Fieldset.Root disabled={ ! isNewsletterEnabled }>
-					<DataForm
-						data={ data }
-						fields={ fields }
-						form={ {
-							layout: {
-								type: 'regular',
-								labelPosition: 'top',
-							},
-							fields: [ 'jetpack_subscriptions_from_name' ],
-						} }
-						onChange={ onChange }
-					/>
-					<p>
-						<Text>
-							{ createInterpolateElement(
-								sprintf(
-									/* translators: %1$s is the sender name that will appear in subscriber inboxes */
-									__(
-										'Preview: <strong>%1$s</strong> <author-name@example.com>',
-										'jetpack-newsletter'
+				<form
+					onSubmit={ handleSubmit }
+					aria-label={ __( 'Sender settings', 'jetpack-newsletter' ) }
+				>
+					<Fieldset.Root disabled={ ! isNewsletterEnabled }>
+						<DataForm
+							data={ data }
+							fields={ fields }
+							form={ {
+								layout: {
+									type: 'regular',
+									labelPosition: 'top',
+								},
+								fields: [ 'jetpack_subscriptions_from_name' ],
+							} }
+							onChange={ onChange }
+						/>
+						<p>
+							<Text>
+								{ createInterpolateElement(
+									sprintf(
+										/* translators: %1$s is the sender name that will appear in subscriber inboxes */
+										__(
+											'Preview: <strong>%1$s</strong> <author-name@example.com>',
+											'jetpack-newsletter'
+										),
+										senderName || siteName || __( 'Your Name', 'jetpack-newsletter' )
 									),
-									senderName || siteName || __( 'Your Name', 'jetpack-newsletter' )
-								),
-								{
-									strong: <strong />,
-								}
-							) }
-						</Text>
-					</p>
-				</Fieldset.Root>
-				<div className="newsletter-card-footer">
-					<Button
-						onClick={ handleSave }
-						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
-						loading={ isSaving }
-						loadingAnnouncement={ savingText }
-					>
-						{ saveText }
-					</Button>
-				</div>
+									{
+										strong: <strong />,
+									}
+								) }
+							</Text>
+						</p>
+					</Fieldset.Root>
+					<div className="newsletter-card-footer">
+						<Button
+							type="submit"
+							disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
+							loading={ isSaving }
+							loadingAnnouncement={ savingText }
+						>
+							{ saveText }
+						</Button>
+					</div>
+				</form>
 			</Card.Content>
 		</Card.Root>
 	);

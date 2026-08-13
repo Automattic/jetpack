@@ -267,7 +267,7 @@ export function NewsletterSettingsBody( {
 
 	// Handle auto-save for newsletter toggle and email settings.
 	const handleAutoSave = useCallback(
-		( updates: Partial< NewsletterSettings > ) => {
+		( updates: Partial< NewsletterSettings >, successMessage: string ) => {
 			if ( ! data ) {
 				return;
 			}
@@ -306,7 +306,7 @@ export function NewsletterSettingsBody( {
 				.then( () => {
 					// Advance the saved baseline now that these values are persisted.
 					setSavedData( prev => ( { ...prev, ...updates } ) );
-					createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
+					createSuccessNotice( successMessage );
 				} )
 				.catch( ( err: Error ) => {
 					// eslint-disable-next-line no-console
@@ -317,6 +317,32 @@ export function NewsletterSettingsBody( {
 				} );
 		},
 		[ createErrorNotice, createSuccessNotice, data, siteType ]
+	);
+
+	const autoSaveNewsletterSettings = useCallback(
+		( updates: Partial< NewsletterSettings > ) =>
+			handleAutoSave( updates, __( 'Newsletter settings saved', 'jetpack-newsletter' ) ),
+		[ handleAutoSave ]
+	);
+	const autoSaveEmailDefaults = useCallback(
+		( updates: Partial< NewsletterSettings > ) =>
+			handleAutoSave( updates, __( 'Email defaults saved', 'jetpack-newsletter' ) ),
+		[ handleAutoSave ]
+	);
+	const autoSaveEmailContent = useCallback(
+		( updates: Partial< NewsletterSettings > ) =>
+			handleAutoSave( updates, __( 'Email content saved', 'jetpack-newsletter' ) ),
+		[ handleAutoSave ]
+	);
+	const autoSaveEmailByline = useCallback(
+		( updates: Partial< NewsletterSettings > ) =>
+			handleAutoSave( updates, __( 'Email byline saved', 'jetpack-newsletter' ) ),
+		[ handleAutoSave ]
+	);
+	const autoSaveReplyToSettings = useCallback(
+		( updates: Partial< NewsletterSettings > ) =>
+			handleAutoSave( updates, __( 'Reply-to settings saved', 'jetpack-newsletter' ) ),
+		[ handleAutoSave ]
 	);
 
 	// Handle sender name changes (staged, not auto-saved).
@@ -339,7 +365,7 @@ export function NewsletterSettingsBody( {
 			.then( () => {
 				setSavedData( prev => ( { ...prev, ...senderNameChanges } ) );
 				setSenderNameChanges( {} );
-				createSuccessNotice( __( 'Sender name saved', 'jetpack-newsletter' ) );
+				createSuccessNotice( __( 'Sender settings saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
@@ -375,7 +401,7 @@ export function NewsletterSettingsBody( {
 				// link reflects the just-saved enabled state.
 				setSavedData( prev => ( { ...prev, ...subscriptionChanges } ) );
 				setSubscriptionChanges( {} );
-				createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
+				createSuccessNotice( __( 'Subscription settings saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
@@ -465,7 +491,7 @@ export function NewsletterSettingsBody( {
 			.then( () => {
 				setSavedData( prev => ( { ...prev, ...welcomeEmailChanges } ) );
 				setWelcomeEmailChanges( {} );
-				createSuccessNotice( __( 'Welcome email message saved', 'jetpack-newsletter' ) );
+				createSuccessNotice( __( 'Welcome email saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
@@ -497,7 +523,7 @@ export function NewsletterSettingsBody( {
 			.then( () => {
 				setSavedData( prev => ( { ...prev, ...subscribeModalChanges } ) );
 				setSubscribeModalChanges( {} );
-				createSuccessNotice( __( 'Subscribe modal heading saved', 'jetpack-newsletter' ) );
+				createSuccessNotice( __( 'Subscribe modal saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
@@ -573,7 +599,7 @@ export function NewsletterSettingsBody( {
 
 								<EmailDefaultsSection
 									data={ data }
-									onChange={ handleAutoSave }
+									onChange={ autoSaveEmailDefaults }
 									isNewsletterEnabled={ data.subscriptions }
 								/>
 
@@ -590,13 +616,13 @@ export function NewsletterSettingsBody( {
 
 								<EmailContentSection
 									data={ data }
-									onChange={ handleAutoSave }
+									onChange={ autoSaveEmailContent }
 									isNewsletterEnabled={ data.subscriptions }
 								/>
 
 								<EmailBylineSection
 									data={ data }
-									onChange={ handleAutoSave }
+									onChange={ autoSaveEmailByline }
 									isNewsletterEnabled={ data.subscriptions }
 								/>
 
@@ -612,7 +638,7 @@ export function NewsletterSettingsBody( {
 
 								<EmailReplyToSettingsSection
 									data={ data }
-									onChange={ handleAutoSave }
+									onChange={ autoSaveReplyToSettings }
 									isNewsletterEnabled={ data.subscriptions }
 								/>
 
@@ -649,7 +675,7 @@ export function NewsletterSettingsBody( {
 						</Disabled>
 					) : (
 						<>
-							<NewsletterSection data={ data } onChange={ handleAutoSave } />
+							<NewsletterSection data={ data } onChange={ autoSaveNewsletterSettings } />
 
 							<Disabled isDisabled={ ! data.subscriptions }>
 								<Stack gap="xl" direction="column">
@@ -679,13 +705,13 @@ export function NewsletterSettingsBody( {
 
 									<EmailContentSection
 										data={ data }
-										onChange={ handleAutoSave }
+										onChange={ autoSaveEmailContent }
 										isNewsletterEnabled={ data.subscriptions }
 									/>
 
 									<EmailBylineSection
 										data={ data }
-										onChange={ handleAutoSave }
+										onChange={ autoSaveEmailByline }
 										isNewsletterEnabled={ data.subscriptions }
 									/>
 
@@ -701,7 +727,7 @@ export function NewsletterSettingsBody( {
 
 									<EmailReplyToSettingsSection
 										data={ data }
-										onChange={ handleAutoSave }
+										onChange={ autoSaveReplyToSettings }
 										isNewsletterEnabled={ data.subscriptions }
 									/>
 
