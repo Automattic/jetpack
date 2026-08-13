@@ -32,9 +32,12 @@ $section-header-title-min-inline-size: 200px;
 	grid-template-columns: minmax($section-header-title-min-inline-size, 1fr) minmax(0, max-content);
 	align-items: start;
 
-	// One value on both axes: it separates the title from the controls beside it
-	// and from the subtitle below, stacked or not.
-	gap: var(--wpds-dimension-gap-sm);
+	// Separates the title from the controls beside it. The rows carry their own
+	// spacing as padding instead: a row gap belongs to the track, so nothing
+	// inside a row can give it back, and a condensed subtitle would leave its
+	// gap behind as a band under the title.
+	column-gap: var(--wpds-dimension-gap-sm);
+	row-gap: 0;
 
 	.title {
 		overflow: hidden;
@@ -42,8 +45,90 @@ $section-header-title-min-inline-size: 200px;
 		white-space: nowrap;
 	}
 
-	.subtitle {
+	// The row rather than the text: condensing animates the row, so it has to be
+	// the thing the grid places. It also carries the spacing the row gap used to
+	// provide, as padding it can give back on its way out.
+	.subtitleRow {
 		grid-column: 1 / -1;
+		padding-block-start: var(--wpds-dimension-gap-sm);
+	}
+}
+
+/*
+ * Settles the header into a chrome bar as it pins: the subtitle fades and hands
+ * its row back to the content below, and the title drops a step on the type
+ * scale so the pinned band stops reading as the page's own heading.
+ *
+ * The timeline is the surface's, not this component's: the header knows nothing
+ * about what sits above it, so it cannot know the scroll offset at which it
+ * pins, and starting from the top of the scroll would condense it while it is
+ * still on its way up. The surface publishes a `--section-header-pin` view
+ * timeline instead, whose `exit` phase begins the moment the header sticks and
+ * runs for however far the surface wants the fade to take.
+ *
+ * Progress-driven rather than threshold-driven, so it follows the scroll in
+ * both directions instead of playing on its own once a boundary is crossed.
+ * Reclaiming the row means animating layout, not just paint, so this does cost
+ * a layout pass per frame while it runs; the range is deliberately short so
+ * that stays bounded. Where the timeline is unsupported or absent the subtitle
+ * simply stays, which is the resting layout.
+ *
+ * What animates is the grid row: `fr` values interpolate, so it shrinks to
+ * nothing without anything having to measure a string whose length changes with
+ * the date configuration. The padding above it goes at the same time, which is
+ * why that spacing is not the grid's row gap: a gap belongs to the track, so
+ * the row could not take it along and would leave a band under the title.
+ */
+.condensing {
+
+	.subtitleRow {
+		display: grid;
+		grid-template-rows: 1fr;
+		animation: condense-subtitle linear both;
+		animation-timeline: --section-header-pin;
+		animation-range: exit;
+
+		> .subtitle {
+			min-block-size: 0;
+			overflow: hidden;
+		}
+	}
+
+	// A step down the type scale, paired line height included. This buys no
+	// height: the row is floored by the date controls beside it, which keep
+	// theirs. What it changes is what the pinned band says it is.
+	.title {
+		animation: condense-title linear both;
+		animation-timeline: --section-header-pin;
+		animation-range: exit;
+	}
+}
+
+@keyframes condense-subtitle {
+
+	to {
+		grid-template-rows: 0fr;
+		opacity: 0;
+		padding-block-start: 0;
+	}
+}
+
+@keyframes condense-title {
+
+	to {
+		font-size: var(--wpds-typography-font-size-xl);
+		line-height: var(--wpds-typography-line-height-xl);
+	}
+}
+
+// The effect tracks the reader's own scrolling rather than playing by itself,
+// but it is still chrome moving under them, so it comes off with the
+// preference. The header then holds still, as it does without timeline support.
+@media (prefers-reduced-motion: reduce) {
+
+	.condensing .subtitleRow,
+	.condensing .title {
+		animation: none;
 	}
 }
 
@@ -88,14 +173,17 @@ $section-header-title-min-inline-size: 200px;
 
 	// One column, so source order would leave the controls between the title and
 	// the subtitle describing it.
-	.subtitle {
+	.subtitleRow {
 		order: 1;
 	}
 
 	// Last row, reading from the same edge as the title instead of the far one.
+	// A row of its own here, so it carries the spacing above it the way the
+	// subtitle does; beside the title there is nothing above it to clear.
 	.controls {
 		order: 2;
 		justify-content: flex-start;
+		padding-block-start: var(--wpds-dimension-gap-sm);
 
 		:global(.date-filters-panel__row) {
 			justify-content: flex-start;
