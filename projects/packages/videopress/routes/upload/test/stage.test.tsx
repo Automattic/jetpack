@@ -211,10 +211,13 @@ describe( 'upload stage single-drop transition', () => {
 		expect( mockRetryUpload ).toHaveBeenCalledWith( 'q-1' );
 	} );
 
-	it( 'binds to the settled upload, acknowledges it, and celebrates when playable', async () => {
+	it( 'binds to the settled upload and celebrates when playable', async () => {
 		// The upload finishes instantly and the bound record is already
-		// playable, so the whole settle chain runs in one pass: bind →
-		// acknowledge → celebration + first-publish flag.
+		// playable, so the settle chain runs in one pass: bind → celebration
+		// + first-publish flag. The queue row is deliberately NOT
+		// acknowledged here — it carries the attachment id for the whole
+		// session so a mid-session remount (the first-run tab flip) can
+		// re-derive it; the flow's exit paths own the acknowledgement.
 		mockNextUpload = {
 			status: 'success',
 			progress: 1,
@@ -226,7 +229,7 @@ describe( 'upload stage single-drop transition', () => {
 		await dropFiles( container, [ makeFile( 'one.mp4' ) ] );
 
 		const editor = screen.getByTestId( 'editor' );
-		expect( mockAcknowledgeUpload ).toHaveBeenCalledWith( 'q-1' );
+		expect( mockAcknowledgeUpload ).not.toHaveBeenCalled();
 		expect( editor ).toHaveAttribute( 'data-upload-status', 'none' );
 		expect( editor ).toHaveAttribute( 'data-celebrating', 'true' );
 		expect( mockMarkFirstPublish ).toHaveBeenCalledTimes( 1 );
