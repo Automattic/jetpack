@@ -558,9 +558,12 @@ class Initializer {
 	/**
 	 * Register the VideoPress playlist block.
 	 *
+	 * @param string|null $metadata_file Path to the block.json metadata file.
+	 *                                   Defaults to the package build output; tests can point at a fixture.
+	 *
 	 * @return void
 	 */
-	public static function register_videopress_playlist_block() {
+	public static function register_videopress_playlist_block( $metadata_file = null ) {
 		/*
 		 * Unlike the video block, the playlist block has no "activate the module"
 		 * placeholder, so don't register it at all when VideoPress isn't available.
@@ -572,7 +575,10 @@ class Initializer {
 			return;
 		}
 
-		$metadata_file = __DIR__ . '/../build/block-editor/blocks/playlist/block.json';
+		if ( null === $metadata_file ) {
+			$metadata_file = __DIR__ . '/../build/block-editor/blocks/playlist/block.json';
+		}
+
 		if ( ! file_exists( $metadata_file ) ) {
 			return;
 		}

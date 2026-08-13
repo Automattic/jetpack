@@ -19,7 +19,7 @@ type PlayerMessage = {
  *
  * @param block - The playlist block wrapper element.
  */
-function initPlaylist( block: HTMLElement ) {
+export function initPlaylist( block: HTMLElement ) {
 	const player = block.querySelector< HTMLIFrameElement >( '.videopress-playlist__player' );
 	const items = Array.from(
 		block.querySelectorAll< HTMLButtonElement >( '.videopress-playlist__item' )
@@ -85,8 +85,13 @@ function initPlaylist( block: HTMLElement ) {
 	} );
 }
 
-domReady( () => {
+/**
+ * Initialize every playlist block on the page.
+ */
+export function initAllPlaylists() {
 	document
 		.querySelectorAll< HTMLElement >( '.wp-block-videopress-playlist' )
 		.forEach( initPlaylist );
-} );
+}
+
+domReady( initAllPlaylists );

@@ -27,28 +27,43 @@ use WorDBless\BaseTestCase;
 class Playlist_Block_Test extends BaseTestCase {
 
 	/**
-	 * Set up before each test.
-	 */
-	public function set_up() {
-		parent::set_up();
-
-		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' ) ) {
-			register_block_type(
-				'videopress/playlist',
-				array(
-					'render_callback' => array( VideoPress_Initializer::class, 'render_videopress_playlist_block' ),
-				)
-			);
-		}
-	}
-
-	/**
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
 		parent::tear_down();
 
-		\WP_Block_Type_Registry::get_instance()->unregister( 'videopress/playlist' );
+		if ( \WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' ) ) {
+			\WP_Block_Type_Registry::get_instance()->unregister( 'videopress/playlist' );
+		}
+	}
+
+	/**
+	 * Write a block.json fixture for registration tests and return its path.
+	 *
+	 * The build output isn't present when the PHP suite runs in CI, so
+	 * registration is exercised against a fixture instead.
+	 *
+	 * @param array $metadata Metadata to encode.
+	 * @return string Path to the fixture file.
+	 */
+	private function create_metadata_fixture( $metadata ) {
+		// register_block_type_from_metadata() requires the file to be named block.json.
+		$dir = get_temp_dir() . uniqid( 'playlist-block-', true );
+		mkdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		$file = $dir . '/block.json';
+		file_put_contents( $file, wp_json_encode( $metadata, JSON_UNESCAPED_SLASHES ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+
+		return $file;
+	}
+
+	/**
+	 * Remove a fixture created by create_metadata_fixture().
+	 *
+	 * @param string $file Path returned by create_metadata_fixture().
+	 */
+	private function remove_metadata_fixture( $file ) {
+		unlink( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+		rmdir( dirname( $file ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
 	}
 
 	/**
@@ -59,9 +74,57 @@ class Playlist_Block_Test extends BaseTestCase {
 	 * @return string Rendered markup.
 	 */
 	private function render( $attributes ) {
+		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' ) ) {
+			register_block_type(
+				'videopress/playlist',
+				array(
+					'render_callback' => array( VideoPress_Initializer::class, 'render_videopress_playlist_block' ),
+				)
+			);
+		}
+
 		// Empty attributes encode to `[]`, which the block parser rejects; omit them instead.
 		$json = empty( $attributes ) ? '' : wp_json_encode( $attributes, JSON_UNESCAPED_SLASHES ) . ' ';
 		return do_blocks( '<!-- wp:videopress/playlist ' . $json . '/-->' );
+	}
+
+	/** Tests that the block registers from metadata with the render callback wired. */
+	public function test_registration_from_metadata() {
+		$fixture = $this->create_metadata_fixture(
+			array(
+				'name'  => 'videopress/playlist',
+				'title' => 'VideoPress Playlist',
+			)
+		);
+
+		VideoPress_Initializer::register_videopress_playlist_block( $fixture );
+
+		$registry = \WP_Block_Type_Registry::get_instance();
+		$this->assertTrue( $registry->is_registered( 'videopress/playlist' ) );
+		$this->assertSame(
+			array( VideoPress_Initializer::class, 'render_videopress_playlist_block' ),
+			$registry->get_registered( 'videopress/playlist' )->render_callback
+		);
+
+		// A second call must not fatal on (or duplicate) the existing registration.
+		VideoPress_Initializer::register_videopress_playlist_block( $fixture );
+		$this->assertTrue( $registry->is_registered( 'videopress/playlist' ) );
+
+		$this->remove_metadata_fixture( $fixture );
+	}
+
+	/** Tests that registration is skipped when the metadata file is missing or unusable. */
+	public function test_registration_skipped_without_usable_metadata() {
+		$registry = \WP_Block_Type_Registry::get_instance();
+
+		VideoPress_Initializer::register_videopress_playlist_block( '/nonexistent/block.json' );
+		$this->assertFalse( $registry->is_registered( 'videopress/playlist' ) );
+
+		$nameless = $this->create_metadata_fixture( array( 'title' => 'No name' ) );
+		VideoPress_Initializer::register_videopress_playlist_block( $nameless );
+		$this->assertFalse( $registry->is_registered( 'videopress/playlist' ) );
+
+		$this->remove_metadata_fixture( $nameless );
 	}
 
 	/** Tests that the player and playlist items are rendered. */
@@ -120,6 +183,8 @@ class Playlist_Block_Test extends BaseTestCase {
 				'videos' => array(
 					array( 'guid' => '"><script>alert(1)</script>' ),
 					array( 'guid' => 'short' ),
+					'not-an-array-entry',
+					array( 'title' => 'No guid at all' ),
 					array( 'guid' => 'abcd1234' ),
 				),
 			)
