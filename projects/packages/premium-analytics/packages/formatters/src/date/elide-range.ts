@@ -35,11 +35,29 @@ const SINGLE_PROBES = [
 ];
 
 /**
- * Two dates with no requested date part in common. The site timezone is
- * applied by both formatters, so a probe crossing a UTC day boundary is safe.
+ * The near end of the probe range. The site timezone is applied by both
+ * formatters, so a probe crossing a UTC day boundary is safe.
  */
 const PROBE_FROM = SINGLE_PROBES[ 0 ];
-const PROBE_TO = new Date( Date.UTC( 2021, 1, 3, 12 ) );
+
+/**
+ * The far end, per form: a date sharing no requested part with `PROBE_FROM`,
+ * so nothing in the probe can be elided and both ends have to render whole.
+ *
+ * Which year it falls in is what has to vary. A form carrying the year needs
+ * the two ends in different ones, or the year elides and the probe measures an
+ * elision rather than the full rendering it is checking for.
+ *
+ * The year-less form needs them in the same one. Asked to span two years with
+ * no year to tell them apart, ICU puts one back to keep the range unambiguous.
+ * That is right of ICU, but it is not a rendering this form ever produces, and
+ * a probe that provokes it costs Hungarian and Czech their elision.
+ */
+const PROBE_TO: Record< RangeFormatName, Date > = {
+	medium: new Date( Date.UTC( 2021, 1, 3, 12 ) ),
+	compact: new Date( Date.UTC( 2021, 1, 3, 12 ) ),
+	compactNoYear: new Date( Date.UTC( 2020, 1, 3, 12 ) ),
+};
 
 /** Treat typographically different Unicode spaces as equivalent. */
 const normalizeSpaces = ( value: string ): string =>
@@ -134,7 +152,7 @@ function buildRangeFormatter( name: RangeFormatName ): Intl.DateTimeFormat | und
 	);
 	const single = formatter.format( PROBE_FROM );
 	const rangeKeepsRendering = normalizeSpaces(
-		formatter.formatRange( PROBE_FROM, PROBE_TO )
+		formatter.formatRange( PROBE_FROM, PROBE_TO[ name ] )
 	).startsWith( normalizeSpaces( single ) );
 
 	return rendersLikeSite && rangeKeepsRendering ? formatter : undefined;

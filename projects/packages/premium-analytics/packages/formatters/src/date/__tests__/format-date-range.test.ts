@@ -24,6 +24,37 @@ const SEP = '\u2009\u2013\u2009';
 // The package's translatable spelled-out range pattern.
 const FALLBACK_SEP = ' \u2013 ';
 
+const HU_MONTHS = [
+	'január',
+	'február',
+	'március',
+	'április',
+	'május',
+	'június',
+	'július',
+	'augusztus',
+	'szeptember',
+	'október',
+	'november',
+	'december',
+];
+
+// Punctuated, so they cannot be sliced out of the full names.
+const HU_MONTHS_SHORT = [
+	'jan.',
+	'febr.',
+	'márc.',
+	'ápr.',
+	'máj.',
+	'jún.',
+	'júl.',
+	'aug.',
+	'szept.',
+	'okt.',
+	'nov.',
+	'dec.',
+];
+
 const JA_MONTHS = [
 	'1\u6708',
 	'2\u6708',
@@ -262,6 +293,28 @@ describe( 'formatDateRangeMinimal', () => {
 			expect(
 				formatDateRangeMinimal( { from: utcDate( 2026, 7, 13 ), to: utcDate( 2026, 7, 26 ) } )
 			).toBe( `13 de jul${ FALLBACK_SEP }26 de jul` );
+		} );
+	} );
+
+	// A year-less range spanning two years leaves ICU nothing to tell them
+	// apart by, so it puts a year back. Probing the year-less form across the
+	// turn of a year measures that instead of the rendering the form produces,
+	// and locales whose ranges ICU re-years that way lose their elision.
+	describe( 'hu_HU site', () => {
+		beforeEach( () =>
+			setSettings( settingsFor( 'hu-HU-test', 'Y. F j.', HU_MONTHS, undefined, HU_MONTHS_SHORT ) )
+		);
+
+		it( 'elides a range inside the current year', () => {
+			expect(
+				formatDateRangeMinimal( { from: utcDate( 2026, 7, 13 ), to: utcDate( 2026, 7, 26 ) } )
+			).toBe( 'júl. 13–26.' );
+		} );
+
+		it( 'still spells out a range that needs its year', () => {
+			expect(
+				formatDateRangeMinimal( { from: utcDate( 2025, 7, 13 ), to: utcDate( 2025, 7, 26 ) } )
+			).toBe( '2025. júl. 13–26.' );
 		} );
 	} );
 
