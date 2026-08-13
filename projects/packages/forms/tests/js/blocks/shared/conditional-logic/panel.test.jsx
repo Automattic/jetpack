@@ -84,14 +84,14 @@ const DEFAULT_ATTRIBUTE = {
 	enabled: false,
 	action: 'show',
 	logicalOperator: 'any',
-	controls: {},
+	groups: [],
 };
 
 const withRules = ( rules, extra = {} ) => ( {
 	enabled: true,
 	action: 'show',
 	logicalOperator: 'all',
-	controls: { fieldValue: { rules } },
+	groups: [ { logicalOperator: 'all', rules } ],
 	...extra,
 } );
 
@@ -137,7 +137,12 @@ describe( 'ConditionalLogicPanel', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			conditionalLogic: expect.objectContaining( {
 				enabled: true,
-				controls: { fieldValue: { rules: [ { field: '', operator: 'is', value: '' } ] } },
+				groups: [
+					{
+						logicalOperator: 'any',
+						rules: [ { type: 'fieldValue', field: '', operator: 'is', value: '' } ],
+					},
+				],
 			} ),
 		} );
 	} );
@@ -152,7 +157,9 @@ describe( 'ConditionalLogicPanel', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			conditionalLogic: expect.objectContaining( {
 				enabled: false,
-				controls: { fieldValue: { rules: [] } },
+				// The group goes with its last rule, back to the default empty state rather
+				// than a hollow group nothing reads.
+				groups: [],
 			} ),
 		} );
 	} );
@@ -299,9 +306,12 @@ describe( 'ConditionalLogicPanel', () => {
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			conditionalLogic: expect.objectContaining( {
-				controls: {
-					fieldValue: { rules: [ { field: '', operator: 'is', value: '' } ] },
-				},
+				groups: [
+					{
+						logicalOperator: 'all',
+						rules: [ { type: 'fieldValue', field: '', operator: 'is', value: '' } ],
+					},
+				],
 			} ),
 		} );
 	} );
@@ -322,11 +332,12 @@ describe( 'ConditionalLogicPanel', () => {
 		);
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			conditionalLogic: expect.objectContaining( {
-				controls: {
-					fieldValue: {
+				groups: [
+					{
+						logicalOperator: 'all',
 						rules: [ { field: 'untitled-field', operator: 'is', value: '' } ],
 					},
-				},
+				],
 			} ),
 		} );
 	} );
@@ -340,9 +351,12 @@ describe( 'ConditionalLogicPanel', () => {
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			conditionalLogic: expect.objectContaining( {
-				controls: {
-					fieldValue: { rules: [ { field: 'budget_1', operator: 'equals', value: '' } ] },
-				},
+				groups: [
+					{
+						logicalOperator: 'all',
+						rules: [ { field: 'budget_1', operator: 'equals', value: '' } ],
+					},
+				],
 			} ),
 		} );
 	} );
@@ -359,9 +373,12 @@ describe( 'ConditionalLogicPanel', () => {
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			conditionalLogic: expect.objectContaining( {
-				controls: {
-					fieldValue: { rules: [ { field: 'budget_1', operator: 'gte', value: '5' } ] },
-				},
+				groups: [
+					{
+						logicalOperator: 'all',
+						rules: [ { field: 'budget_1', operator: 'gte', value: '5' } ],
+					},
+				],
 			} ),
 		} );
 	} );
