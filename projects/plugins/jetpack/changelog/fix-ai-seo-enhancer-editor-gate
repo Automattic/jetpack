@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Jetpack AI: make the SEO Enhancer toggle govern the editor's SEO surfaces in internal testing environments.
+Jetpack AI: respect the SEO Enhancer toggle in the editor, in internal testing environments.
