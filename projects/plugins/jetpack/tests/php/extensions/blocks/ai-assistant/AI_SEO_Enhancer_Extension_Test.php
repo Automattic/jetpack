@@ -124,6 +124,21 @@ class AI_SEO_Enhancer_Extension_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Assert our gate offered the extension. Under the wpcomsh suite the WPCOM
+	 * feature gate bypasses the plan pin and reports missing_plan, so the plan
+	 * verdict is only asserted where the plan path is in effect.
+	 *
+	 * @param array $row The slug's availability row.
+	 */
+	private function assert_not_withheld_by_gate( $row ) {
+		$this->assertNotSame( 'ai_seo_enhancer_disabled', $row['unavailable_reason'] ?? '' );
+
+		if ( Current_Plan::supports( 'ai-seo-enhancer' ) ) {
+			$this->assertTrue( $row['available'] );
+		}
+	}
+
+	/**
 	 * An absent option must not hide the feature: the enhancer pre-dates its
 	 * toggle, so most sites never stored a value. Absent = offered.
 	 */
@@ -132,7 +147,7 @@ class AI_SEO_Enhancer_Extension_Test extends WP_UnitTestCase {
 
 		$row = $this->register_and_get_availability();
 
-		$this->assertTrue( $row['available'] );
+		$this->assert_not_withheld_by_gate( $row );
 	}
 
 	/**
@@ -143,7 +158,7 @@ class AI_SEO_Enhancer_Extension_Test extends WP_UnitTestCase {
 
 		$row = $this->register_and_get_availability();
 
-		$this->assertTrue( $row['available'] );
+		$this->assert_not_withheld_by_gate( $row );
 	}
 
 	/**
@@ -197,6 +212,6 @@ class AI_SEO_Enhancer_Extension_Test extends WP_UnitTestCase {
 
 		$row = $this->register_and_get_availability();
 
-		$this->assertTrue( $row['available'] );
+		$this->assert_not_withheld_by_gate( $row );
 	}
 }
