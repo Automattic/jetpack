@@ -133,6 +133,19 @@ const toSelectionList = ( value: unknown ): string[] => {
  * @param expected - The value configured on the rule.
  * @return Both sides as numbers, or null when either side is not numeric.
  */
+/**
+ * The selected value of a rating, dropping the scale it was submitted with.
+ *
+ * @param value - The submitted value, `selected/max` or a bare number.
+ * @return The selected part, for numeric comparison.
+ */
+const toRatingValue = ( value: unknown ): string => {
+	const text = toComparableString( value ).trim();
+	const slash = text.indexOf( '/' );
+
+	return slash === -1 ? text : text.slice( 0, slash );
+};
+
 const toNumericPair = ( actual: unknown, expected: unknown ): [ number, number ] | null => {
 	const left = toComparableString( actual ).trim();
 	const right = toComparableString( expected ).trim();
@@ -275,8 +288,12 @@ const evaluateRuleValue = (
 		}
 	}
 
-	if ( 'number' === typeKey ) {
-		const pair = toNumericPair( actual, expected );
+	if ( 'number' === typeKey || 'rating' === typeKey ) {
+		// A rating submits `selected/max`, e.g. `4/5`. The rule stores the bare number, so
+		// only the submitted side needs unpacking -- without it is_numeric/Number see `4/5`,
+		// every comparison returns false, and a rating rule can never match.
+		const submitted = 'rating' === typeKey ? toRatingValue( actual ) : actual;
+		const pair = toNumericPair( submitted, expected );
 		if ( pair === null ) {
 			return false;
 		}
