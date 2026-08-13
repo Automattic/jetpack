@@ -4,7 +4,7 @@ Tags: search, filter, woocommerce search, ajax search, product search, free clou
 Requires at least: 6.9
 Requires PHP: 7.2
 Tested up to: 7.0
-Stable tag: 7.0.1
+Stable tag: 7.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
