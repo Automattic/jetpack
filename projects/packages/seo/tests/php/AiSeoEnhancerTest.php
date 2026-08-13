@@ -84,9 +84,8 @@ class AiSeoEnhancerTest extends SeoTestCase {
 	}
 
 	/**
-	 * An absent option is not "switched off": the enhancer pre-dates its toggle,
-	 * so most sites have never stored a value, and hiding the editor feature on
-	 * absence would take it away from all of them. Only a deliberate off hides.
+	 * An absent option is not "switched off": most sites never stored a value,
+	 * and hiding on absence would take the feature away from all of them.
 	 */
 	public function test_is_switched_off_false_when_option_absent() {
 		delete_option( AI_SEO_Enhancer::OPTION );

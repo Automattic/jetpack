@@ -1,18 +1,7 @@
 import { render, screen } from '@testing-library/react';
-// `isSeoEnhancerEnabled` is a module-level constant in index.jsx, computed
-// once at import time from `getJetpackExtensionAvailability( 'ai-seo-enhancer' )`.
-// This is a separate file (rather than one file toggling availability with
-// `jest.resetModules()`) because reloading the module registry mid-test also
-// reloads React itself: a fresh `require( '../index' )` picks up a fresh
-// copy of React, while the render helper stays bound to the React instance
-// from before the reset, producing a "Cannot read properties of null
-// (reading 'useRef')" hooks-dispatcher crash. Re-requiring
-// `@testing-library/react` fresh alongside it avoids that crash but then
-// trips a second issue: RTL registers its `afterEach` cleanup hook at
-// import time, and jest-circus refuses hook registration once test
-// execution has started ("Hooks cannot be defined inside tests"). A plain
-// top-level import with a fixed, hardcoded availability value sidesteps
-// both problems by relying on normal one-time module evaluation.
+// Separate file instead of jest.resetModules(): resetting reloads React, so a
+// fresh require of index.jsx crashes the hooks dispatcher against the old RTL
+// binding — and re-requiring RTL trips jest-circus's late-hook registration.
 jest.mock( '@automattic/jetpack-publicize/link-preview', () => ( {
 	LinkPreviewModalWithTrigger: () => <div data-testid="link-preview" />,
 } ) );
@@ -82,11 +71,9 @@ jest.mock( '../noindex-panel', () => () => null );
 jest.mock( '../schema-panel', () => () => null );
 jest.mock( '../title-panel', () => () => <div data-testid="seo-title-panel" /> );
 jest.mock( '../show-seo-section', () => ( { showSeoSection: jest.fn() } ) );
-// A plain `require()` here (rather than a top-level `import`) so it runs
-// AFTER `mockStore` above is initialized: ES imports are hoisted above
-// regular statements, and index.jsx reads `mockStore` synchronously at
-// module-evaluation time (via `globalSelect( editorStore )`), so a hoisted
-// import would hit it in its temporal dead zone.
+// Plain require(), not import: ES imports hoist above `mockStore`'s
+// initialization, and index.jsx reads it synchronously at module evaluation —
+// a hoisted import would hit its temporal dead zone.
 const { settings } = require( '../index' );
 
 describe( 'Seo panel when ai-seo-enhancer is withheld', () => {

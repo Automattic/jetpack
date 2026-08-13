@@ -1,11 +1,7 @@
 import { render, screen } from '@testing-library/react';
-// `isSeoEnhancerEnabled` is a module-level constant in index.jsx, computed
-// once at import time from `getJetpackExtensionAvailability( 'ai-seo-enhancer' )`.
-// To pin behaviour for a fixed availability value without `jest.resetModules()`
-// (which reloads React itself and trips React's hooks dispatcher — see the
-// sibling `index-withheld.test.jsx` file for the same note), this file mocks
-// availability as permanently `true` and does a single top-level import of
-// `../index`, matching normal Jest/ESM module semantics.
+// index.jsx computes `isSeoEnhancerEnabled` once at import, so this file
+// hardcodes availability `true` and requires `../index` exactly once. Why not
+// one file with jest.resetModules(): see index-withheld.test.jsx.
 jest.mock( '@automattic/jetpack-publicize/link-preview', () => ( {
 	LinkPreviewModalWithTrigger: () => <div data-testid="link-preview" />,
 } ) );
@@ -75,11 +71,9 @@ jest.mock( '../noindex-panel', () => () => null );
 jest.mock( '../schema-panel', () => () => null );
 jest.mock( '../title-panel', () => () => <div data-testid="seo-title-panel" /> );
 jest.mock( '../show-seo-section', () => ( { showSeoSection: jest.fn() } ) );
-// A plain `require()` here (rather than a top-level `import`) so it runs
-// AFTER `mockStore` above is initialized: ES imports are hoisted above
-// regular statements, and index.jsx reads `mockStore` synchronously at
-// module-evaluation time (via `globalSelect( editorStore )`), so a hoisted
-// import would hit it in its temporal dead zone.
+// Plain require(), not import: ES imports hoist above `mockStore`'s
+// initialization, and index.jsx reads it synchronously at module evaluation —
+// a hoisted import would hit its temporal dead zone.
 const { settings } = require( '../index' );
 
 describe( 'Seo panel when ai-seo-enhancer is available', () => {

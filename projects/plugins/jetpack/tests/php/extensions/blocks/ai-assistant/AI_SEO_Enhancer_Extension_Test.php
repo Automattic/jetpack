@@ -40,10 +40,9 @@ class AI_SEO_Enhancer_Extension_Test extends WP_UnitTestCase {
 		// unset this to exercise the outside-internal-testing (real site) path.
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		add_filter( 'jetpack_offline_mode', '__return_false' );
-		// `get_availability()` walks `get_extensions()`, which is empty under
-		// `TESTING_IN_JETPACK` unless the allowed list is filtered back in, and
-		// `should_load()` bails out early without a ready connection. Mirrors the
-		// minimal pattern `Jetpack_AI_Sidebar_Test` uses for the same reason.
+		// Under TESTING_IN_JETPACK, get_availability() is empty and should_load()
+		// bails without a ready connection unless these are filtered back in.
+		// Mirrors Jetpack_AI_Sidebar_Test's minimal pattern.
 		add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
 		add_filter( 'jetpack_gutenberg', '__return_true' );
 		add_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extension_allowlist' ) );
@@ -189,10 +188,8 @@ class AI_SEO_Enhancer_Extension_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The toggle ships dark behind the internal-testing flag this release:
-	 * outside an internal testing environment a stored off must not change
-	 * the editor, so real sites keep the pre-toggle behavior until the flag
-	 * lifts.
+	 * Outside an internal testing environment a stored off must not change the
+	 * editor: real sites keep the pre-toggle behavior until the flag lifts.
 	 */
 	public function test_switched_off_option_is_available_outside_internal_testing_environment() {
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );

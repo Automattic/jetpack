@@ -104,12 +104,9 @@ add_action(
 				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-image-extension' );
 			}
 
-			// The stored toggle only governs the editor inside internal testing
-			// environments while the AI feature settings ship dark — real sites
-			// keep the pre-toggle behavior until the flag lifts. Guarded with
-			// function_exists because this file also loads through wpcom's own
-			// loader on Simple, where the plugin bootstrap (and so
-			// functions.global.php) never runs.
+			// The stored toggle only applies inside internal testing environments
+			// while the AI feature settings ship dark. function_exists: on Simple
+			// this file loads through wpcom's loader, without functions.global.php.
 			$enhancer_switched_off = function_exists( 'jetpack_is_internal_testing_environment' )
 				&& jetpack_is_internal_testing_environment()
 				&& AI_SEO_Enhancer::is_switched_off();
@@ -117,10 +114,9 @@ add_action(
 			if ( apply_filters( 'ai_seo_enhancer_enabled', true ) && ! $enhancer_switched_off ) {
 				Jetpack_Gutenberg::set_availability_for_plan( 'ai-seo-enhancer' );
 			} else {
-				// A deliberate admin off (or a host veto) withholds the extension,
-				// which removes every enhancer surface in the editor. The reason is
-				// deliberately not missing_plan: that value has upgrade-nudge
-				// semantics client-side, and off must not render upgrade messaging.
+				// A deliberate off (or host veto) withholds the extension, removing
+				// every enhancer surface in the editor. Not missing_plan: that
+				// reason renders upgrade nudges client-side.
 				Jetpack_Gutenberg::set_extension_unavailable( 'ai-seo-enhancer', 'ai_seo_enhancer_disabled' );
 			}
 		}
