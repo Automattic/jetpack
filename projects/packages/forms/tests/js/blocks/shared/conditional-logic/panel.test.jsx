@@ -248,9 +248,11 @@ describe( 'ConditionalLogicPanel', () => {
 		expect( screen.queryByRole( 'button', { name: 'Add condition' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows the Add condition button with no conditions configured', async () => {
+	// The builder opens with a waiting row, and that row is unfinished, so there is nothing
+	// to add yet -- the button is absent rather than present and dead.
+	it( 'withholds Add condition while the waiting row is unfinished', async () => {
 		await setup();
-		expect( screen.getByRole( 'button', { name: /add condition/i } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /add condition/i } ) ).not.toBeInTheDocument();
 	} );
 
 	// `enabled` is derived from whether any rule exists, so a field only carries conditional
@@ -440,20 +442,49 @@ describe( 'ConditionalLogicPanel', () => {
 
 	// A condition naming no subject, or giving no value where one is needed, is skipped by both
 	// evaluators. Letting an author stack up rules that quietly do nothing is the trap here.
-	it( 'will not add a second condition until the first says something', async () => {
-		const { setAttributes } = await setup( withRules( [] ) );
-		const addButton = screen.getByRole( 'button', { name: 'Add condition' } );
+	// A condition naming no subject, or giving no value where one is needed, is skipped by both
+	// evaluators. Letting an author stack up rules that quietly do nothing is the trap here.
+	it( 'will not offer a second condition until the first says something', async () => {
+		await setup( withRules( [ { field: 'name_1', operator: 'is', value: '' } ] ) );
 
-		// aria-disabled rather than the disabled attribute: the design-system button stays
-		// focusable so a keyboard user can reach it and read why it will not act.
-		expect( addButton ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.queryByRole( 'button', { name: 'Add condition' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'clears every condition at once', async () => {
+		const { setAttributes } = await setup(
+			withRules( [
+				{ field: 'name_1', operator: 'is', value: 'x' },
+				{ field: 'budget_1', operator: 'gte', value: '5' },
+			] )
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Clear all conditions' } ) );
+
+		expect( setAttributes ).toHaveBeenCalledWith( {
+			conditionalLogic: expect.objectContaining( { enabled: false, groups: [] } ),
+		} );
+	} );
+
+	// Clearing is deliberate. Offering another empty row straight away would look like the
+	// clear had not worked.
+	it( 'does not offer a waiting row after clearing', async () => {
+		await setupStateful( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Clear all conditions' } ) );
+
+		expect( screen.queryByLabelText( 'Field' ) ).not.toBeInTheDocument();
 		expect(
-			screen.getByText( 'Finish the condition above before adding another.' )
-		).toBeInTheDocument();
+			screen.queryByRole( 'button', { name: 'Clear all conditions' } )
+		).not.toBeInTheDocument();
+	} );
 
-		// An aria-disabled button still receives clicks, so the guard has to hold.
-		await userEvent.click( addButton );
-		expect( setAttributes ).not.toHaveBeenCalled();
+	it( 'brings a row back when Add condition is pressed after clearing', async () => {
+		await setupStateful( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Clear all conditions' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Add condition' } ) );
+
+		expect( screen.getByLabelText( 'Field' ) ).toBeInTheDocument();
 	} );
 
 	// A new condition appears empty, so the first thing to do with it is choose a subject.

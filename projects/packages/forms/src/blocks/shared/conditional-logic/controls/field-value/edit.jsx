@@ -340,10 +340,17 @@ const FieldValueControl = ( { rules: storedRules, onChange, fields, ownFieldId }
 		[ storedRules ]
 	);
 
-	// An empty builder shows one condition ready to fill in, rather than asking the author to
-	// press Add before anything appears. It is not written to the block until they choose a
-	// field, so opening the dialog does not mark the post as changed.
-	const rules = useMemo( () => ( stored.length ? stored : [ BLANK_RULE ] ), [ stored ] );
+	// Clearing is deliberate, so the builder does not immediately offer another empty row --
+	// that would look like the clear had failed. An author who wants one presses Add.
+	const [ isCleared, setIsCleared ] = useState( false );
+
+	// An empty builder otherwise shows one condition ready to fill in, rather than asking the
+	// author to press Add before anything appears. It is not written to the block until they
+	// choose a field, so opening the dialog does not mark the post as changed.
+	const rules = useMemo(
+		() => ( stored.length || isCleared ? stored : [ BLANK_RULE ] ),
+		[ isCleared, stored ]
+	);
 
 	// Which row the Add button just created, so only that one takes focus. Null on first
 	// render, so opening the dialog does not steal focus from the block editor.
@@ -376,9 +383,16 @@ const FieldValueControl = ( { rules: storedRules, onChange, fields, ownFieldId }
 	// The rule records its own type, so a future condition kind is another type in this same
 	// list rather than a reshape of what is stored.
 	const addRule = useCallback( () => {
+		setIsCleared( false );
 		setFocusIndex( stored.length );
 		onChange( [ ...stored, { ...BLANK_RULE } ] );
 	}, [ onChange, stored ] );
+
+	const clearRules = useCallback( () => {
+		setIsCleared( true );
+		setFocusIndex( null );
+		onChange( [] );
+	}, [ onChange ] );
 
 	// A condition that names no subject, or gives no value where one is needed, is skipped by
 	// both evaluators. Rather than let an author stack up rules that quietly do nothing, the
@@ -409,25 +423,29 @@ const FieldValueControl = ( { rules: storedRules, onChange, fields, ownFieldId }
 				/>
 			) ) }
 
-			{ /* The single entry point for adding conditions. When further condition types
-			     land (query string, user role, date and time) this becomes the menu that
-			     offers the choice, so it stays the panel's one primary action. */ }
-			<Stack direction="column" gap="xs">
-				<Button
-					variant="outline"
-					tone="neutral"
-					icon={ plus }
-					onClick={ addRule }
-					disabled={ ! canAddCondition }
-					className="jetpack-contact-form__conditional-logic-add"
-				>
-					{ __( 'Add condition', 'jetpack-forms' ) }
-				</Button>
+			{ /* Adding is the panel's one primary action, so it is offered or it is not --
+			     a disabled button with an explanation is more to read than a button that
+			     simply is not there yet. Clearing sits opposite it, and only once there is
+			     something to clear. */ }
+			<Stack direction="row" align="center" justify="space-between" gap="sm">
+				{ canAddCondition ? (
+					<Button
+						variant="outline"
+						tone="neutral"
+						icon={ plus }
+						onClick={ addRule }
+						className="jetpack-contact-form__conditional-logic-add"
+					>
+						{ __( 'Add condition', 'jetpack-forms' ) }
+					</Button>
+				) : (
+					<span />
+				) }
 
-				{ ! canAddCondition && (
-					<Text variant="body-sm" className="jetpack-contact-form__conditional-logic-add-hint">
-						{ __( 'Finish the condition above before adding another.', 'jetpack-forms' ) }
-					</Text>
+				{ stored.length > 0 && (
+					<Button variant="minimal" tone="neutral" onClick={ clearRules }>
+						{ __( 'Clear all conditions', 'jetpack-forms' ) }
+					</Button>
 				) }
 			</Stack>
 		</Stack>
