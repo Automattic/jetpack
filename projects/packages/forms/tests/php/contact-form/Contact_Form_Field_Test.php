@@ -1076,6 +1076,56 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Punctuation in help text survives the block -> shortcode -> render trip.
+	 *
+	 * Contact_Form::esc_shortcode_val() encodes `,` `[` `]` `\` as decimal
+	 * entities so they survive the shortcode parser, and unesc_attr() only
+	 * decodes the hex forms. Help text is the first attribute rendered through
+	 * esc_html() into a text node, so a leftover entity would be escaped again
+	 * and shown to the visitor. Building the field directly, as the other tests
+	 * here do, skips the hop that does the encoding — this one must not.
+	 *
+	 * @param string $help_text The author-supplied help text.
+	 * @dataProvider help_text_punctuation_provider
+	 */
+	#[DataProvider( 'help_text_punctuation_provider' )]
+	public function test_help_text_punctuation_survives_the_shortcode_round_trip( $help_text ) {
+		$field_shortcode = Contact_Form::parse_contact_field(
+			array(
+				'type'     => 'text',
+				'id'       => 'g1-x',
+				'label'    => 'Name',
+				'helpText' => $help_text,
+			),
+			null
+		);
+
+		$html = do_shortcode( '[contact-form]' . $field_shortcode . '[/contact-form]' );
+
+		$this->assertStringContainsString(
+			'class="contact-form__field-help">' . esc_html( $help_text ) . '</span>',
+			$html
+		);
+		$this->assertStringNotContainsString( '&#044;', $html );
+		$this->assertStringNotContainsString( '&#091;', $html );
+		$this->assertStringNotContainsString( '&#092;', $html );
+		$this->assertStringNotContainsString( '&#093;', $html );
+	}
+
+	/**
+	 * Data provider for help text punctuation.
+	 *
+	 * @return array
+	 */
+	public static function help_text_punctuation_provider() {
+		return array(
+			'comma'     => array( 'Enter your name, then your email.' ),
+			'brackets'  => array( 'Use [your] nickname.' ),
+			'backslash' => array( 'Domain\\username, please.' ),
+		);
+	}
+
+	/**
 	 * Hand-rolled input markup gets the same description wiring.
 	 *
 	 * @param array  $attributes Extra field attributes.

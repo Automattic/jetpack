@@ -1295,7 +1295,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return null;
 		}
 
-		return trim( $help_text );
+		// Contact_Form::esc_shortcode_val() encodes `,` `[` `]` `\` as decimal
+		// entities so they survive the shortcode parser, but unesc_attr() only
+		// decodes the hex forms. Other consumers emit through wp_kses_post() or
+		// into an attribute, so the browser decodes whatever is left over; this
+		// is the first to emit through esc_html() into a text node, where the
+		// leftover `&#044;` would be escaped again and shown to the visitor.
+		// Safe to decode here: the value has already been through
+		// unesc_attr()'s strip_tags(), and output is still esc_html()'d.
+		return html_entity_decode( trim( $help_text ), ENT_QUOTES );
 	}
 
 	/**
