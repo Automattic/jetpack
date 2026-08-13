@@ -195,13 +195,6 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'request_get_ai_assistance_feature' ),
 					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
-					'args'                => array(
-						'skip_cache' => array(
-							'default'           => false,
-							'type'              => 'boolean',
-							'sanitize_callback' => 'rest_sanitize_boolean',
-						),
-					),
 				),
 			)
 		);
@@ -319,11 +312,9 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	/**
 	 * Collect and provide relevat data about the AI feature,
 	 * such as the number of requests made.
-	 *
-	 * @param WP_REST_Request $request Request containing the optional cache bypass.
 	 */
-	public function request_get_ai_assistance_feature( $request ) {
-		return Jetpack_AI_Helper::get_ai_assistance_feature( (bool) $request['skip_cache'] );
+	public function request_get_ai_assistance_feature() {
+		return Jetpack_AI_Helper::get_ai_assistance_feature();
 	}
 }
 

@@ -13,7 +13,6 @@
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\CoversMethod;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 
@@ -21,10 +20,8 @@ require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
  * Class WPCOM_REST_API_V2_Endpoint_AI_Test
  *
  * @covers \WPCOM_REST_API_V2_Endpoint_AI
- * @covers \Jetpack_AI_Helper::get_ai_assistance_feature
  */
 #[CoversClass( WPCOM_REST_API_V2_Endpoint_AI::class )]
-#[CoversMethod( Jetpack_AI_Helper::class, 'get_ai_assistance_feature' )]
 class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 
 	use \Activates_Ai_Module;
@@ -35,13 +32,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 
 	const CHAT_SEARCH_ROUTE = '/wpcom/v2/jetpack-search/ai/search';
 	const CHAT_RANK_ROUTE   = '/wpcom/v2/jetpack-search/ai/rank';
-
-	/**
-	 * Transient created by a cache-behavior test.
-	 *
-	 * @var string|null
-	 */
-	private $ai_feature_transient_name;
 
 	/**
 	 * Reset the environment to its original state after the test.
@@ -63,10 +53,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 	}
 
 	public function tear_down() {
-		if ( $this->ai_feature_transient_name ) {
-			delete_transient( $this->ai_feature_transient_name );
-		}
-		$this->set_ai_assistant_failed_request( null );
 		$this->deactivate_ai_module_for_test();
 		remove_filter( 'jetpack_ai_enabled', '__return_false' );
 		remove_filter( 'jetpack_ai_enabled', '__return_true' );
@@ -74,51 +60,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 		remove_filter( 'jetpack_ai_chat_enabled', '__return_true' );
 
 		parent::tear_down();
-	}
-
-	/**
-	 * Configure a connected owner for the remote AI feature request.
-	 *
-	 * @return string Transient name used by the feature cache.
-	 */
-	private function prepare_ai_feature_request() {
-		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		$blog_id = 123456;
-		wp_set_current_user( $user_id );
-		\Jetpack_Options::update_option( 'id', $blog_id );
-		\Jetpack_Options::update_option( 'master_user', $user_id );
-		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
-
-		$this->ai_feature_transient_name = \Jetpack_AI_Helper::transient_name_for_ai_assistance_feature( $blog_id );
-		delete_transient( $this->ai_feature_transient_name );
-
-		return $this->ai_feature_transient_name;
-	}
-
-	/**
-	 * Set the request-local failure cache for a regression assertion.
-	 *
-	 * @param WP_Error|null $value Cached request failure.
-	 */
-	private function set_ai_assistant_failed_request( $value ) {
-		$property = new ReflectionProperty( \Jetpack_AI_Helper::class, 'ai_assistant_failed_request' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( null, $value );
-	}
-
-	/**
-	 * Read the request-local failure cache for a regression assertion.
-	 *
-	 * @return WP_Error|null
-	 */
-	private function get_ai_assistant_failed_request() {
-		$property = new ReflectionProperty( \Jetpack_AI_Helper::class, 'ai_assistant_failed_request' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		return $property->getValue();
 	}
 
 	/**
@@ -151,77 +92,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 			$routes,
 			'The ungated jetpack-ai route must register on rest_api_init.'
 		);
-	}
-
-	public function test_ai_assistant_feature_route_accepts_cache_bypass() {
-		$routes = $this->register_routes_on_fresh_server();
-		$args   = $routes[ self::BASIC_ROUTE ][0]['args'];
-
-		$this->assertArrayHasKey( 'skip_cache', $args );
-		$this->assertFalse( $args['skip_cache']['default'] );
-		$this->assertSame( 'boolean', $args['skip_cache']['type'] );
-		$this->assertSame( 'rest_sanitize_boolean', $args['skip_cache']['sanitize_callback'] );
-	}
-
-	/**
-	 * A forced refresh bypasses a warm transient and clears a request-local failure.
-	 */
-	public function test_ai_assistant_feature_cache_bypass_fetches_fresh_data() {
-		$transient_name = $this->prepare_ai_feature_request();
-		$fresh_data     = array( 'requests-count' => 2 );
-		$request_count  = 0;
-		set_transient( $transient_name, array( 'requests-count' => 1 ), 60 );
-		$this->set_ai_assistant_failed_request( new WP_Error( 'previous_failure' ) );
-
-		$mock_request = static function () use ( &$request_count, $fresh_data ) {
-			++$request_count;
-			return array(
-				'headers'  => array(),
-				'body'     => wp_json_encode( $fresh_data, JSON_HEX_TAG | JSON_HEX_AMP ),
-				'response' => array(
-					'code'    => 200,
-					'message' => 'OK',
-				),
-				'cookies'  => array(),
-			);
-		};
-		add_filter( 'pre_http_request', $mock_request );
-
-		$result = \Jetpack_AI_Helper::get_ai_assistance_feature( true );
-
-		remove_filter( 'pre_http_request', $mock_request );
-		$this->assertSame( 1, $request_count );
-		$this->assertSame( $fresh_data, $result );
-		$this->assertSame( $fresh_data, get_transient( $transient_name ) );
-		$this->assertNull( $this->get_ai_assistant_failed_request() );
-	}
-
-	/**
-	 * A failed forced refresh leaves an existing successful response cached.
-	 */
-	public function test_failed_ai_assistant_feature_cache_bypass_preserves_warm_cache() {
-		$transient_name = $this->prepare_ai_feature_request();
-		$cached_data    = array( 'requests-count' => 1 );
-		set_transient( $transient_name, $cached_data, 60 );
-
-		$mock_request = static function () {
-			return array(
-				'headers'  => array(),
-				'body'     => '',
-				'response' => array(
-					'code'    => 500,
-					'message' => 'Server Error',
-				),
-				'cookies'  => array(),
-			);
-		};
-		add_filter( 'pre_http_request', $mock_request );
-
-		$result = \Jetpack_AI_Helper::get_ai_assistance_feature( true );
-
-		remove_filter( 'pre_http_request', $mock_request );
-		$this->assertWPError( $result );
-		$this->assertSame( $cached_data, get_transient( $transient_name ) );
 	}
 
 	public function test_gated_routes_stay_unregistered_when_ai_disabled() {
