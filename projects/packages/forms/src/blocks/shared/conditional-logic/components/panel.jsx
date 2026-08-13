@@ -141,7 +141,12 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 							  ) }
 					</Text>
 
-					<Button variant="secondary" onClick={ openModal } __next40pxDefaultSize={ true }>
+					<Button
+						variant="secondary"
+						onClick={ openModal }
+						__next40pxDefaultSize={ true }
+						className="jetpack-contact-form__conditional-logic-edit"
+					>
 						{ hasConditions
 							? __( 'Edit conditions', 'jetpack-forms' )
 							: __( 'Add conditions', 'jetpack-forms' ) }

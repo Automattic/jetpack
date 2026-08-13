@@ -1,6 +1,7 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useCallback, useState } from 'react';
 
 const SUBJECT_FIELDS = [
 	{
@@ -116,6 +117,29 @@ const setup = async ( conditionalLogic = DEFAULT_ATTRIBUTE, { openModal = true }
 	}
 
 	return { setAttributes, container };
+};
+
+/**
+ * Render the panel with state, so an edit comes back as props the way the editor does.
+ *
+ * @param {object} initial - The starting conditionalLogic attribute.
+ */
+const setupStateful = async initial => {
+	const Harness = () => {
+		const [ attributes, setAttributes ] = useState( { conditionalLogic: initial } );
+		const apply = useCallback(
+			next => setAttributes( current => ( { ...current, ...next } ) ),
+			[]
+		);
+
+		return (
+			<ConditionalLogicPanel clientId="abc" attributes={ attributes } setAttributes={ apply } />
+		);
+	};
+
+	render( <Harness /> );
+	await userEvent.click( screen.getByRole( 'button', { name: 'Conditional logic' } ) );
+	await userEvent.click( screen.getByRole( 'button', { name: /(add|edit) conditions/i } ) );
 };
 
 const optionValues = select =>
@@ -375,6 +399,26 @@ describe( 'ConditionalLogicPanel', () => {
 		// An aria-disabled button still receives clicks, so the guard has to hold.
 		await userEvent.click( addButton );
 		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
+	// A new condition appears empty, so the first thing to do with it is choose a subject.
+	// This also tells a screen-reader user the row exists at all.
+	it( 'moves focus to the new condition after adding one', async () => {
+		// Rendered with real state rather than a jest.fn(): adding a condition only shows up
+		// if the new attribute comes back as props, which a mock setter never does.
+		await setupStateful( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Add condition' } ) );
+
+		const fieldSelects = screen.getAllByLabelText( 'Field' );
+		expect( fieldSelects ).toHaveLength( 2 );
+		expect( fieldSelects[ 1 ] ).toHaveFocus();
+	} );
+
+	it( 'does not steal focus when the dialog first opens', async () => {
+		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
+
+		expect( screen.getByLabelText( 'Field' ) ).not.toHaveFocus();
 	} );
 
 	it( 'allows a second condition once the first is complete', async () => {

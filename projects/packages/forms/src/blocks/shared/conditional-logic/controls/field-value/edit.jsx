@@ -1,5 +1,5 @@
 import { Icon, Notice, SelectControl, TextControl } from '@wordpress/components';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, plus, trash } from '@wordpress/icons';
 import { Button, IconButton, Stack, Text } from '@wordpress/ui';
@@ -131,17 +131,29 @@ const RuleValueControl = ( { rule, subject, onChange } ) => {
 /**
  * A single condition row: subject field, operator, and value.
  *
- * @param {object}   props            - Component props.
- * @param {object}   props.rule       - The rule being edited.
- * @param {number}   props.index      - Zero-based rule index.
- * @param {Array}    props.fields     - Available subject fields.
- * @param {string}   props.ownFieldId - Id of the field the panel belongs to, which is absent
- *                                    from `fields` and so invisible to the uniqueness check.
- * @param {Function} props.onChange   - Called with (index, patch).
- * @param {Function} props.onRemove   - Called with (index).
+ * @param {object}   props             - Component props.
+ * @param {object}   props.rule        - The rule being edited.
+ * @param {number}   props.index       - Zero-based rule index.
+ * @param {Array}    props.fields      - Available subject fields.
+ * @param {string}   props.ownFieldId  - Id of the field the panel belongs to, which is absent
+ *                                     from `fields` and so invisible to the uniqueness check.
+ * @param {boolean}  props.shouldFocus - Whether this row was just added and should take focus.
+ * @param {Function} props.onChange    - Called with (index, patch).
+ * @param {Function} props.onRemove    - Called with (index).
  * @return {object} The rendered rule row.
  */
-const RuleRow = ( { rule, index, fields, ownFieldId, onChange, onRemove } ) => {
+const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRemove } ) => {
+	const fieldRef = useRef( null );
+
+	// A condition added by the button appears empty, so the first thing to do with it is
+	// choose a subject. Moving focus there saves reaching for the mouse and tells a
+	// screen-reader user that the new row exists.
+	useEffect( () => {
+		if ( shouldFocus ) {
+			fieldRef.current?.focus();
+		}
+	}, [ shouldFocus ] );
+
 	const ensureFieldId = useEnsureFieldId();
 
 	const subject = fields.find( field => field.id && field.id === rule.field );
@@ -247,6 +259,7 @@ const RuleRow = ( { rule, index, fields, ownFieldId, onChange, onRemove } ) => {
 				</span>
 
 				<SelectControl
+					ref={ fieldRef }
 					label={ __( 'Field', 'jetpack-forms' ) }
 					hideLabelFromVision
 					value={ rule.field || '' }
@@ -332,6 +345,10 @@ const FieldValueControl = ( { rules: storedRules, onChange, fields, ownFieldId }
 	// field, so opening the dialog does not mark the post as changed.
 	const rules = useMemo( () => ( stored.length ? stored : [ BLANK_RULE ] ), [ stored ] );
 
+	// Which row the Add button just created, so only that one takes focus. Null on first
+	// render, so opening the dialog does not steal focus from the block editor.
+	const [ focusIndex, setFocusIndex ] = useState( null );
+
 	const updateRule = useCallback(
 		( index, patch ) => {
 			// The first edit to the waiting row is what commits it.
@@ -359,6 +376,7 @@ const FieldValueControl = ( { rules: storedRules, onChange, fields, ownFieldId }
 	// The rule records its own type, so a future condition kind is another type in this same
 	// list rather than a reshape of what is stored.
 	const addRule = useCallback( () => {
+		setFocusIndex( stored.length );
 		onChange( [ ...stored, { ...BLANK_RULE } ] );
 	}, [ onChange, stored ] );
 
@@ -385,6 +403,7 @@ const FieldValueControl = ( { rules: storedRules, onChange, fields, ownFieldId }
 					index={ index }
 					fields={ fields }
 					ownFieldId={ ownFieldId }
+					shouldFocus={ index === focusIndex }
 					onChange={ updateRule }
 					onRemove={ removeRule }
 				/>
