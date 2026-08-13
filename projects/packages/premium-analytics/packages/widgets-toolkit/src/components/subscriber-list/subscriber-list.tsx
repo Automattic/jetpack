@@ -8,7 +8,6 @@ import { _n, sprintf } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { ChartEmptyState } from '../chart-empty-state';
-import { WidgetLoadingOverlay } from '../widget-loading-overlay';
 import styles from './subscriber-list.module.scss';
 
 /**
@@ -39,13 +38,9 @@ export type SubscriberListItem = {
 
 export type SubscriberListProps = {
 	/**
-	 * Rows to render. When empty (and not loading) the empty state is shown.
+	 * Rows to render. When empty, the empty state is shown.
 	 */
 	items?: SubscriberListItem[];
-	/**
-	 * When `true` and there are no rows yet, render the loading overlay.
-	 */
-	loading?: boolean;
 	/**
 	 * Empty-state message shown when there are no rows.
 	 */
@@ -69,20 +64,18 @@ const DEFAULT_AVATAR_URL =
  * widgets (e.g. the Subscribers card) where rows are ordered by recency rather
  * than ranked by a metric, so a bar leaderboard would not fit.
  *
+ * Loading is owned by the `<WidgetState>` the consuming widgets wrap this in,
+ * so there is no loading branch here.
+ *
  * @param {SubscriberListProps} props - The component props.
- * @return The rendered list, or the loading/empty state.
+ * @return The rendered list, or the empty state.
  */
 export function SubscriberList( {
 	items = [],
-	loading = false,
 	emptyStateText,
 	moreCount = 0,
 	className,
 }: SubscriberListProps ) {
-	if ( loading && items.length === 0 ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	if ( items.length === 0 ) {
 		return <ChartEmptyState text={ emptyStateText } />;
 	}
