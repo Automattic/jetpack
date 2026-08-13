@@ -145,6 +145,18 @@ describe( 'PlaylistBlockEdit', () => {
 		);
 	} );
 
+	it( 'replaces stored titles that differ from the video data', async () => {
+		const { setAttributes } = renderEdit( {
+			videos: [ { guid: 'abcd1234', title: 'Stale stored title' } ],
+		} );
+
+		await waitFor( () =>
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				videos: [ { guid: 'abcd1234', title: 'Fetched title' } ],
+			} )
+		);
+	} );
+
 	it( 'removes an item from the playlist', async () => {
 		const user = userEvent.setup();
 		const { setAttributes } = renderEdit( {

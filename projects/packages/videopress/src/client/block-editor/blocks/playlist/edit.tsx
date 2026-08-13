@@ -77,13 +77,15 @@ export default function PlaylistBlockEdit( {
 	const videosRef = useRef( videos );
 	videosRef.current = videos;
 
-	// GUIDs with a title fetch already started; they are not retried, so a
-	// failed fetch simply leaves the GUID as the visible label.
+	// GUIDs with a title refresh already started this editor session; they are
+	// not re-fetched, so a failed lookup simply keeps the stored label.
 	const titleFetchesStarted = useRef( new Set< string >() );
 
+	// Titles always mirror the video data: every entry is refreshed once per
+	// editor session, and the stored title is replaced whenever it differs.
 	useEffect( () => {
 		videos.forEach( video => {
-			if ( video.title || titleFetchesStarted.current.has( video.guid ) ) {
+			if ( titleFetchesStarted.current.has( video.guid ) ) {
 				return;
 			}
 
@@ -96,14 +98,20 @@ export default function PlaylistBlockEdit( {
 					}
 
 					const title = decodeEntities( videoItem.title );
+					const current = videosRef.current;
+
+					if ( ! current.some( entry => entry.guid === video.guid && entry.title !== title ) ) {
+						return;
+					}
+
 					setAttributes( {
-						videos: videosRef.current.map( entry =>
-							entry.guid === video.guid && ! entry.title ? { ...entry, title } : entry
+						videos: current.map( entry =>
+							entry.guid === video.guid ? { ...entry, title } : entry
 						),
 					} );
 				} )
 				.catch( () => {
-					// Leave the GUID as the visible label when the video data isn't reachable.
+					// Keep the stored title (or GUID) when the video data isn't reachable.
 				} );
 		} );
 	}, [ videos, setAttributes ] );
@@ -134,10 +142,12 @@ export default function PlaylistBlockEdit( {
 			const videoItem = await fetchVideoItem( { guid, isPrivate: false, skipRatingControl: true } );
 			if ( videoItem?.title ) {
 				title = decodeEntities( videoItem.title );
+				// Fresh from the video data; no need for the refresh effect to re-fetch it.
+				titleFetchesStarted.current.add( guid );
 			}
 		} catch {
 			// The entry still works without a title; the list shows the GUID and
-			// the backfill effect below retries once more.
+			// the refresh effect below retries once more.
 		}
 
 		setAttributes( { videos: [ ...videosRef.current, { guid, ...( title && { title } ) } ] } );
