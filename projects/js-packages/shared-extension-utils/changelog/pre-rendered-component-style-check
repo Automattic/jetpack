@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Upgrade nudge: stop emitting an "undefined__description" class when no className is passed.
