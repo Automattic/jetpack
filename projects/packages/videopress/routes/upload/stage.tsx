@@ -347,7 +347,7 @@ const UploadCard = ( {
 	}`;
 
 	return (
-		<Card.Root className="vp-onboarding__card">
+		<Card.Root className="vp-onboarding__card vp-onboarding__card--upload">
 			<Card.Header>
 				<Card.Title>
 					{ /* Someone arriving here with a library of 27 videos is not
