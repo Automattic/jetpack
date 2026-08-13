@@ -31,6 +31,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef, useSyncExternalStore } from '@wordpress/element';
 import useResumableUploader from '../../client/hooks/use-resumable-uploader';
 import { LIBRARY_QUERY_KEY } from './use-library';
+import type { VideoMediaProps } from '../../client/lib/resumable-file-uploader/types';
 
 export type UploadStatus = 'pending' | 'uploading' | 'success' | 'failed';
 
@@ -40,10 +41,15 @@ export type UploadItem = {
 	progress: number; // 0..1
 	status: UploadStatus;
 	error?: string;
+	/**
+	 * The created video, present once `status` is `success`. This is what
+	 * lets anything downstream — the upload pill, the upload→edit
+	 * transition — link to `/video/:id` for a finished upload.
+	 */
+	media?: VideoMediaProps;
 };
 
 const STORE_KEY = '__jetpackVideopressUploadStore' as const;
-const SUCCESS_REMOVAL_DELAY_MS = 2_000;
 
 type UploadStore = {
 	queue: UploadItem[];
@@ -178,21 +184,22 @@ export function useUpload() {
 				prev.map( item => ( item.id === id ? { ...item, progress, status: 'uploading' } : item ) )
 			);
 		},
-		onSuccess: () => {
+		onSuccess: ( data: VideoMediaProps ) => {
 			const id = currentIdRef.current;
 			if ( ! id ) {
 				return;
 			}
+			// Succeeded items stay in the queue, carrying their media result,
+			// until a consumer acknowledges them — the upload pill links to
+			// the finished video, and the upload→edit transition needs the id.
+			// (They used to self-delete after 2s, which threw the id away.)
 			mutateQueue( prev =>
-				prev.map( item => ( item.id === id ? { ...item, progress: 1, status: 'success' } : item ) )
+				prev.map( item =>
+					item.id === id ? { ...item, progress: 1, status: 'success', media: data } : item
+				)
 			);
 			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
-			// Kick off the next pending upload right away so the user
-			// doesn't have to wait out the 2s success-removal grace.
 			startNextPending();
-			window.setTimeout( () => {
-				mutateQueue( prev => prev.filter( item => item.id !== id ) );
-			}, SUCCESS_REMOVAL_DELAY_MS );
 		},
 		onError: ( err: unknown ) => {
 			const id = currentIdRef.current;
@@ -235,6 +242,19 @@ export function useUpload() {
 		[ uploadHandler ]
 	);
 
+	/**
+	 * Remove a settled (succeeded or failed) item from the queue once its
+	 * outcome has been surfaced to the user. In-flight items are left alone —
+	 * cancellation is a different operation from acknowledgement.
+	 */
+	const acknowledgeUpload = useCallback( ( id: string ) => {
+		mutateQueue( prev =>
+			prev.filter(
+				item => item.id !== id || ( item.status !== 'success' && item.status !== 'failed' )
+			)
+		);
+	}, [] );
+
 	const retryUpload = useCallback(
 		( id: string ) => {
 			const item = readQueue().find( q => q.id === id );
@@ -261,5 +281,6 @@ export function useUpload() {
 		uploadQueue: queue,
 		startUpload,
 		retryUpload,
+		acknowledgeUpload,
 	};
 }
