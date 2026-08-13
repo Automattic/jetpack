@@ -1,8 +1,20 @@
 /**
  * WordPress dependencies
  */
-import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { Button, PanelBody, Placeholder, TextControl, ToggleControl } from '@wordpress/components';
+import {
+	InspectorControls,
+	MediaUpload,
+	MediaUploadCheck,
+	useBlockProps,
+} from '@wordpress/block-editor';
+import {
+	Button,
+	Notice,
+	PanelBody,
+	Placeholder,
+	TextControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { chevronDown, chevronUp, closeSmall } from '@wordpress/icons';
@@ -11,11 +23,13 @@ import { chevronDown, chevronUp, closeSmall } from '@wordpress/icons';
  */
 import { isVideoPressGuid, pickGUIDFromUrl } from '../../../lib/url';
 import { VideoPressIcon } from '../video/components/icons';
+import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../video/constants';
 import './editor.scss';
 /**
  * Types
  */
 import type { PlaylistBlockAttributes, PlaylistVideo } from './types';
+import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../types';
 import type { BlockEditProps } from '@wordpress/blocks';
 
 /**
@@ -54,7 +68,7 @@ export default function PlaylistBlockEdit( {
 	const { videos, autoAdvance, loop } = attributes;
 	const [ currentIndex, setCurrentIndex ] = useState( 0 );
 	const [ newVideoInput, setNewVideoInput ] = useState( '' );
-	const [ inputError, setInputError ] = useState( false );
+	const [ errorNotice, setErrorNotice ] = useState< string | null >( null );
 
 	const blockProps = useBlockProps( { className: 'videopress-playlist-editor' } );
 
@@ -63,13 +77,53 @@ export default function PlaylistBlockEdit( {
 	const addVideo = () => {
 		const guid = parseVideoInput( newVideoInput );
 		if ( ! guid ) {
-			setInputError( true );
+			setErrorNotice(
+				__( 'Enter a VideoPress GUID or a VideoPress video URL.', 'jetpack-videopress-pkg' )
+			);
 			return;
 		}
 
 		setAttributes( { videos: [ ...videos, { guid } ] } );
 		setNewVideoInput( '' );
-		setInputError( false );
+		setErrorNotice( null );
+	};
+
+	const addVideosFromLibrary = (
+		selection:
+			| AdminAjaxQueryAttachmentsResponseItemProps
+			| AdminAjaxQueryAttachmentsResponseItemProps[]
+	) => {
+		const mediaItems = Array.isArray( selection ) ? selection : [ selection ];
+
+		const libraryVideos: PlaylistVideo[] = [];
+		for ( const media of mediaItems ) {
+			// Depending on the endpoint, `videopress_guid` can be an array or a string.
+			const guid = Array.isArray( media?.videopress_guid )
+				? media.videopress_guid[ 0 ]
+				: media?.videopress_guid;
+
+			if ( ! guid ) {
+				continue;
+			}
+
+			libraryVideos.push( {
+				guid,
+				...( typeof media.title === 'string' && media.title !== '' && { title: media.title } ),
+			} );
+		}
+
+		if ( ! libraryVideos.length ) {
+			setErrorNotice(
+				__(
+					'None of the selected items are VideoPress videos. Choose videos hosted on VideoPress.',
+					'jetpack-videopress-pkg'
+				)
+			);
+			return;
+		}
+
+		setAttributes( { videos: [ ...videos, ...libraryVideos ] } );
+		setErrorNotice( null );
 	};
 
 	const removeVideo = ( index: number ) => {
@@ -104,33 +158,48 @@ export default function PlaylistBlockEdit( {
 	};
 
 	const addVideoForm = (
-		<div className="videopress-playlist-editor__add">
-			<TextControl
-				__next40pxDefaultSize
-				__nextHasNoMarginBottom
-				label={ __( 'Add video', 'jetpack-videopress-pkg' ) }
-				hideLabelFromVision
-				placeholder={ __( 'VideoPress GUID or URL', 'jetpack-videopress-pkg' ) }
-				value={ newVideoInput }
-				onChange={ ( value: string ) => {
-					setNewVideoInput( value );
-					setInputError( false );
-				} }
-				onKeyDown={ event => {
-					if ( event.key === 'Enter' ) {
-						event.preventDefault();
-						addVideo();
-					}
-				} }
-				help={
-					inputError
-						? __( 'Enter a VideoPress GUID or a VideoPress video URL.', 'jetpack-videopress-pkg' )
-						: undefined
-				}
-			/>
-			<Button __next40pxDefaultSize variant="secondary" onClick={ addVideo }>
-				{ __( 'Add to playlist', 'jetpack-videopress-pkg' ) }
-			</Button>
+		<div className="videopress-playlist-editor__add-container">
+			<div className="videopress-playlist-editor__add">
+				<TextControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
+					label={ __( 'Add video', 'jetpack-videopress-pkg' ) }
+					hideLabelFromVision
+					placeholder={ __( 'VideoPress GUID or URL', 'jetpack-videopress-pkg' ) }
+					value={ newVideoInput }
+					onChange={ ( value: string ) => {
+						setNewVideoInput( value );
+						setErrorNotice( null );
+					} }
+					onKeyDown={ event => {
+						if ( event.key === 'Enter' ) {
+							event.preventDefault();
+							addVideo();
+						}
+					} }
+				/>
+				<Button __next40pxDefaultSize variant="secondary" onClick={ addVideo }>
+					{ __( 'Add to playlist', 'jetpack-videopress-pkg' ) }
+				</Button>
+				<MediaUploadCheck>
+					<MediaUpload
+						title={ __( 'Select videos from your VideoPress library', 'jetpack-videopress-pkg' ) }
+						onSelect={ addVideosFromLibrary }
+						allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
+						multiple
+						render={ ( { open }: { open: () => void } ) => (
+							<Button __next40pxDefaultSize variant="secondary" onClick={ open }>
+								{ __( 'Choose from library', 'jetpack-videopress-pkg' ) }
+							</Button>
+						) }
+					/>
+				</MediaUploadCheck>
+			</div>
+			{ errorNotice && (
+				<Notice status="error" isDismissible={ false }>
+					{ errorNotice }
+				</Notice>
+			) }
 		</div>
 	);
 
@@ -141,7 +210,7 @@ export default function PlaylistBlockEdit( {
 					icon={ VideoPressIcon }
 					label={ __( 'VideoPress Playlist', 'jetpack-videopress-pkg' ) }
 					instructions={ __(
-						'Add VideoPress videos by GUID or URL to build a playlist that plays them in sequence.',
+						'Build a playlist that plays videos in sequence. Choose videos from your VideoPress library, or add them by GUID or URL.',
 						'jetpack-videopress-pkg'
 					) }
 				>

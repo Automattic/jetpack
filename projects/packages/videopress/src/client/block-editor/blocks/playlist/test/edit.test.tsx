@@ -4,9 +4,20 @@ import Edit from '../edit';
 import type { PlaylistBlockAttributes } from '../types';
 import type { BlockEditProps } from '@wordpress/blocks';
 
+// What the mocked media modal "returns" when the library button is clicked.
+let mockLibrarySelection: unknown = [];
+
 jest.mock( '@wordpress/block-editor', () => ( {
 	useBlockProps: ( props: Record< string, unknown > = {} ) => props,
 	InspectorControls: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+	MediaUploadCheck: ( { children }: { children: React.ReactNode } ) => <>{ children }</>,
+	MediaUpload: ( {
+		onSelect,
+		render: renderProp,
+	}: {
+		onSelect: ( selection: unknown ) => void;
+		render: ( props: { open: () => void } ) => React.ReactNode;
+	} ) => <>{ renderProp( { open: () => onSelect( mockLibrarySelection ) } ) }</>,
 } ) );
 
 /**
@@ -61,9 +72,10 @@ describe( 'PlaylistBlockEdit', () => {
 		await user.click( screen.getByText( 'Add to playlist' ) );
 
 		expect( setAttributes ).not.toHaveBeenCalled();
+		// The Notice also announces via an a11y live region, so match all.
 		expect(
-			screen.getByText( 'Enter a VideoPress GUID or a VideoPress video URL.' )
-		).toBeInTheDocument();
+			screen.getAllByText( 'Enter a VideoPress GUID or a VideoPress video URL.' ).length
+		).toBeGreaterThan( 0 );
 	} );
 
 	it( 'previews the first video and lists every item', () => {
@@ -129,6 +141,44 @@ describe( 'PlaylistBlockEdit', () => {
 			'src',
 			expect.stringContaining( 'videopress.com/embed/efgh5678' )
 		);
+	} );
+
+	it( 'adds VideoPress videos selected from the media library', async () => {
+		const user = userEvent.setup();
+		const { setAttributes } = renderEdit( { videos: [ { guid: 'abcd1234' } ] } );
+
+		mockLibrarySelection = [
+			{ videopress_guid: [ 'efgh5678' ], title: 'Library video' },
+			{ videopress_guid: 'ijkl9012', title: '' },
+			{ title: 'Not a VideoPress video' },
+		];
+
+		await user.click( screen.getByText( 'Choose from library' ) );
+
+		expect( setAttributes ).toHaveBeenCalledWith( {
+			videos: [
+				{ guid: 'abcd1234' },
+				{ guid: 'efgh5678', title: 'Library video' },
+				{ guid: 'ijkl9012' },
+			],
+		} );
+	} );
+
+	it( 'shows an error when no library selection is a VideoPress video', async () => {
+		const user = userEvent.setup();
+		const { setAttributes } = renderEdit();
+
+		mockLibrarySelection = [ { title: 'Plain video attachment' } ];
+
+		await user.click( screen.getByText( 'Choose from library' ) );
+
+		expect( setAttributes ).not.toHaveBeenCalled();
+		// The Notice also announces via an a11y live region, so match all.
+		expect(
+			screen.getAllByText(
+				'None of the selected items are VideoPress videos. Choose videos hosted on VideoPress.'
+			).length
+		).toBeGreaterThan( 0 );
 	} );
 
 	it( 'toggles the auto-advance and loop settings', async () => {

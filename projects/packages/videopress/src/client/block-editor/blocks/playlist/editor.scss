@@ -35,14 +35,23 @@
 		flex-grow: 1;
 	}
 
+	&__add-container {
+		margin-block-start: 8px;
+
+		.components-notice {
+			margin: 8px 0 0;
+		}
+	}
+
 	&__add {
 		display: flex;
 		align-items: flex-start;
+		flex-wrap: wrap;
 		gap: 8px;
-		margin-block-start: 8px;
 
 		.components-base-control {
 			flex-grow: 1;
+			min-inline-size: 200px;
 		}
 	}
 }
