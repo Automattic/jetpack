@@ -6,6 +6,13 @@
  */
 
 import { __ } from '@wordpress/i18n';
+import {
+	AddFieldsIllustration,
+	AfterSubmitIllustration,
+	FieldSettingsIllustration,
+	PublishIllustration,
+	ReusableFormIllustration,
+} from './illustrations';
 import type { ReactNode } from 'react';
 
 interface GuidePage {
@@ -14,17 +21,14 @@ interface GuidePage {
 }
 
 /**
- * Placeholder for slide artwork.
+ * Wrapper for a slide's artwork.
  *
- * Reserves the image region so the guide keeps a stable size across slides
- * while the artwork is still being designed.
- *
- * @return The placeholder element.
+ * @param props          - Component props
+ * @param props.children - The illustration to frame
+ * @return The framed artwork.
  */
-const ImageSlot = () => (
-	<div className="jetpack-forms-welcome-guide__image">
-		<div className="jetpack-forms-welcome-guide__image-slot" aria-hidden="true" />
-	</div>
+const Artwork = ( { children }: { children: ReactNode } ) => (
+	<div className="jetpack-forms-welcome-guide__image">{ children }</div>
 );
 
 /**
@@ -38,7 +42,11 @@ const ImageSlot = () => (
 export function getWelcomeGuidePages(): GuidePage[] {
 	return [
 		{
-			image: <ImageSlot />,
+			image: (
+				<Artwork>
+					<ReusableFormIllustration />
+				</Artwork>
+			),
 			content: (
 				<>
 					<h1 className="jetpack-forms-welcome-guide__heading">
@@ -54,7 +62,11 @@ export function getWelcomeGuidePages(): GuidePage[] {
 			),
 		},
 		{
-			image: <ImageSlot />,
+			image: (
+				<Artwork>
+					<AddFieldsIllustration />
+				</Artwork>
+			),
 			content: (
 				<>
 					<h1 className="jetpack-forms-welcome-guide__heading">
@@ -70,7 +82,11 @@ export function getWelcomeGuidePages(): GuidePage[] {
 			),
 		},
 		{
-			image: <ImageSlot />,
+			image: (
+				<Artwork>
+					<FieldSettingsIllustration />
+				</Artwork>
+			),
 			content: (
 				<>
 					<h1 className="jetpack-forms-welcome-guide__heading">
@@ -86,7 +102,11 @@ export function getWelcomeGuidePages(): GuidePage[] {
 			),
 		},
 		{
-			image: <ImageSlot />,
+			image: (
+				<Artwork>
+					<AfterSubmitIllustration />
+				</Artwork>
+			),
 			content: (
 				<>
 					<h1 className="jetpack-forms-welcome-guide__heading">
@@ -102,7 +122,11 @@ export function getWelcomeGuidePages(): GuidePage[] {
 			),
 		},
 		{
-			image: <ImageSlot />,
+			image: (
+				<Artwork>
+					<PublishIllustration />
+				</Artwork>
+			),
 			content: (
 				<>
 					<h1 className="jetpack-forms-welcome-guide__heading">

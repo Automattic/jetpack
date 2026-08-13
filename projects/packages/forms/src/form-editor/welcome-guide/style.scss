@@ -5,16 +5,16 @@
 	inline-size: 312px;
 
 	.jetpack-forms-welcome-guide__image {
+		line-height: 0;
 		margin-block: 0 16px;
 	}
 
-	// Placeholder standing in for the slide artwork. Sized to the artwork
-	// region of the core guide so the modal keeps its final proportions
-	// while the illustrations are still being designed.
-	.jetpack-forms-welcome-guide__image-slot {
-		background: #f0f0f0;
-		block-size: 240px;
-		border: 1px dashed #c3c4c7;
+	// The illustration is authored on a 312×240 canvas — the artwork region of
+	// the core guide — and scales with the modal rather than being pinned to
+	// those pixels.
+	.jetpack-forms-welcome-guide__illustration {
+		block-size: auto;
+		display: block;
 		inline-size: 100%;
 	}
 
