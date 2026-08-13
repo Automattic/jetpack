@@ -202,10 +202,12 @@ class Jetpack_Podcast_Helper {
 
 			set_transient( $transient_key, $player_data, HOUR_IN_SECONDS );
 
-			$fallback_timeout = $this->fallback_cache_timeout();
-			if ( $fallback_timeout ) {
-				set_transient( static::fallback_key( $transient_key ), $player_data, $fallback_timeout );
+			// Callers that asked for errors never read a fallback, so don't pay to write one.
+			if ( ! $report_errors ) {
+				$this->store_fallback( $transient_key, $player_data );
 			}
+
+			return $player_data;
 		}
 
 		// Only a remembered failure reaches here; a fresh one returns via handle_failure().
@@ -213,7 +215,36 @@ class Jetpack_Podcast_Helper {
 			return $this->fallback_for( $transient_key, $player_data );
 		}
 
+		// A response cached before this feed had a fallback still deserves to cover the next
+		// outage, rather than leaving a gap until the cache next turns over.
+		if ( ! $report_errors ) {
+			$this->store_fallback( $transient_key, $player_data, true );
+		}
+
 		return $player_data;
+	}
+
+	/**
+	 * Keeps a successful response around to serve while the feed is unreachable.
+	 *
+	 * @param string $transient_key   Cache key for this feed/args combination.
+	 * @param array  $player_data     The response to keep.
+	 * @param bool   $only_if_missing Whether to leave an existing fallback in place.
+	 */
+	protected function store_fallback( $transient_key, $player_data, $only_if_missing = false ) {
+		$timeout = $this->fallback_cache_timeout();
+
+		if ( ! $timeout ) {
+			return;
+		}
+
+		$fallback_key = static::fallback_key( $transient_key );
+
+		if ( $only_if_missing && false !== get_transient( $fallback_key ) ) {
+			return;
+		}
+
+		set_transient( $fallback_key, $player_data, $timeout );
 	}
 
 	/**
@@ -231,9 +262,14 @@ class Jetpack_Podcast_Helper {
 
 		$fallback = $this->fallback_for( $transient_key, $error );
 
-		// Remembering a failure we can't paper over only delays the retry that would earn us
-		// a fallback. An authoritative one is worth remembering either way.
-		if ( is_array( $fallback ) || static::is_authoritative( $error ) ) {
+		// Retrying beats remembering only while a success could still earn us a fallback we
+		// don't have yet. Once one exists, the feed has spoken, or the fallback is switched
+		// off entirely, remembering spares the next visitor the same dead request.
+		$may_earn_fallback = ! is_array( $fallback )
+			&& ! static::is_authoritative( $error )
+			&& $this->fallback_cache_timeout();
+
+		if ( ! $may_earn_fallback ) {
 			// The error, never the fallback: the editor shares this key and would take stale
 			// episodes as a working feed.
 			set_transient( $transient_key, $error, static::ERROR_CACHE_TIMEOUT );
