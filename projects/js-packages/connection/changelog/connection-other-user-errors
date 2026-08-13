@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Connection: Never take the connection error notice's CTA from another user's broken token, which reconnecting would not restore.

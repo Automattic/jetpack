@@ -65,6 +65,13 @@ export { defaultPeriodForInterval } from './default-period-for-interval';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
 export { withoutComparison } from './without-comparison';
 export {
+	CHART_DISPLAY_CHART_TYPES,
+	chartTypeAttributeField,
+	granularityAttributeField,
+	type ChartDisplayChartType,
+	type ChartGranularityOption,
+} from './chart-display-attribute-fields';
+export {
 	compactCalendarHeatmapCapacity,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,

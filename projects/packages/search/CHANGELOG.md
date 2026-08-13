@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.4.0] - 2026-08-13
+### Added
+- Search Blocks: Add a No Results block so empty states can contain links, images, buttons, and other blocks instead of plain text. Continue rendering existing Results List messages while deprecating their settings. [#51164]
+
+### Changed
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Search: Avoid a brief "No results found" flash before a search starts. [#50925]
+- Search: Apply highlighting, query filtering, custom results, and cross-site search settings consistently across Embedded, Overlay Blocks, and Theme search experiences. [#50920]
+
 ## [7.3.3] - 2026-08-03
 ### Changed
 - Rename the Reader Chat setting to Site Chat, and describe it as answering visitor questions about the site. [#50854]
@@ -1865,6 +1876,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[7.4.0]: https://github.com/Automattic/jetpack-search/compare/v7.3.3...v7.4.0
 [7.3.3]: https://github.com/Automattic/jetpack-search/compare/v7.3.2...v7.3.3
 [7.3.2]: https://github.com/Automattic/jetpack-search/compare/v7.3.1...v7.3.2
 [7.3.1]: https://github.com/Automattic/jetpack-search/compare/v7.3.0...v7.3.1
