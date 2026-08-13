@@ -95,12 +95,12 @@ const withRules = ( rules, extra = {} ) => ( {
 	...extra,
 } );
 
-const setup = async ( conditionalLogic = DEFAULT_ATTRIBUTE ) => {
+const setup = async ( conditionalLogic = DEFAULT_ATTRIBUTE, attributes = {} ) => {
 	const setAttributes = jest.fn();
 	const { container } = render(
 		<ConditionalLogicPanel
 			clientId="abc"
-			attributes={ { conditionalLogic } }
+			attributes={ { ...attributes, conditionalLogic } }
 			setAttributes={ setAttributes }
 		/>
 	);
@@ -326,9 +326,14 @@ describe( 'ConditionalLogicPanel', () => {
 
 		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), 'clientId:c-colour' );
 
+		/*
+		 * Exact array, not arrayContaining: the panel's field has no id here, so the uniqueness
+		 * check is exactly the sibling ids. A containment assertion would pass even if the panel
+		 * stopped forwarding its own id (the next test covers that regression directly).
+		 */
 		expect( mockEnsureFieldId ).toHaveBeenCalledWith(
 			expect.objectContaining( { clientId: 'c-colour', id: '' } ),
-			expect.arrayContaining( [ 'name_1', 'budget_1' ] )
+			[ 'name_1', 'budget_1', 'size_1', 'terms_1' ]
 		);
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			conditionalLogic: expect.objectContaining( {
@@ -336,6 +341,40 @@ describe( 'ConditionalLogicPanel', () => {
 					{
 						logicalOperator: 'all',
 						rules: [ { field: 'untitled-field', operator: 'is', value: '' } ],
+					},
+				],
+			} ),
+		} );
+	} );
+
+	/*
+	 * The panel's own field id must be part of the uniqueness check, and it is the one id the
+	 * subject list cannot supply -- useSubjectFields excludes the owner. The panel feeds it in
+	 * via ownFieldId. Drop `ownFieldId={ attributes.id }` from panel.jsx and this fails: the
+	 * minted id collides with the owner, and PHP's duplicate guard renames one at render so the
+	 * rule evaluates the wrong field.
+	 */
+	it( 'feeds the panel own field id into the uniqueness check when minting a subject id', async () => {
+		mockEnsureFieldId.mockClear();
+		const { setAttributes } = await setup(
+			withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ),
+			// The panel sits on a field already using the id the id-less "Untitled field" slugifies to.
+			{ id: 'untitled-field' }
+		);
+
+		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), 'clientId:c-colour' );
+
+		expect( mockEnsureFieldId ).toHaveBeenCalledWith(
+			expect.objectContaining( { clientId: 'c-colour', id: '' } ),
+			[ 'name_1', 'budget_1', 'size_1', 'terms_1', 'untitled-field' ]
+		);
+		// The minted id steps around the owner rather than colliding with it.
+		expect( setAttributes ).toHaveBeenCalledWith( {
+			conditionalLogic: expect.objectContaining( {
+				groups: [
+					{
+						logicalOperator: 'all',
+						rules: [ { field: 'untitled-field-2', operator: 'is', value: '' } ],
 					},
 				],
 			} ),
