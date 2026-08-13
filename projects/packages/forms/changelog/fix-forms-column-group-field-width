@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Make Group and Columns blocks fill the form width so nested fields render full-width.

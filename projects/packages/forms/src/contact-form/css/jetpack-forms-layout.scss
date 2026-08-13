@@ -4,6 +4,31 @@
 .wp-block-jetpack-contact-form.is-layout-flex,
 .wp-block-jetpack-contact-form-is-layout-flex {
 
+	// Container blocks added to a form should behave the way they do on a page:
+	// fill the form's width and lay out their own children. The form is a flex
+	// container, so otherwise they are flex items defaulting to `flex: 0 1 auto`
+	// and shrink to fit their content, which keeps any field nested inside them
+	// from ever reaching 100%.
+	// `width` rather than `flex-basis`, because a form can be laid out either
+	// horizontally or vertically: in a vertical form `flex-basis` sizes the main
+	// axis (the height) and the width is left to `align-items`, while in a
+	// horizontal form a 100%-wide item still wraps onto its own row.
+	// `core/row` and `core/stack` are `core/group` variations, so they come
+	// along with `.wp-block-group`; multistep forms nest one level deeper,
+	// inside the step, hence the second set of selectors.
+	> .wp-block-group,
+	> .wp-block-columns,
+	> .wp-block-details,
+	> .wp-block-accordion,
+	> .wp-block-jetpack-form-step > .wp-block-group,
+	> .wp-block-jetpack-form-step > .wp-block-columns,
+	> .wp-block-jetpack-form-step > .wp-block-details,
+	> .wp-block-jetpack-form-step > .wp-block-accordion {
+		box-sizing: border-box;
+		width: 100%;
+		max-width: 100%;
+	}
+
 	&.is-horizontal {
 		// Ignore the wrap setting and use flex-flow to control the layout.
 		// In the end this is what we want as our form layout doesn't really

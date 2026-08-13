@@ -12,10 +12,17 @@
 	gap: var(--wp--style--block-gap, 1.5rem);
 
 	.wp-block {
-		flex: 0 0 100%;
 		margin-top: 0;
 		margin-bottom: 0;
 		max-width: 100%;
+	}
+
+	// Only the form's own children are full-width rows. Without the child
+	// combinator this also matches blocks nested inside a Columns or Group
+	// added to the form, forcing every column to 100% so they stack in the
+	// editor while the front end keeps them side by side.
+	> .wp-block {
+		flex: 0 0 100%;
 	}
 
 	> div {
