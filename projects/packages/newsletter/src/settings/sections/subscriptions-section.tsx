@@ -36,6 +36,10 @@ const PLACEMENT_SLUG_BY_KEY: Record< string, string > = {
 	jetpack_subscribe_floating_button_enabled: 'floating_button',
 };
 
+// The "Subscribe button pop-up" card below has no underlying setting to
+// toggle (see its usage), so its `onChange` is inert by design.
+const noop = () => {};
+
 interface SubscriptionsSectionProps {
 	data: NewsletterSettings;
 	/**
@@ -263,6 +267,31 @@ export function SubscriptionsSection( {
 											/>
 										);
 									} ) }
+									{ /* Not a real placement toggle — the pop-up shown when a
+									     visitor clicks a "Button only" style Subscribe block is
+									     inherent to using that block style, with no separate
+									     enable/disable setting. Always checked and disabled to
+									     reflect that, with the same "Preview and edit" link as
+									     its siblings. */ }
+									<PlacementCard
+										id="placement-subscribe-button-modal"
+										name="subscribe-button-modal"
+										title={ __( 'Subscribe button pop-up', 'jetpack-newsletter' ) }
+										illustration={ <PopupIllustration /> }
+										previewUrl={
+											canShowBlockThemeEditorLinks
+												? addQueryArgs( getAdminUrl( 'site-editor.php' ), {
+														postType: 'wp_template_part',
+														postId: `${ newsletterScriptData.themeStylesheet }//jetpack-subscribe-modal-button`,
+														canvas: 'edit',
+												  } )
+												: undefined
+										}
+										checked
+										disabled
+										onChange={ noop }
+										onPreviewClick={ handlePlacementPreviewClick }
+									/>
 								</div>
 							</Stack>
 
