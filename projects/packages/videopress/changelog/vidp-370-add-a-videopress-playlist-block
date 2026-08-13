@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a VideoPress playlist block that stores a list of video GUIDs and plays them in sequence.

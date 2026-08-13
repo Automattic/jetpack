@@ -1,0 +1,50 @@
+.wp-block-videopress-playlist {
+
+	.videopress-playlist__player-wrapper {
+		position: relative;
+		aspect-ratio: 16 / 9;
+		background: #000;
+	}
+
+	.videopress-playlist__player {
+		position: absolute;
+		inset: 0;
+		inline-size: 100%;
+		block-size: 100%;
+		border: 0;
+	}
+
+	.videopress-playlist__items {
+		list-style: none;
+		margin: 8px 0 0;
+		padding: 0;
+	}
+
+	.videopress-playlist__item {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		inline-size: 100%;
+		padding: 8px;
+		border: 0;
+		background: transparent;
+		color: inherit;
+		font: inherit;
+		text-align: start;
+		cursor: pointer;
+
+		&:hover,
+		&:focus-visible {
+			background: rgba(0, 0, 0, 0.05);
+		}
+
+		&.is-current {
+			background: rgba(0, 0, 0, 0.08);
+			font-weight: 600;
+		}
+	}
+
+	.videopress-playlist__item-index {
+		opacity: 0.7;
+	}
+}

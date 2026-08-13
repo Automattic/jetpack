@@ -269,6 +269,9 @@ class Initializer {
 	public static function register_videopress_blocks() {
 		// Register VideoPress Video block.
 		self::register_videopress_video_block();
+
+		// Register VideoPress Playlist block.
+		self::register_videopress_playlist_block();
 	}
 
 	/**
@@ -550,6 +553,147 @@ class Initializer {
 
 		// Register and enqueue scripts used by the VideoPress video block.
 		Block_Editor_Extensions::init( $script_handle );
+	}
+
+	/**
+	 * Register the VideoPress playlist block.
+	 *
+	 * @return void
+	 */
+	public static function register_videopress_playlist_block() {
+		/*
+		 * Unlike the video block, the playlist block has no "activate the module"
+		 * placeholder, so don't register it at all when VideoPress isn't available.
+		 */
+		if (
+			Status::is_jetpack_plugin_without_videopress_module_active()
+			&& ! Status::is_standalone_plugin_active()
+		) {
+			return;
+		}
+
+		$metadata_file = __DIR__ . '/../build/block-editor/blocks/playlist/block.json';
+		if ( ! file_exists( $metadata_file ) ) {
+			return;
+		}
+
+		$metadata = json_decode(
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			file_get_contents( $metadata_file )
+		);
+
+		if ( empty( $metadata->name ) ) {
+			return;
+		}
+
+		// Do not register if the block is already registered.
+		if ( \WP_Block_Type_Registry::get_instance()->is_registered( $metadata->name ) ) {
+			return;
+		}
+
+		register_block_type(
+			$metadata_file,
+			array(
+				'render_callback' => array( __CLASS__, 'render_videopress_playlist_block' ),
+			)
+		);
+	}
+
+	/**
+	 * Build the VideoPress embed URL for a playlist entry.
+	 *
+	 * @param string $guid     Video GUID.
+	 * @param bool   $autoplay Whether the video should start playing as soon as it loads.
+	 *
+	 * @return string Embed URL.
+	 */
+	private static function get_playlist_embed_url( $guid, $autoplay ) {
+		return add_query_arg(
+			array(
+				'cover'          => 1,
+				'autoPlay'       => (int) $autoplay,
+				'preloadContent' => 'metadata',
+			),
+			'https://videopress.com/embed/' . rawurlencode( $guid )
+		);
+	}
+
+	/**
+	 * VideoPress playlist block render method.
+	 *
+	 * @param array $block_attributes Block attributes.
+	 *
+	 * @return string Block markup.
+	 */
+	public static function render_videopress_playlist_block( $block_attributes ) {
+		$videos = array();
+
+		if ( isset( $block_attributes['videos'] ) && is_array( $block_attributes['videos'] ) ) {
+			foreach ( $block_attributes['videos'] as $video ) {
+				if ( ! is_array( $video ) || empty( $video['guid'] ) || ! is_string( $video['guid'] ) ) {
+					continue;
+				}
+
+				// VideoPress GUIDs are 8 alphanumeric characters; drop anything else.
+				if ( ! preg_match( '/^[a-z\d]{8}$/i', $video['guid'] ) ) {
+					continue;
+				}
+
+				$videos[] = array(
+					'guid'  => $video['guid'],
+					'title' => isset( $video['title'] ) && is_string( $video['title'] ) ? $video['title'] : '',
+				);
+			}
+		}
+
+		if ( ! $videos ) {
+			return '';
+		}
+
+		$auto_advance = ! isset( $block_attributes['autoAdvance'] ) || $block_attributes['autoAdvance'];
+		$loop         = ! empty( $block_attributes['loop'] );
+
+		// The JWT token bridge lets the embed play private videos for authorized viewers.
+		Jwt_Token_Bridge::enqueue_jwt_token_bridge();
+
+		$items_markup = '';
+		foreach ( $videos as $index => $video ) {
+			$title = '' !== $video['title']
+				? $video['title']
+				/* translators: %d: position of the video in the playlist. */
+				: sprintf( __( 'Video %d', 'jetpack-videopress-pkg' ), $index + 1 );
+
+			$items_markup .= sprintf(
+				'<li><button type="button" class="videopress-playlist__item%1$s" data-guid="%2$s" data-src="%3$s" aria-current="%4$s"><span class="videopress-playlist__item-index">%5$d.</span><span class="videopress-playlist__item-title">%6$s</span></button></li>',
+				0 === $index ? ' is-current' : '',
+				esc_attr( $video['guid'] ),
+				esc_url( self::get_playlist_embed_url( $video['guid'], true ) ),
+				0 === $index ? 'true' : 'false',
+				$index + 1,
+				esc_html( $title )
+			);
+		}
+
+		$player_markup = sprintf(
+			'<div class="videopress-playlist__player-wrapper"><iframe class="videopress-playlist__player" title="%1$s" aria-label="%1$s" src="%2$s" data-guid="%3$s" allowfullscreen allow="clipboard-write; presentation"></iframe></div>',
+			esc_attr__( 'VideoPress Playlist Player', 'jetpack-videopress-pkg' ),
+			esc_url( self::get_playlist_embed_url( $videos[0]['guid'], false ) ),
+			esc_attr( $videos[0]['guid'] )
+		);
+
+		$wrapper_attributes = get_block_wrapper_attributes(
+			array(
+				'data-auto-advance' => $auto_advance ? '1' : '0',
+				'data-loop'         => $loop ? '1' : '0',
+			)
+		);
+
+		return sprintf(
+			'<figure %1$s>%2$s<ol class="videopress-playlist__items">%3$s</ol></figure>',
+			$wrapper_attributes,
+			$player_markup,
+			$items_markup
+		);
 	}
 
 	/**
