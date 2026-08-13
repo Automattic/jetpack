@@ -93,7 +93,7 @@ class Conditional_Logic_Test extends TestCase {
 			array( 'checkbox-multiple', 'multichoice' ),
 			array( 'number', 'number' ),
 			array( 'slider', 'number' ),
-			array( 'rating', 'number' ),
+			array( 'rating', 'rating' ),
 			array( 'date', 'date' ),
 			array( 'time', 'time' ),
 			array( 'checkbox', 'boolean' ),

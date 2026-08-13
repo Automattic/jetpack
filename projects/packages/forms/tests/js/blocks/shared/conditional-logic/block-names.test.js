@@ -54,7 +54,7 @@ const EXPECTED_TYPES = {
 	'jetpack/field-checkbox-multiple': 'multichoice',
 	'jetpack/field-number': 'number',
 	'jetpack/field-slider': 'number',
-	'jetpack/field-rating': 'number',
+	'jetpack/field-rating': 'rating',
 	'jetpack/field-date': 'date',
 	'jetpack/field-time': 'time',
 	'jetpack/field-checkbox': 'boolean',
