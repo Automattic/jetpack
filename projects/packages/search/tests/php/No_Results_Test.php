@@ -106,6 +106,25 @@ class No_Results_Test extends TestCase {
 	}
 
 	/**
+	 * The renderer wraps stray children as an unscoped variant, so coverage has
+	 * to count them as covering that condition. If the two disagreed, a
+	 * self-contained render would bind both the wrapped strays and the legacy
+	 * region to the same getter and show two messages at once.
+	 */
+	public function test_collect_coverage_counts_stray_children_as_unscoped() {
+		$coverage = No_Results::collect_coverage(
+			'<!-- wp:jetpack-search/no-results -->'
+			. '<!-- wp:paragraph --><p>Stray copy.</p><!-- /wp:paragraph -->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"filtered"} /-->'
+			. '<!-- /wp:jetpack-search/no-results -->'
+		);
+
+		$this->assertTrue( $coverage['any'], 'strays stand in for the unscoped condition' );
+		$this->assertTrue( $coverage['filtered'] );
+		$this->assertFalse( $coverage['error'] );
+	}
+
+	/**
 	 * A page render defers to the coverage flags each variant seeds, exactly as
 	 * it did before self-contained renders had a scope of their own.
 	 */
