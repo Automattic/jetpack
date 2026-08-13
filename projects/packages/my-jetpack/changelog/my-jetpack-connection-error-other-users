@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection: Leave another user's broken token out of the connection error notice, since only that user can restore it.
