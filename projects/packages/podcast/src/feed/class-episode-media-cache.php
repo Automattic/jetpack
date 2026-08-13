@@ -32,6 +32,13 @@ class Episode_Media_Cache {
 	private static $attachment_ids = array();
 
 	/**
+	 * Paths per lookup. `posts_per_rss` is configurable and episodes carry more
+	 * than one enclosure row, so the page size can't be trusted to bound the
+	 * `IN` list.
+	 */
+	private const CHUNK_SIZE = 500;
+
+	/**
 	 * Resolve the page's enclosure URLs and warm the caches the item hooks read.
 	 * Safe to call with the unfiltered post list.
 	 *
@@ -74,31 +81,35 @@ class Episode_Media_Cache {
 			}
 		}
 
+		// Chunked, and never reached with no paths at all: `WP_Meta_Query` drops an
+		// `IN` clause whose value is an empty array, leaving a bare key match that
+		// would return every attachment on the site.
 		$found = array();
-		// `WP_Meta_Query` drops an `IN` clause whose value is an empty array,
-		// leaving a bare key match that would return every attachment on the site.
-		if ( $paths ) {
-			$found = get_posts(
-				array(
-					'post_type'              => 'attachment',
-					// `attachment_url_to_postid()` scans `postmeta` unscoped, so any
-					// status is a record it can pick and narrowing would hide the
-					// ambiguity rather than settle it. `wp_insert_post()` only lets an
-					// attachment hold four of these, but listing them here would copy
-					// an invariant that lives in core.
-					'post_status'            => array_keys( get_post_stati() ),
-					'numberposts'            => -1,
-					'fields'                 => 'ids',
-					'orderby'                => 'none',
-					'no_found_rows'          => true,
-					'update_post_term_cache' => false,
-					'meta_query'             => array(
-						array(
-							'key'     => '_wp_attached_file',
-							'value'   => array_map( 'strval', array_keys( $paths ) ),
-							'compare' => 'IN',
+		foreach ( array_chunk( array_keys( $paths ), self::CHUNK_SIZE ) as $chunk ) {
+			$found = array_merge(
+				$found,
+				get_posts(
+					array(
+						'post_type'              => 'attachment',
+						// `attachment_url_to_postid()` scans `postmeta` unscoped, so any
+						// status is a record it can pick and narrowing would hide the
+						// ambiguity rather than settle it. `wp_insert_post()` only lets
+						// an attachment hold four of these, but listing them here would
+						// copy an invariant that lives in core.
+						'post_status'            => array_keys( get_post_stati() ),
+						'numberposts'            => -1,
+						'fields'                 => 'ids',
+						'orderby'                => 'none',
+						'no_found_rows'          => true,
+						'update_post_term_cache' => false,
+						'meta_query'             => array(
+							array(
+								'key'     => '_wp_attached_file',
+								'value'   => array_map( 'strval', $chunk ),
+								'compare' => 'IN',
+							),
 						),
-					),
+					)
 				)
 			);
 		}
