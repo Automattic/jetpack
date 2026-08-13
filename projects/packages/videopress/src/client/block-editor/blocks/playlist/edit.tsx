@@ -15,12 +15,14 @@ import {
 	TextControl,
 	ToggleControl,
 } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { chevronDown, chevronUp, closeSmall } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { fetchVideoItem } from '../../../lib/fetch-video-item';
 import { isVideoPressGuid, pickGUIDFromUrl } from '../../../lib/url';
 import { VideoPressIcon } from '../video/components/icons';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../video/constants';
@@ -69,6 +71,41 @@ export default function PlaylistBlockEdit( {
 	const [ currentIndex, setCurrentIndex ] = useState( 0 );
 	const [ newVideoInput, setNewVideoInput ] = useState( '' );
 	const [ errorNotice, setErrorNotice ] = useState< string | null >( null );
+
+	// Always points at the latest videos so async title fetches never clobber newer edits.
+	const videosRef = useRef( videos );
+	videosRef.current = videos;
+
+	// GUIDs with a title fetch already started; they are not retried, so a
+	// failed fetch simply leaves the GUID as the visible label.
+	const titleFetchesStarted = useRef( new Set< string >() );
+
+	useEffect( () => {
+		videos.forEach( video => {
+			if ( video.title || titleFetchesStarted.current.has( video.guid ) ) {
+				return;
+			}
+
+			titleFetchesStarted.current.add( video.guid );
+
+			fetchVideoItem( { guid: video.guid, isPrivate: false, skipRatingControl: true } )
+				.then( videoItem => {
+					if ( ! videoItem?.title ) {
+						return;
+					}
+
+					const title = decodeEntities( videoItem.title );
+					setAttributes( {
+						videos: videosRef.current.map( entry =>
+							entry.guid === video.guid && ! entry.title ? { ...entry, title } : entry
+						),
+					} );
+				} )
+				.catch( () => {
+					// Leave the GUID as the visible label when the video data isn't reachable.
+				} );
+		} );
+	}, [ videos, setAttributes ] );
 
 	const blockProps = useBlockProps( { className: 'videopress-playlist-editor' } );
 
@@ -148,13 +185,6 @@ export default function PlaylistBlockEdit( {
 		} else if ( currentIndex === target ) {
 			setCurrentIndex( index );
 		}
-	};
-
-	const updateVideoTitle = ( index: number, title: string ) => {
-		const updated = videos.map( ( video: PlaylistVideo, i: number ) =>
-			i === index ? { ...video, title } : video
-		);
-		setAttributes( { videos: updated } );
 	};
 
 	const addVideoForm = (
@@ -280,16 +310,9 @@ export default function PlaylistBlockEdit( {
 						>
 							{ index + 1 }.
 						</Button>
-						<TextControl
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-							className="videopress-playlist-editor__item-title"
-							label={ __( 'Video title', 'jetpack-videopress-pkg' ) }
-							hideLabelFromVision
-							placeholder={ video.guid }
-							value={ video.title ?? '' }
-							onChange={ ( value: string ) => updateVideoTitle( index, value ) }
-						/>
+						<span className="videopress-playlist-editor__item-title">
+							{ video.title || video.guid }
+						</span>
 						<Button
 							icon={ chevronUp }
 							disabled={ index === 0 }

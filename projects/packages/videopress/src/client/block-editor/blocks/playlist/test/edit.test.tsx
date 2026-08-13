@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Edit from '../edit';
 import type { PlaylistBlockAttributes } from '../types';
@@ -6,6 +6,10 @@ import type { BlockEditProps } from '@wordpress/blocks';
 
 // What the mocked media modal "returns" when the library button is clicked.
 let mockLibrarySelection: unknown = [];
+
+jest.mock( '../../../../lib/fetch-video-item', () => ( {
+	fetchVideoItem: jest.fn( () => Promise.resolve( { title: 'Fetched title' } ) ),
+} ) );
 
 jest.mock( '@wordpress/block-editor', () => ( {
 	useBlockProps: ( props: Record< string, unknown > = {} ) => props,
@@ -89,8 +93,29 @@ describe( 'PlaylistBlockEdit', () => {
 			expect.stringContaining( 'videopress.com/embed/abcd1234' )
 		);
 
-		expect( screen.getByDisplayValue( 'First' ) ).toBeInTheDocument();
-		expect( screen.getByPlaceholderText( 'efgh5678' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'First' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'efgh5678' ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows item titles as plain text, with only the add-video field editable', () => {
+		renderEdit( { videos: [ { guid: 'abcd1234', title: 'First' } ] } );
+
+		expect( screen.getByText( 'First' ) ).toBeInTheDocument();
+		expect( screen.getAllByRole( 'textbox' ) ).toHaveLength( 1 );
+		expect( screen.getByRole( 'textbox' ) ).toHaveAttribute(
+			'placeholder',
+			'VideoPress GUID or URL'
+		);
+	} );
+
+	it( 'pulls missing titles from the video data', async () => {
+		const { setAttributes } = renderEdit( { videos: [ { guid: 'abcd1234' } ] } );
+
+		await waitFor( () =>
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				videos: [ { guid: 'abcd1234', title: 'Fetched title' } ],
+			} )
+		);
 	} );
 
 	it( 'removes an item from the playlist', async () => {
@@ -117,17 +142,6 @@ describe( 'PlaylistBlockEdit', () => {
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			videos: [ { guid: 'efgh5678' }, { guid: 'abcd1234' } ],
-		} );
-	} );
-
-	it( 'updates an item title', async () => {
-		const user = userEvent.setup();
-		const { setAttributes } = renderEdit( { videos: [ { guid: 'abcd1234' } ] } );
-
-		await user.type( screen.getByPlaceholderText( 'abcd1234' ), 'A' );
-
-		expect( setAttributes ).toHaveBeenCalledWith( {
-			videos: [ { guid: 'abcd1234', title: 'A' } ],
 		} );
 	} );
 
