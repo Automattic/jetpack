@@ -14,7 +14,10 @@
 	// and only renders its own scrollable wrapper when it also pads the content,
 	// so its sticky header runs out of containing block one viewport in and
 	// slides away. The tab list is inside here, so it still scrolls with the
-	// content.
+	// content, which is interim: `Page` gained a navigation slot upstream
+	// (WordPress/gutenberg#79746) that the sections belong in, since they are
+	// links keyed by URL slug rather than tabs. `@wordpress/admin-ui` has yet to
+	// ship it. WOOA7S-1931 moves them once it does.
 	overflow-y: auto;
 
 	// Own stacking context, so in-panel layers (the sticky section header,
