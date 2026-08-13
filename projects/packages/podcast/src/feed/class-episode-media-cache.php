@@ -47,6 +47,10 @@ class Episode_Media_Cache {
 	 * ignores post status and also accepts a case-insensitive match. Whatever
 	 * it misses still resolves through {@see self::attachment_id()}.
 	 *
+	 * Where several attachments share one path the first wins, matching the
+	 * row core would have picked — taking the last would read the episode's
+	 * duration off a different record.
+	 *
 	 * @param array $posts Posts about to be rendered. `the_posts` is a filter,
 	 *                     so entries aren't guaranteed to be `WP_Post` — hence
 	 *                     the check before each is used.
@@ -116,7 +120,10 @@ class Episode_Media_Cache {
 
 		$by_path = array();
 		foreach ( $found as $id ) {
-			$by_path[ (string) get_post_meta( $id, '_wp_attached_file', true ) ] = $id;
+			$path = (string) get_post_meta( $id, '_wp_attached_file', true );
+			if ( ! isset( $by_path[ $path ] ) ) {
+				$by_path[ $path ] = $id;
+			}
 		}
 
 		foreach ( $paths as $path => $urls ) {

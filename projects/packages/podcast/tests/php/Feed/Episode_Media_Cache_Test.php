@@ -36,25 +36,26 @@ class Episode_Media_Cache_Test extends BaseTestCase {
 
 	/**
 	 * Prime a page holding one episode whose enclosure the batch resolves to
-	 * `$attachment_id`: `posts_pre_query` stands in for the lookup query, and
-	 * `get_post_metadata` supplies the `_wp_attached_file` the mapping reads
-	 * back off the result.
+	 * `$attachment_ids`: `posts_pre_query` stands in for the lookup query, and
+	 * `get_post_metadata` gives every returned attachment the same
+	 * `_wp_attached_file` the mapping reads back off the result. Pass more than
+	 * one to model several attachments sharing a path.
 	 *
 	 * @return string The episode's enclosure URL.
 	 */
-	private function prime_page_with_episode( int $attachment_id ): string {
+	private function prime_page_with_episode( int ...$attachment_ids ): string {
 		add_filter(
 			'posts_pre_query',
-			static function ( $pre, $query ) use ( $attachment_id ) {
-				return 'attachment' === $query->get( 'post_type' ) ? array( $attachment_id ) : $pre;
+			static function ( $pre, $query ) use ( $attachment_ids ) {
+				return 'attachment' === $query->get( 'post_type' ) ? $attachment_ids : $pre;
 			},
 			10,
 			2
 		);
 		add_filter(
 			'get_post_metadata',
-			static function ( $value, $object_id, $meta_key, $single ) use ( $attachment_id ) {
-				if ( $object_id === $attachment_id && '_wp_attached_file' === $meta_key ) {
+			static function ( $value, $object_id, $meta_key, $single ) use ( $attachment_ids ) {
+				if ( in_array( (int) $object_id, $attachment_ids, true ) && '_wp_attached_file' === $meta_key ) {
 					return $single ? self::PATH : array( self::PATH );
 				}
 				return $value;
@@ -101,6 +102,18 @@ class Episode_Media_Cache_Test extends BaseTestCase {
 			'pre-lookup short-circuit' => array( 'pre_attachment_url_to_postid', 0 ),
 			'post-lookup remap'        => array( 'attachment_url_to_postid', 777 ),
 		);
+	}
+
+	/**
+	 * Imports and restores can leave two attachments pointing at one file.
+	 * `attachment_url_to_postid()` takes the first row it gets back, so the
+	 * batch has to as well — resolving to the other record would put a
+	 * different attachment's duration on the episode.
+	 */
+	public function test_attachments_sharing_a_path_resolve_to_the_first() {
+		$url = $this->prime_page_with_episode( 555, 556 );
+
+		$this->assertSame( 555, Episode_Media_Cache::attachment_id( $url ) );
 	}
 
 	/**
