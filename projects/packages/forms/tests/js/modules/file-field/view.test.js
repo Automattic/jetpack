@@ -633,6 +633,38 @@ describe( 'File Field View', () => {
 			expect( mockUpdateField ).toHaveBeenCalledWith( 'test-file', legacyContext.files );
 		} );
 
+		test( 'removing a file through the old action name keeps both contexts on the same array', () => {
+			legacyStore.actions.fileAdded( {
+				target: { files: [ { name: 'doc.pdf', type: 'application/pdf', size: 10 } ] },
+			} );
+			const sharedArray = legacyContext.files;
+			const [ added ] = legacyContext.files;
+
+			legacyStore.actions.removeFile( {
+				preventDefault: jest.fn(),
+				target: { dataset: { id: added.id } },
+			} );
+
+			// Removed in place, so the old template's data-wp-each drops the preview too rather than
+			// stranding it on a stale array.
+			expect( legacyContext.files ).toBe( sharedArray );
+			expect( mockContext.files ).toBe( legacyContext.files );
+			expect( legacyContext.files ).toHaveLength( 0 );
+		} );
+
+		test( 'resetFiles through the old action name empties the shared array in place', () => {
+			legacyStore.actions.fileAdded( {
+				target: { files: [ { name: 'doc.pdf', type: 'application/pdf', size: 10 } ] },
+			} );
+			const sharedArray = legacyContext.files;
+
+			legacyStore.actions.resetFiles();
+
+			expect( legacyContext.files ).toBe( sharedArray );
+			expect( mockContext.files ).toBe( legacyContext.files );
+			expect( legacyContext.files ).toHaveLength( 0 );
+		} );
+
 		test( 'the old config keys are bridged into fieldExtra so limits still apply', () => {
 			legacyStore.actions.fileAdded( {
 				target: { files: [ { name: 'evil.exe', type: 'application/x-msdownload', size: 10 } ] },

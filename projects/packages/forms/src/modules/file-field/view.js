@@ -555,7 +555,13 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 		resetFiles: () => {
 			const context = getContext();
 			context.files.forEach( releaseFile );
-			context.files = [];
+			/*
+			 * Empty in place rather than reassigning. The legacy back-compat alias
+			 * (`bridgeLegacyContext`) points the old markup's context at this same array by
+			 * reference, so a reassignment would strand the old `data-wp-each--file` binding on the
+			 * previous array and leave removed files visible.
+			 */
+			context.files.splice( 0 );
 		},
 
 		/**
@@ -583,9 +589,17 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 
 			releaseFile( file );
 
-			// An empty array is a legitimate value here — the registered validator turns it into
-			// `is_required` or `yes` as appropriate.
-			context.files = context.files.filter( fileObject => fileObject.id !== clientFileId );
+			/*
+			 * Remove in place rather than reassigning `context.files`. The legacy back-compat alias
+			 * (`bridgeLegacyContext`) shares this array with the old markup's context by reference, so
+			 * a reassignment would leave the old `data-wp-each--file` binding on the stale array,
+			 * keeping a removed file visible. An empty array is a legitimate value here — the
+			 * registered validator turns it into `is_required` or `yes` as appropriate.
+			 */
+			const index = context.files.indexOf( file );
+			if ( index !== -1 ) {
+				context.files.splice( index, 1 );
+			}
 			actions.updateField( context.fieldId, context.files );
 
 			if ( file.file_id ) {
