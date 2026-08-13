@@ -584,17 +584,12 @@ const DetailsCard = ( {
 	onPublish: ( patches: MediaDetailsPatch[] ) => Promise< void >;
 } ) => {
 	const files = uploads.map( item => item.file );
-	const [ fileNames, setFileNames ] = useState< string[] >( () =>
-		files.length ? files.map( f => f.name ) : [ '' ]
-	);
 	const [ titles, setTitles ] = useState< string[] >( () =>
 		files.length ? files.map( () => '' ) : [ '' ]
 	);
 	const [ description, setDescription ] = useState( '' );
 	const [ isPublishing, setIsPublishing ] = useState( false );
 	const [ publishError, setPublishError ] = useState< string | null >( null );
-	const setFileName = ( i: number, value: string ) =>
-		setFileNames( prev => prev.map( ( name, j ) => ( j === i ? value : name ) ) );
 	const setTitle = ( i: number, value: string ) =>
 		setTitles( prev => prev.map( ( t, j ) => ( j === i ? value : t ) ) );
 
@@ -612,8 +607,7 @@ const DetailsCard = ( {
 							)
 						);
 					}
-					const fallbackFileName = fileNames[ i ]?.trim() || item.file.name;
-					const title = titles[ i ]?.trim() || fallbackFileName;
+					const title = titles[ i ]?.trim() || item.file.name;
 					const patch: MediaDetailsPatch = {
 						mediaId: item.media.id,
 						title,
@@ -631,7 +625,7 @@ const DetailsCard = ( {
 		} finally {
 			setIsPublishing( false );
 		}
-	}, [ description, fileNames, onPublish, titles, uploads ] );
+	}, [ description, onPublish, titles, uploads ] );
 
 	const actions = ( publishLabel: string ) => (
 		<div className="vp-details__actions">
@@ -659,23 +653,21 @@ const DetailsCard = ( {
 				</Card.Header>
 				<Card.Content>
 					<Stack direction="column" gap="lg">
+						{ /*
+						 * The filename is shown, not edited: the old File Name
+						 * field never saved anywhere (the PATCH carries only
+						 * title/description), so an input was a lie.
+						 */ }
 						<div className="vp-details__file">
 							<span className="vp-details__file-icon">
 								<Icon icon={ media } size={ 20 } />
 							</span>
+							<span className="vp-details__file-name">{ name }</span>
 							<span className="vp-details__file-status">
 								<Icon icon={ check } size={ 16 } />
 								{ __( 'Uploaded', 'jetpack-videopress-pkg' ) }
 							</span>
 						</div>
-						<TextControl
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-							label={ __( 'File Name', 'jetpack-videopress-pkg' ) }
-							value={ fileNames[ 0 ] ?? name }
-							onChange={ v => setFileName( 0, v ) }
-							placeholder={ __( 'File name', 'jetpack-videopress-pkg' ) }
-						/>
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
@@ -727,19 +719,12 @@ const DetailsCard = ( {
 								<span className="vp-details__file-icon">
 									<Icon icon={ media } size={ 20 } />
 								</span>
+								<span className="vp-details__file-name">{ file.name }</span>
 								<span className="vp-details__file-status">
 									<Icon icon={ check } size={ 16 } />
 									{ __( 'Uploaded', 'jetpack-videopress-pkg' ) }
 								</span>
 							</div>
-							<TextControl
-								__next40pxDefaultSize
-								__nextHasNoMarginBottom
-								label={ __( 'File Name', 'jetpack-videopress-pkg' ) }
-								value={ fileNames[ i ] ?? file.name }
-								onChange={ v => setFileName( i, v ) }
-								placeholder={ __( 'File name', 'jetpack-videopress-pkg' ) }
-							/>
 							<TextControl
 								__next40pxDefaultSize
 								__nextHasNoMarginBottom
@@ -794,13 +779,12 @@ const SuccessCard = ( {
 
 	const copyShareLink = useCallback( ( video: PublishedVideo ) => {
 		setCopyError( null );
-		if ( ! video.shareUrl || ! navigator.clipboard ) {
+		if ( ! video.shareUrl ) {
 			setCopyError( __( 'The share link could not be copied.', 'jetpack-videopress-pkg' ) );
 			return;
 		}
 
-		void navigator.clipboard
-			.writeText( video.shareUrl )
+		void copyTextToClipboard( video.shareUrl )
 			.then( () => setCopiedMediaId( video.mediaId ) )
 			.catch( () => {
 				setCopyError( __( 'The share link could not be copied.', 'jetpack-videopress-pkg' ) );
@@ -967,13 +951,7 @@ const SampleVideoModal = ( {
 
 	const copyText = useCallback( ( target: SampleCopyTarget, text: string ) => {
 		setCopyError( null );
-		if ( ! navigator.clipboard ) {
-			setCopyError( __( 'The share details could not be copied.', 'jetpack-videopress-pkg' ) );
-			return;
-		}
-
-		void navigator.clipboard
-			.writeText( text )
+		void copyTextToClipboard( text )
 			.then( () => setCopiedTarget( target ) )
 			.catch( () => {
 				setCopyError( __( 'The share details could not be copied.', 'jetpack-videopress-pkg' ) );
@@ -1117,6 +1095,44 @@ const SampleVideoModal = ( {
  * @param props.render     - Renders the card for a given step.
  * @return The morphing flow element.
  */
+/**
+ * Copy text to the clipboard, working on plain-HTTP dev environments where
+ * `navigator.clipboard` is undefined (it is secure-context-only). Falls back
+ * to the hidden-textarea `execCommand` path the clipboard libraries use.
+ *
+ * @param text - Text to place on the clipboard.
+ * @return Resolves when the text has been copied; rejects when neither path works.
+ */
+const copyTextToClipboard = ( text: string ): Promise< void > => {
+	if ( navigator.clipboard ) {
+		return navigator.clipboard.writeText( text );
+	}
+
+	return new Promise( ( resolve, reject ) => {
+		const textarea = document.createElement( 'textarea' );
+		textarea.value = text;
+		textarea.setAttribute( 'readonly', '' );
+		textarea.style.position = 'fixed';
+		textarea.style.opacity = '0';
+		document.body.appendChild( textarea );
+		textarea.select();
+		try {
+			// execCommand is deprecated but is exactly the insecure-context
+			// fallback the clipboard libraries use; there is no alternative.
+			const ok = document.execCommand( 'copy' );
+			if ( ok ) {
+				resolve();
+			} else {
+				reject( new Error( 'copy rejected' ) );
+			}
+		} catch ( error ) {
+			reject( error );
+		} finally {
+			textarea.remove();
+		}
+	} );
+};
+
 const StepFlow = ( {
 	step,
 	prev,
@@ -1141,6 +1157,21 @@ const StepFlow = ( {
 			return () => clearTimeout( t );
 		}
 	}, [ step, prev, onExitDone ] );
+
+	// The wrapper's height is frozen inline, so content that grows WITHIN a
+	// step (an error banner appearing, per-row messages) would overflow the
+	// frame. Track the active card's size for the step's whole life, not just
+	// its entrance.
+	useLayoutEffect( () => {
+		const active = wrapRef.current?.querySelector< HTMLElement >( '[data-active="true"]' );
+		if ( ! active || typeof ResizeObserver === 'undefined' ) {
+			return;
+		}
+
+		const observer = new ResizeObserver( () => setHeight( active.offsetHeight ) );
+		observer.observe( active );
+		return () => observer.disconnect();
+	}, [ step ] );
 
 	return (
 		<div
