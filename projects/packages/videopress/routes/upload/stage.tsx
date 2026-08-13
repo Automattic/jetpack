@@ -14,6 +14,8 @@ import QueryClientWrapper from '../../src/dashboard/components/query-client-wrap
 import { markFirstPublish, useFirstRunState } from '../../src/dashboard/hooks/use-first-run-state';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { LIBRARY_QUERY_KEY } from '../../src/dashboard/hooks/use-library';
+import { useUpload } from '../../src/dashboard/hooks/use-upload';
+import { isWpcomConnected } from '../../src/dashboard/utils/connection';
 import './style.scss';
 import type { ReactNode } from 'react';
 
@@ -1242,6 +1244,13 @@ const UploadOnboarding = ( {
 	const batchRef = useRef( 0 );
 	const [ uploads, setUploads ] = useState< UploadItem[] >( [] );
 	const [ publishedVideos, setPublishedVideos ] = useState< PublishedVideo[] >( [] );
+	// On connected sites uploads run through the shared tus queue — the real
+	// VideoPress pipeline, visible to every route and to useFreeTier. The
+	// plain wp/v2/media XHR below survives only as the disconnected-site
+	// fallback (tus needs a WordPress.com upload JWT).
+	const { uploadQueue, startUpload, acknowledgeUpload } = useUpload();
+	const [ batchQueueIds, setBatchQueueIds ] = useState< string[] >( [] );
+	const isConnected = isWpcomConnected();
 	const allowMultiple = ! isFree || isUnlimited;
 	const firstRunState = useFirstRunState();
 
@@ -1264,10 +1273,15 @@ const UploadOnboarding = ( {
 		( prior: Step ) => {
 			batchRef.current += 1;
 			setUploads( [] );
+			// Settled queue rows from an abandoned batch are acknowledged away;
+			// in-flight ones keep uploading (the Library shows them) — Back is
+			// not Cancel.
+			batchQueueIds.forEach( acknowledgeUpload );
+			setBatchQueueIds( [] );
 			setPublishedVideos( [] );
 			go( 'upload', prior );
 		},
-		[ go ]
+		[ acknowledgeUpload, batchQueueIds, go ]
 	);
 	const updateUpload = useCallback( ( batch: number, id: string, patch: Partial< UploadItem > ) => {
 		if ( batch !== batchRef.current ) {
@@ -1290,6 +1304,14 @@ const UploadOnboarding = ( {
 			const batch = batchRef.current + 1;
 			batchRef.current = batch;
 			setPublishedVideos( [] );
+
+			if ( isConnected ) {
+				setUploads( [] );
+				setBatchQueueIds( selectedForPlan.map( file => startUpload( file ) ) );
+				go( 'uploading', 'upload' );
+				return;
+			}
+
 			const nextUploads = selectedForPlan.map( ( file, i ) => ( {
 				id: `media-${ batch }-${ i }-${ file.name }`,
 				file,
@@ -1321,20 +1343,52 @@ const UploadOnboarding = ( {
 					} );
 			} );
 		},
-		[ allowMultiple, go, isAtLimit, queryClient, updateUpload ]
+		[ allowMultiple, go, isAtLimit, isConnected, queryClient, startUpload, updateUpload ]
 	);
 
-	// Advance to details once every file has finished.
+	// The queue is the source of truth while a connected-site batch uploads;
+	// map its items into the flow's local shape so every step renders the same
+	// structure regardless of pipeline.
+	const queueUploads: UploadItem[] = batchQueueIds
+		.map( id => uploadQueue.find( item => item.id === id ) )
+		.filter( ( item ): item is NonNullable< typeof item > => Boolean( item ) )
+		.map( item => ( {
+			id: item.id,
+			file: item.file,
+			progress: Math.round( item.progress * 100 ),
+			status: item.status,
+			error: item.error,
+			media: item.media
+				? {
+						id: Number( item.media.id ),
+						source_url: item.media.src,
+						videopressGuid: String( item.media.guid ),
+				  }
+				: undefined,
+		} ) );
+	const activeUploads = isConnected && batchQueueIds.length > 0 ? queueUploads : uploads;
+
+	// Advance to details once every file has finished. For queue batches the
+	// settled items are snapshotted into local state and acknowledged out of
+	// the shared queue — from here the flow owns them, and nothing else (the
+	// Library splice, the future upload pill) should keep reporting them.
 	useEffect( () => {
 		if (
 			step === 'uploading' &&
-			uploads.length > 0 &&
-			uploads.every( item => item.status === 'success' )
+			activeUploads.length > 0 &&
+			activeUploads.every( item => item.status === 'success' )
 		) {
-			const t = setTimeout( () => go( 'details', 'uploading' ), 450 );
+			const t = setTimeout( () => {
+				if ( isConnected && batchQueueIds.length > 0 ) {
+					setUploads( activeUploads );
+					batchQueueIds.forEach( acknowledgeUpload );
+					setBatchQueueIds( [] );
+				}
+				go( 'details', 'uploading' );
+			}, 450 );
 			return () => clearTimeout( t );
 		}
-	}, [ step, uploads, go ] );
+	}, [ step, activeUploads, batchQueueIds, isConnected, acknowledgeUpload, go ] );
 
 	const publishDetails = useCallback(
 		async ( patches: MediaDetailsPatch[] ) => {
@@ -1420,7 +1474,9 @@ const UploadOnboarding = ( {
 			);
 		}
 		if ( s === 'uploading' ) {
-			return <UploadingCard uploads={ uploads } onBack={ () => resetUploadStep( 'uploading' ) } />;
+			return (
+				<UploadingCard uploads={ activeUploads } onBack={ () => resetUploadStep( 'uploading' ) } />
+			);
 		}
 		if ( s === 'success' ) {
 			return <SuccessCard published={ publishedVideos } onGoToHome={ goToHome } />;
