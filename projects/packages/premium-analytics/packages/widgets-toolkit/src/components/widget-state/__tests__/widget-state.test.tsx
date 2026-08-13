@@ -239,11 +239,14 @@ describe( 'WidgetState', () => {
 		// flips. Unmounting the children there resets whatever they own — the
 		// selected metric tab, a table's sort and page.
 		const props = { isLoading: false, isError: false, isEmpty: false };
-		const { rerender } = render(
+		const { container, rerender } = render(
 			<WidgetState { ...props } isFetching={ false }>
 				<Counter />
 			</WidgetState>
 		);
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the CSS Module class is the behavior under test.
+		const content = container.querySelector( '.content' );
+		expect( content ).not.toHaveClass( 'contentHidden' );
 		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
 		fireEvent.click( screen.getByRole( 'button' ) );
 		expect( screen.getByRole( 'button' ) ).toHaveTextContent( '1' );
@@ -253,11 +256,13 @@ describe( 'WidgetState', () => {
 				<Counter />
 			</WidgetState>
 		);
+		expect( content ).toHaveClass( 'contentHidden' );
 		rerender(
 			<WidgetState { ...props } isFetching={ false }>
 				<Counter />
 			</WidgetState>
 		);
+		expect( content ).not.toHaveClass( 'contentHidden' );
 		expect( screen.getByRole( 'button' ) ).toHaveTextContent( '1' );
 	} );
 

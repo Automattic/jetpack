@@ -4101,6 +4101,9 @@ importers:
       browserslist:
         specifier: 4.28.4
         version: 4.28.4
+      identity-obj-proxy:
+        specifier: 3.0.0
+        version: 3.0.0
       jest:
         specifier: 30.4.2
         version: 30.4.2

@@ -6,6 +6,7 @@ module.exports = {
 	rootDir: path.join( __dirname, '..' ),
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,
+		'\\.module\\.s?css$': 'identity-obj-proxy',
 		// Stub CSS imports (e.g. `@automattic/ui/style.css` pulled in via
 		// widgets-toolkit, or local `*.module.css`). jest's transformIgnorePatterns
 		// skips nested node_modules CSS, so it would otherwise be parsed as JS.
