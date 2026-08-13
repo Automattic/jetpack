@@ -12,55 +12,31 @@ namespace Automattic\Jetpack\Podcast\Feed;
 use WP_Post;
 
 /**
- * Left alone, every episode resolves its own media as it renders — the
- * enclosure URL to an attachment ID, that attachment's metadata for
- * `<itunes:duration>`, the featured image for `<itunes:image>` — roughly four
- * uncached queries an item. {@see self::prime()} does the whole page in three,
- * so the `rss2_item` hooks read warm caches instead.
+ * Left alone, every episode resolves its own media as it renders — enclosure
+ * URL to attachment ID, that attachment's metadata for `<itunes:duration>`, the
+ * featured image for `<itunes:image>` — roughly four uncached queries an item.
+ * {@see self::prime()} does the whole page in three.
  */
 class Episode_Media_Cache {
 
 	/**
-	 * `_wp_attached_file` path → attachment ID, from the last
-	 * {@see self::prime()}. Holds only matches.
+	 * `_wp_attached_file` path → attachment ID, from the last {@see self::prime()}.
 	 *
-	 * Keyed by path rather than by URL because the string
-	 * {@see Customize_Feed::rewrite_enclosure()} reads back out of the markup
-	 * isn't necessarily the one the `enclosure` meta row holds: WordPress.com
-	 * forces `<enclosure>` URLs to `http` on the same `rss_enclosure` filter,
-	 * registered ahead of ours. Reducing both ends to the path the way
-	 * `attachment_url_to_postid()` does folds that difference away — it
-	 * normalizes the scheme before comparing.
+	 * Keyed by path, not URL: filters ahead of ours rewrite the enclosure URL
+	 * before {@see Customize_Feed::rewrite_enclosure()} reads it back out of the
+	 * markup — WordPress.com forces it to `http` — and reducing both ends to the
+	 * path folds that difference away.
 	 *
 	 * @var array<string, int>
 	 */
 	private static $attachment_ids = array();
 
 	/**
-	 * Resolve the page's enclosure URLs and warm the caches the item hooks
-	 * read. Safe to call with the unfiltered post list — posts without an
-	 * `enclosure` row contribute nothing.
+	 * Resolve the page's enclosure URLs and warm the caches the item hooks read.
+	 * Safe to call with the unfiltered post list.
 	 *
-	 * `the_posts` runs before WP primes the loop's meta cache, so the
-	 * `update_meta_cache()` call is what keeps the reads below, and core's
-	 * `rss_enclosure()` later, from being a round trip apiece.
-	 *
-	 * The empty-`$paths` guard is load-bearing: `WP_Meta_Query` drops an `IN`
-	 * clause whose value is an empty array, leaving a bare `_wp_attached_file`
-	 * key match that would pull back every attachment on the site.
-	 *
-	 * The lookup is deliberately narrower than core's: `inherit`-status
-	 * attachments on an exact path match, where `attachment_url_to_postid()`
-	 * ignores post status and also accepts a case-insensitive match. Whatever
-	 * it misses still resolves through {@see self::attachment_id()}.
-	 *
-	 * Where several attachments share one path the first wins, matching the
-	 * row core would have picked — taking the last would read the episode's
-	 * duration off a different record.
-	 *
-	 * @param array $posts Posts about to be rendered. `the_posts` is a filter,
-	 *                     so entries aren't guaranteed to be `WP_Post` — hence
-	 *                     the check before each is used.
+	 * @param array $posts Posts about to be rendered. `the_posts` is a filter, so
+	 *                     entries aren't guaranteed to be `WP_Post`.
 	 */
 	public static function prime( array $posts ): void {
 		self::$attachment_ids = array();
@@ -76,6 +52,8 @@ class Episode_Media_Cache {
 			return;
 		}
 
+		// `the_posts` runs before WP primes the loop's meta cache, so without this
+		// every read below — and core's `rss_enclosure()` later — is a round trip.
 		update_meta_cache( 'post', $post_ids );
 
 		$dir            = wp_get_upload_dir();
@@ -97,11 +75,17 @@ class Episode_Media_Cache {
 		}
 
 		$found = array();
+		// `WP_Meta_Query` drops an `IN` clause whose value is an empty array,
+		// leaving a bare key match that would return every attachment on the site.
 		if ( $paths ) {
 			$found = get_posts(
 				array(
 					'post_type'              => 'attachment',
-					'post_status'            => 'inherit',
+					// Every status an attachment can hold, because
+					// `attachment_url_to_postid()` scans `postmeta` unscoped — a
+					// trashed or private duplicate is a record it can pick, and
+					// narrowing here would hide the ambiguity rather than settle it.
+					'post_status'            => array( 'inherit', 'private', 'trash', 'auto-draft' ),
 					'numberposts'            => -1,
 					'fields'                 => 'ids',
 					'orderby'                => 'none',
@@ -125,27 +109,34 @@ class Episode_Media_Cache {
 
 		_prime_post_caches( $attachment_ids, false, true );
 
+		$candidates = array();
 		foreach ( $found as $id ) {
 			$path = (string) get_post_meta( $id, '_wp_attached_file', true );
-			if ( '' !== $path && ! isset( self::$attachment_ids[ $path ] ) ) {
-				self::$attachment_ids[ $path ] = (int) $id;
+			if ( '' !== $path ) {
+				$candidates[ $path ][] = (int) $id;
+			}
+		}
+
+		// Unambiguous paths only. Core picks between duplicates in `postmeta` order,
+		// which a joined query can't reproduce, and a batch hit never reaches the
+		// fallback — so a wrong guess would be unrecoverable. Leave those to core.
+		foreach ( $candidates as $path => $ids ) {
+			if ( 1 === count( $ids ) ) {
+				self::$attachment_ids[ (string) $path ] = $ids[0];
 			}
 		}
 	}
 
 	/**
 	 * The attachment behind an enclosure URL: from the batch when
-	 * {@see self::prime()} matched one, otherwise from core.
+	 * {@see self::prime()} resolved one unambiguously, otherwise from core.
 	 *
 	 * A hit runs the same filters, in the same order, that
-	 * `attachment_url_to_postid()` would — only the query itself is replaced —
-	 * so plugins overriding either end of the lookup still win. A miss defers
-	 * to core outright: the batch only matches files under this site's uploads
-	 * dir, and offloaded-media plugins lean on those filters to map a CDN URL
-	 * back to its attachment.
+	 * `attachment_url_to_postid()` would, so plugins overriding either end still
+	 * win. A miss defers to core rather than answering 0 — offloaded-media plugins
+	 * map a CDN URL back to its attachment through those same filters.
 	 *
-	 * @param string $url Enclosure URL, as it came back out of the markup —
-	 *                    which is not always the URL the meta row holds.
+	 * @param string $url Enclosure URL, as it came back out of the markup.
 	 * @return int Attachment ID, or 0.
 	 */
 	public static function attachment_id( string $url ): int {
@@ -166,13 +157,10 @@ class Episode_Media_Cache {
 	}
 
 	/**
-	 * Reduce an attachment URL to the relative path stored in
-	 * `_wp_attached_file`, step for step with `attachment_url_to_postid()`. A
-	 * URL from outside the uploads dir comes back unchanged and matches
-	 * nothing, same as core.
-	 *
-	 * Both ends of the batch go through this — it's what makes the two agree
-	 * when a filter has rewritten the URL's scheme in between.
+	 * Reduce an attachment URL to the relative path stored in `_wp_attached_file`,
+	 * step for step with `attachment_url_to_postid()` — including its scheme
+	 * normalization, which is what lets both ends of the batch agree. A URL from
+	 * outside the uploads dir comes back unchanged and matches nothing.
 	 *
 	 * @param string $url URL to normalize.
 	 * @param array  $dir `wp_get_upload_dir()` result.

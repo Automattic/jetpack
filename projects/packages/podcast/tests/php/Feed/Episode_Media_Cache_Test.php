@@ -106,24 +106,34 @@ class Episode_Media_Cache_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Imports and restores can leave two attachments pointing at one file.
-	 * `attachment_url_to_postid()` takes the first row it gets back, so the
-	 * batch has to as well — resolving to the other record would put a
-	 * different attachment's duration on the episode.
+	 * Imports and restores leave several records on one file. Core picks between
+	 * them in `postmeta` order, which a joined query can't reproduce, so an
+	 * ambiguous path goes uncached and core answers it.
 	 */
-	public function test_attachments_sharing_a_path_resolve_to_the_first() {
+	public function test_attachments_sharing_a_path_defer_to_core() {
 		$url = $this->prime_page_with_episode( 555, 556 );
 
-		$this->assertSame( 555, Episode_Media_Cache::attachment_id( $url ) );
+		// Both paths run this filter, so the resolved ID is what separates them:
+		// core's own lookup finds nothing here and passes null, a batch hit passes
+		// the ID it cached.
+		$resolved = 'never ran';
+		add_filter(
+			'attachment_url_to_postid',
+			static function ( $post_id ) use ( &$resolved ) {
+				$resolved = $post_id;
+				return $post_id;
+			}
+		);
+
+		Episode_Media_Cache::attachment_id( $url );
+
+		$this->assertNull( $resolved, 'An ambiguous path was answered from the batch instead of left to core.' );
 	}
 
 	/**
-	 * WordPress.com forces `<enclosure>` URLs to `http` on `rss_enclosure`,
-	 * registered ahead of the podcast package's own callback — so the URL that
-	 * reaches the lookup isn't the one the `enclosure` meta row holds. Both
-	 * ends reduce to the attached-file path, as `attachment_url_to_postid()`
-	 * does, so the batch still answers rather than quietly falling back to a
-	 * query per episode.
+	 * WordPress.com forces `<enclosure>` URLs to `http` on `rss_enclosure`, ahead
+	 * of our own callback, so the URL reaching the lookup isn't the one the meta
+	 * row holds. Both ends reduce to the path, so the batch still answers.
 	 */
 	public function test_scheme_rewritten_after_priming_still_hits_the_batch() {
 		add_filter(
@@ -140,6 +150,34 @@ class Episode_Media_Cache_Test extends BaseTestCase {
 
 		$this->assertNotSame( $url, $http, 'The URL under test has to differ from the one the batch was primed with.' );
 		$this->assertSame( 555, Episode_Media_Cache::attachment_id( $http ) );
+	}
+
+	/**
+	 * Deferring on an ambiguous path only helps if the ambiguity is visible.
+	 * Narrowing the candidate set to `inherit` would drop a trashed or private
+	 * duplicate that core can still pick, making the path look unambiguous.
+	 */
+	public function test_lookup_considers_statuses_core_can_return() {
+		$statuses = null;
+		add_filter(
+			'posts_pre_query',
+			static function ( $pre, $query ) use ( &$statuses ) {
+				if ( 'attachment' === $query->get( 'post_type' ) ) {
+					$statuses = (array) $query->get( 'post_status' );
+				}
+				return $pre;
+			},
+			10,
+			2
+		);
+
+		$url = wp_get_upload_dir()['baseurl'] . '/' . self::PATH;
+		add_post_meta( 3, 'enclosure', $url . "\n12345\naudio/mpeg\n" );
+		Episode_Media_Cache::prime( array( new WP_Post( (object) array( 'ID' => 3 ) ) ) );
+
+		$this->assertContains( 'inherit', (array) $statuses );
+		$this->assertContains( 'trash', (array) $statuses );
+		$this->assertContains( 'private', (array) $statuses );
 	}
 
 	/**
