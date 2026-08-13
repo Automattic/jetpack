@@ -12,7 +12,7 @@ import {
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
+import { Link } from '@jetpack-premium-analytics/externals';
 import {
 	calculateDelta,
 	getCombinedPeriodMax,
@@ -60,10 +60,6 @@ export type FileDownloadRow = {
 
 /**
  * Maps normalized file-download rows onto the shape `LeaderboardChart` expects.
- *
- * @param rows           - Normalized file-download rows.
- * @param withComparison - Whether to derive previous-period shares and deltas.
- * @return Leaderboard chart data.
  */
 function buildLeaderboardData(
 	rows: FileDownloadRow[],
@@ -109,12 +105,6 @@ function buildLeaderboardData(
 	} );
 }
 
-/**
- * Flattens data-layer file-downloads rows into `FileDownloadRow[]`.
- *
- * @param items - Merged file-download rows from the data layer.
- * @return Normalized rows ready for the leaderboard.
- */
 function toFileDownloadRows( items: StatsFileDownloadsComparisonItem[] ): FileDownloadRow[] {
 	return items.map( item => ( {
 		label: item.shortLabel ?? String( item.label ?? '' ),
@@ -125,9 +115,6 @@ function toFileDownloadRows( items: StatsFileDownloadsComparisonItem[] ): FileDo
 	} ) );
 }
 
-/**
- * Props for `FileDownloadsLeaderboard`.
- */
 export type FileDownloadsLeaderboardProps = {
 	/**
 	 * Normalized download rows to render.
@@ -146,9 +133,6 @@ export type FileDownloadsLeaderboardProps = {
  * loading, error, and empty are handled by `<WidgetState>` in the
  * data-connected inner component. Exported so Storybook can render fixture
  * rows without needing a live WordPress backend.
- *
- * @param {FileDownloadsLeaderboardProps} props - The component props.
- * @return The rendered leaderboard.
  */
 export function FileDownloadsLeaderboard( {
 	rows = [],
@@ -172,12 +156,6 @@ type FileDownloadsInnerProps = {
 	max: number;
 };
 
-/**
- * Inner component — rendered inside WidgetRoot, reads dashboard context.
- *
- * @param {FileDownloadsInnerProps} props - The component props.
- * @return The rendered leaderboard or state placeholder.
- */
 function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
@@ -225,13 +203,8 @@ function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
 }
 
 /**
- * File downloads widget render component.
- *
  * Shows the most-downloaded files as a ranked leaderboard. Date range comes
  * from the shared dashboard date picker via WidgetRoot.
- *
- * @param {FileDownloadsWidgetProps} props - The widget render props.
- * @return The rendered widget content.
  */
 export default function FileDownloadsWidget( { attributes = {} }: FileDownloadsWidgetProps ) {
 	const max = attributes?.max ?? 10;

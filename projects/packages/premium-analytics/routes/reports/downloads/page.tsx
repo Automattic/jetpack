@@ -3,19 +3,22 @@
  */
 import {
 	normalizeReportParams,
+	type StatsFileDownloadsItem,
 	type StatsFileDownloadsComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportRecordsTable,
+	ReportCsvAction,
+	useReportCsvExport,
 	useReportRetry,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 /**
@@ -46,6 +49,9 @@ const RECORDS_VIEW = {
 	},
 };
 
+const sortDownloadCsvRows = ( a: StatsFileDownloadsItem, b: StatsFileDownloadsItem ) =>
+	b.downloads - a.downloads;
+
 /**
  * File downloads report page.
  *
@@ -63,30 +69,49 @@ function DownloadsReport(): JSX.Element {
 		() => getDownloadsFields( records.hasComparison ),
 		[ records.hasComparison ]
 	);
+	const csvColumns = useMemo< CsvColumn< StatsFileDownloadsItem >[] >(
+		() => [
+			{
+				label: __( 'File', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.shortLabel ?? String( row.label ?? '' ),
+			},
+			{
+				label: __( 'Downloads', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.downloads,
+			},
+			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
+		],
+		[]
+	);
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows: records.rows,
+		filenamePrefix: 'file-downloads',
+		range: reportParams,
+		status: records,
+		sort: sortDownloadCsvRows,
+	} );
 	const isRecordsLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
-
 	return (
 		<ReportPageShell
+			visual={ <StatsPageIcon /> }
 			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-						{ label: __( 'File downloads', 'jetpack-premium-analytics-pkg' ) },
-					] }
+				<StatsBreadcrumbs
+					items={ [ { label: __( 'File downloads', 'jetpack-premium-analytics-pkg' ) } ] }
 				/>
 			}
+			actions={
+				canExport ? (
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) : undefined
+			}
 		>
-			<ReportPageLayout
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
-			>
+			<ReportPageLayout filters={ <DateFiltersPanel { ...dateFilters } /> }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load file downloads', 'jetpack-premium-analytics-pkg' ) }

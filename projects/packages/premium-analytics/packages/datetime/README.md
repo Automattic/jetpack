@@ -87,7 +87,7 @@ const reference = {
 	from: new Date( '2024-01-15' ),
 	to: new Date( '2024-01-21' ),
 };
-const comparison = getComparisonRangeFromPreset( reference, 'previous-week' );
+const comparison = getComparisonRangeFromPreset( reference, 'previous-period' );
 // Returns dates for Jan 8-14, 2024
 ```
 
@@ -102,9 +102,42 @@ if inputs are invalid
 **Supported presets:**
 
 - `previous-period` - Same duration, immediately before reference
-- `previous-week` - One week before reference dates
 - `previous-month` - One month before reference dates
 - `previous-year` - One year before reference dates
+
+### Range Measurement and Stepping
+
+#### `getDateRangeSpan( range? )`
+
+Measures how long a range is, in the coarsest unit that divides it evenly.
+Returns `null` when the range is missing an end.
+
+```typescript
+getDateRangeSpan( { from, to } );
+// 24 hours:  { unit: 'hour', value: 24 }
+// 7 days:    { unit: 'day', value: 7 }
+// 12 months: { unit: 'month', value: 12 }
+```
+
+A whole-month range stays in days below two months and only collapses into
+years from two years up, so "Last 30 days" reads as 30 days and a
+twelve-month window as 12 months.
+
+#### `stepDateRange( range, direction )`
+
+Shifts a range backward or forward (`'previous' | 'next'`) by its own length.
+Steps move in calendar units, so a step across a DST boundary keeps the wall
+clock; where a calendar step cannot be undone, it falls back to whole days.
+Returns `undefined` when the range has no measurable span.
+
+```typescript
+stepDateRange( { from, to }, 'previous' ); // Last 7 days -> the 7 days before
+```
+
+#### `canStepForward( range, now )`
+
+Whether the next window has already happened in full. Pass the site's `now`,
+not the browser's.
 
 ## Types
 
@@ -120,7 +153,16 @@ type DateRange = {
 ### `ComparisonPresetId`
 
 ```typescript
-type ComparisonPresetId = 'previous-period' | 'previous-week' | 'previous-month' | 'previous-year';
+type ComparisonPresetId = 'previous-period' | 'previous-month' | 'previous-year';
+```
+
+### `DateRangeSpan`
+
+```typescript
+type DateRangeSpan = {
+	unit: 'hour' | 'day' | 'month' | 'year';
+	value: number;
+};
 ```
 
 ## Dependencies

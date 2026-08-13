@@ -35,6 +35,7 @@ export function useTagsReportRecords() {
 	return {
 		rows,
 		isLoading: tags.isLoading,
+		isFetching: tags.isFetching,
 		isError: tags.isError,
 		refetch: tags.refetch,
 	};

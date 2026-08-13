@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Blocks: Restrict Goodreads scripts to the expected Goodreads widget endpoints.

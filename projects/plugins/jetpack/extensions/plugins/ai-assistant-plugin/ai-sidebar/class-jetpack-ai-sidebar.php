@@ -19,6 +19,11 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
+// Required directly rather than relying on the plugin bootstrap: on
+// WordPress.com Simple the extension files load through wpcom's own loader
+// and load-jetpack.php never runs.
+require_once __DIR__ . '/../../../../_inc/lib/class-jetpack-ai-settings.php';
+
 const AM_ASSET_BASE_PATH                  = 'widgets.wp.com/agents-manager/';
 const AI_SIDEBAR_ASSET_TRANSIENT          = 'jetpack_ai_sidebar_asset';
 const AI_SIDEBAR_JS_URL                   = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
@@ -97,6 +102,10 @@ class Jetpack_AI_Sidebar {
 
 		// CIAB (next-admin) has its own AM setup — don't enqueue alongside it.
 		if ( did_action( 'next_admin_init' ) ) {
+			return;
+		}
+
+		if ( self::is_agents_manager_disconnected() ) {
 			return;
 		}
 
@@ -214,6 +223,11 @@ class Jetpack_AI_Sidebar {
 			return $providers;
 		}
 
+		// The providers filter still runs for disconnected variants.
+		if ( self::is_agents_manager_disconnected() ) {
+			return $providers;
+		}
+
 		// Don't register if the IIFE bundle cannot be loaded. The ESM wrapper
 		// re-exports from window.__JetpackAIProvider at import time; if the
 		// IIFE never ran, toolProvider is still a truthy Proxy and AM would
@@ -276,101 +290,27 @@ class Jetpack_AI_Sidebar {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * UI feature flag for AI Editorial Review.
-	 *
-	 * Server-side permission checks still gate execution. This site-side flag
-	 * controls whether the sidebar suggestion is exposed, while keeping a
-	 * feature-specific filter available as a kill switch.
-	 *
-	 * @return bool
-	 */
-	private static function is_ai_editorial_review_enabled(): bool {
-		return (bool) apply_filters(
-			'jetpack_ai_editorial_review_enabled',
-			true
-		);
-	}
-
-	/**
-	 * UI feature flag for the Generate Feedback suggestion.
-	 *
-	 * Exposed only in internal testing environments while the feature is in development.
-	 *
-	 * @return bool
-	 */
-	private static function is_generate_feedback_enabled(): bool {
-		return jetpack_is_internal_testing_environment();
-	}
-
-	/**
-	 * UI feature flag for the Optimize Title suggestion.
-	 *
-	 * Exposed only in internal testing environments while the feature is in development.
-	 *
-	 * @return bool
-	 */
-	private static function is_optimize_title_suggestion_enabled(): bool {
-		return jetpack_is_internal_testing_environment();
-	}
-
-	/**
-	 * UI feature flag for Proofreader (spelling and grammar).
-	 *
-	 * Server-side permission checks still gate execution. This site-side flag
-	 * controls whether the Jetpack AI Sidebar exposes the Proofreader
-	 * suggestion. It follows Image Studio's internal rollout pattern.
-	 *
-	 * @return bool
-	 */
-	private static function is_proofread_content_enabled(): bool {
-		return jetpack_is_internal_testing_environment();
-	}
-
-	/**
 	 * UI feature flag for the SEO Enhancer suggestions (SEO title and meta description).
 	 *
-	 * Exposed only in internal testing environments while the feature is in development,
-	 * and only where the suggestions can actually be used: the SEO Enhancer is not
-	 * killed via its filter, the site's plan includes the Jetpack SEO feature (the
-	 * suggestions write to the plan-gated SEO title and meta description fields), and
-	 * SEO tools are usable on the site. Kept independent of the Optimize Title flag:
-	 * SEO suggestions target the SEO meta fields, not the visible post title.
+	 * Exposed only where the suggestions can actually be used: the SEO Enhancer
+	 * is not killed via its filter, the site's plan includes the Jetpack SEO
+	 * feature (the suggestions write to the plan-gated SEO title and meta
+	 * description fields), and SEO tools are usable on the site. Kept independent
+	 * of the Optimize Title suggestion: SEO suggestions target the SEO meta fields,
+	 * not the visible post title.
 	 *
-	 * The user-facing ai_seo_enhancer_enabled *option* is deliberately not consulted —
-	 * it only governs automatic generation on publish, while these suggestions are
-	 * user-initiated.
+	 * The user-facing ai_seo_enhancer_enabled *option* is consulted since the AI
+	 * settings page surfaced it as the SEO feature toggle: a switched-off feature
+	 * must not offer suggestions, even user-initiated ones, and even when an
+	 * external host (Big Sky, Woo) draws the sidebar.
 	 *
 	 * @return bool
 	 */
 	private static function is_seo_suggestions_enabled(): bool {
-		return jetpack_is_internal_testing_environment()
-			&& (bool) apply_filters( 'ai_seo_enhancer_enabled', true )
+		return (bool) apply_filters( 'ai_seo_enhancer_enabled', true )
+			&& \Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' )
 			&& self::has_seo_feature()
 			&& self::is_seo_tools_usable();
-	}
-
-	/**
-	 * UI feature flag for the Generate Excerpt suggestion.
-	 *
-	 * Exposed only in internal testing environments while the feature is in development.
-	 * No plan gate: the excerpt is a core editorial field, and the ability's own
-	 * permission callback (edit_posts) gates execution server-side.
-	 *
-	 * @return bool
-	 */
-	private static function is_excerpt_suggestion_enabled(): bool {
-		return jetpack_is_internal_testing_environment();
-	}
-
-	/**
-	 * UI feature flag for the block toolbar button that replaces the legacy AI toolbar.
-	 *
-	 * Exposed only in internal testing environments while the feature is in development.
-	 *
-	 * @return bool
-	 */
-	private static function is_block_toolbar_button_enabled(): bool {
-		return jetpack_is_internal_testing_environment();
 	}
 
 	/**
@@ -412,7 +352,9 @@ class Jetpack_AI_Sidebar {
 	 * that have the Big Sky plugin present and enabled. Big Sky defaults on for
 	 * Simple sites and off on WoA/Atomic. The jetpack_ai_sidebar_enabled filter
 	 * is a host-level override of that default, respected by init() and every
-	 * sidebar surface that gates on this method.
+	 * sidebar surface that gates on this method. Independently of the filter,
+	 * the sidebar requires at least one of its features (writing assistant or
+	 * SEO enhancer) to be enabled.
 	 *
 	 * @return bool
 	 */
@@ -431,28 +373,60 @@ class Jetpack_AI_Sidebar {
 		 * Defaults to true only on WordPress.com platform sites with Big Sky
 		 * present and enabled. Acts as a host-level override that can force the
 		 * sidebar on (e.g. for local development) or off, and is respected by
-		 * init() and every sidebar surface.
+		 * init() and every sidebar surface. The override cannot force the
+		 * sidebar on while the writing-assistant and SEO enhancer features are
+		 * both off — a featureless sidebar never loads.
 		 *
 		 * @param bool $enabled Whether the Jetpack AI sidebar is enabled.
 		 */
-		return (bool) apply_filters( 'jetpack_ai_sidebar_enabled', $enabled );
+		$enabled = (bool) apply_filters( 'jetpack_ai_sidebar_enabled', $enabled );
+
+		// Re-asserted after the filter so a later filter cannot surface a
+		// sidebar whose features are all off, or one blocked by the host or
+		// master gates — the gates are final, as with is_ai_enabled().
+		return $enabled
+			&& \Jetpack_AI_Settings::apply_master_gates( true )
+			&& self::has_enabled_sidebar_features();
+	}
+
+	/**
+	 * Whether any feature the sidebar surfaces is effectively enabled; with
+	 * nothing to offer it must not load. Caveat: init() runs before seo-tools
+	 * registers jetpack_disable_seo_tools, so that term reads its default here.
+	 *
+	 * @return bool
+	 */
+	private static function has_enabled_sidebar_features(): bool {
+		return \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' )
+			|| self::is_seo_suggestions_enabled();
 	}
 
 	/**
 	 * Whether the Jetpack AI provider bundle should be exposed for this request.
 	 *
 	 * This is scoped to the supported editor surfaces: post editor, page editor,
-	 * and site editor. The existing post editor surface remains available when
-	 * preview and AI feature gates pass, while the new page and site editor
-	 * surfaces require an internal testing environment.
+	 * and site editor. Each surface remains subject to the preview and AI feature
+	 * gates.
 	 *
 	 * @return bool
 	 */
 	private static function should_expose_provider(): bool {
 		return self::is_jetpack_ai_sidebar_preview_enabled()
 			&& self::is_supported_provider_surface()
-			&& self::is_provider_rollout_enabled()
 			&& self::has_ai_features();
+	}
+
+	/**
+	 * Whether the Agents Manager is loading a disconnected build, which it does
+	 * when the current user has no linked WordPress.com account.
+	 *
+	 * @return bool
+	 */
+	private static function is_agents_manager_disconnected(): bool {
+		$variant = Agents_Manager::get_active_variant();
+
+		// Null means the Agents Manager is not loading at all, which is not a disconnection.
+		return is_string( $variant ) && str_contains( $variant, 'disconnected' );
 	}
 
 	/**
@@ -461,15 +435,22 @@ class Jetpack_AI_Sidebar {
 	 * @return array Preview mode and feature availability.
 	 */
 	private static function get_jetpack_ai_sidebar_preview_config(): array {
+		// Ability permission callbacks enforce server-side access for these
+		// features. The writing suggestions additionally follow the writing
+		// assistant toggle on the AI settings page — a switched-off feature
+		// must not surface suggestions even when an external host (Big Sky,
+		// Woo) draws the sidebar — and SEO requires the site-side gates below.
+		$writing_on = \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' );
+
 		$features = array(
-			'aiEditorialReview'       => self::is_ai_editorial_review_enabled(),
-			'generateFeedback'        => self::is_generate_feedback_enabled(),
-			'proofreadContent'        => self::is_proofread_content_enabled(),
-			'blockTransformations'    => true,
-			'blockToolbarButton'      => self::is_block_toolbar_button_enabled(),
-			'optimizeTitleSuggestion' => self::is_optimize_title_suggestion_enabled(),
+			'aiEditorialReview'       => (bool) apply_filters( 'jetpack_ai_editorial_review_enabled', true ) && $writing_on,
+			'generateFeedback'        => $writing_on,
+			'proofreadContent'        => $writing_on,
+			'blockTransformations'    => $writing_on,
+			'blockToolbarButton'      => $writing_on,
+			'optimizeTitleSuggestion' => $writing_on,
 			'seoSuggestions'          => self::is_seo_suggestions_enabled(),
-			'excerptSuggestion'       => self::is_excerpt_suggestion_enabled(),
+			'excerptSuggestion'       => $writing_on,
 			'chatHistory'             => false,
 			'supportGuides'           => false,
 		);
@@ -482,14 +463,19 @@ class Jetpack_AI_Sidebar {
 		$filtered_features = apply_filters( 'jetpack_ai_sidebar_preview_features', $features );
 		$features          = is_array( $filtered_features ) ? array_merge( $features, $filtered_features ) : $features;
 
-		// Re-assert the testing-environment gates so the generic features filter cannot
-		// expose in-development suggestions outside internal testing environments.
-		$features['generateFeedback']        = self::is_generate_feedback_enabled();
-		$features['proofreadContent']        = self::is_proofread_content_enabled();
-		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && self::is_optimize_title_suggestion_enabled();
-		$features['blockToolbarButton']      = (bool) $features['blockToolbarButton'] && self::is_block_toolbar_button_enabled();
+		// Normalize the flags released here while leaving host-added values
+		// untouched. Keep the AI settings page toggles and SEO's site-side
+		// requirements final.
+		$features['aiEditorialReview']       = (bool) $features['aiEditorialReview'] && $writing_on;
+		$features['generateFeedback']        = (bool) $features['generateFeedback'] && $writing_on;
+		$features['proofreadContent']        = (bool) $features['proofreadContent'] && $writing_on;
+		$features['blockToolbarButton']      = (bool) $features['blockToolbarButton'] && $writing_on;
+		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && $writing_on;
 		$features['seoSuggestions']          = (bool) $features['seoSuggestions'] && self::is_seo_suggestions_enabled();
-		$features['excerptSuggestion']       = (bool) $features['excerptSuggestion'] && self::is_excerpt_suggestion_enabled();
+		$features['excerptSuggestion']       = (bool) $features['excerptSuggestion'] && $writing_on;
+		// Block transformations (Translate, Change Tone, etc.) are writing features
+		// and follow the writing assistant toggle.
+		$features['blockTransformations'] = (bool) $features['blockTransformations'] && $writing_on;
 
 		return array(
 			'enabled'  => self::is_jetpack_ai_sidebar_preview_enabled(),
@@ -500,12 +486,19 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * Whether the Jetpack AI Sidebar toolbar button replaces the legacy AI toolbar.
 	 *
+	 * The button is a writing entry point, so it follows the writing assistant
+	 * toggle. Switching it off cannot bring the legacy toolbar back in its place:
+	 * the editor renders that toolbar only while this feature is unavailable AND
+	 * the AI Assistant block and its ai-assistant-support extension are
+	 * registered, and both of those are themselves gated on the writing assistant.
+	 *
 	 * @return bool
 	 */
 	public static function is_toolbar_button_enabled(): bool {
 		$preview_config = self::get_jetpack_ai_sidebar_preview_config();
 
 		return self::should_expose_provider()
+			&& ! self::is_agents_manager_disconnected()
 			&& true === ( $preview_config['features']['blockToolbarButton'] ?? false );
 	}
 
@@ -545,7 +538,7 @@ class Jetpack_AI_Sidebar {
 		// Set our fields in place, leaving the rest of $data (including agentProviders)
 		// untouched so the client-side gate can drop Jetpack AI Sidebar while keeping
 		// fallbacks such as the Big Sky provider. Hosts that need intentional overrides
-		// should use the AI Editorial Review and preview filters.
+		// should use the sidebar and preview feature filters.
 		foreach ( $fields as $key => $value ) {
 			$data[ $key ] = $value;
 		}
@@ -618,6 +611,11 @@ class Jetpack_AI_Sidebar {
 		// The fields getter carries the provider exposure gate.
 		$fields = self::get_agents_manager_data_fields();
 		if ( ! $fields ) {
+			return;
+		}
+
+		// The second path the provider URL can reach agentsManagerData by.
+		if ( self::is_agents_manager_disconnected() ) {
 			return;
 		}
 
@@ -694,22 +692,6 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Keep the existing post editor rollout while gating newly supported surfaces.
-	 *
-	 * @return bool
-	 */
-	private static function is_provider_rollout_enabled(): bool {
-		if ( jetpack_is_internal_testing_environment() ) {
-			return true;
-		}
-
-		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-		return $screen instanceof \WP_Screen
-			&& 'post' === $screen->base
-			&& 'post' === $screen->post_type;
-	}
-
-	/**
 	 * Check whether AI features are available.
 	 *
 	 * - wpcom simple: available when Jetpack AI is enabled.
@@ -718,7 +700,7 @@ class Jetpack_AI_Sidebar {
 	 * @return bool
 	 */
 	private static function has_ai_features(): bool {
-		if ( ! apply_filters( 'jetpack_ai_enabled', true ) ) {
+		if ( ! \Jetpack_AI_Settings::is_ai_enabled() ) {
 			return false;
 		}
 

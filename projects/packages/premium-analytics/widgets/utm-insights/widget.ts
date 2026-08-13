@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { trendingUp } from '@wordpress/icons';
+import { megaphone } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -16,7 +16,7 @@ import { SelectField } from '@jetpack-premium-analytics/fields';
  *
  * @property utmDimension   - UTM dimension to break down by. Defaults to 'utm_source,utm_medium'.
  * @property max            - Maximum rows to display (0 = all). Defaults to 10.
- * @property showReportLink - Whether to render the "See report" footer link. Defaults to true.
+ * @property showReportLink - Whether to render the "View all" footer link. Defaults to true.
  *                          Host compositions on terminal pages (post detail) set this to false;
  *                          it is not a user-facing control.
  */
@@ -36,7 +36,7 @@ export type UtmInsightsAttributes = {
  * shared dashboard date picker).
  */
 export default {
-	icon: trendingUp,
+	icon: megaphone,
 	attributes: [
 		{
 			id: 'utmDimension',

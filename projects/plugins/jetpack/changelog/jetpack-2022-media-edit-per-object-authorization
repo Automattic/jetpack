@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Security: Enforce per-item permission checks when editing media through the JSON API.

@@ -1,0 +1,238 @@
+// Chapters editor timeline: toolbar row on top, then a horizontally
+// scrollable strip. Inside the strip a scaled content element stacks the
+// tracks with the gridline layer, the overlay, and the playhead absolutely
+// positioned across the full track height.
+// Strip grammar (editor redesign): the top 24px is the tick zone (mono
+// labels over full-height 1px gridlines); everything below is the tool's
+// track.
+
+$vp-timeline-accent: var(--vp-accent, var(--wp-admin-theme-color, #3858e9));
+
+.vp-chapters-timeline {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 0;
+}
+
+.vp-chapters-timeline__toolbar {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-height: 36px;
+}
+
+// The relocated transport: a plain 36px icon button (the redesign moved
+// play/pause from the preview player into this toolbar).
+.vp-chapters-timeline__transport {
+	flex: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	padding: 0;
+	border: 0;
+	border-radius: var(--vp-radius-small, 2px);
+	background: transparent;
+	color: var(--vp-gray-900, #1e1e1e);
+	cursor: pointer;
+
+	svg {
+		fill: currentColor;
+	}
+
+	&:hover {
+		background: var(--vp-gray-100, #f0f0f0);
+	}
+
+	&:focus-visible {
+		outline: 2px solid $vp-timeline-accent;
+		outline-offset: 1px;
+	}
+}
+
+// The "current / duration" readout reads as one mono unit: the editable
+// timecode box, then the total duration.
+.vp-chapters-timeline__time {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+// The extra type selector out-specifies wp-admin's forms.css
+// `input[type="text"]` (0,1,1): with a bare class (0,1,0) the admin styles
+// won its `padding: 0 8px`, and the wider chrome ate the tenths digit out of
+// the old 11ch width guess.
+input[type="text"].vp-chapters-timeline__timecode {
+	// "H:MM:SS.t" is 9 monospace characters; the border-box width adds the
+	// input chrome measured explicitly: 4px padding + 1px border per side.
+	width: calc(9ch + 10px);
+	font-family: var(--vp-font-mono, Menlo, Consolas, monaco, monospace);
+	font-size: 13px;
+	color: var(--vp-gray-900, #1e1e1e);
+	font-variant-numeric: tabular-nums;
+	text-align: right;
+	border: 1px solid transparent;
+	border-radius: var(--vp-radius-small, 2px);
+	background: transparent;
+	padding: 2px 4px;
+
+	&:hover,
+	&:focus {
+		border-color: $vp-timeline-accent;
+	}
+}
+
+.vp-chapters-timeline__duration {
+	font-family: var(--vp-font-mono, Menlo, Consolas, monaco, monospace);
+	font-size: 13px;
+	color: var(--vp-gray-600, #949494);
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.vp-chapters-timeline__toolbar-divider {
+	flex: none;
+	width: 1px;
+	height: 24px;
+	background: var(--vp-gray-300, #ddd);
+}
+
+.vp-chapters-timeline__zoom {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-inline-start: auto;
+}
+
+.vp-chapters-timeline__zoom-slider {
+	width: 120px;
+	accent-color: $vp-timeline-accent;
+}
+
+.vp-chapters-timeline__scroller {
+	overflow-x: auto;
+	overflow-y: hidden;
+	border: 1px solid var(--vp-gray-300, #ddd);
+	border-radius: var(--vp-radius-medium, 4px);
+	background: #fff;
+	// Zoomed content must scroll HERE, never widen the page: without
+	// inline-size containment the scroller's max-content size grows with the
+	// zoomed strip, and any ancestor that sizes to content inflates the whole
+	// layout (which also feeds the wider viewport back into the zoom math via
+	// the ResizeObserver, compounding the growth).
+	contain: inline-size;
+}
+
+// A processing job locks editing: pointer interaction with the strip is
+// blocked and the strip dims. Scoped to the scroller — NOT the toolbar — so
+// the transport and zoom stay usable while a job runs; the host screen's
+// guarded dispatch drops keyboard-driven edit dispatches, and its wrapper
+// keeps the aria-busy announcement.
+.vp-chapters-timeline__scroller--locked {
+	pointer-events: none;
+	opacity: 0.6;
+}
+
+.vp-chapters-timeline__content {
+	position: relative;
+	// Fallback for the unmeasured first paint only (the component sets an
+	// explicit width once the viewport reports one). Track rows do NOT
+	// inherit this stretch: each carries the same explicit width as the
+	// content element, so ruler ticks and track contents stay on one
+	// horizontal scale even when this box is stretched past it.
+	min-width: 100%;
+	// Pointer-captured drags must keep reporting positions instead of turning
+	// into native scrolling/text-selection gestures.
+	touch-action: none;
+	user-select: none;
+}
+
+// The 24px tick zone: mono labels only — the vertical lines under them are
+// the shell's full-height gridline layer, not per-tick borders.
+.vp-chapters-timeline__track--ruler {
+	height: 24px;
+}
+
+.vp-chapters-timeline__ruler {
+	position: relative;
+	height: 100%;
+	border-bottom: 1px solid var(--vp-gray-200, #e0e0e0);
+	overflow: hidden;
+}
+
+.vp-chapters-timeline__ruler-tick {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+}
+
+.vp-chapters-timeline__ruler-label {
+	position: absolute;
+	top: 4px;
+	left: 5px;
+	font-family: var(--vp-font-mono, Menlo, Consolas, monaco, monospace);
+	font-size: 11px;
+	line-height: 1;
+	color: var(--vp-gray-700, #757575);
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+// Full-height gridlines under the ruler labels: a pointer-transparent sheet
+// spanning every track, one 1px vertical per tick at the same pxPerMs as
+// the labels above it.
+.vp-chapters-timeline__gridlines {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+
+.vp-chapters-timeline__gridline {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 1px;
+	background: rgba(0, 0, 0, 0.07);
+}
+
+// The overlay sheet spans every track; it is pointer-transparent so empty
+// areas scrub, and interactive children opt back in.
+.vp-chapters-timeline__overlay {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+
+.vp-chapters-timeline__playhead {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 2px;
+	margin-left: -1px;
+	background: var(--vp-gray-900, #1e1e1e);
+	// Never block scrubbing; keyboard focus still works via Tab.
+	pointer-events: none;
+
+	// The grab cap: a rounded-bottom lozenge hanging from the strip top.
+	&::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 50%;
+		width: 10px;
+		height: 12px;
+		transform: translateX(-50%);
+		border-radius: 2px 2px 5px 5px;
+		background: var(--vp-gray-900, #1e1e1e);
+	}
+
+	&:focus-visible {
+		outline: 2px solid $vp-timeline-accent;
+		outline-offset: 1px;
+	}
+}

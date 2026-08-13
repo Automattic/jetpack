@@ -26,9 +26,7 @@ function register_widget_modules_rest_route() {
 		array(
 			'methods'             => \WP_REST_Server::READABLE,
 			'callback'            => __NAMESPACE__ . '\\get_widget_modules_response',
-			'permission_callback' => static function () {
-				return current_user_can( 'manage_options' );
-			},
+			'permission_callback' => array( Capabilities::class, 'current_user_can_view_analytics' ),
 		)
 	);
 }
@@ -55,8 +53,10 @@ function ensure_widget_registry_ready() {
 	require_once __DIR__ . '/widget-types.php';
 	require_once __DIR__ . '/widget-availability.php';
 
-	// Manifest register_widget_types() reads; absent without a JS build.
-	$widgets_manifest = __DIR__ . '/../build/widgets.php';
+	// REST does not load the admin build, so this require is the manifest's only route
+	// in (WOOA7S-1804). Drop it and every widget renders "Widget is no longer
+	// available" — the #49961 bug.
+	$widgets_manifest = Analytics::widget_manifest_path();
 	if ( file_exists( $widgets_manifest ) ) {
 		require_once $widgets_manifest;
 	}
@@ -119,8 +119,4 @@ function add_widget_modules_to_boot_deps( $boot_dependencies ) {
 
 	return $boot_dependencies;
 }
-// The full-page interceptor (page.php) renders via the `{page-id}` filter; the
-// in-admin variant (page-wp-admin.php) uses the `{page-id}-wp-admin` filter. Hook
-// both so the widget modules land in the import map regardless of which renders.
-add_filter( 'jetpack-premium-analytics_boot_dependencies', __NAMESPACE__ . '\\add_widget_modules_to_boot_deps' );
 add_filter( 'jetpack-premium-analytics-wp-admin_boot_dependencies', __NAMESPACE__ . '\\add_widget_modules_to_boot_deps' );

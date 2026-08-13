@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.4] - 2026-08-10
+### Changed
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Fix the settings page rendering blank on WordPress 6.9. [#50509]
+- Subscribers: Remove the misleading "Joined" field from the subscriber profile, which showed the site's creation date rather than a per-subscriber date. [#51054]
+- Subscribers: Restore the option to assign imported subscribers to specific newsletter categories on CSV upload and manual add. [#51007]
+- Subscribers: Show your own subscription in the list instead of an empty state when you are the only subscriber, with a prompt pointing at the Add subscribers button. [#50923]
+
+## [0.12.3] - 2026-08-03
+### Changed
+- Categories: Deep-link the subscribe block help text to the "Subscribe to specific categories" section. [#50937]
+
+### Fixed
+- Categories: Add categories inline instead of linking out to wp-admin, so a new category appears and is selected without a page refresh. [#50878]
+- Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundles. [#50762]
+- Only show the Subscribers announcement page on sites that predate the Subscribers move. [#50874]
+- Remove the Subscribers announcement page entirely on sites that postdate the Subscribers move, instead of leaving an unstyled fallback page behind. [#50874]
+- Subscribe modal heading: Remove the duplicated "Button only" note from the card description. [#50974]
+- Subscribers: Show the newsletter categories a subscriber receives emails for, and restore the missing subscription date, in the subscriber details panel. [#50877]
+
 ## [0.12.2] - 2026-07-27
 ### Changed
 - Update package dependencies. [#50751] [#50753]
@@ -297,6 +319,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.12.4]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.3...v0.12.4
+[0.12.3]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.2...v0.12.3
 [0.12.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.1...v0.12.2
 [0.12.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.11.2...v0.12.0

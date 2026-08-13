@@ -47,21 +47,14 @@ export function getDefaultPreset( launchedDate?: string ): PresetType {
 }
 
 /**
- * Build report query parameters (from, to, interval, preset)
- * for the given date-range preset. Defaults to `last-30-days`.
+ * Build report query parameters (from, to, interval, preset) for the given date-range
+ * preset, optionally including the previous-period comparison range.
  *
  * Callers that need a dynamic default (e.g. based on store
  * age) should resolve the preset externally and pass it in.
  */
 export const getDefaultQueryParams = (
-	/**
-	 * Include previous-period comparison range.
-	 */
 	withComparison: boolean = false,
-
-	/**
-	 * Date-range preset. Defaults to `last-30-days`.
-	 */
 	preset: PresetType = DEFAULT_PRESET
 ): ReportParams => {
 	const range = computeDateRangeFromPreset( preset );

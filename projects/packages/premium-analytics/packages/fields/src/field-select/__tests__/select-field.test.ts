@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { fromSelectValue, toSelectItems } from '../select-field';
-import type { Option } from '@wordpress/dataviews';
+import type { Option } from '@jetpack-premium-analytics/externals';
 
 const NUMERIC_ELEMENTS: Option[] = [
 	{ value: 10, label: 'Ten' },

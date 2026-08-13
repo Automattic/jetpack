@@ -3,6 +3,7 @@ import { addQueryArgs } from '@wordpress/url';
 import type {
 	AddSubscribersResponse,
 	ImportJob,
+	NewsletterCategoriesData,
 	RemoveSubscriberPayload,
 	RemoveSubscriberResponse,
 	SubscribedNewsletterCategories,
@@ -73,14 +74,39 @@ export function removeSubscriber(
  * an async job — no invitation email is sent; WP.com emails a "Subscriber import completed"
  * summary when the job finishes.
  *
- * @param emails - Email addresses to import.
+ * @param emails     - Email addresses to import.
+ * @param categories - Newsletter category ids to opt the imported subscribers into. Omitted from
+ *                   the payload when empty, matching Calypso's behavior when the picker is off.
  * @return WP.com response carrying the import job id.
  */
-export function addSubscribers( emails: string[] ): Promise< AddSubscribersResponse > {
+export function addSubscribers(
+	emails: string[],
+	categories: number[] = []
+): Promise< AddSubscribersResponse > {
+	const data: { emails: string[]; categories?: number[] } = { emails };
+	if ( categories.length > 0 ) {
+		data.categories = categories;
+	}
+
 	return apiFetch< AddSubscribersResponse >( {
 		path: '/wpcom/v2/subscribers/add',
 		method: 'POST',
-		data: { emails },
+		data,
+	} );
+}
+
+/**
+ * Fetch the site's newsletter categories and whether the feature is enabled, via the Jetpack proxy
+ * (`GET /wpcom/v2/newsletter-categories`). Unlike {@link fetchSubscribedNewsletterCategories} this
+ * is not scoped to a subscriber, so it's usable from the import flow where no subscriber exists
+ * yet. Mirrors Calypso's `useNewsletterCategories`.
+ *
+ * @return Site categories plus the `enabled` feature flag.
+ */
+export function fetchNewsletterCategories(): Promise< NewsletterCategoriesData > {
+	return apiFetch< NewsletterCategoriesData >( {
+		path: '/wpcom/v2/newsletter-categories',
+		method: 'GET',
 	} );
 }
 

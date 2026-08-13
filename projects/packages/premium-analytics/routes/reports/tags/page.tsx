@@ -1,14 +1,17 @@
 /**
  * External dependencies
  */
-import { useDashboardLink } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportPageLayout,
 	ReportRecordsTable,
+	ReportCsvAction,
+	useReportCsvExport,
 	useReportRetry,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
+import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -32,6 +35,8 @@ const RECORDS_VIEW = {
 	},
 };
 
+const sortTagCsvRows = ( a: StatsTagsItem, b: StatsTagsItem ) => b.value - a.value;
+
 /**
  * Premium Analytics Tags & categories report page component.
  *
@@ -45,22 +50,43 @@ const RECORDS_VIEW = {
 function TagsReport(): JSX.Element {
 	const records = useTagsReportRecords();
 	const fields = useMemo( () => getTagsFields(), [] );
+	const csvColumns = useMemo< CsvColumn< StatsTagsItem >[] >(
+		() => [
+			{
+				label: __( 'Tag or category', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.labelText,
+			},
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
+			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
+		],
+		[]
+	);
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows: records.rows,
+		filenamePrefix: 'tags-and-categories',
+		status: records,
+		sort: sortTagCsvRows,
+	} );
 	const retry = useReportRetry( records.refetch );
-
-	// Preserve the shared report window when returning to the dashboard.
-	const dashboardLink = useDashboardLink();
 
 	return (
 		<Page
+			visual={ <StatsPageIcon /> }
 			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-						{ label: __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ) },
-					] }
+				<StatsBreadcrumbs
+					items={ [ { label: __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ) } ] }
 				/>
 			}
 			subTitle={ __( 'Your most visited tags and categories.', 'jetpack-premium-analytics-pkg' ) }
+			actions={
+				canExport ? (
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) : undefined
+			}
 			className={ styles.page }
 		>
 			<div className={ styles.content }>

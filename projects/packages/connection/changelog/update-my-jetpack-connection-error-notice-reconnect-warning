@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection: Warn a secondary admin that reconnecting on the connection owner's behalf transfers ownership and disconnects every other user.

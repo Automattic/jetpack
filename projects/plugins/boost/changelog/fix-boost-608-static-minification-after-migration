@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Concatenate JS/CSS: Fix broken CSS and JS delivery on pages rendered after a site is migrated onto WP Cloud or WordPress.com. Pages already served from a cache keep the old URLs until the cache is purged or expires.

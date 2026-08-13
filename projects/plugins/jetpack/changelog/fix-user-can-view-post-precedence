@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Memberships: Ensure the configured post access level is evaluated correctly before authorizing access to paywalled content.

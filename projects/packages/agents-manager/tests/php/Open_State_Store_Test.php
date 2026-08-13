@@ -69,6 +69,16 @@ class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Mock a user connection by seeding the connection tokens.
+	 *
+	 * @param int $user_id User ID.
+	 */
+	private function connect_user( int $user_id ) {
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
+		\Jetpack_Options::update_option( 'id', 12345 );
+	}
+
+	/**
 	 * Tests that get_cached() returns null when no user is logged in.
 	 */
 	public function test_get_cached_returns_null_without_user() {
@@ -81,6 +91,25 @@ class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_cached_returns_null_when_uncached() {
 		wp_set_current_user( $this->user_id );
+		$this->connect_user( $this->user_id );
+		$this->assertNull( Open_State_Store::get_cached() );
+	}
+
+	/**
+	 * Tests that get_cached() ignores the transient when the user has no
+	 * WordPress.com connection (e.g. after a disconnect), so the pre-render
+	 * cannot inject a shell the app will never mount into.
+	 */
+	public function test_get_cached_returns_null_when_user_not_connected() {
+		wp_set_current_user( $this->user_id );
+
+		$this->cache(
+			array(
+				'agents_manager_open'   => true,
+				'agents_manager_docked' => true,
+			)
+		);
+
 		$this->assertNull( Open_State_Store::get_cached() );
 	}
 
@@ -89,6 +118,7 @@ class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_cache_round_trip_stores_open_and_docked_only() {
 		wp_set_current_user( $this->user_id );
+		$this->connect_user( $this->user_id );
 
 		$this->cache(
 			array(
@@ -116,6 +146,7 @@ class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_cache_coerces_booleans() {
 		wp_set_current_user( $this->user_id );
+		$this->connect_user( $this->user_id );
 
 		$this->cache(
 			array(
@@ -147,6 +178,7 @@ class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 		);
 
 		wp_set_current_user( $this->user_id );
+		$this->connect_user( $this->user_id );
 		$this->assertNull( Open_State_Store::get_cached() );
 	}
 

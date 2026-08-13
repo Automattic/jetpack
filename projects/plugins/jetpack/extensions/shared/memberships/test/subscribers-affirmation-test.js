@@ -1,4 +1,5 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../../_inc/shared/analytics-url';
 import { META_NAME_FOR_POST_TIER_ID_SETTINGS, accessOptions } from '../constants';
 import {
 	getFormattedCategories,
@@ -13,6 +14,11 @@ import {
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getAdminUrl: jest.fn( path => `https://admin.example.com/${ path }` ),
+} ) );
+
+jest.mock( '../../../../_inc/shared/analytics-url', () => ( {
+	getAnalyticsUrl: jest.fn( () => 'https://admin.example.com/analytics' ),
+	hasAnalyticsDashboard: jest.fn( () => true ),
 } ) );
 
 describe( 'getFormattedCategories', () => {
@@ -362,9 +368,33 @@ describe( 'getSentCopyLine', () => {
 describe( 'getJetpackEmailStatsLink', () => {
 	beforeEach( () => {
 		getAdminUrl.mockClear();
+		getAnalyticsUrl.mockClear();
+		hasAnalyticsDashboard.mockReturnValue( true );
 	} );
 
-	test( 'calls getAdminUrl with correct path and returns result', () => {
+	// Where the dashboard is the analytics UI, delegate to the shared helper — it
+	// owns that URL grammar, so this asserts the request, not the URL.
+	test( 'asks for the post email-opens view and returns what the helper builds', () => {
+		const result = getJetpackEmailStatsLink( 123, 456 );
+
+		expect( getAnalyticsUrl ).toHaveBeenCalledWith( {
+			view: 'post',
+			id: 456,
+			section: 'email-opens',
+		} );
+		expect( result ).toBe( 'https://admin.example.com/analytics' );
+	} );
+
+	test( 'passes through null when the user cannot open the dashboard', () => {
+		getAnalyticsUrl.mockReturnValueOnce( null );
+
+		expect( getJetpackEmailStatsLink( 123, 456 ) ).toBeNull();
+	} );
+
+	// Everywhere else the existing Stats deep link is untouched.
+	test( 'returns the Stats deep link when the dashboard has not replaced it', () => {
+		hasAnalyticsDashboard.mockReturnValue( false );
+
 		const result = getJetpackEmailStatsLink( 123, 456 );
 
 		expect( getAdminUrl ).toHaveBeenCalledWith(
@@ -373,6 +403,7 @@ describe( 'getJetpackEmailStatsLink', () => {
 		expect( result ).toBe(
 			'https://admin.example.com/admin.php?page=stats#!/stats/email/opens/day/456/123'
 		);
+		expect( getAnalyticsUrl ).not.toHaveBeenCalled();
 	} );
 } );
 

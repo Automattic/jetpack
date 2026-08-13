@@ -3,6 +3,7 @@ import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import type { SettingsResponse } from '../../../data/settings-types';
 import type { SettingsForm } from '../../../data/use-settings';
+import type { ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the components under test dynamically after the mocks are registered.
@@ -13,6 +14,7 @@ jest.unstable_mockModule( '../../../data/is-gated', () => ( {
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
+	Link: ( { children }: { children?: ReactNode } ) => <a href="#">{ children }</a>,
 } ) );
 
 // Stub the cards that own their own header, so each assertion below is
@@ -33,6 +35,9 @@ jest.unstable_mockModule( '../title-structure-field', () => ( {
 } ) );
 jest.unstable_mockModule( '../google-verification-field', () => ( {
 	default: () => <div>google field</div>,
+} ) );
+jest.unstable_mockModule( '../advanced-card', () => ( {
+	default: () => <div>advanced</div>,
 } ) );
 
 const { default: SettingsScreen } = await import( '../index' );
@@ -58,6 +63,8 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		has_legacy_front_page_meta: false,
 		title_formats: {},
 		title_separator: '-',
+		title_formats_editable: true,
+		verification_tools_active: true,
 		verification: { ...EMPTY_VERIFICATION },
 		search_engines_visible: false,
 		sitemap_active: false,
@@ -223,4 +230,56 @@ describe( 'Settings module title chips', () => {
 			expect( title.querySelector( 'svg' ) ).toBeInTheDocument();
 		}
 	);
+} );
+
+describe( 'Advanced module — WordPress.com Simple', () => {
+	/**
+	 * Flip the dashboard into WordPress.com Simple mode by seeding the global
+	 * `isSimpleSite()` reads, rather than mocking the module — that keeps
+	 * `isSimpleSite()` itself in the code path under test.
+	 */
+	const setSimpleSite = () => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			site: { host: 'wpcom' },
+		};
+	};
+
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	it( 'renders the module on a self-hosted site', () => {
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		expect( screen.getByText( 'advanced' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides it on Simple, where SEO tools cannot actually be turned off', () => {
+		// `Modules::is_active()` reports every module active there, so the control
+		// would appear to do nothing.
+		setSimpleSite();
+
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		expect( screen.queryByText( 'advanced' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Settings module text hierarchy', () => {
+	// One rule: the small muted treatment (`body-sm`) is for explainer text attached
+	// to a field. A module's own prose is body copy (`body-md`). Pinned because the
+	// failure is silent — muted text still renders, it's just harder to read, which
+	// is how five modules drifted into it one copy-paste at a time.
+	it( 'renders a module description as body copy, not explainer text', () => {
+		// Site verification is the one module this suite leaves unmocked, so it's the
+		// one whose description actually renders here.
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		const description = screen.getByText( /Confirm you own this site/ );
+		expect( description.className ).toMatch( /body-md/ );
+		expect( description.className ).not.toMatch( /body-sm/ );
+		// `body-md` is also `Text`'s default, so the class alone would still pass if the
+		// `variant` prop were deleted outright. The `<p>` pins that it's a real paragraph.
+		expect( description.tagName ).toBe( 'P' );
+	} );
 } );

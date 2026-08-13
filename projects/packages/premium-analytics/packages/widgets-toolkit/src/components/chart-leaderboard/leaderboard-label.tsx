@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useState } from 'react';
 /**
@@ -74,10 +74,6 @@ function getMediaDetails( media: Exclude< LeaderboardRowMedia, { kind: 'none' } 
 /**
  * Render media and truncating text outside a leaderboard chart row.
  *
- * @param props                 - Component props.
- * @param props.label           - Label text.
- * @param props.media           - Optional media rendered before the label.
- * @param props.decorativeMedia - Whether assistive technology should ignore the image.
  * @return The rendered label.
  */
 export function LeaderboardLabel( {

@@ -4,18 +4,23 @@
 import { toPostId } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
+	CalendarHeatmapTooltip,
 	HeatmapChartUnresponsive,
 	WidgetRoot,
 	WidgetState,
 	buildCalendarHeatmapData,
+	fitWeekColumns,
+	formatViewCount,
+	toDay,
 	useWidgetRootContext,
+	type HeatmapTooltipData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useResizeObserver } from '@wordpress/compose';
-import { useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
-import { Button, Stack } from '@wordpress/ui';
+import { Button, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -30,43 +35,36 @@ type PostTrafficActivityWidgetProps = WidgetRenderProps< PostTrafficActivityRend
 
 /**
  * Sizing the page to the card: one page shows as many whole week columns as
- * fit at the design's cell width. The constants mirror the chart's
- * non-compact metrics — 64px design cells, the 4px cell gap, and an
- * allowance for the weekday-label gutter.
+ * fit at the design's cell width. The constants mirror the chart's non-compact
+ * metrics — 64px design cells and the 4px cell gap. The weekday-label gutter is
+ * the chart's own, so `fitWeekColumns` owns it.
  */
 const CELL_WIDTH = 64;
 const CELL_GAP = 4;
-const LABEL_GUTTER = 48;
 const MIN_PAGE_WEEKS = 4;
 const DEFAULT_PAGE_WEEKS = 16;
 
 /**
  * Whole week columns that fit the measured card width.
- *
- * @param width - The measured content width, if known yet.
- * @return The page width in week columns.
  */
 function weeksForWidth( width?: number ): number {
 	if ( ! width ) {
 		return DEFAULT_PAGE_WEEKS;
 	}
 
-	return Math.max(
-		MIN_PAGE_WEEKS,
-		Math.floor( ( width - LABEL_GUTTER ) / ( CELL_WIDTH + CELL_GAP ) )
-	);
+	return fitWeekColumns( {
+		availWidth: width,
+		cellWidth: CELL_WIDTH,
+		cellGap: CELL_GAP,
+		minColumns: MIN_PAGE_WEEKS,
+	} );
 }
 
 /**
- * Traffic activity inner component. Reads the post scope and date range from
- * WidgetRoot context and renders one page of the post's daily views as a
- * calendar heatmap through `<WidgetState>` — week columns, weekday rows, and
- * view counts inside the cells. Ranges longer than one page grow a header
- * pager stepping through the range; without a post scope (e.g. the widget
- * added outside a post detail page) the query never enables and the empty
- * state shows.
- *
- * @return The rendered widget content.
+ * Renders one page of the post's daily views as a calendar heatmap. Ranges
+ * longer than one page grow a header pager stepping through the range; without
+ * a post scope (e.g. the widget added outside a post detail page) the query
+ * never enables and the empty state shows.
  */
 function PostTrafficActivityInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -101,6 +99,35 @@ function PostTrafficActivityInner() {
 	const { data: heatmapData, rowLabels } = useMemo(
 		() => buildCalendarHeatmapData( days ),
 		[ days ]
+	);
+
+	const from = toDay( reportParams.from );
+	const to = toDay( reportParams.to );
+
+	// Blank cells split by what the blank means: a day inside the range really had
+	// no views, while the filler days padding the grid before the range start were
+	// masked rather than measured, so "No views" there could be false. Cells map
+	// back to `days` by grid position — the page start is week-aligned, so
+	// `column * 7 + row` indexes the flat series.
+	const renderCellTooltip = useCallback(
+		( { value, cellLabel, row, column }: HeatmapTooltipData ) => {
+			const day = days[ column * 7 + row ];
+			const inRange = !! day && !! from && !! to && day.dateString >= from && day.dateString <= to;
+
+			return (
+				<CalendarHeatmapTooltip
+					value={ value }
+					cellLabel={ cellLabel }
+					emptyLabel={
+						inRange
+							? __( 'No views', 'jetpack-premium-analytics-pkg' )
+							: __( 'No data', 'jetpack-premium-analytics-pkg' )
+					}
+					formatValue={ formatViewCount }
+				/>
+			);
+		},
+		[ days, from, to ]
 	);
 
 	return (
@@ -173,6 +200,7 @@ function PostTrafficActivityInner() {
 							// sized to the card, so tracks never need to shrink below it.
 							maxCellWidth={ 64 }
 							maxCellHeight={ 42 }
+							renderTooltip={ renderCellTooltip }
 							className={ styles.heatmap }
 						/>
 					</div>
@@ -182,14 +210,6 @@ function PostTrafficActivityInner() {
 	);
 }
 
-/**
- * Traffic activity widget: the scoped post's daily views as a calendar
- * heatmap — the post detail Traffic view's activity card, replacing the
- * legacy months table.
- *
- * @param {PostTrafficActivityWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function PostTrafficActivity( { attributes = {} }: PostTrafficActivityWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

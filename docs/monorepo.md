@@ -254,6 +254,14 @@ This assumes you have PHP installed via Homebrew, e.g. you've done `brew install
 
 Alternatives, if you can't install the ast extension, include running Phan with the `--allow-polyfill-parser` option (note this may cause false positives and cannot be used to update baseline files) or running Phan inside the [Docker development environment](../tools/docker/README.md).
 
+#### Referencing wpcom-only symbols
+
+Some Jetpack code calls classes or functions that exist only on WordPress.com, not in this repo. Phan flags these as `PhanUndeclared{Class,ClassMethod,Function}`. Rather than suppressing the error permanently, add the symbol to Phan's stub set:
+
+1. Add the class/method (or function) to the wpcom stub definitions at `bin/teamcity-builds/jetpack-stubs/stub-defs.php` in the wpcom repo — this is the source that the monorepo's `.phan/stubs/wpcom-stubs.php` is generated from. Do **not** hand-edit the generated `wpcom-stubs.php`; it will be overwritten.
+2. Trigger the *Jetpack Staging → Update WPCOM Stubs* TeamCity job, which opens a "phan: Update wpcom stubs" PR. Land that PR first, then rebase your feature PR on top so it picks up the new stubs.
+3. Remove any temporary inline `@phan-suppress-next-line <Rule> -- <reason>` you added at the call site as a bridge — once the stub exists, Phan passes without it.
+
 [^1]: In 2024 we evaluated Phan, Psalm, and PHPStan. Psalm was unable to produce a consistent baseline. PHPStan was confused about which constants were defined, and would have needed a bootstrapping file re-defining them all to work. Thus we settled on Phan. Details in pdWQjU-IH-p2.
 
 ### PHP tests

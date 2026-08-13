@@ -32,14 +32,16 @@ export const getUrl = ( searchText = '' ) => {
 		const shortlinkRegex = /^https:\/\/gph\.is\/(?:[a-zA-Z0-9]+\/)?[a-zA-Z0-9]+$/i;
 
 		if ( searchText.match( shortlinkRegex ) ) {
-			testEmbedUrl( searchText ).then( response => {
-				if ( response.startsWith( 'https://giphy.com/gifs/' ) ) {
-					giphyID = splitStringAndReturnLastItem( response, '-' );
-					resolve( getUrlWithId( giphyID ) );
-				} else {
-					resolve( getSearchUrl( searchText ) );
-				}
-			} );
+			testEmbedUrl( searchText )
+				.then( response => {
+					if ( response.startsWith( 'https://giphy.com/gifs/' ) ) {
+						giphyID = splitStringAndReturnLastItem( response, '-' );
+						resolve( getUrlWithId( giphyID ) );
+					} else {
+						resolve( getSearchUrl( searchText ) );
+					}
+				} )
+				.catch( () => resolve( getSearchUrl( searchText ) ) );
 		} else {
 			// If search is hardcoded Giphy URL following these patterns:
 			// https://giphy.com/embed/4ZFekt94LMhNK

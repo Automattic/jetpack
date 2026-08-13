@@ -2,15 +2,13 @@
  * External dependencies
  */
 import { toPostId } from '@jetpack-premium-analytics/data';
-import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
-	ComparativeLineChart,
+	MetricTabsChart,
 	WidgetRoot,
 	WidgetState,
-	useSeriesStyles,
 	useWidgetRootContext,
-	type ComparativeLineChartSeries,
+	type MetricTab,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -19,8 +17,8 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import usePostViews, { type PostViewsPoint } from './use-post-views';
-import type { PostViewsAttributes, PostViewsGranularity } from './widget';
+import usePostViews from './use-post-views';
+import type { PostViewsAttributes, PostViewsChartType, PostViewsGranularity } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type PostViewsRenderAttributes = PostViewsAttributes & Partial< ReportParamsFieldAttributes >;
@@ -31,82 +29,48 @@ const DATA_FORMAT = {
 	options: { useMultipliers: true, decimals: 0 },
 };
 
-/**
- * A series' legend label as its date range (first to last point), consistent
- * with the other comparative charts — used only when a comparison overlay
- * makes the plain "Views" label ambiguous.
- *
- * @param points - The series points, oldest first.
- * @return The formatted date range, or '' when empty.
- */
-function rangeLabel( points: PostViewsPoint[] ): string {
-	const first = points[ 0 ];
-	const last = points[ points.length - 1 ];
-	return first && last ? formatDateRange( { from: first.date, to: last.date } ) : '';
-}
-
 type PostViewsInnerProps = {
 	/** The granularity attribute: the chart's bucket size. */
 	granularity: PostViewsGranularity;
+	/** How the views series is drawn. `MetricTabsChart` owns the default. */
+	chartType?: PostViewsChartType;
 };
 
 /**
- * Post views inner component. Reads the post scope and report params from
- * WidgetRoot context and renders the view-trend line through `<WidgetState>`;
- * without a post scope (e.g. the widget added outside a post detail page) the
+ * Without a post scope (e.g. the widget added outside a post detail page) the
  * query never enables and the empty state shows.
- *
- * @param {PostViewsInnerProps} props - The component props.
- * @return The rendered widget content.
  */
-function PostViewsInner( { granularity }: PostViewsInnerProps ) {
+function PostViewsInner( { granularity, chartType }: PostViewsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 
-	const { current, previous, isLoading, isFetching, isError, hasData, refetch } = usePostViews(
+	const { current, isLoading, isFetching, isError, hasData, refetch } = usePostViews(
 		postId,
 		reportParams,
 		granularity
 	);
 
-	const series = useMemo< ComparativeLineChartSeries[] >( () => {
-		if ( ! current.length ) {
-			return [];
-		}
-
-		if ( ! previous?.length ) {
-			return [
-				{
-					label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
-					group: 'views',
-					data: current,
-				},
-			];
-		}
-
-		// With a comparison overlay both series are labelled by date range, so
-		// the legend distinguishes the periods; the previous period draws as a
-		// same-colour dashed line with no fill.
-		return [
-			{ label: rangeLabel( current ), group: 'views', data: current },
+	// One "Views" metric: the headline is the window total (views are summed
+	// per bucket, so the sum of buckets is the range's views). The post detail
+	// page has no comparison control, so there is no previous series.
+	const metricTabs = useMemo< MetricTab[] >(
+		() => [
 			{
-				label: rangeLabel( previous ),
-				group: 'views',
-				data: previous,
-				options: {
-					type: 'comparison',
-					gradient: { from: 'transparent', to: 'transparent', fromOpacity: 0, toOpacity: 0 },
-				},
+				key: 'views',
+				label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
+				value: current.reduce( ( sum, point ) => sum + point.value, 0 ),
+				current,
 			},
-		];
-	}, [ current, previous ] );
-	const seriesStyles = useSeriesStyles( series );
-
+		],
+		[ current ]
+	);
 	return (
 		<div className={ styles.root }>
 			<WidgetState
 				isLoading={ isLoading && ! hasData }
-				isFetching={ isFetching }
+				// `isFetching` is deliberately not passed: the chart renders its
+				// own scoped overlay below, so WidgetState's full-widget one
+				// would double up and cover the metric headline.
 				isError={ isError }
 				isEmpty={ postId <= 0 }
 				error={ {
@@ -124,36 +88,27 @@ function PostViewsInner( { granularity }: PostViewsInnerProps ) {
 					),
 				} }
 			>
-				<ComparativeLineChart
-					className={ styles.chart }
-					series={ series }
-					styles={ seriesStyles }
+				<MetricTabsChart
+					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
+					loading={ isFetching }
 				/>
 			</WidgetState>
 		</div>
 	);
 }
 
-/**
- * Post views widget: the scoped post's view trend over the dashboard date
- * range as a comparative line chart — the legacy Calypso post summary chart
- * (`stats-post-summary`). The view series comes from `stats/post`'s full
- * daily history, zero-filled and bucketed client-side per the granularity
- * attribute, with the comparison window sliced from the same request.
- *
- * @param {PostViewsWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function PostViews( { attributes = {} }: PostViewsWidgetProps ) {
-	// Coerce unknown persisted values to the default.
+	// Coerce unknown persisted values to the defaults.
 	const attrGranularity = attributes?.granularity;
 	const granularity =
 		attrGranularity === 'week' || attrGranularity === 'month' ? attrGranularity : 'day';
+	const chartType = attributes?.chartType === 'bar' ? 'bar' : 'line';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<PostViewsInner granularity={ granularity } />
+			<PostViewsInner granularity={ granularity } chartType={ chartType } />
 		</WidgetRoot>
 	);
 }

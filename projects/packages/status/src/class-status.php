@@ -54,7 +54,20 @@ class Status {
 		$offline_mode = (bool) apply_filters( 'jetpack_offline_mode', $offline_mode );
 
 		if ( ! $offline_mode ) {
-			$offline_mode = (bool) get_option( 'jetpack_offline_mode' );
+			// Sentinel default so an absent option isn't confused with a stored null/false.
+			$sentinel = new \stdClass();
+			$option   = get_option( 'jetpack_offline_mode', $sentinel );
+
+			if ( $sentinel === $option ) {
+				// Seed an autoloaded default to stop per-request reads, but only where it helps
+				// (no persistent object cache) and writes are safe (keep front-end reads read-only).
+				if ( ! wp_using_ext_object_cache() && ( is_admin() || wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) ) ) {
+					add_option( 'jetpack_offline_mode', false, '', true );
+				}
+			} else {
+				// A default_option filter could return a non-scalar; only a scalar is a real value.
+				$offline_mode = is_scalar( $option ) ? (bool) $option : false;
+			}
 		}
 
 		Cache::set( 'is_offline_mode', $offline_mode );
@@ -148,6 +161,7 @@ class Status {
 			'#\.lndo\.site$#i',    // Lando.
 			'#\.ddev\.site$#i',    // DDEV.
 			'#^https?://127\.0\.0\.1$#',
+			'#^https?://playground\.wordpress\.net(/|$)#i', // WordPress Playground, which runs entirely in the browser.
 		);
 
 		if ( ! $is_local ) {

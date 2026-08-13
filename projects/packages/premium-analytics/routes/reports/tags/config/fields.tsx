@@ -1,25 +1,25 @@
 /**
  * External dependencies
  */
+import { Icon, Link } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
 import { category, tag as tagGlyph } from '@wordpress/icons';
-import { Icon, Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './fields.module.css';
 import type { StatsTagsItem } from '@jetpack-premium-analytics/data';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
 const rowGlyph = ( labelIcon: string ) => ( labelIcon === 'folder' ? category : tagGlyph );
 
 /**
  * Render the label cell for a Tags report row.
  *
- * @param root0      - Component props.
- * @param root0.item - The Tags report item.
+ * @param props      - Component props.
+ * @param props.item - The Tags report item.
  * @return The label cell.
  */
 function TagLabel( { item }: { item: StatsTagsItem } ) {

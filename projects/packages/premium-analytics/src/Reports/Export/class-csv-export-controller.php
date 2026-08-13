@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 defined( 'ABSPATH' ) || exit;
 
+use Automattic\Jetpack\PremiumAnalytics\Capabilities;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Logger_Interface;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Logger_Trait;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
@@ -24,7 +25,7 @@ use WP_REST_Response;
 /**
  * CSV Export Controller class.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Csv_Export_Controller extends WC_REST_Controller implements Registrable_Interface {
 
@@ -135,14 +136,14 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 	/**
 	 * Check if user has permission to export reports.
 	 *
-	 * Must match the capability the analytics proxy enforces (`manage_options` for the
-	 * `analytics` prefix in Api_Proxy_Controller); otherwise the route would advertise
-	 * access the async data fetch cannot honor, scheduling a job that then fails.
+	 * Must match the capability the analytics proxy enforces (the `analytics` prefix
+	 * in Api_Proxy_Controller); otherwise the route would advertise access the async
+	 * data fetch cannot honor, scheduling a job that then fails.
 	 *
 	 * @return bool True if user has permission.
 	 */
 	public function check_permission(): bool {
-		return current_user_can( 'manage_options' );
+		return Capabilities::current_user_can_view_store_reports();
 	}
 
 	/**
@@ -235,13 +236,11 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 	 * @return bool|WP_Error True if valid, WP_Error otherwise.
 	 */
 	public function validate_from_date( $value, WP_REST_Request $request, string $param ) {
-		// First validate the basic date format.
 		$validated = rest_validate_request_arg( $value, $request, $param );
 		if ( is_wp_error( $validated ) ) {
 			return $validated;
 		}
 
-		// Check if 'to' date is provided and validate the relationship.
 		$to_date = $request->get_param( 'to' );
 		if ( $to_date ) {
 			$from_timestamp = strtotime( $value );
@@ -268,7 +267,6 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 	 * @return bool|WP_Error True if valid, WP_Error otherwise.
 	 */
 	public function validate_to_date( $value, WP_REST_Request $request, string $param ) {
-		// First validate the basic date format.
 		$validated = rest_validate_request_arg( $value, $request, $param );
 		if ( is_wp_error( $validated ) ) {
 			return $validated;
@@ -288,7 +286,6 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 			);
 		}
 
-		// Check if 'from' date is provided and validate the relationship.
 		$from_date = $request->get_param( 'from' );
 		if ( $from_date ) {
 			$from_timestamp = strtotime( $from_date );
@@ -314,19 +311,16 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 	 * @return bool|WP_Error True if valid, WP_Error otherwise.
 	 */
 	public function validate_compare_from_date( $value, WP_REST_Request $request, string $param ) {
-		// First validate the basic date format.
 		$validated = rest_validate_request_arg( $value, $request, $param );
 		if ( is_wp_error( $validated ) ) {
 			return $validated;
 		}
 
-		// Check if compare_to date is provided and validate the relationship.
 		$compare_to = $request->get_param( 'compare_to' );
 		if ( $compare_to ) {
 			return $this->validate_compare_period( $value, $compare_to );
 		}
 
-		// If compare_from is provided but compare_to is not, return error.
 		return new WP_Error(
 			'missing_compare_to',
 			__( 'The "compare_to" parameter is required when "compare_from" is provided.', 'jetpack-premium-analytics-pkg' ),
@@ -343,7 +337,6 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 	 * @return bool|WP_Error True if valid, WP_Error otherwise.
 	 */
 	public function validate_compare_to_date( $value, WP_REST_Request $request, string $param ) {
-		// First validate the basic date format.
 		$validated = rest_validate_request_arg( $value, $request, $param );
 		if ( is_wp_error( $validated ) ) {
 			return $validated;
@@ -362,13 +355,11 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 			);
 		}
 
-		// Check if compare_from date is provided and validate the relationship.
 		$compare_from = $request->get_param( 'compare_from' );
 		if ( $compare_from ) {
 			return $this->validate_compare_period( $compare_from, $value );
 		}
 
-		// If compare_to is provided but compare_from is not, return error.
 		return new WP_Error(
 			'missing_compare_from',
 			__( 'The "compare_from" parameter is required when "compare_to" is provided.', 'jetpack-premium-analytics-pkg' ),
@@ -433,7 +424,6 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 			$params['date_type'] = $request->get_param( 'date_type' );
 		}
 
-		// Handle delivery method.
 		if ( 'email' === $delivery_method ) {
 			return $this->schedule_email_export( $report_type, $params );
 		}
@@ -455,34 +445,28 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 			return $controller;
 		}
 
-		// Fetch data.
 		$data = $this->data_fetcher->fetch( $params, $controller );
 		if ( is_wp_error( $data ) ) {
 			return $data;
 		}
 
-		// Determine if comparison mode.
 		$is_comparison = $this->is_comparison_request( $params );
 
 		// Interval drives time-series column labels and row formatting.
 		$interval = $params['interval'] ?? null;
 
-		// Get columns.
 		$columns = $this->registry->get_columns( $report_type, $is_comparison, $interval );
 		if ( is_wp_error( $columns ) ) {
 			return $columns;
 		}
 
-		// Get row formatter.
 		$formatter = $this->registry->get_row_formatter( $report_type, $interval );
 		if ( is_wp_error( $formatter ) ) {
 			return $formatter;
 		}
 
-		// Generate filename.
 		$filename = $this->registry->build_filename( $report_type, $params );
 
-		// Generate CSV file.
 		$file_path = $this->csv_generator->generate( $data, $columns, $formatter, $filename );
 		if ( is_wp_error( $file_path ) ) {
 			return $file_path;
@@ -500,7 +484,6 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 			);
 		}
 
-		// Clean up file after successful streaming.
 		$this->csv_generator->delete_file( $file_path );
 
 		// The file body has already been written to the output buffer; terminate so the REST

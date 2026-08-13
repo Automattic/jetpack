@@ -462,6 +462,12 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 		Pick< NonNullable< ChartTheme[ 'heatmapChart' ] >, 'primaryColor' >;
 };
 
+/**
+ * Bucket resolution of time-series data, as known by the caller (e.g. a
+ * granularity selector), for consumers that don't need to infer it.
+ */
+export type TickResolution = 'hour' | 'day' | 'week' | 'month' | 'year';
+
 export type AxisOptions = {
 	orientation?: OrientationType;
 	numTicks?: number;
@@ -475,6 +481,15 @@ export type AxisOptions = {
 	labelClassName?: string;
 	tickClassName?: string;
 	tickFormat?: TickFormatter< ScaleInput< AxisScale > >;
+	/**
+	 * Bucket resolution of the data on a time x-axis. When set, the automatic
+	 * tick formatter derives tick formats from it directly instead of
+	 * inferring the resolution from point spacing. The overall time span still
+	 * constrains the choice — e.g. hourly buckets spanning more than a week
+	 * get date ticks, since hour ticks would be unreadable at that span.
+	 * Ignored when `tickFormat` is set.
+	 */
+	tickResolution?: TickResolution;
 	/**
 	 * Whether to display this axis. Defaults to true.
 	 */
@@ -606,6 +621,22 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 	 * Styles for legend shapes (width, height, margin).
 	 */
 	shapeStyles?: LegendShapeStyles;
+};
+
+/**
+ * Legend config for charts built from `SeriesData` (line, bar, area). Adds `collapseGroups` on top
+ * of the shared config. It is intentionally absent from the base `ChartLegendConfig` so point-based
+ * charts (pie, semi-circle pie) — whose data points carry `group` only to coordinate colours — can't
+ * set it.
+ */
+export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {
+	/**
+	 * Collapse series that share a `group` into a single legend item, labelled by the group's
+	 * primary series (its first non-comparison member). Off by default, so every series keeps its
+	 * own item. Combines with `interactive`: a collapsed item toggles every series in its group, an
+	 * uncollapsed one toggles only its own.
+	 */
+	collapseGroups?: boolean;
 };
 
 /**

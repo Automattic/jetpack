@@ -1,14 +1,14 @@
 /**
  * WordPress dependencies
  */
+import { SelectControl } from '@jetpack-premium-analytics/externals';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
-import { SelectControl } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import useElements from '../helpers/use-elements';
-import type { DataFormControlProps, Option } from '@wordpress/dataviews';
+import type { DataFormControlProps, Option } from '@jetpack-premium-analytics/externals';
 
 export function toSelectItems( elements: Option[] ) {
 	return elements.map( element => ( {

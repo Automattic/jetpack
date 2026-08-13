@@ -75,11 +75,29 @@ function get_dashboard_default_layout_for( $dashboard_name ) {
 /**
  * REST callback returning the default layout for the requested dashboard.
  *
+ * The route admits every dashboard reader, but its name also resolves to a
+ * single tab, so the store tab is refused here the way the section route
+ * refuses it through {@see Dashboard_Section::is_available()}. The check keys
+ * on the resolved tab rather than the string because two spellings arrive: the
+ * bare `store` alias in the URL, and `?name=woocommerce/store`, which WordPress
+ * reads ahead of the URL capture.
+ *
  * @param \WP_REST_Request $request REST request carrying the dashboard name.
- * @return \WP_REST_Response Response wrapping the default layout array.
+ * @return \WP_REST_Response|\WP_Error Response wrapping the default layout array.
  */
 function get_dashboard_default_layout_response( $request ) {
-	return rest_ensure_response( get_dashboard_default_layout_for( $request['name'] ) );
+	$dashboard_name = $request['name'];
+
+	if ( DASHBOARD_STORE_SECTION_ID === get_dashboard_default_section_id_for( $dashboard_name )
+		&& ! Capabilities::current_user_can_view_store_reports() ) {
+		return new \WP_Error(
+			'dashboard_section_unavailable',
+			__( 'Dashboard section is not available.', 'jetpack-premium-analytics-pkg' ),
+			array( 'status' => 404 )
+		);
+	}
+
+	return rest_ensure_response( get_dashboard_default_layout_for( $dashboard_name ) );
 }
 
 /**
@@ -94,9 +112,7 @@ function register_dashboard_default_layout_route() {
 		array(
 			'methods'             => \WP_REST_Server::READABLE,
 			'callback'            => __NAMESPACE__ . '\\get_dashboard_default_layout_response',
-			'permission_callback' => static function () {
-				return current_user_can( 'manage_options' );
-			},
+			'permission_callback' => array( Capabilities::class, 'current_user_can_view_analytics' ),
 			'args'                => array(
 				'name' => array(
 					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics-pkg' ),
@@ -152,28 +168,30 @@ function get_dashboard_default_widget_instance(
 function get_dashboard_default_section_layouts() {
 	return array(
 		DASHBOARD_TRAFFIC_SECTION_ID     => array(
-			// Row 1: traffic chart + most-viewed posts.
+			// Rows fill the four-column grid. Plan usage is intentionally not a
+			// default; it stays available from the widget picker.
+			// Row 1: traffic chart.
 			get_dashboard_default_widget_instance(
 				'default-traffic-chart-widget-instance',
 				'jpa/traffic-chart',
 				0,
-				3,
+				4,
 				2,
 				array(
 					'granularity' => 'auto',
 				)
 			),
+			// Row 2: most-viewed posts + referrers + devices.
 			get_dashboard_default_widget_instance(
 				'default-stats-top-posts-widget-instance',
 				'jpa/stats-top-posts',
 				1,
-				1,
+				2,
 				2,
 				array(
 					'max' => 10,
 				)
 			),
-			// Row 2: referrers + locations map + devices.
 			get_dashboard_default_widget_instance(
 				'default-referrers-widget-instance',
 				'jpa/referrers',
@@ -185,26 +203,26 @@ function get_dashboard_default_section_layouts() {
 				)
 			),
 			get_dashboard_default_widget_instance(
-				'default-locations-widget-instance',
-				'jpa/locations',
-				3,
-				2,
-				2,
-				array(
-					'max' => 10,
-				)
-			),
-			get_dashboard_default_widget_instance(
 				'default-devices-widget-instance',
 				'jpa/devices',
-				4,
+				3,
 				1,
 				2,
 				array(
 					'max' => 5,
 				)
 			),
-			// Row 3: top platforms + VideoPress + authors + UTM insights.
+			// Row 3: locations map + top platforms.
+			get_dashboard_default_widget_instance(
+				'default-locations-widget-instance',
+				'jpa/locations',
+				4,
+				3,
+				2,
+				array(
+					'max' => 10,
+				)
+			),
 			get_dashboard_default_widget_instance(
 				'default-top-platforms-widget-instance',
 				'jpa/top-platforms',
@@ -215,6 +233,7 @@ function get_dashboard_default_section_layouts() {
 					'max' => 10,
 				)
 			),
+			// Row 4: VideoPress + clicks + authors.
 			get_dashboard_default_widget_instance(
 				'default-videopress-widget-instance',
 				'jpa/videopress',
@@ -226,35 +245,35 @@ function get_dashboard_default_section_layouts() {
 				)
 			),
 			get_dashboard_default_widget_instance(
-				'default-authors-widget-instance',
-				'jpa/authors',
+				'default-clicks-widget-instance',
+				'jpa/clicks',
 				7,
 				1,
+				2,
+				array(
+					'max' => 10,
+				)
+			),
+			get_dashboard_default_widget_instance(
+				'default-authors-widget-instance',
+				'jpa/authors',
+				8,
+				2,
 				2,
 				array(
 					'max' => 7,
 				)
 			),
+			// Row 5: UTM insights + search terms + file downloads (Simple only).
 			get_dashboard_default_widget_instance(
 				'default-utm-insights-widget-instance',
 				'jpa/utm-insights',
-				8,
-				1,
+				9,
+				2,
 				2,
 				array(
 					'utmDimension' => 'utm_source,utm_medium',
 					'max'          => 10,
-				)
-			),
-			// Row 4: clicks + search terms + file downloads + plan usage.
-			get_dashboard_default_widget_instance(
-				'default-clicks-widget-instance',
-				'jpa/clicks',
-				9,
-				1,
-				2,
-				array(
-					'max' => 10,
 				)
 			),
 			get_dashboard_default_widget_instance(
@@ -277,78 +296,97 @@ function get_dashboard_default_section_layouts() {
 					'max' => 10,
 				)
 			),
-			get_dashboard_default_widget_instance(
-				'default-plan-usage-widget-instance',
-				'jpa/plan-usage',
-				12,
-				1,
-				2
-			),
 		),
 		DASHBOARD_INSIGHTS_SECTION_ID    => array(
-			// Mirrors the legacy Calypso Stats Insights page (WOOA7S-1616).
-			// Emails is not an Insights module (it lives on the Subscribers
-			// tab). Two canonical modules are not ported yet — All-time total
-			// views (WOOA7S-1512) and Most popular post (part of WOOA7S-1510).
-			// Row 1: annual highlights + all-time stats.
+			// Follows the prototype's rows (WOOA7S-1786). Emails lives on the
+			// Subscribers tab, so that row is absent.
+			// Row 1: highlights banner.
 			get_dashboard_default_widget_instance(
 				'default-annual-highlights-widget-instance',
 				'jpa/annual-highlights',
 				0,
-				2,
-				2
+				4,
+				1
 			),
+			// Row 2: posting-activity heatmap.
 			get_dashboard_default_widget_instance(
-				'default-all-time-stats-widget-instance',
-				'jpa/all-time-stats',
+				'default-posting-activity-widget-instance',
+				'jpa/posting-activity',
 				1,
-				2,
-				2
+				4,
+				1
 			),
-			// Row 2: latest post + the two most-popular cards + tags.
+			// Row 3: the two post spotlights.
 			get_dashboard_default_widget_instance(
 				'default-latest-post-widget-instance',
 				'jpa/latest-post',
 				2,
-				1,
+				2,
 				2
 			),
 			get_dashboard_default_widget_instance(
-				'default-most-popular-time-widget-instance',
-				'jpa/most-popular-time',
+				'default-popular-post-widget-instance',
+				'jpa/popular-post',
 				3,
-				1,
+				2,
 				2
+			),
+			// Row 4: the period totals, the weekday distribution, and the
+			// all-time best day. The most-popular-day card still crops at this
+			// height (WOOA7S-1846).
+			get_dashboard_default_widget_instance(
+				'default-total-views-widget-instance',
+				'jpa/total-views',
+				4,
+				1,
+				1
+			),
+			get_dashboard_default_widget_instance(
+				'default-total-visitors-widget-instance',
+				'jpa/total-visitors',
+				5,
+				1,
+				1
+			),
+			get_dashboard_default_widget_instance(
+				'default-popular-days-widget-instance',
+				'jpa/popular-days',
+				6,
+				1,
+				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-popular-day-widget-instance',
 				'jpa/most-popular-day',
-				4,
+				7,
 				1,
+				1
+			),
+			// Row 5: daily views heatmap. Two rows tall, as in the prototype: the
+			// cells are sized from the tile's height, and only at this height do they
+			// grow wide enough to label each day with its view count.
+			get_dashboard_default_widget_instance(
+				'default-traffic-views-activity-widget-instance',
+				'jpa/traffic-views-activity',
+				8,
+				4,
 				2
 			),
+			// Row 6: the comment leaderboards, shares, and tags.
 			get_dashboard_default_widget_instance(
-				'default-tags-widget-instance',
-				'jpa/tags',
-				5,
+				'default-most-commented-posts-widget-instance',
+				'jpa/most-commented-posts',
+				9,
 				1,
 				2,
 				array(
 					'max' => 10,
 				)
 			),
-			// Row 3: posting-activity heatmap + comments + shares.
 			get_dashboard_default_widget_instance(
-				'default-posting-activity-widget-instance',
-				'jpa/posting-activity',
-				6,
-				2,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-comments-widget-instance',
-				'jpa/comments',
-				7,
+				'default-most-commented-authors-widget-instance',
+				'jpa/most-commented-authors',
+				10,
 				1,
 				2,
 				array(
@@ -358,7 +396,17 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-shares-widget-instance',
 				'jpa/shares',
-				8,
+				11,
+				1,
+				2,
+				array(
+					'max' => 10,
+				)
+			),
+			get_dashboard_default_widget_instance(
+				'default-tags-widget-instance',
+				'jpa/tags',
+				12,
 				1,
 				2,
 				array(
@@ -367,33 +415,24 @@ function get_dashboard_default_section_layouts() {
 			),
 		),
 		DASHBOARD_SUBSCRIBERS_SECTION_ID => array(
-			get_dashboard_default_widget_instance(
-				'default-subscriber-highlights-widget-instance',
-				'jpa/subscriber-highlights',
-				0,
-				4,
-				1,
-				array(
-					'showTotal'  => true,
-					'showPaid'   => true,
-					'showFree'   => true,
-					'showSocial' => true,
-				)
-			),
+			// Subscriber highlights is intentionally not a default: the design
+			// opens on the chart. It stays available from the widget picker.
+			// Row 1: subscribers chart.
 			get_dashboard_default_widget_instance(
 				'default-subscribers-chart-widget-instance',
 				'jpa/subscribers-chart',
-				1,
+				0,
 				4,
 				2,
 				array(
 					'granularity' => 'auto',
 				)
 			),
+			// Row 2: latest subscribers + latest emails sent.
 			get_dashboard_default_widget_instance(
 				'default-subscribers-list-widget-instance',
 				'jpa/subscribers-list',
-				2,
+				1,
 				2,
 				2,
 				array(
@@ -403,7 +442,7 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-subscribers-emails-widget-instance',
 				'jpa/stats-emails',
-				3,
+				2,
 				2,
 				2,
 				array(

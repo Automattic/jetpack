@@ -6,7 +6,7 @@ import { device } from '@jetpack-premium-analytics/icons';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@jetpack-premium-analytics/externals';
 import {
 	calculateDelta,
 	describeError,
@@ -48,12 +48,6 @@ type TopPlatformsInnerProps = {
 	platformDimension: PlatformMode;
 };
 
-/**
- * Inner component — rendered inside WidgetRoot.
- *
- * @param {TopPlatformsInnerProps} props - The component props.
- * @return The rendered leaderboard or state placeholder.
- */
 function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 
@@ -125,14 +119,9 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 }
 
 /**
- * Top Platforms widget render component.
- *
- * Shows browser or OS breakdown as a ranked leaderboard. The active
- * dimension is the `platformDimension` attribute (`relevance: 'high'`),
- * exposed as a control by the widget host.
- *
- * @param {TopPlatformsWidgetProps} props - The widget render props.
- * @return The rendered widget content.
+ * Browser or OS breakdown as a ranked leaderboard. The active dimension is the
+ * `platformDimension` attribute (`relevance: 'high'`), exposed as a control by
+ * the widget host.
  */
 export default function TopPlatformsWidget( { attributes }: TopPlatformsWidgetProps ) {
 	const max = attributes?.max ?? 10;

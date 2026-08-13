@@ -133,6 +133,11 @@ class Initial_State {
 			'assets'                 => array(
 				'buildUrl' => plugins_url( '../build/', __FILE__ ),
 			),
+			// Feature gates mirrored from the PHP-side filters so the client can
+			// hide gated UI without a round trip.
+			'features'               => array(
+				'chaptersEditor' => Admin_UI::is_chapters_editor_enabled(),
+			),
 			// Authoritative map of accepted upload types (extension => mimetype),
 			// so the dashboard's drag-and-drop filter accepts exactly what the
 			// VideoPress backend supports rather than guessing client-side.
@@ -162,7 +167,10 @@ class Initial_State {
 		$site_product  = My_Jetpack_Products::get_product( 'videopress' );
 		$product_price = Plan::get_product_price();
 
-		if ( ! is_array( $site_product ) || ! isset( $product_price['yearly'] ) ) {
+		// Plan::get_product_price() returns a WP_Error when the WPCOM products
+		// request doesn't come back 200, and `isset()` on a non-ArrayAccess
+		// object is a fatal in PHP 8 — so the array check has to come first.
+		if ( ! is_array( $site_product ) || ! is_array( $product_price ) || ! isset( $product_price['yearly'] ) ) {
 			return null;
 		}
 

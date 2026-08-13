@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { useReportCouponsByDate } from '@jetpack-premium-analytics/data';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { coupon } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import { useMemo } from 'react';
 import { DonutChart, WidgetState } from '../../components';
 /**
@@ -16,19 +16,10 @@ import { useSegmentStyles } from '../common';
 import styles from '../common/donut-widget.module.scss';
 
 /**
- * Coupon Use Widget Component
- *
  * Displays a donut chart showing total sales with a coupon vs net sales breakdown.
  * Shows the total sales in the center with slices in the legend.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <CouponUseWidget />
- * </WidgetRoot>
- * ```
  */
 export function CouponUseWidget() {
 	const { reportParams } = useWidgetRootContext();

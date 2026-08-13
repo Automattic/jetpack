@@ -3,19 +3,22 @@
  */
 import {
 	normalizeReportParams,
+	type StatsVideoPlaysItem,
 	type StatsVideoPlaysComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportRecordsTable,
+	ReportCsvAction,
+	useReportCsvExport,
 	useReportRetry,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 /**
@@ -59,6 +62,8 @@ const RECORDS_VIEW = {
 	},
 };
 
+const sortVideoCsvRows = ( a: StatsVideoPlaysItem, b: StatsVideoPlaysItem ) => b.plays - a.plays;
+
 /**
  * Premium Analytics Videos report page.
  *
@@ -76,34 +81,66 @@ function VideosReport(): JSX.Element {
 		() => getVideosFields( records.hasComparison ),
 		[ records.hasComparison ]
 	);
+	const csvColumns = useMemo< CsvColumn< StatsVideoPlaysItem >[] >(
+		() => [
+			{
+				label: __( 'Video ID', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.id ?? '',
+			},
+			{
+				label: __( 'Video', 'jetpack-premium-analytics-pkg' ),
+				getValue: row =>
+					typeof row.label === 'string' && row.label
+						? row.label
+						: __( 'Untitled video', 'jetpack-premium-analytics-pkg' ),
+			},
+			{ label: __( 'Plays', 'jetpack-premium-analytics-pkg' ), getValue: row => row.plays },
+			{
+				label: __( 'Impressions', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.impressions,
+			},
+			{
+				label: __( 'Watch time (hours)', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.watch_time,
+			},
+			{
+				label: __( 'Retention rate (%)', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.retention_rate,
+			},
+			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
+		],
+		[]
+	);
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows: records.rows,
+		filenamePrefix: 'videos',
+		range: reportParams,
+		status: records,
+		sort: sortVideoCsvRows,
+	} );
 	const isTableLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
-
 	return (
 		<ReportPageShell
+			visual={ <StatsPageIcon /> }
 			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{
-							label: __( 'Stats', 'jetpack-premium-analytics-pkg' ),
-							to: dashboardLink,
-						},
-						{ label: __( 'Videos', 'jetpack-premium-analytics-pkg' ) },
-					] }
+				<StatsBreadcrumbs
+					items={ [ { label: __( 'Videos', 'jetpack-premium-analytics-pkg' ) } ] }
 				/>
 			}
 			subTitle={ __( 'See how your videos perform.', 'jetpack-premium-analytics-pkg' ) }
+			actions={
+				canExport ? (
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) : undefined
+			}
 		>
-			<ReportPageLayout
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
-			>
+			<ReportPageLayout filters={ <DateFiltersPanel { ...dateFilters } /> }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load videos', 'jetpack-premium-analytics-pkg' ) }

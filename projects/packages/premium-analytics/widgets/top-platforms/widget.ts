@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { desktop } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -29,7 +29,7 @@ export type TopPlatformsAttributes = {
  * so the widget host renders its control.
  */
 export default {
-	icon: chartBar,
+	icon: desktop,
 	attributes: [
 		{
 			id: 'max',

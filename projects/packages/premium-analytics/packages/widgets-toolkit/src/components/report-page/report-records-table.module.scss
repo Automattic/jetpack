@@ -1,4 +1,5 @@
-@use "sass:meta";
+/* The DataViews stylesheet and the popover rules that go with it live in the
+ * plain `report-records-table.scss`, because they must stay unscoped. */
 
 /* DataViews pads its own chrome — the toolbar, the table's first/last cells,
  * and the footer all carry the same 24px inline inset the section card would
@@ -6,14 +7,6 @@
  * stack and the whole table sits doubly inset. Clip children so DataViews'
  * square row and footer edges follow the card's rounded corners. */
 .root {
-
-	/* Keep DataViews' selectors global within this component while loading the
-	 * stylesheet through Sass so Storybook does not emit a relative @import. */
-	:global {
-
-		@include meta.load-css( "@wordpress/dataviews/build-style/style" );
-	}
-
 	padding: 0;
 	overflow: hidden;
 }
