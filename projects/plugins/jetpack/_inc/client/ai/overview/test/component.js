@@ -41,7 +41,7 @@ describe( 'normalizeUsage', () => {
 		expect( usage.requestsAvailable ).toBe( 0 );
 	} );
 
-	test( 'legacy unlimited: no numbers, no plan label, a renewal date, no upgrade', () => {
+	test( 'legacy unlimited: no numbers, an Unlimited plan label, a renewal date, no upgrade', () => {
 		const usage = normalizeUsage( {
 			...tieredPayload(),
 			'current-tier': { value: 1 },
@@ -51,7 +51,9 @@ describe( 'normalizeUsage', () => {
 		expect( usage.requestsCount ).toBeNull();
 		expect( usage.requestsLimit ).toBeNull();
 		expect( usage.requestsAvailable ).toBeNull();
-		expect( usage.planLabel ).toBeNull();
+		// The payload has no product name (the design shows one, e.g.
+		// "Complete"), so the label falls back to the plan's nature.
+		expect( usage.planLabel ).toBe( 'Unlimited' );
 		expect( usage.renewsOn ).toBe( '2026-09-01' );
 		expect( usage.showUpgrade ).toBe( false );
 	} );

@@ -54,9 +54,10 @@ describe( 'AiOverview', () => {
 
 		render( <AiOverview { ...PROPS } /> );
 
-		// The i4 paid card shows UNLIMITED over a full meter, and a renewal
-		// date where the free card has the Upgrade button.
-		await expect( screen.findByText( 'Unlimited' ) ).resolves.toBeInTheDocument();
+		// The i4 paid card shows UNLIMITED over a full meter, a plan label
+		// ("Unlimited" until the payload carries a product name), and a
+		// renewal date where the free card has the Upgrade button.
+		await expect( screen.findAllByText( 'Unlimited' ) ).resolves.toHaveLength( 2 );
 		expect( screen.getByRole( 'progressbar', { name: 'Available requests' } ) ).toBeInTheDocument();
 		expect( screen.getByText( /Renews on/ ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
