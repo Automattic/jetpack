@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Lock file only: records the my-jetpack test-only dependency on jetpack-waf. No production dependency changes.
+
+

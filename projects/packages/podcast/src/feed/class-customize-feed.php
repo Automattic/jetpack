@@ -31,11 +31,22 @@ class Customize_Feed {
 	/**
 	 * Enclosure URLs already emitted in the current feed render, keyed by post
 	 * ID then URL. Reset on `rss2_head` so each feed starts clean — see
-	 * {@see self::is_duplicate_enclosure()}.
+	 * {@see self::reset_render_state()}.
 	 *
 	 * @var array<int, array<string, true>>
 	 */
 	private static $seen_enclosures = array();
+
+	/**
+	 * The `<description>` most recently rendered, as `[ post ID, value ]`, for
+	 * {@see self::output_item_tags()} to reuse. One slot: the template emits
+	 * `<description>` immediately before `rss2_item` fires for the same item.
+	 * Reset per render — see {@see self::reset_render_state()} — so a template
+	 * that skips `<description>` can't match a previous render's post ID.
+	 *
+	 * @var array{0: int, 1: string}
+	 */
+	private static $item_summary = array( 0, '' );
 
 	/**
 	 * Wire the late-binding `wp` action that decides whether to register the
@@ -84,15 +95,19 @@ class Customize_Feed {
 		add_action( 'rss2_ns', array( __CLASS__, 'output_namespaces' ) );
 		add_filter( 'wp_title_rss', array( __CLASS__, 'feed_title' ) );
 		add_filter( 'bloginfo_rss', array( __CLASS__, 'feed_description' ), 10, 2 );
-		add_action( 'rss2_head', array( __CLASS__, 'reset_enclosure_dedup' ), 0 );
+		add_action( 'rss2_head', array( __CLASS__, 'reset_render_state' ), 0 );
 		add_action( 'rss2_head', array( __CLASS__, 'output_channel_tags' ) );
 		add_action( 'rss2_item', array( __CLASS__, 'output_item_tags' ) );
 		add_filter( 'rss_enclosure', array( __CLASS__, 'rewrite_enclosure' ) );
+		// Last, so the captured value is what `<description>` actually printed —
+		// a filter above priority 10 would otherwise leave us caching an
+		// intermediate string and `<itunes:summary>` disagreeing with it.
+		add_filter( 'the_excerpt_rss', array( __CLASS__, 'capture_item_summary' ), PHP_INT_MAX );
 
 		add_filter( 'option_rss_use_excerpt', '__return_false' );
 		// Request-scoped to the feed: only the queried episodes render here, so
 		// this never touches block output outside the podcast feed response.
-		add_filter( 'render_block', array( __CLASS__, 'strip_block_from_feed' ), 10, 2 );
+		add_filter( 'pre_render_block', array( __CLASS__, 'skip_block_in_feed' ), 10, 2 );
 		add_filter( 'comments_open', '__return_false' );
 		add_filter( 'get_comments_number', '__return_zero' );
 		add_filter( 'the_category_rss', '__return_empty_string' );
@@ -205,10 +220,12 @@ class Customize_Feed {
 			echo '<itunes:author>' . esc_xml( wp_strip_all_tags( $author ) ) . "</itunes:author>\n";
 		}
 
-		// Re-applying `the_excerpt_rss` so `<itunes:summary>` matches whatever
-		// the item's `<description>` ends up emitting — `get_the_excerpt()`
-		// doesn't run the filter chain itself.
-		$excerpt = (string) apply_filters( 'the_excerpt_rss', get_the_excerpt() );
+		// Reuse the string `<description>` just emitted for this item; rebuilding
+		// it costs a second `wp_trim_excerpt()` pass over the whole post body.
+		// The fallback covers a feed template that skips `<description>`.
+		$excerpt = self::$item_summary[0] === (int) $post->ID
+			? self::$item_summary[1]
+			: (string) apply_filters( 'the_excerpt_rss', get_the_excerpt() );
 		if ( '' !== $excerpt ) {
 			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $excerpt ) ) . "</itunes:summary>\n";
 		}
@@ -233,23 +250,39 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Strip the episode, feed-player, and subscribe blocks from
+	 * Keep the episode, feed-player, and subscribe blocks out of
 	 * `<content:encoded>`, leaving the surrounding show-note prose.
 	 *
-	 * @param string $block_content Rendered block HTML.
-	 * @param array  $block         Parsed block, including its `blockName`.
-	 * @return string
+	 * Short-circuits on `pre_render_block` rather than blanking the output on
+	 * `render_block`, which runs the callback first and throws the result away.
+	 * That callback is expensive per item: the episode block resolves DNS via
+	 * `wp_http_validate_url()`, the player block fetches a feed over HTTP.
+	 *
+	 * @param string|null $pre_render   Short-circuit value; `null` renders normally.
+	 * @param array       $parsed_block Parsed block, including its `blockName`.
+	 * @return string|null
 	 */
-	public static function strip_block_from_feed( $block_content, $block ) {
-		static $chrome = array(
-			'jetpack/podcast-episode',
-			'jetpack/podcast-player',
-			'jetpack/subscriptions',
-		);
-		if ( isset( $block['blockName'] ) && in_array( $block['blockName'], $chrome, true ) ) {
+	public static function skip_block_in_feed( $pre_render, $parsed_block ) {
+		if ( isset( $parsed_block['blockName'] ) && in_array(
+			$parsed_block['blockName'],
+			array( 'jetpack/podcast-episode', 'jetpack/podcast-player', 'jetpack/subscriptions' ),
+			true
+		) ) {
 			return '';
 		}
-		return $block_content;
+		return $pre_render;
+	}
+
+	/**
+	 * Stash the item's rendered `<description>` for `<itunes:summary>` to reuse.
+	 * Pass-through — the value is never modified.
+	 *
+	 * @param string $excerpt Filtered item excerpt.
+	 * @return string
+	 */
+	public static function capture_item_summary( $excerpt ) {
+		self::$item_summary = array( (int) get_the_ID(), (string) $excerpt );
+		return $excerpt;
 	}
 
 	/**
@@ -329,7 +362,7 @@ class Customize_Feed {
 
 		// Drop repeats: rows keyed per post, by final URL, so distinct enclosures
 		// survive while the duplicate stats URLs collapse to one. Registry is
-		// cleared per render — see `reset_enclosure_dedup()`.
+		// cleared per render — see `reset_render_state()`.
 		$post_id = null !== $post_obj ? (int) $post_obj->ID : 0;
 		if ( isset( self::$seen_enclosures[ $post_id ][ $final_url ] ) ) {
 			return '';
@@ -349,13 +382,14 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Clear the per-render enclosure dedup registry. Hooked on `rss2_head` (at
-	 * priority 0, before any item renders) so re-generating a feed within a
-	 * single long-lived process — WP-CLI, a warm worker — starts fresh instead
-	 * of dropping every enclosure as already-seen.
+	 * Clear the per-render statics. Hooked on `rss2_head` (at priority 0, before
+	 * any item renders) so re-generating a feed within a single long-lived
+	 * process — WP-CLI, a warm worker — starts fresh instead of dropping every
+	 * enclosure as already-seen or reusing the last render's summary.
 	 */
-	public static function reset_enclosure_dedup() {
+	public static function reset_render_state() {
 		self::$seen_enclosures = array();
+		self::$item_summary    = array( 0, '' );
 	}
 
 	/**

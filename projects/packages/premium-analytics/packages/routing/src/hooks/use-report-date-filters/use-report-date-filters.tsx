@@ -8,6 +8,7 @@ import {
 	localTZDate,
 	resolveIntervalForRange,
 } from '@jetpack-premium-analytics/data';
+import { PRESET_CUSTOM, stepDateRange } from '@jetpack-premium-analytics/datetime';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { isValid } from 'date-fns';
@@ -23,6 +24,7 @@ import type {
 	DateRange,
 	IntervalType,
 	PrimaryPresetId,
+	StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 
 type PickerRange = { from: Date | undefined; to: Date | undefined };
@@ -58,6 +60,12 @@ export type ReportDateFilters = {
 	onChange: ( range?: DateRange, presetId?: PrimaryPresetId ) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onIntervalChange: ( interval: IntervalType ) => void;
+
+	/**
+	 * Step the applied window backward or forward by its own length.
+	 */
+	onStep: ( direction: StepDirection ) => void;
+
 	onApply: () => void;
 	onCancel: () => void;
 	canApply: boolean;
@@ -261,6 +269,36 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		[ stage, commit, hasPrimaryDraft ]
 	);
 
+	/*
+	 * Commits on click and pushes a history entry, so Back undoes the step and
+	 * the stepped window survives a reload as real URL state.
+	 *
+	 * Steps the applied range, not the staged one: the arrows sit outside the
+	 * picker, so stepping is not the gesture that applies someone's open draft.
+	 */
+	const onStep = useCallback(
+		( direction: StepDirection ) => {
+			const stepped = stepDateRange( appliedRange, direction );
+
+			if ( ! stepped ) {
+				return;
+			}
+
+			const patch = buildRangePatch( {
+				nextRange: stepped,
+				nextPresetId: PRESET_CUSTOM,
+				exactRange: true,
+				effective,
+			} );
+
+			if ( patch ) {
+				stage( patch );
+				commit();
+			}
+		},
+		[ appliedRange, commit, effective, stage ]
+	);
+
 	const onApply = useCallback( () => commit(), [ commit ] );
 	const onCancel = useCallback( () => revert(), [ revert ] );
 
@@ -293,6 +331,7 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		onChange,
 		onComparisonChange,
 		onIntervalChange,
+		onStep,
 		onApply,
 		onCancel,
 		canApply: isDirty,

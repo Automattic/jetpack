@@ -1642,7 +1642,7 @@ class Error_Handler {
 	 *
 	 * This includes token lookup, request validation, and request signing errors.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.10.1
 	 *
 	 * @param mixed  $signing_result The return value of `Client::build_signed_request()`. Ignored unless it is a `WP_Error`.
 	 * @param string $url            Request URL.
