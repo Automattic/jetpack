@@ -93,8 +93,6 @@ function TrafficChartInner( { granularity, chartType }: TrafficChartInnerProps )
 					icon: reports,
 					description: __( 'No traffic data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
-				// The chart is the whole content here, so its block replaces the generic
-				// stacked lines.
 				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart

@@ -330,8 +330,6 @@ function StorePerformanceContent() {
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
-				// The chart is the whole content here, so its block replaces the generic
-				// stacked lines.
 				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart

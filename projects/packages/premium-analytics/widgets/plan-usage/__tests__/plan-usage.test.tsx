@@ -141,8 +141,6 @@ describe( 'PlanUsageWidget', () => {
 
 	it( 'replaces the meter with the skeleton during a background refetch', async () => {
 		let resolveRefetch: ( value: unknown ) => void = () => {};
-		// First call populates the meter; the background refetch stays pending so
-		// the in-flight state is observable.
 		mockApiFetch.mockResolvedValueOnce( PLAN_USAGE_RESPONSE ).mockImplementationOnce(
 			() =>
 				new Promise( resolve => {
@@ -158,16 +156,10 @@ describe( 'PlanUsageWidget', () => {
 			queryClient.refetchQueries();
 		} );
 
-		// Even with `placeholderData` keeping the stale figures in the query cache,
-		// the widget shows the skeleton rather than numbers it is about to replace.
-		// It draws silently, so a refetch does not announce once per widget on
-		// screen. The meter stays mounted behind it — unmounting would reset the
-		// state it owns — and is hidden by `visibility`, which jsdom does not apply.
 		await expect( screen.findByRole( 'status', { hidden: true } ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( '6,200 / 10,000 views' ) ).toBeInTheDocument();
 
-		// Settle the pending refetch so the query resolves and the meter returns.
 		await act( async () => {
 			resolveRefetch( PLAN_USAGE_RESPONSE );
 		} );

@@ -22,8 +22,6 @@ describe( 'SkeletonRoot', () => {
 	} );
 
 	it( 'keeps the hidden label out of the shape sequence', () => {
-		// The label is a real element. Shapes index their rows with
-		// `:nth-child()`, so it must not sit among them.
 		render(
 			<SkeletonRoot>
 				<div className="rows" />
@@ -31,7 +29,7 @@ describe( 'SkeletonRoot', () => {
 		);
 
 		const root = screen.getByRole( 'status' );
-		// eslint-disable-next-line testing-library/no-node-access -- child order is the assertion: the hidden label has to occupy the first slot, ahead of the shape's rows.
+		// eslint-disable-next-line testing-library/no-node-access -- child order is the assertion.
 		const children = Array.from( root.children );
 		expect( children ).toHaveLength( 2 );
 		expect( children[ 0 ] ).toHaveAttribute( 'data-visually-hidden' );

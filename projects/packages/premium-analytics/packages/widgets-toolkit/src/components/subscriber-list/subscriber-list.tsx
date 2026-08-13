@@ -37,9 +37,6 @@ export type SubscriberListItem = {
 };
 
 export type SubscriberListProps = {
-	/**
-	 * Rows to render. When empty, the empty state is shown.
-	 */
 	items?: SubscriberListItem[];
 	/**
 	 * Empty-state message shown when there are no rows.
@@ -63,10 +60,6 @@ const DEFAULT_AVATAR_URL =
  * line per row, with an optional "N more" footer. Used by list-style Stats
  * widgets (e.g. the Subscribers card) where rows are ordered by recency rather
  * than ranked by a metric, so a bar leaderboard would not fit.
- *
- * Loading is owned by the `<WidgetState>` the consuming widgets wrap this in,
- * so there is no loading branch here.
- *
  * @param {SubscriberListProps} props - The component props.
  * @return The rendered list, or the empty state.
  */

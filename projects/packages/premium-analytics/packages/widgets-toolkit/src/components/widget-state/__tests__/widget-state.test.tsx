@@ -11,14 +11,17 @@ import { errorStateIcon } from '../error-state-icon';
 import { WidgetState } from '../widget-state';
 import type { ReactElement } from 'react';
 
+// The shared CSS Module stub resolves every stylesheet to `{}`, so class names
+// never reach the DOM. Name the two this file asserts on, rather than swapping
+// the stub package-wide for one test: that would put class names on every
+// component in every suite.
+jest.mock( '../widget-state.module.scss', () => ( {
+	content: 'content',
+	contentHidden: 'contentHidden',
+} ) );
+
 const CONTENT = <div>rows</div>;
 
-/**
- * Stand-in for children that own state (the metric tabs' selection, a table's
- * sort and page): the count only survives if the subtree is never unmounted.
- *
- * @return A button labelled with its own click count.
- */
 function Counter() {
 	const [ count, setCount ] = useState( 0 );
 	return (
@@ -52,10 +55,6 @@ function iconPathOf( element: ReactElement ): string | null {
 	return path;
 }
 
-/**
- * Run out the delay that holds a refetch's skeleton back, putting the component
- * in the state a slow refetch lands in.
- */
 function elapseFetchDelay() {
 	act( () => {
 		jest.advanceTimersByTime( 1000 );
@@ -116,12 +115,15 @@ describe( 'WidgetState', () => {
 				{ CONTENT }
 			</WidgetState>
 		);
-		// Below the delay the previous result stands, same as any other refetch.
 		expect( screen.getByText( 'No posts here.' ) ).toBeInTheDocument();
 
 		elapseFetchDelay();
 		expect( screen.queryByText( 'No posts here.' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		// Silent, like the ready branch's overlay: this is still a refetch, and
+		// only a first load announces. Otherwise whether a widget speaks up would
+		// depend on what it happened to be showing beforehand.
+		expect( screen.getByRole( 'status', { hidden: true } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the caller loading override instead of the default skeleton', () => {
@@ -135,9 +137,6 @@ describe( 'WidgetState', () => {
 	} );
 
 	it( 'uses the caller loading override during a refetch too, not just the first load', () => {
-		// The chart widgets rely on this: re-splitting the branch so the override
-		// only covered `isLoading` would silently drop them back to the generic
-		// shape on every date-range change.
 		render(
 			<WidgetState
 				isLoading={ false }
@@ -239,9 +238,6 @@ describe( 'WidgetState', () => {
 	} );
 
 	it( 'leaves a refetch that resolves quickly alone, drawing no skeleton at all', () => {
-		// Most refetches land inside the delay. Drawing for them would pulse every
-		// widget on screen for a fraction of a second on any background
-		// revalidation — a window focus after `staleTime`, a reconnect.
 		render(
 			<WidgetState isLoading={ false } isFetching isError={ false } isEmpty={ false }>
 				{ CONTENT }
@@ -258,23 +254,13 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		elapseFetchDelay();
-		// The skeleton draws but must not announce: a date-range change refetches
-		// every widget on screen at once, and each one owns a `role="status"`.
-		// Contrast with the first-load cases above, which do announce.
 		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'status', { hidden: true } ) ).toBeInTheDocument();
-		// Exactly one, so this still fails if `busy` ever stops narrowing the query.
 		expect( screen.getAllByRole( 'generic', { busy: true } ) ).toHaveLength( 1 );
-		// Still mounted, so the state it owns survives. What keeps it from being
-		// read out is `visibility: hidden`, which jsdom does not apply.
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the children mounted across a refetch, so their own state survives it', () => {
-		// The production shape of a date-range change: the queries carry
-		// `placeholderData`, so `isLoading` stays false and only `isFetching`
-		// flips. Unmounting the children there resets whatever they own — the
-		// selected metric tab, a table's sort and page.
 		const props = { isLoading: false, isError: false, isEmpty: false };
 		const { container, rerender } = render(
 			<WidgetState { ...props } isFetching={ false }>

@@ -111,10 +111,6 @@ const MockChart = () => (
 	</div>
 );
 
-/**
- * First load: a fetch is in flight and there is no data yet, so the skeleton is
- * shown instead of the children.
- */
 export const Loading: Story = {
 	args: {
 		isLoading: true,
@@ -216,11 +212,6 @@ export const Ready: Story = {
 	},
 };
 
-/**
- * Background refetch over data already on screen. It renders the same skeleton
- * as the first load: a refetch here follows a date range or comparison change,
- * so it should read as a fresh load rather than stale numbers under a spinner.
- */
 export const Refetching: Story = {
 	args: {
 		isLoading: false,

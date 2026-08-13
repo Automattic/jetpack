@@ -1,6 +1,3 @@
-/* `SkeletonRoot` supplies the column flow; the block takes whatever room the
- * widget body has. No minimum: on a short tile it gives up its room rather than
- * pushing past the body into the widget footer. */
 .chartBlock {
 	flex: 1 1 auto;
 	inline-size: 100%;

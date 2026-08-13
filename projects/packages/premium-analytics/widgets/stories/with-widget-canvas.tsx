@@ -2,12 +2,7 @@ import { useLayoutEffect, useRef } from 'react';
 import type { Decorator } from '@storybook/react';
 import type { ReactNode } from 'react';
 
-// Frame the widget root the way the dashboard host cell does at runtime, so the
-// loading / error / empty states render correctly in the close-up card:
-// - `position: relative` was added for the absolute loading overlay this package
-//   no longer renders; `WidgetState` now positions its skeleton against its own
-//   wrapper. The runtime widget root is not positioned, so this is the one line
-//   here that makes a story differ from production rather than match it.
+// Frame the widget root like the dashboard host cell for state stories:
 // - `justify-content: safe center` vertically centers a state shorter than the
 //   frame (the `height: 100%` error/empty boxes otherwise cling to the top);
 //   `safe` falls back to top alignment when content is taller, so a full

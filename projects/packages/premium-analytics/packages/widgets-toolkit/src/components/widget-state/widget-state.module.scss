@@ -82,8 +82,7 @@
 	block-size: 100%;
 }
 
-// Not `display: none`: the layout box has to survive the refetch, or the metric
-// tabs measure zero width and flip to their narrow-tile dropdown.
+// Preserve layout measurements during refetches.
 .contentHidden {
 	visibility: hidden;
 }

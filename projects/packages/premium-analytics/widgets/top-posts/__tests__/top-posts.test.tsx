@@ -296,11 +296,6 @@ describe( 'TopPostsWidget', () => {
 	} );
 
 	it( 'hides the export while a new date range is still fetching, then restores it', async () => {
-		// Hold the second range's fetch open so we can observe the in-flight
-		// window. The stats query keeps the prior period's rows as placeholder
-		// data, so `rows.length > 0` stays true while `isFetching` is true — the
-		// exact state that used to let stale rows download under the new-period
-		// filename, even though the body now shows the skeleton.
 		let resolveSecond: ( value: unknown ) => void = () => {};
 		const secondFetch = new Promise( resolve => {
 			resolveSecond = resolve;
@@ -338,17 +333,10 @@ describe( 'TopPostsWidget', () => {
 			</DashboardWidgetChromeFixture>
 		);
 
-		// The body falls back to the skeleton while the active query is fetching,
-		// and the export is gated off with it.
 		await waitFor( () =>
 			expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument()
 		);
-		// `find`, not `get`: the skeleton is held back until the fetch has been in
-		// flight long enough to be worth drawing.
 		await expect( screen.findByRole( 'status', { hidden: true } ) ).resolves.toBeInTheDocument();
-		// The premise the gate exists for: the prior period's rows are still in
-		// hand, so `rows.length > 0` while `isFetching`. They stay mounted behind
-		// the skeleton — hidden by `visibility`, which jsdom does not apply.
 		expect( screen.getByRole( 'link', { name: /^Hello World Post$/ } ) ).toBeInTheDocument();
 
 		// Once the new range settles, the export returns.

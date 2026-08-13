@@ -7,8 +7,7 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-// Imported from the module rather than the hooks barrel, which re-exports from
-// `widgets/common` and would pull that graph into every widget body.
+// Avoid pulling the `widgets/common` graph in through the hooks barrel.
 import { useDelayedLoading } from '../../hooks/use-delayed-loading';
 import { ChartEmptyState } from '../chart-empty-state';
 import { GenericSkeleton } from '../widget-skeleton';
@@ -29,39 +28,17 @@ export interface WidgetStateEmpty {
 }
 
 export interface WidgetStateProps {
-	/** A fetch is in flight and there is no data yet (React Query `isLoading`). */
 	isLoading: boolean;
-	/** A refetch is in flight over data already shown (React Query `isFetching`). */
 	isFetching?: boolean;
 	isError: boolean;
-	/** Resolved, but there is nothing meaningful to show. */
 	isEmpty: boolean;
 	error?: WidgetStateError;
 	empty?: WidgetStateEmpty;
 	/** Optional content-shaped loading override; defaults to `GenericSkeleton`. */
 	renderLoading?: ReactNode;
-	/** Success content. Kept mounted through a refetch, hidden behind the skeleton. */
 	children: ReactNode;
 }
 
-/**
- * Data-agnostic widget content-area state. Derives one state from the four
- * signals and renders loading / error / empty / the success children. Knows
- * nothing about the data layer — callers map their fetch result to the signals
- * and pass generic `error` / `empty` descriptors.
- *
- * Priority: error → loading → empty → ready. A refetch shows the skeleton too —
- * it almost always follows a date range or comparison change, which should read
- * as a fresh load rather than stale numbers dimmed under a spinner — but only
- * once it has been in flight long enough to be worth acknowledging. A refetch
- * that resolves sooner swaps the numbers in place, so a background revalidation
- * does not pulse every widget on screen for a fraction of a second. First load
- * is not delayed: there is nothing to show in its place. The empty state carries
- * no icon by default (staying visually distinct from the error state's glyph); a
- * caller opts in via `empty.icon`.
- *
- * @return The rendered widget state.
- */
 export function WidgetState( {
 	isLoading,
 	isFetching = false,
@@ -110,10 +87,15 @@ export function WidgetState( {
 
 	const skeleton = renderLoading ?? <GenericSkeleton />;
 
-	// Nothing to keep behind the skeleton: no data yet, or an empty result the
-	// children have never rendered against.
 	if ( isLoading || ( isEmpty && showFetchingState ) ) {
-		return <div className={ styles.loading }>{ skeleton }</div>;
+		// Reached on a refetch too, when the last result was empty. Announce only
+		// on first load, so whether a widget speaks up depends on what the user
+		// did rather than on what it happened to be showing beforehand.
+		return (
+			<div className={ styles.loading } aria-hidden={ ! isLoading || undefined }>
+				{ skeleton }
+			</div>
+		);
 	}
 
 	if ( isEmpty ) {
@@ -132,22 +114,13 @@ export function WidgetState( {
 		);
 	}
 
-	// Ready and refetching share one tree, so a refetch hides the children
-	// instead of unmounting them and the state they own — the selected metric
-	// tab, a table's sort and page — survives it. Hiding is left to
-	// `visibility: hidden`, which already drops the children from the
-	// accessibility tree and out of the tab order without stranding a focused
-	// child inside an `aria-hidden` subtree.
+	// Keep children mounted during refetches so their state and layout survive.
 	return (
-		// `aria-busy` is not delayed: the region really is busy from the first
-		// moment, and unlike the skeleton it costs the reader nothing.
 		<div className={ styles.ready } aria-busy={ isFetching || undefined }>
 			<div className={ clsx( styles.content, showFetchingState && styles.contentHidden ) }>
 				{ children }
 			</div>
-			{ /* Hidden from assistive tech: the skeleton's own `role="status"` would
-			     re-announce on every refetch, once per widget on screen. `aria-busy`
-			     above carries the state instead. */ }
+			{ /* Avoid announcing one status message per widget during refetches. */ }
 			{ showFetchingState && (
 				<div className={ styles.skeletonOverlay } aria-hidden="true">
 					{ skeleton }

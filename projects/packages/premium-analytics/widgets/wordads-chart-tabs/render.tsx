@@ -84,8 +84,6 @@ function WordAdsChartTabsInner( { granularity }: WordAdsChartTabsInnerProps ) {
 					icon: megaphone,
 					description: __( 'No WordAds data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
-				// The chart is the whole content here, so its block replaces the generic
-				// stacked lines.
 				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart

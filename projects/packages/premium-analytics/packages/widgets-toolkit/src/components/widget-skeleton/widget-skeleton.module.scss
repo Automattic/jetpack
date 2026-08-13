@@ -1,5 +1,4 @@
-// Column flow is load-bearing: `WidgetState`'s loading wrapper has no intrinsic
-// height, and a skeleton without it collapses to 0 inside a row-flex body.
+// Prevent the skeleton from collapsing inside a row-flex widget body.
 .root {
 	display: flex;
 	flex-direction: column;

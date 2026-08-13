@@ -84,10 +84,21 @@ export function WidgetDataTable< Item >( {
 			} ) as View
 	);
 
-	const { data: pageItems, paginationInfo } = useMemo(
-		() => filterSortAndPaginate( data, view, fields ),
-		[ data, view, fields ]
-	);
+	const { data: pageItems, paginationInfo } = useMemo( () => {
+		const result = filterSortAndPaginate( data, view, fields );
+		// The page survives a refetch, so a smaller result can leave it out of
+		// range. `filterSortAndPaginate` slices blindly and DataViews hides its
+		// pagination once one page is left, which would strand the reader on a
+		// blank table with no control to get back.
+		if ( result.data.length === 0 && result.paginationInfo.totalPages > 0 ) {
+			return filterSortAndPaginate(
+				data,
+				{ ...view, page: result.paginationInfo.totalPages },
+				fields
+			);
+		}
+		return result;
+	}, [ data, view, fields ] );
 
 	return (
 		<div className={ styles.root }>

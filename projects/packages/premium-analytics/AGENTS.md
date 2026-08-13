@@ -615,8 +615,7 @@ interpolated into a shared frame) so translators see the whole sentence:
 	isLoading={ isLoading }            // first load, no data yet
 	isError={ isError }
 	isEmpty={ data.length === 0 }
-	// isFetching is optional: passing it shows the loading state during a refetch too,
-	// so a date-range or comparison change reads as a fresh load.
+	// Optional: show the loading state during refetches.
 	error={ describeError( error, {
 		retryDescription: __( "We couldn't load search terms. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
 		onRetry: refetch,
@@ -627,20 +626,14 @@ interpolated into a shared frame) so translators see the whole sentence:
 </WidgetState>
 ```
 
-`<WidgetState>` derives one state (error → loading → empty → ready, with `isFetching` counting as
-loading) and swaps only the content area. Notes:
+`<WidgetState>` derives one state (error → loading → empty → ready) and swaps only the content
+area. Notes:
 
 - Expose `refetch` from the data/view hook so the error state's Retry can re-run the query.
-- The loading state defaults to `GenericSkeleton`. Where the widget's content has a distinct
-  shape, pass a content-shaped skeleton via `renderLoading` (e.g. `<MetricTabsChartSkeleton />`).
-  Build new shapes on `SkeletonRoot`, which supplies the `role="status"` region and the column
-  flow — note its visually hidden label is a real element, so index repeated rows inside your own
-  wrapper rather than with `:nth-child()` on `SkeletonRoot`'s children. Only shape what the
-  widget can predict before the data lands: a placeholder whose count or breakpoint depends on
-  the response reads as the layout jump it was meant to prevent.
-- A refetch hides the children rather than unmounting them, so state they own — the selected
-  metric tab, a table's sort and page — survives it. Only the first load, and a refetch over an
-  empty result, replace them outright.
+- The loading state defaults to `GenericSkeleton`. Pass a content-specific shape through
+  `renderLoading` when needed, and build new shapes on `SkeletonRoot`.
+- Passing `isFetching` shows a delayed skeleton while keeping children mounted, preserving their
+  state through refetches.
 - When a view hook masks `isError` (e.g. `rows.length === 0 && isError` to keep placeholder
   rows), gate `error` with the same predicate (`error: showError ? error : null`) so the two
   fields can't disagree.

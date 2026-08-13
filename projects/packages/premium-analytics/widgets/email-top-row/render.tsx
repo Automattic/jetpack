@@ -249,13 +249,7 @@ type EmailTopRowTilesProps = {
 	 * select an email when `false`, or a "no stats yet" message when `true`.
 	 */
 	hasSelection?: boolean;
-	/**
-	 * First load with no data yet — shows the loading state.
-	 */
 	isLoading?: boolean;
-	/**
-	 * Refetch over data already shown — shows the loading state too.
-	 */
 	isFetching?: boolean;
 	/**
 	 * Whether the request failed — shows the error state.

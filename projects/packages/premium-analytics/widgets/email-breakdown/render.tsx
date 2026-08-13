@@ -147,9 +147,6 @@ type EmailBreakdownLeaderboardProps = {
 	 * When `true` and there are no rows yet, the loading state is shown.
 	 */
 	isLoading?: boolean;
-	/**
-	 * When `true`, a refetch is in flight and the loading state replaces the rows.
-	 */
 	isFetching?: boolean;
 	/**
 	 * When `true`, the error state is rendered in place of the chart.

@@ -111,10 +111,6 @@ export default meta;
 
 type Story = StoryObj< typeof ReportMetricWidget >;
 
-/**
- * Loading state - shows the initial loading skeleton
- * Triggered when `isLoading: true` and `hasData: false`
- */
 export const Loading: Story = {
 	args: {
 		metricKey: 'total_sales',
@@ -129,14 +125,6 @@ export const Loading: Story = {
 	},
 };
 
-/**
- * Refetching over data already on screen - renders the same skeleton as the
- * first load, so a range change reads as a fresh load rather than stale numbers.
- * The content stays mounted behind the skeleton, hidden, so the state it owns
- * survives the fetch.
- * Triggered when `isFetching: true` and `hasData: true` - the shape a range
- * change produces, since the queries' `placeholderData` keeps `isLoading` false
- */
 export const Refetching: Story = {
 	args: {
 		metricKey: 'total_sales',

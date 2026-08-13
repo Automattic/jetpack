@@ -120,12 +120,6 @@ export const BarChartWithComparison: Story = {
 	decorators: [ withWidgetCanvas ],
 };
 
-/**
- * First load: both visits fetches are in flight, so the widget shows its loading
- * state (`MetricTabsChartSkeleton` in place of the whole body). The mock is
- * forced to never resolve for the duration of this story. Both of the widget's
- * requests hit the same `stats/visits` path, so one override covers them.
- */
 export const Loading: Story = {
 	render: () => renderTrafficChartOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.

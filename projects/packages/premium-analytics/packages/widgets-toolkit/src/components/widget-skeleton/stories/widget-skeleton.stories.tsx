@@ -1,10 +1,6 @@
 import { GenericSkeleton } from '../generic-skeleton';
 import type { Meta, StoryObj } from '@storybook/react';
 
-/**
- * Widget card wrapper, simulating a dashboard widget container so the skeleton
- * is shown within typical widget dimensions.
- */
 const WidgetCard = ( { height, children }: { height: string; children: React.ReactNode } ) => (
 	<div
 		style={ {
@@ -48,10 +44,6 @@ export const Default: Story = {
 	),
 };
 
-/**
- * A height-1 dashboard tile. The shape must stay inside the body instead of
- * overflowing into the widget footer.
- */
 export const ShortTile: Story = {
 	render: () => (
 		<WidgetCard height="140px">

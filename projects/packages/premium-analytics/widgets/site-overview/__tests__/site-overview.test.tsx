@@ -243,17 +243,10 @@ describe( 'SiteOverviewWidget', () => {
 			/>
 		);
 
-		// A date-range change reads as a fresh load: the skeleton takes over rather
-		// than the previous period's totals lingering under a spinner. It draws
-		// silently, so a range change does not announce once per widget on screen.
-		// The totals stay mounted behind it — unmounting them would reset the state
-		// the content owns — and are hidden by `visibility`, which jsdom does not
-		// apply.
 		await expect( screen.findByRole( 'status', { hidden: true } ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( '420' ) ).toBeInTheDocument();
 
-		// Once the new period resolves, its totals render in place of the skeleton.
 		resolveNextPeriod?.();
 		await expect( screen.findByText( '999' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();

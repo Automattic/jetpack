@@ -62,10 +62,6 @@ const withCanvas: Decorator = Story => (
 	</div>
 );
 
-/**
- * Widget card wrapper for the skeleton stories, simulating a dashboard widget
- * container so the shape is shown within typical widget dimensions.
- */
 const WidgetCard = ( {
 	width,
 	height,
@@ -140,12 +136,6 @@ export const Bars: Story = {
 
 type SkeletonStory = StoryObj< typeof MetricTabsChartSkeleton >;
 
-/**
- * The loading shape widgets pass through `WidgetState`'s `renderLoading`. The
- * metric cards get no placeholder: their count is only known once data lands,
- * and the real header collapses into a dropdown at a width the skeleton cannot
- * predict, so a card-shaped stand-in would land as a jump.
- */
 export const Skeleton: SkeletonStory = {
 	render: () => (
 		<WidgetCard width="720px" height="320px">
@@ -154,10 +144,6 @@ export const Skeleton: SkeletonStory = {
 	),
 };
 
-/**
- * A height-1 dashboard tile. The block gives up its room rather than pushing the
- * shape past the widget body.
- */
 export const SkeletonShortTile: SkeletonStory = {
 	render: () => (
 		<WidgetCard width="360px" height="140px">
