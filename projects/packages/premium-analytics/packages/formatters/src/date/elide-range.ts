@@ -9,15 +9,17 @@ import { formatDate } from './format-date';
 import { siteTimeZone } from './site-time-zone';
 
 /**
- * Forms a range can be elided in. Both name the month, so the elision rules
- * CLDR publishes for one apply to the other; they differ only in its width.
+ * Forms a range can be elided in. All three name the month, so the elision
+ * rules CLDR publishes for one apply to the others; they differ in its width
+ * and in whether the year is carried at all.
  */
-export type RangeFormatName = 'medium' | 'compact';
+export type RangeFormatName = 'medium' | 'compact' | 'compactNoYear';
 
 /** The date parts requested from `Intl` when comparing it with WordPress. */
 const RANGE_PARTS: Record< RangeFormatName, Intl.DateTimeFormatOptions > = {
 	medium: { year: 'numeric', month: 'long', day: 'numeric' },
 	compact: { year: 'numeric', month: 'short', day: 'numeric' },
+	compactNoYear: { month: 'short', day: 'numeric' },
 };
 
 /**

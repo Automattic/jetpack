@@ -12,7 +12,11 @@ import {
 	settingsFor,
 	utcDate,
 } from '../__fixtures__/wp-date-settings';
-import { formatDateRange, formatDateRangeCompact } from '../format-date-range';
+import {
+	formatDateRange,
+	formatDateRangeCompact,
+	formatDateRangeMinimal,
+} from '../format-date-range';
 
 // The en dash between thin spaces that CLDR puts between the ends of a range.
 const SEP = '\u2009\u2013\u2009';
@@ -204,5 +208,81 @@ describe( 'formatDateRangeCompact', () => {
 		const range = { from: utcDate( 2025, 6, 21 ), to: utcDate( 2025, 6, 25 ) };
 
 		expect( formatDateRangeCompact( range ) ).toBe( formatDateRange( range ) );
+	} );
+} );
+
+describe( 'formatDateRangeMinimal', () => {
+	// The fixtures put the site in UTC, so the site's year is this instant's.
+	beforeAll( () => jest.useFakeTimers().setSystemTime( utcDate( 2026, 8, 13 ) ) );
+	afterAll( () => jest.useRealTimers() );
+
+	describe( 'en_US site', () => {
+		beforeEach( () => setSettings( EN_US_SETTINGS ) );
+
+		it( 'drops the year from a single day in the current year', () => {
+			const date = utcDate( 2026, 7, 24 );
+			expect( formatDateRangeMinimal( { from: date, to: date } ) ).toBe( 'Jul 24' );
+		} );
+
+		it( 'drops the year from a range inside the current year', () => {
+			expect(
+				formatDateRangeMinimal( { from: utcDate( 2026, 7, 13 ), to: utcDate( 2026, 7, 26 ) } )
+			).toBe( `Jul 13${ SEP }26` );
+		} );
+
+		it( 'elides across months of the current year without naming it', () => {
+			expect(
+				formatDateRangeMinimal( { from: utcDate( 2026, 6, 21 ), to: utcDate( 2026, 7, 25 ) } )
+			).toBe( `Jun 21${ SEP }Jul 25` );
+		} );
+
+		// A range elsewhere in time needs its year to say which one it is, so it
+		// reads as the compact form rather than a shorter but ambiguous one.
+		it( 'keeps the year on a range in an earlier year', () => {
+			const range = { from: utcDate( 2025, 7, 13 ), to: utcDate( 2025, 7, 26 ) };
+
+			expect( formatDateRangeMinimal( range ) ).toBe( formatDateRangeCompact( range ) );
+		} );
+
+		it( 'keeps the year on a range straddling the turn of the year', () => {
+			const range = { from: utcDate( 2025, 12, 28 ), to: utcDate( 2026, 1, 3 ) };
+
+			expect( formatDateRangeMinimal( range ) ).toBe( formatDateRangeCompact( range ) );
+		} );
+	} );
+
+	describe( 'es_ES site', () => {
+		beforeEach( () => setSettings( ES_ES_SETTINGS ) );
+
+		// Dropping the year takes the "de" that introduced it along with it, so
+		// the shorter form is still written the way the locale writes dates.
+		// Spanish keeps both ends spelled out here for the same reason the
+		// compact form does: its abbreviated dates and CLDR's do not agree.
+		it( 'drops the year the way the locale writes the rest of the date', () => {
+			expect(
+				formatDateRangeMinimal( { from: utcDate( 2026, 7, 13 ), to: utcDate( 2026, 7, 26 ) } )
+			).toBe( `13 de jul${ FALLBACK_SEP }26 de jul` );
+		} );
+	} );
+
+	describe( 'edge cases', () => {
+		beforeEach( () => setSettings( EN_US_SETTINGS ) );
+
+		it( 'returns an empty string when an end is missing', () => {
+			expect( formatDateRangeMinimal( { from: utcDate( 2026, 7, 13 ), to: undefined } ) ).toBe(
+				''
+			);
+			expect( formatDateRangeMinimal() ).toBe( '' );
+		} );
+
+		// Nothing to abbreviate, but the year still comes off: the site's own
+		// ordering is kept, exactly as the year-less single-date form does.
+		it( 'still drops the year where the site numbers its month', () => {
+			setSettings( settingsFor( 'en-numeric-minimal-test', 'd/m/Y' ) );
+
+			expect(
+				formatDateRangeMinimal( { from: utcDate( 2026, 7, 13 ), to: utcDate( 2026, 7, 26 ) } )
+			).toBe( `13/07${ FALLBACK_SEP }26/07` );
+		} );
 	} );
 } );
