@@ -95,7 +95,7 @@ const withRules = ( rules, extra = {} ) => ( {
 	...extra,
 } );
 
-const setup = async ( conditionalLogic = DEFAULT_ATTRIBUTE ) => {
+const setup = async ( conditionalLogic = DEFAULT_ATTRIBUTE, { openModal = true } = {} ) => {
 	const setAttributes = jest.fn();
 	const { container } = render(
 		<ConditionalLogicPanel
@@ -109,6 +109,12 @@ const setup = async ( conditionalLogic = DEFAULT_ATTRIBUTE ) => {
 	// in the DOM until the title is activated.
 	await userEvent.click( screen.getByRole( 'button', { name: 'Conditional logic' } ) );
 
+	// The rules are edited in a dialog, so most of this file has to open it first. Tests
+	// about what the inspector itself shows pass openModal: false.
+	if ( openModal ) {
+		await userEvent.click( screen.getByRole( 'button', { name: /(add|edit) conditions/i } ) );
+	}
+
 	return { setAttributes, container };
 };
 
@@ -119,8 +125,48 @@ const optionValues = select =>
 
 describe( 'ConditionalLogicPanel', () => {
 	it( 'renders the panel title', async () => {
-		await setup();
+		await setup( DEFAULT_ATTRIBUTE, { openModal: false } );
 		expect( screen.getByText( 'Conditional logic' ) ).toBeInTheDocument();
+	} );
+
+	// The inspector keeps a summary so an author can tell what a field does without opening
+	// the dialog. That is the only reason it still holds a panel rather than a bare button.
+	it( 'summarises the conditions in the inspector', async () => {
+		await setup(
+			withRules( [
+				{ field: 'name_1', operator: 'is', value: 'x' },
+				{ field: 'budget_1', operator: 'gte', value: '5' },
+			] ),
+			{ openModal: false }
+		);
+
+		expect( screen.getByText( 'Shown when all 2 conditions match' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Edit conditions' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'summarises a hide action and an any match', async () => {
+		await setup(
+			withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ], { action: 'hide' } ),
+			{ openModal: false }
+		);
+
+		expect( screen.getByText( 'Hidden when 1 condition matches' ) ).toBeInTheDocument();
+	} );
+
+	it( 'invites the author in when there are no conditions yet', async () => {
+		await setup( DEFAULT_ATTRIBUTE, { openModal: false } );
+
+		expect(
+			screen.getByText( 'Show or hide this field based on the answer to another field.' )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Add conditions' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'does not render the rule builder until the dialog is opened', async () => {
+		await setup( DEFAULT_ATTRIBUTE, { openModal: false } );
+
+		expect( screen.queryByLabelText( 'Action' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Add condition' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the Add condition button with no conditions configured', async () => {
@@ -164,39 +210,37 @@ describe( 'ConditionalLogicPanel', () => {
 		} );
 	} );
 
-	it( 'hides the action and match selectors until a condition exists', async () => {
+	// Both selectors sit inside the dialog's sentence, so they are available whether or not a
+	// condition exists yet -- unlike the old inspector layout, which hid them until the first
+	// rule was added to keep the column short.
+	it( 'offers the action and match selectors in the dialog', async () => {
 		await setup();
-		expect( screen.queryByLabelText( 'Action' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'shows the action and match selectors once a condition exists', async () => {
-		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
 		expect( screen.getByLabelText( 'Action' ) ).toBeInTheDocument();
-		expect( screen.getByLabelText( 'When' ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( 'Match' ) ).toBeInTheDocument();
 	} );
 
-	// The single-row arrangement itself is CSS; what this can verify is that both selectors
-	// render together and that the sentence they belong to follows them rather than being
-	// interleaved, which is what wrapped badly before.
-	it( 'renders both selectors above the conditions sentence', async () => {
-		const { container } = await setup(
-			withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] )
-		);
-
-		expect( screen.getByLabelText( 'Action' ) ).toBeInTheDocument();
-		expect( screen.getByLabelText( 'When' ) ).toBeInTheDocument();
-		expect(
-			within( container ).getByText( 'of the following conditions are met:' )
-		).toBeInTheDocument();
-	} );
-
-	it( 'phrases the match options to read on from the action', async () => {
+	// The row arrangement itself is CSS; what this can verify is that the selectors are the
+	// words of a sentence rather than labelled fields stacked above the rules.
+	it( 'reads as a sentence around the selectors', async () => {
+		// Queried through `screen`, not the render container: the dialog portals to the end of
+		// the document, so it is not a descendant of what render() returns.
 		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
 
-		const match = screen.getByLabelText( 'When' );
+		expect( screen.getByText( 'this field when' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'of these match:' ) ).toBeInTheDocument();
+	} );
+
+	it( 'phrases the selectors to read on from each other', async () => {
+		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
+
+		const action = screen.getByLabelText( 'Action' );
+		expect( optionValues( action ) ).toEqual( [ 'show', 'hide' ] );
+		expect( within( action ).getByRole( 'option', { name: 'Show' } ) ).toBeInTheDocument();
+
+		const match = screen.getByLabelText( 'Match' );
 		expect( optionValues( match ) ).toEqual( [ 'any', 'all' ] );
-		expect( within( match ).getByRole( 'option', { name: 'if any' } ) ).toBeInTheDocument();
-		expect( within( match ).getByRole( 'option', { name: 'if all' } ) ).toBeInTheDocument();
+		expect( within( match ).getByRole( 'option', { name: 'any' } ) ).toBeInTheDocument();
+		expect( within( match ).getByRole( 'option', { name: 'all' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'offers the operators belonging to the subject field type', async () => {
@@ -292,12 +336,13 @@ describe( 'ConditionalLogicPanel', () => {
 	} );
 
 	it( 'warns when a rule references a field that no longer exists', async () => {
-		// Scoped to the rendered container: Notice mirrors its text into an aria-live region
-		// that WordPress appends to document.body, which would match twice.
-		const { container } = await setup(
-			withRules( [ { field: 'deleted_1', operator: 'is', value: 'x' } ] )
-		);
-		expect( within( container ).getByText( /no longer exists/i ) ).toBeInTheDocument();
+		await setup( withRules( [ { field: 'deleted_1', operator: 'is', value: 'x' } ] ) );
+
+		// Scoped to the dialog: Notice mirrors its text into an aria-live region that
+		// WordPress appends to document.body, so an unscoped query matches twice.
+		expect(
+			within( screen.getByRole( 'dialog' ) ).getByText( /no longer exists/i )
+		).toBeInTheDocument();
 	} );
 
 	it( 'adds a condition with no subject chosen yet', async () => {

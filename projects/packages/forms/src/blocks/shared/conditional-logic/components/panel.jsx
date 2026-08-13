@@ -1,30 +1,86 @@
 import { InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, SelectControl } from '@wordpress/components';
-import { useCallback, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { PanelBody } from '@wordpress/components';
+import { useCallback, useMemo, useState } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { Button, Stack, Text } from '@wordpress/ui';
 import {
 	countRules,
 	getPrimaryGroup,
 	normalizeLogic,
 	withPrimaryGroupRules,
 } from '../constants.js';
-import FieldValueControl from '../controls/field-value/edit.jsx';
 import useSubjectFields from '../hooks/use-subject-fields.js';
+import ConditionalLogicModal from './rules-modal.jsx';
 import '../editor.scss';
 
-const ACTION_OPTIONS = [
-	{ value: 'show', label: __( 'Show this field', 'jetpack-forms' ) },
-	{ value: 'hide', label: __( 'Hide this field', 'jetpack-forms' ) },
-];
+/**
+ * Describe the field's conditions in one line.
+ *
+ * This is the whole reason the inspector keeps a panel rather than just a button: an author can
+ * tell whether a field is conditional, and roughly why, without opening anything. It states the
+ * action, the match mode and the count, because those answer "what does this field do?" without
+ * repeating the rules themselves.
+ *
+ * @param {object} logic - The normalized conditional-logic attribute.
+ * @param {object} group - The group being described.
+ * @return {string} A sentence describing the conditions.
+ */
+const summarize = ( logic, group ) => {
+	const count = countRules( logic );
 
-const MATCH_OPTIONS = [
-	{ value: 'any', label: __( 'if any', 'jetpack-forms' ) },
-	{ value: 'all', label: __( 'if all', 'jetpack-forms' ) },
-];
+	if ( 'hide' === logic.action ) {
+		return 'all' === group.logicalOperator
+			? sprintf(
+					/* translators: %d: number of conditions */
+					_n(
+						'Hidden when %d condition matches',
+						'Hidden when all %d conditions match',
+						count,
+						'jetpack-forms'
+					),
+					count
+			  )
+			: sprintf(
+					/* translators: %d: number of conditions */
+					_n(
+						'Hidden when %d condition matches',
+						'Hidden when any of %d conditions match',
+						count,
+						'jetpack-forms'
+					),
+					count
+			  );
+	}
+
+	return 'all' === group.logicalOperator
+		? sprintf(
+				/* translators: %d: number of conditions */
+				_n(
+					'Shown when %d condition matches',
+					'Shown when all %d conditions match',
+					count,
+					'jetpack-forms'
+				),
+				count
+		  )
+		: sprintf(
+				/* translators: %d: number of conditions */
+				_n(
+					'Shown when %d condition matches',
+					'Shown when any of %d conditions match',
+					count,
+					'jetpack-forms'
+				),
+				count
+		  );
+};
 
 /**
  * The "Conditional logic" inspector panel, injected into every field block.
+ *
+ * Holds a summary and a button; the rules themselves are edited in a dialog, because three
+ * controls per condition do not fit the inspector's width without stacking into a card per
+ * condition, and a handful of those outgrows the viewport.
  *
  * @param {object}   props               - Component props.
  * @param {string}   props.clientId      - The field block's client id.
@@ -33,12 +89,15 @@ const MATCH_OPTIONS = [
  * @return {object} The rendered panel.
  */
 const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
+	const [ isModalOpen, setIsModalOpen ] = useState( false );
+
 	const logic = useMemo(
 		() => normalizeLogic( attributes.conditionalLogic ),
 		[ attributes.conditionalLogic ]
 	);
 
 	const fields = useSubjectFields( clientId );
+	const group = getPrimaryGroup( logic );
 
 	const updateLogic = useCallback(
 		next => setAttributes( { conditionalLogic: next } ),
@@ -50,11 +109,6 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 		[ logic, updateLogic ]
 	);
 
-	// The panel edits one group, so its Any/All selector is that group's operator. The
-	// top-level operator combines groups with each other and only starts to matter once a
-	// second group is editable.
-	const group = getPrimaryGroup( logic );
-
 	const handleMatchChange = useCallback(
 		logicalOperator => updateLogic( withPrimaryGroupRules( logic, group.rules, logicalOperator ) ),
 		[ group.rules, logic, updateLogic ]
@@ -65,6 +119,9 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 		[ group.logicalOperator, logic, updateLogic ]
 	);
 
+	const openModal = useCallback( () => setIsModalOpen( true ), [] );
+	const closeModal = useCallback( () => setIsModalOpen( false ), [] );
+
 	const hasConditions = countRules( logic ) > 0;
 
 	return (
@@ -74,53 +131,35 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 				initialOpen={ false }
 				className="jetpack-contact-form__panel jetpack-contact-form__conditional-logic"
 			>
-				{ hasConditions ? (
-					<>
-						<Stack
-							direction="row"
-							align="flex-start"
-							gap="sm"
-							className="jetpack-contact-form__conditional-logic-summary"
-						>
-							<SelectControl
-								label={ __( 'Action', 'jetpack-forms' ) }
-								hideLabelFromVision
-								value={ logic.action }
-								options={ ACTION_OPTIONS }
-								onChange={ handleActionChange }
-								__nextHasNoMarginBottom={ true }
-								__next40pxDefaultSize={ true }
-							/>
-							<SelectControl
-								label={ __( 'When', 'jetpack-forms' ) }
-								hideLabelFromVision
-								value={ group.logicalOperator }
-								options={ MATCH_OPTIONS }
-								onChange={ handleMatchChange }
-								__nextHasNoMarginBottom={ true }
-								__next40pxDefaultSize={ true }
-							/>
-						</Stack>
-						<Text variant="body-sm" className="jetpack-contact-form__conditional-logic-hint">
-							{ __( 'of the following conditions are met:', 'jetpack-forms' ) }
-						</Text>
-					</>
-				) : (
-					<Text variant="body-sm" className="jetpack-contact-form__conditional-logic-intro">
-						{ __(
-							'Show or hide this field based on the answer to another field.',
-							'jetpack-forms'
-						) }
+				<Stack direction="column" gap="md">
+					<Text variant="body-sm" className="jetpack-contact-form__conditional-logic-summary-text">
+						{ hasConditions
+							? summarize( logic, group )
+							: __(
+									'Show or hide this field based on the answer to another field.',
+									'jetpack-forms'
+							  ) }
 					</Text>
-				) }
 
-				<FieldValueControl
-					rules={ group.rules }
-					fields={ fields }
-					ownFieldId={ attributes.id }
-					onChange={ handleRulesChange }
-				/>
+					<Button variant="secondary" tone="neutral" onClick={ openModal }>
+						{ hasConditions
+							? __( 'Edit conditions', 'jetpack-forms' )
+							: __( 'Add conditions', 'jetpack-forms' ) }
+					</Button>
+				</Stack>
 			</PanelBody>
+
+			<ConditionalLogicModal
+				isOpen={ isModalOpen }
+				onClose={ closeModal }
+				logic={ logic }
+				group={ group }
+				fields={ fields }
+				ownFieldId={ attributes.id }
+				onActionChange={ handleActionChange }
+				onMatchChange={ handleMatchChange }
+				onRulesChange={ handleRulesChange }
+			/>
 		</InspectorControls>
 	);
 };

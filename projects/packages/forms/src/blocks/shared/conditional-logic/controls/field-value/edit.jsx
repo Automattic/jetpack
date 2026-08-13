@@ -2,7 +2,7 @@ import { Notice, SelectControl, TextControl } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { closeSmall, plus } from '@wordpress/icons';
-import { Button, IconButton, Stack, Text } from '@wordpress/ui';
+import { Button, IconButton, Stack } from '@wordpress/ui';
 import { RULE_TYPE_FIELD_VALUE } from '../../constants.js';
 import { useEnsureFieldId } from '../../hooks/use-subject-fields.js';
 import {
@@ -211,35 +211,7 @@ const RuleRow = ( { rule, index, fields, ownFieldId, onChange, onRemove } ) => {
 	}, {} );
 
 	return (
-		<div className="jetpack-contact-form__conditional-logic-rule">
-			<Stack
-				direction="row"
-				align="center"
-				justify="space-between"
-				gap="sm"
-				className="jetpack-contact-form__conditional-logic-rule-header"
-			>
-				<Text variant="body-sm" className="jetpack-contact-form__conditional-logic-rule-title">
-					{ sprintf(
-						/* translators: %d: condition number, starting at 1 */
-						__( 'Condition %d', 'jetpack-forms' ),
-						index + 1
-					) }
-				</Text>
-				<IconButton
-					size="small"
-					variant="minimal"
-					tone="neutral"
-					icon={ closeSmall }
-					onClick={ handleRemove }
-					label={ sprintf(
-						/* translators: %d: condition number, starting at 1 */
-						__( 'Remove condition %d', 'jetpack-forms' ),
-						index + 1
-					) }
-				/>
-			</Stack>
-
+		<Stack direction="column" gap="xs" className="jetpack-contact-form__conditional-logic-rule">
 			{ missingSubject && (
 				<Notice status="warning" isDismissible={ false }>
 					{ __(
@@ -249,10 +221,14 @@ const RuleRow = ( { rule, index, fields, ownFieldId, onChange, onRemove } ) => {
 				</Notice>
 			) }
 
+			{ /* One row per condition, reading as a sentence: subject, comparison, value. The
+			     remove control sits at the end of the row rather than in a header, so a long
+			     list is three aligned columns instead of a stack of cards. */ }
 			<Stack
-				direction="column"
+				direction="row"
+				align="flex-start"
 				gap="sm"
-				className="jetpack-contact-form__conditional-logic-rule-body"
+				className="jetpack-contact-form__conditional-logic-rule-row"
 			>
 				<SelectControl
 					label={ __( 'Field', 'jetpack-forms' ) }
@@ -288,8 +264,21 @@ const RuleRow = ( { rule, index, fields, ownFieldId, onChange, onRemove } ) => {
 				/>
 
 				<RuleValueControl rule={ rule } subject={ subject } onChange={ handleValueChange } />
+
+				<IconButton
+					size="small"
+					variant="minimal"
+					tone="neutral"
+					icon={ closeSmall }
+					onClick={ handleRemove }
+					label={ sprintf(
+						/* translators: %d: condition number, starting at 1 */
+						__( 'Remove condition %d', 'jetpack-forms' ),
+						index + 1
+					) }
+				/>
 			</Stack>
-		</div>
+		</Stack>
 	);
 };
 
