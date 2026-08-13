@@ -8,6 +8,8 @@ import { fireEvent, render, screen } from '@testing-library/react';
  */
 import PostingActivityRender from '../render';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
+import type { HeatmapTooltipData } from '@jetpack-premium-analytics/widgets-toolkit';
+import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
@@ -16,7 +18,26 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 
 	return {
 		...actual,
-		HeatmapChartUnresponsive: () => <div data-testid="heatmap" />,
+		// Render the widget's own tooltip too: after the shared `CalendarHeatmapTooltip`
+		// landed, the copy each widget passes in is the only part still its own.
+		HeatmapChartUnresponsive: ( {
+			renderTooltip,
+		}: {
+			renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;
+		} ) => (
+			<>
+				<div data-testid="heatmap" />
+				<div data-testid="tooltip-empty">
+					{ renderTooltip?.( { value: null, cellLabel: 'Mon, Jun 2, 2025', row: 0, column: 0 } ) }
+				</div>
+				<div data-testid="tooltip-singular">
+					{ renderTooltip?.( { value: 1, cellLabel: 'Tue, Jun 3, 2025', row: 1, column: 0 } ) }
+				</div>
+				<div data-testid="tooltip-plural">
+					{ renderTooltip?.( { value: 3, cellLabel: 'Wed, Jun 4, 2025', row: 2, column: 0 } ) }
+				</div>
+			</>
+		),
 	};
 } );
 
@@ -59,6 +80,18 @@ describe( 'PostingActivityWidget', () => {
 
 	afterEach( () => {
 		setViewportWidth( originalInnerWidth );
+	} );
+
+	it( 'keeps the post wording and leads the tooltip with the count', () => {
+		render( <PostingActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+
+		// The empty label and the plural forms are this widget's own; the shared
+		// component only decides that the count comes before the date.
+		expect( screen.getByTestId( 'tooltip-empty' ) ).toHaveTextContent( 'No postsMon, Jun 2, 2025' );
+		expect( screen.getByTestId( 'tooltip-singular' ) ).toHaveTextContent(
+			'1 postTue, Jun 3, 2025'
+		);
+		expect( screen.getByTestId( 'tooltip-plural' ) ).toHaveTextContent( '3 postsWed, Jun 4, 2025' );
 	} );
 
 	it( 'updates the shared history window when the viewport is resized', () => {

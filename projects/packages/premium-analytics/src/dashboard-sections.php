@@ -108,14 +108,17 @@ function register_default_dashboard_sections() {
 			},
 		),
 		'analytics/insights'    => array(
-			'label'          => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
-			'title'          => __( 'Activity insights', 'jetpack-premium-analytics-pkg' ),
-			'description'    => __( 'Longer-term patterns in your content and audience.', 'jetpack-premium-analytics-pkg' ),
-			'order'          => 20,
-			// Insights reads whole history, so it offers all time and single
-			// years instead of the rolling date-range picker.
-			'date_filter'    => Dashboard_Section::DATE_FILTER_YEAR,
-			'default_layout' => static function () {
+			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
+			'title'               => __( 'Activity insights', 'jetpack-premium-analytics-pkg' ),
+			'description'         => __( 'Longer-term patterns in your content and audience.', 'jetpack-premium-analytics-pkg' ),
+			'order'               => 20,
+			// Insights reads whole history: all time and single years instead of
+			// the rolling picker, with nothing to compare them against.
+			'date_filter'         => Dashboard_Section::DATE_FILTER_YEAR,
+			'date_filter_options' => array(
+				'with_date_comparison' => false,
+			),
+			'default_layout'      => static function () {
 				return get_dashboard_default_layout_for( 'analytics/insights' );
 			},
 		),
@@ -213,44 +216,56 @@ function get_dashboard_section_schema() {
 		'title'      => 'jetpack-premium-analytics-dashboard-section',
 		'type'       => 'object',
 		'properties' => array(
-			'id'             => array(
+			'id'                  => array(
 				'description' => __( 'Namespaced section identifier.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'readonly'    => true,
 			),
-			'slug'           => array(
+			'slug'                => array(
 				'description' => __( 'URL-facing section slug, derived from the identifier.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'readonly'    => true,
 			),
-			'label'          => array(
+			'label'               => array(
 				'description' => __( 'Translated display label, naming the section tab.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'readonly'    => true,
 			),
-			'title'          => array(
+			'title'               => array(
 				'description' => __( 'Translated section heading, distinct from the tab label. Null falls back to the label.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => array( 'string', 'null' ),
 				'readonly'    => true,
 			),
-			'description'    => array(
+			'description'         => array(
 				'description' => __( 'Translated section description, shown as the page subtitle while the section is active.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => array( 'string', 'null' ),
 				'readonly'    => true,
 			),
-			'order'          => array(
+			'order'               => array(
 				'description' => __( 'Sort order, ascending.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'integer',
 				'readonly'    => true,
 			),
-			'date_filter'    => array(
+			'date_filter'         => array(
 				'description' => __( 'Which date filter the section header offers: the rolling date range, or all time plus single years.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'enum'        => Dashboard_Section::DATE_FILTERS,
 				'default'     => Dashboard_Section::DATE_FILTER_RANGE,
 				'readonly'    => true,
 			),
-			'default_layout' => array(
+			'date_filter_options' => array(
+				'description' => __( 'Which optional controls the section date filter offers.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'object',
+				'properties'  => array(
+					'with_date_comparison' => array(
+						'description' => __( 'Whether the section header offers the period-over-period comparison control.', 'jetpack-premium-analytics-pkg' ),
+						'type'        => 'boolean',
+						'default'     => true,
+					),
+				),
+				'readonly'    => true,
+			),
+			'default_layout'      => array(
 				'description' => __( 'Bundled default widget layout.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'array',
 				'items'       => array( 'type' => 'object' ),

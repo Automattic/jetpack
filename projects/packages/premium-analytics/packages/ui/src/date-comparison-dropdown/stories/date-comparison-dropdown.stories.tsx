@@ -14,7 +14,7 @@ const meta: Meta< typeof DateComparisonDropdown > = {
 		docs: {
 			description: {
 				component:
-					'Additive comparison control: a `+` button with no comparison active, a labelled trigger once a period is chosen. Both open the same menu.',
+					'Additive comparison control: `Compare +` with no comparison active, a trigger naming the period once one is chosen. Both open the same menu.',
 			},
 		},
 	},
@@ -72,7 +72,7 @@ export const Default: Story = {
 };
 
 /**
- * No comparison active: the control is a `+` button that opens the same menu.
+ * No comparison active: the control reads `Compare +` and opens the same menu.
  */
 export const NoComparison: Story = {
 	render: () => <DateComparisonDropdownWithState initialEnabled={ false } />,
