@@ -46,19 +46,15 @@
 		margin-block-end: 16px;
 	}
 
-	.jetpack-newsletter-link,
+	> a,
 	&__description {
 		padding-block-start: 4px;
 	}
 
-	.jetpack-newsletter-link {
-		display: inline-flex;
-		align-items: center;
+	// The setup link is a @wordpress/ui Link, which brings its own underline and
+	// "opens in a new tab" affordance; it only needs to stop filling the column.
+	> a {
 		align-self: flex-start;
-		gap: 2px;
-		// Overrides the unstyled .jetpack-newsletter-link default. The link sits
-		// under dimmed text, so colour alone should not be what marks it as a link.
-		text-decoration: underline;
 	}
 
 	&__description {

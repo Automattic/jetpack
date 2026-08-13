@@ -14,7 +14,8 @@ import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/c
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
-import { Icon, external } from '@wordpress/icons';
+import { Icon } from '@wordpress/icons';
+import { Link as ExternalLink } from '@wordpress/ui';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import './settings.scss';
@@ -246,10 +247,9 @@ export function NewsletterAccessRadioButtons( {
 							{ paidOptionLabel }
 						</label>
 					</div>
-					<Link href={ getPaidPlanLink( hasTierPlans ) }>
+					<ExternalLink openInNewTab href={ getPaidPlanLink( hasTierPlans ) }>
 						{ __( 'Turn on paid subscribers', 'jetpack' ) }
-						<Icon icon={ external } size={ 16 } />
-					</Link>
+					</ExternalLink>
 				</>
 			) }
 			{ isPaidSelected && isPaidAvailable && <TierSelector></TierSelector> }
