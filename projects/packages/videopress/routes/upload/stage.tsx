@@ -1165,22 +1165,18 @@ const copyTextToClipboard = ( text: string ): Promise< void > => {
  * the whole draft session — the surface binds to the real record in place
  * rather than navigating mid-edit.
  *
- * @param props           - Component props.
- * @param props.upload    - The queue item driving the stage, mapped to the
- *                        flow's local shape. Undefined once acknowledged.
- * @param props.onRetry   - Re-dispatches the upload after a failure.
- * @param props.onSettled - Acknowledges the queue row once this surface has
- *                        bound to the created attachment.
+ * @param props         - Component props.
+ * @param props.upload  - The queue item driving the stage, mapped to the
+ *                      flow's local shape. Undefined once acknowledged.
+ * @param props.onRetry - Re-dispatches the upload after a failure.
  * @return The edit-step element.
  */
 const EditStep = ( {
 	upload: uploadItem,
 	onRetry,
-	onSettled,
 }: {
 	upload: UploadItem | undefined;
 	onRetry: () => void;
-	onSettled: () => void;
 } ) => {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
@@ -1191,25 +1187,19 @@ const EditStep = ( {
 	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
 	const [ captionsOpen, setCaptionsOpen ] = useState( false );
-	// Snapshotted at mount: the queue row is acknowledged away the moment the
-	// upload settles, and the stage must keep naming the file after it's gone.
 	const [ fileMeta ] = useState( () =>
 		uploadItem ? { name: uploadItem.file.name, size: uploadItem.file.size } : null
 	);
-	const [ mediaId, setMediaId ] = useState< number | null >( null );
 	// One-shot per session: the celebration is a first-publish moment, not a
 	// state of the video, so it must not re-fire on later refetches.
 	const [ celebration, setCelebration ] = useState< 'pending' | 'showing' | 'done' >( 'pending' );
 
-	// Bind to the real attachment as soon as the queue reports it, and
-	// acknowledge the row — from here this surface owns the video, and nothing
-	// else (the Library splice, a future upload pill) should keep reporting it.
-	useEffect( () => {
-		if ( mediaId == null && uploadItem?.status === 'success' && uploadItem.media ) {
-			setMediaId( uploadItem.media.id );
-			onSettled();
-		}
-	}, [ mediaId, uploadItem, onSettled ] );
+	// DERIVED, not copied into state: the first upload on a first-run site
+	// flips the tab order and remounts this whole subtree mid-session (live
+	// testing found the corpse twice). The queue row survives that, so it —
+	// not component state — carries the attachment id for the session's whole
+	// life; the row is acknowledged on the flow's exit paths, never here.
+	const mediaId = uploadItem?.media ? Number( uploadItem.media.id ) : null;
 
 	// With the GUID-less polling in useVideo, this follows the record through
 	// the registration/transcode tail until it turns playable.
@@ -1626,13 +1616,6 @@ const UploadOnboarding = ( {
 			retryUpload( id );
 		}
 	}, [ batchQueueIds, retryUpload ] );
-	const settleEditUpload = useCallback( () => {
-		// batchQueueIds is deliberately left in place: acknowledge only removes
-		// settled rows, and keeping the ids lets the flow's reset path (Back
-		// from a future exit) re-acknowledge harmlessly.
-		batchQueueIds.forEach( id => acknowledgeUpload( id ) );
-	}, [ batchQueueIds, acknowledgeUpload ] );
-
 	// Advance to details once every file has finished. For queue batches the
 	// settled items are snapshotted into local state and acknowledged out of
 	// the shared queue — from here the flow owns them, and nothing else (the
@@ -1744,13 +1727,7 @@ const UploadOnboarding = ( {
 			);
 		}
 		if ( s === 'edit' ) {
-			return (
-				<EditStep
-					upload={ queueUploads[ 0 ] }
-					onRetry={ retryEditUpload }
-					onSettled={ settleEditUpload }
-				/>
-			);
+			return <EditStep upload={ queueUploads[ 0 ] } onRetry={ retryEditUpload } />;
 		}
 		if ( s === 'success' ) {
 			return <SuccessCard published={ publishedVideos } onGoToHome={ goToHome } />;
