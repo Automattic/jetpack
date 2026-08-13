@@ -118,15 +118,31 @@ class Episode_Media_Cache_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A blank or malformed row must not put an empty key in the batch.
+	 * A blank or malformed row must not put an empty key in the batch — and,
+	 * more importantly, must not leave the lookup with nothing to match on.
+	 * `WP_Meta_Query` drops an `IN` clause whose value is an empty array, so an
+	 * unguarded lookup would degrade to a bare `_wp_attached_file` key match
+	 * and pull back every attachment on the site.
 	 */
 	public function test_enclosure_rows_without_a_url_are_ignored() {
 		$this->resolve_via_filter( 9005 );
-		$post = $this->seed_episode( 104, '' );
+		$queried = array();
+		add_filter(
+			'posts_pre_query',
+			static function ( $pre, $query ) use ( &$queried ) {
+				$queried[] = $query->get( 'meta_query' );
+				return $pre;
+			},
+			10,
+			2
+		);
 
-		Episode_Media_Cache::prime( array( $post ) );
+		Episode_Media_Cache::prime( array( $this->seed_episode( 104, '' ) ) );
 
+		$this->assertSame( array(), $queried, 'No attachment lookup should run when no enclosure URL survived parsing.' );
 		$this->assertSame( 9005, Episode_Media_Cache::attachment_id( '' ) );
+
+		remove_all_filters( 'posts_pre_query' );
 	}
 
 	/**

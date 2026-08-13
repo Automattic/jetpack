@@ -30,12 +30,6 @@ class Episode_Media_Cache {
 	private static $attachment_ids = array();
 
 	/**
-	 * Paths per lookup, so an unbounded `posts_per_rss` can't build an
-	 * unbounded `IN` list.
-	 */
-	private const CHUNK_SIZE = 500;
-
-	/**
 	 * Resolve the page's enclosure URLs and warm the caches the item hooks
 	 * read. Safe to call with the unfiltered post list — posts without an
 	 * `enclosure` row contribute nothing.
@@ -43,6 +37,14 @@ class Episode_Media_Cache {
 	 * `the_posts` runs before WP primes the loop's meta cache, so the
 	 * `update_meta_cache()` call is what keeps the reads below, and core's
 	 * `rss_enclosure()` later, from being a round trip apiece.
+	 *
+	 * The empty-`$paths` guard is load-bearing: `WP_Meta_Query` drops an `IN`
+	 * clause whose value is an empty array, leaving a bare `_wp_attached_file`
+	 * key match that would pull back every attachment on the site.
+	 *
+	 * Matching is exact. `attachment_url_to_postid()` also accepts a
+	 * case-insensitive match, so anything missed here still resolves through
+	 * {@see self::attachment_id()}.
 	 *
 	 * @param WP_Post[] $posts Posts about to be rendered.
 	 */
@@ -80,9 +82,29 @@ class Episode_Media_Cache {
 			}
 		}
 
-		$found          = self::find_attachments( array_keys( $paths ) );
-		$attachment_ids = array_values( array_unique( array_merge( $attachment_ids, $found ) ) );
+		$found = array();
+		if ( $paths ) {
+			$found = get_posts(
+				array(
+					'post_type'              => 'attachment',
+					'post_status'            => 'inherit',
+					'numberposts'            => -1,
+					'fields'                 => 'ids',
+					'orderby'                => 'none',
+					'no_found_rows'          => true,
+					'update_post_term_cache' => false,
+					'meta_query'             => array(
+						array(
+							'key'     => '_wp_attached_file',
+							'value'   => array_map( 'strval', array_keys( $paths ) ),
+							'compare' => 'IN',
+						),
+					),
+				)
+			);
+		}
 
+		$attachment_ids = array_values( array_unique( array_merge( $attachment_ids, $found ) ) );
 		if ( ! $attachment_ids ) {
 			return;
 		}
@@ -118,45 +140,6 @@ class Episode_Media_Cache {
 	 */
 	public static function attachment_id( string $url ): int {
 		return self::$attachment_ids[ $url ] ?? attachment_url_to_postid( $url );
-	}
-
-	/**
-	 * Attachment IDs for a set of `_wp_attached_file` paths. Matching is
-	 * exact — `attachment_url_to_postid()` also accepts a case-insensitive
-	 * match, so anything this misses falls back to it via
-	 * {@see self::attachment_id()}.
-	 *
-	 * @param string[] $paths Relative upload paths.
-	 * @return int[]
-	 */
-	private static function find_attachments( array $paths ): array {
-		$ids = array();
-
-		foreach ( array_chunk( $paths, self::CHUNK_SIZE ) as $chunk ) {
-			$ids = array_merge(
-				$ids,
-				get_posts(
-					array(
-						'post_type'              => 'attachment',
-						'post_status'            => 'inherit',
-						'numberposts'            => -1,
-						'fields'                 => 'ids',
-						'orderby'                => 'none',
-						'no_found_rows'          => true,
-						'update_post_term_cache' => false,
-						'meta_query'             => array(
-							array(
-								'key'     => '_wp_attached_file',
-								'value'   => array_map( 'strval', $chunk ),
-								'compare' => 'IN',
-							),
-						),
-					)
-				)
-			);
-		}
-
-		return $ids;
 	}
 
 	/**
