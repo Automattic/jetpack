@@ -54,16 +54,17 @@ export function normalizeUsage( data ) {
 		( Boolean( data?.[ 'next-tier' ] ) || data?.[ 'site-require-upgrade' ] === true );
 
 	// The design shows the product plan name here ("Free", "Complete"); the
-	// payload carries no product name, so paid plans fall back to the tier's
-	// readable limit and the legacy unlimited plan to "Unlimited" — without a
-	// label the plan cell has no strong text at all and the card reads empty.
+	// payload carries no product name, so the label falls back to the plan's
+	// nature — without it the plan cell has no strong text at all. The
+	// unlimited tier is the only one that ships a readable limit, already
+	// localized server-side; tiered tiers carry bare numbers.
 	let planLabel = null;
 	if ( isFree ) {
 		planLabel = __( 'Free', 'jetpack' );
 	} else if ( unlimited ) {
-		planLabel = __( 'Unlimited', 'jetpack' );
+		planLabel = currentTier?.[ 'readable-limit' ] ?? __( 'Unlimited', 'jetpack' );
 	} else if ( currentTier ) {
-		planLabel = currentTier.readableLimit ?? String( currentTier.limit ?? '' );
+		planLabel = currentTier[ 'readable-limit' ] ?? String( currentTier.limit ?? '' );
 	}
 
 	return {

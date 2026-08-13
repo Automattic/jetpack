@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { normalizeUsage, useAiUsage } from '../use-ai-usage';
-import { freePayload, tieredPayload } from './fixtures';
+import { freePayload, tieredPayload, unlimitedPayload } from './fixtures';
 
 // The hook fetches through @wordpress/api-fetch; stub it so nothing hits the
 // network and each test controls the response.
@@ -41,21 +41,28 @@ describe( 'normalizeUsage', () => {
 		expect( usage.requestsAvailable ).toBe( 0 );
 	} );
 
-	test( 'legacy unlimited: no numbers, an Unlimited plan label, a renewal date, no upgrade', () => {
-		const usage = normalizeUsage( {
-			...tieredPayload(),
-			'current-tier': { value: 1 },
-		} );
+	test( 'unlimited: no numbers, the payload readable limit as plan label, a renewal date, no upgrade', () => {
+		const usage = normalizeUsage( unlimitedPayload() );
 
 		expect( usage.unlimited ).toBe( true );
 		expect( usage.requestsCount ).toBeNull();
 		expect( usage.requestsLimit ).toBeNull();
 		expect( usage.requestsAvailable ).toBeNull();
 		// The payload has no product name (the design shows one, e.g.
-		// "Complete"), so the label falls back to the plan's nature.
+		// "Complete"); the unlimited tier's own server-localized
+		// readable-limit is the label.
 		expect( usage.planLabel ).toBe( 'Unlimited' );
 		expect( usage.renewsOn ).toBe( '2026-09-01' );
 		expect( usage.showUpgrade ).toBe( false );
+	} );
+
+	test( 'unlimited without a readable limit: the label falls back client-side', () => {
+		const usage = normalizeUsage( {
+			...tieredPayload(),
+			'current-tier': { value: 1 },
+		} );
+
+		expect( usage.planLabel ).toBe( 'Unlimited' );
 	} );
 
 	test( 'top tier: no next tier and no required upgrade means no upgrade', () => {

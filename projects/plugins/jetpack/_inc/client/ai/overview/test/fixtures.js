@@ -23,6 +23,15 @@ export const tieredPayload = () => ( {
 	'requests-count': 950,
 	'requests-limit': 20,
 	'usage-period': { 'requests-count': 340, 'next-start': '2026-09-01' },
-	'current-tier': { value: 500, limit: 500, readableLimit: '500' },
+	// Real tiered tiers carry no readable limit — only the unlimited tier
+	// does (wpcom usage helper's tier definitions).
+	'current-tier': { value: 500, limit: 500 },
 	'next-tier': { value: 750, limit: 750 },
+} );
+
+export const unlimitedPayload = () => ( {
+	...tieredPayload(),
+	// The paid/unlimited tier as the usage helper actually serializes it:
+	// a server-localized readable limit rides along.
+	'current-tier': { value: 1, limit: 999999999, 'readable-limit': 'Unlimited' },
 } );
