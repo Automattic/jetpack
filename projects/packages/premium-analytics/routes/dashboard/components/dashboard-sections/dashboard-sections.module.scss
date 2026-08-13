@@ -8,6 +8,15 @@
 	flex: 1 1 auto;
 	min-block-size: 0;
 
+	// The section's scroll container, which leaves the page header above it out
+	// of the scroll flow entirely, so it stays pinned however long the content
+	// runs. Scrolling the boot stage instead does not: `Page` is `height: 100%`
+	// and only renders its own scrollable wrapper when it also pads the content,
+	// so its sticky header runs out of containing block one viewport in and
+	// slides away. The tab list is inside here, so it still scrolls with the
+	// content.
+	overflow-y: auto;
+
 	// Own stacking context, so in-panel layers (the sticky section header,
 	// widget focus rings) never compete with the page header above.
 	position: relative;
