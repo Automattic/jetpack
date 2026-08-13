@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { makeLibraryItem } from '../../../src/dashboard/test-utils/library-item';
 import {
@@ -15,9 +15,10 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 	default: jest.fn(),
 } ) );
 
+const mockNavigate = jest.fn();
 jest.mock( '@wordpress/route', () => ( {
 	__esModule: true,
-	useNavigate: () => jest.fn(),
+	useNavigate: () => mockNavigate,
 } ) );
 
 // The full dashboard chrome (masthead, tabs, landing redirect) is not under
@@ -46,8 +47,10 @@ jest.mock( '../../../src/dashboard/utils/connection', () => ( {
 	isWpcomConnected: () => mockConnected,
 } ) );
 
+const defaultFreeTier = { isAtLimit: false, isFree: false, isUnlimited: true, videoCount: 0 };
+let mockFreeTier = defaultFreeTier;
 jest.mock( '../../../src/dashboard/hooks/use-free-tier', () => ( {
-	useFreeTier: () => ( { isAtLimit: false, isFree: false, isUnlimited: true, videoCount: 0 } ),
+	useFreeTier: () => mockFreeTier,
 } ) );
 
 const mockMarkFirstPublish = jest.fn();
@@ -105,11 +108,12 @@ jest.mock( '../../../src/dashboard/hooks/use-update-chapters', () => ( {
 jest.mock( '../../../src/dashboard/hooks/use-delete-video', () => ( {
 	useDeleteVideo: () => ( { mutateAsync: jest.fn(), isPending: false } ),
 } ) );
+const mockCreateInfoNotice = jest.fn();
 jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
 	useGlobalNotices: () => ( {
 		createSuccessNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
-		createInfoNotice: jest.fn(),
+		createInfoNotice: mockCreateInfoNotice,
 	} ),
 } ) );
 jest.mock( '../../../src/client/components/caption-manager-modal/lazy', () => ( {
@@ -177,6 +181,7 @@ describe( 'upload stage single-drop transition', () => {
 		mockNextUpload = {};
 		mockConnected = true;
 		mockVideo = undefined;
+		mockFreeTier = defaultFreeTier;
 	} );
 
 	it( 'cross-fades a single connected drop straight to the edit surface', async () => {
@@ -190,14 +195,41 @@ describe( 'upload stage single-drop transition', () => {
 		expect( screen.queryByText( 'Uploading your video' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'keeps the uploading card for multi-file drops', async () => {
+	it( 'starts every file in the shared queue and lands a connected multi-drop on the Library', async () => {
 		const { container } = renderStage();
 
 		await dropFiles( container, [ makeFile( 'one.mp4' ), makeFile( 'two.mp4' ) ] );
 
 		expect( mockStartUpload ).toHaveBeenCalledTimes( 2 );
+		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/' } );
+		// Neither the edit surface nor the 'uploading' interstitial claims a
+		// connected multi-drop — the Library's in-flight rows and the upload
+		// pill are the batch's progress surface.
 		expect( screen.queryByTestId( 'editor' ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'Uploading 2 videos' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Uploading 2 videos' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'surfaces the free-plan slice with the discarded count', () => {
+		mockFreeTier = { isAtLimit: false, isFree: true, isUnlimited: false, videoCount: 0 };
+		const { container } = renderStage();
+
+		// Through the dropzone, not the picker: the free-plan picker input has
+		// no `multiple`, so userEvent.upload would deliver a single file and
+		// there'd be nothing to slice.
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
+		const dropzone = container.querySelector( '.vp-onboarding__dropzone' ) as HTMLElement;
+		fireEvent.drop( dropzone, {
+			dataTransfer: {
+				files: [ makeFile( 'one.mp4' ), makeFile( 'two.mp4' ), makeFile( 'three.mp4' ) ],
+			},
+		} );
+
+		// Only the first file uploads; the other two are named in the notice.
+		expect( mockStartUpload ).toHaveBeenCalledTimes( 1 );
+		expect( mockCreateInfoNotice ).toHaveBeenCalledWith(
+			'The free plan includes one video — uploading your first. Upgrade to add the other 2.'
+		);
+		expect( screen.getByTestId( 'editor' ) ).toBeInTheDocument();
 	} );
 
 	it( 'routes a failed single upload retry through the shared queue', async () => {
