@@ -81,11 +81,12 @@ class Episode_Media_Cache {
 			$found = get_posts(
 				array(
 					'post_type'              => 'attachment',
-					// Every status an attachment can hold, because
-					// `attachment_url_to_postid()` scans `postmeta` unscoped — a
-					// trashed or private duplicate is a record it can pick, and
-					// narrowing here would hide the ambiguity rather than settle it.
-					'post_status'            => array( 'inherit', 'private', 'trash', 'auto-draft' ),
+					// `attachment_url_to_postid()` scans `postmeta` unscoped, so any
+					// status is a record it can pick and narrowing would hide the
+					// ambiguity rather than settle it. `wp_insert_post()` only lets an
+					// attachment hold four of these, but listing them here would copy
+					// an invariant that lives in core.
+					'post_status'            => array_keys( get_post_stati() ),
 					'numberposts'            => -1,
 					'fields'                 => 'ids',
 					'orderby'                => 'none',
