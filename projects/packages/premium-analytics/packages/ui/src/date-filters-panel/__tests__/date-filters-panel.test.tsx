@@ -147,4 +147,23 @@ describe( 'DateFiltersPanel', () => {
 
 		expect( screen.queryByRole( 'button', { name: 'Previous period' } ) ).not.toBeInTheDocument();
 	} );
+
+	// The comparison qualifies the range the presets just set; the interval only
+	// buckets the charts. Reading order follows that, so it is worth pinning.
+	it( 'places the comparison before the chart interval', () => {
+		mockContainerResize();
+		renderPanel( {
+			withIntervalControl: true,
+			intervalOptions: [ 'day', 'week' ],
+			interval: 'day',
+			onIntervalChange: jest.fn(),
+		} );
+
+		const comparison = screen.getByRole( 'button', { name: 'Add comparison' } );
+		const chartInterval = screen.getByRole( 'button', { name: 'Chart interval' } );
+
+		expect( comparison.compareDocumentPosition( chartInterval ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+	} );
 } );
