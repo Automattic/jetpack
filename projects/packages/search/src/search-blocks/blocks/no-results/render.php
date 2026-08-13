@@ -76,7 +76,7 @@ if ( $is_default ) {
 		<div
 			class="<?php echo esc_attr( $default_class ); ?>"
 			data-wp-bind--hidden="!<?php echo esc_attr( No_Results::visibility_getter( 'any' ) ); ?>"
-			<?php echo '' === $variants ? 'role="status"' : ''; ?>
+			<?php echo wp_kses_data( No_Results::live_region_attribute( 'any' ) ); ?>
 			hidden
 		>
 			<?php
@@ -111,8 +111,9 @@ if ( $is_default ) {
 			}
 			No_Results::seed_coverage( 'any' );
 			printf(
-				'<div class="jetpack-search-no-results__variant" data-wp-bind--hidden="!%s" hidden>',
-				esc_attr( No_Results::visibility_getter( 'any' ) )
+				'<div class="jetpack-search-no-results__variant" data-wp-bind--hidden="!%s" %s hidden>',
+				esc_attr( No_Results::visibility_getter( 'any' ) ),
+				wp_kses_data( No_Results::live_region_attribute( 'any' ) )
 			);
 			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner block HTML is already escaped by each child block's renderer.
 			echo '</div>';

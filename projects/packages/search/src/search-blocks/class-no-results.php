@@ -85,13 +85,22 @@ class No_Results {
 			}
 
 			$conditions = array();
+			$has_strays = false;
 			foreach ( $inner_blocks as $inner_block ) {
-				if ( 'jetpack-search/no-results-slot' === ( $inner_block['blockName'] ?? '' ) ) {
+				$inner_name = $inner_block['blockName'] ?? '';
+				if ( 'jetpack-search/no-results-slot' === $inner_name ) {
 					$conditions[] = self::normalize_condition( $inner_block['attrs']['condition'] ?? '' );
+				} elseif ( ! empty( $inner_name ) || '' !== trim( (string) ( $inner_block['innerHTML'] ?? '' ) ) ) {
+					$has_strays = true;
 				}
 			}
-			// A container with no variants stands in for an unscoped one, the
-			// same way its own renderer treats it.
+			// Mirrors the renderer: it wraps stray children as an unscoped
+			// variant, and a container with nothing else stands in for one. If
+			// this disagreed, both the wrapped strays and the legacy region
+			// would bind to the same getter and show together.
+			if ( $has_strays ) {
+				$conditions[] = 'any';
+			}
 			foreach ( $conditions ? $conditions : array( 'any' ) as $condition ) {
 				$coverage[ $condition ] = true;
 			}
@@ -206,6 +215,11 @@ class No_Results {
 	 * `results-list` has always emitted between its two regions. Only the
 	 * default copy gets one: announcing an author's whole composition verbatim
 	 * on every empty search is worse than not announcing it.
+	 *
+	 * Every message gets one, authored or not. `results-list` announced its
+	 * custom copy too, so wrapping only the fallback would leave a screen
+	 * reader silent on the transition to empty for exactly the authors who
+	 * cared enough to write their own message.
 	 *
 	 * @param string $condition One of `any`, `filtered`, `error`.
 	 * @return string Attribute markup.

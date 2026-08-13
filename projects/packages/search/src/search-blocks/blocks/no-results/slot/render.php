@@ -31,7 +31,7 @@ if ( $is_default ) {
 	<?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => $wrapper_class ) ) ); ?>
 	data-wp-interactive="jetpack-search"
 	data-wp-bind--hidden="!<?php echo esc_attr( No_Results::visibility_getter( $condition ) ); ?>"
-	<?php echo $is_default ? wp_kses_data( No_Results::live_region_attribute( $condition ) ) : ''; ?>
+	<?php echo wp_kses_data( No_Results::live_region_attribute( $condition ) ); ?>
 	hidden
 >
 	<?php

@@ -182,20 +182,30 @@ class No_Results_Slot_Render_Test extends TestCase {
 
 	/**
 	 * A failure is assertive, an empty result set is not — the same split
-	 * `results-list` has always emitted between its two regions. The live
-	 * region wraps the plain fallback only; announcing an author's whole
-	 * composition verbatim on every empty search is worse than not announcing
-	 * it, and `core/query-no-results` has no live region at all.
+	 * `results-list` has always emitted between its two regions.
+	 *
+	 * Authored content gets a live region too. `results-list` announced its
+	 * custom copy, so wrapping only the fallback would leave a screen reader
+	 * silent on the transition to empty for exactly the authors who cared
+	 * enough to write their own message. Results arrive client-side, so there
+	 * is no page load to announce it instead.
 	 */
-	public function test_live_region_matches_the_condition_and_only_wraps_default_copy() {
+	public function test_live_region_matches_the_condition_for_default_and_authored_copy() {
 		$this->assertStringContainsString( 'role="status"', $this->render() );
 		$this->assertStringContainsString(
 			'role="alert"',
 			$this->render( array( 'condition' => 'error' ) )
 		);
-		$this->assertStringNotContainsString(
-			'role=',
+		$this->assertStringContainsString(
+			'role="status"',
 			$this->render( array(), '<!-- wp:paragraph --><p>Nothing here.</p><!-- /wp:paragraph -->' )
+		);
+		$this->assertStringContainsString(
+			'role="alert"',
+			$this->render(
+				array( 'condition' => 'error' ),
+				'<!-- wp:paragraph --><p>Search is down.</p><!-- /wp:paragraph -->'
+			)
 		);
 	}
 

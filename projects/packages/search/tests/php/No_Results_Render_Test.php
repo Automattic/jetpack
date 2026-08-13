@@ -186,9 +186,9 @@ class No_Results_Render_Test extends TestCase {
 		$this->assertStringContainsString( 'Hand-written copy.', $markup );
 		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showNoResultsAny"', $markup );
 		// Authored content keeps its own presentation, so no muted default class
-		// and no live region wrapping someone's composition.
+		// — but it still gets the live region, the same as the copy it replaced.
 		$this->assertStringNotContainsString( 'jetpack-search-no-results--default', $markup );
-		$this->assertStringNotContainsString( 'role="status"', $markup );
+		$this->assertStringContainsString( 'role="status"', $markup );
 
 		$state = wp_interactivity_state( 'jetpack-search' );
 		$this->assertTrue( $state['hasNoResultsUnfiltered'] );
