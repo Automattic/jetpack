@@ -3,7 +3,7 @@
 	&__loading {
 		display: flex;
 		justify-content: center;
-		padding-block: 16px;
+		padding-block: var(--wpds-dimension-padding-lg, 16px);
 	}
 
 	// The i4 usage card: two equal cells split by a hairline divider —
@@ -14,7 +14,7 @@
 
 		@media (max-width: 600px) {
 			flex-direction: column;
-			gap: 16px;
+			gap: var(--wpds-dimension-gap-lg, 16px);
 		}
 	}
 
@@ -23,12 +23,12 @@
 		min-inline-size: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--wpds-dimension-gap-sm, 8px);
 
 		&--plan {
 			border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral, #dbdbdb);
-			padding-inline-start: 24px;
-			margin-inline-start: 24px;
+			padding-inline-start: var(--wpds-dimension-gap-xl, 24px);
+			margin-inline-start: var(--wpds-dimension-gap-xl, 24px);
 			// Full-height divider: bleed through the card content's padding,
 			// then take the same space back (tracks the ui Card's own token).
 			margin-block: calc(-1 * var(--wp-ui-card-padding, 24px));
@@ -41,7 +41,7 @@
 				margin-inline-start: 0;
 				margin-block: 0;
 				border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral, #dbdbdb);
-				padding-block: 16px 0;
+				padding-block: var(--wpds-dimension-padding-lg, 16px) 0;
 			}
 		}
 	}
@@ -61,14 +61,14 @@
 	&__docs {
 		display: flex;
 		flex-direction: column;
-		gap: 16px;
+		gap: var(--wpds-dimension-gap-lg, 16px);
 		margin-block-start: var(--wpds-dimension-gap-xl, 24px);
 	}
 
 	&__video-grid {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 16px;
+		gap: var(--wpds-dimension-gap-lg, 16px);
 
 		@media (max-width: 600px) {
 			grid-template-columns: minmax(0, 1fr);
@@ -110,8 +110,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 12px;
-		padding: 12px 20px;
+		gap: var(--wpds-dimension-gap-md, 12px);
+		padding: var(--wpds-dimension-padding-md, 12px) var(--wpds-dimension-padding-xl, 20px);
 		border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral, #dbdbdb);
 	}
 
