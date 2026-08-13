@@ -636,7 +636,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 *
 	 * @param string $name Extension name; the PID suffix is appended.
 	 *
-	 * @return array Fixture data: the final `name`/`slug` and the `dir`/`file` paths.
+	 * @return array Fixture data: the final `slug` and the `dir`/`file` paths.
 	 */
 	private function create_fixture_editor_extension( $name ) {
 		$name .= '-' . getmypid();
@@ -650,7 +650,6 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		);
 
 		return array(
-			'name' => $name,
 			'slug' => $name,
 			'dir'  => $dir,
 			'file' => $file,
@@ -1207,6 +1206,12 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 * load_block_editor_extensions() -> include of the extension file ->
 	 * its jetpack_register_gutenberg_extensions callback -> get_availability(),
 	 * which is the structure Jetpack_Editor_Initial_State hands to the editor.
+	 *
+	 * Note: load_block_editor_extensions() globs and include_once's every real
+	 * extension file too (the jetpack_set_available_extensions filter narrows only
+	 * get_availability()'s output, not the include loop). Isolation therefore relies
+	 * on set_up()'s remove_all_actions( 'jetpack_register_gutenberg_extensions' ) plus
+	 * this filter, which ignores whatever those real extensions register.
 	 *
 	 * @param string $slug Fixture extension slug to expose and look up.
 	 *
