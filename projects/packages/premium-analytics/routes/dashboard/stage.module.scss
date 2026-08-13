@@ -69,11 +69,9 @@
 }
 
 .widgets {
-	// Caps every layer the grid raises under the sticky header below: the edit
-	// overlay, a resizing tile, the exit animation of a removed one. The header
-	// then only has to outrank this box rather than numbers it does not own,
-	// which reach 2 today. The @dnd-kit drag preview renders in here too, so a
-	// dragged tile passes beneath the header as well.
+	// Caps every layer the grid raises (edit overlay, resizing tiles, the
+	// @dnd-kit drag preview) under the sticky header, which then only has to
+	// outrank this box rather than z-index values it does not own.
 	isolation: isolate;
 
 	// Inherited by the @wordpress/grid surfaces (grid, masonry, edit overlay),
@@ -88,14 +86,12 @@
 }
 
 /*
- * Tells the section header where it pins, so its subtitle starts condensing
- * there rather than from the top of the scroll. The header cannot work this out
- * itself: what it has to clear is the section tabs, which belong to this route.
- *
- * The marker is measured, never seen. Sitting at the top of the panel puts its
- * own leading edge exactly where the header comes to rest, so the `exit` phase
- * of its view timeline opens the moment the header sticks, and its height is
- * how far the fade then runs.
+ * Publishes the `--section-header-pin` timeline the header condenses against:
+ * only the route knows where the header pins, since what it clears is the
+ * route's own tab list. The marker's top edge sits exactly where the header
+ * comes to rest, so its view timeline's `exit` phase opens as the header
+ * sticks, and its height is how far the condense runs. Measured, never
+ * painted.
  */
 .pinMarker {
 	position: absolute;
@@ -109,22 +105,18 @@
 }
 
 .sectionHeader {
-	// Pins directly under the page header. The offset is 0 rather than that
-	// header's height because the scroll container is the sections root, which
-	// begins where the page header ends.
+	// Pins at 0 rather than under the page header's height: the scroll
+	// container is the sections root, which begins where the page header ends.
 	position: sticky;
 	inset-block-start: 0;
 	z-index: 1;
 
 	/*
-	 * A stuck header has to be opaque, and it takes the page header's fill, as
-	 * the section tabs above it do: this header is the page's own chrome, not
-	 * part of the surface the widgets sit on, and the canvas begins where the
-	 * grid does. The hairline is the edge between the two.
-	 *
-	 * It spans the page edges to cover everything that passes under it, which
-	 * means giving the panel's gutter back as padding, so the header row itself
-	 * does not move and the container query measuring it sees the same width.
+	 * A stuck header must be opaque, and it takes the page header's fill: this
+	 * band is page chrome, not the widgets' canvas, and the hairline is the
+	 * edge between the two. The negative margin spans it across the panel's
+	 * gutter to cover content passing under it; the matching padding keeps the
+	 * header row in place and the container query's measured width unchanged.
 	 */
 	margin-inline: calc(-1 * var(--wpds-dimension-padding-2xl));
 	padding-inline: var(--wpds-dimension-padding-2xl);
@@ -133,21 +125,34 @@
 		var(--wpds-border-width-xs) solid
 		var(--wpds-color-stroke-surface-neutral-weak);
 
-	// Separates the header row from the tabs above and the widget grid below.
-	// The gap above used to be the tab bar's bottom margin, which is dropped for
-	// this surface so it falls inside the fill rather than before it.
+	// The gap above was the tab bar's bottom margin, moved inside the fill so
+	// the fill starts at the tabs' hairline.
 	padding-block-start: var(--wpds-dimension-gap-lg);
 	padding-block-end: var(--wpds-dimension-gap-lg);
 
 	margin-block-end: var(--wpds-dimension-gap-lg);
+}
 
-	// Tightens to the same beat as the subtitle it sits around: at rest the
-	// padding holds the header apart from the tabs above and the grid below,
-	// and once pinned there are no tabs left to clear and the band should cost
-	// the widgets as little as it can. Same marker, so the two move as one.
-	animation: condense-section-header linear both;
-	animation-timeline: --section-header-pin;
-	animation-range: exit;
+// Same gate as the component's condense (see `section-header.module.scss`):
+// without timeline support the 0s fallback animation would freeze the
+// padding in its pinned state.
+@supports (animation-timeline: --section-header-pin) {
+
+	.sectionHeader {
+		// Tightens the padding on the subtitle's own timeline: once pinned
+		// there are no tabs left to clear, and the band should cost the
+		// widgets as little height as it can.
+		animation: condense-section-header linear both;
+		animation-timeline: --section-header-pin;
+		animation-range: exit;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+
+		.sectionHeader {
+			animation: none;
+		}
+	}
 }
 
 @keyframes condense-section-header {
@@ -155,12 +160,5 @@
 	to {
 		padding-block-start: var(--wpds-dimension-gap-sm);
 		padding-block-end: var(--wpds-dimension-gap-sm);
-	}
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-	.sectionHeader {
-		animation: none;
 	}
 }
