@@ -42,9 +42,10 @@ class Episode_Media_Cache {
 	 * clause whose value is an empty array, leaving a bare `_wp_attached_file`
 	 * key match that would pull back every attachment on the site.
 	 *
-	 * Matching is exact. `attachment_url_to_postid()` also accepts a
-	 * case-insensitive match, so anything missed here still resolves through
-	 * {@see self::attachment_id()}.
+	 * The lookup is deliberately narrower than core's: `inherit`-status
+	 * attachments on an exact path match, where `attachment_url_to_postid()`
+	 * ignores post status and also accepts a case-insensitive match. Whatever
+	 * it misses still resolves through {@see self::attachment_id()}.
 	 *
 	 * @param WP_Post[] $posts Posts about to be rendered.
 	 */
@@ -130,16 +131,22 @@ class Episode_Media_Cache {
 	 * The attachment behind an enclosure URL: from the batch when
 	 * {@see self::prime()} matched one, otherwise from core.
 	 *
-	 * A miss has to reach core rather than be answered as "no attachment". The
-	 * batch only matches files under this site's uploads dir, and
-	 * `attachment_url_to_postid()` runs filters that offloaded-media plugins
-	 * use to map a CDN URL back to its attachment.
+	 * Both paths end in the `attachment_url_to_postid` filter — core applies it
+	 * to its own result — so a batch hit stays indistinguishable from the
+	 * lookup it replaces. A miss defers to core outright: the batch only
+	 * matches files under this site's uploads dir, and offloaded-media plugins
+	 * lean on that filter to map a CDN URL back to its attachment.
 	 *
 	 * @param string $url Enclosure URL, as `rss_enclosure()` rendered it.
 	 * @return int Attachment ID, or 0.
 	 */
 	public static function attachment_id( string $url ): int {
-		return self::$attachment_ids[ $url ] ?? attachment_url_to_postid( $url );
+		if ( ! isset( self::$attachment_ids[ $url ] ) ) {
+			return attachment_url_to_postid( $url );
+		}
+
+		/** This filter is documented in wp-includes/media.php */
+		return (int) apply_filters( 'attachment_url_to_postid', self::$attachment_ids[ $url ], $url );
 	}
 
 	/**

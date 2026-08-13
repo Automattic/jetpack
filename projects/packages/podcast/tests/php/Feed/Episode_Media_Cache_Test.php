@@ -26,6 +26,8 @@ class Episode_Media_Cache_Test extends BaseTestCase {
 	protected function tearDown(): void {
 		Episode_Media_Cache::prime( array() );
 		remove_all_filters( 'pre_attachment_url_to_postid' );
+		remove_all_filters( 'attachment_url_to_postid' );
+		remove_all_filters( 'posts_pre_query' );
 		wp_cache_flush();
 		parent::tearDown();
 	}
@@ -141,8 +143,6 @@ class Episode_Media_Cache_Test extends BaseTestCase {
 
 		$this->assertSame( array(), $queried, 'No attachment lookup should run when no enclosure URL survived parsing.' );
 		$this->assertSame( 9005, Episode_Media_Cache::attachment_id( '' ) );
-
-		remove_all_filters( 'posts_pre_query' );
 	}
 
 	/**
