@@ -303,6 +303,14 @@ $vp-flow-duration: 380ms;
 	> .vp-flow {
 		animation-delay: 130ms;
 	}
+
+	// The dropzone is the page's one action; at full container width it reads
+	// as a void. 718px per design review, centered. Only this card narrows —
+	// the edit surface that follows it in the same flow needs the width.
+	.vp-onboarding__card--upload {
+		max-inline-size: 718px;
+		margin-inline: auto;
+	}
 }
 
 // Uploading step — the DS ProgressBar + percentage.
