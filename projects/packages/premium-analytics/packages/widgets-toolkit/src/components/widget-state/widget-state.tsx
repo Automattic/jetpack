@@ -7,6 +7,9 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+// Imported from the module rather than the hooks barrel, which re-exports from
+// `widgets/common` and would pull that graph into every widget body.
+import { useDelayedLoading } from '../../hooks/use-delayed-loading';
 import { ChartEmptyState } from '../chart-empty-state';
 import { GenericSkeleton } from '../widget-skeleton';
 import { errorStateIcon } from './error-state-icon';
@@ -47,12 +50,15 @@ export interface WidgetStateProps {
  * nothing about the data layer — callers map their fetch result to the signals
  * and pass generic `error` / `empty` descriptors.
  *
- * Priority: error → loading → empty → ready. Any fetch in flight shows the
- * skeleton, refetches included: a refetch here almost always follows a date range
- * or comparison change, which should read as a fresh load rather than stale
- * numbers dimmed under a spinner. The empty state carries no icon by default
- * (staying visually distinct from the error state's glyph); a caller opts in via
- * `empty.icon`.
+ * Priority: error → loading → empty → ready. A refetch shows the skeleton too —
+ * it almost always follows a date range or comparison change, which should read
+ * as a fresh load rather than stale numbers dimmed under a spinner — but only
+ * once it has been in flight long enough to be worth acknowledging. A refetch
+ * that resolves sooner swaps the numbers in place, so a background revalidation
+ * does not pulse every widget on screen for a fraction of a second. First load
+ * is not delayed: there is nothing to show in its place. The empty state carries
+ * no icon by default (staying visually distinct from the error state's glyph); a
+ * caller opts in via `empty.icon`.
  *
  * @return The rendered widget state.
  */
@@ -66,6 +72,8 @@ export function WidgetState( {
 	renderLoading,
 	children,
 }: WidgetStateProps ) {
+	const showFetchingState = useDelayedLoading( isFetching );
+
 	if ( isError ) {
 		// Vertical centering lives in the stylesheet (`safe center`), not the
 		// `justify` prop: the prop's inline style would beat the class rule and
@@ -104,7 +112,7 @@ export function WidgetState( {
 
 	// Nothing to keep behind the skeleton: no data yet, or an empty result the
 	// children have never rendered against.
-	if ( isLoading || ( isEmpty && isFetching ) ) {
+	if ( isLoading || ( isEmpty && showFetchingState ) ) {
 		return <div className={ styles.loading }>{ skeleton }</div>;
 	}
 
@@ -131,14 +139,16 @@ export function WidgetState( {
 	// accessibility tree and out of the tab order without stranding a focused
 	// child inside an `aria-hidden` subtree.
 	return (
+		// `aria-busy` is not delayed: the region really is busy from the first
+		// moment, and unlike the skeleton it costs the reader nothing.
 		<div className={ styles.ready } aria-busy={ isFetching || undefined }>
-			<div className={ clsx( styles.content, isFetching && styles.contentHidden ) }>
+			<div className={ clsx( styles.content, showFetchingState && styles.contentHidden ) }>
 				{ children }
 			</div>
 			{ /* Hidden from assistive tech: the skeleton's own `role="status"` would
 			     re-announce on every refetch, once per widget on screen. `aria-busy`
 			     above carries the state instead. */ }
-			{ isFetching && (
+			{ showFetchingState && (
 				<div className={ styles.skeletonOverlay } aria-hidden="true">
 					{ skeleton }
 				</div>

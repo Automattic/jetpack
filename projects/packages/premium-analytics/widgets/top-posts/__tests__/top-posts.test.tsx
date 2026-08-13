@@ -343,7 +343,9 @@ describe( 'TopPostsWidget', () => {
 		await waitFor( () =>
 			expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument()
 		);
-		expect( screen.getByRole( 'status', { hidden: true } ) ).toBeInTheDocument();
+		// `find`, not `get`: the skeleton is held back until the fetch has been in
+		// flight long enough to be worth drawing.
+		await expect( screen.findByRole( 'status', { hidden: true } ) ).resolves.toBeInTheDocument();
 		// The premise the gate exists for: the prior period's rows are still in
 		// hand, so `rows.length > 0` while `isFetching`. They stay mounted behind
 		// the skeleton — hidden by `visibility`, which jsdom does not apply.

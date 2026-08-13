@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { chartBar } from '@wordpress/icons';
 import { useState } from 'react';
 /**
@@ -52,7 +52,25 @@ function iconPathOf( element: ReactElement ): string | null {
 	return path;
 }
 
+/**
+ * Run out the delay that holds a refetch's skeleton back, putting the component
+ * in the state a slow refetch lands in.
+ */
+function elapseFetchDelay() {
+	act( () => {
+		jest.advanceTimersByTime( 1000 );
+	} );
+}
+
 describe( 'WidgetState', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'renders children when ready, with no skeleton', () => {
 		render(
 			<WidgetState isLoading={ false } isError={ false } isEmpty={ false }>
@@ -86,7 +104,7 @@ describe( 'WidgetState', () => {
 		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows loading, not the empty state, while refetching over an empty result', () => {
+	it( 'shows loading, not the empty state, once a refetch over an empty result drags on', () => {
 		render(
 			<WidgetState
 				isLoading={ false }
@@ -98,6 +116,10 @@ describe( 'WidgetState', () => {
 				{ CONTENT }
 			</WidgetState>
 		);
+		// Below the delay the previous result stands, same as any other refetch.
+		expect( screen.getByText( 'No posts here.' ) ).toBeInTheDocument();
+
+		elapseFetchDelay();
 		expect( screen.queryByText( 'No posts here.' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
 	} );
@@ -127,6 +149,7 @@ describe( 'WidgetState', () => {
 				{ CONTENT }
 			</WidgetState>
 		);
+		elapseFetchDelay();
 		expect( screen.getByText( 'override' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 	} );
@@ -215,12 +238,26 @@ describe( 'WidgetState', () => {
 		expect( svgPathOf( errorContainer ) ).toBe( errorGlyphPath );
 	} );
 
-	it( 'covers the children with a silent skeleton during a refetch, marking the region busy', () => {
+	it( 'leaves a refetch that resolves quickly alone, drawing no skeleton at all', () => {
+		// Most refetches land inside the delay. Drawing for them would pulse every
+		// widget on screen for a fraction of a second on any background
+		// revalidation — a window focus after `staleTime`, a reconnect.
 		render(
 			<WidgetState isLoading={ false } isFetching isError={ false } isEmpty={ false }>
 				{ CONTENT }
 			</WidgetState>
 		);
+		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
+	} );
+
+	it( 'covers the children with a silent skeleton once a refetch drags on, marking the region busy', () => {
+		render(
+			<WidgetState isLoading={ false } isFetching isError={ false } isEmpty={ false }>
+				{ CONTENT }
+			</WidgetState>
+		);
+		elapseFetchDelay();
 		// The skeleton draws but must not announce: a date-range change refetches
 		// every widget on screen at once, and each one owns a `role="status"`.
 		// Contrast with the first-load cases above, which do announce.
@@ -256,6 +293,7 @@ describe( 'WidgetState', () => {
 				<Counter />
 			</WidgetState>
 		);
+		elapseFetchDelay();
 		expect( content ).toHaveClass( 'contentHidden' );
 		rerender(
 			<WidgetState { ...props } isFetching={ false }>
