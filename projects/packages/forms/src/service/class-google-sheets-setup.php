@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\Service;
 
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\ContactForm\Feedback;
 use WP_Error;
 
@@ -84,7 +85,28 @@ class Google_Sheets_Setup {
 	 * @return array Flat list of header cells.
 	 */
 	public static function build_header_row( array $columns ) {
-		return array_merge( self::get_metadata_headers(), self::get_column_labels( $columns ) );
+		return array_map(
+			array( self::class, 'esc_cell' ),
+			array_merge( self::get_metadata_headers(), self::get_column_labels( $columns ) )
+		);
+	}
+
+	/**
+	 * Neutralizes a cell value that Google Sheets would evaluate as a formula.
+	 *
+	 * Sheets treats a leading =, +, - or @ as the start of an expression, so an
+	 * unescaped submission can run inside the site owner's Drive - reading the
+	 * sheet and sending it elsewhere via IMPORTXML and friends. Delegates to the
+	 * same helper the one-shot export uses before this very same create_sheet()
+	 * call, so the trigger list stays defined once.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $value The cell value.
+	 * @return string The value, prefixed with an apostrophe when it would evaluate.
+	 */
+	public static function esc_cell( $value ) {
+		return Contact_Form_Plugin::init()->esc_csv( (string) $value );
 	}
 
 	/**
@@ -108,7 +130,72 @@ class Google_Sheets_Setup {
 			return array();
 		}
 
-		return self::get_columns_from_content( $form_post->post_content );
+		return self::get_columns_from_content( self::resolve_form_content( $form_post->post_content ) );
+	}
+
+	/**
+	 * Follows a synced form reference to the post that actually holds the fields.
+	 *
+	 * With central form management on - the default shape - a page holds only
+	 * `<!-- wp:jetpack/contact-form {"ref":N} /-->` and the fields live in the
+	 * referenced `jetpack_form` post. Parsing the page alone finds no fields, so
+	 * setup would create a spreadsheet with nothing but the two metadata columns
+	 * and report success.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $content The post content to resolve.
+	 * @return string The content holding the form's fields.
+	 */
+	private static function resolve_form_content( $content ) {
+		$ref = self::get_form_ref_from_content( $content );
+
+		if ( null === $ref ) {
+			return (string) $content;
+		}
+
+		$form_post = get_post( $ref );
+
+		return $form_post instanceof \WP_Post ? $form_post->post_content : (string) $content;
+	}
+
+	/**
+	 * Finds the synced form reference in a piece of block markup.
+	 *
+	 * Split from the post lookup so the parsing is reachable without a stored
+	 * post: WorDBless hands post_content back still slashed, which defeats
+	 * parse_blocks() on the block attribute JSON.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $content The block markup to search.
+	 * @return int|null The referenced jetpack_form post ID, or null when there is none.
+	 */
+	public static function get_form_ref_from_content( $content ) {
+		return self::find_form_ref( parse_blocks( (string) $content ) );
+	}
+
+	/**
+	 * Finds the first synced form reference in a block tree.
+	 *
+	 * @param array $blocks Parsed blocks.
+	 * @return int|null The referenced jetpack_form post ID, or null when there is none.
+	 */
+	private static function find_form_ref( array $blocks ) {
+		foreach ( $blocks as $block ) {
+			if ( ( $block['blockName'] ?? '' ) === 'jetpack/contact-form' && ! empty( $block['attrs']['ref'] ) ) {
+				return (int) $block['attrs']['ref'];
+			}
+
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$nested = self::find_form_ref( $block['innerBlocks'] );
+				if ( null !== $nested ) {
+					return $nested;
+				}
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -190,25 +277,62 @@ class Google_Sheets_Setup {
 	 * @return string The label, or an empty string when none can be resolved.
 	 */
 	private static function get_field_label( array $block ) {
-		$label = '';
+		$label = null;
 
+		// Mirror the render path exactly (Contact_Form_Plugin, where the label
+		// block's attributes are folded into the field): `??`, not `! empty()`,
+		// and `defaultLabel` as the second choice. The difference is load-bearing
+		// - clearing the label text writes an empty `label` attribute, and the
+		// runtime keys that response under "Field". Falling through to the type
+		// default here instead would head the column "Text" and leave it blank
+		// forever.
 		foreach ( ( $block['innerBlocks'] ?? array() ) as $inner ) {
-			if ( ( $inner['blockName'] ?? '' ) === 'jetpack/label' && ! empty( $inner['attrs']['label'] ) ) {
-				$label = (string) $inner['attrs']['label'];
+			if ( ( $inner['blockName'] ?? '' ) === 'jetpack/label' ) {
+				$label = $inner['attrs']['label'] ?? $inner['attrs']['defaultLabel'] ?? '';
 				break;
 			}
 		}
 
-		if ( '' === $label && ! empty( $block['attrs']['label'] ) ) {
-			$label = (string) $block['attrs']['label'];
+		if ( null === $label ) {
+			$label = $block['attrs']['label'] ?? null;
 		}
 
-		if ( '' === $label ) {
-			$type  = str_replace( 'jetpack/field-', '', isset( $block['blockName'] ) ? (string) $block['blockName'] : '' );
-			$label = Contact_Form::get_default_label_from_type( $type );
+		if ( null === $label ) {
+			$label = Contact_Form::get_default_label_from_type( self::get_field_type( $block ) );
 		}
 
-		return wp_strip_all_tags( (string) $label );
+		// Labels are RichText, so `Q&A` is stored as `Q&amp;A`. Feedback_Field
+		// decodes on the way in, so the response is keyed by the decoded form.
+		$label = html_entity_decode( (string) $label, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+
+		return wp_strip_all_tags( $label );
+	}
+
+	/**
+	 * Resolves the field type a block renders as.
+	 *
+	 * The block name is not the type: `field-single-choice` renders as `radio`
+	 * and `field-multiple-choice` as `checkbox-multiple`, and neither of those
+	 * block-name suffixes has a case in get_default_label_from_type(). The type
+	 * attribute carries the answer when it was serialized; block defaults are
+	 * not written into saved markup, so the map covers the rest.
+	 *
+	 * @param array $block A parsed `jetpack/field-*` block.
+	 * @return string The field type.
+	 */
+	private static function get_field_type( array $block ) {
+		if ( ! empty( $block['attrs']['type'] ) ) {
+			return (string) $block['attrs']['type'];
+		}
+
+		$suffix = str_replace( 'jetpack/field-', '', isset( $block['blockName'] ) ? (string) $block['blockName'] : '' );
+
+		$block_name_types = array(
+			'single-choice'   => 'radio',
+			'multiple-choice' => 'checkbox-multiple',
+		);
+
+		return $block_name_types[ $suffix ] ?? $suffix;
 	}
 
 	/**
@@ -240,7 +364,9 @@ class Google_Sheets_Setup {
 			$row[] = isset( $values[ $label ] ) ? (string) $values[ $label ] : '';
 		}
 
-		return $row;
+		// Every cell carries submitter-controlled text, so none of it may reach
+		// Sheets in a form it would evaluate.
+		return array_map( array( self::class, 'esc_cell' ), $row );
 	}
 
 	/**
@@ -268,8 +394,14 @@ class Google_Sheets_Setup {
 				'orderby'        => 'date',
 				'order'          => 'ASC',
 				'fields'         => 'ids',
+				// Nothing reads found_posts, so skip the SQL_CALC_FOUND_ROWS pass.
+				'no_found_rows'  => true,
 			)
 		);
+
+		// 'fields' => 'ids' does not prime the post caches, and the loop below
+		// loads every response - without this that is one SELECT per row.
+		_prime_post_caches( $query->posts, true, true );
 
 		return self::build_rows_for_feedback_ids( $query->posts, self::get_column_labels( $columns ) );
 	}

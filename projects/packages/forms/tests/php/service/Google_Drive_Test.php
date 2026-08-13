@@ -44,6 +44,14 @@ class Google_Drive_Test extends BaseTestCase {
 				'  https://docs.google.com/spreadsheets/d/1AbC-dEf_123/edit  ',
 				'1AbC-dEf_123',
 			),
+			'multi-account URL'       => array(
+				'https://docs.google.com/spreadsheets/u/0/d/1AbC-dEf_123/edit',
+				'1AbC-dEf_123',
+			),
+			'publish to web URL'      => array(
+				'https://docs.google.com/spreadsheets/d/e/2PACX-1vAbCdEf_123/pubhtml',
+				'2PACX-1vAbCdEf_123',
+			),
 			'bare ID'                 => array( '1AbC-dEf_123', '1AbC-dEf_123' ),
 			'a docs URL, not a sheet' => array( 'https://docs.google.com/document/d/1AbC-dEf_123/edit', null ),
 			'unrelated URL'           => array( 'https://example.com/nope', null ),

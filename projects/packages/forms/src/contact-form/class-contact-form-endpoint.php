@@ -1811,6 +1811,17 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		// existing spreadsheet would unserialize up to a thousand responses and
 		// then throw them away, because that path deliberately does not write to
 		// a sheet the user already owns.
+		// A form with no resolvable fields would produce a spreadsheet holding
+		// nothing but the two metadata columns, reported as a success - and with
+		// no way to re-run setup from the card, that state is unrecoverable.
+		if ( empty( $columns ) ) {
+			return new WP_Error(
+				'rest_form_has_no_fields',
+				__( 'Save the form before setting up syncing.', 'jetpack-forms' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		$backfill_rows = array();
 		if ( $request->get_param( 'backfill' ) && 'create' === $request->get_param( 'mode' ) ) {
 			$backfill_rows = Google_Sheets_Setup::get_backfill_rows( $form_post_id, $columns );

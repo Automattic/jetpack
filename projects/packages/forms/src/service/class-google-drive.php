@@ -45,8 +45,17 @@ class Google_Drive {
 			return null;
 		}
 
+		// Publish-to-web links are /spreadsheets/d/e/2PACX-.../pubhtml, where the
+		// document ID follows the /e/ segment. Matched first, because the plain
+		// pattern below would otherwise capture the literal "e".
 		$matches = array();
-		if ( preg_match( '#/spreadsheets/d/([a-zA-Z0-9_-]+)#', $reference, $matches ) ) {
+		if ( preg_match( '#/spreadsheets(?:/u/\d+)?/d/e/([a-zA-Z0-9_-]+)#', $reference, $matches ) ) {
+			return $matches[1];
+		}
+
+		// The /u/N/ segment appears for anyone signed in to more than one Google
+		// account, which is how a great many people will copy the link.
+		if ( preg_match( '#/spreadsheets(?:/u/\d+)?/d/([a-zA-Z0-9_-]+)#', $reference, $matches ) ) {
 			return $matches[1];
 		}
 
@@ -168,8 +177,21 @@ class Google_Drive {
 			)
 		);
 
+		// A transport-level failure has no response code at all -
+		// wp_remote_retrieve_response_code() returns '' - so checking the code
+		// first collapses a missing or expired token, the case this most needs to
+		// report well, into a generic message with an empty status.
+		if ( is_wp_error( $wpcom_request ) ) {
+			/** This action is documented already in this package. */
+			do_action( 'jetpack_forms_log', 'google_sheets_request_failed', $wpcom_request->get_error_code() );
+			return $wpcom_request;
+		}
+
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 		if ( 200 !== $response_code ) {
+			/** This action is documented already in this package. */
+			do_action( 'jetpack_forms_log', 'google_sheets_request_failed', $response_code );
+
 			return new \WP_Error(
 				'failed_to_fetch_data',
 				esc_html__( 'Unable to fetch the requested data.', 'jetpack-forms' ),

