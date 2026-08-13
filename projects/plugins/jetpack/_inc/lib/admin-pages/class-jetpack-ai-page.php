@@ -228,7 +228,9 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		$purchase = \Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai::get_paid_plan_purchase_for_product();
 		$name     = '';
 		if ( $purchase && ! empty( $purchase->product_name ) && 'expired' !== ( $purchase->expiry_status ?? '' ) ) {
-			$name = (string) $purchase->product_name;
+			// The design shows the bare plan name ("Complete", "Business"), so
+			// trim the store names' brand prefixes; they are untranslated.
+			$name = (string) preg_replace( '/^(Jetpack|WordPress\.com) /', '', (string) $purchase->product_name );
 		}
 
 		set_transient( 'jetpack_ai_overview_plan_name', $name, HOUR_IN_SECONDS );
