@@ -5,13 +5,27 @@ import {
 	resolveVisibility,
 } from '../../../../../src/blocks/shared/conditional-logic/util/evaluate';
 
-const logic = ( rules, extra = {} ) => ( {
-	enabled: true,
-	action: 'show',
-	logicalOperator: 'all',
-	controls: { fieldValue: { rules } },
-	...extra,
-} );
+/**
+ * One group holding every rule, which is what the V1 panel writes.
+ *
+ * `logicalOperator` in `extra` sets that group's operator, since with a single group the
+ * top-level one is inert -- it combines groups with each other.
+ *
+ * @param {Array}  rules - Rules for the group.
+ * @param {object} extra - Top-level overrides; `logicalOperator` applies to the group.
+ * @return {object} A logic object.
+ */
+const logic = ( rules, extra = {} ) => {
+	const { logicalOperator = 'all', ...rest } = extra;
+
+	return {
+		enabled: true,
+		action: 'show',
+		logicalOperator: 'any',
+		groups: [ { logicalOperator, rules } ],
+		...rest,
+	};
+};
 
 const one = ( operator, value, field = 'a' ) => logic( [ { field, operator, value } ] );
 
@@ -336,11 +350,12 @@ describe( 'resolveVisibility — cascade', () => {
 					enabled: true,
 					action: 'show',
 					logicalOperator: 'all',
-					controls: {
-						fieldValue: {
+					groups: [
+						{
+							logicalOperator: 'all',
 							rules: [ { field: `f${ i - 1 }`, operator: 'is', value: 'yes' } ],
 						},
-					},
+					],
 				},
 			};
 			values[ `f${ i }` ] = 'yes';
@@ -379,8 +394,9 @@ describe( 'behaviour parity with PHP', () => {
 				enabled: true,
 				action: 'show',
 				logicalOperator: 'all',
-				controls: {
-					fieldValue: {
+				groups: [
+					{
+						logicalOperator: 'all',
 						rules: [
 							{
 								field: 'subject',
@@ -389,7 +405,7 @@ describe( 'behaviour parity with PHP', () => {
 							},
 						],
 					},
-				},
+				],
 			};
 
 			const visible = evaluateLogic(
@@ -402,4 +418,101 @@ describe( 'behaviour parity with PHP', () => {
 			expect( visible ).toBe( testCase.visible );
 		}
 	);
+} );
+
+/**
+ * The shape stores groups so that "any of these AND all of those" becomes possible without
+ * another migration. The V1 panel writes one group, but the evaluator has to handle several
+ * already -- otherwise the storage change buys nothing and the second group would arrive
+ * alongside an evaluator change anyway. Mirrored in Conditional_Logic_Test.php.
+ */
+describe( 'evaluateLogic — multiple groups', () => {
+	const types = { a: 'text', b: 'text', c: 'text' };
+
+	const twoGroups = ( outer, firstOperator, secondOperator ) => ( {
+		enabled: true,
+		action: 'show',
+		logicalOperator: outer,
+		groups: [
+			{
+				logicalOperator: firstOperator,
+				rules: [
+					{ field: 'a', operator: 'is', value: 'yes' },
+					{ field: 'b', operator: 'is', value: 'yes' },
+				],
+			},
+			{
+				logicalOperator: secondOperator,
+				rules: [ { field: 'c', operator: 'is', value: 'yes' } ],
+			},
+		],
+	} );
+
+	it( 'combines groups with all: both must hold', () => {
+		// First group satisfied by b alone, second group satisfied by c.
+		expect(
+			evaluateLogic( twoGroups( 'all', 'any', 'all' ), types, { a: 'no', b: 'yes', c: 'yes' } )
+		).toBe( true );
+
+		// Second group fails, so the whole condition fails.
+		expect(
+			evaluateLogic( twoGroups( 'all', 'any', 'all' ), types, { a: 'no', b: 'yes', c: 'no' } )
+		).toBe( false );
+	} );
+
+	it( 'combines groups with any: one is enough', () => {
+		// First group needs both and gets one; second group carries it.
+		expect(
+			evaluateLogic( twoGroups( 'any', 'all', 'all' ), types, { a: 'no', b: 'yes', c: 'yes' } )
+		).toBe( true );
+
+		expect(
+			evaluateLogic( twoGroups( 'any', 'all', 'all' ), types, { a: 'no', b: 'yes', c: 'no' } )
+		).toBe( false );
+	} );
+
+	it( 'ignores a group with nothing it can evaluate', () => {
+		// The second group names a field that no longer exists, so it drops out rather than
+		// dragging the field into hiding under an `all`.
+		const visible = evaluateLogic(
+			{
+				enabled: true,
+				action: 'show',
+				logicalOperator: 'all',
+				groups: [
+					{ logicalOperator: 'all', rules: [ { field: 'a', operator: 'is', value: 'yes' } ] },
+					{ logicalOperator: 'all', rules: [ { field: 'gone', operator: 'is', value: 'yes' } ] },
+				],
+			},
+			types,
+			{ a: 'yes' }
+		);
+
+		expect( visible ).toBe( true );
+	} );
+
+	it( 'ignores a rule of a kind it does not know', () => {
+		// A form saved by a newer editor degrades to the conditions this release understands
+		// rather than breaking on the ones it does not.
+		const visible = evaluateLogic(
+			{
+				enabled: true,
+				action: 'show',
+				logicalOperator: 'all',
+				groups: [
+					{
+						logicalOperator: 'all',
+						rules: [
+							{ type: 'fieldValue', field: 'a', operator: 'is', value: 'yes' },
+							{ type: 'queryString', field: 'utm_source', operator: 'is', value: 'ads' },
+						],
+					},
+				],
+			},
+			types,
+			{ a: 'yes' }
+		);
+
+		expect( visible ).toBe( true );
+	} );
 } );
