@@ -1,11 +1,12 @@
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cloudUpload, share, video } from '@wordpress/icons';
-import { useNavigate } from '@wordpress/route';
+import { useNavigate, useSearch } from '@wordpress/route';
 import { Button, Dialog, LinkButton, Text } from '@wordpress/ui';
 // The dismissal flag lives with the other first-run storage helpers so the
 // redirect and the modal can't drift onto different keys.
 import {
+	clearDismissal,
 	hasPublishedVideo,
 	hasSeenOnboarding,
 	saveDismissal,
@@ -71,6 +72,20 @@ export default function OnboardingModal(): ReactElement | null {
 	const [ isDismissed, setIsDismissed ] = useState( () => hasSeenOnboarding() );
 	const { videoPressCount, localCount, isSettled } = useOnboardingCounts();
 	const navigate = useNavigate();
+	const search = useSearch( { strict: false } ) as Record< string, unknown >;
+
+	// `welcome=1` is the review affordance: it reopens the modal regardless of
+	// the dismissal flag or the library state, and forgets the stored
+	// dismissal so plain loads behave fresh again afterwards. Without it,
+	// seeing the modal twice means hand-clearing localStorage.
+	const isPreview = search?.welcome === '1';
+
+	useEffect( () => {
+		if ( isPreview ) {
+			clearDismissal();
+			setIsDismissed( false );
+		}
+	}, [ isPreview ] );
 
 	// The modal greets anyone who has not used VideoPress yet — including
 	// sites whose media library is full of local videos, which is exactly the
@@ -80,7 +95,10 @@ export default function OnboardingModal(): ReactElement | null {
 	// The dismissal flag alone is not enough (localStorage, so a new browser
 	// presents as "never seen"), and nothing opens until both counts settle —
 	// that also guarantees the footer label never flickers between states.
-	const isOpen = ! isDismissed && ! hasPublishedVideo() && isSettled && videoPressCount === 0;
+	const isOpen =
+		! isDismissed &&
+		isSettled &&
+		( isPreview || ( ! hasPublishedVideo() && videoPressCount === 0 ) );
 
 	const dismiss = useCallback( () => {
 		saveDismissal();

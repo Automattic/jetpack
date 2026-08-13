@@ -107,6 +107,23 @@ export function saveDismissal(): void {
 }
 
 /**
+ * Forget the dismissal, so the modal can greet this user again. Used by the
+ * `welcome=1` preview param — design review needs to re-see the modal at
+ * will, and hand-clearing localStorage is nobody's workflow.
+ */
+export function clearDismissal(): void {
+	if ( typeof window === 'undefined' ) {
+		return;
+	}
+
+	try {
+		window.localStorage.removeItem( getScopedStorageKey( ONBOARDING_SEEN_KEY_PREFIX ) );
+	} catch {
+		// Unavailable storage means there was nothing persisted to clear.
+	}
+}
+
+/**
  * Read the "this user has published a video" flag.
  *
  * @return True when the user has completed the publish step at least once.

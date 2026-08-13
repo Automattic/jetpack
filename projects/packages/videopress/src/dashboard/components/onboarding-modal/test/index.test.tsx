@@ -8,8 +8,10 @@ jest.mock( '../../../hooks/use-onboarding-counts', () => ( {
 } ) );
 
 const mockNavigate = jest.fn();
+let mockSearch: Record< string, unknown > = {};
 jest.mock( '@wordpress/route', () => ( {
 	useNavigate: () => mockNavigate,
+	useSearch: () => mockSearch,
 } ) );
 
 // The intro video reads global initial state and renders an iframe/video;
@@ -41,6 +43,7 @@ describe( 'OnboardingModal', () => {
 	beforeEach( () => {
 		window.localStorage.clear();
 		mockNavigate.mockClear();
+		mockSearch = {};
 	} );
 
 	it( 'shows "Learn more" on a site with nothing to migrate', () => {
@@ -110,6 +113,17 @@ describe( 'OnboardingModal', () => {
 		render( <OnboardingModal /> );
 
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'welcome=1 reopens the modal past every gate and clears the dismissal', () => {
+		mockCounts( { videoPressCount: 4, localCount: 0, isSettled: true } );
+		window.localStorage.setItem( 'jetpack-videopress-onboarding-seen-123-7', '1' );
+		mockSearch = { welcome: '1' };
+
+		render( <OnboardingModal /> );
+
+		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
+		expect( window.localStorage.getItem( 'jetpack-videopress-onboarding-seen-123-7' ) ).toBeNull();
 	} );
 
 	it( 'stays closed for a user who has already published', () => {
