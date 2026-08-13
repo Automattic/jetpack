@@ -176,9 +176,20 @@ describe( 'ConditionalLogicPanel', () => {
 
 	// `enabled` is derived from whether any rule exists, so a field only carries conditional
 	// logic once it actually has a condition.
-	it( 'enables logic when the first condition is added', async () => {
+	// The builder opens with a condition waiting rather than an empty pane and an Add button:
+	// an author should not have to press anything to start.
+	it( 'opens with a condition ready to fill in', async () => {
 		const { setAttributes } = await setup();
-		await userEvent.click( screen.getByRole( 'button', { name: /add condition/i } ) );
+
+		expect( screen.getByLabelText( 'Field' ) ).toBeInTheDocument();
+		// Waiting, not written: opening the dialog must not mark the post as changed.
+		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
+	it( 'enables logic once the waiting condition names a field', async () => {
+		const { setAttributes } = await setup();
+
+		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), 'budget_1' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			conditionalLogic: expect.objectContaining( {
@@ -186,7 +197,7 @@ describe( 'ConditionalLogicPanel', () => {
 				groups: [
 					{
 						logicalOperator: 'any',
-						rules: [ { type: 'fieldValue', field: '', operator: 'is', value: '' } ],
+						rules: [ expect.objectContaining( { type: 'fieldValue', field: 'budget_1' } ) ],
 					},
 				],
 			} ),
@@ -348,20 +359,43 @@ describe( 'ConditionalLogicPanel', () => {
 		).toBeInTheDocument();
 	} );
 
-	it( 'adds a condition with no subject chosen yet', async () => {
+	// A condition naming no subject, or giving no value where one is needed, is skipped by both
+	// evaluators. Letting an author stack up rules that quietly do nothing is the trap here.
+	it( 'will not add a second condition until the first says something', async () => {
 		const { setAttributes } = await setup( withRules( [] ) );
-		await userEvent.click( screen.getByRole( 'button', { name: 'Add condition' } ) );
+		const addButton = screen.getByRole( 'button', { name: 'Add condition' } );
 
-		expect( setAttributes ).toHaveBeenCalledWith( {
-			conditionalLogic: expect.objectContaining( {
-				groups: [
-					{
-						logicalOperator: 'all',
-						rules: [ { type: 'fieldValue', field: '', operator: 'is', value: '' } ],
-					},
-				],
-			} ),
-		} );
+		// aria-disabled rather than the disabled attribute: the design-system button stays
+		// focusable so a keyboard user can reach it and read why it will not act.
+		expect( addButton ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect(
+			screen.getByText( 'Finish the condition above before adding another.' )
+		).toBeInTheDocument();
+
+		// An aria-disabled button still receives clicks, so the guard has to hold.
+		await userEvent.click( addButton );
+		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
+	it( 'allows a second condition once the first is complete', async () => {
+		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
+
+		expect( screen.getByRole( 'button', { name: 'Add condition' } ) ).toBeEnabled();
+	} );
+
+	it( 'marks a complete condition with a tick', async () => {
+		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
+
+		expect( screen.getByLabelText( 'Condition is complete' ) ).toBeInTheDocument();
+	} );
+
+	it( 'says why a started condition will be ignored', async () => {
+		await setup( withRules( [ { field: 'name_1', operator: 'is', value: '' } ] ) );
+
+		expect(
+			screen.getByText( 'Give this condition a value, or it will be ignored.' )
+		).toBeInTheDocument();
+		expect( screen.queryByLabelText( 'Condition is complete' ) ).not.toBeInTheDocument();
 	} );
 
 	// Regression: fields whose id the renderer derives at output time were filtered out of

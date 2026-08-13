@@ -1,8 +1,8 @@
-import { Notice, SelectControl, TextControl } from '@wordpress/components';
+import { Icon, Notice, SelectControl, TextControl } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { plus, trash } from '@wordpress/icons';
-import { Button, IconButton, Stack } from '@wordpress/ui';
+import { check, plus, trash } from '@wordpress/icons';
+import { Button, IconButton, Stack, Text } from '@wordpress/ui';
 import { RULE_TYPE_FIELD_VALUE } from '../../constants.js';
 import { useEnsureFieldId } from '../../hooks/use-subject-fields.js';
 import {
@@ -12,6 +12,7 @@ import {
 	operatorNeedsValue,
 } from '../../util/field-types.ts';
 import { getOperatorLabel } from '../../util/operator-labels.ts';
+import { areRulesComplete, isRuleComplete, isRuleStarted } from '../../util/rule-validity.js';
 
 /**
  * HTML input type for each value-input kind that renders a text box.
@@ -194,6 +195,10 @@ const RuleRow = ( { rule, index, fields, ownFieldId, onChange, onRemove } ) => {
 	const handleRemove = useCallback( () => onRemove( index ), [ index, onRemove ] );
 
 	const operators = getOperatorsForTypeKey( subject?.typeKey || 'string' );
+	const isComplete = isRuleComplete( rule, subject );
+	// Only complain once the author has actually started this row: an untouched one is empty,
+	// not wrong, and the builder opens with one waiting.
+	const isUnfinished = isRuleStarted( rule ) && ! isComplete && ! missingSubject;
 
 	// Group by step so an author can see that a later-step field is not yet answered when
 	// this one is evaluated.
@@ -230,6 +235,17 @@ const RuleRow = ( { rule, index, fields, ownFieldId, onChange, onRemove } ) => {
 				gap="sm"
 				className="jetpack-contact-form__conditional-logic-rule-row"
 			>
+				{ /* A fixed leading column so the rows stay aligned whether or not the tick is
+				     there. The tick marks a condition the evaluator will actually act on. */ }
+				<span
+					className="jetpack-contact-form__conditional-logic-rule-status"
+					aria-hidden={ ! isComplete }
+					aria-label={ isComplete ? __( 'Condition is complete', 'jetpack-forms' ) : undefined }
+					role={ isComplete ? 'img' : undefined }
+				>
+					{ isComplete && <Icon icon={ check } size={ 20 } /> }
+				</span>
+
 				<SelectControl
 					label={ __( 'Field', 'jetpack-forms' ) }
 					hideLabelFromVision
@@ -278,6 +294,12 @@ const RuleRow = ( { rule, index, fields, ownFieldId, onChange, onRemove } ) => {
 					) }
 				/>
 			</Stack>
+
+			{ isUnfinished && (
+				<Text variant="body-sm" className="jetpack-contact-form__conditional-logic-rule-unfinished">
+					{ __( 'Give this condition a value, or it will be ignored.', 'jetpack-forms' ) }
+				</Text>
+			) }
 		</Stack>
 	);
 };
@@ -292,24 +314,42 @@ const RuleRow = ( { rule, index, fields, ownFieldId, onChange, onRemove } ) => {
  * @param {string}   props.ownFieldId - Id of the field the panel belongs to.
  * @return {object} The rendered control.
  */
+const BLANK_RULE = {
+	type: RULE_TYPE_FIELD_VALUE,
+	field: '',
+	operator: OPERATORS.IS,
+	value: '',
+};
+
 const FieldValueControl = ( { rules: storedRules, onChange, fields, ownFieldId } ) => {
-	const rules = useMemo(
+	const stored = useMemo(
 		() => ( Array.isArray( storedRules ) ? storedRules : [] ),
 		[ storedRules ]
 	);
 
+	// An empty builder shows one condition ready to fill in, rather than asking the author to
+	// press Add before anything appears. It is not written to the block until they choose a
+	// field, so opening the dialog does not mark the post as changed.
+	const rules = useMemo( () => ( stored.length ? stored : [ BLANK_RULE ] ), [ stored ] );
+
 	const updateRule = useCallback(
 		( index, patch ) => {
-			onChange( rules.map( ( rule, i ) => ( i === index ? { ...rule, ...patch } : rule ) ) );
+			// The first edit to the waiting row is what commits it.
+			if ( ! stored.length ) {
+				onChange( [ { ...BLANK_RULE, ...patch } ] );
+				return;
+			}
+
+			onChange( stored.map( ( rule, i ) => ( i === index ? { ...rule, ...patch } : rule ) ) );
 		},
-		[ onChange, rules ]
+		[ onChange, stored ]
 	);
 
 	const removeRule = useCallback(
 		index => {
-			onChange( rules.filter( ( _, i ) => i !== index ) );
+			onChange( stored.filter( ( _, i ) => i !== index ) );
 		},
-		[ onChange, rules ]
+		[ onChange, stored ]
 	);
 
 	// A new condition starts without a subject rather than guessing the first field: choosing
@@ -319,11 +359,14 @@ const FieldValueControl = ( { rules: storedRules, onChange, fields, ownFieldId }
 	// The rule records its own type, so a future condition kind is another type in this same
 	// list rather than a reshape of what is stored.
 	const addRule = useCallback( () => {
-		onChange( [
-			...rules,
-			{ type: RULE_TYPE_FIELD_VALUE, field: '', operator: OPERATORS.IS, value: '' },
-		] );
-	}, [ onChange, rules ] );
+		onChange( [ ...stored, { ...BLANK_RULE } ] );
+	}, [ onChange, stored ] );
+
+	// A condition that names no subject, or gives no value where one is needed, is skipped by
+	// both evaluators. Rather than let an author stack up rules that quietly do nothing, the
+	// next one waits until this one says something.
+	const findSubject = rule => fields.find( field => field.id && field.id === rule.field );
+	const canAddCondition = areRulesComplete( rules, findSubject );
 
 	if ( ! fields.length ) {
 		return (
@@ -350,15 +393,24 @@ const FieldValueControl = ( { rules: storedRules, onChange, fields, ownFieldId }
 			{ /* The single entry point for adding conditions. When further condition types
 			     land (query string, user role, date and time) this becomes the menu that
 			     offers the choice, so it stays the panel's one primary action. */ }
-			<Button
-				variant="outline"
-				tone="neutral"
-				icon={ plus }
-				onClick={ addRule }
-				className="jetpack-contact-form__conditional-logic-add"
-			>
-				{ __( 'Add condition', 'jetpack-forms' ) }
-			</Button>
+			<Stack direction="column" gap="xs">
+				<Button
+					variant="outline"
+					tone="neutral"
+					icon={ plus }
+					onClick={ addRule }
+					disabled={ ! canAddCondition }
+					className="jetpack-contact-form__conditional-logic-add"
+				>
+					{ __( 'Add condition', 'jetpack-forms' ) }
+				</Button>
+
+				{ ! canAddCondition && (
+					<Text variant="body-sm" className="jetpack-contact-form__conditional-logic-add-hint">
+						{ __( 'Finish the condition above before adding another.', 'jetpack-forms' ) }
+					</Text>
+				) }
+			</Stack>
 		</Stack>
 	);
 };

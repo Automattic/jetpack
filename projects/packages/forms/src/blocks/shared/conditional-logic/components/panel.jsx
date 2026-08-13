@@ -1,8 +1,8 @@
 import { InspectorControls } from '@wordpress/block-editor';
-import { PanelBody } from '@wordpress/components';
+import { Button, PanelBody } from '@wordpress/components';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@wordpress/ui';
 import {
 	countRules,
 	getPrimaryGroup,
@@ -141,7 +141,7 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 							  ) }
 					</Text>
 
-					<Button variant="secondary" tone="neutral" onClick={ openModal }>
+					<Button variant="secondary" onClick={ openModal } __next40pxDefaultSize={ true }>
 						{ hasConditions
 							? __( 'Edit conditions', 'jetpack-forms' )
 							: __( 'Add conditions', 'jetpack-forms' ) }
