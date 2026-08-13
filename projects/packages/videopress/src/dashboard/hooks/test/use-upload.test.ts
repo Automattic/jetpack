@@ -188,3 +188,75 @@ describe( 'useUpload', () => {
 		expect( result.current.uploadQueue[ 0 ].status ).toBe( 'failed' );
 	} );
 } );
+
+describe( 'useUpload — success retention and acknowledgement', () => {
+	beforeEach( () => {
+		mockUploadHandler.mockClear();
+		lastCallbacks = {};
+		__resetUploadStoreForTests();
+	} );
+
+	const start = ( result: { current: ReturnType< typeof useUpload > } ) => {
+		let id = '';
+		act( () => {
+			id = result.current.startUpload( new File( [ 'x' ], 't.mp4', { type: 'video/mp4' } ) );
+		} );
+		return id;
+	};
+
+	it( 'keeps a succeeded item in the queue with its media result', () => {
+		jest.useFakeTimers();
+		try {
+			const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+			start( result );
+			act( () => {
+				lastCallbacks.onSuccess?.( { id: 42, guid: 'abcd1234', src: 'https://v.example/x' } );
+			} );
+
+			// The old behavior deleted success rows after 2s — the id was
+			// thrown away before anything could link to the finished video.
+			act( () => {
+				jest.advanceTimersByTime( 10_000 );
+			} );
+
+			expect( result.current.uploadQueue ).toHaveLength( 1 );
+			expect( result.current.uploadQueue[ 0 ].status ).toBe( 'success' );
+			expect( result.current.uploadQueue[ 0 ].media ).toEqual( {
+				id: 42,
+				guid: 'abcd1234',
+				src: 'https://v.example/x',
+			} );
+		} finally {
+			jest.useRealTimers();
+		}
+	} );
+
+	it( 'acknowledgeUpload removes settled items', () => {
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		const id = start( result );
+		act( () => {
+			lastCallbacks.onSuccess?.( { id: 42, guid: 'abcd1234', src: 'https://v.example/x' } );
+		} );
+
+		act( () => {
+			result.current.acknowledgeUpload( id );
+		} );
+
+		expect( result.current.uploadQueue ).toHaveLength( 0 );
+	} );
+
+	it( 'acknowledgeUpload leaves in-flight items alone', () => {
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		const id = start( result );
+		act( () => {
+			lastCallbacks.onProgress?.( 50, 100 );
+		} );
+
+		act( () => {
+			result.current.acknowledgeUpload( id );
+		} );
+
+		expect( result.current.uploadQueue ).toHaveLength( 1 );
+		expect( result.current.uploadQueue[ 0 ].status ).toBe( 'uploading' );
+	} );
+} );
