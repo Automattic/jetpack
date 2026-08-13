@@ -105,9 +105,10 @@ class Feedback_Conditional_Logic_Test extends BaseTestCase {
 				'enabled'         => true,
 				'action'          => 'show',
 				'logicalOperator' => 'any',
-				'controls'        => array(
-					'fieldValue' => array(
-						'rules' => array(
+				'groups'   => array(
+					array(
+						'logicalOperator' => 'all',
+						'rules'           => array(
 							array(
 								'field'    => 'trigger',
 								'operator' => 'is',
@@ -142,9 +143,10 @@ class Feedback_Conditional_Logic_Test extends BaseTestCase {
 				'enabled'         => true,
 				'action'          => 'show',
 				'logicalOperator' => 'any',
-				'controls'        => array(
-					'fieldValue' => array(
-						'rules' => array(
+				'groups'   => array(
+					array(
+						'logicalOperator' => 'all',
+						'rules'           => array(
 							array(
 								'field'    => 'trigger',
 								'operator' => 'is',
@@ -174,9 +176,10 @@ class Feedback_Conditional_Logic_Test extends BaseTestCase {
 				'enabled'         => false,
 				'action'          => 'show',
 				'logicalOperator' => 'any',
-				'controls'        => array(
-					'fieldValue' => array(
-						'rules' => array(
+				'groups'   => array(
+					array(
+						'logicalOperator' => 'all',
+						'rules'           => array(
 							array(
 								'field'    => 'trigger',
 								'operator' => 'is',
@@ -206,9 +209,10 @@ class Feedback_Conditional_Logic_Test extends BaseTestCase {
 				'enabled'         => true,
 				'action'          => 'hide',
 				'logicalOperator' => 'any',
-				'controls'        => array(
-					'fieldValue' => array(
-						'rules' => array(
+				'groups'   => array(
+					array(
+						'logicalOperator' => 'all',
+						'rules'           => array(
 							array(
 								'field'    => 'trigger',
 								'operator' => 'is',
@@ -248,9 +252,10 @@ class Feedback_Conditional_Logic_Test extends BaseTestCase {
 				'enabled'         => true,
 				'action'          => 'show',
 				'logicalOperator' => 'all',
-				'controls'        => array(
-					'fieldValue' => array(
-						'rules' => array(
+				'groups'   => array(
+					array(
+						'logicalOperator' => 'all',
+						'rules'           => array(
 							array(
 								'field'    => $field,
 								'operator' => $operator,
@@ -330,9 +335,10 @@ class Feedback_Conditional_Logic_Test extends BaseTestCase {
 				'enabled'         => true,
 				'action'          => 'show',
 				'logicalOperator' => 'all',
-				'controls'        => array(
-					'fieldValue' => array(
-						'rules' => array(
+				'groups'   => array(
+					array(
+						'logicalOperator' => 'all',
+						'rules'           => array(
 							array(
 								'field'    => 'trigger',
 								'operator' => 'is',

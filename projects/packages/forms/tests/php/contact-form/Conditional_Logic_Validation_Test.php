@@ -62,9 +62,10 @@ class Conditional_Logic_Validation_Test extends BaseTestCase {
 					'enabled'         => true,
 					'action'          => 'show',
 					'logicalOperator' => 'all',
-					'controls'        => array(
-						'fieldValue' => array(
-							'rules' => array(
+					'groups'   => array(
+						array(
+							'logicalOperator' => 'all',
+							'rules'           => array(
 								array(
 									'field'    => 'trigger',
 									'operator' => 'is',
