@@ -128,12 +128,14 @@ function EmailTimeSeriesReport( { metric, granularity, chartType }: EmailTimeSer
 		];
 	}, [ chartReport, field, metric ] );
 	const hasPoints = ( chartReport?.data?.length ?? 0 ) > 0;
-	const groupLabel = __( 'Email metric', 'jetpack-premium-analytics-pkg' );
 
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ active.isLoading }
+				// An empty placeholder response is still data to React Query, so a
+				// range change reports fetching rather than loading. Keep the loader
+				// until that new range resolves instead of flashing the empty state.
+				isLoading={ active.isLoading || ( ! hasPoints && active.isFetching ) }
 				// `isFetching` is deliberately not passed: the chart renders its
 				// own scoped overlay below, so WidgetState's full-widget one
 				// would double up and cover the metric headline.
@@ -161,7 +163,6 @@ function EmailTimeSeriesReport( { metric, granularity, chartType }: EmailTimeSer
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
 					loading={ active.isFetching }
-					groupLabel={ groupLabel }
 				/>
 			</WidgetState>
 		</div>

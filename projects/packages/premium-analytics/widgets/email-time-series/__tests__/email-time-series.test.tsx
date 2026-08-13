@@ -219,6 +219,57 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( screen.queryByTestId( 'metric-tabs-chart' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'shows loading instead of the stale empty state while a new range is fetching', async () => {
+		const emptyResponse = {
+			timeline: { unit: 'day', fields: [ 'date', 'opens_count' ], data: [] },
+		};
+		mockApiFetch
+			.mockResolvedValueOnce( emptyResponse )
+			// Keep the new range pending so its loading state is observable.
+			.mockImplementationOnce( () => new Promise( () => {} ) );
+
+		const { rerender } = render(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-07-01T00:00:00.000+08:00',
+						to: '2026-07-07T23:59:59.999+08:00',
+						post_id: 1234,
+					},
+					metric: 'opens',
+				} }
+			/>
+		);
+
+		await expect(
+			screen.findByText( 'No activity for this email in this period.' )
+		).resolves.toBeInTheDocument();
+
+		rerender(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-08-01T00:00:00.000+08:00',
+						to: '2026-08-07T23:59:59.999+08:00',
+						post_id: 1234,
+					},
+					metric: 'opens',
+				} }
+			/>
+		);
+
+		await expect(
+			screen.findByRole( 'presentation', { hidden: true } )
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.queryByText( 'No activity for this email in this period.' )
+		).not.toBeInTheDocument();
+	} );
+
 	it( 'renders the empty state and makes no request without a selected email', async () => {
 		render( <EmailTimeSeriesWidget attributes={ {} } /> );
 

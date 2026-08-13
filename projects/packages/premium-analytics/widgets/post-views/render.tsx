@@ -64,8 +64,6 @@ function PostViewsInner( { granularity, chartType }: PostViewsInnerProps ) {
 		],
 		[ current ]
 	);
-	const groupLabel = __( 'Post views metric', 'jetpack-premium-analytics-pkg' );
-
 	return (
 		<div className={ styles.root }>
 			<WidgetState
@@ -95,7 +93,6 @@ function PostViewsInner( { granularity, chartType }: PostViewsInnerProps ) {
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
 					loading={ isFetching }
-					groupLabel={ groupLabel }
 				/>
 			</WidgetState>
 		</div>

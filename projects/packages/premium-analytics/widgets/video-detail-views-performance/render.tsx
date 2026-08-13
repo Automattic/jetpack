@@ -74,8 +74,6 @@ function VideoDetailViewsPerformanceInner( {
 		],
 		[ current ]
 	);
-	const groupLabel = __( 'Video views metric', 'jetpack-premium-analytics-pkg' );
-
 	return (
 		<div className={ styles.root }>
 			<WidgetState
@@ -105,7 +103,6 @@ function VideoDetailViewsPerformanceInner( {
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
 					loading={ isFetching }
-					groupLabel={ groupLabel }
 				/>
 			</WidgetState>
 		</div>
