@@ -195,12 +195,12 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "abd2135645d94bd39f5b2f8a5b54f15d63efc9df"
+                "reference": "c0eb2eadeac25bb6e2d96bb14cb6e1d224f79b77"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
                 "php": ">=7.2",
-                "squizlabs/php_codesniffer": "^3.6.1 || ^4.0.0"
+                "squizlabs/php_codesniffer": "^3.6.1 || ^4.0.0 || ^3.6.1"
             },
             "require-dev": {
                 "automattic/phpunit-select-config": "@dev",
