@@ -62,8 +62,6 @@
 	position: relative;
 	timeline-scope: --section-header-pin;
 
-	// Reserve paint space for the widget host's outer focus outline.
-	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
 	padding-block-end: var(--wpds-dimension-padding-3xl);
 	// Match the horizontal padding of the page header and the section tabs so the
 	// widget grid lines up with them instead of sitting flush to the edge.
@@ -140,6 +138,8 @@
 	// this surface so it falls inside the fill rather than before it.
 	padding-block-start: var(--wpds-dimension-gap-lg);
 	padding-block-end: var(--wpds-dimension-gap-lg);
+
+	margin-block-end: var(--wpds-dimension-gap-lg);
 
 	// Tightens to the same beat as the subtitle it sits around: at rest the
 	// padding holds the header apart from the tabs above and the grid below,
