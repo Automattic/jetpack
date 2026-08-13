@@ -14,9 +14,13 @@ class Jetpack_Podcast_Helper {
 	 * subsequent render retries a feed that is probably still slow or down,
 	 * each paying the full timeout before rendering nothing.
 	 *
+	 * Deliberately out of step with the five minutes WordPress.com caches a feed at
+	 * the edge. Retrying on that same period lands us on a cold entry every time,
+	 * which is the slow path we are trying to avoid in the first place.
+	 *
 	 * @var int
 	 */
-	const ERROR_CACHE_TIMEOUT = 5 * MINUTE_IN_SECONDS;
+	const ERROR_CACHE_TIMEOUT = 90;
 
 	/**
 	 * How long to keep the last successful response as a fallback. SimplePie's
@@ -212,7 +216,7 @@ class Jetpack_Podcast_Helper {
 	}
 
 	/**
-	 * Remembers a failed fetch briefly, and decides what to serve in its place.
+	 * Decides what to serve for a failed fetch, and whether to remember the failure.
 	 *
 	 * Nothing is remembered for REST requests: the editor retries by resubmitting the
 	 * same URL, which rebuilds the same cache key, so a remembered failure would outlive
@@ -227,11 +231,19 @@ class Jetpack_Podcast_Helper {
 			return $error;
 		}
 
-		// Remember the error itself, never the fallback: this key is shared with the editor,
-		// where stale episodes would hide the broken feed from the person able to fix it.
-		set_transient( $transient_key, $error, static::ERROR_CACHE_TIMEOUT );
+		$fallback = $this->fallback_for( $transient_key, $error );
 
-		return $this->fallback_for( $transient_key, $error );
+		// Only remember a failure we can paper over. With nothing to serve in its place the
+		// block renders empty either way, and remembering it just delays the retry that would
+		// earn us a fallback. Authoritative errors are worth remembering regardless: the feed
+		// answered, so retrying costs the same and tells us the same thing.
+		if ( is_array( $fallback ) || static::is_authoritative( $error ) ) {
+			// The error itself, never the fallback: this key is shared with the editor, where
+			// stale episodes would hide the broken feed from the person able to fix it.
+			set_transient( $transient_key, $error, static::ERROR_CACHE_TIMEOUT );
+		}
+
+		return $fallback;
 	}
 
 	/**
@@ -242,13 +254,29 @@ class Jetpack_Podcast_Helper {
 	 * @return array|WP_Error The last successful response, or the error.
 	 */
 	protected function fallback_for( $transient_key, $error ) {
-		if ( in_array( $error->get_error_code(), static::AUTHORITATIVE_ERROR_CODES, true ) ) {
+		if ( static::is_authoritative( $error ) ) {
+			// The feed answered and has nothing for us, so the stored episodes are gone for
+			// good. Keeping them would resurrect removed episodes at the next outage, once
+			// a non-authoritative error started reaching for the fallback again.
+			delete_transient( static::fallback_key( $transient_key ) );
+
 			return $error;
 		}
 
 		$fallback = get_transient( static::fallback_key( $transient_key ) );
 
 		return is_array( $fallback ) ? $fallback : $error;
+	}
+
+	/**
+	 * Whether the error reflects the feed's real contents rather than our failure to
+	 * reach it.
+	 *
+	 * @param WP_Error $error The error to classify.
+	 * @return bool
+	 */
+	protected static function is_authoritative( $error ) {
+		return in_array( $error->get_error_code(), static::AUTHORITATIVE_ERROR_CODES, true );
 	}
 
 	/**
