@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Date controls: place the comparison before the chart interval, mark the interval with a chart glyph, and shorten a custom range to its shortest unambiguous form.
