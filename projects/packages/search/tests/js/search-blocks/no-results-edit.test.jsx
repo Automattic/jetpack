@@ -139,6 +139,14 @@ describe( 'NoResultsEdit', () => {
 		expect( screen.queryByRole( 'button', { name: 'Any empty search' } ) ).not.toBeInTheDocument();
 	} );
 
+	// Three dashed rows read as three unrelated things without an outline and a
+	// name around them.
+	it( 'labels the container so the messages read as one block', () => {
+		render( <NoResultsEdit clientId="nr-1" /> );
+
+		expect( screen.getByText( 'No Results' ) ).toBeInTheDocument();
+	} );
+
 	it( 'restricts inner blocks to variants and suppresses the default appender', () => {
 		render( <NoResultsEdit clientId="nr-1" /> );
 

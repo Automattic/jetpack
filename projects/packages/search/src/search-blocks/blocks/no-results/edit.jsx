@@ -93,6 +93,9 @@ export default function NoResultsEdit( { clientId } ) {
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>
+				<span className="jetpack-search-no-results__editor-label">
+					{ __( 'No Results', 'jetpack-search-pkg' ) }
+				</span>
 				<InnerBlocks allowedBlocks={ ALLOWED } template={ TEMPLATE } renderAppender={ false } />
 			</div>
 		</>

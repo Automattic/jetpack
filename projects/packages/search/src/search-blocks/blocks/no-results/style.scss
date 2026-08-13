@@ -16,11 +16,17 @@
 }
 
 // Editor-canvas-only: `render.php` never emits this class, so the rule is
-// inert on the front end despite `style.scss` loading there too. Spacing the
-// variants apart makes the per-condition boundaries readable when a search
-// page carries more than one.
-.jetpack-search-no-results__editor-container > * + * {
-	margin-block-start: 0.75rem;
+// inert on the front end despite `style.scss` loading there too. The outline
+// groups the per-condition messages as one block — without it three dashed
+// rows read as three unrelated things rather than the empty state.
+.jetpack-search-no-results__editor-container {
+	border: 1px dashed color-mix(in sRGB, currentColor 40%, transparent);
+	border-radius: 2px;
+	padding: 0.5rem;
+
+	> * + * {
+		margin-block-start: 0.75rem;
+	}
 }
 
 .jetpack-search-no-results__variant {
