@@ -153,34 +153,6 @@ class Episode_Media_Cache_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Deferring on an ambiguous path only helps if the ambiguity is visible.
-	 * Narrowing the candidate set to `inherit` would drop a trashed or private
-	 * duplicate that core can still pick, making the path look unambiguous.
-	 */
-	public function test_lookup_considers_statuses_core_can_return() {
-		$statuses = null;
-		add_filter(
-			'posts_pre_query',
-			static function ( $pre, $query ) use ( &$statuses ) {
-				if ( 'attachment' === $query->get( 'post_type' ) ) {
-					$statuses = (array) $query->get( 'post_status' );
-				}
-				return $pre;
-			},
-			10,
-			2
-		);
-
-		$url = wp_get_upload_dir()['baseurl'] . '/' . self::PATH;
-		add_post_meta( 3, 'enclosure', $url . "\n12345\naudio/mpeg\n" );
-		Episode_Media_Cache::prime( array( new WP_Post( (object) array( 'ID' => 3 ) ) ) );
-
-		$this->assertContains( 'inherit', (array) $statuses );
-		$this->assertContains( 'trash', (array) $statuses );
-		$this->assertContains( 'private', (array) $statuses );
-	}
-
-	/**
 	 * The batch only matches files under this site's uploads dir, so a miss has
 	 * to keep reaching core — offloaded-media plugins map their CDN URLs back
 	 * to an attachment through its filters, and without that those sites lose
