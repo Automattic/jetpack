@@ -77,8 +77,14 @@ export default function OnboardingModal(): ReactElement | null {
 	// `welcome=1` is the review affordance: it reopens the modal regardless of
 	// the dismissal flag or the library state, and forgets the stored
 	// dismissal so plain loads behave fresh again afterwards. Without it,
-	// seeing the modal twice means hand-clearing localStorage.
-	const isPreview = search?.welcome === '1';
+	// seeing the modal twice means hand-clearing localStorage. Checked in the
+	// router's search AND the raw wp-admin query string — on a fresh page
+	// load the router only parses search it finds inside the `p` path param,
+	// and a plain `&welcome=1` on admin.php is the easier URL to hand around.
+	const isPreview =
+		search?.welcome === '1' ||
+		( typeof window !== 'undefined' &&
+			new URLSearchParams( window.location.search ).get( 'welcome' ) === '1' );
 
 	useEffect( () => {
 		if ( isPreview ) {
