@@ -226,7 +226,7 @@ const RuleRow = ( { rule, index, fields, ownFieldId, onChange, onRemove } ) => {
 			     list is three aligned columns instead of a stack of cards. */ }
 			<Stack
 				direction="row"
-				align="flex-start"
+				align="center"
 				gap="sm"
 				className="jetpack-contact-form__conditional-logic-rule-row"
 			>

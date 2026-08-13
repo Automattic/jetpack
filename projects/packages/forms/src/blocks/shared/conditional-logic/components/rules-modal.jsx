@@ -64,7 +64,7 @@ const ConditionalLogicModal = ( {
 				     lines top to bottom is how an author checks the rule says what they meant. */ }
 				<Stack
 					direction="row"
-					align="flex-start"
+					align="center"
 					gap="sm"
 					className="jetpack-contact-form__conditional-logic-sentence"
 				>
