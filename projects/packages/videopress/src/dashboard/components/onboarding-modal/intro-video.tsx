@@ -15,17 +15,27 @@ import type { ReactElement } from 'react';
  *    doesn't exist: a native `<video>` shows the content but NOT the player, so
  *    it makes the pitch without proving it.
  *
- * TODO(VIDP-363): upload the finished 30s explainer to a VideoPress account we
+ * TODO(VIDP-###): upload the finished 30s explainer to a VideoPress account we
  * control and set `INTRO_VIDEO_GUID`. Until then the bundled file ships, and
  * the modal still works with neither (the media band simply doesn't render).
  */
-const INTRO_VIDEO_GUID = '';
+const INTRO_VIDEO_GUID = 'VmccXaww';
 
 // Lives beside the modal's images so it rides the same CopyWebpackPlugin rule.
 // That pattern is extension-scoped — `.mp4` had to be added to it, or this
 // silently 404s. See webpack.config.js.
 const INTRO_VIDEO_FILE = 'videopress-intro.mp4';
 const INTRO_POSTER_FILE = 'videopress-cover-2x.png';
+
+/*
+ * The shape of the media band, as a CSS `aspect-ratio` value.
+ *
+ * Not a constant 16/9, because the band must match whatever asset is actually
+ * playing or the difference shows up as black bars. The placeholder is a screen
+ * recording cropped to its own content (952x660), which is nearer 3:2; the
+ * finished VideoPress-hosted asset will be 16:9.
+ */
+export const INTRO_VIDEO_ASPECT = INTRO_VIDEO_GUID ? '16 / 9' : '952 / 660';
 
 /**
  * Build the public URL for a file shipped in the dashboard build.

@@ -9,9 +9,9 @@ import {
 	saveDismissal,
 	useSettledFirstRunState,
 } from '../../hooks/use-first-run-state';
-import IntroVideo from './intro-video';
+import IntroVideo, { INTRO_VIDEO_ASPECT } from './intro-video';
 import './style.scss';
-import type { ReactElement, ReactNode } from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
 
 type ValuePoint = {
 	icon: ReactNode;
@@ -91,7 +91,15 @@ export default function OnboardingModal(): ReactElement | null {
 			} }
 		>
 			<Dialog.Popup size="large" className="vp-onboarding-modal">
-				<div className="vp-onboarding-modal__media">
+				{ /*
+				 * The band takes its shape from the asset. Hard-coding 16/9 while a
+				 * 3:2 placeholder plays inside it is exactly what produced the black
+				 * pillars either side of the video.
+				 */ }
+				<div
+					className="vp-onboarding-modal__media"
+					style={ { '--vp-intro-aspect': INTRO_VIDEO_ASPECT } as CSSProperties }
+				>
 					<IntroVideo />
 					{ /*
 					 * The close affordance sits over the video rather than in a
