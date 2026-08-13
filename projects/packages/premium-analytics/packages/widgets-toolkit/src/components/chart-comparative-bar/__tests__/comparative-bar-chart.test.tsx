@@ -44,6 +44,15 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 	};
 } );
 
+// Which formatter the tooltip reaches for is the decision under test; how each
+// one renders is covered where they live. Stubbing both keeps these assertions
+// off the zone of whatever machine runs the suite.
+jest.mock( '@jetpack-premium-analytics/formatters', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/formatters' ),
+	formatDate: ( _date: Date, name = 'medium' ) => `site:${ name }`,
+	formatViewerDate: ( _date: Date, name = 'medium' ) => `viewer:${ name }`,
+} ) );
+
 // jsdom's ResizeObserver is a no-op stub, so the real hook's callback never
 // fires and the chart would measure as infinitely tall in every test — leaving
 // the whole `compactWhenShort` branch unreachable. Drive the height instead.
@@ -97,6 +106,7 @@ const SERIES_WITH_COMPARISON: ComparativeBarChartSeries[] = [
 type TooltipProps = {
 	tooltipData: { datumByKey: Record< string, { datum: { value: number } } > };
 	seriesStyles: { stroke: string; opacity?: number }[];
+	getLabel: ( datum: { date?: Date; realDate?: Date }, index: number, key: string ) => string;
 };
 
 /**
@@ -158,6 +168,30 @@ function tooltipRowsFor( hoveredDate: Date ): Record< string, number > {
 	);
 }
 
+/**
+ * The label the tooltip puts on a hovered point.
+ *
+ * @param hoveredDate - The point's date.
+ * @return The rendered row label.
+ */
+function tooltipLabelFor( hoveredDate: Date ): string {
+	/* eslint-disable testing-library/render-result-naming-convention --
+	   As above: this is the chart's `renderTooltip` prop, not testing-library's
+	   `render()`. */
+	const tooltipRenderer = recordedProps().renderTooltip;
+	const hovered = { date: hoveredDate, value: 100 };
+
+	const tooltipNode = tooltipRenderer( {
+		tooltipData: {
+			nearestDatum: { datum: hovered, key: 'July' },
+			datumByKey: { July: { datum: hovered, index: 0, key: 'July' } },
+		},
+	} );
+
+	return tooltipNode.props.getLabel( hovered, 0, 'July' );
+	/* eslint-enable testing-library/render-result-naming-convention */
+}
+
 const ZERO_SERIES: ComparativeBarChartSeries[] = [
 	{
 		label: 'July',
@@ -190,6 +224,23 @@ describe( 'ComparativeBarChart', () => {
 		);
 
 		expect( typeof recordedOptions().axis.x.tickFormat ).toBe( 'function' );
+	} );
+
+	it( 'labels a tooltip with the site-zone date alone by default', () => {
+		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		expect( tooltipLabelFor( JULY_1 ) ).toBe( 'site:medium' );
+	} );
+
+	// A date alone names 24 hourly buckets, so it cannot identify the one hovered
+	// — and the time it gains has to be read in the zone the points were laid out
+	// in, or it names an hour the axis does not agree with.
+	it( 'adds the time, in the viewer zone, at the hourly resolution', () => {
+		render(
+			<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } tickResolution="hour" />
+		);
+
+		expect( tooltipLabelFor( JULY_1 ) ).toBe( 'viewer:dateTime' );
 	} );
 
 	it( 'adds the previous-period value to the tooltip when comparing', () => {

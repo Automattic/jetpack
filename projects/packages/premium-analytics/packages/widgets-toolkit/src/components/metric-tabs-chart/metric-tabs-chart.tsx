@@ -183,7 +183,12 @@ function MetricChart( {
 	}
 
 	return chartType === 'bar' ? (
-		<ComparativeBarChart series={ series } dataFormat={ resolvedDataFormat } compactWhenShort />
+		<ComparativeBarChart
+			series={ series }
+			dataFormat={ resolvedDataFormat }
+			tickResolution={ tickResolution }
+			compactWhenShort
+		/>
 	) : (
 		<ComparativeLineChart
 			series={ series }

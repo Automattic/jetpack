@@ -1,10 +1,16 @@
 /**
  * External dependencies
  */
-import { BarChart, Stack, useGlobalChartsContext } from '@jetpack-premium-analytics/externals';
+import {
+	BarChart,
+	Stack,
+	useGlobalChartsContext,
+	type TickResolution,
+} from '@jetpack-premium-analytics/externals';
 import {
 	formatDate,
 	formatMetricValue,
+	formatViewerDate,
 	type DateFormatName,
 } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
@@ -71,6 +77,14 @@ export type ComparativeBarChartProps = {
 	tickFormat?: DateFormatName;
 
 	/**
+	 * The series' bucket size, which the tooltip reads to decide whether a date
+	 * alone identifies a bucket. Unlike the line chart's, this does not reach the
+	 * x-axis: bar ticks come from the categorical scale, which has no resolution
+	 * hint to give (WOOA7S-1903).
+	 */
+	tickResolution?: TickResolution;
+
+	/**
 	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area
 	 * is too short for readable axis labels. Defaults to false.
 	 */
@@ -101,9 +115,11 @@ export function ComparativeBarChart( {
 	className,
 	dataFormat,
 	tickFormat: xTickFormatType,
+	tickResolution,
 	compactWhenShort = false,
 	maxWidth = Infinity,
 }: ComparativeBarChartProps ) {
+	const isHourly = tickResolution === 'hour';
 	const chartId = useId();
 	const { getElementStyles } = useGlobalChartsContext();
 
@@ -170,9 +186,13 @@ export function ComparativeBarChart( {
 			if ( ! displayDate ) {
 				return key;
 			}
-			return formatDate( displayDate );
+
+			// At hourly buckets a date alone names 24 of them, so the label carries
+			// the time — and resolves in the viewer's zone, which is the one the
+			// points were laid out in. See `formatViewerDate`.
+			return isHourly ? formatViewerDate( displayDate, 'dateTime' ) : formatDate( displayDate );
 		},
-		[]
+		[ isHourly ]
 	);
 
 	/**

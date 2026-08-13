@@ -5,6 +5,7 @@ import { LineChart, Stack, type TickResolution } from '@jetpack-premium-analytic
 import {
 	formatDate,
 	formatMetricValue,
+	formatViewerDate,
 	type DateFormatName,
 } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
@@ -152,6 +153,7 @@ export function ComparativeLineChart( {
 	maxWidth = Infinity,
 	compactWhenShort = false,
 }: ComparativeLineChartProps ) {
+	const isHourly = tickResolution === 'hour';
 	// The measured Stack fills its container (flex), so its height is independent
 	// of whether the axis/legend are shown — no measure/hide feedback loop.
 	const [ chartAreaHeight, setChartAreaHeight ] = useState( Infinity );
@@ -174,9 +176,13 @@ export function ComparativeLineChart( {
 		( datum: { date: Date; realDate?: Date }, index: number ): string => {
 			const isComparison = index > 0;
 			const displayDate = isComparison ? datum.realDate ?? datum.date : datum.date;
-			return formatDate( displayDate );
+
+			// At hourly buckets a date alone names 24 of them, so the label carries
+			// the time — and resolves in the viewer's zone, the one the axis ticks
+			// it sits under are drawn in. See `formatViewerDate`.
+			return isHourly ? formatViewerDate( displayDate, 'dateTime' ) : formatDate( displayDate );
 		},
-		[]
+		[ isHourly ]
 	);
 
 	const renderTooltip = useCallback(

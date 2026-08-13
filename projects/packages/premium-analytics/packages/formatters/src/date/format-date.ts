@@ -6,6 +6,7 @@ import { dateI18n, getSettings } from '@wordpress/date';
  * Internal dependencies
  */
 import { withShortMonth, withWeekday, withoutYear } from './php-format';
+import { viewerTimeZone } from './viewer-time-zone';
 
 /** Fixed because this format backs form values and query parameters. */
 const ISO_FORMAT = 'Y-m-d';
@@ -21,7 +22,8 @@ export type DateFormatName =
 	| 'year'
 	| 'iso'
 	| 'full'
-	| 'fullNoYear';
+	| 'fullNoYear'
+	| 'dateTime';
 
 /**
  * An instant to render, such as a `TZDate` or a timestamp.
@@ -50,6 +52,10 @@ function formatFor( name: DateFormatName ): string {
 
 	const siteFormat = getSettings().formats.date;
 	const withoutYearFormat = withoutYear( siteFormat ) || siteFormat;
+
+	if ( name === 'dateTime' ) {
+		return `${ siteFormat } ${ getSettings().formats.time }`;
+	}
 
 	if ( name === 'compact' ) {
 		return withShortMonth( siteFormat );
@@ -94,6 +100,27 @@ function formatFor( name: DateFormatName ): string {
  */
 export const formatDate = ( date: DateInput, name: DateFormatName = 'medium' ): string =>
 	dateI18n( formatFor( name ), date );
+
+/**
+ * Format a date in the site's locale, reading it as the wall clock it shows in
+ * the *viewer's* timezone rather than the site's.
+ *
+ * For anything a chart plots, this is the reading that matches what the reader
+ * sees: the chart library lays a point out and labels the axis through the
+ * browser's zone, so a label resolved in the site's zone names a different
+ * instant than the tick it sits under. That gap is invisible at day-and-coarser
+ * grains but not at hourly, where it moves a label by the whole offset between
+ * the two zones.
+ *
+ * Prefer `formatDate` everywhere else: outside a chart, the site's timezone is
+ * the one a reader means.
+ *
+ * @param date - The instant to render. See `DateInput`.
+ * @param name - Named format. Defaults to `'medium'`.
+ * @return The formatted date.
+ */
+export const formatViewerDate = ( date: DateInput, name: DateFormatName = 'medium' ): string =>
+	dateI18n( formatFor( name ), date, viewerTimeZone() );
 
 /**
  * Return a full weekday name in the site's locale.
