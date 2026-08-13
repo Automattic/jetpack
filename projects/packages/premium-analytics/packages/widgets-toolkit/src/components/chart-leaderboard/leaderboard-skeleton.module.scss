@@ -1,0 +1,88 @@
+@use "sass:list";
+
+/* Geometry from the design prototype's two leaderboard skeletons, which read
+ * lighter than the loaded rows rather than tracing their 36px height. */
+$row-gap: 15px;
+
+/* `bars`: a fixed-width label line above the row's proportional bar. */
+$bar-label-inline-size: 40%;
+$bar-label-block-size: 9px;
+$bar-block-size: 12px;
+$bar-row-gap: 7px;
+$bar-widths: 92%, 78%, 64%, 50%, 38%;
+
+/* `list`: the label on one line with the value trailing it. These widths stand
+ * in for label text, so they vary without trending down — a label's length says
+ * nothing about its rank. */
+$list-column-gap: 10px;
+$list-line-block-size: 10px;
+$list-value-inline-size: 34px;
+$list-label-widths: 85%, 70%, 78%, 58%, 66%, 48%;
+
+/* `safe` keeps the centring from pushing the first rows out of the top of the
+ * tile: once they no longer fit it falls back to packing them at the start, so
+ * what gets clipped is the tail — the same rows the loaded chart's `fitRows`
+ * drops. */
+.rows {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	justify-content: safe center;
+	gap: $row-gap;
+	min-block-size: 0;
+	overflow: hidden;
+}
+
+.row {
+	display: flex;
+	flex: none;
+}
+
+.bars .row {
+	flex-direction: column;
+	row-gap: $bar-row-gap;
+}
+
+.list .row {
+	align-items: center;
+	column-gap: $list-column-gap;
+}
+
+.barLabel {
+	inline-size: $bar-label-inline-size;
+	block-size: $bar-label-block-size;
+	border-radius: var(--wpds-border-radius-md);
+}
+
+/* The `@for` loop below sets every row's width, so there is none here. The
+ * browser clamps the radius to half the bar's height, giving the prototype's
+ * fully rounded ends. */
+.bar {
+	block-size: $bar-block-size;
+	border-radius: var(--wpds-border-radius-lg);
+}
+
+@for $index from 1 through list.length( $bar-widths ) {
+	.rows .row:nth-child( #{list.length($bar-widths)}n + #{$index} ) .bar {
+		inline-size: list.nth($bar-widths, $index);
+	}
+}
+
+/* Width comes from the `@for` loop below, which covers every row. */
+.listLabel {
+	block-size: $list-line-block-size;
+	border-radius: var(--wpds-border-radius-md);
+}
+
+@for $index from 1 through list.length( $list-label-widths ) {
+	.rows .row:nth-child( #{list.length($list-label-widths)}n + #{$index} ) .listLabel {
+		inline-size: list.nth($list-label-widths, $index);
+	}
+}
+
+.value {
+	inline-size: $list-value-inline-size;
+	block-size: $list-line-block-size;
+	margin-inline-start: auto;
+	border-radius: var(--wpds-border-radius-md);
+}

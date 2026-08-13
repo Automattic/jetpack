@@ -9,6 +9,7 @@ import {
 	describeError,
 	getCombinedPeriodMax,
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	LeaderboardPostLabel,
 	ReportLink,
 	WidgetBackLink,
@@ -200,6 +201,7 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 						icon: megaphone,
 						description: __( 'No UTM data in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ max } /> }
 				>
 					<LeaderboardChart
 						data={ leaderboardData }

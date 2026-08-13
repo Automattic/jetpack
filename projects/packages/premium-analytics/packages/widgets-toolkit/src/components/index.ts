@@ -34,6 +34,8 @@ export {
 } from './metric-tabs-chart';
 export {
 	LeaderboardChart,
+	LeaderboardSkeleton,
+	type LeaderboardSkeletonProps,
 	type LeaderboardChartProps,
 	type LeaderboardChartData,
 	type LegendLabels,
