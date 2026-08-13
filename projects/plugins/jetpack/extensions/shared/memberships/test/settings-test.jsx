@@ -153,10 +153,11 @@ describe( 'getAccessDescription', () => {
 	} );
 
 	// With a paywall block the email goes to every subscriber, because free subscribers
-	// still receive the portion above the paywall.
+	// still receive the portion above the paywall. The copy has to say so explicitly,
+	// otherwise it reads as though only paid subscribers are emailed.
 	test( 'says all subscribers are emailed when a paywall block is present', () => {
 		expect( getAccessDescription( 'paid_subscribers', true ) ).toBe(
-			'Only paid subscribers can read the content below the paywall. Subscribers receive it by email.'
+			'Only paid subscribers can read the content below the paywall. All subscribers receive it by email.'
 		);
 	} );
 

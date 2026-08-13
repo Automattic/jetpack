@@ -88,7 +88,7 @@ export function getAccessDescription( accessLevel, postHasPaywallBlock = false )
 		case accessOptions.paid_subscribers.key:
 			return postHasPaywallBlock
 				? __(
-						'Only paid subscribers can read the content below the paywall. Subscribers receive it by email.',
+						'Only paid subscribers can read the content below the paywall. All subscribers receive it by email.',
 						'jetpack',
 						0
 				  )
