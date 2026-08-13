@@ -166,14 +166,9 @@ function filter_registrable_widget_types_by_plugin( $widget_candidates ) {
 
 add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrable_widget_types_by_plugin' );
 
-// The Subscribers section is gated too (dashboard-sections.php) but deliberately
-// has no counterpart here, so section and widgets do disagree for that one tab.
-// The commerce gate above pairs with its section because Woo widgets 403 without
-// the plugin — dropping them spares the reader a broken card. Subscriber widgets
-// keep working when the subscriptions module is off, since their data comes from
-// the WPCOM proxy rather than the module. Unregistering them would turn any the
-// reader had already placed on another tab into "Widget is no longer available",
-// which costs more than leaving an entry in the picker.
+// Subscriber widgets remain available when their section is hidden because
+// their data does not depend on the local module. Unregistering them would also
+// break instances placed in other sections.
 
 /**
  * Removes candidates the reader could not load data for anyway.

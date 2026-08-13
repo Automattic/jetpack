@@ -90,26 +90,14 @@ function is_woocommerce_dashboard_section_available_to_current_user() {
 /**
  * Whether the Subscribers dashboard section should be exposed.
  *
- * Mirrors the Calypso Stats gate on the same tab. Modules::is_active() resolves
- * `jetpack_active_modules` the same way Sync does before shipping it to WPCOM as
- * `active_modules` — the value Calypso gates on — and short-circuits to true on
- * WPCOM Simple, where modules are not a concept and the tab always shows.
- *
- * Note that "resolves" is not "reads": at its default $available_only, the
- * option is intersected with Modules::get_available(). That is what the guard
- * below is about.
+ * Sites without Jetpack have no module state to check, so the section remains
+ * available. Modules::is_active() also returns true on WPCOM Simple.
  *
  * @since $$next-version$$
  *
  * @return bool True when the subscriptions module is active.
  */
 function is_subscribers_dashboard_section_available() {
-	// Without the Jetpack plugin, Modules::get_available() resolves to the
-	// standalone-module filter, and nothing registers `subscriptions` into it —
-	// so the intersection is empty and the gate could never open. The tab reads
-	// `stats/subscribers`, `subscribers/counts` and `stats/followers` off the
-	// WPCOM proxy, which answers whatever the local module state is, so a site
-	// with no module system to consult is exempt rather than refused.
 	$is_available = ! class_exists( 'Jetpack' ) || ( new Modules() )->is_active( 'subscriptions' );
 
 	/**

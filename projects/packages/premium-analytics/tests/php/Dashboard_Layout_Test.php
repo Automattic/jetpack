@@ -13,8 +13,6 @@ use WP_REST_Request;
 use WP_REST_Server;
 
 require_once __DIR__ . '/../../src/dashboard-layout.php';
-// The default-layout route's gates live in dashboard-sections.php, the way both
-// dashboard entry points load it before registering the route.
 require_once __DIR__ . '/../../src/dashboard-sections.php';
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 
@@ -165,9 +163,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A tab the section registry hides must not hand out its bundled layout here
-	 * either — this route resolves a name straight to a tab, so it is a second
-	 * way in.
+	 * An unavailable tab does not expose its default layout.
 	 */
 	public function test_default_layout_route_refuses_an_unavailable_subscribers_tab() {
 		$this->register_route_with_capabilities();
@@ -180,7 +176,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
-	 * `?name=` shadows the URL capture for subscribers the way it does for store.
+	 * An unavailable tab is refused when `?name=` shadows the URL capture.
 	 */
 	public function test_default_layout_route_refuses_a_name_shadowed_subscribers_tab() {
 		$this->register_route_with_capabilities();
@@ -193,7 +189,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The refusal is the gate's: an available section is served as before.
+	 * An available Subscribers tab exposes its default layout.
 	 */
 	public function test_default_layout_route_serves_an_available_subscribers_tab() {
 		$this->register_route_with_capabilities();

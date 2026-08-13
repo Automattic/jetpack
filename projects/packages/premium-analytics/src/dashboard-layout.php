@@ -73,18 +73,10 @@ function get_dashboard_default_layout_for( $dashboard_name ) {
 }
 
 /**
- * Availability gates for the tabs this route's name can resolve to.
+ * Returns availability gates for conditional dashboard tabs.
  *
- * Every conditional tab needs an entry: a tab the section registry hides but
- * this map omits still hands out its bundled layout. Tabs absent from the map
- * are served to every dashboard reader.
- *
- * The gates are called directly rather than read off
- * {@see Dashboard_Section::is_available()} because this route registers from
- * dashboard-layout.php and has to answer without assuming the section registry
- * was hydrated. Both dashboard entry points load dashboard-sections.php before
- * registering this route, so the callbacks are always defined by the time one
- * runs.
+ * The callbacks are used directly because the section registry may not be
+ * initialized when this route runs.
  *
  * @since $$next-version$$
  *
@@ -100,12 +92,8 @@ function get_dashboard_default_layout_gates() {
 /**
  * REST callback returning the default layout for the requested dashboard.
  *
- * The route admits every dashboard reader, but its name also resolves to a
- * single tab, so a gated tab is refused here the way the section route refuses
- * it through {@see Dashboard_Section::is_available()}. The check keys on the
- * resolved tab rather than the string because two spellings arrive: the bare
- * `store` alias in the URL, and `?name=woocommerce/store`, which WordPress
- * reads ahead of the URL capture.
+ * Availability is checked after resolving the name because tabs can be
+ * requested by alias or full section ID.
  *
  * @param \WP_REST_Request $request REST request carrying the dashboard name.
  * @return \WP_REST_Response|\WP_Error Response wrapping the default layout array.

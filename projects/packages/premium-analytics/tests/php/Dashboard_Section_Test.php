@@ -39,8 +39,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	private $doing_it_wrong = array();
 
 	/**
-	 * The standalone-module filter a test added, held so tear_down can remove
-	 * that one callback rather than everything on a Jetpack-wide hook.
+	 * Standalone-module filter callback registered by a test.
 	 *
 	 * @var callable|null
 	 */
@@ -76,8 +75,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 
-		// Targeted, not remove_all_filters(): `jetpack_get_available_standalone_modules`
-		// is a Jetpack-wide hook other packages register into.
 		if ( null !== $this->available_modules_filter ) {
 			remove_filter( 'jetpack_get_available_standalone_modules', $this->available_modules_filter );
 			$this->available_modules_filter = null;
@@ -95,11 +92,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Turn the `subscriptions` Jetpack module on.
-	 *
-	 * Both levers are needed because Modules::get_active() intersects the option
-	 * with the modules available to the site, and without a real Jetpack plugin
-	 * that list is only what standalone plugins register.
+	 * Mark the subscriptions module as both active and available.
 	 *
 	 * @return void
 	 */
@@ -116,10 +109,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Make the Subscribers gate see a Jetpack plugin.
-	 *
-	 * Callers need their own process: a class cannot be undeclared, so loading
-	 * the mock for the whole suite would flip the gate for every other test.
+	 * Load the Jetpack class mock for a separate-process test.
 	 *
 	 * @return void
 	 */
@@ -832,11 +822,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A site with no local module system keeps the tab.
-	 *
-	 * This is the standalone plugin's shape, and the default here because
-	 * WorDBless runs without the Jetpack plugin: the gate has no module list to
-	 * consult, and the tab's data comes from the WPCOM proxy either way.
+	 * A site without a local module system keeps the tab.
 	 */
 	public function test_registers_subscribers_dashboard_section_without_a_module_system() {
 		register_default_dashboard_sections();
@@ -849,7 +835,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * With a Jetpack plugin present, the module state decides: off hides the tab.
+	 * A Jetpack site with the module inactive hides the tab.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -869,13 +855,11 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$ids = $this->available_section_ids();
 
 		$this->assertNotContains( 'analytics/subscribers', $ids );
-		// Registry is populated, so the absence above is the gate rather than an
-		// empty registry.
 		$this->assertContains( 'analytics/traffic', $ids );
 	}
 
 	/**
-	 * The same site with the module on offers the tab again.
+	 * A Jetpack site with the module active offers the tab.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -896,12 +880,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * WPCOM Simple always offers the tab: modules are not a concept there.
-	 *
-	 * Needs a real constant, hence the separate process — Modules::is_active()
-	 * reads a raw `defined( 'IS_WPCOM' )` rather than the Constants wrapper the
-	 * rest of this package mocks through, so Constants::set_constant() would set
-	 * a value nothing reads and the test would assert the wrong branch.
+	 * WPCOM Simple offers the tab without the module.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
