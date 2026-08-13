@@ -1,0 +1,31 @@
+@use "sass:list";
+
+/* Geometry from the design prototype's `columns` skeleton variant. */
+$column-gap: 6px;
+$column-padding-block: 12px 4px;
+$column-block-sizes: 40%, 62%, 34%, 78%, 52%, 88%, 46%, 70%, 30%, 60%, 82%, 44%;
+
+/* Bottom-aligned so the varying heights read as a bar chart, not a grid. */
+.columns {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: row;
+	align-items: flex-end;
+	gap: $column-gap;
+	min-block-size: 0;
+	padding-block: $column-padding-block;
+}
+
+/* The prototype's 3px radius has no token here; `sm` (2px) is the nearest. */
+.column {
+	flex: 1 1 0;
+	inline-size: 100%;
+	min-inline-size: 0;
+	border-radius: var(--wpds-border-radius-sm);
+}
+
+@for $index from 1 through list.length($column-block-sizes) {
+	.columns .column:nth-child(#{$index}) {
+		block-size: list.nth($column-block-sizes, $index);
+	}
+}

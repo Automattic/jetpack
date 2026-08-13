@@ -6,6 +6,7 @@ import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	CalendarHeatmapTooltip,
 	HeatmapChartUnresponsive,
+	HeatmapSkeleton,
 	WidgetRoot,
 	WidgetState,
 	buildCalendarHeatmapData,
@@ -156,6 +157,7 @@ function PostTrafficActivityInner() {
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
+					renderLoading={ <HeatmapSkeleton /> }
 				>
 					<div className={ styles.content }>
 						{ /* The pager centers with the grid as one block; it only exists

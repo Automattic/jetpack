@@ -49,6 +49,7 @@ export {
 	type LeaderboardRowProps,
 	type LeaderboardRowVariant,
 	BarChart,
+	BarChartSkeleton,
 	type BarChartProps,
 	type BarChartData,
 	type BarChartStyle,
@@ -126,6 +127,9 @@ export {
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
 	GenericSkeleton,
+	HeatmapSkeleton,
+	MetricSparklineSkeleton,
+	type MetricSparklineSkeletonProps,
 	SkeletonRoot,
 	type SkeletonRootProps,
 } from './components';
