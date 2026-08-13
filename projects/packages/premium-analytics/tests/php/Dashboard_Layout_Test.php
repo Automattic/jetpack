@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -34,6 +35,9 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->reset_analytics_capabilities();
 		wp_set_current_user( 0 );
 		Constants::clear_constants();
+		// The default layout now reaches Host::is_wpcom_platform(), which memoizes
+		// `is_woa_site` past Constants::clear_constants().
+		Cache::clear();
 		remove_all_filters( VIDEOPRESS_AVAILABLE_FILTER );
 		parent::tear_down();
 	}

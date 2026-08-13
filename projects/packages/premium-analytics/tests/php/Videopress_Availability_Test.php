@@ -26,11 +26,24 @@ require_once __DIR__ . '/../../src/videopress-availability.php';
 class Videopress_Availability_Test extends BaseTestCase {
 
 	/**
+	 * Host detection memoizes `is_woa_site` into the process-global status cache,
+	 * which outlives Constants::clear_constants(). Clear it on the way in too, so
+	 * the first test here does not inherit whatever ran before this class.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		Cache::clear();
+		$GLOBALS['jpa_test_wpcom_features'] = array();
+	}
+
+	/**
 	 * Reset constants, options, and filters between tests.
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
 		Cache::clear();
+		$GLOBALS['jpa_test_wpcom_features'] = array();
 		delete_option( 'jetpack_active_modules' );
 		remove_all_filters( VIDEOPRESS_AVAILABLE_FILTER );
 		remove_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_videopress_script_data', 20 );
@@ -66,10 +79,13 @@ class Videopress_Availability_Test extends BaseTestCase {
 	/**
 	 * The WPCOM platform reads the plan feature, never the module list.
 	 *
-	 * `wpcom_site_has_feature()` does not exist in this environment, so an active
-	 * module must not be enough to answer true.
+	 * The module stays active throughout, so every assertion here also proves the
+	 * platform branch was the one taken: the self-hosted branch would answer true
+	 * in all three cases.
 	 *
 	 * @dataProvider provide_wpcom_platform_sites
+	 *
+	 * @param array<string, mixed> $constants Constants that place the site on the platform.
 	 */
 	#[DataProvider( 'provide_wpcom_platform_sites' )]
 	public function test_videopress_follows_the_plan_feature_on_the_wpcom_platform( $constants ) {
@@ -78,7 +94,14 @@ class Videopress_Availability_Test extends BaseTestCase {
 		}
 		update_option( 'jetpack_active_modules', array( 'videopress' ) );
 
-		$this->assertFalse( is_videopress_available() );
+		$this->assertFalse( is_videopress_available(), 'A plan without the feature has no video surfaces.' );
+
+		$GLOBALS['jpa_test_wpcom_features'] = array( 'videopress' );
+		$this->assertTrue( is_videopress_available(), 'The videopress plan feature turns the surfaces on.' );
+
+		// Guards the slug itself: a near-miss must not read as entitled.
+		$GLOBALS['jpa_test_wpcom_features'] = array( 'videopress-1tb-storage' );
+		$this->assertFalse( is_videopress_available(), 'Only the exact `videopress` slug counts.' );
 	}
 
 	/**

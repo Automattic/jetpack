@@ -45,7 +45,7 @@ function get_widget_support_context() {
 /**
  * Returns unsupported widget types for a context.
  *
- * @param array{is_wpcom_simple:bool,has_videopress:bool} $context Widget support context.
+ * @param array{is_wpcom_simple?:bool,has_videopress?:bool} $context Widget support context; a missing key reads as false.
  * @return string[] Unsupported widget type names.
  */
 function get_unsupported_widget_types( $context ) {
@@ -70,9 +70,9 @@ function get_unsupported_widget_types( $context ) {
 /**
  * Removes unsupported widget records.
  *
- * @param array                                           $items    Widget records.
- * @param string                                          $type_key Record key containing the widget type.
- * @param array{is_wpcom_simple:bool,has_videopress:bool} $context  Widget support context.
+ * @param array                                             $items    Widget records.
+ * @param string                                            $type_key Record key containing the widget type.
+ * @param array{is_wpcom_simple?:bool,has_videopress?:bool} $context  Widget support context; a missing key reads as false.
  * @return array Filtered and re-indexed widget records.
  */
 function remove_unsupported_widget_items( $items, $type_key, $context ) {

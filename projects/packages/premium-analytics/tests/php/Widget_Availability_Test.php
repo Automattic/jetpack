@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use WorDBless\BaseTestCase;
 
@@ -43,9 +44,16 @@ class Widget_Availability_Test extends BaseTestCase {
 
 	/**
 	 * Reset constants and availability filters between tests.
+	 *
+	 * The support context now reaches Host::is_wpcom_platform(), which memoizes
+	 * `is_woa_site` into the process-global status cache; clearing constants alone
+	 * would leave a stale host verdict for the next test that sets Atomic ones.
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
+		Cache::clear();
+		$GLOBALS['jpa_test_wpcom_features'] = array();
+		delete_option( 'jetpack_active_modules' );
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( VIDEOPRESS_AVAILABLE_FILTER );
 
@@ -212,6 +220,12 @@ class Widget_Availability_Test extends BaseTestCase {
 	 * The gate and the manifests agree in both directions: a renamed widget can't
 	 * drop out of the gate, and a new video widget can't be added without joining
 	 * it.
+	 *
+	 * The second half rests on a naming heuristic, which bounds what it can catch:
+	 * a VideoPress-backed widget named without `video` would not be demanded here,
+	 * and an unrelated `video-*` widget would be demanded wrongly. Widget manifests
+	 * carry no "requires" field to key on instead; if one is ever added, this
+	 * should read that rather than the name.
 	 */
 	public function test_videopress_widget_types_match_the_manifest() {
 		$manifests = glob( __DIR__ . '/../../widgets/*/widget.json' );
@@ -219,8 +233,17 @@ class Widget_Availability_Test extends BaseTestCase {
 
 		$video_names = array();
 		foreach ( $manifests as $manifest ) {
-			$widget = json_decode( (string) file_get_contents( $manifest ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			if ( isset( $widget['name'] ) && str_contains( $widget['name'], 'video' ) ) {
+			// Assert rather than skip: a manifest silently dropped here is absent from
+			// both sides of the comparison below, so the guard would pass while the
+			// gate is missing a type — the one failure this test exists to catch.
+			$raw = file_get_contents( $manifest ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$this->assertNotFalse( $raw, "Could not read $manifest" );
+
+			$widget = json_decode( $raw, true );
+			$this->assertIsArray( $widget, "Malformed manifest: $manifest" );
+			$this->assertArrayHasKey( 'name', $widget, "Manifest declares no name: $manifest" );
+
+			if ( str_contains( $widget['name'], 'video' ) ) {
 				$video_names[] = $widget['name'];
 			}
 		}
@@ -242,6 +265,33 @@ class Widget_Availability_Test extends BaseTestCase {
 		);
 
 		$this->assertNotContains( 'jpa/videopress', $names );
+	}
+
+	/**
+	 * Atomic reads the plan feature at the widget layer too — an active module is
+	 * not enough there, and the feature alone is.
+	 */
+	public function test_registry_callback_follows_the_plan_feature_on_atomic() {
+		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/plugins/wpcomsh/wpcomsh.php' );
+		update_option( 'jetpack_active_modules', array( 'videopress' ) );
+
+		$names = array_column(
+			filter_registrable_widget_types_by_availability( $this->widget_candidates() ),
+			'name'
+		);
+
+		$this->assertNotContains( 'jpa/videopress', $names, 'An active module does not stand in for the plan feature on Atomic.' );
+
+		$GLOBALS['jpa_test_wpcom_features'] = array( 'videopress' );
+
+		$names = array_column(
+			filter_registrable_widget_types_by_availability( $this->widget_candidates() ),
+			'name'
+		);
+
+		$this->assertContains( 'jpa/videopress', $names, 'The plan feature brings the video widgets back on Atomic.' );
 	}
 
 	/**

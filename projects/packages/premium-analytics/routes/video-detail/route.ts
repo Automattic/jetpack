@@ -50,8 +50,15 @@ export const route = {
 			throw redirect( { to: '/syncing' } );
 		}
 
+		// Kept apart from the id check below: a bookmarked URL on a site without
+		// VideoPress and a malformed one are different events, even though both
+		// currently land on the dashboard.
+		if ( ! isVideoPressAvailable() ) {
+			throw redirect( { to: '/' } );
+		}
+
 		const videoId = params?.videoId;
-		if ( ! isVideoPressAvailable() || ! isValidVideoId( videoId ) ) {
+		if ( ! isValidVideoId( videoId ) ) {
 			throw redirect( { to: '/' } );
 		}
 

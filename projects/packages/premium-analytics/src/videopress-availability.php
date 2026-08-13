@@ -2,9 +2,12 @@
 /**
  * VideoPress availability, shared by the widget layer and the client routes.
  *
- * Calypso gates its Videos module on the `videopress` plan feature, the same
- * list `wpcom_site_has_feature()` answers from. Self-hosted Jetpack has no such
- * list, so the same question is answered from the module or plugin instead.
+ * Calypso gates its Videos module on the `videopress` plan feature, which
+ * `wpcom_site_has_feature()` answers on the WPCOM platform. That function does
+ * not exist off-platform, and the plan-feature list standing in for it there
+ * (`Current_Plan`, `Product::get_site_features_from_wpcom()`) grants `videopress`
+ * to every plan and costs a synchronous WPCOM request, so the same question is
+ * answered from the module or plugin instead.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -28,21 +31,24 @@ const VIDEOPRESS_AVAILABLE_FILTER = 'jetpack_premium_analytics_videopress_availa
  * Atomic reads the plan feature alongside Simple, not the module: wpcomsh
  * provides `wpcom_site_has_feature()` there, and the VideoPress module has no
  * `Auto Activate` header, so a plan that includes VideoPress routinely comes
- * with the module off. Same boundary as `Initial_State::has_videopress_access()`.
+ * with the module off.
+ *
+ * Off-platform the question becomes "is VideoPress running here", not "is it
+ * paid for" — without the module there is no new play data to report. That is
+ * deliberately narrower than `Initial_State::has_videopress_access()`, which
+ * never looks at the module and counts the paid storage tiers instead.
  *
  * `Current_Plan::supports( 'videopress' )` is avoided because off-platform it
  * returns true for every plan, thanks to the VideoPress free tier.
  *
- * `$available_only = false` skips the module registry the standalone Premium
- * Analytics plugin does not ship, which would otherwise report every module
- * inactive.
- *
- * @return bool Whether VideoPress was detected in the current request.
+ * @return bool Whether Premium Analytics treats VideoPress as available.
  */
 function is_videopress_available() {
 	if ( ( new Host() )->is_wpcom_platform() ) {
 		$is_available = function_exists( 'wpcom_site_has_feature' ) && \wpcom_site_has_feature( 'videopress' );
 	} else {
+		// `false` skips the module registry the standalone Premium Analytics plugin
+		// does not ship, which would otherwise report every module inactive.
 		$is_available = ( new Modules() )->is_active( 'videopress', false )
 			|| Constants::is_defined( 'JETPACK_VIDEOPRESS_ROOT_FILE' );
 	}
