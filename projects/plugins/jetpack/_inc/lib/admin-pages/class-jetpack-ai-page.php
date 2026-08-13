@@ -138,10 +138,9 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					// destination for the MCP upsell can be retargeted without
 					// shipping a code change.
 					'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites' ),
-					// The Overview usage card shows the purchase that grants AI
-					// ("WordPress.com Business", "Jetpack Complete"); the usage
-					// endpoint cannot name it. Only computed while the gated
-					// Overview can render, so ungated page loads do no extra work.
+					// The purchase granting AI, for the Overview usage card — the
+					// usage endpoint cannot name it. Gated so ungated loads do
+					// no extra work.
 					'planName'         => jetpack_is_internal_testing_environment() ? self::get_ai_plan_name() : '',
 					// Pre-release gate: only internal testing environments see
 					// the Features view. Remove when the view goes public.
@@ -209,9 +208,8 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Name of the purchase that grants this site AI, for the Overview usage
-	 * card ("WordPress.com Business", "Jetpack Complete", "Jetpack AI
-	 * Assistant"). Uses My Jetpack's purchase data, same as its Plans section.
+	 * Name of the purchase granting this site AI ("Jetpack Complete"), from
+	 * My Jetpack's purchase data — the same source as its Plans section.
 	 *
 	 * @return string Empty when nothing paid grants AI or the data is unavailable.
 	 */

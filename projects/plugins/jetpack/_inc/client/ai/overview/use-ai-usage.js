@@ -1,9 +1,6 @@
 /**
- * Read-only AI usage data for the Overview view.
- *
- * Off WPCOM the endpoint proxies to WordPress.com server-side (30-second
- * timeout, transient-cached, errors cached too), so loading and error states
- * are first-class here.
+ * Read-only AI usage data for the Overview view. Off WPCOM the endpoint
+ * proxies to WordPress.com server-side, so loading/error states matter here.
  */
 
 import apiFetch from '@wordpress/api-fetch';
@@ -18,11 +15,9 @@ const TIER_VALUE_FREE = 0;
 const TIER_VALUE_UNLIMITED = 1;
 
 /**
- * Normalize the ai-assistant-feature payload for display, following the same
- * free/tiered/unlimited rules as ai-client's useAiFeature: the free plan
- * counts all-time requests against the free limit; tiered plans count the
- * current period against the tier limit (free limit as fallback). The i4
- * card displays what is AVAILABLE (limit − used), so that is derived here.
+ * Normalize the ai-assistant-feature payload for display, following
+ * ai-client's free/tiered/unlimited rules. The i4 card shows what is
+ * AVAILABLE (limit − used), so that is derived here.
  *
  * @param {object} data - Raw endpoint payload (dash-cased keys).
  * @return {object} { unlimited, requestsCount, requestsLimit, requestsAvailable, renewsOn, planLabel, showUpgrade }
@@ -53,11 +48,9 @@ export function normalizeUsage( data ) {
 		! unlimited &&
 		( Boolean( data?.[ 'next-tier' ] ) || data?.[ 'site-require-upgrade' ] === true );
 
-	// The design shows the product plan name here ("Free", "Complete"); the
-	// payload carries no product name, so the label falls back to the plan's
-	// nature — without it the plan cell has no strong text at all. The
-	// unlimited tier is the only one that ships a readable limit, already
-	// localized server-side; tiered tiers carry bare numbers.
+	// Fallback when the page data has no purchase name: the plan's nature.
+	// Only the unlimited tier ships a (server-localized) readable-limit;
+	// tiered tiers carry bare numbers.
 	let planLabel = null;
 	if ( isFree ) {
 		planLabel = __( 'Free', 'jetpack' );

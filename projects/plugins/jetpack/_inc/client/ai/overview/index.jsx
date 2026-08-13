@@ -19,12 +19,9 @@ import { normalizeUsage, useAiUsage } from './use-ai-usage';
 
 import './style.scss';
 
-// Walkthrough videos — lessons from the "Use AI agents with WordPress.com"
-// support course. The cards open the lesson page rather than playing inline,
-// so each is a link. Durations are the live lesson lengths (the numbers in
-// the design frame predate a re-cut); nothing keeps them in sync, so they
-// need re-checking if the videos change. Thumbnails are exported from the
-// design frame and bundled, so no third-party image loads in wp-admin.
+// Lessons from the "Use AI agents with WordPress.com" course; each card links
+// to its lesson page (no inline player). Durations are the live lesson
+// lengths — re-check them if the videos change. Thumbnails are bundled.
 const WALKTHROUGH_VIDEOS = [
 	{
 		slug: 'jetpack-ai-hub-overview-video-connect-claude',
@@ -70,17 +67,15 @@ const DOC_LINKS = [
 	{ slug: 'jetpack-ai-hub-overview-docs-billing', title: __( 'Billing & plans', 'jetpack' ) },
 	{
 		slug: 'jetpack-ai-hub-overview-docs-mcp-tools',
-		// Names the target honestly: it lists what agents can do, and is not
-		// an API reference (sanjagrbic on the i4 thread, 12 Aug).
+		// The target lists agent capabilities, not an API reference (i4 thread).
 		title: __( 'Available capabilities', 'jetpack' ),
 	},
 ];
 
 /**
- * The requests/plan card, per the i4 Free plan / Paid plan components:
- * available requests over a meter on the left, plan + upgrade-or-renewal on
- * the right. Its remote fetch has card-scoped loading and error states so
- * the rest of the Overview renders immediately.
+ * The requests/plan card per the i4 components: requests over a meter on the
+ * left, plan + upgrade-or-renewal on the right. Loading and error states stay
+ * inside the card so the rest of the Overview renders immediately.
  *
  * @param {object} props            - Component props.
  * @param {string} props.upgradeUrl - Upgrade destination (shared with the MCP upsell).
@@ -203,9 +198,8 @@ export default function AiOverview( { blogId, activityLogUrl, upgradeUrl, planNa
 			{ blogId ? (
 				<UsageCard upgradeUrl={ upgradeUrl } planName={ planName } />
 			) : (
-				// Without a connection the usage endpoint can only fail, so
-				// say what's wrong rather than surfacing a fetch error — and
-				// don't make the request at all (UsageCard owns the fetch).
+				// Disconnected: skip the fetch (it can only fail) and explain
+				// the actual problem instead of a fetch error.
 				<Card.Root>
 					<Card.Content>
 						<Notice.Root intent="warning">
@@ -224,9 +218,8 @@ export default function AiOverview( { blogId, activityLogUrl, upgradeUrl, planNa
 			) }
 
 			{ activityLogUrl && (
-				// The row carries its own padding, so it sits directly in the
-				// card: Card.FullBleed would cancel that padding out with its
-				// negative margins (it is for edge-to-edge media).
+				// The row pads itself, so it sits directly in the card —
+				// Card.FullBleed's negative margins would cancel that padding.
 				<Card.Root className="jetpack-ai-overview__row-card">
 					<NavRow
 						icon={ list }

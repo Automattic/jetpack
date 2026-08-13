@@ -151,10 +151,8 @@ describe( 'AiOverview', () => {
 
 		await expect( screen.findByText( 'Walkthrough videos' ) ).resolves.toBeInTheDocument();
 
-		// Titles and durations are fixed content from the i4 frame; the videos
-		// open articles on WordPress.com, so each card is a link.
-		// Durations are the live lesson lengths, not the (now stale) numbers
-		// in the design frame.
+		// Each card links to its course lesson; durations are the live lesson
+		// lengths, not the design frame's stale numbers.
 		const videos = [
 			[ 'Connect your site to Claude', '3:18' ],
 			[ 'Build a page from a single prompt', '3:09' ],

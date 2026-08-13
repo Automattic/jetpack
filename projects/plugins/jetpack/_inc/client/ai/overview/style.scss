@@ -126,11 +126,9 @@
 		margin-inline-start: auto;
 	}
 
-	// Doubled class beats the component's runtime-injected rules. The design
-	// system ProgressBar derives both track and indicator from the components
-	// foreground colour, which would tint the track with the accent blue at
-	// 10% opacity; the i4 card wants the admin accent blue over a neutral
-	// track, so the track background is set explicitly.
+	// Doubled class beats the component's runtime-injected rules. ProgressBar
+	// derives its track from the foreground colour (accent at 10%); the i4
+	// card wants a neutral track under the accent, so it is set explicitly.
 	&__meter#{&}__meter {
 		inline-size: 100%;
 		block-size: 4px;

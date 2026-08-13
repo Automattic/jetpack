@@ -1,12 +1,7 @@
 /**
- * Shared payload fixtures for the Overview suites.
- *
- * Shapes mirror the wpcom/v2/jetpack-ai/ai-assistant-feature response
- * (dash-cased keys, straight from the WPCOM usage helper). Kept in one place
- * so the hook tests and the render tests cannot drift apart.
- *
- * Not a test file: jest.config.gui.js collects `test/component.js` and an
- * explicit list of `.jsx` suites, so this is never picked up as a suite.
+ * Shared payload fixtures for the Overview suites, mirroring the real
+ * ai-assistant-feature response shape (dash-cased keys). Not a test file:
+ * jest.config.gui.js never collects it as a suite.
  */
 
 export const freePayload = () => ( {
@@ -23,15 +18,13 @@ export const tieredPayload = () => ( {
 	'requests-count': 950,
 	'requests-limit': 20,
 	'usage-period': { 'requests-count': 340, 'next-start': '2026-09-01' },
-	// Real tiered tiers carry no readable limit — only the unlimited tier
-	// does (wpcom usage helper's tier definitions).
+	// Tiered tiers carry no readable limit — only the unlimited tier does.
 	'current-tier': { value: 500, limit: 500 },
 	'next-tier': { value: 750, limit: 750 },
 } );
 
 export const unlimitedPayload = () => ( {
 	...tieredPayload(),
-	// The paid/unlimited tier as the usage helper actually serializes it:
-	// a server-localized readable limit rides along.
+	// The unlimited tier as actually serialized: a localized readable-limit.
 	'current-tier': { value: 1, limit: 999999999, 'readable-limit': 'Unlimited' },
 } );
