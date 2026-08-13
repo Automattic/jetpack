@@ -83,4 +83,59 @@ describe( 'useVideoDetailsForm', () => {
 		expect( result.current.values.description ).toBe( 'Other cut' );
 		expect( result.current.isDirty ).toBe( false );
 	} );
+
+	/*
+	 * The upload flow's draft session: the form starts on a synthetic record
+	 * (queue id, filename-derived title) and re-binds to the real attachment
+	 * when the upload settles. Edited fields must survive that id change;
+	 * untouched fields must follow the real record, so a title the user never
+	 * typed doesn't shadow the server's.
+	 */
+	it( 'preserveDirtyOnRebind keeps edited fields and adopts the rest on an id change', () => {
+		const draft = makeLibraryItem( {
+			id: 'upload-1',
+			title: 'clip',
+			description: '',
+			rating: 'G',
+		} );
+		const { result, rerender } = renderHook(
+			( item: typeof video ) => useVideoDetailsForm( item, { preserveDirtyOnRebind: true } ),
+			{
+				initialProps: draft,
+			}
+		);
+
+		act( () => result.current.update( { title: 'My launch video' } ) );
+		rerender(
+			makeLibraryItem( { id: '77', title: 'clip', description: 'Server cut', rating: 'PG-13' } )
+		);
+
+		// The typed title survives; the untouched fields take the record's.
+		expect( result.current.values.title ).toBe( 'My launch video' );
+		expect( result.current.values.description ).toBe( 'Server cut' );
+		expect( result.current.values.rating ).toBe( 'PG-13' );
+		// The kept edit reads as unsaved against the NEW baseline — Save must
+		// light up for it.
+		expect( result.current.isDirty ).toBe( true );
+
+		// reset(values) after the save settles the form clean, as on any save.
+		act( () => result.current.reset( result.current.values ) );
+		expect( result.current.isDirty ).toBe( false );
+	} );
+
+	it( 'preserveDirtyOnRebind leaves a clean form fully re-baselined', () => {
+		const draft = makeLibraryItem( { id: 'upload-1', title: 'clip', description: '' } );
+		const { result, rerender } = renderHook(
+			( item: typeof video ) => useVideoDetailsForm( item, { preserveDirtyOnRebind: true } ),
+			{
+				initialProps: draft,
+			}
+		);
+
+		rerender( makeLibraryItem( { id: '77', title: 'Real title', description: 'Real cut' } ) );
+
+		expect( result.current.values.title ).toBe( 'Real title' );
+		expect( result.current.values.description ).toBe( 'Real cut' );
+		expect( result.current.isDirty ).toBe( false );
+	} );
 } );

@@ -13,6 +13,14 @@ type Props = {
 	onManageCaptions: () => void;
 	onDownload: () => void;
 	onDelete: () => void;
+	/**
+	 * Whether the ⋯ menu renders. The upload flow's draft session hides it
+	 * while the attachment doesn't exist yet — every item in it would be a
+	 * silent no-op, and a menu of no-ops is worse than no menu.
+	 *
+	 * @default true
+	 */
+	showMenu?: boolean;
 };
 
 /**
@@ -34,6 +42,7 @@ type Props = {
  * @param props.onManageCaptions - Called when "Manage subtitles" is selected.
  * @param props.onDownload       - Called when "Download file" is selected.
  * @param props.onDelete         - Called when "Delete video" is selected.
+ * @param props.showMenu         - Whether the ⋯ menu renders; see the Props note.
  * @return The header-actions element.
  */
 export default function HeaderActions( {
@@ -43,6 +52,7 @@ export default function HeaderActions( {
 	onManageCaptions,
 	onDownload,
 	onDelete,
+	showMenu = true,
 }: Props ): ReactElement {
 	return (
 		<Stack direction="row" gap="sm" align="center">
@@ -50,43 +60,45 @@ export default function HeaderActions( {
 			<Button size="compact" disabled={ ! canSave } onClick={ onSave }>
 				{ __( 'Save', 'jetpack-videopress-pkg' ) }
 			</Button>
-			<DropdownMenu
-				icon={ moreVertical }
-				label={ __( 'More actions', 'jetpack-videopress-pkg' ) }
-				toggleProps={ { size: 'compact' } }
-			>
-				{ ( { onClose } ) => (
-					<MenuGroup>
-						<MenuItem
-							onClick={ () => {
-								onManageCaptions();
-								onClose();
-							} }
-						>
-							{ __( 'Manage subtitles', 'jetpack-videopress-pkg' ) }
-						</MenuItem>
-						<MenuItem
-							icon={ download }
-							onClick={ () => {
-								onDownload();
-								onClose();
-							} }
-						>
-							{ __( 'Download file', 'jetpack-videopress-pkg' ) }
-						</MenuItem>
-						<MenuItem
-							isDestructive
-							icon={ trash }
-							onClick={ () => {
-								onDelete();
-								onClose();
-							} }
-						>
-							{ __( 'Delete video', 'jetpack-videopress-pkg' ) }
-						</MenuItem>
-					</MenuGroup>
-				) }
-			</DropdownMenu>
+			{ showMenu && (
+				<DropdownMenu
+					icon={ moreVertical }
+					label={ __( 'More actions', 'jetpack-videopress-pkg' ) }
+					toggleProps={ { size: 'compact' } }
+				>
+					{ ( { onClose } ) => (
+						<MenuGroup>
+							<MenuItem
+								onClick={ () => {
+									onManageCaptions();
+									onClose();
+								} }
+							>
+								{ __( 'Manage subtitles', 'jetpack-videopress-pkg' ) }
+							</MenuItem>
+							<MenuItem
+								icon={ download }
+								onClick={ () => {
+									onDownload();
+									onClose();
+								} }
+							>
+								{ __( 'Download file', 'jetpack-videopress-pkg' ) }
+							</MenuItem>
+							<MenuItem
+								isDestructive
+								icon={ trash }
+								onClick={ () => {
+									onDelete();
+									onClose();
+								} }
+							>
+								{ __( 'Delete video', 'jetpack-videopress-pkg' ) }
+							</MenuItem>
+						</MenuGroup>
+					) }
+				</DropdownMenu>
+			) }
 		</Stack>
 	);
 }

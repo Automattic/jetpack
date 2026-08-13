@@ -1,25 +1,42 @@
+import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, Modal, ProgressBar, TextControl } from '@wordpress/components';
-import { useRef, useState, useCallback, useLayoutEffect, useEffect } from '@wordpress/element';
+import {
+	useRef,
+	useState,
+	useCallback,
+	useLayoutEffect,
+	useEffect,
+	useMemo,
+} from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, upload, cloud, media, check, copy } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
 import { Card, Stack, Text } from '@wordpress/ui';
+import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
+import { getVideoInfoQueryKeyPrefix } from '../../src/client/components/caption-manager-modal/use-video-tracks';
 import AddToContentMenu from '../../src/dashboard/components/add-to-content-menu';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import { TAB_PATHS } from '../../src/dashboard/components/dashboard-tabs';
 import FreeTierNotice from '../../src/dashboard/components/overview/free-tier-notice';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import Editor from '../../src/dashboard/components/video-details/editor';
+import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { markFirstPublish, useFirstRunState } from '../../src/dashboard/hooks/use-first-run-state';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { LIBRARY_QUERY_KEY } from '../../src/dashboard/hooks/use-library';
+import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
+import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
+import { useInvalidateVideo, useVideo } from '../../src/dashboard/hooks/use-video';
 import { isWpcomConnected } from '../../src/dashboard/utils/connection';
 import './style.scss';
+import type { EditorUploadState } from '../../src/dashboard/components/video-details/editor';
+import type { LibraryItem } from '../../src/dashboard/types/library';
 import type { ReactNode } from 'react';
 
-type Step = 'upload' | 'uploading' | 'details' | 'success';
+type Step = 'upload' | 'uploading' | 'edit' | 'details' | 'success';
 type UploadStatus = 'pending' | 'uploading' | 'success' | 'failed';
 
 type UploadedMedia = {
@@ -1135,6 +1152,225 @@ const copyTextToClipboard = ( text: string ): Promise< void > => {
 	} );
 };
 
+/**
+ * Step 'edit' — the single-upload instant transition. One dropped file lands
+ * here immediately: the edit surface (the same Editor the /video/:id route
+ * renders, embedded under the dashboard tabs) with the player slot serving as
+ * the upload's stage. Title and description are editable from the first
+ * frame; Save waits for the attachment to exist. The URL stays /upload for
+ * the whole draft session — the surface binds to the real record in place
+ * rather than navigating mid-edit.
+ *
+ * @param props           - Component props.
+ * @param props.upload    - The queue item driving the stage, mapped to the
+ *                        flow's local shape. Undefined once acknowledged.
+ * @param props.onRetry   - Re-dispatches the upload after a failure.
+ * @param props.onSettled - Acknowledges the queue row once this surface has
+ *                        bound to the created attachment.
+ * @return The edit-step element.
+ */
+const EditStep = ( {
+	upload: uploadItem,
+	onRetry,
+	onSettled,
+}: {
+	upload: UploadItem | undefined;
+	onRetry: () => void;
+	onSettled: () => void;
+} ) => {
+	const navigate = useNavigate();
+	const queryClient = useQueryClient();
+	const invalidateVideo = useInvalidateVideo();
+	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
+	const { syncChapters } = useUpdateChapters();
+	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
+	const [ chaptersOpen, setChaptersOpen ] = useState( false );
+	const [ captionsOpen, setCaptionsOpen ] = useState( false );
+	// Snapshotted at mount: the queue row is acknowledged away the moment the
+	// upload settles, and the stage must keep naming the file after it's gone.
+	const [ fileMeta ] = useState( () =>
+		uploadItem ? { name: uploadItem.file.name, size: uploadItem.file.size } : null
+	);
+	const [ mediaId, setMediaId ] = useState< number | null >( null );
+	// One-shot per session: the celebration is a first-publish moment, not a
+	// state of the video, so it must not re-fire on later refetches.
+	const [ celebration, setCelebration ] = useState< 'pending' | 'showing' | 'done' >( 'pending' );
+
+	// Bind to the real attachment as soon as the queue reports it, and
+	// acknowledge the row — from here this surface owns the video, and nothing
+	// else (the Library splice, a future upload pill) should keep reporting it.
+	useEffect( () => {
+		if ( mediaId == null && uploadItem?.status === 'success' && uploadItem.media ) {
+			setMediaId( uploadItem.media.id );
+			onSettled();
+		}
+	}, [ mediaId, uploadItem, onSettled ] );
+
+	// With the GUID-less polling in useVideo, this follows the record through
+	// the registration/transcode tail until it turns playable.
+	const { video } = useVideo( mediaId ?? '' );
+	const isPlayable = Boolean( video && video.type === 'videopress' && ! video.isProcessing );
+
+	useEffect( () => {
+		if ( isPlayable && celebration === 'pending' ) {
+			// The video is genuinely live: first run is over for good, even if
+			// the library count reads stale. Written when the celebration first
+			// shows, which is this flow's publish moment — there is no separate
+			// publish button.
+			markFirstPublish();
+			setCelebration( 'showing' );
+		}
+	}, [ isPlayable, celebration ] );
+
+	// The record the surface renders until the real one arrives — the same
+	// synthetic shape the Library splices in for in-flight uploads. The id is
+	// the queue id; useVideoDetailsForm's preserve-on-rebind keeps typed edits
+	// when it swaps to the attachment id.
+	const draftVideo = useMemo< LibraryItem >(
+		() => ( {
+			id: `draft-${ fileMeta?.name ?? 'upload' }`,
+			guid: '',
+			type: 'local',
+			title: ( fileMeta?.name ?? '' ).replace( /\.[^.]+$/, '' ),
+			filename: fileMeta?.name ?? '',
+			thumbnailUrl: null,
+			durationSeconds: 0,
+			uploadDate: new Date().toISOString(),
+			privacy: 'site-default',
+			isPrivate: false,
+			fileSizeBytes: fileMeta?.size ?? 0,
+			upload: { status: 'uploading', progress: 0 },
+			description: '',
+			rating: 'G',
+			displayEmbed: false,
+			allowDownloads: false,
+			shortcode: '',
+			isProcessing: false,
+			orientation: null,
+			tracks: [],
+		} ),
+		[ fileMeta ]
+	);
+
+	const boundVideo = video ?? draftVideo;
+
+	// The player slot's stage. Cleared only once the video is playable, so the
+	// GUID-dependent cards hold their skeletons through the processing tail
+	// instead of popping in one refetch at a time.
+	let uploadState: EditorUploadState | undefined;
+	if ( ! isPlayable ) {
+		const fileName = fileMeta?.name ?? '';
+		if ( mediaId != null ) {
+			uploadState = { status: 'processing', progress: 100, fileName };
+		} else if ( uploadItem?.status === 'failed' ) {
+			uploadState = {
+				status: 'failed',
+				progress: uploadItem.progress,
+				fileName,
+				error: uploadItem.error,
+				onRetry,
+			};
+		} else {
+			uploadState = { status: 'uploading', progress: uploadItem?.progress ?? 0, fileName };
+		}
+	}
+
+	// Same query-client split as the /video/:id route: the caption manager
+	// runs on its own client, so refresh the video info on close.
+	const closeCaptions = useCallback( () => {
+		setCaptionsOpen( false );
+		void queryClient.invalidateQueries( {
+			queryKey: getVideoInfoQueryKeyPrefix( video?.guid ?? '' ),
+		} );
+	}, [ queryClient, video?.guid ] );
+
+	return (
+		<>
+			<Editor
+				video={ boundVideo }
+				isSaving={ isSaving || isDeleting }
+				onSave={ ( values, reset ) => {
+					// Guarded by uploadSession.saveDisabled below, but a stale
+					// click mustn't PATCH a draft id either way.
+					if ( ! video ) {
+						return;
+					}
+					updateMeta(
+						{ id: video.id, patch: values },
+						{
+							onSuccess: () => {
+								// Same contract as the /video/:id save: a changed
+								// description regenerates the chapters VTT, only
+								// after the meta save succeeds.
+								if ( values.description !== video.description ) {
+									void syncChapters( video, values.description );
+								}
+								createSuccessNotice( __( 'Video details saved.', 'jetpack-videopress-pkg' ) );
+								reset( values );
+							},
+							onError: () => {
+								createErrorNotice(
+									__( 'Failed to save video details.', 'jetpack-videopress-pkg' )
+								);
+							},
+						}
+					);
+				} }
+				onDelete={ () => {
+					// Only reachable once the attachment exists — the ⋯ menu is
+					// hidden while uploadState is present.
+					if ( ! video || isDeleting ) {
+						return;
+					}
+					deleteVideo( Number( video.id ) )
+						.then( () => {
+							createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ) );
+							navigate( { href: '/' } );
+						} )
+						.catch( () => {
+							createErrorNotice( __( 'Failed to delete video.', 'jetpack-videopress-pkg' ) );
+						} );
+				} }
+				onDownload={ () => {
+					if ( video?.sourceUrl ) {
+						window.open( video.sourceUrl, '_blank' );
+					}
+				} }
+				onManageCaptions={ () => {
+					// The tracks API is keyed by GUID; before it exists there is
+					// nothing to manage (the menu holding this is hidden then too).
+					if ( video?.guid ) {
+						setCaptionsOpen( true );
+					}
+				} }
+				chaptersOpen={ chaptersOpen }
+				setChaptersOpen={ setChaptersOpen }
+				uploadSession={ {
+					uploadState,
+					celebration:
+						celebration === 'showing' ? { onDismiss: () => setCelebration( 'done' ) } : undefined,
+					// The meta PATCH is keyed by attachment id, so Save waits for
+					// the real record even while the form is already dirty.
+					saveDisabled: ! video,
+				} }
+			/>
+			{ captionsOpen && video && (
+				<CaptionManagerModal
+					isOpen={ captionsOpen }
+					guid={ video.guid }
+					title={ video.title }
+					poster={ video.thumbnailUrl }
+					isPrivate={ video.isPrivate }
+					tracks={ video.tracks }
+					onClose={ closeCaptions }
+					onTracksChange={ () => void invalidateVideo( video.id ) }
+				/>
+			) }
+		</>
+	);
+};
+
 const StepFlow = ( {
 	step,
 	prev,
@@ -1248,7 +1484,7 @@ const UploadOnboarding = ( {
 	// VideoPress pipeline, visible to every route and to useFreeTier. The
 	// plain wp/v2/media XHR below survives only as the disconnected-site
 	// fallback (tus needs a WordPress.com upload JWT).
-	const { uploadQueue, startUpload, acknowledgeUpload } = useUpload();
+	const { uploadQueue, startUpload, retryUpload, acknowledgeUpload } = useUpload();
 	const [ batchQueueIds, setBatchQueueIds ] = useState< string[] >( [] );
 	const isConnected = isWpcomConnected();
 	const allowMultiple = ! isFree || isUnlimited;
@@ -1308,7 +1544,11 @@ const UploadOnboarding = ( {
 			if ( isConnected ) {
 				setUploads( [] );
 				setBatchQueueIds( selectedForPlan.map( file => startUpload( file ) ) );
-				go( 'uploading', 'upload' );
+				// One file: skip the interstitial and cross-fade straight to the
+				// edit surface — the upload carries on in its player slot, and
+				// the user can write while it runs. Multi-file batches keep the
+				// per-file progress list; there is no single surface to land on.
+				go( selectedForPlan.length === 1 ? 'edit' : 'uploading', 'upload' );
 				return;
 			}
 
@@ -1367,6 +1607,21 @@ const UploadOnboarding = ( {
 				: undefined,
 		} ) );
 	const activeUploads = isConnected && batchQueueIds.length > 0 ? queueUploads : uploads;
+
+	// The edit step's hooks into the shared queue. Stable identities so the
+	// step's bind effect doesn't re-run on unrelated renders.
+	const retryEditUpload = useCallback( () => {
+		const id = batchQueueIds[ 0 ];
+		if ( id ) {
+			retryUpload( id );
+		}
+	}, [ batchQueueIds, retryUpload ] );
+	const settleEditUpload = useCallback( () => {
+		// batchQueueIds is deliberately left in place: acknowledge only removes
+		// settled rows, and keeping the ids lets the flow's reset path (Back
+		// from a future exit) re-acknowledge harmlessly.
+		batchQueueIds.forEach( id => acknowledgeUpload( id ) );
+	}, [ batchQueueIds, acknowledgeUpload ] );
 
 	// Advance to details once every file has finished. For queue batches the
 	// settled items are snapshotted into local state and acknowledged out of
@@ -1476,6 +1731,15 @@ const UploadOnboarding = ( {
 		if ( s === 'uploading' ) {
 			return (
 				<UploadingCard uploads={ activeUploads } onBack={ () => resetUploadStep( 'uploading' ) } />
+			);
+		}
+		if ( s === 'edit' ) {
+			return (
+				<EditStep
+					upload={ queueUploads[ 0 ] }
+					onRetry={ retryEditUpload }
+					onSettled={ settleEditUpload }
+				/>
 			);
 		}
 		if ( s === 'success' ) {

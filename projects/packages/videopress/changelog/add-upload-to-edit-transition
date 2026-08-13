@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: transition single uploads straight into the video edit screen, with upload progress in the player and a live moment when the video is ready.

@@ -1,0 +1,51 @@
+// The "your video is live" moment in the player slot. Rides on
+// `.vp-video-details__player` for the grid area and the dark frame, but is
+// content-sized rather than 16:9: the celebration carries text and three
+// actions, and clipping those to a 214px-tall frame in the 380px column would
+// cut the buttons off. The height difference against the player it swaps to
+// is absorbed by the grid's flexible second row.
+.vp-live-celebration {
+	aspect-ratio: auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--wpds-dimension-padding-2xl) var(--wpds-dimension-padding-xl);
+	text-align: center;
+
+	&__icon {
+		display: inline-flex;
+		// Literal Jetpack green — same justification as the onboarding modal's
+		// card glyphs: the design system has no non-interactive brand
+		// foreground token, and the interactive one describes links/buttons.
+		color: #069e08;
+
+		svg {
+			fill: currentColor;
+		}
+	}
+
+	// White-on-black literals rather than foreground tokens, for the same
+	// reason as `.vp-upload-stage`: the frame's #000 background is the
+	// player's letterbox, not a themed surface.
+	&__title {
+		margin: 0;
+		color: #fff;
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+	}
+
+	&__url {
+		max-inline-size: 100%;
+		color: rgb(255 255 255 / 72%);
+		// Share links are long unbroken strings; they must fold, not escape
+		// the frame.
+		overflow-wrap: anywhere;
+	}
+
+	&__actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: var(--wpds-dimension-gap-sm);
+	}
+}
