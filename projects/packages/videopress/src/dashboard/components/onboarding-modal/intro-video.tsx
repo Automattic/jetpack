@@ -56,13 +56,26 @@ function getAssetUrl( file: string ): string | undefined {
 }
 
 /*
+ * Autoplay is the marketing intent — the band should be moving when the
+ * modal opens — but it must yield to the OS-level reduced-motion setting.
+ * Both sources (embed and native fallback) key off the same check so the
+ * modal behaves identically whichever one renders.
+ */
+const prefersReducedMotion = () =>
+	typeof window !== 'undefined' &&
+	Boolean( window.matchMedia?.( '(prefers-reduced-motion: reduce)' ).matches );
+
+/*
  * Same embed shape the Video details screen uses (see
  * `video-details/preview-player.tsx`): `resizeToParent` lets the player size
  * itself to the iframe, which the stylesheet pins to 16:9. No playback token
  * here — unlike a user's own video, the intro asset is always public.
  */
-const getEmbedUrl = ( guid: string ) =>
-	addQueryArgs( `https://videopress.com/embed/${ guid }`, { resizeToParent: true } );
+const getEmbedUrl = ( guid: string, autoplay: boolean ) =>
+	addQueryArgs( `https://videopress.com/embed/${ guid }`, {
+		resizeToParent: true,
+		...( autoplay ? { autoplay: 1, muted: 1, loop: 1, playsinline: 1 } : {} ),
+	} );
 
 /**
  * The video band at the top of the welcome modal.
@@ -70,13 +83,15 @@ const getEmbedUrl = ( guid: string ) =>
  * @return The player, or null when no intro asset is configured.
  */
 export default function IntroVideo(): ReactElement | null {
+	const autoplay = ! prefersReducedMotion();
+
 	if ( INTRO_VIDEO_GUID ) {
 		return (
 			<iframe
 				className="vp-onboarding-modal__player"
-				src={ getEmbedUrl( INTRO_VIDEO_GUID ) }
+				src={ getEmbedUrl( INTRO_VIDEO_GUID, autoplay ) }
 				title={ __( 'What VideoPress does', 'jetpack-videopress-pkg' ) }
-				allow="clipboard-write"
+				allow="autoplay; clipboard-write"
 				allowFullScreen
 			/>
 		);
@@ -95,9 +110,9 @@ export default function IntroVideo(): ReactElement | null {
 			controls
 			playsInline
 			muted
-			autoPlay
-			loop
-			preload="metadata"
+			autoPlay={ autoplay }
+			loop={ autoplay }
+			preload="auto"
 		/>
 	);
 }

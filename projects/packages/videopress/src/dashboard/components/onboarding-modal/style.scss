@@ -1,7 +1,7 @@
 // The first-run welcome modal, to the VideoPress Revival Figma spec
 // (node 56-12912): a deep-green video band with the wireframe brand artwork,
 // then the copy on white — headline, three hairline-separated value cards,
-// Learn more / Upload a Video footer. `Dialog` supplies the frame, body
+// Learn more / Upload a video footer. `Dialog` supplies the frame, body
 // padding and scroll container; this file declares only what the design
 // system has no opinion about.
 .vp-onboarding-modal {
@@ -9,6 +9,16 @@
 	// The spec's modal is 675px wide — between the design system's medium and
 	// large surfaces, so pinned explicitly rather than approximated by size.
 	max-inline-size: 675px;
+
+	// Dialog paints a 1px border that turns transparent in modal mode, which
+	// leaves a 1px ring of the popup's white background around the dark video
+	// band. Drop the border entirely; forced-colors mode gets it back because
+	// there the border is the only visible boundary.
+	border: 0;
+
+	@media (forced-colors: active) {
+		border: var(--wpds-border-width-xs) solid CanvasText;
+	}
 
 	// The video sits flush to the popup's top corners, above the padded body.
 	// `Dialog.Popup` is `overflow: hidden`, so the band inherits its radius.
@@ -48,11 +58,14 @@
 	}
 
 	// Over the video, so it takes a light foreground and its own scrim instead
-	// of the Dialog default, which assumes a light surface behind it.
+	// of the Dialog default, which assumes a light surface behind it. The
+	// white and the black scrims are literals for the same reason as the
+	// band's green: the design system has no overlay/inverse tokens for
+	// content floating over video.
 	&__close {
 		position: absolute;
-		inset-block-start: var(--wpds-dimension-padding-md);
-		inset-inline-end: var(--wpds-dimension-padding-md);
+		inset-block-start: var(--wpds-dimension-padding-lg);
+		inset-inline-end: var(--wpds-dimension-padding-lg);
 		z-index: 1;
 		color: #fff;
 		background: rgba(0, 0, 0, 0.5);
@@ -61,57 +74,105 @@
 			color: #fff;
 			background: rgba(0, 0, 0, 0.7);
 		}
+
+		// The DS focus ring is brand blue tuned for light surfaces; on the
+		// dark band it fails the 3:1 non-text contrast minimum. White ring,
+		// same justification as the foreground above.
+		&:focus-visible {
+			outline: 2px solid #fff;
+			outline-offset: 2px;
+		}
+
+		// A lone control floating over video earns a 44px hit target; the
+		// visual stays 32px.
+		&::after {
+			content: "";
+			position: absolute;
+			inset: -6px;
+		}
 	}
 
 	&__body {
 		display: flex;
 		flex-direction: column;
 		gap: var(--wpds-dimension-gap-md);
+		// Half of the 24px cards-to-footer distance lives here (the other
+		// half is the footer's padding), so when the body scrolls and the
+		// separator hairline appears, content clears it by 12px instead of
+		// touching it.
+		padding-block-end: var(--wpds-dimension-padding-md);
+		// The card columns collapse when the MODAL gets narrow, not the
+		// viewport — the popup shrinks long before any phone breakpoint.
+		container-type: inline-size;
 	}
 
+	// Dialog.Title pins its own internal heading variant (20px) and exposes
+	// no variant prop, so the spec's Semibold 32/40 is applied with the same
+	// tokens `heading-2xl` resolves to. The `--_gcd-*` custom properties are
+	// the design system's global-css-defense channel — its heading reset
+	// reads font size from them, so they must be overridden alongside the
+	// plain declarations or the internal 20px wins.
 	&__headline {
+		--_gcd-heading-font-size: var(--wpds-typography-font-size-2xl);
+
 		color: var(--wpds-color-foreground-content-neutral);
+		font-size: var(--wpds-typography-font-size-2xl);
+		line-height: var(--wpds-typography-line-height-2xl);
+		font-weight: var(--wpds-typography-font-weight-emphasis);
 	}
 
+	// Same mechanism as the headline: Dialog.Description hard-codes 13px
+	// internally; the spec's 15px lede is `body-lg`'s tokens, applied direct.
+	// It intentionally runs the full modal width; `text-wrap: pretty` keeps
+	// the second line from breaking mid-phrase.
 	&__lede {
-		max-inline-size: 60ch;
+		--_gcd-p-font-size: var(--wpds-typography-font-size-lg);
+		--_gcd-p-line-height: var(--wpds-typography-line-height-md);
+
 		color: var(--wpds-color-foreground-content-neutral-weak);
+		font-size: var(--wpds-typography-font-size-lg);
+		line-height: var(--wpds-typography-line-height-md);
+		text-wrap: pretty;
 	}
 
-	// Three equal columns separated by hairlines (the spec draws a left border
-	// on cards two and three), collapsing to one below a readable measure —
-	// the hairlines come off with the columns, since a stacked list with left
-	// borders reads as a blockquote.
+	// Three equal columns; the hairlines between them are drawn as centered
+	// pseudo-elements rather than borders, so every column keeps an identical
+	// content width and the rule sits dead-center in the 24px gutter.
 	&__cards {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 		gap: var(--wpds-dimension-gap-xl);
+		// The body's 12px flex gap plus this 12px = the spec's 24px between
+		// the lede and the columns. The zeroed inline padding kills the
+		// user-agent's 40px list indent.
+		padding: var(--wpds-dimension-padding-md) 0 0;
 		margin: 0;
-		padding-block-start: var(--wpds-dimension-padding-md);
 		list-style: none;
 	}
 
 	&__card {
+		position: relative;
 		display: flex;
 		flex-direction: column;
-		gap: var(--wpds-dimension-gap-xs);
 		margin: 0;
 
-		& + & {
+		& + &::before {
+			content: "";
+			position: absolute;
+			inset-block: 0;
+			inset-inline-start: calc(var(--wpds-dimension-gap-xl) / -2);
 			border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
-			padding-inline-start: var(--wpds-dimension-padding-lg);
 		}
 	}
 
-	@media (max-width: 540px) {
+	@container (max-width: 559px) {
 
 		&__cards {
 			grid-template-columns: 1fr;
 		}
 
-		&__card + &__card {
-			border-inline-start: 0;
-			padding-inline-start: 0;
+		&__card + &__card::before {
+			content: none;
 		}
 	}
 
@@ -120,7 +181,7 @@
 	// foreground token, and the interactive one describes links/buttons.
 	&__card-icon {
 		display: inline-flex;
-		margin-block-end: var(--wpds-dimension-gap-xs);
+		margin-block-end: var(--wpds-dimension-gap-sm);
 		color: #069e08;
 
 		svg {
@@ -129,8 +190,8 @@
 	}
 
 	&__card-title {
+		margin-block-end: var(--wpds-dimension-gap-xs);
 		color: var(--wpds-color-foreground-content-neutral);
-		font-weight: var(--wpds-typography-font-weight-emphasis);
 	}
 
 	&__card-body {
@@ -138,7 +199,11 @@
 	}
 
 	&__footer {
-		justify-content: flex-end;
 		gap: var(--wpds-dimension-gap-md);
+		// The other half of the 24px cards-to-buttons distance (see `__body`).
+		// The -1px mirrors the design system's own math — the footer carries
+		// a 1px transparent border that becomes the scroll separator, and it
+		// participates in the visual distance.
+		padding-block-start: calc(var(--wpds-dimension-gap-md) - 1px);
 	}
 }

@@ -9,9 +9,9 @@ import {
 	saveDismissal,
 	useSettledFirstRunState,
 } from '../../hooks/use-first-run-state';
-import IntroVideo from './intro-video';
+import IntroVideo, { INTRO_VIDEO_ASPECT } from './intro-video';
 import './style.scss';
-import type { ReactElement, ReactNode } from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
 
 const LEARN_MORE_URL = 'https://jetpack.com/videopress/';
 
@@ -24,7 +24,8 @@ type ValueCard = {
 /*
  * The three claims the product can keep on day one — deliberately not a
  * feature list, and deliberately not repeating what the video above shows.
- * Copy is verbatim from the Figma spec (VideoPress Revival, node 56-12912).
+ * Copy follows the Figma spec (VideoPress Revival, node 56-12912); the
+ * middle body is tightened so all three columns hold the same line count.
  */
 const VALUE_CARDS: ValueCard[] = [
 	{
@@ -35,10 +36,7 @@ const VALUE_CARDS: ValueCard[] = [
 	{
 		icon: <Icon icon={ cloudUpload } size={ 24 } />,
 		title: __( 'Bring existing videos', 'jetpack-videopress-pkg' ),
-		body: __(
-			'Videos already in your media library move to VideoPress in one click, no re-uploading.',
-			'jetpack-videopress-pkg'
-		),
+		body: __( 'Move library videos over in one click, no re-uploads.', 'jetpack-videopress-pkg' ),
 	},
 	{
 		icon: <Icon icon={ share } size={ 24 } />,
@@ -54,7 +52,7 @@ const VALUE_CARDS: ValueCard[] = [
  * First-run VideoPress welcome modal, to the VideoPress Revival Figma spec:
  * a deep-green video band up top — the intro film playing in the player the
  * modal is selling — over a white content area with the headline, three
- * value cards, and a Learn more / Upload a Video footer.
+ * value cards, and a Learn more / Upload a video footer.
  *
  * Built on `@wordpress/ui`'s `Dialog`, matching the modernized dashboard's
  * convention. (The Figma component maps to `@wordpress/components`' Button
@@ -97,17 +95,30 @@ export default function OnboardingModal(): ReactElement | null {
 				 * idle state the Figma spec shows — with the intro film
 				 * playing over it. The close affordance sits over the band:
 				 * this modal has no title bar, because its heading belongs
-				 * with the copy below the video.
+				 * with the copy below the video. Close renders BEFORE the
+				 * video in the DOM (position: absolute keeps the visuals
+				 * identical) so a keyboard user reaches it in one Tab instead
+				 * of traversing the player's entire chrome.
 				 */ }
-				<div className="vp-onboarding-modal__media">
-					<IntroVideo />
+				<div
+					className="vp-onboarding-modal__media"
+					style={ { '--vp-intro-aspect': INTRO_VIDEO_ASPECT } as CSSProperties }
+				>
 					<Dialog.CloseIcon
 						className="vp-onboarding-modal__close"
 						label={ __( 'Close', 'jetpack-videopress-pkg' ) }
 					/>
+					<IntroVideo />
 				</div>
 
 				<Dialog.Content className="vp-onboarding-modal__body">
+					{ /*
+					 * Dialog.Title/Description pin their own internal type
+					 * variants (20px/13px) and expose no variant prop, so the
+					 * spec's 32px headline and 15px lede are applied in the
+					 * stylesheet with the tokens `heading-2xl` and `body-lg`
+					 * resolve to. See style.scss.
+					 */ }
 					<Dialog.Title className="vp-onboarding-modal__headline">
 						{ __( 'Your Video. Your Player.', 'jetpack-videopress-pkg' ) }
 					</Dialog.Title>
@@ -118,21 +129,23 @@ export default function OnboardingModal(): ReactElement | null {
 						) }
 					</Dialog.Description>
 
-					<ul className="vp-onboarding-modal__cards">
+					{ /* list-style: none strips list semantics in Safari; the
+					   explicit role restores "list, 3 items" for VoiceOver. */ }
+					<ul className="vp-onboarding-modal__cards" role="list">
 						{ VALUE_CARDS.map( card => (
 							<li key={ card.title } className="vp-onboarding-modal__card">
 								<span className="vp-onboarding-modal__card-icon" aria-hidden="true">
 									{ card.icon }
 								</span>
 								<Text
-									variant="body-md"
+									variant="heading-lg"
 									render={ <span /> }
 									className="vp-onboarding-modal__card-title"
 								>
 									{ card.title }
 								</Text>
 								<Text
-									variant="body-sm"
+									variant="body-md"
 									render={ <span /> }
 									className="vp-onboarding-modal__card-body"
 								>
@@ -148,13 +161,15 @@ export default function OnboardingModal(): ReactElement | null {
 						{ __( 'Learn more', 'jetpack-videopress-pkg' ) }
 					</LinkButton>
 					{ /*
-					 * "Upload a Video" reveals the upload page already
+					 * "Upload a video" reveals the upload page already
 					 * underneath — the first-run redirect put it there before
 					 * this modal mounted — so it is honestly a dismissal.
-					 * Neutral solid to match the spec's dark primary.
+					 * Neutral solid to match the spec's dark primary; the DS
+					 * default for a primary action is brand tone, so this
+					 * divergence is deliberate and owned by the spec.
 					 */ }
 					<Button variant="solid" tone="neutral" onClick={ dismiss }>
-						{ __( 'Upload a Video', 'jetpack-videopress-pkg' ) }
+						{ __( 'Upload a video', 'jetpack-videopress-pkg' ) }
 					</Button>
 				</Dialog.Footer>
 			</Dialog.Popup>
