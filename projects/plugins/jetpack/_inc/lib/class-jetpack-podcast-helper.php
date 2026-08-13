@@ -19,7 +19,7 @@ class Jetpack_Podcast_Helper {
 	const ERROR_CACHE_TIMEOUT = 90;
 
 	/**
-	 * How long to keep the last successful response as a fallback, before filtering.
+	 * How long to keep the last successful response as a fallback.
 	 *
 	 * @var int
 	 */
@@ -232,19 +232,13 @@ class Jetpack_Podcast_Helper {
 	 * @param bool   $only_if_missing Whether to leave an existing fallback in place.
 	 */
 	protected function store_fallback( $transient_key, $player_data, $only_if_missing = false ) {
-		$timeout = $this->fallback_cache_timeout();
-
-		if ( ! $timeout ) {
-			return;
-		}
-
 		$fallback_key = static::fallback_key( $transient_key );
 
 		if ( $only_if_missing && false !== get_transient( $fallback_key ) ) {
 			return;
 		}
 
-		set_transient( $fallback_key, $player_data, $timeout );
+		set_transient( $fallback_key, $player_data, static::FALLBACK_CACHE_TIMEOUT );
 	}
 
 	/**
@@ -262,14 +256,9 @@ class Jetpack_Podcast_Helper {
 
 		$fallback = $this->fallback_for( $transient_key, $error );
 
-		// Retrying beats remembering only while a success could still earn us a fallback we
-		// don't have yet. Once one exists, the feed has spoken, or the fallback is switched
-		// off entirely, remembering spares the next visitor the same dead request.
-		$may_earn_fallback = ! is_array( $fallback )
-			&& ! static::is_authoritative( $error )
-			&& $this->fallback_cache_timeout();
-
-		if ( ! $may_earn_fallback ) {
+		// Remembering a failure we can't paper over only delays the retry that would earn us
+		// a fallback. An authoritative one is worth remembering either way.
+		if ( is_array( $fallback ) || static::is_authoritative( $error ) ) {
 			// The error, never the fallback: the editor shares this key and would take stale
 			// episodes as a working feed.
 			set_transient( $transient_key, $error, static::ERROR_CACHE_TIMEOUT );
@@ -293,33 +282,9 @@ class Jetpack_Podcast_Helper {
 			return $error;
 		}
 
-		if ( ! $this->fallback_cache_timeout() ) {
-			return $error;
-		}
-
 		$fallback = get_transient( static::fallback_key( $transient_key ) );
 
 		return is_array( $fallback ) ? $fallback : $error;
-	}
-
-	/**
-	 * How long a feed's last successful response is kept as a fallback.
-	 *
-	 * @return int Number of seconds, or 0 if the fallback is disabled.
-	 */
-	protected function fallback_cache_timeout() {
-		/**
-		 * Filter how long a podcast's last successful response is kept, to serve while the feed
-		 * is unreachable. Return 0 to surface the error instead of stale episodes.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param int    $timeout     Number of seconds. Default one week.
-		 * @param string $podcast_url The URL of the podcast feed.
-		 */
-		$timeout = apply_filters( 'jetpack_podcast_fallback_cache_timeout', static::FALLBACK_CACHE_TIMEOUT, $this->feed );
-
-		return is_numeric( $timeout ) ? max( 0, (int) $timeout ) : static::FALLBACK_CACHE_TIMEOUT;
 	}
 
 	/**
