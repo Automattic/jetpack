@@ -14,16 +14,29 @@ export type Rule = {
 	field: string;
 	operator: Operator | string;
 	value?: unknown;
+	/** Defaults to the field-value type when absent. */
+	type?: string;
+};
+
+export type RuleGroup = {
+	/** How this group's own rules combine. */
+	logicalOperator?: 'any' | 'all';
+	rules?: Rule[];
 };
 
 export type ConditionalLogic = {
 	enabled?: boolean;
 	action?: 'show' | 'hide';
+	/** How the groups combine with each other. */
 	logicalOperator?: 'any' | 'all';
-	controls?: {
-		fieldValue?: { rules?: Rule[] };
-	};
+	groups?: RuleGroup[];
 };
+
+/**
+ * The rule type this release understands. Rules of any other type are ignored, so a form
+ * saved by a newer editor degrades to its remaining conditions rather than breaking.
+ */
+const RULE_TYPE_FIELD_VALUE = 'fieldValue';
 
 export type FormValues = Record< string, unknown >;
 
@@ -346,38 +359,60 @@ export const evaluateLogic = (
 		return true;
 	}
 
-	const rules = logic.controls?.fieldValue?.rules;
-	if ( ! Array.isArray( rules ) || 0 === rules.length ) {
+	const groups = Array.isArray( logic.groups ) ? logic.groups : [];
+	if ( 0 === groups.length ) {
 		return true;
 	}
 
-	const outcomes: boolean[] = [];
-	rules.forEach( rule => {
-		if ( ! rule || ! rule.field || ! rule.operator ) {
-			return;
-		}
-		if ( ! ( rule.field in fieldTypes ) ) {
-			return; // Subject field no longer exists — ignore this rule.
-		}
-		const typeKey = getTypeKeyForFieldType( fieldTypes[ rule.field ] );
-		// A date field's value is written in its own format, so the comparison needs it.
-		const outcome = evaluateRuleValue(
-			rule,
-			typeKey,
-			values[ rule.field ],
-			fieldFormats[ rule.field ] ?? ''
-		);
-		if ( outcome !== null ) {
-			outcomes.push( outcome );
+	// Each group reduces its own rules with its own operator; the groups then reduce with the
+	// top-level one. With a single group -- all the V1 panel writes -- the outer reduction is
+	// a no-op, so this behaves exactly as a flat rule list until a second group exists.
+	const groupOutcomes: boolean[] = [];
+
+	groups.forEach( group => {
+		const rules = Array.isArray( group?.rules ) ? group.rules : [];
+		const outcomes: boolean[] = [];
+
+		rules.forEach( rule => {
+			if ( ! rule || ! rule.field || ! rule.operator ) {
+				return;
+			}
+			if ( rule.type && rule.type !== RULE_TYPE_FIELD_VALUE ) {
+				return; // A condition kind this release does not know — ignore it.
+			}
+			if ( ! ( rule.field in fieldTypes ) ) {
+				return; // Subject field no longer exists — ignore this rule.
+			}
+			const typeKey = getTypeKeyForFieldType( fieldTypes[ rule.field ] );
+			// A date field's value is written in its own format, so the comparison needs it.
+			const outcome = evaluateRuleValue(
+				rule,
+				typeKey,
+				values[ rule.field ],
+				fieldFormats[ rule.field ] ?? ''
+			);
+			if ( outcome !== null ) {
+				outcomes.push( outcome );
+			}
+		} );
+
+		// A group with nothing evaluable is ignored, the same way a single unusable rule is,
+		// so deleting a subject field cannot silently hide the field that referenced it.
+		if ( outcomes.length ) {
+			groupOutcomes.push(
+				'all' === group?.logicalOperator ? outcomes.every( Boolean ) : outcomes.some( Boolean )
+			);
 		}
 	} );
 
-	if ( 0 === outcomes.length ) {
+	if ( 0 === groupOutcomes.length ) {
 		return true;
 	}
 
 	const matched =
-		'all' === logic.logicalOperator ? outcomes.every( Boolean ) : outcomes.some( Boolean );
+		'all' === logic.logicalOperator
+			? groupOutcomes.every( Boolean )
+			: groupOutcomes.some( Boolean );
 
 	return 'hide' === logic.action ? ! matched : matched;
 };
