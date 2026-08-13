@@ -30,6 +30,7 @@ class Episode_Media_Cache_Test extends BaseTestCase {
 		remove_all_filters( 'attachment_url_to_postid' );
 		remove_all_filters( 'posts_pre_query' );
 		remove_all_filters( 'get_post_metadata' );
+		remove_all_filters( 'upload_dir' );
 		wp_cache_flush();
 		parent::tearDown();
 	}
@@ -114,6 +115,31 @@ class Episode_Media_Cache_Test extends BaseTestCase {
 		$url = $this->prime_page_with_episode( 555, 556 );
 
 		$this->assertSame( 555, Episode_Media_Cache::attachment_id( $url ) );
+	}
+
+	/**
+	 * WordPress.com forces `<enclosure>` URLs to `http` on `rss_enclosure`,
+	 * registered ahead of the podcast package's own callback — so the URL that
+	 * reaches the lookup isn't the one the `enclosure` meta row holds. Both
+	 * ends reduce to the attached-file path, as `attachment_url_to_postid()`
+	 * does, so the batch still answers rather than quietly falling back to a
+	 * query per episode.
+	 */
+	public function test_scheme_rewritten_after_priming_still_hits_the_batch() {
+		add_filter(
+			'upload_dir',
+			static function ( $dir ) {
+				$dir['url']     = 'https://example.org/wp-content/uploads';
+				$dir['baseurl'] = 'https://example.org/wp-content/uploads';
+				return $dir;
+			}
+		);
+		$url = $this->prime_page_with_episode( 555 );
+
+		$http = str_replace( 'https://', 'http://', $url );
+
+		$this->assertNotSame( $url, $http, 'The URL under test has to differ from the one the batch was primed with.' );
+		$this->assertSame( 555, Episode_Media_Cache::attachment_id( $http ) );
 	}
 
 	/**

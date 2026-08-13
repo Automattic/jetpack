@@ -21,9 +21,16 @@ use WP_Post;
 class Episode_Media_Cache {
 
 	/**
-	 * Enclosure URL → attachment ID, from the last {@see self::prime()}. Holds
-	 * only matches, keyed as `rss_enclosure()` renders the URL — which is what
-	 * {@see Customize_Feed::rewrite_enclosure()} reads back out of the markup.
+	 * `_wp_attached_file` path → attachment ID, from the last
+	 * {@see self::prime()}. Holds only matches.
+	 *
+	 * Keyed by path rather than by URL because the string
+	 * {@see Customize_Feed::rewrite_enclosure()} reads back out of the markup
+	 * isn't necessarily the one the `enclosure` meta row holds: WordPress.com
+	 * forces `<enclosure>` URLs to `http` on the same `rss_enclosure` filter,
+	 * registered ahead of ours. Reducing both ends to the path the way
+	 * `attachment_url_to_postid()` does folds that difference away — it
+	 * normalizes the scheme before comparing.
 	 *
 	 * @var array<string, int>
 	 */
@@ -79,7 +86,7 @@ class Episode_Media_Cache {
 			foreach ( (array) get_post_meta( $post_id, 'enclosure', false ) as $enclosure ) {
 				$url = esc_url( trim( explode( "\n", (string) $enclosure )[0] ) );
 				if ( '' !== $url ) {
-					$paths[ self::attached_file_path( $url, $dir ) ][] = $url;
+					$paths[ self::attached_file_path( $url, $dir ) ] = true;
 				}
 			}
 
@@ -118,20 +125,10 @@ class Episode_Media_Cache {
 
 		_prime_post_caches( $attachment_ids, false, true );
 
-		$by_path = array();
 		foreach ( $found as $id ) {
 			$path = (string) get_post_meta( $id, '_wp_attached_file', true );
-			if ( ! isset( $by_path[ $path ] ) ) {
-				$by_path[ $path ] = $id;
-			}
-		}
-
-		foreach ( $paths as $path => $urls ) {
-			$id = $by_path[ (string) $path ] ?? 0;
-			if ( $id > 0 ) {
-				foreach ( $urls as $url ) {
-					self::$attachment_ids[ $url ] = $id;
-				}
+			if ( '' !== $path && ! isset( self::$attachment_ids[ $path ] ) ) {
+				self::$attachment_ids[ $path ] = (int) $id;
 			}
 		}
 	}
@@ -147,11 +144,14 @@ class Episode_Media_Cache {
 	 * dir, and offloaded-media plugins lean on those filters to map a CDN URL
 	 * back to its attachment.
 	 *
-	 * @param string $url Enclosure URL, as `rss_enclosure()` rendered it.
+	 * @param string $url Enclosure URL, as it came back out of the markup —
+	 *                    which is not always the URL the meta row holds.
 	 * @return int Attachment ID, or 0.
 	 */
 	public static function attachment_id( string $url ): int {
-		if ( ! isset( self::$attachment_ids[ $url ] ) ) {
+		$id = self::$attachment_ids[ self::attached_file_path( $url, wp_get_upload_dir() ) ] ?? 0;
+
+		if ( 0 === $id ) {
 			return attachment_url_to_postid( $url );
 		}
 
@@ -162,7 +162,7 @@ class Episode_Media_Cache {
 		}
 
 		/** This filter is documented in wp-includes/media.php */
-		return (int) apply_filters( 'attachment_url_to_postid', self::$attachment_ids[ $url ], $url );
+		return (int) apply_filters( 'attachment_url_to_postid', $id, $url );
 	}
 
 	/**
@@ -170,6 +170,9 @@ class Episode_Media_Cache {
 	 * `_wp_attached_file`, step for step with `attachment_url_to_postid()`. A
 	 * URL from outside the uploads dir comes back unchanged and matches
 	 * nothing, same as core.
+	 *
+	 * Both ends of the batch go through this — it's what makes the two agree
+	 * when a filter has rewritten the URL's scheme in between.
 	 *
 	 * @param string $url URL to normalize.
 	 * @param array  $dir `wp_get_upload_dir()` result.
