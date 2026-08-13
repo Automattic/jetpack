@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -37,6 +39,14 @@ class Dashboard_Section_Test extends BaseTestCase {
 	private $doing_it_wrong = array();
 
 	/**
+	 * The standalone-module filter a test added, held so tear_down can remove
+	 * that one callback rather than everything on a Jetpack-wide hook.
+	 *
+	 * @var callable|null
+	 */
+	private $available_modules_filter = null;
+
+	/**
 	 * Set up a fresh REST server for each test.
 	 */
 	public function set_up() {
@@ -64,7 +74,15 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
-		remove_all_filters( 'jetpack_get_available_standalone_modules' );
+		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
+
+		// Targeted, not remove_all_filters(): `jetpack_get_available_standalone_modules`
+		// is a Jetpack-wide hook other packages register into.
+		if ( null !== $this->available_modules_filter ) {
+			remove_filter( 'jetpack_get_available_standalone_modules', $this->available_modules_filter );
+			$this->available_modules_filter = null;
+		}
+
 		Jetpack_Options::delete_option( 'active_modules' );
 
 		// Drops the package's mapping along with any per-user view_stats grant a
@@ -77,24 +95,36 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Turn the `subscriptions` Jetpack module on, the way a standalone plugin sees it.
+	 * Turn the `subscriptions` Jetpack module on.
 	 *
 	 * Both levers are needed because Modules::get_active() intersects the option
-	 * with the modules available to the site, and without the Jetpack plugin that
-	 * list is only what standalone plugins register.
+	 * with the modules available to the site, and without a real Jetpack plugin
+	 * that list is only what standalone plugins register.
 	 *
 	 * @return void
 	 */
 	private function activate_subscriptions_module() {
 		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
-		add_filter(
-			'jetpack_get_available_standalone_modules',
-			static function ( $modules ) {
-				$modules[] = 'subscriptions';
 
-				return $modules;
-			}
-		);
+		$this->available_modules_filter = static function ( $modules ) {
+			$modules[] = 'subscriptions';
+
+			return $modules;
+		};
+
+		add_filter( 'jetpack_get_available_standalone_modules', $this->available_modules_filter );
+	}
+
+	/**
+	 * Make the Subscribers gate see a Jetpack plugin.
+	 *
+	 * Callers need their own process: a class cannot be undeclared, so loading
+	 * the mock for the whole suite would flip the gate for every other test.
+	 *
+	 * @return void
+	 */
+	private function fake_jetpack_plugin() {
+		require_once __DIR__ . '/mocks/jetpack-plugin-mock.php';
 	}
 
 	/**
@@ -248,12 +278,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * The built-in Insights section offers the year date filter; the rest keep the range.
 	 */
 	public function test_built_in_sections_declare_their_date_filters() {
-		// Every conditional section needs its gate satisfied to appear here: Store
-		// takes the filter standing in for WooCommerce plus the admin user for the
-		// capability check added in #50889, and Subscribers takes its module.
+		// Store needs both gates: the filter stands in for WooCommerce being active,
+		// and the admin user satisfies the capability check added in #50889.
 		$this->set_admin_user();
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
-		$this->activate_subscriptions_module();
 
 		register_default_dashboard_sections();
 
@@ -331,12 +359,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Insights drops the comparison control; the rest keep it.
 	 */
 	public function test_built_in_sections_declare_their_date_filter_options() {
-		// Every conditional section needs its gate satisfied to appear here: Store
-		// takes the filter standing in for WooCommerce plus the admin user for the
-		// capability check added in #50889, and Subscribers takes its module.
+		// Store needs both gates: the filter stands in for WooCommerce being active,
+		// and the admin user satisfies the capability check added in #50889.
 		$this->set_admin_user();
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
-		$this->activate_subscriptions_module();
 
 		register_default_dashboard_sections();
 
@@ -364,12 +390,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * The analytics sections carry their own heading; Store still falls back to its label.
 	 */
 	public function test_built_in_sections_declare_their_headings() {
-		// Every conditional section needs its gate satisfied to appear here: Store
-		// takes the filter standing in for WooCommerce plus the admin user for the
-		// capability check added in #50889, and Subscribers takes its module.
+		// Store needs both gates: the filter stands in for WooCommerce being active,
+		// and the admin user satisfies the capability check added in #50889.
 		$this->set_admin_user();
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
-		$this->activate_subscriptions_module();
 
 		register_default_dashboard_sections();
 
@@ -693,7 +717,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	public function test_registers_built_in_dashboard_sections() {
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
-		$this->activate_subscriptions_module();
 
 		register_default_dashboard_sections();
 
@@ -750,7 +773,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	public function test_registers_woocommerce_dashboard_section_when_available() {
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
 		$this->set_admin_user();
-		$this->activate_subscriptions_module();
 
 		register_default_dashboard_sections();
 
@@ -781,9 +803,87 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The Subscribers section is available once the subscriptions module is on.
+	 * Section IDs the registry currently offers.
+	 *
+	 * @return string[]
 	 */
+	private function available_section_ids() {
+		return array_map(
+			static function ( Dashboard_Section $section ) {
+				return $section->id;
+			},
+			get_available_dashboard_sections( DASHBOARD_NAME )
+		);
+	}
+
+	/**
+	 * Section slugs the sections route currently serves.
+	 *
+	 * @return string[]
+	 */
+	private function request_section_slugs() {
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/sections' )
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+
+		return array_column( $response->get_data(), 'slug' );
+	}
+
+	/**
+	 * A site with no local module system keeps the tab.
+	 *
+	 * This is the standalone plugin's shape, and the default here because
+	 * WorDBless runs without the Jetpack plugin: the gate has no module list to
+	 * consult, and the tab's data comes from the WPCOM proxy either way.
+	 */
+	public function test_registers_subscribers_dashboard_section_without_a_module_system() {
+		register_default_dashboard_sections();
+
+		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
+		$this->assertTrue( $subscribers->is_available() );
+		$this->assertContains( 'analytics/subscribers', $this->available_section_ids() );
+	}
+
+	/**
+	 * With a Jetpack plugin present, the module state decides: off hides the tab.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_omits_subscribers_dashboard_section_when_module_is_inactive() {
+		$this->fake_jetpack_plugin();
+
+		register_default_dashboard_sections();
+
+		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
+		$this->assertFalse( $subscribers->is_available() );
+
+		$ids = $this->available_section_ids();
+
+		$this->assertNotContains( 'analytics/subscribers', $ids );
+		// Registry is populated, so the absence above is the gate rather than an
+		// empty registry.
+		$this->assertContains( 'analytics/traffic', $ids );
+	}
+
+	/**
+	 * The same site with the module on offers the tab again.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_registers_subscribers_dashboard_section_when_module_is_active() {
+		$this->fake_jetpack_plugin();
 		$this->activate_subscriptions_module();
 
 		register_default_dashboard_sections();
@@ -792,70 +892,69 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
 		$this->assertTrue( $subscribers->is_available() );
-		$this->assertContains(
-			'analytics/subscribers',
-			array_map(
-				static function ( Dashboard_Section $section ) {
-					return $section->id;
-				},
-				get_available_dashboard_sections( DASHBOARD_NAME )
-			)
-		);
+		$this->assertContains( 'analytics/subscribers', $this->available_section_ids() );
 	}
 
 	/**
-	 * A site with the subscriptions module off has no subscriber data, so the
-	 * section is registered but never offered — matching the Calypso Stats tab.
+	 * WPCOM Simple always offers the tab: modules are not a concept there.
+	 *
+	 * Needs a real constant, hence the separate process — Modules::is_active()
+	 * reads a raw `defined( 'IS_WPCOM' )` rather than the Constants wrapper the
+	 * rest of this package mocks through, so Constants::set_constant() would set
+	 * a value nothing reads and the test would assert the wrong branch.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
-	public function test_omits_subscribers_dashboard_section_when_module_is_inactive() {
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_wpcom_simple_offers_subscribers_dashboard_section_without_the_module() {
+		$this->fake_jetpack_plugin();
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
+
+		register_default_dashboard_sections();
+
+		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
+		$this->assertTrue( $subscribers->is_available() );
+	}
+
+	/**
+	 * Consumers can refuse the section through its availability filter.
+	 */
+	public function test_subscribers_availability_filter_overrides_the_module_state() {
+		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
 		register_default_dashboard_sections();
 
 		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
 
 		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
 		$this->assertFalse( $subscribers->is_available() );
-		$this->assertSame(
-			array(
-				'analytics/traffic',
-				'analytics/insights',
-			),
-			array_map(
-				static function ( Dashboard_Section $section ) {
-					return $section->id;
-				},
-				get_available_dashboard_sections( DASHBOARD_NAME )
-			)
-		);
+		$this->assertNotContains( 'analytics/subscribers', $this->available_section_ids() );
 	}
 
 	/**
-	 * The sections route drops the Subscribers tab with the module off.
+	 * The sections route drops the Subscribers tab once it is unavailable.
 	 */
-	public function test_sections_route_reflects_subscribers_module_state() {
+	public function test_sections_route_reflects_subscribers_availability() {
 		$this->set_admin_user();
 
 		register_default_dashboard_sections();
 
-		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/sections' )
-		);
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame(
-			array( 'traffic', 'insights' ),
-			array_column( $response->get_data(), 'slug' )
-		);
-
-		$this->activate_subscriptions_module();
-
-		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/sections' )
-		);
-
-		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame(
 			array( 'traffic', 'insights', 'subscribers' ),
-			array_column( $response->get_data(), 'slug' )
+			$this->request_section_slugs()
+		);
+
+		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		$this->assertSame(
+			array( 'traffic', 'insights' ),
+			$this->request_section_slugs()
 		);
 	}
 
@@ -864,7 +963,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	public function test_omits_woocommerce_dashboard_section_when_unavailable() {
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
-		$this->activate_subscriptions_module();
 
 		register_default_dashboard_sections();
 
@@ -1027,8 +1125,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Sections route includes the store section only when WooCommerce is detected.
 	 */
 	public function test_sections_route_reflects_woocommerce_availability() {
-		$this->activate_subscriptions_module();
-
 		register_default_dashboard_sections();
 
 		$this->set_admin_user();

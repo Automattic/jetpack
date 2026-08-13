@@ -13,6 +13,9 @@ use WP_REST_Request;
 use WP_REST_Server;
 
 require_once __DIR__ . '/../../src/dashboard-layout.php';
+// The default-layout route's gates live in dashboard-sections.php, the way both
+// dashboard entry points load it before registering the route.
+require_once __DIR__ . '/../../src/dashboard-sections.php';
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 
 /**
@@ -33,6 +36,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$wp_rest_server = null;
 		$this->reset_analytics_capabilities();
 		wp_set_current_user( 0 );
+		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		Constants::clear_constants();
 		parent::tear_down();
 	}
@@ -158,6 +162,47 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->assertSame( 200, $status );
 		$this->assertContains( 'jpa/traffic-chart', $types );
 		$this->assertNotContains( 'jpa/store-performance', $types );
+	}
+
+	/**
+	 * A tab the section registry hides must not hand out its bundled layout here
+	 * either — this route resolves a name straight to a tab, so it is a second
+	 * way in.
+	 */
+	public function test_default_layout_route_refuses_an_unavailable_subscribers_tab() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_SUBSCRIBERS_SECTION_ID );
+
+		$this->assertSame( 404, $status );
+	}
+
+	/**
+	 * `?name=` shadows the URL capture for subscribers the way it does for store.
+	 */
+	public function test_default_layout_route_refuses_a_name_shadowed_subscribers_tab() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertSame( 404, $status );
+	}
+
+	/**
+	 * The refusal is the gate's: an available section is served as before.
+	 */
+	public function test_default_layout_route_serves_an_available_subscribers_tab() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+
+		list( $status, $types ) = $this->request_default_layout( DASHBOARD_SUBSCRIBERS_SECTION_ID );
+
+		$this->assertSame( 200, $status );
+		$this->assertContains( 'jpa/subscribers-chart', $types );
 	}
 
 	/**

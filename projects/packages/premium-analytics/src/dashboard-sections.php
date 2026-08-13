@@ -20,6 +20,11 @@ require_once __DIR__ . '/class-dashboard-section-registry.php';
 const WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_woocommerce_dashboard_section_available';
 
 /**
+ * Filter through which Subscribers section availability is resolved.
+ */
+const SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_subscribers_dashboard_section_available';
+
+/**
  * Registers a dashboard section.
  *
  * @param string $dashboard_name Dashboard identifier.
@@ -85,17 +90,36 @@ function is_woocommerce_dashboard_section_available_to_current_user() {
 /**
  * Whether the Subscribers dashboard section should be exposed.
  *
- * Mirrors the Calypso Stats gate on the same tab. Modules::is_active() reads the
- * `jetpack_active_modules` option that Sync ships to WPCOM as `active_modules`,
- * the value Calypso gates on, and returns true on WPCOM Simple, where modules
- * are not a concept and the tab always shows.
+ * Mirrors the Calypso Stats gate on the same tab. Modules::is_active() resolves
+ * `jetpack_active_modules` the same way Sync does before shipping it to WPCOM as
+ * `active_modules` — the value Calypso gates on — and short-circuits to true on
+ * WPCOM Simple, where modules are not a concept and the tab always shows.
+ *
+ * Note that "resolves" is not "reads": at its default $available_only, the
+ * option is intersected with Modules::get_available(). That is what the guard
+ * below is about.
  *
  * @since $$next-version$$
  *
  * @return bool True when the subscriptions module is active.
  */
 function is_subscribers_dashboard_section_available() {
-	return ( new Modules() )->is_active( 'subscriptions' );
+	// Without the Jetpack plugin, Modules::get_available() resolves to the
+	// standalone-module filter, and nothing registers `subscriptions` into it —
+	// so the intersection is empty and the gate could never open. The tab reads
+	// `stats/subscribers`, `subscribers/counts` and `stats/followers` off the
+	// WPCOM proxy, which answers whatever the local module state is, so a site
+	// with no module system to consult is exempt rather than refused.
+	$is_available = ! class_exists( 'Jetpack' ) || ( new Modules() )->is_active( 'subscriptions' );
+
+	/**
+	 * Filters whether the Subscribers dashboard section is available.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $is_available Whether the subscriptions module was detected in the current request.
+	 */
+	return (bool) apply_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, $is_available );
 }
 
 /**
