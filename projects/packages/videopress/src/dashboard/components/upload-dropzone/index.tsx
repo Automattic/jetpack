@@ -26,6 +26,11 @@ import './style.scss';
  *                            `allowMultiple`; Home's emptied-library state
  *                            passes 'single' even on multi-file plans because
  *                            it is inviting the (new) first video.
+ * @param props.subCopy       - Sub-copy override. The default sells the
+ *                            product (captions, owned player) for /upload's
+ *                            marketing shape; Home's emptied-library state
+ *                            passes the quieter "it will show up here"
+ *                            promise instead.
  * @return The dropzone element.
  */
 const UploadDropzone = ( {
@@ -33,11 +38,13 @@ const UploadDropzone = ( {
 	disabled = false,
 	allowMultiple = false,
 	copyVariant,
+	subCopy,
 }: {
 	onFiles: ( files: File[] ) => void;
 	disabled?: boolean;
 	allowMultiple?: boolean;
 	copyVariant?: 'single' | 'multiple';
+	subCopy?: string;
 } ) => {
 	const inputRef = useRef< HTMLInputElement >( null );
 	const [ dragging, setDragging ] = useState( false );
@@ -80,15 +87,16 @@ const UploadDropzone = ( {
 						: __( 'Drag and drop your video here', 'jetpack-videopress-pkg' ) }
 				</Text>
 				<Text variant="body-sm" className="vp-upload-dropzone__sub">
-					{ plural
-						? __(
-								'Add one or several. Each upload gets automatic captions, a player you fully own, and a link to share anywhere. No ads, no algorithm.',
-								'jetpack-videopress-pkg'
-						  )
-						: __(
-								'Add one video. Each upload gets automatic captions, a player you fully own, and a link to share anywhere. No ads, no algorithm.',
-								'jetpack-videopress-pkg'
-						  ) }
+					{ subCopy ??
+						( plural
+							? __(
+									'Add one or several. Each upload gets automatic captions, a player you fully own, and a link to share anywhere. No ads, no algorithm.',
+									'jetpack-videopress-pkg'
+							  )
+							: __(
+									'Add one video. Each upload gets automatic captions, a player you fully own, and a link to share anywhere. No ads, no algorithm.',
+									'jetpack-videopress-pkg'
+							  ) ) }
 				</Text>
 				<Button
 					variant="primary"

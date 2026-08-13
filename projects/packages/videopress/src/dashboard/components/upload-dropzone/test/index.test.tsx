@@ -28,6 +28,13 @@ describe( 'UploadDropzone', () => {
 		expect( screen.getByText( 'Drag and drop your video here' ) ).toBeInTheDocument();
 	} );
 
+	it( 'lets subCopy replace the default sub-copy line', () => {
+		render( <UploadDropzone onFiles={ jest.fn() } subCopy="It will show up here." /> );
+
+		expect( screen.getByText( 'It will show up here.' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /automatic captions/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'fires onFiles with the picked files on input change', async () => {
 		const onFiles = jest.fn();
 		const { container } = render( <UploadDropzone onFiles={ onFiles } /> );

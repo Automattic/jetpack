@@ -193,24 +193,16 @@
 		}
 	}
 
-	&__empty {
-		// Was 32px both sides; the dropzone below now carries the block's
-		// visual weight, so the shell keeps its top clearance and hands the
-		// bottom gap to the section's own spacing.
-		padding-block: 32px 8px;
-		// EmptyState.Root centres its own text but not itself, so without this
-		// the 320px block sits hard against the start edge of a 1272px column
-		// and reads as a layout failure rather than an empty state.
-		margin-inline: auto;
-	}
-
-	// The emptied-library dropzone under the empty-state shell. Same 718px cap
-	// as the /upload card: at the full 1272px column a drop target reads as a
-	// void. No frame of its own — the dropzone's dotted SVG outline is the
-	// border here, where /upload wraps it in a card instead.
+	// The emptied-library dropzone, alone on the screen now that the
+	// EmptyState shell above it is gone. Same 718px cap as the /upload card:
+	// at the full 1272px column a drop target reads as a void. No frame of
+	// its own — the dropzone's dotted SVG outline is the border here, where
+	// /upload wraps it in a card instead. The top clearance is inherited from
+	// the shell it replaced, so the target doesn't sit hard under the tabs.
 	&__empty-upload {
 		inline-size: 100%;
 		max-inline-size: 718px;
 		margin-inline: auto;
+		padding-block-start: 32px;
 	}
 }

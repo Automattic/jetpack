@@ -3,7 +3,7 @@ import { Tooltip } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, useNavigate } from '@wordpress/route';
-import { Button, Card, EmptyState, Text } from '@wordpress/ui';
+import { Button, Card, Text, VisuallyHidden } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import { TAB_PATHS } from '../../src/dashboard/components/dashboard-tabs';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
@@ -138,28 +138,47 @@ const StageInner = () => {
 	return (
 		// The header carries the upload action alone. "Add to a post or page"
 		// was removed by design review: nobody adds a video to a post from the
-		// overview — that hand-off belongs to a specific video's screens.
-		<DashboardLayout activeTab="home" actions={ uploadButton }>
+		// overview — that hand-off belongs to a specific video's screens. And
+		// while the emptied-library dropzone is on screen (or the library is
+		// still loading toward it), even that one action goes: the dropzone's
+		// button is the screen's single CTA, and a second "Upload video" in the
+		// header is the same invitation twice. The gate is "has videos", not
+		// "settled", so the button never flashes in during the skeleton pass —
+		// it first appears with the cards it belongs above.
+		<DashboardLayout activeTab="home" actions={ items.length > 0 ? uploadButton : undefined }>
 			<div className="vp-home">
 				{ isFree && <FreeTierNotice /> }
 
 				<section className="vp-home__section" aria-labelledby="vp-home-recents-heading">
-					<div className="vp-home__section-head">
-						{ /* `render` is what makes this an actual <h2>. Without it the
-						     section's aria-labelledby points at a plain <span>, so the
-						     screen is a page with no headings to navigate by. */ }
-						<Text
-							variant="heading-md"
-							render={ <h2 /> }
-							id="vp-home-recents-heading"
-							className="vp-home__section-title"
-						>
-							{ __( 'Recent videos', 'jetpack-videopress-pkg' ) }
-						</Text>
-						{ items.length > 0 && (
-							<Link to="/">{ __( 'View all', 'jetpack-videopress-pkg' ) }</Link>
-						) }
-					</div>
+					{ showEmptyState ? (
+						// A "Recent videos" label over no recents is noise, so the
+						// empty state swaps the section head for a visually-hidden
+						// heading — hidden heading over aria-label so the page keeps
+						// a heading to navigate by (see the `render` note below) and
+						// the section's aria-labelledby keeps its target. Its text
+						// carries the "no videos yet" status the deleted EmptyState
+						// title used to announce.
+						<VisuallyHidden render={ <h2 id="vp-home-recents-heading" /> }>
+							{ __( 'No videos yet — upload a video', 'jetpack-videopress-pkg' ) }
+						</VisuallyHidden>
+					) : (
+						<div className="vp-home__section-head">
+							{ /* `render` is what makes this an actual <h2>. Without it the
+							     section's aria-labelledby points at a plain <span>, so the
+							     screen is a page with no headings to navigate by. */ }
+							<Text
+								variant="heading-md"
+								render={ <h2 /> }
+								id="vp-home-recents-heading"
+								className="vp-home__section-title"
+							>
+								{ __( 'Recent videos', 'jetpack-videopress-pkg' ) }
+							</Text>
+							{ items.length > 0 && (
+								<Link to="/">{ __( 'View all', 'jetpack-videopress-pkg' ) }</Link>
+							) }
+						</div>
+					) }
 
 					{ isError && items.length === 0 ? (
 						// A failed listing must not read as an empty library — the
@@ -202,33 +221,24 @@ const StageInner = () => {
 					) }
 
 					{ showEmptyState && (
-						<>
-							{ /* The heading/description keep the EmptyState shell, but the
-							     action is the real first-run dropzone, not a button that
-							     bounces to /upload. It sits as a sibling because
-							     EmptyState.Root caps its own width — too narrow for a
-							     drop target. Single-file copy: an empty library means
-							     the (new) first video, whatever the plan allows. */ }
-							<EmptyState.Root className="vp-home__empty">
-								<EmptyState.Title>
-									{ __( 'No videos yet', 'jetpack-videopress-pkg' ) }
-								</EmptyState.Title>
-								<EmptyState.Description>
-									{ __(
-										'Upload your first video and it will show up here, ready to share or drop into a post.',
-										'jetpack-videopress-pkg'
-									) }
-								</EmptyState.Description>
-							</EmptyState.Root>
-							<div className="vp-home__empty-upload">
-								<UploadDropzone
-									onFiles={ onEmptyStateFiles }
-									disabled={ isAtLimit }
-									allowMultiple={ allowMultiple }
-									copyVariant="single"
-								/>
-							</div>
-						</>
+						// The dropzone stands alone — no EmptyState shell above it.
+						// Design review's rule: one screen, one job, one CTA. The
+						// shell's heading duplicated the dropzone's own hint, and its
+						// useful line — the "it will show up here" promise — moved
+						// into the sub copy below. Single-file copy: an empty library
+						// means the (new) first video, whatever the plan allows.
+						<div className="vp-home__empty-upload">
+							<UploadDropzone
+								onFiles={ onEmptyStateFiles }
+								disabled={ isAtLimit }
+								allowMultiple={ allowMultiple }
+								copyVariant="single"
+								subCopy={ __(
+									'Your video will show up here, ready to share or drop into a post.',
+									'jetpack-videopress-pkg'
+								) }
+							/>
+						</div>
 					) }
 				</section>
 			</div>
