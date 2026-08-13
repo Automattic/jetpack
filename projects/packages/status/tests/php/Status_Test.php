@@ -412,7 +412,7 @@ class Status_Test extends TestCase {
 	public function test_is_local_site_for_known_tld( $site_url, $expected_response ) {
 		$this->site_url = $site_url;
 		$result         = $this->status_obj->is_local_site();
-		$this->assertEquals(
+		$this->assertSame(
 			$expected_response,
 			$result,
 			sprintf(

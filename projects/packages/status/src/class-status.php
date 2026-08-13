@@ -164,7 +164,6 @@ class Status {
 		}
 
 		// Check for localhost and sites using an IP only first.
-		// Note: str_contains() is not used here, as wp-includes/compat.php is not loaded in this file.
 		$is_local = '' !== $host && false === strpos( $host, '.' );
 
 		// Use Core's environment check, if available.
@@ -172,7 +171,7 @@ class Status {
 			$is_local = true;
 		}
 
-		// Then check for usual usual domains used by local dev tools.
+		// Then check for usual domains used by local dev tools.
 		$known_local = array(
 			'#\.local$#i',
 			'#(^|\.)localhost$#i', // localhost and any subdomain of it.
@@ -187,8 +186,8 @@ class Status {
 		);
 
 		if ( ! $is_local && '' !== $host ) {
-			foreach ( $known_local as $url ) {
-				if ( preg_match( $url, $host ) ) {
+			foreach ( $known_local as $pattern ) {
+				if ( preg_match( $pattern, $host ) ) {
 					$is_local = true;
 					break;
 				}
