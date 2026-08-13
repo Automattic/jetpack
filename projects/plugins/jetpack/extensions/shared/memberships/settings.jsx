@@ -187,6 +187,11 @@ export function NewsletterAccessRadioButtons( {
 	const showPaidAsDisabled = ! isPaidAvailable && ! isPaidSelected;
 
 	const setAccess = useSetAccess();
+	// The count beside each option is the size of the audience that can read it, which
+	// is what distinguishes the options from one another. postHasPaywallBlock is
+	// deliberately not forwarded here: it would switch the paid count to the email
+	// reach, making both options report the same total on a post with a paywall block.
+	// Who receives the email is stated in getAccessDescription instead.
 	const subscribersReach = getReachForAccessLevelKey( {
 		accessLevel: accessOptions.subscribers.key,
 		subscribers: totalSubscribers,
@@ -205,6 +210,7 @@ export function NewsletterAccessRadioButtons( {
 		NewsletterAccessRadioButtons,
 		'jetpack-newsletter-access-paid-subscribers-disabled'
 	);
+	const setupLinkId = `${ disabledPaidOptionId }-setup-link`;
 
 	return (
 		<div className="jetpack-newsletter-access-radio-buttons">
@@ -240,19 +246,32 @@ export function NewsletterAccessRadioButtons( {
 			{ showPaidAsDisabled && (
 				<>
 					<div className="components-radio-control__option jetpack-newsletter-access-radio-buttons__disabled-option">
+						{ /*
+						 * aria-disabled rather than disabled: a disabled input leaves the tab
+						 * order and is skipped by screen readers, which would hide the paid
+						 * option from exactly the people the setup link is there to inform.
+						 * It stays focusable and announced, but cannot be selected.
+						 */ }
 						<input
 							type="radio"
 							className="components-radio-control__input"
-							disabled
+							aria-disabled="true"
+							aria-describedby={ setupLinkId }
 							checked={ false }
 							readOnly
+							onClick={ event => event.preventDefault() }
+							onKeyDown={ event => {
+								if ( event.key === ' ' ) {
+									event.preventDefault();
+								}
+							} }
 							id={ disabledPaidOptionId }
 						/>
 						<label className="components-radio-control__label" htmlFor={ disabledPaidOptionId }>
 							{ paidOptionLabel }
 						</label>
 					</div>
-					<ExternalLink openInNewTab href={ getPaidPlanLink( hasTierPlans ) }>
+					<ExternalLink id={ setupLinkId } openInNewTab href={ getPaidPlanLink( hasTierPlans ) }>
 						{ __( 'Turn on paid subscribers', 'jetpack' ) }
 					</ExternalLink>
 				</>

@@ -252,7 +252,10 @@ describe( 'NewsletterAccessRadioButtons', () => {
 		test( 'disables the paid option and links out when Stripe is not connected', () => {
 			renderPanel( { stripeConnectUrl: NOT_CONNECTED, hasTierPlans: true } );
 
-			expect( screen.getByRole( 'radio', { name: /^Paid subscribers/ } ) ).toBeDisabled();
+			expect( screen.getByRole( 'radio', { name: /^Paid subscribers/ } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
 			expect(
 				screen.getByRole( 'link', { name: /turn on paid subscribers/i } )
 			).toBeInTheDocument();
@@ -261,10 +264,36 @@ describe( 'NewsletterAccessRadioButtons', () => {
 		test( 'disables the paid option when Stripe is connected but no tier exists', () => {
 			renderPanel( { stripeConnectUrl: CONNECTED, hasTierPlans: false } );
 
-			expect( screen.getByRole( 'radio', { name: /^Paid subscribers/ } ) ).toBeDisabled();
+			expect( screen.getByRole( 'radio', { name: /^Paid subscribers/ } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
 			expect(
 				screen.getByRole( 'link', { name: /turn on paid subscribers/i } )
 			).toBeInTheDocument();
+		} );
+
+		// A native `disabled` attribute would drop the option out of the tab order and
+		// hide it from screen readers, defeating the point of surfacing it at all.
+		test( 'keeps the paid option reachable and described by the setup link', () => {
+			renderPanel( { stripeConnectUrl: NOT_CONNECTED, hasTierPlans: false } );
+
+			const paid = screen.getByRole( 'radio', { name: /^Paid subscribers/ } );
+			expect( paid ).toBeEnabled();
+
+			const link = screen.getByRole( 'link', { name: /turn on paid subscribers/i } );
+			expect( paid ).toHaveAttribute( 'aria-describedby', link.getAttribute( 'id' ) );
+
+			// A natively disabled input cannot take focus; this one must be able to.
+			paid.focus();
+			expect( paid ).toHaveFocus();
+		} );
+
+		test( 'does not save the paid level when the disabled option is clicked', async () => {
+			renderPanel( { stripeConnectUrl: NOT_CONNECTED, hasTierPlans: false } );
+
+			await userEvent.click( screen.getByRole( 'radio', { name: /^Paid subscribers/ } ) );
+			expect( mockSetPostMeta ).not.toHaveBeenCalled();
 		} );
 
 		test( 'still offers the other audiences', () => {
@@ -310,6 +339,19 @@ describe( 'NewsletterAccessRadioButtons', () => {
 
 		expect( screen.queryByRole( 'radio', { name: 'Everyone' } ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'radio', { name: /^Subscribers/ } ) ).toBeInTheDocument();
+	} );
+
+	// The counts report how many people can read each level. Switching the paid count to
+	// the email reach on a paywalled post would make both options read the same total,
+	// so the two must stay distinct here.
+	test( 'keeps the paid count distinct from the subscriber count on a paywalled post', () => {
+		renderPanel(
+			{ postHasPaywallBlock: true, accessLevel: 'paid_subscribers' },
+			{ totalSubscribers: 21, paidSubscribers: 2 }
+		);
+
+		expect( screen.getByRole( 'radio', { name: 'Subscribers (21)' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'radio', { name: 'Paid subscribers (2)' } ) ).toBeInTheDocument();
 	} );
 } );
 
