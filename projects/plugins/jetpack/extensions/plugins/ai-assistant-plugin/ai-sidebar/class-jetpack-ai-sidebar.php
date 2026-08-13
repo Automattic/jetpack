@@ -390,29 +390,10 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Whether any feature the sidebar surfaces is effectively enabled.
-	 *
-	 * The sidebar only hosts writing-assistant and SEO suggestions; when both
-	 * are off it has nothing to offer and must not load. The writing half gets
-	 * its filter inside is_feature_enabled() (owned feature). The SEO half
-	 * delegates to is_seo_suggestions_enabled() — the same predicate that
-	 * decides whether the suggestions are offered — so a switched-on enhancer
-	 * that cannot run no longer holds the sidebar open.
-	 *
-	 * One term of that predicate cannot bite here. init() runs while the modules
-	 * are still loading (blocks is Auto Activate: Yes and pulls in this file via
-	 * Jetpack_Gutenberg::load_block_editor_extensions(); seo-tools is Auto
-	 * Activate: No and is appended to jetpack_active_modules later), so
-	 * modules/seo-tools.php has not yet registered its jetpack_disable_seo_tools
-	 * filter and that check reads its default. A site whose SEO is owned by a
-	 * conflicting plugin therefore still loads the sidebar; the suggestions
-	 * themselves stay off, because the features payload is built later, once the
-	 * filter is registered. The toggle, plan and module terms all resolve from
-	 * options and are unaffected by load order.
-	 *
-	 * The module term does not change WordPress.com Simple: Modules::is_active()
-	 * short-circuits to true there, so the SEO half reduces to the filter,
-	 * toggle and plan checks.
+	 * Whether any feature the sidebar surfaces is effectively enabled; with
+	 * nothing to offer the sidebar must not load. Load-order caveat: init()
+	 * runs before modules/seo-tools.php registers jetpack_disable_seo_tools,
+	 * so that one term reads its default here.
 	 *
 	 * @return bool
 	 */

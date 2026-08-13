@@ -233,13 +233,8 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 
 	/**
 	 * Whether the AI SEO enhancer is available on this site, so the settings
-	 * page can hide its row where the feature can't run.
-	 *
-	 * Defers to the SEO package, which owns the `ai_seo_enhancer_enabled`
-	 * option and is the single place the feature filter, the seo-tools module
-	 * and the `ai-seo-enhancer` plan feature are resolved. The terms are
-	 * unchanged from the copy this method used to carry; keeping one definition
-	 * is what stops this endpoint and the SEO dashboard drifting apart again.
+	 * page can hide its row. Defers to the SEO package's shared gate; the
+	 * terms are unchanged.
 	 *
 	 * @return bool
 	 */
