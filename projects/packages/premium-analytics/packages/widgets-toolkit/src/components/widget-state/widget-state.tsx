@@ -3,6 +3,7 @@
  */
 import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -46,7 +47,7 @@ export interface WidgetStateProps {
  * nothing about the data layer — callers map their fetch result to the signals
  * and pass generic `error` / `empty` descriptors.
  *
- * Priority: error → loading → empty → ready. Any fetch in flight renders the
+ * Priority: error → loading → empty → ready. Any fetch in flight shows the
  * skeleton, refetches included: a refetch here almost always follows a date range
  * or comparison change, which should read as a fresh load rather than stale
  * numbers dimmed under a spinner. The empty state carries no icon by default
@@ -99,8 +100,12 @@ export function WidgetState( {
 		);
 	}
 
-	if ( isLoading || isFetching ) {
-		return <div className={ styles.loading }>{ renderLoading ?? <GenericSkeleton /> }</div>;
+	const skeleton = renderLoading ?? <GenericSkeleton />;
+
+	// Nothing to keep behind the skeleton: no data yet, or an empty result the
+	// children have never rendered against.
+	if ( isLoading || ( isEmpty && isFetching ) ) {
+		return <div className={ styles.loading }>{ skeleton }</div>;
 	}
 
 	if ( isEmpty ) {
@@ -119,5 +124,18 @@ export function WidgetState( {
 		);
 	}
 
-	return <div className={ styles.ready }>{ children }</div>;
+	// Ready and refetching share one tree, so a refetch hides the children
+	// instead of unmounting them and the state they own — the selected metric
+	// tab, a table's sort and page — survives it.
+	return (
+		<div className={ styles.ready }>
+			<div
+				className={ clsx( styles.content, isFetching && styles.contentHidden ) }
+				aria-hidden={ isFetching || undefined }
+			>
+				{ children }
+			</div>
+			{ isFetching && <div className={ styles.skeletonOverlay }>{ skeleton }</div> }
+		</div>
+	);
 }

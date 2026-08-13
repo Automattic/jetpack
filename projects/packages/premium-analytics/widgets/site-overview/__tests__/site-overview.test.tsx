@@ -244,9 +244,15 @@ describe( 'SiteOverviewWidget', () => {
 		);
 
 		// A date-range change reads as a fresh load: the skeleton takes over rather
-		// than the previous period's totals lingering under a spinner.
+		// than the previous period's totals lingering under a spinner. They stay
+		// mounted behind it — hidden, so they are presented to nobody — because
+		// unmounting them would reset the state the content owns.
 		await expect( screen.findByRole( 'status' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( '420' ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByText( '420', {
+				ignore: 'script, style, [aria-hidden="true"], [aria-hidden="true"] *',
+			} )
+		).not.toBeInTheDocument();
 
 		// Once the new period resolves, its totals render in place of the skeleton.
 		resolveNextPeriod?.();

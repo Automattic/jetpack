@@ -3,6 +3,7 @@
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { chartBar } from '@wordpress/icons';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -11,6 +12,27 @@ import { WidgetState } from '../widget-state';
 import type { ReactElement } from 'react';
 
 const CONTENT = <div>rows</div>;
+
+/**
+ * Skips text inside an `aria-hidden` subtree, so a query answers "presented to
+ * the user" rather than "in the document".
+ */
+const PRESENTED = { ignore: 'script, style, [aria-hidden="true"], [aria-hidden="true"] *' };
+
+/**
+ * Stand-in for children that own state (the metric tabs' selection, a table's
+ * sort and page): the count only survives if the subtree is never unmounted.
+ *
+ * @return A button labelled with its own click count.
+ */
+function Counter() {
+	const [ count, setCount ] = useState( 0 );
+	return (
+		<button type="button" onClick={ () => setCount( count + 1 ) }>
+			{ count }
+		</button>
+	);
+}
 
 /**
  * Read the `d` attribute of the first SVG path inside a container, so icon
@@ -112,7 +134,6 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		expect( screen.getByText( 'override' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 	} );
 
@@ -200,14 +221,44 @@ describe( 'WidgetState', () => {
 		expect( svgPathOf( errorContainer ) ).toBe( errorGlyphPath );
 	} );
 
-	it( 'replaces visible children with the skeleton during a background refetch', () => {
+	it( 'covers the children with the skeleton during a refetch, hiding them from assistive tech', () => {
 		render(
 			<WidgetState isLoading={ false } isFetching isError={ false } isEmpty={ false }>
 				{ CONTENT }
 			</WidgetState>
 		);
-		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		// Still mounted, so the state it owns survives — but presented to nobody.
+		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'rows', PRESENTED ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the children mounted across a refetch, so their own state survives it', () => {
+		// The production shape of a date-range change: the queries carry
+		// `placeholderData`, so `isLoading` stays false and only `isFetching`
+		// flips. Unmounting the children there resets whatever they own — the
+		// selected metric tab, a table's sort and page.
+		const props = { isLoading: false, isError: false, isEmpty: false };
+		const { rerender } = render(
+			<WidgetState { ...props } isFetching={ false }>
+				<Counter />
+			</WidgetState>
+		);
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		fireEvent.click( screen.getByRole( 'button' ) );
+		expect( screen.getByRole( 'button' ) ).toHaveTextContent( '1' );
+
+		rerender(
+			<WidgetState { ...props } isFetching>
+				<Counter />
+			</WidgetState>
+		);
+		rerender(
+			<WidgetState { ...props } isFetching={ false }>
+				<Counter />
+			</WidgetState>
+		);
+		expect( screen.getByRole( 'button' ) ).toHaveTextContent( '1' );
 	} );
 
 	it( 'error wins over loading and empty (retry in flight after a failed fetch)', () => {
