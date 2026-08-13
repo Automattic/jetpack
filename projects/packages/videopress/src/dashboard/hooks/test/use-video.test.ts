@@ -1,7 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react';
+import { makeLibraryItem } from '../../test-utils/library-item';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
-import { useInvalidateVideo, useVideo } from '../use-video';
+import { shouldPollVideo, useInvalidateVideo, useVideo } from '../use-video';
 
 describe( 'useVideo', () => {
 	it( 'fetches /wp/v2/media/{id} and maps to LibraryItem', async () => {
@@ -130,6 +131,32 @@ describe( 'useVideo', () => {
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 		expect( result.current.video ).toBeUndefined();
 		expect( fetchMock ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'shouldPollVideo', () => {
+	it( 'polls while a VideoPress item is still processing', () => {
+		expect( shouldPollVideo( makeLibraryItem( { isProcessing: true } ) ) ).toBe( true );
+	} );
+
+	// The upload flow's bind path: the attachment exists before WordPress.com
+	// registers the VideoPress video, so the record arrives GUID-less with
+	// `isProcessing` false. A poll gated on processing alone would leave the
+	// edit surface stuck on a 'local' record forever.
+	it( 'polls a GUID-less item so the screen notices the GUID arriving', () => {
+		expect(
+			shouldPollVideo( makeLibraryItem( { guid: '', type: 'local', isProcessing: false } ) )
+		).toBe( true );
+	} );
+
+	it( 'stops polling once the item has a GUID and is done processing', () => {
+		expect( shouldPollVideo( makeLibraryItem( { guid: 'g', isProcessing: false } ) ) ).toBe(
+			false
+		);
+	} );
+
+	it( 'does not poll before the first response', () => {
+		expect( shouldPollVideo( undefined ) ).toBe( false );
 	} );
 } );
 

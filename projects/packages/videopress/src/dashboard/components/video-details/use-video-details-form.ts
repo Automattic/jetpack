@@ -26,18 +26,45 @@ const shallowEqual = ( a: VideoDetailsFormValues, b: VideoDetailsFormValues ): b
  * from the most-recent baseline (initial mount or last `reset()`).
  *
  * If `video.id` changes (user navigates between details pages), state
- * re-baselines to the new video's values.
+ * re-baselines to the new video's values — unless `preserveDirtyOnRebind` is
+ * set, in which case fields the user has edited survive the swap. The upload
+ * flow's draft session needs that: it hands the form a synthetic record while
+ * the file uploads and the real one once it settles, and the id change
+ * between the two must not discard a half-typed title. The baseline still
+ * moves to the new record, so the kept edits read as dirty (unsaved) against
+ * it, which is exactly what they are.
  *
- * @param video - The video record to edit.
+ * @param video                         - The video record to edit.
+ * @param options                       - Hook options.
+ * @param options.preserveDirtyOnRebind - Keep user-edited fields across an id change.
  * @return Form-state controls.
  */
-export function useVideoDetailsForm( video: LibraryItem ) {
+export function useVideoDetailsForm(
+	video: LibraryItem,
+	{ preserveDirtyOnRebind = false }: { preserveDirtyOnRebind?: boolean } = {}
+) {
 	const [ values, setValues ] = useState< VideoDetailsFormValues >( () => baseline( video ) );
 	const [ base, setBase ] = useState< VideoDetailsFormValues >( () => baseline( video ) );
 
 	useEffect( () => {
 		const next = baseline( video );
-		setValues( next );
+		setValues( prev => {
+			if ( ! preserveDirtyOnRebind ) {
+				return next;
+			}
+			// A field counts as the user's when it diverges from the OUTGOING
+			// baseline (`base` here predates this effect's setBase below).
+			// Untouched fields take the new record's values, so a title the
+			// user never edited follows the server's, not the draft's.
+			const merged: VideoDetailsFormValues = { ...next };
+			for ( const key of Object.keys( next ) as ( keyof VideoDetailsFormValues )[] ) {
+				if ( prev[ key ] !== base[ key ] ) {
+					// Generic per-key writes need the loosened record view.
+					( merged as Record< keyof VideoDetailsFormValues, unknown > )[ key ] = prev[ key ];
+				}
+			}
+			return merged;
+		} );
 		setBase( next );
 	}, [ video.id ] );
 

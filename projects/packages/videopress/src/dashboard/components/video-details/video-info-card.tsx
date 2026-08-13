@@ -13,7 +13,17 @@ type Props = {
 
 const dateSettings = getDateSettings();
 
-const linkForVideo = ( video: LibraryItem ): string => {
+/**
+ * Canonical share link for a video: videopress.com/v/{guid}, or the
+ * video.wordpress.com host when the video is private — same split the
+ * preview player's embed origin uses. Falls back to the attachment id while
+ * a GUID is still absent. Exported for the upload flow's celebration state,
+ * which presents the same link this card does.
+ *
+ * @param video - The video record.
+ * @return The share URL.
+ */
+export const linkForVideo = ( video: LibraryItem ): string => {
 	const host = video.isPrivate ? 'video.wordpress.com' : 'videopress.com';
 	return `https://${ host }/v/${ video.guid || video.id }`;
 };

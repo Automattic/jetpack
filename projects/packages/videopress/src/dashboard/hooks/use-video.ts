@@ -12,6 +12,23 @@ import type { ApiMediaItem, ProcessingPollAnchor } from './use-library';
 import type { LibraryItem } from '../types/library';
 
 /**
+ * Whether a fetched item still needs the 2s follow-up poll.
+ *
+ * Processing is the obvious case. The GUID-less case matters for fresh
+ * uploads: the /wp/v2/media record can exist before WordPress.com has
+ * registered the VideoPress video, and a GUID-less record maps to type
+ * 'local' with `isProcessing` false — so a poll gated on `isProcessing`
+ * alone would never notice the GUID arriving. A permanently-local
+ * attachment does keep polling under this rule; the VIDP-298 cap bounds it.
+ *
+ * @param item - The fetched item, or undefined before the first response.
+ * @return True when the item should keep being re-fetched.
+ */
+export function shouldPollVideo( item: LibraryItem | undefined ): boolean {
+	return Boolean( item && ( item.isProcessing || ! item.guid ) );
+}
+
+/**
  * Fetch and cache a single VideoPress media item from /wp/v2/media/{id}.
  *
  * Maps the response with the same toLibraryItem the library list uses, so the
@@ -31,13 +48,14 @@ export function useVideo( id: number | string ) {
 			return toLibraryItem( raw, isSimpleSite() );
 		},
 		enabled: Boolean( id ),
-		// Re-fetch every 2s while the backend is still processing this video so
-		// the poster / duration appear without a manual reload — capped like the
-		// library list so a stuck record can't poll forever (VIDP-298).
+		// Re-fetch every 2s while the backend is still working on this video —
+		// transcoding, or not yet holding a GUID (see shouldPollVideo) — so the
+		// poster / duration / GUID appear without a manual reload. Capped like
+		// the library list so a stuck record can't poll forever (VIDP-298).
 		refetchInterval: q => {
 			const { anchor, interval } = nextProcessingPoll(
 				processingStartRef.current,
-				q.state.data?.isProcessing ? [ String( id ) ] : [],
+				shouldPollVideo( q.state.data ) ? [ String( id ) ] : [],
 				Date.now()
 			);
 			processingStartRef.current = anchor;
@@ -45,7 +63,7 @@ export function useVideo( id: number | string ) {
 		},
 		// Recovery path once the cap has fired: a longer-than-cap transcode
 		// flips to ready on the next tab focus (globally this is disabled).
-		refetchOnWindowFocus: q => Boolean( q.state.data?.isProcessing ),
+		refetchOnWindowFocus: q => shouldPollVideo( q.state.data ),
 	} );
 
 	return {

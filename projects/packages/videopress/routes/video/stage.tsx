@@ -9,44 +9,18 @@ import { Stack, Text } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import { getVideoInfoQueryKeyPrefix } from '../../src/client/components/caption-manager-modal/use-video-tracks';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
-import ChaptersHelpModal from '../../src/dashboard/components/video-details/chapters-help-modal';
-import HeaderActions from '../../src/dashboard/components/video-details/header-actions';
-import PreviewPlayer from '../../src/dashboard/components/video-details/preview-player';
-import PrivacySharingCard from '../../src/dashboard/components/video-details/privacy-sharing-card';
-import RatingCard from '../../src/dashboard/components/video-details/rating-card';
-import SubtitlesCard from '../../src/dashboard/components/video-details/subtitles-card';
-import ThumbnailCard from '../../src/dashboard/components/video-details/thumbnail-card';
-import { useVideoDetailsForm } from '../../src/dashboard/components/video-details/use-video-details-form';
-import VideoDetailsCard from '../../src/dashboard/components/video-details/video-details-card';
-import VideoInfoCard from '../../src/dashboard/components/video-details/video-info-card';
-import VideoNav from '../../src/dashboard/components/video-nav';
+import Editor, {
+	getParentBreadcrumbItem,
+} from '../../src/dashboard/components/video-details/editor';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useInvalidateVideo, useVideo } from '../../src/dashboard/hooks/use-video';
-import { isChaptersEditorEnabled } from '../../src/dashboard/utils/chapters-editor';
 import './style.scss';
-import type { LibraryItem, VideoRating } from '../../src/dashboard/types/library';
+import type { LibraryItem } from '../../src/dashboard/types/library';
 
 const isEditable = ( item: LibraryItem ): boolean =>
 	item.type === 'videopress' && item.upload.status !== 'failed';
-
-/**
- * Parent breadcrumb item — labelled "VideoPress" in every case, but the
- * link target depends on where the user arrived from. Overview's ranking
- * links tag their navigation with `state: { from: 'stats' }`; we read
- * that here so the breadcrumb routes back to the Overview tab instead of
- * defaulting to Library. TanStack stores user state on `window.history.state`,
- * so reading it directly avoids needing `useLocation` (which `@wordpress/route`
- * doesn't re-export from TanStack). Stable for the lifetime of the mount,
- * so no reactivity hook is needed.
- *
- * @return The parent breadcrumb item.
- */
-const getParentBreadcrumbItem = (): { label: string; to: string } => {
-	const from = ( window.history.state as { from?: string } | null )?.from;
-	return { label: 'VideoPress', to: from === 'stats' ? '/stats' : '/' };
-};
 
 const NotFound = () => (
 	<AdminPage
@@ -85,176 +59,6 @@ const Loading = () => (
 		<div className="vp-video-details vp-video-details__loading" aria-busy="true" />
 	</AdminPage>
 );
-
-type EditorProps = {
-	video: LibraryItem;
-	onSave: (
-		values: ReturnType< typeof useVideoDetailsForm >[ 'values' ],
-		reset: ReturnType< typeof useVideoDetailsForm >[ 'reset' ]
-	) => void;
-	isSaving: boolean;
-	onDelete: () => void;
-	onDownload: () => void;
-	onManageCaptions: () => void;
-	chaptersOpen: boolean;
-	setChaptersOpen: ( open: boolean ) => void;
-};
-
-const Editor = ( {
-	video,
-	onSave,
-	isSaving,
-	onDelete,
-	onDownload,
-	onManageCaptions,
-	chaptersOpen,
-	setChaptersOpen,
-}: EditorProps ) => {
-	const { values, update, isDirty, reset } = useVideoDetailsForm( video );
-
-	// The sub-nav's only sibling tab is the Editor, whose route is stripped
-	// from the registry when the chapters editor is off — a one-tab strip
-	// would be pointless chrome, and its Editor tab would dead-end.
-	const showVideoNav = isChaptersEditorEnabled();
-
-	const openChapters = useCallback( () => {
-		setChaptersOpen( true );
-	}, [ setChaptersOpen ] );
-
-	const closeChapters = useCallback( () => {
-		setChaptersOpen( false );
-	}, [ setChaptersOpen ] );
-
-	const onRatingChange = useCallback(
-		( next: VideoRating ) => {
-			update( { rating: next } );
-		},
-		[ update ]
-	);
-
-	const handleSave = useCallback( () => {
-		onSave( values, reset );
-	}, [ onSave, values, reset ] );
-
-	// Guard the sub-nav against losing unsaved form edits: the Editor tab
-	// is a sibling route, so switching tabs unmounts this form entirely.
-	const confirmNavigation = useCallback( () => {
-		return (
-			! isDirty ||
-			// eslint-disable-next-line no-alert -- deliberate synchronous guard; the sub-nav navigation can't await a custom dialog.
-			window.confirm(
-				__(
-					'You have unsaved changes. Leave this page and discard them?',
-					'jetpack-videopress-pkg'
-				)
-			)
-		);
-	}, [ isDirty ] );
-
-	return (
-		<AdminPage
-			breadcrumbs={
-				// display: contents wrapper — a pure scoping hook so the
-				// stylesheet can clamp long video titles in the current-item
-				// crumb (Breadcrumbs' own class names are CSS-module hashes).
-				<div className="vp-video-details__breadcrumbs">
-					{ /*
-					 * The crumb reads the FORM's title, not the saved record, so
-					 * the page heading tracks what is being typed without
-					 * committing it. Two side benefits over reading
-					 * `video.title`: no old→new flicker when the post-save
-					 * refetch lands, and the 2s processing `refetchInterval`
-					 * can't clobber the crumb mid-edit.
-					 *
-					 * `.trim()` matters. Breadcrumbs only short-circuits on
-					 * `items.length === 0`, so a whitespace-only title would
-					 * render an empty <h1> — and that <h1> is this page's only
-					 * accessible name.
-					 */ }
-					<Breadcrumbs
-						items={ [
-							getParentBreadcrumbItem(),
-							{ label: values.title.trim() || __( 'Untitled', 'jetpack-videopress-pkg' ) },
-						] }
-					/>
-				</div>
-			}
-			actions={
-				<HeaderActions
-					guid={ video.guid }
-					canSave={ isDirty && ! isSaving }
-					onSave={ handleSave }
-					onManageCaptions={ onManageCaptions }
-					onDownload={ onDownload }
-					onDelete={ onDelete }
-				/>
-			}
-		>
-			{ showVideoNav && (
-				<VideoNav
-					videoId={ video.id }
-					activeTab="details"
-					confirmNavigation={ confirmNavigation }
-				/>
-			) }
-			<div className="vp-video-details">
-				{ /*
-				 * Placement rule for this screen: the canvas holds what a person
-				 * authors about this video — the words, the still, the captions.
-				 * The right-hand column holds the video itself, the values that
-				 * address it, and the settings picked once from a fixed set.
-				 *
-				 * The split is authoring vs. configuring rather than editable vs.
-				 * read-only, which is why Privacy & sharing and Rating sit beside
-				 * the read-outs: all three are things you set and leave, not
-				 * things you write.
-				 *
-				 * The player used to lead the canvas. It was measured at 502px
-				 * tall on a 1080p display — over half the visible page before a
-				 * single field had been read — while the settings it pushed
-				 * down could not fit their own column and grew a second
-				 * scrollbar with no visible boundary. Those are the same
-				 * problem, and moving one element fixes both.
-				 */ }
-				<div className="vp-video-details__layout">
-					<div className="vp-video-details__canvas">
-						<VideoDetailsCard
-							video={ video }
-							title={ values.title }
-							description={ values.description }
-							onChange={ update }
-							onOpenChapters={ openChapters }
-							confirmNavigation={ confirmNavigation }
-						/>
-						<ThumbnailCard video={ video } />
-						<SubtitlesCard video={ video } onManageSubtitles={ onManageCaptions } />
-					</div>
-					{ /*
-					 * Deliberately a sibling of the canvas rather than the first
-					 * child of the aside: it is placed by grid area, so the stacked
-					 * layout below 1100px can lead with the player while the
-					 * settings stay at the bottom.
-					 */ }
-					<PreviewPlayer video={ video } />
-					<aside
-						className="vp-video-details__inspector"
-						aria-label={ __( 'Video settings', 'jetpack-videopress-pkg' ) }
-					>
-						<VideoInfoCard video={ video } />
-						<PrivacySharingCard
-							privacy={ values.privacy }
-							displayEmbed={ values.displayEmbed }
-							allowDownloads={ values.allowDownloads }
-							onChange={ update }
-						/>
-						<RatingCard value={ values.rating } onChange={ onRatingChange } />
-					</aside>
-				</div>
-			</div>
-			<ChaptersHelpModal isOpen={ chaptersOpen } onClose={ closeChapters } />
-		</AdminPage>
-	);
-};
 
 type StageReadyProps = { video: LibraryItem };
 
