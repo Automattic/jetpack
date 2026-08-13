@@ -1,0 +1,50 @@
+// Shared look of the date preset surfaces: a segmented group of flush pills
+// framed as a single control, used by the rolling presets and the year surface.
+
+// The frame copies the @wordpress/ui input-layout tokens, so the group reads as
+// a sibling of the comparison trigger.
+@mixin group {
+	display: flex;
+	// One row, always: the dividers below are drawn with `> * + *`, which knows
+	// nothing about row breaks, so a wrapped row's first item paints over the
+	// group's own frame. Holds only with the `flex-shrink: 0` in `pill`.
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: 0;
+	width: fit-content;
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-interactive-neutral);
+	border-radius: var(--wpds-border-radius-sm);
+
+	// Hairline dividers between the flush items.
+	> * + * {
+		border-inline-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	}
+
+	// Lift the focused item over the fill and divider of its flush siblings,
+	// which would otherwise paint on its focus ring. WPDS has no z-index token.
+	// `:focus-within` so it also matches a dropdown trigger, which sits inside
+	// its Dropdown container.
+	> :focus-within {
+		z-index: 1;
+	}
+}
+
+@mixin pill {
+	// Same brand-tinted highlight the select-control popup gives its items.
+	--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-brand-weak-active);
+
+	// The Button sets an explicit `min-width`, which suppresses the flex
+	// automatic minimum, so a shrinkable pill compresses past its own label.
+	flex-shrink: 0;
+	white-space: nowrap;
+
+	// Selected: soft fill instead of the stock pressed-minimal strong mapping.
+	// Through the custom-prop API, so hover, focus and the border follow it.
+	&[aria-pressed="true"] {
+		--wp-ui-button-background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+		--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-neutral-weak-active);
+		--wp-ui-button-foreground-color: var(--wpds-color-foreground-content-neutral);
+		--wp-ui-button-foreground-color-active: var(--wpds-color-foreground-content-neutral);
+		outline-offset: 1px;
+	}
+}

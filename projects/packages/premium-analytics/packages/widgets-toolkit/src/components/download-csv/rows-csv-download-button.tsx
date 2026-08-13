@@ -5,10 +5,7 @@ import { buildCsv, saveCsv, type CsvColumn } from '../../helpers/build-csv';
 import { CsvDownloadButton, type CsvDownloadButtonProps } from './csv-download-button';
 import { isCsvExportEnabled } from './is-csv-export-enabled';
 
-export type RowsCsvDownloadButtonProps< Row extends Record< string, unknown > > = Omit<
-	CsvDownloadButtonProps,
-	'onDownload'
-> & {
+export type RowsCsvDownloadButtonProps< Row > = Omit< CsvDownloadButtonProps, 'onDownload' > & {
 	/**
 	 * Column definitions driving the header and cell order.
 	 */
@@ -28,13 +25,9 @@ export type RowsCsvDownloadButtonProps< Row extends Record< string, unknown > > 
 /**
  * Serialize rows already loaded in the browser and download them as CSV.
  *
- * @param props          - Component props.
- * @param props.columns  - CSV column definitions.
- * @param props.rows     - Rows to serialize.
- * @param props.filename - Download filename without an extension.
  * @return The rendered action, or null when there is nothing to export.
  */
-export function RowsCsvDownloadButton< Row extends Record< string, unknown > >( {
+export function RowsCsvDownloadButton< Row >( {
 	columns,
 	rows,
 	filename,

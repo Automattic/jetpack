@@ -24,7 +24,7 @@ export const useStatsVideoPlays = createStatsListReportHook<
 	StatsVideoPlaysOptions
 >( {
 	// Complete-stats summaries use the same endpoint and normalized response,
-	// but the API request must omit the sanitizer-only `summarize` switch.
+	// but need the dedicated legacy-compatible exact-range request.
 	queryFactory: params =>
 		params.complete_stats && params.summarize
 			? statsVideoPlaysSummaryQuery( params )

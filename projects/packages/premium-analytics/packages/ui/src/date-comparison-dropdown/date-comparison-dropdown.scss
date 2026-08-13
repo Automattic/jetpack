@@ -1,7 +1,29 @@
-.date-comparison-dropdown__select {
-	min-width: 12rem;
+@use "../styles/menu-trigger";
 
-	button[data-can-disable-input-layout] {
-		padding-inline: var(--wpds-dimension-padding-sm);
+// A menu, not a form field, so it is built on `DropdownMenu`. The box and its
+// states come from the shared trigger mixin; what stays here is the typography
+// of a trigger that carries a label, which the interval control does not.
+.date-comparison-dropdown {
+
+	@include menu-trigger.container;
+
+	.date-comparison-dropdown__toggle {
+
+		@include menu-trigger.toggle;
+
+		font-family: var(--wpds-typography-font-family-body);
+		// The input layout lifts small text to 16px on phones, so the select and
+		// this control stay the same size where the panel collapses.
+		font-size: max(var(--wpds-typography-font-size-md), 16px);
+		// The Button asks for an emphasis weight; a select trigger takes the
+		// weight of the text around it.
+		font-weight: inherit;
+		// The label is already an abbreviation, with no shorter form to break to:
+		// wrapped, it stood taller than the presets beside it.
+		white-space: nowrap;
+
+		@media (min-width: 600px) {
+			font-size: var(--wpds-typography-font-size-md);
+		}
 	}
 }

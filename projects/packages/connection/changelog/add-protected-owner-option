@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Add the protected_owner option and its storage plumbing. No user-facing change yet.
+
+

@@ -17,25 +17,19 @@ jest.mock( '../../../helpers/build-csv', () => ( {
 	saveCsv: jest.fn(),
 } ) );
 
-const mockGetScriptData = getScriptData as jest.Mock;
 const mockBuildCsv = jest.mocked( buildCsv );
 const mockSaveCsv = jest.mocked( saveCsv );
+const mockGetScriptData = jest.mocked( getScriptData );
 
 describe( 'RowsCsvDownloadButton', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		mockGetScriptData.mockReturnValue( {
-			premium_analytics: {
-				initial_full_sync_finished: 1,
-				has_store_data: false,
-				csv_exports_enabled: true,
-			},
-		} );
+		mockGetScriptData.mockReturnValue( undefined );
 	} );
 
 	it( 'builds and saves rows after committing the loading state', async () => {
 		const rows = [ { title: 'Hello' } ];
-		const columns = [ { key: 'title' as const, label: 'Title' } ];
+		const columns = [ { label: 'Title', getValue: ( row: { title: string } ) => row.title } ];
 
 		render( <RowsCsvDownloadButton columns={ columns } rows={ rows } filename="top-posts" /> );
 
@@ -54,7 +48,7 @@ describe( 'RowsCsvDownloadButton', () => {
 	it( 'stays hidden when there are no rows', () => {
 		render(
 			<RowsCsvDownloadButton
-				columns={ [ { key: 'title', label: 'Title' } ] }
+				columns={ [ { label: 'Title', getValue: row => row.title } ] }
 				rows={ [] }
 				filename="top-posts"
 			/>
@@ -63,18 +57,18 @@ describe( 'RowsCsvDownloadButton', () => {
 		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'stays hidden while the feature flag is disabled', () => {
+	it( 'stays hidden when the server disables CSV exports', () => {
 		mockGetScriptData.mockReturnValue( {
 			premium_analytics: {
 				initial_full_sync_finished: 1,
 				has_store_data: false,
 				csv_exports_enabled: false,
 			},
-		} );
+		} as ReturnType< typeof getScriptData > );
 
 		render(
 			<RowsCsvDownloadButton
-				columns={ [ { key: 'title', label: 'Title' } ] }
+				columns={ [ { label: 'Title', getValue: row => row.title } ] }
 				rows={ [ { title: 'Hello' } ] }
 				filename="top-posts"
 			/>

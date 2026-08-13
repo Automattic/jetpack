@@ -67,9 +67,17 @@ function load_wpcom_dashboard_widgets() {
 	$has_ai_launchpad = function_exists( 'wpcom_ai_launchpad_is_eligible' )
 		&& wpcom_ai_launchpad_is_eligible();
 
+	// The no_guidance launchpad-personalization variation gets no launchpad surface at all.
+	// Unlike the ai_launchpad arm above, there is no dismissal fallback: dismissing nothing
+	// cannot bring the widget back.
+	require_once __DIR__ . '/../../common/class-launchpad-personalization-experiment.php';
+	$is_no_guidance =
+		'no_guidance' === \Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment::get_variation();
+
 	if (
 		defined( 'IS_WPCOM' ) && IS_WPCOM &&
 		! $has_ai_launchpad &&
+		! $is_no_guidance &&
 		get_option( 'launch-status', 'launched' ) !== 'launched' &&
 		! empty( wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context ) ) &&
 		! wpcom_launchpad_is_task_list_dismissed( $checklist_slug )

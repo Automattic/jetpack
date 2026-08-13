@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { aiStore } from './ai-store';
-import type { AiState } from './ai-types';
+import type { AiCrawler, AiState } from './ai-types';
 
 // Single snackbar id reused across a save so "Updating settings…" is replaced
 // in place by "Settings saved." (or an error) — matches the Settings tab.
@@ -13,11 +13,16 @@ const SAVE_NOTICE_ID = 'jetpack-seo-ai-save';
 export interface AiForm {
 	enhancer: AiState[ 'enhancer' ] | null;
 	llmsTxt: AiState[ 'llmsTxt' ] | null;
+	crawlers: AiState[ 'crawlers' ] | null;
 	isSaving: boolean;
 	/** Toggle the AI SEO Enhancer and save immediately. */
 	setEnhancerEnabled: ( next: boolean ) => void;
 	/** Toggle llms.txt generation and save immediately. */
 	setLlmsTxtEnabled: ( next: boolean ) => void;
+	/** Allow or block a single AI crawler and save immediately. */
+	setCrawlerBlocked: ( slug: string, blocked: boolean ) => void;
+	/** Allow or block every AI crawler in a group in one save. */
+	setCrawlerGroupBlocked: ( type: AiCrawler[ 'type' ], blocked: boolean ) => void;
 }
 
 /**
@@ -38,13 +43,19 @@ export function useAiForm(): AiForm {
 	// Seed from the store (latest-saved snapshot), not the one-time bootstrap.
 	const initialEnhancer = useMemo( () => select( aiStore ).getEnhancer(), [] );
 	const initialLlmsTxt = useMemo( () => select( aiStore ).getLlmsTxt(), [] );
+	const initialCrawlers = useMemo( () => select( aiStore ).getCrawlers(), [] );
 
 	const [ enhancer, setEnhancer ] = useState< AiState[ 'enhancer' ] | null >( initialEnhancer );
 	const [ llmsTxt, setLlmsTxt ] = useState< AiState[ 'llmsTxt' ] | null >( initialLlmsTxt );
+	const [ crawlers, setCrawlers ] = useState< AiState[ 'crawlers' ] | null >( initialCrawlers );
 	const [ isSaving, setIsSaving ] = useState( false );
 
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
-	const { setEnhancer: persistEnhancer, setLlmsTxt: persistLlmsTxt } = useDispatch( aiStore );
+	const {
+		setEnhancer: persistEnhancer,
+		setLlmsTxt: persistLlmsTxt,
+		setCrawlers: persistCrawlers,
+	} = useDispatch( aiStore );
 
 	// Shared save lifecycle: optimistic snackbar, POST, then `onSuccess` (persist
 	// the saved value to the store) or `onError` (revert the optimistic update).
@@ -108,11 +119,76 @@ export function useAiForm(): AiForm {
 		[ runSave, persistLlmsTxt, initialLlmsTxt ]
 	);
 
+	const setCrawlerBlocked = useCallback(
+		( slug: string, blocked: boolean ) => {
+			if ( ! crawlers ) {
+				return;
+			}
+			// The default policy for this bot: training crawlers blocked, answer-engine
+			// crawlers allowed. An override that matches the default is dropped so the
+			// stored map stays sparse (and new training bots stay covered).
+			const bot = crawlers.catalog.find( entry => entry.slug === slug );
+			const defaultBlocked = bot ? bot.type === 'training' : false;
+
+			const nextOverrides = { ...crawlers.overrides };
+			if ( blocked === defaultBlocked ) {
+				delete nextOverrides[ slug ];
+			} else {
+				nextOverrides[ slug ] = blocked;
+			}
+
+			const prevCrawlers = crawlers;
+			const nextCrawlers = { ...crawlers, overrides: nextOverrides };
+			setCrawlers( nextCrawlers );
+			runSave(
+				{ jetpack_seo_ai_crawler_overrides: nextOverrides },
+				() => persistCrawlers( nextCrawlers ),
+				() => setCrawlers( prevCrawlers )
+			);
+		},
+		[ crawlers, runSave, persistCrawlers ]
+	);
+
+	const setCrawlerGroupBlocked = useCallback(
+		( type: AiCrawler[ 'type' ], blocked: boolean ) => {
+			if ( ! crawlers ) {
+				return;
+			}
+			// Every bot in a group shares one default policy (training → blocked,
+			// otherwise allowed), so an override matching that default is dropped to
+			// keep the stored map sparse — same rule as the single-crawler setter.
+			const defaultBlocked = type === 'training';
+			const nextOverrides = { ...crawlers.overrides };
+			crawlers.catalog
+				.filter( bot => bot.type === type )
+				.forEach( bot => {
+					if ( blocked === defaultBlocked ) {
+						delete nextOverrides[ bot.slug ];
+					} else {
+						nextOverrides[ bot.slug ] = blocked;
+					}
+				} );
+
+			const prevCrawlers = crawlers;
+			const nextCrawlers = { ...crawlers, overrides: nextOverrides };
+			setCrawlers( nextCrawlers );
+			runSave(
+				{ jetpack_seo_ai_crawler_overrides: nextOverrides },
+				() => persistCrawlers( nextCrawlers ),
+				() => setCrawlers( prevCrawlers )
+			);
+		},
+		[ crawlers, runSave, persistCrawlers ]
+	);
+
 	return {
 		enhancer,
 		llmsTxt,
+		crawlers,
 		isSaving,
 		setEnhancerEnabled,
 		setLlmsTxtEnabled,
+		setCrawlerBlocked,
+		setCrawlerGroupBlocked,
 	};
 }

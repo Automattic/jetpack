@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getDatePart } from '@jetpack-premium-analytics/datetime';
 import {
 	differenceInCalendarISOWeeks,
 	differenceInCalendarMonths,
@@ -48,10 +49,6 @@ const statsParamKeys = [
 	'skip_archives',
 ] as const satisfies Array< keyof StatsQueryParamFields >;
 
-function datePart( value?: string ) {
-	return value?.split( 'T' )[ 0 ];
-}
-
 export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
 	switch ( interval ) {
 		case 'hour':
@@ -76,8 +73,8 @@ export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
  * `unit`, mirroring how `days` is derived for day-based requests.
  *
  * @param period - The bucket granularity.
- * @param from   - Range start (`yyyy-MM-dd`).
- * @param to     - Range end (`yyyy-MM-dd`).
+ * @param from   - Range start (`yyyy-MM-dd`, or a full ISO datetime — only the calendar day is used).
+ * @param to     - Range end (`yyyy-MM-dd`, or a full ISO datetime — only the calendar day is used).
  * @return The bucket count, at least 1.
  */
 export function getPeriodsBetweenInclusive(
@@ -96,8 +93,8 @@ export function getPeriodsBetweenInclusive(
 	// exactly on a week/month/year boundary as the previous local period,
 	// shifting only one side of the range and skewing the bucket count (e.g.
 	// a 4-week range reading as 5 weeks).
-	const fromDate = localTZDate( `${ datePart( from ) }T00:00:00Z`, '+00:00' );
-	const toDate = localTZDate( `${ datePart( to ) }T00:00:00Z`, '+00:00' );
+	const fromDate = localTZDate( `${ getDatePart( from ) }T00:00:00Z`, '+00:00' );
+	const toDate = localTZDate( `${ getDatePart( to ) }T00:00:00Z`, '+00:00' );
 
 	const differenceForPeriod = {
 		week: differenceInCalendarISOWeeks,
@@ -123,11 +120,12 @@ export function reportParamsToStatsQueryParams(
 			.map( key => [ key, params[ key ] ] )
 	) as StatsQueryParams;
 
-	const from = datePart( params.from );
-	const to = datePart( params.to );
 	const period = params.period ?? getStatsPeriodFromInterval( params.interval );
-	const endDate = params.end_date ?? params.date ?? to;
-	const startDate = params.start_date ?? from;
+	// Stats v1.1 endpoints now resolve an offset-bearing ISO datetime to the
+	// intended local calendar day (WOOA7S-1656/1664), so start_date/end_date
+	// are passed through as-is instead of being trimmed to a bare date first.
+	const endDate = params.end_date ?? params.date ?? params.to;
+	const startDate = params.start_date ?? params.from;
 	const days =
 		params.days ??
 		( startDate && endDate ? getDaysBetweenInclusive( startDate, endDate ) : undefined );

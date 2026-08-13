@@ -9,9 +9,6 @@ type ReportsCouponsByDateResponse = Awaited< ReturnType< typeof fetchReportCoupo
 type RawSummary = ReportsCouponsByDateResponse[ 'summary' ];
 type RawDataItem = ReportsCouponsByDateResponse[ 'data' ][ number ];
 
-/**
- * Processed summary with numeric values.
- */
 type SanitizedCouponsByDateSummary = Override<
 	RawSummary,
 	{
@@ -27,9 +24,6 @@ type SanitizedCouponsByDateSummary = Override<
 	}
 >;
 
-/**
- * Processed data item with numeric values.
- */
 type SanitizedCouponsByDateDataItem = Override<
 	RawDataItem,
 	{
@@ -45,9 +39,6 @@ type SanitizedCouponsByDateDataItem = Override<
 	}
 >;
 
-/**
- * Processed response with numeric values.
- */
 type SanitizedCouponsByDateResponse = {
 	summary: SanitizedCouponsByDateSummary;
 	data: SanitizedCouponsByDateDataItem[];
@@ -86,10 +77,6 @@ function sanitizeSummary( summary: RawSummary ): SanitizedCouponsByDateSummary {
 	};
 }
 
-/**
- * Sanitize the response from the reports/coupons/by-date endpoint.
- * Converts string values to numbers for calculations and charting.
- */
 export const sanitizeReportCouponsByDateResponse = (
 	response: ReportsCouponsByDateResponse
 ): SanitizedCouponsByDateResponse => {

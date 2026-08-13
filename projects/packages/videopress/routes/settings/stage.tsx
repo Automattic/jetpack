@@ -4,7 +4,11 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card, Stack } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
+import FreeTierNotice, {
+	FREE_TIER_AT_LIMIT_MESSAGE,
+} from '../../src/dashboard/components/free-tier-notice';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import {
 	isPrivateForSiteServerControlled,
 	useSettings,
@@ -90,13 +94,25 @@ const SettingsForm = () => {
 	);
 };
 
-const Stage = () => (
-	<QueryClientWrapper>
+const StageInner = () => {
+	// Settings has no upload button of its own, but a free user who has used
+	// their upload otherwise reaches this tab with no upgrade path in sight —
+	// surface the same at-limit notice the Library shows (VIDP-311).
+	const { isAtLimit } = useFreeTier();
+
+	return (
 		<DashboardLayout activeTab="settings">
 			<div className="jp-videopress-settings">
+				{ isAtLimit && <FreeTierNotice message={ FREE_TIER_AT_LIMIT_MESSAGE } /> }
 				<SettingsForm />
 			</div>
 		</DashboardLayout>
+	);
+};
+
+const Stage = () => (
+	<QueryClientWrapper>
+		<StageInner />
 	</QueryClientWrapper>
 );
 

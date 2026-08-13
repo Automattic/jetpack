@@ -14,20 +14,11 @@ import { buildSalesByCouponData, isEmptyChartData } from '../../helpers';
 import { useBarStyles } from '../common';
 
 /**
- * Sales by Coupon Widget Component
- *
  * Displays a bar chart showing coupon discount distribution.
  * Shows top 3 coupons plus "Other" segment.
  * Displays data for all product types.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <SalesByCouponWidget />
- * </WidgetRoot>
- * ```
  */
 export function SalesByCouponWidget() {
 	const { reportParams } = useWidgetRootContext();
@@ -54,13 +45,13 @@ export function SalesByCouponWidget() {
 			error={ {
 				description: __(
 					"We couldn't load coupon sales data. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: coupon,
-				description: __( 'No coupon sales in this period.', 'jetpack-premium-analytics' ),
+				description: __( 'No coupon sales in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<BarChart

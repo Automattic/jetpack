@@ -22,7 +22,8 @@
 // Hovered/focused trigger: same brand-tinted highlight the select-control
 // popup gives its items.
 .date-filters-panel-button {
-	font-size: max(var(--wpds-typography-font-size-md), 16px);
+	// Matches the preset pills it shares the row with.
+	font-size: var(--wpds-typography-font-size-md);
 	--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-brand-weak-active);
 }
 
@@ -51,6 +52,19 @@
 // Same non-shrinking caret the select-control trigger uses.
 .date-filters-panel-button__caret {
 	flex: 0 0 auto;
+}
+
+// The group's only shrinkable item, so it absorbs whatever the row runs short
+// of. Without this the label broke mid-word over three lines ("Прои / зволь /
+// но"). Truncating is the interim answer; the popover it opens still spells the
+// range out.
+.date-filters-panel-button__label {
+	overflow: hidden;
+	// Needed for the ellipsis: a flex item will not shrink past its content
+	// otherwise, so `overflow` would never engage.
+	min-width: 0;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .date-range-calendar-wrapper {
@@ -97,11 +111,4 @@
 ::view-transition-new(jp-premium-analytics--date-range-popover),
 ::view-transition-old(jp-premium-analytics--date-range-popover) {
 	animation: none;
-}
-
-@media (min-width: 600px) {
-
-	.date-filters-panel-button {
-		font-size: var(--wpds-typography-font-size-md);
-	}
 }

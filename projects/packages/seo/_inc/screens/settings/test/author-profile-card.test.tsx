@@ -104,25 +104,25 @@ describe( 'AuthorProfileCard', () => {
 		} ) );
 	} );
 
-	it( 'renders collapsed by default, without a badge while loading', () => {
+	it( 'renders collapsed by default, without a status while loading', () => {
 		renderCard();
 
 		expect( screen.getByRole( 'button', { name: /Author profile/ } ) ).toHaveAttribute(
 			'aria-expanded',
 			'false'
 		);
-		expect( screen.queryByText( 'Not set' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Not started' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps loading when core-data returns the initial empty current user', () => {
 		currentUser = {};
 		renderCard();
 
-		expect( screen.queryByText( 'Not set' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Not started' ) ).not.toBeInTheDocument();
 		expect( createErrorNotice ).not.toHaveBeenCalled();
 	} );
 
-	it( 'renders the fields from the current user and counts them in the header badge', async () => {
+	it( 'renders the fields from the current user and reports complete in the header', async () => {
 		mockAuthorEntity();
 		renderCard();
 		expand();
@@ -136,8 +136,9 @@ describe( 'AuthorProfileCard', () => {
 			'src',
 			'https://example.test/avatar.jpg'
 		);
-		// Bio, website, job title, and a social profile are all filled.
-		expect( screen.getByText( '4 of 4 set' ) ).toBeInTheDocument();
+		// Bio, website, job title, and a social profile are all filled, so all four
+		// counted fields are set and the module reports complete.
+		expect( screen.getByText( 'Complete' ) ).toBeInTheDocument();
 	} );
 
 	it( 'saves changes through the core user entity', async () => {

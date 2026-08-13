@@ -11,6 +11,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
+	getCombinedPeriodMax,
 	sharePercentage,
 	toMaxRows,
 	useWidgetRootContext,
@@ -43,10 +44,6 @@ type VideoPressWidgetProps = WidgetRenderProps< VideoPressRenderAttributes > & {
 /**
  * Build a video row's title. Attachment rows navigate to the internal detail
  * route; rows without an ID retain the original external-link fallback.
- *
- * @param row    - The normalized video row.
- * @param search - Shared report-window parameters for the detail route.
- * @return The linked or plain row title.
  */
 function buildVideoTitle( row: VideoPlaysRow, search: Record< string, unknown > ): JSX.Element {
 	return (
@@ -70,17 +67,15 @@ function buildVideoTitle( row: VideoPlaysRow, search: Record< string, unknown > 
  * are computed against the largest value of either period so the overlay bars
  * stay proportional. Rows without a matching comparison-period value keep
  * comparison fields undefined so the chart suppresses fabricated deltas.
- *
- * @param rows   - The normalized video-plays rows.
- * @param search - Shared report-window parameters for detail links.
- * @return The leaderboard chart data.
  */
 function buildLeaderboardData(
 	rows: VideoPlaysRow[],
 	search: Record< string, unknown >
 ): LeaderboardChartData {
-	// `1` guards against division by zero when every value is 0.
-	const maxPlays = Math.max( ...rows.flatMap( row => [ row.plays, row.previousPlays ?? 0 ] ), 1 );
+	const maxPlays = getCombinedPeriodMax(
+		rows.map( row => row.plays ),
+		rows.map( row => row.previousPlays )
+	);
 
 	return rows.map( row => ( {
 		id: row.key,
@@ -105,9 +100,6 @@ type VideoPressReportProps = {
 /**
  * Fetches the video-plays report through the Jetpack Stats hook, builds the
  * leaderboard rows, and renders them through the shared widget content states.
- *
- * @param {VideoPressReportProps} props - The component props.
- * @return The widget content.
  */
 function VideoPressReport( { max }: VideoPressReportProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -151,13 +143,13 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 			error={ {
 				description: __(
 					"We couldn't load video plays. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: video,
-				description: __( 'No VideoPress plays in this period.', 'jetpack-premium-analytics' ),
+				description: __( 'No VideoPress plays in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<LeaderboardChart
@@ -174,16 +166,6 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 	);
 }
 
-/**
- * VideoPress widget render entry point.
- *
- * WidgetRoot provides the analytics query client, chart theme, and the report
- * params consumed by the inner leaderboard — resolved from the dashboard date
- * range via context, the same way the other Stats widgets read them.
- *
- * @param {VideoPressWidgetProps} props - The widget render props.
- * @return The rendered VideoPress widget.
- */
 export default function VideoPress( { attributes = {}, setError }: VideoPressWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError }>

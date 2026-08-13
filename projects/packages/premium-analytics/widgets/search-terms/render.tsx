@@ -3,6 +3,8 @@
  */
 import {
 	calculateDelta,
+	describeError,
+	getCombinedPeriodMax,
 	LeaderboardChart,
 	ReportLink,
 	WidgetFooter,
@@ -16,7 +18,7 @@ import {
 import { search } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -30,21 +32,21 @@ type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes >;
 
 /**
  * Search Terms widget inner component. Reads report params from WidgetRoot context.
- *
- * @param {SearchTermsAttributes} attributes - The widget attributes.
- * @return The rendered widget content.
  */
 function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { data, isLoading, isFetching, isError, hasComparison, refetch } = useSearchTermViews( {
-		reportParams,
-		max,
-	} );
+	const { data, isLoading, isFetching, isError, error, hasComparison, refetch } =
+		useSearchTermViews( {
+			reportParams,
+			max,
+		} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = Math.max( ...data.map( t => t.views ), 0 );
-		const prevMaxValue = Math.max( ...data.map( t => t.previousViews ?? 0 ), 0 );
+		const maxValue = getCombinedPeriodMax(
+			data.map( term => term.views ),
+			hasComparison ? data.map( term => term.previousViews ) : []
+		);
 
 		return data.map( ( term, index ) => {
 			const previousViews = term.previousViews;
@@ -61,7 +63,7 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 				currentShare: sharePercentage( term.views, maxValue ),
 				previousShare:
 					hasComparison && previousViews !== undefined
-						? sharePercentage( previousViews, prevMaxValue )
+						? sharePercentage( previousViews, maxValue )
 						: undefined,
 				delta:
 					hasComparison && previousViews !== undefined
@@ -79,16 +81,16 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 					isFetching={ isFetching }
 					isError={ isError }
 					isEmpty={ data.length === 0 }
-					error={ {
-						description: __(
+					error={ describeError( error, {
+						retryDescription: __(
 							"We couldn't load search terms. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-					} }
+						onRetry: refetch,
+					} ) }
 					empty={ {
 						icon: search,
-						description: __( 'No search terms in this period.', 'jetpack-premium-analytics' ),
+						description: __( 'No search terms in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
 				>
 					<LeaderboardChart
@@ -113,9 +115,6 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 /**
  * Search Terms widget: the top search queries visitors used to reach the site,
  * ranked by view count. Ported from the Jetpack Stats "Search Terms" module.
- *
- * @param {SearchTermsWidgetProps} props - The widget render props.
- * @return The rendered Search Terms widget.
  */
 export default function SearchTerms( { attributes = {} }: SearchTermsWidgetProps ) {
 	return (

@@ -10,7 +10,7 @@
 		"@wordpress/element": "8.3.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^15.0.0",
-		"@wordpress/ui": "0.17.0",
-		"@wordpress/widget-primitives": "0.2.0"
+		"@wordpress/ui": "0.19.0",
+		"@wordpress/widget-primitives": "0.4.0"
 	}
 }

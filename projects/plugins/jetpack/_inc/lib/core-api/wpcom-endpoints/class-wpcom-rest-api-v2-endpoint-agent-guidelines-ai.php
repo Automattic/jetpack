@@ -9,6 +9,8 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -88,12 +90,28 @@ class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI extends WP_REST_Controller 
 	}
 
 	/**
-	 * Permission check — require manage_options.
+	 * Permission check — require manage_options, plus a connected user account
+	 * on sites that proxy the request to WordPress.com over the connection.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public function permission_callback() {
-		return current_user_can( 'manage_options' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		// suggest_guidelines() signs with the user token off Simple, so without a
+		// user connection there is no identity to present and WordPress.com rejects
+		// the request on private sites.
+		if ( ! ( new Host() )->is_wpcom_simple() && ! ( new Manager() )->is_user_connected() ) {
+			return new WP_Error(
+				'rest_cannot_suggest_guidelines',
+				__( 'Please connect your user account to WordPress.com', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
 	}
 
 	/**
@@ -109,17 +127,39 @@ class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI extends WP_REST_Controller 
 			'categories' => $request->get_param( 'categories' ),
 		);
 
-		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/sites/%d/jetpack-ai/suggest-guidelines', $blog_id ) . '?force=wpcom',
-			'2',
-			array(
-				'method'  => 'POST',
-				'headers' => array( 'content-type' => 'application/json' ),
-				'timeout' => 90,
-			),
-			wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
-			'wpcom'
+		$path = sprintf( '/sites/%d/jetpack-ai/suggest-guidelines', $blog_id ) . '?force=wpcom';
+		$args = array(
+			'method'  => 'POST',
+			'headers' => array( 'content-type' => 'application/json' ),
+			'timeout' => 90,
 		);
+
+		// On a private site WordPress.com resolves access from the requesting user,
+		// and a blog token carries no user_id — so the request is rejected before
+		// the endpoint runs, and again on the internal AI proxy dispatch. Signing
+		// as the user clears both, because the identity holds for the whole request.
+		// permission_callback() has already established that a user token exists.
+		//
+		// Simple sites keep the blog-token call: it short-circuits to an in-process
+		// WPCOM_API_Direct dispatch that never leaves the request, so the logged-in
+		// user is already present and there is no connection to authenticate against.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			$response = Client::wpcom_json_api_request_as_blog(
+				$path,
+				'2',
+				$args,
+				wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+				'wpcom'
+			);
+		} else {
+			$response = Client::wpcom_json_api_request_as_user(
+				$path,
+				'2',
+				$args,
+				wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+				'wpcom'
+			);
+		}
 
 		if ( is_wp_error( $response ) ) {
 			return $response;

@@ -25,7 +25,7 @@ use WP_REST_Response;
 /**
  * Data Fetcher class for retrieving report data.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Report_Data_Fetcher {
 
@@ -75,7 +75,6 @@ class Report_Data_Fetcher {
 			$params['fields'] = $fields;
 		}
 
-		// Fetch data based on whether this is a comparison request.
 		if ( $this->is_comparison_request( $params ) ) {
 			return $this->fetch_comparison_data( $params, $controller );
 		}
@@ -97,16 +96,14 @@ class Report_Data_Fetcher {
 				return new WP_Error(
 					'missing_comparison_param',
 					/* translators: %s: parameter name. */
-					sprintf( __( 'Missing required comparison parameter: %s', 'jetpack-premium-analytics' ), $required ),
+					sprintf( __( 'Missing required comparison parameter: %s', 'jetpack-premium-analytics-pkg' ), $required ),
 					array( 'status' => 400 )
 				);
 			}
 		}
 
-		// Build parameters for both periods.
 		$base_params = $this->extract_base_params( $params );
 
-		// Fetch original period data.
 		$original_params = array_merge(
 			$base_params,
 			array(
@@ -119,10 +116,8 @@ class Report_Data_Fetcher {
 			return $original_data;
 		}
 
-		// Check if we need ID-based matching.
 		$matching_field = $controller->get_matching_field();
 
-		// Validate matching field exists in data if specified.
 		if ( $matching_field && ! empty( $original_data['data'] ) ) {
 			$first_item = $original_data['data'][0];
 			if ( ! isset( $first_item[ $matching_field ] ) ) {
@@ -139,7 +134,6 @@ class Report_Data_Fetcher {
 			}
 		}
 
-		// Fetch comparison period data.
 		$comparison_params = array_merge(
 			$base_params,
 			array(
@@ -152,7 +146,6 @@ class Report_Data_Fetcher {
 		if ( $matching_field && ! empty( $original_data['data'] ) ) {
 			$ids = $this->extract_ids_from_data( $original_data['data'], $matching_field, $controller );
 			if ( ! empty( $ids ) ) {
-				// Check if ID count exceeds the maximum.
 				if ( count( $ids ) > self::MAX_ID_FILTER_COUNT ) {
 					$this->logger->log_error(
 						sprintf(
@@ -174,7 +167,6 @@ class Report_Data_Fetcher {
 			return $comparison_data;
 		}
 
-		// Merge the datasets.
 		$merged_data = $this->merge_datasets(
 			$original_data,
 			$comparison_data,
@@ -333,14 +325,12 @@ class Report_Data_Fetcher {
 		$original_items   = $original_data['data'] ?? array();
 		$comparison_items = $comparison_data['data'] ?? array();
 
-		// Select appropriate merge strategy based on matching field.
 		if ( $matching_field ) {
 			$strategy = new Id_Based_Merge_Strategy( $matching_field, $this->logger );
 		} else {
 			$strategy = new Index_Based_Merge_Strategy( $this->logger );
 		}
 
-		// Delegate to strategy.
 		$merged_items = $strategy->merge( $original_items, $comparison_items, $prefix, $controller );
 
 		$original_data['data'] = $merged_items;
@@ -399,12 +389,10 @@ class Report_Data_Fetcher {
 			$filter_index = max( $filter_index, count( $params['filters'] ) );
 		}
 
-		// Build filter as nested array structure.
 		if ( ! isset( $params['filters'] ) ) {
 			$params['filters'] = array();
 		}
 
-		// Add values in controller's preferred format.
 		if ( $controller->use_array_filter_format() ) {
 			// Array format: pass IDs as an array so each serializes to its own filter value entry.
 			$params['filters'][ $filter_index ] = array(
@@ -449,7 +437,6 @@ class Report_Data_Fetcher {
 		// (never a WP_Error); proxy failures surface via $response->is_error() below.
 		$response = rest_do_request( $request );
 
-		// Check for errors.
 		if ( $response->is_error() ) {
 			$error_data = $this->build_external_api_error( $response );
 			$error_meta = $error_data->get_error_data();
@@ -484,7 +471,7 @@ class Report_Data_Fetcher {
 			&& is_numeric( $data['data']['status'] )
 			&& (int) $data['data']['status'] >= 400
 		) {
-			return $this->build_external_api_error( $response );
+			return $this->build_external_api_error( $response, $data );
 		}
 
 		return $data;
@@ -497,19 +484,29 @@ class Report_Data_Fetcher {
 	 * payloads represented as stdClass. Preserve the external details in data while
 	 * keeping a consistent local error message for the CSV export route.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param WP_REST_Response $response Response containing an external API error.
+	 * @param mixed            $data     Optional already-normalized response data.
 	 * @return WP_Error Normalized external API error.
 	 */
-	private function build_external_api_error( WP_REST_Response $response ): WP_Error {
-		$data = $this->normalize_response_data( $response->get_data() );
-		if ( is_wp_error( $data ) ) {
-			return $data;
+	private function build_external_api_error( WP_REST_Response $response, $data = null ): WP_Error {
+		if ( null === $data ) {
+			$data = $this->normalize_response_data( $response->get_data() );
 		}
 
-		$response_status  = (int) $response->get_status();
-		$status           = $response_status >= 400 ? $response_status : 500;
+		$response_status = (int) $response->get_status();
+		$status          = $response_status >= 400 ? $response_status : 500;
+		if ( is_wp_error( $data ) ) {
+			return new WP_Error(
+				'external_api_error',
+				__( 'External API error', 'jetpack-premium-analytics-pkg' ),
+				array(
+					'status' => $status,
+				)
+			);
+		}
+
 		$external_code    = null;
 		$external_message = null;
 		$external_params  = null;
@@ -561,7 +558,7 @@ class Report_Data_Fetcher {
 
 		return new WP_Error(
 			'external_api_error',
-			__( 'External API error', 'jetpack-premium-analytics' ),
+			__( 'External API error', 'jetpack-premium-analytics-pkg' ),
 			$error_data
 		);
 	}
@@ -582,7 +579,7 @@ class Report_Data_Fetcher {
 			$this->logger->log_error( 'Failed to JSON encode proxy response data: ' . json_last_error_msg(), __METHOD__ );
 			return new WP_Error(
 				'proxy_response_encode_failed',
-				__( 'Failed to normalize proxy response data.', 'jetpack-premium-analytics' )
+				__( 'Failed to normalize proxy response data.', 'jetpack-premium-analytics-pkg' )
 			);
 		}
 

@@ -263,25 +263,34 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 	}
 
 	const componentMap: Record< string, React.ReactElement > = {};
+	const replacements: Array< { start: number; end: number; value: string } > = [];
+	const overlapsReplacement = ( start: number, end: number ) =>
+		replacements.some( replacement => start < replacement.end && replacement.start < end );
 
 	if ( hyperlinkUrls ) {
 		// Convert URLs to hyperlinks.
 		// TODO: Use a better regex here to match the URLs without protocol.
-		const urls = result.match( /(https?:\/\/\S+)/g ) || [];
+		const urls = [ ...result.matchAll( /https?:\/\/\S+/g ) ];
 
 		/**
 		 * BEFORE:
 		 * result = 'Check out this cool site: https://wordpress.org and this one: https://wordpress.com'
 		 */
-		urls.forEach( ( url, index ) => {
+		urls.forEach( ( match, index ) => {
+			const url = match[ 0 ];
+			const start = match.index ?? 0;
+
 			// Add the element to the component map.
 			componentMap[ `Link${ index }` ] = (
 				<a href={ url } rel="noopener noreferrer" target="_blank">
 					{ url }
 				</a>
 			);
-			// Replace the URL with the component placeholder.
-			result = result.replace( url, `<Link${ index } />` );
+			replacements.push( {
+				start,
+				end: start + url.length,
+				value: `<Link${ index } />`,
+			} );
 		} );
 		/**
 		 * AFTER:
@@ -300,7 +309,7 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 		 * For example, we don't want to match the hash in the URL.
 		 * Thus we need to match the whitespace character before the hashtag or the beginning of the string.
 		 */
-		const hashtags = result.matchAll( /(^|\s)#(\w+)/g );
+		const hashtags = [ ...result.matchAll( /(^|\s)#(\w+)/g ) ];
 
 		const hashtagUrl = hashtagUrlMap[ platform ];
 
@@ -309,7 +318,15 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 		 * result = `#breaking text with a #hashtag on the #web
 		 * with a url https://github.com/Automattic/wp-calypso#security that has a hash in it`
 		 */
-		[ ...hashtags ].forEach( ( [ fullMatch, whitespace, hashtag ], index ) => {
+		hashtags.forEach( ( match, index ) => {
+			const [ , whitespace, hashtag ] = match;
+			const start = ( match.index ?? 0 ) + whitespace.length;
+			const end = start + hashtag.length + 1;
+
+			if ( overlapsReplacement( start, end ) ) {
+				return;
+			}
+
 			const url = sprintf( hashtagUrl, hashtag, options.hashtagDomain );
 
 			// Add the element to the component map.
@@ -319,8 +336,7 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 				</a>
 			);
 
-			// Replace the hashtag with the component placeholder.
-			result = result.replace( fullMatch, `${ whitespace }<Hashtag${ index } />` );
+			replacements.push( { start, end, value: `<Hashtag${ index } />` } );
 		} );
 		/**
 		 * AFTER:
@@ -335,13 +351,10 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 		 */
 	}
 
-	// Render editor hyperlinks: wrap each anchor's own occurrence of its text in
-	// a link, resolving all positions before any tags are inserted. Anchors whose
-	// occurrence isn't present (e.g. truncated away) or overlaps another match
-	// are skipped. Runs after the URL/hashtag passes so the inserted tags stay balanced.
+	// Render editor hyperlinks: resolve occurrences against the original plain
+	// message, before URL and hashtag placeholders remove matching text. Anchors
+	// that were truncated away or overlap another link are skipped.
 	if ( hyperlinks?.length ) {
-		const matches: Array< { pos: number; text: string; href: string; index: number } > = [];
-
 		hyperlinks.forEach( ( { text: anchorText, href, occurrence = 0 }, index ) => {
 			if ( ! anchorText ) {
 				return;
@@ -353,25 +366,25 @@ export function preparePreviewText( text: string, options: PreviewTextOptions ):
 				return;
 			}
 
-			const overlaps = matches.some(
-				match => pos < match.pos + match.text.length && match.pos < pos + anchorText.length
-			);
-
-			if ( ! overlaps ) {
-				matches.push( { pos, text: anchorText, href, index } );
+			const end = pos + anchorText.length;
+			if ( overlapsReplacement( pos, end ) ) {
+				return;
 			}
-		} );
 
-		// Insert right-to-left so earlier positions stay valid.
-		matches.sort( ( a, b ) => b.pos - a.pos );
-
-		for ( const { pos, text: anchorText, href, index } of matches ) {
 			const token = `Hyperlink${ index }`;
 			componentMap[ token ] = <a href={ href } rel="noopener noreferrer" target="_blank" />;
+			replacements.push( {
+				start: pos,
+				end,
+				value: `<${ token }>${ anchorText }</${ token }>`,
+			} );
+		} );
+	}
 
-			const wrapped = `<${ token }>${ anchorText }</${ token }>`;
-			result = result.slice( 0, pos ) + wrapped + result.slice( pos + anchorText.length );
-		}
+	// Insert right-to-left so every range remains relative to the plain message.
+	replacements.sort( ( a, b ) => b.start - a.start );
+	for ( const { start, end, value } of replacements ) {
+		result = result.slice( 0, start ) + value + result.slice( end );
 	}
 
 	// Convert newlines to <br> tags.

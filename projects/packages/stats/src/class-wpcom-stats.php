@@ -338,8 +338,8 @@ class WPCOM_Stats {
 	 */
 	public function get_total_post_views( $args = array() ) {
 		if ( $this->is_wpcom_simple ) {
-			$post_ids         = isset( $args['post_ids'] ) ? explode( ',', $args['post_ids'] ) : array();
-			$escaped_post_ids = implode( ',', array_map( 'esc_sql', $post_ids ) );
+			$post_ids         = isset( $args['post_ids'] ) ? array_map( 'absint', explode( ',', $args['post_ids'] ) ) : array();
+			$escaped_post_ids = implode( ',', $post_ids );
 
 			$number_of_days = isset( $args['num'] ) ? absint( $args['num'] ) : 1;
 			// It's the same function used in WPCOM simple.
@@ -598,7 +598,7 @@ class WPCOM_Stats {
 	 * @return array
 	 */
 	protected function fetch_stats_on_wpcom_simple( $end_date, $number_of_days, $escaped_post_ids ) {
-		return stats_get_daily_history( null, get_current_blog_id(), 'postviews', 'post_id', $end_date, $number_of_days, " AND post_id IN ($escaped_post_ids)", 0, true );
+		return stats_get_daily_history( false, get_current_blog_id(), 'postviews', 'post_id', $end_date, $number_of_days, " AND post_id IN ($escaped_post_ids)", 0, true );
 	}
 
 	/**

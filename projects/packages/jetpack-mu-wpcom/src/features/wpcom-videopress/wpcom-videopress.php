@@ -19,27 +19,21 @@
 use Automattic\Jetpack\Status\Host;
 
 /**
- * Whether the modernized VideoPress dashboard is rolled out to this Simple
- * site and user (VIDP-285).
+ * Whether the VideoPress chapters editor is available to this Simple user.
  *
- * The whole admin UI keys off Admin_UI::is_modernized() — menu registration
- * (add_wp_admin_submenu bails without it), the wp-build asset load, and the
- * boot payload — so this is the Simple staged-rollout switch: off by default,
- * on for CFT testers via the blog sticker, and always on for Automatticians.
- * UI-only by design: the REST surface (wpcom/v2 routes, attachment query
- * filters, the server-side token mint) stays registered regardless, so the
- * API contract doesn't flap with the flag.
+ * Gates the chapters editor UI in both places it lives: the dashboard's Editor
+ * tab (and the `/video/$id/editor` route behind it, stripped from the wp-build
+ * registry when this is false) and the block editor's "Manage chapters"
+ * toolbar button. Automatticians only while the feature is in development —
+ * there is deliberately no blog-sticker branch yet.
  *
- * @return bool Whether the modernized dashboard should be enabled.
+ * UI-only by design: the chapters REST surface (the VideoPress endpoints that
+ * read and write the chapters track) stays registered regardless, so the API
+ * contract doesn't flap with the flag.
+ *
+ * @return bool Whether the chapters editor UI should be enabled.
  */
-function wpcom_videopress_modernized_dashboard_enabled() {
-	if (
-		function_exists( 'wpcom_has_blog_sticker' ) && function_exists( 'get_wpcom_blog_id' )
-		&& wpcom_has_blog_sticker( 'videopress-modernized-dashboard', get_wpcom_blog_id() )
-	) {
-		return true;
-	}
-
+function wpcom_videopress_chapters_editor_enabled() {
 	return function_exists( 'is_automattician' ) && is_automattician( get_current_user_id() );
 }
 
@@ -60,12 +54,15 @@ function wpcom_videopress_init_admin_ui() {
 	}
 
 	/*
-	 * VIDP-285: staged rollout. Registered on Simple only, so self-hosted and
-	 * Atomic keep the filter's default (enabled). The callbacks that consult
-	 * Admin_UI::is_modernized() run at admin_menu time, well after this
-	 * plugins_loaded-time registration.
+	 * Registered on Simple only, so self-hosted and Atomic keep the filter's
+	 * default (disabled). Registered before the class_exists() guard below and
+	 * from a plugins_loaded-time call site, so it also covers block editor
+	 * requests — where the flag is read at enqueue_block_editor_assets — not
+	 * just the VideoPress admin page. The callbacks that consult the filter all
+	 * run at admin_menu/enqueue time, well after this registration, so
+	 * is_automattician() sees the resolved current user.
 	 */
-	add_filter( 'rsm_jetpack_ui_modernization_videopress', 'wpcom_videopress_modernized_dashboard_enabled' );
+	add_filter( 'jetpack_videopress_chapters_editor', 'wpcom_videopress_chapters_editor_enabled' );
 
 	if ( ! class_exists( '\Automattic\Jetpack\VideoPress\Admin_UI' ) ) {
 		return;

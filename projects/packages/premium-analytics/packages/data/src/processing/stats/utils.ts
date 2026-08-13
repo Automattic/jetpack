@@ -185,12 +185,6 @@ export type FlattenStatsLeavesOptions< TItem, TRow > = {
  * the hierarchy leaves. Each leaf's ancestor chain and index path are passed
  * to `mapLeaf` so callers can derive group labels, inherited icons, or stable
  * row ids.
- *
- * @param items               - The top-level report items.
- * @param options             - The traversal callbacks.
- * @param options.getChildren - Read an item's child items.
- * @param options.mapLeaf     - Map a leaf item to a table row.
- * @return One mapped row per hierarchy leaf.
  */
 export function flattenStatsLeaves< TItem, TRow >(
 	items: readonly TItem[],
@@ -274,7 +268,7 @@ export function mergeStatsTreeComparisonRows<
 	};
 }
 
-function isStatsNumericSummaryValue( value: unknown ): boolean {
+export function isStatsNumericSummaryValue( value: unknown ): boolean {
 	return (
 		typeof value === 'number' ||
 		( typeof value === 'string' && value.trim() !== '' && ! Number.isNaN( Number( value ) ) )

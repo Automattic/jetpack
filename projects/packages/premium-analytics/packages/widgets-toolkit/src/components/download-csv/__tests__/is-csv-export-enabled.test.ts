@@ -11,23 +11,23 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: jest.fn(),
 } ) );
 
-const mockGetScriptData = getScriptData as jest.Mock;
+const mockGetScriptData = jest.mocked( getScriptData );
 
 describe( 'isCsvExportEnabled', () => {
-	it( 'returns true only when the server enables CSV exports', () => {
-		mockGetScriptData.mockReturnValue( {
-			premium_analytics: {
-				initial_full_sync_finished: 1,
-				has_store_data: false,
-				csv_exports_enabled: true,
-			},
-		} );
+	it( 'defaults to enabled when the server flag is absent', () => {
+		mockGetScriptData.mockReturnValue( undefined );
 
 		expect( isCsvExportEnabled() ).toBe( true );
 	} );
 
-	it( 'returns false when the feature flag is absent', () => {
-		mockGetScriptData.mockReturnValue( undefined );
+	it( 'returns false when the server explicitly disables CSV exports', () => {
+		mockGetScriptData.mockReturnValue( {
+			premium_analytics: {
+				initial_full_sync_finished: 1,
+				has_store_data: false,
+				csv_exports_enabled: false,
+			},
+		} as ReturnType< typeof getScriptData > );
 
 		expect( isCsvExportEnabled() ).toBe( false );
 	} );

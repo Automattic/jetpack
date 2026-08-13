@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.23] - 2026-08-11
+### Removed
+- Stop applying the root package's `exclude-from-classmap` autoload setting when generating the Jetpack class map. [#51179]
+
+## [5.0.22] - 2026-08-03
+### Fixed
+- Honor the root package's `exclude-from-classmap` autoload setting when generating the Jetpack class map, matching Composer's own behavior. It was previously parsed but never applied. [#50369]
+
 ## [5.0.21] - 2026-07-13
 ### Changed
 - Internal updates.
@@ -482,6 +490,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Custom Autoloader
 
+[5.0.23]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.22...v5.0.23
+[5.0.22]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.21...v5.0.22
 [5.0.21]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.20...v5.0.21
 [5.0.20]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.19...v5.0.20
 [5.0.19]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.18...v5.0.19

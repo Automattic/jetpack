@@ -116,6 +116,7 @@ if ( '1' !== getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 }
 
 require __DIR__ . '/lib/mock-functions.php';
+require __DIR__ . '/lib/trait-activates-ai-module.php';
 require __DIR__ . '/lib/CallableMock.php';
 require __DIR__ . '/_inc/lib/mocks/simplepie.php';
 require $test_root . '/includes/functions.php';
@@ -256,6 +257,9 @@ require __DIR__ . '/attachment_testcase.php';
 
 // Load WPCOM-shared helper functions.
 require __DIR__ . '/lib/class-wpcom-features.php';
+
+// Mock of the wpcom-only Email_Verification class, needed by endpoints that call it.
+require __DIR__ . '/lib/class-email-verification.php';
 
 function in_running_uninstall_group() {
 	global  $argv;

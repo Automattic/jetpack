@@ -1,14 +1,16 @@
 /**
  * External dependencies
  */
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
-import { VideoTitleLink } from '@jetpack-premium-analytics/widgets-toolkit';
+import { createReportOriginSearch, pickReportDateParams } from '@jetpack-premium-analytics/routing';
+import { MetricWithComparison, VideoTitleLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { useSearch } from '@wordpress/route';
-import { useMemo } from 'react';
-import type { StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
-import type { Field } from '@wordpress/dataviews';
+import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
+import type { Field } from '@jetpack-premium-analytics/externals';
+
+const METRIC_DATA_FORMAT = {
+	type: 'number',
+	options: { decimals: 0, useMultipliers: false },
+} as const;
 
 /**
  * Resolve the table label for a complete-stats video row.
@@ -16,10 +18,23 @@ import type { Field } from '@wordpress/dataviews';
  * @param video - The complete-stats summary row.
  * @return The video's display title.
  */
-function getVideoTitle( video: StatsVideoPlaysItem ) {
+function getVideoTitle( video: StatsVideoPlaysComparisonItem ) {
 	return typeof video.label === 'string' && video.label
 		? video.label
-		: __( 'Untitled video', 'jetpack-premium-analytics' );
+		: __( 'Untitled video', 'jetpack-premium-analytics-pkg' );
+}
+
+/**
+ * Build the page-scoped search state for a video detail link.
+ *
+ * @param current - The current report search parameters.
+ * @return The detail page search parameters.
+ */
+function getVideoDetailSearch( current: Record< string, unknown > ) {
+	return {
+		...pickReportDateParams( current ),
+		...createReportOriginSearch( 'videos' ),
+	};
 }
 
 /**
@@ -32,26 +47,32 @@ function getVideoTitle( video: StatsVideoPlaysItem ) {
  * @param props.item - The video report row.
  * @return The linked or plain video title.
  */
-function VideoTitle( { item }: { item: StatsVideoPlaysItem } ) {
-	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
-	const detailSearch = useMemo( () => pickReportDateParams( search ), [ search ] );
+function VideoTitle( { item }: { item: StatsVideoPlaysComparisonItem } ) {
 	const title = getVideoTitle( item );
 
 	return (
-		<VideoTitleLink id={ item.id } label={ title } link={ item.link } search={ detailSearch } />
+		<VideoTitleLink
+			id={ item.id }
+			label={ title }
+			link={ item.link }
+			search={ getVideoDetailSearch }
+		/>
 	);
 }
 
 /**
  * DataViews field config for the Videos records table.
  *
+ * @param withComparison - Whether to render available period-over-period deltas.
  * @return The field config.
  */
-export function getVideosFields(): Field< StatsVideoPlaysItem >[] {
+export function getVideosFields(
+	withComparison = false
+): Field< StatsVideoPlaysComparisonItem >[] {
 	return [
 		{
 			id: 'label',
-			label: __( 'Video', 'jetpack-premium-analytics' ),
+			label: __( 'Video', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => getVideoTitle( item ),
@@ -59,23 +80,28 @@ export function getVideosFields(): Field< StatsVideoPlaysItem >[] {
 		},
 		{
 			id: 'plays',
-			label: __( 'Plays', 'jetpack-premium-analytics' ),
+			label: __( 'Plays', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.plays,
 			render: ( { item } ) => (
-				<>{ formatMetricValue( item.plays, 'number', { decimals: 0, useMultipliers: false } ) }</>
+				<MetricWithComparison
+					value={ item.plays }
+					previousValue={ withComparison ? item.previousPlays : undefined }
+					dataFormat={ METRIC_DATA_FORMAT }
+					fontSize="md"
+				/>
 			),
 		},
 		{
 			id: 'impressions',
-			label: __( 'Impressions', 'jetpack-premium-analytics' ),
+			label: __( 'Impressions', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.impressions,
 			render: ( { item } ) => (
-				<>
-					{ formatMetricValue( item.impressions, 'number', {
-						decimals: 0,
-						useMultipliers: false,
-					} ) }
-				</>
+				<MetricWithComparison
+					value={ item.impressions }
+					previousValue={ withComparison ? item.previousImpressions : undefined }
+					dataFormat={ METRIC_DATA_FORMAT }
+					fontSize="md"
+				/>
 			),
 		},
 	];

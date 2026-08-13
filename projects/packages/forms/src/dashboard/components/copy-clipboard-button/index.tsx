@@ -2,10 +2,12 @@
  * External dependencies
  */
 import { Button, Tooltip } from '@wordpress/components';
-import { useCopyToClipboard } from '@wordpress/compose';
-import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { copySmall, check } from '@wordpress/icons';
+/**
+ * Internal dependencies
+ */
+import useCopyConfirmation from '../../../hooks/use-copy-confirmation';
 import './style.scss';
 
 type CopyClipboardButtonProps = {
@@ -25,25 +27,7 @@ export default function CopyClipboardButton( {
 	copyMessage,
 	copiedMessage,
 }: CopyClipboardButtonProps ): JSX.Element {
-	const [ showCopyConfirmation, setShowCopyConfirmation ] = useState( false );
-	const timeoutIdRef = useRef< number | null >( null );
-	const ref = useCopyToClipboard( text, () => {
-		setShowCopyConfirmation( true );
-		if ( timeoutIdRef.current ) {
-			clearTimeout( timeoutIdRef.current );
-		}
-		timeoutIdRef.current = setTimeout( () => {
-			setShowCopyConfirmation( false );
-		}, 4000 );
-	} );
-
-	useEffect( () => {
-		return () => {
-			if ( timeoutIdRef.current ) {
-				clearTimeout( timeoutIdRef.current );
-			}
-		};
-	}, [] );
+	const { ref, copied: showCopyConfirmation } = useCopyConfirmation( text );
 
 	const copied = copiedMessage || __( 'Copied!', 'jetpack-forms' );
 	const copy = copyMessage || __( 'Copy', 'jetpack-forms' );

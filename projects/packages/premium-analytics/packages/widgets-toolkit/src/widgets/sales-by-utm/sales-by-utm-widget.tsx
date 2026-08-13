@@ -25,8 +25,6 @@ type SalesByUtmWidgetProps = {
 };
 
 /**
- * Sales by UTM Widget Component
- *
  * Displays order attribution data in a leaderboard chart, showing how sales are
  * distributed across different UTM parameters (source, channel, or campaign).
  *
@@ -40,11 +38,6 @@ type SalesByUtmWidgetProps = {
  *
  * @param props      - Component props
  * @param props.view - The order attribution view (source, channel, campaign)
- *
- * @example
- * <WidgetRoot attributes={ attributes }>
- *   <SalesByUtmWidget view="source" />
- * </WidgetRoot>
  */
 export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -89,13 +82,13 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 			error={ {
 				description: __(
 					"We couldn't load order attribution data. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: emptyStateIcon,
-				description: __( 'No attribution data in this period.', 'jetpack-premium-analytics' ),
+				description: __( 'No attribution data in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<LeaderboardChart

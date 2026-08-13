@@ -760,7 +760,6 @@ class Jetpack_Carousel {
 
 								<div class="jp-carousel-photo-description"></div>
 							</div>
-							<ul class="jp-carousel-image-exif" style="display: none;"></ul>
 							<a class="jp-carousel-image-download" href="#" aria-label="<?php esc_attr_e( 'Download image', 'jetpack' ); ?>" target="_blank" style="display: none;">
 								<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<mask id="mask0" mask-type="alpha" maskUnits="userSpaceOnUse" x="3" y="3" width="19" height="18">
@@ -829,6 +828,14 @@ class Jetpack_Carousel {
 		}
 		$selected_images = array();
 		foreach ( $matches[0] as $image_html ) {
+			// This image already carries the attributes this method adds, so adding
+			// them again would emit every one of them twice. Tiled Gallery output
+			// reaches this filter twice: once as 'jetpack_tiled_galleries_block_content'
+			// from inside the block's render callback, and again as 'the_content' when
+			// single image galleries are enabled. See JETPACK-1990.
+			if ( str_contains( $image_html, 'data-attachment-id=' ) ) {
+				continue;
+			}
 			if (
 				preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id )
 				&& ! str_contains( $image_html, 'wp-block-jetpack-slideshow_image' )

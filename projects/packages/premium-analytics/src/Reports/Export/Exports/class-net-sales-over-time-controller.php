@@ -19,7 +19,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Contr
  * Handles CSV exports for the Net Sales Over Time report, supporting both
  * single interval and comparison interval data.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Net_Sales_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 
@@ -38,7 +38,7 @@ class Net_Sales_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Net Sales Over Time', 'jetpack-premium-analytics' );
+		return __( 'Net Sales Over Time', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -59,8 +59,8 @@ class Net_Sales_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 	public function get_column_headers( ?string $interval = null ): array {
 		return array(
 			'time_interval' => $this->get_interval_label( $interval ),
-			'orders_no'     => __( 'Orders', 'jetpack-premium-analytics' ),
-			'net_sales'     => __( 'Net sales', 'jetpack-premium-analytics' ),
+			'orders_no'     => __( 'Orders', 'jetpack-premium-analytics-pkg' ),
+			'net_sales'     => __( 'Net sales', 'jetpack-premium-analytics-pkg' ),
 		);
 	}
 

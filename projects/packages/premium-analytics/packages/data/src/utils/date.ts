@@ -21,14 +21,8 @@ try {
 	DEFAULT_TIME_ZONE = '+00:00';
 }
 
-/**
- * Format the GMT offset to a string.
- *
- * @param {number | undefined} offset - The GMT offset.
- * @return {string} The formatted GMT offset.
- */
 function formatGmtOffset( offset: number | undefined ): string {
-	if ( ! offset ) {
+	if ( offset === undefined ) {
 		return DEFAULT_TIME_ZONE;
 	}
 
@@ -43,12 +37,8 @@ function formatGmtOffset( offset: number | undefined ): string {
 }
 
 /*
- * Get the timezone from the site settings.
- * If the timezone is not set, use the GMT offset.
- * If the GMT offset is not set, use the default timezone.
- *
- * @param {string} timezone - The timezone to use.
- * @return {string} The timezone.
+ * Falls back to the GMT offset when the site has no named timezone, and to the
+ * browser's timezone when it has neither.
  */
 export function getSiteTimezone() {
 	const siteSettings = select( coreStore ).getEntityRecord( 'root', 'site' ) as FullSettings;
@@ -62,11 +52,7 @@ export function getSiteTimezone() {
 		: formatGmtOffset( siteSettings?.gmt_offset ) || DEFAULT_TIME_ZONE;
 }
 
-/**
- * Returns the site's GMT offset as a string (e.g. "+05:30", "-08:00").
- * If site settings are not loaded, throws an error.
- * @return {string} The site's GMT offset.
- */
+/** The site's GMT offset as a string (e.g. "+05:30", "-08:00"). Throws until settings load. */
 export function getSiteGmtOffset(): string {
 	const siteSettings = select( coreStore ).getEntityRecord( 'root', 'site' ) as FullSettings;
 	if ( ! siteSettings ) {
@@ -75,30 +61,18 @@ export function getSiteGmtOffset(): string {
 	return formatGmtOffset( siteSettings?.gmt_offset ) || DEFAULT_TIME_ZONE;
 }
 
-/**
- * Same API and behavior as your current localTZDate:
- * - Accepts number | string | Date (or undefined -> now)
- * - Uses site timezone by default
- * - Returns TZDate (timezone-aware)
- */
 export function localTZDate( value?: number | string | Date, timezone?: string ): TZDate {
 	const tz = timezone ?? getSiteTimezone();
 	return toLocalTZ( value, tz );
 }
 
-/**
- * Same semantics as your current helper:
- * TZ-aware -> timezone-naive "YYYY-MM-DDTHH:mm:ss.SSS"
- */
+/** TZ-aware Date -> timezone-naive `YYYY-MM-DDTHH:mm:ss.SSS`. */
 export function formatToTimezoneNaiveString( date: Date, timezone?: string ): string {
 	const tz = timezone ?? getSiteTimezone();
 	return _formatNaive( date, tz );
 }
 
-/**
- * Same semantics as your current helper:
- * TZ-aware -> ISO with offset "YYYY-MM-DDTHH:mm:ss.SSSxxx"
- */
+/** TZ-aware Date -> ISO with offset `YYYY-MM-DDTHH:mm:ss.SSSxxx`. */
 export function dateToISOStringWithLocalTZ( date: Date, timezone?: string ): string {
 	const tz = timezone ?? getSiteTimezone();
 	return _toISOWithTZ( date, tz );

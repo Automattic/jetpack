@@ -5,6 +5,18 @@ import { render, screen } from '@testing-library/react';
 const useEnsureTabData = jest.fn< () => { status: string; retry: () => void } >();
 const isSeoToolsActive = jest.fn< () => boolean >();
 
+// The Content stage is invoked as a plain function below, and (on a plan-gated
+// site) redirects via useNavigate/useEffect. Stub those hooks and force the
+// ungated path so the tests exercise the normal render, not the redirect.
+jest.unstable_mockModule( '@wordpress/element', () => ( {
+	useEffect: () => undefined,
+} ) );
+jest.unstable_mockModule( '@wordpress/route', () => ( {
+	useNavigate: () => jest.fn(),
+} ) );
+jest.unstable_mockModule( '../../../_inc/data/is-gated', () => ( {
+	isGated: () => false,
+} ) );
 jest.unstable_mockModule( '../../../_inc/components/dashboard-load-error', () => ( {
 	default: () => 'load-error',
 } ) );

@@ -1,21 +1,44 @@
 /**
  * External dependencies
  */
+import {
+	getDatePart,
+	PRESET_LAST_12_MONTHS,
+	PRESET_LAST_24_HOURS,
+	PRESET_LAST_30_DAYS,
+	PRESET_LAST_365_DAYS,
+	PRESET_LAST_7_DAYS,
+	PRESET_LAST_90_DAYS,
+	PRESET_LAST_MONTH,
+	PRESET_LAST_YEAR,
+	PRESET_TODAY,
+	PRESET_YESTERDAY,
+	isIntervalType,
+	type IntervalType,
+	type PrimaryPresetId,
+} from '@jetpack-premium-analytics/datetime';
 import { differenceInCalendarDays, differenceInHours } from 'date-fns';
 /**
  * Internal dependencies
  */
 import { localTZDate } from './date';
-import type { IntervalType } from './search';
+
+export type { IntervalType };
 
 export function getDaysBetweenInclusive( from: string, to: string ): number {
+	// Extract the calendar day first: callers may now pass a full offset-bearing
+	// ISO datetime (Stats endpoints resolve those correctly, so request params
+	// aren't pre-trimmed anymore) rather than a bare `yyyy-MM-dd`.
+	const fromDay = getDatePart( from );
+	const toDay = getDatePart( to );
+
 	// Anchor both dates in UTC before diffing: `differenceInCalendarDays` reads
 	// its arguments' local calendar getters, and a plain UTC-tagged `Date`'s
 	// getters reflect the machine's local timezone, not UTC. Left unanchored,
 	// a negative-offset machine can read a UTC midnight instant as the
 	// previous local calendar day, shifting the day count.
-	const fromDate = localTZDate( `${ from }T00:00:00Z`, '+00:00' );
-	const toDate = localTZDate( `${ to }T00:00:00Z`, '+00:00' );
+	const fromDate = localTZDate( `${ fromDay }T00:00:00Z`, '+00:00' );
+	const toDate = localTZDate( `${ toDay }T00:00:00Z`, '+00:00' );
 	const days = differenceInCalendarDays( toDate, fromDate );
 
 	if ( Number.isNaN( days ) || days < 0 ) {
@@ -42,60 +65,95 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 		return [ 'week', 'month' ];
 	} else if ( daysDiff >= 28 ) {
 		return [ 'day', 'week' ];
-	} else if ( daysDiff >= 3 ) {
+	} else if ( daysDiff >= 7 ) {
 		return [ 'day' ];
-	} else if ( daysDiff >= 1 ) {
-		return [ 'hour', 'day' ];
+	} else if ( daysDiff >= 2 ) {
+		// Days by default; hours stay on offer as the only reading that shows
+		// shape within a day.
+		return [ 'day', 'hour' ];
 	}
 
-	return [ 'hour', 'day' ];
+	// A day or less has nothing to draw in daily buckets: one bar is not a
+	// series. Hours are the only reading of it.
+	return [ 'hour' ];
 }
 
 /**
- * Returns the allowed selectable intervals for a specific period.
+ * Allowed intervals for a preset, default first.
  *
- * @return {Array} Array containing allowed intervals.
+ * Unknown / custom / year-surface presets derive the list from `from`–`to`
+ * length.
+ *
+ * Also what the interval control lists, so the menu can never offer a bucket
+ * the range would coerce away.
  */
-function getAllowedIntervalsForPeriod(
-	period: string | undefined,
+export function getAllowedIntervalsForPreset(
+	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string
 ): IntervalType[] {
-	switch ( period ) {
-		case 'today':
-		case 'yesterday':
-		case 'last-24-hours':
-			return [ 'hour', 'day' ];
-		case 'last-7-days':
+	switch ( preset ) {
+		/*
+		 * Hours alone: a single day bucketed by day is one bar, and offering
+		 * `day` would let a bucket carried over from a longer preset flatten
+		 * the whole window into a point.
+		 */
+		case PRESET_TODAY:
+		case PRESET_YESTERDAY:
+		case PRESET_LAST_24_HOURS:
+			return [ 'hour' ];
+		case PRESET_LAST_7_DAYS:
 			return [ 'day' ];
-		case 'last-30-days':
-		case 'last-month':
+		case PRESET_LAST_30_DAYS:
+		case PRESET_LAST_MONTH:
 			return [ 'day', 'week' ];
-		case 'last-90-days':
+		case PRESET_LAST_90_DAYS:
 			return [ 'week', 'month' ];
-		case 'last-12-months':
-		case 'last-365-days':
-		case 'last-year':
+		case PRESET_LAST_12_MONTHS:
+		case PRESET_LAST_365_DAYS:
+		case PRESET_LAST_YEAR:
 			return [ 'month', 'quarter' ];
 		default:
 			return getAllowedIntervalsByRange( from, to );
 	}
 }
 
+/**
+ * Resolve a valid interval for a date range.
+ *
+ * Returns `current` when it is allowed for the range; otherwise the range
+ * default (first allowed).
+ */
+export function resolveIntervalForRange(
+	preset: PrimaryPresetId | undefined,
+	from: string,
+	to: string,
+	current?: string
+): IntervalType {
+	const allowed = getAllowedIntervalsForPreset( preset, from, to );
+
+	if ( isIntervalType( current ) && allowed.includes( current ) ) {
+		return current;
+	}
+
+	return allowed[ 0 ] ?? 'day';
+}
+
+/** Default interval for a preset / date range. */
 export function getDefaultIntervalForPeriod(
-	period: string | undefined,
+	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string
 ): IntervalType {
-	return getAllowedIntervalsForPeriod( period, from, to )?.[ 0 ] ?? 'day';
+	return resolveIntervalForRange( preset, from, to );
 }
 
 export function getDateFormatFromInterval(
-	period: string | undefined, // Pass in undefined to use the default interval.
+	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string
 ): string {
-	const interval = getDefaultIntervalForPeriod( period, from, to );
+	const interval = getDefaultIntervalForPeriod( preset, from, to );
 
 	switch ( interval ) {
 		case 'hour':

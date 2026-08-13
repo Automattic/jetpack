@@ -32,6 +32,7 @@ import {
 } from '../stats-app-referrers-spam-query';
 import { statsAppSiteHasNeverPublishedPostQuery } from '../stats-app-site-has-never-published-post-query';
 import { statsArchivesQuery } from '../stats-archives-query';
+import { statsClicksQuery } from '../stats-clicks-query';
 import { statsCommentFollowersQuery } from '../stats-comment-followers-query';
 import { statsCommentsQuery } from '../stats-comments-query';
 import { statsDevicesQuery } from '../stats-devices-query';
@@ -44,13 +45,15 @@ import {
 	statsEmailClicksTimeSeriesQuery,
 	statsEmailOpensTimeSeriesQuery,
 } from '../stats-email-time-series-query';
+import { statsFileDownloadsQuery } from '../stats-file-downloads-query';
 import { statsFollowersQuery } from '../stats-followers-query';
 import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsPostCommentsQuery } from '../stats-post-comments-query';
 import { statsPostQuery } from '../stats-post-query';
-import { statsPublicizeQuery } from '../stats-publicize-query';
+import { statsReferrersQuery } from '../stats-referrers-query';
+import { statsSearchTermsQuery } from '../stats-search-terms-query';
 import { statsSingleVideoQuery } from '../stats-single-video-query';
 import { statsStreakQuery } from '../stats-streak-query';
 import {
@@ -92,6 +95,34 @@ describe( 'Stats query factories', () => {
 
 	it( 'disables report queries until a date range is available', () => {
 		expect( statsTopPostsQuery( {} as StatsReportParams ).enabled ).toBe( false );
+	} );
+
+	it( 'matches the Calypso referrers range request', () => {
+		const query = statsReferrersQuery( {
+			from: '2026-07-01',
+			to: '2026-07-07',
+			interval: 'day',
+			period: 'day',
+			max: 0,
+			summarize: 1,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'referrers',
+			'1.1',
+			'stats/referrers',
+			'GET',
+			{
+				period: 'day',
+				max: 0,
+				summarize: 1,
+				date: '2026-07-07',
+				start_date: '2026-07-01',
+			},
+			undefined,
+			'referrers',
+		] );
 	} );
 
 	it( 'builds post stats query keys with fields', () => {
@@ -239,6 +270,34 @@ describe( 'Stats query factories', () => {
 		).toEqual( { period: 'hour', quantity: 48, date: '2026-06-14', stats_fields: 'timeline' } );
 	} );
 
+	it( 'sends an offset-bearing hourly window end through untrimmed', () => {
+		// The shape the last-24-hours preset produces: hour-aligned, mid-day, and
+		// spanning two calendar days. `date` is the window START for this
+		// endpoint and now carries the time, but the endpoint resolves it to the
+		// calendar day and buckets from midnight regardless — verified against
+		// production, where a bare `2026-08-06` and `2026-08-06T09:00:00.000-04:00`
+		// return byte-identical hour-0..23 windows. So the untrimmed value is
+		// inert here rather than shifting the window; do not "fix" `quantity` on
+		// the assumption that the buckets start at 09:00.
+		//
+		// `quantity` stays 24 per calendar day the window touches — a 24-hour
+		// window spanning two days still asks for 48 buckets. That over-fetch
+		// predates offset-bearing dates and is tracked in WOOA7S-1840; pinned
+		// here so a fix to it is a deliberate change rather than an accident.
+		expect(
+			statsEmailClicksTimeSeriesQuery( 41, {
+				from: '2026-06-14T09:00:00.000-04:00',
+				to: '2026-06-15T08:59:59.999-04:00',
+				interval: 'hour',
+			} ).queryKey[ 5 ]
+		).toEqual( {
+			period: 'hour',
+			quantity: 48,
+			date: '2026-06-14T09:00:00.000-04:00',
+			stats_fields: 'timeline',
+		} );
+	} );
+
 	it( 'disables email time series queries without a positive integer post ID or a date', () => {
 		const range = { from: '2026-06-01', to: '2026-06-07', interval: 'day' } as const;
 
@@ -320,7 +379,135 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
-	it( 'keeps the complete video summary mode out of the request params', () => {
+	it( 'sends offset-bearing top-posts date params through untrimmed', () => {
+		// This endpoint used to resolve its date params in UTC rather than the
+		// site's timezone, so the client trimmed them to a bare day. The server
+		// now resolves the embedded offset, so the full datetime goes through
+		// like every other Stats request.
+		const query = statsTopPostsQuery( {
+			from: '2026-06-01T00:00:00.000-07:00',
+			to: '2026-06-07T23:59:59.999-07:00',
+			interval: 'day',
+		} );
+
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [
+				expect.objectContaining( {
+					date: '2026-06-07T23:59:59.999-07:00',
+					start_date: '2026-06-01T00:00:00.000-07:00',
+					days: 7,
+				} ),
+			] )
+		);
+	} );
+
+	it( 'matches the legacy file-downloads custom-range request without days', () => {
+		const query = statsFileDownloadsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+			period: 'day',
+			max: 0,
+			summarize: 1,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'file-downloads',
+			'1.1',
+			'stats/file-downloads',
+			'GET',
+			{
+				period: 'day',
+				max: 0,
+				summarize: 1,
+				start_date: '2026-06-01',
+				date: '2026-06-07',
+			},
+			undefined,
+			'fileDownloads',
+		] );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
+	} );
+
+	it( 'keeps file-downloads day-bucketed and summarized when the caller only passes a range', () => {
+		// The File downloads widget passes the dashboard params through untouched,
+		// so a long range arrives with a coarse chart interval and no summarize.
+		// The interval must not become the period, or the endpoint would count
+		// the range in weeks and stop returning one row per file.
+		const query = statsFileDownloadsQuery( {
+			from: '2026-04-01',
+			to: '2026-06-29',
+			interval: 'week',
+		} );
+
+		expect( query.queryKey[ 5 ] ).toMatchObject( {
+			period: 'day',
+			summarize: 1,
+			start_date: '2026-04-01',
+			date: '2026-06-29',
+		} );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
+	} );
+
+	it( 'matches the legacy summarized Search Terms range request without days', () => {
+		const query = statsSearchTermsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'week',
+			period: 'day',
+			max: 0,
+			summarize: 1,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'search-terms',
+			'1.1',
+			'stats/search-terms',
+			'GET',
+			{
+				period: 'day',
+				max: 0,
+				summarize: 1,
+				start_date: '2026-06-01',
+				date: '2026-06-07',
+			},
+			undefined,
+			'searchTerms',
+		] );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
+	} );
+
+	it( 'matches the legacy Clicks custom-range request without a days parameter', () => {
+		const query = statsClicksQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'month',
+			max: 0,
+			summarize: 1,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'clicks',
+			'1.1',
+			'stats/clicks',
+			'GET',
+			{
+				period: 'day',
+				start_date: '2026-06-01',
+				date: '2026-06-07',
+				max: 0,
+				summarize: 1,
+			},
+			undefined,
+			'clicks',
+		] );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
+	} );
+
+	it( 'matches the legacy complete video summary request params exactly', () => {
 		const query = statsVideoPlaysSummaryQuery( {
 			from: '2026-07-09',
 			to: '2026-07-14',
@@ -328,6 +515,15 @@ describe( 'Stats query factories', () => {
 			summarize: 1,
 		} );
 
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			period: 'day',
+			start_date: '2026-07-09',
+			date: '2026-07-14',
+			max: 0,
+			summarize: 1,
+			complete_stats: 1,
+		} );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
 		expect( query.queryKey ).toEqual( [
 			'stats',
 			'video-plays-summary',
@@ -337,14 +533,13 @@ describe( 'Stats query factories', () => {
 			{
 				period: 'day',
 				start_date: '2026-07-09',
-				days: 6,
 				date: '2026-07-14',
 				max: 0,
+				summarize: 1,
 				complete_stats: 1,
 			},
 			undefined,
 			'videoPlays',
-			{ summarize: 1 },
 		] );
 	} );
 
@@ -630,6 +825,23 @@ describe( 'Stats query factories', () => {
 		} );
 	} );
 
+	it( 'combines statType=all with the report date range', () => {
+		const query = statsSingleVideoQuery( 31533, {
+			from: '2026-06-08',
+			to: '2026-06-14',
+			period: 'day',
+			statType: 'all',
+		} );
+
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			period: 'day',
+			date: '2026-06-14',
+			start_date: '2026-06-08',
+			days: 7,
+			statType: 'all',
+		} );
+	} );
+
 	it( 'disables the single video query until a valid video id is available', () => {
 		expect( statsSingleVideoQuery( 0 ).enabled ).toBe( false );
 		expect( statsSingleVideoQuery( NaN ).enabled ).toBe( false );
@@ -682,6 +894,7 @@ describe( 'Stats query factories', () => {
 				status: 'postponed',
 				postponed_for: 300,
 			},
+			parse: false,
 		} );
 	} );
 
@@ -701,6 +914,30 @@ describe( 'Stats query factories', () => {
 				id: 'opt_in_new_stats',
 				status: 'dismissed',
 			},
+			parse: false,
+		} );
+	} );
+
+	it( 'preserves the HTTP status from a failed Simple notices request', async () => {
+		setSimpleScriptData();
+		mockApiFetch.mockRejectedValue( {
+			status: 403,
+			json: jest.fn().mockResolvedValue( {
+				error: 'unauthorized',
+				message: 'Nope.',
+			} ),
+		} as unknown as Response );
+
+		const queryFn = statsAppNoticesQuery().queryFn as () => Promise< unknown >;
+
+		await expect( queryFn() ).rejects.toEqual( {
+			error: 'unauthorized',
+			message: 'Nope.',
+			status: 403,
+		} );
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/wpcom/v2/jetpack-stats-dashboard/notices',
+			parse: false,
 		} );
 	} );
 
@@ -732,22 +969,6 @@ describe( 'Stats query factories', () => {
 			{},
 			undefined,
 			'comments',
-		] );
-	} );
-
-	it( 'builds publicize query keys without date-gating or report param coercion', () => {
-		const query = statsPublicizeQuery();
-
-		expect( query.enabled ).toBe( true );
-		expect( query.queryKey ).toEqual( [
-			'stats',
-			'publicize',
-			'1.1',
-			'stats/publicize',
-			'GET',
-			{},
-			undefined,
-			'publicize',
 		] );
 	} );
 
@@ -866,6 +1087,25 @@ describe( 'Stats query factories', () => {
 		} );
 	} );
 
+	it( 'maps an offset-bearing daily dashboard range onto subscribers unit/quantity/date', () => {
+		// start_date/end_date now carry the full offset-bearing ISO datetime
+		// (reportParamsToStatsQueryParams no longer trims it); the day-based
+		// quantity math must still resolve from the calendar day.
+		const query = statsSubscribersReportQuery( {
+			from: '2026-06-01T00:00:00.000-07:00',
+			to: '2026-06-30T23:59:59.000-07:00',
+			interval: 'day',
+		} as StatsReportParams );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			unit: 'day',
+			quantity: 30,
+			date: '2026-06-30T23:59:59.000-07:00',
+			stat_fields: 'subscribers,subscribers_paid',
+		} );
+	} );
+
 	it( 'clamps unsupported intervals to a supported subscribers unit', () => {
 		const query = statsSubscribersReportQuery( {
 			from: '2026-01-01',
@@ -975,6 +1215,90 @@ describe( 'Stats query factories', () => {
 
 	it( 'disables WordAds stats queries until a date is available', () => {
 		expect( statsWordAdsStatsQuery( {} as StatsReportParams ).enabled ).toBe( false );
+	} );
+
+	it( 'sends an unclamped WordAds window end through untrimmed', () => {
+		// This endpoint used to resolve the window end in UTC and decide whether
+		// to honor it via a raw string comparison, so the client stripped the
+		// offset. Both halves are fixed server-side, so the full datetime goes
+		// through like every other Stats request.
+		jest.useFakeTimers().setSystemTime( new Date( '2026-07-15T12:00:00Z' ) );
+
+		try {
+			expect(
+				statsWordAdsStatsQuery( {
+					from: '2026-06-01T00:00:00.000-07:00',
+					to: '2026-06-07T23:59:59.000-07:00',
+					interval: 'day',
+				} ).queryKey
+			).toEqual(
+				expect.arrayContaining( [
+					expect.objectContaining( {
+						unit: 'day',
+						date: '2026-06-07T23:59:59.000-07:00',
+						quantity: 7,
+					} ),
+				] )
+			);
+		} finally {
+			jest.useRealTimers();
+		}
+	} );
+
+	it( 'leaves a WordAds window ending exactly yesterday unclamped', () => {
+		// The last-7-days / last-30-days shape: the range already ends on
+		// yesterday's calendar day, so the clamp must not fire. This is why the
+		// clamp compares calendar days — the raw offset-bearing string sorts
+		// after the bare `yesterday` it starts with, which would clamp the window
+		// and silently shorten it by a bucket.
+		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
+
+		try {
+			expect(
+				statsWordAdsStatsQuery( {
+					from: '2026-06-08T00:00:00.000-07:00',
+					to: '2026-06-14T23:59:59.999-07:00',
+					interval: 'day',
+				} ).queryKey
+			).toEqual(
+				expect.arrayContaining( [
+					expect.objectContaining( {
+						unit: 'day',
+						date: '2026-06-14T23:59:59.999-07:00',
+						quantity: 7,
+					} ),
+				] )
+			);
+		} finally {
+			jest.useRealTimers();
+		}
+	} );
+
+	it( 'clamps an offset-bearing WordAds window end to yesterday, keyed off its calendar day', () => {
+		// The clamp fires, so `date` becomes the locally built bare `yesterday`
+		// rather than the request's own offset-bearing end. Both the comparison
+		// and the bucket count key off the calendar day.
+		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
+
+		try {
+			expect(
+				statsWordAdsStatsQuery( {
+					from: '2026-06-09T00:00:00.000-07:00',
+					to: '2026-06-15T23:59:59.000-07:00',
+					interval: 'day',
+				} ).queryKey
+			).toEqual(
+				expect.arrayContaining( [
+					expect.objectContaining( {
+						unit: 'day',
+						date: '2026-06-14',
+						quantity: 6,
+					} ),
+				] )
+			);
+		} finally {
+			jest.useRealTimers();
+		}
 	} );
 
 	it( 'builds WordAds earnings query keys without request params', () => {

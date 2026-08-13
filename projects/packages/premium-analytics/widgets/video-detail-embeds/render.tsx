@@ -16,7 +16,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
-import { Link, Stack } from '@wordpress/ui';
+import { Link, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -38,12 +38,9 @@ type VideoEmbedsListProps = {
 };
 
 /**
- * Presentational list for the "Video embeds" widget: the pages where the
- * selected video is embedded, each as an external link. Loading / error /
+ * Presentational list for the "Used on posts & pages" widget: the pages where
+ * the selected video is embedded, each as an external link. Loading / error /
  * empty are owned by the surrounding `WidgetState`.
- *
- * @param {VideoEmbedsListProps} props - The component props.
- * @return The rendered list.
  */
 function VideoEmbedsList( { pages }: VideoEmbedsListProps ) {
 	return (
@@ -83,8 +80,6 @@ function VideoEmbedsList( { pages }: VideoEmbedsListProps ) {
  * embed pages through `WidgetState`. The video is scoped by the host through
  * `reportParams.post_id`; the query stays disabled until a video is selected,
  * with a prompt shown instead of the data states.
- *
- * @return The widget content.
  */
 function VideoDetailEmbedsReport() {
 	const { reportParams } = useWidgetRootContext();
@@ -100,7 +95,7 @@ function VideoDetailEmbedsReport() {
 				icon={ video }
 				text={ __(
 					'Select a video to see where it is embedded across your site.',
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				) }
 			/>
 		);
@@ -119,17 +114,20 @@ function VideoDetailEmbedsReport() {
 				error={ {
 					description: __(
 						"We couldn't load video embeds. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					actions: [
-						{ label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: () => void refetch() },
+						{
+							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
+							onClick: () => void refetch(),
+						},
 					],
 				} }
 				empty={ {
 					icon: video,
 					description: __(
 						'This video has not been embedded on any pages yet.',
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 				} }
 			>
@@ -146,14 +144,8 @@ function VideoDetailEmbedsReport() {
 }
 
 /**
- * Video embeds widget render entry point.
- *
- * WidgetRoot provides the analytics query client, chart theme, and the report
- * params consumed by the inner component — including the single-video scope
+ * The report params reaching the inner component include the single-video scope
  * (`post_id`) the host composes for detail views.
- *
- * @param {VideoDetailEmbedsWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function VideoDetailEmbeds( { attributes = {} }: VideoDetailEmbedsWidgetProps ) {
 	return (

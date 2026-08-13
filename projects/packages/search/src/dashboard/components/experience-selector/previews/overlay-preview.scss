@@ -35,7 +35,7 @@
 	padding: var(--wpds-dimension-padding-sm);
 	background: var(--wpds-color-background-surface-neutral-strong);
 	border-radius: var(--wpds-border-radius-md);
-	box-shadow: var(--wpds-elevation-sm);
+	box-shadow: 0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005;
 }
 
 .jp-search-overlay-preview__search {

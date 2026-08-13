@@ -14,19 +14,10 @@ import { buildTotalReturnsData, isEmptyChartData } from '../../helpers';
 import { useBarStyles } from '../common';
 
 /**
- * Total Returns Widget Component
- *
  * A widget that displays total returns (refunds) as a bar chart
  * showing refunds and net sales side by side.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <TotalReturnsWidget />
- * </WidgetRoot>
- * ```
  */
 export function TotalReturnsWidget() {
 	const { reportParams } = useWidgetRootContext();
@@ -53,13 +44,13 @@ export function TotalReturnsWidget() {
 			error={ {
 				description: __(
 					"We couldn't load returns data. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: paymentReturn,
-				description: __( 'No returns in this period.', 'jetpack-premium-analytics' ),
+				description: __( 'No returns in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<BarChart

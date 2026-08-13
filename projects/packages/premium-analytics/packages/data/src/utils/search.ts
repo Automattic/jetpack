@@ -2,9 +2,12 @@
  * External dependencies
  */
 import {
+	PRESET_ALL_TIME,
 	isSelectablePreset,
+	isYearPresetId,
 	type SelectablePresetId,
 	type ComparisonPresetId,
+	type ComputablePresetId,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 /**
@@ -12,13 +15,14 @@ import {
  */
 import { ORDER_ATTRIBUTION_VIEWS } from '../api/report-order-attribution-summary-fetch';
 import { getDefaultQueryParams } from '../defaults';
-import { getDefaultIntervalForPeriod } from './interval';
+import { resolveIntervalForRange, type IntervalType } from './interval';
 import { computeDateRangeFromPreset } from './preset-date-range';
 import { toPostId } from './to-post-id';
 import type { DateType } from './types';
 import type { FilterCondition } from '../types/filter-condition';
 
 export type { FilterCondition };
+export type { IntervalType };
 
 /**
  * Re-export SelectablePresetId as PresetType for backward compatibility.
@@ -26,9 +30,10 @@ export type { FilterCondition };
  */
 export type PresetType = SelectablePresetId;
 
-type OrderAttributionView = ( typeof ORDER_ATTRIBUTION_VIEWS )[ number ];
+/** The computable presets a report URL can carry. */
+export type ReportPresetId = ComputablePresetId;
 
-export type IntervalType = 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
+type OrderAttributionView = ( typeof ORDER_ATTRIBUTION_VIEWS )[ number ];
 
 /*
  * ReportParams are the expected params present in the client URL.
@@ -38,7 +43,7 @@ export type IntervalType = 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year
 export type ReportParams = {
 	from: string;
 	to: string;
-	preset?: PresetType;
+	preset?: ReportPresetId;
 	interval: IntervalType;
 	period?: string;
 	compare_from?: string;
@@ -58,9 +63,13 @@ type PartialComparisonFields = Partial<
 
 /*
  * Checks if the comparison is present in the search params.
+ *
+ * `comp` is compared loosely: the router JSON-parses search values, so a URL
+ * written without JSON quoting (hand-edited, or by an older link builder)
+ * delivers the number 1 instead of the string '1'.
  */
 export function hasComparisonEnabled< T extends PartialComparisonFields >( p: T ) {
-	return p.comp === '1' && !! p.compare_from?.trim() && !! p.compare_to?.trim();
+	return String( p.comp ) === '1' && !! p.compare_from?.trim() && !! p.compare_to?.trim();
 }
 
 type NormalizeReportParamsArgType = Omit< ReportParams, 'from' | 'to' | 'interval' | 'preset' > & {
@@ -71,12 +80,14 @@ type NormalizeReportParamsArgType = Omit< ReportParams, 'from' | 'to' | 'interva
 };
 
 /**
- * Returns normalized params for the report request query.
- * When no defined, it will use the defaults.
- *
- * @param {NormalizeReportParamsArgType} [search]        - URL search params.
- * @param {PresetType}                   [defaultPreset] - Override the fallback preset.
+ * Unnormalized date-window fields from report search params.
  */
+type ReportDateWindowSearch = Pick<
+	NormalizeReportParamsArgType,
+	'from' | 'to' | 'interval' | 'preset'
+>;
+
+/** Returns normalized report params, falling back to the defaults for anything absent. */
 export function normalizeReportParams(
 	search?: NormalizeReportParamsArgType,
 	defaultPreset?: PresetType
@@ -87,25 +98,42 @@ export function normalizeReportParams(
 
 	// Preset handling:
 	// - Use search.preset only if valid
+	// - Recompute a year preset from its ID; carry all time only with its URL range
 	// - On fresh load (no from/to), fallback to defaults.preset
 	// - If user has explicit dates but no/invalid preset,
 	//   keep undefined (custom range)
-	let preset: PresetType | undefined;
-	if ( search?.preset && isSelectablePreset( search.preset ) ) {
+	let preset: ReportPresetId | undefined;
+	if (
+		search?.preset &&
+		( isSelectablePreset( search.preset ) || isYearPresetId( search.preset ) )
+	) {
+		preset = search.preset;
+	} else if ( search?.preset === PRESET_ALL_TIME && search?.from && search?.to ) {
+		/*
+		 * The all-time start belongs to the year surface and may eventually be
+		 * site-specific, so only honour it next to the range the section wrote.
+		 * Keeping the marker lets widgets distinguish it from a single year when
+		 * both ranges happen to cover the same dates.
+		 */
 		preset = search.preset;
 	} else if ( ! search?.from && ! search?.to ) {
 		preset = defaults.preset;
 	}
 
-	// When a valid preset is present, recalculate from/to
-	// so rolling ranges like "Last 30 days" stay fresh
-	// on every page load instead of using stale URL dates.
+	// Recalculate presets so their moving end stays fresh on every page load.
+	// For all time, preserve the URL-authored start because the year surface owns
+	// it and may eventually resolve it from the site's first year.
 	// If the preset is valid but has no range implementation,
 	// clear it to avoid silently falling back to stale dates.
 	let presetRange: ReturnType< typeof computeDateRangeFromPreset >;
 	if ( preset ) {
-		presetRange = computeDateRangeFromPreset( preset );
-		if ( ! presetRange ) {
+		const computedRange = computeDateRangeFromPreset( preset );
+		if ( computedRange ) {
+			presetRange =
+				preset === PRESET_ALL_TIME
+					? { ...computedRange, from: search?.from ?? computedRange.from }
+					: computedRange;
+		} else {
 			preset = undefined;
 		}
 	}
@@ -113,16 +141,14 @@ export function normalizeReportParams(
 	const from = presetRange?.from ?? search?.from ?? defaults.from;
 	const to = presetRange?.to ?? search?.to ?? defaults.to;
 
-	// Calculate the interval from the resolved date range.
-	const interval = getDefaultIntervalForPeriod( undefined, from, to );
+	const interval = resolveIntervalForRange( preset, from, to, search?.interval );
 
 	const postId = toPostId( search?.post_id );
 
-	// Params from `search`, or fallback to defaults.
 	const normalized: ReportParams = {
 		from,
 		to,
-		interval: interval ?? defaults.interval,
+		interval,
 		preset,
 		...( typeof search?.period === 'string' ? { period: search.period } : {} ),
 		date_type: search?.date_type ?? 'created',
@@ -132,7 +158,6 @@ export function normalizeReportParams(
 		...( postId > 0 ? { post_id: postId } : {} ),
 	};
 
-	// Add comparison params from search if enabled
 	if ( search && hasComparisonEnabled( search ) ) {
 		normalized.compare_from = search.compare_from;
 		normalized.compare_to = search.compare_to;
@@ -147,4 +172,20 @@ export function normalizeReportParams(
 	}
 
 	return normalized;
+}
+
+/**
+ * Whether report date params are incomplete or the interval is invalid for the range.
+ */
+export function needsReportDateParamsSeed( search?: ReportDateWindowSearch ): boolean {
+	if ( ! search?.from || ! search?.to || ! search?.interval ) {
+		return true;
+	}
+
+	// Only rolling presets have preset-specific interval rules. Other presets
+	// derive their allowed intervals from the range, like an absent preset.
+	const preset = isSelectablePreset( search.preset ) ? search.preset : undefined;
+	return (
+		resolveIntervalForRange( preset, search.from, search.to, search.interval ) !== search.interval
+	);
 }

@@ -8,6 +8,10 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
+use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-admin-menu.php';
 
@@ -53,6 +57,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+		\Brain\Monkey\setUp();
 
 		global $menu, $submenu;
 		$menu    = array();
@@ -73,6 +78,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		Status_Cache::clear();
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
 
+		\Brain\Monkey\tearDown();
 		parent::tear_down();
 	}
 
@@ -208,5 +214,112 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		$this->assertNull( $upgrades_menu, 'Upgrades menu should not exist on staging sites.' );
 
 		delete_option( 'wpcom_is_staging_site' );
+	}
+
+	/**
+	 * Adds a WooCommerce top-level menu item to the global menu fixture.
+	 */
+	private function add_woocommerce_menu_item() {
+		global $menu;
+		$menu[56] = array(
+			'WooCommerce',
+			'manage_woocommerce',
+			'woocommerce',
+			'WooCommerce',
+			'menu-top toplevel_page_woocommerce',
+			'toplevel_page_woocommerce',
+			'dashicons-store',
+		);
+	}
+
+	/**
+	 * Stubs wpcom_get_site_purchases() with a single purchase of the given product slug.
+	 *
+	 * @param string $product_slug The purchased product slug.
+	 */
+	private function stub_site_purchase( $product_slug ) {
+		Functions\when( 'wpcom_get_site_purchases' )->justReturn(
+			array( (object) array( 'product_slug' => $product_slug ) )
+		);
+	}
+
+	/**
+	 * Tests that the WooCommerce menu item is relabeled to "Store setup" on Commerce-plan sites.
+	 *
+	 * @dataProvider provide_commerce_plan_slugs
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param string $product_slug A Commerce plan product slug.
+	 */
+	#[DataProvider( 'provide_commerce_plan_slugs' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_relabel_woocommerce_menu_on_commerce_plan( $product_slug ) {
+		global $menu;
+
+		$this->add_woocommerce_menu_item();
+		$this->stub_site_purchase( $product_slug );
+
+		wpcom_relabel_woocommerce_menu();
+
+		$this->assertSame( 'Store setup', $menu[56][0] );
+		// The slug is preserved so the menu still points at WooCommerce.
+		$this->assertSame( 'woocommerce', $menu[56][2] );
+		// Only the sidebar label changes; the page title is left untouched.
+		$this->assertSame( 'WooCommerce', $menu[56][3] );
+	}
+
+	/**
+	 * Tests that the WooCommerce menu item keeps its label on non-Commerce-plan sites.
+	 *
+	 * Legacy Woo Express plans are included here: those users keep the "WooCommerce" label.
+	 *
+	 * @dataProvider provide_non_commerce_plan_slugs
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param string $product_slug A non-Commerce plan product slug.
+	 */
+	#[DataProvider( 'provide_non_commerce_plan_slugs' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_relabel_woocommerce_menu_keeps_label_without_commerce_plan( $product_slug ) {
+		global $menu;
+
+		$this->add_woocommerce_menu_item();
+		$this->stub_site_purchase( $product_slug );
+
+		wpcom_relabel_woocommerce_menu();
+
+		$this->assertSame( 'WooCommerce', $menu[56][0] );
+	}
+
+	/**
+	 * Data provider for Commerce plan slugs.
+	 *
+	 * @return array<string, array{string}>
+	 */
+	public static function provide_commerce_plan_slugs() {
+		return array(
+			'Commerce'         => array( 'ecommerce-bundle' ),
+			'Commerce monthly' => array( 'ecommerce-bundle-monthly' ),
+			'Commerce 2y'      => array( 'ecommerce-bundle-2y' ),
+			'Commerce 3y'      => array( 'ecommerce-bundle-3y' ),
+			'Commerce trial'   => array( 'ecommerce-trial-bundle-monthly' ),
+		);
+	}
+
+	/**
+	 * Data provider for non-Commerce plan slugs that should keep the "WooCommerce" label.
+	 *
+	 * @return array<string, array{string}>
+	 */
+	public static function provide_non_commerce_plan_slugs() {
+		return array(
+			'Business'          => array( 'business-bundle' ),
+			'WooExpress small'  => array( 'wooexpress-small-bundle-yearly' ),
+			'WooExpress medium' => array( 'wooexpress-medium-bundle-monthly' ),
+		);
 	}
 }

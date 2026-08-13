@@ -25,19 +25,10 @@ type CustomerTypeRevenueWidgetProps = {
 };
 
 /**
- * Customer Type Revenue Widget Component
- *
  * Displays a bar chart comparing revenue from new customers vs returning customers.
  * Optionally supports filtering by product type.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <CustomerTypeRevenueWidget filter={ BOOKINGS_FILTER } />
- * </WidgetRoot>
- * ```
  */
 function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -67,13 +58,13 @@ function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps )
 			error={ {
 				description: __(
 					"We couldn't load customer revenue data. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: customer,
-				description: __( 'No customer revenue in this period.', 'jetpack-premium-analytics' ),
+				description: __( 'No customer revenue in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<BarChart
@@ -89,8 +80,6 @@ function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps )
 }
 
 /**
- * Revenue by Customer Type Widget
- *
  * Displays customer revenue data for all product types.
  * No product type filtering applied.
  */
@@ -99,8 +88,6 @@ export function RevenueByCustomerTypeWidget() {
 }
 
 /**
- * Bookings Revenue by Customer Type Widget
- *
  * Displays customer revenue data for booking products only.
  * Filters to: booking, bookable-event, and bookable-service product types.
  */

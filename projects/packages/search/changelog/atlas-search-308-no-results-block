@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search Blocks: add a No Results block so the search empty state can hold any blocks — links, images, buttons — instead of plain text. The Results List message settings are deprecated and keep rendering.

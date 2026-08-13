@@ -19,8 +19,11 @@ This package provides those missing or updated packages so that plugins using `@
 |-------------------|------------------------|-----------------|
 | `wp-notices`      | `@wordpress/notices`    | Yes on WP < 7.0 — missing component exports |
 | `wp-private-apis` | `@wordpress/private-apis` | Yes on WP < 7.1 unless Gutenberg >= 23.5.0 is active — incomplete allowlist |
+| `wp-rich-text`    | `@wordpress/rich-text`  | Yes on WP < 7.1 unless Gutenberg >= 23.6.0 is active — incomplete `privateApis` |
 | `wp-theme`        | `@wordpress/theme`      | No — only registered if absent |
 | `wp-views`        | `@wordpress/views`      | No — only registered if absent |
+
+`wp-rich-text`, `wp-theme` and `wp-views` require `wp-private-apis`, because each opts into private APIs under a package name Core's allowlist rejects (WP 6.9 rejects all three; WP 7.0 still rejects `@wordpress/compose`, which the rich-text polyfill bundles). Requesting any of them implicitly requests `wp-private-apis` too — see `WP_Build_Polyfills::SCRIPT_DEPENDENCIES`.
 
 ### Script modules (ESM)
 
@@ -77,6 +80,19 @@ Consuming packages should add `@automattic/jetpack-wp-build-polyfills` as a devD
 ```json
 "build:boot-proxy": "provide-boot-asset-file"
 ```
+
+## Safety checks
+
+Two checks run after `webpack` (see the `build` script) so version skew in the bundled `@wordpress/*`
+set fails the build instead of silently blanking a dashboard at runtime (as in Jetpack 16.0):
+
+- **`validate-boot-asset.js`** — every dependency handle in the boot module's `.asset.php` is a known
+  Core or polyfill handle (catches a script silently dropped for an unregistered dependency).
+- **`validate-export-contract.js`** — every symbol a consumer (`@wordpress/boot`, …) imports from a
+  polyfilled classic-script provider (`@wordpress/theme`, `@wordpress/notices`, `@wordpress/private-apis`, `@wordpress/views`) exists
+  in that provider's shipped public API (catches the 16.0 `wp.theme.ThemeProvider is undefined`
+  case). Run standalone with `pnpm run check-contracts`. The ESM module providers (`route`, `a11y`)
+  are a follow-up. Regression-tested in `tests/js/validate-export-contract.test.js`.
 
 ## Development
 
