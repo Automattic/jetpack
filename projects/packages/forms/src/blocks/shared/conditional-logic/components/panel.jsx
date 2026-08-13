@@ -1,7 +1,8 @@
-import { InspectorControls } from '@wordpress/block-editor';
-import { Button, PanelBody } from '@wordpress/components';
+import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { Button, PanelBody, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { seen, unseen } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import {
 	countRules,
@@ -125,47 +126,68 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 	const hasConditions = countRules( logic ) > 0;
 
 	return (
-		<InspectorControls>
-			<PanelBody
-				title={ __( 'Conditional logic', 'jetpack-forms' ) }
-				initialOpen={ false }
-				className="jetpack-contact-form__panel jetpack-contact-form__conditional-logic"
-			>
-				<Stack direction="column" gap="md">
-					<Text variant="body-sm" className="jetpack-contact-form__conditional-logic-summary-text">
-						{ hasConditions
-							? summarize( logic, group )
-							: __(
-									'Show or hide this field based on the answer to another field.',
-									'jetpack-forms'
-							  ) }
-					</Text>
+		<>
+			{ /* Only once the field actually has conditions: a toolbar button on every field
+			     block would be noise, and there would be no state for it to report. It sits
+			     beside the Required control because both answer "what is special about this
+			     field?" without opening anything. */ }
+			{ hasConditions && (
+				<BlockControls __experimentalShareWithChildBlocks>
+					<ToolbarGroup>
+						<ToolbarButton
+							icon={ 'hide' === logic.action ? unseen : seen }
+							title={ summarize( logic, group ) }
+							onClick={ openModal }
+						/>
+					</ToolbarGroup>
+				</BlockControls>
+			) }
 
-					<Button
-						variant="secondary"
-						onClick={ openModal }
-						__next40pxDefaultSize={ true }
-						className="jetpack-contact-form__conditional-logic-edit"
-					>
-						{ hasConditions
-							? __( 'Edit conditions', 'jetpack-forms' )
-							: __( 'Add conditions', 'jetpack-forms' ) }
-					</Button>
-				</Stack>
-			</PanelBody>
+			<InspectorControls>
+				<PanelBody
+					title={ __( 'Conditional logic', 'jetpack-forms' ) }
+					initialOpen={ false }
+					className="jetpack-contact-form__panel jetpack-contact-form__conditional-logic"
+				>
+					<Stack direction="column" gap="md">
+						<Text
+							variant="body-sm"
+							className="jetpack-contact-form__conditional-logic-summary-text"
+						>
+							{ hasConditions
+								? summarize( logic, group )
+								: __(
+										'Show or hide this field based on the answer to another field.',
+										'jetpack-forms'
+								  ) }
+						</Text>
 
-			<ConditionalLogicModal
-				isOpen={ isModalOpen }
-				onClose={ closeModal }
-				logic={ logic }
-				group={ group }
-				fields={ fields }
-				ownFieldId={ attributes.id }
-				onActionChange={ handleActionChange }
-				onMatchChange={ handleMatchChange }
-				onRulesChange={ handleRulesChange }
-			/>
-		</InspectorControls>
+						<Button
+							variant="secondary"
+							onClick={ openModal }
+							__next40pxDefaultSize={ true }
+							className="jetpack-contact-form__conditional-logic-edit"
+						>
+							{ hasConditions
+								? __( 'Edit conditions', 'jetpack-forms' )
+								: __( 'Add conditions', 'jetpack-forms' ) }
+						</Button>
+					</Stack>
+				</PanelBody>
+
+				<ConditionalLogicModal
+					isOpen={ isModalOpen }
+					onClose={ closeModal }
+					logic={ logic }
+					group={ group }
+					fields={ fields }
+					ownFieldId={ attributes.id }
+					onActionChange={ handleActionChange }
+					onMatchChange={ handleMatchChange }
+					onRulesChange={ handleRulesChange }
+				/>
+			</InspectorControls>
+		</>
 	);
 };
 

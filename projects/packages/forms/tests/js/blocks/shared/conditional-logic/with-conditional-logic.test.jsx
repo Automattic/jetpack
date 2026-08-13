@@ -21,6 +21,7 @@ await jest.unstable_mockModule( '../../../../../src/blocks/contact-form/child-bl
 
 await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
 	InspectorControls: ( { children } ) => <div>{ children }</div>,
+	BlockControls: ( { children } ) => <div>{ children }</div>,
 } ) );
 
 await jest.unstable_mockModule(

@@ -57,6 +57,7 @@ const SUBJECT_FIELDS = [
 
 await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
 	InspectorControls: ( { children } ) => <div>{ children }</div>,
+	BlockControls: ( { children } ) => <div>{ children }</div>,
 } ) );
 
 const mockEnsureFieldId = jest.fn( ( field, usedIds = [] ) => {
@@ -175,6 +176,38 @@ describe( 'ConditionalLogicPanel', () => {
 		);
 
 		expect( screen.getByText( 'Hidden when 1 condition matches' ) ).toBeInTheDocument();
+	} );
+
+	// The toolbar button reports the same thing the inspector summary does, for an author who
+	// is looking at the canvas rather than the sidebar.
+	it( 'adds a toolbar button once the field has conditions', async () => {
+		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ), {
+			openModal: false,
+		} );
+
+		expect(
+			screen.getByRole( 'button', { name: 'Shown when 1 condition matches' } )
+		).toBeInTheDocument();
+	} );
+
+	it( 'leaves the toolbar alone on a field with no conditions', async () => {
+		await setup( DEFAULT_ATTRIBUTE, { openModal: false } );
+
+		expect(
+			screen.queryByRole( 'button', { name: /Shown when|Hidden when/ } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'opens the dialog from the toolbar button', async () => {
+		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ), {
+			openModal: false,
+		} );
+
+		await userEvent.click(
+			screen.getByRole( 'button', { name: 'Shown when 1 condition matches' } )
+		);
+
+		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
 	} );
 
 	it( 'invites the author in when there are no conditions yet', async () => {
