@@ -163,8 +163,21 @@ class Status {
 			$host = '';
 		}
 
-		// Check for localhost and sites using an IP only first.
-		$is_local = '' !== $host && false === strpos( $host, '.' );
+		if ( '' !== $host && '[' === $host[0] ) {
+			/*
+			 * A bracketed IPv6 literal is dot-free but not a domain name, so the "no dot means
+			 * local" rule below can't reason about it. Classify it by loopback instead: ::1 (and
+			 * the all-interfaces ::) is local, while a routable address like [2606:4700:4700::1111]
+			 * is a public site. inet_pton() normalizes textual variants, so [0:0:0:0:0:0:0:1] and
+			 * [::1] compare equal.
+			 */
+			$ip       = substr( $host, 1, -1 );
+			$is_local = false !== filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 )
+				&& in_array( inet_pton( $ip ), array( inet_pton( '::1' ), inet_pton( '::' ) ), true );
+		} else {
+			// Check for localhost and sites using an IP only first. No dot means it can't be a public domain.
+			$is_local = '' !== $host && false === strpos( $host, '.' );
+		}
 
 		// Use Core's environment check, if available.
 		if ( 'local' === wp_get_environment_type() ) {
