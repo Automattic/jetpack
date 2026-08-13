@@ -13,6 +13,7 @@
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversMethod;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 
@@ -20,8 +21,10 @@ require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
  * Class WPCOM_REST_API_V2_Endpoint_AI_Test
  *
  * @covers \WPCOM_REST_API_V2_Endpoint_AI
+ * @covers \Jetpack_AI_Helper::get_ai_assistance_feature
  */
 #[CoversClass( WPCOM_REST_API_V2_Endpoint_AI::class )]
+#[CoversMethod( Jetpack_AI_Helper::class, 'get_ai_assistance_feature' )]
 class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 
 	use \Activates_Ai_Module;

@@ -163,6 +163,15 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Skip positive WordPress.com entitlement simulations when wpcomsh is active.
+	 */
+	private function skip_when_wpcomsh_is_active() {
+		if ( getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
+			$this->markTestSkipped( 'WordPress.com entitlements use the real purchase resolver under wpcomsh and cannot be simulated by the test filter.' );
+		}
+	}
+
+	/**
 	 * Get the inline agentsManagerData script.
 	 *
 	 * @return string Inline script contents.
@@ -468,6 +477,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * be undeclared within the process.
 	 */
 	public function test_paid_simple_preview_disabled_without_big_sky() {
+		$this->skip_when_wpcomsh_is_active();
 		if ( class_exists( 'Big_Sky' ) ) {
 			$this->markTestSkipped( 'Big_Sky was declared by an earlier test in this process and cannot be undeclared.' );
 		}
@@ -533,6 +543,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Entitled Simple sites retain the WordPress Agent toggle.
 	 */
 	public function test_paid_simple_preview_respects_big_sky_option_off() {
+		$this->skip_when_wpcomsh_is_active();
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		$this->simulate_wpcom_simple();
 		add_filter( 'jetpack_test_wpcom_has_big_sky', '__return_true' );
@@ -1072,6 +1083,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * A full Agent entitlement retains the existing Agents Manager entry.
 	 */
 	public function test_paid_simple_preserves_full_agents_manager_variant() {
+		$this->skip_when_wpcomsh_is_active();
 		$this->set_block_editor_screen();
 		$this->simulate_wpcom_simple();
 		add_filter( 'jetpack_test_wpcom_has_big_sky', '__return_true' );
@@ -1536,6 +1548,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Full WordPress Agent entitlement bypasses Jetpack AI metering.
 	 */
 	public function test_add_agents_manager_data_disables_jetpack_metering_for_paid_simple() {
+		$this->skip_when_wpcomsh_is_active();
 		$this->set_page_block_editor_screen();
 		$this->simulate_wpcom_simple();
 		add_filter( 'jetpack_test_wpcom_has_big_sky', '__return_true' );
@@ -1564,6 +1577,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Atomic bypasses Jetpack AI metering when its purchase data grants Big Sky.
 	 */
 	public function test_add_agents_manager_data_disables_jetpack_metering_for_atomic_with_big_sky() {
+		$this->skip_when_wpcomsh_is_active();
 		$this->set_page_block_editor_screen();
 		$this->simulate_wpcom_platform();
 		$this->enable_sidebar();
@@ -1908,6 +1922,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * A full Agent entitlement retains the broad abilities provider.
 	 */
 	public function test_abilities_script_enqueues_for_paid_simple() {
+		$this->skip_when_wpcomsh_is_active();
 		$this->set_block_editor_screen();
 		$this->cache_sidebar_asset_data();
 		$this->simulate_wpcom_simple();
