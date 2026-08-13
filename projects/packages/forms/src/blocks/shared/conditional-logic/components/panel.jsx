@@ -127,24 +127,26 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 
 	return (
 		<>
-			{ /* Only once the field actually has conditions: a toolbar button on every field
-			     block would be noise, and there would be no state for it to report. It sits
-			     beside the Required control because both answer "what is special about this
-			     field?" without opening anything. */ }
-			{ hasConditions && (
-				<BlockControls __experimentalShareWithChildBlocks>
-					<ToolbarGroup>
-						<ToolbarButton
-							icon={ 'hide' === logic.action ? unseen : seen }
-							title={ summarize( logic, group ) }
-							onClick={ openModal }
-							// Inverted while the field carries conditions, the same
-							// treatment Required uses for a field that is required.
-							className={ hasConditions ? 'is-pressed' : undefined }
-						/>
-					</ToolbarGroup>
-				</BlockControls>
-			) }
+			{ /* Present on every block that supports conditional logic, the way Required is,
+			     rather than appearing once rules exist. A control that comes and goes is
+			     harder to find than one that is always there, and this is also how an author
+			     reaches the builder from the canvas rather than the sidebar. */ }
+			<BlockControls __experimentalShareWithChildBlocks>
+				<ToolbarGroup>
+					<ToolbarButton
+						icon={ 'hide' === logic.action ? unseen : seen }
+						title={
+							hasConditions
+								? summarize( logic, group )
+								: __( 'Add conditional logic', 'jetpack-forms' )
+						}
+						onClick={ openModal }
+						// Inverted while the field carries conditions, the same treatment
+						// Required uses for a field that is required.
+						className={ hasConditions ? 'is-pressed' : undefined }
+					/>
+				</ToolbarGroup>
+			</BlockControls>
 
 			<InspectorControls>
 				<PanelBody

@@ -201,12 +201,23 @@ describe( 'ConditionalLogicPanel', () => {
 		);
 	} );
 
-	it( 'leaves the toolbar alone on a field with no conditions', async () => {
+	// Present on every block that supports conditional logic, the way Required is: a control
+	// that comes and goes is harder to find than one that is always there.
+	it( 'offers the toolbar button before any condition exists', async () => {
 		await setup( DEFAULT_ATTRIBUTE, { openModal: false } );
 
-		expect(
-			screen.queryByRole( 'button', { name: /Shown when|Hidden when/ } )
-		).not.toBeInTheDocument();
+		const button = screen.getByRole( 'button', { name: 'Add conditional logic' } );
+
+		expect( button ).toBeInTheDocument();
+		expect( button ).not.toHaveClass( 'is-pressed' );
+	} );
+
+	it( 'opens the builder from the toolbar before any condition exists', async () => {
+		await setup( DEFAULT_ATTRIBUTE, { openModal: false } );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Add conditional logic' } ) );
+
+		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
 	} );
 
 	it( 'opens the dialog from the toolbar button', async () => {
