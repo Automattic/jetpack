@@ -24,7 +24,27 @@ type Props = {
 	hideFooter?: boolean;
 };
 
-let hasHandledLandingRedirect = false;
+/*
+ * The landing redirect must fire at most once per PAGE LOAD — but a module
+ * variable can't guarantee that here: every route ships as its own bundle
+ * with its own copy of this module, so "module-level once" is really "once
+ * per route bundle". Concretely: land on Home (its copy burns), click
+ * Library, and Library's fresh copy fires the "landing" redirect again,
+ * bouncing straight back to Home. A window-scoped flag is shared by all
+ * bundle copies, restoring the real once-per-load semantics.
+ */
+const LANDING_REDIRECT_FLAG = '__jetpackVideoPressLandingRedirectDone';
+
+type FlagWindow = Window & { [ LANDING_REDIRECT_FLAG ]?: boolean };
+
+const hasHandledLandingRedirect = (): boolean =>
+	typeof window !== 'undefined' && Boolean( ( window as FlagWindow )[ LANDING_REDIRECT_FLAG ] );
+
+const markLandingRedirectHandled = (): void => {
+	if ( typeof window !== 'undefined' ) {
+		( window as FlagWindow )[ LANDING_REDIRECT_FLAG ] = true;
+	}
+};
 
 /**
  * Shared chrome for every wp-build VideoPress dashboard tab. Renders
@@ -87,7 +107,7 @@ export default function DashboardLayout( { activeTab, children, actions, hideFoo
 	// only once the count is known — otherwise the first (loading) commit
 	// consumes it and the real decision never happens.
 	useEffect( () => {
-		if ( hasHandledLandingRedirect || hasCheckedLandingRedirect.current ) {
+		if ( hasHandledLandingRedirect() || hasCheckedLandingRedirect.current ) {
 			return;
 		}
 
@@ -95,7 +115,7 @@ export default function DashboardLayout( { activeTab, children, actions, hideFoo
 			return;
 		}
 
-		hasHandledLandingRedirect = true;
+		markLandingRedirectHandled();
 		hasCheckedLandingRedirect.current = true;
 
 		if ( activeTab !== 'library' ) {
