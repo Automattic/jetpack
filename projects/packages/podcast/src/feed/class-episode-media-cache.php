@@ -109,11 +109,16 @@ class Episode_Media_Cache {
 
 		_prime_post_caches( $attachment_ids, false, true );
 
+		// One attachment can hold several `_wp_attached_file` rows and the lookup
+		// matches on any of them, so count it against every requested path it holds.
+		// Reading just the first value would bucket it under a path nobody asked
+		// for and leave the one that actually matched looking unique.
 		$candidates = array();
 		foreach ( $found as $id ) {
-			$path = (string) get_post_meta( $id, '_wp_attached_file', true );
-			if ( '' !== $path ) {
-				$candidates[ $path ][] = (int) $id;
+			foreach ( (array) get_post_meta( $id, '_wp_attached_file', false ) as $value ) {
+				if ( isset( $paths[ (string) $value ] ) ) {
+					$candidates[ (string) $value ][] = (int) $id;
+				}
 			}
 		}
 
@@ -121,8 +126,9 @@ class Episode_Media_Cache {
 		// which a joined query can't reproduce, and a batch hit never reaches the
 		// fallback — so a wrong guess would be unrecoverable. Leave those to core.
 		foreach ( $candidates as $path => $ids ) {
+			$ids = array_unique( $ids );
 			if ( 1 === count( $ids ) ) {
-				self::$attachment_ids[ (string) $path ] = $ids[0];
+				self::$attachment_ids[ (string) $path ] = (int) reset( $ids );
 			}
 		}
 	}

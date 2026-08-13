@@ -37,26 +37,25 @@ class Episode_Media_Cache_Test extends BaseTestCase {
 
 	/**
 	 * Prime a page holding one episode whose enclosure the batch resolves to
-	 * `$attachment_ids`: `posts_pre_query` stands in for the lookup query, and
-	 * `get_post_metadata` gives every returned attachment the same
-	 * `_wp_attached_file` the mapping reads back off the result. Pass more than
-	 * one to model several attachments sharing a path.
+	 * `$attachment_id`: `posts_pre_query` stands in for the lookup query, and
+	 * `get_post_metadata` gives that attachment the `_wp_attached_file` the
+	 * mapping reads back off the result.
 	 *
 	 * @return string The episode's enclosure URL.
 	 */
-	private function prime_page_with_episode( int ...$attachment_ids ): string {
+	private function prime_page_with_episode( int $attachment_id ): string {
 		add_filter(
 			'posts_pre_query',
-			static function ( $pre, $query ) use ( $attachment_ids ) {
-				return 'attachment' === $query->get( 'post_type' ) ? $attachment_ids : $pre;
+			static function ( $pre, $query ) use ( $attachment_id ) {
+				return 'attachment' === $query->get( 'post_type' ) ? array( $attachment_id ) : $pre;
 			},
 			10,
 			2
 		);
 		add_filter(
 			'get_post_metadata',
-			static function ( $value, $object_id, $meta_key, $single ) use ( $attachment_ids ) {
-				if ( in_array( (int) $object_id, $attachment_ids, true ) && '_wp_attached_file' === $meta_key ) {
+			static function ( $value, $object_id, $meta_key, $single ) use ( $attachment_id ) {
+				if ( $attachment_id === (int) $object_id && '_wp_attached_file' === $meta_key ) {
 					return $single ? self::PATH : array( self::PATH );
 				}
 				return $value;
@@ -106,16 +105,43 @@ class Episode_Media_Cache_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Imports and restores leave several records on one file. Core picks between
-	 * them in `postmeta` order, which a joined query can't reproduce, so an
-	 * ambiguous path goes uncached and core answers it.
+	 * Imports and restores leave several records on one file — including one
+	 * record holding several `_wp_attached_file` rows, where only the second is
+	 * the path being asked for. The lookup matches either row, so both records
+	 * are candidates, and core picks between them in `postmeta` order a joined
+	 * query can't reproduce. Ambiguous paths go uncached.
 	 */
-	public function test_attachments_sharing_a_path_defer_to_core() {
-		$url = $this->prime_page_with_episode( 555, 556 );
+	public function test_ambiguous_path_defers_to_core() {
+		add_filter(
+			'posts_pre_query',
+			static function ( $pre, $query ) {
+				return 'attachment' === $query->get( 'post_type' ) ? array( 10, 20 ) : $pre;
+			},
+			10,
+			2
+		);
+		// 10 was restored onto a new path and kept its old row; 20 holds only the
+		// path the feed asks for.
+		add_filter(
+			'get_post_metadata',
+			static function ( $value, $object_id, $meta_key, $single ) {
+				if ( '_wp_attached_file' !== $meta_key ) {
+					return $value;
+				}
+				$values = 10 === (int) $object_id ? array( '2024/01/original.mp3', self::PATH ) : array( self::PATH );
+				return $single ? $values[0] : $values;
+			},
+			10,
+			4
+		);
 
-		// Both paths run this filter, so the resolved ID is what separates them:
-		// core's own lookup finds nothing here and passes null, a batch hit passes
-		// the ID it cached.
+		$url = wp_get_upload_dir()['baseurl'] . '/' . self::PATH;
+		add_post_meta( 1, 'enclosure', $url . "\n12345\naudio/mpeg\n" );
+		Episode_Media_Cache::prime( array( new WP_Post( (object) array( 'ID' => 1 ) ) ) );
+
+		// Both branches run this filter, so the value it receives is what separates
+		// them: core's own lookup finds nothing here and passes null, a batch hit
+		// passes the ID it cached.
 		$resolved = 'never ran';
 		add_filter(
 			'attachment_url_to_postid',
