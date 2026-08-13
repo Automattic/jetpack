@@ -39,6 +39,7 @@ jest.mock( '@wordpress/ui', () => ( {
 			</fieldset>
 		),
 	},
+	Stack: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
 	Text: ( { children }: { children: React.ReactNode } ) => <span>{ children }</span>,
 	Link: ( {
 		children,
