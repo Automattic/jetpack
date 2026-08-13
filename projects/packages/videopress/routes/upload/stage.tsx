@@ -1462,6 +1462,7 @@ const UploadOnboarding = ( {
 } ) => {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
+	const { createInfoNotice } = useGlobalNotices();
 	const inputRef = useRef< HTMLInputElement >( null );
 	const batchRef = useRef( 0 );
 	const [ uploads, setUploads ] = useState< UploadItem[] >( [] );
@@ -1520,18 +1521,46 @@ const UploadOnboarding = ( {
 			if ( ! selectedForPlan.length ) {
 				return;
 			}
+			// The plan slice above silently drops everything past the free
+			// tier's one video; the dropped count must be surfaced or the
+			// missing uploads read as a bug.
+			if ( selected.length > selectedForPlan.length ) {
+				const discarded = selected.length - selectedForPlan.length;
+				createInfoNotice(
+					sprintf(
+						/* translators: %d: number of selected videos not uploaded on the free plan. */
+						_n(
+							'The free plan includes one video — uploading your first. Upgrade to add %d more.',
+							'The free plan includes one video — uploading your first. Upgrade to add the other %d.',
+							discarded,
+							'jetpack-videopress-pkg'
+						),
+						discarded
+					)
+				);
+			}
 			const batch = batchRef.current + 1;
 			batchRef.current = batch;
 			setPublishedVideos( [] );
 
 			if ( isConnected ) {
+				// Multi-file batches land on the Library: every file starts in
+				// the shared queue (same context tag as the single flow) and
+				// the Library splices the in-flight rows in at the top, with
+				// the upload pill carrying the batch from there. No
+				// 'uploading' step — that interstitial survives only for the
+				// disconnected XHR fallback below.
+				if ( selectedForPlan.length > 1 ) {
+					selectedForPlan.forEach( file => startUpload( file, UPLOAD_CONTEXT ) );
+					navigate( { href: '/' } );
+					return;
+				}
 				setUploads( [] );
 				setBatchQueueIds( selectedForPlan.map( file => startUpload( file, UPLOAD_CONTEXT ) ) );
 				// One file: skip the interstitial and cross-fade straight to the
 				// edit surface — the upload carries on in its player slot, and
-				// the user can write while it runs. Multi-file batches keep the
-				// per-file progress list; there is no single surface to land on.
-				go( selectedForPlan.length === 1 ? 'edit' : 'uploading', 'upload' );
+				// the user can write while it runs.
+				go( 'edit', 'upload' );
 				return;
 			}
 
@@ -1566,7 +1595,17 @@ const UploadOnboarding = ( {
 					} );
 			} );
 		},
-		[ allowMultiple, go, isAtLimit, isConnected, queryClient, startUpload, updateUpload ]
+		[
+			allowMultiple,
+			createInfoNotice,
+			go,
+			isAtLimit,
+			isConnected,
+			navigate,
+			queryClient,
+			startUpload,
+			updateUpload,
+		]
 	);
 
 	// The queue is the source of truth while a connected-site batch uploads;
@@ -1769,7 +1808,13 @@ const StageInner = () => {
 	// moved below a bailout, and an early return leaves them declared-then-unused
 	// on the redirect path.
 	return shouldRedirectToLibrary ? null : (
-		<DashboardLayout activeTab={ isAtLimit ? 'library' : 'upload' }>
+		// The pill suppression: while this stage is on screen, the single-flow
+		// edit session's player slot is the progress surface, so the shared
+		// upload pill stands down for this flow's own queue items.
+		<DashboardLayout
+			activeTab={ isAtLimit ? 'library' : 'upload' }
+			uploadPillSuppressContext={ UPLOAD_CONTEXT }
+		>
 			<UploadOnboarding
 				isFree={ isFree }
 				isUnlimited={ isUnlimited }

@@ -169,6 +169,14 @@ export function useUpload() {
 	// identity of `useResumableUploader`'s return value.
 	const uploadHandlerRef = useRef< ( ( file: File ) => void ) | null >( null );
 
+	// The legacy uploader's tus handle, captured per render like
+	// uploadHandler. It appears asynchronously (after the upload-JWT round
+	// trip), so a cancel that lands before it exists has nothing to abort —
+	// the item is still dropped from the queue either way.
+	const resumeHandlerRef = useRef< { start: () => void; abort: () => void } | undefined >(
+		undefined
+	);
+
 	const startNextPending = useCallback( () => {
 		const next = readQueue().find( item => item.status === 'pending' );
 		if ( next && uploadHandlerRef.current ) {
@@ -181,10 +189,25 @@ export function useUpload() {
 
 	// Adapter callbacks — translate the legacy (bytesSent, bytesTotal) /
 	// (data: VideoMediaProps) / (err) signatures to queue-item updates.
-	const { uploadHandler } = useResumableUploader( {
+	//
+	// Each callback first checks the current item against the queue: while an
+	// item is this instance's active upload, only an external cancel (see
+	// cancelUpload) can remove it or flip it to 'failed' — this instance's own
+	// onError immediately moves currentIdRef along. Detecting that here is
+	// what lets a non-owning instance cancel an upload it holds no tus handle
+	// for: the owner aborts its session on the next callback and moves on.
+	const { uploadHandler, resumeHandler } = useResumableUploader( {
 		onProgress: ( bytesSent: number, bytesTotal: number ) => {
 			const id = currentIdRef.current;
 			if ( ! id ) {
+				return;
+			}
+			const current = readQueue().find( item => item.id === id );
+			if ( ! current || current.status === 'failed' ) {
+				// Canceled externally — stop the tus session instead of
+				// resurrecting the row with fresh progress.
+				resumeHandlerRef.current?.abort();
+				startNextPending();
 				return;
 			}
 			const progress = bytesTotal > 0 ? bytesSent / bytesTotal : 0;
@@ -197,21 +220,34 @@ export function useUpload() {
 			if ( ! id ) {
 				return;
 			}
-			// Succeeded items stay in the queue, carrying their media result,
-			// until a consumer acknowledges them — the upload pill links to
-			// the finished video, and the upload→edit transition needs the id.
-			// (They used to self-delete after 2s, which threw the id away.)
-			mutateQueue( prev =>
-				prev.map( item =>
-					item.id === id ? { ...item, progress: 1, status: 'success', media: data } : item
-				)
-			);
+			const current = readQueue().find( item => item.id === id );
+			if ( current && current.status !== 'failed' ) {
+				// Succeeded items stay in the queue, carrying their media result,
+				// until a consumer acknowledges them — the upload pill links to
+				// the finished video, and the upload→edit transition needs the id.
+				// (They used to self-delete after 2s, which threw the id away.)
+				mutateQueue( prev =>
+					prev.map( item =>
+						item.id === id ? { ...item, progress: 1, status: 'success', media: data } : item
+					)
+				);
+			}
+			// A cancel that loses the race with the last byte keeps its
+			// canceled row, but the attachment now exists — refetch the
+			// library either way so it lists.
 			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
 			startNextPending();
 		},
 		onError: ( err: unknown ) => {
 			const id = currentIdRef.current;
 			if ( ! id ) {
+				return;
+			}
+			const current = readQueue().find( item => item.id === id );
+			if ( ! current || current.status === 'failed' ) {
+				// An abort can surface as an error; keep the canceled state
+				// rather than overwriting it with the transport's message.
+				startNextPending();
 				return;
 			}
 			let message = 'Upload failed';
@@ -232,6 +268,7 @@ export function useUpload() {
 	} );
 
 	uploadHandlerRef.current = uploadHandler;
+	resumeHandlerRef.current = resumeHandler;
 
 	const startUpload = useCallback(
 		( file: File, context?: string ): string => {
@@ -263,6 +300,45 @@ export function useUpload() {
 		);
 	}, [] );
 
+	// Cancel an upload. Semantics by state:
+	// - pending: removed outright — no tus session exists yet.
+	// - active in THIS instance: the tus session aborts via the legacy
+	//   uploader's resumeHandler, the item is removed, and the next pending
+	//   item dispatches.
+	// - active in ANOTHER instance: only the owning instance holds the tus
+	//   handle, so the item is marked failed ("Upload canceled") rather than
+	//   left zombied; the owner's next adapter callback finds its current
+	//   item failed, aborts its session, and moves on (see the callbacks
+	//   above). The row then behaves like any failure — visible until
+	//   acknowledged, retryable.
+	// - settled: no-op — acknowledge/retry own those states.
+	const cancelUpload = useCallback(
+		( id: string ) => {
+			const item = readQueue().find( q => q.id === id );
+			if ( ! item ) {
+				return;
+			}
+			if ( currentIdRef.current === id ) {
+				resumeHandlerRef.current?.abort();
+				mutateQueue( prev => prev.filter( q => q.id !== id ) );
+				startNextPending();
+				return;
+			}
+			if ( item.status === 'pending' ) {
+				mutateQueue( prev => prev.filter( q => q.id !== id ) );
+				return;
+			}
+			if ( item.status === 'uploading' ) {
+				mutateQueue( prev =>
+					prev.map( q =>
+						q.id === id ? { ...q, status: 'failed', error: 'Upload canceled' } : q
+					)
+				);
+			}
+		},
+		[ startNextPending ]
+	);
+
 	const retryUpload = useCallback(
 		( id: string ) => {
 			const item = readQueue().find( q => q.id === id );
@@ -289,6 +365,7 @@ export function useUpload() {
 		uploadQueue: queue,
 		startUpload,
 		retryUpload,
+		cancelUpload,
 		acknowledgeUpload,
 	};
 }

@@ -14,6 +14,7 @@ import DashboardTabs, {
 	type DashboardTab,
 } from '../dashboard-tabs';
 import OnboardingModal from '../onboarding-modal';
+import UploadPill from '../upload-pill';
 import './style.scss';
 import type { ReactNode } from 'react';
 
@@ -22,6 +23,7 @@ type Props = {
 	children: ReactNode;
 	actions?: ReactNode;
 	hideFooter?: boolean;
+	uploadPillSuppressContext?: string;
 };
 
 /*
@@ -53,16 +55,26 @@ const markLandingRedirectHandled = (): void => {
  * Tab/Panel pairing validator stays happy. Tab navigation between
  * sibling routes happens via `@wordpress/route`'s useNavigate.
  *
- * @param props            - Component props.
- * @param props.activeTab  - Currently active tab.
- * @param props.children   - Active tab's body content.
- * @param props.actions    - Optional content rendered in the page header's
- *                         top-right actions slot (e.g. a Save button).
- * @param props.hideFooter - When true, suppresses the JetpackFooter rendered by
- *                         AdminPage. Used by DataViews-centric tabs (e.g. Library).
+ * @param props                           - Component props.
+ * @param props.activeTab                 - Currently active tab.
+ * @param props.children                  - Active tab's body content.
+ * @param props.actions                   - Optional content rendered in the page header's
+ *                                        top-right actions slot (e.g. a Save button).
+ * @param props.hideFooter                - When true, suppresses the JetpackFooter rendered by
+ *                                        AdminPage. Used by DataViews-centric tabs (e.g. Library).
+ * @param props.uploadPillSuppressContext - Queue-item context tag whose uploads
+ *                                        already have a progress surface on this screen; the
+ *                                        upload pill stands down while the queue holds only
+ *                                        those. Passed by the /upload stage — see UploadPill.
  * @return The wrapped page element.
  */
-export default function DashboardLayout( { activeTab, children, actions, hideFooter }: Props ) {
+export default function DashboardLayout( {
+	activeTab,
+	children,
+	actions,
+	hideFooter,
+	uploadPillSuppressContext,
+}: Props ) {
 	const navigate = useNavigate();
 	const settledFirstRunState = useSettledFirstRunState();
 	const tabs = useDashboardTabOrder();
@@ -146,6 +158,7 @@ export default function DashboardLayout( { activeTab, children, actions, hideFoo
 				) ) }
 			</Tabs.Root>
 			<OnboardingModal />
+			<UploadPill suppressContext={ uploadPillSuppressContext } />
 		</AdminPage>
 	);
 }

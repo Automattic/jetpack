@@ -9,6 +9,7 @@ import { Stack, Text } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import { getVideoInfoQueryKeyPrefix } from '../../src/client/components/caption-manager-modal/use-video-tracks';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import UploadPill from '../../src/dashboard/components/upload-pill';
 import Editor, {
 	getParentBreadcrumbItem,
 } from '../../src/dashboard/components/video-details/editor';
@@ -198,15 +199,24 @@ const StageInner = () => {
 	const { id } = useParams( { from: '/video/$id' } );
 	const { video, isLoading } = useVideo( id );
 
+	let body;
 	if ( isLoading ) {
-		return <Loading />;
+		body = <Loading />;
+	} else if ( ! video || ! isEditable( video ) ) {
+		body = <NotFound />;
+	} else {
+		body = <StageReady video={ video } />;
 	}
 
-	if ( ! video || ! isEditable( video ) ) {
-		return <NotFound />;
-	}
-
-	return <StageReady video={ video } />;
+	// The edit screen has its own AdminPage rather than DashboardLayout, so
+	// the batch upload pill — the multi-upload "add details" chain lands
+	// here — needs its own mount.
+	return (
+		<>
+			{ body }
+			<UploadPill />
+		</>
+	);
 };
 
 const Stage = () => (

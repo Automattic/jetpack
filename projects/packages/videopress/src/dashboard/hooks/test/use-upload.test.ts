@@ -11,6 +11,7 @@ import { createTestQueryClient, createTestWrapper } from '../../test-utils/query
 import { useUpload, __resetUploadStoreForTests } from '../use-upload';
 
 const mockUploadHandler = jest.fn();
+const mockAbort = jest.fn();
 let lastCallbacks: {
 	onProgress?: ( bytesSent: number, bytesTotal: number ) => void;
 	onSuccess?: ( data?: unknown ) => void;
@@ -24,7 +25,7 @@ jest.mock( '../../../client/hooks/use-resumable-uploader', () => ( {
 		return {
 			onUploadHandler: jest.fn(),
 			uploadHandler: mockUploadHandler,
-			resumeHandler: undefined,
+			resumeHandler: { start: jest.fn(), abort: mockAbort },
 			uploadingData: { bytesSent: 0, bytesTotal: 0, percent: 0, status: 'idle' },
 			media: undefined,
 			error: null,
@@ -258,5 +259,133 @@ describe( 'useUpload — success retention and acknowledgement', () => {
 
 		expect( result.current.uploadQueue ).toHaveLength( 1 );
 		expect( result.current.uploadQueue[ 0 ].status ).toBe( 'uploading' );
+	} );
+} );
+
+describe( 'useUpload — cancellation', () => {
+	beforeEach( () => {
+		mockUploadHandler.mockClear();
+		mockAbort.mockClear();
+		lastCallbacks = {};
+		__resetUploadStoreForTests();
+	} );
+
+	it( 'removes a queued pending item without touching the active upload', () => {
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		const file1 = new File( [ 'x' ], 'a.mp4', { type: 'video/mp4' } );
+		const file2 = new File( [ 'y' ], 'b.mp4', { type: 'video/mp4' } );
+		let id2 = '';
+		act( () => {
+			result.current.startUpload( file1 );
+			id2 = result.current.startUpload( file2 );
+		} );
+
+		act( () => {
+			result.current.cancelUpload( id2 );
+		} );
+
+		expect( result.current.uploadQueue.map( u => u.file.name ) ).toEqual( [ 'a.mp4' ] );
+		expect( mockAbort ).not.toHaveBeenCalled();
+	} );
+
+	it( 'aborts the active item via the tus handle, removes it, and dispatches the next pending', () => {
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		const file1 = new File( [ 'x' ], 'a.mp4', { type: 'video/mp4' } );
+		const file2 = new File( [ 'y' ], 'b.mp4', { type: 'video/mp4' } );
+		let id1 = '';
+		act( () => {
+			id1 = result.current.startUpload( file1 );
+			result.current.startUpload( file2 );
+		} );
+		expect( mockUploadHandler ).toHaveBeenCalledTimes( 1 );
+
+		act( () => {
+			result.current.cancelUpload( id1 );
+		} );
+
+		expect( mockAbort ).toHaveBeenCalledTimes( 1 );
+		expect( result.current.uploadQueue.map( u => u.file.name ) ).toEqual( [ 'b.mp4' ] );
+		expect( mockUploadHandler ).toHaveBeenCalledTimes( 2 );
+		expect( mockUploadHandler ).toHaveBeenLastCalledWith( file2 );
+	} );
+
+	it( 'is a no-op for settled items', () => {
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		let id = '';
+		act( () => {
+			id = result.current.startUpload( new File( [ 'x' ], 't.mp4', { type: 'video/mp4' } ) );
+		} );
+		act( () => {
+			lastCallbacks.onSuccess?.( { id: 42, guid: 'abcd1234', src: 'https://v.example/x' } );
+		} );
+
+		act( () => {
+			result.current.cancelUpload( id );
+		} );
+
+		expect( result.current.uploadQueue ).toHaveLength( 1 );
+		expect( result.current.uploadQueue[ 0 ].status ).toBe( 'success' );
+		expect( mockAbort ).not.toHaveBeenCalled();
+	} );
+
+	it( 'marks the active item canceled when a non-owning instance cancels it', () => {
+		const client = createTestQueryClient();
+		const wrapper = createTestWrapper( client );
+		const { result: producer } = renderHook( () => useUpload(), { wrapper } );
+		// The producer's adapter callbacks, captured before the observer
+		// renders (each render overwrites lastCallbacks). The closures only
+		// read refs and stable callables, so this snapshot stays live.
+		const producerCallbacks = lastCallbacks;
+		const { result: observer } = renderHook( () => useUpload(), { wrapper } );
+		let id = '';
+		act( () => {
+			id = producer.current.startUpload( new File( [ 'x' ], 'a.mp4', { type: 'video/mp4' } ) );
+			producerCallbacks.onProgress?.( 10, 100 );
+		} );
+
+		act( () => {
+			observer.current.cancelUpload( id );
+		} );
+
+		// The observer holds no tus handle, so the item is marked canceled
+		// instead of removed; the abort belongs to the owner (next test).
+		expect( mockAbort ).not.toHaveBeenCalled();
+		expect( observer.current.uploadQueue[ 0 ].status ).toBe( 'failed' );
+		expect( observer.current.uploadQueue[ 0 ].error ).toBe( 'Upload canceled' );
+	} );
+
+	it( 'the owner aborts an externally canceled upload on its next progress event and moves on', () => {
+		const client = createTestQueryClient();
+		const wrapper = createTestWrapper( client );
+		const { result: producer } = renderHook( () => useUpload(), { wrapper } );
+		// The producer's adapter callbacks, captured before the observer
+		// renders (each render overwrites lastCallbacks). The closures only
+		// read refs and stable callables, so this snapshot stays live.
+		const producerCallbacks = lastCallbacks;
+		const { result: observer } = renderHook( () => useUpload(), { wrapper } );
+		const file1 = new File( [ 'x' ], 'a.mp4', { type: 'video/mp4' } );
+		const file2 = new File( [ 'y' ], 'b.mp4', { type: 'video/mp4' } );
+		let id1 = '';
+		act( () => {
+			id1 = producer.current.startUpload( file1 );
+			producer.current.startUpload( file2 );
+			producerCallbacks.onProgress?.( 10, 100 );
+		} );
+
+		act( () => {
+			observer.current.cancelUpload( id1 );
+		} );
+		act( () => {
+			producerCallbacks.onProgress?.( 50, 100 );
+		} );
+
+		expect( mockAbort ).toHaveBeenCalledTimes( 1 );
+		expect( mockUploadHandler ).toHaveBeenCalledTimes( 2 );
+		expect( mockUploadHandler ).toHaveBeenLastCalledWith( file2 );
+		// The canceled row survives as a failure — visible until acknowledged
+		// — rather than being resurrected by the stale progress event.
+		const canceled = producer.current.uploadQueue.find( u => u.id === id1 );
+		expect( canceled?.status ).toBe( 'failed' );
+		expect( canceled?.error ).toBe( 'Upload canceled' );
 	} );
 } );
