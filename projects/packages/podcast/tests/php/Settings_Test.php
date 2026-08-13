@@ -114,6 +114,39 @@ class Settings_Test extends BaseTestCase {
 		$this->assertFalse( Settings::sanitize_explicit( null ) );
 	}
 
+	public function test_feed_limit_clamps_stored_values_on_read() {
+		$this->assertSame( Settings::FEED_LIMIT_DEFAULT, Settings::feed_limit() );
+
+		update_option( 'podcasting_feed_limit', '50' );
+		$this->assertSame( 50, Settings::feed_limit() );
+
+		update_option( 'podcasting_feed_limit', -5 );
+		$this->assertSame( Settings::FEED_LIMIT_DEFAULT, Settings::feed_limit() );
+
+		update_option( 'podcasting_feed_limit', 'all of them' );
+		$this->assertSame( Settings::FEED_LIMIT_DEFAULT, Settings::feed_limit() );
+
+		update_option( 'podcasting_feed_limit', 999999 );
+		$this->assertSame( Settings::FEED_LIMIT_MAX, Settings::feed_limit() );
+
+		delete_option( 'podcasting_feed_limit' );
+	}
+
+	public function test_feed_limit_max_filter_raises_the_ceiling() {
+		add_filter(
+			'jetpack_podcast_feed_limit_max',
+			function () {
+				return 1000;
+			}
+		);
+		update_option( 'podcasting_feed_limit', 900 );
+
+		$this->assertSame( 900, Settings::feed_limit() );
+
+		remove_all_filters( 'jetpack_podcast_feed_limit_max' );
+		delete_option( 'podcasting_feed_limit' );
+	}
+
 	public function test_sanitize_show_urls_merges_partial_patch_into_stored_value() {
 		update_option(
 			'podcasting_show_urls',

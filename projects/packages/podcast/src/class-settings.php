@@ -45,6 +45,19 @@ class Settings {
 	const SHOW_URL_MAX_LENGTH = 2048;
 
 	/**
+	 * Episodes a podcast feed carries when the site hasn't chosen. Deep enough
+	 * that podcatchers see a real back catalog rather than core's blog-sized
+	 * `posts_per_rss`.
+	 */
+	const FEED_LIMIT_DEFAULT = 300;
+
+	/**
+	 * Ceiling for `podcasting_feed_limit`. Sized against measured feed generation
+	 * — roughly 4s for 215 episodes.
+	 */
+	const FEED_LIMIT_MAX = 500;
+
+	/**
 	 * Drives `register_settings()` and the sync whitelist.
 	 *
 	 * @var string[]
@@ -64,6 +77,7 @@ class Settings {
 		'podcasting_email',
 		'podcasting_show_urls',
 		'podcasting_show_states',
+		'podcasting_feed_limit',
 	);
 
 	/**
@@ -176,6 +190,16 @@ class Settings {
 				'sanitize_callback' => array( __CLASS__, 'sanitize_show_states' ),
 			)
 		);
+
+		register_setting(
+			'options',
+			'podcasting_feed_limit',
+			array(
+				'type'              => 'integer',
+				'default'           => self::FEED_LIMIT_DEFAULT,
+				'sanitize_callback' => array( __CLASS__, 'sanitize_feed_limit' ),
+			)
+		);
 	}
 
 	/**
@@ -205,8 +229,19 @@ class Settings {
 			'podcasting_email'       => (string) get_option( 'podcasting_email', '' ),
 			'podcasting_show_urls'   => array_merge( $empty_map, array_intersect_key( $show_urls, $empty_map ) ),
 			'podcasting_show_states' => array_merge( $empty_map, array_intersect_key( $show_states, $empty_map ) ),
+			'podcasting_feed_limit'  => self::feed_limit(),
 			'podcasting_feed_url'    => self::feed_url(),
 		);
+	}
+
+	/**
+	 * Episodes the podcast feed should carry. Sanitized on read because Sync
+	 * writes on shadow blogs never hit the registered `sanitize_callback`.
+	 *
+	 * @return int
+	 */
+	public static function feed_limit(): int {
+		return self::sanitize_feed_limit( get_option( 'podcasting_feed_limit', self::FEED_LIMIT_DEFAULT ) );
 	}
 
 	/**
@@ -261,6 +296,7 @@ class Settings {
 			'podcasting_email'       => array( 'type' => 'string' ),
 			'podcasting_show_urls'   => array( 'type' => 'object' ),
 			'podcasting_show_states' => array( 'type' => 'object' ),
+			'podcasting_feed_limit'  => array( 'type' => 'integer' ),
 		);
 	}
 
@@ -295,6 +331,39 @@ class Settings {
 			return in_array( strtolower( $value ), array( 'yes', 'true', '1' ), true );
 		}
 		return true === $value || 1 === $value;
+	}
+
+	/**
+	 * Clamp the feed episode limit to 1–{@see self::feed_limit_max()}. Cleared and
+	 * junk input falls back to the default rather than emptying the feed.
+	 *
+	 * @param mixed $value Raw input.
+	 * @return int
+	 */
+	public static function sanitize_feed_limit( $value ) {
+		$value = (int) $value;
+
+		return $value < 1 ? self::FEED_LIMIT_DEFAULT : min( $value, self::feed_limit_max() );
+	}
+
+	/**
+	 * Most episodes the podcast feed will carry.
+	 *
+	 * @return int
+	 */
+	public static function feed_limit_max(): int {
+		/**
+		 * Filters the ceiling for the podcast feed's episode limit. Raising it
+		 * renders that many items in one request, so only where the host can
+		 * absorb it.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int $max Maximum episodes a podcast feed may carry.
+		 */
+		$max = (int) apply_filters( 'jetpack_podcast_feed_limit_max', self::FEED_LIMIT_MAX );
+
+		return max( 1, $max );
 	}
 
 	/**

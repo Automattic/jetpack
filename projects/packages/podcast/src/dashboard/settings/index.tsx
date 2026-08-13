@@ -1,3 +1,4 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	Button,
 	Card,
@@ -209,6 +210,17 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 	const emailField = useFieldEditor(
 		draft?.podcasting_email ?? '',
 		commitField( 'podcasting_email' )
+	);
+
+	// Numeric, so it can't ride `commitField`. The server owns the range — a
+	// cleared field comes back as the default once the save resyncs the draft.
+	const commitFeedLimit = useCallback(
+		( value: string ) => commit( { podcasting_feed_limit: Number.parseInt( value, 10 ) || 0 } ),
+		[ commit ]
+	);
+	const feedLimitField = useFieldEditor(
+		String( draft?.podcasting_feed_limit ?? '' ),
+		commitFeedLimit
 	);
 
 	// Discrete-action handlers — these controls "commit" on each user choice
@@ -464,6 +476,20 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							) }
 							disabled={ isLocked }
 							{ ...emailField }
+						/>
+						<TextControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							type="number"
+							min={ 1 }
+							max={ getScriptData()?.podcast?.feed_limit_max }
+							step={ 1 }
+							label={ __( 'Episodes in feed', 'jetpack-podcast' ) }
+							help={ __(
+								'How many of your most recent episodes the feed includes.',
+								'jetpack-podcast'
+							) }
+							{ ...feedLimitField }
 						/>
 					</VStack>
 				</CardBody>
