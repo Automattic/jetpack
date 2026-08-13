@@ -382,11 +382,9 @@ export const Stacked: Story = {
 };
 
 /*
- * Story-only stand-in for what a real surface provides around a pinned header:
- * a strip above it to scroll past, and the pin marker whose view timeline says
- * when the header has come to rest. The dashboard does this in
- * `routes/dashboard/stage.module.scss`; here it is inline so the story stays
- * self-contained.
+ * Story-only stand-in for what a surface provides around a pinned header: a
+ * strip to scroll past and the pin marker publishing the view timeline. The
+ * dashboard does this in `routes/dashboard/stage.module.scss`.
  */
 const PIN_TIMELINE = '--section-header-pin';
 const PIN_MARKER_STYLE = {
@@ -401,15 +399,12 @@ const PIN_MARKER_STYLE = {
 } as const;
 
 /**
- * `condenseOnScroll` on a pinned header: scroll the box below, and once
- * the header clears the strip above it and comes to rest, the subtitle fades
- * and hands its row back over the next 40px. Before that it holds still, so
- * nothing condenses while the header is on its way up.
- *
- * The effect follows the scroll rather than playing once a threshold is
- * crossed, so it also runs backwards on the way down. Browsers without
- * scroll-progress timelines, surfaces that publish no pin marker, and readers
- * who asked for reduced motion all keep the subtitle where it is.
+ * `condenseOnScroll` on a pinned header: scroll the box below, and once the
+ * header clears the strip above it and pins, the subtitle fades and gives its
+ * row back over the next 40px. Nothing condenses while the header is still on
+ * its way up, and the effect reverses as you scroll back up. Browsers without
+ * scroll-driven animations, surfaces that publish no pin marker, and readers
+ * who asked for reduced motion all keep the subtitle in place.
  */
 export const CondensingOnScroll: Story = {
 	args: {

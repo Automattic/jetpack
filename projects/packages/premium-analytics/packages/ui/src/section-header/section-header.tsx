@@ -13,17 +13,13 @@ type SectionHeaderProps = {
 	subtitle?: string;
 
 	/**
-	 * Settles the header into a chrome bar once it pins: the subtitle fades and
-	 * gives its row back to the content below, and the title drops a step on
-	 * the type scale. For surfaces that pin this header, where it would
-	 * otherwise hold a page heading's worth of the viewport for the whole
-	 * scroll. Off by default: where the header scrolls away with the content
-	 * there is nothing to settle into.
-	 *
-	 * The surface has to say where it pins, since this component cannot know
-	 * what sits above it. Turning this on without publishing a
-	 * `--section-header-pin` view timeline leaves the header as it is. See the
-	 * dashboard's pin marker in `routes/dashboard/stage.module.scss`.
+	 * Condenses the header into a compact bar once it pins: the subtitle fades
+	 * out and gives its row back, and the title drops a step on the type
+	 * scale. Only for surfaces that pin this header, and the surface must also
+	 * publish a `--section-header-pin` view timeline marking where it pins
+	 * (see the dashboard's pin marker in `routes/dashboard/stage.module.scss`).
+	 * Without that timeline, or without browser support for it, the header
+	 * keeps its resting layout.
 	 */
 	condenseOnScroll?: boolean;
 

@@ -8,16 +8,13 @@
 	flex: 1 1 auto;
 	min-block-size: 0;
 
-	// The section's scroll container, which leaves the page header above it out
-	// of the scroll flow entirely, so it stays pinned however long the content
-	// runs. Scrolling the boot stage instead does not: `Page` is `height: 100%`
-	// and only renders its own scrollable wrapper when it also pads the content,
-	// so its sticky header runs out of containing block one viewport in and
-	// slides away. The tab list is inside here, so it still scrolls with the
-	// content, which is interim: `Page` gained a navigation slot upstream
-	// (WordPress/gutenberg#79746) that the sections belong in, since they are
-	// links keyed by URL slug rather than tabs. `@wordpress/admin-ui` has yet to
-	// ship it. WOOA7S-1931 moves them once it does.
+	// The section's scroll container. Scrolling here rather than the boot
+	// stage keeps the page header out of the scroll flow entirely: `Page` is
+	// `height: 100%`, so a sticky header inside it runs out of containing
+	// block one viewport in and slides away. The tab list scrolls away with
+	// the content, which is interim until the sections move into `Page`'s
+	// navigation slot (WordPress/gutenberg#79746, not yet in
+	// `@wordpress/admin-ui`; WOOA7S-1931).
 	overflow-y: auto;
 
 	// Own stacking context, so in-panel layers (the sticky section header,
@@ -32,15 +29,11 @@
 	padding-inline: var(--wpds-dimension-padding-2xl);
 	z-index: 0;
 
-	/*
-	 * The page header's fill, which the section header below also takes: the
-	 * tabs and that header are the page's own chrome, not part of the surface
-	 * the widgets sit on, so the whole block above the grid reads as one plane
-	 * and the canvas begins where the widgets do.
-	 */
+	// The page header's fill: the tabs and the section header below are page
+	// chrome, so the whole block above the grid reads as one plane and the
+	// canvas begins where the widgets do.
 	background: var(--wpds-color-background-surface-neutral-strong);
 
-	// The gap under the tabs moves into the section header below, so its fill
-	// begins at the tabs' hairline instead of after a strip of canvas.
+	// The gap under the tabs moves into the section header's fill.
 	margin-block-end: 0;
 }
