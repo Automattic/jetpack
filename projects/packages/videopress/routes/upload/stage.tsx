@@ -1364,7 +1364,7 @@ const UploadOnboarding = ( {
 		{
 			icon: <Icon icon={ cloud } size={ 24 } />,
 			title: __( 'Import your library', 'jetpack-videopress-pkg' ),
-			// TODO(VIDP-365): wire the importer, then drop `disabled` and restore
+			// TODO(VIDP-###): wire the importer, then drop `disabled` and restore
 			// the plain description. Until it exists this tile has to say so —
 			// it renders as a focusable button, and one that silently does
 			// nothing is worse than no tile at all.

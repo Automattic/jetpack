@@ -14,7 +14,7 @@
 		// `min-block-size: 0` to stop it flexing; the height then comes from
 		// `aspect-ratio` alone. See `&__player` for the other half of this.
 		flex: 0 0 auto;
-		aspect-ratio: 16 / 9;
+		aspect-ratio: var(--vp-intro-aspect, 16 / 9);
 		inline-size: 100%;
 		min-block-size: 0;
 		overflow: hidden;
@@ -36,6 +36,8 @@
 		inline-size: 100%;
 		block-size: 100%;
 		border: 0;
+		// The band matches the asset's own ratio, so this neither crops nor
+		// letterboxes — it simply fills.
 		object-fit: cover;
 	}
 

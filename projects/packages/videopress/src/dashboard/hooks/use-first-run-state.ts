@@ -15,7 +15,7 @@ import type { View } from '@wordpress/dataviews';
  * emptied library, and the library count catches a user whose flag is cold
  * (new browser, cleared storage, a site that had videos before this shipped).
  *
- * TODO(VIDP-364): localStorage is the MVP; this should move to user meta so it
+ * TODO(VIDP-###): localStorage is the MVP; this should move to user meta so it
  * survives browsers.
  */
 export type FirstRunState = 'first-run' | 'home';
