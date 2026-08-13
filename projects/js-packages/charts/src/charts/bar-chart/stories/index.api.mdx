@@ -135,8 +135,11 @@ resolution when the caller knows it, instead of leaving it to be inferred from p
 spacing; set it on the axis that carries the dates (`x` by default, `y` when
 `orientation="horizontal"`). It is ignored when `tickFormat` is set.
 
-Default tooltip labels for date-based series keep per-bar precision (the calendar date,
-plus the year across year boundaries and the hour for sub-daily buckets).
+Default tooltip labels for date-based series name the hovered bar's bucket at the same
+granularity, spelled out in full: `August 2, 2026 at 6 AM` for hourly buckets,
+`August 2, 2026` for daily ones, `August 2026` for monthly, and `2026` for yearly. A
+monthly bar reads `August 2026` rather than `August 1, 2026` — the day is precision the
+bucket doesn't carry.
 
 ## SeriesChartLegendConfig Type
 

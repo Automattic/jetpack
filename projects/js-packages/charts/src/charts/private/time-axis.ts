@@ -100,23 +100,32 @@ const SPACING_BY_RESOLUTION: Record< Exclude< TickResolution, 'year' >, number >
 // spring-forward DST transition.
 const SUB_DAILY_SPACING_HOURS = 23;
 
-const getSpacingInHours = (
+// The bucket size behind the data, as the resolution label the tick formats are
+// keyed on. Exported so consumers that label a single point — bar chart
+// tooltips — describe the same bucket the axis does instead of inferring the
+// resolution a second way. Weeks report as 'day': both are calendar-date
+// buckets as far as labelling goes.
+export const getBucketResolution = (
 	sortedData: ReturnType< typeof useChartDataTransform >,
 	tickResolution?: TickResolution
-) =>
-	tickResolution && tickResolution !== 'year'
-		? SPACING_BY_RESOLUTION[ tickResolution ]
-		: getPointSpacingInHours( sortedData );
+): Exclude< TickResolution, 'week' > => {
+	if ( tickResolution ) {
+		return tickResolution === 'week' ? 'day' : tickResolution;
+	}
 
-// Whether the data's buckets are finer than a day, by the same rule getFormatter
-// applies. Exported so consumers that label individual points — bar chart
-// tooltips — carry an hour exactly when the axis would.
-export const isSubDailyResolution = (
-	sortedData: ReturnType< typeof useChartDataTransform >,
-	tickResolution?: TickResolution
-) =>
-	tickResolution !== 'year' &&
-	getSpacingInHours( sortedData, tickResolution ) < SUB_DAILY_SPACING_HOURS;
+	const spacingInHours = getPointSpacingInHours( sortedData );
+	if ( spacingInHours < SUB_DAILY_SPACING_HOURS ) {
+		return 'hour';
+	}
+	// Fewer than two points leaves the resolution unknowable, so fall back to
+	// calendar dates — the same fallback getFormatter takes.
+	if ( ! Number.isFinite( spacingInHours ) || spacingInHours < SPACING_BY_RESOLUTION.month ) {
+		return 'day';
+	}
+	// Twelve shortest months: above any monthly gap (31 days at most) and below
+	// any yearly one (365 days at least).
+	return spacingInHours < 12 * SPACING_BY_RESOLUTION.month ? 'month' : 'year';
+};
 
 // Pick the most informative tick formatter for the data's resolution and time
 // span: hours within a day, hours with day boundaries for sub-daily data
@@ -138,7 +147,9 @@ export const getFormatter = (
 	const minX = Math.min( ...sortedData.map( datom => datom.data.at( 0 )?.date ) );
 	const maxX = Math.max( ...sortedData.map( datom => datom.data.at( -1 )?.date ) );
 
-	const spacingInHours = getSpacingInHours( sortedData, tickResolution );
+	const spacingInHours = tickResolution
+		? SPACING_BY_RESOLUTION[ tickResolution ]
+		: getPointSpacingInHours( sortedData );
 	const isSubDaily = spacingInHours < SUB_DAILY_SPACING_HOURS;
 
 	const diffInHours = Math.abs( differenceInHours( maxX, minX ) );

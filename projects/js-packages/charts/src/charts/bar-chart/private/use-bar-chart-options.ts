@@ -1,6 +1,6 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { useMemo } from 'react';
-import { getFormatter, isSubDailyResolution } from '../../private/time-axis';
+import { getBucketResolution, getFormatter } from '../../private/time-axis';
 import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
 import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
 import type { DataPointDate, BaseChartProps, SeriesData, TickResolution } from '../../../types';
@@ -11,29 +11,33 @@ export const BASE_BAND_PADDING = 0.2;
 /** Inner padding of the category band scale (the base gap between ticks). */
 export const BASE_BAND_PADDING_INNER = 0.1;
 
+// The axis abbreviates to fit a tick; a tooltip has room to spell the same
+// bucket out in full.
+const TOOLTIP_FORMAT_BY_RESOLUTION: Record<
+	Exclude< TickResolution, 'week' >,
+	Intl.DateTimeFormatOptions
+> = {
+	hour: { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', hour12: true },
+	day: { year: 'numeric', month: 'long', day: 'numeric' },
+	month: { year: 'numeric', month: 'long' },
+	year: { year: 'numeric' },
+};
+
 /**
  * Tick and tooltip formatters for date-based series. Ticks share the line/area
- * charts' time-axis formatter; tooltips identify one bar, so they keep the
- * per-point precision the axis compresses away.
+ * charts' time-axis formatter; tooltips label one bar, so they name that bar's
+ * bucket at the same granularity, in full.
  *
  * @param data           - Date-based series, already parsed and sorted by `useChartDataTransform`.
  * @param tickResolution - Caller-declared bucket resolution, when known.
  * @return Tick and tooltip label formatters.
  */
 const getTimeSeriesFormatters = ( data: SeriesData[], tickResolution?: TickResolution ) => {
-	const dates = data.flatMap( series =>
-		series.data.map( d => ( d as DataPointDate ).date ).filter( d => d instanceof Date )
-	) as Date[];
-	const crossesYears = dates.some( date => date.getFullYear() !== dates[ 0 ].getFullYear() );
-	const hasSubDailyBuckets = isSubDailyResolution( data, tickResolution );
-
+	// A monthly bar reads "August 2026", not "Aug 1, 2026" — the day would be
+	// precision the bucket doesn't carry.
+	const tooltipFormat = TOOLTIP_FORMAT_BY_RESOLUTION[ getBucketResolution( data, tickResolution ) ];
 	const tooltipFormatter = ( timestamp: number ) =>
-		new Date( timestamp ).toLocaleString( undefined, {
-			month: 'short',
-			day: 'numeric',
-			...( crossesYears ? { year: 'numeric' } : {} ),
-			...( hasSubDailyBuckets ? { hour: 'numeric', hour12: true } : {} ),
-		} );
+		new Date( timestamp ).toLocaleString( undefined, tooltipFormat );
 
 	return { tickFormatter: getFormatter( data, tickResolution ), tooltipFormatter };
 };

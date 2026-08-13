@@ -348,7 +348,7 @@ describe( 'BarChart', () => {
 			options?: Parameters< typeof useBarChartOptions >[ 2 ]
 		) => renderHook( () => useBarChartOptions( data, false, options ) ).result.current;
 
-		test( 'keeps the calendar date for daily buckets within a year', () => {
+		test( 'names the full date for daily buckets', () => {
 			const { tooltip } = optionsFor( [
 				{
 					label: 'Series A',
@@ -360,10 +360,12 @@ describe( 'BarChart', () => {
 				},
 			] );
 
-			expect( tooltip.labelFormatter( new Date( 2024, 0, 3 ).getTime(), 0, [] ) ).toBe( 'Jan 3' );
+			expect( tooltip.labelFormatter( new Date( 2024, 0, 3 ).getTime(), 0, [] ) ).toBe(
+				'January 3, 2024'
+			);
 		} );
 
-		test( 'adds the year when the series crosses year boundaries', () => {
+		test( 'names the month, without a day, for monthly buckets', () => {
 			const { tooltip } = optionsFor( [
 				{
 					label: 'Series A',
@@ -376,8 +378,41 @@ describe( 'BarChart', () => {
 			] );
 
 			expect( tooltip.labelFormatter( new Date( 2025, 2, 1 ).getTime(), 0, [] ) ).toBe(
-				'Mar 1, 2025'
+				'March 2025'
 			);
+		} );
+
+		test( 'names only the year for yearly buckets', () => {
+			const { tooltip } = optionsFor( [
+				{
+					label: 'Series A',
+					data: Array.from( { length: 4 }, ( _, i ) => ( {
+						date: new Date( 2023 + i, 0, 1 ),
+						value: 10 + i,
+					} ) ),
+					options: {},
+				},
+			] );
+
+			expect( tooltip.labelFormatter( new Date( 2024, 0, 1 ).getTime(), 0, [] ) ).toBe( '2024' );
+		} );
+
+		test( 'follows a declared tickResolution coarser than the point spacing', () => {
+			const { tooltip } = optionsFor(
+				[
+					{
+						label: 'Series A',
+						data: Array.from( { length: 24 }, ( _, i ) => ( {
+							date: new Date( 2024, i, 1 ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+				{ axis: { x: { tickResolution: 'year' } } }
+			);
+
+			expect( tooltip.labelFormatter( new Date( 2025, 2, 1 ).getTime(), 0, [] ) ).toBe( '2025' );
 		} );
 
 		test( 'detects sub-daily resolution past a leading gap', () => {
@@ -394,7 +429,7 @@ describe( 'BarChart', () => {
 			] );
 
 			expect( tooltip.labelFormatter( new Date( 2024, 0, 3, 6 ).getTime(), 0, [] ) ).toMatch(
-				/^Jan 3, 6\sAM$/
+				/^January 3, 2024 at 6\sAM$/
 			);
 		} );
 
@@ -411,7 +446,7 @@ describe( 'BarChart', () => {
 			] );
 
 			expect( tooltip.labelFormatter( new Date( 2024, 0, 1, 6 ).getTime(), 0, [] ) ).toMatch(
-				/^Jan 1, 6\sAM$/
+				/^January 1, 2024 at 6\sAM$/
 			);
 		} );
 
@@ -428,7 +463,7 @@ describe( 'BarChart', () => {
 			);
 
 			expect( tooltip.labelFormatter( new Date( 2024, 0, 1, 13 ).getTime(), 0, [] ) ).toMatch(
-				/^Jan 1, 1\sPM$/
+				/^January 1, 2024 at 1\sPM$/
 			);
 		} );
 	} );

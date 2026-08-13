@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Charts: adapt bar chart time-axis tick labels to the data's bucket resolution and time span, support the `tickResolution` hint, and keep per-bar tooltip dates precise.
+Charts: adapt bar chart time-axis tick labels to the data's bucket resolution and time span, support the `tickResolution` hint, and name each bar's bucket in its tooltip.
