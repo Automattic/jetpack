@@ -26,7 +26,7 @@ export {
 } from './widget-root';
 
 export { SemiCircleChart, type SemiCircleChartData } from './chart-semi-circle';
-export { DonutChart, type DonutChartData } from './chart-donut';
+export { DonutChart, DonutChartSkeleton, type DonutChartData } from './chart-donut';
 export { ReportMetricWidget } from './report-metric';
 export {
 	MetricTabsChart,
@@ -39,9 +39,9 @@ export {
 export {
 	LeaderboardChart,
 	LeaderboardSkeleton,
-	type LeaderboardSkeletonProps,
 	type LeaderboardChartProps,
 	type LeaderboardChartData,
+	type LeaderboardSkeletonProps,
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
@@ -89,14 +89,17 @@ export {
 } from './leaderboard-post-label';
 export {
 	PostHighlightCard,
+	PostHighlightCardSkeleton,
 	type PostHighlightCardMetric,
 	type PostHighlightCardProps,
 } from './post-highlight-card';
 export { VideoTitleLink, type VideoTitleLinkProps } from './video-title-link';
 export {
 	SubscriberList,
+	SubscriberListSkeleton,
 	type SubscriberListItem,
 	type SubscriberListProps,
+	type SubscriberListSkeletonProps,
 } from './subscriber-list';
 export {
 	ReportDrilldownTable,
@@ -141,6 +144,8 @@ export {
 	type EarningsHistoryRow,
 } from './wordads-earnings-history';
 export {
+	AnnualHighlightsSkeleton,
+	type AnnualHighlightsSkeletonProps,
 	GenericSkeleton,
 	HeatmapSkeleton,
 	MetricSparklineSkeleton,

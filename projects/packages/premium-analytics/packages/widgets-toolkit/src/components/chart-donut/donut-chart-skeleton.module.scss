@@ -1,0 +1,72 @@
+/* Geometry from the design prototype's `donut` skeleton variant: a ring beside
+ * a legend of swatch-and-label rows. */
+$shape-column-gap: 20px;
+$ring-size: 96px;
+$ring-hole-radius: 30px;
+$ring-edge-radius: 31px;
+$legend-row-gap: 12px;
+$legend-swatch-gap: 8px;
+$swatch-size: 10px;
+$label-block-size: 9px;
+
+/* The ring is a fixed 96px, so on a tile too short for it `min-block-size: 0`
+ * plus `overflow: hidden` clip it inside the widget body instead of letting it
+ * paint over the widget footer. Centred, so the clip takes the same sliver off
+ * the top and the bottom and the shape still reads as a ring. */
+.shape {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	gap: $shape-column-gap;
+	min-block-size: 0;
+	overflow: hidden;
+}
+
+/* One element, so the ring pulses as a single piece: the mask cuts the hole out
+ * of a filled disc rather than the shape being an outer and an inner block.
+ * `#000` is the mask's opaque stencil, not a paint colour, so no design token
+ * applies. Autoprefixer adds the `-webkit-mask` companion at build time. */
+.ring {
+	flex: none;
+	inline-size: $ring-size;
+	block-size: $ring-size;
+	border-radius: 50%;
+	mask: radial-gradient(circle, transparent $ring-hole-radius, #000 $ring-edge-radius);
+}
+
+.legend {
+	display: flex;
+	flex: 1 1 0;
+	flex-direction: column;
+	gap: $legend-row-gap;
+	min-inline-size: 0;
+}
+
+/* `flex: none` so a short tile clips the trailing rows rather than squashing
+ * every row below its swatch. */
+.legendRow {
+	display: flex;
+	flex: none;
+	align-items: center;
+	gap: $legend-swatch-gap;
+}
+
+/* `sm` (2px) is the nearest token to the prototype's 3px radius — this package
+ * has no 3px token. `flex: none` keeps the square square when the label runs
+ * the row out of width. */
+.swatch {
+	flex: none;
+	inline-size: $swatch-size;
+	block-size: $swatch-size;
+	border-radius: var(--wpds-border-radius-sm);
+}
+
+/* `md` is 4px, the radius the prototype leaves this label at. */
+.label {
+	flex: 1 1 0;
+	min-inline-size: 0;
+	block-size: $label-block-size;
+	border-radius: var(--wpds-border-radius-md);
+}

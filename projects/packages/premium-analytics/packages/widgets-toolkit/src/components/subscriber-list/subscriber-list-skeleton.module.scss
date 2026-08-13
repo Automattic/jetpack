@@ -1,0 +1,61 @@
+@use "sass:list";
+
+/* Geometry from the design prototype's `list` skeleton variant. */
+$row-gap: 15px;
+$column-gap: 10px;
+$avatar-size: 22px;
+$line-block-size: 10px;
+$secondary-inline-size: 34px;
+
+/* These widths stand in for name text, so they vary without trending down — a
+ * subscriber's name length says nothing about their place in the list. */
+$name-widths: 85%, 70%, 78%, 58%, 66%, 48%;
+
+/* `safe` keeps the centring from pushing the first rows out of the top of the
+ * tile: once they no longer fit it falls back to packing them at the start, so
+ * what gets clipped is the tail. */
+.rows {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	justify-content: safe center;
+	gap: $row-gap;
+	min-block-size: 0;
+	overflow: hidden;
+}
+
+.row {
+	display: flex;
+	flex: none;
+	align-items: center;
+	column-gap: $column-gap;
+}
+
+/* Circular, following `SubscriberList`'s own avatar rather than the prototype's
+ * 5px-radius square. */
+.avatar {
+	flex: none;
+	inline-size: $avatar-size;
+	block-size: $avatar-size;
+	border-radius: 50%;
+}
+
+/* `md` is 4px, the radius the prototype leaves these lines at. */
+.name {
+	inline-size: list.nth($name-widths, 1);
+	block-size: $line-block-size;
+	border-radius: var(--wpds-border-radius-md);
+}
+
+@for $index from 1 through list.length( $name-widths ) {
+	.rows .row:nth-child( #{list.length($name-widths)}n + #{$index} ) .name {
+		inline-size: list.nth($name-widths, $index);
+	}
+}
+
+.secondary {
+	inline-size: $secondary-inline-size;
+	block-size: $line-block-size;
+	margin-inline-start: auto;
+	border-radius: var(--wpds-border-radius-md);
+}

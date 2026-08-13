@@ -6,7 +6,7 @@ import { Stack } from '@jetpack-premium-analytics/externals';
 import { reports } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo, useCallback } from 'react';
-import { DonutChart, WidgetState } from '../../components';
+import { DonutChart, DonutChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
@@ -101,6 +101,7 @@ export function OrdersFulfillmentWidget() {
 				icon: reports,
 				description: __( 'No orders in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <DonutChartSkeleton /> }
 		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">
 				<DonutChart
