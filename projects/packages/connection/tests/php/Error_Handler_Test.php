@@ -50,6 +50,7 @@ class Error_Handler_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_connection_error_notice_message' );
 		remove_all_filters( 'jetpack_connection_bypass_error_reporting_gate' );
 		remove_all_filters( 'jetpack_connection_ownership_transferable' );
+		remove_all_filters( 'user_has_cap' );
 
 		// Reset viewer/owner state used by the audience-aware display tests.
 		wp_set_current_user( 0 );
@@ -2659,7 +2660,8 @@ class Error_Handler_Test extends BaseTestCase {
 
 	/**
 	 * Test that a secondary admin still gets the reconnect CTA for an owner-token error
-	 * when ownership is transferable (the default model).
+	 * when ownership is transferable (the default model), and is warned that using it
+	 * disconnects every other user.
 	 */
 	public function test_get_displayable_errors_transferable_owner_keeps_reconnect() {
 		$owner_id = 999;
@@ -2674,6 +2676,16 @@ class Error_Handler_Test extends BaseTestCase {
 			)
 		);
 		wp_set_current_user( $admin_id );
+
+		// The `jetpack_connect` cap is mapped by Manager::configure(), which doesn't run
+		// here, so grant it directly: this viewer is one who would be offered the CTA.
+		add_filter(
+			'user_has_cap',
+			function ( $caps ) {
+				$caps['jetpack_connect'] = true;
+				return $caps;
+			}
+		);
 
 		// Ownership transferable is the default (no filter added).
 
@@ -2693,7 +2705,44 @@ class Error_Handler_Test extends BaseTestCase {
 		$displayed = $result['no_valid_user_token'][ (string) $owner_id ];
 		$this->assertSame( 'owner', $displayed['audience'] );
 		$this->assertArrayNotHasKey( 'action', $displayed['error_data'], 'No explicit action is emitted for the default behavior: readers fall back to the reconnect CTA.' );
-		$this->assertStringContainsString( 'broken', $displayed['error_message'] );
+		$this->assertStringContainsString( 'every other user will be disconnected', $displayed['error_message'], 'A non-owner must be told that reconnecting deletes every other user token.' );
+	}
+
+	/**
+	 * Test that the destructive-reconnect warning is withheld from viewers who are never
+	 * offered the CTA: it names the owner and describes an action they cannot take.
+	 */
+	public function test_get_displayable_errors_transferable_owner_warning_requires_capability() {
+		$owner_id = 999;
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+
+		$contributor_id = wp_insert_user(
+			array(
+				'user_login' => 'contributor_user',
+				'user_pass'  => 'password',
+				'user_email' => 'contributor_user@example.org',
+				'role'       => 'contributor',
+			)
+		);
+		$this->assertIsInt( $contributor_id );
+		wp_set_current_user( $contributor_id );
+
+		$error = array(
+			'error_code'    => 'no_valid_user_token',
+			'user_id'       => (string) $owner_id,
+			'error_message' => 'Original message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'nonce_owner',
+			'error_type'    => 'xmlrpc',
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'no_valid_user_token' => array( (string) $owner_id => $error ) ) );
+
+		$result    = $this->error_handler->get_displayable_errors();
+		$displayed = $result['no_valid_user_token'][ (string) $owner_id ];
+
+		$this->assertStringNotContainsString( 'every other user will be disconnected', $displayed['error_message'] );
+		$this->assertStringNotContainsString( 'connection owner', $displayed['error_message'] );
 	}
 
 	/**

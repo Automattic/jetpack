@@ -79,6 +79,35 @@ const useConnectionErrorsNotice = (
 		return connectionError ? excludeOtherUsersErrors( [ connectionError ], viewer ) : [];
 	}, [ connectionErrors, connectionError, currentUserId ] );
 
+	// Report the error the CTA belongs to rather than whichever came first in the
+	// map — unless that error is one we filtered out, in which case reporting it
+	// would describe something the viewer was never shown. Matched by error code
+	// + user ID (the store's own keying) rather than object identity, since
+	// `errorList` isn't guaranteed to hold the same references `connectionError`
+	// came from.
+	const trackedErrorKey = `${ connectionError?.error_code }:${ connectionError?.user_id ?? '' }`;
+	const trackedError =
+		connectionError &&
+		errorList.some( error => `${ error.error_code }:${ error.user_id ?? '' }` === trackedErrorKey )
+			? connectionError
+			: errorList[ 0 ];
+
+	// `GlobalNotice` fires its view event from an effect that depends on
+	// `tracksArgs` by identity, so a fresh literal on every `setNotice` would
+	// report a second view of the same notice. The notice is re-set at a higher
+	// priority when a reconnect starts, which is exactly that case — so hold one
+	// object and rebuild it only when what it reports actually changes. The deps
+	// are all primitives on purpose: `trackedError` gets a new identity whenever
+	// the store re-emits, and that churn must not reach this object.
+	const tracksArgs = useMemo(
+		() => ( {
+			error_count: errorList.length,
+			error_code: trackedError?.error_code ?? null,
+			audience: trackedError?.audience ?? 'site',
+		} ),
+		[ errorList.length, trackedError?.error_code, trackedError?.audience ]
+	);
+
 	useEffect( () => {
 		if ( ! hasConnectionError || ! errorList.length ) {
 			return;
@@ -135,31 +164,12 @@ const useConnectionErrorsNotice = (
 			noDefaultClasses: true,
 		} ) );
 
-		// Report the error the CTA belongs to rather than whichever came first in the
-		// map — unless that error is one we filtered out, in which case reporting it
-		// would describe something the viewer was never shown. Matched by error code
-		// + user ID (the store's own keying) rather than object identity, since
-		// `errorList` isn't guaranteed to hold the same references `connectionError`
-		// came from.
-		const trackedErrorKey = `${ connectionError?.error_code }:${ connectionError?.user_id ?? '' }`;
-		const trackedError =
-			connectionError &&
-			errorList.some(
-				error => `${ error.error_code }:${ error.user_id ?? '' }` === trackedErrorKey
-			)
-				? connectionError
-				: errorList[ 0 ];
-
 		const noticeOptions: NoticeOptions = {
 			id: 'connection-error-notice',
 			level: 'error',
 			actions: noticeActions,
 			priority: NOTICE_PRIORITY_HIGH + ( isRestoringConnection ? 1 : 0 ),
-			tracksArgs: {
-				error_count: errorList.length,
-				error_code: trackedError.error_code ?? null,
-				audience: trackedError.audience ?? 'site',
-			},
+			tracksArgs,
 		};
 
 		setNotice( {
@@ -170,7 +180,7 @@ const useConnectionErrorsNotice = (
 	}, [
 		setNotice,
 		hasConnectionError,
-		connectionError,
+		tracksArgs,
 		errorList,
 		currentUserId,
 		isCurrentUserConnectionOwner,

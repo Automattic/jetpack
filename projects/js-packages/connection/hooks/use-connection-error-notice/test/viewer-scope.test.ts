@@ -1,4 +1,4 @@
-import { isOtherUsersConnectionError } from '../viewer-scope';
+import { getConnectionErrorUserScope, isOtherUsersConnectionError } from '../viewer-scope';
 import type { ConnectionErrorObject } from '../types';
 
 /**
@@ -63,5 +63,44 @@ describe( 'isOtherUsersConnectionError', () => {
 
 	it( 'survives a missing error', () => {
 		expect( isOtherUsersConnectionError( undefined, 7 ) ).toBe( false );
+	} );
+} );
+
+describe( 'getConnectionErrorUserScope', () => {
+	it( "places the viewer's own error with them", () => {
+		expect( getConnectionErrorUserScope( anError( { user_id: '7' } ), 7 ) ).toBe( 'self' );
+	} );
+
+	it( "places another user's error with them", () => {
+		expect( getConnectionErrorUserScope( anError( { user_id: '99' } ), 7 ) ).toBe( 'other' );
+	} );
+
+	// Attribution only: the audience decides whether the question is worth asking,
+	// and the caller applies that gate.
+	it( 'ignores the audience', () => {
+		expect(
+			getConnectionErrorUserScope( anError( { audience: 'owner', user_id: '99' } ), 7 )
+		).toBe( 'other' );
+	} );
+
+	// The three ways an error can end up unplaceable. Each one must read as
+	// `unknown` rather than as somebody else's, so that the filtering rule keeping
+	// the error and the label describing it stay in agreement.
+	it( 'cannot place an error when the viewer is unidentified', () => {
+		expect( getConnectionErrorUserScope( anError( { user_id: '99' } ), undefined ) ).toBe(
+			'unknown'
+		);
+	} );
+
+	it( 'cannot place an unattributed error', () => {
+		expect( getConnectionErrorUserScope( anError(), 7 ) ).toBe( 'unknown' );
+	} );
+
+	it( 'cannot place an error whose user_id is not a number', () => {
+		expect( getConnectionErrorUserScope( anError( { user_id: 'invalid' } ), 7 ) ).toBe( 'unknown' );
+	} );
+
+	it( 'survives a missing error', () => {
+		expect( getConnectionErrorUserScope( undefined, 7 ) ).toBe( 'unknown' );
 	} );
 } );

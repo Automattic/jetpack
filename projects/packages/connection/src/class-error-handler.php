@@ -371,31 +371,43 @@ class Error_Handler {
 						$message = call_user_func( $display_config['message_callback'], $error );
 					}
 
-					// A secondary admin looking at the connection owner's token error, on a
-					// site where ownership is locked (a consumer declared it non-transferable).
-					// This admin cannot resolve the error themselves, so surface an
-					// informational notice naming the owner and offer no reconnect CTA.
-					if ( 'owner' === $audience && ! $viewer_is_owner && ! $is_transferable ) {
-						// Only name the owner for viewers who can act on connection issues:
-						// this output is also printed into the initial state for
-						// lower-capability users (e.g. contributors in the editor), who
-						// shouldn't learn who owns the connection. The name is resolved from
-						// the local user rather than get_connection_owner(), which
-						// re-reports the error and fails exactly when the token is broken.
-						$owner_name = '';
-						if ( current_user_can( 'jetpack_connect' ) ) {
+					// A secondary admin looking at the connection owner's token error. What
+					// they can usefully be told depends on whether ownership is transferable.
+					if ( 'owner' === $audience && ! $viewer_is_owner ) {
+						// Only name the owner, or describe what reconnecting would do, for
+						// viewers who can act on connection issues.
+						$viewer_can_connect = current_user_can( 'jetpack_connect' );
+						$owner_name         = '';
+						if ( $viewer_can_connect ) {
 							$owner      = get_userdata( $owner_id );
 							$owner_name = $owner instanceof \WP_User ? $owner->display_name : '';
 						}
 
-						$message = $owner_name
-							? sprintf(
-								/* translators: %s is the display name of the Jetpack connection owner. */
-								__( 'The connection owner (%s) needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' ),
-								$owner_name
-							)
-							: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' );
-						$action = 'none';
+						if ( ! $is_transferable ) {
+							// Ownership is locked (a consumer declared it non-transferable).
+							// This admin cannot resolve the error themselves, so surface an
+							// informational notice naming the owner and offer no reconnect CTA.
+							$message = $owner_name
+								? sprintf(
+									/* translators: %s is the display name of the Jetpack connection owner. */
+									__( 'The connection owner (%s) needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' ),
+									$owner_name
+								)
+								: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' );
+							$action = 'none';
+						} elseif ( $viewer_can_connect ) {
+							// Ownership is transferable, so the reconnect CTA stays available
+							// to this admin — but it is destructive in a way the generic copy
+							// doesn't convey. Manager::restore() branches on the *clicking*
+							// user's tokens, not on whose token the error describes.
+							$message = $owner_name
+								? sprintf(
+									/* translators: %s is the display name of the Jetpack connection owner. */
+									__( 'The connection owner (%s) needs to reconnect their WordPress.com account to restore the connection. If you reconnect instead, you will become the new connection owner and every other user will be disconnected from WordPress.com.', 'jetpack-connection' ),
+									$owner_name
+								)
+								: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection. If you reconnect instead, you will become the new connection owner and every other user will be disconnected from WordPress.com.', 'jetpack-connection' );
+						}
 					}
 
 					$error['audience']      = $audience;

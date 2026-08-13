@@ -11,27 +11,27 @@ import type { ReactNode } from 'react';
 
 // Mock the dependencies. Use a factory for the connection package so its full
 // module graph (which touches `window` at import time) isn't loaded here.
-jest.mock( '@automattic/jetpack-connection', () => ( {
-	useConnectionErrorNotice: jest.fn(),
-	getReconnectErrorMessage: jest.fn(
-		( error: string ) => `There was an error reconnecting Jetpack. Error: ${ error }`
-	),
-	// Kept faithful to the package's own implementation: the notice's filtering and
-	// its tracking both depend on this answer, so stubbing it away would hide the
-	// behaviour under test.
-	isOtherUsersConnectionError: (
-		error: { audience?: string; user_id?: string } | undefined,
-		currentUserId: number | undefined
-	) => {
-		if ( error?.audience !== 'user' || currentUserId === undefined ) {
-			return false;
-		}
+jest.mock( '@automattic/jetpack-connection', () => {
+	// The notice's filtering, its labels and its tracking all depend on these two
+	// answers, so stub them away and the behaviour under test goes with them. Take
+	// the real implementations rather than restating them here: a hand-copied rule
+	// keeps asserting the old behaviour, and passing, after the package changes its
+	// mind. Reached by file path because the module graph this factory exists to
+	// avoid is the barrel's, not this leaf's.
+	const { getConnectionErrorUserScope, isOtherUsersConnectionError } = jest.requireActual(
+		'../../../../../../js-packages/connection/hooks/use-connection-error-notice/viewer-scope'
+	);
 
-		const errorUserId = Number( error.user_id );
+	return {
+		useConnectionErrorNotice: jest.fn(),
+		getReconnectErrorMessage: jest.fn(
+			( error: string ) => `There was an error reconnecting Jetpack. Error: ${ error }`
+		),
+		getConnectionErrorUserScope,
+		isOtherUsersConnectionError,
+	};
+} );
 
-		return Number.isFinite( errorUserId ) && errorUserId !== Number( currentUserId );
-	},
-} ) );
 jest.mock( '../../use-analytics' );
 jest.mock( '../assignLocation' );
 
@@ -239,6 +239,59 @@ describe( 'useConnectionErrorsNotice', () => {
 			error_code: 'no_valid_blog_token',
 			audience: 'site',
 		} );
+	} );
+
+	// `GlobalNotice` fires its view event from an effect keyed on `tracksArgs` by
+	// identity, so a rebuilt object reports a second view of a notice the user has
+	// been looking at all along. Starting a reconnect re-sets this notice at a
+	// higher priority, which is that case.
+	it( 'reports the same tracksArgs object when the notice is re-set unchanged', async () => {
+		const errors = {
+			hasConnectionError: true,
+			connectionErrorMessage: 'The site token is broken.',
+			connectionError: {
+				error_message: 'The site token is broken.',
+				error_code: 'no_valid_blog_token',
+				user_id: '0',
+				audience: 'site' as const,
+			},
+			connectionErrors: {
+				no_valid_blog_token: {
+					0: {
+						error_message: 'The site token is broken.',
+						error_code: 'no_valid_blog_token',
+						user_id: '0',
+						audience: 'site' as const,
+					},
+				},
+			},
+			actions: [ { label: 'Restore Connection', onClick: jest.fn() } ],
+		};
+
+		mockUseConnectionErrorNotice.mockReturnValue( { ...noError, ...errors } );
+
+		const { rerender } = renderWithNoticeContext();
+
+		await waitFor( () => {
+			expect( mockSetNotice ).toHaveBeenCalled();
+		} );
+
+		// The reconnect starts: same errors, higher priority.
+		mockUseConnectionErrorNotice.mockReturnValue( {
+			...noError,
+			...errors,
+			isRestoringConnection: true,
+		} );
+		rerender();
+
+		await waitFor( () => {
+			expect( mockSetNotice ).toHaveBeenCalledTimes( 2 );
+		} );
+
+		const [ first, second ] = mockSetNotice.mock.calls;
+
+		expect( second[ 0 ].options.priority ).toBeGreaterThan( first[ 0 ].options.priority );
+		expect( second[ 0 ].options.tracksArgs ).toBe( first[ 0 ].options.tracksArgs );
 	} );
 
 	// The backend gives most broken-token errors one generic sentence, so without
@@ -464,8 +517,10 @@ describe( 'useConnectionErrorsNotice', () => {
 				expect( mockSetNotice ).toHaveBeenCalled();
 			} );
 
+			// Kept, and described without being handed to anyone: the same reasoning
+			// that keeps it rules out naming it as somebody else's.
 			expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe(
-				"Jetpack Connection error: Another user's account"
+				'Jetpack Connection error: User connection'
 			);
 		} );
 	} );

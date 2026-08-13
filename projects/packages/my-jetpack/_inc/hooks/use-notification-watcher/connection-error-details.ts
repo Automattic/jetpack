@@ -1,4 +1,7 @@
-import { isOtherUsersConnectionError } from '@automattic/jetpack-connection';
+import {
+	getConnectionErrorUserScope,
+	isOtherUsersConnectionError,
+} from '@automattic/jetpack-connection';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import type { ConnectionErrorMap, ConnectionErrorObject } from '@automattic/jetpack-connection';
 
@@ -105,11 +108,17 @@ export function getConnectionErrorScope(
 	error: ConnectionErrorObject,
 	viewer: ConnectionErrorViewer = {}
 ): string {
+	// Keep every label as its own `return __( 'literal' )`. Two returns that differ
+	// only in the string can get minified into `__( cond ? 'a' : 'b' )`, which
+	// breaks the production build's translation check. If that happens, put the
+	// labels in consts first and choose between the consts.
 	const audience = error?.audience ?? 'site';
 	const { currentUserId, isOwner, ownerName } = viewer;
 
 	if ( audience === 'owner' ) {
+		// This refers to whose token the error describes.
 		if ( isOwner ) {
+			// This refers to who is looking at the screen.
 			return __( 'Your account (connection owner)', 'jetpack-my-jetpack' );
 		}
 
@@ -123,14 +132,22 @@ export function getConnectionErrorScope(
 	}
 
 	if ( audience === 'user' ) {
-		const isViewersOwnError = Number( error?.user_id ) === currentUserId;
-
-		const yourAccountLabel = __( 'Your account', 'jetpack-my-jetpack' );
-		// `Error_Handler` leaves another user's token error out of this viewer's set,
-		// so this is only reachable for an error injected by a consumer filter.
-		const anotherUsersAccountLabel = __( "Another user's account", 'jetpack-my-jetpack' );
-
-		return isViewersOwnError ? yourAccountLabel : anotherUsersAccountLabel;
+		// The same helper the filtering rule uses, so the label cannot name an owner
+		// the filter would have kept, or vice versa.
+		switch ( getConnectionErrorUserScope( error, currentUserId ) ) {
+			case 'self':
+				return __( 'Your account', 'jetpack-my-jetpack' );
+			case 'other':
+				// Unreachable from the notice: `excludeOtherUsersErrors` drops these before
+				// anything gets labelled, and it shares this same predicate. Kept so a
+				// caller that labels an unfiltered error still gets an honest answer.
+				return __( "Another user's account", 'jetpack-my-jetpack' );
+			default:
+				// Unattributed, or the viewer is unidentified. The error is kept because
+				// it could be theirs, so the label must not claim it is somebody else's
+				// either; name the token type and leave the owner open.
+				return __( 'User connection', 'jetpack-my-jetpack' );
+		}
 	}
 
 	return __( 'Site connection', 'jetpack-my-jetpack' );

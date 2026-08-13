@@ -178,10 +178,25 @@ describe( 'getConnectionErrorScope', () => {
 			);
 		} );
 
+		// An error that cannot be placed is kept by `excludeOtherUsersErrors` because
+		// it could be the viewer's own, so the label must not contradict that by
+		// handing it to somebody else.
 		it( 'does not claim an unattributed error when the viewer is unknown', () => {
 			const error = anError( { audience: 'user' } );
 
-			expect( getConnectionErrorScope( error, {} ) ).toBe( "Another user's account" );
+			expect( getConnectionErrorScope( error, {} ) ).toBe( 'User connection' );
+		} );
+
+		it( 'does not claim an attributed error when the viewer is unknown', () => {
+			const error = anError( { audience: 'user', user_id: '9' } );
+
+			expect( getConnectionErrorScope( error, {} ) ).toBe( 'User connection' );
+		} );
+
+		it( 'does not claim an unattributed error when the viewer is known', () => {
+			const error = anError( { audience: 'user' } );
+
+			expect( getConnectionErrorScope( error, { currentUserId: 7 } ) ).toBe( 'User connection' );
 		} );
 	} );
 
