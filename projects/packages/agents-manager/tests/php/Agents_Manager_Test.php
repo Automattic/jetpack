@@ -1569,6 +1569,24 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that a WordPress.com proxy marks the visitor as an Automattician for tracking.
+	 */
+	public function test_is_tracking_automattician_returns_true_for_wpcom_proxy() {
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+
+		$this->assertTrue( $this->call_is_tracking_automattician() );
+	}
+
+	/**
+	 * Tests that an Atomic proxy marks the visitor as an Automattician for tracking.
+	 */
+	public function test_is_tracking_automattician_returns_true_for_atomic_proxy() {
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+
+		$this->assertTrue( $this->call_is_tracking_automattician() );
+	}
+
+	/**
 	 * Helper to call the private get_variant method via reflection.
 	 *
 	 * @return string|null The variant name, or null if scripts should not be loaded.
@@ -1580,6 +1598,21 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			$method->setAccessible( true );
 		}
 		return $method->invoke( $this->agents_manager );
+	}
+
+	/**
+	 * Calls the private tracking classifier.
+	 *
+	 * @return bool
+	 */
+	private function call_is_tracking_automattician() {
+		$reflection = new \ReflectionClass( Agents_Manager::class );
+		$method     = $reflection->getMethod( 'is_tracking_automattician' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method->invoke( null );
 	}
 
 	/**

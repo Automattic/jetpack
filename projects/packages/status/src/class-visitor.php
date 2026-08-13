@@ -53,17 +53,4 @@ class Visitor {
 	public function is_automattician_feature_flags_only() {
 		return ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST );
 	}
-
-	/**
-	 * Check whether the current visitor should be marked as an Automattician in analytics.
-	 * This is a tracking signal only and must not be used for authorization.
-	 *
-	 * @return bool True for an identified Automattician or an A8C-proxied request.
-	 */
-	public function is_automattician_for_tracking() {
-		$is_automattician = function_exists( 'is_automattician' ) && (bool) \is_automattician();
-		$is_wpcom_proxied = function_exists( 'wpcom_is_proxied_request' ) && \wpcom_is_proxied_request();
-
-		return $is_automattician || $is_wpcom_proxied || $this->is_automattician_feature_flags_only();
-	}
 }

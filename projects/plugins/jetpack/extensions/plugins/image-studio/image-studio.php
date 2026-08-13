@@ -420,7 +420,10 @@ function get_tracking_site_type() {
  * @return bool True when the current visitor is an Automattician.
  */
 function is_tracking_automattician() {
-	return ( new Visitor() )->is_automattician_for_tracking();
+	$is_automattician = function_exists( 'is_automattician' ) && (bool) \is_automattician();
+	$is_wpcom_proxied = function_exists( 'wpcom_is_proxied_request' ) && \wpcom_is_proxied_request();
+
+	return $is_automattician || $is_wpcom_proxied || ( new Visitor() )->is_automattician_feature_flags_only();
 }
 
 /**
