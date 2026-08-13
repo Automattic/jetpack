@@ -3,7 +3,9 @@
  * Widget type support shared by the registry and default layouts.
  *
  * Persisted layouts are left unchanged so missing types remain as removable
- * ghost widgets. Temporary restrictions belong in the runtime types filter.
+ * ghost widgets. This is for hard availability — the host, or a feature the site
+ * either has or does not. Request-dependent or soft state (shown locked, say)
+ * belongs in the runtime types filter instead.
  *
  * @package automattic/jetpack-premium-analytics
  */

@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { isVideoPressAvailable } from '../site-readiness';
 // Import the tab resolver from `config/tabs` directly rather than the report's
 // `config` barrel. `route.ts` imports this registry in `beforeLoad`, so the
 // registry must stay free of React/UI at module scope; the `config/index.ts`
@@ -16,7 +17,6 @@ import { resolveTabId as resolveCommentsTabId } from './comments/config/tabs';
 import { resolveSection as resolveLocationsSection } from './locations/config/tabs';
 import { resolveTabId } from './posts/config/tabs';
 import { resolveSection as resolveUtmSection } from './utm/config/tabs';
-import { isVideoPressAvailable } from '../site-readiness';
 import type { ComponentType } from 'react';
 
 /**

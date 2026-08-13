@@ -47,6 +47,7 @@ class Widget_Availability_Test extends BaseTestCase {
 	public function tear_down() {
 		Constants::clear_constants();
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
+		remove_all_filters( VIDEOPRESS_AVAILABLE_FILTER );
 
 		parent::tear_down();
 	}
@@ -168,14 +169,33 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Without VideoPress, every video widget is unavailable.
+	 * Without VideoPress, every gated video widget is unavailable.
 	 */
 	public function test_type_policy_removes_video_widgets_without_videopress() {
-		$names = $this->available_names( true, false );
+		$candidates = array_map(
+			static function ( $name ) {
+				return array(
+					'name'     => $name,
+					'category' => 'stats',
+				);
+			},
+			VIDEOPRESS_WIDGET_TYPES
+		);
 
-		$this->assertNotContains( 'jpa/videopress', $names );
-		$this->assertNotContains( 'jpa/video-detail-highlights', $names );
-		$this->assertContains( 'jpa/hello-world', $names );
+		$this->assertSame(
+			array(),
+			remove_unsupported_widget_items(
+				$candidates,
+				'name',
+				array(
+					'is_wpcom_simple' => true,
+					'has_videopress'  => false,
+				)
+			),
+			'Every type in VIDEOPRESS_WIDGET_TYPES must be dropped, not just the ones listed as candidates.'
+		);
+
+		$this->assertContains( 'jpa/hello-world', $this->available_names( true, false ) );
 	}
 
 	/**
@@ -189,21 +209,53 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Every VideoPress-only type is spelled the way the manifest spells it, so a
-	 * renamed widget can't quietly drop out of the gate.
+	 * The gate and the manifests agree in both directions: a renamed widget can't
+	 * drop out of the gate, and a new video widget can't be added without joining
+	 * it.
 	 */
 	public function test_videopress_widget_types_match_the_manifest() {
-		$manifest_names = array();
-		foreach ( glob( __DIR__ . '/../../widgets/*/widget.json' ) as $manifest ) {
+		$manifests = glob( __DIR__ . '/../../widgets/*/widget.json' );
+		$this->assertNotEmpty( $manifests, 'No widget manifests found — the glob path is wrong.' );
+
+		$video_names = array();
+		foreach ( $manifests as $manifest ) {
 			$widget = json_decode( (string) file_get_contents( $manifest ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			if ( isset( $widget['name'] ) ) {
-				$manifest_names[] = $widget['name'];
+			if ( isset( $widget['name'] ) && str_contains( $widget['name'], 'video' ) ) {
+				$video_names[] = $widget['name'];
 			}
 		}
 
-		foreach ( VIDEOPRESS_WIDGET_TYPES as $type ) {
-			$this->assertContains( $type, $manifest_names, "{$type} is gated on VideoPress but no widget declares it." );
-		}
+		$gated = VIDEOPRESS_WIDGET_TYPES;
+		sort( $gated );
+		sort( $video_names );
+
+		$this->assertSame( $gated, $video_names, 'Every video widget must be listed in VIDEOPRESS_WIDGET_TYPES.' );
+	}
+
+	/**
+	 * The registry callback drops the video widgets when VideoPress is absent.
+	 */
+	public function test_registry_callback_removes_video_widgets_without_videopress() {
+		$names = array_column(
+			filter_registrable_widget_types_by_availability( $this->widget_candidates() ),
+			'name'
+		);
+
+		$this->assertNotContains( 'jpa/videopress', $names );
+	}
+
+	/**
+	 * Forcing availability on puts them back, proving the context reads the helper.
+	 */
+	public function test_registry_callback_keeps_video_widgets_with_videopress() {
+		add_filter( VIDEOPRESS_AVAILABLE_FILTER, '__return_true' );
+
+		$names = array_column(
+			filter_registrable_widget_types_by_availability( $this->widget_candidates() ),
+			'name'
+		);
+
+		$this->assertContains( 'jpa/videopress', $names );
 	}
 
 	/**

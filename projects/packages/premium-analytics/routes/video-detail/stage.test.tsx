@@ -147,10 +147,6 @@ describe( 'video detail stage', () => {
 		} );
 	} );
 
-	afterAll( () => {
-		delete window.JetpackScriptData;
-	} );
-
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockDashboardLayouts.length = 0;
@@ -159,6 +155,10 @@ describe( 'video detail stage', () => {
 			to: '2026-06-16',
 			section: 'embeds',
 		};
+	} );
+
+	afterAll( () => {
+		delete window.JetpackScriptData;
 	} );
 
 	it( 'shows a not-found state with a date-preserving link back to Videos', () => {
