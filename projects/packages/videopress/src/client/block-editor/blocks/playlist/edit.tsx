@@ -71,6 +71,7 @@ export default function PlaylistBlockEdit( {
 	const [ currentIndex, setCurrentIndex ] = useState( 0 );
 	const [ newVideoInput, setNewVideoInput ] = useState( '' );
 	const [ errorNotice, setErrorNotice ] = useState< string | null >( null );
+	const [ isAddingVideo, setIsAddingVideo ] = useState( false );
 
 	// Always points at the latest videos so async title fetches never clobber newer edits.
 	const videosRef = useRef( videos );
@@ -111,7 +112,11 @@ export default function PlaylistBlockEdit( {
 
 	const currentVideo = videos[ currentIndex ] ?? videos[ 0 ];
 
-	const addVideo = () => {
+	const addVideo = async () => {
+		if ( isAddingVideo ) {
+			return;
+		}
+
 		const guid = parseVideoInput( newVideoInput );
 		if ( ! guid ) {
 			setErrorNotice(
@@ -120,9 +125,25 @@ export default function PlaylistBlockEdit( {
 			return;
 		}
 
-		setAttributes( { videos: [ ...videos, { guid } ] } );
+		setIsAddingVideo( true );
+
+		// The title always comes from the video data, for library and URL/GUID
+		// additions alike; it's not editable in the playlist.
+		let title;
+		try {
+			const videoItem = await fetchVideoItem( { guid, isPrivate: false, skipRatingControl: true } );
+			if ( videoItem?.title ) {
+				title = decodeEntities( videoItem.title );
+			}
+		} catch {
+			// The entry still works without a title; the list shows the GUID and
+			// the backfill effect below retries once more.
+		}
+
+		setAttributes( { videos: [ ...videosRef.current, { guid, ...( title && { title } ) } ] } );
 		setNewVideoInput( '' );
 		setErrorNotice( null );
+		setIsAddingVideo( false );
 	};
 
 	const addVideosFromLibrary = (
@@ -208,7 +229,13 @@ export default function PlaylistBlockEdit( {
 						}
 					} }
 				/>
-				<Button __next40pxDefaultSize variant="secondary" onClick={ addVideo }>
+				<Button
+					__next40pxDefaultSize
+					variant="secondary"
+					onClick={ addVideo }
+					isBusy={ isAddingVideo }
+					disabled={ isAddingVideo }
+				>
 					{ __( 'Add to playlist', 'jetpack-videopress-pkg' ) }
 				</Button>
 				<MediaUploadCheck>

@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { fetchVideoItem } from '../../../../lib/fetch-video-item';
 import Edit from '../edit';
 import type { PlaylistBlockAttributes } from '../types';
 import type { BlockEditProps } from '@wordpress/blocks';
@@ -10,6 +11,8 @@ let mockLibrarySelection: unknown = [];
 jest.mock( '../../../../lib/fetch-video-item', () => ( {
 	fetchVideoItem: jest.fn( () => Promise.resolve( { title: 'Fetched title' } ) ),
 } ) );
+
+const mockFetchVideoItem = fetchVideoItem as jest.Mock;
 
 jest.mock( '@wordpress/block-editor', () => ( {
 	useBlockProps: ( props: Record< string, unknown > = {} ) => props,
@@ -43,7 +46,7 @@ function renderEdit( attributes: Partial< PlaylistBlockAttributes > = {} ) {
 }
 
 describe( 'PlaylistBlockEdit', () => {
-	it( 'shows the placeholder and adds a video by GUID', async () => {
+	it( 'shows the placeholder and adds a video by GUID with its fetched title', async () => {
 		const user = userEvent.setup();
 		const { setAttributes } = renderEdit();
 
@@ -52,10 +55,17 @@ describe( 'PlaylistBlockEdit', () => {
 		await user.type( screen.getByPlaceholderText( 'VideoPress GUID or URL' ), 'abcd1234' );
 		await user.click( screen.getByText( 'Add to playlist' ) );
 
-		expect( setAttributes ).toHaveBeenCalledWith( { videos: [ { guid: 'abcd1234' } ] } );
+		await waitFor( () =>
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				videos: [ { guid: 'abcd1234', title: 'Fetched title' } ],
+			} )
+		);
+		expect( mockFetchVideoItem ).toHaveBeenCalledWith(
+			expect.objectContaining( { guid: 'abcd1234' } )
+		);
 	} );
 
-	it( 'accepts a VideoPress URL and extracts its GUID', async () => {
+	it( 'accepts a VideoPress URL and pulls the title from the video data', async () => {
 		const user = userEvent.setup();
 		const { setAttributes } = renderEdit();
 
@@ -65,7 +75,24 @@ describe( 'PlaylistBlockEdit', () => {
 		);
 		await user.keyboard( '{Enter}' );
 
-		expect( setAttributes ).toHaveBeenCalledWith( { videos: [ { guid: 'efgh5678' } ] } );
+		await waitFor( () =>
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				videos: [ { guid: 'efgh5678', title: 'Fetched title' } ],
+			} )
+		);
+	} );
+
+	it( 'still adds the video when the title fetch fails', async () => {
+		const user = userEvent.setup();
+		mockFetchVideoItem.mockRejectedValueOnce( new Error( 'not reachable' ) );
+		const { setAttributes } = renderEdit();
+
+		await user.type( screen.getByPlaceholderText( 'VideoPress GUID or URL' ), 'abcd1234' );
+		await user.click( screen.getByText( 'Add to playlist' ) );
+
+		await waitFor( () =>
+			expect( setAttributes ).toHaveBeenCalledWith( { videos: [ { guid: 'abcd1234' } ] } )
+		);
 	} );
 
 	it( 'rejects unrecognized input with an error message', async () => {
