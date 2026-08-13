@@ -460,8 +460,9 @@ class Jetpack_AI_Sidebar {
 			return false;
 		}
 
-		return self::can_resolve_full_wordpress_agent_entitlement()
-			&& wpcom_site_has_feature( \WPCOM_Features::BIG_SKY );
+		return ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip( get_current_blog_id() ) )
+			|| ( self::can_resolve_full_wordpress_agent_entitlement()
+				&& wpcom_site_has_feature( \WPCOM_Features::BIG_SKY ) );
 	}
 
 	/**
@@ -648,50 +649,11 @@ class Jetpack_AI_Sidebar {
 		}
 
 		$fields['jetpackAiSidebar'] = self::get_jetpack_ai_sidebar_preview_config();
-		$host                       = new Host();
-		if ( ! $host->is_wpcom_platform() ) {
-			// Self-hosted sites have no WordPress.com Agent entitlement. They always
-			// use Jetpack AI metering, even when WPCOM helpers are not installed.
-			$fields['jetpackAiMeteringEnabled'] = true;
-		} elseif ( self::can_resolve_full_wordpress_agent_entitlement() ) {
-			// WordPress.com sites may bypass Jetpack AI metering only from the
-			// server-owned Big Sky entitlement. If that resolver is unavailable,
-			// omit the flag so clients fail closed instead of guessing the mode.
-			$fields['jetpackAiMeteringEnabled'] = ! self::has_full_wordpress_agent_entitlement();
-		}
 		if ( self::is_limited_experience() ) {
 			$fields['jetpackAiWritingProviderUrl'] = AI_SIDEBAR_LIMITED_PROVIDER_URL;
-			$quota                                 = self::get_initial_jetpack_ai_quota();
-			if ( null !== $quota ) {
-				$fields['jetpackAiQuota'] = $quota;
-			}
 		}
 
 		return $fields;
-	}
-
-	/**
-	 * Return the server-owned quota snapshot needed before the limited UI mounts.
-	 *
-	 * This only runs for WordPress.com Simple. Atomic and self-hosted sites fetch
-	 * quota after mount so an external request cannot delay the editor response.
-	 *
-	 * @return array|null
-	 */
-	private static function get_initial_jetpack_ai_quota(): ?array {
-		// Match the canonical WPCOM helper path already used by Jetpack_AI_Helper.
-		$helper_file = WP_CONTENT_DIR . '/lib/jetpack-ai/usage/helper.php';
-		if ( ! class_exists( '\\WPCOM\\Jetpack_AI\\Usage\\Helper' ) && is_readable( $helper_file ) ) {
-			require_once $helper_file;
-		}
-
-		if ( ! method_exists( '\\WPCOM\\Jetpack_AI\\Usage\\Helper', 'get_agent_quota_client_state' ) ) {
-			return null;
-		}
-
-		// @phan-suppress-next-line PhanUndeclaredStaticMethod -- This WPCOM method is guarded by method_exists() above.
-		$quota = \WPCOM\Jetpack_AI\Usage\Helper::get_agent_quota_client_state( get_current_blog_id() );
-		return is_array( $quota ) ? $quota : null;
 	}
 
 	/**

@@ -21,6 +21,17 @@ if ( ! function_exists( 'wp_cache_is_enabled' ) ) {
 	function wp_cache_is_enabled() {}
 }
 
+if ( ! function_exists( 'wpcom_is_vip' ) ) {
+	/**
+	 * Mock WordPress.com VIP status.
+	 *
+	 * @param int $blog_id Blog ID.
+	 */
+	function wpcom_is_vip( $blog_id = 0 ) {
+		return (bool) apply_filters( 'jetpack_test_wpcom_is_vip', false, $blog_id );
+	}
+}
+
 if ( ! function_exists( 'wpcom_site_has_feature' ) && false === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
 	/**
 	 * Mock feature support.
