@@ -1,10 +1,9 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
-import { differenceInCalendarDays, differenceInHours } from 'date-fns';
 import { useMemo } from 'react';
-import { formatDateTick, getFormatter } from '../../private/time-axis';
+import { getFormatter, isSubDailyResolution } from '../../private/time-axis';
 import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
 import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
-import type { DataPointDate, BaseChartProps, SeriesData } from '../../../types';
+import type { DataPointDate, BaseChartProps, SeriesData, TickResolution } from '../../../types';
 import type { TickFormatter } from '@visx/axis';
 
 /** Outer padding of the category band scale (space at the chart edges). */
@@ -14,50 +13,29 @@ export const BASE_BAND_PADDING_INNER = 0.1;
 
 /**
  * Tick and tooltip formatters for date-based series. Ticks share the line/area
- * charts' span-based time-axis formatter; tooltips identify one bar, so they
- * keep the per-point precision the axis compresses away.
+ * charts' time-axis formatter; tooltips identify one bar, so they keep the
+ * per-point precision the axis compresses away.
  *
- * @param data - Date-based series, already parsed and sorted by `useChartDataTransform`.
+ * @param data           - Date-based series, already parsed and sorted by `useChartDataTransform`.
+ * @param tickResolution - Caller-declared bucket resolution, when known.
  * @return Tick and tooltip label formatters.
  */
-const getTimeSeriesFormatters = ( data: SeriesData[] ) => {
-	const seriesDates = data.map(
-		series =>
-			series.data.map( d => ( d as DataPointDate ).date ).filter( d => d instanceof Date ) as Date[]
-	);
-	const allTimes = seriesDates.flat().map( Number );
-	const min = Math.min( ...allTimes );
-	const max = Math.max( ...allTimes );
-	// Two consecutive points on the same calendar day mean sub-daily buckets.
-	// Calendar comparison is DST-stable (a spring-forward day is only 23
-	// elapsed hours), and scanning every pair keeps a leading gap from
-	// masking the series' real resolution.
-	const hasSubDailySpacing = seriesDates.some( dates =>
-		dates.some(
-			( date, index ) => index > 0 && differenceInCalendarDays( date, dates[ index - 1 ] ) === 0
-		)
-	);
-	const crossesYears =
-		allTimes.length > 0 && new Date( min ).getFullYear() !== new Date( max ).getFullYear();
-
-	// A band scale renders one tick per bucket, so a two-point daily series —
-	// whose span is exactly 24h, which the span-based shared formatter reads
-	// as hourly — would label every bar "12 AM". Require sub-daily point
-	// spacing before hour ticks; this also keeps a single bar on its date.
-	const tickFormatter =
-		Math.abs( differenceInHours( max, min ) ) <= 24 && ! hasSubDailySpacing
-			? formatDateTick
-			: getFormatter( data );
+const getTimeSeriesFormatters = ( data: SeriesData[], tickResolution?: TickResolution ) => {
+	const dates = data.flatMap( series =>
+		series.data.map( d => ( d as DataPointDate ).date ).filter( d => d instanceof Date )
+	) as Date[];
+	const crossesYears = dates.some( date => date.getFullYear() !== dates[ 0 ].getFullYear() );
+	const hasSubDailyBuckets = isSubDailyResolution( data, tickResolution );
 
 	const tooltipFormatter = ( timestamp: number ) =>
 		new Date( timestamp ).toLocaleString( undefined, {
 			month: 'short',
 			day: 'numeric',
 			...( crossesYears ? { year: 'numeric' } : {} ),
-			...( hasSubDailySpacing ? { hour: 'numeric', hour12: true } : {} ),
+			...( hasSubDailyBuckets ? { hour: 'numeric', hour12: true } : {} ),
 		} );
 
-	return { tickFormatter, tooltipFormatter };
+	return { tickFormatter: getFormatter( data, tickResolution ), tooltipFormatter };
 };
 
 /**
@@ -83,6 +61,13 @@ export function useBarChartOptions(
 	horizontal: boolean,
 	options: BaseChartProps[ 'options' ] = {}
 ) {
+	// The date axis flips with orientation. `tickResolution` is a hint for the
+	// tick formatter rather than a visx axis prop, so it is read here and
+	// stripped from the axis options spread below.
+	const tickResolution = horizontal
+		? options.axis?.y?.tickResolution
+		: options.axis?.x?.tickResolution;
+
 	const defaultOptions = useMemo( () => {
 		const bandScale = {
 			type: 'band' as const,
@@ -96,7 +81,7 @@ export function useBarChartOptions(
 		};
 
 		const hasLabels = Boolean( data?.[ 0 ]?.data?.[ 0 ]?.label );
-		const timeSeriesFormatters = hasLabels ? null : getTimeSeriesFormatters( data );
+		const timeSeriesFormatters = hasLabels ? null : getTimeSeriesFormatters( data, tickResolution );
 		const labelFormatter = timeSeriesFormatters
 			? timeSeriesFormatters.tickFormatter
 			: ( label: string ) => label;
@@ -134,7 +119,7 @@ export function useBarChartOptions(
 				yScale: bandScale,
 			},
 		};
-	}, [ data ] );
+	}, [ data, tickResolution ] );
 
 	return useMemo( () => {
 		const orientationKey = horizontal ? 'horizontal' : 'vertical';
@@ -196,6 +181,9 @@ export function useBarChartOptions(
 
 		const { labelOverflow: xLabelOverflow, ...xAxisOptions } = options.axis?.x || {};
 		const { labelOverflow: yLabelOverflow, ...yAxisOptions } = options.axis?.y || {};
+		// Consumed above as a formatter hint; visx has no such axis prop.
+		delete xAxisOptions.tickResolution;
+		delete yAxisOptions.tickResolution;
 
 		return {
 			gridVisibility,

@@ -38,7 +38,7 @@ const formatYearTick = ( timestamp: number ) => {
 	return date.toLocaleDateString( undefined, { year: 'numeric' } );
 };
 
-export const formatDateTick = ( timestamp: number ) => {
+const formatDateTick = ( timestamp: number ) => {
 	const date = new Date( timestamp );
 	return date.toLocaleDateString( undefined, { month: 'short', day: 'numeric' } );
 };
@@ -96,6 +96,28 @@ const SPACING_BY_RESOLUTION: Record< Exclude< TickResolution, 'year' >, number >
 	month: 28 * 24,
 };
 
+// 23, not 24: a daily gap shrinks to 23 wall-clock hours across a
+// spring-forward DST transition.
+const SUB_DAILY_SPACING_HOURS = 23;
+
+const getSpacingInHours = (
+	sortedData: ReturnType< typeof useChartDataTransform >,
+	tickResolution?: TickResolution
+) =>
+	tickResolution && tickResolution !== 'year'
+		? SPACING_BY_RESOLUTION[ tickResolution ]
+		: getPointSpacingInHours( sortedData );
+
+// Whether the data's buckets are finer than a day, by the same rule getFormatter
+// applies. Exported so consumers that label individual points — bar chart
+// tooltips — carry an hour exactly when the axis would.
+export const isSubDailyResolution = (
+	sortedData: ReturnType< typeof useChartDataTransform >,
+	tickResolution?: TickResolution
+) =>
+	tickResolution !== 'year' &&
+	getSpacingInHours( sortedData, tickResolution ) < SUB_DAILY_SPACING_HOURS;
+
 // Pick the most informative tick formatter for the data's resolution and time
 // span: hours within a day, hours with day boundaries for sub-daily data
 // spanning up to a week, calendar dates for daily-or-finer buckets within a
@@ -116,12 +138,8 @@ export const getFormatter = (
 	const minX = Math.min( ...sortedData.map( datom => datom.data.at( 0 )?.date ) );
 	const maxX = Math.max( ...sortedData.map( datom => datom.data.at( -1 )?.date ) );
 
-	const spacingInHours = tickResolution
-		? SPACING_BY_RESOLUTION[ tickResolution ]
-		: getPointSpacingInHours( sortedData );
-	// 23, not 24: a daily gap shrinks to 23 wall-clock hours across a
-	// spring-forward DST transition.
-	const isSubDaily = spacingInHours < 23;
+	const spacingInHours = getSpacingInHours( sortedData, tickResolution );
+	const isSubDaily = spacingInHours < SUB_DAILY_SPACING_HOURS;
 
 	const diffInHours = Math.abs( differenceInHours( maxX, minX ) );
 	if ( diffInHours <= 24 && isSubDaily ) {

@@ -244,11 +244,20 @@ Bar charts support both categorical labels and time-series data:
 
 <Canvas of={ BarChartStories.TimeSeries } />
 
-Date-based series pick their default tick format from the data's time span, the same way
-line and area charts do: hour ticks within a day, calendar dates within a year, otherwise
-years. An explicit `options.axis.x.tickFormat` still overrides.
+Date-based series pick their default tick format from the data's bucket resolution and
+overall span, the same way line and area charts do: hour ticks within a day, hour ticks
+dated at midnight for sub-daily data spanning up to a week, calendar dates within a year,
+month names for month-or-coarser buckets, otherwise years. An explicit
+`options.axis.x.tickFormat` still overrides.
 
 <Canvas of={ BarChartStories.TimeAxisTickFormats } />
+
+When the bucket resolution is already known — from a granularity selector, say — declare it
+with `options.axis.x.tickResolution` (`axis.y` on a horizontal chart) instead of leaving the
+chart to infer it from point spacing. This is what a single-bucket series needs, since one
+point has no spacing to measure.
+
+<Canvas of={ BarChartStories.TimeAxisTickResolution } />
 
 <Source
 	language="jsx"

@@ -183,6 +183,16 @@ const dailyPoints: Array< [ Date, number ] > = Array.from( { length: 30 }, ( _, 
 	Math.round( 60 + 40 * Math.sin( i / 4 ) ),
 ] );
 
+const threeDayHourlyPoints: Array< [ Date, number ] > = Array.from( { length: 72 }, ( _, i ) => [
+	new Date( 2026, 7, 2, i ),
+	Math.round( 60 + 40 * Math.sin( i / 3.5 ) ),
+] );
+
+const oneYearMonthlyPoints: Array< [ Date, number ] > = Array.from( { length: 12 }, ( _, i ) => [
+	new Date( 2026, i, 1 ),
+	Math.round( 60 + 40 * Math.sin( i / 2 ) ),
+] );
+
 const monthlyPoints: Array< [ Date, number ] > = Array.from( { length: 36 }, ( _, i ) => [
 	new Date( 2024, i, 1 ),
 	Math.round( 60 + 40 * Math.sin( i / 2 ) ),
@@ -193,42 +203,92 @@ const yearlyPoints: Array< [ Date, number ] > = [ 72, 95, 58, 86 ].map( ( value,
 	value,
 ] );
 
+// A single bucket has no point spacing to infer the resolution from, so only a
+// declared `tickResolution` can reach the hour format.
+const loneHourlyBucket = timeAxisSeries( [ [ new Date( 2026, 7, 2, 13 ), 42 ] ] );
+
+type TimeAxisPanelProps = {
+	title: string;
+	data: SeriesData[];
+	options?: React.ComponentProps< typeof BarChart >[ 'options' ];
+};
+
+// Tooltips are on so the panels also show the per-bar label, which keeps its
+// full date where the axis compresses to a month or year.
+const TimeAxisPanel = ( { title, data, options }: TimeAxisPanelProps ) => (
+	<div>
+		<h3>{ title }</h3>
+		<BarChart width={ 460 } height={ 220 } withTooltips data={ data } options={ options } />
+	</div>
+);
+
+const timeAxisPanelGrid = {
+	display: 'grid',
+	gap: '2rem',
+	gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))',
+} as const;
+
 export const TimeAxisTickFormats: Story = {
 	render: () => (
-		<div
-			style={ {
-				display: 'grid',
-				gap: '2rem',
-				gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))',
-			} }
-		>
-			<div>
-				<h3>Hourly buckets, single day → hour ticks</h3>
-				<BarChart width={ 460 } height={ 220 } data={ timeAxisSeries( hourlyPoints ) } />
-			</div>
-			<div>
-				<h3>Daily buckets → date ticks</h3>
-				<BarChart width={ 460 } height={ 220 } data={ timeAxisSeries( dailyPoints ) } />
-			</div>
-			<div>
-				<h3>Monthly buckets over three years → year ticks (band sampling can repeat)</h3>
-				<BarChart width={ 460 } height={ 220 } data={ timeAxisSeries( monthlyPoints ) } />
-			</div>
-			<div>
-				<h3>Yearly span → year ticks</h3>
-				<BarChart width={ 460 } height={ 220 } data={ timeAxisSeries( yearlyPoints ) } />
-			</div>
+		<div style={ timeAxisPanelGrid }>
+			<TimeAxisPanel
+				title="Hourly buckets, single day → hour ticks"
+				data={ timeAxisSeries( hourlyPoints ) }
+			/>
+			<TimeAxisPanel
+				title="Hourly buckets over three days → hour ticks, dated at midnight"
+				data={ timeAxisSeries( threeDayHourlyPoints ) }
+			/>
+			<TimeAxisPanel title="Daily buckets → date ticks" data={ timeAxisSeries( dailyPoints ) } />
+			<TimeAxisPanel
+				title="Monthly buckets within a year → month ticks, year at January"
+				data={ timeAxisSeries( oneYearMonthlyPoints ) }
+			/>
+			<TimeAxisPanel
+				title="Monthly buckets over three years → year ticks (band sampling can repeat)"
+				data={ timeAxisSeries( monthlyPoints ) }
+			/>
+			<TimeAxisPanel title="Yearly span → year ticks" data={ timeAxisSeries( yearlyPoints ) } />
 		</div>
 	),
 	args: {
 		containerWidth: '1020px',
-		containerHeight: '700px',
+		containerHeight: '1050px',
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Date-based series share the time-axis tick formatter with the line and area charts: hour ticks for sub-daily buckets within a day, calendar dates within a year, otherwise years. Band-scale ticks are sampled by index, so span-level formats can repeat on adjacent ticks (see the monthly panel) — tooltips keep per-bar precision. An explicit `options.axis.x.tickFormat` still overrides.',
+					"Date-based series share the time-axis tick formatter with the line and area charts, so the format follows the data's bucket resolution and overall span: hour ticks within a day, hour ticks dated at midnight for sub-daily data spanning up to a week, calendar dates for daily-or-finer buckets within a year, month names (with the year at January) for month-or-coarser buckets, otherwise years. Band-scale ticks are sampled by index, so span-level formats can repeat on adjacent ticks (see the three-year monthly panel) — tooltips keep per-bar precision. An explicit `options.axis.x.tickFormat` still overrides.",
+			},
+		},
+	},
+};
+
+export const TimeAxisTickResolution: Story = {
+	render: () => (
+		<div style={ timeAxisPanelGrid }>
+			<TimeAxisPanel
+				title="Lone hourly bucket, resolution inferred → date tick"
+				data={ loneHourlyBucket }
+				options={ { yScale: { zero: true } } }
+			/>
+			<TimeAxisPanel
+				title="Same bar, tickResolution: 'hour' → hour tick"
+				data={ loneHourlyBucket }
+				options={ { yScale: { zero: true }, axis: { x: { tickResolution: 'hour' } } } }
+			/>
+		</div>
+	),
+	args: {
+		containerWidth: '1020px',
+		containerHeight: '400px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"When the caller already knows the data's bucket resolution — e.g. from a granularity selector — `options.axis.x.tickResolution` declares it and the tick formatter derives the format from it instead of inferring the resolution from point spacing. Inference needs at least two points, so a single-bucket series always falls back to date ticks; the declared resolution picks the right format, and the tooltip follows it. On a horizontal bar chart the hint lives on `axis.y`, which is where the dates are. An explicit `tickFormat` takes precedence over the hint.",
 			},
 		},
 	},

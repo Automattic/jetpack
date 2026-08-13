@@ -300,11 +300,53 @@ describe( 'BarChart', () => {
 			const ticks = screen.getAllByText( /^\d{4}$/ );
 			expect( distinctTexts( ticks ).size ).toBeGreaterThan( 1 );
 		} );
+
+		test( 'renders date ticks for a daily pair across a DST spring-forward boundary', () => {
+			// 2026-03-08 is the US spring-forward date, so in a DST timezone this
+			// pair is only 23 elapsed hours apart — a strict 24h rule would read
+			// it as sub-daily and label both bars "12 AM".
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( 2026, 2, 8 ), value: 10 },
+							{ date: new Date( 2026, 2, 9 ), value: 20 },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			expect( screen.getByText( 'Mar 8' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Mar 9' ) ).toBeInTheDocument();
+		} );
+
+		test( 'renders an hour tick when tickResolution declares the buckets sub-daily', () => {
+			// A single bucket has no point spacing to infer the resolution from,
+			// so only the declared resolution can reach the hour format.
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: [ { date: new Date( 2024, 0, 1, 13 ), value: 10 } ],
+						options: {},
+					},
+				],
+				options: { axis: { x: { tickResolution: 'hour' } } },
+			} );
+
+			expect( screen.getByText( /^1\sPM$/ ) ).toBeInTheDocument();
+		} );
 	} );
 
 	describe( 'Time series tooltip labels', () => {
-		const optionsFor = ( data: Parameters< typeof useBarChartOptions >[ 0 ] ) =>
-			renderHook( () => useBarChartOptions( data, false ) ).result.current;
+		const optionsFor = (
+			data: Parameters< typeof useBarChartOptions >[ 0 ],
+			options?: Parameters< typeof useBarChartOptions >[ 2 ]
+		) => renderHook( () => useBarChartOptions( data, false, options ) ).result.current;
 
 		test( 'keeps the calendar date for daily buckets within a year', () => {
 			const { tooltip } = optionsFor( [
@@ -336,24 +378,6 @@ describe( 'BarChart', () => {
 			expect( tooltip.labelFormatter( new Date( 2025, 2, 1 ).getTime(), 0, [] ) ).toBe(
 				'Mar 1, 2025'
 			);
-		} );
-
-		test( 'keeps date ticks for a daily pair across a DST spring-forward boundary', () => {
-			// 2026-03-08 is the US spring-forward date; in a DST timezone the
-			// elapsed gap is 23h, which an hours-based check would misread as
-			// sub-daily. Calendar-day comparison keeps these on date ticks.
-			const { axis } = optionsFor( [
-				{
-					label: 'Series A',
-					data: [
-						{ date: new Date( 2026, 2, 8 ), value: 10 },
-						{ date: new Date( 2026, 2, 9 ), value: 20 },
-					],
-					options: {},
-				},
-			] );
-
-			expect( axis.x.tickFormat( new Date( 2026, 2, 8 ).getTime(), 0, [] ) ).toBe( 'Mar 8' );
 		} );
 
 		test( 'detects sub-daily resolution past a leading gap', () => {
@@ -388,6 +412,23 @@ describe( 'BarChart', () => {
 
 			expect( tooltip.labelFormatter( new Date( 2024, 0, 1, 6 ).getTime(), 0, [] ) ).toMatch(
 				/^Jan 1, 6\sAM$/
+			);
+		} );
+
+		test( 'adds the hour when tickResolution declares the buckets sub-daily', () => {
+			const { tooltip } = optionsFor(
+				[
+					{
+						label: 'Series A',
+						data: [ { date: new Date( 2024, 0, 1, 13 ), value: 10 } ],
+						options: {},
+					},
+				],
+				{ axis: { x: { tickResolution: 'hour' } } }
+			);
+
+			expect( tooltip.labelFormatter( new Date( 2024, 0, 1, 13 ).getTime(), 0, [] ) ).toMatch(
+				/^Jan 1, 1\sPM$/
 			);
 		} );
 	} );

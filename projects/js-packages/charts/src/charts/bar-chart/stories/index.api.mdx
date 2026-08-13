@@ -114,19 +114,27 @@ type ChartOptions = {
 			orientation?: 'top' | 'bottom';
 			numTicks?: number;
 			tickFormat?: (value: any) => string;
+			tickResolution?: 'hour' | 'day' | 'week' | 'month' | 'year';
 		};
 		y?: {
 			orientation?: 'left' | 'right';
 			numTicks?: number;
 			tickFormat?: (value: number) => string;
+			tickResolution?: 'hour' | 'day' | 'week' | 'month' | 'year';
 		};
 	};
 };
 ```
 
 When `tickFormat` is not provided, categorical series render their labels as-is, and
-date-based series pick a default from the data's time span — hour ticks within a day,
-calendar dates within a year, otherwise years — shared with the line and area charts.
+date-based series pick a default from the data's bucket resolution and overall span —
+hour ticks within a day, hour ticks dated at midnight for sub-daily data spanning up to a
+week, calendar dates within a year, month names for month-or-coarser buckets, otherwise
+years — shared with the line and area charts. `tickResolution` declares the bucket
+resolution when the caller knows it, instead of leaving it to be inferred from point
+spacing; set it on the axis that carries the dates (`x` by default, `y` when
+`orientation="horizontal"`). It is ignored when `tickFormat` is set.
+
 Default tooltip labels for date-based series keep per-bar precision (the calendar date,
 plus the year across year boundaries and the hour for sub-daily buckets).
 
