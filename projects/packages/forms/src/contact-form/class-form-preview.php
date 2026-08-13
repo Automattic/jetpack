@@ -246,10 +246,8 @@ class Form_Preview {
 		// Add preview mode script variable.
 		add_action( 'wp_head', array( __CLASS__, 'add_preview_mode_script' ) );
 
-		// Relabel the admin bar's edit link. The preview renders through a fake
-		// `page` post object, so core would otherwise label the link "Edit Page".
-		// Priority 81 runs just after core's wp_admin_bar_edit_menu (80).
-		add_action( 'admin_bar_menu', array( __CLASS__, 'relabel_admin_bar_edit_link' ), 81 );
+		// Relabel the admin bar's edit link.
+		add_action( 'wp_before_admin_bar_render', array( __CLASS__, 'relabel_admin_bar_edit_link' ) );
 
 		// Hook the_content filter to render the form.
 		add_filter(
@@ -338,14 +336,15 @@ class Form_Preview {
 	 * type's `edit_item` label. The link itself already points at the form editor,
 	 * since it is built from the form's real post ID.
 	 *
-	 * @param \WP_Admin_Bar $wp_admin_bar The admin bar instance.
+	 * Runs on `wp_before_admin_bar_render`, which core documents as the way to
+	 * manipulate existing nodes without depending on an `admin_bar_menu` priority.
 	 */
-	public static function relabel_admin_bar_edit_link( $wp_admin_bar ) {
-		if ( ! self::$is_preview_mode ) {
-			return;
-		}
+	public static function relabel_admin_bar_edit_link() {
+		global $wp_admin_bar;
 
-		if ( ! $wp_admin_bar->get_node( 'edit' ) ) {
+		// Only relabel a node core actually added: `add_node()` on an unknown id
+		// would create a new orphan node, promoted to a top-level unlinked item.
+		if ( ! is_object( $wp_admin_bar ) || ! $wp_admin_bar->get_node( 'edit' ) ) {
 			return;
 		}
 

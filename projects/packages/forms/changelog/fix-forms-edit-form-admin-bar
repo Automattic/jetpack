@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Forms: label the admin bar edit link "Edit Form" on the form preview.
+Form preview: label the admin bar edit link "Edit Form" instead of "Edit Page".
