@@ -2,7 +2,8 @@
 // masthead title and the tab strip above it. This used to be a 660px centred
 // column, which left ~300px of dead space either side and aligned with
 // nothing. The reading measure is capped on the text itself instead — see
-// `&__card` and `&__dropzone-sub` — rather than by narrowing the whole page.
+// `&__card` and the shared dropzone's `__sub` (components/upload-dropzone) —
+// rather than by narrowing the whole page.
 .vp-onboarding {
 	box-sizing: border-box;
 	inline-size: 100%;
@@ -77,83 +78,8 @@
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
-	// The dropzone (last card). The dashed outline is drawn by an SVG <rect>
-	// overlay (not a CSS `dashed` border) so the dash length + gap are
-	// controllable — CSS can't space out `border-style: dashed`. Stroke color is
-	// still the card's neutral-stroke token.
-	&__dropzone {
-		position: relative;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: var(--wpds-dimension-gap-sm);
-		padding: var(--wpds-dimension-padding-3xl) var(--wpds-dimension-padding-2xl);
-		text-align: center;
-		background: var(--wpds-color-background-surface-neutral-strong); // white
-		border-radius: var(--wpds-border-radius-lg);
-		transition: background var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle);
-
-		// Very subtle grayer fill on hover.
-		&:hover {
-			background: var(--wpds-color-background-surface-neutral-weak);
-		}
-
-		&.is-dragging {
-			background: var(--wpds-color-background-surface-brand);
-
-			.vp-onboarding__dropzone-outline-rect {
-				stroke: var(--wpds-color-stroke-interactive-brand);
-			}
-		}
-
-		&.is-disabled,
-		&.is-disabled:hover {
-			background: var(--wpds-color-background-surface-neutral-strong);
-		}
-	}
-
-	&__dropzone-outline {
-		position: absolute;
-		inset: 0;
-		inline-size: 100%;
-		block-size: 100%;
-		pointer-events: none;
-		overflow: visible;
-	}
-
-	&__dropzone-outline-rect {
-		x: 0.5px;
-		y: 0.5px;
-		width: calc(100% - 1px);
-		height: calc(100% - 1px);
-		rx: var(--wpds-border-radius-lg);
-		fill: none;
-		stroke: var(--wpds-color-stroke-surface-neutral);
-		stroke-width: var(--wpds-border-width-xs);
-		// Round dots (round caps on ~1px dashes), ~5px apart — reads as dots,
-		// more of them and tighter than the earlier long dashes.
-		stroke-linecap: round;
-		stroke-dasharray: 1 5;
-	}
-
-	&__dropzone-icon {
-		color: var(--wpds-color-foreground-content-neutral-weak);
-	}
-
-	&__dropzone-hint {
-		color: var(--wpds-color-foreground-content-neutral);
-	}
-
-	&__dropzone-sub {
-		max-inline-size: 48ch;
-		margin-bottom: var(--wpds-dimension-gap-sm);
-		color: var(--wpds-color-foreground-content-neutral-weak);
-	}
-
-	&__input {
-		display: none;
-	}
+	// The dropzone itself moved to components/upload-dropzone (shared with
+	// Home's emptied-library state); only the card that frames it lives here.
 
 	&__limit-notice {
 		margin-bottom: var(--wpds-dimension-gap-lg);
