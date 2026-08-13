@@ -66,9 +66,29 @@ describe( 'Form field registry', () => {
 		mockGetElement.mockReturnValue( { ref: document.createElement( 'div' ) } );
 		mockGetConfig.mockReturnValue( { error_types: {} } );
 
+		// Emulate the real store's deep merge across calls: several modules register into
+		// `jetpack/form`, and a validator contributed by one has to be visible to the others.
+		// Getters are copied as descriptors so derived state is not flattened to a snapshot.
+		const merged = {};
+		const mergeInto = ( target, source ) => {
+			Object.keys( source ?? {} ).forEach( key => {
+				const descriptor = Object.getOwnPropertyDescriptor( source, key );
+				if ( descriptor.get || typeof descriptor.value !== 'object' || descriptor.value === null ) {
+					Object.defineProperty( target, key, descriptor );
+					return;
+				}
+				target[ key ] = target[ key ] ?? {};
+				mergeInto( target[ key ], descriptor.value );
+			} );
+		};
+
 		mockStore.mockImplementation( ( namespace, config ) => {
-			storeConfig = config;
-			return config;
+			merged[ namespace ] = merged[ namespace ] ?? { state: {}, actions: {}, callbacks: {} };
+			mergeInto( merged[ namespace ].state, config?.state );
+			mergeInto( merged[ namespace ].actions, config?.actions );
+			mergeInto( merged[ namespace ].callbacks, config?.callbacks );
+			storeConfig = merged[ namespace ];
+			return merged[ namespace ];
 		} );
 
 		await import( '../../../../src/modules/form/view.js' );
@@ -159,6 +179,62 @@ describe( 'Form field registry', () => {
 			storeConfig.actions.updateField( 'field-1', 'x', true );
 
 			expect( field().showFieldError ).toBe( true );
+		} );
+	} );
+
+	describe( 'Real phone validator during registration', () => {
+		// The phone behaviour change is the riskiest part of this PR, and a synthetic validator
+		// does not exercise it: field-phone's own suite always calls validators.phone with a fully
+		// populated context, so it never hits the case the destructuring defaults exist for.
+		beforeEach( async () => {
+			await import( '../../../../src/modules/field-phone/view.js' );
+		} );
+
+		test( 'a required phone field with a default value registers as is_required', () => {
+			// `default` on the telephone block is the default country code, and
+			// get_computed_field_value() falls back to it, so fieldValue is non-empty on an ordinary
+			// page load. The visible input is bound to context.phoneNumber, which PHP hardcodes to
+			// '' — and phoneNumber is not in scope here at all, because registerField runs from the
+			// field wrapper while the phone context is provided by a descendant.
+			context = makeContext( {
+				fieldType: 'phone',
+				fieldValue: 'US',
+				fieldIsRequired: true,
+			} );
+
+			registerCurrentField();
+
+			expect( field().error ).toBe( 'is_required' );
+		} );
+
+		test( 'an optional phone field with a default value registers as valid', () => {
+			context = makeContext( {
+				fieldType: 'phone',
+				fieldValue: 'US',
+				fieldIsRequired: false,
+			} );
+
+			registerCurrentField();
+
+			expect( field().error ).toBe( 'yes' );
+		} );
+
+		test( 'registration survives a partially populated phone context', () => {
+			// With `phoneNumber` absent the validator returns early, so the defaults are invisible.
+			// This is the case that actually needs them: a scope where `phoneNumber` resolves but
+			// `fullPhoneNumber` does not. Without the default, `fullPhoneNumber.indexOf` throws out
+			// of initializeField and takes the whole field registration with it — which is one PHP
+			// line away, since seeding `phoneNumber` from `$value` is the obvious fix for the
+			// prefill bug this field still has.
+			context = makeContext( {
+				fieldType: 'phone',
+				fieldValue: '+972',
+				fieldIsRequired: true,
+				phoneNumber: '5551234',
+			} );
+
+			expect( () => registerCurrentField() ).not.toThrow();
+			expect( field().error ).toBe( 'invalid_phone' );
 		} );
 	} );
 

@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-File upload field: keep the remaining files when a folder is included in a multi-file drop.
+File upload field: Keep the remaining files when a folder or dragged text is included in a multi-file drop.

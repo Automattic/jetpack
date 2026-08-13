@@ -19,8 +19,10 @@ const ALLOWED_MIME_TYPES = [ 'image/png', 'application/pdf' ];
 
 describe( 'File Field View', () => {
 	let mockContext;
+	let legacyContext;
 	let mockElement;
 	let storeConfig;
+	let storeConfigs;
 	let storeNamespace;
 	let mockUpdateField;
 	let mockTrackFirstInteraction;
@@ -57,7 +59,12 @@ describe( 'File Field View', () => {
 			ref: document.querySelector( '.jetpack-form-file-field__dropzone-inner' ),
 		};
 
-		mockGetContext.mockReturnValue( mockContext );
+		// Contexts are per-namespace. Current markup puts everything the field needs in the
+		// `jetpack/form` context; the legacy namespace is empty unless a back-compat test sets it.
+		legacyContext = null;
+		mockGetContext.mockImplementation( namespace =>
+			namespace === 'jetpack/field-file' ? legacyContext : mockContext
+		);
 		mockGetElement.mockReturnValue( mockElement );
 
 		// Namespace-aware on purpose: the field's config lives under `jetpack/field-file` while
@@ -98,9 +105,11 @@ describe( 'File Field View', () => {
 		mockUpdateField = jest.fn();
 		mockTrackFirstInteraction = jest.fn();
 
+		// The module registers twice: the real store under `jetpack/form`, then a back-compat alias
+		// under the old `jetpack/field-file` namespace. Keep them apart so tests can address either.
+		storeConfigs = {};
 		mockStore.mockImplementation( ( namespace, config ) => {
-			storeNamespace = namespace;
-			storeConfig = config;
+			storeConfigs[ namespace ] = config;
 			return {
 				state: config.state,
 				actions: {
@@ -108,20 +117,31 @@ describe( 'File Field View', () => {
 					updateField: mockUpdateField,
 					trackFirstInteraction: mockTrackFirstInteraction,
 				},
+				callbacks: config.callbacks,
 			};
 		} );
 
 		await import( '../../../../src/modules/file-field/view.js' );
+		storeNamespace = Object.keys( storeConfigs )[ 0 ];
+		storeConfig = storeConfigs[ 'jetpack/form' ];
 		state = storeConfig.state;
 	} );
 
 	afterEach( () => {
 		document.body.innerHTML = '';
+		// clearAllMocks does not undo a mockImplementation, and the shared jest config sets
+		// neither restoreMocks nor clearMocks — without this, a spy on fetch or XMLHttpRequest set
+		// inside one test body silently leaks into every test declared after it.
+		jest.restoreAllMocks();
 	} );
 
 	describe( 'Store registration', () => {
 		test( 'registers into the shared jetpack/form store, not its own namespace', () => {
 			expect( storeNamespace ).toBe( 'jetpack/form' );
+		} );
+
+		test( 'also registers a back-compat alias under the old namespace', () => {
+			expect( storeConfigs[ 'jetpack/field-file' ] ).toBeDefined();
 		} );
 
 		test( 'registers a `file` validator alongside the other field validators', () => {
@@ -303,20 +323,33 @@ describe( 'File Field View', () => {
 			expect( mockTrackFirstInteraction ).toHaveBeenCalled();
 		} );
 
+		/**
+		 * Build a DataTransferItem double.
+		 *
+		 * @param {object}      options             - Item options.
+		 * @param {string}      options.kind        - 'file' or 'string'.
+		 * @param {boolean}     options.isDirectory - Whether the entry is a directory.
+		 * @param {object|null} options.file        - The file the item yields.
+		 * @return {object} The item double.
+		 */
+		const dropItem = ( { kind = 'file', isDirectory = false, file = null } = {} ) => ( {
+			kind,
+			// Both of these return null for a `string` item, which is what makes the kind check
+			// load-bearing rather than cosmetic.
+			webkitGetAsEntry: () => ( kind === 'file' ? { isDirectory } : null ),
+			getAsFile: () => ( kind === 'file' ? file : null ),
+		} );
+
+		const drop = items =>
+			storeConfig.actions.fileDropped( {
+				preventDefault: jest.fn(),
+				dataTransfer: { items },
+			} );
+
 		test( 'a dropped directory is skipped', () => {
 			mockContext.isDropping = true;
 
-			storeConfig.actions.fileDropped( {
-				preventDefault: jest.fn(),
-				dataTransfer: {
-					items: [
-						{
-							webkitGetAsEntry: () => ( { isDirectory: true } ),
-							getAsFile: () => ( { name: 'folder', type: '', size: 0 } ),
-						},
-					],
-				},
-			} );
+			drop( [ dropItem( { isDirectory: true, file: { name: 'folder', type: '', size: 0 } } ) ] );
 
 			expect( mockContext.files ).toHaveLength( 0 );
 			// Bailing out of the loop used to skip this, stranding the dropzone in drag-hover.
@@ -324,23 +357,30 @@ describe( 'File Field View', () => {
 		} );
 
 		test( 'a directory does not discard the rest of a mixed drop', () => {
-			const item = ( isDirectory, file ) => ( {
-				webkitGetAsEntry: () => ( { isDirectory } ),
-				getAsFile: () => file,
-			} );
-
-			storeConfig.actions.fileDropped( {
-				preventDefault: jest.fn(),
-				dataTransfer: {
-					items: [
-						item( true, { name: 'folder', type: '', size: 0 } ),
-						item( false, { name: 'doc.pdf', type: 'application/pdf', size: 10 } ),
-					],
-				},
-			} );
+			drop( [
+				dropItem( { isDirectory: true, file: { name: 'folder', type: '', size: 0 } } ),
+				dropItem( { file: { name: 'doc.pdf', type: 'application/pdf', size: 10 } } ),
+			] );
 
 			expect( mockContext.files ).toHaveLength( 1 );
 			expect( mockContext.files[ 0 ] ).toMatchObject( { name: 'doc.pdf' } );
+		} );
+
+		test( 'dragged text or links are ignored without throwing', () => {
+			// `kind: 'string'` items return null from webkitGetAsEntry() and getAsFile(). Skipping
+			// only directories let those through to a null dereference, which threw mid-loop and
+			// left the dropzone stuck in drag-hover.
+			mockContext.isDropping = true;
+
+			expect( () =>
+				drop( [
+					dropItem( { kind: 'string' } ),
+					dropItem( { file: { name: 'doc.pdf', type: 'application/pdf', size: 10 } } ),
+				] )
+			).not.toThrow();
+
+			expect( mockContext.files ).toHaveLength( 1 );
+			expect( mockContext.isDropping ).toBe( false );
 		} );
 	} );
 
@@ -348,7 +388,7 @@ describe( 'File Field View', () => {
 		test( 'onFileDropzoneKeyDown opens the picker on Enter', () => {
 			const fileInput = document.querySelector( '.jetpack-form-file-field' );
 			jest.spyOn( fileInput, 'click' ).mockImplementation();
-			const event = { keyCode: 13, preventDefault: jest.fn() };
+			const event = { key: 'Enter', preventDefault: jest.fn() };
 
 			storeConfig.actions.onFileDropzoneKeyDown( event );
 
@@ -360,7 +400,7 @@ describe( 'File Field View', () => {
 			const fileInput = document.querySelector( '.jetpack-form-file-field' );
 			jest.spyOn( fileInput, 'click' ).mockImplementation();
 
-			storeConfig.actions.onFileDropzoneKeyDown( { keyCode: 65, preventDefault: jest.fn() } );
+			storeConfig.actions.onFileDropzoneKeyDown( { key: 'a', preventDefault: jest.fn() } );
 
 			expect( fileInput.click ).not.toHaveBeenCalled();
 		} );
@@ -377,43 +417,62 @@ describe( 'File Field View', () => {
 
 	describe( 'Removing files', () => {
 		/**
-		 * Drive the `removeFile` generator to completion.
+		 * Remove a file. `removeFile` is synchronous: the server-side delete is fired without
+		 * blocking the UI update, so the context reflects the removal on return.
 		 *
 		 * @param {string} id - The client file ID to remove.
-		 * @return {Promise} Resolves when the generator is done.
 		 */
-		const removeFile = async id => {
-			const event = {
+		const removeFile = id => {
+			storeConfig.actions.removeFile( {
 				preventDefault: jest.fn(),
 				target: { dataset: { id } },
-			};
-			const generator = storeConfig.actions.removeFile( event );
-			let step = generator.next();
-			while ( ! step.done ) {
-				step = generator.next( await step.value );
-			}
+			} );
 		};
 
-		test( 'removes the file and reports the remaining list, not an empty string', async () => {
+		test( 'removes the file and reports the remaining list, not an empty string', () => {
 			mockContext.files = [
 				{ id: 'a', url: null, error: null },
 				{ id: 'b', url: null, error: null },
 			];
 
-			await removeFile( 'a' );
+			removeFile( 'a' );
 
 			expect( mockContext.files.map( f => f.id ) ).toEqual( [ 'b' ] );
 			// An empty array is a legitimate value now — the registered validator turns it into
 			// `is_required` or `yes`, so there is no need to substitute ''.
-			await removeFile( 'b' );
+			removeFile( 'b' );
 			const [ , lastValue ] = mockUpdateField.mock.calls.at( -1 );
 			expect( lastValue ).toEqual( [] );
 		} );
 
-		test( 'revokes the object URL of a removed image preview', async () => {
+		test( 'updates the field without waiting on the server-side delete', () => {
+			// A token round-trip before removal left the preview in place and the dropzone hidden,
+			// so a slow network made the field look stuck with no way to add a replacement.
+			const fetchSpy = jest
+				.spyOn( global, 'fetch' )
+				.mockImplementation( () => new Promise( () => {} ) );
+			mockContext.files = [ { id: 'a', url: null, error: null, file_id: 'server-1' } ];
+
+			removeFile( 'a' );
+
+			expect( mockContext.files ).toEqual( [] );
+			expect( mockUpdateField ).toHaveBeenCalledWith( 'test-file', [] );
+			expect( fetchSpy ).toHaveBeenCalled();
+		} );
+
+		test( 'a second activation is a no-op rather than a duplicate delete', () => {
 			mockContext.files = [ { id: 'a', url: 'url(blob:mock)', error: null } ];
 
-			await removeFile( 'a' );
+			removeFile( 'a' );
+			removeFile( 'a' );
+
+			expect( global.URL.revokeObjectURL ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		test( 'revokes the object URL of a removed image preview', () => {
+			mockContext.files = [ { id: 'a', url: 'url(blob:mock)', error: null } ];
+
+			removeFile( 'a' );
 
 			expect( global.URL.revokeObjectURL ).toHaveBeenCalledWith( 'blob:mock' );
 		} );
@@ -471,16 +530,56 @@ describe( 'File Field View', () => {
 			} );
 
 			// The controller is gone, so a later remove cannot abort an already-finished request.
-			await ( async () => {
-				const event = { preventDefault: jest.fn(), target: { dataset: { id: 'client-1' } } };
-				const gen = storeConfig.actions.removeFile( event );
-				let s = gen.next();
-				while ( ! s.done ) {
-					s = gen.next( await s.value );
-				}
-			} )();
+			storeConfig.actions.removeFile( {
+				preventDefault: jest.fn(),
+				target: { dataset: { id: 'client-1' } },
+			} );
 
 			expect( xhr.abort ).not.toHaveBeenCalled();
+		} );
+
+		test( 'does not send a file that was removed while its token was in flight', async () => {
+			// Nothing is registered in uploadControllers until after the token resolves, so a
+			// removal during that window has nothing to abort and would otherwise upload a file the
+			// user already deleted.
+			jest.spyOn( global, 'fetch' ).mockImplementation( () =>
+				Promise.resolve( {
+					ok: true,
+					json: () => Promise.resolve( { token: 'abc', expiration: 0 } ),
+				} )
+			);
+			const { xhr } = installFakeXhr();
+			mockContext.files = [ { id: 'client-1', error: null, isUploaded: false } ];
+
+			const generator = storeConfig.actions.uploadFile( { name: 'doc.pdf' }, 'client-1' );
+			const tokenPromise = generator.next().value;
+
+			// The user removes the file before the token comes back.
+			mockContext.files = [];
+
+			let step = generator.next( await tokenPromise );
+			while ( ! step.done ) {
+				step = generator.next( await step.value );
+			}
+
+			expect( xhr.send ).not.toHaveBeenCalled();
+		} );
+
+		test( 'a progress event for an already-cleared file is ignored', () => {
+			// resetFiles empties the list without waiting for in-flight requests, so an XHR event
+			// can arrive for an entry that is gone. Object.assign( undefined, … ) used to throw.
+			mockContext.files = [];
+
+			expect( () => storeConfig.actions.resetFiles() ).not.toThrow();
+		} );
+
+		test( 'resetFiles releases controllers and object URLs like removeFile does', () => {
+			mockContext.files = [ { id: 'a', url: 'url(blob:mock)', error: null } ];
+
+			storeConfig.actions.resetFiles();
+
+			expect( global.URL.revokeObjectURL ).toHaveBeenCalledWith( 'blob:mock' );
+			expect( mockContext.files ).toEqual( [] );
 		} );
 	} );
 
@@ -503,19 +602,129 @@ describe( 'File Field View', () => {
 		} );
 	} );
 
-	describe( 'Focus management', () => {
-		test( 'focusFilePreview focuses the preview and nothing else', () => {
-			jest.useFakeTimers();
-			const focus = jest.fn();
-			mockGetElement.mockReturnValue( { ref: { focus } } );
+	describe( 'Back-compat alias for cached markup', () => {
+		let legacyStore;
 
-			const result = storeConfig.callbacks.focusFilePreview();
+		beforeEach( () => {
+			legacyStore = storeConfigs[ 'jetpack/field-file' ];
+
+			// What a page cached before this change serves: the file state under the old namespace,
+			// config as loose keys rather than in fieldExtra.
+			legacyContext = {
+				fieldId: 'test-file',
+				files: [],
+				isDropping: false,
+				maxFiles: 1,
+				allowedMimeTypes: ALLOWED_MIME_TYPES,
+			};
+			// The shared wrapper context is still emitted by unchanged PHP, but knows nothing about
+			// the file field.
+			mockContext = { fieldId: 'test-file', fieldType: 'file', fields: {} };
+		} );
+
+		test( 'adding a file through the old action name still reaches the shared field state', () => {
+			legacyStore.actions.fileAdded( {
+				target: { files: [ { name: 'doc.pdf', type: 'application/pdf', size: 10 } ] },
+			} );
+
+			// The same array backs both contexts, so the old template's data-wp-each stays in step.
+			expect( legacyContext.files ).toHaveLength( 1 );
+			expect( mockContext.files ).toBe( legacyContext.files );
+			expect( mockUpdateField ).toHaveBeenCalledWith( 'test-file', legacyContext.files );
+		} );
+
+		test( 'the old config keys are bridged into fieldExtra so limits still apply', () => {
+			legacyStore.actions.fileAdded( {
+				target: { files: [ { name: 'evil.exe', type: 'application/x-msdownload', size: 10 } ] },
+			} );
+
+			expect( legacyContext.files[ 0 ] ).toMatchObject( {
+				hasError: true,
+				error: 'This file type is not allowed.',
+			} );
+		} );
+
+		test( 'the old drag actions toggle the flag the old markup binds to', () => {
+			legacyStore.actions.dragOver( { preventDefault: jest.fn() } );
+			expect( legacyContext.isDropping ).toBe( true );
+
+			legacyStore.actions.dragLeave();
+			expect( legacyContext.isDropping ).toBe( false );
+		} );
+
+		test( 'the old state getters resolve against the legacy context', () => {
+			expect( legacyStore.state.hasFiles ).toBe( false );
+			expect( legacyStore.state.hasMaxFiles ).toBe( false );
+
+			legacyContext.files.push( { id: '1' } );
+
+			expect( legacyStore.state.hasFiles ).toBe( true );
+			expect( legacyStore.state.hasMaxFiles ).toBe( true );
+		} );
+	} );
+
+	describe( 'Focus management', () => {
+		/**
+		 * Mount a preview inside the dropzone container and run the init callback against it.
+		 *
+		 * @return {{preview: HTMLElement, dropzone: HTMLElement, cleanup: Function}} The nodes and the effect cleanup the callback returned.
+		 */
+		const mountPreview = () => {
+			const container = document.querySelector( '.jetpack-form-file-field__container' );
+			const preview = document.createElement( 'div' );
+			preview.className = 'jetpack-form-file-field__preview';
+			preview.tabIndex = 0;
+			container.querySelector( '.jetpack-form-file-field__preview-wrap' ).append( preview );
+
+			const dropzone = container.querySelector( '.jetpack-form-file-field__dropzone-inner' );
+			jest.spyOn( preview, 'focus' );
+			jest.spyOn( dropzone, 'focus' );
+
+			mockGetElement.mockReturnValue( { ref: preview } );
+
+			return { preview, dropzone, cleanup: storeConfig.callbacks.focusFilePreview() };
+		};
+
+		test( 'focuses the new preview on mount', () => {
+			jest.useFakeTimers();
+			const { preview, dropzone } = mountPreview();
+
 			jest.runAllTimers();
 
-			expect( focus ).toHaveBeenCalledWith( { focusVisible: true } );
-			// Returning a function would be invoked immediately by the `data-wp-init` directive,
-			// which is what previously stole focus back to the (hidden) dropzone.
-			expect( typeof result ).not.toBe( 'function' );
+			expect( preview.focus ).toHaveBeenCalledWith( { focusVisible: true } );
+			expect( dropzone.focus ).not.toHaveBeenCalled();
+			jest.useRealTimers();
+		} );
+
+		test( 'returns a cleanup that hands focus back to the dropzone on removal', () => {
+			// `data-wp-init` resolves the callback without invoking it, calls it once, and passes
+			// the return value to useEffect as teardown — so returning a function here is how focus
+			// is restored when the file is removed, not a bug.
+			jest.useFakeTimers();
+			const { preview, dropzone, cleanup } = mountPreview();
+			jest.runAllTimers();
+
+			expect( typeof cleanup ).toBe( 'function' );
+
+			preview.remove();
+			cleanup();
+			jest.runAllTimers();
+
+			expect( dropzone.focus ).toHaveBeenCalledWith( { focusVisible: true } );
+			jest.useRealTimers();
+		} );
+
+		test( 'does not focus a preview that was removed inside the delay', () => {
+			jest.useFakeTimers();
+			const { preview, cleanup } = mountPreview();
+
+			// Remove before the timer fires: focusing a detached node is a silent no-op that would
+			// leave focus on <body>.
+			preview.remove();
+			cleanup();
+			jest.runAllTimers();
+
+			expect( preview.focus ).not.toHaveBeenCalled();
 			jest.useRealTimers();
 		} );
 	} );

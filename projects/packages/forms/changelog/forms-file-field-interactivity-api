@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-File upload field: move the field's Interactivity API store into the shared jetpack/form store, matching the other fields. The jetpack/field-file store namespace is gone (its config namespace is unchanged), and the dragOver, dragLeave, handleKeyDown and focusElement handlers plus the hasFiles and hasMaxFiles state getters have been renamed.
+File upload field: Move the field's Interactivity API store into the shared jetpack/form store, matching the other fields. The jetpack/field-file store namespace is deprecated and now aliases the new names; it will be removed in a future release. Its config namespace is unchanged.

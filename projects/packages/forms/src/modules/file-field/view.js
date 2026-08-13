@@ -13,8 +13,8 @@ import { isEmptyValue } from '../../contact-form/js/validate-helper.js';
 const NAMESPACE = 'jetpack/form';
 const CONFIG_NAMESPACE = 'jetpack/field-file';
 
-const ENTER = 13;
-const SPACE = 32;
+// Long enough for the preview to be rendered and the dropzone hidden before focus moves.
+const PREVIEW_FOCUS_DELAY_MS = 100;
 
 let uploadToken = null;
 let tokenExpiry = null;
@@ -28,6 +28,12 @@ let pendingTokenRequest = null;
  * The token authorizes uploads for the whole site rather than for one field, so it is cached at
  * module scope and shared by every file field on the page.
  *
+ * The cache is written inside the shared promise rather than by each awaiting caller. Writing it
+ * in the continuation would leave a microtask-sized window where `pendingTokenRequest` has already
+ * been cleared but `uploadToken` is not yet set, letting a second caller past both guards and
+ * start a redundant request — and with two in flight the last one to resolve would win, which can
+ * leave the cache holding the older token and the earlier expiry.
+ *
  * @return {Promise<string|null>} The upload token, or null if one could not be obtained.
  */
 const getUploadToken = async () => {
@@ -37,15 +43,21 @@ const getUploadToken = async () => {
 	}
 
 	if ( ! pendingTokenRequest ) {
-		pendingTokenRequest = fetchUploadToken().finally( () => {
-			pendingTokenRequest = null;
-		} );
+		pendingTokenRequest = fetchUploadToken()
+			.then( ( { token, expiresAt } ) => {
+				uploadToken = token;
+				// A non-numeric expiry would make every later `Date.now() < tokenExpiry` false and
+				// silently disable the cache for the rest of the page, so treat it as expired now
+				// and re-fetch next time instead.
+				tokenExpiry = Number.isFinite( expiresAt ) ? expiresAt * 1000 : 0;
+				return token;
+			} )
+			.finally( () => {
+				pendingTokenRequest = null;
+			} );
 	}
 
-	const { token, expiresAt } = await pendingTokenRequest;
-	uploadToken = token;
-	tokenExpiry = expiresAt * 1000; // Convert expiry timestamp to milliseconds
-	return uploadToken;
+	return pendingTokenRequest;
 };
 
 /**
@@ -281,18 +293,83 @@ const onReadyStateChange = ( clientFileId, event ) => {
 /**
  * Update the context with the new updatedFile object based on the file ID.
  *
+ * XHR events can outlive the entry they describe — `resetFiles` empties the list without waiting
+ * for anything in flight — so a missing file is an expected outcome here, not an error. Without
+ * the guard, `findIndex` returns -1 and `Object.assign( undefined, … )` throws out of a progress
+ * handler and takes the rest of the upload's reporting with it.
+ *
  * @param {object} updatedFile  - The updated file object.
  * @param {string} clientFileId - The client file ID.
  */
 const updateFileContext = ( updatedFile, clientFileId ) => {
 	const context = getContext();
 	const index = context.files.findIndex( file => file.id === clientFileId );
+
+	if ( index === -1 ) {
+		return;
+	}
+
 	context.files[ index ] = Object.assign( context.files[ index ], updatedFile );
 
 	actions.updateField( context.fieldId, context.files );
 };
 
-const { actions } = store( NAMESPACE, {
+/**
+ * Ask the server to drop an already-uploaded file.
+ *
+ * Deliberately not awaited by the caller: the field's own state is updated first so the UI never
+ * waits on the network. Safe to run after the interactivity scope is gone, since `getConfig()`
+ * with an explicit namespace reads the global config map rather than the current scope.
+ *
+ * @param {string} fileId - The server-side file ID.
+ */
+const deleteUploadedFile = async fileId => {
+	const token = await getUploadToken();
+
+	if ( ! token ) {
+		return;
+	}
+
+	const { endpoint } = getConfig( CONFIG_NAMESPACE );
+	const formData = new FormData();
+	formData.append( 'token', token );
+	formData.append( 'file_id', fileId );
+
+	try {
+		await fetch( `${ endpoint }/remove`, { method: 'POST', body: formData } );
+	} catch {
+		// The file is already gone from the field either way; a failed cleanup call is not
+		// something the visitor can act on.
+	}
+};
+
+/**
+ * Release everything attached to a file: its in-flight upload and its preview object URL.
+ *
+ * Shared by `removeFile` and `resetFiles` so the two cannot drift — a reset that skipped this
+ * left the XHR running against a file nothing referenced any more, pinned the blob URL for the
+ * life of the page, and leaked the controller into `uploadControllers`.
+ *
+ * @param {object} file - The file entry to release.
+ */
+const releaseFile = file => {
+	if ( ! file ) {
+		return;
+	}
+
+	const abortController = uploadControllers.get( file.id );
+	if ( abortController ) {
+		abortController.abort();
+		uploadControllers.delete( file.id );
+	}
+
+	if ( file.url ) {
+		// Strip the `url(…)` wrapper the style binding needs to get back to the blob URL.
+		URL.revokeObjectURL( file.url.substring( 4, file.url.length - 1 ) );
+	}
+};
+
+const { state, actions, callbacks } = store( NAMESPACE, {
 	state: {
 		validators: {
 			/**
@@ -335,7 +412,7 @@ const { actions } = store( NAMESPACE, {
 
 	actions: {
 		onFileDropzoneKeyDown: event => {
-			if ( event.keyCode === ENTER || event.keyCode === SPACE ) {
+			if ( event.key === 'Enter' || event.key === ' ' ) {
 				event.preventDefault();
 				actions.openFilePicker( event );
 			}
@@ -377,6 +454,12 @@ const { actions } = store( NAMESPACE, {
 			actions.trackFirstInteraction();
 			if ( event.dataTransfer ) {
 				for ( const item of Array.from( event.dataTransfer.items ) ) {
+					// Dragging selected text, a link or an image from another tab yields items with
+					// `kind === 'string'`. Those return null from both `webkitGetAsEntry()` and
+					// `getAsFile()`, so they have to be filtered before either is dereferenced.
+					if ( item.kind !== 'file' ) {
+						continue;
+					}
 					// Directories are skipped rather than aborting the whole drop: returning here
 					// discarded every remaining file in a mixed selection and left `isDropping`
 					// set, stranding the dropzone in its drag-hover style.
@@ -428,6 +511,16 @@ const { actions } = store( NAMESPACE, {
 				return;
 			}
 
+			// The token round-trip suspends this generator, and there is no AbortController
+			// registered yet — so a removal during that window has nothing to cancel and returns as
+			// though it worked. Without this check the upload would resume and send a file the user
+			// already deleted. Sharing one token request across a batch widens the window, since
+			// files now queue behind a single fetch rather than each firing their own.
+			const context = getContext();
+			if ( ! context.files.some( fileObject => fileObject.id === clientFileId ) ) {
+				return;
+			}
+
 			const xhr = new XMLHttpRequest();
 			const formData = new FormData();
 
@@ -453,60 +546,55 @@ const { actions } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Reset the files in the context.
+		 * Reset the field, releasing anything the files still hold.
+		 *
+		 * Kept symmetrical with `removeFile`: emptying the list on its own left live uploads
+		 * running against files nothing referenced, blob URLs pinned for the life of the page, and
+		 * controllers stranded in `uploadControllers`.
 		 */
 		resetFiles: () => {
 			const context = getContext();
+			context.files.forEach( releaseFile );
 			context.files = [];
 		},
 
 		/**
 		 * Remove a file from the context and cancel its upload if in progress.
 		 *
+		 * The UI update happens first and the server-side delete is fired without blocking it.
+		 * Waiting on a token round-trip before removing the entry left the preview in place and
+		 * the dropzone hidden — `state.isFileFieldFull` still counted the file — so a slow or
+		 * failed network made the field look stuck with no way to add a replacement.
+		 *
 		 * @param {Event} event - The event object.
-		 * @yield {Promise<string>} The upload token.
 		 */
-		removeFile: function* ( event ) {
+		removeFile: event => {
 			event.preventDefault();
 
 			const context = getContext();
 			const clientFileId = event.target.dataset.id;
-
-			// Cancel the upload if it's in progress
-			if ( uploadControllers.has( clientFileId ) ) {
-				const abortController = uploadControllers.get( clientFileId );
-				abortController.abort(); // Cancel the upload
-				uploadControllers.delete( clientFileId ); // Clean up the controller
-			}
-
 			const file = context.files.find( fileObject => fileObject.id === clientFileId );
-			if ( file && file.url ) {
-				// Remove the object URL to free up memory
-				const urlToRemove = file.url.substring( 4, file.url.length - 1 );
-				URL.revokeObjectURL( urlToRemove );
+
+			// A second activation while the first is still settling would revoke an already-revoked
+			// URL and POST a duplicate delete.
+			if ( ! file ) {
+				return;
 			}
 
-			if ( file && file.file_id ) {
-				const { endpoint } = getConfig( CONFIG_NAMESPACE );
-				const token = yield getUploadToken();
-				if ( token ) {
-					const formData = new FormData();
-					formData.append( 'token', token );
-					formData.append( 'file_id', file.file_id );
-					fetch( `${ endpoint }/remove`, {
-						method: 'POST',
-						body: formData,
-					} );
-				}
-			}
-			// Remove the file from the context. An empty array is a legitimate value here — the
-			// registered validator turns it into `is_required` or `yes` as appropriate.
+			releaseFile( file );
+
+			// An empty array is a legitimate value here — the registered validator turns it into
+			// `is_required` or `yes` as appropriate.
 			context.files = context.files.filter( fileObject => fileObject.id !== clientFileId );
 			actions.updateField( context.fieldId, context.files );
+
+			if ( file.file_id ) {
+				deleteUploadedFile( file.file_id );
+			}
 		},
 
 		removeFileKeydown: event => {
-			if ( event.keyCode === ENTER || event.keyCode === SPACE ) {
+			if ( event.key === 'Enter' || event.key === ' ' ) {
 				event.preventDefault();
 				actions.removeFile( event );
 			}
@@ -520,12 +608,132 @@ const { actions } = store( NAMESPACE, {
 		 * The preview carries `tabindex="0"` and an `aria-label` of the file name, so it is the
 		 * only meaningful focus target once a file is added — the dropzone is hidden as soon as
 		 * `state.isFileFieldFull` becomes true, and focusing a hidden element strands keyboard users.
+		 *
+		 * The returned function is the effect cleanup: `data-wp-init` resolves the callback without
+		 * invoking it, calls it once, and hands whatever it returns to Preact's `useEffect` as the
+		 * teardown. So this runs when the preview unmounts — that is, when the file is removed —
+		 * and hands focus back to the dropzone, which is visible again by then. Without it, removal
+		 * destroys the focused element and focus falls to `<body>`.
+		 *
+		 * The container is captured while the preview is still attached: by cleanup time the node
+		 * is detached, so `ref.closest()` would return null and querying it would throw.
+		 *
+		 * @return {Function} Cleanup that cancels the pending focus and restores it to the dropzone.
 		 */
 		focusFilePreview: () => {
 			const { ref } = getElement();
-			setTimeout( () => {
-				ref.focus( { focusVisible: true } );
-			}, 100 );
+			const container = ref.closest( '.jetpack-form-file-field__container' );
+
+			// `isConnected` guards the case where the file is removed inside the delay: focusing a
+			// detached node is a silent no-op that would strand focus on `<body>`.
+			const focusTimer = setTimeout( () => {
+				if ( ref.isConnected ) {
+					ref.focus( { focusVisible: true } );
+				}
+			}, PREVIEW_FOCUS_DELAY_MS );
+
+			return () => {
+				clearTimeout( focusTimer );
+
+				const dropzone = container?.querySelector( '.jetpack-form-file-field__dropzone-inner' );
+
+				setTimeout( () => {
+					if ( dropzone?.isConnected ) {
+						dropzone.focus( { focusVisible: true } );
+					}
+				}, PREVIEW_FOCUS_DELAY_MS );
+			};
 		},
+	},
+} );
+
+/*
+ * Back-compatibility shim for markup rendered before this change. Remove one release after this
+ * ships, along with the `@deprecated` note in the changelog.
+ *
+ * Page caches serve HTML and scripts on independent lifetimes, and the script module is versioned
+ * on `JETPACK__VERSION` rather than the forms package version — so both directions are reachable:
+ * cached markup carrying `data-wp-interactive="jetpack/field-file"` against this bundle, and new
+ * markup against an older bundle after a deploy with no plugin version bump.
+ *
+ * The first direction fails silently and badly. The runtime's `resolve()` auto-creates an empty
+ * store for an unknown namespace instead of erroring, and the `on` directive skips a non-function
+ * result, so every directive inside the old container becomes a no-op: the dropzone does nothing,
+ * the file input does nothing, the remove button does nothing, and no class ever toggles — with no
+ * console output outside SCRIPT_DEBUG. On a *required* file field that is unrecoverable: the
+ * wrapper markup is untouched `jetpack/form`, so `registerField` still records `is_required`, no
+ * file can ever be added to clear it, and the submit gate blocks the form permanently. The visitor
+ * sees an error they cannot resolve and the site owner just sees submissions stop.
+ *
+ * Registering the old namespace with the old names pointed at the new implementations keeps that
+ * markup working, and doubles as the deprecation window for what was a globally reachable store.
+ */
+/**
+ * Point the shared context at the legacy one so the new implementation can run against old markup.
+ *
+ * Old markup declared `files` under `jetpack/field-file` and carried `maxFiles`/`allowedMimeTypes`
+ * as loose context keys rather than in `fieldExtra`. Assigning the same array reference rather than
+ * a copy matters: the old template's `data-wp-each--file` still binds to the legacy context, so
+ * both bindings have to observe the same underlying object to stay in step.
+ */
+const bridgeLegacyContext = () => {
+	const legacy = getContext( CONFIG_NAMESPACE );
+	const shared = getContext( NAMESPACE );
+
+	if ( ! legacy || ! shared ) {
+		return;
+	}
+
+	if ( shared.files === undefined ) {
+		shared.files = legacy.files;
+	}
+
+	if ( ! shared.fieldExtra ) {
+		shared.fieldExtra = {
+			maxFiles: legacy.maxFiles,
+			allowedMimeTypes: legacy.allowedMimeTypes,
+		};
+	}
+};
+
+const withLegacyContext =
+	action =>
+	( ...args ) => {
+		bridgeLegacyContext();
+		return action( ...args );
+	};
+
+store( CONFIG_NAMESPACE, {
+	state: {
+		get hasFiles() {
+			bridgeLegacyContext();
+			return state.hasFileFieldFiles;
+		},
+		get hasMaxFiles() {
+			bridgeLegacyContext();
+			return state.isFileFieldFull;
+		},
+	},
+	actions: {
+		handleKeyDown: withLegacyContext( event => actions.onFileDropzoneKeyDown( event ) ),
+		openFilePicker: withLegacyContext( () => actions.openFilePicker() ),
+		fileAdded: withLegacyContext( event => actions.fileAdded( event ) ),
+		fileDropped: withLegacyContext( event => actions.fileDropped( event ) ),
+		removeFile: withLegacyContext( event => actions.removeFile( event ) ),
+		removeFileKeydown: withLegacyContext( event => actions.removeFileKeydown( event ) ),
+		resetFiles: withLegacyContext( () => actions.resetFiles() ),
+
+		// The old template binds `is-dropping` to the legacy context, so these write there directly
+		// rather than delegating to handlers that would set the flag on the shared context.
+		dragOver: event => {
+			getContext( CONFIG_NAMESPACE ).isDropping = true;
+			event.preventDefault();
+		},
+		dragLeave: () => {
+			getContext( CONFIG_NAMESPACE ).isDropping = false;
+		},
+	},
+	callbacks: {
+		focusElement: () => callbacks.focusFilePreview(),
 	},
 } );
