@@ -1,16 +1,16 @@
 import { Modal, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Stack, Text } from '@wordpress/ui';
 import FieldValueControl from '../controls/field-value/edit.jsx';
 
 const ACTION_OPTIONS = [
-	{ value: 'show', label: __( 'Show', 'jetpack-forms' ) },
-	{ value: 'hide', label: __( 'Hide', 'jetpack-forms' ) },
+	{ value: 'show', label: __( 'Show this field', 'jetpack-forms' ) },
+	{ value: 'hide', label: __( 'Hide this field', 'jetpack-forms' ) },
 ];
 
 const MATCH_OPTIONS = [
-	{ value: 'any', label: __( 'any', 'jetpack-forms' ) },
-	{ value: 'all', label: __( 'all', 'jetpack-forms' ) },
+	{ value: 'any', label: __( 'if any', 'jetpack-forms' ) },
+	{ value: 'all', label: __( 'if all', 'jetpack-forms' ) },
 ];
 
 /**
@@ -58,13 +58,13 @@ const ConditionalLogicModal = ( {
 			size="large"
 			className="jetpack-contact-form__conditional-logic-modal"
 		>
-			<Stack direction="column" gap="lg">
-				{ /* Both selectors sit inside the sentence rather than above it as labelled
-				     fields: the action and the match mode are what the sentence says, and
-				     reading it back is how an author checks the rule is what they meant. */ }
+			<Stack direction="column" gap="md">
+				{ /* The two selectors carry the whole sentence between them, so they sit side
+				     by side and the clause that finishes it goes underneath. Reading the three
+				     lines top to bottom is how an author checks the rule says what they meant. */ }
 				<Stack
 					direction="row"
-					align="center"
+					align="flex-start"
 					gap="sm"
 					className="jetpack-contact-form__conditional-logic-sentence"
 				>
@@ -77,9 +77,8 @@ const ConditionalLogicModal = ( {
 						__nextHasNoMarginBottom={ true }
 						__next40pxDefaultSize={ true }
 					/>
-					<span>{ __( 'this field when', 'jetpack-forms' ) }</span>
 					<SelectControl
-						label={ __( 'Match', 'jetpack-forms' ) }
+						label={ __( 'When', 'jetpack-forms' ) }
 						hideLabelFromVision
 						value={ group.logicalOperator }
 						options={ MATCH_OPTIONS }
@@ -87,8 +86,11 @@ const ConditionalLogicModal = ( {
 						__nextHasNoMarginBottom={ true }
 						__next40pxDefaultSize={ true }
 					/>
-					<span>{ __( 'of these match:', 'jetpack-forms' ) }</span>
 				</Stack>
+
+				<Text variant="body-sm" className="jetpack-contact-form__conditional-logic-hint">
+					{ __( 'of the following conditions are met:', 'jetpack-forms' ) }
+				</Text>
 
 				<FieldValueControl
 					rules={ group.rules }

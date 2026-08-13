@@ -216,7 +216,7 @@ describe( 'ConditionalLogicPanel', () => {
 	it( 'offers the action and match selectors in the dialog', async () => {
 		await setup();
 		expect( screen.getByLabelText( 'Action' ) ).toBeInTheDocument();
-		expect( screen.getByLabelText( 'Match' ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( 'When' ) ).toBeInTheDocument();
 	} );
 
 	// The row arrangement itself is CSS; what this can verify is that the selectors are the
@@ -226,8 +226,9 @@ describe( 'ConditionalLogicPanel', () => {
 		// the document, so it is not a descendant of what render() returns.
 		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
 
-		expect( screen.getByText( 'this field when' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'of these match:' ) ).toBeInTheDocument();
+		// The two selectors carry the sentence between them; the clause finishing it sits
+		// underneath rather than being interleaved with the controls.
+		expect( screen.getByText( 'of the following conditions are met:' ) ).toBeInTheDocument();
 	} );
 
 	it( 'phrases the selectors to read on from each other', async () => {
@@ -235,12 +236,14 @@ describe( 'ConditionalLogicPanel', () => {
 
 		const action = screen.getByLabelText( 'Action' );
 		expect( optionValues( action ) ).toEqual( [ 'show', 'hide' ] );
-		expect( within( action ).getByRole( 'option', { name: 'Show' } ) ).toBeInTheDocument();
+		expect(
+			within( action ).getByRole( 'option', { name: 'Show this field' } )
+		).toBeInTheDocument();
 
-		const match = screen.getByLabelText( 'Match' );
+		const match = screen.getByLabelText( 'When' );
 		expect( optionValues( match ) ).toEqual( [ 'any', 'all' ] );
-		expect( within( match ).getByRole( 'option', { name: 'any' } ) ).toBeInTheDocument();
-		expect( within( match ).getByRole( 'option', { name: 'all' } ) ).toBeInTheDocument();
+		expect( within( match ).getByRole( 'option', { name: 'if any' } ) ).toBeInTheDocument();
+		expect( within( match ).getByRole( 'option', { name: 'if all' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'offers the operators belonging to the subject field type', async () => {

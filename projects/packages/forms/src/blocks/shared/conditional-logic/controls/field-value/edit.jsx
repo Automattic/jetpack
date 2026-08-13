@@ -1,7 +1,7 @@
 import { Notice, SelectControl, TextControl } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { closeSmall, plus } from '@wordpress/icons';
+import { plus, trash } from '@wordpress/icons';
 import { Button, IconButton, Stack } from '@wordpress/ui';
 import { RULE_TYPE_FIELD_VALUE } from '../../constants.js';
 import { useEnsureFieldId } from '../../hooks/use-subject-fields.js';
@@ -269,7 +269,7 @@ const RuleRow = ( { rule, index, fields, ownFieldId, onChange, onRemove } ) => {
 					size="small"
 					variant="minimal"
 					tone="neutral"
-					icon={ closeSmall }
+					icon={ trash }
 					onClick={ handleRemove }
 					label={ sprintf(
 						/* translators: %d: condition number, starting at 1 */
