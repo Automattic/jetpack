@@ -20,7 +20,7 @@ const TIER_VALUE_UNLIMITED = 1;
  * AVAILABLE (limit − used), so that is derived here.
  *
  * @param {object} data - Raw endpoint payload (dash-cased keys).
- * @return {object} { unlimited, requestsCount, requestsLimit, requestsAvailable, renewsOn, planLabel, showUpgrade }
+ * @return {object} { unlimited, isFree, requestsCount, requestsLimit, requestsAvailable, renewsOn, planLabel, showUpgrade }
  */
 export function normalizeUsage( data ) {
 	const currentTier = data?.[ 'current-tier' ] ?? null;
@@ -48,20 +48,22 @@ export function normalizeUsage( data ) {
 		! unlimited &&
 		( Boolean( data?.[ 'next-tier' ] ) || data?.[ 'site-require-upgrade' ] === true );
 
-	// Fallback when the page data has no purchase name: the plan's nature.
-	// Only the unlimited tier ships a (server-localized) readable-limit;
-	// tiered tiers carry bare numbers.
+	// Fallback when the page data has no purchase name: the tier's own
+	// readable limit when it ships one (dash-case wire key; camelCase covers
+	// the older TS typings), else the plan's nature.
 	let planLabel = null;
 	if ( isFree ) {
 		planLabel = __( 'Free', 'jetpack' );
-	} else if ( unlimited ) {
-		planLabel = currentTier?.[ 'readable-limit' ] ?? __( 'Unlimited', 'jetpack' );
 	} else if ( currentTier ) {
-		planLabel = currentTier[ 'readable-limit' ] ?? String( currentTier.limit ?? '' );
+		planLabel =
+			currentTier[ 'readable-limit' ] ??
+			currentTier.readableLimit ??
+			( unlimited ? __( 'Unlimited', 'jetpack' ) : String( currentTier.limit ?? '' ) );
 	}
 
 	return {
 		unlimited,
+		isFree,
 		requestsCount,
 		requestsLimit,
 		requestsAvailable,

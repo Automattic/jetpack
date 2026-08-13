@@ -86,9 +86,9 @@ const DOC_LINKS = [
 function UsageCard( { upgradeUrl, planName } ) {
 	const { isLoading, data, error } = useAiUsage();
 	const usage = normalizeUsage( data );
-	// The design shows the product's name; the usage payload cannot provide
-	// one, so the page data supplies it and the derived label is the fallback.
-	const planLabel = planName || usage.planLabel;
+	// The purchase name only labels a paid state — the usage endpoint is
+	// authoritative for the tier, so an expired purchase cannot relabel Free.
+	const planLabel = ( ! usage.isFree && planName ) || usage.planLabel;
 	const hasNumbers = usage.requestsAvailable !== null && usage.requestsLimit > 0;
 	// normalizeUsage floors availability at 0 and it can never exceed the
 	// limit, so the ratio needs no clamping here.

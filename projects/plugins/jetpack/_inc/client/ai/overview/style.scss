@@ -29,10 +29,10 @@
 			border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral, #dbdbdb);
 			padding-inline-start: 24px;
 			margin-inline-start: 24px;
-			// Run the divider the full card height: bleed through the card
-			// content's 24px padding, then take that space back as padding.
-			margin-block: -24px;
-			padding-block: 24px;
+			// Full-height divider: bleed through the card content's padding,
+			// then take the same space back (tracks the ui Card's own token).
+			margin-block: calc(-1 * var(--wp-ui-card-padding, 24px));
+			padding-block: var(--wp-ui-card-padding, 24px);
 
 			@media (max-width: 600px) {
 				// Stacked cells divide with a horizontal rule instead.
@@ -95,13 +95,13 @@
 		}
 	}
 
-	// The thumbnails share this tint, so it stands in while they load and
-	// fills the sliver the 16:9 box leaves around them.
+	// The thumbnails share this tint, so it stands in while they load. The
+	// ratio matches the exported assets (644×348) so cover crops nothing.
 	&__video-thumb {
 		display: block;
 		inline-size: 100%;
 		block-size: auto;
-		aspect-ratio: 16 / 9;
+		aspect-ratio: 644 / 348;
 		object-fit: cover;
 		background: var(--wpds-color-background-surface-brand, #ecf0f9);
 	}

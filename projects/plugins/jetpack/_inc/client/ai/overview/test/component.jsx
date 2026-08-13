@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import AiOverview from '../index';
-import { freePayload, tieredPayload } from './fixtures';
+import { freePayload, tieredPayload, unlimitedPayload } from './fixtures';
 
 // The usage hook fetches through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the response.
@@ -63,13 +63,23 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'plan name: the page-data purchase name wins over the derived label', async () => {
-		apiFetch.mockResolvedValueOnce( freePayload() );
+	test( 'plan name: the purchase name labels a paid state', async () => {
+		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
 
 		render( <AiOverview { ...PROPS } planName="WordPress.com Business" /> );
 
 		await expect( screen.findByText( 'WordPress.com Business' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Free' ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'plan name: a free tier stays Free even with a stale purchase name', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } planName="Jetpack Complete" /> );
+
+		// The usage endpoint owns the tier; an expired purchase must not
+		// relabel a free site as paid.
+		await expect( screen.findByText( 'Free' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Jetpack Complete' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'upgrade: links to the shared upgrade URL when a next tier exists', async () => {

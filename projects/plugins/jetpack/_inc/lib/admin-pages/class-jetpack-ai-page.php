@@ -139,8 +139,8 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					// shipping a code change.
 					'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites' ),
 					// The purchase granting AI, for the Overview usage card — the
-					// usage endpoint cannot name it. Gated so ungated loads do
-					// no extra work.
+					// usage endpoint cannot name it. Gate falls together with
+					// showFeaturesView below: remove both when the view goes public.
 					'planName'         => jetpack_is_internal_testing_environment() ? self::get_ai_plan_name() : '',
 					// Pre-release gate: only internal testing environments see
 					// the Features view. Remove when the view goes public.
@@ -218,9 +218,22 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			return '';
 		}
 
-		$purchase = \Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai::get_paid_plan_purchase_for_product();
+		// The purchase lookup can make remote requests; cache the outcome
+		// (empty included) so the admin page pays that cost at most hourly.
+		$cached = get_transient( 'jetpack_ai_overview_plan_name' );
+		if ( false !== $cached ) {
+			return (string) $cached;
+		}
 
-		return $purchase && ! empty( $purchase->product_name ) ? (string) $purchase->product_name : '';
+		$purchase = \Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai::get_paid_plan_purchase_for_product();
+		$name     = '';
+		if ( $purchase && ! empty( $purchase->product_name ) && 'expired' !== ( $purchase->expiry_status ?? '' ) ) {
+			$name = (string) $purchase->product_name;
+		}
+
+		set_transient( 'jetpack_ai_overview_plan_name', $name, HOUR_IN_SECONDS );
+
+		return $name;
 	}
 
 	/**
