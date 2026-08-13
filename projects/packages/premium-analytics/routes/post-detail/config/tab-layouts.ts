@@ -109,9 +109,11 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 		},
 		{
 			uuid: 'email-clicks-countries',
-			// Plain leaderboard per the design mocks — no map beside it.
+			// The updated design mocks draw the country map beside the
+			// leaderboard again (the earlier mocks dropped it in #50928); the
+			// widget still unmounts the map below its 720px container floor.
 			type: 'jpa/email-breakdown--location-clicks',
-			attributes: { view: 'countries', metric: 'clicks', max: 8 },
+			attributes: { view: 'countries', metric: 'clicks', max: 8, showMap: true },
 			placement: { width: 2, height: 2, order: 5 },
 		},
 		{

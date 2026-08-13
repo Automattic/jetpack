@@ -102,7 +102,7 @@ describe( 'post detail tab layouts', () => {
 			{
 				uuid: 'email-clicks-countries',
 				type: 'jpa/email-breakdown--location-clicks',
-				attributes: { view: 'countries', metric: 'clicks', max: 8 },
+				attributes: { view: 'countries', metric: 'clicks', max: 8, showMap: true },
 				placement: { width: 2, height: 2, order: 5 },
 			},
 			{
