@@ -7,8 +7,11 @@
 
 namespace Automattic\Jetpack\Status;
 
+use Brain\Monkey;
+use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -30,6 +33,9 @@ class Visitor_Test extends TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
+		Monkey\setUp();
+		Functions\when( 'is_automattician' )->justReturn( false );
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( false );
 		$this->visitor_obj = new Visitor();
 	}
 
@@ -38,6 +44,7 @@ class Visitor_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		parent::tearDown();
+		Monkey\tearDown();
 		unset( $_SERVER['REMOTE_ADDR'] );
 		unset( $_SERVER['HTTP_CF_CONNECTING_IP'] );
 		unset( $_SERVER['HTTP_CLIENT_IP'] );
@@ -47,6 +54,31 @@ class Visitor_Test extends TestCase {
 		unset( $_SERVER['HTTP_FORWARDED_FOR'] );
 		unset( $_SERVER['HTTP_FORWARDED'] );
 		unset( $_SERVER['HTTP_VIA'] );
+	}
+
+	/**
+	 * Tests that exact employee identity marks an unproxied visitor as an Automattician.
+	 */
+	public function test_is_automattician_for_tracking_with_employee_identity() {
+		Functions\when( 'is_automattician' )->justReturn( true );
+
+		$this->assertTrue( $this->visitor_obj->is_automattician_for_tracking() );
+	}
+
+	/**
+	 * Tests that a WordPress.com proxy marks a visitor as an Automattician for tracking.
+	 */
+	public function test_is_automattician_for_tracking_with_wpcom_proxy() {
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+
+		$this->assertTrue( $this->visitor_obj->is_automattician_for_tracking() );
+	}
+
+	/**
+	 * Tests that a visitor without an employee or proxy signal is not marked as an Automattician.
+	 */
+	public function test_is_automattician_for_tracking_without_signal() {
+		$this->assertFalse( $this->visitor_obj->is_automattician_for_tracking() );
 	}
 
 	/**
@@ -213,7 +245,10 @@ class Visitor_Test extends TestCase {
 
 	/**
 	 * Tests is_automattician_feature_flags_only method.
+	 *
+	 * @runInSeparateProcess
 	 */
+	#[RunInSeparateProcess]
 	public function test_is_automattician_feature_flags_only() {
 		$is_a11n = $this->visitor_obj->is_automattician_feature_flags_only();
 		$this->assertFalse( $is_a11n );

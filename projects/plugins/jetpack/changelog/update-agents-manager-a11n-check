@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Image Studio: Reuse the shared Automattician tracking classification.
+Image Studio: Mark identified Automatticians and proxied requests in tracking.

@@ -421,7 +421,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts adds script with empty providers and useUnifiedExperience false by default.
 	 */
 	public function test_enqueue_scripts_with_empty_providers() {
-		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( false );
 
 		// Set admin context - scripts only enqueue in admin.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
@@ -505,7 +505,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * Tests that enqueue_scripts includes useUnifiedExperience true when filter returns true.
 	 */
 	public function test_enqueue_scripts_includes_use_unified_experience_when_enabled() {
-		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( false );
 		Functions\when( 'is_automattician' )->justReturn( true );
 
 		// Set admin context - scripts only enqueue in admin.
