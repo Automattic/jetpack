@@ -38,10 +38,11 @@ jest.mock( '../recent-video-card', () => ( {
 } ) );
 
 let mockItems: LibraryItem[] = [];
+let mockLibraryIsLoading = false;
 jest.mock( '../../../src/dashboard/hooks/use-library', () => ( {
 	useLibrary: () => ( {
 		items: mockItems,
-		isLoading: false,
+		isLoading: mockLibraryIsLoading,
 		isError: false,
 		error: undefined,
 		refetch: jest.fn(),
@@ -101,19 +102,55 @@ describe( 'home stage empty state', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockItems = [];
+		mockLibraryIsLoading = false;
 		mockFreeTier = defaultFreeTier;
 	} );
 
-	it( 'renders the dropzone under the empty-state heading', () => {
+	it( 'renders the dropzone as the whole empty state — no shell, no section head', () => {
 		const { container } = render( <Stage /> );
 
-		expect( screen.getByText( 'No videos yet' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Drag and drop your video here' ) ).toBeInTheDocument();
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- asserting the surface exists, not interacting with it.
 		expect( container.querySelector( '.vp-upload-dropzone' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Drag and drop your video here' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'Your video will show up here, ready to share or drop into a post.' )
+		).toBeInTheDocument();
+
+		// The old EmptyState heading/description are gone; the visible copy
+		// belongs to the dropzone alone.
+		expect( screen.queryByText( 'No videos yet' ) ).not.toBeInTheDocument();
+		// A "Recent videos" label over no recents is suppressed with it.
+		expect( screen.queryByText( 'Recent videos' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'keeps the header to the upload action alone', () => {
+	it( 'keeps a visually-hidden heading announcing the no-videos status', () => {
+		render( <Stage /> );
+
+		expect(
+			screen.getByRole( 'heading', { name: 'No videos yet — upload a video' } )
+		).toBeInTheDocument();
+	} );
+
+	it( 'hides the header upload action while the empty-state dropzone is on screen', () => {
+		render( <Stage /> );
+
+		expect( screen.getByTestId( 'header-actions' ) ).toBeEmptyDOMElement();
+	} );
+
+	it( 'shows no upload action while the library is still loading', () => {
+		mockLibraryIsLoading = true;
+		const { container } = render( <Stage /> );
+
+		// Neither surface may flash in before the listing settles: no header
+		// button, no dropzone — just the skeleton rail under its heading.
+		expect( screen.getByTestId( 'header-actions' ) ).toBeEmptyDOMElement();
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- asserting the surface is absent, not interacting with it.
+		expect( container.querySelector( '.vp-upload-dropzone' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Recent videos' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the header to the upload action alone once the library has videos', () => {
+		mockItems = [ { id: '1' } as LibraryItem ];
 		render( <Stage /> );
 
 		const actions = screen.getByTestId( 'header-actions' );
@@ -157,8 +194,9 @@ describe( 'home stage empty state', () => {
 		mockItems = [ { id: '1' } as LibraryItem ];
 		const { container } = render( <Stage /> );
 
-		expect( screen.queryByText( 'No videos yet' ) ).not.toBeInTheDocument();
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- asserting the surface is absent, not interacting with it.
 		expect( container.querySelector( '.vp-upload-dropzone' ) ).not.toBeInTheDocument();
+		// The section head returns with the recents it labels.
+		expect( screen.getByText( 'Recent videos' ) ).toBeInTheDocument();
 	} );
 } );
