@@ -138,6 +138,9 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 							icon={ 'hide' === logic.action ? unseen : seen }
 							title={ summarize( logic, group ) }
 							onClick={ openModal }
+							// Inverted while the field carries conditions, the same
+							// treatment Required uses for a field that is required.
+							className={ hasConditions ? 'is-pressed' : undefined }
 						/>
 					</ToolbarGroup>
 				</BlockControls>

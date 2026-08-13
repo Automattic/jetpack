@@ -190,6 +190,17 @@ describe( 'ConditionalLogicPanel', () => {
 		).toBeInTheDocument();
 	} );
 
+	// The same treatment Required uses: inverted while the field carries conditions.
+	it( 'inverts the toolbar button while conditions exist', async () => {
+		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ), {
+			openModal: false,
+		} );
+
+		expect( screen.getByRole( 'button', { name: 'Shown when 1 condition matches' } ) ).toHaveClass(
+			'is-pressed'
+		);
+	} );
+
 	it( 'leaves the toolbar alone on a field with no conditions', async () => {
 		await setup( DEFAULT_ATTRIBUTE, { openModal: false } );
 
