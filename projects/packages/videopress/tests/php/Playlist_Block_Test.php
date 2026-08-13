@@ -243,6 +243,7 @@ class Playlist_Block_Test extends BaseTestCase {
 		);
 
 		$this->render( $attributes );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Deliberate identical re-render to prove the lookup is served from cache.
 		$this->render( $attributes );
 		$this->assertSame( 1, $this->title_requests, 'The second render must be served from cache.' );
 
