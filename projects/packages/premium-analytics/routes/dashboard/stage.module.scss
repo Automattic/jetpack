@@ -65,6 +65,13 @@
 }
 
 .widgets {
+	// Caps every layer the grid raises under the sticky header below: the edit
+	// overlay, a resizing tile, the exit animation of a removed one. The header
+	// then only has to outrank this box rather than numbers it does not own,
+	// which reach 2 today. The @dnd-kit drag preview renders in here too, so a
+	// dragged tile passes beneath the header as well.
+	isolation: isolate;
+
 	// Inherited by the @wordpress/grid surfaces (grid, masonry, edit overlay),
 	// which otherwise fall back to the wider `--wpds-dimension-gap-xl`.
 	--wp-grid-gap: var(--wpds-dimension-gap-lg);
@@ -77,7 +84,25 @@
 }
 
 .sectionHeader {
-	// Separates the header row from the widget grid below. The inline gutter
-	// comes from the panel, which already pads to match the tabs.
+	// Pins directly under the page header. The offset is 0 rather than that
+	// header's height because the scroll container is the sections root, which
+	// begins where the page header ends.
+	position: sticky;
+	inset-block-start: 0;
+	z-index: 1;
+
+	// A stuck header has to be opaque, and it takes the fill and hairline of the
+	// page header it pins under so the two read as one piece of chrome. That
+	// means reaching the page edges the way that header does: the panel's gutter
+	// is given back as padding, so the header row itself does not move, and the
+	// container query measuring it sees the same width as before.
+	margin-inline: calc(-1 * var(--wpds-dimension-padding-2xl));
+	padding-inline: var(--wpds-dimension-padding-2xl);
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border-block-end:
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral-weak);
+
+	// Separates the header row from the widget grid below.
 	padding-block-end: var(--wpds-dimension-gap-lg);
 }
