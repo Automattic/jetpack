@@ -25,10 +25,13 @@ export default {
 			default: {
 				enabled: false,
 				action: 'show',
+				// Combines the groups with each other; each group combines its own rules.
 				logicalOperator: 'any',
-				// Keyed by control slug so further condition types (query string, user role,
-				// date and time) become sibling keys rather than a reshape.
-				controls: {},
+				// An array, not a map: a map cannot express "any of these AND all of those",
+				// which is where this is heading. The V1 panel writes one group, so showing a
+				// second one later is a panel change rather than a storage change. Rules carry
+				// their own type, so further condition kinds slot into a group instead.
+				groups: [],
 			},
 		},
 	},
