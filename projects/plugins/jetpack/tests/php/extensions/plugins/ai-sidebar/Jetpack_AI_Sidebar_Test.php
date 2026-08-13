@@ -529,16 +529,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * The sidebar only surfaces writing-assistant and SEO suggestions, so the
-	 * gate follows the two toggles: it closes only when BOTH are off. Any single
-	 * enabled feature keeps the sidebar available.
-	 *
-	 * The seo-tools module is activated for the whole matrix because SEO alone
-	 * only holds the sidebar open when the suggestions can actually run: the SEO
-	 * half of the gate is the full suggestions predicate (filter, toggle, plan
-	 * and module), not the toggle by itself. The rows where the SEO toggle is
-	 * off are unaffected by the module — their SEO half is false either way.
-	 * The module-inactive counterpart of the writing=0 seo=1 row is covered by
+	 * The gate closes only when BOTH toggles are off. seo-tools stays active;
+	 * the module-inactive case is
 	 * test_preview_disabled_when_seo_enhancer_cannot_run.
 	 */
 	public function test_preview_follows_writing_and_seo_toggle_matrix() {
@@ -570,16 +562,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * WordPress.com Simple is unreachable by the SEO half of the gate, so the
-	 * plan and module terms it now carries cannot close the sidebar there.
-	 * `writing_assistant` is one of the features Jetpack owns, and
-	 * Jetpack_AI_Settings::is_feature_enabled() forces owned features on for
-	 * Simple regardless of their stored option, so the first half of the gate is
-	 * always true there and the SEO half is never reached.
-	 *
-	 * Pinned because the SEO half's terms only ever narrow the gate: without
-	 * this, a future change to the Simple carve-out could silently take the
-	 * sidebar away from every Simple site below Business.
+	 * Simple never reaches the SEO half: writing_assistant is forced on there
+	 * as an owned feature. Pinned so a carve-out change cannot silently close
+	 * the sidebar on Simple sites below Business.
 	 */
 	public function test_preview_stays_open_on_simple_even_with_every_toggle_off() {
 		$this->simulate_wpcom_simple();
@@ -598,12 +583,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The SEO half of the load gate is the same predicate that decides whether
-	 * SEO suggestions are offered, so a switched-on SEO enhancer that cannot run
-	 * does not hold the sidebar open. With writing off, the SEO toggle on and
-	 * the seo-tools module inactive — the module registers the SEO meta fields
-	 * the suggestions write to — every sidebar feature is off, so the sidebar
-	 * must not load at all.
+	 * A switched-on enhancer that cannot run (seo-tools inactive) must not
+	 * hold the sidebar open with writing off.
 	 */
 	public function test_preview_disabled_when_seo_enhancer_cannot_run() {
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
@@ -618,10 +599,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The jetpack_disable_seo_tools filter — which the seo-tools module raises
-	 * when a conflicting SEO plugin (Yoast, AIOSEO, Rank Math, …) owns the
-	 * site's SEO — also closes the gate: the SEO suggestions cannot run, so with
-	 * writing off the sidebar has nothing left to offer.
+	 * A conflicting SEO plugin (jetpack_disable_seo_tools) closes the gate the
+	 * same way.
 	 */
 	public function test_preview_disabled_when_seo_tools_are_disabled_by_filter() {
 		$this->activate_seo_tools_module();
@@ -638,10 +617,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The writing half of the gate is untouched by the SEO terms: with the
-	 * writing assistant on, the sidebar stays available however unusable the SEO
-	 * enhancer is — toggle off, module inactive and SEO tools filter-disabled
-	 * all at once.
+	 * Writing on keeps the sidebar available however unusable the SEO
+	 * enhancer is.
 	 */
 	public function test_preview_enabled_when_writing_on_regardless_of_seo() {
 		update_option( 'jetpack_ai_writing_assistant_enabled', 1 );
@@ -827,11 +804,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The toolbar button replaces the legacy AI toolbar, which is a writing
-	 * surface, so it follows the writing assistant toggle — and the generic
-	 * preview-features filter must not be able to force it back on. SEO stays on
-	 * — with the seo-tools module active so its suggestions can actually run and
-	 * keep the sidebar available — and the assertion is about the button alone.
+	 * The toolbar button is a writing surface: it follows the writing toggle
+	 * and the preview-features filter must not force it back on. SEO keeps the
+	 * sidebar available; the assertion is about the button alone.
 	 */
 	public function test_toolbar_button_follows_writing_toggle_despite_filter() {
 		$this->set_block_editor_screen();
@@ -949,11 +924,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * With the writing assistant off, the toolbar button extension is registered
-	 * as unavailable rather than merely reporting a false flag: the editor needs
-	 * the extension torn down for the button to disappear. SEO stays on — with
-	 * the seo-tools module active so its suggestions can actually run and keep
-	 * the sidebar available — and this covers the button alone.
+	 * With writing off the toolbar button extension must register as
+	 * unavailable — the editor needs it torn down to drop the button. SEO
+	 * keeps the sidebar available; this covers the button alone.
 	 */
 	public function test_register_toolbar_button_extension_unavailable_when_writing_is_off() {
 		$this->set_block_editor_screen();
@@ -1173,13 +1146,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Block transformations (Translate, Change Tone, etc.) are writing features:
-	 * with the writing assistant off they stay out of the payload even when the
-	 * generic preview-features filter tries to force them on.
-	 *
-	 * SEO carries the sidebar here, so its suggestions must be able to run —
-	 * hence the seo-tools module — or the sidebar itself would not load and
-	 * there would be no payload to assert on.
+	 * Block transformations are writing features: with writing off they stay
+	 * out of the payload even when the preview-features filter forces them.
+	 * SEO (seo-tools active) carries the sidebar so there is a payload.
 	 */
 	public function test_add_agents_manager_data_block_transformations_follow_writing_toggle_despite_filter() {
 		$this->set_block_editor_screen();
@@ -1204,13 +1173,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * AI Editorial Review is writing-gated like its sibling suggestions: with
-	 * the writing assistant off, the generic preview-features filter must not
-	 * be able to force it back into the payload.
-	 *
-	 * SEO carries the sidebar here, so its suggestions must be able to run —
-	 * hence the seo-tools module — or the sidebar itself would not load and
-	 * there would be no payload to assert on.
+	 * AI Editorial Review is writing-gated: with writing off the
+	 * preview-features filter must not force it back into the payload. SEO
+	 * (seo-tools active) carries the sidebar so there is a payload.
 	 */
 	public function test_add_agents_manager_data_editorial_review_follows_writing_toggle_despite_filter() {
 		$this->set_block_editor_screen();

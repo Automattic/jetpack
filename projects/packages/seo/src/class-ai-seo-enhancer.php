@@ -19,8 +19,7 @@ class AI_SEO_Enhancer {
 	/**
 	 * Whether the site can offer the enhancer, independent of the admin's
 	 * toggle. Callers own the outer AI master and host gates. The AI sidebar's
-	 * SEO suggestions intentionally gate on a different plan slug
-	 * (`advanced-seo`) — do not unify the two.
+	 * SEO suggestions intentionally use a different plan slug — do not unify.
 	 *
 	 * @since $$next-version$$
 	 *

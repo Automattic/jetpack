@@ -19,14 +19,12 @@ use PHPUnit\Framework\TestCase;
 abstract class SeoTestCase extends TestCase {
 
 	/**
-	 * Short-circuit filter for the active plan option, so a test can pin the
-	 * site's plan without writing the option.
+	 * Short-circuit filter for the active plan option.
 	 */
 	const PLAN_FILTER = 'pre_option_' . Current_Plan::PLAN_OPTION;
 
 	/**
-	 * Priority for PLAN_FILTER. Later than the default so the pin wins over a
-	 * dev environment that already short-circuits the same option.
+	 * Priority for PLAN_FILTER; later than default so the test pin wins.
 	 */
 	const PLAN_FILTER_PRIORITY = 20;
 
@@ -63,8 +61,7 @@ abstract class SeoTestCase extends TestCase {
 	}
 
 	/**
-	 * Undo a plan pin set by set_plan(). Only our own priority, so an
-	 * environment's own pin survives.
+	 * Undo a plan pin set by set_plan().
 	 */
 	protected static function reset_plan() {
 		remove_all_filters( self::PLAN_FILTER, self::PLAN_FILTER_PRIORITY );
@@ -72,8 +69,7 @@ abstract class SeoTestCase extends TestCase {
 	}
 
 	/**
-	 * `Current_Plan::get()` memoizes for the request, so a pin set by one test
-	 * would otherwise leak into the next.
+	 * Clear Current_Plan::get()'s request memo so pins don't leak between tests.
 	 */
 	protected static function reset_active_plan_cache() {
 		$property = ( new \ReflectionClass( Current_Plan::class ) )->getProperty( 'active_plan_cache' );
@@ -86,17 +82,8 @@ abstract class SeoTestCase extends TestCase {
 	}
 
 	/**
-	 * Put the site on a given plan.
-	 *
-	 * `Current_Plan::get_class_and_features()` accumulates each tier's features
-	 * as it walks PLAN_DATA, so a tier is the *minimum* plan granting its
-	 * features and every higher tier inherits them.
-	 *
-	 * Filtered rather than written with `update_option()`: a local dev
-	 * environment may already short-circuit `pre_option_jetpack_active_plan`,
-	 * which makes an option write invisible to `Current_Plan::get()`.
-	 * Registering at a later priority overrides any such pin without
-	 * disturbing it.
+	 * Put the site on a given plan, via filter so the pin also wins over an
+	 * environment's own pre_option short-circuit.
 	 *
 	 * @param string $product_slug Plan product slug.
 	 */

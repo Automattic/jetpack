@@ -1,13 +1,8 @@
 <?php
 /**
- * Tests for the AI SEO Enhancer gate: each availability term falsified on its own.
- *
- * Not covered here: that the module term is inert on WordPress.com Simple.
- * Exercising it needs the real `IS_WPCOM` constant, which only works in an
- * isolated process, and this package's SQLite bootstrap emits deprecations
- * there on PHP 8.5 that PHPUnit reports as an error. The user-visible half of
- * that guarantee is covered plugin-side by
- * Jetpack_AI_Sidebar_Test::test_preview_stays_open_on_simple_even_with_every_toggle_off.
+ * Tests for the AI SEO Enhancer gate: each availability term falsified on its
+ * own. The Simple behavior is pinned plugin-side in Jetpack_AI_Sidebar_Test
+ * (IS_WPCOM needs process isolation, broken here under PHP 8.5).
  *
  * @package automattic/jetpack-seo
  */
@@ -37,8 +32,7 @@ class AiSeoEnhancerTest extends SeoTestCase {
 	}
 
 	/**
-	 * Availability ANDs four independent inputs; with all of them satisfied the
-	 * enhancer is available.
+	 * All four terms satisfied: available.
 	 */
 	public function test_is_available_when_all_inputs_true() {
 		self::set_plan( 'jetpack_business' );
@@ -48,8 +42,7 @@ class AiSeoEnhancerTest extends SeoTestCase {
 	}
 
 	/**
-	 * The feature filter vetoes on its own: a host that kills the enhancer
-	 * hides it even with the module and the plan in place.
+	 * The feature filter vetoes on its own.
 	 */
 	public function test_is_not_available_when_filter_off() {
 		self::set_plan( 'jetpack_business' );
@@ -60,9 +53,7 @@ class AiSeoEnhancerTest extends SeoTestCase {
 	}
 
 	/**
-	 * The seo-tools module vetoes on its own: the enhancer writes to the SEO
-	 * title and meta description fields that module owns, so an inactive module
-	 * leaves it nothing to write.
+	 * The seo-tools module vetoes on its own.
 	 */
 	public function test_is_not_available_when_seo_tools_module_inactive() {
 		self::set_plan( 'jetpack_business' );
@@ -72,8 +63,7 @@ class AiSeoEnhancerTest extends SeoTestCase {
 	}
 
 	/**
-	 * The plan vetoes on its own: `ai-seo-enhancer` is a Business-tier feature,
-	 * so a free site is not entitled to it.
+	 * The plan vetoes on its own.
 	 */
 	public function test_is_not_available_when_plan_lacks_feature() {
 		self::set_plan( 'jetpack_free' );
@@ -83,10 +73,7 @@ class AiSeoEnhancerTest extends SeoTestCase {
 	}
 
 	/**
-	 * A conflicting SEO plugin vetoes on its own. The seo-tools module raises
-	 * `jetpack_disable_seo_tools` when Yoast, AIOSEO or Rank Math owns the
-	 * site's SEO; the enhancer's fields are then not Jetpack's to write, so no
-	 * surface should offer the toggle.
+	 * A conflicting SEO plugin (jetpack_disable_seo_tools) vetoes on its own.
 	 */
 	public function test_is_not_available_when_seo_tools_are_disabled_by_filter() {
 		self::set_plan( 'jetpack_business' );

@@ -391,9 +391,8 @@ class Jetpack_AI_Sidebar {
 
 	/**
 	 * Whether any feature the sidebar surfaces is effectively enabled; with
-	 * nothing to offer the sidebar must not load. Load-order caveat: init()
-	 * runs before modules/seo-tools.php registers jetpack_disable_seo_tools,
-	 * so that one term reads its default here.
+	 * nothing to offer it must not load. Caveat: init() runs before seo-tools
+	 * registers jetpack_disable_seo_tools, so that term reads its default here.
 	 *
 	 * @return bool
 	 */
