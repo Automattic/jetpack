@@ -1,14 +1,16 @@
 import { useCallback, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cloudUpload, share, video } from '@wordpress/icons';
+import { useNavigate } from '@wordpress/route';
 import { Button, Dialog, LinkButton, Text } from '@wordpress/ui';
 // The dismissal flag lives with the other first-run storage helpers so the
 // redirect and the modal can't drift onto different keys.
 import {
+	hasPublishedVideo,
 	hasSeenOnboarding,
 	saveDismissal,
-	useSettledFirstRunState,
 } from '../../hooks/use-first-run-state';
+import { useOnboardingCounts } from '../../hooks/use-onboarding-counts';
 import IntroVideo, { INTRO_VIDEO_ASPECT } from './intro-video';
 import './style.scss';
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
@@ -67,18 +69,41 @@ const VALUE_CARDS: ValueCard[] = [
  */
 export default function OnboardingModal(): ReactElement | null {
 	const [ isDismissed, setIsDismissed ] = useState( () => hasSeenOnboarding() );
-	const firstRunState = useSettledFirstRunState();
+	const { videoPressCount, localCount, isSettled } = useOnboardingCounts();
+	const navigate = useNavigate();
 
-	// The dismissal flag alone is not enough: it lives in localStorage, so a
-	// new browser or an established site would present as "never seen" and
-	// greet a full library with a welcome modal. Wait for the count, then
-	// only greet a genuine first run.
-	const isOpen = ! isDismissed && firstRunState === 'first-run';
+	// The modal greets anyone who has not used VideoPress yet — including
+	// sites whose media library is full of local videos, which is exactly the
+	// audience for the migration pitch below. This is deliberately WIDER than
+	// `resolveFirstRunState`, which counts videos of any type: the landing
+	// redirect and tab order keep the stricter rule, only the modal widens.
+	// The dismissal flag alone is not enough (localStorage, so a new browser
+	// presents as "never seen"), and nothing opens until both counts settle —
+	// that also guarantees the footer label never flickers between states.
+	const isOpen = ! isDismissed && ! hasPublishedVideo() && isSettled && videoPressCount === 0;
 
 	const dismiss = useCallback( () => {
 		saveDismissal();
 		setIsDismissed( true );
 	}, [] );
+
+	// The primary CTA has to NAVIGATE, not just reveal: with the widened
+	// gate, the modal can open over the Library or Home routes, where nothing
+	// upload-shaped is underneath. On a true first run this is a no-op hop to
+	// the page already showing.
+	const goToUpload = useCallback( () => {
+		dismiss();
+		navigate( { href: '/upload' } );
+	}, [ dismiss, navigate ] );
+
+	// Lands on the Library pre-filtered to local videos, where the existing
+	// bulk "Upload to VideoPress" action does the actual moving. The user
+	// picks what migrates — the modal never starts uploads on its own, and it
+	// stays out of plan-limit logic (the library actions own that).
+	const goToLocalLibrary = useCallback( () => {
+		dismiss();
+		navigate( { href: '/?type=local' } );
+	}, [ dismiss, navigate ] );
 
 	return (
 		<Dialog.Root
@@ -157,18 +182,37 @@ export default function OnboardingModal(): ReactElement | null {
 				</Dialog.Content>
 
 				<Dialog.Footer className="vp-onboarding-modal__footer">
-					<LinkButton variant="minimal" tone="neutral" href={ LEARN_MORE_URL } openInNewTab>
-						{ __( 'Learn more', 'jetpack-videopress-pkg' ) }
-					</LinkButton>
 					{ /*
-					 * "Upload a video" reveals the upload page already
-					 * underneath — the first-run redirect put it there before
-					 * this modal mounted — so it is honestly a dismissal.
+					 * The secondary slot adapts to the site: when the media
+					 * library holds videos VideoPress could host, it delivers
+					 * on card 2's promise with the real count; on a genuinely
+					 * empty site there is nothing to move, so it stays the
+					 * humble docs link.
+					 */ }
+					{ localCount > 0 ? (
+						<Button variant="outline" tone="neutral" onClick={ goToLocalLibrary }>
+							{ sprintf(
+								/* translators: %d: number of local videos in the media library. */
+								_n(
+									'Move %d video over',
+									'Move %d videos over',
+									localCount,
+									'jetpack-videopress-pkg'
+								),
+								localCount
+							) }
+						</Button>
+					) : (
+						<LinkButton variant="minimal" tone="neutral" href={ LEARN_MORE_URL } openInNewTab>
+							{ __( 'Learn more', 'jetpack-videopress-pkg' ) }
+						</LinkButton>
+					) }
+					{ /*
 					 * Neutral solid to match the spec's dark primary; the DS
 					 * default for a primary action is brand tone, so this
 					 * divergence is deliberate and owned by the spec.
 					 */ }
-					<Button variant="solid" tone="neutral" onClick={ dismiss }>
+					<Button variant="solid" tone="neutral" onClick={ goToUpload }>
 						{ __( 'Upload a video', 'jetpack-videopress-pkg' ) }
 					</Button>
 				</Dialog.Footer>

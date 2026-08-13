@@ -3,7 +3,7 @@ import { DropZone, Tooltip } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { useNavigate } from '@wordpress/route';
+import { useNavigate, useSearch } from '@wordpress/route';
 import { Button } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
@@ -63,9 +63,37 @@ const defaultLayouts: SupportedLayouts = {
 	table: { layout: { density: 'balanced' } },
 };
 
+/**
+ * Shape the Library's initial view from the route's search params.
+ *
+ * The welcome modal's "Move N videos over" button deep-links here with
+ * `?type=local` so the user lands on exactly the videos that can move.
+ * Seed-once only: the param shapes the INITIAL view (beating the persisted
+ * one, which deliberately never stores filters), and normal filter
+ * interaction owns the state from then on — the URL is not synced.
+ *
+ * @param initialView - The persisted-or-default view.
+ * @param search      - Decoded route search params.
+ * @return The view the Library should mount with.
+ */
+export function seedViewFromSearch( initialView: View, search: Record< string, unknown > ): View {
+	if ( search?.type !== 'local' ) {
+		return initialView;
+	}
+
+	return {
+		...initialView,
+		filters: [ { field: 'type', value: 'local', operator: 'is' } ],
+	};
+}
+
 const StageInner = () => {
 	const [ initialView, persistView ] = usePersistedView( DEFAULT_VIEW );
-	const [ view, setView ] = useState< View >( initialView );
+	// Read through the router, not window.location: inside wp-admin the app's
+	// path (and its search) travels encoded in the `p` query param, so only
+	// the router knows the decoded app-level search params.
+	const search = useSearch( { strict: false } ) as Record< string, unknown >;
+	const [ view, setView ] = useState< View >( () => seedViewFromSearch( initialView, search ) );
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ captionVideo, setCaptionVideo ] = useState< LibraryItem | null >( null );
 	// Local IDs currently being promoted from local-storage to VideoPress,
