@@ -15,6 +15,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use ReflectionMethod;
 
 /**
  * @covers Automattic\Jetpack\Forms\ContactForm\Conditional_Logic
@@ -113,5 +114,85 @@ class Conditional_Logic_Parity_Test extends TestCase {
 			$php_table,
 			'Field type mapping drift between field-types.ts and Conditional_Logic.'
 		);
+	}
+
+	/**
+	 * Every operator the rule builder offers for a type must be one the PHP evaluator dispatches.
+	 *
+	 * `OPERATORS_BY_TYPE_KEY` in field-types.ts is the list of operators the editor lets you pick
+	 * per field type. `evaluate_rule_value` returns null for any (type key, operator) pair it does
+	 * not handle, and a null outcome is dropped silently: the rule never counts, and the field it
+	 * guards falls unconditionally visible with no notice and no failing test. This walks the
+	 * offered table and asserts each pair evaluates to a real boolean, so adding an operator to the
+	 * UI without wiring its comparison — on either side — turns red instead of shipping a dead rule.
+	 */
+	public function test_every_offered_operator_pair_is_dispatched_by_php() {
+		$source = $this->field_types_source();
+
+		// Resolve the OPERATORS.<NAME> references the table uses back to their string values.
+		$matched = preg_match( '/export const OPERATORS = \{(.*?)\} as const;/s', $source, $block );
+		$this->assertSame( 1, $matched, 'Could not locate the OPERATORS object in field-types.ts.' );
+
+		preg_match_all( "/^\s*([A-Z_]+):\s*'([a-z_]+)',/m", $block[1], $matches, PREG_SET_ORDER );
+		$this->assertNotEmpty( $matches, 'No operators parsed from field-types.ts.' );
+
+		$operator_values = array();
+		foreach ( $matches as $entry ) {
+			$operator_values[ $entry[1] ] = $entry[2];
+		}
+
+		$matched = preg_match(
+			'/OPERATORS_BY_TYPE_KEY: Record< TypeKey, Operator\[\] > = \{(.*?)\n\};/s',
+			$source,
+			$block
+		);
+		$this->assertSame( 1, $matched, 'Could not locate OPERATORS_BY_TYPE_KEY in field-types.ts.' );
+
+		preg_match_all( '/([a-z]+):\s*\[(.*?)\]/s', $block[1], $entries, PREG_SET_ORDER );
+		$this->assertNotEmpty( $entries, 'No type-key operator lists parsed from field-types.ts.' );
+
+		$evaluate = new ReflectionMethod( Conditional_Logic::class, 'evaluate_rule_value' );
+		$evaluate->setAccessible( true );
+
+		$pairs_checked = 0;
+		foreach ( $entries as $entry ) {
+			$type_key = $entry[1];
+
+			preg_match_all( '/OPERATORS\.([A-Z_]+)/', $entry[2], $refs );
+			$this->assertNotEmpty(
+				$refs[1],
+				"No operators parsed for type key '$type_key' in OPERATORS_BY_TYPE_KEY."
+			);
+
+			foreach ( $refs[1] as $name ) {
+				$this->assertArrayHasKey(
+					$name,
+					$operator_values,
+					"OPERATORS_BY_TYPE_KEY references OPERATORS.$name, which OPERATORS does not define."
+				);
+				$operator = $operator_values[ $name ];
+
+				// Generic operands: enough for every branch to reach its comparison, so only a
+				// genuinely unhandled (type key, operator) pair returns null.
+				$outcome = $evaluate->invoke(
+					null,
+					array(
+						'operator' => $operator,
+						'value'    => '1',
+					),
+					$type_key,
+					'1',
+					''
+				);
+
+				$this->assertNotNull(
+					$outcome,
+					"Type '$type_key' offers operator '$operator' but the PHP evaluator does not dispatch it, so the rule is dropped silently."
+				);
+				++$pairs_checked;
+			}
+		}
+
+		$this->assertGreaterThan( 0, $pairs_checked, 'No offered operator pairs were checked.' );
 	}
 }
