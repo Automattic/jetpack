@@ -19,7 +19,7 @@ class Jetpack_Podcast_Helper {
 	const ERROR_CACHE_TIMEOUT = 90;
 
 	/**
-	 * How long to keep the last successful response as a fallback.
+	 * How long to keep the last successful response as a fallback, before filtering.
 	 *
 	 * @var int
 	 */
@@ -102,11 +102,16 @@ class Jetpack_Podcast_Helper {
 	 * Gets podcast data formatted to be used by the Podcast Player block in both server-side
 	 * block rendering and in API `WPCOM_REST_API_V2_Endpoint_Podcast_Player`.
 	 *
-	 * The result is cached for one hour.
+	 * A successful response is cached for one hour, and kept for a week as a fallback to serve
+	 * while the feed is unreachable. Callers that need the feed's true state can opt out of
+	 * both with the `report_errors` argument.
 	 *
 	 * @param array $args {
 	 *    Optional array of arguments.
-	 *    @type string|int $guid  The ID of a specific episode to return rather than a list.
+	 *    @type array $guids           The IDs of specific episodes to return rather than a list.
+	 *    @type bool  $episode-options Whether to include the episode list for the selection UI.
+	 *    @type bool  $report_errors   Whether to return feed errors as-is rather than falling
+	 *                                 back to the last successful response. Default false.
 	 * }
 	 *
 	 * @return array|WP_Error  The player data or a error object.
@@ -114,13 +119,14 @@ class Jetpack_Podcast_Helper {
 	public function get_player_data( $args = array() ) {
 		$guids           = isset( $args['guids'] ) && $args['guids'] ? $args['guids'] : array();
 		$episode_options = isset( $args['episode-options'] ) && $args['episode-options'];
+		$report_errors   = isset( $args['report_errors'] ) && $args['report_errors'];
 
 		// Try loading data from the cache.
 		$transient_key = 'jetpack_podcast_' . md5( $this->feed . implode( ',', $guids ) . "-$episode_options" );
 		$player_data   = get_transient( $transient_key );
 
-		// The editor must see the real error, not a remembered one.
-		if ( is_wp_error( $player_data ) && static::is_rest_request() ) {
+		// A remembered failure would outlive the fix it is asking the author to make.
+		if ( $report_errors && is_wp_error( $player_data ) ) {
 			$player_data = false;
 		}
 
@@ -130,7 +136,7 @@ class Jetpack_Podcast_Helper {
 			$rss = $this->load_feed();
 
 			if ( is_wp_error( $rss ) ) {
-				return $this->handle_failure( $transient_key, $rss );
+				return $this->handle_failure( $transient_key, $rss, $report_errors );
 			}
 
 			// Get a list of episodes by guid or all tracks in feed.
@@ -147,13 +153,14 @@ class Jetpack_Podcast_Helper {
 			}
 
 			if ( is_wp_error( $tracks ) ) {
-				return $this->handle_failure( $transient_key, $tracks );
+				return $this->handle_failure( $transient_key, $tracks, $report_errors );
 			}
 
 			if ( empty( $tracks ) ) {
 				return $this->handle_failure(
 					$transient_key,
-					new WP_Error( 'no_tracks', __( 'Your Podcast couldn\'t be embedded as it doesn\'t contain any tracks. Please double check your URL.', 'jetpack' ) )
+					new WP_Error( 'no_tracks', __( 'Your Podcast couldn\'t be embedded as it doesn\'t contain any tracks. Please double check your URL.', 'jetpack' ) ),
+					$report_errors
 				);
 			}
 
@@ -194,7 +201,11 @@ class Jetpack_Podcast_Helper {
 			}
 
 			set_transient( $transient_key, $player_data, HOUR_IN_SECONDS );
-			set_transient( static::fallback_key( $transient_key ), $player_data, static::FALLBACK_CACHE_TIMEOUT );
+
+			$fallback_timeout = $this->fallback_cache_timeout();
+			if ( $fallback_timeout ) {
+				set_transient( static::fallback_key( $transient_key ), $player_data, $fallback_timeout );
+			}
 		}
 
 		// Only a remembered failure reaches here; a fresh one returns via handle_failure().
@@ -208,15 +219,13 @@ class Jetpack_Podcast_Helper {
 	/**
 	 * Decides what to serve for a failed fetch, and whether to remember the failure.
 	 *
-	 * Failures are never remembered for REST requests: the editor rebuilds the same cache
-	 * key when it retries, so one would outlive the fix it is asking the author to make.
-	 *
 	 * @param string   $transient_key Cache key for this feed/args combination.
 	 * @param WP_Error $error         The error to fall back from.
+	 * @param bool     $report_errors Whether the caller asked for the error itself.
 	 * @return array|WP_Error The last successful response, or the error.
 	 */
-	protected function handle_failure( $transient_key, $error ) {
-		if ( static::is_rest_request() ) {
+	protected function handle_failure( $transient_key, $error, $report_errors = false ) {
+		if ( $report_errors ) {
 			return $error;
 		}
 
@@ -241,17 +250,40 @@ class Jetpack_Podcast_Helper {
 	 * @return array|WP_Error The last successful response, or the error.
 	 */
 	protected function fallback_for( $transient_key, $error ) {
+		// The feed's own answer, so stale episodes have no business standing in for it. They
+		// stay stored rather than being deleted: a feed can report itself empty mid-migration,
+		// and one such read shouldn't cost the week of cover only a success can restore.
 		if ( static::is_authoritative( $error ) ) {
-			// These episodes are gone for good. Keeping them would resurrect them at the
-			// next outage, when a non-authoritative error reaches for the fallback again.
-			delete_transient( static::fallback_key( $transient_key ) );
+			return $error;
+		}
 
+		if ( ! $this->fallback_cache_timeout() ) {
 			return $error;
 		}
 
 		$fallback = get_transient( static::fallback_key( $transient_key ) );
 
 		return is_array( $fallback ) ? $fallback : $error;
+	}
+
+	/**
+	 * How long a feed's last successful response is kept as a fallback.
+	 *
+	 * @return int Number of seconds, or 0 if the fallback is disabled.
+	 */
+	protected function fallback_cache_timeout() {
+		/**
+		 * Filter how long a podcast's last successful response is kept, to serve while the feed
+		 * is unreachable. Return 0 to surface the error instead of stale episodes.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int    $timeout     Number of seconds. Default one week.
+		 * @param string $podcast_url The URL of the podcast feed.
+		 */
+		$timeout = apply_filters( 'jetpack_podcast_fallback_cache_timeout', static::FALLBACK_CACHE_TIMEOUT, $this->feed );
+
+		return is_numeric( $timeout ) ? max( 0, (int) $timeout ) : static::FALLBACK_CACHE_TIMEOUT;
 	}
 
 	/**
@@ -273,15 +305,6 @@ class Jetpack_Podcast_Helper {
 	 */
 	protected static function fallback_key( $transient_key ) {
 		return $transient_key . '_last';
-	}
-
-	/**
-	 * Whether this is a REST request.
-	 *
-	 * @return bool
-	 */
-	protected static function is_rest_request() {
-		return defined( 'REST_REQUEST' ) && REST_REQUEST;
 	}
 
 	/**
