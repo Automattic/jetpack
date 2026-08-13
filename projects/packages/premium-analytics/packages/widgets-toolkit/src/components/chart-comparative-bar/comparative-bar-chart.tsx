@@ -77,10 +77,11 @@ export type ComparativeBarChartProps = {
 	tickFormat?: DateFormatName;
 
 	/**
-	 * The series' bucket size, which the tooltip reads to decide whether a date
-	 * alone identifies a bucket. Unlike the line chart's, this does not reach the
-	 * x-axis: bar ticks come from the categorical scale, which has no resolution
-	 * hint to give (WOOA7S-1903).
+	 * The series' bucket size. Declaring it lets the automatic tick formatter pick
+	 * its regime from a known granularity instead of measuring the gaps between
+	 * points, which a single-bucket or DST-shortened series gives it no way to
+	 * read. An explicit `tickFormat` still wins over both. The tooltip reads it
+	 * too, to decide whether a date alone identifies a bucket.
 	 */
 	tickResolution?: TickResolution;
 
@@ -274,6 +275,7 @@ export function ComparativeBarChart( {
 					// `formatDate`'s `medium` default from putting full site-format dates
 					// on every tick when no format was asked for.
 					...( xTickFormatType ? { tickFormat: xTickFormat } : {} ),
+					tickResolution,
 				},
 				y: {
 					tickFormat: yTickFormat,
@@ -288,7 +290,7 @@ export function ComparativeBarChart( {
 		}
 
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
-	}, [ xTickFormat, xTickFormatType, yTickFormat, isCompact, fixedYAxis ] );
+	}, [ xTickFormat, xTickFormatType, tickResolution, yTickFormat, isCompact, fixedYAxis ] );
 
 	const margin = useMemo( () => {
 		// With the y-axis hidden, reclaim its reserved left margin for the bars.

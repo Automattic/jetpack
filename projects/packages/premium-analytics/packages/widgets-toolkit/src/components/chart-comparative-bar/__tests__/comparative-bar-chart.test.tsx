@@ -226,6 +226,16 @@ describe( 'ComparativeBarChart', () => {
 		expect( typeof recordedOptions().axis.x.tickFormat ).toBe( 'function' );
 	} );
 
+	it( 'declares the bucket size to the x-axis', () => {
+		render(
+			<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } tickResolution="hour" />
+		);
+
+		// Two hourly points an hour apart are also two daily points 24 hours apart
+		// as far as gap-measuring goes, so the axis needs telling which it is.
+		expect( recordedOptions().axis.x.tickResolution ).toBe( 'hour' );
+	} );
+
 	it( 'labels a tooltip with the site-zone date alone by default', () => {
 		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
