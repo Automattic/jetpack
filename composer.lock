@@ -63,13 +63,13 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "7fbb08fc2d4a30f0e3b3dfc4d2853be2eb79adc9"
+                "reference": "0fafab50710c2510e7fc6daba3ea52c6b41dd884"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
                 "mediawiki/mediawiki-codesniffer": "^52.0",
-                "php": ">=8.2",
+                "php": ">=8.3",
                 "phpcompatibility/phpcompatibility-wp": "^2.1",
                 "phpcsstandards/phpcsutils": "^1.0",
                 "sirbrillig/phpcs-variable-analysis": "^2.10",
