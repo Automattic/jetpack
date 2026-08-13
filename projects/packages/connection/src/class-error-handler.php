@@ -318,7 +318,6 @@ class Error_Handler {
 				'could_not_sign',
 				'invalid_token',
 				'token_mismatch',
-				'invalid_signature',
 				'signature_mismatch',
 				'invalid_connection_owner',
 				'xmlrpc_request_blocked',
