@@ -11,7 +11,7 @@ import {
 	useMemo,
 } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Icon, upload, cloud, media, check, copy } from '@wordpress/icons';
+import { Icon, upload, media, check, copy } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
 import { Card, Stack, Text } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
@@ -104,14 +104,6 @@ type CreatedPost = {
 };
 
 type SampleCopyTarget = 'link' | 'embed';
-
-type StartOption = {
-	icon: ReactNode;
-	title: string;
-	description: string;
-	onClick?: () => void;
-	disabled?: boolean;
-};
 
 const SAMPLE_MEDIA_TITLE = 'videopress-sample';
 
@@ -1490,15 +1482,6 @@ const UploadOnboarding = ( {
 	const allowMultiple = ! isFree || isUnlimited;
 	const firstRunState = useFirstRunState();
 
-	// The welcome heading and the "Get your first video online" card are the
-	// first-run framing, and they were previously gated only on `isAtLimit`.
-	// That meant a returning user who clicked Upload got greeted as new, and it
-	// meant the framing stayed on screen through the details and success steps
-	// — so "Your video is published" rendered directly beneath "Get your first
-	// video online". Both conditions are needed: who you are, and where you are
-	// in the flow.
-	const showIntro = firstRunState === 'first-run' && step === 'upload' && ! isAtLimit;
-
 	const openPicker = useCallback( () => {
 		if ( isAtLimit ) {
 			return;
@@ -1685,30 +1668,6 @@ const UploadOnboarding = ( {
 		navigate( { href: TAB_PATHS.home } );
 	}, [ navigate ] );
 
-	const options: StartOption[] = [
-		{
-			icon: <Icon icon={ upload } size={ 24 } />,
-			title: __( 'Upload a file', 'jetpack-videopress-pkg' ),
-			description: allowMultiple
-				? __( 'Drag in one or more videos.', 'jetpack-videopress-pkg' )
-				: __( 'Drag in one video.', 'jetpack-videopress-pkg' ),
-			onClick: openPicker,
-		},
-		{
-			icon: <Icon icon={ cloud } size={ 24 } />,
-			title: __( 'Import your library', 'jetpack-videopress-pkg' ),
-			// TODO(VIDP-###): wire the importer, then drop `disabled` and restore
-			// the plain description. Until it exists this tile has to say so —
-			// it renders as a focusable button, and one that silently does
-			// nothing is worse than no tile at all.
-			description: __(
-				'Bring videos from Vimeo, YouTube, or Viddler. Coming soon.',
-				'jetpack-videopress-pkg'
-			),
-			disabled: true,
-		},
-	];
-
 	const renderStep = ( s: Step ) => {
 		if ( s === 'upload' ) {
 			return (
@@ -1744,56 +1703,10 @@ const UploadOnboarding = ( {
 	return (
 		<div className="vp-onboarding">
 			{ /*
-			 * No "Welcome to VideoPress" heading and no lede inside the card.
-			 * The welcome modal over this page already makes the pitch, the
-			 * masthead subtitle makes it again, and the dropzone makes it a
-			 * third time — four statements of the same promise on one screen
-			 * left the eye nowhere to land. The card keeps its title and its
-			 * tiles, which are the only parts that tell you what to *do*.
+			 * The tile card that used to sit above the dropzone is gone by
+			 * request: the dropzone below says everything the tiles said, and
+			 * the welcome modal already made the pitch. One card, one action.
 			 */ }
-			{ showIntro && (
-				<>
-					{ /* Card 1 — the ways to get a first video online. */ }
-					<Card.Root className="vp-onboarding__card">
-						<Card.Header>
-							<Card.Title>
-								{ __( 'Get your first video online', 'jetpack-videopress-pkg' ) }
-							</Card.Title>
-						</Card.Header>
-						<Card.Content>
-							<Stack direction="column" gap="lg">
-								<div className="vp-onboarding__options">
-									{ options.map( ( opt, i ) => (
-										<button
-											type="button"
-											key={ i }
-											className="vp-onboarding__option"
-											onClick={ opt.onClick }
-											disabled={ opt.disabled }
-										>
-											<span className="vp-onboarding__option-icon">{ opt.icon }</span>
-											<Text
-												variant="body-md"
-												render={ <span /> }
-												className="vp-onboarding__option-title"
-											>
-												{ opt.title }
-											</Text>
-											<Text
-												variant="body-sm"
-												render={ <span /> }
-												className="vp-onboarding__option-desc"
-											>
-												{ opt.description }
-											</Text>
-										</button>
-									) ) }
-								</div>
-							</Stack>
-						</Card.Content>
-					</Card.Root>
-				</>
-			) }
 
 			{ /* Card 2 — the morphing upload → uploading → details → success step flow. */ }
 			<StepFlow step={ step } prev={ prev } onExitDone={ onExitDone } render={ renderStep } />

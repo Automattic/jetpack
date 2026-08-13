@@ -20,6 +20,10 @@
 		border: var(--wpds-border-width-xs) solid CanvasText;
 	}
 
+	// A touch above true center: dialog convention weights the empty space
+	// toward the bottom, and the band-heavy layout reads better lifted.
+	inset-block-start: 42%;
+
 	// The video sits flush to the popup's top corners, above the padded body.
 	// `Dialog.Popup` is `overflow: hidden`, so the band inherits its radius.
 	&__media {
@@ -96,11 +100,11 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--wpds-dimension-gap-md);
-		// Half of the 24px cards-to-footer distance lives here (the other
+		// Half of the 32px cards-to-footer distance lives here (the other
 		// half is the footer's padding), so when the body scrolls and the
-		// separator hairline appears, content clears it by 12px instead of
+		// separator hairline appears, content clears it by 16px instead of
 		// touching it.
-		padding-block-end: var(--wpds-dimension-padding-md);
+		padding-block-end: var(--wpds-dimension-padding-lg);
 		// The card columns collapse when the MODAL gets narrow, not the
 		// viewport — the popup shrinks long before any phone breakpoint.
 		container-type: inline-size;
@@ -200,10 +204,10 @@
 
 	&__footer {
 		gap: var(--wpds-dimension-gap-md);
-		// The other half of the 24px cards-to-buttons distance (see `__body`).
+		// The other half of the 32px cards-to-buttons distance (see `__body`).
 		// The -1px mirrors the design system's own math — the footer carries
 		// a 1px transparent border that becomes the scroll separator, and it
 		// participates in the visual distance.
-		padding-block-start: calc(var(--wpds-dimension-gap-md) - 1px);
+		padding-block-start: calc(var(--wpds-dimension-gap-lg) - 1px);
 	}
 }
