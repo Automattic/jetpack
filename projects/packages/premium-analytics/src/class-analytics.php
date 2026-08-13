@@ -327,6 +327,13 @@ class Analytics {
 			require_once __DIR__ . '/csv-exports.php';
 		}
 		configure_csv_exports();
+
+		// VideoPress availability for the client's video routes. The widget layer
+		// reads the same signal through widget-type-support.php.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_videopress_availability' ) ) {
+			require_once __DIR__ . '/videopress-availability.php';
+		}
+		configure_videopress_availability();
 	}
 
 	/**

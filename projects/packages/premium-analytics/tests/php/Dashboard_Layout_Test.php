@@ -34,6 +34,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->reset_analytics_capabilities();
 		wp_set_current_user( 0 );
 		Constants::clear_constants();
+		remove_all_filters( VIDEOPRESS_AVAILABLE_FILTER );
 		parent::tear_down();
 	}
 
@@ -196,6 +197,26 @@ class Dashboard_Layout_Test extends BaseTestCase {
 
 		$this->assertNotContains( 'jpa/file-downloads', $layout_types, 'Simple-only widget instances must not be part of the default layout on self-hosted sites.' );
 		$this->assertContains( 'jpa/clicks', $layout_types, 'Regular widget instances remain in the default layout.' );
+	}
+
+	/**
+	 * The Top videos instance follows VideoPress, which this test env lacks.
+	 */
+	public function test_traffic_default_excludes_videopress_widget_without_videopress() {
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ), 'type' );
+
+		$this->assertNotContains( 'jpa/videopress', $layout_types, 'Top videos must not be part of the default layout without VideoPress.' );
+	}
+
+	/**
+	 * With VideoPress, the Top videos instance is back in the default layout.
+	 */
+	public function test_traffic_default_keeps_videopress_widget_with_videopress() {
+		add_filter( VIDEOPRESS_AVAILABLE_FILTER, '__return_true' );
+
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ), 'type' );
+
+		$this->assertContains( 'jpa/videopress', $layout_types );
 	}
 
 	/**

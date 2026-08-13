@@ -22,3 +22,16 @@ export function isPremiumAnalyticsInitialSyncFinished(): boolean {
 		isSimpleSite() || ( getScriptData()?.premium_analytics?.initial_full_sync_finished ?? 0 ) > 0
 	);
 }
+
+/**
+ * Check whether the site's VideoPress-backed surfaces should be shown.
+ *
+ * The flag is injected by `src/videopress-availability.php` on the same request
+ * that renders the dashboard, so a missing value means the package never
+ * booted rather than a site that has VideoPress.
+ *
+ * @return Whether VideoPress is available on this site.
+ */
+export function isVideoPressAvailable(): boolean {
+	return getScriptData()?.premium_analytics?.has_videopress ?? false;
+}

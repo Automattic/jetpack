@@ -67,6 +67,14 @@ class Widget_Availability_Test extends BaseTestCase {
 				'category' => 'traffic',
 			),
 			array(
+				'name'     => 'jpa/videopress',
+				'category' => 'stats',
+			),
+			array(
+				'name'     => 'jpa/video-detail-highlights',
+				'category' => 'stats',
+			),
+			array(
 				'name'     => 'jpa/hello-world',
 				'category' => 'demo',
 			),
@@ -122,17 +130,21 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Filters the standard candidates with explicit host context.
+	 * Filters the standard candidates with an explicit support context.
 	 *
 	 * @param bool $is_wpcom_simple Whether the site is WPCOM Simple.
+	 * @param bool $has_videopress  Whether the site runs VideoPress.
 	 * @return string[] Remaining type names.
 	 */
-	private function available_names( $is_wpcom_simple ) {
+	private function available_names( $is_wpcom_simple, $has_videopress = true ) {
 		return array_column(
 			remove_unsupported_widget_items(
 				$this->widget_candidates(),
 				'name',
-				array( 'is_wpcom_simple' => $is_wpcom_simple )
+				array(
+					'is_wpcom_simple' => $is_wpcom_simple,
+					'has_videopress'  => $has_videopress,
+				)
 			),
 			'name'
 		);
@@ -156,6 +168,45 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Without VideoPress, every video widget is unavailable.
+	 */
+	public function test_type_policy_removes_video_widgets_without_videopress() {
+		$names = $this->available_names( true, false );
+
+		$this->assertNotContains( 'jpa/videopress', $names );
+		$this->assertNotContains( 'jpa/video-detail-highlights', $names );
+		$this->assertContains( 'jpa/hello-world', $names );
+	}
+
+	/**
+	 * With VideoPress, the video widgets stay available.
+	 */
+	public function test_type_policy_keeps_video_widgets_with_videopress() {
+		$names = $this->available_names( false, true );
+
+		$this->assertContains( 'jpa/videopress', $names );
+		$this->assertContains( 'jpa/video-detail-highlights', $names );
+	}
+
+	/**
+	 * Every VideoPress-only type is spelled the way the manifest spells it, so a
+	 * renamed widget can't quietly drop out of the gate.
+	 */
+	public function test_videopress_widget_types_match_the_manifest() {
+		$manifest_names = array();
+		foreach ( glob( __DIR__ . '/../../widgets/*/widget.json' ) as $manifest ) {
+			$widget = json_decode( (string) file_get_contents( $manifest ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			if ( isset( $widget['name'] ) ) {
+				$manifest_names[] = $widget['name'];
+			}
+		}
+
+		foreach ( VIDEOPRESS_WIDGET_TYPES as $type ) {
+			$this->assertContains( $type, $manifest_names, "{$type} is gated on VideoPress but no widget declares it." );
+		}
+	}
+
+	/**
 	 * Non-array records pass through unchanged.
 	 */
 	public function test_type_policy_keeps_non_array_records() {
@@ -169,7 +220,10 @@ class Widget_Availability_Test extends BaseTestCase {
 					array( 'name' => 'jpa/file-downloads' ),
 				),
 				'name',
-				array( 'is_wpcom_simple' => false )
+				array(
+					'is_wpcom_simple' => false,
+					'has_videopress'  => false,
+				)
 			)
 		);
 	}
@@ -182,7 +236,14 @@ class Widget_Availability_Test extends BaseTestCase {
 
 		$this->assertSame(
 			$items,
-			remove_unsupported_widget_items( $items, 'type', array( 'is_wpcom_simple' => false ) )
+			remove_unsupported_widget_items(
+				$items,
+				'type',
+				array(
+					'is_wpcom_simple' => false,
+					'has_videopress'  => false,
+				)
+			)
 		);
 	}
 
@@ -193,7 +254,10 @@ class Widget_Availability_Test extends BaseTestCase {
 		$filtered = remove_unsupported_widget_items(
 			$this->widget_candidates(),
 			'name',
-			array( 'is_wpcom_simple' => false )
+			array(
+				'is_wpcom_simple' => false,
+				'has_videopress'  => false,
+			)
 		);
 
 		$this->assertSame( range( 0, count( $filtered ) - 1 ), array_keys( $filtered ), 'Filtered candidates must stay a JSON list.' );

@@ -16,6 +16,7 @@ import { resolveTabId as resolveCommentsTabId } from './comments/config/tabs';
 import { resolveSection as resolveLocationsSection } from './locations/config/tabs';
 import { resolveTabId } from './posts/config/tabs';
 import { resolveSection as resolveUtmSection } from './utm/config/tabs';
+import { isVideoPressAvailable } from '../site-readiness';
 import type { ComponentType } from 'react';
 
 /**
@@ -162,6 +163,10 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		id: 'videos',
 		getTitle: () => __( 'Videos', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () => __( 'See how your videos perform.', 'jetpack-premium-analytics-pkg' ),
+		// Play counts only exist for VideoPress-hosted videos, and Calypso gates
+		// its Videos module on the same signal. Mirrors the widget-level gate in
+		// `src/widget-type-support.php`.
+		isAvailable: isVideoPressAvailable,
 		load: () => import( './videos/page' ),
 	},
 	utm: {

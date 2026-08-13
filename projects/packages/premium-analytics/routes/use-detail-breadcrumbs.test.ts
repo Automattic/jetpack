@@ -53,6 +53,19 @@ const validOrigins = [
 ] as const;
 
 describe( 'useDetailBreadcrumbs', () => {
+	// `videos` is only a valid origin on sites running VideoPress, and the report
+	// registry reads that from script data.
+	beforeAll( () => {
+		Object.defineProperty( window, 'JetpackScriptData', {
+			configurable: true,
+			value: { premium_analytics: { has_videopress: true } },
+		} );
+	} );
+
+	afterAll( () => {
+		delete window.JetpackScriptData;
+	} );
+
 	it.each( validOrigins )(
 		'adds the %s report before the detail title',
 		( report, label, section ) => {
