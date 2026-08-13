@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connection: Report whose account a connection error names as a single answer, so an error that cannot be placed is never treated as another user's.

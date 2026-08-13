@@ -5,6 +5,7 @@ import { useStatsStreak } from '@jetpack-premium-analytics/data';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
 	AdaptiveCalendarHeatmap,
+	CalendarHeatmapTooltip,
 	HeatmapChartUnresponsive,
 	WidgetRoot,
 	WidgetState,
@@ -35,22 +36,21 @@ type PostingActivityWidgetProps = WidgetRenderProps< PostingActivityRenderAttrib
 // every render, which would rebuild the whole dense day series each time.
 const NO_POSTS_BY_DAY: Record< string, number | null > = {};
 
-// Lead with the count, as the other calendar heatmap does; the chart's own tooltip
-// puts the date first.
+const formatPostCount = ( count: number ) =>
+	sprintf(
+		/* translators: %d: number of posts published that day, e.g. "3". */
+		_n( '%d post', '%d posts', count, 'jetpack-premium-analytics-pkg' ),
+		count
+	);
+
 function renderCellTooltip( { value, cellLabel }: HeatmapTooltipData ) {
 	return (
-		<>
-			<strong>
-				{ value === null
-					? __( 'No posts', 'jetpack-premium-analytics-pkg' )
-					: sprintf(
-							/* translators: %d: number of posts published that day, e.g. "3". */
-							_n( '%d post', '%d posts', value, 'jetpack-premium-analytics-pkg' ),
-							value
-					  ) }
-			</strong>
-			<div>{ cellLabel }</div>
-		</>
+		<CalendarHeatmapTooltip
+			value={ value }
+			cellLabel={ cellLabel }
+			emptyLabel={ __( 'No posts', 'jetpack-premium-analytics-pkg' ) }
+			formatValue={ formatPostCount }
+		/>
 	);
 }
 

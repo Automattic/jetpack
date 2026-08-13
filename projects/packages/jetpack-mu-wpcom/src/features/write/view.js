@@ -1237,6 +1237,78 @@ function sanitizePasteNode( el ) {
 }
 
 /**
+ * Serialize a <ul>/<ol> as core/list block markup, recursing into sublists.
+ *
+ * contentEditable produces two shapes for the same indented item, and both have
+ * to round-trip. Nested, where the sublist sits inside its parent <li>:
+ * `<ul><li>Parent<ul><li>Child</li></ul></li></ul>`. Sibling, where it follows
+ * the <li>: `<ul><li>Parent</li><ul><li>Child</li></ul></ul>`. The sibling shape
+ * is what document.execCommand( 'indent' ) and most pasted HTML produce; it
+ * renders identically, so a serializer that only walks direct-child <li>
+ * elements drops those items with nothing to show the writer.
+ *
+ * Sublists are emitted as nested core/list inner blocks, matching what
+ * `@wordpress/blocks` serialize() produces for the equivalent block tree, so the
+ * block editor reopens the list without an invalid-content warning.
+ *
+ * @param {Element} listEl - A <ul> or <ol> element.
+ * @return {string} Serialized core/list block markup.
+ */
+function serializeList( listEl ) {
+	// Group children into items, attaching each sibling-shaped sublist to the
+	// <li> it follows. A sublist with no <li> before it has no owner, and
+	// core/list cannot express an inner list without a parent core/list-item,
+	// so its items are pulled up to this level rather than inventing an empty
+	// bullet the writer never typed: one level of indent is lost, no content is.
+	const items = [];
+	const collect = el => {
+		for ( const child of el.children ) {
+			const childTag = child.tagName.toLowerCase();
+			if ( childTag === 'li' ) {
+				items.push( { li: child, sublists: [] } );
+			} else if ( childTag === 'ul' || childTag === 'ol' ) {
+				if ( items.length ) items[ items.length - 1 ].sublists.push( child );
+				else collect( child );
+			}
+		}
+	};
+	collect( listEl );
+
+	const listItems = items.length
+		? items
+				.map( ( { li, sublists } ) => {
+					// Clone so lifting nested lists out doesn't disturb the editor DOM.
+					const clone = li.cloneNode( true );
+					const nested = [];
+					for ( const child of Array.from( clone.children ) ) {
+						const childTag = child.tagName.toLowerCase();
+						if ( childTag === 'ul' || childTag === 'ol' ) {
+							nested.push( child );
+							child.remove();
+						}
+					}
+					// Strip the lone <br> placeholder contentEditable leaves in an
+					// otherwise empty item, matching what the paragraph, heading
+					// and quote branches below already do.  Needed here because
+					// indenting an empty item leaves the <li> holding just a <br>
+					// plus its sublist, which would otherwise serialize a stray
+					// line break ahead of the nested list.
+					const text = clone.innerHTML.trim().replace( /^<br\s*\/?>$/, '' );
+					// Nested sublists sit inside the <li> so they come first in
+					// document order; sibling ones follow the <li> entirely.
+					const inner = [ ...nested, ...sublists ].map( serializeList ).join( '' );
+					return `<!-- wp:list-item -->\n<li>${ text }${ inner }</li>\n<!-- /wp:list-item -->`;
+				} )
+				.join( '\n\n' )
+		: '<!-- wp:list-item -->\n<li></li>\n<!-- /wp:list-item -->';
+
+	const ordered = listEl.tagName.toLowerCase() === 'ol';
+	const listTag = ordered ? 'ol' : 'ul';
+	const attrs = ordered ? ' {"ordered":true}' : '';
+	return `<!-- wp:list${ attrs } -->\n<${ listTag } class="wp-block-list">${ listItems }</${ listTag }>\n<!-- /wp:list -->`;
+}
+
+/**
  * Convert contentEditable HTML into WordPress block markup.
  *
  * @param {string} html - The innerHTML from the contenteditable area.
@@ -1441,21 +1513,7 @@ function convertToBlocks( html ) {
 				`<!-- wp:quote${ jsonAttr } -->\n<blockquote class="wp-block-quote"${ quoteAlignAttr }>${ quoteInner }${ citeHtml }</blockquote>\n<!-- /wp:quote -->`
 			);
 		} else if ( tag === 'ul' || tag === 'ol' ) {
-			// Wrap each <li> in wp:list-item block comments.
-			const liNodes = Array.from( node.querySelectorAll( ':scope > li' ) );
-			const listItems = liNodes.length
-				? liNodes
-						.map(
-							li =>
-								`<!-- wp:list-item -->\n<li>${ li.innerHTML.trim() }</li>\n<!-- /wp:list-item -->`
-						)
-						.join( '\n' )
-				: '<!-- wp:list-item -->\n<li></li>\n<!-- /wp:list-item -->';
-			const listTag = tag === 'ol' ? 'ol' : 'ul';
-			const attrs = tag === 'ol' ? ' {"ordered":true}' : '';
-			blocks.push(
-				`<!-- wp:list${ attrs } -->\n<${ listTag } class="wp-block-list">${ listItems }</${ listTag }>\n<!-- /wp:list -->`
-			);
+			blocks.push( serializeList( node ) );
 		} else if ( tag === 'hr' ) {
 			blocks.push(
 				'<!-- wp:separator -->\n<hr class="wp-block-separator has-alpha-channel-opacity"/>\n<!-- /wp:separator -->'

@@ -84,3 +84,36 @@ export const formatDateRange = ( range?: DateRange ): string => formatRange( 'me
  */
 export const formatDateRangeCompact = ( range?: DateRange ): string =>
 	formatRange( 'compact', range );
+
+/**
+ * Format a date range in the shortest form that still identifies it.
+ *
+ * For controls that carry a range as their own label, where every character is
+ * width taken from something else on the row. It drops the year on top of what
+ * `formatDateRangeCompact` already shortens, but only while the whole range
+ * sits in the current year — a range anywhere else needs its year to say which
+ * one it is, and reads as the compact form instead.
+ *
+ * "Current" is the site's own year, since the year each end falls in is read in
+ * the site's timezone like every other date the dashboard renders.
+ *
+ * @param range - The range to format.
+ * @return The formatted range.
+ *
+ * @example
+ * formatDateRangeMinimal( { from, to } ) // this year:  'Jul 24' / 'Jul 13 – 26'
+ *                                        // any other: 'Jun 21, 2025'
+ */
+export const formatDateRangeMinimal = ( range?: DateRange ): string => {
+	const { from, to } = range ?? {};
+
+	if ( ! from || ! to ) {
+		return '';
+	}
+
+	const currentYear = formatDate( Date.now(), 'year' );
+	const isCurrentYear =
+		formatDate( from, 'year' ) === currentYear && formatDate( to, 'year' ) === currentYear;
+
+	return formatRange( isCurrentYear ? 'compactNoYear' : 'compact', range );
+};

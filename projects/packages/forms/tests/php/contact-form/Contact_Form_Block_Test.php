@@ -174,7 +174,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	 */
 	public static function data_provider_test_register_child_blocks() {
 		return array(
-			'jetpack/input'   => array(
+			'jetpack/input'     => array(
 				'jetpack/input',
 				array(
 					'__experimentalBorder' => array(
@@ -201,7 +201,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 					'visibility'           => false,
 				),
 			),
-			'jetpack/label'   => array(
+			'jetpack/label'     => array(
 				'jetpack/label',
 				array(
 					'color'      => array(
@@ -222,7 +222,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 					'visibility' => true,
 				),
 			),
-			'jetpack/options' => array(
+			'jetpack/options'   => array(
 				'jetpack/options',
 				array(
 					'__experimentalBorder' => array(
@@ -241,7 +241,20 @@ class Contact_Form_Block_Test extends BaseTestCase {
 					'visibility'           => false,
 				),
 			),
-			'jetpack/option'  => array(
+			'jetpack/form-step' => array(
+				'jetpack/form-step',
+				array(
+					'background' => array(
+						'backgroundImage'                 => true,
+						'backgroundSize'                  => true,
+						'__experimentalSkipSerialization' => true,
+						'__experimentalDefaultControls'   => array(
+							'backgroundImage' => true,
+						),
+					),
+				),
+			),
+			'jetpack/option'    => array(
 				'jetpack/option',
 				array(
 					'color'      => array(
@@ -502,6 +515,255 @@ class Contact_Form_Block_Test extends BaseTestCase {
 		Contact_Form_Block::register_block();
 
 		$this->assertTrue( $registry->is_registered( 'jetpack/contact-form' ) );
+
+		$supports = $registry->get_registered( 'jetpack/contact-form' )->supports ?? array();
+
+		$this->assertSame(
+			array(
+				'backgroundImage'                 => true,
+				'backgroundSize'                  => true,
+				'__experimentalSkipSerialization' => true,
+				'__experimentalDefaultControls'   => array(
+					'backgroundImage' => true,
+				),
+			),
+			$supports['background'],
+			'Background support does not match the expected values'
+		);
+	}
+
+	/**
+	 * Test that ::apply_background_support puts the background on the block's own element.
+	 *
+	 * @dataProvider data_provider_test_apply_background_support
+	 */
+	#[DataProvider( 'data_provider_test_apply_background_support' )]
+	public function test_apply_background_support( $atts, $expected_style, $expected_class ) {
+		$html   = '<div class="wp-block-jetpack-form-step"><p>Field</p></div>';
+		$result = Contact_Form_Block::apply_background_support( $html, $atts, Contact_Form_Block::STEP_BLOCK_CLASS );
+
+		if ( null === $expected_style ) {
+			$this->assertSame( $html, $result, 'HTML should be returned untouched' );
+			return;
+		}
+
+		$this->assertStringContainsString( $expected_style, $result );
+		$this->assertSame( $expected_class, str_contains( $result, 'has-background' ) );
+	}
+
+	/**
+	 * The background goes on the element matching the target class, not on whatever tag
+	 * happens to come first — a synced form can be preceded by admin-only notices.
+	 */
+	public function test_apply_background_support_skips_tags_before_the_block() {
+		$html = '<div class="jetpack-form-status-notice">Draft</div>'
+			. '<div class="jetpack-contact-form-container">'
+			. '<div class="wp-block-jetpack-contact-form"><p>Field</p></div>'
+			. '</div>';
+
+		$result = Contact_Form_Block::apply_background_support(
+			$html,
+			array( 'style' => array( 'background' => array( 'backgroundImage' => array( 'url' => 'https://example.com/bg.jpg' ) ) ) ),
+			Contact_Form_Block::FORM_BLOCK_CLASS
+		);
+
+		$tags = new \WP_HTML_Tag_Processor( $result );
+
+		$tags->next_tag();
+		$this->assertNull( $tags->get_attribute( 'style' ), 'The notice must not carry the background' );
+
+		$tags->next_tag();
+		$this->assertNull( $tags->get_attribute( 'style' ), 'The container must not carry the background' );
+
+		$tags->next_tag();
+		$this->assertTrue( $tags->has_class( Contact_Form_Block::FORM_BLOCK_CLASS ) );
+		$this->assertStringContainsString( 'background-image', (string) $tags->get_attribute( 'style' ) );
+	}
+
+	/**
+	 * Nothing is painted when the block's own element is absent from the output.
+	 */
+	public function test_apply_background_support_without_the_target_element() {
+		$html = '<div class="jetpack-contact-form-container"><p>No form here</p></div>';
+
+		$this->assertSame(
+			$html,
+			Contact_Form_Block::apply_background_support(
+				$html,
+				array( 'style' => array( 'background' => array( 'backgroundImage' => array( 'url' => 'https://example.com/bg.jpg' ) ) ) ),
+				Contact_Form_Block::FORM_BLOCK_CLASS
+			)
+		);
+	}
+
+	/**
+	 * An existing style attribute is kept, with or without a trailing semicolon.
+	 *
+	 * @dataProvider data_provider_test_apply_background_support_merges_styles
+	 */
+	#[DataProvider( 'data_provider_test_apply_background_support_merges_styles' )]
+	public function test_apply_background_support_merges_existing_styles( $existing, $expected ) {
+		$result = Contact_Form_Block::apply_background_support(
+			'<div class="wp-block-jetpack-form-step" style="' . $existing . '"></div>',
+			array( 'style' => array( 'background' => array( 'backgroundImage' => array( 'url' => 'https://example.com/bg.jpg' ) ) ) ),
+			Contact_Form_Block::STEP_BLOCK_CLASS
+		);
+
+		$tags = new \WP_HTML_Tag_Processor( $result );
+		$tags->next_tag();
+
+		$this->assertSame( $expected, $tags->get_attribute( 'style' ) );
+	}
+
+	/**
+	 * Data provider for test_apply_background_support_merges_existing_styles.
+	 */
+	public static function data_provider_test_apply_background_support_merges_styles() {
+		$background = "background-image:url('https://example.com/bg.jpg');background-size:cover;";
+
+		return array(
+			'trailing semicolon'    => array( 'padding-top:10px;', 'padding-top:10px;' . $background ),
+			'no trailing semicolon' => array( 'padding-top:10px', 'padding-top:10px;' . $background ),
+		);
+	}
+
+	/**
+	 * Position, repeat and attachment are passed through to the style engine.
+	 */
+	public function test_apply_background_support_passes_through_all_properties() {
+		$result = Contact_Form_Block::apply_background_support(
+			'<div class="wp-block-jetpack-form-step"></div>',
+			array(
+				'style' => array(
+					'background' => array(
+						'backgroundImage'      => array( 'url' => 'https://example.com/bg.jpg' ),
+						'backgroundSize'       => '200px',
+						'backgroundPosition'   => '25% 75%',
+						'backgroundRepeat'     => 'no-repeat',
+						'backgroundAttachment' => 'fixed',
+					),
+				),
+			),
+			Contact_Form_Block::STEP_BLOCK_CLASS
+		);
+
+		$this->assertStringContainsString( 'background-size:200px', $result );
+		$this->assertStringContainsString( 'background-position:25% 75%', $result );
+		$this->assertStringContainsString( 'background-repeat:no-repeat', $result );
+		$this->assertStringContainsString( 'background-attachment:fixed', $result );
+	}
+
+	/**
+	 * A URL containing brackets survives the do_shortcode() pass a step's styles still
+	 * sit in front of, instead of being stripped out of the attribute along with the
+	 * background — and without running the shortcode it looks like.
+	 */
+	public function test_apply_background_support_encodes_shortcode_brackets() {
+		$result = Contact_Form_Block::apply_background_support(
+			'<div class="wp-block-jetpack-form-step"></div>',
+			array(
+				'style' => array(
+					'background' => array(
+						'backgroundImage' => array( 'url' => 'https://example.com/a.png[contact-field label=pwn type=text]' ),
+					),
+				),
+			),
+			Contact_Form_Block::STEP_BLOCK_CLASS
+		);
+
+		$this->assertStringNotContainsString( '[', $result );
+		$this->assertStringContainsString( '%5Bcontact-field', $result );
+		$this->assertStringContainsString( 'background-image', do_shortcode( $result ) );
+	}
+
+	/**
+	 * Data provider for test_apply_background_support.
+	 */
+	public static function data_provider_test_apply_background_support() {
+		$image = array(
+			'backgroundImage' => array(
+				'url'    => 'https://example.com/bg.jpg',
+				'source' => 'file',
+			),
+		);
+
+		return array(
+			'no style attribute'      => array( array(), null, false ),
+			'no background image'     => array(
+				array( 'style' => array( 'background' => array( 'backgroundSize' => 'cover' ) ) ),
+				null,
+				false,
+			),
+			'image defaults to cover' => array(
+				array( 'style' => array( 'background' => $image ) ),
+				'background-size:cover',
+				true,
+			),
+			'contain gets centered'   => array(
+				array(
+					'style' => array(
+						'background' => array_merge( $image, array( 'backgroundSize' => 'contain' ) ),
+					),
+				),
+				'background-position:50% 50%',
+				true,
+			),
+		);
+	}
+
+	/**
+	 * Integration: the background image must land on the step's own div, not on the
+	 * interactivity wrapper gutenblock_render_form_step() adds around it, and core
+	 * must not apply it a second time.
+	 */
+	public function test_step_background_lands_on_the_blocks_own_div() {
+		Contact_Form_Block::register_block();
+		Contact_Form_Block::register_child_blocks();
+
+		$markup = '<!-- wp:jetpack/form-step {"style":{"background":{"backgroundImage":{"url":"https://example.com/bg.png","source":"file"}}}} -->'
+			. '<div class="wp-block-jetpack-form-step"><!-- wp:jetpack/field-text {"label":"Name"} /--></div>'
+			. '<!-- /wp:jetpack/form-step -->';
+
+		$html = do_blocks( $markup );
+
+		$this->assertSame( 1, substr_count( $html, 'background-image:' ), 'Background should be applied exactly once' );
+
+		$tags = new \WP_HTML_Tag_Processor( $html );
+
+		$this->assertTrue( $tags->next_tag() );
+		$this->assertTrue( $tags->has_class( 'jetpack-form-step' ), 'First tag should be the interactivity wrapper' );
+		$this->assertNull( $tags->get_attribute( 'style' ), 'Interactivity wrapper must not carry the background' );
+
+		$this->assertTrue( $tags->next_tag() );
+		$this->assertTrue( $tags->has_class( Contact_Form_Block::STEP_BLOCK_CLASS ) );
+		$this->assertStringContainsString( 'background-image', (string) $tags->get_attribute( 'style' ) );
+		$this->assertTrue( $tags->has_class( 'has-background' ) );
+	}
+
+	/**
+	 * Integration: the same for the Form block, whose render opens with the container div
+	 * Contact_Form::parse() adds rather than with the block's own element.
+	 */
+	public function test_form_background_lands_on_the_blocks_own_div() {
+		Contact_Form_Block::register_block();
+		Contact_Form_Block::register_child_blocks();
+
+		$markup = '<!-- wp:jetpack/contact-form {"style":{"background":{"backgroundImage":{"url":"https://example.com/bg.png","source":"file"}}}} -->'
+			. '<div class="wp-block-jetpack-contact-form"><!-- wp:jetpack/field-text {"label":"Name"} /--></div>'
+			. '<!-- /wp:jetpack/contact-form -->';
+
+		$html = do_blocks( $markup );
+
+		$this->assertStringContainsString( 'jetpack-contact-form-container', $html, 'The form should have rendered' );
+		$this->assertSame( 1, substr_count( $html, 'background-image:' ), 'Background should be applied exactly once' );
+
+		$tags = new \WP_HTML_Tag_Processor( $html );
+
+		$this->assertTrue( $tags->next_tag( array( 'class_name' => 'jetpack-contact-form-container' ) ) );
+		$this->assertNull( $tags->get_attribute( 'style' ), 'The container must not carry the background' );
+
+		$this->assertTrue( $tags->next_tag( array( 'class_name' => Contact_Form_Block::FORM_BLOCK_CLASS ) ) );
+		$this->assertStringContainsString( 'background-image', (string) $tags->get_attribute( 'style' ) );
 	}
 
 	/**

@@ -119,8 +119,4 @@ function add_widget_modules_to_boot_deps( $boot_dependencies ) {
 
 	return $boot_dependencies;
 }
-// The full-page interceptor (page.php) renders via the `{page-id}` filter; the
-// in-admin variant (page-wp-admin.php) uses the `{page-id}-wp-admin` filter. Hook
-// both so the widget modules land in the import map regardless of which renders.
-add_filter( 'jetpack-premium-analytics_boot_dependencies', __NAMESPACE__ . '\\add_widget_modules_to_boot_deps' );
 add_filter( 'jetpack-premium-analytics-wp-admin_boot_dependencies', __NAMESPACE__ . '\\add_widget_modules_to_boot_deps' );

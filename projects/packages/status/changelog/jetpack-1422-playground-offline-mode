@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Identify WordPress Playground sites as local, so Jetpack starts in offline mode there.

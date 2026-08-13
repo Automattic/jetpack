@@ -3,6 +3,7 @@ export {
 	formatWeekday,
 	formatDateRange,
 	formatDateRangeCompact,
+	formatDateRangeMinimal,
 	formatDateRangeLong,
 	type DateFormatName,
 } from './date';

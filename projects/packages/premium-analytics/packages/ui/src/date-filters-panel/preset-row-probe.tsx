@@ -26,16 +26,16 @@ export type PresetRowProbeProps = {
 	navigation?: ReactNode;
 
 	/**
-	 * The chart interval control, as the panel renders it. A glyph, so its width
-	 * is the same fixed cost in every locale.
-	 */
-	interval?: ReactNode;
-
-	/**
 	 * The comparison control, as the panel renders it. It has no abbreviated
 	 * form, so its width is a fixed cost the presets have to absorb.
 	 */
 	comparison?: ReactNode;
+
+	/**
+	 * The chart interval control, as the panel renders it. A glyph, so its width
+	 * is the same fixed cost in every locale.
+	 */
+	interval?: ReactNode;
 
 	/** Reports the row's natural width whenever it changes. */
 	onMeasure: ( width: number ) => void;
@@ -59,8 +59,8 @@ function PresetRowProbeComponent( {
 	presets,
 	customTriggerLabel,
 	navigation,
-	interval,
 	comparison,
+	interval,
 	onMeasure,
 }: PresetRowProbeProps ) {
 	const rowRef = useRef< HTMLDivElement >( null );
@@ -91,7 +91,7 @@ function PresetRowProbeComponent( {
 	// `max-content`, so the width only moves on a render that changes the row.
 	useLayoutEffect( () => {
 		measure();
-	}, [ measure, presets, customTriggerLabel, navigation, interval, comparison ] );
+	}, [ measure, presets, customTriggerLabel, navigation, comparison, interval ] );
 
 	// Web fonts land after first paint and shift the metrics. Insurance: the
 	// dashboard ships none today.
@@ -145,8 +145,8 @@ function PresetRowProbeComponent( {
 
 				{ /* The real controls, not mirrors: the panel hands the same elements
 				     here and to the row, so the two cannot drift. */ }
-				{ interval }
 				{ comparison }
+				{ interval }
 			</div>
 		</div>
 	);
