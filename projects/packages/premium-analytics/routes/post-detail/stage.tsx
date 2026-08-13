@@ -161,8 +161,12 @@ function PostDetail(): JSX.Element {
 							 */ }
 							<div ref={ setHeaderElement } className={ styles.header }>
 								<div className={ styles.summary }>
+									{ /* The email tabs give the shared header an email identity
+									     (envelope tile, "Email sent on …") while the title and
+									     performance window stay the post's. */ }
 									<PostSummaryCard
 										summary={ summary }
+										variant={ activeTab === 'post-traffic' ? 'post' : 'email' }
 										performanceRange={ dateFilters.appliedRange }
 									/>
 								</div>

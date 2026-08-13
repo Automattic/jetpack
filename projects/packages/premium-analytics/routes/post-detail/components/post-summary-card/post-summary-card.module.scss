@@ -59,3 +59,11 @@
 	background: var(--wpds-color-background-surface-neutral-weak);
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
+
+// The email tabs' envelope tile is brand-tinted per the design mocks. The
+// weak interactive tokens are the only weak brand pair in the set; the tile
+// is not interactive, but the mapping keeps it on theme tokens.
+.emailTile {
+	background: var(--wpds-color-background-interactive-brand-weak-active);
+	color: var(--wpds-color-foreground-interactive-brand);
+}
