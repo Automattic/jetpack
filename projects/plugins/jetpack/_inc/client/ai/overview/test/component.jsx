@@ -63,6 +63,15 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
+	test( 'plan name: the page-data purchase name wins over the derived label', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } planName="WordPress.com Business" /> );
+
+		await expect( screen.findByText( 'WordPress.com Business' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Free' ) ).not.toBeInTheDocument();
+	} );
+
 	test( 'upgrade: links to the shared upgrade URL when a next tier exists', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 

@@ -119,7 +119,8 @@ export default function App() {
 	// Read at render time, not module scope, so the injected page data is
 	// honoured wherever App mounts (the inline script always runs first in
 	// production; tests inject per-case).
-	const { blogId, activityLogUrl, apiRoot, apiNonce, upgradeUrl } = window?.jetpackAiSettings ?? {};
+	const { blogId, activityLogUrl, apiRoot, apiNonce, upgradeUrl, planName } =
+		window?.jetpackAiSettings ?? {};
 	const [ view, setView ] = useState( getViewFromHash );
 	// Save feedback goes through the shared GlobalNotices snackbars (the
 	// design-system SnackbarList behind @wordpress/notices): transient,
@@ -323,6 +324,7 @@ export default function App() {
 						blogId={ blogId }
 						activityLogUrl={ activityLogUrl }
 						upgradeUrl={ upgradeUrl }
+						planName={ planName }
 					/>
 				) }
 

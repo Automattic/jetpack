@@ -84,11 +84,16 @@ const DOC_LINKS = [
  *
  * @param {object} props            - Component props.
  * @param {string} props.upgradeUrl - Upgrade destination (shared with the MCP upsell).
+ * @param {string} [props.planName] - Purchase name granting AI ("WordPress.com Business");
+ *                                  preferred over the derived label when present.
  * @return {object} Component markup.
  */
-function UsageCard( { upgradeUrl } ) {
+function UsageCard( { upgradeUrl, planName } ) {
 	const { isLoading, data, error } = useAiUsage();
 	const usage = normalizeUsage( data );
+	// The design shows the product's name; the usage payload cannot provide
+	// one, so the page data supplies it and the derived label is the fallback.
+	const planLabel = planName || usage.planLabel;
 	const hasNumbers = usage.requestsAvailable !== null && usage.requestsLimit > 0;
 	// normalizeUsage floors availability at 0 and it can never exceed the
 	// limit, so the ratio needs no clamping here.
@@ -154,9 +159,9 @@ function UsageCard( { upgradeUrl } ) {
 								{ __( 'Plan', 'jetpack' ) }
 							</Text>
 							<Stack direction="row" justify="space-between" align="flex-end" gap="md">
-								{ usage.planLabel && (
+								{ planLabel && (
 									<Text as="p" variant="heading-xl">
-										{ usage.planLabel }
+										{ planLabel }
 									</Text>
 								) }
 								{ usage.showUpgrade && upgradeUrl && (
@@ -189,13 +194,14 @@ function UsageCard( { upgradeUrl } ) {
  * @param {number} [props.blogId]         - Current site's blog ID; falsy when not connected.
  * @param {string} [props.activityLogUrl] - URL for the site's activity log; row hidden without it.
  * @param {string} [props.upgradeUrl]     - Upgrade destination for the usage card.
+ * @param {string} [props.planName]       - Purchase name granting AI, from the page data.
  * @return {object} Component markup.
  */
-export default function AiOverview( { blogId, activityLogUrl, upgradeUrl } ) {
+export default function AiOverview( { blogId, activityLogUrl, upgradeUrl, planName } ) {
 	return (
 		<Stack direction="column" gap="xl">
 			{ blogId ? (
-				<UsageCard upgradeUrl={ upgradeUrl } />
+				<UsageCard upgradeUrl={ upgradeUrl } planName={ planName } />
 			) : (
 				// Without a connection the usage endpoint can only fail, so
 				// say what's wrong rather than surfacing a fetch error — and
