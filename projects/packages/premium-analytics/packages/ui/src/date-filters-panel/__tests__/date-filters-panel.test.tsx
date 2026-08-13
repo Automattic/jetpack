@@ -159,7 +159,7 @@ describe( 'DateFiltersPanel', () => {
 			onIntervalChange: jest.fn(),
 		} );
 
-		const comparison = screen.getByRole( 'button', { name: 'Add comparison' } );
+		const comparison = screen.getByRole( 'button', { name: 'Compare' } );
 		const chartInterval = screen.getByRole( 'button', { name: 'Chart interval' } );
 
 		expect( comparison.compareDocumentPosition( chartInterval ) ).toBe(
