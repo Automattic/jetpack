@@ -246,6 +246,11 @@ class Form_Preview {
 		// Add preview mode script variable.
 		add_action( 'wp_head', array( __CLASS__, 'add_preview_mode_script' ) );
 
+		// Relabel the admin bar's edit link. The preview renders through a fake
+		// `page` post object, so core would otherwise label the link "Edit Page".
+		// Priority 81 runs just after core's wp_admin_bar_edit_menu (80).
+		add_action( 'admin_bar_menu', array( __CLASS__, 'relabel_admin_bar_edit_link' ), 81 );
+
 		// Hook the_content filter to render the form.
 		add_filter(
 			'the_content',
@@ -323,6 +328,33 @@ class Form_Preview {
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Relabel the admin bar's "Edit Page" link as "Edit Form" during a form preview.
+	 *
+	 * The preview sets up a fake `page` post object so themes render it like any
+	 * other singular view, which means core labels the edit link with the page post
+	 * type's `edit_item` label. The link itself already points at the form editor,
+	 * since it is built from the form's real post ID.
+	 *
+	 * @param \WP_Admin_Bar $wp_admin_bar The admin bar instance.
+	 */
+	public static function relabel_admin_bar_edit_link( $wp_admin_bar ) {
+		if ( ! self::$is_preview_mode ) {
+			return;
+		}
+
+		if ( ! $wp_admin_bar->get_node( 'edit' ) ) {
+			return;
+		}
+
+		$wp_admin_bar->add_node(
+			array(
+				'id'    => 'edit',
+				'title' => __( 'Edit Form', 'jetpack-forms' ),
+			)
+		);
 	}
 
 	/**
