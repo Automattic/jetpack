@@ -131,11 +131,12 @@ class Episode_Media_Cache {
 	 * The attachment behind an enclosure URL: from the batch when
 	 * {@see self::prime()} matched one, otherwise from core.
 	 *
-	 * Both paths end in the `attachment_url_to_postid` filter — core applies it
-	 * to its own result — so a batch hit stays indistinguishable from the
-	 * lookup it replaces. A miss defers to core outright: the batch only
-	 * matches files under this site's uploads dir, and offloaded-media plugins
-	 * lean on that filter to map a CDN URL back to its attachment.
+	 * A hit runs the same filters, in the same order, that
+	 * `attachment_url_to_postid()` would — only the query itself is replaced —
+	 * so plugins overriding either end of the lookup still win. A miss defers
+	 * to core outright: the batch only matches files under this site's uploads
+	 * dir, and offloaded-media plugins lean on those filters to map a CDN URL
+	 * back to its attachment.
 	 *
 	 * @param string $url Enclosure URL, as `rss_enclosure()` rendered it.
 	 * @return int Attachment ID, or 0.
@@ -143,6 +144,12 @@ class Episode_Media_Cache {
 	public static function attachment_id( string $url ): int {
 		if ( ! isset( self::$attachment_ids[ $url ] ) ) {
 			return attachment_url_to_postid( $url );
+		}
+
+		/** This filter is documented in wp-includes/media.php */
+		$pre = apply_filters( 'pre_attachment_url_to_postid', null, $url );
+		if ( null !== $pre ) {
+			return (int) $pre;
 		}
 
 		/** This filter is documented in wp-includes/media.php */

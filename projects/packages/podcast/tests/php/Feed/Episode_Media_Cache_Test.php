@@ -11,10 +11,11 @@ use WorDBless\BaseTestCase;
 use WP_Post;
 
 /**
- * The batch query itself needs a real database, so it is covered by the
- * integration run rather than here; WorDBless returns no rows for it. What
- * these cover is the contract around it — that anything the batch didn't
- * resolve still reaches `attachment_url_to_postid()` and its filters.
+ * WorDBless returns no rows for the attachment lookup, so the SQL it generates
+ * is left to the integration run. Everything built on top of it is covered
+ * here — batch hits are staged through `posts_pre_query`, which lets these
+ * assert the part that matters: a hit and a miss both resolve exactly the way
+ * `attachment_url_to_postid()` would.
  *
  * @covers \Automattic\Jetpack\Podcast\Feed\Episode_Media_Cache
  */
@@ -28,6 +29,7 @@ class Episode_Media_Cache_Test extends BaseTestCase {
 		remove_all_filters( 'pre_attachment_url_to_postid' );
 		remove_all_filters( 'attachment_url_to_postid' );
 		remove_all_filters( 'posts_pre_query' );
+		remove_all_filters( 'get_post_metadata' );
 		wp_cache_flush();
 		parent::tearDown();
 	}
@@ -57,6 +59,77 @@ class Episode_Media_Cache_Test extends BaseTestCase {
 			10,
 			2
 		);
+	}
+
+	/**
+	 * Stage a batch hit. WorDBless returns no rows for the attachment lookup,
+	 * so short-circuit it with `posts_pre_query` and give the attachment the
+	 * `_wp_attached_file` value the mapping reads back.
+	 *
+	 * @return string The enclosure URL that will resolve to `$attachment_id`.
+	 */
+	private function seed_batch_hit( int $attachment_id, string $path ): string {
+		add_filter(
+			'posts_pre_query',
+			static function ( $pre, $query ) use ( $attachment_id ) {
+				return 'attachment' === $query->get( 'post_type' ) ? array( $attachment_id ) : $pre;
+			},
+			10,
+			2
+		);
+		add_filter(
+			'get_post_metadata',
+			static function ( $value, $object_id, $meta_key, $single ) use ( $attachment_id, $path ) {
+				if ( $object_id === $attachment_id && '_wp_attached_file' === $meta_key ) {
+					return $single ? $path : array( $path );
+				}
+				return $value;
+			},
+			10,
+			4
+		);
+
+		return wp_get_upload_dir()['baseurl'] . '/' . $path;
+	}
+
+	/**
+	 * The point of the batch: a URL it resolved is answered from the map, not
+	 * by going back to core. Core would find nothing here, so the ID can only
+	 * have come from the batch.
+	 */
+	public function test_batch_hit_is_answered_from_the_map() {
+		$url = $this->seed_batch_hit( 555, '2024/03/ep-hit.mp3' );
+
+		Episode_Media_Cache::prime( array( $this->seed_episode( 200, $url ) ) );
+
+		$this->assertSame( 555, Episode_Media_Cache::attachment_id( $url ) );
+	}
+
+	/**
+	 * `attachment_url_to_postid()` lets a plugin short-circuit the whole lookup,
+	 * and that override has to beat the batch — otherwise the feed would track
+	 * plays and read durations against an attachment the site has overridden.
+	 */
+	public function test_pre_lookup_filter_overrides_a_batch_hit() {
+		$url = $this->seed_batch_hit( 556, '2024/03/ep-pre.mp3' );
+		$this->resolve_via_filter( 0 );
+
+		Episode_Media_Cache::prime( array( $this->seed_episode( 201, $url ) ) );
+
+		$this->assertSame( 0, Episode_Media_Cache::attachment_id( $url ) );
+	}
+
+	/**
+	 * The other end of core's lookup: plugins remapping a found ID have to see
+	 * batch hits too.
+	 */
+	public function test_post_lookup_filter_applies_to_a_batch_hit() {
+		$url = $this->seed_batch_hit( 557, '2024/03/ep-post.mp3' );
+		add_filter( 'attachment_url_to_postid', static fn () => 777 );
+
+		Episode_Media_Cache::prime( array( $this->seed_episode( 202, $url ) ) );
+
+		$this->assertSame( 777, Episode_Media_Cache::attachment_id( $url ) );
 	}
 
 	/**
