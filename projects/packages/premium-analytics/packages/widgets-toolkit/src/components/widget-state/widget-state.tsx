@@ -126,16 +126,23 @@ export function WidgetState( {
 
 	// Ready and refetching share one tree, so a refetch hides the children
 	// instead of unmounting them and the state they own — the selected metric
-	// tab, a table's sort and page — survives it.
+	// tab, a table's sort and page — survives it. Hiding is left to
+	// `visibility: hidden`, which already drops the children from the
+	// accessibility tree and out of the tab order without stranding a focused
+	// child inside an `aria-hidden` subtree.
 	return (
-		<div className={ styles.ready }>
-			<div
-				className={ clsx( styles.content, isFetching && styles.contentHidden ) }
-				aria-hidden={ isFetching || undefined }
-			>
+		<div className={ styles.ready } aria-busy={ isFetching || undefined }>
+			<div className={ clsx( styles.content, isFetching && styles.contentHidden ) }>
 				{ children }
 			</div>
-			{ isFetching && <div className={ styles.skeletonOverlay }>{ skeleton }</div> }
+			{ /* Hidden from assistive tech: the skeleton's own `role="status"` would
+			     re-announce on every refetch, once per widget on screen. `aria-busy`
+			     above carries the state instead. */ }
+			{ isFetching && (
+				<div className={ styles.skeletonOverlay } aria-hidden="true">
+					{ skeleton }
+				</div>
+			) }
 		</div>
 	);
 }

@@ -160,14 +160,12 @@ describe( 'PlanUsageWidget', () => {
 
 		// Even with `placeholderData` keeping the stale figures in the query cache,
 		// the widget shows the skeleton rather than numbers it is about to replace.
-		// The meter stays mounted behind it — hidden, so it is presented to nobody
-		// — because unmounting it would reset the state it owns.
-		await expect( screen.findByRole( 'status' ) ).resolves.toBeInTheDocument();
-		expect(
-			screen.queryByText( '6,200 / 10,000 views', {
-				ignore: 'script, style, [aria-hidden="true"], [aria-hidden="true"] *',
-			} )
-		).not.toBeInTheDocument();
+		// It draws silently, so a refetch does not announce once per widget on
+		// screen. The meter stays mounted behind it — unmounting would reset the
+		// state it owns — and is hidden by `visibility`, which jsdom does not apply.
+		await expect( screen.findByRole( 'status', { hidden: true } ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( '6,200 / 10,000 views' ) ).toBeInTheDocument();
 
 		// Settle the pending refetch so the query resolves and the meter returns.
 		await act( async () => {

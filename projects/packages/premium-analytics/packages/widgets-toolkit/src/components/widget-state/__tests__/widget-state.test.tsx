@@ -14,12 +14,6 @@ import type { ReactElement } from 'react';
 const CONTENT = <div>rows</div>;
 
 /**
- * Skips text inside an `aria-hidden` subtree, so a query answers "presented to
- * the user" rather than "in the document".
- */
-const PRESENTED = { ignore: 'script, style, [aria-hidden="true"], [aria-hidden="true"] *' };
-
-/**
  * Stand-in for children that own state (the metric tabs' selection, a table's
  * sort and page): the count only survives if the subtree is never unmounted.
  *
@@ -221,16 +215,22 @@ describe( 'WidgetState', () => {
 		expect( svgPathOf( errorContainer ) ).toBe( errorGlyphPath );
 	} );
 
-	it( 'covers the children with the skeleton during a refetch, hiding them from assistive tech', () => {
+	it( 'covers the children with a silent skeleton during a refetch, marking the region busy', () => {
 		render(
 			<WidgetState isLoading={ false } isFetching isError={ false } isEmpty={ false }>
 				{ CONTENT }
 			</WidgetState>
 		);
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
-		// Still mounted, so the state it owns survives — but presented to nobody.
+		// The skeleton draws but must not announce: a date-range change refetches
+		// every widget on screen at once, and each one owns a `role="status"`.
+		// Contrast with the first-load cases above, which do announce.
+		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'status', { hidden: true } ) ).toBeInTheDocument();
+		// Exactly one, so this still fails if `busy` ever stops narrowing the query.
+		expect( screen.getAllByRole( 'generic', { busy: true } ) ).toHaveLength( 1 );
+		// Still mounted, so the state it owns survives. What keeps it from being
+		// read out is `visibility: hidden`, which jsdom does not apply.
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'rows', PRESENTED ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the children mounted across a refetch, so their own state survives it', () => {
