@@ -14,6 +14,7 @@
 	"prefer-stable": true,
 	"require": {
 		"ext-json": "*",
+		"automattic/jetpack-activity-log": "@dev",
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
