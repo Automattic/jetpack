@@ -23,7 +23,15 @@
 	z-index: 0;
 }
 
-.tabList {
+// Scoped under the root to outweigh the shared tab bar's own single-class rule
+// rather than depend on which of the two stylesheets the bundle emits last.
+.root .tabList {
 	padding-inline: var(--wpds-dimension-padding-2xl);
 	z-index: 0;
+
+	// The gap under the tabs moves into the section header below, whose fill
+	// bleeds to the page edges and so has to begin at the tabs' hairline instead
+	// of after a strip of canvas. Only here: the same tab bar carries post
+	// detail and the report pages, which have nothing opaque beneath it.
+	margin-block-end: 0;
 }

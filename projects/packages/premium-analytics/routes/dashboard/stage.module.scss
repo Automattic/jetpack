@@ -103,6 +103,9 @@
 		var(--wpds-border-width-xs) solid
 		var(--wpds-color-stroke-surface-neutral-weak);
 
-	// Separates the header row from the widget grid below.
+	// Separates the header row from the tabs above and the widget grid below.
+	// The gap above used to be the tab bar's bottom margin, which is dropped for
+	// this surface so it falls inside the fill rather than before it.
+	padding-block-start: var(--wpds-dimension-gap-lg);
 	padding-block-end: var(--wpds-dimension-gap-lg);
 }
