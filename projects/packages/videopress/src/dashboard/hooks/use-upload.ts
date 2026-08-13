@@ -47,6 +47,14 @@ export type UploadItem = {
 	 * transition — link to `/video/:id` for a finished upload.
 	 */
 	media?: VideoMediaProps;
+	/**
+	 * Which flow started this upload (e.g. 'onboarding'). The queue outlives
+	 * any component — the first upload on a first-run site flips the tab
+	 * order mid-flight and remounts the flow that started it — so the flow
+	 * re-finds its own items by this tag rather than holding the only
+	 * pointer in remountable state.
+	 */
+	context?: string;
 };
 
 const STORE_KEY = '__jetpackVideopressUploadStore' as const;
@@ -226,9 +234,9 @@ export function useUpload() {
 	uploadHandlerRef.current = uploadHandler;
 
 	const startUpload = useCallback(
-		( file: File ): string => {
+		( file: File, context?: string ): string => {
 			const id = makeId( file );
-			mutateQueue( prev => [ ...prev, { id, file, progress: 0, status: 'pending' } ] );
+			mutateQueue( prev => [ ...prev, { id, file, progress: 0, status: 'pending', context } ] );
 			// Only dispatch immediately when this instance's legacy
 			// uploader is idle. Otherwise the item waits in the queue
 			// and is picked up by startNextPending when the active
