@@ -55,7 +55,13 @@ class Error_Handler_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 		\Jetpack_Options::delete_option( 'master_user' );
 
-		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'malformed_token' );
+		// The gate is keyed by code + direction; clean every direction variant a test could
+		// have armed (including '' for a WP_Error built with no error_data).
+		foreach ( array( '', 'incoming', 'outgoing' ) as $direction ) {
+			delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'malformed_token_' . $direction );
+			delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token_' . $direction );
+			delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'unknown_user_' . $direction );
+		}
 	}
 
 	/**
@@ -727,7 +733,8 @@ class Error_Handler_Test extends BaseTestCase {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		$this->error_handler->check_xmlrpc_fault_for_errors(
-			'Jetpack: [invalid_token] The token is not valid',
+			'invalid_token',
+			'The token is not valid',
 			'https://jetpack.wordpress.com/xmlrpc.php',
 			'POST'
 		);
@@ -752,31 +759,14 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that a fault string not following the convention is ignored.
-	 *
-	 * This is the guard for WP.com emitting faults in some other shape: nothing is stored,
-	 * rather than something wrong being stored.
-	 */
-	public function test_check_xmlrpc_fault_for_errors_ignores_a_foreign_fault_string() {
-		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
-
-		$this->error_handler->check_xmlrpc_fault_for_errors(
-			'server error. requested method jetpack.fetchSiteOptions does not exist.',
-			'https://jetpack.wordpress.com/xmlrpc.php',
-			'POST'
-		);
-
-		$this->assertEmpty( $this->error_handler->get_stored_errors() );
-	}
-
-	/**
 	 * Test that a well-formed fault carrying an unrecognized code is not stored.
 	 */
 	public function test_check_xmlrpc_fault_for_errors_ignores_an_unknown_code() {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		$this->error_handler->check_xmlrpc_fault_for_errors(
-			'Jetpack: [failed_publicize_action] Could not publicize',
+			'failed_publicize_action',
+			'Could not publicize',
 			'https://jetpack.wordpress.com/xmlrpc.php',
 			'POST'
 		);
@@ -791,14 +781,15 @@ class Error_Handler_Test extends BaseTestCase {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		$this->error_handler->check_xmlrpc_fault_for_errors(
-			'Jetpack: [invalid_token]',
+			'invalid_token',
+			'',
 			'https://jetpack.wordpress.com/xmlrpc.php',
 			'POST'
 		);
 
 		$stored_errors = $this->error_handler->get_stored_errors();
 
-		$this->assertSame( 'The request faulted.', $stored_errors['invalid_token']['0']['error_message'] );
+		$this->assertSame( 'An error occurred with the connection.', $stored_errors['invalid_token']['0']['error_message'] );
 	}
 
 	/**
@@ -808,7 +799,8 @@ class Error_Handler_Test extends BaseTestCase {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		$this->error_handler->check_xmlrpc_fault_for_errors(
-			'Jetpack: [invalid_token] The token is not valid',
+			'invalid_token',
+			'The token is not valid',
 			'https://jetpack.wordpress.com/xmlrpc.php',
 			'POST',
 			42
@@ -826,7 +818,8 @@ class Error_Handler_Test extends BaseTestCase {
 	public function test_check_xmlrpc_fault_for_errors_respects_the_gate() {
 		// No gate-bypass filter here: this test is about the gate.
 		$this->error_handler->check_xmlrpc_fault_for_errors(
-			'Jetpack: [invalid_token] The token is not valid',
+			'invalid_token',
+			'The token is not valid',
 			'https://jetpack.wordpress.com/xmlrpc.php',
 			'POST'
 		);
@@ -836,14 +829,13 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->error_handler->delete_all_errors();
 
 		$this->error_handler->check_xmlrpc_fault_for_errors(
-			'Jetpack: [invalid_token] The token is not valid',
+			'invalid_token',
+			'The token is not valid',
 			'https://jetpack.wordpress.com/xmlrpc.php',
 			'POST'
 		);
 
 		$this->assertEmpty( $this->error_handler->get_stored_errors(), 'the gate should suppress a second report within the hour' );
-
-		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token' );
 	}
 
 	/**
@@ -860,7 +852,8 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->error_handler->report_error( $this->get_sample_error( 'unknown_user', 1, Error_Handler::ERROR_TYPE_XMLRPC ) );
 
 		$this->error_handler->check_xmlrpc_fault_for_errors(
-			'Jetpack: [unknown_user] The user is unknown',
+			'unknown_user',
+			'The user is unknown',
 			'https://jetpack.wordpress.com/xmlrpc.php',
 			'POST'
 		);
@@ -870,6 +863,28 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertCount( 2, $stored_errors['unknown_user'] );
 		$this->assertSame( Error_Handler::DIRECTION_INCOMING, $stored_errors['unknown_user']['1']['error_direction'] );
 		$this->assertSame( Error_Handler::DIRECTION_OUTGOING, $stored_errors['unknown_user']['0']['error_direction'] );
+	}
+
+	/**
+	 * Test that an outgoing fault report does not starve a same-code incoming report.
+	 *
+	 * The gate is deliberately NOT bypassed here — that's the whole point of the test.
+	 */
+	public function test_check_xmlrpc_fault_for_errors_does_not_starve_an_incoming_report_of_the_same_code() {
+		// The outgoing fault arrives first and arms the gate for its own direction.
+		$this->error_handler->check_xmlrpc_fault_for_errors(
+			'unknown_user',
+			'The user is unknown',
+			'https://jetpack.wordpress.com/xmlrpc.php',
+			'POST'
+		);
+
+		// The incoming report, for the same code, must still be storable.
+		$this->error_handler->report_error( $this->get_sample_error( 'unknown_user', 1, Error_Handler::ERROR_TYPE_XMLRPC ) );
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertCount( 2, $stored_errors['unknown_user'], 'the incoming report must not be suppressed by the outgoing fault sharing the gate' );
 	}
 
 	/**
@@ -1486,14 +1501,14 @@ class Error_Handler_Test extends BaseTestCase {
 	public function test_should_report_error_gate_closed() {
 		$error = new \WP_Error( 'invalid_token', 'Invalid token' );
 
-		// Set a transient to close the gate
-		set_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token', true, HOUR_IN_SECONDS );
+		// Set a transient to close the gate. No error_data, so direction resolves to ''.
+		set_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token_', true, HOUR_IN_SECONDS );
 
 		$result = $this->error_handler->should_report_error( $error );
 		$this->assertFalse( $result );
 
 		// Clean up
-		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token' );
+		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token_' );
 	}
 
 	/**
@@ -1505,11 +1520,11 @@ class Error_Handler_Test extends BaseTestCase {
 		$result = $this->error_handler->should_report_error( $error );
 		$this->assertTrue( $result );
 
-		// Verify the gate was set
-		$this->assertTrue( get_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token' ) );
+		// Verify the gate was set. No error_data, so direction resolves to ''.
+		$this->assertTrue( get_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token_' ) );
 
 		// Clean up
-		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token' );
+		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token_' );
 	}
 
 	/**
@@ -1518,8 +1533,8 @@ class Error_Handler_Test extends BaseTestCase {
 	public function test_should_report_error_bypass_filter() {
 		$error = new \WP_Error( 'invalid_token', 'Invalid token' );
 
-		// Set a transient to close the gate
-		set_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token', true, HOUR_IN_SECONDS );
+		// Set a transient to close the gate. No error_data, so direction resolves to ''.
+		set_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token_', true, HOUR_IN_SECONDS );
 
 		// Add filter to bypass gate
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
@@ -1528,7 +1543,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertTrue( $result );
 
 		// Clean up
-		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token' );
+		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token_' );
 		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 	}
 

@@ -66,6 +66,8 @@ class Jetpack_IXR_Client_Test extends BaseTestCase {
 		$this->error_handler->delete_all_errors();
 
 		Jetpack_Options::delete_option( 'blog_token' );
+		Jetpack_Options::delete_option( 'user_tokens' );
+		Jetpack_Options::delete_option( 'master_user' );
 
 		// The displayable errors are cached per viewer on the singleton.
 		$reflection = new \ReflectionClass( $this->error_handler );
@@ -165,7 +167,85 @@ class Jetpack_IXR_Client_Test extends BaseTestCase {
 		$stored_errors = $this->error_handler->get_stored_errors();
 
 		$this->assertArrayHasKey( '42', $stored_errors['invalid_token'] );
+	}
 
-		Jetpack_Options::delete_option( 'user_tokens' );
+	/**
+	 * Test that a fault on a connection-owner call (`user_id => true`) is attributed to the
+	 * master user, not to local user 1 via an `(int) true` cast.
+	 */
+	public function test_query_attributes_a_fault_to_the_connection_owner() {
+		$this->fault_string = 'Jetpack: [invalid_token] The token is not valid';
+
+		Jetpack_Options::update_option( 'master_user', 99 );
+		Jetpack_Options::update_option( 'user_tokens', array( 99 => 'yzabcdefghij.klmnopqrstuv.99' ) );
+
+		$client = new Jetpack_IXR_Client( array( 'user_id' => true ) );
+		$result = $client->query( 'jetpack.fetchSiteOptions', 'jetpack_version' );
+
+		$this->assertFalse( $result );
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertArrayHasKey( '99', $stored_errors['invalid_token'] );
+	}
+
+	/**
+	 * Test that `parse_jetpack_fault_string()` recovers the code/message pair.
+	 */
+	public function test_parse_jetpack_fault_string_recovers_code_and_message() {
+		$this->assertSame(
+			array( 'invalid_token', 'The token is not valid' ),
+			Jetpack_IXR_Client::parse_jetpack_fault_string( 'Jetpack: [invalid_token] The token is not valid' )
+		);
+	}
+
+	/**
+	 * Test that a fault string not following the convention is rejected.
+	 */
+	public function test_parse_jetpack_fault_string_ignores_a_foreign_fault_string() {
+		$this->assertNull(
+			Jetpack_IXR_Client::parse_jetpack_fault_string( 'server error. requested method jetpack.fetchSiteOptions does not exist.' )
+		);
+	}
+
+	/**
+	 * Test that the convention is only recognized at the start of the string.
+	 *
+	 * The regex is unanchored-adjacent risk: WP.com fault strings are untrusted input, and an
+	 * unanchored match would let a fault string that merely echoes `Jetpack: [code] message`
+	 * somewhere in its middle (e.g. a request-derived value reflected back) get parsed as if
+	 * it were the trusted convention.
+	 */
+	public function test_parse_jetpack_fault_string_requires_the_convention_at_the_start() {
+		$this->assertNull(
+			Jetpack_IXR_Client::parse_jetpack_fault_string( 'unexpected prefix Jetpack: [invalid_token] The token is not valid' )
+		);
+	}
+
+	/**
+	 * Test that get_jetpack_error() returns a WP_Error built from the parsed code/message,
+	 * with the IXR fault code carried through as the WP_Error's status data.
+	 */
+	public function test_get_jetpack_error_returns_the_parsed_code_and_message() {
+		$client = new Jetpack_IXR_Client();
+
+		$error = $client->get_jetpack_error( -10520, 'Jetpack: [invalid_token] The token is not valid' );
+
+		$this->assertSame( 'invalid_token', $error->get_error_code() );
+		$this->assertSame( 'The token is not valid', $error->get_error_message() );
+		$this->assertSame( -10520, $error->get_error_data() );
+	}
+
+	/**
+	 * Test that get_jetpack_error() falls back to an IXR_-prefixed code when the fault string
+	 * doesn't follow the `Jetpack: [code] message` convention.
+	 */
+	public function test_get_jetpack_error_falls_back_for_a_foreign_fault_string() {
+		$client = new Jetpack_IXR_Client();
+
+		$error = $client->get_jetpack_error( -32300, 'transport error - HTTP status code was not 200' );
+
+		$this->assertSame( 'IXR_-32300', $error->get_error_code() );
+		$this->assertSame( 'transport error - HTTP status code was not 200', $error->get_error_message() );
 	}
 }

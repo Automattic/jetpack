@@ -26,18 +26,21 @@ namespace Automattic\Jetpack\Connection;
  * 6. This endpoint adds this error to the Verified errors in the database
  * 7. Triggers a workflow depending on the error (display user an error message, do some self healing, etc.)
  *
- * Flow 2 — outgoing request errors. Entry points: `check_api_response_for_errors()` and
- * `check_signed_request_for_errors()`.
+ * Flow 2 — outgoing request errors. Entry points: `check_api_response_for_errors()`,
+ * `check_signed_request_for_errors()`, and `check_xmlrpc_fault_for_errors()`.
  *
  * 1. Every signed request made through `Client::remote_request()` has its response checked
  *    by `check_api_response_for_errors()`. A request that could not be signed at all never
  *    gets a response, so `Client::remote_request()` passes the signing failure to
- *    `check_signed_request_for_errors()` instead.
- * 2. When the response (or the signing failure) carries a known error code, the error is
- *    stored and immediately marked verified (the same hourly gate applies). The WP.com
- *    verification round-trip of flow 1 is skipped because the error arrived in a response to
- *    a request this site itself initiated and signed — the failed response is its own
- *    evidence — or, for signing failures, because the evidence is the site's own state.
+ *    `check_signed_request_for_errors()` instead. An XML-RPC fault arrives as an HTTP 200
+ *    response with an XML body, so it never reaches `check_api_response_for_errors()` either
+ *    (which returns immediately on a 200 and decodes the body as JSON); `Jetpack_IXR_Client::query()`
+ *    calls `check_xmlrpc_fault_for_errors()` directly from its fault branch instead.
+ * 2. When the response (or the signing failure, or the fault) carries a known error code, the
+ *    error is stored and immediately marked verified (the same hourly gate applies). The
+ *    WP.com verification round-trip of flow 1 is skipped because the error arrived in a
+ *    response to a request this site itself initiated and signed — the failed response is its
+ *    own evidence — or, for signing failures, because the evidence is the site's own state.
  *
  * Stored errors carry two orthogonal classification fields:
  *
@@ -197,7 +200,8 @@ class Error_Handler {
 		'no_valid_blog_token',       // The stored blog token doesn't match the key the request was signed with.
 		'unknown_token',             // No stored token matches the request token's key.
 		// Signature verification problems (Jetpack_Signature), or errors WPCOM returned
-		// for an outbound request (Error_Handler::check_api_response_for_errors).
+		// for an outbound request (Error_Handler::check_api_response_for_errors,
+		// Error_Handler::check_xmlrpc_fault_for_errors).
 		'could_not_sign',            // Signing the request failed for an unknown reason.
 		'invalid_scheme',            // Invalid URL scheme when signing.
 		'unknown_scheme_port',       // The URL scheme has no known port, so the signature cannot be built.
@@ -307,6 +311,8 @@ class Error_Handler {
 			// Only process error codes that are meant to be displayed to users.
 			// `no_user_tokens` and `no_token_for_user` are deliberately excluded: both mean the
 			// targeted user simply never connected their WordPress.com account, which is expected.
+			// `invalid_signature` is excluded: in both directions this code means clock skew or a
+			// malformed parameter, which a reconnect cannot fix.
 			// The owner flavor is covered by `invalid_connection_owner`.
 			$displayable_error_codes = array(
 				'malformed_token',
@@ -729,7 +735,7 @@ class Error_Handler {
 			return true;
 		}
 
-		$transient = self::ERROR_REPORTING_GATE . $error->get_error_code();
+		$transient = self::error_reporting_gate_transient( $error );
 
 		if ( get_transient( $transient ) ) {
 			return false;
@@ -737,6 +743,24 @@ class Error_Handler {
 
 		set_transient( $transient, true, HOUR_IN_SECONDS );
 		return true;
+	}
+
+	/**
+	 * Builds the reporting-gate transient name for an error.
+	 *
+	 * Keyed by code and direction, not code alone: an outgoing error is reported
+	 * immediately and verified locally (no WP.com round trip), while an incoming error of the
+	 * same code still needs to clear the gate to reach the `verify_xml_rpc_error` round trip
+	 * that triggers WP.com-side self-healing (flow 1 in the class docblock).
+	 *
+	 * @param \WP_Error $error the error object.
+	 * @return string
+	 */
+	private static function error_reporting_gate_transient( \WP_Error $error ) {
+		$error_data      = $error->get_error_data();
+		$error_direction = is_array( $error_data ) && ! empty( $error_data['error_direction'] ) ? $error_data['error_direction'] : '';
+
+		return self::ERROR_REPORTING_GATE . $error->get_error_code() . '_' . $error_direction;
 	}
 
 	/**
@@ -1300,8 +1324,11 @@ class Error_Handler {
 
 		// Reopen the reporting gate for this code: deletion means the condition was
 		// positively confirmed cleared, so a recurrence must be reportable immediately
-		// rather than suppressed for up to an hour.
-		delete_transient( self::ERROR_REPORTING_GATE . $error_code );
+		// rather than suppressed for up to an hour. The gate is keyed by code + direction
+		// (see error_reporting_gate_transient()), so every direction variant is cleared.
+		delete_transient( self::ERROR_REPORTING_GATE . $error_code . '_' . self::DIRECTION_INCOMING );
+		delete_transient( self::ERROR_REPORTING_GATE . $error_code . '_' . self::DIRECTION_OUTGOING );
+		delete_transient( self::ERROR_REPORTING_GATE . $error_code . '_' );
 
 		$stored_errors = $this->get_stored_errors();
 		if ( isset( $stored_errors[ $error_code ] ) ) {
@@ -1662,10 +1689,10 @@ class Error_Handler {
 	 * and decodes the body as JSON rather than XML anyway. `Jetpack_IXR_Client::query()`
 	 * calls this method directly from its fault branch instead.
 	 *
-	 * The code/message pair is recovered from the fault string using the same
-	 * `Jetpack: [code] message` convention, and the same regex, that
-	 * `Jetpack_IXR_Client::get_jetpack_error()` already relies on. A fault string that
-	 * doesn't match is ignored — WP.com fault codes are untrusted input, and it's
+	 * The code/message pair is recovered from the fault string by the caller, via
+	 * `Jetpack_IXR_Client::parse_jetpack_fault_string()` — the class that owns the
+	 * `Jetpack: [code] message` convention. An unparseable fault string is the caller's
+	 * concern, not this method's; a fault code reaching here is untrusted input, and it's
 	 * `report_error()`'s `$known_errors` allowlist, not this method, that keeps an
 	 * unrecognized code from being stored. In practice every `jetpack.*` XML-RPC handler
 	 * on WP.com emits fixed string literals here, never attacker- or request-composed
@@ -1676,22 +1703,18 @@ class Error_Handler {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param string $fault_string The XML-RPC fault string.
-	 * @param string $url          Request URL.
-	 * @param string $method       Request method.
-	 * @param int    $user_id      The local user ID the request was signed for, or `0` for the blog token.
+	 * @param string $error_code    The Jetpack error code parsed from the fault string.
+	 * @param string $error_message The error message parsed from the fault string.
+	 * @param string $url           Request URL.
+	 * @param string $method        Request method.
+	 * @param int    $user_id       The local user ID the request was signed for, or `0` for the blog token.
 	 *
 	 * @return void
 	 */
-	public function check_xmlrpc_fault_for_errors( string $fault_string, string $url, string $method, int $user_id = 0 ) {
-		// Same preg_match check as in Jetpack_IXR_Client::get_jetpack_error().
-		if ( ! preg_match( '#jetpack:\s+\[(\w+)\]\s*(.*)?$#i', $fault_string, $match ) ) {
-			return;
-		}
-
+	public function check_xmlrpc_fault_for_errors( string $error_code, string $error_message, string $url, string $method, int $user_id = 0 ) {
 		$error = self::build_connection_wp_error(
-			$match[1],
-			isset( $match[2] ) && '' !== $match[2] ? $match[2] : __( 'The request faulted.', 'jetpack-connection' ),
+			$error_code,
+			$error_message,
 			array(
 				'method' => $method,
 				'url'    => $url,
