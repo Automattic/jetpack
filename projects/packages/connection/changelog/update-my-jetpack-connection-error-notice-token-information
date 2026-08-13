@@ -1,4 +1,0 @@
-Significance: patch
-Type: security
-
-Connection: Leave another user's broken-token error out of the connection error data, so the reconnect CTA is no longer offered against a token it cannot restore.

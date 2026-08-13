@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Connection: Show the scope and error code of each connection error in the notice, instead of only the first error's message.
