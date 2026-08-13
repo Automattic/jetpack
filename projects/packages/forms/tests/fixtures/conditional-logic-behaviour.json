@@ -219,6 +219,39 @@
 			"actual": "Small",
 			"value": "Large",
 			"visible": true
+		},
+		{
+			"name": "rating equals its selected value",
+			"why": "A rating submits \"selected/max\", e.g. 4/5, not a bare number.",
+			"type": "rating",
+			"operator": "equals",
+			"actual": "4/5",
+			"value": "4",
+			"visible": true
+		},
+		{
+			"name": "rating greater than",
+			"type": "rating",
+			"operator": "greater_than",
+			"actual": "4/5",
+			"value": "3",
+			"visible": true
+		},
+		{
+			"name": "rating not greater than",
+			"type": "rating",
+			"operator": "greater_than",
+			"actual": "2/5",
+			"value": "3",
+			"visible": false
+		},
+		{
+			"name": "an unrated field is empty",
+			"type": "rating",
+			"operator": "is_empty",
+			"actual": "",
+			"value": "",
+			"visible": true
 		}
 	]
 }

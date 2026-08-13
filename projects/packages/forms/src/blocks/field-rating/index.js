@@ -18,7 +18,7 @@ export const form_editor = {
  * input. A block that omits this simply gets no conditional-logic support.
  */
 export const conditional_logic = {
-	type: 'number',
+	type: 'rating',
 };
 
 export const settings = {

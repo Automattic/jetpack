@@ -35,8 +35,9 @@ export type Operator = ( typeof OPERATORS )[ keyof typeof OPERATORS ];
 
 /**
  * A field's comparison behavior, derived from its block type. Several blocks share a
- * key: a slider and a rating both compare numerically, a select and a radio group both
- * compare against a fixed option list.
+ * key: a select and a radio group both compare against a fixed option list. A rating
+ * compares numerically but is not a `number`: it submits `selected/max`, e.g. `4/5`, and
+ * offers its own scale as the values to compare against.
  */
 export type TypeKey =
 	| 'string'
@@ -47,7 +48,8 @@ export type TypeKey =
 	| 'time'
 	| 'boolean'
 	| 'hidden'
-	| 'file';
+	| 'file'
+	| 'rating';
 
 export type ValueInputKind = 'text' | 'options' | 'number' | 'date' | 'time' | 'none';
 
@@ -86,7 +88,7 @@ export const TYPE_KEY_BY_FIELD_TYPE: Record< string, TypeKey > = {
 	'checkbox-multiple': 'multichoice',
 	number: 'number',
 	slider: 'number',
-	rating: 'number',
+	rating: 'rating',
 	date: 'date',
 	time: 'time',
 	checkbox: 'boolean',
@@ -108,6 +110,16 @@ const OPERATORS_BY_TYPE_KEY: Record< TypeKey, Operator[] > = {
 	multichoice: [
 		OPERATORS.CONTAINS,
 		OPERATORS.DOES_NOT_CONTAIN,
+		OPERATORS.IS_EMPTY,
+		OPERATORS.IS_NOT_EMPTY,
+	],
+	rating: [
+		OPERATORS.EQUALS,
+		OPERATORS.NOT_EQUALS,
+		OPERATORS.GREATER_THAN,
+		OPERATORS.LESS_THAN,
+		OPERATORS.GTE,
+		OPERATORS.LTE,
 		OPERATORS.IS_EMPTY,
 		OPERATORS.IS_NOT_EMPTY,
 	],
@@ -133,6 +145,9 @@ const VALUE_INPUT_BY_TYPE_KEY: Record< TypeKey, ValueInputKind > = {
 	choice: 'options',
 	multichoice: 'options',
 	number: 'number',
+	// The field carries its own scale, so the rule builder lists 1..max rather than a free
+	// number box that would accept 6 stars out of 5.
+	rating: 'options',
 	date: 'date',
 	time: 'time',
 	boolean: 'none',
