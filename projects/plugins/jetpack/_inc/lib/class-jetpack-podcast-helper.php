@@ -28,6 +28,15 @@ class Jetpack_Podcast_Helper {
 	const FALLBACK_CACHE_TIMEOUT = WEEK_IN_SECONDS;
 
 	/**
+	 * Feed errors that mean the feed answered and simply has nothing for us. Falling
+	 * back to stale episodes here would hide a real change — a removed episode, an
+	 * emptied podcast — rather than ride out a temporary outage.
+	 *
+	 * @var string[]
+	 */
+	const AUTHORITATIVE_ERROR_CODES = array( 'no_tracks' );
+
+	/**
 	 * The RSS feed of the podcast.
 	 *
 	 * @var string
@@ -114,6 +123,7 @@ class Jetpack_Podcast_Helper {
 		$transient_key = 'jetpack_podcast_' . md5( $this->feed . implode( ',', $guids ) . "-$episode_options" );
 		$player_data   = get_transient( $transient_key );
 
+		// The editor must see the real error, not a remembered one. See handle_failure().
 		if ( is_wp_error( $player_data ) && static::is_rest_request() ) {
 			$player_data = false;
 		}
@@ -189,37 +199,54 @@ class Jetpack_Podcast_Helper {
 
 			// Cache for 1 hour.
 			set_transient( $transient_key, $player_data, HOUR_IN_SECONDS );
+			// Kept far longer, to serve while the feed is unreachable.
 			set_transient( static::fallback_key( $transient_key ), $player_data, static::FALLBACK_CACHE_TIMEOUT );
+		}
+
+		// Only reachable for a remembered failure; a fresh one returns via handle_failure().
+		if ( is_wp_error( $player_data ) ) {
+			return $this->fallback_for( $transient_key, $player_data );
 		}
 
 		return $player_data;
 	}
 
 	/**
-	 * Falls back to the last successful response, or remembers the failure briefly.
+	 * Remembers a failed fetch briefly, and decides what to serve in its place.
 	 *
-	 * Both are skipped for REST requests: the editor retries by resubmitting the
-	 * same URL, which rebuilds the same cache key, so a remembered failure would
-	 * outlive the fix it is telling the author to make — and stale episodes would
-	 * hide the broken feed from the person able to fix it.
+	 * Nothing is remembered for REST requests: the editor retries by resubmitting the
+	 * same URL, which rebuilds the same cache key, so a remembered failure would outlive
+	 * the fix it is telling the author to make.
 	 *
 	 * @param string   $transient_key Cache key for this feed/args combination.
 	 * @param WP_Error $error         The error to fall back from.
-	 * @return array|WP_Error The last known player data, or the error.
+	 * @return array|WP_Error The last successful response, or the error.
 	 */
 	protected function handle_failure( $transient_key, $error ) {
 		if ( static::is_rest_request() ) {
 			return $error;
 		}
 
-		$fallback = get_transient( static::fallback_key( $transient_key ) );
+		// Remember the error itself, never the fallback: this key is shared with the editor,
+		// where stale episodes would hide the broken feed from the person able to fix it.
+		set_transient( $transient_key, $error, static::ERROR_CACHE_TIMEOUT );
 
-		// Retry on the same cadence either way, so a recovered feed is picked up.
-		set_transient(
-			$transient_key,
-			is_array( $fallback ) ? $fallback : $error,
-			static::ERROR_CACHE_TIMEOUT
-		);
+		return $this->fallback_for( $transient_key, $error );
+	}
+
+	/**
+	 * What to serve for a failed fetch: the last successful response, or the error itself.
+	 *
+	 * @param string   $transient_key Cache key for this feed/args combination.
+	 * @param WP_Error $error         The error to fall back from.
+	 * @return array|WP_Error The last successful response, or the error.
+	 */
+	protected function fallback_for( $transient_key, $error ) {
+		if ( in_array( $error->get_error_code(), static::AUTHORITATIVE_ERROR_CODES, true ) ) {
+			return $error;
+		}
+
+		$fallback = get_transient( static::fallback_key( $transient_key ) );
 
 		return is_array( $fallback ) ? $fallback : $error;
 	}
