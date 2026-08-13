@@ -181,7 +181,9 @@ class Status {
 			'#\.dev\.cc$#i',       // ServerPress.
 			'#\.lndo\.site$#i',    // Lando.
 			'#\.ddev\.site$#i',    // DDEV.
-			'#^127\.0\.0\.1$#',
+			// The whole 127.0.0.0/8 range is loopback; each octet is capped at 255.
+			'#^127\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){2}$#',
+			'#^0\.0\.0\.0$#', // All-interfaces bind, common under Docker and `wp server`.
 			'#^playground\.wordpress\.net$#i', // WordPress Playground, which runs entirely in the browser.
 		);
 

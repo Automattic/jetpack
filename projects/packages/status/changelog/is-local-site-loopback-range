@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Status: recognize the full 127.0.0.0/8 loopback range and 0.0.0.0 as local sites, not only 127.0.0.1.
