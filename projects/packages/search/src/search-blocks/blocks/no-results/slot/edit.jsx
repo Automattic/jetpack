@@ -42,14 +42,29 @@ const defaultMessages = condition => {
 	return messages;
 };
 
+// Plain text out of a block attribute. A rich-text attribute already carries
+// one as `.text`; anything else is stripped until the result stops changing,
+// because a single pass over `<scr<a>ipt>` yields `<script>` — the tags it
+// removed reassembling into a new one.
+const toPlainText = raw => {
+	if ( raw && 'object' === typeof raw && 'string' === typeof raw.text ) {
+		return raw.text;
+	}
+	let text = String( raw ?? '' );
+	let previous;
+	do {
+		previous = text;
+		text = text.replace( /<[^<>]*>/g, '' );
+	} while ( text !== previous );
+	return text;
+};
+
 // First line of real copy inside a variant, for the collapsed row's summary.
 // Depth-first so a paragraph inside a Group still reads.
 const firstText = blocks => {
 	for ( const block of blocks ?? [] ) {
 		const raw = block.attributes?.content ?? block.attributes?.text ?? '';
-		const text = String( raw?.toString ? raw.toString() : raw )
-			.replace( /<[^>]*>/g, '' )
-			.trim();
+		const text = toPlainText( raw ).trim();
 		if ( text ) {
 			return text;
 		}
