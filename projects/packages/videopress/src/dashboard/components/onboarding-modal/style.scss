@@ -1,10 +1,14 @@
-// The first-run welcome modal: a full-bleed video band, then the copy.
-// Most of what used to live here is gone with the two-tab layout — the artwork
-// panel, the per-image crop windows and the tab strip overrides. `Dialog` now
-// supplies the frame, the body padding and the scroll container, so this file
-// only declares the things the design system has no opinion about: the media
-// band, the three-column value row, and the footer alignment.
+// The first-run welcome modal, to the VideoPress Revival Figma spec
+// (node 56-12912): a deep-green video band with the wireframe brand artwork,
+// then the copy on white — headline, three hairline-separated value cards,
+// Learn more / Upload a Video footer. `Dialog` supplies the frame, body
+// padding and scroll container; this file declares only what the design
+// system has no opinion about.
 .vp-onboarding-modal {
+
+	// The spec's modal is 675px wide — between the design system's medium and
+	// large surfaces, so pinned explicitly rather than approximated by size.
+	max-inline-size: 675px;
 
 	// The video sits flush to the popup's top corners, above the padded body.
 	// `Dialog.Popup` is `overflow: hidden`, so the band inherits its radius.
@@ -18,10 +22,12 @@
 		inline-size: 100%;
 		min-block-size: 0;
 		overflow: hidden;
-		// Dark rather than the neutral surface: every frame of the clip is
-		// letterboxed against this, and grey bars around a video read as a
-		// loading failure where black reads as the player.
-		background: #000;
+		// The spec's idle state: the wireframe artwork on the brand's deep
+		// forest green. Every frame of the film is graded against this same
+		// world, so the band never flashes a foreign colour while the video
+		// loads — and if the video is missing entirely, the band still reads
+		// as designed rather than as a hole.
+		background: #003010 url(images/videopress-wireframe.svg) center / cover no-repeat;
 	}
 
 	// Absolutely positioned, not just sized: in flow, the video's own height
@@ -60,13 +66,10 @@
 	&__body {
 		display: flex;
 		flex-direction: column;
-		gap: var(--wpds-dimension-gap-lg);
+		gap: var(--wpds-dimension-gap-md);
 	}
 
 	&__headline {
-		// A measure, not a width: the popup is `size="large"`, and a headline
-		// running its full span reads as a banner rather than a sentence.
-		max-inline-size: 32ch;
 		color: var(--wpds-color-foreground-content-neutral);
 	}
 
@@ -75,43 +78,67 @@
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
-	// Three equal columns, collapsing to one. `auto-fit` rather than a fixed
-	// `repeat(3, 1fr)` so the columns keep a readable measure instead of
-	// stretching, and fold without a breakpoint.
-	&__points {
+	// Three equal columns separated by hairlines (the spec draws a left border
+	// on cards two and three), collapsing to one below a readable measure —
+	// the hairlines come off with the columns, since a stacked list with left
+	// borders reads as a blockquote.
+	&__cards {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		grid-template-columns: repeat(3, 1fr);
 		gap: var(--wpds-dimension-gap-xl);
 		margin: 0;
-		padding: 0;
+		padding-block-start: var(--wpds-dimension-padding-md);
 		list-style: none;
 	}
 
-	&__point {
+	&__card {
 		display: flex;
 		flex-direction: column;
 		gap: var(--wpds-dimension-gap-xs);
 		margin: 0;
+
+		& + & {
+			border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+			padding-inline-start: var(--wpds-dimension-padding-lg);
+		}
 	}
 
-	&__point-icon {
+	@media (max-width: 540px) {
+
+		&__cards {
+			grid-template-columns: 1fr;
+		}
+
+		&__card + &__card {
+			border-inline-start: 0;
+			padding-inline-start: 0;
+		}
+	}
+
+	// The brand's one accent, used exactly once per card — on the glyph.
+	// Literal Jetpack green: the design system has no non-interactive brand
+	// foreground token, and the interactive one describes links/buttons.
+	&__card-icon {
 		display: inline-flex;
 		margin-block-end: var(--wpds-dimension-gap-xs);
-		color: var(--wpds-color-foreground-content-neutral);
+		color: #069e08;
+
+		svg {
+			fill: currentColor;
+		}
 	}
 
-	&__point-title {
+	&__card-title {
 		color: var(--wpds-color-foreground-content-neutral);
 		font-weight: var(--wpds-typography-font-weight-emphasis);
 	}
 
-	&__point-body {
+	&__card-body {
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
-	// One action, so it sits at the end rather than being spread against a
-	// cancel button the way a two-action dialog footer would be.
 	&__footer {
 		justify-content: flex-end;
+		gap: var(--wpds-dimension-gap-md);
 	}
 }
