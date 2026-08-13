@@ -6,28 +6,25 @@ import {
 	FlexBlock,
 	RadioControl,
 	Spinner,
-	VisuallyHidden,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { useViewportMatch } from '@wordpress/compose';
+import { useInstanceId, useViewportMatch } from '@wordpress/compose';
 import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
-import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon } from '@wordpress/icons';
+import { Icon, external } from '@wordpress/icons';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import './settings.scss';
-import PlansSetupDialog from '../components/plans-setup-dialog';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
-import { getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
+import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
 
 const paywallIcon = getBlockIconComponent( paywallBlockMetadata );
 
@@ -57,6 +54,44 @@ export function getReachForAccessLevelKey( {
 			return postHasPaywallBlock ? subscribers : paidSubscribers;
 		default:
 			return 0;
+	}
+}
+
+/**
+ * Describe, in plain language, who can read the post and who receives it by email.
+ *
+ * Email reach is not always the same as read access: when the post contains a paywall
+ * block, every subscriber is emailed the portion above the paywall, so a paid post
+ * still goes out to the full list. See getAccessLabelForCopy in subscribers-affirmation.
+ *
+ * @param {string}  accessLevel         - Access level key, e.g. 'paid_subscribers'.
+ * @param {boolean} postHasPaywallBlock - Whether the post contains a paywall block.
+ * @return {string} Description of the current access level.
+ */
+export function getAccessDescription( accessLevel, postHasPaywallBlock = false ) {
+	switch ( accessLevel ) {
+		case accessOptions.subscribers.key:
+			return postHasPaywallBlock
+				? __(
+						'Only subscribers can read the content below the paywall. Subscribers receive it by email.',
+						'jetpack'
+				  )
+				: __(
+						'Only subscribers can read this post. Others see a preview and can subscribe. Subscribers receive it by email.',
+						'jetpack'
+				  );
+		case accessOptions.paid_subscribers.key:
+			return postHasPaywallBlock
+				? __(
+						'Only paid subscribers can read the content below the paywall. Subscribers receive it by email.',
+						'jetpack'
+				  )
+				: __(
+						'Only paid subscribers can read this post. Others see a preview and can subscribe. Only paid subscribers receive it by email.',
+						'jetpack'
+				  );
+		default:
+			return __( 'Anyone can read this post. Subscribers receive it by email.', 'jetpack' );
 	}
 }
 
@@ -129,15 +164,21 @@ export function NewsletterAccessRadioButtons( {
 	accessLevel,
 	hasTierPlans,
 	stripeConnectUrl,
-	isEditorPanel = false,
 	postHasPaywallBlock: postHasPaywallBlock = false,
 } ) {
 	const isStripeConnected = stripeConnectUrl === null;
 	const { totalSubscribers, paidSubscribers } = useSelect( select =>
 		select( membershipProductsStore ).getSubscriberCounts()
 	);
-	const [ showDialog, setShowDialog ] = useState( false );
-	const closeDialog = () => setShowDialog( false );
+
+	// Paid subscribers can only be chosen once Stripe is connected and a tier exists.
+	// Rather than hiding the option, we show it disabled alongside a link to set it up,
+	// so creators discover that paid newsletters are available to them.
+	const isPaidAvailable = isStripeConnected && hasTierPlans;
+	const isPaidSelected = accessLevel === accessOptions.paid_subscribers.key;
+	// Keep the option selectable when it is already the saved value, so a post set to
+	// paid before Stripe was disconnected does not end up with nothing selected.
+	const showPaidAsDisabled = ! isPaidAvailable && ! isPaidSelected;
 
 	const setAccess = useSetAccess();
 	const subscribersReach = getReachForAccessLevelKey( {
@@ -151,20 +192,19 @@ export function NewsletterAccessRadioButtons( {
 		paidSubscribers,
 	} );
 
+	const paidOptionLabel = `${ accessOptions.paid_subscribers.label } (${ formatNumberCompact(
+		paidSubscribersReach
+	) })`;
+	const disabledPaidOptionId = useInstanceId(
+		NewsletterAccessRadioButtons,
+		'jetpack-newsletter-access-paid-subscribers-disabled'
+	);
+
 	return (
-		<fieldset className="jetpack-newsletter-access-radio-buttons">
-			<VisuallyHidden as="legend">{ __( 'Access', 'jetpack' ) } </VisuallyHidden>
+		<div className="jetpack-newsletter-access-radio-buttons">
 			<RadioControl
-				onChange={ value => {
-					if (
-						accessOptions.paid_subscribers.key === value &&
-						( stripeConnectUrl || ! hasTierPlans )
-					) {
-						setShowDialog( true );
-						return;
-					}
-					setAccess( value );
-				} }
+				label={ __( 'Who can read this post?', 'jetpack' ) }
+				onChange={ setAccess }
 				options={ [
 					...( ! postHasPaywallBlock
 						? [
@@ -180,23 +220,43 @@ export function NewsletterAccessRadioButtons( {
 						) })`,
 						value: accessOptions.subscribers.key,
 					},
-					{
-						label: `${ accessOptions.paid_subscribers.label } (${ formatNumberCompact(
-							paidSubscribersReach
-						) })`,
-						value: accessOptions.paid_subscribers.key,
-					},
+					...( ! showPaidAsDisabled
+						? [
+								{
+									label: paidOptionLabel,
+									value: accessOptions.paid_subscribers.key,
+								},
+						  ]
+						: [] ),
 				] }
 				selected={ accessLevel }
 			/>
-			{ accessLevel === accessOptions.paid_subscribers.key && isStripeConnected && hasTierPlans && (
-				<TierSelector></TierSelector>
+			{ showPaidAsDisabled && (
+				<>
+					<div className="components-radio-control__option jetpack-newsletter-access-radio-buttons__disabled-option">
+						<input
+							type="radio"
+							className="components-radio-control__input"
+							disabled
+							checked={ false }
+							readOnly
+							id={ disabledPaidOptionId }
+						/>
+						<label className="components-radio-control__label" htmlFor={ disabledPaidOptionId }>
+							{ paidOptionLabel }
+						</label>
+					</div>
+					<Link href={ getPaidPlanLink( hasTierPlans ) }>
+						{ __( 'Turn on paid subscribers', 'jetpack' ) }
+						<Icon icon={ external } size={ 16 } />
+					</Link>
+				</>
 			) }
-
-			{ isEditorPanel && (
-				<PlansSetupDialog closeDialog={ closeDialog } showDialog={ showDialog } />
-			) }
-		</fieldset>
+			{ isPaidSelected && isPaidAvailable && <TierSelector></TierSelector> }
+			<p className="jetpack-newsletter-access-radio-buttons__description">
+				{ getAccessDescription( accessLevel, !! postHasPaywallBlock ) }
+			</p>
+		</div>
 	);
 }
 
@@ -273,7 +333,6 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 						<FlexBlock direction="row" justify="flex-start">
 							{ canEdit && (
 								<NewsletterAccessRadioButtons
-									isEditorPanel={ true }
 									accessLevel={ _accessLevel }
 									stripeConnectUrl={ stripeConnectUrl }
 									hasTierPlans={ hasTierPlans }

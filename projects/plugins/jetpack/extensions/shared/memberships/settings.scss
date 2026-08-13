@@ -14,6 +14,13 @@
 }
 
 .jetpack-newsletter-access-radio-buttons {
+	// The container owns the vertical rhythm. Spacing the children with their own
+	// margins does not survive here: wp-admin zeroes paragraph margins inside the
+	// sidebar with a higher-specificity rule. 12px matches the VStack spacing
+	// RadioControl uses between its own options.
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 
 	input[type="radio"] {
 		flex-shrink: 0;
@@ -21,6 +28,43 @@
 
 	label {
 		text-wrap: balance;
+	}
+
+	&__disabled-option {
+
+		input[type="radio"],
+		label {
+			cursor: default;
+			opacity: 0.5;
+		}
+	}
+
+	// Two tiers of spacing: the options sit close together, while the legend, the
+	// setup link and the description are each set apart from the group by a wider
+	// gap. Gutenberg gives the legend 8px of its own, so it needs half as much.
+	legend {
+		margin-block-end: 16px;
+	}
+
+	.jetpack-newsletter-link,
+	&__description {
+		padding-block-start: 4px;
+	}
+
+	.jetpack-newsletter-link {
+		display: inline-flex;
+		align-items: center;
+		align-self: flex-start;
+		gap: 2px;
+		// Overrides the unstyled .jetpack-newsletter-link default. The link sits
+		// under dimmed text, so colour alone should not be what marks it as a link.
+		text-decoration: underline;
+	}
+
+	&__description {
+		margin: 0;
+		color: gb.$gray-700;
+		font-size: 12px;
 	}
 }
 

@@ -11,12 +11,12 @@ export const accessOptions = {
 	},
 	subscribers: {
 		key: 'subscribers',
-		label: __( 'Anyone subscribed', 'jetpack' ),
+		label: __( 'Subscribers', 'jetpack' ),
 		panelHeading: __( 'All subscribers', 'jetpack' ),
 	},
 	paid_subscribers: {
 		key: 'paid_subscribers',
-		label: __( 'Paid subscribers only', 'jetpack' ),
+		label: __( 'Paid subscribers', 'jetpack' ),
 		panelHeading: __( 'Paid subscribers', 'jetpack' ),
 	},
 };
