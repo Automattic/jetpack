@@ -17,6 +17,7 @@ const CASES = [
 	[ 'choice', 'options' ],
 	[ 'multichoice', 'options' ],
 	[ 'number', 'number' ],
+	[ 'rating', 'options' ],
 	[ 'date', 'date' ],
 	[ 'time', 'time' ],
 	[ 'boolean', 'none' ],
@@ -29,6 +30,17 @@ const EXPECTED_OPERATORS = {
 	choice: [ 'is', 'is_not', 'is_empty', 'is_not_empty' ],
 	multichoice: [ 'contains', 'does_not_contain', 'is_empty', 'is_not_empty' ],
 	number: [
+		'equals',
+		'not_equals',
+		'greater_than',
+		'less_than',
+		'gte',
+		'lte',
+		'is_empty',
+		'is_not_empty',
+	],
+	// Compares like a number, but offers its own scale as the values.
+	rating: [
 		'equals',
 		'not_equals',
 		'greater_than',

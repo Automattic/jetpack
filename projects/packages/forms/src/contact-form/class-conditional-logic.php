@@ -71,7 +71,7 @@ class Conditional_Logic {
 		'checkbox-multiple' => 'multichoice',
 		'number'            => 'number',
 		'slider'            => 'number',
-		'rating'            => 'number',
+		'rating'            => 'rating',
 		'date'              => 'date',
 		'time'              => 'time',
 		'checkbox'          => 'boolean',
@@ -324,8 +324,12 @@ class Conditional_Logic {
 			return null;
 		}
 
-		if ( 'number' === $type_key ) {
-			$pair = self::to_numeric_pair( $actual, $expected );
+		if ( 'number' === $type_key || 'rating' === $type_key ) {
+			// A rating submits `selected/max`, e.g. `4/5`. The rule stores the bare number, so
+			// only the submitted side needs unpacking -- without it is_numeric() sees `4/5`,
+			// every comparison returns false, and a rating rule can never match.
+			$submitted = 'rating' === $type_key ? self::to_rating_value( $actual ) : $actual;
+			$pair      = self::to_numeric_pair( $submitted, $expected );
 			if ( null === $pair ) {
 				return false;
 			}
@@ -418,6 +422,20 @@ class Conditional_Logic {
 	 *
 	 * @return array|null Both sides as floats, or null when either side is not numeric.
 	 */
+	/**
+	 * The selected value of a rating, dropping the scale it was submitted with.
+	 *
+	 * @param mixed $value The submitted value, `selected/max` or a bare number.
+	 *
+	 * @return string The selected part, for numeric comparison.
+	 */
+	private static function to_rating_value( $value ) {
+		$text  = trim( self::to_comparable_string( $value ) );
+		$slash = strpos( $text, '/' );
+
+		return false === $slash ? $text : substr( $text, 0, $slash );
+	}
+
 	private static function to_numeric_pair( $actual, $expected ) {
 		$left  = trim( self::to_comparable_string( $actual ) );
 		$right = trim( self::to_comparable_string( $expected ) );
