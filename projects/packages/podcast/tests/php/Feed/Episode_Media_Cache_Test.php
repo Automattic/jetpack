@@ -24,7 +24,7 @@ class Episode_Media_Cache_Test extends BaseTestCase {
 	private const URL = 'https://example.com/wp-content/uploads/2024/03/ep-1.mp3';
 
 	protected function tearDown(): void {
-		Episode_Media_Cache::reset();
+		Episode_Media_Cache::prime( array() );
 		remove_all_filters( 'pre_attachment_url_to_postid' );
 		wp_cache_flush();
 		parent::tearDown();
