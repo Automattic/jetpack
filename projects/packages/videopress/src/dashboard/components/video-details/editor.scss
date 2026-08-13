@@ -197,6 +197,10 @@
 // literals rather than foreground tokens because the frame's #000 background
 // is itself a literal (the player's letterbox), not a themed surface.
 .vp-upload-stage {
+	// The frame class sets `width: 100%` and this panel adds padding; without
+	// border-box the padding lands OUTSIDE the track and the stage hangs 40px
+	// past the column (off-screen on smaller windows).
+	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
