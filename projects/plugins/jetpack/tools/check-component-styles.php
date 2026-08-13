@@ -24,12 +24,14 @@
  * `render_component()` enqueues `jetpack-components` with `wp-components` as a
  * dependency, so WordPress' own component styles are on the page too.
  *
+ * Empty today: every class the pre-rendered markup uses, `components.css` defines
+ * itself. Add to this only when the check reports a class that is genuinely styled
+ * by one of those dependencies — entries that stop being needed are reported below,
+ * so the allowlist cannot silently widen the check.
+ *
  * @var string[]
  */
-$external_classes = array(
-	'components-button',
-	'is-primary',
-);
+$external_classes = array();
 
 chdir( dirname( __DIR__ ) );
 $base   = 'projects/plugins/jetpack/';
@@ -45,10 +47,15 @@ if ( $tmp !== $external_classes ) {
 /**
  * Extracts the class names used by a chunk of HTML.
  *
+ * The pre-rendered components carry PHP for the server to execute, so that is dropped
+ * first: a `class=` inside a PHP string is not a class the component renders, and its
+ * value is not knowable at build time anyway.
+ *
  * @param string $html HTML markup.
  * @return string[] Class names, deduplicated.
  */
 function jetpack_extract_html_classes( $html ) {
+	$html    = preg_replace( '/<\?(?:php|=).*?\?>/s', '', $html );
 	$classes = array();
 	if ( preg_match_all( '/\sclass=(["\'])(.*?)\1/s', $html, $matches ) ) {
 		foreach ( $matches[2] as $attr ) {
@@ -96,8 +103,12 @@ $stylesheet = '_inc/blocks/components.css';
 if ( ! file_exists( $stylesheet ) ) {
 	$issues[ $script ][] = "Cannot check the pre-rendered components, $stylesheet was not found.";
 } else {
-	$defined = array_fill_keys( jetpack_extract_css_classes( (string) file_get_contents( $stylesheet ) ), true );
-	$defined = array_merge( $defined, array_fill_keys( $external_classes, true ) );
+	$in_stylesheet = array_fill_keys( jetpack_extract_css_classes( (string) file_get_contents( $stylesheet ) ), true );
+	$defined       = array_merge( $in_stylesheet, array_fill_keys( $external_classes, true ) );
+
+	// Allowlist entries start out unneeded, and earn their place by being the only
+	// thing that keeps a class the markup actually uses out of the report below.
+	$unneeded = array_fill_keys( $external_classes, true );
 
 	$components = glob( '_inc/blocks/*.html' );
 	if ( empty( $components ) ) {
@@ -106,6 +117,9 @@ if ( ! file_exists( $stylesheet ) ) {
 	foreach ( $components as $component ) {
 		$undefined = array();
 		foreach ( jetpack_extract_html_classes( (string) file_get_contents( $component ) ) as $class ) {
+			if ( ! isset( $in_stylesheet[ $class ] ) ) {
+				unset( $unneeded[ $class ] );
+			}
 			if ( ! isset( $defined[ $class ] ) ) {
 				$undefined[] = $class;
 			}
@@ -118,6 +132,16 @@ if ( ! file_exists( $stylesheet ) ) {
 				implode( ', ', $undefined )
 			);
 		}
+	}
+
+	if ( ! empty( $unneeded ) ) {
+		$unneeded = array_keys( $unneeded );
+		sort( $unneeded );
+		$issues[ $script ][] = sprintf(
+			'The `$external_classes` allowlist lists classes that no pre-rendered component needs it for, because %s defines them itself or nothing uses them: %s. Please remove them, so the allowlist cannot hide a class that later stops being styled.',
+			$base . $stylesheet,
+			implode( ', ', $unneeded )
+		);
 	}
 }
 
