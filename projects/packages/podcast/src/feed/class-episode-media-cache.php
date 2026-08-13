@@ -47,7 +47,9 @@ class Episode_Media_Cache {
 	 * ignores post status and also accepts a case-insensitive match. Whatever
 	 * it misses still resolves through {@see self::attachment_id()}.
 	 *
-	 * @param WP_Post[] $posts Posts about to be rendered.
+	 * @param array $posts Posts about to be rendered. `the_posts` is a filter,
+	 *                     so entries aren't guaranteed to be `WP_Post` — hence
+	 *                     the check before each is used.
 	 */
 	public static function prime( array $posts ): void {
 		self::$attachment_ids = array();

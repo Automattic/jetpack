@@ -125,7 +125,12 @@ class Episode_Media_Cache_Test extends BaseTestCase {
 	 */
 	public function test_post_lookup_filter_applies_to_a_batch_hit() {
 		$url = $this->seed_batch_hit( 557, '2024/03/ep-post.mp3' );
-		add_filter( 'attachment_url_to_postid', static fn () => 777 );
+		add_filter(
+			'attachment_url_to_postid',
+			static function () {
+				return 777;
+			}
+		);
 
 		Episode_Media_Cache::prime( array( $this->seed_episode( 202, $url ) ) );
 
