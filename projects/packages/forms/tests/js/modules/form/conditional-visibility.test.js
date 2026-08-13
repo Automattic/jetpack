@@ -8,9 +8,7 @@ const showWhen = ( field, value ) => ( {
 	enabled: true,
 	action: 'show',
 	logicalOperator: 'all',
-	controls: {
-		fieldValue: { rules: [ { field, operator: 'is', value } ] },
-	},
+	groups: [ { logicalOperator: 'all', rules: [ { field, operator: 'is', value } ] } ],
 } );
 
 /**
@@ -153,11 +151,12 @@ describe( 'resolveFormVisibility', () => {
 						enabled: true,
 						action: 'show',
 						logicalOperator: 'all',
-						controls: {
-							fieldValue: {
+						groups: [
+							{
+								logicalOperator: 'all',
 								rules: [ { field: 'colours', operator: 'contains', value: 'Blue' } ],
 							},
-						},
+						],
 					},
 				},
 				values,
