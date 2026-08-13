@@ -30,7 +30,6 @@ import {
 	NewsletterCategoriesSection,
 	NewsletterSection,
 	PaidNewsletterSection,
-	SubscribeModalSection,
 	SubscriptionsSection,
 	WelcomeEmailSection,
 } from './sections';
@@ -178,12 +177,6 @@ export function NewsletterSettingsBody( {
 		{}
 	);
 	const [ isSavingWelcomeEmail, setIsSavingWelcomeEmail ] = useState( false );
-
-	// Subscribe modal heading state (for manual save).
-	const [ subscribeModalChanges, setSubscribeModalChanges ] = useState<
-		Partial< NewsletterSettings >
-	>( {} );
-	const [ isSavingSubscribeModal, setIsSavingSubscribeModal ] = useState( false );
 
 	// Get newsletter script data.
 	const newsletterScriptData = useMemo( () => getNewsletterScriptData(), [] );
@@ -479,38 +472,6 @@ export function NewsletterSettingsBody( {
 			} );
 	}, [ createErrorNotice, createSuccessNotice, welcomeEmailChanges, data ] );
 
-	// Handle subscribe modal heading changes (staged, not auto-saved).
-	const handleSubscribeModalChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
-		setData( prev => ( { ...prev, ...updates } ) );
-		setSubscribeModalChanges( prev => ( { ...prev, ...updates } ) );
-	}, [] );
-
-	// Save subscribe modal heading.
-	const saveSubscribeModal = useCallback( () => {
-		if ( ! data ) {
-			return;
-		}
-
-		setIsSavingSubscribeModal( true );
-
-		updateSettings( subscribeModalChanges )
-			.then( () => {
-				setSavedData( prev => ( { ...prev, ...subscribeModalChanges } ) );
-				setSubscribeModalChanges( {} );
-				createSuccessNotice( __( 'Subscribe modal heading saved', 'jetpack-newsletter' ) );
-			} )
-			.catch( ( err: Error ) => {
-				// eslint-disable-next-line no-console
-				console.error( 'Newsletter subscribe modal save error:', err );
-				createErrorNotice(
-					err.message || __( 'Failed to save subscribe modal heading', 'jetpack-newsletter' )
-				);
-			} )
-			.finally( () => {
-				setIsSavingSubscribeModal( false );
-			} );
-	}, [ createErrorNotice, createSuccessNotice, subscribeModalChanges, data ] );
-
 	if ( isLoading ) {
 		return (
 			<div className="newsletter-settings">
@@ -537,7 +498,6 @@ export function NewsletterSettingsBody( {
 	const hasSenderNameChanges = Object.keys( senderNameChanges ).length > 0;
 	const hasNewsletterCategoriesChanges = Object.keys( newsletterCategoriesChanges ).length > 0;
 	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
-	const hasSubscribeModalChanges = Object.keys( subscribeModalChanges ).length > 0;
 
 	return (
 		<>
@@ -626,16 +586,6 @@ export function NewsletterSettingsBody( {
 									isNewsletterEnabled={ data.subscriptions }
 								/>
 
-								<SubscribeModalSection
-									data={ data }
-									onChange={ handleSubscribeModalChange }
-									onSave={ saveSubscribeModal }
-									isSaving={ isSavingSubscribeModal }
-									hasChanges={ hasSubscribeModalChanges }
-									changedKeys={ Object.keys( subscribeModalChanges ) }
-									isNewsletterEnabled={ data.subscriptions }
-								/>
-
 								<NewsletterCategoriesSection
 									data={ data }
 									onChange={ handleNewsletterCategoriesChange }
@@ -712,16 +662,6 @@ export function NewsletterSettingsBody( {
 										isSaving={ isSavingWelcomeEmail }
 										hasChanges={ hasWelcomeEmailChanges }
 										changedKeys={ Object.keys( welcomeEmailChanges ) }
-										isNewsletterEnabled={ data.subscriptions }
-									/>
-
-									<SubscribeModalSection
-										data={ data }
-										onChange={ handleSubscribeModalChange }
-										onSave={ saveSubscribeModal }
-										isSaving={ isSavingSubscribeModal }
-										hasChanges={ hasSubscribeModalChanges }
-										changedKeys={ Object.keys( subscribeModalChanges ) }
 										isNewsletterEnabled={ data.subscriptions }
 									/>
 								</Stack>

@@ -78,6 +78,28 @@ domReady( function () {
 				if ( action === 'subscribe' ) {
 					event.preventDefault();
 
+					// "Button only" style renders no visible email input, so email
+					// is empty here. Rather than opening the checkout iframe with no
+					// email (which then has to ask for it inside the iframe itself),
+					// open a local pop-up with its own embedded Subscribe block first.
+					// That pop-up's own form submit re-enters this same handler with
+					// email populated and is-style-button absent, and flows through
+					// normally below.
+					const isButtonOnlyStyle = form
+						.closest( '.wp-block-jetpack-subscriptions' )
+						?.classList.contains( 'is-style-button' );
+					if ( ! email && isButtonOnlyStyle ) {
+						const modal = document.querySelector( '.jetpack-subscribe-modal-button' );
+						if ( modal ) {
+							modal.classList.add( 'open' );
+							document.body.classList.add( 'jetpack-subscribe-modal-button-open' );
+							modal.querySelector( 'input[type="email"]' )?.focus();
+						}
+						button.classList.remove( 'is-loading' );
+						button.setAttribute( 'aria-busy', 'false' );
+						return;
+					}
+
 					const post_id = form.querySelector( 'input[name=post_id]' )?.value ?? '';
 					const tier_id = form.querySelector( 'input[name=tier_id]' )?.value ?? '';
 					const app_source = form.querySelector( 'input[name=app_source]' )?.value ?? '';

@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Subscribe Block: show a local, editable pop-up for the "Button only" style before opening the subscribe checkout, instead of opening checkout with no message to show. The floating subscribe button, which uses the same style internally, benefits from this too.

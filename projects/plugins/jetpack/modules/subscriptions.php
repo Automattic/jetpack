@@ -1146,6 +1146,7 @@ require __DIR__ . '/subscriptions/views.php';
 require __DIR__ . '/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php';
 require __DIR__ . '/subscriptions/subscribe-overlay/class-jetpack-subscribe-overlay.php';
 require __DIR__ . '/subscriptions/subscribe-floating-button/class-jetpack-subscribe-floating-button.php';
+require __DIR__ . '/subscriptions/subscribe-modal-button/class-jetpack-subscribe-modal-button.php';
 require __DIR__ . '/subscriptions/newsletter-widget/class-jetpack-newsletter-dashboard-widget.php';
 
 require_once __DIR__ . '/subscriptions/abilities/class-newsletter-abilities.php';
