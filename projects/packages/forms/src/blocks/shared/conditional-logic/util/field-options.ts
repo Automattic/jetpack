@@ -86,6 +86,19 @@ export const getFieldOptions = ( block?: MinimalBlock | null ): FieldOption[] =>
 		return [];
 	}
 
+	// A rating has no option blocks: its choices are its own scale, so they are derived from
+	// the configured maximum. Offering 1..max also keeps an author from writing a rule
+	// against 6 stars out of 5, which could never match.
+	if ( 'jetpack/field-rating' === block.name ) {
+		const max = Number( block.attributes?.max );
+		const steps = Number.isFinite( max ) && max > 0 ? Math.floor( max ) : 5;
+
+		return Array.from( { length: steps }, ( _, index ) => ( {
+			value: String( index + 1 ),
+			label: String( index + 1 ),
+		} ) );
+	}
+
 	if ( 'jetpack/field-select' === block.name ) {
 		const options = block.attributes?.options;
 		return Array.isArray( options ) ? toOptions( options ) : [];
