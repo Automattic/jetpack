@@ -1,5 +1,6 @@
 import { comment, paragraph, postList, starEmpty } from '@wordpress/icons';
 import { MetricTileGrid } from '../metric-tile-grid';
+import { MetricTileGridSkeleton } from '../metric-tile-grid-skeleton';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { ComponentProps } from 'react';
 
@@ -143,4 +144,38 @@ export const WithPlaceholderValue: Story = {
 		],
 	},
 	decorators: [ makeCanvas( '100%', '320px' ) ],
+};
+
+type SkeletonStory = StoryObj< ComponentProps< typeof MetricTileGridSkeleton > >;
+
+/**
+ * The loading shape widgets pass through `WidgetState`'s `renderLoading`, wide
+ * enough for the side-by-side arrangement: one label and value placeholder per
+ * metric, centred in the widget body.
+ */
+export const Skeleton: SkeletonStory = {
+	render: args => <MetricTileGridSkeleton { ...args } />,
+	args: { tiles: 4 },
+	decorators: [ makeCanvas( '100%', '480px' ) ],
+};
+
+/**
+ * A 360px dashboard tile — the common width, and below the threshold where the
+ * loaded grid lays its tiles out in a row. The shape stacks full-width rows to
+ * match, rather than wrapping into a block of cards.
+ */
+export const SkeletonNarrowTile: SkeletonStory = {
+	render: args => <MetricTileGridSkeleton { ...args } />,
+	args: { tiles: 4 },
+	decorators: [ makeCanvas( '360px', '320px' ) ],
+};
+
+/**
+ * A wide, height-1 dashboard tile: the tiles stay on one row and the shape
+ * centres in what little height the cell has.
+ */
+export const SkeletonShortTile: SkeletonStory = {
+	render: args => <MetricTileGridSkeleton { ...args } />,
+	args: { tiles: 4 },
+	decorators: [ makeCanvas( '720px', '140px' ) ],
 };

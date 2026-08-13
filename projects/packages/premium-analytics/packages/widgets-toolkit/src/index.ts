@@ -4,6 +4,8 @@
 export {
 	MetricDelta,
 	MetricTileGrid,
+	MetricTileGridSkeleton,
+	type MetricTileGridSkeletonProps,
 	MetricValue,
 	MetricWithComparison,
 	PeakDistribution,
