@@ -56,6 +56,12 @@
 	// never rendered.
 	flex: 1 1 auto;
 
+	// Containing block for the pin marker below, and the scope that lets the
+	// marker's timeline reach the header beside it: a named timeline is
+	// otherwise invisible to anything but its own descendants.
+	position: relative;
+	timeline-scope: --section-header-pin;
+
 	// Reserve paint space for the widget host's outer focus outline.
 	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
 	padding-block-end: var(--wpds-dimension-padding-3xl);
@@ -83,6 +89,27 @@
 	}
 }
 
+/*
+ * Tells the section header where it pins, so its subtitle starts condensing
+ * there rather than from the top of the scroll. The header cannot work this out
+ * itself: what it has to clear is the section tabs, which belong to this route.
+ *
+ * The marker is measured, never seen. Sitting at the top of the panel puts its
+ * own leading edge exactly where the header comes to rest, so the `exit` phase
+ * of its view timeline opens the moment the header sticks, and its height is
+ * how far the fade then runs.
+ */
+.pinMarker {
+	position: absolute;
+	inset-block-start: 0;
+	inline-size: 1px;
+	block-size: 40px;
+	visibility: hidden;
+	pointer-events: none;
+	view-timeline-name: --section-header-pin;
+	view-timeline-axis: block;
+}
+
 .sectionHeader {
 	// Pins directly under the page header. The offset is 0 rather than that
 	// header's height because the scroll container is the sections root, which
@@ -91,11 +118,16 @@
 	inset-block-start: 0;
 	z-index: 1;
 
-	// A stuck header has to be opaque, and it takes the fill and hairline of the
-	// page header it pins under so the two read as one piece of chrome. That
-	// means reaching the page edges the way that header does: the panel's gutter
-	// is given back as padding, so the header row itself does not move, and the
-	// container query measuring it sees the same width as before.
+	/*
+	 * A stuck header has to be opaque, and it takes the page header's fill, as
+	 * the section tabs above it do: this header is the page's own chrome, not
+	 * part of the surface the widgets sit on, and the canvas begins where the
+	 * grid does. The hairline is the edge between the two.
+	 *
+	 * It spans the page edges to cover everything that passes under it, which
+	 * means giving the panel's gutter back as padding, so the header row itself
+	 * does not move and the container query measuring it sees the same width.
+	 */
 	margin-inline: calc(-1 * var(--wpds-dimension-padding-2xl));
 	padding-inline: var(--wpds-dimension-padding-2xl);
 	background: var(--wpds-color-background-surface-neutral-strong);
@@ -108,4 +140,27 @@
 	// this surface so it falls inside the fill rather than before it.
 	padding-block-start: var(--wpds-dimension-gap-lg);
 	padding-block-end: var(--wpds-dimension-gap-lg);
+
+	// Tightens to the same beat as the subtitle it sits around: at rest the
+	// padding holds the header apart from the tabs above and the grid below,
+	// and once pinned there are no tabs left to clear and the band should cost
+	// the widgets as little as it can. Same marker, so the two move as one.
+	animation: condense-section-header linear both;
+	animation-timeline: --section-header-pin;
+	animation-range: exit;
+}
+
+@keyframes condense-section-header {
+
+	to {
+		padding-block-start: var(--wpds-dimension-gap-sm);
+		padding-block-end: var(--wpds-dimension-gap-sm);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.sectionHeader {
+		animation: none;
+	}
 }

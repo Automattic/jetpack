@@ -219,10 +219,15 @@ function Dashboard(): JSX.Element {
 								value={ section.slug }
 								className={ styles.content }
 							>
+								{ /* Marks where the header below comes to rest, so its subtitle
+								     starts condensing there. Measured, never seen. */ }
+								<div className={ styles.pinMarker } aria-hidden="true" />
+
 								<div ref={ setContainerElement } className={ styles.sectionHeader }>
 									<SectionHeader
 										title={ resolveSectionHeading( section ) }
 										subtitle={ sectionSubtitle }
+										condenseOnScroll
 									>
 										{ dateControls }
 									</SectionHeader>

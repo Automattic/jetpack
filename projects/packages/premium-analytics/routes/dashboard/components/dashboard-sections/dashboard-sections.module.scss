@@ -32,9 +32,15 @@
 	padding-inline: var(--wpds-dimension-padding-2xl);
 	z-index: 0;
 
-	// The gap under the tabs moves into the section header below, whose fill
-	// bleeds to the page edges and so has to begin at the tabs' hairline instead
-	// of after a strip of canvas. Only here: the same tab bar carries post
-	// detail and the report pages, which have nothing opaque beneath it.
+	/*
+	 * The page header's fill, which the section header below also takes: the
+	 * tabs and that header are the page's own chrome, not part of the surface
+	 * the widgets sit on, so the whole block above the grid reads as one plane
+	 * and the canvas begins where the widgets do.
+	 */
+	background: var(--wpds-color-background-surface-neutral-strong);
+
+	// The gap under the tabs moves into the section header below, so its fill
+	// begins at the tabs' hairline instead of after a strip of canvas.
 	margin-block-end: 0;
 }
