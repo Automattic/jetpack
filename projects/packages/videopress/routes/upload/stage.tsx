@@ -11,7 +11,7 @@ import {
 	useMemo,
 } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Icon, upload, media, check, copy } from '@wordpress/icons';
+import { Icon, media, check, copy } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
 import { Card, Stack, Text } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
@@ -21,6 +21,11 @@ import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import { TAB_PATHS } from '../../src/dashboard/components/dashboard-tabs';
 import FreeTierNotice from '../../src/dashboard/components/overview/free-tier-notice';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import UploadDropzone from '../../src/dashboard/components/upload-dropzone';
+import {
+	selectFilesForPlan,
+	UPLOAD_ONBOARDING_CONTEXT,
+} from '../../src/dashboard/components/upload-dropzone/select-files';
 import Editor from '../../src/dashboard/components/video-details/editor';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { markFirstPublish, useFirstRunState } from '../../src/dashboard/hooks/use-first-run-state';
@@ -38,9 +43,11 @@ import type { ReactNode } from 'react';
 
 type Step = 'upload' | 'uploading' | 'edit' | 'details' | 'success';
 
-// Tags this flow's uploads in the shared queue so a remounted flow instance
-// can re-find them. See the batchQueueIds initializer.
-const UPLOAD_CONTEXT = 'upload-onboarding';
+// Tags this flow's uploads in the shared queue so a remounted flow instance —
+// or one freshly navigated to from Home's emptied-library dropzone — can
+// re-find them. See the batchQueueIds initializer and StageInner's
+// adoption-aware initial step.
+const UPLOAD_CONTEXT = UPLOAD_ONBOARDING_CONTEXT;
 type UploadStatus = 'pending' | 'uploading' | 'success' | 'failed';
 
 type UploadedMedia = {
@@ -317,11 +324,11 @@ const uploadToMediaLibrary = (
 	} );
 
 /**
- * Step 1 — the dropzone. On drop/select it hands the files up so the flow can
- * morph to the uploading step.
+ * Step 1 — the dropzone card. The drop surface itself is the shared
+ * UploadDropzone (Home's emptied-library state renders the same one); this
+ * card owns the heading and the free-tier notice.
  *
  * @param props                  - Component props.
- * @param props.openPicker       - Opens the file picker.
  * @param props.onFiles          - Called with the selected files.
  * @param props.isUploadDisabled - Whether the free-tier limit blocks uploading.
  * @param props.allowMultiple    - Whether the plan allows selecting several files.
@@ -329,97 +336,40 @@ const uploadToMediaLibrary = (
  * @return The dropzone card.
  */
 const UploadCard = ( {
-	openPicker,
 	onFiles,
 	isUploadDisabled,
 	allowMultiple,
 	isFirstRun,
 }: {
-	openPicker: () => void;
 	onFiles: ( files: File[] ) => void;
 	isUploadDisabled: boolean;
 	allowMultiple: boolean;
 	isFirstRun: boolean;
-} ) => {
-	const [ dragging, setDragging ] = useState( false );
-	const dropzoneClassName = `vp-onboarding__dropzone${ dragging ? ' is-dragging' : '' }${
-		isUploadDisabled ? ' is-disabled' : ''
-	}`;
-
-	return (
-		<Card.Root className="vp-onboarding__card vp-onboarding__card--upload">
-			<Card.Header>
-				<Card.Title>
-					{ /* Someone arriving here with a library of 27 videos is not
-					     uploading their first one. */ }
-					{ isFirstRun
-						? __( 'Upload your first video', 'jetpack-videopress-pkg' )
-						: __( 'Upload a video', 'jetpack-videopress-pkg' ) }
-				</Card.Title>
-			</Card.Header>
-			<Card.Content>
-				{ isUploadDisabled && (
-					<div className="vp-onboarding__limit-notice">
-						<FreeTierNotice hasUsedVideo />
-					</div>
-				) }
-				<div
-					className={ dropzoneClassName }
-					aria-disabled={ isUploadDisabled }
-					onDragOver={
-						isUploadDisabled
-							? undefined
-							: e => {
-									e.preventDefault();
-									setDragging( true );
-							  }
-					}
-					onDragLeave={ isUploadDisabled ? undefined : () => setDragging( false ) }
-					onDrop={
-						isUploadDisabled
-							? undefined
-							: e => {
-									e.preventDefault();
-									setDragging( false );
-									onFiles( Array.from( e.dataTransfer.files ) );
-							  }
-					}
-				>
-					<svg className="vp-onboarding__dropzone-outline" aria-hidden="true" focusable="false">
-						<rect className="vp-onboarding__dropzone-outline-rect" />
-					</svg>
-					<Icon icon={ upload } size={ 32 } className="vp-onboarding__dropzone-icon" />
-					<Text variant="body-lg" className="vp-onboarding__dropzone-hint">
-						{ allowMultiple
-							? __( 'Drag and drop your videos here', 'jetpack-videopress-pkg' )
-							: __( 'Drag and drop your video here', 'jetpack-videopress-pkg' ) }
-					</Text>
-					<Text variant="body-sm" className="vp-onboarding__dropzone-sub">
-						{ allowMultiple
-							? __(
-									'Add one or several. Each upload gets automatic captions, a player you fully own, and a link to share anywhere. No ads, no algorithm.',
-									'jetpack-videopress-pkg'
-							  )
-							: __(
-									'Add one video. Each upload gets automatic captions, a player you fully own, and a link to share anywhere. No ads, no algorithm.',
-									'jetpack-videopress-pkg'
-							  ) }
-					</Text>
-					<Button
-						variant="primary"
-						__next40pxDefaultSize
-						onClick={ openPicker }
-						disabled={ isUploadDisabled }
-					>
-						{ allowMultiple
-							? __( 'Select videos to upload', 'jetpack-videopress-pkg' )
-							: __( 'Select a video to upload', 'jetpack-videopress-pkg' ) }
-					</Button>
+} ) => (
+	<Card.Root className="vp-onboarding__card vp-onboarding__card--upload">
+		<Card.Header>
+			<Card.Title>
+				{ /* Someone arriving here with a library of 27 videos is not
+				     uploading their first one. */ }
+				{ isFirstRun
+					? __( 'Upload your first video', 'jetpack-videopress-pkg' )
+					: __( 'Upload a video', 'jetpack-videopress-pkg' ) }
+			</Card.Title>
+		</Card.Header>
+		<Card.Content>
+			{ isUploadDisabled && (
+				<div className="vp-onboarding__limit-notice">
+					<FreeTierNotice hasUsedVideo />
 				</div>
-			</Card.Content>
-		</Card.Root>
-	);
-};
+			) }
+			<UploadDropzone
+				onFiles={ onFiles }
+				disabled={ isUploadDisabled }
+				allowMultiple={ allowMultiple }
+			/>
+		</Card.Content>
+	</Card.Root>
+);
 
 /**
  * Interstitial — DS ProgressBar(s) while videos upload. One bar for a single
@@ -1463,7 +1413,6 @@ const UploadOnboarding = ( {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const { createInfoNotice } = useGlobalNotices();
-	const inputRef = useRef< HTMLInputElement >( null );
 	const batchRef = useRef( 0 );
 	const [ uploads, setUploads ] = useState< UploadItem[] >( [] );
 	const [ publishedVideos, setPublishedVideos ] = useState< PublishedVideo[] >( [] );
@@ -1483,12 +1432,6 @@ const UploadOnboarding = ( {
 	const allowMultiple = ! isFree || isUnlimited;
 	const firstRunState = useFirstRunState();
 
-	const openPicker = useCallback( () => {
-		if ( isAtLimit ) {
-			return;
-		}
-		inputRef.current?.click();
-	}, [ isAtLimit ] );
 	const resetUploadStep = useCallback(
 		( prior: Step ) => {
 			batchRef.current += 1;
@@ -1517,27 +1460,17 @@ const UploadOnboarding = ( {
 			if ( isAtLimit ) {
 				return;
 			}
-			const selectedForPlan = allowMultiple ? selected : selected.slice( 0, 1 );
+			// Home's emptied-library dropzone applies the same slice + notice
+			// before handing its files to this flow — shared helper, one message.
+			const { files: selectedForPlan, discardedNotice } = selectFilesForPlan(
+				selected,
+				allowMultiple
+			);
 			if ( ! selectedForPlan.length ) {
 				return;
 			}
-			// The plan slice above silently drops everything past the free
-			// tier's one video; the dropped count must be surfaced or the
-			// missing uploads read as a bug.
-			if ( selected.length > selectedForPlan.length ) {
-				const discarded = selected.length - selectedForPlan.length;
-				createInfoNotice(
-					sprintf(
-						/* translators: %d: number of selected videos not uploaded on the free plan. */
-						_n(
-							'The free plan includes one video — uploading your first. Upgrade to add %d more.',
-							'The free plan includes one video — uploading your first. Upgrade to add the other %d.',
-							discarded,
-							'jetpack-videopress-pkg'
-						),
-						discarded
-					)
-				);
+			if ( discardedNotice ) {
+				createInfoNotice( discardedNotice );
 			}
 			const batch = batchRef.current + 1;
 			batchRef.current = batch;
@@ -1711,7 +1644,6 @@ const UploadOnboarding = ( {
 		if ( s === 'upload' ) {
 			return (
 				<UploadCard
-					openPicker={ openPicker }
 					onFiles={ onFiles }
 					isUploadDisabled={ isAtLimit }
 					allowMultiple={ allowMultiple }
@@ -1749,28 +1681,30 @@ const UploadOnboarding = ( {
 
 			{ /* Card 2 — the morphing upload → uploading → details → success step flow. */ }
 			<StepFlow step={ step } prev={ prev } onExitDone={ onExitDone } render={ renderStep } />
-
-			<input
-				ref={ inputRef }
-				type="file"
-				accept="video/*"
-				multiple={ ! isFree || isUnlimited }
-				className="vp-onboarding__input"
-				onChange={ e => {
-					onFiles( Array.from( e.target.files ?? [] ) );
-					e.currentTarget.value = '';
-				} }
-			/>
 		</div>
 	);
 };
 
 const StageInner = () => {
 	const { isAtLimit, isFree, isUnlimited, videoCount } = useFreeTier();
+	const { uploadQueue } = useUpload();
 	const navigate = useNavigate();
-	const [ step, setStep ] = useState< Step >( 'upload' );
+	// Arrival may already hold this flow's queue items — Home's emptied-library
+	// dropzone starts the upload under UPLOAD_CONTEXT and navigates here, and
+	// UploadOnboarding's batchQueueIds initializer adopts the rows themselves.
+	// Exactly one adopted item resumes straight into the edit session, upload
+	// running in its player slot. Two or more can only mean arrival mid-batch
+	// (connected multi-drops navigate to the Library instead), so the step
+	// stays 'upload' and the Library's in-flight rows and the pill own the
+	// batch — no new surface here.
+	const [ adoptedOnMount ] = useState(
+		() => uploadQueue.filter( item => item.context === UPLOAD_CONTEXT ).length
+	);
+	const [ step, setStep ] = useState< Step >( adoptedOnMount === 1 ? 'edit' : 'upload' );
 	const [ prev, setPrev ] = useState< Step | null >( null );
-	const [ hasEnteredFlow, setHasEnteredFlow ] = useState( false );
+	// An adopted session is a flow already in progress: the owns-a-flow latch
+	// starts set so the Library redirect below can't eject it once the count moves.
+	const [ hasEnteredFlow, setHasEnteredFlow ] = useState( adoptedOnMount === 1 );
 
 	const go = useCallback( ( next: Step, prior: Step ) => {
 		setPrev( prior );

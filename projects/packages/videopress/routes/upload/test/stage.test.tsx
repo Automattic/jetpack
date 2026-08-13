@@ -69,6 +69,7 @@ type MockQueueItem = {
 	status: 'pending' | 'uploading' | 'success' | 'failed';
 	error?: string;
 	media?: { id: number; guid: string; src: string };
+	context?: string;
 };
 let mockQueue: MockQueueItem[] = [];
 let mockNextUpload: Partial< MockQueueItem > = {};
@@ -217,7 +218,7 @@ describe( 'upload stage single-drop transition', () => {
 		// no `multiple`, so userEvent.upload would deliver a single file and
 		// there'd be nothing to slice.
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
-		const dropzone = container.querySelector( '.vp-onboarding__dropzone' ) as HTMLElement;
+		const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
 		fireEvent.drop( dropzone, {
 			dataTransfer: {
 				files: [ makeFile( 'one.mp4' ), makeFile( 'two.mp4' ), makeFile( 'three.mp4' ) ],
@@ -265,5 +266,51 @@ describe( 'upload stage single-drop transition', () => {
 		expect( editor ).toHaveAttribute( 'data-upload-status', 'none' );
 		expect( editor ).toHaveAttribute( 'data-celebrating', 'true' );
 		expect( mockMarkFirstPublish ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'resumes into the edit step when exactly one queue item is adopted on mount', () => {
+		// The Home emptied-library hand-off: the file is already uploading in
+		// the shared queue under this flow's context tag when the route mounts.
+		mockQueue = [
+			{
+				id: 'q-adopted',
+				file: makeFile( 'from-home.mp4' ),
+				progress: 0.42,
+				status: 'uploading',
+				context: 'upload-onboarding',
+			},
+		];
+
+		renderStage();
+
+		expect( screen.getByTestId( 'editor' ) ).toHaveAttribute( 'data-upload-status', 'uploading' );
+		expect( mockStartUpload ).not.toHaveBeenCalled();
+	} );
+
+	it( 'leaves an adopted multi-item batch on the upload step', () => {
+		// Arrival mid-batch: multi-drops navigate to the Library, so the flow
+		// never claims them — the dropzone renders and the batch stays with
+		// the Library rows and the pill.
+		mockQueue = [
+			{
+				id: 'q-a',
+				file: makeFile( 'a.mp4' ),
+				progress: 0.1,
+				status: 'uploading',
+				context: 'upload-onboarding',
+			},
+			{
+				id: 'q-b',
+				file: makeFile( 'b.mp4' ),
+				progress: 0,
+				status: 'pending',
+				context: 'upload-onboarding',
+			},
+		];
+
+		renderStage();
+
+		expect( screen.queryByTestId( 'editor' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Drag and drop your videos here' ) ).toBeInTheDocument();
 	} );
 } );

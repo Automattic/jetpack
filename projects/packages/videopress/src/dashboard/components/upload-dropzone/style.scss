@@ -1,0 +1,80 @@
+// The drag-and-drop upload surface. Extracted from routes/upload/style.scss
+// (`.vp-onboarding__dropzone*`) so Home's emptied-library state renders the
+// same target; the rules are a straight port under the component's own block.
+// The dashed outline is drawn by an SVG <rect> overlay (not a CSS `dashed`
+// border) so the dash length + gap are controllable — CSS can't space out
+// `border-style: dashed`. Stroke color is still the card's neutral-stroke
+// token.
+.vp-upload-dropzone {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wpds-dimension-gap-sm);
+	padding: var(--wpds-dimension-padding-3xl) var(--wpds-dimension-padding-2xl);
+	text-align: center;
+	background: var(--wpds-color-background-surface-neutral-strong); // white
+	border-radius: var(--wpds-border-radius-lg);
+	transition: background var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle);
+
+	// Very subtle grayer fill on hover.
+	&:hover {
+		background: var(--wpds-color-background-surface-neutral-weak);
+	}
+
+	&.is-dragging {
+		background: var(--wpds-color-background-surface-brand);
+
+		.vp-upload-dropzone__outline-rect {
+			stroke: var(--wpds-color-stroke-interactive-brand);
+		}
+	}
+
+	&.is-disabled,
+	&.is-disabled:hover {
+		background: var(--wpds-color-background-surface-neutral-strong);
+	}
+
+	&__outline {
+		position: absolute;
+		inset: 0;
+		inline-size: 100%;
+		block-size: 100%;
+		pointer-events: none;
+		overflow: visible;
+	}
+
+	&__outline-rect {
+		x: 0.5px;
+		y: 0.5px;
+		width: calc(100% - 1px);
+		height: calc(100% - 1px);
+		rx: var(--wpds-border-radius-lg);
+		fill: none;
+		stroke: var(--wpds-color-stroke-surface-neutral);
+		stroke-width: var(--wpds-border-width-xs);
+		// Round dots (round caps on ~1px dashes), ~5px apart — reads as dots,
+		// more of them and tighter than the earlier long dashes.
+		stroke-linecap: round;
+		stroke-dasharray: 1 5;
+	}
+
+	&__icon {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__hint {
+		color: var(--wpds-color-foreground-content-neutral);
+	}
+
+	&__sub {
+		max-inline-size: 48ch;
+		margin-bottom: var(--wpds-dimension-gap-sm);
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__input {
+		display: none;
+	}
+}

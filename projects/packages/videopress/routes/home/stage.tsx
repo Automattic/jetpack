@@ -1,17 +1,23 @@
+import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { Tooltip } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, useNavigate } from '@wordpress/route';
-import { Button, Card, EmptyState, Stack, Text } from '@wordpress/ui';
-import AddToContentMenu from '../../src/dashboard/components/add-to-content-menu';
+import { Button, Card, EmptyState, Text } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import { TAB_PATHS } from '../../src/dashboard/components/dashboard-tabs';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
 import FreeTierNotice from '../../src/dashboard/components/overview/free-tier-notice';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import UploadDropzone from '../../src/dashboard/components/upload-dropzone';
+import {
+	selectFilesForPlan,
+	UPLOAD_ONBOARDING_CONTEXT,
+} from '../../src/dashboard/components/upload-dropzone/select-files';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
 import { TOP_VIDEOS_LIMIT, useStats } from '../../src/dashboard/hooks/use-stats';
+import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import RecentVideoCard from './recent-video-card';
 import { resolveViewsSlot } from './views-slot';
 import './style.scss';
@@ -37,14 +43,18 @@ const SKELETON_KEYS = [ 'a', 'b', 'c', 'd' ];
 const StageInner = () => {
 	const navigate = useNavigate();
 	const { items, isLoading, isError, error: libraryError, refetch } = useLibrary( RECENTS_VIEW );
-	const { isFree, isAtLimit } = useFreeTier();
+	const { isFree, isUnlimited, isAtLimit } = useFreeTier();
 	const { stats, isError: statsIsError, hasData: statsHasData } = useStats();
+	const { startUpload } = useUpload();
+	const { createInfoNotice } = useGlobalNotices();
 
 	// Header upload action. In the returning-user shape there is no Upload TAB,
 	// so this button is the tab strip's replacement — "one click away" rather
 	// than gone. It navigates to the upload route rather than picking a file
-	// here: that route owns the whole flow (progress, details, publish), and a
-	// picker on Home would start a background upload with nowhere to report
+	// here: that route owns the whole flow (progress, details, publish). A
+	// picker on Home is only safe when it navigates the moment the files are
+	// queued, which is what the emptied-library dropzone below does; a header
+	// picker that left the user on Home would upload with nowhere to report
 	// progress, which is exactly how it read before.
 	const goToUpload = useCallback( () => {
 		if ( isAtLimit ) {
@@ -60,14 +70,31 @@ const StageInner = () => {
 		[ navigate ]
 	);
 
-	// "Add to a post" needs a GUID (the hand-off is the server-side
-	// `videopress_guid` content filter). Point it at the newest video that has
-	// one; when nothing does — an unconnected site, where every attachment is
-	// local — AddToContentMenu renders null and the header simply carries one
-	// button. Better an absent action than an inert one.
-	const newestGuid = useMemo(
-		() => items.find( item => item.guid && ! item.isProcessing )?.guid,
-		[ items ]
+	// The emptied-library hand-off. Files start in the shared queue under the
+	// onboarding flow's context tag, then land where that flow expects them: a
+	// single file resumes /upload straight into its edit session (see the
+	// adoption-aware step in routes/upload/stage.tsx); a batch goes to the
+	// Library, whose in-flight rows and the upload pill own multi-file
+	// progress — the same split the /upload dropzone makes. No pill
+	// suppression here: navigation is immediate, so this screen never shows
+	// progress of its own.
+	const allowMultiple = ! isFree || isUnlimited;
+	const onEmptyStateFiles = useCallback(
+		( selected: File[] ) => {
+			if ( isAtLimit ) {
+				return;
+			}
+			const { files, discardedNotice } = selectFilesForPlan( selected, allowMultiple );
+			if ( ! files.length ) {
+				return;
+			}
+			if ( discardedNotice ) {
+				createInfoNotice( discardedNotice );
+			}
+			files.forEach( file => startUpload( file, UPLOAD_ONBOARDING_CONTEXT ) );
+			navigate( { href: files.length === 1 ? TAB_PATHS.upload : '/' } );
+		},
+		[ allowMultiple, createInfoNotice, isAtLimit, navigate, startUpload ]
 	);
 
 	// The same discipline the Analytics screen applies at
@@ -109,20 +136,10 @@ const StageInner = () => {
 	const showEmptyState = ! isLoading && ! isError && items.length === 0;
 
 	return (
-		<DashboardLayout
-			activeTab="home"
-			actions={
-				<>
-					<AddToContentMenu
-						guid={ newestGuid }
-						size="compact"
-						className="vp-home__add-to"
-						label={ __( 'Add your latest video to a post or page', 'jetpack-videopress-pkg' ) }
-					/>
-					{ uploadButton }
-				</>
-			}
-		>
+		// The header carries the upload action alone. "Add to a post or page"
+		// was removed by design review: nobody adds a video to a post from the
+		// overview — that hand-off belongs to a specific video's screens.
+		<DashboardLayout activeTab="home" actions={ uploadButton }>
 			<div className="vp-home">
 				{ isFree && <FreeTierNotice /> }
 
@@ -185,22 +202,33 @@ const StageInner = () => {
 					) }
 
 					{ showEmptyState && (
-						<EmptyState.Root className="vp-home__empty">
-							<EmptyState.Title>
-								{ __( 'No videos yet', 'jetpack-videopress-pkg' ) }
-							</EmptyState.Title>
-							<EmptyState.Description>
-								{ __(
-									'Upload your first video and it will show up here, ready to share or drop into a post.',
-									'jetpack-videopress-pkg'
-								) }
-							</EmptyState.Description>
-							<EmptyState.Actions>
-								<Stack direction="row" gap="sm" align="center">
-									{ uploadButton }
-								</Stack>
-							</EmptyState.Actions>
-						</EmptyState.Root>
+						<>
+							{ /* The heading/description keep the EmptyState shell, but the
+							     action is the real first-run dropzone, not a button that
+							     bounces to /upload. It sits as a sibling because
+							     EmptyState.Root caps its own width — too narrow for a
+							     drop target. Single-file copy: an empty library means
+							     the (new) first video, whatever the plan allows. */ }
+							<EmptyState.Root className="vp-home__empty">
+								<EmptyState.Title>
+									{ __( 'No videos yet', 'jetpack-videopress-pkg' ) }
+								</EmptyState.Title>
+								<EmptyState.Description>
+									{ __(
+										'Upload your first video and it will show up here, ready to share or drop into a post.',
+										'jetpack-videopress-pkg'
+									) }
+								</EmptyState.Description>
+							</EmptyState.Root>
+							<div className="vp-home__empty-upload">
+								<UploadDropzone
+									onFiles={ onEmptyStateFiles }
+									disabled={ isAtLimit }
+									allowMultiple={ allowMultiple }
+									copyVariant="single"
+								/>
+							</div>
+						</>
 					) }
 				</section>
 			</div>
