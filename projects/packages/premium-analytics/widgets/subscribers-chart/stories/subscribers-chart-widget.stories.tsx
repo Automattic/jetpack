@@ -127,9 +127,9 @@ export const BarChartWithComparison: Story = {
 };
 
 /**
- * First load: the fetch is in flight, so the widget shows its loading state (the
- * metric tabs over the chart's loading overlay). The mock is forced to never
- * resolve for the duration of this story.
+ * First load: the fetch is in flight, so the widget shows its loading state
+ * (`MetricTabsChartSkeleton` in place of the whole body). The mock is forced to
+ * never resolve for the duration of this story.
  */
 export const Loading: Story = {
 	render: () => renderSubscribersChartOnPreset( 'last-90-days' ),

@@ -19,10 +19,12 @@ describe( 'MetricTabsChartSkeleton', () => {
 		// The card count is only known once data lands, and the real header
 		// collapses to a dropdown at a width the skeleton cannot predict, so a
 		// card-shaped stand-in would land as a jump rather than prevent one.
-		const { container } = render( <MetricTabsChartSkeleton /> );
+		render( <MetricTabsChartSkeleton /> );
 
-		expect( screen.queryByTestId( 'skeleton-line' ) ).not.toBeInTheDocument();
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the absence of a container-query key is the assertion; there is no element to query for.
-		expect( container.querySelector( '[data-tabs]' ) ).toBeNull();
+		// `SkeletonRoot`'s visually hidden label, then the chart block — nothing
+		// else. Counting is the only assertion that catches a re-added card: a
+		// bare `<Skeleton>` carries no role or testid to query for.
+		// eslint-disable-next-line testing-library/no-node-access -- see above.
+		expect( screen.getByRole( 'status' ).children ).toHaveLength( 2 );
 	} );
 } );

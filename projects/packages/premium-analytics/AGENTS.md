@@ -638,6 +638,9 @@ loading) and swaps only the content area. Notes:
   wrapper rather than with `:nth-child()` on `SkeletonRoot`'s children. Only shape what the
   widget can predict before the data lands: a placeholder whose count or breakpoint depends on
   the response reads as the layout jump it was meant to prevent.
+- A refetch hides the children rather than unmounting them, so state they own — the selected
+  metric tab, a table's sort and page — survives it. Only the first load, and a refetch over an
+  empty result, replace them outright.
 - When a view hook masks `isError` (e.g. `rows.length === 0 && isError` to keep placeholder
   rows), gate `error` with the same predicate (`error: showError ? error : null`) so the two
   fields can't disagree.

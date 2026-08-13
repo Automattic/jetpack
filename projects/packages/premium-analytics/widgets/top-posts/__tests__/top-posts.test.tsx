@@ -339,13 +339,15 @@ describe( 'TopPostsWidget', () => {
 		);
 
 		// The body falls back to the skeleton while the active query is fetching,
-		// and the export is gated off with it. The stale rows stay mounted behind
-		// the skeleton, hidden by `visibility` — which jsdom does not apply — so
-		// assert the skeleton rather than their absence.
+		// and the export is gated off with it.
 		await waitFor( () =>
 			expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument()
 		);
 		expect( screen.getByRole( 'status', { hidden: true } ) ).toBeInTheDocument();
+		// The premise the gate exists for: the prior period's rows are still in
+		// hand, so `rows.length > 0` while `isFetching`. They stay mounted behind
+		// the skeleton — hidden by `visibility`, which jsdom does not apply.
+		expect( screen.getByRole( 'link', { name: /^Hello World Post$/ } ) ).toBeInTheDocument();
 
 		// Once the new range settles, the export returns.
 		resolveSecond( TOP_POSTS_RESPONSE );

@@ -53,14 +53,14 @@ function iconPathOf( element: ReactElement ): string | null {
 }
 
 describe( 'WidgetState', () => {
-	it( 'renders children when ready, with no spinner', () => {
+	it( 'renders children when ready, with no skeleton', () => {
 		render(
 			<WidgetState isLoading={ false } isError={ false } isEmpty={ false }>
 				{ CONTENT }
 			</WidgetState>
 		);
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the loading state on first load even when empty', () => {
@@ -272,7 +272,6 @@ describe( 'WidgetState', () => {
 		);
 		expect( screen.getByText( 'Failed.' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
 	} );
 } );

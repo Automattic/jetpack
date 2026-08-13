@@ -37,7 +37,7 @@ export interface WidgetStateProps {
 	empty?: WidgetStateEmpty;
 	/** Optional content-shaped loading override; defaults to `GenericSkeleton`. */
 	renderLoading?: ReactNode;
-	/** Success content, rendered only when the state is `ready`. */
+	/** Success content. Kept mounted through a refetch, hidden behind the skeleton. */
 	children: ReactNode;
 }
 

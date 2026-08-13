@@ -104,7 +104,7 @@ export const ClicksView: Story = {
 };
 
 /**
- * First load with no data yet: the widget shows its loading overlay.
+ * First load with no data yet: the widget shows its loading skeleton.
  */
 export const Loading: Story = {
 	render: args => renderEmailTopRow( args, 2001 ),
