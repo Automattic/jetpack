@@ -57,10 +57,68 @@ const ZERO_LAYOUT: CalendarHeatmapLayout = {
 };
 
 const isPositiveFinite = ( value: number ): boolean => Number.isFinite( value ) && value > 0;
+// Gaps and floors are legitimately zero, so they need a wider test than a width.
+const isNonNegativeFinite = ( value: number ): boolean => Number.isFinite( value ) && value >= 0;
 
+/**
+ * Allowance for the chart's weekday-label column.
+ *
+ * The chart lays that column out as an `auto` grid track sized by its own label
+ * text, so the real width is not knowable before layout. Measured at 27.34px —
+ * the widest label ("Wed") at the track's 11px font plus its 4px inline-end
+ * padding — rounded up here for the font differences across platforms. The
+ * labels come from `format( date, 'EEE' )` with no locale, so they are always
+ * English and do not vary by site language.
+ */
 const ROW_LABEL_WIDTH = 32;
 const COMPACT_CELL_SIZE = 11;
 const COMPACT_CELL_GAP = 2;
+
+export type FitWeekColumnsInput = {
+	/** Width the grid has to work with, in px. */
+	availWidth: number;
+	cellWidth: number;
+	cellGap: number;
+	/**
+	 * Floor for the returned count, and the count returned when the metrics are
+	 * unusable. Defaults to 0.
+	 */
+	minColumns?: number;
+};
+
+/**
+ * How many whole week columns a width can draw at a fixed cell size. The
+ * arithmetic is shared; each caller keeps its own cell metrics.
+ *
+ * A column costs a cell plus a gap: the grid is `auto repeat(n, …)`, so n columns
+ * carry n gaps, counting the one before the first column.
+ * `computeCalendarHeatmapLayout` keeps its own arithmetic. It sizes the cell from
+ * the height first, so it cannot start from a fixed cell, and it counts n-1 gaps
+ * — a different model of the same grid, so the two are not interchangeable.
+ */
+export function fitWeekColumns( input: FitWeekColumnsInput ): number {
+	const { availWidth, cellWidth, cellGap, minColumns = 0 } = input;
+
+	// Normalized rather than trusted: `minColumns` is the one input that leaves
+	// through both branches, so a NaN or fractional value would reach the caller
+	// and size a data request with it.
+	const floorColumns = isNonNegativeFinite( minColumns ) ? Math.floor( minColumns ) : 0;
+
+	// Guard every metric the arithmetic touches: an unchecked one divides by zero
+	// or carries a NaN out.
+	if (
+		! isPositiveFinite( availWidth ) ||
+		! isPositiveFinite( cellWidth ) ||
+		! isNonNegativeFinite( cellGap )
+	) {
+		return floorColumns;
+	}
+
+	// Floor so the row of cells never exceeds the available width.
+	const fitting = Math.floor( ( availWidth - ROW_LABEL_WIDTH ) / ( cellWidth + cellGap ) );
+
+	return Math.max( floorColumns, fitting );
+}
 
 /**
  * How many compact cells a width can hold, ignoring how many the range has.
@@ -70,16 +128,11 @@ const COMPACT_CELL_GAP = 2;
  * tiles, so this is a request-sizing heuristic rather than a layout invariant.
  */
 export function compactCalendarHeatmapCapacity( availWidth: number ): number {
-	if ( ! isPositiveFinite( availWidth ) ) {
-		return 0;
-	}
-
-	// Each rendered column occupies a cell plus one grid gap; floor so the row of
-	// cells never exceeds the available width.
-	return Math.max(
-		0,
-		Math.floor( ( availWidth - ROW_LABEL_WIDTH ) / ( COMPACT_CELL_SIZE + COMPACT_CELL_GAP ) )
-	);
+	return fitWeekColumns( {
+		availWidth,
+		cellWidth: COMPACT_CELL_SIZE,
+		cellGap: COMPACT_CELL_GAP,
+	} );
 }
 
 const CELL_GAP = 4;

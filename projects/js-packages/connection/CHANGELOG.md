@@ -2,6 +2,15 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.3.0] - 2026-08-13
+### Added
+- Connection: Expose the connection owner's identity so consumers can name the owner when their token is broken. [#51034]
+- Connection: Report whose account a connection error names as a single answer, so an error that cannot be placed is never treated as another user's. [#51034]
+
+### Fixed
+- Connection: Never take the connection error notice's CTA from another user's broken token, which reconnecting would not restore. [#51034]
+- Connection: Take the connection error notice's message and CTA from an error the viewer can resolve, so an informational error no longer hides a working button. [#51034]
+
 ## [2.2.3] - 2026-08-06
 ### Changed
 - Modernise the disconnect-confirm and thank-you step components. [#50864]
@@ -1453,6 +1462,7 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.3.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.2.3...v2.3.0
 [2.2.3]: https://github.com/Automattic/jetpack-connection-js/compare/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.2.0...v2.2.1

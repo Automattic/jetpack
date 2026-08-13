@@ -17,8 +17,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 /**
  * Main Analytics class.
  *
- * Loads the wp-build output and registers an admin page.
- * The build interceptor handles full-page rendering via admin_init.
+ * Loads the wp-build output and registers the dashboard's admin page.
  */
 class Analytics {
 
@@ -112,6 +111,7 @@ class Analytics {
 
 		self::load_dashboard_components();
 		self::load_build();
+		self::remove_full_page_interceptor();
 		self::register_admin_page();
 	}
 
@@ -119,15 +119,8 @@ class Analytics {
 	 * Whether this request can render an admin screen.
 	 *
 	 * Core also sets is_admin() on admin-ajax.php and admin-post.php, which render
-	 * no dashboard and for which this package registers no handlers. Both fire
-	 * admin_init before core checks the user is logged in, and the build's
-	 * interceptor keys on $_GET['page'] alone, so without these exclusions either
-	 * endpoint answers ?page=jetpack-premium-analytics with a full dashboard page
-	 * — to anyone.
-	 *
-	 * Narrowing the request is as far as this package can go: the interceptor has
-	 * no capability check of its own, so any logged-in user still reaches it
-	 * through an ordinary admin screen. That fix belongs in the wp-build output.
+	 * no dashboard and for which this package registers no handlers, so neither
+	 * needs the build parsed.
 	 *
 	 * @return bool
 	 */
@@ -362,6 +355,39 @@ class Analytics {
 	}
 
 	/**
+	 * Unhook wp-build's full-page render interceptor.
+	 *
+	 * It renders `?page=jetpack-premium-analytics` — a slug the menu never
+	 * registers — from admin_init, with no capability check of its own. On
+	 * wp-admin screens Core already refuses that slug first, in
+	 * wp-admin/includes/menu.php, which admin.php requires before admin_init;
+	 * admin-post.php and admin-ajax.php reach admin_init without that check, and
+	 * renders_admin_chrome() is what currently keeps the build off both. Unhooking
+	 * removes the reliance on that single guard.
+	 *
+	 * wp-build derives the callback name from the page slug, and remove_action() is
+	 * a no-op on a name or priority it doesn't find — so drift would put the second
+	 * entry point back silently. Nothing to remove is normal (the build may be
+	 * absent), but a live interceptor we failed to unhook is not, so say so the way
+	 * register_admin_menu() reports incomplete build output.
+	 *
+	 * @return void
+	 */
+	private static function remove_full_page_interceptor() {
+		if ( remove_action( 'admin_init', 'jpa_jetpack_premium_analytics_intercept_render' ) ) {
+			return;
+		}
+
+		if ( function_exists( 'jpa_jetpack_premium_analytics_intercept_render' ) ) {
+			_doing_it_wrong(
+				__METHOD__,
+				'The Premium Analytics full-page interceptor could not be unhooked: wp-build changed the generated callback name or its admin_init priority.',
+				''
+			);
+		}
+	}
+
+	/**
 	 * Absolute path to the generated widget manifest.
 	 *
 	 * On the class rather than beside its readers in widget-modules.php: two copies
@@ -400,16 +426,11 @@ class Analytics {
 			);
 
 			// Enqueue the i18n loader so the init module can download its JS
-			// translation catalogs. admin_enqueue_scripts covers the wp-admin
-			// integrated variant; the full-page interceptor variant does not fire
-			// it (see ensure_script_data()), so also hook the page init action.
+			// translation catalogs.
 			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_i18n_loader' ) );
-			add_action( 'jetpack-premium-analytics_init', array( static::class, 'enqueue_i18n_loader' ) );
 		}
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
-		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
-		add_action( 'jetpack-premium-analytics_init', array( static::class, 'ensure_script_data' ) );
 	}
 
 	/**
@@ -419,22 +440,14 @@ class Analytics {
 	const MENU_PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
 
 	/**
-	 * Admin page slugs that render the Premium Analytics dashboard.
-	 *
-	 * Mirrors the slugs the wp-build interceptor renders (full-page and the
-	 * wp-admin integrated variant).
-	 */
-	const DASHBOARD_PAGE_SLUGS = array( 'jetpack-premium-analytics', self::MENU_PAGE_SLUG );
-
-	/**
-	 * Whether the current request is rendering a Premium Analytics dashboard page.
+	 * Whether the current request is rendering the Premium Analytics dashboard.
 	 *
 	 * Used to scope the wp-build polyfill registration (which force-replaces core
 	 * script handles) to this dashboard, so it never affects other admin pages.
 	 * Must be cheap and safe to call at plugin-load time, before current_screen
-	 * exists, so it reads the menu page slug directly like the build interceptor does.
+	 * exists, so it reads the menu page slug directly.
 	 *
-	 * @return bool True when serving a dashboard page in wp-admin.
+	 * @return bool True when serving the dashboard page in wp-admin.
 	 */
 	public static function is_dashboard_request() {
 		if ( ! is_admin() ) {
@@ -444,17 +457,15 @@ class Analytics {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the menu page slug to scope asset loading; no state is changed.
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
 
-		return in_array( $page, self::DASHBOARD_PAGE_SLUGS, true );
+		return self::MENU_PAGE_SLUG === $page;
 	}
 
 	/**
 	 * Register the admin menu page.
 	 *
-	 * Uses the wp-build "wp-admin integrated" variant (`-wp-admin` slug) so the
-	 * dashboard renders inside the native wp-admin shell, not the full-page
-	 * variant that takes over the screen via admin_init. The render callback
-	 * comes from the generated build; when that is missing we say so rather
-	 * than render an empty page, since the two look identical from the outside.
+	 * Uses wp-build's `-wp-admin` variant so Core applies the menu capability check.
+	 * The generated build provides the render callback; a missing build shows a
+	 * notice instead of an empty page.
 	 *
 	 * Report missing page and widget build artifacts independently because the
 	 * build loader includes each one conditionally.
@@ -550,47 +561,6 @@ class Analytics {
 			: __( 'Stats v2', 'jetpack-premium-analytics-pkg' );
 
 		return self::$resolved_menu_title;
-	}
-
-	/**
-	 * Register sidebar menu items for the full-page app.
-	 *
-	 * @return void
-	 */
-	public static function register_sidebar_items() {
-		if ( ! function_exists( 'jpa_register_jetpack_premium_analytics_menu_item' ) ) {
-			return;
-		}
-
-		// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above.
-		jpa_register_jetpack_premium_analytics_menu_item(
-			'dashboard',
-			__( 'Dashboard', 'jetpack-premium-analytics-pkg' ),
-			'/'
-		);
-	}
-
-	/**
-	 * Emit window.JetpackScriptData on the boot-rendered admin page.
-	 *
-	 * The wp-build interceptor that renders this page (its page.php template)
-	 * reproduces wp-admin/admin-header.php but does not fire the
-	 * `admin_print_scripts` action. The jetpack-assets Script_Data class hooks
-	 * that action to print `window.JetpackScriptData` — which carries the
-	 * connection data the route guards read — so without help the global is
-	 * never emitted and the guards cannot tell whether the site is connected.
-	 *
-	 * Hooked on the page's own init action, this runs only for this page, in
-	 * time for the footer scripts to print. Script_Data guards against rendering
-	 * twice, so it is a no-op wherever `admin_print_scripts` fires normally.
-	 *
-	 * @return void
-	 */
-	public static function ensure_script_data() {
-		$script_data = 'Automattic\Jetpack\Assets\Script_Data';
-		if ( is_callable( array( $script_data, 'render_script_data' ) ) ) {
-			$script_data::render_script_data();
-		}
 	}
 
 	/**
