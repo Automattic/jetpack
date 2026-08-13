@@ -3,6 +3,10 @@
  */
 import { tz, TZDate, TZDateMini } from '@date-fns/tz';
 import { format, isValid, startOfDay, endOfDay } from 'date-fns';
+/**
+ * Internal dependencies
+ */
+import { readSiteTimestamp, type TimestampParts } from './site-timestamp';
 
 type GrowTuple< T extends unknown[], Max extends number > = T[ 'length' ] extends Max
 	? T
@@ -60,53 +64,19 @@ export function createTZDateFromParts(
 	return new TZDateMini( ...datePartsTrimmed, tzid );
 }
 
-// The fractional second is matched at any length, and truncated below. Capping
-// it here would drop a value like `.123456` through to `Date`, which reads an
-// offset-less string in the *browser's* zone — the shift this module avoids.
-const OFFSETLESS_TIMESTAMP =
-	/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?)?$/;
-
 /**
- * Read an offset-less timestamp as wall time in a timezone.
+ * Anchor wall-clock parts to a timezone.
  *
- * @param value    - The timestamp.
+ * @param parts    - The wall-clock parts.
  * @param timeZone - The timezone the wall time belongs to.
- * @return The zoned date, an invalid date when the calendar date does not
- * exist, or null when the value has another format.
+ * @return The zoned date, or an invalid date when the timezone has no such day.
  */
-function offsetlessToTZDate( value: string, timeZone: string ): TZDate | null {
-	const match = OFFSETLESS_TIMESTAMP.exec( value );
-
-	if ( ! match ) {
-		return null;
-	}
-
-	const [ , year, month, day, hours, minutes, seconds, milliseconds ] = match;
-	const parts: DateParts = [
-		Number( year ),
-		Number( month ) - 1,
-		Number( day ),
-		Number( hours ?? 0 ),
-		Number( minutes ?? 0 ),
-		Number( seconds ?? 0 ),
-		Number( ( milliseconds ?? '' ).slice( 0, 3 ).padEnd( 3, '0' ) ),
-	];
-	const hasValidTime =
-		parts[ 3 ] >= 0 &&
-		parts[ 3 ] <= 23 &&
-		parts[ 4 ] >= 0 &&
-		parts[ 4 ] <= 59 &&
-		parts[ 5 ] >= 0 &&
-		parts[ 5 ] <= 59;
-
-	if ( ! hasValidTime ) {
-		return new TZDateMini( NaN, timeZone );
-	}
-
+function wallTimeToTZDate( parts: TimestampParts, timeZone: string ): TZDate {
 	const date = createTZDateFromParts( parts, timeZone );
 
-	// Reject calendar dates normalized by the constructor. Compare only date
-	// parts so DST-normalized wall times remain valid.
+	// A zone that skips a whole day, as Pacific/Apia did on 2011-12-30, moves
+	// the wall time onto the next one. Compare only the date parts, so a wall
+	// time normalized by a DST jump stays valid.
 	const survivedRoundTrip =
 		date.getFullYear() === parts[ 0 ] &&
 		date.getMonth() === parts[ 1 ] &&
@@ -129,10 +99,18 @@ export function toLocalTZ( value?: number | string | Date, timeZone?: string ): 
 	}
 
 	if ( typeof value === 'string' ) {
-		const anchored = offsetlessToTZDate( value, tzid );
+		const timestamp = readSiteTimestamp( value );
 
-		if ( anchored ) {
-			return anchored;
+		if ( timestamp ) {
+			if ( ! timestamp.isValid ) {
+				return new TZDateMini( NaN, tzid );
+			}
+
+			// An offset already identifies an instant, so only wall times are
+			// anchored to the timezone.
+			return timestamp.offset
+				? new TZDateMini( timestamp.value as unknown as number, tzid )
+				: wallTimeToTZDate( timestamp.parts, tzid );
 		}
 	}
 

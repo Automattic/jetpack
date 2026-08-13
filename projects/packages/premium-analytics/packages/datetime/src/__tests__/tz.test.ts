@@ -48,6 +48,13 @@ describe( 'toLocalTZ', () => {
 			);
 		} );
 
+		// Untrimmed values reach `Date`, which reads them in the browser's zone.
+		it( 'ignores surrounding whitespace', () => {
+			expect( wallTime( toLocalTZ( ' 2026-06-29 ', 'America/New_York' ) ) ).toBe(
+				'2026-06-29T00:00:00.000'
+			);
+		} );
+
 		it( 'anchors to UTC when no timezone is given', () => {
 			expect( toLocalTZ( '2026-06-29' ).toISOString() ).toBe( '2026-06-29T00:00:00.000Z' );
 		} );
@@ -126,6 +133,17 @@ describe( 'toLocalTZ', () => {
 				expect( toLocalTZ( value, 'America/New_York' ).getTime() ).toBeNaN();
 			}
 		);
+
+		// An offset says which instant a wall time names, not that the wall time
+		// exists. `Date` rolls these over, so they are checked before it sees them.
+		it.each( [
+			'2026-02-31T00:00:00Z',
+			'2026-02-31T00:00:00+02:00',
+			'2026-06-29T24:00:00Z',
+			' 2026-13-01T00:00:00Z ',
+		] )( 'rejects the offset-bearing value %s', value => {
+			expect( toLocalTZ( value, 'America/New_York' ).getTime() ).toBeNaN();
+		} );
 	} );
 
 	it( 'returns the current instant in the zone when no value is given', () => {

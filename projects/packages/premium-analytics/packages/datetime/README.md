@@ -46,13 +46,16 @@ Creates a timezone-aware date in the specified timezone.
 A string that states no offset — `YYYY-MM-DD`, or a `T`- or space-separated
 datetime — is read as **wall time** in that timezone. Values that already
 identify an instant (offset-bearing strings, timestamps, `Date`s) keep their
-instant. A calendar date that does not exist yields an invalid date rather
-than rolling over to the next month.
+instant. Surrounding whitespace is ignored, and a clock time or calendar date
+that does not exist yields an invalid date rather than rolling over — whether
+or not the value states an offset. `parseSiteDateTime` accepts exactly the same
+values, so the two cannot disagree on what is parseable.
 
 ```typescript
 const date = toLocalTZ( '2024-01-15', 'America/New_York' ); // Jan 15 00:00 in New York
 const now = toLocalTZ( undefined, '+05:30' ); // Current time in +05:30
 toLocalTZ( '2024-02-31', 'America/New_York' ); // Invalid Date
+toLocalTZ( '2024-02-31T00:00:00Z', 'America/New_York' ); // Invalid Date
 ```
 
 **Parameters:**
