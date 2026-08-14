@@ -12,6 +12,7 @@ import QueryClientWrapper from '../../src/dashboard/components/query-client-wrap
 import UploadDropzone from '../../src/dashboard/components/upload-dropzone';
 import {
 	selectFilesForPlan,
+	UPLOAD_BATCH_CONTEXT,
 	UPLOAD_ONBOARDING_CONTEXT,
 } from '../../src/dashboard/components/upload-dropzone/select-files';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
@@ -91,7 +92,11 @@ const StageInner = () => {
 			if ( discardedNotice ) {
 				createInfoNotice( discardedNotice );
 			}
-			files.forEach( file => startUpload( file, UPLOAD_ONBOARDING_CONTEXT ) );
+			// A batch is tagged apart from the single flow: it has no surface of
+			// its own here or on /upload, so it must not be adopted as one — nor
+			// celebrated once per file when the user chains through "Add details".
+			const context = files.length === 1 ? UPLOAD_ONBOARDING_CONTEXT : UPLOAD_BATCH_CONTEXT;
+			files.forEach( file => startUpload( file, context ) );
 			navigate( { href: files.length === 1 ? TAB_PATHS.upload : '/' } );
 		},
 		[ allowMultiple, createInfoNotice, isAtLimit, navigate, startUpload ]

@@ -8,17 +8,27 @@ import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Stack, Text } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import { getVideoInfoQueryKeyPrefix } from '../../src/client/components/caption-manager-modal/use-video-tracks';
+import { TAB_PATHS } from '../../src/dashboard/components/dashboard-tabs';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import { UPLOAD_ONBOARDING_CONTEXT } from '../../src/dashboard/components/upload-dropzone/select-files';
 import UploadPill from '../../src/dashboard/components/upload-pill';
 import Editor, {
 	getParentBreadcrumbItem,
 } from '../../src/dashboard/components/video-details/editor';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
+import { useLibrary } from '../../src/dashboard/hooks/use-library';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
-import { useInvalidateVideo, useVideo } from '../../src/dashboard/hooks/use-video';
+import { markUploadCelebrated, useUpload } from '../../src/dashboard/hooks/use-upload';
+import {
+	isMissingVideoError,
+	useInvalidateVideo,
+	useVideo,
+} from '../../src/dashboard/hooks/use-video';
 import './style.scss';
+import type { UploadItem } from '../../src/dashboard/hooks/use-upload';
 import type { LibraryItem } from '../../src/dashboard/types/library';
+import type { View } from '@wordpress/dataviews';
 
 const isEditable = ( item: LibraryItem ): boolean =>
 	item.type === 'videopress' && item.upload.status !== 'failed';
@@ -61,7 +71,29 @@ const Loading = () => (
 	</AdminPage>
 );
 
-type StageReadyProps = { video: LibraryItem };
+type StageReadyProps = {
+	video: LibraryItem;
+	/**
+	 * The un-acknowledged queue row that produced this video, when there is
+	 * one. It carries the pre-handoff draft and the pending celebration.
+	 */
+	uploadRow?: UploadItem;
+};
+
+// "Was that the last video?" — the server total, deliberately NOT useFreeTier's
+// count: that one adds un-acknowledged queue rows, which on this page includes
+// the row for the very video being deleted. A perPage=1 read, and keyed
+// identically to the first-run count view so every other screen in the session
+// shares its cache entry.
+const LAST_VIDEO_COUNT_VIEW: View = {
+	type: 'table',
+	page: 1,
+	perPage: 1,
+	fields: [],
+	filters: [],
+	search: '',
+	sort: { field: 'date', direction: 'desc' },
+};
 
 // Per-video id so the settle notices replace the in-progress snackbar in
 // place (the notices store drops an existing notice with the same id on
@@ -70,16 +102,70 @@ type StageReadyProps = { video: LibraryItem };
 // another — can't clobber each other's notices.
 const deletingNoticeId = ( videoId: string ) => `vp-video-deleting-${ videoId }`;
 
-const StageReady = ( { video }: StageReadyProps ) => {
+const StageReady = ( { video, uploadRow }: StageReadyProps ) => {
 	const navigate = useNavigate();
 	const invalidateVideo = useInvalidateVideo();
 	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
 	const { syncChapters } = useUpdateChapters();
 	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
+	const { acknowledgeUpload } = useUpload();
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
 	const [ captionsOpen, setCaptionsOpen ] = useState( false );
 	const queryClient = useQueryClient();
+	const { paginationInfo } = useLibrary( LAST_VIDEO_COUNT_VIEW );
+	const libraryTotalRef = useRef( 0 );
+	libraryTotalRef.current = paginationInfo?.totalItems ?? 0;
+
+	// The upload's own screen. Arriving here from the /upload bridge (or from
+	// the pill's "Add details"), this page owns the tail of the upload: the
+	// processing stage in the player slot, then the one-time celebration.
+	//
+	// Celebration is gated on the single-upload flow's context: chaining
+	// through "Add details" for a five-file batch would otherwise throw five
+	// separate celebrations, one per video.
+	const isCelebrationDue = Boolean(
+		uploadRow &&
+			uploadRow.context === UPLOAD_ONBOARDING_CONTEXT &&
+			! uploadRow.celebrated &&
+			! video.isProcessing
+	);
+
+	// Dismiss is this row's end: the celebration is spent AND the row is
+	// acknowledged out of the queue. Acknowledgement deliberately happens here
+	// rather than at the handoff — the row has to survive the navigation to
+	// carry the draft and the celebration to this page in the first place.
+	const dismissCelebration = useCallback( () => {
+		if ( ! uploadRow ) {
+			return;
+		}
+		markUploadCelebrated( uploadRow.id );
+		acknowledgeUpload( uploadRow.id );
+	}, [ acknowledgeUpload, uploadRow ] );
+
+	// A row with no celebration coming (a batch upload, or one already
+	// celebrated) has nothing left to deliver once this page is showing its
+	// video, so standing here consumes it. Without this, celebration dismiss
+	// being the only "Add details" acknowledgement path would leave batch rows
+	// in the queue forever — the pill's chain would loop back through videos
+	// the user had already visited.
+	useEffect( () => {
+		if ( uploadRow && ! isCelebrationDue && ! video.isProcessing ) {
+			acknowledgeUpload( uploadRow.id );
+		}
+	}, [ uploadRow, isCelebrationDue, video.isProcessing, acknowledgeUpload ] );
+
+	const uploadSession = uploadRow
+		? {
+				uploadState: video.isProcessing
+					? { status: 'processing' as const, progress: 100, fileName: uploadRow.file.name }
+					: undefined,
+				celebration: isCelebrationDue ? { onDismiss: dismissCelebration } : undefined,
+				// The record is real by definition on this route.
+				saveDisabled: false,
+				draft: uploadRow.draft,
+		  }
+		: undefined;
 
 	/*
 	 * The caption manager runs on its own query client, so the page's caches
@@ -144,6 +230,17 @@ const StageReady = ( { video }: StageReadyProps ) => {
 					if ( isDeleting ) {
 						return;
 					}
+					// DELETE …?force=true — there is no trash to recover from, so
+					// the only chance to stop this is before it starts.
+					// eslint-disable-next-line no-alert -- deliberate synchronous guard on an irreversible action.
+					const confirmed = window.confirm(
+						__( 'Permanently delete this video?', 'jetpack-videopress-pkg' )
+					);
+					if ( ! confirmed ) {
+						return;
+					}
+					// Read before the delete: after it, the count has moved.
+					const wasLastVideo = libraryTotalRef.current <= 1;
 					// Deleting can take several seconds (the backend also removes the
 					// remote VideoPress copy); surface progress immediately so the
 					// action doesn't feel frozen. `explicitDismiss` keeps the snackbar
@@ -161,7 +258,9 @@ const StageReady = ( { video }: StageReadyProps ) => {
 								id: deletingNoticeId( video.id ),
 							} );
 							if ( isMountedRef.current ) {
-								navigate( { href: '/' } );
+								// An emptied Library is a dead end — no dropzone, no
+								// next step. Home has both.
+								navigate( { href: wasLastVideo ? TAB_PATHS.home : '/' } );
 							}
 						} )
 						.catch( () => {
@@ -178,6 +277,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 				onManageCaptions={ () => setCaptionsOpen( true ) }
 				chaptersOpen={ chaptersOpen }
 				setChaptersOpen={ setChaptersOpen }
+				uploadSession={ uploadSession }
 			/>
 			{ captionsOpen && (
 				<CaptionManagerModal
@@ -197,24 +297,36 @@ const StageReady = ( { video }: StageReadyProps ) => {
 
 const StageInner = () => {
 	const { id } = useParams( { from: '/video/$id' } );
-	const { video, isLoading } = useVideo( id );
+	const { video, isLoading, error } = useVideo( id );
+	const { uploadQueue } = useUpload();
+
+	// The queue row bound to this attachment, while it is still un-acknowledged.
+	const uploadRow = uploadQueue.find(
+		row => row.media !== undefined && Number( row.media.id ) === Number( id )
+	);
 
 	let body;
 	if ( isLoading ) {
 		body = <Loading />;
+	} else if ( isMissingVideoError( error ) ) {
+		// Deleted out from under us (another tab, another device): the cached
+		// record is still in hand, and rendering it would offer saves and
+		// deletes against a 404.
+		body = <NotFound />;
 	} else if ( ! video || ! isEditable( video ) ) {
 		body = <NotFound />;
 	} else {
-		body = <StageReady video={ video } />;
+		body = <StageReady video={ video } uploadRow={ uploadRow } />;
 	}
 
 	// The edit screen has its own AdminPage rather than DashboardLayout, so
 	// the batch upload pill — the multi-upload "add details" chain lands
-	// here — needs its own mount.
+	// here — needs its own mount. This video's own row is filtered out of it:
+	// the page itself is that upload's progress surface.
 	return (
 		<>
 			{ body }
-			<UploadPill />
+			<UploadPill suppressMediaId={ id } />
 		</>
 	);
 };

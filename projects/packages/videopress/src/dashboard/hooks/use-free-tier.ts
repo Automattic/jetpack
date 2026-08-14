@@ -49,10 +49,17 @@ export function useFreeTier(): FreeTierState {
 	const isFree = ! siteData?.hasVideoPressAccess;
 
 	const completed = paginationInfo?.totalItems ?? 0;
-	const inFlight = uploadQueue.filter(
-		u => u.status === 'uploading' || u.status === 'pending'
+	// Success rows count too, until they are acknowledged. The server total
+	// lags a finished upload by a refetch — and `type=videopress` lags it
+	// further, until WordPress.com registers the video — so counting only
+	// in-flight rows reopens the gate in the window where the user has
+	// unmistakably used their one free upload. The double-count once the
+	// refetch lands is deliberate and harmless: the only consumer thresholds
+	// at `limit = 1`.
+	const queued = uploadQueue.filter(
+		u => u.status === 'uploading' || u.status === 'pending' || u.status === 'success'
 	).length;
-	const videoCount = completed + inFlight;
+	const videoCount = completed + queued;
 
 	const isAtomic = isWoASite();
 	const isUnlimited = useIsVideoPressUnlimited();

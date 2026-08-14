@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useNavigate } from '@wordpress/route';
 import { resetFeatures, setFeatures } from '../../../src/dashboard/test-utils/features';
@@ -108,8 +108,11 @@ jest.mock( '../../../src/dashboard/components/video-details/preview-player', () 
 	__esModule: true,
 	default: () => <div data-testid="preview-player" />,
 } ) );
+// live-celebration imports linkForVideo from this module, so the mock keeps
+// the real implementation alongside the stubbed card.
 jest.mock( '../../../src/dashboard/components/video-details/video-info-card', () => ( {
 	__esModule: true,
+	...jest.requireActual( '../../../src/dashboard/components/video-details/video-info-card' ),
 	default: () => <div data-testid="video-info-card" />,
 } ) );
 // Both carry their own queries — the poster mutation and frame picker in one,
@@ -157,6 +160,35 @@ jest.mock( '../../../src/dashboard/hooks/use-update-video-meta', () => ( {
 	useUpdateVideoMeta: () => ( { mutate: mockUpdateMeta, isPending: false } ),
 } ) );
 
+// The shared upload queue, scripted per test: after the /upload handoff this
+// page owns the tail of the upload (processing stage, celebration, draft).
+type MockQueueRow = {
+	id: string;
+	file: File;
+	progress: number;
+	status: 'pending' | 'uploading' | 'success' | 'failed';
+	media?: { id: number; guid: string; src: string };
+	context?: string;
+	enqueuedAt: string;
+	draft?: { title?: string };
+	celebrated?: boolean;
+};
+let mockQueue: MockQueueRow[] = [];
+const mockAcknowledgeUpload = jest.fn();
+const mockMarkCelebrated = jest.fn();
+jest.mock( '../../../src/dashboard/hooks/use-upload', () => ( {
+	useUpload: () => ( {
+		uploadQueue: mockQueue,
+		startUpload: jest.fn(),
+		retryUpload: jest.fn(),
+		cancelUpload: jest.fn(),
+		acknowledgeUpload: mockAcknowledgeUpload,
+	} ),
+	markUploadCelebrated: ( id: string ) => mockMarkCelebrated( id ),
+	// The delete mutation reconciles the queue through this.
+	removeUploadRowsForMedia: jest.fn(),
+} ) );
+
 const mockUseNavigate = useNavigate as jest.Mock;
 
 const GUID = 'abc123';
@@ -186,19 +218,31 @@ function makeRawMedia() {
 }
 
 /**
- * Install an apiFetch handler serving the media fixture. The meta save is a
- * mocked hook and deletes aren't exercised, so /wp/v2/media/{id} is the only
- * endpoint this stage reads here.
+ * Install an apiFetch handler serving the media fixture, plus the listing
+ * endpoint the "was that the last video?" read goes through — only its
+ * X-WP-Total matters, so the rows themselves stay empty.
+ *
+ * @param overrides - Fields to override on the media fixture.
  */
-function installApi() {
-	const media = makeRawMedia();
-	mockApiFetch( ( { path = '' } ) => {
+function installApi( overrides: Record< string, unknown > = {} ) {
+	const media = { ...makeRawMedia(), ...overrides };
+	mockApiFetch( ( { path = '', parse } ) => {
 		if ( path.startsWith( '/wp/v2/media/' ) ) {
 			return media;
+		}
+		if ( parse === false ) {
+			return {
+				headers: {
+					get: ( name: string ) => ( name === 'X-WP-Total' ? String( mockLibraryTotal ) : '1' ),
+				},
+				json: () => Promise.resolve( [] ),
+			};
 		}
 		return {};
 	} );
 }
+
+let mockLibraryTotal = 3;
 
 /**
  * Render the stage and wait for the editor form to appear.
@@ -234,6 +278,8 @@ describe( 'video stage', () => {
 		navigate = jest.fn();
 		mockUseNavigate.mockReturnValue( navigate );
 		mockSyncChapters.mockResolvedValue( 'uploaded' );
+		mockQueue = [];
+		mockLibraryTotal = 3;
 		installApi();
 		// The sub-nav is gated on the chapters editor; the tests below that
 		// exercise it need the gate on. The gate's own cases flip it back.
@@ -426,5 +472,155 @@ describe( 'video stage', () => {
 		expect( mockSyncChapters ).not.toHaveBeenCalled();
 		expect( mockErrorNotice ).toHaveBeenCalledWith( 'Failed to save video details.' );
 		expect( mockSuccessNotice ).not.toHaveBeenCalled();
+	} );
+
+	describe( 'delete', () => {
+		/**
+		 * Open the ⋯ menu and pick "Delete video".
+		 */
+		async function chooseDelete() {
+			const user = userEvent.setup();
+			await user.click( screen.getByRole( 'button', { name: 'More actions' } ) );
+			await user.click( screen.getByRole( 'menuitem', { name: 'Delete video' } ) );
+		}
+
+		it( 'confirms first, and does nothing when the prompt is declined', async () => {
+			const confirmSpy = jest.spyOn( window, 'confirm' ).mockReturnValue( false );
+			await renderReadyStage();
+
+			await chooseDelete();
+
+			expect( confirmSpy ).toHaveBeenCalledWith( 'Permanently delete this video?' );
+			// force=true is permanent — a declined prompt must not have started it.
+			expect( mockInfoNotice ).not.toHaveBeenCalled();
+			expect( navigate ).not.toHaveBeenCalled();
+			confirmSpy.mockRestore();
+		} );
+
+		it( 'lands on Home when the deleted video was the last one', async () => {
+			mockLibraryTotal = 1;
+			const confirmSpy = jest.spyOn( window, 'confirm' ).mockReturnValue( true );
+			await renderReadyStage();
+
+			await chooseDelete();
+			await waitFor( () => expect( navigate ).toHaveBeenCalled() );
+
+			// An emptied Library has no dropzone and nothing to do next.
+			expect( navigate ).toHaveBeenCalledWith( { href: '/home' } );
+			confirmSpy.mockRestore();
+		} );
+
+		it( 'lands back on the Library while other videos remain', async () => {
+			mockLibraryTotal = 4;
+			const confirmSpy = jest.spyOn( window, 'confirm' ).mockReturnValue( true );
+			await renderReadyStage();
+
+			await chooseDelete();
+			await waitFor( () => expect( navigate ).toHaveBeenCalled() );
+
+			expect( navigate ).toHaveBeenCalledWith( { href: '/' } );
+			confirmSpy.mockRestore();
+		} );
+	} );
+
+	describe( 'upload handoff', () => {
+		const uploadRow = ( overrides: Partial< MockQueueRow > = {} ): MockQueueRow => ( {
+			id: 'q-1',
+			file: new File( [ 'x' ], 'clip.mp4', { type: 'video/mp4' } ),
+			progress: 1,
+			status: 'success',
+			media: { id: 42, guid: GUID, src: 'https://example.com/clip.mp4' },
+			context: 'upload-onboarding',
+			enqueuedAt: '2026-01-01T00:00:00.000Z',
+			...overrides,
+		} );
+
+		it( 'stages the processing tail in the player slot', async () => {
+			// Arrival straight off the handoff: the record is registered but
+			// the transcode has not finished, so the page — not a bridge on
+			// /upload — reports it.
+			installApi( {
+				media_details: { videopress: { poster: null, duration: 0, finished: false } },
+			} );
+			mockQueue = [ uploadRow() ];
+
+			await renderReadyStage();
+
+			expect( screen.getByText( 'Upload complete — processing…' ) ).toBeInTheDocument();
+			expect( screen.queryByTestId( 'preview-player' ) ).not.toBeInTheDocument();
+			// The row is still delivering (the processing surface, then the
+			// celebration) — it must not be consumed yet.
+			expect( mockAcknowledgeUpload ).not.toHaveBeenCalled();
+		} );
+
+		it( 'celebrates a playable single-flow upload and ends the row on dismiss', async () => {
+			const user = userEvent.setup();
+			mockQueue = [ uploadRow() ];
+
+			await renderReadyStage();
+
+			expect( screen.getByText( 'Your video is live' ) ).toBeInTheDocument();
+			await user.click( screen.getByRole( 'button', { name: 'Watch video' } ) );
+
+			// Dismiss is the row's end: the celebration is spent AND the row
+			// leaves the queue — acknowledgement lives here, not at the handoff.
+			expect( mockMarkCelebrated ).toHaveBeenCalledWith( 'q-1' );
+			expect( mockAcknowledgeUpload ).toHaveBeenCalledWith( 'q-1' );
+		} );
+
+		it( 'stays quiet for a row from a multi-file batch, and consumes it', async () => {
+			// Chaining "Add details" through a five-video batch must not throw
+			// five celebrations; only the single-upload flow celebrates.
+			mockQueue = [ uploadRow( { context: 'upload-batch' } ) ];
+
+			await renderReadyStage();
+
+			expect( screen.queryByText( 'Your video is live' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'preview-player' ) ).toBeInTheDocument();
+			// No celebration means no dismiss, so standing on the video is the
+			// acknowledgement — otherwise the row never leaves the queue and the
+			// pill's "Add details" chain loops back through visited videos.
+			expect( mockAcknowledgeUpload ).toHaveBeenCalledWith( 'q-1' );
+		} );
+
+		it( 'does not re-celebrate a row that already has, and consumes it', async () => {
+			mockQueue = [ uploadRow( { celebrated: true } ) ];
+
+			await renderReadyStage();
+
+			expect( screen.queryByText( 'Your video is live' ) ).not.toBeInTheDocument();
+			expect( mockAcknowledgeUpload ).toHaveBeenCalledWith( 'q-1' );
+		} );
+
+		it( 'hydrates the draft typed before the handoff, as unsaved', async () => {
+			mockQueue = [ uploadRow( { draft: { title: 'Launch week recap' } } ) ];
+
+			await renderReadyStage();
+
+			expect( screen.getByLabelText( 'Title' ) ).toHaveValue( 'Launch week recap' );
+			// Carried edits are unsaved against the server record, so Save is live.
+			expect( screen.getByRole( 'button', { name: 'Save' } ) ).not.toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+		} );
+	} );
+
+	it( 'shows Not found when the record 404s under a stale cache entry', async () => {
+		// Deleted from another tab: the cached record is still in hand, and
+		// rendering it would offer saves and deletes against a 404.
+		await renderReadyStage();
+		expect( screen.getByLabelText( 'Title' ) ).toBeInTheDocument();
+
+		mockApiFetch( () => {
+			throw { code: 'rest_post_invalid_id', data: { status: 404 } };
+		} );
+		await act( async () => {
+			await mockTestClient.refetchQueries();
+		} );
+
+		await expect(
+			screen.findByText( "We couldn't find that video." )
+		).resolves.toBeInTheDocument();
 	} );
 } );

@@ -31,6 +31,7 @@ const makeItem = ( overrides: Partial< UploadItem > = {} ): UploadItem => {
 		file: new File( [ 'x' ], `video-${ itemCounter }.mp4`, { type: 'video/mp4' } ),
 		progress: 0.5,
 		status: 'uploading',
+		enqueuedAt: '2026-08-13T10:00:00.000Z',
 		...overrides,
 	};
 };
@@ -128,9 +129,10 @@ describe( 'UploadPill', () => {
 		await userEvent.click( screen.getAllByRole( 'button', { name: 'Add details' } )[ 0 ] );
 
 		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/video/77' } );
-		// Navigating to a video acknowledges its row, so the remaining rows
-		// are the chain of videos still awaiting details.
-		expect( mockAcknowledgeUpload ).toHaveBeenCalledWith( 'u-1' );
+		// The row must survive the navigation: it carries the draft and the
+		// un-shown celebration to the video's page, which acknowledges it on
+		// dismiss. Acknowledging here killed both for pill-navigated arrivals.
+		expect( mockAcknowledgeUpload ).not.toHaveBeenCalled();
 	} );
 
 	it( 'dismiss acknowledges settled rows but not in-flight ones', async () => {
@@ -152,7 +154,7 @@ describe( 'UploadPill', () => {
 		expect( mockAcknowledgeUpload ).toHaveBeenCalledWith( 'u-2' );
 	} );
 
-	it( 'stands down while the queue holds only the suppressed context', () => {
+	it( 'stands down while every row carries the suppressed context', () => {
 		mockQueue = [
 			makeItem( { context: 'upload-onboarding' } ),
 			makeItem( { context: 'upload-onboarding' } ),
@@ -161,9 +163,62 @@ describe( 'UploadPill', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	it( 'renders when any queue item falls outside the suppressed context', () => {
+	// The old rule suppressed all-or-nothing, so one foreign row un-suppressed
+	// the edit session's own row and the pill re-announced it on top of the
+	// screen already reporting it.
+	it( 'filters out only the suppressed context, keeping foreign rows', async () => {
 		mockQueue = [ makeItem( { context: 'upload-onboarding' } ), makeItem() ];
 		render( <UploadPill suppressContext="upload-onboarding" /> );
-		expect( screen.getByRole( 'region', { name: 'Video uploads' } ) ).toBeInTheDocument();
+
+		expect( screen.getByText( 'Uploading 1 video — 50%' ) ).toBeInTheDocument();
+		await expandPill();
+		expect( screen.queryByText( 'video-1.mp4' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'video-2.mp4' ) ).toBeInTheDocument();
+	} );
+
+	it( 'filters out the row for the video whose page we are standing on', async () => {
+		mockQueue = [
+			makeItem( {
+				status: 'success',
+				progress: 1,
+				media: { id: 77, guid: 'g77', src: 'https://v.example/77' },
+			} ),
+			makeItem( {
+				status: 'success',
+				progress: 1,
+				media: { id: 78, guid: 'g78', src: 'https://v.example/78' },
+			} ),
+		];
+		render( <UploadPill suppressMediaId={ 77 } /> );
+
+		expect( screen.getByText( '1 video uploaded' ) ).toBeInTheDocument();
+		await expandPill();
+		expect( screen.queryByText( 'video-1.mp4' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'video-2.mp4' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides entirely once suppression empties the list', () => {
+		mockQueue = [
+			makeItem( {
+				status: 'success',
+				progress: 1,
+				media: { id: 77, guid: 'g77', src: 'https://v.example/77' },
+			} ),
+		];
+		const { container } = render( <UploadPill suppressMediaId="77" /> );
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
+	it( 'dismiss ignores suppressed rows', async () => {
+		mockQueue = [
+			makeItem( { context: 'upload-onboarding', status: 'failed', error: 'boom' } ),
+			makeItem( { status: 'failed', error: 'boom' } ),
+		];
+		render( <UploadPill suppressContext="upload-onboarding" /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Dismiss finished uploads' } ) );
+
+		expect( mockAcknowledgeUpload ).toHaveBeenCalledTimes( 1 );
+		expect( mockAcknowledgeUpload ).toHaveBeenCalledWith( 'u-2' );
 	} );
 } );

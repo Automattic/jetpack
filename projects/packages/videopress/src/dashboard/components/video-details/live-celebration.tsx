@@ -1,6 +1,7 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { Button } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
+import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { check, copy, Icon } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
@@ -39,14 +40,27 @@ export default function LiveCelebration( { video, onDismiss }: Props ): ReactEle
 	const copyRef = useCopyToClipboard( link, () =>
 		createSuccessNotice( __( 'Link copied to clipboard.', 'jetpack-videopress-pkg' ) )
 	);
+	const headingRef = useRef< HTMLHeadingElement >( null );
+
+	// This replaces the player mid-page after an asynchronous wait nobody is
+	// watching the DOM for, so it both announces itself (role="status") and
+	// takes focus — otherwise a keyboard user's next Tab continues from
+	// wherever the page was before the video went live.
+	useEffect( () => {
+		headingRef.current?.focus();
+	}, [] );
 
 	return (
-		<div className="vp-video-details__player vp-live-celebration">
+		<div className="vp-video-details__player vp-live-celebration" role="status">
 			<Stack direction="column" gap="md" align="center">
 				<span className="vp-live-celebration__icon">
 					<Icon icon={ check } size={ 32 } />
 				</span>
-				<Text variant="body-lg" render={ <h3 /> } className="vp-live-celebration__title">
+				<Text
+					variant="body-lg"
+					render={ <h3 ref={ headingRef } tabIndex={ -1 } /> }
+					className="vp-live-celebration__title"
+				>
 					{ __( 'Your video is live', 'jetpack-videopress-pkg' ) }
 				</Text>
 				<Text variant="body-sm" render={ <span /> } className="vp-live-celebration__url">

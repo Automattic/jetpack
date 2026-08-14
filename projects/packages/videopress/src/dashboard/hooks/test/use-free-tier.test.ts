@@ -10,19 +10,64 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isSimpleSite: jest.fn( () => false ),
 } ) );
 
+let mockUploadQueue: Array< Record< string, unknown > > = [];
 jest.mock( '../use-upload', () => ( {
 	useUpload: () => ( {
-		uploadQueue: [ { id: 'a', status: 'uploading', progress: 0.5, file: new File( [], 'a' ) } ],
+		uploadQueue: mockUploadQueue,
 		startUpload: jest.fn(),
 		retryUpload: jest.fn(),
 	} ),
 } ) );
+
+const queueRow = ( status: string ) => ( {
+	id: `q-${ status }`,
+	status,
+	progress: status === 'success' ? 1 : 0.5,
+	file: new File( [], 'a' ),
+	enqueuedAt: '2026-08-13T10:00:00.000Z',
+} );
+
+/**
+ * Answer the library count request with a zero total — the free-tier hook's
+ * only network read.
+ *
+ * @param total - The X-WP-Total the listing should report.
+ */
+function mockLibraryTotal( total: string ) {
+	mockApiFetch( async ( { parse } ) => {
+		if ( parse === false ) {
+			return {
+				headers: { get: ( key: string ) => ( key === 'X-WP-Total' ? total : '0' ) },
+				json: async () => [],
+			};
+		}
+		throw new Error( 'unexpected parsed request' );
+	} );
+}
 
 describe( 'useFreeTier', () => {
 	beforeAll( () => {
 		( window as unknown as { JPVIDEOPRESS_INITIAL_STATE?: unknown } ).JPVIDEOPRESS_INITIAL_STATE = {
 			siteData: { hasVideoPressAccess: false, isVideoPressUnlimited: false },
 		};
+	} );
+
+	beforeEach( () => {
+		mockUploadQueue = [ queueRow( 'uploading' ) ];
+	} );
+
+	// Regression: only `uploading|pending` were counted, so the gate reopened
+	// the instant an upload succeeded — before the library refetch (and the
+	// `type=videopress` registration behind it) caught up — and a free user
+	// could start a second upload in that window.
+	it( 'keeps counting a succeeded upload until its row is acknowledged', async () => {
+		mockUploadQueue = [ queueRow( 'success' ) ];
+		mockLibraryTotal( '0' );
+
+		const { result } = renderHook( () => useFreeTier(), { wrapper: createTestWrapper() } );
+
+		await waitFor( () => expect( result.current.videoCount ).toBe( 1 ) );
+		expect( result.current.isAtLimit ).toBe( true );
 	} );
 
 	it( 'counts completed (from totalItems) + in-flight uploads', async () => {

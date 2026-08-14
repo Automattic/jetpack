@@ -138,4 +138,44 @@ describe( 'useVideoDetailsForm', () => {
 		expect( result.current.values.description ).toBe( 'Real cut' );
 		expect( result.current.isDirty ).toBe( false );
 	} );
+	it( 'reports only the fields that diverge from the baseline', () => {
+		const { result } = renderHook( () => useVideoDetailsForm( video ) );
+
+		expect( result.current.dirtyValues ).toEqual( {} );
+
+		act( () => result.current.update( { title: 'My Clip 2' } ) );
+		// The diff, not the whole form: it is written through to the upload's
+		// queue row on every keystroke.
+		expect( result.current.dirtyValues ).toEqual( { title: 'My Clip 2' } );
+
+		act( () => result.current.update( { title: 'My Clip' } ) );
+		expect( result.current.dirtyValues ).toEqual( {} );
+	} );
+
+	it( 'seeds initialDraft over the record, as unsaved', () => {
+		const { result } = renderHook( () =>
+			useVideoDetailsForm( video, { initialDraft: { title: 'Launch week recap' } } )
+		);
+
+		expect( result.current.values.title ).toBe( 'Launch week recap' );
+		// Untouched fields still come from the record.
+		expect( result.current.values.description ).toBe( 'First cut' );
+		// Carried edits are unsaved against the server record — that is exactly
+		// what they are, and Save has to light up for them.
+		expect( result.current.isDirty ).toBe( true );
+		expect( result.current.dirtyValues ).toEqual( { title: 'Launch week recap' } );
+	} );
+
+	it( 'reads initialDraft once, at mount', () => {
+		const { result, rerender } = renderHook(
+			( draft: { title?: string } ) => useVideoDetailsForm( video, { initialDraft: draft } ),
+			{ initialProps: { title: 'First seed' } }
+		);
+
+		// The row's draft keeps changing as the user types — re-seeding from it
+		// would fight the very input that produced it.
+		rerender( { title: 'Later value' } );
+
+		expect( result.current.values.title ).toBe( 'First seed' );
+	} );
 } );

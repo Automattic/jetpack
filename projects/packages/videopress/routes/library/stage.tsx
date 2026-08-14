@@ -7,6 +7,7 @@ import { useNavigate, useSearch } from '@wordpress/route';
 import { Button } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
+import { TAB_PATHS } from '../../src/dashboard/components/dashboard-tabs';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
 import FreeTierNotice, {
 	FREE_TIER_AT_LIMIT_MESSAGE,
@@ -66,6 +67,19 @@ const defaultLayouts: SupportedLayouts = {
 	table: { layout: { density: 'balanced' } },
 };
 
+// The whole library, unfiltered — `paginationInfo` on the user's own view is
+// scoped to their filters and search, so it cannot answer "is anything left".
+// Identical shape to the first-run count view, so the two share one query.
+const TOTAL_COUNT_VIEW: View = {
+	type: 'table',
+	page: 1,
+	perPage: 1,
+	fields: [],
+	filters: [],
+	search: '',
+	sort: { field: 'date', direction: 'desc' },
+};
+
 /**
  * Shape the Library's initial view from the route's search params.
  *
@@ -119,6 +133,9 @@ const StageInner = () => {
 		error: libraryError,
 		refetch,
 	} = useLibrary( view );
+	const { paginationInfo: totalPagination } = useLibrary( TOTAL_COUNT_VIEW );
+	const libraryTotalRef = useRef( 0 );
+	libraryTotalRef.current = totalPagination?.totalItems ?? 0;
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
@@ -245,6 +262,29 @@ const StageInner = () => {
 					setCaptionVideo( item );
 				},
 				deleteItems: async ( ids: string[] ) => {
+					// DELETE …?force=true — permanent, no trash. One prompt per
+					// batch rather than per row: DataViews hands the whole
+					// selection to this callback at once, and a prompt per video
+					// would be the same question five times.
+					const confirmed =
+						// eslint-disable-next-line no-alert -- deliberate synchronous guard on an irreversible action.
+						window.confirm(
+							sprintf(
+								/* translators: %d: number of videos to delete. */
+								_n(
+									'Permanently delete %d video?',
+									'Permanently delete %d videos?',
+									ids.length,
+									'jetpack-videopress-pkg'
+								),
+								ids.length
+							)
+						);
+					if ( ! confirmed ) {
+						return;
+					}
+					// Read before the delete: after it, the count has moved.
+					const wasWholeLibrary = libraryTotalRef.current <= ids.length;
 					setDeletingIds( prev => new Set( [ ...prev, ...ids ] ) );
 					// The row overlay/pill is purely visual; this notice is what
 					// announces the in-flight state to screen readers. Per-batch id
@@ -318,6 +358,11 @@ const StageInner = () => {
 					// failure the failed rows survive and stay selected.
 					const requested = new Set( ids );
 					setSelection( prev => prev.filter( id => ! requested.has( id ) || failedIds.has( id ) ) );
+					// An emptied Library is a dead end: no dropzone under the
+					// "no results" state, nothing to do next. Home has both.
+					if ( wasWholeLibrary && failedIds.size === 0 ) {
+						navigate( { href: TAB_PATHS.home } );
+					}
 				},
 				setPrivacy: ( ids: string[], privacy: LibraryItemPrivacy ) => {
 					// Batch through useSetPrivacy: each id is POSTed individually so one
@@ -380,6 +425,7 @@ const StageInner = () => {
 			createSuccessNotice,
 			createErrorNotice,
 			createInfoNotice,
+			navigate,
 		]
 	);
 
@@ -396,7 +442,9 @@ const StageInner = () => {
 				filename: u.file.name,
 				thumbnailUrl: null,
 				durationSeconds: 0,
-				uploadDate: new Date().toISOString(),
+				// The enqueue time, not now: a date rebuilt on every render walks
+				// forward while the row is on screen, and this listing sorts by it.
+				uploadDate: u.enqueuedAt,
 				privacy: 'site-default' as LibraryItemPrivacy,
 				isPrivate: false,
 				fileSizeBytes: u.file.size,

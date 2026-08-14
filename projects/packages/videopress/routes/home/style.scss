@@ -195,14 +195,17 @@
 
 	// The emptied-library dropzone, alone on the screen now that the
 	// EmptyState shell above it is gone. Same 718px cap as the /upload card:
-	// at the full 1272px column a drop target reads as a void. No frame of
-	// its own — the dropzone's dotted SVG outline is the border here, where
-	// /upload wraps it in a card instead. The top clearance is inherited from
-	// the shell it replaced, so the target doesn't sit hard under the tabs.
+	// at the full 1272px column a drop target reads as a void. Same card frame
+	// and 718px measure as /upload's dropzone — the two screens offer the same
+	// action and were reading as different components.
 	&__empty-upload {
+		box-sizing: border-box;
 		inline-size: 100%;
 		max-inline-size: 718px;
 		margin-inline: auto;
-		padding-block-start: 32px;
+		margin-block-start: var(--wpds-dimension-gap-2xl);
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		border-radius: var(--wpds-border-radius-lg);
+		background: var(--wpds-color-background-surface-neutral-strong);
 	}
 }

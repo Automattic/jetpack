@@ -14,8 +14,6 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, media, check, copy } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
 import { Card, Stack, Text } from '@wordpress/ui';
-import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
-import { getVideoInfoQueryKeyPrefix } from '../../src/client/components/caption-manager-modal/use-video-tracks';
 import AddToContentMenu from '../../src/dashboard/components/add-to-content-menu';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import { TAB_PATHS } from '../../src/dashboard/components/dashboard-tabs';
@@ -24,20 +22,19 @@ import QueryClientWrapper from '../../src/dashboard/components/query-client-wrap
 import UploadDropzone from '../../src/dashboard/components/upload-dropzone';
 import {
 	selectFilesForPlan,
+	UPLOAD_BATCH_CONTEXT,
 	UPLOAD_ONBOARDING_CONTEXT,
 } from '../../src/dashboard/components/upload-dropzone/select-files';
 import Editor from '../../src/dashboard/components/video-details/editor';
-import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { markFirstPublish, useFirstRunState } from '../../src/dashboard/hooks/use-first-run-state';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { LIBRARY_QUERY_KEY } from '../../src/dashboard/hooks/use-library';
-import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
-import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
-import { useUpload } from '../../src/dashboard/hooks/use-upload';
-import { useInvalidateVideo, useVideo } from '../../src/dashboard/hooks/use-video';
+import { isAdoptableUpload, setUploadDraft, useUpload } from '../../src/dashboard/hooks/use-upload';
+import { useVideo } from '../../src/dashboard/hooks/use-video';
 import { isWpcomConnected } from '../../src/dashboard/utils/connection';
 import './style.scss';
 import type { EditorUploadState } from '../../src/dashboard/components/video-details/editor';
+import type { VideoDetailsFormValues } from '../../src/dashboard/components/video-details/use-video-details-form';
 import type { LibraryItem } from '../../src/dashboard/types/library';
 import type { ReactNode } from 'react';
 
@@ -77,6 +74,9 @@ type UploadItem = {
 	status: UploadStatus;
 	media?: UploadedMedia;
 	error?: string;
+	// Carried straight off the queue row: the edit session writes it through
+	// so a remount — or the handoff to /video/:id — re-seeds what was typed.
+	draft?: Partial< VideoDetailsFormValues >;
 };
 
 type MediaDetailsPatch = {
@@ -1099,13 +1099,18 @@ const copyTextToClipboard = ( text: string ): Promise< void > => {
 };
 
 /**
- * Step 'edit' — the single-upload instant transition. One dropped file lands
- * here immediately: the edit surface (the same Editor the /video/:id route
- * renders, embedded under the dashboard tabs) with the player slot serving as
- * the upload's stage. Title and description are editable from the first
- * frame; Save waits for the attachment to exist. The URL stays /upload for
- * the whole draft session — the surface binds to the real record in place
- * rather than navigating mid-edit.
+ * Step 'edit' — the bridge between a dropped file and its real screen. One
+ * dropped file lands here immediately: the edit surface (the same Editor the
+ * /video/:id route renders, embedded under the dashboard tabs) with the
+ * player slot serving as the upload's stage, so title and description are
+ * editable from the first frame.
+ *
+ * This step owns the PRE-REGISTRATION phase only. The moment the attachment
+ * exists as a VideoPress video it hands off to `/video/:id` — the real,
+ * linkable, refreshable screen for that video — instead of duplicating it
+ * here. Anything typed in the meantime travels on the queue row (see
+ * `onDraftChange`), because this component cannot read the form's state at
+ * navigate time.
  *
  * @param props         - Component props.
  * @param props.upload  - The queue item driving the stage, mapped to the
@@ -1121,47 +1126,47 @@ const EditStep = ( {
 	onRetry: () => void;
 } ) => {
 	const navigate = useNavigate();
-	const queryClient = useQueryClient();
-	const invalidateVideo = useInvalidateVideo();
-	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
-	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
-	const { syncChapters } = useUpdateChapters();
-	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
-	const [ captionsOpen, setCaptionsOpen ] = useState( false );
 	const [ fileMeta ] = useState( () =>
 		uploadItem ? { name: uploadItem.file.name, size: uploadItem.file.size } : null
 	);
-	// One-shot per session: the celebration is a first-publish moment, not a
-	// state of the video, so it must not re-fire on later refetches.
-	const [ celebration, setCelebration ] = useState< 'pending' | 'showing' | 'done' >( 'pending' );
 
 	// DERIVED, not copied into state: the first upload on a first-run site
 	// flips the tab order and remounts this whole subtree mid-session (live
 	// testing found the corpse twice). The queue row survives that, so it —
-	// not component state — carries the attachment id for the session's whole
-	// life; the row is acknowledged on the flow's exit paths, never here.
+	// not component state — carries the attachment id and the draft.
+	const rowId = uploadItem?.id;
 	const mediaId = uploadItem?.media ? Number( uploadItem.media.id ) : null;
 
 	// With the GUID-less polling in useVideo, this follows the record through
-	// the registration/transcode tail until it turns playable.
+	// registration until WordPress.com has made it a VideoPress video.
 	const { video } = useVideo( mediaId ?? '' );
-	const isPlayable = Boolean( video && video.type === 'videopress' && ! video.isProcessing );
 
+	// The handoff. `type === 'videopress'` and not merely "the id resolves":
+	// /video/:id's own editable check requires that type, and a GUID-less
+	// record maps to 'local' — navigating a moment earlier lands on NotFound.
+	// `replace` because this bridge is not a place: Back from the video screen
+	// must reach whatever preceded the upload, not a session already handed
+	// over. The record is warm in the shared cache under the identical query
+	// key, so the arrival renders from cache with no refetch.
 	useEffect( () => {
-		if ( isPlayable && celebration === 'pending' ) {
-			// The video is genuinely live: first run is over for good, even if
-			// the library count reads stale. Written when the celebration first
-			// shows, which is this flow's publish moment — there is no separate
-			// publish button.
-			markFirstPublish();
-			setCelebration( 'showing' );
+		if ( mediaId != null && video?.type === 'videopress' ) {
+			navigate( { href: `/video/${ mediaId }`, replace: true } );
 		}
-	}, [ isPlayable, celebration ] );
+	}, [ mediaId, video?.type, navigate ] );
+
+	const onDraftChange = useCallback(
+		( draft: Partial< VideoDetailsFormValues > | undefined ) => {
+			if ( rowId ) {
+				setUploadDraft( rowId, draft );
+			}
+		},
+		[ rowId ]
+	);
 
 	// The record the surface renders until the real one arrives — the same
 	// synthetic shape the Library splices in for in-flight uploads. The id is
-	// the queue id; useVideoDetailsForm's preserve-on-rebind keeps typed edits
+	// a draft id; useVideoDetailsForm's preserve-on-rebind keeps typed edits
 	// when it swaps to the attachment id.
 	const draftVideo = useMemo< LibraryItem >(
 		() => ( {
@@ -1191,119 +1196,50 @@ const EditStep = ( {
 
 	const boundVideo = video ?? draftVideo;
 
-	// The player slot's stage. Cleared only once the video is playable, so the
-	// GUID-dependent cards hold their skeletons through the processing tail
-	// instead of popping in one refetch at a time.
-	let uploadState: EditorUploadState | undefined;
-	if ( ! isPlayable ) {
-		const fileName = fileMeta?.name ?? '';
-		if ( mediaId != null ) {
-			uploadState = { status: 'processing', progress: 100, fileName };
-		} else if ( uploadItem?.status === 'failed' ) {
-			uploadState = {
-				status: 'failed',
-				progress: uploadItem.progress,
-				fileName,
-				error: uploadItem.error,
-				onRetry,
-			};
-		} else {
-			uploadState = { status: 'uploading', progress: uploadItem?.progress ?? 0, fileName };
-		}
+	// Always set: this step exists only while the video is not yet a
+	// registered VideoPress video, and the effect above owns the moment it
+	// becomes one.
+	const fileName = fileMeta?.name ?? '';
+	let uploadState: EditorUploadState;
+	if ( mediaId != null ) {
+		uploadState = { status: 'processing', progress: 100, fileName };
+	} else if ( uploadItem?.status === 'failed' ) {
+		uploadState = {
+			status: 'failed',
+			progress: uploadItem.progress,
+			fileName,
+			error: uploadItem.error,
+			onRetry,
+		};
+	} else {
+		uploadState = { status: 'uploading', progress: uploadItem?.progress ?? 0, fileName };
 	}
 
-	// Same query-client split as the /video/:id route: the caption manager
-	// runs on its own client, so refresh the video info on close.
-	const closeCaptions = useCallback( () => {
-		setCaptionsOpen( false );
-		void queryClient.invalidateQueries( {
-			queryKey: getVideoInfoQueryKeyPrefix( video?.guid ?? '' ),
-		} );
-	}, [ queryClient, video?.guid ] );
-
 	return (
-		<>
-			<Editor
-				video={ boundVideo }
-				isSaving={ isSaving || isDeleting }
-				onSave={ ( values, reset ) => {
-					// Guarded by uploadSession.saveDisabled below, but a stale
-					// click mustn't PATCH a draft id either way.
-					if ( ! video ) {
-						return;
-					}
-					updateMeta(
-						{ id: video.id, patch: values },
-						{
-							onSuccess: () => {
-								// Same contract as the /video/:id save: a changed
-								// description regenerates the chapters VTT, only
-								// after the meta save succeeds.
-								if ( values.description !== video.description ) {
-									void syncChapters( video, values.description );
-								}
-								createSuccessNotice( __( 'Video details saved.', 'jetpack-videopress-pkg' ) );
-								reset( values );
-							},
-							onError: () => {
-								createErrorNotice(
-									__( 'Failed to save video details.', 'jetpack-videopress-pkg' )
-								);
-							},
-						}
-					);
-				} }
-				onDelete={ () => {
-					// Only reachable once the attachment exists — the ⋯ menu is
-					// hidden while uploadState is present.
-					if ( ! video || isDeleting ) {
-						return;
-					}
-					deleteVideo( Number( video.id ) )
-						.then( () => {
-							createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ) );
-							navigate( { href: '/' } );
-						} )
-						.catch( () => {
-							createErrorNotice( __( 'Failed to delete video.', 'jetpack-videopress-pkg' ) );
-						} );
-				} }
-				onDownload={ () => {
-					if ( video?.sourceUrl ) {
-						window.open( video.sourceUrl, '_blank' );
-					}
-				} }
-				onManageCaptions={ () => {
-					// The tracks API is keyed by GUID; before it exists there is
-					// nothing to manage (the menu holding this is hidden then too).
-					if ( video?.guid ) {
-						setCaptionsOpen( true );
-					}
-				} }
-				chaptersOpen={ chaptersOpen }
-				setChaptersOpen={ setChaptersOpen }
-				uploadSession={ {
-					uploadState,
-					celebration:
-						celebration === 'showing' ? { onDismiss: () => setCelebration( 'done' ) } : undefined,
-					// The meta PATCH is keyed by attachment id, so Save waits for
-					// the real record even while the form is already dirty.
-					saveDisabled: ! video,
-				} }
-			/>
-			{ captionsOpen && video && (
-				<CaptionManagerModal
-					isOpen={ captionsOpen }
-					guid={ video.guid }
-					title={ video.title }
-					poster={ video.thumbnailUrl }
-					isPrivate={ video.isPrivate }
-					tracks={ video.tracks }
-					onClose={ closeCaptions }
-					onTracksChange={ () => void invalidateVideo( video.id ) }
-				/>
-			) }
-		</>
+		<Editor
+			embedded
+			video={ boundVideo }
+			isSaving={ false }
+			// Every action below needs a registered video, which is exactly the
+			// state this step hands off in. Save is held by `saveDisabled` and
+			// the ⋯ menu is hidden while `uploadState` is present, so none of
+			// them is reachable here — the real wiring lives on /video/:id.
+			onSave={ () => undefined }
+			onDelete={ () => undefined }
+			onDownload={ () => undefined }
+			onManageCaptions={ () => undefined }
+			chaptersOpen={ chaptersOpen }
+			setChaptersOpen={ setChaptersOpen }
+			uploadSession={ {
+				uploadState,
+				// The wpcom/v2/videopress/meta POST needs a registered video, so
+				// a GUID-less record must not enable Save even once the
+				// attachment id exists.
+				saveDisabled: ! video?.guid,
+				draft: uploadItem?.draft,
+				onDraftChange,
+			} }
+		/>
 	);
 };
 
@@ -1424,9 +1360,13 @@ const UploadOnboarding = ( {
 	// Adopt any of this flow's own items already in the queue: uploading the
 	// first video flips the first-run state (the library count goes 1), the
 	// tab order changes, and this component remounts mid-upload — the queue
-	// survives that, so the batch pointer must be recoverable from it.
+	// survives that, so the batch pointer must be recoverable from it. Only
+	// rows with something left to say (see isAdoptableUpload): re-adopting a
+	// settled success resurrects a session the user already finished.
 	const [ batchQueueIds, setBatchQueueIds ] = useState< string[] >( () =>
-		uploadQueue.filter( item => item.context === UPLOAD_CONTEXT ).map( item => item.id )
+		uploadQueue
+			.filter( item => item.context === UPLOAD_CONTEXT && isAdoptableUpload( item ) )
+			.map( item => item.id )
 	);
 	const isConnected = isWpcomConnected();
 	const allowMultiple = ! isFree || isUnlimited;
@@ -1484,7 +1424,7 @@ const UploadOnboarding = ( {
 				// 'uploading' step — that interstitial survives only for the
 				// disconnected XHR fallback below.
 				if ( selectedForPlan.length > 1 ) {
-					selectedForPlan.forEach( file => startUpload( file, UPLOAD_CONTEXT ) );
+					selectedForPlan.forEach( file => startUpload( file, UPLOAD_BATCH_CONTEXT ) );
 					navigate( { href: '/' } );
 					return;
 				}
@@ -1553,11 +1493,16 @@ const UploadOnboarding = ( {
 			progress: Math.round( item.progress * 100 ),
 			status: item.status,
 			error: item.error,
+			draft: item.draft,
 			media: item.media
 				? {
 						id: Number( item.media.id ),
 						source_url: item.media.src,
-						videopressGuid: String( item.media.guid ),
+						// A GUID-less upload result is normal (registration
+						// trails the attachment); String() on it would produce
+						// the literal "undefined" and pass every truthiness gate
+						// downstream.
+						videopressGuid: item.media.guid ? String( item.media.guid ) : undefined,
 				  }
 				: undefined,
 		} ) );
@@ -1686,9 +1631,8 @@ const UploadOnboarding = ( {
 };
 
 const StageInner = () => {
-	const { isAtLimit, isFree, isUnlimited, videoCount } = useFreeTier();
+	const { isAtLimit, isFree, isUnlimited } = useFreeTier();
 	const { uploadQueue } = useUpload();
-	const navigate = useNavigate();
 	// Arrival may already hold this flow's queue items — Home's emptied-library
 	// dropzone starts the upload under UPLOAD_CONTEXT and navigates here, and
 	// UploadOnboarding's batchQueueIds initializer adopts the rows themselves.
@@ -1697,58 +1641,42 @@ const StageInner = () => {
 	// (connected multi-drops navigate to the Library instead), so the step
 	// stays 'upload' and the Library's in-flight rows and the pill own the
 	// batch — no new surface here.
+	//
+	// Counted with the same adoption predicate as the batch pointer: a settled
+	// success is the flow's exit, and resuming into it is how a finished
+	// session came back to haunt the user.
 	const [ adoptedOnMount ] = useState(
-		() => uploadQueue.filter( item => item.context === UPLOAD_CONTEXT ).length
+		() =>
+			uploadQueue.filter( item => item.context === UPLOAD_CONTEXT && isAdoptableUpload( item ) )
+				.length
 	);
 	const [ step, setStep ] = useState< Step >( adoptedOnMount === 1 ? 'edit' : 'upload' );
 	const [ prev, setPrev ] = useState< Step | null >( null );
-	// An adopted session is a flow already in progress: the owns-a-flow latch
-	// starts set so the Library redirect below can't eject it once the count moves.
-	const [ hasEnteredFlow, setHasEnteredFlow ] = useState( adoptedOnMount === 1 );
 
 	const go = useCallback( ( next: Step, prior: Step ) => {
 		setPrev( prior );
 		setStep( next );
-		// Moving off the dropzone means this visit owns a flow. `go` is the only
-		// transition point (`resetUploadStep` routes through it too), so this is
-		// the one place that needs to know.
-		if ( next !== 'upload' ) {
-			setHasEnteredFlow( true );
-		}
 	}, [] );
 	const onExitDone = useCallback( () => setPrev( null ), [] );
 
-	// This route is the first-run experience, so somebody who *arrives* already
-	// holding videos belongs in the Library instead.
-	//
-	// Two things stop that check firing on someone mid-flow. Every successful
-	// upload invalidates the library query (see `onFiles`), so on a connected
-	// paid site the count flips to 1 *during* the flow, before the details step
-	// — `step` covers that. And `hasEnteredFlow` covers the way back: pressing
-	// Back from details returns `step` to 'upload' with the count now at 1,
-	// which would otherwise eject the user and discard the details they were
-	// part-way through filling in.
-	const shouldRedirectToLibrary =
-		step === 'upload' && ! hasEnteredFlow && videoCount > 0 && ! isAtLimit;
-
-	useEffect( () => {
-		if ( shouldRedirectToLibrary ) {
-			navigate( { href: '/' } );
-		}
-	}, [ navigate, shouldRedirectToLibrary ] );
-
-	// Rendered as a conditional rather than an early `return null` above: the
-	// hooks this component holds have to run on every render, so they cannot be
-	// moved below a bailout, and an early return leaves them declared-then-unused
-	// on the redirect path.
-	return shouldRedirectToLibrary ? null : (
+	/*
+	 * There is deliberately no "you already have videos, go to the Library"
+	 * eject here. Every in-app route to this page is a deliberate one — Home's
+	 * header button, the welcome modal's CTA, Home's emptied-library dropzone —
+	 * and the eject broke all three for anyone with a library, bouncing them
+	 * back the instant they arrived. The tab order already hides Upload for
+	 * returning users; a cold deep-link simply gets a working upload card.
+	 */
+	return (
+		// activeTab is fixed at 'upload' rather than following isAtLimit: the
+		// queue-aware count flips the limit the moment a free-tier file is
+		// dropped, and moving the children into a different Tabs.Panel remounts
+		// the whole flow mid-upload. The dropzone's disabled state is the gate.
+		//
 		// The pill suppression: while this stage is on screen, the single-flow
 		// edit session's player slot is the progress surface, so the shared
 		// upload pill stands down for this flow's own queue items.
-		<DashboardLayout
-			activeTab={ isAtLimit ? 'library' : 'upload' }
-			uploadPillSuppressContext={ UPLOAD_CONTEXT }
-		>
+		<DashboardLayout activeTab="upload" uploadPillSuppressContext={ UPLOAD_CONTEXT }>
 			<UploadOnboarding
 				isFree={ isFree }
 				isUnlimited={ isUnlimited }

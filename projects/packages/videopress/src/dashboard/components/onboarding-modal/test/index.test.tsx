@@ -39,11 +39,17 @@ const mockCounts = ( counts: {
 	( useOnboardingCounts as jest.Mock ).mockReturnValue( counts );
 };
 
+const WELCOME_FLAG = '__jetpackVideoPressWelcomeConsumed';
+
 describe( 'OnboardingModal', () => {
 	beforeEach( () => {
 		window.localStorage.clear();
 		mockNavigate.mockClear();
 		mockSearch = {};
+		// The consumed latch is window-scoped (it has to outlive the per-route
+		// module copies), so each case starts from a fresh page load.
+		delete ( window as Window & { [ WELCOME_FLAG ]?: boolean } )[ WELCOME_FLAG ];
+		window.history.replaceState( {}, '', '/wp-admin/admin.php?page=jetpack-videopress' );
 	} );
 
 	it( 'shows "Learn more" on a site with nothing to migrate', () => {
@@ -124,6 +130,33 @@ describe( 'OnboardingModal', () => {
 
 		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
 		expect( window.localStorage.getItem( 'jetpack-videopress-onboarding-seen-123-7' ) ).toBeNull();
+	} );
+
+	it( 'consumes welcome=1 once per page load, so a dismissal sticks', async () => {
+		// Every route ships its own bundle, so an in-app navigation remounts
+		// this component: without the latch the param re-cleared the dismissal
+		// and re-opened the modal on every navigation of the same load.
+		mockCounts( { videoPressCount: 4, localCount: 0, isSettled: true } );
+		window.history.replaceState( {}, '', '/wp-admin/admin.php?page=jetpack-videopress&welcome=1' );
+		const user = userEvent.setup();
+
+		const { unmount } = render( <OnboardingModal /> );
+		await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		unmount();
+
+		render( <OnboardingModal /> );
+
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'strips welcome=1 from the URL so a manual reload behaves normally', () => {
+		mockCounts( { videoPressCount: 4, localCount: 0, isSettled: true } );
+		window.history.replaceState( {}, '', '/wp-admin/admin.php?page=jetpack-videopress&welcome=1' );
+
+		render( <OnboardingModal /> );
+
+		expect( window.location.search ).toBe( '?page=jetpack-videopress' );
 	} );
 
 	it( 'stays closed for a user who has already published', () => {
