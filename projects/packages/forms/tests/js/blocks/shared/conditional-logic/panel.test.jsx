@@ -97,12 +97,15 @@ const withRules = ( rules, extra = {} ) => ( {
 	...extra,
 } );
 
-const setup = async ( conditionalLogic = DEFAULT_ATTRIBUTE, { openModal = true } = {} ) => {
+const setup = async (
+	conditionalLogic = DEFAULT_ATTRIBUTE,
+	{ openModal = true, ownFieldId } = {}
+) => {
 	const setAttributes = jest.fn();
 	const { container } = render(
 		<ConditionalLogicPanel
 			clientId="abc"
-			attributes={ { conditionalLogic } }
+			attributes={ { conditionalLogic, id: ownFieldId } }
 			setAttributes={ setAttributes }
 		/>
 	);
@@ -574,6 +577,27 @@ describe( 'ConditionalLogicPanel', () => {
 				],
 			} ),
 		} );
+	} );
+
+	/**
+	 * useSubjectFields excludes the field owning the panel, so the owner's id is the one the
+	 * used-id list cannot see. It has to be passed in explicitly, or an unnamed sibling whose
+	 * label slugifies to the same thing is handed the owner's id -- and PHP's duplicate guard
+	 * then renames whichever parses second, repointing the rule or changing the owner's
+	 * response key. The de-duplication itself is covered in use-subject-fields.test.jsx.
+	 */
+	it( "feeds the panel's own field id into the uniqueness check", async () => {
+		mockEnsureFieldId.mockClear();
+		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ), {
+			ownFieldId: 'email',
+		} );
+
+		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), 'clientId:c-colour' );
+
+		expect( mockEnsureFieldId ).toHaveBeenCalledWith(
+			expect.objectContaining( { clientId: 'c-colour' } ),
+			expect.arrayContaining( [ 'email' ] )
+		);
 	} );
 
 	it( 'keeps the existing id when the chosen field already has one', async () => {
