@@ -97,7 +97,7 @@ const meta = {
 		},
 		platformDimension: {
 			control: 'radio',
-			options: [ 'screensize', 'browser', 'platform' ],
+			options: [ 'browser', 'platform', 'screensize' ],
 			description: 'The "View by" toolbar attribute rendered by the widget host.',
 		},
 	},
@@ -215,7 +215,7 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 		},
 		platformDimension: {
 			control: 'radio',
-			options: [ 'screensize', 'browser', 'platform' ],
+			options: [ 'browser', 'platform', 'screensize' ],
 			description: 'The "View by" toolbar attribute rendered by the widget host.',
 		},
 	},

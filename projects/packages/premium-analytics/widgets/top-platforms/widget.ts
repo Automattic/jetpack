@@ -45,11 +45,9 @@ export default {
 			label: __( 'View by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
+			// Browser stays first: `SelectField` shows the first element when the
+			// attribute is unset, so it has to match the render default.
 			elements: [
-				{
-					label: __( 'Size', 'jetpack-premium-analytics-pkg' ),
-					value: 'screensize',
-				},
 				{
 					label: __( 'Browser', 'jetpack-premium-analytics-pkg' ),
 					value: 'browser',
@@ -57,6 +55,10 @@ export default {
 				{
 					label: __( 'OS', 'jetpack-premium-analytics-pkg' ),
 					value: 'platform',
+				},
+				{
+					label: __( 'Size', 'jetpack-premium-analytics-pkg' ),
+					value: 'screensize',
 				},
 			],
 			relevance: 'high',

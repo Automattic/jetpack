@@ -6,6 +6,7 @@ import { render, screen } from '@testing-library/react';
  * Internal dependencies
  */
 import TopPlatformsWidget from '../render';
+import widgetDefinition from '../widget';
 
 // WidgetRoot reads URL search params as a fallback for report params; outside
 // a matched route the real hook warns and throws.
@@ -48,6 +49,20 @@ describe( 'TopPlatformsWidget', () => {
 			);
 		}
 	);
+
+	// `SelectField` renders the first element when the attribute is unset, so the
+	// control would otherwise name a dimension the widget is not fetching.
+	it( 'defaults to the first offered dimension', () => {
+		const firstElement = widgetDefinition.attributes.find(
+			field => field.id === 'platformDimension'
+		)?.elements?.[ 0 ];
+
+		render( <TopPlatformsWidget attributes={ {} } /> );
+
+		expect( mockUsePlatformViews ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { deviceProperty: firstElement?.value } )
+		);
+	} );
 
 	// A stale layout can name a dimension the widget no longer knows; unchecked it
 	// becomes the endpoint path segment, which WPCOM rejects with a 400.
