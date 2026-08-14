@@ -83,8 +83,8 @@ describe( 'Share popups', () => {
 	} );
 
 	it( 'ignores clicks nested deeper than one element inside the link', () => {
-		// The Sharing Buttons block reuses the `share-<service>` classes but opts out of
-		// popups, and its icon is an SVG whose glyph sits several levels down.
+		// Parity with the per-service handlers this replaced, which looked at the click
+		// target and its parent and no further.
 		const link = addShareButton( 'x' );
 		const icon = document.createElement( 'span' );
 		icon.innerHTML = '<span class="glyph"></span>';
@@ -158,5 +158,15 @@ describe( 'Share popups', () => {
 
 		expect( () => click( link ) ).not.toThrow();
 		expect( openSpy ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it( 'still opens one popup per click when the file is loaded twice', () => {
+		// Two enqueues of sharing.js under different handles would otherwise give each
+		// copy its own listener, and one click would open two popups.
+		jest.isolateModules( () => require( '../sharing' ) );
+
+		click( addShareButton( 'x' ) );
+
+		expect( openSpy ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

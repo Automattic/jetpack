@@ -685,9 +685,11 @@ abstract class Sharing_Source {
 	 * in sharing.js reads them and opens the popup, so no per-service handler is
 	 * emitted.
 	 *
-	 * $name has to match the service's get_class(), since that is what the share
-	 * link's `share-<name>` class is built from, and that class is how the handler
-	 * looks the features back up.
+	 * $name has to be the same slug that appears in the share link's `share-<name>`
+	 * class, since that class is all the handler has to look the features back up
+	 * with. Every caller passes $this->shortname, which works because get_link()
+	 * builds the class from get_class() and the built-in services register under
+	 * the slug they declare as their shortname.
 	 *
 	 * @param string $name   Sharing service name.
 	 * @param array  $params Array of sharing options.

@@ -17,13 +17,30 @@ class Sharing_Source_Js_Dialog_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
+	 * The script queue in place before the test replaced it.
+	 *
+	 * @var WP_Scripts|null
+	 */
+	private $previous_wp_scripts;
+
+	/**
 	 * Set up each test with a clean script queue holding the sharing-js handle.
 	 */
 	public function set_up() {
 		parent::set_up();
 
-		$GLOBALS['wp_scripts'] = new WP_Scripts();
+		$this->previous_wp_scripts = $GLOBALS['wp_scripts'] ?? null;
+		$GLOBALS['wp_scripts']     = new WP_Scripts();
 		wp_register_script( 'sharing-js', 'https://example.org/sharing.js', array(), '1.0', true );
+	}
+
+	/**
+	 * Put the original script queue back, so later tests are not affected.
+	 */
+	public function tear_down() {
+		$GLOBALS['wp_scripts'] = $this->previous_wp_scripts;
+
+		parent::tear_down();
 	}
 
 	/**
@@ -101,7 +118,7 @@ class Sharing_Source_Js_Dialog_Test extends WP_UnitTestCase {
 		 * Sharing sources are instantiated with the string service slug as the id in production
 		 * (see Sharing_Service), so the int phpdoc on the constructor is inaccurate here.
 		 */
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal
+		// @phan-suppress-next-line PhanTypeMismatchArgument
 		$source = new $class( $service, array( 'button_style' => 'icon' ) );
 		$source->display_footer();
 	}

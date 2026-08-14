@@ -475,9 +475,9 @@
 	}
 
 	// Find the share link a click landed on. Sharing buttons nest at most one
-	// element inside the anchor, and looking no further up keeps clicks on other
-	// features' buttons out of this handler -- notably the Sharing Buttons block,
-	// which uses the same `share-<service>` classes but opts out of popups.
+	// element inside the anchor, and this stays as shallow as the per-service
+	// handlers it replaces, so nothing that used to reach its own click handler
+	// starts being claimed by this one instead.
 	function getShareLink( target ) {
 		if ( target.nodeName === 'A' ) {
 			return target;
@@ -540,13 +540,15 @@
 		);
 	}
 
-	// Listen on `document` rather than `document.body`, so the popups keep working
-	// even if this file is ever loaded before the body exists. The flag has to be
-	// global: if the file is enqueued twice under different handles, each copy gets
-	// its own closure, and two listeners would open two popups per click.
-	if ( ! window.WPCOM_sharing_popups_bound ) {
+	// Listen on `document.body`, where the per-service handlers this replaces listened,
+	// so a page script that stops a click from propagating past the body keeps having
+	// the same effect it always had. The bind flag has to be global: if this file is
+	// enqueued twice under different handles, each copy gets its own closure, and two
+	// listeners would open two popups per click. Compare against `true` so a page
+	// element named after the flag cannot clobber it and leave every button dead.
+	if ( document.body && window.WPCOM_sharing_popups_bound !== true ) {
 		window.WPCOM_sharing_popups_bound = true;
-		document.addEventListener( 'click', openSharePopup );
+		document.body.addEventListener( 'click', openSharePopup );
 	}
 
 	// Sharing initialization.
