@@ -81,13 +81,13 @@
 
 		// The three selectors share out what is left. The subject and value carry
 		// the meaning, so they get more of it than the comparison.
-		> *:nth-child(1),
-		> *:nth-child(3) {
+		> *:nth-child(2),
+		> *:nth-child(4) {
 			flex: 4 1 0;
 			min-inline-size: 0;
 		}
 
-		> *:nth-child(2) {
+		> *:nth-child(3) {
 			flex: 3 1 0;
 			min-inline-size: 0;
 		}
@@ -97,6 +97,19 @@
 		// the row centres its children, so nudging one knocks it out of line.
 		> *:last-child {
 			flex: 0 0 auto;
+		}
+	}
+
+	// Reads down the left edge of a long list. Amber says the condition will be
+	// skipped and the tooltip says why; green says it will be acted on.
+	.jetpack-contact-form__conditional-logic-rule-status {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--wpds-color-foreground-content-warning);
+
+		&.is-active {
+			color: var(--wpds-color-foreground-content-success);
 		}
 	}
 

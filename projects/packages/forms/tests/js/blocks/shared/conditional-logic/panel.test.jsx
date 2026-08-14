@@ -464,14 +464,13 @@ describe( 'ConditionalLogicPanel', () => {
 	// A condition naming no subject, or giving no value where one is needed, is skipped by
 	// both evaluators. The badge makes that visible rather than the field silently not
 	// reacting, which is why the Add button no longer has to police it.
-	it( 'marks an unfinished condition inactive and says what to do', async () => {
+	it( 'flags an unfinished condition and says what to do', async () => {
 		await setup( withRules( [ { field: 'name_1', operator: 'is', value: '' } ] ) );
 
-		expect( screen.getByText( 'Inactive' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Active' ) ).not.toBeInTheDocument();
 		// Queried by label, not text: a tooltip renders nothing until hovered, so the reason
-		// has to be on the badge itself to be reachable at all.
+		// has to be on the icon itself to be reachable at all.
 		expect( screen.getByLabelText( 'Give this condition a value.' ) ).toBeInTheDocument();
+		expect( screen.queryByLabelText( 'This condition is active.' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'clears every condition at once', async () => {
@@ -537,17 +536,15 @@ describe( 'ConditionalLogicPanel', () => {
 		expect( screen.getByRole( 'button', { name: 'Add condition' } ) ).toBeEnabled();
 	} );
 
-	it( 'marks a complete condition active', async () => {
+	it( 'marks a complete condition as active', async () => {
 		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
 
-		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Inactive' ) ).not.toBeInTheDocument();
+		expect( screen.getByLabelText( 'This condition is active.' ) ).toBeInTheDocument();
 	} );
 
 	it( 'explains an inactive condition whose field was deleted', async () => {
 		await setup( withRules( [ { field: 'deleted_1', operator: 'is', value: 'x' } ] ) );
 
-		expect( screen.getByText( 'Inactive' ) ).toBeInTheDocument();
 		expect(
 			screen.getByLabelText( 'The field this condition refers to no longer exists.' )
 		).toBeInTheDocument();

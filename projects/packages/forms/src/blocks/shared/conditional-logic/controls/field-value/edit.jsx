@@ -1,8 +1,9 @@
-import { Notice, SelectControl, TextControl, Tooltip } from '@wordpress/components';
+import { Icon, Notice, SelectControl, TextControl, Tooltip } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { plus, trash } from '@wordpress/icons';
-import { Badge, Button, IconButton, Stack } from '@wordpress/ui';
+import { caution, check, plus, trash } from '@wordpress/icons';
+import { Button, IconButton, Stack } from '@wordpress/ui';
+import clsx from 'clsx';
 import { RULE_TYPE_FIELD_VALUE } from '../../constants.js';
 import { useEnsureFieldId } from '../../hooks/use-subject-fields.js';
 import {
@@ -209,6 +210,8 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 	const operators = getOperatorsForTypeKey( subject?.typeKey || 'string' );
 	const isComplete = isRuleComplete( rule, subject );
 
+	const activeReason = __( 'This condition is active.', 'jetpack-forms' );
+
 	// Why the condition will be skipped, phrased as the thing to do about it. The three cases
 	// are the three ways a rule can fail to say anything: no subject, a subject that has since
 	// been deleted, or an operator whose value was never filled in.
@@ -254,6 +257,24 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 				gap="sm"
 				className="jetpack-contact-form__conditional-logic-rule-row"
 			>
+				{ /* Leads the row, so the state of a long list can be read down the left
+				     edge. An incomplete condition is skipped by both evaluators, which is
+				     otherwise invisible: the field simply does not react and nothing explains
+				     why. The reason is on the icon as well as in its tooltip, because a
+				     tooltip renders nothing until hovered -- leaving it unreachable by
+				     keyboard and unread by a screen reader. */ }
+				<Tooltip text={ isComplete ? activeReason : inactiveReason }>
+					<span
+						className={ clsx( 'jetpack-contact-form__conditional-logic-rule-status', {
+							'is-active': isComplete,
+						} ) }
+						role="img"
+						aria-label={ isComplete ? activeReason : inactiveReason }
+					>
+						<Icon icon={ isComplete ? check : caution } size={ 20 } />
+					</span>
+				</Tooltip>
+
 				<SelectControl
 					ref={ fieldRef }
 					label={ __( 'Field', 'jetpack-forms' ) }
@@ -302,22 +323,6 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 						index + 1
 					) }
 				/>
-
-				{ /* Says whether this condition will actually do anything. An incomplete rule
-				     is skipped by both evaluators, which is otherwise invisible -- the field
-				     simply does not react and nothing explains why. */ }
-				{ isComplete ? (
-					<Badge intent="stable">{ __( 'Active', 'jetpack-forms' ) }</Badge>
-				) : (
-					<Tooltip text={ inactiveReason }>
-						{ /* The reason is on the badge as well as in the tooltip: a tooltip
-						     renders nothing until it is hovered, so on its own it leaves the
-						     reason unreachable by keyboard and unread by a screen reader. */ }
-						<Badge intent="low" aria-label={ inactiveReason }>
-							{ __( 'Inactive', 'jetpack-forms' ) }
-						</Badge>
-					</Tooltip>
-				) }
 			</Stack>
 		</Stack>
 	);
