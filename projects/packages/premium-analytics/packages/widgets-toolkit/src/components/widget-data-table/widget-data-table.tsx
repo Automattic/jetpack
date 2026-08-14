@@ -84,26 +84,29 @@ export function WidgetDataTable< Item >( {
 			} ) as View
 	);
 
-	const { data: pageItems, paginationInfo } = useMemo( () => {
+	// The page survives a refetch, so a smaller result can leave it out of range.
+	// `filterSortAndPaginate` slices blindly, so the table would go blank; and
+	// DataViews reads `view.page` for its own pagination controls, so clamping
+	// only the slice would leave them disagreeing with the rows on screen. Hand
+	// the clamped view down instead — `onChangeView` brings the state back in
+	// line as soon as the reader touches a control.
+	const {
+		view: effectiveView,
+		data: pageItems,
+		paginationInfo,
+	} = useMemo( () => {
 		const result = filterSortAndPaginate( data, view, fields );
-		// The page survives a refetch, so a smaller result can leave it out of
-		// range. `filterSortAndPaginate` slices blindly and DataViews hides its
-		// pagination once one page is left, which would strand the reader on a
-		// blank table with no control to get back.
 		if ( result.data.length === 0 && result.paginationInfo.totalPages > 0 ) {
-			return filterSortAndPaginate(
-				data,
-				{ ...view, page: result.paginationInfo.totalPages },
-				fields
-			);
+			const clampedView = { ...view, page: result.paginationInfo.totalPages };
+			return { view: clampedView, ...filterSortAndPaginate( data, clampedView, fields ) };
 		}
-		return result;
+		return { view, ...result };
 	}, [ data, view, fields ] );
 
 	return (
 		<div className={ styles.root }>
 			<GenericDataViews< Item >
-				view={ view }
+				view={ effectiveView }
 				onChangeView={ setView }
 				fields={ fields }
 				data={ pageItems }

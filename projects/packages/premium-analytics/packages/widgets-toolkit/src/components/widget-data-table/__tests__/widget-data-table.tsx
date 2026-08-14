@@ -62,6 +62,40 @@ describe( 'WidgetDataTable', () => {
 		expect( screen.getByText( 'Row 8' ) ).toBeInTheDocument();
 	} );
 
+	it( 'keeps the pagination controls agreeing with the rows it fell back to', () => {
+		// Shrinking to two pages rather than one, so the footer stays on screen.
+		// DataViews reads `view.page` for its own controls, so clamping only the
+		// slice would show "page 1" above page 2's rows, with a Previous button
+		// that appears to do nothing.
+		const { rerender } = render(
+			<WidgetDataTable< Row >
+				data={ rows( 25 ) }
+				fields={ FIELDS }
+				getItemId={ item => item.id }
+				perPageSizes={ [ 10 ] }
+			/>
+		);
+
+		const next = screen.getByRole( 'button', { name: /next page/i } );
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		fireEvent.click( next );
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		fireEvent.click( next );
+		expect( screen.getByText( 'Row 21' ) ).toBeInTheDocument();
+
+		rerender(
+			<WidgetDataTable< Row >
+				data={ rows( 12 ) }
+				fields={ FIELDS }
+				getItemId={ item => item.id }
+				perPageSizes={ [ 10 ] }
+			/>
+		);
+
+		expect( screen.getByText( 'Row 11' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'combobox', { name: /page/i } ) ).toHaveValue( '2' );
+	} );
+
 	it( 'leaves a page that is still in range alone', () => {
 		const { rerender } = render(
 			<WidgetDataTable< Row >

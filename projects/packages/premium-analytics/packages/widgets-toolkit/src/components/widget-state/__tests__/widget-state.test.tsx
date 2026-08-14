@@ -290,13 +290,32 @@ describe( 'WidgetState', () => {
 		expect( screen.getByRole( 'button' ) ).toHaveTextContent( '1' );
 	} );
 
-	// jsdom applies no CSS, so `visibility: hidden` never makes the children
-	// unfocusable and the browser's focus fixup never fires. Stand in for it, so
-	// these tests start from the state a real refetch leaves behind.
-	function dropFocusToBody( focused: HTMLElement ) {
-		act( () => focused.blur() );
-		expect( document.body ).toHaveFocus();
-	}
+	it( 'holds focus in the widget body for the length of the refetch', () => {
+		// Not just on the way out: the browser drops focus to the body as soon as
+		// the children are hidden, and the skeleton window is 400ms at best.
+		const props = { isLoading: false, isError: false, isEmpty: false };
+		const { rerender } = render(
+			<WidgetState { ...props } isFetching={ false }>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+		const row = screen.getByRole( 'button', { name: 'Taiwan' } );
+		act( () => row.focus() );
+
+		rerender(
+			<WidgetState { ...props } isFetching>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+		elapseFetchDelay();
+
+		// Parked on the wrapper: not the hidden row, and not the document body,
+		// where the next Tab would jump to the top of the page.
+		expect( row ).not.toHaveFocus();
+		expect( document.body ).not.toHaveFocus();
+		// eslint-disable-next-line @wordpress/no-global-active-element, testing-library/no-node-access -- which element the browser focused is the assertion, and the wrapper is deliberately not queryable.
+		expect( document.activeElement ).toContainElement( row );
+	} );
 
 	it( 'returns focus to the element a refetch took it from', () => {
 		// Keyboard-activating a drill-down row refetches by definition, so this is
@@ -316,7 +335,6 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		elapseFetchDelay();
-		dropFocusToBody( screen.getByRole( 'button', { name: 'Taiwan' } ) );
 
 		rerender(
 			<WidgetState { ...props } isFetching={ false }>
@@ -348,7 +366,6 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		elapseFetchDelay();
-		dropFocusToBody( screen.getByRole( 'button', { name: 'Taiwan' } ) );
 
 		rerender(
 			<WidgetState { ...props } isFetching={ false }>
