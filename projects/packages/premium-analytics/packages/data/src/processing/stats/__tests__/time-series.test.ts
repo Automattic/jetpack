@@ -314,6 +314,37 @@ describe( 'Stats time-series normalizer', () => {
 		expect( withoutRows.summary.date_end ).toBe( withRows.summary.date_end );
 	} );
 
+	// `stats/subscribers` returns its buckets newest first, unlike `stats/visits`.
+	// Downstream code reads `data[0]` as the oldest bucket, so the order is
+	// normalized here rather than at each call site.
+	it( 'orders newest-first payloads oldest first', () => {
+		const result = sanitizeStatsTimeSeriesResponse(
+			{
+				date: '2026-06-17',
+				unit: 'day',
+				fields: [ 'period', 'subscribers' ],
+				data: [
+					[ '2026-06-17', 12 ],
+					[ '2026-06-16', 11 ],
+					[ '2026-06-15', 9 ],
+				],
+			},
+			{ period: 'day' }
+		);
+
+		expect( result.data.map( row => row.time_interval ) ).toEqual( [
+			'2026-06-15',
+			'2026-06-16',
+			'2026-06-17',
+		] );
+		expect( result.summary ).toEqual(
+			expect.objectContaining( {
+				date_start: '2026-06-15T00:00:00+00:00',
+				date_end: '2026-06-17T23:59:59+00:00',
+			} )
+		);
+	} );
+
 	it( 'detects supported time-series payload shapes', () => {
 		expect( isStatsTimeSeriesPayload( visitsFixture ) ).toBe( true );
 		expect( isStatsTimeSeriesPayload( scalarDaysTimeSeriesFixture ) ).toBe( true );

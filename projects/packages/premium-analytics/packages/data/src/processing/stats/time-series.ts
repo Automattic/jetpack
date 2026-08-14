@@ -95,6 +95,16 @@ function parseTimeSeriesRows( payload: unknown ) {
 	} );
 }
 
+// Ordinal, not lexical: `localeCompare` lets a collation reorder or ignore the
+// separators these bounds are built from.
+function compareBucketBounds( a: string, b: string ) {
+	if ( a === b ) {
+		return 0;
+	}
+
+	return a < b ? -1 : 1;
+}
+
 function getPrimaryMetricValue( row: StatsRecord ) {
 	// The first numeric metric is the headline value; matrix payloads preserve API field order.
 	const primaryMetric = Object.entries( row ).find(
@@ -279,19 +289,29 @@ export function sanitizeStatsTimeSeriesResponse(
 
 		return totals;
 	}, {} );
-	const data = rows.map< StatsTimeSeriesDataPoint >( row => {
-		const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
-		const range = getRowIntervalFields( row, rawPeriod, unit );
-		const value = safeParseFloat( getPrimaryMetricValue( row ) );
+	const data = rows
+		.map< StatsTimeSeriesDataPoint >( row => {
+			const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
+			const range = getRowIntervalFields( row, rawPeriod, unit );
+			const value = safeParseFloat( getPrimaryMetricValue( row ) );
 
-		return {
-			...row,
-			...range,
-			label: range.time_interval,
-			value,
-			items: [],
-		};
-	} );
+			return {
+				...row,
+				...range,
+				label: range.time_interval,
+				value,
+				items: [],
+			};
+		} )
+		// Row order differs by endpoint: `stats/visits` returns its buckets oldest
+		// first, `stats/subscribers` newest first. Everything downstream reads
+		// `data[0]` as the oldest bucket — the summary bounds below, chart legend
+		// ranges, and cumulative headline values — so the order is normalized once
+		// here instead of at each call site. `date_start` is a nominal wall-clock
+		// label rather than a real instant (see getStatsIntervalFields), so
+		// comparing the strings sorts chronologically without reintroducing an
+		// offset.
+		.sort( ( a, b ) => compareBucketBounds( a.date_start, b.date_start ) );
 	const firstRow = data[ 0 ];
 	const lastRow = data[ data.length - 1 ];
 
