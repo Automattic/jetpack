@@ -152,6 +152,16 @@ $vp-flow-exit-duration: 120ms;
 	// in at full strength first. Scoped to `.is-sequenced` and to direct
 	// children so it can never reach the cross-faded transitions.
 	&.is-sequenced {
+		// Hold the height until the outgoing card has actually gone. The height
+		// transition runs on its own clock from the moment the step changes, so
+		// left alone it grows towards the incoming step's height DURING the exit
+		// — and through the sequenced hand-off both cards are at opacity 0, so
+		// what expands is an empty box. Measured on a live drop: by +152ms the
+		// wrapper had reached 654 of 734px with nothing painted in it, turning a
+		// card-sized pause into a full-width ~470px blank. Delaying the height
+		// by the exit duration keeps the gap the size of the card that just
+		// left, then eases it open with the card arriving to fill it.
+		transition-delay: $vp-flow-exit-duration;
 
 		> .vp-flow__card.is-exit {
 			animation-duration: $vp-flow-exit-duration;
