@@ -118,7 +118,19 @@ export default function RecentVideoCard( { item, viewsSlot, views, onOpen }: Pro
 
 	return (
 		<Card.Root className="vp-home__card">
-			<div className="vp-home__card-media">
+			{ /*
+			 * The picture opens the video, because that is what people aim at.
+			 * The title below is the keyboard and screen-reader path to the same
+			 * screen, so this is a redundant pointer affordance and is hidden
+			 * from assistive tech: a second button would put two tab stops on one
+			 * destination, and the thumbnail is decorative either way.
+			 */ }
+			<div
+				className="vp-home__card-media"
+				onClick={ () => onOpen( item.id ) }
+				aria-hidden="true"
+				data-testid="recent-video-media"
+			>
 				{ item.thumbnailUrl && ! item.isProcessing ? (
 					// Decorative: the title beneath is the accessible name of the
 					// card, so an alt repeating it would be announced twice.

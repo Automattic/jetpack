@@ -79,6 +79,10 @@
 		aspect-ratio: 16 / 9;
 		background: var(--wpds-color-background-surface-neutral);
 		overflow: hidden;
+		// The picture is the thing people aim at, so it opens the video. The
+		// title below does the same and is the keyboard/AT path — see the note
+		// at the call site for why this isn't a second button.
+		cursor: var(--wpds-cursor-control);
 	}
 
 	&__card-thumb {
