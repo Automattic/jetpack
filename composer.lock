@@ -195,7 +195,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "96102f092f2164421e9ef1d52e486aa78dd31db2"
+                "reference": "72cdb43773a1ccc86f44e57ff87ef8e5aa787a03"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -204,7 +204,6 @@
             },
             "require-dev": {
                 "automattic/phpunit-select-config": "@dev",
-                "nikic/php-parser": "^5.7.0",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
             "type": "library",
