@@ -5,6 +5,7 @@ import { __, sprintf, _n } from '@wordpress/i18n';
 import { Icon, video as videoIcon, copy as copyIcon } from '@wordpress/icons';
 import { Badge, Button, Card, Stack, Text } from '@wordpress/ui';
 import { useProcessingProgress } from '../../src/dashboard/hooks/use-processing-progress';
+import { formatDuration } from '../../src/dashboard/utils/format';
 import { resolveEmbedSnippet, resolveShareLink } from '../../src/dashboard/utils/video-links';
 import type { ViewsSlot } from './views-slot';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
@@ -18,28 +19,6 @@ const PRIVACY_LABELS: Record< LibraryItemPrivacy, string > = {
 	private: __( 'Private', 'jetpack-videopress-pkg' ),
 	'site-default': __( 'Site default', 'jetpack-videopress-pkg' ),
 };
-
-/**
- * Format a duration in seconds as `m:ss` / `h:mm:ss`. Local to the card rather
- * than pulled from `utils/format` because the badge wants the compact
- * unpadded-hours form, and a zero duration must render nothing at all: a
- * still-transcoding video reports `0`, and "0:00" would be a false claim about
- * its length.
- *
- * @param seconds - Duration in seconds.
- * @return The formatted duration, or null when it is not known.
- */
-function formatDurationBadge( seconds: number ): string | null {
-	if ( ! seconds || seconds <= 0 ) {
-		return null;
-	}
-	const total = Math.floor( seconds );
-	const h = Math.floor( total / 3600 );
-	const m = Math.floor( ( total % 3600 ) / 60 );
-	const s = total % 60;
-	const pad = ( n: number ) => String( n ).padStart( 2, '0' );
-	return h > 0 ? `${ h }:${ pad( m ) }:${ pad( s ) }` : `${ m }:${ pad( s ) }`;
-}
 
 /**
  * A small text button that copies a fixed string to the clipboard.
@@ -127,7 +106,12 @@ export default function RecentVideoCard( { item, viewsSlot, views, onOpen }: Pro
 		item.isPrivate,
 		item.type === 'videopress' && item.isProcessing
 	);
-	const duration = formatDurationBadge( item.durationSeconds );
+	// The zero guard stays at the call site rather than in `formatDuration`:
+	// a still-transcoding video reports 0, and the shared helper clamps that
+	// to "00:00" — a false claim about the video's length. The badge shows
+	// nothing instead. Library uses the same helper, so the same file no
+	// longer reads 0:34 here and 00:34 there.
+	const duration = item.durationSeconds > 0 ? formatDuration( item.durationSeconds ) : null;
 	const shareLink = resolveShareLink( item );
 	const embedSnippet = resolveEmbedSnippet( item );
 	const title = item.title || item.filename || __( 'Untitled video', 'jetpack-videopress-pkg' );

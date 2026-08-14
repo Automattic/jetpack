@@ -348,7 +348,7 @@ const UploadCard = ( {
 } ) => (
 	<Card.Root className="vp-onboarding__card vp-onboarding__card--upload">
 		<Card.Header>
-			<Card.Title>
+			<Card.Title render={ <h2 /> }>
 				{ /* Someone arriving here with a library of 27 videos is not
 				     uploading their first one. */ }
 				{ isFirstRun
@@ -389,7 +389,7 @@ const UploadingCard = ( { uploads, onBack }: { uploads: UploadItem[]; onBack: ()
 		return (
 			<Card.Root className="vp-onboarding__card">
 				<Card.Header>
-					<Card.Title>
+					<Card.Title render={ <h2 /> }>
 						{ failed
 							? __( 'Upload failed', 'jetpack-videopress-pkg' )
 							: __( 'Uploading your video', 'jetpack-videopress-pkg' ) }
@@ -442,7 +442,7 @@ const UploadingCard = ( { uploads, onBack }: { uploads: UploadItem[]; onBack: ()
 	return (
 		<Card.Root className="vp-onboarding__card">
 			<Card.Header>
-				<Card.Title>
+				<Card.Title render={ <h2 /> }>
 					{ sprintf(
 						/* translators: %d: number of videos. */
 						__( 'Uploading %d videos', 'jetpack-videopress-pkg' ),
@@ -614,7 +614,9 @@ const DetailsCard = ( {
 		return (
 			<Card.Root className="vp-onboarding__card">
 				<Card.Header>
-					<Card.Title>{ __( 'Add your video details', 'jetpack-videopress-pkg' ) }</Card.Title>
+					<Card.Title render={ <h2 /> }>
+						{ __( 'Add your video details', 'jetpack-videopress-pkg' ) }
+					</Card.Title>
 				</Card.Header>
 				<Card.Content>
 					<Stack direction="column" gap="lg">
@@ -668,7 +670,7 @@ const DetailsCard = ( {
 	return (
 		<Card.Root className="vp-onboarding__card">
 			<Card.Header>
-				<Card.Title>
+				<Card.Title render={ <h2 /> }>
 					{ sprintf(
 						/* translators: %d: number of videos. */
 						__( 'Add details · %d videos', 'jetpack-videopress-pkg' ),
@@ -796,7 +798,9 @@ const SuccessCard = ( {
 		return (
 			<Card.Root className="vp-onboarding__card">
 				<Card.Header>
-					<Card.Title>{ __( 'Your video is published', 'jetpack-videopress-pkg' ) }</Card.Title>
+					<Card.Title render={ <h2 /> }>
+						{ __( 'Your video is published', 'jetpack-videopress-pkg' ) }
+					</Card.Title>
 				</Card.Header>
 				<Card.Content>
 					<Stack direction="column" gap="lg">
@@ -828,7 +832,7 @@ const SuccessCard = ( {
 	return (
 		<Card.Root className="vp-onboarding__card">
 			<Card.Header>
-				<Card.Title>
+				<Card.Title render={ <h2 /> }>
 					{ sprintf(
 						/* translators: %d: number of videos. */
 						__( '%d videos published', 'jetpack-videopress-pkg' ),

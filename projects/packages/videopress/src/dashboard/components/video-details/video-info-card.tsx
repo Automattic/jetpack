@@ -48,7 +48,14 @@ const CopyIconButton = ( {
 	return (
 		<IconButton
 			ref={ ref }
-			label={ __( 'Copy', 'jetpack-videopress-pkg' ) }
+			// Named after what it copies: the card renders two of these, and
+			// "Copy" twice gives a screen-reader user no way to tell the link
+			// button from the shortcode one. Same shape Home's cards use.
+			label={ sprintf(
+				/* translators: %s: name of the field being copied, e.g. "Link to video". */
+				__( 'Copy %s', 'jetpack-videopress-pkg' ),
+				fieldLabel
+			) }
 			icon={ copy }
 			variant="minimal"
 		/>
@@ -84,7 +91,7 @@ export default function VideoInfoCard( { video }: Props ): ReactElement {
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Card.Title>{ __( 'Video info', 'jetpack-videopress-pkg' ) }</Card.Title>
+				<Card.Title render={ <h2 /> }>{ __( 'Video info', 'jetpack-videopress-pkg' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
 				<Stack direction="column" gap="md">

@@ -40,15 +40,22 @@ const mockCounts = ( counts: {
 };
 
 const WELCOME_FLAG = '__jetpackVideoPressWelcomeConsumed';
+const WELCOME_ACTIVE_FLAG = '__jetpackVideoPressWelcomeActive';
+
+type WelcomeWindow = Window & {
+	[ WELCOME_FLAG ]?: boolean;
+	[ WELCOME_ACTIVE_FLAG ]?: boolean;
+};
 
 describe( 'OnboardingModal', () => {
 	beforeEach( () => {
 		window.localStorage.clear();
 		mockNavigate.mockClear();
 		mockSearch = {};
-		// The consumed latch is window-scoped (it has to outlive the per-route
-		// module copies), so each case starts from a fresh page load.
-		delete ( window as Window & { [ WELCOME_FLAG ]?: boolean } )[ WELCOME_FLAG ];
+		// Both welcome latches are window-scoped (they have to outlive the
+		// per-route module copies), so each case starts from a fresh page load.
+		delete ( window as WelcomeWindow )[ WELCOME_FLAG ];
+		delete ( window as WelcomeWindow )[ WELCOME_ACTIVE_FLAG ];
 		window.history.replaceState( {}, '', '/wp-admin/admin.php?page=jetpack-videopress' );
 	} );
 
@@ -148,6 +155,24 @@ describe( 'OnboardingModal', () => {
 		render( <OnboardingModal /> );
 
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'stays open across the landing redirect the bare welcome URL triggers', async () => {
+		// `admin.php?page=jetpack-videopress&welcome=1` resolves to Library,
+		// which the layout immediately redirects away from — remounting this
+		// component. Consumption is spent by then, so only the separate
+		// window-scoped welcome flag can keep the modal open for the rest of
+		// the load. Counted videos, because that is the reviewer's site.
+		mockCounts( { videoPressCount: 4, localCount: 0, isSettled: true } );
+		window.history.replaceState( {}, '', '/wp-admin/admin.php?page=jetpack-videopress&welcome=1' );
+
+		const { unmount } = render( <OnboardingModal /> );
+		await expect( screen.findByRole( 'dialog' ) ).resolves.toBeInTheDocument();
+		unmount();
+
+		render( <OnboardingModal /> );
+
+		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
 	} );
 
 	it( 'strips welcome=1 from the URL so a manual reload behaves normally', () => {

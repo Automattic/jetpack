@@ -108,6 +108,10 @@ export default function IntroVideo(): ReactElement | null {
 	return (
 		<video
 			className="vp-onboarding-modal__player"
+			// Same name the embed branch above gives its iframe: a media
+			// element with controls is a focus stop, and without this one it
+			// announced as an unnamed "video".
+			aria-label={ __( 'What VideoPress does', 'jetpack-videopress-pkg' ) }
 			src={ src }
 			controls
 			playsInline

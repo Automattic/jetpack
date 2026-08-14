@@ -83,7 +83,7 @@ function FrameScrubber( { src, onChange }: FrameScrubberProps ): ReactElement {
 	if ( hasError ) {
 		return (
 			<div className="vp-frame-scrubber vp-frame-scrubber__error">
-				{ __( "We couldn't load this video.", 'jetpack-videopress-pkg' ) }
+				{ __( 'We couldn’t load this video.', 'jetpack-videopress-pkg' ) }
 			</div>
 		);
 	}
@@ -109,6 +109,11 @@ function FrameScrubber( { src, onChange }: FrameScrubberProps ): ReactElement {
 			/>
 			<RangeControl
 				className="vp-frame-scrubber__range"
+				// The scrubber is the only control in the dialog, so it shipped
+				// without a label and announced as an unnamed slider. Hidden
+				// from vision: a visible label under the video would be noise.
+				label={ __( 'Frame position', 'jetpack-videopress-pkg' ) }
+				hideLabelFromVision
 				min={ 0 }
 				max={ maxDuration }
 				step={ 0.1 }

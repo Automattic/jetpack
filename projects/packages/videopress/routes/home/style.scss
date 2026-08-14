@@ -15,6 +15,15 @@
 	// `#wpcontent`'s padding, so without this the content touches the chrome.
 	padding-inline: 24px;
 
+	// `aria-disabled` rather than `disabled` so the button stays in the
+	// focus tree and the `@wordpress/components` Tooltip can fire on
+	// hover and focus. The onClick guard in stage.tsx short-circuits the
+	// file picker when at the free-tier limit.
+	&__upload-button[aria-disabled="true"] {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
 	&__section {
 		display: flex;
 		flex-direction: column;

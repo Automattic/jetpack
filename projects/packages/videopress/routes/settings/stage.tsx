@@ -50,7 +50,9 @@ const SettingsForm = () => {
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Card.Title>{ __( 'Video settings', 'jetpack-videopress-pkg' ) }</Card.Title>
+				<Card.Title render={ <h2 /> }>
+					{ __( 'Video settings', 'jetpack-videopress-pkg' ) }
+				</Card.Title>
 			</Card.Header>
 			<Card.Content>
 				<Stack direction="column" gap="lg">
@@ -64,7 +66,7 @@ const SettingsForm = () => {
 										'jetpack-videopress-pkg'
 								  )
 								: __(
-										"Private videos won't play for signed-out visitors.",
+										'Private videos won’t play for signed-out visitors.',
 										'jetpack-videopress-pkg'
 								  )
 						}

@@ -27,7 +27,7 @@ export default function RatingCard( { value, onChange }: Props ): ReactElement {
 		<CollapsibleCard.Root>
 			<CollapsibleCard.Header>
 				<Stack direction="row" gap="sm" align="center" justify="space-between">
-					<Card.Title>{ __( 'Rating', 'jetpack-videopress-pkg' ) }</Card.Title>
+					<Card.Title render={ <h2 /> }>{ __( 'Rating', 'jetpack-videopress-pkg' ) }</Card.Title>
 					<CollapsibleCard.HeaderDescription>
 						<Text className="vp-video-details__summary">{ value }</Text>
 					</CollapsibleCard.HeaderDescription>
@@ -35,6 +35,12 @@ export default function RatingCard( { value, onChange }: Props ): ReactElement {
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<RadioControl
+					// The card title names this group visually, but a title is
+					// not a label: without one the group announced as an
+					// unnamed radiogroup. Hidden from vision so the card header
+					// stays the only visible heading.
+					label={ __( 'Rating', 'jetpack-videopress-pkg' ) }
+					hideLabelFromVision
 					selected={ value }
 					onChange={ next => onChange( next as VideoRating ) }
 					// `description` renders through the same `StyledHelp` that

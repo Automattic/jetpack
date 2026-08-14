@@ -241,7 +241,35 @@ describe( 'Editor upload session', () => {
 			/>
 		);
 
-		expect( screen.getByText( 'Upload complete — processing…' ) ).toBeInTheDocument();
+		// Scoped to the visible status line: the polite live region beside it
+		// carries the same phase string.
+		expect(
+			screen.getByText( 'Upload complete — processing…', {
+				selector: '.vp-upload-stage__status',
+			} )
+		).toBeInTheDocument();
+	} );
+
+	it( 'announces the upload phase without the percentage', () => {
+		render(
+			<Editor
+				{ ...editorProps( draftVideo, {
+					uploadState: { status: 'uploading', progress: 42, fileName: 'clip.mp4' },
+					saveDisabled: true,
+				} ) }
+			/>
+		);
+
+		// The percentage must stay OUT of the live region: it changes on every
+		// progress event, and `aria-live` on the wrapper made a screen reader
+		// speak a new number each time. The upload pill, which announces the
+		// same way, is suppressed on /upload and cannot cover for this.
+		// An exact-text match finds the phase-only node, not "Uploading… 42%".
+		const live = screen.getByText( 'Uploading…' );
+		expect( live ).toHaveAttribute( 'aria-live', 'polite' );
+		expect( live ).not.toHaveTextContent( '42%' );
+		// The percentage is still shown, just outside the live region.
+		expect( screen.getByText( 'Uploading… 42%' ) ).toBeInTheDocument();
 	} );
 
 	it( 'surfaces a failure with its retry, keeping the form in place', async () => {
@@ -318,7 +346,10 @@ describe( 'Editor upload session', () => {
 
 		// AdminPage inside AdminPage renders a second masthead in the tab panel.
 		expect( screen.queryByRole( 'navigation' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'heading', { level: 2 } ) ).toBeInTheDocument();
+		// The embedded header's title stands in for the dropped masthead. Named
+		// rather than counted: every card title is an h2 too, so a bare level-2
+		// lookup would pass even if this heading disappeared.
+		expect( screen.getByRole( 'heading', { level: 2, name: 'clip' } ) ).toBeInTheDocument();
 		// The record is a synthetic draft id, so the chapters deep link would
 		// point at a route that cannot resolve.
 		expect(

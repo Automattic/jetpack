@@ -58,8 +58,15 @@ export default function FreeTierNotice( {
 		[ runUpgrade ]
 	);
 
+	/*
+	 * `Notice.Root` speaks its children on mount unless `spokenMessage` says
+	 * otherwise. This notice renders on all five screens, so the default
+	 * re-announced a permanent plan state on every navigation. An empty string
+	 * short-circuits the `speak()` call entirely; the notice is still read
+	 * normally when the user reaches it.
+	 */
 	return (
-		<Notice.Root intent="info">
+		<Notice.Root intent="info" spokenMessage="">
 			<Notice.Description>{ message }</Notice.Description>
 			<Notice.Actions>
 				<Notice.ActionLink href="#" onClick={ handleUpgradeClick }>
