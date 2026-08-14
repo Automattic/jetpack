@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Status: Treat a site served on a publicly routable IPv6 address as a live site rather than a local one.

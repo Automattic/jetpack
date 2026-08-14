@@ -535,6 +535,7 @@ class Status_Test extends TestCase {
 				'http://intranet:8080',
 				true,
 			),
+
 			'playground'                     => array(
 				'https://playground.wordpress.net/scope:0.8362470763364798',
 				true,
@@ -650,6 +651,213 @@ class Status_Test extends TestCase {
 			),
 			'triple_slash_after_scheme'      => array(
 				'https:///example.com',
+				false,
+			),
+		);
+	}
+
+	/**
+	 * Tests sites served on an IPv6 address.
+	 *
+	 * @dataProvider get_is_local_site_ipv6
+	 *
+	 * @param string $site_url Site URL.
+	 * @param bool   $expected_response Expected response.
+	 */
+	#[DataProvider( 'get_is_local_site_ipv6' )]
+	public function test_is_local_site_for_ipv6( $site_url, $expected_response ) {
+		$this->site_url = $site_url;
+		$this->assertSame(
+			$expected_response,
+			$this->status_obj->is_local_site(),
+			sprintf(
+				'Expected %1$s to return %2$s for is_local_site()',
+				$site_url,
+				$expected_response ? 'true' : 'false'
+			)
+		);
+	}
+
+	/**
+	 * Sites served on an IPv6 address.
+	 *
+	 * Counting dots can't classify these: a routable literal is dot-free and a private
+	 * IPv4-mapped one carries dots, so the address itself has to decide.
+	 *
+	 * Addresses here stay inside ranges every supported PHP version agrees on. PHP's
+	 * reserved-range table has moved over time -- 2001:db8::/32 is one that shifts -- so
+	 * pinning a range near that boundary would pass on some versions of the test matrix
+	 * and fail on others.
+	 *
+	 * @return array
+	 */
+	public static function get_is_local_site_ipv6() {
+		return array(
+			'loopback'                 => array(
+				'http://[::1]',
+				true,
+			),
+			'loopback_with_port'       => array(
+				'http://[::1]:8080',
+				true,
+			),
+			'expanded_loopback'        => array(
+				'http://[0:0:0:0:0:0:0:1]',
+				true,
+			),
+			'unspecified'              => array(
+				'http://[::]',
+				true,
+			),
+			'unique_local'             => array(
+				'http://[fd12:3456::1]',
+				true,
+			),
+			'link_local'               => array(
+				'http://[fe80::1]',
+				true,
+			),
+			'mapped_private_ipv4'      => array(
+				'http://[::ffff:192.168.1.1]',
+				true,
+			),
+			'mapped_loopback_ipv4'     => array(
+				'http://[::ffff:127.0.0.1]',
+				true,
+			),
+			'public'                   => array(
+				'http://[2606:4700:4700::1111]',
+				false,
+			),
+			'public_with_port'         => array(
+				'http://[2a03:2880:f10c::face]:8080',
+				false,
+			),
+			// A dot in the path used to keep the host out of the local bucket. It must not.
+			'public_with_dotted_path'  => array(
+				'http://[2606:4700:4700::1111]:8080/blog.v2',
+				false,
+			),
+			'public_uppercase'         => array(
+				'http://[2606:4700:4700::AAAA]',
+				false,
+			),
+			'mapped_public_ipv4'       => array(
+				'http://[::ffff:8.8.8.8]',
+				false,
+			),
+			// site_url() without a scheme is read as a bare host, so the brackets still apply.
+			'public_schemeless'        => array(
+				'[2606:4700:4700::1111]',
+				false,
+			),
+
+			/*
+			 * A zone id names the interface an address is reachable on. A URL spells it
+			 * "%25eth0" and a bare address spells it "%eth0"; either way the address behind it
+			 * decides. Interface names that open with two hex digits, like FreeBSD's bce0, are
+			 * the ones that catch a decode-before-strip mistake, and VLAN sub-interfaces put a
+			 * dot in the host so the dot rule can't quietly supply the right answer instead.
+			 */
+			'zone_id'                  => array(
+				'http://[fe80::1%25eth0]',
+				true,
+			),
+			'zone_id_unencoded'        => array(
+				'http://[fe80::1%eth0]',
+				true,
+			),
+			'zone_id_dotted_interface' => array(
+				'http://[fe80::1%25eth0.1]',
+				true,
+			),
+			'zone_id_hex_interface'    => array(
+				'http://[fe80::1%bce0.1]',
+				true,
+			),
+			'zone_id_on_public'        => array(
+				'http://[2606:4700:4700::1111%25eth0]',
+				false,
+			),
+			'zone_id_hex_on_public'    => array(
+				'http://[2606:4700:4700::1111%bce0]',
+				false,
+			),
+
+			/*
+			 * Brackets are reserved for IPv6 literals, so anything else inside them is
+			 * malformed and the surrounding rules stay in charge of it.
+			 */
+			'brackets_around_non_ip'   => array(
+				'http://[foo.bar]',
+				false,
+			),
+			'brackets_around_dotless'  => array(
+				'http://[garbage]',
+				true,
+			),
+			'brackets_around_encoded'  => array(
+				'http://[2606%3A4700%3A4700%3A%3A1111]',
+				true,
+			),
+			'empty_brackets'           => array(
+				'http://[]',
+				true,
+			),
+		);
+	}
+
+	/**
+	 * Pins two URL forms that are read the "wrong" way on purpose.
+	 *
+	 * @dataProvider get_is_local_site_malformed_ip_urls
+	 *
+	 * @param string $site_url Site URL.
+	 * @param bool   $expected_response Expected response.
+	 */
+	#[DataProvider( 'get_is_local_site_malformed_ip_urls' )]
+	public function test_is_local_site_for_malformed_ip_urls( $site_url, $expected_response ) {
+		$this->site_url = $site_url;
+		$this->assertSame(
+			$expected_response,
+			$this->status_obj->is_local_site(),
+			sprintf(
+				'Expected %1$s to return %2$s for is_local_site()',
+				$site_url,
+				$expected_response ? 'true' : 'false'
+			)
+		);
+	}
+
+	/**
+	 * URL forms that no browser can load, whose classification is therefore left alone.
+	 *
+	 * Both are pinned so the boundary stays a decision rather than an accident. Reading either
+	 * one would mean picking the address out of the authority by hand instead of trusting the
+	 * host wp_parse_url() reports, and a site configured this way is already unreachable for
+	 * reasons this check can't fix.
+	 *
+	 * @return array
+	 */
+	public static function get_is_local_site_malformed_ip_urls() {
+		return array(
+
+			/*
+			 * An IPv6 literal has to be bracketed. Without brackets wp_parse_url() splits the
+			 * address at the last colon, reports the dotless fragment "2606:4700:4700:" as the
+			 * host, and the dot rule calls that local.
+			 */
+			'unbracketed_ipv6'        => array(
+				'http://2606:4700:4700::1111',
+				true,
+			),
+
+			/*
+			 * Brackets mean IPv6, so an IPv4 address inside them is not a form the known-local
+			 * patterns are written to match -- they anchor on the bare address.
+			 */
+			'bracketed_ipv4_loopback' => array(
+				'http://[127.0.0.1]',
 				false,
 			),
 		);

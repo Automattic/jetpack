@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Status\Cache;
 use Automattic\Jetpack\Status\Host;
 use WPCOM_Masterbar;
@@ -165,6 +166,40 @@ class Status {
 
 		// Check for localhost and sites using an IP only first.
 		$is_local = '' !== $host && false === strpos( $host, '.' );
+
+		/*
+		 * Counting dots is a poor proxy for "not publicly reachable" once the host is an IPv6
+		 * literal, and it is wrong in both directions: [2606:4700:4700::1111] is routable but
+		 * dot-free, so a live site lands in offline mode, while [::ffff:192.168.1.1] is private
+		 * but carries dots. Ask whether the address is actually public instead.
+		 *
+		 * Only the bracketed form is handled -- the form a URL is required to use for IPv6, and
+		 * the one the rule above misreads. Any other host, a bare IPv4 literal included, keeps
+		 * whatever the surrounding rules already decided for it.
+		 */
+		if ( strlen( $host ) > 2 && '[' === $host[0] && ']' === substr( $host, -1 ) ) {
+			$ip_literal = substr( $host, 1, -1 );
+
+			/*
+			 * A zone id (RFC 6874) qualifies the interface an address is reachable on, written
+			 * "%25eth0" inside a URL and "%eth0" outside one, and FILTER_VALIDATE_IP rejects the
+			 * literal while it is still attached. Cut it off at the '%', which lands on the same
+			 * boundary in either spelling; ip_is_public() ignores zone ids anyway.
+			 *
+			 * Cut before decoding, not after. An interface name opening with two hex digits --
+			 * FreeBSD's bce0, Solaris' dc0 -- makes "%bc" look like a percent-escape, so decoding
+			 * first consumes the delimiter and leaves a corrupt literal that fails validation.
+			 * That silently skips this whole check and hands the answer back to the dot rule.
+			 */
+			$zone_id_at = strpos( $ip_literal, '%' );
+			if ( false !== $zone_id_at ) {
+				$ip_literal = substr( $ip_literal, 0, $zone_id_at );
+			}
+
+			if ( filter_var( $ip_literal, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+				$is_local = ! IP_Utils::ip_is_public( $ip_literal );
+			}
+		}
 
 		// Use Core's environment check, if available.
 		if ( 'local' === wp_get_environment_type() ) {
