@@ -1,7 +1,7 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Modal, ProgressBar, TextControl } from '@wordpress/components';
+import { Button, ProgressBar, TextControl } from '@wordpress/components';
 import {
 	useRef,
 	useState,
@@ -96,24 +96,6 @@ type PublishedVideo = {
 	videopressGuid?: string;
 };
 
-type SampleVideo = {
-	id: number;
-	sourceUrl: string;
-};
-
-type SampleMediaResponse = {
-	id?: unknown;
-	source_url?: unknown;
-};
-
-type CreatedPost = {
-	id?: unknown;
-};
-
-type SampleCopyTarget = 'link' | 'embed';
-
-const SAMPLE_MEDIA_TITLE = 'videopress-sample';
-
 const restApiConfig = () => {
 	const initialState =
 		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined' ? JPVIDEOPRESS_INITIAL_STATE : undefined;
@@ -170,75 +152,6 @@ const errorMessage = ( error: unknown ) => {
 		? message
 		: __( 'Unexpected upload error.', 'jetpack-videopress-pkg' );
 };
-
-/*
- * PARKED — the "Try a sample" path.
- *
- * The tile that opened this was removed from the "Get your first video online"
- * card; the helpers below (and `SampleVideoModal` further down, plus the
- * `.vp-sample-modal` block in style.scss) are intentionally kept whole so the
- * feature can be restored by re-adding the tile and its `sampleVideo` /
- * `isSampleModalOpen` state to `UploadOnboarding`. Nothing renders them today,
- * hence the two unused-vars exemptions on the entry points.
- */
-
-const sampleMediaSearchPath = () =>
-	`/wp/v2/media?search=${ encodeURIComponent( SAMPLE_MEDIA_TITLE ) }&media_type=video&per_page=1`;
-
-/**
- * Resolve the locally seeded sample video without creating or promoting media.
- *
- * @return The seeded sample attachment, or null when the site does not provide one.
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Parked with the "Try a sample" tile; see the note above.
-const resolveSampleVideo = async (): Promise< SampleVideo | null > => {
-	const results = await apiFetch< SampleMediaResponse[] >( {
-		path: sampleMediaSearchPath(),
-		method: 'GET',
-	} );
-	const firstResult = results[ 0 ];
-
-	if (
-		typeof firstResult?.id !== 'number' ||
-		typeof firstResult?.source_url !== 'string' ||
-		firstResult.source_url.trim() === ''
-	) {
-		return null;
-	}
-
-	return {
-		id: firstResult.id,
-		sourceUrl: firstResult.source_url,
-	};
-};
-
-const serializeBlockAttributes = ( attributes: Record< string, unknown > ) =>
-	JSON.stringify( attributes )
-		.replaceAll( '\\\\', '\\u005c' )
-		.replaceAll( '--', '\\u002d\\u002d' )
-		.replaceAll( '<', '\\u003c' )
-		.replaceAll( '>', '\\u003e' )
-		.replaceAll( '&', '\\u0026' )
-		.replaceAll( '\\"', '\\u0022' );
-
-const escapeHtmlAttribute = ( value: string ) =>
-	value
-		.replaceAll( '&', '&amp;' )
-		.replaceAll( '"', '&quot;' )
-		.replaceAll( '<', '&lt;' )
-		.replaceAll( '>', '&gt;' );
-
-const sampleEmbedCode = ( sourceUrl: string ) =>
-	`<iframe title="VideoPress sample video" src="${ escapeHtmlAttribute(
-		sourceUrl
-	) }" width="640" height="360" frameborder="0" allowfullscreen></iframe>`;
-
-const sampleBlockMarkup = ( sample: SampleVideo ) =>
-	`<!-- wp:videopress/video ${ serializeBlockAttributes( {
-		id: sample.id,
-		src: sample.sourceUrl,
-		controls: true,
-	} ) } /-->`;
 
 /**
  * Upload a video as a regular WordPress attachment. The dashboard's shared
@@ -890,179 +803,15 @@ const SuccessCard = ( {
 };
 
 /**
- * Preview-only sample modal. This intentionally does not upload or promote the
- * sample attachment, so it cannot consume free-tier storage.
- *
- * PARKED: nothing renders this since the "Try a sample" tile was removed. Kept
- * intact so the tile can be restored without rebuilding the modal.
- *
- * @param props            - Component props.
- * @param props.sample     - The resolved seeded sample attachment.
- * @param props.onClose    - Close the modal.
- * @param props.openPicker - Opens the file picker after closing the modal.
- * @return The sample video modal.
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Parked with the "Try a sample" tile; see the note near `resolveSampleVideo`.
-const SampleVideoModal = ( {
-	sample,
-	onClose,
-	openPicker,
-}: {
-	sample: SampleVideo;
-	onClose: () => void;
-	openPicker: () => void;
-} ) => {
-	const [ copiedTarget, setCopiedTarget ] = useState< SampleCopyTarget | null >( null );
-	const [ copyError, setCopyError ] = useState< string | null >( null );
-	const [ isCreatingPost, setIsCreatingPost ] = useState( false );
-	const [ postError, setPostError ] = useState< string | null >( null );
-	const embedCode = sampleEmbedCode( sample.sourceUrl );
-
-	const copyText = useCallback( ( target: SampleCopyTarget, text: string ) => {
-		setCopyError( null );
-		void copyTextToClipboard( text )
-			.then( () => setCopiedTarget( target ) )
-			.catch( () => {
-				setCopyError( __( 'The share details could not be copied.', 'jetpack-videopress-pkg' ) );
-			} );
-	}, [] );
-
-	const addToPost = useCallback( async () => {
-		setIsCreatingPost( true );
-		setPostError( null );
-
-		try {
-			/*
-			 * This local onboarding sample is a raw media attachment. On a real
-			 * wpcom-connected VideoPress site, this should point at a known
-			 * VideoPress sample GUID and use the VideoPress player/embed instead.
-			 */
-			const post = await apiFetch< CreatedPost >( {
-				path: '/wp/v2/posts',
-				method: 'POST',
-				data: {
-					status: 'draft',
-					title: __( 'My first video', 'jetpack-videopress-pkg' ),
-					content: sampleBlockMarkup( sample ),
-				},
-			} );
-
-			if ( typeof post.id !== 'number' ) {
-				throw new Error( __( 'The draft post could not be created.', 'jetpack-videopress-pkg' ) );
-			}
-
-			window.location.href = `/wp-admin/post.php?post=${ post.id }&action=edit`;
-		} catch ( error ) {
-			setPostError( errorMessage( error ) );
-			setIsCreatingPost( false );
-		}
-	}, [ sample ] );
-
-	const uploadOwnInstead = useCallback( () => {
-		onClose();
-		openPicker();
-	}, [ onClose, openPicker ] );
-
-	return (
-		<Modal
-			title={ __( 'Try a sample video', 'jetpack-videopress-pkg' ) }
-			onRequestClose={ onClose }
-			className="vp-sample-modal"
-		>
-			<div className="vp-sample-modal__body">
-				<video
-					className="vp-sample-modal__player"
-					controls
-					src={ sample.sourceUrl }
-					aria-label={ __( 'Sample video', 'jetpack-videopress-pkg' ) }
-				/>
-
-				<div className="vp-success__share">
-					<TextControl
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-						className="vp-success__share-field"
-						label={ __( 'Share link', 'jetpack-videopress-pkg' ) }
-						value={ sample.sourceUrl }
-						onChange={ () => undefined }
-						readOnly
-					/>
-					<Button
-						variant="secondary"
-						__next40pxDefaultSize
-						icon={ copy }
-						onClick={ () => copyText( 'link', sample.sourceUrl ) }
-					>
-						{ copiedTarget === 'link'
-							? __( 'Copied', 'jetpack-videopress-pkg' )
-							: __( 'Copy link', 'jetpack-videopress-pkg' ) }
-					</Button>
-				</div>
-
-				<div className="vp-success__share">
-					<TextControl
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-						className="vp-success__share-field"
-						label={ __( 'Embed code', 'jetpack-videopress-pkg' ) }
-						value={ embedCode }
-						onChange={ () => undefined }
-						readOnly
-					/>
-					<Button
-						variant="secondary"
-						__next40pxDefaultSize
-						icon={ copy }
-						onClick={ () => copyText( 'embed', embedCode ) }
-					>
-						{ copiedTarget === 'embed'
-							? __( 'Copied', 'jetpack-videopress-pkg' )
-							: __( 'Copy embed', 'jetpack-videopress-pkg' ) }
-					</Button>
-				</div>
-
-				{ copyError && (
-					<Text variant="body-sm" className="vp-success__copy-status is-error">
-						{ copyError }
-					</Text>
-				) }
-				{ postError && (
-					<Text variant="body-sm" className="vp-details__error">
-						{ postError }
-					</Text>
-				) }
-			</div>
-
-			<div className="vp-sample-modal__actions">
-				<Button variant="secondary" onClick={ uploadOwnInstead } disabled={ isCreatingPost }>
-					{ __( 'Upload my own instead', 'jetpack-videopress-pkg' ) }
-				</Button>
-				<Button
-					variant="primary"
-					__next40pxDefaultSize
-					onClick={ addToPost }
-					disabled={ isCreatingPost }
-					isBusy={ isCreatingPost }
-				>
-					{ __( 'Add this to a post', 'jetpack-videopress-pkg' ) }
-				</Button>
-			</div>
-		</Modal>
-	);
-};
-
-/**
  * Copy text to the clipboard, working on plain-HTTP dev environments where
  * `navigator.clipboard` is undefined (it is secure-context-only). Falls back
  * to the hidden-textarea `execCommand` path the clipboard libraries use.
  *
  * The rest of the dashboard copies through `useCopyToClipboard`
  * (`video-details/video-info-card.tsx`), which is ref-based and so wants a
- * component per button. Converting the two callers below — a list of rows in
- * `SuccessCard` and the parked sample modal — is churn in a path only
- * reachable on disconnected sites, in code already slated for removal with
- * the "Try a sample" block. Left as the deliberate third mechanism until
- * that removal takes both callers with it.
+ * component per button. The only caller left is the list of share rows in
+ * `SuccessCard`, which is reachable only on disconnected sites, so converting
+ * it is churn. Left as the deliberate third mechanism.
  *
  * @param text - Text to place on the clipboard.
  * @return Resolves when the text has been copied; rejects when neither path works.
