@@ -112,13 +112,6 @@
 		"sort-packages": true,
 		"allow-plugins": {
 			"dealerdirect/phpcodesniffer-composer-installer": true
-		},
-		"policy": {
-			"advisories": {
-				"ignore-id": [
-					"GHSA-3pwp-g2mj-5p3v"
-				]
-			}
 		}
 	},
 	"require": {
