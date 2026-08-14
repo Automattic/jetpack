@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, renderHook, screen } from '@testing-library/react';
 import { useRef, useState, useLayoutEffect } from 'react';
 import { ChartScopeContext, useChartScopeElement } from '../index';
 import type { ReactNode } from 'react';
@@ -21,8 +21,8 @@ const Scope = ( { id, children }: { id: string; children: ReactNode } ) => {
 
 describe( 'useChartScopeElement', () => {
 	it( 'returns null with no scope above it', () => {
-		render( <Probe /> );
-		expect( screen.getByTestId( 'probe' ) ).toHaveTextContent( 'none' );
+		const { result } = renderHook( () => useChartScopeElement() );
+		expect( result.current ).toBeNull();
 	} );
 
 	it( 'returns the enclosing scope element', () => {
