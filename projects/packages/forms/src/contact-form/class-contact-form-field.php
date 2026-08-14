@@ -346,9 +346,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Validates the form input
-	 */
-	/**
 	 * Whether this field's visibility is governed by conditional logic.
 	 *
 	 * @return bool True when the field carries an enabled conditional-logic config.

@@ -293,10 +293,20 @@ class Conditional_Logic {
 	 * @return bool|null True or false, or null when the rule must be ignored.
 	 */
 	private static function evaluate_rule_value( array $rule, $type_key, $actual, $format = '' ) {
-		$operator = (string) $rule['operator'];
-		$expected = '';
-		if ( ! in_array( $operator, self::OPERATORS_WITHOUT_VALUE, true ) && isset( $rule['value'] ) ) {
+		$operator    = (string) $rule['operator'];
+		$needs_value = ! in_array( $operator, self::OPERATORS_WITHOUT_VALUE, true );
+		$expected    = '';
+		if ( $needs_value && isset( $rule['value'] ) ) {
 			$expected = $rule['value'];
+		}
+
+		// An operator that compares against something, given nothing to compare against, cannot
+		// say anything -- so the rule is ignored rather than evaluated against an empty string.
+		// Evaluating it would be worse than useless: `does_not_contain ''` is true of every
+		// value, so a half-written rule would quietly force its field visible. The editor
+		// already tells the author this rule is inert; this is what makes that true.
+		if ( $needs_value && '' === trim( self::to_comparable_string( $expected ) ) ) {
+			return null;
 		}
 
 		switch ( $operator ) {
@@ -415,14 +425,6 @@ class Conditional_Logic {
 	}
 
 	/**
-	 * Parse both sides of a numeric comparison.
-	 *
-	 * @param mixed $actual   The submitted value.
-	 * @param mixed $expected The value configured on the rule.
-	 *
-	 * @return array|null Both sides as floats, or null when either side is not numeric.
-	 */
-	/**
 	 * The selected value of a rating, dropping the scale it was submitted with.
 	 *
 	 * @param mixed $value The submitted value, `selected/max` or a bare number.
@@ -436,6 +438,14 @@ class Conditional_Logic {
 		return false === $slash ? $text : substr( $text, 0, $slash );
 	}
 
+	/**
+	 * Parse both sides of a numeric comparison.
+	 *
+	 * @param mixed $actual   The submitted value.
+	 * @param mixed $expected The value configured on the rule.
+	 *
+	 * @return array|null Both sides as floats, or null when either side is not numeric.
+	 */
 	private static function to_numeric_pair( $actual, $expected ) {
 		$left  = trim( self::to_comparable_string( $actual ) );
 		$right = trim( self::to_comparable_string( $expected ) );

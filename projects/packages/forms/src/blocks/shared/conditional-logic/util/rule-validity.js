@@ -1,4 +1,4 @@
-import { getValueInputForTypeKey, operatorNeedsValue } from './field-types.ts';
+import { operatorNeedsValue } from './field-types.ts';
 
 /**
  * Whether the author has begun this condition at all.
@@ -33,12 +33,10 @@ export const isRuleComplete = ( rule, subject ) => {
 		return true;
 	}
 
-	// Boolean and file subjects render no value input whatever the operator, so a missing
-	// value is not something the author can act on.
-	if ( 'none' === getValueInputForTypeKey( subject.typeKey ) ) {
-		return true;
-	}
-
+	// Anything else needs something to compare against. Deliberately no exception for subjects
+	// that render no value input: an operator needing a value it cannot be given is exactly as
+	// inert as one the author simply has not filled in, and both evaluators skip it. Treating
+	// it as complete here would put the icon back at odds with what actually happens.
 	return '' !== String( rule.value ?? '' ).trim();
 };
 

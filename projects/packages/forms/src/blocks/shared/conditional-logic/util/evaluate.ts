@@ -260,7 +260,17 @@ const evaluateRuleValue = (
 	format = ''
 ): boolean | null => {
 	const operator = rule.operator;
-	const expected = operatorNeedsValue( operator ) ? rule.value ?? '' : '';
+	const needsValue = operatorNeedsValue( operator );
+	const expected = needsValue ? rule.value ?? '' : '';
+
+	// An operator that compares against something, given nothing to compare against, cannot
+	// say anything -- so the rule is ignored rather than evaluated against an empty string.
+	// Evaluating it would be worse than useless: `does_not_contain ''` is true of every value,
+	// so a half-written rule would quietly force its field visible. The editor already tells
+	// the author this rule is inert; this is what makes that true.
+	if ( needsValue && '' === toComparableString( expected ).trim() ) {
+		return null;
+	}
 
 	switch ( operator ) {
 		case OPERATORS.IS_EMPTY:

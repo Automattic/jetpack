@@ -252,6 +252,41 @@
 			"actual": "",
 			"value": "",
 			"visible": true
+		},
+		{
+			"name": "an unfinished rule does not force the field visible",
+			"why": "does_not_contain against an empty value is true of every value, so evaluating a half-written rule instead of skipping it quietly forced its field visible. The editor marks such a rule inert; this is what makes that true.",
+			"type": "text",
+			"operator": "does_not_contain",
+			"actual": "anything",
+			"value": "",
+			"visible": true
+		},
+		{
+			"name": "an unfinished is-rule does not match a blank subject",
+			"why": "`is` against an empty value matched whenever the subject happened to be blank, so the rule fired by accident rather than being skipped.",
+			"type": "text",
+			"operator": "is",
+			"actual": "",
+			"value": "",
+			"visible": true
+		},
+		{
+			"name": "an unfinished numeric rule is skipped",
+			"type": "number",
+			"operator": "greater_than",
+			"actual": "10",
+			"value": "",
+			"visible": true
+		},
+		{
+			"name": "a zero value is a real value, not a missing one",
+			"why": "Zero is falsy in both languages, so a rule comparing against 0 must not be mistaken for one with no value.",
+			"type": "number",
+			"operator": "equals",
+			"actual": "0",
+			"value": "0",
+			"visible": true
 		}
 	]
 }
