@@ -38,11 +38,15 @@
 		color: var(--color-neutral-60, #50575e);
 	}
 
-	// Design settled on one token for row icons and carets across the AI Hub
-	// (sanjagrbic, i4 thread, 3 Aug).
+	// Design settled on one token for row icons and carets across the AI Hub,
+	// and on the row's hover fill (sanjagrbic, i4 thread, 3 Aug).
 	&--neutral &__icon,
 	&--neutral &__chevron {
 		color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	}
+
+	&--neutral:hover {
+		background: var(--wpds-color-background-surface-neutral-weak, #f4f4f4);
 	}
 
 	&__text {
