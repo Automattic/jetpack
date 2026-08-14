@@ -19,9 +19,13 @@
 	// levels down — `.jetpack-form-steps-wrapper` >
 	// `.wp-block-jetpack-form-step-container` > `.wp-block-jetpack-form-step` —
 	// so the second set of selectors matches the step as a descendant, not a
-	// child. The front end already covers this via `.wp-block-jetpack-form-step
-	// > *` in grunion.scss, but that stylesheet is registered separately and
-	// isn't one of the block's `style_handles`, so it never loads in the editor.
+	// child.
+	// grunion.scss does set `.wp-block-jetpack-form-step > * { flex: 0 0 100% }`,
+	// but that does not make the containers full width here: a multistep form is
+	// vertical, which gives the step `flex-direction: column` (below), so that
+	// `100%` is a height basis and the width falls to `align-items` — which
+	// `is-content-justification-left` sets to `flex-start`, i.e. shrink to fit.
+	// The same axis caveat as above, one level down.
 	> .wp-block-group,
 	> .wp-block-columns,
 	> .wp-block-details,
