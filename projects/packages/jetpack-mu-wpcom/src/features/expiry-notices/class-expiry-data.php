@@ -107,17 +107,30 @@ class Expiry_Data {
 		$product_slug   = (string) $purchase->product_slug;
 		$plan_name      = self::derive_plan_name( $product_slug );
 		$is_monthly     = self::is_monthly_plan( $product_slug );
-		// Simple sites populate `user_allows_auto_renew`; Atomic sites (synced
-		// via Atomic_Persistent_Data::WPCOM_PURCHASES) populate `auto_renew`.
-		$auto_renew = ! empty( $purchase->user_allows_auto_renew ?? $purchase->auto_renew ?? null );
-		$is_atomic  = defined( 'IS_ATOMIC' ) && IS_ATOMIC;
+		// The raw flag is only the customer's intent: it stays true for a
+		// subscription that cannot actually be charged. `might_still_auto_renew()`
+		// is the effective answer, but it is null until a site is serving the
+		// declared purchase shape, so fall back to the flag there.
+		$raw_auto_renew = ! empty( $purchase->user_allows_auto_renew ?? $purchase->auto_renew ?? null );
+		$will_renew     = self::might_still_auto_renew( $purchase ) ?? $raw_auto_renew;
+		$is_atomic      = defined( 'IS_ATOMIC' ) && IS_ATOMIC;
 
 		if ( $days_remaining >= 0 ) {
-			$notice_window   = $is_monthly ? self::MONTHLY_NOTICE_DAYS : self::ANNUAL_NOTICE_DAYS;
-			$state           = ( $days_remaining <= $notice_window && ! $auto_renew )
-				? self::STATE_APPROACHING
-				: self::STATE_ACTIVE;
 			$grace_days_left = null;
+
+			if ( $will_renew ) {
+				// Nothing to say about a plan that is still expected to renew
+				// itself, until a scheduled attempt has come and gone without
+				// renewing it.
+				$state = self::is_past_first_auto_renew_attempt( $purchase, $now )
+					? self::STATE_APPROACHING
+					: self::STATE_ACTIVE;
+			} else {
+				$notice_window = $is_monthly ? self::MONTHLY_NOTICE_DAYS : self::ANNUAL_NOTICE_DAYS;
+				$state         = $days_remaining <= $notice_window
+					? self::STATE_APPROACHING
+					: self::STATE_ACTIVE;
+			}
 		} else {
 			$days_past = abs( $days_remaining );
 			if ( $days_past >= self::GRACE_PERIOD_DAYS + self::POST_GRACE_PERIOD_DAYS ) {
@@ -142,8 +155,52 @@ class Expiry_Data {
 			'is_monthly'      => $is_monthly,
 			'plan_name'       => $plan_name,
 			'product_slug'    => $product_slug,
-			'auto_renew'      => $auto_renew,
+			// Whether a renewal is still expected to go through, not merely
+			// whether the customer left auto-renew switched on.
+			'auto_renew'      => $will_renew,
 		);
+	}
+
+	/**
+	 * Whether the billing system still expects to renew this purchase, or null
+	 * when the site has not been told.
+	 *
+	 * Null covers Atomic sites whose synced purchases predate the declared
+	 * shape, and any caller passing a plain purchase row.
+	 *
+	 * @param object $purchase Purchase object.
+	 */
+	private static function might_still_auto_renew( $purchase ): ?bool {
+		if ( ! method_exists( $purchase, 'might_still_auto_renew' ) ) {
+			return null;
+		}
+		$might_still_auto_renew = $purchase->might_still_auto_renew();
+		return is_bool( $might_still_auto_renew ) ? $might_still_auto_renew : null;
+	}
+
+	/**
+	 * Whether the first scheduled auto-renewal attempt is behind us.
+	 *
+	 * Compared against our own clock rather than read as a boolean, because an
+	 * Atomic site holds its synced purchases until the next subscription event
+	 * and a boolean would have been frozen when it was sent. False whenever the
+	 * schedule is unknown, so an unanswered question keeps the notice quiet.
+	 *
+	 * @param object $purchase Purchase object.
+	 * @param int    $now      Timestamp to compare against.
+	 */
+	private static function is_past_first_auto_renew_attempt( $purchase, int $now ): bool {
+		if ( ! method_exists( $purchase, 'first_auto_renew_attempt_date' ) ) {
+			return false;
+		}
+
+		$attempt_date = $purchase->first_auto_renew_attempt_date();
+		if ( ! is_string( $attempt_date ) || '' === $attempt_date ) {
+			return false;
+		}
+
+		$attempt_ts = strtotime( $attempt_date );
+		return false !== $attempt_ts && $attempt_ts < $now;
 	}
 
 	/**

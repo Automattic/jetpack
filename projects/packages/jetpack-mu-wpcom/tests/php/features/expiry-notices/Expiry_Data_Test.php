@@ -38,6 +38,97 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		);
 	}
 
+	/**
+	 * Build a purchase fixture that answers like the declared purchase shape.
+	 *
+	 * @param int       $days_until_expiry      Negative for past expiry.
+	 * @param bool      $raw_auto_renew         The customer's raw auto-renew flag.
+	 * @param bool|null $might_still_auto_renew Effective answer, or null when unknown.
+	 * @param int|null  $attempt_days_from_now  First renewal attempt, relative to the fixed now.
+	 */
+	private function declared_purchase( int $days_until_expiry, bool $raw_auto_renew, ?bool $might_still_auto_renew, ?int $attempt_days_from_now = null ): object {
+		$purchase = new class() {
+			public string $product_slug         = 'business-bundle';
+			public string $expiry_date          = '';
+			public bool $user_allows_auto_renew = false;
+
+			/**
+			 * @var bool|null
+			 */
+			public ?bool $might_still = null;
+
+			/**
+			 * @var string|null
+			 */
+			public ?string $first_attempt = null;
+
+			public function might_still_auto_renew(): ?bool {
+				return $this->might_still;
+			}
+
+			public function first_auto_renew_attempt_date(): ?string {
+				return $this->first_attempt;
+			}
+		};
+
+		$purchase->expiry_date            = gmdate( 'c', self::FIXED_NOW + ( $days_until_expiry * DAY_IN_SECONDS ) );
+		$purchase->user_allows_auto_renew = $raw_auto_renew;
+		$purchase->might_still            = $might_still_auto_renew;
+		$purchase->first_attempt          = null === $attempt_days_from_now
+			? null
+			: gmdate( 'c', self::FIXED_NOW + ( $attempt_days_from_now * DAY_IN_SECONDS ) );
+
+		return $purchase;
+	}
+
+	public function test_approaching_when_renewal_cannot_go_through_despite_the_flag(): void {
+		// The flag says it will renew; billing knows it cannot.
+		$state = Expiry_Data::compute_state_from_purchase(
+			$this->declared_purchase( 45, true, false ),
+			self::FIXED_NOW
+		);
+		$this->assertNotNull( $state );
+		$this->assertSame( Expiry_Data::STATE_APPROACHING, $state['state'] );
+		$this->assertFalse( $state['auto_renew'] );
+	}
+
+	public function test_active_while_a_renewal_attempt_is_still_ahead(): void {
+		$state = Expiry_Data::compute_state_from_purchase(
+			$this->declared_purchase( 45, true, true, 15 ),
+			self::FIXED_NOW
+		);
+		$this->assertNotNull( $state );
+		$this->assertSame( Expiry_Data::STATE_ACTIVE, $state['state'] );
+		$this->assertTrue( $state['auto_renew'] );
+	}
+
+	public function test_approaching_once_the_first_renewal_attempt_has_passed(): void {
+		$state = Expiry_Data::compute_state_from_purchase(
+			$this->declared_purchase( 15, true, true, -1 ),
+			self::FIXED_NOW
+		);
+		$this->assertNotNull( $state );
+		$this->assertSame( Expiry_Data::STATE_APPROACHING, $state['state'] );
+	}
+
+	public function test_unknown_renewal_state_falls_back_to_the_raw_flag(): void {
+		// Atomic sites that have not re-synced onto the declared shape answer
+		// null, and must keep behaving as they did before it existed.
+		$off = Expiry_Data::compute_state_from_purchase(
+			$this->declared_purchase( 45, false, null ),
+			self::FIXED_NOW
+		);
+		$this->assertNotNull( $off );
+		$this->assertSame( Expiry_Data::STATE_APPROACHING, $off['state'] );
+
+		$on = Expiry_Data::compute_state_from_purchase(
+			$this->declared_purchase( 45, true, null ),
+			self::FIXED_NOW
+		);
+		$this->assertNotNull( $on );
+		$this->assertSame( Expiry_Data::STATE_ACTIVE, $on['state'] );
+	}
+
 	public function test_is_monthly_plan(): void {
 		$this->assertTrue( Expiry_Data::is_monthly_plan( 'personal-bundle-monthly' ) );
 		$this->assertTrue( Expiry_Data::is_monthly_plan( 'BUSINESS_MONTHLY' ) );
