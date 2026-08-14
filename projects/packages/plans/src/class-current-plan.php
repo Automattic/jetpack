@@ -231,12 +231,13 @@ class Current_Plan {
 		}
 
 		// update_option() also reports false when the stored value already matches, which is not a
-		// failure. Without this the option is deleted and rewritten on every unchanged fetch.
+		// failure. Both options are autoloaded, so reading it as one rewrites them on every
+		// unchanged fetch and drops the alloptions cache with it.
 		if ( get_option( $option ) === $data ) {
 			return true;
 		}
 
-		// If something goes wrong with the update, so delete the current option and then update it.
+		// If the update genuinely failed, delete the option and write it again.
 		delete_option( $option );
 
 		return update_option( $option, $data, true );
