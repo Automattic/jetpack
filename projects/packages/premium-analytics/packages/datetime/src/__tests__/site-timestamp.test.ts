@@ -44,6 +44,20 @@ describe( 'readSiteTimestamp', () => {
 	it( 'accepts a leap day', () => {
 		expect( readSiteTimestamp( '2024-02-29' )?.isValid ).toBe( true );
 	} );
+
+	it.each( [
+		'2026-06-29T00:00:00+24:00',
+		'2026-06-29T00:00:00-24:00',
+		'2026-06-29T00:00:00+23:60',
+		'2026-06-29T00:00:00+2360',
+	] )( 'marks the out-of-range offset in %s invalid', value => {
+		expect( readSiteTimestamp( value )?.isValid ).toBe( false );
+	} );
+
+	it( 'accepts an offset at the edge of the range', () => {
+		expect( readSiteTimestamp( '2026-06-29T00:00:00+23:59' )?.isValid ).toBe( true );
+		expect( readSiteTimestamp( '2026-06-29T00:00:00-2359' )?.isValid ).toBe( true );
+	} );
 } );
 
 // Both entry points decide what is parseable from `readSiteTimestamp`, so a
@@ -64,6 +78,12 @@ describe( 'parity between toLocalTZ and parseSiteDateTime', () => {
 		[ '2026-13-45 00:00:00', false ],
 		[ '2026-06-29T12:60:00', false ],
 		[ '2026-06-29T24:00:00Z', false ],
+		[ '2026/06/29', false ],
+		[ '06/29/2026', false ],
+		[ 'June 29, 2026', false ],
+		[ '2026-6-9', false ],
+		[ '2026-06-29T00:00:00+24:00', false ],
+		[ '2026-06-29T00:00:00+23:60', false ],
 	] )( 'both %s treat as parseable: %s', ( value, isParseable ) => {
 		expect( ! isNaN( toLocalTZ( value as string, '+00:00' ).getTime() ) ).toBe( isParseable );
 		expect( parseSiteDateTime( value ) !== undefined ).toBe( isParseable );

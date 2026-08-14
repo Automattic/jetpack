@@ -101,17 +101,19 @@ export function toLocalTZ( value?: number | string | Date, timeZone?: string ): 
 	if ( typeof value === 'string' ) {
 		const timestamp = readSiteTimestamp( value );
 
-		if ( timestamp ) {
-			if ( ! timestamp.isValid ) {
-				return new TZDateMini( NaN, tzid );
-			}
-
-			// An offset already identifies an instant, so only wall times are
-			// anchored to the timezone.
-			return timestamp.offset
-				? new TZDateMini( timestamp.value as unknown as number, tzid )
-				: wallTimeToTZDate( timestamp.parts, tzid );
+		// A shape this package does not read reaches `Date` otherwise, which
+		// resolves an offset-less string in the *browser's* zone — the shift this
+		// module avoids — and leaves `parseSiteDateTime` rejecting a value this
+		// accepts.
+		if ( ! timestamp?.isValid ) {
+			return new TZDateMini( NaN, tzid );
 		}
+
+		// An offset already identifies an instant, so only wall times are
+		// anchored to the timezone.
+		return timestamp.offset
+			? new TZDateMini( timestamp.value as unknown as number, tzid )
+			: wallTimeToTZDate( timestamp.parts, tzid );
 	}
 
 	return new TZDateMini( value as number, tzid );

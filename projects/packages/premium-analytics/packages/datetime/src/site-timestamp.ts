@@ -9,6 +9,9 @@
 const SITE_TIMESTAMP =
 	/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?(Z|[+-]\d{2}:?\d{2})?)?$/;
 
+/** The hours and minutes of a numeric offset. */
+const OFFSET_PARTS = /^[+-](\d{2}):?(\d{2})$/;
+
 /** Wall-clock parts in the same order as the native `Date` constructor. */
 export type TimestampParts = [ number, number, number, number, number, number, number ];
 
@@ -19,7 +22,7 @@ export type SiteTimestamp = {
 	parts: TimestampParts;
 	/** The stated offset, or undefined when the value names a wall time. */
 	offset?: string;
-	/** Whether it names a clock time and a calendar day that exist. */
+	/** Whether it names a clock time, calendar day, and offset that exist. */
 	isValid: boolean;
 };
 
@@ -37,6 +40,22 @@ function isRealCalendarDate( year: number, month: number, day: number ): boolean
 	return (
 		probe.getUTCFullYear() === year && probe.getUTCMonth() === month && probe.getUTCDate() === day
 	);
+}
+
+/**
+ * Whether a stated offset names a real distance from UTC.
+ *
+ * @param offset - The offset as written, or undefined for a wall time.
+ * @return Whether it is absent, `Z`, or within ±23:59.
+ */
+function isRealOffset( offset?: string ): boolean {
+	if ( offset === undefined || offset === 'Z' ) {
+		return true;
+	}
+
+	const match = OFFSET_PARTS.exec( offset );
+
+	return !! match && Number( match[ 1 ] ) <= 23 && Number( match[ 2 ] ) <= 59;
 }
 
 /**
@@ -70,6 +89,7 @@ export function readSiteTimestamp( value: string ): SiteTimestamp | null {
 		parts[ 3 ] <= 23 &&
 		parts[ 4 ] <= 59 &&
 		parts[ 5 ] <= 59 &&
+		isRealOffset( offset ) &&
 		isRealCalendarDate( parts[ 0 ], parts[ 1 ], parts[ 2 ] );
 
 	return { value: trimmed, parts, offset, isValid };
