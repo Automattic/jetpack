@@ -123,6 +123,11 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 
 		wp_set_script_translations( 'jetpack-ai-admin', 'jetpack' );
 
+		// Pre-release gate for the Overview and Features views. Everything the
+		// gated views need hangs off this one flag, so opening them up to
+		// everyone is a single change here.
+		$show_gated_views = jetpack_is_internal_testing_environment();
+
 		wp_add_inline_script(
 			'jetpack-ai-admin',
 			'var jetpackAiSettings = ' . wp_json_encode(
@@ -139,12 +144,10 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					// shipping a code change.
 					'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites' ),
 					// The purchase granting AI, for the Overview usage card — the
-					// usage endpoint cannot name it. Gate falls together with
-					// showFeaturesView below: remove both when the view goes public.
-					'planName'         => jetpack_is_internal_testing_environment() ? self::get_ai_plan_name() : '',
-					// Pre-release gate: only internal testing environments see
-					// the Features view. Remove when the view goes public.
-					'showFeaturesView' => jetpack_is_internal_testing_environment(),
+					// usage endpoint cannot name it. Only looked up when a gated
+					// view can render it.
+					'planName'         => $show_gated_views ? self::get_ai_plan_name() : '',
+					'showFeaturesView' => $show_gated_views,
 					// Tracks audience properties for the jetpack_mcp_* events, per the
 					// Tracks standards for AI product events (AIINT-586). The client
 					// sends them as the strings 'true'/'false' (AIINT-576).
