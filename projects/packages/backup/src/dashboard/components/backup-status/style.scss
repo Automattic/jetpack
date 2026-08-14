@@ -10,19 +10,48 @@
 	margin-inline: auto;
 	max-inline-size: 560px;
 
+	// `EmptyState.Root` stacks its children on a 4px gap, which is right
+	// for consecutive lines of text but leaves the bar reading as an
+	// underline welded to the heading. Give the row its own space.
 	&__progress {
 		display: flex;
 		align-items: center;
 		gap: 12px;
 		inline-size: 100%;
+		margin-block: 12px;
 	}
 
 	// `EmptyState` centers its children, which would otherwise shrink the
 	// bar to its intrinsic width. Let it take the row and keep the
-	// percentage readout beside it.
-	&__bar {
+	// percentage readout beside it. The stock track is 1.5px tall, which
+	// reads as a divider rule rather than a progress element — most of all
+	// in indeterminate mode, where there is no filled portion to give it
+	// contrast.
+	// Deliberately scoped under `&__progress` rather than written flat.
+	// `@wordpress/components` styles the track through a runtime-injected
+	// emotion class of equal specificity, and emotion appends to `<head>`
+	// after the bundled stylesheet — so a flat `&__bar` rule would lose on
+	// source order no matter where this file sits in the build. One extra
+	// class wins it without reaching for `!important`.
+	&__progress &__bar {
 		flex: 1 1 auto;
 		min-inline-size: 0;
+		block-size: 4px;
+		border-radius: 2px;
+		overflow: hidden;
+
+		// ProgressBar's filled indicator is an absolutely-positioned
+		// `inline-block` that declares no `left`, so it lands on its static
+		// position — which, for an inline-level box, `text-align` decides.
+		// `EmptyState.Root` centers its contents, and that inherits in here
+		// and drags the filled portion to the middle of the track. Only
+		// visible on the determinate bar; the indeterminate one animates
+		// `left` explicitly and so is immune.
+		text-align: start;
+
+		> * {
+			block-size: 100%;
+		}
 	}
 }
 
@@ -38,8 +67,18 @@
 	border-radius: 8px;
 	background-color: var(--wp-components-color-background-secondary, #f7f7f7);
 
-	&__bar {
+	// Matches the panel's bar so the two readings of "a backup is running"
+	// look like the same control — including the specificity bump, for the
+	// same reason.
+	& &__bar {
 		flex: 1 1 auto;
 		min-inline-size: 0;
+		block-size: 4px;
+		border-radius: 2px;
+		overflow: hidden;
+
+		> * {
+			block-size: 100%;
+		}
 	}
 }

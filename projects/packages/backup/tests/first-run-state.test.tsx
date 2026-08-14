@@ -137,6 +137,33 @@ describe( 'BackupStatusPanel', () => {
 		expect( screen.queryByText( '42%' ) ).not.toBeInTheDocument();
 	} );
 
+	// The heading promises a backup is coming, so a panel with no sign of
+	// activity contradicts itself — and this is the state a brand-new
+	// customer sits and watches.
+	it( 'still shows a progress element before any backup has started', () => {
+		const { rerender } = render( <BackupStatusPanel state="no-backups" progress={ 0 } /> );
+
+		expect( screen.getByRole( 'progressbar' ) ).toBeInTheDocument();
+		// Indeterminate: there is no percentage to claim yet.
+		expect( screen.queryByText( /\d+%/ ) ).not.toBeInTheDocument();
+
+		// A pending retry is the exception — nothing is running to report.
+		rerender( <BackupStatusPanel state="will-retry" progress={ 0 } /> );
+		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+	} );
+
+	// The transition every new site makes: no records, then the first
+	// backup starts.
+	it( 'takes a value once the first backup starts', () => {
+		const { rerender } = render( <BackupStatusPanel state="no-backups" progress={ 0 } /> );
+		expect( screen.queryByText( '19%' ) ).not.toBeInTheDocument();
+
+		rerender( <BackupStatusPanel state="in-progress" progress={ 19 } /> );
+
+		expect( screen.getByRole( 'progressbar' ) ).toBeInTheDocument();
+		expect( screen.getByText( '19%' ) ).toBeInTheDocument();
+	} );
+
 	it( 'offers a way to reach support when no attempt produced a restore point', () => {
 		render( <BackupStatusPanel state="no-good-backups" progress={ 0 } /> );
 

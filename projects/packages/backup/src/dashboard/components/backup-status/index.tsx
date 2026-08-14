@@ -86,14 +86,16 @@ export default function BackupStatusPanel( { state, progress }: Props ) {
 		);
 	}
 
-	// Only a running backup has a percentage worth drawing. A retryable
-	// failure reports the percentage the attempt died at, which would read
-	// as a stalled backup rather than one waiting to be retried; and a
-	// site with no records at all has nothing to report, where an
-	// indeterminate bar is worse than none — the track is ~1.5px tall, so
-	// with no filled portion to give it contrast it reads as a stray
-	// divider rule under the heading.
-	const showProgress = state === 'in-progress';
+	// A retryable failure is the one state with nothing to show: WPCOM
+	// reports the percentage the attempt died at, which would read as a
+	// stalled backup rather than one waiting to be retried.
+	//
+	// `no-backups` still gets a bar, in indeterminate mode. The heading
+	// promises a backup is coming, so a panel with no sign of activity
+	// contradicts itself — and this is the state a brand-new customer
+	// sits in, watching. Only a running backup has a real percentage.
+	const showProgress = state !== 'will-retry';
+	const isDeterminate = state === 'in-progress';
 
 	return (
 		<EmptyState.Root className="jpb-backup-status">
@@ -105,14 +107,21 @@ export default function BackupStatusPanel( { state, progress }: Props ) {
 			</EmptyState.Title>
 			{ showProgress && (
 				<div className="jpb-backup-status__progress">
-					<ProgressBar className="jpb-backup-status__bar" value={ progress } />
-					<Text variant="body-sm" className="jpb-text-muted">
-						{ sprintf(
-							/* translators: %d: how much of the running backup is complete, as a percentage. */
-							__( '%d%%', 'jetpack-backup-pkg' ),
-							progress
-						) }
-					</Text>
+					{ /* Omitting `value` is what puts ProgressBar into its
+					     animated indeterminate mode. */ }
+					<ProgressBar
+						className="jpb-backup-status__bar"
+						value={ isDeterminate ? progress : undefined }
+					/>
+					{ isDeterminate && (
+						<Text variant="body-sm" className="jpb-text-muted">
+							{ sprintf(
+								/* translators: %d: how much of the running backup is complete, as a percentage. */
+								__( '%d%%', 'jetpack-backup-pkg' ),
+								progress
+							) }
+						</Text>
+					) }
 				</div>
 			) }
 			<EmptyState.Description>
