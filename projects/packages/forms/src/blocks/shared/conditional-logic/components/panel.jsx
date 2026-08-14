@@ -1,7 +1,7 @@
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import { Button, PanelBody, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useCallback, useMemo, useState } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { seen, unseen } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -13,70 +13,14 @@ import {
 	withPrimaryGroupRules,
 } from '../constants.js';
 import useSubjectFields from '../hooks/use-subject-fields.js';
+import {
+	describeRule,
+	getActiveConditions,
+	getSummaryHeading,
+	getSummaryText,
+} from '../util/summary.js';
 import ConditionalLogicModal from './rules-modal.jsx';
 import '../editor.scss';
-
-/**
- * Describe the field's conditions in one line.
- *
- * This is the whole reason the inspector keeps a panel rather than just a button: an author can
- * tell whether a field is conditional, and roughly why, without opening anything. It states the
- * action, the match mode and the count, because those answer "what does this field do?" without
- * repeating the rules themselves.
- *
- * @param {object} logic - The normalized conditional-logic attribute.
- * @param {object} group - The group being described.
- * @return {string} A sentence describing the conditions.
- */
-const summarize = ( logic, group ) => {
-	const count = countRules( logic );
-
-	if ( 'hide' === logic.action ) {
-		return 'all' === group.logicalOperator
-			? sprintf(
-					/* translators: %d: number of conditions */
-					_n(
-						'Hidden when %d condition matches',
-						'Hidden when all %d conditions match',
-						count,
-						'jetpack-forms'
-					),
-					count
-			  )
-			: sprintf(
-					/* translators: %d: number of conditions */
-					_n(
-						'Hidden when %d condition matches',
-						'Hidden when any of %d conditions match',
-						count,
-						'jetpack-forms'
-					),
-					count
-			  );
-	}
-
-	return 'all' === group.logicalOperator
-		? sprintf(
-				/* translators: %d: number of conditions */
-				_n(
-					'Shown when %d condition matches',
-					'Shown when all %d conditions match',
-					count,
-					'jetpack-forms'
-				),
-				count
-		  )
-		: sprintf(
-				/* translators: %d: number of conditions */
-				_n(
-					'Shown when %d condition matches',
-					'Shown when any of %d conditions match',
-					count,
-					'jetpack-forms'
-				),
-				count
-		  );
-};
 
 /**
  * The "Conditional logic" inspector panel, injected into every field block.
@@ -127,6 +71,10 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 
 	const hasConditions = countRules( logic ) > 0;
 
+	// The conditions the field will actually be governed by. Incomplete ones are skipped by
+	// both evaluators, so listing them here would describe behaviour the field does not have.
+	const activeConditions = getActiveConditions( group, fields );
+
 	return (
 		<>
 			{ /* Present on every block that supports conditional logic, the way Required is,
@@ -140,8 +88,8 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 						// author sees on the canvas.
 						icon={ startsHidden( logic ) ? unseen : seen }
 						title={
-							hasConditions
-								? summarize( logic, group )
+							activeConditions.length
+								? getSummaryText( logic, group, fields )
 								: __( 'Add conditional logic', 'jetpack-forms' )
 						}
 						onClick={ openModal }
@@ -161,17 +109,35 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 					className="jetpack-contact-form__panel jetpack-contact-form__conditional-logic"
 				>
 					<Stack direction="column" gap="md">
-						<Text
-							variant="body-sm"
-							className="jetpack-contact-form__conditional-logic-summary-text"
-						>
-							{ hasConditions
-								? summarize( logic, group )
-								: __(
-										'Show or hide this field based on the answer to another field.',
-										'jetpack-forms'
-								  ) }
-						</Text>
+						{ activeConditions.length ? (
+							<Stack direction="column" gap="xs">
+								<Text
+									variant="body-sm"
+									className="jetpack-contact-form__conditional-logic-summary-text"
+								>
+									{ getSummaryHeading( logic, group ) }
+								</Text>
+								{ /* A list rather than stacked paragraphs, so a screen reader
+								     announces how many conditions there are before reading them. */ }
+								<ul className="jetpack-contact-form__conditional-logic-summary-list">
+									{ activeConditions.map( ( { rule, subject }, index ) => (
+										<li key={ index }>
+											<Text variant="body-sm">{ describeRule( rule, subject ) }</Text>
+										</li>
+									) ) }
+								</ul>
+							</Stack>
+						) : (
+							<Text
+								variant="body-sm"
+								className="jetpack-contact-form__conditional-logic-summary-text"
+							>
+								{ __(
+									'Show or hide this field based on the answer to another field.',
+									'jetpack-forms'
+								) }
+							</Text>
+						) }
 
 						<Button
 							variant="secondary"

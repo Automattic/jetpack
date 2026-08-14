@@ -168,7 +168,11 @@ describe( 'ConditionalLogicPanel', () => {
 			{ openModal: false }
 		);
 
-		expect( screen.getByText( 'Shown when all 2 conditions match' ) ).toBeInTheDocument();
+		// The conditions themselves, not a count of them: an author should be able to read what
+		// the field does without opening the dialog.
+		expect( screen.getByText( 'This field is shown only if:' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Name is “x”' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Budget is at least “5”' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Edit conditions' } ) ).toBeInTheDocument();
 	} );
 
@@ -178,7 +182,8 @@ describe( 'ConditionalLogicPanel', () => {
 			{ openModal: false }
 		);
 
-		expect( screen.getByText( 'Hidden when 1 condition matches' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'This field is hidden only if:' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Name is “x”' ) ).toBeInTheDocument();
 	} );
 
 	// The toolbar button reports the same thing the inspector summary does, for an author who
@@ -189,7 +194,7 @@ describe( 'ConditionalLogicPanel', () => {
 		} );
 
 		expect(
-			screen.getByRole( 'button', { name: 'Shown when 1 condition matches' } )
+			screen.getByRole( 'button', { name: 'This field is shown only if: Name is “x”' } )
 		).toBeInTheDocument();
 	} );
 
@@ -199,9 +204,9 @@ describe( 'ConditionalLogicPanel', () => {
 			openModal: false,
 		} );
 
-		expect( screen.getByRole( 'button', { name: 'Shown when 1 condition matches' } ) ).toHaveClass(
-			'is-pressed'
-		);
+		expect(
+			screen.getByRole( 'button', { name: 'This field is shown only if: Name is “x”' } )
+		).toHaveClass( 'is-pressed' );
 	} );
 
 	// Present on every block that supports conditional logic, the way Required is: a control
@@ -229,7 +234,7 @@ describe( 'ConditionalLogicPanel', () => {
 		} );
 
 		await userEvent.click(
-			screen.getByRole( 'button', { name: 'Shown when 1 condition matches' } )
+			screen.getByRole( 'button', { name: 'This field is shown only if: Name is “x”' } )
 		);
 
 		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
