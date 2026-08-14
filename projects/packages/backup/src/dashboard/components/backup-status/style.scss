@@ -1,0 +1,45 @@
+// The first-run panel replaces the Overview's two-pane grid entirely, so
+// it lands directly inside `.jpb-dashboard-body__inner` — the same slot
+// the gate screens occupy, and it is sized to match them.
+// `EmptyState.Root`'s own `align-items: center` centers its children
+// inside the box, not the box inside its parent: it ships
+// `margin-inline: 0`, so in this dashboard's 1344px ribbon it would hug
+// the left edge. `.jpb-gates__card` solves the same problem the same way.
+.jpb-backup-status {
+	margin-block: 48px;
+	margin-inline: auto;
+	max-inline-size: 560px;
+
+	&__progress {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		inline-size: 100%;
+	}
+
+	// `EmptyState` centers its children, which would otherwise shrink the
+	// bar to its intrinsic width. Let it take the row and keep the
+	// percentage readout beside it.
+	&__bar {
+		flex: 1 1 auto;
+		min-inline-size: 0;
+	}
+}
+
+// The in-progress strip sits above the two-pane grid rather than inside
+// it: `.jpb-overview` is a two-column grid at >= 961px, so a third child
+// would be auto-placed into the layout and push the detail pane onto its
+// own row. Wrapping it here keeps that grid untouched.
+.jpb-backup-status-banner {
+	box-sizing: border-box;
+	inline-size: 100%;
+	margin-block-end: 16px;
+	padding: 12px 16px;
+	border-radius: 8px;
+	background-color: var(--wp-components-color-background-secondary, #f7f7f7);
+
+	&__bar {
+		flex: 1 1 auto;
+		min-inline-size: 0;
+	}
+}

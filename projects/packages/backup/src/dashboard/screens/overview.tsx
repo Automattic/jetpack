@@ -1,17 +1,20 @@
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { calendar } from '@wordpress/icons';
 import { useNavigate, useSearch } from '@wordpress/route';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Text } from '@wordpress/ui';
 import ActivityDetail from '../components/activity-detail';
 import ActivityList from '../components/activity-list';
 import BackupDetail from '../components/backup-detail';
+import BackupNowButton from '../components/backup-now-button';
+import BackupStatusPanel, { replacesOverview } from '../components/backup-status';
+import BackupStatusBanner from '../components/backup-status/banner';
 import DashboardLayout from '../components/dashboard-layout';
 import {
 	ACTIVITY_LOG_DEFAULT_PER_PAGE,
 	useActivityById,
 	useDefaultBackupRewindId,
 } from '../hooks/use-activity-log';
+import { useBackups } from '../hooks/use-backups';
 import { isBackupItem } from '../types/activity';
 import type { View } from '@wordpress/dataviews';
 
@@ -62,6 +65,10 @@ export default function OverviewScreen() {
 	// fetch when the list is on page 1 with the default per-page.
 	const defaultSelectedId = useDefaultBackupRewindId();
 	const selectedId = typeof search.selected === 'string' ? search.selected : defaultSelectedId;
+	// `/site/rewindable-activity` only lists completed restore points, so
+	// on its own it cannot tell "no backups yet" from "the first one is
+	// running" from "they're all failing". This second query answers that.
+	const { state: backupsState, progress, isInitialBackup } = useBackups();
 
 	const setSelected = useCallback(
 		( id: string ) => {
@@ -73,21 +80,24 @@ export default function OverviewScreen() {
 		[ navigate, search ]
 	);
 
+	if ( replacesOverview( backupsState, isInitialBackup ) ) {
+		return (
+			<DashboardLayout actions={ <BackupNowButton /> }>
+				<BackupStatusPanel state={ backupsState } progress={ progress } />
+			</DashboardLayout>
+		);
+	}
+
 	return (
-		<DashboardLayout
-			actions={
-				<Stack direction="row" gap="sm">
-					<Button variant="outline" tone="neutral">
-						<Button.Icon icon={ calendar } />
-						{ /* Placeholder copy for the upcoming date-range filter — not translated until the real UI lands. */ }
-						Apr 16, 2026 to May 15, 2026
-					</Button>
-					<Button variant="outline" tone="neutral">
-						{ __( 'Back up now', 'jetpack-backup-pkg' ) }
-					</Button>
-				</Stack>
-			}
-		>
+		<DashboardLayout actions={ <BackupNowButton /> }>
+			{ /*
+			 * A backup running on a site that already has restore points is
+			 * reported alongside the list rather than in place of it. The
+			 * banner is a sibling of `.jpb-overview` — not a child — because
+			 * that element is a two-column grid above 960px, and a third
+			 * child would be auto-placed into it.
+			 */ }
+			{ backupsState === 'in-progress' && <BackupStatusBanner progress={ progress } /> }
 			<div className="jpb-overview">
 				<ActivityList
 					selectedId={ selectedId }
