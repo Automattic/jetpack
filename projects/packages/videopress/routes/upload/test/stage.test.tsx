@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { makeLibraryItem } from '../../../src/dashboard/test-utils/library-item';
 import {
@@ -196,6 +196,74 @@ jest.mock( '../../../src/dashboard/components/video-details/editor', () => ( {
 // Real container bytes: the dropzone's filter reads the header and checks it
 // against the extension, so `[ 'x' ]` is no longer a video.
 const makeFile = ( name: string ) => makeVideoFile( name );
+
+// How a scripted media-library request ends. `error` is the transport failure
+// the XHR reports through `onerror` (no status, no body); `load` is a real
+// response, 2xx or not.
+type MockXhrOutcome = { kind: 'error' } | { kind: 'load'; status: number; responseText?: string };
+
+/*
+ * The disconnected path uploads through a raw XMLHttpRequest to wp/v2/media
+ * rather than through apiFetch or the tus queue, so there is nothing already
+ * mocked in this file for it to go through. This stand-in records each request
+ * and hands it back to the test, which decides when and how it ends — the
+ * interstitial only exists while a request is in flight, so a stub that
+ * completed itself inside `send()` would skip straight past it.
+ */
+class MockXhr {
+	public method = '';
+	public url = '';
+	public headers: Record< string, string > = {};
+	public status = 0;
+	public responseText = '';
+	public upload: {
+		onprogress?: ( event: { lengthComputable: boolean; loaded: number; total: number } ) => void;
+	} = {};
+	public onload: ( () => void ) | null = null;
+	public onerror: ( () => void ) | null = null;
+
+	public open( method: string, url: string ) {
+		this.method = method;
+		this.url = url;
+	}
+
+	public setRequestHeader( name: string, value: string ) {
+		this.headers[ name ] = value;
+	}
+
+	public send() {
+		mockXhrRequests.push( this );
+		// Half-way, so the interstitial has a real percentage to render.
+		this.upload.onprogress?.( { lengthComputable: true, loaded: 5, total: 10 } );
+	}
+
+	public finish( outcome: MockXhrOutcome ) {
+		if ( outcome.kind === 'error' ) {
+			this.onerror?.();
+			return;
+		}
+		this.status = outcome.status;
+		this.responseText = outcome.responseText ?? '';
+		this.onload?.();
+	}
+}
+
+let mockXhrRequests: MockXhr[] = [];
+
+/**
+ * End the media-library request the flow has in flight.
+ *
+ * @param outcome - How the request should end.
+ */
+async function endUpload( outcome: MockXhrOutcome ) {
+	const request = mockXhrRequests[ mockXhrRequests.length - 1 ];
+	if ( ! request ) {
+		throw new Error( 'no media-library request was started' );
+	}
+	await act( async () => {
+		request.finish( outcome );
+	} );
+}
 
 /**
  * Render the stage inside the per-test query client.
@@ -565,5 +633,167 @@ describe( 'upload stage single-drop transition', () => {
 		renderStage();
 
 		expect( screen.getByTestId( 'editor' ) ).toHaveAttribute( 'data-upload-status', 'failed' );
+	} );
+
+	/*
+	 * The unconnected install — local Docker, or any site without a
+	 * WordPress.com connection. There is no upload JWT here, so the tus queue
+	 * is bypassed entirely and the flow runs its own wp/v2/media XHR through
+	 * the uploading → details → success interstitials. This is the first path a
+	 * developer checking the branch out hits, and the only one the connected
+	 * tests above never touch.
+	 */
+	describe( 'disconnected site', () => {
+		let realXhr: typeof XMLHttpRequest;
+
+		beforeEach( () => {
+			mockConnected = false;
+			mockXhrRequests = [];
+			realXhr = window.XMLHttpRequest;
+			window.XMLHttpRequest = MockXhr as unknown as typeof XMLHttpRequest;
+			// `restApiConfig()` prefers JPVIDEOPRESS_INITIAL_STATE, which the boot
+			// payload supplies in the browser and nothing defines under jest; the
+			// wpApiSettings fallback is the other half of that read.
+			( window as typeof window & { wpApiSettings?: unknown } ).wpApiSettings = {
+				root: 'https://example.com/wp-json/',
+				nonce: 'test-nonce',
+			};
+		} );
+
+		afterEach( () => {
+			window.XMLHttpRequest = realXhr;
+			delete ( window as typeof window & { wpApiSettings?: unknown } ).wpApiSettings;
+		} );
+
+		it( 'carries a drop through the media library to the published state', async () => {
+			const { container } = renderStage();
+
+			await dropFiles( container, [ makeFile( 'one.mp4' ) ] );
+
+			// The tus queue is not involved at all on this path.
+			expect( mockStartUpload ).not.toHaveBeenCalled();
+
+			// Step 1 — the interstitial, with the request genuinely in flight.
+			const request = mockXhrRequests[ 0 ];
+			expect( request.method ).toBe( 'POST' );
+			expect( request.url ).toBe( 'https://example.com/wp-json/wp/v2/media' );
+			expect( request.headers[ 'X-WP-Nonce' ] ).toBe( 'test-nonce' );
+			expect( screen.getByText( 'Uploading your video' ) ).toBeInTheDocument();
+			expect( screen.getByText( '50%' ) ).toBeInTheDocument();
+
+			await endUpload( {
+				kind: 'load',
+				status: 201,
+				responseText: JSON.stringify( {
+					id: 77,
+					source_url: 'https://example.com/one.mp4',
+					jetpack_videopress: { guid: 'g77' },
+				} ),
+			} );
+
+			// Step 2 — details. The advance is on a 450ms settle timer, so this is
+			// a findBy rather than a fixed number of ticks.
+			await expect( screen.findByText( 'Add your video details' ) ).resolves.toBeInTheDocument();
+			expect( screen.getByText( 'Uploaded' ) ).toBeInTheDocument();
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'Publish video' } ) );
+
+			// Step 3 — success. The title falls back to the file name, and the share
+			// link is the attachment URL the media response carried.
+			await expect( screen.findByText( 'Your video is published' ) ).resolves.toBeInTheDocument();
+			// Scoped to the success card: the outgoing details card, which names the
+			// same file, is still mounted through the transition.
+			expect(
+				screen.getByText( 'one.mp4', { selector: '.vp-success__title' } )
+			).toBeInTheDocument();
+			expect( screen.getByLabelText( 'Share link' ) ).toHaveValue( 'https://example.com/one.mp4' );
+			expect( mockMarkFirstPublish ).toHaveBeenCalled();
+			// Nothing on this path navigates away on its own — the user leaves via
+			// "Go to Home".
+			expect( mockNavigate ).not.toHaveBeenCalled();
+			await userEvent.click( screen.getByRole( 'button', { name: 'Go to Home' } ) );
+			expect( mockNavigate ).toHaveBeenCalledWith( { href: '/home' } );
+		} );
+
+		it( 'says the connection dropped when the request never lands', async () => {
+			const { container } = renderStage();
+
+			await dropFiles( container, [ makeFile( 'one.mp4' ) ] );
+			await endUpload( { kind: 'error' } );
+
+			// The failure is stated on the card the user is already looking at,
+			// with a way back — not left as a bar stuck at 50%.
+			expect( screen.getByText( 'Upload failed' ) ).toBeInTheDocument();
+			expect(
+				screen.getByText( 'Upload failed. Please check your connection and try again.' )
+			).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Back' } ) ).toBeInTheDocument();
+		} );
+
+		it( 'surfaces the server’s own message from a refused media response', async () => {
+			const { container } = renderStage();
+
+			await dropFiles( container, [ makeFile( 'one.mp4' ) ] );
+			await endUpload( {
+				kind: 'load',
+				status: 413,
+				responseText: JSON.stringify( { message: 'The file is too large for this server.' } ),
+			} );
+
+			expect( screen.getByText( 'Upload failed' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'The file is too large for this server.' ) ).toBeInTheDocument();
+		} );
+
+		it( 'falls back to the HTTP status when a refused response has no message', async () => {
+			const { container } = renderStage();
+
+			await dropFiles( container, [ makeFile( 'one.mp4' ) ] );
+			await endUpload( { kind: 'load', status: 500, responseText: 'not json at all' } );
+
+			expect( screen.getByText( 'Upload failed with HTTP status 500.' ) ).toBeInTheDocument();
+		} );
+
+		it( 'refuses to start when the REST credentials are missing', async () => {
+			// The nonce is what signs the wp/v2/media POST. Without it the upload
+			// cannot be attempted, and the flow has to say so rather than open a
+			// request that will be rejected.
+			delete ( window as typeof window & { wpApiSettings?: unknown } ).wpApiSettings;
+			const { container } = renderStage();
+
+			await dropFiles( container, [ makeFile( 'one.mp4' ) ] );
+
+			expect( mockXhrRequests ).toHaveLength( 0 );
+			expect(
+				screen.getByText(
+					'Video upload is unavailable because the REST API credentials are missing.'
+				)
+			).toBeInTheDocument();
+		} );
+
+		it( 'reports each file of a multi-drop on the one interstitial', async () => {
+			// Disconnected multi-drops keep the interstitial instead of handing off
+			// to the Library, which only lists WordPress.com VideoPress rows and so
+			// would show nothing at all here.
+			const { container } = renderStage();
+
+			await dropFiles( container, [ makeFile( 'one.mp4' ), makeFile( 'two.mp4' ) ] );
+
+			expect( mockNavigate ).not.toHaveBeenCalled();
+			expect( screen.getByText( 'Uploading 2 videos' ) ).toBeInTheDocument();
+			expect( mockXhrRequests ).toHaveLength( 2 );
+
+			// One fails, one succeeds: the flow must not advance on the survivor.
+			await act( async () => {
+				mockXhrRequests[ 0 ].finish( {
+					kind: 'load',
+					status: 201,
+					responseText: JSON.stringify( { id: 77 } ),
+				} );
+				mockXhrRequests[ 1 ].finish( { kind: 'error' } );
+			} );
+
+			expect( screen.getByText( '1 upload failed. Go back and try again.' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Add details · 2 videos' ) ).not.toBeInTheDocument();
+		} );
 	} );
 } );

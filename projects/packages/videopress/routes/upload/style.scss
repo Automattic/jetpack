@@ -87,42 +87,6 @@
 
 }
 
-// PARKED — styles for the "Try a sample" modal. The tile that opened it was
-// removed from the "Get your first video online" card, so nothing renders
-// `SampleVideoModal` today; kept whole alongside it (see stage.tsx) so the
-// tile can be restored without rebuilding the modal.
-.vp-sample-modal.components-modal__frame {
-	width: min(100%, 48rem);
-	max-block-size: calc(100vh - var(--wpds-dimension-padding-3xl));
-}
-
-.vp-sample-modal {
-
-	&__body {
-		display: flex;
-		flex-direction: column;
-		gap: var(--wpds-dimension-gap-lg);
-	}
-
-	&__player {
-		display: block;
-		inline-size: 100%;
-		aspect-ratio: 16 / 9;
-		background: var(--wpds-color-background-surface-neutral-weak);
-		object-fit: contain;
-	}
-
-	&__actions {
-		display: flex;
-		justify-content: flex-end;
-		flex-wrap: wrap;
-		gap: var(--wpds-dimension-gap-sm);
-		margin-top: var(--wpds-dimension-gap-lg);
-		padding-top: var(--wpds-dimension-padding-lg);
-		border-top: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
-	}
-}
-
 // Multi-step card morph. The active card slides up + fades in
 // while the previous slides up + fades out, and the wrapper height
 // eases between the two — the Cloudflare onboarding step transition.

@@ -1,4 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { makeRenamedTextFile, makeVideoFile } from '../../../src/dashboard/test-utils/video-file';
 import { stage as Stage } from '../stage';
 import type { LibraryItem } from '../../../src/dashboard/types/library';
 import type { Action, View } from '@wordpress/dataviews';
@@ -67,10 +69,11 @@ jest.mock( '../../../src/dashboard/hooks/use-library', () => ( {
 } ) );
 
 let mockQueue: Array< Record< string, unknown > > = [];
+const mockStartUpload = jest.fn();
 jest.mock( '../../../src/dashboard/hooks/use-upload', () => ( {
 	useUpload: () => ( {
 		uploadQueue: mockQueue,
-		startUpload: jest.fn(),
+		startUpload: ( ...args: unknown[] ) => mockStartUpload( ...args ),
 		retryUpload: jest.fn(),
 		cancelUpload: jest.fn(),
 		acknowledgeUpload: jest.fn(),
@@ -83,15 +86,18 @@ jest.mock( '../../../src/dashboard/hooks/use-delete-video', () => ( {
 	useDeleteVideo: () => ( { mutateAsync: mockDeleteVideo } ),
 } ) );
 let mockPlanSettled = true;
+// The unlimited paid plan: no cap, so every refusal gate below is off. Tests
+// that need a gate replace this wholesale.
+const defaultFreeTier = {
+	isAtLimit: false,
+	isFree: false,
+	isUnlimited: true,
+	videoCount: 3,
+	limit: 1,
+};
+let mockFreeTier = defaultFreeTier;
 jest.mock( '../../../src/dashboard/hooks/use-free-tier', () => ( {
-	useFreeTier: () => ( {
-		isAtLimit: false,
-		isFree: false,
-		isUnlimited: true,
-		videoCount: 3,
-		limit: 1,
-		isSettled: mockPlanSettled,
-	} ),
+	useFreeTier: () => ( { ...mockFreeTier, isSettled: mockPlanSettled } ),
 } ) );
 jest.mock( '../../../src/dashboard/hooks/use-set-privacy', () => ( {
 	useSetPrivacy: () => ( { mutateAsync: jest.fn() } ),
@@ -99,8 +105,9 @@ jest.mock( '../../../src/dashboard/hooks/use-set-privacy', () => ( {
 jest.mock( '../../../src/dashboard/hooks/use-upload-from-library', () => ( {
 	useUploadFromLibrary: () => ( { mutateAsync: jest.fn() } ),
 } ) );
+const mockRunUpgrade = jest.fn();
 jest.mock( '../../../src/dashboard/hooks/use-videopress-upgrade', () => ( {
-	useVideoPressUpgrade: () => jest.fn(),
+	useVideoPressUpgrade: () => mockRunUpgrade,
 } ) );
 jest.mock( '../../../src/dashboard/hooks/use-persisted-view', () => ( {
 	usePersistedView: ( fallback: View ) => [ fallback, jest.fn() ],
@@ -113,6 +120,35 @@ jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
 		createInfoNotice: jest.fn(),
 	} ),
 } ) );
+
+/**
+ * The stage's hidden header file picker.
+ *
+ * @param container - The rendered stage's container.
+ * @return The picker input.
+ */
+function filePicker( container: HTMLElement ) {
+	return container.querySelector( 'input[type="file"]' ) as HTMLInputElement;
+}
+
+/**
+ * Push files at `handleFilesSelected` through the header picker.
+ *
+ * The file list is assigned directly rather than through `userEvent.upload`,
+ * which honours both `accept` and `multiple` — so it would refuse a `.webm`
+ * outright and deliver only the first file of a multi-selection on the capped
+ * free tier, which is exactly the arithmetic under test. This drives the
+ * handler the way a DROP does, with neither attribute in the way.
+ *
+ * @param container - The rendered stage's container.
+ * @param files     - Files to hand over.
+ */
+function pickFiles( container: HTMLElement, files: File[] ) {
+	const input = filePicker( container );
+	Object.defineProperty( input, 'files', { value: files, configurable: true } );
+	// eslint-disable-next-line testing-library/prefer-user-event -- see above: userEvent.upload enforces `accept`/`multiple`, so it never reaches the handler with the selection these tests need.
+	fireEvent.change( input );
+}
 
 /**
  * Mount the stage and pull out the DataViews delete action it built.
@@ -136,6 +172,7 @@ describe( 'library stage', () => {
 		mockQueue = [];
 		mockLibraryTotal = 3;
 		mockPlanSettled = true;
+		mockFreeTier = defaultFreeTier;
 	} );
 
 	describe( 'header upload button', () => {
@@ -161,9 +198,7 @@ describe( 'library stage', () => {
 			// which this surface then had to refuse after the user had chosen one.
 			const { container } = render( <Stage /> );
 
-			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the picker input is display:none with no label; no accessible query reaches it.
-			const input = container.querySelector( 'input[type="file"]' ) as HTMLInputElement;
-			const accept = input.getAttribute( 'accept' ) ?? '';
+			const accept = filePicker( container ).getAttribute( 'accept' ) ?? '';
 			expect( accept ).not.toBe( 'video/*' );
 			expect( accept.split( ',' ) ).toContain( '.mp4' );
 			expect( accept.split( ',' ) ).not.toContain( '.webm' );
@@ -175,21 +210,13 @@ describe( 'library stage', () => {
 			// uploaded", which is what both testers were told.
 			const { container } = render( <Stage /> );
 
-			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the picker input is display:none with no label; no accessible query reaches it.
-			const input = container.querySelector( 'input[type="file"]' ) as HTMLInputElement;
 			const webm = new File(
 				[ new Uint8Array( [ 0x1a, 0x45, 0xdf, 0xa3, 0x01, 0x00, 0x00, 0x00 ] ) ],
 				'holiday.webm',
 				{ type: 'video/webm' }
 			);
-			// The file list is assigned directly rather than through
-			// `userEvent.upload`, which honours the `accept` attribute the test
-			// above just narrowed and would refuse to hand `.webm` to the input at
-			// all. This drives the handler the way a DROP does — no `accept` in the
-			// way — which is the path that has to carry the message.
-			Object.defineProperty( input, 'files', { value: [ webm ], configurable: true } );
-			// eslint-disable-next-line testing-library/prefer-user-event -- userEvent.upload is exactly what cannot be used here: it enforces `accept`, so it would drop the `.webm` before the handler ever saw it.
-			fireEvent.change( input );
+
+			pickFiles( container, [ webm ] );
 
 			// `waitFor`, not a fixed number of ticks: this refusal costs two header
 			// reads (see describeRefusal) plus planVideoDrop's own await, and
@@ -200,6 +227,126 @@ describe( 'library stage', () => {
 					{ id: 'vp-upload-invalid-file' }
 				)
 			);
+		} );
+
+		it( 'does not open the picker at the free-tier limit', async () => {
+			// aria-disabled keeps the button in the tab order and announced, so the
+			// click still arrives — the handler is the gate. Without its early
+			// return the OS dialog opens on a site that cannot accept the file the
+			// user is about to choose.
+			mockFreeTier = { isAtLimit: true, isFree: true, isUnlimited: false, videoCount: 1, limit: 1 };
+			const { container } = render( <Stage /> );
+
+			const clickPicker = jest.spyOn( filePicker( container ), 'click' );
+			await userEvent.click( screen.getByRole( 'button', { name: 'Upload video' } ) );
+
+			expect( clickPicker ).not.toHaveBeenCalled();
+			clickPicker.mockRestore();
+		} );
+
+		it( 'opens the picker below the limit', async () => {
+			mockFreeTier = {
+				isAtLimit: false,
+				isFree: true,
+				isUnlimited: false,
+				videoCount: 0,
+				limit: 1,
+			};
+			const { container } = render( <Stage /> );
+
+			const clickPicker = jest.spyOn( filePicker( container ), 'click' );
+			await userEvent.click( screen.getByRole( 'button', { name: 'Upload video' } ) );
+
+			expect( clickPicker ).toHaveBeenCalled();
+			clickPicker.mockRestore();
+		} );
+	} );
+
+	// The refused-drop gates. Each one has a matching test on the /upload
+	// surface; the class of bug they pin — a refusal silently eaten, no notice,
+	// no state change, nothing at all for the user to read — was found and fixed
+	// three times on this feature, and a regression here passes CI without them.
+	describe( 'refused selections', () => {
+		it( 'says a file that is not a video is not a video', async () => {
+			// A `.txt` renamed `.mp4` reports `video/mp4` in Chromium, so only the
+			// bytes catch it.
+			const { container } = render( <Stage /> );
+
+			pickFiles( container, [ makeRenamedTextFile( 'not-a-video.mp4' ) ] );
+
+			await waitFor( () =>
+				expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Only video files can be uploaded.', {
+					id: 'vp-upload-invalid-file',
+				} )
+			);
+			expect( mockStartUpload ).not.toHaveBeenCalled();
+		} );
+
+		it( 'says why a drop is refused at the free-tier limit instead of eating it', async () => {
+			mockFreeTier = { isAtLimit: true, isFree: true, isUnlimited: false, videoCount: 1, limit: 1 };
+			const { container } = render( <Stage /> );
+
+			pickFiles( container, [ makeVideoFile( 'second.mp4' ) ] );
+
+			await waitFor( () =>
+				expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
+					'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.',
+					expect.objectContaining( {
+						id: 'vp-upload-at-limit',
+						actions: [ expect.objectContaining( { label: 'Upgrade' } ) ],
+					} )
+				)
+			);
+			expect( mockStartUpload ).not.toHaveBeenCalled();
+		} );
+
+		it( 'routes the at-limit notice’s Upgrade action at the upgrade flow', async () => {
+			mockFreeTier = { isAtLimit: true, isFree: true, isUnlimited: false, videoCount: 1, limit: 1 };
+			const { container } = render( <Stage /> );
+
+			pickFiles( container, [ makeVideoFile( 'second.mp4' ) ] );
+
+			await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalled() );
+			const options = mockCreateErrorNotice.mock.calls[ 0 ][ 1 ] as {
+				actions: Array< { onClick: () => void } >;
+			};
+			options.actions[ 0 ].onClick();
+			expect( mockRunUpgrade ).toHaveBeenCalled();
+		} );
+
+		it( 'counts the files a partial slice left behind', async () => {
+			// One slot left, three videos picked: the first uploads and the notice
+			// has to account for the other two, or they vanish without explanation.
+			mockFreeTier = {
+				isAtLimit: false,
+				isFree: true,
+				isUnlimited: false,
+				videoCount: 0,
+				limit: 1,
+			};
+			const { container } = render( <Stage /> );
+
+			pickFiles( container, [
+				makeVideoFile( 'one.mp4' ),
+				makeVideoFile( 'two.mp4' ),
+				makeVideoFile( 'three.mp4' ),
+			] );
+
+			await waitFor( () =>
+				expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
+					'2 videos weren’t uploaded because they exceed your plan’s limit.'
+				)
+			);
+			expect( mockStartUpload ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'says nothing when the whole selection fits', async () => {
+			const { container } = render( <Stage /> );
+
+			pickFiles( container, [ makeVideoFile( 'one.mp4' ), makeVideoFile( 'two.mp4' ) ] );
+
+			await waitFor( () => expect( mockStartUpload ).toHaveBeenCalledTimes( 2 ) );
+			expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
 		} );
 	} );
 
