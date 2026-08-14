@@ -1,8 +1,9 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { useMemo } from 'react';
+import { getBucketResolution, getFormatter } from '../../private/time-axis';
 import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
 import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
-import type { DataPointDate, BaseChartProps, SeriesData } from '../../../types';
+import type { DataPointDate, BaseChartProps, SeriesData, TickResolution } from '../../../types';
 import type { TickFormatter } from '@visx/axis';
 
 /** Outer padding of the category band scale (space at the chart edges). */
@@ -10,12 +11,38 @@ export const BASE_BAND_PADDING = 0.2;
 /** Inner padding of the category band scale (the base gap between ticks). */
 export const BASE_BAND_PADDING_INNER = 0.1;
 
-const formatDateTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleDateString( undefined, {
-		month: 'short',
-		day: 'numeric',
-	} );
+// The axis abbreviates to fit a tick; a tooltip has room to spell the same
+// bucket out in full.
+const TOOLTIP_FORMAT_BY_RESOLUTION: Record<
+	Exclude< TickResolution, 'week' >,
+	Intl.DateTimeFormatOptions
+> = {
+	hour: { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', hour12: true },
+	day: { year: 'numeric', month: 'long', day: 'numeric' },
+	month: { year: 'numeric', month: 'long' },
+	year: { year: 'numeric' },
+};
+
+/**
+ * Tick and tooltip formatters for date-based series. Ticks share the line/area
+ * charts' time-axis formatter, which also narrows with the overall span; a
+ * tooltip labels one bar, so it names that bar's bucket at the bucket's own
+ * granularity — finer than the ticks whenever the span coarsens the axis.
+ *
+ * @param data           - Date-based series, already parsed and sorted by `useChartDataTransform`.
+ * @param tickResolution - Caller-declared bucket resolution, when known.
+ * @return Tick and tooltip label formatters.
+ */
+const getTimeSeriesFormatters = ( data: SeriesData[], tickResolution?: TickResolution ) => {
+	// Fall back to the day format rather than `undefined` options, which would
+	// print a full locale date-time for an unrecognised `tickResolution`.
+	const tooltipFormat =
+		TOOLTIP_FORMAT_BY_RESOLUTION[ getBucketResolution( data, tickResolution ) ] ??
+		TOOLTIP_FORMAT_BY_RESOLUTION.day;
+	const tooltipFormatter = ( timestamp: number ) =>
+		new Date( timestamp ).toLocaleString( undefined, tooltipFormat );
+
+	return { tickFormatter: getFormatter( data, tickResolution ), tooltipFormatter };
 };
 
 /**
@@ -41,6 +68,12 @@ export function useBarChartOptions(
 	horizontal: boolean,
 	options: BaseChartProps[ 'options' ] = {}
 ) {
+	// `tickResolution` is a hint for the tick formatter rather than a visx axis
+	// prop, so it is read here and stripped from the axis options spread below.
+	const tickResolution = horizontal
+		? options.axis?.y?.tickResolution
+		: options.axis?.x?.tickResolution;
+
 	const defaultOptions = useMemo( () => {
 		const bandScale = {
 			type: 'band' as const,
@@ -53,9 +86,14 @@ export function useBarChartOptions(
 			zero: false,
 		};
 
-		const labelFormatter = data?.[ 0 ]?.data?.[ 0 ]?.label
-			? ( label: string ) => label
-			: formatDateTick;
+		const hasLabels = Boolean( data?.[ 0 ]?.data?.[ 0 ]?.label );
+		const timeSeriesFormatters = hasLabels ? null : getTimeSeriesFormatters( data, tickResolution );
+		const labelFormatter = timeSeriesFormatters
+			? timeSeriesFormatters.tickFormatter
+			: ( label: string ) => label;
+		const tooltipDatumFormatter = timeSeriesFormatters
+			? timeSeriesFormatters.tooltipFormatter
+			: labelFormatter;
 		const valueFormatter = formatNumberCompact as TickFormatter< unknown >;
 
 		const labelAccessor = ( d: DataPointDate ) => d?.label || d?.date;
@@ -69,7 +107,7 @@ export function useBarChartOptions(
 			vertical: {
 				xTickFormat: labelFormatter,
 				yTickFormat: valueFormatter,
-				tooltipLabelFormatter: labelFormatter,
+				tooltipLabelFormatter: tooltipDatumFormatter,
 				xAccessor: labelAccessor,
 				yAccessor: valueAccessor,
 				gridVisibility: 'x',
@@ -79,7 +117,7 @@ export function useBarChartOptions(
 			horizontal: {
 				xTickFormat: valueFormatter,
 				yTickFormat: labelFormatter,
-				tooltipLabelFormatter: labelFormatter,
+				tooltipLabelFormatter: tooltipDatumFormatter,
 				xAccessor: valueAccessor,
 				yAccessor: labelAccessor,
 				gridVisibility: 'y',
@@ -87,7 +125,7 @@ export function useBarChartOptions(
 				yScale: bandScale,
 			},
 		};
-	}, [ data ] );
+	}, [ data, tickResolution ] );
 
 	return useMemo( () => {
 		const orientationKey = horizontal ? 'horizontal' : 'vertical';
@@ -149,6 +187,9 @@ export function useBarChartOptions(
 
 		const { labelOverflow: xLabelOverflow, ...xAxisOptions } = options.axis?.x || {};
 		const { labelOverflow: yLabelOverflow, ...yAxisOptions } = options.axis?.y || {};
+		// Consumed above as a formatter hint; visx has no such axis prop.
+		delete xAxisOptions.tickResolution;
+		delete yAxisOptions.tickResolution;
 
 		return {
 			gridVisibility,
