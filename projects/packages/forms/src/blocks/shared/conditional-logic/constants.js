@@ -99,3 +99,15 @@ export const withPrimaryGroupRules = ( logic, rules, logicalOperator ) => {
  */
 export const countRules = logic =>
 	logic.groups.reduce( ( total, group ) => total + group.rules.length, 0 );
+
+/**
+ * Whether the field is hidden before any condition is met.
+ *
+ * A show rule starts hidden and something reveals it; a hide rule starts visible and something
+ * removes it; a field with no conditions is simply visible. This is what the toolbar icon and
+ * the builder's opening line both report, so they cannot disagree about it.
+ *
+ * @param {object} logic - A normalized logic object.
+ * @return {boolean} True when the field starts out hidden.
+ */
+export const startsHidden = logic => countRules( logic ) > 0 && 'show' === logic.action;

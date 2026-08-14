@@ -4,10 +4,12 @@ import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { seen, unseen } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import {
 	countRules,
 	getPrimaryGroup,
 	normalizeLogic,
+	startsHidden,
 	withPrimaryGroupRules,
 } from '../constants.js';
 import useSubjectFields from '../hooks/use-subject-fields.js';
@@ -134,7 +136,9 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 			<BlockControls __experimentalShareWithChildBlocks>
 				<ToolbarGroup>
 					<ToolbarButton
-						icon={ 'hide' === logic.action ? unseen : seen }
+						// The field's state before any condition is met, which is what an
+						// author sees on the canvas.
+						icon={ startsHidden( logic ) ? unseen : seen }
 						title={
 							hasConditions
 								? summarize( logic, group )
@@ -143,7 +147,9 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 						onClick={ openModal }
 						// Inverted while the field carries conditions, the same treatment
 						// Required uses for a field that is required.
-						className={ hasConditions ? 'is-pressed' : undefined }
+						className={ clsx( 'jetpack-contact-form__conditional-logic-toolbar', {
+							'is-pressed': hasConditions,
+						} ) }
 					/>
 				</ToolbarGroup>
 			</BlockControls>
