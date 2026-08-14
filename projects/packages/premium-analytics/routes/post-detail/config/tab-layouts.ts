@@ -13,10 +13,10 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 	'post-traffic': [
 		{
 			uuid: 'post-detail-highlights',
-			// Three quarter-width tiles with the last column left empty, per the
-			// design mocks — unlike the email highlights rows, which span all four.
+			// Full-width row like the email highlights, per the updated design
+			// mocks; the widget spreads its three tiles across the span.
 			type: 'jpa/post-detail-highlights',
-			placement: { width: 3, height: 1, order: 1 },
+			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
 		},
 		{
 			uuid: 'post-views',

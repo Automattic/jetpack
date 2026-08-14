@@ -2,12 +2,12 @@ import { WIDGET_DASHBOARD_COLUMN_COUNT } from '@wordpress/widget-dashboard';
 import { POST_DETAIL_TAB_LAYOUTS } from './tab-layouts';
 
 describe( 'post detail tab layouts', () => {
-	it( 'composes Post traffic as a three-column highlights row, a Post views chart beside the interaction cards, then Traffic activity beside UTM', () => {
+	it( 'composes Post traffic as a full-width highlights row, a Post views chart beside the interaction cards, then Traffic activity beside UTM', () => {
 		expect( POST_DETAIL_TAB_LAYOUTS[ 'post-traffic' ] ).toEqual( [
 			{
 				uuid: 'post-detail-highlights',
 				type: 'jpa/post-detail-highlights',
-				placement: { width: 3, height: 1, order: 1 },
+				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
 			},
 			{
 				uuid: 'post-views',
