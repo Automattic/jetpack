@@ -102,14 +102,17 @@
 
 	// Reads down the left edge of a long list. Amber says the condition will be
 	// skipped and the tooltip says why; green says it will be acted on.
+	// The `-weak` tokens are the ones that carry the hue. Their unsuffixed
+	// counterparts are text-on-light colours, dark enough (near-black green and
+	// brown) that neither icon read as its status.
 	.jetpack-contact-form__conditional-logic-rule-status {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: var(--wpds-color-foreground-content-warning);
+		color: var(--wpds-color-foreground-content-warning-weak);
 
 		&.is-active {
-			color: var(--wpds-color-foreground-content-success);
+			color: var(--wpds-color-foreground-content-success-weak);
 		}
 	}
 
