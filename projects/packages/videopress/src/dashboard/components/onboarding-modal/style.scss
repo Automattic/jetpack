@@ -41,7 +41,17 @@
 		// world, so the band never flashes a foreign colour while the video
 		// loads — and if the video is missing entirely, the band still reads
 		// as designed rather than as a hole.
-		background: #003010 url(images/videopress-wireframe.svg) center / cover no-repeat;
+		// The artwork arrives as `--vp-intro-artwork`, set by the component from
+		// the build URL in the boot payload. It cannot be a plain `url(images/…)`
+		// here: this stylesheet is injected by JS, so the relative path resolves
+		// against `/wp-admin/` and 404s on every load that renders the modal.
+		// When the URL can't be built the property is simply absent and the band
+		// falls back to the flat green — the designed world, minus the artwork.
+		background-color: #003010;
+		background-image: var(--vp-intro-artwork, none);
+		background-position: center;
+		background-size: cover;
+		background-repeat: no-repeat;
 	}
 
 	// Absolutely positioned, not just sized: in flow, the video's own height

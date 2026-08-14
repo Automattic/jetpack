@@ -1,7 +1,7 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { Button, ProgressBar } from '@wordpress/components';
-import { useCallback, useEffect } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Card, Skeleton, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import { isChaptersEditorEnabled } from '../../utils/chapters-editor';
@@ -178,6 +178,29 @@ const UploadStagePanel = ( { uploadState }: { uploadState: EditorUploadState } )
 	);
 };
 
+/*
+ * How long the placeholder cards below will stand in before they stop claiming
+ * to be loading.
+ *
+ * They exist to hold the page's shape across registration and transcoding, and
+ * they read `video.isProcessing` to know when that's over. A video whose
+ * CONVERSION FAILS never clears that flag — the failure is reported inside the
+ * player iframe and nowhere in the media REST payload this dashboard reads — so
+ * without a bound the skeletons animate for the life of the tab. Live testing
+ * watched them still going at three and a half minutes on a `.txt` renamed
+ * `.mp4`, on a page that was otherwise behaving as if everything had worked.
+ *
+ * The clock starts when the bytes are up, not when the upload starts, so a slow
+ * connection spends its time on the progress bar rather than on this. Two
+ * minutes is past a normal transcode of the clips this flow is built around,
+ * and the state is only a display bound, never a claim about the backend: the
+ * poll keeps running (see PROCESSING_POLL_MAX_MS in use-library), and if the
+ * record does resolve later the real cards simply take over. Erring short
+ * therefore costs a pessimistic message on an unusually long transcode, not a
+ * broken screen.
+ */
+const MEDIA_WAIT_TIMEOUT_MS = 2 * 60 * 1000;
+
 /**
  * Skeleton stand-in for a card whose real content needs the VideoPress GUID
  * (the thumbnail poster, the subtitle tracks, the link/shortcode read-outs).
@@ -185,20 +208,43 @@ const UploadStagePanel = ( { uploadState }: { uploadState: EditorUploadState } )
  * upload — the real card fills the same slot when the record lands instead of
  * popping into a page the user is already typing on.
  *
- * @param props       - Component props.
- * @param props.title - The card title the real card will keep.
+ * Once the wait is over its budget the skeletons are replaced by
+ * `stalledMessage`: a panel that cannot load has to say so rather than
+ * animate indefinitely at someone.
+ *
+ * @param props                - Component props.
+ * @param props.title          - The card title the real card will keep.
+ * @param props.isStalled      - Whether the wait has outlived MEDIA_WAIT_TIMEOUT_MS.
+ * @param props.stalledMessage - What to say instead of the skeletons then.
  * @return The placeholder card element.
  */
-const PendingCard = ( { title }: { title: string } ): ReactElement => (
+const PendingCard = ( {
+	title,
+	isStalled,
+	stalledMessage,
+}: {
+	title: string;
+	isStalled: boolean;
+	stalledMessage: string;
+} ): ReactElement => (
 	<Card.Root>
 		<Card.Header>
 			<Card.Title render={ <h2 /> }>{ title }</Card.Title>
 		</Card.Header>
 		<Card.Content>
-			<Stack direction="column" gap="md">
-				<Skeleton className="vp-video-details__pending-line" />
-				<Skeleton className="vp-video-details__pending-line is-short" />
-			</Stack>
+			{ isStalled ? (
+				// `role="status"` rather than an alert: the page has already
+				// settled by the time this appears, so it is a state to be
+				// noticed, not an interruption.
+				<Text variant="body-sm" className="vp-video-details__pending-stalled" role="status">
+					{ stalledMessage }
+				</Text>
+			) : (
+				<Stack direction="column" gap="md">
+					<Skeleton className="vp-video-details__pending-line" />
+					<Skeleton className="vp-video-details__pending-line is-short" />
+				</Stack>
+			) }
 		</Card.Content>
 	</Card.Root>
 );
@@ -249,6 +295,21 @@ const Editor = ( {
 	// that need a poster or a GUID stand in as skeletons for all of it.
 	const isAwaitingMedia =
 		Boolean( uploadState ) || video.type !== 'videopress' || video.isProcessing;
+
+	// The placeholder cards' terminal state. Held off while the bytes are still
+	// going up — that wait has its own progress bar and no bound worth
+	// enforcing — and re-armed from scratch whenever the phase changes, so a
+	// long upload followed by a normal transcode never inherits a spent budget.
+	const isUploadingBytes = uploadState?.status === 'uploading';
+	const [ isMediaWaitStalled, setIsMediaWaitStalled ] = useState( false );
+	useEffect( () => {
+		if ( ! isAwaitingMedia || isUploadingBytes ) {
+			setIsMediaWaitStalled( false );
+			return;
+		}
+		const timer = setTimeout( () => setIsMediaWaitStalled( true ), MEDIA_WAIT_TIMEOUT_MS );
+		return () => clearTimeout( timer );
+	}, [ isAwaitingMedia, isUploadingBytes ] );
 
 	// Push the diff out on every change, so the queue row — not this mount —
 	// is what holds the user's words. Undefined once the form is clean again,
@@ -376,8 +437,22 @@ const Editor = ( {
 				 */ }
 				{ isAwaitingMedia ? (
 					<>
-						<PendingCard title={ __( 'Thumbnail', 'jetpack-videopress-pkg' ) } />
-						<PendingCard title={ __( 'Subtitles', 'jetpack-videopress-pkg' ) } />
+						<PendingCard
+							title={ __( 'Thumbnail', 'jetpack-videopress-pkg' ) }
+							isStalled={ isMediaWaitStalled }
+							stalledMessage={ __(
+								'This video hasn’t finished processing, so there’s no thumbnail to choose from yet. If it was uploaded a while ago, it may have failed to convert.',
+								'jetpack-videopress-pkg'
+							) }
+						/>
+						<PendingCard
+							title={ __( 'Subtitles', 'jetpack-videopress-pkg' ) }
+							isStalled={ isMediaWaitStalled }
+							stalledMessage={ __(
+								'This video hasn’t finished processing, so its subtitles can’t be loaded yet. If it was uploaded a while ago, it may have failed to convert.',
+								'jetpack-videopress-pkg'
+							) }
+						/>
 					</>
 				) : (
 					<>
@@ -398,7 +473,14 @@ const Editor = ( {
 				aria-label={ __( 'Video settings', 'jetpack-videopress-pkg' ) }
 			>
 				{ uploadState ? (
-					<PendingCard title={ __( 'Video info', 'jetpack-videopress-pkg' ) } />
+					<PendingCard
+						title={ __( 'Video info', 'jetpack-videopress-pkg' ) }
+						isStalled={ isMediaWaitStalled }
+						stalledMessage={ __(
+							'This video hasn’t finished processing, so its link and shortcode aren’t available yet. If it was uploaded a while ago, it may have failed to convert.',
+							'jetpack-videopress-pkg'
+						) }
+					/>
 				) : (
 					<VideoInfoCard video={ video } />
 				) }

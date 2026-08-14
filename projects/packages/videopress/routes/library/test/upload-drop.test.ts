@@ -1,9 +1,11 @@
 /**
  * Unit tests for the drag-and-drop upload decision logic powering the
- * VideoPress Library DropZone (see routes/library/stage.tsx).
+ * VideoPress Library DropZone (see routes/library/stage.tsx). The file-type
+ * filter it builds on has its own tests next to the shared dropzone
+ * (components/upload-dropzone/test/video-files.test.ts).
  */
 
-import { filterVideoFiles, planVideoDrop } from '../upload-drop';
+import { planVideoDrop } from '../upload-drop';
 import type { DropPlanFreeTier } from '../upload-drop';
 
 // Default to a typeless file so tests exercise the extension allow-list; pass a
@@ -35,61 +37,6 @@ const FREE_EMPTY: DropPlanFreeTier = {
 	limit: 1,
 	videoCount: 0,
 };
-
-describe( 'filterVideoFiles', () => {
-	it( 'keeps only files with an allowed video extension', () => {
-		const result = filterVideoFiles( [
-			file( 'clip.mp4' ),
-			file( 'photo.jpg' ),
-			file( 'movie.MOV' ), // case-insensitive
-			file( 'doc.pdf' ),
-		] );
-		expect( result.map( f => f.name ) ).toEqual( [ 'clip.mp4', 'movie.MOV' ] );
-	} );
-
-	it( 'accepts .mov files (regression: video/quicktime must pass)', () => {
-		expect(
-			filterVideoFiles( [ file( 'clip.mov', 'video/quicktime' ) ] ).map( f => f.name )
-		).toEqual( [ 'clip.mov' ] );
-		// And via the extension fallback when the browser leaves the type empty.
-		expect( filterVideoFiles( [ file( 'clip.mov' ) ] ).map( f => f.name ) ).toEqual( [
-			'clip.mov',
-		] );
-	} );
-
-	it( 'rejects extensions the backend does not accept (e.g. .webm/.mkv)', () => {
-		// `.webm`/`.mkv` are valid video MIME types but absent from the server
-		// allow-list, so the drop filter rejects them rather than starting an
-		// upload the backend would fail.
-		expect( filterVideoFiles( [ file( 'clip.webm', 'video/webm' ) ] ) ).toEqual( [] );
-		expect( filterVideoFiles( [ file( 'clip.mkv', 'video/x-matroska' ) ] ) ).toEqual( [] );
-	} );
-
-	it( 'sources the accepted extensions from the server allow-list', () => {
-		// A site whose backend advertises `.flv` accepts it; one that omits
-		// `.mp4` rejects it — proving the list comes from the initial state.
-		setAllowedVideoExtensions( { flv: 'video/x-flv' } );
-		expect( filterVideoFiles( [ file( 'a.flv', 'video/x-flv' ) ] ).map( f => f.name ) ).toEqual( [
-			'a.flv',
-		] );
-		expect( filterVideoFiles( [ file( 'a.mp4', 'video/mp4' ) ] ) ).toEqual( [] );
-	} );
-
-	it( 'rejects non-video MIME types', () => {
-		expect( filterVideoFiles( [ file( 'photo.jpg', 'image/jpeg' ) ] ) ).toEqual( [] );
-	} );
-
-	it( 'does not accept a non-video MIME type just because the name ends in a video extension', () => {
-		// A reported MIME type is authoritative: a PDF renamed to `.mp4` must
-		// not slip through the extension fallback.
-		expect( filterVideoFiles( [ file( 'evil.mp4', 'application/pdf' ) ] ) ).toEqual( [] );
-	} );
-
-	it( 'does not match an extension that is merely a substring', () => {
-		// "notmp4" ends with "mp4" but not ".mp4" — the dot guards against it.
-		expect( filterVideoFiles( [ file( 'video.notmp4' ) ] ) ).toEqual( [] );
-	} );
-} );
 
 describe( 'planVideoDrop', () => {
 	it( 'returns no-videos when nothing dropped is a video', () => {

@@ -130,5 +130,62 @@ describe( 'DashboardLayout', () => {
 
 			expect( screen.getByRole( 'tab', { name: 'Home' } ) ).toBeInTheDocument();
 		} );
+
+		// The optimistic order is a guess, and on the WordPress menu link it was
+		// a visible one: the first-run strip painted with Library active, then
+		// the leading tab renamed itself from Upload to Home when the count
+		// landed. The body is already held back over that window, so the strip
+		// waits with it rather than guessing.
+		it( 'shows no tabs on a bare landing until the count settles', () => {
+			mockFirstRun = 'first-run';
+			mockSettled = 'loading';
+
+			render( <DashboardLayout activeTab="library">body</DashboardLayout> );
+
+			expect( screen.queryAllByRole( 'tab' ) ).toHaveLength( 0 );
+		} );
+
+		it( 'reveals the returning-user strip when the bare landing settles', () => {
+			mockFirstRun = 'first-run';
+			mockSettled = 'loading';
+			const { rerender } = render( <DashboardLayout activeTab="library">body</DashboardLayout> );
+
+			mockFirstRun = 'home';
+			mockSettled = 'home';
+			rerender( <DashboardLayout activeTab="library">body</DashboardLayout> );
+
+			expect( screen.getByRole( 'tab', { name: 'Home' } ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'tab', { name: 'Upload' } ) ).not.toBeInTheDocument();
+		} );
+
+		// Only the bare landing is ambiguous. Anywhere the user chose the route,
+		// the optimistic order still renders immediately — a brand-new user must
+		// not sit tabless while their count loads.
+		it( 'keeps the optimistic strip on an in-app arrival', () => {
+			setLocation( 'page=jetpack-videopress&p=%2F' );
+			mockFirstRun = 'first-run';
+			mockSettled = 'loading';
+
+			render( <DashboardLayout activeTab="library">body</DashboardLayout> );
+
+			expect( screen.getByRole( 'tab', { name: 'Upload' } ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'landing body', () => {
+		it( 'holds the body back on a bare landing until the count settles', () => {
+			mockFirstRun = 'first-run';
+			mockSettled = 'loading';
+
+			render( <DashboardLayout activeTab="library">body</DashboardLayout> );
+
+			expect( screen.queryByText( 'body' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'renders the body once the landing decision is made', () => {
+			render( <DashboardLayout activeTab="library">body</DashboardLayout> );
+
+			expect( screen.getByText( 'body' ) ).toBeInTheDocument();
+		} );
 	} );
 } );

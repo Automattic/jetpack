@@ -35,10 +35,15 @@ export const INTRO_VIDEO_ASPECT = '16 / 9';
 /**
  * Build the public URL for a file shipped in the dashboard build.
  *
+ * Exported because every one of the modal's bundled assets needs it, not just
+ * the film: the stylesheet is injected by JS, so a relative `url()` written in
+ * SCSS resolves against `/wp-admin/` and 404s. Anything referencing this folder
+ * has to resolve against the build URL the server hands us.
+ *
  * @param file - Filename inside the onboarding-modal asset folder.
  * @return Public URL, or undefined when initial state is unavailable.
  */
-function getAssetUrl( file: string ): string | undefined {
+export function getAssetUrl( file: string ): string | undefined {
 	const buildUrl =
 		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
 			? JPVIDEOPRESS_INITIAL_STATE?.assets?.buildUrl

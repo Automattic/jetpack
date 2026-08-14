@@ -16,11 +16,26 @@
 	text-align: center;
 	background: var(--wpds-color-background-surface-neutral-strong); // white
 	border-radius: var(--wpds-border-radius-lg);
+	// The whole surface opens the file picker, not just the button inside it.
+	cursor: var(--wpds-cursor-control);
 	transition: background var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle);
 
 	// Very subtle grayer fill on hover.
 	&:hover {
 		background: var(--wpds-color-background-surface-neutral-weak);
+	}
+
+	// That fill is close enough to the resting stroke that the dotted outline
+	// disappeared into it, which is why the first-run screen — where the
+	// pointer lands on the dropzone straight off the welcome modal's CTA — was
+	// reported as having no dashed border at all, while the same control at the
+	// plan limit (hover fill suppressed) plainly had one. Darken the dots by
+	// the same amount the fill darkens. Excluded rather than merely overridden
+	// for the other two states, so neither depends on source order: dragging
+	// owns the outline while a file is over the surface, and a refusing surface
+	// must not light up at all.
+	&:hover:not(.is-dragging, .is-disabled) .vp-upload-dropzone__outline-rect {
+		stroke: var(--wpds-color-stroke-surface-neutral-strong);
 	}
 
 	&.is-dragging {
@@ -31,9 +46,16 @@
 		}
 	}
 
+	// At the plan limit the surface still answers a drop or a click — with a
+	// notice saying why — but it must not look like a live target while doing
+	// it, so the hover fill goes and the cursor says no.
 	&.is-disabled,
 	&.is-disabled:hover {
 		background: var(--wpds-color-background-surface-neutral-strong);
+		// Matches the refusing picker button beside it (the DS gives an
+		// aria-disabled button `not-allowed`); there is no disabled-cursor
+		// token to reach for.
+		cursor: not-allowed;
 	}
 
 	&__outline {

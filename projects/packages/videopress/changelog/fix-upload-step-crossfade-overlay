@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Stop the outgoing upload card rendering on top of the video editor during the step cross-fade.
