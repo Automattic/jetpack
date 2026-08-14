@@ -96,9 +96,9 @@ export function useDownload( rewindId: string ): Result {
 		};
 	} else if ( downloadId !== null && statusQuery.data ) {
 		state = {
-			// `progress` is already 0–100 — WPCOM runs it through
-			// `intval()`, which a 0–1 float could not survive. Multiplying
-			// by 100 fed the ProgressBar values up to 10000.
+			// `progress` is already 0–100 — WPCOM coerces it to an
+			// integer, which a 0–1 float could not survive. Multiplying by
+			// 100 fed the ProgressBar values up to 10000.
 			phase: 'progress',
 			percent: statusQuery.data.progress ?? 0,
 		};

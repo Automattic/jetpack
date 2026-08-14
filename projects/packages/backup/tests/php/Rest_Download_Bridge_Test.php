@@ -213,7 +213,7 @@ class Rest_Download_Bridge_Test extends TestCase {
 	/**
 	 * An empty `types` is omitted rather than sent as `{}`.
 	 *
-	 * WPCOM reads it with `array_keys( $param, true )`, so an empty value
+	 * WPCOM selects the enabled categories loosely, so an empty value
 	 * names no category — it asks for a download containing nothing.
 	 */
 	public function test_initiate_omits_empty_types() {

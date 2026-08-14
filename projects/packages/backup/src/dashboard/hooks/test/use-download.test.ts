@@ -66,7 +66,7 @@ describe( 'useDownload', () => {
 		expect( initiate.data.types ).toEqual( DEFAULT_RESTORE_ITEMS );
 	} );
 
-	// `progress` is already 0–100: WPCOM runs it through `intval()`, which
+	// `progress` is already 0–100: WPCOM coerces it to an integer, which
 	// a 0–1 float could not survive. The old `* 100` fed the ProgressBar
 	// values up to 10000.
 	it( 'reports progress on the 0-100 scale it arrives on', async () => {

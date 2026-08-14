@@ -22,11 +22,11 @@ describe( 'serializeTypes', () => {
 		} );
 	} );
 
-	// The whole reason this helper exists. WPCOM parses `types` with
-	// `array_keys( $param, true )`, which compares loosely — so a JSON
-	// array of names yields its integer indices (`[ "themes" ]` becomes
-	// `[ 0 ]`) and forwards those to VaultPress as if they were type
-	// names. An emptiness check would never catch it.
+	// The whole reason this helper exists. WPCOM selects the enabled
+	// categories with a loose comparison, so a JSON array of names yields
+	// its own integer indices — `[ "themes" ]` becomes `[ 0 ]` — and
+	// those get treated as category names. An emptiness check would never
+	// catch it, because the list is not empty.
 	test( 'never produces an array', () => {
 		const result = serializeTypes( { themes: true, plugins: true } );
 

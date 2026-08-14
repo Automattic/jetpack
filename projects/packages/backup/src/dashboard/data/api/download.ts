@@ -8,12 +8,12 @@ export type InitiateDownloadResponse = {
 /**
  * Lifecycle of a download, derived by the bridge.
  *
- * WPCOM's own payload carries no status field: `format_download()`
- * builds a base object and then attaches keys by branch — `url` and
- * `validUntil` once the archive is ready, `error` when it failed, and
- * `progress` only while it is still being built. The bridge reads which
- * branch fired and reports it as one of these instead, so the client
- * never has to infer lifecycle from field presence.
+ * WPCOM's own payload carries no status field. It returns a base object
+ * and attaches further keys according to where the download has got to —
+ * `url` and `validUntil` once the archive is ready, `error` when it
+ * failed, and `progress` only while it is still being built. The bridge
+ * reads which of those arrived and reports it as one of these instead,
+ * so the client never has to infer lifecycle from field presence.
  */
 export type DownloadStatus = 'running' | 'finished' | 'failed';
 

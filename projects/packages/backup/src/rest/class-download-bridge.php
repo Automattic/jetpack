@@ -97,7 +97,7 @@ class Download_Bridge {
 
 		$body = array( 'rewindId' => $rewind_id );
 		// Omit `types` rather than defaulting it to an empty object.
-		// WPCOM reads it with `array_keys( $param, true )`, so an empty
+		// WPCOM selects the enabled categories loosely, so an empty
 		// value names no category and asks for a download of nothing.
 		if ( is_array( $types ) || is_object( $types ) ) {
 			$types = (array) $types;

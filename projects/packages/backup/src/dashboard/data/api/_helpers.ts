@@ -50,12 +50,12 @@ export function toIntRewindId( rewindId: string ): string {
 /**
  * Serialize a restore/download category checklist for WPCOM.
  *
- * WPCOM parses `types` with `array_keys( $param, true )`, which compares
- * **loosely** — so a JSON array of names does not mean what it looks
- * like. `[ "themes" ]` matches `'themes' == true` and yields `[ 0 ]`,
- * and `[ "themes", "plugins" ]` yields `[ 0, 1 ]`: integer indices,
- * forwarded to VaultPress as if they were type names. An emptiness
- * check would never catch it, because the list is not empty.
+ * WPCOM selects the enabled categories with a **loose** comparison, so a
+ * JSON array of names does not mean what it looks like: every name
+ * compares equal, and what comes back out is the array's own integer
+ * indices. `[ "themes" ]` becomes `[ 0 ]` and `[ "themes", "plugins" ]`
+ * becomes `[ 0, 1 ]`, which are then treated as category names. An
+ * emptiness check would never catch it, because the list is not empty.
  *
  * The object form is therefore the only safe spelling, and this is the
  * single place that builds it. Only `true` entries are included, so the
