@@ -143,7 +143,7 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
  * dimension is the `platformDimension` attribute (`relevance: 'high'`), exposed
  * as a control by the widget host.
  */
-export default function TopPlatformsWidget( { attributes }: TopPlatformsWidgetProps ) {
+export default function TopPlatformsWidget( { attributes = {} }: TopPlatformsWidgetProps ) {
 	const max = attributes?.max ?? 10;
 	// Attributes are persisted, so a stale layout can name a dimension this
 	// widget no longer knows. Unchecked it becomes the `stats/devices/{property}`
