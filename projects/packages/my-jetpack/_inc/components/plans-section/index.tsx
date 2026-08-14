@@ -218,7 +218,9 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		activateLicenceDescription = _x(
 			'Activate a license',
 			'Activate a license button text',
-			'jetpack-my-jetpack'
+			'jetpack-my-jetpack',
+			// @ts-expect-error Dummy arg to avoid bad minification; ignored at runtime.
+			/* dummy arg to avoid bad minification */ 0
 		);
 	}
 
