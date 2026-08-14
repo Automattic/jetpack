@@ -15,6 +15,17 @@ const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plug
 /**
  * Internal variables
  */
+// NL-840 proof of concept: resolve @woocommerce/email-editor from a local
+// WooCommerce checkout until the styles panel export is released. Defaults to a
+// sibling checkout of this monorepo.
+const woocommerceCheckout =
+	process.env.WOOCOMMERCE_CHECKOUT || path.join( __dirname, '../../../../../woocommerce' );
+const woocommerceEmailEditorPath = fs.existsSync(
+	path.join( woocommerceCheckout, 'packages/js/email-editor/build-module/index.js' )
+)
+	? path.join( woocommerceCheckout, 'packages/js/email-editor' )
+	: null;
+
 const editorSetup = path.join( __dirname, '../extensions', 'editor' );
 const viewSetup = path.join( __dirname, '../extensions', 'view' );
 const blockEditorDirectories = [ 'plugins', 'blocks' ];
@@ -54,7 +65,12 @@ function presetProductionExtensions( type, inputDir, presetBlocks ) {
 
 const presetPath = path.join( __dirname, '../extensions', 'index.json' );
 const presetIndex = require( presetPath );
-const presetProductionBlocks = presetIndex.production || [];
+const presetProductionBlocks = ( presetIndex.production || [] ).filter(
+	// NL-840 proof of concept: without a local WooCommerce checkout there is no
+	// @woocommerce/email-editor to import, so drop the extension rather than
+	// fail everyone else's build.
+	block => block !== 'newsletter-styles' || woocommerceEmailEditorPath
+);
 const presetNoPostEditorBlocks = presetIndex[ 'no-post-editor' ] || [];
 
 const presetExperimentalBlocks = [
@@ -134,10 +150,39 @@ const sharedWebpackConfig = {
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,
+		alias: {
+			...jetpackWebpackConfig.resolve.alias,
+			// NL-840 proof of concept. The styles panel export is not released
+			// yet, so resolve the package from a local WooCommerce checkout.
+			// Point WOOCOMMERCE_CHECKOUT at yours; without one the alias is
+			// dropped and the extension is filtered out of the build above.
+			...( woocommerceEmailEditorPath
+				? { '@woocommerce/email-editor': woocommerceEmailEditorPath }
+				: {} ),
+		},
 	},
 	node: {},
 	plugins: [
+		new webpack.DefinePlugin( {
+			// `@woocommerce/email-editor` leaves this identifier for the
+			// consumer to substitute at bundle time. Importing a submodule
+			// skips the package's own runtime fallback, so it has to be
+			// defined here or every `__()` inside the panel throws.
+			__i18n_text_domain__: JSON.stringify( 'jetpack' ),
+		} ),
 		...jetpackWebpackConfig.StandardPlugins( {
+			DependencyExtractionPlugin: {
+				requestMap: {
+					// Not a WordPress script handle: the package has no
+					// `wpScript` flag, so core never registers
+					// `wp-global-styles-engine` and `wp.globalStylesEngine`
+					// does not exist at runtime. Bundle it instead of
+					// externalizing it, or the panel's typography screens
+					// throw. `null` (rather than undefined) is what stops the
+					// plugin cascading to its own default.
+					'@wordpress/global-styles-engine': { external: null },
+				},
+			},
 			MiniCssExtractPlugin: {
 				// This is a bit of a hack to handle simple cases of `import( './file.css' )` in block editor scripts.
 				// If we're ever able to get rid of the monolithic editor.js files, this should go away in favor
