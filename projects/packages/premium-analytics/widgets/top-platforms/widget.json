@@ -1,9 +1,9 @@
 {
 	"name": "jpa/top-platforms",
 	"title": "Top platforms",
-	"description": "Top browsers and operating systems your visitors use.",
+	"description": "Top screen sizes, browsers, and operating systems your visitors use.",
 	"help": {
-		"content": "A breakdown of the operating systems and browsers your visitors used, sorted by views.",
+		"content": "A breakdown of the screen sizes, browsers, and operating systems your visitors used. Screen sizes are shown as a share of all views; browsers and operating systems are sorted by views.",
 		"links": [
 			{
 				"label": "Learn more",
