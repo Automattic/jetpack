@@ -19,6 +19,7 @@ import {
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
+import { chartScopeClass } from '../../styles';
 import { attachSubComponents, resolveFontSize } from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { Center } from '../private/center';
@@ -328,7 +329,9 @@ const PieChartInternal = ( {
 					<>
 						{ withTooltips && tooltipOpen && tooltipData && (
 							<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-								<div role="tooltip">{ renderTooltip( { tooltipData } ) }</div>
+								<div className={ chartScopeClass }>
+									<div role="tooltip">{ renderTooltip( { tooltipData } ) }</div>
+								</div>
 							</TooltipInPortal>
 						) }
 						{ htmlChildren }

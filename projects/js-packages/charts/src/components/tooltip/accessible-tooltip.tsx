@@ -1,5 +1,7 @@
 import { Tooltip, TooltipContext } from '@visx/xychart';
+import clsx from 'clsx';
 import { useContext, useEffect, useCallback, useMemo } from 'react';
+import { chartScopeClass } from '../../styles';
 import type { SeriesData, DataPointDate } from '../../types';
 import type { RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
 import type { ReactNode } from 'react';
@@ -128,7 +130,7 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 						tabIndex={ -1 }
 						role="tooltip"
 						aria-atomic="true"
-						className={ keyboardFocusedClassName }
+						className={ clsx( chartScopeClass, keyboardFocusedClassName ) }
 						data-testid={ `chart-tooltip-${ selectedIndex }` }
 						key={ `chart-tooltip-${ selectedIndex }` }
 					>
@@ -138,7 +140,7 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 			}
 
 			return (
-				<div role="tooltip" aria-live="polite">
+				<div className={ chartScopeClass } role="tooltip" aria-live="polite">
 					{ tooltipContent }
 				</div>
 			);

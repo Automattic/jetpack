@@ -1,4 +1,6 @@
 import { formatNumber } from '@automattic/number-formatters';
+import clsx from 'clsx';
+import { chartScopeClass } from '../../styles';
 import styles from './base-tooltip.module.scss';
 import type { CSSProperties, ComponentType, ReactNode } from 'react';
 
@@ -63,7 +65,11 @@ export const BaseTooltip = ( {
 	}
 
 	return (
-		<div className={ styles.tooltip } style={ { top, left, ...style } } role="tooltip">
+		<div
+			className={ clsx( chartScopeClass, styles.tooltip ) }
+			style={ { top, left, ...style } }
+			role="tooltip"
+		>
 			{ content }
 		</div>
 	);
