@@ -4,7 +4,7 @@ Tags: agency, dashboard, management, sites, monitoring
 Requires at least: 6.9
 Requires PHP: 7.2
 Tested up to: 7.0
-Stable tag: 0.8.0
+Stable tag: 0.9.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,21 +44,13 @@ Once connected, your site will display within Automattic for Agencies.
 1. Manage your connection to the agency dashboard from the Settings screen in your WordPress dashboard.
 
 == Changelog ==
-### 0.8.0 - 2026-04-11
-#### Added
-- IDC: Add revalidation for IDCs.
-
+### 0.9.0 - 2026-08-14
 #### Changed
-- Dependencies: Update lock file to keep root requirements in sync.
-- Remove header border-bottom from the admin page for a cleaner unified header appearance.
-- Update dependencies.
-- Update design of the sidebar upsell.
-- Update package dependencies.
-
-#### Removed
-- General: Update minimum WordPress version to 6.8.
-
-#### Fixed
-- Admin Page: Restore border on header component.
-- Ensure proper flags are used with `json_encode()`.
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink.
+- General: Update minimum WordPress version to 6.9.
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency.
+- Remove unneeded development and documentation files from the published plugin.
+- Replace deprecated jetpack-components Spinner with WordPress Core Spinner.
+- Tested up to WordPress 7.0.
+- Updated package dependencies.
 
