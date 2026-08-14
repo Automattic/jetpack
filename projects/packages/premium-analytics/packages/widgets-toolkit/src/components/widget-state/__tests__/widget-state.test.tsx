@@ -290,6 +290,117 @@ describe( 'WidgetState', () => {
 		expect( screen.getByRole( 'button' ) ).toHaveTextContent( '1' );
 	} );
 
+	// jsdom applies no CSS, so `visibility: hidden` never makes the children
+	// unfocusable and the browser's focus fixup never fires. Stand in for it, so
+	// these tests start from the state a real refetch leaves behind.
+	function dropFocusToBody( focused: HTMLElement ) {
+		act( () => focused.blur() );
+		expect( document.body ).toHaveFocus();
+	}
+
+	it( 'returns focus to the element a refetch took it from', () => {
+		// Keyboard-activating a drill-down row refetches by definition, so this is
+		// the common path, not an edge case.
+		const props = { isLoading: false, isError: false, isEmpty: false };
+		const { rerender } = render(
+			<WidgetState { ...props } isFetching={ false }>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+		const row = screen.getByRole( 'button', { name: 'Taiwan' } );
+		act( () => row.focus() );
+
+		rerender(
+			<WidgetState { ...props } isFetching>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+		elapseFetchDelay();
+		dropFocusToBody( screen.getByRole( 'button', { name: 'Taiwan' } ) );
+
+		rerender(
+			<WidgetState { ...props } isFetching={ false }>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+		expect( row ).toHaveFocus();
+	} );
+
+	it( 'parks focus in the widget body when the refetch replaced that element', () => {
+		// The drill-down case: the row that was activated is not in the new data.
+		// Keyed, so React unmounts it rather than reusing the node for the new row
+		// — reuse would keep the original target connected and miss this path.
+		const props = { isLoading: false, isError: false, isEmpty: false };
+		const { rerender } = render(
+			<WidgetState { ...props } isFetching={ false }>
+				<button type="button" key="tw">
+					Taiwan
+				</button>
+			</WidgetState>
+		);
+		act( () => screen.getByRole( 'button', { name: 'Taiwan' } ).focus() );
+
+		rerender(
+			<WidgetState { ...props } isFetching>
+				<button type="button" key="tw">
+					Taiwan
+				</button>
+			</WidgetState>
+		);
+		elapseFetchDelay();
+		dropFocusToBody( screen.getByRole( 'button', { name: 'Taiwan' } ) );
+
+		rerender(
+			<WidgetState { ...props } isFetching={ false }>
+				<button type="button" key="tp">
+					Taipei
+				</button>
+			</WidgetState>
+		);
+		// Focus sits on the body wrapper, so the next Tab continues from the widget
+		// rather than the top of the document.
+		expect( document.body ).not.toHaveFocus();
+		// eslint-disable-next-line @wordpress/no-global-active-element, testing-library/no-node-access -- which element the browser focused is the assertion, and the body wrapper is deliberately not queryable.
+		expect( document.activeElement ).toContainElement(
+			screen.getByRole( 'button', { name: 'Taipei' } )
+		);
+	} );
+
+	it( 'leaves focus alone when the reader moved on during the refetch', () => {
+		const props = { isLoading: false, isError: false, isEmpty: false };
+		const { rerender } = render(
+			<>
+				<button type="button">Elsewhere</button>
+				<WidgetState { ...props } isFetching={ false }>
+					<button type="button">Taiwan</button>
+				</WidgetState>
+			</>
+		);
+		act( () => screen.getByRole( 'button', { name: 'Taiwan' } ).focus() );
+
+		rerender(
+			<>
+				<button type="button">Elsewhere</button>
+				<WidgetState { ...props } isFetching>
+					<button type="button">Taiwan</button>
+				</WidgetState>
+			</>
+		);
+		elapseFetchDelay();
+		const elsewhere = screen.getByRole( 'button', { name: 'Elsewhere' } );
+		act( () => elsewhere.focus() );
+
+		rerender(
+			<>
+				<button type="button">Elsewhere</button>
+				<WidgetState { ...props } isFetching={ false }>
+					<button type="button">Taiwan</button>
+				</WidgetState>
+			</>
+		);
+		expect( elsewhere ).toHaveFocus();
+	} );
+
 	it( 'error wins over loading and empty (retry in flight after a failed fetch)', () => {
 		// The production shape on a failed fetch: isError with isEmpty derived
 		// true, plus loading signals while a retry is in flight. The priority

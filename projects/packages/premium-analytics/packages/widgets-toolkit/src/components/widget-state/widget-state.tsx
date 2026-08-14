@@ -4,6 +4,7 @@
 import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { useLayoutEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -50,6 +51,42 @@ export function WidgetState( {
 	children,
 }: WidgetStateProps ) {
 	const showFetchingState = useDelayedLoading( isFetching );
+	const contentRef = useRef< HTMLDivElement >( null );
+	const focusToRestore = useRef< HTMLElement | null >( null );
+
+	// Hiding the children makes them unfocusable, and the browser drops focus to
+	// the body at the next rendering update. That strands keyboard users who
+	// activated something inside the body — a drill-down row, which refetches by
+	// definition — at the top of the document. A layout effect runs before that
+	// fixup, so it still sees where focus was.
+	useLayoutEffect( () => {
+		// Read focus through the wrapper's own document, not the global one: the
+		// dashboard can be rendered inside an iframe, where they differ.
+		const ownerDocument = contentRef.current?.ownerDocument;
+		if ( ! ownerDocument ) {
+			return;
+		}
+
+		if ( showFetchingState ) {
+			const active = ownerDocument.activeElement;
+			if ( active instanceof HTMLElement && contentRef.current?.contains( active ) ) {
+				focusToRestore.current = active;
+			}
+			return;
+		}
+
+		const target = focusToRestore.current;
+		focusToRestore.current = null;
+		// Only take focus back from the body: anywhere else means the reader moved
+		// on during the fetch, and pulling them back would be the worse bug.
+		if ( ! target || ownerDocument.activeElement !== ownerDocument.body ) {
+			return;
+		}
+		// A drill-down replaces the rows it was triggered from, so the original
+		// target is often gone. The body wrapper is the nearest thing that keeps
+		// the next Tab where the reader left off.
+		( target.isConnected ? target : contentRef.current )?.focus();
+	}, [ showFetchingState ] );
 
 	if ( isError ) {
 		// Vertical centering lives in the stylesheet (`safe center`), not the
@@ -117,7 +154,13 @@ export function WidgetState( {
 	// Keep children mounted during refetches so their state and layout survive.
 	return (
 		<div className={ styles.ready } aria-busy={ isFetching || undefined }>
-			<div className={ clsx( styles.content, showFetchingState && styles.contentHidden ) }>
+			<div
+				ref={ contentRef }
+				// Not in the tab order; the focus restore above needs somewhere to
+				// land when the element it captured is gone.
+				tabIndex={ -1 }
+				className={ clsx( styles.content, showFetchingState && styles.contentHidden ) }
+			>
 				{ children }
 			</div>
 			{ /* Avoid announcing one status message per widget during refetches. */ }
