@@ -4,10 +4,11 @@
  *
  * Calypso gates its Videos module on the `videopress` plan feature, which
  * `wpcom_site_has_feature()` answers on the WPCOM platform. That function does
- * not exist off-platform, and the plan-feature list standing in for it there
- * (`Current_Plan`, `Product::get_site_features_from_wpcom()`) grants `videopress`
- * to every plan and costs a synchronous WPCOM request, so the same question is
- * answered from the module or plugin instead.
+ * not exist off-platform. `Current_Plan::supports()` grants `videopress` to
+ * every plan because of the free tier, while
+ * `Product::get_site_features_from_wpcom()` can make a synchronous WPCOM
+ * request and answers entitlement rather than whether VideoPress is running.
+ * The off-platform question is therefore answered from the module or plugin.
  *
  * @package automattic/jetpack-premium-analytics
  */

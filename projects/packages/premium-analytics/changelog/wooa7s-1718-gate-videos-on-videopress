@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Hide the Top videos widget, the Videos report, and the video detail page on sites without VideoPress, matching the Calypso Stats gating.
+Make the Top videos widget, the Videos report, and the video detail page unavailable on sites without VideoPress, matching the Calypso Stats gating.
