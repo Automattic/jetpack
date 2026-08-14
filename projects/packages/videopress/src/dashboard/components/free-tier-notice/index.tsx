@@ -13,19 +13,20 @@ const FREE_PLAN_MESSAGE = __(
 	'jetpack-videopress-pkg'
 );
 
-// The at-limit copy is shared with the Library's disabled-upload tooltip and
-// its at-limit drop notice, so every surface describes the cap identically.
+// Short form of the same fact, for places a full sentence does not fit: the
+// disabled-upload tooltips and the rejected-drop toast. The persistent notice
+// always uses the long copy above.
 export const FREE_TIER_AT_LIMIT_MESSAGE = __(
 	'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.',
 	'jetpack-videopress-pkg'
 );
 
 /**
- * Permanent (non-dismissible) free-plan upgrade Notice. The Overview tab
- * renders it for every free-tier user with the default free-plan copy; the
- * Library and Settings tabs render it once the free upload is used, with the
- * at-limit copy, so the disabled upload path always comes with a visible
- * upgrade path (VIDP-311). The `@wordpress/ui` Notice compound API expresses
+ * Permanent (non-dismissible) free-plan upgrade Notice, rendered wherever a
+ * free-tier user needs a visible upgrade path (VIDP-311). Every surface says
+ * the same sentence: the notice used to switch to a shorter at-limit line on
+ * some tabs, which meant the same banner read differently depending on where
+ * you happened to be standing. The `@wordpress/ui` Notice compound API expresses
  * non-dismissibility by omitting `<Notice.CloseIcon>` rather than via a
  * boolean prop.
  *

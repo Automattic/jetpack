@@ -4,9 +4,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card, Stack } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
-import FreeTierNotice, {
-	FREE_TIER_AT_LIMIT_MESSAGE,
-} from '../../src/dashboard/components/free-tier-notice';
+import FreeTierNotice from '../../src/dashboard/components/free-tier-notice';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import {
@@ -103,7 +101,7 @@ const StageInner = () => {
 	return (
 		<DashboardLayout activeTab="settings">
 			<div className="jp-videopress-settings">
-				{ isAtLimit && <FreeTierNotice message={ FREE_TIER_AT_LIMIT_MESSAGE } /> }
+				{ isAtLimit && <FreeTierNotice /> }
 				<SettingsForm />
 			</div>
 		</DashboardLayout>

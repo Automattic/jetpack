@@ -7,7 +7,9 @@ import { Button, Card, Text, VisuallyHidden } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import { TAB_PATHS } from '../../src/dashboard/components/dashboard-tabs';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
-import FreeTierNotice from '../../src/dashboard/components/free-tier-notice';
+import FreeTierNotice, {
+	FREE_TIER_AT_LIMIT_MESSAGE,
+} from '../../src/dashboard/components/free-tier-notice';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import UploadDropzone from '../../src/dashboard/components/upload-dropzone';
 import {
@@ -120,10 +122,7 @@ const StageInner = () => {
 		<Tooltip
 			text={
 				isAtLimit
-					? __(
-							'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.',
-							'jetpack-videopress-pkg'
-					  )
+					? FREE_TIER_AT_LIMIT_MESSAGE
 					: __( 'Upload a new video', 'jetpack-videopress-pkg' )
 			}
 		>
@@ -152,8 +151,14 @@ const StageInner = () => {
 		// it first appears with the cards it belongs above.
 		<DashboardLayout activeTab="home" actions={ items.length > 0 ? uploadButton : undefined }>
 			<div className="vp-home">
+				{ /*
+				 * The notice only takes the dropzone's narrow measure when the
+				 * dropzone is actually under it. Alongside the recents rail it
+				 * stays full width — centered at 660 next to left-aligned
+				 * cards, it just reads as misaligned.
+				 */ }
 				{ isFree && (
-					<div className="vp-home__notice">
+					<div className={ `vp-home__notice${ showEmptyState ? ' is-narrow' : '' }` }>
 						<FreeTierNotice />
 					</div>
 				) }
