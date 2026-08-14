@@ -143,7 +143,22 @@ class Settings_Test extends BaseTestCase {
 
 		$this->assertSame( 900, Settings::feed_limit() );
 
-		remove_all_filters( 'jetpack_podcast_feed_limit_max' );
+		delete_option( 'podcasting_feed_limit' );
+	}
+
+	public function test_feed_limit_max_filter_also_binds_the_default() {
+		add_filter(
+			'jetpack_podcast_feed_limit_max',
+			function () {
+				return 100;
+			}
+		);
+
+		$this->assertSame( 100, Settings::feed_limit() );
+
+		update_option( 'podcasting_feed_limit', 0 );
+		$this->assertSame( 100, Settings::feed_limit() );
+
 		delete_option( 'podcasting_feed_limit' );
 	}
 

@@ -343,7 +343,7 @@ class Settings {
 	public static function sanitize_feed_limit( $value ) {
 		$value = (int) $value;
 
-		return $value < 1 ? self::FEED_LIMIT_DEFAULT : min( $value, self::feed_limit_max() );
+		return min( $value < 1 ? self::FEED_LIMIT_DEFAULT : $value, self::feed_limit_max() );
 	}
 
 	/**
