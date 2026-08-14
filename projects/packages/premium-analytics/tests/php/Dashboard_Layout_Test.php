@@ -13,6 +13,7 @@ use WP_REST_Request;
 use WP_REST_Server;
 
 require_once __DIR__ . '/../../src/dashboard-layout.php';
+require_once __DIR__ . '/../../src/dashboard-sections.php';
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 
 /**
@@ -33,6 +34,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$wp_rest_server = null;
 		$this->reset_analytics_capabilities();
 		wp_set_current_user( 0 );
+		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		Constants::clear_constants();
 		parent::tear_down();
 	}
@@ -158,6 +160,45 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->assertSame( 200, $status );
 		$this->assertContains( 'jpa/traffic-chart', $types );
 		$this->assertNotContains( 'jpa/store-performance', $types );
+	}
+
+	/**
+	 * An unavailable tab does not expose its default layout.
+	 */
+	public function test_default_layout_route_refuses_an_unavailable_subscribers_tab() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_SUBSCRIBERS_SECTION_ID );
+
+		$this->assertSame( 404, $status );
+	}
+
+	/**
+	 * An unavailable tab is refused when `?name=` shadows the URL capture.
+	 */
+	public function test_default_layout_route_refuses_a_name_shadowed_subscribers_tab() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertSame( 404, $status );
+	}
+
+	/**
+	 * An available Subscribers tab exposes its default layout.
+	 */
+	public function test_default_layout_route_serves_an_available_subscribers_tab() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+
+		list( $status, $types ) = $this->request_default_layout( DASHBOARD_SUBSCRIBERS_SECTION_ID );
+
+		$this->assertSame( 200, $status );
+		$this->assertContains( 'jpa/subscribers-chart', $types );
 	}
 
 	/**
