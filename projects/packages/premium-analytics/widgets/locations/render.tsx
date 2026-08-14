@@ -64,8 +64,12 @@ const MISSING_MAP_ERROR_MESSAGE = 'Requested map does not exist';
 const runtimeUnsupportedProvinceMapCountries = new Set< string >();
 
 type GeoGranularity = NonNullable< LocationsAttributes[ 'geoGranularity' ] >;
+// Tab ids owned by the Locations report; `ReportLink` takes a bare string, so
+// naming them here is what catches a typo at build time.
+type LocationsReportSection = 'countries' | 'regions' | 'cities';
 
-const REPORT_SECTIONS: Record< GeoGranularity, string > = {
+const DEFAULT_REPORT_SECTION: LocationsReportSection = 'countries';
+const REPORT_SECTIONS: Record< GeoGranularity, LocationsReportSection > = {
 	country: 'countries',
 	region: 'regions',
 	city: 'cities',
@@ -396,7 +400,12 @@ export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 			<div className={ styles.root }>
 				<LocationsInner max={ max } geoGranularity={ geoGranularity } />
 				<WidgetFooter>
-					<ReportLink report="locations" section={ REPORT_SECTIONS[ geoGranularity ] } />
+					<ReportLink
+						report="locations"
+						// Attributes are persisted, so a stale layout can carry a granularity
+						// outside the union the map covers.
+						section={ REPORT_SECTIONS[ geoGranularity ] ?? DEFAULT_REPORT_SECTION }
+					/>
 				</WidgetFooter>
 			</div>
 		</WidgetRoot>
