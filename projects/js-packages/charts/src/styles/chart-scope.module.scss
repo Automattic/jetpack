@@ -1,0 +1,51 @@
+// The single mapping point between the --a8c-charts-* catalog and WordPress
+// design-system tokens. Every chart scope carries this class, so each element
+// resolves its --wpds-* tokens at its own position in the tree — a nested
+// ThemeProvider retints the charts inside it.
+// Declares custom properties only. Adding this class must never change layout.
+.scope {
+	--a8c-charts-color-grid: var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+	--a8c-charts-color-axis: var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+	--a8c-charts-color-tick: var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+	--a8c-charts-color-label: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	--a8c-charts-color-label-secondary: var(--wpds-color-foreground-content-neutral-weak, #707070);
+	--a8c-charts-color-label-inverse: var(--wpds-color-foreground-interactive-neutral-strong, #f0f0f0);
+	// White label text sits on arbitrary series colours, so it has no WPDS
+	// content-foreground equivalent.
+	--a8c-charts-color-label-on-fill: #fff;
+	--a8c-charts-color-annotation: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	--a8c-charts-color-trend-up: var(--wpds-color-foreground-content-success-weak, #008030);
+	--a8c-charts-color-trend-down: var(--wpds-color-foreground-content-error-weak, #cc1818);
+	--a8c-charts-color-trend-neutral: var(--wpds-color-foreground-content-neutral-weak, #707070);
+	--a8c-charts-color-background: var(--wpds-color-background-surface-neutral-strong, #fff);
+	--a8c-charts-color-surface-secondary: var(--wpds-color-background-surface-neutral-weak, #f4f4f4);
+	--a8c-charts-color-track: var(--wpds-color-background-track-neutral-weak, #f0f0f0);
+	// Translucent dark surface; no WPDS token carries this.
+	--a8c-charts-color-tooltip-surface: rgb(0 0 0 / 85%);
+	--a8c-charts-color-focus: var(--wpds-color-stroke-focus, #3858e9);
+	--a8c-charts-color-zoom-selection: var(--wpds-color-background-interactive-brand-strong, #3858e9);
+	--a8c-charts-color-zoom-selection-stroke: var(--wpds-color-stroke-interactive-brand, #3858e9);
+
+	// @wordpress/theme 1.0.0 removed the whole --wpds-elevation-* group while the
+	// elevation model is redefined (gutenberg#80099). These carry the removed spec
+	// values literally until a replacement token exists.
+	--a8c-charts-elevation-xs:
+		0 1px 1px 0 #00000008,
+		0 1px 2px 0 #00000005,
+		0 3px 3px 0 #00000005,
+		0 4px 4px 0 #00000003;
+	--a8c-charts-elevation-sm:
+		0 1px 2px 0 #0000000d,
+		0 2px 3px 0 #0000000a,
+		0 6px 6px 0 #00000008,
+		0 8px 8px 0 #00000005;
+
+	--a8c-charts-border-width-focus: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
+	--a8c-charts-motion-duration-series: var(--wpds-motion-duration-xl, 400ms);
+	--a8c-charts-motion-easing-series: var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1));
+	--a8c-charts-border-radius-bar: var(--wpds-border-radius-md, 4px);
+	--a8c-charts-border-radius-cell: var(--wpds-border-radius-sm, 2px);
+	// Pill shape; no WPDS radius reaches it. The deprecated public name is read as
+	// the inner fallback so existing overrides keep working.
+	--a8c-charts-border-radius-leaderboard-bar: var(--a8c--charts--leaderboard--bar--border-radius, 9999px);
+}
