@@ -68,7 +68,6 @@ type GeoGranularity = NonNullable< LocationsAttributes[ 'geoGranularity' ] >;
 // naming them here is what catches a typo at build time.
 type LocationsReportSection = 'countries' | 'regions' | 'cities';
 
-const DEFAULT_REPORT_SECTION: LocationsReportSection = 'countries';
 const REPORT_SECTIONS: Record< GeoGranularity, LocationsReportSection > = {
 	country: 'countries',
 	region: 'regions',
@@ -393,19 +392,18 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
  */
 export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 	const max = attributes?.max ?? 10;
-	const geoGranularity = attributes?.geoGranularity ?? 'country';
+	// Attributes are persisted, so a stale layout can carry a granularity this
+	// widget no longer knows. Normalize once, before it becomes both the endpoint
+	// path segment and the report tab.
+	const storedGranularity = attributes?.geoGranularity ?? 'country';
+	const geoGranularity = storedGranularity in REPORT_SECTIONS ? storedGranularity : 'country';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<LocationsInner max={ max } geoGranularity={ geoGranularity } />
 				<WidgetFooter>
-					<ReportLink
-						report="locations"
-						// Attributes are persisted, so a stale layout can carry a granularity
-						// outside the union the map covers.
-						section={ REPORT_SECTIONS[ geoGranularity ] ?? DEFAULT_REPORT_SECTION }
-					/>
+					<ReportLink report="locations" section={ REPORT_SECTIONS[ geoGranularity ] } />
 				</WidgetFooter>
 			</div>
 		</WidgetRoot>

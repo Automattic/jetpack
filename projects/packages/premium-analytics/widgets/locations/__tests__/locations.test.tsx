@@ -45,7 +45,11 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	GeoChart: () => <div data-testid="geo-chart" />,
 } ) );
 
-const LOADING_STATE = {
+// Typed off the hook itself so a new field on `LocationView` breaks this
+// fixture instead of being silently cast away.
+type LocationViewsState = ReturnType< typeof import('../use-location-views').default >;
+
+const LOADING_STATE: LocationViewsState = {
 	data: [],
 	hasComparison: false,
 	isLoading: true,
@@ -119,7 +123,7 @@ describe( 'LocationsWidget', () => {
 			isLoading: false,
 			isFetching: false,
 			hasData: true,
-		} as unknown as typeof LOADING_STATE );
+		} );
 
 		const { rerender } = render( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
 		await userEvent.click(
@@ -135,6 +139,8 @@ describe( 'LocationsWidget', () => {
 		expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
 			expect.objectContaining( { geoMode: 'region', countryFilter: undefined } )
 		);
+		// Regions mode keeps the map alongside the leaderboard.
+		expect( screen.getByTestId( 'geo-chart' ) ).toBeInTheDocument();
 
 		rerender( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
 
