@@ -168,6 +168,35 @@ export function useDefaultBackupRewindId(): string | null {
 }
 
 /**
+ * Whether the newest page of rewindable activity holds any backup row,
+ * and whether that is known yet.
+ *
+ * Shares the page-1 query with `useDefaultBackupRewindId`, so it costs
+ * no extra request.
+ *
+ * This is a second, independent opinion on "does this site have a
+ * restore point". `/jetpack/v4/backups` only reports VaultPress's most
+ * recent handful of rows, and scan-only rows are filtered out of that
+ * window — so it can say "nothing usable" for a site that still has
+ * perfectly good restore points a little further back. The activity log
+ * is paginated over the full retention window and does not have that
+ * blind spot.
+ *
+ * @return Whether a restore point is visible, and whether the answer has loaded.
+ */
+export function useHasRestorePoints(): { hasRestorePoints: boolean; isLoading: boolean } {
+	const query = useActivityPageQuery( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE );
+	const hasRestorePoints = useMemo(
+		() =>
+			normalizeActivityLog( query.data?.current?.orderedItems ).some(
+				item => item.kind === 'backup'
+			),
+		[ query.data ]
+	);
+	return { hasRestorePoints, isLoading: query.isLoading };
+}
+
+/**
  * Scan a raw WPCOM `orderedItems` array for a row matching the given
  * selection id. Backup rows are addressed by `rewindId`, others by
  * `activity_id` — `normalizeActivityLog` is run on the matched slice

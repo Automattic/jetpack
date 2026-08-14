@@ -65,7 +65,15 @@
 	margin-block-end: 16px;
 	padding: 12px 16px;
 	border-radius: 8px;
-	background-color: var(--wp-components-color-background-secondary, #f7f7f7);
+	// `--wp-components-color-background-secondary` is used elsewhere in
+	// this dashboard but is declared by nothing — not by
+	// `@wordpress/components`, `/ui`, `/theme` or `/base-styles` — so it
+	// only ever resolves to its hardcoded fallback and never follows the
+	// admin colour scheme. This one is real, ships in `@wordpress/theme`,
+	// and is what `EmptyState.Icon` uses for the same job. No fallback: the
+	// design-system build injects those, and the linter rejects hand-written
+	// ones because they go stale.
+	background-color: var(--wpds-color-background-surface-neutral-weak);
 
 	// Matches the panel's bar so the two readings of "a backup is running"
 	// look like the same control — including the specificity bump, for the

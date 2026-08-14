@@ -23,18 +23,18 @@ type Props = {
  */
 export default function BackupStatusBanner( { progress }: Props ) {
 	return (
-		<Stack
-			className="jpb-backup-status-banner"
-			direction="row"
-			align="center"
-			gap="md"
-			// `ProgressBar` renders a native `<progress value max>`, so the
-			// value itself is already exposed. What isn't is that the row
-			// updates on a timer without any user action, so announce it
-			// politely rather than leaving it to be discovered.
-			aria-live="polite"
-		>
-			<Text variant="body-sm">
+		<Stack className="jpb-backup-status-banner" direction="row" align="center" gap="md">
+			{ /*
+			 * The live region is deliberately just this line, not the row.
+			 * What is worth announcing is that a backup started; the
+			 * percentage is already exposed by the native `<progress>` the
+			 * bar renders, and wrapping the row would re-announce it on
+			 * every poll — dozens of interruptions over the minutes a
+			 * backup runs, which is exactly what the ARIA practices warn
+			 * against for frequently-updating values. This text does not
+			 * change while the banner is mounted, so it speaks once.
+			 */ }
+			<Text variant="body-sm" aria-live="polite">
 				{ __( 'Your backup will be ready soon', 'jetpack-backup-pkg' ) }
 			</Text>
 			<ProgressBar className="jpb-backup-status-banner__bar" value={ progress } />

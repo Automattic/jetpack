@@ -177,8 +177,16 @@ type Result = BackupsSummary & {
  * React Query hook exposing the site's backup state.
  *
  * Reads `GET /jetpack/v4/backups`, which is registered unconditionally
- * and signed with the blog token — so unlike the modernized bridges it
- * needs no new PHP and survives a user token going stale.
+ * and signed with the blog token, so unlike the modernized bridges it
+ * needs no new PHP.
+ *
+ * That route would in fact answer without a user-level WPCOM connection
+ * — its permission callback is a bare `manage_options` check. The query
+ * is gated on one anyway, because every screen that reads this hook sits
+ * behind `<Gates>`, which blocks the page for those users regardless:
+ * issuing the request would only spend a round trip on a page nobody is
+ * going to see. The looser route is a property worth knowing about if a
+ * future caller does need to read backups outside the gate.
  *
  * @param args           - Hook args.
  * @param args.forcePoll - Poll regardless of derived state.

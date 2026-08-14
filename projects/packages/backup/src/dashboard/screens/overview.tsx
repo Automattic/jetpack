@@ -13,6 +13,7 @@ import {
 	ACTIVITY_LOG_DEFAULT_PER_PAGE,
 	useActivityById,
 	useDefaultBackupRewindId,
+	useHasRestorePoints,
 } from '../hooks/use-activity-log';
 import { useBackups } from '../hooks/use-backups';
 import { isBackupItem } from '../types/activity';
@@ -69,6 +70,12 @@ export default function OverviewScreen() {
 	// on its own it cannot tell "no backups yet" from "the first one is
 	// running" from "they're all failing". This second query answers that.
 	const { state: backupsState, progress, isInitialBackup } = useBackups();
+	// A second opinion on whether anything is restorable, from the
+	// paginated activity log rather than the short `/backups` window.
+	// While it is still unknown, assume there *are* restore points:
+	// briefly showing the two-pane view is a milder error than briefly
+	// telling an established customer they have no backups.
+	const { hasRestorePoints, isLoading: restorePointsLoading } = useHasRestorePoints();
 
 	const setSelected = useCallback(
 		( id: string ) => {
@@ -80,7 +87,9 @@ export default function OverviewScreen() {
 		[ navigate, search ]
 	);
 
-	if ( replacesOverview( backupsState, isInitialBackup ) ) {
+	if (
+		replacesOverview( backupsState, isInitialBackup, restorePointsLoading || hasRestorePoints )
+	) {
 		return (
 			<DashboardLayout actions={ <BackupNowButton /> }>
 				<BackupStatusPanel state={ backupsState } progress={ progress } />

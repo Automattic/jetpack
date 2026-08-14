@@ -24,11 +24,29 @@ type Props = {
  * the opposite case: the list stays useful, so that one gets a banner
  * instead and is handled by `<BackupStatusBanner>`.
  *
- * @param state           - Derived backup state.
- * @param isInitialBackup - Whether the site is still waiting for its first restore point.
+ * `hasRestorePoints` is the veto, and it matters because the two sources
+ * disagree by design. This state is derived from `/jetpack/v4/backups`,
+ * which reports only VaultPress's most recent handful of rows and has
+ * the scan-only rows filtered out of that window — so a site whose last
+ * few attempts failed can report `no-good-backups` while the activity
+ * log still lists restore points from earlier in the retention window.
+ * Taking the body over there would hide the restore points at the exact
+ * moment someone came looking for them, which is the same class of
+ * mistake as the empty state this panel exists to replace.
+ *
+ * @param state            - Derived backup state.
+ * @param isInitialBackup  - Whether the site is still waiting for its first restore point.
+ * @param hasRestorePoints - Whether the activity log has a backup to show. Pass true when not yet known.
  * @return True when the panel replaces the Overview body.
  */
-export function replacesOverview( state: BackupsState, isInitialBackup: boolean ): boolean {
+export function replacesOverview(
+	state: BackupsState,
+	isInitialBackup: boolean,
+	hasRestorePoints: boolean
+): boolean {
+	if ( hasRestorePoints ) {
+		return false;
+	}
 	if ( state === 'in-progress' ) {
 		return isInitialBackup;
 	}
