@@ -32,7 +32,8 @@ describe( 'normalizeUsage', () => {
 		expect( usage.requestsCount ).toBe( 340 );
 		expect( usage.requestsLimit ).toBe( 500 );
 		expect( usage.requestsAvailable ).toBe( 160 );
-		expect( usage.planLabel ).toBe( '500' );
+		// The tier limit is not a plan name — it already shows on the meter.
+		expect( usage.planLabel ).toBeNull();
 	} );
 
 	test( 'over the limit: available never goes negative', () => {
@@ -41,28 +42,18 @@ describe( 'normalizeUsage', () => {
 		expect( usage.requestsAvailable ).toBe( 0 );
 	} );
 
-	test( 'unlimited: no numbers, the payload readable limit as plan label, a renewal date, no upgrade', () => {
+	test( 'unlimited: no numbers, no derived plan label, a renewal date, no upgrade', () => {
 		const usage = normalizeUsage( unlimitedPayload() );
 
 		expect( usage.unlimited ).toBe( true );
 		expect( usage.requestsCount ).toBeNull();
 		expect( usage.requestsLimit ).toBeNull();
 		expect( usage.requestsAvailable ).toBeNull();
-		// The payload has no product name (the design shows one, e.g.
-		// "Complete"); the unlimited tier's own server-localized
-		// readable-limit is the label.
-		expect( usage.planLabel ).toBe( 'Unlimited' );
+		// The plan name can only come from the purchase; "Unlimited" would
+		// just repeat the requests cell.
+		expect( usage.planLabel ).toBeNull();
 		expect( usage.renewsOn ).toBe( '2026-09-01' );
 		expect( usage.showUpgrade ).toBe( false );
-	} );
-
-	test( 'unlimited without a readable limit: the label falls back client-side', () => {
-		const usage = normalizeUsage( {
-			...tieredPayload(),
-			'current-tier': { value: 1 },
-		} );
-
-		expect( usage.planLabel ).toBe( 'Unlimited' );
 	} );
 
 	test( 'top tier: no next tier and no required upgrade means no upgrade', () => {

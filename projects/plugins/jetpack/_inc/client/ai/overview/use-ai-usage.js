@@ -48,18 +48,10 @@ export function normalizeUsage( data ) {
 		! unlimited &&
 		( Boolean( data?.[ 'next-tier' ] ) || data?.[ 'site-require-upgrade' ] === true );
 
-	// Fallback when the page data has no purchase name: the tier's own
-	// readable limit when it ships one (dash-case wire key; camelCase covers
-	// the older TS typings), else the plan's nature.
-	let planLabel = null;
-	if ( isFree ) {
-		planLabel = __( 'Free', 'jetpack' );
-	} else if ( currentTier ) {
-		planLabel =
-			currentTier[ 'readable-limit' ] ??
-			currentTier.readableLimit ??
-			( unlimited ? __( 'Unlimited', 'jetpack' ) : String( currentTier.limit ?? '' ) );
-	}
+	// Only a real plan name belongs here. "Free" is one; a tier's limit or
+	// "Unlimited" is not — both just repeat the requests cell — so a paid site
+	// with no purchase name to show leaves this empty.
+	const planLabel = isFree ? __( 'Free', 'jetpack' ) : null;
 
 	return {
 		unlimited,

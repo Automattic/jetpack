@@ -42,10 +42,8 @@ describe( 'AiOverview', () => {
 		render( <AiOverview { ...PROPS } /> );
 
 		await expect( screen.findByText( '160' ) ).resolves.toBeInTheDocument();
-		// "500" renders twice: the meter's limit and the plan label (the
-		// payload has no product name for tiers, so the readable limit
-		// stands in — flagged for design).
-		expect( screen.getAllByText( '500' ) ).toHaveLength( 2 );
+		// The limit shows once, on the meter — never repeated as a plan name.
+		expect( screen.getAllByText( '500' ) ).toHaveLength( 1 );
 		expect( screen.getByRole( 'progressbar', { name: 'Available requests' } ) ).toBeInTheDocument();
 	} );
 
@@ -54,10 +52,9 @@ describe( 'AiOverview', () => {
 
 		render( <AiOverview { ...PROPS } /> );
 
-		// The i4 paid card shows UNLIMITED over a full meter, a plan label
-		// ("Unlimited" until the payload carries a product name), and a
+		// The i4 paid card shows UNLIMITED over a full meter — once — and a
 		// renewal date where the free card has the Upgrade button.
-		await expect( screen.findAllByText( 'Unlimited' ) ).resolves.toHaveLength( 2 );
+		await expect( screen.findAllByText( 'Unlimited' ) ).resolves.toHaveLength( 1 );
 		expect( screen.getByRole( 'progressbar', { name: 'Available requests' } ) ).toBeInTheDocument();
 		expect( screen.getByText( /Renews on/ ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
