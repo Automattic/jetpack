@@ -1,6 +1,7 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import {
 	Button,
+	ExternalLink,
 	Notice,
 	Tooltip,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -12,6 +13,7 @@ import {
 } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { getConnectUrl, isSiteConnected } from '../../../connection';
 import { usePodcastSettings } from '../../../hooks/use-podcast-settings';
 import './style.scss';
 import { extractRejectionReasons, usePocketCastsSubmit } from './use-submit';
@@ -60,6 +62,10 @@ const PocketCastsRow = ( { app, isBlocked, blockedTooltip, onFirstSave }: Pocket
 	const { submit, isSubmitting, result, errorMessage } = usePocketCastsSubmit();
 	const celebratedRef = useRef( false );
 
+	// The relay endpoint is proxied through WordPress.com, so a disconnected
+	// site can't submit at all.
+	const connected = isSiteConnected();
+
 	const liveState = result ? liveStateFromResult( result.state ) : null;
 	const effectiveState: PodcastShowState = liveState ?? storedState;
 	const badge = stateBadgeLabel( effectiveState );
@@ -89,7 +95,7 @@ const PocketCastsRow = ( { app, isBlocked, blockedTooltip, onFirstSave }: Pocket
 		submit();
 	}, [ submit, storedState, app.id ] );
 
-	const isButtonDisabled = isBlocked || isSubmitting || isDone;
+	const isButtonDisabled = ! connected || isBlocked || isSubmitting || isDone;
 
 	return (
 		<VStack spacing={ 3 }>
@@ -123,6 +129,18 @@ const PocketCastsRow = ( { app, isBlocked, blockedTooltip, onFirstSave }: Pocket
 					</Button>
 				</Tooltip>
 			</HStack>
+
+			{ ! connected && (
+				<Notice status="warning" isDismissible={ false }>
+					{ __(
+						'Connect this site to WordPress.com to submit your podcast to Pocket Casts.',
+						'jetpack-podcast'
+					) }{ ' ' }
+					<ExternalLink href={ getConnectUrl() }>
+						{ __( 'Connect Jetpack', 'jetpack-podcast' ) }
+					</ExternalLink>
+				</Notice>
+			) }
 
 			{ result?.state === 'rejected' && (
 				<Notice status="error" isDismissible={ false }>

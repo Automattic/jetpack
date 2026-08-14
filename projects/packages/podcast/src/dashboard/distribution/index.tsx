@@ -39,7 +39,7 @@ const selectOnFocus = ( event: FocusEvent< HTMLInputElement > ) => {
 const COPIED_LABEL = __( 'Copied!', 'jetpack-podcast' );
 const COPY_LINK_LABEL = __( 'Copy link', 'jetpack-podcast' );
 const CHECKING_LABEL = __( 'Checking your podcast setup…', 'jetpack-podcast' );
-const NEED_CATEGORY_LABEL = __( 'Set a podcast category in Settings first', 'jetpack-podcast' );
+const NEED_CATEGORY_LABEL = __( 'Set a post category in Settings first', 'jetpack-podcast' );
 const PENDING_LABEL = __( 'Pending', 'jetpack-podcast' );
 // `active` means the feed has been crawled by the directory's bot — not that
 // the show has actually been published in the directory's catalog. "Submitted"
@@ -242,7 +242,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 							) : (
 								<Text variant="muted">
 									{ __(
-										'Set your podcast category to generate the feed URL you can submit to directories.',
+										'Set your post category to generate the feed URL you can submit to directories.',
 										'jetpack-podcast'
 									) }
 								</Text>
