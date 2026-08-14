@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Status;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -222,5 +224,39 @@ class Visitor_Test extends TestCase {
 
 		$is_a11n = $this->visitor_obj->is_automattician_feature_flags_only();
 		$this->assertTrue( $is_a11n );
+	}
+
+	/**
+	 * Tests is_tracking_automattician returns false for an ordinary request.
+	 *
+	 * Isolated because AT_PROXIED_REQUEST cannot be undefined once set. Without a
+	 * fresh process this assertion would silently depend on running before every
+	 * test that defines the constant.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_is_tracking_automattician_is_false_for_an_ordinary_request() {
+		// Neither wpcom function exists off WordPress.com, so every branch falls through.
+		$this->assertFalse( $this->visitor_obj->is_tracking_automattician() );
+	}
+
+	/**
+	 * Tests is_tracking_automattician treats a proxied request as Automattician traffic.
+	 *
+	 * Isolated for the same reason: this test defines the constant, and doing so in a
+	 * shared process would leak into the assertion above.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_is_tracking_automattician_is_true_for_a_proxied_request() {
+		define( 'AT_PROXIED_REQUEST', true );
+
+		$this->assertTrue( $this->visitor_obj->is_tracking_automattician() );
 	}
 }
