@@ -1007,8 +1007,8 @@ class Manager {
 	 * Drop the cached WordPress.com site record.
 	 *
 	 * A caller that fetched the record by another route holds something newer than the cache can,
-	 * and `jetpack_site_data_fetched` fires on a cached read too. Without this, a cached copy
-	 * would keep announcing the older record and undo what the caller just stored.
+	 * and `jetpack_site_data_fetched` fires on a cached read too. The cached copy has to go, or it
+	 * keeps announcing the older record and undoes what that caller stored.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -1042,7 +1042,9 @@ class Manager {
 
 		$sandbox_secret = null;
 
-		if ( isset( $_COOKIE['store_sandbox'] ) ) {
+		// An array cookie (`store_sandbox[]=`) sanitizes down to an empty string, which must not
+		// count as a sandbox secret: it opts the request out of the cache with no sandbox to reach.
+		if ( isset( $_COOKIE['store_sandbox'] ) && is_string( $_COOKIE['store_sandbox'] ) ) {
 			// Keep only RFC 6265 cookie-octets so the value cannot break out of the Cookie header.
 			$sandbox_secret = preg_replace( '/[^\x21-\x7E]|[";,\\\\]/', '', filter_var( wp_unslash( $_COOKIE['store_sandbox'] ) ) );
 		}
@@ -1070,7 +1072,7 @@ class Manager {
 		}
 
 		/**
-		 * Fires after the site record was served from WordPress.com.
+		 * Fires after the site record was served, whether it was fetched or read from the cache.
 		 *
 		 * Consumers that cache anything derived from the record, such as the current plan,
 		 * can refresh it here.

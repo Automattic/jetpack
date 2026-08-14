@@ -426,6 +426,26 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 	}
 
 	/**
+	 * `store_sandbox[]=` arrives as an array, which sanitizes down to an empty string. Treating
+	 * that as a sandbox secret would let any reader of the route opt their own requests out of
+	 * the cache, so it has to read as no cookie at all.
+	 */
+	public function test_an_array_sandbox_cookie_is_not_a_sandboxed_request() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
+		$_COOKIE['store_sandbox'] = array( 'sandbox.example.com' );
+
+		$requests = $this->count_http_requests(
+			function () {
+				$this->manager->get_connected_site_data();
+				$this->manager->get_connected_site_data();
+			}
+		);
+
+		$this->assertSame( 1, $requests );
+		$this->assertNotFalse( get_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234 ) );
+	}
+
+	/**
 	 * A failed fetch must not fire the action, otherwise consumers would cache an error body.
 	 */
 	public function test_failed_fetch_does_not_fire_the_site_data_action() {
