@@ -39,14 +39,18 @@ type Control = {
  * stays put, each accepted change is followed by a store repair (see
  * `changeStatus`) and the menu is disabled while a change is in flight.
  *
- * @param props          - Component props.
- * @param props.response - The response being viewed.
+ * @param props           - Component props.
+ * @param props.response  - The response being viewed.
+ * @param props.isBlocked - Whether another mutation on this response is in flight
+ *                        (e.g. the spam confirmation dialog saving).
  * @return The actions dropdown.
  */
 export default function SingleResponseActions( {
 	response,
+	isBlocked = false,
 }: {
 	response: FormResponse;
+	isBlocked?: boolean;
 } ): React.JSX.Element {
 	const registry = useRegistry() as unknown as Registry;
 	const navigate = useNavigate();
@@ -178,7 +182,7 @@ export default function SingleResponseActions( {
 			icon={ moreVertical }
 			label={ __( 'Actions', 'jetpack-forms' ) }
 			controls={ controls }
-			toggleProps={ { disabled: isPending, isBusy: isPending } }
+			toggleProps={ { disabled: isPending || isBlocked, isBusy: isPending } }
 		/>
 	);
 }

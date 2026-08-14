@@ -174,6 +174,11 @@ function Stage(): React.JSX.Element {
 		},
 	} );
 
+	// The dialog's save and the menu's actions are separate mutation paths on one
+	// response; this is the single in-flight signal both are gated on, so they can't
+	// run against each other.
+	const isMutating = isConfirmDialogOpen || isSaving;
+
 	const { hasPrevious, hasNext, goPrevious, goNext } = useResponsePageNavigation( id );
 
 	// Arrow keys move between responses, matching the inbox inspector. Ignore the
@@ -186,7 +191,9 @@ function Stage(): React.JSX.Element {
 			if ( event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey ) {
 				return;
 			}
-			if ( previewFile ) {
+			// Navigating away while the spam confirmation is open would leave the
+			// dialog describing one response and confirming against another.
+			if ( previewFile || isConfirmDialogOpen || isSaving ) {
 				return;
 			}
 			const target = event.target as HTMLElement | null;
@@ -210,7 +217,7 @@ function Stage(): React.JSX.Element {
 
 		window.addEventListener( 'keydown', handleKeyDown );
 		return () => window.removeEventListener( 'keydown', handleKeyDown );
-	}, [ goPrevious, goNext, hasPrevious, hasNext, previewFile ] );
+	}, [ goPrevious, goNext, hasPrevious, hasNext, previewFile, isConfirmDialogOpen, isSaving ] );
 
 	// Mark the response as read when it is viewed, keeping the admin-menu unread
 	// counter in sync. The shared hook latches on a ref, which also survives the
@@ -282,13 +289,13 @@ function Stage(): React.JSX.Element {
 					className="jp-forms__single-response-actions"
 				>
 					<ResponseNavigation
-						hasNext={ hasNext }
-						hasPrevious={ hasPrevious }
+						hasNext={ hasNext && ! isMutating }
+						hasPrevious={ hasPrevious && ! isMutating }
 						onNext={ goNext }
 						onPrevious={ goPrevious }
 						onClose={ null }
 					/>
-					<SingleResponseActions response={ response } />
+					<SingleResponseActions response={ response } isBlocked={ isMutating } />
 				</Stack>
 			}
 			showFooter={ false }

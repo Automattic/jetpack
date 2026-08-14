@@ -92,6 +92,9 @@ class Feedback_Email_Renderer {
 	 *   'comment_author'       => string  Author name.
 	 *   'comment_author_email' => string  Author email.
 	 *   'comment_author_ip'    => string  Author IP address.
+	 *   'is_spam'              => bool    Whether submission is spam. Suppresses the
+	 *                                    Mark-as-spam button, which would otherwise
+	 *                                    link to a page with nothing to confirm.
 	 *   'feedback_status'      => string  Post status of the feedback.
 	 *
 	 * @return array{title: string, message: string} The email title and rendered HTML message.
@@ -102,6 +105,7 @@ class Feedback_Email_Renderer {
 		$comment_author       = $context_data['comment_author'];
 		$comment_author_email = $context_data['comment_author_email'];
 		$comment_author_ip    = $context_data['comment_author_ip'];
+		$is_spam              = ! empty( $context_data['is_spam'] );
 		$is_test              = ! empty( $context_data['is_test'] );
 		$feedback_status      = $context_data['feedback_status'];
 
@@ -184,8 +188,10 @@ class Feedback_Email_Renderer {
 			$dashboard_url = Forms_Dashboard::get_single_response_admin_url( $post_id );
 			// Test responses don't get a Mark-as-spam link in the email — marking
 			// a test entry as spam from email is confusing and the form owner can
-			// always do it from the dashboard if they want.
-			if ( ! $is_test ) {
+			// always do it from the dashboard if they want. Neither do submissions
+			// already flagged as spam (sites can mail those via $send_even_if_spam):
+			// the button would land on a page with nothing to confirm.
+			if ( ! $is_test && ! $is_spam ) {
 				$mark_as_spam_url        = self::add_mark_as_spam_to_url( $dashboard_url );
 				$footer_mark_as_spam_url = sprintf(
 					'<a href="%1$s">%2$s</a>',

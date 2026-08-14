@@ -721,10 +721,14 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 
 		remove_filter( 'jetpack_forms_alpha', '__return_true' );
 
-		// "View in dashboard" points at the standalone single response page.
-		$this->assertStringContainsString(
-			esc_url( Dashboard::get_single_response_admin_url( $post_id ) ),
-			$result['message']
+		// "View in dashboard" points at the standalone single response page — and
+		// must NOT carry the trigger. Matched to the closing quote, because the view
+		// URL is a strict prefix of the spam one: a plain "contains" assertion would
+		// pass even if both buttons were armed.
+		$this->assertMatchesRegularExpression(
+			'#href="' . preg_quote( esc_url( Dashboard::get_single_response_admin_url( $post_id ) ), '#' ) . '"#',
+			$result['message'],
+			'View in dashboard must link to the single response page without the mark_as_spam trigger.'
 		);
 
 		// "Mark as spam" points at the same page and carries the trigger. Asserted by
@@ -742,6 +746,55 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 			'#href="[^"]*p=%2Fresponses%2Finbox[^"]*mark_as_spam#',
 			$result['message'],
 			'Mark as spam should no longer route through the responses list.'
+		);
+	}
+
+	/**
+	 * A submission already flagged as spam gets no Mark-as-spam button.
+	 *
+	 * Sites can mail spam submissions via `$send_even_if_spam`. The button would
+	 * link to a page that deliberately shows no confirmation for an
+	 * already-spam response, leaving the trigger armed in the URL.
+	 */
+	public function test_build_email_content_omits_mark_as_spam_for_spam_submission() {
+		add_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'Name'  => 'Test User',
+				'Email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User'
+		);
+
+		$form     = new Contact_Form( array(), '' );
+		$response = Feedback::get( $post_id );
+
+		$context_data = array(
+			'time'                 => current_time( 'mysql' ),
+			'url'                  => 'https://example.com',
+			'comment_author'       => 'Test User',
+			'comment_author_email' => 'test@example.com',
+			'comment_author_ip'    => '127.0.0.1',
+			'is_spam'              => true,
+			'feedback_status'      => 'publish',
+		);
+
+		$result = Feedback_Email_Renderer::build_email_content( $post_id, $form, $response, $context_data );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		$this->assertStringNotContainsString(
+			'mark_as_spam',
+			$result['message'],
+			'A spam submission must not be emailed a Mark as spam link.'
+		);
+
+		// The View in dashboard button is still offered.
+		$this->assertStringContainsString(
+			esc_url( Dashboard::get_single_response_admin_url( $post_id ) ),
+			$result['message']
 		);
 	}
 

@@ -3128,6 +3128,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'comment_author'       => $comment_author,
 			'comment_author_email' => $comment_author_email,
 			'comment_author_ip'    => $comment_author_ip,
+			'is_spam'              => $is_spam,
 			'is_test'              => $is_test_submission,
 			'feedback_status'      => $feedback_status,
 		);
