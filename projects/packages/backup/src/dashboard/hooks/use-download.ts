@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { fetchDownloadStatus, initiateDownload } from '../data/api/download';
 import { keys } from '../data/query-client';
 import type { RestoreItems } from '../types/restore';
@@ -9,7 +9,7 @@ type DownloadState =
 	| { phase: 'idle' }
 	| { phase: 'submitting' }
 	| { phase: 'progress'; percent: number }
-	| { phase: 'success'; downloadUrl: string }
+	| { phase: 'success'; downloadUrl: string; validUntil: string }
 	| { phase: 'error'; message: string };
 
 type Result = {
@@ -77,13 +77,26 @@ export function useDownload( rewindId: string ): Result {
 	} else if ( isInitiating ) {
 		state = { phase: 'submitting' };
 	} else if ( statusQuery.data?.status === 'finished' && statusQuery.data.url ) {
-		state = { phase: 'success', downloadUrl: statusQuery.data.url };
+		state = {
+			phase: 'success',
+			downloadUrl: statusQuery.data.url,
+			validUntil: statusQuery.data.valid_until,
+		};
 	} else if ( statusQuery.data?.status === 'failed' ) {
 		state = {
 			phase: 'error',
-			// WPCOM's reason when it gave one; the generic line only as a
-			// fallback, since "Download failed." tells nobody anything.
-			message: statusQuery.data.error || __( 'Download failed.', 'jetpack-backup-pkg' ),
+			// WPCOM's reason when it gave one, since "Download failed."
+			// tells nobody anything — but carried inside a translated frame
+			// rather than shown as the whole message, so an upstream string
+			// in one language can't be the only text on an otherwise
+			// translated screen.
+			message: statusQuery.data.error
+				? sprintf(
+						/* translators: %s: the reason WordPress.com gave for the failure. */
+						__( 'Download failed: %s', 'jetpack-backup-pkg' ),
+						statusQuery.data.error
+				  )
+				: __( 'Download failed.', 'jetpack-backup-pkg' ),
 		};
 	} else if ( downloadId !== null && statusQuery.error ) {
 		// Network/HTTP failure mid-poll: surface so the UI doesn't sit

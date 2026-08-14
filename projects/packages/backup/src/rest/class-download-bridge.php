@@ -43,7 +43,16 @@ class Download_Bridge {
 						'required' => true,
 					),
 					'types'     => array(
-						'type' => 'object',
+						'type'                 => 'object',
+						// Values must be booleans. WordPress validates
+						// `object` with `rest_is_object()`, which is just
+						// `is_array()`, so without this a JSON list of
+						// category names passes and reaches WPCOM as a list
+						// whose numeric keys it reads as category names.
+						// This rejects that with a 400 before the callback
+						// runs; `Rest_Controller::named_types()` makes the
+						// shape guarantee that a value check cannot.
+						'additionalProperties' => array( 'type' => 'boolean' ),
 					),
 				),
 			)
@@ -99,11 +108,9 @@ class Download_Bridge {
 		// Omit `types` rather than defaulting it to an empty object.
 		// WPCOM selects the enabled categories loosely, so an empty
 		// value names no category and asks for a download of nothing.
-		if ( is_array( $types ) || is_object( $types ) ) {
-			$types = (array) $types;
-			if ( ! empty( $types ) ) {
-				$body['types'] = $types;
-			}
+		$named_types = Rest_Controller::named_types( $types );
+		if ( ! empty( $named_types ) ) {
+			$body['types'] = $named_types;
 		}
 
 		$response = Client::wpcom_json_api_request_as_user(
@@ -193,8 +200,21 @@ class Download_Bridge {
 			$body = array();
 		}
 
-		$error = isset( $body['error'] ) ? (string) $body['error'] : '';
-		$url   = isset( $body['url'] ) ? (string) $body['url'] : '';
+		$error   = isset( $body['error'] ) ? (string) $body['error'] : '';
+		$raw_url = isset( $body['url'] ) ? (string) $body['url'] : '';
+
+		// The client puts this straight into an `<a href>`, and React does
+		// not strip dangerous schemes — so check before handing it over.
+		//
+		// Deliberately a scheme check rather than `wp_http_validate_url()`,
+		// which the file-browser bridge uses: that one is built for URLs
+		// *this server* is about to fetch, so it also does a DNS lookup and
+		// rejects private IPs and non-standard ports. Right there, wrong
+		// here — this URL is only ever loaded by the browser, so those
+		// rules could reject a perfectly good host while costing a DNS
+		// lookup on every poll.
+		$scheme = '' === $raw_url ? null : wp_parse_url( $raw_url, PHP_URL_SCHEME );
+		$url    = ( 'https' === $scheme || 'http' === $scheme ) ? $raw_url : '';
 
 		// Order matters: a failed download can still carry a stale `url`
 		// from an earlier attempt, so the error branch is checked first.
@@ -202,6 +222,13 @@ class Download_Bridge {
 			$status = 'failed';
 		} elseif ( '' !== $url ) {
 			$status = 'finished';
+		} elseif ( '' !== $raw_url ) {
+			// A URL arrived but is not one we will hand to the browser.
+			// Reported as a failure rather than left to fall through to
+			// `running`, which would poll forever against a download that
+			// is in fact finished.
+			$status = 'failed';
+			$error  = __( 'The download link could not be used.', 'jetpack-backup-pkg' );
 		} else {
 			$status = 'running';
 		}
@@ -211,8 +238,12 @@ class Download_Bridge {
 				'id'          => isset( $body['downloadId'] ) ? (int) $body['downloadId'] : $download_id,
 				'status'      => $status,
 				// 0-100, and absent entirely once the download leaves the
-				// in-flight branch.
-				'progress'    => isset( $body['progress'] ) ? (int) $body['progress'] : 0,
+				// in-flight branch. Clamped rather than trusted: the client
+				// feeds this straight to a progress bar, and the headline bug
+				// this projection replaces was a bar being handed 10000. Making
+				// the range true here means no future upstream change can
+				// reproduce that symptom.
+				'progress'    => isset( $body['progress'] ) ? max( 0, min( 100, (int) $body['progress'] ) ) : 0,
 				'url'         => $url,
 				'valid_until' => isset( $body['validUntil'] ) ? (string) $body['validUntil'] : '',
 				'error'       => $error,

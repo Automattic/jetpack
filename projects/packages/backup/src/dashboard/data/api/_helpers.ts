@@ -33,11 +33,24 @@ export function apiPath(
  * Strip the decimal suffix WPCOM ships on rewind ids (e.g.
  * `'1777035492.615'` → `'1777035492'`).
  *
- * **Only the file-browser URL family needs this.** Those routes match
- * `(?P<backup_id>\d+)`, so a fractional id 404s before WPCOM is reached.
- * The restore and download mutations are the opposite case: they take
- * the rewind id in the request *body*, in full, and truncating it there
- * addresses a different backup than the one the reader picked.
+ * Truncating is a WPCOM-side requirement, not a local one — no route in
+ * this package matches the id against `\d+`. Where the two remaining
+ * callers stand:
+ *
+ * `fetchFileTree` needs it. It sends the id in the body as `rewind_id`,
+ * and the bridge forwards that to WPCOM as `backup_id`, which is an
+ * integer identifier there.
+ *
+ * `initiateRestore` still calls it, but only because it targets the v1
+ * activity-log route with the id in the *path*. That is a temporary
+ * arrangement: the v2 restore route takes the id in the body, in full,
+ * and the call moves with it when it is repointed. Note the Jetpack
+ * route it goes through already accepts a decimal, so the truncation is
+ * not protecting anything.
+ *
+ * Download no longer calls it at all: `/rewind/downloads` takes the id
+ * in the body and truncating it there addresses a different backup than
+ * the reader picked.
  *
  * @param rewindId - Raw rewind id, possibly with a decimal suffix.
  * @return The integer-seconds portion only.

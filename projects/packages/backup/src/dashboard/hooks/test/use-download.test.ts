@@ -55,7 +55,15 @@ describe( 'useDownload', () => {
 		const { wrapper } = makeWrapper();
 
 		const { result } = renderHook( () => useDownload( REWIND_ID ), { wrapper } );
-		act( () => result.current.submit( DEFAULT_RESTORE_ITEMS ) );
+		act( () =>
+			result.current.submit( {
+				...DEFAULT_RESTORE_ITEMS,
+				plugins: false,
+				roots: false,
+				contents: false,
+				uploads: false,
+			} )
+		);
 
 		await waitFor( () => expect( mockedApiFetch ).toHaveBeenCalled() );
 		const [ initiate ] = mockedApiFetch.mock.calls[ 0 ];
@@ -63,7 +71,9 @@ describe( 'useDownload', () => {
 		// different backup than the one the reader picked.
 		expect( initiate.path ).toContain( REWIND_ID );
 		expect( Array.isArray( initiate.data.types ) ).toBe( false );
-		expect( initiate.data.types ).toEqual( DEFAULT_RESTORE_ITEMS );
+		// A partial selection, so this proves the filtering rather than
+		// echoing an all-true default back at itself.
+		expect( initiate.data.types ).toEqual( { themes: true, sqls: true } );
 	} );
 
 	// `progress` is already 0–100: WPCOM coerces it to an integer, which
@@ -106,6 +116,7 @@ describe( 'useDownload', () => {
 			expect( result.current.state ).toEqual( {
 				phase: 'success',
 				downloadUrl: 'https://example.com/archive.zip',
+				validUntil: '2026-08-20T00:00:00+00:00',
 			} )
 		);
 	} );
@@ -125,7 +136,11 @@ describe( 'useDownload', () => {
 		act( () => result.current.submit( DEFAULT_RESTORE_ITEMS ) );
 
 		await waitFor( () =>
-			expect( result.current.state ).toEqual( { phase: 'error', message: 'Archive expired' } )
+			expect( result.current.state ).toEqual( {
+				phase: 'error',
+				// Carried inside a translated frame rather than shown raw.
+				message: 'Download failed: Archive expired',
+			} )
 		);
 	} );
 } );
