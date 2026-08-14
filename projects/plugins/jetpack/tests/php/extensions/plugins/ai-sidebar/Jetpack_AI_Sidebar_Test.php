@@ -389,24 +389,25 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that init() does nothing on a self-hosted site (off the wpcom platform).
+	 * Test that init() wires the sidebar up on a self-hosted site (off the wpcom
+	 * platform) with no override filter in play.
 	 */
-	public function test_init_does_nothing_on_self_hosted() {
+	public function test_init_registers_hooks_on_self_hosted() {
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		$this->simulate_self_hosted();
 		Jetpack_AI_Sidebar::init();
 
-		$this->assertFalse(
+		$this->assertNotFalse(
 			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
-			'register_provider should not be hooked on a self-hosted site.'
+			'register_provider should be hooked on a self-hosted site.'
 		);
-		$this->assertFalse(
+		$this->assertNotFalse(
 			has_filter( 'agents_manager_enabled_in_block_editor', array( Jetpack_AI_Sidebar::class, 'enable_agents_manager_on_provider_surfaces' ) ),
-			'enable_agents_manager_on_provider_surfaces should not be hooked on a self-hosted site.'
+			'enable_agents_manager_on_provider_surfaces should be hooked on a self-hosted site.'
 		);
-		$this->assertFalse(
+		$this->assertNotFalse(
 			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
-			'register_toolbar_button_extension should not be hooked when the preview gate is false.'
+			'register_toolbar_button_extension should be hooked on a self-hosted site.'
 		);
 	}
 
@@ -464,15 +465,16 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The preview gate is closed off the WordPress.com platform, even with Big Sky present.
+	 * The preview gate is open off the WordPress.com platform by default, without
+	 * Big Sky taking any part in the decision.
 	 */
-	public function test_preview_disabled_on_self_hosted() {
+	public function test_preview_enabled_on_self_hosted() {
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		$this->simulate_self_hosted();
 		$this->simulate_big_sky_class();
-		update_option( 'big_sky_enable', '1' );
+		update_option( 'big_sky_enable', '0' );
 
-		$this->assertFalse( $this->gate_open() );
+		$this->assertTrue( $this->gate_open() );
 	}
 
 	/**
@@ -517,9 +519,13 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * The jetpack_ai_sidebar_enabled filter overrides the gate in both directions.
 	 */
 	public function test_preview_filter_overrides_gate() {
-		// Gate is closed off-platform; the filter forces it on.
+		// Gate is closed on Atomic with Big Sky present but its setting absent;
+		// the filter forces it on.
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
-		$this->simulate_self_hosted();
+		$this->simulate_wpcom_platform();
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '0' );
+		$this->assertFalse( $this->gate_open() );
 		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true' );
 		$this->assertTrue( $this->gate_open() );
 
@@ -527,6 +533,12 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		$this->simulate_wpcom_simple();
 		$this->simulate_big_sky_class();
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
+		$this->assertFalse( $this->gate_open() );
+
+		// The same override remains the opt-out for the newly enabled self-hosted default.
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_self_hosted();
 		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
 		$this->assertFalse( $this->gate_open() );
 	}
@@ -1953,10 +1965,12 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function test_sidebar_asset_data_skips_enqueue_when_fetch_fails() {
 		$this->set_block_editor_screen();
+		$request_count = 0;
 		// Block remote fetches.
 		add_filter(
 			'pre_http_request',
-			function () {
+			function () use ( &$request_count ) {
+				++$request_count;
 				return new WP_Error( 'blocked', 'No HTTP.' );
 			}
 		);
@@ -1967,6 +1981,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$providers = Jetpack_AI_Sidebar::register_provider( array() );
 		$this->assertCount( 0, $providers );
+		$this->assertSame( 1, $request_count, 'A failed manifest fetch should be cached briefly.' );
 	}
 
 	// ──────────────────────────────────────────────────
@@ -1974,9 +1989,12 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Test full flow: init, simulate AM filter, verify provider registered.
+	 * Test full flow on a self-hosted site with no override filter: init() wires
+	 * the provider, the Agents Manager block-editor gate, and the data payload.
 	 */
 	public function test_full_flow_with_default_enabled() {
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_self_hosted();
 		$this->set_block_editor_screen();
 		Jetpack_AI_Sidebar::init();
 		$this->cache_sidebar_asset_data();
@@ -1984,7 +2002,19 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$providers = apply_filters( 'agents_manager_agent_providers', array() );
 
 		$this->assertCount( 1, $providers );
-		$this->assert_jetpack_provider_url( $providers[0] );
+		$this->assertSame( AiAssistantPlugin\AI_SIDEBAR_PROVIDER_URL, $providers[0] );
+
+		$this->assertTrue(
+			apply_filters( 'agents_manager_enabled_in_block_editor', false ),
+			'The Agents Manager block-editor gate should open on a self-hosted site.'
+		);
+
+		$data = apply_filters(
+			'jetpack_ai_sidebar_agents_manager_data',
+			array( 'sectionName' => 'gutenberg' )
+		);
+
+		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
 	}
 
 	/**
