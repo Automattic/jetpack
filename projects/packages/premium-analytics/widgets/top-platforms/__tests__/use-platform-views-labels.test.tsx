@@ -18,7 +18,7 @@ const reportParams = { from: '2026-06-01', to: '2026-06-30' } as ReportParams;
 
 // `stats/devices/{property}` answers with a flat key/value map; the keys are the
 // raw API vocabulary each dimension uses.
-const RESPONSES: Record< string, Record< string, number > > = {
+const RESPONSES: Readonly< Record< string, Record< string, number > > > = {
 	screensize: { desktop: 57.8, mobile: 37, tablet: 5.2 },
 	browser: { chrome: 812, miui: 190 },
 	platform: { mac: 402, android_tablet: 65 },
@@ -56,7 +56,9 @@ describe( 'usePlatformViews labels', () => {
 
 	// Keys outside the map are title-cased rather than dropped.
 	it( 'falls back to title case for an unmapped key', async () => {
-		RESPONSES.browser = { vivaldi: 12 };
+		// A local implementation rather than a reassignment of RESPONSES: a
+		// failing assertion below must not leak a fixture into the next test.
+		mockApiFetch.mockImplementation( () => Promise.resolve( { top_values: { vivaldi: 12 } } ) );
 
 		const { result } = renderHook(
 			() => usePlatformViews( { reportParams, max: 10, deviceProperty: 'browser' } ),
@@ -66,7 +68,5 @@ describe( 'usePlatformViews labels', () => {
 		await waitFor( () => expect( result.current.data.length ).toBeGreaterThan( 0 ) );
 
 		expect( result.current.data[ 0 ].label ).toBe( 'Vivaldi' );
-
-		RESPONSES.browser = { chrome: 812, miui: 190 };
 	} );
 } );
