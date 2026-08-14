@@ -27,7 +27,7 @@ export const CORE_BLOCKS = [
 
 const currentYear = new Date().getFullYear();
 
-// WARNING: sync data with Contact_Form_Field::render_date_field in class-contact-form-field.php
+// WARNING: sync data with Contact_Form_Field::get_date_formats() in class-contact-form-field.php
 export const DATE_FORMATS = [
 	{
 		value: 'mm/dd/yy',

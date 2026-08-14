@@ -10,4 +10,9 @@
 	font-size: 0.875em;
 	line-height: 1.4;
 	color: var(--jetpack--contact-form--text-color, inherit);
+
+	// Hints are advisory, so they read as secondary to the field's own text.
+	// Keep this in step with .contact-form__input-error, which stays at full
+	// strength precisely because an error is not advisory.
+	opacity: 0.75;
 }

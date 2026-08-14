@@ -3327,6 +3327,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$field .= "\t</div>\n";
 		}
 
+		// Consume the deferral so a second render of the same instance cannot
+		// emit the first render's markup. Nothing in the tree renders a field
+		// twice today, but the invariant should not depend on that.
+		$this->deferred_descriptions = null;
+
 		return $field;
 	}
 

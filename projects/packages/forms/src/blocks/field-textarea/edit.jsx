@@ -32,7 +32,7 @@ export default function TextareaFieldEdit( props ) {
 		];
 	}, [ requiredIndicator ] );
 
-	const { children, ...innerBlocksProps } = useInnerBlocksProps(
+	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-field__control' },
 		{
 			allowedBlocks: ALLOWED_INNER_BLOCKS,
@@ -52,7 +52,7 @@ export default function TextareaFieldEdit( props ) {
 	return (
 		<>
 			<div { ...blockProps }>
-				<div { ...innerBlocksProps }>{ children }</div>
+				<div { ...innerBlocksProps } />
 				<JetpackFieldHints
 					attributes={ attributes }
 					setAttributes={ setAttributes }

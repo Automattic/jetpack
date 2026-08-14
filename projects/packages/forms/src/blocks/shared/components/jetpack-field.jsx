@@ -48,7 +48,7 @@ const JetpackField = props => {
 		attributes,
 		setAttributes,
 	} );
-	const { children, ...innerBlocksProps } = useInnerBlocksProps(
+	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-field__control' },
 		{
 			allowedBlocks: ALLOWED_INNER_BLOCKS,
@@ -60,7 +60,7 @@ const JetpackField = props => {
 	return (
 		<>
 			<div { ...blockProps }>
-				<div { ...innerBlocksProps }>{ children }</div>
+				<div { ...innerBlocksProps } />
 				<JetpackFieldHints
 					attributes={ attributes }
 					setAttributes={ setAttributes }

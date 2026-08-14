@@ -56,7 +56,7 @@ export default function DropdownFieldEdit( props ) {
 		];
 	}, [ required ] );
 
-	const { children, ...innerBlocksProps } = useInnerBlocksProps(
+	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-field-dropdown__wrapper' },
 		{
 			allowedBlocks: ALLOWED_INNER_BLOCKS,
@@ -151,7 +151,7 @@ export default function DropdownFieldEdit( props ) {
 
 	return (
 		<div { ...blockProps }>
-			<div { ...innerBlocksProps }>{ children }</div>
+			<div { ...innerBlocksProps } />
 			<JetpackFieldHints
 				attributes={ attributes }
 				setAttributes={ setAttributes }

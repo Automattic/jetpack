@@ -83,7 +83,7 @@ export default function PhoneFieldEdit( props ) {
 		}
 	}, [ showCountrySelector, setAttributes, countryPairs, defaultCountry ] );
 
-	const { children, ...innerBlocksProps } = useInnerBlocksProps(
+	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-field__control' },
 		{
 			allowedBlocks: [ 'jetpack/label', 'jetpack/phone-input' ],
@@ -131,7 +131,7 @@ export default function PhoneFieldEdit( props ) {
 				} }
 			>
 				<div { ...blockProps }>
-					<div { ...innerBlocksProps }>{ children }</div>
+					<div { ...innerBlocksProps } />
 					<JetpackFieldHints
 						attributes={ attributes }
 						setAttributes={ setAttributes }

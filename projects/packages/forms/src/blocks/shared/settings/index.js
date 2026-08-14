@@ -34,6 +34,13 @@ export default {
 				groups: [],
 			},
 		},
+		// Declared for every field block so the value survives a transform
+		// between field types, but rendering is opt-in: only fields whose edit
+		// passes helpTextSupport show the control, and only renderers that call
+		// get_field_descriptions() emit it. Grouped fields (checkbox, radio,
+		// checkbox-multiple, consent) can therefore carry the attribute without
+		// displaying it — deliberate, so switching a field's type and back does
+		// not silently discard the author's text.
 		helpText: {
 			type: 'string',
 		},

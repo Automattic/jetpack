@@ -1016,6 +1016,7 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		$this->assertNotFalse( $help_position );
 		$this->assertNotFalse( $format_position );
 		$this->assertLessThan( $format_position, $help_position, 'Help text must render before the format hint.' );
+		$this->assertSame( 1, substr_count( $html, 'class="contact-form__field-hints"' ) );
 	}
 
 	/**
@@ -1149,6 +1150,45 @@ class Contact_Form_Field_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( 'id="g1-x-' . $type . '-help"', $html );
 		$this->assertStringContainsString( 'g1-x-' . $type . '-error-message g1-x-' . $type . '-help', $html );
+		$this->assertSame( 1, substr_count( $html, 'class="contact-form__field-hints"' ) );
+	}
+
+	/**
+	 * Fields that build their own input markup reference their error message
+	 * even with no help text.
+	 *
+	 * Select and slider gained an aria-describedby they never had. The provider
+	 * above sets help text on every row, so without this the common case — a
+	 * plain field with nothing but an error to describe — would be uncovered,
+	 * and a regression that returned an empty describedby would pass.
+	 *
+	 * @param array  $attributes Extra field attributes.
+	 * @param string $type       The description type used in element ids.
+	 * @dataProvider hand_rolled_field_provider
+	 */
+	#[DataProvider( 'hand_rolled_field_provider' )]
+	public function test_hand_rolled_fields_reference_their_error_without_help_text( $attributes, $type ) {
+		$field = $this->get_new_field_instance(
+			array_merge(
+				array(
+					'id'    => 'g1-x',
+					'label' => 'Thing',
+				),
+				$attributes
+			)
+		);
+
+		$html = $field->render();
+
+		// Assert the attribute, not just the id — the id also appears on the
+		// error span itself, so a bare substring check would pass even if the
+		// input carried no aria-describedby at all.
+		$this->assertMatchesRegularExpression(
+			'/aria-describedby=[\'"]g1-x-' . preg_quote( $type, '/' ) . '-error-message[\'"]/',
+			$html
+		);
+		$this->assertStringNotContainsString( 'contact-form__field-hints', $html );
+		$this->assertStringNotContainsString( 'g1-x-' . $type . '-help', $html );
 	}
 
 	/**

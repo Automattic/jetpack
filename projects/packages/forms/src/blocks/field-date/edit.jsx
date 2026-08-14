@@ -32,7 +32,7 @@ export default function DateFieldEdit( props ) {
 		];
 	}, [ required ] );
 
-	const { children, ...innerBlocksProps } = useInnerBlocksProps(
+	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-field__control' },
 		{
 			allowedBlocks: ALLOWED_INNER_BLOCKS,
@@ -50,7 +50,7 @@ export default function DateFieldEdit( props ) {
 	return (
 		<>
 			<div { ...blockProps }>
-				<div { ...innerBlocksProps }>{ children }</div>
+				<div { ...innerBlocksProps } />
 				<JetpackFieldHints
 					attributes={ attributes }
 					setAttributes={ setAttributes }

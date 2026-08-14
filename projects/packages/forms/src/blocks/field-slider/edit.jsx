@@ -130,7 +130,7 @@ export default function SliderFieldEdit( props ) {
 		}`,
 	} );
 
-	const { children, ...innerBlocksProps } = useInnerBlocksProps(
+	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-field__control' },
 		{
 			allowedBlocks: [ 'jetpack/label', 'jetpack/input-range' ],
@@ -162,7 +162,7 @@ export default function SliderFieldEdit( props ) {
 				} }
 			>
 				<div { ...blockProps }>
-					<div { ...innerBlocksProps }>{ children }</div>
+					<div { ...innerBlocksProps } />
 					<JetpackFieldHints
 						attributes={ attributes }
 						setAttributes={ setAttributes }
