@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Account status: Do not report an account mismatch when the WordPress.com email and the site email differ only in letter case.

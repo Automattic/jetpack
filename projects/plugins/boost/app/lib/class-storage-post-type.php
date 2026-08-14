@@ -24,7 +24,7 @@ class Storage_Post_Type {
 	 * where the encoded payload starts; get() validates every row, prefixed or not,
 	 * before serving it.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.7.0
 	 */
 	const CACHE_VERSION = 'v2';
 
@@ -33,7 +33,7 @@ class Storage_Post_Type {
 	 * (E:) anywhere in a serialized string. Boost never stores objects, so a match
 	 * means the row is not one Boost wrote.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.7.0
 	 */
 	const OBJECT_TOKEN_PATTERN = '/(^|[;{])[OCE]:\+?[0-9]+:/';
 
@@ -49,7 +49,7 @@ class Storage_Post_Type {
 	 *
 	 * Tells "somebody else owns this slug" apart from "we already registered it".
 	 *
-	 * @since $$next-version$$
+	 * @since 4.7.0
 	 *
 	 * @var array<string, bool>
 	 */
@@ -75,7 +75,7 @@ class Storage_Post_Type {
 	/**
 	 * Get the transient key backing a cache entry.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.7.0
 	 *
 	 * @param string $key Cache key name.
 	 *
@@ -92,7 +92,7 @@ class Storage_Post_Type {
 	 * this release wrote, without decoding to find out. A row without it is still
 	 * read; get() just decodes from the first byte.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.7.0
 	 *
 	 * @return string
 	 */
@@ -285,7 +285,7 @@ class Storage_Post_Type {
 	 * and a truncated row looks the same as a crafted one. Deleting would cost a
 	 * regeneration on a false positive; the next set() overwrites the row anyway.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.7.0
 	 *
 	 * @param string $key    Cache key name.
 	 * @param string $reason For the debug log.
