@@ -132,7 +132,7 @@
 	&__meter#{&}__meter {
 		inline-size: 100%;
 		block-size: 4px;
-		background-color: var(--wpds-color-background-track-neutral, #dbdbdb);
+		background-color: var(--wpds-color-background-interactive-neutral-weak-active, #ededed);
 		--wp-components-color-foreground: var(--wp-admin-theme-color, #3858e9);
 	}
 }
