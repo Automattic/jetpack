@@ -204,6 +204,50 @@ describe( 'UploadDropzone', () => {
 		expect( onFiles ).not.toHaveBeenCalled();
 	} );
 
+	it( 'tells the owner of a real WebM what to do instead of denying it is a video', async () => {
+		// Both testers hit this: `.webm` is not on the server allow-list, so the
+		// refusal is right, but "Only video files can be uploaded." about a
+		// genuine video is false and leaves nowhere to go.
+		const onFiles = jest.fn();
+		const { container } = render( <UploadDropzone onFiles={ onFiles } /> );
+
+		// Real EBML bytes — the refusal has to be about the CONTAINER, not about
+		// the file being an impostor.
+		const webm = new File(
+			[ new Uint8Array( [ 0x1a, 0x45, 0xdf, 0xa3, 0x01, 0x00, 0x00, 0x00 ] ) ],
+			'holiday.webm',
+			{ type: 'video/webm' }
+		);
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
+		const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
+		fireEvent.drop( dropzone, { dataTransfer: { files: [ webm ] } } );
+
+		await waitFor( () =>
+			expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
+				'WEBM files can’t be uploaded. Convert your video to MP4 or MOV, then try again.',
+				{ id: 'vp-upload-invalid-file' }
+			)
+		);
+		expect( mockCreateErrorNotice ).not.toHaveBeenCalledWith(
+			'Only video files can be uploaded.',
+			expect.anything()
+		);
+		expect( onFiles ).not.toHaveBeenCalled();
+	} );
+
+	it( 'stops the picker offering formats the drop handler would refuse', async () => {
+		// `accept="video/*"` is what put `.webm` and `.mkv` in the OS dialog in
+		// the first place. The picker must offer only the allow-list.
+		const { container } = render( <UploadDropzone onFiles={ jest.fn() } /> );
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the picker input is visually hidden with no label; no accessible query reaches it.
+		const input = container.querySelector( 'input[type="file"]' ) as HTMLInputElement;
+		const accept = input.getAttribute( 'accept' ) ?? '';
+		expect( accept ).not.toBe( 'video/*' );
+		expect( accept.split( ',' ) ).toContain( '.mp4' );
+		expect( accept.split( ',' ) ).not.toContain( '.webm' );
+	} );
+
 	it( 'rejects an impostor picked through the file dialog, not just dropped', async () => {
 		// The picker is a separate entry point into the same guard; testers
 		// reproduced the upload through both.

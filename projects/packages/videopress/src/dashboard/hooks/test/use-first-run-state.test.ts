@@ -9,13 +9,22 @@ import {
 	resolveFirstRunState,
 	saveDismissal,
 	useFirstRunState,
+	useObserveFirstRunSignals,
 	useSettledFirstRunState,
 } from '../use-first-run-state';
 import { useLibrary } from '../use-library';
+import { useOnboardingCounts } from '../use-onboarding-counts';
 
 jest.mock( '../use-library', () => ( {
 	useLibrary: jest.fn(),
 	LIBRARY_QUERY_KEY: 'library',
+} ) );
+
+// The observer reads the per-type counts through this hook; mocked separately so
+// a case can put the whole-library count and the VideoPress one at different
+// values, which is the whole reason the two flags exist.
+jest.mock( '../use-onboarding-counts', () => ( {
+	useOnboardingCounts: jest.fn(),
 } ) );
 
 // The library count is the only input that varies across these cases; the rest
@@ -155,17 +164,11 @@ describe( 'useFirstRunState', () => {
 		expect( result.current ).toBe( 'first-run' );
 	} );
 
-	it( 'remembers a non-empty library so later loads have something to read', () => {
+	// Reading is not observing: the flags are written from one place, mounted by
+	// every route (see `useObserveFirstRunSignals`), and this hook is rendered by
+	// the tab strip, which several routes never mount.
+	it( 'writes nothing of its own', () => {
 		mockLibraryCount( { totalItems: 3, isLoading: false } );
-
-		renderHook( () => useFirstRunState() );
-
-		expect( hasEstablishedLibrary() ).toBe( true );
-	} );
-
-	// A settled zero is the one count that proves nothing about the next load.
-	it( 'remembers nothing for a settled empty library', () => {
-		mockLibraryCount( { totalItems: 0, isLoading: false } );
 
 		renderHook( () => useFirstRunState() );
 
@@ -181,6 +184,86 @@ describe( 'useFirstRunState', () => {
 		const { result } = renderHook( () => useFirstRunState() );
 
 		expect( result.current ).toBe( 'home' );
+	} );
+} );
+
+describe( 'useObserveFirstRunSignals', () => {
+	const mockTypeCounts = ( {
+		videoPressCount,
+		isSettled,
+	}: {
+		videoPressCount: number;
+		isSettled: boolean;
+	} ) => {
+		( useOnboardingCounts as jest.Mock ).mockReturnValue( {
+			videoPressCount,
+			localCount: 0,
+			isSettled,
+		} );
+	};
+
+	beforeEach( () => {
+		window.localStorage.clear();
+		jest.clearAllMocks();
+		mockTypeCounts( { videoPressCount: 0, isSettled: true } );
+	} );
+
+	it( 'remembers a non-empty library so later loads have something to read', () => {
+		mockLibraryCount( { totalItems: 3, isLoading: false } );
+
+		renderHook( () => useObserveFirstRunSignals() );
+
+		expect( hasEstablishedLibrary() ).toBe( true );
+	} );
+
+	// The bug this closes: `markFirstPublish` used to be called only where
+	// `OnboardingModal` mounts, and the /video/:id route mounts neither it nor
+	// any other dashboard chrome. A returning user who opened a video link in a
+	// fresh browser was therefore recorded as nobody — and deleting that video
+	// handed them the first-run welcome modal.
+	it( 'remembers that VideoPress has been used', () => {
+		mockLibraryCount( { totalItems: 1, isLoading: false } );
+		mockTypeCounts( { videoPressCount: 1, isSettled: true } );
+
+		renderHook( () => useObserveFirstRunSignals() );
+
+		expect( hasPublishedVideo() ).toBe( true );
+	} );
+
+	// The two flags answer different questions, so a library of local video
+	// attachments proves one and not the other: these people are exactly the
+	// audience for the welcome modal's migration pitch.
+	it( 'records a library of non-VideoPress videos as a library only', () => {
+		mockLibraryCount( { totalItems: 27, isLoading: false } );
+		mockTypeCounts( { videoPressCount: 0, isSettled: true } );
+
+		renderHook( () => useObserveFirstRunSignals() );
+
+		expect( hasEstablishedLibrary() ).toBe( true );
+		expect( hasPublishedVideo() ).toBe( false );
+	} );
+
+	// A settled zero is the one count that proves nothing about the next load.
+	it( 'remembers nothing for a settled empty library', () => {
+		mockLibraryCount( { totalItems: 0, isLoading: false } );
+
+		renderHook( () => useObserveFirstRunSignals() );
+
+		expect( hasEstablishedLibrary() ).toBe( false );
+		expect( hasPublishedVideo() ).toBe( false );
+	} );
+
+	// 'loading' means "do not act", not "probably home". An in-flight count reads
+	// 0, so writing on it would be writing a guess into storage — where the next
+	// load would read it back as an answer.
+	it( 'writes nothing from counts that have not settled', () => {
+		mockLibraryCount( { totalItems: 0, isLoading: true } );
+		mockTypeCounts( { videoPressCount: 0, isSettled: false } );
+
+		renderHook( () => useObserveFirstRunSignals() );
+
+		expect( hasEstablishedLibrary() ).toBe( false );
+		expect( hasPublishedVideo() ).toBe( false );
 	} );
 } );
 

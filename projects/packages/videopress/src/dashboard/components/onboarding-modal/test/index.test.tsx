@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { markFirstPublish } from '../../../hooks/use-first-run-state';
 import { useOnboardingCounts } from '../../../hooks/use-onboarding-counts';
 import OnboardingModal from '../index';
 
@@ -271,26 +272,30 @@ describe( 'OnboardingModal', () => {
 	} );
 
 	describe( 'a library that used to have videos', () => {
-		// `markFirstPublish` only ever fired for an upload made in THIS browser,
-		// so a library that predates the flag left nothing written down.
-		it( 'records the publish flag for a site that already has a VideoPress video', () => {
+		// Deleting the last video is the gate's blind spot: the count is right
+		// that the library is empty and wrong about what that means. The flag is
+		// what carries the difference — and it is written by
+		// `useObserveFirstRunSignals`, mounted for every route, not by this
+		// component, which only some routes mount. Seeded here as that observer
+		// would have seeded it on arrival.
+		it( 'stays closed after the last video is deleted', () => {
+			markFirstPublish();
+			mockCounts( { videoPressCount: 0, localCount: 0, isSettled: true } );
+
+			render( <OnboardingModal /> );
+
+			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		} );
+
+		// The write does not belong here: this component is mounted by the
+		// dashboard chrome only, so a load that stayed on /video/:id recorded
+		// nothing — and the modal then greeted an established user as brand new.
+		it( 'leaves the publish flag to the shared observer', () => {
 			mockCounts( { videoPressCount: 2, localCount: 0, isSettled: true } );
 
 			render( <OnboardingModal /> );
 
-			expect( window.localStorage.getItem( 'jetpack-videopress-first-publish-123-7' ) ).toBe( '1' );
-		} );
-
-		// Deleting the last video is the gate's blind spot: the count is right
-		// that the library is empty and wrong about what that means.
-		it( 'stays closed after the last video is deleted', () => {
-			mockCounts( { videoPressCount: 1, localCount: 0, isSettled: true } );
-			const { rerender } = render( <OnboardingModal /> );
-
-			mockCounts( { videoPressCount: 0, localCount: 0, isSettled: true } );
-			rerender( <OnboardingModal /> );
-
-			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+			expect( window.localStorage.getItem( 'jetpack-videopress-first-publish-123-7' ) ).toBeNull();
 		} );
 	} );
 

@@ -232,7 +232,7 @@ describe( 'upload stage single-drop transition', () => {
 		mockFreeTier = defaultFreeTier;
 	} );
 
-	it( 'cross-fades a single connected drop straight to the edit surface', async () => {
+	it( 'hands a single connected drop straight to the edit surface', async () => {
 		const { container } = renderStage();
 
 		await dropFiles( container, [ makeFile( 'one.mp4' ) ] );
@@ -241,6 +241,51 @@ describe( 'upload stage single-drop transition', () => {
 		expect( screen.getByTestId( 'editor' ) ).toHaveAttribute( 'data-upload-status', 'uploading' );
 		// The interstitial card is skipped entirely for the single-file path.
 		expect( screen.queryByText( 'Uploading your video' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'sequences the drop → editor handover instead of cross-fading it', async () => {
+		// The drop zone and the editor share no shape and no line of text, so the
+		// cross-fade printed the dropzone's hint and sub-copy over the editor's
+		// Description field for ~250ms — at the one moment the product is judged.
+		// The class is what routes this pair to the sequenced timing in style.scss.
+		const { container } = renderStage();
+
+		await dropFiles( container, [ makeFile( 'one.mp4' ) ] );
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the flow wrapper is a styled div with no accessible role.
+		const flow = container.querySelector( '.vp-flow' ) as HTMLElement;
+		expect( flow ).toHaveClass( 'is-sequenced' );
+		// Both cards are still mounted at this point — the sequencing is about
+		// WHEN each one paints, not about yanking the outgoing card out.
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- as above.
+		expect( container.querySelector( '.vp-flow__card.is-exit' ) ).toHaveAttribute(
+			'data-step',
+			'upload'
+		);
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- as above.
+		expect( container.querySelector( '.vp-flow__card[data-active="true"]' ) ).toHaveAttribute(
+			'data-step',
+			'edit'
+		);
+	} );
+
+	it( 'keeps the cross-fade for a handover between two cards of the same shape', async () => {
+		// upload → uploading is card to card, which is what the cross-fade was
+		// built for and where it reads well. Fixing the editor handover must not
+		// reach this one.
+		mockConnected = false;
+		const { container } = renderStage();
+
+		await dropFiles( container, [ makeFile( 'one.mp4' ) ] );
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the flow wrapper is a styled div with no accessible role.
+		const flow = container.querySelector( '.vp-flow' ) as HTMLElement;
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- as above.
+		expect( container.querySelector( '.vp-flow__card[data-active="true"]' ) ).toHaveAttribute(
+			'data-step',
+			'uploading'
+		);
+		expect( flow ).not.toHaveClass( 'is-sequenced' );
 	} );
 
 	it( 'starts every file in the shared queue and lands a connected multi-drop on the Library', async () => {

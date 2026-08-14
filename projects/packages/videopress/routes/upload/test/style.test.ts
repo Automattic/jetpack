@@ -50,6 +50,51 @@ describe( 'step-flow cross-fade', () => {
 		expect( exit ).not.toContain( 'block-size' );
 	} );
 
+	it( 'sequences the shape-changing handover so the two cards never co-occupy', () => {
+		// Round 2 stopped the exiting card STRETCHING to the incoming height. What
+		// round 3's tester still saw is the cross-fade itself: for ~250ms the
+		// dropzone's hint and sub-copy print over the editor's Description field,
+		// because a cross-fade has nothing to fade BETWEEN when the two layouts
+		// share no line. So the exit finishes before the entrance begins.
+		const exitDuration = stylesheet.match( /\$vp-flow-exit-duration:\s*(\d+)ms/ );
+		const totalDuration = stylesheet.match( /\$vp-flow-duration:\s*(\d+)ms/ );
+		expect( exitDuration ).not.toBeNull();
+		expect( totalDuration ).not.toBeNull();
+		const exitMs = Number( exitDuration?.[ 1 ] );
+		const totalMs = Number( totalDuration?.[ 1 ] );
+		expect( exitMs ).toBeGreaterThan( 0 );
+		expect( exitMs ).toBeLessThan( totalMs );
+
+		const sequenced = stylesheet.slice(
+			stylesheet.indexOf( '&.is-sequenced {' ),
+			stylesheet.indexOf( '@keyframes vp-card-in' )
+		);
+		// The exiting card is given the shorter run…
+		expect( sequenced ).toMatch(
+			/> \.vp-flow__card\.is-exit \{[^}]*animation-duration:\s*\$vp-flow-exit-duration/
+		);
+		// …and the incoming one waits exactly that long before it starts, which is
+		// what makes the two disjoint rather than merely faster.
+		expect( sequenced ).toMatch(
+			/> \.vp-flow__card\.is-enter \{[^}]*animation-delay:\s*\$vp-flow-exit-duration/
+		);
+		// Inside the same total, so the wrapper's `height` transition still lands
+		// with the incoming card instead of ending 120ms early.
+		expect( sequenced ).toContain( '$vp-flow-duration - $vp-flow-exit-duration' );
+	} );
+
+	it( 'leaves the same-shape cross-fade alone', () => {
+		// The other four steps are the same card in sequence, where the
+		// cross-fade reads as one card morphing. Their rule must keep the full
+		// duration and no delay — the sequencing is scoped to `.is-sequenced`.
+		const enter = block( '&.is-enter' );
+		expect( enter ).toContain( 'animation: vp-card-in $vp-flow-duration' );
+		expect( enter ).not.toContain( 'animation-delay' );
+
+		const exit = block( '&.is-exit' );
+		expect( exit ).toContain( 'animation: vp-card-out $vp-flow-duration' );
+	} );
+
 	it( 'still hides the exiting card outright under reduced motion', () => {
 		// The overlay can't misbehave when it isn't drawn; this branch is the
 		// reason the fix above only has to be right for the animated path.

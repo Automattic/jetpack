@@ -1052,19 +1052,6 @@ const SampleVideoModal = ( {
 };
 
 /**
- * Height-morphing, cross-fading wrapper for the multi-step card flow. The
- * active card animates in from below while the previous slides up and fades
- * out, and the container height eases between the two — the Cloudflare
- * onboarding step transition.
- *
- * @param props            - Component props.
- * @param props.step       - The active step.
- * @param props.prev       - The exiting step (null when settled).
- * @param props.onExitDone - Called once the exit animation completes.
- * @param props.render     - Renders the card for a given step.
- * @return The morphing flow element.
- */
-/**
  * Copy text to the clipboard, working on plain-HTTP dev environments where
  * `navigator.clipboard` is undefined (it is secure-context-only). Falls back
  * to the hidden-textarea `execCommand` path the clipboard libraries use.
@@ -1255,6 +1242,44 @@ const EditStep = ( {
 	);
 };
 
+// Which steps share a shape, and so can be CROSS-FADED into one another.
+//
+// The four card steps are the same 660px column of copy and controls, one after
+// another; fading between them reads as a single card morphing, which is what
+// the animation was designed for. `edit` is not a card — it is the whole editor:
+// full dashboard width, two columns, a player, a form, a Thumbnail panel, a
+// Subtitles panel. Cross-fading THAT with a short drop zone is what printed the
+// dropzone's hint and sub-copy over the editor's Description field for a quarter
+// of a second, and no opacity curve can make two unrelated layouts overlap
+// tidily — the shapes have nothing in common to fade between. Those handovers
+// are sequenced instead (`.vp-flow.is-sequenced`; see style.scss).
+//
+// A table rather than `step === 'edit' || prev === 'edit'`: the condition is
+// about shape, and a fifth card step added later should join the cross-fade by
+// declaring its shape here, not by being remembered in a boolean.
+const STEP_SHAPE: Record< Step, 'card' | 'editor' > = {
+	upload: 'card',
+	uploading: 'card',
+	details: 'card',
+	success: 'card',
+	edit: 'editor',
+};
+
+/**
+ * Height-morphing wrapper for the multi-step card flow. The active card animates
+ * in from below, the previous one slides up and fades out, and the container
+ * height eases between the two — the Cloudflare onboarding step transition.
+ *
+ * The two cards CROSS-FADE when the steps share a shape and are SEQUENCED when
+ * they don't — see {@link STEP_SHAPE}.
+ *
+ * @param props            - Component props.
+ * @param props.step       - The active step.
+ * @param props.prev       - The exiting step (null when settled).
+ * @param props.onExitDone - Called once the exit animation completes.
+ * @param props.render     - Renders the card for a given step.
+ * @return The morphing flow element.
+ */
 const StepFlow = ( {
 	step,
 	prev,
@@ -1295,9 +1320,13 @@ const StepFlow = ( {
 		return () => observer.disconnect();
 	}, [ step ] );
 
+	// Only while a handover is actually running: settled, the class would sit on
+	// the wrapper describing a transition that isn't happening.
+	const isSequenced = prev != null && prev !== step && STEP_SHAPE[ prev ] !== STEP_SHAPE[ step ];
+
 	return (
 		<div
-			className="vp-flow"
+			className={ `vp-flow${ isSequenced ? ' is-sequenced' : '' }` }
 			ref={ wrapRef }
 			style={ height != null ? { height: `${ height }px` } : undefined }
 		>

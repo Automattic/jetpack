@@ -3,7 +3,7 @@
  */
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { Spinner } from '@wordpress/components';
-import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs, VisuallyHidden } from '@wordpress/ui';
@@ -99,6 +99,17 @@ export default function DashboardLayout( {
 	const liveTabs = useDashboardTabOrder();
 	const hasCheckedLandingRedirect = useRef( false );
 
+	/*
+	 * How this mount ARRIVED, captured once. Both facts change underneath this
+	 * component while it is still on screen: the redirect below burns the
+	 * once-per-load flag, and committing it rewrites the URL to the
+	 * destination's `p` long before that destination has painted. Read live,
+	 * either one lifts the hold below in the middle of the handoff the hold
+	 * exists to cover.
+	 */
+	const [ landedBare ] = useState( isBareLanding );
+	const [ wasLandingAlreadyHandled ] = useState( hasHandledLandingRedirect );
+
 	// The tab order is frozen for this mount as soon as the count is known.
 	// It is derived from the first-run state, and the first successful upload
 	// flips that mid-session: the strip would then re-order under the user's
@@ -165,28 +176,47 @@ export default function DashboardLayout( {
 		markLandingRedirectHandled();
 		hasCheckedLandingRedirect.current = true;
 
-		if ( activeTab !== 'library' || ! isBareLanding() ) {
+		if ( activeTab !== 'library' || ! landedBare ) {
 			return;
 		}
 
 		navigate( {
 			href: settledFirstRunState === 'first-run' ? TAB_PATHS.upload : TAB_PATHS.home,
 		} );
-	}, [ activeTab, settledFirstRunState, navigate ] );
+	}, [ activeTab, landedBare, settledFirstRunState, navigate ] );
 
 	// A bare `admin.php?page=jetpack-videopress` (the WordPress menu link)
-	// resolves to the Library route, because Library owns `/`. The effect
-	// above then sends the user to Home or Upload — so the Library paints
-	// first and is yanked away a moment later, which reads as the page
-	// loading twice. Hold the page back until the decision is made: only on
-	// that bare landing, and only while the count is still unknown, so a
-	// failed count still ends up rendering something rather than hanging on
-	// an empty frame.
+	// resolves to the Library route, because Library owns `/`. The effect above
+	// then sends the user to Home or Upload — so the Library paints first and is
+	// yanked away a moment later, which reads as the page loading twice.
+	//
+	// So the hold covers the whole ARRIVAL, not just the decision: a bare
+	// landing never ends on Library, which means there is no point in this
+	// mount's life where Library is the truth. Holding only until the count
+	// settled left two gaps that both painted the real thing — the render that
+	// reveals the count (it commits before the effect that navigates can run),
+	// and the ~400ms the destination route's bundle then takes to arrive, during
+	// which the URL already reads `p=/upload` while this component is still
+	// mounted. A brand-new user's first painted frame was an empty Library with
+	// a live "Upload video" button, in 3 of 4 runs.
+	//
+	// Resolving it in the router instead — an async `beforeLoad` on `/` that
+	// fetches the count and throws a redirect, so Library never mounts — was the
+	// other option. Rejected here: the count lives in the shared react-query
+	// cache inside the tree, behind the connection gate, so a loader would need
+	// a second, unshared code path for the same question; and a blocking
+	// `beforeLoad` renders no route at all, losing the header and the
+	// `role=status` spinner that are what make this wait legible rather than
+	// look like a page that loaded empty. The structural fix is to stop
+	// overloading `/`: give Library a path of its own and leave `/` as a landing
+	// route whose only job is to redirect. That is a bigger change than the
+	// current round can carry safely, and it is worth doing next.
+	//
+	// The deliberate property is untouched: once the one-shot has been spent,
+	// this mount can only be the user's own arrival at Library, so it renders
+	// immediately and is never hijacked.
 	const isAwaitingLandingDecision =
-		activeTab === 'library' &&
-		isBareLanding() &&
-		settledFirstRunState === 'loading' &&
-		! hasHandledLandingRedirect();
+		activeTab === 'library' && landedBare && ! wasLandingAlreadyHandled;
 
 	// The strip is held back over exactly the same window as the body, and for
 	// the same reason. Its order comes from the OPTIMISTIC first-run state (a

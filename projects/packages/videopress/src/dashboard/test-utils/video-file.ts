@@ -51,14 +51,25 @@ export function makeRenamedTextFile( name: string, type = 'video/mp4' ): File {
 /**
  * Let the accepted-file filter settle after a drop or a pick. It reads each
  * file's header, so the hand-off to `onFiles` — or the refusal notice — lands a
- * task after the event rather than during it. Two ticks: one for the read, one
- * for the promise chain that follows it.
+ * task after the event rather than during it.
+ *
+ * Four ticks, not two. A REFUSAL now reads the headers twice: once to decide
+ * which files survive (`filterVideoFiles`) and once to decide which sentence is
+ * true about the ones that didn't (`describeRefusal`). Under jsdom the read goes
+ * through `FileReader`, so each pass costs its own macrotask, and a caller that
+ * adds an await of its own on top — the Library's `planVideoDrop` — needed more
+ * than the two this used to give. Waiting longer than necessary is free; waiting
+ * too little is a flake that only shows up on a loaded CI box.
+ *
+ * Assertions that a notice appeared are still better written with `waitFor`.
+ * This is for the tests that want a settled tree before looking at it at all.
  *
  * @return Resolves once the pending file checks have run.
  */
 export async function settleFileCheck(): Promise< void > {
 	await act( async () => {
-		await new Promise( resolve => setTimeout( resolve, 0 ) );
-		await new Promise( resolve => setTimeout( resolve, 0 ) );
+		for ( let tick = 0; tick < 4; tick++ ) {
+			await new Promise( resolve => setTimeout( resolve, 0 ) );
+		}
 	} );
 }
