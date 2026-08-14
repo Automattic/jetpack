@@ -74,9 +74,9 @@ class User_Account_Status {
 			return false;
 		}
 
-		// Generate transient key with both wpcom email and user ID if available.
-		$transient_key  = 'jetpack_account_mismatch_';
-		$transient_key .= md5( $normalized_wpcom_email );
+		// The result depends only on the WordPress.com address, so it is cached per address
+		// rather than per user.
+		$transient_key = 'jetpack_account_mismatch_' . md5( $normalized_wpcom_email );
 
 		$cached_result = get_transient( $transient_key );
 
