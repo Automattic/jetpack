@@ -13,6 +13,7 @@ import * as React from 'react';
  * Internal dependencies
  */
 import { getActions } from '../responses/actions.tsx';
+import getResponseQuery from './query.ts';
 import repairResponseRecord from './repair-record.ts';
 /**
  * Types
@@ -91,7 +92,8 @@ export default function SingleResponseActions( {
 				repairResponseRecord(
 					registry.dispatch( coreStore ).receiveEntityRecords,
 					response,
-					nextStatus
+					nextStatus,
+					getResponseQuery( response.id )
 				);
 			}
 		},

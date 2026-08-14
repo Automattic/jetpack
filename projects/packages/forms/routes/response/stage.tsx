@@ -13,7 +13,7 @@ import {
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useParams, useSearch } from '@wordpress/route';
@@ -32,6 +32,7 @@ import { useMarkAsSpam } from '../../src/dashboard/hooks/use-mark-as-spam.ts';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
 import SingleResponseBreadcrumbs from './breadcrumbs.tsx';
 import SingleResponseActions from './page-actions.tsx';
+import getResponseQuery from './query.ts';
 import repairResponseRecord from './repair-record.ts';
 import useResponsePageNavigation from './use-navigation.ts';
 // Shared wp-build dashboard chrome (page layout + breadcrumb link styling). The
@@ -45,10 +46,6 @@ import './style.scss';
  */
 import type { DispatchActions, SelectActions } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FileItem, FormResponse } from '../../src/types/index.ts';
-
-// Stable query reference so the value passed to `isResolving` matches the one
-// used by `getEntityRecord` (and the route loader).
-const RESPONSE_QUERY = { fields_format: 'collection' };
 
 type PreviewFileItem = FileItem | { url: string; name: string };
 
@@ -94,6 +91,8 @@ function Stage(): React.JSX.Element {
 	const [ previewFile, setPreviewFile ] = useState< PreviewFileItem | null >( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
 
+	const responseQuery = useMemo( () => getResponseQuery( id ), [ id ] );
+
 	const { response, isLoading } = useSelect(
 		select => {
 			if ( ! isValidId ) {
@@ -101,12 +100,15 @@ function Stage(): React.JSX.Element {
 			}
 
 			const core = select( coreStore );
-			// Read the collection-format record directly and overlay any pending
-			// edits (e.g. the optimistic "mark as read"). We avoid
-			// `getEditedEntityRecord`, which resolves the canonical (query-less)
-			// record and refetches feedback without `fields_format=collection`,
-			// overwriting the shared record and stripping the rich field rendering.
-			const rawRecord = core.getEntityRecord( 'postType', 'feedback', id, RESPONSE_QUERY );
+			// Read the collection-format record and overlay any pending edits (e.g.
+			// the optimistic "mark as read"). We avoid `getEditedEntityRecord`, which
+			// resolves the canonical (query-less) record and refetches feedback
+			// without `fields_format=collection`, overwriting the shared record and
+			// stripping the rich field rendering.
+			const records = core.getEntityRecords( 'postType', 'feedback', responseQuery ) as
+				| FormResponse[]
+				| null;
+			const rawRecord = records?.[ 0 ];
 			const edits = (
 				core as unknown as {
 					getEntityRecordEdits: ( k: string, n: string, i: number ) => object | undefined;
@@ -115,15 +117,14 @@ function Stage(): React.JSX.Element {
 
 			return {
 				response: rawRecord ? ( { ...rawRecord, ...edits } as unknown as FormResponse ) : null,
-				isLoading: ( core as unknown as SelectActions ).isResolving( 'getEntityRecord', [
+				isLoading: ( core as unknown as SelectActions ).isResolving( 'getEntityRecords', [
 					'postType',
 					'feedback',
-					id,
-					RESPONSE_QUERY,
+					responseQuery,
 				] ),
 			};
 		},
-		[ id, isValidId ]
+		[ id, isValidId, responseQuery ]
 	);
 
 	// For managed forms, resolve the actual jetpack_form post title so the
@@ -167,7 +168,7 @@ function Stage(): React.JSX.Element {
 			// Unlike the list inspector, this page stays put, so the badge and menu
 			// flip in place rather than the user being taken to the spam view.
 			if ( response ) {
-				repairResponseRecord( receiveEntityRecords, response, 'spam' );
+				repairResponseRecord( receiveEntityRecords, response, 'spam', responseQuery );
 			}
 			clearMarkAsSpamParam();
 		},
