@@ -31,6 +31,13 @@ type DefaultImage =
  * against them, and the warmer ones (orange, yellow, green, celadon) sit right
  * on the 4.5:1 line. Swapping in a lighter tint would quietly drop below AA.
  *
+ * Keep in sync with `Feedback_Author::IDENTITY_BG_COLORS` in
+ * projects/packages/forms/src/contact-form/class-feedback-author.php, which
+ * colors the same authors in the response notification emails. The hexes are
+ * spelled out rather than imported from `@automattic/color-studio` on purpose:
+ * PHP can't read node_modules at runtime, so importing here would let the two
+ * halves drift apart invisibly instead of visibly.
+ *
  * Hex values without the leading `#`, as Gravatar's `bg_color` param expects.
  */
 const IDENTITY_BG_COLORS = [
@@ -49,12 +56,15 @@ const IDENTITY_BG_COLORS = [
  * address always renders on the same Color Studio color.
  *
  * Uses the first 8 hex chars of the normalized email's SHA-256, matching
- * `Feedback_Author::get_avatar_url()` in the Forms package.
+ * `Feedback_Author::get_identity_background_color()` in the Forms package.
+ *
+ * Any stable string works: the Forms dashboard falls back to the visitor's IP
+ * address for responses submitted without an email.
  *
  * @param email - Email address the avatar is rendered for.
- * @return A hex color (without the leading `#`) from IDENTITY_BG_COLORS.
+ * @return A hex color from IDENTITY_BG_COLORS.
  */
-export function getIdentityBackgroundColor( email: string ): string {
+function getIdentityBackgroundColor( email: string ): string {
 	const hash = sha256( email.trim().toLowerCase() );
 	const index = parseInt( hash.slice( 0, 8 ), 16 ) % IDENTITY_BG_COLORS.length;
 	return IDENTITY_BG_COLORS[ index ];
@@ -160,7 +170,7 @@ export default function Gravatar( {
 
 	const hashedEmail = sha256( email );
 	const hovercardName = displayName ? `&name=${ encodeURIComponent( displayName ) }` : '';
-	const backgroundColor =
+	const bgColorParam =
 		defaultImage === 'initials' ? `&bg_color=${ getIdentityBackgroundColor( email ) }` : '';
 
 	return (
@@ -168,7 +178,7 @@ export default function Gravatar( {
 			ref={ profileImageRef }
 			className={ clsx( 'jetpack-components-gravatar', className ) }
 			alt={ displayName || '' }
-			src={ `https://secure.gravatar.com/avatar/${ hashedEmail }?d=${ defaultImage }${ hovercardName }${ backgroundColor }` }
+			src={ `https://secure.gravatar.com/avatar/${ hashedEmail }?d=${ defaultImage }${ hovercardName }${ bgColorParam }` }
 			width={ size }
 			height={ size }
 			loading="lazy"

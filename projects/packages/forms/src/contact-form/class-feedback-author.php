@@ -15,6 +15,33 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 class Feedback_Author {
 
 	/**
+	 * Background colors for the "initials" identity avatars, drawn from the
+	 * Color Studio palette's 50 shades (https://color-studio.blog/).
+	 *
+	 * Only the 50-level shades are safe here: the white initials clear WCAG AA
+	 * against them, and the warmer ones (orange, yellow, green, celadon) sit right
+	 * on the 4.5:1 line. Swapping in a lighter tint would quietly drop below AA.
+	 *
+	 * Keep in sync with IDENTITY_BG_COLORS in
+	 * projects/js-packages/components/components/gravatar/index.tsx, which colors
+	 * the same authors in the Forms dashboard.
+	 *
+	 * Hex values without the leading `#`, as Gravatar's `bg_color` param expects.
+	 *
+	 * @var string[]
+	 */
+	const IDENTITY_BG_COLORS = array(
+		'3858e9', // Blue 50.
+		'984a9c', // Purple 50.
+		'c9356e', // Pink 50.
+		'd63638', // Red 50.
+		'b26200', // Orange 50.
+		'9d6e00', // Yellow 50.
+		'008a20', // Green 50.
+		'008763', // Celadon 50.
+	);
+
+	/**
 	 * The name of the author.
 	 *
 	 * @var string
@@ -132,39 +159,17 @@ class Feedback_Author {
 	}
 
 	/**
-	 * Background colors for the "initials" identity avatars, drawn from the
-	 * Color Studio palette's 50 shades (https://color-studio.blog/).
-	 *
-	 * Only the 50-level shades are safe here: the white initials clear WCAG AA
-	 * against them, and the warmer ones (orange, yellow, green, celadon) sit right
-	 * on the 4.5:1 line. Swapping in a lighter tint would quietly drop below AA.
-	 *
-	 * Hex values without the leading `#`, as Gravatar's `bg_color` param expects.
-	 *
-	 * @var string[]
-	 */
-	const IDENTITY_BG_COLORS = array(
-		'3858e9', // Blue 50.
-		'984a9c', // Purple 50.
-		'c9356e', // Pink 50.
-		'd63638', // Red 50.
-		'b26200', // Orange 50.
-		'9d6e00', // Yellow 50.
-		'008a20', // Green 50.
-		'008763', // Celadon 50.
-	);
-
-	/**
 	 * Pick a stable background color for an email's identity avatar, so the
 	 * same address always renders on the same Color Studio color.
 	 *
 	 * Uses the first 8 hex chars of the normalized email's SHA-256, matching
-	 * the shared Gravatar component in js-packages/components.
+	 * `getIdentityBackgroundColor()` in the shared Gravatar component
+	 * (projects/js-packages/components/components/gravatar/index.tsx).
 	 *
 	 * @param string $email Email address the avatar is rendered for.
-	 * @return string A hex color (without the leading `#`) from IDENTITY_BG_COLORS.
+	 * @return string A hex color from IDENTITY_BG_COLORS.
 	 */
-	public static function get_identity_background_color( string $email ): string {
+	private static function get_identity_background_color( string $email ): string {
 		$hash  = hash( 'sha256', strtolower( trim( $email ) ) );
 		$index = hexdec( substr( $hash, 0, 8 ) ) % count( self::IDENTITY_BG_COLORS );
 
@@ -194,7 +199,9 @@ class Feedback_Author {
 			$name = strstr( $this->email, '@', true );
 		}
 
-		return "https://gravatar.com/avatar/{$hash}?d=initials&name=" . rawurlencode( $name ) . '&s=96&bg_color=' . self::get_identity_background_color( $this->email );
+		$bg_color = self::get_identity_background_color( $this->email );
+
+		return "https://gravatar.com/avatar/{$hash}?d=initials&s=96&bg_color={$bg_color}&name=" . rawurlencode( $name );
 	}
 
 	/**
