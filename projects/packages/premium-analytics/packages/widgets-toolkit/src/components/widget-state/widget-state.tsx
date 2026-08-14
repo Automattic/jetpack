@@ -84,8 +84,9 @@ export function WidgetState( {
 			focusToRestore.current = wasInside ? active : null;
 			if ( wasInside ) {
 				// The root is never hidden, so parking focus here keeps Tab
-				// continuing from the widget for the length of the fetch.
-				rootRef.current?.focus();
+				// continuing from the widget for the length of the fetch. Nothing
+				// moves on screen, so neither should the viewport.
+				rootRef.current?.focus( { preventScroll: true } );
 			}
 			return;
 		}
@@ -95,11 +96,12 @@ export function WidgetState( {
 		if ( ! target ) {
 			return;
 		}
-		// Only reclaim focus still sitting where this component left it. Anywhere
-		// else means the reader moved on during the fetch, and pulling them back
-		// would be the worse bug.
-		const active = ownerDocument.activeElement;
-		if ( active !== rootRef.current && active !== ownerDocument.body ) {
+		// Only reclaim focus still sitting exactly where this component left it.
+		// Anywhere else means the reader moved on during the fetch, and pulling
+		// them back would be the worse bug. The body counts as moved on: the root
+		// outlives every state now, so the only way focus reaches the body from
+		// here is the reader clicking something unfocusable.
+		if ( ownerDocument.activeElement !== rootRef.current ) {
 			return;
 		}
 		// A drill-down replaces the rows it was triggered from, so the original
@@ -199,7 +201,12 @@ export function WidgetState( {
 			// part of the widget body that stays visible through a refetch.
 			tabIndex={ -1 }
 			className={ styles.root }
-			aria-busy={ isFetching || undefined }
+			// Gated on the same delay as the skeleton, not on `isFetching`. A
+			// refetch that resolves inside the delay changes nothing on screen, so
+			// flipping the region busy and back would interrupt a screen reader
+			// mid-widget over an update a sighted reader never sees — the opposite
+			// of what the delay is for.
+			aria-busy={ isLoading || showFetchingState || undefined }
 		>
 			{ body }
 		</div>

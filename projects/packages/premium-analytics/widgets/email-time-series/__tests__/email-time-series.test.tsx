@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -219,7 +219,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( screen.queryByTestId( 'metric-tabs-chart' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows loading instead of the stale empty state while a new range is fetching', async () => {
+	it( 'shows loading instead of the stale empty state once a new range drags on', async () => {
 		const emptyResponse = {
 			timeline: { unit: 'day', fields: [ 'date', 'opens_count' ], data: [] },
 		};
@@ -247,6 +247,9 @@ describe( 'EmailTimeSeriesWidget', () => {
 			screen.findByText( 'No activity for this email in this period.' )
 		).resolves.toBeInTheDocument();
 
+		// The skeleton waits out the shared delay, so drive it rather than
+		// sleeping. Switched on here so the fetches above resolve normally.
+		jest.useFakeTimers();
 		rerender(
 			<EmailTimeSeriesWidget
 				attributes={ {
@@ -261,13 +264,20 @@ describe( 'EmailTimeSeriesWidget', () => {
 				} }
 			/>
 		);
+		act( () => {
+			jest.advanceTimersByTime( 1000 );
+		} );
 
-		// The skeleton, not the removed spinner. `hidden: true` because a refetch
-		// draws it silently — only a first load announces.
-		await expect( screen.findByRole( 'status', { hidden: true } ) ).resolves.toBeInTheDocument();
+		// The skeleton, not the removed spinner — and a silent one: a refetch
+		// must not announce, only a first load does. `hidden: true` widens the
+		// query to include hidden nodes rather than requiring them, so it only
+		// pins the silence paired with the negative assertion above it.
+		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'status', { hidden: true } ) ).toBeInTheDocument();
 		expect(
 			screen.queryByText( 'No activity for this email in this period.' )
 		).not.toBeInTheDocument();
+		jest.useRealTimers();
 	} );
 
 	it( 'renders the empty state and makes no request without a selected email', async () => {

@@ -622,7 +622,8 @@ interpolated into a shared frame) so translators see the whole sentence:
 	isLoading={ isLoading }            // first load, no data yet
 	isError={ isError }
 	isEmpty={ data.length === 0 }
-	// Optional: show the loading state during refetches.
+	// Optional: draws the delayed skeleton during refetches too.
+	isFetching={ isFetching }
 	error={ describeError( error, {
 		retryDescription: __( "We couldn't load search terms. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
 		onRetry: refetch,

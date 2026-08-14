@@ -245,6 +245,10 @@ describe( 'WidgetState', () => {
 		);
 		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
+		// Not busy either. Nothing on screen changed, so telling assistive tech
+		// the region is updating would interrupt a reader over an update a
+		// sighted one never sees.
+		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
 	} );
 
 	it( 'covers the children with a silent skeleton once a refetch drags on, marking the region busy', () => {
@@ -416,6 +420,40 @@ describe( 'WidgetState', () => {
 			</>
 		);
 		expect( elsewhere ).toHaveFocus();
+	} );
+
+	it( 'leaves focus alone when it reached the document body during the refetch', () => {
+		// Clicking something unfocusable blurs the parked root and drops focus to
+		// the body. jsdom cannot click that way, but the end state is the same —
+		// and since the root now outlives every branch, that click is the only
+		// way focus gets to the body from here. Restoring would haul the reader
+		// back to a widget they just clicked away from.
+		const props = { isLoading: false, isError: false, isEmpty: false };
+		const { rerender } = render(
+			<WidgetState { ...props } isFetching={ false }>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+		const row = screen.getByRole( 'button', { name: 'Taiwan' } );
+		act( () => row.focus() );
+
+		rerender(
+			<WidgetState { ...props } isFetching>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+		elapseFetchDelay();
+		// eslint-disable-next-line @wordpress/no-global-active-element, testing-library/no-node-access -- the parked root is deliberately not queryable, and blurring it is the setup.
+		act( () => ( document.activeElement as HTMLElement ).blur() );
+
+		rerender(
+			<WidgetState { ...props } isFetching={ false }>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+
+		expect( row ).not.toHaveFocus();
+		expect( document.body ).toHaveFocus();
 	} );
 
 	it.each( [

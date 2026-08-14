@@ -16,7 +16,10 @@ describe( 'SkeletonRoot', () => {
 		);
 
 		const status = screen.getByRole( 'status' );
-		expect( status ).toHaveAttribute( 'aria-busy', 'true' );
+		// Not busy: `aria-busy` on the region itself tells assistive tech to hold
+		// the very announcement this region exists to make, and the node never
+		// clears it — it is unmounted when the data arrives.
+		expect( status ).not.toHaveAttribute( 'aria-busy' );
 		expect( status ).toHaveTextContent( 'Loading' );
 		expect( screen.getByTestId( 'shape' ) ).toBeInTheDocument();
 	} );

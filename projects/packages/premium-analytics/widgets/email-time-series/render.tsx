@@ -133,10 +133,7 @@ function EmailTimeSeriesReport( { metric, granularity, chartType }: EmailTimeSer
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				// An empty placeholder response is still data to React Query, so a
-				// range change reports fetching rather than loading. Keep the loader
-				// until that new range resolves instead of flashing the empty state.
-				isLoading={ active.isLoading || ( ! hasPoints && active.isFetching ) }
+				isLoading={ active.isLoading }
 				isFetching={ active.isFetching }
 				isError={ active.isError }
 				isEmpty={ ! hasSelection || ! hasPoints }
