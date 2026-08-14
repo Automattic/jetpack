@@ -176,25 +176,6 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * An unconnected site has no token, so every stats-app route answers 500. Activation
-	 * must land on My Jetpack onboarding rather than a dashboard full of failed requests.
-	 */
-	public function test_activation_lands_on_onboarding_when_not_connected() {
-		$this->assertFalse( ( new Connection_Manager() )->is_connected(), 'Test environment is expected to be unconnected.' );
-		$this->assertSame( 'my-jetpack', Jetpack_Stats_Plugin::get_post_activation_page() );
-	}
-
-	/**
-	 * The counterpart: a connected site has figures to show, so activation opens the
-	 * dashboard rather than sending the user through onboarding again.
-	 */
-	public function test_activation_lands_on_the_dashboard_when_connected() {
-		$this->fake_connection();
-
-		$this->assertSame( 'stats', Jetpack_Stats_Plugin::get_post_activation_page() );
-	}
-
-	/**
 	 * `activated_plugin` fires for every plugin. Acting on all of them would switch Stats
 	 * back on whenever any other plugin is activated, undoing a deliberate opt-out.
 	 */
@@ -244,8 +225,9 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The stand-in menu keeps the `stats` slug so the plugin action link and any bookmark
-	 * stay valid across a connection.
+	 * The stand-in menu keeps the `stats` slug so the plugin action link, the post-activation
+	 * redirect and any bookmark stay valid across a connection. Opening it without a
+	 * connection forwards to My Jetpack onboarding.
 	 */
 	public function test_stand_in_menu_uses_the_dashboard_slug() {
 		$GLOBALS['menu'] = array();
@@ -266,6 +248,9 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 		Jetpack_Stats_Plugin::register_disconnected_menu();
 
 		$this->assertContains( 'stats', array_column( $GLOBALS['menu'], 2 ) );
+		$this->assertNotFalse(
+			has_action( 'load-toplevel_page_stats', array( Jetpack_Stats_Plugin::class, 'redirect_to_connection_flow' ) )
+		);
 	}
 
 	/**

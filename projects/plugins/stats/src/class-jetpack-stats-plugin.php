@@ -180,24 +180,12 @@ class Jetpack_Stats_Plugin {
 		// connection this is a no-op.
 		self::activate_stats_module();
 
+		// The stand-in menu forwards an unconnected site on to My Jetpack onboarding, so this
+		// redirect does not branch on the connection state.
 		if ( ( new Paths() )->is_current_request_activating_plugin_from_plugins_screen( JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH ) ) {
-			wp_safe_redirect( esc_url( admin_url( 'admin.php?page=' . self::get_post_activation_page() ) ) );
+			wp_safe_redirect( esc_url( admin_url( 'admin.php?page=' . self::ADMIN_PAGE_SLUG ) ) );
 			exit( 0 );
 		}
-	}
-
-	/**
-	 * Which admin page a fresh activation should land on.
-	 *
-	 * An unconnected site has nothing to show in the dashboard, so it starts in My Jetpack
-	 * onboarding instead. A connected site goes straight to Stats.
-	 *
-	 * @return string The admin page slug.
-	 */
-	public static function get_post_activation_page() {
-		return ( new Connection_Manager() )->is_connected()
-			? self::ADMIN_PAGE_SLUG
-			: self::MY_JETPACK_PAGE_SLUG;
 	}
 
 	/**
