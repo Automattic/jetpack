@@ -214,6 +214,25 @@
 	// where a step can never appear.
 	:is(.jetpack-form-steps-wrapper, .wp-block-jetpack-form-step-container, .wp-block-jetpack-form-step) > .wp-block {
 		margin-block: 0;
+
+		// The same blocks need their inline margins cleared, for a second core
+		// rule. A step is a flex container by CSS but carries no `is-layout-flex`
+		// class, so `.editor-styles-wrapper :where(:not(.is-layout-flex,
+		// .is-layout-grid)) > .wp-block` does not skip it and hands its children
+		// `margin-inline: auto`. Auto margins absorb a flex item's free space, and
+		// a multistep form is vertical, so on the cross axis that beats the step's
+		// own `align-items` and centres anything narrower than the row: a
+		// paragraph, a heading, or a field with a width setting. Only blocks the
+		// container rule in jetpack-forms-layout.scss already stretches escape it.
+		// The front end never had this — grunion.scss gives step children
+		// `flex: 0 0 100%` — and neither did any Jetpack release: the reset this
+		// file has always carried is block-axis only, so the inline axis was never
+		// covered.
+		// `aligncenter` is the one place auto inline margins are meant, so leave
+		// it alone.
+		&:not(.aligncenter) {
+			margin-inline: 0;
+		}
 	}
 
 	// A field lays out its own inner blocks, so they are the form's business too,
