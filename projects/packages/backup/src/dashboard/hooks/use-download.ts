@@ -24,9 +24,12 @@ const POLL_INTERVAL_MS = 1500;
  * Real `useDownload` driving the modernized Download screen via the
  * `/jetpack/v4/backups/download/$rewindId` bridge.
  *
- * Submit kicks off the WPCOM `prepare-download` and stores the download
- * id; a polled status query then advances the state machine
+ * Submit asks WPCOM to build the archive and stores the download id; a
+ * polled status query then advances the state machine
  * idle → submitting → progress → success | error.
+ *
+ * The bridge derives `status` for us, because WPCOM's own payload has no
+ * status field — it signals lifecycle by which keys are present.
  *
  * @param rewindId - The backup's rewind id.
  * @return state + submit + reset.
@@ -55,8 +58,7 @@ export function useDownload( rewindId: string ): Result {
 		queryKey: keys.downloadStatus( rewindId, effectiveDownloadId ),
 		queryFn: () => fetchDownloadStatus( rewindId, effectiveDownloadId ),
 		enabled: downloadId !== null,
-		refetchInterval: query =>
-			query.state.data?.status === 'in-progress' ? POLL_INTERVAL_MS : false,
+		refetchInterval: query => ( query.state.data?.status === 'running' ? POLL_INTERVAL_MS : false ),
 	} );
 
 	const submit = useCallback(
@@ -74,10 +76,15 @@ export function useDownload( rewindId: string ): Result {
 		state = { phase: 'error', message: errorMessage };
 	} else if ( isInitiating ) {
 		state = { phase: 'submitting' };
-	} else if ( statusQuery.data?.status === 'completed' && statusQuery.data.url ) {
+	} else if ( statusQuery.data?.status === 'finished' && statusQuery.data.url ) {
 		state = { phase: 'success', downloadUrl: statusQuery.data.url };
 	} else if ( statusQuery.data?.status === 'failed' ) {
-		state = { phase: 'error', message: __( 'Download failed.', 'jetpack-backup-pkg' ) };
+		state = {
+			phase: 'error',
+			// WPCOM's reason when it gave one; the generic line only as a
+			// fallback, since "Download failed." tells nobody anything.
+			message: statusQuery.data.error || __( 'Download failed.', 'jetpack-backup-pkg' ),
+		};
 	} else if ( downloadId !== null && statusQuery.error ) {
 		// Network/HTTP failure mid-poll: surface so the UI doesn't sit
 		// in `progress` at the last known percent with no way out.
@@ -89,8 +96,11 @@ export function useDownload( rewindId: string ): Result {
 		};
 	} else if ( downloadId !== null && statusQuery.data ) {
 		state = {
+			// `progress` is already 0–100 — WPCOM runs it through
+			// `intval()`, which a 0–1 float could not survive. Multiplying
+			// by 100 fed the ProgressBar values up to 10000.
 			phase: 'progress',
-			percent: Math.round( ( statusQuery.data.progress ?? 0 ) * 100 ),
+			percent: statusQuery.data.progress ?? 0,
 		};
 	} else if ( downloadId !== null ) {
 		state = { phase: 'progress', percent: 0 };

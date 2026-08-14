@@ -1,7 +1,7 @@
 <?php
 /**
- * Download REST bridge — proxies /sites/{id}/rewind/backups/* prepare-download
- * + status endpoints.
+ * Download REST bridge — proxies the /sites/{id}/rewind/downloads
+ * collection and its per-download status.
  *
  * @package automattic/jetpack-backup-plugin
  */
@@ -19,8 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Download endpoints powering the Download screen:
- *   - POST /jetpack/v4/backups/download/{rewindId}            → initiate prepare-download
- *   - GET  /jetpack/v4/backups/download/{rewindId}/status     → poll status
+ *   - POST /jetpack/v4/backups/download/{rewindId}            → ask WPCOM to build the archive
+ *   - GET  /jetpack/v4/backups/download/{rewindId}/status     → poll progress
  */
 class Download_Bridge {
 
@@ -73,7 +73,15 @@ class Download_Bridge {
 	/**
 	 * Initiate a backup download.
 	 *
-	 * Proxies POST wpcom/v2 /sites/{id}/rewind/backups/{rewindId}/prepare-download.
+	 * Proxies POST wpcom/v2 /sites/{id}/rewind/downloads. The previous
+	 * target — a `prepare-download` path under the backup — is not a
+	 * registered route and answered `rest_no_route` on every site tested,
+	 * so the Download screen could never have worked.
+	 *
+	 * The rewind id travels in the request **body**, in full. It is not a
+	 * path segment here, and truncating its decimal suffix would address
+	 * a different backup than the one the reader picked.
+	 *
 	 * Returns `{ id }` for the React layer (the WPCOM key is `downloadId`).
 	 *
 	 * @param WP_REST_Request $request The REST request.
@@ -85,18 +93,24 @@ class Download_Bridge {
 			return $blog_id;
 		}
 		$rewind_id = (string) $request->get_param( 'rewind_id' );
+		$types     = $request->get_param( 'types' );
+
+		$body = array( 'rewindId' => $rewind_id );
+		// Omit `types` rather than defaulting it to an empty object.
+		// WPCOM reads it with `array_keys( $param, true )`, so an empty
+		// value names no category and asks for a download of nothing.
+		if ( is_array( $types ) || is_object( $types ) ) {
+			$types = (array) $types;
+			if ( ! empty( $types ) ) {
+				$body['types'] = $types;
+			}
+		}
 
 		$response = Client::wpcom_json_api_request_as_user(
-			sprintf(
-				'/sites/%d/rewind/backups/%s/prepare-download',
-				$blog_id,
-				rawurlencode( $rewind_id )
-			),
+			sprintf( '/sites/%d/rewind/downloads', $blog_id ),
 			'v2',
 			array( 'method' => 'POST' ),
-			array(
-				'types' => $request->get_param( 'types' ) ? $request->get_param( 'types' ) : (object) array(),
-			),
+			$body,
 			'wpcom'
 		);
 
@@ -129,7 +143,19 @@ class Download_Bridge {
 	/**
 	 * Poll download status.
 	 *
-	 * Proxies GET wpcom/v2 /sites/{id}/rewind/backups/{rewindId}/downloads/{downloadId}.
+	 * Proxies GET wpcom/v2 /sites/{id}/rewind/downloads/{downloadId}. The
+	 * rewind id is not part of the upstream path — it is kept on our own
+	 * route because the client keys its poll cache on (rewindId,
+	 * downloadId), and because it keeps the two download routes
+	 * symmetrical.
+	 *
+	 * The response is projected rather than forwarded, the way restore
+	 * status already is. WPCOM's payload carries **no status field**: it
+	 * attaches keys by branch — `url` and `validUntil` once the archive
+	 * is ready, `error` when it failed, and `progress` only while the
+	 * archive is still being built. Leaving that shape for the client to
+	 * interpret is what left the React layer testing three status strings
+	 * that never appear in the payload.
 	 *
 	 * @param WP_REST_Request $request The REST request.
 	 * @return \WP_REST_Response|WP_Error
@@ -139,16 +165,10 @@ class Download_Bridge {
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
 		}
-		$rewind_id   = (string) $request->get_param( 'rewind_id' );
 		$download_id = (int) $request->get_param( 'download_id' );
 
 		$response = Client::wpcom_json_api_request_as_user(
-			sprintf(
-				'/sites/%d/rewind/backups/%s/downloads/%d',
-				$blog_id,
-				rawurlencode( $rewind_id ),
-				$download_id
-			),
+			sprintf( '/sites/%d/rewind/downloads/%d', $blog_id, $download_id ),
 			'v2',
 			array(),
 			null,
@@ -168,6 +188,35 @@ class Download_Bridge {
 			);
 		}
 
-		return rest_ensure_response( json_decode( wp_remote_retrieve_body( $response ), true ) );
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) ) {
+			$body = array();
+		}
+
+		$error = isset( $body['error'] ) ? (string) $body['error'] : '';
+		$url   = isset( $body['url'] ) ? (string) $body['url'] : '';
+
+		// Order matters: a failed download can still carry a stale `url`
+		// from an earlier attempt, so the error branch is checked first.
+		if ( '' !== $error ) {
+			$status = 'failed';
+		} elseif ( '' !== $url ) {
+			$status = 'finished';
+		} else {
+			$status = 'running';
+		}
+
+		return rest_ensure_response(
+			array(
+				'id'          => isset( $body['downloadId'] ) ? (int) $body['downloadId'] : $download_id,
+				'status'      => $status,
+				// 0-100, and absent entirely once the download leaves the
+				// in-flight branch.
+				'progress'    => isset( $body['progress'] ) ? (int) $body['progress'] : 0,
+				'url'         => $url,
+				'valid_until' => isset( $body['validUntil'] ) ? (string) $body['validUntil'] : '',
+				'error'       => $error,
+			)
+		);
 	}
 }

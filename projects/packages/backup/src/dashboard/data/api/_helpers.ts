@@ -31,8 +31,13 @@ export function apiPath(
 
 /**
  * Strip the decimal suffix WPCOM ships on rewind ids (e.g.
- * `'1777035492.615'` → `'1777035492'`). The `/rewind/backup/$rewindId`
- * URLs reject the suffixed form with a 404.
+ * `'1777035492.615'` → `'1777035492'`).
+ *
+ * **Only the file-browser URL family needs this.** Those routes match
+ * `(?P<backup_id>\d+)`, so a fractional id 404s before WPCOM is reached.
+ * The restore and download mutations are the opposite case: they take
+ * the rewind id in the request *body*, in full, and truncating it there
+ * addresses a different backup than the one the reader picked.
  *
  * @param rewindId - Raw rewind id, possibly with a decimal suffix.
  * @return The integer-seconds portion only.
@@ -40,6 +45,40 @@ export function apiPath(
 export function toIntRewindId( rewindId: string ): string {
 	const idx = rewindId.indexOf( '.' );
 	return idx === -1 ? rewindId : rewindId.slice( 0, idx );
+}
+
+/**
+ * Serialize a restore/download category checklist for WPCOM.
+ *
+ * WPCOM parses `types` with `array_keys( $param, true )`, which compares
+ * **loosely** — so a JSON array of names does not mean what it looks
+ * like. `[ "themes" ]` matches `'themes' == true` and yields `[ 0 ]`,
+ * and `[ "themes", "plugins" ]` yields `[ 0, 1 ]`: integer indices,
+ * forwarded to VaultPress as if they were type names. An emptiness
+ * check would never catch it, because the list is not empty.
+ *
+ * The object form is therefore the only safe spelling, and this is the
+ * single place that builds it. Only `true` entries are included, so the
+ * result never depends on that loose comparison.
+ *
+ * Returns `undefined` when nothing is selected. Callers must omit the
+ * key entirely in that case rather than sending `{}` — the restore route
+ * rejects any `types` value that names no type, and on the download side
+ * an empty list would silently ask for nothing.
+ *
+ * @param items - The category checklist.
+ * @return The object form, or undefined when no category is selected.
+ */
+export function serializeTypes(
+	items: Record< string, boolean >
+): Record< string, true > | undefined {
+	const selected: Record< string, true > = {};
+	for ( const key of Object.keys( items ) ) {
+		if ( items[ key ] ) {
+			selected[ key ] = true;
+		}
+	}
+	return Object.keys( selected ).length ? selected : undefined;
 }
 
 /**
