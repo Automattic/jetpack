@@ -32,7 +32,16 @@ const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected
 // jsdom implements no scrolling, and DataViews' list layout calls
 // `scrollIntoView` on the selected row — which only happens here because
 // these are the first tests to render the list with a row in it.
-jest.spyOn( window.HTMLElement.prototype, 'scrollIntoView' ).mockImplementation();
+//
+// Defined rather than spied on: `jest.spyOn` requires the property to
+// already exist, and in jsdom it does not, so spying throws
+// "Property `scrollIntoView` does not exist in the provided object".
+// `defineProperty` also keeps `jest/prefer-spy-on` from rewriting this
+// back into a spy, which is how it broke the first time.
+Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
+	value: () => {},
+	writable: true,
+} );
 
 /**
  * One rewindable-activity entry, in WPCOM's shape.
