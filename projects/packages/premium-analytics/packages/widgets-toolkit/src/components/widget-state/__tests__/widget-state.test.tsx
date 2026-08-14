@@ -418,6 +418,39 @@ describe( 'WidgetState', () => {
 		expect( elsewhere ).toHaveFocus();
 	} );
 
+	it.each( [
+		[ 'empty', { isEmpty: true, isError: false } ],
+		[ 'an error', { isEmpty: false, isError: true } ],
+	] )( 'keeps focus in the widget when the refetch resolves to %s', ( _label, resolved ) => {
+		// Changing to a range with no data, or losing the connection mid-fetch,
+		// swaps the ready branch for a different one. Parking on anything that
+		// only exists while ready would unmount here and hand focus back to the
+		// document body.
+		const { rerender } = render(
+			<WidgetState isLoading={ false } isError={ false } isEmpty={ false } isFetching={ false }>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+		act( () => screen.getByRole( 'button', { name: 'Taiwan' } ).focus() );
+
+		rerender(
+			<WidgetState isLoading={ false } isError={ false } isEmpty={ false } isFetching>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+		elapseFetchDelay();
+
+		rerender(
+			<WidgetState isLoading={ false } { ...resolved } isFetching={ false }>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+
+		expect( document.body ).not.toHaveFocus();
+		// eslint-disable-next-line @wordpress/no-global-active-element, testing-library/no-node-access -- which element the browser focused is the assertion, and the root is deliberately not queryable.
+		expect( document.activeElement ).toHaveAttribute( 'tabindex', '-1' );
+	} );
+
 	it( 'error wins over loading and empty (retry in flight after a failed fetch)', () => {
 		// The production shape on a failed fetch: isError with isEmpty derived
 		// true, plus loading signals while a retry is in flight. The priority
