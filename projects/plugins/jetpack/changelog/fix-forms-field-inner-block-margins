@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Contact Form: keep a field's label and input together in the editor on themes without a theme.json.
