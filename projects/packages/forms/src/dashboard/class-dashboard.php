@@ -599,18 +599,10 @@ class Dashboard {
 	public static function get_single_response_admin_url( $post_id = null ) {
 		$post_id = ! empty( $post_id ) ? absint( $post_id ) : null;
 
-		/** This filter is documented in class-dashboard.php::init */
-		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', true );
-
-		if ( ! $post_id || ! $is_wp_build_enabled ) {
-			return self::get_forms_admin_url( 'inbox', $post_id );
-		}
-
-		$url  = admin_url( 'admin.php' ) . '?page=' . self::FORMS_WPBUILD_ADMIN_SLUG;
-		$url .= '&p=' . rawurlencode( '/response/' . $post_id );
-
-		/** This filter is documented in class-dashboard.php::get_forms_admin_url */
-		return apply_filters( 'jetpack_forms_admin_url', $url, 'response', $post_id );
+		// `get_forms_admin_url()` owns the URL scheme for both dashboards. The
+		// 'response' tab resolves to the standalone page on wp-build, and falls
+		// through to the responses list on legacy, which has no such route.
+		return self::get_forms_admin_url( $post_id ? 'response' : 'inbox', $post_id );
 	}
 
 	/**
@@ -623,6 +615,12 @@ class Dashboard {
 	private static function get_forms_admin_path_wp_build( $tab, $post_id ) {
 		$post_id      = ! empty( $post_id ) ? absint( $post_id ) : null;
 		$response_ids = ! empty( $post_id ) ? '?responseIds=["' . $post_id . '"]' : '';
+
+		// The standalone single response page, which addresses the response by path
+		// rather than selecting it in a list.
+		if ( $tab === 'response' && ! empty( $post_id ) ) {
+			return '/response/' . $post_id;
+		}
 
 		$path_map = array(
 			'inbox'           => '/responses/inbox',

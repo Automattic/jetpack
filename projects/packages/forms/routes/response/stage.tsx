@@ -5,7 +5,6 @@ import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 /**
  * WordPress dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import {
 	Modal,
 	Spinner,
@@ -28,6 +27,7 @@ import ResponseFieldsIterator from '../../src/dashboard/components/inspector/res
 import ResponseMeta from '../../src/dashboard/components/inspector/response-meta';
 import ResponseNavigation from '../../src/dashboard/components/inspector/response-navigation/index.tsx';
 import { getDisplayName } from '../../src/dashboard/components/inspector/utils.ts';
+import useMarkAsReadOnView from '../../src/dashboard/hooks/use-mark-as-read-on-view.ts';
 import { useMarkAsSpam } from '../../src/dashboard/hooks/use-mark-as-spam.ts';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
 import SingleResponseBreadcrumbs from './breadcrumbs.tsx';
@@ -90,10 +90,7 @@ function Stage(): React.JSX.Element {
 	const id = Number( params.responseId );
 	const isValidId = Number.isFinite( id ) && id > 0;
 
-	const { editEntityRecord, receiveEntityRecords } = useDispatch(
-		coreStore
-	) as unknown as DispatchActions;
-	const [ markedReadId, setMarkedReadId ] = useState< number | null >( null );
+	const { receiveEntityRecords } = useDispatch( coreStore ) as unknown as DispatchActions;
 	const [ previewFile, setPreviewFile ] = useState< PreviewFileItem | null >( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
 
@@ -167,9 +164,8 @@ function Stage(): React.JSX.Element {
 		checkParameter: () => ( searchParams as { mark_as_spam?: number } )?.mark_as_spam === 1,
 		removeParameter: clearMarkAsSpamParam,
 		switchToSpam: () => {
-			// Unlike the list inspector, this page keeps the user on the response they
-			// just actioned, so the badge and menu flip in place. The hook saves
-			// without `fields_format`, so repair the record or the body flattens.
+			// Unlike the list inspector, this page stays put, so the badge and menu
+			// flip in place rather than the user being taken to the spam view.
 			if ( response ) {
 				repairResponseRecord( receiveEntityRecords, response, 'spam' );
 			}
@@ -215,26 +211,10 @@ function Stage(): React.JSX.Element {
 		return () => window.removeEventListener( 'keydown', handleKeyDown );
 	}, [ goPrevious, goNext, hasPrevious, hasNext, previewFile ] );
 
-	// Mark the response as read when it is viewed.
-	useEffect( () => {
-		if ( ! response || ! response.id || ! response.is_unread ) {
-			return;
-		}
-		if ( markedReadId === response.id ) {
-			return;
-		}
-
-		setMarkedReadId( response.id );
-		editEntityRecord( 'postType', 'feedback', response.id, { is_unread: false } );
-
-		apiFetch( {
-			path: `/wp/v2/feedback/${ response.id }/read`,
-			method: 'POST',
-			data: { is_unread: false },
-		} ).catch( () => {
-			editEntityRecord( 'postType', 'feedback', response.id, { is_unread: true } );
-		} );
-	}, [ response, editEntityRecord, markedReadId ] );
+	// Mark the response as read when it is viewed, keeping the admin-menu unread
+	// counter in sync. The shared hook latches on a ref, which also survives the
+	// "Mark as unread" menu item on this page re-running the effect.
+	useMarkAsReadOnView( response );
 
 	const handleFilePreview = useCallback(
 		( file: PreviewFileItem ) => () => {

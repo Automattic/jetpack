@@ -293,22 +293,10 @@ export const BULK_ACTIONS = {
 // `search` cast in `routes/response/breadcrumbs.tsx` works around.
 type NavigateFunction = UseNavigateResult< string >;
 
-// Element type for the row-actions array, which mixes reporting and plain actions.
-type ActionWithDestructive = Action & {
-	isDestructive?: boolean;
-};
-
-type ReportingActionWithDestructive = ReportingAction & {
-	isDestructive?: boolean;
-};
-
 type GetActionsParams = {
 	navigate: NavigateFunction;
 };
 
-// The status-changing actions are typed as `ReportingAction`: callers gate on their
-// result, so every terminal path has to return one. `view` / `editForm` /
-// `markAsRead` / `markAsUnread` stay on the looser `Action` — nothing reads them.
 type GetActionsReturn = {
 	viewAction: Action;
 	editFormAction: Action;
@@ -316,7 +304,7 @@ type GetActionsReturn = {
 	markAsNotSpamAction: ReportingAction;
 	restoreAction: ReportingAction;
 	moveToTrashAction: ReportingAction;
-	deleteAction: ReportingActionWithDestructive;
+	deleteAction: ReportingAction;
 	markAsReadAction: Action;
 	markAsUnreadAction: Action;
 };
@@ -924,7 +912,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 		},
 	};
 
-	const deleteAction: ReportingActionWithDestructive = {
+	const deleteAction: ReportingAction = {
 		id: 'delete',
 		isPrimary: true,
 		icon: <Icon icon={ trash } />,
@@ -956,6 +944,9 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 			);
 
 			const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+			// Every settled promise is either fulfilled or rejected, so the failures are
+			// the remainder — no need to filter the list a second time.
+			const numberOfErrors = promises.length - itemsUpdated.length;
 
 			// If there is at least one successful update, invalidate the cache for filters.
 			if ( itemsUpdated.length ) {
@@ -963,7 +954,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 				invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'trash' );
 			}
 
-			if ( itemsUpdated.length === items.length ) {
+			if ( numberOfErrors === 0 ) {
 				// Every request was successful.
 				const successMessage =
 					items.length === 1
@@ -1001,14 +992,10 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 
 				const hashString = hashParams.toString();
 				window.location.hash = hashString ? `${ hashBase }?${ hashString }` : hashBase;
-
-				return { itemsUpdated: itemsUpdated.length, numberOfErrors: 0 };
+			} else {
+				// There is at least one failure.
+				createErrorNotice( getGenericErrorMessage( numberOfErrors ), { type: 'snackbar' } );
 			}
-			// There is at least one failure.
-			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
-			const errorMessage = getGenericErrorMessage( numberOfErrors );
-
-			createErrorNotice( errorMessage, { type: 'snackbar' } );
 
 			return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 		},
@@ -1268,9 +1255,9 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
  * Get actions configuration for form responses DataViews.
  *
  * @param {GetRowActionsParams} params - Parameters for generating actions.
- * @return {ActionWithDestructive[]} Array of action configurations.
+ * @return {Action[]} Array of action configurations.
  */
-export function getRowActions( { navigate, view }: GetRowActionsParams ): ActionWithDestructive[] {
+export function getRowActions( { navigate, view }: GetRowActionsParams ): Action[] {
 	const {
 		viewAction,
 		editFormAction,

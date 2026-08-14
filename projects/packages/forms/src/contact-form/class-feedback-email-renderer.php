@@ -92,10 +92,6 @@ class Feedback_Email_Renderer {
 	 *   'comment_author'       => string  Author name.
 	 *   'comment_author_email' => string  Author email.
 	 *   'comment_author_ip'    => string  Author IP address.
-	 *   'is_spam'              => bool    Whether submission is spam. Still passed by the
-	 *                                    caller, but no longer read: both email buttons
-	 *                                    now open the single response page, which shows
-	 *                                    the response whatever its status.
 	 *   'feedback_status'      => string  Post status of the feedback.
 	 *
 	 * @return array{title: string, message: string} The email title and rendered HTML message.

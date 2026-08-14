@@ -22,13 +22,8 @@ import type { FormResponse } from '../../src/types/index.ts';
  * collection-shaped `fields` this page renders from, so the body would visibly
  * flatten into plain rows.
  *
- * Callers must pass the *pre-action* record, which still holds the rich
- * collection-shaped fields, and must only call this once the server has accepted
- * the change — otherwise the canonical record would advertise a status the
- * response never got.
- *
- * Same repair as PR #49827, which fixed a query-less *fetch* clobbering the
- * collection record; these actions reopen the same door via the save.
+ * Pass the *pre-action* record, which still holds the rich collection-shaped
+ * fields, and only once the server has accepted the change.
  *
  * @param receiveEntityRecords - core-data's `receiveEntityRecords` dispatcher.
  * @param response             - The response as it was before the action ran.
