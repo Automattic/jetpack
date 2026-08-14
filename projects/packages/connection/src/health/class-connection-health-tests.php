@@ -417,30 +417,6 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 * @return array
 	 */
 	protected function test__wpcom_connection_test() {
-		$result = $this->run_wpcom_connection_test();
-
-		// Without a label, Site Health falls back to a machine-generated title
-		// ("Wpcom Connection Test"). Individual outcomes may set a more specific one.
-		if ( ! $result['label'] ) {
-			$result['label'] = __( 'WordPress.com Connection Test', 'jetpack-connection' );
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Performs the WP.com test-connection request and builds the result.
-	 *
-	 * Split out from test__wpcom_connection_test() so every exit point passes through
-	 * a single place that guarantees a Site Health label. The method name must not
-	 * contain "test__" or the constructor would register it as a separate test.
-	 *
-	 * Protected rather than private so tests can stub the outcome and assert how the
-	 * caller labels it.
-	 *
-	 * @return array
-	 */
-	protected function run_wpcom_connection_test() {
 		$name = 'test__wpcom_connection_test';
 
 		$status      = new Status();
@@ -518,7 +494,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	/**
 	 * Turns a decoded WP.com test-connection response into a test result.
 	 *
-	 * Split out from run_wpcom_connection_test() so the decision logic can be
+	 * Split out from test__wpcom_connection_test() so the decision logic can be
 	 * exercised without performing a signed remote request.
 	 *
 	 * @param string     $name        The test name.

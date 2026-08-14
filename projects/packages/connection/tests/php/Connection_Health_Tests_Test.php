@@ -595,55 +595,6 @@ class Connection_Health_Tests_Test extends TestCase {
 	}
 
 	/**
-	 * Test that an outcome with no label of its own is given the readable fallback,
-	 * rather than leaving Site Health to derive "Wpcom Connection Test" from the
-	 * method name.
-	 */
-	public function test_wpcom_connection_test_applies_fallback_label() {
-		$mock = $this->create_mock_with_helpers(
-			array(
-				'run_wpcom_connection_test' => Connection_Health_Tests::passing_test(
-					array( 'name' => 'test__wpcom_connection_test' )
-				),
-			)
-		);
-
-		$result = $mock->run_test( 'test__wpcom_connection_test' );
-
-		$this->assertSame( 'WordPress.com Connection Test', $result['label'] );
-	}
-
-	/**
-	 * Test that an outcome which sets its own label keeps it, so the fallback never
-	 * overwrites a more specific heading.
-	 */
-	public function test_wpcom_connection_test_keeps_outcome_label() {
-		$mock = $this->create_mock_with_helpers(
-			array(
-				'run_wpcom_connection_test' => Connection_Health_Tests::failing_test(
-					array(
-						'name'  => 'test__wpcom_connection_test',
-						'label' => 'A more specific heading',
-					)
-				),
-			)
-		);
-
-		$result = $mock->run_test( 'test__wpcom_connection_test' );
-
-		$this->assertSame( 'A more specific heading', $result['label'] );
-	}
-
-	/**
-	 * Test that the real skipped outcome also receives the fallback label.
-	 */
-	public function test_wpcom_connection_test_skip_is_labelled() {
-		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
-
-		$this->assertSame( 'WordPress.com Connection Test', $result['label'] );
-	}
-
-	/**
 	 * Evaluate a decoded WP.com test-connection response via the protected helper.
 	 *
 	 * Avoids performing a signed remote request, which can't be mocked in a unit test.
