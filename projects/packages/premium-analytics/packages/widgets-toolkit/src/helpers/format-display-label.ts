@@ -7,6 +7,11 @@
  */
 export function formatDisplayLabel( key: string, labels: Record< string, string > = {} ): string {
 	const normalized = key.toLowerCase();
+	// Own-property only: a key such as `toString` would otherwise resolve to an
+	// inherited `Object.prototype` member and return a function.
+	if ( Object.prototype.hasOwnProperty.call( labels, normalized ) ) {
+		return labels[ normalized ];
+	}
 
-	return labels[ normalized ] ?? key.charAt( 0 ).toUpperCase() + key.slice( 1 );
+	return key.charAt( 0 ).toUpperCase() + key.slice( 1 );
 }

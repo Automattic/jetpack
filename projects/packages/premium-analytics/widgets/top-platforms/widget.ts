@@ -4,6 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { desktop } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
+import type { StatsDeviceProperty } from '@jetpack-premium-analytics/data';
 
 /**
  * Internal dependencies
@@ -18,7 +19,7 @@ export type TopPlatformsAttributes = {
 	/**
 	 * Device dimension to rank: screen sizes, browsers, or operating systems.
 	 */
-	platformDimension?: 'screensize' | 'browser' | 'platform';
+	platformDimension?: StatsDeviceProperty;
 };
 
 /**
