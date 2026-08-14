@@ -19,6 +19,8 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: () => ( {
 		appliedRange: { from: new Date( 2026, 5, 1 ), to: new Date( 2026, 5, 16 ) },
+		interval: 'day',
+		intervalOptions: [ 'day', 'week' ],
 	} ),
 } ) );
 

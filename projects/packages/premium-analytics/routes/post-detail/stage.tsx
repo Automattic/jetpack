@@ -17,6 +17,7 @@ import { useParams } from '@wordpress/route';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
+import { useDetailChartIntervals } from '../use-detail-chart-intervals';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, PostSummaryCard } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
@@ -110,6 +111,10 @@ function PostDetail(): JSX.Element {
 	// The single resource, date range, and comparison all live in the URL search
 	// params, staged and committed by the shared date-filter controller.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	const chartIntervals = useDetailChartIntervals(
+		dateFilters.interval,
+		dateFilters.intervalOptions
+	);
 
 	// The header row hosts the panel in a shrink-to-fit slot, so the panel
 	// measures the row itself to pick its responsive layout; see the
@@ -178,14 +183,16 @@ function PostDetail(): JSX.Element {
 									 * widgets' injected reportParams) so the breadcrumb
 									 * carries them back to the dashboard.
 									 *
-									 * The interval control is on: every widget on this page
-									 * is a chart bucketed by it, and none carries a bucket
-									 * control of its own.
+									 * The interval control is on: the Post views and Email
+									 * performance charts are bucketed by it, and neither
+									 * carries a bucket control of its own. It is narrowed to
+									 * the buckets those charts can draw — see
+									 * `useDetailChartIntervals`.
 									 */ }
 									<DateFiltersPanel
 										{ ...dateFilters }
 										showComparison={ false }
-										withIntervalControl
+										{ ...chartIntervals }
 										containerElement={ headerElement }
 										reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
 									/>
