@@ -214,12 +214,6 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 			'Activate a license button text',
 			'jetpack-my-jetpack'
 		);
-	} else if ( numberOfPurchases > 0 ) {
-		activateLicenceDescription = _x(
-			'Activate a new license',
-			'Activate a new license button text',
-			'jetpack-my-jetpack'
-		);
 	} else {
 		activateLicenceDescription = _x(
 			'Activate a license',
