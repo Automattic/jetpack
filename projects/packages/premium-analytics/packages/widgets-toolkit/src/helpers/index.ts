@@ -46,6 +46,7 @@ export {
 export { flagUrl } from './flag-url';
 export { isEmptyChartData, isEmptyPieChartData, getEmptyChartDomain } from './chart-empty-state';
 export { getFixedYAxis, type FixedYAxis } from './fixed-y-axis';
+export { SCREEN_SIZE_LABELS } from './device-labels';
 export { formatDisplayLabel } from './format-display-label';
 export {
 	buildCsv,

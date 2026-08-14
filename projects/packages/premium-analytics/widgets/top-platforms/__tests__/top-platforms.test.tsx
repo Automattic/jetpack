@@ -14,7 +14,10 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockUsePlatformViews = jest.fn();
 
+// Only the hook itself is stubbed; `isPlatformDimension` stays real so the
+// guard below exercises the shipped implementation.
 jest.mock( '../use-platform-views', () => ( {
+	...jest.requireActual( '../use-platform-views' ),
 	__esModule: true,
 	default: ( ...args: unknown[] ) => mockUsePlatformViews( ...( args as [] ) ),
 } ) );
@@ -37,15 +40,13 @@ describe( 'TopPlatformsWidget', () => {
 		mockUsePlatformViews.mockReturnValue( stateWith( [] ) );
 	} );
 
-	it.each( [ [ undefined, 'browser' ], [ 'screensize' ], [ 'browser' ], [ 'platform' ] ] as const )(
+	it.each( [ 'screensize', 'browser', 'platform' ] as const )(
 		'requests the %s device property',
-		( platformDimension, expected = platformDimension ) => {
-			render(
-				<TopPlatformsWidget attributes={ platformDimension ? { platformDimension } : {} } />
-			);
+		platformDimension => {
+			render( <TopPlatformsWidget attributes={ { platformDimension } } /> );
 
 			expect( mockUsePlatformViews ).toHaveBeenLastCalledWith(
-				expect.objectContaining( { deviceProperty: expected } )
+				expect.objectContaining( { deviceProperty: platformDimension } )
 			);
 		}
 	);

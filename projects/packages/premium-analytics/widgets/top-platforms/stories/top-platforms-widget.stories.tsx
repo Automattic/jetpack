@@ -134,6 +134,15 @@ export const BySize: StoryObj< TopPlatformsStoryControls > = {
 	decorators: [ withWidgetCanvas ],
 };
 
+// Size with comparison — the one Size state where two percentages sit side by
+// side: the share itself and `calculateDelta`'s relative change against the
+// previous period. Worth a look when reviewing the copy.
+export const BySizeWithComparison: StoryObj< TopPlatformsStoryControls > = {
+	render: renderTopPlatformsWidget,
+	args: { withComparison: true, platformDimension: 'screensize' },
+	decorators: [ withWidgetCanvas ],
+};
+
 // OS view — the `platformDimension` attribute set to operating systems.
 export const ByOS: StoryObj< TopPlatformsStoryControls > = {
 	render: renderTopPlatformsWidget,

@@ -150,6 +150,7 @@ export {
 	buildSalesByUtmData,
 	formatLegendLabels,
 	formatDisplayLabel,
+	SCREEN_SIZE_LABELS,
 	buildCsv,
 	buildCsvDateRangeFilename,
 	saveCsv,

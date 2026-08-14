@@ -1,12 +1,8 @@
 /**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
-/**
  * Internal dependencies
  */
 import { useStatsDevices } from '@jetpack-premium-analytics/data';
-import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
+import { formatDisplayLabel, SCREEN_SIZE_LABELS } from '@jetpack-premium-analytics/widgets-toolkit';
 import type {
 	ReportParams,
 	StatsDevicesComparisonItem,
@@ -46,25 +42,13 @@ interface DeviceViewsState {
 }
 
 /**
- * Maps raw API device keys to human-readable display labels.
- * Keys not in this map are title-cased as a fallback.
- */
-const DEVICE_LABELS: Record< string, string > = {
-	desktop: __( 'Desktop', 'jetpack-premium-analytics-pkg' ),
-	mobile: __( 'Mobile', 'jetpack-premium-analytics-pkg' ),
-	tablet: __( 'Tablet', 'jetpack-premium-analytics-pkg' ),
-	phone: __( 'Phone', 'jetpack-premium-analytics-pkg' ),
-	unknown: __( 'Unknown', 'jetpack-premium-analytics-pkg' ),
-};
-
-/**
  * Converts a StatsDevicesItem from the data layer to the widget's DeviceView shape.
  */
 function toDeviceView( item: StatsDevicesComparisonItem ): DeviceView {
 	const key = typeof item.label === 'string' ? item.label : String( item.label );
 	return {
 		label: key,
-		displayLabel: formatDisplayLabel( key, DEVICE_LABELS ),
+		displayLabel: formatDisplayLabel( key, SCREEN_SIZE_LABELS ),
 		percentage: item.value,
 		previousPercentage: item.previousValue,
 	};

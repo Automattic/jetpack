@@ -23,7 +23,10 @@ import {
  * Internal dependencies
  */
 import styles from './style.module.css';
-import usePlatformViews, { type PlatformDimension } from './use-platform-views';
+import usePlatformViews, {
+	isPlatformDimension,
+	type PlatformDimension,
+} from './use-platform-views';
 import { type TopPlatformsAttributes } from './widget';
 /**
  * Types
@@ -44,14 +47,6 @@ const PERCENTAGE_DATA_FORMAT = {
 	options: { decimals: 1, signDisplay: 'auto' as const },
 };
 
-type PlatformMode = PlatformDimension;
-
-const SUPPORTED_DIMENSIONS: Record< PlatformMode, true > = {
-	screensize: true,
-	browser: true,
-	platform: true,
-};
-
 type TopPlatformsInnerProps = {
 	/**
 	 * Max rows to display.
@@ -60,7 +55,7 @@ type TopPlatformsInnerProps = {
 	/**
 	 * Device dimension to rank: screen sizes, browsers, or operating systems.
 	 */
-	platformDimension: PlatformMode;
+	platformDimension: PlatformDimension;
 };
 
 function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps ) {
@@ -75,8 +70,8 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 	);
 
 	const isShare = platformDimension === 'screensize';
-	// Bar widths stay relative to the largest visible value either way; only the
-	// number printed on the row changes unit.
+	// Only the number printed on the row changes unit; the percentage formatter
+	// takes a 0-1 ratio while WPCOM sends screensize as 0-100.
 	const toDisplayValue = ( value: number ) => ( isShare ? value / 100 : value );
 
 	const maxViews = getCombinedPeriodMax(
@@ -94,6 +89,8 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 				</Stack>
 			),
 			currentValue: toDisplayValue( item.views ),
+			// Bar widths come from the raw values on purpose: the ratio to `maxViews`
+			// is the same before and after the unit conversion.
 			currentShare: sharePercentage( item.views, maxViews ),
 			previousValue: previousValue === undefined ? undefined : toDisplayValue( previousValue ),
 			previousShare:
@@ -144,17 +141,12 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
  * as a control by the widget host.
  */
 export default function TopPlatformsWidget( { attributes = {} }: TopPlatformsWidgetProps ) {
-	const max = attributes?.max ?? 10;
+	const max = attributes.max ?? 10;
 	// Attributes are persisted, so a stale layout can name a dimension this
 	// widget no longer knows. Unchecked it becomes the `stats/devices/{property}`
 	// path segment, which WPCOM rejects with a 400.
-	const storedDimension = attributes?.platformDimension ?? 'browser';
-	const platformDimension = Object.prototype.hasOwnProperty.call(
-		SUPPORTED_DIMENSIONS,
-		storedDimension
-	)
-		? storedDimension
-		: 'browser';
+	const storedDimension = attributes.platformDimension ?? 'browser';
+	const platformDimension = isPlatformDimension( storedDimension ) ? storedDimension : 'browser';
 
 	return (
 		<WidgetRoot attributes={ attributes }>

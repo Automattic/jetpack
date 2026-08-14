@@ -6,10 +6,17 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { useStatsDevices } from '@jetpack-premium-analytics/data';
-import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
-import type { ReportParams, StatsDevicesComparisonItem } from '@jetpack-premium-analytics/data';
+import { formatDisplayLabel, SCREEN_SIZE_LABELS } from '@jetpack-premium-analytics/widgets-toolkit';
+import type {
+	ReportParams,
+	StatsDeviceProperty,
+	StatsDevicesComparisonItem,
+} from '@jetpack-premium-analytics/data';
 
-export type PlatformDimension = 'screensize' | 'browser' | 'platform';
+// The endpoint's own property set. Aliasing rather than restating it keeps
+// LABELS_BY_DIMENSION exhaustive: adding a property upstream breaks the build
+// here instead of silently falling through to an undefined label map.
+export type PlatformDimension = StatsDeviceProperty;
 
 export interface PlatformView {
 	key: string;
@@ -56,15 +63,6 @@ const BROWSER_LABELS: Record< string, string > = {
 	other: __( 'Other', 'jetpack-premium-analytics-pkg' ),
 };
 
-const SCREENSIZE_LABELS: Record< string, string > = {
-	desktop: __( 'Desktop', 'jetpack-premium-analytics-pkg' ),
-	mobile: __( 'Mobile', 'jetpack-premium-analytics-pkg' ),
-	tablet: __( 'Tablet', 'jetpack-premium-analytics-pkg' ),
-	phone: __( 'Phone', 'jetpack-premium-analytics-pkg' ),
-	other: __( 'Other', 'jetpack-premium-analytics-pkg' ),
-	unknown: __( 'Unknown', 'jetpack-premium-analytics-pkg' ),
-};
-
 const PLATFORM_LABELS: Record< string, string > = {
 	windows: __( 'Windows', 'jetpack-premium-analytics-pkg' ),
 	mac: __( 'macOS', 'jetpack-premium-analytics-pkg' ),
@@ -81,10 +79,19 @@ const PLATFORM_LABELS: Record< string, string > = {
 };
 
 const LABELS_BY_DIMENSION: Record< PlatformDimension, Record< string, string > > = {
-	screensize: SCREENSIZE_LABELS,
+	screensize: SCREEN_SIZE_LABELS,
 	browser: BROWSER_LABELS,
 	platform: PLATFORM_LABELS,
 };
+
+/**
+ * Whether a persisted attribute names a dimension this widget can fetch.
+ *
+ * Keyed off the label map so the supported set is spelled out once.
+ */
+export function isPlatformDimension( value: string ): value is PlatformDimension {
+	return Object.prototype.hasOwnProperty.call( LABELS_BY_DIMENSION, value );
+}
 
 function toPlatformView(
 	item: StatsDevicesComparisonItem,
@@ -102,7 +109,8 @@ function toPlatformView(
 }
 
 /**
- * Fetch platform views (browser or OS) via the shared Stats data layer.
+ * Fetch platform views (screen size, browser, or OS) via the shared Stats data
+ * layer.
  */
 export default function usePlatformViews( {
 	reportParams,
