@@ -50,57 +50,31 @@ describe( 'step-flow cross-fade', () => {
 		expect( exit ).not.toContain( 'block-size' );
 	} );
 
-	it( 'sequences the shape-changing handover so the two cards never co-occupy', () => {
-		// Round 2 stopped the exiting card STRETCHING to the incoming height. What
-		// round 3's tester still saw is the cross-fade itself: for ~250ms the
-		// dropzone's hint and sub-copy print over the editor's Description field,
-		// because a cross-fade has nothing to fade BETWEEN when the two layouts
-		// share no line. So the exit finishes before the entrance begins.
-		const exitDuration = stylesheet.match( /\$vp-flow-exit-duration:\s*(\d+)ms/ );
-		const totalDuration = stylesheet.match( /\$vp-flow-duration:\s*(\d+)ms/ );
-		expect( exitDuration ).not.toBeNull();
-		expect( totalDuration ).not.toBeNull();
-		const exitMs = Number( exitDuration?.[ 1 ] );
-		const totalMs = Number( totalDuration?.[ 1 ] );
-		expect( exitMs ).toBeGreaterThan( 0 );
-		expect( exitMs ).toBeLessThan( totalMs );
-
+	it( 'drops the outgoing card outright when the shape changes', () => {
+		// Three measured attempts got here. A cross-fade printed the dropzone's
+		// hint over the editor's Description field for ~250ms. Sequencing the two
+		// fades removed that completely — verified live at zero frames with both
+		// cards visible — but left ~105ms where neither was painted. Delaying the
+		// wrapper's height to shrink that hole changed no pixel at all: the void
+		// is bounded by the admin panel behind the flow, not by the wrapper.
+		//
+		// So the outgoing card is not animated at all. Nothing can co-occupy with
+		// a card that was never drawn, and there is no dead band between two
+		// timings to fall into — the editor simply fades in.
 		const sequenced = stylesheet.slice(
 			stylesheet.indexOf( '&.is-sequenced {' ),
 			stylesheet.indexOf( '@keyframes vp-card-in' )
 		);
-		// The exiting card is given the shorter run…
-		expect( sequenced ).toMatch(
-			/> \.vp-flow__card\.is-exit \{[^}]*animation-duration:\s*\$vp-flow-exit-duration/
-		);
-		// …and the incoming one waits exactly that long before it starts, which is
-		// what makes the two disjoint rather than merely faster.
-		expect( sequenced ).toMatch(
-			/> \.vp-flow__card\.is-enter \{[^}]*animation-delay:\s*\$vp-flow-exit-duration/
-		);
-		// Inside the same total, so the wrapper's `height` transition still lands
-		// with the incoming card instead of ending 120ms early.
-		expect( sequenced ).toContain( '$vp-flow-duration - $vp-flow-exit-duration' );
-	} );
+		expect( sequenced ).toMatch( /> \.vp-flow__card\.is-exit \{[^}]*display:\s*none/ );
 
-	it( 'holds the wrapper height until the outgoing card has gone', () => {
-		// Sequencing removed the double-print but exposed the height transition,
-		// which runs from the moment the step changes and so opens an EMPTY box
-		// during the exit: measured live, 654 of 734px painted with both cards at
-		// opacity 0. Delaying the height by the exit duration keeps that pause the
-		// size of the card that just left rather than the size of the editor
-		// arriving. Scoped to `.is-sequenced`, so the cross-faded steps — where
-		// the height should track the card that is already fading in — are
-		// untouched.
-		const sequenced = stylesheet.slice(
-			stylesheet.indexOf( '&.is-sequenced {' ),
-			stylesheet.indexOf( '> .vp-flow__card.is-exit' )
-		);
-		expect( sequenced ).toMatch( /transition-delay:\s*\$vp-flow-exit-duration/ );
+		// No timing left to get wrong: the incoming card is not held back, and the
+		// height is not deferred.
+		expect( sequenced ).not.toContain( 'animation-delay' );
+		expect( sequenced ).not.toContain( 'transition-delay' );
 
-		// The height's own transition is declared once, without a delay, so only
-		// the sequenced case defers it.
-		expect( block( '.vp-flow' ) ).toMatch( /transition:\s*height\s*\$vp-flow-duration/ );
+		// And the constant that split the duration in two is gone with it, rather
+		// than left behind as a number nothing reads.
+		expect( stylesheet ).not.toContain( '$vp-flow-exit-duration' );
 	} );
 
 	it( 'leaves the same-shape cross-fade alone', () => {
