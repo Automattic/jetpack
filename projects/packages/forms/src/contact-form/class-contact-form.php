@@ -602,6 +602,35 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Whether the current request is submitting this form.
+	 *
+	 * Normal submissions are identified by their action, ID, and hash. JWT submissions omit
+	 * the action, but the plugin validates their token before constructing and validating the
+	 * form, so the matching ID and hash identify the submitted form here.
+	 *
+	 * @return bool
+	 */
+	public function is_current_submission() {
+		if ( ! isset( $_POST['contact-form-id'] ) || ! isset( $_POST['contact-form-hash'] ) || ! is_string( $_POST['contact-form-hash'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+			return false;
+		}
+
+		$form_id   = sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+		$form_hash = sanitize_text_field( wp_unslash( $_POST['contact-form-hash'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+
+		if ( (string) $this->get_attribute( 'id' ) !== $form_id || ! hash_equals( $this->hash, $form_hash ) ) {
+			return false;
+		}
+
+		if ( isset( $_POST['jetpack_contact_form_jwt'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- JWT validation happens before form validation.
+			return true;
+		}
+
+		return isset( $_POST['action'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+			&& 'grunion-contact-form' === sanitize_text_field( wp_unslash( $_POST['action'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+	}
+
+	/**
 	 * Mark conditionally hidden fields as hidden in the rendered markup.
 	 *
 	 * Without this the server sends every field visible and the browser hides them once the
@@ -2658,12 +2687,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( // phpcs:disable WordPress.Security.NonceVerification.Missing
 			! isset( $_POST['jetpack_contact_form_jwt'] )
-			&&
-			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
-			&&
-			isset( $_POST['contact-form-id'] ) && (string) $form->get_attribute( 'id' ) === $_POST['contact-form-id']
-			&&
-			isset( $_POST['contact-form-hash'] ) && is_string( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, wp_unslash( $_POST['contact-form-hash'] ) )
+			&& $form->is_current_submission()
 		) { // phpcs:enable
 			// If we're processing a POST submission for this contact form, validate the field value so we can show errors as necessary.
 			//
@@ -4003,10 +4027,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			// default, then the logged-in user's details. Reading $_POST alone would make a
 			// prefilled form resolve against an empty one, so a field the visitor can already
 			// see satisfying a condition would render hidden and then flash into view.
-			$values[ $field_id ] = $field->get_computed_field_value(
-				$field->get_attribute( 'type' ),
-				$field->get_attribute( 'id' )
-			);
+			$values[ $field_id ] = $field->get_conditional_logic_value();
 		}
 
 		return Conditional_Logic::resolve_visibility( $descriptors, $values );

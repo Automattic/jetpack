@@ -326,6 +326,13 @@ class Feedback {
 	protected $has_consent = false;
 
 	/**
+	 * Whether this response was loaded from structured feedback data.
+	 *
+	 * @var bool
+	 */
+	protected $uses_structured_fields = false;
+
+	/**
 	 * Whether the feedback entry is unread.
 	 *
 	 * @var bool
@@ -808,6 +815,15 @@ class Feedback {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Whether this response uses structured feedback fields.
+	 *
+	 * @return bool
+	 */
+	public function uses_structured_fields() {
+		return $this->uses_structured_fields;
 	}
 
 	/**
@@ -1689,9 +1705,11 @@ class Feedback {
 	 */
 	private function parse_content( $post_content = '', $version = null ) {
 		if ( $version === 'v3' ) {
+			$this->uses_structured_fields = true;
 			return $this->parse_content_v3( $post_content );
 		}
 		if ( $version === 'v2' ) {
+			$this->uses_structured_fields = true;
 			return $this->parse_content_v2( $post_content );
 		}
 
@@ -1706,6 +1724,7 @@ class Feedback {
 				$decoded_content = json_decode( stripslashes( trim( $post_content ) ), true );
 			}
 			if ( isset( $decoded_content['fields'] ) && is_array( $decoded_content['fields'] ) ) {
+				$this->uses_structured_fields = true;
 				return $this->parse_content_v3( $post_content );
 			}
 		}
