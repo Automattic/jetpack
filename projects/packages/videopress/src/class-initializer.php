@@ -606,50 +606,6 @@ class Initializer {
 	}
 
 	/**
-	 * Get the freshest available title for a playlist video.
-	 *
-	 * Reads the public VideoPress API so renamed videos show their current
-	 * title, cached in a transient to keep renders cheap. Falls back to the
-	 * title stored in the block attributes when the API has no usable answer
-	 * (e.g. private videos or connectivity issues).
-	 *
-	 * @param string $guid         Video GUID.
-	 * @param string $stored_title Title stored in the block attributes.
-	 *
-	 * @return string Title to render.
-	 */
-	private static function get_playlist_video_title( $guid, $stored_title ) {
-		$cache_key = 'videopress_playlist_title_' . $guid;
-		$cached    = get_transient( $cache_key );
-
-		if ( false !== $cached ) {
-			// An empty string is a negative-cache entry from a recent failed lookup.
-			return is_string( $cached ) && '' !== $cached ? $cached : $stored_title;
-		}
-
-		$response = wp_remote_get(
-			'https://public-api.wordpress.com/rest/v1.1/videos/' . rawurlencode( $guid ),
-			array( 'timeout' => 2 )
-		);
-
-		if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
-			$body = json_decode( wp_remote_retrieve_body( $response ), true );
-
-			if ( ! empty( $body['title'] ) && is_string( $body['title'] ) ) {
-				$title = wp_specialchars_decode( $body['title'], ENT_QUOTES );
-				set_transient( $cache_key, $title, HOUR_IN_SECONDS );
-
-				return $title;
-			}
-		}
-
-		// Negative-cache failures briefly so an unreachable API doesn't slow every render.
-		set_transient( $cache_key, '', 5 * MINUTE_IN_SECONDS );
-
-		return $stored_title;
-	}
-
-	/**
 	 * Build the VideoPress embed URL for a playlist entry.
 	 *
 	 * @param string $guid     Video GUID.
@@ -708,15 +664,18 @@ class Initializer {
 
 		$items_markup = '';
 		foreach ( $videos as $index => $video ) {
-			$title = self::get_playlist_video_title( $video['guid'], $video['title'] );
-
-			if ( '' === $title ) {
+			$title = '' !== $video['title']
+				? $video['title']
 				/* translators: %d: position of the video in the playlist. */
-				$title = sprintf( __( 'Video %d', 'jetpack-videopress-pkg' ), $index + 1 );
-			}
+				: sprintf( __( 'Video %d', 'jetpack-videopress-pkg' ), $index + 1 );
 
+			/*
+			 * The stored title is initial content only; the view script refreshes
+			 * title, duration, and quality from the VideoPress API on the client,
+			 * filling the empty badge/duration placeholders.
+			 */
 			$items_markup .= sprintf(
-				'<li><button type="button" class="videopress-playlist__item%1$s" data-guid="%2$s" data-src="%3$s" aria-current="%4$s"><span class="videopress-playlist__item-index">%5$d.</span><span class="videopress-playlist__item-title">%6$s</span></button></li>',
+				'<li><button type="button" class="videopress-playlist__item%1$s" data-guid="%2$s" data-src="%3$s" aria-current="%4$s"><span class="videopress-playlist__item-index">%5$d.</span><span class="videopress-playlist__item-title">%6$s</span><span class="videopress-playlist__item-badge"></span><span class="videopress-playlist__item-duration"></span></button></li>',
 				0 === $index ? ' is-current' : '',
 				esc_attr( $video['guid'] ),
 				esc_url( self::get_playlist_embed_url( $video['guid'], true ) ),

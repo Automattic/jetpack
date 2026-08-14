@@ -27,20 +27,6 @@ use WorDBless\BaseTestCase;
 class Playlist_Block_Test extends BaseTestCase {
 
 	/**
-	 * Number of title lookups attempted during the current test.
-	 *
-	 * @var int
-	 */
-	private $title_requests = 0;
-
-	/**
-	 * Canned response for title lookups, or null to simulate an unreachable API.
-	 *
-	 * @var array|null
-	 */
-	private $title_response = null;
-
-	/**
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
@@ -49,29 +35,6 @@ class Playlist_Block_Test extends BaseTestCase {
 		if ( \WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' ) ) {
 			\WP_Block_Type_Registry::get_instance()->unregister( 'videopress/playlist' );
 		}
-
-		// Drop title transients so caching state never leaks between tests.
-		foreach ( array( 'abcd1234', 'efgh5678' ) as $guid ) {
-			delete_transient( 'videopress_playlist_title_' . $guid );
-		}
-	}
-
-	/**
-	 * Intercept the title lookup so tests never hit the network.
-	 *
-	 * @param false|array|\WP_Error $preempt Whether to preempt the request.
-	 * @param array                 $args    Request arguments.
-	 * @param string                $url     Request URL.
-	 * @return false|array|\WP_Error
-	 */
-	public function intercept_title_request( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( ! str_contains( $url, 'public-api.wordpress.com/rest/v1.1/videos/' ) ) {
-			return $preempt;
-		}
-
-		++$this->title_requests;
-
-		return $this->title_response ?? new \WP_Error( 'http_request_failed', 'unreachable' );
 	}
 
 	/**
@@ -122,12 +85,7 @@ class Playlist_Block_Test extends BaseTestCase {
 
 		// Empty attributes encode to `[]`, which the block parser rejects; omit them instead.
 		$json = empty( $attributes ) ? '' : wp_json_encode( $attributes, JSON_UNESCAPED_SLASHES ) . ' ';
-
-		add_filter( 'pre_http_request', array( $this, 'intercept_title_request' ), 10, 3 );
-		$html = do_blocks( '<!-- wp:videopress/playlist ' . $json . '/-->' );
-		remove_filter( 'pre_http_request', array( $this, 'intercept_title_request' ) );
-
-		return $html;
+		return do_blocks( '<!-- wp:videopress/playlist ' . $json . '/-->' );
 	}
 
 	/** Tests that the block registers from metadata with the render callback wired. */
@@ -204,59 +162,14 @@ class Playlist_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'data-loop="0"', $html );
 	}
 
-	/** Tests that rendering pulls the current title from the video data over the stored one. */
-	public function test_render_uses_fresh_title_from_video_data() {
-		$this->title_response = array(
-			'response' => array( 'code' => 200 ),
-			'body'     => wp_json_encode( array( 'title' => 'Renamed on VideoPress' ), JSON_UNESCAPED_SLASHES ),
-		);
-
+	/** Tests that items carry the placeholders the view script fills with live metadata. */
+	public function test_render_includes_metadata_placeholders() {
 		$html = $this->render(
-			array(
-				'videos' => array(
-					array(
-						'guid'  => 'abcd1234',
-						'title' => 'Stale stored title',
-					),
-				),
-			)
+			array( 'videos' => array( array( 'guid' => 'abcd1234' ) ) )
 		);
 
-		$this->assertStringContainsString( 'Renamed on VideoPress', $html );
-		$this->assertStringNotContainsString( 'Stale stored title', $html );
-	}
-
-	/** Tests that title lookups are cached and fall back to the stored title on failure. */
-	public function test_render_title_lookups_are_cached() {
-		$this->title_response = array(
-			'response' => array( 'code' => 200 ),
-			'body'     => wp_json_encode( array( 'title' => 'Fresh title' ), JSON_UNESCAPED_SLASHES ),
-		);
-
-		$attributes = array(
-			'videos' => array(
-				array(
-					'guid'  => 'abcd1234',
-					'title' => 'Stored title',
-				),
-			),
-		);
-
-		$this->render( $attributes );
-		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Deliberate identical re-render to prove the lookup is served from cache.
-		$this->render( $attributes );
-		$this->assertSame( 1, $this->title_requests, 'The second render must be served from cache.' );
-
-		// Unreachable API: the stored title is kept, and the failure is negative-cached.
-		$this->title_requests = 0;
-		$this->title_response = null;
-		delete_transient( 'videopress_playlist_title_abcd1234' );
-
-		$html = $this->render( $attributes );
-		$this->assertStringContainsString( 'Stored title', $html );
-
-		$this->render( $attributes );
-		$this->assertSame( 1, $this->title_requests, 'Failed lookups must be negative-cached.' );
+		$this->assertStringContainsString( 'videopress-playlist__item-badge', $html );
+		$this->assertStringContainsString( 'videopress-playlist__item-duration', $html );
 	}
 
 	/** Tests that autoAdvance and loop attributes reach the frontend dataset. */

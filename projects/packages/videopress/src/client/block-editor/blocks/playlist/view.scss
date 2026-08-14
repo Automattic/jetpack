@@ -47,4 +47,36 @@
 	.videopress-playlist__item-index {
 		opacity: 0.7;
 	}
+
+	.videopress-playlist__item-title {
+		flex-grow: 1;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.videopress-playlist__item-badge {
+		flex-shrink: 0;
+		padding: 1px 6px;
+		border: 1px solid currentColor;
+		border-radius: 2px;
+		font-size: 0.75em;
+		font-weight: 600;
+		letter-spacing: 0.02em;
+		opacity: 0.8;
+
+		&:empty {
+			display: none;
+		}
+	}
+
+	.videopress-playlist__item-duration {
+		flex-shrink: 0;
+		opacity: 0.7;
+		font-variant-numeric: tabular-nums;
+
+		&:empty {
+			display: none;
+		}
+	}
 }

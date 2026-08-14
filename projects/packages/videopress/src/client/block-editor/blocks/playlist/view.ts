@@ -13,6 +13,110 @@ type PlayerMessage = {
 	id?: string;
 };
 
+type VideoMetadata = {
+	title?: string;
+	duration?: number;
+	height?: number;
+};
+
+/**
+ * Format a millisecond duration as m:ss or h:mm:ss.
+ *
+ * @param durationMs - Duration in milliseconds.
+ * @return Formatted duration, or an empty string for unusable input.
+ */
+export function formatDuration( durationMs: number ): string {
+	if ( ! Number.isFinite( durationMs ) || durationMs <= 0 ) {
+		return '';
+	}
+
+	const totalSeconds = Math.round( durationMs / 1000 );
+	const hours = Math.floor( totalSeconds / 3600 );
+	const minutes = Math.floor( ( totalSeconds % 3600 ) / 60 );
+	const seconds = totalSeconds % 60;
+
+	const paddedSeconds = String( seconds ).padStart( 2, '0' );
+
+	if ( hours > 0 ) {
+		return `${ hours }:${ String( minutes ).padStart( 2, '0' ) }:${ paddedSeconds }`;
+	}
+
+	return `${ minutes }:${ paddedSeconds }`;
+}
+
+/**
+ * Map a video height to a quality/resolution badge label.
+ *
+ * @param height - Video height in pixels.
+ * @return Badge label, or an empty string for unusable input.
+ */
+export function qualityLabel( height: number ): string {
+	if ( ! Number.isFinite( height ) || height <= 0 ) {
+		return '';
+	}
+
+	if ( height >= 2160 ) {
+		return '4K';
+	}
+
+	return `${ height }p`;
+}
+
+/**
+ * Refresh a playlist's item metadata (title, duration, quality) from the
+ * VideoPress API, so the list always reflects the videos' current data.
+ *
+ * Lookups are anonymous: private videos (or API failures) keep their
+ * server-rendered title and simply get no duration/quality badge.
+ *
+ * @param block - The playlist block wrapper element.
+ * @return Promise resolving once every item has been processed.
+ */
+export function refreshPlaylistMetadata( block: HTMLElement ): Promise< void[] > {
+	const items = Array.from(
+		block.querySelectorAll< HTMLButtonElement >( '.videopress-playlist__item' )
+	);
+
+	return Promise.all(
+		items.map( async item => {
+			const guid = item.dataset.guid;
+			if ( ! guid ) {
+				return;
+			}
+
+			let metadata: VideoMetadata;
+			try {
+				const response = await fetch(
+					`https://public-api.wordpress.com/rest/v1.1/videos/${ encodeURIComponent( guid ) }`
+				);
+				if ( ! response.ok ) {
+					return;
+				}
+				metadata = await response.json();
+			} catch {
+				return;
+			}
+
+			if ( metadata?.title ) {
+				const titleElement = item.querySelector( '.videopress-playlist__item-title' );
+				if ( titleElement ) {
+					titleElement.textContent = metadata.title;
+				}
+			}
+
+			const durationElement = item.querySelector( '.videopress-playlist__item-duration' );
+			if ( durationElement ) {
+				durationElement.textContent = formatDuration( metadata?.duration );
+			}
+
+			const badgeElement = item.querySelector( '.videopress-playlist__item-badge' );
+			if ( badgeElement ) {
+				badgeElement.textContent = qualityLabel( metadata?.height );
+			}
+		} )
+	);
+}
+
 /**
  * Wire up a single playlist block: item clicks swap the player iframe,
  * and `videopress_ended` messages from the player advance the playlist.
@@ -28,6 +132,10 @@ export function initPlaylist( block: HTMLElement ) {
 	if ( ! player || ! items.length ) {
 		return;
 	}
+
+	// Fire-and-forget: the list stays usable with the server-rendered labels
+	// while (or if) the metadata lookups are still pending.
+	refreshPlaylistMetadata( block );
 
 	const autoAdvance = block.dataset.autoAdvance === '1';
 	const loop = block.dataset.loop === '1';
