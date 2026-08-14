@@ -1,8 +1,8 @@
-import { Icon, Notice, SelectControl, TextControl } from '@wordpress/components';
+import { Notice, SelectControl, TextControl, Tooltip } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { check, plus, trash } from '@wordpress/icons';
-import { Button, IconButton, Stack, Text } from '@wordpress/ui';
+import { plus, trash } from '@wordpress/icons';
+import { Badge, Button, IconButton, Stack } from '@wordpress/ui';
 import { RULE_TYPE_FIELD_VALUE } from '../../constants.js';
 import { useEnsureFieldId } from '../../hooks/use-subject-fields.js';
 import {
@@ -12,7 +12,7 @@ import {
 	operatorNeedsValue,
 } from '../../util/field-types.ts';
 import { getOperatorLabel } from '../../util/operator-labels.ts';
-import { areRulesComplete, isRuleComplete, isRuleStarted } from '../../util/rule-validity.js';
+import { isRuleComplete, isRuleStarted } from '../../util/rule-validity.js';
 
 /**
  * HTML input type for each value-input kind that renders a text box.
@@ -208,9 +208,16 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 
 	const operators = getOperatorsForTypeKey( subject?.typeKey || 'string' );
 	const isComplete = isRuleComplete( rule, subject );
-	// Only complain once the author has actually started this row: an untouched one is empty,
-	// not wrong, and the builder opens with one waiting.
-	const isUnfinished = isRuleStarted( rule ) && ! isComplete && ! missingSubject;
+
+	// Why the condition will be skipped, phrased as the thing to do about it. The three cases
+	// are the three ways a rule can fail to say anything: no subject, a subject that has since
+	// been deleted, or an operator whose value was never filled in.
+	let inactiveReason = __( 'Choose a field to compare against.', 'jetpack-forms' );
+	if ( missingSubject ) {
+		inactiveReason = __( 'The field this condition refers to no longer exists.', 'jetpack-forms' );
+	} else if ( isRuleStarted( rule ) ) {
+		inactiveReason = __( 'Give this condition a value.', 'jetpack-forms' );
+	}
 
 	// Group by step so an author can see that a later-step field is not yet answered when
 	// this one is evaluated.
@@ -247,17 +254,6 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 				gap="sm"
 				className="jetpack-contact-form__conditional-logic-rule-row"
 			>
-				{ /* A fixed leading column so the rows stay aligned whether or not the tick is
-				     there. The tick marks a condition the evaluator will actually act on. */ }
-				<span
-					className="jetpack-contact-form__conditional-logic-rule-status"
-					aria-hidden={ ! isComplete }
-					aria-label={ isComplete ? __( 'Condition is complete', 'jetpack-forms' ) : undefined }
-					role={ isComplete ? 'img' : undefined }
-				>
-					{ isComplete && <Icon icon={ check } size={ 20 } /> }
-				</span>
-
 				<SelectControl
 					ref={ fieldRef }
 					label={ __( 'Field', 'jetpack-forms' ) }
@@ -294,6 +290,22 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 
 				<RuleValueControl rule={ rule } subject={ subject } onChange={ handleValueChange } />
 
+				{ /* Says whether this condition will actually do anything. An incomplete rule
+				     is skipped by both evaluators, which is otherwise invisible -- the field
+				     simply does not react and nothing explains why. */ }
+				{ isComplete ? (
+					<Badge intent="stable">{ __( 'Active', 'jetpack-forms' ) }</Badge>
+				) : (
+					<Tooltip text={ inactiveReason }>
+						{ /* The reason is on the badge as well as in the tooltip: a tooltip
+						     renders nothing until it is hovered, so on its own it leaves the
+						     reason unreachable by keyboard and unread by a screen reader. */ }
+						<Badge intent="low" aria-label={ inactiveReason }>
+							{ __( 'Inactive', 'jetpack-forms' ) }
+						</Badge>
+					</Tooltip>
+				) }
+
 				<IconButton
 					size="small"
 					variant="minimal"
@@ -307,12 +319,6 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 					) }
 				/>
 			</Stack>
-
-			{ isUnfinished && (
-				<Text variant="body-sm" className="jetpack-contact-form__conditional-logic-rule-unfinished">
-					{ __( 'Give this condition a value, or it will be ignored.', 'jetpack-forms' ) }
-				</Text>
-			) }
 		</Stack>
 	);
 };
@@ -394,12 +400,6 @@ const FieldValueControl = ( { rules: storedRules, onChange, fields, ownFieldId }
 		onChange( [] );
 	}, [ onChange ] );
 
-	// A condition that names no subject, or gives no value where one is needed, is skipped by
-	// both evaluators. Rather than let an author stack up rules that quietly do nothing, the
-	// next one waits until this one says something.
-	const findSubject = rule => fields.find( field => field.id && field.id === rule.field );
-	const canAddCondition = areRulesComplete( rules, findSubject );
-
 	if ( ! fields.length ) {
 		return (
 			<Notice status="warning" isDismissible={ false }>
@@ -423,24 +423,20 @@ const FieldValueControl = ( { rules: storedRules, onChange, fields, ownFieldId }
 				/>
 			) ) }
 
-			{ /* Adding is the panel's one primary action, so it is offered or it is not --
-			     a disabled button with an explanation is more to read than a button that
-			     simply is not there yet. Clearing sits opposite it, and only once there is
-			     something to clear. */ }
+			{ /* Always offered. Withholding it stopped an author adding a second condition
+			     while the first was still being written, which is a normal way to work; the
+			     per-row badge already says which conditions are inert. Clearing sits opposite
+			     it, and only once there is something to clear. */ }
 			<Stack direction="row" align="center" justify="space-between" gap="sm">
-				{ canAddCondition ? (
-					<Button
-						variant="outline"
-						tone="neutral"
-						icon={ plus }
-						onClick={ addRule }
-						className="jetpack-contact-form__conditional-logic-add"
-					>
-						{ __( 'Add condition', 'jetpack-forms' ) }
-					</Button>
-				) : (
-					<span />
-				) }
+				<Button
+					variant="outline"
+					tone="neutral"
+					icon={ plus }
+					onClick={ addRule }
+					className="jetpack-contact-form__conditional-logic-add"
+				>
+					{ __( 'Add condition', 'jetpack-forms' ) }
+				</Button>
 
 				{ stored.length > 0 && (
 					<Button variant="minimal" tone="neutral" onClick={ clearRules }>

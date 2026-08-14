@@ -73,25 +73,24 @@
 			margin-block-end: 0;
 		}
 
-		// A fixed leading column, so rows stay aligned whether or not the
-		// tick is showing.
-		> *:first-child {
-			flex: 0 0 auto;
-		}
-
-		> *:nth-child(2) {
+		> *:nth-child(1) {
 			flex: 4 1 0;
 			min-inline-size: 0;
 		}
 
-		> *:nth-child(3) {
+		> *:nth-child(2) {
 			flex: 3 1 0;
 			min-inline-size: 0;
 		}
 
-		> *:nth-child(4) {
+		> *:nth-child(3) {
 			flex: 4 1 0;
 			min-inline-size: 0;
+		}
+
+		// The badge and the remove control each keep their own width.
+		> *:nth-child(4) {
+			flex: 0 0 auto;
 		}
 
 		// The remove button keeps its own column rather than flexing, so it
@@ -100,21 +99,6 @@
 		> *:last-child {
 			flex: 0 0 auto;
 		}
-	}
-
-	// The tick marks a condition the evaluator will act on. The column keeps
-	// its width when empty so the controls beside it do not shift.
-	.jetpack-contact-form__conditional-logic-rule-status {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		inline-size: var(--wpds-dimension-size-md);
-		color: var(--wpds-color-foreground-content-success);
-	}
-
-	.jetpack-contact-form__conditional-logic-rule-unfinished {
-		display: block;
-		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
 	.jetpack-contact-form__conditional-logic-add {

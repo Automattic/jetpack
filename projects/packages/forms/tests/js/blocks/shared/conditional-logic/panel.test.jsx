@@ -250,9 +250,11 @@ describe( 'ConditionalLogicPanel', () => {
 
 	// The builder opens with a waiting row, and that row is unfinished, so there is nothing
 	// to add yet -- the button is absent rather than present and dead.
-	it( 'withholds Add condition while the waiting row is unfinished', async () => {
+	// Always offered: withholding it stopped an author adding a second condition while the
+	// first was still being written, which is a normal way to work.
+	it( 'offers Add condition even while a row is unfinished', async () => {
 		await setup();
-		expect( screen.queryByRole( 'button', { name: /add condition/i } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /add condition/i } ) ).toBeInTheDocument();
 	} );
 
 	// `enabled` is derived from whether any rule exists, so a field only carries conditional
@@ -444,10 +446,17 @@ describe( 'ConditionalLogicPanel', () => {
 	// evaluators. Letting an author stack up rules that quietly do nothing is the trap here.
 	// A condition naming no subject, or giving no value where one is needed, is skipped by both
 	// evaluators. Letting an author stack up rules that quietly do nothing is the trap here.
-	it( 'will not offer a second condition until the first says something', async () => {
+	// A condition naming no subject, or giving no value where one is needed, is skipped by
+	// both evaluators. The badge makes that visible rather than the field silently not
+	// reacting, which is why the Add button no longer has to police it.
+	it( 'marks an unfinished condition inactive and says what to do', async () => {
 		await setup( withRules( [ { field: 'name_1', operator: 'is', value: '' } ] ) );
 
-		expect( screen.queryByRole( 'button', { name: 'Add condition' } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Inactive' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Active' ) ).not.toBeInTheDocument();
+		// Queried by label, not text: a tooltip renders nothing until hovered, so the reason
+		// has to be on the badge itself to be reachable at all.
+		expect( screen.getByLabelText( 'Give this condition a value.' ) ).toBeInTheDocument();
 	} );
 
 	it( 'clears every condition at once', async () => {
@@ -513,19 +522,20 @@ describe( 'ConditionalLogicPanel', () => {
 		expect( screen.getByRole( 'button', { name: 'Add condition' } ) ).toBeEnabled();
 	} );
 
-	it( 'marks a complete condition with a tick', async () => {
+	it( 'marks a complete condition active', async () => {
 		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
 
-		expect( screen.getByLabelText( 'Condition is complete' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Inactive' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'says why a started condition will be ignored', async () => {
-		await setup( withRules( [ { field: 'name_1', operator: 'is', value: '' } ] ) );
+	it( 'explains an inactive condition whose field was deleted', async () => {
+		await setup( withRules( [ { field: 'deleted_1', operator: 'is', value: 'x' } ] ) );
 
+		expect( screen.getByText( 'Inactive' ) ).toBeInTheDocument();
 		expect(
-			screen.getByText( 'Give this condition a value, or it will be ignored.' )
+			screen.getByLabelText( 'The field this condition refers to no longer exists.' )
 		).toBeInTheDocument();
-		expect( screen.queryByLabelText( 'Condition is complete' ) ).not.toBeInTheDocument();
 	} );
 
 	// Regression: fields whose id the renderer derives at output time were filtered out of
