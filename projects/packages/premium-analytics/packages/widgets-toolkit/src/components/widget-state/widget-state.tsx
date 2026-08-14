@@ -4,7 +4,6 @@
 import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useLayoutEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -53,54 +52,6 @@ export function WidgetState( {
 	children,
 }: WidgetStateProps ) {
 	const showFetchingState = useDelayedLoading( isFetching );
-	const readyRef = useRef< HTMLDivElement >( null );
-	const contentRef = useRef< HTMLDivElement >( null );
-	const focusToRestore = useRef< HTMLElement | null >( null );
-
-	// Hiding the children makes them unfocusable, and the browser drops focus to
-	// the body at the next rendering update. That strands keyboard users who
-	// activated something inside the body — a drill-down row, which refetches by
-	// definition — at the top of the document. A layout effect runs before that
-	// fixup, so it still sees where focus was, and can move it somewhere that
-	// survives the whole skeleton window rather than only restoring at the end.
-	useLayoutEffect( () => {
-		// Read focus through the wrapper's own document, not the global one: the
-		// dashboard can be rendered inside an iframe, where they differ.
-		const ownerDocument = readyRef.current?.ownerDocument;
-		if ( ! ownerDocument ) {
-			return;
-		}
-
-		if ( showFetchingState ) {
-			const active = ownerDocument.activeElement;
-			const wasInside = active instanceof HTMLElement && !! contentRef.current?.contains( active );
-			// Always assign, so a later refetch can never restore a target this one
-			// captured.
-			focusToRestore.current = wasInside ? active : null;
-			if ( wasInside ) {
-				// The outer wrapper is not hidden, so parking focus here keeps Tab
-				// continuing from the widget for the length of the fetch.
-				readyRef.current?.focus();
-			}
-			return;
-		}
-
-		const target = focusToRestore.current;
-		focusToRestore.current = null;
-		if ( ! target ) {
-			return;
-		}
-		// Only reclaim focus still sitting where this component left it. Anywhere
-		// else means the reader moved on during the fetch, and pulling them back
-		// would be the worse bug.
-		const active = ownerDocument.activeElement;
-		if ( active !== readyRef.current && active !== ownerDocument.body ) {
-			return;
-		}
-		// A drill-down replaces the rows it was triggered from, so the original
-		// target is often gone; the wrapper keeps the next Tab where it was.
-		( target.isConnected ? target : readyRef.current )?.focus();
-	}, [ showFetchingState ] );
 
 	if ( isError ) {
 		// Vertical centering lives in the stylesheet (`safe center`), not the
@@ -167,18 +118,8 @@ export function WidgetState( {
 
 	// Keep children mounted during refetches so their state and layout survive.
 	return (
-		<div
-			ref={ readyRef }
-			// Not in the tab order; it is only ever focused by the effect above, as
-			// the one part of the widget body that stays visible through a refetch.
-			tabIndex={ -1 }
-			className={ styles.ready }
-			aria-busy={ isFetching || undefined }
-		>
-			<div
-				ref={ contentRef }
-				className={ clsx( styles.content, showFetchingState && styles.contentHidden ) }
-			>
+		<div className={ styles.ready } aria-busy={ isFetching || undefined }>
+			<div className={ clsx( styles.content, showFetchingState && styles.contentHidden ) }>
 				{ children }
 			</div>
 			{ /* Avoid announcing one status message per widget during refetches. */ }

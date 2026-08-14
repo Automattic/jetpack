@@ -633,8 +633,7 @@ area. Notes:
 - The loading state defaults to `GenericSkeleton`. Pass a content-specific shape through
   `renderLoading` when needed, and build new shapes on `SkeletonRoot`.
 - Passing `isFetching` shows a delayed skeleton while keeping children mounted, preserving their
-  state through refetches. Keyboard focus inside the body is captured and restored across that
-  window, so a drill-down activated from the keyboard does not strand the reader.
+  state through refetches.
 - When a view hook masks `isError` (e.g. `rows.length === 0 && isError` to keep placeholder
   rows), gate `error` with the same predicate (`error: showError ? error : null`) so the two
   fields can't disagree.

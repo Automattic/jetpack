@@ -87,12 +87,6 @@
 	visibility: hidden;
 }
 
-// The wrapper is only ever focused programmatically, to hold focus while a
-// refetch hides the children. Nobody tabbed here, so a ring would read as a
-// stray selection.
-.ready:focus {
-	outline: none;
-}
 
 .skeletonOverlay {
 	position: absolute;
