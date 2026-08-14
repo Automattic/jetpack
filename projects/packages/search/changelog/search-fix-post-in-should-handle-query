@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Classic Search: Don't override a query already restricted by post__in once its search term has been cleared.
