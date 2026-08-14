@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Subscribers and WordAds charts: follow the dashboard chart interval control instead of a per-widget Group by.
