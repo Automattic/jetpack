@@ -108,7 +108,7 @@ jest.mock( '../../../src/dashboard/components/video-details/preview-player', () 
 	__esModule: true,
 	default: () => <div data-testid="preview-player" />,
 } ) );
-// live-celebration imports linkForVideo from this module, so the mock keeps
+// The info card resolves its share link through this module, so the mock keeps
 // the real implementation alongside the stubbed card.
 jest.mock( '../../../src/dashboard/components/video-details/video-info-card', () => ( {
 	__esModule: true,
@@ -161,7 +161,7 @@ jest.mock( '../../../src/dashboard/hooks/use-update-video-meta', () => ( {
 } ) );
 
 // The shared upload queue, scripted per test: after the /upload handoff this
-// page owns the tail of the upload (processing stage, celebration, draft).
+// page owns the tail of the upload (processing stage, draft, the notice).
 type MockQueueRow = {
 	id: string;
 	file: File;
@@ -171,11 +171,9 @@ type MockQueueRow = {
 	context?: string;
 	enqueuedAt: string;
 	draft?: { title?: string };
-	celebrated?: boolean;
 };
 let mockQueue: MockQueueRow[] = [];
 const mockAcknowledgeUpload = jest.fn();
-const mockMarkCelebrated = jest.fn();
 jest.mock( '../../../src/dashboard/hooks/use-upload', () => ( {
 	useUpload: () => ( {
 		uploadQueue: mockQueue,
@@ -184,7 +182,6 @@ jest.mock( '../../../src/dashboard/hooks/use-upload', () => ( {
 		cancelUpload: jest.fn(),
 		acknowledgeUpload: mockAcknowledgeUpload,
 	} ),
-	markUploadCelebrated: ( id: string ) => mockMarkCelebrated( id ),
 	// The delete mutation reconciles the queue through this.
 	removeUploadRowsForMedia: jest.fn(),
 } ) );
@@ -548,47 +545,37 @@ describe( 'video stage', () => {
 
 			expect( screen.getByText( 'Upload complete — processing…' ) ).toBeInTheDocument();
 			expect( screen.queryByTestId( 'preview-player' ) ).not.toBeInTheDocument();
-			// The row is still delivering (the processing surface, then the
-			// celebration) — it must not be consumed yet.
+			// The row is still delivering the processing surface — it must not
+			// be consumed yet.
 			expect( mockAcknowledgeUpload ).not.toHaveBeenCalled();
 		} );
 
-		it( 'celebrates a playable single-flow upload and ends the row on dismiss', async () => {
-			const user = userEvent.setup();
+		it( 'gives the player back and announces a playable single-flow upload', async () => {
 			mockQueue = [ uploadRow() ];
 
 			await renderReadyStage();
 
-			expect( screen.getByText( 'Your video is live' ) ).toBeInTheDocument();
-			await user.click( screen.getByRole( 'button', { name: 'Watch video' } ) );
-
-			// Dismiss is the row's end: the celebration is spent AND the row
-			// leaves the queue — acknowledgement lives here, not at the handoff.
-			expect( mockMarkCelebrated ).toHaveBeenCalledWith( 'q-1' );
+			// Nothing stands in front of the video: the payoff is the player
+			// itself. The moment is marked by a snackbar, not by an overlay of
+			// buttons that all duplicate the page beneath them.
+			expect( screen.getByTestId( 'preview-player' ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Watch video' } ) ).not.toBeInTheDocument();
+			expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Your video is live.' );
+			// The row has delivered everything it carried, so standing here
+			// consumes it — otherwise the pill's "Add details" chain would loop
+			// back through videos the user has already visited.
 			expect( mockAcknowledgeUpload ).toHaveBeenCalledWith( 'q-1' );
 		} );
 
 		it( 'stays quiet for a row from a multi-file batch, and consumes it', async () => {
-			// Chaining "Add details" through a five-video batch must not throw
-			// five celebrations; only the single-upload flow celebrates.
+			// Chaining "Add details" through a five-video batch must not
+			// announce five times; only the single-upload flow gets the notice.
 			mockQueue = [ uploadRow( { context: 'upload-batch' } ) ];
 
 			await renderReadyStage();
 
-			expect( screen.queryByText( 'Your video is live' ) ).not.toBeInTheDocument();
 			expect( screen.getByTestId( 'preview-player' ) ).toBeInTheDocument();
-			// No celebration means no dismiss, so standing on the video is the
-			// acknowledgement — otherwise the row never leaves the queue and the
-			// pill's "Add details" chain loops back through visited videos.
-			expect( mockAcknowledgeUpload ).toHaveBeenCalledWith( 'q-1' );
-		} );
-
-		it( 'does not re-celebrate a row that already has, and consumes it', async () => {
-			mockQueue = [ uploadRow( { celebrated: true } ) ];
-
-			await renderReadyStage();
-
-			expect( screen.queryByText( 'Your video is live' ) ).not.toBeInTheDocument();
+			expect( mockSuccessNotice ).not.toHaveBeenCalledWith( 'Your video is live.' );
 			expect( mockAcknowledgeUpload ).toHaveBeenCalledWith( 'q-1' );
 		} );
 

@@ -1,11 +1,11 @@
-import type { LibraryItem } from '../../src/dashboard/types/library';
+import type { LibraryItem } from '../types/library';
 
 /**
  * The shareable URL for a video, or null when there isn't an honest one.
  *
  * A VideoPress-hosted video gets its player URL — private videos live on
  * `video.wordpress.com`, public ones on `videopress.com`, the same split
- * `video-details/thumbnail-card.tsx` uses. A local attachment (no GUID — the
+ * the preview player's embed origin uses. A local attachment (no GUID — the
  * usual case on a site with no WordPress.com connection) has no player URL, so
  * it falls back to the attachment's own `source_url`, which does resolve and
  * does play.

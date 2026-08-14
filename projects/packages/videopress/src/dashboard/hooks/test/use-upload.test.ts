@@ -17,7 +17,6 @@ import { createTestQueryClient, createTestWrapper } from '../../test-utils/query
 import { hasPublishedVideo } from '../use-first-run-state';
 import {
 	isAdoptableUpload,
-	markUploadCelebrated,
 	removeUploadRowsForMedia,
 	setUploadDraft,
 	useUpload,
@@ -574,19 +573,6 @@ describe( 'upload store contract', () => {
 			setUploadDraft( id, undefined );
 		} );
 		expect( result.current.uploadQueue[ 0 ].draft ).toBeUndefined();
-	} );
-
-	it( 'markUploadCelebrated flags the row without removing it', () => {
-		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
-		const id = startAndSucceed( result, 42 );
-		expect( result.current.uploadQueue[ 0 ].celebrated ).toBeUndefined();
-
-		act( () => {
-			markUploadCelebrated( id );
-		} );
-
-		expect( result.current.uploadQueue ).toHaveLength( 1 );
-		expect( result.current.uploadQueue[ 0 ].celebrated ).toBe( true );
 	} );
 
 	it( 'removeUploadRowsForMedia drops rows whose video is gone, matching across id types', () => {

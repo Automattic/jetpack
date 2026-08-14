@@ -75,12 +75,6 @@ export type UploadItem = {
 	 * row rather than being stashed at the handoff.
 	 */
 	draft?: Partial< VideoDetailsFormValues >;
-	/**
-	 * One-shot: the live celebration has been shown and dismissed for this
-	 * row. Separate from acknowledgement because a row can outlive its
-	 * celebration (the chain of a multi-drop batch).
-	 */
-	celebrated?: boolean;
 };
 
 const STORE_KEY = '__jetpackVideopressUploadStore' as const;
@@ -247,19 +241,6 @@ export function setUploadDraft(
 	draft: Partial< VideoDetailsFormValues > | undefined
 ): void {
 	mutateQueue( prev => prev.map( item => ( item.id === id ? { ...item, draft } : item ) ) );
-}
-
-/**
- * Mark a row's live celebration as spent, so arriving at its video again does
- * not re-celebrate. Distinct from acknowledgement: the row can outlive the
- * celebration.
- *
- * @param id - Queue item id.
- */
-export function markUploadCelebrated( id: string ): void {
-	mutateQueue( prev =>
-		prev.map( item => ( item.id === id ? { ...item, celebrated: true } : item ) )
-	);
 }
 
 /**

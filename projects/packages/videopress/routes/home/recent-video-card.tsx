@@ -5,7 +5,7 @@ import { __, sprintf, _n } from '@wordpress/i18n';
 import { Icon, video as videoIcon, copy as copyIcon } from '@wordpress/icons';
 import { Badge, Button, Card, Stack, Text } from '@wordpress/ui';
 import { useProcessingProgress } from '../../src/dashboard/hooks/use-processing-progress';
-import { resolveEmbedSnippet, resolveShareLink } from './share-links';
+import { resolveEmbedSnippet, resolveShareLink } from '../../src/dashboard/utils/video-links';
 import type { ViewsSlot } from './views-slot';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
 import type { ReactElement } from 'react';

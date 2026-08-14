@@ -1065,6 +1065,14 @@ const SampleVideoModal = ( {
  * `navigator.clipboard` is undefined (it is secure-context-only). Falls back
  * to the hidden-textarea `execCommand` path the clipboard libraries use.
  *
+ * The rest of the dashboard copies through `useCopyToClipboard`
+ * (`video-details/video-info-card.tsx`), which is ref-based and so wants a
+ * component per button. Converting the two callers below — a list of rows in
+ * `SuccessCard` and the parked sample modal — is churn in a path only
+ * reachable on disconnected sites, in code already slated for removal with
+ * the "Try a sample" block. Left as the deliberate third mechanism until
+ * that removal takes both callers with it.
+ *
  * @param text - Text to place on the clipboard.
  * @return Resolves when the text has been copied; rejects when neither path works.
  */

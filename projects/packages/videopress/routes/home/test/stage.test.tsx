@@ -176,7 +176,7 @@ describe( 'home stage empty state', () => {
 		expect( mockStartUpload ).toHaveBeenCalledTimes( 2 );
 		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/' } );
 		// The batch tag, not the single flow's: /upload must not adopt these as
-		// a session, and only one of them can be a first-upload celebration.
+		// a session, and only one of them is a first-upload worth announcing.
 		expect( mockStartUpload ).toHaveBeenCalledWith( expect.anything(), 'upload-batch' );
 	} );
 

@@ -117,8 +117,8 @@ const PillRow = ( {
  * details" for the first finished video.
  *
  * "Add details" navigates WITHOUT acknowledging: the row carries its draft and
- * its pending celebration to `/video/:id`, which acknowledges it when the
- * celebration is dismissed. While you stand on that page the route filters the
+ * its unfinished business to `/video/:id`, which acknowledges it once the
+ * video is playable. While you stand on that page the route filters the
  * row out via `suppressMediaId`, so the pill doesn't shadow-box the screen
  * already reporting the upload.
  *
@@ -243,7 +243,7 @@ export default function UploadPill( { suppressContext, suppressMediaId }: Props 
 	};
 
 	// Deliberately does NOT acknowledge: the row has to survive the navigation
-	// to carry its draft and its un-shown celebration to the video's page,
+	// to carry its draft to the video's page,
 	// which acknowledges it on dismiss. The pill stops showing it there via
 	// `suppressMediaId`.
 	const onToDetails = ( item: UploadItem ) => {

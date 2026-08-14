@@ -1,11 +1,11 @@
 /**
  * Unit tests for the Home screen's copy-link / copy-embed resolvers
- * (see routes/home/share-links.ts). Both return null rather than an empty or
+ * (see src/dashboard/utils/video-links.ts). Both return null rather than an empty or
  * guessed value so the stage can omit a button instead of shipping an inert one.
  */
 
-import { resolveEmbedSnippet, resolveShareLink } from '../share-links';
-import type { LibraryItem } from '../../../src/dashboard/types/library';
+import { resolveEmbedSnippet, resolveShareLink } from '../video-links';
+import type { LibraryItem } from '../../types/library';
 
 const item = ( overrides: Partial< LibraryItem > = {} ): LibraryItem =>
 	( {
