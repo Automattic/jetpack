@@ -195,7 +195,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "abd2135645d94bd39f5b2f8a5b54f15d63efc9df"
+                "reference": "72cdb43773a1ccc86f44e57ff87ef8e5aa787a03"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -225,7 +225,7 @@
                     "@composer phpunit"
                 ],
                 "test-php-coverage": [
-                    "php -dpcov.directory=. -dauto_prepend_file=tests/php/coverage-bootstrap.php ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ]
             },
             "license": [
