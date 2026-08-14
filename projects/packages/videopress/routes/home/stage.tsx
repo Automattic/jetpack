@@ -152,7 +152,11 @@ const StageInner = () => {
 		// it first appears with the cards it belongs above.
 		<DashboardLayout activeTab="home" actions={ items.length > 0 ? uploadButton : undefined }>
 			<div className="vp-home">
-				{ isFree && <FreeTierNotice /> }
+				{ isFree && (
+					<div className="vp-home__notice">
+						<FreeTierNotice />
+					</div>
+				) }
 
 				<section className="vp-home__section" aria-labelledby="vp-home-recents-heading">
 					{ showEmptyState ? (
