@@ -24,6 +24,12 @@
 		background: var(--color-surface-backdrop, #f0f0f1);
 	}
 
+	// The row fills a card that clips its overflow, which would swallow a
+	// focus ring drawn outside the row — keep it inside so it stays visible.
+	&:focus-visible {
+		outline-offset: -2px;
+	}
+
 	// Default colours mirror the MCP rows this is modelled on: the leading
 	// icon inherits, the chevron is a step lighter. Changing those on the
 	// shipped surface is a design decision, so new surfaces opt in instead.
