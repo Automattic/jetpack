@@ -230,7 +230,18 @@
 		// covered.
 		// `aligncenter` is the one place auto inline margins are meant, so leave
 		// it alone.
+		// `width` alone is not enough: a field's width class caps it with
+		// `max-width`, which frees up space again for `auto` to take. `margin`
+		// alone is not enough either — it stops the centring but leaves the block
+		// shrink-wrapped, and a box only as wide as its text has nothing for
+		// `text-align: center` to centre, so aligning a paragraph would silently
+		// do nothing. The front end gets both from grunion.scss's
+		// `.wp-block-jetpack-form-step > * { flex: 0 0 100% }`; `width` rather
+		// than `flex-basis` because the step is `flex-direction: column` in a
+		// vertical form, where `flex-basis` would size the height.
 		&:not(.aligncenter) {
+			box-sizing: border-box;
+			width: 100%;
 			margin-inline: 0;
 		}
 	}
