@@ -4,27 +4,22 @@ import {
 	Card,
 	CardBody,
 	Notice,
-	Tooltip,
-	VisuallyHidden,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalHStack as HStack,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalText as Text,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
+import { Stack } from '@wordpress/ui';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import { useValidationIssues } from '../hooks/use-validation-issues';
 import ConfettiAnimation from './confetti';
+import { DirectoryList } from './directory-list';
 import { PODCAST_APPS } from './podcast-apps';
-import PocketCastsRow from './podcast-apps/pocketcasts/inline-row';
 import './style.scss';
 import SubmitModal from './submit-modal';
-import type { PodcastShowState, PodcatcherId } from '../types';
+import type { PodcatcherId } from '../types';
 import type { FocusEvent } from 'react';
 
 const prefersReducedMotion = (): boolean =>
@@ -40,23 +35,21 @@ const COPIED_LABEL = __( 'Copied!', 'jetpack-podcast' );
 const COPY_LINK_LABEL = __( 'Copy link', 'jetpack-podcast' );
 const CHECKING_LABEL = __( 'Checking your podcast setup…', 'jetpack-podcast' );
 const NEED_CATEGORY_LABEL = __( 'Set a post category in Settings first', 'jetpack-podcast' );
-const PENDING_LABEL = __( 'Pending', 'jetpack-podcast' );
-// `active` means the feed has been crawled by the directory's bot — not that
-// the show has actually been published in the directory's catalog. "Submitted"
-// reflects what we know; "Live" overpromises.
-const SUBMITTED_LABEL = __( 'Submitted', 'jetpack-podcast' );
+const NEED_TITLE_LABEL = __( 'Add a podcast title in Settings first', 'jetpack-podcast' );
 
-const StateBadge = ( { state }: { state: PodcastShowState } ) => {
-	if ( state !== 'pending' && state !== 'active' ) {
-		return null;
+const AUTOMATIC_APPS = PODCAST_APPS.filter( app => app.submission === 'automatic' );
+const MANUAL_APPS = PODCAST_APPS.filter( app => app.submission === 'manual' );
+
+// Loading is checked first: on the initial fetch `isEnabled` is false even for
+// sites that do have a category, and "Set a category" would flash.
+const blockedReason = ( isLoading: boolean, isEnabled: boolean, remaining: string ): string => {
+	if ( isLoading ) {
+		return CHECKING_LABEL;
 	}
-	const label = state === 'active' ? SUBMITTED_LABEL : PENDING_LABEL;
-	return (
-		<span className={ `podcast__state-badge podcast__state-badge--${ state }` }>
-			<VisuallyHidden as="span">{ __( 'Status:', 'jetpack-podcast' ) } </VisuallyHidden>
-			{ label }
-		</span>
-	);
+	if ( ! isEnabled ) {
+		return NEED_CATEGORY_LABEL;
+	}
+	return remaining;
 };
 
 const FeedCopyField = ( { value }: { value: string } ) => {
@@ -73,7 +66,7 @@ const FeedCopyField = ( { value }: { value: string } ) => {
 	}, [ copied ] );
 
 	return (
-		<HStack alignment="center" spacing={ 2 } className="podcast__feed-copy">
+		<Stack align="center" gap="sm" className="podcast__feed-copy">
 			<input
 				type="text"
 				className="podcast__feed-copy-input"
@@ -90,7 +83,7 @@ const FeedCopyField = ( { value }: { value: string } ) => {
 			>
 				{ copied ? COPIED_LABEL : COPY_LINK_LABEL }
 			</Button>
-		</HStack>
+		</Stack>
 	);
 };
 
@@ -100,40 +93,19 @@ interface DistributionTabProps {
 
 const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 	const { data: settings, isLoading: settingsLoading } = usePodcastSettings();
-	const { issues, isReady, isLoading } = useValidationIssues();
-	const categoryId = settings?.podcasting_category_id ?? 0;
+	const { issues, isLoading } = useValidationIssues();
 	// Canonical category feed URL, derived server-side via get_term_feed_link()
 	// so it's correct across every permalink structure. Reconstructing it here by
 	// appending `feed/` to the archive link broke plain-permalink / no-trailing-
 	// slash sites (e.g. `?cat=5feed/`).
 	const feedUrl = settings?.podcasting_feed_url ?? '';
-	const isEnabled = categoryId > 0;
-	// Includes isLoading so the buttons don't flash enabled before issues resolve.
-	const isSubmitBlocked = ! isEnabled || ! isReady || isLoading;
+	const isEnabled = ( settings?.podcasting_category_id ?? 0 ) > 0;
+	const states = settings?.podcasting_show_states ?? {};
 
 	const [ activeId, setActiveId ] = useState< PodcatcherId | null >( null );
 	const [ showConfetti, setShowConfetti ] = useState( false );
 	const activeApp = PODCAST_APPS.find( a => a.id === activeId ) ?? null;
 
-	// Pocket Casts auto-submits via the wpcom relay and goes live in minutes,
-	// so it only needs a category + title to send a usable feed. The other
-	// directories run manual review and reject incomplete feeds, so they keep
-	// the full validation gate below.
-	const pocketcastsApp = PODCAST_APPS.find( a => a.id === 'pocketcasts' ) ?? null;
-	const directoryApps = PODCAST_APPS.filter( a => a.id !== 'pocketcasts' );
-	const hasTitle = !! settings?.podcasting_title;
-	const isPocketcastsBlocked = settingsLoading || ! isEnabled || ! hasTitle;
-	let pocketcastsBlockedTooltip = '';
-	if ( settingsLoading ) {
-		pocketcastsBlockedTooltip = CHECKING_LABEL;
-	} else if ( ! isEnabled ) {
-		pocketcastsBlockedTooltip = NEED_CATEGORY_LABEL;
-	} else if ( ! hasTitle ) {
-		pocketcastsBlockedTooltip = __( 'Add a podcast title in Settings first', 'jetpack-podcast' );
-	}
-
-	// Single source of truth for "what's blocking submission", so the Notice
-	// header, Submit aria-labels, and Submit tooltips all stay in sync.
 	const stepsLeftLabel =
 		issues.length > 0
 			? sprintf(
@@ -147,18 +119,16 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 					issues.length
 			  )
 			: '';
-	// Check `isLoading` not `! isReady`: once issues exist, `! isReady` stays
-	// true and would pin the tooltip on "Checking…" instead of the count.
-	// Loading is checked first so `categoryId === 0` during the initial fetch
-	// doesn't flash the "Set a category" copy.
-	let blockedTooltip = '';
-	if ( isLoading ) {
-		blockedTooltip = CHECKING_LABEL;
-	} else if ( ! isEnabled ) {
-		blockedTooltip = NEED_CATEGORY_LABEL;
-	} else {
-		blockedTooltip = stepsLeftLabel;
-	}
+
+	// The relay only needs a category + title to send a usable feed, and it
+	// answers in minutes. Manual directories reject incomplete feeds on review,
+	// so they wait on the full validation pass.
+	const automaticBlocked = blockedReason(
+		settingsLoading,
+		isEnabled,
+		settings?.podcasting_title ? '' : NEED_TITLE_LABEL
+	);
+	const manualBlocked = blockedReason( isLoading, isEnabled, stepsLeftLabel );
 
 	const handleSubmitClick = useCallback( ( id: PodcatcherId ) => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_submit_modal_opened', {
@@ -195,7 +165,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 
 			<Card>
 				<CardBody>
-					<VStack spacing={ 8 }>
+					<Stack direction="column" gap="2xl">
 						<Text variant="muted">
 							{ __(
 								'Submit your podcast to the most popular podcast apps so people can find and follow it.',
@@ -203,9 +173,9 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 							) }
 						</Text>
 
-						{ pocketcastsApp && (
-							<VStack spacing={ 4 }>
-								<VStack spacing={ 1 }>
+						{ AUTOMATIC_APPS.length > 0 && (
+							<Stack direction="column" gap="lg">
+								<Stack direction="column" gap="xs">
 									<h3 className="podcast__card-title">
 										{ __( 'Automattic submission', 'jetpack-podcast' ) }
 									</h3>
@@ -215,18 +185,19 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 											'jetpack-podcast'
 										) }
 									</Text>
-								</VStack>
-								<PocketCastsRow
-									app={ pocketcastsApp }
-									isBlocked={ isPocketcastsBlocked }
-									blockedTooltip={ pocketcastsBlockedTooltip }
+								</Stack>
+								<DirectoryList
+									apps={ AUTOMATIC_APPS }
+									states={ states }
+									blockedReason={ automaticBlocked }
+									onOpenModal={ handleSubmitClick }
 									onFirstSave={ handleFirstSave }
 								/>
-							</VStack>
+							</Stack>
 						) }
 
-						<VStack spacing={ 4 }>
-							<VStack spacing={ 1 }>
+						<Stack direction="column" gap="lg">
+							<Stack direction="column" gap="xs">
 								<h3 className="podcast__card-title">
 									{ __( 'Manual submission', 'jetpack-podcast' ) }
 								</h3>
@@ -236,7 +207,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 										'jetpack-podcast'
 									) }
 								</Text>
-							</VStack>
+							</Stack>
 							{ isEnabled && feedUrl ? (
 								<FeedCopyField value={ feedUrl } />
 							) : (
@@ -247,53 +218,15 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 									) }
 								</Text>
 							) }
-							<VStack as="ul" spacing={ 0 } className="podcast__directory-list">
-								{ directoryApps.map( app => {
-									const { Logo } = app;
-									const state = settings?.podcasting_show_states?.[ app.id ] ?? '';
-									return (
-										<HStack
-											as="li"
-											key={ app.id }
-											alignment="center"
-											justify="space-between"
-											className="podcast__directory-row"
-										>
-											<HStack alignment="center" spacing={ 3 } expanded={ false }>
-												<span aria-hidden="true">
-													<Logo />
-												</span>
-												<Text weight={ 500 }>{ app.name }</Text>
-												<StateBadge state={ state } />
-											</HStack>
-											<Tooltip text={ isSubmitBlocked ? blockedTooltip : '' }>
-												<Button
-													variant="primary"
-													size="compact"
-													// eslint-disable-next-line react/jsx-no-bind
-													onClick={ () => handleSubmitClick( app.id ) }
-													disabled={ isSubmitBlocked }
-													accessibleWhenDisabled
-													aria-label={
-														isSubmitBlocked
-															? sprintf(
-																	/* translators: 1: directory name (Apple Podcasts, Spotify, etc.). 2: reason the Set up button is disabled. */
-																	__( 'Set up %1$s. %2$s', 'jetpack-podcast' ),
-																	app.name,
-																	blockedTooltip
-															  )
-															: undefined
-													}
-												>
-													{ __( 'Set up', 'jetpack-podcast' ) }
-												</Button>
-											</Tooltip>
-										</HStack>
-									);
-								} ) }
-							</VStack>
-						</VStack>
-					</VStack>
+							<DirectoryList
+								apps={ MANUAL_APPS }
+								states={ states }
+								blockedReason={ manualBlocked }
+								onOpenModal={ handleSubmitClick }
+								onFirstSave={ handleFirstSave }
+							/>
+						</Stack>
+					</Stack>
 				</CardBody>
 			</Card>
 

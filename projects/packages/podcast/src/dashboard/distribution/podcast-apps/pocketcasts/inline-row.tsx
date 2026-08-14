@@ -1,53 +1,27 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import {
-	Button,
-	ExternalLink,
-	Notice,
-	Tooltip,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalHStack as HStack,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalText as Text,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalVStack as VStack,
-} from '@wordpress/components';
+import { ExternalLink, Notice } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { getConnectUrl, isSiteConnected } from '../../../connection';
 import { usePodcastSettings } from '../../../hooks/use-podcast-settings';
+import { DirectoryRow } from '../../directory-list';
 import './style.scss';
 import { extractRejectionReasons, usePocketCastsSubmit } from './use-submit';
 import type { PodcastShowState } from '../../../types';
-import type { PodcastApp } from '../types';
+import type { PodcastAppRowProps } from '../types';
 
-interface PocketCastsRowProps {
-	app: PodcastApp;
-	isBlocked: boolean;
-	blockedTooltip: string;
-	onFirstSave?: () => void;
-}
+const SUBMIT_LABEL = __( 'Submit', 'jetpack-podcast' );
+const NOT_CONNECTED_LABEL = __( 'Connect this site to WordPress.com first', 'jetpack-podcast' );
 
-const stateBadgeLabel = ( state: PodcastShowState ): string | null => {
-	if ( state === 'active' ) {
-		return __( 'Submitted', 'jetpack-podcast' );
-	}
-	if ( state === 'pending' ) {
-		return __( 'Pending', 'jetpack-podcast' );
-	}
-	return null;
-};
+// `rejected`/`unreachable` aren't a persisted state — they trip a notice
+// instead and leave the badge on whatever was last saved.
+const liveStateFromResult = ( state: string ): PodcastShowState | null =>
+	state === 'active' || state === 'pending' ? state : null;
 
-const liveStateFromResult = ( state: string ): PodcastShowState | null => {
-	if ( state === 'active' || state === 'pending' ) {
-		return state;
-	}
-	return null;
-};
-
-const PocketCastsRow = ( { app, isBlocked, blockedTooltip, onFirstSave }: PocketCastsRowProps ) => {
+const PocketCastsRow = ( { app, state, blockedReason, onFirstSave }: PodcastAppRowProps ) => {
 	const { data: settings } = usePodcastSettings();
-	const storedState = settings?.podcasting_show_states?.pocketcasts ?? '';
 
+	// Matches the parent's confetti rule: first successful directory action.
 	const isFirstEverActivity = useMemo( () => {
 		if ( ! settings ) {
 			return false;
@@ -62,14 +36,13 @@ const PocketCastsRow = ( { app, isBlocked, blockedTooltip, onFirstSave }: Pocket
 	const { submit, isSubmitting, result, errorMessage } = usePocketCastsSubmit();
 	const celebratedRef = useRef( false );
 
-	// The relay endpoint is proxied through WordPress.com, so a disconnected
-	// site can't submit at all.
+	// The relay is proxied through WordPress.com, so a disconnected site can't
+	// submit at all.
 	const connected = isSiteConnected();
+	const reason = connected ? blockedReason : NOT_CONNECTED_LABEL;
 
 	const liveState = result ? liveStateFromResult( result.state ) : null;
-	const effectiveState: PodcastShowState = liveState ?? storedState;
-	const badge = stateBadgeLabel( effectiveState );
-	const isDone = effectiveState === 'active';
+	const effectiveState = liveState ?? state;
 
 	const rejectionReasons = useMemo(
 		() => ( result?.state === 'rejected' ? extractRejectionReasons( result.pcc ) : [] ),
@@ -90,46 +63,27 @@ const PocketCastsRow = ( { app, isBlocked, blockedTooltip, onFirstSave }: Pocket
 	const handleSubmit = useCallback( () => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_submit_clicked', {
 			directory: app.id,
-			prior_state: storedState || 'none',
+			prior_state: state || 'none',
 		} );
 		submit();
-	}, [ submit, storedState, app.id ] );
-
-	const isButtonDisabled = ! connected || isBlocked || isSubmitting || isDone;
+	}, [ submit, state, app.id ] );
 
 	return (
-		<VStack spacing={ 3 }>
-			<HStack alignment="center" justify="space-between" className="podcast__directory-row">
-				<HStack alignment="center" spacing={ 4 } expanded={ false }>
-					<span aria-hidden="true">
-						<app.Logo />
-					</span>
-					<Text weight={ 500 }>{ app.name }</Text>
-					{ badge && <span className="podcast__directory-badge">{ badge }</span> }
-				</HStack>
-				<Tooltip text={ isBlocked ? blockedTooltip : '' }>
-					<Button
-						variant="primary"
-						onClick={ handleSubmit }
-						isBusy={ isSubmitting }
-						disabled={ isButtonDisabled }
-						accessibleWhenDisabled
-						aria-label={
-							isBlocked
-								? sprintf(
-										/* translators: 1: directory name (Pocket Casts). 2: reason the Submit button is disabled. */
-										__( 'Submit to %1$s. %2$s', 'jetpack-podcast' ),
-										app.name,
-										blockedTooltip
-								  )
-								: undefined
-						}
-					>
-						{ __( 'Submit', 'jetpack-podcast' ) }
-					</Button>
-				</Tooltip>
-			</HStack>
-
+		<DirectoryRow
+			app={ app }
+			state={ effectiveState }
+			blockedReason={ reason }
+			actionLabel={ SUBMIT_LABEL }
+			blockedActionLabel={ sprintf(
+				/* translators: 1: directory name (Pocket Casts). 2: reason the Submit button is disabled. */
+				__( 'Submit to %1$s. %2$s', 'jetpack-podcast' ),
+				app.name,
+				reason
+			) }
+			isBusy={ isSubmitting }
+			isComplete={ effectiveState === 'active' }
+			onAction={ handleSubmit }
+		>
 			{ ! connected && (
 				<Notice status="warning" isDismissible={ false }>
 					{ __(
@@ -147,8 +101,8 @@ const PocketCastsRow = ( { app, isBlocked, blockedTooltip, onFirstSave }: Pocket
 					{ rejectedMessage ?? __( 'Pocket Casts could not accept this feed.', 'jetpack-podcast' ) }
 					{ rejectionReasons.length > 0 && (
 						<ul className="podcast__pocketcasts-errors">
-							{ rejectionReasons.map( reason => (
-								<li key={ reason }>{ reason }</li>
+							{ rejectionReasons.map( r => (
+								<li key={ r }>{ r }</li>
 							) ) }
 						</ul>
 					) }
@@ -160,7 +114,7 @@ const PocketCastsRow = ( { app, isBlocked, blockedTooltip, onFirstSave }: Pocket
 					{ errorMessage }
 				</Notice>
 			) }
-		</VStack>
+		</DirectoryRow>
 	);
 };
 
