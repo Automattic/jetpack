@@ -48,6 +48,42 @@ interface GlobalChartsContextValue {
 
 `resolveThemeColor` resolves a color value — including a `--wpds-*` token or `var(...)` expression — to a hex string in the provider's own (theme-scoped) element. Use it when JS needs the *resolved* value of a themed color, such as reading `theme.backgroundColor` to compute text contrast. It resolves at call time, so the result tracks a light/dark theme switch where the token string is unchanged but its resolved value differs. Returns `''` for an empty input.
 
+## Theming
+
+`GlobalChartsProvider` renders a wrapper element that carries the package's
+`--a8c-charts-*` catalog class (see `TOKENS.md`), so every chart underneath it — and
+every chart outside a provider, since the same class is applied at each chart's own
+scope — resolves its colors, focus ring, motion, and border-radius roles from that
+catalog. Consumers override a role by setting the matching `--a8c-charts-*` custom
+property on any ancestor of a chart, including plain CSS with no provider involved:
+
+```css
+.my-dashboard {
+	--a8c-charts-color-grid: #e0e0e0;
+}
+```
+
+The `theme` prop is a second, narrower override path. Five `ChartTheme` fields
+correspond directly to a catalog role, and setting one republishes it as the matching
+instance-scoped `--a8c-charts-*` variable on the provider's wrapper element — so the
+CSS-painted value (read by SVG/Google Charts through `getComputedStyle`) and the
+JS-resolved value (read through `resolveThemeColor` / `getElementStyles`) stay in
+step:
+
+| `theme` field | Catalog role |
+| --- | --- |
+| `backgroundColor` | `--a8c-charts-color-background` |
+| `gridStyles.stroke` | `--a8c-charts-color-grid` |
+| `xAxisLineStyles.stroke` | `--a8c-charts-color-axis` |
+| `xTickLineStyles.stroke` | `--a8c-charts-color-tick` |
+| `svgLabelSmall.fill` | `--a8c-charts-color-label` |
+
+A value that already points at the role it would define (the default theme's own
+catalog pointer, surviving `mergeThemes`) is not republished — emitting it would make
+the custom property reference itself, which CSS discards. Because `theme` is merged
+sparsely with `defaultTheme`, a field you don't set falls through to the catalog
+default rather than to a separate JS default value.
+
 ## ChartRegistration Type
 
 ```typescript

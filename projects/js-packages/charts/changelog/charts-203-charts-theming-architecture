@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Charts: emit the --a8c-charts-* token catalog on every chart so themes can be overridden with CSS custom properties, and resolve tokens against the chart element so a scoped theme reaches SVG-painted colors.

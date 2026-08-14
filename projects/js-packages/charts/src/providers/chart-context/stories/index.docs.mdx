@@ -170,6 +170,27 @@ Themes are merged with the default theme, so you only need to specify the proper
 	</GlobalChartsProvider>` }
 />
 
+### CSS Custom Property Overrides
+
+Every chart carries the package's `--a8c-charts-*` token catalog on its own scope
+element, so you can retheme charts with plain CSS — no `theme` prop or
+`GlobalChartsProvider` required. Set the role you want to change on any ancestor of a
+chart:
+
+```css
+.my-dashboard {
+	--a8c-charts-color-grid: #e0e0e0;
+	--a8c-charts-color-trend-up: #007a3d;
+}
+```
+
+The `theme` prop's `backgroundColor`, `gridStyles.stroke`, `xAxisLineStyles.stroke`,
+`xTickLineStyles.stroke`, and `svgLabelSmall.fill` fields map to a catalog role too —
+setting one through `GlobalChartsProvider` republishes it as that instance's
+`--a8c-charts-*` variable, so it also reaches the SVG- and Google-Charts-painted
+colors those tools can't read from `theme` directly. See TOKENS.md for the full
+catalog.
+
 ## Chart Registration
 
 ### Automatic Registration
