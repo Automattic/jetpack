@@ -10,7 +10,9 @@
 // uploadHandler runs, exactly like the real hook (which sets it once the
 // upload-JWT round trip resolves). The window before it appears is where the
 // cancel mis-attribution bug lived, so `mockDeferResumeHandler` lets a test
-// hold the queue inside it.
+// hold the queue inside it, and `mockEmitResumeHandler` closes that window at
+// the exact moment the test means to — the handle landing on a session that
+// was cancelled while it was still being fetched.
 
 import { renderHook, act } from '@testing-library/react';
 import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
@@ -32,6 +34,7 @@ beforeEach( () => {
 const mockUploadHandler = jest.fn();
 const mockAbort = jest.fn();
 let mockDeferResumeHandler = false;
+let mockEmitResumeHandler: ( () => void ) | undefined;
 let lastCallbacks: {
 	onProgress?: ( bytesSent: number, bytesTotal: number ) => void;
 	onSuccess?: ( data?: unknown ) => void;
@@ -45,6 +48,7 @@ jest.mock( '../../../client/hooks/use-resumable-uploader', () => {
 		default: jest.fn( options => {
 			lastCallbacks = options;
 			const [ resumeHandler, setResumeHandler ] = useState( undefined );
+			mockEmitResumeHandler = () => setResumeHandler( { start: jest.fn(), abort: mockAbort } );
 			const uploadHandler = useCallback( ( file: File ) => {
 				mockUploadHandler( file );
 				if ( ! mockDeferResumeHandler ) {
@@ -268,6 +272,55 @@ describe( 'useUpload', () => {
 		expect( mockUploadHandler.mock.calls.filter( ( [ f ] ) => f === fileA ) ).toHaveLength( 1 );
 	} );
 
+	// tus reports some failures as a bare string. Falling through to the generic
+	// message threw away the only description of what actually went wrong.
+	it( 'surfaces a string-shaped error as the row message', () => {
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		act( () => {
+			result.current.startUpload( new File( [ 'x' ], 't.mp4', { type: 'video/mp4' } ) );
+		} );
+
+		act( () => {
+			lastCallbacks.onError?.( 'tus: failed because the request was aborted' );
+		} );
+
+		expect( result.current.uploadQueue[ 0 ].error ).toBe(
+			'tus: failed because the request was aborted'
+		);
+	} );
+
+	// The legacy callbacks carry no identity, so every instance receives its
+	// own set and an idle one has no row to resolve them to. Acting on them
+	// anyway hands this instance the queue's next pending item — dispatched a
+	// second time, into a second set of callbacks, while it is already running.
+	it( 'ignores callbacks that reach an instance holding no active upload', () => {
+		const wrapper = createTestWrapper( createTestQueryClient() );
+		const { result: producer } = renderHook( () => useUpload(), { wrapper } );
+		const { result: observer } = renderHook( () => useUpload(), { wrapper } );
+		// The observer's own callbacks. Its closures read its own refs, so this
+		// snapshot stays live even once the producer renders last.
+		const observerCallbacks = lastCallbacks;
+
+		act( () => {
+			producer.current.startUpload( new File( [ 'x' ], 'a.mp4', { type: 'video/mp4' } ) );
+			producer.current.startUpload( new File( [ 'y' ], 'b.mp4', { type: 'video/mp4' } ) );
+		} );
+		expect( mockUploadHandler ).toHaveBeenCalledTimes( 1 );
+
+		act( () => {
+			observerCallbacks.onProgress?.( 50, 100 );
+			observerCallbacks.onSuccess?.( { id: 42, guid: 'g42', src: 'https://v.example/42' } );
+			observerCallbacks.onError?.( new Error( 'boom' ) );
+		} );
+
+		expect( mockUploadHandler ).toHaveBeenCalledTimes( 1 );
+		expect( observer.current.uploadQueue.map( u => u.status ) ).toEqual( [
+			'uploading',
+			'pending',
+		] );
+		expect( observer.current.uploadQueue.some( u => u.media || u.error ) ).toBe( false );
+	} );
+
 	it( 'marks the first publish as soon as a queued upload succeeds', () => {
 		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
 		expect( hasPublishedVideo() ).toBe( false );
@@ -394,6 +447,7 @@ describe( 'useUpload — cancellation', () => {
 	beforeEach( () => {
 		mockUploadHandler.mockClear();
 		mockDeferResumeHandler = false;
+		mockEmitResumeHandler = undefined;
 		mockAbort.mockClear();
 		lastCallbacks = {};
 		__resetUploadStoreForTests();
@@ -529,6 +583,155 @@ describe( 'useUpload — cancellation', () => {
 		expect( remaining.status ).toBe( 'uploading' );
 		expect( remaining.media ).toBeUndefined();
 		// …and the orphan's exit is what releases the queue.
+		expect( mockUploadHandler ).toHaveBeenCalledTimes( 2 );
+		expect( mockUploadHandler ).toHaveBeenLastCalledWith( file2 );
+	} );
+
+	// The other end of that same window. A cancel with nothing to abort can
+	// only tombstone and wait, so the handle arriving afterwards is the first
+	// moment the orphan can actually be stopped — and the last moment before
+	// the owner would otherwise dispatch the next row into its callbacks.
+	it( 'aborts a tombstoned session as soon as its tus handle arrives', () => {
+		mockDeferResumeHandler = true;
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		const file1 = new File( [ 'x' ], 'a.mp4', { type: 'video/mp4' } );
+		const file2 = new File( [ 'y' ], 'b.mp4', { type: 'video/mp4' } );
+		let id1 = '';
+		act( () => {
+			id1 = result.current.startUpload( file1 );
+			result.current.startUpload( file2 );
+		} );
+
+		act( () => {
+			result.current.cancelUpload( id1 );
+		} );
+		expect( mockAbort ).not.toHaveBeenCalled();
+		expect( mockUploadHandler ).toHaveBeenCalledTimes( 1 );
+
+		// The upload-JWT round trip finally returns and tus hands over the
+		// handle for the session the user already cancelled.
+		act( () => {
+			mockEmitResumeHandler?.();
+		} );
+
+		expect( mockAbort ).toHaveBeenCalledTimes( 1 );
+		expect( result.current.uploadQueue.map( u => u.file.name ) ).toEqual( [ 'b.mp4' ] );
+		expect( mockUploadHandler ).toHaveBeenCalledTimes( 2 );
+		expect( mockUploadHandler ).toHaveBeenLastCalledWith( file2 );
+	} );
+
+	// The handle FIFO is the only binding between a dispatch and the handle it
+	// produced, so an id that never got one has to be skipped rather than
+	// consume the next item's: bound one row out of step, a later cancel holds
+	// an abort for a session that has already finished, and the row the user
+	// actually stopped keeps uploading.
+	it( 'binds a late handle past an id whose session ended before tus existed', () => {
+		mockDeferResumeHandler = true;
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		const file1 = new File( [ 'x' ], 'a.mp4', { type: 'video/mp4' } );
+		const file2 = new File( [ 'y' ], 'b.mp4', { type: 'video/mp4' } );
+		let id2 = '';
+		act( () => {
+			result.current.startUpload( file1 );
+			id2 = result.current.startUpload( file2 );
+		} );
+
+		// a.mp4's upload-JWT round trip fails: the session ends without ever
+		// producing a handle, and b.mp4 is dispatched in its place.
+		act( () => {
+			lastCallbacks.onError?.( new Error( 'jwt' ) );
+		} );
+		expect( mockUploadHandler ).toHaveBeenCalledTimes( 2 );
+
+		// So the handle that lands now belongs to b.mp4, not to the dead a.mp4.
+		act( () => {
+			mockEmitResumeHandler?.();
+		} );
+		act( () => {
+			result.current.cancelUpload( id2 );
+		} );
+
+		expect( mockAbort ).toHaveBeenCalledTimes( 1 );
+		expect( result.current.uploadQueue.map( u => u.file.name ) ).toEqual( [ 'a.mp4' ] );
+	} );
+
+	// And with nothing dispatched behind it the FIFO simply runs dry, so the
+	// late handle has no item to bind to and must disturb nothing.
+	it( 'drops a late handle once every awaiting session has ended', () => {
+		mockDeferResumeHandler = true;
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		act( () => {
+			result.current.startUpload( new File( [ 'x' ], 'a.mp4', { type: 'video/mp4' } ) );
+		} );
+		act( () => {
+			lastCallbacks.onError?.( new Error( 'jwt' ) );
+		} );
+
+		act( () => {
+			mockEmitResumeHandler?.();
+		} );
+
+		expect( mockAbort ).not.toHaveBeenCalled();
+		expect( result.current.uploadQueue.map( u => u.status ) ).toEqual( [ 'failed' ] );
+		expect( mockUploadHandler ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	// Progress is the callback that arrives most often and the one with no
+	// natural end: an orphan's bytes attributed to the live row move a bar the
+	// user is watching, and nothing after it ever releases the queue.
+	it( 'does not attribute an orphaned session progress to the next item', () => {
+		mockDeferResumeHandler = true;
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		const file1 = new File( [ 'x' ], 'a.mp4', { type: 'video/mp4' } );
+		const file2 = new File( [ 'y' ], 'b.mp4', { type: 'video/mp4' } );
+		let id1 = '';
+		act( () => {
+			id1 = result.current.startUpload( file1 );
+			result.current.startUpload( file2 );
+		} );
+
+		act( () => {
+			result.current.cancelUpload( id1 );
+		} );
+		expect( mockUploadHandler ).toHaveBeenCalledTimes( 1 );
+
+		act( () => {
+			lastCallbacks.onProgress?.( 50, 100 );
+		} );
+
+		const remaining = result.current.uploadQueue[ 0 ];
+		expect( remaining.file.name ).toBe( 'b.mp4' );
+		expect( remaining.progress ).toBe( 0 );
+		// …and the orphan's first callback is what releases the queue.
+		expect( mockUploadHandler ).toHaveBeenCalledTimes( 2 );
+		expect( mockUploadHandler ).toHaveBeenLastCalledWith( file2 );
+	} );
+
+	// The failure counterpart of the success case above: a cancelled row must
+	// not leave its error — and a Retry button — on the row dispatched after it.
+	it( 'does not attribute an orphaned session failure to the next item', () => {
+		mockDeferResumeHandler = true;
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		const file1 = new File( [ 'x' ], 'a.mp4', { type: 'video/mp4' } );
+		const file2 = new File( [ 'y' ], 'b.mp4', { type: 'video/mp4' } );
+		let id1 = '';
+		act( () => {
+			id1 = result.current.startUpload( file1 );
+			result.current.startUpload( file2 );
+		} );
+
+		act( () => {
+			result.current.cancelUpload( id1 );
+		} );
+
+		act( () => {
+			lastCallbacks.onError?.( new Error( 'boom' ) );
+		} );
+
+		const remaining = result.current.uploadQueue[ 0 ];
+		expect( remaining.file.name ).toBe( 'b.mp4' );
+		expect( remaining.status ).toBe( 'uploading' );
+		expect( remaining.error ).toBeUndefined();
 		expect( mockUploadHandler ).toHaveBeenCalledTimes( 2 );
 		expect( mockUploadHandler ).toHaveBeenLastCalledWith( file2 );
 	} );

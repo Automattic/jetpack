@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import DashboardLayout from '../index';
 import type { FirstRunState } from '../../../hooks/use-first-run-state';
 import type { ReactNode } from 'react';
@@ -169,6 +170,29 @@ describe( 'DashboardLayout', () => {
 			expect( screen.queryAllByRole( 'tab' ) ).toHaveLength( 0 );
 		} );
 
+		// Panels are rendered by mapping over the tab order, so a route whose tab
+		// has dropped out of that order renders its children nowhere. Normal use
+		// reaches it: the first successful upload flips the state to `home`,
+		// which drops Upload from the order while the user is still standing on
+		// /upload finishing the details step.
+		it( 'keeps the active tab in the order when the order has dropped it', () => {
+			mockFirstRun = 'home';
+			mockSettled = 'home';
+
+			render( <DashboardLayout activeTab="upload">body</DashboardLayout> );
+
+			expect( screen.getByText( 'body' ) ).toBeInTheDocument();
+			// Re-inserted in its canonical position rather than appended, so the
+			// strip does not re-order around the tab the user is standing on.
+			expect( screen.getAllByRole( 'tab' ).map( tab => tab.textContent ) ).toEqual( [
+				'Home',
+				'Upload',
+				'Library',
+				'Analytics',
+				'Settings',
+			] );
+		} );
+
 		// Only the bare landing is ambiguous. Anywhere the user chose the route,
 		// the optimistic order still renders immediately — a brand-new user must
 		// not sit tabless while their count loads.
@@ -180,6 +204,22 @@ describe( 'DashboardLayout', () => {
 			render( <DashboardLayout activeTab="library">body</DashboardLayout> );
 
 			expect( screen.getByRole( 'tab', { name: 'Upload' } ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'tab navigation', () => {
+		// The tabs are sibling routes, so activating one is a navigation rather
+		// than local state: the strip's value comes back from the route.
+		it( 'navigates to the activated tab path', async () => {
+			const user = userEvent.setup();
+			render( <DashboardLayout activeTab="home">body</DashboardLayout> );
+
+			await user.click( screen.getByRole( 'tab', { name: 'Analytics' } ) );
+			expect( mockNavigate ).toHaveBeenCalledWith( { href: '/stats' } );
+
+			// Library owns `/`, which is the one path that is not its own name.
+			await user.click( screen.getByRole( 'tab', { name: 'Library' } ) );
+			expect( mockNavigate ).toHaveBeenLastCalledWith( { href: '/' } );
 		} );
 	} );
 
