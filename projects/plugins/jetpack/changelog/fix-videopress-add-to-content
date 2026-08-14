@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: bugfix
 
 VideoPress: adding a video to a post or page now inserts the video instead of creating an empty draft.
