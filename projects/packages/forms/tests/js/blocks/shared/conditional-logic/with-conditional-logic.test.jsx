@@ -19,9 +19,23 @@ await jest.unstable_mockModule( '../../../../../src/blocks/contact-form/child-bl
 	childBlocks: [ { name: 'field-text', conditional_logic: { type: 'string' } } ],
 } ) );
 
+const mockToggleBlockHighlight = jest.fn();
+
 await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
 	InspectorControls: ( { children } ) => <div>{ children }</div>,
 	BlockControls: ( { children } ) => <div>{ children }</div>,
+	store: 'core/block-editor',
+} ) );
+
+// Only useDispatch is replaced. Something in the panel's import graph pulls the real store
+// helpers from this module, so a mock that omits them fails at import rather than in a test --
+// and one that imports the module from inside its own factory recurses until V8 gives up.
+// Loading it first, then registering the mock, avoids both.
+const actualData = await import( '@wordpress/data' );
+
+await jest.unstable_mockModule( '@wordpress/data', () => ( {
+	...actualData,
+	useDispatch: () => ( { toggleBlockHighlight: mockToggleBlockHighlight } ),
 } ) );
 
 await jest.unstable_mockModule(

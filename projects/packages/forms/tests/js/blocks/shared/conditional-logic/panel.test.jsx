@@ -55,9 +55,23 @@ const SUBJECT_FIELDS = [
 	},
 ];
 
+const mockToggleBlockHighlight = jest.fn();
+
 await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
 	InspectorControls: ( { children } ) => <div>{ children }</div>,
 	BlockControls: ( { children } ) => <div>{ children }</div>,
+	store: 'core/block-editor',
+} ) );
+
+// Only useDispatch is replaced. Something in the panel's import graph pulls the real store
+// helpers from this module, so a mock that omits them fails at import rather than in a test --
+// and one that imports the module from inside its own factory recurses until V8 gives up.
+// Loading it first, then registering the mock, avoids both.
+const actualData = await import( '@wordpress/data' );
+
+await jest.unstable_mockModule( '@wordpress/data', () => ( {
+	...actualData,
+	useDispatch: () => ( { toggleBlockHighlight: mockToggleBlockHighlight } ),
 } ) );
 
 const mockEnsureFieldId = jest.fn( ( field, usedIds = [] ) => {
@@ -171,9 +185,28 @@ describe( 'ConditionalLogicPanel', () => {
 		// The conditions themselves, not a count of them: an author should be able to read what
 		// the field does without opening the dialog.
 		expect( screen.getByText( 'This field is shown only if:' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Name is “x”' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Budget is at least “5”' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Name (Name field) is “x”' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Budget (Number input field) is at least “5”' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Edit conditions' } ) ).toBeInTheDocument();
+	} );
+
+	// The same store action the block list uses, so pointing at a condition shows you which
+	// field it refers to on the canvas rather than leaving you to find it by name.
+	it( 'highlights the subject block while a condition is hovered', async () => {
+		mockToggleBlockHighlight.mockClear();
+		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ), {
+			openModal: false,
+		} );
+
+		// Hovering the text is enough: React fires onMouseEnter on the line when the pointer
+		// enters any of its children.
+		const line = screen.getByText( 'Name (Name field) is “x”' );
+
+		await userEvent.hover( line );
+		expect( mockToggleBlockHighlight ).toHaveBeenCalledWith( 'c-name', true );
+
+		await userEvent.unhover( line );
+		expect( mockToggleBlockHighlight ).toHaveBeenCalledWith( 'c-name', false );
 	} );
 
 	it( 'summarises a hide action and an any match', async () => {
@@ -183,7 +216,7 @@ describe( 'ConditionalLogicPanel', () => {
 		);
 
 		expect( screen.getByText( 'This field is hidden only if:' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Name is “x”' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Name (Name field) is “x”' ) ).toBeInTheDocument();
 	} );
 
 	// The toolbar button reports the same thing the inspector summary does, for an author who
@@ -194,7 +227,9 @@ describe( 'ConditionalLogicPanel', () => {
 		} );
 
 		expect(
-			screen.getByRole( 'button', { name: 'This field is shown only if: Name is “x”' } )
+			screen.getByRole( 'button', {
+				name: 'This field is shown only if: Name (Name field) is “x”',
+			} )
 		).toBeInTheDocument();
 	} );
 
@@ -205,7 +240,9 @@ describe( 'ConditionalLogicPanel', () => {
 		} );
 
 		expect(
-			screen.getByRole( 'button', { name: 'This field is shown only if: Name is “x”' } )
+			screen.getByRole( 'button', {
+				name: 'This field is shown only if: Name (Name field) is “x”',
+			} )
 		).toHaveClass( 'is-pressed' );
 	} );
 
@@ -234,7 +271,9 @@ describe( 'ConditionalLogicPanel', () => {
 		} );
 
 		await userEvent.click(
-			screen.getByRole( 'button', { name: 'This field is shown only if: Name is “x”' } )
+			screen.getByRole( 'button', {
+				name: 'This field is shown only if: Name (Name field) is “x”',
+			} )
 		);
 
 		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();

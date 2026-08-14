@@ -1,6 +1,11 @@
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import {
+	BlockControls,
+	InspectorControls,
+	store as blockEditorStore,
+} from '@wordpress/block-editor';
 import { Button, PanelBody, ToolbarButton, ToolbarGroup } from '@wordpress/components';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useDispatch } from '@wordpress/data';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { seen, unseen } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
@@ -21,6 +26,44 @@ import {
 } from '../util/summary.js';
 import ConditionalLogicModal from './rules-modal.jsx';
 import '../editor.scss';
+
+/**
+ * One condition in the inspector summary, which highlights its subject block on hover.
+ *
+ * The same outline the block list draws when you hover a row there, and the same store action
+ * behind it -- so pointing at "Phone (Dropdown field)" shows you which field that is on the
+ * canvas rather than leaving you to find it by name.
+ *
+ * @param {object} props         - Component props.
+ * @param {object} props.rule    - The rule to describe.
+ * @param {object} props.subject - The rule's subject field descriptor.
+ * @return {object} The rendered line.
+ */
+const ConditionSummaryLine = ( { rule, subject } ) => {
+	const { toggleBlockHighlight } = useDispatch( blockEditorStore );
+	const clientId = subject?.clientId;
+
+	const highlight = useCallback(
+		on => clientId && toggleBlockHighlight( clientId, on ),
+		[ clientId, toggleBlockHighlight ]
+	);
+
+	// Clear the highlight if this line goes away while the pointer is still over it --
+	// selecting another block unmounts the panel, and mouseleave never arrives.
+	useEffect( () => () => highlight( false ), [ highlight ] );
+
+	return (
+		<li
+			className="jetpack-contact-form__conditional-logic-summary-item"
+			onMouseEnter={ () => highlight( true ) }
+			onMouseLeave={ () => highlight( false ) }
+			onFocus={ () => highlight( true ) }
+			onBlur={ () => highlight( false ) }
+		>
+			<Text variant="body-sm">{ describeRule( rule, subject ) }</Text>
+		</li>
+	);
+};
 
 /**
  * The "Conditional logic" inspector panel, injected into every field block.
@@ -121,9 +164,7 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 								     announces how many conditions there are before reading them. */ }
 								<ul className="jetpack-contact-form__conditional-logic-summary-list">
 									{ activeConditions.map( ( { rule, subject }, index ) => (
-										<li key={ index }>
-											<Text variant="body-sm">{ describeRule( rule, subject ) }</Text>
-										</li>
+										<ConditionSummaryLine key={ index } rule={ rule } subject={ subject } />
 									) ) }
 								</ul>
 							</Stack>

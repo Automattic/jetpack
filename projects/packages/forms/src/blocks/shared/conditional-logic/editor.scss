@@ -24,6 +24,16 @@
 		li {
 			margin-block-start: var(--wpds-dimension-gap-xs);
 		}
+
+		// Hovering a condition highlights its field on the canvas, so the line
+		// has to look like something you can point at.
+		.jetpack-contact-form__conditional-logic-summary-item {
+			cursor: default;
+
+			&:hover {
+				color: var(--wpds-color-foreground-content-neutral);
+			}
+		}
 	}
 
 	// Full width, so it reads as the panel's action rather than a control

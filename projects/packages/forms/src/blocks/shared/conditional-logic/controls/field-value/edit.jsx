@@ -6,6 +6,7 @@ import { Button, IconButton, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { RULE_TYPE_FIELD_VALUE } from '../../constants.js';
 import { useEnsureFieldId } from '../../hooks/use-subject-fields.js';
+import { getFieldDisplayName } from '../../util/field-label.js';
 import {
 	OPERATORS,
 	getOperatorsForTypeKey,
@@ -34,25 +35,6 @@ const INPUT_TYPE_BY_KIND = {
  * @return {string} A value unique within the dropdown.
  */
 const selectionValue = field => field.id || `clientId:${ field.clientId }`;
-
-/**
- * Dropdown text for a subject field.
- *
- * The field type is appended so an author can tell entries apart when the labels are
- * unhelpful — two fields both reading "Untitled field", or several sharing a label.
- *
- * @param {object} field - Subject field descriptor.
- * @return {string} Text to show in the dropdown.
- */
-const optionLabel = field =>
-	field.typeLabel
-		? sprintf(
-				/* translators: 1: form field label, 2: the field's type, e.g. "Dropdown field" */
-				__( '%1$s (%2$s)', 'jetpack-forms' ),
-				field.label,
-				field.typeLabel
-		  )
-		: field.label;
 
 /**
  * Default operator for a newly added rule, chosen from the subject field's own operator set
@@ -289,7 +271,7 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 						<optgroup key={ group } label={ group }>
 							{ grouped[ group ].map( field => (
 								<option key={ field.clientId } value={ selectionValue( field ) }>
-									{ optionLabel( field ) }
+									{ getFieldDisplayName( field ) }
 								</option>
 							) ) }
 						</optgroup>

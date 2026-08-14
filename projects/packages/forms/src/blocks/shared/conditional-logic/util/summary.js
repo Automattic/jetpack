@@ -1,4 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
+import { getFieldDisplayName } from './field-label.js';
 import { operatorNeedsValue } from './field-types.ts';
 import { getOperatorLabel } from './operator-labels.ts';
 import { isRuleComplete } from './rule-validity.js';
@@ -43,7 +44,10 @@ export const getSummaryHeading = ( logic, group ) => {
  * @return {string} A phrase such as `Phone is “iPhone”`.
  */
 export const describeRule = ( rule, subject ) => {
-	const label = subject?.label || '';
+	// Named the same way the subject dropdown names it, type in brackets and all: a label on
+	// its own does not always identify a field, and reading one name in the summary and
+	// another in the builder would make them look like different fields.
+	const label = getFieldDisplayName( subject );
 	const operator = getOperatorLabel( rule.operator );
 
 	// `is empty`, `is checked` and friends compare against nothing, so there is nothing to
