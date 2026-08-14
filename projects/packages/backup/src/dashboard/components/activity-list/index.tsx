@@ -103,7 +103,7 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 export default function ActivityList( { selectedId, onSelect, view, onChangeView }: Props ) {
 	const page = view.page ?? 1;
 	const perPage = view.perPage ?? ACTIVITY_LOG_DEFAULT_PER_PAGE;
-	const { items, totalItems, totalPages, isLoading, error, refetch } = useActivityLog( {
+	const { items, totalItems, totalPages, isLoading, isFetching, error, refetch } = useActivityLog( {
 		page,
 		pageSize: perPage,
 	} );
@@ -118,6 +118,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 			title={ __( "We couldn't load your site's activity.", 'jetpack-backup-pkg' ) }
 			error={ error }
 			onRetry={ refetch }
+			isRetrying={ isFetching }
 		/>
 	) : undefined;
 

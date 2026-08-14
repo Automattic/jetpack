@@ -327,6 +327,7 @@ export default function FileBrowser( {
 		children: rootsData,
 		isLoading: rootsLoading,
 		error: rootsError,
+		isFetching: rootsFetching,
 		refetch: refetchRoots,
 	} = useFileTree( rewindId, null );
 	const roots = useMemo< FileNode[] >( () => rootsData ?? [], [ rootsData ] );
@@ -436,6 +437,7 @@ export default function FileBrowser( {
 					title={ __( "We couldn't load this backup's files.", 'jetpack-backup-pkg' ) }
 					error={ rootsError }
 					onRetry={ refetchRoots }
+					isRetrying={ rootsFetching }
 				/>
 			</div>
 		);
@@ -586,7 +588,7 @@ function NodeRow( {
 
 	return (
 		<div>
-			<div className={ rowClassName } style={ { paddingLeft: 12 + depth * 16 } }>
+			<div className={ rowClassName } style={ { paddingInlineStart: 12 + depth * 16 } }>
 				<CheckboxControl
 					checked={ isEffectivelySelected }
 					indeterminate={ isIndeterminate }
@@ -610,7 +612,10 @@ function NodeRow( {
 			{ open && nodeIsFolder && (
 				<div className="jpb-file-browser__children">
 					{ isLoading && (
-						<div className="jpb-file-browser__loading" style={ { paddingLeft: 28 + depth * 16 } }>
+						<div
+							className="jpb-file-browser__loading"
+							style={ { paddingInlineStart: 28 + depth * 16 } }
+						>
 							<Spinner />
 						</div>
 					) }
@@ -621,7 +626,10 @@ function NodeRow( {
 					 * that we couldn't look inside it.
 					 */ }
 					{ ! isLoading && error && (
-						<div className="jpb-file-browser__error" style={ { paddingLeft: 44 + depth * 16 } }>
+						<div
+							className="jpb-file-browser__error"
+							style={ { paddingInlineStart: 44 + depth * 16 } }
+						>
 							{
 								/* translators: shown inside an expanded folder in the backup file browser when its contents could not be fetched. */
 								__( "Couldn't load this folder.", 'jetpack-backup-pkg' )
@@ -629,7 +637,10 @@ function NodeRow( {
 						</div>
 					) }
 					{ ! isLoading && ! error && ( children ?? [] ).length === 0 && (
-						<div className="jpb-file-browser__empty" style={ { paddingLeft: 44 + depth * 16 } }>
+						<div
+							className="jpb-file-browser__empty"
+							style={ { paddingInlineStart: 44 + depth * 16 } }
+						>
 							{
 								/* translators: shown inside an expanded folder in the backup file browser when the folder contains no files. */
 								__( 'Empty', 'jetpack-backup-pkg' )

@@ -20,6 +20,13 @@ type Result = {
 	totalItems: number;
 	totalPages: number;
 	isLoading: boolean;
+	/**
+	 * True while a refetch is in flight. Distinct from `isLoading`, which
+	 * React Query defines as `isPending && isFetching` — a query in the
+	 * error state is never pending, so `isLoading` stays false for the
+	 * whole duration of a retry.
+	 */
+	isFetching: boolean;
 	error: Error | null;
 	refetch: () => void;
 };
@@ -92,6 +99,7 @@ export function useActivityLog( { page, pageSize }: Args ): Result {
 		totalItems: query.data?.totalItems ?? items.length,
 		totalPages: query.data?.totalPages ?? Math.max( 1, Math.ceil( items.length / pageSize ) ),
 		isLoading: query.isLoading,
+		isFetching: query.isFetching,
 		error: query.error ?? null,
 		refetch: retry,
 	};

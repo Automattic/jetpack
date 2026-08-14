@@ -65,8 +65,12 @@
 	// Sits where `&__empty` would, and is deliberately styled apart from
 	// it: "we couldn't look inside this folder" and "this folder is empty"
 	// occupy the same slot and used to render identically.
+	// `--wp-components-color-alert-red` looks like it belongs here but is
+	// declared nowhere — that set is only accent / background / foreground
+	// / gray — so it would always have fallen through to a hardcoded red
+	// that ignores the theme. This one is real.
 	&__error {
-		color: var(--wp-components-color-alert-red, #cc1818);
+		color: var(--wpds-color-foreground-content-error);
 		padding: 4px 0;
 	}
 

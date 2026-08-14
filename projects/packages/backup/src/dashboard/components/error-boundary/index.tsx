@@ -28,12 +28,15 @@ function reloadPage() {
  *
  * Without one, a throw anywhere on the render path unmounts the whole
  * React tree and leaves an empty `<div>` inside the page chrome — a
- * blank panel with no explanation and nothing to click. The tree has at
- * least one known way to get there: `toFileNode` parses a `period`
- * straight out of a WPCOM manifest, and a non-numeric value makes
- * `new Date( NaN ).toISOString()` raise `RangeError: Invalid time
- * value` inside a `useMemo`. That hazard is called out in
- * `use-file-tree.ts` precisely because nothing was catching it.
+ * blank panel with no explanation and nothing to click.
+ *
+ * This is defence in depth rather than a fix for one known hole. The
+ * hazard it was written for — `toFileNode` calling `toISOString()` on a
+ * `period` parsed straight out of an unvalidated WPCOM manifest — is
+ * guarded at the source, and that guard is the right place for it,
+ * because dropping one timestamp beats blanking the file browser. What
+ * the boundary buys is that the next such field, in the next component,
+ * costs a legible error screen instead of a white rectangle.
  *
  * A class component because that is still the only way to implement
  * `getDerivedStateFromError` — React exposes no hook equivalent.
@@ -82,7 +85,16 @@ export default class ErrorBoundary extends Component< Props, State > {
 		return (
 			<Card className="jpb-error-boundary">
 				<Stack direction="column" gap="md" align="center">
-					<Text variant="heading-md" render={ <h2 /> }>
+					{ /*
+					 * An `h1`, not an `h2`: the page's own `h1` comes from
+					 * `<Page title>` inside `<DashboardLayout>`, and this
+					 * fallback renders *instead of* that whole subtree. When
+					 * it is on screen there is no other heading on the page,
+					 * so this is the document's first one. (The gate screens
+					 * use lower levels because they render inside the layout,
+					 * with that `h1` still above them.)
+					 */ }
+					<Text variant="heading-md" render={ <h1 /> }>
 						{ __( 'Something went wrong', 'jetpack-backup-pkg' ) }
 					</Text>
 					<Text>

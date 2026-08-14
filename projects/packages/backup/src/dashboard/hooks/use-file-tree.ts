@@ -9,6 +9,12 @@ const BASE_FOLDER_PATH = '/';
 type Result = {
 	children: FileNode[] | null;
 	isLoading: boolean;
+	/**
+	 * True while a refetch is in flight. Distinct from `isLoading`: a
+	 * query in the error state is never pending, so `isLoading` stays
+	 * false for the whole duration of a retry.
+	 */
+	isFetching: boolean;
 	error: Error | null;
 	refetch: () => void;
 };
@@ -50,15 +56,24 @@ export function toFileNode( name: string, raw: WpcomFileNode, parentPath: string
 	}
 
 	// `period` is unix seconds as a string, but it comes straight from a
-	// WPCOM manifest and nothing validates it. A non-numeric value makes
-	// `new Date( NaN ).toISOString()` throw `RangeError: Invalid time
-	// value` — and this runs inside a `useMemo` on the render path with no
-	// error boundary above it, so one malformed entry would blank the whole
-	// file browser rather than dropping a single timestamp.
+	// WPCOM manifest and nothing validates it. `toISOString()` throws
+	// `RangeError: Invalid time value` on an unrepresentable date, and one
+	// malformed entry would take the whole file browser down with it —
+	// this runs inside a `useMemo` on the render path, so the route-level
+	// error boundary would catch it, but as a blanked screen rather than a
+	// single dropped timestamp.
+	//
+	// Testing the resulting `Date` rather than the parsed number is what
+	// makes this complete: `Number.isFinite` alone rejects non-numeric
+	// values but happily passes anything inside float range, and `Date` is
+	// only defined within ±8.64e15 ms. A `period` in milliseconds or
+	// microseconds — ordinary upstream drift for an unvalidated field —
+	// is finite and still unrepresentable.
 	const periodSeconds = raw.period ? Number.parseInt( raw.period, 10 ) : NaN;
-	const lastModified = Number.isFinite( periodSeconds )
-		? new Date( periodSeconds * 1000 ).toISOString()
-		: undefined;
+	const lastModifiedDate = new Date( periodSeconds * 1000 );
+	const lastModified = Number.isNaN( lastModifiedDate.getTime() )
+		? undefined
+		: lastModifiedDate.toISOString();
 	return {
 		type: 'file',
 		name,
@@ -113,6 +128,7 @@ export function useFileTree( rewindId: string, folderPath: string | null ): Resu
 	return {
 		children,
 		isLoading: query.isLoading,
+		isFetching: query.isFetching,
 		error: query.error ?? null,
 		refetch: retry,
 	};

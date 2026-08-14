@@ -26,6 +26,7 @@ jest.mock( '@wordpress/route', () => ( {
 
 // Imports must come after the jest.mock factories above.
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import ErrorBoundary from '../src/dashboard/components/error-boundary';
 import { queryClient } from '../src/dashboard/data/query-client';
@@ -55,6 +56,60 @@ function failOnly( failing: string, error: { code: string; message: string } ) {
 		return Promise.resolve( {} );
 	} );
 }
+
+/**
+ * One rewindable-activity backup row, enough for the Overview to
+ * preselect it and mount the file browser against it.
+ *
+ * @return A raw activity entry.
+ */
+function backupActivityEntry() {
+	return {
+		activity_id: 'act-1',
+		gridicon: 'cloud',
+		summary: 'Backup complete',
+		published: '2026-08-13T18:08:56+00:00',
+		rewind_id: '1786644531.123',
+		actor: { type: 'Application', name: 'Jetpack' },
+		content: { text: '46 plugins, 23 themes' },
+		name: 'rewind__backup_complete_full',
+	};
+}
+
+/**
+ * Serve a selectable backup, and fail the file-tree listing.
+ *
+ * @param error         - The rejection payload for `/rewind/backup/ls`.
+ * @param error.code    - Error code, as the bridges emit it.
+ * @param error.message - Human-readable reason.
+ */
+function failFileTree( error: { code: string; message: string } ) {
+	mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+		const path = options?.path ?? '';
+		if ( path.includes( '/rewind/backup/ls' ) ) {
+			return Promise.reject( error );
+		}
+		if ( path.includes( '/site/capabilities' ) ) {
+			return Promise.resolve( CAPABILITIES );
+		}
+		if ( path.includes( '/site/rewindable-activity' ) ) {
+			return Promise.resolve( {
+				current: { orderedItems: [ backupActivityEntry() ] },
+				totalItems: 1,
+				totalPages: 1,
+			} );
+		}
+		return Promise.resolve( {} );
+	} );
+}
+
+// jsdom implements no scrolling, and DataViews' list layout calls
+// `scrollIntoView` on the selected row. Defined rather than spied on:
+// `jest.spyOn` requires the property to already exist.
+Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
+	value: () => {},
+	writable: true,
+} );
 
 beforeEach( () => {
 	queryClient.clear();
@@ -107,6 +162,60 @@ describe( 'activity list', () => {
 		expect(
 			screen.queryByText( "We couldn't load your site's activity." )
 		).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'file browser', () => {
+	// The only change in this PR that *removes* rendered UI, which is why
+	// it is worth pinning: a failed root tree used to render an empty tree
+	// under a "0 items selected" header, i.e. a successfully-loaded backup
+	// that happens to contain nothing. A silently restored header would put
+	// that misleading affordance back with every other test still green.
+	it( 'reports a failed root tree and drops the selection header', async () => {
+		failFileTree( { code: 'file_tree_fetch_failed', message: 'Backup storage unreachable' } );
+
+		render( <OverviewStage /> );
+
+		await expect(
+			screen.findByText( "We couldn't load this backup's files." )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Backup storage unreachable' ) ).toBeInTheDocument();
+		// The regression: a selection summary over a tree that isn't there.
+		expect( screen.queryByText( /items? selected/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'says a folder could not be read rather than that it is empty', async () => {
+		// The root listing succeeds; only the folder's own fetch fails.
+		mockApiFetch.mockImplementation( ( options: { path?: string; data?: unknown } ) => {
+			const path = options?.path ?? '';
+			if ( path.includes( '/site/capabilities' ) ) {
+				return Promise.resolve( CAPABILITIES );
+			}
+			if ( path.includes( '/site/rewindable-activity' ) ) {
+				return Promise.resolve( {
+					current: { orderedItems: [ backupActivityEntry() ] },
+					totalItems: 1,
+					totalPages: 1,
+				} );
+			}
+			if ( path.includes( '/rewind/backup/ls' ) ) {
+				const folder = ( options as { data?: { path?: string } } )?.data?.path;
+				if ( folder && folder !== '/' ) {
+					return Promise.reject( { code: 'x', message: 'Unreadable' } );
+				}
+				return Promise.resolve( { contents: { 'wp-content': { type: 'dir' } } } );
+			}
+			return Promise.resolve( {} );
+		} );
+
+		render( <OverviewStage /> );
+
+		await userEvent.click( await screen.findByRole( 'button', { name: /wp-content/ } ) );
+
+		// "we couldn't look inside" and "there is nothing inside" used to
+		// be the same output.
+		await expect( screen.findByText( "Couldn't load this folder." ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Empty' ) ).not.toBeInTheDocument();
 	} );
 } );
 

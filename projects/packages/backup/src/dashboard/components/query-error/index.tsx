@@ -9,6 +9,8 @@ type Props = {
 	error: Error;
 	/** Refetches the failed query. Omitted when the caller has no way to retry. */
 	onRetry?: () => void;
+	/** Whether a retry is in flight. */
+	isRetrying?: boolean;
 };
 
 /**
@@ -24,13 +26,21 @@ type Props = {
  * It is the only part a support agent can act on, and the bridges
  * already translate WPCOM's failures into human-readable text.
  *
- * @param props         - Component props.
- * @param props.title   - What failed, in the reader's terms.
- * @param props.error   - The query's error.
- * @param props.onRetry - Refetches the failed query, when the caller can.
+ * `isRetrying` matters more than it looks. React Query defines
+ * `isLoading` as `isPending && isFetching`, and a query sitting in the
+ * error state is never pending — so a refetch leaves `isLoading` false
+ * for its whole duration. Without a separate signal the button would not
+ * change, and a retry that failed again would leave the DOM
+ * byte-identical to before the click, which reads as a dead control.
+ *
+ * @param props            - Component props.
+ * @param props.title      - What failed, in the reader's terms.
+ * @param props.error      - The query's error.
+ * @param props.onRetry    - Refetches the failed query, when the caller can.
+ * @param props.isRetrying - Whether a retry is currently in flight.
  * @return The rendered error.
  */
-export default function QueryError( { title, error, onRetry }: Props ) {
+export default function QueryError( { title, error, onRetry, isRetrying = false }: Props ) {
 	return (
 		<Notice status="error" isDismissible={ false } className="jpb-query-error">
 			<Stack direction="column" gap="sm" align="flex-start">
@@ -41,7 +51,14 @@ export default function QueryError( { title, error, onRetry }: Props ) {
 					</Text>
 				) }
 				{ onRetry && (
-					<Button variant="secondary" size="compact" onClick={ onRetry }>
+					<Button
+						variant="secondary"
+						size="compact"
+						onClick={ onRetry }
+						isBusy={ isRetrying }
+						disabled={ isRetrying }
+						accessibleWhenDisabled
+					>
 						{ __( 'Try again', 'jetpack-backup-pkg' ) }
 					</Button>
 				) }
