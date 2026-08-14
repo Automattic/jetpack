@@ -198,10 +198,11 @@
 	// at the full 1272px column a drop target reads as a void. Same card frame
 	// and 718px measure as /upload's dropzone — the two screens offer the same
 	// action and were reading as different components.
-	// The free-plan notice takes the same 660px measure as the dropzone under
-	// it (and as the Settings tab), so the empty screen reads as one column
-	// instead of a full-width bar sitting over a narrow card.
-	&__notice {
+	// On the empty screen the notice takes the same 660px measure as the
+	// dropzone beneath it, so the two read as one column. With the recents
+	// rail instead, it keeps the full width — a centered 660px bar over
+	// left-aligned cards looks like a mistake.
+	&__notice.is-narrow {
 		box-sizing: border-box;
 		inline-size: 100%;
 		max-inline-size: 660px;

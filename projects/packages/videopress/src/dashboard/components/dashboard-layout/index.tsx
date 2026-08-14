@@ -169,6 +169,20 @@ export default function DashboardLayout( {
 		} );
 	}, [ activeTab, settledFirstRunState, navigate ] );
 
+	// A bare `admin.php?page=jetpack-videopress` (the WordPress menu link)
+	// resolves to the Library route, because Library owns `/`. The effect
+	// above then sends the user to Home or Upload — so the Library paints
+	// first and is yanked away a moment later, which reads as the page
+	// loading twice. Hold the body back until the decision is made: only on
+	// that bare landing, and only while the count is still unknown, so a
+	// failed count still ends up rendering something rather than hanging on
+	// an empty frame.
+	const isAwaitingLandingDecision =
+		activeTab === 'library' &&
+		isBareLanding() &&
+		settledFirstRunState === 'loading' &&
+		! hasHandledLandingRedirect();
+
 	return (
 		<AdminPage
 			title={ 'VideoPress' /* product name; not translated */ }
@@ -183,7 +197,7 @@ export default function DashboardLayout( {
 				<DashboardTabs tabs={ visibleTabs } />
 				{ visibleTabs.map( tab => (
 					<Tabs.Panel key={ tab } value={ tab }>
-						{ activeTab === tab ? children : null }
+						{ activeTab === tab && ! isAwaitingLandingDecision ? children : null }
 					</Tabs.Panel>
 				) ) }
 			</Tabs.Root>
