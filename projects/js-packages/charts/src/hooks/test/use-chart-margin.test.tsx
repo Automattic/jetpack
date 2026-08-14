@@ -184,4 +184,64 @@ describe( 'useChartMargin', () => {
 		// This is larger than the 20px default bottom margin, so it should be used.
 		expect( result.current.bottom ).toBe( 25 );
 	} );
+
+	describe( 'horizontal y ticks', () => {
+		const horizontalOptions = ( tickFormat: ( value: string | number ) => string ) => ( {
+			...optionsBase,
+			axis: {
+				...optionsBase.axis,
+				y: { ...optionsBase.axis.y, orientation: Orientation.left, tickFormat },
+			},
+		} );
+
+		it( 'measures dated ticks by formatting the raw timestamps once', () => {
+			const formatHour = ( timestamp: string | number ) =>
+				new Date( timestamp ).toLocaleTimeString( undefined, { hour: 'numeric', hour12: true } );
+			const hourlyData = [
+				{
+					label: 'Series 1',
+					data: [
+						{ date: new Date( 2024, 0, 1, 6 ), value: 10 },
+						{ date: new Date( 2024, 0, 1, 7 ), value: 20 },
+					],
+				},
+			];
+
+			renderHook( () =>
+				useChartMargin( 300, horizontalOptions( formatHour ), hourlyData, baseTheme, true )
+			);
+
+			const [ ticks, measureFormatter ] = mockGetLongestTickWidth.mock.calls[ 0 ];
+			// Raw timestamps, so the formatter runs exactly once — formatting here
+			// and again while measuring would date-parse "6 AM" to "Invalid Date".
+			expect( ticks ).toEqual( [
+				new Date( 2024, 0, 1, 6 ).getTime(),
+				new Date( 2024, 0, 1, 7 ).getTime(),
+			] );
+			expect( measureFormatter ).toBe( formatHour );
+		} );
+
+		it( "measures labelled ticks through the caller's formatter", () => {
+			const withSuffix = ( label: string | number ) => `${ label } (total)`;
+			const labelledData = [
+				{
+					label: 'Series 1',
+					data: [
+						{ label: 'Mon', value: 10 },
+						{ label: 'Tuesday', value: 20 },
+					],
+				},
+			];
+
+			renderHook( () =>
+				useChartMargin( 300, horizontalOptions( withSuffix ), labelledData, baseTheme, true )
+			);
+
+			const [ ticks, measureFormatter ] = mockGetLongestTickWidth.mock.calls[ 0 ];
+			// A formatter that lengthens labels has to reach the measurement, or the
+			// margin under-measures and the widest label clips at the SVG edge.
+			expect( ticks ).toEqual( [ 'Mon', 'Tuesday' ] );
+			expect( measureFormatter ).toBe( withSuffix );
+		} );
+	} );
 } );
