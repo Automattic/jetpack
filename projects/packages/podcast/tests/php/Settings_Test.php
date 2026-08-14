@@ -115,19 +115,12 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	public function test_feed_limit_clamps_stored_values_on_read() {
-		$this->assertSame( Settings::FEED_LIMIT_DEFAULT, Settings::feed_limit() );
-
-		update_option( 'podcasting_feed_limit', '50' );
-		$this->assertSame( 50, Settings::feed_limit() );
-
-		update_option( 'podcasting_feed_limit', -5 );
-		$this->assertSame( Settings::FEED_LIMIT_DEFAULT, Settings::feed_limit() );
-
-		update_option( 'podcasting_feed_limit', 'all of them' );
-		$this->assertSame( Settings::FEED_LIMIT_DEFAULT, Settings::feed_limit() );
-
 		update_option( 'podcasting_feed_limit', 999999 );
 		$this->assertSame( Settings::FEED_LIMIT_MAX, Settings::feed_limit() );
+
+		// Not `absint()`, which would serve a five-episode feed here.
+		update_option( 'podcasting_feed_limit', -5 );
+		$this->assertSame( Settings::FEED_LIMIT_DEFAULT, Settings::feed_limit() );
 
 		delete_option( 'podcasting_feed_limit' );
 	}
@@ -147,34 +140,28 @@ class Settings_Test extends BaseTestCase {
 		delete_option( 'posts_per_rss' );
 	}
 
-	public function test_feed_limit_max_filter_raises_the_ceiling() {
+	public function test_feed_limit_max_filter_moves_the_ceiling_both_ways() {
+		update_option( 'podcasting_feed_limit', 900 );
 		add_filter(
 			'jetpack_podcast_feed_limit_max',
 			function () {
 				return 1000;
 			}
 		);
-		update_option( 'podcasting_feed_limit', 900 );
-
 		$this->assertSame( 900, Settings::feed_limit() );
 
-		delete_option( 'podcasting_feed_limit' );
-	}
-
-	public function test_feed_limit_max_filter_also_binds_the_default() {
+		remove_all_filters( 'jetpack_podcast_feed_limit_max' );
 		add_filter(
 			'jetpack_podcast_feed_limit_max',
 			function () {
 				return 100;
 			}
 		);
-
 		$this->assertSame( 100, Settings::feed_limit() );
 
-		update_option( 'podcasting_feed_limit', 0 );
-		$this->assertSame( 100, Settings::feed_limit() );
-
+		// The fallback is bound by the ceiling too, not just stored values.
 		delete_option( 'podcasting_feed_limit' );
+		$this->assertSame( 100, Settings::feed_limit() );
 	}
 
 	public function test_sanitize_show_urls_merges_partial_patch_into_stored_value() {

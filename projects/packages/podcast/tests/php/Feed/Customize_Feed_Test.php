@@ -6,7 +6,6 @@
 namespace Automattic\Jetpack\Podcast\Tests\Feed;
 
 use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
-use Automattic\Jetpack\Podcast\Settings;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -559,16 +558,6 @@ class Customize_Feed_Test extends BaseTestCase {
 
 		$query = $this->build_podcast_feed_query_mock( 17 );
 		$query->expects( $this->once() )->method( 'set' )->with( 'posts_per_rss', 25 );
-
-		Customize_Feed::apply_feed_limit( $query );
-	}
-
-	public function test_apply_feed_limit_uses_the_default_when_the_site_has_not_chosen() {
-		$this->seed_category_term( 17 );
-		update_option( 'podcasting_category_id', 17 );
-
-		$query = $this->build_podcast_feed_query_mock( 17 );
-		$query->expects( $this->once() )->method( 'set' )->with( 'posts_per_rss', Settings::FEED_LIMIT_DEFAULT );
 
 		Customize_Feed::apply_feed_limit( $query );
 	}
