@@ -88,6 +88,10 @@ describe( 'WidgetState', () => {
 		);
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		// And nothing above it is busy. `aria-busy` defers descendant changes, so
+		// a busy ancestor could hold this status back until the moment the node is
+		// unmounted — silencing the one announcement a first load owes.
+		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
 	} );
 
 	it( 'renders the loading state whenever isLoading, regardless of the caller-derived isEmpty', () => {

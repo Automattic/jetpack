@@ -201,12 +201,16 @@ export function WidgetState( {
 			// part of the widget body that stays visible through a refetch.
 			tabIndex={ -1 }
 			className={ styles.root }
-			// Gated on the same delay as the skeleton, not on `isFetching`. A
-			// refetch that resolves inside the delay changes nothing on screen, so
-			// flipping the region busy and back would interrupt a screen reader
-			// mid-widget over an update a sighted reader never sees — the opposite
-			// of what the delay is for.
-			aria-busy={ isLoading || showFetchingState || undefined }
+			// Only while a delayed skeleton is up, for two reasons. A refetch that
+			// resolves inside the delay changes nothing on screen, so flipping the
+			// region busy and back would interrupt a screen reader over an update a
+			// sighted reader never sees — the opposite of what the delay is for.
+			// And busy defers descendant changes, so covering the first load would
+			// hold back the skeleton's own "Loading…" until the moment that status
+			// node is removed, which is to say forever. Busy therefore only ever
+			// wraps a skeleton that is already `aria-hidden`; the first load speaks
+			// for itself through its live region instead.
+			aria-busy={ showFetchingState || undefined }
 		>
 			{ body }
 		</div>
