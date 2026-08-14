@@ -60,7 +60,13 @@
 		// row's fixed-pixel hover inset from collapsing a narrow bar to nothing.
 		min-width: var(--wpds-dimension-size-5xs, 4px);
 
-		border-radius: var(--a8c-charts-border-radius-leaderboard-bar);
+		// The deprecated --a8c--charts--leaderboard--bar--border-radius name is read
+		// here at the call site, not inside the :root catalog entry: types.ts
+		// documents it as a `style` prop key, which sets it on the chart element —
+		// below :root — where an inner-fallback var() inside the catalog entry could
+		// never see it (it was already resolved to a fixed string at :root). Reading
+		// it here means the deprecated name beats the new one when both are set.
+		border-radius: var(--a8c--charts--leaderboard--bar--border-radius, var(--a8c-charts-border-radius-leaderboard-bar));
 		z-index: -1; /* places it behind the label */
 
 		&--animated {

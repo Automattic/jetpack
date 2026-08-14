@@ -23,9 +23,10 @@ fallback:
 
 Charts reference the catalog bare — `stroke: var(--a8c-charts-color-grid)`. The
 `--wpds-*` mapping for a role lives in `chart-scope.scss`, the only place a
-`--wpds-*` token may be named. The one exception is the three trend-colour deprecated
-aliases, which now live inside the catalog entry itself as its inner fallback (see
-"Public override variables" below), ahead of the `--wpds-*` mapping.
+`--wpds-*` token may be named. The exception is the four deprecated public aliases
+(three trend colours, one leaderboard radius): each is read at its own component's
+call site, layered *outside* the catalog reference, not inside the `:root` catalog
+entry — see "Public override variables" below for why.
 
 ### Precedence
 
@@ -41,6 +42,10 @@ The closest ancestor override wins, then the `:root` catalog default, then the m
 3. The catalog default emitted once at `:root`.
 4. The mapped `--wpds-*` token.
 5. The spec-value fallback.
+
+For the four roles with a deprecated public alias, a value set anywhere via the
+deprecated name wins ahead of all five steps above — see "Public override variables"
+below.
 
 A WPDS `ThemeProvider` nested *inside* `GlobalChartsProvider` does not retint the
 charts inside it — the catalog resolves once at `:root`, above where a nested
@@ -117,9 +122,9 @@ the heatmap grid's own keyboard focus ring stays on the raw `--wpds-border-radiu
 token, since it's chrome rather than a cell.
 
 `--a8c-charts-border-radius-leaderboard-bar` is a pill shape with no WPDS radius fit.
-Its deprecated alias, `--a8c--charts--leaderboard--bar--border-radius`, is read as the
-catalog entry's own inner fallback rather than at each call site — see "Public
-override variables" below.
+Its deprecated alias, `--a8c--charts--leaderboard--bar--border-radius`, is read at the
+leaderboard chart's own call site, not inside the catalog entry — see "Public
+override variables" below for why.
 
 `--a8c-charts-elevation-xs` carries the zoom reset button's shadow.
 `--a8c-charts-elevation-sm` carries tooltip and popover shadows (the conversion-funnel
@@ -159,8 +164,7 @@ override points in the same sense as the catalog above.
 
 ## Public override variables
 
-These are documented, supported override points. Deprecated names still work — they
-are read as an inner fallback behind the new name:
+These are documented, supported override points. Deprecated names still work:
 
 | New | Deprecated alias |
 |---|---|
@@ -168,3 +172,17 @@ are read as an inner fallback behind the new name:
 | `--a8c-charts-color-trend-down` | `--charts-trend-down-color` |
 | `--a8c-charts-color-trend-neutral` | `--charts-trend-neutral-color` |
 | `--a8c-charts-border-radius-leaderboard-bar` | `--a8c--charts--leaderboard--bar--border-radius` |
+
+Each deprecated alias is read at its component's own call site, as the *outer* layer
+around the new name — `var(--deprecated-name, var(--a8c-charts-*))` — not inside the
+`:root` catalog entry. An inner fallback declared inside a `:root` declaration is
+substituted at `:root`, so it can only ever see a value also set at `:root`; a value
+set on a descendant (an ancestor of the chart, or the chart element's own `style`
+prop — how `--a8c--charts--leaderboard--bar--border-radius` is documented to be set)
+is invisible to it, because the `:root` entry's value was already computed and
+inherited down as a fixed string. Reading the deprecated name at the call site instead
+means it resolves like any other cascading custom property, settable anywhere.
+
+The trade-off: the deprecated name now beats the new name when both are set on the
+same element. That inversion is deliberate — it's the price of the alias working at
+all — not a bug to fix.
