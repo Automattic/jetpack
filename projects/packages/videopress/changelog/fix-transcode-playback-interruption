@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: keep the video playing when transcoding finishes instead of reloading the player.

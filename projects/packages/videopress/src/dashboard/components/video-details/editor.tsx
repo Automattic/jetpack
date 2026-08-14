@@ -120,7 +120,11 @@ const UploadStagePanel = ( { uploadState }: { uploadState: EditorUploadState } )
 
 	if ( status === 'failed' ) {
 		return (
-			<div className="vp-video-details__player vp-upload-stage is-failed" role="alert">
+			<div
+				className="vp-video-details__player vp-upload-stage is-failed"
+				data-testid="upload-stage"
+				role="alert"
+			>
 				<Text variant="body-md" render={ <span /> } className="vp-upload-stage__name">
 					{ fileName }
 				</Text>
@@ -137,7 +141,11 @@ const UploadStagePanel = ( { uploadState }: { uploadState: EditorUploadState } )
 	}
 
 	return (
-		<div className="vp-video-details__player vp-upload-stage" aria-live="polite">
+		<div
+			className="vp-video-details__player vp-upload-stage"
+			data-testid="upload-stage"
+			aria-live="polite"
+		>
 			<Text variant="body-md" render={ <span /> } className="vp-upload-stage__name">
 				{ fileName }
 			</Text>
@@ -304,10 +312,18 @@ const Editor = ( {
 	// render an empty <h1> — and that <h1> is the page's only accessible name.
 	const headingLabel = values.title.trim() || __( 'Untitled', 'jetpack-videopress-pkg' );
 
-	const playerSlot = uploadState ? (
-		<UploadStagePanel uploadState={ uploadState } />
-	) : (
-		<PreviewPlayer video={ video } />
+	// The player stays MOUNTED underneath the upload stage rather than being
+	// swapped for it. Swapping tore down the iframe the instant `isProcessing`
+	// flipped, so a video the user had already started watching during the
+	// transcode stopped dead and needed a second press of play — the
+	// "transcoding interrupts playback" bug, which our 2s polling made land
+	// promptly and reliably. Overlaid, the embed survives the transition and
+	// simply becomes visible.
+	const playerSlot = (
+		<div className="vp-video-details__player-slot">
+			<PreviewPlayer video={ video } />
+			{ uploadState && <UploadStagePanel uploadState={ uploadState } /> }
+		</div>
 	);
 
 	const headerActions = (

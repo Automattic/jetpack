@@ -15,10 +15,12 @@ import type { ReactElement } from 'react';
  *    asset doesn't exist: a native `<video>` shows the film but NOT the
  *    player, so it makes the pitch without proving it.
  *
- * TODO(VIDP): upload the finished 28s intro film (v7, this same bundled
- * file — source of truth in the design repo) to a VideoPress account the
- * team controls and set `INTRO_VIDEO_GUID`. Until then the bundled file
- * ships.
+ * TODO(VIDP): upload the finished 28s intro film to a VideoPress account the
+ * team controls and set `INTRO_VIDEO_GUID`. Until then the bundled file ships.
+ *
+ * PLACEHOLDER ASSET — the bundled film's footage and music are stand-ins and
+ * are NOT cleared for release. A fully licensed video replaces this before
+ * release; do not treat the current file as final or reuse it elsewhere.
  */
 const INTRO_VIDEO_GUID = '';
 

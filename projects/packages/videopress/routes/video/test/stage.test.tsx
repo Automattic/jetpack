@@ -544,7 +544,10 @@ describe( 'video stage', () => {
 			await renderReadyStage();
 
 			expect( screen.getByText( 'Upload complete — processing…' ) ).toBeInTheDocument();
-			expect( screen.queryByTestId( 'preview-player' ) ).not.toBeInTheDocument();
+			// The stage overlays the player rather than replacing it, so the
+			// embed survives the moment processing finishes (see the identity
+			// test in editor.test.tsx).
+			expect( screen.getByTestId( 'upload-stage' ) ).toBeInTheDocument();
 			// The row is still delivering the processing surface — it must not
 			// be consumed yet.
 			expect( mockAcknowledgeUpload ).not.toHaveBeenCalled();
