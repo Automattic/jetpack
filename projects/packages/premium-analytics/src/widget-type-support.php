@@ -36,6 +36,13 @@ function get_unsupported_widget_types( $context ) {
 	// the same boundary, which excludes self-hosted Jetpack and Atomic sites.
 	if ( ! $context['is_wpcom_simple'] ) {
 		$unsupported[] = 'jpa/file-downloads';
+
+		// Share counts are recorded when the share request is processed, which
+		// only happens on WPCOM Simple. Elsewhere the button click is handled by
+		// the site itself and never reaches the counter, so the site summary's
+		// `shares_<service>` fields stay at zero however much the content is
+		// shared. Calypso excludes the module on the same grounds.
+		$unsupported[] = 'jpa/shares';
 	}
 
 	return $unsupported;

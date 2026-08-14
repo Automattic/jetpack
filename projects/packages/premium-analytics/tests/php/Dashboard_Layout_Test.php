@@ -210,6 +210,28 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Shares is Simple-only too, so the Insights default drops it on self-hosted
+	 * Jetpack sites (this test env).
+	 */
+	public function test_insights_default_excludes_shares_on_self_hosted() {
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_INSIGHTS_SECTION_ID ), 'type' );
+
+		$this->assertNotContains( 'jpa/shares', $layout_types, 'Simple-only widget instances must not be part of the default layout on self-hosted sites.' );
+		$this->assertContains( 'jpa/tags', $layout_types, 'Regular widget instances remain in the default layout.' );
+	}
+
+	/**
+	 * WPCOM Simple keeps Shares in the Insights default.
+	 */
+	public function test_insights_default_keeps_shares_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_INSIGHTS_SECTION_ID ), 'type' );
+
+		$this->assertContains( 'jpa/shares', $layout_types );
+	}
+
+	/**
 	 * Traffic section aliases resolve to the same default layout.
 	 */
 	public function test_traffic_aliases_resolve_same_default_layout() {
