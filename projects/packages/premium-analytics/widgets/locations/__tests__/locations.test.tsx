@@ -38,27 +38,56 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 } ) );
 
+const mockUseLocationViews = jest.fn( () => ( {
+	data: [],
+	comparisonData: [],
+	hasComparison: false,
+	isLoading: true,
+	isFetching: true,
+	hasData: false,
+	isError: false,
+	isPlaceholderData: false,
+} ) );
+
 jest.mock( '../use-location-views', () => ( {
 	__esModule: true,
-	default: () => ( {
-		data: [],
-		comparisonData: [],
-		hasComparison: false,
-		isLoading: true,
-		isFetching: true,
-		hasData: false,
-		isError: false,
-		isPlaceholderData: false,
-	} ),
+	default: ( ...args: unknown[] ) => mockUseLocationViews( ...( args as [] ) ),
 } ) );
 
 describe( 'LocationsWidget', () => {
+	beforeEach( () => {
+		mockUseLocationViews.mockClear();
+	} );
+
 	it( 'links to the Locations report', () => {
 		render( <LocationsWidget attributes={ {} } /> );
 
 		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining( '/reports/locations' )
+		);
+	} );
+
+	it.each( [
+		[ undefined, 'countries' ],
+		[ 'country', 'countries' ],
+		[ 'region', 'regions' ],
+		[ 'city', 'cities' ],
+	] as const )( 'opens the %s report tab for the %s granularity', ( geoGranularity, section ) => {
+		render( <LocationsWidget attributes={ geoGranularity ? { geoGranularity } : {} } /> );
+
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( `section=${ section }` )
+		);
+	} );
+
+	// Regions mode is worldwide; only the country drill-down scopes it.
+	it( 'requests unfiltered region rows in Regions mode', () => {
+		render( <LocationsWidget attributes={ { geoGranularity: 'region' } } /> );
+
+		expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { geoMode: 'region', countryFilter: undefined } )
 		);
 	} );
 } );
