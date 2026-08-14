@@ -470,16 +470,24 @@ class Jetpack_Sitemap_Librarian {
 	 * Returns all columns from the posts table,
 	 * except post_content and post_content_filtered.
 	 *
-	 * The column list is cached for the duration of the request,
-	 * since this is called once per batch while building sitemaps.
+	 * The column list is memoized for the lifetime of the PHP process,
+	 * since this is called once per batch while building sitemaps. It is
+	 * keyed by table name so that a process which switches blogs does not
+	 * reuse one site's column list against another site's posts table.
+	 *
+	 * An empty result is not cached: SHOW COLUMNS returns no rows when the
+	 * query fails, and caching that would leave every later query in the
+	 * process with an empty column list.
 	 *
 	 * @param object $wpdb The WordPress database object.
 	 * @return string The sanitized post columns.
 	 */
 	private function get_sanitized_post_columns( $wpdb ) {
-		static $columns_list = null;
+		static $columns_by_table = array();
 
-		if ( null === $columns_list ) {
+		$table = $wpdb->posts;
+
+		if ( empty( $columns_by_table[ $table ] ) ) {
 			$columns = array_filter(
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 				$wpdb->get_col( "SHOW COLUMNS FROM $wpdb->posts" ),
@@ -488,9 +496,9 @@ class Jetpack_Sitemap_Librarian {
 				}
 			);
 
-			$columns_list = implode( ',', array_map( 'esc_sql', $columns ) );
+			$columns_by_table[ $table ] = implode( ',', array_map( 'esc_sql', $columns ) );
 		}
 
-		return $columns_list;
+		return $columns_by_table[ $table ];
 	}
 }
