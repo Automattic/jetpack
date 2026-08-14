@@ -233,9 +233,8 @@ class Settings {
 	}
 
 	/**
-	 * Episodes the podcast feed should carry. Until the site sets one, this seeds
-	 * from core's `posts_per_rss` so existing feeds keep their current length; once
-	 * the option exists that value is never consulted again.
+	 * Episodes the podcast feed should carry. Until the site sets one this seeds
+	 * from core's `posts_per_rss`, so existing feeds keep their current length.
 	 *
 	 * Sanitized on read because Sync writes on shadow blogs never hit the
 	 * registered `sanitize_callback`.
@@ -243,12 +242,7 @@ class Settings {
 	 * @return int
 	 */
 	public static function feed_limit(): int {
-		$stored = get_option( 'podcasting_feed_limit', false );
-		if ( false === $stored ) {
-			$stored = get_option( 'posts_per_rss', self::FEED_LIMIT_DEFAULT );
-		}
-
-		return self::sanitize_feed_limit( $stored );
+		return self::sanitize_feed_limit( get_option( 'podcasting_feed_limit', 0 ) );
 	}
 
 	/**
@@ -342,13 +336,18 @@ class Settings {
 
 	/**
 	 * Clamp the feed episode limit to 1–{@see self::feed_limit_max()}. Cleared and
-	 * junk input falls back to the default rather than emptying the feed.
+	 * junk input resolves the way an unset option does — the site's own
+	 * `posts_per_rss` — rather than emptying the feed or jumping it to a default
+	 * far above whatever the site was already serving.
 	 *
 	 * @param mixed $value Raw input.
 	 * @return int
 	 */
 	public static function sanitize_feed_limit( $value ) {
 		$value = (int) $value;
+		if ( $value < 1 ) {
+			$value = (int) get_option( 'posts_per_rss', self::FEED_LIMIT_DEFAULT );
+		}
 
 		return min( $value < 1 ? self::FEED_LIMIT_DEFAULT : $value, self::feed_limit_max() );
 	}

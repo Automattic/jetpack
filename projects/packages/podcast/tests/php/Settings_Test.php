@@ -118,8 +118,14 @@ class Settings_Test extends BaseTestCase {
 		update_option( 'podcasting_feed_limit', 999999 );
 		$this->assertSame( Settings::FEED_LIMIT_MAX, Settings::feed_limit() );
 
-		// Not `absint()`, which would serve a five-episode feed here.
+		// Not `absint()`, which would serve a five-episode feed here. Junk resolves
+		// the way an unset option does rather than jumping the feed to the default,
+		// which on a real site is far longer than `posts_per_rss`.
+		update_option( 'posts_per_rss', 12 );
 		update_option( 'podcasting_feed_limit', -5 );
+		$this->assertSame( 12, Settings::feed_limit() );
+
+		delete_option( 'posts_per_rss' );
 		$this->assertSame( Settings::FEED_LIMIT_DEFAULT, Settings::feed_limit() );
 
 		delete_option( 'podcasting_feed_limit' );
@@ -162,6 +168,8 @@ class Settings_Test extends BaseTestCase {
 		// The fallback is bound by the ceiling too, not just stored values.
 		delete_option( 'podcasting_feed_limit' );
 		$this->assertSame( 100, Settings::feed_limit() );
+
+		remove_all_filters( 'jetpack_podcast_feed_limit_max' );
 	}
 
 	public function test_sanitize_show_urls_merges_partial_patch_into_stored_value() {
