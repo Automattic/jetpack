@@ -3,9 +3,6 @@ import { ReactNode } from 'react';
 import styles from './section-header.module.scss';
 
 type SectionHeaderProps = {
-	/**
-	 * The name of the section.
-	 */
 	title: string;
 
 	/**
@@ -22,12 +19,15 @@ type SectionHeaderProps = {
 
 /**
  * Section header for an analytics surface. The title and a slot for the date
- * controls share the first row, anchored to opposite edges; the subtitle takes
- * a row of its own below them, so its length never costs the controls width.
+ * controls share the first row, anchored to opposite edges: the controls keep
+ * their natural width and a long title truncates with an ellipsis. The
+ * subtitle takes a row of its own below them, so its length never costs the
+ * controls width either.
  *
  * Once the header is too narrow to hold those two side by side everything
- * stacks, and the subtitle returns to its place directly under the title.
- * Measured by a container query rather than against the viewport.
+ * stacks, the subtitle returns to its place directly under the title, and the
+ * title wraps rather than truncating. Measured by a container query rather
+ * than against the viewport.
  *
  * @param {SectionHeaderProps} props - The props for the SectionHeader component.
  * @return The section header element.
@@ -36,7 +36,9 @@ export function SectionHeader( { title, subtitle, children }: SectionHeaderProps
 	return (
 		<div className={ styles.container }>
 			<div className={ styles.layout }>
-				<Text variant="heading-2xl" render={ <h2 /> }>
+				{ /* The `title` attribute is the only way back to a name the
+				     ellipsis cut off. */ }
+				<Text className={ styles.title } variant="heading-2xl" render={ <h2 title={ title } /> }>
 					{ title }
 				</Text>
 

@@ -30,7 +30,7 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostViewsRender from '../render';
-import widgetDefinition, { type PostViewsGranularity } from '../widget';
+import widgetDefinition, { type PostViewsChartType, type PostViewsGranularity } from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -47,6 +47,7 @@ const POST_VIEWS_RENDER_MODULE = 'storybook/post-views';
 interface PostViewsStoryControls {
 	hasPostScope: boolean;
 	granularity: PostViewsGranularity;
+	chartType: PostViewsChartType;
 }
 
 /**
@@ -54,17 +55,14 @@ interface PostViewsStoryControls {
  * with the post scope the detail page seeds from its URL when `hasPostScope`
  * is on. Comparison stays a parameter so the dashboard story can pass host
  * comparison params without duplicating the scoping rule.
- *
- * @param {PostViewsStoryControls} controls       - The story controls.
- * @param {boolean}                withComparison - Include previous-period comparison report params.
- * @return The widget attributes.
  */
 function getPostViewsAttributes(
-	{ hasPostScope, granularity }: PostViewsStoryControls,
+	{ hasPostScope, granularity, chartType }: PostViewsStoryControls,
 	withComparison = false
 ): ComponentProps< typeof PostViewsRender >[ 'attributes' ] {
 	return {
 		granularity,
+		chartType,
 		reportParams: {
 			...getDefaultQueryParams( withComparison ),
 			...( hasPostScope ? { post_id: MOCK_POST_ID } : {} ),
@@ -72,12 +70,6 @@ function getPostViewsAttributes(
 	};
 }
 
-/**
- * Renders the data-connected widget with the composed attributes.
- *
- * @param {PostViewsStoryControls} controls - The story controls.
- * @return The rendered widget.
- */
 function renderPostViews( controls: PostViewsStoryControls ) {
 	return <PostViewsRender attributes={ getPostViewsAttributes( controls ) } />;
 }
@@ -95,6 +87,11 @@ const meta = {
 			control: 'radio',
 			options: [ 'day', 'week', 'month' ],
 			description: 'The "Group by" toolbar attribute rendered by the widget host.',
+		},
+		chartType: {
+			control: 'radio',
+			options: [ 'line', 'bar' ],
+			description: 'The "Chart type" toolbar attribute rendered by the widget host.',
 		},
 	},
 	parameters: {
@@ -117,7 +114,7 @@ type Story = StoryObj< PostViewsStoryControls >;
  */
 export const Default: Story = {
 	render: renderPostViews,
-	args: { hasPostScope: true, granularity: 'day' },
+	args: { hasPostScope: true, granularity: 'day', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -128,7 +125,7 @@ export const Default: Story = {
  */
 export const NoPostScope: Story = {
 	render: renderPostViews,
-	args: { hasPostScope: false, granularity: 'day' },
+	args: { hasPostScope: false, granularity: 'day', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -142,13 +139,11 @@ interface PostViewsDashboardStoryProps
  * control, sizing, edit mode). It passes comparison params unconditionally,
  * so the widget stays covered against crashing or inventing an overlay when
  * a host supplies comparison dates.
- *
- * @param {PostViewsDashboardStoryProps} props - The dashboard story controls.
- * @return The widget mounted inside the real dashboard.
  */
 function PostViewsDashboardStory( {
 	hasPostScope,
 	granularity,
+	chartType,
 	...dashboardArgs
 }: PostViewsDashboardStoryProps ) {
 	return (
@@ -157,7 +152,7 @@ function PostViewsDashboardStory( {
 			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ POST_VIEWS_RENDER_MODULE }
 			renderComponent={ PostViewsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ getPostViewsAttributes( { hasPostScope, granularity }, true ) }
+			attributes={ getPostViewsAttributes( { hasPostScope, granularity, chartType }, true ) }
 		/>
 	);
 }

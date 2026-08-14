@@ -18,7 +18,6 @@ import { encodeDateToSearchParam } from '../../search/date-range';
 /**
  * The report search params the date filters read and stage.
  */
-
 export type ReportQuerySearchParams = Partial<
 	ReportQueryParams & {
 		preset?: PrimaryPresetId;
@@ -28,15 +27,19 @@ export type ReportQuerySearchParams = Partial<
 >;
 
 type BuildRangePatchArgs = {
-	/**
-	 * The next primary range, when the change includes one.
-	 */
 	nextRange?: DateRange;
 
 	/**
 	 * The preset that produced `nextRange`, or 'custom' for manual edits.
 	 */
 	nextPresetId?: PrimaryPresetId;
+
+	/**
+	 * Store both ends exactly as given, skipping the end-of-day adjustment
+	 * for calendar edits. For ranges derived from an already-normalized
+	 * window, like stepping.
+	 */
+	exactRange?: boolean;
 
 	/**
 	 * The current effective search params, used to re-derive the comparison
@@ -57,20 +60,21 @@ type BuildRangePatchArgs = {
 export function buildRangePatch( {
 	nextRange,
 	nextPresetId,
+	exactRange,
 	effective,
 }: BuildRangePatchArgs ): ReportQuerySearchParams | null {
 	const patch: ReportQuerySearchParams = {};
 
 	if ( nextRange?.from && nextRange.to ) {
 		/*
-		 * Preset ranges are authoritative: rolling presets like
-		 * last-24-hours end at the current time. Calendar and manual
-		 * edits stage midnight `to` dates, so only those are adjusted
-		 * to the end of the day.
+		 * Preset and exact ranges are authoritative: rolling windows end at
+		 * the current time, not at a day boundary. Calendar and manual edits
+		 * stage midnight `to` dates, so only those are adjusted to the end of
+		 * the day.
 		 */
 		const rangeFrom = encodeDateToSearchParam( nextRange.from );
 		const rangeTo = encodeDateToSearchParam(
-			isSelectablePreset( nextPresetId ) ? nextRange.to : endOfDay( nextRange.to )
+			exactRange || isSelectablePreset( nextPresetId ) ? nextRange.to : endOfDay( nextRange.to )
 		);
 		patch.from = rangeFrom;
 		patch.to = rangeTo;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Escape the Premium Content block login button label on output.

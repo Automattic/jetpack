@@ -141,11 +141,6 @@ const localNoticesPath = '/jetpack-premium-analytics/v1/notices';
 // notices endpoint directly, dispatched by WPCOM's wp-admin apiFetch bridge.
 const wpcomSimpleNoticesPath = '/wpcom/v2/jetpack-stats-dashboard/notices';
 
-/**
- * Resolve the notices endpoint path for the current environment.
- *
- * @return The notices path.
- */
 export function getNoticesPath() {
 	return isSimpleSite() ? wpcomSimpleNoticesPath : localNoticesPath;
 }

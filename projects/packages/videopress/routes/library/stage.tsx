@@ -9,6 +9,9 @@ import CaptionManagerModal from '../../src/client/components/caption-manager-mod
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import { TAB_PATHS } from '../../src/dashboard/components/dashboard-tabs';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
+import FreeTierNotice, {
+	FREE_TIER_AT_LIMIT_MESSAGE,
+} from '../../src/dashboard/components/free-tier-notice';
 import { buildLibraryActions } from '../../src/dashboard/components/library/actions';
 import { libraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
@@ -194,15 +197,9 @@ const StageInner = () => {
 			}
 
 			if ( decision.kind === 'at-limit' ) {
-				createErrorNotice(
-					__(
-						'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.',
-						'jetpack-videopress-pkg'
-					),
-					{
-						actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
-					}
-				);
+				createErrorNotice( FREE_TIER_AT_LIMIT_MESSAGE, {
+					actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
+				} );
 				return;
 			}
 
@@ -507,10 +504,7 @@ const StageInner = () => {
 					<Tooltip
 						text={
 							isAtLimit
-								? __(
-										'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.',
-										'jetpack-videopress-pkg'
-								  )
+								? FREE_TIER_AT_LIMIT_MESSAGE
 								: __( 'Upload a new video', 'jetpack-videopress-pkg' )
 						}
 					>
@@ -526,6 +520,11 @@ const StageInner = () => {
 				</>
 			}
 		>
+			{ isAtLimit && (
+				<div className="vp-library__notice">
+					<FreeTierNotice message={ FREE_TIER_AT_LIMIT_MESSAGE } />
+				</div>
+			) }
 			<UploadActionsProvider value={ { promoteLocal, retryUpload, openVideoDetails } }>
 				<div className={ `vp-library__viewport vp-library__viewport--${ view.type }` }>
 					<DropZone

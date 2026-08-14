@@ -12,12 +12,12 @@
 		"testing"
 	],
 	"require": {
-		"php": ">=8.2",
+		"php": ">=8.3",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-		"mediawiki/mediawiki-codesniffer": "^51.0",
+		"mediawiki/mediawiki-codesniffer": "^52.0",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"sirbrillig/phpcs-variable-analysis": "^2.10",
-		"wp-coding-standards/wpcs": "<3.4.2",
+		"wp-coding-standards/wpcs": "^3.0",
 		"automattic/vipwpcs": "^3.0",
 		"phpcsstandards/phpcsutils": "^1.0"
 	},
@@ -77,8 +77,7 @@
 		"policy": {
 			"advisories": {
 				"ignore-id": [
-					"GHSA-3pwp-g2mj-5p3v",
-					"PKSA-rdkp-vv9z-mjkg"
+					"GHSA-3pwp-g2mj-5p3v"
 				]
 			}
 		}

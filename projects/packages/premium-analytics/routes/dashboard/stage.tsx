@@ -16,12 +16,11 @@ import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { DashboardSections } from './components';
-import { DATE_FILTER_YEAR } from './config';
+import { DATE_FILTER_YEAR, offersDateComparison, resolveSectionHeading } from './config';
 import {
 	useActiveSection,
 	useDashboardGridSettings,
@@ -80,14 +79,19 @@ function Dashboard(): JSX.Element {
 	 */
 	const dateFilters = useReportDateFilters( '/' );
 
+	const activeSectionRecord = sections.find( section => section.slug === activeSection );
+
 	/*
 	 * Which date filter the active section's header shows. Also reconciles the
 	 * preset in the URL with that filter's surface, so a section switch never
 	 * leaves the visible control unable to represent the selection.
 	 */
-	const dateFilterSurface = useSectionDateFilter(
-		sections.find( section => section.slug === activeSection ),
-		dateFilters
+	const dateFilterSurface = useSectionDateFilter( activeSectionRecord, dateFilters );
+
+	// Server-driven, like the surface above.
+	const showComparison = offersDateComparison(
+		dateFilterSurface,
+		activeSectionRecord?.date_filter_options
 	);
 
 	/*
@@ -95,11 +99,9 @@ function Dashboard(): JSX.Element {
 	 * the applied range and comparison rather than the picker's staged draft:
 	 * it must not move while an edit is open, only once Apply commits it.
 	 *
-	 * The year surface offers no comparison control, so its subtitle must not
-	 * announce one it cannot be switched off from.
+	 * A header without the comparison control must not announce one.
 	 */
-	const comparisonPresetId =
-		dateFilterSurface === DATE_FILTER_YEAR ? undefined : dateFilters.appliedComparisonPresetId;
+	const comparisonPresetId = showComparison ? dateFilters.appliedComparisonPresetId : undefined;
 	const sectionSubtitle = useMemo(
 		() =>
 			getSectionSubtitle( {
@@ -187,7 +189,7 @@ function Dashboard(): JSX.Element {
 			 * report pages mount this same panel over records tables, which are
 			 * not, so the control is asked for rather than implied by the props.
 			 */
-			<DateFiltersPanel { ...dateFilters } withIntervalControl />
+			<DateFiltersPanel { ...dateFilters } withIntervalControl showComparison={ showComparison } />
 		);
 
 	return (
@@ -206,10 +208,7 @@ function Dashboard(): JSX.Element {
 				<Page
 					visual={ <StatsPageIcon /> }
 					breadcrumbs={ <StatsBreadcrumbs isRoot /> }
-					subTitle={ __(
-						'Track your site performance and visitor insights.',
-						'jetpack-premium-analytics-pkg'
-					) }
+					subTitle={ activeSectionRecord?.description }
 					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.dashboard }
 				>
@@ -225,7 +224,10 @@ function Dashboard(): JSX.Element {
 								className={ styles.content }
 							>
 								<div ref={ setContainerElement } className={ styles.sectionHeader }>
-									<SectionHeader title={ section.label } subtitle={ sectionSubtitle }>
+									<SectionHeader
+										title={ resolveSectionHeading( section ) }
+										subtitle={ sectionSubtitle }
+									>
 										{ dateControls }
 									</SectionHeader>
 								</div>

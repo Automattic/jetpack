@@ -5,6 +5,8 @@ import { tz } from '@date-fns/tz';
 import {
 	startOfDay,
 	endOfDay,
+	startOfHour,
+	endOfHour,
 	subDays,
 	subHours,
 	subMonths,
@@ -81,12 +83,12 @@ describe( 'computeDateRangeFromPreset', () => {
 		expect( range!.to ).toBe( toZ( YESTERDAY_END ) );
 	} );
 
-	it( 'returns rolling 24-hour range for "last-24-hours"', () => {
+	it( 'returns rolling 24-hour range snapped to the hour for "last-24-hours"', () => {
 		const range = computeDateRangeFromPreset( 'last-24-hours' );
 
 		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( subHours( NOW, 24 ) ) );
-		expect( range!.to ).toBe( toZ( NOW ) );
+		expect( range!.from ).toBe( toZ( subHours( startOfHour( NOW, { in: UTC } ), 23 ) ) );
+		expect( range!.to ).toBe( toZ( endOfHour( NOW, { in: UTC } ) ) );
 	} );
 
 	it( 'returns 7-day range ending yesterday for "last-7-days"', () => {
@@ -144,6 +146,22 @@ describe( 'computeDateRangeFromPreset', () => {
 		expect( range ).toBeDefined();
 		expect( range!.from ).toBe( toZ( startOfYear( lastYear, { in: UTC } ) ) );
 		expect( range!.to ).toBe( toZ( endOfYear( lastYear, { in: UTC } ) ) );
+	} );
+
+	it( 'returns the current calendar year through the end of today', () => {
+		const range = computeDateRangeFromPreset( 'year-2026' );
+
+		expect( range ).toBeDefined();
+		expect( range!.from ).toBe( toZ( startOfYear( TODAY_START, { in: UTC } ) ) );
+		expect( range!.to ).toBe( toZ( TODAY_END ) );
+	} );
+
+	it( 'returns the default year surface through the end of today for all time', () => {
+		const range = computeDateRangeFromPreset( 'all-time' );
+
+		expect( range ).toBeDefined();
+		expect( range!.from ).toBe( toZ( startOfYear( subYears( TODAY_START, 5 ), { in: UTC } ) ) );
+		expect( range!.to ).toBe( toZ( TODAY_END ) );
 	} );
 
 	it( 'returns undefined for unrecognized preset', () => {

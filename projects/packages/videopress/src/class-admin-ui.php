@@ -735,7 +735,7 @@ class Admin_UI {
 	 * filtering the global just before it is consumed keeps the chapters editor
 	 * route modules from ever being registered.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.45.0
 	 *
 	 * @internal Only public so the wp-build page init actions can invoke it.
 	 *
@@ -763,7 +763,7 @@ class Admin_UI {
 	 * Pure helper extracted from `maybe_strip_chapters_editor_routes()` so the
 	 * filtering logic is unit-testable without the generated global.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.45.0
 	 *
 	 * @internal For use by `maybe_strip_chapters_editor_routes()` and tests only.
 	 *
@@ -820,7 +820,7 @@ class Admin_UI {
 	 * editor's "Manage chapters" toolbar button all stay hidden unless a site
 	 * explicitly opts in via the filter.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.45.0
 	 *
 	 * @return bool
 	 */
@@ -830,7 +830,7 @@ class Admin_UI {
 		 *
 		 * Gates UI only — the chapters REST surface stays registered either way.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.45.0
 		 *
 		 * @param bool $enabled Whether the chapters editor UI is enabled. Default false.
 		 */

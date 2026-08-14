@@ -7,12 +7,7 @@ import { useColorPreference } from './use-color-preference';
 import type { ChartTheme } from '@jetpack-premium-analytics/externals';
 
 /**
- * Internal dependencies
- */
-
-/**
- * Extended chart theme with analytics-specific properties.
- * Extends the base ChartTheme from @automattic/charts.
+ * The `@automattic/charts` theme plus the analytics-specific properties.
  */
 export type WooChartTheme = ChartTheme & {
 	leaderboardChart: ChartTheme[ 'leaderboardChart' ] & {
@@ -43,8 +38,14 @@ export function useChartTheme(): WooChartTheme {
 			tickLength: 4,
 			gridColor: '',
 			gridColorDark: '',
+			// Both overrides are load-bearing. `fill` restates the charts default, which cannot
+			// resolve until CHARTS-203 emits --a8c-charts-color-label: the default nests its
+			// var() fallbacks and resolveCssVariable() parses only one level. `fontSize` has to
+			// stay a plain number, since resolveFontSize() rejects var(); without it visx falls
+			// back to 11 and the chart margin and pie label measurements go with it.
 			svgLabelSmall: {
-				fill: 'var(--wpds-color-foreground-content-neutral-weak)',
+				fill: 'var(--wpds-color-foreground-content-neutral)',
+				fontSize: 12,
 			},
 			xTickLineStyles: { stroke: '' },
 			xAxisLineStyles: {

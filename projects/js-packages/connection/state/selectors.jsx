@@ -21,6 +21,7 @@ const connectionSelectors = {
 	getAuthorizationUrl: state => state.authorizationUrl || false,
 	getUserConnectionData: state => state.userConnectionData || false,
 	getConnectedPlugins: state => state.connectedPlugins || [],
+	getConnectionOwner: state => state.connectionOwner || null,
 	getConnectionErrors: state => state.connectionErrors || [],
 	getConnectionHealthErrors: state => state.connectionHealthErrors || {},
 	getIsOfflineMode: state => state.isOfflineMode || false,

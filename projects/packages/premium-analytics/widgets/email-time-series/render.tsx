@@ -10,12 +10,12 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
-	ComparativeLineChart,
+	MetricTabsChart,
 	WidgetRoot,
 	WidgetState,
 	buildReportMetricSeries,
-	useSeriesStyles,
 	useWidgetRootContext,
+	type MetricTab,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -26,6 +26,7 @@ import { __ } from '@wordpress/i18n';
 import styles from './style.module.css';
 import type {
 	EmailTimeSeriesAttributes,
+	EmailTimeSeriesChartType,
 	EmailTimeSeriesGranularity,
 	EmailTimeSeriesMetric,
 } from './widget';
@@ -46,12 +47,6 @@ const METRIC_FIELDS: Record< EmailTimeSeriesMetric, 'opens_count' | 'clicks_coun
 	clicks: 'clicks_count',
 };
 
-/**
- * The chart line's label for a metric.
- *
- * @param metric - The active metric.
- * @return Translated series label.
- */
 function metricLabel( metric: EmailTimeSeriesMetric ): string {
 	return metric === 'clicks'
 		? __( 'Total clicks', 'jetpack-premium-analytics-pkg' )
@@ -61,21 +56,20 @@ function metricLabel( metric: EmailTimeSeriesMetric ): string {
 type EmailTimeSeriesReportProps = {
 	metric: EmailTimeSeriesMetric;
 	granularity: EmailTimeSeriesGranularity;
+	/** How the timeline is drawn. `MetricTabsChart` owns the default. */
+	chartType?: EmailTimeSeriesChartType;
 };
 
 /**
  * Fetches the selected email's opens or clicks timeline over the dashboard
- * date range and draws it as a line chart. The endpoint reports daily
- * buckets; weekly/monthly granularities aggregate them client-side. Only the
- * active metric's query runs. The post detail design has no period-over-period
- * comparison, so comparison report params are ignored — they ride along in
- * the URL untouched so dashboard state survives the round trip, and every
- * widget on this page disregards them.
- *
- * @param {EmailTimeSeriesReportProps} props - The component props.
- * @return The widget content.
+ * date range and draws it with the window total as the metric headline. The
+ * endpoint reports daily buckets; weekly/monthly granularities aggregate them
+ * client-side. Only the active metric's query runs. The post detail design
+ * has no period-over-period comparison, so comparison report params are
+ * ignored — they ride along in the URL untouched so dashboard state survives
+ * the round trip, and every widget on this page disregards them.
  */
-function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportProps ) {
+function EmailTimeSeriesReport( { metric, granularity, chartType }: EmailTimeSeriesReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 	const hasSelection = postId > 0;
@@ -114,24 +108,37 @@ function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportPr
 		} );
 	}, [ report, granularity, field ] );
 
-	const series = useMemo(
-		() =>
-			chartReport
-				? buildReportMetricSeries( {
-						primary: chartReport,
-						metrics: [ { key: field, label: metricLabel( metric ) } ],
-				  } )
-				: [],
-		[ chartReport, field, metric ]
-	);
-	const seriesStyles = useSeriesStyles( series );
+	// One metric: the headline is the window total (the timeline is summed per
+	// bucket, so the sum of buckets is the range's opens/clicks).
+	const metricTabs = useMemo< MetricTab[] >( () => {
+		const points = chartReport
+			? buildReportMetricSeries( {
+					primary: chartReport,
+					metrics: [ { key: field, label: metricLabel( metric ) } ],
+			  } )[ 0 ]?.data ?? []
+			: [];
+
+		return [
+			{
+				key: field,
+				label: metricLabel( metric ),
+				value: points.reduce( ( sum, point ) => sum + point.value, 0 ),
+				current: points,
+			},
+		];
+	}, [ chartReport, field, metric ] );
 	const hasPoints = ( chartReport?.data?.length ?? 0 ) > 0;
 
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ active.isLoading }
-				isFetching={ active.isFetching }
+				// An empty placeholder response is still data to React Query, so a
+				// range change reports fetching rather than loading. Keep the loader
+				// until that new range resolves instead of flashing the empty state.
+				isLoading={ active.isLoading || ( ! hasPoints && active.isFetching ) }
+				// `isFetching` is deliberately not passed: the chart renders its
+				// own scoped overlay below, so WidgetState's full-widget one
+				// would double up and cover the metric headline.
 				isError={ active.isError }
 				isEmpty={ ! hasSelection || ! hasPoints }
 				error={ {
@@ -151,11 +158,11 @@ function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportPr
 						  ),
 				} }
 			>
-				<ComparativeLineChart
-					className={ styles.chart }
-					series={ series }
-					styles={ seriesStyles }
+				<MetricTabsChart
+					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
+					loading={ active.isFetching }
 				/>
 			</WidgetState>
 		</div>
@@ -164,18 +171,22 @@ function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportPr
 
 /**
  * Email performance widget: a single email's opens or clicks over time —
- * the chart section of the legacy email detail page.
- *
- * @param {EmailTimeSeriesWidgetProps} props - The widget render props.
- * @return The rendered widget.
+ * the chart section of the legacy email detail page — with the window total
+ * as the metric headline.
  */
 export default function EmailTimeSeries( { attributes = {} }: EmailTimeSeriesWidgetProps ) {
 	const metric = attributes.metric ?? 'opens';
 	const granularity = attributes.granularity ?? 'day';
+	// Coerce unknown persisted values to the default.
+	const chartType = attributes.chartType === 'bar' ? 'bar' : 'line';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<EmailTimeSeriesReport metric={ metric } granularity={ granularity } />
+			<EmailTimeSeriesReport
+				metric={ metric }
+				granularity={ granularity }
+				chartType={ chartType }
+			/>
 		</WidgetRoot>
 	);
 }

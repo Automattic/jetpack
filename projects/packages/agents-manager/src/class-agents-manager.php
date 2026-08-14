@@ -19,7 +19,7 @@ class Agents_Manager {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.9.1';
+	const PACKAGE_VERSION = '0.9.3';
 
 	/**
 	 * Help Center URL for disconnected variants.
@@ -326,6 +326,7 @@ class Agents_Manager {
 			'agentProviders'       => $agent_providers,
 			'useUnifiedExperience' => $use_unified_experience,
 			'isDevMode'            => self::is_dev_mode(),
+			'isA11n'               => self::is_tracking_automattician(),
 			'isWpcomPlatform'      => ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform(),
 			'sectionName'          => apply_filters( 'agents_manager_section_name', $variant ),
 			'currentUser'          => $this->get_current_user_data(),
@@ -762,6 +763,17 @@ class Agents_Manager {
 		return isset( $_SERVER['A8C_PROXIED_REQUEST'] )
 			? (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
 			: Constants::is_true( 'A8C_PROXIED_REQUEST' );
+	}
+
+	/**
+	 * Returns whether the current visitor should be marked as an Automattician in tracking.
+	 *
+	 * @return bool
+	 */
+	private static function is_tracking_automattician() {
+		$is_automattician = function_exists( 'is_automattician' ) && (bool) is_automattician();
+
+		return $is_automattician || self::is_proxied() || Constants::is_true( 'AT_PROXIED_REQUEST' );
 	}
 
 	/**

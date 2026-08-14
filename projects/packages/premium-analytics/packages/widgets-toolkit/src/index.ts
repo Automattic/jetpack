@@ -8,6 +8,9 @@ export {
 	MetricWithComparison,
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
+	ComparativeBarChart,
+	type ComparativeBarChartProps,
+	type ComparativeBarChartSeries,
 	DonutChart,
 	Legend,
 	ReportMetricWidget,
@@ -15,6 +18,7 @@ export {
 	type MetricTab,
 	type MetricTabDatum,
 	type MetricTabsChartProps,
+	type MetricTabsChartType,
 	WidgetRoot,
 	WidgetRootContext,
 	useWidgetRootContext,
@@ -42,6 +46,11 @@ export {
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
+	AdaptiveCalendarHeatmap,
+	CalendarHeatmapTooltip,
+	type AdaptiveCalendarHeatmapChartProps,
+	type AdaptiveCalendarHeatmapProps,
+	type CalendarHeatmapTooltipProps,
 	ChartEmptyState,
 	type ChartEmptyStateProps,
 	WidgetState,
@@ -157,6 +166,22 @@ export {
 	defaultPeriodForInterval,
 	buildMetricTab,
 	withoutComparison,
+	CHART_DISPLAY_CHART_TYPES,
+	chartTypeAttributeField,
+	granularityAttributeField,
+	type ChartDisplayChartType,
+	type ChartGranularityOption,
+	computeCalendarHeatmapLayout,
+	fitWeekColumns,
+	formatViewCount,
+	buildDenseDaySeries,
+	resolveCalendarHeatmapWindow,
+	resolveCalendarHeatmapWindowDays,
+	type CalendarHeatmapLayout,
+	type CalendarHeatmapLayoutInput,
+	type FitWeekColumnsInput,
+	type CalendarHeatmapWindow,
+	type CalendarHeatmapWindowBounds,
 } from './helpers';
 
 /**
@@ -169,6 +194,7 @@ export {
 	type ElementSize,
 	useSegmentStyles,
 	useSeriesStyles,
+	useViewportWidth,
 	useWidgetDrillDown,
 } from './hooks';
 
@@ -227,6 +253,7 @@ export {
 	type GeoData,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
+	type HeatmapTooltipData,
 } from '@jetpack-premium-analytics/externals';
 
 /**

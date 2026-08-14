@@ -43,7 +43,7 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			// The alias carries the mock's "UTM" card title; the registry's
 			// global "UTM Insights" title is owned by the copy spreadsheet work.
 			type: 'jpa/utm-insights--utm',
-			// Detail-page widgets carry no "See report" action per the design
+			// Detail-page widgets carry no "View all" action per the design
 			// mocks — the post detail page is itself the terminal page, and the
 			// site-wide UTM report would silently drop this post's scope.
 			attributes: { utmDimension: 'utm_source,utm_medium', max: 10, showReportLink: false },

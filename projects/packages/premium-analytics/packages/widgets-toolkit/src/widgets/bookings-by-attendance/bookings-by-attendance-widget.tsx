@@ -16,21 +16,12 @@ import { useSegmentStyles } from '../common';
 import styles from '../common/donut-widget.module.scss';
 
 /**
- * Bookings by Status Widget Component
- *
  * Displays a donut chart showing bookings breakdown by status.
  * Shows the total bookings count in the center with a breakdown in the legend.
  *
  * Statuses include: Booked, Checked In, No Show, and Cancelled.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <BookingsByAttendanceWidget />
- * </WidgetRoot>
- * ```
  */
 export function BookingsByAttendanceWidget() {
 	const { reportParams } = useWidgetRootContext();

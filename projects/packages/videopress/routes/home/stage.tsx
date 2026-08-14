@@ -7,7 +7,7 @@ import { Button, Card, Text, VisuallyHidden } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import { TAB_PATHS } from '../../src/dashboard/components/dashboard-tabs';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
-import FreeTierNotice from '../../src/dashboard/components/overview/free-tier-notice';
+import FreeTierNotice from '../../src/dashboard/components/free-tier-notice';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import UploadDropzone from '../../src/dashboard/components/upload-dropzone';
 import {

@@ -77,9 +77,6 @@ export type PostHighlightCardProps = {
 	 */
 	imageUrl?: string;
 
-	/**
-	 * Alternative text for the featured image.
-	 */
 	imageAlt?: string;
 
 	/**
@@ -120,9 +117,6 @@ function formatPublishDate( date: string ): string {
 /**
  * A single labelled metric value, with an optional aggregation caveat.
  *
- * @param props            - The component props.
- * @param props.metric     - The metric to render.
- * @param props.dataFormat - Format configuration for the value.
  * @return The rendered metric tile.
  */
 function PostHighlightMetric( {

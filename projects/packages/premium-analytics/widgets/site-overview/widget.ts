@@ -36,8 +36,8 @@ export type SiteOverviewAttributes = {
 export const SITE_OVERVIEW_METRICS: { id: SiteOverviewMetricId; label: string }[] = [
 	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
 	{ id: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ) },
-	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
 	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
 ];
 
 /**
@@ -48,8 +48,6 @@ export const DEFAULT_SITE_OVERVIEW_METRICS: SiteOverviewMetricId[] = SITE_OVERVI
 );
 
 /**
- * Widget type definition.
- *
  * Ported from the Jetpack Stats "Site overview" card: the period's headline
  * traffic and engagement totals with period-over-period comparison.
  * The `metrics` attribute (`relevance: 'high'`) selects which metric tiles

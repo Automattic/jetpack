@@ -28,10 +28,7 @@ type PostCommentsWidgetProps = WidgetRenderProps< PostCommentsRenderAttributes >
 const COMMENTS_SHOWN = 10;
 
 /**
- * Latest comments inner component. Reads the post scope from WidgetRoot's
- * report params and lists approved comments in reverse chronological order.
- *
- * @return The rendered widget content.
+ * Lists the scoped post's approved comments, newest first.
  */
 function PostCommentsInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -93,13 +90,6 @@ function PostCommentsInner() {
 	);
 }
 
-/**
- * Latest comments widget: the scoped post's recent commenters as an avatar
- * roster.
- *
- * @param {PostCommentsWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function PostComments( { attributes = {} }: PostCommentsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

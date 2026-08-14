@@ -50,14 +50,17 @@
 }
 
 .content {
+	// Grows to fill a short section, but never shrinks below the widget grid:
+	// `min-block-size: 0` here would let the panel end above its own content, so
+	// the scroll container's end landed on the last widget and the padding below
+	// never rendered.
 	flex: 1 1 auto;
-	min-block-size: 0;
 
 	// Reserve paint space for the widget host's outer focus outline.
 	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
+	padding-block-end: var(--wpds-dimension-padding-3xl);
 	// Match the horizontal padding of the page header and the section tabs so the
 	// widget grid lines up with them instead of sitting flush to the edge.
-	padding-block-end: 24px;
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 

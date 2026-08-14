@@ -25,27 +25,14 @@ type DateComparisonDropdownProps = {
 	 * Available comparison presets (e.g., previous-period, previous-month)
 	 */
 	presets: ComparisonDateRangePreset[];
-	/**
-	 * Whether comparison is enabled
-	 */
 	enabled: boolean;
-	/**
-	 * Currently selected comparison preset ID
-	 */
 	presetId?: ComparisonPresetId;
 	/**
-	 * Names the trigger, as its tooltip and, with no comparison active, as its
-	 * accessible name. Defaults to "Add comparison" / "Compare to" depending on
-	 * the state.
+	 * Names the trigger, and with no comparison active is also its visible
+	 * text. Defaults to "Compare" / "Compare to" depending on the state.
 	 */
 	label?: string;
-	/**
-	 * Callback when a comparison preset is selected
-	 */
 	onPresetChange: ( id: ComparisonPresetId ) => void;
-	/**
-	 * Callback when comparison is cleared
-	 */
 	onClear: () => void;
 };
 
@@ -58,6 +45,8 @@ export function DateComparisonDropdown( {
 	onClear,
 }: DateComparisonDropdownProps ) {
 	const noComparisonLabel = __( 'No comparison', 'jetpack-premium-analytics-pkg' );
+	const additiveLabel = __( 'Compare', 'jetpack-premium-analytics-pkg' );
+	const compareToLabel = __( 'Compare to', 'jetpack-premium-analytics-pkg' );
 
 	const items = useMemo( (): ComparisonMenuItem[] => {
 		return [
@@ -95,8 +84,12 @@ export function DateComparisonDropdown( {
 	);
 
 	/*
-	 * Additive: a `+` until a preset is picked, then a trigger naming it. Both
-	 * open the same menu, so the way back to "No comparison" is the way in.
+	 * Additive: `Compare +` until a preset is picked, then a trigger naming it.
+	 * Both open the same menu, so the way back to "No comparison" is the way in.
+	 *
+	 * The additive state spells itself out rather than offering a bare `+`: a
+	 * glyph alone left the one control on the row that adds something reading
+	 * as decoration, and its purpose behind a hover.
 	 *
 	 * It names the preset rather than the period it resolves to, which the
 	 * section header's subtitle already spells out.
@@ -105,20 +98,18 @@ export function DateComparisonDropdown( {
 		<DropdownMenu
 			className="date-comparison-dropdown"
 			icon={ isComparisonActive ? chevronDown : plus }
-			text={ selectedPreset?.shortLabel }
-			label={
-				label ??
-				( isComparisonActive
-					? __( 'Compare to', 'jetpack-premium-analytics-pkg' )
-					: __( 'Add comparison', 'jetpack-premium-analytics-pkg' ) )
-			}
+			text={ selectedPreset?.shortLabel ?? additiveLabel }
+			label={ label ?? ( isComparisonActive ? compareToLabel : additiveLabel ) }
 			popoverProps={ { placement: 'bottom-start' } }
 			toggleProps={ {
 				className: clsx( 'date-comparison-dropdown__toggle', {
 					'date-comparison-dropdown__toggle--active': isComparisonActive,
 				} ),
 				iconPosition: 'right',
-				iconSize: isComparisonActive ? 18 : 24,
+				iconSize: 18,
+				// A tooltip only where the trigger's text is an abbreviation.
+				// Over the additive state it would repeat the label beneath it.
+				showTooltip: isComparisonActive,
 				// The trigger shows an abbreviation, so carry the full preset
 				// name for anyone not reading the glyphs. Same treatment the
 				// preset pills give their short labels.

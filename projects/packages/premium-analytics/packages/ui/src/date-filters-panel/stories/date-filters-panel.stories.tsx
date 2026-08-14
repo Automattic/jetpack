@@ -1,8 +1,11 @@
 import {
 	computePrimaryRange,
+	stepDateRange,
+	PRESET_CUSTOM,
 	type ComparisonPresetId,
 	type IntervalType,
 	type PrimaryPresetId,
+	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { setLocaleData, resetLocaleData } from '@wordpress/i18n';
 import { endOfDay, subDays, startOfDay } from 'date-fns';
@@ -26,7 +29,7 @@ const meta: Meta< typeof DateFiltersPanel > = {
 			description: {
 				component:
 					'Dashboard date filters: primary date range (surface presets + custom calendar), ' +
-					'the chart interval, and an optional comparison range.',
+					'an optional comparison range, and the chart interval.',
 			},
 		},
 	},
@@ -148,6 +151,25 @@ function DateFiltersPanelStory( {
 		stagedPrimary.range.to !== committedPrimary.range.to ||
 		stagedPrimary.presetId !== committedPrimary.presetId;
 
+	// Stepping applies on click and takes the range off its preset, the way it
+	// commits through the report params in product.
+	const handleStep = useCallback( ( direction: StepDirection ) => {
+		const stepped = stepDateRange( stagedPrimaryRef.current.range, direction );
+
+		if ( ! stepped?.from || ! stepped.to ) {
+			return;
+		}
+
+		const nextPrimary: PrimaryFilterState = {
+			range: { from: stepped.from, to: stepped.to },
+			presetId: PRESET_CUSTOM,
+		};
+
+		stagedPrimaryRef.current = nextPrimary;
+		setStagedPrimary( nextPrimary );
+		setCommittedPrimary( nextPrimary );
+	}, [] );
+
 	/*
 	 * The interval follows the applied range, so switching preset re-derives the
 	 * menu. A pick the new range still allows survives; one it does not falls
@@ -177,6 +199,7 @@ function DateFiltersPanelStory( {
 				onChange={ handlePrimaryChange }
 				onComparisonChange={ handleComparisonChange }
 				onIntervalChange={ setPickedInterval }
+				onStep={ handleStep }
 				onApply={ handlePrimaryApply }
 				onCancel={ handlePrimaryCancel }
 				canApply={ canApplyPrimary }
@@ -326,9 +349,6 @@ const GERMAN: LocaleFixture = {
  * `setLocaleData` writes to the global i18n singleton, hence the cleanup: the
  * locale would otherwise leak into the next story opened. Same reason these are
  * off the autodocs page, which renders every sibling at once.
- *
- * @param fixture - The locale to install.
- * @return Storybook `beforeEach` handler.
  */
 function withLocale( fixture: LocaleFixture ) {
 	return () => {
@@ -357,11 +377,8 @@ const LADDER_WIDTHS = [ 960, 782, 600, 360, 280 ];
  * is visible rather than asserted.
  *
  * Rungs are annotated against the four preset pills alone. That is a floor: the
- * custom trigger, the interval control, and the comparison control share the
+ * custom trigger, the comparison control, and the interval control share the
  * same line, as will the period navigation.
- *
- * @param props         - Component props.
- * @param props.fixture - The locale to render.
  */
 function WidthLadder( { fixture }: { fixture: LocaleFixture } ) {
 	return (

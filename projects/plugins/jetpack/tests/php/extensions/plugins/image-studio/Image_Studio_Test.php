@@ -18,6 +18,7 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-a
  */
 class Image_Studio_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+	use \Activates_Ai_Module;
 
 	/**
 	 * Get the AI image extensions list from the source function.
@@ -70,6 +71,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$GLOBALS['wp_styles']   = new WP_Styles();
 		$this->reset_availability();
 		$this->simulate_connected_owner();
+		// Off-Simple the `ai` module is the AI master switch, so activate it to put
+		// the master on. The PHPUnit env never runs activate_default_modules().
+		$this->activate_ai_module_for_test();
 		// Ensure Big Sky is disabled by default so tests aren't affected by the
 		// Big_Sky class persisting across tests once simulate_big_sky_class() runs.
 		update_option( 'big_sky_enable', '0' );
@@ -81,6 +85,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
+		$this->deactivate_ai_module_for_test();
 		delete_transient( ImageStudio\ASSET_TRANSIENT );
 		remove_all_filters( 'jetpack_image_studio_enabled' );
 		remove_all_filters( 'jetpack_image_studio_can_generate_video_clips' );
@@ -518,7 +523,8 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Big Sky/CIAB environments (it flows through the jetpack_ai_enabled filter).
 	 */
 	public function test_master_option_off_disables_image_studio() {
-		update_option( 'jetpack_ai_enabled', 0 );
+		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->deactivate_ai_module_for_test();
 
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
@@ -530,7 +536,8 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->enable_big_sky();
 		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
 
-		update_option( 'jetpack_ai_enabled', 0 );
+		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->deactivate_ai_module_for_test();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
 		set_transient(
@@ -559,7 +566,8 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_master_off_cannot_be_reenabled_by_late_filter() {
 		$this->enable_big_sky();
-		update_option( 'jetpack_ai_enabled', 0 );
+		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->deactivate_ai_module_for_test();
 		add_filter( 'jetpack_ai_enabled', '__return_true', 99 );
 
 		$this->assertFalse( ImageStudio\is_image_studio_environment_available() );
@@ -712,6 +720,42 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->assertSame( 'jetpack', $data['siteType'] );
 		$this->assertFalse( $data['isA11n'] );
 		$this->assertArrayHasKey( 'isDevMode', $data );
+	}
+
+	/**
+	 * Test that exact employee identity is sufficient for the tracking signal.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_tracking_automattician_for_employee_identity() {
+		if ( function_exists( 'is_automattician' ) ) {
+			$this->markTestSkipped( 'is_automattician already defined; cannot stub.' );
+		}
+
+		eval( 'function is_automattician() { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		$this->assertTrue( ImageStudio\is_tracking_automattician() );
+	}
+
+	/**
+	 * Test that a WordPress.com proxy is sufficient for the tracking signal.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_tracking_automattician_for_wpcom_proxy() {
+		if ( function_exists( 'wpcom_is_proxied_request' ) ) {
+			$this->markTestSkipped( 'wpcom_is_proxied_request already defined; cannot stub.' );
+		}
+
+		eval( 'function wpcom_is_proxied_request() { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		$this->assertTrue( ImageStudio\is_tracking_automattician() );
 	}
 
 	/**

@@ -1,0 +1,31 @@
+.jpb-gates {
+
+	&__skeleton {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		min-height: 320px;
+	}
+
+	&__card {
+		max-width: 560px;
+		margin-inline: auto;
+		margin-block: 48px;
+		padding: 32px;
+	}
+
+	&__cta {
+		display: inline-block;
+		padding: 8px 16px;
+		background-color: var(--wp-admin-theme-color, #007cba);
+		border-radius: 2px;
+		text-decoration: none;
+
+		&,
+		&:hover,
+		&:focus,
+		&:visited {
+			color: #fff;
+		}
+	}
+}

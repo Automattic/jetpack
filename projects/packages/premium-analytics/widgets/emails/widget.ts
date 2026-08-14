@@ -56,11 +56,11 @@ export default {
 			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
+					label: __( 'By open rate', 'jetpack-premium-analytics-pkg' ),
 					value: 'opens',
 				},
 				{
-					label: __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
+					label: __( 'By click rate', 'jetpack-premium-analytics-pkg' ),
 					value: 'clicks',
 				},
 			],

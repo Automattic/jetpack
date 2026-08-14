@@ -92,8 +92,18 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				),
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'videopress_block_update_meta' ),
-				'permission_callback' => function () {
-					return Data::can_perform_action() && current_user_can( 'edit_posts' );
+				'permission_callback' => function ( $request ) {
+					if ( ! Data::can_perform_action() ) {
+						return false;
+					}
+					// Authorize against the specific attachment the request targets,
+					// not just the generic edit_posts capability. `id` is read from
+					// the JSON body to match videopress_block_update_meta(), so a
+					// Contributor cannot modify (or, via a privacy downgrade, expose)
+					// another user's video.
+					$params  = $request->get_json_params();
+					$post_id = isset( $params['id'] ) ? (int) $params['id'] : 0;
+					return current_user_can( 'edit_post', $post_id );
 				},
 			)
 		);
@@ -113,8 +123,19 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'videopress_block_get_poster' ),
-					'permission_callback' => function () {
-						return current_user_can( 'read' );
+					'permission_callback' => function ( $request ) {
+						// Reading a poster/frame exposes video content, so require the
+						// same per-video view authorization as playback in addition to
+						// `read`. This closes a Subscriber+ read of any private video's
+						// poster/frame by guid.
+						//
+						// `read` is kept because is_current_user_authed_for_video() has
+						// no logged-out bail and returns true for an effectively public
+						// video, so dropping it would make this route reachable
+						// anonymously -- an unauthenticated amplifier for the two
+						// outbound WordPress.com requests the handler makes.
+						return current_user_can( 'read' )
+							&& Access_Control::instance()->is_current_user_authed_for_video( $request->get_param( 'video_guid' ), 0 );
 					},
 				),
 				array(
@@ -134,8 +155,18 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					),
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'videopress_block_update_poster' ),
-					'permission_callback' => function () {
-						return Data::can_perform_action() && current_user_can( 'upload_files' );
+					'permission_callback' => function ( $request ) {
+						// Authorize the poster write against the specific video rather
+						// than the site-wide upload_files capability alone, so an author
+						// cannot overwrite the poster of another user's video by guid.
+						//
+						// upload_files is kept as a floor: for an attachment
+						// (post_status 'inherit') core maps edit_post to edit_posts for
+						// the post author, which a Contributor has and which does not
+						// imply the media rights this route needs.
+						return Data::can_perform_action()
+							&& current_user_can( 'upload_files' )
+							&& current_user_can( 'edit_post', self::get_video_attachment_id( $request->get_param( 'video_guid' ) ) );
 					},
 				),
 			)
@@ -187,10 +218,20 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			$this->rest_base . '/playback-jwt/(?P<video_guid>[A-Za-z0-9]{8})',
 			array(
 				'args'                => array(
-					'video_guid' => array(
+					'video_guid'           => array(
 						'description' => __( 'The VideoPress GUID.', 'jetpack-videopress-pkg' ),
 						'type'        => 'string',
 						'required'    => true,
+					),
+					'post_id'              => array(
+						'description' => __( 'The post the video is embedded in, used to authorize access.', 'jetpack-videopress-pkg' ),
+						'type'        => 'integer',
+						'required'    => false,
+					),
+					'subscription_plan_id' => array(
+						'description' => __( 'The subscription plan the premium-content block gating the video uses.', 'jetpack-videopress-pkg' ),
+						'type'        => 'integer',
+						'required'    => false,
 					),
 				),
 				'methods'             => \WP_REST_Server::EDITABLE,
@@ -257,8 +298,16 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				),
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'videopress_promote_attachment' ),
-				'permission_callback' => function () {
-					return Data::can_perform_action() && current_user_can( 'upload_files' );
+				'permission_callback' => function ( $request ) {
+					// videopress/v1/upload (the self-hosted equivalent) never reaches
+					// the REST dispatcher on WordPress.com Simple; promotion is the
+					// Simple path and acts on a caller-supplied attachment id, so in
+					// addition to upload_files it needs the same per-object check to
+					// avoid a cross-user IDOR.
+					if ( ! Data::can_perform_action() || ! current_user_can( 'upload_files' ) ) {
+						return false;
+					}
+					return current_user_can( 'edit_post', (int) $request->get_param( 'attachment_id' ) );
 				},
 			)
 		);
@@ -672,6 +721,39 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	}
 
 	/**
+	 * Resolve a VideoPress guid to its local attachment id on the current site.
+	 *
+	 * Used to authorize poster reads/writes against the specific video. Returns
+	 * 0 when the guid cannot be resolved to an attachment on this site, so the
+	 * capability check that consumes it fails closed.
+	 *
+	 * @param string $video_guid The VideoPress GUID.
+	 * @return int The attachment/post id, or 0 if it cannot be resolved.
+	 */
+	private static function get_video_attachment_id( $video_guid ) {
+		if ( empty( $video_guid ) ) {
+			return 0;
+		}
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$video_info = video_get_info_by_guid( $video_guid );
+			if ( empty( $video_info ) || (int) $video_info->blog_id !== get_current_blog_id() ) {
+				return 0;
+			}
+			return (int) $video_info->post_id;
+		}
+
+		// utility-functions.php is not loaded in every configuration, so fail
+		// closed rather than fatal if the resolver is unavailable.
+		if ( ! function_exists( 'videopress_get_post_by_guid' ) ) {
+			return 0;
+		}
+
+		$attachment = videopress_get_post_by_guid( $video_guid );
+		return $attachment ? (int) $attachment->ID : 0;
+	}
+
+	/**
 	 * Update the a poster image via the WPCOM REST API.
 	 *
 	 * @param WP_REST_Request $request The request object.
@@ -711,6 +793,13 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	public function videopress_block_get_poster( $request ) {
 		$video_guid = $request->get_param( 'video_guid' );
 		$jwt        = VideoPressToken::videopress_playback_jwt( $video_guid );
+
+		// videopress_playback_jwt() returns rather than throws on a transport
+		// failure or a missing blog token, so surface the error instead of
+		// interpolating a WP_Error into the query string below (a fatal on PHP 8).
+		if ( is_wp_error( $jwt ) ) {
+			return rest_ensure_response( $jwt );
+		}
 
 		$args = array(
 			'method' => 'GET',
@@ -802,9 +891,24 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 
 		try {
 			$video_guid = $request->get_param( 'video_guid' );
-			$token      = VideoPressToken::videopress_playback_jwt( $video_guid );
-			$status     = 200;
-			$data       = array(
+
+			// Authorize the caller for this specific video before minting a token.
+			// The route only requires `read`, so without this a subscriber could
+			// obtain a playback token for any guid on the site (private or
+			// paywalled) by calling this endpoint directly, bypassing the
+			// front-end player's per-video access check. post_id/subscription_plan_id
+			// carry the embedding context the same way the AJAX player does.
+			$embedded_post_id = (int) $request->get_param( 'post_id' );
+			$selected_plan_id = (int) $request->get_param( 'subscription_plan_id' );
+			if ( ! Access_Control::instance()->is_current_user_authed_for_video( $video_guid, $embedded_post_id, $selected_plan_id ) ) {
+				return rest_ensure_response(
+					new WP_Error( 'unauthorized', __( 'You cannot view this video.', 'jetpack-videopress-pkg' ), array( 'status' => 403 ) )
+				);
+			}
+
+			$token  = VideoPressToken::videopress_playback_jwt( $video_guid );
+			$status = 200;
+			$data   = array(
 				'playback_token' => $token,
 			);
 		} catch ( \Exception $e ) {

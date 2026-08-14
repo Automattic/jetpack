@@ -67,6 +67,10 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 		wp_set_current_user( $this->user_id );
+
+		// The pre-render only runs for connected users now, so seed the tokens.
+		\Jetpack_Options::update_option( 'user_tokens', array( $this->user_id => 'test.token.' . $this->user_id ) );
+		\Jetpack_Options::update_option( 'id', 12345 );
 	}
 
 	/**

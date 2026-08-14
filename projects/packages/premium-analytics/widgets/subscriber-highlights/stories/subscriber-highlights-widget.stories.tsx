@@ -41,12 +41,6 @@ interface SubscriberHighlightsStoryControls {
 	metrics: SubscriberMetricId[];
 }
 
-/**
- * Renders the data-connected widget with the selected metrics.
- *
- * @param {SubscriberHighlightsStoryControls} props - Story controls.
- * @return The rendered widget.
- */
 function renderSubscriberHighlights( { metrics }: SubscriberHighlightsStoryControls ) {
 	return (
 		<SubscriberHighlightsRender
@@ -172,12 +166,6 @@ interface SubscriberHighlightsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		SubscriberHighlightsStoryControls {}
 
-/**
- * Renders the real registered widget through the shared dashboard harness.
- *
- * @param {SubscriberHighlightsDashboardStoryProps} props - Dashboard and widget controls.
- * @return The rendered dashboard with the widget.
- */
 function SubscriberHighlightsDashboardStory( {
 	metrics,
 	...dashboardArgs

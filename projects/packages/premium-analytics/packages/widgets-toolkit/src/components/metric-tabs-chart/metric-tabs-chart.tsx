@@ -1,15 +1,17 @@
 /**
  * External dependencies
  */
-import { SelectControl, Tabs, Text } from '@jetpack-premium-analytics/externals';
+import { SelectControl, Tabs, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
 import { useSeriesStyles } from '../../hooks';
+import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
 import { MetricWithComparison } from '../metric-with-comparison';
 import { WidgetLoadingOverlay } from '../widget-loading-overlay';
@@ -54,11 +56,19 @@ export interface MetricTab {
 	description?: string;
 }
 
+/**
+ * How the selected metric's series are drawn. `line` keeps the previous period
+ * as a dashed overlay; `bar` draws it as the translucent shadow behind each bar.
+ */
+export type MetricTabsChartType = 'line' | 'bar';
+
 export interface MetricTabsChartProps {
 	/** Metrics to expose as selectable cards; the first is selected by default. */
 	metrics: MetricTab[];
 	/** Default value/axis format for the cards and chart. */
 	dataFormat: DataFormat;
+	/** How to draw the selected metric. Defaults to `line`. */
+	chartType?: MetricTabsChartType;
 	/** Initially selected metric key (defaults to the first metric). */
 	defaultMetricKey?: string;
 	/** Called when the selected metric changes. */
@@ -86,15 +96,24 @@ function rangeLabel( points: MetricTabDatum[] ): string {
 }
 
 /**
- * Build the chart series for a metric: the current period as a solid line plus,
- * when present, the previous period as a same-`group` (same colour) `comparison`
- * (dashed) line with a transparent fill, so only the current line is filled.
+ * Build the chart series for a metric: the current period plus, when present,
+ * the previous period as a same-`group` (same colour) `comparison` series.
  * Series are labelled by date range for the legend.
  *
- * @param metric - The metric to draw.
+ * The comparison series' options differ by chart type. A line needs its area
+ * fill suppressed so only the current period is filled — but that same
+ * transparent gradient would erase the bar chart's shadow bar, which is a fill
+ * rather than a stroke. Bars therefore carry `type` alone and let the charts
+ * theme resolve the shadow's colour and width factor.
+ *
+ * @param metric    - The metric to draw.
+ * @param chartType - How the metric is drawn.
  * @return The chart series.
  */
-function buildSeries( metric: MetricTab ): ComparativeLineChartSeries[] {
+function buildSeries(
+	metric: MetricTab,
+	chartType: MetricTabsChartType
+): ComparativeLineChartSeries[] {
 	const series: ComparativeLineChartSeries[] = [
 		{ label: rangeLabel( metric.current ), group: metric.key, data: metric.current },
 	];
@@ -104,10 +123,18 @@ function buildSeries( metric: MetricTab ): ComparativeLineChartSeries[] {
 			label: rangeLabel( metric.previous ),
 			group: metric.key,
 			data: metric.previous,
-			options: {
-				type: 'comparison',
-				gradient: { from: 'transparent', to: 'transparent', fromOpacity: 0, toOpacity: 0 },
-			},
+			options:
+				chartType === 'bar'
+					? { type: 'comparison' }
+					: {
+							type: 'comparison',
+							gradient: {
+								from: 'transparent',
+								to: 'transparent',
+								fromOpacity: 0,
+								toOpacity: 0,
+							},
+					  },
 		} );
 	}
 
@@ -115,53 +142,59 @@ function buildSeries( metric: MetricTab ): ComparativeLineChartSeries[] {
 }
 
 /**
- * The chart for a single metric — the current line with its dashed
- * previous-period overlay. `compactWhenShort` lets the chart degrade to a
- * sparkline (dropping its axis, grid, and legend) on short tiles instead of
+ * The chart for a single metric — the current period with its previous-period
+ * overlay, drawn as lines or bars. `compactWhenShort` lets the chart degrade to
+ * a sparkline (dropping its axis, grid, and legend) on short tiles instead of
  * squashing its labels on top of each other.
  *
- * @param {object}     props            - The component props.
- * @param {MetricTab}  props.metric     - The metric to chart.
- * @param {DataFormat} props.dataFormat - Fallback value/axis format.
- * @param {boolean}    props.loading    - Whether to overlay the loading state.
  * @return The chart for the metric.
  */
 function MetricChart( {
 	metric,
 	dataFormat,
 	loading,
+	chartType,
 }: {
 	metric: MetricTab;
 	dataFormat: DataFormat;
 	loading: boolean;
+	chartType: MetricTabsChartType;
 } ) {
-	const series = useMemo( () => buildSeries( metric ), [ metric ] );
+	const series = useMemo( () => buildSeries( metric, chartType ), [ metric, chartType ] );
 
 	// Resolve each series' colour + line style from the chart theme so the chart
 	// lines and the tooltip glyphs share the same styling — including the dashed
-	// pattern on the previous-period series.
+	// pattern on the previous-period series. Bars resolve their own styles inside
+	// `ComparativeBarChart`, since the shadow's geometry comes from the theme's
+	// bar styles rather than these line styles.
 	const seriesStyles = useSeriesStyles( series );
+	const resolvedDataFormat = metric.dataFormat ?? dataFormat;
 
 	return (
 		<>
-			<ComparativeLineChart
-				series={ series }
-				styles={ seriesStyles }
-				dataFormat={ metric.dataFormat ?? dataFormat }
-				compactWhenShort
-			/>
+			{ chartType === 'bar' ? (
+				<ComparativeBarChart series={ series } dataFormat={ resolvedDataFormat } compactWhenShort />
+			) : (
+				<ComparativeLineChart
+					series={ series }
+					styles={ seriesStyles }
+					dataFormat={ resolvedDataFormat }
+					compactWhenShort
+				/>
+			) }
 			{ loading && <WidgetLoadingOverlay /> }
 		</>
 	);
 }
 
 /**
- * A metric switcher over a comparative line chart: a row of selectable cards
+ * A metric switcher over a comparative chart: a row of selectable cards
  * (each a headline value + period-over-period delta) built on `@wordpress/ui`
- * `Tabs`, and below them the selected metric's current line with its
- * previous-period overlay. Reused by Stats time-series widgets (subscribers
- * chart, traffic chart) — the consumer supplies the per-metric data and headline
- * values; this owns selection, series building, and layout.
+ * `Tabs`, and below them the selected metric's current period with its
+ * previous-period overlay, drawn as lines or bars per `chartType`. Reused by
+ * Stats time-series widgets (subscribers chart, traffic chart) — the consumer
+ * supplies the per-metric data and headline values; this owns selection, series
+ * building, and layout.
  *
  * Responsive: on narrow tiles the tabs collapse into a dropdown whose trigger
  * is the selected metric's card; on short tiles the chart degrades to a sparkline.
@@ -172,6 +205,7 @@ function MetricChart( {
 export function MetricTabsChart( {
 	metrics,
 	dataFormat,
+	chartType = 'line',
 	defaultMetricKey,
 	onMetricChange,
 	controls,
@@ -227,6 +261,43 @@ export function MetricTabsChart( {
 		[ metrics ]
 	);
 
+	if ( metrics.length === 1 && activeMetric ) {
+		return (
+			<div className={ styles.root }>
+				<div className={ styles.header }>
+					<div className={ clsx( styles.tabs, styles.singleMetric ) }>
+						<div className={ styles.tab }>
+							<span className={ styles.tabContent }>
+								<Text className={ styles.tabLabel }>{ activeMetric.label }</Text>
+								<MetricWithComparison
+									className={ styles.metricComparison }
+									value={ activeMetric.value }
+									previousValue={ activeMetric.previousValue }
+									dataFormat={ activeMetric.dataFormat ?? dataFormat }
+									fontSize="2xl"
+									direction="row"
+									align="flex-end"
+								/>
+								{ activeMetric.description && (
+									<VisuallyHidden>{ activeMetric.description }</VisuallyHidden>
+								) }
+							</span>
+						</div>
+					</div>
+					{ controls }
+				</div>
+				<div className={ styles.chart }>
+					<MetricChart
+						metric={ activeMetric }
+						dataFormat={ dataFormat }
+						loading={ loading }
+						chartType={ chartType }
+					/>
+				</div>
+			</div>
+		);
+	}
+
 	if ( useDropdown ) {
 		// `value` must be a reference into `metricItems` for the select to match it.
 		const activeItem =
@@ -278,6 +349,7 @@ export function MetricTabsChart( {
 									<span className={ styles.tabContent }>
 										<Text className={ styles.tabLabel }>{ activeMetric.label }</Text>
 										<MetricWithComparison
+											className={ styles.metricComparison }
 											value={ activeMetric.value }
 											previousValue={ activeMetric.previousValue }
 											dataFormat={ activeMetric.dataFormat ?? dataFormat }
@@ -293,7 +365,12 @@ export function MetricTabsChart( {
 				</div>
 				<div className={ styles.chart }>
 					{ activeMetric && (
-						<MetricChart metric={ activeMetric } dataFormat={ dataFormat } loading={ loading } />
+						<MetricChart
+							metric={ activeMetric }
+							dataFormat={ dataFormat }
+							loading={ loading }
+							chartType={ chartType }
+						/>
 					) }
 				</div>
 			</div>
@@ -319,9 +396,11 @@ export function MetricTabsChart( {
 							<span className={ styles.tabContent }>
 								<Text className={ styles.tabLabel }>{ metric.label }</Text>
 								<MetricWithComparison
+									className={ styles.metricComparison }
 									value={ metric.value }
 									previousValue={ metric.previousValue }
 									dataFormat={ metric.dataFormat ?? dataFormat }
+									fontSize="2xl"
 									direction="row"
 									align="flex-end"
 								/>
@@ -335,7 +414,12 @@ export function MetricTabsChart( {
 			     metric's panel renders its chart; the rest stay empty. */ }
 			{ metrics.map( metric => (
 				<Tabs.Panel key={ metric.key } value={ metric.key } className={ styles.chart }>
-					<MetricChart metric={ metric } dataFormat={ dataFormat } loading={ loading } />
+					<MetricChart
+						metric={ metric }
+						dataFormat={ dataFormat }
+						loading={ loading }
+						chartType={ chartType }
+					/>
 				</Tabs.Panel>
 			) ) }
 		</Tabs.Root>

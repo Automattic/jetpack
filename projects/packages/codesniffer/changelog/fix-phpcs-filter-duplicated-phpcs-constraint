@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stop ignoring the php_codesniffer advisory PKSA-rdkp-vv9z-mjkg, as the fixed 3.13.6 release is now installable here.

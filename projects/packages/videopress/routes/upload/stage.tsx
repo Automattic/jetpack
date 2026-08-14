@@ -17,7 +17,9 @@ import { Card, Stack, Text } from '@wordpress/ui';
 import AddToContentMenu from '../../src/dashboard/components/add-to-content-menu';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import { TAB_PATHS } from '../../src/dashboard/components/dashboard-tabs';
-import FreeTierNotice from '../../src/dashboard/components/overview/free-tier-notice';
+import FreeTierNotice, {
+	FREE_TIER_AT_LIMIT_MESSAGE,
+} from '../../src/dashboard/components/free-tier-notice';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import UploadDropzone from '../../src/dashboard/components/upload-dropzone';
 import {
@@ -359,7 +361,7 @@ const UploadCard = ( {
 		<Card.Content>
 			{ isUploadDisabled && (
 				<div className="vp-onboarding__limit-notice">
-					<FreeTierNotice hasUsedVideo />
+					<FreeTierNotice message={ FREE_TIER_AT_LIMIT_MESSAGE } />
 				</div>
 			) }
 			<UploadDropzone

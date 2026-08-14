@@ -31,8 +31,6 @@ const LATEST_POST_PATH = addQueryArgs( '/wp/v2/posts', {
  * the core WordPress posts endpoint. Content is fetched on-site (not from WPCOM),
  * so it resolves even on private/unlaunched sites; the post's views, likes, and
  * comments are layered on from the Stats post endpoint by the widget's `useLatestPost`.
- *
- * @return The query options for the latest-post request.
  */
 export function latestPostQuery(): UseQueryOptions< LatestPostResponse > {
 	return {
@@ -51,10 +49,7 @@ export function latestPostQuery(): UseQueryOptions< LatestPostResponse > {
  *
  * Disabled until a post ID is known, and deliberately without `placeholderData`:
  * the key changes with the post, and carrying the previous post's title and image
- * over would briefly mislabel the new one.
- *
- * @param postId - The post to read. Values <= 0 leave the query disabled.
- * @return The query options for the post-content request.
+ * over would briefly mislabel the new one. Values <= 0 leave the query disabled.
  */
 export function postContentQuery( postId: number ): UseQueryOptions< LatestPostResponse > {
 	return {

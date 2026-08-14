@@ -31,7 +31,10 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import VideoDetailViewsPerformanceRender from '../render';
-import widgetDefinition, { type VideoDetailViewsPerformanceGranularity } from '../widget';
+import widgetDefinition, {
+	type VideoDetailViewsPerformanceChartType,
+	type VideoDetailViewsPerformanceGranularity,
+} from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -48,6 +51,7 @@ const VIDEO_DETAIL_VIEWS_PERFORMANCE_RENDER_MODULE = 'storybook/video-detail-vie
 interface VideoDetailViewsPerformanceStoryControls {
 	hasVideoScope: boolean;
 	granularity: VideoDetailViewsPerformanceGranularity;
+	chartType: VideoDetailViewsPerformanceChartType;
 }
 
 /**
@@ -55,17 +59,14 @@ interface VideoDetailViewsPerformanceStoryControls {
  * with the video scope the detail page seeds from its URL when
  * `hasVideoScope` is on. Comparison stays a parameter so the dashboard story
  * can pass host comparison params without duplicating the scoping rule.
- *
- * @param {VideoDetailViewsPerformanceStoryControls} controls       - The story controls.
- * @param {boolean}                                  withComparison - Include previous-period comparison report params.
- * @return The widget attributes.
  */
 function getVideoDetailViewsPerformanceAttributes(
-	{ hasVideoScope, granularity }: VideoDetailViewsPerformanceStoryControls,
+	{ hasVideoScope, granularity, chartType }: VideoDetailViewsPerformanceStoryControls,
 	withComparison = false
 ): ComponentProps< typeof VideoDetailViewsPerformanceRender >[ 'attributes' ] {
 	return {
 		granularity,
+		chartType,
 		reportParams: {
 			...getDefaultQueryParams( withComparison ),
 			...( hasVideoScope ? { post_id: MOCK_VIDEO_ID } : {} ),
@@ -73,12 +74,6 @@ function getVideoDetailViewsPerformanceAttributes(
 	};
 }
 
-/**
- * Renders the data-connected widget with the composed attributes.
- *
- * @param {VideoDetailViewsPerformanceStoryControls} controls - The story controls.
- * @return The rendered widget.
- */
 function renderVideoDetailViewsPerformance( controls: VideoDetailViewsPerformanceStoryControls ) {
 	return (
 		<VideoDetailViewsPerformanceRender
@@ -100,6 +95,11 @@ const meta = {
 			control: 'radio',
 			options: [ 'day', 'week', 'month' ],
 			description: 'The "Group by" toolbar attribute rendered by the widget host.',
+		},
+		chartType: {
+			control: 'radio',
+			options: [ 'line', 'bar' ],
+			description: 'The "Chart type" toolbar attribute rendered by the widget host.',
 		},
 	},
 	parameters: {
@@ -125,7 +125,7 @@ type Story = StoryObj< VideoDetailViewsPerformanceStoryControls >;
  */
 export const Default: Story = {
 	render: renderVideoDetailViewsPerformance,
-	args: { hasVideoScope: true, granularity: 'day' },
+	args: { hasVideoScope: true, granularity: 'day', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -136,7 +136,7 @@ export const Default: Story = {
  */
 export const NoVideoScope: Story = {
 	render: renderVideoDetailViewsPerformance,
-	args: { hasVideoScope: false, granularity: 'day' },
+	args: { hasVideoScope: false, granularity: 'day', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -150,13 +150,11 @@ interface VideoDetailViewsPerformanceDashboardStoryProps
  * control, sizing, edit mode). It passes comparison params unconditionally,
  * so the widget stays covered against crashing or inventing an overlay when
  * a host supplies comparison dates.
- *
- * @param {VideoDetailViewsPerformanceDashboardStoryProps} props - The dashboard story controls.
- * @return The widget mounted inside the real dashboard.
  */
 function VideoDetailViewsPerformanceDashboardStory( {
 	hasVideoScope,
 	granularity,
+	chartType,
 	...dashboardArgs
 }: VideoDetailViewsPerformanceDashboardStoryProps ) {
 	return (
@@ -168,7 +166,7 @@ function VideoDetailViewsPerformanceDashboardStory( {
 				VideoDetailViewsPerformanceRender as ComponentType< WidgetRenderProps< unknown > >
 			}
 			attributes={ getVideoDetailViewsPerformanceAttributes(
-				{ hasVideoScope, granularity },
+				{ hasVideoScope, granularity, chartType },
 				true
 			) }
 		/>

@@ -34,7 +34,11 @@ import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import EmailTimeSeriesRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
-import type { EmailTimeSeriesGranularity, EmailTimeSeriesMetric } from '../widget';
+import type {
+	EmailTimeSeriesChartType,
+	EmailTimeSeriesGranularity,
+	EmailTimeSeriesMetric,
+} from '../widget';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -49,9 +53,6 @@ const MOCK_EMAIL_ID = 1234;
 /**
  * Read an attribute's declared element values off the widget definition, so the
  * story controls always mirror the schema.
- *
- * @param id - The attribute id on the widget definition.
- * @return The attribute's element values.
  */
 function attributeElementValues< Value extends string >( id: string ): Value[] {
 	return (
@@ -61,8 +62,10 @@ function attributeElementValues< Value extends string >( id: string ): Value[] {
 	);
 }
 
-const METRIC_OPTIONS: EmailTimeSeriesMetric[] =
-	attributeElementValues< EmailTimeSeriesMetric >( 'metric' );
+// Not read from the schema: `metric` is pinned per email tab by the post detail
+// layout rather than exposed as a user-facing attribute, so the story enumerates
+// the union directly to preview both tab instances.
+const METRIC_OPTIONS: EmailTimeSeriesMetric[] = [ 'opens', 'clicks' ];
 const GRANULARITY_OPTIONS: EmailTimeSeriesGranularity[] =
 	attributeElementValues< EmailTimeSeriesGranularity >( 'granularity' );
 
@@ -73,24 +76,22 @@ const GRANULARITY_OPTIONS: EmailTimeSeriesGranularity[] =
 interface EmailTimeSeriesStoryControls {
 	metric: EmailTimeSeriesMetric;
 	granularity: EmailTimeSeriesGranularity;
+	chartType: EmailTimeSeriesChartType;
 }
 
 /**
  * Builds the widget attributes. Comparison stays a parameter so the dashboard
  * story can pass host comparison params without duplicating the scoping rule.
- *
- * @param {EmailTimeSeriesStoryControls} controls       - The story controls.
- * @param {boolean}                      withComparison - Include previous-period comparison report params.
- * @return The widget attributes.
  */
 function getEmailTimeSeriesAttributes(
-	{ metric, granularity }: EmailTimeSeriesStoryControls,
+	{ metric, granularity, chartType }: EmailTimeSeriesStoryControls,
 	withComparison = false
 ): ComponentProps< typeof EmailTimeSeriesRender >[ 'attributes' ] {
 	return {
 		reportParams: { ...getDefaultQueryParams( withComparison ), post_id: MOCK_EMAIL_ID },
 		metric,
 		granularity,
+		chartType,
 	};
 }
 
@@ -120,6 +121,7 @@ const meta = {
 	argTypes: {
 		metric: { control: 'select', options: METRIC_OPTIONS },
 		granularity: { control: 'select', options: GRANULARITY_OPTIONS },
+		chartType: { control: 'radio', options: [ 'line', 'bar' ] },
 	},
 	parameters: {
 		docs: {
@@ -141,7 +143,7 @@ type Story = StoryObj< EmailTimeSeriesStoryControls >;
  */
 export const Default: Story = {
 	render: renderEmailTimeSeries,
-	args: { metric: 'opens', granularity: 'day' },
+	args: { metric: 'opens', granularity: 'day', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -150,7 +152,7 @@ export const Default: Story = {
  */
 export const Clicks: Story = {
 	render: renderEmailTimeSeries,
-	args: { metric: 'clicks', granularity: 'day' },
+	args: { metric: 'clicks', granularity: 'day', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -159,7 +161,7 @@ export const Clicks: Story = {
  */
 export const ByWeeks: Story = {
 	render: renderEmailTimeSeries,
-	args: { metric: 'opens', granularity: 'week' },
+	args: { metric: 'opens', granularity: 'week', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -226,13 +228,11 @@ interface EmailTimeSeriesDashboardStoryProps
  * Mounts the real `WidgetDashboard`. It passes comparison params
  * unconditionally, so the widget stays covered against crashing or inventing
  * an overlay when a host supplies comparison dates.
- *
- * @param {EmailTimeSeriesDashboardStoryProps} props - The dashboard story controls.
- * @return The widget mounted inside the real dashboard.
  */
 function EmailTimeSeriesDashboardStory( {
 	metric,
 	granularity,
+	chartType,
 	...dashboardArgs
 }: EmailTimeSeriesDashboardStoryProps ) {
 	return (
@@ -241,7 +241,7 @@ function EmailTimeSeriesDashboardStory( {
 			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ EMAIL_TIME_SERIES_RENDER_MODULE }
 			renderComponent={ EmailTimeSeriesRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ getEmailTimeSeriesAttributes( { metric, granularity }, true ) }
+			attributes={ getEmailTimeSeriesAttributes( { metric, granularity, chartType }, true ) }
 		/>
 	);
 }
@@ -252,10 +252,12 @@ export const WidgetDashboardWithWidget: StoryObj< EmailTimeSeriesDashboardStoryP
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		metric: 'opens',
 		granularity: 'day',
+		chartType: 'line',
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
 		metric: { control: 'select', options: METRIC_OPTIONS },
 		granularity: { control: 'select', options: GRANULARITY_OPTIONS },
+		chartType: { control: 'radio', options: [ 'line', 'bar' ] },
 	},
 };

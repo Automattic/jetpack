@@ -252,7 +252,7 @@ describe( 'ReferrersWidget', () => {
 			/>
 		);
 
-		const link = screen.getByRole( 'link', { name: 'See report' } );
+		const link = screen.getByRole( 'link', { name: 'View all' } );
 		expect( link ).toHaveAttribute( 'href', expect.stringContaining( '/reports/referrers' ) );
 	} );
 } );

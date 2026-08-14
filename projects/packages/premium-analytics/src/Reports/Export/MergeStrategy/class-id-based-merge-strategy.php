@@ -67,11 +67,9 @@ class Id_Based_Merge_Strategy extends Abstract_Merge_Strategy {
 		$comparison_map = array();
 		foreach ( $comparison_items as $item ) {
 			if ( isset( $item[ $this->matching_field ] ) ) {
-				// Normalize to string, preserving empty strings as "" (not converting to null).
 				$field_value    = $item[ $this->matching_field ];
 				$normalized_key = ( null !== $field_value ) ? (string) $field_value : '';
 
-				// Warn if there are duplicate matching field values.
 				if ( isset( $comparison_map[ $normalized_key ] ) ) {
 					$this->logger->log_error(
 						sprintf(
@@ -93,12 +91,10 @@ class Id_Based_Merge_Strategy extends Abstract_Merge_Strategy {
 
 		$merged_items = array();
 
-		// Match original items with comparison data.
 		foreach ( $original_items as $original_item ) {
 			$merged_item = $original_item;
 			$match_value = $original_item[ $this->matching_field ] ?? null;
 
-			// Warn if the matching field is missing from this item.
 			if ( ! isset( $original_item[ $this->matching_field ] ) ) {
 				$this->logger->log_error(
 					sprintf(
@@ -110,14 +106,11 @@ class Id_Based_Merge_Strategy extends Abstract_Merge_Strategy {
 				);
 			}
 
-			// Normalize match value to string for consistent lookup.
-			// Preserve empty strings as "" (not converting to null) to allow matching empty rows.
-			// This allows falsy but valid values like 0 or "0" to be matched, and also allows
-			// empty strings to be matched (important for empty row handling).
+			// Normalized the same way as the lookup keys above, so falsy-but-valid values
+			// (0, "0") and empty strings (empty-row handling) still match.
 			$normalized_match_value = ( null !== $match_value ) ? (string) $match_value : '';
 
 			if ( isset( $comparison_map[ $normalized_match_value ] ) ) {
-				// Found matching comparison data.
 				foreach ( $comparison_map[ $normalized_match_value ] as $key => $value ) {
 					$merged_item[ $prefix . $key ] = $value;
 				}
@@ -129,10 +122,8 @@ class Id_Based_Merge_Strategy extends Abstract_Merge_Strategy {
 				}
 			}
 
-			// Copy matching field and identifying/display fields from original item when comparison fields are empty.
-			// This handles both cases: when comparison data is missing entirely, and when
-			// comparison data exists but identifying fields are empty.
-			// The entity is the same (matched by ID), so these fields should be preserved.
+			// The entity is the same on both sides (matched by ID), so its identifying fields
+			// are preserved whether comparison data is missing entirely or just has them empty.
 			$this->copy_matching_and_identifying_fields( $merged_item, $original_item, $prefix, $controller );
 
 			$merged_items[] = $merged_item;
@@ -155,31 +146,26 @@ class Id_Based_Merge_Strategy extends Abstract_Merge_Strategy {
 	 * @return void
 	 */
 	private function copy_matching_and_identifying_fields( array &$merged_item, array $original_item, string $prefix, Csv_Report_Controller_Interface $controller ): void {
-		// Build list of fields to copy: matching field + identifying fields.
 		$fields_to_copy     = array( $this->matching_field );
 		$identifying_fields = $controller->get_identifying_fields();
 		if ( ! empty( $identifying_fields ) ) {
 			$fields_to_copy = array_merge( $fields_to_copy, $identifying_fields );
 		}
 
-		// Copy each field from original to comparison if needed.
 		foreach ( $fields_to_copy as $field ) {
-			// Skip if the field doesn't exist in the original item.
 			if ( ! isset( $original_item[ $field ] ) ) {
 				continue;
 			}
 
 			$value = $original_item[ $field ];
 
-			// Skip if the value is empty string.
-			// Note: We check for empty string explicitly to allow "0" strings and other falsy values.
+			// Compared against '' rather than tested for falsiness, so "0" stays a real value.
 			if ( '' === $value ) {
 				continue;
 			}
 
 			$comparison_key = $prefix . $field;
-			// Only copy if the comparison field is missing or is an empty string.
-			// Note: We check for empty string explicitly to allow "0" strings.
+			// Same reason: an existing "0" on the comparison side must not be overwritten.
 			if ( ! isset( $merged_item[ $comparison_key ] ) || '' === $merged_item[ $comparison_key ] ) {
 				$merged_item[ $comparison_key ] = $value;
 			}

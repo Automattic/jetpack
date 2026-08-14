@@ -13,20 +13,29 @@ import VideoDetailViewsPerformanceWidget from '../render';
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 // The chart itself is visx SVG rendering, outside this widget's concern. Keep
-// the series observable so the tests can assert what the widget charts.
+// the metrics observable so the tests can assert what the widget charts.
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
-	ComparativeLineChart: ( {
-		series,
+	MetricTabsChart: ( {
+		metrics,
+		chartType,
 	}: {
-		series: { label: string; data: { date: Date; value: number }[] }[];
+		metrics: {
+			key: string;
+			label: string;
+			value: number;
+			current: { date: Date; value: number }[];
+		}[];
+		chartType?: string;
 	} ) => (
 		<div
-			data-testid="comparative-line-chart"
-			data-series-count={ series.length }
-			data-series-label={ series[ 0 ]?.label }
-			data-values={ series[ 0 ]?.data.map( point => point.value ).join( ',' ) }
-			data-first-date={ series[ 0 ]?.data[ 0 ]?.date.toISOString() }
+			data-testid="metric-tabs-chart"
+			data-metric-count={ metrics.length }
+			data-metric-label={ metrics[ 0 ]?.label }
+			data-metric-total={ String( metrics[ 0 ]?.value ) }
+			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
+			data-first-date={ metrics[ 0 ]?.current[ 0 ]?.date.toISOString() }
+			data-chart-type={ String( chartType ) }
 		/>
 	),
 } ) );
@@ -41,9 +50,6 @@ const mockApiFetch = apiFetch as unknown as jest.Mock;
  * Builds a raw `statType=all` response (wpcom #229903): per-day tuples named
  * by `fields`, with the other metric columns derived from the plays the test
  * cares about, plus the embed-page/post/total fixtures.
- *
- * @param data - The daily `[date, plays]` pairs.
- * @return The raw single-video response.
  */
 function buildSingleVideoResponse( data: Array< [ string, number ] > ) {
 	return {
@@ -61,16 +67,16 @@ function buildSingleVideoResponse( data: Array< [ string, number ] > ) {
 }
 
 /**
- * Routes a mocked request to the response for its `start_date` window.
- *
- * @param responsesByStartDate - Responses keyed by the request's `start_date`.
- * @return The apiFetch mock implementation.
+ * Routes a mocked request to the response for its `start_date` window. Keyed by
+ * the requested calendar day, so the fixtures hold whether the param carries a
+ * bare date or the full offset-bearing datetime the range resolves to.
  */
-function respondByWindow( responsesByStartDate: Record< string, unknown > ) {
+function respondByWindow( responsesByStartDay: Record< string, unknown > ) {
 	return ( { path }: { path: string } ) => {
 		const startDate = new URLSearchParams( path.split( '?' )[ 1 ] ).get( 'start_date' ) ?? '';
+		const startDay = startDate.split( 'T' )[ 0 ];
 
-		return Promise.resolve( responsesByStartDate[ startDate ] ?? buildSingleVideoResponse( [] ) );
+		return Promise.resolve( responsesByStartDay[ startDay ] ?? buildSingleVideoResponse( [] ) );
 	};
 }
 
@@ -103,12 +109,16 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 
 		render( <VideoDetailViewsPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
 
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
-		expect( chart ).toHaveAttribute( 'data-series-count', '1' );
-		expect( chart ).toHaveAttribute( 'data-series-label', 'Views' );
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect( chart ).toHaveAttribute( 'data-metric-count', '1' );
+		expect( chart ).toHaveAttribute( 'data-metric-label', 'Views' );
 		// One point per calendar day of the 7-day window, zero-filled around the
 		// two returned days.
 		expect( chart ).toHaveAttribute( 'data-values', '0,5,0,7,0,0,0' );
+		// The metric headline is the window total, and the chart type
+		// defaults to line.
+		expect( chart ).toHaveAttribute( 'data-metric-total', '12' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
 
 		// Filtered to the widget's own requests: the first rendering test in the
 		// file also triggers core-data's one-off site-settings resolution.
@@ -118,8 +128,13 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		expect( requestedPaths ).toHaveLength( 1 );
 		expect( requestedPaths[ 0 ] ).toContain( 'statType=all' );
 		expect( requestedPaths[ 0 ] ).toContain( 'period=day' );
-		expect( requestedPaths[ 0 ] ).toContain( 'start_date=2026-07-01' );
-		expect( requestedPaths[ 0 ] ).toContain( 'date=2026-07-07' );
+		// The unmodified report params, matching what the Video highlights widget
+		// on this same page sends: the two only share a cache entry — one request
+		// instead of two — while their query keys stay identical, so this pins the
+		// exact shape rather than just the calendar day.
+		const requestedParams = new URLSearchParams( requestedPaths[ 0 ].split( '?' )[ 1 ] );
+		expect( requestedParams.get( 'start_date' ) ).toBe( WINDOW_PARAMS.from );
+		expect( requestedParams.get( 'date' ) ).toBe( WINDOW_PARAMS.to );
 	} );
 
 	it( 'anchors bucket days at site-local midnight so negative-offset sites keep the calendar day', async () => {
@@ -141,7 +156,7 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 				<VideoDetailViewsPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } />
 			);
 
-			const chart = await screen.findByTestId( 'comparative-line-chart' );
+			const chart = await screen.findByTestId( 'metric-tabs-chart' );
 			// 2026-07-01 site-local midnight at UTC-12 is 2026-07-01T12:00:00Z.
 			expect( chart ).toHaveAttribute( 'data-first-date', '2026-07-01T12:00:00.000Z' );
 		} finally {
@@ -160,8 +175,21 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 
 		// 2026-07-01 (Wed) → 2026-07-07 spans two ISO weeks: Mon 6/29 (5 + 7
 		// views) and Mon 7/6 (zero).
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-values', '12,0' );
+	} );
+
+	it( 'draws bars when the chartType attribute says so', async () => {
+		mockApiFetch.mockImplementation( respondByWindow( { '2026-07-01': PRIMARY_WINDOW_RESPONSE } ) );
+
+		render(
+			<VideoDetailViewsPerformanceWidget
+				attributes={ { reportParams: WINDOW_PARAMS, chartType: 'bar' } }
+			/>
+		);
+
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
 	} );
 
 	it( 'ignores comparison report params: one request, single series', async () => {
@@ -184,9 +212,9 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 			/>
 		);
 
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
-		expect( chart ).toHaveAttribute( 'data-series-count', '1' );
-		expect( chart ).toHaveAttribute( 'data-series-label', 'Views' );
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect( chart ).toHaveAttribute( 'data-metric-count', '1' );
+		expect( chart ).toHaveAttribute( 'data-metric-label', 'Views' );
 		expect( chart ).toHaveAttribute( 'data-values', '0,5,0,7,0,0,0' );
 
 		const requestedPaths = mockApiFetch.mock.calls

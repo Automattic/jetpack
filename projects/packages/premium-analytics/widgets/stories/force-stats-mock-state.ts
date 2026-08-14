@@ -2,6 +2,10 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+/**
+ * Internal dependencies
+ */
+import { resetForcedStateQueries } from '../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 
 type ForcedMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
@@ -49,36 +53,13 @@ const forcedStateMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 };
 
 /**
- * Story-side counterpart of `setReportMockState` for endpoints owned by
- * story-local or legacy stats mocks, e.g. `stats/clicks`, `stats/referrers`,
- * `reports/products`, or `latest-post`.
+ * Force a state for requests handled by story-local or legacy mocks.
  *
- * The shared override in `register-report-mocks.ts` can miss those requests:
- * the last-registered `apiFetch` middleware runs first, so legacy stats mocks or
- * story-local endpoint mocks can answer before the shared override loop sees
- * the request. Storybook can lazy-load more story modules later, so this helper
- * re-registers its shared middleware whenever a forced state is set. The
- * duplicate registrations are intentional: they share the same override map and
- * keep the forced-state middleware ahead of any later endpoint-specific
- * middleware.
+ * Re-register the middleware when setting a state because the most recently
+ * registered `apiFetch` middleware runs first and stories load lazily.
  *
- * Same contract as `setReportMockState`: call it in a story's `beforeEach` and
- * clear the override with `null` in the returned cleanup.
- *
- * Conventions for the forced-state stories that drive this helper (the per-story
- * comments point here rather than repeating the rationale in every widget file):
- * - Tag them `!autodocs`. The override is keyed by path, so on the shared
- *   autodocs page it would force every sibling story into the same state.
- * - Render each on a date preset distinct from the widget's other stories. The
- *   query key derives from the date range, so a unique preset gives the story
- *   its own cache entry and it hits the mock fresh instead of reading another
- *   story's cached success from the shared query client. When a widget's query
- *   key carries no date params, a distinct preset can't isolate it — evict the
- *   query from the shared client on enter and cleanup instead (see the
- *   `latest-post` stories).
- * - `'error'` mocks a permission-gated 403 and `'error-retryable'` the proxy's
- *   `no_connection` 403. Widgets on `describeError` render a Retry action only
- *   for the latter, so give those widgets a story for each.
+ * Use in `beforeEach`, clear on cleanup, and exclude the story from autodocs
+ * because overrides are keyed by path. Cache isolation is automatic.
  *
  * @param pathFragment - Substring matched against the request path (e.g. `stats/clicks`).
  * @param state        - The forced state, or `null` to clear.
@@ -90,4 +71,5 @@ export function forceStatsMockState( pathFragment: string, state: ForcedMockStat
 		apiFetch.use( forcedStateMiddleware );
 		stateOverrides.set( pathFragment, state );
 	}
+	resetForcedStateQueries();
 }

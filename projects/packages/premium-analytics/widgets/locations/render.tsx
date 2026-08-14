@@ -77,9 +77,6 @@ type LocationsInnerProps = Required< Pick< LocationsAttributes, 'max' | 'geoGran
  * Locations widget inner component. Reads report params from WidgetRoot
  * context. Attributes arrive already normalized by the outer component, so
  * defaults are applied in exactly one place.
- *
- * @param {LocationsInnerProps} props - The normalized widget attributes.
- * @return The rendered widget content.
  */
 function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -310,7 +307,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 
 	const backLink = renderSelectedCountry ? (
 		<WidgetBackLink
-			label={ __( 'All Locations', 'jetpack-premium-analytics-pkg' ) }
+			label={ __( 'All locations', 'jetpack-premium-analytics-pkg' ) }
 			ariaLabel={ __( 'View all locations', 'jetpack-premium-analytics-pkg' ) }
 			onClick={ clearSelectedCountry }
 			className={ styles.backLink }
@@ -382,9 +379,6 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
  * Locations widget: visitor views by country/region/city, as a map plus a
  * leaderboard. Click a country to drill into its regions. Ported from the
  * Jetpack Stats Locations module.
- *
- * @param {LocationsWidgetProps} props - The widget render props.
- * @return The rendered Locations widget.
  */
 export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 	const max = attributes?.max ?? 10;

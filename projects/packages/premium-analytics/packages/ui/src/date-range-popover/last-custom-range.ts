@@ -14,11 +14,8 @@ export type RememberedCustomRange = {
 };
 
 /**
- * Returns the committed custom range when the applied preset is custom.
- *
- * @param appliedPresetId - Committed preset identifier.
- * @param appliedRange    - Committed date range.
- * @return The custom range to remember, or null.
+ * Returns the committed custom range when the applied preset is custom,
+ * otherwise null.
  */
 export function getCommittedCustomRange(
 	appliedPresetId: PrimaryPresetId | undefined,
@@ -43,9 +40,6 @@ type ShouldRestoreLastCustomRangeArgs = {
 
 /**
  * Whether opening the custom popover should restore the last committed custom range.
- *
- * @param {ShouldRestoreLastCustomRangeArgs} args - Open/applied/staged preset state.
- * @return True when the saved custom range should be staged again.
  */
 export function shouldRestoreLastCustomRange( {
 	isOpen,

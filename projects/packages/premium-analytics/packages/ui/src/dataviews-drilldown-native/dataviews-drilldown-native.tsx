@@ -17,7 +17,6 @@ import type {
 } from '@jetpack-premium-analytics/externals';
 import type { ComponentProps, ReactNode } from 'react';
 
-// Inferred props types from the `DataViews` component.
 type PaginationInfo = ComponentProps< typeof DataViews >[ 'paginationInfo' ];
 type OnChangeViewBaseProps< Item > = ViewBaseProps< Item >[ 'onChangeView' ];
 type GetItemIdBaseProps< Item > = ViewBaseProps< Item >[ 'getItemId' ];
@@ -84,9 +83,6 @@ export interface DataViewsDrilldownNativeProps< Item > {
  * orders within each level (not a flat global sort), and rows are emitted in
  * depth-first order before pagination. There is no expand/collapse yet; the
  * native level rendering is a static display.
- *
- * @param {DataViewsDrilldownNativeProps< Item >} props - The component props.
- * @return The DataViews drilldown.
  */
 export function DataViewsDrilldownNative< Item >( {
 	data,

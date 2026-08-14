@@ -29,17 +29,11 @@ type GetCustomTriggerStateArgs = {
 	 */
 	canApply: boolean;
 
-	/**
-	 * Whether the custom-range popover is open.
-	 */
 	isOpen: boolean;
 };
 
 /**
  * Derives the custom trigger button state from staged vs applied filter state.
- *
- * @param {GetCustomTriggerStateArgs} args - Staged/applied preset IDs and apply/open flags.
- * @return The trigger visual state.
  */
 export function getCustomTriggerState( {
 	presetId,
@@ -73,9 +67,6 @@ type GetCustomTriggerLabelArgs = {
 
 /**
  * Derives the custom trigger label from visual state and remembered ranges.
- *
- * @param {GetCustomTriggerLabelArgs} args - Trigger state, staged/applied ranges, and formatters.
- * @return The trigger button label.
  */
 export function getCustomTriggerLabel( {
 	triggerState,
