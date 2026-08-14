@@ -3,7 +3,7 @@ import { Breadcrumbs } from '@wordpress/admin-ui';
 import { Button, ProgressBar } from '@wordpress/components';
 import { useCallback, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Card, Skeleton, Stack, Text } from '@wordpress/ui';
+import { Card, Skeleton, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import { isChaptersEditorEnabled } from '../../utils/chapters-editor';
 import VideoNav from '../video-nav';
 import ChaptersHelpModal from './chapters-help-modal';
@@ -141,11 +141,21 @@ const UploadStagePanel = ( { uploadState }: { uploadState: EditorUploadState } )
 	}
 
 	return (
-		<div
-			className="vp-video-details__player vp-upload-stage"
-			data-testid="upload-stage"
-			aria-live="polite"
-		>
+		<div className="vp-video-details__player vp-upload-stage" data-testid="upload-stage">
+			{ /*
+			 * The live region carries the PHASE only, never the percentage:
+			 * with `aria-live` on the wrapper a screen reader spoke a new
+			 * number on every progress tick — dozens to hundreds per upload.
+			 * The upload pill announces the same way (phase transitions only),
+			 * and it can't cover for this one: it is suppressed on /upload.
+			 */ }
+			<VisuallyHidden>
+				<div aria-live="polite">
+					{ status === 'uploading'
+						? __( 'Uploading…', 'jetpack-videopress-pkg' )
+						: __( 'Upload complete — processing…', 'jetpack-videopress-pkg' ) }
+				</div>
+			</VisuallyHidden>
 			<Text variant="body-md" render={ <span /> } className="vp-upload-stage__name">
 				{ fileName }
 			</Text>
@@ -182,7 +192,7 @@ const UploadStagePanel = ( { uploadState }: { uploadState: EditorUploadState } )
 const PendingCard = ( { title }: { title: string } ): ReactElement => (
 	<Card.Root>
 		<Card.Header>
-			<Card.Title>{ title }</Card.Title>
+			<Card.Title render={ <h2 /> }>{ title }</Card.Title>
 		</Card.Header>
 		<Card.Content>
 			<Stack direction="column" gap="md">

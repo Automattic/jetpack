@@ -265,7 +265,7 @@ function EditorNotFound( { videoId }: { videoId: string } ): ReactElement {
 		<EditorChrome videoId={ videoId }>
 			<div className="vp-video-editor vp-video-editor__not-found">
 				<Stack direction="column" gap="md" align="center">
-					<Text>{ __( "We couldn't find that video.", 'jetpack-videopress-pkg' ) }</Text>
+					<Text>{ __( 'We couldn’t find that video.', 'jetpack-videopress-pkg' ) }</Text>
 					<Link to="/">{ __( 'Back to Library', 'jetpack-videopress-pkg' ) }</Link>
 				</Stack>
 			</div>

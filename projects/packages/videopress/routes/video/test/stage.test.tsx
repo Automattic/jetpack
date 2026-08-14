@@ -543,7 +543,11 @@ describe( 'video stage', () => {
 
 			await renderReadyStage();
 
-			expect( screen.getByText( 'Upload complete — processing…' ) ).toBeInTheDocument();
+			expect(
+				screen.getByText( 'Upload complete — processing…', {
+					selector: '.vp-upload-stage__status',
+				} )
+			).toBeInTheDocument();
 			// The stage overlays the player rather than replacing it, so the
 			// embed survives the moment processing finishes (see the identity
 			// test in editor.test.tsx).
@@ -610,7 +614,7 @@ describe( 'video stage', () => {
 		} );
 
 		await expect(
-			screen.findByText( "We couldn't find that video." )
+			screen.findByText( 'We couldn’t find that video.' )
 		).resolves.toBeInTheDocument();
 	} );
 } );

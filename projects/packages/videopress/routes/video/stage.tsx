@@ -46,7 +46,7 @@ const NotFound = () => (
 	>
 		<div className="vp-video-details vp-video-details__not-found">
 			<Stack direction="column" gap="md" align="center">
-				<Text>{ __( "We couldn't find that video.", 'jetpack-videopress-pkg' ) }</Text>
+				<Text>{ __( 'We couldn’t find that video.', 'jetpack-videopress-pkg' ) }</Text>
 				<Link to="/">{ __( 'Back to Library', 'jetpack-videopress-pkg' ) }</Link>
 			</Stack>
 		</div>

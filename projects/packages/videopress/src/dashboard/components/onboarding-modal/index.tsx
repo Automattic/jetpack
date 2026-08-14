@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cloudUpload, share, video } from '@wordpress/icons';
 import { useNavigate, useSearch } from '@wordpress/route';
@@ -19,15 +19,32 @@ import type { CSSProperties, ReactElement, ReactNode } from 'react';
 const LEARN_MORE_URL = 'https://jetpack.com/videopress/';
 
 /*
- * `welcome=1` is consumed ONCE per page load. Every route ships as its own
- * bundle, so an in-app navigation remounts this component with a fresh module
- * scope; without a window-scoped latch the effect below re-cleared the
- * dismissal and re-opened the modal on every navigation of the same load,
- * after the user had already closed it.
+ * `welcome=1` needs TWO window-scoped values, not one, because the two things
+ * it drives have different lifetimes. Every route ships as its own bundle, so
+ * an in-app navigation remounts this component with a fresh module scope.
+ *
+ * CONSUMED: spent by the first mount that sees the param. It gates the
+ * side effects — clearing the stored dismissal and stripping the param from
+ * the URL — which must happen exactly once. Re-running them on later mounts
+ * re-opened the modal on every navigation, after the user had already closed
+ * it.
+ *
+ * ACTIVE: sticky for the rest of the page load. It gates visibility only.
+ * The bare `admin.php?page=jetpack-videopress&welcome=1` URL carries no `p`,
+ * so it resolves to Library and the layout immediately redirects to /home —
+ * remounting this component before anyone has seen anything. With only the
+ * consumed latch, that second mount fell through to the empty-library gate,
+ * so the modal never appeared on any site that already had a VideoPress
+ * video. Dismissal still wins over this flag: `isDismissed` is re-seeded from
+ * `hasSeenOnboarding()` on every mount.
  */
 const WELCOME_CONSUMED_FLAG = '__jetpackVideoPressWelcomeConsumed';
+const WELCOME_ACTIVE_FLAG = '__jetpackVideoPressWelcomeActive';
 
-type WelcomeWindow = Window & { [ WELCOME_CONSUMED_FLAG ]?: boolean };
+type WelcomeWindow = Window & {
+	[ WELCOME_CONSUMED_FLAG ]?: boolean;
+	[ WELCOME_ACTIVE_FLAG ]?: boolean;
+};
 
 /**
  * Detect the `welcome=1` review param, once, and strip it from the URL.
@@ -59,6 +76,7 @@ function consumeWelcomeParam( inRouterSearch: boolean ): boolean {
 	}
 
 	scope[ WELCOME_CONSUMED_FLAG ] = true;
+	scope[ WELCOME_ACTIVE_FLAG ] = true;
 
 	if ( params.has( 'welcome' ) ) {
 		params.delete( 'welcome' );
@@ -71,6 +89,18 @@ function consumeWelcomeParam( inRouterSearch: boolean ): boolean {
 	}
 
 	return true;
+}
+
+/**
+ * Whether this page load arrived via `welcome=1`, on this mount or an earlier
+ * one. Read after `consumeWelcomeParam`, which is what sets the flag.
+ *
+ * @return True for every mount of a welcome load.
+ */
+function isWelcomeLoad(): boolean {
+	return (
+		typeof window !== 'undefined' && Boolean( ( window as WelcomeWindow )[ WELCOME_ACTIVE_FLAG ] )
+	);
 }
 
 type ValueCard = {
@@ -128,13 +158,18 @@ export default function OnboardingModal(): ReactElement | null {
 	const { videoPressCount, localCount, isSettled } = useOnboardingCounts();
 	const navigate = useNavigate();
 	const search = useSearch( { strict: false } ) as Record< string, unknown >;
+	const popupRef = useRef< HTMLDivElement >( null );
 
 	// `welcome=1` is the review affordance: it reopens the modal regardless of
 	// the dismissal flag or the library state, and forgets the stored
 	// dismissal so plain loads behave fresh again afterwards. Without it,
-	// seeing the modal twice means hand-clearing localStorage. Consumed at
-	// mount and held in state, so a dismissal survives the rest of the load.
+	// seeing the modal twice means hand-clearing localStorage.
+	//
+	// `isPreview` is true only on the mount that spends the param, and it owns
+	// the one-shot side effect below. `isWelcomeSession` is true on every mount
+	// of the same load and owns visibility — see the two flags above.
 	const [ isPreview ] = useState( () => consumeWelcomeParam( search?.welcome === '1' ) );
+	const [ isWelcomeSession ] = useState( isWelcomeLoad );
 
 	useEffect( () => {
 		if ( isPreview ) {
@@ -154,7 +189,7 @@ export default function OnboardingModal(): ReactElement | null {
 	const isOpen =
 		! isDismissed &&
 		isSettled &&
-		( isPreview || ( ! hasPublishedVideo() && videoPressCount === 0 ) );
+		( isWelcomeSession || ( ! hasPublishedVideo() && videoPressCount === 0 ) );
 
 	const dismiss = useCallback( () => {
 		saveDismissal();
@@ -188,7 +223,20 @@ export default function OnboardingModal(): ReactElement | null {
 				}
 			} }
 		>
-			<Dialog.Popup size="medium" className="vp-onboarding-modal">
+			{ /*
+			 * `Dialog.Popup` deprioritizes the close icon when it picks initial
+			 * focus, so without an override focus landed on the next focusable
+			 * thing — the intro player's controls. That skipped the modal's
+			 * accessible name and description entirely, and left Close behind
+			 * the user. Focusing the popup itself makes the title and lede the
+			 * first thing announced, and Close the first thing Tab reaches.
+			 */ }
+			<Dialog.Popup
+				ref={ popupRef }
+				initialFocus={ popupRef }
+				size="medium"
+				className="vp-onboarding-modal"
+			>
 				{ /*
 				 * The band's background is the wireframe brand artwork — the
 				 * idle state the Figma spec shows — with the intro film
@@ -223,7 +271,7 @@ export default function OnboardingModal(): ReactElement | null {
 					</Dialog.Title>
 					<Dialog.Description className="vp-onboarding-modal__lede">
 						{ __(
-							"This is the same player every video on your site will use, hosted on your own site, not someone else's platform. Upload one to see it live.",
+							'This is the same player every video on your site will use, hosted on your own site, not someone else’s platform. Upload one to see it live.',
 							'jetpack-videopress-pkg'
 						) }
 					</Dialog.Description>
