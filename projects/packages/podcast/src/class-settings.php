@@ -45,9 +45,7 @@ class Settings {
 	const SHOW_URL_MAX_LENGTH = 2048;
 
 	/**
-	 * Episodes a podcast feed carries when the site hasn't chosen. Deep enough
-	 * that podcatchers see a real back catalog rather than core's blog-sized
-	 * `posts_per_rss`.
+	 * Fallback when neither `podcasting_feed_limit` nor `posts_per_rss` is set.
 	 */
 	const FEED_LIMIT_DEFAULT = 300;
 
@@ -235,13 +233,22 @@ class Settings {
 	}
 
 	/**
-	 * Episodes the podcast feed should carry. Sanitized on read because Sync
-	 * writes on shadow blogs never hit the registered `sanitize_callback`.
+	 * Episodes the podcast feed should carry. Until the site sets one, this seeds
+	 * from core's `posts_per_rss` so existing feeds keep their current length; once
+	 * the option exists that value is never consulted again.
+	 *
+	 * Sanitized on read because Sync writes on shadow blogs never hit the
+	 * registered `sanitize_callback`.
 	 *
 	 * @return int
 	 */
 	public static function feed_limit(): int {
-		return self::sanitize_feed_limit( get_option( 'podcasting_feed_limit', self::FEED_LIMIT_DEFAULT ) );
+		$stored = get_option( 'podcasting_feed_limit', false );
+		if ( false === $stored ) {
+			$stored = get_option( 'posts_per_rss', self::FEED_LIMIT_DEFAULT );
+		}
+
+		return self::sanitize_feed_limit( $stored );
 	}
 
 	/**

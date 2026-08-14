@@ -132,6 +132,21 @@ class Settings_Test extends BaseTestCase {
 		delete_option( 'podcasting_feed_limit' );
 	}
 
+	public function test_feed_limit_seeds_from_the_site_feed_length_until_it_is_set() {
+		// Registered so the seeding survives the `default_option_*` filter that
+		// `register_setting()` adds.
+		Settings::register_settings();
+
+		update_option( 'posts_per_rss', 12 );
+		$this->assertSame( 12, Settings::feed_limit() );
+
+		update_option( 'podcasting_feed_limit', 40 );
+		$this->assertSame( 40, Settings::feed_limit() );
+
+		delete_option( 'podcasting_feed_limit' );
+		delete_option( 'posts_per_rss' );
+	}
+
 	public function test_feed_limit_max_filter_raises_the_ceiling() {
 		add_filter(
 			'jetpack_podcast_feed_limit_max',

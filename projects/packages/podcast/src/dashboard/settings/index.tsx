@@ -489,6 +489,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 								'How many of your most recent episodes the feed includes.',
 								'jetpack-podcast'
 							) }
+							disabled={ isLocked }
 							{ ...feedLimitField }
 						/>
 					</VStack>
