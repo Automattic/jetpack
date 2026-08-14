@@ -25,27 +25,12 @@ function readMilestone(): number {
 }
 
 /**
- * Whether the site has store data to sync (WooCommerce active). When false the
- * status is derived from Jetpack's generic initial full sync. Read once at mount;
- * WooCommerce activation only changes between page loads.
- *
- * Defaults to false when the flag is absent (an abnormal boot — the backend always
- * injects it). "Site data" is the neutral, never-wrong framing: every site has it,
- * only some have a store, so guessing a store is the riskier miss.
- *
- * @return Whether the site has store data.
- */
-function hasStoreData(): boolean {
-	return getScriptData()?.premium_analytics?.has_store_data ?? false;
-}
-
-/**
  * Polls Jetpack's sync status and returns analytics-scoped progress.
  *
  * Polling auto-stops when the sync completes or stalls, or after
  * `MAX_POLL_FAILURES` consecutive fetch errors; a single transient error is
  * retried on the next tick and self-heals on the next success. If the
- * page-load milestone is already set, the dashboard is gated open immediately
+ * page-load milestone is already set, the status reports complete immediately
  * and no polling occurs. `triggerSync` POSTs the full-sync trigger and resumes
  * polling; it never rejects (failures surface via `error`).
  *
@@ -53,7 +38,6 @@ function hasStoreData(): boolean {
  */
 export function useSyncStatus(): UseSyncStatusReturn {
 	const milestoneRef = useRef< number >( readMilestone() );
-	const hasStoreDataRef = useRef< boolean >( hasStoreData() );
 	const [ data, setData ] = useState< SyncStatus >();
 	const [ error, setError ] = useState< Error | null >( null );
 	const [ isStalled, setIsStalled ] = useState( false );
@@ -85,7 +69,7 @@ export function useSyncStatus(): UseSyncStatusReturn {
 					milestoneRef.current = live;
 				}
 
-				const status = toSyncStatus( raw, milestoneRef.current, hasStoreDataRef.current );
+				const status = toSyncStatus( raw, milestoneRef.current );
 				failureCountRef.current = 0;
 				setData( status );
 				setError( null );
@@ -152,7 +136,7 @@ export function useSyncStatus(): UseSyncStatusReturn {
 	useEffect( () => {
 		// Already finished before this page load — gate open, no polling needed.
 		if ( milestoneRef.current > 0 ) {
-			setData( toSyncStatus( {}, milestoneRef.current, hasStoreDataRef.current ) );
+			setData( toSyncStatus( {}, milestoneRef.current ) );
 			return;
 		}
 

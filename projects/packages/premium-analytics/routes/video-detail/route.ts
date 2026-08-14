@@ -12,10 +12,7 @@ import { redirect } from '@wordpress/route';
  * Internal dependencies
  */
 import { ensureDashboardEntities } from '../dashboard-entities';
-import {
-	isPremiumAnalyticsInitialSyncFinished,
-	isPremiumAnalyticsSiteConnected,
-} from '../site-readiness';
+import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 
 type VideoDetailParams = { videoId?: string };
 type VideoDetailSearch = Record< string, string | undefined >;
@@ -33,8 +30,8 @@ function isValidVideoId( value: string | undefined ): value is string {
 /**
  * Route lifecycle for the video detail page.
  *
- * The page is available only to connected sites after the initial analytics
- * sync, and only for positive integer attachment IDs.
+ * The page is available only to connected sites, and only for positive integer
+ * attachment IDs.
  */
 export const route = {
 	beforeLoad: async ( {
@@ -43,10 +40,6 @@ export const route = {
 	}: { params?: VideoDetailParams; search?: VideoDetailSearch } = {} ) => {
 		if ( ! isPremiumAnalyticsSiteConnected() ) {
 			throw redirect( { to: '/connect' } );
-		}
-
-		if ( ! isPremiumAnalyticsInitialSyncFinished() ) {
-			throw redirect( { to: '/syncing' } );
 		}
 
 		const videoId = params?.videoId;

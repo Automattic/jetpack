@@ -69,6 +69,13 @@ export type DashboardSection = {
 	date_filter_options?: DateFilterOptions;
 
 	/**
+	 * Whether the section's data only reaches WordPress.com through the analytics
+	 * full sync, so it shows sync progress until that sync has finished once.
+	 * Optional for the same reason as `date_filter` above; absent means no wait.
+	 */
+	requires_sync?: boolean;
+
+	/**
 	 * Bundled default widget layout, consumed by the reset action.
 	 */
 	default_layout: DashboardWidget[];
@@ -91,6 +98,20 @@ export function resolveSectionHeading( section: DashboardSection ): string {
 	// `||` rather than `??`: an empty string is a registrant meaning "none", and
 	// heading the section with it would render an `<h2>` with no accessible name.
 	return section.title || section.label;
+}
+
+/**
+ * Whether a section must show sync progress instead of its widgets.
+ *
+ * @param section        - The section to render.
+ * @param isSyncFinished - Whether the analytics initial full sync has finished.
+ * @return Whether the section is still waiting on the sync.
+ */
+export function isSectionAwaitingSync(
+	section: DashboardSection,
+	isSyncFinished: boolean
+): boolean {
+	return !! section.requires_sync && ! isSyncFinished;
 }
 
 /**

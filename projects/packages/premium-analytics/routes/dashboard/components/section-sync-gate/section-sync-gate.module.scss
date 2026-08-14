@@ -1,33 +1,37 @@
-.jetpack-premium-analytics-syncing {
-	max-width: 450px;
+.root {
+	min-block-size: 320px;
+}
+
+.gate {
+	max-inline-size: 450px;
 	text-align: center;
 }
 
-.jetpack-premium-analytics-syncing__title {
+.title {
 	font-size: var(--wpds-typography-font-size-xl);
 	font-weight: var(--wpds-typography-font-weight-emphasis);
 	line-height: var(--wpds-typography-line-height-lg);
 }
 
-.jetpack-premium-analytics-syncing__description {
+.description {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-size: var(--wpds-typography-font-size-md);
 	line-height: var(--wpds-typography-line-height-sm);
 }
 
-.jetpack-premium-analytics-syncing__progress {
-	width: 100%;
+.progress {
+	inline-size: 100%;
 
 	// @wordpress/components ProgressBar positions its determinate fill with
 	// `position: absolute; left: auto`, so the fill's origin follows the
-	// inherited `text-align`. The screen centers its content (text-align: center),
+	// inherited `text-align`. The gate centers its content (text-align: center),
 	// which pushes the fill to the track's middle and overflows the
 	// overflow-hidden track — so a 100% bar only shows its right half. Anchor the
 	// fill to the start so it fills from the left.
-	text-align: left;
+	text-align: start;
 }
 
-.jetpack-premium-analytics-syncing__percentage {
+.percentage {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-size: var(--wpds-typography-font-size-sm);
 	line-height: var(--wpds-typography-line-height-xs);

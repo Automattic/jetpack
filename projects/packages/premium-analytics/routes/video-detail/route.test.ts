@@ -59,10 +59,10 @@ describe( 'video detail route.beforeLoad', () => {
 		await expect( beforeLoad( { videoId: '42' } ) ).rejects.toMatchObject( { to: '/connect' } );
 	} );
 
-	it( 'redirects to /syncing before the initial sync finishes', async () => {
+	it( 'loads the page before the initial sync finishes', async () => {
 		( isPremiumAnalyticsInitialSyncFinished as jest.Mock ).mockReturnValueOnce( false );
 
-		await expect( beforeLoad( { videoId: '42' } ) ).rejects.toMatchObject( { to: '/syncing' } );
+		await expect( beforeLoad( { videoId: '42' }, settledSearch ) ).resolves.toBeUndefined();
 	} );
 
 	it.each( [ undefined, '', 'abc', '-3', '0', '1.5' ] )(

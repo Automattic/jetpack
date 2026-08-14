@@ -18,9 +18,16 @@ import { useSelect } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { DashboardSections } from './components';
-import { DATE_FILTER_YEAR, offersDateComparison, resolveSectionHeading } from './config';
+import { DashboardSections, SectionSyncGate } from './components';
+import {
+	DATE_FILTER_YEAR,
+	isSectionAwaitingSync,
+	offersDateComparison,
+	resolveSectionHeading,
+	type DashboardSection,
+} from './config';
 import {
 	useActiveSection,
 	useDashboardGridSettings,
@@ -149,6 +156,24 @@ function Dashboard(): JSX.Element {
 		);
 	}
 
+	// Only a section whose data waits on the analytics sync holds back its
+	// widgets; the rest render whatever WordPress.com already has.
+	const isSyncFinished = isPremiumAnalyticsInitialSyncFinished();
+	const renderSectionBody = ( section: DashboardSection ) =>
+		isSectionAwaitingSync( section, isSyncFinished ) ? (
+			<SectionSyncGate />
+		) : (
+			<>
+				<WidgetDashboard.NoWidgetsState />
+				<WidgetDashboard.Widgets className={ styles.widgets } />
+			</>
+		);
+
+	// A gated section renders no widget canvas, so the edit controls would act on
+	// nothing.
+	const canEditActiveSection =
+		!! activeSectionRecord && ! isSectionAwaitingSync( activeSectionRecord, isSyncFinished );
+
 	/*
 	 * The date controls belong to the active section: the tab panels unmount
 	 * when they lose focus, so only the active section's header is ever rendered
@@ -209,7 +234,7 @@ function Dashboard(): JSX.Element {
 					visual={ <StatsPageIcon /> }
 					breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 					subTitle={ activeSectionRecord?.description }
-					actions={ <WidgetDashboard.Actions /> }
+					actions={ canEditActiveSection ? <WidgetDashboard.Actions /> : null }
 					className={ styles.dashboard }
 				>
 					<DashboardSections
@@ -232,12 +257,7 @@ function Dashboard(): JSX.Element {
 									</SectionHeader>
 								</div>
 
-								{ activeSection === section.slug ? (
-									<>
-										<WidgetDashboard.NoWidgetsState />
-										<WidgetDashboard.Widgets className={ styles.widgets } />
-									</>
-								) : null }
+								{ activeSection === section.slug ? renderSectionBody( section ) : null }
 							</SectionTabPanel>
 						) ) }
 					</DashboardSections>

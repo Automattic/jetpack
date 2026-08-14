@@ -23,14 +23,8 @@ export type SyncStatus = {
 	isRunning: boolean;
 	/** Sync progress, 0–100, computed client-side. */
 	percentage: number;
-	/** Milestone (unix ts) when the dashboard-gating initial full sync first finished — seeded from script-data, refreshed live from the poll; else 0. */
+	/** Milestone (unix ts) when the analytics initial full sync first finished — seeded from script-data, refreshed live from the poll; else 0. */
 	initialFullSyncFinished: number;
-	/**
-	 * Whether the site has store data to sync (WooCommerce active). When false the
-	 * status is derived from Jetpack's generic initial full sync rather than the
-	 * woocommerce_analytics progress bucket.
-	 */
-	hasStoreData: boolean;
 };
 
 export type UseSyncStatusReturn = {

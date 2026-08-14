@@ -11,6 +11,7 @@
 		"@jetpack-premium-analytics/datetime": "workspace:*",
 		"@jetpack-premium-analytics/externals": "workspace:*",
 		"@jetpack-premium-analytics/routing": "workspace:*",
+		"@jetpack-premium-analytics/site-sync": "workspace:*",
 		"@jetpack-premium-analytics/ui": "workspace:*",
 		"@wordpress/admin-ui": "2.7.0",
 		"@wordpress/api-fetch": "7.51.0",

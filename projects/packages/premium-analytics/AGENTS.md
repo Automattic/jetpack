@@ -121,20 +121,30 @@ and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the pa
 
 ### Route guards must use the shared site-readiness helpers
 
-Every route's `beforeLoad` that checks connection or sync state must call
+Every route's `beforeLoad` that checks connection state, and every sync check, must call
 `isPremiumAnalyticsSiteConnected()` / `isPremiumAnalyticsInitialSyncFinished()` from
 `routes/site-readiness.ts` — never read `getScriptData()?.connection?.connectionStatus?.isRegistered`
 or `getScriptData()?.premium_analytics?.initial_full_sync_finished` directly. Simple has no Jetpack
 connection, so a direct read silently evaluates to "not connected" there.
 
-That's more than one broken route: it's a redirect loop. `/connect` and `/syncing` already go
-through the shared helpers and treat Simple as connected and synced, so if a route added later
-skips the helpers, Simple hits that route, gets redirected to `/connect`, and `/connect` — seeing
-Simple as already connected — immediately redirects back to `/`. From the user's side this looks
-like "the page just bounces to the dashboard," with nothing in the console pointing at the cause.
-This shipped once (Automattic/jetpack#50266): the `/reports/$report` route was left reading script
-data directly when the other four routes were migrated to the shared helpers, so it fell out of
-sync with `/connect`'s guard and the two routes bounced traffic between each other on Simple.
+That's more than one broken route: it's a redirect loop. `/connect` already goes through the
+shared helper and treats Simple as connected, so if a route added later skips the helpers, Simple
+hits that route, gets redirected to `/connect`, and `/connect` — seeing Simple as already
+connected — immediately redirects back to `/`. From the user's side this looks like "the page just
+bounces to the dashboard," with nothing in the console pointing at the cause. This shipped once
+(Automattic/jetpack#50266): the `/reports/$report` route was left reading script data directly
+when the other four routes were migrated to the shared helpers, so it fell out of sync with
+`/connect`'s guard and the two routes bounced traffic between each other on Simple.
+
+### The analytics sync gates one section, not the dashboard
+
+No route waits on the initial analytics full sync. Only historical store data depends on it, so
+the section that declares `requires_sync` (Store) renders `<SectionSyncGate>` in place of its
+widgets until the milestone is set, while every other section renders immediately. Gating the
+whole page instead made every already-synced site sit through a sync screen it did not need
+(STATS-410), because the milestone is only written by a sync that runs after this package is
+installed. Sections declare the dependency server-side in `register_default_dashboard_sections()`;
+do not re-derive it from a section id in the SPA.
 
 Adding a new route with a connection/sync guard: grep `routes/` for
 `isPremiumAnalyticsSiteConnected` first and copy that shape — don't re-derive the check from
