@@ -9,7 +9,6 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  */
 import {
 	chartTypeAttributeField,
-	granularityAttributeField,
 	type ChartDisplayChartType,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 
@@ -17,12 +16,6 @@ import {
  * Which timeline the chart draws for the selected email.
  */
 export type EmailTimeSeriesMetric = 'opens' | 'clicks';
-
-/**
- * Chart bucket granularity. The email timeline endpoint reports daily
- * buckets; weeks and months aggregate the daily buckets client-side.
- */
-export type EmailTimeSeriesGranularity = 'day' | 'week' | 'month';
 
 /**
  * How the timeline is drawn. The shared chart-display list keeps every chart
@@ -42,11 +35,6 @@ export type EmailTimeSeriesAttributes = {
 	 */
 	metric?: EmailTimeSeriesMetric;
 	/**
-	 * Chart bucket granularity (`relevance: 'high'`, so the host renders the
-	 * control). Defaults to `day`.
-	 */
-	granularity?: EmailTimeSeriesGranularity;
-	/**
 	 * How to draw the timeline (`relevance: 'high'`). Defaults to `line`.
 	 */
 	chartType?: EmailTimeSeriesChartType;
@@ -59,18 +47,14 @@ export type EmailTimeSeriesAttributes = {
  * (`stats-email-chart-tabs`), with the window total as the metric headline.
  * The email is scoped by the host through `reportParams.post_id` (the shared
  * single-resource "detail page" param); the timeline spans the dashboard
- * date range.
+ * date range and is bucketed at the page's chart interval.
  */
 export default {
 	icon: envelope,
-	attributes: [
-		granularityAttributeField( [ 'day', 'week', 'month' ] ),
-		chartTypeAttributeField(),
-	] as WidgetAttributeField< EmailTimeSeriesAttributes >[],
+	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< EmailTimeSeriesAttributes >[],
 	example: {
 		attributes: {
 			metric: 'opens',
-			granularity: 'day',
 			chartType: 'line',
 		},
 	},

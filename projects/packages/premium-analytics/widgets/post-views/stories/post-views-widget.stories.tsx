@@ -30,7 +30,8 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostViewsRender from '../render';
-import widgetDefinition, { type PostViewsChartType, type PostViewsGranularity } from '../widget';
+import widgetDefinition, { type PostViewsChartType } from '../widget';
+import type { StatsChartBucketPeriod } from '@jetpack-premium-analytics/data';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -46,25 +47,26 @@ const POST_VIEWS_RENDER_MODULE = 'storybook/post-views';
 
 interface PostViewsStoryControls {
 	hasPostScope: boolean;
-	granularity: PostViewsGranularity;
+	interval: StatsChartBucketPeriod;
 	chartType: PostViewsChartType;
 }
 
 /**
- * Builds the widget attributes: the granularity attribute plus report params
- * with the post scope the detail page seeds from its URL when `hasPostScope`
- * is on. Comparison stays a parameter so the dashboard story can pass host
- * comparison params without duplicating the scoping rule.
+ * Builds the widget attributes: report params carrying the page's chart
+ * interval (which the widget buckets by) plus the post scope the detail page
+ * seeds from its URL when `hasPostScope` is on. Comparison stays a parameter
+ * so the dashboard story can pass host comparison params without duplicating
+ * the scoping rule.
  */
 function getPostViewsAttributes(
-	{ hasPostScope, granularity, chartType }: PostViewsStoryControls,
+	{ hasPostScope, interval, chartType }: PostViewsStoryControls,
 	withComparison = false
 ): ComponentProps< typeof PostViewsRender >[ 'attributes' ] {
 	return {
-		granularity,
 		chartType,
 		reportParams: {
 			...getDefaultQueryParams( withComparison ),
+			interval,
 			...( hasPostScope ? { post_id: MOCK_POST_ID } : {} ),
 		},
 	};
@@ -83,10 +85,10 @@ const meta = {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the post detail page seeds from its URL.',
 		},
-		granularity: {
+		interval: {
 			control: 'radio',
 			options: [ 'day', 'week', 'month' ],
-			description: 'The "Group by" toolbar attribute rendered by the widget host.',
+			description: 'The page chart interval the widget buckets its daily history into.',
 		},
 		chartType: {
 			control: 'radio',
@@ -98,7 +100,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Post views" widget: the scoped post\'s view trend over the dashboard date range as a line chart — the legacy Calypso post summary chart. The view series comes from `stats/post`\'s full daily history, zero-filled and bucketed client-side per the host-rendered "Group by" control. The post detail page has no comparison control, so comparison report params are ignored. Without a post scope the widget renders a scopeless empty state.',
+					"The \"Post views\" widget: the scoped post's view trend over the dashboard date range as a line chart — the legacy Calypso post summary chart. The view series comes from `stats/post`'s full daily history, zero-filled and bucketed client-side at the page's chart interval. The post detail page has no comparison control, so comparison report params are ignored. Without a post scope the widget renders a scopeless empty state.",
 			},
 		},
 	},
@@ -114,7 +116,7 @@ type Story = StoryObj< PostViewsStoryControls >;
  */
 export const Default: Story = {
 	render: renderPostViews,
-	args: { hasPostScope: true, granularity: 'day', chartType: 'line' },
+	args: { hasPostScope: true, interval: 'day', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -125,7 +127,7 @@ export const Default: Story = {
  */
 export const NoPostScope: Story = {
 	render: renderPostViews,
-	args: { hasPostScope: false, granularity: 'day', chartType: 'line' },
+	args: { hasPostScope: false, interval: 'day', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -135,14 +137,14 @@ interface PostViewsDashboardStoryProps
 
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders
- * exactly as it does in product (framed card, host "Group by" toolbar
- * control, sizing, edit mode). It passes comparison params unconditionally,
+ * exactly as it does in product (framed card, host toolbar controls, sizing,
+ * edit mode). It passes comparison params unconditionally,
  * so the widget stays covered against crashing or inventing an overlay when
  * a host supplies comparison dates.
  */
 function PostViewsDashboardStory( {
 	hasPostScope,
-	granularity,
+	interval,
 	chartType,
 	...dashboardArgs
 }: PostViewsDashboardStoryProps ) {
@@ -152,7 +154,7 @@ function PostViewsDashboardStory( {
 			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ POST_VIEWS_RENDER_MODULE }
 			renderComponent={ PostViewsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ getPostViewsAttributes( { hasPostScope, granularity, chartType }, true ) }
+			attributes={ getPostViewsAttributes( { hasPostScope, interval, chartType }, true ) }
 		/>
 	);
 }
@@ -164,7 +166,7 @@ export const WidgetDashboardWithWidget: StoryObj< PostViewsDashboardStoryProps >
 		widgetWidth: 2,
 		widgetHeight: 2,
 		hasPostScope: true,
-		granularity: 'day',
+		interval: 'day',
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
@@ -172,10 +174,10 @@ export const WidgetDashboardWithWidget: StoryObj< PostViewsDashboardStoryProps >
 			control: 'boolean',
 			description: 'Include the `post_id` report param the post detail page seeds from its URL.',
 		},
-		granularity: {
+		interval: {
 			control: 'radio',
 			options: [ 'day', 'week', 'month' ],
-			description: 'The "Group by" toolbar attribute rendered by the widget host.',
+			description: 'The page chart interval the widget buckets its daily history into.',
 		},
 	},
 };

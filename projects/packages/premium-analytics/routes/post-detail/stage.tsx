@@ -177,10 +177,15 @@ function PostDetail(): JSX.Element {
 									 * comparison params stay in the URL (stripped from the
 									 * widgets' injected reportParams) so the breadcrumb
 									 * carries them back to the dashboard.
+									 *
+									 * The interval control is on: every widget on this page
+									 * is a chart bucketed by it, and none carries a bucket
+									 * control of its own.
 									 */ }
 									<DateFiltersPanel
 										{ ...dateFilters }
 										showComparison={ false }
+										withIntervalControl
 										containerElement={ headerElement }
 										reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
 									/>

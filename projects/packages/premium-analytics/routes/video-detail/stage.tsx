@@ -188,10 +188,14 @@ function VideoDetail(): JSX.Element {
 							 * page, so the Compare control is opted out; the layout memo
 							 * above strips the comparison params before they reach the
 							 * widgets.
+							 *
+							 * The interval control is on: the views chart is bucketed by
+							 * it and carries no bucket control of its own.
 							 */ }
 							<DateFiltersPanel
 								{ ...dateFilters }
 								showComparison={ false }
+								withIntervalControl
 								containerElement={ headerElement }
 								reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
 							/>
