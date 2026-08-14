@@ -12,7 +12,7 @@
 
 .main-rate {
 	overflow: hidden;
-	color: var(--a8c-charts-color-label, var(--wpds-color-foreground-content-neutral, #1e1e1e));
+	color: var(--a8c-charts-color-label);
 	text-overflow: ellipsis;
 	font-size: var(--wpds-typography-font-size-xl, 18px);
 	font-style: normal;
@@ -54,7 +54,7 @@
 }
 
 .step-label {
-	color: var(--a8c-charts-color-label-secondary, var(--wpds-color-foreground-content-neutral-weak, #707070));
+	color: var(--a8c-charts-color-label-secondary);
 	font-size: var(--wpds-typography-font-size-sm, 12px);
 	font-weight: var(--wpds-typography-font-weight-default, 400);
 	line-height: var(--wpds-typography-line-height-xs, 16px);
@@ -64,7 +64,7 @@
 }
 
 .step-rate {
-	color: var(--a8c-charts-color-label, var(--wpds-color-foreground-content-neutral, #1e1e1e));
+	color: var(--a8c-charts-color-label);
 	font-size: var(--wpds-typography-font-size-md, 13px);
 	font-weight: var(--wpds-typography-font-weight-emphasis, 499);
 	line-height: var(--wpds-typography-line-height-xs, 16px);
@@ -72,7 +72,7 @@
 
 .bar-container {
 	flex: 1;
-	border-radius: var(--wpds-border-radius-md, 4px);
+	border-radius: var(--a8c-charts-border-radius-bar);
 	position: relative;
 	cursor: pointer;
 }
@@ -80,15 +80,15 @@
 .funnel-bar {
 	width: 100%;
 	min-height: 4px;
-	border-radius: var(--wpds-border-radius-md, 4px) var(--wpds-border-radius-md, 4px) 0 0;
+	border-radius: var(--a8c-charts-border-radius-bar) var(--a8c-charts-border-radius-bar) 0 0;
 
 	&--animated {
 		transform-origin: bottom;
 		transform-box: fill-box;
 		transform: scaleY(0);
 		animation:
-			stretch var(--wpds-motion-duration-xl, 400ms)
-			var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
+			stretch var(--a8c-charts-motion-duration-series)
+			var(--a8c-charts-motion-easing-series) forwards;
 	}
 
 	@keyframes stretch {
@@ -100,7 +100,7 @@
 }
 
 .tooltip-wrapper {
-	background: var(--a8c-charts-color-background, var(--wpds-color-background-surface-neutral-strong, #fff));
+	background: var(--a8c-charts-color-background);
 
 	// Override .visx-tooltip inline styles.
 	border-radius: var(--wpds-border-radius-md, 4px) !important;
@@ -110,7 +110,7 @@
 }
 
 .tooltip-title {
-	color: var(--a8c-charts-color-label, var(--wpds-color-foreground-content-neutral, #1e1e1e));
+	color: var(--a8c-charts-color-label);
 	font-size: var(--wpds-typography-font-size-sm, 12px);
 	font-style: normal;
 	font-weight: var(--wpds-typography-font-weight-default, 400);
@@ -118,7 +118,7 @@
 }
 
 .tooltip-content {
-	color: var(--a8c-charts-color-label, var(--wpds-color-foreground-content-neutral, #1e1e1e));
+	color: var(--a8c-charts-color-label);
 	font-size: var(--wpds-typography-font-size-md, 13px);
 	font-style: normal;
 	font-weight: var(--wpds-typography-font-weight-emphasis, 499);
@@ -127,6 +127,6 @@
 
 .empty-state {
 	text-align: center;
-	color: var(--a8c-charts-color-label-secondary, var(--wpds-color-foreground-content-neutral-weak, #707070));
+	color: var(--a8c-charts-color-label-secondary);
 	font-size: var(--wpds-typography-font-size-lg, 16px);
 }

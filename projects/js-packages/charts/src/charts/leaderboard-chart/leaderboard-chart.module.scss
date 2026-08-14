@@ -60,7 +60,7 @@
 		// row's fixed-pixel hover inset from collapsing a narrow bar to nothing.
 		min-width: var(--wpds-dimension-size-5xs, 4px);
 
-		border-radius: var(--a8c-charts-border-radius-leaderboard-bar, var(--a8c--charts--leaderboard--bar--border-radius, 9999px));
+		border-radius: var(--a8c-charts-border-radius-leaderboard-bar);
 		z-index: -1; /* places it behind the label */
 
 		&--animated {
@@ -68,8 +68,8 @@
 			transform-box: fill-box;
 			transform: scaleX(0);
 			animation:
-				stretch var(--wpds-motion-duration-xl, 400ms)
-				var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
+				stretch var(--a8c-charts-motion-duration-series)
+				var(--a8c-charts-motion-easing-series) forwards;
 		}
 
 		@keyframes stretch {
@@ -104,7 +104,7 @@
 .emptyState {
 	padding: var(--wpds-dimension-padding-3xl, 32px) var(--wpds-dimension-padding-lg, 16px);
 	text-align: center;
-	color: var(--a8c-charts-color-label-secondary, var(--wpds-color-foreground-content-neutral-weak, #707070));
+	color: var(--a8c-charts-color-label-secondary);
 	font-size: var(--wpds-typography-font-size-md, 13px);
 	font-style: italic;
 }
@@ -127,7 +127,7 @@
 // interactive row's outline (and its inset offset) stay equal. A Sass var,
 // not a custom property: a compile-time constant scoped to this module, so it
 // needs no runtime cascade and never lands on the DOM as an unprefixed var.
-$focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
+$focus-ring-width: var(--a8c-charts-border-width-focus);
 
 .row {
 	display: grid;
@@ -220,7 +220,7 @@ $focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-fo
 	bottom: 0;
 	margin-block: auto;
 	opacity: 0;
-	color: var(--a8c-charts-color-label-secondary, var(--wpds-color-foreground-content-neutral-weak, #707070));
+	color: var(--a8c-charts-color-label-secondary);
 	transition:
 		opacity var(--wpds-motion-duration-sm, 100ms)
 		var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));

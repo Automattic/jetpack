@@ -248,7 +248,7 @@ The heatmap resolves its full-intensity color in this order: the `primaryColor` 
 	</GlobalChartsProvider>` }
 />
 
-Everything else — the cell gap, corner radius, in-cell value size, the empty-cell color and the selection ring — comes straight from WordPress design system tokens (`--wpds-*`) in CSS, so it tracks the active design system theme automatically. There are no per-instance props for these. The `heatmapChart` theme section exposes just the scale color (`primaryColor`, above) and the compact sizing (`compactCellSize`, `compactCellGap`):
+Everything else — the cell gap, in-cell value size, the empty-cell color and the selection ring — comes straight from WordPress design system tokens (`--wpds-*`) in CSS, so it tracks the active design system theme automatically. The corner radius can be overridden via `--a8c-charts-border-radius-cell`, which maps to a WPDS token (`--wpds-border-radius-sm`) by default. There are no per-instance props for these. The `heatmapChart` theme section exposes just the scale color (`primaryColor`, above) and the compact sizing (`compactCellSize`, `compactCellGap`):
 
 <Source
 	language="tsx"

@@ -1,7 +1,7 @@
 // Focus-ring width shared across the grid and cell-selected focus outlines. A
 // Sass var, not a custom property: a compile-time constant scoped to this
 // module, so it needs no runtime cascade and never lands on the DOM.
-$focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
+$focus-ring-width: var(--a8c-charts-border-width-focus);
 
 .heatmap-chart {
 	width: 100%;
@@ -19,7 +19,7 @@ $focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-fo
 
 .heatmap-chart__empty {
 	padding: var(--wpds-dimension-padding-lg, 16px);
-	color: var(--a8c-charts-color-label-secondary, var(--wpds-color-foreground-content-neutral-weak, #707070));
+	color: var(--a8c-charts-color-label-secondary);
 }
 
 // Track template is set inline because CSS `repeat()` won't take a `var()`
@@ -63,7 +63,7 @@ $focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-fo
 
 .heatmap-chart__col-label,
 .heatmap-chart__row-label {
-	color: var(--a8c-charts-color-label-secondary, var(--wpds-color-foreground-content-neutral-weak, #707070));
+	color: var(--a8c-charts-color-label-secondary);
 	font-size: var(--wpds-typography-font-size-xs, 11px);
 	white-space: nowrap;
 	overflow: visible;
@@ -87,9 +87,9 @@ $focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-fo
 	justify-content: center;
 	min-width: 0;
 	min-height: 0;
-	border-radius: var(--wpds-border-radius-sm, 2px);
+	border-radius: var(--a8c-charts-border-radius-cell);
 	// Empty (no-data) default; cells with a value override it below.
-	background: var(--a8c-charts-color-track, var(--wpds-color-background-track-neutral-weak, #f0f0f0));
+	background: var(--a8c-charts-color-track);
 }
 
 // An empty grid slot (calendar ragged edges): keeps its track but paints and
@@ -113,19 +113,19 @@ $focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-fo
 }
 
 .heatmap-chart__cell-value {
-	color: var(--a8c-charts-color-label, var(--wpds-color-foreground-content-neutral, #1e1e1e));
+	color: var(--a8c-charts-color-label);
 	font-size: var(--wpds-typography-font-size-md, 13px);
 }
 
 // Light text on fills dark enough to out-contrast dark text (decided in JS from
 // the blended fill luminance).
 .heatmap-chart__cell--strong .heatmap-chart__cell-value {
-	color: var(--a8c-charts-color-label-inverse, var(--wpds-color-foreground-interactive-neutral-strong, #f0f0f0));
+	color: var(--a8c-charts-color-label-inverse);
 }
 
 .heatmap-chart__legend-swatch {
 	width: var(--wpds-dimension-size-3xs, 12px);
 	height: var(--wpds-dimension-size-3xs, 12px);
-	border-radius: var(--wpds-border-radius-sm, 2px);
+	border-radius: var(--a8c-charts-border-radius-cell);
 	background: color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) calc((0.15 + 0.85 * var(--a8c-charts-heatmap-cell-intensity)) * 100%), var(--a8c-charts-color-heatmap-background, #fff));
 }

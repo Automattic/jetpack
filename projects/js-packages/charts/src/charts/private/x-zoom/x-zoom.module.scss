@@ -3,9 +3,9 @@
 	// The selection's translucency lives in the SVG opacity properties so
 	// the colors themselves can come straight from WPDS tokens.
 	&__selection {
-		fill: var(--a8c-charts-color-zoom-selection, var(--wpds-color-background-interactive-brand-strong, #3858e9));
+		fill: var(--a8c-charts-color-zoom-selection);
 		fill-opacity: 0.16;
-		stroke: var(--a8c-charts-color-zoom-selection-stroke, var(--wpds-color-stroke-interactive-brand, #3858e9));
+		stroke: var(--a8c-charts-color-zoom-selection-stroke);
 		stroke-opacity: 0.65;
 		stroke-width: var(--wpds-border-width-xs, 1px);
 		pointer-events: none;
@@ -29,7 +29,7 @@
 		// through it. Scoped to the rest state so the WPDS
 		// hover/active/focus backgrounds still apply.
 		&:not(:hover, :active, :focus) {
-			background-color: var(--a8c-charts-color-background, var(--wpds-color-background-surface-neutral-strong, #fff));
+			background-color: var(--a8c-charts-color-background);
 		}
 	}
 }
