@@ -1,12 +1,12 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
-import { Button } from '@wordpress/components';
+import { Button, Tooltip } from '@wordpress/components';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, upload } from '@wordpress/icons';
 import { Text } from '@wordpress/ui';
 import { useVideoPressUpgrade } from '../../hooks/use-videopress-upgrade';
-import { FREE_TIER_AT_LIMIT_MESSAGE } from '../free-tier-notice';
-import { filterVideoFiles } from './video-files';
+import { FREE_TIER_AT_LIMIT_MESSAGE, FREE_TIER_AT_LIMIT_NOTICE_ID } from '../free-tier-notice';
+import { filterVideoFiles, INVALID_FILE_NOTICE_ID } from './video-files';
 import './style.scss';
 import type { MouseEvent } from 'react';
 
@@ -71,9 +71,11 @@ const UploadDropzone = ( {
 
 	// The at-limit refusal, in the same shape the Library's DropZone uses: the
 	// short form of the plan sentence, plus the upgrade route the persistent
-	// notice above the dropzone already offers.
+	// notice above the dropzone already offers. The stable id is what keeps a
+	// fourth blocked drop from stacking a fourth identical black bar.
 	const rejectAtLimit = useCallback( () => {
 		createErrorNotice( FREE_TIER_AT_LIMIT_MESSAGE, {
+			id: FREE_TIER_AT_LIMIT_NOTICE_ID,
 			actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
 		} );
 	}, [ createErrorNotice, runUpgrade ] );
@@ -82,20 +84,30 @@ const UploadDropzone = ( {
 	// lands here so the type filter and the limit are enforced once. Rejecting
 	// a `.txt` renamed `.mp4` at this point is what stops it consuming the free
 	// plan's single slot and settling into a permanently broken video.
+	//
+	// Async because the type filter now reads the file's leading bytes; nothing
+	// blocks while it does, and the notice below is the only thing waiting on it.
 	const acceptFiles = useCallback(
-		( files: File[] ) => {
+		async ( files: File[] ) => {
 			// Nothing offered, nothing to refuse — a cancelled file dialog fires
 			// a change event with an empty list.
 			if ( ! files.length ) {
 				return;
 			}
-			if ( disabled ) {
-				rejectAtLimit();
+			// The file check runs BEFORE the plan gate, and the order is the fix:
+			// with the limit first, dropping a renamed `.txt` at the cap was
+			// answered with "You've reached the free plan's 1-video limit" — a
+			// fact about the plan standing in for the answer to a question about
+			// the file, which sent both testers off to check their plan.
+			const videos = await filterVideoFiles( files );
+			if ( ! videos.length ) {
+				createErrorNotice( __( 'Only video files can be uploaded.', 'jetpack-videopress-pkg' ), {
+					id: INVALID_FILE_NOTICE_ID,
+				} );
 				return;
 			}
-			const videos = filterVideoFiles( files );
-			if ( ! videos.length ) {
-				createErrorNotice( __( 'Only video files can be uploaded.', 'jetpack-videopress-pkg' ) );
+			if ( disabled ) {
+				rejectAtLimit();
 				return;
 			}
 			onFiles( videos );
@@ -124,6 +136,20 @@ const UploadDropzone = ( {
 		[ openPicker ]
 	);
 
+	const pickerButton = (
+		<Button
+			className="vp-upload-dropzone__button"
+			variant="primary"
+			__next40pxDefaultSize
+			onClick={ openPicker }
+			aria-disabled={ disabled }
+		>
+			{ plural
+				? __( 'Select videos to upload', 'jetpack-videopress-pkg' )
+				: __( 'Select a video to upload', 'jetpack-videopress-pkg' ) }
+		</Button>
+	);
+
 	return (
 		<>
 			{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- the picker button inside this surface is the keyboard (and screen-reader) path; the surface click is a redundant pointer affordance for people who aim at the big target rather than the button. */ }
@@ -143,7 +169,9 @@ const UploadDropzone = ( {
 				onDrop={ e => {
 					e.preventDefault();
 					setDragging( false );
-					acceptFiles( Array.from( e.dataTransfer.files ) );
+					// `void`: the refusal (or the hand-off to onFiles) settles a
+					// microtask later, after the header read; nothing here waits.
+					void acceptFiles( Array.from( e.dataTransfer.files ) );
 				} }
 			>
 				<svg className="vp-upload-dropzone__outline" aria-hidden="true" focusable="false">
@@ -174,20 +202,29 @@ const UploadDropzone = ( {
 				 * reached by keyboard nor say why it was refusing, which is
 				 * how the surface and the button came to disagree in the first
 				 * place. (`accessibleWhenDisabled` is not enough: it adds the
-				 * attribute but then swallows the click.) The DS styles
-				 * `[aria-disabled="true"]` exactly like `:disabled`, so this
-				 * looks unchanged and raises the same notice the surface does.
+				 * attribute but then swallows the click.)
+				 *
+				 * What `aria-disabled` does NOT buy is the look: the DS dims
+				 * `:disabled`, not the ARIA attribute, so at the plan limit
+				 * this sat in full brand blue with a plain pointer and read as
+				 * completely live until you clicked it — while the header
+				 * "Upload video" button one screen away was dimmed, refusing
+				 * and tooltipped. Two contradicting conventions for the same
+				 * state. The stylesheet dims this one to match, and the
+				 * Tooltip below gives the same sentence on hover that the
+				 * click raises as a notice. Both, not either: hover is what a
+				 * mouse user gets before committing, and the click-to-explain
+				 * is the only path a touch user has.
 				 */ }
-				<Button
-					variant="primary"
-					__next40pxDefaultSize
-					onClick={ openPicker }
-					aria-disabled={ disabled }
-				>
-					{ plural
-						? __( 'Select videos to upload', 'jetpack-videopress-pkg' )
-						: __( 'Select a video to upload', 'jetpack-videopress-pkg' ) }
-				</Button>
+				{ disabled ? (
+					// Only at the limit. An enabled tooltip here would just
+					// restate the button's own label; the header needs one
+					// because it is refusing from a toolbar with no copy
+					// around it.
+					<Tooltip text={ FREE_TIER_AT_LIMIT_MESSAGE }>{ pickerButton }</Tooltip>
+				) : (
+					pickerButton
+				) }
 			</div>
 			<input
 				ref={ inputRef }
@@ -196,8 +233,12 @@ const UploadDropzone = ( {
 				multiple={ allowMultiple }
 				className="vp-upload-dropzone__input"
 				onChange={ e => {
-					acceptFiles( Array.from( e.target.files ?? [] ) );
-					e.currentTarget.value = '';
+					// Both reads happen before the await inside acceptFiles: the
+					// input is cleared synchronously so picking the same file twice
+					// in a row still fires a change event.
+					const input = e.currentTarget;
+					void acceptFiles( Array.from( e.target.files ?? [] ) );
+					input.value = '';
 				} }
 			/>
 		</>

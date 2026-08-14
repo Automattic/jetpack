@@ -58,6 +58,19 @@
 		cursor: not-allowed;
 	}
 
+	// The refusing picker button. `aria-disabled` keeps it focusable and lets
+	// it explain itself on click (see index.tsx), but the DS only dims
+	// `:disabled`, so on the ARIA attribute alone this stayed solid brand blue
+	// with a plain pointer — a button that looked entirely live at the plan
+	// limit. These are the same two declarations the header "Upload video"
+	// buttons use (routes/home/style.scss, routes/library/style.scss), so the
+	// product has one disabled-button convention rather than two contradicting
+	// ones.
+	&__button[aria-disabled="true"] {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
 	&__outline {
 		position: absolute;
 		inset: 0;

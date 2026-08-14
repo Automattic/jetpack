@@ -7,6 +7,21 @@ jest.mock( '../../../hooks/use-onboarding-counts', () => ( {
 	useOnboardingCounts: jest.fn(),
 } ) );
 
+// The modal only OBSERVES the shared queue (the `useFreeTier` pattern); the
+// real hook would stand up a resumable uploader nothing here needs.
+let mockUploadQueue: Array< Record< string, unknown > > = [];
+jest.mock( '../../../hooks/use-upload', () => ( {
+	useUpload: () => ( { uploadQueue: mockUploadQueue } ),
+} ) );
+
+const queueRow = ( status: string ) => ( {
+	id: `q-${ status }`,
+	status,
+	progress: 0.5,
+	file: new File( [], 'clip.mp4' ),
+	enqueuedAt: '2026-08-13T10:00:00.000Z',
+} );
+
 const mockNavigate = jest.fn();
 let mockSearch: Record< string, unknown > = {};
 jest.mock( '@wordpress/route', () => ( {
@@ -44,21 +59,25 @@ const mockCounts = ( counts: {
 
 const WELCOME_FLAG = '__jetpackVideoPressWelcomeConsumed';
 const WELCOME_ACTIVE_FLAG = '__jetpackVideoPressWelcomeActive';
+const UPLOAD_STARTED_FLAG = '__jetpackVideoPressUploadStarted';
 
 type WelcomeWindow = Window & {
 	[ WELCOME_FLAG ]?: boolean;
 	[ WELCOME_ACTIVE_FLAG ]?: boolean;
+	[ UPLOAD_STARTED_FLAG ]?: boolean;
 };
 
 describe( 'OnboardingModal', () => {
 	beforeEach( () => {
 		window.localStorage.clear();
 		mockNavigate.mockClear();
+		mockUploadQueue = [];
 		mockSearch = {};
-		// Both welcome latches are window-scoped (they have to outlive the
-		// per-route module copies), so each case starts from a fresh page load.
+		// Every latch here is window-scoped (they have to outlive the per-route
+		// module copies), so each case starts from a fresh page load.
 		delete ( window as WelcomeWindow )[ WELCOME_FLAG ];
 		delete ( window as WelcomeWindow )[ WELCOME_ACTIVE_FLAG ];
+		delete ( window as WelcomeWindow )[ UPLOAD_STARTED_FLAG ];
 		window.history.replaceState( {}, '', '/wp-admin/admin.php?page=jetpack-videopress' );
 	} );
 
@@ -194,6 +213,85 @@ describe( 'OnboardingModal', () => {
 		render( <OnboardingModal /> );
 
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+	} );
+
+	describe( 'an upload is under way', () => {
+		// The reproduction: delete your last video, land on the Library, start an
+		// upload. The library is legitimately empty, so the first-run gate
+		// reopens — and the welcome modal covers the screen with the progress
+		// panel still running behind it.
+		it( 'stands down while an upload is in flight', () => {
+			mockCounts( { videoPressCount: 0, localCount: 0, isSettled: true } );
+			mockUploadQueue = [ queueRow( 'uploading' ) ];
+
+			render( <OnboardingModal /> );
+
+			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		} );
+
+		// The queue is not a durable record: a failed row leaves it the moment
+		// the user retries or clears it, and greeting them as brand new right
+		// then would be the worst version of this bug, not a fix for it.
+		it( 'stays down once the queue is cleared again', () => {
+			mockCounts( { videoPressCount: 0, localCount: 0, isSettled: true } );
+			mockUploadQueue = [ queueRow( 'failed' ) ];
+			const { rerender } = render( <OnboardingModal /> );
+
+			mockUploadQueue = [];
+			rerender( <OnboardingModal /> );
+
+			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		} );
+
+		// Each route ships its own bundle, so navigating mid-upload remounts
+		// this component with a fresh module scope — hence the window latch.
+		it( 'stays down across the remount an in-app navigation causes', () => {
+			mockCounts( { videoPressCount: 0, localCount: 0, isSettled: true } );
+			mockUploadQueue = [ queueRow( 'uploading' ) ];
+			const { unmount } = render( <OnboardingModal /> );
+			unmount();
+
+			mockUploadQueue = [];
+			render( <OnboardingModal /> );
+
+			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		} );
+
+		// `welcome=1` is a reviewer explicitly asking for the modal, and it
+		// already overrides every other gate here.
+		it( 'still honours the welcome preview param', () => {
+			mockCounts( { videoPressCount: 0, localCount: 0, isSettled: true } );
+			mockUploadQueue = [ queueRow( 'uploading' ) ];
+			mockSearch = { welcome: '1' };
+
+			render( <OnboardingModal /> );
+
+			expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'a library that used to have videos', () => {
+		// `markFirstPublish` only ever fired for an upload made in THIS browser,
+		// so a library that predates the flag left nothing written down.
+		it( 'records the publish flag for a site that already has a VideoPress video', () => {
+			mockCounts( { videoPressCount: 2, localCount: 0, isSettled: true } );
+
+			render( <OnboardingModal /> );
+
+			expect( window.localStorage.getItem( 'jetpack-videopress-first-publish-123-7' ) ).toBe( '1' );
+		} );
+
+		// Deleting the last video is the gate's blind spot: the count is right
+		// that the library is empty and wrong about what that means.
+		it( 'stays closed after the last video is deleted', () => {
+			mockCounts( { videoPressCount: 1, localCount: 0, isSettled: true } );
+			const { rerender } = render( <OnboardingModal /> );
+
+			mockCounts( { videoPressCount: 0, localCount: 0, isSettled: true } );
+			rerender( <OnboardingModal /> );
+
+			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		} );
 	} );
 
 	// The band's artwork cannot be addressed from the stylesheet: the CSS is

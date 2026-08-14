@@ -70,6 +70,23 @@ describe( 'useFreeTier', () => {
 		expect( result.current.isAtLimit ).toBe( true );
 	} );
 
+	// `isAtLimit` reads FALSE while the count is in flight, which is
+	// indistinguishable from a site under its cap — so anything that PAINTS a
+	// control from it has to know the difference, or it publishes a disabled
+	// button that is briefly live. See the Library header's upload action.
+	it( 'reports unsettled until the library count lands', async () => {
+		mockUploadQueue = [];
+		mockLibraryTotal( '1' );
+
+		const { result } = renderHook( () => useFreeTier(), { wrapper: createTestWrapper() } );
+
+		expect( result.current.isSettled ).toBe( false );
+		expect( result.current.isAtLimit ).toBe( false );
+
+		await waitFor( () => expect( result.current.isSettled ).toBe( true ) );
+		expect( result.current.isAtLimit ).toBe( true );
+	} );
+
 	it( 'counts completed (from totalItems) + in-flight uploads', async () => {
 		mockApiFetch( async ( { parse } ) => {
 			if ( parse === false ) {

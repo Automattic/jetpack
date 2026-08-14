@@ -5,6 +5,11 @@ import {
 	createTestQueryClient,
 	createTestWrapper,
 } from '../../../src/dashboard/test-utils/query-client-wrapper';
+import {
+	makeRenamedTextFile,
+	makeVideoFile,
+	settleFileCheck,
+} from '../../../src/dashboard/test-utils/video-file';
 import { stage as Stage } from '../stage';
 import type { LibraryItem } from '../../../src/dashboard/types/library';
 import type { QueryClient } from '@tanstack/react-query';
@@ -188,7 +193,9 @@ jest.mock( '../../../src/dashboard/components/video-details/editor', () => ( {
 	),
 } ) );
 
-const makeFile = ( name: string ) => new File( [ 'x' ], name, { type: 'video/mp4' } );
+// Real container bytes: the dropzone's filter reads the header and checks it
+// against the extension, so `[ 'x' ]` is no longer a video.
+const makeFile = ( name: string ) => makeVideoFile( name );
 
 /**
  * Render the stage inside the per-test query client.
@@ -201,7 +208,8 @@ function renderStage() {
 
 /**
  * Feed files through the flow's hidden picker input — the same `onFiles`
- * entry the dropzone uses.
+ * entry the dropzone uses — and wait for the accepted-file check to settle: it
+ * reads each file's header, so the hand-off is a task later than the pick.
  *
  * @param container - The rendered stage's container.
  * @param files     - Files to select.
@@ -210,6 +218,7 @@ async function dropFiles( container: HTMLElement, files: File[] ) {
 	// eslint-disable-next-line testing-library/no-node-access -- the picker input is visually hidden with no label; no accessible query reaches it.
 	const input = container.querySelector( 'input[type="file"]' ) as HTMLInputElement;
 	await userEvent.upload( input, files );
+	await settleFileCheck();
 }
 
 describe( 'upload stage single-drop transition', () => {
@@ -252,7 +261,7 @@ describe( 'upload stage single-drop transition', () => {
 		expect( screen.queryByText( 'Uploading 2 videos' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'surfaces the free-plan slice with the discarded count', () => {
+	it( 'surfaces the free-plan slice with the discarded count', async () => {
 		mockFreeTier = { isAtLimit: false, isFree: true, isUnlimited: false, videoCount: 0 };
 		const { container } = renderStage();
 
@@ -266,6 +275,7 @@ describe( 'upload stage single-drop transition', () => {
 				files: [ makeFile( 'one.mp4' ), makeFile( 'two.mp4' ), makeFile( 'three.mp4' ) ],
 			},
 		} );
+		await settleFileCheck();
 
 		// Only the first file uploads; the other two are named in the notice.
 		expect( mockStartUpload ).toHaveBeenCalledTimes( 1 );
@@ -381,7 +391,7 @@ describe( 'upload stage single-drop transition', () => {
 		expect( screen.getByTestId( 'layout' ) ).toHaveAttribute( 'data-active-tab', 'upload' );
 	} );
 
-	it( 'says why a drop is refused at the free-tier limit instead of eating it', () => {
+	it( 'says why a drop is refused at the free-tier limit instead of eating it', async () => {
 		// The screen still renders a full, normal-looking upload card at the
 		// limit. Dropping onto it did nothing at all — no error, no toast, no
 		// state change — while the button beside it was plainly disabled.
@@ -391,6 +401,7 @@ describe( 'upload stage single-drop transition', () => {
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
 		const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
 		fireEvent.drop( dropzone, { dataTransfer: { files: [ makeFile( 'second.mp4' ) ] } } );
+		await settleFileCheck();
 
 		expect( mockStartUpload ).not.toHaveBeenCalled();
 		expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
@@ -401,21 +412,24 @@ describe( 'upload stage single-drop transition', () => {
 		);
 	} );
 
-	it( 'refuses a file that only looks like a video before it can burn a slot', () => {
+	it( 'refuses a file that only looks like a video before it can burn a slot', async () => {
 		// A `.txt` renamed `.mp4` uploaded 0→100%, registered, took the free
-		// plan's one slot and then sat there permanently half-broken.
+		// plan's one slot and then sat there permanently half-broken. It reports
+		// `video/mp4` — Chromium derives the type from the extension — so the
+		// MIME check waves it through and only the bytes catch it.
 		const { container } = renderStage();
 
+		const impostor = makeRenamedTextFile( 'not-a-video.mp4' );
+		expect( impostor.type ).toBe( 'video/mp4' );
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
 		const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
-		fireEvent.drop( dropzone, {
-			dataTransfer: {
-				files: [ new File( [ 'x' ], 'not-a-video.mp4', { type: 'text/plain' } ) ],
-			},
-		} );
+		fireEvent.drop( dropzone, { dataTransfer: { files: [ impostor ] } } );
+		await settleFileCheck();
 
 		expect( mockStartUpload ).not.toHaveBeenCalled();
-		expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Only video files can be uploaded.' );
+		expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Only video files can be uploaded.', {
+			id: 'vp-upload-invalid-file',
+		} );
 	} );
 
 	it( 'resumes into the edit step when exactly one queue item is adopted on mount', () => {

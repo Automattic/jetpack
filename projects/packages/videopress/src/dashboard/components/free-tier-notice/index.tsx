@@ -21,6 +21,14 @@ export const FREE_TIER_AT_LIMIT_MESSAGE = __(
 	'jetpack-videopress-pkg'
 );
 
+// Stable id for the toast form above, so a user who keeps dropping files at the
+// limit refreshes one notice instead of stacking a column of identical black
+// bars: the notices store drops an existing notice with the same id on create.
+// Same technique as the delete notices in routes/video/stage.tsx and
+// routes/library/stage.tsx. Shared across surfaces on purpose — the plan is one
+// fact, and only one of these surfaces is on screen at a time.
+export const FREE_TIER_AT_LIMIT_NOTICE_ID = 'vp-upload-at-limit';
+
 /**
  * Permanent (non-dismissible) free-plan upgrade Notice, rendered wherever a
  * free-tier user needs a visible upgrade path (VIDP-311). Every surface says

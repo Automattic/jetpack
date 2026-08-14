@@ -9,9 +9,11 @@ import {
 	clearDismissal,
 	hasPublishedVideo,
 	hasSeenOnboarding,
+	markFirstPublish,
 	saveDismissal,
 } from '../../hooks/use-first-run-state';
 import { useOnboardingCounts } from '../../hooks/use-onboarding-counts';
+import { useUpload } from '../../hooks/use-upload';
 import IntroVideo, { INTRO_VIDEO_ASPECT, getAssetUrl } from './intro-video';
 import './style.scss';
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
@@ -56,6 +58,42 @@ type WelcomeWindow = Window & {
 	[ WELCOME_CONSUMED_FLAG ]?: boolean;
 	[ WELCOME_ACTIVE_FLAG ]?: boolean;
 };
+
+/*
+ * Latches the moment anything reaches the upload queue, and stays latched for
+ * the rest of the page load. Window-scoped for the same reason the two flags
+ * above are: each route ships its own bundle, so an in-app navigation remounts
+ * this component with a fresh module scope.
+ *
+ * Sticky rather than live, because the queue is not a durable record of what
+ * happened. A success row is dropped once a consumer acknowledges it and a
+ * failed one once it is retried or cleared — so a gate keyed on the live queue
+ * alone would swing back open the instant the user dismissed a failed upload,
+ * which is the worst possible moment to greet them as brand new.
+ */
+const UPLOAD_STARTED_FLAG = '__jetpackVideoPressUploadStarted';
+
+type UploadWindow = Window & { [ UPLOAD_STARTED_FLAG ]?: boolean };
+
+/**
+ * Whether an upload has been queued at any point in this page load.
+ *
+ * @return True once anything has entered the upload queue.
+ */
+function hasUploadStarted(): boolean {
+	return (
+		typeof window !== 'undefined' && Boolean( ( window as UploadWindow )[ UPLOAD_STARTED_FLAG ] )
+	);
+}
+
+/**
+ * Record that an upload has been queued in this page load.
+ */
+function markUploadStarted(): void {
+	if ( typeof window !== 'undefined' ) {
+		( window as UploadWindow )[ UPLOAD_STARTED_FLAG ] = true;
+	}
+}
 
 /**
  * Detect the `welcome=1` review param, once, and strip it from the URL.
@@ -167,6 +205,9 @@ const VALUE_CARDS: ValueCard[] = [
 export default function OnboardingModal(): ReactElement | null {
 	const [ isDismissed, setIsDismissed ] = useState( () => hasSeenOnboarding() );
 	const { videoPressCount, localCount, isSettled } = useOnboardingCounts();
+	// Observer instance, like `useFreeTier`'s: the queue lives in a shared
+	// window-scoped store, so reading it here starts nothing and owns nothing.
+	const { uploadQueue } = useUpload();
 	const navigate = useNavigate();
 	const search = useSearch( { strict: false } ) as Record< string, unknown >;
 	const popupRef = useRef< HTMLDivElement >( null );
@@ -193,6 +234,39 @@ export default function OnboardingModal(): ReactElement | null {
 		}
 	}, [ isPreview ] );
 
+	// A user who already has a VideoPress video published one, whether or not
+	// they did it in this browser and whether or not this flag existed when they
+	// did. Writing it down is what keeps the gate shut afterwards: deleting the
+	// last video puts the count honestly back to 0, and with no record of what
+	// came before, an established user was greeted as brand new on the very
+	// screen they had just emptied.
+	useEffect( () => {
+		if ( isSettled && videoPressCount > 0 ) {
+			markFirstPublish();
+		}
+	}, [ isSettled, videoPressCount ] );
+
+	// Anyone with something in the upload queue has already found the upload
+	// affordance — the one thing this modal exists to sell — so first run is
+	// over for them, count or no count. Without this the gate re-opened behind
+	// a legitimately emptied library and the welcome modal covered the screen
+	// while the progress panel ran underneath it.
+	//
+	// The live queue and the latch are both checked: the queue covers the frame
+	// an upload starts in (the latch is only written after paint), the latch
+	// covers every frame after the queue is cleared. `welcome=1` is deliberately
+	// exempt — it is a reviewer explicitly asking for the modal, and it already
+	// overrides every other gate here.
+	const hasQueuedUpload = uploadQueue.length > 0;
+	const [ hasUploadedThisLoad, setHasUploadedThisLoad ] = useState( hasUploadStarted );
+
+	useEffect( () => {
+		if ( hasQueuedUpload && ! hasUploadedThisLoad ) {
+			markUploadStarted();
+			setHasUploadedThisLoad( true );
+		}
+	}, [ hasQueuedUpload, hasUploadedThisLoad ] );
+
 	// The modal greets anyone who has not used VideoPress yet — including
 	// sites whose media library is full of local videos, which is exactly the
 	// audience for the migration pitch below. This is deliberately WIDER than
@@ -204,7 +278,11 @@ export default function OnboardingModal(): ReactElement | null {
 	const isOpen =
 		! isDismissed &&
 		isSettled &&
-		( isWelcomeSession || ( ! hasPublishedVideo() && videoPressCount === 0 ) );
+		( isWelcomeSession ||
+			( ! hasPublishedVideo() &&
+				videoPressCount === 0 &&
+				! hasQueuedUpload &&
+				! hasUploadedThisLoad ) );
 
 	const dismiss = useCallback( () => {
 		saveDismissal();

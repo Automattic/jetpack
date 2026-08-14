@@ -30,12 +30,22 @@ export type DropDecision =
  * state. Pure so the filtering + plan-limit math can be tested in isolation
  * from the route component and the upload/notice side effects.
  *
+ * Async because the file filter reads each file's leading bytes to verify the
+ * container (a `.txt` renamed `.mp4` reports `video/mp4` in Chromium, so the
+ * MIME type cannot settle it) — see components/upload-dropzone/video-files.
+ *
  * @param files    - The raw files dropped onto the DropZone.
  * @param freeTier - The relevant free-tier facts from useFreeTier().
  * @return The drop decision: no videos, at the limit, or an upload plan.
  */
-export function planVideoDrop( files: File[], freeTier: DropPlanFreeTier ): DropDecision {
-	const videoFiles = filterVideoFiles( files );
+export async function planVideoDrop(
+	files: File[],
+	freeTier: DropPlanFreeTier
+): Promise< DropDecision > {
+	// Deliberately ahead of the plan-limit branch below: a file that isn't a
+	// video must be told so whatever the plan state, or the answer to "why was
+	// this refused" becomes "you're out of videos", which is the wrong fact.
+	const videoFiles = await filterVideoFiles( files );
 	if ( videoFiles.length === 0 ) {
 		return { kind: 'no-videos' };
 	}

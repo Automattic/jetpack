@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { makeVideoFile, settleFileCheck } from '../../../src/dashboard/test-utils/video-file';
 import { stage as Stage } from '../stage';
 import type { LibraryItem } from '../../../src/dashboard/types/library';
 import type { ReactNode } from 'react';
@@ -84,18 +85,23 @@ jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
 	} ),
 } ) );
 
-const makeFile = ( name: string ) => new File( [ 'x' ], name, { type: 'video/mp4' } );
+// Real container bytes: the dropzone's filter reads the header and checks it
+// against the extension, so `[ 'x' ]` is no longer a video.
+const makeFile = ( name: string ) => makeVideoFile( name );
 
 /**
- * Drop files on the empty state's dropzone.
+ * Drop files on the empty state's dropzone, then wait for the accepted-file
+ * check to settle — it reads each file's header, so the hand-off is a task
+ * later than the drop.
  *
  * @param container - The rendered stage's container.
  * @param files     - Files to drop.
  */
-function dropOnDropzone( container: HTMLElement, files: File[] ) {
+async function dropOnDropzone( container: HTMLElement, files: File[] ) {
 	// eslint-disable-next-line testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
 	const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
 	fireEvent.drop( dropzone, { dataTransfer: { files } } );
+	await settleFileCheck();
 }
 
 describe( 'home stage empty state', () => {
@@ -158,20 +164,20 @@ describe( 'home stage empty state', () => {
 		expect( actions ).not.toHaveTextContent( 'Add to a post or page' );
 	} );
 
-	it( 'starts a dropped file under the onboarding context and resumes /upload', () => {
+	it( 'starts a dropped file under the onboarding context and resumes /upload', async () => {
 		const { container } = render( <Stage /> );
 
 		const file = makeFile( 'one.mp4' );
-		dropOnDropzone( container, [ file ] );
+		await dropOnDropzone( container, [ file ] );
 
 		expect( mockStartUpload ).toHaveBeenCalledWith( file, 'upload-onboarding' );
 		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/upload' } );
 	} );
 
-	it( 'hands a multi-file drop to the Library, every file in the queue', () => {
+	it( 'hands a multi-file drop to the Library, every file in the queue', async () => {
 		const { container } = render( <Stage /> );
 
-		dropOnDropzone( container, [ makeFile( 'a.mp4' ), makeFile( 'b.mp4' ) ] );
+		await dropOnDropzone( container, [ makeFile( 'a.mp4' ), makeFile( 'b.mp4' ) ] );
 
 		expect( mockStartUpload ).toHaveBeenCalledTimes( 2 );
 		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/' } );
@@ -180,11 +186,11 @@ describe( 'home stage empty state', () => {
 		expect( mockStartUpload ).toHaveBeenCalledWith( expect.anything(), 'upload-batch' );
 	} );
 
-	it( 'slices a free-plan drop to one file and surfaces the discarded count', () => {
+	it( 'slices a free-plan drop to one file and surfaces the discarded count', async () => {
 		mockFreeTier = { isAtLimit: false, isFree: true, isUnlimited: false, videoCount: 0 };
 		const { container } = render( <Stage /> );
 
-		dropOnDropzone( container, [ makeFile( 'a.mp4' ), makeFile( 'b.mp4' ) ] );
+		await dropOnDropzone( container, [ makeFile( 'a.mp4' ), makeFile( 'b.mp4' ) ] );
 
 		expect( mockStartUpload ).toHaveBeenCalledTimes( 1 );
 		expect( mockCreateInfoNotice ).toHaveBeenCalledWith(

@@ -1,4 +1,4 @@
-import { act, render } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { stage as Stage } from '../stage';
 import type { LibraryItem } from '../../../src/dashboard/types/library';
 import type { Action, View } from '@wordpress/dataviews';
@@ -33,9 +33,15 @@ jest.mock( '@wordpress/dataviews', () => ( {
 	},
 } ) );
 
+// Renders the actions slot too, so the header's upload button is reachable.
 jest.mock( '../../../src/dashboard/components/dashboard-layout', () => ( {
 	__esModule: true,
-	default: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	default: ( { children, actions }: { children: ReactNode; actions?: ReactNode } ) => (
+		<div>
+			{ actions }
+			{ children }
+		</div>
+	),
 } ) );
 jest.mock( '../../../src/dashboard/components/query-client-wrapper', () => ( {
 	__esModule: true,
@@ -76,6 +82,7 @@ jest.mock( '../../../src/dashboard/hooks/use-delete-video', () => ( {
 	...jest.requireActual( '../../../src/dashboard/hooks/use-delete-video' ),
 	useDeleteVideo: () => ( { mutateAsync: mockDeleteVideo } ),
 } ) );
+let mockPlanSettled = true;
 jest.mock( '../../../src/dashboard/hooks/use-free-tier', () => ( {
 	useFreeTier: () => ( {
 		isAtLimit: false,
@@ -83,6 +90,7 @@ jest.mock( '../../../src/dashboard/hooks/use-free-tier', () => ( {
 		isUnlimited: true,
 		videoCount: 3,
 		limit: 1,
+		isSettled: mockPlanSettled,
 	} ),
 } ) );
 jest.mock( '../../../src/dashboard/hooks/use-set-privacy', () => ( {
@@ -126,6 +134,26 @@ describe( 'library stage', () => {
 		mockItems = [];
 		mockQueue = [];
 		mockLibraryTotal = 3;
+		mockPlanSettled = true;
+	} );
+
+	describe( 'header upload button', () => {
+		// `isAtLimit` is false until the plan count lands, so painting the button
+		// before then published `aria-disabled=false` on a site that is at its
+		// limit — a live control that then refuses the click it invited.
+		it( 'is withheld until the plan count lands', () => {
+			mockPlanSettled = false;
+
+			render( <Stage /> );
+
+			expect( screen.queryByRole( 'button', { name: 'Upload video' } ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'arrives once the plan count has decided its state', () => {
+			render( <Stage /> );
+
+			expect( screen.getByRole( 'button', { name: 'Upload video' } ) ).toBeInTheDocument();
+		} );
 	} );
 
 	describe( 'delete', () => {

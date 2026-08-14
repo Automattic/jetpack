@@ -2,10 +2,11 @@
  * External dependencies
  */
 import AdminPage from '@automattic/jetpack-components/admin-page';
+import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Tabs } from '@wordpress/ui';
+import { Tabs, VisuallyHidden } from '@wordpress/ui';
 import { useSettledFirstRunState } from '../../hooks/use-first-run-state';
 import DashboardTabs, {
 	CANONICAL_TAB_ORDER,
@@ -210,7 +211,14 @@ export default function DashboardLayout( {
 				'Host, manage, customize, and track your videos — all in one place.',
 				'jetpack-videopress-pkg'
 			) }
-			actions={ actions }
+			// While the landing decision is pending nothing here is real: no
+			// strip, no body, and the route underneath is about to be replaced.
+			// An action painted over that is the page claiming to be ready when
+			// it is not — and the Library's "Upload video" button reads
+			// `aria-disabled=false` until its own plan count lands, so it spent
+			// exactly that window inviting a click it would then refuse. The
+			// actions arrive with the page they belong to.
+			actions={ isAwaitingLandingDecision ? undefined : actions }
 			showFooter={ ! hideFooter }
 		>
 			<Tabs.Root className="vp-dashboard-tabs" value={ activeTab } onValueChange={ onValueChange }>
@@ -221,6 +229,20 @@ export default function DashboardLayout( {
 					</Tabs.Panel>
 				) ) }
 			</Tabs.Root>
+			{ isAwaitingLandingDecision && (
+				/*
+				 * Held back is not the same as finished, and the difference has
+				 * to be visible: a header, a tagline and half a second of
+				 * nothing reads as a page that loaded empty, not one that is
+				 * still loading. Outside `Tabs.Root` so it never has to pair
+				 * with a tab, and announced via role=status because the strip
+				 * and body it stands in for are both absent from the tree.
+				 */
+				<div className="vp-dashboard-layout__landing" role="status">
+					<Spinner />
+					<VisuallyHidden>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</VisuallyHidden>
+				</div>
+			) }
 			<OnboardingModal />
 			<UploadPill suppressContext={ uploadPillSuppressContext } />
 		</AdminPage>
