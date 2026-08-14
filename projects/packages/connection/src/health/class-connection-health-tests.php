@@ -582,7 +582,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 
 		$recommendation = sprintf(
 			/* translators: %1$s opens a link to Jetpack's IP allowlist documentation, %2$s closes it (it also carries hidden text noting the link opens in a new tab). Place them around the phrase that should be linked. */
-			__( 'Jetpack uses your site\'s xmlrpc.php file to securely communicate with WordPress.com. Ask your host or security provider to %1$sallowlist Jetpack\'s IPs%2$s — reconnecting will not resolve this. If you need further help, contact Jetpack support.', 'jetpack-connection' ),
+			__( 'Jetpack Connection uses your site\'s xmlrpc.php file to securely communicate with WordPress.com. Ask your host or security provider to %1$sallowlist Jetpack Connection IPs%2$s — reconnecting will not resolve this. If you need further help, contact Jetpack support.', 'jetpack-connection' ),
 			'<a href="' . esc_url( Redirect::get_url( 'https://jetpack.com/support/how-to-add-jetpack-ips-allowlist/' ) ) . '" target="_blank" rel="noopener noreferrer">',
 			sprintf(
 				/* translators: accessibility text */
