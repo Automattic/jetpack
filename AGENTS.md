@@ -175,7 +175,7 @@ Two gates enforce this, both running `tools/check-changelogger-use.php`: the pre
 
 ### User-Facing Changes Outside a Plugin Also Need Plugin Entries
 
-An entry only lands in the CHANGELOG of the project it was added to. A PR confined to a shared project — a PHP package under `projects/packages/`, a JS package under `projects/js-packages/`, or any other non-plugin project — therefore appears in that project's CHANGELOG and, in the plugins that bundle it, as nothing more than "Update package dependencies." — invisible to the users, release posts, and support documentation that read the plugin changelog.
+An entry only lands in the CHANGELOG of the project it was added to. A PR confined to a shared project — a PHP package under `projects/packages/`, a JS package under `projects/js-packages/`, or any other non-plugin project — therefore reaches that project's CHANGELOG and nowhere else: the plugins that bundle it get, at most, the generic "Update package dependencies." line the release tooling files under "Other changes", which is never copied to `readme.txt`. Users, release posts, and support documentation read the plugin changelog, so the change is invisible to them.
 
 **When a change to a package or js-package is user-facing — a new block, new or changed UI, a behavior change, a bug fix someone would notice — add a changelog entry to every plugin that ships it, on top of the project's own entry.** Write each one from that plugin's user's perspective; the wording rarely needs to be identical.
 
@@ -196,7 +196,7 @@ jp changelog add plugins/search  -s minor -t added       -e "Add a Search Result
 jp changelog add plugins/jetpack -s minor -t enhancement -e "Search: Add a Search Results block."
 ```
 
-**The non-interactive form never prompts for this.** Interactive `jp changelog add` (no project argument) asks "The following plugins are indirectly affected by this commit: … Is this change something an end user or site administrator of a site using any of those plugins would like to know about?", and answering yes writes the plugin entries for you. Naming a project disables that check, so `jp changelog add <project> -s … -t … -e …` silently skips the dependent plugins. Anyone — human or agent — using the non-interactive form MUST add the plugin entries themselves. To be asked again after the fact, run `jp changelog add --check-indirect-plugins`.
+**The non-interactive form never prompts for this.** Naming a project (`jp changelog add <project> -s … -t … -e …`) disables the indirect-plugin check, so dependent plugins are silently skipped; only bare `jp changelog add` offers to write those entries for you. Using the non-interactive form means adding the plugin entries yourself — or running `jp changelog add --check-indirect-plugins` afterwards to be asked.
 
 The project's own entry alone is correct only when nothing is observable to a site owner: internal refactors, tests, tooling, type fixes.
 
