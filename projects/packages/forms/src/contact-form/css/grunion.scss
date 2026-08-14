@@ -1,6 +1,7 @@
 /* Import shared visually-hidden utility so editor and frontend match */
 @use "../../blocks/shared/styles/visually-hidden" as *;
 @use "../../blocks/shared/styles/empty_image_option" as *;
+@use "../../blocks/shared/styles/field-hints" as *;
 
 :root {
 	--jetpack--contact-form--border: 1px solid #8c8f94;
@@ -1511,20 +1512,6 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form__error a {
 	color: inherit;
-}
-
-// The container owns all the styling so the hints themselves stay bare spans —
-// themes style <p>, and matching that fight on every theme is not worth it.
-.contact-form__field-hints {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.25rem 0.75rem;
-	margin-block: 0.25rem 0;
-	margin-inline: 0;
-	font-size: 0.875em;
-	line-height: 1.4;
-	color: var(--jetpack--contact-form--text-color, inherit);
-	opacity: 0.75;
 }
 
 .contact-form__input-error {

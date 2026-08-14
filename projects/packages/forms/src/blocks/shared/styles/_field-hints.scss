@@ -1,0 +1,13 @@
+// The container owns all the styling so the hints themselves stay bare spans.
+// Themes often style paragraphs, while the inherited text color keeps the
+// hints readable against custom form backgrounds.
+.contact-form__field-hints {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 0.75rem;
+	margin-block: 0.25rem 0;
+	margin-inline: 0;
+	font-size: 0.875em;
+	line-height: 1.4;
+	color: var(--jetpack--contact-form--text-color, inherit);
+}

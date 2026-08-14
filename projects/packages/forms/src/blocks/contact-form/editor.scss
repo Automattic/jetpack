@@ -1,4 +1,5 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "../shared/styles/field-hints" as *;
 
 :where(.jetpack-contact-form) {
 	border-width: 0;
@@ -438,19 +439,6 @@
 		justify-content: flex-start;
 	}
 
-}
-
-// Keep in sync with the same rule in src/contact-form/css/grunion.scss.
-.contact-form__field-hints {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.25rem 0.75rem;
-	margin-block: 0.25rem 0;
-	margin-inline: 0;
-	font-size: 0.875em;
-	line-height: 1.4;
-	color: var(--jetpack--contact-form--text-color, inherit);
-	opacity: 0.75;
 }
 
 // Selectors with specificity to 0,0,0 so that global styles can override it.
