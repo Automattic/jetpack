@@ -177,7 +177,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 							<Stack direction="column" gap="lg">
 								<Stack direction="column" gap="xs">
 									<h3 className="podcast__card-title">
-										{ __( 'Automattic submission', 'jetpack-podcast' ) }
+										{ __( 'Automatic submission', 'jetpack-podcast' ) }
 									</h3>
 									<Text variant="muted">
 										{ __(
