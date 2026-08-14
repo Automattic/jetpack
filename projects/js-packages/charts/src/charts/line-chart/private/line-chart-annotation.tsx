@@ -9,7 +9,7 @@ import {
 import { DataContext } from '@visx/xychart';
 import merge from 'deepmerge';
 import { useContext, useRef, useEffect, useState, useMemo } from 'react';
-import { useGlobalChartsTheme } from '../../../providers';
+import { useChartScopeElement, useGlobalChartsTheme } from '../../../providers';
 import { isSafari, resolveCssVariable } from '../../../utils';
 import LineChartAnnotationLabelWithPopover, {
 	POPOVER_BUTTON_SIZE,
@@ -152,6 +152,7 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	renderLabelPopover,
 } ) => {
 	const providerTheme = useGlobalChartsTheme();
+	const scopeElement = useChartScopeElement();
 	const { xScale, yScale } = useContext( DataContext ) || {};
 	const labelRef = useRef< SVGGElement >( null );
 	const [ height, setHeight ] = useState< number | null >( null );
@@ -159,10 +160,10 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	// Deep merge styles to preserve nested object properties
 	const styles = merge( providerTheme.annotationStyles ?? {}, datumStyles ?? {} );
 
-	// visx annotation parts apply these colors as SVG presentation attributes,
-	// where CSS var() cannot resolve. Resolve WPDS tokens to concrete values first.
+	// visx annotation parts apply these colours as SVG presentation attributes, where CSS
+	// var() cannot resolve. Resolve against the chart's scope element, never :root.
 	const resolveColor = ( value?: string ): string | undefined =>
-		value ? resolveCssVariable( value ) ?? value : value;
+		value ? resolveCssVariable( value, scopeElement ) ?? value : value;
 
 	// Measure the label height once after initial render
 	useEffect( () => {
