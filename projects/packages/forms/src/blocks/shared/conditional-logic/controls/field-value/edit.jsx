@@ -290,6 +290,19 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 
 				<RuleValueControl rule={ rule } subject={ subject } onChange={ handleValueChange } />
 
+				<IconButton
+					size="small"
+					variant="minimal"
+					tone="neutral"
+					icon={ trash }
+					onClick={ handleRemove }
+					label={ sprintf(
+						/* translators: %d: condition number, starting at 1 */
+						__( 'Remove condition %d', 'jetpack-forms' ),
+						index + 1
+					) }
+				/>
+
 				{ /* Says whether this condition will actually do anything. An incomplete rule
 				     is skipped by both evaluators, which is otherwise invisible -- the field
 				     simply does not react and nothing explains why. */ }
@@ -305,19 +318,6 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 						</Badge>
 					</Tooltip>
 				) }
-
-				<IconButton
-					size="small"
-					variant="minimal"
-					tone="neutral"
-					icon={ trash }
-					onClick={ handleRemove }
-					label={ sprintf(
-						/* translators: %d: condition number, starting at 1 */
-						__( 'Remove condition %d', 'jetpack-forms' ),
-						index + 1
-					) }
-				/>
 			</Stack>
 		</Stack>
 	);
