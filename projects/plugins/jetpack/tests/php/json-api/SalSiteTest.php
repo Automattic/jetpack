@@ -56,4 +56,19 @@ class SalSiteTest extends WP_UnitTestCase {
 	public function test_interface() {
 		$this->assertTrue( method_exists( 'SAL_Site', 'is_module_active' ) );
 	}
+
+	public function test_get_difm_lite_site_options_is_null_without_active_difm_build() {
+		// The test bootstrap mocks has_blog_sticker() as get_option(); the sticker option is unset here.
+		$this->assertNull( self::$site->get_difm_lite_site_options() );
+	}
+
+	public function test_get_difm_lite_site_options_is_null_outside_wpcom() {
+		// The mocked has_blog_sticker() reads this option, simulating an active DIFM build.
+		update_option( 'difm-lite-in-progress', true );
+
+		// Outside WordPress.com the options must still be null.
+		$this->assertNull( self::$site->get_difm_lite_site_options() );
+
+		delete_option( 'difm-lite-in-progress' );
+	}
 }

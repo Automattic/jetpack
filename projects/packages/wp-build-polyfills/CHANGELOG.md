@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-08-10
+### Added
+- Add a script module polyfill for @wordpress/widget-primitives. [#50509]
+
+### Changed
+- Update package dependencies. [#50509]
+
 ## [0.3.0] - 2026-08-03
 ### Added
 - Add a build-time export-contract check that fails the build when a polyfilled package imports a symbol the shipped version of another polyfilled package does not export — the Jetpack 16.0 blank-dashboard failure mode. [#50676]
@@ -130,6 +137,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Add @wordpress/ui to devDependencies so the boot module bundles it instead of externalizing it as an unregistered wp-ui script handle, which caused a blank page at runtime. [#47727]
 
+[0.4.0]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.2.5...v0.3.0
 [0.2.5]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.2.3...v0.2.4

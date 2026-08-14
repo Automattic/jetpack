@@ -1,0 +1,23 @@
+// A standalone footer action rather than a link inside running text, so it
+// drops the design system's default underline and only shows one on hover.
+.reportLink {
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-sm);
+	text-decoration: none;
+}
+
+.reportLink:hover {
+	text-decoration: underline;
+}
+
+// Widgets clip their own overflow and the footer sits flush against that edge,
+// so the design system's outset ring is cut off on the inline-start side. Draw
+// it inset instead. The block padding gives the ring room around the text
+// without moving the link, which has to stay aligned with the widget body.
+.reportLink:focus-visible {
+	border-radius: var(--wpds-border-radius-sm);
+	padding-block: var(--wpds-dimension-padding-xs);
+	margin-block: calc(-1 * var(--wpds-dimension-padding-xs));
+	outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+	outline-offset: calc(-1 * var(--wpds-border-width-focus));
+}

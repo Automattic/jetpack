@@ -8,12 +8,6 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 
-/**
- * Visitor metric widget component.
- *
- * Fetches and displays visitor trends for the report params provided by the
- * shared WidgetRoot.
- */
 export function VisitorMetricWidget() {
 	const { reportParams } = useWidgetRootContext();
 

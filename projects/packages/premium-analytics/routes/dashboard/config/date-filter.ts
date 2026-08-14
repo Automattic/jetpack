@@ -28,6 +28,35 @@ export const DATE_FILTER_YEAR = 'year';
 export type DateFilterSurface = typeof DATE_FILTER_RANGE | typeof DATE_FILTER_YEAR;
 
 /**
+ * Which optional controls a section's date filter offers. Mirrors
+ * `Dashboard_Section::$date_filter_options` on the server.
+ */
+export type DateFilterOptions = {
+	with_date_comparison: boolean;
+};
+
+/**
+ * Whether the section's header offers the comparison control.
+ *
+ * The year surface never does; on the range surface the section decides.
+ * Absent options keep the control, as every section did before the field.
+ *
+ * @param surface - The active section's date-filter surface.
+ * @param options - The active section's date-filter options, if any.
+ * @return Whether to render the comparison control.
+ */
+export function offersDateComparison(
+	surface: DateFilterSurface,
+	options: DateFilterOptions | undefined
+): boolean {
+	if ( surface === DATE_FILTER_YEAR ) {
+		return false;
+	}
+
+	return options?.with_date_comparison ?? true;
+}
+
+/**
  * The preset a surface should take over with when the URL carries one it cannot
  * represent, or `null` when the current preset is already coherent.
  *

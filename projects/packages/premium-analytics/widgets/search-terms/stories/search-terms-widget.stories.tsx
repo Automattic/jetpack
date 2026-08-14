@@ -135,7 +135,7 @@ export const ErrorRetryable: Story = {
  * glyph and "No search terms in this period.").
  */
 export const Empty: Story = {
-	render: () => renderSearchTermsOnPreset( 'last-365-days' ),
+	render: () => renderSearchTermsOnPreset( 'last-year' ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {

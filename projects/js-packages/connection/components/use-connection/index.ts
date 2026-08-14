@@ -4,6 +4,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect } from 'react';
 import { initConnectionStore } from '../../state/store.jsx';
 import type {
+	ConnectionOwner,
 	RegistrationError,
 	UserConnectionData,
 	UseConnectionProps,
@@ -21,6 +22,29 @@ const initialState =
 	window?.JP_CONNECTION_INITIAL_STATE ||
 	getScriptData()?.connection ||
 	( {} as Record< string, string > );
+
+/**
+ * Whether a raw store value is a usable connection owner.
+ *
+ * The value starts life as server-provided JSON and crosses an untyped store, so
+ * it is checked rather than asserted: consumers decide ownership by comparing
+ * `owner.id` to the viewer's ID, and a partial owner would pass that test by
+ * matching `undefined` against `undefined`. Anything short of a complete owner
+ * means "owner unknown".
+ *
+ * @param {unknown} value - The raw selector value.
+ * @return {boolean} Whether the value is a complete connection owner.
+ */
+function isConnectionOwner( value: unknown ): value is ConnectionOwner {
+	return (
+		!! value &&
+		typeof value === 'object' &&
+		'id' in value &&
+		typeof value.id === 'number' &&
+		'displayName' in value &&
+		typeof value.displayName === 'string'
+	);
+}
 
 /**
  * Hook to handle the connection process.
@@ -55,6 +79,7 @@ export default function useConnection( {
 		userIsConnecting,
 		userConnectionData,
 		connectedPlugins,
+		connectionOwner,
 		connectionErrors,
 		connectionHealthErrors,
 		isRegistered,
@@ -67,6 +92,9 @@ export default function useConnection( {
 				string,
 				unknown
 			>;
+			// Optional-call the selector: downstream consumers that register a partial
+			// connection-store mock may not define it.
+			const owner = select( connectionStore ).getConnectionOwner?.();
 			return {
 				siteIsRegistering: select( connectionStore ).getSiteIsRegistering() as boolean,
 				userIsConnecting: select( connectionStore ).getUserIsConnecting() as boolean,
@@ -75,6 +103,7 @@ export default function useConnection( {
 				connectedPlugins: select( connectionStore ).getConnectedPlugins() as
 					| Record< string, unknown >
 					| unknown[],
+				connectionOwner: isConnectionOwner( owner ) ? owner : null,
 				connectionErrors: select( connectionStore ).getConnectionErrors() as Array<
 					string | object
 				>,
@@ -161,6 +190,7 @@ export default function useConnection( {
 		userIsConnecting,
 		registrationError,
 		userConnectionData,
+		connectionOwner,
 		hasConnectedOwner,
 		connectedPlugins,
 		connectionErrors,

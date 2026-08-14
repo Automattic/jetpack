@@ -224,6 +224,11 @@ import { ComparativeLineChart, getFormatByMetricKey } from '@jetpack-premium-ana
 />
 ```
 
+**Bar variant:** for the same comparative time series drawn as bars, use `ComparativeBarChart`. It
+takes the same series shape and date alignment, but reads its styling from the chart theme instead
+of a `styles` prop, so it must render inside a `GlobalChartsProvider`. See
+`src/components/chart-comparative-bar/README.md`.
+
 ---
 
 ### ChartTooltip

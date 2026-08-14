@@ -6,28 +6,26 @@ import {
 	FlexBlock,
 	RadioControl,
 	Spinner,
-	VisuallyHidden,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { useViewportMatch } from '@wordpress/compose';
-import { useEntityId, useEntityProp } from '@wordpress/core-data';
+import { useInstanceId, useViewportMatch } from '@wordpress/compose';
+import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
-import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
+import { Link as ExternalLink } from '@wordpress/ui';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import './settings.scss';
-import PlansSetupDialog from '../components/plans-setup-dialog';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
-import { getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
+import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
 
 const paywallIcon = getBlockIconComponent( paywallBlockMetadata );
 
@@ -60,15 +58,57 @@ export function getReachForAccessLevelKey( {
 	}
 }
 
+/**
+ * Describe, in plain language, who can read the post and who receives it by email.
+ *
+ * Email reach is not always the same as read access: when the post contains a paywall
+ * block, every subscriber is emailed the portion above the paywall, so a paid post
+ * still goes out to the full list. See getAccessLabelForCopy in subscribers-affirmation.
+ *
+ * @param {string}  accessLevel         - Access level key, e.g. 'paid_subscribers'.
+ * @param {boolean} postHasPaywallBlock - Whether the post contains a paywall block.
+ * @return {string} Description of the current access level.
+ */
+export function getAccessDescription( accessLevel, postHasPaywallBlock = false ) {
+	// The unused third argument to __() keeps the two calls in each branch from being
+	// merged into a single __( cond ? a : b ) by the production minifier, which would
+	// leave a non-literal msgid and fail the i18n check.
+	switch ( accessLevel ) {
+		case accessOptions.subscribers.key:
+			return postHasPaywallBlock
+				? __(
+						'Only subscribers can read the content below the paywall. Subscribers receive it by email.',
+						'jetpack',
+						0
+				  )
+				: __(
+						'Only subscribers can read this post. Others see a preview and can subscribe. Subscribers receive it by email.',
+						'jetpack'
+				  );
+		case accessOptions.paid_subscribers.key:
+			return postHasPaywallBlock
+				? __(
+						'Only paid subscribers can read the content below the paywall. All subscribers receive it by email.',
+						'jetpack',
+						0
+				  )
+				: __(
+						'Only paid subscribers can read this post. Others see a preview and can subscribe. Only paid subscribers receive it by email.',
+						'jetpack'
+				  );
+		default:
+			return __( 'Anyone can read this post. Subscribers receive it by email.', 'jetpack' );
+	}
+}
+
 export function useSetAccess() {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	return value => {
+		// We are removing the tier ID meta
+		delete metas[ META_NAME_FOR_POST_TIER_ID_SETTINGS ];
 		setPostMeta( {
 			...metas,
-			// Clearing the tier. Deleting the key instead mutated the store in place and was a
-			// no-op over REST, which omits absent keys.
-			[ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: 0,
 			[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: value,
 		} );
 	};
@@ -130,17 +170,28 @@ export function NewsletterAccessRadioButtons( {
 	accessLevel,
 	hasTierPlans,
 	stripeConnectUrl,
-	isEditorPanel = false,
 	postHasPaywallBlock: postHasPaywallBlock = false,
 } ) {
 	const isStripeConnected = stripeConnectUrl === null;
 	const { totalSubscribers, paidSubscribers } = useSelect( select =>
 		select( membershipProductsStore ).getSubscriberCounts()
 	);
-	const [ showDialog, setShowDialog ] = useState( false );
-	const closeDialog = () => setShowDialog( false );
+
+	// Paid subscribers can only be chosen once Stripe is connected and a tier exists.
+	// Rather than hiding the option, we show it disabled alongside a link to set it up,
+	// so creators discover that paid newsletters are available to them.
+	const isPaidAvailable = isStripeConnected && hasTierPlans;
+	const isPaidSelected = accessLevel === accessOptions.paid_subscribers.key;
+	// Keep the option selectable when it is already the saved value, so a post set to
+	// paid before Stripe was disconnected does not end up with nothing selected.
+	const showPaidAsDisabled = ! isPaidAvailable && ! isPaidSelected;
 
 	const setAccess = useSetAccess();
+	// The count beside each option is the size of the audience that can read it, which
+	// is what distinguishes the options from one another. postHasPaywallBlock is
+	// deliberately not forwarded here: it would switch the paid count to the email
+	// reach, making both options report the same total on a post with a paywall block.
+	// Who receives the email is stated in getAccessDescription instead.
 	const subscribersReach = getReachForAccessLevelKey( {
 		accessLevel: accessOptions.subscribers.key,
 		subscribers: totalSubscribers,
@@ -152,20 +203,20 @@ export function NewsletterAccessRadioButtons( {
 		paidSubscribers,
 	} );
 
+	const paidOptionLabel = `${ accessOptions.paid_subscribers.label } (${ formatNumberCompact(
+		paidSubscribersReach
+	) })`;
+	const disabledPaidOptionId = useInstanceId(
+		NewsletterAccessRadioButtons,
+		'jetpack-newsletter-access-paid-subscribers-disabled'
+	);
+	const setupLinkId = `${ disabledPaidOptionId }-setup-link`;
+
 	return (
-		<fieldset className="jetpack-newsletter-access-radio-buttons">
-			<VisuallyHidden as="legend">{ __( 'Access', 'jetpack' ) } </VisuallyHidden>
+		<div className="jetpack-newsletter-access-radio-buttons">
 			<RadioControl
-				onChange={ value => {
-					if (
-						accessOptions.paid_subscribers.key === value &&
-						( stripeConnectUrl || ! hasTierPlans )
-					) {
-						setShowDialog( true );
-						return;
-					}
-					setAccess( value );
-				} }
+				label={ __( 'Who can read this post?', 'jetpack' ) }
+				onChange={ setAccess }
 				options={ [
 					...( ! postHasPaywallBlock
 						? [
@@ -181,23 +232,55 @@ export function NewsletterAccessRadioButtons( {
 						) })`,
 						value: accessOptions.subscribers.key,
 					},
-					{
-						label: `${ accessOptions.paid_subscribers.label } (${ formatNumberCompact(
-							paidSubscribersReach
-						) })`,
-						value: accessOptions.paid_subscribers.key,
-					},
+					...( ! showPaidAsDisabled
+						? [
+								{
+									label: paidOptionLabel,
+									value: accessOptions.paid_subscribers.key,
+								},
+						  ]
+						: [] ),
 				] }
 				selected={ accessLevel }
 			/>
-			{ accessLevel === accessOptions.paid_subscribers.key && isStripeConnected && hasTierPlans && (
-				<TierSelector></TierSelector>
+			{ showPaidAsDisabled && (
+				<>
+					<div className="components-radio-control__option jetpack-newsletter-access-radio-buttons__disabled-option">
+						{ /*
+						 * aria-disabled rather than disabled: a disabled input leaves the tab
+						 * order and is skipped by screen readers, which would hide the paid
+						 * option from exactly the people the setup link is there to inform.
+						 * It stays focusable and announced, but cannot be selected.
+						 */ }
+						<input
+							type="radio"
+							className="components-radio-control__input"
+							aria-disabled="true"
+							aria-describedby={ setupLinkId }
+							checked={ false }
+							readOnly
+							onClick={ event => event.preventDefault() }
+							onKeyDown={ event => {
+								if ( event.key === ' ' ) {
+									event.preventDefault();
+								}
+							} }
+							id={ disabledPaidOptionId }
+						/>
+						<label className="components-radio-control__label" htmlFor={ disabledPaidOptionId }>
+							{ paidOptionLabel }
+						</label>
+					</div>
+					<ExternalLink id={ setupLinkId } openInNewTab href={ getPaidPlanLink( hasTierPlans ) }>
+						{ __( 'Turn on paid subscribers', 'jetpack' ) }
+					</ExternalLink>
+				</>
 			) }
-
-			{ isEditorPanel && (
-				<PlansSetupDialog closeDialog={ closeDialog } showDialog={ showDialog } />
-			) }
-		</fieldset>
+			{ isPaidSelected && isPaidAvailable && <TierSelector></TierSelector> }
+			<p className="jetpack-newsletter-access-radio-buttons__description">
+				{ getAccessDescription( accessLevel, !! postHasPaywallBlock ) }
+			</p>
+		</div>
 	);
 }
 
@@ -274,7 +357,6 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 						<FlexBlock direction="row" justify="flex-start">
 							{ canEdit && (
 								<NewsletterAccessRadioButtons
-									isEditorPanel={ true }
 									accessLevel={ _accessLevel }
 									stripeConnectUrl={ stripeConnectUrl }
 									hasTierPlans={ hasTierPlans }
@@ -293,13 +375,9 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 }
 
 export function NewsletterEmailDocumentSettings() {
-	// `private` counts as published, but a private post still emails subscribers when it goes
-	// public, so the setting has to stay editable until then.
-	const isPostPublished = useSelect(
-		select => select( editorStore ).getEditedPostAttribute( 'status' ) === 'publish',
-		[]
-	);
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const { saveEditedEntityRecord } = useDispatch( coreDataStore );
 	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const postId = useEntityId( 'postType', postType );
 
@@ -320,6 +398,7 @@ export function NewsletterEmailDocumentSettings() {
 			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: value === 'post-only',
 		};
 		setPostMeta( postMetaUpdate );
+		saveEditedEntityRecord( 'postType', postType, postId );
 	};
 
 	const isSendEmailEnabled = useSelect( select => {
@@ -332,43 +411,26 @@ export function NewsletterEmailDocumentSettings() {
 		return null;
 	}
 
-	const controlLabel = __( 'Send as email to subscribers?', 'jetpack' );
-	const emailOptions = [
-		{ value: 'post-and-email', label: __( 'Post & email', 'jetpack' ) },
-		{ value: 'post-only', label: __( 'Post only', 'jetpack' ) },
-	];
-
 	return (
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => {
-				// Show the value as text rather than a control nobody can reach, matching the access
-				// panel. `disabled` on ToggleGroupControl itself does nothing, and on its options it
-				// drops the whole group out of the tab order.
-				if ( isPostPublished || ! canEdit ) {
-					return (
-						<>
-							<VisuallyHidden as="span">{ controlLabel }</VisuallyHidden>
-							<span>
-								{ emailOptions.find( ( { value } ) => value === isSendEmailEnabled )?.label }
-							</span>
-						</>
-					);
-				}
-
 				return (
 					<ToggleGroupControl
 						value={ isSendEmailEnabled }
+						disabled={ isPostPublished || ! canEdit }
 						onChange={ toggleSendEmail }
 						isBlock
-						label={ controlLabel }
+						label={ __( 'Send as email to subscribers?', 'jetpack' ) }
 						hideLabelFromVision={ true }
 						className="jetpack-subscribe-email-document-setting"
 						__nextHasNoMarginBottom={ true }
 						__next40pxDefaultSize={ true }
 					>
-						{ emailOptions.map( ( { value, label } ) => (
-							<ToggleGroupControlOption key={ value } label={ label } value={ value } />
-						) ) }
+						<ToggleGroupControlOption
+							label={ __( 'Post & email', 'jetpack' ) }
+							value="post-and-email"
+						/>
+						<ToggleGroupControlOption label={ __( 'Post only', 'jetpack' ) } value="post-only" />
 					</ToggleGroupControl>
 				);
 			} }

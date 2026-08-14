@@ -95,7 +95,7 @@ Zoom behaviour:
 - Only the X axis rescales; the Y axis is unaffected.
 - A selection rectangle follows the pointer while dragging.
 - Drags shorter than 6px are ignored, so a click never zooms.
-- While zoomed, a "Reset zoom" button appears in the top-right to restore the full domain. It is reachable with Tab and activates with Enter or Space.
+- While zoomed, a "Reset zoom" button appears in the top-right to restore the full domain. It is reachable with Tab and activates with Enter or Space. A "Reset zoom" tooltip shows on hover and on keyboard focus, and Escape dismisses it.
 - Areas are clipped to the plot area whenever `zoomable` is set, keeping the zoom-out animation within the axes.
 - `zoomable` chains with your own `onPointerDown`/`onPointerMove`/`onPointerUp` handlers rather than replacing them.
 

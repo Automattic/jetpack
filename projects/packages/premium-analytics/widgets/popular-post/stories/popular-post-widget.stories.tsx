@@ -35,11 +35,6 @@ registerStatsMocks();
 
 const POPULAR_POST_RENDER_MODULE = 'storybook/popular-post';
 
-/**
- * Renders the data-connected widget with report params from the date range
- * picker.
- * @return The rendered widget.
- */
 function renderPopularPost() {
 	return <PopularPostRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
@@ -129,9 +124,7 @@ export const ErrorRetryable: Story = {
  * Resolved with no rows: the widget shows its empty state.
  */
 export const Empty: Story = {
-	// A calendar year, not a rolling window: `last-365-days` and `last-12-months`
-	// resolve to the same dates most years, which would share ErrorRetryable's
-	// query key and serve this story's cached empty result there instead.
+	// Avoid presenting the same date range as ErrorRetryable in most years.
 	render: () => renderPopularPostOnPreset( 'last-year' ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
@@ -150,9 +143,6 @@ export const Empty: Story = {
  *
  * Comparison report params are passed unconditionally, so the widget stays covered
  * against crashing or inventing deltas when the host supplies comparison dates.
- *
- * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
- * @return The widget mounted inside the real dashboard.
  */
 function PopularPostDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (

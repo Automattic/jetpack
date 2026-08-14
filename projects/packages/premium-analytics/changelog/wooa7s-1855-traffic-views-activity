@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Insights: add a Traffic views activity widget showing daily site views as a calendar heatmap. Center the loading spinner and error message in the calendar heatmap widgets instead of pinning them to the left edge.

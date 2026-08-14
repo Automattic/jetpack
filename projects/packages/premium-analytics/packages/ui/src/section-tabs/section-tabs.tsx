@@ -4,9 +4,6 @@ import { useCallback } from 'react';
 import styles from './section-tabs.module.scss';
 import type { ReactNode } from 'react';
 
-/**
- * A resolved section tab ({ id, label }).
- */
 export type SectionTab< TabId extends string = string > = {
 	id: TabId;
 	label: string;
@@ -18,19 +15,10 @@ export interface SectionTabsProps< TabId extends string = string > {
 	 */
 	tabs: SectionTab< TabId >[];
 
-	/**
-	 * The currently active tab ID.
-	 */
 	value: TabId;
 
-	/**
-	 * Called with the new tab ID when the user selects a different tab.
-	 */
 	onChange: ( id: TabId ) => void;
 
-	/**
-	 * Tab panel content.
-	 */
 	children?: ReactNode;
 
 	/**
@@ -40,9 +28,6 @@ export interface SectionTabsProps< TabId extends string = string > {
 	 */
 	className?: string;
 
-	/**
-	 * Optional class applied to the tabs root.
-	 */
 	rootClassName?: string;
 }
 
@@ -52,15 +37,6 @@ export interface SectionTabsProps< TabId extends string = string > {
  * Purely presentational: it renders the tab triggers and reports selection
  * changes upward. Panel children render inside the same Tabs.Root so the
  * tablist and tab content share a complete tab/panel relationship.
- *
- * @param props               - Component props.
- * @param props.tabs          - The tabs to render, in order.
- * @param props.value         - The currently active tab ID.
- * @param props.onChange      - Called with the new tab ID when the user selects a different tab.
- * @param props.children      - Tab panel content.
- * @param props.className     - Optional class applied to the tab list wrapper.
- * @param props.rootClassName - Optional class applied to the tabs root.
- * @return The tab bar element.
  */
 export function SectionTabs< TabId extends string = string >( {
 	tabs,
@@ -92,19 +68,10 @@ export function SectionTabs< TabId extends string = string >( {
 }
 
 export interface SectionTabPanelProps< TabId extends string = string > {
-	/**
-	 * The tab this panel belongs to.
-	 */
 	value: TabId;
 
-	/**
-	 * The panel content.
-	 */
 	children?: ReactNode;
 
-	/**
-	 * Optional class applied to the panel element.
-	 */
 	className?: string;
 }
 
@@ -116,12 +83,6 @@ export interface SectionTabPanelProps< TabId extends string = string > {
  * its root when both come from the same `Tabs` instance. Importing `Tabs` from
  * `@jetpack-premium-analytics/externals` is what makes that a single shared
  * instance for every consumer.
- *
- * @param props           - Component props.
- * @param props.value     - The tab this panel belongs to.
- * @param props.children  - The panel content.
- * @param props.className - Optional class applied to the panel element.
- * @return The tab panel element.
  */
 export function SectionTabPanel< TabId extends string = string >( {
 	value,

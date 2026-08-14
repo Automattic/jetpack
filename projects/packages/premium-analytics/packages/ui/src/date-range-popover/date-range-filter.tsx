@@ -3,7 +3,7 @@
  */
 import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import { Button, DateRangeCalendar, Icon, Stack } from '@jetpack-premium-analytics/externals';
-import { formatDateRange } from '@jetpack-premium-analytics/formatters';
+import { formatDateRangeMinimal } from '@jetpack-premium-analytics/formatters';
 import { Composite, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { chevronDown } from '@wordpress/icons';
@@ -18,42 +18,23 @@ import { shouldRestoreLastCustomRange, type RememberedCustomRange } from './last
 import './date-range-filter.scss';
 
 /**
- * Date range type from @automattic/ui.
- * Represents a range with `from` and `to` Date objects.
+ * The calendar's own range type, from `@automattic/ui`.
  */
 export type DateRange = NonNullable< Parameters< typeof DateRangeCalendar >[ 0 ][ 'selected' ] >;
 
-/**
- * Props for DateRangePopoverContent component.
- */
 type DateRangePopoverContentProps = {
-	/**
-	 * The selected date range
-	 */
 	range: DateRange;
 
-	/**
-	 * Callback when range or preset changes
-	 */
 	onChange: ( range?: DateRange, preset?: PrimaryPresetId ) => void;
 
-	/**
-	 * Callback when user applies the selection
-	 */
 	onApply: () => void;
 
-	/**
-	 * Callback when user cancels the selection
-	 */
 	onCancel: () => void;
 
-	/**
-	 * Whether the Apply button should be enabled
-	 */
 	canApply: boolean;
 
 	/**
-	 * Whether to show wide screen layout (2 months)
+	 * Wide layout: show two calendar months instead of one.
 	 */
 	isWideScreen?: boolean;
 
@@ -68,9 +49,6 @@ function getDisplayedMonth( range: DateRange ): Date {
 	return range?.from ?? new Date();
 }
 
-/**
- * Action buttons for the date range popover (Cancel/Apply).
- */
 function DateRangePopoverActions( {
 	onCancel,
 	onApply,
@@ -186,9 +164,6 @@ export function DateRangePopoverContent( {
 }
 
 type DateRangePopoverProps = DateRangePopoverContentProps & {
-	/**
-	 * Currently selected preset identifier
-	 */
 	presetId?: PrimaryPresetId;
 
 	/**
@@ -228,11 +203,6 @@ type DateRangePopoverProps = DateRangePopoverContentProps & {
 	 * when the popover renders standalone.
 	 */
 	triggerAsCompositeItem?: boolean;
-
-	/**
-	 * Whether to show the compact version of the popover
-	 */
-	isCompact?: boolean;
 };
 
 export function DateRangePopover( {
@@ -249,7 +219,6 @@ export function DateRangePopover( {
 	rememberedCustomRange = null,
 	isWideScreen = false,
 	triggerAsCompositeItem = false,
-	isCompact = false,
 }: DateRangePopoverProps ) {
 	const [ isOpen, setIsOpen ] = useState( false );
 
@@ -299,7 +268,7 @@ export function DateRangePopover( {
 		committedRange,
 		rememberedCustomRange,
 		customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
-		formatRange: formatDateRange,
+		formatRange: formatDateRangeMinimal,
 	} );
 
 	return (
@@ -312,7 +281,7 @@ export function DateRangePopover( {
 				const trigger = (
 					<Button
 						className="date-filters-panel-button"
-						variant={ isCompact ? 'outline' : 'minimal' }
+						variant="minimal"
 						tone="neutral"
 						onClick={ onToggle }
 						id="date-range-popover-button"

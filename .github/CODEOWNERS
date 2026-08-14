@@ -51,14 +51,14 @@
 
 # Tools owned by specific teams
 
-/tools/performance @Automattic/Zap
+/tools/performance @Automattic/jetpack-performance 
 
 # Actions
 
 /projects/github-actions/repo-gardening/ @jeherve
 
 # Packages
-/projects/packages/premium-analytics @Automattic/red @Automattic/ventures
+/projects/packages/premium-analytics @Automattic/jetpack-stats 
 /projects/packages/search/src/wpes @Automattic/prometheus
 /projects/packages/connection/src @Automattic/jetpack-connection
 /projects/packages/connection/legacy @Automattic/jetpack-connection
@@ -70,7 +70,8 @@
 
 # Plugins
 
-/projects/plugins/premium-analytics @Automattic/red @Automattic/ventures
+/projects/plugins/premium-analytics @Automattic/jetpack-stats 
+/projects/plugins/boost @Automattic/jetpack-boost
 
 # Functionality that is important to our partners
 /projects/plugins/jetpack/class.jetpack-cli.php @Automattic/jetpack-infinity

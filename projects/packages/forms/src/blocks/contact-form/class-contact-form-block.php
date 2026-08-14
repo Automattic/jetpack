@@ -24,6 +24,20 @@ use Jetpack;
  */
 class Contact_Form_Block {
 	/**
+	 * Class on the Form block's own element, the one carrying its style supports.
+	 *
+	 * @var string
+	 */
+	const FORM_BLOCK_CLASS = 'wp-block-jetpack-contact-form';
+
+	/**
+	 * Class on the Step block's own element, the one carrying its style supports.
+	 *
+	 * @var string
+	 */
+	const STEP_BLOCK_CLASS = 'wp-block-jetpack-form-step';
+
+	/**
 	 * Register the Contact Form block.
 	 * We are core block dependent only on whether the jetpack contact form plugin
 	 * is active or not. This is allowing us to make it more discoverable
@@ -45,6 +59,20 @@ class Contact_Form_Block {
 				'render_email_callback' => array( __CLASS__, 'render_email' ),
 				'render_callback'       => array( __CLASS__, 'gutenblock_render_form' ),
 				'supports'              => array(
+
+					/*
+					 * Deliberately not mirrored in block.json: serialization is skipped here so
+					 * self::apply_background_support() can put the image on the block's own
+					 * element, and skipping it in JS too would drop the editor preview.
+					 */
+					'background'           => array(
+						'backgroundImage'                 => true,
+						'backgroundSize'                  => true,
+						'__experimentalSkipSerialization' => true,
+						'__experimentalDefaultControls'   => array(
+							'backgroundImage' => true,
+						),
+					),
 					'layout'               => array(
 						'default'                => array(
 							'type'              => 'flex',
@@ -662,6 +690,23 @@ class Contact_Form_Block {
 			'jetpack/form-step',
 			array(
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_step' ),
+
+				/*
+				 * Deliberately not mirrored in the block's index.js: serialization is skipped
+				 * here so Contact_Form_Block::apply_background_support() can put the image on
+				 * the block's own element, and skipping it in JS too would drop the editor
+				 * preview.
+				 */
+				'supports'        => array(
+					'background' => array(
+						'backgroundImage'                 => true,
+						'backgroundSize'                  => true,
+						'__experimentalSkipSerialization' => true,
+						'__experimentalDefaultControls'   => array(
+							'backgroundImage' => true,
+						),
+					),
+				),
 			)
 		);
 
@@ -814,6 +859,13 @@ class Contact_Form_Block {
 		// Count and store form steps
 		self::$form_step_count = self::count_form_steps_in_block( $parsed_block );
 
+		if ( isset( $parsed_block['attrs']['ref'] ) || null === $pre_render ) {
+			// This happends only important for lagacy reasons and when code is programatically generated.
+			// Since it can include the previous jetpack button.
+			// Which by default renders as a link instead of a button resulting in the form not submitting.
+			add_filter( 'jetpack_button_default_element', array( __CLASS__, 'submit_button_element' ) );
+		}
+
 		// For ref (synced) forms, render here via pre_render_block to short-circuit
 		// render_block(). This prevents wp_render_layout_support_flag from adding
 		// layout classes to the outer ref block's container div. The synced form's
@@ -899,6 +951,17 @@ class Contact_Form_Block {
 	}
 
 	/**
+	 * The element a Button block inside a form falls back to when it doesn't set one.
+	 *
+	 * Filters `jetpack_button_default_element` for the duration of a form's render.
+	 *
+	 * @return string
+	 */
+	public static function submit_button_element() {
+		return 'button';
+	}
+
+	/**
 	 * Render the gutenblock form.
 	 *
 	 * @param array  $atts - the block attributes.
@@ -907,6 +970,24 @@ class Contact_Form_Block {
 	 * @return string
 	 */
 	public static function gutenblock_render_form( $atts, $content ) {
+		$form = self::render_form( $atts, $content );
+
+		// The form and its buttons are rendered by now, so stop defaulting Button blocks
+		// to `button` — any further button on the page is not a submit button.
+		remove_filter( 'jetpack_button_default_element', array( __CLASS__, 'submit_button_element' ) );
+
+		return $form;
+	}
+
+	/**
+	 * Render the gutenblock form markup.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string
+	 */
+	private static function render_form( $atts, $content ) {
 		// We should not render block if the module is disabled on a site using the Jetpack plugin.
 		// Exception: allow rendering in preview mode so form previews work.
 		if ( class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'contact-form' ) && ! Form_Preview::is_preview_mode() ) {
@@ -924,13 +1005,93 @@ class Contact_Form_Block {
 		if ( isset( $atts['ref'] ) ) {
 			$ref_id = absint( $atts['ref'] );
 			if ( $ref_id > 0 ) {
-				return Contact_Form::render_synced_form( $ref_id );
+				return self::apply_background_support( Contact_Form::render_synced_form( $ref_id ), $atts, self::FORM_BLOCK_CLASS );
 			} else {
 				return ''; // Invalid ref ID.
 			}
 		}
 
-		return Contact_Form::parse( $atts, do_blocks( $content ) );
+		return self::apply_background_support( Contact_Form::parse( $atts, do_blocks( $content ) ), $atts, self::FORM_BLOCK_CLASS );
+	}
+
+	/**
+	 * Apply a block's background image styles to the block's own element.
+	 *
+	 * Core's `wp_render_background_support()` targets the first tag of the rendered output.
+	 * Both form blocks wrap themselves at render time — the interactivity wrapper for a step,
+	 * the container div and any admin-only notices for a form — so the first tag is not the
+	 * element carrying the block's color, padding and radius, and for a synced form it varies
+	 * with who is viewing. Serialization is skipped in the block registration (PHP only: adding
+	 * it to block.json or index.js would kill the editor preview) and the styles are applied
+	 * here, on the element matching $target_class.
+	 *
+	 * Mirrors core's `wp_render_background_support()`, including its `cover` and `50% 50%`
+	 * defaults. Core 7.1 added gradient handling this does not implement, so `gradient` must
+	 * stay out of the JS supports until it is mirrored here too.
+	 *
+	 * @param string $html         Rendered HTML containing the block's own element.
+	 * @param array  $atts         Block attributes.
+	 * @param string $target_class Class of the element that should carry the background.
+	 *
+	 * @return string The HTML, with background styles applied when the block has an image.
+	 */
+	public static function apply_background_support( $html, $atts, $target_class ) {
+		$background = $atts['style']['background'] ?? null;
+
+		if ( ! is_array( $background ) || empty( $background['backgroundImage'] ) ) {
+			return $html;
+		}
+
+		$background_styles = array(
+			'backgroundImage'      => $background['backgroundImage'],
+			'backgroundSize'       => $background['backgroundSize'] ?? 'cover',
+			'backgroundPosition'   => $background['backgroundPosition'] ?? null,
+			'backgroundRepeat'     => $background['backgroundRepeat'] ?? null,
+			'backgroundAttachment' => $background['backgroundAttachment'] ?? null,
+		);
+
+		if ( 'contain' === $background_styles['backgroundSize'] && ! $background_styles['backgroundPosition'] ) {
+			$background_styles['backgroundPosition'] = '50% 50%';
+		}
+
+		// A step's styles are still ahead of the do_shortcode() pass in Contact_Form::parse(),
+		// so percent-encode the brackets that would otherwise make this URL look like a
+		// shortcode: unencoded they are stripped out of the attribute, taking the background
+		// with them, and the shortcode's side effects run.
+		if ( isset( $background_styles['backgroundImage']['url'] ) && is_string( $background_styles['backgroundImage']['url'] ) ) {
+			$background_styles['backgroundImage']['url'] = strtr(
+				$background_styles['backgroundImage']['url'],
+				array(
+					'[' => '%5B',
+					']' => '%5D',
+				)
+			);
+		}
+
+		$styles = wp_style_engine_get_styles( array( 'background' => $background_styles ) );
+
+		if ( empty( $styles['css'] ) ) {
+			return $html;
+		}
+
+		$tags = new \WP_HTML_Tag_Processor( $html );
+
+		if ( ! $tags->next_tag( array( 'class_name' => $target_class ) ) ) {
+			return $html;
+		}
+
+		$existing_style = $tags->get_attribute( 'style' );
+
+		if ( is_string( $existing_style ) && '' !== $existing_style ) {
+			$separator = str_ends_with( $existing_style, ';' ) ? '' : ';';
+			$tags->set_attribute( 'style', $existing_style . $separator . $styles['css'] );
+		} else {
+			$tags->set_attribute( 'style', $styles['css'] );
+		}
+
+		$tags->add_class( 'has-background' );
+
+		return $tags->get_updated_html();
 	}
 
 	/**

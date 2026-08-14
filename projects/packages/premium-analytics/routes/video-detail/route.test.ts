@@ -142,3 +142,32 @@ describe( 'video detail route.beforeLoad', () => {
 		expect( mockAddEntities ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
+
+describe( 'video detail route report origin', () => {
+	afterEach( () => {
+		jest.clearAllMocks();
+		mockGetEntityConfig.mockReturnValue( {} );
+	} );
+
+	it( 'carries the report origin through the seeding redirect', async () => {
+		await expect(
+			beforeLoad(
+				{ videoId: '42' },
+				{ ...settledSearch, post_id: '7', ref: 'utm', ref_section: 'campaign' }
+			)
+		).rejects.toMatchObject( {
+			to: '/video/$videoId',
+			search: expect.objectContaining( {
+				post_id: '42',
+				ref: 'utm',
+				ref_section: 'campaign',
+			} ),
+		} );
+	} );
+
+	it( 'does not redirect when a settled search already carries the origin', async () => {
+		await expect(
+			beforeLoad( { videoId: '42' }, { ...settledSearch, ref: 'utm', ref_section: 'campaign' } )
+		).resolves.toBeUndefined();
+	} );
+} );

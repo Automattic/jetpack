@@ -6,6 +6,7 @@ import {
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
+import { pickReportOriginParams } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -77,9 +78,10 @@ export const route = {
 
 		if ( needsDateSeed || needsPostSeed || needsSectionSeed ) {
 			/*
-			 * Seed dates in the site timezone, not the browser's, by waiting for
-			 * core `site` settings. A rejection here shouldn't error the whole
-			 * page, so fall back to the default seed.
+			 * Warm the core `site` record before the stage renders, so
+			 * `useSiteHomeUrl()` has it. A rejection here shouldn't error the
+			 * whole page, so fall through to the seed. The seed's own dates do
+			 * not depend on this; they resolve from the WordPress date settings.
 			 */
 			try {
 				await ensureCoreSettingsReady();
@@ -92,13 +94,24 @@ export const route = {
 			// known report-window params, and the path-derived `post_id` is the
 			// single source of scope. This contains any foreign params a link
 			// carried in (e.g. a dashboard `section`) instead of persisting them.
+			// The report origin is part of that allowlist, so the breadcrumb keeps
+			// its link back to the referring report across this seed.
 			const seeded: Record< string, unknown > = {
 				...normalizeReportParams(
 					currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
 				),
+				...pickReportOriginParams( currentSearch ),
 				...( resolvedSection ? { section: resolvedSection } : {} ),
 				post_id: postId,
 			};
+
+			/*
+			 * Comparison params ride along untouched: this page renders no
+			 * comparison (its widgets ignore them), but the breadcrumb's
+			 * dashboard link carries the URL state back out, so stripping them
+			 * here would silently lose the user's comparison settings on a
+			 * Dashboard → Post → Dashboard round trip.
+			 */
 
 			throw redirect( {
 				to: '/post/$postId',

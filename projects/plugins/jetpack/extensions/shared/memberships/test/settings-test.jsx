@@ -1,18 +1,26 @@
-import { render, renderHook, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as wpData from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { store as membershipProductsStore } from '../../../store/membership-products';
+import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from '../constants';
 import {
 	Link,
+	getAccessDescription,
 	getReachForAccessLevelKey,
+	NewsletterAccessRadioButtons,
 	NewsletterEmailDocumentSettings,
-	useSetAccess,
 } from '../settings';
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	...jest.requireActual( '@automattic/jetpack-script-data' ),
+	isWpcomPlatformSite: jest.fn( () => true ),
+} ) );
 
 const mockUseSelect = jest.fn();
 const mockUseEntityProp = jest.fn();
 const mockUseEntityId = jest.fn();
-let mockCanEdit = true;
+const mockSaveEditedEntityRecord = jest.fn();
 
 jest.mock( '@wordpress/core-data', () => {
 	const actual = jest.requireActual( '@wordpress/core-data' );
@@ -28,7 +36,7 @@ jest.mock( '@wordpress/editor', () => {
 	return {
 		...actual,
 		PostVisibilityCheck: ( { render: renderProp } ) =>
-			renderProp ? renderProp( { canEdit: mockCanEdit } ) : null,
+			renderProp ? renderProp( { canEdit: true } ) : null,
 	};
 } );
 
@@ -125,36 +133,254 @@ describe( 'Link', () => {
 	} );
 } );
 
-describe( 'NewsletterEmailDocumentSettings', () => {
+describe( 'getAccessDescription', () => {
+	test( 'describes open access for everybody', () => {
+		expect( getAccessDescription( 'everybody' ) ).toBe(
+			'Anyone can read this post. Subscribers receive it by email.'
+		);
+	} );
+
+	test( 'describes the subscriber preview for subscribers', () => {
+		expect( getAccessDescription( 'subscribers' ) ).toBe(
+			'Only subscribers can read this post. Others see a preview and can subscribe. Subscribers receive it by email.'
+		);
+	} );
+
+	test( 'says only paid subscribers are emailed when there is no paywall block', () => {
+		expect( getAccessDescription( 'paid_subscribers' ) ).toBe(
+			'Only paid subscribers can read this post. Others see a preview and can subscribe. Only paid subscribers receive it by email.'
+		);
+	} );
+
+	// With a paywall block the email goes to every subscriber, because free subscribers
+	// still receive the portion above the paywall. The copy has to say so explicitly,
+	// otherwise it reads as though only paid subscribers are emailed.
+	test( 'says all subscribers are emailed when a paywall block is present', () => {
+		expect( getAccessDescription( 'paid_subscribers', true ) ).toBe(
+			'Only paid subscribers can read the content below the paywall. All subscribers receive it by email.'
+		);
+	} );
+
+	test( 'scopes the subscribers description to the paywall when one is present', () => {
+		expect( getAccessDescription( 'subscribers', true ) ).toBe(
+			'Only subscribers can read the content below the paywall. Subscribers receive it by email.'
+		);
+	} );
+
+	test( 'falls back to the open description for an unknown access level', () => {
+		expect( getAccessDescription( undefined ) ).toBe(
+			'Anyone can read this post. Subscribers receive it by email.'
+		);
+	} );
+} );
+
+describe( 'NewsletterAccessRadioButtons', () => {
+	const mockSetPostMeta = jest.fn();
+
 	const createMockSelect =
-		( postEmailSentState, status = 'draft' ) =>
+		( { totalSubscribers = 120, paidSubscribers = 8, tierProducts = [] } = {} ) =>
 		store => {
 			if ( store === editorStore ) {
-				return {
-					getCurrentPostType: () => 'post',
-					getEditedPostAttribute: attr => {
-						if ( attr === 'meta' ) {
-							return {};
-						}
-						return attr === 'status' ? status : undefined;
-					},
-				};
+				return { getCurrentPostType: () => 'post' };
 			}
 			if ( store === membershipProductsStore ) {
 				return {
-					getPostEmailSentState: () => postEmailSentState,
+					getSubscriberCounts: () => ( { totalSubscribers, paidSubscribers } ),
+					getNewsletterTierProducts: () => tierProducts,
 				};
 			}
 			return {};
 		};
 
+	// stripeConnectUrl === null means Stripe is already connected.
+	const CONNECTED = null;
+	const NOT_CONNECTED = 'https://connect.stripe.example/oauth';
+
+	const renderPanel = ( props = {}, selectOptions = {} ) => {
+		mockUseSelect.mockImplementation( selector => selector( createMockSelect( selectOptions ) ) );
+		return render(
+			<NewsletterAccessRadioButtons
+				accessLevel="everybody"
+				stripeConnectUrl={ CONNECTED }
+				hasTierPlans
+				{ ...props }
+			/>
+		);
+	};
+
 	beforeEach( () => {
 		jest.clearAllMocks();
-		mockCanEdit = true;
+		mockUseEntityProp.mockReturnValue( [ {}, mockSetPostMeta ] );
+		jest.spyOn( wpData, 'useSelect' ).mockImplementation( selector => mockUseSelect( selector ) );
+	} );
+
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
+	test( 'labels the radio group with the question it answers', () => {
+		renderPanel();
+		expect(
+			screen.getByRole( 'radiogroup', { name: /who can read this post\?/i } )
+		).toBeInTheDocument();
+	} );
+
+	test( 'shows subscriber reach counts next to each audience', () => {
+		renderPanel( {}, { totalSubscribers: 2450, paidSubscribers: 122 } );
+		expect( screen.getByRole( 'radio', { name: 'Subscribers (2.5K)' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'radio', { name: 'Paid subscribers (122)' } ) ).toBeInTheDocument();
+	} );
+
+	test( 'saves the chosen access level', async () => {
+		renderPanel();
+		await userEvent.click( screen.getByRole( 'radio', { name: /^Subscribers/ } ) );
+		expect( mockSetPostMeta ).toHaveBeenCalledWith(
+			expect.objectContaining( { [ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: 'subscribers' } )
+		);
+	} );
+
+	test( 'describes the currently selected access level', () => {
+		renderPanel( { accessLevel: 'subscribers' } );
+		expect(
+			screen.getByText(
+				'Only subscribers can read this post. Others see a preview and can subscribe. Subscribers receive it by email.'
+			)
+		).toBeInTheDocument();
+	} );
+
+	describe( 'when paid subscribers are not set up', () => {
+		test( 'disables the paid option and links out when Stripe is not connected', () => {
+			renderPanel( { stripeConnectUrl: NOT_CONNECTED, hasTierPlans: true } );
+
+			expect( screen.getByRole( 'radio', { name: /^Paid subscribers/ } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+			expect(
+				screen.getByRole( 'link', { name: /turn on paid subscribers/i } )
+			).toBeInTheDocument();
+		} );
+
+		test( 'disables the paid option when Stripe is connected but no tier exists', () => {
+			renderPanel( { stripeConnectUrl: CONNECTED, hasTierPlans: false } );
+
+			expect( screen.getByRole( 'radio', { name: /^Paid subscribers/ } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+			expect(
+				screen.getByRole( 'link', { name: /turn on paid subscribers/i } )
+			).toBeInTheDocument();
+		} );
+
+		// A native `disabled` attribute would drop the option out of the tab order and
+		// hide it from screen readers, defeating the point of surfacing it at all.
+		test( 'keeps the paid option reachable and described by the setup link', () => {
+			renderPanel( { stripeConnectUrl: NOT_CONNECTED, hasTierPlans: false } );
+
+			const paid = screen.getByRole( 'radio', { name: /^Paid subscribers/ } );
+			expect( paid ).toBeEnabled();
+
+			const link = screen.getByRole( 'link', { name: /turn on paid subscribers/i } );
+			expect( paid ).toHaveAttribute( 'aria-describedby', link.getAttribute( 'id' ) );
+
+			// A natively disabled input cannot take focus; this one must be able to.
+			paid.focus();
+			expect( paid ).toHaveFocus();
+		} );
+
+		test( 'does not save the paid level when the disabled option is clicked', async () => {
+			renderPanel( { stripeConnectUrl: NOT_CONNECTED, hasTierPlans: false } );
+
+			await userEvent.click( screen.getByRole( 'radio', { name: /^Paid subscribers/ } ) );
+			expect( mockSetPostMeta ).not.toHaveBeenCalled();
+		} );
+
+		test( 'still offers the other audiences', () => {
+			renderPanel( { stripeConnectUrl: NOT_CONNECTED, hasTierPlans: false } );
+
+			expect( screen.getByRole( 'radio', { name: 'Everyone' } ) ).toBeEnabled();
+			expect( screen.getByRole( 'radio', { name: /^Subscribers/ } ) ).toBeEnabled();
+		} );
+
+		test( 'sends the setup link to the tier creation screen', () => {
+			renderPanel( { stripeConnectUrl: NOT_CONNECTED, hasTierPlans: false } );
+
+			expect( screen.getByRole( 'link', { name: /turn on paid subscribers/i } ) ).toHaveAttribute(
+				'href',
+				expect.stringContaining( '#add-tier-plan' )
+			);
+		} );
+
+		// A post saved as paid before Stripe was disconnected must not lose its selection.
+		test( 'leaves the paid option enabled when it is already the saved value', () => {
+			renderPanel( { accessLevel: 'paid_subscribers', stripeConnectUrl: NOT_CONNECTED } );
+
+			expect( screen.getByRole( 'radio', { name: /^Paid subscribers/ } ) ).toBeEnabled();
+			expect(
+				screen.queryByRole( 'link', { name: /turn on paid subscribers/i } )
+			).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'when paid subscribers are set up', () => {
+		test( 'offers the paid option without a setup link', () => {
+			renderPanel( { stripeConnectUrl: CONNECTED, hasTierPlans: true } );
+
+			expect( screen.getByRole( 'radio', { name: /^Paid subscribers/ } ) ).toBeEnabled();
+			expect(
+				screen.queryByRole( 'link', { name: /turn on paid subscribers/i } )
+			).not.toBeInTheDocument();
+		} );
+	} );
+
+	test( 'omits Everyone when the post has a paywall block', () => {
+		renderPanel( { postHasPaywallBlock: true, accessLevel: 'subscribers' } );
+
+		expect( screen.queryByRole( 'radio', { name: 'Everyone' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'radio', { name: /^Subscribers/ } ) ).toBeInTheDocument();
+	} );
+
+	// The counts report how many people can read each level. Switching the paid count to
+	// the email reach on a paywalled post would make both options read the same total,
+	// so the two must stay distinct here.
+	test( 'keeps the paid count distinct from the subscriber count on a paywalled post', () => {
+		renderPanel(
+			{ postHasPaywallBlock: true, accessLevel: 'paid_subscribers' },
+			{ totalSubscribers: 21, paidSubscribers: 2 }
+		);
+
+		expect( screen.getByRole( 'radio', { name: 'Subscribers (21)' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'radio', { name: 'Paid subscribers (2)' } ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'NewsletterEmailDocumentSettings', () => {
+	const createMockSelect = postEmailSentState => store => {
+		if ( store === editorStore ) {
+			return {
+				isCurrentPostPublished: () => false,
+				getCurrentPostType: () => 'post',
+				getEditedPostAttribute: attr => ( attr === 'meta' ? {} : undefined ),
+			};
+		}
+		if ( store === membershipProductsStore ) {
+			return {
+				getPostEmailSentState: () => postEmailSentState,
+			};
+		}
+		return {};
+	};
+
+	beforeEach( () => {
+		jest.clearAllMocks();
 		mockUseEntityProp.mockReturnValue( [ {}, jest.fn() ] );
 		mockUseEntityId.mockReturnValue( 1 );
 		jest.spyOn( wpData, 'useSelect' ).mockImplementation( selector => {
 			return mockUseSelect( selector );
+		} );
+		jest.spyOn( wpData, 'useDispatch' ).mockReturnValue( {
+			saveEditedEntityRecord: mockSaveEditedEntityRecord,
 		} );
 	} );
 
@@ -178,68 +404,5 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 
 		render( <NewsletterEmailDocumentSettings /> );
 		expect( screen.getByLabelText( /Send as email to subscribers/i ) ).toBeInTheDocument();
-	} );
-
-	test( 'renders the setting as text, not a dead control, when the user cannot edit', () => {
-		mockCanEdit = false;
-		mockUseSelect.mockImplementation( selector =>
-			selector( createMockSelect( { email_sent_at: null, stats_on_send: null } ) )
-		);
-
-		render( <NewsletterEmailDocumentSettings /> );
-		expect( screen.queryByRole( 'radio', { hidden: true } ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'Post & email' ) ).toBeInTheDocument();
-	} );
-
-	test( 'renders the setting as text once the post is published', () => {
-		mockUseSelect.mockImplementation( selector =>
-			selector( createMockSelect( { email_sent_at: null, stats_on_send: null }, 'publish' ) )
-		);
-
-		render( <NewsletterEmailDocumentSettings /> );
-		expect( screen.queryByRole( 'radio', { hidden: true } ) ).not.toBeInTheDocument();
-	} );
-
-	// A private post still emails subscribers when it goes public.
-	test( 'keeps the toggle editable on a private post', () => {
-		mockUseSelect.mockImplementation( selector =>
-			selector( createMockSelect( { email_sent_at: null, stats_on_send: null }, 'private' ) )
-		);
-
-		render( <NewsletterEmailDocumentSettings /> );
-		expect( screen.getByLabelText( /Send as email to subscribers/i ) ).toBeInTheDocument();
-	} );
-} );
-
-describe( 'useSetAccess', () => {
-	beforeEach( () => {
-		jest.clearAllMocks();
-		mockUseEntityId.mockReturnValue( 1 );
-		jest
-			.spyOn( wpData, 'useSelect' )
-			.mockImplementation( selector =>
-				selector( store => ( store === editorStore ? { getCurrentPostType: () => 'post' } : {} ) )
-			);
-	} );
-
-	afterEach( () => {
-		jest.restoreAllMocks();
-	} );
-
-	// The phantom-dirt fix relies on staged meta keeping every key the record has.
-	test( 'clears the tier without dropping the key or mutating the record', () => {
-		const metas = { _jetpack_newsletter_tier_id: 42, other: 'keep' };
-		const setPostMeta = jest.fn();
-		mockUseEntityProp.mockReturnValue( [ metas, setPostMeta ] );
-
-		const { result } = renderHook( () => useSetAccess() );
-		result.current( 'subscribers' );
-
-		expect( setPostMeta ).toHaveBeenCalledWith( {
-			_jetpack_newsletter_tier_id: 0,
-			_jetpack_newsletter_access: 'subscribers',
-			other: 'keep',
-		} );
-		expect( metas ).toEqual( { _jetpack_newsletter_tier_id: 42, other: 'keep' } );
 	} );
 } );

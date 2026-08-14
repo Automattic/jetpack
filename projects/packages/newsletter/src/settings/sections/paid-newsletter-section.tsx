@@ -6,7 +6,7 @@ import { getSiteType } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Card, Text } from '@wordpress/ui';
+import { Card, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -60,27 +60,27 @@ export function PaidNewsletterSection( {
 				<Card.Title>{ __( 'Paid newsletter', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<p>
-					<Text>
+				<Stack direction="column" gap="xl">
+					<Text variant="body-md" render={ <p /> }>
 						{ __(
 							'Earn money through your Newsletter. Reward your most loyal subscribers with exclusive content or add a paywall to monetize content.',
 							'jetpack-newsletter'
 						) }
 					</Text>
-				</p>
-				<fieldset disabled={ ! isNewsletterEnabled }>
-					<Button
-						__next40pxDefaultSize
-						variant="primary"
-						href={ newsletterScriptData.setupPaymentPlansUrl }
-						target="_blank"
-						rel="noopener noreferrer"
-						disabled={ ! isNewsletterEnabled }
-						onClick={ handlePaidPlansClick }
-					>
-						{ buttonText }
-					</Button>
-				</fieldset>
+					<fieldset disabled={ ! isNewsletterEnabled }>
+						<Button
+							__next40pxDefaultSize
+							variant="primary"
+							href={ newsletterScriptData.setupPaymentPlansUrl }
+							target="_blank"
+							rel="noopener noreferrer"
+							disabled={ ! isNewsletterEnabled }
+							onClick={ handlePaidPlansClick }
+						>
+							{ buttonText }
+						</Button>
+					</fieldset>
+				</Stack>
 			</Card.Content>
 		</Card.Root>
 	);

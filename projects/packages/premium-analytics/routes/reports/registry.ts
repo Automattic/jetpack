@@ -180,15 +180,43 @@ export const REPORTS: Record< string, ReportDefinition > = {
 /**
  * Look up a report definition by its id.
  *
+ * The id comes from the URL, so the lookup is an own-property check: a plain
+ * index would resolve an inherited name such as `constructor` to a function and
+ * hand back something that is not a report definition.
+ *
  * @param id - The `$report` path segment (may be missing on a malformed URL).
  * @return The matching definition, or `undefined` when the id is missing or unknown.
  */
 export function getReportDefinition( id: string | undefined ): ReportDefinition | undefined {
-	const definition = id ? REPORTS[ id ] : undefined;
+	const definition = id && Object.hasOwn( REPORTS, id ) ? REPORTS[ id ] : undefined;
 
 	if ( definition?.isAvailable && ! definition.isAvailable() ) {
 		return undefined;
 	}
 
 	return definition;
+}
+
+/**
+ * Resolve the report origin behind a detail breadcrumb.
+ *
+ * A section is kept only when the referring report defines a section resolver
+ * and the value round-trips through it, so a section belonging to a different
+ * report — or one that report can no longer render — is never linked.
+ *
+ * @param origin - The report origin read from the current search params.
+ * @return The referring report definition and its validated section, when valid.
+ */
+export function resolveReportOrigin( origin: { report: string; section?: string } | undefined ): {
+	definition?: ReportDefinition;
+	section?: string;
+} {
+	const definition = getReportDefinition( origin?.report );
+	const rawSection = origin?.section;
+	const section =
+		rawSection && definition?.resolveSection?.( rawSection ) === rawSection
+			? rawSection
+			: undefined;
+
+	return { definition, section };
 }

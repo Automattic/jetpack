@@ -1,11 +1,19 @@
 import {
 	computePrimaryRange,
+	stepDateRange,
+	PRESET_CUSTOM,
 	type ComparisonPresetId,
+	type IntervalType,
 	type PrimaryPresetId,
+	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { setLocaleData, resetLocaleData } from '@wordpress/i18n';
 import { endOfDay, subDays, startOfDay } from 'date-fns';
 import { useCallback, useRef, useState } from 'react';
+import {
+	getStoryIntervalOptions,
+	resolveStoryInterval,
+} from '../../date-interval-dropdown/stories/story-interval-options';
 import { DateFiltersPanel } from '../date-filters-panel';
 import type { DateRange } from '../date-filters-panel';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -20,8 +28,8 @@ const meta: Meta< typeof DateFiltersPanel > = {
 		docs: {
 			description: {
 				component:
-					'Dashboard date filters: primary date range (surface presets + custom calendar) ' +
-					'and optional comparison range.',
+					'Dashboard date filters: primary date range (surface presets + custom calendar), ' +
+					'an optional comparison range, and the chart interval.',
 			},
 		},
 	},
@@ -143,6 +151,34 @@ function DateFiltersPanelStory( {
 		stagedPrimary.range.to !== committedPrimary.range.to ||
 		stagedPrimary.presetId !== committedPrimary.presetId;
 
+	// Stepping applies on click and takes the range off its preset, the way it
+	// commits through the report params in product.
+	const handleStep = useCallback( ( direction: StepDirection ) => {
+		const stepped = stepDateRange( stagedPrimaryRef.current.range, direction );
+
+		if ( ! stepped?.from || ! stepped.to ) {
+			return;
+		}
+
+		const nextPrimary: PrimaryFilterState = {
+			range: { from: stepped.from, to: stepped.to },
+			presetId: PRESET_CUSTOM,
+		};
+
+		stagedPrimaryRef.current = nextPrimary;
+		setStagedPrimary( nextPrimary );
+		setCommittedPrimary( nextPrimary );
+	}, [] );
+
+	/*
+	 * The interval follows the applied range, so switching preset re-derives the
+	 * menu. A pick the new range still allows survives; one it does not falls
+	 * back to the finest allowed, the same coercion the report params apply.
+	 */
+	const [ pickedInterval, setPickedInterval ] = useState< IntervalType | undefined >( undefined );
+	const intervalOptions = getStoryIntervalOptions( committedPrimary.presetId );
+	const interval = resolveStoryInterval( pickedInterval, intervalOptions );
+
 	return (
 		<div
 			style={ {
@@ -157,8 +193,13 @@ function DateFiltersPanelStory( {
 				appliedPresetId={ committedPrimary.presetId }
 				appliedRange={ committedPrimary.range }
 				comparisonPresetId={ comparisonPresetId }
+				withIntervalControl
+				interval={ interval }
+				intervalOptions={ intervalOptions }
 				onChange={ handlePrimaryChange }
 				onComparisonChange={ handleComparisonChange }
+				onIntervalChange={ setPickedInterval }
+				onStep={ handleStep }
 				onApply={ handlePrimaryApply }
 				onCancel={ handlePrimaryCancel }
 				canApply={ canApplyPrimary }
@@ -308,9 +349,6 @@ const GERMAN: LocaleFixture = {
  * `setLocaleData` writes to the global i18n singleton, hence the cleanup: the
  * locale would otherwise leak into the next story opened. Same reason these are
  * off the autodocs page, which renders every sibling at once.
- *
- * @param fixture - The locale to install.
- * @return Storybook `beforeEach` handler.
  */
 function withLocale( fixture: LocaleFixture ) {
 	return () => {
@@ -339,11 +377,8 @@ const LADDER_WIDTHS = [ 960, 782, 600, 360, 280 ];
  * is visible rather than asserted.
  *
  * Rungs are annotated against the four preset pills alone. That is a floor: the
- * custom trigger, the comparison control, and the arrows and interval button the
- * design adds all come out of the same line.
- *
- * @param props         - Component props.
- * @param props.fixture - The locale to render.
+ * custom trigger, the comparison control, and the interval control share the
+ * same line, as will the period navigation.
  */
 function WidthLadder( { fixture }: { fixture: LocaleFixture } ) {
 	return (

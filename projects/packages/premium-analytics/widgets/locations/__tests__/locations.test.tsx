@@ -56,7 +56,7 @@ describe( 'LocationsWidget', () => {
 	it( 'links to the Locations report', () => {
 		render( <LocationsWidget attributes={ {} } /> );
 
-		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining( '/reports/locations' )
 		);

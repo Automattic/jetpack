@@ -69,10 +69,6 @@ type BucketWindow = {
  * days before they reach `parseISO()`/`each*OfInterval()`, which throw on
  * them). The endpoint's day keys are date-only, so comparing date prefixes
  * keeps the slice timezone-stable.
- *
- * @param from - The window's ISO start.
- * @param to   - The window's ISO end.
- * @return The date-only window.
  */
 function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
 	const fromDay = toDay( from );
@@ -89,10 +85,6 @@ function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
  * Build a range's calendar buckets. Each bucket keeps the calendar label used
  * by the chart while clipping its data bounds to the selected range. Same
  * approach as the Post views widget's bucketing.
- *
- * @param dayWindow - The date-only window to keep.
- * @param period    - The bucket size.
- * @return One bucket per calendar period, oldest first.
  */
 function calendarBucketWindows(
 	dayWindow: DayWindow,
@@ -131,10 +123,6 @@ function calendarBucketWindows(
  * window, so unlike the Post views widget there is no sparse full history to
  * reconstruct — bucketing only sums the returned days and zero-fills whatever
  * the response is missing.
- *
- * @param points  - The video's daily views, oldest first.
- * @param buckets - The bucket bounds to sum.
- * @return One point per bucket, oldest first.
  */
 function bucketDays(
 	points: StatsSingleVideoDataPoint[],
@@ -153,9 +141,7 @@ function bucketDays(
 	// The endpoint's bucket keys are plain site-local calendar dates, so each
 	// point's instant must be that day's site-local midnight. `parseSiteDateTime`
 	// anchors the offset-less key in the site timezone; the chart's `formatDate`
-	// labels render in the same zone, so the calendar day round-trips without a
-	// TZ-induced day shift (a date-only string fed to `localTZDate` would parse
-	// as UTC midnight and read as the previous day on negative-offset sites).
+	// labels render in the same zone, so the calendar day round-trips.
 	return buckets.map( bucket => ( {
 		date: parseSiteDateTime( bucket.date ) ?? parseISO( bucket.date ),
 		value: totals.get( bucket.date ) ?? 0,
@@ -171,11 +157,6 @@ function bucketDays(
  * design has no period-over-period comparison, so comparison report params
  * are ignored — they ride along in the URL untouched so dashboard state
  * survives the round trip, and every widget on this page disregards them.
- *
- * @param videoId      - The scoped video ID (0 disables the request).
- * @param reportParams - The dashboard date range.
- * @param period       - The selected bucket granularity (day/week/month).
- * @return The view series and load/error state.
  */
 export default function useVideoViews(
 	videoId: number,
@@ -186,9 +167,15 @@ export default function useVideoViews(
 		() => toDayWindow( reportParams.from, reportParams.to ),
 		[ reportParams.from, reportParams.to ]
 	);
+	// Request the raw range, not `primaryWindow`: the Video highlights widget
+	// sits on the same page and issues the same `statType=all` request from
+	// `reportParams` directly, and the two only share a cache entry while both
+	// produce an identical query key. `primaryWindow` stays date-only for the
+	// local bucketing below, where the endpoint's date-only day keys are matched
+	// by prefix.
 	const { data, isLoading, isFetching, isError, error, refetch } = useStatsSingleVideo(
 		videoId,
-		{ from: primaryWindow?.from, to: primaryWindow?.to, period: 'day', statType: 'all' },
+		{ from: reportParams.from, to: reportParams.to, period: 'day', statType: 'all' },
 		{ enabled: !! primaryWindow }
 	);
 

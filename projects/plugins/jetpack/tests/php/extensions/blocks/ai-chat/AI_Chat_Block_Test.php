@@ -19,6 +19,7 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/ai-chat/ai-chat.php';
  */
 class AI_Chat_Block_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+	use \Activates_Ai_Module;
 
 	const BLOCK_NAME = 'jetpack/ai-chat';
 
@@ -37,6 +38,9 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 		$this->simulate_connected_owner();
+		// Off-Simple the `ai` module is the AI master switch; activate it so the
+		// jetpack_ai_enabled gate reads on.
+		$this->activate_ai_module_for_test();
 
 		$this->registered_block = WP_Block_Type_Registry::get_instance()->get_registered( self::BLOCK_NAME );
 		if ( $this->registered_block ) {
@@ -55,6 +59,7 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 			WP_Block_Type_Registry::get_instance()->register( $this->registered_block );
 		}
 
+		$this->deactivate_ai_module_for_test();
 		remove_filter( 'jetpack_ai_enabled', '__return_false' );
 		remove_filter( 'jetpack_offline_mode', '__return_false' );
 		delete_option( 'jetpack_ai_enabled' );
@@ -105,7 +110,8 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 	 * The AI master switch option turns the block off.
 	 */
 	public function test_not_registered_when_master_option_off() {
-		update_option( 'jetpack_ai_enabled', 0 );
+		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->deactivate_ai_module_for_test();
 
 		AIChat\register_block();
 

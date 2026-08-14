@@ -1,5 +1,5 @@
-// Off-screen measuring rig for the preset row. It must reproduce the real
-// group's box model closely enough to be measured in its place, while
+// Off-screen measuring rig for the date-controls row. It must reproduce the
+// real row's box model closely enough to be measured in its place, while
 // contributing nothing to the layout it informs.
 .preset-row-probe {
 	position: absolute;
@@ -13,6 +13,17 @@
 	overflow: hidden;
 	width: 0;
 	height: 0;
+
+	// The row the panel lays out: the bordered group, then the comparison control
+	// beside it. The gap has to match the `gap="sm"` on the panel's own Stack, or
+	// the measurement comes up short by exactly that much.
+	&__panel {
+		display: flex;
+		align-items: center;
+		flex-wrap: nowrap;
+		gap: var(--wpds-dimension-gap-sm);
+		width: max-content;
+	}
 
 	&__row {
 		display: flex;

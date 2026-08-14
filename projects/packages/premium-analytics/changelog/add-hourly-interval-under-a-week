@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Date controls: offer an hourly view for multi-day ranges under a week, keeping days as the default.

@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.10.3] - 2026-08-14
+### Fixed
+- Account status: Do not report an account mismatch when the WordPress.com email and the site email differ only in letter case. [#51285]
+
+## [8.10.2] - 2026-08-13
+### Security
+- Connection: Leave another user's broken-token error out of the connection error data, so the reconnect CTA is no longer offered against a token it cannot restore. [#51034]
+
+### Changed
+- Connection: Warn a secondary admin that reconnecting on the connection owner's behalf transfers ownership and disconnects every other user. [#51034]
+
+### Fixed
+- Connection: Stop displaying connection owner errors that refer to a previous owner. [#51034]
+
+## [8.10.1] - 2026-08-12
+### Fixed
+- Report connection errors that happen while signing an outgoing request, record the specific reason the token could not be loaded, and store the request body hash with them. [#51116]
+
+## [8.10.0] - 2026-08-11
+### Added
+- Add a site data endpoint so plugins without the Jetpack plugin can read the WordPress.com site record. [#51057]
+- Connection Health: Surface the blocked-request connection failure (host blocking WordPress.com requests) as a verified connection error with an admin notice, and re-check the connection daily on the heartbeat cron. [#51145]
+
+### Fixed
+- Error Handler: Prevent a fatal error when a request runs during a plugin update and an older version of the Error_Handler class is already loaded. [#51173]
+
+## [8.9.0] - 2026-08-06
+### Changed
+- Error Handler: Standardize the stored connection error structure with explicit error type and direction fields. [#50992]
+
 ## [8.8.2] - 2026-08-03
 ### Changed
 - Update dependencies. [#50674]
@@ -1974,6 +2004,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.10.3]: https://github.com/Automattic/jetpack-connection/compare/v8.10.2...v8.10.3
+[8.10.2]: https://github.com/Automattic/jetpack-connection/compare/v8.10.1...v8.10.2
+[8.10.1]: https://github.com/Automattic/jetpack-connection/compare/v8.10.0...v8.10.1
+[8.10.0]: https://github.com/Automattic/jetpack-connection/compare/v8.9.0...v8.10.0
+[8.9.0]: https://github.com/Automattic/jetpack-connection/compare/v8.8.2...v8.9.0
 [8.8.2]: https://github.com/Automattic/jetpack-connection/compare/v8.8.1...v8.8.2
 [8.8.1]: https://github.com/Automattic/jetpack-connection/compare/v8.8.0...v8.8.1
 [8.8.0]: https://github.com/Automattic/jetpack-connection/compare/v8.7.10...v8.8.0

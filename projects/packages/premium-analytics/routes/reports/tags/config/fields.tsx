@@ -18,8 +18,8 @@ const rowGlyph = ( labelIcon: string ) => ( labelIcon === 'folder' ? category : 
 /**
  * Render the label cell for a Tags report row.
  *
- * @param root0      - Component props.
- * @param root0.item - The Tags report item.
+ * @param props      - Component props.
+ * @param props.item - The Tags report item.
  * @return The label cell.
  */
 function TagLabel( { item }: { item: StatsTagsItem } ) {

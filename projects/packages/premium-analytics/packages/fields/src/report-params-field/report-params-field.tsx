@@ -1,19 +1,19 @@
 /**
  * External dependencies
  */
-import {
-	getDefaultPreset,
-	normalizeReportParams,
-	localTZDate,
-	getSiteTimezone,
-} from '@jetpack-premium-analytics/data';
+import { getDefaultPreset, normalizeReportParams } from '@jetpack-premium-analytics/data';
 import {
 	type ComparisonPresetId,
 	isPrimaryPreset,
+	siteTimeZone,
 	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { deriveComparisonRange, encodeDateToSearchParam } from '@jetpack-premium-analytics/routing';
+import {
+	decodeDateSearchParam,
+	deriveComparisonRange,
+	encodeDateToSearchParam,
+} from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { endOfDay } from 'date-fns';
 import { useCallback, useMemo, useState } from 'react';
@@ -29,9 +29,6 @@ import type { DataFormControlProps } from '@jetpack-premium-analytics/externals'
  * toolkit copy when the toolkit dissolves.
  */
 
-/**
- * Inferred types
- */
 type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;
 
 export type ReportParamsFieldAttributes = {
@@ -52,8 +49,8 @@ export function ReportParamsField( {
 	const reportParams = normalizeReportParams( stagedReportParams, defaultPreset );
 
 	const range = {
-		from: localTZDate( reportParams.from ),
-		to: localTZDate( reportParams.to ),
+		from: decodeDateSearchParam( reportParams.from ),
+		to: decodeDateSearchParam( reportParams.to ),
 	};
 
 	const stageDateRange = useCallback(
@@ -71,10 +68,6 @@ export function ReportParamsField( {
 				delete nextReportParams.preset;
 			}
 
-			/*
-			 * Derive comparison range from primary range and preset,
-			 * when comparison is enabled.
-			 */
 			if ( reportParams.comp === '1' ) {
 				const derived = deriveComparisonRange( nextReportParams );
 				if ( derived ) {
@@ -88,7 +81,6 @@ export function ReportParamsField( {
 		[ stagedReportParams, reportParams.comp ]
 	);
 
-	// Basic check if the date range has been changed.
 	const isDateRangeDirty = useMemo( () => {
 		return (
 			attributes?.reportParams?.from !== stagedReportParams?.from ||
@@ -138,7 +130,7 @@ export function ReportParamsField( {
 				onApply={ commit }
 				canApply={ isDateRangeDirty }
 				onCancel={ clear }
-				timeZone={ getSiteTimezone() }
+				timeZone={ siteTimeZone() }
 			/>
 		</Stack>
 	);

@@ -21,9 +21,6 @@ export type PostTitleLinkProps = {
 	 */
 	id?: number | string;
 
-	/**
-	 * Visible row title.
-	 */
 	label: string;
 
 	/**
@@ -68,13 +65,6 @@ export type PostTitleLinkProps = {
  * no detail page, so the public URL becomes the link itself and takes the
  * marker.
  *
- * @param props            - Component props.
- * @param props.id         - Post or page ID.
- * @param props.label      - Visible row title.
- * @param props.link       - Public URL, used only without a post ID.
- * @param props.search     - Search parameters for the detail route.
- * @param props.classNames - Optional classes for each rendering branch.
- * @param props.title      - Optional native title attribute.
  * @return The linked or plain post title.
  */
 export function PostTitleLink( {

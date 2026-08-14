@@ -37,9 +37,6 @@ type AuthorSeed = {
 
 /**
  * Builds a single normalized top-authors item from a compact seed.
- *
- * @param {AuthorSeed} seed - The author seed.
- * @return A normalized top-authors item.
  */
 function makeAuthor( {
 	id,
@@ -73,9 +70,6 @@ function makeAuthor( {
  * Builds a normalized top-authors report. The Stats query layer summarizes
  * multi-day ranges server-side, so the report carries a single data point of
  * per-author totals — which is what the widget consumes.
- *
- * @param authors - The authors for the period, already ranked by the API.
- * @return A normalized top-authors report.
  */
 function makeReport( authors: AuthorSeed[] ): StatsNormalizedReport< StatsTopAuthorsItem > {
 	return {

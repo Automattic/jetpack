@@ -13,6 +13,7 @@ use WP_REST_Request;
 use WP_REST_Server;
 
 require_once __DIR__ . '/../../src/dashboard-layout.php';
+require_once __DIR__ . '/../../src/dashboard-sections.php';
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 
 /**
@@ -33,6 +34,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$wp_rest_server = null;
 		$this->reset_analytics_capabilities();
 		wp_set_current_user( 0 );
+		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		Constants::clear_constants();
 		parent::tear_down();
 	}
@@ -161,6 +163,45 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
+	 * An unavailable tab does not expose its default layout.
+	 */
+	public function test_default_layout_route_refuses_an_unavailable_subscribers_tab() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_SUBSCRIBERS_SECTION_ID );
+
+		$this->assertSame( 404, $status );
+	}
+
+	/**
+	 * An unavailable tab is refused when `?name=` shadows the URL capture.
+	 */
+	public function test_default_layout_route_refuses_a_name_shadowed_subscribers_tab() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertSame( 404, $status );
+	}
+
+	/**
+	 * An available Subscribers tab exposes its default layout.
+	 */
+	public function test_default_layout_route_serves_an_available_subscribers_tab() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+
+		list( $status, $types ) = $this->request_default_layout( DASHBOARD_SUBSCRIBERS_SECTION_ID );
+
+		$this->assertSame( 200, $status );
+		$this->assertContains( 'jpa/subscribers-chart', $types );
+	}
+
+	/**
 	 * Non-Premium-Analytics dashboards are left untouched.
 	 */
 	public function test_seed_default_dashboard_layout_ignores_other_dashboards() {
@@ -207,6 +248,28 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ), 'type' );
 
 		$this->assertContains( 'jpa/file-downloads', $layout_types );
+	}
+
+	/**
+	 * Shares is Simple-only too, so the Insights default drops it on self-hosted
+	 * Jetpack sites (this test env).
+	 */
+	public function test_insights_default_excludes_shares_on_self_hosted() {
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_INSIGHTS_SECTION_ID ), 'type' );
+
+		$this->assertNotContains( 'jpa/shares', $layout_types, 'Simple-only widget instances must not be part of the default layout on self-hosted sites.' );
+		$this->assertContains( 'jpa/tags', $layout_types, 'Regular widget instances remain in the default layout.' );
+	}
+
+	/**
+	 * WPCOM Simple keeps Shares in the Insights default.
+	 */
+	public function test_insights_default_keeps_shares_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_INSIGHTS_SECTION_ID ), 'type' );
+
+		$this->assertContains( 'jpa/shares', $layout_types );
 	}
 
 	/**
@@ -281,49 +344,55 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout_by_uuid = array_column( $layout, null, 'uuid' );
 		$layout_types   = array_column( $layout, 'type' );
 
-		$this->assertContains( 'jpa/annual-highlights', $layout_types );
-		$this->assertContains( 'jpa/all-time-stats', $layout_types );
-		$this->assertContains( 'jpa/latest-post', $layout_types );
-		$this->assertContains( 'jpa/posting-activity', $layout_types );
+		// uuid => [ type, width, height, order ]; each row fills the four-column grid.
+		$expected = array(
+			'default-annual-highlights-widget-instance'    => array( 'jpa/annual-highlights', 4, 1, 0 ),
+			'default-posting-activity-widget-instance'     => array( 'jpa/posting-activity', 4, 1, 1 ),
+			'default-latest-post-widget-instance'          => array( 'jpa/latest-post', 2, 2, 2 ),
+			'default-popular-post-widget-instance'         => array( 'jpa/popular-post', 2, 2, 3 ),
+			'default-total-views-widget-instance'          => array( 'jpa/total-views', 1, 1, 4 ),
+			'default-total-visitors-widget-instance'       => array( 'jpa/total-visitors', 1, 1, 5 ),
+			'default-popular-days-widget-instance'         => array( 'jpa/popular-days', 1, 1, 6 ),
+			'default-most-popular-day-widget-instance'     => array( 'jpa/most-popular-day', 1, 1, 7 ),
+			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 4, 2, 8 ),
+			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 9 ),
+			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 10 ),
+			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 11 ),
+			'default-tags-widget-instance'                 => array( 'jpa/tags', 1, 2, 12 ),
+		);
+
+		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );
+
+		foreach ( $expected as $uuid => $instance ) {
+			list( $type, $width, $height, $order ) = $instance;
+
+			$this->assertSame( $type, $layout_by_uuid[ $uuid ]['type'], $uuid );
+			$this->assertSame(
+				array(
+					'width'  => $width,
+					'height' => $height,
+					'order'  => $order,
+				),
+				$layout_by_uuid[ $uuid ]['placement'],
+				$uuid
+			);
+		}
+
 		$this->assertNotContains( 'jpa/authors', $layout_types );
 		$this->assertNotContains( 'jpa/videopress', $layout_types );
 		// Emails is not an Insights module — it lives on the Subscribers tab.
 		$this->assertNotContains( 'jpa/stats-emails', $layout_types );
 		// The Comments module ships as two focused widgets, not one toggled widget.
-		$this->assertContains( 'jpa/most-commented-authors', $layout_types );
-		$this->assertContains( 'jpa/most-commented-posts', $layout_types );
 		$this->assertNotContains( 'jpa/comments', $layout_types );
-		$this->assertContains( 'jpa/shares', $layout_types );
-		$this->assertSame(
-			array(
-				'uuid'       => 'default-most-commented-posts-widget-instance',
-				'type'       => 'jpa/most-commented-posts',
-				'attributes' => array(
-					'max' => 10,
-				),
-				'placement'  => array(
-					'width'  => 1,
-					'height' => 2,
-					'order'  => 7,
-				),
-			),
-			$layout_by_uuid['default-most-commented-posts-widget-instance']
+		// Total views and Total visitors carry the totals row instead.
+		$this->assertNotContains( 'jpa/all-time-stats', $layout_types );
+
+		// Highlights falls back to the widget's own default metric list.
+		$this->assertArrayNotHasKey(
+			'attributes',
+			$layout_by_uuid['default-annual-highlights-widget-instance']
 		);
-		$this->assertSame(
-			array(
-				'uuid'       => 'default-shares-widget-instance',
-				'type'       => 'jpa/shares',
-				'attributes' => array(
-					'max' => 10,
-				),
-				'placement'  => array(
-					'width'  => 1,
-					'height' => 2,
-					'order'  => 9,
-				),
-			),
-			$layout_by_uuid['default-shares-widget-instance']
-		);
+
 		$this->assertSame(
 			get_dashboard_default_layout_for( DASHBOARD_INSIGHTS_SECTION_ID ),
 			get_dashboard_default_layout_for( 'analytics/insights' )

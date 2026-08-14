@@ -50,12 +50,6 @@ interface StoreConversionRateBookingsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		StoreConversionRateBookingsStoryControls {}
 
-/**
- * Builds a mock conversion-rate report response.
- *
- * @param isComparison - Whether the response is for the comparison range.
- * @return Mock conversion-rate report response.
- */
 function buildConversionRateMockResponse( isComparison: boolean ) {
 	const activeSessions = isComparison ? 4860 : 5480;
 	const visitors = isComparison ? 3920 : 4410;
@@ -79,9 +73,6 @@ function buildConversionRateMockResponse( isComparison: boolean ) {
 	};
 }
 
-/**
- * Registers the conversion-rate report mock once for the story.
- */
 function registerConversionRateMocks(): void {
 	if ( conversionRateMocksRegistered ) {
 		return;
@@ -144,12 +135,6 @@ function getStoreConversionRateBookingsSource(
 />`;
 }
 
-/**
- * Renders the standalone store conversion rate bookings widget story.
- *
- * @param {StoreConversionRateBookingsStoryControls} props - Story controls.
- * @return Store conversion rate bookings widget story element.
- */
 function renderStoreConversionRateBookings( {
 	withComparison,
 	preset,
@@ -170,12 +155,6 @@ function renderStoreConversionRateBookingsOnPreset( preset: SelectablePresetId )
 	);
 }
 
-/**
- * Renders the store conversion rate bookings widget inside the dashboard story shell.
- *
- * @param {StoreConversionRateBookingsDashboardStoryProps} props - Story controls.
- * @return Store conversion rate bookings dashboard story element.
- */
 function StoreConversionRateBookingsDashboardStory( {
 	withComparison,
 	preset,

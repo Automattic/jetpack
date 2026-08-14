@@ -7,8 +7,7 @@ import { __ } from '@wordpress/i18n';
  */
 import type { DataFormat } from '@jetpack-premium-analytics/widgets-toolkit';
 
-// Persisted in the `metrics` attribute; each id doubles as the WordAds response
-// field the tab reads.
+// Each id doubles as the WordAds response field the tab reads.
 export type WordAdsChartMetricId = 'impressions' | 'cpm' | 'revenue';
 
 export type WordAdsChartMetric = {
@@ -23,7 +22,7 @@ const CURRENCY_FORMAT: DataFormat = {
 	options: { decimals: 2 },
 };
 
-// Single source for the settings checkboxes and the rendered tabs, in tab order.
+// Canonical metric definitions, in tab order.
 export const WORDADS_CHART_METRICS: WordAdsChartMetric[] = [
 	{ id: 'impressions', label: __( 'Ads Served', 'jetpack-premium-analytics-pkg' ) },
 	{
@@ -37,8 +36,3 @@ export const WORDADS_CHART_METRICS: WordAdsChartMetric[] = [
 		dataFormat: CURRENCY_FORMAT,
 	},
 ];
-
-// Default for new widget instances: every metric enabled.
-export const DEFAULT_WORDADS_CHART_METRICS: WordAdsChartMetricId[] = WORDADS_CHART_METRICS.map(
-	metric => metric.id
-);
