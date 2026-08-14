@@ -50,8 +50,7 @@ class Settings {
 	const FEED_LIMIT_DEFAULT = 300;
 
 	/**
-	 * Ceiling for `podcasting_feed_limit`. Sized against measured feed generation
-	 * — roughly 4s for 215 episodes.
+	 * Ceiling for `podcasting_feed_limit`. Sized against measured feed generation.
 	 */
 	const FEED_LIMIT_MAX = 500;
 

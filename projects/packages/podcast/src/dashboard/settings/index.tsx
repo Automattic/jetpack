@@ -33,9 +33,6 @@ const EXPLICIT_OPTIONS: Array< { label: string; value: string } > = [
 	{ label: __( 'Yes', 'jetpack-podcast' ), value: 'yes' },
 ];
 
-// Read rather than mirrored: the ceiling is filterable server-side, so a
-// hardcoded twin here would clamp against the wrong number on a site that
-// moved it. Absent, clamping is left to the server.
 const feedLimitMax = getScriptData()?.podcast?.feed_limit_max;
 
 // Flatten the Apple Podcasts topic tree into one searchable token list for
@@ -86,11 +83,6 @@ type StringFieldKey =
 // state per keystroke, then commits on blur if the value differs from what's
 // saved. Re-syncs from `stored` when the saved value changes externally.
 // Spread directly onto `<TextControl>` etc. for `value` / `onChange` / `onBlur`.
-//
-// `normalize` snaps the input to what will actually be stored. Fields whose
-// server-side sanitizer can rewrite input need it: a value rewritten back to
-// the current `stored` leaves `stored` unchanged, so the re-sync effect never
-// fires and the input would sit showing the number that was rejected.
 const useFieldEditor = (
 	stored: string,
 	onCommit: ( value: string ) => void,
@@ -225,9 +217,6 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		commitField( 'podcasting_email' )
 	);
 
-	// Numeric, so it can't ride `commitField`. Cleared or junk input keeps the
-	// saved limit instead of committing 0, which the server would swap for a
-	// default well above what the site was serving.
 	const normalizeFeedLimit = useCallback(
 		( value: string ) => {
 			const parsed = Number.parseInt( value, 10 );

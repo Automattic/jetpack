@@ -592,7 +592,6 @@ class Customize_Feed_Test extends BaseTestCase {
 		);
 		$stubs    = array_merge( $defaults, $overrides );
 
-		// A mock rather than a stub so callers can assert on `set()`.
 		$query = $this->createMock( \WP_Query::class );
 		foreach ( $stubs as $method => $value ) {
 			$query->method( $method )->willReturn( $value );
