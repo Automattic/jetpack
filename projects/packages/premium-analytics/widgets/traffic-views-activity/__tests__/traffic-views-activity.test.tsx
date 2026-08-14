@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useStatsVisits } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -45,22 +45,12 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 					data-show-values={ String( showValues ) }
 					data-width={ String( width ) }
 				/>
-				{ /* Probed by grid position: the widget maps a blank cell back to its
-				    day to tell a day with no views from unrequested filler. */ }
-				<div data-testid="tooltip-oldest">
+				<div data-testid="tooltip-empty">
 					{ renderTooltip?.( {
 						value: null,
-						cellLabel: data[ 0 ]?.data[ 0 ]?.label,
+						cellLabel: 'Mon, Jun 2, 2025',
 						row: 0,
 						column: 0,
-					} ) }
-				</div>
-				<div data-testid="tooltip-newest">
-					{ renderTooltip?.( {
-						value: null,
-						cellLabel: data[ data.length - 1 ]?.data[ 0 ]?.label,
-						row: 0,
-						column: data.length - 1,
 					} ) }
 				</div>
 				<div data-testid="tooltip-singular">
@@ -160,13 +150,13 @@ describe( 'TrafficViewsActivityWidget', () => {
 	} );
 
 	describe( 'request parameters', () => {
-		it( 'passes the window as from/to, the fields stats/visits actually reads', () => {
+		it( 'passes the shared history window as from/to, the fields stats/visits reads', () => {
 			renderWidget();
 
 			const params = mockUseStatsVisits.mock.calls[ 0 ][ 0 ] as Record< string, unknown >;
 
 			expect( params ).toMatchObject( {
-				from: '2025-01-01',
+				from: '2023-12-31',
 				to: '2025-12-31',
 				period: 'day',
 				stat_fields: 'views',
@@ -204,6 +194,23 @@ describe( 'TrafficViewsActivityWidget', () => {
 			} );
 		} );
 
+		it( 'updates the request window when the viewport is resized', () => {
+			renderWidget( {
+				...REPORT_PARAMS,
+				from: '2018-01-01',
+				to: '2026-08-10',
+			} as unknown as ReportParams );
+
+			setViewportWidth( 2560 );
+			fireEvent.resize( window );
+
+			const lastCall = mockUseStatsVisits.mock.calls[ mockUseStatsVisits.mock.calls.length - 1 ];
+			expect( lastCall[ 0 ] ).toMatchObject( {
+				from: '2022-08-08',
+				to: '2026-08-10',
+			} );
+		} );
+
 		it( 'stops widening the window past the maximum', () => {
 			setViewportWidth( 100000 );
 			renderWidget( {
@@ -218,7 +225,7 @@ describe( 'TrafficViewsActivityWidget', () => {
 			} );
 		} );
 
-		it( 'keeps a selected leap year whole', () => {
+		it( 'floors a shorter selection to the shared history window', () => {
 			renderWidget( {
 				...REPORT_PARAMS,
 				from: '2024-01-01',
@@ -226,7 +233,7 @@ describe( 'TrafficViewsActivityWidget', () => {
 			} as unknown as ReportParams );
 
 			expect( mockUseStatsVisits.mock.calls[ 0 ][ 0 ] ).toMatchObject( {
-				from: '2024-01-01',
+				from: '2022-12-31',
 				to: '2024-12-31',
 			} );
 		} );
@@ -280,7 +287,7 @@ describe( 'TrafficViewsActivityWidget', () => {
 		it( 'spans the whole window even though the payload is sparse', () => {
 			renderWidget();
 
-			expect( screen.getByTestId( 'heatmap' ) ).toHaveAttribute( 'data-columns', '53' );
+			expect( screen.getByTestId( 'heatmap' ) ).toHaveAttribute( 'data-columns', '106' );
 		} );
 	} );
 
@@ -293,7 +300,7 @@ describe( 'TrafficViewsActivityWidget', () => {
 			expect( screen.queryByTestId( 'heatmap' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'names the days requested when the cap clipped the period', () => {
+		it( 'names the days requested when the period outran the window', () => {
 			mockUseStatsVisits.mockReturnValue( visitsResult( report( [] ) ) );
 			renderWidget( {
 				...REPORT_PARAMS,
@@ -308,9 +315,9 @@ describe( 'TrafficViewsActivityWidget', () => {
 			).toBeInTheDocument();
 		} );
 
-		it( 'speaks for the whole period when the cap did not clip it', () => {
+		it( 'speaks for the whole period when the window covered it', () => {
 			mockUseStatsVisits.mockReturnValue( visitsResult( report( [] ) ) );
-			// 1024px buys two years, so this period ends exactly on the cap.
+			// 1024px buys two years, so this period ends exactly on the window start.
 			renderWidget( {
 				...REPORT_PARAMS,
 				from: '2024-08-09',
@@ -432,9 +439,9 @@ describe( 'TrafficViewsActivityWidget', () => {
 			expect( screen.getByTestId( 'heatmap' ) ).toHaveAttribute( 'data-width', '1000' );
 		} );
 
-		it( 'pads a period shorter than the tile instead of leaving it part-filled', () => {
-			// One month selected: five week columns of data in a tile with room for
-			// many more.
+		it( 'fills a short selection from the shared fetched history', () => {
+			// The picker selects one month, but both calendar widgets request the same
+			// viewport-sized history floor.
 			const restoreTileSize = stubTileSize( 1000, 110 );
 
 			try {
@@ -449,15 +456,14 @@ describe( 'TrafficViewsActivityWidget', () => {
 
 			const heatmap = screen.getByTestId( 'heatmap' );
 
-			// The columns the width can hold, not the five the period holds.
+			// The displayed columns stay inside that fetched history window.
 			expect( Number( heatmap.getAttribute( 'data-columns' ) ) ).toBeGreaterThan( 5 );
-			// The padding carries no values — only June's day is populated.
 			expect( chartDayValues() ).toBe( 'Mon, Jun 2, 2025:120' );
 		} );
 
 		it( 'keeps the empty state scoped to the period, not the visible weeks', () => {
-			// A tall tile shows ~16 weeks, so June's views fall outside the padding
-			// window — the period still has views, so this is not the empty state.
+			// A tall tile shows ~16 recent weeks, so June's views fall outside the
+			// visible window — the response still has views, so this is not empty.
 			const restoreTileSize = stubTileSize( 1000, 300 );
 
 			try {
@@ -474,55 +480,18 @@ describe( 'TrafficViewsActivityWidget', () => {
 			expect( screen.queryByText( 'No views in this period.' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'renders singular and formatted plural tooltips', () => {
+		it( 'renders empty, singular, and formatted plural tooltips', () => {
 			renderWidget();
 
+			expect( screen.getByTestId( 'tooltip-empty' ) ).toHaveTextContent(
+				'No viewsMon, Jun 2, 2025'
+			);
 			expect( screen.getByTestId( 'tooltip-singular' ) ).toHaveTextContent(
 				'1 viewTue, Jun 3, 2025'
 			);
 			expect( screen.getByTestId( 'tooltip-plural' ) ).toHaveTextContent(
 				'1,234 viewsWed, Jun 4, 2025'
 			);
-		} );
-
-		it( 'tells a day with no views from a padding day the request never covered', () => {
-			// One month selected in a tile with room for many more weeks, so the oldest
-			// columns are padding.
-			const restoreTileSize = stubTileSize( 1000, 110 );
-
-			try {
-				renderWidget( {
-					...REPORT_PARAMS,
-					from: '2025-06-01',
-					to: '2025-06-30',
-				} as unknown as ReportParams );
-			} finally {
-				restoreTileSize();
-			}
-
-			// Padding, months before the selected June: masked, not measured.
-			expect( screen.getByTestId( 'tooltip-oldest' ) ).toHaveTextContent( 'No data' );
-			// Inside the request, so a blank cell there really is a day without views.
-			expect( screen.getByTestId( 'tooltip-newest' ) ).toHaveTextContent( 'No views' );
-		} );
-
-		it( 'counts the columns from the grid the chart is given, not the one built', () => {
-			// Two days selected in a wide tile: everything but the newest column is
-			// filler, and the request is too short to survive an off-by-a-column read
-			// of the grid — Monday 2025-06-30 is the only requested day in row 0.
-			const restoreTileSize = stubTileSize( 1000, 110 );
-
-			try {
-				renderWidget( {
-					...REPORT_PARAMS,
-					from: '2025-06-29',
-					to: '2025-06-30',
-				} as unknown as ReportParams );
-			} finally {
-				restoreTileSize();
-			}
-
-			expect( screen.getByTestId( 'tooltip-newest' ) ).toHaveTextContent( 'No views' );
 		} );
 	} );
 } );

@@ -2038,9 +2038,13 @@ class Manager {
 			return false;
 		}
 
+		// The protected owner anchor is a local cache of a record WordPress.com owns. Dropping it
+		// here keeps a disconnected site from carrying a lock that names a user who no longer holds
+		// a token; the anchor is re-established from WordPress.com when the owner reconnects.
 		\Jetpack_Options::delete_option(
 			array(
 				'master_user',
+				'protected_owner',
 				'time_diff',
 				'fallback_no_verify_ssl_certs',
 			)

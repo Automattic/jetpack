@@ -6,8 +6,3 @@
 	min-block-size: 0;
 	overflow: hidden;
 }
-
-.chart {
-	flex: 1 1 0;
-	min-block-size: 0;
-}

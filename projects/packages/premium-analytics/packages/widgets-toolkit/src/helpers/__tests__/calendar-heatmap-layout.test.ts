@@ -4,7 +4,7 @@
 import {
 	compactCalendarHeatmapCapacity,
 	computeCalendarHeatmapLayout,
-	fitCompactCalendarHeatmapColumns,
+	fitWeekColumns,
 } from '../calendar-heatmap-layout';
 import type { CalendarHeatmapLayoutInput } from '../calendar-heatmap-layout';
 
@@ -251,12 +251,6 @@ describe( 'compactCalendarHeatmapCapacity', () => {
 		expect( compactCalendarHeatmapCapacity( 1024 ) ).toBe( 76 );
 	} );
 
-	it( 'is the ceiling fitCompactCalendarHeatmapColumns trims against', () => {
-		expect( fitCompactCalendarHeatmapColumns( { availWidth: 1024, dataColumns: 500 } ) ).toBe(
-			compactCalendarHeatmapCapacity( 1024 )
-		);
-	} );
-
 	it.each( [
 		[ 'a width narrower than the row labels', 20 ],
 		[ 'zero width', 0 ],
@@ -266,44 +260,59 @@ describe( 'compactCalendarHeatmapCapacity', () => {
 	} );
 } );
 
-describe( 'fitCompactCalendarHeatmapColumns', () => {
-	const base = {
-		dataColumns: 52,
-	};
+describe( 'fitWeekColumns', () => {
+	// The post traffic activity heatmap's design cells.
+	const DESIGN_CELLS = { cellWidth: 64, cellGap: 4 };
 
-	it( 'fits as many fixed cells as the width allows, never overflowing', () => {
-		const columns = fitCompactCalendarHeatmapColumns( { ...base, availWidth: 200 } );
-
-		// floor( (200 - 32) / (11 + 2) ) = floor( 12.9 ) = 12.
-		expect( columns ).toBe( 12 );
-		// The trimmed row of cells stays within the available width.
-		expect( 32 + columns * 11 + columns * 2 ).toBeLessThanOrEqual( 200 );
+	it( 'counts the whole columns the width can draw', () => {
+		// floor( (1000 - 32) / (64 + 4) ) = floor( 14.23 ) = 14.
+		expect( fitWeekColumns( { availWidth: 1000, ...DESIGN_CELLS } ) ).toBe( 14 );
 	} );
 
-	it( 'never returns more columns than weeks in range', () => {
-		expect(
-			fitCompactCalendarHeatmapColumns( { ...base, availWidth: 2000, dataColumns: 20 } )
-		).toBe( 20 );
+	it( 'never returns fewer than the minimum for a usable width', () => {
+		expect( fitWeekColumns( { availWidth: 200, ...DESIGN_CELLS, minColumns: 4 } ) ).toBe( 4 );
 	} );
 
-	it( 'keeps the column minimum on a narrow tile', () => {
-		expect( fitCompactCalendarHeatmapColumns( { ...base, availWidth: 60 } ) ).toBe( 6 );
+	it( 'holds the minimum when the width is unusable, so a page still renders', () => {
+		expect( fitWeekColumns( { availWidth: 0, ...DESIGN_CELLS, minColumns: 4 } ) ).toBe( 4 );
 	} );
 
-	it( 'shows all available when the range has fewer than the minimum', () => {
-		expect( fitCompactCalendarHeatmapColumns( { ...base, availWidth: 60, dataColumns: 2 } ) ).toBe(
-			2
-		);
+	it( 'returns 0 with no minimum to fall back on', () => {
+		expect( fitWeekColumns( { availWidth: Number.NaN, ...DESIGN_CELLS } ) ).toBe( 0 );
 	} );
 
+	// Every metric divides or subtracts, so an unguarded one leaves the caller with a
+	// NaN or an absurd count to size a data request with — never a visible failure.
 	it.each( [
-		[ 'zero width', { availWidth: 0 } ],
-		[ 'zero data columns', { availWidth: 500, dataColumns: 0 } ],
-		[ 'NaN width', { availWidth: Number.NaN } ],
-	] )( 'returns 0 for %s', ( _label, override ) => {
-		expect( fitCompactCalendarHeatmapColumns( { ...base, availWidth: 500, ...override } ) ).toBe(
-			0
+		[ 'a zero cell width', { cellWidth: 0 } ],
+		[ 'a NaN cell width', { cellWidth: Number.NaN } ],
+		[ 'a NaN cell gap', { cellGap: Number.NaN } ],
+		[ 'a cell gap cancelling the cell', { cellGap: -64 } ],
+	] )( 'holds the minimum rather than compute from %s', ( _label, override ) => {
+		expect(
+			fitWeekColumns( { availWidth: 1000, ...DESIGN_CELLS, minColumns: 4, ...override } )
+		).toBe( 4 );
+	} );
+
+	it( 'accepts a heatmap drawn with no gap', () => {
+		// 0 is a real gap, so it cannot share the width's positive test.
+		// floor( (1000 - 32) / 64 ) = floor( 15.13 ) = 15.
+		expect( fitWeekColumns( { availWidth: 1000, cellWidth: 64, cellGap: 0 } ) ).toBe( 15 );
+	} );
+
+	// `minColumns` leaves through both branches, so an unnormalized one reaches the
+	// caller as the page size it requests days with.
+	it.each( [
+		[ 'a usable width', 200, 2 ],
+		[ 'an unusable width', 0, 0 ],
+	] )( 'ignores a NaN minimum on %s', ( _label, availWidth, expected ) => {
+		expect( fitWeekColumns( { availWidth, ...DESIGN_CELLS, minColumns: Number.NaN } ) ).toBe(
+			expected
 		);
+	} );
+
+	it( 'floors a fractional minimum rather than return a partial column', () => {
+		expect( fitWeekColumns( { availWidth: 200, ...DESIGN_CELLS, minColumns: 4.5 } ) ).toBe( 4 );
 	} );
 } );
 

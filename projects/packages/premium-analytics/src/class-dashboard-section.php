@@ -104,6 +104,16 @@ final class Dashboard_Section {
 	public $date_filter = self::DATE_FILTER_RANGE;
 
 	/**
+	 * Which optional controls the section's date filter offers.
+	 *
+	 * @since $$next-version$$
+	 * @var array
+	 */
+	public $date_filter_options = array(
+		'with_date_comparison' => true,
+	);
+
+	/**
 	 * Availability flag or callback.
 	 *
 	 * @var bool|callable
@@ -178,14 +188,15 @@ final class Dashboard_Section {
 	 */
 	public function to_array() {
 		return array(
-			'id'             => $this->id,
-			'slug'           => $this->slug,
-			'label'          => $this->label,
-			'title'          => $this->title,
-			'description'    => $this->description,
-			'order'          => (int) $this->order,
-			'date_filter'    => $this->date_filter,
-			'default_layout' => $this->get_default_layout(),
+			'id'                  => $this->id,
+			'slug'                => $this->slug,
+			'label'               => $this->label,
+			'title'               => $this->title,
+			'description'         => $this->description,
+			'order'               => (int) $this->order,
+			'date_filter'         => $this->date_filter,
+			'date_filter_options' => $this->date_filter_options,
+			'default_layout'      => $this->get_default_layout(),
 		);
 	}
 
@@ -224,6 +235,16 @@ final class Dashboard_Section {
 		// dashboard, where the frontend has no filter to render for it.
 		if ( isset( $args['date_filter'] ) && in_array( $args['date_filter'], self::DATE_FILTERS, true ) ) {
 			$this->date_filter = (string) $args['date_filter'];
+		}
+
+		// Merged over the defaults so a partial array keeps the rest, and narrowed
+		// to the known options, which is all the dashboard renders.
+		if ( isset( $args['date_filter_options'] ) && is_array( $args['date_filter_options'] ) ) {
+			$options = array_merge( $this->date_filter_options, $args['date_filter_options'] );
+
+			$this->date_filter_options = array(
+				'with_date_comparison' => (bool) $options['with_date_comparison'],
+			);
 		}
 
 		if ( array_key_exists( 'is_available', $args ) ) {

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed.

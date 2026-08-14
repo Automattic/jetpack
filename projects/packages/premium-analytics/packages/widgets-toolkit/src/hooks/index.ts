@@ -4,4 +4,5 @@ export { useDelayedLoading } from './use-delayed-loading';
 export { useElementSize, type ElementSize } from './use-element-size';
 export { useSegmentStyles } from '../widgets/common';
 export { useSeriesStyles } from './use-series-styles';
+export { useViewportWidth } from './use-viewport-width';
 export { useWidgetDrillDown } from './use-widget-drill-down';

@@ -4,7 +4,7 @@
 import { type IntervalType } from '@jetpack-premium-analytics/datetime';
 import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { check, time } from '@wordpress/icons';
+import { chartBar, check } from '@wordpress/icons';
 
 import './date-interval-dropdown.scss';
 
@@ -54,6 +54,9 @@ function getIntervalLabel( interval: IntervalType ): string {
  * The bucket size every chart on the page draws, as a glyph opening a menu of
  * the buckets the active range allows.
  *
+ * The glyph is a chart rather than a clock: the control buckets what the charts
+ * draw, it does not narrow the period the rest of the surface reports on.
+ *
  * A range with one allowed bucket still opens a menu listing it, checked: the
  * trigger carries no text, so the menu is the only place the choice can be
  * inspected. The section header's subtitle names the active bucket.
@@ -67,7 +70,7 @@ export function DateIntervalDropdown( {
 	return (
 		<DropdownMenu
 			className="date-interval-dropdown"
-			icon={ time }
+			icon={ chartBar }
 			label={ label ?? __( 'Chart interval', 'jetpack-premium-analytics-pkg' ) }
 			popoverProps={ { placement: 'bottom-end' } }
 			toggleProps={ { className: 'date-interval-dropdown__toggle' } }

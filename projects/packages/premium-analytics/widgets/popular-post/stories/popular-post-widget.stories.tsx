@@ -124,9 +124,7 @@ export const ErrorRetryable: Story = {
  * Resolved with no rows: the widget shows its empty state.
  */
 export const Empty: Story = {
-	// A calendar year, not a rolling window: `last-365-days` and `last-12-months`
-	// resolve to the same dates most years, which would share ErrorRetryable's
-	// query key and serve this story's cached empty result there instead.
+	// Avoid presenting the same date range as ErrorRetryable in most years.
 	render: () => renderPopularPostOnPreset( 'last-year' ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],

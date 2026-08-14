@@ -429,27 +429,43 @@ class Status_Test extends TestCase {
 	 */
 	public static function get_is_local_site_known_tld() {
 		return array(
-			'vvv'            => array(
+			'vvv'                       => array(
 				'http://jetpack.test',
 				true,
 			),
-			'docksal'        => array(
+			'docksal'                   => array(
 				'http://jetpack.docksal',
 				true,
 			),
-			'serverpress'    => array(
+			'serverpress'               => array(
 				'http://jetpack.dev.cc',
 				true,
 			),
-			'lando'          => array(
+			'lando'                     => array(
 				'http://jetpack.lndo.site',
 				true,
 			),
-			'test_subdomain' => array(
+			'playground'                => array(
+				'https://playground.wordpress.net/scope:0.8362470763364798',
+				true,
+			),
+			'playground_root'           => array(
+				'https://playground.wordpress.net',
+				true,
+			),
+			'playground_lookalike_host' => array(
+				'https://notplayground.wordpress.net',
+				false,
+			),
+			'playground_in_domain'      => array(
+				'https://playground.wordpress.net.example.com',
+				false,
+			),
+			'test_subdomain'            => array(
 				'https://test.jetpack.com',
 				false,
 			),
-			'test_in_domain' => array(
+			'test_in_domain'            => array(
 				'https://jetpack.test.jetpack.com',
 				false,
 			),

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import analytics from 'lib/analytics';
 import AiFeatures from '../index';
@@ -33,6 +33,78 @@ describe( 'AiFeatures rendering', () => {
 		expect( toggle ).toBeChecked();
 		expect( toggle ).toBeEnabled();
 		expect( screen.getByText( 'Try it out in the editor' ) ).toBeInTheDocument();
+	} );
+
+	test( 'renders one Agent capabilities card with title and subtitle', () => {
+		renderFeatures();
+
+		expect(
+			screen.getByRole( 'heading', { level: 2, name: 'Agent capabilities' } )
+		).toBeInTheDocument();
+		expect(
+			screen.getByText( 'Choose what your WordPress Agent can help with across your site.' )
+		).toBeInTheDocument();
+	} );
+
+	// One divider per visible section — the first doubles as the header rule
+	// per the Figma — and the group headers are real h3s, one level below the
+	// card's h2 (the page title "AI" is the h1 above both).
+	test.each( [
+		[ 'one section', { writing_assistant: { enabled: true } }, [ 'Content' ] ],
+		[ 'two sections', null, [ 'Content', 'Search' ] ],
+		[
+			'three sections',
+			{
+				writing_assistant: { enabled: true },
+				image_editor: { enabled: true },
+				ai_search: { enabled: false, requires_upgrade: true },
+			},
+			[ 'Content', 'Media', 'Search' ],
+		],
+	] )( '%s: one divider per section, h3 group headers in order', ( _label, features, titles ) => {
+		renderFeatures( features ? { features } : {} );
+
+		expect( screen.getAllByRole( 'separator' ) ).toHaveLength( titles.length );
+		const headings = screen.getAllByRole( 'heading', { level: 3 } );
+		expect( headings.map( heading => heading.textContent ) ).toEqual( titles );
+	} );
+
+	test( 'no reported features: no empty card shell', () => {
+		// Everything else healthy — the empty payload alone must suppress the card.
+		renderFeatures( { features: {} } );
+
+		expect(
+			screen.queryByRole( 'heading', { name: 'Agent capabilities' } )
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByText( 'Choose what your WordPress Agent can help with across your site.' )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'the page notices survive the card disappearing', () => {
+		renderFeatures( { master_enabled: false, features: {} } );
+
+		// The notices live outside the card and must not go down with it.
+		expect( screen.getByText( 'Jetpack AI is turned off for this site.' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'heading', { name: 'Agent capabilities' } )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'the upgrade badge sits inside the Search group', () => {
+		renderFeatures();
+
+		// Each group is a region named by its h3, so the badge's placement is
+		// part of the accessibility tree, not just visual layout.
+		const searchGroup = screen.getByRole( 'region', { name: 'Search' } );
+		expect(
+			within( searchGroup ).getByRole( 'button', { name: 'Requires upgrade' } )
+		).toBeInTheDocument();
+		expect(
+			within( screen.getByRole( 'region', { name: 'Content' } ) ).queryByRole( 'button', {
+				name: 'Requires upgrade',
+			} )
+		).not.toBeInTheDocument();
 	} );
 
 	test( 'requires_upgrade: badge shown, toggle disabled but visible, Learn more kept', () => {
