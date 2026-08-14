@@ -42,8 +42,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 	const wrapperRef = useRef< HTMLDivElement >( null );
 	const [ scopeNode, setScopeNode ] = useState< HTMLElement | null >( null );
 
-	useLayoutEffect( () => {
-		setScopeNode( wrapperRef.current );
+	const setWrapperNode = useCallback( ( node: HTMLDivElement | null ) => {
+		wrapperRef.current = node;
+		setScopeNode( node );
 	}, [] );
 
 	const providerTheme: CompleteChartTheme = useMemo( () => {
@@ -299,7 +300,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 
 	return (
 		<GlobalChartsContext.Provider value={ value }>
-			<div ref={ wrapperRef } className={ chartScopeClass } style={ { display: 'contents' } }>
+			<div ref={ setWrapperNode } className={ chartScopeClass } style={ { display: 'contents' } }>
 				<ChartScopeContext.Provider value={ scopeNode }>{ children }</ChartScopeContext.Provider>
 			</div>
 		</GlobalChartsContext.Provider>

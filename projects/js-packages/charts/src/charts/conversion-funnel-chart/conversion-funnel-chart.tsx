@@ -1,16 +1,7 @@
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import {
-	type FC,
-	useRef,
-	useMemo,
-	useEffect,
-	useLayoutEffect,
-	useState,
-	useCallback,
-	useContext,
-} from 'react';
+import { type FC, useRef, useMemo, useEffect, useState, useCallback, useContext } from 'react';
 import { usePrefersReducedMotion } from '../../hooks';
 import {
 	GlobalChartsProvider,
@@ -66,12 +57,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	const { getElementStyles, isColorPaletteResolved } = useGlobalChartsContext();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const selectedBarRef = useRef< HTMLDivElement | null >( null );
-	const scopeRef = useRef< HTMLDivElement >( null );
 	const [ scopeNode, setScopeNode ] = useState< HTMLElement | null >( null );
-
-	useLayoutEffect( () => {
-		setScopeNode( scopeRef.current );
-	}, [] );
 
 	// Use @visx/tooltip hooks for tooltip positioning
 	const { tooltipData, tooltipLeft, tooltipTop, tooltipOpen, showTooltip, hideTooltip } =
@@ -320,6 +306,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 				align="center"
 				justify="center"
 				data-testid="conversion-funnel-chart"
+				ref={ setScopeNode }
 				className={ clsx(
 					chartScopeClass,
 					styles[ 'conversion-funnel-chart' ],
@@ -348,7 +335,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 					// Set containerRef for @visx coordinate system
 					portalContainerRef( node );
 					chartRef.current = node;
-					scopeRef.current = node;
+					setScopeNode( node );
 				} }
 				className={ clsx(
 					chartScopeClass,
