@@ -689,7 +689,8 @@ abstract class Sharing_Source {
 	 * class, since that class is all the handler has to look the features back up
 	 * with. Every caller passes $this->shortname, which works because get_link()
 	 * builds the class from get_class() and the built-in services register under
-	 * the slug they declare as their shortname.
+	 * the slug they declare as their shortname. Share_Custom is the exception: its
+	 * class and shortname do not round-trip, but it does not register a popup.
 	 *
 	 * @param string $name   Sharing service name.
 	 * @param array  $params Array of sharing options.

@@ -4,7 +4,7 @@
  * Services that open their share link in a popup register their window features in
  * `window.WPCOM_sharing_popups`; a single delegated listener opens the popup. sharing.js
  * is a side-effect-only IIFE, so it is required once here and the listener it binds to
- * `document` is exercised by dispatching real click events.
+ * `document.body` is exercised by dispatching real click events.
  */
 
 require( '../sharing' );

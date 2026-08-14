@@ -50,12 +50,6 @@
 		return null;
 	}
 
-	// Helper function to look up a key without matching inherited members such as
-	// `constructor` or `toString`.
-	function hasOwn( obj, key ) {
-		return Object.prototype.hasOwnProperty.call( obj, key );
-	}
-
 	// Helper function to iterate over a NodeList
 	// (since IE 11 doesn't have NodeList.prototype.forEach)
 	function forEachNode( list, fn ) {
@@ -466,7 +460,7 @@
 	// claim the popup. They are stable per service per page load, so repeat clicks
 	// on a service reuse its window.
 	function getSharePopupName( service ) {
-		if ( ! hasOwn( sharePopupNames, service ) ) {
+		if ( typeof sharePopupNames[ service ] !== 'string' ) {
 			sharePopupNames[ service ] =
 				'wpcom' + service + '-' + Math.random().toString( 36 ).slice( 2 );
 		}
@@ -502,7 +496,7 @@
 			}
 
 			var service = classes[ i ].slice( prefix.length );
-			if ( hasOwn( popups, service ) ) {
+			if ( typeof popups[ service ] === 'string' ) {
 				return service;
 			}
 		}
@@ -546,7 +540,7 @@
 	// enqueued twice under different handles, each copy gets its own closure, and two
 	// listeners would open two popups per click. Compare against `true` so a page
 	// element named after the flag cannot clobber it and leave every button dead.
-	if ( document.body && window.WPCOM_sharing_popups_bound !== true ) {
+	if ( window.WPCOM_sharing_popups_bound !== true ) {
 		window.WPCOM_sharing_popups_bound = true;
 		document.body.addEventListener( 'click', openSharePopup );
 	}
