@@ -19,7 +19,8 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/phpunit-select-config": "@dev"
+		"automattic/phpunit-select-config": "@dev",
+		"nikic/php-parser": "^5.7.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -31,7 +32,7 @@
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
 		"test-php": "@composer phpunit",
-		"test-php-coverage": "php -dpcov.directory=. -dauto_prepend_file=tests/php/coverage-bootstrap.php ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 	},
 	"repositories": [
 		{
