@@ -8,16 +8,22 @@ import { useUpload } from '../../hooks/use-upload';
 import './style.scss';
 import type { UploadItem } from '../../hooks/use-upload';
 
+// Both props FILTER rows rather than hiding the pill: a screen that already
+// reports one upload has no claim over the others. The old all-or-nothing rule
+// (stand down only while EVERY row carries the context) inverted on the first
+// foreign row and re-announced the edit session's own upload on top of it.
 type Props = {
 	/**
-	 * A queue-item context tag whose uploads already have a progress surface
-	 * on the current screen. Suppression rule as shipped: the pill renders
-	 * nothing while EVERY queue item carries this context — the /upload
-	 * stage passes its 'upload-onboarding' tag because the edit step's
-	 * player slot is that session's progress surface. One foreign item in
-	 * the queue and the pill is back.
+	 * Rows with this context are filtered out — their flow already shows their
+	 * progress. The /upload stage passes its 'upload-onboarding' tag because
+	 * the edit step's player slot is that session's progress surface.
 	 */
 	suppressContext?: string;
+	/**
+	 * The row bound to this attachment id is filtered out: we are standing on
+	 * that video's page, which reports the upload itself.
+	 */
+	suppressMediaId?: number | string;
 };
 
 const isSettledItem = ( item: UploadItem ): boolean =>
@@ -108,24 +114,44 @@ const PillRow = ( {
  * Collapsed it shows the combined label and one progress bar; expanded it
  * lists per-file rows with their own progress and actions. Once everything
  * has settled with at least one success, the primary action becomes "Add
- * details" for the first finished video — acknowledging that row as it
- * navigates, so the remaining rows are the chain of videos still awaiting
- * details.
+ * details" for the first finished video.
+ *
+ * "Add details" navigates WITHOUT acknowledging: the row carries its draft and
+ * its pending celebration to `/video/:id`, which acknowledges it when the
+ * celebration is dismissed. While you stand on that page the route filters the
+ * row out via `suppressMediaId`, so the pill doesn't shadow-box the screen
+ * already reporting the upload.
  *
  * The X is not Cancel: it acknowledges settled rows and collapses. In-flight
  * rows keep uploading and keep the (collapsed) pill on screen; the pill
  * unmounts by itself once the queue is empty.
  *
  * @param props                 - Component props.
- * @param props.suppressContext - Context tag whose uploads the pill stands down for.
+ * @param props.suppressContext - Context tag whose rows are filtered out.
+ * @param props.suppressMediaId - Attachment id whose row is filtered out.
  * @return The pill element, or null while there is nothing to report.
  */
-export default function UploadPill( { suppressContext }: Props ) {
+export default function UploadPill( { suppressContext, suppressMediaId }: Props ) {
 	const { uploadQueue, retryUpload, cancelUpload, acknowledgeUpload } = useUpload();
 	const navigate = useNavigate();
 	const [ isExpanded, setIsExpanded ] = useState( false );
 
-	const items = uploadQueue;
+	// Everything below — the batch label, the average, the rows, the live
+	// region — reads the filtered list, so a suppressed row is invisible to the
+	// pill rather than merely unrendered.
+	const items = uploadQueue.filter( item => {
+		if ( suppressContext !== undefined && item.context === suppressContext ) {
+			return false;
+		}
+		if (
+			suppressMediaId !== undefined &&
+			item.media !== undefined &&
+			String( item.media.id ) === String( suppressMediaId )
+		) {
+			return false;
+		}
+		return true;
+	} );
 	const activeCount = items.filter(
 		item => item.status === 'pending' || item.status === 'uploading'
 	).length;
@@ -159,16 +185,11 @@ export default function UploadPill( { suppressContext }: Props ) {
 		failedCountRef.current = failedCount;
 	}, [ items.length, activeCount, failedCount ] );
 
-	const isSuppressed =
-		suppressContext !== undefined &&
-		items.length > 0 &&
-		items.every( item => item.context === suppressContext );
-
 	// Rendered via a conditional at the bottom rather than an early
 	// `return null` here: the hooks above must run on every render, and an
 	// early return would leave everything below assigned-then-unused on the
 	// hidden path.
-	const isHidden = items.length === 0 || isSuppressed;
+	const isHidden = items.length === 0;
 
 	// Batch progress is a simple average with settled successes counting as
 	// complete; failed rows are excluded so a dead row can't hold the number
@@ -221,11 +242,14 @@ export default function UploadPill( { suppressContext }: Props ) {
 		}
 	};
 
+	// Deliberately does NOT acknowledge: the row has to survive the navigation
+	// to carry its draft and its un-shown celebration to the video's page,
+	// which acknowledges it on dismiss. The pill stops showing it there via
+	// `suppressMediaId`.
 	const onToDetails = ( item: UploadItem ) => {
 		if ( ! item.media ) {
 			return;
 		}
-		acknowledgeUpload( item.id );
 		navigate( { href: `/video/${ item.media.id }` } );
 	};
 

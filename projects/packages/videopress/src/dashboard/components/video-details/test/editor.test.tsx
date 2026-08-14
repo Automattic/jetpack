@@ -35,9 +35,21 @@ jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 		</div>
 	),
 } ) );
+// Renders the parent crumb as the router link it really is — the dirty-form
+// guard below is caught on the way down to it.
 jest.mock( '@wordpress/admin-ui', () => ( {
-	Breadcrumbs: ( { items }: { items: { label: string }[] } ) => (
-		<nav>{ items.map( item => item.label ).join( ' / ' ) }</nav>
+	Breadcrumbs: ( { items }: { items: { label: string; to?: string }[] } ) => (
+		<nav>
+			{ items.map( item =>
+				item.to ? (
+					<a key={ item.label } href={ item.to }>
+						{ item.label }
+					</a>
+				) : (
+					<span key={ item.label }>{ item.label }</span>
+				)
+			) }
+		</nav>
 	),
 } ) );
 
@@ -110,11 +122,57 @@ function editorProps( video: LibraryItem, uploadSession?: EditorUploadSession ) 
 	};
 }
 
+describe( 'Editor pending media', () => {
+	// The cards that need a poster or a GUID refuse to render until the
+	// transcode lands, so without a stand-in the settings column arrives two
+	// cards short and jumps as they appear. This holds for a video that is
+	// merely processing — no upload session in sight — which is what a user
+	// sees right after the upload flow hands them to /video/:id.
+	it( 'holds skeletons for a processing video with no upload session', () => {
+		render(
+			<Editor
+				{ ...editorProps(
+					makeLibraryItem( {
+						id: '77',
+						guid: 'g77',
+						type: 'videopress',
+						isProcessing: true,
+					} )
+				) }
+			/>
+		);
+
+		expect( screen.queryByTestId( 'thumbnail-card' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'subtitles-card' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Thumbnail' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Subtitles' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the real cards once the video is playable', () => {
+		render(
+			<Editor
+				{ ...editorProps(
+					makeLibraryItem( {
+						id: '77',
+						guid: 'g77',
+						type: 'videopress',
+						isProcessing: false,
+					} )
+				) }
+			/>
+		);
+
+		expect( screen.getByTestId( 'thumbnail-card' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'subtitles-card' ) ).toBeInTheDocument();
+	} );
+} );
+
 describe( 'Editor upload session', () => {
 	it( 'stages the upload in the player slot and holds Save off', async () => {
 		const user = userEvent.setup();
 		render(
 			<Editor
+				embedded
 				{ ...editorProps( draftVideo, {
 					uploadState: { status: 'uploading', progress: 42, fileName: 'clip.mp4' },
 					saveDisabled: true,
@@ -208,13 +266,123 @@ describe( 'Editor upload session', () => {
 		expect( onDismiss ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	// The /upload bridge renders inside DashboardLayout's AdminPage; /video/:id
+	// has an upload session AND its own page chrome. One prop cannot mean both.
+	it( 'keeps its page chrome for a non-embedded upload session', () => {
+		render(
+			<Editor
+				{ ...editorProps( makeLibraryItem(), {
+					uploadState: { status: 'processing', progress: 100, fileName: 'clip.mp4' },
+					saveDisabled: false,
+				} ) }
+			/>
+		);
+
+		expect( screen.getByRole( 'navigation' ) ).toBeInTheDocument();
+	} );
+
+	it( 'drops the page chrome when embedded', () => {
+		render(
+			<Editor
+				embedded
+				{ ...editorProps( draftVideo, {
+					uploadState: { status: 'uploading', progress: 10, fileName: 'clip.mp4' },
+					saveDisabled: true,
+				} ) }
+			/>
+		);
+
+		// AdminPage inside AdminPage renders a second masthead in the tab panel.
+		expect( screen.queryByRole( 'navigation' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { level: 2 } ) ).toBeInTheDocument();
+		// The record is a synthetic draft id, so the chapters deep link would
+		// point at a route that cannot resolve.
+		expect(
+			screen.queryByRole( 'link', { name: 'Edit chapters in the editor' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'seeds the form from a draft carried in on the queue row', () => {
+		render(
+			<Editor
+				{ ...editorProps( makeLibraryItem( { title: 'clip' } ), {
+					saveDisabled: false,
+					draft: { title: 'Launch week recap' },
+				} ) }
+			/>
+		);
+
+		expect( screen.getByLabelText( 'Title' ) ).toHaveValue( 'Launch week recap' );
+		// Carried edits are unsaved against the server record, so Save is live.
+		expect( screen.getByRole( 'button', { name: 'Save' } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
+	it( 'writes the dirty-field diff back out as it is typed', async () => {
+		const user = userEvent.setup();
+		const onDraftChange = jest.fn();
+		render(
+			<Editor
+				{ ...editorProps( makeLibraryItem( { title: 'clip' } ), {
+					saveDisabled: false,
+					onDraftChange,
+				} ) }
+			/>
+		);
+
+		// Clean on mount: nothing to carry.
+		expect( onDraftChange ).toHaveBeenLastCalledWith( undefined );
+
+		await user.type( screen.getByLabelText( 'Title' ), '!' );
+		expect( onDraftChange ).toHaveBeenLastCalledWith( { title: 'clip!' } );
+
+		// Typed back to the record's own value, so there is no longer a draft.
+		await user.clear( screen.getByLabelText( 'Title' ) );
+		await user.type( screen.getByLabelText( 'Title' ), 'clip' );
+		expect( onDraftChange ).toHaveBeenLastCalledWith( undefined );
+	} );
+
+	it( 'warns before a reload drops unsaved edits', async () => {
+		const user = userEvent.setup();
+		render( <Editor { ...editorProps( makeLibraryItem() ) } /> );
+
+		const clean = new Event( 'beforeunload', { cancelable: true } );
+		window.dispatchEvent( clean );
+		expect( clean.defaultPrevented ).toBe( false );
+
+		await user.type( screen.getByLabelText( 'Title' ), '!' );
+
+		const dirty = new Event( 'beforeunload', { cancelable: true } );
+		window.dispatchEvent( dirty );
+		expect( dirty.defaultPrevented ).toBe( true );
+	} );
+
+	it( 'guards the parent breadcrumb against discarding a dirty form', async () => {
+		const user = userEvent.setup();
+		const confirmSpy = jest.spyOn( window, 'confirm' ).mockReturnValue( false );
+		render( <Editor { ...editorProps( makeLibraryItem() ) } /> );
+
+		await user.type( screen.getByLabelText( 'Title' ), '!' );
+		const crumb = screen.getByRole( 'link', { name: 'VideoPress' } );
+		const click = new MouseEvent( 'click', { bubbles: true, cancelable: true } );
+		crumb.dispatchEvent( click );
+
+		expect( confirmSpy ).toHaveBeenCalledWith(
+			'You have unsaved changes. Leave this page and discard them?'
+		);
+		expect( click.defaultPrevented ).toBe( true );
+		confirmSpy.mockRestore();
+	} );
+
 	it( 'keeps a half-typed title when the draft re-binds to the real record', async () => {
 		const user = userEvent.setup();
 		const session: EditorUploadSession = {
 			uploadState: { status: 'uploading', progress: 10, fileName: 'clip.mp4' },
 			saveDisabled: true,
 		};
-		const { rerender } = render( <Editor { ...editorProps( draftVideo, session ) } /> );
+		const { rerender } = render( <Editor embedded { ...editorProps( draftVideo, session ) } /> );
 
 		await user.clear( screen.getByLabelText( 'Title' ) );
 		await user.type( screen.getByLabelText( 'Title' ), 'Launch week recap' );
@@ -227,6 +395,7 @@ describe( 'Editor upload session', () => {
 		} );
 		rerender(
 			<Editor
+				embedded
 				{ ...editorProps( realVideo, {
 					uploadState: { status: 'processing', progress: 100, fileName: 'clip.mp4' },
 					saveDisabled: false,

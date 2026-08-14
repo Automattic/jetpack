@@ -47,4 +47,3 @@ const QueryClientWrapper = ( { children }: { children: ReactNode } ) => {
 };
 
 export default QueryClientWrapper;
-export { getClient as getVideopressQueryClient };

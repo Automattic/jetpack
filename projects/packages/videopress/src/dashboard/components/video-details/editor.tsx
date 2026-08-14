@@ -1,7 +1,7 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { Button, ProgressBar } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Card, Skeleton, Stack, Text } from '@wordpress/ui';
 import { isChaptersEditorEnabled } from '../../utils/chapters-editor';
@@ -18,6 +18,7 @@ import { useVideoDetailsForm } from './use-video-details-form';
 import VideoDetailsCard from './video-details-card';
 import VideoInfoCard from './video-info-card';
 import './editor.scss';
+import type { VideoDetailsFormValues } from './use-video-details-form';
 import type { LibraryItem, VideoRating } from '../../types/library';
 import type { ReactElement } from 'react';
 
@@ -66,6 +67,18 @@ export type EditorUploadSession = {
 	 * alone can't know that.
 	 */
 	saveDisabled: boolean;
+	/**
+	 * Edits carried in from the upload's queue row — typed on the /upload
+	 * bridge before the handoff, or held across a mid-flow remount. Seeded
+	 * once, at mount.
+	 */
+	draft?: Partial< VideoDetailsFormValues >;
+	/**
+	 * Write-through for the same diff. Form state lives in here, so the
+	 * surfaces that own the queue row cannot read it at navigate time — it has
+	 * to be pushed out as it changes rather than collected on the way out.
+	 */
+	onDraftChange?: ( draft: Partial< VideoDetailsFormValues > | undefined ) => void;
 };
 
 export type EditorProps = {
@@ -81,13 +94,20 @@ export type EditorProps = {
 	chaptersOpen: boolean;
 	setChaptersOpen: ( open: boolean ) => void;
 	/**
-	 * Present while this Editor hosts the upload flow's draft session (the
-	 * /upload page's single-drop instant transition). Switches the chrome to
-	 * embedded (the surface renders inside the dashboard tabs rather than
-	 * owning an AdminPage), turns the player slot into the upload's stage, and
-	 * keeps in-progress edits when the draft re-binds to the real record.
+	 * Present while this Editor is bound to an upload still in the queue: it
+	 * turns the player slot into the upload's stage (progress → processing →
+	 * celebration), carries the draft in and out, and keeps in-progress edits
+	 * when the record re-binds. Both the /upload bridge and `/video/:id`
+	 * (which the bridge hands off to) pass one.
 	 */
 	uploadSession?: EditorUploadSession;
+	/**
+	 * Renders inside an existing AdminPage (the /upload bridge sits under the
+	 * dashboard tabs) rather than owning one. Deliberately separate from
+	 * `uploadSession`: `/video/:id` has an upload session AND its own page
+	 * chrome.
+	 */
+	embedded?: boolean;
 };
 
 /**
@@ -185,7 +205,8 @@ const PendingCard = ( { title }: { title: string } ): ReactElement => (
  * @param props.onManageCaptions - Opens the caption manager.
  * @param props.chaptersOpen     - Whether the chapters help modal is open.
  * @param props.setChaptersOpen  - Opens/closes the chapters help modal.
- * @param props.uploadSession    - Draft-session state; see EditorProps.
+ * @param props.uploadSession    - Upload-session state; see EditorProps.
+ * @param props.embedded         - Render without page chrome; see EditorProps.
  * @return The editor element.
  */
 const Editor = ( {
@@ -198,22 +219,54 @@ const Editor = ( {
 	chaptersOpen,
 	setChaptersOpen,
 	uploadSession,
+	embedded,
 }: EditorProps ): ReactElement => {
-	const { values, update, isDirty, reset } = useVideoDetailsForm( video, {
-		// The draft session hands the form a synthetic record first and the
-		// real one once the upload settles; the id change between them must
-		// not wipe what the user has typed in the meantime.
+	const { values, update, isDirty, dirtyValues, reset } = useVideoDetailsForm( video, {
+		// The bridge hands the form a synthetic record first and the real one
+		// once the upload settles; the id change between them must not wipe
+		// what the user has typed in the meantime.
 		preserveDirtyOnRebind: Boolean( uploadSession ),
+		initialDraft: uploadSession?.draft,
 	} );
 
 	const uploadState = uploadSession?.uploadState;
 
+	// The video has no transcoded media behind it yet: it is still uploading,
+	// still registering with WordPress.com, or still processing. The cards
+	// that need a poster or a GUID stand in as skeletons for all of it.
+	const isAwaitingMedia =
+		Boolean( uploadState ) || video.type !== 'videopress' || video.isProcessing;
+
+	// Push the diff out on every change, so the queue row — not this mount —
+	// is what holds the user's words. Undefined once the form is clean again,
+	// which clears the row rather than pinning a stale draft to it.
+	const onDraftChange = uploadSession?.onDraftChange;
+	useEffect( () => {
+		onDraftChange?.( Object.keys( dirtyValues ).length > 0 ? dirtyValues : undefined );
+	}, [ dirtyValues, onDraftChange ] );
+
+	// Warn before a reload or tab close drops unsaved edits. The in-app exits
+	// are guarded by `confirmNavigation` below; this covers the ones the app
+	// never sees. (Uploads still in flight get their own guard from the queue.)
+	useEffect( () => {
+		if ( ! isDirty ) {
+			return;
+		}
+		const onBeforeUnload = ( event: BeforeUnloadEvent ) => {
+			event.preventDefault();
+			// Chrome still requires returnValue to be set.
+			event.returnValue = '';
+		};
+		window.addEventListener( 'beforeunload', onBeforeUnload );
+		return () => window.removeEventListener( 'beforeunload', onBeforeUnload );
+	}, [ isDirty ] );
+
 	// The sub-nav's only sibling tab is the Editor, whose route is stripped
 	// from the registry when the chapters editor is off — a one-tab strip
 	// would be pointless chrome, and its Editor tab would dead-end. The
-	// embedded draft session never shows it: its Editor tab is a route
-	// navigation, which would abandon the /upload session mid-upload.
-	const showVideoNav = ! uploadSession && isChaptersEditorEnabled();
+	// embedded bridge never shows it: its Editor tab is a route navigation,
+	// which would abandon the /upload session mid-upload.
+	const showVideoNav = ! embedded && isChaptersEditorEnabled();
 
 	const openChapters = useCallback( () => {
 		setChaptersOpen( true );
@@ -289,8 +342,21 @@ const Editor = ( {
 					onChange={ update }
 					onOpenChapters={ openChapters }
 					confirmNavigation={ confirmNavigation }
+					// The bridge's record is a synthetic draft until the upload
+					// registers, so its deep link would point at
+					// /video/draft-clip.mp4/editor — a route that cannot resolve.
+					allowEditorLink={ ! embedded }
 				/>
-				{ uploadState ? (
+				{ /*
+				 * Both cards refuse to render until the video is transcoded
+				 * (no poster endpoint, no GUID), so on a freshly uploaded
+				 * video the settings column would sit two cards short and
+				 * then jump as they appear. Hold their shape with skeletons
+				 * for the whole wait — during the upload AND through the
+				 * processing tail — rather than only while this surface owns
+				 * the upload.
+				 */ }
+				{ isAwaitingMedia ? (
 					<>
 						<PendingCard title={ __( 'Thumbnail', 'jetpack-videopress-pkg' ) } />
 						<PendingCard title={ __( 'Subtitles', 'jetpack-videopress-pkg' ) } />
@@ -334,7 +400,7 @@ const Editor = ( {
 		</div>
 	);
 
-	if ( uploadSession ) {
+	if ( embedded ) {
 		// Embedded chrome: the upload flow already sits inside DashboardLayout's
 		// AdminPage (masthead + tabs), and AdminPage inside AdminPage renders a
 		// second masthead and footer inside the tab panel. A header row stands
@@ -360,7 +426,22 @@ const Editor = ( {
 				// display: contents wrapper — a pure scoping hook so the
 				// stylesheet can clamp long video titles in the current-item
 				// crumb (Breadcrumbs' own class names are CSS-module hashes).
-				<div className="vp-video-details__breadcrumbs">
+				<div
+					className="vp-video-details__breadcrumbs"
+					// The parent crumb is a router link out of a form that
+					// discards on unmount, and BreadcrumbItem carries no click
+					// hook — so the same guard the sub-nav uses has to be caught
+					// on the way down, before the link's own handler runs.
+					onClickCapture={ event => {
+						if (
+							( event.target as HTMLElement ).closest( 'a' ) !== null &&
+							! confirmNavigation()
+						) {
+							event.preventDefault();
+							event.stopPropagation();
+						}
+					} }
+				>
 					{ /*
 					 * The crumb reads the FORM's title, not the saved record, so
 					 * the page heading tracks what is being typed without

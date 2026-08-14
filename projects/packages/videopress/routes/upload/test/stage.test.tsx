@@ -22,10 +22,15 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // The full dashboard chrome (masthead, tabs, landing redirect) is not under
-// test; reduce it to a passthrough so the step flow is the whole page.
+// test; reduce it to a passthrough that still reports which tab the stage
+// claims — the at-limit remount bug lived in exactly that value.
 jest.mock( '../../../src/dashboard/components/dashboard-layout', () => ( {
 	__esModule: true,
-	default: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	default: ( { children, activeTab }: { children: ReactNode; activeTab: string } ) => (
+		<div data-testid="layout" data-active-tab={ activeTab }>
+			{ children }
+		</div>
+	),
 } ) );
 
 // The stage's own QueryClientWrapper carries the window-singleton client and
@@ -70,16 +75,26 @@ type MockQueueItem = {
 	error?: string;
 	media?: { id: number; guid: string; src: string };
 	context?: string;
+	enqueuedAt: string;
+	draft?: { title?: string };
 };
 let mockQueue: MockQueueItem[] = [];
 let mockNextUpload: Partial< MockQueueItem > = {};
 const mockStartUpload = jest.fn( ( file: File ): string => {
 	const id = `q-${ mockQueue.length + 1 }`;
-	mockQueue.push( { id, file, progress: 0.42, status: 'uploading', ...mockNextUpload } );
+	mockQueue.push( {
+		id,
+		file,
+		progress: 0.42,
+		status: 'uploading',
+		enqueuedAt: '2026-01-01T00:00:00.000Z',
+		...mockNextUpload,
+	} );
 	return id;
 } );
 const mockRetryUpload = jest.fn();
 const mockAcknowledgeUpload = jest.fn();
+const mockSetUploadDraft = jest.fn();
 jest.mock( '../../../src/dashboard/hooks/use-upload', () => ( {
 	useUpload: () => ( {
 		uploadQueue: mockQueue,
@@ -87,6 +102,11 @@ jest.mock( '../../../src/dashboard/hooks/use-upload', () => ( {
 		retryUpload: mockRetryUpload,
 		acknowledgeUpload: mockAcknowledgeUpload,
 	} ),
+	// Mirrors the real predicate rather than importing it: the adoption rule
+	// (never re-adopt a settled success) is what these tests are pinning.
+	isAdoptableUpload: ( item: MockQueueItem ) =>
+		item.status === 'pending' || item.status === 'uploading' || item.status === 'failed',
+	setUploadDraft: ( id: string, draft: unknown ) => mockSetUploadDraft( id, draft ),
 } ) );
 
 // The bound record the edit step resolves once the queue reports a media id.
@@ -132,19 +152,32 @@ jest.mock( '../../../src/dashboard/components/video-details/editor', () => ( {
 	__esModule: true,
 	default: ( {
 		uploadSession,
+		embedded,
 	}: {
 		uploadSession?: {
 			uploadState?: { status: string; onRetry?: () => void };
 			celebration?: { onDismiss: () => void };
+			saveDisabled?: boolean;
+			draft?: { title?: string };
+			onDraftChange?: ( draft: { title?: string } | undefined ) => void;
 		};
+		embedded?: boolean;
 	} ) => (
 		<div
 			data-testid="editor"
+			data-embedded={ embedded ? 'true' : 'false' }
 			data-upload-status={ uploadSession?.uploadState?.status ?? 'none' }
 			data-celebrating={ uploadSession?.celebration ? 'true' : 'false' }
+			data-save-disabled={ uploadSession?.saveDisabled ? 'true' : 'false' }
+			data-draft-title={ uploadSession?.draft?.title ?? '' }
 		>
 			{ uploadSession?.uploadState?.onRetry && (
 				<button onClick={ uploadSession.uploadState.onRetry }>retry</button>
+			) }
+			{ uploadSession?.onDraftChange && (
+				<button onClick={ () => uploadSession.onDraftChange?.( { title: 'Launch recap' } ) }>
+					type a title
+				</button>
 			) }
 		</div>
 	),
@@ -203,6 +236,10 @@ describe( 'upload stage single-drop transition', () => {
 
 		expect( mockStartUpload ).toHaveBeenCalledTimes( 2 );
 		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/' } );
+		// Tagged apart from the single flow: a batch has no surface of its own,
+		// so it must not be adopted as one — nor celebrated once per file when
+		// the user chains through the pill's "Add details".
+		expect( mockStartUpload ).toHaveBeenCalledWith( expect.anything(), 'upload-batch' );
 		// Neither the edit surface nor the 'uploading' interstitial claims a
 		// connected multi-drop — the Library's in-flight rows and the upload
 		// pill are the batch's progress surface.
@@ -244,13 +281,10 @@ describe( 'upload stage single-drop transition', () => {
 		expect( mockRetryUpload ).toHaveBeenCalledWith( 'q-1' );
 	} );
 
-	it( 'binds to the settled upload and celebrates when playable', async () => {
-		// The upload finishes instantly and the bound record is already
-		// playable, so the settle chain runs in one pass: bind → celebration
-		// + first-publish flag. The queue row is deliberately NOT
-		// acknowledged here — it carries the attachment id for the whole
-		// session so a mid-session remount (the first-run tab flip) can
-		// re-derive it; the flow's exit paths own the acknowledgement.
+	it( 'hands off to the video screen once the upload registers', async () => {
+		// The design truth: a single upload ends on the real /video/:id
+		// screen, not on an embedded copy of it. `replace` because this
+		// bridge is not a place to come back to.
 		mockNextUpload = {
 			status: 'success',
 			progress: 1,
@@ -261,11 +295,86 @@ describe( 'upload stage single-drop transition', () => {
 
 		await dropFiles( container, [ makeFile( 'one.mp4' ) ] );
 
-		const editor = screen.getByTestId( 'editor' );
+		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/video/77', replace: true } );
+		// The row survives the handoff: it carries the draft and the unspent
+		// celebration to that page, which acknowledges it on dismiss.
 		expect( mockAcknowledgeUpload ).not.toHaveBeenCalled();
-		expect( editor ).toHaveAttribute( 'data-upload-status', 'none' );
-		expect( editor ).toHaveAttribute( 'data-celebrating', 'true' );
-		expect( mockMarkFirstPublish ).toHaveBeenCalledTimes( 1 );
+		// Both the celebration and the first-publish flag left this step —
+		// the flag is written by the queue for every row, this one included.
+		expect( screen.getByTestId( 'editor' ) ).toHaveAttribute( 'data-celebrating', 'false' );
+		expect( mockMarkFirstPublish ).not.toHaveBeenCalled();
+	} );
+
+	it( 'holds the bridge while the attachment exists but is not yet registered', async () => {
+		// The attachment id resolves, but a GUID-less record maps to type
+		// 'local' — which /video/:id renders as NotFound. Navigating on
+		// "the id exists" would land the user there.
+		mockNextUpload = {
+			status: 'success',
+			progress: 1,
+			media: { id: 77, guid: '', src: 'https://example.com/v.mp4' },
+		};
+		mockVideo = makeLibraryItem( { id: '77', guid: '', type: 'local', isProcessing: false } );
+		const { container } = renderStage();
+
+		await dropFiles( container, [ makeFile( 'one.mp4' ) ] );
+
+		expect( mockNavigate ).not.toHaveBeenCalled();
+		const editor = screen.getByTestId( 'editor' );
+		expect( editor ).toHaveAttribute( 'data-upload-status', 'processing' );
+		// The meta POST needs a registered video, so Save stays off.
+		expect( editor ).toHaveAttribute( 'data-save-disabled', 'true' );
+	} );
+
+	it( 'writes the edit session draft through to its queue row', async () => {
+		const { container } = renderStage();
+
+		await dropFiles( container, [ makeFile( 'one.mp4' ) ] );
+		await userEvent.click( screen.getByText( 'type a title' ) );
+
+		// The row, not this mount, holds what was typed — which is what lets
+		// it survive the handoff and the mid-flow remounts.
+		expect( mockSetUploadDraft ).toHaveBeenCalledWith( 'q-1', { title: 'Launch recap' } );
+	} );
+
+	it( 'seeds the surface from a draft already on the adopted row', () => {
+		mockQueue = [
+			{
+				id: 'q-adopted',
+				file: makeFile( 'from-home.mp4' ),
+				progress: 0.42,
+				status: 'uploading',
+				context: 'upload-onboarding',
+				enqueuedAt: '2026-01-01T00:00:00.000Z',
+				draft: { title: 'Half typed' },
+			},
+		];
+
+		renderStage();
+
+		expect( screen.getByTestId( 'editor' ) ).toHaveAttribute( 'data-draft-title', 'Half typed' );
+	} );
+
+	it( 'renders a working upload card for a returning user instead of ejecting', () => {
+		// The eject bounced every in-app arrival — Home's header button, the
+		// welcome modal's CTA — straight back out for anyone with a library.
+		mockFreeTier = { isAtLimit: false, isFree: false, isUnlimited: true, videoCount: 7 };
+
+		renderStage();
+
+		expect( screen.getByText( 'Drag and drop your videos here' ) ).toBeInTheDocument();
+		expect( mockNavigate ).not.toHaveBeenCalled();
+	} );
+
+	it( 'keeps the Upload tab active at the free-tier limit', () => {
+		// activeTab following isAtLimit moved the children into a different
+		// Tabs.Panel the moment a free-tier drop entered the queue, remounting
+		// the flow mid-upload.
+		mockFreeTier = { isAtLimit: true, isFree: true, isUnlimited: false, videoCount: 1 };
+
+		renderStage();
+
+		expect( screen.getByTestId( 'layout' ) ).toHaveAttribute( 'data-active-tab', 'upload' );
 	} );
 
 	it( 'resumes into the edit step when exactly one queue item is adopted on mount', () => {
@@ -278,6 +387,7 @@ describe( 'upload stage single-drop transition', () => {
 				progress: 0.42,
 				status: 'uploading',
 				context: 'upload-onboarding',
+				enqueuedAt: '2026-01-01T00:00:00.000Z',
 			},
 		];
 
@@ -298,6 +408,7 @@ describe( 'upload stage single-drop transition', () => {
 				progress: 0.1,
 				status: 'uploading',
 				context: 'upload-onboarding',
+				enqueuedAt: '2026-01-01T00:00:00.000Z',
 			},
 			{
 				id: 'q-b',
@@ -305,6 +416,7 @@ describe( 'upload stage single-drop transition', () => {
 				progress: 0,
 				status: 'pending',
 				context: 'upload-onboarding',
+				enqueuedAt: '2026-01-01T00:00:01.000Z',
 			},
 		];
 
@@ -312,5 +424,46 @@ describe( 'upload stage single-drop transition', () => {
 
 		expect( screen.queryByTestId( 'editor' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Drag and drop your videos here' ) ).toBeInTheDocument();
+	} );
+
+	it( 'never resumes into a settled success row', () => {
+		// The haunting: a finished upload nobody acknowledged used to be
+		// adopted on arrival, resurrecting the edit session it came from as a
+		// permanently "processing" surface.
+		mockQueue = [
+			{
+				id: 'q-done',
+				file: makeFile( 'done.mp4' ),
+				progress: 1,
+				status: 'success',
+				context: 'upload-onboarding',
+				enqueuedAt: '2026-01-01T00:00:00.000Z',
+				media: { id: 77, guid: 'g77', src: 'https://example.com/v.mp4' },
+			},
+		];
+		mockVideo = makeLibraryItem( { id: '77', guid: 'g77', isProcessing: false } );
+
+		renderStage();
+
+		expect( screen.queryByTestId( 'editor' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Drag and drop your videos here' ) ).toBeInTheDocument();
+	} );
+
+	it( 'adopts a failed row so a returning user sees the failure once', () => {
+		mockQueue = [
+			{
+				id: 'q-failed',
+				file: makeFile( 'nope.mp4' ),
+				progress: 0.3,
+				status: 'failed',
+				error: 'The connection dropped.',
+				context: 'upload-onboarding',
+				enqueuedAt: '2026-01-01T00:00:00.000Z',
+			},
+		];
+
+		renderStage();
+
+		expect( screen.getByTestId( 'editor' ) ).toHaveAttribute( 'data-upload-status', 'failed' );
 	} );
 } );

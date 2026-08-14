@@ -29,6 +29,65 @@ export function shouldPollVideo( item: LibraryItem | undefined ): boolean {
 }
 
 /**
+ * Whether a query error means the record is gone.
+ *
+ * WordPress answers a missing attachment with `rest_post_invalid_id` / HTTP
+ * 404. apiFetch surfaces the REST body as the error object, so both shapes
+ * are checked — a proxy or a non-REST failure can carry the status without
+ * the code.
+ *
+ * @param error - The query's latest error.
+ * @return True when the video no longer exists.
+ */
+export function isMissingVideoError( error: unknown ): boolean {
+	if ( ! error || typeof error !== 'object' ) {
+		return false;
+	}
+	const { code, data, status } = error as {
+		code?: unknown;
+		data?: { status?: unknown };
+		status?: unknown;
+	};
+	return code === 'rest_post_invalid_id' || data?.status === 404 || status === 404;
+}
+
+/**
+ * Decide a single video's poll interval, and advance the VIDP-298 cap anchor.
+ *
+ * Two things beyond the library list's rule. A deleted video 404s on every
+ * poll: without stopping, an out-of-band delete leaves the stale row hammering
+ * the endpoint until the cap fires. And registration (the record exists, the
+ * VideoPress GUID does not) and transcoding are separate waits with wildly
+ * different durations, so the anchor is keyed by phase rather than by id
+ * alone — each gets its own PROCESSING_POLL_MAX_MS budget, and a slow
+ * registration can't starve the transcode tail that follows it.
+ *
+ * Pure so the cap behavior is testable without wrangling react-query's timers.
+ *
+ * @param anchor - The previously stored anchor, or null.
+ * @param id     - The media post ID being polled.
+ * @param item   - The item currently in cache, if any.
+ * @param error  - The query's latest error, if any.
+ * @param now    - Current epoch ms.
+ * @return The anchor to store and the poll interval (false stops polling).
+ */
+export function nextVideoPoll(
+	anchor: ProcessingPollAnchor | null,
+	id: number | string,
+	item: LibraryItem | undefined,
+	error: unknown,
+	now: number
+): { anchor: ProcessingPollAnchor | null; interval: number | false } {
+	if ( isMissingVideoError( error ) ) {
+		return { anchor: null, interval: false };
+	}
+	const phaseKeys = shouldPollVideo( item )
+		? [ `${ id }:${ item?.guid ? 'transcode' : 'register' }` ]
+		: [];
+	return nextProcessingPoll( anchor, phaseKeys, now );
+}
+
+/**
  * Fetch and cache a single VideoPress media item from /wp/v2/media/{id}.
  *
  * Maps the response with the same toLibraryItem the library list uses, so the
@@ -50,12 +109,15 @@ export function useVideo( id: number | string ) {
 		enabled: Boolean( id ),
 		// Re-fetch every 2s while the backend is still working on this video —
 		// transcoding, or not yet holding a GUID (see shouldPollVideo) — so the
-		// poster / duration / GUID appear without a manual reload. Capped like
-		// the library list so a stuck record can't poll forever (VIDP-298).
+		// poster / duration / GUID appear without a manual reload. Capped per
+		// phase so a stuck record can't poll forever (VIDP-298), and stopped
+		// outright once the record 404s; see nextVideoPoll.
 		refetchInterval: q => {
-			const { anchor, interval } = nextProcessingPoll(
+			const { anchor, interval } = nextVideoPoll(
 				processingStartRef.current,
-				shouldPollVideo( q.state.data ) ? [ String( id ) ] : [],
+				id,
+				q.state.data,
+				q.state.error,
 				Date.now()
 			);
 			processingStartRef.current = anchor;

@@ -18,6 +18,61 @@ import type { CSSProperties, ReactElement, ReactNode } from 'react';
 
 const LEARN_MORE_URL = 'https://jetpack.com/videopress/';
 
+/*
+ * `welcome=1` is consumed ONCE per page load. Every route ships as its own
+ * bundle, so an in-app navigation remounts this component with a fresh module
+ * scope; without a window-scoped latch the effect below re-cleared the
+ * dismissal and re-opened the modal on every navigation of the same load,
+ * after the user had already closed it.
+ */
+const WELCOME_CONSUMED_FLAG = '__jetpackVideoPressWelcomeConsumed';
+
+type WelcomeWindow = Window & { [ WELCOME_CONSUMED_FLAG ]?: boolean };
+
+/**
+ * Detect the `welcome=1` review param, once, and strip it from the URL.
+ *
+ * Stripping matters as much as the latch: the param survives in the address
+ * bar otherwise, so a manual reload of a URL the user has already dismissed
+ * greets them again.
+ *
+ * @param inRouterSearch - Whether the router's decoded search carries it. On a
+ *                       fresh page load the router only parses search it finds
+ *                       inside the `p` path param, so the raw query string is
+ *                       checked too — `&welcome=1` on admin.php is the easier
+ *                       URL to hand around.
+ * @return True for the first, unconsumed detection only.
+ */
+function consumeWelcomeParam( inRouterSearch: boolean ): boolean {
+	if ( typeof window === 'undefined' ) {
+		return false;
+	}
+
+	const scope = window as WelcomeWindow;
+	if ( scope[ WELCOME_CONSUMED_FLAG ] ) {
+		return false;
+	}
+
+	const params = new URLSearchParams( window.location.search );
+	if ( ! inRouterSearch && params.get( 'welcome' ) !== '1' ) {
+		return false;
+	}
+
+	scope[ WELCOME_CONSUMED_FLAG ] = true;
+
+	if ( params.has( 'welcome' ) ) {
+		params.delete( 'welcome' );
+		const query = params.toString();
+		window.history.replaceState(
+			window.history.state,
+			'',
+			`${ window.location.pathname }${ query ? `?${ query }` : '' }${ window.location.hash }`
+		);
+	}
+
+	return true;
+}
+
 type ValueCard = {
 	icon: ReactNode;
 	title: string;
@@ -77,14 +132,9 @@ export default function OnboardingModal(): ReactElement | null {
 	// `welcome=1` is the review affordance: it reopens the modal regardless of
 	// the dismissal flag or the library state, and forgets the stored
 	// dismissal so plain loads behave fresh again afterwards. Without it,
-	// seeing the modal twice means hand-clearing localStorage. Checked in the
-	// router's search AND the raw wp-admin query string — on a fresh page
-	// load the router only parses search it finds inside the `p` path param,
-	// and a plain `&welcome=1` on admin.php is the easier URL to hand around.
-	const isPreview =
-		search?.welcome === '1' ||
-		( typeof window !== 'undefined' &&
-			new URLSearchParams( window.location.search ).get( 'welcome' ) === '1' );
+	// seeing the modal twice means hand-clearing localStorage. Consumed at
+	// mount and held in state, so a dismissal survives the rest of the load.
+	const [ isPreview ] = useState( () => consumeWelcomeParam( search?.welcome === '1' ) );
 
 	useEffect( () => {
 		if ( isPreview ) {

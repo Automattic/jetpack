@@ -2,8 +2,34 @@ import { renderHook, act } from '@testing-library/react';
 import { mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
 import { DeleteVideosError, useDeleteVideo } from '../use-delete-video';
+import { useUpload, __resetUploadStoreForTests } from '../use-upload';
+
+// The real queue store is the point of the reconciliation test below, so only
+// the tus transport is stubbed out.
+const mockUploadHandler = jest.fn();
+let lastCallbacks: { onSuccess?: ( data?: unknown ) => void };
+jest.mock( '../../../client/hooks/use-resumable-uploader', () => ( {
+	__esModule: true,
+	default: jest.fn( options => {
+		lastCallbacks = options;
+		return {
+			onUploadHandler: jest.fn(),
+			uploadHandler: mockUploadHandler,
+			resumeHandler: undefined,
+			uploadingData: { bytesSent: 0, bytesTotal: 0, percent: 0, status: 'idle' },
+			media: undefined,
+			error: null,
+		};
+	} ),
+} ) );
 
 describe( 'useDeleteVideo', () => {
+	beforeEach( () => {
+		mockUploadHandler.mockClear();
+		lastCallbacks = {};
+		__resetUploadStoreForTests();
+	} );
+
 	it( 'sends DELETE for each id', async () => {
 		const paths: string[] = [];
 		mockApiFetch( async ( { path, method } ) => {
@@ -107,5 +133,80 @@ describe( 'useDeleteVideo', () => {
 			false
 		);
 		expect( predicate( { queryKey: [ 'unrelated' ] } ) ).toBe( false );
+	} );
+} );
+
+describe( 'useDeleteVideo — upload-queue reconciliation', () => {
+	beforeEach( () => {
+		mockUploadHandler.mockClear();
+		lastCallbacks = {};
+		__resetUploadStoreForTests();
+		window.localStorage.clear();
+	} );
+
+	// Nothing used to drop a success row whose video had been deleted: the
+	// pill kept offering "Add details" for a 404, and /upload re-adopted the
+	// dead row into a permanently "processing" edit step.
+	it( 'drops queue rows bound to the deleted videos, keeping the survivors', async () => {
+		mockApiFetch( async ( { method } ) => {
+			if ( method === 'DELETE' ) {
+				return { deleted: true };
+			}
+			throw new Error( 'unexpected' );
+		} );
+
+		const wrapper = createTestWrapper( createTestQueryClient() );
+		const { result } = renderHook( () => ( { upload: useUpload(), remove: useDeleteVideo() } ), {
+			wrapper,
+		} );
+
+		act( () => {
+			result.current.upload.startUpload( new File( [ 'x' ], 'gone.mp4' ) );
+		} );
+		act( () => {
+			lastCallbacks.onSuccess?.( { id: 77, guid: 'g77', src: 'https://v.example/77' } );
+		} );
+		act( () => {
+			result.current.upload.startUpload( new File( [ 'y' ], 'kept.mp4' ) );
+		} );
+		act( () => {
+			lastCallbacks.onSuccess?.( { id: 78, guid: 'g78', src: 'https://v.example/78' } );
+		} );
+		expect( result.current.upload.uploadQueue ).toHaveLength( 2 );
+
+		await act( async () => {
+			await result.current.remove.mutateAsync( 77 );
+		} );
+
+		expect( result.current.upload.uploadQueue.map( u => u.media?.id ) ).toEqual( [ 78 ] );
+	} );
+
+	it( 'keeps the row of a video whose delete failed', async () => {
+		mockApiFetch( async ( { method } ) => {
+			if ( method === 'DELETE' ) {
+				throw new Error( 'boom' );
+			}
+			throw new Error( 'unexpected' );
+		} );
+
+		const wrapper = createTestWrapper( createTestQueryClient() );
+		const { result } = renderHook( () => ( { upload: useUpload(), remove: useDeleteVideo() } ), {
+			wrapper,
+		} );
+
+		act( () => {
+			result.current.upload.startUpload( new File( [ 'x' ], 'stays.mp4' ) );
+		} );
+		act( () => {
+			lastCallbacks.onSuccess?.( { id: 77, guid: 'g77', src: 'https://v.example/77' } );
+		} );
+
+		await act( async () => {
+			await result.current.remove.mutateAsync( 77 ).catch( () => {
+				// Rejection is expected; the assertion is about the queue row.
+			} );
+		} );
+
+		expect( result.current.upload.uploadQueue ).toHaveLength( 1 );
 	} );
 } );

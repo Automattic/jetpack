@@ -49,6 +49,20 @@ const markLandingRedirectHandled = (): void => {
 };
 
 /**
+ * Whether this page load is a genuine landing rather than an in-app arrival.
+ *
+ * Inside wp-admin the app's path travels in the raw `p` query param (see the
+ * note in routes/library/stage.tsx), so every in-app navigation, every
+ * deep link, and every reload of one writes a `p`. A landing is exactly
+ * `admin.php?page=jetpack-videopress` with none — which is the only case the
+ * redirect below is allowed to hijack.
+ *
+ * @return True when the URL carries no app path of its own.
+ */
+const isBareLanding = (): boolean =>
+	typeof window !== 'undefined' && ! new URLSearchParams( window.location.search ).has( 'p' );
+
+/**
  * Shared chrome for every wp-build VideoPress dashboard tab. Renders
  * `AdminPage` (with header + JetpackFooter) and a `Tabs.Root` containing
  * the strip and one `Tabs.Panel` per tab so the `@wordpress/ui` Tabs
@@ -77,8 +91,24 @@ export default function DashboardLayout( {
 }: Props ) {
 	const navigate = useNavigate();
 	const settledFirstRunState = useSettledFirstRunState();
-	const tabs = useDashboardTabOrder();
+	const liveTabs = useDashboardTabOrder();
 	const hasCheckedLandingRedirect = useRef( false );
+
+	// The tab order is frozen for this mount as soon as the count is known.
+	// It is derived from the first-run state, and the first successful upload
+	// flips that mid-session: the strip would then re-order under the user's
+	// cursor while they are still finishing the flow that caused it. The next
+	// navigation mounts fresh and picks up the new order.
+	//
+	// Only the SETTLED state freezes: before it, the optimistic order renders
+	// live (a loading count reads as first-run) so a brand-new user never sees
+	// the returning-user strip, and freezing the guess would make that
+	// permanent for the mount.
+	const frozenTabsRef = useRef< DashboardTab[] | null >( null );
+	if ( frozenTabsRef.current === null && settledFirstRunState !== 'loading' ) {
+		frozenTabsRef.current = liveTabs;
+	}
+	const tabs = frozenTabsRef.current ?? liveTabs;
 
 	// Panels are rendered by mapping over the tab order, so a route whose tab is
 	// not in that order would render its children nowhere — a blank page. This
@@ -130,7 +160,7 @@ export default function DashboardLayout( {
 		markLandingRedirectHandled();
 		hasCheckedLandingRedirect.current = true;
 
-		if ( activeTab !== 'library' ) {
+		if ( activeTab !== 'library' || ! isBareLanding() ) {
 			return;
 		}
 

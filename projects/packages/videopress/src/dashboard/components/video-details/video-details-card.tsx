@@ -12,6 +12,7 @@ type Props = {
 	onChange: ( partial: { title?: string; description?: string } ) => void;
 	onOpenChapters: () => void;
 	confirmNavigation?: () => boolean;
+	allowEditorLink?: boolean;
 };
 
 /**
@@ -32,6 +33,8 @@ type Props = {
  * @param props.onOpenChapters    - Opens the chapters help modal.
  * @param props.confirmNavigation - Dirty-form guard forwarded to the chapters
  *                                deep link (same guard the sub-nav uses).
+ * @param props.allowEditorLink   - Whether the chapters deep link can resolve;
+ *                                false while the record is a synthetic draft.
  * @return The card element.
  */
 export default function VideoDetailsCard( {
@@ -41,6 +44,7 @@ export default function VideoDetailsCard( {
 	onChange,
 	onOpenChapters,
 	confirmNavigation,
+	allowEditorLink,
 }: Props ): ReactElement {
 	return (
 		<Card.Root>
@@ -80,6 +84,7 @@ export default function VideoDetailsCard( {
 						description={ description }
 						onOpenHelp={ onOpenChapters }
 						confirmNavigation={ confirmNavigation }
+						allowEditorLink={ allowEditorLink }
 					/>
 				</Stack>
 			</Card.Content>
