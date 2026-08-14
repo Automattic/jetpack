@@ -520,43 +520,6 @@ describe( 'ConditionalLogicPanel', () => {
 		expect( screen.queryByLabelText( 'This condition is active.' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'clears every condition at once', async () => {
-		const { setAttributes } = await setup(
-			withRules( [
-				{ field: 'name_1', operator: 'is', value: 'x' },
-				{ field: 'budget_1', operator: 'gte', value: '5' },
-			] )
-		);
-
-		await userEvent.click( screen.getByRole( 'button', { name: 'Clear all conditions' } ) );
-
-		expect( setAttributes ).toHaveBeenCalledWith( {
-			conditionalLogic: expect.objectContaining( { enabled: false, groups: [] } ),
-		} );
-	} );
-
-	// Clearing is deliberate. Offering another empty row straight away would look like the
-	// clear had not worked.
-	it( 'does not offer a waiting row after clearing', async () => {
-		await setupStateful( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
-
-		await userEvent.click( screen.getByRole( 'button', { name: 'Clear all conditions' } ) );
-
-		expect( screen.queryByLabelText( 'Field' ) ).not.toBeInTheDocument();
-		expect(
-			screen.queryByRole( 'button', { name: 'Clear all conditions' } )
-		).not.toBeInTheDocument();
-	} );
-
-	it( 'brings a row back when Add condition is pressed after clearing', async () => {
-		await setupStateful( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
-
-		await userEvent.click( screen.getByRole( 'button', { name: 'Clear all conditions' } ) );
-		await userEvent.click( screen.getByRole( 'button', { name: 'Add condition' } ) );
-
-		expect( screen.getByLabelText( 'Field' ) ).toBeInTheDocument();
-	} );
-
 	// A new condition appears empty, so the first thing to do with it is choose a subject.
 	// This also tells a screen-reader user the row exists at all.
 	it( 'moves focus to the new condition after adding one', async () => {

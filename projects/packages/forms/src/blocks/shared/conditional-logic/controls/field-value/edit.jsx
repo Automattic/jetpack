@@ -333,17 +333,10 @@ const FieldValueControl = ( { rules: storedRules, onChange, fields, ownFieldId }
 		[ storedRules ]
 	);
 
-	// Clearing is deliberate, so the builder does not immediately offer another empty row --
-	// that would look like the clear had failed. An author who wants one presses Add.
-	const [ isCleared, setIsCleared ] = useState( false );
-
-	// An empty builder otherwise shows one condition ready to fill in, rather than asking the
-	// author to press Add before anything appears. It is not written to the block until they
-	// choose a field, so opening the dialog does not mark the post as changed.
-	const rules = useMemo(
-		() => ( stored.length || isCleared ? stored : [ BLANK_RULE ] ),
-		[ isCleared, stored ]
-	);
+	// An empty builder shows one condition ready to fill in, rather than asking the author to
+	// press Add before anything appears. It is not written to the block until they choose a
+	// field, so opening the dialog does not mark the post as changed.
+	const rules = useMemo( () => ( stored.length ? stored : [ BLANK_RULE ] ), [ stored ] );
 
 	// Which row the Add button just created, so only that one takes focus. Null on first
 	// render, so opening the dialog does not steal focus from the block editor.
@@ -376,16 +369,9 @@ const FieldValueControl = ( { rules: storedRules, onChange, fields, ownFieldId }
 	// The rule records its own type, so a future condition kind is another type in this same
 	// list rather than a reshape of what is stored.
 	const addRule = useCallback( () => {
-		setIsCleared( false );
 		setFocusIndex( stored.length );
 		onChange( [ ...stored, { ...BLANK_RULE } ] );
 	}, [ onChange, stored ] );
-
-	const clearRules = useCallback( () => {
-		setIsCleared( true );
-		setFocusIndex( null );
-		onChange( [] );
-	}, [ onChange ] );
 
 	if ( ! fields.length ) {
 		return (
@@ -412,25 +398,16 @@ const FieldValueControl = ( { rules: storedRules, onChange, fields, ownFieldId }
 
 			{ /* Always offered. Withholding it stopped an author adding a second condition
 			     while the first was still being written, which is a normal way to work; the
-			     per-row badge already says which conditions are inert. Clearing sits opposite
-			     it, and only once there is something to clear. */ }
-			<Stack direction="row" align="center" justify="space-between" gap="sm">
-				<Button
-					variant="outline"
-					tone="neutral"
-					icon={ plus }
-					onClick={ addRule }
-					className="jetpack-contact-form__conditional-logic-add"
-				>
-					{ __( 'Add condition', 'jetpack-forms' ) }
-				</Button>
-
-				{ stored.length > 0 && (
-					<Button variant="minimal" tone="neutral" onClick={ clearRules }>
-						{ __( 'Clear all conditions', 'jetpack-forms' ) }
-					</Button>
-				) }
-			</Stack>
+			     per-row icon already says which conditions are inert. */ }
+			<Button
+				variant="outline"
+				tone="neutral"
+				icon={ plus }
+				onClick={ addRule }
+				className="jetpack-contact-form__conditional-logic-add"
+			>
+				{ __( 'Add condition', 'jetpack-forms' ) }
+			</Button>
 		</Stack>
 	);
 };
