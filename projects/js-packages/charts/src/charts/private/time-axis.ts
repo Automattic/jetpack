@@ -180,6 +180,89 @@ export const getFormatter = (
 		: formatYearTick;
 };
 
+// Tick formats that print a coarser unit at a boundary — the date at midnight,
+// the year at January — say what their neighbours leave out. A time scale
+// always lands on those boundaries; a band scale samples by index and has to be
+// steered onto them.
+const TICK_ANCHORS = new Map< ( timestamp: number ) => string, ( date: Date ) => boolean >( [
+	[ formatDateOrHourTick, date => date.getHours() === 0 && date.getMinutes() === 0 ],
+	[ formatMonthOrYearTick, date => date.getMonth() === 0 ],
+] );
+
+// Index distance between consecutive anchor buckets, or null below two of them.
+// Only a sampling step dividing this can land on more than one anchor.
+const getAnchorPeriod = ( domain: Date[], isAnchor: ( date: Date ) => boolean ) => {
+	const first = domain.findIndex( isAnchor );
+	const second = domain.findIndex( ( date, index ) => index > first && isAnchor( date ) );
+
+	return first < 0 || second < 0 ? null : second - first;
+};
+
+/**
+ * Tick values for a band time axis.
+ *
+ * visx samples a band domain by index from offset zero, blind to which labels
+ * carry a boundary and without collapsing repeats — so the tick that prints the
+ * year or the date often isn't sampled at all, and a long series can show the
+ * same label twice. Choose the values instead: keep the even spacing, but slide
+ * the offset onto the anchor buckets and reject any step that would put two
+ * identical labels side by side.
+ *
+ * @param domain        - Band domain, in axis order.
+ * @param tickFormatter - Formatter the axis will render these values with.
+ * @param maxTicks      - Most ticks the axis should carry.
+ * @return Values to hand the axis as `tickValues`.
+ */
+export const getBandTickValues = (
+	domain: Date[],
+	tickFormatter: ( timestamp: number ) => string,
+	maxTicks: number
+): Date[] => {
+	if ( ! domain.length ) {
+		return [];
+	}
+
+	const isAnchor = TICK_ANCHORS.get( tickFormatter );
+
+	const steps = new Set< number >();
+	for ( let count = maxTicks; count > 1; count-- ) {
+		steps.add( Math.max( 1, Math.floor( ( domain.length - 1 ) / ( count - 1 ) ) ) );
+	}
+	const anchorPeriod = isAnchor ? getAnchorPeriod( domain, isAnchor ) : null;
+	for ( let divisor = 1; divisor <= ( anchorPeriod ?? 0 ); divisor++ ) {
+		if ( anchorPeriod % divisor === 0 ) {
+			steps.add( anchorPeriod / divisor );
+		}
+	}
+
+	let best: { values: Date[]; anchors: number } | null = null;
+	for ( const step of steps ) {
+		for ( let offset = 0; offset < step; offset++ ) {
+			const values: Date[] = [];
+			for ( let index = offset; index < domain.length; index += step ) {
+				values.push( domain[ index ] );
+			}
+			if ( ! values.length || values.length > maxTicks ) {
+				continue;
+			}
+
+			const labels = values.map( date => tickFormatter( date.getTime() ) );
+			if ( labels.some( ( label, index ) => index > 0 && label === labels[ index - 1 ] ) ) {
+				continue;
+			}
+
+			// The anchors first, then the denser axis.
+			const anchors = isAnchor ? values.filter( isAnchor ).length : 0;
+			const denser = anchors === best?.anchors && values.length > best.values.length;
+			if ( ! best || anchors > best.anchors || denser ) {
+				best = { values, anchors };
+			}
+		}
+	}
+
+	return best ? best.values : [ domain[ 0 ] ];
+};
+
 // Estimate the largest number of x-axis ticks that fit without producing
 // consecutive duplicate labels under the given formatter. Used so the axis
 // adapts to the data's resolution rather than picking a fixed count.

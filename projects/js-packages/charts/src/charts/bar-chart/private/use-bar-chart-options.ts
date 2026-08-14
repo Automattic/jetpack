@@ -1,6 +1,6 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { useMemo } from 'react';
-import { getBucketResolution, getFormatter } from '../../private/time-axis';
+import { getBandTickValues, getBucketResolution, getFormatter } from '../../private/time-axis';
 import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
 import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
 import type { DataPointDate, BaseChartProps, SeriesData, TickResolution } from '../../../types';
@@ -10,6 +10,8 @@ import type { TickFormatter } from '@visx/axis';
 export const BASE_BAND_PADDING = 0.2;
 /** Inner padding of the category band scale (the base gap between ticks). */
 export const BASE_BAND_PADDING_INNER = 0.1;
+/** Ticks each axis carries unless the caller asks for a different count. */
+const DEFAULT_NUM_TICKS = 4;
 
 // The axis abbreviates to fit a tick; a tooltip has room to spell the same
 // bucket out in full.
@@ -43,6 +45,30 @@ const getTimeSeriesFormatters = ( data: SeriesData[], tickResolution?: TickResol
 		new Date( timestamp ).toLocaleString( undefined, tooltipFormat );
 
 	return { tickFormatter: getFormatter( data, tickResolution ), tooltipFormatter };
+};
+
+/**
+ * The band scale's domain, as the dates the axis can put a tick on. Series are
+ * individually sorted already, so a merge on the timestamp restores axis order
+ * across all of them.
+ *
+ * @param data - Date-based series.
+ * @return Distinct dates, earliest first.
+ */
+const getBandDomain = ( data: SeriesData[] ): Date[] => {
+	const byTimestamp = new Map< number, Date >();
+	data.forEach( series =>
+		series.data.forEach( point => {
+			const { date } = point as DataPointDate;
+			if ( date && ! byTimestamp.has( date.getTime() ) ) {
+				byTimestamp.set( date.getTime(), date );
+			}
+		} )
+	);
+
+	return [ ...byTimestamp.keys() ]
+		.sort( ( a, b ) => a - b )
+		.map( timestamp => byTimestamp.get( timestamp ) );
 };
 
 /**
@@ -104,6 +130,10 @@ export function useBarChartOptions(
 		};
 
 		return {
+			timeAxis: timeSeriesFormatters && {
+				domain: getBandDomain( data ),
+				tickFormatter: timeSeriesFormatters.tickFormatter,
+			},
 			vertical: {
 				xTickFormat: labelFormatter,
 				yTickFormat: valueFormatter,
@@ -191,6 +221,22 @@ export function useBarChartOptions(
 		delete xAxisOptions.tickResolution;
 		delete yAxisOptions.tickResolution;
 
+		// A band scale has no ticks of its own for visx to ask for, so it samples
+		// the domain by index and can miss the tick that dates the day or names the
+		// year. Pick the values here instead. Only for our own formatter — a
+		// caller's `tickFormat` may not be the one these values were chosen for.
+		const { timeAxis } = defaultOptions;
+		const dateAxisOptions = horizontal ? yAxisOptions : xAxisOptions;
+		const bandTickValues =
+			timeAxis && ! dateAxisOptions.tickFormat
+				? getBandTickValues(
+						timeAxis.domain,
+						timeAxis.tickFormatter,
+						dateAxisOptions.numTicks ?? DEFAULT_NUM_TICKS
+				  )
+				: null;
+		const dateAxisTickValues = bandTickValues ? { tickValues: bandTickValues } : {};
+
 		return {
 			gridVisibility,
 			xScale,
@@ -202,15 +248,17 @@ export function useBarChartOptions(
 			axis: {
 				x: {
 					orientation: 'bottom' as const,
-					numTicks: 4,
+					numTicks: DEFAULT_NUM_TICKS,
 					tickFormat: xTickFormat,
+					...( horizontal ? {} : dateAxisTickValues ),
 					...( xLabelOverflow === 'ellipsis' ? { tickComponent: TruncatedXTickComponent } : {} ),
 					...xAxisOptions,
 				},
 				y: {
 					orientation: 'left' as const,
-					numTicks: 4,
+					numTicks: DEFAULT_NUM_TICKS,
 					tickFormat: yTickFormat,
+					...( horizontal ? dateAxisTickValues : {} ),
 					...( yLabelOverflow === 'ellipsis' ? { tickComponent: TruncatedYTickComponent } : {} ),
 					...yAxisOptions,
 				},
