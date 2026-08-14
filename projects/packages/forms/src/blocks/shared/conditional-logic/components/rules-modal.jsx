@@ -88,8 +88,20 @@ const ConditionalLogicModal = ( {
 					/>
 				</Stack>
 
+				{ /* States the default, which the selectors above do not: a field with a show
+				     rule is hidden until something reveals it, and one with a hide rule is
+				     visible until something hides it. Without this an author has to infer
+				     what happens before any condition is met. */ }
 				<Text variant="body-sm" className="jetpack-contact-form__conditional-logic-hint">
-					{ __( 'of the following conditions are met:', 'jetpack-forms' ) }
+					{ 'hide' === logic.action
+						? __(
+								'This field is visible by default, until the following conditions are met:',
+								'jetpack-forms'
+						  )
+						: __(
+								'This field is hidden by default, until the following conditions are met:',
+								'jetpack-forms'
+						  ) }
 				</Text>
 
 				<FieldValueControl

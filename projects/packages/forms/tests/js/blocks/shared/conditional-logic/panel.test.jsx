@@ -320,9 +320,24 @@ describe( 'ConditionalLogicPanel', () => {
 		// the document, so it is not a descendant of what render() returns.
 		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
 
-		// The two selectors carry the sentence between them; the clause finishing it sits
-		// underneath rather than being interleaved with the controls.
-		expect( screen.getByText( 'of the following conditions are met:' ) ).toBeInTheDocument();
+		// The clause finishing the sentence sits underneath rather than being interleaved
+		// with the controls, and states the default the selectors do not.
+		expect(
+			screen.getByText( 'This field is hidden by default, until the following conditions are met:' )
+		).toBeInTheDocument();
+	} );
+
+	// A hide rule inverts the default: the field is there until something removes it.
+	it( 'states the opposite default for a hide action', async () => {
+		await setup(
+			withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ], { action: 'hide' } )
+		);
+
+		expect(
+			screen.getByText(
+				'This field is visible by default, until the following conditions are met:'
+			)
+		).toBeInTheDocument();
 	} );
 
 	it( 'phrases the selectors to read on from each other', async () => {
