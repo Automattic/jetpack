@@ -45,8 +45,8 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	GeoChart: () => <div data-testid="geo-chart" />,
 } ) );
 
-// Typed off the hook itself so a new field on `LocationView` breaks this
-// fixture instead of being silently cast away.
+// Typed off the hook so the mocked state and the rows passed to
+// `mockReturnValue` are type-checked rather than cast away.
 type LocationViewsState = ReturnType< typeof import('../use-location-views').default >;
 
 const LOADING_STATE: LocationViewsState = {

@@ -396,7 +396,11 @@ export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 	// widget no longer knows. Normalize once, before it becomes both the endpoint
 	// path segment and the report tab.
 	const storedGranularity = attributes?.geoGranularity ?? 'country';
-	const geoGranularity = storedGranularity in REPORT_SECTIONS ? storedGranularity : 'country';
+	// `in` would also accept inherited keys such as `toString`, which would then
+	// reach the endpoint as a path segment.
+	const geoGranularity = Object.prototype.hasOwnProperty.call( REPORT_SECTIONS, storedGranularity )
+		? storedGranularity
+		: 'country';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
