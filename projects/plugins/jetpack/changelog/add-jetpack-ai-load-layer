@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Jetpack AI: Stop shipping the AI Chat editor payload when the block is not registered.
