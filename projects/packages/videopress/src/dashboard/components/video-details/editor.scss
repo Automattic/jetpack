@@ -174,11 +174,20 @@
 // record doesn't expose anyway). At the column's 380px that is a 214px
 // frame; the width comes entirely from the grid track, so there is nothing
 // to cap here.
-.vp-video-details__player {
+// Owns the grid cell and the frame's shape so the player and the upload stage
+// can occupy it together — the stage overlays a player that is never unmounted.
+.vp-video-details__player-slot {
 	grid-area: preview;
 	position: relative;
-	width: 100%;
+	inline-size: 100%;
 	aspect-ratio: 16 / 9;
+}
+
+.vp-video-details__player {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
 	background: #000;
 	border-radius: 4px;
 	overflow: hidden;
@@ -197,9 +206,13 @@
 // literals rather than foreground tokens because the frame's #000 background
 // is itself a literal (the player's letterbox), not a themed surface.
 .vp-upload-stage {
-	// The frame class sets `width: 100%` and this panel adds padding; without
-	// border-box the padding lands OUTSIDE the track and the stage hangs 40px
-	// past the column (off-screen on smaller windows).
+	// Overlays the player rather than replacing it (see `playerSlot`), so it
+	// needs its own stacking context above the embed. Border-box because the
+	// frame is 100% wide and this panel adds padding — as content-box the
+	// padding lands outside the track and the stage hangs past the column.
+	position: absolute;
+	inset: 0;
+	z-index: 1;
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;

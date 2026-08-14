@@ -182,7 +182,9 @@ describe( 'Editor upload session', () => {
 
 		expect( screen.getByText( 'clip.mp4' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Uploading… 42%' ) ).toBeInTheDocument();
-		expect( screen.queryByTestId( 'preview-player' ) ).not.toBeInTheDocument();
+		// The stage covers the player; it does not replace it (see the
+		// identity test below for why that distinction matters).
+		expect( screen.getByTestId( 'upload-stage' ) ).toBeInTheDocument();
 
 		// The form is editable from the first frame, but Save waits for the
 		// attachment id — dirtying the form must not light it up. (@wordpress/ui
@@ -202,6 +204,31 @@ describe( 'Editor upload session', () => {
 		expect( screen.getByText( 'Subtitles' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Video info' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'More actions' } ) ).not.toBeInTheDocument();
+	} );
+
+	// The bug this guards: the player used to be SWAPPED for the upload stage,
+	// so the instant processing finished the iframe was torn down and rebuilt —
+	// a video the user had already started watching stopped dead and needed a
+	// second press of play. Overlaying keeps the same element across the
+	// transition. Node identity is the assertion; anything weaker passes on the
+	// old code.
+	it( 'keeps the very same player element across the processing transition', () => {
+		const video = makeLibraryItem( { id: '77', guid: 'g77', type: 'videopress' } );
+		const { rerender } = render(
+			<Editor
+				{ ...editorProps( video, {
+					uploadState: { status: 'processing', progress: 100, fileName: 'clip.mp4' },
+					saveDisabled: false,
+				} ) }
+			/>
+		);
+
+		const playerDuringProcessing = screen.getByTestId( 'preview-player' );
+
+		rerender( <Editor { ...editorProps( video, { saveDisabled: false } ) } /> );
+
+		expect( screen.queryByTestId( 'upload-stage' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'preview-player' ) ).toBe( playerDuringProcessing );
 	} );
 
 	it( 'reports processing once the upload settles', () => {
