@@ -13,6 +13,8 @@ import {
 	formatMetricValue,
 	formatDate,
 	formatDateRange,
+	formatDateRangeCompact,
+	formatDateRangeMinimal,
 	formatDateRangeLong,
 	type DateFormatName,
 } from '@jetpack-premium-analytics/formatters';
@@ -57,27 +59,38 @@ browser's locale. Defaults to `'medium'`.
 ```typescript
 // On a site left on the US English default:
 formatDate( date ); // 'June 21, 2025'
+formatDate( date, 'compact' ); // 'Jun 21, 2025'
+formatDate( date, 'compactNoYear' ); // 'Jun 21'
 formatDate( date, 'short' ); // 'June 21'
 formatDate( date, 'year' ); // '2025'
 formatDate( date, 'iso' ); // '2025-06-21'
 
 // The same calls on an es_ES site:
 formatDate( date ); // '21 de junio de 2025'
+formatDate( date, 'compact' ); // '21 de jun de 2025'
 formatDate( date, 'short' ); // '21 de junio'
 ```
 
-| Name         | Purpose                                             |
-| ------------ | --------------------------------------------------- |
-| `medium`     | Default. The site's `date_format` verbatim.         |
-| `short`      | The site format minus its year.                     |
-| `full`       | The site format led by the weekday.                 |
-| `fullNoYear` | `short` led by the weekday.                         |
-| `year`       | Year alone.                                         |
-| `iso`        | Machine-readable `YYYY-MM-DD`. Never localized.     |
+| Name            | Purpose                                         |
+| --------------- | ----------------------------------------------- |
+| `medium`        | Default. The site's `date_format` verbatim.     |
+| `compact`       | The site format with its month abbreviated.     |
+| `compactNoYear` | `compact` minus its year.                       |
+| `short`         | The site format minus its year.                 |
+| `full`          | The site format led by the weekday.             |
+| `fullNoYear`    | `short` led by the weekday.                     |
+| `year`          | Year alone.                                     |
+| `iso`           | Machine-readable `YYYY-MM-DD`. Never localized. |
 
-The two weekday forms are derived, since core publishes no weekday-bearing
-format. The weekday name itself still comes from WordPress's translation
-tables; only the comma joining it to the date is ours.
+Every form but `year` and `iso` is derived from the site's own `date_format`,
+so the day/month order and the punctuation are always the site's. Dropping the
+year takes the punctuation that introduced it along with it, and the
+abbreviated month still comes from WordPress's translation tables, so a locale
+that does not shorten its month names simply keeps them whole.
+
+The two weekday forms are derived for the same reason, since core publishes no
+weekday-bearing format. The weekday name itself is WordPress's; only the comma
+joining it to the date is ours.
 
 There is no custom-pattern escape hatch: a hand-written pattern fixes the
 day/month order to whatever the author happened to type, which is the problem
@@ -134,6 +147,38 @@ translated WordPress range pattern instead:
 | --------- | ---------------------------- | ----------------- |
 | `range`   | `{ from?: Date; to?: Date }` | Date range object |
 
+## `formatDateRangeCompact( range? )` and `formatDateRangeMinimal( range? )`
+
+Two shorter forms of the same range, for controls sized by the row they sit in
+rather than by their content. Everything else follows `formatDateRange`,
+including the elision, so all three stay one typographic system.
+
+`formatDateRangeCompact` abbreviates the month. `formatDateRangeMinimal` also
+drops the year, but only while the whole range sits in the site's current year:
+a range anywhere else needs its year to say which one it is, and reads as the
+compact form instead.
+
+```typescript
+// On a site left on the US English default, read during 2026:
+formatDateRangeCompact( { from, to } ); // 'Jun 21 – 25, 2026'
+formatDateRangeMinimal( { from, to } ); // 'Jun 21 – 25'
+
+// The same minimal call on a range in 2025:
+// 'Jun 21 – 25, 2025'
+```
+
+Both checks in `formatDateRange` run per form, so a locale can be trusted with
+one width and not another. Two things to know if you add a form:
+
+- The year-bearing forms are probed across a year boundary, so nothing in the
+  probe can elide. The year-less form has to be probed inside one year instead:
+  asked to span two with no year to tell them apart, ICU puts one back, and a
+  probe that provokes that rejects the form outright. Hungarian and Czech are
+  the locales this was found on.
+- A form whose derivation has nothing to change returns the site format
+  unaltered, and then fails the first check against `Intl`'s own abbreviation.
+  That is the intended outcome: the site keeps the format it asked for.
+
 ## `formatDateRangeLong( range?, options? )`
 
 Format a date range in explicit, readable form, for prominent surfaces such as
@@ -165,11 +210,11 @@ formatDateRangeLong( { from, to }, { calendarScale: true } );
 // without the flag, the first of those reads 'Thursday, January 1 – Thursday, July 30'
 ```
 
-| Parameter               | Type                         | Default      | Description                                    |
-| ----------------------- | ---------------------------- | ------------ | ---------------------------------------------- |
-| `range`                 | `{ from?: Date; to?: Date }` |              | Date range object                              |
-| `options.referenceYear` | `number`                     | current year | Year against which the year is redundant       |
-| `options.calendarScale` | `boolean`                    | `false`      | Force the calendar shape whatever it measures  |
+| Parameter               | Type                         | Default      | Description                                   |
+| ----------------------- | ---------------------------- | ------------ | --------------------------------------------- |
+| `range`                 | `{ from?: Date; to?: Date }` |              | Date range object                             |
+| `options.referenceYear` | `number`                     | current year | Year against which the year is redundant      |
+| `options.calendarScale` | `boolean`                    | `false`      | Force the calendar shape whatever it measures |
 
 ## Implementation
 

@@ -8,8 +8,11 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
-import { SelectField } from '@jetpack-premium-analytics/fields';
-import type { MetricTabsChartType } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	chartTypeAttributeField,
+	granularityAttributeField,
+	type ChartDisplayChartType,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Granularity the chart can be grouped by. `auto` follows the dashboard date
@@ -19,22 +22,10 @@ import type { MetricTabsChartType } from '@jetpack-premium-analytics/widgets-too
 export type SubscribersChartGranularity = 'auto' | 'day' | 'week' | 'month';
 
 /**
- * The chart types the widget offers, in display order. Single source for the
- * settings dropdown and the `SubscribersChartType` union so the two cannot
- * drift apart. Matches the Traffic summary chart's own switch, so the two
- * summary charts on the dashboard offer the same choice.
+ * How the selected metric is drawn. The shared chart-display list keeps every
+ * chart widget's dropdown identical and ties it to the toolkit's own union.
  */
-export const SUBSCRIBERS_CHART_TYPES = [
-	{ id: 'line', label: __( 'Line chart', 'jetpack-premium-analytics-pkg' ) },
-	{ id: 'bar', label: __( 'Bar chart', 'jetpack-premium-analytics-pkg' ) },
-] as const satisfies readonly { id: MetricTabsChartType; label: string }[];
-
-/**
- * How the selected metric is drawn. Derived from the list above, which
- * `satisfies` the toolkit's own union, so a value the chart cannot draw fails
- * to compile here rather than shipping as a broken dropdown option.
- */
-export type SubscribersChartType = ( typeof SUBSCRIBERS_CHART_TYPES )[ number ][ 'id' ];
+export type SubscribersChartType = ChartDisplayChartType;
 
 /**
  * The metric tabs the chart shows, in display order: the id and label of each
@@ -79,42 +70,8 @@ export type SubscribersChartAttributes = {
 export default {
 	icon: people,
 	attributes: [
-		{
-			id: 'granularity',
-			label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
-			type: 'text',
-			Edit: SelectField,
-			elements: [
-				{
-					label: __( 'Auto', 'jetpack-premium-analytics-pkg' ),
-					value: 'auto',
-				},
-				{
-					label: __( 'By days', 'jetpack-premium-analytics-pkg' ),
-					value: 'day',
-				},
-				{
-					label: __( 'By weeks', 'jetpack-premium-analytics-pkg' ),
-					value: 'week',
-				},
-				{
-					label: __( 'By months', 'jetpack-premium-analytics-pkg' ),
-					value: 'month',
-				},
-			],
-			relevance: 'high',
-		},
-		{
-			id: 'chartType',
-			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
-			type: 'text',
-			Edit: SelectField,
-			elements: SUBSCRIBERS_CHART_TYPES.map( chartType => ( {
-				value: chartType.id,
-				label: chartType.label,
-			} ) ),
-			relevance: 'high',
-		},
+		granularityAttributeField( [ 'auto', 'day', 'week', 'month' ] ),
+		chartTypeAttributeField(),
 	] as WidgetAttributeField< SubscribersChartAttributes >[],
 	example: {
 		attributes: {

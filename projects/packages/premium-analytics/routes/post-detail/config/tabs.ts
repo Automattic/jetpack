@@ -19,6 +19,13 @@ export const POST_DETAIL_TAB_IDS = [ 'post-traffic', 'email-opens', 'email-click
 export type PostDetailTabId = ( typeof POST_DETAIL_TAB_IDS )[ number ];
 
 /**
+ * The tabs that describe the post's newsletter send rather than the post
+ * itself. The header keys its email identity off this list, so a future tab
+ * defaults to the post identity unless it is added here.
+ */
+export const EMAIL_TAB_IDS: readonly PostDetailTabId[] = [ 'email-opens', 'email-clicks' ];
+
+/**
  * Default tab shown when the URL has no (or an unknown) tab param.
  */
 export const DEFAULT_TAB_ID: PostDetailTabId = 'post-traffic';

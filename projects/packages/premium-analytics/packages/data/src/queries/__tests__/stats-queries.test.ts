@@ -1,24 +1,8 @@
 /**
- * Mock WordPress dependencies so date.ts can load. The select mock returns
- * site settings with timezone: 'UTC' so getSiteTimezone() returns UTC,
- * making localTZDate's default (site-timezone) calls deterministic
- * regardless of the machine running the test (e.g. the WordAds "yesterday"
- * clamp in stats-wordads-query.ts).
- */
-jest.mock( '@wordpress/core-data', () => ( {
-	store: 'core',
-} ) );
-
-jest.mock( '@wordpress/data', () => ( {
-	select: jest.fn( () => ( {
-		getEntityRecord: jest.fn( () => ( { timezone: 'UTC' } ) ),
-	} ) ),
-} ) );
-
-/**
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
@@ -70,6 +54,14 @@ import { statsWordAdsEarningsQuery, statsWordAdsStatsQuery } from '../stats-word
 import type { StatsReportParams } from '../stats-query';
 
 jest.mock( '@wordpress/api-fetch' );
+
+// `localTZDate()` defaults to the site zone, so pin it rather than letting the
+// machine timezone decide the WordAds "yesterday" clamp in
+// stats-wordads-query.ts.
+setSettings( {
+	...getSettings(),
+	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+} );
 
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 

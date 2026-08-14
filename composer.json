@@ -116,7 +116,7 @@
 		"policy": {
 			"advisories": {
 				"ignore-id": [
-					"PKSA-rdkp-vv9z-mjkg"
+					"GHSA-3pwp-g2mj-5p3v"
 				]
 			}
 		}

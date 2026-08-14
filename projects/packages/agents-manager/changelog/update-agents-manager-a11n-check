@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Expose the Automattician tracking signal to the Agents Manager frontend.

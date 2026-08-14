@@ -398,30 +398,19 @@ const withTZ = dateToISOStringWithLocalTZ( new Date() );
 
 **Returns:** `string` - ISO string with timezone offset
 
-### `getSiteTimezone()`
-
-Returns the WordPress site's configured timezone string.
-
-```typescript
-const timezone = getSiteTimezone();
-// Returns: "America/New_York" or "+05:30" (offset format)
-```
-
-**Returns:** `string` - Site timezone from WordPress settings
-
-**Note:** This function will throw an error if called before core settings
-are loaded. Use `ensureCoreSettingsReady()` in route loaders to prevent
-this.
+**Note:** The site timezone comes from `siteTimeZone()` in
+`@jetpack-premium-analytics/datetime`, which reads the WordPress date
+settings that ship with the page. It needs no await.
 
 ### `ensureCoreSettingsReady()`
 
-Ensures WordPress core settings (site and general settings) are loaded
-before accessing timezone-dependent functions.
+Ensures the WordPress core `site` and `general settings` records are
+resolved, so components reading them (e.g. `useSiteHomeUrl`) render with a
+warm cache.
 
 ```typescript
 // In route loaders or beforeLoad hooks
 await ensureCoreSettingsReady();
-// Now getSiteTimezone() can be safely called
 ```
 
 **Returns:** `Promise<void>` - Resolves when settings are loaded
@@ -463,8 +452,7 @@ This package exports the following public API:
 
 - `localTZDate` - Create timezone-aware dates
 - `dateToISOStringWithLocalTZ` - Convert to ISO with timezone
-- `getSiteTimezone` - Get WordPress site timezone
-- `ensureCoreSettingsReady` - Ensure settings are loaded
+- `ensureCoreSettingsReady` - Ensure core settings records are resolved
 
 ### Constants
 
