@@ -262,9 +262,9 @@ describe( 'EmailTimeSeriesWidget', () => {
 			/>
 		);
 
-		await expect(
-			screen.findByRole( 'presentation', { hidden: true } )
-		).resolves.toBeInTheDocument();
+		// The skeleton, not the removed spinner. `hidden: true` because a refetch
+		// draws it silently — only a first load announces.
+		await expect( screen.findByRole( 'status', { hidden: true } ) ).resolves.toBeInTheDocument();
 		expect(
 			screen.queryByText( 'No activity for this email in this period.' )
 		).not.toBeInTheDocument();
