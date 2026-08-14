@@ -13,6 +13,7 @@ import * as React from 'react';
  * Internal dependencies
  */
 import { getActions } from '../responses/actions.tsx';
+import repairResponseRecord from './repair-record.ts';
 /**
  * Types
  */
@@ -87,29 +88,11 @@ export default function SingleResponseActions( {
 				return;
 			}
 
-			// Re-receive the pre-action record carrying the new status. This repairs
-			// two things at once:
-			//
-			// - Trash goes through `deleteEntityRecord`, which drops the record from
-			//   core-data entirely, so this page would fall through to "not found".
-			// - The save-based changes (spam / not spam / restore) PUT without
-			//   `fields_format`, and the endpoint defaults that to `label-value`
-			//   (class-contact-form-endpoint.php). The response to that PUT is
-			//   received into the store, replacing the collection-shaped `fields` this
-			//   page renders from — so the body would visibly flatten into plain rows.
-			//   `response` here is still the pre-action, collection-shaped record.
-			//
-			// Same repair as PR #49827, which fixed a query-less *fetch* clobbering the
-			// collection record; these actions reopen the same door via the save.
-			registry
-				.dispatch( coreStore )
-				.receiveEntityRecords(
-					'postType',
-					'feedback',
-					[ { ...response, status: nextStatus } ],
-					undefined,
-					true
-				);
+			repairResponseRecord(
+				registry.dispatch( coreStore ).receiveEntityRecords,
+				response,
+				nextStatus
+			);
 		},
 		[ isPending, response, registry ]
 	);

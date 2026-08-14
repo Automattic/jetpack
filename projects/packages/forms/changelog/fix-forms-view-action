@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Responses: open a response on its own page from the list's View action and from response notification emails, and keep the user on that page when a response is marked as spam or trashed.
+Responses: open a response on its own page from the list's View action and from both response notification email buttons, and keep the user on that page when a response is marked as spam or trashed.

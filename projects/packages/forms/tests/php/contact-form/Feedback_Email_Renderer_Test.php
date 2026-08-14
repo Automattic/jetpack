@@ -684,15 +684,15 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The two email action buttons must not point at the same place.
+	 * Both email action buttons open the standalone single response page.
 	 *
-	 * "View in dashboard" opens the standalone single response page, while
-	 * "Mark as spam" has to stay on the responses list: the confirmation dialog it
-	 * relies on lives in the list's response inspector, not on the single response
-	 * page. Consolidating the two into one helper looks like a tidy-up and would
-	 * silently drop that confirmation step, so pin the difference here.
+	 * "Mark as spam" differs only by the `mark_as_spam` trigger, which opens a
+	 * confirmation dialog on that page — the destructive step is never taken on the
+	 * strength of an email click alone. Dropping that parameter would look like a
+	 * harmless de-duplication of two now-identical URLs while actually removing the
+	 * confirmation, so pin it here.
 	 */
-	public function test_build_email_content_action_urls_are_distinct() {
+	public function test_build_email_content_action_urls_target_single_response_page() {
 		add_filter( 'jetpack_forms_alpha', '__return_true' );
 
 		$post_id = Utility::create_legacy_feedback(
@@ -727,26 +727,21 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 			$result['message']
 		);
 
-		// "Mark as spam" stays on the responses list and keeps its trigger param.
-		// Asserted by shape rather than by rebuilding `add_mark_as_spam_to_url()`,
-		// which embeds the flag inside the encoded `p` path for wp-build URLs.
+		// "Mark as spam" points at the same page and carries the trigger. Asserted by
+		// shape rather than by rebuilding `add_mark_as_spam_to_url()`, which embeds
+		// the flag inside the encoded `p` path for wp-build URLs.
 		$this->assertMatchesRegularExpression(
-			'#href="[^"]*p=%2Fresponses%2Finbox[^"]*mark_as_spam[^"]*"#',
+			'#href="[^"]*p=%2Fresponse%2F' . $post_id . '[^"]*mark_as_spam[^"]*"#',
 			$result['message'],
-			'Mark as spam must stay on the responses list, where its confirmation dialog lives.'
+			'Mark as spam must open the single response page with its confirmation trigger.'
 		);
 
-		// And it must never be pointed at the standalone page, which has no dialog.
+		// It must never lose the trigger and become a plain "view" link — that would
+		// mark the response as spam with no confirmation, or not at all.
 		$this->assertDoesNotMatchRegularExpression(
-			'#href="[^"]*p=%2Fresponse%2F\d+[^"]*mark_as_spam#',
+			'#href="[^"]*p=%2Fresponses%2Finbox[^"]*mark_as_spam#',
 			$result['message'],
-			'Pointing Mark as spam at the single response page would drop the confirmation step.'
-		);
-
-		$this->assertNotEquals(
-			Dashboard::get_single_response_admin_url( $post_id ),
-			Dashboard::get_forms_admin_url( 'inbox', $post_id ),
-			'The single response page and the responses list must remain distinct URLs.'
+			'Mark as spam should no longer route through the responses list.'
 		);
 	}
 

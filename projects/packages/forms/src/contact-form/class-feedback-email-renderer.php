@@ -92,7 +92,10 @@ class Feedback_Email_Renderer {
 	 *   'comment_author'       => string  Author name.
 	 *   'comment_author_email' => string  Author email.
 	 *   'comment_author_ip'    => string  Author IP address.
-	 *   'is_spam'              => bool    Whether submission is spam.
+	 *   'is_spam'              => bool    Whether submission is spam. Still passed by the
+	 *                                    caller, but no longer read: both email buttons
+	 *                                    now open the single response page, which shows
+	 *                                    the response whatever its status.
 	 *   'feedback_status'      => string  Post status of the feedback.
 	 *
 	 * @return array{title: string, message: string} The email title and rendered HTML message.
@@ -103,7 +106,6 @@ class Feedback_Email_Renderer {
 		$comment_author       = $context_data['comment_author'];
 		$comment_author_email = $context_data['comment_author_email'];
 		$comment_author_ip    = $context_data['comment_author_ip'];
-		$is_spam              = $context_data['is_spam'];
 		$is_test              = ! empty( $context_data['is_test'] );
 		$feedback_status      = $context_data['feedback_status'];
 
@@ -161,10 +163,9 @@ class Feedback_Email_Renderer {
 			esc_url( $url )
 		);
 
-		// Get the status of the feedback.
-		$status = $is_spam ? 'spam' : 'inbox';
-
-		// Build the dashboard URL with the status and the feedback's post id if we have a post id.
+		// Build the dashboard URL for the feedback's post id if we have one. The
+		// single response page shows the response whatever its status, so the
+		// destination no longer depends on whether this submission was spam.
 		$dashboard_url           = '';
 		$mark_as_spam_url        = '';
 		$footer_mark_as_spam_url = '';
@@ -181,18 +182,15 @@ class Feedback_Email_Renderer {
 		$show_email_actions = apply_filters( 'jetpack_forms_email_show_actions', true );
 
 		if ( $feedback_status !== 'jp-temp-feedback' && $show_email_actions ) {
-			// "View in dashboard" opens the response on its own page.
+			// Both buttons open the response on its own page. "Mark as spam" adds a
+			// parameter that opens a confirmation dialog there, so the destructive
+			// step is never taken on the strength of an email click alone.
 			$dashboard_url = Forms_Dashboard::get_single_response_admin_url( $post_id );
 			// Test responses don't get a Mark-as-spam link in the email — marking
 			// a test entry as spam from email is confusing and the form owner can
 			// always do it from the dashboard if they want.
 			if ( ! $is_test ) {
-				// Mark-as-spam still points at the responses list: its confirmation
-				// dialog lives in the list's response inspector, not on the
-				// standalone response page.
-				$mark_as_spam_url        = self::add_mark_as_spam_to_url(
-					Forms_Dashboard::get_forms_admin_url( $status, $post_id )
-				);
+				$mark_as_spam_url        = self::add_mark_as_spam_to_url( $dashboard_url );
 				$footer_mark_as_spam_url = sprintf(
 					'<a href="%1$s">%2$s</a>',
 					esc_url( $mark_as_spam_url ),

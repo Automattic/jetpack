@@ -6,14 +6,18 @@ import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Modal, Spinner } from '@wordpress/components';
+import {
+	Modal,
+	Spinner,
+	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { useParams } from '@wordpress/route';
+import { useNavigate, useParams, useSearch } from '@wordpress/route';
 import { Badge, Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
@@ -24,9 +28,11 @@ import ResponseFieldsIterator from '../../src/dashboard/components/inspector/res
 import ResponseMeta from '../../src/dashboard/components/inspector/response-meta';
 import ResponseNavigation from '../../src/dashboard/components/inspector/response-navigation/index.tsx';
 import { getDisplayName } from '../../src/dashboard/components/inspector/utils.ts';
+import { useMarkAsSpam } from '../../src/dashboard/hooks/use-mark-as-spam.ts';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
 import SingleResponseBreadcrumbs from './breadcrumbs.tsx';
 import SingleResponseActions from './page-actions.tsx';
+import repairResponseRecord from './repair-record.ts';
 import useResponsePageNavigation from './use-navigation.ts';
 // Shared wp-build dashboard chrome (page layout + breadcrumb link styling). The
 // other dashboard routes load this; the single-response route needs it too so
@@ -79,10 +85,14 @@ function ResponseStatusBadge( { status }: { status: FormResponse[ 'status' ] } )
  */
 function Stage(): React.JSX.Element {
 	const params = useParams( { from: '/response/$responseId' } );
+	const searchParams = useSearch( { from: '/response/$responseId' } );
+	const navigate = useNavigate();
 	const id = Number( params.responseId );
 	const isValidId = Number.isFinite( id ) && id > 0;
 
-	const { editEntityRecord } = useDispatch( coreStore ) as unknown as DispatchActions;
+	const { editEntityRecord, receiveEntityRecords } = useDispatch(
+		coreStore
+	) as unknown as DispatchActions;
 	const [ markedReadId, setMarkedReadId ] = useState< number | null >( null );
 	const [ previewFile, setPreviewFile ] = useState< PreviewFileItem | null >( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
@@ -135,6 +145,37 @@ function Stage(): React.JSX.Element {
 		},
 		[ response?.form_id ]
 	);
+
+	// The email's "Mark as spam" button lands here with `?mark_as_spam=1`, which
+	// opens a confirmation dialog — the destructive step is never taken on the
+	// strength of a click in an email client alone. Same hook the responses list
+	// inspector uses, so the copy and behaviour stay in one place.
+	const clearMarkAsSpamParam = useCallback( () => {
+		navigate( {
+			search: { ...searchParams, mark_as_spam: undefined },
+			replace: true,
+		} );
+	}, [ navigate, searchParams ] );
+
+	const {
+		isConfirmDialogOpen,
+		onConfirmMarkAsSpam,
+		onCancelMarkAsSpam,
+		markAsSpamConfirmationMessage,
+		isSaving,
+	} = useMarkAsSpam( response, {
+		checkParameter: () => ( searchParams as { mark_as_spam?: number } )?.mark_as_spam === 1,
+		removeParameter: clearMarkAsSpamParam,
+		switchToSpam: () => {
+			// Unlike the list inspector, this page keeps the user on the response they
+			// just actioned, so the badge and menu flip in place. The hook saves
+			// without `fields_format`, so repair the record or the body flattens.
+			if ( response ) {
+				repairResponseRecord( receiveEntityRecords, response, 'spam' );
+			}
+			clearMarkAsSpamParam();
+		},
+	} );
 
 	const { hasPrevious, hasNext, goPrevious, goNext } = useResponsePageNavigation( id );
 
@@ -288,6 +329,15 @@ function Stage(): React.JSX.Element {
 					/>
 				</Modal>
 			) }
+
+			<ConfirmDialog
+				isOpen={ isConfirmDialogOpen }
+				onConfirm={ onConfirmMarkAsSpam }
+				onCancel={ onCancelMarkAsSpam }
+				isBusy={ isSaving }
+			>
+				{ markAsSpamConfirmationMessage }
+			</ConfirmDialog>
 		</FormsPage>
 	);
 }

@@ -205,6 +205,28 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The email's Mark as spam trigger survives the cross-variant redirect.
+	 *
+	 * Losing it here would silently turn the email's Mark as spam button into a
+	 * plain "view" link on the legacy dashboard.
+	 */
+	public function test_redirect_cross_variant_keeps_mark_as_spam_on_single_response_path() {
+		add_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
+		$_GET['p']    = '/response/123?mark_as_spam=1';
+
+		$redirect = $this->capture_cross_variant_redirect();
+
+		remove_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		$this->assertEquals(
+			get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=inbox&r=123&mark_as_spam',
+			$redirect
+		);
+	}
+
+	/**
 	 * The single response path is matched whole — trailing junk is not a response ID.
 	 */
 	public function test_redirect_cross_variant_ignores_malformed_single_response_path() {

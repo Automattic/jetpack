@@ -1,0 +1,49 @@
+/**
+ * Types
+ */
+import type { DispatchActions } from '../../src/dashboard/inbox/stage/types.tsx';
+import type { FormResponse } from '../../src/types/index.ts';
+
+/**
+ * Re-receive a response record carrying the status it was just given.
+ *
+ * Needed by every status change made from the standalone single response page,
+ * because that page keeps the user in place instead of navigating away. It
+ * repairs two different ways the store would otherwise misrepresent the response
+ * the user is still looking at.
+ *
+ * Trash goes through `deleteEntityRecord`, whose `REMOVE_ITEMS` reducer drops the
+ * record from core-data entirely, leaving the page on its "not found" state.
+ *
+ * The save-based changes (spam / not spam / restore, including the one behind the
+ * email's "Mark as spam" confirmation) PUT without `fields_format`, and the
+ * endpoint defaults that to `label-value` (see `class-contact-form-endpoint.php`).
+ * core-data receives that response into the store, replacing the
+ * collection-shaped `fields` this page renders from, so the body would visibly
+ * flatten into plain rows.
+ *
+ * Callers must pass the *pre-action* record, which still holds the rich
+ * collection-shaped fields, and must only call this once the server has accepted
+ * the change — otherwise the canonical record would advertise a status the
+ * response never got.
+ *
+ * Same repair as PR #49827, which fixed a query-less *fetch* clobbering the
+ * collection record; these actions reopen the same door via the save.
+ *
+ * @param receiveEntityRecords - core-data's `receiveEntityRecords` dispatcher.
+ * @param response             - The response as it was before the action ran.
+ * @param nextStatus           - The status the server just accepted.
+ */
+export default function repairResponseRecord(
+	receiveEntityRecords: DispatchActions[ 'receiveEntityRecords' ],
+	response: FormResponse,
+	nextStatus: FormResponse[ 'status' ]
+): void {
+	receiveEntityRecords(
+		'postType',
+		'feedback',
+		[ { ...response, status: nextStatus } ],
+		undefined,
+		true
+	);
+}
