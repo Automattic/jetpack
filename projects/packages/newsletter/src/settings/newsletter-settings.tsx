@@ -359,12 +359,23 @@ export function NewsletterSettingsBody( {
 			return;
 		}
 
+		const submittedSenderNameChanges = senderNameChanges;
 		setIsSavingSenderName( true );
 
-		updateSettings( senderNameChanges )
+		updateSettings( submittedSenderNameChanges )
 			.then( () => {
-				setSavedData( prev => ( { ...prev, ...senderNameChanges } ) );
-				setSenderNameChanges( {} );
+				setSavedData( prev => ( { ...prev, ...submittedSenderNameChanges } ) );
+				setSenderNameChanges( currentChanges => {
+					const pendingChanges = { ...currentChanges };
+					for ( const key of Object.keys( submittedSenderNameChanges ) as Array<
+						keyof NewsletterSettings
+					> ) {
+						if ( currentChanges[ key ] === submittedSenderNameChanges[ key ] ) {
+							delete pendingChanges[ key ];
+						}
+					}
+					return pendingChanges;
+				} );
 				createSuccessNotice( __( 'Sender settings saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
