@@ -111,8 +111,8 @@ const PocketCastsRow = ( { app, state, blockedReason, onFirstSave }: PodcastAppR
 					{ rejectedMessage ?? __( 'Pocket Casts could not accept this feed.', 'jetpack-podcast' ) }
 					{ rejectionReasons.length > 0 && (
 						<ul className="podcast__pocketcasts-errors">
-							{ rejectionReasons.map( r => (
-								<li key={ r }>{ r }</li>
+							{ rejectionReasons.map( ( rejection, i ) => (
+								<li key={ `${ i }-${ rejection }` }>{ rejection }</li>
 							) ) }
 						</ul>
 					) }

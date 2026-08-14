@@ -85,8 +85,8 @@ export const DirectoryRow = ( {
 						target="_blank"
 						rel="noreferrer"
 						aria-label={ sprintf(
-							/* translators: %s: directory name (Pocket Casts, Apple Podcasts, etc.). */
-							__( 'View your show on %s (opens in a new tab)', 'jetpack-podcast' ),
+							/* translators: %s: directory name (Pocket Casts, Apple Podcasts, etc.). Must start with the button's visible "View show" label so voice control can match it. */
+							__( 'View show on %s (opens in a new tab)', 'jetpack-podcast' ),
 							app.name
 						) }
 					>
