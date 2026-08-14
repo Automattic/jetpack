@@ -3,7 +3,7 @@
  * of the machine timezone running the tests.
  */
 jest.mock( '@jetpack-premium-analytics/data', () => {
-	const { TZDateMini } = jest.requireActual( '@date-fns/tz' );
+	const { toLocalTZ } = jest.requireActual( '@jetpack-premium-analytics/datetime' );
 
 	/*
 	 * Only the timezone reads are stubbed. `resolveIntervalForRange` stays
@@ -12,10 +12,9 @@ jest.mock( '@jetpack-premium-analytics/data', () => {
 	 */
 	return {
 		...jest.requireActual( '@jetpack-premium-analytics/data' ),
-		getSiteTimezone: () => '+00:00',
 		dateToISOStringWithLocalTZ: ( date: Date ) => new Date( date.getTime() ).toISOString(),
-		localTZDate: ( value: number | Date ) =>
-			new TZDateMini( typeof value === 'number' ? value : value.getTime(), '+00:00' ),
+		localTZDate: ( value?: number | string | Date, timezone?: string ) =>
+			toLocalTZ( value, timezone ?? '+00:00' ),
 	};
 } );
 /**

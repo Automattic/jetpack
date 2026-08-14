@@ -1,12 +1,14 @@
 /**
  * External dependencies
  */
-import { setSettings } from '@wordpress/date';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
-import { EN_US_SETTINGS } from '../__fixtures__/wp-date-settings';
 import { siteTimeZone } from '../site-time-zone';
+
+/** The package defaults before tests override them. */
+const DEFAULTS = getSettings();
 
 /**
  * Install settings carrying a specific timezone.
@@ -17,7 +19,7 @@ import { siteTimeZone } from '../site-time-zone';
  */
 const withTimezone = ( timezone: { offset: number; string: string } ) =>
 	setSettings( {
-		...EN_US_SETTINGS,
+		...DEFAULTS,
 		timezone: { ...timezone, offsetFormatted: String( timezone.offset ), abbr: '' },
 	} );
 
@@ -28,8 +30,6 @@ describe( 'siteTimeZone', () => {
 		expect( siteTimeZone() ).toBe( 'Europe/Amsterdam' );
 	} );
 
-	// A site set to a manual UTC offset rather than a city has no timezone
-	// string at all, so the offset is the only thing left to go on.
 	it( 'falls back to the offset when there is no named timezone', () => {
 		withTimezone( { offset: 8, string: '' } );
 
@@ -56,6 +56,12 @@ describe( 'siteTimeZone', () => {
 
 	it( 'formats a zero offset', () => {
 		withTimezone( { offset: 0, string: '' } );
+
+		expect( siteTimeZone() ).toBe( '+00:00' );
+	} );
+
+	it( 'resolves to UTC when WordPress installed no settings', () => {
+		setSettings( DEFAULTS );
 
 		expect( siteTimeZone() ).toBe( '+00:00' );
 	} );
