@@ -2,6 +2,22 @@
 @include meta.load-css("@wordpress/dataviews/build-style/style.css");
 
 .vp-library {
+	// Same measure and gutter as the Stats and Home tabs (1344px centered,
+	// 24px), so the dashboard's content pages line up instead of the listing
+	// running edge to edge while its neighbours sit in a column. Flex column
+	// with `flex: 1` and `min-block-size: 0` so the DataViews viewport inside
+	// still grows into the tabpanel and pins its pagination to the bottom —
+	// the chain the dashboard-layout stylesheet sets up.
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-block-size: 0;
+	inline-size: 100%;
+	max-inline-size: 1344px;
+	margin-inline: auto;
+	padding-block: 24px;
+	padding-inline: 24px;
 
 	// `aria-disabled` rather than `disabled` so the button stays in the
 	// focus tree and the `@wordpress/components` Tooltip can fire on
@@ -12,12 +28,11 @@
 		cursor: not-allowed;
 	}
 
-	// At-limit upgrade notice rendered above the listing. The tabpanel is a
-	// column flex (see dashboard-layout/style.scss), so the notice stacks on
-	// top of the flex-growing viewport; the margin matches the Overview
-	// tab's 24px gutter.
+	// At-limit upgrade notice rendered above the listing. The container's
+	// padding supplies the gutter now, so this only needs to space itself off
+	// the listing below.
 	&__notice {
-		margin: 24px 24px 0;
+		margin-block-end: 24px;
 	}
 
 	&__viewport {
