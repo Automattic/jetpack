@@ -53,7 +53,7 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 	),
 } ) );
 
-// The celebration's copy button posts a snackbar through the notices store.
+// The info card's copy buttons post a snackbar through the notices store.
 jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
 	useGlobalNotices: () => ( {
 		createSuccessNotice: jest.fn(),
@@ -77,7 +77,7 @@ jest.mock( '../subtitles-card', () => ( {
 	__esModule: true,
 	default: () => <div data-testid="subtitles-card" />,
 } ) );
-// live-celebration imports linkForVideo from this module, so the mock keeps
+// The info card resolves its share link through this module, so the mock keeps
 // the real implementation alongside the stubbed card.
 jest.mock( '../video-info-card', () => ( {
 	__esModule: true,
@@ -243,27 +243,24 @@ describe( 'Editor upload session', () => {
 		expect( screen.getByLabelText( 'Title' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows the one-time celebration instead of the player and dismisses to it', async () => {
-		const user = userEvent.setup();
-		const onDismiss = jest.fn();
+	// The end of an upload hands the slot straight back to the player: nothing
+	// stands between the user and the video they just uploaded, and every share
+	// action already has exactly one home elsewhere on the page.
+	it( 'gives the player slot back to the player once the upload settles', () => {
 		render(
 			<Editor
 				{ ...editorProps( makeLibraryItem(), {
-					celebration: { onDismiss },
 					saveDisabled: false,
 				} ) }
 			/>
 		);
 
-		expect( screen.getByText( 'Your video is live' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'https://videopress.com/v/abc123' ) ).toBeInTheDocument();
-		expect( screen.queryByTestId( 'preview-player' ) ).not.toBeInTheDocument();
-		// The record is real now, so the GUID-dependent cards are back too.
-		expect( screen.getByTestId( 'thumbnail-card' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'preview-player' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Your video is live' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Watch video' } ) ).not.toBeInTheDocument();
+		// One copy-link control on the screen, in the info card — not two.
+		expect( screen.queryByRole( 'button', { name: 'Copy link' } ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'video-info-card' ) ).toBeInTheDocument();
-
-		await user.click( screen.getByRole( 'button', { name: 'Watch video' } ) );
-		expect( onDismiss ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	// The /upload bridge renders inside DashboardLayout's AdminPage; /video/:id

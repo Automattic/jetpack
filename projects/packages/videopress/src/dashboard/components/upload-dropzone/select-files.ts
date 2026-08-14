@@ -12,7 +12,8 @@ export const UPLOAD_ONBOARDING_CONTEXT = 'upload-onboarding';
 // they navigate to the Library and are carried by its in-flight rows and the
 // upload pill, with no surface of their own. Separating them is what keeps
 // the single-upload moments — the /upload bridge's adoption, and the one-time
-// celebration on /video/:id — from firing once per file of a batch.
+// "Your video is live" notice on /video/:id — from firing once per file
+// of a batch.
 export const UPLOAD_BATCH_CONTEXT = 'upload-batch';
 
 export type PlanFileSelection = {

@@ -94,7 +94,7 @@ const StageInner = () => {
 			}
 			// A batch is tagged apart from the single flow: it has no surface of
 			// its own here or on /upload, so it must not be adopted as one — nor
-			// celebrated once per file when the user chains through "Add details".
+			// announced once per file when the user chains through "Add details".
 			const context = files.length === 1 ? UPLOAD_ONBOARDING_CONTEXT : UPLOAD_BATCH_CONTEXT;
 			files.forEach( file => startUpload( file, context ) );
 			navigate( { href: files.length === 1 ? TAB_PATHS.upload : '/' } );

@@ -8,7 +8,6 @@ import { isChaptersEditorEnabled } from '../../utils/chapters-editor';
 import VideoNav from '../video-nav';
 import ChaptersHelpModal from './chapters-help-modal';
 import HeaderActions from './header-actions';
-import LiveCelebration from './live-celebration';
 import PreviewPlayer from './preview-player';
 import PrivacySharingCard from './privacy-sharing-card';
 import RatingCard from './rating-card';
@@ -53,14 +52,10 @@ export type EditorUploadSession = {
 	/**
 	 * The player slot's stage while the upload runs: progress, then processing,
 	 * or the failure + retry. Cleared (undefined) once the bound video is
-	 * playable, which hands the slot to the celebration / player.
+	 * playable, which hands the slot back to the player — the payoff the whole
+	 * flow was promising, so nothing is allowed to stand in front of it.
 	 */
 	uploadState?: EditorUploadState;
-	/**
-	 * The one-time "your video is live" overlay. Present only between the video
-	 * first becoming playable and the user dismissing it to the player.
-	 */
-	celebration?: { onDismiss: () => void };
 	/**
 	 * Save gate: the meta PATCH is keyed by attachment id, so Save must stay
 	 * off until the surface is bound to a real media record — form dirtiness
@@ -95,10 +90,10 @@ export type EditorProps = {
 	setChaptersOpen: ( open: boolean ) => void;
 	/**
 	 * Present while this Editor is bound to an upload still in the queue: it
-	 * turns the player slot into the upload's stage (progress → processing →
-	 * celebration), carries the draft in and out, and keeps in-progress edits
-	 * when the record re-binds. Both the /upload bridge and `/video/:id`
-	 * (which the bridge hands off to) pass one.
+	 * turns the player slot into the upload's stage (progress → processing),
+	 * carries the draft in and out, and keeps in-progress edits when the
+	 * record re-binds. Both the /upload bridge and `/video/:id` (which the
+	 * bridge hands off to) pass one.
 	 */
 	uploadSession?: EditorUploadSession;
 	/**
@@ -309,14 +304,11 @@ const Editor = ( {
 	// render an empty <h1> — and that <h1> is the page's only accessible name.
 	const headingLabel = values.title.trim() || __( 'Untitled', 'jetpack-videopress-pkg' );
 
-	let playerSlot = <PreviewPlayer video={ video } />;
-	if ( uploadState ) {
-		playerSlot = <UploadStagePanel uploadState={ uploadState } />;
-	} else if ( uploadSession?.celebration ) {
-		playerSlot = (
-			<LiveCelebration video={ video } onDismiss={ uploadSession.celebration.onDismiss } />
-		);
-	}
+	const playerSlot = uploadState ? (
+		<UploadStagePanel uploadState={ uploadState } />
+	) : (
+		<PreviewPlayer video={ video } />
+	);
 
 	const headerActions = (
 		<HeaderActions

@@ -19,7 +19,7 @@ import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
-import { markUploadCelebrated, useUpload } from '../../src/dashboard/hooks/use-upload';
+import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import {
 	isMissingVideoError,
 	useInvalidateVideo,
@@ -75,7 +75,7 @@ type StageReadyProps = {
 	video: LibraryItem;
 	/**
 	 * The un-acknowledged queue row that produced this video, when there is
-	 * one. It carries the pre-handoff draft and the pending celebration.
+	 * one. It carries the pre-handoff draft and the processing state.
 	 */
 	uploadRow?: UploadItem;
 };
@@ -119,48 +119,31 @@ const StageReady = ( { video, uploadRow }: StageReadyProps ) => {
 
 	// The upload's own screen. Arriving here from the /upload bridge (or from
 	// the pill's "Add details"), this page owns the tail of the upload: the
-	// processing stage in the player slot, then the one-time celebration.
+	// processing stage in the player slot, and then nothing — the payoff is
+	// the player itself, which is what the whole flow promised. The row has
+	// delivered everything it carried (the draft, the processing state) the
+	// moment the video is playable, so standing here consumes it.
 	//
-	// Celebration is gated on the single-upload flow's context: chaining
-	// through "Add details" for a five-file batch would otherwise throw five
-	// separate celebrations, one per video.
-	const isCelebrationDue = Boolean(
-		uploadRow &&
-			uploadRow.context === UPLOAD_ONBOARDING_CONTEXT &&
-			! uploadRow.celebrated &&
-			! video.isProcessing
-	);
-
-	// Dismiss is this row's end: the celebration is spent AND the row is
-	// acknowledged out of the queue. Acknowledgement deliberately happens here
-	// rather than at the handoff — the row has to survive the navigation to
-	// carry the draft and the celebration to this page in the first place.
-	const dismissCelebration = useCallback( () => {
-		if ( ! uploadRow ) {
+	// A snackbar marks the moment for the flow that earned one: a single
+	// upload. Chaining "Add details" through a five-file batch would
+	// otherwise announce five times.
+	useEffect( () => {
+		if ( ! uploadRow || video.isProcessing ) {
 			return;
 		}
-		markUploadCelebrated( uploadRow.id );
-		acknowledgeUpload( uploadRow.id );
-	}, [ acknowledgeUpload, uploadRow ] );
 
-	// A row with no celebration coming (a batch upload, or one already
-	// celebrated) has nothing left to deliver once this page is showing its
-	// video, so standing here consumes it. Without this, celebration dismiss
-	// being the only "Add details" acknowledgement path would leave batch rows
-	// in the queue forever — the pill's chain would loop back through videos
-	// the user had already visited.
-	useEffect( () => {
-		if ( uploadRow && ! isCelebrationDue && ! video.isProcessing ) {
-			acknowledgeUpload( uploadRow.id );
+		if ( uploadRow.context === UPLOAD_ONBOARDING_CONTEXT ) {
+			createSuccessNotice( __( 'Your video is live.', 'jetpack-videopress-pkg' ) );
 		}
-	}, [ uploadRow, isCelebrationDue, video.isProcessing, acknowledgeUpload ] );
+
+		acknowledgeUpload( uploadRow.id );
+	}, [ uploadRow, video.isProcessing, acknowledgeUpload, createSuccessNotice ] );
 
 	const uploadSession = uploadRow
 		? {
 				uploadState: video.isProcessing
 					? { status: 'processing' as const, progress: 100, fileName: uploadRow.file.name }
 					: undefined,
-				celebration: isCelebrationDue ? { onDismiss: dismissCelebration } : undefined,
 				// The record is real by definition on this route.
 				saveDisabled: false,
 				draft: uploadRow.draft,

@@ -130,7 +130,7 @@ describe( 'UploadPill', () => {
 
 		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/video/77' } );
 		// The row must survive the navigation: it carries the draft and the
-		// un-shown celebration to the video's page, which acknowledges it on
+		// draft to the video's page, which acknowledges it once the video
 		// dismiss. Acknowledging here killed both for pill-navigated arrivals.
 		expect( mockAcknowledgeUpload ).not.toHaveBeenCalled();
 	} );

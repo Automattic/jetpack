@@ -156,7 +156,6 @@ jest.mock( '../../../src/dashboard/components/video-details/editor', () => ( {
 	}: {
 		uploadSession?: {
 			uploadState?: { status: string; onRetry?: () => void };
-			celebration?: { onDismiss: () => void };
 			saveDisabled?: boolean;
 			draft?: { title?: string };
 			onDraftChange?: ( draft: { title?: string } | undefined ) => void;
@@ -167,7 +166,6 @@ jest.mock( '../../../src/dashboard/components/video-details/editor', () => ( {
 			data-testid="editor"
 			data-embedded={ embedded ? 'true' : 'false' }
 			data-upload-status={ uploadSession?.uploadState?.status ?? 'none' }
-			data-celebrating={ uploadSession?.celebration ? 'true' : 'false' }
 			data-save-disabled={ uploadSession?.saveDisabled ? 'true' : 'false' }
 			data-draft-title={ uploadSession?.draft?.title ?? '' }
 		>
@@ -237,7 +235,7 @@ describe( 'upload stage single-drop transition', () => {
 		expect( mockStartUpload ).toHaveBeenCalledTimes( 2 );
 		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/' } );
 		// Tagged apart from the single flow: a batch has no surface of its own,
-		// so it must not be adopted as one — nor celebrated once per file when
+		// so it must not be adopted as one — nor announced once per file when
 		// the user chains through the pill's "Add details".
 		expect( mockStartUpload ).toHaveBeenCalledWith( expect.anything(), 'upload-batch' );
 		// Neither the edit surface nor the 'uploading' interstitial claims a
@@ -296,12 +294,11 @@ describe( 'upload stage single-drop transition', () => {
 		await dropFiles( container, [ makeFile( 'one.mp4' ) ] );
 
 		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/video/77', replace: true } );
-		// The row survives the handoff: it carries the draft and the unspent
-		// celebration to that page, which acknowledges it on dismiss.
+		// The row survives the handoff: it carries the draft to that page,
+		// which acknowledges it once the video is playable.
 		expect( mockAcknowledgeUpload ).not.toHaveBeenCalled();
-		// Both the celebration and the first-publish flag left this step —
-		// the flag is written by the queue for every row, this one included.
-		expect( screen.getByTestId( 'editor' ) ).toHaveAttribute( 'data-celebrating', 'false' );
+		// Both the live notice and the first-publish flag left this step — the
+		// flag is written by the queue for every row, this one included.
 		expect( mockMarkFirstPublish ).not.toHaveBeenCalled();
 	} );
 
