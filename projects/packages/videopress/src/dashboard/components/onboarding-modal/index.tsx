@@ -9,7 +9,6 @@ import {
 	clearDismissal,
 	hasPublishedVideo,
 	hasSeenOnboarding,
-	markFirstPublish,
 	saveDismissal,
 } from '../../hooks/use-first-run-state';
 import { useOnboardingCounts } from '../../hooks/use-onboarding-counts';
@@ -234,18 +233,6 @@ export default function OnboardingModal(): ReactElement | null {
 		}
 	}, [ isPreview ] );
 
-	// A user who already has a VideoPress video published one, whether or not
-	// they did it in this browser and whether or not this flag existed when they
-	// did. Writing it down is what keeps the gate shut afterwards: deleting the
-	// last video puts the count honestly back to 0, and with no record of what
-	// came before, an established user was greeted as brand new on the very
-	// screen they had just emptied.
-	useEffect( () => {
-		if ( isSettled && videoPressCount > 0 ) {
-			markFirstPublish();
-		}
-	}, [ isSettled, videoPressCount ] );
-
 	// Anyone with something in the upload queue has already found the upload
 	// affordance — the one thing this modal exists to sell — so first run is
 	// over for them, count or no count. Without this the gate re-opened behind
@@ -275,6 +262,12 @@ export default function OnboardingModal(): ReactElement | null {
 	// The dismissal flag alone is not enough (localStorage, so a new browser
 	// presents as "never seen"), and nothing opens until both counts settle —
 	// that also guarantees the footer label never flickers between states.
+	//
+	// `hasPublishedVideo()` is read here and written nowhere near here: this
+	// component only mounts on the routes that carry the dashboard chrome, so
+	// while it owned the write, a load that never touched those routes recorded
+	// nothing and this gate reopened behind it. `useObserveFirstRunSignals`
+	// writes it from every route now.
 	const isOpen =
 		! isDismissed &&
 		isSettled &&

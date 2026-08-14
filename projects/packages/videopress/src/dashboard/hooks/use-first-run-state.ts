@@ -1,6 +1,7 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { useEffect, useMemo } from '@wordpress/element';
 import { useLibrary } from './use-library';
+import { useOnboardingCounts } from './use-onboarding-counts';
 import type { View } from '@wordpress/dataviews';
 
 /**
@@ -136,8 +137,8 @@ export function hasPublishedVideo(): boolean {
 /**
  * Record that the user has published their first video. Called from the upload
  * flow's publish step, so first-run never comes back after an activation — and
- * from the welcome modal, which records the same fact about a user whose
- * VideoPress videos predate this flag existing.
+ * from `useObserveFirstRunSignals`, which records the same fact about a user
+ * whose VideoPress videos predate this flag existing.
  */
 export function markFirstPublish(): void {
 	writeFlag( FIRST_PUBLISH_KEY_PREFIX );
@@ -190,20 +191,58 @@ const FIRST_RUN_COUNT_VIEW: View = {
  */
 function useLibraryVideoCount(): { videoCount: number; isSettled: boolean } {
 	const { paginationInfo, isLoading } = useLibrary( FIRST_RUN_COUNT_VIEW );
-	const videoCount = paginationInfo?.totalItems ?? 0;
-	const isSettled = ! isLoading;
 
-	// Write the answer down the first time we actually have one. This is the
-	// only place a settled whole-library count is observed, and `useFirstRunState`
-	// reads the flag back on the very first render of every later load rather
-	// than guessing again — see the note there.
+	return { videoCount: paginationInfo?.totalItems ?? 0, isSettled: ! isLoading };
+}
+
+/**
+ * Write down what this load learned about the user, so the next one starts from
+ * an answer instead of a guess. The single observation point for both flags.
+ *
+ * They used to be written wherever the counts happened to already be on screen:
+ * the library flag from the count hook above, the publish flag from an effect
+ * inside `OnboardingModal`. Both places are components some routes mount and
+ * others don't — `/video/:id` mounts neither — so a returning user who opened a
+ * video link in a fresh browser had nothing written down at all. Delete that
+ * video and the counts honestly read 0, with no record of what came before, and
+ * the first-run welcome modal greeted them over the "Video deleted." notice.
+ *
+ * Two flags, one writer: they answer different questions and must stay separate
+ * keys (see `hasEstablishedLibrary`), but "has this user got a library" and "has
+ * this user used VideoPress" are learned from the same pair of settled counts at
+ * the same moment, and a load that learns one has learned the other. Mounted
+ * from `QueryClientWrapper` — the one wrapper every route stage shares — so
+ * every route observes, including the ones with no dashboard chrome.
+ *
+ * A settled count is the whole precondition. An in-flight count reads 0, which
+ * is byte-identical to a genuinely empty library: writing on that would tell
+ * every later load that a brand-new user is established. Nothing is ever
+ * written from a loading count, and a settled zero writes nothing either — it
+ * is the one answer that proves nothing about the next load.
+ *
+ * The queries are the same ones the dashboard already runs (identical views, so
+ * identical react-query keys), which means the tab strip and the welcome modal
+ * read a warm cache rather than paying for a second request. On `/video/:id`
+ * and the video editor, which asked for none of them, this is genuinely three
+ * extra `perPage: 1` count requests — the price of observing everywhere.
+ */
+export function useObserveFirstRunSignals(): void {
+	const { videoCount, isSettled } = useLibraryVideoCount();
+	const { videoPressCount, isSettled: areTypeCountsSettled } = useOnboardingCounts();
+
 	useEffect( () => {
 		if ( isSettled && videoCount > 0 ) {
 			markEstablishedLibrary();
 		}
 	}, [ isSettled, videoCount ] );
 
-	return { videoCount, isSettled };
+	// A user with a VideoPress-hosted video published one, whether or not they
+	// did it in this browser and whether or not this flag existed when they did.
+	useEffect( () => {
+		if ( areTypeCountsSettled && videoPressCount > 0 ) {
+			markFirstPublish();
+		}
+	}, [ areTypeCountsSettled, videoPressCount ] );
 }
 
 /**

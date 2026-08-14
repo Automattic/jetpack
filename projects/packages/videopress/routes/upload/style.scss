@@ -129,6 +129,24 @@
 $vp-flow-easing: cubic-bezier(0.2, 0.7, 0.2, 1);
 $vp-flow-duration: 380ms;
 
+// How long the outgoing card gets when the handover is SEQUENCED rather than
+// cross-faded (`.vp-flow.is-sequenced`, set by StepFlow when the two steps
+// don't share a shape — see STEP_SHAPE in stage.tsx).
+// A cross-fade is the wrong primitive for two cards of different shape, and
+// no opacity curve fixes that: the short drop zone and the tall two-column
+// editor share no line of text, so through the middle of the transition the
+// user reads the dropzone's hint and sub-copy printed over the editor's
+// Description field. Round 2 stopped the outgoing card STRETCHING to the
+// incoming height, which was the worse half; the ~250ms of legible
+// body-text-over-body-text that survived it is this. So the two cards no
+// longer co-occupy at all — the old one is gone before the new one paints.
+// Deliberately short, and deliberately inside the SAME total: 120ms out plus
+// 260ms in = $vp-flow-duration, so the wrapper's height transition still
+// lands with the incoming card and StepFlow's 400ms exit timeout still covers
+// the whole handover. The same-shape transitions (upload → uploading →
+// details → success) are untouched and keep their full 380ms cross-fade.
+$vp-flow-exit-duration: 120ms;
+
 .vp-flow {
 	position: relative;
 	transition: height $vp-flow-duration $vp-flow-easing;
@@ -140,8 +158,12 @@ $vp-flow-duration: 380ms;
 			animation: vp-card-in $vp-flow-duration $vp-flow-easing both;
 		}
 
-		// The exiting card overlays in the same spot so both are briefly
-		// visible. Top and sides only — NOT `inset: 0`: pinning the bottom edge
+		// The exiting card overlays in the same spot. On a same-shape handover
+		// both are briefly visible and that is the cross-fade; on a
+		// shape-changing one `.is-sequenced` below keeps them from ever painting
+		// together, and this rule only takes the card out of flow so the
+		// incoming one can occupy the spot.
+		// Top and sides only — NOT `inset: 0`: pinning the bottom edge
 		// as well stretches the exiting card to the height of the wrapper,
 		// which by then is already easing towards the INCOMING step's height.
 		// Going upload → edit that is the full editor, and the dropzone card
@@ -155,6 +177,25 @@ $vp-flow-duration: 380ms;
 			inset-inline: 0;
 			pointer-events: none;
 			animation: vp-card-out $vp-flow-duration $vp-flow-easing both;
+		}
+	}
+
+	// Shape-changing handover: the same two keyframes, sequenced instead of
+	// overlapped. The outgoing card fades out in $vp-flow-exit-duration; the
+	// incoming one waits exactly that long before starting, so at no instant do
+	// both have opacity above 0. The `both` fill on vp-card-in is what holds
+	// the incoming card at opacity 0 through the delay instead of flashing it
+	// in at full strength first. Scoped to `.is-sequenced` and to direct
+	// children so it can never reach the cross-faded transitions.
+	&.is-sequenced {
+
+		> .vp-flow__card.is-exit {
+			animation-duration: $vp-flow-exit-duration;
+		}
+
+		> .vp-flow__card.is-enter {
+			animation-duration: $vp-flow-duration - $vp-flow-exit-duration;
+			animation-delay: $vp-flow-exit-duration;
 		}
 	}
 }
@@ -191,6 +232,10 @@ $vp-flow-duration: 380ms;
 		transition: none;
 	}
 
+	// `animation: none` clears the animation-name, so the higher-specificity
+	// duration/delay longhands `.is-sequenced` sets above stay inert here: there
+	// is no animation left for them to time. This branch is unchanged by the
+	// sequencing work, and `display: none` below still does the real job.
 	.vp-flow__card.is-enter,
 	.vp-flow__card.is-exit {
 		animation: none;

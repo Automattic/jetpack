@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { stage as Stage } from '../stage';
 import type { LibraryItem } from '../../../src/dashboard/types/library';
 import type { Action, View } from '@wordpress/dataviews';
@@ -105,10 +105,11 @@ jest.mock( '../../../src/dashboard/hooks/use-videopress-upgrade', () => ( {
 jest.mock( '../../../src/dashboard/hooks/use-persisted-view', () => ( {
 	usePersistedView: ( fallback: View ) => [ fallback, jest.fn() ],
 } ) );
+const mockCreateErrorNotice = jest.fn();
 jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
 	useGlobalNotices: () => ( {
 		createSuccessNotice: jest.fn(),
-		createErrorNotice: jest.fn(),
+		createErrorNotice: ( ...args: unknown[] ) => mockCreateErrorNotice( ...args ),
 		createInfoNotice: jest.fn(),
 	} ),
 } ) );
@@ -153,6 +154,52 @@ describe( 'library stage', () => {
 			render( <Stage /> );
 
 			expect( screen.getByRole( 'button', { name: 'Upload video' } ) ).toBeInTheDocument();
+		} );
+
+		it( 'offers only the extensions the backend accepts', () => {
+			// Under `accept="video/*"` the OS dialog listed `.webm` and `.mkv`,
+			// which this surface then had to refuse after the user had chosen one.
+			const { container } = render( <Stage /> );
+
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the picker input is display:none with no label; no accessible query reaches it.
+			const input = container.querySelector( 'input[type="file"]' ) as HTMLInputElement;
+			const accept = input.getAttribute( 'accept' ) ?? '';
+			expect( accept ).not.toBe( 'video/*' );
+			expect( accept.split( ',' ) ).toContain( '.mp4' );
+			expect( accept.split( ',' ) ).not.toContain( '.webm' );
+		} );
+
+		it( 'names the format when a real WebM reaches this surface anyway', async () => {
+			// A drop has no `accept` to lean on, so the Library has to answer a
+			// genuine `.webm` truthfully too — not "Only video files can be
+			// uploaded", which is what both testers were told.
+			const { container } = render( <Stage /> );
+
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the picker input is display:none with no label; no accessible query reaches it.
+			const input = container.querySelector( 'input[type="file"]' ) as HTMLInputElement;
+			const webm = new File(
+				[ new Uint8Array( [ 0x1a, 0x45, 0xdf, 0xa3, 0x01, 0x00, 0x00, 0x00 ] ) ],
+				'holiday.webm',
+				{ type: 'video/webm' }
+			);
+			// The file list is assigned directly rather than through
+			// `userEvent.upload`, which honours the `accept` attribute the test
+			// above just narrowed and would refuse to hand `.webm` to the input at
+			// all. This drives the handler the way a DROP does — no `accept` in the
+			// way — which is the path that has to carry the message.
+			Object.defineProperty( input, 'files', { value: [ webm ], configurable: true } );
+			// eslint-disable-next-line testing-library/prefer-user-event -- userEvent.upload is exactly what cannot be used here: it enforces `accept`, so it would drop the `.webm` before the handler ever saw it.
+			fireEvent.change( input );
+
+			// `waitFor`, not a fixed number of ticks: this refusal costs two header
+			// reads (see describeRefusal) plus planVideoDrop's own await, and
+			// counting those is how a test becomes a flake.
+			await waitFor( () =>
+				expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
+					'WEBM files can’t be uploaded. Convert your video to MP4 or MOV, then try again.',
+					{ id: 'vp-upload-invalid-file' }
+				)
+			);
 		} );
 	} );
 

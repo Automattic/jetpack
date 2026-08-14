@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Sequence the upload-to-editor step handover so the outgoing card can no longer be read through the incoming one.

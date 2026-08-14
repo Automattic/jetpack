@@ -6,7 +6,12 @@ import { Icon, upload } from '@wordpress/icons';
 import { Text } from '@wordpress/ui';
 import { useVideoPressUpgrade } from '../../hooks/use-videopress-upgrade';
 import { FREE_TIER_AT_LIMIT_MESSAGE, FREE_TIER_AT_LIMIT_NOTICE_ID } from '../free-tier-notice';
-import { filterVideoFiles, INVALID_FILE_NOTICE_ID } from './video-files';
+import {
+	describeRefusal,
+	filterVideoFiles,
+	INVALID_FILE_NOTICE_ID,
+	videoFileAccept,
+} from './video-files';
 import './style.scss';
 import type { MouseEvent } from 'react';
 
@@ -101,7 +106,10 @@ const UploadDropzone = ( {
 			// the file, which sent both testers off to check their plan.
 			const videos = await filterVideoFiles( files );
 			if ( ! videos.length ) {
-				createErrorNotice( __( 'Only video files can be uploaded.', 'jetpack-videopress-pkg' ), {
+				// The message is derived, not fixed: a real `.webm` is a video we
+				// can't take, and saying "Only video files can be uploaded" to
+				// someone holding one is simply untrue.
+				createErrorNotice( await describeRefusal( files ), {
 					id: INVALID_FILE_NOTICE_ID,
 				} );
 				return;
@@ -229,7 +237,13 @@ const UploadDropzone = ( {
 			<input
 				ref={ inputRef }
 				type="file"
-				accept="video/*"
+				// The allow-list, not `video/*`. Under `video/*` the OS dialog
+				// offered `.webm` and `.mkv` — real videos this backend refuses —
+				// and both testers picked one and were told their video wasn't a
+				// video. A drop can't be narrowed this way, so it leans on
+				// `describeRefusal` instead; this just stops the picker from
+				// setting the trap in the first place.
+				accept={ videoFileAccept() }
 				multiple={ allowMultiple }
 				className="vp-upload-dropzone__input"
 				onChange={ e => {

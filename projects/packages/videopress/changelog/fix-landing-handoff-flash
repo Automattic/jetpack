@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: go straight from the loading state to the right screen when arriving from the WordPress menu, instead of flashing an empty library on the way.

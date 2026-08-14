@@ -17,7 +17,11 @@ import { buildLibraryActions } from '../../src/dashboard/components/library/acti
 import { libraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
-import { INVALID_FILE_NOTICE_ID } from '../../src/dashboard/components/upload-dropzone/video-files';
+import {
+	describeRefusal,
+	INVALID_FILE_NOTICE_ID,
+	videoFileAccept,
+} from '../../src/dashboard/components/upload-dropzone/video-files';
 import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
@@ -204,7 +208,10 @@ const StageInner = () => {
 			// refresh one snackbar instead of stacking a column of identical
 			// ones — the same technique the delete notices below use.
 			if ( decision.kind === 'no-videos' ) {
-				createErrorNotice( __( 'Only video files can be uploaded.', 'jetpack-videopress-pkg' ), {
+				// Derived from the files, not a fixed string: a genuine `.webm` is a
+				// video this backend can't take, and telling its owner "Only video
+				// files can be uploaded" is false.
+				createErrorNotice( await describeRefusal( files ), {
 					id: INVALID_FILE_NOTICE_ID,
 				} );
 				return;
@@ -524,7 +531,12 @@ const StageInner = () => {
 						<input
 							ref={ filePickerRef }
 							type="file"
-							accept="video/*"
+							// The allow-list, not `video/*`, which offered `.webm`
+							// and `.mkv` — real videos this backend refuses — and
+							// then had to turn them away after the user had picked
+							// one. Same attribute, same reason, as the shared
+							// dropzone's input.
+							accept={ videoFileAccept() }
 							// The capped free tier can only ever host `limit` videos, so
 							// multi-select there would only produce skipped-file notices;
 							// paid and grandfathered-unlimited plans get bulk selection.

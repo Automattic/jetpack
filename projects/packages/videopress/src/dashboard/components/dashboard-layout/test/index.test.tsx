@@ -152,7 +152,12 @@ describe( 'DashboardLayout', () => {
 			expect( screen.queryAllByRole( 'tab' ) ).toHaveLength( 0 );
 		} );
 
-		it( 'reveals the returning-user strip when the bare landing settles', () => {
+		// The count settling is not the user arriving anywhere: the redirect it
+		// unblocks is still one effect and one route bundle away. Revealing the
+		// strip here painted `Library` as the active tab — first with the
+		// first-run order, then with the returning one — on a route the user was
+		// about to be taken off.
+		it( 'keeps the strip held once the bare landing settles', () => {
 			mockFirstRun = 'first-run';
 			mockSettled = 'loading';
 			const { rerender } = render( <DashboardLayout activeTab="library">body</DashboardLayout> );
@@ -161,8 +166,7 @@ describe( 'DashboardLayout', () => {
 			mockSettled = 'home';
 			rerender( <DashboardLayout activeTab="library">body</DashboardLayout> );
 
-			expect( screen.getByRole( 'tab', { name: 'Home' } ) ).toBeInTheDocument();
-			expect( screen.queryByRole( 'tab', { name: 'Upload' } ) ).not.toBeInTheDocument();
+			expect( screen.queryAllByRole( 'tab' ) ).toHaveLength( 0 );
 		} );
 
 		// Only the bare landing is ambiguous. Anywhere the user chose the route,
@@ -189,7 +193,56 @@ describe( 'DashboardLayout', () => {
 			expect( screen.queryByText( 'body' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'renders the body once the landing decision is made', () => {
+		// The frame the walkthrough caught: a brand-new user's first painted
+		// screen was an empty Library — DataViews' "No results", its search field
+		// and its view controls — because the render that reveals the count
+		// commits before the effect that redirects can run.
+		it( 'keeps the body held once the bare landing settles', () => {
+			mockFirstRun = 'first-run';
+			mockSettled = 'loading';
+			const { rerender } = render( <DashboardLayout activeTab="library">body</DashboardLayout> );
+
+			mockSettled = 'first-run';
+			rerender( <DashboardLayout activeTab="library">body</DashboardLayout> );
+
+			expect( screen.queryByText( 'body' ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		} );
+
+		// The second gap: committing the redirect rewrites the URL to the
+		// destination's `p` immediately, but the destination's route bundle takes
+		// another ~400ms to paint, and this component is mounted for all of it. A
+		// hold that re-reads the URL lets go exactly there.
+		it( 'keeps the body held while the destination route loads', () => {
+			mockFirstRun = 'first-run';
+			mockSettled = 'loading';
+			const { rerender } = render( <DashboardLayout activeTab="library">body</DashboardLayout> );
+
+			// What the committed redirect leaves behind: /upload in the URL, with
+			// Library still the mounted route.
+			setLocation( 'page=jetpack-videopress&p=%2Fupload' );
+			mockSettled = 'first-run';
+			rerender( <DashboardLayout activeTab="library">body</DashboardLayout> );
+
+			expect( screen.queryByText( 'body' ) ).not.toBeInTheDocument();
+			expect( screen.queryAllByRole( 'tab' ) ).toHaveLength( 0 );
+		} );
+
+		it( 'renders the body on an arrival the user chose', () => {
+			setLocation( 'page=jetpack-videopress&p=%2F' );
+
+			render( <DashboardLayout activeTab="library">body</DashboardLayout> );
+
+			expect( screen.getByText( 'body' ) ).toBeInTheDocument();
+		} );
+
+		// The once-per-load flag is what keeps the hold from being permanent:
+		// after the landing decision is spent, a Library render can only be the
+		// user's own arrival, bare URL or not.
+		it( 'renders the body on a bare URL once the landing decision is spent', () => {
+			const { unmount } = render( <DashboardLayout activeTab="library">body</DashboardLayout> );
+			unmount();
+
 			render( <DashboardLayout activeTab="library">body</DashboardLayout> );
 
 			expect( screen.getByText( 'body' ) ).toBeInTheDocument();
@@ -207,7 +260,9 @@ describe( 'DashboardLayout', () => {
 			expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
 		} );
 
-		it( 'drops the loading affordance once the page arrives', () => {
+		it( 'drops the loading affordance on an arrival the user chose', () => {
+			setLocation( 'page=jetpack-videopress&p=%2F' );
+
 			render( <DashboardLayout activeTab="library">body</DashboardLayout> );
 
 			expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
@@ -235,7 +290,28 @@ describe( 'DashboardLayout', () => {
 			expect( screen.queryByRole( 'button', { name: 'Upload video' } ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'renders them on any settled arrival', () => {
+		// The live button the walkthrough photographed: a settled count is not an
+		// arrival, so the action stayed withheld for the whole handoff.
+		it( 'withholds them for the whole bare landing, settled or not', () => {
+			const { rerender } = render(
+				<DashboardLayout activeTab="library" actions={ uploadAction }>
+					body
+				</DashboardLayout>
+			);
+
+			setLocation( 'page=jetpack-videopress&p=%2Fupload' );
+			rerender(
+				<DashboardLayout activeTab="library" actions={ uploadAction }>
+					body
+				</DashboardLayout>
+			);
+
+			expect( screen.queryByRole( 'button', { name: 'Upload video' } ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'renders them on an arrival the user chose', () => {
+			setLocation( 'page=jetpack-videopress&p=%2F' );
+
 			render(
 				<DashboardLayout activeTab="library" actions={ uploadAction }>
 					body
