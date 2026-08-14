@@ -9,9 +9,16 @@ jest.mock( '@wordpress/route', () => ( {
 	useNavigate: () => mockNavigate,
 } ) );
 
+// Renders the actions slot too: whether the header offers an action while the
+// page under it is still being decided is part of what this suite checks.
 jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	__esModule: true,
-	default: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	default: ( { children, actions }: { children: ReactNode; actions?: ReactNode } ) => (
+		<div>
+			{ actions }
+			{ children }
+		</div>
+	),
 } ) );
 
 // Both carry their own queries and neither is under test here.
@@ -186,6 +193,56 @@ describe( 'DashboardLayout', () => {
 			render( <DashboardLayout activeTab="library">body</DashboardLayout> );
 
 			expect( screen.getByText( 'body' ) ).toBeInTheDocument();
+		} );
+
+		// Held back is not finished. Without something in that gap the page was
+		// a header, a tagline and half a second of nothing — which reads as a
+		// dashboard that loaded empty, not one that is still loading.
+		it( 'shows a loading affordance while the landing decision is pending', () => {
+			mockFirstRun = 'first-run';
+			mockSettled = 'loading';
+
+			render( <DashboardLayout activeTab="library">body</DashboardLayout> );
+
+			expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		} );
+
+		it( 'drops the loading affordance once the page arrives', () => {
+			render( <DashboardLayout activeTab="library">body</DashboardLayout> );
+
+			expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'header actions', () => {
+		const uploadAction = (
+			<button type="button">{ 'Upload video' /* stand-in for the routes' own */ }</button>
+		);
+
+		// The Library's real button reads `aria-disabled=false` until its plan
+		// count lands, so over this window the page offered an action it was
+		// about to both refuse and replace.
+		it( 'withholds them while the landing decision is pending', () => {
+			mockFirstRun = 'first-run';
+			mockSettled = 'loading';
+
+			render(
+				<DashboardLayout activeTab="library" actions={ uploadAction }>
+					body
+				</DashboardLayout>
+			);
+
+			expect( screen.queryByRole( 'button', { name: 'Upload video' } ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'renders them on any settled arrival', () => {
+			render(
+				<DashboardLayout activeTab="library" actions={ uploadAction }>
+					body
+				</DashboardLayout>
+			);
+
+			expect( screen.getByRole( 'button', { name: 'Upload video' } ) ).toBeInTheDocument();
 		} );
 	} );
 } );

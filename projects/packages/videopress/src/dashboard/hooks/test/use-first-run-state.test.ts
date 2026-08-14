@@ -1,11 +1,14 @@
 import { renderHook } from '@testing-library/react';
 import {
 	getScopedStorageKey,
+	hasEstablishedLibrary,
 	hasPublishedVideo,
 	hasSeenOnboarding,
+	markEstablishedLibrary,
 	markFirstPublish,
 	resolveFirstRunState,
 	saveDismissal,
+	useFirstRunState,
 	useSettledFirstRunState,
 } from '../use-first-run-state';
 import { useLibrary } from '../use-library';
@@ -107,6 +110,77 @@ describe( 'first-run storage helpers', () => {
 
 		expect( hasSeenOnboarding() ).toBe( true );
 		expect( hasPublishedVideo() ).toBe( false );
+	} );
+
+	// Third question, third key: "has a library at all" is not "has published",
+	// and a site full of local video attachments answers them differently.
+	it( 'keeps the library flag on its own key', () => {
+		expect( hasEstablishedLibrary() ).toBe( false );
+
+		markEstablishedLibrary();
+
+		expect( hasEstablishedLibrary() ).toBe( true );
+		expect( window.localStorage.getItem( 'jetpack-videopress-library-seen-123-7' ) ).toBe( '1' );
+		expect( hasPublishedVideo() ).toBe( false );
+	} );
+} );
+
+describe( 'useFirstRunState', () => {
+	beforeEach( () => {
+		window.localStorage.clear();
+		jest.clearAllMocks();
+	} );
+
+	// The flash this closes: with nothing written down, EVERY load re-guessed
+	// from a count that reads 0 until it lands, so a returning user watched the
+	// first-run shape paint and correct itself a few hundred milliseconds later
+	// — on every single arrival, for as long as they used the product.
+	it( 'answers home from a remembered library before the count comes back', () => {
+		markEstablishedLibrary();
+		mockLibraryCount( { totalItems: 0, isLoading: true } );
+
+		const { result } = renderHook( () => useFirstRunState() );
+
+		expect( result.current ).toBe( 'home' );
+	} );
+
+	// The property the optimism exists for, and the reason the fix is a
+	// remembered answer rather than an inverted default: a brand-new user has
+	// nothing written down, and must not watch the returning-user shell go past.
+	it( 'still reads a loading count as first-run when nothing is remembered', () => {
+		mockLibraryCount( { totalItems: 0, isLoading: true } );
+
+		const { result } = renderHook( () => useFirstRunState() );
+
+		expect( result.current ).toBe( 'first-run' );
+	} );
+
+	it( 'remembers a non-empty library so later loads have something to read', () => {
+		mockLibraryCount( { totalItems: 3, isLoading: false } );
+
+		renderHook( () => useFirstRunState() );
+
+		expect( hasEstablishedLibrary() ).toBe( true );
+	} );
+
+	// A settled zero is the one count that proves nothing about the next load.
+	it( 'remembers nothing for a settled empty library', () => {
+		mockLibraryCount( { totalItems: 0, isLoading: false } );
+
+		renderHook( () => useFirstRunState() );
+
+		expect( hasEstablishedLibrary() ).toBe( false );
+	} );
+
+	// The flag outlives the library it describes, exactly as the publish flag
+	// does: emptying a library is not a second first run.
+	it( 'keeps home once a remembered library has been emptied', () => {
+		markEstablishedLibrary();
+		mockLibraryCount( { totalItems: 0, isLoading: false } );
+
+		const { result } = renderHook( () => useFirstRunState() );
+
+		expect( result.current ).toBe( 'home' );
 	} );
 } );
 

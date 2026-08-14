@@ -1,5 +1,6 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { makeRenamedTextFile, makeVideoFile } from '../../../test-utils/video-file';
 import UploadDropzone from '../index';
 import { selectFilesForPlan } from '../select-files';
 
@@ -19,7 +20,11 @@ jest.mock( '../../../hooks/use-videopress-upgrade', () => ( {
 	useVideoPressUpgrade: () => mockRunUpgrade,
 } ) );
 
-const makeFile = ( name: string, type = 'video/mp4' ) => new File( [ 'x' ], name, { type } );
+const AT_LIMIT_MESSAGE = 'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.';
+
+// Real container bytes, not `[ 'x' ]`: the filter these files pass through
+// reads the header and checks it against the extension.
+const makeFile = ( name: string, type = 'video/mp4' ) => makeVideoFile( name, type );
 
 beforeEach( () => {
 	jest.clearAllMocks();
@@ -64,17 +69,17 @@ describe( 'UploadDropzone', () => {
 		const file = makeFile( 'one.mp4' );
 		await userEvent.upload( input, file );
 
-		expect( onFiles ).toHaveBeenCalledWith( [ file ] );
+		await waitFor( () => expect( onFiles ).toHaveBeenCalledWith( [ file ] ) );
 	} );
 
-	it( 'fires onFiles from a drop and never while disabled', () => {
+	it( 'fires onFiles from a drop and never while disabled', async () => {
 		const onFiles = jest.fn();
 		const { container, rerender } = render( <UploadDropzone onFiles={ onFiles } /> );
 
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
 		const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
 		fireEvent.drop( dropzone, { dataTransfer: { files: [ makeFile( 'one.mp4' ) ] } } );
-		expect( onFiles ).toHaveBeenCalledTimes( 1 );
+		await waitFor( () => expect( onFiles ).toHaveBeenCalledTimes( 1 ) );
 
 		rerender( <UploadDropzone onFiles={ onFiles } disabled /> );
 		expect( dropzone ).toHaveAttribute( 'aria-disabled', 'true' );
@@ -83,10 +88,11 @@ describe( 'UploadDropzone', () => {
 			'true'
 		);
 		fireEvent.drop( dropzone, { dataTransfer: { files: [ makeFile( 'two.mp4' ) ] } } );
+		await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalled() );
 		expect( onFiles ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'answers a drop it cannot accept instead of swallowing the file', () => {
+	it( 'answers a drop it cannot accept instead of swallowing the file', async () => {
 		// The plan-limit bug: the surface still read "Drag and drop your video
 		// here", the drop handler was simply unbound, and the file vanished
 		// with no error, no toast and no state change.
@@ -97,22 +103,44 @@ describe( 'UploadDropzone', () => {
 		const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
 		fireEvent.drop( dropzone, { dataTransfer: { files: [ makeFile( 'two.mp4' ) ] } } );
 
-		expect( onFiles ).not.toHaveBeenCalled();
-		expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
-			'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.',
-			expect.objectContaining( {
-				actions: [ expect.objectContaining( { label: 'Upgrade' } ) ],
-			} )
+		await waitFor( () =>
+			expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
+				AT_LIMIT_MESSAGE,
+				expect.objectContaining( {
+					actions: [ expect.objectContaining( { label: 'Upgrade' } ) ],
+				} )
+			)
 		);
+		expect( onFiles ).not.toHaveBeenCalled();
 	} );
 
-	it( 'offers the upgrade route from the rejected-drop notice', () => {
+	it( 'refreshes one at-limit notice rather than stacking a black bar per attempt', async () => {
+		// Both testers dropped repeatedly at the limit and got a column of
+		// identical notices. A stable id makes the store replace the existing
+		// one instead.
+		const { container } = render( <UploadDropzone onFiles={ jest.fn() } disabled /> );
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
+		const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
+		fireEvent.drop( dropzone, { dataTransfer: { files: [ makeFile( 'a.mp4' ) ] } } );
+		fireEvent.drop( dropzone, { dataTransfer: { files: [ makeFile( 'b.mp4' ) ] } } );
+		fireEvent.drop( dropzone, { dataTransfer: { files: [ makeFile( 'c.mp4' ) ] } } );
+
+		await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalledTimes( 3 ) );
+		const ids = mockCreateErrorNotice.mock.calls.map(
+			( [ , options ] ) => ( options as { id?: string } )?.id
+		);
+		expect( ids ).toEqual( [ 'vp-upload-at-limit', 'vp-upload-at-limit', 'vp-upload-at-limit' ] );
+	} );
+
+	it( 'offers the upgrade route from the rejected-drop notice', async () => {
 		const { container } = render( <UploadDropzone onFiles={ jest.fn() } disabled /> );
 
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
 		const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
 		fireEvent.drop( dropzone, { dataTransfer: { files: [ makeFile( 'two.mp4' ) ] } } );
 
+		await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalled() );
 		const [ , options ] = mockCreateErrorNotice.mock.calls[ 0 ] as [
 			string,
 			{ actions: { onClick: () => void }[] },
@@ -129,29 +157,109 @@ describe( 'UploadDropzone', () => {
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Select a video to upload' } ) );
 
-		expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
-			'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.',
-			expect.anything()
-		);
+		expect( mockCreateErrorNotice ).toHaveBeenCalledWith( AT_LIMIT_MESSAGE, expect.anything() );
 	} );
 
-	it( 'rejects a file that only looks like a video', () => {
+	it( 'explains the refusal on hover too, not only on click', async () => {
+		// The button was `aria-disabled` (so it could answer a click) but still
+		// rendered live and said nothing on hover, while the header "Upload
+		// video" button was dimmed with a tooltip carrying this same sentence.
+		// Hover is what a mouse user gets BEFORE committing to a click.
+		render( <UploadDropzone onFiles={ jest.fn() } disabled /> );
+
+		await userEvent.hover( screen.getByRole( 'button', { name: 'Select a video to upload' } ) );
+
+		await expect(
+			screen.findByText( AT_LIMIT_MESSAGE, {}, { timeout: 3000 } )
+		).resolves.toBeVisible();
+	} );
+
+	it( 'leaves the enabled button untooltipped', async () => {
+		render( <UploadDropzone onFiles={ jest.fn() } /> );
+
+		await userEvent.hover( screen.getByRole( 'button', { name: 'Select a video to upload' } ) );
+
+		expect( screen.queryByText( AT_LIMIT_MESSAGE ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'rejects a file that only looks like a video', async () => {
 		// A `.txt` renamed `.mp4` used to upload 0→100%, register, consume the
-		// free plan's one slot and settle into a permanently broken video.
+		// free plan's one slot and settle into a permanently broken video. It
+		// REPORTS `video/mp4` — Chromium derives the type from the extension —
+		// so only its bytes give it away.
 		const onFiles = jest.fn();
 		const { container } = render( <UploadDropzone onFiles={ onFiles } /> );
+
+		const impostor = makeRenamedTextFile( 'not-a-video.mp4' );
+		expect( impostor.type ).toBe( 'video/mp4' );
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
+		const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
+		fireEvent.drop( dropzone, { dataTransfer: { files: [ impostor ] } } );
+
+		await waitFor( () =>
+			expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Only video files can be uploaded.', {
+				id: 'vp-upload-invalid-file',
+			} )
+		);
+		expect( onFiles ).not.toHaveBeenCalled();
+	} );
+
+	it( 'rejects an impostor picked through the file dialog, not just dropped', async () => {
+		// The picker is a separate entry point into the same guard; testers
+		// reproduced the upload through both.
+		const onFiles = jest.fn();
+		const { container } = render( <UploadDropzone onFiles={ onFiles } /> );
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the picker input is visually hidden with no label; no accessible query reaches it.
+		const input = container.querySelector( 'input[type="file"]' ) as HTMLInputElement;
+		await userEvent.upload( input, makeRenamedTextFile( 'not-a-video.mp4' ) );
+
+		await waitFor( () =>
+			expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
+				'Only video files can be uploaded.',
+				expect.objectContaining( { id: 'vp-upload-invalid-file' } )
+			)
+		);
+		expect( onFiles ).not.toHaveBeenCalled();
+	} );
+
+	it( 'names the real reason at the plan limit instead of blaming the plan', async () => {
+		// Ordering: the limit gate used to fire first, so a renamed `.txt`
+		// dropped at the cap was told "You've reached the free plan's 1-video
+		// limit" — a fact about the plan answering a question about the file.
+		const onFiles = jest.fn();
+		const { container } = render( <UploadDropzone onFiles={ onFiles } disabled /> );
 
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
 		const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
 		fireEvent.drop( dropzone, {
-			dataTransfer: { files: [ makeFile( 'not-a-video.mp4', 'text/plain' ) ] },
+			dataTransfer: { files: [ makeRenamedTextFile( 'not-a-video.mp4' ) ] },
 		} );
 
+		await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalled() );
+		expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
+			'Only video files can be uploaded.',
+			expect.anything()
+		);
+		expect( mockCreateErrorNotice ).not.toHaveBeenCalledWith( AT_LIMIT_MESSAGE, expect.anything() );
 		expect( onFiles ).not.toHaveBeenCalled();
-		expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Only video files can be uploaded.' );
 	} );
 
-	it( 'passes the real videos through and drops the rest of a mixed selection', () => {
+	it( 'still reports the plan when a real video arrives at the limit', async () => {
+		// The other half of that ordering: a genuine video at the cap is a plan
+		// problem, and must still say so.
+		const { container } = render( <UploadDropzone onFiles={ jest.fn() } disabled /> );
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
+		const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
+		fireEvent.drop( dropzone, { dataTransfer: { files: [ makeFile( 'real.mp4' ) ] } } );
+
+		await waitFor( () =>
+			expect( mockCreateErrorNotice ).toHaveBeenCalledWith( AT_LIMIT_MESSAGE, expect.anything() )
+		);
+	} );
+
+	it( 'passes the real videos through and drops the rest of a mixed selection', async () => {
 		const onFiles = jest.fn();
 		const { container } = render( <UploadDropzone onFiles={ onFiles } allowMultiple /> );
 
@@ -162,7 +270,7 @@ describe( 'UploadDropzone', () => {
 			dataTransfer: { files: [ clip, makeFile( 'notes.pdf', 'application/pdf' ) ] },
 		} );
 
-		expect( onFiles ).toHaveBeenCalledWith( [ clip ] );
+		await waitFor( () => expect( onFiles ).toHaveBeenCalledWith( [ clip ] ) );
 		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
 	} );
 

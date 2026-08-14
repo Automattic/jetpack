@@ -1,5 +1,5 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { useMemo } from '@wordpress/element';
+import { useEffect, useMemo } from '@wordpress/element';
 import { useLibrary } from './use-library';
 import type { View } from '@wordpress/dataviews';
 
@@ -20,10 +20,11 @@ import type { View } from '@wordpress/dataviews';
  */
 export type FirstRunState = 'first-run' | 'home';
 
-// Both flags are per-site *and* per-user: two accounts sharing a browser, or
-// one account across two sites, must not inherit each other's first run.
+// Every flag here is per-site *and* per-user: two accounts sharing a browser,
+// or one account across two sites, must not inherit each other's first run.
 const ONBOARDING_SEEN_KEY_PREFIX = 'jetpack-videopress-onboarding-seen';
 const FIRST_PUBLISH_KEY_PREFIX = 'jetpack-videopress-first-publish';
+const LIBRARY_SEEN_KEY_PREFIX = 'jetpack-videopress-library-seen';
 
 /**
  * Build a per-site/per-user localStorage key.
@@ -134,10 +135,35 @@ export function hasPublishedVideo(): boolean {
 
 /**
  * Record that the user has published their first video. Called from the upload
- * flow's publish step, so first-run never comes back after an activation.
+ * flow's publish step, so first-run never comes back after an activation — and
+ * from the welcome modal, which records the same fact about a user whose
+ * VideoPress videos predate this flag existing.
  */
 export function markFirstPublish(): void {
 	writeFlag( FIRST_PUBLISH_KEY_PREFIX );
+}
+
+/**
+ * Read the "this user's library has held videos" flag.
+ *
+ * The other half of the pair above: the publish flag answers "has this person
+ * used VideoPress", this one answers "has this person got a library at all" —
+ * which is the question the tab order asks, and the only one a site full of
+ * local (non-VideoPress) video attachments answers differently.
+ *
+ * @return True when a settled count has already proved the library non-empty.
+ */
+export function hasEstablishedLibrary(): boolean {
+	return readFlag( LIBRARY_SEEN_KEY_PREFIX, false );
+}
+
+/**
+ * Record that this user's library holds videos, so later loads know the answer
+ * before their count comes back. Like the publish flag it survives an emptied
+ * library: deleting everything must not hand somebody a second first run.
+ */
+export function markEstablishedLibrary(): void {
+	writeFlag( LIBRARY_SEEN_KEY_PREFIX );
 }
 
 // Counts everything in the library, with no `type` filter. This is the whole
@@ -164,11 +190,20 @@ const FIRST_RUN_COUNT_VIEW: View = {
  */
 function useLibraryVideoCount(): { videoCount: number; isSettled: boolean } {
 	const { paginationInfo, isLoading } = useLibrary( FIRST_RUN_COUNT_VIEW );
+	const videoCount = paginationInfo?.totalItems ?? 0;
+	const isSettled = ! isLoading;
 
-	return {
-		videoCount: paginationInfo?.totalItems ?? 0,
-		isSettled: ! isLoading,
-	};
+	// Write the answer down the first time we actually have one. This is the
+	// only place a settled whole-library count is observed, and `useFirstRunState`
+	// reads the flag back on the very first render of every later load rather
+	// than guessing again — see the note there.
+	useEffect( () => {
+		if ( isSettled && videoCount > 0 ) {
+			markEstablishedLibrary();
+		}
+	}, [ isSettled, videoCount ] );
+
+	return { videoCount, isSettled };
 }
 
 /**
@@ -194,27 +229,44 @@ export function resolveFirstRunState( {
 }
 
 /**
- * The current dashboard shape, from the real library count plus the persisted
- * publish flag.
+ * The current dashboard shape, from what is already known about this user plus
+ * the real library count.
  *
- * The count reads 0 before its first response, so an unknown/loading library
- * reads as first-run — which keeps the Upload tab visible rather than flashing
- * the returning-user shell at a brand-new user. That optimism is safe for
- * rendering only; see `useSettledFirstRunState` for navigation.
+ * The count reads 0 before its first response, so an unknown library is
+ * byte-identical to an empty one. Rendering has to answer anyway, and it
+ * answers `first-run`: that keeps the Upload tab in front of a brand-new user
+ * rather than flashing the returning-user shell at them. That optimism is safe
+ * for rendering only; see `useSettledFirstRunState` for navigation.
  *
- * The flag is read on every render rather than memoized: `markFirstPublish()`
- * writes it mid-session, and a cached read would leave the dashboard claiming
- * first-run after the user has just activated.
+ * But a guess is only acceptable where there is nothing to know. It used to be
+ * made on every single load, for everybody — so a returning user watched the
+ * strip paint `Upload | Library | …` and rename its first tab to Home a few
+ * hundred milliseconds later, on every arrival, forever. Nothing was ever
+ * written down: `hasPublishedVideo` is only set by an upload made in THIS
+ * browser, so a library that predates the flag (or a cleared localStorage) went
+ * on guessing fresh every time. The library flag closes that — the first
+ * settled count that proves a non-empty library is remembered, and from then on
+ * the shape is derived on the first render of every later load instead of
+ * guessed and corrected.
+ *
+ * A genuine first run has nothing to remember, so it still gets the optimistic
+ * order — immediately, and correctly. That is the audience the optimism exists
+ * for, and it is untouched.
+ *
+ * The flags are read on every render rather than memoized: both are written
+ * mid-session, and a cached read would leave the dashboard claiming first-run
+ * after the user has just activated.
  *
  * @return The dashboard shape to render.
  */
 export function useFirstRunState(): FirstRunState {
 	const { videoCount } = useLibraryVideoCount();
 	const hasPublished = hasPublishedVideo();
+	const isEstablished = hasEstablishedLibrary();
 
 	return useMemo(
-		() => resolveFirstRunState( { hasPublished, videoCount } ),
-		[ hasPublished, videoCount ]
+		() => ( isEstablished ? 'home' : resolveFirstRunState( { hasPublished, videoCount } ) ),
+		[ hasPublished, isEstablished, videoCount ]
 	);
 }
 

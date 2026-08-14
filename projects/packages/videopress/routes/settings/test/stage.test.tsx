@@ -84,6 +84,7 @@ const freeTierState = ( overrides: Partial< FreeTierState > = {} ): FreeTierStat
 	videoCount: 0,
 	limit: 1,
 	isAtLimit: false,
+	isSettled: true,
 	...overrides,
 } );
 

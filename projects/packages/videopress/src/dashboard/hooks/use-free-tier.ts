@@ -11,6 +11,15 @@ export type FreeTierState = {
 	videoCount: number;
 	limit: number;
 	isAtLimit: boolean;
+	/**
+	 * Whether the server count behind `videoCount` has arrived. It reads 0
+	 * until then, so `isAtLimit` reads FALSE on a site that is at its limit —
+	 * anything that PAINTS a control from it has to wait, or it publishes a
+	 * disabled button that is briefly live and refuses the click it invited.
+	 * Anything that merely enforces the cap can act on `isAtLimit` alone: the
+	 * upload paths re-check it, and the server is the real gate.
+	 */
+	isSettled: boolean;
 };
 
 const FREE_TIER_UPLOAD_LIMIT = 1;
@@ -39,7 +48,7 @@ const COUNT_VIEW: View = {
  * @return Free-tier state.
  */
 export function useFreeTier(): FreeTierState {
-	const { paginationInfo } = useLibrary( COUNT_VIEW );
+	const { paginationInfo, isLoading } = useLibrary( COUNT_VIEW );
 	const { uploadQueue } = useUpload();
 	const siteData =
 		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
@@ -77,5 +86,6 @@ export function useFreeTier(): FreeTierState {
 		videoCount,
 		limit: FREE_TIER_UPLOAD_LIMIT,
 		isAtLimit,
+		isSettled: ! isLoading,
 	};
 }

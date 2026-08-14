@@ -11,11 +11,13 @@ import { TAB_PATHS } from '../../src/dashboard/components/dashboard-tabs';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
 import FreeTierNotice, {
 	FREE_TIER_AT_LIMIT_MESSAGE,
+	FREE_TIER_AT_LIMIT_NOTICE_ID,
 } from '../../src/dashboard/components/free-tier-notice';
 import { buildLibraryActions } from '../../src/dashboard/components/library/actions';
 import { libraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import { INVALID_FILE_NOTICE_ID } from '../../src/dashboard/components/upload-dropzone/video-files';
 import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
@@ -140,7 +142,14 @@ const StageInner = () => {
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
-	const { isAtLimit, isFree, isUnlimited, videoCount, limit } = useFreeTier();
+	const {
+		isAtLimit,
+		isFree,
+		isUnlimited,
+		videoCount,
+		limit,
+		isSettled: isPlanSettled,
+	} = useFreeTier();
 	const runUpgrade = useVideoPressUpgrade();
 
 	const onChangeView = useCallback(
@@ -183,21 +192,27 @@ const StageInner = () => {
 	// "Upload video" file picker. Enforces the free-tier cap up front so
 	// neither path can sneak past the limit the picker button guards.
 	const handleFilesSelected = useCallback(
-		( files: File[] ) => {
-			const decision = planVideoDrop( files, {
+		async ( files: File[] ) => {
+			const decision = await planVideoDrop( files, {
 				isFree,
 				isUnlimited,
 				limit,
 				videoCount,
 			} );
 
+			// Both refusals carry a stable id so repeated blocked attempts
+			// refresh one snackbar instead of stacking a column of identical
+			// ones — the same technique the delete notices below use.
 			if ( decision.kind === 'no-videos' ) {
-				createErrorNotice( __( 'Only video files can be uploaded.', 'jetpack-videopress-pkg' ) );
+				createErrorNotice( __( 'Only video files can be uploaded.', 'jetpack-videopress-pkg' ), {
+					id: INVALID_FILE_NOTICE_ID,
+				} );
 				return;
 			}
 
 			if ( decision.kind === 'at-limit' ) {
 				createErrorNotice( FREE_TIER_AT_LIMIT_MESSAGE, {
+					id: FREE_TIER_AT_LIMIT_NOTICE_ID,
 					actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
 				} );
 				return;
@@ -227,10 +242,19 @@ const StageInner = () => {
 		( event: ChangeEvent< HTMLInputElement > ) => {
 			const files = Array.from( event.target.files ?? [] );
 			if ( files.length > 0 ) {
-				handleFilesSelected( files );
+				// `void`: the decision settles a microtask later (the filter reads
+				// each file's header); clearing the input must not wait on it, or
+				// picking the same file twice would fire no second change event.
+				void handleFilesSelected( files );
 			}
 			event.target.value = '';
 		},
+		[ handleFilesSelected ]
+	);
+
+	// DropZone hands files to a void callback; the decision is asynchronous.
+	const onFilesDrop = useCallback(
+		( files: File[] ) => void handleFilesSelected( files ),
 		[ handleFilesSelected ]
 	);
 
@@ -488,36 +512,44 @@ const StageInner = () => {
 		<DashboardLayout
 			activeTab="library"
 			hideFooter
+			// `isAtLimit` is false until the plan count lands, so a button
+			// painted before then reads `aria-disabled=false` on a site that is
+			// at its limit — briefly live, and refusing the click it invited.
+			// Home already holds its copy of this button back until it has
+			// something true to say; this one waits for the count that decides
+			// its state, and arrives alongside the grid it sits above.
 			actions={
-				<>
-					<input
-						ref={ filePickerRef }
-						type="file"
-						accept="video/*"
-						// The capped free tier can only ever host `limit` videos, so
-						// multi-select there would only produce skipped-file notices;
-						// paid and grandfathered-unlimited plans get bulk selection.
-						multiple={ ! isFree || isUnlimited }
-						style={ { display: 'none' } }
-						onChange={ onFilePicked }
-					/>
-					<Tooltip
-						text={
-							isAtLimit
-								? FREE_TIER_AT_LIMIT_MESSAGE
-								: __( 'Upload a new video', 'jetpack-videopress-pkg' )
-						}
-					>
-						<Button
-							className="vp-library__upload-button"
-							size="compact"
-							onClick={ onClickHeaderUpload }
-							aria-disabled={ isAtLimit }
+				isPlanSettled ? (
+					<>
+						<input
+							ref={ filePickerRef }
+							type="file"
+							accept="video/*"
+							// The capped free tier can only ever host `limit` videos, so
+							// multi-select there would only produce skipped-file notices;
+							// paid and grandfathered-unlimited plans get bulk selection.
+							multiple={ ! isFree || isUnlimited }
+							style={ { display: 'none' } }
+							onChange={ onFilePicked }
+						/>
+						<Tooltip
+							text={
+								isAtLimit
+									? FREE_TIER_AT_LIMIT_MESSAGE
+									: __( 'Upload a new video', 'jetpack-videopress-pkg' )
+							}
 						>
-							{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
-						</Button>
-					</Tooltip>
-				</>
+							<Button
+								className="vp-library__upload-button"
+								size="compact"
+								onClick={ onClickHeaderUpload }
+								aria-disabled={ isAtLimit }
+							>
+								{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
+							</Button>
+						</Tooltip>
+					</>
+				) : undefined
 			}
 		>
 			{ isAtLimit && (
@@ -529,7 +561,7 @@ const StageInner = () => {
 				<div className={ `vp-library__viewport vp-library__viewport--${ view.type }` }>
 					<DropZone
 						label={ __( 'Drop videos to upload', 'jetpack-videopress-pkg' ) }
-						onFilesDrop={ handleFilesSelected }
+						onFilesDrop={ onFilesDrop }
 					/>
 					{ isError && items.length === 0 ? (
 						// A failed listing request would otherwise render as DataViews'
