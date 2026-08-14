@@ -16,17 +16,21 @@ export type TopPlatformsAttributes = {
 	 */
 	max?: number;
 	/**
-	 * Device dimension to rank: browsers or operating systems.
+	 * Device dimension to rank: screen sizes, browsers, or operating systems.
 	 */
-	platformDimension?: 'browser' | 'platform';
+	platformDimension?: 'screensize' | 'browser' | 'platform';
 };
 
 /**
  * Top Platforms widget type definition.
  *
- * Shows Browser and OS breakdown as a ranked leaderboard. The active
- * dimension is the `platformDimension` attribute (`relevance: 'high'`),
- * so the widget host renders its control.
+ * Shows the Size, Browser, and OS breakdowns as a ranked leaderboard — the
+ * three properties `stats/devices/{property}` exposes. The active dimension is
+ * the `platformDimension` attribute (`relevance: 'high'`), so the widget host
+ * renders its control.
+ *
+ * Size is the odd one out: WPCOM returns it as percentage shares while the
+ * other two are view counts, so it is formatted as a percentage.
  */
 export default {
 	icon: desktop,
@@ -42,6 +46,10 @@ export default {
 			type: 'text',
 			Edit: SelectField,
 			elements: [
+				{
+					label: __( 'Size', 'jetpack-premium-analytics-pkg' ),
+					value: 'screensize',
+				},
 				{
 					label: __( 'Browser', 'jetpack-premium-analytics-pkg' ),
 					value: 'browser',

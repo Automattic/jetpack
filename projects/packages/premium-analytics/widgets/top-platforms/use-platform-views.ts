@@ -9,6 +9,8 @@ import { useStatsDevices } from '@jetpack-premium-analytics/data';
 import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { ReportParams, StatsDevicesComparisonItem } from '@jetpack-premium-analytics/data';
 
+export type PlatformDimension = 'screensize' | 'browser' | 'platform';
+
 export interface PlatformView {
 	key: string;
 	label: string;
@@ -26,9 +28,9 @@ interface UsePlatformViewsArgs {
 	 */
 	max: number;
 	/**
-	 * 'browser' or 'platform' (OS).
+	 * 'screensize' (Size), 'browser', or 'platform' (OS).
 	 */
-	deviceProperty: 'browser' | 'platform';
+	deviceProperty: PlatformDimension;
 }
 
 interface PlatformViewsState {
@@ -54,6 +56,15 @@ const BROWSER_LABELS: Record< string, string > = {
 	other: __( 'Other', 'jetpack-premium-analytics-pkg' ),
 };
 
+const SCREENSIZE_LABELS: Record< string, string > = {
+	desktop: __( 'Desktop', 'jetpack-premium-analytics-pkg' ),
+	mobile: __( 'Mobile', 'jetpack-premium-analytics-pkg' ),
+	tablet: __( 'Tablet', 'jetpack-premium-analytics-pkg' ),
+	phone: __( 'Phone', 'jetpack-premium-analytics-pkg' ),
+	other: __( 'Other', 'jetpack-premium-analytics-pkg' ),
+	unknown: __( 'Unknown', 'jetpack-premium-analytics-pkg' ),
+};
+
 const PLATFORM_LABELS: Record< string, string > = {
 	windows: __( 'Windows', 'jetpack-premium-analytics-pkg' ),
 	mac: __( 'macOS', 'jetpack-premium-analytics-pkg' ),
@@ -69,12 +80,18 @@ const PLATFORM_LABELS: Record< string, string > = {
 	other: __( 'Other', 'jetpack-premium-analytics-pkg' ),
 };
 
+const LABELS_BY_DIMENSION: Record< PlatformDimension, Record< string, string > > = {
+	screensize: SCREENSIZE_LABELS,
+	browser: BROWSER_LABELS,
+	platform: PLATFORM_LABELS,
+};
+
 function toPlatformView(
 	item: StatsDevicesComparisonItem,
-	deviceProperty: 'browser' | 'platform'
+	deviceProperty: PlatformDimension
 ): PlatformView {
 	const key = String( item.label ?? '' );
-	const labels = deviceProperty === 'browser' ? BROWSER_LABELS : PLATFORM_LABELS;
+	const labels = LABELS_BY_DIMENSION[ deviceProperty ];
 
 	return {
 		key,

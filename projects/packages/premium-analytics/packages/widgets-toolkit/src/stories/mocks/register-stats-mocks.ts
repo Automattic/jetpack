@@ -1191,7 +1191,7 @@ export function getStatsMock( path: string ): unknown | null {
 	if ( subPath.startsWith( '/devices/browser' ) ) {
 		return isComparison ? MOCK_DEVICES_BROWSER_COMPARISON : MOCK_DEVICES_BROWSER;
 	}
-	if ( subPath.startsWith( '/devices/client_type' ) || subPath.startsWith( '/devices/platform' ) ) {
+	if ( subPath.startsWith( '/devices/platform' ) ) {
 		return isComparison ? MOCK_DEVICES_PLATFORM_COMPARISON : MOCK_DEVICES_PLATFORM;
 	}
 

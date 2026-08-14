@@ -97,7 +97,7 @@ const meta = {
 		},
 		platformDimension: {
 			control: 'radio',
-			options: [ 'browser', 'platform' ],
+			options: [ 'screensize', 'browser', 'platform' ],
 			description: 'The "View by" toolbar attribute rendered by the widget host.',
 		},
 	},
@@ -105,7 +105,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Top Platforms" widget. Shows browser and OS breakdown as a ranked leaderboard. The active dimension is the `platformDimension` attribute (`relevance: \'high\'`), exposed as a control by the widget host.',
+					'The "Top Platforms" widget. Shows the screen size, browser, and OS breakdowns as a ranked leaderboard. The active dimension is the `platformDimension` attribute (`relevance: \'high\'`), exposed as a control by the widget host. Screen size is returned by WordPress.com as percentage shares, so it is formatted as a percentage rather than a view count.',
 			},
 		},
 	},
@@ -124,6 +124,13 @@ export const Default: StoryObj< TopPlatformsStoryControls > = {
 export const WithComparison: StoryObj< TopPlatformsStoryControls > = {
 	render: renderTopPlatformsWidget,
 	args: { withComparison: true, platformDimension: 'browser' },
+	decorators: [ withWidgetCanvas ],
+};
+
+// Size view — screen sizes, the one dimension returned as percentage shares.
+export const BySize: StoryObj< TopPlatformsStoryControls > = {
+	render: renderTopPlatformsWidget,
+	args: { withComparison: false, platformDimension: 'screensize' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -208,7 +215,7 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 		},
 		platformDimension: {
 			control: 'radio',
-			options: [ 'browser', 'platform' ],
+			options: [ 'screensize', 'browser', 'platform' ],
 			description: 'The "View by" toolbar attribute rendered by the widget host.',
 		},
 	},

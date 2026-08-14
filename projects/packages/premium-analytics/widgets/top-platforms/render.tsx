@@ -23,7 +23,7 @@ import {
  * Internal dependencies
  */
 import styles from './style.module.css';
-import usePlatformViews from './use-platform-views';
+import usePlatformViews, { type PlatformDimension } from './use-platform-views';
 import { type TopPlatformsAttributes } from './widget';
 /**
  * Types
@@ -33,9 +33,24 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type TopPlatformsRenderAttributes = TopPlatformsAttributes & Partial< ReportParamsFieldAttributes >;
 type TopPlatformsWidgetProps = WidgetRenderProps< TopPlatformsRenderAttributes >;
 
-const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
+const COUNT_DATA_FORMAT = {
+	type: 'number' as const,
+	options: { useMultipliers: true, decimals: 0 },
+};
+// WPCOM returns `screensize` as percentage shares rather than view counts, and
+// the shared percentage formatter takes a 0-1 ratio.
+const PERCENTAGE_DATA_FORMAT = {
+	type: 'percentage' as const,
+	options: { decimals: 1, signDisplay: 'auto' as const },
+};
 
-type PlatformMode = 'browser' | 'platform';
+type PlatformMode = PlatformDimension;
+
+const SUPPORTED_DIMENSIONS: Record< PlatformMode, true > = {
+	screensize: true,
+	browser: true,
+	platform: true,
+};
 
 type TopPlatformsInnerProps = {
 	/**
@@ -43,7 +58,7 @@ type TopPlatformsInnerProps = {
 	 */
 	max: number;
 	/**
-	 * Device dimension to rank: browsers or operating systems.
+	 * Device dimension to rank: screen sizes, browsers, or operating systems.
 	 */
 	platformDimension: PlatformMode;
 };
@@ -59,6 +74,11 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 		}
 	);
 
+	const isShare = platformDimension === 'screensize';
+	// Bar widths stay relative to the largest visible value either way; only the
+	// number printed on the row changes unit.
+	const toDisplayValue = ( value: number ) => ( isShare ? value / 100 : value );
+
 	const maxViews = getCombinedPeriodMax(
 		data.map( item => item.views ),
 		hasComparison ? data.map( item => item.previousViews ) : []
@@ -73,9 +93,9 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 					<Text>{ item.label }</Text>
 				</Stack>
 			),
-			currentValue: item.views,
+			currentValue: toDisplayValue( item.views ),
 			currentShare: sharePercentage( item.views, maxViews ),
-			previousValue,
+			previousValue: previousValue === undefined ? undefined : toDisplayValue( previousValue ),
 			previousShare:
 				hasComparison && previousValue !== undefined
 					? sharePercentage( previousValue, maxViews )
@@ -111,7 +131,7 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 					withComparison={ hasComparison }
 					withOverlayLabel
 					showLegend={ false }
-					dataFormat={ DATA_FORMAT }
+					dataFormat={ isShare ? PERCENTAGE_DATA_FORMAT : COUNT_DATA_FORMAT }
 				/>
 			</WidgetState>
 		</div>
@@ -119,13 +139,22 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 }
 
 /**
- * Browser or OS breakdown as a ranked leaderboard. The active dimension is the
- * `platformDimension` attribute (`relevance: 'high'`), exposed as a control by
- * the widget host.
+ * Screen size, browser, or OS breakdown as a ranked leaderboard. The active
+ * dimension is the `platformDimension` attribute (`relevance: 'high'`), exposed
+ * as a control by the widget host.
  */
 export default function TopPlatformsWidget( { attributes }: TopPlatformsWidgetProps ) {
 	const max = attributes?.max ?? 10;
-	const platformDimension = attributes?.platformDimension ?? 'browser';
+	// Attributes are persisted, so a stale layout can name a dimension this
+	// widget no longer knows. Unchecked it becomes the `stats/devices/{property}`
+	// path segment, which WPCOM rejects with a 400.
+	const storedDimension = attributes?.platformDimension ?? 'browser';
+	const platformDimension = Object.prototype.hasOwnProperty.call(
+		SUPPORTED_DIMENSIONS,
+		storedDimension
+	)
+		? storedDimension
+		: 'browser';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
