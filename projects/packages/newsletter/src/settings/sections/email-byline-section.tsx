@@ -4,7 +4,7 @@
 import { getAdminUrl, getScriptData } from '@automattic/jetpack-script-data';
 import { DataForm, type Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
-import { Card, Text } from '@wordpress/ui';
+import { Card, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -41,8 +41,8 @@ export function EmailBylineSection( {
 			Edit: newsletterScriptData?.email
 				? ( { data: fieldData, field, onChange: fieldOnChange } ) => (
 						<ToggleWithLink
-							data={ fieldData as Record< string, unknown > }
-							field={ field as Field< Record< string, unknown > > }
+							data={ fieldData }
+							field={ field }
 							onChange={ fieldOnChange }
 							url="https://gravatar.com/profile/avatars"
 							linkText={ __( 'Update your Gravatar', 'jetpack-newsletter' ) }
@@ -66,8 +66,8 @@ export function EmailBylineSection( {
 			type: 'boolean' as const,
 			Edit: ( { data: fieldData, field, onChange: fieldOnChange } ) => (
 				<ToggleWithLink
-					data={ fieldData as Record< string, unknown > }
-					field={ field as Field< Record< string, unknown > > }
+					data={ fieldData }
+					field={ field }
 					onChange={ fieldOnChange }
 					url={ getAdminUrl( 'options-general.php' ) }
 					linkText={ __( 'Customize date format', 'jetpack-newsletter' ) }
@@ -83,43 +83,43 @@ export function EmailBylineSection( {
 				<Card.Title>{ __( 'Email byline', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<p>
-					<Text>
+				<Stack direction="column" gap="xl">
+					<Text variant="body-md" render={ <p /> }>
 						{ __(
 							'Customize the information you want to display below your post title in emails.',
 							'jetpack-newsletter'
 						) }
 					</Text>
-				</p>
-				<fieldset disabled={ ! isNewsletterEnabled }>
-					<DataForm
-						data={ data }
-						fields={ fields }
-						form={ {
-							layout: {
-								type: 'regular',
-								labelPosition: 'top',
-							},
-							fields: [
-								'jetpack_gravatar_in_email',
-								'jetpack_author_in_email',
-								'jetpack_post_date_in_email',
-							],
-						} }
-						onChange={ onChange }
-					/>
-
-					{ newsletterScriptData && (
-						<BylinePreview
-							isGravatarEnabled={ data.jetpack_gravatar_in_email }
-							isAuthorEnabled={ data.jetpack_author_in_email }
-							isPostDateEnabled={ data.jetpack_post_date_in_email }
-							gravatar={ newsletterScriptData.gravatar }
-							displayName={ getScriptData()?.user.current_user?.display_name ?? '' }
-							dateExample={ newsletterScriptData.dateExample }
+					<fieldset disabled={ ! isNewsletterEnabled }>
+						<DataForm
+							data={ data }
+							fields={ fields }
+							form={ {
+								layout: {
+									type: 'regular',
+									labelPosition: 'top',
+								},
+								fields: [
+									'jetpack_gravatar_in_email',
+									'jetpack_author_in_email',
+									'jetpack_post_date_in_email',
+								],
+							} }
+							onChange={ onChange }
 						/>
-					) }
-				</fieldset>
+
+						{ newsletterScriptData && (
+							<BylinePreview
+								isGravatarEnabled={ data.jetpack_gravatar_in_email }
+								isAuthorEnabled={ data.jetpack_author_in_email }
+								isPostDateEnabled={ data.jetpack_post_date_in_email }
+								gravatar={ newsletterScriptData.gravatar }
+								displayName={ getScriptData()?.user.current_user?.display_name ?? '' }
+								dateExample={ newsletterScriptData.dateExample }
+							/>
+						) }
+					</fieldset>
+				</Stack>
 			</Card.Content>
 		</Card.Root>
 	);

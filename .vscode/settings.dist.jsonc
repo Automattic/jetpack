@@ -57,14 +57,6 @@
 	"prettier.prettierPath": "tools/js-tools/node_modules/prettier/index.cjs",
 	// Use ESLint from this path.
 	"eslint.nodePath": "tools/js-tools/node_modules",
-	// Look up the nearest eslint.config.mjs from each file (matches the repo's
-	// lint scripts, which pass this same flag). Without it the extension only
-	// loads the root config, which skips packages that have their own
-	// eslint.config.mjs — so their text domain isn't applied and every
-	// translated string is wrongly flagged as an invalid text domain.
-	"eslint.options": {
-		"flags": [ "v10_config_lookup_from_file" ]
-	},
 
 	// Set to the target minimum PHP version for the codebase. Unrelated to the monorepo tooling.
 	"intelephense.environment.phpVersion": "7.2.24",

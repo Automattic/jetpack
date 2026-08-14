@@ -255,7 +255,6 @@ class I18nSniff implements Sniff {
 					if ( 'u' === $m[1][0] ) {
 						$codepoint = hexdec( substr( $m[1], 2, -1 ) );
 						if ( function_exists( 'mb_chr' ) ) {
-							// phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.mb_chrFound
 							return mb_chr( $codepoint, 'UTF-8' );
 						}
 						return mb_convert_encoding( pack( 'N', $codepoint ), 'UTF-8', 'UTF-32BE' );

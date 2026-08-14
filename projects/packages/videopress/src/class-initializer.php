@@ -35,6 +35,10 @@ class Initializer {
 
 			if ( Status::is_active() ) {
 				self::active_initialization();
+			} elseif ( self::should_initialize_admin_ui() ) {
+				// Keep "Jetpack > VideoPress" in the menu when the module is not
+				// active, linking to the My Jetpack interstitial to activate it.
+				Admin_UI::init_inactive_menu();
 			}
 		}
 
@@ -84,11 +88,49 @@ class Initializer {
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 
+		/*
+		 * Keep the videopress_guid attachment meta out of reach of the
+		 * user-facing meta write APIs (Custom Fields, XML-RPC set_custom_fields,
+		 * the WordPress.com JSON API metadata op, REST). The post <-> guid
+		 * mapping is what the VideoPress meta and poster endpoints authorize
+		 * against, so a writable guid would let a caller point an object they
+		 * can edit at somebody else's video and still pass the edit_post check.
+		 *
+		 * These auth_* filters are consulted by map_meta_cap() for the
+		 * add/edit/delete_post_meta capabilities only, so unlike marking the key
+		 * protected they leave is_protected_meta() false and meta_key queries
+		 * against the WordPress.com JSON API keep working. VideoPress writes the
+		 * mapping itself with update_post_meta(), which does not consult
+		 * capabilities, so uploads and transcoding are unaffected.
+		 *
+		 * The subtype-specific filter covers attachments; the generic one covers
+		 * calls made before a subtype can be resolved.
+		 */
+		add_filter( 'auth_post_meta_videopress_guid_for_attachment', '__return_false' );
+		add_filter( 'auth_post_meta_videopress_guid', '__return_false' );
+
 		Module_Control::init();
 
-		new WPCOM_REST_API_V2_Endpoint_VideoPress();
-		new WPCOM_REST_API_V2_Attachment_VideoPress_Field();
-		new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+		/*
+		 * The WPCOM REST API v2 endpoints only register routes/fields on REST
+		 * init, so defer constructing them (and autoloading their classes) until
+		 * a REST request is actually served. Registered on both REST init hooks
+		 * so the routes remain available in every context they were before, and
+		 * guarded so the endpoints are instantiated only once per request.
+		 */
+		$register_rest_api_v2_endpoints = static function () {
+			static $registered = false;
+			if ( $registered ) {
+				return;
+			}
+			$registered = true;
+			new WPCOM_REST_API_V2_Endpoint_VideoPress();
+			new WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks();
+			new WPCOM_REST_API_V2_Attachment_VideoPress_Field();
+			new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+		};
+		add_action( 'rest_api_init', $register_rest_api_v2_endpoints, 0 );
+		add_action( 'restapi_theme_init', $register_rest_api_v2_endpoints, 0 );
 
 		if ( is_admin() ) {
 			AJAX::init();
@@ -114,6 +156,34 @@ class Initializer {
 	}
 
 	/**
+	 * Prepare a poster URL for a quoted CSS url() inside an HTML attribute.
+	 *
+	 * @param mixed $poster Poster URL.
+	 * @return string Sanitized and HTML-encoded poster URL, or an empty string.
+	 */
+	private static function prepare_poster_url_for_inline_style( $poster ) {
+		if ( ! is_string( $poster ) || '' === $poster ) {
+			return '';
+		}
+
+		/*
+		 * Decode one layer so ordinarily encoded URLs retain their semantics. Any
+		 * remaining entities are encoded again below and stay inert after the HTML
+		 * parser performs its single decoding pass.
+		 */
+		$poster_url = esc_url_raw( html_entity_decode( $poster, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
+		if ( '' === $poster_url ) {
+			return '';
+		}
+
+		/*
+		 * Force existing character references to be encoded. esc_attr() preserves
+		 * them, but this value crosses from an HTML attribute into a CSS string.
+		 */
+		return htmlspecialchars( $poster_url, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8', true );
+	}
+
+	/**
 	 * Initialize VideoPress features that should be initialized only when the module is active
 	 *
 	 * @return void
@@ -121,15 +191,30 @@ class Initializer {
 	private static function active_initialization() {
 		Attachment_Handler::init();
 		Jwt_Token_Bridge::init();
-		Uploader_Rest_Endpoints::init();
-		Rest_Controller::init();
+		Caption_Tracks::init();
 		Initial_State::init();
-		VideoPress_Rest_Api_V1_Stats::init();
-		VideoPress_Rest_Api_V1_Site::init();
-		VideoPress_Rest_Api_V1_Settings::init();
-		VideoPress_Rest_Api_V1_Features::init();
 		XMLRPC::init();
 		Block_Editor_Content::init();
+
+		/*
+		 * These endpoints only add their routes on REST init, so defer calling
+		 * init() (and autoloading the endpoint classes) until a REST request is
+		 * served. Priority 0 ensures the routes still register before the
+		 * default-priority rest_api_init handlers run. Class-name strings are
+		 * used so the classes are not autoloaded on non-REST requests.
+		 */
+		foreach (
+			array(
+				Uploader_Rest_Endpoints::class,
+				Rest_Controller::class,
+				VideoPress_Rest_Api_V1_Stats::class,
+				VideoPress_Rest_Api_V1_Site::class,
+				VideoPress_Rest_Api_V1_Settings::class,
+				VideoPress_Rest_Api_V1_Features::class,
+			) as $rest_endpoint
+		) {
+			add_action( 'rest_api_init', array( $rest_endpoint, 'init' ), 0 );
+		}
 		self::register_oembed_providers();
 
 		// Enqueuethe VideoPress Iframe API script in the front-end.
@@ -208,9 +293,17 @@ class Initializer {
 
 		// Inline style.
 		$style     = '';
-		$max_width = $block_attributes['maxWidth'] ?? null;
+		$max_width = isset( $block_attributes['maxWidth'] ) && is_string( $block_attributes['maxWidth'] )
+			? trim( $block_attributes['maxWidth'] )
+			: '';
 
-		if ( $max_width && $max_width !== '100%' ) {
+		// maxWidth is rendered into an inline style. Accept only a plain CSS length
+		// or percentage so the value stays a single, well-formed declaration;
+		// anything else is dropped and the block renders at full width (as with the
+		// "100%" default).
+		if ( '' !== $max_width && '100%' !== $max_width
+			&& preg_match( '/^\d+(\.\d+)?(px|%|em|rem|vw|vh|vmin|vmax|ch|ex|cm|mm|in|pt|pc|q)$/i', $max_width )
+		) {
 			$style    = sprintf( 'max-width: %s;', $max_width );
 			$classes .= ' wp-block-jetpack-videopress--has-max-width';
 		}
@@ -272,10 +365,13 @@ class Initializer {
 
 			// Create inline style in case video has a custom poster.
 			$inline_style = '';
-			if ( $poster ) {
+			$poster_url   = self::prepare_poster_url_for_inline_style( $poster );
+			if ( $poster_url ) {
+				// Emit the poster URL as a double-quoted CSS string so it stays
+				// contained within url() and cannot affect the surrounding style.
 				$inline_style = sprintf(
-					'style="background-image: url(%s); background-size: cover; background-position: center center;"',
-					esc_attr( $poster )
+					'style="background-image: url(&quot;%s&quot;); background-size: cover; background-position: center center;"',
+					$poster_url
 				);
 			}
 
@@ -320,7 +416,7 @@ class Initializer {
 				}
 
 				return sprintf(
-					'<iframe title="%1$s" aria-label="%1$s" src="%2$s" width="640" height="360" allowfullscreen data-resize-to-parent="true" allow="clipboard-write"></iframe>',
+					'<iframe title="%1$s" aria-label="%1$s" src="%2$s" width="640" height="360" allowfullscreen data-resize-to-parent="true" allow="clipboard-write; presentation"></iframe>',
 					esc_attr__( 'VideoPress Video Player', 'jetpack-videopress-pkg' ),
 					esc_url( preg_replace( '#/v/#', '/embed/', $url, 1 ) )
 				);

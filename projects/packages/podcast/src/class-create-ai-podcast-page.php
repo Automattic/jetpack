@@ -7,8 +7,8 @@
  * posts picker, submits the generate request, polls the job, and resumes
  * across reloads via localStorage.
  *
- * Bootstrapped from `Podcast::init()` after the Host (Simple/WoA) and
- * `jetpack_podcast_untangle` gates have already been checked upstream.
+ * Bootstrapped from `Podcast::init()` after the Host (Simple/WoA) gate has
+ * already been checked upstream.
  *
  * @package automattic/jetpack-podcast
  */

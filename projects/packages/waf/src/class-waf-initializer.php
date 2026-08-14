@@ -36,8 +36,9 @@ class Waf_Initializer {
 		// Ensure backwards compatibility
 		Waf_Compatibility::add_compatibility_hooks();
 
-		// Register REST routes
-		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+		// Register REST routes. Use a static callable so the controller class is not
+		// loaded into memory/opcache on requests that never reach `rest_api_init`.
+		add_action( 'rest_api_init', array( REST_Controller::class, 'register_rest_routes' ) );
 
 		// Update the WAF after installing or upgrading a relevant Jetpack plugin
 		add_action( 'upgrader_process_complete', __CLASS__ . '::update_waf_after_plugin_upgrade', 10, 2 );

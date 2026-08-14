@@ -55,6 +55,39 @@ function normalizeSettings( settings: Record< string, unknown > ): NewsletterSet
 	};
 }
 
+// Module-level cache of the last resolved settings. The modernized dashboard
+// renders this body inside a `Tabs.Panel` that unmounts when the visitor
+// switches to the Subscribers tab and remounts on return, so without a cache
+// every revisit re-initialized `isLoading` to true and flashed the full-page
+// spinner while re-fetching. Seeding initial state from this cache lets repeat
+// mounts paint the settings immediately; only the genuine first load (empty
+// cache) shows the spinner. The mount effect still re-fetches in the
+// background to refresh the cache, so a returning visitor sees current values
+// without the flash.
+let cachedSettings: NewsletterSettings | null = null;
+
+// Module-level cache of the last *persisted* settings — the saved baseline,
+// as opposed to `cachedSettings` above which mirrors the optimistic (possibly
+// unsaved) `data`. Kept in sync on fetch and after every successful save, and
+// module-cached for the same reason: so a remount on tab-return knows the
+// saved state immediately instead of treating it as unknown until the
+// background refetch resolves. Consumed by the Subscriptions section to gate
+// each placement's "Preview and edit" link on whether that placement is
+// enabled *in the saved state* (an unsaved toggle previews nothing).
+let cachedSavedSettings: NewsletterSettings | null = null;
+
+/**
+ * Test-only: clear the module-level settings caches so each test starts cold.
+ * The caches deliberately outlive any single component instance (that's the
+ * whole point — they survive the tab unmount/remount), which also means they
+ * leak across tests in a file. Call this in `beforeEach` to keep cold-cache
+ * assertions order-independent.
+ */
+export function __resetNewsletterSettingsCacheForTests(): void {
+	cachedSettings = null;
+	cachedSavedSettings = null;
+}
+
 export type NewsletterSettingsBodyProps = {
 	/**
 	 * Whether the active user has a connected WordPress.com owner account.
@@ -111,8 +144,15 @@ export function NewsletterSettingsBody( {
 	connectUrl,
 	isModernized = false,
 }: NewsletterSettingsBodyProps ): JSX.Element | null {
-	const [ data, setData ] = useState< NewsletterSettings | null >( null );
-	const [ isLoading, setIsLoading ] = useState( true );
+	// Seed from the module cache so a remount (e.g. returning to the Settings
+	// tab) paints immediately instead of flashing the full-page spinner.
+	const [ data, setData ] = useState< NewsletterSettings | null >( () => cachedSettings );
+	// Last persisted settings (saved baseline), seeded from the module cache so a
+	// remount knows the saved state without waiting on the background refetch.
+	const [ savedData, setSavedData ] = useState< NewsletterSettings | null >(
+		() => cachedSavedSettings
+	);
+	const [ isLoading, setIsLoading ] = useState( () => ! cachedSettings );
 	const [ error, setError ] = useState< string | null >( null );
 
 	// Subscription settings state (for manual save).
@@ -173,20 +213,57 @@ export function NewsletterSettingsBody( {
 		}
 	}, [ newsletterScriptData ] );
 
-	// Load settings on mount.
+	// Load settings on mount. When the cache is already populated (a remount)
+	// this refetch runs in the background to refresh values without a spinner —
+	// `isLoading` is only true on the genuine first load.
 	useEffect( () => {
 		fetchSettings()
 			.then( ( settings: Record< string, unknown > ) => {
-				setData( normalizeSettings( settings ) );
+				const normalized = normalizeSettings( settings );
+				setData( normalized );
+				// Server truth on load is both the optimistic value and the saved baseline.
+				setSavedData( normalized );
 				setIsLoading( false );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
 				console.error( 'Newsletter settings load error:', err );
-				setError( err.message || __( 'Failed to load settings', 'jetpack-newsletter' ) );
+				// Only surface a blocking error when there's no cached data to
+				// fall back on; a background refresh failure shouldn't blank a
+				// page that's already rendering.
+				if ( ! cachedSettings ) {
+					setError( err.message || __( 'Failed to load settings', 'jetpack-newsletter' ) );
+				}
 				setIsLoading( false );
 			} );
 	}, [] );
+
+	// Keep the module cache in sync with local state so optimistic edits,
+	// saves, and reverts all carry over to the next mount — a returning visitor
+	// sees their latest values, not a pre-save snapshot.
+	//
+	// Known caveat (low severity): this mirrors the *optimistic* `data`, so a
+	// staged-but-unsaved edit briefly survives a tab switch — on remount the
+	// visitor sees the un-persisted value while the per-section `*Changes` state
+	// has reset to `{}` (no "unsaved changes" affordance), until the background
+	// refetch overwrites it with the server value. The end state is correct
+	// (server wins) and unsaved edits were already discarded on unmount pre-cache,
+	// so this isn't a regression. The structural fix is a persisted saved-baseline
+	// to reconcile against on remount (see the stacked preview-link PR's
+	// `savedData`); tracked as a follow-up.
+	useEffect( () => {
+		if ( data ) {
+			cachedSettings = data;
+		}
+	}, [ data ] );
+
+	// Mirror the saved baseline to the module cache so it, too, survives a
+	// remount (parallel to `cachedSettings` above, but for persisted values).
+	useEffect( () => {
+		if ( savedData ) {
+			cachedSavedSettings = savedData;
+		}
+	}, [ savedData ] );
 
 	// Handle auto-save for newsletter toggle and email settings.
 	const handleAutoSave = useCallback(
@@ -227,6 +304,8 @@ export function NewsletterSettingsBody( {
 			// Save to backend.
 			updateSettings( updates )
 				.then( () => {
+					// Advance the saved baseline now that these values are persisted.
+					setSavedData( prev => ( { ...prev, ...updates } ) );
 					createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
 				} )
 				.catch( ( err: Error ) => {
@@ -258,6 +337,7 @@ export function NewsletterSettingsBody( {
 
 		updateSettings( senderNameChanges )
 			.then( () => {
+				setSavedData( prev => ( { ...prev, ...senderNameChanges } ) );
 				setSenderNameChanges( {} );
 				createSuccessNotice( __( 'Sender name saved', 'jetpack-newsletter' ) );
 			} )
@@ -291,6 +371,9 @@ export function NewsletterSettingsBody( {
 
 		updateSettings( subscriptionChanges )
 			.then( () => {
+				// Advance the saved baseline so each placement's "Preview and edit"
+				// link reflects the just-saved enabled state.
+				setSavedData( prev => ( { ...prev, ...subscriptionChanges } ) );
 				setSubscriptionChanges( {} );
 				createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
 			} )
@@ -345,6 +428,8 @@ export function NewsletterSettingsBody( {
 
 		updateSettings( apiUpdates )
 			.then( () => {
+				// Merge the staged (string) values so the baseline mirrors `data`'s shape.
+				setSavedData( prev => ( { ...prev, ...newsletterCategoriesChanges } ) );
 				setNewsletterCategoriesChanges( {} );
 				createSuccessNotice( __( 'Newsletter categories saved', 'jetpack-newsletter' ) );
 			} )
@@ -378,6 +463,7 @@ export function NewsletterSettingsBody( {
 
 		updateSettings( welcomeEmailChanges )
 			.then( () => {
+				setSavedData( prev => ( { ...prev, ...welcomeEmailChanges } ) );
 				setWelcomeEmailChanges( {} );
 				createSuccessNotice( __( 'Welcome email message saved', 'jetpack-newsletter' ) );
 			} )
@@ -409,6 +495,7 @@ export function NewsletterSettingsBody( {
 
 		updateSettings( subscribeModalChanges )
 			.then( () => {
+				setSavedData( prev => ( { ...prev, ...subscribeModalChanges } ) );
 				setSubscribeModalChanges( {} );
 				createSuccessNotice( __( 'Subscribe modal heading saved', 'jetpack-newsletter' ) );
 			} )
@@ -492,6 +579,7 @@ export function NewsletterSettingsBody( {
 
 								<SubscriptionsSection
 									data={ data }
+									savedData={ savedData }
 									onChange={ handleSubscriptionChange }
 									onSave={ saveSubscriptionSettings }
 									isSaving={ isSavingSubscriptions }

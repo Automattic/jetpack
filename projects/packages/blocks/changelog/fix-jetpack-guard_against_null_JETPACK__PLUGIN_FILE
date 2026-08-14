@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Prevent PHP errors when JETPACK__PLUGIN_FILE is null.
-
-

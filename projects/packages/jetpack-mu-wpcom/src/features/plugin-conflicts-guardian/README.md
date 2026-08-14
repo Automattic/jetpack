@@ -90,7 +90,7 @@ Update mode never confirms — the candidate is already loaded by WP's normal bo
 
 ## Percentage rollout
 
-`PCG_Rollout` narrows `pcg_guard_activation` / `pcg_guard_updates` per blog. Default is **0%** — PCG is off everywhere until the operator opts in:
+`PCG_Rollout` narrows `pcg_guard_activation` / `pcg_guard_updates` per blog. Default is **5%** — the `pcg_rollout_percentage` filter overrides it per environment:
 
 ```php
 add_filter( 'pcg_rollout_percentage', fn () => 10 ); // 10% cohort

@@ -30,6 +30,32 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public $shortcode_name = 'contact-field';
 
 	/**
+	 * Field types that never render a style-specific label.
+	 *
+	 * These have no single labellable input — they are groups of inputs, or a
+	 * control with its own labelling — so every non-default form style falls back
+	 * to the plain default label.
+	 *
+	 * @var string[]
+	 */
+	const TYPES_WITHOUT_STYLED_LABEL = array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' );
+
+	/**
+	 * Field types that never render an *inset* (Outlined / Animated) label.
+	 *
+	 * Their input is not a single text-like box for a label to sit inside, so an
+	 * inset label would overlap the control. Styles that render the label outside
+	 * the field, such as 'below', still apply — unlike TYPES_WITHOUT_STYLED_LABEL,
+	 * this only opts out of the inset styles.
+	 *
+	 * Keep in sync with the editor (`blocks/label/edit.jsx`) and the wrapper
+	 * exclusion list in `contact-form/css/grunion.scss`.
+	 *
+	 * @var string[]
+	 */
+	const TYPES_WITHOUT_INSET_LABEL = array( 'slider' );
+
+	/**
 	 * The parent form.
 	 *
 	 * @var Contact_Form
@@ -240,6 +266,23 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					if ( $i > $max_tries ) {
 						break;
 					}
+				}
+			} elseif ( isset( $form->fields[ $id ] ) ) {
+				// A manually-set field ID (including the Name field's default IDs
+				// such as "name"/"first-name") is carried verbatim when a field is
+				// duplicated or copy/pasted, so two fields can end up sharing an ID.
+				// Duplicate IDs render the same input name: browsers mirror typing
+				// across the fields and only one value survives submission, dropping
+				// the rest from stored responses and emails. Suffix the later
+				// duplicates ("name" -> "name-2" -> "name-3", …) to keep every field
+				// ID unique, matching generateUniqueFormFieldId() on the editor side.
+				// See FORMS-724.
+				$base = $id;
+				$i    = 2;
+				$id   = $base . '-' . $i;
+				while ( isset( $form->fields[ $id ] ) ) {
+					++$i;
+					$id = $base . '-' . $i;
 				}
 			}
 
@@ -816,12 +859,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$form_style = $this->get_form_style();
 
 		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
-			if ( ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' ), true ) ) {
+			if ( ! in_array( $type, self::TYPES_WITHOUT_STYLED_LABEL, true ) ) {
 				switch ( $form_style ) {
 					case 'outlined':
-						return $this->render_outline_label( $id, $label, $required, $required_field_text, $required_indicator );
+						if ( $this->type_has_inset_label( $type ) ) {
+							return $this->render_outline_label( $id, $label, $required, $required_field_text, $required_indicator );
+						}
+						break;
 					case 'animated':
-						return $this->render_animated_label( $id, $label, $required, $required_field_text, $required_indicator );
+						if ( $this->type_has_inset_label( $type ) ) {
+							return $this->render_animated_label( $id, $label, $required, $required_field_text, $required_indicator );
+						}
+						break;
 					case 'below':
 						return $this->render_below_label( $id, $label, $required, $required_field_text, $required_indicator );
 				}
@@ -861,6 +910,111 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Whether the field's label is hidden by block visibility in any mode.
+	 *
+	 * Two modes hide a label: "hide everywhere" (labelhiddenbyblockvisibility,
+	 * the label is not rendered at all) and per-viewport (the label is rendered
+	 * but carries a wp-block-hidden-{viewport} class that display:none's it on
+	 * that viewport). Either way the label is absent from the accessibility tree
+	 * where hidden, so the field needs an aria-label fallback to keep a name.
+	 *
+	 * The visibility control now only survives on the label block (see
+	 * FORMS-694), so this is the single place that decides "is the label hidden?"
+	 *
+	 * @return bool
+	 */
+	private function is_label_hidden_by_block_visibility() {
+		if ( $this->get_attribute( 'labelhiddenbyblockvisibility' ) ) {
+			return true;
+		}
+
+		return strpos( (string) $this->get_attribute( 'labelclasses' ), 'wp-block-hidden-' ) !== false;
+	}
+
+	/**
+	 * The accessible name to fall back to when the label is hidden by block
+	 * visibility. Prefers the label text (it matches what sighted users see on
+	 * viewports where the label is visible, for the per-viewport case) and only
+	 * falls back to a secondary name when there is no label. See FORMS-694.
+	 *
+	 * @param string|null $fallback Secondary name to use when there is no label.
+	 *                              Must be a raw string, not a built attribute
+	 *                              fragment. Defaults to the raw placeholder.
+	 * @return string
+	 */
+	private function get_block_visibility_aria_label( $fallback = null ) {
+		$label = Contact_Form_Plugin::strip_tags( (string) $this->get_attribute( 'label' ) );
+		if ( '' !== $label ) {
+			return $label;
+		}
+
+		if ( null === $fallback ) {
+			$fallback = $this->get_attribute( 'placeholder' );
+		}
+
+		return Contact_Form_Plugin::strip_tags( (string) $fallback );
+	}
+
+	/**
+	 * Return an ` aria-label='…'` attribute string when the field's label is
+	 * hidden by block visibility (full or per-viewport), or '' otherwise.
+	 *
+	 * A hidden label (removed on full-hide, display:none per-viewport) is absent
+	 * from the a11y tree, so every field that renders its own label — single
+	 * inputs and the grouped <fieldset> legend alike — needs this fallback to
+	 * keep an accessible name. Shared by all paths so none get missed. The
+	 * attribute is skipped when there is no name to give. See FORMS-694.
+	 *
+	 * @param string|null $fallback Secondary name when there is no label (raw
+	 *                              string, not a built attribute fragment).
+	 * @return string
+	 */
+	private function get_hidden_label_aria_label_attr( $fallback = null ) {
+		if ( ! $this->is_label_hidden_by_block_visibility() ) {
+			return '';
+		}
+
+		$name = $this->get_block_visibility_aria_label( $fallback );
+		if ( '' === $name ) {
+			return '';
+		}
+
+		return " aria-label='" . esc_attr( $name ) . "'";
+	}
+
+	/**
+	 * Accessible name for the file field's dropzone <div role="button">.
+	 *
+	 * The dropzone is the field's interactive control, but its name is otherwise
+	 * the generic "Select a file to upload.", so two hidden-label upload fields
+	 * would be announced identically. When the label is hidden (full or
+	 * per-viewport), prefix the field name — the same fallback the other single
+	 * inputs use. Falls back to the plain instruction when the label is visible
+	 * or there is no name to give. See FORMS-694.
+	 *
+	 * @return string
+	 */
+	private function get_file_dropzone_aria_label() {
+		$select_file_text = __( 'Select a file to upload.', 'jetpack-forms' );
+
+		if ( ! $this->is_label_hidden_by_block_visibility() ) {
+			return $select_file_text;
+		}
+
+		$hidden_name = $this->get_block_visibility_aria_label();
+		if ( '' === $hidden_name ) {
+			return $select_file_text;
+		}
+
+		return sprintf(
+			/* translators: 1: the form field's label, 2: the "Select a file to upload." instruction. */
+			_x( '%1$s: %2$s', 'file upload field accessible name', 'jetpack-forms' ),
+			$hidden_name,
+			$select_file_text
+		);
+	}
+
+	/**
 	 * Return the HTML for a legend that shares the same style as a label.
 	 *
 	 * @param string $type - the field type.
@@ -874,6 +1028,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_legend_as_label( $type, $id, $legend, $required, $required_field_text, $extra_attrs = array(), $required_indicator = true ) {
+		// Full-hide via blockVisibility, mirroring render_label(). Grouped fields
+		// (radio, checkbox-multiple, image-select, rating) render their label as a
+		// legend, so they need the same guard. Per-viewport hiding still works via
+		// the label_classes applied below.
+		if ( $this->attributes['labelhiddenbyblockvisibility'] ) {
+			return '';
+		}
 		if ( ! empty( $this->label_styles ) ) {
 			$extra_attrs['style'] = $this->label_styles;
 		}
@@ -935,10 +1096,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$extra_attrs_string .= " data-wp-on--keypress='actions.handleNumberKeyPress' ";
 		}
 
-		if ( $this->get_attribute( 'labelhiddenbyblockvisibility' ) ) {
-			$aria_label          = ! empty( $placeholder ) ? $placeholder : Contact_Form_Plugin::strip_tags( $this->get_attribute( 'label' ) );
-			$extra_attrs_string .= " aria-label='" . esc_attr( $aria_label ) . "' ";
-		}
+		$extra_attrs_string .= $this->get_hidden_label_aria_label_attr();
 
 		return "<input
 					type='" . esc_attr( $type ) . "'
@@ -1187,9 +1345,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-class--has-value='context.phoneNumber'
 					data-wp-init="callbacks.registerPhoneInput"
 					data-wp-init--phone-field-custom-combobox="callbacks.initializePhoneFieldCustomComboBox"
-					<?php if ( $this->get_attribute( 'labelhiddenbyblockvisibility' ) ) { ?>
-						aria-label="<?php echo esc_attr( $this->get_attribute( 'label' ) ); ?>"
-					<?php } ?>
+					<?php echo $this->get_hidden_label_aria_label_attr(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attribute value is escaped in the helper. ?>
 					/>
 				<input type="hidden"
 					id="<?php echo esc_attr( $id ); ?>"
@@ -1244,9 +1400,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$value = '';
 		}
 
-		$field      = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text, array(), false, $required_indicator );
-		$aria_label = ! empty( $placeholder ) ? $placeholder : Contact_Form_Plugin::strip_tags( $this->get_attribute( 'label' ) );
-		$field     .= "<textarea
+		$field  = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text, array(), false, $required_indicator );
+		$field .= "<textarea
 		                style='" . $this->field_styles . "'
 		                name='" . esc_attr( $id ) . "'
 		                id='contact-form-comment-" . esc_attr( $id ) . "'
@@ -1258,9 +1413,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						aria-describedby='" . esc_attr( $id ) . "-textarea-error-message'
 						data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 						"
-						. ( $this->get_attribute( 'labelhiddenbyblockvisibility' )
-							? "aria-label='" . esc_attr( $aria_label ) . "'"
-							: '' )
+						. $this->get_hidden_label_aria_label_attr()
 						. $class
 						. $placeholder
 						. ' ' . ( $required ? "required aria-required='true'" : '' ) .
@@ -1288,7 +1441,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$options_styles    = $this->get_attribute( 'optionsstyles' );
 		$form_style        = $this->get_form_style();
 		$is_outlined_style = 'outlined' === $form_style;
-		$fieldset_id       = "id='" . esc_attr( "$id-label" ) . "'";
+		$fieldset_id       = "id='" . esc_attr( "$id-label" ) . "'" . $this->get_hidden_label_aria_label_attr();
 
 		if ( $is_outlined_style ) {
 			$style_variation_attributes = $this->get_attribute( 'stylevariationattributes' );
@@ -1632,6 +1785,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text, array(), true, $required_indicator );
 
+		$dropzone_aria_label = $this->get_file_dropzone_aria_label();
+
 		ob_start();
 		?>
 		<div
@@ -1649,9 +1804,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			data-is-required="<?php echo esc_attr( $required ); ?>"
 		>
 			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
-				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker" data-wp-on--keydown="actions.handleKeyDown" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'Select a file to upload.', 'jetpack-forms' ); ?>"></div>
-				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is intentionally unescaped as it contains block content that was previously escaped ?>
-				<?php echo html_entity_decode( $this->content, ENT_COMPAT, 'UTF-8' ); ?>
+				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker" data-wp-on--keydown="actions.handleKeyDown" tabindex="0" role="button" aria-label="<?php echo esc_attr( $dropzone_aria_label ); ?>"></div>
+				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Decoded dropzone markup is filtered through an allowlist by sanitize_file_field_content(). ?>
+				<?php echo $this->sanitize_file_field_content( $this->content ); ?>
 				<input
 					type="file" class="jetpack-form-file-field"
 					accept="<?php echo esc_attr( $accept_attribute_value ); ?>"
@@ -1685,6 +1840,140 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		</div>
 		<?php
 		return $field . ob_get_clean() . $this->get_error_div( $id, 'file' );
+	}
+
+	/**
+	 * Sanitize the file field's inner (dropzone) content for output.
+	 *
+	 * The dropzone's inner blocks are serialized into the [contact-field] shortcode with
+	 * esc_html() (see Contact_Form::parse_contact_field()), so the stored content has to be
+	 * entity-decoded before it can render. Decoding is what makes this dangerous: an author
+	 * who cannot post raw HTML can still store entity-encoded markup in the shortcode's inner
+	 * content, which post-save KSES treats as plain text and never inspects. Decoding it would
+	 * turn that text back into live markup, so the decoded result is filtered here instead of
+	 * being echoed as-is.
+	 *
+	 * @since 7.24.0
+	 *
+	 * @param string|null $content The raw (entity-encoded) field content.
+	 *
+	 * @return string Safe HTML.
+	 */
+	private function sanitize_file_field_content( $content ) {
+		if ( ! is_string( $content ) || $content === '' ) {
+			return '';
+		}
+
+		// core/icon serializes its rotation as `rotate: 45deg`, which is not in WordPress's
+		// safe_style_css list, so safecss_filter_attr() would strip it and render the icon
+		// unrotated. Allow it just for the duration of this call.
+		$allow_rotate = static function ( $attrs ) {
+			$attrs[] = 'rotate';
+			return $attrs;
+		};
+
+		add_filter( 'safe_style_css', $allow_rotate );
+
+		try {
+			return wp_kses(
+				html_entity_decode( $content, ENT_COMPAT, 'UTF-8' ),
+				self::get_file_field_allowed_html()
+			);
+		} finally {
+			remove_filter( 'safe_style_css', $allow_rotate );
+		}
+	}
+
+	/**
+	 * Build the allowlist of HTML permitted inside the file field's dropzone.
+	 *
+	 * Starts from the standard post allowlist and adds the things the dropzone's allowed inner
+	 * blocks legitimately rely on that wp_kses_post() would otherwise drop:
+	 *
+	 * - `tabindex`, which Contact_Form_Plugin::gutenblock_render_dropzone() sets to "-1" on inner
+	 *   links and buttons so the dropzone stays a single tab stop.
+	 * - `srcset`, `sizes` and `decoding` on images, so core/image keeps serving responsive
+	 *   sources instead of silently degrading to the full-size file.
+	 * - A conservative inline SVG subset, since core/icon is an allowed inner block of the
+	 *   dropzone. Only presentational elements and attributes are listed; because wp_kses() is
+	 *   allowlist-based, event handlers and scripting constructs are dropped automatically.
+	 *
+	 * Note that wp_kses_allowed_html( 'post' ) permits `data-*` globally, so Interactivity API
+	 * directives survive this filter. Their values are store paths rather than executable code,
+	 * and removing them would also break core/image's lightbox markup, so they are left alone.
+	 *
+	 * @since 7.24.0
+	 *
+	 * @return array Allowed HTML, in wp_kses() format.
+	 */
+	private static function get_file_field_allowed_html() {
+		$allowed = wp_kses_allowed_html( 'post' );
+
+		foreach ( array( 'a', 'button' ) as $tag ) {
+			if ( isset( $allowed[ $tag ] ) && is_array( $allowed[ $tag ] ) ) {
+				$allowed[ $tag ]['tabindex'] = true;
+			}
+		}
+
+		// wp_kses() only runs its protocol check on a fixed set of URL attributes, which does not
+		// include `srcset`. That is not a script vector - srcset candidates are fetched as images,
+		// so a `javascript:` candidate never executes - and `src` is still protocol-checked.
+		if ( isset( $allowed['img'] ) && is_array( $allowed['img'] ) ) {
+			$allowed['img'] += array(
+				'srcset'   => true,
+				'sizes'    => true,
+				'decoding' => true,
+			);
+		}
+
+		// `style` is deliberately absent here: safecss_filter_attr() strips the SVG presentation
+		// properties (fill, stroke) that would justify it, while still permitting things like
+		// position:fixed. It is allowed on the root <svg> below, where block supports need it.
+		$svg_common = array(
+			'class'           => true,
+			'fill'            => true,
+			'fill-rule'       => true,
+			'clip-rule'       => true,
+			'stroke'          => true,
+			'stroke-width'    => true,
+			'stroke-linecap'  => true,
+			'stroke-linejoin' => true,
+			'opacity'         => true,
+			'transform'       => true,
+		);
+
+		$allowed['svg'] = array_merge(
+			$svg_common,
+			array(
+				'style'       => true,
+				'xmlns'       => true,
+				'viewbox'     => true,
+				'width'       => true,
+				'height'      => true,
+				'role'        => true,
+				'focusable'   => true,
+				'aria-hidden' => true,
+				'aria-label'  => true,
+			)
+		);
+
+		// Child elements: the shared presentation attributes plus each element's own geometry.
+		$svg_children = array(
+			'g'        => array(),
+			'path'     => array( 'd' ),
+			'circle'   => array( 'cx', 'cy', 'r' ),
+			'ellipse'  => array( 'cx', 'cy', 'rx', 'ry' ),
+			'line'     => array( 'x1', 'y1', 'x2', 'y2' ),
+			'polygon'  => array( 'points' ),
+			'polyline' => array( 'points' ),
+			'rect'     => array( 'x', 'y', 'width', 'height', 'rx', 'ry' ),
+		);
+
+		foreach ( $svg_children as $tag => $attrs ) {
+			$allowed[ $tag ] = $svg_common + array_fill_keys( $attrs, true );
+		}
+
+		return $allowed;
 	}
 
 	/**
@@ -1777,7 +2066,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 * any of the radio buttons in the group is selected, adding a required attribute directly to
 		 * a checkbox means that this specific checkbox must be checked.
 		 */
-		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
+		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'" . $this->get_hidden_label_aria_label_attr();
 
 		if ( $is_outlined_style ) {
 			$style_variation_attributes = $this->get_attribute( 'stylevariationattributes' );
@@ -1809,7 +2098,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid">';
+			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid">';
 		} else {
 			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'" . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldAriaInvalid">';
 		}
@@ -1817,7 +2106,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
 
 		if ( ! $is_outlined_style ) {
-			$field .= "<div class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . '>';
+			$field .= "<div class='grunion-checkbox-multiple-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' " . '>';
 		}
 
 		$options_data  = $this->get_attribute( 'optionsdata' );
@@ -1917,7 +2206,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$aria_label = ! empty( $this->get_attribute( 'togglelabel' ) )
 			? Contact_Form_Plugin::strip_tags( $this->get_attribute( 'togglelabel' ) )
 			: __( 'Select an option', 'jetpack-forms' ); // selects don't have a default label
-		$field     .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldAriaInvalid' " . ( $this->get_attribute( 'labelhiddenbyblockvisibility' ) ? "aria-label='" . esc_attr( $aria_label ) . "'" : '' ) . ">\n";
+		$field     .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldAriaInvalid' " . $this->get_hidden_label_aria_label_attr( $aria_label ) . ">\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
@@ -2112,7 +2401,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field = "<div class='jetpack-field jetpack-field-image-select'>";
 
-		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
+		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'" . $this->get_hidden_label_aria_label_attr();
 
 		$field .= "<fieldset {$fieldset_id} data-wp-bind--aria-invalid='state.fieldAriaInvalid' >";
 
@@ -2253,7 +2542,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 			$default_classes = 'jetpack-field jetpack-input-image-option';
 			$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
-			$option_classes  = "class='" . ( empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . $option['class'] ) . "'";
+			$option_classes  = "class='" . ( empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] ) ) . "'";
 
 			$field .= "<div {$option_classes} {$option_styles} data-wp-on--click='actions.onImageOptionClick' data-wp-init='callbacks.setImageOptionOutlineColor'>";
 
@@ -2554,7 +2843,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		return '
 			<label
 				for="' . esc_attr( $id ) . '"
-				class="below-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . '"
+				class="below-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . ( $this->label_classes ? ' ' . esc_attr( $this->label_classes ) : '' ) . '"
 			>'
 			. esc_html( $label )
 			. ( $required && $required_indicator ? '<span>' . $required_field_text . '</span>' : '' ) .
@@ -2825,7 +3114,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Checks if the field has an inset label, i.e., a label displayed inside the field instead of above.
+	 * Checks if the form style renders labels inside the field rather than above it.
+	 *
+	 * This is a property of the *style* alone: it stays true for a field type that
+	 * opts out of the inset label itself, because it also governs the extra
+	 * `.contact-form__inset-label-wrap` wrapper, which those fields still need (it
+	 * carries the field width). Use type_has_inset_label() to decide whether a given
+	 * field actually renders an inset label.
 	 *
 	 * @return boolean
 	 */
@@ -2833,6 +3128,19 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$form_style = $this->get_form_style();
 
 		return in_array( $form_style, array( 'outlined', 'animated' ), true );
+	}
+
+	/**
+	 * Checks whether a field type renders an inset label under the current form style.
+	 *
+	 * @param string $type The field type.
+	 *
+	 * @return boolean
+	 */
+	private function type_has_inset_label( $type ) {
+		return $this->has_inset_label()
+			&& ! in_array( $type, self::TYPES_WITHOUT_STYLED_LABEL, true )
+			&& ! in_array( $type, self::TYPES_WITHOUT_INSET_LABEL, true );
 	}
 
 	/**
@@ -2959,15 +3267,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$style_attr .= ' ' . implode( ';', $remaining_styles ) . '"';
 
 		return sprintf(
-			'<fieldset id="%4$s-label" class="jetpack-field-multiple__fieldset jetpack-field-rating" %1$s>
+			'<fieldset id="%4$s-label" class="jetpack-field-multiple__fieldset jetpack-field-rating" %1$s%6$s>
 				%5$s
 				<div class="jetpack-field-rating__options %3$s">%2$s</div>
 			</fieldset>',
 			$style_attr,
 			$options,
-			$this->field_classes,
+			esc_attr( $this->field_classes ),
 			esc_attr( $id ),
-			$label_html
+			$label_html,
+			$this->get_hidden_label_aria_label_attr()
 		) . $this->get_error_div( $id, 'rating' );
 	}
 
@@ -3007,7 +3316,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$min_text_label = $extra_attrs['minLabel'] ?? '';
 		$max_text_label = $extra_attrs['maxLabel'] ?? '';
 
-		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
+		// $always_render must be true: 'slider' is excluded from inset labels in
+		// render_label(), so without it the label would be dropped entirely when the
+		// form uses the Outlined or Animated style.
+		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text, array(), true, $required_indicator );
 
 		ob_start();
 		?>
@@ -3046,6 +3358,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-bind--value="state.getSliderValue"
 					data-wp-on--input="actions.onSliderChange"
 					data-wp-bind--aria-invalid="state.fieldAriaInvalid"
+					<?php echo $this->get_hidden_label_aria_label_attr(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attribute value is escaped in the helper. ?>
 				/>
 				<div
 					class="jetpack-field-slider__value-indicator"

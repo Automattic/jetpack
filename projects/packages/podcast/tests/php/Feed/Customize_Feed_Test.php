@@ -38,6 +38,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
 		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
 		Jetpack_Options::delete_option( 'id' );
+		Customize_Feed::reset_render_state();
 		wp_cache_flush();
 		unset( $GLOBALS['post'] );
 		parent::tearDown();
@@ -138,6 +139,16 @@ class Customize_Feed_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( '<itunes:category text="Technology">', $xml );
 		$this->assertStringContainsString( '<itunes:category text="Tech News" />', $xml );
+	}
+
+	public function test_category_tag_translates_renamed_sports_subcategories() {
+		$football = Customize_Feed::category_tag( 'Sports,Football' );
+		$this->assertStringContainsString( '<itunes:category text="Sports">', $football );
+		$this->assertStringContainsString( '<itunes:category text="American Football" />', $football );
+
+		$soccer = Customize_Feed::category_tag( 'Sports,Soccer' );
+		$this->assertStringContainsString( '<itunes:category text="Sports">', $soccer );
+		$this->assertStringContainsString( '<itunes:category text="Football (Soccer)" />', $soccer );
 	}
 
 	public function test_resolve_category_id_returns_zero_when_nothing_configured() {
@@ -332,6 +343,81 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'public-api.wordpress.com', $result );
 	}
 
+	/**
+	 * Core `rss_enclosure()` emits one `<enclosure>` per `enclosure` post-meta
+	 * row, and posts accumulate several as the source URL drifts across saves.
+	 * All rows rewrite to the same post-ID-keyed stats URL, so the second and
+	 * subsequent rows must be dropped — a valid podcast item has exactly one.
+	 */
+	public function test_rewrite_enclosure_drops_repeated_rows_that_collapse_to_same_stats_url() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'        => 4242,
+				'post_type' => 'post',
+			)
+		);
+
+		add_filter(
+			'wpcom_podcasting_tracked_blog_id',
+			static function () {
+				return 555;
+			}
+		);
+
+		// Two distinct source URLs — a re-upload / CDN-host drift — both
+		// resolve to real attachments and both rewrite to `.../4242.mp3`.
+		add_filter(
+			'pre_attachment_url_to_postid',
+			static function ( $pre, $url ) {
+				if ( 'https://i0.wp.com/example.com/episode.mp3' === $url ) {
+					return 8001;
+				}
+				if ( 'https://i1.wp.com/example.com/episode.mp3' === $url ) {
+					return 8002;
+				}
+				return $pre;
+			},
+			10,
+			2
+		);
+
+		$first  = Customize_Feed::rewrite_enclosure( '<enclosure url="https://i0.wp.com/example.com/episode.mp3" length="123" type="audio/mpeg" />' );
+		$second = Customize_Feed::rewrite_enclosure( '<enclosure url="https://i1.wp.com/example.com/episode.mp3" length="123" type="audio/mpeg" />' );
+
+		$this->assertStringContainsString(
+			'url="https://public-api.wordpress.com/wpcom/v2/sites/555/podcast-play/4242.mp3"',
+			$first
+		);
+		$this->assertSame( '', $second );
+	}
+
+	/**
+	 * The dedup registry is per feed render: `reset_render_state()` (hooked
+	 * on `rss2_head`) clears it so re-generating the same feed within one
+	 * long-lived process emits enclosures again instead of dropping them all.
+	 */
+	public function test_reset_render_state_lets_the_same_url_emit_on_a_fresh_render() {
+		global $post;
+		$post = new WP_Post(
+			(object) array(
+				'ID'        => 4242,
+				'post_type' => 'post',
+			)
+		);
+
+		add_filter( 'wpcom_podcasting_enable_play_tracking', '__return_false' );
+
+		$markup = '<enclosure url="https://example.com/episode.mp3" length="123" type="audio/mpeg" />';
+
+		$this->assertStringContainsString( 'url="https://example.com/episode.mp3"', Customize_Feed::rewrite_enclosure( $markup ) );
+		$this->assertSame( '', Customize_Feed::rewrite_enclosure( $markup ) );
+
+		Customize_Feed::reset_render_state();
+
+		$this->assertStringContainsString( 'url="https://example.com/episode.mp3"', Customize_Feed::rewrite_enclosure( $markup ) );
+	}
+
 	public function test_resolve_category_id_prefers_numeric_id_over_archive_slug() {
 		$this->seed_category_term( 17 );
 		update_option( 'podcasting_category_id', 17 );
@@ -427,6 +513,41 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertSame( 100, $result[0]->ID );
 
 		delete_post_meta( 100, 'enclosure' );
+	}
+
+	public function test_constrain_feed_query_leaves_where_untouched_for_non_podcast_query() {
+		$where = ' AND 1=1';
+		$query = $this->build_podcast_feed_query_mock( 17, array( 'is_feed' => false ) );
+
+		$this->assertSame( $where, Customize_Feed::constrain_feed_query( $where, $query ) );
+	}
+
+	public function test_constrain_feed_query_leaves_where_untouched_when_queried_term_does_not_match() {
+		$this->seed_category_term( 17 );
+		update_option( 'podcasting_category_id', 17 );
+
+		$where = ' AND 1=1';
+		$query = $this->build_podcast_feed_query_mock( 999 );
+
+		$this->assertSame( $where, Customize_Feed::constrain_feed_query( $where, $query ) );
+	}
+
+	public function test_constrain_feed_query_appends_enclosure_exists_subquery_for_podcast_feed() {
+		global $wpdb;
+		$this->seed_category_term( 17 );
+		update_option( 'podcasting_category_id', 17 );
+
+		$query  = $this->build_podcast_feed_query_mock( 17 );
+		$result = Customize_Feed::constrain_feed_query( ' AND 1=1', $query );
+
+		// Constraint is a correlated EXISTS semi-join, so an episode with
+		// several `enclosure` rows still yields exactly one post row — no
+		// LIMIT-breaking duplicates.
+		$this->assertStringContainsString(
+			"EXISTS ( SELECT 1 FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.post_id = {$wpdb->posts}.ID AND {$wpdb->postmeta}.meta_key = 'enclosure' )",
+			$result
+		);
+		$this->assertStringStartsWith( ' AND 1=1', $result );
 	}
 
 	/**
@@ -548,57 +669,25 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'type="application/json+chapters"', $output );
 	}
 
-	public function test_filter_excerpt_to_manual_only_returns_manual_excerpt() {
-		global $post;
-		$post = new WP_Post(
-			(object) array(
-				'ID'           => 101,
-				'post_excerpt' => 'A manually written episode summary.',
-				'post_content' => '<p>Body content that should be ignored.</p>',
-			)
-		);
-
-		$this->assertSame(
-			'A manually written episode summary.',
-			Customize_Feed::filter_excerpt_to_manual_only()
-		);
-	}
-
-	public function test_filter_excerpt_to_manual_only_returns_empty_when_no_manual_excerpt() {
-		global $post;
-		$post = new WP_Post(
-			(object) array(
-				'ID'           => 102,
-				'post_excerpt' => '',
-				'post_content' => '<p>Body paragraph that should NOT leak into description.</p><h2>A heading</h2>',
-			)
-		);
-
-		$this->assertSame( '', Customize_Feed::filter_excerpt_to_manual_only() );
-	}
-
-	public function test_filter_excerpt_to_manual_only_handles_missing_post() {
-		global $post;
-		$post = null;
-
-		$this->assertSame( '', Customize_Feed::filter_excerpt_to_manual_only() );
-	}
-
 	public function test_output_item_tags_uses_manual_excerpt_for_itunes_summary() {
-		global $post;
-		$post = new WP_Post(
-			(object) array(
-				'ID'           => 103,
-				'post_type'    => 'post',
+		$post_id = wp_insert_post(
+			array(
 				'post_title'   => 'Episode with Excerpt',
+				'post_status'  => 'publish',
 				'post_excerpt' => 'Authored summary for this episode.',
 				'post_content' => '<!-- wp:jetpack/podcast-episode {"mediaUrl":"https://example.com/ep.mp3"} /-->',
 			)
 		);
 
+		global $post;
+		$post = get_post( $post_id );
+		setup_postdata( $post );
+
 		ob_start();
 		Customize_Feed::output_item_tags();
 		$output = (string) ob_get_clean();
+
+		wp_reset_postdata();
 
 		$this->assertStringContainsString(
 			'<itunes:summary>Authored summary for this episode.</itunes:summary>',
@@ -606,23 +695,112 @@ class Customize_Feed_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_output_item_tags_omits_itunes_summary_when_no_manual_excerpt() {
-		global $post;
-		$post = new WP_Post(
-			(object) array(
-				'ID'           => 104,
-				'post_type'    => 'post',
-				'post_title'   => 'Episode without Excerpt',
+	/**
+	 * No manual excerpt → `<itunes:summary>` mirrors WP's auto excerpt, which drops the player block and keeps only prose.
+	 */
+	public function test_output_item_tags_uses_auto_excerpt_when_no_manual_excerpt() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Episode without Show notes',
+				'post_status'  => 'publish',
 				'post_excerpt' => '',
-				'post_content' => '<!-- wp:jetpack/podcast-episode {"mediaUrl":"https://example.com/ep.mp3"} /--><p>Body content.</p>',
+				'post_content' => '<!-- wp:jetpack/podcast-episode {"mediaUrl":"https://example.com/ep.mp3"} /--><p>Body prose that listeners should see.</p>',
 			)
 		);
+
+		global $post;
+		$post = get_post( $post_id );
+		setup_postdata( $post );
 
 		ob_start();
 		Customize_Feed::output_item_tags();
 		$output = (string) ob_get_clean();
 
-		$this->assertStringNotContainsString( '<itunes:summary>', $output );
-		$this->assertStringNotContainsString( 'Body content', $output );
+		wp_reset_postdata();
+
+		$this->assertStringContainsString( '<itunes:summary>', $output );
+		$this->assertStringContainsString( 'Body prose that listeners should see.', $output );
+		$this->assertStringNotContainsString( 'mediaUrl', $output );
+		$this->assertStringNotContainsString( 'example.com/ep.mp3', $output );
+	}
+
+	/**
+	 * `<itunes:summary>` reuses the `<description>` captured for the same item,
+	 * and `reset_render_state()` drops it — otherwise a second render in one
+	 * long-lived process could match a stale post ID and emit the previous
+	 * feed's text instead of falling back to a fresh excerpt.
+	 */
+	public function test_reset_render_state_drops_the_captured_item_summary() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Episode with Excerpt',
+				'post_status'  => 'publish',
+				'post_excerpt' => 'Authored summary for this episode.',
+				'post_content' => '<!-- wp:jetpack/podcast-episode {"mediaUrl":"https://example.com/ep.mp3"} /-->',
+			)
+		);
+
+		global $post;
+		$post = get_post( $post_id );
+		setup_postdata( $post );
+
+		Customize_Feed::capture_item_summary( 'Summary the description actually printed.' );
+
+		ob_start();
+		Customize_Feed::output_item_tags();
+		$reused = (string) ob_get_clean();
+
+		Customize_Feed::reset_render_state();
+
+		ob_start();
+		Customize_Feed::output_item_tags();
+		$after_reset = (string) ob_get_clean();
+
+		wp_reset_postdata();
+
+		$this->assertStringContainsString(
+			'<itunes:summary>Summary the description actually printed.</itunes:summary>',
+			$reused
+		);
+		$this->assertStringContainsString(
+			'<itunes:summary>Authored summary for this episode.</itunes:summary>',
+			$after_reset
+		);
+	}
+
+	public function test_skip_block_in_feed_strips_episode_block() {
+		$this->assertSame(
+			'',
+			Customize_Feed::skip_block_in_feed(
+				'<figure class="wp-block-jetpack-podcast-episode">player widget</figure>',
+				array( 'blockName' => 'jetpack/podcast-episode' )
+			)
+		);
+	}
+
+	public function test_skip_block_in_feed_strips_player_and_subscribe_blocks() {
+		foreach ( array( 'jetpack/podcast-player', 'jetpack/subscriptions' ) as $block_name ) {
+			$this->assertSame(
+				'',
+				Customize_Feed::skip_block_in_feed( 'rendered widget', array( 'blockName' => $block_name ) ),
+				"Expected {$block_name} to be stripped from the feed body."
+			);
+		}
+	}
+
+	public function test_skip_block_in_feed_keeps_prose_blocks() {
+		$html = '<p>Real show notes prose listeners should see.</p>';
+		$this->assertSame(
+			$html,
+			Customize_Feed::skip_block_in_feed( $html, array( 'blockName' => 'core/paragraph' ) )
+		);
+	}
+
+	public function test_skip_block_in_feed_keeps_classic_freeform_content() {
+		$html = '<p>Classic editor content.</p>';
+		$this->assertSame(
+			$html,
+			Customize_Feed::skip_block_in_feed( $html, array( 'blockName' => null ) )
+		);
 	}
 }

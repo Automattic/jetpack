@@ -11,11 +11,10 @@ namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
+use Automattic\Jetpack\Podcast\Feed\Episode_Block_Tags;
 use Throwable;
 use WP_Post;
 use WP_Query;
-use WP_REST_Request;
-use WP_REST_Response;
 use WP_User;
 
 /**
@@ -42,8 +41,6 @@ class Tracks {
 
 		add_action( 'add_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_added' ), 10, 2 );
 		add_action( 'update_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_updated' ), 10, 3 );
-
-		add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'record_settings_saved' ), 10, 3 );
 	}
 
 	/**
@@ -262,52 +259,6 @@ class Tracks {
 	}
 
 	/**
-	 * Emit `wpcom_podcasting_settings_saved` when a `/wp/v2/settings` write
-	 * touches any podcasting option. Pass-through filter on the response.
-	 *
-	 * @param mixed                 $response Pass-through.
-	 * @param array                 $handler  Route handler.
-	 * @param WP_REST_Request|mixed $request  Request object.
-	 * @return mixed
-	 */
-	public static function record_settings_saved( $response, $handler, $request ) {
-		unset( $handler );
-
-		try {
-			if ( ! $request instanceof WP_REST_Request || '/wp/v2/settings' !== $request->get_route() ) {
-				return $response;
-			}
-			if ( ! in_array( $request->get_method(), array( 'POST', 'PUT', 'PATCH' ), true ) ) {
-				return $response;
-			}
-
-			$params = (array) $request->get_params();
-			if ( empty( array_intersect_key( $params, array_flip( Settings::OPTION_NAMES ) ) ) ) {
-				return $response;
-			}
-
-			if ( $response instanceof WP_REST_Response && $response->is_error() ) {
-				return $response;
-			}
-
-			// Skip user-supplied free-text fields — keep PII out of tracks.
-			$pii   = array( 'podcasting_email', 'podcasting_talent_name' );
-			$state = array();
-			foreach ( Settings::OPTION_NAMES as $name ) {
-				if ( in_array( $name, $pii, true ) ) {
-					continue;
-				}
-				$state[ $name ] = get_option( $name, '' );
-			}
-			self::record_event( 'wpcom_podcasting_settings_saved', $state );
-		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-			// Tracks is best-effort.
-		}
-
-		return $response;
-	}
-
-	/**
 	 * Emit `wpcom_podcasting_status_changed` (enabled / disabled / changed)
 	 * when the `podcasting_category_id` option transitions.
 	 *
@@ -367,12 +318,19 @@ class Tracks {
 
 	/**
 	 * Filters out posts in the podcast category that aren't actually episodes.
-	 * `core/audio` block + classic-editor attached audio cover the supported
-	 * authoring paths.
+	 * Covers all three authoring paths: the `jetpack/podcast-episode` block
+	 * (the paid path — media lives in its `mediaUrl` attr, often an external or
+	 * unattached URL that the two checks below miss), the `core/audio` block,
+	 * and classic-editor attached audio.
 	 *
 	 * @param WP_Post $post Post being checked.
 	 */
 	private static function has_podcast_media( WP_Post $post ): bool {
+		$attrs = Episode_Block_Tags::get_block_attrs( $post );
+		if ( ! empty( $attrs['mediaUrl'] ) ) {
+			return true;
+		}
+
 		return has_block( 'core/audio', $post )
 			|| ! empty( get_attached_media( 'audio', $post->ID ) );
 	}

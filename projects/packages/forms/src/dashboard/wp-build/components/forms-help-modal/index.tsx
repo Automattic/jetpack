@@ -2,17 +2,11 @@
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import {
-	Button,
-	CheckboxControl,
-	Modal,
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { CheckboxControl } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button, Dialog, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -29,9 +23,9 @@ type Props = {
  * This is intended for the wp-build "Forms" screen, where the list shows managed forms only.
  *
  * @param props         - Component props.
- * @param props.isOpen  - Whether the modal is open.
+ * @param props.isOpen  - Whether the dialog is open.
  * @param props.onClose - Close handler.
- * @return The modal element, or null when closed.
+ * @return The dialog element.
  */
 export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 	const [ dontShowAgain, setDontShowAgain ] = useState( false );
@@ -41,6 +35,15 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 		setDontShowAgain( false );
 		onClose();
 	}, [ onClose ] );
+
+	const handleOpenChange = useCallback(
+		( open: boolean ) => {
+			if ( ! open ) {
+				handleClose();
+			}
+		},
+		[ handleClose ]
+	);
 
 	const handleSubmit = useCallback( () => {
 		if ( dontShowAgain ) {
@@ -58,41 +61,61 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 	}
 
 	return (
-		<Modal
-			title={ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
-			onRequestClose={ handleClose }
-		>
-			<VStack spacing="4">
-				<Text>
-					{ __( 'The Forms list shows reusable forms, not simple form blocks.', 'jetpack-forms' ) }
-				</Text>
-				<div>
-					<Text as="p" weight="500">
-						{ __( 'To convert a form block to a reusable form:', 'jetpack-forms' ) }
-					</Text>
-					<ol>
-						<li>
-							{ __( 'Open the page or post where your form block is embedded.', 'jetpack-forms' ) }
-						</li>
-						<li>{ __( 'Select the form block.', 'jetpack-forms' ) }</li>
-						<li>
-							{ __( 'Click "Edit Form" in the block toolbar to convert it.', 'jetpack-forms' ) }
-						</li>
-						<li>{ __( 'Save the page or post.', 'jetpack-forms' ) }</li>
-					</ol>
-				</div>
-				<HStack justify="space-between" alignment="center">
+		<Dialog.Root open onOpenChange={ handleOpenChange }>
+			<Dialog.Popup size="medium">
+				<Dialog.Header>
+					<Dialog.Title>{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }</Dialog.Title>
+					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-forms' ) } />
+				</Dialog.Header>
+				<Dialog.Content>
+					<Stack direction="column" gap="md">
+						<Text>
+							{ __(
+								'The Forms list shows reusable forms, not simple form blocks.',
+								'jetpack-forms'
+							) }
+						</Text>
+						<div>
+							<Text variant="body-md" render={ <p /> }>
+								<strong>
+									{ __( 'To convert a form block to a reusable form:', 'jetpack-forms' ) }
+								</strong>
+							</Text>
+							<ol>
+								<li>
+									{ __(
+										'Open the page or post where your form block is embedded.',
+										'jetpack-forms'
+									) }
+								</li>
+								<li>{ __( 'Select the form block.', 'jetpack-forms' ) }</li>
+								<li>
+									{ __( 'Click "Edit Form" in the block toolbar to convert it.', 'jetpack-forms' ) }
+								</li>
+								<li>{ __( 'Save the page or post.', 'jetpack-forms' ) }</li>
+							</ol>
+						</div>
+					</Stack>
+				</Dialog.Content>
+				<Stack
+					render={ <Dialog.Footer /> }
+					direction="row"
+					justify="space-between"
+					align="center"
+					gap="md"
+					wrap="wrap"
+				>
 					<CheckboxControl
 						__nextHasNoMarginBottom
 						label={ __( "Don't show this again", 'jetpack-forms' ) }
 						checked={ dontShowAgain }
 						onChange={ setDontShowAgain }
 					/>
-					<Button variant="primary" onClick={ handleSubmit }>
+					<Button variant="solid" onClick={ handleSubmit }>
 						{ __( 'Got it', 'jetpack-forms' ) }
 					</Button>
-				</HStack>
-			</VStack>
-		</Modal>
+				</Stack>
+			</Dialog.Popup>
+		</Dialog.Root>
 	);
 }

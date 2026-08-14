@@ -122,7 +122,6 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
   * `.scripts.skip-test-php-coverage`: Run before `.scripts.test-php-coverage` in CI. If it exits with code 3, the test run will be skipped.
 * `.scripts.test-js-coverage`: If the package contains any JavaScript tests, this must run the necessary commands to generate a JS coverage report. See [Code coverage](#code-coverage) for details.
   * `.scripts.skip-test-js-coverage`: Run before `.scripts.test-js-coverage` in CI. If it exits with code 3, the test run will be skipped.
-* `.scripts.test-e2e`: If the package contains any E2E tests, this must run the necessary commands. See [E2E tests](#e2e-tests) for details.
 * `.scripts.test-js`: If the package contains any JavaScript tests, this must run the necessary commands. See [JavaScript tests](#javascript-tests) for details.
   * `.scripts.skip-test-js`: Run before `.scripts.test-js` in CI. If it exits with code 3, the test run will be skipped.
 * `.scripts.test-php`: If the package contains any PHPUnit tests, this must run the necessary commands. See [PHP tests](#php-tests) for details.
@@ -255,6 +254,14 @@ This assumes you have PHP installed via Homebrew, e.g. you've done `brew install
 
 Alternatives, if you can't install the ast extension, include running Phan with the `--allow-polyfill-parser` option (note this may cause false positives and cannot be used to update baseline files) or running Phan inside the [Docker development environment](../tools/docker/README.md).
 
+#### Referencing wpcom-only symbols
+
+Some Jetpack code calls classes or functions that exist only on WordPress.com, not in this repo. Phan flags these as `PhanUndeclared{Class,ClassMethod,Function}`. Rather than suppressing the error permanently, add the symbol to Phan's stub set:
+
+1. Add the class/method (or function) to the wpcom stub definitions at `bin/teamcity-builds/jetpack-stubs/stub-defs.php` in the wpcom repo — this is the source that the monorepo's `.phan/stubs/wpcom-stubs.php` is generated from. Do **not** hand-edit the generated `wpcom-stubs.php`; it will be overwritten.
+2. Trigger the *Jetpack Staging → Update WPCOM Stubs* TeamCity job, which opens a "phan: Update wpcom stubs" PR. Land that PR first, then rebase your feature PR on top so it picks up the new stubs.
+3. Remove any temporary inline `@phan-suppress-next-line <Rule> -- <reason>` you added at the call site as a bridge — once the stub exists, Phan passes without it.
+
 [^1]: In 2024 we evaluated Phan, Psalm, and PHPStan. Psalm was unable to produce a consistent baseline. PHPStan was confused about which constants were defined, and would have needed a bootstrapping file re-defining them all to work. Thus we settled on Phan. Details in pdWQjU-IH-p2.
 
 ### PHP tests
@@ -296,6 +303,8 @@ If a project contains JavaScript tests, it must define `.scripts.test-js` in `co
 
 JavaScript tests should use `jest`, not `mocha`/`chai`/`sinon`. For React testing, use `@testing-library/react` rather than `enzyme`.
 
+JavaScript tests may alternatively use `node --test`, along with `c8` for coverage.
+
 ### TypeScript type checking
 
 If a project contains TypeScript code, it should define `.scripts.typecheck` in `package.json` to run `tsgo` in a manner that will check types without building. The CI environment will run `pnpm install` beforehand, but if `composer install` or a build step is required before running tests the necessary commands for that should also be included in `.scripts.typecheck`.
@@ -303,12 +312,6 @@ If a project contains TypeScript code, it should define `.scripts.typecheck` in 
 Note the ideal configuration for a TypeScript project using `tsgo` to build will have two tsconfig files:
 * `tsconfig.json` will be used for linting and type checking all code in the project. It will set `include` to reference all TS files and TS-containing subdirs
 * `tsconfig.build.json` will be used for the build (by passing `--project tsconfig.build.json` to `tsgo`). This will extend `tsconfig.json` to override `include` to specify only the entry point files.
-
-### E2E tests
-
-**This is not implemented yet!**
-
-If a project contains end-to-end tests, it must define `.scripts.test-e2e` in `composer.json` to run the tests. If a build step is required before running tests, the necessary commands for that should also be included.
 
 ### Code coverage
 
@@ -319,6 +322,22 @@ Output should be written to the path specified via the `COVERAGE_DIR` environmen
 For PHP tests, you'll probably run PHPUnit as `php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php "$COVERAGE_DIR/php.cov"`. If you have multiple runs (e.g. unit and integration), be sure to write the `php.cov` files to separate subdirectories of `$COVERAGE_DIR`.
 
 For JS tests, you'll probably have a `test` script in package.json that runs `jest` with any needed options, and then a `test-js-coverage` script that does `pnpm run test --coverage`. If you have multiple runs (e.g. unit and integration), be sure each run writes to a different subdirectory of `$COVERAGE_DIR`.
+
+For JS tests using `node --test`, your `test-js-coverage` will likely look like `c8 --report-dir="$COVERAGE_DIR" --temp-directory="$ARTIFACTS_DIR/v8" pnpm run test`, along with a `.c8rc.json` like the following.
+
+<details><summary>Sample `.c8rc.json`</summary>
+
+```json
+{
+	"reporter": [ "json" ],
+	"all": true,
+	"include": [ "src", "index.js" ]
+}
+```
+
+</details>
+
+If you're using any other JS test runner for some reason, you'll want to have the `test-js-coverage` command write reports to `$COVERAGE_DIR/**.json` in a format compatible with Istanbul's `json` reporter, in whatever manner that can be accomplished with your chosen test runner.
 
 There's no need to be concerned about collisions with other projects' coverage files, as a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
 
@@ -430,7 +449,30 @@ Note the following will also be done by the build process:
 
 If `.extra.npmjs-autopublish` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will run `npm publish` when a version tag is created. This works with Autotagger. Versions must have a "v" prefix and have 3 components.
 
-You'll also need to [configure the repo as a Trusted Provider](https://docs.npmjs.com/trusted-publishers) at npmjs.com.
+You'll also need to [configure the repo as a Trusted Provider](https://docs.npmjs.com/trusted-publishers) at npmjs.com. NOTE: If the package doesn't exist on npmjs.com yet, it seems (as of June 2026) that you first have to manually `npm publish` a (non-trusted) version in order to be able to configure trusted publising; see https://github.com/npm/documentation/issues/1926 for possible updates. This initial version may be a v0.0.0 that contains only `package.json` metadata.
+
+<details><summary>Example process for setting up a new package</summary>
+
+1. Tag the first release of your package. Find that it didn't get published to npmjs.com, with an error like this from the Npmjs Auto-publisher workflow run:
+   ```
+   npm notice Publishing to https://registry.npmjs.org/ with tag latest and public access
+   npm error code E404
+   npm error 404 Not Found - PUT https://registry.npmjs.org/@automattic%2fjetpack-whatever - Not found
+   npm error 404
+   npm error 404  The requested resource '@automattic/jetpack-whatever@0.1.0' could not be found or you do not have permission to access it.
+   npm error 404
+   ```
+2. Locally, create an empty directory.
+3. Copy the package's `package.json` into that empty directory.
+   * Delete any `scripts`, `dependencies`, and so on, just keep the metadata.
+   * Change the version to "0.0.0".
+4. `npm login --scope @automattic` if necessary (or whichever scope the package will be published into).
+5. `npm publish --access public` to publish the dummy version.
+6. May as well set up trusted publishing from the command line: `npm trust github @automattic/jetpack-whatever --repository Automattic/jetpack-whatever --file npmjs-autopublisher.yml --allow-publish`
+7. Re-run the failed Npmjs Auto-publisher workflow run to publish the real version.
+8. Optionally, `npm unpublish` to unpublish that dummy "0.0.0" version.
+
+</details>
 
 Note the following will also be done by the build process:
 
@@ -502,7 +544,7 @@ Within a single project, changelogger’s `version next` command can tell you th
 ## New Projects
 
 To begin,
-* For Automatticians, drop us a line in #jetpack-monorepo to discuss your needs, just to be sure we don't have something already. For others, it would probably be best to open an issue to discuss it.
+* For Automatticians, drop us a line in #jetpack-developers to discuss your needs, just to be sure we don't have something already. For others, it would probably be best to open an issue to discuss it.
 * Use the `jetpack generate` command to create a skeleton project.
 * Create your project based on the skeleton and submit a PR as usual.
 

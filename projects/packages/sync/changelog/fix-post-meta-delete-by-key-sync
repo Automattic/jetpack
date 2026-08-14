@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Sync: Mirror cross-object post meta delete-all events.

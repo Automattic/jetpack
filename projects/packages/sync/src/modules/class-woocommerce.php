@@ -56,6 +56,38 @@ class WooCommerce extends Module {
 	);
 
 	/**
+	 * Mapping between WooCommerce customer detail user meta keys and customer prop names.
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
+	private static $customer_detail_meta_key_to_prop = array(
+		'paying_customer'     => 'is_paying_customer',
+		'billing_first_name'  => 'billing_first_name',
+		'billing_last_name'   => 'billing_last_name',
+		'billing_company'     => 'billing_company',
+		'billing_address_1'   => 'billing_address_1',
+		'billing_address_2'   => 'billing_address_2',
+		'billing_city'        => 'billing_city',
+		'billing_state'       => 'billing_state',
+		'billing_postcode'    => 'billing_postcode',
+		'billing_country'     => 'billing_country',
+		'billing_email'       => 'billing_email',
+		'billing_phone'       => 'billing_phone',
+		'shipping_first_name' => 'shipping_first_name',
+		'shipping_last_name'  => 'shipping_last_name',
+		'shipping_company'    => 'shipping_company',
+		'shipping_address_1'  => 'shipping_address_1',
+		'shipping_address_2'  => 'shipping_address_2',
+		'shipping_city'       => 'shipping_city',
+		'shipping_state'      => 'shipping_state',
+		'shipping_postcode'   => 'shipping_postcode',
+		'shipping_country'    => 'shipping_country',
+		'shipping_phone'      => 'shipping_phone',
+	);
+
+	/**
 	 * Name of the order item database table.
 	 *
 	 * @access private
@@ -63,6 +95,36 @@ class WooCommerce extends Module {
 	 * @var string
 	 */
 	private $order_item_table_name;
+
+	/**
+	 * Customer detail meta changes to sync at the end of the request.
+	 *
+	 * @var array
+	 */
+	private $customer_meta_updates = array();
+
+	/**
+	 * User IDs deleted during the current request.
+	 *
+	 * @var array
+	 */
+	private $deleted_user_ids = array();
+
+	/**
+	 * Order IDs whose total we've already emitted this request, so an order's total is emitted once
+	 * even if both woocommerce_new_order and woocommerce_order_status_changed observe it.
+	 *
+	 * @var array
+	 */
+	private $synced_order_total_keys = array();
+
+	/**
+	 * Cached list of order statuses WooCommerce considers paid, memoized per request to avoid
+	 * re-running wc_get_is_paid_statuses() (and its filters) on every order this request observes.
+	 *
+	 * @var array|null
+	 */
+	private $paid_order_statuses = null;
 
 	/**
 	 * The table name.
@@ -129,6 +191,11 @@ class WooCommerce extends Module {
 		add_filter( 'jetpack_sync_comment_meta_whitelist', array( $this, 'add_woocommerce_comment_meta_whitelist' ), 10 );
 
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_updated_woo_customer_meta', array( $this, 'filter_customer_updated_meta' ) );
+
+		// Append an order's total to these actions when it reaches a paid status.
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order', array( $this, 'add_order_total_to_new_order' ) );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_order_status_changed', array( $this, 'add_order_total_to_status_changed' ) );
 		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_review_comment_types' ) );
 
 		// Blacklist Action Scheduler comment types.
@@ -162,9 +229,14 @@ class WooCommerce extends Module {
 		add_action( 'woocommerce_attribute_updated', $callable, 10, 3 );
 		add_action( 'woocommerce_attribute_deleted', $callable, 10, 3 );
 
-		// Orders.
-		add_action( 'woocommerce_new_order', $callable, 10, 1 );
-		add_action( 'woocommerce_order_status_changed', $callable, 10, 3 );
+		// Orders. When an order reaches a paid status we append its total to these actions (via the
+		// jetpack_sync_before_enqueue_* filters in the constructor) so the Activity Log can aggregate
+		// revenue without a dedicated action. We register the extra accepted args so those filters
+		// receive the order object WooCommerce already passes (2nd arg here, 4th for the status change)
+		// and can avoid reloading it on this hot path; the filters strip the object back out before the
+		// action is enqueued, so it is never serialized or sent to WPcom.
+		add_action( 'woocommerce_new_order', $callable, 10, 2 );
+		add_action( 'woocommerce_order_status_changed', $callable, 10, 4 );
 		add_action( 'woocommerce_payment_complete', $callable, 10, 1 );
 
 		// Order items.
@@ -194,6 +266,15 @@ class WooCommerce extends Module {
 		add_action( 'woocommerce_new_webhook', $callable, 10, 1 );
 		add_action( 'woocommerce_webhook_deleted', $callable, 10, 2 );
 		add_action( 'woocommerce_webhook_updated', $callable, 10, 1 );
+
+		// Customers.
+		add_action( 'added_user_meta', array( $this, 'maybe_sync_customer_meta_update' ), 10, 4 );
+		add_action( 'updated_user_meta', array( $this, 'maybe_sync_customer_meta_update' ), 10, 4 );
+		add_action( 'deleted_user_meta', array( $this, 'maybe_sync_customer_meta_update' ), 10, 4 );
+		add_action( 'delete_user', array( $this, 'action_delete_user' ), 10, 1 );
+		add_action( 'wpmu_delete_user', array( $this, 'action_delete_user' ), 10, 1 );
+		add_action( 'shutdown', array( $this, 'action_customer_meta_updates' ) );
+		add_action( 'jetpack_updated_woo_customer_meta', $callable, 10, 2 );
 	}
 
 	/**
@@ -240,6 +321,338 @@ class WooCommerce extends Module {
 		// Make sure we always have all the data - prior to WooCommerce 3.0 we only have the user supplied data in the second argument and not the full details.
 		$args[1] = $this->build_order_item( $args[0] );
 		return $args;
+	}
+
+	/**
+	 * Append an order's total to the synced woocommerce_new_order args when it is paid.
+	 *
+	 * A brand new order can be created already in a paid status, in which case no status transition
+	 * fires and only woocommerce_new_order observes the payment. When the order is paid we append a
+	 * trailing order-total payload (total, currency) that the Activity Log aggregates into
+	 * revenue; otherwise only the order ID is synced (the action still syncs for other purposes).
+	 *
+	 * @since 4.44.0 Appends a trailing [ 'total', 'currency' ] payload when the new order is paid.
+	 *
+	 * @param array $args Hook args: [ order_id, WC_Order ]. The order object is WooCommerce's 2nd arg.
+	 * @return array|false The args ( [ order_id ] ), with a trailing order-total payload appended when paid, or false when invalid.
+	 */
+	public function add_order_total_to_new_order( $args ) {
+		if ( ! is_array( $args ) || count( $args ) < 1 || ! is_numeric( $args[0] ) || (int) $args[0] <= 0 ) {
+			return false;
+		}
+
+		$order_id = (int) $args[0];
+
+		// Only use the order object WooCommerce passes as the 2nd arg; avoid wc_get_order on this hot path.
+		$order = ( isset( $args[1] ) && $args[1] instanceof WC_Order ) ? $args[1] : null;
+
+		// Rebuild the scalar arg shape WPcom expects. This also drops the WC_Order object the listener now
+		// receives so it is never enqueued or serialized into the sync queue.
+		$args = array( $order_id );
+		if ( $order && $this->is_paid_order_status( $order->get_status() ) ) {
+			$args = $this->maybe_append_order_total( $args, $order );
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Append an order's total to the synced woocommerce_order_status_changed args on payment.
+	 *
+	 * We emit on the transition *into* a paid status from a non-paid one — the payment moment — and
+	 * skip paid -> paid steps (e.g. processing -> completed) so a fulfillment doesn't re-emit. When
+	 * emitted we append a trailing order-total payload (total, currency) the Activity Log
+	 * reads; otherwise only [ order_id, status_from, status_to ] is synced (the action still syncs for
+	 * other purposes).
+	 *
+	 * @since 4.44.0 Appends a trailing [ 'total', 'currency' ] payload on the paid transition.
+	 *
+	 * @param array $args Hook args: [ order_id, status_from, status_to, WC_Order ]. The order is the 4th arg.
+	 * @return array|false The args ( [ order_id, status_from, status_to ] ), with a trailing payload on the paid transition, or false when invalid.
+	 */
+	public function add_order_total_to_status_changed( $args ) {
+		if ( ! is_array( $args ) || count( $args ) < 3 || ! is_numeric( $args[0] ) || (int) $args[0] <= 0 ) {
+			return false;
+		}
+
+		$order_id = (int) $args[0];
+
+		$status_from = $args[1];
+		$status_to   = $args[2];
+		if ( ! is_string( $status_from ) || ! is_string( $status_to ) ) {
+			return false;
+		}
+
+		// Only use the order object WooCommerce passes as the 4th arg; avoid wc_get_order on this hot path.
+		$order = ( isset( $args[3] ) && $args[3] instanceof WC_Order ) ? $args[3] : null;
+
+		// Rebuild the scalar arg shape WPcom expects. This also drops the WC_Order object the listener now
+		// receives so it is never enqueued or serialized into the sync queue.
+		$args = array( $order_id, $status_from, $status_to );
+
+		if ( $this->is_paid_order_status( $status_to ) && ! $this->is_paid_order_status( $status_from ) ) {
+			$args = $this->maybe_append_order_total( $args, $order );
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Append the order-total payload to the given args when this is the order's paid moment.
+	 *
+	 * @param array         $args  The scalar args built so far for the action.
+	 * @param WC_Order|null $order Order object, or null when WooCommerce did not pass one.
+	 * @return array The args, with a trailing order-total payload appended when emitted.
+	 */
+	private function maybe_append_order_total( $args, $order ) {
+		if ( $order && $this->claim_order_total_emission( $order ) ) {
+			$payload = $this->build_order_total_payload( $order );
+
+			if ( $payload !== null ) {
+				$args[] = $payload;
+			}
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Claim the once-per-request emission slot for an order's total.
+	 *
+	 * Test-and-set: returns true (and records the claim) the first time it's called for an order this
+	 * request, false thereafter — so the woocommerce_new_order and woocommerce_order_status_changed
+	 * hooks don't both emit a freshly created paid order. Callers must confirm the order is paid first.
+	 *
+	 * @param WC_Order $order Order object.
+	 * @return bool True when the caller obtained the claim and should emit.
+	 */
+	private function claim_order_total_emission( $order ) {
+		$key = $order->get_id();
+		if ( isset( $this->synced_order_total_keys[ $key ] ) ) {
+			return false;
+		}
+		$this->synced_order_total_keys[ $key ] = true;
+
+		return true;
+	}
+
+	/**
+	 * Build the trailing order-total payload appended to a paid order's synced action args.
+	 *
+	 * Intentionally minimal and scalar-only so it is safe to store and index on WPcom (Activity Log,
+	 * Elasticsearch, MCP integrations). We read with the 'edit' context to get the raw stored values and
+	 * skip the woocommerce_order_get_total / _currency view filters (e.g. multi-currency display
+	 * conversion), then still normalize the total to a numeric string and cast the currency rather than
+	 * trust whatever WooCommerce returns.
+	 *
+	 * @param WC_Order $order Order object.
+	 * @return null|array {
+	 *     @type string   $total       Order total as a numeric string.
+	 *     @type string   $currency    Order currency code (e.g. 'USD').
+	 * }
+	 */
+	private function build_order_total_payload( $order ) {
+		$total = $order->get_total( 'edit' );
+
+		if ( $total <= 0 ) {
+			return null;
+		}
+
+		return array(
+			'total'    => function_exists( 'wc_format_decimal' ) ? wc_format_decimal( $total ) : (string) $total,
+			'currency' => (string) $order->get_currency( 'edit' ),
+		);
+	}
+
+	/**
+	 * Whether an order status is one WooCommerce considers paid (and whose total we therefore sync).
+	 *
+	 * Uses WooCommerce's canonical, filterable list (wc_get_is_paid_statuses(), default 'processing'
+	 * and 'completed', un-prefixed) so stores that register custom paid statuses are covered.
+	 *
+	 * @param string $status Order status without the `wc-` prefix (e.g. 'processing').
+	 * @return bool True when WooCommerce treats the status as paid.
+	 */
+	private function is_paid_order_status( $status ) {
+		// Fail fast on empty/invalid input (e.g. a missing status arg) before the WooCommerce lookup.
+		if ( ! is_string( $status ) || '' === $status || ! function_exists( 'wc_get_is_paid_statuses' ) ) {
+			return false;
+		}
+
+		if ( null === $this->paid_order_statuses ) {
+			$this->paid_order_statuses = wc_get_is_paid_statuses();
+		}
+
+		return in_array( $status, $this->paid_order_statuses, true );
+	}
+
+	/**
+	 * Validate the minimal customer meta update payload before enqueueing.
+	 *
+	 * @param array $args Hook arguments.
+	 * @return array|false Minimal user object and changed prop names, or false when invalid.
+	 */
+	public function filter_customer_updated_meta( $args ) {
+		if (
+			! is_array( $args )
+			|| ! isset( $args[0] )
+			|| ! isset( $args[1] )
+			|| ! is_object( $args[0] )
+			|| ! isset( $args[0]->data )
+			|| ! is_object( $args[0]->data )
+			|| ! isset( $args[0]->data->ID )
+			|| ! is_numeric( $args[0]->data->ID )
+			|| ! is_array( $args[1] )
+		) {
+			return false;
+		}
+
+		$customer_id = (int) $args[0]->data->ID;
+		if ( $customer_id <= 0 ) {
+			return false;
+		}
+
+		$updated_props = $this->get_customer_detail_props( $args[1] );
+		if ( empty( $updated_props ) ) {
+			return false;
+		}
+
+		return array( $this->build_minimal_customer_user_object( $customer_id ), $updated_props );
+	}
+
+	/**
+	 * Track updated WooCommerce customer meta props for syncing.
+	 *
+	 * @param int|array $meta_id  ID of the meta object, or IDs for deleted meta.
+	 * @param int       $user_id  User ID.
+	 * @param string    $meta_key Meta key.
+	 * @param mixed     $value    Meta value.
+	 */
+	public function maybe_sync_customer_meta_update( $meta_id, $user_id, $meta_key, $value ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$customer_id = (int) $user_id;
+		if ( $customer_id <= 0 ) {
+			return;
+		}
+
+		if ( 'deleted_user_meta' === current_action() && isset( $this->deleted_user_ids[ $customer_id ] ) ) {
+			return;
+		}
+
+		if ( ! is_string( $meta_key ) && ! is_numeric( $meta_key ) ) {
+			return;
+		}
+
+		$meta_key = sanitize_key( (string) $meta_key );
+		if ( ! isset( self::$customer_detail_meta_key_to_prop[ $meta_key ] ) ) {
+			return;
+		}
+
+		$updated_prop = self::$customer_detail_meta_key_to_prop[ $meta_key ];
+
+		if ( ! isset( $this->customer_meta_updates[ $customer_id ] ) ) {
+			$this->customer_meta_updates[ $customer_id ] = array();
+		}
+
+		$this->customer_meta_updates[ $customer_id ][ $updated_prop ] = true;
+	}
+
+	/**
+	 * Mark a deleted user so customer meta cleanup does not sync as profile changes.
+	 *
+	 * @param int $user_id User ID.
+	 */
+	public function action_delete_user( $user_id ) {
+		$customer_id = (int) $user_id;
+		if ( $customer_id <= 0 ) {
+			return;
+		}
+
+		$this->deleted_user_ids[ $customer_id ] = true;
+		unset( $this->customer_meta_updates[ $customer_id ] );
+	}
+
+	/**
+	 * Send batched WooCommerce customer meta updates.
+	 */
+	public function action_customer_meta_updates() {
+		if ( empty( $this->customer_meta_updates ) ) {
+			return;
+		}
+
+		$customer_meta_updates       = $this->customer_meta_updates;
+		$this->customer_meta_updates = array();
+
+		foreach ( $customer_meta_updates as $customer_id => $updated_props ) {
+			if ( isset( $this->deleted_user_ids[ (int) $customer_id ] ) ) {
+				continue;
+			}
+
+			/**
+			 * Fires when WooCommerce customer details stored in user meta are updated.
+			 *
+			 * @param object $customer      Minimal WP_User-shaped customer object.
+			 * @param array  $updated_props Updated customer detail prop names.
+			 */
+			do_action(
+				'jetpack_updated_woo_customer_meta',
+				$this->build_minimal_customer_user_object( (int) $customer_id ),
+				array_keys( $updated_props )
+			);
+		}
+	}
+
+	/**
+	 * Retrieve whitelisted WooCommerce customer detail props.
+	 *
+	 * @param array $props Customer detail meta keys or prop names.
+	 * @return array Customer detail prop names.
+	 */
+	private function get_customer_detail_props( $props ) {
+		$updated_props = array();
+		foreach ( $props as $prop ) {
+			if ( ! is_string( $prop ) && ! is_numeric( $prop ) ) {
+				continue;
+			}
+
+			$prop = sanitize_key( (string) $prop );
+			if ( isset( self::$customer_detail_meta_key_to_prop[ $prop ] ) ) {
+				$updated_props[] = self::$customer_detail_meta_key_to_prop[ $prop ];
+				continue;
+			}
+
+			if ( in_array( $prop, self::$customer_detail_meta_key_to_prop, true ) ) {
+				$updated_props[] = $prop;
+			}
+		}
+
+		return array_values( array_unique( $updated_props ) );
+	}
+
+	/**
+	 * Build a minimal WP_User-shaped object for Activity Log.
+	 *
+	 * @param int $customer_id Customer user ID.
+	 * @return object Minimal user object.
+	 */
+	private function build_minimal_customer_user_object( $customer_id ) {
+		$user_data = (object) array(
+			'ID'           => $customer_id,
+			'display_name' => '',
+			'user_login'   => '',
+			'user_email'   => '',
+		);
+
+		$user = get_userdata( $customer_id );
+		if ( $user ) {
+			$user_data->display_name = (string) $user->display_name;
+			$user_data->user_login   = (string) $user->user_login;
+			$user_data->user_email   = (string) $user->user_email;
+		}
+
+		return (object) array(
+			'ID'   => $customer_id,
+			'data' => $user_data,
+		);
 	}
 
 	/**
@@ -544,6 +957,13 @@ class WooCommerce extends Module {
 		'woocommerce_shop_page_id',
 		'woocommerce_stock_email_recipient',
 		'woocommerce_stock_format',
+		'woocommerce_allowed_countries',  // This and the below options relate to the WooCommerce General settings page. Required for the Activity Log.
+		'woocommerce_specific_allowed_countries',
+		'woocommerce_ship_to_countries',
+		'woocommerce_specific_ship_to_countries',
+		'woocommerce_all_except_countries',
+		'woocommerce_calc_taxes',
+		'woocommerce_calc_discounts_sequentially',
 		'woocommerce_analytics_enabled', // This and the below options relate to the WooCommerce Advanced settings page. Required for the Activity Log.
 		'woocommerce_cart_page_id',
 		'woocommerce_checkout_order_received_endpoint',
@@ -617,6 +1037,7 @@ class WooCommerce extends Module {
 		'woocommerce_woocommerce_payments_google_pay_settings',
 		'woocommerce_woocommerce_payments_settings',
 		'wc_stripe_agentic_commerce_webhook_secret',  // This and the below options relate to additional payment types.
+		'wc_square_settings',
 		'woocommerce_amazon_payments_advanced_settings',
 		'woocommerce_gift_cards_pay_settings',
 		'woocommerce_square_cash_app_pay_settings',
@@ -625,6 +1046,18 @@ class WooCommerce extends Module {
 		'woocommerce_bacs_accounts', // This and the below options relate to offline payments.
 		'woocommerce_bacs_settings',
 		'woocommerce_cheque_settings',
+		'woocommerce_ppcp-recaptcha_settings', // This and the below options relate to the WooCommerce Integrations settings page. Required for the Activity Log.
+		'woocommerce_maxmind_geolocation_settings',
+		'woocommerce_store_pages_only', // This and the below options relate to the WooCommerce Site Visibility settings page. Required for the Activity Log.
+		'woocommerce_private_link',
+		'woocommerce_coming_soon',
+		'wcpay_multi_currency_enabled_currencies',  // This and the below option relate to the WooCommerce Multi-Currency settings page. Required for the Activity Log.
+		'wcpay_multi_currency_enable_auto_currency',
+		'woocommerce_pos_store_name', // This and the below options relate to the WooCommerce Point of Sale settings page. Required for the Activity Log.
+		'woocommerce_pos_store_address',
+		'woocommerce_pos_store_phone',
+		'woocommerce_pos_store_email',
+		'woocommerce_pos_refund_returns_policy',
 		'wcs_notification_settings_update_time', // This and the below options relate to the WooCommerce Subscriptions settings page. Required for the Activity Log.
 		'wcsatt_add_cart_to_subscription',
 		'wcsatt_add_product_to_subscription',

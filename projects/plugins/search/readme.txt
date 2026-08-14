@@ -4,7 +4,7 @@ Tags: search, filter, woocommerce search, ajax search, product search, free clou
 Requires at least: 6.9
 Requires PHP: 7.2
 Tested up to: 7.0
-Stable tag: 6.0.0
+Stable tag: 7.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,29 +122,10 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 6.0.0 - 2026-04-10
+### 7.1.0 - 2026-08-13
 #### Added
-- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin.
-- IDC: Add revalidation for IDCs.
-
-#### Changed
-- Dependencies: Update lock file to keep root requirements in sync.
-- Instant Search: Show WooCommerce product filters in filter widget.
-- My Jetpack: Check red bubble notification async when cache is not available.
-- Remove header border-bottom from the admin page for a cleaner unified header appearance.
-- Search: Use the core WordPress spinner component for the dashboard loading state.
-- Switch to Native TypeScript compiler based on Go.
-- Update composer.lock.
-- Update design of the sidebar upsell.
-- Update package dependencies.
-
-#### Removed
-- General: Update minimum WordPress version to 6.8.
-
-#### Fixed
-- Admin Page: Restore border on header component.
-- Fix TypeScript errors detected by tsgo.
-- Update e2e test selector for renamed footer CSS class.
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed.
+- Search Blocks: Add a No Results block so empty states can contain links, images, buttons, and other blocks instead of plain text. Continue rendering existing Results List messages while deprecating their settings.
 
 == Testimonials ==
 

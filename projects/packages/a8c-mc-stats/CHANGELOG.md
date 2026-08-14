@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.10] - 2026-06-15
+### Changed
+- Internal updates.
+
 ## [3.0.9] - 2026-06-08
 ### Changed
 - Internal updates.
@@ -187,6 +191,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Creates the MC Stats package
 
+[3.0.10]: https://github.com/Automattic/jetpack-a8c-mc-stats/compare/v3.0.9...v3.0.10
 [3.0.9]: https://github.com/Automattic/jetpack-a8c-mc-stats/compare/v3.0.8...v3.0.9
 [3.0.8]: https://github.com/Automattic/jetpack-a8c-mc-stats/compare/v3.0.7...v3.0.8
 [3.0.7]: https://github.com/Automattic/jetpack-a8c-mc-stats/compare/v3.0.6...v3.0.7

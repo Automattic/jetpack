@@ -157,7 +157,6 @@ class Waf_Standalone_Bootstrap {
 		$share_data_option       = get_option( Waf_Runner::SHARE_DATA_OPTION_NAME, false );
 		$share_debug_data_option = get_option( Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME, false );
 
-		// phpcs:disable WordPress.PHP.DevelopmentFunctions
 		$code = "<?php\n"
 			. sprintf( "define( 'DISABLE_JETPACK_WAF', %s );\n", var_export( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF, true ) )
 			. "if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) return;\n"
@@ -169,7 +168,6 @@ class Waf_Standalone_Bootstrap {
 			. sprintf( "define( 'JETPACK_WAF_ENTRYPOINT', %s );\n", var_export( $entrypoint, true ) )
 			. 'require_once ' . var_export( $autoloader_file, true ) . ";\n"
 			. "Automattic\Jetpack\Waf\Waf_Runner::initialize();\n";
-		// phpcs:enable
 
 		if ( ! $wp_filesystem->is_dir( JETPACK_WAF_DIR ) ) {
 			if ( ! $wp_filesystem->mkdir( JETPACK_WAF_DIR ) ) {

@@ -24,15 +24,19 @@ class Results_List_Render_Test extends TestCase {
 			'jetpack-search/results-list',
 			array(
 				'attributes'      => array(
-					'layout'           => array(
+					'layout'                      => array(
 						'type'    => 'string',
 						'default' => 'expanded',
 					),
-					'noResultsMessage' => array(
+					'noResultsMessage'            => array(
 						'type'    => 'string',
 						'default' => '',
 					),
-					'errorMessage'     => array(
+					'noResultsWithFiltersMessage' => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+					'errorMessage'                => array(
 						'type'    => 'string',
 						'default' => '',
 					),
@@ -218,6 +222,17 @@ class Results_List_Render_Test extends TestCase {
 		$this->assertStringContainsString( 'context.result.contentPieces', $markup );
 	}
 
+	public function test_each_templates_use_interactivity_each_keys() {
+		$markup = $this->render( array( 'layout' => 'expanded' ) );
+
+		$this->assertStringContainsString( 'data-wp-each--result="state.results"', $markup );
+		$this->assertStringContainsString( 'data-wp-each-key="context.result.id"', $markup );
+		$this->assertStringContainsString( 'data-wp-each--piece="context.result.titlePieces"', $markup );
+		$this->assertStringContainsString( 'data-wp-each--piece="context.result.contentPieces"', $markup );
+		$this->assertStringContainsString( 'data-wp-each-key="context.piece.index"', $markup );
+		$this->assertStringNotContainsString( 'data-wp-key=', $markup );
+	}
+
 	/**
 	 * Compact layout should NOT render the content-snippet section — the
 	 * dense single-line row only carries a title and a date.
@@ -241,13 +256,14 @@ class Results_List_Render_Test extends TestCase {
 	/**
 	 * The block renders the no-results region with the default copy when no
 	 * custom message is provided. The region is hidden by default and gated
-	 * by `state.showNoResults` on hydration.
+	 * by `state.showLegacyNoResults` on hydration, which also stands it down
+	 * on pages carrying a `jetpack-search/no-results` block.
 	 */
 	public function test_no_results_region_falls_back_to_default_message() {
 		$markup = $this->render();
 		$this->assertStringContainsString( 'jetpack-search-results__no-results', $markup );
 		$this->assertStringContainsString( 'No results found. Try a different search.', $markup );
-		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showNoResults"', $markup );
+		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showLegacyNoResults"', $markup );
 	}
 
 	/**
@@ -279,6 +295,74 @@ class Results_List_Render_Test extends TestCase {
 	}
 
 	/**
+	 * A custom `noResultsWithFiltersMessage` replaces the default filtered copy.
+	 * Deprecated and no longer settable in the editor, so this is the only
+	 * guard that saved values keep rendering.
+	 */
+	public function test_no_results_region_renders_custom_filtered_message() {
+		$markup = $this->render( array( 'noResultsWithFiltersMessage' => 'Clear a filter to see results.' ) );
+		$this->assertStringContainsString( 'Clear a filter to see results.', $markup );
+		$this->assertStringNotContainsString( 'No results match these filters.', $markup );
+	}
+
+	/**
+	 * A whitespace-only `noResultsWithFiltersMessage` falls back to the default.
+	 */
+	public function test_no_results_region_filtered_whitespace_falls_back_to_default() {
+		$markup = $this->render( array( 'noResultsWithFiltersMessage' => "  \t\n " ) );
+		$this->assertStringContainsString( 'No results match these filters.', $markup );
+	}
+
+	/**
+	 * The filtered variant is as author-controlled as the unfiltered one, so
+	 * it needs the same escaping guard against stored XSS.
+	 */
+	public function test_no_results_filtered_message_is_html_escaped() {
+		$markup = $this->render( array( 'noResultsWithFiltersMessage' => '<script>alert(2)</script>' ) );
+		$this->assertStringNotContainsString( '<script>alert(2)</script>', $markup );
+		$this->assertStringContainsString( '&lt;script&gt;alert(2)&lt;/script&gt;', $markup );
+	}
+
+	/**
+	 * Both saved messages render together, each bound to the complementary
+	 * `state.hasActiveFilters` branch — that pair is what makes the legacy
+	 * region filter-aware without a store-side message-resolution step, so a
+	 * site upgrading from before the `no-results` block keeps both variants.
+	 */
+	public function test_no_results_region_binds_both_variants_to_active_filters() {
+		$markup = $this->render(
+			array(
+				'noResultsMessage'            => 'Nothing here, sorry.',
+				'noResultsWithFiltersMessage' => 'Clear a filter to see results.',
+			)
+		);
+		$this->assertStringContainsString(
+			'<p data-wp-bind--hidden="state.hasActiveFilters">Nothing here, sorry.</p>',
+			$markup
+		);
+		$this->assertStringContainsString(
+			'<p data-wp-bind--hidden="!state.hasActiveFilters">Clear a filter to see results.</p>',
+			$markup
+		);
+	}
+
+	/**
+	 * The deprecated attributes must stay declared in `block.json`. The block
+	 * parser drops attributes it doesn't recognize, so removing them would
+	 * discard the saved value on load and silently blank the empty state on
+	 * every page authored before the `no-results` block existed.
+	 */
+	public function test_deprecated_no_results_attributes_remain_registered() {
+		$block_json = (array) json_decode(
+			(string) file_get_contents( __DIR__ . '/../../src/search-blocks/blocks/results-list/block.json' ),
+			true
+		);
+		$attributes = (array) ( $block_json['attributes'] ?? array() );
+		$this->assertArrayHasKey( 'noResultsMessage', $attributes );
+		$this->assertArrayHasKey( 'noResultsWithFiltersMessage', $attributes );
+	}
+
+	/**
 	 * The block renders the error region with the default copy when no
 	 * custom message is provided. The region carries `role="alert"` so
 	 * assistive tech announces it the moment it becomes visible.
@@ -287,7 +371,7 @@ class Results_List_Render_Test extends TestCase {
 		$markup = $this->render();
 		$this->assertStringContainsString( 'jetpack-search-results__error', $markup );
 		$this->assertStringContainsString( 'Something went wrong. Please try again.', $markup );
-		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showError"', $markup );
+		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showLegacyError"', $markup );
 		$this->assertStringContainsString( 'role="alert"', $markup );
 	}
 
@@ -460,5 +544,47 @@ class Results_List_Render_Test extends TestCase {
 		// `data-wp-bind--hidden` and `aria-hidden` don't false-positive.
 		$hidden_skeletons = preg_match_all( '/<li[^>]*--skeleton[^>]*\s+hidden(?=\s|\/|>|=)/', $markup );
 		$this->assertSame( $total_skeletons, $hidden_skeletons );
+	}
+
+	/**
+	 * Rendered as a self-contained region — the block-template overlay, which is
+	 * pre-rendered outside the page's own state — the legacy regions resolve
+	 * against that markup's own composition instead of the seeded flags: fully
+	 * covered means they aren't rendered at all, and a lone `filtered` variant
+	 * leaves the unfiltered state to the legacy region.
+	 */
+	public function test_legacy_regions_follow_a_self_contained_render() {
+		$covered = No_Results::render_self_contained(
+			'<!-- wp:jetpack-search/results-list /-->'
+			. '<!-- wp:jetpack-search/no-results -->'
+			. '<!-- wp:jetpack-search/no-results-slot /-->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"filtered"} /-->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"error"} /-->'
+			. '<!-- /wp:jetpack-search/no-results -->'
+		);
+		$partial = No_Results::render_self_contained(
+			'<!-- wp:jetpack-search/results-list /-->'
+			. '<!-- wp:jetpack-search/no-results -->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"filtered"} /-->'
+			. '<!-- /wp:jetpack-search/no-results -->'
+		);
+
+		$this->assertStringNotContainsString( 'jetpack-search-results__no-results', $covered );
+		$this->assertStringNotContainsString( 'jetpack-search-results__error', $covered );
+		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showNoResultsUnfiltered"', $partial );
+		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showError"', $partial );
+	}
+
+	/**
+	 * And the scope is per-render, not sticky — a page render that follows one
+	 * has to be back on the seeded flags.
+	 */
+	public function test_a_self_contained_render_does_not_leak_into_the_next() {
+		No_Results::render_self_contained( '<!-- wp:jetpack-search/no-results /-->' );
+
+		$this->assertStringContainsString(
+			'data-wp-bind--hidden="!state.showLegacyNoResults"',
+			$this->render()
+		);
 	}
 }

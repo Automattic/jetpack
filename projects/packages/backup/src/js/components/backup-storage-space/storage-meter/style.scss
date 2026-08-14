@@ -8,14 +8,13 @@
 	> div {
 		height: 100%;
 		width: 100%;
-		border-radius: 12px; /* stylelint-disable-line scales/radii */
+		border-radius: 12px;
 		background-color: var(--jp-gray-5);
 
 		// WP ProgressBar Indicator (the progress fill)
 		> div {
 			// Unless we're 100% full, the left side of the bar
 			// is rounded and the right side is flat
-			/* stylelint-disable-next-line scales/radii */
 			border-radius: 12px 0 0 12px;
 
 			// We always expect some amount of used storage,
@@ -46,7 +45,7 @@
 		&.full-warning > div {
 			max-width: initial;
 			background-color: var(--jp-red-40);
-			border-radius: 12px; /* stylelint-disable-line scales/radii */
+			border-radius: 12px;
 		}
 	}
 }

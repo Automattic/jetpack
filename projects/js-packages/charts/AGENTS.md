@@ -28,6 +28,41 @@ The package is migrating to WordPress UI and Theme as its defaults. When adding 
 - **UI primitives.** Prefer `Stack` and the stable `Text` from `@wordpress/ui` over ad-hoc flexbox or raw `<span>`/`<div>` for layout and text. Do not use `__experimental*` exports from `@wordpress/components` (e.g. `__experimentalText`, `__experimentalHStack`) — use the stable `@wordpress/ui` equivalents. Exception: `__experimentalGrid` has no stable alternative yet and is acceptable to use for now.
 - **Theming.** Theming flows through `@wordpress/theme`'s `ThemeProvider` (unlocked via private APIs in Storybook; see `src/stories/chart-decorator.tsx`). Do not manually override DS tokens in stories or components to achieve theming — pass a color through `ThemeProvider` instead.
 - **Chart element styles.** Read chart element styles via `getElementStyles` from `GlobalChartsProvider`, not directly from `theme`. This is the supported path for color/style resolution across themes.
+- **Package CSS variables.** Package-owned custom properties follow
+  `--a8c-charts-{category}-{name}` (see `TOKENS.md` for the catalog and its
+  `--wpds-*` mappings). Charts reference `--a8c-charts-*` roles with the mapped
+  `var(--wpds-*, <spec-fallback>)` as the inline fallback; there is no runtime
+  emission yet (that is CHARTS-203).
+- **Two consumption paths — this changes what a charts change can break.**
+  `@wordpress/build` apps (premium-analytics, publicize, podcast, videopress)
+  consume the Rolldown output in `dist/` and load it as a **WordPress Script
+  Module** — native browser ESM, where `require` does not exist. Webpack apps
+  (My Jetpack and friends) resolve source through the `jetpack:src` export
+  condition instead. A change that only affects `dist/` can therefore break
+  four packages this one does not import.
+- **Never `deps.alwaysBundle` a package that transitively requires an external.**
+  Pre-bundling is safe only for dependencies that require nothing themselves —
+  `fast-deep-equal` qualifies, which is why `tsdown.config.ts` still lists it.
+  Pre-bundle anything that reaches a CommonJS module requiring an external
+  (`react`, above all) and Rolldown emits a dynamic-`require` shim, because it
+  cannot rewrite a runtime `require` into a static ESM import. That shim throws
+  during module evaluation in Script Module consumers, taking down every widget
+  on the page rather than just the feature that pulled it in.
+  `tools/assert-no-dynamic-require.ts` fails the build when such a shim reaches
+  the ESM output; never suppress it.
+- **`@wordpress/ui` is external in `dist`, and no build check can prove that is
+  safe.** Correctness depends on `@wordpress/build` *bundling* `@wordpress/ui`
+  rather than externalising it to `window.wp.ui`. It used to externalise it,
+  which is what CHARTS-163 worked around by pre-bundling; it now bundles any
+  `@wordpress/*` package that declares neither `wpScriptModuleExports` nor
+  `wpScript`, and `@wordpress/ui` declares `wpScript: false`. If a future
+  version reverts, `dist/index.js` keeps its clean `import … from
+  "@wordpress/ui"`, the guard passes, the build passes, and every Script Module
+  consumer breaks at runtime on `wp.ui` being undefined — the same blast radius
+  as CHARTS-237, with no build-time signal. Verified against `@wordpress/build`
+  0.18.0 (publicize, podcast, videopress) and 0.19.1-next (premium-analytics).
+  Check a major bump by loading a charts screen in wp-admin, not by trusting a
+  green build.
 
 ## Documentation Workflow
 
@@ -48,7 +83,7 @@ The package is migrating to WordPress UI and Theme as its defaults. When adding 
 
 ## Common Pitfalls
 
-- Claiming Rollup is used for builds (it's tsup).
+- Misstating the build tool: builds use `tsdown` (powered by Rolldown), not tsup or plain Rollup/webpack.
 - Documenting props or behavior not present in stories and implementation.
 - Refactoring core composition/provider patterns as if they are accidental complexity.
 - Defining new chart prop interfaces that diverge from established base chart contracts (for example, not aligning with `BaseChartProps` when appropriate).

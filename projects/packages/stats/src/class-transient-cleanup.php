@@ -70,7 +70,7 @@ class Transient_Cleanup {
 		if ( ! isset( $schedules['jetpack_stats_eight_hours'] ) ) {
 			$schedules['jetpack_stats_eight_hours'] = array(
 				'interval' => self::CRON_INTERVAL,
-				'display'  => __( 'Every Eight Hours', 'jetpack-stats' ),
+				'display'  => __( 'Every Eight Hours', 'jetpack-stats-pkg' ),
 			);
 		}
 		return $schedules;

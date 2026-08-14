@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Newsletter\Tests;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Newsletter\Settings;
+use Automattic\Jetpack\Newsletter\Subscribers_Announcement;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -25,6 +27,9 @@ class Settings_Test extends BaseTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+
+		// Reset the in-process Host platform cache so per-test constants take effect.
+		\Automattic\Jetpack\Status\Cache::clear();
 
 		// Reset the static initialized flag between tests.
 		$reflection = new \ReflectionClass( Settings::class );
@@ -45,6 +50,12 @@ class Settings_Test extends BaseTestCase {
 
 		// Clear the load action registered by add_wp_admin_menu on success.
 		remove_all_actions( 'load-jetpack_page_jetpack-newsletter' );
+
+		// Clear the Subscribers announcement handlers. Without this a test that
+		// registers them leaks into the next one, and a test asserting they are
+		// absent would pass or fail on ordering rather than on the site-ID gate.
+		remove_all_actions( 'wp_ajax_' . Subscribers_Announcement::TOGGLE_ACTION );
+		remove_all_actions( 'admin_post_' . Subscribers_Announcement::GO_ACTION );
 	}
 
 	/**
@@ -57,14 +68,50 @@ class Settings_Test extends BaseTestCase {
 
 		unset( $_GET['page'] );
 		remove_all_filters( Settings::MODERNIZATION_FILTER );
+		remove_all_filters( 'site_url' );
+		remove_all_filters( 'home_url' );
 
 		// Dequeue any scripts that may have leaked into globals during the test.
 		wp_dequeue_script( 'jp-tracks' );
 		wp_dequeue_script( 'jetpack-newsletter' );
 		wp_deregister_script( 'jp-tracks' );
 		wp_deregister_script( 'jetpack-newsletter' );
+		wp_deregister_script( 'wp-theme' );
+
+		// The polyfill registrar keeps its request map, hook latch, and version
+		// threshold in process-global statics. Reset them so a legacy-surface
+		// test cannot leak state into — or read state from — another test.
+		$this->reset_wp_build_polyfills_statics();
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Reset WP_Build_Polyfills' static state between tests.
+	 *
+	 * Mirrors WP_Build_Polyfills_Test's own tear_down: the registrar records
+	 * requested handles, whether it has hooked wp_default_scripts, and the
+	 * force-replacement version threshold in statics that otherwise persist
+	 * across tests in the same process.
+	 */
+	private function reset_wp_build_polyfills_statics() {
+		if ( ! class_exists( WP_Build_Polyfills::class ) ) {
+			return;
+		}
+
+		$statics = array(
+			'requested'            => array(),
+			'hooked'               => false,
+			'wp_version_threshold' => '7.0',
+		);
+
+		foreach ( $statics as $name => $value ) {
+			$property = new \ReflectionProperty( WP_Build_Polyfills::class, $name );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$property->setAccessible( true );
+			}
+			$property->setValue( null, $value );
+		}
 	}
 
 	/**
@@ -163,14 +210,14 @@ class Settings_Test extends BaseTestCase {
 
 	/**
 	 * `is_modernized()` is the canonical gate used by `maybe_load_wp_build`,
-	 * `add_wp_admin_menu`, and `load_admin_scripts`. Its default — the value
-	 * `apply_filters` receives — must be false; the feature switch lands in a
-	 * separate PR that flips the default on.
+	 * `add_wp_admin_menu`, and `load_admin_scripts`. The staged rollout is complete:
+	 * the modernized experience now defaults on for every site, so the value
+	 * `apply_filters` receives must be true.
 	 */
-	public function test_is_modernized_defaults_to_false() {
-		$this->assertFalse(
+	public function test_is_modernized_defaults_to_true() {
+		$this->assertTrue(
 			self::call_private_static_is_modernized(),
-			'Modernization gate must default to false until the flag-flip PR lands.'
+			'Modernization gate must default to true now that the rollout is at 100%.'
 		);
 	}
 
@@ -185,6 +232,49 @@ class Settings_Test extends BaseTestCase {
 			self::call_private_static_is_modernized(),
 			'A consumer filter returning false must take precedence over the modernization default.'
 		);
+	}
+
+	/**
+	 * Regression test for NL-695: on a WordPress install living in a subdirectory,
+	 * `site_url` includes the subdirectory path (e.g. `example.com/pages`) while
+	 * `home_url` is the bare host (e.g. `example.com`). The "Add plans" URL must be
+	 * built from the home host so Calypso receives a valid site slug, not the
+	 * subdirectory path.
+	 */
+	public function test_add_script_data_payment_url_uses_home_host_on_subdirectory_install() {
+		add_filter( 'site_url', array( $this, 'mock_subdirectory_site_url' ) );
+		add_filter( 'home_url', array( $this, 'mock_subdirectory_home_url' ) );
+
+		$data = ( new Settings() )->add_script_data( array() );
+
+		$this->assertSame(
+			'https://cloud.jetpack.com/monetize/payments/example.com',
+			$data['newsletter']['setupPaymentPlansUrl'],
+			'Add plans URL must use the home host, not the site_url subdirectory path.'
+		);
+		$this->assertStringNotContainsString(
+			'pages',
+			$data['newsletter']['setupPaymentPlansUrl'],
+			'Add plans URL must not leak the site_url subdirectory segment.'
+		);
+	}
+
+	/**
+	 * Mock `site_url` for a subdirectory install (WordPress lives in `/pages`).
+	 *
+	 * @return string
+	 */
+	public function mock_subdirectory_site_url() {
+		return 'https://example.com/pages';
+	}
+
+	/**
+	 * Mock `home_url` for a subdirectory install (the site is served from the root).
+	 *
+	 * @return string
+	 */
+	public function mock_subdirectory_home_url() {
+		return 'https://example.com';
 	}
 
 	/**
@@ -240,6 +330,112 @@ class Settings_Test extends BaseTestCase {
 			wp_script_is( 'jetpack-newsletter', 'enqueued' ),
 			'Legacy newsletter bundle must be enqueued when modernization is off.'
 		);
+	}
+
+	/**
+	 * The legacy bundle depends on the `wp-theme` script handle — it imports
+	 * `@wordpress/ui`, which reaches `@wordpress/theme`, and WP Core does not
+	 * register that handle. Only `WP_Build_Polyfills` does, and its full
+	 * registration runs on the modernized path alone. Without an explicit request
+	 * here, `wp_enqueue_script` silently drops `jetpack-newsletter` over the
+	 * unregistered dependency and the page renders blank.
+	 */
+	public function test_load_admin_scripts_registers_wp_theme_polyfill_on_legacy_surface() {
+		add_filter( Settings::MODERNIZATION_FILTER, '__return_false' );
+
+		// The polyfill only registers wp-theme when its build asset exists on
+		// disk. That build directory is gitignored and absent in CI PHP runs, so
+		// borrow WP_Build_Polyfills_Test's fixture approach and lay down a stub
+		// asset file when the real build is missing.
+		$fixture = $this->ensure_wp_theme_polyfill_asset();
+
+		// Core never registers wp-theme; start clean so the assertion reflects
+		// what our code registers rather than a leftover registration.
+		wp_deregister_script( 'wp-theme' );
+
+		try {
+			( new Settings() )->load_admin_scripts();
+
+			$consumers = WP_Build_Polyfills::get_consumers();
+			$this->assertContains(
+				'jetpack-newsletter',
+				$consumers['wp-theme'] ?? array(),
+				'The legacy newsletter bundle must be recorded as a wp-theme polyfill consumer.'
+			);
+
+			// The behaviour the bug was about: wp-theme is actually registered, so
+			// WordPress no longer drops jetpack-newsletter over a missing dependency.
+			$this->assertTrue(
+				wp_script_is( 'wp-theme', 'registered' ),
+				'The legacy surface must register wp-theme; Core never does, and the bundle depends on it.'
+			);
+		} finally {
+			$this->remove_wp_theme_polyfill_asset( $fixture );
+		}
+	}
+
+	/**
+	 * Ensure the polyfill's built wp-theme asset file exists so register() can
+	 * register the handle.
+	 *
+	 * The wp-build-polyfills build directory is gitignored, so it may be missing
+	 * during PHP test runs. When it is, write a minimal stub at the exact path
+	 * register() reads (dirname of the class file, two levels up, + /build).
+	 *
+	 * @return array {file, dirs} describing what we created, for cleanup. Empty
+	 *               when the real asset already exists and nothing was created.
+	 */
+	private function ensure_wp_theme_polyfill_asset() {
+		$reflector = new \ReflectionClass( WP_Build_Polyfills::class );
+		$asset_dir = dirname( $reflector->getFileName(), 2 ) . '/build/scripts/theme';
+		$asset     = $asset_dir . '/index.asset.php';
+
+		if ( file_exists( $asset ) ) {
+			return array();
+		}
+
+		// Create the missing directory chain, tracking what we made so tear-down
+		// removes only our fixture and never a real build artifact.
+		$missing = array();
+		$dir     = $asset_dir;
+		while ( ! is_dir( $dir ) ) {
+			$missing[] = $dir;
+			$dir       = dirname( $dir );
+		}
+		$created_dirs = array();
+		foreach ( array_reverse( $missing ) as $dir ) {
+			mkdir( $dir );
+			$created_dirs[] = $dir;
+		}
+
+		file_put_contents( $asset, "<?php return array( 'dependencies' => array(), 'version' => 'test' );\n" );
+
+		return array(
+			'file' => $asset,
+			'dirs' => $created_dirs,
+		);
+	}
+
+	/**
+	 * Remove the stub wp-theme asset created by ensure_wp_theme_polyfill_asset().
+	 *
+	 * @param array $fixture The {file, dirs} descriptor it returned.
+	 */
+	private function remove_wp_theme_polyfill_asset( $fixture ) {
+		if ( empty( $fixture ) ) {
+			return;
+		}
+
+		if ( isset( $fixture['file'] ) && file_exists( $fixture['file'] ) ) {
+			unlink( $fixture['file'] );
+		}
+
+		// Remove deepest-first so each directory is empty when we drop it.
+		foreach ( array_reverse( $fixture['dirs'] ?? array() ) as $dir ) {
+			if ( is_dir( $dir ) ) {
+				rmdir( $dir );
+			}
+		}
 	}
 
 	/**

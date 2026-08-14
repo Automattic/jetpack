@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { AvatarWithFallback } from '../avatar-with-fallback';
 import { preparePreviewText } from '../helpers';
 import { ExpandableText } from '../shared/expandable-text';
+import { MediaImage } from '../shared/media-image';
 import { FEED_TEXT_MAX_LENGTH } from './constants';
 import { Bookmark as BookmarkIcon } from './icons/bookmark';
 import { Comment as CommentIcon } from './icons/comment';
@@ -20,11 +21,11 @@ import './style.scss';
  */
 export function InstagramPostPreview( {
 	image,
+	imageFocalPoint,
 	media,
 	name,
 	profileImage,
 	caption,
-	url,
 }: InstagramPreviewProps ) {
 	const username = name || 'username';
 
@@ -56,7 +57,12 @@ export function InstagramPostPreview( {
 							) }
 						</div>
 					) : (
-						<img className="instagram-preview__media--image" src={ image } alt="" />
+						<MediaImage
+							className="instagram-preview__media--image"
+							src={ image }
+							alt=""
+							focalPoint={ imageFocalPoint }
+						/>
 					) }
 				</div>
 				<div className="instagram-preview__content">
@@ -83,13 +89,6 @@ export function InstagramPostPreview( {
 										} )
 									}
 								</ExpandableText>
-								{ media && url && ! caption.includes( url ) && (
-									<>
-										<br />
-										<br />
-										{ url }
-									</>
-								) }
 							</div>
 						) : null }
 					</div>

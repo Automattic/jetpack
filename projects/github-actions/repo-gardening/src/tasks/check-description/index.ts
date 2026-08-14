@@ -532,6 +532,11 @@ async function checkDescription(
 		return;
 	}
 
+	if ( ref === 'update/pnpm_and_composer_lock_files' && author === 'matticbot' ) {
+		debug( `check-description: Automated lock file update, skipping` );
+		return;
+	}
+
 	debug( `check-description: start building our comment` );
 
 	// We'll add any remarks we may have about the PR to that comment body.

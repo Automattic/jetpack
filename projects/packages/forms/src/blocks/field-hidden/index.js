@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { unseen } from '@wordpress/icons';
 import defaultSettings from '../shared/settings/index.js';
-import edit from './edit.js';
+import edit from './edit.jsx';
 import save from './save.js';
 
 export const name = 'field-hidden';

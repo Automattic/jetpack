@@ -10,8 +10,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
-use WP_REST_Request;
-use WP_REST_Response;
 use WP_Term;
 
 /**
@@ -40,9 +38,6 @@ class Tracks_Test extends BaseTestCase {
 		delete_option( 'podcasting_archive' );
 		delete_option( 'podcasting_show_urls' );
 		delete_option( 'podcasting_show_states' );
-		delete_option( 'podcasting_title' );
-		delete_option( 'podcasting_email' );
-		delete_option( 'podcasting_talent_name' );
 		delete_option( 'podcast_show_launched_tracked' );
 		wp_cache_flush();
 		WorDBless_Posts::init()->clear_all_posts();
@@ -183,6 +178,28 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertEmpty( $this->events_named( 'wpcom_podcast_episode_published' ) );
 	}
 
+	public function test_episode_published_emits_for_podcast_episode_block_with_external_media() {
+		$cat_id = $this->configure_podcast_category();
+		$post   = $this->insert_post_in_category( $cat_id );
+		// External media in the block's `mediaUrl` — no core/audio block, nothing
+		// attached to the post, so the pre-block checks would miss it.
+		$post->post_content = '<!-- wp:jetpack/podcast-episode {"mediaUrl":"https://cdn.example.com/ep1.mp3"} /-->';
+
+		Tracks::record_episode_published( $post->ID, $post, false, null );
+
+		$this->assertCount( 1, $this->events_named( 'wpcom_podcast_episode_published' ) );
+	}
+
+	public function test_episode_published_skips_podcast_episode_block_without_media() {
+		$cat_id             = $this->configure_podcast_category();
+		$post               = $this->insert_post_in_category( $cat_id );
+		$post->post_content = '<!-- wp:jetpack/podcast-episode {"episodeNumber":1} /-->';
+
+		Tracks::record_episode_published( $post->ID, $post, false, null );
+
+		$this->assertEmpty( $this->events_named( 'wpcom_podcast_episode_published' ) );
+	}
+
 	public function test_media_uploaded_emits_for_audio_when_podcasting_enabled() {
 		$this->configure_podcast_category();
 
@@ -292,45 +309,5 @@ class Tracks_Test extends BaseTestCase {
 		);
 
 		$this->assertCount( 1, $this->events_named( 'wpcom_podcasting_show_url_saved' ) );
-	}
-
-	public function test_settings_saved_emits_after_settings_rest_write() {
-		update_option( 'podcasting_title', 'New Title' );
-		update_option( 'podcasting_email', 'host@example.com' );
-		update_option( 'podcasting_talent_name', 'Jane Host' );
-
-		$request = new WP_REST_Request( 'POST', '/wp/v2/settings' );
-		$request->set_param( 'podcasting_title', 'New Title' );
-
-		Tracks::record_settings_saved( new WP_REST_Response( array(), 200 ), array(), $request );
-
-		$events = $this->events_named( 'wpcom_podcasting_settings_saved' );
-		$this->assertCount( 1, $events );
-		$this->assertSame( 'New Title', $events[0]['properties']['podcasting_title'] );
-		// PII is redacted from the payload.
-		$this->assertArrayNotHasKey( 'podcasting_email', $events[0]['properties'] );
-		$this->assertArrayNotHasKey( 'podcasting_talent_name', $events[0]['properties'] );
-	}
-
-	public function test_settings_saved_skips_settings_writes_without_podcasting_fields() {
-		$request = new WP_REST_Request( 'POST', '/wp/v2/settings' );
-		$request->set_param( 'title', 'New Site Title' );
-
-		Tracks::record_settings_saved( new WP_REST_Response(), array(), $request );
-
-		$this->assertEmpty( $this->events_named( 'wpcom_podcasting_settings_saved' ) );
-	}
-
-	public function test_settings_saved_suppressed_when_response_is_an_error() {
-		$request = new WP_REST_Request( 'POST', '/wp/v2/settings' );
-		$request->set_param( 'podcasting_title', 'New Title' );
-
-		Tracks::record_settings_saved(
-			new WP_REST_Response( array( 'code' => 'rest_forbidden' ), 403 ),
-			array(),
-			$request
-		);
-
-		$this->assertEmpty( $this->events_named( 'wpcom_podcasting_settings_saved' ) );
 	}
 }

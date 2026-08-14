@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Pull in the jetpack-stats dependency for the ported notices endpoints.

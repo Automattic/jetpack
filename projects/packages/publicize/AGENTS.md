@@ -40,7 +40,7 @@ Social Plugin (or Jetpack Plugin)
 
 The codebase handles two runtime environments:
 - **WPCOM Simple**: `(new Host())->is_wpcom_simple()` — uses `wpcom_rest_api_v2_load_plugin()` for REST, `$publicize` global is pre-initialized
-- **Jetpack sites**: Standard REST registration, `REST_Controller` loaded for legacy `jetpack/v4` namespace
+- **Jetpack sites**: Standard REST registration via the controllers in `src/rest-api/`
 
 ## PHP Codebase (`src/`)
 
@@ -67,7 +67,7 @@ Other REST API components:
 - `Connections_Post_Field` — Registers a REST field to add connections data to post responses (via `rest_api_init`)
 - `Proxy_Requests` — Helper for proxying requests to WPCOM API endpoints
 
-**REST namespaces**: `wpcom/v2/publicize/*` (primary, loaded via controllers above) and `jetpack/v4/publicize/*` (legacy, via `REST_Controller`, Jetpack sites only)
+**REST namespace**: `wpcom/v2/publicize/*`, loaded via the controllers above. The legacy `jetpack/v4` endpoints were removed; a few unrelated `jetpack/v4` routes remain (SIG settings/token, Social settings in the Social plugin).
 
 ### Social Image Generator (`src/social-image-generator/`)
 
@@ -98,7 +98,6 @@ Defined as constants/properties on `Publicize_Base`:
 ### Entry Points (via `webpack.config.js`)
 
 Webpack entry points (defined in `webpack.config.js`), bundled into `build/`:
-- **`social-admin-page.tsx`** — Standalone Social admin dashboard
 - **`block-editor-social.tsx`** — Block editor sidebar panel (Social plugin context)
 - **`block-editor-jetpack.tsx`** — Block editor sidebar panel (Jetpack plugin context)
 - **`classic-editor.js`** — Classic editor integration
@@ -129,7 +128,7 @@ Components are organized by feature area:
 - **Post publishing**: `pre-publish-preview/`, `post-publish-manual-sharing/`, `post-publish-share-status/`
 - **Media & Images**: `media-picker/`, `media-section/`, `generated-image-preview/`, `social-image-generator/`
 - **Previews & Modals**: `social-previews/`, `social-post-modal/`, `unified-modal/`, `global-modals/`
-- **Admin**: `admin-page/`, `block-editor/`, `schedule-button/`, `scheduled-posts/`, `share-status/`
+- **Admin**: `admin-page/`, `block-editor/`, `schedule-button/`, `share-status/`
 
 ### Hooks (`_inc/hooks/`)
 

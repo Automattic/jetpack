@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 4.6.0-beta
+Stable tag: 4.7.0-beta
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -185,38 +185,25 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 4. Historical performance tracking with the upgraded plan.
 
 == Changelog ==
-### 4.6.0-beta - 2026-06-08
+### 4.7.0-beta - 2026-08-14
 #### Added
-- Concatenate JS: Add a `jetpack_boost_js_minify_fallback` action that fires when JS minification is skipped in favor of the original bundle, so logging plugins can observe how often (and why) the safety net engages.
-- Register Jetpack Boost abilities via the WordPress Abilities API (modules read/toggle, latest speed score, and page cache flush) for AI agents on WordPress 6.9+.
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed.
+- Concatenate JS/CSS: Add a `jetpack_boost_minify_use_static_cache_urls` filter to override whether bundles are linked from the static cache.
 
 #### Changed
-- Adopt the shared Jetpack admin-page-layout mixin on the Boost admin pages. Drops inline JetpackFooter renders and `showFooter={false}` overrides so AdminPage's built-in footer lives inside the flex column that the mixin pins.
-- Boost: Remove translation wrappers from the "Boost" product name.
-- Componentry: align Boost UI with the WordPress admin color scheme to match the rest of Jetpack.
-- Components: Use Link from `@wordpress/ui` instead of ExternalLink.
-- General: Update minimum WordPress version to 6.9.
-- Internal: migrate Notice component usages to @wordpress/ui.
-- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency.
-- Remove Beta label from the Optimize LCP Images module.
-- Remove Jetpack color overrides on core components, allowing them to use native WordPress admin theme colors.
-- Remove the per-page Hello Dolly rule; its content is now covered by the centralized normalize rule shipped with `@automattic/jetpack-components`'s AdminPage component.
-- Remove unneeded development and documentation files from the published plugin.
-- Replace deprecated jetpack-components Spinner with WordPress Core Spinner.
-- Replace Gridicon with Icon and named icon exports from `@wordpress/icons`.
-- Tested up to WordPress 7.0.
-- Update composer.lock files.
-- Updated package dependencies. [#48735] [#48064] [#48106] [#48126] [#48302] [#48404][#48405]
+- Boost now reports its problem count to the central menu-badges registry instead of writing admin-menu markup directly.
+- Image CDN: update the image quality slider to use the WordPress RangeControl component.
+- Performance: reduce the number of database reads performed on every page load by preparing Sync data only when it is actually sent to WordPress.com.
+- Update @react-spring/web to v10 and remove the unused @react-spring/core dependency for React 19 compatibility.
+- Update package dependencies.
 
 #### Fixed
-- Cache debug log: remove the duplicate Jetpack logo and restyle the header breadcrumbs to match the design system, and modernize the "Copy to clipboard" and "See Logs" links. The TanStack Query debugger no longer renders.
-- Concatenate JS: Fix pages breaking with an "Unexpected end of input" error when Concatenate JS is enabled on sites that use modern JavaScript under specific conditions.
-- Fix Critical CSS progress bar backward jumps and incomplete fill to 100%.
-- Fixed a duplicate scrollbar on the Boost dashboard by removing an obsolete full-height override.
-- Include blog_id in frontend Tracks events.
-- LCP: Fix Cornerstone Page analysis errors on some sites.
-- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations.
-- Render Blocking JS: Fix is_opened_script() regex interpolation and counting asymmetry so unclosed scripts are correctly detected when ignored scripts are present.
+- Concatenate JS/CSS: Fix broken CSS and JS delivery on pages rendered after a site is migrated onto WP Cloud or WordPress.com. Pages already served from a cache keep the old URLs until the cache is purged or expires.
+- Connection: Stop showing a duplicate account notice when your WordPress.com email differs from your site email only in letter case.
+- Defer JS: Fix a regression where a literal closing body tag inside a script, textarea, comment, or attribute value could corrupt the page when deferred scripts were re-inserted. Previously corrupted copies of a page may persist in Boost's page cache (up to an hour by default) and in any host or CDN cache after updating; purge those caches to clear them immediately.
+- Fix a blank Boost admin page on WordPress 6.9 installs without the Gutenberg plugin active, where the wp-theme script handle the embedded My Jetpack app depends on was otherwise unregistered.
+- LCP: Preserve analysis results when a page reports an error or when the homepage is also configured as a cornerstone page.
+- Modules: Batch the per-module status option reads into a single query to avoid redundant per-request database queries on sites without a persistent object cache.
 
 --------
 

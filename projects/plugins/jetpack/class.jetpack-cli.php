@@ -1834,7 +1834,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				);
 
 				// Somehow, a test site ended up in a state where $connections_to_return looked like:
-				// array( array( array( 'id' => 0, 'service' => 0 ) ) ) // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+				// array( array( array( 'id' => 0, 'service' => 0 ) ) )
 				// This caused the CLI command to error when running WP_CLI\Utils\format_items() below. So
 				// to minimize future issues, this nested loop will remove any connections that don't contain
 				// any keys that we expect.

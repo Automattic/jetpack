@@ -1,4 +1,4 @@
-<?php // phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_print_r
+<?php
 /**
  * Plugin Name: WPCOM API Request Tracker
  * Description: Displays the number of requests to WPCOM API endpoints for the current page request.
@@ -94,4 +94,3 @@ class WPCOM_API_Request_Tracker_Module {
 
 new WPCOM_API_Request_Tracker_Module();
 
-// phpcs:enable

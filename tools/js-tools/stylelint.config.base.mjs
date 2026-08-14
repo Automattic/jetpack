@@ -5,7 +5,16 @@ import { fileURLToPath } from 'node:url';
  */
 const baseConfig = {
 	extends: fileURLToPath( import.meta.resolve( '@wordpress/stylelint-config/scss-stylistic' ) ),
+	reportNeedlessDisables: true,
+	plugins: [
+		'@wordpress/theme/stylelint-plugins/no-unknown-ds-tokens',
+		'@wordpress/theme/stylelint-plugins/no-setting-wpds-custom-properties',
+		'@wordpress/theme/stylelint-plugins/no-token-fallback-values',
+	],
 	rules: {
+		'plugin-wpds/no-unknown-ds-tokens': true,
+		'plugin-wpds/no-setting-wpds-custom-properties': true,
+		'plugin-wpds/no-token-fallback-values': true,
 		// In addition to what `@wordpress/stylelint-config/scss-stylistic` does by default, also ignore comments containing /stylelint-disable/.
 		'@stylistic/max-line-length': [
 			80,
@@ -51,7 +60,6 @@ const baseConfig = {
 			true,
 			{
 				ignoreSelectors: [ ':export' ], // Ignore selector used by CSS Modules.
-				ignoreProperties: [ 'shadow-color' ], // Ignore property used by React Native.
 			},
 		],
 
@@ -76,6 +84,21 @@ const baseConfig = {
 			},
 		],
 	},
+	overrides: [
+		{
+			// Packages that still ship hardcoded WPDS fallbacks (no build-time inject yet).
+			files: [
+				'projects/js-packages/base-styles/**/*.{css,scss,sass}',
+				'projects/js-packages/charts/**/*.{css,scss,sass}',
+				'projects/js-packages/components/**/*.{css,scss,sass}',
+				'projects/js-packages/social-previews/**/*.{css,scss,sass}',
+				'projects/plugins/jetpack/**/*.{css,scss,sass}',
+			],
+			rules: {
+				'plugin-wpds/no-token-fallback-values': null,
+			},
+		},
+	],
 };
 
 export default baseConfig;

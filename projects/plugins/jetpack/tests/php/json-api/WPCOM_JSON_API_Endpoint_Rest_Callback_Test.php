@@ -117,7 +117,7 @@ class WPCOM_JSON_API_Endpoint_Rest_Callback_Test extends WP_UnitTestCase {
 		}
 
 		// Clean up GET variables.
-		unset( $_GET['token'], $_GET['timestamp'], $_GET['nonce'], $_GET['body-hash'], $_GET['signature'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		unset( $_GET['token'], $_GET['timestamp'], $_GET['nonce'], $_GET['body-hash'], $_GET['signature'] );
 
 		// Reset auth state if available.
 		if ( class_exists( Connection_Rest_Authentication::class ) ) {
@@ -524,7 +524,7 @@ class WPCOM_JSON_API_Endpoint_Rest_Callback_Test extends WP_UnitTestCase {
 		$_GET['nonce']     = 'testing123';
 
 		// Generate valid signature.
-		$_GET['signature'] = base64_encode( // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature'] = base64_encode(
 			hash_hmac(
 				'sha1',
 				implode(

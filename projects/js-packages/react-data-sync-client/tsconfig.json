@@ -1,9 +1,11 @@
 {
-	"extends": "jetpack-js-tools/tsconfig.tsc-declaration-only.json",
-	"include": [ "./src/*" ],
+	"extends": "jetpack-js-tools/tsconfig.tsc.json",
+	"include": [ "./src" ],
 	"compilerOptions": {
+		"target": "es2022",
 		"typeRoots": [ "./node_modules/@types/", "src" ],
 		"sourceMap": true,
-		"outDir": "./build/"
+		"outDir": "./build/",
+		"rootDir": "./src"
 	}
 }

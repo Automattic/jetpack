@@ -225,16 +225,6 @@ export default function CompModal( { subscriber, onClose }: Props ): JSX.Element
 								</Notice.Description>
 							</Notice.Root>
 						) : null }
-						{ ! productsQuery.isLoading && products.length === 0 && ! productsQuery.isError ? (
-							<Notice.Root intent="info">
-								<Notice.Description>
-									{ __(
-										'You don’t have any paid newsletter plans configured on this site yet.',
-										'jetpack-newsletter'
-									) }
-								</Notice.Description>
-							</Notice.Root>
-						) : null }
 						{ allComped ? (
 							<Notice.Root intent="info">
 								<Notice.Description>

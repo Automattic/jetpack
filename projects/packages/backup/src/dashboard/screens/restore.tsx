@@ -1,30 +1,45 @@
 import { Notice, ProgressBar, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, backup as backupIcon, arrowLeft } from '@wordpress/icons';
 import { Link, useParams } from '@wordpress/route';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
-import { findActivityById } from '../fixtures/activity-log';
-import { useMockRestore } from '../hooks/use-mock-restore';
+import { useRestore } from '../hooks/use-restore';
 import { DEFAULT_RESTORE_ITEMS } from '../types/restore';
 
 /**
+ * Derive an ISO timestamp for the restore-point label from the WPCOM
+ * rewind id. WPCOM rewind ids are unix-seconds (with an optional decimal
+ * suffix), so we don't need to look the activity row up in cache just
+ * to render "Restore point: …".
+ *
+ * @param rewindId - The rewind id from the URL.
+ * @return ISO timestamp or null when the id isn't numeric.
+ */
+function rewindIdToIso( rewindId: string ): string | null {
+	const seconds = Number.parseInt( rewindId, 10 );
+	if ( ! Number.isFinite( seconds ) || seconds <= 0 ) {
+		return null;
+	}
+	return new Date( seconds * 1000 ).toISOString();
+}
+
+/**
  * Restore screen — narrow centered layout with the warning notice, the
- * shared item checklist, and a Confirm button. Submit transitions
- * through a synthetic state machine; ~10% of submits land in the error
- * branch.
+ * shared item checklist, and a Confirm button. Submit drives a real
+ * state machine over the `/jetpack/v4/rewind/to/$rewindId` bridge.
  *
  * @return The rendered Restore screen.
  */
 export default function RestoreScreen() {
 	const { rewindId } = useParams( { from: '/restore/$rewindId' } );
-	const item = findActivityById( rewindId );
-	const restorePoint = item ? item.publishedAt : null;
+	const restorePoint = rewindIdToIso( rewindId );
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
-	const { state, submit, reset } = useMockRestore();
+	const { state, submit, reset } = useRestore( rewindId );
+	const handleConfirm = useCallback( () => submit( items ), [ submit, items ] );
 
 	return (
 		<DashboardLayout>
@@ -36,12 +51,12 @@ export default function RestoreScreen() {
 				<Card.Root className="jpb-restore__card">
 					<Stack direction="row" gap="sm" align="center">
 						<Icon icon={ backupIcon } />
-						<Stack direction="column" gap="2xs">
+						<Stack direction="column" gap="xs">
 							<Text variant="heading-md" render={ <h3 /> }>
 								{ __( 'Restore backup', 'jetpack-backup-pkg' ) }
 							</Text>
 							{ restorePoint && (
-								<Text size="small" variant="muted">
+								<Text variant="body-sm" className="jpb-text-muted">
 									{ __( 'Restore point:', 'jetpack-backup-pkg' ) }{ ' ' }
 									{ dateI18n( 'M j, Y, g:i A', restorePoint, undefined ) }
 								</Text>
@@ -60,9 +75,9 @@ export default function RestoreScreen() {
 							<RestoreItemsChecklist value={ items } onChange={ setItems } />
 							<Button
 								className="jpb-restore__confirm"
-								variant="primary"
+								variant="solid"
 								disabled={ state.phase === 'submitting' }
-								onClick={ submit }
+								onClick={ handleConfirm }
 							>
 								{ state.phase === 'submitting' ? (
 									<Spinner />
@@ -92,7 +107,7 @@ export default function RestoreScreen() {
 							<Notice status="error" isDismissible={ false }>
 								{ state.message }
 							</Notice>
-							<Button className="jpb-restore__confirm" variant="secondary" onClick={ reset }>
+							<Button className="jpb-restore__confirm" variant="outline" onClick={ reset }>
 								{ __( 'Try again', 'jetpack-backup-pkg' ) }
 							</Button>
 						</Stack>

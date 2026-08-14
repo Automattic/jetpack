@@ -209,7 +209,7 @@ class Host_Test extends TestCase {
 
 		Functions\when( 'get_stylesheet' )->justReturn( 'not-p2-theme' );
 		Functions\when( 'function_exists' )->alias(
-			function ( $fn ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			function ( $fn ) {
 				return $fn === '\WPForTeams\is_wpforteams_site';
 			}
 		);

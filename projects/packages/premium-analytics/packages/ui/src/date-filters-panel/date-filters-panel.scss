@@ -1,0 +1,45 @@
+.date-filters-panel {
+
+	/*
+	 * The label mode comes from this element's own measured width, so it has to
+	 * be sized by its container and never by its content. As a flex item that
+	 * means filling the slot: a shrink-to-fit panel measures the width it wants,
+	 * concludes that everything fits, and never steps down to the abbreviated
+	 * labels. Inert in a block parent, where it already spans its container.
+	 *
+	 * The root publishes `--date-filters-panel-full-row-width`, the width of
+	 * the full-labels row, so a host can size the slot from it.
+	 */
+	flex: 1 1 0%;
+	min-inline-size: 0;
+
+	&__primary,
+	&__comparison {
+		width: auto;
+		margin-bottom: 0;
+	}
+
+	// Holds the row's only shrinkable item, the custom-range trigger, so this is
+	// where a row short of space gives.
+	&__primary {
+		flex: 0 1 auto;
+	}
+
+	// Sized by its label and never squeezed: it has no abbreviated form, and the
+	// probe measures it at this width. Squeezed, it would report a width the row
+	// never actually has.
+	&__comparison {
+		flex: 0 0 auto;
+	}
+
+	// A glyph in a square box: nothing to give back when the row runs short.
+	.date-interval-dropdown,
+	.date-period-navigation {
+		flex: 0 0 auto;
+	}
+
+	.date-range-quick-presets__pill,
+	.date-filters-panel-button {
+		--wp-ui-button-height: calc(var(--wpds-dimension-size-lg) - 2px);
+	}
+}

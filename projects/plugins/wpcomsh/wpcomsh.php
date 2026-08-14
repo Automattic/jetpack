@@ -122,20 +122,6 @@ if ( is_readable( $jetpack_autoloader ) ) {
 
 	return;
 }
-/**
- * Atomic-side safety net for the Podcast untangle. The package now defaults
- * the gate to true on its own, so this filter is redundant in steady state —
- * keep it as a belt-and-suspenders pin until the legacy
- * at-pressable-podcasting vendor is removed in the Phase D cleanup.
- */
-add_filter( 'jetpack_podcast_untangle', '__return_true' );
-
-if (
-	! class_exists( '\Automattic\Jetpack\Podcast\Podcast' )
-	|| ! \Automattic\Jetpack\Podcast\Podcast::is_enabled()
-) {
-	require_once __DIR__ . '/vendor/automattic/at-pressable-podcasting/podcasting.php';
-}
 require_once __DIR__ . '/vendor/automattic/custom-fonts/custom-fonts.php';
 require_once __DIR__ . '/vendor/automattic/custom-fonts-typekit/custom-fonts-typekit.php';
 require_once __DIR__ . '/vendor/automattic/text-media-widget-styles/text-media-widget-styles.php';
@@ -149,6 +135,7 @@ require_once __DIR__ . '/feature-plugins/additional-css.php';
 require_once __DIR__ . '/feature-plugins/autosave-revision.php';
 require_once __DIR__ . '/feature-plugins/blaze.php';
 require_once __DIR__ . '/feature-plugins/coblocks-mods.php';
+require_once __DIR__ . '/feature-plugins/crowdsignal.php';
 require_once __DIR__ . '/feature-plugins/full-site-editing.php';
 require_once __DIR__ . '/feature-plugins/google-fonts.php';
 require_once __DIR__ . '/feature-plugins/gutenberg-mods.php';
@@ -161,6 +148,7 @@ require_once __DIR__ . '/feature-plugins/marketplace.php';
 require_once __DIR__ . '/feature-plugins/masterbar.php';
 require_once __DIR__ . '/feature-plugins/migrate-guru-canary.php';
 require_once __DIR__ . '/feature-plugins/nav-redesign.php';
+require_once __DIR__ . '/feature-plugins/podcast.php';
 require_once __DIR__ . '/feature-plugins/post-list.php';
 require_once __DIR__ . '/feature-plugins/class-wpcomsh-recovery-mode-sync.php';
 require_once __DIR__ . '/feature-plugins/sensei-pro-mods.php';
@@ -621,14 +609,25 @@ function wpcomsh_footer_rum_js() {
 		$rum_kv = '';
 	}
 
+	$site_v = apply_filters( 'wpcomsh_bilmur_site_v', null );
+
+	if ( true === $site_v ) {
+		$site_v = md5( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
+	}
+
 	$data_site_tz = 'data-site-tz="' . esc_attr( wpcomsh_stats_timezone_string() ) . '"';
 
+	$data_site_v = ( is_string( $site_v ) && '' !== $site_v )
+			? 'data-site-v="' . esc_attr( $site_v ) . '"'
+			: '';
+
 	printf(
-		'<meta id="bilmur" property="bilmur:data" content="" %1$s data-provider="wordpress.com" data-service="%2$s" %3$s %4$s >' . "\n",
+		'<meta id="bilmur" property="bilmur:data" content="" %1$s data-provider="wordpress.com" data-service="%2$s" %3$s %4$s %5$s >' . "\n",
 		$rum_kv, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		esc_attr( $service ),
 		wp_kses_post( $allow_iframe ),
-		$data_site_tz // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		$data_site_tz, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		$data_site_v // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	);
 	printf(
 		'<script defer src="%s"></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript

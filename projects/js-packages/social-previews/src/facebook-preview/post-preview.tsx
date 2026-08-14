@@ -21,7 +21,7 @@ export const FacebookPostPreview: React.FC< FacebookPreviewProps > = ( {
 		<div className="facebook-preview__post">
 			<FacebookPostHeader user={ user } />
 			<div className="facebook-preview__content">
-				{ customText && <CustomText text={ customText } url={ url } forceUrlDisplay /> }
+				{ customText && <CustomText text={ customText } url={ url } /> }
 				<div className="facebook-preview__body">
 					{ media ? (
 						<div className={ `facebook-preview__media ${ modeClass }` }>

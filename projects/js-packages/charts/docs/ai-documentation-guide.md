@@ -315,6 +315,7 @@ If applicable, provide migration examples:
 - **Follow TypeScript patterns**: Include proper typing in examples
 - **Use `tsx` for component code**: All `<Source>` blocks with tsx/component code should use `language="tsx"`, use `language="typescript"` only for pure type definitions or imports
 - **Use tabs for indentation**: All code examples in `<Source>` blocks must use tabs, not spaces, for indentation
+- **Author `<Source>` templates for the dedent**: Storybook dedents `<Source code={ \`...\` } />` blocks by one level before rendering. Keep the leading imports/setup paragraph flush at column 0, then indent the JSX body one level (opening tag at one tab, props at two tabs, closing tag back at one tab). Do not run Prettier over `.mdx` — it will mix tabs and spaces and break the dedent. See the "Authoring `<Source>` example blocks" section of the `charts-docs` skill for the full convention and a self-check.
 - **Use consistent naming**: `data`, `dataPoint`, `sampleData` for chart data
 - **Show progressive complexity**: Start simple, build up to advanced usage
 

@@ -106,12 +106,14 @@ class RTC {
 
 		$allowed_providers = array( 'http-polling', 'pinghub' );
 
+		$default_providers = array( 'pinghub' );
+
 		/**
 		 * Filter the list of RTC providers.
 		 *
 		 * @param string[] $providers List of provider identifiers.
 		 */
-		$providers = apply_filters( 'jetpack_rtc_providers', array( 'pinghub' ) );
+		$providers = apply_filters( 'jetpack_rtc_providers', $default_providers );
 		if ( ! is_array( $providers ) ) {
 			return array();
 		}
@@ -386,6 +388,7 @@ class RTC {
 
 		$is_admin_user = current_user_can( 'manage_options' );
 		$is_plan_owner = self::is_plan_owner();
+		$post_type     = get_post_type();
 
 		$data = wp_json_encode(
 			array(
@@ -393,6 +396,8 @@ class RTC {
 				'isAdmin'            => $is_admin_user,
 				'isPlanOwner'        => $is_plan_owner,
 				'postId'             => get_the_ID(),
+				'postType'           => $post_type ? $post_type : null,
+				'userId'             => get_current_user_id(),
 				'postTitle'          => get_the_title(),
 				'postEditUrl'        => get_edit_post_link( get_the_ID(), 'raw' ),
 				'postsListUrl'       => admin_url( 'edit.php' ),

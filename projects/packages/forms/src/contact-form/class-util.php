@@ -14,6 +14,16 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 class Util {
 
 	/**
+	 * Saved values of the block_template global while core/post-content blocks render.
+	 *
+	 * A stack so nested or sequential post-content renders (e.g. a query loop) restore
+	 * correctly. @see grunion_contact_form_suspend_block_template_id_in_post_content().
+	 *
+	 * @var array
+	 */
+	private static $block_template_id_suspended = array();
+
+	/**
 	 * Registers all relevant actions and filters for this class.
 	 */
 	public static function init() {
@@ -28,6 +38,11 @@ class Util {
 
 		add_filter( 'render_block', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_unset_block_template_part_id_global', 10, 2 );
 		add_filter( 'widget_block_content', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_filter_widget_block_content', 1, 3 );
+
+		// Suspend the block_template global while core/post-content renders, so forms in the post
+		// body are attributed to the post (and gated on the author), not to the template.
+		add_filter( 'pre_render_block', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_suspend_block_template_id_in_post_content', 10, 2 );
+		add_filter( 'render_block', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_restore_block_template_id_after_post_content', 10, 2 );
 
 		// Register the default for the `central-form-management` feature flag at bootstrap
 		// so that early callers of Contact_Form_Plugin::has_editor_feature_flag() — such as
@@ -201,6 +216,14 @@ class Util {
 					'block_template' => 'canvas',
 				)
 			);
+
+			// Mark that we are rendering a block template, so forms in the template chrome are
+			// attributed to it. This global is the trusted signal Feedback_Source::get_current()
+			// uses for the block_template source type (the content attribute is not trusted). It
+			// is suspended while core/post-content renders so a form in the post body is not
+			// mistaken for a template-authored form.
+			global $_wp_current_template_id;
+			$GLOBALS['grunion_block_template_id'] = ! empty( $_wp_current_template_id ) ? $_wp_current_template_id : 'canvas';
 		}
 		return $template;
 	}
@@ -229,6 +252,50 @@ class Util {
 			&& 'core/template-part' === $block['blockName']
 			&& isset( $GLOBALS['grunion_block_template_part_id'] ) ) {
 			unset( $GLOBALS['grunion_block_template_part_id'] );
+		}
+		return $content;
+	}
+
+	/**
+	 * Suspends the block_template global while a core/post-content block renders.
+	 *
+	 * The core/post-content block renders the post body, which may contain a contact form
+	 * authored by a user without edit_theme_options. Such a form must be attributed to the post
+	 * (and gated on the post author), not to the surrounding template, so the trusted
+	 * block_template signal is removed for the duration of the render and restored afterwards.
+	 *
+	 * Hooked on `pre_render_block`; returns its first argument unchanged so rendering proceeds.
+	 *
+	 * @param string|null $pre_render   The pre-rendered content. Default null.
+	 * @param array       $parsed_block The block being rendered.
+	 * @return string|null Unchanged $pre_render.
+	 */
+	public static function grunion_contact_form_suspend_block_template_id_in_post_content( $pre_render, $parsed_block ) {
+		if ( isset( $parsed_block['blockName'] ) && 'core/post-content' === $parsed_block['blockName'] ) {
+			self::$block_template_id_suspended[] = $GLOBALS['grunion_block_template_id'] ?? null;
+			unset( $GLOBALS['grunion_block_template_id'] );
+		}
+		return $pre_render;
+	}
+
+	/**
+	 * Restores the block_template global once a core/post-content block has finished rendering.
+	 *
+	 * Counterpart to grunion_contact_form_suspend_block_template_id_in_post_content(). Hooked on
+	 * `render_block`; returns the block content unchanged.
+	 *
+	 * @param string $content Rendered block content.
+	 * @param array  $block   The full block, including name and attributes.
+	 * @return string Unchanged $content.
+	 */
+	public static function grunion_contact_form_restore_block_template_id_after_post_content( $content, $block ) {
+		if ( isset( $block['blockName'] )
+			&& 'core/post-content' === $block['blockName']
+			&& ! empty( self::$block_template_id_suspended ) ) {
+			$restored = array_pop( self::$block_template_id_suspended );
+			if ( null !== $restored ) {
+				$GLOBALS['grunion_block_template_id'] = $restored;
+			}
 		}
 		return $content;
 	}

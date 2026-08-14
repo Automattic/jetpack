@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Enable JS test coverage using `c8`
+
+

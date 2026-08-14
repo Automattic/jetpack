@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Custom Colors: stop injecting Customizer colors into the block editor so they no longer leak into the editor UI

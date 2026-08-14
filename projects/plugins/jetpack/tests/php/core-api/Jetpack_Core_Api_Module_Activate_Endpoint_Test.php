@@ -7,9 +7,23 @@ require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/Jetpack_REST_TestCase.php';
 
 /**
  * @covers \Jetpack_Core_Json_Api_Endpoints
+ * @covers \Jetpack_Core_API_Data
  */
 #[CoversClass( Jetpack_Core_Json_Api_Endpoints::class )]
+#[CoversClass( Jetpack_Core_API_Data::class )]
 class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCase {
+	/**
+	 * These tests call update_data() directly, bypassing the permission callback that
+	 * guards it in production. Writing settings requires an administrator.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		wp_set_current_user(
+			self::factory()->user->create( array( 'role' => 'administrator' ) )
+		);
+	}
+
 	/**
 	 * @author zinigor
 	 * @dataProvider api_routes
@@ -69,6 +83,59 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 
 		$this->assertTrue( isset( $settings->data[ $option_name ] ) );
 		$this->assertTrue( $settings->data[ $option_name ] );
+	}
+
+	/**
+	 * Every `jetpack_waf_*` option, plus the Protect options carrying the same data.
+	 *
+	 * `jetpack_protect_global_whitelist` is populated from `jetpack_waf_ip_allow_list`,
+	 * and `jetpack_protect_key` is a shared secret.
+	 */
+	public static function restricted_options() {
+		return array(
+			'automatic rules'    => array( 'jetpack_waf_automatic_rules' ),
+			'block list enabled' => array( 'jetpack_waf_ip_block_list_enabled' ),
+			'block list'         => array( 'jetpack_waf_ip_block_list' ),
+			'allow list enabled' => array( 'jetpack_waf_ip_allow_list_enabled' ),
+			'allow list'         => array( 'jetpack_waf_ip_allow_list' ),
+			'share data'         => array( 'jetpack_waf_share_data' ),
+			'share debug data'   => array( 'jetpack_waf_share_debug_data' ),
+			'protect key'        => array( 'jetpack_protect_key' ),
+			'protect allow list' => array( 'jetpack_protect_global_whitelist' ),
+		);
+	}
+
+	/**
+	 * Tests that firewall settings are stripped for users without `manage_options`.
+	 *
+	 * @dataProvider restricted_options
+	 *
+	 * @param string $option The option name.
+	 */
+	#[DataProvider( 'restricted_options' )]
+	public function test_restricted_options_hidden_from_non_admins( $option ) {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'contributor' ) ) );
+
+		$settings = ( new Jetpack_Core_API_Data() )->get_all_options()->get_data();
+
+		$this->assertArrayHasKey( 'wpcom_reader_views_enabled', $settings );
+		$this->assertArrayNotHasKey( $option, $settings );
+	}
+
+	/**
+	 * Tests that firewall settings are still returned to administrators.
+	 *
+	 * @dataProvider restricted_options
+	 *
+	 * @param string $option The option name.
+	 */
+	#[DataProvider( 'restricted_options' )]
+	public function test_restricted_options_returned_to_admins( $option ) {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+		$settings = ( new Jetpack_Core_API_Data() )->get_all_options()->get_data();
+
+		$this->assertArrayHasKey( $option, $settings );
 	}
 
 	/**
@@ -274,5 +341,167 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 		$stored = get_option( 'subscription_options' );
 		$this->assertStringNotContainsString( '<iframe', $stored['subscribe_modal_heading'] );
 		$this->assertSame( 'Subscribe today', $stored['subscribe_modal_heading'] );
+	}
+
+	public function test_update_data_subscription_options_free_tier_description_strips_html() {
+		$this->seed_subscription_options();
+
+		$request = new WP_REST_Request();
+		$request->set_body_params(
+			array(
+				'subscription_options' => array(
+					// The free tier description stores plain markdown source, so all
+					// HTML tags are stripped via `wp_kses( ..., array() )`. kses removes
+					// the tags themselves but keeps their text content, so the `<script>`
+					// wrapper is gone while the inner `alert(1)` text remains.
+					'free_tier_description' => '<script>alert(1)</script>Just the **markdown** text',
+				),
+			)
+		);
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$stored = get_option( 'subscription_options' );
+		$this->assertStringNotContainsString( '<script', $stored['free_tier_description'] );
+		$this->assertSame( 'alert(1)Just the **markdown** text', $stored['free_tier_description'] );
+	}
+
+	/**
+	 * A non-scalar `free_tier_description` (e.g. an array from a malformed JSON
+	 * payload) must be dropped rather than passed to wp_kses()/mb_substr(), which
+	 * would fatal on PHP 8+.
+	 *
+	 * @return void
+	 */
+	public function test_update_data_subscription_options_free_tier_description_ignores_non_scalar() {
+		$this->seed_subscription_options();
+
+		$request = new WP_REST_Request();
+		$request->set_body_params(
+			array(
+				'subscription_options' => array(
+					'free_tier_description' => array( 'unexpected', 'array' ),
+				),
+			)
+		);
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$stored = get_option( 'subscription_options' );
+		$this->assertArrayNotHasKey( 'free_tier_description', $stored );
+	}
+
+	public function test_update_data_subscription_options_free_tier_description_is_length_capped() {
+		$this->seed_subscription_options();
+
+		$request = new WP_REST_Request();
+		$request->set_body_params(
+			array(
+				'subscription_options' => array(
+					'free_tier_description' => str_repeat( 'a', 600 ),
+				),
+			)
+		);
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$stored = get_option( 'subscription_options' );
+		$this->assertSame( 500, strlen( $stored['free_tier_description'] ) );
+	}
+
+	/**
+	 * @dataProvider provider_hide_free_tier_values
+	 *
+	 * @param mixed $input    The raw `hide_free_tier` value sent in the request.
+	 * @param bool  $expected The boolean value expected to be stored.
+	 */
+	#[DataProvider( 'provider_hide_free_tier_values' )]
+	public function test_update_data_subscription_options_hide_free_tier_is_boolean( $input, $expected ) {
+		$this->seed_subscription_options();
+
+		$request = new WP_REST_Request();
+		$request->set_body_params(
+			array(
+				'subscription_options' => array(
+					'hide_free_tier' => $input,
+				),
+			)
+		);
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$stored = get_option( 'subscription_options' );
+		$this->assertSame( $expected, $stored['hide_free_tier'] );
+	}
+
+	/**
+	 * Stringy booleans (e.g. "false", "0") must be interpreted by value, not by
+	 * truthiness — `rest_sanitize_boolean()` handles this. A plain `! empty()`
+	 * would incorrectly treat "false"/"0" as `true`.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_hide_free_tier_values() {
+		return array(
+			'real true'    => array( true, true ),
+			'real false'   => array( false, false ),
+			'integer one'  => array( 1, true ),
+			'integer zero' => array( 0, false ),
+			'string true'  => array( 'true', true ),
+			'string false' => array( 'false', false ),
+			'string one'   => array( '1', true ),
+			'string zero'  => array( '0', false ),
+		);
+	}
+
+	/**
+	 * Front-page descriptions use the SEO utility so grandfathered sites keep
+	 * writing the legacy option and retain its 300-character contract.
+	 */
+	public function test_update_data_front_page_description_uses_seo_utility() {
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+		update_option( Jetpack_SEO_Utils::LEGACY_META_OPTION, 'Legacy description.' );
+		delete_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION );
+
+		try {
+			$description = str_repeat( 'a', 350 );
+			$request     = new WP_REST_Request();
+			$request->set_body_params(
+				array( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => $description )
+			);
+
+			$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+			$this->assertSame( 200, $result->get_status() );
+			$this->assertSame( str_repeat( 'a', 300 ), get_option( Jetpack_SEO_Utils::LEGACY_META_OPTION ) );
+			$this->assertSame( false, get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION ) );
+			$this->assertSame(
+				str_repeat( 'a', 300 ),
+				$result->get_data()[ Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION ]
+			);
+
+			// Repeating the stored value and clearing it are both successful even
+			// though update_front_page_meta_description() returns '' for those cases.
+			foreach ( array( str_repeat( 'a', 300 ), '' ) as $value ) {
+				$request = new WP_REST_Request();
+				$request->set_body_params(
+					array( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => $value )
+				);
+				$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+				$this->assertSame( 200, $result->get_status() );
+				$this->assertSame( $value, $result->get_data()[ Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION ] );
+			}
+
+			$this->assertSame( '', get_option( Jetpack_SEO_Utils::LEGACY_META_OPTION ) );
+		} finally {
+			remove_filter( 'jetpack_disable_seo_tools', '__return_true' );
+			delete_option( Jetpack_SEO_Utils::LEGACY_META_OPTION );
+			delete_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION );
+		}
 	}
 }

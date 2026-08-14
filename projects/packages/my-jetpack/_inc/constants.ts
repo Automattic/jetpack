@@ -53,6 +53,7 @@ export const JETPACK_PRODUCTS_WITH_CARD = [
 	'boost',
 	'crm',
 	'jetpack-ai',
+	'jetpack-forms',
 	'protect',
 	'search',
 	'social',
@@ -85,11 +86,21 @@ export const JETPACK_PRODUCTS_NOT_FOR_MULTISITE: Array< ( typeof JETPACK_PRODUCT
 export const PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN = [ 'anti-spam', 'boost', 'crm' ];
 
 /**
+ * Products whose (de)activation changes server-rendered wp-admin UI, such as
+ * sidebar menu items (e.g. the "Jetpack > VideoPress" item switches between the
+ * VideoPress library and the My Jetpack activation interstitial). Activating or
+ * deactivating them from My Jetpack must force a full page load so that UI is
+ * re-rendered with the new state.
+ */
+export const PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE = [ 'jetpack-ai', 'jetpack-forms', 'videopress' ];
+
+/**
  * Non-paid here means that the module is available for free users,
  * i.e. it does not have a paid plan associated with it.
  */
 export const JETPACK_NON_PAID_MODULES = [
 	'account-protection',
+	'ai',
 	'blaze',
 	'blocks',
 	'canonical-urls',
@@ -110,6 +121,7 @@ export const JETPACK_NON_PAID_MODULES = [
 	'notes',
 	'photon',
 	'photon-cdn',
+	'podcast',
 	'post-by-email',
 	'post-list',
 	'protect',

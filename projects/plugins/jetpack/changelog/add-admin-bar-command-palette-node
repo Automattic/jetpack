@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Admin Bar: Expose the command palette node through the admin bar endpoint.

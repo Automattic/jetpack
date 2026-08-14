@@ -20,6 +20,7 @@ function jetpack_uninstall() {
 	if (
 		! defined( 'WP_UNINSTALL_PLUGIN' ) ||
 		! WP_UNINSTALL_PLUGIN ||
+		// @phan-suppress-next-line PhanTypeMismatchArgumentInternal -- If it's defined, it's a string: https://developer.wordpress.org/plugins/plugin-basics/uninstall-methods/#method-2-uninstall-php
 		dirname( WP_UNINSTALL_PLUGIN ) !== dirname( plugin_basename( __FILE__ ) )
 	) {
 		status_header( 404 );

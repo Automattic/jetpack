@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Launchpad: bundle the jetpack-wp-build-polyfills dependency used by the new launchpad admin page.

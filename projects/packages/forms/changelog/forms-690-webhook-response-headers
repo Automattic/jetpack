@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: prevent a fatal error when logging webhook responses with unexpected header types.

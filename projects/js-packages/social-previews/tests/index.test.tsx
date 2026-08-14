@@ -10,6 +10,8 @@ import {
 	TwitterPreviews,
 	GoogleSearchPreview as Search,
 	MastodonPostPreview as Mastodon,
+	BlueskyPostPreview as Bluesky,
+	TumblrPostPreview as Tumblr,
 } from '../src';
 import { formatTweetDate } from '../src/helpers';
 import { mastodonBody } from '../src/mastodon-preview/helpers';
@@ -759,5 +761,72 @@ describe( 'Mastodon previews', () => {
 
 		const { container } = render( <>{ mastodonBody( text, { offset: 0, instance: '' } ) }</> );
 		expect( container.querySelector( `a[href="${ DEFAULT_POST_URL }"]` ) ).toBeInTheDocument();
+	} );
+
+	it( 'ignores hyperlinks — link-over-text is Bluesky/Tumblr only', () => {
+		const { container } = render(
+			<Mastodon
+				url={ DEFAULT_POST_URL }
+				title={ DEFAULT_POST_TITLE }
+				customText="Read the launch post now."
+				hyperlinks={ [ { text: 'launch post', href: 'https://example.com/anchor' } ] }
+				user={ mastodonUser }
+			/>
+		);
+
+		const body = container.querySelector( '.mastodon-preview__body' );
+		expect( body ).toHaveTextContent( 'Read the launch post now.' );
+		expect( body.querySelector( 'a[href="https://example.com/anchor"]' ) ).toBeNull();
+	} );
+} );
+
+describe( 'Bluesky previews', () => {
+	const blueskyUser = {
+		displayName: 'Test User',
+		avatarUrl: 'https://example.com/avatar.png',
+		address: 'test.bsky.social',
+	};
+
+	it( 'renders an editor hyperlink over the matching body text', () => {
+		const { container } = render(
+			<Bluesky
+				url={ DEFAULT_POST_URL }
+				title={ DEFAULT_POST_TITLE }
+				customText="Read the launch post now."
+				hyperlinks={ [ { text: 'launch post', href: 'https://example.com/anchor' } ] }
+				user={ blueskyUser }
+			/>
+		);
+
+		const link = container.querySelector(
+			'.bluesky-preview__body a[href="https://example.com/anchor"]'
+		);
+		expect( link ).toBeVisible();
+		expect( link ).toHaveTextContent( 'launch post' );
+	} );
+} );
+
+describe( 'Tumblr previews', () => {
+	const tumblrUser = {
+		displayName: 'Test User',
+		avatarUrl: 'https://example.com/avatar.png',
+	};
+
+	it( 'renders an editor hyperlink over the matching description text', () => {
+		const { container } = render(
+			<Tumblr
+				url={ DEFAULT_POST_URL }
+				title={ DEFAULT_POST_TITLE }
+				description="Read the launch post now."
+				hyperlinks={ [ { text: 'launch post', href: 'https://example.com/anchor' } ] }
+				user={ tumblrUser }
+			/>
+		);
+
+		const link = container.querySelector(
+			'.tumblr-preview__description a[href="https://example.com/anchor"]'
+		);
+		expect( link ).toBeVisible();
+		expect( link ).toHaveTextContent( 'launch post' );
 	} );
 } );

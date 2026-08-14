@@ -33,6 +33,7 @@ const PricingPage = ( { onRedirecting } ) => {
 		siteSuffix,
 		productSlug: yearlyPrice?.slug,
 		redirectUrl: adminUri,
+		from: 'jetpack-videopress',
 	} );
 
 	const pricingItems = siteProduct.features.map( feature => ( { name: feature } ) );
@@ -49,7 +50,7 @@ const PricingPage = ( { onRedirecting } ) => {
 								? sprintf(
 										/* translators: %1$s: the discount amount */
 										__( '%1$s%% off', 'jetpack-videopress-pkg' ),
-										yearlyPrice.discount
+										String( yearlyPrice.discount )
 								  )
 								: null
 						}

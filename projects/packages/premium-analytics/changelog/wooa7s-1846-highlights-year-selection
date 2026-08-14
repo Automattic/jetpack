@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Highlights: Follow the section's all-time and yearly date selection instead of always showing the most recent year, and show every metric on a dashboard whose layout carries no metric selection.

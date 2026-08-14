@@ -5,6 +5,112 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.24.0] - 2026-08-10
+### Security
+- Contact Form: Improve sanitization of content submitted through the file field.
+
+### Added
+- Add form fill duration to form entries. [#45786]
+
+### Changed
+- Add the site ID and Jetpack version to the response email open tracking event. [#51102]
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Ensure the submit button inside a Form renders as a button element so forms saved without an explicit element can still be submitted. [#51046]
+- Form block: Show the fallback notification recipient as a placeholder so it is clear when no address is saved. [#51014]
+- Form editor: Keep the form block selected so the form settings sidebar stays reachable. [#51047]
+
+## [7.23.4] - 2026-08-03
+### Removed
+- Dashboard: Remove redundant workaround for a dashboard loading edge case now fixed in bundled dependencies. No functional change. [#50780]
+
+### Fixed
+- Keep responses readable when a field label, submitted value, or page title contains a "<" character. [#50817]
+- Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundles. [#50762]
+
+## [7.23.3] - 2026-07-27
+### Changed
+- Update dependencies. [#50719]
+- Update package dependencies. [#50717] [#50751] [#50753] [#50792]
+
+## [7.23.2] - 2026-07-20
+### Changed
+- Update package dependencies. [#50510] [#50529]
+
+## [7.23.1] - 2026-07-13
+### Changed
+- Forms now reports its unread count to the central menu-badges registry instead of writing admin-menu markup directly. [#50190]
+- Update package dependencies. [#49272] [#50234] [#50407]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+### Removed
+- Remove unused react-redux, redux, and redux-thunk dependencies. [#50282]
+
+### Fixed
+- Block editor: Surface the most common fields (Name, Email, Text…) first in the form's block inserter instead of burying them past the quick-inserter cutoff. [#50425]
+- Contact Form: Restore the listView block support so form fields can be managed from the editor List View (regressed when block attributes were ported to block.json metadata). [#50463]
+- Feedback: Parse versionless JSON `post_content` as JSON instead of falling through to the legacy plain-text parser. [#50380]
+- Fix an invalid Stack "gap" value ("s" -> "sm") in the single-response actions bar, surfaced as a type error by the @wordpress/ui update. [#49272]
+- Fix the Form Responses quick link disappearing from the admin bar on mobile viewports, and align its icon with the native items. [#50421]
+- Stop loading the unused legacy dashboard SPA bundle on the new (wp-build) Forms dashboard. [#50219]
+
+## [7.23.0] - 2026-07-06
+### Added
+- Warn admins and editors when a form isn't collecting responses (email and saving both off, no integration) in the editor, on the live form, and in the dashboard. [#49808]
+- Responses: Add a standalone full-page view for a single form response. [#49827]
+
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+### Fixed
+- Date field: Prevent the on-screen keyboard from appearing on mobile when tapping the date picker; show the date picker instead. [#50211]
+- Disable the per-viewport "Hide on…" visibility control on form field, input, and choice/option blocks, since it was not honored on the frontend. [#49973]
+- File upload: Fix the file upload field collapsing to its content width on the front end instead of filling the form like it does in the editor. [#49978]
+- Multistep forms: Fix navigation buttons floating and the button gap collapsing on the frontend when a button width is set. [#49939]
+- Responses: Update the unread response count in the admin sidebar immediately when a response is marked as read by viewing it, so the badge no longer requires a page refresh to reflect the change. [#50187]
+
+## [7.22.6] - 2026-06-29
+### Security
+- Restrict status counts to a user's own forms when they cannot edit others' forms. [#49929]
+
+### Changed
+- Update package dependencies. [#49271]
+
+### Fixed
+- Restore webhook, Post to URL and Salesforce delivery for forms placed in block templates, template parts and widgets, which stopped firing in 15.9. [#49861]
+
+## [7.22.5] - 2026-06-25
+### Changed
+- Update package dependencies. [#49831]
+
+### Fixed
+- Fix a `@wordpress/ui` 0.15 type error in the responses dashboard. [#49800]
+
+## [7.22.4] - 2026-06-22
+### Changed
+- Update package dependencies. [#49631] [#49638] [#49691] [#49757]
+
+## [7.22.3] - 2026-06-15
+### Changed
+- Update package dependencies. [#49492]
+
+### Fixed
+- Post to URL: Prevent a fatal TypeError when a form's legacy `hiddenFields` attribute is stored as a name => value map or JSON string. [#49539]
+
+## [7.22.2] - 2026-06-09
+### Changed
+- Hide the Jetpack footer across on the Forms list and Responses views wp-build Forms dashboard. [#49432]
+- Update package dependencies. [#49273]
+
+### Fixed
+- Fix preg_match TypeError when a URL field value is an array instead of a string. [#49323]
+- Ensure the feedback REST collection endpoint never returns posts of unrelated types when the invalid_ids filter is in use.
+- Harden the legacy Salesforce post-to-URL path and route the request through the WordPress safe HTTP API.
+- Improve sanitization of class and style attribute values, and submitted values across the package.
+- Restrict webhook and integration configuration to users with the manage_options capability.
+- Tighten the permission check on the bulk-delete-by-status feedback endpoint.
+
 ## [7.22.1] - 2026-06-08
 ### Changed
 - Update dependencies. [#49354]
@@ -2520,6 +2626,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.24.0]: https://github.com/automattic/jetpack-forms/compare/v7.23.4...v7.24.0
+[7.23.4]: https://github.com/automattic/jetpack-forms/compare/v7.23.3...v7.23.4
+[7.23.3]: https://github.com/automattic/jetpack-forms/compare/v7.23.2...v7.23.3
+[7.23.2]: https://github.com/automattic/jetpack-forms/compare/v7.23.1...v7.23.2
+[7.23.1]: https://github.com/automattic/jetpack-forms/compare/v7.23.0...v7.23.1
+[7.23.0]: https://github.com/automattic/jetpack-forms/compare/v7.22.6...v7.23.0
+[7.22.6]: https://github.com/automattic/jetpack-forms/compare/v7.22.5...v7.22.6
+[7.22.5]: https://github.com/automattic/jetpack-forms/compare/v7.22.4...v7.22.5
+[7.22.4]: https://github.com/automattic/jetpack-forms/compare/v7.22.3...v7.22.4
+[7.22.3]: https://github.com/automattic/jetpack-forms/compare/v7.22.2...v7.22.3
+[7.22.2]: https://github.com/automattic/jetpack-forms/compare/v7.22.1...v7.22.2
 [7.22.1]: https://github.com/automattic/jetpack-forms/compare/v7.22.0...v7.22.1
 [7.22.0]: https://github.com/automattic/jetpack-forms/compare/v7.21.3...v7.22.0
 [7.21.3]: https://github.com/automattic/jetpack-forms/compare/v7.21.2...v7.21.3

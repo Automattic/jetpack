@@ -51,10 +51,7 @@ class REST_Connector_Test extends TestCase {
 	#[Before]
 	public function set_up() {
 		// Make sure WorDBless is initialized
-		// These calls may produce linter errors but are required for testing
-		// @phpcs:ignore
 		\WorDBless\Options::init()->clear_options();
-		// @phpcs:ignore
 		\WorDBless\Users::init()->clear_all_users();
 
 		// Create an admin user for testing
@@ -121,10 +118,7 @@ class REST_Connector_Test extends TestCase {
 		}
 
 		// Reset WorDBless state
-		// These calls may produce linter errors but are required for testing
-		// @phpcs:ignore
 		\WorDBless\Options::init()->clear_options();
-		// @phpcs:ignore
 		\WorDBless\Users::init()->clear_all_users();
 	}
 

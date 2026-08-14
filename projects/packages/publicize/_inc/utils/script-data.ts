@@ -21,6 +21,16 @@ export function hasSocialPaidFeatures() {
 }
 
 /**
+ * Whether the redesigned admin UI (v2) is enabled — gates the new
+ * add-account connection flow behind the `ADMIN_UI_V2` feature.
+ *
+ * @return Whether the v2 admin UI is enabled.
+ */
+export function hasAdminUiV2() {
+	return siteHasFeature( features.ADMIN_UI_V2 );
+}
+
+/**
  * Get the url for the Social admin page.
  *
  * @return The Social admin page URL.

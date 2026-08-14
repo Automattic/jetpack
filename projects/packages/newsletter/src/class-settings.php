@@ -21,7 +21,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.9.0';
+	const PACKAGE_VERSION = '0.12.4';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 
@@ -83,6 +83,16 @@ class Settings {
 	 * Subscribe to necessary hooks.
 	 */
 	public function init_hooks() {
+		// Transitional Subscribers announcement page (active only while the
+		// modernization filter is on): registers its AJAX/admin-post handlers
+		// and wp-build loading here so they exist on admin-ajax.php and
+		// admin-post.php requests. The menu itself is added by the Jetpack
+		// plugin's subscriptions module, which owns the Subscribers placement.
+		// init() self-gates on Subscribers_Announcement::is_enabled(), which is
+		// also what the menu-registration entry points consult, so the handlers
+		// and the menu can never disagree about whether the feature is on.
+		Subscribers_Announcement::init();
+
 		// Add the Reading settings notice as long as subscriptions are active.
 		if ( $this->is_subscriptions_active() ) {
 			add_action( 'admin_init', array( $this, 'add_reading_page_notice' ) );
@@ -140,6 +150,14 @@ class Settings {
 		}
 
 		self::load_wp_build();
+
+		// wp-build registers standalone modules (e.g. the init module) on
+		// wp_default_scripts, which has already fired by admin_menu. Register them
+		// directly so the init module makes it into the import map.
+		if ( function_exists( 'jetpack_newsletter_register_script_modules' ) ) {
+			jetpack_newsletter_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
 		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 	}
 
@@ -254,17 +272,15 @@ class Settings {
 		$current_user = wp_get_current_user();
 		$theme        = wp_get_theme();
 
-		$site_url     = get_site_url();
-		$site_raw_url = preg_replace( '(^https?://)', '', $site_url );
-
 		$host                   = new Host();
 		$status                 = new Status();
+		$site_suffix            = $status->get_site_suffix();
 		$blog_id                = (int) $host->get_wpcom_site_id();
 		$is_wpcom               = $host->is_wpcom_platform();
 		$is_block_theme         = wp_is_block_theme();
-		$setup_payment_plan_url = ( $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/' ) . rawurlencode( $site_raw_url );
+		$setup_payment_plan_url = ( $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/' ) . $site_suffix;
 
-		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false );
+		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true );
 
 		// Populate blog_id which is needed for API calls on Simple sites.
 		$data['site']['wpcom']['blog_id'] = $blog_id;
@@ -278,7 +294,7 @@ class Settings {
 			'email'                           => $current_user->user_email,
 			'gravatar'                        => get_avatar_url( $current_user->ID ),
 			'dateExample'                     => gmdate( get_option( 'date_format' ), time() ),
-			'subscriberManagementUrl'         => $this->get_subscriber_management_url( $wp_admin_subscriber_management_enabled, $is_wpcom, $site_raw_url, $blog_id ),
+			'subscriberManagementUrl'         => $this->get_subscriber_management_url( $wp_admin_subscriber_management_enabled, $is_wpcom, $site_suffix, $blog_id ),
 			'subscriberManagementEnabled'     => (bool) $wp_admin_subscriber_management_enabled,
 			'isSubscriptionSiteEditSupported' => $is_block_theme,
 			'setupPaymentPlansUrl'            => $setup_payment_plan_url,
@@ -302,10 +318,37 @@ class Settings {
 		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 
 		if ( self::is_modernized() ) {
+			// The i18n loader is registered on every admin page by jetpack-assets but
+			// only enqueued when depended on; the esbuild bundles don't pull it in.
+			// Enqueue it so the wp-build dashboard's init module can download its JS
+			// translation catalogs.
+			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+				wp_enqueue_script( 'wp-jp-i18n-loader' );
+			}
+
 			// wp-build manages the rest of its enqueue pipeline. The legacy
 			// newsletter script and JetpackScriptData are intentionally skipped
 			// for the wp-build dashboard.
 			return;
+		}
+
+		// The legacy bundle imports `@wordpress/ui`, which reaches
+		// `@wordpress/theme` and so lists `wp-theme` in its generated asset file.
+		// Core does not register that handle, and `load_wp_build()` — the only
+		// other caller — runs on the modernized path alone. Without this,
+		// WordPress silently drops the script over the unregistered dependency
+		// and the page renders blank. Request only the handles this bundle needs:
+		// `wp-theme` (Core never registers it), `wp-private-apis` (so the polyfill
+		// can replace Core's incomplete allowlist on older WP) and `wp-rich-text`
+		// (`@wordpress/ui` also reaches `@wordpress/dataviews`, whose dataform
+		// controls unlock rich-text's `privateApis` at module scope; WP 6.9 exports
+		// none, which throws "Cannot unlock an undefined object"). We leave out
+		// `wp-notices` so the polyfill's force-replacement never touches it.
+		if ( class_exists( \Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::class ) ) {
+			\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
+				'jetpack-newsletter',
+				array( 'wp-theme', 'wp-private-apis', 'wp-rich-text' )
+			);
 		}
 
 		Assets::register_script(
@@ -330,11 +373,11 @@ class Settings {
 	 *
 	 * @param bool   $wp_admin_enabled Whether wp-admin subscriber management is enabled.
 	 * @param bool   $is_wpcom         Whether this is a WordPress.com site.
-	 * @param string $site_raw_url     The site URL without protocol.
+	 * @param string $site_suffix      The Calypso site suffix (home host, slashes as `::`).
 	 * @param int    $blog_id          The blog ID.
 	 * @return string The subscriber management URL.
 	 */
-	private function get_subscriber_management_url( $wp_admin_enabled, $is_wpcom, $site_raw_url, $blog_id ) {
+	private function get_subscriber_management_url( $wp_admin_enabled, $is_wpcom, $site_suffix, $blog_id ) {
 		// If wp-admin subscriber management is enabled, use the wp-admin page.
 		if ( $wp_admin_enabled ) {
 			return admin_url( 'admin.php?page=subscribers' );
@@ -342,7 +385,7 @@ class Settings {
 
 		// For wpcom sites, use the wordpress.com URL.
 		if ( $is_wpcom ) {
-			return 'https://wordpress.com/subscribers/' . $site_raw_url;
+			return 'https://wordpress.com/subscribers/' . $site_suffix;
 		}
 
 		// For Jetpack sites, use the jetpack.com redirect URL.
@@ -486,15 +529,15 @@ class Settings {
 	/**
 	 * Returns true when the wp-build modernization filter is enabled.
 	 *
-	 * Defaults to `false`: the modernization prep work ships behind the filter,
-	 * and a separate PR flips the default on so the feature switch lands in
-	 * isolation. Hosts can opt in early with
-	 * `add_filter( self::MODERNIZATION_FILTER, '__return_true' );`.
+	 * The modernized Newsletter dashboard, wp-admin subscriber management, and the
+	 * retired Calypso Subscribers submenu now default on for every site. Hosts (and
+	 * a11ns who want the legacy view back) can still force the legacy experience with
+	 * `add_filter( self::MODERNIZATION_FILTER, '__return_false' );`.
 	 *
 	 * @return bool
 	 */
 	private static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
 	}
 
 	/**

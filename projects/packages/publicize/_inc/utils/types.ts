@@ -16,6 +16,14 @@ export type AttachedMedia = {
 
 export type MediaSourceValue = 'featured-image' | 'sig' | 'media-library' | 'upload-video' | 'none';
 
+/**
+ * A focal point on an image, stored as attachment meta. Both axes are 0-1.
+ */
+export type FocalPoint = {
+	x: number;
+	y: number;
+};
+
 export type JetpackSocialOptions = {
 	attached_media?: Array< AttachedMedia >;
 	image_generator_settings?: SIGSettings;

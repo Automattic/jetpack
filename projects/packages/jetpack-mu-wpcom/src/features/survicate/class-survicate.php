@@ -149,7 +149,6 @@ class Survicate {
 		$traits_json   = wp_json_encode( $this->get_visitor_traits(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 		$workspace_key = self::WORKSPACE_KEY;
 
-		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
 		wp_register_script(
 			'wpcom-survicate',
 			false,

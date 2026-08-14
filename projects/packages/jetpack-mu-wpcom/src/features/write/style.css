@@ -131,7 +131,7 @@
 	padding-top: 12px;
 	border-top: 1px solid #f0f0f0;
 	font-size: 13px;
-	color: #2271b1;
+	color: var(--wp-components-color-accent, #3858e9);
 	text-decoration: none;
 }
 
@@ -141,8 +141,7 @@
 }
 
 .bw-back {
-	font-size: 22px;
-	color: #999;
+	color: #2d2d2d;
 	text-decoration: none;
 	width: 36px;
 	height: 36px;
@@ -155,7 +154,7 @@
 
 .bw-back:hover {
 	background: #f5f5f5;
-	color: #333;
+	color: #1e1e1e;
 }
 
 .bw-status {
@@ -172,44 +171,88 @@
 
 .bw-topbar-actions {
 	display: flex;
+	align-items: center;
 	gap: 8px;
 	flex-shrink: 0;
 }
 
+/*
+ * Buttons follow the WPDS Button (`@wordpress/ui`) appearance: `.bw-btn` alone
+ * is the default brand/solid tone — what `.bw-btn-publish` renders as, both in
+ * the top bar and as the primary action of every modal — while `.bw-btn-draft`
+ * switches to the neutral/minimal tone.
+ *
+ * Every `--wpds-*` reference carries a literal fallback: this stylesheet is
+ * served straight from source (see wpcom_write_asset_url()), so it never passes
+ * through the postcss plugin that normally injects those fallbacks at build
+ * time, and nothing on this page guarantees the token stylesheet is loaded.
+ * The fallbacks are inert wherever the tokens do resolve.
+ */
+/* stylelint-disable plugin-wpds/no-token-fallback-values -- Unbuilt stylesheet; see above. */
 .bw-btn {
-	border: none;
-	border-radius: 20px;
-	padding: 8px 20px;
-	font-size: 14px;
+	--bw-btn-background: var(--wpds-color-background-interactive-brand-strong, #3858e9);
+	--bw-btn-background-active: var(--wpds-color-background-interactive-brand-strong-active, #2e49d9);
+	--bw-btn-background-disabled: var(--wpds-color-background-interactive-brand-strong-disabled, #e6e6e6);
+	--bw-btn-foreground: var(--wpds-color-foreground-interactive-brand-strong, #eff0f2);
+	--bw-btn-foreground-active: var(--wpds-color-foreground-interactive-brand-strong-active, #eff0f2);
+	--bw-btn-foreground-disabled: var(--wpds-color-foreground-interactive-brand-strong-disabled, #8d8d8d);
+
+	/* Borders take the background color unless a tone overrides them. */
+	--bw-btn-border: var(--bw-btn-background);
+	--bw-btn-border-active: var(--bw-btn-background-active);
+	--bw-btn-border-disabled: var(--bw-btn-background-disabled);
+
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+	min-width: calc(4ch + 2 * var(--wpds-dimension-padding-md, 12px));
+	max-width: 100%;
+	min-height: var(--wpds-dimension-size-lg, 40px);
+	padding-block: var(--wpds-dimension-padding-xs, 4px);
+	padding-inline: var(--wpds-dimension-padding-md, 12px);
+	border: 1px solid var(--bw-btn-border);
+	border-radius: var(--wpds-border-radius-sm, 2px);
+	background: var(--bw-btn-background);
+	background-clip: padding-box;
+	font-family: inherit;
+	font-size: var(--wpds-typography-font-size-md, 13px);
 	font-weight: 500;
-	cursor: pointer;
-	transition: all 0.15s ease;
+	line-height: var(--wpds-typography-line-height-sm, 20px);
+	color: var(--bw-btn-foreground);
+	text-align: center;
+	cursor: var(--wpds-cursor-control, pointer);
+	transition: color 0.1s ease-out;
 }
 
+.bw-btn:not(:disabled):is(:hover, :focus, :active) {
+	background: var(--bw-btn-background-active);
+	border-color: var(--bw-btn-border-active);
+	color: var(--bw-btn-foreground-active);
+}
+
+.bw-btn:focus-visible {
+	outline: var(--wpds-border-width-focus, 2px) solid var(--wpds-color-stroke-focus, #3858e9);
+	outline-offset: var(--wpds-border-width-focus, 2px);
+}
+
+/* The only disabled state is "a save is in flight", hence the cursor. */
 .bw-btn:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
+	background: var(--bw-btn-background-disabled);
+	border-color: var(--bw-btn-border-disabled);
+	color: var(--bw-btn-foreground-disabled);
+	cursor: progress;
 }
 
 .bw-btn-draft {
-	background: transparent;
-	color: #666;
-	border: 1px solid #ddd;
+	--bw-btn-background: var(--wpds-color-background-interactive-neutral-weak, #0000);
+	--bw-btn-background-active: var(--wpds-color-background-interactive-neutral-weak-active, #ededed);
+	--bw-btn-background-disabled: var(--wpds-color-background-interactive-neutral-weak-disabled, #0000);
+	--bw-btn-foreground: var(--wpds-color-foreground-interactive-neutral, #1e1e1e);
+	--bw-btn-foreground-active: var(--wpds-color-foreground-interactive-neutral-active, #1e1e1e);
+	--bw-btn-foreground-disabled: var(--wpds-color-foreground-interactive-neutral-disabled, #8d8d8d);
 }
-
-.bw-btn-draft:hover:not(:disabled) {
-	border-color: #999;
-	color: #333;
-}
-
-.bw-btn-publish {
-	background: #2171b1;
-	color: #fff;
-}
-
-.bw-btn-publish:hover:not(:disabled) {
-	background: #1a5f99;
-}
+/* stylelint-enable plugin-wpds/no-token-fallback-values */
 
 /* "More options" dropdown to the right of Publish/Update */
 .bw-more-wrap {
@@ -222,7 +265,7 @@
 	border-radius: 50%;
 	border: 1px solid transparent;
 	background: transparent;
-	color: #666;
+	color: #757575;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -235,12 +278,11 @@
 .bw-more-toggle:hover,
 .bw-more-toggle[aria-expanded="true"] {
 	background: #f5f5f5;
-	color: #333;
+	color: #1e1e1e;
 }
 
 .bw-more-dots {
-	font-size: 22px;
-	line-height: 1;
+	display: flex;
 }
 
 .bw-more-menu {
@@ -359,78 +401,6 @@
 	padding-top: 164px;
 }
 
-/* ===== Beta disclaimer banner ===== */
-.bw-disclaimer-banner {
-	position: fixed;
-	top: 56px;
-	left: 0;
-	right: 0;
-	z-index: 100001;
-	box-sizing: border-box;
-	height: 44px;
-	background: #fff8e6;
-	border-bottom: 1px solid #e8c84a;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 12px;
-	animation: bw-fade-in 0.2s ease;
-}
-
-.bw-disclaimer-banner[hidden] {
-	display: none;
-}
-
-.bw-disclaimer-text {
-	font-size: 14px;
-	color: #1a1a1a;
-}
-
-.bw-disclaimer-dismiss {
-	border: none;
-	background: transparent;
-	color: #999;
-	font-size: 20px;
-	cursor: pointer;
-	padding: 4px 8px;
-	line-height: 1;
-}
-
-.bw-disclaimer-dismiss:hover {
-	color: #333;
-}
-
-/* Push toolbar, link popover, and content down
-   when disclaimer banner is visible */
-.bw-disclaimer-banner:not([hidden]) ~ .bw-toolbar {
-	top: 100px;
-}
-
-.bw-disclaimer-banner:not([hidden]) ~ .bw-link-popover {
-	top: 144px;
-}
-
-.bw-disclaimer-banner:not([hidden]) ~ .bw-main {
-	padding-top: 164px;
-}
-
-/* Both disclaimer and recovery visible — stack recovery below disclaimer */
-.bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) {
-	top: 100px;
-}
-
-.bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) ~ .bw-toolbar {
-	top: 144px;
-}
-
-.bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) ~ .bw-link-popover {
-	top: 188px;
-}
-
-.bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) ~ .bw-main {
-	padding-top: 208px;
-}
-
 /* ===== Persistent formatting toolbar ===== */
 .bw-toolbar {
 	position: fixed;
@@ -481,14 +451,29 @@
 	}
 }
 
+/*
+ * Inline SVG icons (see icons.php). Every path draws with `currentColor`, so
+ * an icon picks up the `color` of its button and follows that button's hover,
+ * active and disabled states without needing rules of its own. Explicit
+ * dimensions guard against wp-admin's global `svg` sizing; `pointer-events`
+ * keeps the button — never the icon — as the event target for the click and
+ * focus handling in view.js.
+ */
+.bw-icon {
+	display: block;
+	width: 24px;
+	height: 24px;
+	flex-shrink: 0;
+	pointer-events: none;
+}
+
 .bw-tool {
 	width: 34px;
 	height: 34px;
 	border: none;
 	border-radius: 6px;
 	background: transparent;
-	color: #555;
-	font-size: 15px;
+	color: #1e1e1e;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -497,21 +482,12 @@
 	flex-shrink: 0;
 }
 
-.bw-tool .dashicons {
-	font-size: 18px;
-	width: 18px;
-	height: 18px;
-	line-height: 18px;
-}
-
 .bw-tool:hover {
 	background: #f0f0f0;
-	color: #1a1a1a;
 }
 
 .bw-tool-active {
 	background: #e8e8e8;
-	color: #1a1a1a;
 }
 
 .bw-tool:disabled {
@@ -542,9 +518,10 @@
 	font-weight: 500;
 }
 
+/* Wraps the chevron so it sits on the label's baseline row, not stretched. */
 .bw-tool-caret {
-	font-size: 12px;
-	color: #999;
+	display: flex;
+	align-items: center;
 }
 
 /* Dropdown wrapper (for heading and color menus) */
@@ -677,12 +654,12 @@
 }
 
 .bw-link-input:focus {
-	border-color: #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
 }
 
 .bw-link-apply {
 	border: none;
-	background: #2171b1;
+	background: var(--wp-components-color-accent, #3858e9);
 	color: #fff;
 	border-radius: 6px;
 	padding: 6px 12px;
@@ -1138,14 +1115,14 @@
 /* ===== Custom caret ===== */
 .bw-content,
 .bw-title {
-	caret-color: #2171b1;
+	caret-color: var(--wp-components-color-accent, #3858e9);
 }
 
 /* ===== Custom selection ===== */
 .bw-content ::selection,
 .bw-content::selection,
 .bw-title::selection {
-	background: rgba(33, 113, 177, 0.15);
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 15%, transparent);
 	color: inherit;
 }
 
@@ -1153,17 +1130,21 @@
    Slightly stronger than ::selection to visually distinguish it
    as a "target" indicator rather than an active text selection. */
 ::highlight(bw-link-highlight) {
-	background-color: rgba(33, 113, 177, 0.25);
+	background-color: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 25%, transparent);
 	color: inherit;
 }
 
 /* Content area */
+.bw-content,
+.bw-content-inner {
+	outline: none;
+}
+
 .bw-content {
 	min-height: 60vh;
 	font-size: 1.125rem;
 	line-height: 1.8;
 	color: #333;
-	outline: none;
 	overflow-wrap: break-word;
 	word-break: normal;
 	text-wrap: stable;
@@ -1217,10 +1198,44 @@
 	bottom: -2px;
 }
 
-/* Pre-upload placeholder figure: dim the locally-previewed image while
-   the upload is in flight, then snap back once the real URL is in place. */
+/* Pre-upload placeholder figure. While the upload is in flight the figure is
+   sized to the image's aspect ratio (set inline in view.js) and painted as a
+   pulsing gray skeleton box. The locally-previewed image sits on top at reduced
+   opacity so the pulse reads through it as a "still uploading" signal; when the
+   preview can't decode (e.g. HEIC) the pulsing box stands in on its own so the
+   user always sees a correctly-sized placeholder instead of nothing. The class
+   and inline aspect-ratio are removed once the real URL is in place. */
+.bw-content .bw-image-figure.bw-image-uploading {
+	background-color: #f3f4f6;
+	border-radius: 6px;
+	overflow: hidden;
+	animation: bw-image-uploading-pulse 1.4s ease-in-out infinite;
+}
+
 .bw-content .bw-image-figure.bw-image-uploading img {
-	opacity: 0.5;
+	opacity: 0.6;
+}
+
+@keyframes bw-image-uploading-pulse {
+
+	0%,
+	100% {
+		background-color: #f3f4f6;
+	}
+
+	50% {
+		background-color: #e2e4e8;
+	}
+}
+
+/* Respect reduced-motion preferences: hold a static dimmed skeleton box
+   instead of pulsing. The gray fill + dimmed preview still signal the
+   in-flight upload. */
+@media (prefers-reduced-motion: reduce) {
+
+	.bw-content .bw-image-figure.bw-image-uploading {
+		animation: none;
+	}
 }
 
 .bw-content p {
@@ -1286,14 +1301,14 @@
 }
 
 .bw-content a {
-	color: #2171b1;
+	color: var(--wp-components-color-accent, #3858e9);
 	text-decoration: underline;
 	text-underline-offset: 2px;
 	transition: color 0.15s ease;
 }
 
 .bw-content a:hover {
-	color: #1a5f99;
+	color: var(--wp-components-color-accent-darker-10, #2145e6);
 }
 
 .bw-content strong,
@@ -1348,6 +1363,12 @@
 	padding: 0;
 	position: relative;
 	text-align: center;
+
+	/* Each figure clears any prior float so floated figures stack vertically
+	 * in the editor and a later figure's bounding box can't overlap a
+	 * floated image above it (which would otherwise break hover targeting
+	 * for the Edit pencil and other controls). */
+	clear: both;
 }
 
 /* Image size presets.
@@ -1382,6 +1403,47 @@
 	height: auto;
 }
 
+/* Image alignment.  Every image gets an explicit aligncenter / alignleft /
+ * alignright class — themes (and the published post) key off these for
+ * positioning, and we want predictable round-trip with the block editor.
+ *
+ * Float-based wrap on alignleft / alignright comes from wp-admin's core
+ * editor stylesheet which is inherited here.  We let it apply: text wraps
+ * around aligned images in the editor preview just as it will in the
+ * published post.  The rules below add fallback margin/text-align so the
+ * positioning is still correct on contexts where the core editor.css is
+ * not loaded. */
+.bw-content figure.aligncenter,
+.bw-content .bw-image-figure.aligncenter {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.bw-content figure.alignleft,
+.bw-content .bw-image-figure.alignleft {
+	margin-left: 0;
+	margin-right: auto;
+	text-align: left;
+}
+
+.bw-content figure.alignleft img,
+.bw-content .bw-image-figure.alignleft img {
+	margin-left: 0;
+}
+
+.bw-content figure.alignright,
+.bw-content .bw-image-figure.alignright {
+	margin-left: auto;
+	margin-right: 0;
+	text-align: right;
+}
+
+.bw-content figure.alignright img,
+.bw-content .bw-image-figure.alignright img {
+	margin-right: 0;
+}
+
 /* Center images horizontally inside the figure.  For sized figures the
  * img already fills the figure box, so this is a no-op visually; for
  * URL-pasted (non-sized) figures it centers a smaller-than-parent img. */
@@ -1390,10 +1452,17 @@
 	margin-right: auto;
 }
 
+/* The controls wrapper hugs the image, not the figure, so the floating
+ * buttons anchor to the visible image edges.  Without this, sizes where the
+ * image's natural width is smaller than the figure's CSS width (notably
+ * Medium, where a 300px image sits inside a 50%-of-content-area figure) push
+ * the bottom-left and bottom-right buttons past the image bounds. */
 .bw-content figure .bw-img-controls,
 .bw-content .bw-image-figure .bw-img-controls {
 	position: relative;
-	display: block;
+	display: inline-block;
+	max-width: 100%;
+	vertical-align: top;
 }
 
 .bw-content figure .bw-img-delete,
@@ -1435,66 +1504,11 @@
 	background: rgba(214, 54, 56, 0.85);
 }
 
-/* Alt text button */
-.bw-img-alt {
-	position: absolute;
-	bottom: 10px;
-	left: 10px;
-	padding: 4px 10px;
-	border-radius: 4px;
-	background: rgba(0, 0, 0, 0.6);
-	backdrop-filter: blur(4px);
-	color: #fff;
-	border: none;
-	font-size: 11px;
-	font-weight: 700;
-	letter-spacing: 0.05em;
-	cursor: pointer;
-	opacity: 0;
-	transform: scale(0.8);
-	transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
-	z-index: 5;
-}
-
-.bw-img-controls:hover .bw-img-alt,
-.bw-img-controls:focus-within .bw-img-alt {
-	opacity: 1;
-	transform: scale(1);
-}
-
-.bw-img-alt:hover {
-	background: rgba(33, 113, 177, 0.85);
-}
-
-/* Alt text inline input */
-.bw-img-alt-input {
-	position: absolute;
-	bottom: 10px;
-	left: 10px;
-	right: 10px;
-	z-index: 6;
-	padding: 8px 12px;
-	border: none;
-	border-radius: 6px;
-	background: rgba(0, 0, 0, 0.7);
-	backdrop-filter: blur(8px);
-	color: #fff;
-	font-size: 13px;
-	font-family: inherit;
-	outline: none;
-	box-sizing: border-box;
-	animation: bw-fade-in 0.12s ease;
-}
-
-.bw-img-alt-input::placeholder {
-	color: rgba(255, 255, 255, 0.5);
-}
-
-/* Caption button */
+/* Caption button — leftmost bottom control. */
 .bw-img-caption-btn {
 	position: absolute;
 	bottom: 10px;
-	left: 60px;
+	left: 10px;
 	padding: 4px 10px;
 	border-radius: 4px;
 	background: rgba(0, 0, 0, 0.6);
@@ -1517,86 +1531,48 @@
 }
 
 .bw-img-caption-btn:hover {
-	background: rgba(33, 113, 177, 0.85);
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 85%, transparent);
 }
 
-/* Size button — mirrors .bw-img-caption-btn styling, sits to its right. */
-.bw-img-size {
+/* Edit (pencil) button — opens the image properties modal. Anchored to the
+ * bottom-right so it doesn't stack horizontally with Caption on narrow
+ * images (RSM-3980). */
+.bw-img-edit {
 	position: absolute;
 	bottom: 10px;
-	left: 130px;
-	padding: 4px 10px;
+	right: 10px;
+	width: 28px;
+	height: 24px;
+	padding: 0;
 	border-radius: 4px;
 	background: rgba(0, 0, 0, 0.6);
 	backdrop-filter: blur(4px);
 	color: #fff;
 	border: none;
-	font-size: 11px;
-	font-weight: 600;
 	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	opacity: 0;
 	transform: scale(0.8);
 	transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
 	z-index: 5;
 }
 
-.bw-img-controls:hover .bw-img-size,
-.bw-img-controls:focus-within .bw-img-size {
+/* Smaller than the 24px default — this button is only 28x24. */
+.bw-img-edit .bw-icon {
+	width: 12px;
+	height: 12px;
+}
+
+.bw-img-controls:hover .bw-img-edit,
+.bw-img-controls:focus-within .bw-img-edit {
 	opacity: 1;
 	transform: scale(1);
 }
 
-.bw-img-size:hover {
-	background: rgba(33, 113, 177, 0.85);
-}
-
-.bw-img-size-menu {
-	position: absolute;
-	bottom: 40px;
-	left: 130px;
-	z-index: 6;
-	background: rgba(0, 0, 0, 0.8);
-	backdrop-filter: blur(8px);
-	border-radius: 6px;
-	padding: 4px;
-	min-width: 110px;
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-	animation: bw-fade-in 0.12s ease;
-}
-
-.bw-img-size-menu[hidden] {
-	display: none;
-}
-
-.bw-img-size-option {
-	display: block;
-	width: 100%;
-	padding: 6px 10px 6px 24px;
-	border: none;
-	border-radius: 4px;
-	background: transparent;
-	text-align: start;
-	cursor: pointer;
-	font-family: inherit;
-	font-size: 12px;
-	color: #fff;
-	position: relative;
-	transition: background 0.1s ease;
-}
-
-.bw-img-size-option:hover {
-	background: rgba(255, 255, 255, 0.15);
-}
-
-.bw-img-size-option[aria-checked="true"] {
-	font-weight: 700;
-}
-
-.bw-img-size-option[aria-checked="true"]::before {
-	content: "✓";
-	position: absolute;
-	left: 8px;
-	font-weight: 700;
+.bw-img-edit:hover {
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 85%, transparent);
 }
 
 /* Figcaption.
@@ -1656,6 +1632,14 @@
 	border-radius: 4px;
 }
 
+/* Edit panel target: shows which figure the floating edit panel is currently
+ * pointed at, so switching panels between images is visually clear. */
+.bw-figure-editing {
+	outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+	outline-offset: 6px;
+	border-radius: 4px;
+}
+
 /* Gap paragraphs between non-editable blocks */
 .bw-block-gap {
 	height: 4px;
@@ -1666,6 +1650,14 @@
 }
 
 /* ===== Image modal ===== */
+
+/* Lock page scroll while the Add image modal is open so the editor doesn't
+ * slide under the dimmed backdrop. The non-modal Edit image panel doesn't
+ * set this class — the editor stays scrollable while editing an image. */
+body.bw-modal-open {
+	overflow: hidden;
+}
+
 .bw-image-overlay {
 	position: fixed;
 	inset: 0;
@@ -1673,8 +1665,15 @@
 	background: rgba(0, 0, 0, 0.4);
 	backdrop-filter: blur(4px);
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	justify-content: center;
+
+	/* Anchor the modal below the header (~56px) + toolbar (~88px incl. its
+	 * shifted top), with a small breathing gap. Pairs with the modal's
+	 * max-height: calc(100vh - 200px) so the modal can't grow behind the
+	 * toolbar even when both expanders + a preview are open. */
+	padding: 168px 0 32px;
+	box-sizing: border-box;
 	animation: bw-fade-in 0.15s ease;
 }
 
@@ -1688,6 +1687,14 @@
 	padding: 32px;
 	width: 420px;
 	max-width: 90vw;
+
+	/* Hard cap below "header + toolbar height + bottom breathing room" so the
+	 * modal never grows behind the toolbar, whose bottom sits at ~144px; we
+	 * leave ~24px of air above and below the modal — anything taller scrolls
+	 * internally. border-box so max-height includes the padding. */
+	box-sizing: border-box;
+	max-height: calc(100vh - 200px);
+	overflow-y: auto;
 	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
 }
 
@@ -1723,8 +1730,8 @@
 .bw-upload-zone:hover,
 .bw-upload-zone.bw-drag-over,
 .bw-upload-zone:focus-within {
-	border-color: #2171b1;
-	color: #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
+	color: var(--wp-components-color-accent, #3858e9);
 }
 
 /* Water fill animation */
@@ -1735,7 +1742,7 @@
 	left: 0;
 	right: 0;
 	height: 0%;
-	background: linear-gradient(180deg, rgba(33, 113, 177, 0.08) 0%, rgba(33, 113, 177, 0.18) 100%);
+	background: linear-gradient(180deg, color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 8%, transparent) 0%, color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 18%, transparent) 100%);
 	z-index: 1;
 	transition: height 0.4s ease-out;
 	border-radius: 0 0 6px 6px;
@@ -1752,19 +1759,19 @@
 	z-index: 1;
 	background: transparent;
 	border-radius: 50%;
-	box-shadow: 0 -4px 8px rgba(33, 113, 177, 0.12);
+	box-shadow: 0 -4px 8px color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 12%, transparent);
 	transition: bottom 0.4s ease-out;
 	opacity: 0;
 }
 
 .bw-upload-zone.bw-uploading {
-	border-color: #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
 	border-style: solid;
 	cursor: wait;
 }
 
 .bw-upload-zone.bw-uploading span {
-	color: #2171b1;
+	color: var(--wp-components-color-accent, #3858e9);
 	font-weight: 500;
 }
 
@@ -1818,22 +1825,177 @@
 	}
 }
 
+/* RSM-3983: when a preview is set, the upload zone grows to fit the image's
+ * natural aspect ratio (capped) and switches to contain so portrait/wide
+ * images aren't centre-cropped. The image is a normal flow child so its
+ * intrinsic height drives the zone height. */
 .bw-upload-preview {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
+	display: none;
+	max-width: 100%;
+	max-height: 320px;
+	width: auto;
+	height: auto;
+	object-fit: contain;
 	border-radius: 6px;
 	animation: bw-fade-in 0.2s ease;
-	position: absolute;
-	top: 0;
-	left: 0;
-	display: none;
+	background: #f3f4f6;
 }
 
 .bw-upload-has-preview {
 	border: none;
 	padding: 0;
 	overflow: hidden;
+	height: auto;
+	min-height: 160px;
+}
+
+.bw-library-section[hidden],
+.bw-url-section[hidden] {
+	display: none;
+}
+
+.bw-source-expanders {
+	margin-top: 20px;
+	border-top: 1px solid #f0f0f0;
+	padding-top: 8px;
+}
+
+.bw-source-expander + .bw-source-expander {
+	margin-top: 2px;
+}
+
+.bw-source-trigger {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	padding: 10px 0;
+	background: transparent;
+	border: none;
+	font-size: 14px;
+	color: #444;
+	cursor: pointer;
+	font-family: inherit;
+	text-align: left;
+	border-radius: 4px;
+}
+
+.bw-source-trigger:hover {
+	color: var(--wp-components-color-accent, #3858e9);
+}
+
+.bw-source-trigger:focus-visible {
+	outline: 2px solid var(--wp-components-color-accent, #3858e9);
+	outline-offset: 2px;
+}
+
+.bw-source-chevron {
+	display: inline-block;
+	width: 0;
+	height: 0;
+	border-left: 5px solid currentColor;
+	border-top: 4px solid transparent;
+	border-bottom: 4px solid transparent;
+	transition: transform 0.15s ease;
+	flex-shrink: 0;
+}
+
+.bw-source-trigger[aria-expanded="true"] .bw-source-chevron {
+	transform: rotate(90deg);
+}
+
+.bw-library-section,
+.bw-url-section {
+	padding: 6px 0 10px;
+	animation: bw-fade-in 0.18s ease;
+}
+
+.bw-library-search {
+	width: 100%;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 10px 14px;
+	font-size: 14px;
+	outline: none;
+	font-family: inherit;
+	box-sizing: border-box;
+	margin-bottom: 10px;
+}
+
+.bw-library-search:focus {
+	border-color: var(--wp-components-color-accent, #3858e9);
+}
+
+/* Single horizontally-scrolling row of thumbs. Browser-native scrollbar is
+ * thin and only appears on hover/scroll on macOS; keyboard users get
+ * scroll-into-view when a focused thumb reaches the edge.
+ */
+.bw-library-strip {
+	display: flex;
+	gap: 6px;
+	overflow-x: auto;
+	overflow-y: hidden;
+	padding: 2px;
+	scrollbar-width: thin;
+	scroll-snap-type: x proximity;
+}
+
+.bw-library-strip:empty {
+	display: none;
+}
+
+.bw-library-thumb {
+	flex: 0 0 auto;
+	width: 64px;
+	height: 64px;
+	padding: 0;
+	border: 2px solid transparent;
+	border-radius: 6px;
+	background: #f3f4f6;
+	cursor: pointer;
+	overflow: hidden;
+	transition: border-color 0.15s ease, transform 0.1s ease;
+	scroll-snap-align: start;
+}
+
+.bw-library-thumb:hover {
+	border-color: #c7d7e8;
+}
+
+.bw-library-thumb:focus-visible {
+	border-color: var(--wp-components-color-accent, #3858e9);
+	outline: 2px solid var(--wp-components-color-accent, #3858e9);
+	outline-offset: 1px;
+}
+
+.bw-library-thumb:active {
+	transform: scale(0.97);
+}
+
+.bw-library-thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.bw-library-status {
+	color: #777;
+	font-size: 13px;
+	margin-top: 8px;
+	min-height: 18px;
+}
+
+.bw-library-status:empty {
+	display: none;
+}
+
+@media (max-width: 480px) {
+
+	.bw-library-thumb {
+		width: 56px;
+		height: 56px;
+	}
 }
 
 .bw-image-divider {
@@ -1865,7 +2027,16 @@
 }
 
 .bw-image-url-input:focus {
-	border-color: #2171b1;
+	border-color: var(--wp-components-color-accent, #3858e9);
+}
+
+.bw-image-alt-input {
+	margin-top: 12px;
+}
+
+.bw-insert-image-btn {
+	width: 100%;
+	margin-top: 12px;
 }
 
 .bw-featured-toggle {
@@ -1879,10 +2050,154 @@
 }
 
 .bw-featured-toggle input[type="checkbox"] {
-	accent-color: #2171b1;
+	accent-color: var(--wp-components-color-accent, #3858e9);
 	width: 16px;
 	height: 16px;
 	cursor: pointer;
+}
+
+/* ===== Image edit panel =====
+ * Non-modal floating panel docked to the bottom-right on desktop, sliding up
+ * as a full-width bottom sheet on mobile. Lets the user keep seeing the
+ * image change as size/alignment are picked. */
+.bw-image-edit-panel {
+	position: fixed;
+	bottom: 24px;
+	right: 24px;
+	z-index: 300;
+	width: 320px;
+	max-width: calc(100vw - 48px);
+	background: #fff;
+	border-radius: 12px;
+	padding: 20px 24px 24px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.06);
+	animation: bw-fade-in 0.15s ease;
+}
+
+.bw-image-edit-panel[hidden] {
+	display: none;
+}
+
+@media (max-width: 640px) {
+
+	.bw-image-edit-panel {
+		right: 0;
+		bottom: 0;
+		left: 0;
+		width: auto;
+		max-width: none;
+		border-radius: 12px 12px 0 0;
+		padding: 16px 16px max(20px, env(safe-area-inset-bottom));
+		box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.06);
+		animation: bw-slide-up 0.2s ease;
+	}
+}
+
+@keyframes bw-slide-up {
+
+	from {
+		transform: translateY(100%);
+	}
+
+	to {
+		transform: translateY(0);
+	}
+}
+
+.bw-edit-panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin: 0 0 16px;
+	gap: 8px;
+}
+
+.bw-edit-panel-title {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 600;
+	color: #1a1a1a;
+}
+
+.bw-edit-panel-close {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	border: none;
+	border-radius: 4px;
+	background: transparent;
+	color: #555;
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+	transition: background 0.12s ease, color 0.12s ease;
+}
+
+.bw-edit-panel-close:hover,
+.bw-edit-panel-close:focus {
+	background: rgba(0, 0, 0, 0.06);
+	color: #1a1a1a;
+}
+
+.bw-edit-panel-done {
+	width: 100%;
+	margin-top: 16px;
+}
+
+/* Per-section label + radio-button row inside the edit panel. */
+.bw-edit-section {
+	margin-top: 16px;
+}
+
+.bw-edit-section[hidden] {
+	display: none;
+}
+
+.bw-edit-label {
+	display: block;
+	font-size: 12px;
+	font-weight: 600;
+	color: #555;
+	margin-bottom: 6px;
+	letter-spacing: 0.02em;
+}
+
+.bw-edit-radios {
+	display: flex;
+	gap: 4px;
+	background: #f3f4f6;
+	border-radius: 8px;
+	padding: 4px;
+}
+
+.bw-edit-size-option,
+.bw-edit-align-option {
+	flex: 1;
+	padding: 6px 10px;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 13px;
+	color: #555;
+	transition: background 0.12s ease, color 0.12s ease;
+}
+
+.bw-edit-size-option:hover,
+.bw-edit-align-option:hover {
+	background: color-mix(in srgb, var(--wp-components-color-accent, #3858e9) 8%, transparent);
+}
+
+.bw-edit-size-option[aria-checked="true"],
+.bw-edit-align-option[aria-checked="true"] {
+	background: #fff;
+	color: #1a1a1a;
+	font-weight: 600;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 /* ===== Post picker modal ===== */
@@ -2001,10 +2316,9 @@
 	align-items: center;
 }
 
+/* Radius and padding come from .bw-btn so this matches every other button. */
 .bw-postpicker-go {
 	flex-shrink: 0;
-	border-radius: 8px;
-	padding: 10px 16px;
 	white-space: nowrap;
 }
 
@@ -2017,7 +2331,7 @@
 	width: 52px;
 	height: 52px;
 	border-radius: 50%;
-	background: #2171b1;
+	background: var(--wp-components-color-accent, #3858e9);
 	color: #fff;
 	font-size: 22px;
 	display: flex;
@@ -2072,12 +2386,39 @@
 		padding: 0 16px;
 	}
 
+	/*
+	 * The topbar status mirrors the post title ("Untitled" when
+	 * empty), which on a narrow topbar collides with the anon
+	 * "WordPress.com · Write" / "Not signed in" labels + Publish.
+	 * When idle, hide the title mirror and pin the actions right. The
+	 * has-topbar-message class (data-wp-class, driven by
+	 * state.hasMessage) marks when a transient message is showing
+	 * (Saving/Saved, "Please write something").
+	 */
+	.bw-topbar:not(.has-topbar-message) .bw-status {
+		display: none;
+	}
+
+	.bw-topbar-actions {
+		margin-left: auto;
+	}
+
+	/*
+	 * While a message is showing, let it take over the bar: hide the
+	 * brand wordmark and "Not signed in" so the centered message uses
+	 * the full width instead of being squished between them. Both
+	 * reappear once the message clears.
+	 */
+	.bw-topbar.has-topbar-message .bw-anon-brand,
+	.bw-topbar.has-topbar-message .bw-anon-status {
+		display: none;
+	}
+
 	.bw-editor {
 		padding: 0 16px;
 	}
 
-	.bw-recovery-banner,
-	.bw-disclaimer-banner {
+	.bw-recovery-banner {
 		padding: 0 16px;
 	}
 
@@ -2148,4 +2489,42 @@
 		width: 100%;
 		flex: 1;
 	}
+}
+
+/*
+ * Anonymous (logged-out) Write editor: hide UI surfaces that have no working
+ * counterpart for a visitor without an authenticated session. The `bw-anon`
+ * class is added to <html> by view.js when window.wpcomWriteIsAnon is true.
+ * Hides pair with early-returns in view.js actions — CSS hides the affordance,
+ * JS guards programmatic call paths (e.g. slash menu) and any URL-bar reach.
+ */
+html.bw-anon .bw-back,
+html.bw-anon .bw-help-wrap,
+html.bw-anon .bw-more-wrap,
+html.bw-anon .bw-btn-draft,
+html.bw-anon .bw-toolbar [data-wp-on--click="actions.openImageModal"],
+html.bw-anon #bw-slash-opt-image,
+html.bw-anon .bw-unsupported-open-editor {
+	display: none !important;
+}
+
+/*
+ * Brand text on the left, "Not signed in" indicator before Publish. Both are
+ * injected by view.js when window.wpcomWriteIsAnon is true so they participate
+ * in the same i18n string table the editor already uses.
+ */
+.bw-anon-brand {
+	font-size: 13px;
+	font-weight: 500;
+	color: #1d2327;
+	white-space: nowrap;
+	margin-right: 8px;
+}
+
+.bw-anon-status {
+	font-size: 13px;
+	color: #757575;
+	white-space: nowrap;
+	align-self: center;
+	margin-right: 4px;
 }

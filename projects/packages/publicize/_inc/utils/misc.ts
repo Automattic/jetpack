@@ -27,18 +27,3 @@ export function getA11yLabelForConnectionToggle( connection: Connection ) {
 		connection.service_label
 	);
 }
-
-/**
- * Get the accessibility label for a connection preview.
- * @param {Connection} connection - The social media connection.
- *
- * @return The accessibility label.
- */
-export function getA11yLabelForConnectionPreview( connection: Connection ) {
-	return sprintf(
-		/* translators: 1: Social account name, 2: Social network name like "Tumblr" */
-		__( 'Preview for %1$s on %2$s', 'jetpack-publicize-pkg' ),
-		connection.display_name,
-		connection.service_label
-	);
-}

@@ -59,6 +59,7 @@ class Search_Blocks_Test extends TestCase {
 			'nonce',
 			'isPrivateSite',
 			'isWpcom',
+			'isPhotonEnabled',
 			'isWooCommerceBlocksEnabled',
 			'homeUrl',
 			'locale',
@@ -1322,6 +1323,57 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * The `wp_body_open` registration itself stays unconditional (SEARCH-299)
+	 * — the module gate lives inside the callback instead.
+	 */
+	public function test_init_registers_theme_token_sampler_hook_regardless_of_module_state() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( false );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+
+		Search_Blocks::init();
+
+		$this->assertNotFalse(
+			has_action( 'wp_body_open', array( Search_Blocks::class, 'print_theme_token_sampler' ) ),
+			'print_theme_token_sampler must hook into wp_body_open even while the module is inactive'
+		);
+	}
+
+	/**
+	 * The sampler script prints on the front end while the Search module is active.
+	 */
+	public function test_print_theme_token_sampler_prints_when_module_active() {
+		$this->set_module_active( true );
+
+		ob_start();
+		Search_Blocks::print_theme_token_sampler();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString(
+			"id='jetpack-search-theme-token-sampler'",
+			$output,
+			'The sampler script must print on the front end while the Search module is active.'
+		);
+	}
+
+	/**
+	 * Disabling the Search module stops the sampler script from printing (SEARCH-299).
+	 */
+	public function test_print_theme_token_sampler_skipped_when_module_inactive() {
+		$this->set_module_active( false );
+
+		ob_start();
+		Search_Blocks::print_theme_token_sampler();
+		$output = ob_get_clean();
+
+		$this->assertSame(
+			'',
+			$output,
+			'The sampler script must not print once the Search module is disabled.'
+		);
+	}
+
+	/**
 	 * Read the private `registered` map off the WP_Script_Modules singleton.
 	 *
 	 * @return array<string,array> Registered script modules keyed by id.
@@ -2565,6 +2617,95 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Seed `$GLOBALS['post']` with a saved post; content is set in-memory
+	 * post-fetch to avoid wp_insert_post()'s KSES pass mangling block JSON.
+	 *
+	 * @param string $post_content Raw post content, block markup included.
+	 * @return callable Cleanup callback — call from `finally`.
+	 */
+	private function seed_current_post( string $post_content ): callable {
+		$original_post      = $GLOBALS['post'] ?? null;
+		$post_id            = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'collect_filter_configs_from_post fixture',
+			)
+		);
+		$post               = get_post( $post_id );
+		$post->post_content = $post_content;
+		$GLOBALS['post']    = $post;
+
+		return static function () use ( $original_post, $post_id ) {
+			$GLOBALS['post'] = $original_post;
+			wp_delete_post( $post_id, true );
+		};
+	}
+
+	/**
+	 * SEARCH-295: a large body with no filter blocks must skip parse_blocks().
+	 */
+	public function test_collect_filter_configs_from_post_returns_empty_for_large_body_without_filter_blocks() {
+		$paragraph     = "<!-- wp:paragraph -->\n<p>" . str_repeat( 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ', 20 ) . "</p>\n<!-- /wp:paragraph -->\n\n";
+		$large_content = str_repeat( $paragraph, 3000 );
+		$helper_names  = array_keys( $this->invoke_protected( 'filter_block_helpers' ) );
+
+		$cleanup = $this->seed_current_post( $large_content );
+		try {
+			$this->assertFalse( $this->invoke_protected( 'post_content_has_filter_block', $GLOBALS['post'], $helper_names ) );
+			$configs = $this->invoke_protected( 'collect_filter_configs_from_post' );
+			$this->assertSame( array(), $configs );
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * Posts that do contain a filter block must collect its config as before.
+	 */
+	public function test_collect_filter_configs_from_post_still_collects_configs_when_filter_block_present() {
+		$content      = '<!-- wp:paragraph --><p>Intro text.</p><!-- /wp:paragraph -->' .
+			'<!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"category"} /-->';
+		$helper_names = array_keys( $this->invoke_protected( 'filter_block_helpers' ) );
+
+		$cleanup = $this->seed_current_post( $content );
+		try {
+			$this->assertTrue( $this->invoke_protected( 'post_content_has_filter_block', $GLOBALS['post'], $helper_names ) );
+			$configs  = $this->invoke_protected( 'collect_filter_configs_from_post' );
+			$expected = Filter_Checkbox::build_config(
+				array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'category',
+				),
+				'category'
+			);
+			$this->assertSame( array( 'category' => $expected ), $configs );
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * A WC-only block name in a non-Woo post's body must not match — the
+	 * scan uses the helper-derived name list, not a blanket prefix.
+	 */
+	public function test_collect_filter_configs_from_post_ignores_wc_only_block_name_on_non_woo_site() {
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( false );
+		$content = '<!-- wp:jetpack-search/filter-wc-stock-status /-->';
+
+		$cleanup = $this->seed_current_post( $content );
+		try {
+			$helper_names = array_keys( $this->invoke_protected( 'filter_block_helpers' ) );
+			$this->assertNotContains( 'jetpack-search/filter-wc-stock-status', $helper_names );
+			$this->assertFalse( $this->invoke_protected( 'post_content_has_filter_block', $GLOBALS['post'], $helper_names ) );
+			$configs = $this->invoke_protected( 'collect_filter_configs_from_post' );
+			$this->assertSame( array(), $configs );
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
 	 * `min_price` / `max_price` are WC-only; `filter-wc-price` isn't
 	 * Registered on non-Woo sites. A stray deep link must not seed the
 	 * `priceRange` slice — otherwise the JS store would re-emit the params
@@ -3034,6 +3175,135 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Instant Search query-customization options seed into the blocks store
+	 * so Embedded / Overlay Blocks honor the same `jetpack_instant_search_options`
+	 * filter as Instant Search and Inline Search.
+	 */
+	public function test_get_instant_search_query_options_defaults() {
+		$options = Search_Blocks::get_instant_search_query_options();
+		$this->assertFalse( $options['highlightPhraseOnly'] );
+		$this->assertSame( array(), $options['highlightFilterStopwords'] );
+		$this->assertNull( $options['highlightFields'] );
+		$this->assertSame( array(), $options['additionalBlogIds'] );
+		$this->assertNull( $options['adminQueryFilter'] );
+		$this->assertSame( array(), $options['customResults'] );
+	}
+
+	/**
+	 * Highlight + admin filter + customResults keys from the Instant Search
+	 * options filter round-trip into the helper used by the seed.
+	 */
+	public function test_get_instant_search_query_options_reads_filter() {
+		$callback = static function ( $options ) {
+			$options['highlightPhraseOnly']      = true;
+			$options['highlightFilterStopwords'] = array( 'the', 'a', '' );
+			$options['highlightFields']          = array( 'title', '' );
+			$options['additionalBlogIds']        = array( 123, 456 );
+			$options['adminQueryFilter']         = array(
+				'term' => array( 'post_type' => 'post' ),
+			);
+			$options['customResults']            = array(
+				array(
+					'pattern' => 'hello',
+					'ids'     => array( 11, 22 ),
+				),
+				array(
+					'pattern' => 'missing-ids',
+				),
+			);
+			return $options;
+		};
+		$options  = array(
+			'highlightPhraseOnly'      => false,
+			'highlightFilterStopwords' => array(),
+			'highlightFields'          => null,
+			'additionalBlogIds'        => array(),
+			'adminQueryFilter'         => null,
+			'customResults'            => array(),
+		);
+		add_filter( 'jetpack_instant_search_options', $callback );
+		try {
+			$options = Search_Blocks::get_instant_search_query_options();
+		} finally {
+			remove_filter( 'jetpack_instant_search_options', $callback );
+		}
+
+		$this->assertTrue( $options['highlightPhraseOnly'] );
+		// Stopwords drop when combined with phrase-only — the API rejects both together.
+		$this->assertSame( array(), $options['highlightFilterStopwords'] );
+		$this->assertSame( array( 'title' ), $options['highlightFields'] );
+		$this->assertSame( array( 123, 456 ), $options['additionalBlogIds'] );
+		$this->assertSame(
+			array( 'term' => array( 'post_type' => 'post' ) ),
+			$options['adminQueryFilter']
+		);
+		$this->assertSame(
+			array(
+				array(
+					'pattern' => 'hello',
+					'ids'     => array( 11, 22 ),
+				),
+			),
+			$options['customResults']
+		);
+	}
+
+	/**
+	 * `build_initial_state()` surfaces the Instant Search query options so
+	 * the Interactivity API store can forward them on every fetch.
+	 */
+	public function test_build_initial_state_seeds_instant_search_query_options() {
+		$callback = static function ( $options ) {
+			// Stopwords only — combining with phrase-only would drop them (API constraint).
+			$options['highlightFilterStopwords'] = array( 'the' );
+			$options['highlightFields']          = array( 'title', 'content' );
+			$options['additionalBlogIds']        = array( 99 );
+			$options['adminQueryFilter']         = array(
+				'term' => array( 'post_type' => 'page' ),
+			);
+			$options['customResults']            = array(
+				array(
+					'pattern' => 'promo',
+					'ids'     => array( 5 ),
+				),
+			);
+			return $options;
+		};
+		$state    = array(
+			'highlightPhraseOnly'      => false,
+			'highlightFilterStopwords' => array(),
+			'highlightFields'          => null,
+			'additionalBlogIds'        => array(),
+			'adminQueryFilter'         => null,
+			'customResults'            => array(),
+		);
+		add_filter( 'jetpack_instant_search_options', $callback );
+		try {
+			$state = Search_Blocks::build_initial_state();
+		} finally {
+			remove_filter( 'jetpack_instant_search_options', $callback );
+		}
+
+		$this->assertFalse( $state['highlightPhraseOnly'] );
+		$this->assertSame( array( 'the' ), $state['highlightFilterStopwords'] );
+		$this->assertSame( array( 'title', 'content' ), $state['highlightFields'] );
+		$this->assertSame( array( 99 ), $state['additionalBlogIds'] );
+		$this->assertSame(
+			array( 'term' => array( 'post_type' => 'page' ) ),
+			$state['adminQueryFilter']
+		);
+		$this->assertSame(
+			array(
+				array(
+					'pattern' => 'promo',
+					'ids'     => array( 5 ),
+				),
+			),
+			$state['customResults']
+		);
+	}
+
+	/**
 	 * The resolver routes mapped slugs to their slot and unmapped slugs to
 	 * Themselves. Built-in slugs (covered by their own filter variations)
 	 * Always return verbatim regardless of map content, so a stray entry
@@ -3345,5 +3615,66 @@ class Search_Blocks_Test extends TestCase {
 				10
 			);
 		}
+	}
+	/**
+	 * A block directory may nest child blocks that only ever render inside it.
+	 * Without the descent the child is never registered, and its markup renders
+	 * as an unrecognized block.
+	 */
+	public function test_block_directories_includes_nested_child_blocks() {
+		$dirs = array_map( 'basename', Search_Blocks::block_directories() );
+		$this->assertContains( 'no-results', $dirs );
+		$this->assertContains( 'slot', $dirs, 'the no-results child block must be discovered' );
+	}
+
+	/**
+	 * Parents come before their children so a child is never registered against
+	 * a parent WordPress has not seen yet.
+	 */
+	public function test_block_directories_lists_a_parent_before_its_child() {
+		$paths  = array_map(
+			static function ( $dir ) {
+				return str_replace( '\\', '/', $dir );
+			},
+			Search_Blocks::block_directories()
+		);
+		$parent = null;
+		$child  = null;
+		foreach ( $paths as $i => $path ) {
+			if ( substr( $path, -strlen( '/blocks/no-results' ) ) === '/blocks/no-results' ) {
+				$parent = $i;
+			}
+			if ( substr( $path, -strlen( '/blocks/no-results/slot' ) ) === '/blocks/no-results/slot' ) {
+				$child = $i;
+			}
+		}
+		$this->assertNotNull( $parent );
+		$this->assertNotNull( $child );
+		$this->assertLessThan( $child, $parent );
+	}
+
+	/**
+	 * Every directory handed to `register_block_type()` must actually hold a
+	 * `block.json`, or registration emits a `_doing_it_wrong()` notice.
+	 */
+	public function test_block_directories_all_hold_a_block_json() {
+		foreach ( Search_Blocks::block_directories() as $dir ) {
+			$this->assertFileExists( $dir . '/block.json' );
+		}
+	}
+
+	/**
+	 * A child inherits its parent's WooCommerce gate for free — a skipped
+	 * parent is never descended into, so no orphan child slips through.
+	 */
+	public function test_block_directories_skips_woocommerce_only_blocks_when_gated_off() {
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( false );
+		$off = array_map( 'basename', Search_Blocks::block_directories() );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
+		$on = array_map( 'basename', Search_Blocks::block_directories() );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( null );
+
+		$this->assertContains( 'filters-product', $on );
+		$this->assertNotContains( 'filters-product', $off );
 	}
 }

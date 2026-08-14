@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -242,5 +243,441 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		// Should default to implicit (hidden field)
 		$this->assertStringContainsString( 'type=\'hidden\'', $html );
 		$this->assertStringContainsString( 'consent-implicit', $html );
+	}
+
+	/**
+	 * A grouped field whose legend label is fully hidden via block visibility
+	 * must render no <legend>, but must move the label onto the <fieldset> as an
+	 * aria-label so the group keeps an accessible name. Covers both fieldset code
+	 * paths — radio/checkbox-multiple/image-select (via $fieldset_id) and rating
+	 * (via sprintf). See FORMS-694.
+	 *
+	 * @dataProvider data_grouped_field_types
+	 *
+	 * @param string $type       The grouped field type.
+	 * @param array  $extra_atts Extra attributes needed to make the field renderable.
+	 */
+	#[DataProvider( 'data_grouped_field_types' )]
+	public function test_render_grouped_field_hidden_legend_keeps_accessible_name( $type, $extra_atts ) {
+		$field = $this->get_new_field_instance(
+			array_merge(
+				array(
+					'type'                         => $type,
+					'id'                           => 'test_group',
+					'label'                        => 'Pick one',
+					'labelhiddenbyblockvisibility' => true,
+				),
+				$extra_atts
+			)
+		);
+
+		$html = $field->render();
+
+		// The legend is dropped (no visible group label)...
+		$this->assertStringNotContainsString( '<legend', $html );
+		// ...but the accessible name is preserved on the fieldset.
+		$this->assertStringContainsString( "aria-label='Pick one'", $html );
+	}
+
+	/**
+	 * When the legend label is NOT hidden, the grouped field renders a normal
+	 * <legend> and does not add the aria-label fallback to the fieldset. Guards
+	 * the render-level behavior above against regressions. See FORMS-694.
+	 *
+	 * @dataProvider data_grouped_field_types
+	 *
+	 * @param string $type       The grouped field type.
+	 * @param array  $extra_atts Extra attributes needed to make the field renderable.
+	 */
+	#[DataProvider( 'data_grouped_field_types' )]
+	public function test_render_grouped_field_visible_legend_has_no_aria_label( $type, $extra_atts ) {
+		$field = $this->get_new_field_instance(
+			array_merge(
+				array(
+					'type'  => $type,
+					'id'    => 'test_group',
+					'label' => 'Pick one',
+				),
+				$extra_atts
+			)
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( '<legend', $html );
+		$this->assertStringContainsString( 'Pick one', $html );
+		$this->assertStringNotContainsString( "aria-label='Pick one'", $html );
+	}
+
+	/**
+	 * Grouped field types keyed by the two distinct <fieldset> code paths.
+	 *
+	 * @return array
+	 */
+	public static function data_grouped_field_types() {
+		return array(
+			// $fieldset_id path (shared by radio, checkbox-multiple, image-select).
+			'radio'             => array( 'radio', array( 'options' => array( 'A', 'B' ) ) ),
+			'checkbox-multiple' => array( 'checkbox-multiple', array( 'options' => array( 'A', 'B' ) ) ),
+			// sprintf path.
+			'rating'            => array( 'rating', array() ),
+		);
+	}
+
+	/**
+	 * Per-viewport hide: a grouped field whose legend label carries a
+	 * wp-block-hidden-{viewport} class is still rendered (display:none only on
+	 * that viewport), but the <fieldset> also gets an aria-label so the group
+	 * keeps an accessible name where the legend is hidden. See FORMS-694.
+	 */
+	public function test_render_grouped_field_per_viewport_hidden_legend_keeps_accessible_name() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'         => 'radio',
+				'id'           => 'test_group',
+				'label'        => 'Pick one',
+				'options'      => array( 'A', 'B' ),
+				'labelclasses' => 'wp-block-hidden-mobile',
+			)
+		);
+
+		$html = $field->render();
+
+		// The legend is still rendered (per-viewport is display:none, not removed)...
+		$this->assertStringContainsString( '<legend', $html );
+		$this->assertStringContainsString( 'wp-block-hidden-mobile', $html );
+		// ...and the accessible name is also on the fieldset for the hidden viewport.
+		$this->assertStringContainsString( "aria-label='Pick one'", $html );
+	}
+
+	/**
+	 * Per-viewport hide: a single input whose label carries a
+	 * wp-block-hidden-{viewport} class gets an aria-label (the label text, not the
+	 * placeholder) so it keeps an accessible name where the label is hidden. See
+	 * FORMS-694.
+	 */
+	public function test_render_input_per_viewport_hidden_label_keeps_accessible_name() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'         => 'text',
+				'id'           => 'test_text',
+				'label'        => 'Your name',
+				'placeholder'  => 'e.g. Jane',
+				'labelclasses' => 'wp-block-hidden-tablet',
+			)
+		);
+
+		$html = $field->render();
+
+		// The accessible name falls back to the label, matching the visible label.
+		$this->assertStringContainsString( "aria-label='Your name'", $html );
+		$this->assertStringNotContainsString( "aria-label='e.g. Jane'", $html );
+	}
+
+	/**
+	 * The slider's <input type="range"> gets the hidden-label aria-label fallback
+	 * too — it renders a bare range input with no other accessible name. See
+	 * FORMS-694.
+	 */
+	public function test_render_slider_hidden_label_keeps_accessible_name() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'                         => 'slider',
+				'id'                           => 'test_slider',
+				'label'                        => 'Rate us',
+				'labelhiddenbyblockvisibility' => true,
+			)
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'type="range"', $html );
+		$this->assertStringContainsString( "aria-label='Rate us'", $html );
+	}
+
+	/**
+	 * When the label is hidden but empty and there is no placeholder, no
+	 * aria-label attribute is emitted (rather than an empty or fragment value).
+	 * See FORMS-694.
+	 */
+	public function test_render_input_hidden_empty_label_emits_no_aria_label() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'                         => 'text',
+				'id'                           => 'test_text',
+				'label'                        => '',
+				'labelhiddenbyblockvisibility' => true,
+			)
+		);
+
+		$html = $field->render();
+
+		$this->assertStringNotContainsString( 'aria-label', $html );
+	}
+
+	/**
+	 * The file field's dropzone button gets a distinct accessible name when its
+	 * label is hidden (field label prefixed to the instruction) so two
+	 * hidden-label upload fields aren't announced identically, and falls back to
+	 * the plain instruction otherwise. Tested directly because the full file
+	 * render short-circuits without an active Jetpack. See FORMS-694.
+	 *
+	 * @dataProvider data_file_dropzone_aria_label
+	 *
+	 * @param array  $atts     Field attributes.
+	 * @param string $expected Expected dropzone accessible name.
+	 */
+	#[DataProvider( 'data_file_dropzone_aria_label' )]
+	public function test_file_dropzone_aria_label( $atts, $expected ) {
+		$field  = $this->get_new_field_instance( array_merge( array( 'type' => 'file' ), $atts ) );
+		$method = new \ReflectionMethod( $field, 'get_file_dropzone_aria_label' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame( $expected, $method->invoke( $field ) );
+	}
+
+	/**
+	 * Data provider for test_file_dropzone_aria_label.
+	 *
+	 * @return array
+	 */
+	public static function data_file_dropzone_aria_label() {
+		return array(
+			'visible label'          => array( array( 'label' => 'Resume' ), 'Select a file to upload.' ),
+			'full-hidden label'      => array(
+				array(
+					'label'                        => 'Resume',
+					'labelhiddenbyblockvisibility' => true,
+				),
+				'Resume: Select a file to upload.',
+			),
+			'per-viewport hidden'    => array(
+				array(
+					'label'        => 'Resume',
+					'labelclasses' => 'wp-block-hidden-mobile',
+				),
+				'Resume: Select a file to upload.',
+			),
+			'hidden but empty label' => array(
+				array(
+					'label'                        => '',
+					'labelhiddenbyblockvisibility' => true,
+				),
+				'Select a file to upload.',
+			),
+		);
+	}
+
+	/**
+	 * The hidden-label aria-label fallback reaches the other single-input render
+	 * paths too — textarea, select and the country-selector phone input each move
+	 * the label onto the control when it's hidden. See FORMS-694.
+	 *
+	 * @dataProvider data_single_input_render_paths
+	 *
+	 * @param array $atts Field attributes (type plus anything needed to render).
+	 */
+	#[DataProvider( 'data_single_input_render_paths' )]
+	public function test_render_single_input_hidden_label_keeps_accessible_name( $atts ) {
+		$hidden = $this->get_new_field_instance(
+			array_merge( array( 'label' => 'Your name' ), $atts, array( 'labelhiddenbyblockvisibility' => true ) )
+		);
+		$this->assertStringContainsString( "aria-label='Your name'", $hidden->render() );
+
+		// And no stray aria-label when the label is visible.
+		$shown = $this->get_new_field_instance( array_merge( array( 'label' => 'Your name' ), $atts ) );
+		$this->assertStringNotContainsString( "aria-label='Your name'", $shown->render() );
+	}
+
+	/**
+	 * Data provider for test_render_single_input_hidden_label_keeps_accessible_name.
+	 *
+	 * @return array
+	 */
+	public static function data_single_input_render_paths() {
+		return array(
+			'textarea'          => array( array( 'type' => 'textarea' ) ),
+			'select'            => array(
+				array(
+					'type'    => 'select',
+					'options' => array( 'A', 'B' ),
+				),
+			),
+			'phone w/ selector' => array(
+				array(
+					'type'                => 'phone',
+					'showcountryselector' => true,
+				),
+			),
+		);
+	}
+
+	/**
+	 * Invoke the private file-field content sanitizer.
+	 *
+	 * Tested directly because the full file render short-circuits without an active
+	 * Jetpack (see test_file_dropzone_aria_label).
+	 *
+	 * @param string|null $content Raw field content.
+	 *
+	 * @return string
+	 */
+	private function sanitize_file_content( $content ) {
+		$field  = $this->get_new_field_instance( array( 'type' => 'file' ) );
+		$method = new \ReflectionMethod( $field, 'sanitize_file_field_content' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method->invoke( $field, $content );
+	}
+
+	/**
+	 * The file field's inner content is entity-decoded before output so the dropzone's
+	 * inner blocks render (they are stored esc_html()-encoded by
+	 * Contact_Form::parse_contact_field()). An author without unfiltered_html can abuse
+	 * that by storing entity-encoded markup, which post-save KSES never inspects because
+	 * it is plain text at that point. Decoded output must therefore be filtered.
+	 *
+	 * @dataProvider data_file_field_content_xss
+	 *
+	 * @param string $content Entity-encoded field content.
+	 */
+	#[DataProvider( 'data_file_field_content_xss' )]
+	public function test_file_field_content_strips_executable_markup( $content ) {
+		$output = $this->sanitize_file_content( $content );
+
+		$this->assertDoesNotMatchRegularExpression( '/<\s*script/i', $output );
+		$this->assertDoesNotMatchRegularExpression( '/<[^>]+\son[a-z]+\s*=/i', $output );
+		$this->assertStringNotContainsString( '<iframe', $output );
+	}
+
+	/**
+	 * Data provider for test_file_field_content_strips_executable_markup.
+	 *
+	 * @return array
+	 */
+	public static function data_file_field_content_xss() {
+		return array(
+			'img onerror'      => array( '&lt;img src=x onerror=alert(document.domain)&gt;' ),
+			'script tag'       => array( '&lt;script&gt;alert(1)&lt;/script&gt;' ),
+			'svg onload'       => array( '&lt;svg onload=alert(1)&gt;&lt;/svg&gt;' ),
+			'iframe'           => array( '&lt;iframe src="//evil.example"&gt;&lt;/iframe&gt;' ),
+			'div onmouseover'  => array( '&lt;div onmouseover=alert(1)&gt;hi&lt;/div&gt;' ),
+			'script in svg'    => array( '&lt;svg&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;/svg&gt;' ),
+			'body onload'      => array( '&lt;body onload=alert(1)&gt;' ),
+			'already-raw html' => array( '<img src=x onerror=alert(1)>' ),
+		);
+	}
+
+	/**
+	 * Double-encoding must not survive as live markup either: it decodes to escaped text
+	 * (&lt;img …&gt;), which the browser renders as characters rather than an element.
+	 */
+	public function test_file_field_content_double_encoding_stays_inert() {
+		$output = $this->sanitize_file_content( '&amp;lt;img src=x onerror=alert(1)&amp;gt;' );
+
+		$this->assertStringNotContainsString( '<img', $output );
+		$this->assertStringContainsString( '&lt;img', $output );
+	}
+
+	/**
+	 * Links using the javascript: scheme in the decoded content must lose that scheme.
+	 */
+	public function test_file_field_content_strips_javascript_urls() {
+		$output = $this->sanitize_file_content( '&lt;a href="javascript:alert(1)"&gt;x&lt;/a&gt;' );
+
+		$this->assertStringNotContainsString( 'javascript:', $output );
+	}
+
+	/**
+	 * The legitimate dropzone markup must still render. It reaches this method
+	 * esc_html()-encoded, and has to survive the round trip intact - including the
+	 * tabindex Contact_Form_Plugin::gutenblock_render_dropzone() adds to keep the
+	 * dropzone a single tab stop, and the inline SVG core/icon emits.
+	 */
+	public function test_file_field_content_preserves_dropzone_markup() {
+		$output = $this->sanitize_file_content(
+			esc_html(
+				'<div class="wp-block-jetpack-dropzone">'
+				. '<p class="has-text-align-center">Drag and drop or <strong>browse</strong></p>'
+				. '<div class="wp-block-button"><a class="wp-block-button__link" tabindex="-1">Choose file</a></div>'
+				. '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true"><path d="M12 3l4 4h-3v6h-2V7H8z"></path></svg>'
+				. '<hr class="wp-block-separator" />'
+				. '</div>'
+			)
+		);
+
+		$this->assertStringContainsString( 'wp-block-jetpack-dropzone', $output );
+		$this->assertStringContainsString( '<strong>browse</strong>', $output );
+		$this->assertStringContainsString( 'tabindex="-1"', $output );
+		$this->assertStringContainsString( '<svg', $output );
+		$this->assertStringContainsString( '<path', $output );
+		$this->assertStringContainsString( '<hr', $output );
+	}
+
+	/**
+	 * The core/image block is an allowed dropzone inner block, so responsive-image attributes
+	 * have to survive. The stock post allowlist omits srcset/sizes/decoding, which would
+	 * silently degrade the image to its full-size source.
+	 */
+	public function test_file_field_content_preserves_responsive_image_attributes() {
+		$output = $this->sanitize_file_content(
+			esc_html(
+				'<figure class="wp-block-image size-large"><img src="https://example.com/a.png"'
+				. ' alt="x" class="wp-image-1"'
+				. ' srcset="https://example.com/a-300.png 300w, https://example.com/a.png 900w"'
+				. ' sizes="(max-width: 900px) 100vw, 900px" decoding="async" loading="lazy" /></figure>'
+			)
+		);
+
+		$this->assertStringContainsString( 'srcset=', $output );
+		$this->assertStringContainsString( 'sizes=', $output );
+		$this->assertStringContainsString( 'decoding=', $output );
+		$this->assertStringContainsString( 'loading=', $output );
+	}
+
+	/**
+	 * The core/icon block serializes rotation as `rotate: <deg>`, which is not in WordPress's
+	 * safe_style_css list. Without the scoped filter the icon would render unrotated.
+	 */
+	public function test_file_field_content_preserves_icon_rotation() {
+		$output = $this->sanitize_file_content(
+			esc_html( '<svg style="width:48px;rotate: 45deg;" viewBox="0 0 24 24"><path d="M12 3l4 4h-3z"></path></svg>' )
+		);
+
+		$this->assertStringContainsString( 'rotate', $output );
+	}
+
+	/**
+	 * The safe_style_css filter that allows `rotate` must not outlive the sanitize call.
+	 */
+	public function test_file_field_content_rotate_filter_does_not_leak() {
+		$this->sanitize_file_content( esc_html( '<svg style="rotate: 45deg;"></svg>' ) );
+
+		$this->assertStringNotContainsString( 'rotate', safecss_filter_attr( 'width:48px;rotate: 45deg;' ) );
+	}
+
+	/**
+	 * `style` is not allowed on SVG children: safecss_filter_attr() strips the presentation
+	 * properties that would justify it, while still permitting position:fixed overlays.
+	 */
+	public function test_file_field_content_blocks_style_on_svg_children() {
+		$output = $this->sanitize_file_content(
+			esc_html( '<svg><path style="position:fixed;top:0;left:0;width:100vw;height:100vh" d="M0 0"></path></svg>' )
+		);
+
+		$this->assertStringNotContainsString( 'position:fixed', $output );
+		$this->assertStringContainsString( '<path', $output );
+	}
+
+	/**
+	 * Empty and non-string content is handled without notices.
+	 */
+	public function test_file_field_content_handles_empty_content() {
+		$this->assertSame( '', $this->sanitize_file_content( null ) );
+		$this->assertSame( '', $this->sanitize_file_content( '' ) );
 	}
 } // end class

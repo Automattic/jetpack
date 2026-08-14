@@ -54,6 +54,8 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 	public function set_up() {
 		parent::set_up();
 
+		$this->image_name = 'example_image-' . getmypid() . '-' . uniqid();
+
 		wp_set_current_user( static::$user_id );
 
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ) );
@@ -110,11 +112,6 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 	 * Tests copy response with pexels while not setting metadata.
 	 */
 	public function test_copy_image() {
-		$tmp_name = $this->get_temp_name( static::$image_path );
-		if ( file_exists( $tmp_name ) ) {
-			unlink( $tmp_name );
-		}
-
 		add_filter( 'pre_http_request', array( $this, 'mock_image_data' ), 10, 3 );
 		add_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
 		add_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
@@ -157,11 +154,6 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 	 * Tests copy response with pexels while setting metadata.
 	 */
 	public function test_copy_image_meta() {
-		$tmp_name = $this->get_temp_name( static::$image_path );
-		if ( file_exists( $tmp_name ) ) {
-			unlink( $tmp_name );
-		}
-
 		add_filter( 'pre_http_request', array( $this, 'mock_image_data' ), 10, 3 );
 		add_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
 		add_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
@@ -221,11 +213,6 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 	 * Tests copy response with pexels while setting metadata: Invalid meta keys should fail.
 	 */
 	public function test_copy_image_meta_invalid_meta_key() {
-		$tmp_name = $this->get_temp_name( static::$image_path );
-		if ( file_exists( $tmp_name ) ) {
-			unlink( $tmp_name );
-		}
-
 		add_filter( 'pre_http_request', array( $this, 'mock_image_data' ), 10, 3 );
 		add_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
 		add_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
@@ -262,6 +249,104 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 
 		$this->assertEquals( 400, $response->status );
 		$this->assertEquals( 'this_meta_key is not a valid property of Object.', $response->data['data']['params']['media'] );
+	}
+
+	/**
+	 * The attacker-controlled guid.name must never influence the physical
+	 * temporary file the download is streamed into. Whatever name is supplied,
+	 * the temporary file is a random .tmp created by wp_tempnam() inside the
+	 * system temp directory — so a crafted name can neither traverse out of that
+	 * directory nor pick a dangerous (e.g. .php) extension.
+	 *
+	 * @dataProvider provide_traversal_names
+	 *
+	 * @param mixed $malicious_name The attacker-controlled guid.name value.
+	 */
+	#[DataProvider( 'provide_traversal_names' )]
+	public function test_get_download_url_ignores_supplied_name_for_temp_file( $malicious_name ) {
+		add_filter( 'pre_http_request', array( $this, 'mock_image_data' ), 10, 3 );
+
+		$endpoint = new WPCOM_REST_API_V2_Endpoint_External_Media();
+		$path     = $endpoint->get_download_url(
+			array(
+				'name' => $malicious_name,
+				'url'  => static::$image_path,
+			)
+		);
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_image_data' ) );
+
+		$this->assertNotWPError( $path );
+
+		$temp_dir = realpath( get_temp_dir() );
+		$base     = basename( $path );
+
+		// Temporary file lives inside the system temp dir, has a safe .tmp
+		// extension, and reflects none of the attacker-supplied name.
+		$this->assertStringStartsWith( $temp_dir, (string) realpath( $path ) );
+		$this->assertStringEndsWith( '.tmp', $base );
+		$this->assertStringNotContainsString( '..', $path );
+		$this->assertStringNotContainsString( '/', $base );
+		$this->assertStringNotContainsString( '\\', $base );
+		$this->assertStringNotContainsString( 'rce', $base );
+
+		if ( file_exists( $path ) ) {
+			unlink( $path );
+		}
+	}
+
+	/**
+	 * Data provider of crafted guid.name values, none of which may reach the
+	 * temporary file name.
+	 *
+	 * @return array<string, array{0: mixed}>
+	 */
+	public static function provide_traversal_names() {
+		return array(
+			'unix traversal into uploads' => array( '../var/www/html/wordpress/wp-content/uploads/rce.php' ),
+			'relative parent prefix'      => array( '../../rce.php' ),
+			'windows separators'          => array( '..\\..\\rce.php' ),
+			'pure traversal'              => array( '../..' ),
+			'null name'                   => array( null ),
+			'array name'                  => array( array( '../../rce.php' ) ),
+		);
+	}
+
+	/**
+	 * The finished download must always land inside the uploads directory, even
+	 * when guid.name carries traversal segments. sideload_media() reduces the
+	 * caller-supplied name to a sanitized basename before handing it to core, so
+	 * a crafted name can neither escape wp_upload_dir() nor keep its traversal
+	 * path in the stored file.
+	 */
+	public function test_sideload_media_confines_traversal_name_to_uploads() {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$tmp_file = wp_tempnam();
+		copy( static::$image_path, $tmp_file );
+
+		// A unique basename keeps wp_unique_filename() from appending a "-1"
+		// collision suffix if the test runs alongside others sharing the uploads
+		// directory, so the assertion below stays about traversal, not naming.
+		$safe_name     = 'evil-' . uniqid() . '.jpg';
+		$endpoint      = new WPCOM_REST_API_V2_Endpoint_External_Media();
+		$attachment_id = $endpoint->sideload_media( '../../../../' . $safe_name, $tmp_file );
+
+		if ( is_wp_error( $attachment_id ) && file_exists( $tmp_file ) ) {
+			unlink( $tmp_file );
+		}
+		$this->assertNotWPError( $attachment_id );
+
+		$attached_file = (string) realpath( get_attached_file( $attachment_id ) );
+		$uploads_path  = realpath( wp_upload_dir()['path'] );
+
+		// The stored file is inside the uploads directory and its name is reduced
+		// to the bare basename, with the traversal prefix stripped.
+		$this->assertStringStartsWith( $uploads_path, $attached_file );
+		$this->assertStringNotContainsString( '..', $attached_file );
+		$this->assertSame( $safe_name, basename( $attached_file ) );
 	}
 
 	/**
@@ -492,54 +577,6 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 				'message' => 'Server Error',
 			),
 		);
-	}
-
-	/**
-	 * Re-creates a temporary file name so we can clean up after ourselves.
-	 *
-	 * @param string $filename File name.
-	 * @param string $dir      Temp directory. Dafault empty.
-	 *
-	 * @return string|string[]|null
-	 */
-	public function get_temp_name( $filename, $dir = '' ) {
-		if ( empty( $dir ) ) {
-			$dir = get_temp_dir();
-		}
-
-		if ( empty( $filename ) || in_array( $filename, array( '.', '/', '\\' ), true ) ) {
-			$filename = uniqid();
-		}
-
-		// Use the basename of the given file without the extension as the name for the temporary directory.
-		$temp_filename = basename( $filename );
-		$temp_filename = preg_replace( '|\.[^.]*$|', '', $temp_filename );
-
-		// If the folder is falsey, use its parent directory name instead.
-		if ( ! $temp_filename ) {
-			return wp_tempnam( dirname( $filename ), $dir );
-		}
-
-		// Suffix some random data to avoid filename conflicts.
-		$temp_filename .= '-' . wp_generate_password( 6, false );
-		$temp_filename .= '.tmp';
-
-		add_filter( 'wp_unique_filename', array( $this, 'get_file_name' ) );
-		$temp_filename = $dir . wp_unique_filename( $dir, $temp_filename );
-		remove_filter( 'wp_unique_filename', array( $this, 'get_file_name' ) );
-
-		return $temp_filename;
-	}
-
-	/**
-	 * Filter callback to provide a similar file name as in tested class.
-	 *
-	 * @see WPCOM_REST_API_V2_Endpoint_External_Media::tmp_name()
-	 *
-	 * @return string
-	 */
-	public function get_file_name() {
-		return $this->image_name;
 	}
 
 	/**

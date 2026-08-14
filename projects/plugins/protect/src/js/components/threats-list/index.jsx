@@ -1,11 +1,5 @@
-import {
-	Container,
-	Col,
-	Title,
-	Button,
-	useBreakpointMatch,
-	Text,
-} from '@automattic/jetpack-components';
+import { Container, Col, Title, Button, Text } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
@@ -24,7 +18,7 @@ import useThreatsList from './use-threats-list';
 const ThreatsList = () => {
 	const { hasPlan } = usePlan();
 	const { item, list, selected, setSelected } = useThreatsList();
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
 
 	const { data: status } = useScanStatusQuery();

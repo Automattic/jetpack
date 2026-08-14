@@ -1,6 +1,6 @@
 <?php
 /**
- * Podcast settings: option schema, REST exposure, and sync opt-in.
+ * Podcast settings: option schema, sanitizers, and Jetpack Sync opt-in.
  *
  * @package automattic/jetpack-podcast
  */
@@ -8,20 +8,15 @@
 namespace Automattic\Jetpack\Podcast;
 
 /**
- * Registers the `podcasting_*` options for `/wp/v2/settings` exposure on
- * Atomic. Simple stays on WPCOM's `site_settings_endpoint_get` filter in the
- * wpcom mu-plugin.
+ * Registers the `podcasting_*` options with their `sanitize_callback`s so writes
+ * through any path stay validated. The dashboard reads and writes them through the
+ * dedicated {@see Podcast_Settings_Endpoint} (`wpcom/v2/podcast/settings`); they
+ * are intentionally not exposed through core `/wp/v2/settings`.
  *
  * Array-shaped options merge against stored values on sanitize, not replace —
  * the SPA can PATCH partial entries without losing the rest.
  */
 class Settings {
-
-	/** Matches WPCOM's `register_setting('media', ...)` so the legacy Media Settings form keeps accepting these. */
-	const MEDIA_GROUP = 'media';
-
-	/** WPCOM doesn't register these with the Settings API; they're plain options exposed REST-only. */
-	const OPTIONS_GROUP = 'options';
 
 	/**
 	 * Per-podcatcher hostname allowlist for `podcasting_show_urls`. `www.` is
@@ -49,9 +44,6 @@ class Settings {
 
 	const SHOW_URL_MAX_LENGTH = 2048;
 
-	/** Allowed `podcasting_show_states` values. Empty string clears. */
-	const SHOW_STATES = array( 'pending', 'active' );
-
 	/**
 	 * Drives `register_settings()` and the sync whitelist.
 	 *
@@ -75,30 +67,23 @@ class Settings {
 	);
 
 	/**
-	 * Whether `register()` has wired its hooks.
-	 *
-	 * @var bool
-	 */
-	private static $registered = false;
-
-	/**
-	 * Wire option registrations + Jetpack Sync opt-in. Idempotent.
+	 * Wire option registrations + Jetpack Sync opt-in. Idempotent: every
+	 * callback is named, so WordPress dedupes repeat calls.
 	 */
 	public static function register() {
-		if ( self::$registered ) {
-			return;
-		}
-		self::$registered = true;
-
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_settings' ) );
+		add_filter( 'jetpack_sync_options_whitelist', array( __CLASS__, 'add_to_sync_whitelist' ) );
+	}
 
-		add_filter(
-			'jetpack_sync_options_whitelist',
-			static function ( $options ) {
-				return array_merge( $options, self::OPTION_NAMES );
-			}
-		);
+	/**
+	 * Add the podcast options to the Jetpack Sync whitelist.
+	 *
+	 * @param string[] $options Whitelisted option names.
+	 * @return string[]
+	 */
+	public static function add_to_sync_whitelist( $options ) {
+		return array_merge( $options, self::OPTION_NAMES );
 	}
 
 	/**
@@ -116,117 +101,166 @@ class Settings {
 			array( 'podcasting_category_3', 'string', '', 'sanitize_text_field' ),
 		);
 
+		// Registered under WP core's `media` group to match WPCOM's legacy Media
+		// Settings form, so it keeps accepting these.
 		foreach ( $media_settings as list( $name, $type, $default, $sanitize ) ) {
 			register_setting(
-				self::MEDIA_GROUP,
+				'media',
 				$name,
 				array(
 					'type'              => $type,
 					'default'           => $default,
 					'sanitize_callback' => $sanitize,
-					'show_in_rest'      => true,
 				)
 			);
 		}
 
 		register_setting(
-			self::MEDIA_GROUP,
+			'media',
 			'podcasting_image',
 			array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'esc_url_raw',
-				'show_in_rest'      => array(
-					'schema' => array(
-						'type'    => 'string',
-						'default' => '',
-						'format'  => 'uri',
-					),
-				),
 			)
 		);
 
 		register_setting(
-			self::MEDIA_GROUP,
+			'media',
 			'podcasting_explicit',
 			array(
 				'type'              => 'boolean',
 				'default'           => false,
 				'sanitize_callback' => array( __CLASS__, 'sanitize_explicit' ),
-				'show_in_rest'      => true,
 			)
 		);
 
+		// Registered under WP core's `options` group: settings WPCOM never wired
+		// into a Settings API form.
 		register_setting(
-			self::OPTIONS_GROUP,
+			'options',
 			'podcasting_email',
 			array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_email',
-				'show_in_rest'      => true,
 			)
 		);
 
 		register_setting(
-			self::OPTIONS_GROUP,
+			'options',
 			'podcasting_image_id',
 			array(
 				'type'              => 'integer',
 				'default'           => 0,
 				'sanitize_callback' => 'absint',
-				'show_in_rest'      => true,
 			)
 		);
 
-		$podcatcher_keys = array_keys( self::SHOW_URL_HOSTS );
-		$empty_map       = array_fill_keys( $podcatcher_keys, '' );
-
 		register_setting(
-			self::OPTIONS_GROUP,
+			'options',
 			'podcasting_show_urls',
 			array(
 				'type'              => 'object',
 				'default'           => array(),
 				'sanitize_callback' => array( __CLASS__, 'sanitize_show_urls' ),
-				'show_in_rest'      => array(
-					'schema' => array(
-						'type'       => 'object',
-						'default'    => $empty_map,
-						'properties' => array_fill_keys(
-							$podcatcher_keys,
-							array(
-								'type'      => 'string',
-								'format'    => 'uri',
-								'maxLength' => self::SHOW_URL_MAX_LENGTH,
-							)
-						),
-					),
-				),
 			)
 		);
 
 		register_setting(
-			self::OPTIONS_GROUP,
+			'options',
 			'podcasting_show_states',
 			array(
 				'type'              => 'object',
 				'default'           => array(),
 				'sanitize_callback' => array( __CLASS__, 'sanitize_show_states' ),
-				'show_in_rest'      => array(
-					'schema' => array(
-						'type'       => 'object',
-						'default'    => $empty_map,
-						'properties' => array_fill_keys(
-							$podcatcher_keys,
-							array(
-								'type' => 'string',
-								'enum' => array( '', 'pending', 'active' ),
-							)
-						),
-					),
-				),
 			)
+		);
+	}
+
+	/**
+	 * Stable, fully-padded settings payload for the REST endpoint. Every
+	 * `OPTION_NAMES` key is present; the two podcatcher maps are padded to all
+	 * known directories with empty strings so the SPA always sees a fixed shape.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function get_all(): array {
+		$empty_map   = array_fill_keys( array_keys( self::SHOW_URL_HOSTS ), '' );
+		$show_urls   = (array) get_option( 'podcasting_show_urls', array() );
+		$show_states = (array) get_option( 'podcasting_show_states', array() );
+
+		return array(
+			'podcasting_category_id' => (int) get_option( 'podcasting_category_id', 0 ),
+			'podcasting_title'       => (string) get_option( 'podcasting_title', '' ),
+			'podcasting_talent_name' => (string) get_option( 'podcasting_talent_name', '' ),
+			'podcasting_summary'     => (string) get_option( 'podcasting_summary', '' ),
+			'podcasting_copyright'   => (string) get_option( 'podcasting_copyright', '' ),
+			'podcasting_explicit'    => self::sanitize_explicit( get_option( 'podcasting_explicit', false ) ),
+			'podcasting_image'       => self::raw_show_image_url(),
+			'podcasting_image_id'    => (int) get_option( 'podcasting_image_id', 0 ),
+			'podcasting_category_1'  => (string) get_option( 'podcasting_category_1', '' ),
+			'podcasting_category_2'  => (string) get_option( 'podcasting_category_2', '' ),
+			'podcasting_category_3'  => (string) get_option( 'podcasting_category_3', '' ),
+			'podcasting_email'       => (string) get_option( 'podcasting_email', '' ),
+			'podcasting_show_urls'   => array_merge( $empty_map, array_intersect_key( $show_urls, $empty_map ) ),
+			'podcasting_show_states' => array_merge( $empty_map, array_intersect_key( $show_states, $empty_map ) ),
+			'podcasting_feed_url'    => self::feed_url(),
+		);
+	}
+
+	/**
+	 * Canonical RSS feed URL for the configured podcast category. Derived
+	 * read-only field on the settings payload — not a stored option.
+	 *
+	 * Built with WordPress's own {@see get_term_feed_link()} so it stays correct
+	 * across every permalink structure (pretty, plain `?cat=N`, no trailing
+	 * slash) and is identical on WPCOM and self-hosted. This is the URL the
+	 * category feed is actually served at — the SPA must not reconstruct it by
+	 * string-appending `feed/` to the archive link.
+	 *
+	 * @return string Feed URL, or '' when no valid category is configured.
+	 */
+	public static function feed_url(): string {
+		$category_id = (int) get_option( 'podcasting_category_id', 0 );
+		if ( $category_id <= 0 ) {
+			return '';
+		}
+		$link = get_term_feed_link( $category_id, 'category' );
+		if ( false === $link ) {
+			return '';
+		}
+		// get_term_feed_link() HTML-escapes the query separator (`&amp;`) in the
+		// plain-permalink form because core builds it for HTML attributes. The
+		// dashboard copies this straight into a directory submission field, so
+		// decode it back to a literal URL — otherwise `?feed=rss2&amp;cat=N` loses
+		// the `cat` filter and serves the whole-site feed instead of the category.
+		return html_entity_decode( $link, ENT_QUOTES );
+	}
+
+	/**
+	 * Per-key type map for the endpoint's update args. Type coercion only — the
+	 * registered `sanitize_callback`s do the real validation on write, so a single
+	 * bad field can't 400 the whole partial patch.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	public static function rest_schema_properties(): array {
+		return array(
+			'podcasting_category_id' => array( 'type' => 'integer' ),
+			'podcasting_title'       => array( 'type' => 'string' ),
+			'podcasting_talent_name' => array( 'type' => 'string' ),
+			'podcasting_summary'     => array( 'type' => 'string' ),
+			'podcasting_copyright'   => array( 'type' => 'string' ),
+			'podcasting_explicit'    => array( 'type' => array( 'boolean', 'string' ) ),
+			'podcasting_image'       => array( 'type' => 'string' ),
+			'podcasting_image_id'    => array( 'type' => 'integer' ),
+			'podcasting_category_1'  => array( 'type' => 'string' ),
+			'podcasting_category_2'  => array( 'type' => 'string' ),
+			'podcasting_category_3'  => array( 'type' => 'string' ),
+			'podcasting_email'       => array( 'type' => 'string' ),
+			'podcasting_show_urls'   => array( 'type' => 'object' ),
+			'podcasting_show_states' => array( 'type' => 'object' ),
 		);
 	}
 
@@ -302,7 +336,8 @@ class Settings {
 
 	/**
 	 * Merge a partial show-states patch into the stored value. Values outside
-	 * SHOW_STATES are dropped; empty string clears. `'active'` → `'pending'` is
+	 * the allowed `'pending'`/`'active'` set are dropped; empty string clears a
+	 * stored entry. `'active'` → `'pending'` is
 	 * refused so a stale SPA cache can't downgrade a state that `Feed_Detection`
 	 * promoted via real UA evidence (explicit `''` clears still work).
 	 *
@@ -329,7 +364,7 @@ class Settings {
 				continue;
 			}
 
-			if ( ! in_array( $value, self::SHOW_STATES, true ) ) {
+			if ( ! in_array( $value, array( 'pending', 'active' ), true ) ) {
 				continue;
 			}
 

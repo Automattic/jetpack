@@ -37,15 +37,27 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 		$this->is_wpcom                     = true;
 		$this->wpcom_is_wpcom_only_endpoint = true;
 
+		add_action( 'rest_api_init', array( $this, 'maybe_register_routes' ) );
+	}
+
+	/**
+	 * Register routes on `rest_api_init`, gating on the AI feature state.
+	 *
+	 * The Jetpack_AI_Helper checks (which load the helper and instantiate
+	 * Search/Connection classes) run here rather than in the constructor so that
+	 * code is only loaded when the REST API is actually in use, not on every
+	 * front-end, cron, or login request.
+	 */
+	public function maybe_register_routes() {
 		if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
 		}
 
 		// Register routes that don't require Jetpack AI to be enabled.
-		add_action( 'rest_api_init', array( $this, 'register_basic_routes' ) );
+		$this->register_basic_routes();
 
 		if ( Jetpack_AI_Helper::is_ai_chat_enabled() ) {
-			add_action( 'rest_api_init', array( $this, 'register_ai_chat_routes' ) );
+			$this->register_ai_chat_routes();
 		}
 
 		if ( ! \Jetpack_AI_Helper::is_enabled() ) {
@@ -53,7 +65,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 		}
 
 		// Register routes that require Jetpack AI to be enabled.
-		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		$this->register_routes();
 	}
 
 	/**

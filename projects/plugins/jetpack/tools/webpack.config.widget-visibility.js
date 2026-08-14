@@ -5,6 +5,7 @@ const { definePaletteColorsAsStaticVariables } = require( './webpack.helpers' );
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
+	cache: jetpackWebpackConfig.cache( __filename ),
 	entry: {
 		index: {
 			import: path.join( __dirname, '../modules/widget-visibility/editor/index.jsx' ),

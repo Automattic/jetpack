@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: e2e: relax `Jetpack Logo` role query for admin-ui 2.0's aria-hidden visual slot. Test-only.
-
-

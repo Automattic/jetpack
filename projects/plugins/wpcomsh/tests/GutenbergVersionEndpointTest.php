@@ -21,7 +21,10 @@ class GutenbergVersionEndpointTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that the callback returns a WP_REST_Response with a version key.
+	 * Tests that the callback returns the Gutenberg plugin version when the plugin is active and not ignored.
+	 *
+	 * The Gutenberg plugin isn't installed in the test environment, so it is never ignored in favor
+	 * of the core bundle, and the defined GUTENBERG_VERSION is returned.
 	 */
 	public function test_callback_returns_version_payload() {
 		if ( ! defined( 'GUTENBERG_VERSION' ) ) {

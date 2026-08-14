@@ -38,8 +38,12 @@ export const JetpackModuleToProductCard: {
 	scan: null,
 	creator: null,
 	'brute-force': null,
+	// A real product, but shown as a tab-panel card; it has no homepage card component:
+	'jetpack-forms': null,
 	// Features:
 	newsletter: NewsletterCard,
 	'related-posts': RelatedPostsCard,
+	// Shown only as a module row under Growth; no product card.
+	podcast: null,
 	'site-accelerator': SiteAcceleratorCard,
 };

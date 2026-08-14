@@ -1,0 +1,64 @@
+/**
+ * External dependencies
+ */
+import { Stack } from '@jetpack-premium-analytics/externals';
+/**
+ * Internal dependencies
+ */
+import { MetricWithComparison, ComparativeLineChart } from '../../components';
+import styles from './metric-comparison-widget.module.scss';
+import type {
+	ComparativeLineChartSeries,
+	SeriesStyle,
+} from '../../components/chart-comparative-line/types';
+import type { DataFormat } from '../../types';
+import type { DateFormatName } from '@jetpack-premium-analytics/formatters';
+
+export type MetricComparisonWidgetProps = {
+	value: number;
+
+	/**
+	 * Optional comparison metric (previous period, target, etc.)
+	 */
+	comparisonValue?: number | null;
+
+	series: ComparativeLineChartSeries[];
+
+	/**
+	 * Explicit styles for chart series. When provided, takes priority
+	 * over styles defined in series[].options.
+	 */
+	seriesStyles?: SeriesStyle[];
+
+	dataFormat: DataFormat;
+	/** Named date format for the X-axis ticks. */
+	tickFormat?: DateFormatName;
+};
+
+export function MetricComparisonWidget( {
+	value,
+	comparisonValue,
+	series,
+	seriesStyles,
+	dataFormat,
+	tickFormat,
+}: MetricComparisonWidgetProps ) {
+	return (
+		<Stack direction="column" gap="lg" className={ styles.container }>
+			<MetricWithComparison
+				value={ value }
+				previousValue={ comparisonValue }
+				dataFormat={ dataFormat }
+				direction="row"
+				align="flex-end"
+			/>
+
+			<ComparativeLineChart
+				series={ series }
+				styles={ seriesStyles }
+				dataFormat={ dataFormat }
+				tickFormat={ tickFormat }
+			/>
+		</Stack>
+	);
+}

@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/tools/includes/normalize-version.sh"
@@ -35,12 +35,12 @@ if [[ $# -eq 0 ]]; then
 fi
 
 # Sets options.
-OP=get
+OP="get"
 while getopts ":v:n:h" opt; do
 	case ${opt} in
 		v)
 			VERSION_RAW=$OPTARG
-			OP=set
+			OP="set"
 			;;
 		n)
 			NORMALIZE_COUNT=$OPTARG

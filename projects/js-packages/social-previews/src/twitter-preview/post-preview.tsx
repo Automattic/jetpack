@@ -13,6 +13,7 @@ export const TwitterPostPreview: React.FC< TwitterPreviewProps > = ( {
 	date,
 	description,
 	image,
+	imageFocalPoint,
 	media,
 	name,
 	profileImage,
@@ -40,6 +41,7 @@ export const TwitterPostPreview: React.FC< TwitterPreviewProps > = ( {
 							<Card
 								description={ description || '' }
 								image={ image }
+								imageFocalPoint={ imageFocalPoint }
 								title={ title || '' }
 								cardType={ cardType || '' }
 								url={ url }

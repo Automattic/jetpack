@@ -21,6 +21,7 @@
 PHAN;
 
 require_once __DIR__ . '/../../utils.php';
+require_once __DIR__ . '/../../common/class-launchpad-personalization-experiment.php';
 require_once __DIR__ . '/class-launchpad-task-lists.php';
 require_once __DIR__ . '/launchpad-task-definitions.php';
 
@@ -37,8 +38,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 			},
 			'task_ids'            => array(
 				'plan_selected',
+				'site_theme_selected',
 				'domain_upsell',
-				'design_edited',
 				'mobile_app_installed',
 				'site_launched',
 			),
@@ -52,9 +53,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'plan_selected',
 				'setup_free',
 				'design_completed',
+				'site_theme_selected',
 				'domain_upsell',
 				'first_post_published',
-				'design_edited',
 				'site_launched',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
@@ -148,19 +149,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'complete_profile',
 				'first_post_published',
 				'site_launched',
-			),
-			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
-		),
-		'start-writing'           => array(
-			'get_title'           => function () {
-				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
-			},
-			'task_ids'            => array(
-				'first_post_published',
-				'setup_blog',
-				'domain_upsell',
-				'plan_completed',
-				'blog_launched',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
@@ -277,9 +265,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'plan_completed',
 				'setup_free',
 				'design_selected',
+				'site_theme_selected',
 				'domain_upsell',
 				'first_post_published',
-				'design_edited',
 				'site_launched',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
@@ -294,8 +282,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'setup_general',
 				'generate_content',
 				'plan_completed',
+				'site_theme_selected',
 				'domain_upsell',
-				'design_edited',
 				'site_launched',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
@@ -309,8 +297,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'plan_completed',
 				'setup_free',
 				'design_selected',
+				'site_theme_selected',
 				'domain_upsell',
-				'design_edited',
 				'site_launched',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
@@ -439,6 +427,61 @@ function wpcom_register_default_launchpad_checklists() {
 	wpcom_add_active_task_listener_hooks_to_correct_action();
 }
 add_action( 'init', 'wpcom_register_default_launchpad_checklists', 11 );
+
+/**
+ * The site intents of retired onboarding flows.
+ *
+ * These no longer have a checklist, but sites created under them still carry
+ * the value, and clients still pass it to the launchpad endpoint as a checklist
+ * slug. The endpoint keeps accepting these so such a request degrades to an
+ * empty checklist rather than a 400. Empty this list once no site carries one.
+ *
+ * @return string[] Retired site intents.
+ */
+function wpcom_launchpad_get_retired_site_intents() {
+	return array( 'start-writing' );
+}
+
+/**
+ * Clears the site intent for a retired onboarding flow.
+ *
+ * A retired flow no longer accepts new sites, so the sites left on one sit in
+ * an onboarding they can never be guided through. Clearing the intent returns
+ * them to the same state as a site that never picked one: no Launchpad, and no
+ * onboarding email campaign.
+ *
+ * Writes once per site, since the intent stops matching afterwards. Delete this
+ * once no site carries one of these values.
+ */
+function wpcom_launchpad_clear_retired_site_intents() {
+	if ( ! in_array( get_option( 'site_intent' ), wpcom_launchpad_get_retired_site_intents(), true ) ) {
+		return;
+	}
+
+	update_option( 'site_intent', '' );
+	update_option( 'launchpad_screen', 'off' );
+}
+
+/**
+ * Clears the retired site intent once the target site's options are readable.
+ *
+ * On `public-api.wordpress.com`, `init` fires before the request switches to
+ * the blog, so reading `site_intent` there would read the wrong site.
+ *
+ * Runs ahead of the checklist registration, on both paths, so that the active
+ * task listeners are never registered for an intent that is about to be gone.
+ *
+ * @return void
+ */
+function wpcom_launchpad_clear_retired_site_intents_on_correct_action() {
+	if ( wp_parse_url( home_url(), PHP_URL_HOST ) === 'public-api.wordpress.com' ) {
+		add_action( 'rest_api_switched_to_blog', 'wpcom_launchpad_clear_retired_site_intents' );
+		return;
+	}
+
+	wpcom_launchpad_clear_retired_site_intents();
+}
+add_action( 'init', 'wpcom_launchpad_clear_retired_site_intents_on_correct_action', 10 );
 
 /**
  * Adds hooks to the correct action to add active task listeners.
@@ -708,6 +751,30 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	add_filter( 'option_launchpad_screen', 'wpcom_maybe_disable_for_difm' );
 }
 
+/**
+ * Filter for `get_option( 'launchpad_screen' )`: hide the old Launchpad for the
+ * launchpad-personalization treatment variations. Derives from the variation rather than
+ * writing the option, so no non-experiment site is ever mistaken for a cohort. Runs on
+ * Simple and Atomic (not gated on IS_WPCOM).
+ *
+ * @param mixed $value The filterable option value, retrieved from the DB.
+ * @return mixed 'off' for a treatment variation, the unaltered value otherwise.
+ */
+function wpcom_maybe_disable_for_launchpad_personalization( $value ) {
+	// If it's already false, leave it — and avoid resolving the variation needlessly.
+	if ( $value === false ) {
+		return $value;
+	}
+
+	$variation = \Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment::get_variation();
+	if ( 'ai_launchpad' === $variation || 'no_guidance' === $variation ) {
+		return 'off';
+	}
+
+	return $value;
+}
+add_filter( 'option_launchpad_screen', 'wpcom_maybe_disable_for_launchpad_personalization' );
+
 add_action( 'wp_head', 'wpcom_maybe_preview_with_no_interactions', PHP_INT_MAX );
 /**
  * Add CSS that disallows interaction with the Launchpad preview.
@@ -964,24 +1031,34 @@ function wpcom_launchpad_navigator_remove_checklist( $checklist_slug ) {
 		);
 	}
 
-	$current_active_checklist = wpcom_launchpad_get_active_checklist();
-
 	$checklists = $wpcom_launchpad_config['navigator_checklists'];
 	// Find if $checklist_slug is in the checklists array. If it is, remove it.
 	$key = array_search( $checklist_slug, $checklists, true );
 	if ( $key === false ) {
 		return array(
 			'updated'              => false,
-			'new_active_checklist' => $current_active_checklist,
+			'new_active_checklist' => wpcom_launchpad_get_active_checklist(),
 		);
 	}
 
 	unset( $checklists[ $key ] );
 
-	$new_active_checklist = $current_active_checklist;
-	if ( $current_active_checklist === $checklist_slug ) {
-		// get last item on $checklists array, if there is one; otherwise set to null
-		$new_active_checklist = end( $checklists ) ? end( $checklists ) : null;
+	// Compare against the raw stored slug, not the getter: a retired active checklist
+	// reads as null there, which would otherwise hide that it was the one removed.
+	$stored_active_slug = $wpcom_launchpad_config['active_checklist_slug'] ?? null;
+
+	$new_active_checklist = wpcom_launchpad_get_active_checklist();
+	if ( $stored_active_slug === $checklist_slug ) {
+		// The active checklist was removed. Promote the most recently added one that
+		// is still registered, skipping any other retired slugs, or clear it.
+		$registered_checklists = wpcom_launchpad_checklists()->get_all_task_lists();
+		$new_active_checklist  = null;
+		foreach ( array_reverse( $checklists ) as $remaining_slug ) {
+			if ( is_string( $remaining_slug ) && array_key_exists( $remaining_slug, $registered_checklists ) ) {
+				$new_active_checklist = $remaining_slug;
+				break;
+			}
+		}
 		wpcom_launchpad_set_current_active_checklist( $new_active_checklist );
 	}
 
@@ -1030,13 +1107,28 @@ function wpcom_launchpad_get_active_checklist() {
 		return null;
 	}
 
-	return $wpcom_launchpad_config['active_checklist_slug'];
+	$active_checklist_slug = $wpcom_launchpad_config['active_checklist_slug'];
+
+	// This repairs persisted state, so it cannot assume a well-formed value: legacy
+	// or custom code may have stored a non-string, which would fatal below.
+	if ( ! is_string( $active_checklist_slug ) ) {
+		return null;
+	}
+
+	// A retired checklist can linger here from before it was unregistered. Treat it
+	// as unset, matching how the available list drops unregistered slugs and how the
+	// setter refuses them, so the Navigator never reports a checklist that is gone.
+	if ( ! array_key_exists( $active_checklist_slug, wpcom_launchpad_checklists()->get_all_task_lists() ) ) {
+		return null;
+	}
+
+	return $active_checklist_slug;
 }
 
 /**
  * Helper function to set the current active checklist in the navigator context.
  *
- * @param string $checklist_slug The slug of the launchpad task list to mark as active.
+ * @param string|null $checklist_slug The slug of the launchpad task list to mark as active, or null to clear it.
  * @return bool Whether the option update succeeded.
  */
 function wpcom_launchpad_set_current_active_checklist( $checklist_slug ) {

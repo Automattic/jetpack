@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+RTC: add a jetpack_rtc_blocked Tracks event recorded when a client is turned away because the per-room contributor limit was reached.

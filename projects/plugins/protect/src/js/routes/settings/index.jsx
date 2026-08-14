@@ -1,10 +1,5 @@
-import {
-	Col,
-	Container,
-	ToggleControl,
-	AdminSectionHero,
-	getRedirectUrl,
-} from '@automattic/jetpack-components';
+import { Col, Container, AdminSectionHero, getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
@@ -53,6 +48,7 @@ const SettingsPage = () => {
 						accountProtection.hasUnsupportedJetpackVersion ||
 						toggleAccountProtectionMutation.isPending
 					}
+					__nextHasNoMarginBottom={ true }
 				/>
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>

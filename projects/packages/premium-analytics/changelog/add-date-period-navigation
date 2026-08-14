@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Date controls: step the active window backward and forward by its own length. The forward control appears once the window is no longer the latest one.

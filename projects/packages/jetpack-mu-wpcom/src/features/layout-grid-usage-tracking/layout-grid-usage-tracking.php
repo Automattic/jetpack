@@ -362,7 +362,7 @@ function wpcom_layout_grid_usage_log_observation( array $extra ) {
 			wpcom_layout_grid_usage_redact_paths( $payload )
 		);
 		return true;
-	} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- best-effort: telemetry never escalates a failure into a fatal on the caller's action chain.
+	} catch ( \Throwable $e ) {
 		unset( $e );
 		return false;
 	}

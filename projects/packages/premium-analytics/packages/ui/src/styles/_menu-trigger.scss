@@ -1,0 +1,51 @@
+// Shared box of the date surface's menu triggers: the comparison control and
+// the chart-interval control, both `DropdownMenu`s rather than form fields.
+// What follows restates in WPDS tokens the properties where wp-components'
+// Button and the input layout behind a `SelectControl` trigger disagree, so a
+// menu trigger reads as a sibling of the preset group beside it.
+
+// `@wordpress/components` is externalized, so the Button these rules override
+// is whatever the running WordPress ships, not the copy in `node_modules`.
+// Check the site's stylesheet before assuming a base rule is there.
+
+// The wrapper. The toggle is an inline-flex button; in a block wrapper it would
+// sit on a text baseline and add a descender's worth of height to the row.
+@mixin container {
+	display: flex;
+}
+
+@mixin toggle {
+	height: var(--wpds-dimension-size-lg);
+	// Declared whole rather than just recolored: the shipped Button carries
+	// `border: 0`, so a bare `border-color` paints nothing. The button is
+	// already `border-box`, so the stroke does not grow the control.
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-interactive-neutral);
+	// Follows the theme's radius setting, which the Button's fixed 2px does not.
+	border-radius: var(--wpds-border-radius-sm);
+	color: var(--wpds-color-foreground-interactive-neutral);
+
+	// wp-components answers hover and the open state by tinting the label with
+	// the admin accent. The input layout darkens its stroke instead and leaves
+	// the contents alone.
+	&:hover:not(:disabled, [aria-disabled="true"]),
+	&[aria-expanded="true"] {
+		border-color: var(--wpds-color-stroke-interactive-neutral-active);
+		color: var(--wpds-color-foreground-interactive-neutral);
+	}
+
+	// The shipped Button draws focus as an accent-colored shadow. Every other
+	// control on this surface draws the outset ring instead.
+	&:focus:not(:active) {
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: var(--wpds-border-width-focus);
+		box-shadow: none;
+	}
+}
+
+// A trigger carrying only a glyph, squared off against the row's height.
+@mixin icon-toggle {
+
+	@include toggle;
+
+	min-width: var(--wpds-dimension-size-lg);
+}

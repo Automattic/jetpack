@@ -16,12 +16,16 @@ Package is published in [Packagist](https://packagist.org/packages/automattic/je
 
 ## Guides
 * [Connection package guide](docs/register-site.md)
+* [Authorizing a user](docs/authorize-user.md)
 * [Connection health tests](docs/connection-health-tests.md)
+* [Connectors screen card](docs/connectors.md)
+* [Connection Abilities (Abilities API)](docs/abilities.md)
 
 ## Tools
 
 1. [Making Authenticated async XML-RPC calls](docs/xmlrpc-async-calls.md)
 1. [Customizing error messages](docs/error-handling.md)
+1. [Partner tools](docs/partner-tools.md)
 
 ## Using this package in your WordPress plugin
 

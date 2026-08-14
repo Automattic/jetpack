@@ -24,18 +24,42 @@ class Initial_State {
 
 		$status = new Status();
 
+		// Only expose the owner's identity to users who can act on connection issues:
+		// this state is printed for any logged-in user loading connection scripts
+		// (e.g. contributors in the editor). The owner is derived from the master_user
+		// option rather than the token-dependent Manager::get_connection_owner(): that
+		// method returns false exactly when the owner's token is broken, which is the
+		// scenario connection-error UIs need this data for (and it re-reports
+		// invalid_connection_owner as a side effect). Unlike
+		// userConnectionData.connectionOwner (the *connected* owner), this field
+		// identifies who holds ownership regardless of token health.
+		$connection_owner = null;
+		if ( current_user_can( 'jetpack_connect' ) ) {
+			$owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
+			$owner    = $owner_id > 0 ? get_userdata( $owner_id ) : false;
+
+			if ( $owner instanceof \WP_User ) {
+				$connection_owner = array(
+					'id'          => $owner_id,
+					'displayName' => $owner->display_name,
+				);
+			}
+		}
+
 		return array(
-			'apiRoot'            => esc_url_raw( rest_url() ),
-			'apiNonce'           => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'connectionStatus'   => REST_Connector::connection_status( false ),
-			'userConnectionData' => REST_Connector::get_user_connection_data( false ),
-			'connectedPlugins'   => REST_Connector::get_connection_plugins( false ),
-			'wpVersion'          => $wp_version,
-			'siteSuffix'         => $status->get_site_suffix(),
-			'connectionErrors'   => Error_Handler::get_instance()->get_displayable_errors(),
-			'isOfflineMode'      => $status->is_offline_mode(),
-			'calypsoEnv'         => ( new Status\Host() )->get_calypso_env(),
+			'apiRoot'                 => esc_url_raw( rest_url() ),
+			'apiNonce'                => wp_create_nonce( 'wp_rest' ),
+			'registrationNonce'       => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'connectionStatus'        => REST_Connector::connection_status( false ),
+			'userConnectionData'      => REST_Connector::get_user_connection_data( false ),
+			'connectedPlugins'        => REST_Connector::get_connection_plugins( false ),
+			'wpVersion'               => $wp_version,
+			'siteSuffix'              => $status->get_site_suffix(),
+			'connectionErrors'        => Error_Handler::get_instance()->get_displayable_errors(),
+			'isOfflineMode'           => $status->is_offline_mode(),
+			'calypsoEnv'              => ( new Status\Host() )->get_calypso_env(),
+			'isOwnershipTransferable' => ( new Manager() )->is_ownership_transferable(),
+			'connectionOwner'         => $connection_owner,
 		);
 	}
 

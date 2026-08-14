@@ -27,7 +27,7 @@ if ( ! function_exists( 'jetpack_featured_images_fallback_get_image' ) ) {
 	 *
 	 * @return string      $html              Thumbnail image with markup.
 	 */
-	function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thumbnail_id, $size, $attr ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thumbnail_id, $size, $attr ) {
 		_deprecated_function( __FUNCTION__, 'jetpack-13.9' );
 		$opts = jetpack_featured_images_get_settings();
 

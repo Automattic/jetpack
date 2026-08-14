@@ -4,6 +4,7 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"automattic/jetpack-activity-log": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
@@ -61,7 +62,7 @@
 	},
 	"config": {
 		"sort-packages": true,
-		"autoloader-suffix": "b462338fb66be23595d68a93345c9e3d_jetpack_searchⓥ6_0_0",
+		"autoloader-suffix": "b462338fb66be23595d68a93345c9e3d_jetpack_searchⓥ7_1_0",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true,

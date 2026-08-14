@@ -26,8 +26,18 @@ export function buildJetpackPayload(
 	if ( local.sitemap_active !== baseline.sitemap_active ) {
 		payload.sitemaps = local.sitemap_active;
 	}
-	if ( JSON.stringify( local.title_formats ) !== JSON.stringify( baseline.title_formats ) ) {
+	if ( local.canonical_active !== baseline.canonical_active ) {
+		// The payload key is the module slug; `/jetpack/v4/settings` toggles the module.
+		payload[ 'canonical-urls' ] = local.canonical_active;
+	}
+	if (
+		baseline.title_formats_editable &&
+		JSON.stringify( local.title_formats ) !== JSON.stringify( baseline.title_formats )
+	) {
 		payload.advanced_seo_title_formats = local.title_formats;
+	}
+	if ( local.verification_tools_active !== baseline.verification_tools_active ) {
+		payload[ 'verification-tools' ] = local.verification_tools_active;
 	}
 	if ( local.front_page_description !== baseline.front_page_description ) {
 		payload.advanced_seo_front_page_description = local.front_page_description;

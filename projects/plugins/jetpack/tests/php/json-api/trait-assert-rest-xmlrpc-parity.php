@@ -136,7 +136,7 @@ trait Assert_Rest_Xmlrpc_Parity {
 		remove_filter( 'user_can_richedit', '__return_true' );
 		remove_filter( 'comment_edit_pre', array( WPCOM_JSON_API::init(), 'comment_edit_pre' ) );
 
-		unset( $_GET['token'], $_GET['timestamp'], $_GET['nonce'], $_GET['body-hash'], $_GET['signature'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		unset( $_GET['token'], $_GET['timestamp'], $_GET['nonce'], $_GET['body-hash'], $_GET['signature'] );
 
 		foreach ( $this->rest_parity_server as $key => $value ) {
 			if ( null === $value ) {
@@ -310,7 +310,7 @@ trait Assert_Rest_Xmlrpc_Parity {
 		$_GET['timestamp'] = (string) time();
 		$_GET['nonce']     = 'testing123';
 
-		$_GET['signature'] = base64_encode( // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature'] = base64_encode(
 			hash_hmac(
 				'sha1',
 				implode(

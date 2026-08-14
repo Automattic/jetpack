@@ -5,6 +5,9 @@
 	:global(.dataviews-wrapper) {
 		border: 1px solid rgba(0, 0, 0, 0.1);
 		border-radius: 8px;
+		// Clip the inner layout container's square corners and the row
+		// dividers to the rounded border, otherwise they poke out at the corners.
+		overflow: hidden;
 		background-color: #{gb.$white};
 	}
 
@@ -61,4 +64,6 @@
 
 	@include gb.body-small;
 	color: #{gb.$gray-700};
+	// Avoid a single word wrapping alone onto the last line (typographic orphan).
+	text-wrap: pretty;
 }

@@ -6,13 +6,14 @@ module.exports = [
 		entry: {
 			// Add more standalone scripts here; each becomes build/<name>.js
 			// plus build/<name>.asset.php for Assets::register_script().
-			'sidebar-open-watcher': './src/js/sidebar-open-watcher.ts',
+			'sidebar-docking-gate': './src/js/sidebar-docking-gate.ts',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
 		output: {
 			...jetpackWebpackConfig.output,
 			path: path.resolve( './build' ),
+			iife: true,
 		},
 		optimization: {
 			...jetpackWebpackConfig.optimization,

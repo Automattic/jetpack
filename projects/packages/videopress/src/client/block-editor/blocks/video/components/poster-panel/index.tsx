@@ -362,8 +362,8 @@ export function VideoHoverPreviewControl( {
 		sprintf(
 			/* translators: %1$s, %2$s: the minimum and maximum lapse duration for the previewOnHover, in seconds */
 			__( 'Minimum: <em>%1$ss</em>. Maximum: <em>%2$ss</em>.', 'jetpack-videopress-pkg' ),
-			Math.min( MIN_LOOP_DURATION / 1000, maxLoopDurationSeconds ),
-			maxLoopDurationSeconds
+			String( Math.min( MIN_LOOP_DURATION / 1000, maxLoopDurationSeconds ) ),
+			String( maxLoopDurationSeconds )
 		),
 		{
 			em: <em />,
@@ -580,7 +580,13 @@ export default function PosterPanel( {
 				<VideoPosterCard poster={ poster } className="poster-panel-card" />
 
 				{ poster && (
-					<MenuItem onClick={ onRemovePoster } icon={ linkOff } isDestructive variant="tertiary">
+					<MenuItem
+						onClick={ onRemovePoster }
+						icon={ linkOff }
+						isDestructive
+						// @ts-expect-error MenuItem forwards variant to the underlying Button at runtime.
+						variant="tertiary"
+					>
 						{ __( 'Remove and use default', 'jetpack-videopress-pkg' ) }
 					</MenuItem>
 				) }

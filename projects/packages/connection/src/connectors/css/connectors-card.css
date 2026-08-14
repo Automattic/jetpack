@@ -23,6 +23,78 @@
 	padding-inline: 20px;
 }
 
+.jetpack-connector__idc-options {
+	flex-wrap: wrap;
+	margin-block-end: 16px;
+}
+
+/*
+ * Stretch the option cards to equal height so their buttons stay aligned at
+ * the bottom regardless of copy length (paired with margin-block-start: auto
+ * on the button). On mobile each card wraps to its own row, so the stretch
+ * has no effect and the stacked layout is unaffected.
+ *
+ * The selector is doubled to outrank the HStack's emotion-generated
+ * `align-items: center/flex-start` rule, which has the same single-class
+ * specificity but is injected later in the document.
+ */
+.jetpack-connector__idc-options.jetpack-connector__idc-options {
+	align-items: stretch;
+}
+
+.jetpack-connector__idc-footer {
+	flex-wrap: wrap;
+}
+
+.jetpack-connector__idc-option {
+	flex: 1 1 200px;
+	min-inline-size: 200px;
+}
+
+/*
+ * Size the action to its label instead of stretching full-width (the option
+ * card is a VStack, which stretches its children on the cross axis).
+ * margin-block-start: auto keeps it pinned to the bottom so the two cards'
+ * buttons stay aligned regardless of copy length.
+ */
+.jetpack-connector__idc-option .jetpack-connector__inline-action {
+	align-self: flex-start;
+	margin-inline-start: 0;
+	margin-block-start: auto;
+}
+
+.jetpack-connector__idc-safe-mode-link {
+	margin-inline-start: 0;
+}
+
+.jetpack-connector__idc-safe-mode-group {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.jetpack-connector__idc-choose {
+	margin-block-start: 16px;
+}
+
+.jetpack-connector__idc-why-toggle {
+	align-self: flex-start;
+	padding-inline: 0;
+	height: auto;
+}
+
+.jetpack-connector__idc-why-list {
+	margin: 0;
+	padding-inline-start: 20px;
+	list-style: disc;
+	font-size: 12px;
+	color: #757575;
+}
+
+.jetpack-connector__idc-why-list li {
+	margin-block-end: 4px;
+}
+
 .jetpack-connector__status-badge {
 	padding-block: 4px;
 	padding-inline: 12px;
@@ -40,6 +112,11 @@
 .jetpack-connector__status-badge--site-registered {
 	color: #1e4c5e;
 	background-color: #e9f0f5;
+}
+
+.jetpack-connector__status-badge--safe-mode {
+	color: #4f3500;
+	background-color: #fcf0e5;
 }
 
 .jetpack-connector__section {
