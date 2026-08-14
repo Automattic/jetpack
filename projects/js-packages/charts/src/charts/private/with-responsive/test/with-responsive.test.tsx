@@ -311,4 +311,14 @@ describe( 'withResponsive', () => {
 			expect( screen.getByTestId( 'responsive-container' ) ).toBeInTheDocument();
 		} );
 	} );
+
+	it( 'marks the responsive wrapper as a chart scope', () => {
+		const Chart: ( props: BaseChartProps ) => JSX.Element = () => <div>chart</div>;
+		const Wrapped = withResponsive( Chart );
+
+		render( <Wrapped data={ [] } /> );
+
+		// identity-obj-proxy maps the CSS-module key to its own name.
+		expect( screen.getByTestId( 'responsive-wrapper' ) ).toHaveClass( 'scope' );
+	} );
 } );

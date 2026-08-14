@@ -8,6 +8,7 @@ import {
 	useLayoutEffect,
 	useRef,
 } from 'react';
+import { chartScopeClass } from '../../styles';
 import {
 	getItemShapeStyles,
 	getSeriesBarStyles,
@@ -16,6 +17,7 @@ import {
 	resolveCssVariable,
 	normalizeColorToHex,
 } from '../../utils';
+import { ChartScopeContext } from '../chart-scope';
 import { getChartColor, type ColorCache } from './private/get-chart-color';
 import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
@@ -38,6 +40,11 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 
 	// Ref to the wrapper element for resolving scoped CSS variables
 	const wrapperRef = useRef< HTMLDivElement >( null );
+	const [ scopeNode, setScopeNode ] = useState< HTMLElement | null >( null );
+
+	useLayoutEffect( () => {
+		setScopeNode( wrapperRef.current );
+	}, [] );
 
 	const providerTheme: CompleteChartTheme = useMemo( () => {
 		return theme ? mergeThemes( defaultTheme, theme ) : defaultTheme;
@@ -292,8 +299,8 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 
 	return (
 		<GlobalChartsContext.Provider value={ value }>
-			<div ref={ wrapperRef } style={ { display: 'contents' } }>
-				{ children }
+			<div ref={ wrapperRef } className={ chartScopeClass } style={ { display: 'contents' } }>
+				<ChartScopeContext.Provider value={ scopeNode }>{ children }</ChartScopeContext.Provider>
 			</div>
 		</GlobalChartsContext.Provider>
 	);
