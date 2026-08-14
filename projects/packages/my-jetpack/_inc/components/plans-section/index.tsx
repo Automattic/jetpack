@@ -207,20 +207,16 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		recordEvent( 'jetpack_myjetpack_activate_license_click' );
 	}, [ recordEvent ] );
 
-	let activateLicenceDescription: string;
+	let activateLicenceDescription: string = _x(
+		'Activate a license',
+		'Activate a license button text',
+		'jetpack-my-jetpack'
+	);
 	if ( ! isUserConnected ) {
 		activateLicenceDescription = _x(
 			'Activate a license (requires a user connection)',
 			'Activate a license button text',
 			'jetpack-my-jetpack'
-		);
-	} else {
-		activateLicenceDescription = _x(
-			'Activate a license',
-			'Activate a license button text',
-			'jetpack-my-jetpack',
-			// @ts-expect-error Dummy arg to avoid bad minification; ignored at runtime.
-			/* dummy arg to avoid bad minification */ 0
 		);
 	}
 
