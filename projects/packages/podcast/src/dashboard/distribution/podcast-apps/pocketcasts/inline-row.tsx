@@ -94,7 +94,7 @@ const PocketCastsRow = ( { app, state, blockedReason, onFirstSave }: PodcastAppR
 			viewUrl={ viewUrl }
 			onAction={ handleSubmit }
 		>
-			{ ! connected && (
+			{ ! connected && ! viewUrl && (
 				<Notice status="warning" isDismissible={ false }>
 					{ __(
 						'Connect this site to WordPress.com to submit your podcast to Pocket Casts.',

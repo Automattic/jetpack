@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: changed
 
-Pull Pocket Casts out of the Distribution directory list into its own one-click section. Show why directory Submit buttons are disabled when podcast setup is incomplete.
+Distribution: split the directories into Automattic submission (Pocket Casts, submitted for you) and Manual submission, explain why a disabled button is disabled, and link to your show once it is live.
