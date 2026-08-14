@@ -18,7 +18,8 @@
 		"@wordpress/url": "4.51.0"
 	},
 	"devDependencies": {
-		"@testing-library/react": "16.3.2"
+		"@testing-library/react": "16.3.2",
+		"@testing-library/user-event": "^14.5.2"
 	},
 	"route": {
 		"path": "/home",

@@ -2,8 +2,8 @@ import { useGlobalNotices } from '@automattic/jetpack-components/global-notices'
 import { Button, Tooltip } from '@wordpress/components';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, upload } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
+import { upload } from '@wordpress/icons';
+import { EmptyState, Text } from '@wordpress/ui';
 import { useVideoPressUpgrade } from '../../hooks/use-videopress-upgrade';
 import { FREE_TIER_AT_LIMIT_MESSAGE, FREE_TIER_AT_LIMIT_NOTICE_ID } from '../free-tier-notice';
 import {
@@ -185,7 +185,14 @@ const UploadDropzone = ( {
 				<svg className="vp-upload-dropzone__outline" aria-hidden="true" focusable="false">
 					<rect className="vp-upload-dropzone__outline-rect" />
 				</svg>
-				<Icon icon={ upload } size={ 32 } className="vp-upload-dropzone__icon" />
+				{ /*
+				 * The design system's own empty-state treatment — the circled
+				 * icon Jetpack Social and the rest of the dashboard use — rather
+				 * than a bare glyph. `EmptyState.Icon` stands alone without its
+				 * Root; the Root would impose its own centred column layout on
+				 * top of the one this surface already has.
+				 */ }
+				<EmptyState.Icon icon={ upload } className="vp-upload-dropzone__icon" />
 				<Text variant="body-lg" className="vp-upload-dropzone__hint">
 					{ plural
 						? __( 'Drag and drop your videos here', 'jetpack-videopress-pkg' )
