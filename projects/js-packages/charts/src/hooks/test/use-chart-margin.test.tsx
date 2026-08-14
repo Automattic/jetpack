@@ -185,35 +185,63 @@ describe( 'useChartMargin', () => {
 		expect( result.current.bottom ).toBe( 25 );
 	} );
 
-	it( 'measures pre-formatted horizontal tick labels without re-formatting them', () => {
-		const formatHour = ( timestamp: number ) =>
-			new Date( timestamp ).toLocaleTimeString( undefined, { hour: 'numeric', hour12: true } );
-		const hourlyData = [
-			{
-				label: 'Series 1',
-				data: [
-					{ date: new Date( 2024, 0, 1, 6 ), value: 10 },
-					{ date: new Date( 2024, 0, 1, 7 ), value: 20 },
-				],
-			},
-		];
-		const options = {
+	describe( 'horizontal y ticks', () => {
+		const horizontalOptions = ( tickFormat: ( value: string | number ) => string ) => ( {
 			...optionsBase,
 			axis: {
 				...optionsBase.axis,
-				y: { ...optionsBase.axis.y, orientation: Orientation.left, tickFormat: formatHour },
+				y: { ...optionsBase.axis.y, orientation: Orientation.left, tickFormat },
 			},
-		};
+		} );
 
-		renderHook( () => useChartMargin( 300, options, hourlyData, baseTheme, true ) );
+		it( 'measures dated ticks by formatting the raw timestamps once', () => {
+			const formatHour = ( timestamp: string | number ) =>
+				new Date( timestamp ).toLocaleTimeString( undefined, { hour: 'numeric', hour12: true } );
+			const hourlyData = [
+				{
+					label: 'Series 1',
+					data: [
+						{ date: new Date( 2024, 0, 1, 6 ), value: 10 },
+						{ date: new Date( 2024, 0, 1, 7 ), value: 20 },
+					],
+				},
+			];
 
-		const [ ticks, measureFormatter ] = mockGetLongestTickWidth.mock.calls[ 0 ];
-		// yTicks are already formatted hour strings; re-applying the hour
-		// formatter would date-parse them into "Invalid Date".
-		expect( ticks ).toEqual( [
-			formatHour( new Date( 2024, 0, 1, 6 ).getTime() ),
-			formatHour( new Date( 2024, 0, 1, 7 ).getTime() ),
-		] );
-		expect( measureFormatter( ticks[ 0 ], 0, [] ) ).toBe( ticks[ 0 ] );
+			renderHook( () =>
+				useChartMargin( 300, horizontalOptions( formatHour ), hourlyData, baseTheme, true )
+			);
+
+			const [ ticks, measureFormatter ] = mockGetLongestTickWidth.mock.calls[ 0 ];
+			// Raw timestamps, so the formatter runs exactly once — formatting here
+			// and again while measuring would date-parse "6 AM" to "Invalid Date".
+			expect( ticks ).toEqual( [
+				new Date( 2024, 0, 1, 6 ).getTime(),
+				new Date( 2024, 0, 1, 7 ).getTime(),
+			] );
+			expect( measureFormatter ).toBe( formatHour );
+		} );
+
+		it( "measures labelled ticks through the caller's formatter", () => {
+			const withSuffix = ( label: string | number ) => `${ label } (total)`;
+			const labelledData = [
+				{
+					label: 'Series 1',
+					data: [
+						{ label: 'Mon', value: 10 },
+						{ label: 'Tuesday', value: 20 },
+					],
+				},
+			];
+
+			renderHook( () =>
+				useChartMargin( 300, horizontalOptions( withSuffix ), labelledData, baseTheme, true )
+			);
+
+			const [ ticks, measureFormatter ] = mockGetLongestTickWidth.mock.calls[ 0 ];
+			// A formatter that lengthens labels has to reach the measurement, or the
+			// margin under-measures and the widest label clips at the SVG edge.
+			expect( ticks ).toEqual( [ 'Mon', 'Tuesday' ] );
+			expect( measureFormatter ).toBe( withSuffix );
+		} );
 	} );
 } );

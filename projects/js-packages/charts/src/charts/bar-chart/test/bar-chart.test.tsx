@@ -301,26 +301,47 @@ describe( 'BarChart', () => {
 			expect( distinctTexts( ticks ).size ).toBeGreaterThan( 1 );
 		} );
 
-		test( 'renders date ticks for a daily pair across a DST spring-forward boundary', () => {
-			// 2026-03-08 is the US spring-forward date, so in a DST timezone this
-			// pair is only 23 elapsed hours apart — a strict 24h rule would read
-			// it as sub-daily and label both bars "12 AM".
+		test( 'renders date ticks for daily buckets whose gaps shrink to 23 hours', () => {
+			// The gaps are built at 23 hours rather than dated across a real
+			// spring-forward, because the suite pins TZ=UTC and so has no DST to
+			// straddle. A strict 24h rule would read these as sub-daily buckets and
+			// label them by the hour.
+			const start = new Date( 2026, 2, 8 );
 			renderWithTheme( {
 				width: 800,
 				data: [
 					{
 						label: 'Series A',
-						data: [
-							{ date: new Date( 2026, 2, 8 ), value: 10 },
-							{ date: new Date( 2026, 2, 9 ), value: 20 },
-						],
+						data: [ 0, 23, 46 ].map( ( offsetHours, i ) => ( {
+							date: new Date( start.getTime() + offsetHours * 60 * 60 * 1000 ),
+							value: 10 * ( i + 1 ),
+						} ) ),
 						options: {},
 					},
 				],
 			} );
 
-			expect( screen.getByText( 'Mar 8' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Mar 9' ) ).toBeInTheDocument();
+			expect( screen.getAllByText( /^Mar \d+$/ ).length ).toBeGreaterThan( 0 );
+			expect( screen.queryByText( /\d{1,2}\s(AM|PM)/ ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'reads tickResolution off the y axis on a horizontal chart', () => {
+			renderWithTheme( {
+				width: 800,
+				orientation: 'horizontal',
+				data: [
+					{
+						label: 'Series A',
+						data: [ { date: new Date( 2024, 0, 1, 13 ), value: 10 } ],
+						options: {},
+					},
+				],
+				options: { axis: { y: { tickResolution: 'hour' } } },
+			} );
+
+			// The dates move to the y axis with the orientation, so the hint has to
+			// follow them; read off `axis.x` this would fall back to a date tick.
+			expect( screen.getByText( /^1\sPM$/ ) ).toBeInTheDocument();
 		} );
 
 		test( 'renders an hour tick when tickResolution declares the buckets sub-daily', () => {
@@ -465,6 +486,29 @@ describe( 'BarChart', () => {
 			expect( tooltip.labelFormatter( new Date( 2024, 0, 1, 13 ).getTime(), 0, [] ) ).toMatch(
 				/^January 1, 2024 at 1\sPM$/
 			);
+		} );
+
+		test( 'names the hovered bar bucket in the rendered tooltip', async () => {
+			const user = userEvent.setup();
+			renderWithTheme( {
+				withTooltips: true,
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 24 }, ( _, i ) => ( {
+							date: new Date( 2024, i, 1 ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+			await user.keyboard( '{ArrowRight}' );
+
+			// The month tick reads "2024" here; the tooltip names the bucket itself.
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'January 2024: 10' );
 		} );
 	} );
 

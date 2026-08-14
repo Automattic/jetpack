@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: label the time axis from month-or-coarser buckets directly, so monthly data spanning more than a year keeps its month names instead of repeating a year, and yearly buckets that don't start in January read as years.

@@ -213,8 +213,6 @@ type TimeAxisPanelProps = {
 	options?: React.ComponentProps< typeof BarChart >[ 'options' ];
 };
 
-// Tooltips are on so the panels also show the per-bar label, which names the
-// same bucket as the ticks in a fuller form.
 const TimeAxisPanel = ( { title, data, options }: TimeAxisPanelProps ) => (
 	<div>
 		<h3>{ title }</h3>
@@ -245,10 +243,10 @@ export const TimeAxisTickFormats: Story = {
 				data={ timeAxisSeries( oneYearMonthlyPoints ) }
 			/>
 			<TimeAxisPanel
-				title="Monthly buckets over three years → year ticks (band sampling can repeat)"
+				title="Monthly buckets over three years → month ticks, year at January"
 				data={ timeAxisSeries( monthlyPoints ) }
 			/>
-			<TimeAxisPanel title="Yearly span → year ticks" data={ timeAxisSeries( yearlyPoints ) } />
+			<TimeAxisPanel title="Yearly buckets → year ticks" data={ timeAxisSeries( yearlyPoints ) } />
 		</div>
 	),
 	args: {
@@ -259,7 +257,7 @@ export const TimeAxisTickFormats: Story = {
 		docs: {
 			description: {
 				story:
-					"Date-based series share the time-axis tick formatter with the line and area charts, so the format follows the data's bucket resolution and overall span: hour ticks within a day, hour ticks dated at midnight for sub-daily data spanning up to a week, calendar dates for daily-or-finer buckets within a year, month names (with the year at January) for month-or-coarser buckets, otherwise years. Hover any bar: the tooltip names that bar's bucket at the same granularity as the ticks, spelled out in full — `August 2026` for a monthly bar, `2026` for a yearly one, never a day the bucket doesn't carry. That also disambiguates the three-year monthly panel, where band-scale ticks are sampled by index and so repeat a year across adjacent ticks. An explicit `options.axis.x.tickFormat` still overrides.",
+					"Date-based series share the time-axis tick formatter with the line and area charts. Month-or-coarser buckets follow the resolution alone — month names with the year at January, or plain years for yearly buckets — since they carry no day to print at any span. Daily-or-finer buckets narrow with the span: hour ticks within a day, hour ticks dated at midnight for sub-daily data spanning up to a week, calendar dates within a year, and years beyond that. Hover any bar: the tooltip names that bar's bucket spelled out in full — `August 2026` for a monthly bar, `2026` for a yearly one, never a day the bucket doesn't carry. It always names the bucket's own granularity, so on the daily panel it stays finer than the ticks once a long span coarsens the axis. An explicit `options.axis.x.tickFormat` still overrides.",
 			},
 		},
 	},

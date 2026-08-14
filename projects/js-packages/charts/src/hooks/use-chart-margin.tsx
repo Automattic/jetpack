@@ -75,10 +75,9 @@ export const useChartMargin = (
 		const allDataPoints = data.flatMap( series => series.data as DataPointDate[] );
 
 		if ( horizontal ) {
-			// When horizontal, y ticks renders fixed tick labels.
-			return allDataPoints.map(
-				d => d.label || options.axis?.y?.tickFormat( d.date.getTime(), 0, [] )
-			);
+			// When horizontal, y ticks render the category values; leave them raw so
+			// the axis tick formatter is applied exactly once, when measuring below.
+			return allDataPoints.map( d => d.label || d.date?.getTime() );
 		}
 
 		if ( options.axis?.y?.tickValues?.length ) {
@@ -111,9 +110,7 @@ export const useChartMargin = (
 			yAxisOrientation === 'right' ? theme.axisStyles.y.right : theme.axisStyles.y.left;
 		const yTickWidth = getLongestTickWidth(
 			yTicks,
-			// Horizontal yTicks are already formatted strings; re-applying the
-			// tick formatter would date-parse them (e.g. "6 AM" -> Invalid Date).
-			horizontal ? ( tick: unknown ) => String( tick ) : options.axis?.y?.tickFormat,
+			options.axis?.y?.tickFormat,
 			yAxisStyles.axisLabel
 		);
 		// visx's default axis theme pushes y-axis tick labels a further 0.25em
@@ -149,5 +146,5 @@ export const useChartMargin = (
 		}
 
 		return defaultMargin;
-	}, [ options, theme, yTicks, horizontal ] );
+	}, [ options, theme, yTicks ] );
 };

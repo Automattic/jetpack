@@ -66,6 +66,24 @@ const formatMonthOrYearTick = ( timestamp: number ) => {
 		: date.toLocaleDateString( undefined, { month: 'short' } );
 };
 
+// Overall time span of the data. Series with no dated points are dropped rather
+// than folded in: an empty comparison series is legitimate, and one undefined
+// bound would turn the whole span into NaN. Null when nothing is dated.
+const getSpan = ( sortedData: ReturnType< typeof useChartDataTransform > ) => {
+	const bounds = sortedData
+		.map( datom => [ datom.data.at( 0 )?.date, datom.data.at( -1 )?.date ] )
+		.filter( ( [ first, last ] ) => first !== undefined && last !== undefined );
+
+	if ( ! bounds.length ) {
+		return null;
+	}
+
+	return {
+		minX: Math.min( ...bounds.map( ( [ first ] ) => Number( first ) ) ),
+		maxX: Math.max( ...bounds.map( ( [ , last ] ) => Number( last ) ) ),
+	};
+};
+
 // Smallest interval between consecutive points across all series, in hours.
 // Infinity when no series has two points.
 const getPointSpacingInHours = ( sortedData: ReturnType< typeof useChartDataTransform > ) => {
@@ -85,25 +103,17 @@ const getPointSpacingInHours = ( sortedData: ReturnType< typeof useChartDataTran
 	);
 };
 
-// Nominal point spacing for a caller-declared bucket resolution. A month maps
-// to the shortest month so the month-or-coarser regime engages (see
-// getFormatter). Year is absent: it short-circuits to year ticks before the
-// spacing regimes run.
-const SPACING_BY_RESOLUTION: Record< Exclude< TickResolution, 'year' >, number > = {
-	hour: 1,
-	day: 24,
-	week: 24 * 7,
-	month: 28 * 24,
-};
-
 // 23, not 24: a daily gap shrinks to 23 wall-clock hours across a
 // spring-forward DST transition.
 const SUB_DAILY_SPACING_HOURS = 23;
 
+// The shortest month, so monthly buckets clear it but weekly ones don't.
+const MONTHLY_SPACING_HOURS = 28 * 24;
+
 // The bucket size behind the data, as the resolution label the tick formats are
 // keyed on. Exported so consumers that label a single point — bar chart
-// tooltips — describe the same bucket the axis does instead of inferring the
-// resolution a second way. Weeks report as 'day': both are calendar-date
+// tooltips — read the same classification the axis does instead of inferring
+// the resolution a second way. Weeks report as 'day': both are calendar-date
 // buckets as far as labelling goes.
 export const getBucketResolution = (
 	sortedData: ReturnType< typeof useChartDataTransform >,
@@ -117,61 +127,57 @@ export const getBucketResolution = (
 	if ( spacingInHours < SUB_DAILY_SPACING_HOURS ) {
 		return 'hour';
 	}
-	// Fewer than two points leaves the resolution unknowable, so fall back to
-	// calendar dates — the same fallback getFormatter takes.
-	if ( ! Number.isFinite( spacingInHours ) || spacingInHours < SPACING_BY_RESOLUTION.month ) {
+	// Fewer than two points leaves the spacing unknowable, so fall back to
+	// calendar dates rather than reading Infinity as a very coarse bucket.
+	if ( ! Number.isFinite( spacingInHours ) || spacingInHours < MONTHLY_SPACING_HOURS ) {
 		return 'day';
 	}
 	// Twelve shortest months: above any monthly gap (31 days at most) and below
 	// any yearly one (365 days at least).
-	return spacingInHours < 12 * SPACING_BY_RESOLUTION.month ? 'month' : 'year';
+	return spacingInHours < 12 * MONTHLY_SPACING_HOURS ? 'month' : 'year';
 };
 
-// Pick the most informative tick formatter for the data's resolution and time
+// Pick the most informative tick formatter for the data's bucket resolution and
+// time span. Month-or-coarser buckets are formatted from the resolution alone —
+// they carry no day to print at any span — while finer buckets narrow with the
 // span: hours within a day, hours with day boundaries for sub-daily data
-// spanning up to a week, calendar dates for daily-or-finer buckets within a
-// year, months (with the year at January) for month-or-coarser buckets,
-// otherwise just years. The resolution comes from `tickResolution` when the
-// caller knows it, and is inferred from point spacing otherwise.
+// spanning up to a week, calendar dates within a year, otherwise years.
 export const getFormatter = (
 	sortedData: ReturnType< typeof useChartDataTransform >,
 	tickResolution?: TickResolution
 ) => {
+	const resolution = getBucketResolution( sortedData, tickResolution );
+
 	// The month regime only prints the year at January boundaries, so yearly
-	// buckets starting mid-year would render as month names; year ticks are
-	// correct for yearly buckets at any span.
-	if ( tickResolution === 'year' ) {
+	// buckets starting mid-year would render as bare month names.
+	if ( resolution === 'year' ) {
 		return formatYearTick;
 	}
 
-	const minX = Math.min( ...sortedData.map( datom => datom.data.at( 0 )?.date ) );
-	const maxX = Math.max( ...sortedData.map( datom => datom.data.at( -1 )?.date ) );
-
-	const spacingInHours = tickResolution
-		? SPACING_BY_RESOLUTION[ tickResolution ]
-		: getPointSpacingInHours( sortedData );
-	const isSubDaily = spacingInHours < SUB_DAILY_SPACING_HOURS;
-
-	const diffInHours = Math.abs( differenceInHours( maxX, minX ) );
-	if ( diffInHours <= 24 && isSubDaily ) {
-		return formatHourTick;
+	if ( resolution === 'month' ) {
+		return formatMonthOrYearTick;
 	}
 
-	if ( diffInHours <= 24 * 7 && isSubDaily ) {
-		return formatDateOrHourTick;
+	const span = getSpan( sortedData );
+	if ( ! span ) {
+		return formatDateTick;
 	}
 
-	const diffInYears = Math.abs( differenceInYears( maxX, minX ) );
-	if ( diffInYears <= 1 ) {
-		// 28 days: the shortest month, so monthly buckets qualify but weekly
-		// don't. The finiteness check keeps all-single-point series — whose
-		// resolution is unknowable — on date ticks.
-		return Number.isFinite( spacingInHours ) && spacingInHours >= 28 * 24
-			? formatMonthOrYearTick
-			: formatDateTick;
+	const diffInHours = Math.abs( differenceInHours( span.maxX, span.minX ) );
+	if ( resolution === 'hour' ) {
+		if ( diffInHours <= 24 ) {
+			return formatHourTick;
+		}
+		if ( diffInHours <= 24 * 7 ) {
+			return formatDateOrHourTick;
+		}
 	}
 
-	return formatYearTick;
+	// Beyond a year, dates repeat often enough under tick sampling that the year
+	// is the only part worth printing.
+	return Math.abs( differenceInYears( span.maxX, span.minX ) ) <= 1
+		? formatDateTick
+		: formatYearTick;
 };
 
 // Estimate the largest number of x-axis ticks that fit without producing
@@ -182,9 +188,12 @@ export const guessOptimalNumTicks = (
 	chartWidth: number,
 	tickFormatter: ( timestamp: number, index?: number, values?: unknown ) => string
 ) => {
-	const minX = Math.min( ...data.map( datom => datom.data.at( 0 )?.date ) );
-	const maxX = Math.max( ...data.map( datom => datom.data.at( -1 )?.date ) );
-	const xScale = scaleTime( { domain: [ minX, maxX ] } );
+	const span = getSpan( data );
+	if ( ! span ) {
+		return 1;
+	}
+
+	const xScale = scaleTime( { domain: [ span.minX, span.maxX ] } );
 
 	const upperBound = Math.min(
 		data[ 0 ]?.data.length || 3,

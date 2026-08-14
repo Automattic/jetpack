@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: measure the left margin of horizontal charts from the formatted tick labels, so time-series labels no longer size the margin from "Invalid Date".

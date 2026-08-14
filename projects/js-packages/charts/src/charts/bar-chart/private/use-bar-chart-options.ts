@@ -25,17 +25,20 @@ const TOOLTIP_FORMAT_BY_RESOLUTION: Record<
 
 /**
  * Tick and tooltip formatters for date-based series. Ticks share the line/area
- * charts' time-axis formatter; tooltips label one bar, so they name that bar's
- * bucket at the same granularity, in full.
+ * charts' time-axis formatter, which also narrows with the overall span; a
+ * tooltip labels one bar, so it names that bar's bucket at the bucket's own
+ * granularity — finer than the ticks whenever the span coarsens the axis.
  *
  * @param data           - Date-based series, already parsed and sorted by `useChartDataTransform`.
  * @param tickResolution - Caller-declared bucket resolution, when known.
  * @return Tick and tooltip label formatters.
  */
 const getTimeSeriesFormatters = ( data: SeriesData[], tickResolution?: TickResolution ) => {
-	// A monthly bar reads "August 2026", not "Aug 1, 2026" — the day would be
-	// precision the bucket doesn't carry.
-	const tooltipFormat = TOOLTIP_FORMAT_BY_RESOLUTION[ getBucketResolution( data, tickResolution ) ];
+	// Fall back to the day format rather than `undefined` options, which would
+	// print a full locale date-time for an unrecognised `tickResolution`.
+	const tooltipFormat =
+		TOOLTIP_FORMAT_BY_RESOLUTION[ getBucketResolution( data, tickResolution ) ] ??
+		TOOLTIP_FORMAT_BY_RESOLUTION.day;
 	const tooltipFormatter = ( timestamp: number ) =>
 		new Date( timestamp ).toLocaleString( undefined, tooltipFormat );
 
@@ -65,9 +68,8 @@ export function useBarChartOptions(
 	horizontal: boolean,
 	options: BaseChartProps[ 'options' ] = {}
 ) {
-	// The date axis flips with orientation. `tickResolution` is a hint for the
-	// tick formatter rather than a visx axis prop, so it is read here and
-	// stripped from the axis options spread below.
+	// `tickResolution` is a hint for the tick formatter rather than a visx axis
+	// prop, so it is read here and stripped from the axis options spread below.
 	const tickResolution = horizontal
 		? options.axis?.y?.tickResolution
 		: options.axis?.x?.tickResolution;
