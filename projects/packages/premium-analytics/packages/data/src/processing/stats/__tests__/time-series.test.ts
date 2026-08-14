@@ -314,9 +314,7 @@ describe( 'Stats time-series normalizer', () => {
 		expect( withoutRows.summary.date_end ).toBe( withRows.summary.date_end );
 	} );
 
-	// `stats/subscribers` returns its buckets newest first, unlike `stats/visits`.
-	// Downstream code reads `data[0]` as the oldest bucket, so the order is
-	// normalized here rather than at each call site.
+	// The shape `stats/subscribers` returns.
 	it( 'orders newest-first payloads oldest first', () => {
 		const result = sanitizeStatsTimeSeriesResponse(
 			{

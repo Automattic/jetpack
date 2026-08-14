@@ -864,9 +864,8 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 		date: endDate.toISOString().slice( 0, 10 ),
 		unit,
 		fields: [ 'period', 'subscribers', 'subscribers_paid' ],
-		// Newest first, as the live endpoint returns them — unlike `stats/visits`.
-		// An oldest-first mock here hid WOOA7S-1907, where the reversed order left
-		// the chart legend reading its date range backwards.
+		// Newest first, as the live endpoint returns them. An oldest-first mock here
+		// hid WOOA7S-1907.
 		data: rows.reverse(),
 	};
 }

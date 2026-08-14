@@ -3,7 +3,7 @@ import type {
 	StatsSubscribersRawResponse,
 } from '../subscribers';
 
-// Rows are newest first, as the live `stats/subscribers` endpoint returns them.
+// Newest first, as the live endpoint returns them.
 export const subscribersFixture = {
 	date: '2026-06-25',
 	unit: 'day',

@@ -95,8 +95,7 @@ function parseTimeSeriesRows( payload: unknown ) {
 	} );
 }
 
-// Ordinal, not lexical: `localeCompare` lets a collation reorder or ignore the
-// separators these bounds are built from.
+// Not `localeCompare`: a collation may ignore the separators these bounds carry.
 function compareBucketBounds( a: string, b: string ) {
 	if ( a === b ) {
 		return 0;
@@ -303,14 +302,9 @@ export function sanitizeStatsTimeSeriesResponse(
 				items: [],
 			};
 		} )
-		// Row order differs by endpoint: `stats/visits` returns its buckets oldest
-		// first, `stats/subscribers` newest first. Everything downstream reads
-		// `data[0]` as the oldest bucket — the summary bounds below, chart legend
-		// ranges, and cumulative headline values — so the order is normalized once
-		// here instead of at each call site. `date_start` is a nominal wall-clock
-		// label rather than a real instant (see getStatsIntervalFields), so
-		// comparing the strings sorts chronologically without reintroducing an
-		// offset.
+		// `stats/visits` returns buckets oldest first, `stats/subscribers` newest
+		// first, but everything downstream reads `data[0]` as the oldest bucket —
+		// starting with the summary bounds below.
 		.sort( ( a, b ) => compareBucketBounds( a.date_start, b.date_start ) );
 	const firstRow = data[ 0 ];
 	const lastRow = data[ data.length - 1 ];
