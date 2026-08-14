@@ -207,6 +207,12 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		recordEvent( 'jetpack_myjetpack_activate_license_click' );
 	}, [ recordEvent ] );
 
+	/*
+	 * Avoid ternary as code minification will break translation function. :(
+	 * The unconditional initialiser is what keeps the two _x() calls separate. Collapsing
+	 * them fails the I18nCheckPlugin with "msgid argument is not a string literal", and
+	 * since that plugin only runs on production builds, it surfaces in CI rather than dev.
+	 */
 	let activateLicenceDescription: string = _x(
 		'Activate a license',
 		'Activate a license button text',
