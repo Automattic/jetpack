@@ -19,9 +19,10 @@ class Storage_Post_Type {
 	/**
 	 * Cache format version. Part of the transient key, and the prefix on post_content.
 	 *
-	 * Keeps get() away from transients an earlier release wrote, which were cached
-	 * without the object checks below, and away from rows written while the REST
-	 * route and the default capabilities were open.
+	 * On the transient key it keeps get() away from transients an earlier release
+	 * wrote, which were cached without the object checks below. On the row it marks
+	 * where the encoded payload starts; get() validates every row, prefixed or not,
+	 * before serving it.
 	 *
 	 * @since $$next-version$$
 	 */
@@ -87,8 +88,9 @@ class Storage_Post_Type {
 	/**
 	 * The prefix set() puts in front of the encoded payload.
 	 *
-	 * Sits outside the payload so get() can tell a row this release wrote from one
-	 * written while anyone could write it, without decoding or parsing either.
+	 * Sits outside the payload so get() knows where the encoded bytes start on a row
+	 * this release wrote, without decoding to find out. A row without it is still
+	 * read; get() just decodes from the first byte.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -212,20 +214,23 @@ class Storage_Post_Type {
 		 * )
 		 */
 
-		$prefix = $this->row_prefix();
+		$prefix  = $this->row_prefix();
+		$encoded = $data_post->post_content;
 
 		// A row without the prefix was written before this release, when the REST route
-		// and the default capabilities let anyone create one. Refuse it whole: neither
-		// base64_decode() nor unserialize() sees a byte of it, so an object payload
-		// cannot be built and a deeply nested one cannot exhaust the parser.
-		if ( 0 !== strpos( $data_post->post_content, $prefix ) ) {
-			$this->delete_rejected_row( $key, $data_post, 'predates the current row format' );
-
-			return $default;
+		// and the default capabilities let anyone create one. Most such rows are cache
+		// Boost itself wrote, so the prefix only marks where the payload starts, not
+		// whether the row can be served: that is settled below, by the same object-token
+		// scan and allowed_classes => false every row runs through. The strip is
+		// conditional because ':' is not in the base64 alphabet, so a legitimate
+		// unprefixed payload can never begin with the prefix, and stripping one that is
+		// not there would misalign the decode.
+		if ( 0 === strpos( $encoded, $prefix ) ) {
+			$encoded = substr( $encoded, strlen( $prefix ) );
 		}
 
 		// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize, WordPress.PHP.NoSilencedErrors.Discouraged
-		$decoded = base64_decode( substr( $data_post->post_content, strlen( $prefix ) ) );
+		$decoded = base64_decode( $encoded );
 		$value   = $decoded;
 
 		// Ahead of is_serialized(), which has no case for C:, and ahead of unserialize(),
@@ -289,36 +294,6 @@ class Storage_Post_Type {
 	 */
 	private function refuse_row( $key, $reason ) {
 		Debug::log( 'refused cache entry "' . $key . '": stored content ' . $reason );
-	}
-
-	/**
-	 * Delete a row get() can prove it did not write, and serve the default.
-	 *
-	 * The prefix check is exact, so this cannot fire on a row the current release
-	 * wrote. Deleting clears out anything planted while the post types were open,
-	 * one key at a time as each is read, instead of in a sweep on upgrade.
-	 *
-	 * Contained, because get() has already decided to serve the default and a
-	 * throwing wp_delete_post() subscriber must not fatal the render.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string   $key       Cache key name.
-	 * @param \WP_Post $data_post The refused row.
-	 * @param string   $reason    For the debug log.
-	 *
-	 * @return void
-	 */
-	private function delete_rejected_row( $key, $data_post, $reason ) {
-		Debug::log( 'refused cache entry "' . $key . '": stored content ' . $reason . '; deleting the row' );
-
-		try {
-			wp_delete_post( $data_post->ID, true );
-		} catch ( \Throwable $e ) {
-			Debug::log( 'deleting cache entry "' . $key . '" threw: ' . $e->getMessage() );
-		}
-
-		delete_transient( $this->transient_key( $key ) );
 	}
 
 	/**

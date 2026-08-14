@@ -451,12 +451,11 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The post types carried show_in_rest => true and the default capabilities until
-	 * this release, so a row can predate the fix. Refusing on the prefix settles it
-	 * without decoding: an object payload is never built, and a deeply nested one
-	 * never reaches the parser that PHP 7.2 and 7.3 recurse on.
+	 * A row written before this release carries no prefix. It is cache Boost itself
+	 * wrote, so get() serves it: the prefix marks where the payload starts, it does
+	 * not decide whether the row is safe. The row is left in place either way.
 	 */
-	public function test_get_rejects_and_deletes_a_row_without_the_current_format_prefix() {
+	public function test_get_serves_a_legitimate_row_without_the_current_format_prefix() {
 		$key     = 'legacy_row_probe';
 		$storage = new Storage_Post_Type( 'css' );
 
@@ -470,13 +469,45 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 		);
 
 		$this->assertSame(
+			array( 'css' => 'body{display:none}' ),
+			$storage->get( $key, 'default_value' ),
+			'A legitimate row from before the current format must still be served.'
+		);
+		$this->assertNotFalse(
+			$storage->get_post_by_name( $key ),
+			'Serving a legacy row must not delete it.'
+		);
+	}
+
+	/**
+	 * A row from before this release still runs through the object-token scan, so a
+	 * payload planted while the post types were open is refused rather than served. It
+	 * is left in place, like every other refused row; the next regeneration clears the
+	 * whole store.
+	 */
+	public function test_get_refuses_but_keeps_an_unprefixed_row_containing_an_object() {
+		$key     = 'legacy_object_probe';
+		$storage = new Storage_Post_Type( 'css' );
+
+		// An O: object token in a row with no format prefix.
+		$this->write_raw_serialized_entry(
+			$key,
+			'a:2:{s:4:"data";O:8:"stdClass":0:{}s:6:"expiry";i:0;}',
+			false
+		);
+
+		$this->assertSame(
 			'default_value',
 			$storage->get( $key, 'default_value' ),
-			'A row written before the current format must not be served, object token or not.'
+			'An object payload must never be served, prefix or not.'
+		);
+		$this->assertNotFalse(
+			$storage->get_post_by_name( $key ),
+			'A refused row is left in place, not deleted.'
 		);
 		$this->assertFalse(
-			$storage->get_post_by_name( $key ),
-			'The prefix check is exact, so the row can be deleted rather than left in place.'
+			get_transient( self::transient_key( $key ) ),
+			'A refused row must not populate the transient cache.'
 		);
 	}
 
