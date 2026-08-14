@@ -135,6 +135,10 @@ class Feedback_Author {
 	 * Background colors for the "initials" identity avatars, drawn from the
 	 * Color Studio palette's 50 shades (https://color-studio.blog/).
 	 *
+	 * Only the 50-level shades are safe here: the white initials clear WCAG AA
+	 * against them, and the warmer ones (orange, yellow, green, celadon) sit right
+	 * on the 4.5:1 line. Swapping in a lighter tint would quietly drop below AA.
+	 *
 	 * Hex values without the leading `#`, as Gravatar's `bg_color` param expects.
 	 *
 	 * @var string[]
