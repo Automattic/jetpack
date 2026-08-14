@@ -43,6 +43,11 @@ const PocketCastsRow = ( { app, state, blockedReason, onFirstSave }: PodcastAppR
 
 	const liveState = result ? liveStateFromResult( result.state ) : null;
 	const effectiveState = liveState ?? state;
+	// Read the stored link rather than `result.share_link`: the endpoint returns
+	// the relay body verbatim, while the stored copy has been through
+	// `sanitize_show_urls` (https + host allowlist). A successful submit
+	// refetches settings, so this fills in on its own.
+	const viewUrl = settings?.podcasting_show_urls?.pocketcasts ?? '';
 
 	const rejectionReasons = useMemo(
 		() => ( result?.state === 'rejected' ? extractRejectionReasons( result.pcc ) : [] ),
@@ -86,6 +91,7 @@ const PocketCastsRow = ( { app, state, blockedReason, onFirstSave }: PodcastAppR
 			}
 			isBusy={ isSubmitting }
 			isComplete={ effectiveState === 'active' }
+			viewUrl={ viewUrl }
 			onAction={ handleSubmit }
 		>
 			{ ! connected && (

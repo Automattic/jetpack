@@ -7,6 +7,7 @@ import {
 } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { external } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
 import type { PodcastShowState, PodcatcherId } from '../types';
 import type { PodcastApp } from './podcast-apps/types';
@@ -20,6 +21,7 @@ const PENDING_LABEL = __( 'Pending', 'jetpack-podcast' );
 // reflects what we know; "Live" overpromises.
 const SUBMITTED_LABEL = __( 'Submitted', 'jetpack-podcast' );
 const SET_UP_LABEL = __( 'Set up', 'jetpack-podcast' );
+const VIEW_SHOW_LABEL = __( 'View show', 'jetpack-podcast' );
 
 export const StateBadge = ( { state }: { state: PodcastShowState } ) => {
 	if ( state !== 'pending' && state !== 'active' ) {
@@ -43,6 +45,9 @@ interface DirectoryRowProps {
 	blockedActionLabel: string;
 	isBusy?: boolean;
 	isComplete?: boolean;
+	// Live show URL. Turns the action into a link to the show, since once it's
+	// live there's nothing left to submit.
+	viewUrl?: string;
 	onAction: ( id: PodcatcherId ) => void;
 	children?: ReactNode;
 }
@@ -55,6 +60,7 @@ export const DirectoryRow = ( {
 	blockedActionLabel,
 	isBusy = false,
 	isComplete = false,
+	viewUrl,
 	onAction,
 	children,
 }: DirectoryRowProps ) => {
@@ -70,19 +76,37 @@ export const DirectoryRow = ( {
 					<Text weight={ 500 }>{ app.name }</Text>
 					<StateBadge state={ state } />
 				</Stack>
-				<Tooltip text={ blockedReason }>
+				{ viewUrl ? (
 					<Button
-						variant="primary"
+						variant="secondary"
 						size="compact"
-						onClick={ handleClick }
-						isBusy={ isBusy }
-						disabled={ !! blockedReason || isBusy || isComplete }
-						accessibleWhenDisabled
-						aria-label={ blockedReason ? blockedActionLabel : undefined }
+						icon={ external }
+						href={ viewUrl }
+						target="_blank"
+						rel="noreferrer"
+						aria-label={ sprintf(
+							/* translators: %s: directory name (Pocket Casts, Apple Podcasts, etc.). */
+							__( 'View your show on %s (opens in a new tab)', 'jetpack-podcast' ),
+							app.name
+						) }
 					>
-						{ actionLabel }
+						{ VIEW_SHOW_LABEL }
 					</Button>
-				</Tooltip>
+				) : (
+					<Tooltip text={ blockedReason }>
+						<Button
+							variant="primary"
+							size="compact"
+							onClick={ handleClick }
+							isBusy={ isBusy }
+							disabled={ !! blockedReason || isBusy || isComplete }
+							accessibleWhenDisabled
+							aria-label={ blockedReason ? blockedActionLabel : undefined }
+						>
+							{ actionLabel }
+						</Button>
+					</Tooltip>
+				) }
 			</Stack>
 			{ children }
 		</Stack>
