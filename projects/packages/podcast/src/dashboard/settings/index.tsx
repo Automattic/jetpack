@@ -33,6 +33,11 @@ const EXPLICIT_OPTIONS: Array< { label: string; value: string } > = [
 	{ label: __( 'Yes', 'jetpack-podcast' ), value: 'yes' },
 ];
 
+// Read rather than mirrored: the ceiling is filterable server-side, so a
+// hardcoded twin here would clamp against the wrong number on a site that
+// moved it. Absent, clamping is left to the server.
+const feedLimitMax = getScriptData()?.podcast?.feed_limit_max;
+
 // Flatten the Apple Podcasts topic tree into one searchable token list for
 // `FormTokenField`. Display strings use `Primary » Subtopic` (matching
 // Calypso's renderer); storage strings use the legacy `Primary,Subtopic`
@@ -81,9 +86,15 @@ type StringFieldKey =
 // state per keystroke, then commits on blur if the value differs from what's
 // saved. Re-syncs from `stored` when the saved value changes externally.
 // Spread directly onto `<TextControl>` etc. for `value` / `onChange` / `onBlur`.
+//
+// `normalize` snaps the input to what will actually be stored. Fields whose
+// server-side sanitizer can rewrite input need it: a value rewritten back to
+// the current `stored` leaves `stored` unchanged, so the re-sync effect never
+// fires and the input would sit showing the number that was rejected.
 const useFieldEditor = (
 	stored: string,
-	onCommit: ( value: string ) => void
+	onCommit: ( value: string ) => void,
+	normalize?: ( value: string ) => string
 ): { value: string; onChange: ( v: string ) => void; onBlur: () => void } => {
 	const [ local, setLocal ] = useState( stored );
 	useEffect( () => {
@@ -93,8 +104,10 @@ const useFieldEditor = (
 		value: local,
 		onChange: setLocal,
 		onBlur: () => {
-			if ( local !== stored ) {
-				onCommit( local );
+			const next = normalize ? normalize( local ) : local;
+			setLocal( next );
+			if ( next !== stored ) {
+				onCommit( next );
 			}
 		},
 	};
@@ -212,15 +225,27 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		commitField( 'podcasting_email' )
 	);
 
-	// Numeric, so it can't ride `commitField`. The server owns the range — a
-	// cleared field comes back as the default once the save resyncs the draft.
+	// Numeric, so it can't ride `commitField`. Cleared or junk input keeps the
+	// saved limit instead of committing 0, which the server would swap for a
+	// default well above what the site was serving.
+	const normalizeFeedLimit = useCallback(
+		( value: string ) => {
+			const parsed = Number.parseInt( value, 10 );
+			if ( Number.isNaN( parsed ) || parsed < 1 ) {
+				return String( draft?.podcasting_feed_limit ?? '' );
+			}
+			return String( feedLimitMax ? Math.min( parsed, feedLimitMax ) : parsed );
+		},
+		[ draft?.podcasting_feed_limit ]
+	);
 	const commitFeedLimit = useCallback(
-		( value: string ) => commit( { podcasting_feed_limit: Number.parseInt( value, 10 ) || 0 } ),
+		( value: string ) => commit( { podcasting_feed_limit: Number.parseInt( value, 10 ) } ),
 		[ commit ]
 	);
 	const feedLimitField = useFieldEditor(
 		String( draft?.podcasting_feed_limit ?? '' ),
-		commitFeedLimit
+		commitFeedLimit,
+		normalizeFeedLimit
 	);
 
 	// Discrete-action handlers — these controls "commit" on each user choice
@@ -482,7 +507,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							__nextHasNoMarginBottom
 							type="number"
 							min={ 1 }
-							max={ getScriptData()?.podcast?.feed_limit_max }
+							max={ feedLimitMax }
 							step={ 1 }
 							label={ __( 'Episodes in feed', 'jetpack-podcast' ) }
 							help={ __(
