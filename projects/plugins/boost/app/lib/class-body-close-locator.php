@@ -28,7 +28,7 @@ namespace Automattic\Jetpack_Boost\Lib;
  * null and the caller appends at the end of the buffer instead of rewriting
  * existing markup.
  *
- * @since $$next-version$$
+ * @since 4.7.0
  */
 class Body_Close_Locator {
 

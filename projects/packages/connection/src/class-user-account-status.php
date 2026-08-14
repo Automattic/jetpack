@@ -125,7 +125,7 @@ class User_Account_Status {
 	/**
 	 * Normalize an email address so that addresses differing only in case are treated as equal.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.10.3
 	 *
 	 * @param string $email The email address to normalize.
 	 *

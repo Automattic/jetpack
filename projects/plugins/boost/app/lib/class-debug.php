@@ -39,7 +39,7 @@ class Debug {
 	 * keys), so the line is scrubbed of CR/LF first: a message spanning two lines can
 	 * otherwise forge a log entry of its own (CWE-117).
 	 *
-	 * @since $$next-version$$
+	 * @since 4.7.0
 	 *
 	 * @param string $message What happened. Prefixed with "Jetpack Boost: ".
 	 *
@@ -60,7 +60,7 @@ class Debug {
 	 * Separate from log(), and public, so a unit test can assert the rule without
 	 * defining WP_DEBUG for the whole process. log() is the only caller.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.7.0
 	 *
 	 * @param mixed $message Text that may contain CR/LF. Cast rather than typed: a
 	 *                       logging helper must not raise a TypeError on a path

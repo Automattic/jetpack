@@ -21,7 +21,7 @@ namespace Automattic\Jetpack_Boost\Lib;
  * string, so no lexical updates (set_attribute() and friends) may be enqueued
  * by users of this class.
  *
- * @since $$next-version$$
+ * @since 4.7.0
  */
 class Position_Aware_Tag_Processor extends \WP_HTML_Tag_Processor {
 

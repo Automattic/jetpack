@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Modules: Batch the per-module status option reads into a single query to avoid redundant per-request database queries on sites without a persistent object cache.

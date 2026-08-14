@@ -185,12 +185,25 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 4. Historical performance tracking with the upgraded plan.
 
 == Changelog ==
-### 4.6.3 - 2026-06-26
+### 4.7.0-beta - 2026-08-14
+#### Added
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed.
+- Concatenate JS/CSS: Add a `jetpack_boost_minify_use_static_cache_urls` filter to override whether bundles are linked from the static cache.
+
 #### Changed
-- Update dependencies.
+- Boost now reports its problem count to the central menu-badges registry instead of writing admin-menu markup directly.
+- Image CDN: update the image quality slider to use the WordPress RangeControl component.
+- Performance: reduce the number of database reads performed on every page load by preparing Sync data only when it is actually sent to WordPress.com.
+- Update @react-spring/web to v10 and remove the unused @react-spring/core dependency for React 19 compatibility.
+- Update package dependencies.
 
 #### Fixed
-- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active.
+- Concatenate JS/CSS: Fix broken CSS and JS delivery on pages rendered after a site is migrated onto WP Cloud or WordPress.com. Pages already served from a cache keep the old URLs until the cache is purged or expires.
+- Connection: Stop showing a duplicate account notice when your WordPress.com email differs from your site email only in letter case.
+- Defer JS: Fix a regression where a literal closing body tag inside a script, textarea, comment, or attribute value could corrupt the page when deferred scripts were re-inserted. Previously corrupted copies of a page may persist in Boost's page cache (up to an hour by default) and in any host or CDN cache after updating; purge those caches to clear them immediately.
+- Fix a blank Boost admin page on WordPress 6.9 installs without the Gutenberg plugin active, where the wp-theme script handle the embedded My Jetpack app depends on was otherwise unregistered.
+- LCP: Preserve analysis results when a page reports an error or when the homepage is also configured as a cornerstone page.
+- Modules: Batch the per-module status option reads into a single query to avoid redundant per-request database queries on sites without a persistent object cache.
 
 --------
 
