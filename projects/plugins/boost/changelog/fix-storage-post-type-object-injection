@@ -1,4 +1,5 @@
 Significance: patch
-Type: security
+Type: changed
+Comment: Entry text lands with the stable release.
 
-Critical CSS/LCP: Close REST API access to the cache storage, and refuse to load a stored cache entry that contains a PHP object.
+
