@@ -74,12 +74,16 @@ const PocketCastsRow = ( { app, state, blockedReason, onFirstSave }: PodcastAppR
 			state={ effectiveState }
 			blockedReason={ reason }
 			actionLabel={ SUBMIT_LABEL }
-			blockedActionLabel={ sprintf(
-				/* translators: 1: directory name (Pocket Casts). 2: reason the Submit button is disabled. */
-				__( 'Submit to %1$s. %2$s', 'jetpack-podcast' ),
-				app.name,
+			blockedActionLabel={
 				reason
-			) }
+					? sprintf(
+							/* translators: 1: directory name (Pocket Casts). 2: reason the Submit button is disabled. */
+							__( 'Submit to %1$s. %2$s', 'jetpack-podcast' ),
+							app.name,
+							reason
+					  )
+					: ''
+			}
 			isBusy={ isSubmitting }
 			isComplete={ effectiveState === 'active' }
 			onAction={ handleSubmit }

@@ -5,10 +5,11 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalText as Text,
 } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import type { PodcastShowState, PodcatcherId } from '../types';
-import type { PodcastApp, PodcastAppRowProps } from './podcast-apps/types';
+import type { PodcastApp } from './podcast-apps/types';
 import type { ReactNode } from 'react';
 
 // Hoisted so terser can't fold them into __(cond?'a':'b') — the i18n-check
@@ -42,7 +43,7 @@ interface DirectoryRowProps {
 	blockedActionLabel: string;
 	isBusy?: boolean;
 	isComplete?: boolean;
-	onAction: () => void;
+	onAction: ( id: PodcatcherId ) => void;
 	children?: ReactNode;
 }
 
@@ -58,6 +59,7 @@ export const DirectoryRow = ( {
 	children,
 }: DirectoryRowProps ) => {
 	const { Logo } = app;
+	const handleClick = useCallback( () => onAction( app.id ), [ onAction, app.id ] );
 	return (
 		<Stack direction="column" gap="md" render={ <li /> } className="podcast__directory-row">
 			<Stack align="center" justify="space-between">
@@ -72,7 +74,7 @@ export const DirectoryRow = ( {
 					<Button
 						variant="primary"
 						size="compact"
-						onClick={ onAction }
+						onClick={ handleClick }
 						isBusy={ isBusy }
 						disabled={ !! blockedReason || isBusy || isComplete }
 						accessibleWhenDisabled
@@ -105,17 +107,18 @@ export const DirectoryList = ( {
 	<Stack direction="column" render={ <ul /> } className="podcast__directory-list">
 		{ apps.map( app => {
 			const state = states[ app.id ] ?? '';
-			const rowProps: PodcastAppRowProps = {
-				app,
-				state,
-				blockedReason,
-				onOpenModal: () => onOpenModal( app.id ),
-				onFirstSave,
-			};
 
 			if ( app.Row ) {
 				const { Row } = app;
-				return <Row key={ app.id } { ...rowProps } />;
+				return (
+					<Row
+						key={ app.id }
+						app={ app }
+						state={ state }
+						blockedReason={ blockedReason }
+						onFirstSave={ onFirstSave }
+					/>
+				);
 			}
 
 			return (
@@ -125,13 +128,17 @@ export const DirectoryList = ( {
 					state={ state }
 					blockedReason={ blockedReason }
 					actionLabel={ SET_UP_LABEL }
-					blockedActionLabel={ sprintf(
-						/* translators: 1: directory name (Apple Podcasts, Spotify, etc.). 2: reason the Set up button is disabled. */
-						__( 'Set up %1$s. %2$s', 'jetpack-podcast' ),
-						app.name,
+					blockedActionLabel={
 						blockedReason
-					) }
-					onAction={ rowProps.onOpenModal }
+							? sprintf(
+									/* translators: 1: directory name (Apple Podcasts, Spotify, etc.). 2: reason the Set up button is disabled. */
+									__( 'Set up %1$s. %2$s', 'jetpack-podcast' ),
+									app.name,
+									blockedReason
+							  )
+							: ''
+					}
+					onAction={ onOpenModal }
 				/>
 			);
 		} ) }

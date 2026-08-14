@@ -18,4 +18,4 @@ export const PODCAST_APPS: readonly PodcastApp[] = [
 	podcastindex,
 ] as const;
 
-export type { PodcastApp, PodcastAppModalProps } from './types';
+export type { PodcastApp, PodcastAppModalProps, PodcastAppRowProps } from './types';

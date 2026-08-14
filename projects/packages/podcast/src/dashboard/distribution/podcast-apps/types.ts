@@ -22,7 +22,6 @@ export interface PodcastAppRowProps {
 	// Non-empty disables the row's action and explains why, so a disabled
 	// button can't be left without a reason.
 	blockedReason: string;
-	onOpenModal: () => void;
 	// Called once a save lands on the very first show URL stored across all
 	// directories. Used by Distribution to fire a confetti celebration.
 	onFirstSave?: () => void;
