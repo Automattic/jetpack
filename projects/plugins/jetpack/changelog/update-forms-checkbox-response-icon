@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: show an empty checkbox icon next to checkbox fields the respondent left unchecked, instead of always showing a ticked one.

@@ -389,12 +389,16 @@ class Feedback_Email_Renderer {
 	public static function get_compiled_form_for_email( $feedback_id, $form ) {
 		$compiled_form    = array();
 		$field_collection = array();
+		$raw_values       = array();
 		$response         = Feedback::get( $feedback_id );
 
 		if ( $response instanceof Feedback ) {
 			// Get both formats: 'all' for backward-compat filter, 'collection' for type-aware rendering.
 			$compiled_form    = $response->get_compiled_fields( 'email', 'all' );
 			$field_collection = $response->get_compiled_fields( 'email_html', 'collection' );
+			// The collection's 'value' is already rendered HTML, but a checkbox's
+			// icon depends on the underlying answer, so keep the raw values too.
+			$raw_values = $response->get_compiled_fields( 'email', 'key-value' );
 		}
 
 		/**
@@ -436,7 +440,8 @@ class Feedback_Email_Renderer {
 			// No filter customization — use new type-aware rendering.
 			$compiled_form = array();
 			foreach ( $field_collection as $field_data ) {
-				$compiled_form[] = self::format_field_for_email( $field_data );
+				$field_key       = $field_data['key'] ?? '';
+				$compiled_form[] = self::format_field_for_email( $field_data, $raw_values[ $field_key ] ?? null );
 			}
 		}
 
@@ -446,10 +451,18 @@ class Feedback_Email_Renderer {
 	/**
 	 * Get the icon name for a given field type.
 	 *
-	 * @param string $type The field type.
+	 * @param string $type  The field type.
+	 * @param mixed  $value The submitted value, for field types whose icon
+	 *                      depends on the answer as well as the type.
 	 * @return string The icon name.
 	 */
-	private static function get_field_icon_name( $type ) {
+	private static function get_field_icon_name( $type, $value = null ) {
+		// A checkbox reflects the respondent's answer: an unticked box gets the
+		// empty-square variant rather than the ticked one.
+		if ( 'checkbox' === $type && ! Feedback_Field::is_checked_value( $value ) ) {
+			return 'field-checkbox-unchecked';
+		}
+
 		$map = array(
 			'text'              => 'field-text',
 			'name'              => 'field-text',
@@ -482,15 +495,17 @@ class Feedback_Email_Renderer {
 	 * and produces a table row with an icon, label, and type-specific value.
 	 *
 	 * @param array $field_data Field data with keys: label, value, type, id, key, meta.
+	 * @param mixed $raw_value  The underlying (unrendered) value, for field types
+	 *                          whose icon depends on the answer as well as the type.
 	 * @return string HTML for the field row.
 	 */
-	private static function format_field_for_email( $field_data ) {
+	private static function format_field_for_email( $field_data, $raw_value = null ) {
 		$label = $field_data['label'] ?? '';
 		$value = $field_data['value'] ?? '';
 		$type  = $field_data['type'] ?? 'text';
 
 		$safe_label = Contact_Form::escape_and_sanitize_field_label( $label );
-		$icon_name  = self::get_field_icon_name( $type );
+		$icon_name  = self::get_field_icon_name( $type, $raw_value );
 		$icon_url   = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/' . $icon_name . '@2x.png';
 
 		// Value is already rendered as HTML by Feedback_Field::get_render_email_html_value().
