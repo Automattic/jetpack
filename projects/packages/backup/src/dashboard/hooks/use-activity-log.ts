@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import {
 	fetchActivityLog,
 	type WpcomActivityEntry,
@@ -21,6 +21,7 @@ type Result = {
 	totalPages: number;
 	isLoading: boolean;
 	error: Error | null;
+	refetch: () => void;
 };
 
 /**
@@ -69,15 +70,22 @@ function useActivityPageQuery( page: number, pageSize: number ) {
  * @param args          - Query args.
  * @param args.page     - 1-indexed page number.
  * @param args.pageSize - Items per page.
- * @return Items, total items, total pages, loading, error.
+ * @return Items, total items, total pages, loading, error, refetch.
  */
 export function useActivityLog( { page, pageSize }: Args ): Result {
 	const query = useActivityPageQuery( page, pageSize );
+	const { refetch } = query;
 
 	const items = useMemo(
 		() => normalizeActivityLog( query.data?.current?.orderedItems ),
 		[ query.data ]
 	);
+
+	// Wrapped so callers can hand it straight to `onClick` without
+	// returning a floating promise from the event handler.
+	const retry = useCallback( () => {
+		refetch();
+	}, [ refetch ] );
 
 	return {
 		items,
@@ -85,6 +93,7 @@ export function useActivityLog( { page, pageSize }: Args ): Result {
 		totalPages: query.data?.totalPages ?? Math.max( 1, Math.ceil( items.length / pageSize ) ),
 		isLoading: query.isLoading,
 		error: query.error ?? null,
+		refetch: retry,
 	};
 }
 

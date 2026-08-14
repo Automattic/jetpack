@@ -62,6 +62,14 @@
 		padding: 4px 0;
 	}
 
+	// Sits where `&__empty` would, and is deliberately styled apart from
+	// it: "we couldn't look inside this folder" and "this folder is empty"
+	// occupy the same slot and used to render identically.
+	&__error {
+		color: var(--wp-components-color-alert-red, #cc1818);
+		padding: 4px 0;
+	}
+
 	&__loading {
 		padding: 4px 0;
 	}

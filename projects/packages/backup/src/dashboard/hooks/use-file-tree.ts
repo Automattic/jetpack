@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { fetchFileTree, type WpcomFileNode } from '../data/api/file-tree';
 import { keys } from '../data/query-client';
 import type { FileNode } from '../types/file-tree';
@@ -10,6 +10,7 @@ type Result = {
 	children: FileNode[] | null;
 	isLoading: boolean;
 	error: Error | null;
+	refetch: () => void;
 };
 
 /**
@@ -76,7 +77,7 @@ export function toFileNode( name: string, raw: WpcomFileNode, parentPath: string
  *
  * @param rewindId   - The backup's rewind id (decimal-suffix-safe).
  * @param folderPath - Folder to load, or null for the root.
- * @return Children list, loading flag, error.
+ * @return Children list, loading flag, error, refetch.
  */
 export function useFileTree( rewindId: string, folderPath: string | null ): Result {
 	const path = folderPath ?? BASE_FOLDER_PATH;
@@ -85,6 +86,7 @@ export function useFileTree( rewindId: string, folderPath: string | null ): Resu
 		queryFn: () => fetchFileTree( rewindId, path ),
 		enabled: Boolean( rewindId ),
 	} );
+	const { refetch } = query;
 
 	const children = useMemo< FileNode[] | null >( () => {
 		if ( ! query.data ) {
@@ -102,9 +104,16 @@ export function useFileTree( rewindId: string, folderPath: string | null ): Resu
 			.map( ( [ name, raw ] ) => toFileNode( name, raw, path ) );
 	}, [ query.data, path ] );
 
+	// Wrapped so callers can hand it straight to `onClick` without
+	// returning a floating promise from the event handler.
+	const retry = useCallback( () => {
+		refetch();
+	}, [ refetch ] );
+
 	return {
 		children,
 		isLoading: query.isLoading,
 		error: query.error ?? null,
+		refetch: retry,
 	};
 }

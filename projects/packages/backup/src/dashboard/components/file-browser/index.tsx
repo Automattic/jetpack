@@ -12,6 +12,7 @@ import { Stack } from '@wordpress/ui';
 import { useFileTree } from '../../hooks/use-file-tree';
 import { isFolder } from '../../types/file-tree';
 import FileInfoCard from '../file-info-card';
+import QueryError from '../query-error';
 import './style.scss';
 import type { FileNode, FileNodeFile } from '../../types/file-tree';
 
@@ -322,7 +323,12 @@ export default function FileBrowser( {
 	onSelectionCountChange,
 }: Props ) {
 	const [ openFile, setOpenFile ] = useState< FileNodeFile | null >( null );
-	const { children: rootsData, isLoading: rootsLoading } = useFileTree( rewindId, null );
+	const {
+		children: rootsData,
+		isLoading: rootsLoading,
+		error: rootsError,
+		refetch: refetchRoots,
+	} = useFileTree( rewindId, null );
 	const roots = useMemo< FileNode[] >( () => rootsData ?? [], [ rootsData ] );
 	const { selected, deselected } = selection;
 
@@ -418,6 +424,23 @@ export default function FileBrowser( {
 
 	const closeInfoCard = useCallback( () => setOpenFile( null ), [] );
 
+	// A failed root tree is indistinguishable from a backup that contains
+	// nothing: `children` is null either way, so the tree renders empty
+	// under a "0 items selected" header that invites the reader to select
+	// from it. Replace the whole browser rather than just the tree — the
+	// selection header is meaningless without a tree to select from.
+	if ( rootsError ) {
+		return (
+			<div className="jpb-file-browser" data-rewind-id={ rewindId }>
+				<QueryError
+					title={ __( "We couldn't load this backup's files.", 'jetpack-backup-pkg' ) }
+					error={ rootsError }
+					onRetry={ refetchRoots }
+				/>
+			</div>
+		);
+	}
+
 	return (
 		<div className="jpb-file-browser" data-rewind-id={ rewindId }>
 			<Stack direction="row" align="center" gap="sm" className="jpb-file-browser__selection">
@@ -505,7 +528,10 @@ function NodeRow( {
 }: NodeRowProps ) {
 	const [ open, setOpen ] = useState( false );
 	const nodeIsFolder = isFolder( node );
-	const { children, isLoading } = useFileTree( rewindId, open && nodeIsFolder ? node.path : null );
+	const { children, isLoading, error } = useFileTree(
+		rewindId,
+		open && nodeIsFolder ? node.path : null
+	);
 	const { selected, deselected } = selection;
 
 	// Effective check: own positive > own negative > inherited positive.
@@ -588,7 +614,21 @@ function NodeRow( {
 							<Spinner />
 						</div>
 					) }
-					{ ! isLoading && ( children ?? [] ).length === 0 && (
+					{ /*
+					 * A folder whose fetch failed also has no children, so
+					 * without this branch it reports itself as empty — the
+					 * reader is told the folder contains nothing rather than
+					 * that we couldn't look inside it.
+					 */ }
+					{ ! isLoading && error && (
+						<div className="jpb-file-browser__error" style={ { paddingLeft: 44 + depth * 16 } }>
+							{
+								/* translators: shown inside an expanded folder in the backup file browser when its contents could not be fetched. */
+								__( "Couldn't load this folder.", 'jetpack-backup-pkg' )
+							}
+						</div>
+					) }
+					{ ! isLoading && ! error && ( children ?? [] ).length === 0 && (
 						<div className="jpb-file-browser__empty" style={ { paddingLeft: 44 + depth * 16 } }>
 							{
 								/* translators: shown inside an expanded folder in the backup file browser when the folder contains no files. */
