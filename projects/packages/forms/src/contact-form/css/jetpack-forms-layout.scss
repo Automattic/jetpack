@@ -13,23 +13,20 @@
 	// Why `width` and not `flex-basis`: a form can be laid out horizontally or
 	// vertically. In a vertical form `flex-basis` sizes the main axis (the
 	// height) and the width is left to `align-items`, while in a horizontal form
-	// a 100%-wide item still wraps onto its own row. Neither is `align-self:
-	// stretch` on `> *`, which would size the cross axis (the right axis in a
-	// vertical form) and would respect the margin box, which `width` does not:
-	// it applies to every child, so a button in a left-justified vertical form
-	// would stretch to full width instead of hugging its label.
+	// a 100%-wide item still wraps onto its own row. Nor `align-self: stretch` on
+	// `> *`, which sizes the cross axis and respects the margin box, but applies
+	// to every child — it would stretch a button in a left-justified vertical
+	// form instead of letting it hug its label.
 	// ---
-	// Which blocks: the container blocks out of CORE_BLOCKS
-	// (blocks/shared/util/constants.js, mirrored by class-form-editor.php) —
-	// the only insertable ones that hold inner blocks, and so the only ones that
-	// can strand a field at a shrink-wrapped width. Nothing links the two lists,
-	// so a container block added there needs adding here too. `core/row` and
-	// `core/stack` are `core/group` variations and come along with
+	// The list mirrors the container blocks in CORE_BLOCKS
+	// (blocks/shared/util/constants.js, and class-form-editor.php). Nothing links
+	// the two, so a container block added there needs adding here too. `core/row`
+	// and `core/stack` are `core/group` variations and come along with
 	// `.wp-block-group`.
 	// ---
-	// In a horizontal form this gives a container its own row rather than a
-	// place beside a field. That is deliberate: a container exists to lay out
-	// the blocks inside it, and shrink-wrapped is the bug being fixed.
+	// In a horizontal form this gives a container its own row rather than a place
+	// beside a field. That is deliberate: a container exists to lay out the
+	// blocks inside it.
 	// ---
 	// In a multistep form the containers sit inside the step instead, three
 	// levels down — `.jetpack-form-steps-wrapper` >

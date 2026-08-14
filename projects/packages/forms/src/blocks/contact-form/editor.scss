@@ -94,36 +94,7 @@
 		// every descendant: a Group or Columns added to the form lays its own
 		// children out, and the front end spaces them with the theme's block gap,
 		// so zeroing them here would collapse that spacing in the editor only.
-		// ---
-		// A multistep form nests three levels deeper, so a child combinator on the
-		// form alone reaches nothing: its only direct child is
-		// `.jetpack-form-steps-wrapper`, a plain div rendered outside
-		// useBlockProps (form-step-container/edit.jsx) that carries no `.wp-block`
-		// class. Walk the chain a step at a time —
-		// wrapper > step container > step > the step's own blocks — so every hop
-		// stays a child combinator off a known element and none of them can reach
-		// into a Group.
-		> .wp-block,
-		.jetpack-form-steps-wrapper > .wp-block,
-		.wp-block-jetpack-form-step-container > .wp-block,
-		.wp-block-jetpack-form-step > .wp-block {
-			margin-top: 0;
-			margin-bottom: 0;
-		}
-
-		// A field block lays out its own inner blocks, and those are always
-		// exactly a `jetpack/label` and a `jetpack/input` — see
-		// ALLOWED_INNER_BLOCKS with `templateLock: 'all'` in
-		// shared/components/jetpack-field.jsx — so a descendant reset inside a
-		// field can never reach a container block's children.
-		// ---
-		// They need it because the two surfaces disagree: the front end renders
-		// a field from PHP as a plain <label>/<input> with no block margin, while
-		// the editor leaves them as blocks. On a theme with no theme.json, core
-		// loads `edit-post/classic.min.css`, whose `html :where(.wp-block)` gives
-		// every block a 28px vertical margin — enough to push a field's label a
-		// full line away from its own input (Twenty Sixteen).
-		[data-type^="jetpack/field-"] .wp-block {
+		> .wp-block {
 			margin-top: 0;
 			margin-bottom: 0;
 		}
@@ -232,6 +203,35 @@
 		}
 	}
 
+	// The rest of the blocks the form lays out. A multistep form nests three
+	// levels deeper than the rule above can see: the form's only direct child is
+	// `.jetpack-form-steps-wrapper`, a plain div rendered outside useBlockProps
+	// (form-step-container/edit.jsx), so it carries no `.wp-block` class and a
+	// child combinator on the form stops there. Each hop below stays a child
+	// combinator off a Jetpack-owned element, so none of them can reach the
+	// children of a Group or Columns.
+	// Kept out of the `[class*="wp-block-jetpack-field-option"]` scope above,
+	// where a step can never appear.
+	:is(.jetpack-form-steps-wrapper, .wp-block-jetpack-form-step-container, .wp-block-jetpack-form-step) > .wp-block {
+		margin-block: 0;
+	}
+
+	// A field lays out its own inner blocks, so they are the form's business too,
+	// not a container's. The two surfaces disagree about them: the front end
+	// renders a field from PHP as a plain <label>/<input> with no block margin,
+	// while the editor leaves them as blocks. On a theme with no theme.json core
+	// loads `edit-post/classic.min.css`, whose `html :where(.wp-block)` gives
+	// every block a 28px vertical margin — enough to push a field's label a full
+	// line off its own input (Twenty Sixteen).
+	// `.jetpack-field` rather than `[data-type^="jetpack/field-"]`: it is on the
+	// same element, it is ours rather than the block editor's, and it does not
+	// also catch the `jetpack/field-option*` inner blocks. A field's inner blocks
+	// are a label plus an input or an options list, never a container block, so
+	// this cannot reach into a Group.
+	.jetpack-field .wp-block {
+		margin-block: 0;
+	}
+
 	.wp-block-jetpack-field-option-radio,
 	.wp-block-jetpack-field-option-checkbox {
 		gap: 0;
@@ -249,11 +249,16 @@
 		flex: 0 0 100%;
 	}
 
+	// The block axis is handled by the `.jetpack-field` rule above; what is left
+	// here is the inline axis, which is load-bearing. classic.min.css also sets
+	// `margin-left: auto; margin-right: auto` on the direct children of anything
+	// that is not `is-layout-flex`/`grid`, and the options list is neither, so
+	// without this its rows would centre instead of sitting at `flex-start`.
 	[data-type="jetpack/field-checkbox-multiple"],
 	[data-type="jetpack/field-radio"] {
 
 		.wp-block {
-			margin: unset;
+			margin-inline: unset;
 		}
 	}
 
