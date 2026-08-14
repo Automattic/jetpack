@@ -22,7 +22,9 @@
 	--a8c-charts-color-track: var(--wpds-color-background-track-neutral-weak, #f0f0f0);
 	// Translucent dark surface; no WPDS token carries this.
 	--a8c-charts-color-tooltip-surface: rgb(0 0 0 / 85%);
-	--a8c-charts-color-focus: var(--wpds-color-stroke-focus, #3858e9);
+	// Keeps the --wp-admin-theme-color layer its call sites carry: in wp-admin the
+	// user's admin colour scheme sets it, and WPDS may not be loaded at all.
+	--a8c-charts-color-focus: var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9));
 	--a8c-charts-color-zoom-selection: var(--wpds-color-background-interactive-brand-strong, #3858e9);
 	--a8c-charts-color-zoom-selection-stroke: var(--wpds-color-stroke-interactive-brand, #3858e9);
 

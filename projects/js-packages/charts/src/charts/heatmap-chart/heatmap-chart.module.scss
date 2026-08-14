@@ -26,6 +26,10 @@ $focus-ring-width: var(--a8c-charts-border-width-focus);
 // count. ARIA rows are `display: contents` so their cells join this grid.
 .heatmap-chart__grid {
 	display: grid;
+	// --a8c-charts-dimension-heatmap-cell-gap is component-emitted from JS per
+	// render, not a catalog entry — dimension/gap tokens are out of CHARTS-203's
+	// scope. Do not collapse this to a bare var(); the inner WPDS fallback is
+	// the only value this property has when the JS var is unset.
 	gap: var(--a8c-charts-dimension-heatmap-cell-gap, var(--wpds-dimension-gap-xs, 4px));
 	flex: 1 1 0;
 	width: 100%;
@@ -35,7 +39,7 @@ $focus-ring-width: var(--a8c-charts-border-width-focus);
 	&:focus-visible {
 		outline:
 			$focus-ring-width solid
-			var(--a8c-charts-color-focus, var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9)));
+			var(--a8c-charts-color-focus);
 		outline-offset: 2px;
 		border-radius: var(--wpds-border-radius-sm, 2px);
 	}
@@ -108,7 +112,7 @@ $focus-ring-width: var(--a8c-charts-border-width-focus);
 .heatmap-chart__cell--selected {
 	outline:
 		$focus-ring-width solid
-		var(--a8c-charts-color-focus, var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9)));
+		var(--a8c-charts-color-focus);
 	outline-offset: calc(-1 * #{$focus-ring-width});
 }
 
