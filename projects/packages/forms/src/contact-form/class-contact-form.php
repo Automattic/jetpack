@@ -1932,13 +1932,37 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Get the icon key for a submitted field.
+	 *
+	 * Checkbox fields reflect the respondent's answer, so an unchecked box gets
+	 * the empty-square icon rather than the ticked one. Every other field type
+	 * keys off the type alone. Mirrors `getFieldTypeIconKey()` in
+	 * src/modules/form/field-type-icons.js, which must resolve to the same key
+	 * for AJAX submissions.
+	 *
+	 * @param string $field_type The field type.
+	 * @param mixed  $value      The submitted value.
+	 *
+	 * @return string The icon key.
+	 */
+	private static function get_field_type_icon_key( $field_type, $value = null ) {
+		if ( 'checkbox' === $field_type && ! Feedback_Field::is_checked_value( $value ) ) {
+			return 'checkbox:unchecked';
+		}
+
+		return $field_type;
+	}
+
+	/**
 	 * Get the SVG icon for a field type.
 	 *
 	 * @param string $field_type The field type.
+	 * @param mixed  $value      The submitted value, for field types whose icon
+	 *                           depends on the answer as well as the type.
 	 *
 	 * @return string The SVG icon HTML.
 	 */
-	private static function get_field_type_icon( $field_type ) {
+	private static function get_field_type_icon( $field_type, $value = null ) {
 		// Reject field types that don't fit the expected 'field-{type}' naming
 		// convention. Valid types are non-empty strings of lowercase letters,
 		// digits, and hyphens starting with a letter.
@@ -1956,11 +1980,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$block_dir = $type_exceptions[ $field_type ] ?? 'field-' . $field_type;
 
+		// State variants live alongside the base icon as 'icon-{variant}.svg'.
+		$icon_name = 'checkbox:unchecked' === self::get_field_type_icon_key( $field_type, $value )
+			? 'icon-unchecked'
+			: 'icon';
+
 		// Cache loaded SVG content to avoid re-reading files.
 		static $icon_cache = array();
 
-		if ( ! isset( $icon_cache[ $block_dir ] ) ) {
-			$svg_file = dirname( __DIR__ ) . '/blocks/' . $block_dir . '/icon.svg';
+		$cache_key = $block_dir . '/' . $icon_name;
+
+		if ( ! isset( $icon_cache[ $cache_key ] ) ) {
+			$svg_file = dirname( __DIR__ ) . '/blocks/' . $block_dir . '/' . $icon_name . '.svg';
 			$svg      = '';
 
 			if ( file_exists( $svg_file ) ) {
@@ -1970,13 +2001,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( $svg ) {
 				$svg = trim( $svg );
 
-				$icon_cache[ $block_dir ] = $svg;
+				$icon_cache[ $cache_key ] = $svg;
 			} else {
-				$icon_cache[ $block_dir ] = '';
+				$icon_cache[ $cache_key ] = '';
 			}
 		}
 
-		return $icon_cache[ $block_dir ];
+		return $icon_cache[ $cache_key ];
 	}
 
 	/**
@@ -2116,10 +2147,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 					// field-name-wrapper: contains icon and label.
 					$html .= '<div class="field-name-wrapper">';
-					// field-type-icon: rendered based on field type.
+					// field-type-icon: rendered based on field type and, for checkboxes, the answer.
 					// The data-rendered-type attribute enables hydration optimization by allowing
 					// the JS callback to skip re-rendering when the icon is already correct.
-					$html .= '<div class="field-type-icon" data-wp-watch="callbacks.watchFieldTypeIcon" data-rendered-type="' . esc_attr( $field_type ) . '">' . self::get_field_type_icon( $field_type ) . '</div>';
+					$field_value = $submission['value'] ?? '';
+					$icon_key    = self::get_field_type_icon_key( $field_type, $field_value );
+					$html       .= '<div class="field-type-icon" data-wp-watch="callbacks.watchFieldTypeIcon" data-rendered-type="' . esc_attr( $icon_key ) . '">' . self::get_field_type_icon( $field_type, $field_value ) . '</div>';
 					// field-name: always present.
 					$html .= '<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . esc_html( $submission['label'] ) . '</div>';
 					$html .= '</div>'; // Close field-name-wrapper.

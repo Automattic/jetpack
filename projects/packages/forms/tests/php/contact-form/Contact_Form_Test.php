@@ -5078,4 +5078,59 @@ class Contact_Form_Test extends BaseTestCase {
 			'Explicit suffixed IDs that collide with generated ones should still resolve to unique IDs.'
 		);
 	}
+
+	/**
+	 * Invoke a private static Contact_Form method.
+	 *
+	 * @param string $name Method name.
+	 * @param array  $args Arguments.
+	 * @return mixed
+	 */
+	private function invoke_private_static( $name, $args ) {
+		$method = new \ReflectionMethod( Contact_Form::class, $name );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invokeArgs( null, $args );
+	}
+
+	/**
+	 * The icon key is written into data-rendered-type and compared by the JS
+	 * hydration callback, so a checkbox has to key off its answer as well as its
+	 * type. Everything else keys off the type alone.
+	 */
+	public function test_get_field_type_icon_key_reflects_the_checkbox_answer() {
+		$this->assertSame( 'checkbox', $this->invoke_private_static( 'get_field_type_icon_key', array( 'checkbox', 'Yes' ) ) );
+		$this->assertSame( 'checkbox:unchecked', $this->invoke_private_static( 'get_field_type_icon_key', array( 'checkbox', '' ) ) );
+		$this->assertSame( 'checkbox:unchecked', $this->invoke_private_static( 'get_field_type_icon_key', array( 'checkbox', 'No' ) ) );
+
+		// Other types never vary with the value.
+		$this->assertSame( 'text', $this->invoke_private_static( 'get_field_type_icon_key', array( 'text', '' ) ) );
+		$this->assertSame( 'consent', $this->invoke_private_static( 'get_field_type_icon_key', array( 'consent', '' ) ) );
+	}
+
+	/**
+	 * A ticked and an unticked checkbox must render different SVGs, and only the
+	 * ticked one carries the checkmark path.
+	 */
+	public function test_get_field_type_icon_returns_the_variant_for_an_unchecked_box() {
+		$checkmark_path = 'M10.5171 16.4421';
+
+		$checked   = $this->invoke_private_static( 'get_field_type_icon', array( 'checkbox', 'Yes' ) );
+		$unchecked = $this->invoke_private_static( 'get_field_type_icon', array( 'checkbox', '' ) );
+
+		$this->assertNotSame( '', $checked, 'The checkbox icon should be readable from disk.' );
+		$this->assertNotSame( $checked, $unchecked );
+		$this->assertStringContainsString( $checkmark_path, $checked );
+		$this->assertStringNotContainsString( $checkmark_path, $unchecked );
+	}
+
+	/**
+	 * A field type that does not fit the `field-{type}` convention is rejected
+	 * rather than turned into a path.
+	 */
+	public function test_get_field_type_icon_rejects_unexpected_types() {
+		$this->assertSame( '', $this->invoke_private_static( 'get_field_type_icon', array( '../../etc/passwd', '' ) ) );
+		$this->assertSame( '', $this->invoke_private_static( 'get_field_type_icon', array( '', '' ) ) );
+	}
 }

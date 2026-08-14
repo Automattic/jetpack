@@ -729,4 +729,53 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		return $mailer->AltBody;
 	}
+
+	/**
+	 * Invoke the private icon-name mapper.
+	 *
+	 * @param string $type  Field type.
+	 * @param mixed  $value Raw submitted value.
+	 * @return string
+	 */
+	private function invoke_get_field_icon_name( $type, $value = null ) {
+		$method = new \ReflectionMethod( Feedback_Email_Renderer::class, 'get_field_icon_name' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( null, $type, $value );
+	}
+
+	/**
+	 * The email icon has to follow the answer too, otherwise the icon contradicts
+	 * the "No" chip rendered next to it.
+	 */
+	public function test_get_field_icon_name_reflects_the_checkbox_answer() {
+		$this->assertSame( 'field-checkbox', $this->invoke_get_field_icon_name( 'checkbox', 'Yes' ) );
+		$this->assertSame( 'field-checkbox-unchecked', $this->invoke_get_field_icon_name( 'checkbox', '' ) );
+		$this->assertSame( 'field-checkbox-unchecked', $this->invoke_get_field_icon_name( 'checkbox', 'No' ) );
+	}
+
+	/**
+	 * Other field types keep their type-based icon regardless of the value.
+	 */
+	public function test_get_field_icon_name_is_unchanged_for_other_types() {
+		$this->assertSame( 'field-consent', $this->invoke_get_field_icon_name( 'consent', '' ) );
+		$this->assertSame( 'field-multiple-choice', $this->invoke_get_field_icon_name( 'checkbox-multiple', '' ) );
+		$this->assertSame( 'field-text', $this->invoke_get_field_icon_name( 'nonsense', '' ) );
+	}
+
+	/**
+	 * Every icon name the mapper can return must have a rasterized PNG shipped
+	 * alongside it — a missing file renders as a broken image in the email.
+	 */
+	public function test_every_icon_name_has_a_shipped_png() {
+		$dir = dirname( __DIR__, 3 ) . '/src/contact-form/images/field-icons/';
+
+		foreach ( array( 'checkbox', 'checkbox-multiple', 'consent', 'text' ) as $type ) {
+			foreach ( array( '', 'Yes' ) as $value ) {
+				$name = $this->invoke_get_field_icon_name( $type, $value );
+				$this->assertFileExists( $dir . $name . '@2x.png' );
+			}
+		}
+	}
 }
