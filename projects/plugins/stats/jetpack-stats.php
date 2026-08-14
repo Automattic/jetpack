@@ -29,20 +29,6 @@ define( 'JETPACK_STATS_PLUGIN__FILE', __FILE__ );
 define( 'JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
 define( 'JETPACK_STATS_PLUGIN__SLUG', 'jetpack-stats' );
 define( 'JETPACK_STATS_PLUGIN__VERSION', '0.1.0-alpha' );
-defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) || define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
-
-defined( 'JETPACK__API_BASE' ) || define( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
-defined( 'JETPACK__WPCOM_JSON_API_BASE' ) || define( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
-
-defined( 'JETPACK__SANDBOX_DOMAIN' ) || define( 'JETPACK__SANDBOX_DOMAIN', '' );
-
-/*
- * These constants can be set in wp-config.php to ensure sites behind proxies will still work.
- * Setting these constants, though, is *not* the preferred method. It's better to configure
- * the proxy to send the X-Forwarded-Port header.
- */
-defined( 'JETPACK_SIGNATURE__HTTP_PORT' ) || define( 'JETPACK_SIGNATURE__HTTP_PORT', 80 );
-defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) || define( 'JETPACK_SIGNATURE__HTTPS_PORT', 443 );
 
 $jetpack_stats_autoload_packages_path = JETPACK_STATS_PLUGIN__DIR . 'vendor/autoload_packages.php';
 if ( ! is_readable( $jetpack_stats_autoload_packages_path ) ) {
