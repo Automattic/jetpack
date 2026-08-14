@@ -19,10 +19,11 @@ import {
 } from '../../utils';
 import { ChartScopeContext } from '../chart-scope';
 import { getChartColor, type ColorCache } from './private/get-chart-color';
+import { themeOverrideVars } from './private/theme-override-vars';
 import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
 import type { ChartTheme, CompleteChartTheme } from '../../types';
-import type { FC, ReactNode } from 'react';
+import type { CSSProperties, FC, ReactNode } from 'react';
 
 export const GlobalChartsContext = createContext< GlobalChartsContextValue | null >( null );
 
@@ -50,6 +51,8 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 	const providerTheme: CompleteChartTheme = useMemo( () => {
 		return theme ? mergeThemes( defaultTheme, theme ) : defaultTheme;
 	}, [ theme ] );
+
+	const overrideVars = useMemo( () => themeOverrideVars( theme ), [ theme ] );
 
 	// Cache expensive color computations that only change when theme colors change
 	// Using useState + useLayoutEffect instead of useMemo to ensure CSS variables
@@ -300,7 +303,11 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 
 	return (
 		<GlobalChartsContext.Provider value={ value }>
-			<div ref={ setWrapperNode } className={ chartScopeClass } style={ { display: 'contents' } }>
+			<div
+				ref={ setWrapperNode }
+				className={ chartScopeClass }
+				style={ { display: 'contents', ...overrideVars } as CSSProperties }
+			>
 				<ChartScopeContext.Provider value={ scopeNode }>{ children }</ChartScopeContext.Provider>
 			</div>
 		</GlobalChartsContext.Provider>
