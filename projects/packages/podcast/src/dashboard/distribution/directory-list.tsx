@@ -41,12 +41,9 @@ interface DirectoryRowProps {
 	state: PodcastShowState;
 	blockedReason: string;
 	actionLabel: string;
-	// A Tooltip isn't announced, so the reason rides along in the aria-label too.
 	blockedActionLabel: string;
 	isBusy?: boolean;
 	isComplete?: boolean;
-	// Live show URL. Turns the action into a link to the show, since once it's
-	// live there's nothing left to submit.
 	viewUrl?: string;
 	onAction: ( id: PodcatcherId ) => void;
 	children?: ReactNode;

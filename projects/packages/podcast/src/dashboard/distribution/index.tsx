@@ -40,8 +40,6 @@ const NEED_TITLE_LABEL = __( 'Add a podcast title in Settings first', 'jetpack-p
 const AUTOMATIC_APPS = PODCAST_APPS.filter( app => app.submission === 'automatic' );
 const MANUAL_APPS = PODCAST_APPS.filter( app => app.submission === 'manual' );
 
-// Loading is checked first: on the initial fetch `isEnabled` is false even for
-// sites that do have a category, and "Set a category" would flash.
 const blockedReason = ( isLoading: boolean, isEnabled: boolean, remaining: string ): string => {
 	if ( isLoading ) {
 		return CHECKING_LABEL;
@@ -120,9 +118,6 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 			  )
 			: '';
 
-	// The relay only needs a category + title to send a usable feed, and it
-	// answers in minutes. Manual directories reject incomplete feeds on review,
-	// so they wait on the full validation pass.
 	const automaticBlocked = blockedReason(
 		settingsLoading,
 		isEnabled,

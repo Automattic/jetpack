@@ -13,15 +13,12 @@ import type { PodcastAppRowProps } from '../types';
 const SUBMIT_LABEL = __( 'Submit', 'jetpack-podcast' );
 const NOT_CONNECTED_LABEL = __( 'Connect this site to WordPress.com first', 'jetpack-podcast' );
 
-// `rejected`/`unreachable` aren't a persisted state — they trip a notice
-// instead and leave the badge on whatever was last saved.
 const liveStateFromResult = ( state: string ): PodcastShowState | null =>
 	state === 'active' || state === 'pending' ? state : null;
 
 const PocketCastsRow = ( { app, state, blockedReason, onFirstSave }: PodcastAppRowProps ) => {
 	const { data: settings } = usePodcastSettings();
 
-	// Matches the parent's confetti rule: first successful directory action.
 	const isFirstEverActivity = useMemo( () => {
 		if ( ! settings ) {
 			return false;
@@ -36,17 +33,11 @@ const PocketCastsRow = ( { app, state, blockedReason, onFirstSave }: PodcastAppR
 	const { submit, isSubmitting, result, errorMessage } = usePocketCastsSubmit();
 	const celebratedRef = useRef( false );
 
-	// The relay is proxied through WordPress.com, so a disconnected site can't
-	// submit at all.
 	const connected = isSiteConnected();
 	const reason = connected ? blockedReason : NOT_CONNECTED_LABEL;
 
 	const liveState = result ? liveStateFromResult( result.state ) : null;
 	const effectiveState = liveState ?? state;
-	// Read the stored link rather than `result.share_link`: the endpoint returns
-	// the relay body verbatim, while the stored copy has been through
-	// `sanitize_show_urls` (https + host allowlist). A successful submit
-	// refetches settings, so this fills in on its own.
 	const viewUrl = settings?.podcasting_show_urls?.pocketcasts ?? '';
 
 	const rejectionReasons = useMemo(
