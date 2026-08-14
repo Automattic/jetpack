@@ -1021,13 +1021,20 @@ class Manager {
 			return new WP_Error( 'site_id_missing', '', array( 'api_error_code' => 'site_id_missing' ) );
 		}
 
+		$sandbox_secret = null;
+
+		if ( isset( $_COOKIE['store_sandbox'] ) ) {
+			// Keep only RFC 6265 cookie-octets so the value cannot break out of the Cookie header.
+			$sandbox_secret = preg_replace( '/[^\x21-\x7E]|[";,\\\\]/', '', filter_var( wp_unslash( $_COOKIE['store_sandbox'] ) ) );
+		}
+
 		// A sandboxed request must neither read the shared cache nor seed it with sandbox data.
-		$sandboxed     = isset( $_COOKIE ) && isset( $_COOKIE['store_sandbox'] );
+		$sandboxed     = null !== $sandbox_secret;
 		$transient_key = self::SITE_DATA_TRANSIENT_PREFIX . $site_id;
 		$result        = $sandboxed ? false : get_transient( $transient_key );
 
 		if ( false === $result ) {
-			$result = $this->fetch_connected_site_data( $site_id, $sandboxed );
+			$result = $this->fetch_connected_site_data( $site_id, $sandbox_secret );
 
 			if ( ! $sandboxed ) {
 				// Failures expire sooner so an outage recovers without waiting out a full success window.
@@ -1072,18 +1079,16 @@ class Manager {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param int  $site_id   The WordPress.com blog ID.
-	 * @param bool $sandboxed Whether to forward the store sandbox cookie.
+	 * @param int         $site_id        The WordPress.com blog ID.
+	 * @param string|null $sandbox_secret Sanitized store sandbox cookie value, or null when not sandboxed.
 	 * @return array Either `array( 'body' => string )` or `array( 'error' => array )`.
 	 */
-	private function fetch_connected_site_data( $site_id, $sandboxed ) {
+	private function fetch_connected_site_data( $site_id, $sandbox_secret ) {
 		$args = array( 'headers' => array() );
 
 		// Allow use a store sandbox. Internal ref: PCYsg-IA-p2.
-		if ( $sandboxed ) {
-			// Keep only RFC 6265 cookie-octets so the value cannot break out of the Cookie header.
-			$secret                    = preg_replace( '/[^\x21-\x7E]|[";,\\\\]/', '', filter_var( wp_unslash( $_COOKIE['store_sandbox'] ) ) );
-			$args['headers']['Cookie'] = "store_sandbox=$secret;";
+		if ( null !== $sandbox_secret ) {
+			$args['headers']['Cookie'] = "store_sandbox=$sandbox_secret;";
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ) . '?force=wpcom', '1.1', $args );

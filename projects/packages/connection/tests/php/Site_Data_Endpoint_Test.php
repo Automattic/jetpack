@@ -331,8 +331,10 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 
 		$requests = $this->count_http_requests(
 			function () {
-				$this->manager->get_connected_site_data();
-				$this->manager->get_connected_site_data();
+				$first  = $this->manager->get_connected_site_data();
+				$second = $this->manager->get_connected_site_data();
+
+				$this->assertEquals( $first, $second );
 			}
 		);
 
@@ -354,11 +356,12 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 			}
 		);
 
-		$this->manager->get_connected_site_data();
-		$this->manager->get_connected_site_data();
+		$fresh  = $this->manager->get_connected_site_data();
+		$cached = $this->manager->get_connected_site_data();
 
+		$this->assertEquals( $fresh, $cached );
 		$this->assertCount( 2, $payloads );
-		$this->assertSame( $payloads[0], $payloads[1] );
+		$this->assertSame( reset( $payloads ), end( $payloads ) );
 	}
 
 	/**
@@ -369,13 +372,15 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 
 		$requests = $this->count_http_requests(
 			function () {
-				$this->manager->get_connected_site_data();
-				$this->manager->get_connected_site_data();
+				$first  = $this->manager->get_connected_site_data();
+				$second = $this->manager->get_connected_site_data();
+
+				$this->assertInstanceOf( 'WP_Error', $first );
+				$this->assertInstanceOf( 'WP_Error', $second );
 			}
 		);
 
 		$this->assertSame( 1, $requests );
-		$this->assertInstanceOf( 'WP_Error', $this->manager->get_connected_site_data() );
 	}
 
 	/**
@@ -388,8 +393,10 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 
 		$requests = $this->count_http_requests(
 			function () {
-				$this->manager->get_connected_site_data();
-				$this->manager->get_connected_site_data();
+				$first  = $this->manager->get_connected_site_data();
+				$second = $this->manager->get_connected_site_data();
+
+				$this->assertEquals( $first, $second );
 			}
 		);
 
