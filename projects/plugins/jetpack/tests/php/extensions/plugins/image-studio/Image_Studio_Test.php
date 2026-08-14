@@ -92,6 +92,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'jetpack_ai_enabled' );
+		remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		remove_filter( 'jetpack_gutenberg', '__return_true' );
+		remove_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_image_studio_extension_allowlist' ) );
 		delete_option( 'jetpack_ai_enabled' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
@@ -100,6 +103,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
 		$GLOBALS['wp_styles']      = $this->saved_wp_styles;
+		\Jetpack_Gutenberg::reset();
 		parent::tear_down();
 	}
 
@@ -165,6 +169,39 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		foreach ( self::get_ai_image_extensions() as $ext ) {
 			\Jetpack_Gutenberg::set_extension_available( $ext );
 		}
+	}
+
+	/**
+	 * Cache a usable Image Studio asset manifest.
+	 */
+	private function make_image_studio_assets_available() {
+		set_transient(
+			ImageStudio\ASSET_TRANSIENT,
+			array(
+				'version'      => '1.0.0',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+	}
+
+	/**
+	 * Limit Gutenberg availability output to Image Studio for payload assertions.
+	 *
+	 * @return array
+	 */
+	public static function get_image_studio_extension_allowlist() {
+		return array( ImageStudio\FEATURE_NAME );
+	}
+
+	/**
+	 * Enable the standard Gutenberg availability payload for Image Studio.
+	 */
+	private function enable_image_studio_extension_availability_checks() {
+		add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		add_filter( 'jetpack_gutenberg', '__return_true' );
+		add_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_image_studio_extension_allowlist' ) );
+		\Jetpack_Gutenberg::reset();
 	}
 
 	/**
@@ -1384,6 +1421,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_ai_extensions_disabled_when_available() {
 		$this->enable_big_sky();
+		$this->make_image_studio_assets_available();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 		$this->set_block_editor_screen();
@@ -1416,6 +1454,56 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * A connected user keeps the legacy AI image extensions when Image Studio's
+	 * asset manifest cannot be loaded.
+	 */
+	public function test_ai_extensions_remain_available_when_asset_manifest_is_unavailable() {
+		$this->enable_image_studio_extension_availability_checks();
+		$this->enable_big_sky();
+		ImageStudio\register_plugin();
+		$this->make_ai_extensions_available();
+		$this->mock_remote_asset( false );
+
+		ImageStudio\disable_jetpack_ai_image_extensions();
+
+		foreach ( self::get_ai_image_extensions() as $ext ) {
+			$this->assertTrue(
+				\Jetpack_Gutenberg::is_available( $ext ),
+				"Extension $ext should remain available when Image Studio assets cannot load."
+			);
+		}
+
+		$availability = \Jetpack_Gutenberg::get_availability();
+		$this->assertFalse( $availability[ ImageStudio\FEATURE_NAME ]['available'] );
+		$this->assertSame(
+			'image_studio_asset_manifest_unavailable',
+			$availability[ ImageStudio\FEATURE_NAME ]['unavailable_reason']
+		);
+	}
+
+	/**
+	 * A disconnected user does not get legacy AI image extensions that cannot
+	 * make authenticated requests.
+	 */
+	public function test_ai_extensions_remain_disabled_when_current_user_is_not_connected() {
+		$this->enable_big_sky();
+		ImageStudio\register_plugin();
+		$this->make_ai_extensions_available();
+
+		$non_connected_admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $non_connected_admin );
+
+		ImageStudio\disable_jetpack_ai_image_extensions();
+
+		foreach ( self::get_ai_image_extensions() as $ext ) {
+			$this->assertFalse(
+				\Jetpack_Gutenberg::is_available( $ext ),
+				"Extension $ext should remain unavailable when the current user is disconnected."
+			);
+		}
+	}
+
 	// -------------------------------------------------------------------------
 	// disable_jetpack_ai_image_extensions() screen-aware tests
 	// -------------------------------------------------------------------------
@@ -1425,6 +1513,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_ai_extensions_disabled_on_block_editor() {
 		$this->enable_big_sky();
+		$this->make_image_studio_assets_available();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -1444,6 +1533,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_ai_extensions_disabled_on_media_library() {
 		$this->enable_big_sky();
+		$this->make_image_studio_assets_available();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -1466,6 +1556,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_ai_extensions_disabled_on_dashboard() {
 		$this->enable_big_sky();
+		$this->make_image_studio_assets_available();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -1488,6 +1579,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_ai_extensions_disabled_when_no_screen() {
 		$this->enable_big_sky();
+		$this->make_image_studio_assets_available();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -2071,6 +2163,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_ai_extensions_disabled_when_enabled_via_big_sky() {
 		$this->enable_big_sky();
+		$this->make_image_studio_assets_available();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 

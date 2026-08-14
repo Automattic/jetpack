@@ -440,6 +440,17 @@ function do_enqueue_assets() {
 		return;
 	}
 
+	// Availability is computed before this callback in the block editor. If that
+	// check found that Image Studio cannot be delivered, keep the decision stable
+	// for the rest of the request instead of retrying after preserving the legacy
+	// AI image extensions.
+	if (
+		did_action( 'jetpack_register_gutenberg_extensions' )
+		&& ! \Jetpack_Gutenberg::is_available( FEATURE_NAME )
+	) {
+		return;
+	}
+
 	$asset_data = get_asset_data();
 	if ( ! $asset_data ) {
 		return;
@@ -604,15 +615,28 @@ function get_ai_image_extensions() {
 }
 
 /**
- * Disable Jetpack AI image extensions when Image Studio is available.
+ * Disable Jetpack AI image extensions when Image Studio replaces them.
  *
- * When Image Studio is available (via Jetpack_Gutenberg::is_available), AI image
- * extensions are disabled globally to avoid duplicate functionality.
+ * Connected users retain the legacy extensions when Image Studio's asset
+ * manifest is unavailable. For disconnected users, the legacy extensions stay
+ * disabled because they cannot make authenticated AI requests either.
  *
  * @return void
  */
 function disable_jetpack_ai_image_extensions() {
 	if ( ! \Jetpack_Gutenberg::is_available( FEATURE_NAME ) ) {
+		return;
+	}
+
+	// For connected users, only replace the legacy AI image extensions when the
+	// Image Studio manifest is usable. A disconnected user's behavior remains
+	// unchanged: neither implementation can make authenticated AI requests, so
+	// the legacy entries must stay suppressed.
+	if ( is_current_user_connected() && ! get_asset_data() ) {
+		\Jetpack_Gutenberg::set_extension_unavailable(
+			FEATURE_NAME,
+			'image_studio_asset_manifest_unavailable'
+		);
 		return;
 	}
 
