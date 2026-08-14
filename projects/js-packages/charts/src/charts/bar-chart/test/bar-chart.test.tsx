@@ -488,6 +488,26 @@ describe( 'BarChart', () => {
 			);
 		} );
 
+		test( 'names a declared weekly bucket as a week, not a single day', () => {
+			const { tooltip } = optionsFor(
+				[
+					{
+						label: 'Series A',
+						data: Array.from( { length: 8 }, ( _, i ) => ( {
+							date: new Date( 2026, 0, 5 + i * 7 ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+				{ axis: { x: { tickResolution: 'week' } } }
+			);
+
+			expect( tooltip.labelFormatter( new Date( 2026, 0, 12 ).getTime(), 0, [] ) ).toBe(
+				'Week of January 12, 2026'
+			);
+		} );
+
 		test( 'names the hovered bar bucket in the rendered tooltip', async () => {
 			const user = userEvent.setup();
 			renderWithTheme( {

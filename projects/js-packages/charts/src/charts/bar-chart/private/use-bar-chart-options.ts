@@ -34,6 +34,17 @@ const TOOLTIP_FORMAT_BY_RESOLUTION: Record<
  * @return Tick and tooltip label formatters.
  */
 const getTimeSeriesFormatters = ( data: SeriesData[], tickResolution?: TickResolution ) => {
+	if ( tickResolution === 'week' ) {
+		const tooltipFormatter = ( timestamp: number ) =>
+			`Week of ${ new Date( timestamp ).toLocaleDateString( undefined, {
+				year: 'numeric',
+				month: 'long',
+				day: 'numeric',
+			} ) }`;
+
+		return { tickFormatter: getFormatter( data, tickResolution ), tooltipFormatter };
+	}
+
 	// Fall back to the day format rather than `undefined` options, which would
 	// print a full locale date-time for an unrecognised `tickResolution`.
 	const tooltipFormat =
