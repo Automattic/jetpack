@@ -520,53 +520,51 @@ const StageInner = () => {
 				</>
 			}
 		>
-			<div className="vp-library">
-				{ isAtLimit && (
-					<div className="vp-library__notice">
-						<FreeTierNotice message={ FREE_TIER_AT_LIMIT_MESSAGE } />
-					</div>
-				) }
-				<UploadActionsProvider value={ { promoteLocal, retryUpload, openVideoDetails } }>
-					<div className={ `vp-library__viewport vp-library__viewport--${ view.type }` }>
-						<DropZone
-							label={ __( 'Drop videos to upload', 'jetpack-videopress-pkg' ) }
-							onFilesDrop={ handleFilesSelected }
+			{ isAtLimit && (
+				<div className="vp-library__notice">
+					<FreeTierNotice message={ FREE_TIER_AT_LIMIT_MESSAGE } />
+				</div>
+			) }
+			<UploadActionsProvider value={ { promoteLocal, retryUpload, openVideoDetails } }>
+				<div className={ `vp-library__viewport vp-library__viewport--${ view.type }` }>
+					<DropZone
+						label={ __( 'Drop videos to upload', 'jetpack-videopress-pkg' ) }
+						onFilesDrop={ handleFilesSelected }
+					/>
+					{ isError && items.length === 0 ? (
+						// A failed listing request would otherwise render as DataViews'
+						// "No results" — indistinguishable from an empty library. Surface
+						// the error explicitly with a Retry that refetches. Only when the
+						// QUERY has nothing valid to show: a failed *background* refresh
+						// keeps its cached rows (grid stays, self-heals on the next
+						// poll), while a failed view change / first load leaves data
+						// undefined (react-query drops keepPreviousData placeholders on
+						// error), so it lands here. Deliberately `items`, not
+						// `renderedItems` — the latter splices in in-flight upload rows,
+						// which must not mask a failed listing.
+						<FetchErrorNotice
+							className="vp-library__error"
+							message={ __( 'We couldn’t load your video library.', 'jetpack-videopress-pkg' ) }
+							error={ libraryError }
+							onRetry={ () => void refetch() }
 						/>
-						{ isError && items.length === 0 ? (
-							// A failed listing request would otherwise render as DataViews'
-							// "No results" — indistinguishable from an empty library. Surface
-							// the error explicitly with a Retry that refetches. Only when the
-							// QUERY has nothing valid to show: a failed *background* refresh
-							// keeps its cached rows (grid stays, self-heals on the next
-							// poll), while a failed view change / first load leaves data
-							// undefined (react-query drops keepPreviousData placeholders on
-							// error), so it lands here. Deliberately `items`, not
-							// `renderedItems` — the latter splices in in-flight upload rows,
-							// which must not mask a failed listing.
-							<FetchErrorNotice
-								className="vp-library__error"
-								message={ __( 'We couldn’t load your video library.', 'jetpack-videopress-pkg' ) }
-								error={ libraryError }
-								onRetry={ () => void refetch() }
-							/>
-						) : (
-							<DataViews< LibraryItem >
-								data={ renderedItems }
-								fields={ libraryFields }
-								actions={ actions }
-								view={ view }
-								onChangeView={ onChangeView }
-								selection={ selection }
-								onChangeSelection={ setSelection }
-								getItemId={ getItemId }
-								paginationInfo={ paginationInfo }
-								isLoading={ isLoading }
-								defaultLayouts={ defaultLayouts }
-							/>
-						) }
-					</div>
-				</UploadActionsProvider>
-			</div>
+					) : (
+						<DataViews< LibraryItem >
+							data={ renderedItems }
+							fields={ libraryFields }
+							actions={ actions }
+							view={ view }
+							onChangeView={ onChangeView }
+							selection={ selection }
+							onChangeSelection={ setSelection }
+							getItemId={ getItemId }
+							paginationInfo={ paginationInfo }
+							isLoading={ isLoading }
+							defaultLayouts={ defaultLayouts }
+						/>
+					) }
+				</div>
+			</UploadActionsProvider>
 			{ captionVideo && (
 				<CaptionManagerModal
 					isOpen={ !! captionVideo }
