@@ -12,11 +12,22 @@ import {
 	saveDismissal,
 } from '../../hooks/use-first-run-state';
 import { useOnboardingCounts } from '../../hooks/use-onboarding-counts';
-import IntroVideo, { INTRO_VIDEO_ASPECT } from './intro-video';
+import IntroVideo, { INTRO_VIDEO_ASPECT, getAssetUrl } from './intro-video';
 import './style.scss';
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
 
 const LEARN_MORE_URL = 'https://jetpack.com/videopress/';
+
+/*
+ * The wireframe artwork behind the film — the band's idle state in the Figma
+ * spec. It rides the same CopyWebpackPlugin rule as the film (see
+ * webpack.config.js), and like the film its URL must be resolved against the
+ * build URL rather than written into the stylesheet: the CSS is injected by
+ * JS, so `url(images/…)` resolves against `/wp-admin/` and 404s on every load
+ * that renders the modal. The stylesheet keeps the flat `#003010` underneath,
+ * which is what shows when the URL can't be built.
+ */
+const WIREFRAME_IMAGE = 'videopress-wireframe.svg';
 
 /*
  * `welcome=1` needs TWO window-scoped values, not one, because the two things
@@ -159,6 +170,10 @@ export default function OnboardingModal(): ReactElement | null {
 	const navigate = useNavigate();
 	const search = useSearch( { strict: false } ) as Record< string, unknown >;
 	const popupRef = useRef< HTMLDivElement >( null );
+	// Resolved per render, like the film's own URL: the boot payload is a
+	// global, so reading it at module scope would bake in whatever existed when
+	// this bundle was imported.
+	const wireframeUrl = getAssetUrl( WIREFRAME_IMAGE );
 
 	// `welcome=1` is the review affordance: it reopens the modal regardless of
 	// the dismissal flag or the library state, and forgets the stored
@@ -249,7 +264,12 @@ export default function OnboardingModal(): ReactElement | null {
 				 */ }
 				<div
 					className="vp-onboarding-modal__media"
-					style={ { '--vp-intro-aspect': INTRO_VIDEO_ASPECT } as CSSProperties }
+					style={
+						{
+							'--vp-intro-aspect': INTRO_VIDEO_ASPECT,
+							...( wireframeUrl ? { '--vp-intro-artwork': `url("${ wireframeUrl }")` } : {} ),
+						} as CSSProperties
+					}
 				>
 					<Dialog.CloseIcon
 						className="vp-onboarding-modal__close"

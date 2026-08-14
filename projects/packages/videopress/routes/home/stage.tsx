@@ -84,9 +84,9 @@ const StageInner = () => {
 	const allowMultiple = ! isFree || isUnlimited;
 	const onEmptyStateFiles = useCallback(
 		( selected: File[] ) => {
-			if ( isAtLimit ) {
-				return;
-			}
+			// At-limit and non-video drops are refused — visibly, with a
+			// notice — by the dropzone itself; what reaches here is always
+			// files this plan can take.
 			const { files, discardedNotice } = selectFilesForPlan( selected, allowMultiple );
 			if ( ! files.length ) {
 				return;
@@ -101,7 +101,7 @@ const StageInner = () => {
 			files.forEach( file => startUpload( file, context ) );
 			navigate( { href: files.length === 1 ? TAB_PATHS.upload : '/' } );
 		},
-		[ allowMultiple, createInfoNotice, isAtLimit, navigate, startUpload ]
+		[ allowMultiple, createInfoNotice, navigate, startUpload ]
 	);
 
 	// The same discipline the Analytics screen applies at

@@ -19,6 +19,18 @@ class Block_Editor_Content {
 	 * This method should be called only once by the Initializer class. Do not call this method again.
 	 */
 	public static function init() {
+		/*
+		 * The dashboard's "Add to a post or page" hand-off. Registered BEFORE the
+		 * standalone guard below, and deliberately outside it: that guard exists
+		 * to stop this class's shortcodes colliding with the ones the Jetpack
+		 * plugin registers in modules/videopress/shortcode.php. The Jetpack
+		 * plugin hooks nothing on `default_content`, so there is nothing here to
+		 * collide with — and while this filter sat behind the guard, every
+		 * Jetpack-plugin site got the menu, the nonce and a brand-new post that
+		 * stayed empty, because the only thing missing was this line.
+		 */
+		add_filter( 'default_content', array( static::class, 'videopress_video_block_by_guid' ), 10, 2 );
+
 		if ( ! Status::is_standalone_plugin_active() ) {
 			return;
 		}
@@ -35,8 +47,6 @@ class Block_Editor_Content {
 		add_shortcode( 'wpvideo', array( static::class, 'videopress_embed_shortcode' ) );
 
 		add_filter( 'wp_video_shortcode_override', array( static::class, 'video_shortcode_override' ), 10, 4 );
-
-		add_filter( 'default_content', array( static::class, 'videopress_video_block_by_guid' ), 10, 2 );
 	}
 
 	/**

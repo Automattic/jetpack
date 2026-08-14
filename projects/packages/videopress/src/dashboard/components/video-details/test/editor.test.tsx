@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { makeLibraryItem } from '../../../test-utils/library-item';
 import Editor from '../editor';
@@ -164,6 +164,97 @@ describe( 'Editor pending media', () => {
 
 		expect( screen.getByTestId( 'thumbnail-card' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'subtitles-card' ) ).toBeInTheDocument();
+	} );
+
+	// A failed conversion never clears `isProcessing` — the failure is reported
+	// inside the player iframe and nowhere in the media payload — so these
+	// placeholders used to animate for the life of the tab. Live testing
+	// watched them still going at three and a half minutes.
+	it( 'stops the placeholders claiming to load once the wait is hopeless', () => {
+		jest.useFakeTimers();
+		try {
+			render(
+				<Editor
+					{ ...editorProps(
+						makeLibraryItem( {
+							id: '77',
+							guid: 'g77',
+							type: 'videopress',
+							isProcessing: true,
+						} )
+					) }
+				/>
+			);
+
+			expect( screen.queryByText( /may have failed to convert/ ) ).not.toBeInTheDocument();
+
+			act( () => {
+				jest.advanceTimersByTime( 2 * 60 * 1000 );
+			} );
+
+			expect( screen.getAllByText( /may have failed to convert/ ) ).toHaveLength( 2 );
+			expect( screen.getAllByRole( 'status' ) ).toHaveLength( 2 );
+			expect( screen.getByText( /no thumbnail to choose from/ ) ).toBeInTheDocument();
+			expect( screen.getByText( /subtitles can’t be loaded/ ) ).toBeInTheDocument();
+			// Still the same two cards, in the same slots — the shape the
+			// placeholders exist to hold doesn't change, only the claim.
+			expect( screen.getByText( 'Thumbnail' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Subtitles' ) ).toBeInTheDocument();
+		} finally {
+			jest.useRealTimers();
+		}
+	} );
+
+	it( 'never runs the clock down while the bytes are still going up', () => {
+		jest.useFakeTimers();
+		try {
+			render(
+				<Editor
+					{ ...editorProps(
+						makeLibraryItem( { id: '77', guid: '', type: 'local', isProcessing: false } ),
+						{
+							uploadState: { status: 'uploading', progress: 12, fileName: 'huge.mp4' },
+							saveDisabled: true,
+						}
+					) }
+				/>
+			);
+
+			act( () => {
+				jest.advanceTimersByTime( 10 * 60 * 1000 );
+			} );
+
+			// A 10-minute upload is a slow connection, not a dead video; that
+			// wait has its own progress bar to explain itself.
+			expect( screen.queryByText( /may have failed to convert/ ) ).not.toBeInTheDocument();
+		} finally {
+			jest.useRealTimers();
+		}
+	} );
+
+	it( 'hands the slot back to the real cards if the record does resolve', () => {
+		jest.useFakeTimers();
+		try {
+			const processing = makeLibraryItem( {
+				id: '77',
+				guid: 'g77',
+				type: 'videopress',
+				isProcessing: true,
+			} );
+			const { rerender } = render( <Editor { ...editorProps( processing ) } /> );
+
+			act( () => {
+				jest.advanceTimersByTime( 2 * 60 * 1000 );
+			} );
+			expect( screen.getAllByText( /may have failed to convert/ ) ).toHaveLength( 2 );
+
+			rerender( <Editor { ...editorProps( { ...processing, isProcessing: false } ) } /> );
+
+			expect( screen.queryByText( /may have failed to convert/ ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'thumbnail-card' ) ).toBeInTheDocument();
+		} finally {
+			jest.useRealTimers();
+		}
 	} );
 } );
 

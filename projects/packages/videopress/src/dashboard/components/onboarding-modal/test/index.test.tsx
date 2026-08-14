@@ -20,6 +20,9 @@ jest.mock( '../intro-video', () => ( {
 	__esModule: true,
 	default: () => null,
 	INTRO_VIDEO_ASPECT: '16 / 9',
+	// Not stubbed: the band's artwork is resolved by this exact helper, and
+	// whether it resolves is what the artwork cases below are about.
+	getAssetUrl: jest.requireActual( '../intro-video' ).getAssetUrl,
 } ) );
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -191,5 +194,63 @@ describe( 'OnboardingModal', () => {
 		render( <OnboardingModal /> );
 
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+	} );
+
+	// The band's artwork cannot be addressed from the stylesheet: the CSS is
+	// injected by JS, so a relative `url(images/…)` resolves against
+	// `/wp-admin/` and 404s. It travels as a custom property instead.
+	describe( 'band artwork', () => {
+		const BUILD_URL = 'https://example.com/wp-content/plugins/videopress/build/';
+
+		/**
+		 * Set (or clear) the boot payload the asset URL is resolved against.
+		 *
+		 * @param buildUrl - Build URL to expose, or undefined for no payload.
+		 */
+		function setBuildUrl( buildUrl?: string ) {
+			( global as unknown as { JPVIDEOPRESS_INITIAL_STATE?: unknown } ).JPVIDEOPRESS_INITIAL_STATE =
+				buildUrl === undefined ? undefined : { assets: { buildUrl } };
+		}
+
+		/**
+		 * The modal renders through a portal, so the band is looked up in the
+		 * document rather than the render container.
+		 *
+		 * @return The band element.
+		 */
+		function getBand(): HTMLElement {
+			// eslint-disable-next-line testing-library/no-node-access -- the band is a presentational div with no role or accessible name; no query reaches it.
+			const band = document.querySelector< HTMLElement >( '.vp-onboarding-modal__media' );
+			expect( band ).not.toBeNull();
+
+			return band as HTMLElement;
+		}
+
+		afterEach( () => {
+			delete ( global as unknown as { JPVIDEOPRESS_INITIAL_STATE?: unknown } )
+				.JPVIDEOPRESS_INITIAL_STATE;
+		} );
+
+		it( 'resolves the wireframe against the build URL, not /wp-admin/', () => {
+			setBuildUrl( BUILD_URL );
+			mockCounts( { videoPressCount: 0, localCount: 0, isSettled: true } );
+
+			render( <OnboardingModal /> );
+
+			expect( getBand().style.getPropertyValue( '--vp-intro-artwork' ) ).toBe(
+				`url("${ BUILD_URL }dashboard/onboarding-modal/images/videopress-wireframe.svg")`
+			);
+		} );
+
+		// A bad or missing base costs the band its artwork, never the dashboard:
+		// the property is simply absent and the stylesheet's flat #003010 shows.
+		it( 'falls back to the flat band when the URL cannot be built', () => {
+			setBuildUrl( undefined );
+			mockCounts( { videoPressCount: 0, localCount: 0, isSettled: true } );
+
+			render( <OnboardingModal /> );
+
+			expect( getBand().style.getPropertyValue( '--vp-intro-artwork' ) ).toBe( '' );
+		} );
 	} );
 } );

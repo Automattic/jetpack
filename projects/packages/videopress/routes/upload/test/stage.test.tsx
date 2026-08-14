@@ -130,12 +130,19 @@ jest.mock( '../../../src/dashboard/hooks/use-delete-video', () => ( {
 	useDeleteVideo: () => ( { mutateAsync: jest.fn(), isPending: false } ),
 } ) );
 const mockCreateInfoNotice = jest.fn();
+const mockCreateErrorNotice = jest.fn();
 jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
 	useGlobalNotices: () => ( {
 		createSuccessNotice: jest.fn(),
-		createErrorNotice: jest.fn(),
+		createErrorNotice: ( ...args: unknown[] ) => mockCreateErrorNotice( ...args ),
 		createInfoNotice: mockCreateInfoNotice,
 	} ),
+} ) );
+// The dropzone's rejected-drop notice carries the upgrade route; the real hook
+// wants the connection package's initial state, which this stage test doesn't
+// hydrate.
+jest.mock( '../../../src/dashboard/hooks/use-videopress-upgrade', () => ( {
+	useVideoPressUpgrade: () => jest.fn(),
 } ) );
 jest.mock( '../../../src/client/components/caption-manager-modal/lazy', () => ( {
 	__esModule: true,
@@ -372,6 +379,43 @@ describe( 'upload stage single-drop transition', () => {
 		renderStage();
 
 		expect( screen.getByTestId( 'layout' ) ).toHaveAttribute( 'data-active-tab', 'upload' );
+	} );
+
+	it( 'says why a drop is refused at the free-tier limit instead of eating it', () => {
+		// The screen still renders a full, normal-looking upload card at the
+		// limit. Dropping onto it did nothing at all — no error, no toast, no
+		// state change — while the button beside it was plainly disabled.
+		mockFreeTier = { isAtLimit: true, isFree: true, isUnlimited: false, videoCount: 1 };
+		const { container } = renderStage();
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
+		const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
+		fireEvent.drop( dropzone, { dataTransfer: { files: [ makeFile( 'second.mp4' ) ] } } );
+
+		expect( mockStartUpload ).not.toHaveBeenCalled();
+		expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
+			'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.',
+			expect.objectContaining( {
+				actions: [ expect.objectContaining( { label: 'Upgrade' } ) ],
+			} )
+		);
+	} );
+
+	it( 'refuses a file that only looks like a video before it can burn a slot', () => {
+		// A `.txt` renamed `.mp4` uploaded 0→100%, registered, took the free
+		// plan's one slot and then sat there permanently half-broken.
+		const { container } = renderStage();
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
+		const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
+		fireEvent.drop( dropzone, {
+			dataTransfer: {
+				files: [ new File( [ 'x' ], 'not-a-video.mp4', { type: 'text/plain' } ) ],
+			},
+		} );
+
+		expect( mockStartUpload ).not.toHaveBeenCalled();
+		expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Only video files can be uploaded.' );
 	} );
 
 	it( 'resumes into the edit step when exactly one queue item is adopted on mount', () => {

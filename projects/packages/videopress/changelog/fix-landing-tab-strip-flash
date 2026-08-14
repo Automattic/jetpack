@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: stop the first-run tabs flashing before the returning-user tabs when arriving from the WordPress menu.

@@ -1409,9 +1409,12 @@ const UploadOnboarding = ( {
 
 	const onFiles = useCallback(
 		( selected: File[] ) => {
-			if ( isAtLimit ) {
-				return;
-			}
+			// No at-limit guard here any more: the dropzone refuses the drop
+			// itself, with the notice and the upgrade route, rather than this
+			// callback dropping the files on the floor in silence. Same for
+			// files that aren't videos — what arrives here is already the set
+			// the backend accepts.
+
 			// Home's emptied-library dropzone applies the same slice + notice
 			// before handing its files to this flow — shared helper, one message.
 			const { files: selectedForPlan, discardedNotice } = selectFilesForPlan(
@@ -1484,7 +1487,6 @@ const UploadOnboarding = ( {
 			allowMultiple,
 			createInfoNotice,
 			go,
-			isAtLimit,
 			isConnected,
 			navigate,
 			queryClient,

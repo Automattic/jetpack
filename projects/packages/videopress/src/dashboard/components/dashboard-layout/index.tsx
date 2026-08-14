@@ -62,6 +62,10 @@ const markLandingRedirectHandled = (): void => {
 const isBareLanding = (): boolean =>
 	typeof window !== 'undefined' && ! new URLSearchParams( window.location.search ).has( 'p' );
 
+// Stable identity for the "no tabs yet" case, so holding the strip back does
+// not hand `Tabs.Root` a fresh array on every render.
+const NO_TABS: DashboardTab[] = [];
+
 /**
  * Shared chrome for every wp-build VideoPress dashboard tab. Renders
  * `AdminPage` (with header + JetpackFooter) and a `Tabs.Root` containing
@@ -173,7 +177,7 @@ export default function DashboardLayout( {
 	// resolves to the Library route, because Library owns `/`. The effect
 	// above then sends the user to Home or Upload — so the Library paints
 	// first and is yanked away a moment later, which reads as the page
-	// loading twice. Hold the body back until the decision is made: only on
+	// loading twice. Hold the page back until the decision is made: only on
 	// that bare landing, and only while the count is still unknown, so a
 	// failed count still ends up rendering something rather than hanging on
 	// an empty frame.
@@ -182,6 +186,22 @@ export default function DashboardLayout( {
 		isBareLanding() &&
 		settledFirstRunState === 'loading' &&
 		! hasHandledLandingRedirect();
+
+	// The strip is held back over exactly the same window as the body, and for
+	// the same reason. Its order comes from the OPTIMISTIC first-run state (a
+	// loading count reads as first-run), which is right everywhere else — but on
+	// this one URL it meant a returning user watched `Upload | Library | ...`
+	// paint with Library active, then the first tab rename itself to Home once
+	// the count landed. Leading with the returning order instead would only move
+	// that flash onto the brand-new user, which is the whole trade the optimism
+	// exists to avoid; on a bare landing neither order is knowably right, so
+	// neither is shown. It costs nothing visually — the body under it is blank
+	// over the same window, so strip and content arrive in one paint — and the
+	// freeze above is untouched, because it reads `liveTabs`, not this.
+	//
+	// Tabs and panels move together: `@wordpress/ui` validates their pairing, so
+	// panels may not outlive the tabs that label them.
+	const renderedTabs = isAwaitingLandingDecision ? NO_TABS : visibleTabs;
 
 	return (
 		<AdminPage
@@ -194,10 +214,10 @@ export default function DashboardLayout( {
 			showFooter={ ! hideFooter }
 		>
 			<Tabs.Root className="vp-dashboard-tabs" value={ activeTab } onValueChange={ onValueChange }>
-				<DashboardTabs tabs={ visibleTabs } />
-				{ visibleTabs.map( tab => (
+				<DashboardTabs tabs={ renderedTabs } />
+				{ renderedTabs.map( tab => (
 					<Tabs.Panel key={ tab } value={ tab }>
-						{ activeTab === tab && ! isAwaitingLandingDecision ? children : null }
+						{ activeTab === tab ? children : null }
 					</Tabs.Panel>
 				) ) }
 			</Tabs.Root>

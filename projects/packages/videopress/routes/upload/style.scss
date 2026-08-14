@@ -140,10 +140,19 @@ $vp-flow-duration: 380ms;
 			animation: vp-card-in $vp-flow-duration $vp-flow-easing both;
 		}
 
-		// The exiting card overlays in the same spot so both are briefly visible.
+		// The exiting card overlays in the same spot so both are briefly
+		// visible. Top and sides only — NOT `inset: 0`: pinning the bottom edge
+		// as well stretches the exiting card to the height of the wrapper,
+		// which by then is already easing towards the INCOMING step's height.
+		// Going upload → edit that is the full editor, and the dropzone card
+		// centres its content vertically, so its hint and its button drifted
+		// down into the middle of the editor and printed straight through the
+		// Description field. Left auto, the card keeps its natural height and
+		// overlays from the top, which is what a cross-fade is.
 		&.is-exit {
 			position: absolute;
-			inset: 0;
+			inset-block-start: 0;
+			inset-inline: 0;
 			pointer-events: none;
 			animation: vp-card-out $vp-flow-duration $vp-flow-easing both;
 		}

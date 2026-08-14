@@ -259,6 +259,14 @@
 	}
 }
 
+// What those skeletons turn into when the wait runs out of budget: quiet
+// secondary copy, not an error banner — the video may yet finish, and the
+// page around it is fine.
+.vp-video-details__pending-stalled {
+	display: block;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
 // The Thumbnail card's picker: the current poster followed by the two ways to
 // replace it, all at the same 16:9 size so the row reads as one set of
 // options rather than an image with buttons stuck to it.
