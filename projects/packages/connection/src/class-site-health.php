@@ -105,19 +105,19 @@ class Site_Health {
 	 */
 	private static function get_default_test_labels() {
 		return array(
-			'test__blog_token_if_exists'           => __( 'Site token', 'jetpack-connection' ),
-			'test__check_if_connected'             => __( 'WordPress.com connection', 'jetpack-connection' ),
-			'test__master_user_exists_on_site'     => __( 'Connection owner', 'jetpack-connection' ),
-			'test__master_user_can_manage_options' => __( 'Connection owner permissions', 'jetpack-connection' ),
-			'test__outbound_http'                  => __( 'Outbound HTTP requests', 'jetpack-connection' ),
-			'test__outbound_https'                 => __( 'Outbound HTTPS requests', 'jetpack-connection' ),
-			'test__identity_crisis'                => __( 'Site address', 'jetpack-connection' ),
-			'test__connection_token_health'        => __( 'Connection tokens', 'jetpack-connection' ),
+			'test__blog_token_if_exists'           => __( 'Blog Token', 'jetpack-connection' ),
+			'test__check_if_connected'             => __( 'WordPress.com Connection', 'jetpack-connection' ),
+			'test__master_user_exists_on_site'     => __( 'Connection Owner', 'jetpack-connection' ),
+			'test__master_user_can_manage_options' => __( 'Connection Owner Permissions', 'jetpack-connection' ),
+			'test__outbound_http'                  => __( 'Outbound HTTP Requests', 'jetpack-connection' ),
+			'test__outbound_https'                 => __( 'Outbound HTTPS Requests', 'jetpack-connection' ),
+			'test__identity_crisis'                => __( 'Site Address', 'jetpack-connection' ),
+			'test__connection_token_health'        => __( 'Connection Tokens', 'jetpack-connection' ),
 			'test__wpcom_connection_test'          => __( 'Requests from WordPress.com', 'jetpack-connection' ),
 			// Only registered when the jetpack_debugger_run_self_test filter returns true.
-			'test__wpcom_self_test'                => __( 'Site XML-RPC endpoint', 'jetpack-connection' ),
-			'test__server_port_value'              => __( 'Server port', 'jetpack-connection' ),
-			'test__xml_parser_available'           => __( 'PHP XML support', 'jetpack-connection' ),
+			'test__wpcom_self_test'                => __( 'Site XML-RPC Endpoint', 'jetpack-connection' ),
+			'test__server_port_value'              => __( 'Server Port', 'jetpack-connection' ),
+			'test__xml_parser_available'           => __( 'PHP XML Support', 'jetpack-connection' ),
 		);
 	}
 

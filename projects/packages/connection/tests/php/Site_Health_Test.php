@@ -275,7 +275,7 @@ class Site_Health_Test extends TestCase {
 
 		$output = $tests['test__blog_token_if_exists']['test']();
 
-		$this->assertSame( 'Site token', $output['label'] );
+		$this->assertSame( 'Blog Token', $output['label'] );
 	}
 
 	/**
