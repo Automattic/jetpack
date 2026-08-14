@@ -83,6 +83,26 @@ describe( 'step-flow cross-fade', () => {
 		expect( sequenced ).toContain( '$vp-flow-duration - $vp-flow-exit-duration' );
 	} );
 
+	it( 'holds the wrapper height until the outgoing card has gone', () => {
+		// Sequencing removed the double-print but exposed the height transition,
+		// which runs from the moment the step changes and so opens an EMPTY box
+		// during the exit: measured live, 654 of 734px painted with both cards at
+		// opacity 0. Delaying the height by the exit duration keeps that pause the
+		// size of the card that just left rather than the size of the editor
+		// arriving. Scoped to `.is-sequenced`, so the cross-faded steps — where
+		// the height should track the card that is already fading in — are
+		// untouched.
+		const sequenced = stylesheet.slice(
+			stylesheet.indexOf( '&.is-sequenced {' ),
+			stylesheet.indexOf( '> .vp-flow__card.is-exit' )
+		);
+		expect( sequenced ).toMatch( /transition-delay:\s*\$vp-flow-exit-duration/ );
+
+		// The height's own transition is declared once, without a delay, so only
+		// the sequenced case defers it.
+		expect( block( '.vp-flow' ) ).toMatch( /transition:\s*height\s*\$vp-flow-duration/ );
+	} );
+
 	it( 'leaves the same-shape cross-fade alone', () => {
 		// The other four steps are the same card in sequence, where the
 		// cross-fade reads as one card morphing. Their rule must keep the full
