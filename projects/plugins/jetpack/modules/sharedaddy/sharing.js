@@ -50,6 +50,12 @@
 		return null;
 	}
 
+	// Helper function to look up a key without matching inherited members such as
+	// `constructor` or `toString`.
+	function hasOwn( obj, key ) {
+		return Object.prototype.hasOwnProperty.call( obj, key );
+	}
+
 	// Helper function to iterate over a NodeList
 	// (since IE 11 doesn't have NodeList.prototype.forEach)
 	function forEachNode( list, fn ) {
@@ -444,6 +450,103 @@
 		request.setRequestHeader( 'x-requested-with', 'XMLHttpRequest' );
 
 		request.send( getEncodedFormFieldForSubmit( 'email-share-nonce', emailShareNonce ) );
+	}
+
+	// ---------------------------- SHARE POPUPS ---------------------------- //
+
+	// Services that open their share link in a popup publish the window features
+	// they need in `window.WPCOM_sharing_popups`, keyed by the service name that
+	// also appears in the link's `share-<service>` class. Sharing_Source::js_dialog()
+	// prints that map in an inline script after this file, and the one delegated
+	// listener below serves every service, with only one popup open at a time.
+	var sharePopup;
+	var sharePopupNames = {};
+
+	// Popup names are unpredictable, so another page cannot pre-register one and
+	// claim the popup. They are stable per service per page load, so repeat clicks
+	// on a service reuse its window.
+	function getSharePopupName( service ) {
+		if ( ! hasOwn( sharePopupNames, service ) ) {
+			sharePopupNames[ service ] =
+				'wpcom' + service + '-' + Math.random().toString( 36 ).slice( 2 );
+		}
+
+		return sharePopupNames[ service ];
+	}
+
+	// Find the share link a click landed on. Sharing buttons nest at most one
+	// element inside the anchor, and looking no further up keeps clicks on other
+	// features' buttons out of this handler -- notably the Sharing Buttons block,
+	// which uses the same `share-<service>` classes but opts out of popups.
+	function getShareLink( target ) {
+		if ( target.nodeName === 'A' ) {
+			return target;
+		}
+
+		var parent = target.parentNode;
+		return parent && parent.nodeName === 'A' ? parent : null;
+	}
+
+	// Find the popup service a share link belongs to, if it belongs to one.
+	function getSharePopupService( link ) {
+		var popups = window.WPCOM_sharing_popups;
+		if ( ! popups ) {
+			return null;
+		}
+
+		var prefix = 'share-';
+		var classes = ( link.getAttribute( 'class' ) || '' ).split( /\s+/ );
+		for ( var i = 0; i < classes.length; i++ ) {
+			if ( classes[ i ].indexOf( prefix ) !== 0 ) {
+				continue;
+			}
+
+			var service = classes[ i ].slice( prefix.length );
+			if ( hasOwn( popups, service ) ) {
+				return service;
+			}
+		}
+
+		return null;
+	}
+
+	function openSharePopup( event ) {
+		var target = event.target;
+		if ( ! target || target.nodeType !== 1 ) {
+			return;
+		}
+
+		var link = getShareLink( target );
+		if ( ! link ) {
+			return;
+		}
+
+		var service = getSharePopupService( link );
+		if ( ! service ) {
+			return;
+		}
+
+		event.preventDefault();
+
+		// If there's another sharing window open, close it.
+		if ( sharePopup ) {
+			sharePopup.close();
+		}
+
+		sharePopup = window.open(
+			link.getAttribute( 'href' ),
+			getSharePopupName( service ),
+			window.WPCOM_sharing_popups[ service ]
+		);
+	}
+
+	// Listen on `document` rather than `document.body`, so the popups keep working
+	// even if this file is ever loaded before the body exists. The flag has to be
+	// global: if the file is enqueued twice under different handles, each copy gets
+	// its own closure, and two listeners would open two popups per click.
+	if ( ! window.WPCOM_sharing_popups_bound ) {
+		window.WPCOM_sharing_popups_bound = true;
+		document.addEventListener( 'click', openSharePopup );
 	}
 
 	// Sharing initialization.

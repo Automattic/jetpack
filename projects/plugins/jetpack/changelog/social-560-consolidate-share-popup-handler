@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Sharing: open share popups from a single delegated click handler instead of emitting one per enabled service.
