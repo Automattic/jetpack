@@ -30,8 +30,6 @@ const AI_SIDEBAR_JS_URL                   = 'https://' . AM_ASSET_BASE_PATH . 'j
 const AI_SIDEBAR_CSS_URL                  = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
 const AI_SIDEBAR_RTL_CSS_URL              = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
 const AI_SIDEBAR_PROVIDER_URL             = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
-const AI_SIDEBAR_LIMITED_PROVIDER_URL     = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar-limited.provider.mjs';
-const AI_SIDEBAR_LIMITED_VARIANT          = 'gutenberg-jetpack-ai';
 const AI_SIDEBAR_AGENT_ID                 = 'wp-orchestrator';
 const AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION = 'ai-sidebar-toolbar-button';
 
@@ -58,11 +56,6 @@ class Jetpack_AI_Sidebar {
 		// is idempotent: on WordPress.com and Atomic, jetpack-mu-wpcom may have
 		// already initialized it, in which case this is a no-op.
 		Agents_Manager::init();
-
-		// Free Simple sites get the writing-only entry. The full Gutenberg entry
-		// statically imports the WordPress Agent experience, so the choice must
-		// happen before the Agents Manager script is enqueued.
-		add_filter( 'agents_manager_variant', array( __CLASS__, 'select_agents_manager_variant' ), 20 );
 
 		// Register as Agents Manager provider. The filter fires inside
 		// Agents_Manager::enqueue_scripts(). Priority 20 so Jetpack loads
@@ -104,12 +97,6 @@ class Jetpack_AI_Sidebar {
 	 */
 	public static function maybe_enqueue_abilities_script(): void {
 		if ( ! self::should_expose_provider() ) {
-			return;
-		}
-
-		// The limited provider is self-contained. Loading the broad abilities IIFE
-		// here would advertise abilities that Free Simple must not expose.
-		if ( self::is_limited_experience() ) {
 			return;
 		}
 
@@ -241,13 +228,6 @@ class Jetpack_AI_Sidebar {
 			return $providers;
 		}
 
-		if ( self::is_limited_experience() ) {
-			// Preserve earlier filter values for compatibility. The limited frontend
-			// entry imports only jetpackAiWritingProviderUrl, not this generic list.
-			$providers[] = AI_SIDEBAR_LIMITED_PROVIDER_URL;
-			return $providers;
-		}
-
 		// Don't register if the IIFE bundle cannot be loaded. The ESM wrapper
 		// re-exports from window.__JetpackAIProvider at import time; if the
 		// IIFE never ran, toolProvider is still a truthy Proxy and AM would
@@ -263,20 +243,6 @@ class Jetpack_AI_Sidebar {
 		$providers[] = AI_SIDEBAR_PROVIDER_URL;
 
 		return $providers;
-	}
-
-	/**
-	 * Select the writing-only Agents Manager entry for Free Simple sites.
-	 *
-	 * @param string|null $variant Existing variant.
-	 * @return string|null
-	 */
-	public static function select_agents_manager_variant( $variant ) {
-		if ( ! self::is_limited_experience() || 'gutenberg' !== $variant ) {
-			return $variant;
-		}
-
-		return AI_SIDEBAR_LIMITED_VARIANT;
 	}
 
 	/**
@@ -396,14 +362,14 @@ class Jetpack_AI_Sidebar {
 
 		$enabled = false;
 		if ( $host->is_wpcom_simple() ) {
-			// Free Simple must retain Jetpack writing tools even when Big Sky is
-			// unavailable or disabled. Entitled sites retain the existing toggle.
-			$enabled = self::is_limited_experience()
+			// Free Simple — Simple without the WordPress Agent entitlement — must
+			// retain Jetpack writing tools even when Big Sky is unavailable or
+			// disabled. Entitled sites retain the existing toggle.
+			$enabled = ! self::has_full_wordpress_agent_entitlement()
 				? true
 				: class_exists( 'Big_Sky' ) && (bool) get_option( 'big_sky_enable', '1' );
 		} elseif ( $host->is_wpcom_platform() && class_exists( 'Big_Sky' ) ) {
-			$default = $host->is_wpcom_simple() ? '1' : '0';
-			$enabled = (bool) get_option( 'big_sky_enable', $default );
+			$enabled = (bool) get_option( 'big_sky_enable', '0' );
 		}
 
 		/**
@@ -429,51 +395,20 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Whether this request must use the writing-only Free Simple experience.
+	 * Whether the current WordPress.com Simple site has the full WordPress Agent
+	 * entitlement, resolved from Simple's server-owned purchase data.
 	 *
-	 * The full WordPress Agent entitlement is site-owned and must be resolved
-	 * server-side. Non-WPCOM hosts retain the existing integration.
-	 *
-	 * @return bool
-	 */
-	private static function is_limited_experience(): bool {
-		$host = new Host();
-		if ( ! $host->is_wpcom_simple() ) {
-			return false;
-		}
-
-		return ! self::has_full_wordpress_agent_entitlement();
-	}
-
-	/**
-	 * Whether the current site has the full WordPress Agent entitlement.
-	 *
-	 * WordPress.com Simple and Atomic can resolve this from their server-owned
-	 * purchase data. Self-hosted sites do not have this WordPress.com entitlement
-	 * and therefore remain on Jetpack AI metering.
+	 * Only called from the WordPress.com Simple branch above, so it assumes that
+	 * context. It fails closed when the wpcom entitlement symbols are absent.
 	 *
 	 * @return bool
 	 */
 	private static function has_full_wordpress_agent_entitlement(): bool {
-		$host = new Host();
-		if ( ! $host->is_wpcom_platform() ) {
-			return false;
-		}
-
 		return ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip( get_current_blog_id() ) )
-			|| ( self::can_resolve_full_wordpress_agent_entitlement()
+			|| ( function_exists( 'wpcom_site_has_feature' )
+				&& class_exists( '\\WPCOM_Features' )
+				&& defined( '\\WPCOM_Features::BIG_SKY' )
 				&& wpcom_site_has_feature( \WPCOM_Features::BIG_SKY ) );
-	}
-
-	/**
-	 * Whether the current request can resolve WordPress Agent entitlement.
-	 *
-	 * @return bool
-	 */
-	private static function can_resolve_full_wordpress_agent_entitlement(): bool {
-		return function_exists( 'wpcom_site_has_feature' )
-			&& class_exists( '\\WPCOM_Features' )
-			&& defined( '\\WPCOM_Features::BIG_SKY' );
 	}
 
 	/**
@@ -647,11 +582,7 @@ class Jetpack_AI_Sidebar {
 		if ( empty( $data['agentId'] ) ) {
 			$fields['agentId'] = AI_SIDEBAR_AGENT_ID;
 		}
-
 		$fields['jetpackAiSidebar'] = self::get_jetpack_ai_sidebar_preview_config();
-		if ( self::is_limited_experience() ) {
-			$fields['jetpackAiWritingProviderUrl'] = AI_SIDEBAR_LIMITED_PROVIDER_URL;
-		}
 
 		return $fields;
 	}

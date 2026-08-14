@@ -552,6 +552,19 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * VIP Simple sites are entitled, so they too retain the WordPress Agent toggle.
+	 */
+	public function test_vip_simple_preview_respects_big_sky_option_off() {
+		$this->skip_when_wpcomsh_is_active();
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_wpcom_simple();
+		add_filter( 'jetpack_test_wpcom_is_vip', '__return_true' );
+		update_option( 'big_sky_enable', '0' );
+
+		$this->assertFalse( $this->gate_open() );
+	}
+
+	/**
 	 * The jetpack_ai_sidebar_enabled filter overrides the gate in both directions.
 	 */
 	public function test_preview_filter_overrides_gate() {
@@ -1037,68 +1050,18 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Free Simple selects the writing-only entry before Agents Manager enqueues.
+	 * Free Simple loads the standard Gutenberg Agents Manager entry.
+	 *
+	 * Jetpack registers no agents_manager_variant filter at all — suppressing the
+	 * WordPress Agent on free sites is Big Sky's job, not Jetpack's.
 	 */
-	public function test_free_simple_selects_limited_agents_manager_variant() {
-		$this->set_block_editor_screen();
-		$this->simulate_wpcom_simple();
-
-		$this->assertSame(
-			AiAssistantPlugin\AI_SIDEBAR_LIMITED_VARIANT,
-			Jetpack_AI_Sidebar::select_agents_manager_variant( 'gutenberg' )
-		);
-	}
-
-	/**
-	 * The Site Editor resolves the Gutenberg base variant before the limited filter runs.
-	 */
-	public function test_free_simple_site_editor_resolves_limited_agents_manager_variant() {
+	public function test_free_simple_keeps_gutenberg_agents_manager_variant() {
 		$this->set_site_editor_screen();
 		$this->simulate_wpcom_simple();
 		Jetpack_AI_Sidebar::init();
 
-		$this->assertSame( AiAssistantPlugin\AI_SIDEBAR_LIMITED_VARIANT, Agents_Manager::get_active_variant() );
-	}
-
-	/**
-	 * Free Simple does not turn a skipped Agents Manager request into an editor request.
-	 */
-	public function test_free_simple_preserves_null_agents_manager_variant() {
-		$this->simulate_wpcom_simple();
-
-		$this->assertNull( Jetpack_AI_Sidebar::select_agents_manager_variant( null ) );
-	}
-
-	/**
-	 * Free Simple does not load the writing-only editor entry on wp-admin screens.
-	 */
-	public function test_free_simple_preserves_wp_admin_agents_manager_variant() {
-		$this->simulate_wpcom_simple();
-
-		$this->assertSame( 'wp-admin', Jetpack_AI_Sidebar::select_agents_manager_variant( 'wp-admin' ) );
-	}
-
-	/**
-	 * A full Agent entitlement retains the existing Agents Manager entry.
-	 */
-	public function test_paid_simple_preserves_full_agents_manager_variant() {
-		$this->skip_when_wpcomsh_is_active();
-		$this->set_block_editor_screen();
-		$this->simulate_wpcom_simple();
-		add_filter( 'jetpack_test_wpcom_has_big_sky', '__return_true' );
-
-		$this->assertSame( 'gutenberg', Jetpack_AI_Sidebar::select_agents_manager_variant( 'gutenberg' ) );
-	}
-
-	/**
-	 * VIP Simple sites retain the full Agents Manager entry.
-	 */
-	public function test_vip_simple_preserves_full_agents_manager_variant() {
-		$this->skip_when_wpcomsh_is_active();
-		$this->simulate_wpcom_simple();
-		add_filter( 'jetpack_test_wpcom_is_vip', '__return_true' );
-
-		$this->assertSame( 'gutenberg', Jetpack_AI_Sidebar::select_agents_manager_variant( 'gutenberg' ) );
+		$this->assertSame( 'gutenberg', Agents_Manager::get_active_variant() );
+		$this->assertFalse( has_filter( 'agents_manager_variant' ) );
 	}
 
 	/**
@@ -1476,7 +1439,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
-		$this->assertSame( AiAssistantPlugin\AI_SIDEBAR_LIMITED_PROVIDER_URL, $data['jetpackAiWritingProviderUrl'] );
+		// Free Simple carries no provider field of its own.
+		$this->assertArrayNotHasKey( 'jetpackAiWritingProviderUrl', $data );
 	}
 
 	/**
@@ -1511,21 +1475,46 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
-		$this->assertSame( AiAssistantPlugin\AI_SIDEBAR_LIMITED_PROVIDER_URL, $data['jetpackAiWritingProviderUrl'] );
+		// Free Simple carries no provider field of its own.
+		$this->assertArrayNotHasKey( 'jetpackAiWritingProviderUrl', $data );
 	}
 
 	/**
-	 * Full WordPress Agent entitlement keeps the existing provider.
+	 * Free Simple emits the same fields an entitled Simple site does.
 	 */
-	public function test_add_agents_manager_data_keeps_full_provider_for_paid_simple() {
+	public function test_add_agents_manager_data_matches_entitled_simple() {
 		$this->skip_when_wpcomsh_is_active();
 		$this->set_page_block_editor_screen();
 		$this->simulate_wpcom_simple();
+
+		$free = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
 		add_filter( 'jetpack_test_wpcom_has_big_sky', '__return_true' );
+		$entitled = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
-		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+		$this->assertSame( $free, $entitled );
+		$this->assertArrayNotHasKey( 'jetpackAiWritingProviderUrl', $entitled );
+	}
 
-		$this->assertArrayNotHasKey( 'jetpackAiWritingProviderUrl', $data );
+	/**
+	 * Free Simple leaves the rest of the Agents Manager payload untouched, including
+	 * the unified-experience state the Agents Manager itself resolves.
+	 */
+	public function test_add_agents_manager_data_preserves_unified_experience_for_free_simple() {
+		$this->set_page_block_editor_screen();
+		$this->simulate_wpcom_simple();
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data(
+			array(
+				'sectionName'          => 'gutenberg',
+				'useUnifiedExperience' => true,
+				'agentProviders'       => array( 'https://example.com/image-provider.mjs' ),
+			)
+		);
+
+		$this->assertTrue( $data['useUnifiedExperience'] );
+		$this->assertSame( array( 'https://example.com/image-provider.mjs' ), $data['agentProviders'] );
+		$this->assertSame( 'gutenberg', $data['sectionName'] );
 	}
 
 	/**
@@ -1782,6 +1771,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test that the abilities script remains enqueued in the post editor.
+	 *
+	 * This is the free Simple case: no WordPress Agent entitlement, and the
+	 * normal abilities bundle still loads.
 	 */
 	public function test_abilities_script_enqueues_in_post_editor() {
 		$this->set_block_editor_screen();
@@ -1790,13 +1782,13 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
 
-		$this->assertFalse( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
 	}
 
 	/**
-	 * A full Agent entitlement retains the broad abilities provider.
+	 * Entitled Simple sites enqueue the same abilities bundle.
 	 */
-	public function test_abilities_script_enqueues_for_paid_simple() {
+	public function test_abilities_script_enqueues_for_entitled_simple() {
 		$this->skip_when_wpcomsh_is_active();
 		$this->set_block_editor_screen();
 		$this->cache_sidebar_asset_data();
@@ -1986,17 +1978,18 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Free Simple appends the writing provider without replacing earlier filter values.
+	 * Free Simple appends the standard provider without replacing earlier filter values.
 	 */
-	public function test_free_simple_registers_limited_provider() {
+	public function test_free_simple_registers_standard_provider() {
 		$this->set_site_editor_screen();
+		$this->cache_sidebar_asset_data();
 		$this->simulate_wpcom_simple();
 
 		$existing  = array( 'https://example.com/image-provider.mjs' );
 		$providers = Jetpack_AI_Sidebar::register_provider( $existing );
 
 		$this->assertSame(
-			array( 'https://example.com/image-provider.mjs', AiAssistantPlugin\AI_SIDEBAR_LIMITED_PROVIDER_URL ),
+			array( 'https://example.com/image-provider.mjs', AiAssistantPlugin\AI_SIDEBAR_PROVIDER_URL ),
 			$providers
 		);
 	}
