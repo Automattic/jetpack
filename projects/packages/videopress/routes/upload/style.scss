@@ -231,10 +231,12 @@ $vp-flow-duration: 380ms;
 	}
 
 	// The dropzone is the page's one action; at full container width it reads
-	// as a void. 718px per design review, centered. Only this card narrows —
-	// the edit surface that follows it in the same flow needs the width.
+	// as a void. 660px centered — the canonical Jetpack settings measure this
+	// dashboard's Settings tab already uses, so the two pages line up. Only
+	// this card narrows: the edit surface that follows it in the same flow
+	// needs the width.
 	.vp-onboarding__card--upload {
-		max-inline-size: 718px;
+		max-inline-size: 660px;
 		margin-inline: auto;
 	}
 }

@@ -198,10 +198,20 @@
 	// at the full 1272px column a drop target reads as a void. Same card frame
 	// and 718px measure as /upload's dropzone — the two screens offer the same
 	// action and were reading as different components.
+	// The free-plan notice takes the same 660px measure as the dropzone under
+	// it (and as the Settings tab), so the empty screen reads as one column
+	// instead of a full-width bar sitting over a narrow card.
+	&__notice {
+		box-sizing: border-box;
+		inline-size: 100%;
+		max-inline-size: 660px;
+		margin-inline: auto;
+	}
+
 	&__empty-upload {
 		box-sizing: border-box;
 		inline-size: 100%;
-		max-inline-size: 718px;
+		max-inline-size: 660px;
 		margin-inline: auto;
 		margin-block-start: var(--wpds-dimension-gap-2xl);
 		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
