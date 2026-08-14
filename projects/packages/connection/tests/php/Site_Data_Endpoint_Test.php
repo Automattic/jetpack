@@ -436,8 +436,10 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 
 		$requests = $this->count_http_requests(
 			function () {
-				$this->manager->get_connected_site_data();
-				$this->manager->get_connected_site_data();
+				$first  = $this->manager->get_connected_site_data();
+				$second = $this->manager->get_connected_site_data();
+
+				$this->assertEquals( $first, $second );
 			}
 		);
 
