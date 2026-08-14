@@ -105,7 +105,7 @@ class Feedback_Conditional_Logic_Test extends BaseTestCase {
 				'enabled'         => true,
 				'action'          => 'show',
 				'logicalOperator' => 'any',
-				'groups'   => array(
+				'groups'          => array(
 					array(
 						'logicalOperator' => 'all',
 						'rules'           => array(
@@ -143,7 +143,7 @@ class Feedback_Conditional_Logic_Test extends BaseTestCase {
 				'enabled'         => true,
 				'action'          => 'show',
 				'logicalOperator' => 'any',
-				'groups'   => array(
+				'groups'          => array(
 					array(
 						'logicalOperator' => 'all',
 						'rules'           => array(
@@ -176,7 +176,7 @@ class Feedback_Conditional_Logic_Test extends BaseTestCase {
 				'enabled'         => false,
 				'action'          => 'show',
 				'logicalOperator' => 'any',
-				'groups'   => array(
+				'groups'          => array(
 					array(
 						'logicalOperator' => 'all',
 						'rules'           => array(
@@ -209,7 +209,7 @@ class Feedback_Conditional_Logic_Test extends BaseTestCase {
 				'enabled'         => true,
 				'action'          => 'hide',
 				'logicalOperator' => 'any',
-				'groups'   => array(
+				'groups'          => array(
 					array(
 						'logicalOperator' => 'all',
 						'rules'           => array(
@@ -252,7 +252,7 @@ class Feedback_Conditional_Logic_Test extends BaseTestCase {
 				'enabled'         => true,
 				'action'          => 'show',
 				'logicalOperator' => 'all',
-				'groups'   => array(
+				'groups'          => array(
 					array(
 						'logicalOperator' => 'all',
 						'rules'           => array(
@@ -335,7 +335,7 @@ class Feedback_Conditional_Logic_Test extends BaseTestCase {
 				'enabled'         => true,
 				'action'          => 'show',
 				'logicalOperator' => 'all',
-				'groups'   => array(
+				'groups'          => array(
 					array(
 						'logicalOperator' => 'all',
 						'rules'           => array(

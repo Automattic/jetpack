@@ -63,7 +63,7 @@ class Conditional_Logic_Required_Field_Test extends BaseTestCase {
 			'enabled'         => true,
 			'action'          => 'show',
 			'logicalOperator' => 'all',
-			'groups'   => array(
+			'groups'          => array(
 				array(
 					'logicalOperator' => 'all',
 					'rules'           => array(

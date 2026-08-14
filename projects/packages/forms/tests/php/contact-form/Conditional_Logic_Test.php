@@ -656,7 +656,7 @@ class Conditional_Logic_Test extends TestCase {
 					'enabled'         => true,
 					'action'          => 'show',
 					'logicalOperator' => 'all',
-					'groups'   => array(
+					'groups'          => array(
 						array(
 							'logicalOperator' => 'all',
 							'rules'           => array(

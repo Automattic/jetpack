@@ -179,9 +179,16 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 							__next40pxDefaultSize={ true }
 							className="jetpack-contact-form__conditional-logic-edit"
 						>
+							{ /* The trailing 0 is deliberate, and matches how this is handled
+							     elsewhere in the package. Two identically shaped __() calls in a
+							     ternary get folded by the production minifier into
+							     __( cond ? 'a' : 'b', domain ), whose msgid is no longer a
+							     literal and so cannot be extracted for translation — which
+							     fails the build. The extra argument is ignored at runtime and
+							     keeps the two calls apart. */ }
 							{ hasConditions
 								? __( 'Edit conditions', 'jetpack-forms' )
-								: __( 'Add conditions', 'jetpack-forms' ) }
+								: __( 'Add conditions', 'jetpack-forms', 0 ) }
 						</Button>
 					</Stack>
 				</PanelBody>

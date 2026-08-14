@@ -100,7 +100,8 @@ const ConditionalLogicModal = ( {
 						  )
 						: __(
 								'This field is hidden by default, until the following conditions are met:',
-								'jetpack-forms'
+								'jetpack-forms',
+								0
 						  ) }
 				</Text>
 

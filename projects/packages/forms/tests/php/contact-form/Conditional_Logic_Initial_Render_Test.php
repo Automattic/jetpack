@@ -41,7 +41,7 @@ class Conditional_Logic_Initial_Render_Test extends BaseTestCase {
 			'enabled'         => true,
 			'action'          => 'show',
 			'logicalOperator' => 'all',
-			'groups'   => array(
+			'groups'          => array(
 				array(
 					'logicalOperator' => 'all',
 					'rules'           => array(
