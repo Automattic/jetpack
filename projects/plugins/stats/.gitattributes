@@ -11,5 +11,3 @@ vendor/jetpack-autoloader/**                    production-include
 # (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
 /README.md                                      production-exclude
-# WordPress.org rejects shell scripts in a plugin ("Application files are not permitted").
-bin/**                                          production-exclude

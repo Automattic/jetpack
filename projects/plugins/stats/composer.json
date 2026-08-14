@@ -26,16 +26,11 @@
 		]
 	},
 	"scripts": {
-		"build-zip": [
-			"bash bin/build-zip.sh"
-		],
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
 		"test-php": "@composer phpunit",
-		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
-		"build-production": "pnpm run build-production",
-		"build-development": "pnpm run build"
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 	},
 	"repositories": [
 		{
@@ -49,8 +44,10 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": false,
-		"autorelease": false,
+		"autotagger": {
+			"v": false
+		},
+		"autorelease": true,
 		"mirror-repo": "Automattic/jetpack-stats-plugin",
 		"release-branch-prefix": "stats",
 		"beta-plugin-slug": "jetpack-stats",
