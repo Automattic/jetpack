@@ -1,5 +1,4 @@
 import { render } from '@testing-library/react';
-import { chartScopeClass } from '../../../styles';
 import { GlobalChartsProvider } from '../global-charts-provider';
 
 // The stock defaultTheme's mapped fields are themselves self-referential pointers
@@ -28,8 +27,11 @@ describe( 'GlobalChartsProvider wrapper style (discriminating guard test)', () =
 			</GlobalChartsProvider>
 		);
 
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-		const wrapper = container.querySelector< HTMLElement >( `.${ chartScopeClass }` );
+		// GlobalChartsProvider's own render tree has no DOM node above this div (its
+		// context provider renders no element), so it is always the container's
+		// first child.
+		// eslint-disable-next-line testing-library/no-node-access
+		const wrapper = container.firstElementChild as HTMLElement | null;
 
 		expect( wrapper?.style.getPropertyValue( '--a8c-charts-color-grid' ) ).toBe( '' );
 	} );

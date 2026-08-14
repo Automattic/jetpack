@@ -12,7 +12,6 @@ import {
 	useGlobalChartsTheme,
 	useGlobalChartsContext,
 } from '../../providers';
-import { chartScopeClass } from '../../styles';
 import { formatPercentage, hexToRgba } from '../../utils';
 import styles from './conversion-funnel-chart.module.scss';
 import { useFunnelSelection } from './private';
@@ -308,7 +307,6 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 				data-testid="conversion-funnel-chart"
 				ref={ setScopeNode }
 				className={ clsx(
-					chartScopeClass,
 					styles[ 'conversion-funnel-chart' ],
 					loading && styles[ 'conversion-funnel-chart--loading' ],
 					className
@@ -338,7 +336,6 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 					setScopeNode( node );
 				} }
 				className={ clsx(
-					chartScopeClass,
 					styles[ 'conversion-funnel-chart' ],
 					loading && styles[ 'conversion-funnel-chart--loading' ],
 					className
@@ -462,7 +459,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 							left={ tooltipLeft }
 							className={ styles[ 'tooltip-wrapper' ] }
 						>
-							<div className={ chartScopeClass }>{ tooltipContent }</div>
+							{ tooltipContent }
 						</TooltipInPortal>
 					);
 				} )() }

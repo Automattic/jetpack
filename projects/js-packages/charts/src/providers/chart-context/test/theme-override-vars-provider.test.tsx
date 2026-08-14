@@ -1,16 +1,18 @@
 import { render } from '@testing-library/react';
-import { chartScopeClass } from '../../../styles';
 import { GlobalChartsProvider } from '../global-charts-provider';
 
+// GlobalChartsProvider's own render tree has no DOM node above this div (its
+// context provider renders no element), so it is always the container's
+// first child.
 const getWrapperElement = ( container: HTMLElement ): HTMLElement => {
 	// eslint-disable-next-line testing-library/no-node-access
-	const wrapper = container.querySelector< HTMLElement >( `.${ chartScopeClass }` );
+	const wrapper = container.firstElementChild;
 
 	if ( ! wrapper ) {
 		throw new Error( 'Expected GlobalChartsProvider to render a wrapper element.' );
 	}
 
-	return wrapper;
+	return wrapper as HTMLElement;
 };
 
 const assertNoSelfReferentialCustomProperty = ( wrapper: HTMLElement ) => {

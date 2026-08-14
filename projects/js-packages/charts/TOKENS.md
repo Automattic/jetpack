@@ -6,41 +6,47 @@ token type (`color`, `dimension`, `border-radius`).
 
 ## How it resolves
 
-`src/styles/chart-scope.module.scss` declares the whole catalog on one class, and every
-chart scope carries it: the responsive container that wraps ten of the eleven public
-charts, the conversion-funnel root, the `GlobalChartsProvider` wrapper, portal-rendered
-tooltips, and the standalone `BaseTooltip` / `BaseLegend` / `TrendIndicator` components.
+`src/styles/chart-scope.scss` declares the whole catalog once, at `:root` —
+mirroring how `@wordpress/theme`'s own `prebuilt/css/design-tokens.css` ships its
+catalog. `src/providers/chart-context/global-charts-provider.tsx` imports the
+stylesheet for its side effect, so it always reaches the bundle: every chart either
+sits under a `GlobalChartsProvider` or auto-mounts its own.
 
 Each entry maps to a WordPress design-system token with the WPDS spec value as its
 fallback:
 
 ```scss
-.scope {
+:root {
 	--a8c-charts-color-grid: var(--wpds-color-stroke-surface-neutral, #dbdbdb);
 }
 ```
 
-Because the class sits on the chart element itself rather than on `:root`, a
-`ThemeProvider` scoped to a subtree retints the charts inside it.
-
 Charts reference the catalog bare — `stroke: var(--a8c-charts-color-grid)`. The
-`--wpds-*` mapping for a role lives in `chart-scope.module.scss`. The one exception is
-the three trend-colour deprecated aliases: `trend-indicator.module.scss` predates this
-catalog and still carries its own copy of the same `--wpds-*` fallback behind
-`--charts-trend-*-color` (see "Public override variables" below) — redundant with the
-catalog default, since the class already defines the role before that fallback would
-ever be reached, but not yet cleaned up.
+`--wpds-*` mapping for a role lives in `chart-scope.scss`, the only place a
+`--wpds-*` token may be named. The one exception is the three trend-colour deprecated
+aliases, which now live inside the catalog entry itself as its inner fallback (see
+"Public override variables" below), ahead of the `--wpds-*` mapping.
 
 ### Precedence
 
-An instance override wins, then the emitted catalog default, then the mapped `--wpds-*`
-token, then the spec fallback:
+The closest ancestor override wins, then the `:root` catalog default, then the mapped
+`--wpds-*` token, then the spec fallback:
 
-1. `--a8c-charts-color-grid` set on the chart element or any ancestor — including the
-   value `GlobalChartsProvider` writes from a `theme` prop override.
-2. The catalog default emitted by `.scope`.
-3. The mapped `--wpds-*` token.
-4. The spec-value fallback.
+1. `--a8c-charts-color-grid` set on any ancestor of a chart — including a consumer's
+   own CSS with no provider involved. The closest ancestor wins, since CSS custom
+   properties inherit down the tree and a descendant only re-declares one when it sets
+   its own value.
+2. The value `GlobalChartsProvider` writes from a `theme` prop override, as an
+   instance-scoped custom property on its own wrapper element.
+3. The catalog default emitted once at `:root`.
+4. The mapped `--wpds-*` token.
+5. The spec-value fallback.
+
+A WPDS `ThemeProvider` nested *inside* `GlobalChartsProvider` does not retint the
+charts inside it — the catalog resolves once at `:root`, above where a nested
+`ThemeProvider` writes its own `--wpds-*` overrides. The supported place for a
+`ThemeProvider` is above `GlobalChartsProvider`, retinting the whole subtree including
+the `:root`-inherited catalog before the provider maps it.
 
 ### The SVG bridge
 
@@ -147,8 +153,8 @@ The heatmap Tier-2 variables (`--a8c-charts-color-heatmap-*`,
 `--a8c-charts-dimension-heatmap-*`, `--a8c-charts-heatmap-cell-intensity`) and
 `--a8c-charts-dimension-leaderboard-bar-hover-inset` are **component-emitted** —
 the heatmap chart sets its variables from JS per render, and the leaderboard chart
-defines its hover-inset variable in its own stylesheet — rather than by `.scope`.
-They are deliberately absent from `chart-scope.module.scss` and are not consumer
+defines its hover-inset variable in its own stylesheet — rather than at `:root`.
+They are deliberately absent from `chart-scope.scss` and are not consumer
 override points in the same sense as the catalog above.
 
 ## Public override variables

@@ -19,7 +19,6 @@ import {
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
-import { chartScopeClass } from '../../styles';
 import { attachSubComponents } from '../../utils';
 import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
@@ -376,9 +375,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					<>
 						{ withTooltips && tooltipOpen && tooltipData && (
 							<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-								<div className={ chartScopeClass }>
-									<div role="tooltip">{ renderTooltip( { tooltipData } ) }</div>
-								</div>
+								<div role="tooltip">{ renderTooltip( { tooltipData } ) }</div>
 							</TooltipInPortal>
 						) }
 						{ htmlChildren }

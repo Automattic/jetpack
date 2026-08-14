@@ -8,7 +8,7 @@ const defaultTheme: CompleteChartTheme = {
 	labelBackgroundColor: 'transparent', // label background color (transparent by default)
 	// White label text sits on top of arbitrary series colors, so it has no WPDS
 	// content-foreground equivalent. Every other colour here is a bare pointer at the
-	// catalog emitted by `chart-scope.module.scss`; the terminal literal is the last
+	// catalog emitted by `chart-scope.scss`; the terminal literal is the last
 	// resort for the SSR and jsdom paths, where getComputedStyle resolves nothing.
 	labelTextColor: 'var(--a8c-charts-color-label-on-fill, #FFFFFF)',
 	colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],

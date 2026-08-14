@@ -1,4 +1,6 @@
 import { render, screen } from '@testing-library/react';
+import { useContext } from 'react';
+import { ChartScopeContext } from '../../../../providers/chart-scope';
 import { withResponsive } from '../index';
 import type { BaseChartProps } from '../../../../types';
 
@@ -312,13 +314,19 @@ describe( 'withResponsive', () => {
 		} );
 	} );
 
-	it( 'marks the responsive wrapper as a chart scope', () => {
-		const Chart: ( props: BaseChartProps ) => JSX.Element = () => <div>chart</div>;
+	it( 'publishes the responsive wrapper element as the chart scope', () => {
+		// The catalog is emitted once at :root now (Task 10), so the wrapper no
+		// longer carries a scope class — but it must still be the element the JS
+		// bridge resolves scoped CSS variables against, via ChartScopeContext.
+		const ScopeProbe = () => {
+			const scopeNode = useContext( ChartScopeContext );
+			return <span data-testid="scope-probe">{ scopeNode?.dataset.testid }</span>;
+		};
+		const Chart: ( props: BaseChartProps ) => JSX.Element = () => <ScopeProbe />;
 		const Wrapped = withResponsive( Chart );
 
 		render( <Wrapped data={ [] } /> );
 
-		// identity-obj-proxy maps the CSS-module key to its own name.
-		expect( screen.getByTestId( 'responsive-wrapper' ) ).toHaveClass( 'scope' );
+		expect( screen.getByTestId( 'scope-probe' ) ).toHaveTextContent( 'responsive-wrapper' );
 	} );
 } );

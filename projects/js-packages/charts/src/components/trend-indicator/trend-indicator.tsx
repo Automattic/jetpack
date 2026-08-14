@@ -1,5 +1,4 @@
 import clsx from 'clsx';
-import { chartScopeClass } from '../../styles';
 import styles from './trend-indicator.module.scss';
 import type { TrendIndicatorProps, TrendDirection } from './types';
 
@@ -52,7 +51,6 @@ export function TrendIndicator( {
 	return (
 		<span
 			className={ clsx(
-				chartScopeClass,
 				styles[ 'trend-indicator' ],
 				styles[ `trend-indicator--${ direction }` ],
 				className

@@ -2,7 +2,6 @@ import { useParentSize } from '@visx/responsive';
 import clsx from 'clsx';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ChartScopeContext } from '../../../providers/chart-scope';
-import { chartScopeClass } from '../../../styles';
 import styles from './with-responsive.module.scss';
 import type { BaseChartProps } from '../../../types';
 import type { ComponentType } from 'react';
@@ -161,11 +160,7 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 			<div
 				ref={ setWrapperRef }
 				data-testid="responsive-wrapper"
-				className={ clsx(
-					chartScopeClass,
-					styles.container,
-					hasAspectRatio && styles.isContained
-				) }
+				className={ clsx( styles.container, hasAspectRatio && styles.isContained ) }
 				style={ {
 					...( width !== undefined ? { width } : null ),
 					...( height !== undefined ? { height } : null ),

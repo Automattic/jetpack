@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const stylesheet = readFileSync( join( __dirname, '..', 'chart-scope.module.scss' ), 'utf8' );
+const stylesheet = readFileSync( join( __dirname, '..', 'chart-scope.scss' ), 'utf8' );
 
 const EXPECTED_TOKENS = [
 	'--a8c-charts-color-grid',
@@ -58,7 +58,7 @@ describe( 'chart scope catalog', () => {
 		expect( stylesheet ).toContain( `${ token }:` );
 	} );
 
-	it( 'declares custom properties only, so applying the class cannot change layout', () => {
+	it( 'declares custom properties only, so this stylesheet cannot change layout', () => {
 		const body = stylesheet.slice( stylesheet.indexOf( '{' ) + 1, stylesheet.lastIndexOf( '}' ) );
 		const properties = extractDeclaredProperties( body );
 

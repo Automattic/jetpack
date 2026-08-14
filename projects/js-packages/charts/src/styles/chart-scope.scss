@@ -1,9 +1,10 @@
 // The single mapping point between the --a8c-charts-* catalog and WordPress
-// design-system tokens. Every chart scope carries this class, so each element
-// resolves its --wpds-* tokens at its own position in the tree — a nested
-// ThemeProvider retints the charts inside it.
-// Declares custom properties only. Adding this class must never change layout.
-.scope {
+// design-system tokens. Emitted once at :root, mirroring how
+// @wordpress/theme's own design-tokens.css declares its catalog — a consumer
+// override set on any ancestor of a chart wins over this default, since an
+// element's own declaration always beats an inherited one.
+// Declares custom properties only. This stylesheet must never change layout.
+:root {
 	--a8c-charts-color-grid: var(--wpds-color-stroke-surface-neutral, #dbdbdb);
 	--a8c-charts-color-axis: var(--wpds-color-stroke-surface-neutral, #dbdbdb);
 	--a8c-charts-color-tick: var(--wpds-color-stroke-surface-neutral, #dbdbdb);
@@ -14,9 +15,9 @@
 	// content-foreground equivalent.
 	--a8c-charts-color-label-on-fill: #fff;
 	--a8c-charts-color-annotation: var(--wpds-color-foreground-content-neutral, #1e1e1e);
-	--a8c-charts-color-trend-up: var(--wpds-color-foreground-content-success-weak, #008030);
-	--a8c-charts-color-trend-down: var(--wpds-color-foreground-content-error-weak, #cc1818);
-	--a8c-charts-color-trend-neutral: var(--wpds-color-foreground-content-neutral-weak, #707070);
+	--a8c-charts-color-trend-up: var(--charts-trend-up-color, var(--wpds-color-foreground-content-success-weak, #008030));
+	--a8c-charts-color-trend-down: var(--charts-trend-down-color, var(--wpds-color-foreground-content-error-weak, #cc1818));
+	--a8c-charts-color-trend-neutral: var(--charts-trend-neutral-color, var(--wpds-color-foreground-content-neutral-weak, #707070));
 	--a8c-charts-color-background: var(--wpds-color-background-surface-neutral-strong, #fff);
 	--a8c-charts-color-surface-secondary: var(--wpds-color-background-surface-neutral-weak, #f4f4f4);
 	--a8c-charts-color-track: var(--wpds-color-background-track-neutral-weak, #f0f0f0);

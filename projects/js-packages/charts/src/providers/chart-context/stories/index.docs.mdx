@@ -172,10 +172,10 @@ Themes are merged with the default theme, so you only need to specify the proper
 
 ### CSS Custom Property Overrides
 
-Every chart carries the package's `--a8c-charts-*` token catalog on its own scope
-element, so you can retheme charts with plain CSS — no `theme` prop or
-`GlobalChartsProvider` required. Set the role you want to change on any ancestor of a
-chart:
+The package's `--a8c-charts-*` token catalog is emitted once at `:root`, so you can
+retheme any chart with plain CSS — no `theme` prop or `GlobalChartsProvider`
+required. Set the role you want to change on any ancestor of a chart; the closest
+ancestor wins:
 
 ```css
 .my-dashboard {

@@ -50,12 +50,12 @@ interface GlobalChartsContextValue {
 
 ## Theming
 
-`GlobalChartsProvider` renders a wrapper element that carries the package's
-`--a8c-charts-*` catalog class (see `TOKENS.md`), so every chart underneath it — and
-every chart outside a provider, since the same class is applied at each chart's own
-scope — resolves its colors, focus ring, motion, and border-radius roles from that
-catalog. Consumers override a role by setting the matching `--a8c-charts-*` custom
-property on any ancestor of a chart, including plain CSS with no provider involved:
+The package's `--a8c-charts-*` catalog (see `TOKENS.md`) is emitted once at `:root`,
+so every chart — whether or not it sits under a `GlobalChartsProvider` — resolves its
+colors, focus ring, motion, and border-radius roles from that catalog by CSS
+inheritance. Consumers override a role by setting the matching `--a8c-charts-*` custom
+property on any ancestor of a chart, including plain CSS with no provider involved —
+the closest ancestor wins:
 
 ```css
 .my-dashboard {
