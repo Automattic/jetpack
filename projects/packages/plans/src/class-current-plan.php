@@ -267,7 +267,16 @@ class Current_Plan {
 			'1.1'
 		);
 
-		return self::update_from_sites_response( $response );
+		$updated = self::update_from_sites_response( $response );
+
+		// The shared site record cache can still hold a record older than this response, and a
+		// cached read stores the plan again. Dropping it keeps that older record from reverting
+		// what this fetch just stored.
+		if ( ! is_wp_error( $response ) ) {
+			Manager::delete_cached_site_data();
+		}
+
+		return $updated;
 	}
 
 	/**

@@ -365,6 +365,27 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A caller that reached WordPress.com by another route holds something newer than the cache
+	 * can. Dropping the cache has to send the next read back to WordPress.com, otherwise the
+	 * older record keeps being announced and undoes what that caller stored.
+	 */
+	public function test_dropping_the_cache_sends_the_next_read_to_wpcom() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
+
+		$requests = $this->count_http_requests(
+			function () {
+				$this->manager->get_connected_site_data();
+
+				Manager::delete_cached_site_data();
+
+				$this->manager->get_connected_site_data();
+			}
+		);
+
+		$this->assertSame( 2, $requests );
+	}
+
+	/**
 	 * A failure is cached as well, so an outage does not put a blocking request on every load.
 	 */
 	public function test_a_failed_fetch_is_also_cached() {

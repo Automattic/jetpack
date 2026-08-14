@@ -1004,6 +1004,25 @@ class Manager {
 	}
 
 	/**
+	 * Drop the cached WordPress.com site record.
+	 *
+	 * A caller that fetched the record by another route holds something newer than the cache can,
+	 * and `jetpack_site_data_fetched` fires on a cached read too. Without this, a cached copy
+	 * would keep announcing the older record and undo what the caller just stored.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function delete_cached_site_data() {
+		$site_id = \Jetpack_Options::get_option( 'id' );
+
+		if ( $site_id ) {
+			delete_transient( self::SITE_DATA_TRANSIENT_PREFIX . $site_id );
+		}
+	}
+
+	/**
 	 * Fetch the site's own record from the WordPress.com `/sites/%d` endpoint.
 	 *
 	 * The result is cached briefly. Every plugin that bundles this package serves this route, and
@@ -2124,7 +2143,7 @@ class Manager {
 		delete_transient( $transient_key );
 
 		// Delete the cached site record, which a later connection must not serve.
-		delete_transient( self::SITE_DATA_TRANSIENT_PREFIX . (int) \Jetpack_Options::get_option( 'id' ) );
+		self::delete_cached_site_data();
 
 		// Delete all XML-RPC errors.
 		Error_Handler::get_instance()->delete_all_errors();
