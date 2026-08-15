@@ -268,8 +268,13 @@ function measureMultistep( root: Locator, sel: Selectors ): Promise< MultistepMe
 			paragraphTextAlign: paraEl ? getComputedStyle( paraEl ).textAlign : null,
 			halfFieldWidth: halfBox ? halfBox.width : null,
 			halfFieldOffsetLeft: halfBox && stepBox ? halfBox.left - stepBox.left : null,
+			// A half-width field is `calc(50% - gap)` on the front end, so it
+			// lands a block-gap short of half — 24px on Twenty Sixteen, 19px on
+			// Twenty Twenty-Four. The tolerance only has to separate "half" from
+			// "full", which is half a step away, so keep it well clear of the
+			// theme's gap rather than tight to today's numbers.
 			halfFieldIsAboutHalf:
-				halfBox && stepBox ? Math.abs( halfBox.width - stepBox.width / 2 ) <= 24 : null,
+				halfBox && stepBox ? Math.abs( halfBox.width - stepBox.width / 2 ) <= 40 : null,
 		};
 	}, sel );
 }
