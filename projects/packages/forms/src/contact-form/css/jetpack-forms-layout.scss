@@ -1,3 +1,24 @@
+// Every block in a step is a full-width row. grunion.scss has said so since
+// multistep shipped, with `.wp-block-jetpack-form-step > * { flex: 0 0 100% }`,
+// but it says it on the wrong axis: a multistep form is vertical, which makes
+// the step `flex-direction: column` (below), so that `100%` is a height basis
+// and the width falls to `align-items: flex-start`, i.e. shrink to fit. This is
+// the same axis mistake the container-block rule below corrects, and it
+// applies to every other child too: a paragraph or heading in a step ends up as
+// wide as its text, on the front end as well as in the editor, so aligning its
+// text does nothing visible.
+// This lives here rather than in grunion.scss because grunion.scss is front-end
+// only (registered in class-contact-form-plugin.php, not among the block's
+// `style_handles`), and the editor needs the same rule.
+// `:where()` keeps the whole selector at zero specificity, so anything that
+// deliberately sizes a step child still wins — a field's width setting
+// (`.grunion-field-width-50-wrap` on the front end, `.jetpack-field__width-50`
+// in the editor) is unaffected.
+:where(.wp-block-jetpack-form-step) > * {
+	box-sizing: border-box;
+	width: 100%;
+}
+
 // Gutenberg versions will use different classname strategies
 // for layout flex support, make it backwards compatible using both.
 .wp-block-jetpack-contact-form-container.is-layout-flex,

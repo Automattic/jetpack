@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Contact Form: fix block spacing and alignment in the editor on themes without a theme.json.
+Contact Form: fix block spacing and alignment inside forms, and let a step's blocks be aligned.
