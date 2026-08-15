@@ -23,7 +23,6 @@ describe( 'File Field View', () => {
 	let mockElement;
 	let storeConfig;
 	let storeConfigs;
-	let storeNamespace;
 	let mockUpdateField;
 	let mockTrackFirstInteraction;
 	let state;
@@ -122,7 +121,6 @@ describe( 'File Field View', () => {
 		} );
 
 		await import( '../../../../src/modules/file-field/view.js' );
-		storeNamespace = Object.keys( storeConfigs )[ 0 ];
 		storeConfig = storeConfigs[ 'jetpack/form' ];
 		state = storeConfig.state;
 	} );
@@ -135,13 +133,47 @@ describe( 'File Field View', () => {
 		jest.restoreAllMocks();
 	} );
 
-	describe( 'Store registration', () => {
-		test( 'registers into the shared jetpack/form store, not its own namespace', () => {
-			expect( storeNamespace ).toBe( 'jetpack/form' );
+	/**
+	 * Remove a file. `removeFile` is synchronous: the server-side delete is fired without blocking
+	 * the UI update, so the context reflects the removal on return.
+	 *
+	 * @param {string} id - The client file ID to remove.
+	 */
+	const removeFile = id => {
+		storeConfig.actions.removeFile( {
+			preventDefault: jest.fn(),
+			target: { dataset: { id } },
 		} );
+	};
 
-		test( 'also registers a back-compat alias under the old namespace', () => {
-			expect( storeConfigs[ 'jetpack/field-file' ] ).toBeDefined();
+	/**
+	 * Answer the upload-token request with a usable token.
+	 *
+	 * @return {jest.Mock} The fetch spy.
+	 */
+	const mockTokenFetch = () =>
+		jest.spyOn( global, 'fetch' ).mockImplementation( () =>
+			Promise.resolve( {
+				ok: true,
+				json: () => Promise.resolve( { token: 'abc', expiration: 0 } ),
+			} )
+		);
+
+	/**
+	 * Drive a generator action to completion, awaiting whatever it yields.
+	 *
+	 * @param {Generator} generator - The generator to drain.
+	 */
+	const drainGenerator = async generator => {
+		let step = generator.next();
+		while ( ! step.done ) {
+			step = generator.next( await step.value );
+		}
+	};
+
+	describe( 'Store registration', () => {
+		test( 'registers into the shared form store first, then the back-compat alias', () => {
+			expect( Object.keys( storeConfigs ) ).toEqual( [ 'jetpack/form', 'jetpack/field-file' ] );
 		} );
 
 		test( 'registers a `file` validator alongside the other field validators', () => {
@@ -406,29 +438,7 @@ describe( 'File Field View', () => {
 		} );
 	} );
 
-	describe( 'Resetting', () => {
-		test( 'resetFiles empties the context', () => {
-			mockContext.files = [ { id: '1' }, { id: '2' } ];
-			storeConfig.actions.resetFiles();
-
-			expect( mockContext.files ).toEqual( [] );
-		} );
-	} );
-
 	describe( 'Removing files', () => {
-		/**
-		 * Remove a file. `removeFile` is synchronous: the server-side delete is fired without
-		 * blocking the UI update, so the context reflects the removal on return.
-		 *
-		 * @param {string} id - The client file ID to remove.
-		 */
-		const removeFile = id => {
-			storeConfig.actions.removeFile( {
-				preventDefault: jest.fn(),
-				target: { dataset: { id } },
-			} );
-		};
-
 		test( 'removes the file and reports the remaining list, not an empty string', () => {
 			mockContext.files = [
 				{ id: 'a', url: null, error: null },
@@ -506,20 +516,11 @@ describe( 'File Field View', () => {
 		};
 
 		test( 'a settled request marks the file uploaded and drops its abort controller', async () => {
-			jest.spyOn( global, 'fetch' ).mockImplementation( () =>
-				Promise.resolve( {
-					ok: true,
-					json: () => Promise.resolve( { token: 'abc', expiration: 0 } ),
-				} )
-			);
+			mockTokenFetch();
 			const { xhr, listeners } = installFakeXhr();
 			mockContext.files = [ { id: 'client-1', error: null, isUploaded: false } ];
 
-			const generator = storeConfig.actions.uploadFile( { name: 'doc.pdf' }, 'client-1' );
-			let step = generator.next();
-			while ( ! step.done ) {
-				step = generator.next( await step.value );
-			}
+			await drainGenerator( storeConfig.actions.uploadFile( { name: 'doc.pdf' }, 'client-1' ) );
 
 			// Settle the request the way the browser would.
 			listeners.readystatechange( { target: xhr } );
@@ -530,10 +531,7 @@ describe( 'File Field View', () => {
 			} );
 
 			// The controller is gone, so a later remove cannot abort an already-finished request.
-			storeConfig.actions.removeFile( {
-				preventDefault: jest.fn(),
-				target: { dataset: { id: 'client-1' } },
-			} );
+			removeFile( 'client-1' );
 
 			expect( xhr.abort ).not.toHaveBeenCalled();
 		} );
@@ -542,12 +540,7 @@ describe( 'File Field View', () => {
 			// Nothing is registered in uploadControllers until after the token resolves, so a
 			// removal during that window has nothing to abort and would otherwise upload a file the
 			// user already deleted.
-			jest.spyOn( global, 'fetch' ).mockImplementation( () =>
-				Promise.resolve( {
-					ok: true,
-					json: () => Promise.resolve( { token: 'abc', expiration: 0 } ),
-				} )
-			);
+			mockTokenFetch();
 			const { xhr } = installFakeXhr();
 			mockContext.files = [ { id: 'client-1', error: null, isUploaded: false } ];
 
@@ -565,12 +558,18 @@ describe( 'File Field View', () => {
 			expect( xhr.send ).not.toHaveBeenCalled();
 		} );
 
-		test( 'a progress event for an already-cleared file is ignored', () => {
-			// resetFiles empties the list without waiting for in-flight requests, so an XHR event
-			// can arrive for an entry that is gone. Object.assign( undefined, … ) used to throw.
-			mockContext.files = [];
+		test( 'an XHR event arriving after a reset is ignored', async () => {
+			// resetFiles empties the list without waiting for in-flight requests, so an event can
+			// arrive for an entry that is gone. Object.assign( undefined, … ) used to throw.
+			mockTokenFetch();
+			const { xhr, listeners } = installFakeXhr();
+			mockContext.files = [ { id: 'client-1', error: null, isUploaded: false } ];
 
-			expect( () => storeConfig.actions.resetFiles() ).not.toThrow();
+			await drainGenerator( storeConfig.actions.uploadFile( { name: 'doc.pdf' }, 'client-1' ) );
+			storeConfig.actions.resetFiles();
+
+			expect( () => listeners.readystatechange( { target: xhr } ) ).not.toThrow();
+			expect( mockContext.files ).toEqual( [] );
 		} );
 
 		test( 'resetFiles releases controllers and object URLs like removeFile does', () => {
@@ -585,12 +584,7 @@ describe( 'File Field View', () => {
 
 	describe( 'Upload token', () => {
 		test( 'concurrent uploads share a single token request', async () => {
-			const fetchMock = jest.spyOn( global, 'fetch' ).mockImplementation( () =>
-				Promise.resolve( {
-					ok: true,
-					json: () => Promise.resolve( { token: 'abc', expiration: 0 } ),
-				} )
-			);
+			const fetchMock = mockTokenFetch();
 
 			// Drive two uploads up to their first yield, which is the token request.
 			const first = storeConfig.actions.uploadFile( { name: 'a.pdf' }, 'client-1' );

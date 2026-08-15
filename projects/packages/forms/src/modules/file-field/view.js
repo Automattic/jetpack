@@ -167,7 +167,7 @@ const getFileFieldExtra = () => {
 };
 
 /**
- * The files currently held by the field, or an empty list outside a file field's scope.
+ * The files currently held by the field.
  *
  * @return {Array} The field's files.
  */
@@ -546,11 +546,7 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 		},
 
 		/**
-		 * Reset the field, releasing anything the files still hold.
-		 *
-		 * Kept symmetrical with `removeFile`: emptying the list on its own left live uploads
-		 * running against files nothing referenced, blob URLs pinned for the life of the page, and
-		 * controllers stranded in `uploadControllers`.
+		 * Reset the field, releasing anything the files still hold. See `releaseFile()`.
 		 */
 		resetFiles: () => {
 			const context = getContext();
@@ -662,25 +658,18 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 } );
 
 /*
- * Back-compatibility shim for markup rendered before this change. Remove one release after this
+ * Back-compatibility shim for markup cached before this change. Remove one release after this
  * ships, along with the `@deprecated` note in the changelog.
  *
- * Page caches serve HTML and scripts on independent lifetimes, and the script module is versioned
- * on `JETPACK__VERSION` rather than the forms package version — so both directions are reachable:
- * cached markup carrying `data-wp-interactive="jetpack/field-file"` against this bundle, and new
- * markup against an older bundle after a deploy with no plugin version bump.
+ * A page cache can serve HTML carrying `data-wp-interactive="jetpack/field-file"` against this
+ * bundle, and that fails silently: the runtime auto-creates an empty store for an unknown
+ * namespace rather than erroring, so every directive in the container becomes a no-op with no
+ * console output outside SCRIPT_DEBUG. On a *required* file field it is unrecoverable — the
+ * wrapper is still `jetpack/form`, so `registerField` records `is_required`, no file can ever be
+ * added to clear it, and the submit gate blocks the form permanently.
  *
- * The first direction fails silently and badly. The runtime's `resolve()` auto-creates an empty
- * store for an unknown namespace instead of erroring, and the `on` directive skips a non-function
- * result, so every directive inside the old container becomes a no-op: the dropzone does nothing,
- * the file input does nothing, the remove button does nothing, and no class ever toggles — with no
- * console output outside SCRIPT_DEBUG. On a *required* file field that is unrecoverable: the
- * wrapper markup is untouched `jetpack/form`, so `registerField` still records `is_required`, no
- * file can ever be added to clear it, and the submit gate blocks the form permanently. The visitor
- * sees an error they cannot resolve and the site owner just sees submissions stop.
- *
- * Registering the old namespace with the old names pointed at the new implementations keeps that
- * markup working, and doubles as the deprecation window for what was a globally reachable store.
+ * (The mirror case, new markup against a stale bundle, is handled by the content-hash suffix in
+ * `enqueue_file_field_assets()` rather than here.)
  */
 /**
  * Point the shared context at the legacy one so the new implementation can run against old markup.
@@ -729,13 +718,13 @@ store( CONFIG_NAMESPACE, {
 		},
 	},
 	actions: {
-		handleKeyDown: withLegacyContext( event => actions.onFileDropzoneKeyDown( event ) ),
-		openFilePicker: withLegacyContext( () => actions.openFilePicker() ),
-		fileAdded: withLegacyContext( event => actions.fileAdded( event ) ),
-		fileDropped: withLegacyContext( event => actions.fileDropped( event ) ),
-		removeFile: withLegacyContext( event => actions.removeFile( event ) ),
-		removeFileKeydown: withLegacyContext( event => actions.removeFileKeydown( event ) ),
-		resetFiles: withLegacyContext( () => actions.resetFiles() ),
+		handleKeyDown: withLegacyContext( actions.onFileDropzoneKeyDown ),
+		openFilePicker: withLegacyContext( actions.openFilePicker ),
+		fileAdded: withLegacyContext( actions.fileAdded ),
+		fileDropped: withLegacyContext( actions.fileDropped ),
+		removeFile: withLegacyContext( actions.removeFile ),
+		removeFileKeydown: withLegacyContext( actions.removeFileKeydown ),
+		resetFiles: withLegacyContext( actions.resetFiles ),
 
 		// The old template binds `is-dropping` to the legacy context, so these write there directly
 		// rather than delegating to handlers that would set the flag on the shared context.
@@ -748,6 +737,6 @@ store( CONFIG_NAMESPACE, {
 		},
 	},
 	callbacks: {
-		focusElement: () => callbacks.focusFilePreview(),
+		focusElement: callbacks.focusFilePreview,
 	},
 } );

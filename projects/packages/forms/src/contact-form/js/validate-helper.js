@@ -100,10 +100,9 @@ export const isEmptyValue = value => {
  * return true or the field error.
  *
  * This is the fallback path only. Field types whose module registers `state.validators[ type ]`
- * — currently `file` and `phone` — are never routed here; the form store prefers the registered
- * validator in BOTH `registerField()` and `actions.updateField()`. Those two call sites are why
- * there is no `file` branch below: removing it is only safe while both of them consult the
- * registry, so don't narrow either one back to a single call site without restoring a branch here.
+ * — currently `file` and `phone` — are never routed here; `validate()` in modules/form/view.js
+ * prefers the registered validator. That is why there is no `file` branch below: removing it is
+ * only safe while every validation path goes through `validate()`.
  *
  * @param  type
  * @param  value

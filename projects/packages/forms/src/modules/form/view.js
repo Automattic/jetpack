@@ -59,27 +59,8 @@ let errorTimeout = null;
 // Must match Feedback::FORM_FILL_DURATION_FIELD in src/contact-form/class-feedback.php.
 const FORM_FILL_DURATION_FIELD = 'jetpack_form_fill_duration';
 
-const updateField = ( fieldId, value, showFieldError = false, validatorCallback = null ) => {
-	const context = getContext();
-	let field = context.fields[ fieldId ];
-
-	if ( ! field ) {
-		const { fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra } = context;
-		registerField( fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra );
-		field = context.fields[ fieldId ];
-	}
-	if ( field ) {
-		const { type, isRequired, extra } = field;
-		field.value = value;
-		field.error = validatorCallback
-			? validatorCallback( value, isRequired, extra )
-			: validateField( type, value, isRequired, extra );
-		field.showFieldError = showFieldError;
-	}
-};
-
 /**
- * Resolve the validator for a field type.
+ * Validate a field value, preferring a validator its module registered.
  *
  * A field module that registers `state.validators[ type ]` owns validation for that type
  * outright — including the empty/required check — and it applies on every update, not just on
@@ -93,10 +74,36 @@ const updateField = ( fieldId, value, showFieldError = false, validatorCallback 
  * keys are undefined. Validators should derive their answer from the `value`, `isRequired` and
  * `extra` arguments, and any `getContext()` read must tolerate missing keys.
  *
- * @param {string} fieldType - The field type.
- * @return {Function|null} The registered validator, or null to use the shared helper.
+ * @param {string}  type       - The field type.
+ * @param {*}       value      - The value to validate.
+ * @param {boolean} isRequired - Whether the field is required.
+ * @param {*}       extra      - The field's extra configuration.
+ * @return {string} The validation result.
  */
-const getValidator = fieldType => state.validators?.[ fieldType ] ?? null;
+const validate = ( type, value, isRequired, extra ) => {
+	const validator = state.validators?.[ type ];
+
+	return validator
+		? validator( value, isRequired, extra )
+		: validateField( type, value, isRequired, extra );
+};
+
+const updateField = ( fieldId, value, showFieldError = false ) => {
+	const context = getContext();
+	let field = context.fields[ fieldId ];
+
+	if ( ! field ) {
+		const { fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra } = context;
+		registerField( fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra );
+		field = context.fields[ fieldId ];
+	}
+	if ( field ) {
+		const { type, isRequired, extra } = field;
+		field.value = value;
+		field.error = validate( type, value, isRequired, extra );
+		field.showFieldError = showFieldError;
+	}
+};
 
 const setSubmissionData = ( data = [] ) => {
 	const context = getContext();
@@ -158,8 +165,6 @@ const registerField = (
 			}
 		}
 
-		const validator = getValidator( type );
-
 		context.fields[ fieldId ] = {
 			id: fieldId,
 			type,
@@ -167,9 +172,7 @@ const registerField = (
 			value,
 			isRequired,
 			extra,
-			error: validator
-				? validator( value, isRequired, extra )
-				: validateField( type, value, isRequired, extra ),
+			error: validate( type, value, isRequired, extra ),
 			step: context?.step ? context.step : 1,
 			isOtherSelected,
 			otherLabel,
@@ -532,9 +535,7 @@ const { state, actions } = store( NAMESPACE, {
 
 	actions: {
 		updateField: ( fieldId, value, showFieldError ) => {
-			const context = getContext();
-			const { fieldType } = context;
-			updateField( fieldId, value, showFieldError, getValidator( fieldType ) );
+			updateField( fieldId, value, showFieldError );
 		},
 		updateFieldValue: ( fieldId, value ) => {
 			actions.updateField( fieldId, value );

@@ -66,29 +66,24 @@ describe( 'Form field registry', () => {
 		mockGetElement.mockReturnValue( { ref: document.createElement( 'div' ) } );
 		mockGetConfig.mockReturnValue( { error_types: {} } );
 
-		// Emulate the real store's deep merge across calls: several modules register into
-		// `jetpack/form`, and a validator contributed by one has to be visible to the others.
-		// Getters are copied as descriptors so derived state is not flattened to a snapshot.
-		const merged = {};
-		const mergeInto = ( target, source ) => {
-			Object.keys( source ?? {} ).forEach( key => {
-				const descriptor = Object.getOwnPropertyDescriptor( source, key );
-				if ( descriptor.get || typeof descriptor.value !== 'object' || descriptor.value === null ) {
-					Object.defineProperty( target, key, descriptor );
-					return;
-				}
-				target[ key ] = target[ key ] ?? {};
-				mergeInto( target[ key ], descriptor.value );
-			} );
-		};
-
+		// Emulate the real store's merge across calls: several modules register into `jetpack/form`,
+		// and a validator contributed by one has to be visible to the others. Descriptors are copied
+		// rather than values so derived state is not flattened to a snapshot.
+		//
+		// This shallow-merges `state`, which is only correct while at most one module contributes a
+		// non-empty `validators` map — today `form/view.js` registers `{}` and `field-phone` the
+		// single real entry. A second contributor would need a recursive merge here.
+		const stores = {};
 		mockStore.mockImplementation( ( namespace, config ) => {
-			merged[ namespace ] = merged[ namespace ] ?? { state: {}, actions: {}, callbacks: {} };
-			mergeInto( merged[ namespace ].state, config?.state );
-			mergeInto( merged[ namespace ].actions, config?.actions );
-			mergeInto( merged[ namespace ].callbacks, config?.callbacks );
-			storeConfig = merged[ namespace ];
-			return merged[ namespace ];
+			const merged = ( stores[ namespace ] ??= { state: {}, actions: {}, callbacks: {} } );
+			for ( const key of [ 'state', 'actions', 'callbacks' ] ) {
+				Object.defineProperties(
+					merged[ key ],
+					Object.getOwnPropertyDescriptors( config?.[ key ] ?? {} )
+				);
+			}
+			storeConfig = merged;
+			return merged;
 		} );
 
 		await import( '../../../../src/modules/form/view.js' );

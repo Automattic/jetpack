@@ -36,7 +36,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 *
 	 * @var int
 	 */
-	const FILE_FIELD_MAX_UPLOAD_SIZE = 20971520; // 20MB.
+	const FILE_FIELD_MAX_UPLOAD_SIZE = 20 * 1024 * 1024;
 
 	/**
 	 * The shortcode name.
@@ -2012,7 +2012,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$accept_attribute_value = implode( ', ', self::get_file_field_accepted_mime_types() );
 
-		$max_file_size   = self::FILE_FIELD_MAX_UPLOAD_SIZE;
 		$file_size_units = array(
 			_x( 'B', 'unit symbol', 'jetpack-forms' ),
 			_x( 'KB', 'unit symbol', 'jetpack-forms' ),
@@ -2028,14 +2027,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'uploadError'        => __( 'Error uploading file', 'jetpack-forms' ),
 				'folderNotSupported' => __( 'Folder uploads are not supported', 'jetpack-forms' ),
 				// translators: %s is the formatted maximum file size.
-				'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( $max_file_size ) ),
+				'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( self::FILE_FIELD_MAX_UPLOAD_SIZE ) ),
 				'invalidType'        => __( 'This file type is not allowed.', 'jetpack-forms' ),
 				'maxFiles'           => __( 'You have exceeded the number of files that you can upload.', 'jetpack-forms' ),
 				'uploadFailed'       => __( 'File upload failed, try again.', 'jetpack-forms' ),
 			),
 			'endpoint'      => $this->get_unauth_endpoint_url(),
 			'iconsPath'     => Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/',
-			'maxUploadSize' => $max_file_size,
+			'maxUploadSize' => self::FILE_FIELD_MAX_UPLOAD_SIZE,
 		);
 
 		wp_interactivity_config( 'jetpack/field-file', $global_config );
@@ -2324,10 +2323,19 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	private function enqueue_file_field_assets() {
 		$version = Constants::get_constant( 'JETPACK__VERSION' );
 
+		// extra cache busting strategy for view.js, seems they are left out of cache clearing on deploys
+		$asset_file = plugin_dir_path( __FILE__ ) . '../../dist/modules/file-field/view.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : null;
+		$version   .= $asset['version'] ?? '';
+
 		\wp_enqueue_script_module(
 			'jetpack-form-file-field',
 			plugins_url( '../../dist/modules/file-field/view.js', __FILE__ ),
-			array( '@wordpress/interactivity' ),
+			// `jp-forms-view` is not decoration: this module contributes `state.validators.file`,
+			// which `registerField()` reads at `data-wp-init` time. Loading after hydration would
+			// leave a required file field registering as valid, since the shared `validateField()`
+			// no longer has a `file` branch to fall back on. Same reason `field-phone` declares it.
+			array( '@wordpress/interactivity', 'jp-forms-view' ),
 			$version
 		);
 
