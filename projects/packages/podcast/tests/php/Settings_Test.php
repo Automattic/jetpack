@@ -141,6 +141,23 @@ class Settings_Test extends BaseTestCase {
 		delete_option( 'posts_per_rss' );
 	}
 
+	/**
+	 * A registered default other than the unset sentinel makes that one value
+	 * unsavable: `update_option()` reads it back as the current value and returns
+	 * before creating the row, so the save no-ops and the read reseeds from
+	 * `posts_per_rss`.
+	 */
+	public function test_feed_limit_persists_a_value_matching_the_package_default() {
+		Settings::register_settings();
+		update_option( 'posts_per_rss', 12 );
+
+		$this->assertTrue( update_option( 'podcasting_feed_limit', Settings::FEED_LIMIT_DEFAULT ) );
+		$this->assertSame( Settings::FEED_LIMIT_DEFAULT, Settings::feed_limit() );
+
+		delete_option( 'podcasting_feed_limit' );
+		delete_option( 'posts_per_rss' );
+	}
+
 	public function test_feed_limit_max_filter_moves_the_ceiling_both_ways() {
 		update_option( 'podcasting_feed_limit', 900 );
 		add_filter(

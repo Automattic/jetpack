@@ -188,12 +188,15 @@ class Settings {
 			)
 		);
 
+		// Default is the unset sentinel, not `FEED_LIMIT_DEFAULT`: `update_option()`
+		// compares against the default-backed read and bails before creating the
+		// row, so any other default would make that exact value unsavable.
 		register_setting(
 			'options',
 			'podcasting_feed_limit',
 			array(
 				'type'              => 'integer',
-				'default'           => self::FEED_LIMIT_DEFAULT,
+				'default'           => 0,
 				'sanitize_callback' => array( __CLASS__, 'sanitize_feed_limit' ),
 			)
 		);
