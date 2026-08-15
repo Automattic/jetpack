@@ -12,6 +12,7 @@ import type { PodcastAppRowProps } from '../types';
 
 const SUBMIT_LABEL = __( 'Submit', 'jetpack-podcast' );
 const NOT_CONNECTED_LABEL = __( 'Connect this site to WordPress.com first', 'jetpack-podcast' );
+const SENT_MESSAGE = __( 'Your podcast was sent to Pocket Casts.', 'jetpack-podcast' );
 
 const liveStateFromResult = ( state: string ): PodcastShowState | null =>
 	state === 'active' || state === 'pending' ? state : null;
@@ -83,6 +84,7 @@ const PocketCastsRow = ( { app, state, blockedReason, onFirstSave }: PodcastAppR
 			isBusy={ isSubmitting }
 			isComplete={ effectiveState === 'active' }
 			viewUrl={ viewUrl }
+			focusViewLink={ !! result }
 			onAction={ handleSubmit }
 		>
 			{ ! connected && ! viewUrl && (
@@ -94,6 +96,12 @@ const PocketCastsRow = ( { app, state, blockedReason, onFirstSave }: PodcastAppR
 					<ExternalLink href={ getConnectUrl() }>
 						{ __( 'Connect Jetpack', 'jetpack-podcast' ) }
 					</ExternalLink>
+				</Notice>
+			) }
+
+			{ ( result?.state === 'active' || result?.state === 'pending' ) && (
+				<Notice status={ result.state === 'active' ? 'success' : 'info' } isDismissible={ false }>
+					{ result.message || SENT_MESSAGE }
 				</Notice>
 			) }
 

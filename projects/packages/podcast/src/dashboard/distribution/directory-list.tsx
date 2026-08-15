@@ -5,7 +5,7 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalText as Text,
 } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
@@ -23,7 +23,7 @@ const SUBMITTED_LABEL = __( 'Submitted', 'jetpack-podcast' );
 const SET_UP_LABEL = __( 'Set up', 'jetpack-podcast' );
 const VIEW_SHOW_LABEL = __( 'View show', 'jetpack-podcast' );
 
-export const StateBadge = ( { state }: { state: PodcastShowState } ) => {
+const StateBadge = ( { state }: { state: PodcastShowState } ) => {
 	if ( state !== 'pending' && state !== 'active' ) {
 		return null;
 	}
@@ -45,6 +45,7 @@ interface DirectoryRowProps {
 	isBusy?: boolean;
 	isComplete?: boolean;
 	viewUrl?: string;
+	focusViewLink?: boolean;
 	onAction: ( id: PodcatcherId ) => void;
 	children?: ReactNode;
 }
@@ -58,11 +59,22 @@ export const DirectoryRow = ( {
 	isBusy = false,
 	isComplete = false,
 	viewUrl,
+	focusViewLink = false,
 	onAction,
 	children,
 }: DirectoryRowProps ) => {
 	const { Logo } = app;
 	const handleClick = useCallback( () => onAction( app.id ), [ onAction, app.id ] );
+	const viewLinkRef = useRef< HTMLAnchorElement >( null );
+
+	// The link replaces the action button rather than joining it, so the button
+	// the user just pressed unmounts and focus falls to <body>.
+	useEffect( () => {
+		if ( viewUrl && focusViewLink ) {
+			viewLinkRef.current?.focus();
+		}
+	}, [ viewUrl, focusViewLink ] );
+
 	return (
 		<Stack direction="column" gap="md" render={ <li /> } className="podcast__directory-row">
 			<Stack align="center" justify="space-between">
@@ -75,12 +87,13 @@ export const DirectoryRow = ( {
 				</Stack>
 				{ viewUrl ? (
 					<Button
+						ref={ viewLinkRef }
 						variant="secondary"
 						size="compact"
 						icon={ external }
 						href={ viewUrl }
 						target="_blank"
-						rel="noreferrer"
+						rel="noopener noreferrer"
 						aria-label={ sprintf(
 							/* translators: %s: directory name (Pocket Casts, Apple Podcasts, etc.). Must start with the button's visible "View show" label so voice control can match it. */
 							__( 'View show on %s (opens in a new tab)', 'jetpack-podcast' ),

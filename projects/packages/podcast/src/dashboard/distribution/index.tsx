@@ -38,7 +38,9 @@ const NEED_CATEGORY_LABEL = __( 'Set a post category in Settings first', 'jetpac
 const NEED_TITLE_LABEL = __( 'Add a podcast title in Settings first', 'jetpack-podcast' );
 
 const AUTOMATIC_APPS = PODCAST_APPS.filter( app => app.submission === 'automatic' );
-const MANUAL_APPS = PODCAST_APPS.filter( app => app.submission === 'manual' );
+// Anything not explicitly automatic is manual, so a directory that forgets the
+// field still renders instead of vanishing from both sections.
+const MANUAL_APPS = PODCAST_APPS.filter( app => app.submission !== 'automatic' );
 
 const blockedReason = ( isLoading: boolean, isEnabled: boolean, remaining: string ): string => {
 	if ( isLoading ) {
@@ -118,6 +120,24 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 			  )
 			: '';
 
+	// Only manual directories are gated on the whole checklist; Pocket Casts
+	// needs a category and a title. The notice sits above both sections, so it
+	// talks about setup — "before you can submit" would contradict a live
+	// Submit button on a half-configured podcast.
+	const setupStepsLeftLabel =
+		issues.length > 0
+			? sprintf(
+					/* translators: %d: number of unfinished podcast setup steps. */
+					_n(
+						'%d step left to finish your podcast setup',
+						'%d steps left to finish your podcast setup',
+						issues.length,
+						'jetpack-podcast'
+					),
+					issues.length
+			  )
+			: '';
+
 	const automaticBlocked = blockedReason(
 		settingsLoading,
 		isEnabled,
@@ -146,7 +166,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 		<>
 			{ issues.length > 0 && (
 				<Notice status="warning" isDismissible={ false } className="podcast__distribution-notice">
-					<strong>{ stepsLeftLabel }</strong>
+					<strong>{ setupStepsLeftLabel }</strong>
 					<ul className="podcast__settings-issues">
 						{ issues.map( issue => (
 							<li key={ issue }>{ issue }</li>
@@ -176,7 +196,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 									</h3>
 									<Text variant="muted">
 										{ __(
-											'We submit your feed to Pocket Casts for you. It usually goes live within a few minutes.',
+											'We submit your feed for you. It usually goes live within a few minutes.',
 											'jetpack-podcast'
 										) }
 									</Text>
@@ -198,7 +218,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 								</h3>
 								<Text variant="muted">
 									{ __(
-										'Copy this URL, then submit it to each directory through the modals below.',
+										'Copy this URL, then submit it to each directory below yourself.',
 										'jetpack-podcast'
 									) }
 								</Text>
@@ -218,7 +238,6 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 								states={ states }
 								blockedReason={ manualBlocked }
 								onOpenModal={ handleSubmitClick }
-								onFirstSave={ handleFirstSave }
 							/>
 						</Stack>
 					</Stack>
