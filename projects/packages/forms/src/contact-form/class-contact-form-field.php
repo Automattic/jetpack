@@ -1265,7 +1265,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	private function get_error_div( $id, $type, $override_render = false ) {
 
-		if ( $this->has_inset_label() && ! $override_render ) {
+		if ( ! $override_render && $this->has_inset_label() ) {
 			return '';
 		}
 		return '
@@ -1291,7 +1291,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	private function get_help_text() {
 		$help_text = $this->get_attribute( 'helptext' );
 
-		if ( ! is_string( $help_text ) || trim( $help_text ) === '' ) {
+		if ( ! is_string( $help_text ) ) {
+			return null;
+		}
+
+		$help_text = trim( $help_text );
+
+		if ( $help_text === '' ) {
 			return null;
 		}
 
@@ -1303,7 +1309,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		// leftover `&#044;` would be escaped again and shown to the visitor.
 		// Safe to decode here: the value has already been through
 		// unesc_attr()'s strip_tags(), and output is still esc_html()'d.
-		return html_entity_decode( trim( $help_text ), ENT_QUOTES );
+		return html_entity_decode( $help_text, ENT_QUOTES );
 	}
 
 	/**
@@ -1321,15 +1327,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return null;
 		}
 
-		$formats     = self::get_date_formats();
-		$date_format = $this->get_attribute( 'dateformat' );
-		$date_format = ! empty( $date_format ) ? $date_format : 'yy-mm-dd';
+		$formats = self::get_date_formats();
 
-		if ( ! isset( $formats[ $date_format ] ) ) {
-			return null;
-		}
-
-		return $formats[ $date_format ]['label'];
+		return $formats[ $this->get_date_format() ] ?? null;
 	}
 
 	/**
@@ -1349,15 +1349,51 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	private function get_described_by( $id, $type ) {
 		$ids = array( $id . '-' . $type . '-error-message' );
 
-		if ( $this->get_help_text() !== null ) {
-			$ids[] = $id . '-' . $type . '-help';
-		}
-
-		if ( $this->get_format_hint() !== null ) {
-			$ids[] = $id . '-' . $type . '-format';
+		foreach ( $this->get_description_parts( $id, $type ) as $part ) {
+			$ids[] = $part['id'];
 		}
 
 		return implode( ' ', $ids );
+	}
+
+	/**
+	 * The advisory descriptions attached to a field, in DOM order.
+	 *
+	 * Single source for both the ids aria-describedby references and the
+	 * markup that carries them — building those separately is how they drift,
+	 * and a describedby pointing at an id that was never emitted is exactly
+	 * the failure this class already fixes elsewhere.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $id   - the field ID.
+	 * @param string $type - the description type (matches get_described_by()).
+	 *
+	 * @return array List of array( 'id' => string, 'class' => string, 'text' => string ).
+	 */
+	private function get_description_parts( $id, $type ) {
+		$parts     = array();
+		$help_text = $this->get_help_text();
+
+		if ( $help_text !== null ) {
+			$parts[] = array(
+				'id'    => $id . '-' . $type . '-help',
+				'class' => 'contact-form__field-help',
+				'text'  => $help_text,
+			);
+		}
+
+		$format_hint = $this->get_format_hint();
+
+		if ( $format_hint !== null ) {
+			$parts[] = array(
+				'id'    => $id . '-' . $type . '-format',
+				'class' => 'contact-form__field-format',
+				'text'  => $format_hint,
+			);
+		}
+
+		return $parts;
 	}
 
 	/**
@@ -1378,21 +1414,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML, or an empty string when the markup is deferred.
 	 */
 	private function get_field_descriptions( $id, $type ) {
-		$hints     = '';
-		$help_text = $this->get_help_text();
+		$hints = '';
 
 		// Deliberately spans, not paragraphs: themes style <p> (margins, size,
 		// color) and we would have to fight those rules on every theme.
-		if ( $help_text !== null ) {
-			$hints .= '<span id="' . esc_attr( $id . '-' . $type . '-help' ) . '" class="contact-form__field-help">'
-				. esc_html( $help_text ) . '</span>';
-		}
-
-		$format_hint = $this->get_format_hint();
-
-		if ( $format_hint !== null ) {
-			$hints .= '<span id="' . esc_attr( $id . '-' . $type . '-format' ) . '" class="contact-form__field-format">'
-				. esc_html( $format_hint ) . '</span>';
+		foreach ( $this->get_description_parts( $id, $type ) as $part ) {
+			$hints .= '<span id="' . esc_attr( $part['id'] ) . '" class="' . esc_attr( $part['class'] ) . '">'
+				. esc_html( $part['text'] ) . '</span>';
 		}
 
 		$descriptions = '';
@@ -2519,19 +2547,29 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	private static function get_date_formats() {
 		return array(
-			'mm/dd/yy' => array(
-				/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 12/31/2023). */
-				'label' => __( 'MM/DD/YYYY', 'jetpack-forms' ),
-			),
-			'dd/mm/yy' => array(
-				/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 31/12/2023). */
-				'label' => __( 'DD/MM/YYYY', 'jetpack-forms' ),
-			),
-			'yy-mm-dd' => array(
-				/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 2023-12-31). */
-				'label' => __( 'YYYY-MM-DD', 'jetpack-forms' ),
-			),
+			/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 12/31/2023). */
+			'mm/dd/yy' => __( 'MM/DD/YYYY', 'jetpack-forms' ),
+			/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 31/12/2023). */
+			'dd/mm/yy' => __( 'DD/MM/YYYY', 'jetpack-forms' ),
+			/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 2023-12-31). */
+			'yy-mm-dd' => __( 'YYYY-MM-DD', 'jetpack-forms' ),
 		);
+	}
+
+	/**
+	 * The field's date format key, falling back to the default.
+	 *
+	 * Shared by the visible hint and the `data-format` attribute that drives
+	 * the picker, so the two cannot disagree about which format is in effect.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	private function get_date_format() {
+		$date_format = $this->get_attribute( 'dateformat' );
+
+		return ! empty( $date_format ) ? $date_format : 'yy-mm-dd';
 	}
 
 	/**
@@ -2552,8 +2590,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		static $is_loaded = false;
 		$this->set_invalid_message( 'date', __( 'Please enter a valid date.', 'jetpack-forms' ) );
 
-		$date_format = $this->get_attribute( 'dateformat' );
-		$date_format = isset( $date_format ) && ! empty( $date_format ) ? $date_format : 'yy-mm-dd';
+		$date_format = $this->get_date_format();
 		$extra_attrs = array( 'data-format' => $date_format );
 
 		$field  = $this->render_label( 'date', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
@@ -3323,14 +3360,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// rebuilding it here from $type would not match the ids the input's
 			// aria-describedby references.
 			$field .= $this->deferred_descriptions ?? $this->get_error_div( $id, $type, true );
+			// Consume it, so a second render cannot replay this one's markup.
+			$this->deferred_descriptions = null;
 			// Close the extra wrapper for inset labels.
 			$field .= "\t</div>\n";
 		}
-
-		// Consume the deferral so a second render of the same instance cannot
-		// emit the first render's markup. Nothing in the tree renders a field
-		// twice today, but the invariant should not depend on that.
-		$this->deferred_descriptions = null;
 
 		return $field;
 	}
@@ -3346,8 +3380,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	private function get_field_extra( $type, $extra_attrs ) {
 		if ( 'date' === $type ) {
-			$date_format = $this->get_attribute( 'dateformat' );
-			return isset( $date_format ) && ! empty( $date_format ) ? $date_format : 'yy-mm-dd';
+			return $this->get_date_format();
 		}
 
 		return $extra_attrs;

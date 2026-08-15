@@ -57,7 +57,7 @@ export default function DropdownFieldEdit( props ) {
 	}, [ required ] );
 
 	const innerBlocksProps = useInnerBlocksProps(
-		{ className: 'jetpack-field-dropdown__wrapper' },
+		{ className: 'jetpack-field__control jetpack-field-dropdown__wrapper' },
 		{
 			allowedBlocks: ALLOWED_INNER_BLOCKS,
 			template,

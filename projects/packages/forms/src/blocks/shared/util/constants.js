@@ -62,15 +62,8 @@ export const DATE_FORMAT_OPTIONS = DATE_FORMATS.map(
  * @param {string} dateFormat - A DATE_FORMATS value, e.g. 'mm/dd/yy'.
  * @return {string|null} The hint text, or null for an unknown format.
  */
-export const getDateFormatHint = dateFormat => {
-	const format = DATE_FORMATS.find( f => f.value === dateFormat );
-
-	if ( ! format ) {
-		return null;
-	}
-
-	return format.label;
-};
+export const getDateFormatHint = dateFormat =>
+	DATE_FORMATS.find( f => f.value === dateFormat )?.label ?? null;
 
 export const FORM_BLOCK_NAME = 'jetpack/contact-form';
 

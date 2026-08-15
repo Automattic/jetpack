@@ -12,8 +12,12 @@ describe( 'JetpackFieldHints', () => {
 		setAttributes.mockClear();
 	} );
 
-	it( 'renders nothing when inactive with no help text and no format hint', () => {
-		const { container } = renderHints( { attributes: {} } );
+	it.each( [
+		[ 'nothing set', {} ],
+		[ 'whitespace-only help text', { helpText: '   ' } ],
+		[ 'a dateFormat but not a date field', { dateFormat: 'mm/dd/yy' } ],
+	] )( 'renders nothing when inactive with %s', ( _label, attributes ) => {
+		const { container } = renderHints( { attributes } );
 
 		expect( container ).toBeEmptyDOMElement();
 	} );
@@ -51,18 +55,6 @@ describe( 'JetpackFieldHints', () => {
 
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		expect( container.querySelectorAll( 'p' ) ).toHaveLength( 0 );
-	} );
-
-	it( 'treats whitespace-only help text as absent when inactive', () => {
-		const { container } = renderHints( { attributes: { helpText: '   ' } } );
-
-		expect( container ).toBeEmptyDOMElement();
-	} );
-
-	it( 'does not render a format hint when isDateField is not set, even with a dateFormat', () => {
-		const { container } = renderHints( { attributes: { dateFormat: 'mm/dd/yy' } } );
-
-		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'offers an editable help text slot once the field is active', () => {

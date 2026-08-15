@@ -12,12 +12,9 @@ import { getDateFormatHint } from '../util/constants.js';
  * markup outside the field wrapper, which the editor achieves instead by
  * scoping the label's positioning context to .jetpack-field__control.
  *
- * Spans, not paragraphs — themes style <p> and we would have to override them.
- *
- * The help text is editable in place. Formats are disabled so the stored value
- * stays a plain string: PHP renders it with esc_html(), and it doubles as the
- * field's aria-describedby text, neither of which should carry markup. The
- * format hint is derived from dateFormat and is deliberately not editable.
+ * Formats are disabled so the stored value stays a plain string: PHP renders it
+ * with esc_html() and it doubles as the field's aria-describedby text, neither
+ * of which should carry markup.
  *
  * @param {object}   props               - Component props.
  * @param {object}   props.attributes    - The field block's attributes.
@@ -32,18 +29,19 @@ const JetpackFieldHints = ( {
 	isActive = false,
 	isDateField = false,
 } ) => {
-	const helpText = attributes?.helpText ?? '';
-	const hasHelpText = helpText.trim() !== '';
-	const formatHint = isDateField ? getDateFormatHint( attributes?.dateFormat ) : null;
+	const helpText = attributes.helpText ?? '';
+	// Shown when it has content, or when the field is active so there is
+	// somewhere to start typing. Unselected, empty fields render nothing.
+	const showHelpText = helpText.trim() !== '' || isActive;
+	const formatHint = isDateField ? getDateFormatHint( attributes.dateFormat ) : null;
 
-	// Keep unselected, unfilled fields out of the canvas entirely.
-	if ( ! hasHelpText && ! formatHint && ! isActive ) {
+	if ( ! showHelpText && ! formatHint ) {
 		return null;
 	}
 
 	return (
 		<div className="contact-form__field-hints">
-			{ ( hasHelpText || isActive ) && (
+			{ showHelpText && (
 				<RichText
 					tagName="span"
 					className="contact-form__field-help"
