@@ -556,7 +556,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		update_option( 'podcasting_category_id', 17 );
 		update_option( 'podcasting_feed_limit', 25 );
 
-		$query = $this->build_podcast_feed_query_mock( 17 );
+		$query = $this->build_podcast_feed_query_mock( 17, array(), true );
 		$query->expects( $this->once() )->method( 'set' )->with( 'posts_per_rss', 25 );
 
 		Customize_Feed::apply_feed_limit( $query );
@@ -571,20 +571,25 @@ class Customize_Feed_Test extends BaseTestCase {
 		update_option( 'podcasting_category_id', 17 );
 		update_option( 'podcasting_feed_limit', 25 );
 
-		$query = $this->build_podcast_feed_query_mock( 999 );
+		$query = $this->build_podcast_feed_query_mock( 999, array(), true );
 		$query->expects( $this->never() )->method( 'set' );
 
 		Customize_Feed::apply_feed_limit( $query );
 	}
 
 	/**
-	 * Build a `WP_Query` mock pre-stubbed for the podcast-feed happy path,
+	 * Build a `WP_Query` double pre-stubbed for the podcast-feed happy path,
 	 * with optional per-method overrides.
+	 *
+	 * A stub unless `$expects_calls` — only the `apply_feed_limit` tests assert on
+	 * a call, and handing every caller a mock makes PHPUnit flag the ones that
+	 * configure no expectations.
 	 *
 	 * @param int   $queried_term_id Term ID returned from `get_queried_object()`.
 	 * @param array $overrides       Map of method-name => return value to override defaults.
+	 * @param bool  $expects_calls   Whether the caller will set expectations on the double.
 	 */
-	private function build_podcast_feed_query_mock( int $queried_term_id, array $overrides = array() ) {
+	private function build_podcast_feed_query_mock( int $queried_term_id, array $overrides = array(), bool $expects_calls = false ) {
 		$defaults = array(
 			'is_main_query' => true,
 			'is_feed'       => true,
@@ -592,7 +597,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		);
 		$stubs    = array_merge( $defaults, $overrides );
 
-		$query = $this->createMock( \WP_Query::class );
+		$query = $expects_calls ? $this->createMock( \WP_Query::class ) : $this->createStub( \WP_Query::class );
 		foreach ( $stubs as $method => $value ) {
 			$query->method( $method )->willReturn( $value );
 		}
