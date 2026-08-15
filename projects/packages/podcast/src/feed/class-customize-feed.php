@@ -67,7 +67,11 @@ class Customize_Feed {
 		// `posts_where` constrains the SQL itself so LIMIT/OFFSET paginate over
 		// episodes that actually have an enclosure; `the_posts` is a cheap final
 		// guard for the rare row the SQL constraint can't reach.
-		add_action( 'pre_get_posts', array( __CLASS__, 'apply_feed_limit' ) );
+		//
+		// `pre_get_posts` runs last so the gate reads the category every other
+		// callback has finished rewriting — and so `get_queried_object()` doesn't
+		// memoize a term ahead of them, which `posts_where` would then inherit.
+		add_action( 'pre_get_posts', array( __CLASS__, 'apply_feed_limit' ), PHP_INT_MAX );
 		add_filter( 'posts_where', array( __CLASS__, 'constrain_feed_query' ), 10, 2 );
 		add_filter( 'the_posts', array( __CLASS__, 'filter_posts_with_enclosure' ), 10, 2 );
 	}
