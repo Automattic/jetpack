@@ -1,4 +1,7 @@
 // Packages we need to copy versions from for `@wordpress/dataviews/wp`.
+// An entry that doesn't apply to every resolved version of `@wordpress/dataviews` is fine
+// (e.g. `react-day-picker` became `@daypicker/react` in newer versions); an entry that applies
+// to none of them gets reported as obsolete in `afterAllResolved`.
 const wpPkgs = [
 	[ '@wordpress/components', 'change-case' ],
 	[ '@wordpress/components', '@emotion/cache' ],
@@ -19,9 +22,12 @@ const wpPkgs = [
 	[ '@wordpress/element', 'react-dom' ],
 	[ '@wordpress/data', 'use-memo-one' ],
 	[ '@wordpress/ui', '@base-ui/react' ],
+	[ '@wordpress/ui', '@daypicker/react' ],
 	[ '@wordpress/ui', '@wordpress/theme', 'colorjs.io' ],
 ];
 const wpPkgFetches = {};
+const wpPkgsUsed = new Set();
+const wpPkgKey = deplist => deplist.slice( -2 ).join( ' -> ' );
 const addWpPkgDep = async ( pkg, fromPkg, ver, deplist ) => {
 	const [ dep, ...rest ] = deplist;
 
@@ -34,16 +40,17 @@ const addWpPkgDep = async ( pkg, fromPkg, ver, deplist ) => {
 
 	if ( rest.length > 0 ) {
 		if ( deps[ dep ] === undefined ) {
-			// Old version of package lacks a new dep? We'll check in afterAllResolved for it being an old dep instead.
+			// This version of the package lacks the dep? We'll check in afterAllResolved for no version having it.
 			return;
 		}
 		const ver2 = deps[ dep ].replace( /^\^/, '' ).replace( /\+[0-9a-f]+$/, '' );
 		await addWpPkgDep( pkg, dep, ver2, rest );
 	} else {
 		if ( deps[ dep ] === undefined ) {
-			// prettier-ignore
-			throw new Error( `pnpmfile hack needs updating, ${ fromPkg } ${ ver } doesn't depend on ${ dep } anymore?` );
+			// Ditto.
+			return;
 		}
+		wpPkgsUsed.add( `${ fromPkg } -> ${ dep }` );
 		pkg.optionalDependencies[ dep ] = deps[ dep ];
 	}
 };
@@ -465,13 +472,11 @@ function afterAllResolved( lockfile, context ) {
 	}
 
 	for ( const deplist of wpPkgs ) {
-		for ( const dep of deplist.slice( 0, deplist.length - 1 ) ) {
-			if ( ! wpPkgFetches[ dep ] ) {
-				context.log(
-					// prettier-ignore
-					`pnpmfile hack needs updating: wpPkgs entry [ ${ deplist.join( ', ' ) } ] was not used. Is it obsolete?`
-				);
-			}
+		if ( ! wpPkgsUsed.has( wpPkgKey( deplist ) ) ) {
+			context.log(
+				// prettier-ignore
+				`pnpmfile hack needs updating: wpPkgs entry [ ${ deplist.join( ', ' ) } ] was not used by any resolved version. Is it obsolete?`
+			);
 		}
 	}
 
