@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Bundle @wordpress/kebab-case rather than externalizing it to a script handle WordPress does not register.
