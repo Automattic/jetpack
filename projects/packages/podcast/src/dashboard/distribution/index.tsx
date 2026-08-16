@@ -97,7 +97,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 	// appending `feed/` to the archive link broke plain-permalink / no-trailing-
 	// slash sites (e.g. `?cat=5feed/`).
 	const feedUrl = settings?.podcasting_feed_url ?? '';
-	const isEnabled = ( settings?.podcasting_category_id ?? 0 ) > 0;
+	const isEnabled = ( settings?.podcasting_category_id ?? 0 ) > 0 && !! feedUrl;
 	const states = settings?.podcasting_show_states ?? {};
 
 	const [ activeId, setActiveId ] = useState< PodcatcherId | null >( null );
@@ -215,7 +215,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 									) }
 								</Text>
 							</Stack>
-							{ isEnabled && feedUrl ? (
+							{ isEnabled ? (
 								<FeedCopyField value={ feedUrl } />
 							) : (
 								<Text variant="muted">
