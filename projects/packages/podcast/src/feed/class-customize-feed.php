@@ -323,7 +323,7 @@ class Customize_Feed {
 		$enable = (bool) apply_filters( 'wpcom_podcasting_enable_play_tracking', true, $post_obj );
 
 		// Skip rewrite for externally hosted enclosures — the stats endpoint 404s anything that isn't a local attachment.
-		$attachment_id = attachment_url_to_postid( $original_url );
+		$attachment_id = Episode_Media_Cache::attachment_id( $original_url );
 
 		if ( null !== $post_obj && $enable && $attachment_id > 0 ) {
 			// `null` when the site isn't connected; passed through so the filter can still inject a value.
@@ -433,6 +433,10 @@ class Customize_Feed {
 	 * The SQL constraint in {@see self::constrain_feed_query()} already excludes
 	 * these at query time; this stays as a cheap final guard.
 	 *
+	 * Doubles as the warm-up point for the render: this is the first hook that
+	 * sees the whole page of episodes, so {@see Episode_Media_Cache::prime()}
+	 * resolves their media here rather than leaving it to per-item lookups.
+	 *
 	 * @param WP_Post[] $posts Posts about to be looped over.
 	 * @param \WP_Query $query Query that produced them.
 	 * @return WP_Post[]
@@ -441,6 +445,9 @@ class Customize_Feed {
 		if ( ! self::is_podcast_feed_query( $query ) ) {
 			return $posts;
 		}
+
+		Episode_Media_Cache::prime( $posts );
+
 		return array_values(
 			array_filter(
 				$posts,

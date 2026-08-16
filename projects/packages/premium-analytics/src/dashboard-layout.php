@@ -73,23 +73,37 @@ function get_dashboard_default_layout_for( $dashboard_name ) {
 }
 
 /**
+ * Returns availability gates for conditional dashboard tabs.
+ *
+ * The callbacks are used directly because the section registry may not be
+ * initialized when this route runs.
+ *
+ * @since $$next-version$$
+ *
+ * @return callable[] Resolved tab ID mapped to its availability callback.
+ */
+function get_dashboard_default_layout_gates() {
+	return array(
+		DASHBOARD_STORE_SECTION_ID       => array( Capabilities::class, 'current_user_can_view_store_reports' ),
+		DASHBOARD_SUBSCRIBERS_SECTION_ID => __NAMESPACE__ . '\\is_subscribers_dashboard_section_available',
+	);
+}
+
+/**
  * REST callback returning the default layout for the requested dashboard.
  *
- * The route admits every dashboard reader, but its name also resolves to a
- * single tab, so the store tab is refused here the way the section route
- * refuses it through {@see Dashboard_Section::is_available()}. The check keys
- * on the resolved tab rather than the string because two spellings arrive: the
- * bare `store` alias in the URL, and `?name=woocommerce/store`, which WordPress
- * reads ahead of the URL capture.
+ * Availability is checked after resolving the name because tabs can be
+ * requested by alias or full section ID.
  *
  * @param \WP_REST_Request $request REST request carrying the dashboard name.
  * @return \WP_REST_Response|\WP_Error Response wrapping the default layout array.
  */
 function get_dashboard_default_layout_response( $request ) {
 	$dashboard_name = $request['name'];
+	$gates          = get_dashboard_default_layout_gates();
+	$section_id     = get_dashboard_default_section_id_for( $dashboard_name );
 
-	if ( DASHBOARD_STORE_SECTION_ID === get_dashboard_default_section_id_for( $dashboard_name )
-		&& ! Capabilities::current_user_can_view_store_reports() ) {
+	if ( isset( $gates[ $section_id ] ) && ! call_user_func( $gates[ $section_id ] ) ) {
 		return new \WP_Error(
 			'dashboard_section_unavailable',
 			__( 'Dashboard section is not available.', 'jetpack-premium-analytics-pkg' ),

@@ -130,7 +130,9 @@ class LCP_Optimize_Img_Tag {
 	 * @since 4.0.0
 	 */
 	private function add_responsive_image_attributes( $element, $image_url ) {
-		if ( empty( $this->lcp_data['breakpoints'] ) ) {
+		// is_array() as well as empty(): empty( 'not-an-array' ) is false, so a string
+		// breakpoints field would reach the foreach in get_srcset() and get_sizes().
+		if ( empty( $this->lcp_data['breakpoints'] ) || ! is_array( $this->lcp_data['breakpoints'] ) ) {
 			return $element;
 		}
 
@@ -158,13 +160,31 @@ class LCP_Optimize_Img_Tag {
 	private function get_srcset( $original_url ) {
 		$dimensions = array();
 		foreach ( $this->lcp_data['breakpoints'] as $breakpoint ) {
+			// The field is optional; the background-image sibling has always carried
+			// this guard, and without it an absent one is a foreach() TypeError on
+			// wp_head.
+			if ( empty( $breakpoint['imageDimensions'] ) || ! is_array( $breakpoint['imageDimensions'] ) ) {
+				continue;
+			}
+
 			foreach ( $breakpoint['imageDimensions'] as $breakpoint_dimensions ) {
+				if ( ! is_array( $breakpoint_dimensions ) ) {
+					continue;
+				}
+
+				// isset() as well as is_numeric(): is_numeric( $absent ) is an undefined
+				// key warning before it is false.
+				if ( ! isset( $breakpoint_dimensions['width'] ) || ! isset( $breakpoint_dimensions['height'] ) ) {
+					continue;
+				}
+
 				if ( ! is_numeric( $breakpoint_dimensions['width'] ) || ! is_numeric( $breakpoint_dimensions['height'] ) ) {
 					continue;
 				}
 
-				$width                = (int) $breakpoint_dimensions['width'];
-				$height               = (int) $breakpoint_dimensions['height'];
+				$width  = (int) $breakpoint_dimensions['width'];
+				$height = (int) $breakpoint_dimensions['height'];
+
 				$dimensions[ $width ] = $height;
 
 				// If it's a Moto G Power, include a 1.75 DPR for accurate lighthouse representation of the optimized image.
@@ -229,8 +249,9 @@ class LCP_Optimize_Img_Tag {
 	private function get_sizes() {
 		$sizes = array();
 		foreach ( $this->lcp_data['breakpoints'] as $breakpoint ) {
-			// Make sure widthValue is a known format.
-			if ( ! isset( $breakpoint['widthValue'] ) || ! preg_match( '/^[0-9]+(?:\.[0-9]+)?(?:px|vw)$/', $breakpoint['widthValue'] ) ) {
+			// is_string() as well as isset(): an array widthValue is a TypeError from
+			// preg_match(), inside the output buffer callback.
+			if ( ! isset( $breakpoint['widthValue'] ) || ! is_string( $breakpoint['widthValue'] ) || ! preg_match( '/^[0-9]+(?:\.[0-9]+)?(?:px|vw)$/', $breakpoint['widthValue'] ) ) {
 				continue;
 			}
 

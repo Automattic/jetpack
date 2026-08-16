@@ -708,6 +708,8 @@ abstract class Sharing_Source {
 			'sharing-js',
 			"var windowOpen;
 			( function () {
+				var shareWindowName = 'wpcom$name-' + Math.random().toString( 36 ).slice( 2 );
+
 				function matches( el, sel ) {
 					return !! (
 						el.matches && el.matches( sel ) ||
@@ -734,7 +736,7 @@ abstract class Sharing_Source {
 						if ( typeof windowOpen !== 'undefined' ) {
 							windowOpen.close();
 						}
-						windowOpen = window.open( el.getAttribute( 'href' ), 'wpcom$name', '$opts' );
+						windowOpen = window.open( el.getAttribute( 'href' ), shareWindowName, '$opts' );
 						return false;
 					}
 				} );

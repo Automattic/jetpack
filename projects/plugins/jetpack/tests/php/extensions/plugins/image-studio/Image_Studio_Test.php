@@ -723,6 +723,42 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that exact employee identity is sufficient for the tracking signal.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_tracking_automattician_for_employee_identity() {
+		if ( function_exists( 'is_automattician' ) ) {
+			$this->markTestSkipped( 'is_automattician already defined; cannot stub.' );
+		}
+
+		eval( 'function is_automattician() { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		$this->assertTrue( ImageStudio\is_tracking_automattician() );
+	}
+
+	/**
+	 * Test that a WordPress.com proxy is sufficient for the tracking signal.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_tracking_automattician_for_wpcom_proxy() {
+		if ( function_exists( 'wpcom_is_proxied_request' ) ) {
+			$this->markTestSkipped( 'wpcom_is_proxied_request already defined; cannot stub.' );
+		}
+
+		eval( 'function wpcom_is_proxied_request() { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		$this->assertTrue( ImageStudio\is_tracking_automattician() );
+	}
+
+	/**
 	 * Test inline script includes canGenerateVideoClips property.
 	 */
 	public function test_inline_script_includes_can_generate_video_clips() {

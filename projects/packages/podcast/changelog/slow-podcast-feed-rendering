@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Feed: Resolve episode media in one batch so large podcast feeds render faster.

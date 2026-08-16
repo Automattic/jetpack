@@ -1,8 +1,9 @@
 /**
- * The rows list below the Chapters tool strip: one row per chapter with the
- * mono index, the title input, the start-time seek button, the computed
- * duration, and the remove button. This list is the accessible editing
- * surface for everything the strip's segments and markers do with pointers.
+ * The chapters rows list (rendered inside ChaptersPanel): one row per
+ * chapter with the title input (borderless until focused, so resting rows
+ * read as text), the start-time seek button, and the remove button. This
+ * list is the accessible editing surface for everything the strip's
+ * segments and markers do with pointers.
  *
  * Title edits are held in LOCAL draft state and committed on blur/Enter —
  * the same pattern as the Details-tab chapters editor: a half-typed title
@@ -53,10 +54,8 @@ type RowsProps = {
 type RowProps = {
 	/** The chapter this row edits. */
 	chapter: ChapterEntry;
-	/** Row position (0-based; rendered as the 1-based mono index). */
+	/** Row position (0-based; the first row's start is pinned to 0:00). */
 	index: number;
-	/** Start of the next chapter (the video end for the last row), in ms. */
-	endMs: number;
 	/** Whether this row's chapter is selected. */
 	selected: boolean;
 	/** Whether removal is possible (false at one chapter: the trash is inert). */
@@ -77,7 +76,6 @@ type RowProps = {
  * @param props           - Component props.
  * @param props.chapter   - The chapter this row edits.
  * @param props.index     - Row position (0-based).
- * @param props.endMs     - Start of the next chapter (or the video end), in ms.
  * @param props.selected  - Whether this row's chapter is selected.
  * @param props.canRemove - Whether removal is possible.
  * @param props.locked    - Whether a processing job or save locks editing.
@@ -89,7 +87,6 @@ type RowProps = {
 function ChapterRow( {
 	chapter,
 	index,
-	endMs,
 	selected,
 	canRemove,
 	locked,
@@ -141,9 +138,6 @@ function ChapterRow( {
 			onPointerDown={ select }
 			onFocusCapture={ select }
 		>
-			<span className="vp-chapters__row-index" aria-hidden="true">
-				{ String( index + 1 ).padStart( 2, '0' ) }
-			</span>
 			<input
 				className="vp-chapters__row-title"
 				type="text"
@@ -187,9 +181,6 @@ function ChapterRow( {
 			>
 				{ formatTimecode( chapter.startMs ) }
 			</button>
-			<span className="vp-chapters__row-duration">
-				{ formatTimecode( endMs - chapter.startMs ) }
-			</span>
 			<Button
 				className="vp-chapters__row-remove"
 				size="small"
@@ -234,7 +225,7 @@ export default function ChapterRows( {
 	locked = false,
 	rowIssues,
 }: RowsProps ): ReactElement {
-	const { chapters, durationMs, selectedId } = session;
+	const { chapters, selectedId } = session;
 
 	return (
 		<div className="vp-chapters__rows" data-testid="chapters-rows">
@@ -243,7 +234,6 @@ export default function ChapterRows( {
 					key={ chapter.id }
 					chapter={ chapter }
 					index={ index }
-					endMs={ index === chapters.length - 1 ? durationMs : chapters[ index + 1 ].startMs }
 					selected={ chapter.id === selectedId }
 					canRemove={ chapters.length > 1 }
 					locked={ locked }

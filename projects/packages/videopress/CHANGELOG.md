@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.46.0] - 2026-08-13
+### Added
+- Show the free-plan upgrade notice on the Library and Settings tabs once the free video upload has been used. [#51186]
+
+### Changed
+- Update package dependencies. [#51125]
+
 ## [0.45.0] - 2026-08-10
 ### Security
 - Improve escaping of block attributes rendered into inline styles.
@@ -2142,6 +2149,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.46.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.45.0...v0.46.0
 [0.45.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.44.0...v0.45.0
 [0.44.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.42.0...v0.43.0
