@@ -30,7 +30,7 @@ $section-header-title-min-inline-size: 200px;
 	 * controls track either.
 	 */
 	grid-template-columns: minmax($section-header-title-min-inline-size, 1fr) minmax(0, max-content);
-	align-items: start;
+	align-items: center;
 
 	// Column gap only: the rows carry their spacing as their own padding, so
 	// the condensing subtitle can take it along. A row gap belongs to the
