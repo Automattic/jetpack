@@ -60,13 +60,18 @@ class Customize_Feed {
 
 		add_action( 'wp', array( __CLASS__, 'maybe_register_feed_hooks' ) );
 
-		// Both hooks fire during query execution — before the `wp` action — so
+		// These hooks fire during query execution — before the `wp` action — so
 		// they're registered up-front and self-gated to the podcast feed query,
 		// rather than wired conditionally in `maybe_register_feed_hooks`.
 		//
 		// `posts_where` constrains the SQL itself so LIMIT/OFFSET paginate over
 		// episodes that actually have an enclosure; `the_posts` is a cheap final
 		// guard for the rare row the SQL constraint can't reach.
+		//
+		// `pre_get_posts` runs last so the gate reads the category every other
+		// callback has finished rewriting — and so `get_queried_object()` doesn't
+		// memoize a term ahead of them, which `posts_where` would then inherit.
+		add_action( 'pre_get_posts', array( __CLASS__, 'apply_feed_limit' ), PHP_INT_MAX );
 		add_filter( 'posts_where', array( __CLASS__, 'constrain_feed_query' ), 10, 2 );
 		add_filter( 'the_posts', array( __CLASS__, 'filter_posts_with_enclosure' ), 10, 2 );
 	}
@@ -390,6 +395,21 @@ class Customize_Feed {
 	public static function reset_render_state() {
 		self::$seen_enclosures = array();
 		self::$item_summary    = array( 0, '' );
+	}
+
+	/**
+	 * Cap the podcast feed at the configured number of episodes. Core reads the
+	 * `posts_per_rss` *query var* before the site option of the same name, so the
+	 * podcast feed gets its own length and every other feed keeps the site's.
+	 *
+	 * @param \WP_Query $query Query about to run.
+	 */
+	public static function apply_feed_limit( $query ) {
+		if ( ! self::is_podcast_feed_query( $query ) ) {
+			return;
+		}
+
+		$query->set( 'posts_per_rss', Settings::feed_limit() );
 	}
 
 	/**
