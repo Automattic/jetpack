@@ -48,6 +48,7 @@ module.exports = {
 		path.join( __dirname, 'setup-jest-dom.js' ),
 		path.join( __dirname, 'setup-console.js' ),
 		path.join( __dirname, 'setup-client-zip.js' ),
+		path.join( __dirname, 'setup-css-supports.js' ),
 	],
 	extensionsToTreatAsEsm: [ '.jsx', '.ts', '.tsx' ],
 };
