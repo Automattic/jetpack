@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 672" font-family="ui-sans-serif,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#6e7781"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#8250df"/>
+    </marker>
+  </defs>
+
+  <rect x="1" y="1" width="978" height="670" rx="12" fill="#f8f9fb" stroke="#d8dee4"/>
+  <text x="30" y="32" font-size="13" fill="#6e7781">Group by: how the menu and the chart stay coherent with the date range</text>
+
+  <!-- Sources -->
+  <rect x="28" y="52" width="294" height="104" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="44" y="76" font-size="13.5" font-weight="600" fill="#1f2328">widget.ts · the offer</text>
+  <text x="44" y="98" font-size="12" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" fill="#24292f">granularityAttributeField( [</text>
+  <text x="44" y="114" font-size="12" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" fill="#24292f">&#160;&#160;'auto', 'day', 'week', 'month' ] )</text>
+  <text x="44" y="140" font-size="11.5" fill="#6e7781">&#8594; field.elements</text>
+
+  <rect x="343" y="52" width="294" height="104" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="359" y="76" font-size="13.5" font-weight="600" fill="#1f2328">URL search params · the range</text>
+  <text x="359" y="100" font-size="12" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" fill="#24292f">?from &amp;to &amp;preset &amp;interval</text>
+  <text x="359" y="140" font-size="11.5" fill="#6e7781">seeded + coerced by the page layer</text>
+
+  <rect x="658" y="52" width="294" height="104" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="674" y="76" font-size="13.5" font-weight="600" fill="#1f2328">layout attributes · the pick</text>
+  <text x="674" y="100" font-size="12" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" fill="#24292f">{ granularity: 'month' }</text>
+  <text x="674" y="140" font-size="11.5" fill="#6e7781">persisted per instance (autosave)</text>
+
+  <!-- Params hook -->
+  <rect x="343" y="196" width="294" height="80" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="359" y="220" font-size="12.5" font-weight="600" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" fill="#1f2328">useNormalizedReportParams()</text>
+  <text x="359" y="242" font-size="11.5" fill="#6e7781">host-injected reportParams when present</text>
+  <text x="359" y="258" font-size="11.5" fill="#6e7781">(Storybook), else the route URL · normalized</text>
+
+  <!-- Shared rule -->
+  <rect x="260" y="316" width="460" height="72" rx="8" fill="#eefaf0" stroke="#069e08" stroke-width="1.4"/>
+  <text x="278" y="342" font-size="12.5" font-weight="600" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" fill="#05690d">getAllowedIntervalsForPreset( preset, from, to )</text>
+  <text x="278" y="364" font-size="11.5" fill="#3f6212">the range rule · 5-day range &#8658; [ 'day', 'hour' ]</text>
+
+  <!-- Consumers -->
+  <rect x="28" y="428" width="436" height="150" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="44" y="452" font-size="13.5" font-weight="600" fill="#1f2328">Menu · GranularitySelectField (host toolbar)</text>
+  <text x="44" y="474" font-size="12" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" fill="#24292f">granularityElementsForParams( elements, params )</text>
+  <text x="44" y="494" font-size="12" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" fill="#24292f">menu = 'auto' + ( offer &#8745; allowed )</text>
+  <text x="44" y="518" font-size="11.5" fill="#6e7781">5 days &#8658; Auto · By days</text>
+  <text x="44" y="536" font-size="11.5" fill="#6e7781">a stored value left unlisted displays as Auto</text>
+
+  <rect x="516" y="428" width="436" height="150" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="532" y="452" font-size="13.5" font-weight="600" fill="#1f2328">Chart · widget render (WidgetRoot context)</text>
+  <text x="532" y="474" font-size="12" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" fill="#24292f">resolvePeriodForGranularity( pick, params, PERIODS )</text>
+  <text x="532" y="494" font-size="12" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" fill="#24292f">pick holds while allowed; else range default</text>
+  <text x="532" y="518" font-size="11.5" fill="#6e7781">5 days + 'month' &#8658; draws 'day' buckets</text>
+  <text x="532" y="536" font-size="11.5" fill="#6e7781">the attribute is never rewritten</text>
+
+  <!-- Edges -->
+  <line x1="490" y1="156" x2="490" y2="192" stroke="#6e7781" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <line x1="490" y1="276" x2="490" y2="312" stroke="#6e7781" stroke-width="1.4" marker-end="url(#arrow)"/>
+
+  <line x1="120" y1="156" x2="120" y2="424" stroke="#6e7781" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <text x="130" y="298" font-size="11" fill="#6e7781">elements</text>
+
+  <line x1="870" y1="156" x2="870" y2="424" stroke="#6e7781" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <text x="786" y="298" font-size="11" fill="#6e7781">granularity</text>
+
+  <path d="M 400 388 L 400 406 L 246 406 L 246 424" fill="none" stroke="#6e7781" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <text x="288" y="402" font-size="11" fill="#6e7781">allowed</text>
+  <path d="M 580 388 L 580 406 L 734 406 L 734 424" fill="none" stroke="#6e7781" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <text x="638" y="402" font-size="11" fill="#6e7781">allowed</text>
+
+  <!-- Write-back loop -->
+  <path d="M 246 578 L 246 614 L 966 614 L 966 104 L 956 104" fill="none" stroke="#8250df" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#arrow-purple)"/>
+  <text x="490" y="606" font-size="11" fill="#8250df" text-anchor="middle">onChange &#8594; onLayoutChange + scheduleAutoSave</text>
+
+  <text x="490" y="650" font-size="12" font-style="italic" fill="#57606a" text-anchor="middle">Same params, same rule on both paths: the menu never lists a bucket the chart would coerce away.</text>
+</svg>
