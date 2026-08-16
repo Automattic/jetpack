@@ -3,7 +3,7 @@
  */
 import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import { Button, DateRangeCalendar, Icon, Stack } from '@jetpack-premium-analytics/externals';
-import { formatDateRangeCompact } from '@jetpack-premium-analytics/formatters';
+import { formatDateRangeMinimal } from '@jetpack-premium-analytics/formatters';
 import { Composite, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { chevronDown } from '@wordpress/icons';
@@ -242,7 +242,7 @@ export function DateRangePopover( {
 		range,
 		committedRange,
 		customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
-		formatRange: formatDateRangeCompact,
+		formatRange: formatDateRangeMinimal,
 	} );
 
 	return (

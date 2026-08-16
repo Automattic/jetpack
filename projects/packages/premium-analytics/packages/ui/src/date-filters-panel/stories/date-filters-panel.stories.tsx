@@ -29,7 +29,7 @@ const meta: Meta< typeof DateFiltersPanel > = {
 			description: {
 				component:
 					'Dashboard date filters: primary date range (surface presets + custom calendar), ' +
-					'the chart interval, and an optional comparison range.',
+					'an optional comparison range, and the chart interval.',
 			},
 		},
 	},
@@ -377,7 +377,7 @@ const LADDER_WIDTHS = [ 960, 782, 600, 360, 280 ];
  * is visible rather than asserted.
  *
  * Rungs are annotated against the four preset pills alone. That is a floor: the
- * custom trigger, the interval control, and the comparison control share the
+ * custom trigger, the comparison control, and the interval control share the
  * same line, as will the period navigation.
  */
 function WidthLadder( { fixture }: { fixture: LocaleFixture } ) {

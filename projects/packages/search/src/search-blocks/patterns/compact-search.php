@@ -41,6 +41,11 @@ register_block_pattern(
 <!-- wp:jetpack-search/search-results -->
 <!-- wp:jetpack-search/results-count /-->
 <!-- wp:jetpack-search/results-list {"layout":"compact"} /-->
+<!-- wp:jetpack-search/no-results -->
+<!-- wp:jetpack-search/no-results-slot /-->
+<!-- wp:jetpack-search/no-results-slot {"condition":"filtered"} /-->
+<!-- wp:jetpack-search/no-results-slot {"condition":"error"} /-->
+<!-- /wp:jetpack-search/no-results -->
 <!-- wp:jetpack-search/results-load-more /-->
 <!-- wp:jetpack-search/powered-by /-->
 <!-- /wp:jetpack-search/search-results -->

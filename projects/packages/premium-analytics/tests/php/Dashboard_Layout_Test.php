@@ -13,6 +13,7 @@ use WP_REST_Request;
 use WP_REST_Server;
 
 require_once __DIR__ . '/../../src/dashboard-layout.php';
+require_once __DIR__ . '/../../src/dashboard-sections.php';
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 
 /**
@@ -33,6 +34,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$wp_rest_server = null;
 		$this->reset_analytics_capabilities();
 		wp_set_current_user( 0 );
+		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		Constants::clear_constants();
 		parent::tear_down();
 	}
@@ -161,6 +163,45 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
+	 * An unavailable tab does not expose its default layout.
+	 */
+	public function test_default_layout_route_refuses_an_unavailable_subscribers_tab() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_SUBSCRIBERS_SECTION_ID );
+
+		$this->assertSame( 404, $status );
+	}
+
+	/**
+	 * An unavailable tab is refused when `?name=` shadows the URL capture.
+	 */
+	public function test_default_layout_route_refuses_a_name_shadowed_subscribers_tab() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertSame( 404, $status );
+	}
+
+	/**
+	 * An available Subscribers tab exposes its default layout.
+	 */
+	public function test_default_layout_route_serves_an_available_subscribers_tab() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+
+		list( $status, $types ) = $this->request_default_layout( DASHBOARD_SUBSCRIBERS_SECTION_ID );
+
+		$this->assertSame( 200, $status );
+		$this->assertContains( 'jpa/subscribers-chart', $types );
+	}
+
+	/**
 	 * Non-Premium-Analytics dashboards are left untouched.
 	 */
 	public function test_seed_default_dashboard_layout_ignores_other_dashboards() {
@@ -207,6 +248,28 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ), 'type' );
 
 		$this->assertContains( 'jpa/file-downloads', $layout_types );
+	}
+
+	/**
+	 * Shares is Simple-only too, so the Insights default drops it on self-hosted
+	 * Jetpack sites (this test env).
+	 */
+	public function test_insights_default_excludes_shares_on_self_hosted() {
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_INSIGHTS_SECTION_ID ), 'type' );
+
+		$this->assertNotContains( 'jpa/shares', $layout_types, 'Simple-only widget instances must not be part of the default layout on self-hosted sites.' );
+		$this->assertContains( 'jpa/tags', $layout_types, 'Regular widget instances remain in the default layout.' );
+	}
+
+	/**
+	 * WPCOM Simple keeps Shares in the Insights default.
+	 */
+	public function test_insights_default_keeps_shares_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_INSIGHTS_SECTION_ID ), 'type' );
+
+		$this->assertContains( 'jpa/shares', $layout_types );
 	}
 
 	/**
@@ -291,7 +354,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			'default-total-visitors-widget-instance'       => array( 'jpa/total-visitors', 1, 1, 5 ),
 			'default-popular-days-widget-instance'         => array( 'jpa/popular-days', 1, 1, 6 ),
 			'default-most-popular-day-widget-instance'     => array( 'jpa/most-popular-day', 1, 1, 7 ),
-			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 4, 1, 8 ),
+			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 4, 2, 8 ),
 			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 9 ),
 			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 10 ),
 			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 11 ),

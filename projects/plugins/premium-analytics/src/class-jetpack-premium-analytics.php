@@ -29,6 +29,17 @@ class Jetpack_Premium_Analytics {
 		// mean translating it on plugins_loaded, too early for the textdomain to be loaded.
 		Analytics::init();
 
+		// Priority 0 leaves time for Cookie Consent to register its own default-priority
+		// init callbacks when the development config filter enables the package.
+		add_action( 'init', array( __CLASS__, 'init_cookie_consent' ), 0 );
+	}
+
+	/**
+	 * Initialize Cookie Consent once WordPress translations can load safely.
+	 *
+	 * @return void
+	 */
+	public static function init_cookie_consent() {
 		// Ships disabled: the banner is planned for a later release. The package stays wired up
 		// so the `jetpack_cookie_consent_config` filter can switch it back on for development.
 		Cookie_Consent::init( array( 'enabled' => false ) );

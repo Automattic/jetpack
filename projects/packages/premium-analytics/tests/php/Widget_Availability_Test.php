@@ -67,6 +67,10 @@ class Widget_Availability_Test extends BaseTestCase {
 				'category' => 'traffic',
 			),
 			array(
+				'name'     => 'jpa/shares',
+				'category' => 'traffic',
+			),
+			array(
 				'name'     => 'jpa/hello-world',
 				'category' => 'demo',
 			),
@@ -153,6 +157,23 @@ class Widget_Availability_Test extends BaseTestCase {
 	 */
 	public function test_type_policy_keeps_file_downloads_on_simple() {
 		$this->assertContains( 'jpa/file-downloads', $this->available_names( true ) );
+	}
+
+	/**
+	 * Shares is unavailable outside WPCOM Simple, where nothing records a share.
+	 */
+	public function test_type_policy_removes_shares_on_non_simple() {
+		$names = $this->available_names( false );
+
+		$this->assertNotContains( 'jpa/shares', $names );
+		$this->assertContains( 'jpa/hello-world', $names );
+	}
+
+	/**
+	 * WPCOM Simple keeps Shares.
+	 */
+	public function test_type_policy_keeps_shares_on_simple() {
+		$this->assertContains( 'jpa/shares', $this->available_names( true ) );
 	}
 
 	/**
@@ -362,9 +383,9 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The host callback removes File downloads on Atomic.
+	 * The host callback removes the Simple-only types on Atomic.
 	 */
-	public function test_registry_callback_removes_file_downloads_on_atomic() {
+	public function test_registry_callback_removes_simple_only_types_on_atomic() {
 		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
 
@@ -374,12 +395,13 @@ class Widget_Availability_Test extends BaseTestCase {
 		);
 
 		$this->assertNotContains( 'jpa/file-downloads', $names );
+		$this->assertNotContains( 'jpa/shares', $names );
 	}
 
 	/**
-	 * The host callback keeps File downloads on WPCOM Simple.
+	 * The host callback keeps the Simple-only types on WPCOM Simple.
 	 */
-	public function test_registry_callback_keeps_file_downloads_on_wpcom_simple() {
+	public function test_registry_callback_keeps_simple_only_types_on_wpcom_simple() {
 		Constants::set_constant( 'IS_WPCOM', true );
 
 		$names = array_column(
@@ -388,6 +410,7 @@ class Widget_Availability_Test extends BaseTestCase {
 		);
 
 		$this->assertContains( 'jpa/file-downloads', $names );
+		$this->assertContains( 'jpa/shares', $names );
 	}
 
 	/**

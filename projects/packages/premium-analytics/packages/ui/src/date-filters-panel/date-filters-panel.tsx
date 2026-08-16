@@ -12,7 +12,7 @@ import {
 	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { formatDateRangeCompact } from '@jetpack-premium-analytics/formatters';
+import { formatDateRangeMinimal } from '@jetpack-premium-analytics/formatters';
 import { BaseControl } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { flushSync } from '@wordpress/element';
@@ -282,7 +282,7 @@ export function DateFiltersPanel( {
 			range,
 			committedRange,
 			customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
-			formatRange: formatDateRangeCompact,
+			formatRange: formatDateRangeMinimal,
 		} );
 	}, [
 		appliedRange,
@@ -402,8 +402,8 @@ export function DateFiltersPanel( {
 				presets={ surfacePresets }
 				customTriggerLabel={ customTriggerLabel }
 				navigation={ navigationControl }
-				interval={ intervalControl }
 				comparison={ comparisonControl }
+				interval={ intervalControl }
 				onMeasure={ handleProbeMeasure }
 			/>
 
@@ -432,8 +432,8 @@ export function DateFiltersPanel( {
 					/>
 				</BaseControl>
 
-				{ intervalControl }
-
+				{ /* Comparison before the interval: it qualifies the range the
+				     presets just set, while the interval only buckets the charts. */ }
 				{ showComparison && (
 					<BaseControl
 						className="date-filters-panel__comparison"
@@ -442,6 +442,8 @@ export function DateFiltersPanel( {
 						{ comparisonControl }
 					</BaseControl>
 				) }
+
+				{ intervalControl }
 			</Stack>
 		</div>
 	);

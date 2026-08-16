@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 425dd787ec9b3464d5ca9154bbd1a156fc4b03e5.
+ * Stubs automatically generated from WordPress.com commit 0df31ec7c9f4fa83103606c5fa6444b3fdf440b5.
  */
 
 namespace {
@@ -1243,7 +1243,17 @@ namespace {
     {
     }
     /**
-     * @phan-return mixed
+     * @param int|false $site_id
+     * @param int $blog_id
+     * @param string $table
+     * @param string $field
+     * @param string|false $end_date
+     * @param int $num_days
+     * @param string $and
+     * @param int $limit
+     * @param bool $summarize
+     * @param bool $rollup
+     * @return array
      */
     function stats_get_daily_history($site_id, $blog_id, $table, $field, $end_date = \false, $num_days = 1, $and = '', $limit = 0, $summarize = \false, $rollup = \false)
     {
