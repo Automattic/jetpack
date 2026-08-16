@@ -9,8 +9,6 @@ export interface PodcastApp {
 	learnMoreUrl?: string;
 	submission: 'automatic' | 'manual';
 	Row?: ComponentType< PodcastAppRowProps >;
-	// Full replacement for the default 3-step submit modal.
-	Modal?: ComponentType< PodcastAppModalProps >;
 }
 
 export interface PodcastAppRowProps {

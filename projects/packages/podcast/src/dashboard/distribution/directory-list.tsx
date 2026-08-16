@@ -67,8 +67,6 @@ export const DirectoryRow = ( {
 	const handleClick = useCallback( () => onAction( app.id ), [ onAction, app.id ] );
 	const viewLinkRef = useRef< HTMLAnchorElement >( null );
 
-	// The link replaces the action button rather than joining it, so the button
-	// the user just pressed unmounts and focus falls to <body>.
 	useEffect( () => {
 		if ( viewUrl && focusViewLink ) {
 			viewLinkRef.current?.focus();

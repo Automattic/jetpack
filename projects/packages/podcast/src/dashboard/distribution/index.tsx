@@ -38,8 +38,6 @@ const NEED_CATEGORY_LABEL = __( 'Set a post category in Settings first', 'jetpac
 const NEED_TITLE_LABEL = __( 'Add a podcast title in Settings first', 'jetpack-podcast' );
 
 const AUTOMATIC_APPS = PODCAST_APPS.filter( app => app.submission === 'automatic' );
-// Anything not explicitly automatic is manual, so a directory that forgets the
-// field still renders instead of vanishing from both sections.
 const MANUAL_APPS = PODCAST_APPS.filter( app => app.submission !== 'automatic' );
 
 const blockedReason = ( isLoading: boolean, isEnabled: boolean, remaining: string ): string => {
@@ -120,10 +118,6 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 			  )
 			: '';
 
-	// Only manual directories are gated on the whole checklist; Pocket Casts
-	// needs a category and a title. The notice sits above both sections, so it
-	// talks about setup — "before you can submit" would contradict a live
-	// Submit button on a half-configured podcast.
 	const setupStepsLeftLabel =
 		issues.length > 0
 			? sprintf(
@@ -159,8 +153,6 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 	const handleFirstSave = useCallback( () => {
 		setShowConfetti( true );
 	}, [] );
-
-	const ActiveModal = activeApp?.Modal ?? SubmitModal;
 
 	return (
 		<>
@@ -245,7 +237,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 			</Card>
 
 			{ activeApp && (
-				<ActiveModal
+				<SubmitModal
 					app={ activeApp }
 					feedUrl={ feedUrl }
 					onClose={ handleClose }

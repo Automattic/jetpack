@@ -82,9 +82,6 @@ const PocketCastsRow = ( { app, state, blockedReason, onFirstSave }: PodcastAppR
 					: ''
 			}
 			isBusy={ isSubmitting }
-			// A stored `active` can come from Feed_Detection promoting a crawler
-			// hit, which never records a share link. Only this session's verdict
-			// closes the row out, so that case stays re-submittable to fetch one.
 			isComplete={ result?.state === 'active' }
 			viewUrl={ viewUrl }
 			focusViewLink={ !! result }
