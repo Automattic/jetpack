@@ -47,14 +47,16 @@ function mockContainerResize() {
 	return { resizeTo, unobserved };
 }
 
-function renderPanel( props: Partial< ComponentProps< typeof DateFiltersPanel > > = {} ) {
-	return render(
+const PRESET_RANGE = {
+	from: new Date( '2026-07-01T00:00:00.000Z' ),
+	to: new Date( '2026-07-30T23:59:59.999Z' ),
+};
+
+function panel( props: Partial< ComponentProps< typeof DateFiltersPanel > > = {} ) {
+	return (
 		<DateFiltersPanel
 			presetId="last-30-days"
-			range={ {
-				from: new Date( '2026-07-01T00:00:00.000Z' ),
-				to: new Date( '2026-07-30T23:59:59.999Z' ),
-			} }
+			range={ PRESET_RANGE }
 			onChange={ jest.fn() }
 			onComparisonChange={ jest.fn() }
 			onApply={ jest.fn() }
@@ -63,6 +65,10 @@ function renderPanel( props: Partial< ComponentProps< typeof DateFiltersPanel > 
 			{ ...props }
 		/>
 	);
+}
+
+function renderPanel( props: Partial< ComponentProps< typeof DateFiltersPanel > > = {} ) {
+	return render( panel( props ) );
 }
 
 describe( 'DateFiltersPanel', () => {
@@ -165,5 +171,37 @@ describe( 'DateFiltersPanel', () => {
 		expect( comparison.compareDocumentPosition( chartInterval ) ).toBe(
 			Node.DOCUMENT_POSITION_FOLLOWING
 		);
+	} );
+
+	// The custom trigger used to keep labelling itself with the range it held
+	// before the preset took over, putting two different ranges on screen at
+	// once (WOOA7S-1936).
+	it( 'drops the custom range from the trigger once a preset takes over', () => {
+		mockContainerResize();
+		const customRange = {
+			from: new Date( '2026-01-30T00:00:00.000Z' ),
+			to: new Date( '2026-08-05T23:59:59.999Z' ),
+		};
+
+		const { rerender } = renderPanel( {
+			presetId: 'custom',
+			appliedPresetId: 'custom',
+			range: customRange,
+			appliedRange: customRange,
+			canApply: false,
+		} );
+
+		expect( screen.queryByRole( 'button', { name: 'Custom' } ) ).not.toBeInTheDocument();
+
+		rerender(
+			panel( {
+				presetId: 'last-30-days',
+				appliedPresetId: 'last-30-days',
+				appliedRange: PRESET_RANGE,
+				canApply: false,
+			} )
+		);
+
+		expect( screen.getByRole( 'button', { name: 'Custom' } ) ).toBeInTheDocument();
 	} );
 } );
