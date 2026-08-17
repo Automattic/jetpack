@@ -218,101 +218,139 @@ export default function PlaylistBlockEdit( {
 		}
 	};
 
-	const addVideoForm = (
-		<div className="videopress-playlist-editor__add-container">
-			<div className="videopress-playlist-editor__add">
-				<TextControl
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
-					label={ __( 'Add video', 'jetpack-videopress-pkg' ) }
-					hideLabelFromVision
-					placeholder={ __( 'VideoPress GUID or URL', 'jetpack-videopress-pkg' ) }
-					value={ newVideoInput }
-					onChange={ ( value: string ) => {
-						setNewVideoInput( value );
-						setErrorNotice( null );
-					} }
-					onKeyDown={ event => {
-						if ( event.key === 'Enter' ) {
-							event.preventDefault();
-							addVideo();
-						}
-					} }
-				/>
-				<Button
-					__next40pxDefaultSize
-					variant="secondary"
-					onClick={ addVideo }
-					isBusy={ isAddingVideo }
-					disabled={ isAddingVideo }
-				>
-					{ __( 'Add to playlist', 'jetpack-videopress-pkg' ) }
-				</Button>
-				<MediaUploadCheck>
-					<MediaUpload
-						title={ __( 'Select videos from your VideoPress library', 'jetpack-videopress-pkg' ) }
-						onSelect={ addVideosFromLibrary }
-						allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
-						multiple
-						render={ ( { open }: { open: () => void } ) => (
-							<Button __next40pxDefaultSize variant="secondary" onClick={ open }>
-								{ __( 'Choose from library', 'jetpack-videopress-pkg' ) }
-							</Button>
-						) }
+	// All playlist management (add, sort, delete) lives in the settings
+	// sidebar; the canvas below is a preview of what visitors see.
+	const inspectorControls = (
+		<InspectorControls>
+			<PanelBody title={ __( 'Videos', 'jetpack-videopress-pkg' ) }>
+				<ol className="videopress-playlist-editor__manage-list">
+					{ videos.map( ( video: PlaylistVideo, index: number ) => (
+						<li
+							key={ `${ video.guid }-${ index }` }
+							className="videopress-playlist-editor__manage-item"
+						>
+							<span className="videopress-playlist-editor__manage-item-title">
+								{ index + 1 }. { video.title || video.guid }
+							</span>
+							<span className="videopress-playlist-editor__manage-item-actions">
+								<Button
+									size="small"
+									icon={ chevronUp }
+									disabled={ index === 0 }
+									onClick={ () => moveVideo( index, -1 ) }
+									label={ __( 'Move up', 'jetpack-videopress-pkg' ) }
+								/>
+								<Button
+									size="small"
+									icon={ chevronDown }
+									disabled={ index === videos.length - 1 }
+									onClick={ () => moveVideo( index, 1 ) }
+									label={ __( 'Move down', 'jetpack-videopress-pkg' ) }
+								/>
+								<Button
+									size="small"
+									icon={ closeSmall }
+									onClick={ () => removeVideo( index ) }
+									label={ __( 'Remove from playlist', 'jetpack-videopress-pkg' ) }
+								/>
+							</span>
+						</li>
+					) ) }
+				</ol>
+
+				<div className="videopress-playlist-editor__add">
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Add video', 'jetpack-videopress-pkg' ) }
+						hideLabelFromVision
+						placeholder={ __( 'VideoPress GUID or URL', 'jetpack-videopress-pkg' ) }
+						value={ newVideoInput }
+						onChange={ ( value: string ) => {
+							setNewVideoInput( value );
+							setErrorNotice( null );
+						} }
+						onKeyDown={ event => {
+							if ( event.key === 'Enter' ) {
+								event.preventDefault();
+								addVideo();
+							}
+						} }
 					/>
-				</MediaUploadCheck>
-			</div>
-			{ errorNotice && (
-				<Notice status="error" isDismissible={ false }>
-					{ errorNotice }
-				</Notice>
-			) }
-		</div>
+					<Button
+						__next40pxDefaultSize
+						variant="secondary"
+						onClick={ addVideo }
+						isBusy={ isAddingVideo }
+						disabled={ isAddingVideo }
+					>
+						{ __( 'Add to playlist', 'jetpack-videopress-pkg' ) }
+					</Button>
+					<MediaUploadCheck>
+						<MediaUpload
+							title={ __( 'Select videos from your VideoPress library', 'jetpack-videopress-pkg' ) }
+							onSelect={ addVideosFromLibrary }
+							allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
+							multiple
+							render={ ( { open }: { open: () => void } ) => (
+								<Button __next40pxDefaultSize variant="secondary" onClick={ open }>
+									{ __( 'Choose from library', 'jetpack-videopress-pkg' ) }
+								</Button>
+							) }
+						/>
+					</MediaUploadCheck>
+				</div>
+				{ errorNotice && (
+					<Notice status="error" isDismissible={ false }>
+						{ errorNotice }
+					</Notice>
+				) }
+			</PanelBody>
+
+			<PanelBody title={ __( 'Playlist settings', 'jetpack-videopress-pkg' ) }>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Autoplay next video', 'jetpack-videopress-pkg' ) }
+					help={ __(
+						'Automatically play the next video when the current one ends.',
+						'jetpack-videopress-pkg'
+					) }
+					checked={ autoAdvance }
+					onChange={ ( value: boolean ) => setAttributes( { autoAdvance: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Loop playlist', 'jetpack-videopress-pkg' ) }
+					help={ __(
+						'Restart from the first video after the last one ends.',
+						'jetpack-videopress-pkg'
+					) }
+					checked={ loop }
+					onChange={ ( value: boolean ) => setAttributes( { loop: value } ) }
+				/>
+			</PanelBody>
+		</InspectorControls>
 	);
 
 	if ( ! videos.length ) {
 		return (
 			<div { ...blockProps }>
+				{ inspectorControls }
 				<Placeholder
 					icon={ VideoPressIcon }
 					label={ __( 'VideoPress Playlist', 'jetpack-videopress-pkg' ) }
 					instructions={ __(
-						'Build a playlist that plays videos in sequence. Choose videos from your VideoPress library, or add them by GUID or URL.',
+						'Build a playlist that plays videos in sequence. Add videos in the block settings sidebar: choose them from your VideoPress library, or add them by GUID or URL.',
 						'jetpack-videopress-pkg'
 					) }
-				>
-					{ addVideoForm }
-				</Placeholder>
+				/>
 			</div>
 		);
 	}
 
 	return (
 		<div { ...blockProps }>
-			<InspectorControls>
-				<PanelBody title={ __( 'Playlist settings', 'jetpack-videopress-pkg' ) }>
-					<ToggleControl
-						__nextHasNoMarginBottom
-						label={ __( 'Autoplay next video', 'jetpack-videopress-pkg' ) }
-						help={ __(
-							'Automatically play the next video when the current one ends.',
-							'jetpack-videopress-pkg'
-						) }
-						checked={ autoAdvance }
-						onChange={ ( value: boolean ) => setAttributes( { autoAdvance: value } ) }
-					/>
-					<ToggleControl
-						__nextHasNoMarginBottom
-						label={ __( 'Loop playlist', 'jetpack-videopress-pkg' ) }
-						help={ __(
-							'Restart from the first video after the last one ends.',
-							'jetpack-videopress-pkg'
-						) }
-						checked={ loop }
-						onChange={ ( value: boolean ) => setAttributes( { loop: value } ) }
-					/>
-				</PanelBody>
-			</InspectorControls>
+			{ inspectorControls }
 
 			{ currentVideo && (
 				<div className="videopress-playlist-editor__player-wrapper">
@@ -345,33 +383,14 @@ export default function PlaylistBlockEdit( {
 								index + 1
 							) }
 						>
-							{ index + 1 }.
+							<span className="videopress-playlist-editor__item-index">{ index + 1 }.</span>
+							<span className="videopress-playlist-editor__item-title">
+								{ video.title || video.guid }
+							</span>
 						</Button>
-						<span className="videopress-playlist-editor__item-title">
-							{ video.title || video.guid }
-						</span>
-						<Button
-							icon={ chevronUp }
-							disabled={ index === 0 }
-							onClick={ () => moveVideo( index, -1 ) }
-							label={ __( 'Move up', 'jetpack-videopress-pkg' ) }
-						/>
-						<Button
-							icon={ chevronDown }
-							disabled={ index === videos.length - 1 }
-							onClick={ () => moveVideo( index, 1 ) }
-							label={ __( 'Move down', 'jetpack-videopress-pkg' ) }
-						/>
-						<Button
-							icon={ closeSmall }
-							onClick={ () => removeVideo( index ) }
-							label={ __( 'Remove from playlist', 'jetpack-videopress-pkg' ) }
-						/>
 					</li>
 				) ) }
 			</ol>
-
-			{ addVideoForm }
 		</div>
 	);
 }

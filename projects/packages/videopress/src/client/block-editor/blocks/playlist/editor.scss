@@ -14,6 +14,7 @@
 		border: 0;
 	}
 
+	// Canvas preview list: mirrors the frontend look, click to preview only.
 	&__items {
 		list-style: none;
 		margin: 8px 0 0;
@@ -21,14 +22,25 @@
 	}
 
 	&__item {
-		display: flex;
-		align-items: center;
-		gap: 4px;
-		padding: 2px 0;
 
-		&.is-current {
-			background: rgba(0, 0, 0, 0.05);
+		&.is-current .videopress-playlist-editor__item-select {
+			background: rgba(0, 0, 0, 0.08);
+			font-weight: 600;
 		}
+	}
+
+	&__item-select {
+		display: flex;
+		inline-size: 100%;
+		block-size: auto;
+		align-items: center;
+		gap: 8px;
+		padding: 8px;
+		text-align: start;
+	}
+
+	&__item-index {
+		opacity: 0.7;
 	}
 
 	&__item-title {
@@ -38,23 +50,40 @@
 		white-space: nowrap;
 	}
 
-	&__add-container {
-		margin-block-start: 8px;
+	// Sidebar panel: playlist management (add, sort, delete).
+	&__manage-list {
+		list-style: none;
+		margin: 0 0 12px;
+		padding: 0;
+	}
 
-		.components-notice {
-			margin: 8px 0 0;
-		}
+	&__manage-item {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 4px;
+		padding: 2px 0;
+	}
+
+	&__manage-item-title {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&__manage-item-actions {
+		display: flex;
+		flex-shrink: 0;
 	}
 
 	&__add {
 		display: flex;
-		align-items: flex-start;
-		flex-wrap: wrap;
+		flex-direction: column;
+		align-items: stretch;
 		gap: 8px;
+	}
 
-		.components-base-control {
-			flex-grow: 1;
-			min-inline-size: 200px;
-		}
+	.components-notice {
+		margin: 8px 0 0;
 	}
 }

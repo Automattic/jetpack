@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { fetchVideoItem } from '../../../../lib/fetch-video-item';
 import Edit from '../edit';
@@ -16,7 +16,9 @@ const mockFetchVideoItem = fetchVideoItem as jest.Mock;
 
 jest.mock( '@wordpress/block-editor', () => ( {
 	useBlockProps: ( props: Record< string, unknown > = {} ) => props,
-	InspectorControls: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+	InspectorControls: ( { children }: { children: React.ReactNode } ) => (
+		<div data-testid="inspector-controls">{ children }</div>
+	),
 	MediaUploadCheck: ( { children }: { children: React.ReactNode } ) => <>{ children }</>,
 	MediaUpload: ( {
 		onSelect,
@@ -232,6 +234,35 @@ describe( 'PlaylistBlockEdit', () => {
 				'None of the selected items are VideoPress videos. Choose videos hosted on VideoPress.'
 			).length
 		).toBeGreaterThan( 0 );
+	} );
+
+	it( 'keeps all management controls in the settings sidebar; the canvas is preview-only', () => {
+		renderEdit( { videos: [ { guid: 'abcd1234' }, { guid: 'efgh5678' } ] } );
+
+		const sidebar = within( screen.getByTestId( 'inspector-controls' ) );
+
+		// Add, sort, and delete all live in the sidebar.
+		expect( sidebar.getByPlaceholderText( 'VideoPress GUID or URL' ) ).toBeInTheDocument();
+		expect( sidebar.getByText( 'Add to playlist' ) ).toBeInTheDocument();
+		expect( sidebar.getByText( 'Choose from library' ) ).toBeInTheDocument();
+		expect( sidebar.getAllByLabelText( 'Move up' ) ).toHaveLength( 2 );
+		expect( sidebar.getAllByLabelText( 'Move down' ) ).toHaveLength( 2 );
+		expect( sidebar.getAllByLabelText( 'Remove from playlist' ) ).toHaveLength( 2 );
+
+		// The canvas only previews: item selection, no management controls.
+		expect( screen.getAllByLabelText( 'Remove from playlist' ) ).toHaveLength( 2 );
+		expect( screen.getAllByLabelText( 'Move up' ) ).toHaveLength( 2 );
+		expect( screen.getByLabelText( 'Preview video 2' ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows the sidebar add controls alongside the empty-state placeholder', () => {
+		renderEdit();
+
+		expect( screen.getByText( 'VideoPress Playlist' ) ).toBeInTheDocument();
+
+		const sidebar = within( screen.getByTestId( 'inspector-controls' ) );
+		expect( sidebar.getByPlaceholderText( 'VideoPress GUID or URL' ) ).toBeInTheDocument();
+		expect( sidebar.getByText( 'Choose from library' ) ).toBeInTheDocument();
 	} );
 
 	it( 'toggles the auto-advance and loop settings', async () => {
