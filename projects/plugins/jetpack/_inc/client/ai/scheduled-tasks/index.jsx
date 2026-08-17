@@ -17,6 +17,11 @@ const INITIAL_VIEW = {
 	filters: [],
 };
 
+const STATUS_CHANGE_NOTICES = {
+	active: __( 'The task was resumed.', 'jetpack' ),
+	paused: __( 'The task was paused.', 'jetpack' ),
+};
+
 const openNewAgentChat = () => {
 	const open = () => {
 		const actions = window.__agentsManagerActions;
@@ -239,9 +244,7 @@ export default function ScheduledTasks( {
 					const nextStatus = item.status === 'active' ? 'paused' : 'active';
 					return runMutation(
 						() => setStatus( item.id, nextStatus ),
-						nextStatus === 'paused'
-							? __( 'The task was paused.', 'jetpack' )
-							: __( 'The task was resumed.', 'jetpack' )
+						STATUS_CHANGE_NOTICES[ nextStatus ]
 					);
 				},
 				isEligible: item =>
