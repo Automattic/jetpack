@@ -4,7 +4,7 @@ Everything that can change a flag's answer, and where each one applies.
 
 - [Resolution order](#resolution-order)
 - [Code filters](#code-filters)
-- [Jurassic Ninja / self-hosted: the Companion WP-CLI command](#jurassic-ninja--self-hosted-the-companion-wp-cli-command)
+- [Jurassic Ninja: the Companion WP-CLI command](#jurassic-ninja-the-companion-wp-cli-command)
 - [Companion settings page](#companion-settings-page)
 - [WordPress.com Simple and Atomic: the Automattician screen](#wordpresscom-simple-and-atomic-the-automattician-screen)
 - [Which surface to reach for](#which-surface-to-reach-for)
@@ -50,9 +50,9 @@ Filters can be added at any time — they are read when `is_enabled()` runs, not
 
 On a JN or self-hosted site, drop either snippet in `wp-content/mu-plugins/`. Prefer the CLI below for routine testing: it survives a re-sync of the plugin directory, and it is visible to anyone else looking at the site.
 
-## Jurassic Ninja / self-hosted: the Companion WP-CLI command
+## Jurassic Ninja: the Companion WP-CLI command
 
-Provided by the Companion plugin (Automattic/companion — added in PR #88, fixed in PR #89). Companion ships on Jurassic Ninja sites.
+Every Jurassic Ninja site comes with the Companion plugin, so these commands are available with no setup.
 
 ```bash
 wp companion feature-flag list [--format=table|csv|json|yaml|count]
@@ -104,7 +104,7 @@ This is a different option from Companion's, but both answer the same generic fi
 
 | Situation | Use |
 |---|---|
-| Testing on a JN or self-hosted site | `wp companion feature-flag enable <flag>` |
+| Testing on a Jurassic Ninja site | `wp companion feature-flag enable <flag>` |
 | Automated setup / scripted test runs | Same CLI, with `--format=json` and `--yes` |
 | Clicking through on a site you already have open | Companion settings section |
 | A wpcom Simple or Atomic site, as an Automattician | Tools → Feature Flags (a8c) |
