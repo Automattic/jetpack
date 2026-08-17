@@ -8,7 +8,7 @@ import { Button, Card, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { useDownload } from '../hooks/use-download';
-import { DEFAULT_RESTORE_ITEMS } from '../types/restore';
+import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
 
 /**
  * Derive an ISO timestamp for the download-point label from the WPCOM
@@ -39,6 +39,9 @@ export default function DownloadScreen() {
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
 	const { state, submit, reset } = useDownload( rewindId );
 	const handleGenerate = useCallback( () => submit( items ), [ submit, items ] );
+	// An empty checklist would ask WPCOM for the *whole* archive, not for
+	// nothing — see `hasSelectedItems`.
+	const hasSelection = hasSelectedItems( items );
 
 	return (
 		<DashboardLayout>
@@ -71,10 +74,15 @@ export default function DownloadScreen() {
 								) }
 							</Text>
 							<RestoreItemsChecklist value={ items } onChange={ setItems } />
+							{ ! hasSelection && (
+								<Text variant="body-sm" className="jpb-text-muted">
+									{ __( 'Select at least one item to download.', 'jetpack-backup-pkg' ) }
+								</Text>
+							) }
 							<Button
 								className="jpb-download__confirm"
 								variant="solid"
-								disabled={ state.phase === 'submitting' }
+								disabled={ ! hasSelection || state.phase === 'submitting' }
 								onClick={ handleGenerate }
 							>
 								{ state.phase === 'submitting' ? (

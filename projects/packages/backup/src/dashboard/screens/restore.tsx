@@ -8,7 +8,7 @@ import { Button, Card, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { useRestore } from '../hooks/use-restore';
-import { DEFAULT_RESTORE_ITEMS } from '../types/restore';
+import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
 
 /**
  * Derive an ISO timestamp for the restore-point label from the WPCOM
@@ -40,6 +40,9 @@ export default function RestoreScreen() {
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
 	const { state, submit, reset } = useRestore( rewindId );
 	const handleConfirm = useCallback( () => submit( items ), [ submit, items ] );
+	// An empty checklist would restore *everything* rather than nothing —
+	// see `hasSelectedItems`. On this screen that is unrecoverable.
+	const hasSelection = hasSelectedItems( items );
 
 	return (
 		<DashboardLayout>
@@ -73,10 +76,15 @@ export default function RestoreScreen() {
 							</Notice>
 							<Text>{ __( 'Choose the items you wish to restore:', 'jetpack-backup-pkg' ) }</Text>
 							<RestoreItemsChecklist value={ items } onChange={ setItems } />
+							{ ! hasSelection && (
+								<Text variant="body-sm" className="jpb-text-muted">
+									{ __( 'Select at least one item to restore.', 'jetpack-backup-pkg' ) }
+								</Text>
+							) }
 							<Button
 								className="jpb-restore__confirm"
 								variant="solid"
-								disabled={ state.phase === 'submitting' }
+								disabled={ ! hasSelection || state.phase === 'submitting' }
 								onClick={ handleConfirm }
 							>
 								{ state.phase === 'submitting' ? (

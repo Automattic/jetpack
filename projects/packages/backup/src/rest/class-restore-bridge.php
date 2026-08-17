@@ -92,13 +92,24 @@ class Restore_Bridge {
 		$rewind_id = (string) $request->get_param( 'rewind_id' );
 		$types     = $request->get_param( 'types' );
 
+		// A supplied `types` that names nothing is refused rather than
+		// dropped, and this is the screen where that matters most: an
+		// absent `types` means every category upstream, so forwarding an
+		// empty selection as an omission would overwrite the live site
+		// with exactly the parts the caller excluded. The v2 restore route
+		// rejects this too, but only once the request has left us.
+		if ( Rest_Controller::types_name_nothing( $types ) ) {
+			return new WP_Error(
+				'no_types_selected',
+				__( 'Select at least one item to restore.', 'jetpack-backup-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		$body = array( 'force_rewind' => true );
-		// Omit `types` entirely when nothing is named, and rebuild it as a
-		// named map otherwise — the same contract the download bridge and
-		// the client's `serializeTypes` follow. Defaulting to `{}` sent the
-		// one value that names no category, which the v2 restore route
-		// rejects outright and which the client had already been careful to
-		// leave out.
+		// Absent when the caller named no categories at all, which is how
+		// a whole-site restore is spelled upstream. Rebuilt as a named map
+		// otherwise — the same contract the download bridge follows.
 		$named_types = Rest_Controller::named_types( $types );
 		if ( ! empty( $named_types ) ) {
 			$body['types'] = $named_types;
@@ -116,7 +127,7 @@ class Restore_Bridge {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			return $response;
+			return Rest_Controller::transport_error( $response, 'restore_initiate_failed' );
 		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );
@@ -164,7 +175,7 @@ class Restore_Bridge {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			return $response;
+			return Rest_Controller::transport_error( $response, 'restore_status_fetch_failed' );
 		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );

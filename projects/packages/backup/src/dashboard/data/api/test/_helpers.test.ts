@@ -1,4 +1,4 @@
-import { serializeTypes, toIntRewindId } from '../_helpers';
+import { ApiError, requireTypes, serializeTypes, toIntRewindId } from '../_helpers';
 
 describe( 'toIntRewindId', () => {
 	test( 'returns the input unchanged when there is no decimal suffix', () => {
@@ -34,11 +34,48 @@ describe( 'serializeTypes', () => {
 		expect( result ).toEqual( { themes: true, plugins: true } );
 	} );
 
-	test( 'returns undefined when nothing is selected, so the key can be omitted', () => {
-		// `{}` is not a safe stand-in: the restore route rejects a `types`
-		// value that names nothing, and the download side would build an
-		// archive containing nothing.
+	test( 'returns undefined when nothing is selected', () => {
+		// `{}` is not a safe stand-in: the v2 restore route rejects a
+		// `types` value that names nothing. Note that omitting the key is
+		// not safe either — see `requireTypes` below, which is what
+		// mutations use.
 		expect( serializeTypes( { themes: false, plugins: false } ) ).toBeUndefined();
 		expect( serializeTypes( {} ) ).toBeUndefined();
+	} );
+} );
+
+describe( 'requireTypes', () => {
+	test( 'passes a populated selection straight through', () => {
+		expect( requireTypes( { themes: true, plugins: false, sqls: true } ) ).toEqual( {
+			themes: true,
+			sqls: true,
+		} );
+	} );
+
+	// The reason this exists rather than the mutations calling
+	// `serializeTypes` directly. Omitting `types` is not "ask for
+	// nothing" — WPCOM reads an absent `types` as all six categories, so
+	// an unticked checklist submitted a *full* download, and a full
+	// destructive restore. Refusing is the only safe reading of an empty
+	// selection, and it has to happen below the UI: the screens disable
+	// their buttons, but the danger is in the request, not the button.
+	test( 'refuses an empty selection rather than letting the key be omitted', () => {
+		expect( () => requireTypes( { themes: false, plugins: false } ) ).toThrow( ApiError );
+		expect( () => requireTypes( {} ) ).toThrow( ApiError );
+	} );
+
+	test( 'throws a branchable code', () => {
+		// Captured rather than asserted inside the `catch`, which
+		// `jest/no-conditional-expect` rejects: an assertion that only runs
+		// when the throw happens passes silently when it does not.
+		let thrown: unknown;
+		try {
+			requireTypes( {} );
+		} catch ( error ) {
+			thrown = error;
+		}
+
+		expect( thrown ).toBeInstanceOf( ApiError );
+		expect( ( thrown as ApiError ).code ).toBe( 'no_types_selected' );
 	} );
 } );

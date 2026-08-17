@@ -16,6 +16,7 @@ use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use WP_Error;
 use WP_REST_Server;
 use function add_action;
 use function add_filter;
@@ -180,5 +181,82 @@ class Rest_Bridge_Gating_Test extends TestCase {
 				array( 'themes' => true ),
 			),
 		);
+	}
+
+	/**
+	 * `types_name_nothing()` separates "asked for everything" from
+	 * "asked for nothing", which are one byte apart on the wire and
+	 * opposite in effect.
+	 *
+	 * An absent `types` is upstream's spelling of every category, so it
+	 * must stay allowed. A supplied `types` that survives into nothing is
+	 * a caller who tried to name categories and named none — forwarding
+	 * that as an omission turns "restore nothing" into "restore
+	 * everything" against a live site.
+	 *
+	 * @param string $label    Case description.
+	 * @param mixed  $input    Raw `types` parameter.
+	 * @param bool   $expected Whether the parameter names nothing.
+	 * @dataProvider provide_empty_type_selections
+	 */
+	#[DataProvider( 'provide_empty_type_selections' )]
+	public function test_types_name_nothing( $label, $input, $expected ) {
+		$this->assertSame( $expected, Rest_Controller::types_name_nothing( $input ), $label );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: mixed, 2: bool}>
+	 */
+	public static function provide_empty_type_selections() {
+		return array(
+			// The one case that must NOT be refused.
+			'absent'             => array( 'absent', null, false ),
+			'names one category' => array( 'names one', array( 'themes' => true ), false ),
+			'empty object'       => array( 'empty object', array(), true ),
+			'every value false'  => array( 'every value false', array( 'themes' => false ), true ),
+			'form-encoded false' => array( 'form-encoded false', array( 'themes' => '0' ), true ),
+			// The shape the route schema cannot reject, because it
+			// constrains values rather than shape.
+			'list of booleans'   => array( 'list of booleans', array( true, false ), true ),
+			'list of names'      => array( 'list of names', array( 'themes' ), true ),
+			'scalar'             => array( 'scalar', 'themes', true ),
+		);
+	}
+
+	/**
+	 * A transport failure is reported as a bridge error, not forwarded.
+	 *
+	 * The HTTP client answers with a `WP_Error` when the request never
+	 * reached WPCOM. Returning that unchanged put cURL's own text on
+	 * screen — the dashboard renders `error.message` verbatim — and left
+	 * it without a `status`, so core called a reachability problem a 500.
+	 */
+	public function test_transport_error_replaces_the_raw_message() {
+		$raw = new WP_Error(
+			'http_request_failed',
+			'cURL error 28: Operation timed out after 10001 milliseconds with 0 bytes received'
+		);
+
+		$wrapped = Rest_Controller::transport_error( $raw, 'capabilities_fetch_failed' );
+
+		$this->assertSame( 'capabilities_fetch_failed', $wrapped->get_error_code() );
+		$this->assertStringNotContainsString( 'cURL', $wrapped->get_error_message() );
+		$this->assertSame( 502, $wrapped->get_error_data()['status'] );
+	}
+
+	/**
+	 * The raw text survives for support, one level down.
+	 *
+	 * It is the only part of a transport failure anyone can act on, so it
+	 * is moved rather than dropped — the same reason the non-200 branches
+	 * forward WPCOM's status instead of flattening it.
+	 */
+	public function test_transport_error_keeps_the_original_for_support() {
+		$raw = new WP_Error( 'http_request_failed', 'cURL error 6: Could not resolve host' );
+
+		$data = Rest_Controller::transport_error( $raw, 'activity_log_fetch_failed' )->get_error_data();
+
+		$this->assertSame( 'http_request_failed', $data['transport']['code'] );
+		$this->assertSame( 'cURL error 6: Could not resolve host', $data['transport']['message'] );
 	}
 }
