@@ -145,6 +145,44 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Deletion sync ignores empty IDs and emits the filtered payload for valid IDs.
+	 */
+	public function test_sync_deleted_analytics_data() {
+		$filter_calls = 0;
+		$payloads     = array();
+		$filter       = static function ( $data ) use ( &$filter_calls ) {
+			++$filter_calls;
+			$data['filtered'] = true;
+			return $data;
+		};
+		$action       = static function ( $data ) use ( &$payloads ) {
+			$payloads[] = $data;
+		};
+
+		add_filter( 'woocommerce_analytics_deletion_data', $filter );
+		add_action( 'woocommerce_analytics_delete_reports_data', $action );
+
+		try {
+			$this->module->sync_deleted_analytics_data( 0 );
+			$this->module->sync_deleted_analytics_data( 42 );
+		} finally {
+			remove_filter( 'woocommerce_analytics_deletion_data', $filter );
+			remove_action( 'woocommerce_analytics_delete_reports_data', $action );
+		}
+
+		$this->assertSame( 1, $filter_calls );
+		$this->assertSame(
+			array(
+				array(
+					'id'       => 42,
+					'filtered' => true,
+				),
+			),
+			$payloads
+		);
+	}
+
+	/**
 	 * The public HPOS helper prefixes only registered statuses.
 	 */
 	public function test_hpos_status_helper() {
