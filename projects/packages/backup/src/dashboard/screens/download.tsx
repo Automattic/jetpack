@@ -25,6 +25,11 @@ function rewindIdToIso( rewindId: string ): string | null {
 	return new Date( seconds * 1000 ).toISOString();
 }
 
+// Stable so the submit button can point at the hint with
+// `aria-describedby`. A module constant rather than `useInstanceId`
+// because only one of these renders per page.
+const SELECTION_HINT_ID = 'jpb-download__selection-hint';
+
 /**
  * Download screen — same narrow layout as the Restore screen minus the
  * warning notice. Submission runs through a real state machine via the
@@ -74,8 +79,17 @@ export default function DownloadScreen() {
 								) }
 							</Text>
 							<RestoreItemsChecklist value={ items } onChange={ setItems } />
+							{ /*
+							 * `role="status"` so clearing the last box is announced, and
+							 * `aria-describedby` so the reason travels with the control.
+							 * Without both, the guard whose whole purpose is telling the
+							 * reader before they click tells nobody who cannot see it:
+							 * `@wordpress/ui` renders a disabled button as `aria-disabled`
+							 * and keeps it focusable, so it is reachable but silent about
+							 * why.
+							 */ }
 							{ ! hasSelection && (
-								<Text variant="body-sm" className="jpb-text-muted">
+								<Text id={ SELECTION_HINT_ID } variant="body-sm" role="status">
 									{ __( 'Select at least one item to download.', 'jetpack-backup-pkg' ) }
 								</Text>
 							) }
@@ -83,6 +97,7 @@ export default function DownloadScreen() {
 								className="jpb-download__confirm"
 								variant="solid"
 								disabled={ ! hasSelection || state.phase === 'submitting' }
+								aria-describedby={ hasSelection ? undefined : SELECTION_HINT_ID }
 								onClick={ handleGenerate }
 							>
 								{ state.phase === 'submitting' ? (

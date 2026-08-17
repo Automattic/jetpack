@@ -27,6 +27,11 @@ function rewindIdToIso( rewindId: string ): string | null {
 	return new Date( seconds * 1000 ).toISOString();
 }
 
+// Stable so the submit button can point at the hint with
+// `aria-describedby`. A module constant rather than `useInstanceId`
+// because only one of these renders per page.
+const SELECTION_HINT_ID = 'jpb-restore__selection-hint';
+
 /**
  * Restore screen — narrow centered layout with the warning notice, the
  * shared item checklist, and a Confirm button. Submit drives a real
@@ -76,8 +81,17 @@ export default function RestoreScreen() {
 							</Notice>
 							<Text>{ __( 'Choose the items you wish to restore:', 'jetpack-backup-pkg' ) }</Text>
 							<RestoreItemsChecklist value={ items } onChange={ setItems } />
+							{ /*
+							 * `role="status"` so clearing the last box is announced, and
+							 * `aria-describedby` so the reason travels with the control.
+							 * Without both, the guard whose whole purpose is telling the
+							 * reader before they click tells nobody who cannot see it:
+							 * `@wordpress/ui` renders a disabled button as `aria-disabled`
+							 * and keeps it focusable, so it is reachable but silent about
+							 * why.
+							 */ }
 							{ ! hasSelection && (
-								<Text variant="body-sm" className="jpb-text-muted">
+								<Text id={ SELECTION_HINT_ID } variant="body-sm" role="status">
 									{ __( 'Select at least one item to restore.', 'jetpack-backup-pkg' ) }
 								</Text>
 							) }
@@ -85,6 +99,7 @@ export default function RestoreScreen() {
 								className="jpb-restore__confirm"
 								variant="solid"
 								disabled={ ! hasSelection || state.phase === 'submitting' }
+								aria-describedby={ hasSelection ? undefined : SELECTION_HINT_ID }
 								onClick={ handleConfirm }
 							>
 								{ state.phase === 'submitting' ? (

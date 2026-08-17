@@ -96,8 +96,13 @@ class Restore_Bridge {
 		// dropped, and this is the screen where that matters most: an
 		// absent `types` means every category upstream, so forwarding an
 		// empty selection as an omission would overwrite the live site
-		// with exactly the parts the caller excluded. The v2 restore route
-		// rejects this too, but only once the request has left us.
+		// with exactly the parts the caller excluded.
+		//
+		// This bridge is currently the only guard on that: the call below
+		// still targets the v1 activity-log route, which has no such
+		// check. The v2 restore route does reject it, so once B1 repoints
+		// this there will be a second line of defence — but it will always
+		// be the slower one, since it only fires after the request leaves.
 		if ( Rest_Controller::types_name_nothing( $types ) ) {
 			return new WP_Error(
 				'no_types_selected',

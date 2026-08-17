@@ -7,7 +7,7 @@ import ActivityList from '../components/activity-list';
 import BackupDetail from '../components/backup-detail';
 import BackupNowButton from '../components/backup-now-button';
 import BackupStatusPanel, { replacesOverview } from '../components/backup-status';
-import BackupStatusBanner from '../components/backup-status/banner';
+import BackupStatusBanner, { BackupTroubleBanner } from '../components/backup-status/banner';
 import DashboardLayout from '../components/dashboard-layout';
 import QueryError from '../components/query-error';
 import {
@@ -75,7 +75,7 @@ export default function OverviewScreen() {
 		progress,
 		isInitialBackup,
 		error: backupsError,
-		isFetching: backupsFetching,
+		isRefetching: backupsRefetching,
 		refetch: refetchBackups,
 	} = useBackups();
 	// A second opinion on whether anything is restorable, from the
@@ -147,12 +147,20 @@ export default function OverviewScreen() {
 			 */ }
 			{ backupsState === 'error' && (
 				<QueryError
+					className="jpb-query-error--standalone"
 					title={ __( "We couldn't check your site's backup status.", 'jetpack-backup-pkg' ) }
 					error={ backupsError }
 					onRetry={ refetchBackups }
-					isRetrying={ backupsFetching }
+					isRetrying={ backupsRefetching }
 				/>
 			) }
+			{ /*
+			 * The takeover panel has stood down but the site's backups are
+			 * still failing, so the report moves here rather than vanishing
+			 * with it. See `BackupTroubleBanner` for why those were two jobs
+			 * in one predicate.
+			 */ }
+			<BackupTroubleBanner state={ backupsState } />
 			<div className="jpb-overview">
 				<ActivityList
 					selectedId={ selectedId }

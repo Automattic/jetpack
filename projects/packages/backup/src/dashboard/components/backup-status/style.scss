@@ -90,3 +90,16 @@
 		}
 	}
 }
+
+// Same slot and same box as the in-progress strip — see above for why it
+// sits outside `.jpb-overview` — but tinted as a warning, because this
+// one is reporting that something is wrong rather than that something is
+// happening.
+.jpb-backup-trouble-banner {
+	box-sizing: border-box;
+	inline-size: 100%;
+	margin-block-end: 16px;
+	padding: 12px 16px;
+	border-radius: 8px;
+	background-color: var(--wpds-color-background-surface-warning-weak);
+}

@@ -202,6 +202,36 @@ describe( 'Overview takeover', () => {
 	} );
 } );
 
+// Suppressing the takeover must not also suppress the *message*. Only the
+// panel carried "your backups are failing" and its support link, so every
+// case where the panel correctly stands down used to drop that too — which
+// the veto widening above would have made worse, not better.
+describe( 'Failing backups with the takeover suppressed', () => {
+	it( 'still reports the failure when restore points are listed', async () => {
+		mockEndpoints( { backups: [ UNUSABLE_BACKUP ], activity: [ activityEntry( 'cloud' ) ] } );
+
+		render( <OverviewStage /> );
+
+		// The list is kept...
+		await expect(
+			screen.findByText( 'Backup complete', undefined, SETTLE )
+		).resolves.toBeInTheDocument();
+		// ...and the reader is told anyway, with a way to get help.
+		expect( screen.getByText( "We're having trouble backing up your site." ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /Get in touch with us/ } ) ).toBeInTheDocument();
+	} );
+
+	it( 'still reports the failure when the activity request failed', async () => {
+		mockEndpoints( { backups: [ UNUSABLE_BACKUP ], activityFails: true } );
+
+		render( <OverviewStage /> );
+
+		await expect(
+			screen.findByText( "We're having trouble backing up your site.", undefined, SETTLE )
+		).resolves.toBeInTheDocument();
+	} );
+} );
+
 describe( 'Backup-state read failure', () => {
 	// `/jetpack/v4/backups` answers a non-200 from WPCOM with a bare
 	// `null` body, which WordPress serves as HTTP 200 — so the request
@@ -225,9 +255,14 @@ describe( 'Backup-state read failure', () => {
 		render( <OverviewStage /> );
 
 		// The notice is a report, not a takeover: the restore points the
-		// reader came for are still listed beside it.
+		// reader came for are still listed beside it. Both halves are
+		// asserted — the row alone renders on trunk too, so without the
+		// notice assertion this test would pass with the fix reverted.
 		await expect(
 			screen.findByText( 'Backup complete', undefined, SETTLE )
 		).resolves.toBeInTheDocument();
+		expect(
+			screen.getByText( "We couldn't check your site's backup status." )
+		).toBeInTheDocument();
 	} );
 } );
