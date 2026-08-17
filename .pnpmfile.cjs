@@ -1,7 +1,4 @@
 // Packages we need to copy versions from for `@wordpress/dataviews/wp`.
-// An entry that doesn't apply to every resolved version of `@wordpress/dataviews` is fine
-// (e.g. `react-day-picker` became `@daypicker/react` in newer versions); an entry that applies
-// to none of them gets reported as obsolete in `afterAllResolved`.
 const wpPkgs = [
 	[ '@wordpress/components', 'change-case' ],
 	[ '@wordpress/components', '@emotion/cache' ],
