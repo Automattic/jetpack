@@ -1,12 +1,14 @@
 import { render } from '@testing-library/react';
 import AudioPlayer from '../index';
 
-/**
- * Minimal MediaElementPlayer stand-in. The real one is a global provided by
- * WordPress' wp-mediaelement script and isn't available in the test environment.
- */
+// The component hands its <audio> node to MediaElementPlayer right after setting
+// preload on it. Capture that node from the mock so we can assert on preload
+// without reaching into the DOM directly.
+let audioNode;
+
 class MockMediaElementPlayer {
 	constructor( node ) {
+		audioNode = node;
 		this.domNode = node;
 		this.media = node;
 		this.options = { classPrefix: 'mejs-' };
@@ -18,6 +20,7 @@ class MockMediaElementPlayer {
 
 describe( 'shared AudioPlayer', () => {
 	beforeEach( () => {
+		audioNode = undefined;
 		global.MediaElementPlayer = MockMediaElementPlayer;
 	} );
 
@@ -26,18 +29,14 @@ describe( 'shared AudioPlayer', () => {
 	} );
 
 	test( 'propagates the preload prop to the audio element', () => {
-		const { container } = render(
-			<AudioPlayer trackSource="https://example.com/episode.mp3" preload="none" />
-		);
+		render( <AudioPlayer trackSource="https://example.com/episode.mp3" preload="none" /> );
 
-		expect( container.querySelector( 'audio' ).preload ).toBe( 'none' );
+		expect( audioNode.preload ).toBe( 'none' );
 	} );
 
 	test( 'defaults preload to metadata when the prop is omitted', () => {
-		const { container } = render(
-			<AudioPlayer trackSource="https://example.com/episode.mp3" />
-		);
+		render( <AudioPlayer trackSource="https://example.com/episode.mp3" /> );
 
-		expect( container.querySelector( 'audio' ).preload ).toBe( 'metadata' );
+		expect( audioNode.preload ).toBe( 'metadata' );
 	} );
 } );
