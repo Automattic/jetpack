@@ -272,6 +272,40 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Refund attribution reads the parent order when it can be loaded.
+	 */
+	public function test_order_attribution_for_refund_uses_parent_order() {
+		global $jetpack_sync_test_orders;
+
+		$jetpack_sync_test_orders = array( 202 => $this->get_attribution_stub( 202, 'shop_order', 0, 'parent' ) );
+		$data                     = array();
+
+		try {
+			$data = $this->invoke_instance_helper( 'get_order_attribution_data', $this->get_attribution_stub( 101, 'shop_order_refund', 202, 'refund' ) );
+		} finally {
+			$jetpack_sync_test_orders = array();
+		}
+
+		$this->assertSame( 101, $data['order_id'] );
+		$this->assertSame( 'parent:_wc_order_attribution_utm_source', $data['utm_source'] );
+	}
+
+	/**
+	 * Refund attribution falls back to the refund when the parent order is gone.
+	 */
+	public function test_order_attribution_for_refund_falls_back_when_parent_missing() {
+		global $jetpack_sync_test_orders;
+
+		// No parent registered, so wc_get_order() returns false for the parent ID.
+		$jetpack_sync_test_orders = array();
+
+		$data = $this->invoke_instance_helper( 'get_order_attribution_data', $this->get_attribution_stub( 101, 'shop_order_refund', 202, 'refund' ) );
+
+		$this->assertSame( 101, $data['order_id'] );
+		$this->assertSame( 'refund:_wc_order_attribution_utm_source', $data['utm_source'] );
+	}
+
+	/**
 	 * The size filter always lets the first object through, then stops at the cap.
 	 */
 	public function test_filter_analytics_objects_by_size_always_allows_first_object() {
@@ -366,6 +400,102 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 			 */
 			public function get_meta( $key, $single = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				return $key;
+			}
+		};
+	}
+
+	/**
+	 * Get an order stub whose meta values are tagged with the stub's own label.
+	 *
+	 * Lets attribution tests prove which order object supplied the meta.
+	 *
+	 * @param int    $id        Order ID.
+	 * @param string $type      Order type.
+	 * @param int    $parent_id Parent order ID.
+	 * @param string $label     Label prefixed onto returned meta values.
+	 * @return object
+	 */
+	private function get_attribution_stub( $id, $type, $parent_id, $label ) {
+		return new class( $id, $type, $parent_id, $label ) {
+			/**
+			 * Order ID.
+			 *
+			 * @var int
+			 */
+			private $id;
+
+			/**
+			 * Order type.
+			 *
+			 * @var string
+			 */
+			private $type;
+
+			/**
+			 * Parent order ID.
+			 *
+			 * @var int
+			 */
+			private $parent_id;
+
+			/**
+			 * Meta value label.
+			 *
+			 * @var string
+			 */
+			private $label;
+
+			/**
+			 * Constructor.
+			 *
+			 * @param int    $id        Order ID.
+			 * @param string $type      Order type.
+			 * @param int    $parent_id Parent order ID.
+			 * @param string $label     Label prefixed onto returned meta values.
+			 */
+			public function __construct( $id, $type, $parent_id, $label ) {
+				$this->id        = $id;
+				$this->type      = $type;
+				$this->parent_id = $parent_id;
+				$this->label     = $label;
+			}
+
+			/**
+			 * Get the order ID.
+			 *
+			 * @return int
+			 */
+			public function get_id() {
+				return $this->id;
+			}
+
+			/**
+			 * Get the order type.
+			 *
+			 * @return string
+			 */
+			public function get_type() {
+				return $this->type;
+			}
+
+			/**
+			 * Get the parent order ID.
+			 *
+			 * @return int
+			 */
+			public function get_parent_id() {
+				return $this->parent_id;
+			}
+
+			/**
+			 * Return the requested meta key tagged with this stub's label.
+			 *
+			 * @param string $key    Meta key.
+			 * @param bool   $single Whether to return a single value.
+			 * @return string
+			 */
+			public function get_meta( $key, $single = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return $this->label . ':' . $key;
 			}
 		};
 	}

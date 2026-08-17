@@ -594,10 +594,14 @@ class WooCommerce_Analytics extends Module {
 			'source_type',
 		);
 
+		// Refunds inherit attribution from their parent order. Fall back to the refund
+		// itself when the parent can no longer be loaded.
+		$order_object_to_use = $order;
 		if ( 'shop_order_refund' === $type && ! empty( $order->get_parent_id() ) ) {
-			$order_object_to_use = wc_get_order( $order->get_parent_id() );
-		} else {
-			$order_object_to_use = $order;
+			$parent_order = wc_get_order( $order->get_parent_id() );
+			if ( $parent_order ) {
+				$order_object_to_use = $parent_order;
+			}
 		}
 
 		$attribution_data = array(
@@ -693,8 +697,8 @@ class WooCommerce_Analytics extends Module {
 				$order_stats_data['parent_id'] = $parent_order->get_id();
 
 				$refund_type = $order->get_meta( '_refund_type' );
-				// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Absent from the older WooCommerce stubs used by the "old Woo" Phan job.
-				if ( 'full' === $refund_type && OrderUtil::uses_new_full_refund_data() ) {
+				// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Guarded by is_callable(); absent from the older WooCommerce stubs used by the "old Woo" Phan job.
+				if ( 'full' === $refund_type && is_callable( array( OrderUtil::class, 'uses_new_full_refund_data' ) ) && OrderUtil::uses_new_full_refund_data() ) {
 					$order_stats_data['tax_total']      = -1 * $parent_order->get_total_tax();
 					$order_stats_data['num_items_sold'] = -1 * self::get_num_items_sold( $parent_order );
 					$order_stats_data['net_total']      = -1 * self::get_net_total( $parent_order );
