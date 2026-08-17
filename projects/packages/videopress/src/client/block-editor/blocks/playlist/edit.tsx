@@ -347,9 +347,10 @@ export default function PlaylistBlockEdit( {
 				isBusy={ isAddingVideo }
 				disabled={ isAddingVideo }
 			>
-				{ isAddingVideo
-					? __( 'Adding…', 'jetpack-videopress-pkg' )
-					: __( 'Add', 'jetpack-videopress-pkg' ) }
+				{ /* Two separate expressions: a shared ternary would let the minifier
+				     merge the __() calls, breaking translation extraction. */ }
+				{ isAddingVideo && __( 'Adding…', 'jetpack-videopress-pkg' ) }
+				{ ! isAddingVideo && __( 'Add', 'jetpack-videopress-pkg' ) }
 			</Button>
 		</div>
 	);
