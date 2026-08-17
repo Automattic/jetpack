@@ -127,9 +127,6 @@
 // interactive row's outline (and its inset offset) stay equal. A Sass var,
 // not a custom property: a compile-time constant scoped to this module, so it
 // needs no runtime cascade and never lands on the DOM as an unprefixed var.
-// Reads the design-system token directly, not an --a8c-charts-* role: the
-// focus ring is platform chrome rather than a chart role, so it follows the
-// host's WPDS theme and the user's wp-admin colour scheme.
 $focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
 
 .row {

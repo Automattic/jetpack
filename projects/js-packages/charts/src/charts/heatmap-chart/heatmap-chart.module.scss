@@ -1,9 +1,6 @@
 // Focus-ring width shared across the grid and cell-selected focus outlines. A
 // Sass var, not a custom property: a compile-time constant scoped to this
 // module, so it needs no runtime cascade and never lands on the DOM.
-// Reads the design-system token directly, not an --a8c-charts-* role: the
-// focus ring is platform chrome rather than a chart role, so it follows the
-// host's WPDS theme and the user's wp-admin colour scheme.
 $focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
 
 .heatmap-chart {
@@ -30,9 +27,9 @@ $focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-fo
 .heatmap-chart__grid {
 	display: grid;
 	// --a8c-charts-dimension-heatmap-cell-gap is component-emitted from JS per
-	// render, not a catalog entry — dimension/gap tokens are out of CHARTS-203's
-	// scope. Do not collapse this to a bare var(); the inner WPDS fallback is
-	// the only value this property has when the JS var is unset.
+	// render, not a catalog entry. Do not collapse this to a bare var(); the
+	// inner WPDS fallback is the only value this property has when the JS var
+	// is unset.
 	gap: var(--a8c-charts-dimension-heatmap-cell-gap, var(--wpds-dimension-gap-xs, 4px));
 	flex: 1 1 0;
 	width: 100%;

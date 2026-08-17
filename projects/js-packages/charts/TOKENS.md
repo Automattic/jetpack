@@ -20,7 +20,7 @@ Each catalog entry maps to a WPDS token with the WPDS spec value as its fallback
 }
 ```
 
-Charts reference the catalog bare — `stroke: var(--a8c-charts-color-grid)`. For anything that *is* a catalog role, `chart-scope.scss` is the only place its `--wpds-*` mapping is named, so design-system churn lands in one file. One kind of `--wpds-*` reference lives outside it, deliberately: **values that are not chart roles** — incidental typography, padding, gap, interaction motion and the focus ring read their design-system token directly at the call site, as interface chrome that should track the host's theme rather than charts-level theming.
+Charts reference the catalog bare — `stroke: var(--a8c-charts-color-grid)`. For anything that *is* a catalog role, `chart-scope.scss` is the only place its `--wpds-*` mapping is named, so design-system churn lands in one file. One kind of `--wpds-*` reference lives outside it, deliberately: **values that are not chart roles** — incidental typography, padding, gap and interaction motion read their design-system token directly at the call site, as interface chrome that should track the host's theme rather than charts-level theming.
 
 ### Precedence
 
@@ -142,8 +142,7 @@ Every role in the catalog is a supported override point, on the precedence rules
 | `--charts-trend-down-color` | `--a8c-charts-color-trend-down` |
 | `--charts-trend-neutral-color` | `--a8c-charts-color-trend-neutral` |
 | `--a8c--charts--leaderboard--bar--border-radius` | `--a8c-charts-border-radius-leaderboard-bar` |
-| `--a8c-charts-color-focus` | `--wpds-color-stroke-focus` |
 
-`--a8c-charts-color-focus` is the odd one out: focus and selection rings read the design-system token directly, as page chrome that should match focus indication everywhere else rather than being themed per chart.
+`--a8c-charts-color-focus` is also gone: focus and selection rings are no longer themeable per chart.
 
 Removing these also removes the precedence quirk they carried. Each was read at its component's own call site as the *outer* layer around the role — `var(--deprecated-name, var(--a8c-charts-*))` — so the old name beat the new one wherever both were set. No `--a8c-charts-*` role is now read anywhere but bare.
