@@ -26,6 +26,23 @@ const woocommerceEmailEditorPath = fs.existsSync(
 	? path.join( woocommerceCheckout, 'packages/js/email-editor' )
 	: null;
 
+if ( ! woocommerceEmailEditorPath ) {
+	// Say so loudly. The extension is dropped from the bundle below, but
+	// extensions/index.json is copied to the build verbatim, so it still lists
+	// newsletter-styles — the PHP then registers everything and reports the
+	// extension available while no JS exists to render it. That combination
+	// looks healthy from the server side and fails silently in the browser.
+	// eslint-disable-next-line no-console
+	console.warn(
+		'\n[newsletter-styles] No WooCommerce checkout found at:\n' +
+			`  ${ woocommerceCheckout }\n` +
+			'Skipping the NL-840 newsletter-styles extension. Builds produced without it\n' +
+			'cannot render the email styles panel, even though the PHP side will behave as\n' +
+			'though it is present. Set WOOCOMMERCE_CHECKOUT to a checkout whose\n' +
+			'packages/js/email-editor has been built if you need this extension.\n'
+	);
+}
+
 const editorSetup = path.join( __dirname, '../extensions', 'editor' );
 const viewSetup = path.join( __dirname, '../extensions', 'view' );
 const blockEditorDirectories = [ 'plugins', 'blocks' ];
