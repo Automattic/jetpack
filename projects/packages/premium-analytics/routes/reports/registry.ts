@@ -104,7 +104,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	},
 	comments: {
 		id: 'comments',
-		getTitle: () => __( 'Comments', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'All comments', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__(
 				'Learn about the comments your site receives by authors, posts, and pages.',
@@ -132,7 +132,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	},
 	locations: {
 		id: 'locations',
-		getTitle: () => __( 'Locations', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'All locations', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__( 'See where your visitors are viewing from.', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveLocationsSection,
@@ -140,7 +140,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	},
 	posts: {
 		id: 'posts',
-		getTitle: () => __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'All pages', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__( 'All your posts and archive pages.', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveTabId,
@@ -166,7 +166,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	},
 	utm: {
 		id: 'utm',
-		getTitle: () => __( 'UTM', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'All UTM values', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveUtmSection,
 		load: () => import( './utm/page' ),
 	},

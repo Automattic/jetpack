@@ -18,3 +18,9 @@ const commentsReportTabs = defineReportTabs< CommentsReportTabId >(
 
 export const getCommentsReportTabs = commentsReportTabs.getTabs;
 export const resolveTabId = commentsReportTabs.resolve;
+
+/**
+ * Heading for the active tab's section. No tab declares one yet, so this reads
+ * back the tab's own label until the copy lands.
+ */
+export const getTabTitle = commentsReportTabs.getTabTitle;

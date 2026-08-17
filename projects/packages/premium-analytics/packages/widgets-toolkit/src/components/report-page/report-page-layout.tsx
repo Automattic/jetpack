@@ -13,10 +13,13 @@ import type { ReactNode } from 'react';
 
 export interface ReportPageLayoutProps {
 	/**
-	 * The report's own heading, the same string its trailing breadcrumb
-	 * carries. Repeating it is the point: the breadcrumb is page chrome, while
-	 * this names the surface the date controls beside it act on — the pairing
-	 * the dashboard already has.
+	 * Heading for the section on screen, which on a tabbed report is the open
+	 * tab's — `Posts & pages report` under the `Posts & Pages` tab, inside the
+	 * `All pages` report. Three names, not one: the crumb names the report, the
+	 * tab names itself, and this names what the records below are.
+	 *
+	 * Take it from the tab set's `getTabTitle()`, which falls back to the tab's
+	 * own label. A report with no tabs passes its own name.
 	 */
 	title: string;
 	/**

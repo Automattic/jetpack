@@ -6,15 +6,15 @@ pieces with the module's data hook and DataViews field config — composition,
 not a bespoke page per module.
 
 ```tsx
-const title = __( 'Posts & Pages' );
+const label = __( 'All pages' );
 
 <ReportPageShell
 	visual={ <StatsPageIcon /> }
-	breadcrumbs={ <StatsBreadcrumbs items={ [ { label: title } ] } /> }
+	breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
 	subTitle={ __( 'All your posts and archive pages.' ) }
 	actions={ downloadButton }
 >
-	<ReportPageLayout title={ title } dateFilters={ dateFilters }>
+	<ReportPageLayout title={ getTabTitle( activeTab ) } dateFilters={ dateFilters }>
 		<ReportPerformanceChart
 			primary={ visits.primary.data }
 			comparison={ visits.hasComparison ? visits.comparison.data : undefined }
@@ -65,9 +65,21 @@ comes back pointing at the right period rather than at stale dates. Making this
 server-driven per report, the way sections already declare
 `date_filter_options.with_date_comparison`, is WOOA7S-1952.
 
-Give `title` the same string as the trailing breadcrumb. Repeating it is the
-point: the breadcrumb is page chrome, while the header names the surface the
-date controls act on. Bind the two to one local so they cannot drift.
+A report page carries three names, and they are not interchangeable:
+
+| name | where it shows | example |
+| --- | --- | --- |
+| report label | the trailing breadcrumb | `All pages` |
+| tab label | the tab strip | `Posts & Pages`, `Archives` |
+| section title | the header's `h2` | `Posts & pages report` |
+
+`title` is the third one. On a tabbed report it belongs to the open tab, so take
+it from the tab set's `getTabTitle()` (`defineReportTabs` in
+`@jetpack-premium-analytics/routing`), which falls back to that tab's own label
+where no title is declared. A report with no tabs passes its own name.
+
+The breadcrumb takes the report label instead, and the two differ on purpose:
+one names the report, the other names the records currently on screen.
 
 A report with no date window (Annual insights, Emails, Tags & categories, …)
 passes `title` alone. Its header is the title, with no subtitle and no controls.

@@ -52,6 +52,12 @@ export const getUtmTabLabel = reportUtmTabs.getTabLabel;
 export const resolveSection = reportUtmTabs.resolve;
 
 /**
+ * Heading for the active tab's section. No tab declares one yet, so this reads
+ * back the tab's own label until the copy lands.
+ */
+export const getTabTitle = reportUtmTabs.getTabTitle;
+
+/**
  * Map a report tab to the UTM endpoint's parameter dimension.
  *
  * @param tab - The active report tab.

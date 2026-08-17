@@ -23,6 +23,7 @@ import { route } from '../package.json';
 import {
 	getCommentsFields,
 	getCommentsReportTabs,
+	getTabTitle,
 	resolveTabId,
 	useCommentsReportRecords,
 	type CommentReportRow,
@@ -82,13 +83,14 @@ function CommentsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const title = __( 'Comments', 'jetpack-premium-analytics-pkg' );
+	// The crumb names the report; the header names the section open inside it.
+	const label = __( 'All comments', 'jetpack-premium-analytics-pkg' );
 
 	return (
 		<ReportPageShell
 			tabbed
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: title } ] } /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
 			subTitle={ __(
 				'Learn about the comments your site receives by authors, posts, and pages.',
 				'jetpack-premium-analytics-pkg'
@@ -100,7 +102,7 @@ function CommentsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ title }
+				title={ getTabTitle( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 			>
 				{ /*

@@ -45,4 +45,37 @@ describe( 'defineReportTabs', () => {
 		expect( tabs.resolve( 'missing' ) ).toBe( 'one' );
 		expect( tabs.resolve( undefined ) ).toBe( 'one' );
 	} );
+
+	describe( 'the section heading', () => {
+		it( 'reads the declared title, distinct from the tab label', () => {
+			const tabs = defineReportTabs(
+				[ { id: 'one', getLabel: () => 'Posts & Pages', getTitle: () => 'Posts & pages report' } ],
+				'one'
+			);
+
+			expect( tabs.getTabTitle( 'one' ) ).toBe( 'Posts & pages report' );
+			expect( tabs.getTabLabel( 'one' ) ).toBe( 'Posts & Pages' );
+		} );
+
+		// A tab whose copy has not landed yet still heads its section with
+		// something, so nothing renders an empty `h2` waiting on a string.
+		it( 'falls back to the tab label where no title is declared', () => {
+			expect( build().getTabTitle( 'two' ) ).toBe( 'Two' );
+		} );
+
+		it( 'falls back to the tab id when neither exists', () => {
+			expect( build().getTabTitle( 'missing' as 'one' ) ).toBe( 'missing' );
+		} );
+
+		it( 'resolves the title lazily on each call', () => {
+			let calls = 0;
+			const tabs = defineReportTabs(
+				[ { id: 'one', getLabel: () => 'One', getTitle: () => `Title ${ ++calls }` } ] as const,
+				'one'
+			);
+
+			expect( tabs.getTabTitle( 'one' ) ).toBe( 'Title 1' );
+			expect( tabs.getTabTitle( 'one' ) ).toBe( 'Title 2' );
+		} );
+	} );
 } );

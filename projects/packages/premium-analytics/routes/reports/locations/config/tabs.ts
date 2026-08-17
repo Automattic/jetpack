@@ -28,6 +28,12 @@ export const getReportLocationsTabs = reportLocationsTabs.getTabs;
 export const resolveSection = reportLocationsTabs.resolve;
 
 /**
+ * Heading for the active tab's section. No tab declares one yet, so this reads
+ * back the tab's own label until the copy lands.
+ */
+export const getTabTitle = reportLocationsTabs.getTabTitle;
+
+/**
  * Whether a tab can be scoped to a single country.
  *
  * The Countries tab is already the full country list, so it has no filter.

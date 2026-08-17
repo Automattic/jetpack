@@ -10,6 +10,16 @@
 export type ReportTabDefinition< TabId extends string > = {
 	id: TabId;
 	getLabel: () => string;
+
+	/**
+	 * Heading for the section this tab opens, when it reads differently from
+	 * the tab itself: `Posts & Pages` names the tab, `Posts & pages report`
+	 * heads the records under it. Omit it and the tab's own label is used.
+	 *
+	 * Same split the dashboard's sections have between `label` and `title`,
+	 * one level further down.
+	 */
+	getTitle?: () => string;
 };
 
 export type ReportTab< TabId extends string > = {
@@ -36,6 +46,12 @@ export type ReportTabs< TabId extends string > = {
 	getTabs: () => ReportTab< TabId >[];
 
 	getTabLabel: ( id: TabId ) => string;
+
+	/**
+	 * The heading for a tab's section, falling back to the tab's label where
+	 * the definition declares none.
+	 */
+	getTabTitle: ( id: TabId ) => string;
 };
 
 /**
@@ -61,5 +77,11 @@ export function defineReportTabs< TabId extends string >(
 	const getTabLabel = ( id: TabId ): string =>
 		definitions.find( def => def.id === id )?.getLabel() ?? id;
 
-	return { ids, resolve, getTabs, getTabLabel };
+	const getTabTitle = ( id: TabId ): string => {
+		const definition = definitions.find( def => def.id === id );
+
+		return definition?.getTitle?.() ?? definition?.getLabel() ?? id;
+	};
+
+	return { ids, resolve, getTabs, getTabLabel, getTabTitle };
 }

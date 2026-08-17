@@ -24,6 +24,7 @@ import { useSearch } from '@wordpress/route';
 import { route } from '../package.json';
 import {
 	getReportUtmTabs,
+	getTabTitle,
 	getUtmFields,
 	getUtmTabLabel,
 	resolveSection,
@@ -110,13 +111,14 @@ function UtmReport(): JSX.Element {
 		status: records,
 	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const title = __( 'UTM', 'jetpack-premium-analytics-pkg' );
+	// The crumb names the report; the header names the section open inside it.
+	const label = __( 'All UTM values', 'jetpack-premium-analytics-pkg' );
 
 	return (
 		<ReportPageShell
 			tabbed
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: title } ] } /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
@@ -124,7 +126,7 @@ function UtmReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ title }
+				title={ getTabTitle( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>

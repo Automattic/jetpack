@@ -25,6 +25,7 @@ import { route } from '../package.json';
 import {
 	getLocationFields,
 	getReportLocationsTabs,
+	getTabTitle,
 	resolveSection,
 	supportsCountryFilter,
 	useLocationsReportRecords,
@@ -147,13 +148,14 @@ export default function LocationsReportPage(): JSX.Element {
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
-	const title = __( 'Locations', 'jetpack-premium-analytics-pkg' );
+	// The crumb names the report; the header names the section open inside it.
+	const label = __( 'All locations', 'jetpack-premium-analytics-pkg' );
 
 	return (
 		<ReportPageShell
 			tabbed
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: title } ] } /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
@@ -161,7 +163,7 @@ export default function LocationsReportPage(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ title }
+				title={ getTabTitle( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ handleTabChange } /> }
 				dateFilters={ dateFilters }
 			>

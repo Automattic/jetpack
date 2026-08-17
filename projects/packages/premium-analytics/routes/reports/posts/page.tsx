@@ -31,6 +31,7 @@ import {
 	getArchivesFields,
 	getPostsFields,
 	getReportPostsTabs,
+	getTabTitle,
 	resolveTabId,
 	usePostsReportRecords,
 	type ArchiveRow,
@@ -195,13 +196,14 @@ function PostsReport(): JSX.Element {
 			/>
 		);
 
-	const title = __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' );
+	// The crumb names the report; the header names the section open inside it.
+	const label = __( 'All pages', 'jetpack-premium-analytics-pkg' );
 
 	return (
 		<ReportPageShell
 			tabbed
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: title } ] } /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
 			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics-pkg' ) }
 			actions={
 				canExport ? (
@@ -210,7 +212,7 @@ function PostsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ title }
+				title={ getTabTitle( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>
