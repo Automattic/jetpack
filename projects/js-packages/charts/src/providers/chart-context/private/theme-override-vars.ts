@@ -27,11 +27,20 @@ const ROLE_FOR_FIELD: Array< [ string, ( theme: Partial< ChartTheme > ) => strin
  * cross-role pointer as a self-reference and silently drop the override, so the role
  * must be followed by something that cannot continue an identifier — `-` included.
  *
+ * `resolveCssVariable` also accepts a bare custom-property name with no `var()`
+ * wrapper (`--a8c-charts-color-grid`), so that is legal `theme` input too. Unlike
+ * the `var()` form, `--a8c-charts-color-grid: --a8c-charts-color-grid;` is not
+ * invalid at computed-value time — custom properties accept arbitrary token
+ * streams — so it survives and every reader gets the literal string instead of a
+ * color, dropping silently at the use site rather than falling back to the
+ * catalog default.
+ *
  * @param value - The consumer's value for the field.
  * @param role  - The custom property this value would be emitted as.
  * @return True when the value reads `role`, so it must not be emitted as `role`.
  */
 const readsOwnRole = ( value: string, role: string ): boolean =>
+	value.trim() === role ||
 	new RegExp( `var\\(\\s*${ role.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' ) }(?![\\w-])` ).test(
 		value
 	);

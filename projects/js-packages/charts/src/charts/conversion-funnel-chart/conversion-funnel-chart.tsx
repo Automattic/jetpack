@@ -77,6 +77,19 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		scroll: true,
 	} );
 
+	// Stable identity so React doesn't detach/reattach (and re-render the scope
+	// context) on every commit. Keep all three assignments, in the same order,
+	// and keep it firing on unmount (node === null).
+	const setChartRef = useCallback(
+		( node: HTMLDivElement | null ) => {
+			// Set containerRef for @visx coordinate system
+			portalContainerRef( node );
+			chartRef.current = node;
+			setScopeNode( node );
+		},
+		[ portalContainerRef ]
+	);
+
 	// Wrapper to clear selectedBarRef after clearing selection
 	const clearSelectionAndRef = useCallback( () => {
 		clearSelection();
@@ -330,12 +343,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 				direction="column"
 				gap="xl"
 				data-testid="conversion-funnel-chart"
-				ref={ node => {
-					// Set containerRef for @visx coordinate system
-					portalContainerRef( node );
-					chartRef.current = node;
-					setScopeNode( node );
-				} }
+				ref={ setChartRef }
 				className={ clsx(
 					styles[ 'conversion-funnel-chart' ],
 					loading && styles[ 'conversion-funnel-chart--loading' ],

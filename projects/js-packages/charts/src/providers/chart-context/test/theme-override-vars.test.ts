@@ -66,4 +66,14 @@ describe( 'themeOverrideVars', () => {
 			} )
 		).toEqual( { '--a8c-charts-color-label': 'var(--a8c-charts-color-label-secondary, #707070)' } );
 	} );
+
+	// `resolveCssVariable` also accepts a bare custom-property name with no `var()`
+	// wrapper, so `theme={ { gridStyles: { stroke: '--a8c-charts-color-grid' } } }` is
+	// legal input. Unlike the `var()` form this is not invalid at computed-value time,
+	// so it must be caught explicitly or it survives as a literal string value.
+	it( 'ignores a self-referential pointer written as a bare custom-property name', () => {
+		expect( themeOverrideVars( { gridStyles: { stroke: '--a8c-charts-color-grid' } } ) ).toEqual(
+			{}
+		);
+	} );
 } );

@@ -6,6 +6,7 @@ import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'r
 import {
 	GlobalChartsProvider,
 	useChartId,
+	useChartScopeElement,
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
@@ -17,6 +18,7 @@ import {
 	normalizeColorToHex,
 	prefersLightText,
 } from '../../utils/color-utils';
+import { resolveCssVariable } from '../../utils/resolve-css-var';
 import { Center } from '../private/center';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
@@ -59,7 +61,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	children,
 } ) => {
 	const chartId = useChartId( providedChartId );
-	const { getElementStyles, resolveThemeColor, theme } = useGlobalChartsContext();
+	const { getElementStyles, theme } = useGlobalChartsContext();
+	const scopeElement = useChartScopeElement();
 	const { heatmapChart: heatmapChartSettings } = theme;
 	const { nonLegendChildren } = useChartChildren( children, 'HeatmapChart' );
 
@@ -80,9 +83,14 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		overrideColor: primaryColor || heatmapChartSettings.primaryColor,
 	} );
 
-	// Resolve the background in the provider's theme scope so the blended-fill text
-	// color tracks a themed (e.g. dark) background.
-	const chartBackgroundHex = resolveThemeColor( theme.backgroundColor );
+	// Resolve the background against this chart's own scope element (not the provider's),
+	// matching where `--a8c-charts-color-heatmap-background` is substituted for the cell
+	// blend below — a chart-level override otherwise disagrees with a provider-level read.
+	const chartBackgroundHex = normalizeColorToHex(
+		theme.backgroundColor,
+		scopeElement,
+		resolveCssVariable
+	);
 
 	// Choose text color from the blended fill, not the raw value.
 	// If either color cannot resolve to hex, keep dark text.
