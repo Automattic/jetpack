@@ -77,16 +77,19 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		scroll: true,
 	} );
 
+	// `useTooltipInPortal` returns a fresh `containerRef` closure on every render, so depending on it directly would give this callback a new identity every render — React then detaches and reattaches the ref on every commit, flushing the scope context to null and back. Reading it through a ref keeps the callback's identity genuinely stable.
+	const portalContainerRefRef = useRef( portalContainerRef );
+	useEffect( () => {
+		portalContainerRefRef.current = portalContainerRef;
+	}, [ portalContainerRef ] );
+
 	// Stable identity so React doesn't detach/reattach (and re-render the scope context) on every commit. Keep all three assignments, in the same order, and keep it firing on unmount (node === null).
-	const setChartRef = useCallback(
-		( node: HTMLDivElement | null ) => {
-			// Set containerRef for @visx coordinate system
-			portalContainerRef( node );
-			chartRef.current = node;
-			setScopeNode( node );
-		},
-		[ portalContainerRef ]
-	);
+	const setChartRef = useCallback( ( node: HTMLDivElement | null ) => {
+		// Set containerRef for @visx coordinate system
+		portalContainerRefRef.current( node );
+		chartRef.current = node;
+		setScopeNode( node );
+	}, [] );
 
 	// Wrapper to clear selectedBarRef after clearing selection
 	const clearSelectionAndRef = useCallback( () => {
