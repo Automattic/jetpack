@@ -90,21 +90,19 @@ function CommentFollowersReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
+	const title = __( 'Comments Subscribers', 'jetpack-premium-analytics-pkg' );
+
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={
-				<StatsBreadcrumbs
-					items={ [ { label: __( 'Comments Subscribers', 'jetpack-premium-analytics-pkg' ) } ] }
-				/>
-			}
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: title } ] } /> }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>
-			<ReportPageLayout>
+			<ReportPageLayout title={ title }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load subscribers', 'jetpack-premium-analytics-pkg' ) }

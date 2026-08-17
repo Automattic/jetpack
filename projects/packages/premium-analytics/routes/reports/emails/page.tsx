@@ -5,20 +5,19 @@ import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportPageLayout,
+	ReportPageShell,
 	ReportRecordsTable,
 	ReportCsvAction,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { getEmailsFields, useEmailsReportRecords } from './config';
-import styles from './page.module.css';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
 
 /**
@@ -101,14 +100,12 @@ function EmailsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
+	const title = __( 'Emails', 'jetpack-premium-analytics-pkg' );
+
 	return (
-		<Page
+		<ReportPageShell
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={
-				<StatsBreadcrumbs
-					items={ [ { label: __( 'Emails', 'jetpack-premium-analytics-pkg' ) } ] }
-				/>
-			}
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: title } ] } /> }
 			subTitle={ __(
 				'Open and click performance of your latest emails.',
 				'jetpack-premium-analytics-pkg'
@@ -118,34 +115,31 @@ function EmailsReport(): JSX.Element {
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
-			className={ styles.page }
 		>
-			<div className={ styles.content }>
-				<ReportPageLayout>
-					{ /*
-					 * The error state replaces the table rather than sitting beside it:
-					 * `ReportRecordsTable`'s `empty` renders on row count, not fetch
-					 * status, so a failed refetch over cached rows would otherwise leave
-					 * stale data on screen with no notice and no way to retry.
-					 */ }
-					{ records.isError ? (
-						<ReportErrorState
-							title={ __( 'Unable to load emails', 'jetpack-premium-analytics-pkg' ) }
-							onRetry={ retry }
-						/>
-					) : (
-						<ReportRecordsTable< StatsEmailSummaryItem >
-							data={ records.rows }
-							fields={ fields }
-							getItemId={ getEmailRowId }
-							isLoading={ records.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search emails', 'jetpack-premium-analytics-pkg' ) }
-						/>
-					) }
-				</ReportPageLayout>
-			</div>
-		</Page>
+			<ReportPageLayout title={ title }>
+				{ /*
+				 * The error state replaces the table rather than sitting beside it:
+				 * `ReportRecordsTable`'s `empty` renders on row count, not fetch
+				 * status, so a failed refetch over cached rows would otherwise leave
+				 * stale data on screen with no notice and no way to retry.
+				 */ }
+				{ records.isError ? (
+					<ReportErrorState
+						title={ __( 'Unable to load emails', 'jetpack-premium-analytics-pkg' ) }
+						onRetry={ retry }
+					/>
+				) : (
+					<ReportRecordsTable< StatsEmailSummaryItem >
+						data={ records.rows }
+						fields={ fields }
+						getItemId={ getEmailRowId }
+						isLoading={ records.isLoading }
+						initialView={ RECORDS_VIEW }
+						searchLabel={ __( 'Search emails', 'jetpack-premium-analytics-pkg' ) }
+					/>
+				) }
+			</ReportPageLayout>
+		</ReportPageShell>
 	);
 }
 

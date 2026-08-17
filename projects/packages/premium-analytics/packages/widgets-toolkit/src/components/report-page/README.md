@@ -6,13 +6,15 @@ pieces with the module's data hook and DataViews field config — composition,
 not a bespoke page per module.
 
 ```tsx
+const title = __( 'Posts & Pages' );
+
 <ReportPageShell
 	visual={ <StatsPageIcon /> }
-	breadcrumbs={ <StatsBreadcrumbs items={ [ { label: __( 'Pages' ) } ] } /> }
+	breadcrumbs={ <StatsBreadcrumbs items={ [ { label: title } ] } /> }
 	subTitle={ __( 'All your posts and archive pages.' ) }
 	actions={ downloadButton }
 >
-	<ReportPageLayout filters={ <DateFiltersPanel /* … */ /> }>
+	<ReportPageLayout title={ title } dateFilters={ dateFilters }>
 		<ReportPerformanceChart
 			primary={ visits.primary.data }
 			comparison={ visits.hasComparison ? visits.comparison.data : undefined }
@@ -34,8 +36,33 @@ not a bespoke page per module.
 - **`ReportPageShell`** — the outer `Page` shell: the shared Jetpack visual,
   Stats breadcrumbs, subtitle, and page-level actions.
 - **`ReportPageLayout`** — the report content scaffold: optional internal tabs,
-  a filters row, and stacked sections.
+  the section header, and stacked sections.
   `ReportPageSection` is the bordered card each section renders in.
+
+## The section header
+
+`ReportPageLayout` renders `SectionHeader` from `@jetpack-premium-analytics/ui`
+— the same component the dashboard's sections use — so a report and the section
+it was reached from describe their date configuration identically: the report's
+title on the left with the applied window spelled out under it, the date picker
+on the right.
+
+Pass the report's title as `title` and the `useReportDateFilters` controller as
+`dateFilters`; the layout composes `DateFiltersPanel` and derives the subtitle
+with `getSectionSubtitle` itself. Every report mounts the same instance of the
+picker — comparison available, no interval control, because a records table is
+not bucketed by one — and that is one decision here rather than one per report.
+
+Give `title` the same string as the trailing breadcrumb. Repeating it is the
+point: the breadcrumb is page chrome, while the header names the surface the
+date controls act on. Bind the two to one local so they cannot drift.
+
+A report with no date window (Annual insights, Emails, Tags & categories, …)
+passes `title` alone. Its header is the title, with no subtitle and no controls.
+
+Not pinned, unlike the dashboard's: on a report page the header scrolls away
+with the content. The pin and its condense-on-scroll live in the surface's own
+CSS, not in `SectionHeader` (see `routes/dashboard/stage.module.scss`).
 - **`ReportPerformanceChart`** — the multi-metric visits chart
   (Views/Visitors/Comments/Likes via `useStatsVisits` `stat_fields`), with a
   metric show/hide menu, the time-bucket selector (owned by the page — it
@@ -60,7 +87,7 @@ Pass `StatsBreadcrumbs` from `@jetpack-premium-analytics/ui` to the shell's
 `breadcrumbs` slot. It owns the leading `Stats` crumb and links it back to the
 dashboard through `useDashboardLink()`, carrying the shared date range and
 comparison so Back returns to the same view. The trailing item carries no `to`
-and renders as the page's `h1`, so the report page has no separate title prop.
+and renders as the page's `h1`, so the shell takes no separate title prop.
 Pair it with `StatsPageIcon` in the shell's `visual` slot so every Stats page
 uses the same header treatment.
 

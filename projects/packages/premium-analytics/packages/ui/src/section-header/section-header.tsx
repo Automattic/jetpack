@@ -24,7 +24,11 @@ type SectionHeaderProps = {
 	condenseOnScroll?: boolean;
 
 	/**
-	 * Date controls anchored to the end of the header row.
+	 * Date controls anchored to the end of the header row. Left out, the row is
+	 * the title alone: the cell is not rendered at all, so a surface with no
+	 * date window (the reports that read the whole history) does not carry an
+	 * empty one — which the stacked layout would otherwise show as a band of
+	 * space under the subtitle.
 	 */
 	children?: ReactNode;
 };
@@ -59,9 +63,11 @@ export function SectionHeader( {
 					{ title }
 				</Text>
 
-				<Stack direction="row" align="center" className={ styles.controls }>
-					{ children }
-				</Stack>
+				{ children ? (
+					<Stack direction="row" align="center" className={ styles.controls }>
+						{ children }
+					</Stack>
+				) : null }
 
 				{ subtitle ? (
 					<div className={ styles.subtitleRow }>

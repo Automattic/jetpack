@@ -6,6 +6,7 @@ import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportPageLayout,
+	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
 	ReportCsvAction,
@@ -13,7 +14,6 @@ import {
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -27,7 +27,6 @@ import {
 	useCommentsReportRecords,
 	type CommentReportRow,
 } from './config';
-import styles from './page.module.css';
 
 const ROUTE_FROM = route.path;
 
@@ -83,14 +82,13 @@ function CommentsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
+	const title = __( 'Comments', 'jetpack-premium-analytics-pkg' );
+
 	return (
-		<Page
+		<ReportPageShell
+			tabbed
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={
-				<StatsBreadcrumbs
-					items={ [ { label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) } ] }
-				/>
-			}
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: title } ] } /> }
 			subTitle={ __(
 				'Learn about the comments your site receives by authors, posts, and pages.',
 				'jetpack-premium-analytics-pkg'
@@ -100,36 +98,34 @@ function CommentsReport(): JSX.Element {
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
-			className={ styles.page }
 		>
-			<div className={ styles.content }>
-				<ReportPageLayout
-					tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-				>
-					{ /*
-					 * The error state replaces the table rather than sitting beside it:
-					 * `ReportRecordsTable`'s empty state is row-count based, so a failed
-					 * request would otherwise look like a legitimate empty report.
-					 */ }
-					{ records.isError ? (
-						<ReportErrorState
-							title={ __( 'Unable to load comments', 'jetpack-premium-analytics-pkg' ) }
-							onRetry={ retry }
-						/>
-					) : (
-						<ReportRecordsTable< CommentReportRow >
-							key={ activeTab }
-							data={ records.rows }
-							fields={ fields }
-							getItemId={ getCommentRowId }
-							isLoading={ records.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search comments', 'jetpack-premium-analytics-pkg' ) }
-						/>
-					) }
-				</ReportPageLayout>
-			</div>
-		</Page>
+			<ReportPageLayout
+				title={ title }
+				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
+			>
+				{ /*
+				 * The error state replaces the table rather than sitting beside it:
+				 * `ReportRecordsTable`'s empty state is row-count based, so a failed
+				 * request would otherwise look like a legitimate empty report.
+				 */ }
+				{ records.isError ? (
+					<ReportErrorState
+						title={ __( 'Unable to load comments', 'jetpack-premium-analytics-pkg' ) }
+						onRetry={ retry }
+					/>
+				) : (
+					<ReportRecordsTable< CommentReportRow >
+						key={ activeTab }
+						data={ records.rows }
+						fields={ fields }
+						getItemId={ getCommentRowId }
+						isLoading={ records.isLoading }
+						initialView={ RECORDS_VIEW }
+						searchLabel={ __( 'Search comments', 'jetpack-premium-analytics-pkg' ) }
+					/>
+				) }
+			</ReportPageLayout>
+		</ReportPageShell>
 	);
 }
 
