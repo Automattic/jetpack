@@ -210,9 +210,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	// Google charts doesn't accept CSS variables, so we need to convert them to hex colors
 	const fullColorHex = getElementStyles( { index: 0 } ).color;
 	const lightColorHex = lightenHexColor( fullColorHex, 0.8 );
-	// Use normalizeColorToHex to ensure HSL/RGB values from CSS variables are converted to hex.
-	// Google Charts takes a resolved-hex snapshot at render, so this does not live-update
-	// on a theme change without a re-render — an accepted asymmetry vs CSS-painted elements.
+	// Use normalizeColorToHex to ensure HSL/RGB values from CSS variables are converted to hex. Google Charts takes a resolved-hex snapshot at render, so this does not live-update on a theme change without a re-render — an accepted asymmetry vs CSS-painted elements.
 	const backgroundColorHex =
 		normalizeColorToHex( backgroundColor, scopeElement, resolveCssVariable ) ||
 		DEFAULT_BACKGROUND_COLOR;

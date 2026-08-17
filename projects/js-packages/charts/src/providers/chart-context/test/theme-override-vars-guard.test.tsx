@@ -1,13 +1,7 @@
 import { render } from '@testing-library/react';
 import { GlobalChartsProvider } from '../global-charts-provider';
 
-// The stock defaultTheme's mapped fields are themselves self-referential pointers
-// (e.g. `gridStyles.stroke: 'var(--a8c-charts-color-grid, #dbdbdb)'`), so
-// themeOverrideVars' own self-reference guard already filters them out no matter which
-// theme object the provider passes in. That makes "reads theme, not providerTheme"
-// unfalsifiable against the real default theme. Mocking the default here to a plain,
-// non-pointer value removes that overlap, so this test only passes when the provider
-// reads the raw consumer `theme` prop rather than the merged `providerTheme`.
+// The stock defaultTheme's mapped fields are themselves self-referential pointers (e.g. `gridStyles.stroke: 'var(--a8c-charts-color-grid, #dbdbdb)'`), so themeOverrideVars' own self-reference guard already filters them out no matter which theme object the provider passes in. That makes "reads theme, not providerTheme" unfalsifiable against the real default theme. Mocking the default here to a plain, non-pointer value removes that overlap, so this test only passes when the provider reads the raw consumer `theme` prop rather than the merged `providerTheme`.
 jest.mock( '../themes', () => {
 	const actual = jest.requireActual( '../themes' );
 	return {
@@ -27,9 +21,7 @@ describe( 'GlobalChartsProvider wrapper style (discriminating guard test)', () =
 			</GlobalChartsProvider>
 		);
 
-		// GlobalChartsProvider's own render tree has no DOM node above this div (its
-		// context provider renders no element), so it is always the container's
-		// first child.
+		// GlobalChartsProvider's own render tree has no DOM node above this div (its context provider renders no element), so it is always the container's first child.
 		// eslint-disable-next-line testing-library/no-node-access
 		const wrapper = container.firstElementChild as HTMLElement | null;
 

@@ -18,9 +18,7 @@ const renderScopeProbe = () => <ScopeProbe />;
 
 describe( 'ConversionFunnelChart chart scope', () => {
 	it( 'publishes a non-null scope node after transitioning from empty to populated steps', () => {
-		// The normal loading pattern: steps arrives empty first (empty-state branch
-		// renders), then populated (main branch renders). The scope node must be
-		// republished on that transition, not frozen at whatever the first mount saw.
+		// The normal loading pattern: steps arrives empty first (empty-state branch renders), then populated (main branch renders). The scope node must be republished on that transition, not frozen at whatever the first mount saw.
 		const { rerender } = render(
 			<ConversionFunnelChart mainRate={ 0 } steps={ [] } renderMainMetric={ renderScopeProbe } />
 		);

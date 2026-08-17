@@ -1,7 +1,6 @@
 import type { ChartTheme } from '../../../types';
 
-// The consumer theme fields that correspond to an emitted catalog role, and the
-// role each one overrides.
+// The consumer theme fields that correspond to an emitted catalog role, and the role each one overrides.
 const ROLE_FOR_FIELD: Array< [ string, ( theme: Partial< ChartTheme > ) => string | undefined ] > =
 	[
 		[ '--a8c-charts-color-background', theme => theme.backgroundColor ],
@@ -16,24 +15,11 @@ const ROLE_FOR_FIELD: Array< [ string, ( theme: Partial< ChartTheme > ) => strin
  *
  * Two things this has to get right, both of which a plain substring test gets wrong:
  *
- * `var()` permits whitespace after the opening paren, so testing for `var(<role>` misses
- * `var( --a8c-charts-color-grid, … )`. Emitting that as the value of the same custom
- * property makes it reference itself, which CSS treats as invalid at computed-value
- * time — the declaration drops and the token resolves to nothing, so every chart loses
- * that colour rather than falling back to the catalog default.
+ * `var()` permits whitespace after the opening paren, so testing for `var(<role>` misses `var( --a8c-charts-color-grid, … )`. Emitting that as the value of the same custom property makes it reference itself, which CSS treats as invalid at computed-value time — the declaration drops and the token resolves to nothing, so every chart loses that colour rather than falling back to the catalog default.
  *
- * Conversely, several roles are prefixes of others (`--a8c-charts-color-label` of
- * `--a8c-charts-color-label-secondary`). A prefix match would treat a legitimate
- * cross-role pointer as a self-reference and silently drop the override, so the role
- * must be followed by something that cannot continue an identifier — `-` included.
+ * Conversely, several roles are prefixes of others (`--a8c-charts-color-label` of `--a8c-charts-color-label-secondary`). A prefix match would treat a legitimate cross-role pointer as a self-reference and silently drop the override, so the role must be followed by something that cannot continue an identifier — `-` included.
  *
- * `resolveCssVariable` also accepts a bare custom-property name with no `var()`
- * wrapper (`--a8c-charts-color-grid`), so that is legal `theme` input too. Unlike
- * the `var()` form, `--a8c-charts-color-grid: --a8c-charts-color-grid;` is not
- * invalid at computed-value time — custom properties accept arbitrary token
- * streams — so it survives and every reader gets the literal string instead of a
- * color, dropping silently at the use site rather than falling back to the
- * catalog default.
+ * `resolveCssVariable` also accepts a bare custom-property name with no `var()` wrapper (`--a8c-charts-color-grid`), so that is legal `theme` input too. Unlike the `var()` form, `--a8c-charts-color-grid: --a8c-charts-color-grid;` is not invalid at computed-value time — custom properties accept arbitrary token streams — so it survives and every reader gets the literal string instead of a color, dropping silently at the use site rather than falling back to the catalog default.
  *
  * @param value - The consumer's value for the field.
  * @param role  - The custom property this value would be emitted as.
@@ -46,11 +32,9 @@ const readsOwnRole = ( value: string, role: string ): boolean =>
 	);
 
 /**
- * Maps a sparse consumer theme onto the instance-scoped `--a8c-charts-*` variables it
- * overrides, so CSS-painted and JS-resolved colours read one source.
+ * Maps a sparse consumer theme onto the instance-scoped `--a8c-charts-*` variables it overrides, so CSS-painted and JS-resolved colours read one source.
  *
- * A value that already points at the role it would define is skipped — that is the
- * default theme's own pointer surviving `mergeThemes`.
+ * A value that already points at the role it would define is skipped — that is the default theme's own pointer surviving `mergeThemes`.
  *
  * @param theme - The consumer's `theme` prop, possibly merged with the default theme.
  * @return CSS custom properties to write on the provider wrapper.

@@ -1,9 +1,7 @@
 import { render } from '@testing-library/react';
 import { GlobalChartsProvider } from '../global-charts-provider';
 
-// GlobalChartsProvider's own render tree has no DOM node above this div (its
-// context provider renders no element), so it is always the container's
-// first child.
+// GlobalChartsProvider's own render tree has no DOM node above this div (its context provider renders no element), so it is always the container's first child.
 const getWrapperElement = ( container: HTMLElement ): HTMLElement => {
 	// eslint-disable-next-line testing-library/no-node-access
 	const wrapper = container.firstElementChild;
@@ -32,13 +30,7 @@ const assertNoSelfReferentialCustomProperty = ( wrapper: HTMLElement ) => {
 	}
 };
 
-// Confirms the wrapper element never carries a self-referential custom property in
-// real usage, against the real defaultTheme, both with no theme prop and with a
-// partial theme. Because the real defaultTheme's mapped fields are themselves
-// self-pointers, themeOverrideVars' own guard neutralises them regardless of which
-// theme object the provider passes it, so this file alone cannot distinguish reading
-// `theme` from reading `providerTheme` — see theme-override-vars-guard.test.tsx, which
-// mocks a non-pointer default to make that distinction observable.
+// Confirms the wrapper element never carries a self-referential custom property in real usage, against the real defaultTheme, both with no theme prop and with a partial theme. Because the real defaultTheme's mapped fields are themselves self-pointers, themeOverrideVars' own guard neutralises them regardless of which theme object the provider passes it, so this file alone cannot distinguish reading `theme` from reading `providerTheme` — see theme-override-vars-guard.test.tsx, which mocks a non-pointer default to make that distinction observable.
 describe( 'GlobalChartsProvider wrapper style', () => {
 	it( 'never carries a self-referential custom property with no theme prop', () => {
 		const { container } = render(

@@ -67,8 +67,7 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 
 		const hasAspectRatio = aspectRatio !== undefined && aspectRatio > 0;
 
-		// The context needs a re-render when the node attaches; wrapperRef alone cannot
-		// provide that, so mirror the node into state from the same callback ref.
+		// The context needs a re-render when the node attaches; wrapperRef alone cannot provide that, so mirror the node into state from the same callback ref.
 		const [ scopeNode, setScopeNode ] = useState< HTMLDivElement | null >( null );
 
 		// Keep our own handle on the wrapper so we can read its live height below, and

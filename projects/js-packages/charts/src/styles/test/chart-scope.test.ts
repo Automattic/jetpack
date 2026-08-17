@@ -31,10 +31,7 @@ const EXPECTED_TOKENS = [
 ];
 
 /**
- * Splits a declaration block on both newlines and semicolons, so a
- * layout-affecting property appended after a custom property on the
- * same line is inspected separately rather than being hidden inside a
- * single trusted-looking line.
+ * Splits a declaration block on both newlines and semicolons, so a layout-affecting property appended after a custom property on the same line is inspected separately rather than being hidden inside a single trusted-looking line.
  *
  * @param body - The declaration block, without the surrounding `{ }`.
  * @return The property name (text before `:`) of each declaration.

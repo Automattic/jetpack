@@ -83,9 +83,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		overrideColor: primaryColor || heatmapChartSettings.primaryColor,
 	} );
 
-	// Resolve the background against this chart's own scope element (not the provider's),
-	// matching where `--a8c-charts-color-heatmap-background` is substituted for the cell
-	// blend below — a chart-level override otherwise disagrees with a provider-level read.
+	// Resolve the background against this chart's own scope element (not the provider's), matching where `--a8c-charts-color-heatmap-background` is substituted for the cell blend below — a chart-level override otherwise disagrees with a provider-level read.
 	const chartBackgroundHex = normalizeColorToHex(
 		theme.backgroundColor,
 		scopeElement,

@@ -39,9 +39,7 @@ describe( 'themeOverrideVars', () => {
 		).toEqual( {} );
 	} );
 
-	// `var()` allows whitespace after the opening paren. Emitting a self-referential
-	// declaration makes it invalid at computed-value time, so the token resolves to
-	// nothing at all and every chart silently loses that colour.
+	// `var()` allows whitespace after the opening paren. Emitting a self-referential declaration makes it invalid at computed-value time, so the token resolves to nothing at all and every chart silently loses that colour.
 	it.each( [
 		'var( --a8c-charts-color-grid, #dbdbdb )',
 		'var(\t--a8c-charts-color-grid, #dbdbdb)',
@@ -56,9 +54,7 @@ describe( 'themeOverrideVars', () => {
 		).toEqual( { '--a8c-charts-color-grid': 'var( --a8c-charts-color-axis, #dbdbdb )' } );
 	} );
 
-	// `--a8c-charts-color-label` is a prefix of the real role
-	// `--a8c-charts-color-label-secondary`, so a prefix match would treat a legitimate
-	// cross-role pointer as a self-reference and silently drop the override.
+	// `--a8c-charts-color-label` is a prefix of the real role `--a8c-charts-color-label-secondary`, so a prefix match would treat a legitimate cross-role pointer as a self-reference and silently drop the override.
 	it( 'does not mistake a longer role name for the one it guards', () => {
 		expect(
 			themeOverrideVars( {
@@ -67,10 +63,7 @@ describe( 'themeOverrideVars', () => {
 		).toEqual( { '--a8c-charts-color-label': 'var(--a8c-charts-color-label-secondary, #707070)' } );
 	} );
 
-	// `resolveCssVariable` also accepts a bare custom-property name with no `var()`
-	// wrapper, so `theme={ { gridStyles: { stroke: '--a8c-charts-color-grid' } } }` is
-	// legal input. Unlike the `var()` form this is not invalid at computed-value time,
-	// so it must be caught explicitly or it survives as a literal string value.
+	// `resolveCssVariable` also accepts a bare custom-property name with no `var()` wrapper, so `theme={ { gridStyles: { stroke: '--a8c-charts-color-grid' } } }` is legal input. Unlike the `var()` form this is not invalid at computed-value time, so it must be caught explicitly or it survives as a literal string value.
 	it( 'ignores a self-referential pointer written as a bare custom-property name', () => {
 		expect( themeOverrideVars( { gridStyles: { stroke: '--a8c-charts-color-grid' } } ) ).toEqual(
 			{}

@@ -160,8 +160,7 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	// Deep merge styles to preserve nested object properties
 	const styles = merge( providerTheme.annotationStyles ?? {}, datumStyles ?? {} );
 
-	// visx annotation parts apply these colours as SVG presentation attributes, where CSS
-	// var() cannot resolve. Resolve against the chart's scope element, never :root.
+	// visx annotation parts apply these colours as SVG presentation attributes, where CSS var() cannot resolve. Resolve against the chart's scope element, never :root.
 	const resolveColor = ( value?: string ): string | undefined =>
 		value ? resolveCssVariable( value, scopeElement ) ?? value : value;
 

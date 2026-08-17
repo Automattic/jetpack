@@ -1,9 +1,7 @@
 import { defaultTheme } from '../themes';
 import type { CompleteChartTheme } from '../../../types';
 
-// Restores each overridden role's mapped theme field to the catalog pointer
-// `defaultTheme` already carries for it, so the value comes from `themes.ts`
-// itself rather than a second, hand-copied literal.
+// Restores each overridden role's mapped theme field to the catalog pointer `defaultTheme` already carries for it, so the value comes from `themes.ts` itself rather than a second, hand-copied literal.
 const CATALOG_RESTORE_FOR_ROLE: Record<
 	string,
 	( theme: CompleteChartTheme ) => Partial< CompleteChartTheme >
@@ -24,15 +22,9 @@ const CATALOG_RESTORE_FOR_ROLE: Record<
 };
 
 /**
- * Restores the mapped theme fields of `overriddenRoles` to their catalog pointer, so
- * the instance-scoped `--a8c-charts-*` var `themeOverrideVars` writes on the provider
- * wrapper is the only carrier for an overridden role — CSS and the JS bridge
- * (`useXYChartTheme`) then resolve it through the same cascade instead of visx reading
- * a baked literal that can disagree with a closer CSS override.
+ * Restores the mapped theme fields of `overriddenRoles` to their catalog pointer, so the instance-scoped `--a8c-charts-*` var `themeOverrideVars` writes on the provider wrapper is the only carrier for an overridden role — CSS and the JS bridge (`useXYChartTheme`) then resolve it through the same cascade instead of visx reading a baked literal that can disagree with a closer CSS override.
  *
- * Every field outside the five mapped roles is left exactly as `merged` provided it:
- * those aren't written as instance vars by `themeOverrideVars`, so rewriting them would
- * erase a consumer's override with no replacement carrier.
+ * Every field outside the five mapped roles is left exactly as `merged` provided it: those aren't written as instance vars by `themeOverrideVars`, so rewriting them would erase a consumer's override with no replacement carrier.
  *
  * @param merged          - The consumer theme merged onto `defaultTheme` (`mergeThemes` output).
  * @param overriddenRoles - The catalog roles `themeOverrideVars` found overridden, keyed by role.
