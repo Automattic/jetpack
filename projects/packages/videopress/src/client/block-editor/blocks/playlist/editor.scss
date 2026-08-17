@@ -1,0 +1,284 @@
+/**
+ * Video Playlist block — editor styles.
+ *
+ * The canvas preview reuses the front-end stylesheet (view.scss, loaded as
+ * an additional editorStyle); these rules cover the editor-only chrome: the
+ * sidebar playlist manager, the layout picker, the placeholder form, and
+ * the canvas hint.
+ */
+
+.videopress-playlist-editor {
+
+	&__add-row {
+		display: flex;
+		gap: 6px;
+		align-items: flex-start;
+
+		> :first-child {
+			flex: 1 1 auto;
+		}
+	}
+
+	&__help {
+		margin: 8px 0 0;
+		font-size: 0.75rem;
+		color: rgba(30, 30, 30, 0.62);
+	}
+
+	&__duplicate-actions {
+		display: flex;
+		gap: 8px;
+		margin-block-start: 8px;
+	}
+
+	&__list-summary {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 10px;
+		margin-block-end: 10px;
+		font-size: 0.75rem;
+	}
+
+	&__list-runtime {
+		color: rgba(30, 30, 30, 0.62);
+		font-variant-numeric: tabular-nums;
+	}
+
+	&__rows {
+		list-style: none;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		margin: 10px 0 0;
+		padding: 0;
+	}
+
+	&__row {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		padding: 6px;
+		border: 1px solid #e0e0e0;
+		border-radius: 3px;
+		background: #fff;
+
+		&.is-dragging {
+			opacity: 0.45;
+		}
+
+		&.is-drop-target {
+			border-color: var(--wp-admin-theme-color, #2a78d6);
+			box-shadow: 0 -2px 0 0 var(--wp-admin-theme-color, #2a78d6);
+		}
+
+		&.is-loading &-thumb {
+			animation: videopress-playlist-editor-shimmer 1.2s ease-in-out infinite;
+		}
+	}
+
+	&__row-handle.components-button {
+		padding: 0;
+		min-inline-size: 20px;
+		inline-size: 20px;
+		block-size: 32px;
+		color: #949494;
+		cursor: grab;
+	}
+
+	&__row-number {
+		font-size: 0.65625rem;
+		font-family: monospace;
+		color: #949494;
+	}
+
+	&__row-thumb {
+		flex: none;
+		inline-size: 54px;
+		aspect-ratio: 16 / 9;
+		border-radius: 3px;
+		overflow: hidden;
+		background: #e6e4df;
+
+		img {
+			inline-size: 100%;
+			block-size: 100%;
+			object-fit: cover;
+		}
+	}
+
+	&__row-body {
+		flex: 1 1 auto;
+		min-inline-size: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	&__row-title {
+		font-size: 0.75rem;
+		font-weight: 500;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	&__row-meta {
+		font-size: 0.65625rem;
+		color: #757575;
+		font-variant-numeric: tabular-nums;
+	}
+
+	&__row-remove.components-button {
+		color: #757575;
+	}
+
+	&__layouts {
+		display: flex;
+		gap: 6px;
+		margin-block-end: 14px;
+	}
+
+	&__layout {
+		flex: 1 1 0;
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+		align-items: stretch;
+		padding: 7px 5px 6px;
+		border: 1px solid #e0e0e0;
+		border-radius: 2px;
+		background: #fff;
+		font-size: 0.65625rem;
+		text-align: center;
+		cursor: pointer;
+
+		&.is-selected {
+			border-color: #1e1e1e;
+			background: #f7f7f7;
+			font-weight: 500;
+		}
+	}
+
+	/* Tiny wireframe sketches for the three layouts. */
+
+	&__layout-sketch {
+		display: block;
+		block-size: 22px;
+		position: relative;
+
+		i {
+			position: absolute;
+			border-radius: 1px;
+			background: #e2e2e2;
+		}
+
+		&.is-side-rail i {
+
+			&:nth-child(1) {
+				inset: 0 35% 0 0;
+				background: #c4c4c4;
+			}
+
+			&:nth-child(2) {
+				inset: 0 0 66% 68%;
+			}
+
+			&:nth-child(3) {
+				inset: 38% 0 33% 68%;
+			}
+
+			&:nth-child(4) {
+				inset: 76% 0 0 68%;
+			}
+		}
+
+		&.is-grid i {
+
+			&:nth-child(1) {
+				inset: 0 0 40% 0;
+				background: #c4c4c4;
+			}
+
+			&:nth-child(2) {
+				inset: 68% 68% 0 0;
+			}
+
+			&:nth-child(3) {
+				inset: 68% 34% 0 34%;
+			}
+
+			&:nth-child(4) {
+				inset: 68% 0 0 68%;
+			}
+		}
+
+		&.is-strip i {
+
+			&:nth-child(1) {
+				inset: 0 0 30% 0;
+				background: #c4c4c4;
+			}
+
+			&:nth-child(2) {
+				inset: 78% 60% 0 0;
+			}
+
+			&:nth-child(3) {
+				inset: 78% 22% 0 44%;
+			}
+
+			&:nth-child(4) {
+				inset: 78% 0 0 82%;
+			}
+		}
+	}
+
+	&__placeholder {
+		inline-size: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		max-inline-size: 400px;
+	}
+
+	&__placeholder-divider {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		color: #949494;
+		font-size: 0.71875rem;
+
+		&::before,
+		&::after {
+			content: "";
+			flex: 1 1 auto;
+			block-size: 1px;
+			background: #e0e0e0;
+		}
+	}
+
+	&__canvas-hint {
+		margin: 10px 0 0;
+		font-size: 0.71875rem;
+		color: #757575;
+		text-align: center;
+	}
+}
+
+/* The canvas hint is editor chrome: only show it on the selected block. */
+.videopress-playlist:not(.is-selected) .videopress-playlist-editor__canvas-hint {
+	display: none;
+}
+
+@keyframes videopress-playlist-editor-shimmer {
+
+	0%,
+	100% {
+		opacity: 0.5;
+	}
+
+	50% {
+		opacity: 1;
+	}
+}
