@@ -120,10 +120,25 @@ It connects to the following external services:
 * Data sent: no personal data; these are static front-end assets served from Automattic's CDN.
 * When: whenever you open the Stats dashboard.
 
+**WordPress.com Tracks (`https://stats.wp.com/w.js` and `https://pixel.wp.com/t.gif`)**
+
+* What it does: records how site administrators use the plugin, so that Automattic can improve it. This is separate from your site statistics.
+* Data sent: the name of the action taken, your site ID, your WordPress.com user ID, the browser user agent, the browser language, and the IP address of the request.
+* When: only while a logged-in administrator uses the plugin screens in the WordPress admin. Nothing is recorded for your site visitors.
+
 This plugin requires a connection to a WordPress.com account. Until that connection is complete, no data is collected and no reports are available.
 
 Service terms: [Terms of Service](https://wordpress.com/tos/)
 Service privacy policy: [Privacy Policy](https://automattic.com/privacy/)
+
+== Source code ==
+
+Jetpack Stats is developed in the open. The plugin, every bundled `automattic/jetpack-*` package, and the build tools that produce the released package are all in the Jetpack monorepo:
+
+* Plugin source: [Automattic/jetpack/projects/plugins/stats](https://github.com/Automattic/jetpack/tree/trunk/projects/plugins/stats)
+* Monorepo and build tools: [Automattic/jetpack](https://github.com/Automattic/jetpack)
+
+To build the plugin from source, follow the instructions in the monorepo [development guide](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md).
 
 == Changelog ==
 
