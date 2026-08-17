@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -61,7 +62,7 @@ class DashboardSettingsTest extends TestCase {
 		\Jetpack_Options::delete_option( 'active_modules' );
 		\Jetpack_SEO_Utils::$enabled = true;
 
-		Dashboard_Data::register_rest_settings();
+		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
 		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 		$this->reset_rest_server();
 	}
@@ -71,6 +72,7 @@ class DashboardSettingsTest extends TestCase {
 	 * settings, the option-write hooks, or a REST server built around them.
 	 */
 	protected function tearDown(): void {
+		remove_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
 		remove_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 		remove_action( 'added_option', array( Dashboard_Data::class, 'after_setting_write' ) );
 		remove_action( 'updated_option', array( Dashboard_Data::class, 'after_setting_write' ) );
@@ -78,6 +80,8 @@ class DashboardSettingsTest extends TestCase {
 		remove_all_filters( 'jetpack_get_available_standalone_modules' );
 		remove_all_filters( 'jetpack_disable_seo_tools' );
 		remove_all_filters( 'pre_option_' . \Automattic\Jetpack\Current_Plan::PLAN_OPTION );
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		\Wpcom_Test_Features::reset();
 		\Jetpack_SEO_Utils::$enabled = true;
 		self::reset_active_plan_cache();
 
@@ -176,7 +180,6 @@ class DashboardSettingsTest extends TestCase {
 		\Jetpack_SEO_Utils::$enabled = false;
 		update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Old description.' );
 		// Re-register: which option is exposed is decided at registration time.
-		Dashboard_Data::register_rest_settings();
 		$this->reset_rest_server();
 	}
 
@@ -489,7 +492,6 @@ class DashboardSettingsTest extends TestCase {
 		// is on, exactly as it does on Atomic.
 		\Jetpack_SEO_Utils::$enabled = true;
 		update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Old description.' );
-		Dashboard_Data::register_rest_settings();
 		$this->reset_rest_server();
 		$this->act_as( 'administrator' );
 
@@ -497,6 +499,53 @@ class DashboardSettingsTest extends TestCase {
 
 		$this->assertSame( 'Modern description.', get_option( Dashboard_Data::FRONT_PAGE_META_OPTION ) );
 		$this->assertFalse( Dashboard_Data::get_settings_data()['has_legacy_front_page_meta'] );
+	}
+
+	/**
+	 * The rule used where `Jetpack_SEO_Utils` isn't loaded — the WordPress.com Simple
+	 * path this PR exists to fix, and what decides which option a save targets there.
+	 *
+	 * It has to match `Jetpack_SEO_Utils::is_enabled_jetpack_seo()` exactly, and that
+	 * helper plan-gates only behind `IS_WPCOM`. Reached directly because the package's
+	 * own test suite always loads a stand-in for the helper.
+	 */
+	public function test_seo_enabled_without_the_plugin_helper() {
+		$enabled = function () {
+			$method = new \ReflectionMethod( Dashboard_Data::class, 'is_jetpack_seo_enabled_without_helper' );
+			// Required to invoke a private method on PHP < 8.1 (a no-op from 8.1 on).
+			if ( PHP_VERSION_ID < 80100 ) {
+				$method->setAccessible( true );
+			}
+			return $method->invoke( null );
+		};
+
+		// Self-hosted: never gated, whatever the plan says.
+		self::set_plan( 'free_plan' );
+		$this->assertTrue( $enabled() );
+
+		// A conflicting SEO plugin switches Jetpack's output off everywhere.
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+		$this->assertFalse( $enabled() );
+		remove_all_filters( 'jetpack_disable_seo_tools' );
+
+		// WordPress.com Simple: the site's `advanced-seo` entitlement decides, which is
+		// exactly what the helper's IS_WPCOM branch asks `wpcom_site_has_feature()`.
+		Constants::set_constant( 'IS_WPCOM', true );
+		\Wpcom_Test_Features::$known    = array( 'advanced-seo' );
+		\Wpcom_Test_Features::$entitled = array();
+		self::reset_active_plan_cache();
+		$this->assertFalse( $enabled() );
+
+		\Wpcom_Test_Features::$entitled = array( 'advanced-seo' );
+		self::reset_active_plan_cache();
+		$this->assertTrue( $enabled() );
+
+		// And Atomic — WordPress.com, but not Simple — is not gated by it even without
+		// the entitlement. That's the case a wider copy of this rule got wrong.
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		\Wpcom_Test_Features::$entitled = array();
+		self::reset_active_plan_cache();
+		$this->assertTrue( $enabled() );
 	}
 
 	/**
@@ -583,6 +632,84 @@ class DashboardSettingsTest extends TestCase {
 		$this->assertEmpty( get_option( Initializer::SITEMAP_ENABLED_OPTION ) );
 
 		remove_all_filters( 'jetpack_active_modules' );
+	}
+
+	/**
+	 * A setting the store refuses is an error, not a success — and the module goes back
+	 * where it was, so the two never disagree. This is the whole check on WordPress.com
+	 * Simple, where there's no module and the option is the entire setting.
+	 */
+	public function test_sitemap_setting_errors_when_the_option_will_not_save() {
+		$this->make_modules_available( array( 'sitemaps' ) );
+		$this->act_as( 'administrator' );
+		// Something else owns this option and refuses the change — a `pre_update_option_*`
+		// filter is how that shows up in practice.
+		add_filter( 'pre_update_option_' . Initializer::SITEMAP_ENABLED_OPTION, '__return_false' );
+
+		$response = $this->update_modules( array( 'sitemap_active' => true ) );
+
+		$this->assertSame( 500, $response->get_status() );
+		$this->assertSame( 'jetpack_seo_setting_not_saved', $response->get_data()['code'] );
+		// Rolled back: the module isn't left on while the setting reads off.
+		$this->assertFalse( ( new Modules() )->is_active( 'sitemaps' ) );
+
+		remove_all_filters( 'pre_update_option_' . Initializer::SITEMAP_ENABLED_OPTION );
+	}
+
+	/**
+	 * The same check with no module at all — the WordPress.com Simple shape, where a
+	 * silently dropped write would otherwise be reported as saved.
+	 */
+	public function test_sitemap_setting_errors_when_the_option_will_not_save_without_a_module() {
+		$this->act_as( 'administrator' );
+		add_filter( 'pre_update_option_' . Initializer::SITEMAP_ENABLED_OPTION, '__return_false' );
+
+		$response = $this->update_modules( array( 'sitemap_active' => true ) );
+
+		$this->assertSame( 500, $response->get_status() );
+		$this->assertSame( 'jetpack_seo_setting_not_saved', $response->get_data()['code'] );
+
+		remove_all_filters( 'pre_update_option_' . Initializer::SITEMAP_ENABLED_OPTION );
+	}
+
+	/**
+	 * Writing a value that's already stored is not a failure. `update_option()` returns
+	 * false for a no-op, so only reading the value back tells the two apart.
+	 */
+	public function test_an_unchanged_module_setting_is_not_an_error() {
+		$this->act_as( 'administrator' );
+		update_option( Initializer::SITEMAP_ENABLED_OPTION, true );
+
+		$response = $this->update_modules( array( 'sitemap_active' => true ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( array( 'sitemap_active' => true ), $response->get_data() );
+	}
+
+	/**
+	 * When one field of a multi-field request fails, the error names it and lists what
+	 * did land, so the client isn't left with a generic failure and unknown state.
+	 */
+	public function test_a_partial_failure_reports_which_field_and_what_applied() {
+		$this->make_modules_available( array( 'sitemaps' ) );
+		$this->act_as( 'administrator' );
+		add_filter( 'pre_update_option_' . Initializer::CANONICAL_ENABLED_OPTION, '__return_false' );
+
+		$response = $this->update_modules(
+			array(
+				'sitemap_active'   => true,
+				'canonical_active' => true,
+			)
+		);
+		$data     = $response->get_data();
+
+		$this->assertSame( 500, $response->get_status() );
+		$this->assertSame( 'canonical_active', $data['data']['field'] );
+		$this->assertSame( array( 'sitemap_active' => true ), $data['data']['applied'] );
+		// And the field that did land really did.
+		$this->assertTrue( get_option( Initializer::SITEMAP_ENABLED_OPTION ) );
+
+		remove_all_filters( 'pre_update_option_' . Initializer::CANONICAL_ENABLED_OPTION );
 	}
 
 	/**

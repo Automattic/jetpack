@@ -241,11 +241,11 @@ class Initializer {
 				Ai_Crawlers::init();
 			}
 
-			// Late on `init` rather than here: which option the front page description is
-			// stored in depends on `jetpack_disable_seo_tools`, which a conflicting SEO
-			// plugin can add as late as `init`. Still long before `rest_api_init`, where
-			// core builds the settings route from the registry.
-			add_action( 'init', array( Dashboard_Data::class, 'register_rest_settings' ), 20 );
+			// On `rest_api_init` rather than here: which option the front page description
+			// is stored in depends on `jetpack_disable_seo_tools`, which a conflicting SEO
+			// plugin can add from anywhere up to the end of `init`. Priority 5 is after all
+			// of those and before core builds the settings route at 99.
+			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
 			// Package-owned route for the module toggle that has no option behind it.
 			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 			// Package-owned route for the site-level Schema settings (see the controller).

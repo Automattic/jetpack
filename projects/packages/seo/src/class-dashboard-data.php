@@ -175,11 +175,11 @@ class Dashboard_Data {
 	 * this runs behind the same `seo-tools` gate as the rest of the settings
 	 * surface, and why the dashboard hides its controls when that module is off.
 	 *
-	 * Hooked late on `init`, not at package init: which option the front page
-	 * description is stored in depends on `jetpack_disable_seo_tools`, and a conflicting
-	 * SEO plugin adds that filter on `plugins_loaded` or `init`. Registering after them
-	 * — and still well before `rest_api_init` — means the save targets the option the
-	 * front end will actually read.
+	 * Hooked on `rest_api_init`, not earlier: which option the front page description is
+	 * stored in depends on `jetpack_disable_seo_tools`, and a conflicting SEO plugin can
+	 * add that filter from anywhere up to the end of `init`. Registering here settles the
+	 * question after every one of those has had its say, and still before core builds the
+	 * settings route from the registry at priority 99.
 	 *
 	 * @return void
 	 */
@@ -430,13 +430,9 @@ class Dashboard_Data {
 	 * Whether Jetpack's SEO output is live for this site, which is what decides
 	 * where the front page description is stored and read from.
 	 *
-	 * Defers to `Jetpack_SEO_Utils` wherever it's loaded, because that helper is what
-	 * the front end reads the description by and the two must not disagree. The fallback
-	 * reproduces it exactly rather than approximately: the conflicting-plugin filter,
-	 * then the plan gate on WordPress.com **Simple only** — the helper plan-gates behind
-	 * `IS_WPCOM`, so an Atomic site is never gated by it even without `advanced-seo`, and
-	 * a wider copy would send that site's edits to the legacy option while its front end
-	 * kept reading the modern one.
+	 * Defers to `Jetpack_SEO_Utils` wherever it's loaded, because that helper is what the
+	 * front end reads the description by and the two must not disagree. Everywhere else
+	 * {@see self::is_jetpack_seo_enabled_without_helper()} reproduces it.
 	 *
 	 * @return bool
 	 */
@@ -446,6 +442,26 @@ class Dashboard_Data {
 			return (bool) Jetpack_SEO_Utils::is_enabled_jetpack_seo();
 		}
 
+		return self::is_jetpack_seo_enabled_without_helper();
+	}
+
+	/**
+	 * `Jetpack_SEO_Utils::is_enabled_jetpack_seo()` reproduced for sites that don't load
+	 * it — which includes WordPress.com Simple, where this decides which option a save
+	 * targets.
+	 *
+	 * Exactly, not approximately: the conflicting-plugin filter, then the plan gate on
+	 * WordPress.com **Simple only**. The helper plan-gates behind `IS_WPCOM`, so an
+	 * Atomic site is never gated by it even without `advanced-seo`, and a wider copy
+	 * would send that site's edits to the legacy option while its front end kept reading
+	 * the modern one.
+	 *
+	 * Split out from {@see self::is_jetpack_seo_enabled()} so this branch is reachable
+	 * from a test even where the helper class is loaded.
+	 *
+	 * @return bool
+	 */
+	private static function is_jetpack_seo_enabled_without_helper() {
 		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
 		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
 			return false;
@@ -682,13 +698,7 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * Apply the submitted module-backed settings, and report the state the site ended up in.
-	 *
-	 * Each one switches its module first and only records the durable option once that
-	 * took, so the option can never claim a state the module never reached. Where the
-	 * module doesn't exist the option is the whole story and is written directly — that's
-	 * what makes the sitemap and canonical toggles work on a site with no Jetpack modules.
-	 * Site verification has no such option, so there it's a request the site can't support.
+	 * Apply the submitted module-backed settings, and report what was applied.
 	 *
 	 * @param WP_REST_Request $request The REST request.
 	 * @return \WP_REST_Response|WP_Error
@@ -704,33 +714,93 @@ class Dashboard_Data {
 			list( $module, $option ) = $target;
 			$enabled                 = (bool) $request[ $field ];
 
-			if ( self::has_module( $module ) ) {
-				if ( ! self::sync_module_to_option( $module, $enabled ) ) {
-					return new WP_Error(
-						'jetpack_seo_module_toggle_failed',
-						/* translators: %s: name of a Jetpack module, e.g. "sitemaps". */
-						sprintf( __( 'The %s module could not be switched.', 'jetpack-seo' ), $module ),
-						array( 'status' => 500 )
-					);
-				}
-			} elseif ( null === $option ) {
-				// Nothing to switch and nothing to remember it in.
-				return new WP_Error(
-					'jetpack_seo_module_unavailable',
-					/* translators: %s: name of a Jetpack module, e.g. "verification-tools". */
-					sprintf( __( 'This site has no %s module to switch.', 'jetpack-seo' ), $module ),
-					array( 'status' => 400 )
+			$error = self::apply_module_setting( $module, $option, $enabled );
+			if ( is_wp_error( $error ) ) {
+				// No rollback across fields — module activation fires hooks that other
+				// code has already reacted to, and undoing those is riskier than the
+				// inconsistency. Report which field failed and what did land instead, so
+				// the client can be specific about it.
+				$error->add_data(
+					array_merge(
+						(array) $error->get_error_data(),
+						array(
+							'field'   => $field,
+							'applied' => $applied,
+						)
+					)
 				);
-			}
-
-			if ( null !== $option ) {
-				update_option( $option, $enabled );
+				return $error;
 			}
 
 			$applied[ $field ] = $enabled;
 		}
 
 		return rest_ensure_response( $applied );
+	}
+
+	/**
+	 * Switch one module-backed setting, leaving the site consistent whether it works
+	 * or not.
+	 *
+	 * The module goes first and the durable option is only recorded once that took, so
+	 * the option can never claim a state the module never reached. The option write is
+	 * then read back — `update_option()`'s own return value can't be trusted for this,
+	 * since it is also false for a no-op — and if storage disagrees (a
+	 * `pre_update_option_*` filter, a failed write) the module is put back where it was.
+	 * That read-back is the only check on WordPress.com Simple, where there is no module
+	 * and the option is the entire setting.
+	 *
+	 * @param string      $module  Module slug.
+	 * @param string|null $option  Durable option mirroring it, or null when the module's
+	 *                             own state is the setting.
+	 * @param bool        $enabled Requested state.
+	 * @return true|WP_Error
+	 */
+	private static function apply_module_setting( $module, $option, $enabled ) {
+		$has_module = self::has_module( $module );
+
+		if ( ! $has_module && null === $option ) {
+			// Nothing to switch and nothing to remember it in.
+			return new WP_Error(
+				'jetpack_seo_module_unavailable',
+				/* translators: %s: name of a Jetpack module, e.g. "verification-tools". */
+				sprintf( __( 'This site has no %s module to switch.', 'jetpack-seo' ), $module ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$was_active = $has_module ? ( new Modules() )->is_active( $module ) : null;
+
+		if ( $has_module && ! self::sync_module_to_option( $module, $enabled ) ) {
+			return new WP_Error(
+				'jetpack_seo_module_toggle_failed',
+				/* translators: %s: name of a Jetpack module, e.g. "sitemaps". */
+				sprintf( __( 'The %s module could not be switched.', 'jetpack-seo' ), $module ),
+				array( 'status' => 500 )
+			);
+		}
+
+		if ( null === $option ) {
+			return true;
+		}
+
+		update_option( $option, $enabled );
+		if ( (bool) get_option( $option, false ) === $enabled ) {
+			return true;
+		}
+
+		// The setting didn't stick. Put the module back so the two don't disagree —
+		// only where we actually moved it.
+		if ( $has_module && $was_active !== $enabled ) {
+			self::sync_module_to_option( $module, $was_active );
+		}
+
+		return new WP_Error(
+			'jetpack_seo_setting_not_saved',
+			/* translators: %s: name of a WordPress option, e.g. "jetpack_seo_sitemap_enabled". */
+			sprintf( __( 'The %s setting could not be saved.', 'jetpack-seo' ), $option ),
+			array( 'status' => 500 )
+		);
 	}
 
 	/**
