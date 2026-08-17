@@ -39,6 +39,7 @@ import {
 import { ChartScopeContext } from '../chart-scope';
 import { getChartColor, type ColorCache } from './private/get-chart-color';
 import { themeOverrideVars } from './private/theme-override-vars';
+import { withCatalogPointers } from './private/with-catalog-pointers';
 import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
 import type { ChartTheme, CompleteChartTheme } from '../../types';
@@ -67,11 +68,18 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		setScopeNode( node );
 	}, [] );
 
-	const providerTheme: CompleteChartTheme = useMemo( () => {
-		return theme ? mergeThemes( defaultTheme, theme ) : defaultTheme;
-	}, [ theme ] );
-
+	// themeOverrideVars reads the raw `theme` prop, never `providerTheme` — feeding it
+	// the restored theme below would make an overridden role's pointer look like a
+	// self-reference and blank the var (see themeOverrideVars' own doc comment).
 	const overrideVars = useMemo( () => themeOverrideVars( theme ), [ theme ] );
+
+	const providerTheme: CompleteChartTheme = useMemo( () => {
+		if ( ! theme ) {
+			return defaultTheme;
+		}
+
+		return withCatalogPointers( mergeThemes( defaultTheme, theme ), overrideVars );
+	}, [ theme, overrideVars ] );
 
 	// Cache expensive color computations that only change when theme colors change
 	// Using useState + useLayoutEffect instead of useMemo to ensure CSS variables
