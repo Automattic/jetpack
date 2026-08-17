@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Declare the `--a8c-charts-*` catalog on the charts provider wrapper. An override set above `GlobalChartsProvider` — on `:root`, on `body`, or on any other ancestor — no longer applies, because the provider's own declaration beats a value inherited from further up the tree. Replace `:root { --a8c-charts-… }` with `.a8c-charts-scope { --a8c-charts-… }`, which themes the whole page as before: it matches every provider wrapper, including the one a bare chart mounts for itself and the one a portal-rendered tooltip carries, and it outranks the catalog default. For the same reason, `@wordpress/theme`'s `ThemeProvider` must sit above the charts provider rather than between it and a chart. Remove `--a8c-charts-color-focus`: selection and focus rings read `--wpds-color-stroke-focus` directly, so override that token instead.
