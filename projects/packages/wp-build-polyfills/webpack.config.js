@@ -169,8 +169,6 @@ const disabledPlugins = {
 };
 
 // ── Polyfill definitions ────────────────────────────────────────────────────
-//
-// Keep these package versions in sync with each other.
 
 const classicPolyfills = [
 	{
