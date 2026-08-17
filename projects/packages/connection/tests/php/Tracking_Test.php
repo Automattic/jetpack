@@ -191,8 +191,8 @@ class Tracking_Test extends TestCase {
 	 * given field. map_deep() is given a real recursive implementation, since the point of using it
 	 * is that it reaches nested values.
 	 *
-	 * @param string $event_name Set by reference to the event name passed on.
-	 * @param array  $properties Set by reference to the properties passed on.
+	 * @param string|null $event_name Set by reference to the event name passed on.
+	 * @param array|null  $properties Set by reference to the properties passed on.
 	 * @return Tracking
 	 */
 	private function tracking_capturing_ajax_event( &$event_name, &$properties ) {
