@@ -584,9 +584,17 @@ class WPCOM_Stats {
 	 * The dashboard asks for its data over REST, and those requests carry none of the page's
 	 * query, so the marker has to be read from the page that sent them as well.
 	 *
+	 * Limited to users who can view stats: `fetch_stats()` also serves public widgets and
+	 * blocks, and those must not skip the cache because a visitor supplied a query arg or a
+	 * Referer that happens to contain one of the markers.
+	 *
 	 * @return bool
 	 */
 	protected function should_bypass_cache() {
+		if ( ! current_user_can( 'view_stats' ) ) {
+			return false;
+		}
+
 		foreach ( array( 'force_refresh', 'statsPurchaseSuccess' ) as $marker ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			if ( isset( $_GET[ $marker ] ) ) {
