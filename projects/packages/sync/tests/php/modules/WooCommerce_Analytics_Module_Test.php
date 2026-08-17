@@ -344,6 +344,13 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Missing order items have no COGS value.
+	 */
+	public function test_missing_order_item_has_no_cogs_value() {
+		$this->assertNull( $this->invoke_instance_helper( 'get_order_product_cogs_value', false ) );
+	}
+
+	/**
 	 * The size filter always lets the first object through, then stops at the cap.
 	 */
 	public function test_filter_analytics_objects_by_size_always_allows_first_object() {

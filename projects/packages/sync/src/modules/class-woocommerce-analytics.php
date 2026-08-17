@@ -892,11 +892,11 @@ class WooCommerce_Analytics extends Module {
 	/**
 	 * Get COGS value for an order product.
 	 *
-	 * @param object $order_product The order product object.
+	 * @param object|false $order_product The order product object, or false if it no longer exists.
 	 * @return float|null The COGS amount or null if not available.
 	 */
 	private function get_order_product_cogs_value( $order_product ) {
-		if ( ! method_exists( $order_product, 'get_cogs_value' ) || ! $this->is_cogs_enabled() ) {
+		if ( ! is_object( $order_product ) || ! method_exists( $order_product, 'get_cogs_value' ) || ! $this->is_cogs_enabled() ) {
 			return null;
 		}
 
