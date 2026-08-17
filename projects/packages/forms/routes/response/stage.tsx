@@ -15,7 +15,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { useNavigate, useParams, useSearch } from '@wordpress/route';
 import { Badge, Stack } from '@wordpress/ui';
 import * as React from 'react';
@@ -62,11 +62,11 @@ type PreviewFileItem = FileItem | { url: string; name: string };
  */
 function ResponseStatusBadge( { status }: { status: FormResponse[ 'status' ] } ) {
 	if ( status === 'spam' ) {
-		return <Badge intent="high">{ __( 'Spam', 'jetpack-forms' ) }</Badge>;
+		return <Badge intent="high">{ _x( 'Spam', 'response status', 'jetpack-forms' ) }</Badge>;
 	}
 
 	if ( status === 'trash' ) {
-		return <Badge intent="draft">{ __( 'Trash', 'jetpack-forms' ) }</Badge>;
+		return <Badge intent="draft">{ _x( 'Trash', 'response status', 'jetpack-forms' ) }</Badge>;
 	}
 
 	return null;
@@ -175,9 +175,11 @@ function Stage(): React.JSX.Element {
 	} );
 
 	// The dialog's save and the menu's actions are separate mutation paths on one
-	// response; this is the single in-flight signal both are gated on, so they can't
-	// run against each other.
-	const isMutating = isConfirmDialogOpen || isSaving;
+	// response. Both report into this single signal — the dialog directly, the menu
+	// through `onBusyChange` — so neither can run against the other and neither can
+	// be navigated away from mid-flight.
+	const [ isMenuBusy, setIsMenuBusy ] = useState( false );
+	const isMutating = isConfirmDialogOpen || isSaving || isMenuBusy;
 
 	const { hasPrevious, hasNext, goPrevious, goNext } = useResponsePageNavigation( id );
 
@@ -250,7 +252,12 @@ function Stage(): React.JSX.Element {
 		</FormsPage>
 	);
 
-	if ( isValidId && isLoading ) {
+	// Only show the spinner when there is nothing to show. Every status change
+	// invalidates `getEntityRecords` resolutions (see `invalidateCacheAndNavigate`),
+	// which re-resolves this page's own query — without the `! response` guard the
+	// response would be replaced by a full-page spinner on each action, which is
+	// exactly what staying on the page is meant to avoid.
+	if ( isValidId && isLoading && ! response ) {
 		return renderMessagePage(
 			isValidId ? `#${ id }` : __( 'Response', 'jetpack-forms' ),
 			__( 'Response', 'jetpack-forms' ),
@@ -295,7 +302,11 @@ function Stage(): React.JSX.Element {
 						onPrevious={ goPrevious }
 						onClose={ null }
 					/>
-					<SingleResponseActions response={ response } isBlocked={ isMutating } />
+					<SingleResponseActions
+						response={ response }
+						isBlocked={ isConfirmDialogOpen || isSaving }
+						onBusyChange={ setIsMenuBusy }
+					/>
 				</Stack>
 			}
 			showFooter={ false }

@@ -189,9 +189,14 @@ class Feedback_Email_Renderer {
 			// Test responses don't get a Mark-as-spam link in the email — marking
 			// a test entry as spam from email is confusing and the form owner can
 			// always do it from the dashboard if they want. Neither do submissions
-			// already flagged as spam (sites can mail those via $send_even_if_spam):
-			// the button would land on a page with nothing to confirm.
-			if ( ! $is_test && ! $is_spam ) {
+			// that already sit outside the inbox: sites can mail spam via
+			// `grunion_still_email_spam`, and a disallowed-list hit is emailed with
+			// `$feedback_status = 'trash'` while `$is_spam` stays false. The single
+			// response page has nothing to confirm for either, so the button would
+			// land somewhere that silently does nothing.
+			$is_already_filed = $is_spam || in_array( $feedback_status, array( 'spam', 'trash' ), true );
+
+			if ( ! $is_test && ! $is_already_filed ) {
 				$mark_as_spam_url        = self::add_mark_as_spam_to_url( $dashboard_url );
 				$footer_mark_as_spam_url = sprintf(
 					'<a href="%1$s">%2$s</a>',
@@ -233,9 +238,10 @@ class Feedback_Email_Renderer {
 		// Use fully table-based layout for maximum email client compatibility - no display:inline-block.
 		$actions = '';
 		if ( $dashboard_url ) {
-			if ( $is_test ) {
-				// For test submissions, only show the "View in dashboard" button
-				// centered — we deliberately drop the Mark-as-spam shortcut.
+			if ( ! $mark_as_spam_url ) {
+				// Only "View in dashboard", centered. Keyed on the URL rather than on
+				// why it is missing, so every suppression path renders one button
+				// instead of an empty `href`.
 				$actions = sprintf(
 					'<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="button-table" align="center" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto;">
 						<tr>

@@ -61,7 +61,9 @@ export type DispatchActions = {
 		kind: string,
 		name: string,
 		records: FormResponse[],
-		query?: QueryParams,
+		// Collection queries carry keys beyond the dashboard's own filters (e.g.
+		// `include`, `fields_format`), so this is wider than `QueryParams`.
+		query?: QueryParams | Record< string, unknown >,
 		invalidateCache?: boolean
 	) => void;
 	invalidateResolution: ( selector: string, args: unknown[] ) => void;
@@ -155,12 +157,20 @@ export type Action = {
 };
 
 /**
- * An action whose callback must report its outcome on every terminal path.
+ * An action whose callback is expected to report its outcome on every terminal path.
  *
  * Callers that keep the user in place gate on the result, so a success path that
- * forgot to return one would read as "did nothing" — this makes that a compile
- * error. `markAsRead` / `markAsUnread` keep the looser `Action`: nothing inspects
- * their result.
+ * forgot to return one reads as "did nothing" — the repair is skipped and the badge
+ * goes stale.
+ *
+ * This documents intent more than it enforces it. The shared tsconfig sets
+ * `strict: false`, so with `strictNullChecks` off a callback that returns a result
+ * on some paths and falls through on another still satisfies this type; only a
+ * callback whose every path is void is rejected. Enabling `strictNullChecks` +
+ * `noImplicitReturns` for this package would close the gap.
+ *
+ * `markAsRead` / `markAsUnread` keep the looser `Action`: nothing inspects their
+ * result.
  */
 export type ReportingAction = Omit< Action, 'callback' > & {
 	callback: ActionCallback< ActionResult >;

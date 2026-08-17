@@ -791,7 +791,64 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 			'A spam submission must not be emailed a Mark as spam link.'
 		);
 
+		// Asserting the URL token is absent is not enough: suppressing the URL while
+		// still rendering the button emits `<a href="">Mark as spam</a>`, which the
+		// token assertion happily passes. Pin the button and the empty href too.
+		$this->assertStringNotContainsString(
+			'href=""',
+			$result['message'],
+			'Suppressing the Mark as spam URL must suppress its button, not leave an empty href.'
+		);
+		$this->assertDoesNotMatchRegularExpression(
+			'#<a[^>]*class="[^"]*action-button[^"]*"[^>]*>\s*' . preg_quote( __( 'Mark as spam', 'jetpack-forms' ), '#' ) . '\s*</a>#',
+			$result['message'],
+			'The Mark as spam button must not render for a submission that is already filed.'
+		);
+
 		// The View in dashboard button is still offered.
+		$this->assertStringContainsString(
+			esc_url( Dashboard::get_single_response_admin_url( $post_id ) ),
+			$result['message']
+		);
+	}
+
+	/**
+	 * A disallowed-list hit is emailed with `trash` status and no Mark-as-spam button.
+	 *
+	 * `$is_spam` stays false for these, so keying the suppression on that flag alone
+	 * would leave the button pointing at a page with nothing to confirm.
+	 */
+	public function test_build_email_content_omits_mark_as_spam_for_trashed_submission() {
+		add_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'Name'  => 'Test User',
+				'Email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User'
+		);
+
+		$form     = new Contact_Form( array(), '' );
+		$response = Feedback::get( $post_id );
+
+		$context_data = array(
+			'time'                 => current_time( 'mysql' ),
+			'url'                  => 'https://example.com',
+			'comment_author'       => 'Test User',
+			'comment_author_email' => 'test@example.com',
+			'comment_author_ip'    => '127.0.0.1',
+			'is_spam'              => false,
+			'feedback_status'      => 'trash',
+		);
+
+		$result = Feedback_Email_Renderer::build_email_content( $post_id, $form, $response, $context_data );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		$this->assertStringNotContainsString( 'mark_as_spam', $result['message'] );
+		$this->assertStringNotContainsString( 'href=""', $result['message'] );
 		$this->assertStringContainsString(
 			esc_url( Dashboard::get_single_response_admin_url( $post_id ) ),
 			$result['message']

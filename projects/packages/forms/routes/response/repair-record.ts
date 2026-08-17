@@ -38,13 +38,13 @@ export default function repairResponseRecord(
 	receiveEntityRecords: DispatchActions[ 'receiveEntityRecords' ],
 	response: FormResponse,
 	nextStatus: FormResponse[ 'status' ],
-	query: object
+	query: Record< string, unknown >
 ): void {
 	receiveEntityRecords(
 		'postType',
 		'feedback',
 		[ { ...response, status: nextStatus } ],
-		query as never,
+		query,
 		true
 	);
 }
