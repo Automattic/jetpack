@@ -73,6 +73,7 @@ const REPORT_SECTIONS: Record< GeoGranularity, LocationsReportSection > = {
 	region: 'regions',
 	city: 'cities',
 };
+const DEFAULT_GEO_GRANULARITY: GeoGranularity = 'country';
 
 function getGeoChartCountryId( countryCode: string ): string {
 	if ( countryCode.toUpperCase() === 'TW' ) {
@@ -119,7 +120,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 			reportParams,
 			max,
 			geoMode,
-			countryFilter: geoMode === 'region' ? activeSelectedCountry?.code : undefined,
+			countryFilter: activeSelectedCountry?.code,
 		} );
 	const [ renderLocationState, setRenderLocationState ] = useState< RenderLocationState >( {
 		geoMode,
@@ -395,12 +396,12 @@ export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 	// Attributes are persisted, so a stale layout can carry a granularity this
 	// widget no longer knows. Normalize once, before it becomes both the endpoint
 	// path segment and the report tab.
-	const storedGranularity = attributes?.geoGranularity ?? 'country';
+	const storedGranularity = attributes?.geoGranularity ?? DEFAULT_GEO_GRANULARITY;
 	// `in` would also accept inherited keys such as `toString`, which would then
 	// reach the endpoint as a path segment.
 	const geoGranularity = Object.prototype.hasOwnProperty.call( REPORT_SECTIONS, storedGranularity )
 		? storedGranularity
-		: 'country';
+		: DEFAULT_GEO_GRANULARITY;
 
 	return (
 		<WidgetRoot attributes={ attributes }>

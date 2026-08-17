@@ -83,12 +83,14 @@ describe( 'LocationsWidget', () => {
 	} );
 
 	it.each( [
-		[ undefined, 'countries' ],
+		[ 'default', 'countries' ],
 		[ 'country', 'countries' ],
 		[ 'region', 'regions' ],
 		[ 'city', 'cities' ],
 	] as const )( 'opens the %s granularity on the %s report tab', ( geoGranularity, section ) => {
-		render( <LocationsWidget attributes={ geoGranularity ? { geoGranularity } : {} } /> );
+		render(
+			<LocationsWidget attributes={ geoGranularity === 'default' ? {} : { geoGranularity } } />
+		);
 
 		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
