@@ -2295,7 +2295,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "60c053ace8f2475c24a75c6e509a0944f4374196"
+                "reference": "d35c915c1292adb1ab2a37c7dc1756b87ebd0ea7"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2321,6 +2321,7 @@
                 "automattic/jetpack-search": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/jetpack-videopress": "@dev",
+                "automattic/jetpack-waf": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
@@ -2336,7 +2337,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.42.x-dev"
+                    "dev-trunk": "5.43.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2344,7 +2345,8 @@
                 "dependencies": {
                     "test-only": [
                         "packages/search",
-                        "packages/videopress"
+                        "packages/videopress",
+                        "packages/waf"
                     ]
                 }
             },
@@ -3442,7 +3444,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "823cc9be772698d85fcc6ea2873d9e7b15371713"
+                "reference": "a243459bd466475dc8b59f6e009abc3f55fd459c"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -3471,7 +3473,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "7.3.x-dev"
+                    "dev-trunk": "7.4.x-dev"
                 },
                 "version-constants": {
                     "::VERSION": "src/class-package.php"
@@ -3877,7 +3879,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "0f1636b0331443d7551560d8964a8592ba885155"
+                "reference": "e6a782e16f4b69435b2fa543bc697177084b5fb3"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3906,7 +3908,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.45.x-dev"
+                    "dev-trunk": "0.46.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Concatenate JS/CSS: Add a `jetpack_boost_minify_use_static_cache_urls` filter to override whether bundles are linked from the static cache.

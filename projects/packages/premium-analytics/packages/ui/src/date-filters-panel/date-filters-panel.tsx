@@ -3,14 +3,16 @@
  */
 import {
 	getQuickSurfacePresets,
+	canStepForward,
 	isComparisonPresetId,
 	isPrimaryPreset,
 	type ComparisonPresetId,
 	type IntervalType,
 	type PrimaryPresetId,
+	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { formatDateRangeCompact } from '@jetpack-premium-analytics/formatters';
+import { formatDateRangeMinimal } from '@jetpack-premium-analytics/formatters';
 import { BaseControl } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { flushSync } from '@wordpress/element';
@@ -21,14 +23,10 @@ import { useMemo, useCallback, useState, useEffect, type CSSProperties } from 'r
  */
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
+import { DatePeriodNavigation } from '../date-period-navigation';
 import { DateRangeFilter } from '../date-range-filter';
 import { resolvePresetLabelMode, WIDE_CALENDAR_CONTAINER_THRESHOLD } from '../date-range-layout';
-import {
-	getCommittedCustomRange,
-	getCustomTriggerLabel,
-	getCustomTriggerState,
-	type RememberedCustomRange,
-} from '../date-range-popover';
+import { getCustomTriggerLabel, getCustomTriggerState } from '../date-range-popover';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 import { PresetRowProbe } from './preset-row-probe';
 
@@ -87,6 +85,13 @@ export type DateFiltersPanelProps = {
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 
 	onIntervalChange?: ( interval: IntervalType ) => void;
+
+	/**
+	 * Steps the applied window backward or forward by its own length. Left out,
+	 * the navigation controls are not rendered at all: a surface whose range is
+	 * not a movable window has nowhere to step.
+	 */
+	onStep?: ( direction: StepDirection ) => void;
 
 	/**
 	 * Props for the date range popover.
@@ -156,6 +161,7 @@ export function DateFiltersPanel( {
 	onChange,
 	onComparisonChange,
 	onIntervalChange,
+	onStep,
 	rangeControlProps = {
 		label: null,
 		help: null,
@@ -261,27 +267,6 @@ export function DateFiltersPanel( {
 		return () => setObserverRef( null );
 	}, [ containerElement, rootElement, setObserverRef ] );
 
-	/*
-	 * The last applied custom range, so the trigger can offer the way back to it
-	 * while a preset drives the range.
-	 *
-	 * Owned here rather than in the popover because the probe has to reproduce
-	 * the trigger's label exactly; held downstream it would measure "Custom"
-	 * against a trigger showing a formatted range. Only ever set: a preset
-	 * selection clears the committed custom range, which is the thing worth
-	 * surviving.
-	 */
-	const [ rememberedCustomRange, setRememberedCustomRange ] =
-		useState< RememberedCustomRange | null >( null );
-
-	useEffect( () => {
-		const committedCustomRange = getCommittedCustomRange( validatedAppliedPresetId, appliedRange );
-
-		if ( committedCustomRange ) {
-			setRememberedCustomRange( committedCustomRange );
-		}
-	}, [ validatedAppliedPresetId, appliedRange ] );
-
 	// Derived through the same helpers the trigger uses, so the probe measures
 	// the string the trigger is actually showing.
 	const customTriggerLabel = useMemo( () => {
@@ -296,16 +281,14 @@ export function DateFiltersPanel( {
 			} ),
 			range,
 			committedRange,
-			rememberedCustomRange,
 			customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
-			formatRange: formatDateRangeCompact,
+			formatRange: formatDateRangeMinimal,
 		} );
 	}, [
 		appliedRange,
 		canApply,
 		isPrimaryPickerOpen,
 		range,
-		rememberedCustomRange,
 		validatedAppliedPresetId,
 		validatedPresetId,
 	] );
@@ -342,6 +325,29 @@ export function DateFiltersPanel( {
 			validatedComparisonPresetId,
 		]
 	);
+
+	/*
+	 * Same arrangement as the other two: built once, rendered in the row and in
+	 * the probe.
+	 *
+	 * Read from the applied range, not the staged one. The arrows sit outside
+	 * the picker and commit on click, so a range being drafted must not decide
+	 * whether the forward one is there.
+	 */
+	const navigationControl = useMemo( () => {
+		if ( ! onStep ) {
+			return null;
+		}
+
+		const committedRange = appliedRange ?? range;
+
+		return (
+			<DatePeriodNavigation
+				canStepForward={ canStepForward( committedRange, new Date() ) }
+				onStep={ onStep }
+			/>
+		);
+	}, [ appliedRange, onStep, range ] );
 
 	// Same arrangement as the comparison control: built once, rendered in the
 	// row and in the probe.
@@ -395,12 +401,15 @@ export function DateFiltersPanel( {
 			<PresetRowProbe
 				presets={ surfacePresets }
 				customTriggerLabel={ customTriggerLabel }
-				interval={ intervalControl }
+				navigation={ navigationControl }
 				comparison={ comparisonControl }
+				interval={ intervalControl }
 				onMeasure={ handleProbeMeasure }
 			/>
 
 			<Stack className="date-filters-panel__row" direction="row" gap="sm">
+				{ navigationControl }
+
 				<BaseControl
 					className="date-filters-panel__primary"
 					label={ rangeControlProps.label }
@@ -419,13 +428,12 @@ export function DateFiltersPanel( {
 						timeZone={ timeZone }
 						labelMode={ labelMode }
 						isWideScreen={ isWideScreen }
-						rememberedCustomRange={ rememberedCustomRange }
 						onOpenChange={ setIsPrimaryPickerOpen }
 					/>
 				</BaseControl>
 
-				{ intervalControl }
-
+				{ /* Comparison before the interval: it qualifies the range the
+				     presets just set, while the interval only buckets the charts. */ }
 				{ showComparison && (
 					<BaseControl
 						className="date-filters-panel__comparison"
@@ -434,6 +442,8 @@ export function DateFiltersPanel( {
 						{ comparisonControl }
 					</BaseControl>
 				) }
+
+				{ intervalControl }
 			</Stack>
 		</div>
 	);

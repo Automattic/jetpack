@@ -20,7 +20,7 @@ import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { DashboardSections } from './components';
-import { DATE_FILTER_YEAR, resolveSectionHeading } from './config';
+import { DATE_FILTER_YEAR, offersDateComparison, resolveSectionHeading } from './config';
 import {
 	useActiveSection,
 	useDashboardGridSettings,
@@ -88,16 +88,20 @@ function Dashboard(): JSX.Element {
 	 */
 	const dateFilterSurface = useSectionDateFilter( activeSectionRecord, dateFilters );
 
+	// Server-driven, like the surface above.
+	const showComparison = offersDateComparison(
+		dateFilterSurface,
+		activeSectionRecord?.date_filter_options
+	);
+
 	/*
 	 * The subtitle states what the widgets are currently showing, so it follows
 	 * the applied range and comparison rather than the picker's staged draft:
 	 * it must not move while an edit is open, only once Apply commits it.
 	 *
-	 * The year surface offers no comparison control, so its subtitle must not
-	 * announce one it cannot be switched off from.
+	 * A header without the comparison control must not announce one.
 	 */
-	const comparisonPresetId =
-		dateFilterSurface === DATE_FILTER_YEAR ? undefined : dateFilters.appliedComparisonPresetId;
+	const comparisonPresetId = showComparison ? dateFilters.appliedComparisonPresetId : undefined;
 	const sectionSubtitle = useMemo(
 		() =>
 			getSectionSubtitle( {
@@ -185,7 +189,7 @@ function Dashboard(): JSX.Element {
 			 * report pages mount this same panel over records tables, which are
 			 * not, so the control is asked for rather than implied by the props.
 			 */
-			<DateFiltersPanel { ...dateFilters } withIntervalControl />
+			<DateFiltersPanel { ...dateFilters } withIntervalControl showComparison={ showComparison } />
 		);
 
 	return (
@@ -219,10 +223,15 @@ function Dashboard(): JSX.Element {
 								value={ section.slug }
 								className={ styles.content }
 							>
+								{ /* Marks where the header below comes to rest, so its subtitle
+								     starts condensing there. Measured, never seen. */ }
+								<div className={ styles.pinMarker } aria-hidden="true" />
+
 								<div ref={ setContainerElement } className={ styles.sectionHeader }>
 									<SectionHeader
 										title={ resolveSectionHeading( section ) }
 										subtitle={ sectionSubtitle }
+										condenseOnScroll
 									>
 										{ dateControls }
 									</SectionHeader>

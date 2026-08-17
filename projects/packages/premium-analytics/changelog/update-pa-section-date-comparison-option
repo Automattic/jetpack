@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Date controls: Let each dashboard section declare whether its header offers the period-over-period comparison control.

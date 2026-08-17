@@ -3616,4 +3616,65 @@ class Search_Blocks_Test extends TestCase {
 			);
 		}
 	}
+	/**
+	 * A block directory may nest child blocks that only ever render inside it.
+	 * Without the descent the child is never registered, and its markup renders
+	 * as an unrecognized block.
+	 */
+	public function test_block_directories_includes_nested_child_blocks() {
+		$dirs = array_map( 'basename', Search_Blocks::block_directories() );
+		$this->assertContains( 'no-results', $dirs );
+		$this->assertContains( 'slot', $dirs, 'the no-results child block must be discovered' );
+	}
+
+	/**
+	 * Parents come before their children so a child is never registered against
+	 * a parent WordPress has not seen yet.
+	 */
+	public function test_block_directories_lists_a_parent_before_its_child() {
+		$paths  = array_map(
+			static function ( $dir ) {
+				return str_replace( '\\', '/', $dir );
+			},
+			Search_Blocks::block_directories()
+		);
+		$parent = null;
+		$child  = null;
+		foreach ( $paths as $i => $path ) {
+			if ( substr( $path, -strlen( '/blocks/no-results' ) ) === '/blocks/no-results' ) {
+				$parent = $i;
+			}
+			if ( substr( $path, -strlen( '/blocks/no-results/slot' ) ) === '/blocks/no-results/slot' ) {
+				$child = $i;
+			}
+		}
+		$this->assertNotNull( $parent );
+		$this->assertNotNull( $child );
+		$this->assertLessThan( $child, $parent );
+	}
+
+	/**
+	 * Every directory handed to `register_block_type()` must actually hold a
+	 * `block.json`, or registration emits a `_doing_it_wrong()` notice.
+	 */
+	public function test_block_directories_all_hold_a_block_json() {
+		foreach ( Search_Blocks::block_directories() as $dir ) {
+			$this->assertFileExists( $dir . '/block.json' );
+		}
+	}
+
+	/**
+	 * A child inherits its parent's WooCommerce gate for free — a skipped
+	 * parent is never descended into, so no orphan child slips through.
+	 */
+	public function test_block_directories_skips_woocommerce_only_blocks_when_gated_off() {
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( false );
+		$off = array_map( 'basename', Search_Blocks::block_directories() );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( true );
+		$on = array_map( 'basename', Search_Blocks::block_directories() );
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( null );
+
+		$this->assertContains( 'filters-product', $on );
+		$this->assertNotContains( 'filters-product', $off );
+	}
 }

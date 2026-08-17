@@ -28,19 +28,40 @@ const date = createTZDateFromParts( [ 2025, 9, 9 ], 'America/New_York' );
 
 **Returns:** `TZDate` - Timezone-aware date object
 
+#### `siteTimeZone()`
+
+The site's timezone, as an identifier `Intl` accepts. Reads the WordPress
+date settings that ship with the page, so it needs no await.
+
+```typescript
+siteTimeZone(); // 'America/New_York', or '+05:30' on an offset-configured site
+```
+
+**Returns:** `string` - An IANA zone name, or a `±HH:MM` offset
+
 #### `toLocalTZ( value?, timezone? )`
 
 Creates a timezone-aware date in the specified timezone.
 
+A string that states no offset — `YYYY-MM-DD`, or a `T`- or space-separated
+datetime — is read as **wall time** in that timezone. Values that already
+identify an instant (offset-bearing strings, timestamps, `Date`s) keep their
+instant. Surrounding whitespace is ignored, and a clock time or calendar date
+that does not exist yields an invalid date rather than rolling over — whether
+or not the value states an offset. `parseSiteDateTime` accepts exactly the same
+values, so the two cannot disagree on what is parseable.
+
 ```typescript
-const date = toLocalTZ( '2024-01-15', 'America/New_York' );
+const date = toLocalTZ( '2024-01-15', 'America/New_York' ); // Jan 15 00:00 in New York
 const now = toLocalTZ( undefined, '+05:30' ); // Current time in +05:30
+toLocalTZ( '2024-02-31', 'America/New_York' ); // Invalid Date
+toLocalTZ( '2024-02-31T00:00:00Z', 'America/New_York' ); // Invalid Date
 ```
 
 **Parameters:**
 
 - `value` (optional): `number | string | Date` - Date value to convert
-- `timezone` (optional): `string` - Target timezone
+- `timezone` (optional): `string` - Target timezone, default is UTC
 
 **Returns:** `TZDate` - Timezone-aware date object
 
@@ -105,6 +126,40 @@ if inputs are invalid
 - `previous-month` - One month before reference dates
 - `previous-year` - One year before reference dates
 
+### Range Measurement and Stepping
+
+#### `getDateRangeSpan( range? )`
+
+Measures how long a range is, in the coarsest unit that divides it evenly.
+Returns `null` when the range is missing an end.
+
+```typescript
+getDateRangeSpan( { from, to } );
+// 24 hours:  { unit: 'hour', value: 24 }
+// 7 days:    { unit: 'day', value: 7 }
+// 12 months: { unit: 'month', value: 12 }
+```
+
+A whole-month range stays in days below two months and only collapses into
+years from two years up, so "Last 30 days" reads as 30 days and a
+twelve-month window as 12 months.
+
+#### `stepDateRange( range, direction )`
+
+Shifts a range backward or forward (`'previous' | 'next'`) by its own length.
+Steps move in calendar units, so a step across a DST boundary keeps the wall
+clock; where a calendar step cannot be undone, it falls back to whole days.
+Returns `undefined` when the range has no measurable span.
+
+```typescript
+stepDateRange( { from, to }, 'previous' ); // Last 7 days -> the 7 days before
+```
+
+#### `canStepForward( range, now )`
+
+Whether the next window has already happened in full. Pass the site's `now`,
+not the browser's.
+
 ## Types
 
 ### `DateRange`
@@ -120,6 +175,15 @@ type DateRange = {
 
 ```typescript
 type ComparisonPresetId = 'previous-period' | 'previous-month' | 'previous-year';
+```
+
+### `DateRangeSpan`
+
+```typescript
+type DateRangeSpan = {
+	unit: 'hour' | 'day' | 'month' | 'year';
+	value: number;
+};
 ```
 
 ## Dependencies

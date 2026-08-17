@@ -64,7 +64,7 @@ class Analytics_Test extends TestCase {
 			'The fixture build leaked from an earlier test: process isolation is not working.'
 		);
 
-		unset( $GLOBALS['jpa_test_build_loaded'] );
+		unset( $GLOBALS['jpa_test_build_loaded'], $GLOBALS['jpa_test_interceptor_priority'] );
 	}
 
 	/**
@@ -83,7 +83,6 @@ class Analytics_Test extends TestCase {
 		remove_all_actions( 'plugins_loaded' );
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'admin_menu' );
-		remove_all_actions( 'jetpack-premium-analytics_init' );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		remove_all_filters( 'rest_post_dispatch' );
 		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
@@ -256,6 +255,34 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * The build's full-page interceptor is unhooked.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_full_page_interceptor_is_unhooked() {
+		$this->use_fixture_build();
+		set_current_screen( self::MENU_HOOKNAME );
+
+		Analytics::init();
+		do_action( 'init' );
+
+		// Without this the assertion below passes on a fixture that never hooked the
+		// interceptor, which is the state it is supposed to detect.
+		$this->assertSame(
+			10,
+			$GLOBALS['jpa_test_interceptor_priority'] ?? null,
+			'The fixture build did not hook the interceptor, so removing it proves nothing.'
+		);
+		$this->assertFalse(
+			has_action( 'admin_init', 'jpa_jetpack_premium_analytics_intercept_render' ),
+			'The wp-build full-page interceptor is still hooked, leaving ?page=jetpack-premium-analytics renderable wherever admin_init runs without Core\'s menu access check.'
+		);
+	}
+
+	/**
 	 * The admin-ajax.php endpoint sets is_admin() true but does not get the build.
 	 *
 	 * Defining DOING_AJAX is safe here only because the test runs in its own
@@ -278,11 +305,8 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * The admin-post.php endpoint reaches the interceptor the way admin-ajax does.
-	 *
-	 * Core defines WP_ADMIN and fires admin_init there before it checks the user
-	 * is logged in, so an ungated build answers ?page=jetpack-premium-analytics
-	 * with a full dashboard page for anyone.
+	 * The admin-post.php endpoint sets is_admin() true the way admin-ajax does,
+	 * and renders no dashboard either, so it does not get the build.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -376,23 +400,23 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * The full-page dashboard slug in admin is recognized as a dashboard request.
+	 * The wp-admin integrated dashboard slug in admin is recognized as a dashboard request.
 	 */
-	public function test_is_dashboard_request_true_for_full_page_slug() {
-		set_current_screen( 'toplevel_page_jetpack-premium-analytics' );
-		$_GET['page'] = 'jetpack-premium-analytics';
+	public function test_is_dashboard_request_true_for_wp_admin_slug() {
+		set_current_screen( self::MENU_HOOKNAME );
+		$_GET['page'] = self::MENU_SLUG;
 
 		$this->assertTrue( Analytics::is_dashboard_request() );
 	}
 
 	/**
-	 * The wp-admin integrated dashboard slug in admin is recognized as a dashboard request.
+	 * The removed full-page slug is not a dashboard request.
 	 */
-	public function test_is_dashboard_request_true_for_wp_admin_slug() {
+	public function test_is_dashboard_request_false_for_full_page_slug() {
 		set_current_screen( 'toplevel_page_jetpack-premium-analytics' );
-		$_GET['page'] = 'jetpack-premium-analytics-wp-admin';
+		$_GET['page'] = 'jetpack-premium-analytics';
 
-		$this->assertTrue( Analytics::is_dashboard_request() );
+		$this->assertFalse( Analytics::is_dashboard_request() );
 	}
 
 	/**
@@ -420,7 +444,7 @@ class Analytics_Test extends TestCase {
 	 */
 	public function test_is_dashboard_request_false_on_front_end() {
 		set_current_screen( 'front' );
-		$_GET['page'] = 'jetpack-premium-analytics';
+		$_GET['page'] = self::MENU_SLUG;
 
 		$this->assertFalse( Analytics::is_dashboard_request() );
 	}

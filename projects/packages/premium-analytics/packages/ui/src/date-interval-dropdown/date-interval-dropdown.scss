@@ -1,7 +1,8 @@
 @use "../styles/menu-trigger";
 
 // A glyph and nothing else, so it takes the shared trigger box squared off
-// against the row's height, the way the comparison control's `+` state does.
+// against the row's height. The only control on the row sized that way: the
+// comparison beside it carries text in both of its states.
 .date-interval-dropdown {
 
 	@include menu-trigger.container;

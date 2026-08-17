@@ -166,11 +166,14 @@ export default function Edit( { attributes, setAttributes, clientId, isSelected 
 		renderAppender = InnerBlocks.ButtonBlockAppender;
 	}
 
-	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		template: getStepTemplate( hasPrevNavigation ),
-		allowedBlocks: ALLOWED_BLOCKS,
-		renderAppender,
-	} );
+	const innerBlocksProps = useInnerBlocksProps(
+		{ className: 'wp-block-jetpack-form-step jetpack-form-step__container' },
+		{
+			template: getStepTemplate( hasPrevNavigation ),
+			allowedBlocks: ALLOWED_BLOCKS,
+			renderAppender,
+		}
+	);
 
 	useEffect( () => {
 		if (
