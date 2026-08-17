@@ -52,13 +52,7 @@ It always resolves at the `GlobalChartsProvider` wrapper, not at the calling cha
 
 ## Theming
 
-The package's `--a8c-charts-*` catalog (see `TOKENS.md`) is emitted once, on the
-`GlobalChartsProvider` wrapper element — every chart either sits under an explicit
-`GlobalChartsProvider` or auto-mounts its own, so a chart always has the catalog
-available by CSS inheritance. Consumers override a role by setting the matching
-`--a8c-charts-*` custom property on the provider wrapper, or on any element **inside**
-the provider tree between the wrapper and the chart — the closest such declaration
-wins:
+The package's `--a8c-charts-*` catalog (see `TOKENS.md`) is emitted once, on the `GlobalChartsProvider` wrapper element — every chart either sits under an explicit `GlobalChartsProvider` or auto-mounts its own, so a chart always has the catalog available by CSS inheritance. Consumers override a role by setting the matching `--a8c-charts-*` custom property on the provider wrapper, or on any element **inside** the provider tree between the wrapper and the chart — the closest such declaration wins:
 
 ```css
 .my-dashboard {
@@ -75,17 +69,9 @@ wins:
 </GlobalChartsProvider>
 ```
 
-Setting `--a8c-charts-color-grid` on an ancestor of `GlobalChartsProvider` itself has
-no effect — the provider's own catalog declaration on its wrapper element beats a
-value merely inherited from further up the tree, so the override must be made inside
-the provider's tree (see TOKENS.md's "Precedence" section for the full ordering).
+Setting `--a8c-charts-color-grid` on an ancestor of `GlobalChartsProvider` itself has no effect — the provider's own catalog declaration on its wrapper element beats a value merely inherited from further up the tree, so the override must be made inside the provider's tree (see TOKENS.md's "Precedence" section for the full ordering).
 
-The `theme` prop is a second, narrower override path. Five `ChartTheme` fields
-correspond directly to a catalog role, and setting one republishes it as the matching
-instance-scoped `--a8c-charts-*` variable on the provider's wrapper element — so the
-CSS-painted value (read by SVG/Google Charts through `getComputedStyle`) and the
-JS-resolved value (read through `resolveThemeColor` / `getElementStyles`) stay in
-step:
+The `theme` prop is a second, narrower override path. Five `ChartTheme` fields correspond directly to a catalog role, and setting one republishes it as the matching instance-scoped `--a8c-charts-*` variable on the provider's wrapper element — so the CSS-painted value (read by SVG/Google Charts through `getComputedStyle`) and the JS-resolved value (read through `resolveThemeColor` / `getElementStyles`) stay in step:
 
 | `theme` field | Catalog role |
 | --- | --- |
@@ -95,18 +81,9 @@ step:
 | `xTickLineStyles.stroke` | `--a8c-charts-color-tick` |
 | `svgLabelSmall.fill` | `--a8c-charts-color-label-axis` |
 
-Each field maps to a role read by exactly the elements that field already controlled.
-Where the obvious role is shared more widely, the field maps to a narrow role that
-derives from it: `svgLabelSmall.fill` writes `--a8c-charts-color-label-axis`, which
-defaults to `--a8c-charts-color-label` but leaves legend labels, heatmap cell values,
-funnel labels and the line-chart tooltip alone. Set the broad role in CSS to move all
-of them together.
+Each field maps to a role read by exactly the elements that field already controlled. Where the obvious role is shared more widely, the field maps to a narrow role that derives from it: `svgLabelSmall.fill` writes `--a8c-charts-color-label-axis`, which defaults to `--a8c-charts-color-label` but leaves legend labels, heatmap cell values, funnel labels and the line-chart tooltip alone. Set the broad role in CSS to move all of them together.
 
-A value that already points at the role it would define (the default theme's own
-catalog pointer, surviving `mergeThemes`) is not republished — emitting it would make
-the custom property reference itself, which CSS discards. Because `theme` is merged
-sparsely with `defaultTheme`, a field you don't set falls through to the catalog
-default rather than to a separate JS default value.
+A value that already points at the role it would define (the default theme's own catalog pointer, surviving `mergeThemes`) is not republished — emitting it would make the custom property reference itself, which CSS discards. Because `theme` is merged sparsely with `defaultTheme`, a field you don't set falls through to the catalog default rather than to a separate JS default value.
 
 ## ChartRegistration Type
 
