@@ -158,11 +158,11 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	 * The proxy alone is not enough: without a stored detection result there is
 	 * nothing ruling out a support session, so the gate must stay shut.
 	 *
-	 * wpcomsh reports a missing cookie as "not a support session", which is the
-	 * wrong default to build an authorization gate on — the cookie expires on
-	 * wpcom's schedule, is SameSite=Strict so a cross-site navigation omits it,
-	 * and can simply be deleted. Trusting that answer let the support session this
-	 * gate exists to exclude walk straight through it.
+	 * The wpcomsh detector reports a missing cookie as "not a support session",
+	 * which is the wrong default to build an authorization gate on: the cookie
+	 * expires on wpcom's schedule, is SameSite=Strict so a cross-site navigation
+	 * omits it, and can simply be deleted. Trusting that answer let the support
+	 * session this gate exists to exclude walk straight through it.
 	 */
 	public function test_gate_rejects_atomic_request_without_a_detection_result() {
 		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
