@@ -68,21 +68,37 @@ function has_email_editor_package() {
 }
 
 /**
- * Whether this proof of concept is switched on for the site.
+ * Whether this proof of concept is switched on for the current site.
  *
- * Off unless a site explicitly opts in with
- * `define( 'JETPACK_NEWSLETTER_STYLES_DEV', true );`.
+ * Off unless `JETPACK_NEWSLETTER_STYLES_DEV` is defined. The constant carries
+ * its own scope so that no site identifier has to live in the codebase:
  *
- * Everything here is exploratory and some of it is visible to site owners —
- * it registers a newsletter template and an admin screen, and its stand-ins
- * for a missing email editor package fabricate a theme and *create* a
- * `wp_global_styles` post. None of that should happen on a site that merely
- * updated Jetpack, so nothing runs without the opt-in.
+ *   true                  Enabled everywhere. Fine for a single-site local
+ *                         development environment.
+ *   123 | array( 1, 2 )   Enabled only for those blog IDs. Use this anywhere a
+ *                         request can reach a site whose data matters, so that
+ *                         visiting an unrelated site cannot switch it on.
+ *
+ * Scoping matters more than usual here: this registers a newsletter template
+ * and an admin screen, and simply loading the post editor resolves the email
+ * styles record, which the email editor package *creates* if it is missing
+ * (`User_Theme::ensure_theme_post()`). None of that should happen to a site
+ * that did not ask for it.
  *
  * @return bool
  */
 function is_enabled() {
-	return defined( 'JETPACK_NEWSLETTER_STYLES_DEV' ) && JETPACK_NEWSLETTER_STYLES_DEV;
+	if ( ! defined( 'JETPACK_NEWSLETTER_STYLES_DEV' ) || ! JETPACK_NEWSLETTER_STYLES_DEV ) {
+		return false;
+	}
+
+	if ( true === JETPACK_NEWSLETTER_STYLES_DEV ) {
+		return true;
+	}
+
+	$allowed_blog_ids = array_map( 'intval', (array) JETPACK_NEWSLETTER_STYLES_DEV );
+
+	return in_array( (int) get_current_blog_id(), $allowed_blog_ids, true );
 }
 
 /**
