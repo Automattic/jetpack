@@ -865,6 +865,23 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Newer connection packages name the missing blog token `no_possible_tokens`; that failure is
+	 * left uncached for the same reason as `missing_token`.
+	 */
+	public function test_get_stats_does_not_cache_a_missing_blog_token() {
+		$expected_error = new WP_Error( 'no_possible_tokens' );
+
+		$this->wpcom_stats
+			->expects( $this->exactly( 2 ) )
+			->method( 'fetch_remote_stats' )
+			->willReturn( $expected_error );
+
+		$this->assertSame( $expected_error, $this->wpcom_stats->get_stats() );
+		$this->assertFalse( self::get_stats_transient( '/sites/1234/stats/' ) );
+		$this->assertSame( $expected_error, $this->wpcom_stats->get_stats() );
+	}
+
+	/**
 	 * A site returning through the connection or checkout flow carries answers from before it
 	 * had one, failures included, and has to be able to ask again.
 	 */
