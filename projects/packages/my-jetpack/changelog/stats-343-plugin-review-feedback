@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Prefix the transient that flags a historically active modules refresh.
