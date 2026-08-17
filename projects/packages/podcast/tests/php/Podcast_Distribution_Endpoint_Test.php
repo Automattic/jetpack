@@ -89,6 +89,24 @@ class Podcast_Distribution_Endpoint_Test extends BaseTestCase {
 		$this->assertSame( 'active', $states['apple'] );
 	}
 
+	public function test_active_share_link_preserves_other_podcatcher_urls() {
+		update_option(
+			'podcasting_show_urls',
+			array( 'apple' => 'https://podcasts.apple.com/us/podcast/id123' )
+		);
+
+		$this->save(
+			array(
+				'state'      => 'active',
+				'share_link' => 'https://pca.st/abcd1234',
+			)
+		);
+
+		$urls = get_option( 'podcasting_show_urls' );
+		$this->assertSame( 'https://podcasts.apple.com/us/podcast/id123', $urls['apple'] );
+		$this->assertSame( 'https://pca.st/abcd1234', $urls['pocketcasts'] );
+	}
+
 	public function test_pending_does_not_downgrade_an_active_state() {
 		update_option( 'podcasting_show_states', array( 'pocketcasts' => 'active' ) );
 
