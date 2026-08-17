@@ -21,11 +21,9 @@ import {
 // names (only a `:where()`-wrapped selector), and `@tsdown/css` marks a
 // `.module.*` file's generated JS proxy `moduleSideEffects: false`
 // (tree-shakeable unless a class name is read); a plain stylesheet gets
-// `moduleSideEffects: "no-treeshake"` instead, so it always ships. Verify with
-// `pnpm run build`, then:
-//   grep -c -- '--a8c-charts-color-grid' dist/index.css        (>= 1)
-//   grep -o ':where(.a8c-charts-scope)' dist/index.css | head -1 (matches)
-// A passing test suite does not catch a dropped stylesheet.
+// `moduleSideEffects: "no-treeshake"` instead, so it always ships.
+// `tools/assert-charts-scope-emitted.ts` fails `pnpm run build` if this
+// regresses — a passing test suite alone does not catch a dropped stylesheet.
 import '../../styles/chart-scope.scss';
 import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
 import {
