@@ -159,13 +159,61 @@ function ensure_development_user_theme_post() {
 }
 
 /**
+ * Register a newsletter template so the site editor has something to attach
+ * email styles to.
+ *
+ * Jetpack ships no newsletter template today — the only email templates on a
+ * site come from the WooCommerce email editor package. Design's suggested
+ * placement assumes one exists, so the spike registers a minimal stand-in to
+ * find out what the site editor does with it.
+ *
+ * @return void
+ */
+function register_newsletter_template() {
+	if ( ! function_exists( 'register_block_template' ) ) {
+		return;
+	}
+
+	register_block_template(
+		'jetpack//newsletter',
+		array(
+			'title'       => __( 'Newsletter', 'jetpack' ),
+			'description' => __( 'The layout used when a post is sent to subscribers by email.', 'jetpack' ),
+			'content'     => '<!-- wp:group {"tagName":"main","layout":{"type":"constrained"}} --><main class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></main><!-- /wp:group -->',
+		)
+	);
+}
+add_action( 'init', __NAMESPACE__ . '\register_newsletter_template' );
+
+/**
+ * Whether the current admin screen is one the panel is demoed on.
+ *
+ * The post editor is where the newsletter sidebar lives. The site editor is the
+ * second placement design asked about, and is a different editor shell — proving
+ * the panel survives both is the point of the spike.
+ *
+ * @return bool
+ */
+function is_supported_screen() {
+	$screen = get_current_screen();
+	if ( ! $screen ) {
+		return false;
+	}
+
+	return 'post' === $screen->post_type || 'site-editor' === $screen->base;
+}
+
+/**
  * Hand the editor everything the styles store needs.
  *
  * @return void
  */
 function enqueue_editor_config() {
-	$screen = get_current_screen();
-	if ( ! $screen || 'post' !== $screen->post_type ) {
+	if ( ! is_admin() ) {
+		return;
+	}
+
+	if ( ! is_supported_screen() ) {
 		return;
 	}
 
@@ -198,4 +246,9 @@ function enqueue_editor_config() {
 		'before'
 	);
 }
-add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_editor_config', 20 );
+// `enqueue_block_assets`, not `enqueue_block_editor_assets`: Jetpack registers
+// the `jetpack-blocks-editor` handle on the former at priority 10, and the
+// latter fires before it — `wp_add_inline_script()` on an unregistered handle
+// silently does nothing. Priority 11 is the convention other extensions that
+// attach data to this handle already follow.
+add_action( 'enqueue_block_assets', __NAMESPACE__ . '\enqueue_editor_config', 11 );

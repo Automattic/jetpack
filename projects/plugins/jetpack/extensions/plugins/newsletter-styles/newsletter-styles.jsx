@@ -73,12 +73,32 @@ const NewsletterStylesFill = () => {
 	);
 };
 
+/**
+ * Whether we are in the site editor rather than the post editor.
+ *
+ * The newsletter sidebar is a post-editor thing, so there is nothing to fill
+ * into here — the panel has to bring its own complementary area.
+ *
+ * @return {boolean} True in the site editor.
+ */
+function isSiteEditor() {
+	return window.location.pathname.endsWith( '/site-editor.php' );
+}
+
 const NewsletterStyles = () => {
 	const postType = useSelect( select => select( 'core/editor' )?.getCurrentPostType(), [] );
 
+	if ( ! config ) {
+		return null;
+	}
+
+	if ( isSiteEditor() ) {
+		return <StylesSidebar />;
+	}
+
 	// Newsletters are ordinary posts. Everything else in the post editor is out
 	// of scope for the spike.
-	if ( ! config || postType !== 'post' ) {
+	if ( postType !== 'post' ) {
 		return null;
 	}
 
