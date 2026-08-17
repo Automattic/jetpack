@@ -147,4 +147,35 @@ describe( 'initPlaylistBlock', () => {
 
 		expect( iframe.src ).toBe( initialSrc );
 	} );
+
+	it( 'does nothing on a block without playable entries', () => {
+		document.body.innerHTML = `
+			<figure class="wp-block-videopress-playlist" data-autoplay-next="1">
+				<iframe class="videopress-playlist__iframe" src="about:blank" title="Empty"></iframe>
+				<ol class="videopress-playlist__entries"></ol>
+			</figure>
+		`;
+		const root = document.querySelector< HTMLElement >( '.wp-block-videopress-playlist' );
+
+		expect( () => initPlaylistBlock( root ) ).not.toThrow();
+
+		postPlayerMessage( 'https://videopress.com', { event: 'videopress_ended', id: 'aaaaaaaa' } );
+		expect( root.querySelector< HTMLIFrameElement >( '.videopress-playlist__iframe' ).src ).toBe(
+			'about:blank'
+		);
+	} );
+
+	it( 'ignores clicks on entries without an embed URL', () => {
+		const root = setUpPlaylist();
+		const entries = root.querySelectorAll< HTMLButtonElement >( '.videopress-playlist__select' );
+		entries[ 1 ].removeAttribute( 'data-embed-url' );
+		const iframe = root.querySelector< HTMLIFrameElement >( '.videopress-playlist__iframe' );
+		const initialSrc = iframe.src;
+
+		entries[ 1 ].click();
+
+		expect( iframe.src ).toBe( initialSrc );
+		expect( entries[ 1 ] ).not.toHaveClass( 'is-current' );
+		expect( entries[ 0 ] ).toHaveClass( 'is-current' );
+	} );
 } );

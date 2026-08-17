@@ -311,4 +311,103 @@ class Playlist_Block_Test extends BaseTestCase {
 			\WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' )
 		);
 	}
+
+	/**
+	 * Hour-long playlists format both timecodes and the long runtime with hours.
+	 */
+	public function test_render_formats_hour_long_durations() {
+		$markup = VideoPress_Initializer::render_videopress_playlist_block(
+			array(
+				'videos' => array(
+					array(
+						'guid'       => 'abcDEF12',
+						'title'      => 'Full workshop recording',
+						'durationMs' => 4384000, // 1:13:04.
+					),
+				),
+			)
+		);
+
+		$this->assertStringContainsString( '1:13:04', $markup );
+		$this->assertStringContainsString( '1 hr 13 min', $markup );
+
+		$markup = VideoPress_Initializer::render_videopress_playlist_block(
+			array(
+				'videos' => array(
+					array(
+						'guid'       => 'abcDEF12',
+						'title'      => 'Two hours of throwing',
+						'durationMs' => 7200000, // 2:00:00.
+					),
+				),
+			)
+		);
+
+		$this->assertStringContainsString( '2:00:00', $markup );
+		$this->assertStringContainsString( '2 hr', $markup );
+	}
+
+	/**
+	 * Without an argument, registration reads the package build output.
+	 */
+	public function test_register_defaults_to_build_metadata() {
+		VideoPress_Initializer::register_videopress_playlist_block();
+
+		$initializer_dir = dirname( ( new \ReflectionClass( VideoPress_Initializer::class ) )->getFileName() );
+		$build_metadata  = $initializer_dir . '/../build/block-editor/blocks/playlist/block.json';
+
+		// Registered exactly when the package build output exists.
+		$this->assertSame(
+			file_exists( $build_metadata ),
+			\WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' )
+		);
+	}
+
+	/**
+	 * Metadata without a block name is not registered.
+	 */
+	public function test_register_skips_metadata_without_name() {
+		$this->fixture_dir = get_temp_dir() . 'playlist-block-' . wp_generate_password( 8, false );
+		mkdir( $this->fixture_dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			$this->fixture_dir . '/block.json',
+			'{}'
+		);
+
+		VideoPress_Initializer::register_videopress_playlist_block( $this->fixture_dir . '/block.json' );
+
+		$this->assertFalse(
+			\WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' )
+		);
+	}
+
+	/**
+	 * With the Jetpack plugin active but the VideoPress module off (and no
+	 * standalone plugin), the block is not registered at all.
+	 *
+	 * Runs in this test's separate process, so the fake Jetpack class doesn't leak.
+	 */
+	public function test_register_skips_when_videopress_module_is_inactive() {
+		class_alias( \stdClass::class, 'Jetpack' );
+
+		$this->fixture_dir = get_temp_dir() . 'playlist-block-' . wp_generate_password( 8, false );
+		mkdir( $this->fixture_dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			$this->fixture_dir . '/block.json',
+			wp_json_encode(
+				array(
+					'apiVersion' => 3,
+					'name'       => 'videopress/playlist',
+					'title'      => 'Video Playlist',
+				),
+				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+			)
+		);
+
+		VideoPress_Initializer::register_videopress_playlist_block( $this->fixture_dir . '/block.json' );
+
+		$this->assertFalse(
+			\WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' )
+		);
+	}
 }
