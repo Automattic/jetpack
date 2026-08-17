@@ -19,6 +19,7 @@ export {
 	ConversionFunnelChart,
 	GeoChart,
 	GlobalChartsProvider,
+	GoogleDataTableColumnRoleType,
 	HeatmapChart,
 	HeatmapChartUnresponsive,
 	LeaderboardChartUnresponsive,

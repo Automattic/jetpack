@@ -4,6 +4,8 @@ export { BarChart, BarChartUnresponsive } from './charts/bar-chart';
 export { BarListChart, BarListChartUnresponsive } from './charts/bar-list-chart';
 export { ConversionFunnelChart } from './charts/conversion-funnel-chart';
 export { GeoChart, GeoChartUnresponsive } from './charts/geo-chart';
+// A value export, not a type: building a tooltip column header needs the enum member itself.
+export { GoogleDataTableColumnRoleType } from './types';
 export {
 	HeatmapChart,
 	HeatmapChartUnresponsive,
@@ -63,7 +65,6 @@ export type {
 	SeriesChartLegendConfig,
 	BaseChartProps,
 	GoogleDataTableColumn,
-	GoogleDataTableColumnRoleType,
 	GoogleDataTableRow,
 	LegendShape,
 	LegendShapeLabel,
