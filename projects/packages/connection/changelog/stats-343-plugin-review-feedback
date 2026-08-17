@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Tracking: sanitize the user agent, IP address, and language recorded with Tracks events.
