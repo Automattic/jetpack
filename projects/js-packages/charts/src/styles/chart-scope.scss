@@ -54,8 +54,8 @@
 		0 8px 8px 0 #00000005;
 
 	--a8c-charts-border-width-focus: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
-	--a8c-charts-motion-duration-series: var(--wpds-motion-duration-xl, 400ms);
-	--a8c-charts-motion-easing-series: var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1));
+	--a8c-charts-motion-duration-entrance: var(--wpds-motion-duration-xl, 400ms);
+	--a8c-charts-motion-easing-entrance: var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1));
 	--a8c-charts-border-radius-bar: var(--wpds-border-radius-md, 4px);
 	--a8c-charts-border-radius-cell: var(--wpds-border-radius-sm, 2px);
 	// Pill shape; no WPDS radius reaches it. The deprecated public name is read at

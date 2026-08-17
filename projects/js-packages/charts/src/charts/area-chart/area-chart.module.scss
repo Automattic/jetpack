@@ -7,8 +7,8 @@
 			transform-origin: 0 95%;
 			transform: scaleY(0);
 			animation:
-				rise var(--a8c-charts-motion-duration-series)
-				var(--a8c-charts-motion-easing-series) forwards;
+				rise var(--a8c-charts-motion-duration-entrance)
+				var(--a8c-charts-motion-easing-entrance) forwards;
 		}
 	}
 

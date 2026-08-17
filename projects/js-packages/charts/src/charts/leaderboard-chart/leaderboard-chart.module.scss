@@ -76,8 +76,8 @@
 			transform-box: fill-box;
 			transform: scaleX(0);
 			animation:
-				stretch var(--a8c-charts-motion-duration-series)
-				var(--a8c-charts-motion-easing-series) forwards;
+				stretch var(--a8c-charts-motion-duration-entrance)
+				var(--a8c-charts-motion-easing-entrance) forwards;
 		}
 
 		@keyframes stretch {

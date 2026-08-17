@@ -150,8 +150,8 @@ ring in contexts where WPDS is not loaded.
 | Role | Maps to `--wpds-*` | Fallback |
 |---|---|---|
 | `--a8c-charts-border-width-focus` | `--wpds-border-width-focus` | `var(--wp-admin-border-width-focus, 2px)` |
-| `--a8c-charts-motion-duration-series` | `--wpds-motion-duration-xl` | `400ms` |
-| `--a8c-charts-motion-easing-series` | `--wpds-motion-easing-expressive` | `cubic-bezier(0.25, 0, 0, 1)` |
+| `--a8c-charts-motion-duration-entrance` | `--wpds-motion-duration-xl` | `400ms` |
+| `--a8c-charts-motion-easing-entrance` | `--wpds-motion-easing-expressive` | `cubic-bezier(0.25, 0, 0, 1)` |
 | `--a8c-charts-border-radius-bar` | `--wpds-border-radius-md` | `4px` |
 | `--a8c-charts-border-radius-cell` | `--wpds-border-radius-sm` | `2px` |
 | `--a8c-charts-border-radius-leaderboard-bar` | _(none — pill shape, no WPDS radius fits)_ | `9999px` |
@@ -162,9 +162,14 @@ ring in contexts where WPDS is not loaded.
 heatmap chart elements, mirroring `--a8c-charts-color-focus`'s `--wp-admin-*` fallback
 layer.
 
-`--a8c-charts-motion-duration-series` and `--a8c-charts-motion-easing-series` carry the
-series entrance animation shared by bar, area, line, leaderboard, and conversion-funnel
-charts (the "rise" / "stretch" keyframes).
+`--a8c-charts-motion-duration-entrance` and `--a8c-charts-motion-easing-entrance` carry the
+one-shot reveal a data mark plays on first paint — the `rise` / `stretch` keyframes in the
+bar, area, line, leaderboard and conversion-funnel charts. Each is a single
+`transform: scale…(1)`, differing only in axis, so one pair of tokens governs all six.
+
+They deliberately do **not** cover interaction motion. Hover, opacity, width and transform
+transitions read `--wpds-motion-duration-sm`/`-md`/`-lg` and `--wpds-motion-easing-subtle`
+directly, because those are interface chrome rather than a chart role.
 
 `--a8c-charts-border-radius-bar` sizes the conversion-funnel bar corners.
 `--a8c-charts-border-radius-cell` sizes heatmap cells and the heatmap legend swatch —
