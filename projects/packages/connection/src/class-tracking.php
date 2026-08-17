@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\IP\Utils as IP_Utils;
+
 /**
  * The Tracking class, used to record events in wpcom
  */
@@ -172,7 +174,7 @@ class Tracking {
 		$site_url = get_option( 'siteurl' );
 
 		$data['_via_ua']  = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
-		$data['_via_ip']  = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) filter_var( wp_unslash( $_SERVER['REMOTE_ADDR'] ), FILTER_VALIDATE_IP ) : '';
+		$data['_via_ip']  = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) IP_Utils::clean_ip( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip() validates the address.
 		$data['_lg']      = isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ) : '';
 		$data['blog_url'] = $site_url;
 		$data['blog_id']  = \Jetpack_Options::get_option( 'id' );

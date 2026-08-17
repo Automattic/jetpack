@@ -96,8 +96,9 @@ class Tracking_Test extends TestCase {
 	}
 
 	/**
-	 * REMOTE_ADDR is validated as an IP address, so anything that is not one is sent as an
-	 * empty string rather than passed through verbatim.
+	 * REMOTE_ADDR is normalized and then validated as an IP address, so a decorated address is
+	 * reduced to the address itself and anything that is not one is sent as an empty string
+	 * rather than passed through verbatim.
 	 *
 	 * @param string $remote_addr The REMOTE_ADDR value the request arrives with.
 	 * @param string $expected    The value expected in the Tracks `_via_ip` property.
@@ -123,13 +124,17 @@ class Tracking_Test extends TestCase {
 	 */
 	public static function data_provider_test_via_ip_is_validated() {
 		return array(
-			'IPv4'                    => array( '203.0.113.5', '203.0.113.5' ),
-			'IPv6'                    => array( '2001:db8::1', '2001:db8::1' ),
-			'IPv6 with a zone index'  => array( 'fe80::1%eth0', '' ),
-			'address with a port'     => array( '192.0.2.1:54321', '' ),
-			'bracketed IPv6'          => array( '[2001:db8::1]', '' ),
-			'list from a front proxy' => array( '203.0.113.5, 198.51.100.2', '' ),
-			'not an address at all'   => array( '<script>alert(1)</script>', '' ),
+			'IPv4'                     => array( '203.0.113.5', '203.0.113.5' ),
+			'IPv6'                     => array( '2001:db8::1', '2001:db8::1' ),
+			'IPv6 in upper case'       => array( '2001:DB8::1', '2001:db8::1' ),
+			'surrounding whitespace'   => array( "  203.0.113.5\n", '203.0.113.5' ),
+			'IPv4 with a port'         => array( '192.0.2.1:54321', '192.0.2.1' ),
+			'bracketed IPv6'           => array( '[2001:db8::1]', '2001:db8::1' ),
+			'bracketed IPv6 with port' => array( '[2001:db8::1]:54321', '2001:db8::1' ),
+			'IPv4 mapped into IPv6'    => array( '::ffff:203.0.113.5', '203.0.113.5' ),
+			'IPv6 with a zone index'   => array( 'fe80::1%eth0', '' ),
+			'list from a front proxy'  => array( '203.0.113.5, 198.51.100.2', '' ),
+			'not an address at all'    => array( '<script>alert(1)</script>', '' ),
 		);
 	}
 
