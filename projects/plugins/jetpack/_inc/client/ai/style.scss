@@ -1,4 +1,9 @@
+@use "sass:meta";
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// DataViews ships its structural table, toolbar, and row styles separately.
+// It is bundled with the AI Hub rather than enqueued by WordPress.
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
 
 body.jetpack_page_jetpack-ai {
 
