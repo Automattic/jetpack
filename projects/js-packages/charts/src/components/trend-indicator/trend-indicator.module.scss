@@ -6,23 +6,16 @@
 	font-weight: var(--wpds-typography-font-weight-emphasis, 499);
 	line-height: 1;
 
-	// Trend colours use the --a8c-charts-color-trend-* catalog roles, with the
-	// deprecated --charts-trend-*-color override read here at the call site — not
-	// inside the catalog entry in chart-scope.scss, where an inner fallback can
-	// only ever see a value also set on that same declaring element (the
-	// provider wrapper), never one set on a descendant (e.g. the chart's own
-	// style prop). Reading it here means the deprecated name beats the new one
-	// when both are set; that inversion is the price of the alias working at all.
 	&--up {
-		color: var(--charts-trend-up-color, var(--a8c-charts-color-trend-up));
+		color: var(--a8c-charts-color-trend-up);
 	}
 
 	&--down {
-		color: var(--charts-trend-down-color, var(--a8c-charts-color-trend-down));
+		color: var(--a8c-charts-color-trend-down);
 	}
 
 	&--neutral {
-		color: var(--charts-trend-neutral-color, var(--a8c-charts-color-trend-neutral));
+		color: var(--a8c-charts-color-trend-neutral);
 	}
 
 	&__icon {

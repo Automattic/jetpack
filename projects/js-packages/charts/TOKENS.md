@@ -20,10 +20,7 @@ Each catalog entry maps to a WPDS token with the WPDS spec value as its fallback
 }
 ```
 
-Charts reference the catalog bare — `stroke: var(--a8c-charts-color-grid)`. For anything that *is* a catalog role, `chart-scope.scss` is the only place its `--wpds-*` mapping is named, so design-system churn lands in one file. Two kinds of `--wpds-*` reference live outside it, both deliberately:
-
-- **Values that are not chart roles.** Incidental typography, padding, gap and interaction motion read their design-system token directly at the call site. They are interface chrome that should track the host's theme rather than charts-level theming.
-- **The four deprecated public aliases** (three trend colours, one leaderboard radius), read at their own call sites — see "Public override variables" below for why.
+Charts reference the catalog bare — `stroke: var(--a8c-charts-color-grid)`. For anything that *is* a catalog role, `chart-scope.scss` is the only place its `--wpds-*` mapping is named, so design-system churn lands in one file. One kind of `--wpds-*` reference lives outside it, deliberately: **values that are not chart roles** — incidental typography, padding, gap, interaction motion and the focus ring read their design-system token directly at the call site, as interface chrome that should track the host's theme rather than charts-level theming.
 
 ### Precedence
 
@@ -34,8 +31,6 @@ Highest first:
 3. The theme layer `GlobalChartsProvider` writes inline from a `theme` prop override — see below.
 4. The catalog default on the provider wrapper, resolving the mapped `--wpds-*` token.
 5. The WPDS spec-value fallback, when no `--wpds-*` token is set either (SSR, jsdom, or WPDS not loaded).
-
-For the four roles with a deprecated alias, that alias wins ahead of all five — see "Public override variables".
 
 A CSS declaration of a role therefore beats a `theme` prop override *anywhere* it is set, the wrapper included — the prop writes a variable the role reads, not the role itself, and a role declared in CSS never reads it.
 
@@ -137,19 +132,18 @@ The zoom selection roles' translucency is not part of the role — it lives in `
 
 The heatmap Tier-2 variables and `--a8c-charts-dimension-leaderboard-bar-hover-inset` are **component-emitted** — set from JS per render, or in the component's own stylesheet — rather than on the provider wrapper. They are deliberately absent from `chart-scope.scss` and are not consumer override points in the same sense as the catalog above.
 
-## Public override variables
+## Removed override variables
 
-These are documented, supported override points. Deprecated names still work:
+Every role in the catalog is a supported override point, on the precedence rules above. The names below were the override points before the `--a8c-charts-{category}-{name}` convention landed; they no longer resolve, so set the role instead:
 
-| New | Deprecated alias |
+| Removed | Set instead |
 |---|---|
-| `--a8c-charts-color-trend-up` | `--charts-trend-up-color` |
-| `--a8c-charts-color-trend-down` | `--charts-trend-down-color` |
-| `--a8c-charts-color-trend-neutral` | `--charts-trend-neutral-color` |
-| `--a8c-charts-border-radius-leaderboard-bar` | `--a8c--charts--leaderboard--bar--border-radius` |
+| `--charts-trend-up-color` | `--a8c-charts-color-trend-up` |
+| `--charts-trend-down-color` | `--a8c-charts-color-trend-down` |
+| `--charts-trend-neutral-color` | `--a8c-charts-color-trend-neutral` |
+| `--a8c--charts--leaderboard--bar--border-radius` | `--a8c-charts-border-radius-leaderboard-bar` |
+| `--a8c-charts-color-focus` | `--wpds-color-stroke-focus` |
 
-Each deprecated alias is read at its component's own call site as the *outer* layer around the new name — `var(--deprecated-name, var(--a8c-charts-*))` — not inside the catalog entry. Precedence, highest first: the deprecated alias, then the `--a8c-charts-*` role per the section above, then the catalog default.
+`--a8c-charts-color-focus` is the odd one out: focus and selection rings read the design-system token directly, as page chrome that should match focus indication everywhere else rather than being themed per chart.
 
-The reason is a rule worth knowing before touching any of this: **a `var()` fallback is substituted at the element that declares it**, so an inner fallback can only see values present at that same element. A catalog entry on the provider wrapper could only see a deprecated alias also set on the wrapper — never one set on a descendant, which is how `--a8c--charts--leaderboard--bar--border-radius` is documented to be set. Reading the alias at the call site instead lets it cascade like any other custom property.
-
-The trade-off: the deprecated name beats the new name when both are set on the same element. That inversion is deliberate — it's the price of the alias working at all.
+Removing these also removes the precedence quirk they carried. Each was read at its component's own call site as the *outer* layer around the role — `var(--deprecated-name, var(--a8c-charts-*))` — so the old name beat the new one wherever both were set. No `--a8c-charts-*` role is now read anywhere but bare.
