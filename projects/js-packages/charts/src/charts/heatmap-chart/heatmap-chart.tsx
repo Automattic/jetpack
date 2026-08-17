@@ -9,6 +9,7 @@ import {
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
+import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
 import { attachSubComponents } from '../../utils';
 import {
 	isValidHexColor,
@@ -443,7 +444,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 					</div>
 					{ withTooltips && tooltipOpen && tooltipData && (
 						<TooltipInPortal top={ tooltipTop } left={ tooltipLeft }>
-							<div role="tooltip" tabIndex={ -1 }>
+							<div className={ CHART_SCOPE_CLASS } role="tooltip" tabIndex={ -1 }>
 								{ ( renderTooltip ?? defaultRenderTooltip )( tooltipData ) }
 							</div>
 						</TooltipInPortal>

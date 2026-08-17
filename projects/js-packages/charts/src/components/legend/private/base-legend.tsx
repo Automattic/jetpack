@@ -13,6 +13,7 @@ import {
 } from 'react';
 import { useTextTruncation } from '../../../hooks';
 import { GlobalChartsContext, useGlobalChartsTheme } from '../../../providers';
+import { CHART_SCOPE_CLASS } from '../../../styles/chart-scope-class';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '../utils';
 import styles from './base-legend.module.scss';
 import type { BaseLegendProps } from '../types';
@@ -102,6 +103,9 @@ export const BaseLegend: ForwardRefExoticComponent<
 
 		const theme = useGlobalChartsTheme();
 		const context = useContext( GlobalChartsContext );
+		// Reuses the context read above rather than calling useStandaloneScopeClass,
+		// which would subscribe to GlobalChartsContext a second time in this component.
+		const standaloneScopeClass = context ? undefined : CHART_SCOPE_CLASS;
 
 		const legendScale = scaleOrdinal( {
 			domain: items.map( item => item.label ),
@@ -189,7 +193,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 						wrap={ orientation === 'horizontal' ? 'wrap' : undefined }
 						role="list"
 						data-testid={ `legend-${ orientation }` }
-						className={ clsx( styles.legend, className ) }
+						className={ clsx( standaloneScopeClass, styles.legend, className ) }
 						style={ theme.legend?.containerStyles }
 					>
 						{ labels.map( ( label, i ) => {

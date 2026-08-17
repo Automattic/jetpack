@@ -12,6 +12,7 @@ import {
 	useGlobalChartsTheme,
 	useGlobalChartsContext,
 } from '../../providers';
+import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
 import { formatPercentage, hexToRgba } from '../../utils';
 import styles from './conversion-funnel-chart.module.scss';
 import { useFunnelSelection } from './private';
@@ -457,7 +458,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 							key={ Math.random() }
 							top={ tooltipTop }
 							left={ tooltipLeft }
-							className={ styles[ 'tooltip-wrapper' ] }
+							className={ clsx( CHART_SCOPE_CLASS, styles[ 'tooltip-wrapper' ] ) }
 						>
 							{ tooltipContent }
 						</TooltipInPortal>

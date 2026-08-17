@@ -8,23 +8,26 @@ import {
 	useLayoutEffect,
 	useRef,
 } from 'react';
-// Side-effect import: emits the `--a8c-charts-*` catalog at `:root`. Every chart
-// either sits under a `GlobalChartsProvider` or auto-mounts its own, so importing
-// it here guarantees the catalog always reaches the bundle.
+// Side-effect import: emits the `--a8c-charts-*` catalog, scoped to the
+// `a8c-charts-scope` class applied to this component's wrapper below. Every
+// chart either sits under a `GlobalChartsProvider` or auto-mounts its own, so
+// importing it here guarantees the catalog always reaches the bundle.
 //
 // This must be a direct import of the stylesheet, not through a re-export barrel:
 // a barrel `.ts` file doesn't match this package's `sideEffects` glob (only
 // `*.css`/`*.scss` do), so tsdown/Rolldown treats an unused barrel import as
 // side-effect-free and drops it — taking the nested stylesheet import with it.
 // The file also can't be named `*.module.scss`: it declares zero CSS-module class
-// names (only `:root`), and `@tsdown/css` marks a `.module.*` file's generated JS
-// proxy `moduleSideEffects: false` (tree-shakeable unless a class name is read); a
-// plain stylesheet gets `moduleSideEffects: "no-treeshake"` instead, so it always
-// ships. Verify with `pnpm run build`, then:
-//   grep -c -- '--a8c-charts-color-grid' dist/index.css   (>= 1)
-//   grep -o ':root' dist/index.css | head -1              (matches)
+// names (only a `:where()`-wrapped selector), and `@tsdown/css` marks a
+// `.module.*` file's generated JS proxy `moduleSideEffects: false`
+// (tree-shakeable unless a class name is read); a plain stylesheet gets
+// `moduleSideEffects: "no-treeshake"` instead, so it always ships. Verify with
+// `pnpm run build`, then:
+//   grep -c -- '--a8c-charts-color-grid' dist/index.css        (>= 1)
+//   grep -o ':where(.a8c-charts-scope)' dist/index.css | head -1 (matches)
 // A passing test suite does not catch a dropped stylesheet.
 import '../../styles/chart-scope.scss';
+import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
 import {
 	getItemShapeStyles,
 	getSeriesBarStyles,
@@ -321,6 +324,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		<GlobalChartsContext.Provider value={ value }>
 			<div
 				ref={ setWrapperNode }
+				className={ CHART_SCOPE_CLASS }
 				style={ { display: 'contents', ...overrideVars } as CSSProperties }
 			>
 				<ChartScopeContext.Provider value={ scopeNode }>{ children }</ChartScopeContext.Provider>

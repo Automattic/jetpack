@@ -58,6 +58,11 @@ describe( 'chart scope catalog', () => {
 		expect( stylesheet ).toContain( `${ token }:` );
 	} );
 
+	it( 'scopes the catalog to :where(.a8c-charts-scope) rather than :root', () => {
+		expect( stylesheet ).toMatch( /:where\(\.a8c-charts-scope\)\s*{/ );
+		expect( stylesheet ).not.toMatch( /(^|\s):root\s*{/ );
+	} );
+
 	it( 'declares custom properties only, so this stylesheet cannot change layout', () => {
 		const body = stylesheet.slice( stylesheet.indexOf( '{' ) + 1, stylesheet.lastIndexOf( '}' ) );
 		const properties = extractDeclaredProperties( body );

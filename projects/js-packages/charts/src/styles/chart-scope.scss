@@ -1,10 +1,20 @@
 // The single mapping point between the --a8c-charts-* catalog and WordPress
-// design-system tokens. Emitted once at :root, mirroring how
-// @wordpress/theme's own design-tokens.css declares its catalog — a consumer
-// override set on any ancestor of a chart wins over this default, since an
-// element's own declaration always beats an inherited one.
+// design-system tokens.
+
+// Declared on the GlobalChartsProvider wrapper — not at :root — because
+// @wordpress/theme's ThemeProvider emits its generated --wpds-* ramp as inline
+// styles on its own wrapper div, not on the document root. Substituting at the
+// provider means a ThemeProvider above it is picked up; substituting at :root
+// would miss it entirely.
+
+// :where() keeps the rule at zero specificity so any consumer rule
+// targeting the same element wins. Chart roots deliberately do NOT
+// re-declare these: an element's own declaration beats an inherited one,
+// so re-declaring lower down would shadow a consumer override set inside
+// the provider tree.
+
 // Declares custom properties only. This stylesheet must never change layout.
-:root {
+:where(.a8c-charts-scope) {
 	--a8c-charts-color-grid: var(--wpds-color-stroke-surface-neutral, #dbdbdb);
 	--a8c-charts-color-axis: var(--wpds-color-stroke-surface-neutral, #dbdbdb);
 	--a8c-charts-color-tick: var(--wpds-color-stroke-surface-neutral, #dbdbdb);
