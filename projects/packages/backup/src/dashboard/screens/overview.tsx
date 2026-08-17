@@ -9,6 +9,7 @@ import BackupNowButton from '../components/backup-now-button';
 import BackupStatusPanel, { replacesOverview } from '../components/backup-status';
 import BackupStatusBanner from '../components/backup-status/banner';
 import DashboardLayout from '../components/dashboard-layout';
+import QueryError from '../components/query-error';
 import {
 	ACTIVITY_LOG_DEFAULT_PER_PAGE,
 	useActivityById,
@@ -69,13 +70,31 @@ export default function OverviewScreen() {
 	// `/site/rewindable-activity` only lists completed restore points, so
 	// on its own it cannot tell "no backups yet" from "the first one is
 	// running" from "they're all failing". This second query answers that.
-	const { state: backupsState, progress, isInitialBackup } = useBackups();
+	const {
+		state: backupsState,
+		progress,
+		isInitialBackup,
+		error: backupsError,
+		isFetching: backupsFetching,
+		refetch: refetchBackups,
+	} = useBackups();
 	// A second opinion on whether anything is restorable, from the
 	// paginated activity log rather than the short `/backups` window.
 	// While it is still unknown, assume there *are* restore points:
 	// briefly showing the two-pane view is a milder error than briefly
 	// telling an established customer they have no backups.
-	const { hasRestorePoints, isLoading: restorePointsLoading } = useHasRestorePoints();
+	//
+	// A failed request is "still unknown" too, and that is the whole
+	// point of reading `isError` here. React Query reports an errored
+	// query as not-loading with no rows, so without this the veto lifts
+	// on a question nobody managed to ask: the first-run panel takes the
+	// body over and takes the activity log's own error report down with
+	// it, and a 5xx reads as "your first backup is on its way".
+	const {
+		hasRestorePoints,
+		isLoading: restorePointsLoading,
+		isError: restorePointsError,
+	} = useHasRestorePoints();
 
 	const setSelected = useCallback(
 		( id: string ) => {
@@ -88,7 +107,11 @@ export default function OverviewScreen() {
 	);
 
 	if (
-		replacesOverview( backupsState, isInitialBackup, restorePointsLoading || hasRestorePoints )
+		replacesOverview(
+			backupsState,
+			isInitialBackup,
+			restorePointsLoading || restorePointsError || hasRestorePoints
+		)
 	) {
 		return (
 			<DashboardLayout actions={ <BackupNowButton /> }>
@@ -107,6 +130,29 @@ export default function OverviewScreen() {
 			 * child would be auto-placed into it.
 			 */ }
 			{ backupsState === 'in-progress' && <BackupStatusBanner progress={ progress } /> }
+			{ /*
+			 * The backup-state read failed. Reported here rather than as a
+			 * takeover for the same reason as the banner: whatever the
+			 * activity log managed to load is still worth showing, and this
+			 * failure says nothing about it.
+			 *
+			 * `error` is very often null on this path and that is not a bug.
+			 * The route answers a non-200 from WPCOM with a bare `null`
+			 * body, which WordPress serves as HTTP 200 — so the request
+			 * resolves, React Query records a success, and the only signal
+			 * left is the derived state. That is also why the retry button
+			 * matters more here than elsewhere: nothing else will ask again.
+			 * The poll stops deliberately on an unreadable response rather
+			 * than hammering a failing upstream.
+			 */ }
+			{ backupsState === 'error' && (
+				<QueryError
+					title={ __( "We couldn't check your site's backup status.", 'jetpack-backup-pkg' ) }
+					error={ backupsError }
+					onRetry={ refetchBackups }
+					isRetrying={ backupsFetching }
+				/>
+			) }
 			<div className="jpb-overview">
 				<ActivityList
 					selectedId={ selectedId }

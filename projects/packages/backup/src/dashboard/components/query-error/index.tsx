@@ -6,7 +6,14 @@ import './style.scss';
 type Props = {
 	/** What failed, in the reader's terms. */
 	title: string;
-	error: Error;
+	/**
+	 * The query's error, when there is one. Nullable because not every
+	 * failure produces one: a route that answers a non-200 with a bare
+	 * `null` body is served as HTTP 200, so the request resolves and the
+	 * caller's only evidence is its own derived state. Those callers still
+	 * need to report the failure — they just have no detail line to add.
+	 */
+	error?: Error | null;
 	/** Refetches the failed query. Omitted when the caller has no way to retry. */
 	onRetry?: () => void;
 	/** Whether a retry is in flight. */
@@ -45,7 +52,7 @@ export default function QueryError( { title, error, onRetry, isRetrying = false 
 		<Notice status="error" isDismissible={ false } className="jpb-query-error">
 			<Stack direction="column" gap="sm" align="flex-start">
 				<Text>{ title }</Text>
-				{ error.message && (
+				{ error?.message && (
 					<Text variant="body-sm" className="jpb-text-muted">
 						{ error.message }
 					</Text>

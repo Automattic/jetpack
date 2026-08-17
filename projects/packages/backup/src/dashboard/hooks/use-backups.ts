@@ -170,6 +170,13 @@ type Result = BackupsSummary & {
 	 * `state === 'error'`, which covers both.
 	 */
 	error: Error | null;
+	/**
+	 * Whether a request is in flight, including a manual retry. Distinct
+	 * from the `loading` state: a query that already resolved is never
+	 * pending again, so refetching after a failure leaves every
+	 * loading-shaped flag false for the whole round trip.
+	 */
+	isFetching: boolean;
 	refetch: () => void;
 };
 
@@ -236,6 +243,7 @@ export function useBackups( { forcePoll = false }: Args = {} ): Result {
 		...summary,
 		backups,
 		error: error ?? null,
+		isFetching: query.isFetching,
 		refetch: retry,
 	};
 }
