@@ -16,7 +16,17 @@ Reach for something else when the toggle is **permanent** — that is site confi
 
 ## 1. Register the flag
 
-Register **unconditionally, as the owning code loads** — before anything can call `is_enabled()`. Registration allocates nothing and stores no state, so there is no reason to defer or guard it. Registering everything up front is also what keeps `Feature_Flags::all()` complete, which is what the admin screen and the WP-CLI command list from.
+Register **on the hook where the owning feature loads** — not from a global bootstrap, and not lazily inside a request branch. Flags do not need to exist on every request; they need to exist on the requests that read them, and they need to be there *before* the first read.
+
+Registration allocates nothing and stores no state, so within your feature's own load there is no reason to defer or guard it. Call it first thing.
+
+**The read deadlines.** Register before all of these, or the flag is invisible to them:
+
+| Reader | When it reads |
+|---|---|
+| Your own `is_enabled()` calls | Whenever your code runs |
+| Tools → Feature Flags (a8c) | `admin_menu` |
+| `wp companion feature-flag list` | WP-CLI command execution |
 
 The canonical example is `projects/packages/forms/src/class-jetpack-forms.php`:
 
@@ -37,7 +47,13 @@ public static function register_feature_flags() {
 }
 ```
 
-Called first thing from the package's loader (`load_contact_form()`), and the name is a class constant so the registration and every check share one spelling.
+Called first thing from the package's loader, `Jetpack_Forms::load_contact_form()`. Follow that call up and the hook is Jetpack's module loader: `projects/plugins/jetpack/modules/contact-form.php` calls it at file scope, and Jetpack requires active module files on `after_setup_theme` at priority `-2` — comfortably before every reader in the table above.
+
+The name is a class constant, so the registration and every check share one spelling.
+
+**A flag only exists where its owning code loads, and that is fine.** The Forms flag registers only when the Forms module is active. On a site where it isn't, the flag is absent from `Feature_Flags::all()`, from the a8c screen, and from `wp companion feature-flag list` — that is correct behaviour, not a bug to work around by hoisting registration somewhere more global. Overrides are still settable by name, because unregistered names pass through the resolution filters.
+
+So: pick the hook your feature already loads on. Do not invent a separate always-on bootstrap just to register flags.
 
 **Naming.** Names must match `/^[a-z0-9][a-z0-9_-]*$/` and should be prefixed with the owning product area (`forms-conditional-logic`, not `conditional-logic`).
 
@@ -149,7 +165,7 @@ Flags are temporary. Once the feature ships (or is abandoned), remove it promptl
 
 - [ ] Flag is genuinely temporary, not config in disguise
 - [ ] Name matches `/^[a-z0-9][a-z0-9_-]*$/`, prefixed with the product area, held in a constant
-- [ ] `register()` called unconditionally as the owning code loads, with `default`, `description`, `owner`
+- [ ] `register()` called on the hook the owning feature already loads on, ahead of every reader, with `default`, `description`, `owner`
 - [ ] Checks go through one named predicate
 - [ ] Editor/JS reads the PHP answer rather than re-deriving it
 - [ ] `automattic/jetpack-feature-flags` in the project's `composer.json`

@@ -72,7 +72,9 @@ Columns: `flag`, `default`, `override`, `effective`, `owner`, `description`.
 
 `effective` differing from `override` means something in code is pinning the flag. That is the signal to go looking for a per-flag filter.
 
-Flags with a stored override that nobody registers are listed too, described as `Not registered on this site.` — either stale, or set ahead of the code landing.
+Flags with a stored override that nobody registers are listed too, described as `Not registered on this site.` — stale, set ahead of the code landing, or belonging to a feature that is not loaded here.
+
+**A flag you expect to see may be legitimately absent.** Registration happens on the hook where the owning feature loads, so a flag whose module or feature is inactive on this site never registers and never appears. Activate the owning feature, or set the override by name anyway — unregistered names are accepted and still resolve.
 
 ### Behaviour worth knowing
 
