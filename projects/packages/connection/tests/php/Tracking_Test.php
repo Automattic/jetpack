@@ -43,6 +43,12 @@ class Tracking_Test extends TestCase {
 		parent::setUp();
 		Monkey\setUp();
 
+		// External_Storage, reached through Jetpack_Options, computes a class constant from this
+		// at load time. Brain Monkey tests run without the WordPress constants defined.
+		if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
+			define( 'MINUTE_IN_SECONDS', 60 );
+		}
+
 		$this->connection = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
 			->onlyMethods( array( 'is_user_connected' ) )
 			->getMock();
@@ -53,8 +59,122 @@ class Tracking_Test extends TestCase {
 	 * Test teardown.
 	 */
 	public function tearDown(): void {
+		unset( $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT'], $_SERVER['HTTP_ACCEPT_LANGUAGE'] );
+
 		parent::tearDown();
 		Monkey\tearDown();
+	}
+
+	/**
+	 * Build a Tracking object that captures the properties it would send to Tracks.
+	 *
+	 * @param array $captured Set by reference to the properties passed to tracks_record_event().
+	 * @return Tracking
+	 */
+	private function tracking_capturing_properties( &$captured ) {
+		Monkey\Functions\when( 'wp_unslash' )->returnArg();
+		Monkey\Functions\when( 'get_option' )->alias(
+			function ( $option ) {
+				return 'siteurl' === $option ? 'https://example.com' : false;
+			}
+		);
+
+		$tracking = $this->getMockBuilder( Tracking::class )
+			->setConstructorArgs( array( 'jetpack', $this->connection ) )
+			->onlyMethods( array( 'tracks_record_event' ) )
+			->getMock();
+
+		$tracking->method( 'tracks_record_event' )
+			->willReturnCallback(
+				function ( $user, $event_name, $properties ) use ( &$captured ) {
+					$captured = $properties;
+					return true;
+				}
+			);
+
+		return $tracking;
+	}
+
+	/**
+	 * REMOTE_ADDR is normalized and then validated as an IP address, so a decorated address is
+	 * reduced to the address itself and anything that is not one is sent as an empty string
+	 * rather than passed through verbatim.
+	 *
+	 * @param string $remote_addr The REMOTE_ADDR value the request arrives with.
+	 * @param string $expected    The value expected in the Tracks `_via_ip` property.
+	 *
+	 * @dataProvider data_provider_test_via_ip_is_validated
+	 */
+	#[DataProvider( 'data_provider_test_via_ip_is_validated' )]
+	public function test_via_ip_is_validated( $remote_addr, $expected ) {
+		$captured = array();
+		$tracking = $this->tracking_capturing_properties( $captured );
+
+		$_SERVER['REMOTE_ADDR'] = $remote_addr;
+
+		$tracking->record_user_event( 'test_event', array(), 'test_user' );
+
+		$this->assertSame( $expected, $captured['_via_ip'] );
+	}
+
+	/**
+	 * Data provider for test_via_ip_is_validated.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_via_ip_is_validated() {
+		return array(
+			'IPv4'                     => array( '203.0.113.5', '203.0.113.5' ),
+			'IPv6'                     => array( '2001:db8::1', '2001:db8::1' ),
+			'IPv6 in upper case'       => array( '2001:DB8::1', '2001:db8::1' ),
+			'surrounding whitespace'   => array( "  203.0.113.5\n", '203.0.113.5' ),
+			'IPv4 with a port'         => array( '192.0.2.1:54321', '192.0.2.1' ),
+			'bracketed IPv6'           => array( '[2001:db8::1]', '2001:db8::1' ),
+			'bracketed IPv6 with port' => array( '[2001:db8::1]:54321', '2001:db8::1' ),
+			'IPv4 mapped into IPv6'    => array( '::ffff:203.0.113.5', '203.0.113.5' ),
+			'IPv6 with a zone index'   => array( 'fe80::1%eth0', '' ),
+			'list from a front proxy'  => array( '203.0.113.5, 198.51.100.2', '' ),
+			'not an address at all'    => array( '<script>alert(1)</script>', '' ),
+		);
+	}
+
+	/**
+	 * The user agent and the language are free-form strings, so they are sanitized rather than
+	 * validated. The IP address is deliberately excluded, being validated instead.
+	 */
+	public function test_user_agent_and_language_are_sanitized() {
+		$captured = array();
+		$tracking = $this->tracking_capturing_properties( $captured );
+
+		Monkey\Functions\when( 'sanitize_text_field' )->alias(
+			function ( $str ) {
+				return 'sanitized:' . $str;
+			}
+		);
+
+		$_SERVER['HTTP_USER_AGENT']      = 'Mozilla/5.0';
+		$_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-US,en;q=0.9';
+		$_SERVER['REMOTE_ADDR']          = '203.0.113.5';
+
+		$tracking->record_user_event( 'test_event', array(), 'test_user' );
+
+		$this->assertSame( 'sanitized:Mozilla/5.0', $captured['_via_ua'] );
+		$this->assertSame( 'sanitized:en-US,en;q=0.9', $captured['_lg'] );
+		$this->assertSame( '203.0.113.5', $captured['_via_ip'] );
+	}
+
+	/**
+	 * Absent request metadata is reported as an empty string, not as a missing property.
+	 */
+	public function test_absent_request_metadata_is_empty() {
+		$captured = array();
+		$tracking = $this->tracking_capturing_properties( $captured );
+
+		$tracking->record_user_event( 'test_event', array(), 'test_user' );
+
+		$this->assertSame( '', $captured['_via_ua'] );
+		$this->assertSame( '', $captured['_via_ip'] );
+		$this->assertSame( '', $captured['_lg'] );
 	}
 
 	/**
