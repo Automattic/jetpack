@@ -29,7 +29,14 @@ describe( 'themeOverrideVars', () => {
 			'--a8c-charts-color-grid': '#222',
 			'--a8c-charts-color-axis': '#333',
 			'--a8c-charts-color-tick': '#444',
-			'--a8c-charts-color-label': '#555',
+			'--a8c-charts-color-label-axis': '#555',
+		} );
+	} );
+
+	// The narrow role is the whole point: the broad `--a8c-charts-color-label` is also read by legend labels, heatmap cell values, funnel labels and the line-chart tooltip, none of which `svgLabelSmall.fill` moved before the role was published as a custom property.
+	it( 'publishes an svg label override as the narrow axis-label role, not the broad one', () => {
+		expect( themeOverrideVars( { svgLabelSmall: { fill: 'red' } } ) ).toEqual( {
+			'--a8c-charts-color-label-axis': 'red',
 		} );
 	} );
 
@@ -54,13 +61,13 @@ describe( 'themeOverrideVars', () => {
 		).toEqual( { '--a8c-charts-color-grid': 'var( --a8c-charts-color-axis, #dbdbdb )' } );
 	} );
 
-	// `--a8c-charts-color-label` is a prefix of the real role `--a8c-charts-color-label-secondary`, so a prefix match would treat a legitimate cross-role pointer as a self-reference and silently drop the override.
-	it( 'does not mistake a longer role name for the one it guards', () => {
+	// A mapped role can be a strict prefix of another custom property — a catalog role such as `--a8c-charts-color-label` of `--a8c-charts-color-label-axis`, or a name the consumer defined themselves. A prefix match would read a legitimate cross-property pointer as a self-reference and silently drop the override, so the role must be followed by something that cannot continue an identifier.
+	it( 'does not mistake a longer property name for the role it guards', () => {
 		expect(
 			themeOverrideVars( {
-				svgLabelSmall: { fill: 'var(--a8c-charts-color-label-secondary, #707070)' },
+				xAxisLineStyles: { stroke: 'var(--a8c-charts-color-axis-emphasis, #000)' },
 			} )
-		).toEqual( { '--a8c-charts-color-label': 'var(--a8c-charts-color-label-secondary, #707070)' } );
+		).toEqual( { '--a8c-charts-color-axis': 'var(--a8c-charts-color-axis-emphasis, #000)' } );
 	} );
 
 	// `resolveCssVariable` also accepts a bare custom-property name with no `var()` wrapper, so `theme={ { gridStyles: { stroke: '--a8c-charts-color-grid' } } }` is legal input. Unlike the `var()` form this is not invalid at computed-value time, so it must be caught explicitly or it survives as a literal string value.

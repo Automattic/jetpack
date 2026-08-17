@@ -29,7 +29,7 @@
 		// through it. Scoped to the rest state so the WPDS
 		// hover/active/focus backgrounds still apply.
 		&:not(:hover, :active, :focus) {
-			background-color: var(--a8c-charts-color-background);
+			background-color: var(--a8c-charts-color-surface);
 		}
 	}
 }

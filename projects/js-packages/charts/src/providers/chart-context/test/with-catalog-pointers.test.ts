@@ -48,7 +48,7 @@ describe( 'withCatalogPointers', () => {
 			'--a8c-charts-color-grid': '#222',
 			'--a8c-charts-color-axis': '#333',
 			'--a8c-charts-color-tick': '#444',
-			'--a8c-charts-color-label': '#555',
+			'--a8c-charts-color-label-axis': '#555',
 		} );
 
 		expect( result.backgroundColor ).toBe( defaultTheme.backgroundColor );

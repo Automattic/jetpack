@@ -39,14 +39,14 @@ const defaultTheme: CompleteChartTheme = {
 	// elements for axis labels and ticks. Setting `inherit` lets SVG text
 	// pick up the host application's font-family via normal CSS inheritance.
 	svgLabelSmall: {
-		fill: 'var(--a8c-charts-color-label, #1e1e1e)',
+		fill: 'var(--a8c-charts-color-label-axis, #1e1e1e)',
 		fontFamily: 'inherit',
 	},
 	svgLabelBig: { fontFamily: 'inherit' },
 	annotationStyles: {
 		label: {
 			anchorLineStroke: 'var(--a8c-charts-color-annotation, #1e1e1e)',
-			backgroundFill: 'var(--a8c-charts-color-background, #fff)',
+			backgroundFill: 'var(--a8c-charts-color-surface, #fff)',
 		},
 		connector: {
 			stroke: 'var(--a8c-charts-color-annotation, #1e1e1e)',

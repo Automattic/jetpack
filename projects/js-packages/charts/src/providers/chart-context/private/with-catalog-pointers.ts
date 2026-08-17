@@ -16,7 +16,7 @@ const CATALOG_RESTORE_FOR_ROLE: Record<
 	'--a8c-charts-color-tick': theme => ( {
 		xTickLineStyles: { ...theme.xTickLineStyles, stroke: defaultTheme.xTickLineStyles.stroke },
 	} ),
-	'--a8c-charts-color-label': theme => ( {
+	'--a8c-charts-color-label-axis': theme => ( {
 		svgLabelSmall: { ...theme.svgLabelSmall, fill: defaultTheme.svgLabelSmall.fill },
 	} ),
 };

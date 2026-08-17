@@ -1,13 +1,13 @@
 import type { ChartTheme } from '../../../types';
 
-// The consumer theme fields that correspond to an emitted catalog role, and the role each one overrides.
+// The consumer theme fields that correspond to an emitted catalog role, and the role each one overrides. Each role must be read by exactly the elements its field controlled before the role existed: `svgLabelSmall.fill` maps to the narrow `--a8c-charts-color-label-axis` rather than `--a8c-charts-color-label`, because the broad role is also read by legend labels, heatmap cell values, funnel labels and the line-chart tooltip, which that field never moved.
 const ROLE_FOR_FIELD: Array< [ string, ( theme: Partial< ChartTheme > ) => string | undefined ] > =
 	[
 		[ '--a8c-charts-color-background', theme => theme.backgroundColor ],
 		[ '--a8c-charts-color-grid', theme => theme.gridStyles?.stroke ],
 		[ '--a8c-charts-color-axis', theme => theme.xAxisLineStyles?.stroke ],
 		[ '--a8c-charts-color-tick', theme => theme.xTickLineStyles?.stroke ],
-		[ '--a8c-charts-color-label', theme => theme.svgLabelSmall?.fill ],
+		[ '--a8c-charts-color-label-axis', theme => theme.svgLabelSmall?.fill ],
 	];
 
 /**

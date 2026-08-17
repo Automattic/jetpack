@@ -24,11 +24,23 @@
 	// White label text sits on arbitrary series colours, so it has no WPDS
 	// content-foreground equivalent.
 	--a8c-charts-color-label-on-fill: #fff;
+	// The SVG axis and tick labels. `svgLabelSmall.fill` publishes THIS role, so
+	// deriving from --a8c-charts-color-label is safe and wanted: the theme field
+	// moves only these labels, while setting the broad role in CSS still moves
+	// every label at once. (--a8c-charts-color-surface cannot derive the same
+	// way — see its comment; there the theme field owns the broad role.)
+	--a8c-charts-color-label-axis: var(--a8c-charts-color-label);
 	--a8c-charts-color-annotation: var(--wpds-color-foreground-content-neutral, #1e1e1e);
 	--a8c-charts-color-trend-up: var(--wpds-color-foreground-content-success-weak, #008030);
 	--a8c-charts-color-trend-down: var(--wpds-color-foreground-content-error-weak, #cc1818);
 	--a8c-charts-color-trend-neutral: var(--wpds-color-foreground-content-neutral-weak, #707070);
 	--a8c-charts-color-background: var(--wpds-color-background-surface-neutral-strong, #fff);
+	// Surfaces that float over the chart — tooltips, the annotation label, the
+	// zoom-reset control. Same WPDS token as --a8c-charts-color-background, and
+	// deliberately NOT derived from it: `backgroundColor` publishes the
+	// background role, so deriving would let that theme field repaint these too.
+	// Sibling of the background role, not a child of it.
+	--a8c-charts-color-surface: var(--wpds-color-background-surface-neutral-strong, #fff);
 	--a8c-charts-color-surface-secondary: var(--wpds-color-background-surface-neutral-weak, #f4f4f4);
 	--a8c-charts-color-track: var(--wpds-color-background-track-neutral-weak, #f0f0f0);
 	// Translucent dark surface; no WPDS token carries this.

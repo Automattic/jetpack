@@ -94,21 +94,44 @@ on a closer element beats one from an ancestor. The supported place to set an ov
 is inside the provider tree — on the chart element, an element between it and the
 provider, or the provider wrapper itself — never on an ancestor of the provider.
 
-#### A `theme`-prop override reaches every reader of its role
+#### A `theme`-prop override keeps the reach of the field it was set from
 
-`theme={ { svgLabelSmall: { fill: 'purple' } } }` is not a narrow "recolour this one
-SVG label" override. It is published as the `--a8c-charts-color-label` catalog role
-(step 2 above), so it reaches every reader of that role, not only the field it was
-set from. Two roles have readers beyond their originating theme field:
+Publishing an override as a custom property could widen it: a role is a shared name,
+so every reader of that role would follow a field that never moved them before.
+`theme={ { svgLabelSmall: { fill: 'purple' } } }` would recolour legend labels,
+heatmap cell values, funnel labels and the line-chart tooltip along with the SVG axis
+labels it names.
 
-| Theme field | Role | Also paints |
-|---|---|---|
-| `svgLabelSmall.fill` | `--a8c-charts-color-label` | `legend.labelStyles.color`, `.heatmap-chart__cell-value` |
-| `backgroundColor` | `--a8c-charts-color-background` | `annotationStyles.label.backgroundFill`, `.x-zoom__reset` background, the heatmap blend base |
+It doesn't, because a mapped field publishes a role read by exactly the elements that
+field already controlled. Where the obvious role has wider readership, one side or the
+other gets a role of its own:
 
-This is the intended effect of a single-source catalog, not a bug — a consumer who
-wants to change only one reader should target that reader's own selector directly
-instead of the `theme` prop.
+| Theme field | Publishes | Kept off it | How |
+|---|---|---|---|
+| `svgLabelSmall.fill` | `--a8c-charts-color-label-axis` | legend labels, `.heatmap-chart__cell-value`, funnel labels, the line-chart tooltip | the field takes a narrow role deriving from `--a8c-charts-color-label` |
+| `backgroundColor` | `--a8c-charts-color-background` | the annotation label, `.x-zoom__reset`, tooltips | those readers take `--a8c-charts-color-surface` instead |
+
+`--a8c-charts-color-surface` does the same job on the background side, from the other
+direction. Tooltips, the annotation label and the zoom-reset control read it instead of
+`--a8c-charts-color-background`, so a `backgroundColor` override repaints the chart
+background and the heatmap blend base it feeds, and leaves those surfaces alone.
+
+**The two are shaped differently, and the difference is load-bearing.**
+`--a8c-charts-color-label-axis` *derives* from `--a8c-charts-color-label`; the theme
+field publishes the narrow role, so the broad one stays free to act as a
+move-every-label knob. `--a8c-charts-color-surface` maps to its WPDS token directly and
+is a **sibling** of `--a8c-charts-color-background`, not a child of it — there the theme
+field publishes the broad role, so deriving would hand the override straight back to the
+surfaces it is meant to spare. Deriving is only safe when the narrow role is the one the
+`theme` prop writes.
+
+The consequence: `--a8c-charts-color-label` set in CSS moves every label, but there is
+no single role that repaints the chart background and the floating surfaces together —
+set `--a8c-charts-color-background` and `--a8c-charts-color-surface` if you want both.
+
+`gridStyles.stroke`, `xAxisLineStyles.stroke` and `xTickLineStyles.stroke` need no
+narrow role: nothing outside the element each names reads `--a8c-charts-color-grid`,
+`--a8c-charts-color-axis` or `--a8c-charts-color-tick`.
 
 ### The SVG bridge
 
@@ -133,11 +156,13 @@ live-update on a theme change without a re-render.
 | `--a8c-charts-color-label-secondary` | `--wpds-color-foreground-content-neutral-weak` | `#707070` |
 | `--a8c-charts-color-label-inverse` | `--wpds-color-foreground-interactive-neutral-strong` | `#f0f0f0` |
 | `--a8c-charts-color-label-on-fill` | _(none — white-on-series-fill, no WPDS fit)_ | `#FFFFFF` |
+| `--a8c-charts-color-label-axis` | _(derives from `--a8c-charts-color-label`)_ | `#1e1e1e` |
 | `--a8c-charts-color-annotation` | `--wpds-color-foreground-content-neutral` | `#1e1e1e` |
 | `--a8c-charts-color-trend-up` | `--wpds-color-foreground-content-success-weak` | `#008030` |
 | `--a8c-charts-color-trend-down` | `--wpds-color-foreground-content-error-weak` | `#cc1818` |
 | `--a8c-charts-color-trend-neutral` | `--wpds-color-foreground-content-neutral-weak` | `#707070` |
 | `--a8c-charts-color-background` | `--wpds-color-background-surface-neutral-strong` | `#fff` |
+| `--a8c-charts-color-surface` | `--wpds-color-background-surface-neutral-strong` | `#fff` |
 | `--a8c-charts-color-surface-secondary` | `--wpds-color-background-surface-neutral-weak` | `#f4f4f4` |
 | `--a8c-charts-color-track` | `--wpds-color-background-track-neutral-weak` | `#f0f0f0` |
 | `--a8c-charts-color-tooltip-surface` | _(none — translucent dark surface, no WPDS fit)_ | `rgba(0,0,0,0.85)` |

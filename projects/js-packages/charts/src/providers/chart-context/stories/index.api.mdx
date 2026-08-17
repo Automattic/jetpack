@@ -93,7 +93,14 @@ step:
 | `gridStyles.stroke` | `--a8c-charts-color-grid` |
 | `xAxisLineStyles.stroke` | `--a8c-charts-color-axis` |
 | `xTickLineStyles.stroke` | `--a8c-charts-color-tick` |
-| `svgLabelSmall.fill` | `--a8c-charts-color-label` |
+| `svgLabelSmall.fill` | `--a8c-charts-color-label-axis` |
+
+Each field maps to a role read by exactly the elements that field already controlled.
+Where the obvious role is shared more widely, the field maps to a narrow role that
+derives from it: `svgLabelSmall.fill` writes `--a8c-charts-color-label-axis`, which
+defaults to `--a8c-charts-color-label` but leaves legend labels, heatmap cell values,
+funnel labels and the line-chart tooltip alone. Set the broad role in CSS to move all
+of them together.
 
 A value that already points at the role it would define (the default theme's own
 catalog pointer, surviving `mergeThemes`) is not republished — emitting it would make
