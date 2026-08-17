@@ -185,6 +185,18 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * The Agents Manager JWT client receives the connection state it needs.
+	 */
+	public function test_connection_initial_state_is_injected() {
+		unset( $GLOBALS['wp_scripts'] );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
+		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
+	}
+
+	/**
 	 * The Tracks audience properties ride the same payload (AIINT-586): isTest
 	 * is the environment flag, isA11n the identity flag. The test environment
 	 * defines no is_automattician() and connects no user, so isA11n is false.

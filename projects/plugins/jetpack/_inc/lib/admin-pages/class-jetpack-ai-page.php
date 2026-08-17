@@ -9,6 +9,7 @@
  */
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -140,6 +141,7 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		);
 
 		wp_set_script_translations( 'jetpack-ai-admin', 'jetpack' );
+		Connection_Initial_State::render_script( 'jetpack-ai-admin' );
 
 		// Pre-release gate for the Overview and Features views. Everything the
 		// gated views need hangs off this one flag, so opening them up to
