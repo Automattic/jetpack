@@ -5,11 +5,11 @@
  */
 
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button, ExternalLink, ProgressBar, Spinner, VisuallyHidden } from '@wordpress/components';
+import { ExternalLink, ProgressBar, Spinner, VisuallyHidden } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
-import { Card, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { Card, Link, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
 import NavRow from '../components/nav-row';
 import buildPageThumb from './images/build-page.webp';
 import connectClaudeThumb from './images/connect-claude.webp';
@@ -164,9 +164,9 @@ function UsageCard( { upgradeUrl, planName } ) {
 									</Text>
 								) }
 								{ usage.showUpgrade && upgradeUrl && (
-									<Button variant="primary" href={ upgradeUrl }>
+									<LinkButton href={ upgradeUrl } size="compact">
 										{ __( 'Upgrade', 'jetpack' ) }
-									</Button>
+									</LinkButton>
 								) }
 								{ ! usage.showUpgrade && usage.renewsOn && (
 									<Text
