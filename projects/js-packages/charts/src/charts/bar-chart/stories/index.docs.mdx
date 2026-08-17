@@ -256,15 +256,17 @@ to a week, calendar dates within a year, and years beyond that. An explicit
 
 Default tooltip labels name the hovered bar's bucket, spelled out in full:
 `August 2, 2026 at 6 AM` for hourly buckets, `August 2, 2026` for daily ones,
-`August 2026` for monthly, and `2026` for yearly. A monthly bar reads `August 2026` rather
-than `August 1, 2026` — the day is precision the bucket doesn't carry. The tooltip always
-names the bucket's own granularity, so it stays finer than the ticks whenever the span
-coarsens the axis.
+`August 2026` for monthly, `2026` for yearly, and `Week of January 12, 2026` for weekly.
+A monthly bar reads `August 2026` rather than `August 1, 2026` — the day is precision the
+bucket doesn't carry. The tooltip always names the bucket's own granularity, so it stays
+finer than the ticks whenever the span coarsens the axis.
 
 When the bucket resolution is already known — from a granularity selector, say — declare it
 with `options.axis.x.tickResolution` (`axis.y` on a horizontal chart) instead of leaving the
-chart to infer it from point spacing. This is what a single-bucket series needs, since one
-point has no spacing to measure.
+chart to infer it from point spacing. Two cases need it: a single-bucket series, which has
+no spacing to measure, and weekly buckets, whose seven-day spacing is indistinguishable from
+sparse daily data — undeclared, they are read as daily and the tooltip names one day instead
+of the week.
 
 <Canvas of={ BarChartStories.TimeAxisTickResolution } />
 

@@ -207,6 +207,11 @@ const yearlyPoints: Array< [ Date, number ] > = [ 72, 95, 58, 86 ].map( ( value,
 // declared `tickResolution` can reach the hour format.
 const loneHourlyBucket = timeAxisSeries( [ [ new Date( 2026, 7, 2, 13 ), 42 ] ] );
 
+const weeklyPoints: Array< [ Date, number ] > = Array.from( { length: 8 }, ( _, i ) => [
+	new Date( 2026, 0, 5 + i * 7 ),
+	Math.round( 60 + 40 * Math.sin( i / 2 ) ),
+] );
+
 type TimeAxisPanelProps = {
 	title: string;
 	data: SeriesData[];
@@ -276,17 +281,22 @@ export const TimeAxisTickResolution: Story = {
 				data={ loneHourlyBucket }
 				options={ { yScale: { zero: true }, axis: { x: { tickResolution: 'hour' } } } }
 			/>
+			<TimeAxisPanel
+				title="Weekly buckets, tickResolution: 'week' → date ticks, 'Week of' tooltips"
+				data={ timeAxisSeries( weeklyPoints ) }
+				options={ { axis: { x: { tickResolution: 'week' } } } }
+			/>
 		</div>
 	),
 	args: {
 		containerWidth: '1020px',
-		containerHeight: '400px',
+		containerHeight: '700px',
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					"When the caller already knows the data's bucket resolution — e.g. from a granularity selector — `options.axis.x.tickResolution` declares it and the tick formatter derives the format from it instead of inferring the resolution from point spacing. Inference needs at least two points, so a single-bucket series always falls back to date ticks; the declared resolution picks the right format, and the tooltip follows it. On a horizontal bar chart the hint lives on `axis.y`, which is where the dates are. An explicit `tickFormat` takes precedence over the hint.",
+					"When the caller already knows the data's bucket resolution — e.g. from a granularity selector — `options.axis.x.tickResolution` declares it and the tick formatter derives the format from it instead of inferring the resolution from point spacing. Inference needs at least two points, so a single-bucket series always falls back to date ticks; the declared resolution picks the right format, and the tooltip follows it. `'week'` is the other case that has to be declared: seven-day spacing is indistinguishable from sparse daily data, so undeclared weekly buckets are read as daily and their tooltips name a single day rather than `Week of …`. On a horizontal bar chart the hint lives on `axis.y`, which is where the dates are. An explicit `tickFormat` takes precedence over the hint.",
 			},
 		},
 	},

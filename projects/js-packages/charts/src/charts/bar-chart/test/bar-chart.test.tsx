@@ -508,6 +508,54 @@ describe( 'BarChart', () => {
 			);
 		} );
 
+		test( 'follows tickResolution declared on the y axis of a horizontal chart', () => {
+			// The dates move to the y axis with the orientation, so the tooltip has
+			// to follow them the way the ticks do.
+			const { tooltip } = renderHook( () =>
+				useBarChartOptions(
+					[
+						{
+							label: 'Series A',
+							data: [ { date: new Date( 2024, 0, 1, 13 ), value: 10 } ],
+							options: {},
+						},
+					],
+					true,
+					{ axis: { y: { tickResolution: 'hour' } } }
+				)
+			).result.current;
+
+			expect( tooltip.labelFormatter( new Date( 2024, 0, 1, 13 ).getTime(), 0, [] ) ).toMatch(
+				/^January 1, 2024 at 1\sPM$/
+			);
+		} );
+
+		test( 'lets an explicit tickFormat override the resolution-derived label', () => {
+			const { tooltip } = optionsFor(
+				[
+					{
+						label: 'Series A',
+						data: Array.from( { length: 24 }, ( _, i ) => ( {
+							date: new Date( 2024, i, 1 ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+				{
+					axis: {
+						x: {
+							tickResolution: 'month',
+							tickFormat: ( timestamp: number ) =>
+								new Date( timestamp ).toLocaleDateString( 'en-US', { dateStyle: 'short' } ),
+						},
+					},
+				}
+			);
+
+			expect( tooltip.labelFormatter( new Date( 2025, 2, 1 ).getTime(), 0, [] ) ).toBe( '3/1/25' );
+		} );
+
 		test( 'names the hovered bar bucket in the rendered tooltip', async () => {
 			const user = userEvent.setup();
 			renderWithTheme( {

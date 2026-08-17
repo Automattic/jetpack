@@ -1,4 +1,5 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
+import { __, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { getBucketResolution, getFormatter } from '../../private/time-axis';
 import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
@@ -24,36 +25,36 @@ const TOOLTIP_FORMAT_BY_RESOLUTION: Record<
 };
 
 /**
- * Tick and tooltip formatters for date-based series. Ticks share the line/area
- * charts' time-axis formatter, which also narrows with the overall span; a
- * tooltip labels one bar, so it names that bar's bucket at the bucket's own
- * granularity — finer than the ticks whenever the span coarsens the axis.
+ * Labels one bar's bucket, at the bucket's own granularity — finer than the
+ * ticks whenever the overall time span coarsens the axis.
  *
  * @param data           - Date-based series, already parsed and sorted by `useChartDataTransform`.
  * @param tickResolution - Caller-declared bucket resolution, when known.
- * @return Tick and tooltip label formatters.
+ * @return Tooltip label formatter.
  */
-const getTimeSeriesFormatters = ( data: SeriesData[], tickResolution?: TickResolution ) => {
+const getTooltipFormatter = ( data: SeriesData[], tickResolution?: TickResolution ) => {
+	// Only a declared 'week' reaches this branch: seven-day spacing is
+	// indistinguishable from sparse daily data, so inference reports 'day'.
 	if ( tickResolution === 'week' ) {
-		const tooltipFormatter = ( timestamp: number ) =>
-			`Week of ${ new Date( timestamp ).toLocaleDateString( undefined, {
-				year: 'numeric',
-				month: 'long',
-				day: 'numeric',
-			} ) }`;
-
-		return { tickFormatter: getFormatter( data, tickResolution ), tooltipFormatter };
+		return ( timestamp: number ) =>
+			sprintf(
+				/* translators: %s is the first day of the week the bar covers. */
+				__( 'Week of %s', 'jetpack-charts' ),
+				new Date( timestamp ).toLocaleDateString( undefined, {
+					year: 'numeric',
+					month: 'long',
+					day: 'numeric',
+				} )
+			);
 	}
 
 	// Fall back to the day format rather than `undefined` options, which would
 	// print a full locale date-time for an unrecognised `tickResolution`.
-	const tooltipFormat =
+	const format =
 		TOOLTIP_FORMAT_BY_RESOLUTION[ getBucketResolution( data, tickResolution ) ] ??
 		TOOLTIP_FORMAT_BY_RESOLUTION.day;
-	const tooltipFormatter = ( timestamp: number ) =>
-		new Date( timestamp ).toLocaleString( undefined, tooltipFormat );
 
-	return { tickFormatter: getFormatter( data, tickResolution ), tooltipFormatter };
+	return ( timestamp: number ) => new Date( timestamp ).toLocaleString( undefined, format );
 };
 
 /**
@@ -79,11 +80,32 @@ export function useBarChartOptions(
 	horizontal: boolean,
 	options: BaseChartProps[ 'options' ] = {}
 ) {
-	// `tickResolution` is a hint for the tick formatter rather than a visx axis
-	// prop, so it is read here and stripped from the axis options spread below.
-	const tickResolution = horizontal
-		? options.axis?.y?.tickResolution
-		: options.axis?.x?.tickResolution;
+	// `labelOverflow` and `tickResolution` are consumed by this hook rather than
+	// forwarded — visx has an axis prop for neither — so they are split off the
+	// caller's axis options once, here, and only the rest reaches visx below.
+	const axisConfig = useMemo( () => {
+		const {
+			labelOverflow: xLabelOverflow,
+			tickResolution: xTickResolution,
+			...xAxisOptions
+		} = options.axis?.x || {};
+		const {
+			labelOverflow: yLabelOverflow,
+			tickResolution: yTickResolution,
+			...yAxisOptions
+		} = options.axis?.y || {};
+
+		return {
+			xLabelOverflow,
+			yLabelOverflow,
+			xAxisOptions,
+			yAxisOptions,
+			// The dates sit on the x axis normally, and on the y axis when the
+			// chart is horizontal, so the hint follows them.
+			tickResolution: horizontal ? yTickResolution : xTickResolution,
+		};
+	}, [ options, horizontal ] );
+	const { tickResolution } = axisConfig;
 
 	const defaultOptions = useMemo( () => {
 		const bandScale = {
@@ -97,14 +119,16 @@ export function useBarChartOptions(
 			zero: false,
 		};
 
+		// Ticks on a date-based series share the line/area charts' time-axis
+		// formatter, which narrows with the overall span as well as the bucket
+		// size; the tooltip stays at the bucket's own granularity.
 		const hasLabels = Boolean( data?.[ 0 ]?.data?.[ 0 ]?.label );
-		const timeSeriesFormatters = hasLabels ? null : getTimeSeriesFormatters( data, tickResolution );
-		const labelFormatter = timeSeriesFormatters
-			? timeSeriesFormatters.tickFormatter
-			: ( label: string ) => label;
-		const tooltipDatumFormatter = timeSeriesFormatters
-			? timeSeriesFormatters.tooltipFormatter
-			: labelFormatter;
+		const labelFormatter = hasLabels
+			? ( label: string ) => label
+			: getFormatter( data, tickResolution );
+		const tooltipDatumFormatter = hasLabels
+			? labelFormatter
+			: getTooltipFormatter( data, tickResolution );
 		const valueFormatter = formatNumberCompact as TickFormatter< unknown >;
 
 		const labelAccessor = ( d: DataPointDate ) => d?.label || d?.date;
@@ -192,15 +216,10 @@ export function useBarChartOptions(
 			...( options.yScale || {} ),
 			...( ! horizontal ? valueScaleDomainOverride : {} ),
 		};
+		const { xLabelOverflow, yLabelOverflow, xAxisOptions, yAxisOptions } = axisConfig;
 		const providedToolTipLabelFormatter = horizontal
-			? options.axis?.y?.tickFormat
-			: options.axis?.x?.tickFormat;
-
-		const { labelOverflow: xLabelOverflow, ...xAxisOptions } = options.axis?.x || {};
-		const { labelOverflow: yLabelOverflow, ...yAxisOptions } = options.axis?.y || {};
-		// Consumed above as a formatter hint; visx has no such axis prop.
-		delete xAxisOptions.tickResolution;
-		delete yAxisOptions.tickResolution;
+			? yAxisOptions.tickFormat
+			: xAxisOptions.tickFormat;
 
 		return {
 			gridVisibility,
@@ -233,5 +252,5 @@ export function useBarChartOptions(
 				labelFormatter: providedToolTipLabelFormatter || defaultTooltipLabelFormatter,
 			},
 		};
-	}, [ defaultOptions, options, horizontal, data ] );
+	}, [ defaultOptions, axisConfig, options, horizontal, data ] );
 }
