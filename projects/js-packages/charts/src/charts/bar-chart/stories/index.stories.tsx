@@ -188,6 +188,13 @@ const twoDayHourlyPoints: Array< [ Date, number ] > = Array.from( { length: 48 }
 	Math.round( 60 + 40 * Math.sin( i / 3.5 ) ),
 ] );
 
+// The far end of the dated-hour format's range: too long for the axis to reach
+// a midnight without stepping whole days.
+const weekHourlyPoints: Array< [ Date, number ] > = Array.from( { length: 168 }, ( _, i ) => [
+	new Date( 2026, 7, 2, i ),
+	Math.round( 60 + 40 * Math.sin( i / 3.5 ) ),
+] );
+
 // Both monthly series deliberately start mid-year: a January start would put a
 // year label on the first bucket for free, hiding whether the axis can find one.
 const oneYearMonthlyPoints: Array< [ Date, number ] > = Array.from( { length: 13 }, ( _, i ) => [
@@ -244,13 +251,17 @@ export const TimeAxisTickFormats: Story = {
 				title="Hourly buckets, two days → hour ticks, date at midnight"
 				data={ timeAxisSeries( twoDayHourlyPoints ) }
 			/>
+			<TimeAxisPanel
+				title="Hourly buckets, a week → hour ticks, every tick at midnight"
+				data={ timeAxisSeries( weekHourlyPoints ) }
+			/>
 			<TimeAxisPanel title="Daily buckets → date ticks" data={ timeAxisSeries( dailyPoints ) } />
 			<TimeAxisPanel
 				title="Monthly buckets over a year → month ticks, year at January"
 				data={ timeAxisSeries( oneYearMonthlyPoints ) }
 			/>
 			<TimeAxisPanel
-				title="Monthly buckets over three years → year ticks"
+				title="Monthly buckets over three years → month ticks, every tick at January"
 				data={ timeAxisSeries( monthlyPoints ) }
 			/>
 			<TimeAxisPanel title="Yearly buckets → year ticks" data={ timeAxisSeries( yearlyPoints ) } />
@@ -258,13 +269,13 @@ export const TimeAxisTickFormats: Story = {
 	),
 	args: {
 		containerWidth: '1020px',
-		containerHeight: '1050px',
+		containerHeight: '1400px',
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					"Date-based series share the time-axis tick formatter with the line and area charts, on the same data — compare these panels with the line chart's `TimeAxisTickFormats`. Month-or-coarser buckets follow the resolution alone — month names with the year at January, or plain years for yearly buckets — since they carry no day to print at any span. Daily-or-finer buckets narrow with the span: hour ticks within a day, hour ticks dated at midnight for sub-daily data spanning up to a week, calendar dates within a year, and years beyond that. The tick values are chosen rather than sampled: a band scale has no ticks of its own, so picking evenly by index would often skip the very bucket that carries the year or the date. Neither monthly panel starts in January, and both still name their years. Hover any bar: the tooltip names that bar's bucket spelled out in full — `August 2026` for a monthly bar, `2026` for a yearly one, never a day the bucket doesn't carry. It always names the bucket's own granularity, so on the daily panel it stays finer than the ticks once a long span coarsens the axis. An explicit `options.axis.x.tickFormat` still overrides.",
+					"Date-based series share the time-axis tick formatter with the line and area charts, on the same data — compare these panels with the line chart's `TimeAxisTickFormats`. Month-or-coarser buckets follow the resolution alone — month names with the year at January, or plain years for yearly buckets — since they carry no day to print at any span. Daily-or-finer buckets narrow with the span: hour ticks within a day, hour ticks dated at midnight for sub-daily data spanning up to a week, calendar dates within a year, and years beyond that. The tick values are chosen rather than sampled: a band scale has no ticks of its own, so picking evenly by index would often skip the very bucket that carries the year or the date. Neither monthly panel starts in January, and both still name their years; the week-long and three-year panels step whole days and whole years, since at those spans nothing closer together reaches a boundary at all. Hover any bar: the tooltip names that bar's bucket spelled out in full — `August 2026` for a monthly bar, `2026` for a yearly one, never a day the bucket doesn't carry. It always names the bucket's own granularity, so on the daily panel it stays finer than the ticks once a long span coarsens the axis. An explicit `options.axis.x.tickFormat` still overrides.",
 			},
 		},
 	},

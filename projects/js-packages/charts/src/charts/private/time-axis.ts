@@ -190,7 +190,8 @@ const TICK_ANCHORS = new Map< ( timestamp: number ) => string, ( date: Date ) =>
 ] );
 
 // Index distance between consecutive anchor buckets, or null below two of them.
-// Only a sampling step dividing this can land on more than one anchor.
+// The steps that can land on more than one anchor are the ones that divide it
+// and the ones that are whole multiples of it.
 const getAnchorPeriod = ( domain: Date[], isAnchor: ( date: Date ) => boolean ) => {
 	const first = domain.findIndex( isAnchor );
 	const second = domain.findIndex( ( date, index ) => index > first && isAnchor( date ) );
@@ -205,8 +206,9 @@ const getAnchorPeriod = ( domain: Date[], isAnchor: ( date: Date ) => boolean ) 
  * carry a boundary and without collapsing repeats — so the tick that prints the
  * year or the date often isn't sampled at all, and a long series can show the
  * same label twice. Choose the values instead: keep the even spacing, but slide
- * the offset onto the anchor buckets and reject any step that would put two
- * identical labels side by side.
+ * the offset onto the anchor buckets — stepping by whole anchor periods once the
+ * span is too long to reach them any other way — and reject any step that would
+ * put two identical labels side by side.
  *
  * @param domain        - Band domain, in axis order.
  * @param tickFormatter - Formatter the axis will render these values with.
@@ -234,19 +236,33 @@ export const getBandTickValues = (
 			steps.add( anchorPeriod / divisor );
 		}
 	}
+	if ( anchorPeriod ) {
+		// A divisor reaches every anchor but outruns `maxTicks` beyond a few
+		// periods, which would leave a week of hourly buckets naming one day out
+		// of seven. Whole multiples carry those longer spans, and the smallest one
+		// that still fits is the densest, so it reaches the most anchors.
+		const minStep = Math.floor( ( domain.length - 1 ) / Math.max( 1, maxTicks ) ) + 1;
+		steps.add( Math.ceil( minStep / anchorPeriod ) * anchorPeriod );
+	}
+
+	// Once per bucket rather than once per bucket per candidate: the sweep reads
+	// the same labels back for every step and offset, and these formatters go
+	// through `toLocaleDateString`.
+	const domainLabels = domain.map( date => tickFormatter( date.getTime() ) );
 
 	let best: { values: Date[]; anchors: number } | null = null;
 	for ( const step of steps ) {
 		for ( let offset = 0; offset < step; offset++ ) {
 			const values: Date[] = [];
+			const labels: string[] = [];
 			for ( let index = offset; index < domain.length; index += step ) {
 				values.push( domain[ index ] );
+				labels.push( domainLabels[ index ] );
 			}
 			if ( ! values.length || values.length > maxTicks ) {
 				continue;
 			}
 
-			const labels = values.map( date => tickFormatter( date.getTime() ) );
 			if ( labels.some( ( label, index ) => index > 0 && label === labels[ index - 1 ] ) ) {
 				continue;
 			}

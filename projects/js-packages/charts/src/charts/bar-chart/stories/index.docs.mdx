@@ -254,8 +254,9 @@ to a week, calendar dates within a year, and years beyond that. An explicit
 
 Because bars sit on a band scale, which has no ticks of its own, the tick values are
 chosen rather than sampled evenly by index — otherwise the axis would routinely skip the
-bucket that prints the year or dates the day, and could repeat a label. `numTicks` caps
-how many it picks.
+bucket that prints the year or dates the day, and could repeat a label. Over spans long
+enough that nothing closer together reaches a boundary, the ticks fall on whole days or
+whole years instead. `numTicks` caps how many it picks.
 
 <Canvas of={ BarChartStories.TimeAxisTickFormats } />
 

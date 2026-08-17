@@ -348,8 +348,30 @@ describe( 'BarChart', () => {
 
 			// Band ticks are sampled by index, so without steering they land on
 			// bare hours belonging to days the axis never names.
-			expect( screen.getByText( 'Aug 2' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Aug 3' ) ).toBeInTheDocument();
+			expect( inChart().getByText( 'Aug 2' ) ).toBeInTheDocument();
+			expect( inChart().getByText( 'Aug 3' ) ).toBeInTheDocument();
+		} );
+
+		test( 'dates every tick for sub-daily buckets spanning a week', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 168 }, ( _, i ) => ( {
+							date: new Date( 2026, 7, 2, i ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			// Too long for a step within one day to fit the tick count, so the axis
+			// has to step whole days to keep naming them.
+			expect( inChart().queryByText( /\d{1,2}\s(AM|PM)/ ) ).not.toBeInTheDocument();
+			expect( inChart().getByText( 'Aug 2' ) ).toBeInTheDocument();
+			expect( inChart().getByText( 'Aug 8' ) ).toBeInTheDocument();
 		} );
 
 		test( 'names the year for monthly buckets that do not start in January', () => {
@@ -367,7 +389,7 @@ describe( 'BarChart', () => {
 				],
 			} );
 
-			const ticks = screen.getAllByText( /^\d{4}$/ );
+			const ticks = inChart().getAllByText( /^\d{4}$/ );
 			expect( distinctTexts( ticks ) ).toEqual( new Set( [ '2024', '2025', '2026' ] ) );
 		} );
 

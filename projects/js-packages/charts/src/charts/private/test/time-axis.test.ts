@@ -323,6 +323,33 @@ describe( 'getBandTickValues', () => {
 		] );
 	} );
 
+	it( 'steps whole days once a sub-daily span is too long to date any other way', () => {
+		// No step inside a day fits four ticks across a week, so the offset sweep
+		// alone would leave every tick but the first a bare hour on an unnamed day.
+		expect( labelsFor( hourlyDomain( new Date( 2026, 7, 2 ), 168 ) ) ).toEqual( [
+			'Aug 2',
+			'Aug 4',
+			'Aug 6',
+			'Aug 8',
+		] );
+	} );
+
+	it( 'steps whole years once a monthly span is too long to reach January any other way', () => {
+		expect( labelsFor( monthlyDomain( 2023, 6, 120 ) ) ).toEqual( [
+			'2024',
+			'2027',
+			'2030',
+			'2033',
+		] );
+	} );
+
+	it( 'still names a year at the lowest tick counts a caller can ask for', () => {
+		// An anchor outranks a denser axis, so without a step that reaches two of
+		// them a two-tick axis would settle for a single January.
+		expect( labelsFor( monthlyDomain( 2023, 6, 36 ), 2 ) ).toEqual( [ '2024', '2026' ] );
+		expect( labelsFor( monthlyDomain( 2023, 6, 36 ), 3 ) ).toEqual( [ '2024', '2025', '2026' ] );
+	} );
+
 	it( 'never repeats a label on adjacent ticks', () => {
 		const labels = labelsFor( monthlyDomain( 2024, 0, 36 ) );
 
