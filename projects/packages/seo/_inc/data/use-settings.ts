@@ -3,7 +3,7 @@ import { select, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { buildCorePayload, buildJetpackPayload } from './build-payload';
+import { buildCorePayload, buildModulesPayload, SITEMAP_SETTING } from './build-payload';
 import { settingsStore } from './settings-store';
 import type { SchemaSettings } from './schema-settings-types';
 import type { SettingsResponse, VerificationKey } from './settings-types';
@@ -17,6 +17,15 @@ const SAVE_NOTICE_ID = 'jetpack-seo-settings-save';
 // the freshly-reachable `sitemap_url` (recomputed server-side once Jetpack has
 // (de)activated its sitemap module).
 const SEO_SETTINGS_PATH = '/jetpack/v4/seo/settings';
+
+// WordPress core's settings endpoint, which every option-backed SEO setting is
+// registered with. Core registers it on every platform, so this one path works
+// on WordPress.com and self-hosted alike.
+const CORE_SETTINGS_PATH = '/wp/v2/settings';
+
+// The package's own route for the site-verification module toggle — module
+// activation is the one dashboard setting that isn't an option.
+const SEO_MODULES_PATH = '/jetpack/v4/seo/modules';
 
 export interface SettingsForm {
 	local: SettingsResponse | null;
@@ -92,17 +101,19 @@ export function useSettingsForm(): SettingsForm {
 			if ( ! baseline ) {
 				return;
 			}
-			const jetpackPayload = buildJetpackPayload( baseline, values );
 			const corePayload = buildCorePayload( baseline, values );
+			const modulesPayload = buildModulesPayload( baseline, values );
 
 			const requests: Array< Promise< unknown > > = [];
-			if ( Object.keys( jetpackPayload ).length > 0 ) {
+			if ( Object.keys( corePayload ).length > 0 ) {
 				requests.push(
-					apiFetch( { path: '/jetpack/v4/settings', method: 'POST', data: jetpackPayload } )
+					apiFetch( { path: CORE_SETTINGS_PATH, method: 'POST', data: corePayload } )
 				);
 			}
-			if ( Object.keys( corePayload ).length > 0 ) {
-				requests.push( apiFetch( { path: '/wp/v2/settings', method: 'POST', data: corePayload } ) );
+			if ( Object.keys( modulesPayload ).length > 0 ) {
+				requests.push(
+					apiFetch( { path: SEO_MODULES_PATH, method: 'POST', data: modulesPayload } )
+				);
 			}
 			if ( requests.length === 0 ) {
 				return;
@@ -131,7 +142,7 @@ export function useSettingsForm(): SettingsForm {
 					// Returned (not fire-and-forget) so `isSaving` stays true — and the
 					// toggle disabled — until the re-read settles, preventing a second
 					// toggle from racing an in-flight refetch and landing a stale value.
-					if ( 'sitemaps' in jetpackPayload ) {
+					if ( SITEMAP_SETTING in corePayload ) {
 						return apiFetch< SettingsResponse >( { path: SEO_SETTINGS_PATH } )
 							.then( fresh => {
 								const cur = localRef.current;

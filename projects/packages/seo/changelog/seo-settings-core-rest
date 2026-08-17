@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Save settings through the WordPress settings endpoint so they persist on WordPress.com Simple sites.

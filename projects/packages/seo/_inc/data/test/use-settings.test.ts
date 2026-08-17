@@ -79,7 +79,7 @@ describe( 'useSettingsForm', () => {
 			path: string;
 			data: Record< string, unknown >;
 		};
-		expect( call.path ).toBe( '/jetpack/v4/settings' );
+		expect( call.path ).toBe( '/wp/v2/settings' );
 		expect( call.data ).toHaveProperty( 'advanced_seo_front_page_description' );
 		// The title-structure edit was NOT part of this section's save.
 		expect( call.data ).not.toHaveProperty( 'advanced_seo_title_formats' );
@@ -103,7 +103,7 @@ describe( 'useSettingsForm', () => {
 
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
 		const call = mockApiFetch.mock.calls[ 0 ][ 0 ] as { data: Record< string, unknown > };
-		expect( call.data ).toHaveProperty( 'canonical-urls', true );
+		expect( call.data ).toHaveProperty( 'jetpack_seo_canonical_urls_enabled', true );
 		// The unsaved front-page edit must NOT be dragged into the toggle's save.
 		expect( call.data ).not.toHaveProperty( 'advanced_seo_front_page_description' );
 		// It stays pending until its own Save.
@@ -172,7 +172,7 @@ describe( 'useSettingsForm', () => {
 		const paths = mockApiFetch.mock.calls.map(
 			( [ options ] ) => ( options as { path: string } ).path
 		);
-		expect( paths ).toContain( '/jetpack/v4/settings' );
+		expect( paths ).toContain( '/wp/v2/settings' );
 		expect( paths ).toContain( '/jetpack/v4/seo/settings' );
 	} );
 
@@ -186,6 +186,21 @@ describe( 'useSettingsForm', () => {
 			( [ options ] ) => ( options as { path: string } ).path
 		);
 		expect( paths ).not.toContain( '/jetpack/v4/seo/settings' );
+	} );
+
+	it( 'saves the verification module toggle through the package module route', async () => {
+		const { result } = renderHook( () => useSettingsForm() );
+
+		act( () => result.current.commit( { verification_tools_active: false } ) );
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
+		const call = mockApiFetch.mock.calls[ 0 ][ 0 ] as {
+			path: string;
+			data: Record< string, unknown >;
+		};
+		// Module activation is the one setting core's endpoint can't express.
+		expect( call.path ).toBe( '/jetpack/v4/seo/modules' );
+		expect( call.data ).toEqual( { verification_tools_active: false } );
 	} );
 
 	it( 'updates the saved settings snapshot when schema saves separately', () => {

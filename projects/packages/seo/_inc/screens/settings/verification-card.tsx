@@ -34,11 +34,10 @@ const description = __(
 // brand labels live in `data/verification-services` (single source of truth).
 //
 // Each hint names where to fetch the tag and says both forms are accepted. This
-// page saves through `/jetpack/v4/settings`, which validates the value
-// (`validate_verification_service()`) and stores it; the code is unwrapped from a
-// pasted tag on the way in (`class.jetpack-core-api-module-endpoints.php`) and
-// again at render (`jetpack_verification_print_meta()`). Both unwrappers expect
-// the `<meta name="…" content="…" />` shape the services actually emit.
+// page saves through `/wp/v2/settings`, and the code is unwrapped from a pasted
+// tag on the way in (`Dashboard_Data::sanitize_verification_codes()`) and again
+// at render (`jetpack_verification_print_meta()`). Both unwrappers expect the
+// `<meta name="…" content="…" />` shape the services actually emit.
 // Deliberately not repeating each service's own name for the tag ("HTML tag",
 // "HTML Meta Tag", …): those are third-party UI labels that drift out of date.
 //
