@@ -38,6 +38,16 @@ class Jetpack_Mu_Wpcom {
 		// filter at mu-plugin time, before WP loads active plugins.
 		require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
 
+		/*
+		 * Feature flag overrides answer the jetpack-feature-flags resolution
+		 * filter, and a flag can be checked well before plugins_loaded, so this
+		 * is wired here at mu-plugin time rather than from load_features().
+		 * Registering the filter reads nothing — the option is only touched when
+		 * a flag is actually resolved.
+		 */
+		require_once __DIR__ . '/features/wpcom-feature-flags/wpcom-feature-flags.php';
+		\wpcom_feature_flags_init();
+
 		// Load features that don't need any special loading considerations.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_features' ) );
 
