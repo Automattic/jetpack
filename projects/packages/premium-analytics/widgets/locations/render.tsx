@@ -87,7 +87,7 @@ function getGeoChartCountryId( countryCode: string ): string {
 	return countryCode.toUpperCase();
 }
 
-// A GeoChart tooltip is a single cell, so the rolled-up locations share one HTML
+// A GeoChart tooltip is a single cell, so the summed locations share one HTML
 // string. The list is capped to keep a tooltip from overflowing the map.
 const MAX_TOOLTIP_LOCATIONS = 10;
 
