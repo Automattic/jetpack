@@ -45,8 +45,8 @@ class Jetpack_Mu_Wpcom {
 		 * Registering the filter reads nothing — the option is only touched when
 		 * a flag is actually resolved.
 		 */
-		require_once __DIR__ . '/features/wpcom-feature-flags/wpcom-feature-flags.php';
-		\wpcom_feature_flags_init();
+		require_once __DIR__ . '/features/wpcom-feature-flags/class-wpcom-feature-flags.php';
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Feature_Flags::init();
 
 		// Load features that don't need any special loading considerations.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_features' ) );

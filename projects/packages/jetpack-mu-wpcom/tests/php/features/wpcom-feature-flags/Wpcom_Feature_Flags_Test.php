@@ -13,7 +13,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-feature-flags/wpcom-feature-flags.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-feature-flags/class-wpcom-feature-flags.php';
 
 // The real support session detector, so the Atomic branch of the gate is tested
 // against wpcomsh's own logic rather than a stand-in.
@@ -31,7 +31,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		Constants::clear_constants();
 		unset( $_COOKIE[ \WPCOMSH_Support_Session_Detect::COOKIE_NAME ] );
-		delete_option( WPCOM_FEATURE_FLAGS_OVERRIDES_OPTION );
+		delete_option( Wpcom_Feature_Flags::OVERRIDES_OPTION );
 		remove_all_filters( 'jetpack_feature_flag_enabled' );
 		remove_all_filters( 'wp_die_handler' );
 		Feature_Flags::reset();
@@ -74,7 +74,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	 * Automattician, so the gate must fail closed.
 	 */
 	public function test_gate_fails_closed_by_default() {
-		$this->assertFalse( \wpcom_feature_flags_is_a11n() );
+		$this->assertFalse( Wpcom_Feature_Flags::is_a11n() );
 	}
 
 	/**
@@ -83,7 +83,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	public function test_gate_passes_for_proxied_atomic_request() {
 		$this->simulate_proxied_atomic_request();
 
-		$this->assertTrue( \wpcom_feature_flags_is_a11n() );
+		$this->assertTrue( Wpcom_Feature_Flags::is_a11n() );
 	}
 
 	/**
@@ -95,7 +95,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		$this->simulate_proxied_atomic_request();
 		$_COOKIE[ \WPCOMSH_Support_Session_Detect::COOKIE_NAME ] = 'true';
 
-		$this->assertFalse( \wpcom_feature_flags_is_a11n() );
+		$this->assertFalse( Wpcom_Feature_Flags::is_a11n() );
 	}
 
 	/**
@@ -107,7 +107,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		Constants::set_constant( 'IS_WPCOM', true );
 		$this->simulate_proxied_atomic_request();
 
-		$this->assertFalse( \wpcom_feature_flags_is_a11n() );
+		$this->assertFalse( Wpcom_Feature_Flags::is_a11n() );
 	}
 
 	/**
@@ -115,14 +115,14 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	 * a scalar left over from the option default.
 	 */
 	public function test_get_overrides_defaults_to_empty_array() {
-		$this->assertSame( array(), \wpcom_feature_flags_get_overrides() );
+		$this->assertSame( array(), Wpcom_Feature_Flags::get_overrides() );
 	}
 
 	/**
 	 * Overrides survive a round trip through the option, as booleans.
 	 */
 	public function test_save_overrides_persists_booleans() {
-		\wpcom_feature_flags_save_overrides(
+		Wpcom_Feature_Flags::save_overrides(
 			array(
 				'my-feature'    => true,
 				'other-feature' => false,
@@ -134,7 +134,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 				'my-feature'    => true,
 				'other-feature' => false,
 			),
-			\wpcom_feature_flags_get_overrides()
+			Wpcom_Feature_Flags::get_overrides()
 		);
 	}
 
@@ -143,7 +143,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	 * real flag name has to be discarded before it reaches the option.
 	 */
 	public function test_save_overrides_drops_invalid_flag_names() {
-		\wpcom_feature_flags_save_overrides(
+		Wpcom_Feature_Flags::save_overrides(
 			array(
 				'Valid-Caps'    => true,
 				'-leading-dash' => true,
@@ -152,7 +152,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$this->assertSame( array( 'valid-flag' => true ), \wpcom_feature_flags_get_overrides() );
+		$this->assertSame( array( 'valid-flag' => true ), Wpcom_Feature_Flags::get_overrides() );
 	}
 
 	/**
@@ -160,21 +160,21 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	 * empty array, so a site that never used the panel carries no row.
 	 */
 	public function test_save_overrides_with_empty_map_deletes_the_option() {
-		\wpcom_feature_flags_save_overrides( array( 'my-feature' => true ) );
+		Wpcom_Feature_Flags::save_overrides( array( 'my-feature' => true ) );
 
-		\wpcom_feature_flags_save_overrides( array() );
+		Wpcom_Feature_Flags::save_overrides( array() );
 
-		$this->assertFalse( get_option( WPCOM_FEATURE_FLAGS_OVERRIDES_OPTION ) );
-		$this->assertSame( array(), \wpcom_feature_flags_get_overrides() );
+		$this->assertFalse( get_option( Wpcom_Feature_Flags::OVERRIDES_OPTION ) );
+		$this->assertSame( array(), Wpcom_Feature_Flags::get_overrides() );
 	}
 
 	/**
 	 * A corrupted option must not leak non-boolean values into flag resolution.
 	 */
 	public function test_get_overrides_ignores_a_malformed_option() {
-		update_option( WPCOM_FEATURE_FLAGS_OVERRIDES_OPTION, 'not-an-array' );
+		update_option( Wpcom_Feature_Flags::OVERRIDES_OPTION, 'not-an-array' );
 
-		$this->assertSame( array(), \wpcom_feature_flags_get_overrides() );
+		$this->assertSame( array(), Wpcom_Feature_Flags::get_overrides() );
 	}
 
 	/**
@@ -182,7 +182,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	 * override at all".
 	 */
 	public function test_states_map_on_and_off_to_overrides() {
-		$overrides = \wpcom_feature_flags_overrides_from_states(
+		$overrides = Wpcom_Feature_Flags::overrides_from_states(
 			array(
 				'forced-on'  => 'on',
 				'forced-off' => 'off',
@@ -204,7 +204,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	 * code that registered it decides later.
 	 */
 	public function test_states_map_default_to_no_override() {
-		$overrides = \wpcom_feature_flags_overrides_from_states(
+		$overrides = Wpcom_Feature_Flags::overrides_from_states(
 			array(
 				'left-alone' => 'default',
 				'forced-on'  => 'on',
@@ -218,7 +218,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	 * An unrecognized state is not a silent "on".
 	 */
 	public function test_states_map_ignores_unknown_states() {
-		$this->assertSame( array(), \wpcom_feature_flags_overrides_from_states( array( 'my-feature' => 'maybe' ) ) );
+		$this->assertSame( array(), Wpcom_Feature_Flags::overrides_from_states( array( 'my-feature' => 'maybe' ) ) );
 	}
 
 	/**
@@ -226,8 +226,8 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_override_forces_registered_flag_on() {
 		Feature_Flags::register( 'my-feature', array( 'default' => false ) );
-		\wpcom_feature_flags_save_overrides( array( 'my-feature' => true ) );
-		\wpcom_feature_flags_init();
+		Wpcom_Feature_Flags::save_overrides( array( 'my-feature' => true ) );
+		Wpcom_Feature_Flags::init();
 
 		$this->assertTrue( Feature_Flags::is_enabled( 'my-feature' ) );
 	}
@@ -238,8 +238,8 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_override_forces_registered_flag_off() {
 		Feature_Flags::register( 'my-feature', array( 'default' => true ) );
-		\wpcom_feature_flags_save_overrides( array( 'my-feature' => false ) );
-		\wpcom_feature_flags_init();
+		Wpcom_Feature_Flags::save_overrides( array( 'my-feature' => false ) );
+		Wpcom_Feature_Flags::init();
 
 		$this->assertFalse( Feature_Flags::is_enabled( 'my-feature' ) );
 	}
@@ -249,8 +249,8 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_flag_without_override_keeps_registered_default() {
 		Feature_Flags::register( 'untouched-feature', array( 'default' => true ) );
-		\wpcom_feature_flags_save_overrides( array( 'my-feature' => false ) );
-		\wpcom_feature_flags_init();
+		Wpcom_Feature_Flags::save_overrides( array( 'my-feature' => false ) );
+		Wpcom_Feature_Flags::init();
 
 		$this->assertTrue( Feature_Flags::is_enabled( 'untouched-feature' ) );
 	}
@@ -261,8 +261,8 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	 * must therefore work for a name the registry has never heard of.
 	 */
 	public function test_override_applies_to_unregistered_flag() {
-		\wpcom_feature_flags_save_overrides( array( 'not-registered-anywhere' => true ) );
-		\wpcom_feature_flags_init();
+		Wpcom_Feature_Flags::save_overrides( array( 'not-registered-anywhere' => true ) );
+		Wpcom_Feature_Flags::init();
 
 		$this->assertTrue( Feature_Flags::is_enabled( 'not-registered-anywhere' ) );
 	}
@@ -275,10 +275,10 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_override_applies_regardless_of_current_user() {
 		Feature_Flags::register( 'my-feature', array( 'default' => false ) );
-		\wpcom_feature_flags_save_overrides( array( 'my-feature' => true ) );
-		\wpcom_feature_flags_init();
+		Wpcom_Feature_Flags::save_overrides( array( 'my-feature' => true ) );
+		Wpcom_Feature_Flags::init();
 
-		$this->assertFalse( \wpcom_feature_flags_is_a11n(), 'Guard: this test is meaningless if the gate passes.' );
+		$this->assertFalse( Wpcom_Feature_Flags::is_a11n(), 'Guard: this test is meaningless if the gate passes.' );
 		$this->assertTrue( Feature_Flags::is_enabled( 'my-feature' ) );
 	}
 
@@ -290,7 +290,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		$this->login_as_admin();
 		$this->simulate_proxied_atomic_request();
 
-		$this->assertNotFalse( \wpcom_feature_flags_register_admin_page() );
+		$this->assertNotFalse( Wpcom_Feature_Flags::register_admin_page() );
 	}
 
 	/**
@@ -300,7 +300,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	public function test_admin_page_not_registered_without_the_a11n_gate() {
 		$this->login_as_admin();
 
-		$this->assertFalse( \wpcom_feature_flags_register_admin_page() );
+		$this->assertFalse( Wpcom_Feature_Flags::register_admin_page() );
 	}
 
 	/**
@@ -310,15 +310,15 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	public function test_save_handler_rejects_a_non_automattician() {
 		$this->login_as_admin();
 
-		$saved = \wpcom_feature_flags_handle_save(
+		$saved = Wpcom_Feature_Flags::handle_save(
 			array(
-				'_wpnonce'   => wp_create_nonce( WPCOM_FEATURE_FLAGS_NONCE_ACTION ),
+				'_wpnonce'   => wp_create_nonce( Wpcom_Feature_Flags::NONCE_ACTION ),
 				'flag_state' => array( 'my-feature' => 'on' ),
 			)
 		);
 
 		$this->assertFalse( $saved );
-		$this->assertSame( array(), \wpcom_feature_flags_get_overrides() );
+		$this->assertSame( array(), Wpcom_Feature_Flags::get_overrides() );
 	}
 
 	/**
@@ -329,9 +329,9 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		$this->login_as_admin();
 		$this->simulate_proxied_atomic_request();
 
-		$saved = \wpcom_feature_flags_handle_save(
+		$saved = Wpcom_Feature_Flags::handle_save(
 			array(
-				'_wpnonce'   => wp_create_nonce( WPCOM_FEATURE_FLAGS_NONCE_ACTION ),
+				'_wpnonce'   => wp_create_nonce( Wpcom_Feature_Flags::NONCE_ACTION ),
 				'flag_state' => array(
 					'my-feature'    => 'on',
 					'other-feature' => 'off',
@@ -346,7 +346,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 				'my-feature'    => true,
 				'other-feature' => false,
 			),
-			\wpcom_feature_flags_get_overrides()
+			Wpcom_Feature_Flags::get_overrides()
 		);
 	}
 
@@ -357,7 +357,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		$this->login_as_admin();
 		$this->simulate_proxied_atomic_request();
 
-		$saved = \wpcom_feature_flags_handle_save(
+		$saved = Wpcom_Feature_Flags::handle_save(
 			array(
 				'_wpnonce'   => 'not-a-nonce',
 				'flag_state' => array( 'my-feature' => 'on' ),
@@ -365,7 +365,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertFalse( $saved );
-		$this->assertSame( array(), \wpcom_feature_flags_get_overrides() );
+		$this->assertSame( array(), Wpcom_Feature_Flags::get_overrides() );
 	}
 
 	/**
@@ -376,15 +376,15 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		$this->login_as_admin();
 		$this->simulate_proxied_atomic_request();
 
-		\wpcom_feature_flags_handle_save(
+		Wpcom_Feature_Flags::handle_save(
 			array(
-				'_wpnonce'          => wp_create_nonce( WPCOM_FEATURE_FLAGS_NONCE_ACTION ),
+				'_wpnonce'          => wp_create_nonce( Wpcom_Feature_Flags::NONCE_ACTION ),
 				'custom_flag_name'  => 'typed-by-hand',
 				'custom_flag_state' => 'on',
 			)
 		);
 
-		$this->assertSame( array( 'typed-by-hand' => true ), \wpcom_feature_flags_get_overrides() );
+		$this->assertSame( array( 'typed-by-hand' => true ), Wpcom_Feature_Flags::get_overrides() );
 	}
 
 	/**
@@ -393,16 +393,16 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	public function test_save_handler_clears_overrides() {
 		$this->login_as_admin();
 		$this->simulate_proxied_atomic_request();
-		\wpcom_feature_flags_save_overrides( array( 'my-feature' => true ) );
+		Wpcom_Feature_Flags::save_overrides( array( 'my-feature' => true ) );
 
-		\wpcom_feature_flags_handle_save(
+		Wpcom_Feature_Flags::handle_save(
 			array(
-				'_wpnonce'   => wp_create_nonce( WPCOM_FEATURE_FLAGS_NONCE_ACTION ),
+				'_wpnonce'   => wp_create_nonce( Wpcom_Feature_Flags::NONCE_ACTION ),
 				'flag_state' => array( 'my-feature' => 'default' ),
 			)
 		);
 
-		$this->assertSame( array(), \wpcom_feature_flags_get_overrides() );
+		$this->assertSame( array(), Wpcom_Feature_Flags::get_overrides() );
 	}
 
 	/**
@@ -439,7 +439,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	public function test_admin_page_marks_the_flag_state_currently_forced() {
 		$this->become_automattician_admin();
 		Feature_Flags::register( 'my-feature', array( 'default' => false ) );
-		\wpcom_feature_flags_save_overrides( array( 'my-feature' => true ) );
+		Wpcom_Feature_Flags::save_overrides( array( 'my-feature' => true ) );
 
 		$output = $this->render_admin_page();
 
@@ -456,7 +456,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_admin_page_lists_an_overridden_flag_that_is_not_registered() {
 		$this->become_automattician_admin();
-		\wpcom_feature_flags_save_overrides( array( 'typed-by-hand' => false ) );
+		Wpcom_Feature_Flags::save_overrides( array( 'typed-by-hand' => false ) );
 
 		$output = $this->render_admin_page();
 
@@ -507,7 +507,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 
 		$this->expectException( \RuntimeException::class );
 
-		\wpcom_feature_flags_render_admin_page();
+		Wpcom_Feature_Flags::render_admin_page();
 	}
 
 	/**
@@ -546,7 +546,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	 */
 	private function render_admin_page() {
 		ob_start();
-		\wpcom_feature_flags_render_admin_page();
+		Wpcom_Feature_Flags::render_admin_page();
 
 		return (string) ob_get_clean();
 	}
