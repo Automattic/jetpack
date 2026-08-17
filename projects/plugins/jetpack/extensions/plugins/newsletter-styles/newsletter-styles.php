@@ -24,6 +24,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 const EXTENSION_NAME = 'newsletter-styles';
 
 /**
+ * The slug of the newsletter template registered below.
+ */
+const NEWSLETTER_TEMPLATE_SLUG = 'newsletter';
+
+require_once __DIR__ . '/newsletter-editor-page.php';
+
+/**
  * The post name the WooCommerce email editor stores its user theme under.
  *
  * Kept in sync with `Automattic\WooCommerce\EmailEditor\Engine\User_Theme`.
@@ -175,7 +182,7 @@ function register_newsletter_template() {
 	}
 
 	register_block_template(
-		'jetpack//newsletter',
+		'jetpack//' . NEWSLETTER_TEMPLATE_SLUG,
 		array(
 			'title'       => __( 'Newsletter', 'jetpack' ),
 			'description' => __( 'The layout used when a post is sent to subscribers by email.', 'jetpack' ),
