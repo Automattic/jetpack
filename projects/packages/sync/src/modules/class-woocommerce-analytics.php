@@ -494,8 +494,7 @@ class WooCommerce_Analytics extends Module {
 		/**
 		 * Filter the deletion data before syncing.
 		 *
-		 * @param array    $data The deletion data.
-		 * @param WC_Order $order The order object.
+		 * @param array $data The deletion data.
 		 */
 		$data = apply_filters( 'woocommerce_analytics_deletion_data', $data );
 
