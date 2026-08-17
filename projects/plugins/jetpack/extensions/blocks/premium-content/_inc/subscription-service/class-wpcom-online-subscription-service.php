@@ -65,9 +65,9 @@ class WPCOM_Online_Subscription_Service extends Jetpack_Token_Subscription_Servi
 	 */
 	public function is_current_user_subscribed(): bool {
 		include_once WP_CONTENT_DIR . '/mu-plugins/email-subscriptions/subscriptions.php';
-		$email              = wp_get_current_user()->user_email;
-		$subscriber_object  = \Blog_Subscriber::get( $email );
-		$blog_id            = $this->get_site_id();
+		$email                = wp_get_current_user()->user_email;
+		$subscriber_object    = \Blog_Subscriber::get( $email );
+		$blog_id              = $this->get_site_id();
 		$has_active_email_sub = false;
 		if ( ! empty( $subscriber_object ) ) {
 			$subscription_status  = \Blog_Subscription::get_subscription_status_for_blog( $subscriber_object, $blog_id );
