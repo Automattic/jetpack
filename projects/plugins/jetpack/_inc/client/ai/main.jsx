@@ -271,6 +271,12 @@ export default function App() {
 								</Tabs.Tab>
 							) ) }
 						</Tabs.List>
+						{ /* These tabs navigate between sibling views rather than rendering
+						     their content inside the tab root. Keep empty panels so the
+						     design-system Tabs validator can pair every tab with a panel. */ }
+						{ tabViews.map( tab => (
+							<Tabs.Panel key={ tab } value={ tab } />
+						) ) }
 					</Tabs.Root>
 				</div>
 			) }

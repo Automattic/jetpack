@@ -15,10 +15,8 @@ jest.mock( '@automattic/jetpack-ai-client', () => ( { requestJwt: jest.fn() } ) 
 // hits the network and each test controls the GET/POST responses.
 jest.mock( '@wordpress/api-fetch' );
 
-// main.jsx uses Tabs as nav-only (no Tabs.Panel), which trips the design
-// system's async a11y validation — a console.error the shared jest-console
-// setup treats as a test failure. Swap only Tabs for inert passthroughs; the
-// real Notice/Stack are kept because the assertions below rely on them.
+// Swap Tabs for inert passthroughs; the real Notice/Stack are kept because
+// the assertions below rely on them.
 jest.mock( '@wordpress/ui', () => {
 	const actual = jest.requireActual( '@wordpress/ui' );
 	const { createElement } = require( 'react' );
@@ -28,7 +26,12 @@ jest.mock( '@wordpress/ui', () => {
 			createElement( tag, null, children );
 	return {
 		...actual,
-		Tabs: { Root: passthrough( 'div' ), List: passthrough( 'div' ), Tab: passthrough( 'button' ) },
+		Tabs: {
+			Root: passthrough( 'div' ),
+			List: passthrough( 'div' ),
+			Tab: passthrough( 'button' ),
+			Panel: passthrough( 'div' ),
+		},
 	};
 } );
 
@@ -220,7 +223,8 @@ describe( 'AI admin page (main.jsx)', () => {
 		window.jetpackAiSettings = { showFeaturesView: true, showScheduledTasksView: true };
 		window.location.hash = '#/scheduled-tasks';
 		window.__agentsManagerActions = {
-			isReady: jest.fn( () => true ),
+			// The sandbox's agents manager currently exposes readiness as a boolean.
+			isReady: true,
 			chatNavigate: jest.fn(),
 			setChatDocked: jest.fn(),
 			setChatOpen: jest.fn(),

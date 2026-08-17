@@ -25,7 +25,12 @@ const STATUS_CHANGE_NOTICES = {
 const openNewAgentChat = () => {
 	const open = () => {
 		const actions = window.__agentsManagerActions;
-		if ( ! actions || actions.isReady?.() === false ) {
+		const isReady = actions?.isReady;
+		if (
+			! actions ||
+			( typeof isReady === 'function' && isReady() === false ) ||
+			isReady === false
+		) {
 			return false;
 		}
 		actions.chatNavigate?.( '/' );
