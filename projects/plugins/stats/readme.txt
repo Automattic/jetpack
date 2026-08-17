@@ -122,9 +122,9 @@ It connects to the following external services:
 
 **WordPress.com Tracks (`https://stats.wp.com/w.js` and `https://pixel.wp.com/t.gif`)**
 
-* What it does: records how site administrators use the plugin, so that Automattic can improve it. This is separate from your site statistics.
-* Data sent: the name of the action taken, your site ID, your WordPress.com user ID, the browser user agent, the browser language, and the IP address of the request.
-* When: only while a logged-in administrator uses the plugin screens in the WordPress admin. Nothing is recorded for your site visitors.
+* What it does: records how people who can open the plugin screens use them, so that Automattic can improve the plugin. This is separate from your site statistics.
+* Data sent: the name of the action taken, your site ID, your WordPress.com user ID and username, the browser user agent, the browser language, and the IP address of the request. If the person is not connected to a WordPress.com account, a random identifier is used in place of the user ID and username, and it is stored in a `tk_ai` cookie in their browser.
+* When: only while a logged-in user with access to the plugin screens uses them in the WordPress admin. You control who has that access through the Stats settings. Nothing is recorded for your site visitors.
 
 This plugin requires a connection to a WordPress.com account. Until that connection is complete, no data is collected and no reports are available.
 
