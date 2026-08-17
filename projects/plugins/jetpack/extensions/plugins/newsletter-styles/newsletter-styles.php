@@ -29,6 +29,7 @@ const EXTENSION_NAME = 'newsletter-styles';
 const NEWSLETTER_TEMPLATE_SLUG = 'newsletter';
 
 require_once __DIR__ . '/newsletter-editor-page.php';
+require_once __DIR__ . '/newsletter-styles-page.php';
 
 /**
  * The post name the WooCommerce email editor stores its user theme under.

@@ -1,0 +1,19 @@
+/**
+ * NL-840 option D: the styles panel is built for a sidebar, so on a full-width
+ * admin screen it needs a column to live in and a height to navigate within.
+ * Without these the navigator screens collapse to nothing.
+ */
+.jetpack-newsletter-styles-page__mount {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	block-size: 70vh;
+	inline-size: 100%;
+	margin-block-start: 16px;
+	max-inline-size: 380px;
+	overflow: hidden auto;
+
+	.woocommerce-email-editor-styles-panel {
+		block-size: 100%;
+	}
+}
