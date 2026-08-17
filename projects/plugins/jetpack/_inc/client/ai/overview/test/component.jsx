@@ -186,6 +186,29 @@ describe( 'AiOverview', () => {
 		thumbs.forEach( img => expect( img ).toHaveAttribute( 'src' ) );
 	} );
 
+	test( 'walkthrough videos: each card opens in a new tab and says so', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( 'Walkthrough videos' ) ).resolves.toBeInTheDocument();
+
+		// The cards carry no arrow (the design leaves them unmarked), so the
+		// new tab is announced through each link's accessible name instead.
+		for ( const title of [
+			'Connect your site to Claude',
+			'Build a page from a single prompt',
+			'Manage your Media Library with AI',
+			'Optimize your site with AI',
+		] ) {
+			const card = screen.getByRole( 'link', {
+				name: new RegExp( `${ title }.*\\(opens in a new tab\\)` ),
+			} );
+			expect( card ).toHaveAttribute( 'target', '_blank' );
+			expect( card ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+		}
+	} );
+
 	test( 'walkthrough videos: each card links through the redirect service', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
