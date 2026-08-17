@@ -9,7 +9,7 @@ describe( 'withCatalogPointers', () => {
 			gridStyles: { stroke: 'red' },
 		} as Partial< ChartTheme > );
 
-		const result = withCatalogPointers( merged, { '--a8c-charts-color-grid': 'red' } );
+		const result = withCatalogPointers( merged, [ '--a8c-charts-color-grid' ] );
 
 		expect( result.gridStyles.stroke ).toBe( defaultTheme.gridStyles.stroke );
 		expect( result.gridStyles.stroke ).not.toBe( 'red' );
@@ -18,7 +18,7 @@ describe( 'withCatalogPointers', () => {
 	it( 'leaves a role untouched when it was not overridden', () => {
 		const merged = mergeThemes( defaultTheme, { tickLength: 8 } as Partial< ChartTheme > );
 
-		const result = withCatalogPointers( merged, {} );
+		const result = withCatalogPointers( merged, [] );
 
 		expect( result.gridStyles.stroke ).toBe( defaultTheme.gridStyles.stroke );
 		expect( result.tickLength ).toBe( 8 );
@@ -29,7 +29,7 @@ describe( 'withCatalogPointers', () => {
 			leaderboardChart: { deltaColors: [ 'red', 'grey', 'green' ] },
 		} as Partial< ChartTheme > );
 
-		const result = withCatalogPointers( merged, {} );
+		const result = withCatalogPointers( merged, [] );
 
 		expect( result.leaderboardChart.deltaColors ).toEqual( [ 'red', 'grey', 'green' ] );
 	} );
@@ -43,13 +43,13 @@ describe( 'withCatalogPointers', () => {
 			svgLabelSmall: { fill: '#555' },
 		} as Partial< ChartTheme > );
 
-		const result = withCatalogPointers( merged, {
-			'--a8c-charts-color-background': '#111',
-			'--a8c-charts-color-grid': '#222',
-			'--a8c-charts-color-axis': '#333',
-			'--a8c-charts-color-tick': '#444',
-			'--a8c-charts-color-label-axis': '#555',
-		} );
+		const result = withCatalogPointers( merged, [
+			'--a8c-charts-color-background',
+			'--a8c-charts-color-grid',
+			'--a8c-charts-color-axis',
+			'--a8c-charts-color-tick',
+			'--a8c-charts-color-label-axis',
+		] );
 
 		expect( result.backgroundColor ).toBe( defaultTheme.backgroundColor );
 		expect( result.gridStyles.stroke ).toBe( defaultTheme.gridStyles.stroke );

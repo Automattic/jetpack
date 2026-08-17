@@ -13,6 +13,7 @@ const getWrapperElement = ( container: HTMLElement ): HTMLElement => {
 	return wrapper as HTMLElement;
 };
 
+// A theme-layer variable is read by the role it is named after (`--a8c-charts-color-grid: var(--a8c-charts-color-grid-theme, …)`), so a value naming that role closes a cycle through the catalog entry just as surely as a variable naming itself would. Both shapes have to stay off the wrapper.
 const assertNoSelfReferentialCustomProperty = ( wrapper: HTMLElement ) => {
 	const declarations = wrapper.style.cssText
 		.split( ';' )
@@ -25,7 +26,10 @@ const assertNoSelfReferentialCustomProperty = ( wrapper: HTMLElement ) => {
 		const value = declaration.slice( separatorIndex + 1 ).trim();
 
 		if ( name.startsWith( '--a8c-charts-' ) ) {
-			expect( value ).not.toContain( `var(${ name }` );
+			// Matched with a trailing-identifier guard rather than as a substring, so a legitimate pointer at a longer property name (`var(--a8c-charts-color-axis-emphasis)` under `--a8c-charts-color-axis-theme`) is not read as a cycle.
+			for ( const cyclic of new Set( [ name, name.replace( /-theme$/, '' ) ] ) ) {
+				expect( value ).not.toMatch( new RegExp( `var\\(\\s*${ cyclic }(?![\\w-])` ) );
+			}
 		}
 	}
 };

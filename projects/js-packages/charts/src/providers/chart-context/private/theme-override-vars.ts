@@ -11,19 +11,34 @@ const ROLE_FOR_FIELD: Array< [ string, ( theme: Partial< ChartTheme > ) => strin
 	];
 
 /**
- * Whether a value already reads the role it would define.
+ * The variable a `theme` prop override is published as, one layer outside the role itself.
  *
- * Two things this has to get right, both of which a plain substring test gets wrong:
+ * `chart-scope.scss` declares each of these roles as `var(<role>-theme, <catalog default>)`, so an override that is invalid at computed-value time — a fallback-less `var()` naming a token the host never set — only invalidates this variable, and the role still resolves its mapped `--wpds-*` token. Published as the role directly, such a value took the role and every bare `var(<role>)` read site down with it.
  *
- * `var()` permits whitespace after the opening paren, so testing for `var(<role>` misses `var( --a8c-charts-color-grid, … )`. Emitting that as the value of the same custom property makes it reference itself, which CSS treats as invalid at computed-value time — the declaration drops and the token resolves to nothing, so every chart loses that colour rather than falling back to the catalog default.
+ * @param role - The catalog role being overridden.
+ * @return The custom property carrying the consumer's value.
+ */
+export const themeLayerVar = ( role: string ): string => `${ role }-theme`;
+
+/** Every role whose catalog entry must read a theme layer. `src/styles/test/chart-scope.test.ts` checks the stylesheet against this. */
+export const THEME_LAYERED_ROLES: readonly string[] = ROLE_FOR_FIELD.map( ( [ role ] ) => role );
+
+/**
+ * Whether a value reads the role it is being published for, which would make the catalog entry depend on itself.
  *
- * Conversely, several roles are prefixes of others (`--a8c-charts-color-label` of `--a8c-charts-color-label-secondary`). A prefix match would treat a legitimate cross-role pointer as a self-reference and silently drop the override, so the role must be followed by something that cannot continue an identifier — `-` included.
+ * The dependency runs `<role>: var(<role>-theme, …)`, so a value naming `<role>` closes a cycle through the catalog entry. CSS marks every custom property in a cycle invalid at computed-value time — the role's own fallback is *not* used, so the token resolves to nothing and every chart loses that colour. Verified in Chrome: `--role-theme: var(--role, blue); --role: var(--role-theme, green)` leaves `--role` empty, not `green`.
  *
- * `resolveCssVariable` also accepts a bare custom-property name with no `var()` wrapper (`--a8c-charts-color-grid`), so that is legal `theme` input too. Unlike the `var()` form, `--a8c-charts-color-grid: --a8c-charts-color-grid;` is not invalid at computed-value time — custom properties accept arbitrary token streams — so it survives and every reader gets the literal string instead of a color, dropping silently at the use site rather than falling back to the catalog default.
+ * Three things this has to get right, none of which a plain substring test gets:
+ *
+ * `var()` permits whitespace after the opening paren, so testing for `var(<role>` misses `var( --a8c-charts-color-grid, … )`.
+ *
+ * Several roles are prefixes of others (`--a8c-charts-color-label` of `--a8c-charts-color-label-secondary`), and every role is a prefix of its own theme layer. A prefix match would read a legitimate cross-role pointer as a self-reference and silently drop the override, so the role must be followed by something that cannot continue an identifier — `-` included. A value naming `<role>-theme` is therefore not treated as a self-reference: that cycle is confined to the theme layer, which leaves the role free to fall back to the catalog default.
+ *
+ * `resolveCssVariable` also accepts a bare custom-property name with no `var()` wrapper (`--a8c-charts-color-grid`), so that is legal `theme` input too. It forms no cycle — custom properties accept arbitrary token streams — so it survives as a literal string and drops silently at the use site instead of falling back to the catalog default.
  *
  * @param value - The consumer's value for the field.
- * @param role  - The custom property this value would be emitted as.
- * @return True when the value reads `role`, so it must not be emitted as `role`.
+ * @param role  - The catalog role this value would override.
+ * @return True when the value reads `role`, so it must not be published.
  */
 const readsOwnRole = ( value: string, role: string ): boolean =>
 	value.trim() === role ||
@@ -31,28 +46,42 @@ const readsOwnRole = ( value: string, role: string ): boolean =>
 		value
 	);
 
+export type ThemeOverrides = {
+	/** The custom properties to write on the provider wrapper. */
+	vars: Record< string, string >;
+	/** Every mapped role the consumer set a value for, whether or not it was published. */
+	roles: readonly string[];
+};
+
 /**
- * Maps a sparse consumer theme onto the instance-scoped `--a8c-charts-*` variables it overrides, so CSS-painted and JS-resolved colours read one source.
+ * Maps a sparse consumer theme onto the theme-layer variables its overridden catalog roles read, so CSS-painted and JS-resolved colours read one source.
  *
- * A value that already points at the role it would define is skipped — that is the default theme's own pointer surviving `mergeThemes`.
+ * A value that reads the role it would override is left unpublished — that is the default theme's own pointer surviving `mergeThemes`, and publishing it would invalidate the role. The role is still reported in `roles`: `withCatalogPointers` restores its theme field to the catalog pointer either way, so CSS and visx agree on the catalog default rather than visx painting a literal CSS never sees.
  *
- * @param theme - The consumer's `theme` prop, possibly merged with the default theme.
- * @return CSS custom properties to write on the provider wrapper.
+ * @param theme - The consumer's `theme` prop, before merging with the default theme.
+ * @return The wrapper's custom properties, and the roles the consumer overrode.
  */
-export const themeOverrideVars = ( theme?: Partial< ChartTheme > ): Record< string, string > => {
+export const themeOverrideVars = ( theme?: Partial< ChartTheme > ): ThemeOverrides => {
 	if ( ! theme ) {
-		return {};
+		return { vars: {}, roles: [] };
 	}
 
 	const vars: Record< string, string > = {};
+	const roles: string[] = [];
 
 	for ( const [ role, read ] of ROLE_FOR_FIELD ) {
 		const value = read( theme );
 
-		if ( typeof value === 'string' && value !== '' && ! readsOwnRole( value, role ) ) {
-			vars[ role ] = value;
+		if ( typeof value !== 'string' || value === '' ) {
+			continue;
+		}
+
+		roles.push( role );
+
+		if ( ! readsOwnRole( value, role ) ) {
+			vars[ themeLayerVar( role ) ] = value;
 		}
 	}
 
-	return vars;
+	return { vars, roles };
 };

@@ -25,6 +25,7 @@ describe( 'GlobalChartsProvider wrapper style (discriminating guard test)', () =
 		// eslint-disable-next-line testing-library/no-node-access
 		const wrapper = container.firstElementChild as HTMLElement | null;
 
+		expect( wrapper?.style.getPropertyValue( '--a8c-charts-color-grid-theme' ) ).toBe( '' );
 		expect( wrapper?.style.getPropertyValue( '--a8c-charts-color-grid' ) ).toBe( '' );
 	} );
 } );

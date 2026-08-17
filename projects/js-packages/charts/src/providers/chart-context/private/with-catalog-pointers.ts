@@ -22,21 +22,23 @@ const CATALOG_RESTORE_FOR_ROLE: Record<
 };
 
 /**
- * Restores the mapped theme fields of `overriddenRoles` to their catalog pointer, so the instance-scoped `--a8c-charts-*` var `themeOverrideVars` writes on the provider wrapper is the only carrier for an overridden role — CSS and the JS bridge (`useXYChartTheme`) then resolve it through the same cascade instead of visx reading a baked literal that can disagree with a closer CSS override.
+ * Restores the mapped theme fields of `overriddenRoles` to their catalog pointer, so the theme-layer variable `themeOverrideVars` writes on the provider wrapper is the only carrier for an overridden role — CSS and the JS bridge (`useXYChartTheme`) then resolve it through the same cascade instead of visx reading a baked literal that can disagree with a closer CSS override.
  *
- * Every field outside the five mapped roles is left exactly as `merged` provided it: those aren't written as instance vars by `themeOverrideVars`, so rewriting them would erase a consumer's override with no replacement carrier.
+ * This covers roles `themeOverrideVars` deliberately left unpublished as well as the ones it published. A value that reads its own role is not publishable, but leaving visx the consumer's literal is what the whole mechanism exists to prevent: `theme={ { gridStyles: { stroke: 'var(--brand, var(--a8c-charts-color-grid, red))' } } }` would have CSS paint the catalog default while visx painted `--brand`.
+ *
+ * Every field outside the five mapped roles is left exactly as `merged` provided it: those aren't published as theme-layer vars, so rewriting them would erase a consumer's override with no replacement carrier.
  *
  * @param merged          - The consumer theme merged onto `defaultTheme` (`mergeThemes` output).
- * @param overriddenRoles - The catalog roles `themeOverrideVars` found overridden, keyed by role.
+ * @param overriddenRoles - The catalog roles the consumer overrode, from `themeOverrideVars`.
  * @return A new theme object; `merged` is not mutated.
  */
 export const withCatalogPointers = (
 	merged: CompleteChartTheme,
-	overriddenRoles: Record< string, string >
+	overriddenRoles: readonly string[]
 ): CompleteChartTheme => {
 	let result = merged;
 
-	for ( const role of Object.keys( overriddenRoles ) ) {
+	for ( const role of overriddenRoles ) {
 		const restore = CATALOG_RESTORE_FOR_ROLE[ role ];
 
 		if ( restore ) {

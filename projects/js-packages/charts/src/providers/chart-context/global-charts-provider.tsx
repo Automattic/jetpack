@@ -53,16 +53,19 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		setScopeNode( node );
 	}, [] );
 
-	// themeOverrideVars reads the raw `theme` prop, never `providerTheme` — feeding it the restored theme below would make an overridden role's pointer look like a self-reference and blank the var (see themeOverrideVars' own doc comment).
-	const overrideVars = useMemo( () => themeOverrideVars( theme ), [ theme ] );
+	// themeOverrideVars reads the raw `theme` prop, never `providerTheme` — feeding it the restored theme below would make an overridden role's pointer look like a self-reference and drop the var (see themeOverrideVars' own doc comment).
+	const { vars: overrideVars, roles: overriddenRoles } = useMemo(
+		() => themeOverrideVars( theme ),
+		[ theme ]
+	);
 
 	const providerTheme: CompleteChartTheme = useMemo( () => {
 		if ( ! theme ) {
 			return defaultTheme;
 		}
 
-		return withCatalogPointers( mergeThemes( defaultTheme, theme ), overrideVars );
-	}, [ theme, overrideVars ] );
+		return withCatalogPointers( mergeThemes( defaultTheme, theme ), overriddenRoles );
+	}, [ theme, overriddenRoles ] );
 
 	// Cache expensive color computations that only change when theme colors change
 	// Using useState + useLayoutEffect instead of useMemo to ensure CSS variables

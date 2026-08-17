@@ -13,11 +13,23 @@
 // so re-declaring lower down would shadow a consumer override set inside
 // the provider tree.
 
+// The five roles a `theme` prop field can override read a `*-theme` variable
+// first, which GlobalChartsProvider writes inline from that field. Publishing
+// the consumer's value one layer out, rather than as the role itself, is what
+// keeps the catalog default reachable: a value that is invalid at
+// computed-value time (a fallback-less `var()` naming a token nothing set,
+// which is how premium-analytics passes its grid stroke) invalidates only the
+// `*-theme` variable, and the role's own fallback still resolves the mapped
+// --wpds-* token. Written as the role directly, that same value made the role
+// guaranteed-invalid and took every bare `var(--a8c-charts-color-grid)` read
+// site with it — gridlines painted `unset` instead of the spec grey.
+// `src/styles/test/chart-scope.test.ts` pins which roles carry the layer.
+
 // Declares custom properties only. This stylesheet must never change layout.
 :where(.a8c-charts-scope) {
-	--a8c-charts-color-grid: var(--wpds-color-stroke-surface-neutral, #dbdbdb);
-	--a8c-charts-color-axis: var(--wpds-color-stroke-surface-neutral, #dbdbdb);
-	--a8c-charts-color-tick: var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+	--a8c-charts-color-grid: var(--a8c-charts-color-grid-theme, var(--wpds-color-stroke-surface-neutral, #dbdbdb));
+	--a8c-charts-color-axis: var(--a8c-charts-color-axis-theme, var(--wpds-color-stroke-surface-neutral, #dbdbdb));
+	--a8c-charts-color-tick: var(--a8c-charts-color-tick-theme, var(--wpds-color-stroke-surface-neutral, #dbdbdb));
 	--a8c-charts-color-label: var(--wpds-color-foreground-content-neutral, #1e1e1e);
 	--a8c-charts-color-label-secondary: var(--wpds-color-foreground-content-neutral-weak, #707070);
 	--a8c-charts-color-label-inverse: var(--wpds-color-foreground-interactive-neutral-strong, #f0f0f0);
@@ -29,12 +41,12 @@
 	// moves only these labels, while setting the broad role in CSS still moves
 	// every label at once. (--a8c-charts-color-surface cannot derive the same
 	// way — see its comment; there the theme field owns the broad role.)
-	--a8c-charts-color-label-axis: var(--a8c-charts-color-label);
+	--a8c-charts-color-label-axis: var(--a8c-charts-color-label-axis-theme, var(--a8c-charts-color-label));
 	--a8c-charts-color-annotation: var(--wpds-color-foreground-content-neutral, #1e1e1e);
 	--a8c-charts-color-trend-up: var(--wpds-color-foreground-content-success-weak, #008030);
 	--a8c-charts-color-trend-down: var(--wpds-color-foreground-content-error-weak, #cc1818);
 	--a8c-charts-color-trend-neutral: var(--wpds-color-foreground-content-neutral-weak, #707070);
-	--a8c-charts-color-background: var(--wpds-color-background-surface-neutral-strong, #fff);
+	--a8c-charts-color-background: var(--a8c-charts-color-background-theme, var(--wpds-color-background-surface-neutral-strong, #fff));
 	// Surfaces that float over the chart — tooltips, the annotation label, the
 	// zoom-reset control. Same WPDS token as --a8c-charts-color-background, and
 	// deliberately NOT derived from it: `backgroundColor` publishes the
