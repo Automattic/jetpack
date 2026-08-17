@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests that reading the Terms of Service option seeds an autoloaded default when absent.
+ * Tests that reading the Terms of Service option seeds a default when absent.
  *
  * @package automattic/jetpack-connection
  * @see \Automattic\Jetpack\Terms_Of_Service
@@ -9,25 +9,15 @@
 namespace Automattic\Jetpack;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
-use WorDBless\Options as WorDBless_Options;
+use WorDBless\BaseTestCase;
 
 /**
- * @package Automattic\Jetpack
  * @covers \Automattic\Jetpack\Terms_Of_Service
  */
 #[CoversClass( Terms_Of_Service::class )]
-class Terms_Of_Service_Seeding_Test extends TestCase {
+class Terms_Of_Service_Seeding_Test extends BaseTestCase {
 
 	const OPTION = 'jetpack_' . Terms_Of_Service::OPTION_NAME;
-
-	/**
-	 * Tear down.
-	 */
-	public function tearDown(): void {
-		parent::tearDown();
-		WorDBless_Options::init()->clear_options();
-	}
 
 	/**
 	 * Invoke the protected reader against a real options table.
@@ -44,18 +34,21 @@ class Terms_Of_Service_Seeding_Test extends TestCase {
 	}
 
 	/**
-	 * When the option is absent, the read returns false and persists an autoloaded default so
-	 * it is not re-queried on subsequent requests.
+	 * When the option is absent, the read returns false, persists a false default, and a second
+	 * read returns it without re-seeding. WorDBless cannot model autoload, so that the seeded row
+	 * is autoloaded is verified by the manual wp-db check in the testing instructions, not here.
 	 */
-	public function test_seeds_autoloaded_default_when_option_absent() {
-		// Precondition: the option does not exist.
-		$this->assertSame( 'MISSING', get_option( self::OPTION, 'MISSING' ) );
+	public function test_seeds_default_when_option_absent() {
+		$this->assertSame( 'MISSING', get_option( self::OPTION, 'MISSING' ), 'Option should start absent.' );
 
 		$this->assertFalse( $this->read() );
 
-		// The option now exists (was seeded), so future reads come from cache, not the DB.
-		$this->assertNotSame( 'MISSING', get_option( self::OPTION, 'MISSING' ) );
-		$this->assertArrayHasKey( self::OPTION, wp_load_alloptions(), 'Seeded option should be autoloaded.' );
+		// The persisted default is false (not, say, a stray truthy value)...
+		$this->assertFalse( get_option( self::OPTION ), 'Seeded value must be false.' );
+
+		// ...and reading again returns it unchanged, without overwriting the seeded row.
+		$this->assertFalse( $this->read() );
+		$this->assertFalse( get_option( self::OPTION ) );
 	}
 
 	/**
