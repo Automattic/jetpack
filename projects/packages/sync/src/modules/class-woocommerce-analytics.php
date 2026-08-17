@@ -696,8 +696,7 @@ class WooCommerce_Analytics extends Module {
 				$order_stats_data['parent_id'] = $parent_order->get_id();
 
 				$refund_type = $order->get_meta( '_refund_type' );
-				// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Guarded by is_callable(); absent from the older WooCommerce stubs used by the "old Woo" Phan job.
-				if ( 'full' === $refund_type && is_callable( array( OrderUtil::class, 'uses_new_full_refund_data' ) ) && OrderUtil::uses_new_full_refund_data() ) {
+				if ( 'full' === $refund_type && self::uses_new_full_refund_data() ) {
 					$order_stats_data['tax_total']      = -1 * $parent_order->get_total_tax();
 					$order_stats_data['num_items_sold'] = -1 * self::get_num_items_sold( $parent_order );
 					$order_stats_data['net_total']      = -1 * self::get_net_total( $parent_order );
@@ -714,6 +713,20 @@ class WooCommerce_Analytics extends Module {
 		}
 
 		return $order_stats_data;
+	}
+
+	/**
+	 * Check whether WooCommerce stores full refunds using the new data format.
+	 *
+	 * @return bool Whether the new full-refund data format is in use.
+	 */
+	private static function uses_new_full_refund_data() {
+		if ( ! is_callable( array( OrderUtil::class, 'uses_new_full_refund_data' ) ) ) {
+			return false;
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Guarded by is_callable(); absent from the older WooCommerce stubs used by the "old Woo" Phan job.
+		return OrderUtil::uses_new_full_refund_data();
 	}
 
 	/**

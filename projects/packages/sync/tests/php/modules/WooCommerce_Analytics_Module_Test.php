@@ -264,6 +264,22 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Full-refund detection does not require WooCommerce's newer OrderUtil method.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_full_refund_detection_does_not_require_new_order_util_method() {
+		$order_util = 'Automattic\\WooCommerce\\Utilities\\OrderUtil';
+
+		$this->assertFalse( class_exists( $order_util, false ) );
+		$this->assertFalse( $this->invoke_static_helper( 'uses_new_full_refund_data' ) );
+		$this->assertFalse( class_exists( $order_util, false ) );
+	}
+
+	/**
 	 * Analytics datetime conversion retains its fixed site-offset behavior.
 	 */
 	public function test_datetime_conversion() {
@@ -383,32 +399,32 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	 * Invoke a protected static helper on the Analytics module.
 	 *
 	 * @param string $method_name Helper method name.
-	 * @param mixed  $argument    Helper argument.
+	 * @param mixed  ...$arguments Helper arguments.
 	 * @return mixed
 	 */
-	private function invoke_static_helper( $method_name, $argument ) {
+	private function invoke_static_helper( $method_name, ...$arguments ) {
 		$method = new \ReflectionMethod( Modules\WooCommerce_Analytics::class, $method_name );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
 
-		return $method->invoke( null, $argument );
+		return $method->invokeArgs( null, $arguments );
 	}
 
 	/**
 	 * Invoke a non-public instance helper on the Analytics module.
 	 *
 	 * @param string $method_name Helper method name.
-	 * @param mixed  $argument    Helper argument.
+	 * @param mixed  ...$arguments Helper arguments.
 	 * @return mixed
 	 */
-	private function invoke_instance_helper( $method_name, $argument ) {
+	private function invoke_instance_helper( $method_name, ...$arguments ) {
 		$method = new \ReflectionMethod( Modules\WooCommerce_Analytics::class, $method_name );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
 
-		return $method->invoke( $this->module, $argument );
+		return $method->invokeArgs( $this->module, $arguments );
 	}
 
 	/**
