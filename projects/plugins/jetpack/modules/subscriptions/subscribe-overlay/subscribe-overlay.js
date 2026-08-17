@@ -1,10 +1,9 @@
-/* global Jetpack_Subscribe_Overlay */
 const { domReady } = wp;
 
 domReady( function () {
 	const overlay = document.querySelector( '.jetpack-subscribe-overlay' );
 	const overlayDismissedCookie = 'jetpack_post_subscribe_overlay_dismissed';
-	const knownSubscriberKey = `jetpack_post_subscribe_known_subscriber_${ Jetpack_Subscribe_Overlay.siteId }`;
+	const knownSubscriberKey = 'jetpack_post_subscribe_known_subscriber';
 	const skipUrlParam = 'jetpack_skip_subscription_popup';
 	const hasOverlayDismissedCookie =
 		document.cookie && document.cookie.indexOf( overlayDismissedCookie ) > -1;

@@ -98,7 +98,6 @@ class Jetpack_Subscribe_Modal {
 				'subscribe-modal-js',
 				'Jetpack_Subscriptions',
 				array(
-					'siteId'               => Jetpack_Options::get_option( 'id' ),
 					'modalLoadTime'        => $load_time,
 					'modalScrollThreshold' => $scroll_threshold,
 					'modalInterval'        => ( $modal_interval * HOUR_IN_SECONDS * 1000 ),
@@ -111,11 +110,6 @@ class Jetpack_Subscribe_Modal {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['jetpack_skip_subscription_popup'] ) ) {
 			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
-			wp_localize_script(
-				'subscribe-modal-js',
-				'Jetpack_Subscriptions',
-				array( 'siteId' => Jetpack_Options::get_option( 'id' ) )
-			);
 		}
 	}
 

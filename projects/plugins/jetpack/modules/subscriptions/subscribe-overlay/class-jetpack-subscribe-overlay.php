@@ -148,11 +148,10 @@ HTML;
 	 */
 	public function enqueue_assets() {
 		$should_user_see_overlay = $this->should_user_see_overlay();
+
 		// Subscriber email links carry this read-only marker, so no nonce is required.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$is_subscriber_email_link = isset( $_GET['jetpack_skip_subscription_popup'] );
-
-		if ( ! $should_user_see_overlay && ! $is_subscriber_email_link ) {
+		if ( ! $should_user_see_overlay && ! isset( $_GET['jetpack_skip_subscription_popup'] ) ) {
 			return;
 		}
 
@@ -160,12 +159,8 @@ HTML;
 			wp_enqueue_style( 'subscribe-overlay-css', plugins_url( 'subscribe-overlay.css', __FILE__ ), array(), JETPACK__VERSION );
 		}
 
+		// The script also records the subscriber signal from email links, so it loads either way.
 		wp_enqueue_script( 'subscribe-overlay-js', plugins_url( 'subscribe-overlay.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
-		wp_localize_script(
-			'subscribe-overlay-js',
-			'Jetpack_Subscribe_Overlay',
-			array( 'siteId' => Jetpack_Options::get_option( 'id' ) )
-		);
 	}
 
 	/**

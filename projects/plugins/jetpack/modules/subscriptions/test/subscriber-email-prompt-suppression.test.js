@@ -1,5 +1,4 @@
-const siteId = 123;
-const knownSubscriberKey = `jetpack_post_subscribe_known_subscriber_${ siteId }`;
+const knownSubscriberKey = 'jetpack_post_subscribe_known_subscriber';
 const modalDismissedKey = 'jetpack_post_subscribe_modal_dismissed';
 const overlayDismissedKey = 'jetpack_post_subscribe_overlay_dismissed';
 const skipUrlParam = 'jetpack_skip_subscription_popup';
@@ -21,12 +20,10 @@ describe( 'subscriber email prompt suppression', () => {
 		window.history.replaceState( {}, '', '/' );
 		global.wp = { domReady: callback => callback() };
 		global.Jetpack_Subscriptions = {
-			siteId,
 			modalInterval: oneDay,
 			modalLoadTime: 0,
 			modalScrollThreshold: 50,
 		};
-		global.Jetpack_Subscribe_Overlay = { siteId };
 	} );
 
 	afterEach( () => {
@@ -35,7 +32,6 @@ describe( 'subscriber email prompt suppression', () => {
 		jest.restoreAllMocks();
 		delete global.wp;
 		delete global.Jetpack_Subscriptions;
-		delete global.Jetpack_Subscribe_Overlay;
 	} );
 
 	it( 'keeps the subscribe modal suppressed after a subscriber email visit', () => {
@@ -60,6 +56,17 @@ describe( 'subscriber email prompt suppression', () => {
 		jest.runOnlyPendingTimers();
 
 		expect( document.querySelector( '.jetpack-subscribe-modal' ) ).not.toHaveClass( 'open' );
+	} );
+
+	// Off the modal surface the script is enqueued without localized settings.
+	it( 'records the subscriber signal without localized modal settings', () => {
+		delete global.Jetpack_Subscriptions;
+		visitSubscriberEmailLink();
+
+		require( '../subscribe-modal/subscribe-modal' );
+
+		expect( localStorage.getItem( knownSubscriberKey ) ).toBe( 'true' );
+		expect( window.location.search ).toBe( '' );
 	} );
 
 	it( 'keeps the subscribe overlay suppressed after a subscriber email visit', () => {
@@ -126,7 +133,7 @@ describe( 'subscriber email prompt suppression', () => {
 		expect( document.querySelector( '.jetpack-subscribe-modal' ) ).not.toHaveClass( 'open' );
 	} );
 
-	it( 'uses a persistent site-specific cookie when local storage is unavailable', () => {
+	it( 'uses a persistent cookie when local storage is unavailable', () => {
 		const cookieSetter = jest.spyOn( document, 'cookie', 'set' );
 		jest.spyOn( Storage.prototype, 'getItem' ).mockImplementation( () => {
 			throw new DOMException( 'Blocked', 'SecurityError' );
@@ -156,7 +163,7 @@ describe( 'subscriber email prompt suppression', () => {
 		expect( document.querySelector( '.jetpack-subscribe-modal' ) ).not.toHaveClass( 'open' );
 	} );
 
-	it( 'uses a persistent site-specific cookie for the overlay when local storage is unavailable', () => {
+	it( 'uses a persistent cookie for the overlay when local storage is unavailable', () => {
 		const cookieSetter = jest.spyOn( document, 'cookie', 'set' );
 		jest.spyOn( Storage.prototype, 'getItem' ).mockImplementation( () => {
 			throw new DOMException( 'Blocked', 'SecurityError' );

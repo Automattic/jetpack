@@ -3,7 +3,7 @@ const { domReady } = wp;
 domReady( () => {
 	const modal = document.querySelector( '.jetpack-subscribe-modal' );
 	const modalDismissedCookie = 'jetpack_post_subscribe_modal_dismissed';
-	const knownSubscriberKey = `jetpack_post_subscribe_known_subscriber_${ Jetpack_Subscriptions.siteId }`;
+	const knownSubscriberKey = 'jetpack_post_subscribe_known_subscriber';
 	const skipUrlParam = 'jetpack_skip_subscription_popup';
 
 	function getLocalStorageItem( key ) {
@@ -23,14 +23,10 @@ domReady( () => {
 	}
 
 	function hasKnownSubscriber() {
-		try {
-			return (
-				localStorage.getItem( knownSubscriberKey ) === 'true' ||
-				document.cookie.split( '; ' ).includes( `${ knownSubscriberKey }=true` )
-			);
-		} catch {
-			return document.cookie.split( '; ' ).includes( `${ knownSubscriberKey }=true` );
-		}
+		return (
+			getLocalStorageItem( knownSubscriberKey ) === 'true' ||
+			document.cookie.split( '; ' ).includes( `${ knownSubscriberKey }=true` )
+		);
 	}
 
 	function storeKnownSubscriber() {
