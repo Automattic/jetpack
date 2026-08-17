@@ -112,7 +112,7 @@ Hold the name in a class constant anyway, so registration and every check share 
 
 Distinguish that from the failure above: absent because the **owning feature** is inactive is expected; absent because you registered on a hook that **this request type** never fires is a bug.
 
-**When a reader runs before your feature loads** — an admin redirect, a REST permission callback — do not hoist `register()` to chase it. Give the early reader a separate lightweight default at its own tier, as Forms does in `Util::init()` (`projects/packages/forms/src/contact-form/class-util.php`). The two must agree on name and default, or you have two flags with one name.
+**When a reader runs before your feature loads** — an admin redirect, a REST permission callback — do not hoist `register()` to chase it. Give the early reader a separate lightweight default at its own tier: a second `Feature_Flags::register()` call on the earlier hook, same name, same default. `register()` is last-write-wins, so the repeat is harmless — but the two must agree, or whichever ran last silently decides what the flag means.
 
 ## 3. Gate the code
 
