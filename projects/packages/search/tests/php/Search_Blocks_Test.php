@@ -1323,6 +1323,27 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * `enqueue_editor_assets()` must wire up `wp_set_script_translations()`
+	 * for the register-blocks bundle, or every `__()` call in the editor
+	 * settings panel silently renders in English regardless of site locale —
+	 * `block.json`'s `editorScript` auto-wiring doesn't apply here since this
+	 * bundle is enqueued manually, not declared per-block.
+	 */
+	public function test_enqueue_editor_assets_sets_script_translations() {
+		Search_Blocks::enqueue_editor_assets();
+
+		$handle = 'jetpack-search-blocks-register';
+		$this->assertTrue( wp_script_is( $handle, 'registered' ), "$handle must be registered before its translations can be set" );
+		$this->assertSame(
+			'jetpack-search-pkg',
+			wp_scripts()->registered[ $handle ]->textdomain,
+			'enqueue_editor_assets must call wp_set_script_translations() with the jetpack-search-pkg domain'
+		);
+
+		wp_deregister_script( $handle );
+	}
+
+	/**
 	 * The `wp_body_open` registration itself stays unconditional (SEARCH-299)
 	 * — the module gate lives inside the callback instead.
 	 */

@@ -671,6 +671,7 @@ class Search_Blocks {
 			$asset['version'] ?? false,
 			true
 		);
+		wp_set_script_translations( 'jetpack-search-blocks-register', 'jetpack-search-pkg' );
 
 		// Surface PHP gates to the editor bundle so block edits and the
 		// registration loop branch consistently with server-side renders.
