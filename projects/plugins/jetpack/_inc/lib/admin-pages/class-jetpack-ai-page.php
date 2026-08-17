@@ -55,8 +55,25 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	 *
 	 * @param string $hook The page hook returned by get_page_hook().
 	 */
-	public function add_page_actions( $hook ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Nothing extra needed beyond the common hooks in Jetpack_Admin_Page::add_actions().
+	public function add_page_actions( $hook ) {
+		add_action( 'load-' . $hook, array( $this, 'load_agents_manager' ) );
+	}
+
+	/**
+	 * Request the existing Agents Manager shell for this page.
+	 */
+	public function load_agents_manager() {
+		add_filter( 'agents_manager_should_load', '__return_true' );
+		add_filter( 'agents_manager_agent_id', array( $this, 'get_agents_manager_agent_id' ) );
+	}
+
+	/**
+	 * Use the generic WP Orchestrator agent in AI Hub.
+	 *
+	 * @return string Agent ID.
+	 */
+	public function get_agents_manager_agent_id() {
+		return 'wp-orchestrator';
 	}
 
 	/**
@@ -102,6 +119,7 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		 * (see packages/seo Initializer::init()).
 		 */
 		$seo_settings_url = admin_url( 'admin.php?page=jetpack#/traffic' );
+		$is_internal_test = jetpack_is_internal_testing_environment();
 		if (
 			// The exact-symbol guard matters: the autoloader can select an older
 			// jetpack-seo copy from another plugin that has the class but not
@@ -138,13 +156,13 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			'jetpack-ai-admin',
 			'var jetpackAiSettings = ' . wp_json_encode(
 				array(
-					'blogId'           => $blog_id ? (int) $blog_id : 0,
-					'activityLogUrl'   => $activity_log_url,
-					'seoSettingsUrl'   => $seo_settings_url,
-					'siteAdminUrl'     => admin_url(),
-					'apiRoot'          => esc_url_raw( rest_url() ),
-					'apiNonce'         => wp_create_nonce( 'wp_rest' ),
-					'pluginUrl'        => plugins_url( '', JETPACK__PLUGIN_FILE ),
+					'blogId'                 => $blog_id ? (int) $blog_id : 0,
+					'activityLogUrl'         => $activity_log_url,
+					'seoSettingsUrl'         => $seo_settings_url,
+					'siteAdminUrl'           => admin_url(),
+					'apiRoot'                => esc_url_raw( rest_url() ),
+					'apiNonce'               => wp_create_nonce( 'wp_rest' ),
+					'pluginUrl'              => plugins_url( '', JETPACK__PLUGIN_FILE ),
 					// Route through the Jetpack redirect service so the upgrade
 					// destination for the MCP upsell can be retargeted without
 					// shipping a code change.
@@ -160,6 +178,8 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					// auto-renew, matching My Jetpack and the wpcom subscriptions page.
 					'planAutoRenew'    => $plan_info['auto_renew'],
 					'showFeaturesView' => $show_gated_views,
+					// Pre-release gate for the Scheduled tasks tab.
+					'showScheduledTasksView' => $show_gated_views,
 					// The walkthrough videos link to WordPress.com courses, so the
 					// Overview only shows them on WordPress.com-hosted sites (i4 thread).
 					'isWpcomHosted'    => ( new Host() )->is_woa_site(),
@@ -169,8 +189,8 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					// Tracks audience properties for the jetpack_mcp_* events, per the
 					// Tracks standards for AI product events (AIINT-586). The client
 					// sends them as the strings 'true'/'false' (AIINT-576).
-					'isA11n'           => self::is_current_user_automattician(),
-					'isTest'           => jetpack_is_internal_testing_environment(),
+					'isA11n'                 => self::is_current_user_automattician(),
+					'isTest'                 => $is_internal_test,
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',

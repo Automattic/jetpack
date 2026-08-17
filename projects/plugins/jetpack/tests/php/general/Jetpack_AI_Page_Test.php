@@ -32,6 +32,8 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		unset( $GLOBALS['wp_scripts'] );
 		delete_transient( 'jetpack_ai_overview_plan_info' );
 		Status_Cache::clear();
+		remove_all_filters( 'agents_manager_should_load' );
+		remove_all_filters( 'agents_manager_agent_id' );
 
 		parent::tear_down();
 	}
@@ -128,6 +130,8 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 		$this->assertArrayHasKey( 'showFeaturesView', $settings );
 		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertArrayHasKey( 'showScheduledTasksView', $settings );
+		$this->assertFalse( $settings['showScheduledTasksView'] );
 	}
 
 	/**
@@ -140,6 +144,18 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['showFeaturesView'] );
+		$this->assertTrue( $settings['showScheduledTasksView'] );
+	}
+
+	/**
+	 * The AI Hub page requests the generic Agents Manager shell.
+	 */
+	public function test_agents_manager_shell_uses_wp_orchestrator() {
+		$page = new Jetpack_AI_Page();
+		$page->load_agents_manager();
+
+		$this->assertTrue( apply_filters( 'agents_manager_should_load', false ) );
+		$this->assertSame( 'wp-orchestrator', apply_filters( 'agents_manager_agent_id', null ) );
 	}
 
 	/**

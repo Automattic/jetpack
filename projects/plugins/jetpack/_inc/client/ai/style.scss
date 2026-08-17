@@ -6,7 +6,6 @@ body.jetpack_page_jetpack-ai {
 }
 
 .jetpack-ai-admin {
-
 	// Content wrapper inside AdminPage's fluid container.
 	// Use border-box so the 24px padding is included in the 100% width,
 	// preventing horizontal overflow from content-box sizing.
@@ -17,6 +16,10 @@ body.jetpack_page_jetpack-ai {
 		max-width: 660px;
 		margin: 0 auto;
 		padding: 24px;
+
+		&--scheduled-tasks {
+			max-width: 1280px;
+		}
 	}
 
 	&__breadcrumbs {
@@ -32,7 +35,6 @@ body.jetpack_page_jetpack-ai {
 			display: flex;
 			align-items: center;
 			margin-bottom: 0;
-
 		}
 
 		// Render a "/" separator between adjacent breadcrumb items.
@@ -83,7 +85,73 @@ body.jetpack_page_jetpack-ai {
 		justify-content: center;
 		padding: 48px 0;
 	}
+}
 
+.jetpack-ai-scheduled-tasks {
+
+	&__header {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 24px;
+		margin-block-end: 24px;
+
+		h2,
+		p {
+			margin-block: 0 4px;
+		}
+	}
+
+	&__empty {
+		max-width: 520px;
+		margin: 96px auto;
+		text-align: center;
+
+		h2 {
+			margin-block-end: 8px;
+		}
+
+		p {
+			margin-block: 0 24px;
+			color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+		}
+	}
+
+	&__task-link {
+		padding: 0;
+		border: 0;
+		background: none;
+		color: var(--wp-admin-theme-color, #3858e9);
+		font: inherit;
+		font-weight: 500;
+		text-align: start;
+		cursor: pointer;
+	}
+
+	&__detail dl {
+		display: grid;
+		grid-template-columns: minmax(100px, auto) 1fr;
+		gap: 12px 24px;
+		max-width: 720px;
+	}
+
+	&__detail dt {
+		font-weight: 600;
+	}
+
+	&__detail dd,
+	&__summary {
+		margin: 0;
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+	}
+
+	&__confirm-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 8px;
+		margin-block-start: 24px;
+	}
 }
 
 // Feature rows: the design aligns the action link with the label's text

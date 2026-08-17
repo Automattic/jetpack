@@ -12,6 +12,8 @@ module.exports = {
 		'<rootDir>/_inc/client/ai/features/test/component.jsx',
 		'<rootDir>/_inc/client/ai/mcp/test/allowlist-updated.jsx',
 		'<rootDir>/_inc/client/ai/overview/test/component.jsx',
+		'<rootDir>/_inc/client/ai/scheduled-tasks/test/index.jsx',
+		'<rootDir>/_inc/client/ai/scheduled-tasks/test/use-scheduled-tasks.js',
 		'<rootDir>/_inc/client/ai/test/main.jsx',
 		'<rootDir>/_inc/client/sharing/test/component.jsx',
 		'<rootDir>/_inc/client/traffic/test/component.jsx',
