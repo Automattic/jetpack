@@ -43,6 +43,10 @@ const USER_THEME_POST_NAME = 'wp-global-styles-woocommerce-email';
  * @return void
  */
 function register_extension() {
+	if ( ! is_enabled() ) {
+		return;
+	}
+
 	Jetpack_Gutenberg::set_extension_available( EXTENSION_NAME );
 }
 add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_extension' );
@@ -64,20 +68,20 @@ function has_email_editor_package() {
 }
 
 /**
- * Whether the stand-ins for a missing email editor package may be used.
+ * Whether this proof of concept is switched on for the site.
  *
  * Off unless a site explicitly opts in with
  * `define( 'JETPACK_NEWSLETTER_STYLES_DEV', true );`.
  *
- * The fallbacks fabricate an email theme and, more importantly, *create* a
- * `wp_global_styles` post. Doing that as a side effect of loading the post
- * editor is not something to inflict on a site that simply does not have the
- * package — without the opt-in the extension stays inert instead, which also
- * makes "the package is missing" visible rather than silently papered over.
+ * Everything here is exploratory and some of it is visible to site owners —
+ * it registers a newsletter template and an admin screen, and its stand-ins
+ * for a missing email editor package fabricate a theme and *create* a
+ * `wp_global_styles` post. None of that should happen on a site that merely
+ * updated Jetpack, so nothing runs without the opt-in.
  *
  * @return bool
  */
-function development_fallbacks_enabled() {
+function is_enabled() {
 	return defined( 'JETPACK_NEWSLETTER_STYLES_DEV' ) && JETPACK_NEWSLETTER_STYLES_DEV;
 }
 
@@ -92,7 +96,7 @@ function development_fallbacks_enabled() {
  */
 function get_base_email_theme() {
 	if ( ! has_email_editor_package() ) {
-		return development_fallbacks_enabled() ? get_development_email_theme() : null;
+		return is_enabled() ? get_development_email_theme() : null;
 	}
 
 	$container        = \Automattic\WooCommerce\EmailEditor\Email_Editor_Container::container();
@@ -146,9 +150,8 @@ function get_global_styles_post_id() {
 		return $user_theme->get_user_theme_post()->ID;
 	}
 
-	// Never create the record on a site that has not opted in — see
-	// development_fallbacks_enabled().
-	return development_fallbacks_enabled() ? ensure_development_user_theme_post() : null;
+	// Never create the record on a site that has not opted in — see is_enabled().
+	return is_enabled() ? ensure_development_user_theme_post() : null;
 }
 
 /**
@@ -197,7 +200,7 @@ function ensure_development_user_theme_post() {
  * @return void
  */
 function register_newsletter_template() {
-	if ( ! function_exists( 'register_block_template' ) ) {
+	if ( ! is_enabled() || ! function_exists( 'register_block_template' ) ) {
 		return;
 	}
 
@@ -220,6 +223,10 @@ add_action( 'init', __NAMESPACE__ . '\register_newsletter_template' );
  * @return bool
  */
 function is_supported_screen() {
+	if ( ! is_enabled() ) {
+		return false;
+	}
+
 	$screen = get_current_screen();
 
 	return $screen && 'post' === $screen->post_type;

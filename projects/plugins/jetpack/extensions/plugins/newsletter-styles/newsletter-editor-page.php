@@ -37,6 +37,10 @@ const EDITOR_ELEMENT_ID = 'jetpack-newsletter-email-editor';
  * @return void
  */
 function register_editor_page() {
+	if ( ! is_enabled() ) {
+		return;
+	}
+
 	add_submenu_page(
 		'',
 		__( 'Newsletter email design', 'jetpack' ),
@@ -55,7 +59,7 @@ add_action( 'admin_menu', __NAMESPACE__ . '\register_editor_page' );
  */
 function is_editor_page() {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only screen check.
-	return isset( $_GET['page'] ) && EDITOR_PAGE_SLUG === $_GET['page'];
+	return is_enabled() && isset( $_GET['page'] ) && EDITOR_PAGE_SLUG === $_GET['page'];
 }
 
 /**
