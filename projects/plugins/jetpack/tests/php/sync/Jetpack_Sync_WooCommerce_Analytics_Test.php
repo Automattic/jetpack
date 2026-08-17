@@ -140,19 +140,27 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 	public function test_incremental_sync_emits_real_order_payload() {
 		list( $order ) = $this->create_analytics_order();
 
-		$captured_payload = null;
-		$capture_payload  = static function ( $payload ) use ( &$captured_payload ) {
-			$captured_payload = $payload;
-		};
+		$module        = $this->enable_analytics_module();
+		$handler       = array( $this->listener, 'action_handler' );
+		$update_action = version_compare( WC_VERSION, '10.3', '>=' )
+			? 'woocommerce_order_scheduler_after_import_order'
+			: 'woocommerce_analytics_update_order_stats';
 
-		add_action( 'woocommerce_analytics_sync_reports_data', $capture_payload );
-		( new WooCommerce_Analytics() )->sync_analytics_reports_data( $order->get_id() );
-		remove_action( 'woocommerce_analytics_sync_reports_data', $capture_payload );
+		$module->init_listeners( $handler );
+		$this->server_event_storage->reset();
 
-		$this->assertIsArray( $captured_payload );
-		$this->assertSame( $order->get_id(), $captured_payload['order_stats']['order_id'] );
-		$this->assertSame( 2, $captured_payload['order_stats']['num_items_sold'] );
-		$this->assertSame( 3.5, (float) $captured_payload['order_tax_data'][0]['total_tax'] );
+		try {
+			do_action( $update_action, $order->get_id() );
+			$this->sender->do_sync();
+			$event = $this->server_event_storage->get_most_recent_event( 'woocommerce_analytics_sync_reports_data' );
+		} finally {
+			$this->remove_analytics_module_listeners( $module, $handler );
+		}
+
+		$this->assertNotFalse( $event );
+		$this->assertSame( $order->get_id(), $event->args['order_stats']['order_id'] );
+		$this->assertSame( 2, $event->args['order_stats']['num_items_sold'] );
+		$this->assertSame( 3.5, (float) $event->args['order_tax_data'][0]['total_tax'] );
 	}
 
 	/**
@@ -237,6 +245,7 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 	 * Enable the shared Analytics module for the current test.
 	 *
 	 * @throws RuntimeException When Sync modules were not initialized.
+	 * @return WooCommerce_Analytics The enabled module.
 	 */
 	private function enable_analytics_module() {
 		$modules = $this->original_sync_modules;
@@ -244,9 +253,28 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 			throw new RuntimeException( 'Sync modules were not initialized for the test.' );
 		}
 
-		$modules[] = new WooCommerce_Analytics();
+		$module    = new WooCommerce_Analytics();
+		$modules[] = $module;
 
 		$this->set_sync_modules( $modules );
+
+		return $module;
+	}
+
+	/**
+	 * Remove listeners registered by an Analytics module instance.
+	 *
+	 * @param WooCommerce_Analytics $module  The Analytics module.
+	 * @param callable              $handler The Sync action handler.
+	 */
+	private function remove_analytics_module_listeners( $module, $handler ) {
+		remove_action( 'woocommerce_analytics_delete_order_stats', array( $module, 'sync_deleted_analytics_data' ) );
+		remove_action( 'woocommerce_order_scheduler_after_import_order', array( $module, 'sync_analytics_reports_data' ) );
+		remove_action( 'woocommerce_analytics_update_order_stats', array( $module, 'sync_analytics_reports_data' ) );
+		remove_action( 'woocommerce_analytics_sync_reports_data', $handler );
+		remove_action( 'woocommerce_analytics_delete_reports_data', $handler );
+		remove_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_sync_reports_data', array( $module, 'expand_data' ) );
+		remove_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_delete_reports_data', array( $module, 'expand_data' ) );
 	}
 
 	/**

@@ -1240,7 +1240,16 @@ class WooCommerce_Analytics extends Module {
 
 		if ( is_a( $wc_datetime, 'WC_DateTime' ) ) {
 			$wc_datetime->setTimezone( self::get_site_datetimezone() );
-			return (object) (array) $wc_datetime;
+			$date_properties = (array) $wc_datetime;
+
+			// Remove protected properties, whose NUL-prefixed names cannot be processed by the receiver.
+			foreach ( array_keys( $date_properties ) as $property_name ) {
+				if ( false !== strpos( $property_name, "\0" ) ) {
+					unset( $date_properties[ $property_name ] );
+				}
+			}
+
+			return (object) $date_properties;
 		}
 	}
 

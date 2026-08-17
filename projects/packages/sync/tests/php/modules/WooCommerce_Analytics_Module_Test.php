@@ -286,6 +286,7 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 		$this->assertNull( $this->invoke_static_helper( 'datetime_to_object', null ) );
 
 		$from_string = $this->invoke_static_helper( 'datetime_to_object', '2024-01-02 03:04:05' );
+		$this->assertSame( array( 'date', 'timezone_type', 'timezone' ), array_keys( (array) $from_string ) );
 		$this->assertSame( '2024-01-02 03:04:05.000000', $from_string->date );
 		$this->assertSame( '+05:30', $from_string->timezone );
 
