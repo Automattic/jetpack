@@ -10,6 +10,7 @@ import { Button, Card, CollapsibleCard, Link, Notice, Stack, Text } from '@wordp
 import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import UpsellBanner from '../../components/upsell-banner';
+import areModulesSwitchable from '../../data/are-modules-switchable';
 import { isGated } from '../../data/is-gated';
 import AdvancedCard from './advanced-card';
 import AuthorProfileCard from './author-profile-card';
@@ -266,7 +267,14 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				<VerificationCard
 					value={ local.verification }
 					active={ local.verification_tools_active }
-					onToggle={ next => commit( { verification_tools_active: next } ) }
+					// Hidden where Jetpack modules can't be switched: the module reads as
+					// active there no matter what, so the toggle would refuse the write and
+					// snap back. The codes themselves still save.
+					onToggle={
+						areModulesSwitchable()
+							? next => commit( { verification_tools_active: next } )
+							: undefined
+					}
 					onChange={ setVerification }
 					onCommit={ () => commitFields( [ 'verification' ] ) }
 					disabled={ isSaving }

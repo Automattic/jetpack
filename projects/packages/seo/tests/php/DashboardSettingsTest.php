@@ -58,10 +58,9 @@ class DashboardSettingsTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		\Jetpack_SEO_Utils::$has_legacy_front_page_meta = false;
 		\Jetpack_Options::delete_option( 'active_modules' );
 
-		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 20 );
+		Dashboard_Data::register_rest_settings();
 		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 		$this->reset_rest_server();
 	}
@@ -71,11 +70,12 @@ class DashboardSettingsTest extends TestCase {
 	 * settings, the option-write hooks, or a REST server built around them.
 	 */
 	protected function tearDown(): void {
-		remove_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 20 );
 		remove_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 		remove_action( 'added_option', array( Dashboard_Data::class, 'after_setting_write' ) );
 		remove_action( 'updated_option', array( Dashboard_Data::class, 'after_setting_write' ) );
+		remove_filter( 'register_setting_args', array( Dashboard_Data::class, 'force_setting_args' ), 10 );
 		remove_all_filters( 'jetpack_get_available_standalone_modules' );
+		remove_all_filters( 'jetpack_disable_seo_tools' );
 
 		foreach ( array_keys( get_registered_settings() ) as $option ) {
 			if ( in_array( $option, $this->options, true ) ) {
@@ -127,6 +127,22 @@ class DashboardSettingsTest extends TestCase {
 		wp_set_current_user( $user_id );
 
 		return $user_id;
+	}
+
+	/**
+	 * Put the site in the shape that keeps the legacy front-page option live: Jetpack's
+	 * SEO output off, and a description already stored there. Deliberately driven by
+	 * site state rather than by a `Jetpack_SEO_Utils` stub, because that class is what
+	 * the code must NOT depend on.
+	 *
+	 * @return void
+	 */
+	private function become_legacy_site() {
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+		update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Old description.' );
+		// Re-register: which option is exposed is decided at registration time.
+		Dashboard_Data::register_rest_settings();
+		$this->reset_rest_server();
 	}
 
 	/**
@@ -365,17 +381,30 @@ class DashboardSettingsTest extends TestCase {
 	 * value the front end reads back is the one the dashboard just wrote.
 	 */
 	public function test_front_page_description_targets_the_legacy_option() {
-		// Only ever one of the two is registered for a request; drop the modern
-		// registration setUp made before re-registering as a legacy site would.
-		unregister_setting( Dashboard_Data::SETTINGS_GROUP, Dashboard_Data::FRONT_PAGE_META_OPTION );
-		\Jetpack_SEO_Utils::$has_legacy_front_page_meta = true;
-		$this->reset_rest_server();
+		$this->become_legacy_site();
 		$this->act_as( 'administrator' );
 
 		$this->save_settings( array( Dashboard_Data::FRONT_PAGE_META_OPTION => 'Legacy description.' ) );
 
 		$this->assertSame( 'Legacy description.', get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION ) );
-		$this->assertFalse( get_option( Dashboard_Data::FRONT_PAGE_META_OPTION ) );
+		$this->assertFalse( get_option( Dashboard_Data::FRONT_PAGE_META_OPTION, false ) );
+	}
+
+	/**
+	 * And the legacy value survives that save. This is the regression the
+	 * `class_exists( 'Jetpack_SEO_Utils' )` check used to cause: wherever the Jetpack
+	 * plugin's SEO files aren't loaded — which includes the package's own runtime —
+	 * the site looked "modern", the description saved to the wrong option, and the
+	 * cleanup below then deleted the live one, wiping the site's public description.
+	 * Nothing here depends on that class existing.
+	 */
+	public function test_legacy_front_page_description_survives_a_save() {
+		$this->become_legacy_site();
+		$this->act_as( 'administrator' );
+
+		$this->save_settings( array( Dashboard_Data::FRONT_PAGE_META_OPTION => 'Still here.' ) );
+
+		$this->assertSame( 'Still here.', get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION ) );
 	}
 
 	/**
@@ -390,6 +419,20 @@ class DashboardSettingsTest extends TestCase {
 
 		$this->assertSame( 'New description.', get_option( Dashboard_Data::FRONT_PAGE_META_OPTION ) );
 		$this->assertFalse( get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION ) );
+	}
+
+	/**
+	 * The Settings bootstrap reports the same legacy state the save writes by, so the
+	 * form can't offer a field that the save would send to a different option.
+	 */
+	public function test_settings_bootstrap_agrees_about_legacy_storage() {
+		$this->become_legacy_site();
+
+		$this->assertTrue( Dashboard_Data::get_settings_data()['has_legacy_front_page_meta'] );
+
+		remove_all_filters( 'jetpack_disable_seo_tools' );
+
+		$this->assertFalse( Dashboard_Data::get_settings_data()['has_legacy_front_page_meta'] );
 	}
 
 	/**
@@ -449,6 +492,128 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
+	 * A setting whose module refuses to switch is refused too: the option keeps its
+	 * stored value, so the response can't report a state the site never reached.
+	 */
+	public function test_sitemap_setting_is_refused_when_the_module_will_not_switch() {
+		$this->make_modules_available( array( 'sitemaps' ) );
+		// Hold the module inactive whatever the stored module state says, so activation
+		// runs and then doesn't take.
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $modules ) {
+				return array_values( array_diff( (array) $modules, array( 'sitemaps' ) ) );
+			}
+		);
+		$this->act_as( 'administrator' );
+
+		$response = $this->save_settings( array( Initializer::SITEMAP_ENABLED_OPTION => true ) );
+
+		$this->assertFalse( $response->get_data()[ Initializer::SITEMAP_ENABLED_OPTION ] );
+		$this->assertEmpty( get_option( Initializer::SITEMAP_ENABLED_OPTION ) );
+
+		remove_all_filters( 'jetpack_active_modules' );
+	}
+
+	/**
+	 * The reconciliation is attached to the option itself, not to a REST request, so a
+	 * write from WP-CLI, cron or wp-admin moves the module too.
+	 */
+	public function test_a_direct_option_write_still_switches_the_module() {
+		$this->make_modules_available( array( 'sitemaps' ) );
+
+		update_option( Initializer::SITEMAP_ENABLED_OPTION, true );
+
+		$this->assertTrue( ( new Modules() )->is_active( 'sitemaps' ) );
+	}
+
+	/**
+	 * Our registration arguments stay authoritative even when another surface
+	 * re-registers the same option later — the verification-tools module does exactly
+	 * that, and a plain last-one-wins would drop `show_in_rest` and leave core
+	 * silently ignoring dashboard writes.
+	 */
+	public function test_a_later_registration_cannot_drop_the_rest_exposure() {
+		register_setting(
+			'verification_services_codes_fields',
+			Dashboard_Data::VERIFICATION_CODES_OPTION,
+			array( 'sanitize_callback' => 'strval' )
+		);
+
+		$registered = get_registered_settings();
+
+		$this->assertNotEmpty( $registered[ Dashboard_Data::VERIFICATION_CODES_OPTION ]['show_in_rest'] );
+		$this->assertSame( 'object', $registered[ Dashboard_Data::VERIFICATION_CODES_OPTION ]['type'] );
+	}
+
+	/**
+	 * A value that is neither a bare code nor a parsable tag isn't a verification code
+	 * at all, so it clears the field rather than being stored as junk — matching what
+	 * `jetpack_verification_validate()` does on sites that load it.
+	 */
+	public function test_verification_codes_reject_unparsable_values() {
+		$this->act_as( 'administrator' );
+		update_option( Dashboard_Data::VERIFICATION_CODES_OPTION, array( 'bing' => 'bing-code' ) );
+
+		$this->save_settings(
+			array(
+				Dashboard_Data::VERIFICATION_CODES_OPTION => array(
+					'bing'   => 'not a code',
+					'yandex' => '"quoted"',
+				),
+			)
+		);
+
+		$stored = get_option( Dashboard_Data::VERIFICATION_CODES_OPTION );
+
+		$this->assertSame( '', $stored['bing'] );
+		$this->assertSame( '', $stored['yandex'] );
+	}
+
+	/**
+	 * A title token has to be one its page type actually offers — `post_title` means
+	 * nothing on the front page, and the old Jetpack settings endpoint rejected it.
+	 */
+	public function test_title_formats_reject_a_token_the_page_type_does_not_offer() {
+		$this->act_as( 'administrator' );
+
+		$response = $this->save_settings(
+			array(
+				Dashboard_Data::TITLE_FORMATS_OPTION => array(
+					'front_page' => array(
+						array(
+							'type'  => 'token',
+							'value' => 'post_title',
+						),
+					),
+				),
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertEmpty( get_option( Dashboard_Data::TITLE_FORMATS_OPTION ) );
+	}
+
+	/**
+	 * Both keys are required: the front-end renderer reads `type` on every public
+	 * request, so a token missing it must never reach storage.
+	 */
+	public function test_title_formats_reject_a_token_missing_its_type() {
+		$this->act_as( 'administrator' );
+
+		$response = $this->save_settings(
+			array(
+				Dashboard_Data::TITLE_FORMATS_OPTION => array(
+					'posts' => array( array( 'value' => 'some text' ) ),
+				),
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertEmpty( get_option( Dashboard_Data::TITLE_FORMATS_OPTION ) );
+	}
+
+	/**
 	 * Module activation is the one dashboard setting core's endpoint can't express,
 	 * so the package registers a write route for it under its own namespace.
 	 */
@@ -489,7 +654,42 @@ class DashboardSettingsTest extends TestCase {
 
 		$response = $this->update_modules( false );
 
+		// A request this site can't support, not a server failure.
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'jetpack_seo_module_unavailable', $response->get_data()['code'] );
+	}
+
+	/**
+	 * A module that exists but won't switch is a genuine failure, and says so.
+	 */
+	public function test_module_route_errors_when_the_toggle_does_not_take() {
+		$this->make_modules_available( array( 'verification-tools' ) );
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $modules ) {
+				return array_values( array_diff( (array) $modules, array( 'verification-tools' ) ) );
+			}
+		);
+		$this->act_as( 'administrator' );
+
+		$response = $this->update_modules( true );
+
 		$this->assertSame( 500, $response->get_status() );
+		$this->assertSame( 'jetpack_seo_module_toggle_failed', $response->get_data()['code'] );
+
+		remove_all_filters( 'jetpack_active_modules' );
+	}
+
+	/**
+	 * The dashboard is told whether module toggles can do anything here, so it can
+	 * hide the controls instead of offering one the route would refuse.
+	 */
+	public function test_overview_reports_whether_modules_can_be_switched() {
+		$this->assertFalse( Dashboard_Data::get_overview_data()['modules_switchable'] );
+
+		$this->make_modules_available( array( 'verification-tools' ) );
+
+		$this->assertTrue( Dashboard_Data::get_overview_data()['modules_switchable'] );
 	}
 
 	/**

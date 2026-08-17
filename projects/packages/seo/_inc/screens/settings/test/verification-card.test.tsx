@@ -10,6 +10,8 @@ jest.unstable_mockModule( '../../../data/use-google-verify', () => ( {
 
 const { default: VerificationCard } = await import( '../verification-card' );
 
+const EMPTY = { google: '', bing: '', pinterest: '', yandex: '', facebook: '' };
+
 describe( 'VerificationCard', () => {
 	beforeEach( () => {
 		mockUseGoogleVerify.mockReturnValue( {
@@ -49,5 +51,24 @@ describe( 'VerificationCard', () => {
 			'google-code'
 		);
 		screen.getAllByRole( 'textbox' ).forEach( input => expect( input ).toBeDisabled() );
+	} );
+	it( 'hides the module toggle where the site cannot switch Jetpack modules', () => {
+		// No `onToggle`: the caller omits it on WordPress.com Simple, which has no
+		// Jetpack modules and reports them all active — a toggle there would refuse
+		// the write and snap back. The codes themselves stay editable.
+		render(
+			<VerificationCard
+				value={ { ...EMPTY, bing: 'bing-code' } }
+				active
+				onChange={ jest.fn() }
+				open
+				onOpenChange={ jest.fn() }
+			/>
+		);
+
+		expect(
+			screen.queryByRole( 'checkbox', { name: /Enable site verification/ } )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'textbox', { name: /Bing/ } ) ).toBeEnabled();
 	} );
 } );

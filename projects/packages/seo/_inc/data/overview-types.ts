@@ -31,4 +31,8 @@ export interface OverviewResponse {
 	plan: {
 		seo_enabled_for_site: boolean;
 	};
+	// Whether the controls that switch a Jetpack module on or off can do anything
+	// on this site. False on WordPress.com Simple, which ships no Jetpack modules
+	// and reports every one of them active.
+	modules_switchable: boolean;
 }

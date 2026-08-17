@@ -15,7 +15,12 @@ import type { FC } from 'react';
 interface Props {
 	value: SettingsResponse[ 'verification' ];
 	active: boolean;
-	onToggle: ( active: boolean ) => void;
+	/**
+	 * Switch the verification-tools module. Omitted where the site can't switch
+	 * Jetpack modules (WordPress.com Simple), which hides the control rather than
+	 * offering one the server would refuse.
+	 */
+	onToggle?: ( active: boolean ) => void;
 	onChange: ( key: VerificationKey, value: string ) => void;
 	/** Save the current value — called on blur (auto-save, no Save button). */
 	onCommit?: () => void;
@@ -106,17 +111,19 @@ const VerificationCard: FC< Props > = ( {
 					<Text variant="body-md" render={ <p /> }>
 						{ description }
 					</Text>
-					<ToggleControl
-						label={ __( 'Enable site verification', 'jetpack-seo' ) }
-						help={ __(
-							'Adds your saved verification codes to the site so supported services can confirm ownership.',
-							'jetpack-seo'
-						) }
-						checked={ active }
-						onChange={ onToggle }
-						disabled={ disabled }
-						__nextHasNoMarginBottom
-					/>
+					{ onToggle && (
+						<ToggleControl
+							label={ __( 'Enable site verification', 'jetpack-seo' ) }
+							help={ __(
+								'Adds your saved verification codes to the site so supported services can confirm ownership.',
+								'jetpack-seo'
+							) }
+							checked={ active }
+							onChange={ onToggle }
+							disabled={ disabled }
+							__nextHasNoMarginBottom
+						/>
+					) }
 					{ /* Google gets the keyring auto-verify flow; the rest are simple code fields. */ }
 					<GoogleVerificationField
 						value={ value.google }

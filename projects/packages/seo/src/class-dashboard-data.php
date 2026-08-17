@@ -174,6 +174,11 @@ class Dashboard_Data {
 	 * this runs behind the same `seo-tools` gate as the rest of the settings
 	 * surface, and why the dashboard hides its controls when that module is off.
 	 *
+	 * Called during package init rather than on `rest_api_init`, so the sanitizers
+	 * registered here — which are also what keeps the legacy sitemap and
+	 * canonical-urls modules in step with their durable options — apply to every
+	 * write of those options, including WP-CLI, cron and wp-admin.
+	 *
 	 * @return void
 	 */
 	public static function register_rest_settings() {
@@ -192,12 +197,37 @@ class Dashboard_Data {
 			register_setting( self::SETTINGS_GROUP, $option, $args );
 		}
 
-		// Keep the rest of the site in step with a setting the dashboard just wrote
-		// (module state, the legacy front-page option). Both actions pass the option
-		// name as their first argument; `added_option` covers a first write, which
+		// `verification_services_codes` is also registered by the verification-tools
+		// module, and the last `register_setting()` for an option name replaces the
+		// registry entry — which would drop the `show_in_rest` exposure the dashboard
+		// saves through, leaving core to ignore the write and still answer 200. Rather
+		// than depend on hook order, force our own arguments back on for the options we
+		// own, whoever registers them and whenever. Added after the loop above so our
+		// own registrations don't recurse through it.
+		add_filter( 'register_setting_args', array( __CLASS__, 'force_setting_args' ), 10, 4 );
+
+		// The one thing that has to happen after the write rather than during it:
+		// dropping the superseded legacy front-page option. Both actions pass the
+		// option name first, and `added_option` covers a first write, which
 		// `update_option()` routes through `add_option()`.
 		add_action( 'added_option', array( __CLASS__, 'after_setting_write' ) );
 		add_action( 'updated_option', array( __CLASS__, 'after_setting_write' ) );
+	}
+
+	/**
+	 * Keep the package's own registration arguments authoritative for the options it
+	 * owns, no matter who else registers them or in what order.
+	 *
+	 * @param array  $args     Arguments the caller passed to `register_setting()`.
+	 * @param array  $defaults Default arguments.
+	 * @param string $group    Setting group (unused).
+	 * @param string $option   Option name.
+	 * @return array
+	 */
+	public static function force_setting_args( $args, $defaults, $group, $option ) {
+		$ours = self::settings_definitions();
+
+		return isset( $ours[ $option ] ) ? wp_parse_args( $ours[ $option ], $defaults ) : $args;
 	}
 
 	/**
@@ -214,16 +244,19 @@ class Dashboard_Data {
 			// is_sitemap_enabled() / is_canonical_enabled()). Writing them here rather
 			// than toggling the legacy modules over REST is what makes these settings
 			// work on platforms that have no Jetpack modules on disk; where the modules
-			// do exist, after_setting_write() toggles them to match.
+			// do exist, the sanitizer toggles them to match and refuses the write if
+			// the module won't move, so the setting can't claim a state the site isn't in.
 			Initializer::SITEMAP_ENABLED_OPTION   => array(
-				'type'         => 'boolean',
-				'default'      => false,
-				'show_in_rest' => true,
+				'type'              => 'boolean',
+				'default'           => false,
+				'sanitize_callback' => array( __CLASS__, 'sanitize_sitemap_enabled' ),
+				'show_in_rest'      => true,
 			),
 			Initializer::CANONICAL_ENABLED_OPTION => array(
-				'type'         => 'boolean',
-				'default'      => false,
-				'show_in_rest' => true,
+				'type'              => 'boolean',
+				'default'           => false,
+				'sanitize_callback' => array( __CLASS__, 'sanitize_canonical_enabled' ),
+				'show_in_rest'      => true,
 			),
 			self::AI_SEO_ENHANCER_OPTION          => array(
 				'type'         => 'boolean',
@@ -256,22 +289,7 @@ class Dashboard_Data {
 				'show_in_rest'      => array(
 					'schema' => array(
 						'type'       => 'object',
-						'properties' => array_fill_keys(
-							array( 'front_page', 'posts', 'pages', 'groups', 'archives' ),
-							array(
-								'type'  => 'array',
-								'items' => array(
-									'type'       => 'object',
-									'properties' => array(
-										'type'  => array(
-											'type' => 'string',
-											'enum' => array( 'string', 'token' ),
-										),
-										'value' => array( 'type' => 'string' ),
-									),
-								),
-							)
-						),
+						'properties' => self::title_format_schemas(),
 					),
 				),
 			),
@@ -301,28 +319,136 @@ class Dashboard_Data {
 	}
 
 	/**
+	 * Per-page-type schema for a title structure, restoring the contract
+	 * `Jetpack_SEO_Titles::are_valid_title_formats()` enforced on the Jetpack settings
+	 * endpoint: both keys are required (the renderer reads `type` on every public
+	 * request), and a token has to be one this page type actually offers.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function title_format_schemas() {
+		// Mirrors `Jetpack_SEO_Titles::get_allowed_tokens()`. Duplicated rather than
+		// called: that class ships with the Jetpack plugin, and the schema has to hold
+		// wherever the package runs.
+		$allowed_tokens = array(
+			'front_page' => array( 'site_name', 'tagline' ),
+			'posts'      => array( 'site_name', 'tagline', 'post_title' ),
+			'pages'      => array( 'site_name', 'tagline', 'page_title' ),
+			'groups'     => array( 'site_name', 'tagline', 'group_title' ),
+			'archives'   => array( 'site_name', 'tagline', 'date', 'archive_title' ),
+		);
+
+		$schemas = array();
+		foreach ( $allowed_tokens as $page_type => $tokens ) {
+			$schemas[ $page_type ] = array(
+				'type'  => 'array',
+				'items' => array(
+					'type'       => 'object',
+					// Both keys required: the front-end renderer reads `type` on every
+					// public request, so a token missing it must never reach storage.
+					'required'   => array( 'type', 'value' ),
+					'properties' => array(
+						'type'  => array(
+							'type' => 'string',
+							'enum' => array( 'string', 'token' ),
+						),
+						'value' => array( 'type' => 'string' ),
+					),
+					// Which values `value` may take depends on `type`, which one flat
+					// object can't say. Core applies `oneOf` first and then the shape
+					// above, so the two together are the old helper's contract.
+					'oneOf'      => array(
+						array(
+							'type'       => 'object',
+							'properties' => array(
+								'type' => array(
+									'type' => 'string',
+									'enum' => array( 'string' ),
+								),
+							),
+						),
+						array(
+							'type'       => 'object',
+							'properties' => array(
+								'type'  => array(
+									'type' => 'string',
+									'enum' => array( 'token' ),
+								),
+								'value' => array(
+									'type' => 'string',
+									'enum' => $tokens,
+								),
+							),
+						),
+					),
+				),
+			);
+		}
+
+		return $schemas;
+	}
+
+	/**
 	 * The option the front page meta description is stored in for this site.
 	 *
-	 * A WordPress.com site that set a description while SEO tools were free for
-	 * every Simple site keeps editing that legacy option even when it's otherwise
-	 * plan-gated — the same rule `Jetpack_SEO_Utils` reads and writes by, so the
-	 * dashboard saves to whichever option the front end will read back. Falls back
-	 * to the modern option where that helper isn't loaded (it ships with the Jetpack
-	 * plugin), which is also where no legacy value can exist.
+	 * A WordPress.com site that set a description while SEO tools were free for every
+	 * Simple site keeps editing that legacy option while it's plan-gated, because the
+	 * front end still reads the description from there. Decided from the site's own
+	 * state — the gate and the stored value — rather than from `Jetpack_SEO_Utils`,
+	 * which ships with the Jetpack plugin: reading it through `class_exists()` would
+	 * quietly answer "modern" wherever the plugin's SEO files aren't loaded, and the
+	 * save would then overwrite the wrong option and drop a live legacy description.
 	 *
 	 * @return string
 	 */
 	private static function front_page_description_option() {
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
-		if ( class_exists( 'Jetpack_SEO_Utils' ) && Jetpack_SEO_Utils::has_legacy_front_page_meta() ) {
-			return self::LEGACY_FRONT_PAGE_META_OPTION;
-		}
-
-		return self::FRONT_PAGE_META_OPTION;
+		return self::has_legacy_front_page_meta()
+			? self::LEGACY_FRONT_PAGE_META_OPTION
+			: self::FRONT_PAGE_META_OPTION;
 	}
 
 	/**
-	 * Bring the rest of the site into line with a setting the dashboard just wrote.
+	 * Whether the front page description still lives in the legacy option — Jetpack's
+	 * SEO output is off for this site and a description is stored there, so that's what
+	 * the front end reads and what an edit has to write back to.
+	 *
+	 * The rule `Jetpack_SEO_Utils::has_legacy_front_page_meta()` applies, evaluated from
+	 * the site's own state so that the read path, the write path and the front end can't
+	 * disagree on a site where that class isn't loaded.
+	 *
+	 * @return bool
+	 */
+	private static function has_legacy_front_page_meta() {
+		return ! self::is_jetpack_seo_enabled() && (bool) get_option( self::LEGACY_FRONT_PAGE_META_OPTION );
+	}
+
+	/**
+	 * Whether Jetpack's SEO output is live for this site, which is what decides
+	 * where the front page description is stored and read from.
+	 *
+	 * Matches `Jetpack_SEO_Utils::is_enabled_jetpack_seo()` without depending on it:
+	 * the conflicting-plugin filter, then the WordPress.com plan gate (never gated on
+	 * self-hosted, where `Initializer::is_gated()` is always false).
+	 *
+	 * @return bool
+	 */
+	private static function is_jetpack_seo_enabled() {
+		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
+		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+			return false;
+		}
+
+		return ! Initializer::is_gated();
+	}
+
+	/**
+	 * Drop the superseded legacy front page description once a modern one is saved.
+	 *
+	 * The front end falls back to the legacy option whenever the modern value is
+	 * empty, so leaving it in place would let a cleared description resurrect text the
+	 * site set years ago. Matches what the Jetpack settings endpoint did on the same
+	 * write, including its condition: only where Jetpack's SEO output is actually live,
+	 * so a gated site's legacy description is never touched.
 	 *
 	 * Hooked to `added_option` / `updated_option` (both pass the option name first),
 	 * so it fires on a real change only, whichever surface made it.
@@ -331,45 +457,51 @@ class Dashboard_Data {
 	 * @return void
 	 */
 	public static function after_setting_write( $option ) {
-		$modules_by_option = array(
-			Initializer::SITEMAP_ENABLED_OPTION   => 'sitemaps',
-			Initializer::CANONICAL_ENABLED_OPTION => 'canonical-urls',
-		);
-
-		if ( isset( $modules_by_option[ $option ] ) ) {
-			self::sync_module_to_option( $modules_by_option[ $option ], (bool) get_option( $option, false ) );
-			return;
-		}
-
-		// A front-page description saved to the modern option leaves the legacy one
-		// behind, and the front end falls back to it whenever the modern value is
-		// empty — so clearing the description would resurrect the old text. Dropping
-		// it here matches what the Jetpack settings endpoint did on the same write.
-		if ( self::FRONT_PAGE_META_OPTION === $option ) {
+		if ( self::FRONT_PAGE_META_OPTION === $option && self::is_jetpack_seo_enabled() ) {
 			delete_option( self::LEGACY_FRONT_PAGE_META_OPTION );
 		}
+	}
+
+	/**
+	 * Whether this site has the given Jetpack module at all.
+	 *
+	 * Deliberately not `Modules::is_module()`: that's a path-traversal check, and it
+	 * passes every slug on a site whose module list is empty — which is the case this
+	 * has to detect. WordPress.com Simple ships no Jetpack modules and provides the
+	 * behavior itself.
+	 *
+	 * @param string $module Module slug.
+	 * @return bool
+	 */
+	private static function has_module( $module ) {
+		return in_array( $module, ( new Modules() )->get_available(), true );
+	}
+
+	/**
+	 * Whether this site can switch Jetpack modules on and off at all.
+	 *
+	 * Bootstrapped to the dashboard so it can hide the controls that toggle a module
+	 * rather than offer one that would spring straight back.
+	 *
+	 * @return bool
+	 */
+	public static function has_switchable_modules() {
+		return (bool) ( new Modules() )->get_available();
 	}
 
 	/**
 	 * Toggle a legacy Jetpack module to match the setting that now drives it.
 	 *
 	 * A no-op where the module already agrees, which is also what stops the Jetpack
-	 * plugin's own module → option sync from bouncing straight back here.
+	 * plugin's own module → option sync from bouncing straight back here. Callers
+	 * must have checked {@see self::has_module()} first.
 	 *
 	 * @param string $module  Module slug.
 	 * @param bool   $enabled Whether the setting is on.
-	 * @return bool Whether the module now matches the setting. False when the site has
-	 *              no such module — WordPress.com Simple ships no Jetpack modules, and
-	 *              provides the behavior itself — or when the toggle didn't take.
+	 * @return bool Whether the module now matches the setting.
 	 */
 	private static function sync_module_to_option( $module, $enabled ) {
 		$modules = new Modules();
-
-		// Deliberately not `Modules::is_module()`: that's a path-traversal check, and
-		// it passes every slug on a site whose module list is empty.
-		if ( ! in_array( $module, $modules->get_available(), true ) ) {
-			return false;
-		}
 
 		if ( $modules->is_active( $module ) === $enabled ) {
 			return true;
@@ -378,6 +510,51 @@ class Dashboard_Data {
 		$modules->update_status( $module, $enabled, false, false );
 
 		return $modules->is_active( $module ) === $enabled;
+	}
+
+	/**
+	 * Sanitize callback for a setting that a legacy Jetpack module mirrors.
+	 *
+	 * Runs inside `update_option()`, so it is the last point at which the write can
+	 * still be refused: the module is switched first, and if it won't move the stored
+	 * value is returned unchanged. `update_option()` then sees no change and writes
+	 * nothing, so the settings response reports the state the site is really in
+	 * instead of one the module never reached.
+	 *
+	 * @param mixed  $value  Submitted value.
+	 * @param string $module Module slug the setting mirrors.
+	 * @param string $option Option the setting is stored in.
+	 * @return bool
+	 */
+	private static function reconcile_module_setting( $value, $module, $option ) {
+		$value = (bool) $value;
+
+		// Nothing to keep in step: the option is the whole story on this site.
+		if ( ! self::has_module( $module ) ) {
+			return $value;
+		}
+
+		return self::sync_module_to_option( $module, $value ) ? $value : (bool) get_option( $option, false );
+	}
+
+	/**
+	 * Switch the legacy `sitemaps` module with the sitemap setting.
+	 *
+	 * @param mixed $value Submitted value.
+	 * @return bool
+	 */
+	public static function sanitize_sitemap_enabled( $value ) {
+		return self::reconcile_module_setting( $value, 'sitemaps', Initializer::SITEMAP_ENABLED_OPTION );
+	}
+
+	/**
+	 * Switch the legacy `canonical-urls` module with the canonical URLs setting.
+	 *
+	 * @param mixed $value Submitted value.
+	 * @return bool
+	 */
+	public static function sanitize_canonical_enabled( $value ) {
+		return self::reconcile_module_setting( $value, 'canonical-urls', Initializer::CANONICAL_ENABLED_OPTION );
 	}
 
 	/**
@@ -459,12 +636,18 @@ class Dashboard_Data {
 		foreach ( $value as $service => $code ) {
 			$code = (string) $code;
 
-			if ( ! preg_match( '/^[a-z0-9_-]*$/i', $code ) && preg_match( '/content=["\']?([^"\' ]*)["\' ]/i', $code, $matches ) ) {
-				$code = urldecode( $matches[1] );
+			// Anything that isn't already a bare code has to yield one, or it's not a
+			// verification code at all and is cleared — the same reject-to-empty
+			// outcome `jetpack_verification_validate()` produces, so a site behaves the
+			// same whether or not the verification-tools module is loaded to run it.
+			if ( ! preg_match( '/^[a-z0-9_-]*$/i', $code ) ) {
+				$code = preg_match( '/content=["\']?([^"\' ]*)["\' ]/i', $code, $matches )
+					? urldecode( $matches[1] )
+					: '';
 			}
 
 			// 100 chars is the cap the verification-tools module stores by.
-			$stored[ $service ] = substr( sanitize_text_field( $code ), 0, 100 );
+			$stored[ $service ] = substr( sanitize_text_field( trim( $code ) ), 0, 100 );
 		}
 
 		return $stored;
@@ -522,15 +705,25 @@ class Dashboard_Data {
 	/**
 	 * Activate or deactivate the `verification-tools` module.
 	 *
-	 * Errors rather than reporting a success it didn't achieve — a site with no
-	 * Jetpack modules has no verification module to switch, and the dashboard should
-	 * say so instead of showing a toggle that silently springs back on reload.
+	 * Errors rather than reporting a success it didn't achieve. The two failures are
+	 * different things: a site with no Jetpack modules can't support the request at
+	 * all (400 — the dashboard hides the control there, see
+	 * {@see self::has_switchable_modules()}), while a module that won't switch is a
+	 * genuine server-side failure (500).
 	 *
 	 * @param WP_REST_Request $request The REST request.
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function update_modules( WP_REST_Request $request ) {
 		$active = (bool) $request['verification_tools_active'];
+
+		if ( ! self::has_module( 'verification-tools' ) ) {
+			return new WP_Error(
+				'jetpack_seo_module_unavailable',
+				__( 'This site has no site verification module to switch.', 'jetpack-seo' ),
+				array( 'status' => 400 )
+			);
+		}
 
 		if ( ! self::sync_module_to_option( 'verification-tools', $active ) ) {
 			return new WP_Error(
@@ -559,7 +752,7 @@ class Dashboard_Data {
 		}
 
 		return array(
-			'site_visibility'   => array(
+			'site_visibility'    => array(
 				'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
 				// Read the durable SEO option (seeded/synced from the `sitemaps` module
 				// by the Jetpack plugin) so the state survives the module's removal. The
@@ -569,17 +762,22 @@ class Dashboard_Data {
 			),
 			// Per-service booleans (a code is set or not) for the Overview's
 			// Site verification card.
-			'site_verification' => array(
+			'site_verification'  => array(
 				'google'    => ! empty( $codes['google'] ),
 				'bing'      => ! empty( $codes['bing'] ),
 				'pinterest' => ! empty( $codes['pinterest'] ),
 				'yandex'    => ! empty( $codes['yandex'] ),
 				'facebook'  => ! empty( $codes['facebook'] ),
 			),
-			'content_coverage'  => Content_Coverage::get(),
-			'plan'              => array(
+			'content_coverage'   => Content_Coverage::get(),
+			'plan'               => array(
 				'seo_enabled_for_site' => $seo_enabled,
 			),
+			// Whether the controls that switch a Jetpack module on or off can do
+			// anything here. False on WordPress.com Simple, which ships no Jetpack
+			// modules and reports every one of them active, so the dashboard hides
+			// those controls rather than offering a toggle that springs back.
+			'modules_switchable' => self::has_switchable_modules(),
 		);
 	}
 
@@ -611,10 +809,9 @@ class Dashboard_Data {
 
 		// A site that set a front-page description back when it was free for all
 		// WordPress.com Simple sites keeps editing it, even when otherwise plan-gated:
-		// the value stays live and `Jetpack_SEO_Utils` still reads/writes it via the
-		// legacy option. The gated Settings uses this to keep that one field editable.
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
-		$has_legacy_front_page_meta = class_exists( 'Jetpack_SEO_Utils' ) && (bool) Jetpack_SEO_Utils::has_legacy_front_page_meta();
+		// the value stays live in the legacy option. The gated Settings uses this to keep
+		// that one field editable, and it's the same rule the save writes by.
+		$has_legacy_front_page_meta = self::has_legacy_front_page_meta();
 
 		$codes = get_option( 'verification_services_codes', array() );
 		if ( ! is_array( $codes ) ) {

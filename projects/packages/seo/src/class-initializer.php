@@ -241,11 +241,11 @@ class Initializer {
 				Ai_Crawlers::init();
 			}
 
-			// Priority 20: the verification-tools module registers `verification_services_codes`
-			// with the Settings API at the default priority, and the last registration for an
-			// option name wins — registering after it keeps the `show_in_rest` exposure the
-			// dashboard saves through.
-			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 20 );
+			// Registered here rather than on `rest_api_init`: the sanitizers this attaches
+			// are what keep the legacy sitemap and canonical-urls modules in step with
+			// their durable options, and that has to hold for every write of those
+			// options — WP-CLI and cron included — not just the dashboard's.
+			Dashboard_Data::register_rest_settings();
 			// Package-owned route for the module toggle that has no option behind it.
 			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 			// Package-owned route for the site-level Schema settings (see the controller).

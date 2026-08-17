@@ -3,7 +3,7 @@ import { select, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { buildCorePayload, buildModulesPayload, SITEMAP_SETTING } from './build-payload';
+import { buildCorePayload, buildModulesPayload } from './build-payload';
 import { settingsStore } from './settings-store';
 import type { SchemaSettings } from './schema-settings-types';
 import type { SettingsResponse, VerificationKey } from './settings-types';
@@ -13,9 +13,9 @@ import type { SettingsResponse, VerificationKey } from './settings-types';
 // page's two-stage toast.
 const SAVE_NOTICE_ID = 'jetpack-seo-settings-save';
 
-// The package's own settings read, re-fetched after a sitemap toggle to pick up
-// the freshly-reachable `sitemap_url` (recomputed server-side once Jetpack has
-// (de)activated its sitemap module).
+// The package's own settings read, re-fetched after every save so the form shows
+// what the server actually stored — including a value it refused and the
+// recomputed `sitemap_url`.
 const SEO_SETTINGS_PATH = '/jetpack/v4/seo/settings';
 
 // WordPress core's settings endpoint, which every option-backed SEO setting is
@@ -95,6 +95,42 @@ export function useSettingsForm(): SettingsForm {
 		localRef.current = local;
 	}, [ local ] );
 
+	// Re-read the server's own view of the settings and adopt it for the fields this
+	// save touched, so the form shows what actually persisted rather than what we
+	// hoped would. The server can legitimately refuse a value — the sitemap and
+	// canonical settings only take if their legacy module switches with them — and a
+	// save can fail after its first request already committed. `sitemap_url` comes
+	// along because it's read-only and recomputed by the sitemap toggle.
+	const adoptServerState = useCallback(
+		( touched: Array< keyof SettingsResponse > ) =>
+			apiFetch< SettingsResponse >( { path: SEO_SETTINGS_PATH } )
+				.then( fresh => {
+					const current = localRef.current;
+					const baseline = baselineRef.current;
+					if ( ! current || ! baseline || ! fresh ) {
+						return;
+					}
+					// Only fields the response actually carries: a truncated payload must
+					// blank nothing out.
+					const patch: Partial< SettingsResponse > = {};
+					[ ...touched, 'sitemap_url' as const ].forEach( field => {
+						if ( field in fresh ) {
+							( patch as Record< string, unknown > )[ field ] = fresh[ field ];
+						}
+					} );
+
+					localRef.current = { ...current, ...patch };
+					baselineRef.current = { ...baseline, ...patch };
+					setLocal( localRef.current );
+					setSettings( baselineRef.current );
+				} )
+				.catch( () => {
+					// Nothing better to show than what's already on screen; the next load
+					// is authoritative either way.
+				} ),
+		[ setSettings ]
+	);
+
 	const saveValues = useCallback(
 		( values: SettingsResponse ) => {
 			const baseline = baselineRef.current;
@@ -103,21 +139,13 @@ export function useSettingsForm(): SettingsForm {
 			}
 			const corePayload = buildCorePayload( baseline, values );
 			const modulesPayload = buildModulesPayload( baseline, values );
-
-			const requests: Array< Promise< unknown > > = [];
-			if ( Object.keys( corePayload ).length > 0 ) {
-				requests.push(
-					apiFetch( { path: CORE_SETTINGS_PATH, method: 'POST', data: corePayload } )
-				);
-			}
-			if ( Object.keys( modulesPayload ).length > 0 ) {
-				requests.push(
-					apiFetch( { path: SEO_MODULES_PATH, method: 'POST', data: modulesPayload } )
-				);
-			}
-			if ( requests.length === 0 ) {
+			if ( Object.keys( corePayload ).length + Object.keys( modulesPayload ).length === 0 ) {
 				return;
 			}
+
+			const touched = ( Object.keys( values ) as Array< keyof SettingsResponse > ).filter(
+				field => JSON.stringify( values[ field ] ) !== JSON.stringify( baseline[ field ] )
+			);
 
 			setIsSaving( true );
 			createInfoNotice( __( 'Updating settings…', 'jetpack-seo' ), {
@@ -125,44 +153,32 @@ export function useSettingsForm(): SettingsForm {
 				type: 'snackbar',
 				isDismissible: false,
 			} );
-			Promise.all( requests )
+
+			// Sequential, not parallel: both endpoints can end up mutating Jetpack's
+			// shared `active_modules` option (the settings write reconciles the sitemap
+			// and canonical modules), and two overlapping read-modify-writes of it would
+			// let the later one drop the earlier one's change.
+			Promise.resolve()
+				.then( () =>
+					Object.keys( corePayload ).length > 0
+						? apiFetch( { path: CORE_SETTINGS_PATH, method: 'POST', data: corePayload } )
+						: undefined
+				)
+				.then( () =>
+					Object.keys( modulesPayload ).length > 0
+						? apiFetch( { path: SEO_MODULES_PATH, method: 'POST', data: modulesPayload } )
+						: undefined
+				)
 				.then( () => {
+					// Adopt what we asked for; `adoptServerState()` below then corrects it
+					// wherever the server reports something else. Skipped on failure, where
+					// only the server knows what landed.
 					baselineRef.current = values;
-					// Persist the saved snapshot so a return to the tab re-seeds from it.
 					setSettings( values );
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-seo' ), {
 						id: SAVE_NOTICE_ID,
 						type: 'snackbar',
 					} );
-
-					// Toggling the sitemap changes what's reachable server-side (Jetpack
-					// (de)activates its module), so re-read the SEO settings to surface the
-					// freshly-reachable `sitemap_url` — the View link then appears without a
-					// page reload. Non-fatal on failure: the save already succeeded.
-					// Returned (not fire-and-forget) so `isSaving` stays true — and the
-					// toggle disabled — until the re-read settles, preventing a second
-					// toggle from racing an in-flight refetch and landing a stale value.
-					if ( SITEMAP_SETTING in corePayload ) {
-						return apiFetch< SettingsResponse >( { path: SEO_SETTINGS_PATH } )
-							.then( fresh => {
-								const cur = localRef.current;
-								const base = baselineRef.current;
-								if ( ! cur || ! base ) {
-									return;
-								}
-								const patch = {
-									sitemap_url: fresh.sitemap_url,
-									sitemap_active: fresh.sitemap_active,
-								};
-								localRef.current = { ...cur, ...patch };
-								baselineRef.current = { ...base, ...patch };
-								setLocal( localRef.current );
-								setSettings( baselineRef.current );
-							} )
-							.catch( () => {
-								// The View link will simply appear on the next load instead.
-							} );
-					}
 				} )
 				.catch( ( error: { message?: string } ) => {
 					createErrorNotice(
@@ -170,9 +186,13 @@ export function useSettingsForm(): SettingsForm {
 						{ id: SAVE_NOTICE_ID, type: 'snackbar' }
 					);
 				} )
-				.finally( () => setIsSaving( false ) );
+				// Either way — including a save that failed with its first request already
+				// committed — the form is reconciled with the server before the controls
+				// unlock, so `isSaving` also serializes this against the next save.
+				.then( () => adoptServerState( touched ) )
+				.then( () => setIsSaving( false ) );
 		},
-		[ createInfoNotice, createSuccessNotice, createErrorNotice, setSettings ]
+		[ createInfoNotice, createSuccessNotice, createErrorNotice, setSettings, adoptServerState ]
 	);
 
 	const setField = useCallback(

@@ -55,6 +55,7 @@ const buildOverview = (): OverviewResponse => ( {
 	plan: {
 		seo_enabled_for_site: true,
 	},
+	modules_switchable: true,
 } );
 
 describe( 'OverviewScreen', () => {

@@ -6,10 +6,6 @@
 import { VERIFICATION_KEYS } from './verification-services';
 import type { SettingsResponse } from './settings-types';
 
-// REST key of the sitemap setting. Toggling it changes what's reachable on the
-// site, so `use-settings` watches for it in the payload.
-export const SITEMAP_SETTING = 'jetpack_seo_sitemap_enabled';
-
 /**
  * Build the changed-fields payload for WordPress core's settings endpoint
  * (`/wp/v2/settings`) — every SEO setting that's backed by an option, which is
@@ -35,7 +31,7 @@ export function buildCorePayload(
 		payload.blog_public = local.search_engines_visible ? 1 : 0;
 	}
 	if ( local.sitemap_active !== baseline.sitemap_active ) {
-		payload[ SITEMAP_SETTING ] = local.sitemap_active;
+		payload.jetpack_seo_sitemap_enabled = local.sitemap_active;
 	}
 	if ( local.canonical_active !== baseline.canonical_active ) {
 		payload.jetpack_seo_canonical_urls_enabled = local.canonical_active;

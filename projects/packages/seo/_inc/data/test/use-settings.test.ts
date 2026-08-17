@@ -74,7 +74,7 @@ describe( 'useSettingsForm', () => {
 		// ...but save only the front-page description.
 		act( () => result.current.commitFields( [ 'front_page_description' ] ) );
 
-		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );
 		const call = mockApiFetch.mock.calls[ 0 ][ 0 ] as {
 			path: string;
 			data: Record< string, unknown >;
@@ -101,7 +101,7 @@ describe( 'useSettingsForm', () => {
 		// ...then flip a toggle, which saves immediately.
 		act( () => result.current.commit( { canonical_active: true } ) );
 
-		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );
 		const call = mockApiFetch.mock.calls[ 0 ][ 0 ] as { data: Record< string, unknown > };
 		expect( call.data ).toHaveProperty( 'jetpack_seo_canonical_urls_enabled', true );
 		// The unsaved front-page edit must NOT be dragged into the toggle's save.
@@ -129,7 +129,7 @@ describe( 'useSettingsForm', () => {
 		// Save only the Posts row.
 		act( () => result.current.commitTitleFormat( 'posts' ) );
 
-		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );
 		const call = mockApiFetch.mock.calls[ 0 ][ 0 ] as { data: Record< string, unknown > };
 		const saved = call.data.advanced_seo_title_formats as Record< string, unknown >;
 		expect( saved.posts ).toEqual( [ { type: 'string', value: 'Hello' } ] );
@@ -148,6 +148,83 @@ describe( 'useSettingsForm', () => {
 		act( () => result.current.commitTitleFormat( 'posts' ) );
 
 		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'sends the settings and module writes one after the other, never at once', async () => {
+		const { result } = renderHook( () => useSettingsForm() );
+
+		// Resolve the settings write only when we say so, so an overlapping module
+		// write would be observable. Both endpoints end up mutating Jetpack's shared
+		// `active_modules` option, so overlapping writes can drop one another.
+		let releaseSettings = () => {};
+		mockApiFetch.mockImplementationOnce(
+			() =>
+				new Promise( resolve => {
+					releaseSettings = () => resolve( {} );
+				} )
+		);
+
+		act( () =>
+			result.current.commit( { sitemap_active: true, verification_tools_active: false } )
+		);
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
+		expect( ( mockApiFetch.mock.calls[ 0 ][ 0 ] as { path: string } ).path ).toBe(
+			'/wp/v2/settings'
+		);
+		// The module write must still be waiting on the settings write.
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+
+		act( () => releaseSettings() );
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 3 ) );
+		const paths = mockApiFetch.mock.calls.map(
+			( [ options ] ) => ( options as { path: string } ).path
+		);
+		expect( paths ).toEqual( [
+			'/wp/v2/settings',
+			'/jetpack/v4/seo/modules',
+			'/jetpack/v4/seo/settings',
+		] );
+	} );
+
+	it( 'adopts the server state, so a value the server refused is not shown as saved', async () => {
+		const { result } = renderHook( () => useSettingsForm() );
+
+		// The write succeeds, but the server refuses the value (the sitemap setting
+		// only takes if its legacy module switches with it) and reports the truth.
+		mockApiFetch.mockResolvedValueOnce( {} );
+		mockApiFetch.mockResolvedValueOnce( { ...SEED, sitemap_active: false } );
+
+		act( () => result.current.commit( { sitemap_active: true } ) );
+
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+		expect( result.current.local?.sitemap_active ).toBe( false );
+		// And it's the new baseline, so the section doesn't read as dirty either.
+		expect( result.current.isDirty( [ 'sitemap_active' ] ) ).toBe( false );
+	} );
+
+	it( 'reconciles with the server when a save fails after its first request landed', async () => {
+		const { result } = renderHook( () => useSettingsForm() );
+
+		// Settings write lands, module write fails.
+		mockApiFetch.mockResolvedValueOnce( {} );
+		mockApiFetch.mockRejectedValueOnce( { message: 'Site verification could not be updated.' } );
+		mockApiFetch.mockResolvedValueOnce( {
+			...SEED,
+			sitemap_active: true,
+			verification_tools_active: true,
+		} );
+
+		act( () =>
+			result.current.commit( { sitemap_active: true, verification_tools_active: false } )
+		);
+
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+		expect( createErrorNotice ).toHaveBeenCalled();
+		// The part that did save is shown as saved; the part that didn't is not.
+		expect( result.current.local?.sitemap_active ).toBe( true );
+		expect( result.current.local?.verification_tools_active ).toBe( true );
 	} );
 
 	it( 'refreshes the sitemap URL after toggling the sitemap on', async () => {
@@ -176,24 +253,12 @@ describe( 'useSettingsForm', () => {
 		expect( paths ).toContain( '/jetpack/v4/seo/settings' );
 	} );
 
-	it( 'does not re-read the SEO settings for a non-sitemap toggle', async () => {
-		const { result } = renderHook( () => useSettingsForm() );
-
-		act( () => result.current.commit( { canonical_active: true } ) );
-
-		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
-		const paths = mockApiFetch.mock.calls.map(
-			( [ options ] ) => ( options as { path: string } ).path
-		);
-		expect( paths ).not.toContain( '/jetpack/v4/seo/settings' );
-	} );
-
 	it( 'saves the verification module toggle through the package module route', async () => {
 		const { result } = renderHook( () => useSettingsForm() );
 
 		act( () => result.current.commit( { verification_tools_active: false } ) );
 
-		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );
 		const call = mockApiFetch.mock.calls[ 0 ][ 0 ] as {
 			path: string;
 			data: Record< string, unknown >;
