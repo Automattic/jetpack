@@ -134,22 +134,16 @@ live-update on a theme change without a re-render.
 | `--a8c-charts-color-surface-secondary` | `--wpds-color-background-surface-neutral-weak` | `#f4f4f4` |
 | `--a8c-charts-color-track` | `--wpds-color-background-track-neutral-weak` | `#f0f0f0` |
 | `--a8c-charts-color-tooltip-surface` | _(none — translucent dark surface, no WPDS fit)_ | `rgba(0,0,0,0.85)` |
-| `--a8c-charts-color-focus` | `--wpds-color-stroke-focus` | `var(--wp-admin-theme-color, #3858e9)` |
 
 `--a8c-charts-color-axis` (axis line) and `--a8c-charts-color-tick` (tick marks)
 resolve to the same value as `--a8c-charts-color-grid` by default. They are kept as
 distinct roles so axis, tick marks, and gridlines can be themed independently; each
 maps directly to its own `--wpds-*` token rather than chaining through `grid`.
 
-`--a8c-charts-color-focus` keeps a `var(--wp-admin-theme-color, …)` layer between the
-`--wpds-*` token and the spec hex, so a wp-admin colour scheme still tints the focus
-ring in contexts where WPDS is not loaded.
-
 ## Non-colour roles
 
 | Role | Maps to `--wpds-*` | Fallback |
 |---|---|---|
-| `--a8c-charts-border-width-focus` | `--wpds-border-width-focus` | `var(--wp-admin-border-width-focus, 2px)` |
 | `--a8c-charts-motion-duration-entrance` | `--wpds-motion-duration-xl` | `400ms` |
 | `--a8c-charts-motion-easing-entrance` | `--wpds-motion-easing-expressive` | `cubic-bezier(0.25, 0, 0, 1)` |
 | `--a8c-charts-border-radius-bar` | `--wpds-border-radius-md` | `4px` |
@@ -157,10 +151,6 @@ ring in contexts where WPDS is not loaded.
 | `--a8c-charts-border-radius-leaderboard-bar` | _(none — pill shape, no WPDS radius fits)_ | `9999px` |
 | `--a8c-charts-elevation-xs` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 1px 0 #00000008, 0 1px 2px 0 #00000005, 0 3px 3px 0 #00000005, 0 4px 4px 0 #00000003` |
 | `--a8c-charts-elevation-sm` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005` |
-
-`--a8c-charts-border-width-focus` sizes the keyboard focus ring on leaderboard and
-heatmap chart elements, mirroring `--a8c-charts-color-focus`'s `--wp-admin-*` fallback
-layer.
 
 `--a8c-charts-motion-duration-entrance` and `--a8c-charts-motion-easing-entrance` carry the
 one-shot reveal a data mark plays on first paint — the `rise` / `stretch` keyframes in the
@@ -170,6 +160,33 @@ bar, area, line, leaderboard and conversion-funnel charts. Each is a single
 They deliberately do **not** cover interaction motion. Hover, opacity, width and transform
 transitions read `--wpds-motion-duration-sm`/`-md`/`-lg` and `--wpds-motion-easing-subtle`
 directly, because those are interface chrome rather than a chart role.
+
+## Accessibility affordances — emitted, but not theming knobs
+
+| Token | Maps to `--wpds-*` | Fallback |
+|---|---|---|
+| `--a8c-charts-color-focus` | `--wpds-color-stroke-focus` | `var(--wp-admin-theme-color, #3858e9)` |
+| `--a8c-charts-border-width-focus` | `--wpds-border-width-focus` | `var(--wp-admin-border-width-focus, 2px)` |
+
+These two paint the keyboard focus ring on interactive leaderboard rows and heatmap
+cells. They are emitted like every other catalog entry, but they are **not** offered as
+theming knobs and are deliberately absent from the tables above.
+
+A focus indicator is an accessibility affordance, not branding. Its colour already
+derives from `--wp-admin-theme-color`, which is the *user's* admin colour scheme — a user
+preference, and one that should outrank a consumer's styling choice, for the same reason
+`prefers-reduced-motion` does. A consumer who restyles it is overwhelmingly likely to
+reduce its contrast against the chart surface rather than improve it, and WCAG 2.4.11
+(Focus Appearance) sets a contrast floor that charts cannot verify on a consumer's behalf.
+
+Being honest about the limit: CSS cannot enforce this. Custom properties are always
+settable, so a consumer *can* override these — and if we removed them entirely they could
+just set `--wpds-color-stroke-focus` instead. What this section changes is what the
+package advertises. If you genuinely need a different focus colour — a dark chart surface
+where the admin theme colour fails contrast is the realistic case — set the WPDS token at
+your application level so the change applies consistently to every focusable control in
+your UI, not only to charts. Charts diverging from the rest of the page on focus is its
+own accessibility problem.
 
 `--a8c-charts-border-radius-bar` sizes the conversion-funnel bar corners.
 `--a8c-charts-border-radius-cell` sizes heatmap cells and the heatmap legend swatch —
