@@ -170,6 +170,78 @@ class Playlist_Block_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( 'videopress-playlist__item-badge', $html );
 		$this->assertStringContainsString( 'videopress-playlist__item-duration', $html );
+		$this->assertStringContainsString( 'videopress-playlist__item-thumb', $html );
+		$this->assertStringContainsString( 'videopress-playlist__header', $html );
+	}
+
+	/** Tests that stored metadata renders as initial content. */
+	public function test_render_uses_stored_metadata() {
+		$html = $this->render(
+			array(
+				'videos' => array(
+					array(
+						'guid'       => 'abcd1234',
+						'title'      => 'Kiln loading',
+						'durationMs' => 724000,
+						'height'     => 1080,
+						'poster'     => 'https://videos.files.wordpress.com/abcd1234/poster.jpg',
+					),
+					array(
+						'guid'       => 'efgh5678',
+						'durationMs' => 3660000,
+						'height'     => 2160,
+					),
+				),
+			)
+		);
+
+		$this->assertStringContainsString( '12:04', $html );
+		$this->assertStringContainsString( '1080p', $html );
+		$this->assertStringContainsString( '4K', $html );
+		$this->assertStringContainsString( 'poster.jpg', $html );
+		$this->assertStringContainsString( 'data-duration-ms="724000"', $html );
+		// Header: count and long-form total runtime (724000 + 3660000 ms ≈ 1 hr 13 min).
+		$this->assertStringContainsString( '2 videos', $html );
+		$this->assertStringContainsString( '1 hr 13 min', $html );
+	}
+
+	/** Tests that layout, dark surface, and display toggles map to wrapper classes. */
+	public function test_render_layout_and_display_classes() {
+		$base = array( 'videos' => array( array( 'guid' => 'abcd1234' ) ) );
+
+		$default_html = $this->render( $base );
+		$this->assertStringContainsString( 'videopress-playlist--rail', $default_html );
+		$this->assertStringNotContainsString( 'is-dark', $default_html );
+		$this->assertStringNotContainsString( 'hide-thumbnails', $default_html );
+		$this->assertStringNotContainsString( 'show-position', $default_html );
+
+		$custom_html = $this->render(
+			array_merge(
+				$base,
+				array(
+					'layout'           => 'grid',
+					'darkSurface'      => true,
+					'showThumbnail'    => false,
+					'showResolution'   => false,
+					'showDuration'     => false,
+					'showTitle'        => false,
+					'showPosition'     => true,
+					'showTotalRuntime' => false,
+				)
+			)
+		);
+		$this->assertStringContainsString( 'videopress-playlist--grid', $custom_html );
+		$this->assertStringContainsString( 'is-dark', $custom_html );
+		$this->assertStringContainsString( 'hide-thumbnails', $custom_html );
+		$this->assertStringContainsString( 'hide-resolution', $custom_html );
+		$this->assertStringContainsString( 'hide-duration', $custom_html );
+		$this->assertStringContainsString( 'hide-titles', $custom_html );
+		$this->assertStringContainsString( 'show-position', $custom_html );
+		$this->assertStringContainsString( 'hide-runtime', $custom_html );
+
+		// Unknown layout values fall back to the rail layout.
+		$fallback_html = $this->render( array_merge( $base, array( 'layout' => 'bogus' ) ) );
+		$this->assertStringContainsString( 'videopress-playlist--rail', $fallback_html );
 	}
 
 	/** Tests that autoAdvance and loop attributes reach the frontend dataset. */

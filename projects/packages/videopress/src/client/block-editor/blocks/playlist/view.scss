@@ -1,9 +1,47 @@
 .wp-block-videopress-playlist {
+	--vpp-border: rgba(0, 0, 0, 0.12);
+	--vpp-border-soft: rgba(0, 0, 0, 0.06);
+	--vpp-muted: rgba(0, 0, 0, 0.55);
+	--vpp-current-bg: rgba(0, 0, 0, 0.05);
+	--vpp-accent: var(--wp--preset--color--primary, #2a78d6);
+
+	&.is-dark {
+		--vpp-border: rgba(255, 255, 255, 0.16);
+		--vpp-border-soft: rgba(255, 255, 255, 0.08);
+		--vpp-muted: rgba(255, 255, 255, 0.6);
+		--vpp-current-bg: rgba(255, 255, 255, 0.08);
+
+		background: #131315;
+		color: #f2f1ee;
+		padding: 24px;
+		border-radius: 8px;
+	}
+
+	.videopress-playlist__header {
+		display: flex;
+		align-items: baseline;
+		justify-content: flex-end;
+		gap: 6px;
+		margin-block-end: 12px;
+		font-size: 0.8em;
+		color: var(--vpp-muted);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.videopress-playlist__runtime::before {
+		content: "· ";
+	}
+
+	&.hide-runtime .videopress-playlist__runtime {
+		display: none;
+	}
 
 	.videopress-playlist__player-wrapper {
 		position: relative;
 		aspect-ratio: 16 / 9;
 		background: #000;
+		border-radius: 6px;
+		overflow: hidden;
 	}
 
 	.videopress-playlist__player {
@@ -16,16 +54,15 @@
 
 	.videopress-playlist__items {
 		list-style: none;
-		margin: 8px 0 0;
+		margin: 0;
 		padding: 0;
 	}
 
 	.videopress-playlist__item {
 		display: flex;
-		align-items: center;
-		gap: 8px;
+		gap: 10px;
 		inline-size: 100%;
-		padding: 8px;
+		padding: 10px 12px;
 		border: 0;
 		background: transparent;
 		color: inherit;
@@ -35,48 +72,241 @@
 
 		&:hover,
 		&:focus-visible {
-			background: rgba(0, 0, 0, 0.05);
+			background: var(--vpp-current-bg);
 		}
+	}
 
-		&.is-current {
-			background: rgba(0, 0, 0, 0.08);
-			font-weight: 600;
+	.videopress-playlist__item-thumb {
+		position: relative;
+		flex-shrink: 0;
+		inline-size: 76px;
+		aspect-ratio: 16 / 9;
+		border-radius: 4px;
+		overflow: hidden;
+		background: var(--vpp-border-soft);
+
+		img {
+			position: absolute;
+			inset: 0;
+			inline-size: 100%;
+			block-size: 100%;
+			object-fit: cover;
+			max-inline-size: 100%;
 		}
 	}
 
 	.videopress-playlist__item-index {
-		opacity: 0.7;
-	}
-
-	.videopress-playlist__item-title {
-		flex-grow: 1;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.videopress-playlist__item-badge {
-		flex-shrink: 0;
-		padding: 1px 6px;
-		border: 1px solid currentColor;
+		display: none;
+		position: absolute;
+		inset-inline-start: 4px;
+		inset-block-start: 4px;
+		padding: 1px 4px;
 		border-radius: 2px;
-		font-size: 0.75em;
-		font-weight: 600;
-		letter-spacing: 0.02em;
-		opacity: 0.8;
+		background: rgba(255, 255, 255, 0.85);
+		color: #1e1e1e;
+		font-size: 0.7em;
+		font-variant-numeric: tabular-nums;
+	}
+
+	&.show-position .videopress-playlist__item-index {
+		display: inline-block;
+	}
+
+	.videopress-playlist__item-thumb-duration {
+		position: absolute;
+		inset-inline-end: 4px;
+		inset-block-end: 4px;
+		padding: 1px 4px;
+		border-radius: 2px;
+		background: rgba(0, 0, 0, 0.7);
+		color: #fff;
+		font-size: 0.7em;
+		font-variant-numeric: tabular-nums;
 
 		&:empty {
 			display: none;
 		}
 	}
 
-	.videopress-playlist__item-duration {
-		flex-shrink: 0;
-		opacity: 0.7;
+	.videopress-playlist__item-text {
+		display: flex;
+		flex-direction: column;
+		gap: 3px;
+		min-inline-size: 0;
+	}
+
+	.videopress-playlist__item-title {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		font-size: 0.9em;
+	}
+
+	.videopress-playlist__item-meta {
+		display: flex;
+		gap: 4px;
+		font-size: 0.75em;
+		color: var(--vpp-muted);
 		font-variant-numeric: tabular-nums;
+
+		.videopress-playlist__item-badge + .videopress-playlist__item-duration:not(:empty)::before {
+			content: "· ";
+		}
 
 		&:empty {
 			display: none;
+		}
+	}
+
+	.videopress-playlist__item.is-current {
+		background: var(--vpp-current-bg);
+
+		.videopress-playlist__item-title {
+			font-weight: 600;
+		}
+
+		.videopress-playlist__item-thumb {
+			outline: 2px solid var(--vpp-accent);
+			outline-offset: -2px;
+		}
+	}
+
+	// Display toggles.
+	&.hide-thumbnails .videopress-playlist__item-thumb {
+		display: none;
+	}
+
+	&.hide-titles .videopress-playlist__item-title {
+		display: none;
+	}
+
+	&.hide-resolution .videopress-playlist__item-badge {
+		display: none;
+	}
+
+	&.hide-duration .videopress-playlist__item-duration,
+	&.hide-duration .videopress-playlist__item-thumb-duration {
+		display: none;
+	}
+
+	// Layout: side rail (default) — player left, vertical list right.
+	&.videopress-playlist--rail {
+
+		.videopress-playlist__body {
+			display: flex;
+			gap: 18px;
+			align-items: flex-start;
+		}
+
+		.videopress-playlist__player-wrapper {
+			flex: 1 1 auto;
+			min-inline-size: 0;
+		}
+
+		.videopress-playlist__items {
+			flex-shrink: 0;
+			inline-size: min(296px, 38%);
+			max-block-size: 420px;
+			overflow-y: auto;
+			border: 1px solid var(--vpp-border);
+			border-radius: 6px;
+		}
+
+		.videopress-playlist__item {
+			border-block-start: 1px solid var(--vpp-border-soft);
+		}
+
+		li:first-child .videopress-playlist__item {
+			border-block-start: 0;
+		}
+
+		.videopress-playlist__item.is-current {
+			border-inline-start: 3px solid var(--vpp-accent);
+			padding-inline-start: 9px;
+
+			.videopress-playlist__item-thumb {
+				outline: none;
+			}
+		}
+	}
+
+	// Layout: grid — player on top, cards below.
+	&.videopress-playlist--grid {
+
+		.videopress-playlist__player-wrapper {
+			margin-block-end: 16px;
+		}
+
+		.videopress-playlist__items {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+			gap: 14px;
+		}
+
+		.videopress-playlist__item {
+			flex-direction: column;
+			gap: 7px;
+			padding: 0;
+
+			&:hover,
+			&:focus-visible,
+			&.is-current {
+				background: transparent;
+			}
+		}
+
+		.videopress-playlist__item-thumb {
+			inline-size: 100%;
+			border-radius: 5px;
+		}
+	}
+
+	// Layout: strip — player on top, horizontal scroll strip below.
+	&.videopress-playlist--strip {
+
+		.videopress-playlist__player-wrapper {
+			margin-block-end: 16px;
+		}
+
+		.videopress-playlist__items {
+			display: flex;
+			gap: 10px;
+			overflow-x: auto;
+			padding-block-end: 4px;
+		}
+
+		li {
+			flex-shrink: 0;
+			inline-size: 176px;
+		}
+
+		.videopress-playlist__item {
+			flex-direction: column;
+			gap: 6px;
+			padding: 0;
+
+			&:hover,
+			&:focus-visible,
+			&.is-current {
+				background: transparent;
+			}
+		}
+
+		.videopress-playlist__item-thumb {
+			inline-size: 100%;
+			border-radius: 3px;
+		}
+	}
+
+	// Narrow viewports: the rail folds under the player.
+	@media (max-width: 600px) {
+
+		&.videopress-playlist--rail .videopress-playlist__body {
+			flex-direction: column;
+		}
+
+		&.videopress-playlist--rail .videopress-playlist__items {
+			inline-size: 100%;
 		}
 	}
 }

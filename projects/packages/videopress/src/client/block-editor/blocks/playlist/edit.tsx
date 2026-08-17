@@ -17,7 +17,7 @@ import {
 } from '@wordpress/components';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { closeSmall, dragHandle, Icon } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -26,13 +26,20 @@ import { fetchVideoItem } from '../../../lib/fetch-video-item';
 import { isVideoPressGuid, pickGUIDFromUrl } from '../../../lib/url';
 import { VideoPressIcon } from '../video/components/icons';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../video/constants';
+import { formatDuration, formatRuntimeLong, qualityLabel, totalDurationMs } from './utils';
 import './editor.scss';
 /**
  * Types
  */
-import type { PlaylistBlockAttributes, PlaylistVideo } from './types';
+import type { PlaylistBlockAttributes, PlaylistLayout, PlaylistVideo } from './types';
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../types';
 import type { BlockEditProps } from '@wordpress/blocks';
+
+const LAYOUT_OPTIONS: Array< { value: PlaylistLayout; label: string } > = [
+	{ value: 'rail', label: __( 'Side rail', 'jetpack-videopress-pkg' ) },
+	{ value: 'grid', label: __( 'Grid', 'jetpack-videopress-pkg' ) },
+	{ value: 'strip', label: __( 'Strip', 'jetpack-videopress-pkg' ) },
+];
 
 /**
  * Extract a VideoPress GUID from user input, which can be
@@ -56,6 +63,45 @@ function parseVideoInput( value: string ): string | null {
 }
 
 /**
+ * Build a playlist entry's metadata fields from a videos API response.
+ *
+ * @param videoItem - The API response for one video.
+ * @return Metadata fields present in the response.
+ */
+function metadataFromVideoItem(
+	videoItem: Record< string, unknown >
+): Omit< PlaylistVideo, 'guid' > {
+	const metadata: Omit< PlaylistVideo, 'guid' > = {};
+
+	if ( typeof videoItem?.title === 'string' && videoItem.title !== '' ) {
+		metadata.title = decodeEntities( videoItem.title );
+	}
+	if ( typeof videoItem?.duration === 'number' && videoItem.duration > 0 ) {
+		metadata.durationMs = videoItem.duration;
+	}
+	if ( typeof videoItem?.height === 'number' && videoItem.height > 0 ) {
+		metadata.height = videoItem.height;
+	}
+	if ( typeof videoItem?.poster === 'string' && videoItem.poster !== '' ) {
+		metadata.poster = videoItem.poster;
+	}
+
+	return metadata;
+}
+
+/**
+ * Format the "resolution · duration" meta line for a playlist entry.
+ *
+ * @param video - Playlist entry.
+ * @return Meta line, possibly empty.
+ */
+function metaLine( video: PlaylistVideo ): string {
+	return [ qualityLabel( video.height ), formatDuration( video.durationMs ) ]
+		.filter( Boolean )
+		.join( ' · ' );
+}
+
+/**
  * VideoPress Playlist block Edit component.
  *
  * @param props               - Block edit props.
@@ -67,60 +113,118 @@ export default function PlaylistBlockEdit( {
 	attributes,
 	setAttributes,
 }: BlockEditProps< PlaylistBlockAttributes > ) {
-	const { videos, autoAdvance, loop } = attributes;
+	const {
+		videos,
+		autoAdvance,
+		loop,
+		layout,
+		darkSurface,
+		showThumbnail,
+		showTitle,
+		showResolution,
+		showDuration,
+		showPosition,
+		showTotalRuntime,
+	} = attributes;
 	const [ currentIndex, setCurrentIndex ] = useState( 0 );
 	const [ newVideoInput, setNewVideoInput ] = useState( '' );
 	const [ errorNotice, setErrorNotice ] = useState< string | null >( null );
 	const [ isAddingVideo, setIsAddingVideo ] = useState( false );
 	const [ draggedIndex, setDraggedIndex ] = useState< number | null >( null );
 	const [ dropTargetIndex, setDropTargetIndex ] = useState< number | null >( null );
+	const [ filterText, setFilterText ] = useState( '' );
+	const [ pendingDuplicate, setPendingDuplicate ] = useState< PlaylistVideo | null >( null );
 
-	// Always points at the latest videos so async title fetches never clobber newer edits.
+	// Always points at the latest videos so async metadata fetches never clobber newer edits.
 	const videosRef = useRef( videos );
 	videosRef.current = videos;
 
-	// GUIDs with a title refresh already started this editor session; they are
-	// not re-fetched, so a failed lookup simply keeps the stored label.
-	const titleFetchesStarted = useRef( new Set< string >() );
+	// GUIDs with a metadata refresh already started this editor session; they are
+	// not re-fetched, so a failed lookup simply keeps the stored fields.
+	const metadataFetchesStarted = useRef( new Set< string >() );
 
-	// Titles always mirror the video data: every entry is refreshed once per
-	// editor session, and the stored title is replaced whenever it differs.
+	// Entry metadata always mirrors the video data: every entry is refreshed once
+	// per editor session, and stored fields are replaced whenever they differ.
 	useEffect( () => {
 		videos.forEach( video => {
-			if ( titleFetchesStarted.current.has( video.guid ) ) {
+			if ( metadataFetchesStarted.current.has( video.guid ) ) {
 				return;
 			}
 
-			titleFetchesStarted.current.add( video.guid );
+			metadataFetchesStarted.current.add( video.guid );
 
 			fetchVideoItem( { guid: video.guid, isPrivate: false, skipRatingControl: true } )
 				.then( videoItem => {
-					if ( ! videoItem?.title ) {
+					const metadata = metadataFromVideoItem( videoItem as Record< string, unknown > );
+					if ( ! Object.keys( metadata ).length ) {
 						return;
 					}
 
-					const title = decodeEntities( videoItem.title );
 					const current = videosRef.current;
+					const needsUpdate = current.some(
+						entry =>
+							entry.guid === video.guid &&
+							Object.entries( metadata ).some(
+								( [ key, value ] ) => entry[ key as keyof PlaylistVideo ] !== value
+							)
+					);
 
-					if ( ! current.some( entry => entry.guid === video.guid && entry.title !== title ) ) {
+					if ( ! needsUpdate ) {
 						return;
 					}
 
 					setAttributes( {
 						videos: current.map( entry =>
-							entry.guid === video.guid ? { ...entry, title } : entry
+							entry.guid === video.guid ? { ...entry, ...metadata } : entry
 						),
 					} );
 				} )
 				.catch( () => {
-					// Keep the stored title (or GUID) when the video data isn't reachable.
+					// Keep the stored fields when the video data isn't reachable.
 				} );
 		} );
 	}, [ videos, setAttributes ] );
 
-	const blockProps = useBlockProps( { className: 'videopress-playlist-editor' } );
+	const wrapperClasses = [
+		'videopress-playlist-editor',
+		`videopress-playlist--${ layout }`,
+		darkSurface ? 'is-dark' : '',
+		showThumbnail ? '' : 'hide-thumbnails',
+		showTitle ? '' : 'hide-titles',
+		showResolution ? '' : 'hide-resolution',
+		showDuration ? '' : 'hide-duration',
+		showPosition ? 'show-position' : '',
+		showTotalRuntime ? '' : 'hide-runtime',
+	]
+		.filter( Boolean )
+		.join( ' ' );
+
+	const blockProps = useBlockProps( { className: wrapperClasses } );
 
 	const currentVideo = videos[ currentIndex ] ?? videos[ 0 ];
+	const runtime = formatRuntimeLong( totalDurationMs( videos ) );
+
+	const performAdd = async ( guid: string ) => {
+		setIsAddingVideo( true );
+
+		// All entry data comes from the video itself; none of it is editable here.
+		let metadata: Omit< PlaylistVideo, 'guid' > = {};
+		try {
+			const videoItem = await fetchVideoItem( { guid, isPrivate: false, skipRatingControl: true } );
+			metadata = metadataFromVideoItem( videoItem as Record< string, unknown > );
+			// Fresh from the video data; no need for the refresh effect to re-fetch it.
+			metadataFetchesStarted.current.add( guid );
+		} catch {
+			// The entry still works without metadata; the list shows the GUID and
+			// the refresh effect retries once more.
+		}
+
+		setAttributes( { videos: [ ...videosRef.current, { guid, ...metadata } ] } );
+		setNewVideoInput( '' );
+		setErrorNotice( null );
+		setPendingDuplicate( null );
+		setIsAddingVideo( false );
+	};
 
 	const addVideo = async () => {
 		if ( isAddingVideo ) {
@@ -130,32 +234,21 @@ export default function PlaylistBlockEdit( {
 		const guid = parseVideoInput( newVideoInput );
 		if ( ! guid ) {
 			setErrorNotice(
-				__( 'Enter a VideoPress GUID or a VideoPress video URL.', 'jetpack-videopress-pkg' )
+				__(
+					'No video found at that link. Paste a VideoPress video URL or GUID.',
+					'jetpack-videopress-pkg'
+				)
 			);
 			return;
 		}
 
-		setIsAddingVideo( true );
-
-		// The title always comes from the video data, for library and URL/GUID
-		// additions alike; it's not editable in the playlist.
-		let title;
-		try {
-			const videoItem = await fetchVideoItem( { guid, isPrivate: false, skipRatingControl: true } );
-			if ( videoItem?.title ) {
-				title = decodeEntities( videoItem.title );
-				// Fresh from the video data; no need for the refresh effect to re-fetch it.
-				titleFetchesStarted.current.add( guid );
-			}
-		} catch {
-			// The entry still works without a title; the list shows the GUID and
-			// the refresh effect below retries once more.
+		const existing = videos.find( video => video.guid === guid );
+		if ( existing ) {
+			setPendingDuplicate( existing );
+			return;
 		}
 
-		setAttributes( { videos: [ ...videosRef.current, { guid, ...( title && { title } ) } ] } );
-		setNewVideoInput( '' );
-		setErrorNotice( null );
-		setIsAddingVideo( false );
+		await performAdd( guid );
 	};
 
 	const addVideosFromLibrary = (
@@ -176,9 +269,12 @@ export default function PlaylistBlockEdit( {
 				continue;
 			}
 
+			const poster = media.image?.src ?? media.thumb?.src;
+
 			libraryVideos.push( {
 				guid,
 				...( typeof media.title === 'string' && media.title !== '' && { title: media.title } ),
+				...( typeof poster === 'string' && poster !== '' && { poster } ),
 			} );
 		}
 
@@ -223,13 +319,154 @@ export default function PlaylistBlockEdit( {
 		}
 	};
 
+	const addUrlForm = (
+		<div className="videopress-playlist-editor__add-row">
+			<TextControl
+				__next40pxDefaultSize
+				__nextHasNoMarginBottom
+				label={ __( 'Add a video', 'jetpack-videopress-pkg' ) }
+				hideLabelFromVision
+				placeholder={ __( 'Paste a video URL', 'jetpack-videopress-pkg' ) }
+				value={ newVideoInput }
+				onChange={ ( value: string ) => {
+					setNewVideoInput( value );
+					setErrorNotice( null );
+					setPendingDuplicate( null );
+				} }
+				onKeyDown={ event => {
+					if ( event.key === 'Enter' ) {
+						event.preventDefault();
+						addVideo();
+					}
+				} }
+			/>
+			<Button
+				__next40pxDefaultSize
+				variant="primary"
+				onClick={ addVideo }
+				isBusy={ isAddingVideo }
+				disabled={ isAddingVideo }
+			>
+				{ isAddingVideo
+					? __( 'Adding…', 'jetpack-videopress-pkg' )
+					: __( 'Add', 'jetpack-videopress-pkg' ) }
+			</Button>
+		</div>
+	);
+
+	const mediaLibraryButton = (
+		<MediaUploadCheck>
+			<MediaUpload
+				title={ __( 'Select videos from your VideoPress library', 'jetpack-videopress-pkg' ) }
+				onSelect={ addVideosFromLibrary }
+				allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
+				multiple
+				render={ ( { open }: { open: () => void } ) => (
+					<Button __next40pxDefaultSize variant="secondary" onClick={ open }>
+						{ __( 'Media Library', 'jetpack-videopress-pkg' ) }
+					</Button>
+				) }
+			/>
+		</MediaUploadCheck>
+	);
+
+	// Sidebar list entries keep their original index for reorder/remove even
+	// when a filter narrows the visible set.
+	const visibleEntries = videos
+		.map( ( video: PlaylistVideo, index: number ) => ( { video, index } ) )
+		.filter( ( { video } ) => {
+			if ( ! filterText ) {
+				return true;
+			}
+			const haystack = `${ video.title ?? '' } ${ video.guid }`.toLowerCase();
+			return haystack.includes( filterText.toLowerCase() );
+		} );
+	const isFiltering = filterText !== '';
+
 	// All playlist management (add, sort, delete) lives in the settings
 	// sidebar; the canvas below is a preview of what visitors see.
 	const inspectorControls = (
 		<InspectorControls>
 			<PanelBody title={ __( 'Videos', 'jetpack-videopress-pkg' ) }>
-				<ul className="videopress-playlist-editor__manage-list">
-					{ videos.map( ( video: PlaylistVideo, index: number ) => {
+				{ addUrlForm }
+				<p className="videopress-playlist-editor__add-help">
+					{ __(
+						'Any VideoPress video URL or GUID. Title, thumbnail, duration and resolution come from the video data.',
+						'jetpack-videopress-pkg'
+					) }
+				</p>
+				<div className="videopress-playlist-editor__add-library">{ mediaLibraryButton }</div>
+
+				{ errorNotice && (
+					<Notice
+						className="videopress-playlist-editor__notice"
+						status="error"
+						isDismissible={ false }
+					>
+						{ errorNotice }
+					</Notice>
+				) }
+
+				{ pendingDuplicate && (
+					<Notice
+						className="videopress-playlist-editor__notice"
+						status="warning"
+						isDismissible={ false }
+					>
+						{ sprintf(
+							/* translators: %s: video title or GUID. */
+							__( '“%s” is already in this playlist', 'jetpack-videopress-pkg' ),
+							pendingDuplicate.title || pendingDuplicate.guid
+						) }
+						<div className="videopress-playlist-editor__duplicate-actions">
+							<Button
+								size="small"
+								variant="secondary"
+								onClick={ () => performAdd( pendingDuplicate.guid ) }
+							>
+								{ __( 'Add anyway', 'jetpack-videopress-pkg' ) }
+							</Button>
+							<Button size="small" variant="tertiary" onClick={ () => setPendingDuplicate( null ) }>
+								{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
+							</Button>
+						</div>
+					</Notice>
+				) }
+
+				<div className="videopress-playlist-editor__list-header">
+					<span className="videopress-playlist-editor__list-title">
+						{ __( 'Playlist', 'jetpack-videopress-pkg' ) }
+					</span>
+					<span className="videopress-playlist-editor__list-count">
+						{ videos.length }
+						{ runtime ? ` · ${ formatDuration( totalDurationMs( videos ) ) }` : '' }
+					</span>
+				</div>
+
+				{ videos.length > 8 && (
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						className="videopress-playlist-editor__filter"
+						label={ __( 'Filter videos', 'jetpack-videopress-pkg' ) }
+						hideLabelFromVision
+						placeholder={ sprintf(
+							/* translators: %d: number of videos in the playlist. */
+							__( 'Filter %d videos', 'jetpack-videopress-pkg' ),
+							videos.length
+						) }
+						value={ filterText }
+						onChange={ setFilterText }
+					/>
+				) }
+
+				{ /* A listbox: the options take focus and respond to arrow keys for reordering. */ }
+				<ul
+					className="videopress-playlist-editor__manage-list"
+					role="listbox"
+					aria-label={ __( 'Playlist videos', 'jetpack-videopress-pkg' ) }
+				>
+					{ visibleEntries.map( ( { video, index } ) => {
 						const classes = [ 'videopress-playlist-editor__manage-item' ];
 						if ( index === draggedIndex ) {
 							classes.push( 'is-dragging' );
@@ -242,12 +479,27 @@ export default function PlaylistBlockEdit( {
 							<li
 								key={ `${ video.guid }-${ index }` }
 								className={ classes.join( ' ' ) }
-								draggable
+								role="option"
+								aria-selected={ index === draggedIndex }
+								draggable={ ! isFiltering }
+								tabIndex={ 0 }
 								aria-label={ sprintf(
 									/* translators: %d: position of the video in the playlist. */
-									__( 'Video %d. Drag to reorder.', 'jetpack-videopress-pkg' ),
+									__( 'Video %d. Drag to reorder, or press up or down.', 'jetpack-videopress-pkg' ),
 									index + 1
 								) }
+								onKeyDown={ event => {
+									if ( isFiltering ) {
+										return;
+									}
+									if ( event.key === 'ArrowUp' ) {
+										event.preventDefault();
+										reorderVideo( index, index - 1 );
+									} else if ( event.key === 'ArrowDown' ) {
+										event.preventDefault();
+										reorderVideo( index, index + 1 );
+									}
+								} }
 								onDragStart={ event => {
 									setDraggedIndex( index );
 									event.dataTransfer?.setData( 'text/plain', String( index ) );
@@ -286,10 +538,20 @@ export default function PlaylistBlockEdit( {
 									<Icon icon={ dragHandle } size={ 16 } />
 								</span>
 								<span className="videopress-playlist-editor__manage-item-index">
-									{ index + 1 }.
+									{ String( index + 1 ).padStart( 2, '0' ) }
 								</span>
-								<span className="videopress-playlist-editor__manage-item-title">
-									{ video.title || video.guid }
+								<span className="videopress-playlist-editor__manage-item-thumb">
+									{ video.poster && <img src={ video.poster } alt="" loading="lazy" /> }
+								</span>
+								<span className="videopress-playlist-editor__manage-item-text">
+									<span className="videopress-playlist-editor__manage-item-title">
+										{ video.title || video.guid }
+									</span>
+									{ metaLine( video ) && (
+										<span className="videopress-playlist-editor__manage-item-meta">
+											{ metaLine( video ) }
+										</span>
+									) }
 								</span>
 								<Button
 									className="videopress-playlist-editor__manage-item-remove"
@@ -301,65 +563,51 @@ export default function PlaylistBlockEdit( {
 							</li>
 						);
 					} ) }
+					{ isAddingVideo && (
+						<li className="videopress-playlist-editor__manage-item is-loading" aria-hidden="true">
+							<span className="videopress-playlist-editor__manage-item-thumb" />
+							<span className="videopress-playlist-editor__manage-item-text">
+								<span className="videopress-playlist-editor__manage-item-meta">
+									{ __( 'Reading metadata…', 'jetpack-videopress-pkg' ) }
+								</span>
+							</span>
+						</li>
+					) }
 				</ul>
-
-				<div className="videopress-playlist-editor__add">
-					<TextControl
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-						label={ __( 'Add video', 'jetpack-videopress-pkg' ) }
-						hideLabelFromVision
-						placeholder={ __( 'VideoPress GUID or URL', 'jetpack-videopress-pkg' ) }
-						value={ newVideoInput }
-						onChange={ ( value: string ) => {
-							setNewVideoInput( value );
-							setErrorNotice( null );
-						} }
-						onKeyDown={ event => {
-							if ( event.key === 'Enter' ) {
-								event.preventDefault();
-								addVideo();
-							}
-						} }
-					/>
-					<Button
-						__next40pxDefaultSize
-						variant="secondary"
-						onClick={ addVideo }
-						isBusy={ isAddingVideo }
-						disabled={ isAddingVideo }
-					>
-						{ __( 'Add to playlist', 'jetpack-videopress-pkg' ) }
-					</Button>
-					<MediaUploadCheck>
-						<MediaUpload
-							title={ __( 'Select videos from your VideoPress library', 'jetpack-videopress-pkg' ) }
-							onSelect={ addVideosFromLibrary }
-							allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
-							multiple
-							render={ ( { open }: { open: () => void } ) => (
-								<Button __next40pxDefaultSize variant="secondary" onClick={ open }>
-									{ __( 'Choose from library', 'jetpack-videopress-pkg' ) }
-								</Button>
-							) }
-						/>
-					</MediaUploadCheck>
-				</div>
-				{ errorNotice && (
-					<Notice
-						className="videopress-playlist-editor__notice"
-						status="error"
-						isDismissible={ false }
-					>
-						{ errorNotice }
-					</Notice>
-				) }
+				<p className="videopress-playlist-editor__reorder-help">
+					{ __(
+						'Drag to reorder, or focus an item and press ↑ / ↓. × removes the video.',
+						'jetpack-videopress-pkg'
+					) }
+				</p>
 			</PanelBody>
 
-			<PanelBody title={ __( 'Playlist settings', 'jetpack-videopress-pkg' ) }>
+			<PanelBody title={ __( 'Layout & playback', 'jetpack-videopress-pkg' ) }>
+				<div
+					className="videopress-playlist-editor__layout-picker"
+					role="group"
+					aria-label={ __( 'Layout', 'jetpack-videopress-pkg' ) }
+				>
+					{ LAYOUT_OPTIONS.map( option => (
+						<Button
+							key={ option.value }
+							variant={ layout === option.value ? 'primary' : 'secondary' }
+							isPressed={ layout === option.value }
+							onClick={ () => setAttributes( { layout: option.value } ) }
+						>
+							{ option.label }
+						</Button>
+					) ) }
+				</div>
 				<ToggleControl
 					__nextHasNoMarginBottom
-					label={ __( 'Autoplay next video', 'jetpack-videopress-pkg' ) }
+					label={ __( 'Dark player surface', 'jetpack-videopress-pkg' ) }
+					checked={ darkSurface }
+					onChange={ ( value: boolean ) => setAttributes( { darkSurface: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Autoplay next', 'jetpack-videopress-pkg' ) }
 					help={ __(
 						'Automatically play the next video when the current one ends.',
 						'jetpack-videopress-pkg'
@@ -378,6 +626,45 @@ export default function PlaylistBlockEdit( {
 					onChange={ ( value: boolean ) => setAttributes( { loop: value } ) }
 				/>
 			</PanelBody>
+
+			<PanelBody title={ __( 'Show on each entry', 'jetpack-videopress-pkg' ) }>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Thumbnail', 'jetpack-videopress-pkg' ) }
+					checked={ showThumbnail }
+					onChange={ ( value: boolean ) => setAttributes( { showThumbnail: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Title', 'jetpack-videopress-pkg' ) }
+					checked={ showTitle }
+					onChange={ ( value: boolean ) => setAttributes( { showTitle: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Resolution', 'jetpack-videopress-pkg' ) }
+					checked={ showResolution }
+					onChange={ ( value: boolean ) => setAttributes( { showResolution: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Duration', 'jetpack-videopress-pkg' ) }
+					checked={ showDuration }
+					onChange={ ( value: boolean ) => setAttributes( { showDuration: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Position number', 'jetpack-videopress-pkg' ) }
+					checked={ showPosition }
+					onChange={ ( value: boolean ) => setAttributes( { showPosition: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Total runtime in header', 'jetpack-videopress-pkg' ) }
+					checked={ showTotalRuntime }
+					onChange={ ( value: boolean ) => setAttributes( { showTotalRuntime: value } ) }
+				/>
+			</PanelBody>
 		</InspectorControls>
 	);
 
@@ -387,12 +674,29 @@ export default function PlaylistBlockEdit( {
 				{ inspectorControls }
 				<Placeholder
 					icon={ VideoPressIcon }
-					label={ __( 'VideoPress Playlist', 'jetpack-videopress-pkg' ) }
+					label={ __( 'Build a video playlist', 'jetpack-videopress-pkg' ) }
 					instructions={ __(
-						'Build a playlist that plays videos in sequence. Add videos in the block settings sidebar: choose them from your VideoPress library, or add them by GUID or URL.',
+						'Paste a link, or pick a video already in your media library. Title, thumbnail, duration and resolution are read for you.',
 						'jetpack-videopress-pkg'
 					) }
-				/>
+				>
+					<div className="videopress-playlist-editor__placeholder-form">
+						{ addUrlForm }
+						{ errorNotice && (
+							<Notice
+								className="videopress-playlist-editor__notice"
+								status="error"
+								isDismissible={ false }
+							>
+								{ errorNotice }
+							</Notice>
+						) }
+						<div className="videopress-playlist-editor__placeholder-divider">
+							<span>{ __( 'or', 'jetpack-videopress-pkg' ) }</span>
+						</div>
+						{ mediaLibraryButton }
+					</div>
+				</Placeholder>
 			</div>
 		);
 	}
@@ -401,45 +705,78 @@ export default function PlaylistBlockEdit( {
 		<div { ...blockProps }>
 			{ inspectorControls }
 
-			{ currentVideo && (
-				<div className="videopress-playlist-editor__player-wrapper">
-					<iframe
-						className="videopress-playlist-editor__player"
-						title={ __( 'VideoPress Playlist Player', 'jetpack-videopress-pkg' ) }
-						src={ `https://videopress.com/embed/${ currentVideo.guid }?cover=1&preloadContent=metadata` }
-						allowFullScreen
-						allow="clipboard-write"
-					/>
-				</div>
-			) }
+			<div className="videopress-playlist__header">
+				<span className="videopress-playlist__count">
+					{ sprintf(
+						/* translators: %d: number of videos in the playlist. */
+						_n( '%d video', '%d videos', videos.length, 'jetpack-videopress-pkg' ),
+						videos.length
+					) }
+				</span>
+				{ runtime && <span className="videopress-playlist__runtime">{ runtime }</span> }
+			</div>
 
-			<ul className="videopress-playlist-editor__items">
-				{ videos.map( ( video: PlaylistVideo, index: number ) => (
-					<li
-						key={ `${ video.guid }-${ index }` }
-						className={
-							index === currentIndex
-								? 'videopress-playlist-editor__item is-current'
-								: 'videopress-playlist-editor__item'
-						}
-					>
-						<Button
-							className="videopress-playlist-editor__item-select"
-							onClick={ () => setCurrentIndex( index ) }
-							label={ sprintf(
-								/* translators: %d: position of the video in the playlist. */
-								__( 'Preview video %d', 'jetpack-videopress-pkg' ),
-								index + 1
-							) }
-						>
-							<span className="videopress-playlist-editor__item-index">{ index + 1 }.</span>
-							<span className="videopress-playlist-editor__item-title">
-								{ video.title || video.guid }
-							</span>
-						</Button>
-					</li>
-				) ) }
-			</ul>
+			<div className="videopress-playlist__body">
+				{ currentVideo && (
+					<div className="videopress-playlist__player-wrapper">
+						<iframe
+							className="videopress-playlist__player"
+							title={ __( 'VideoPress Playlist Player', 'jetpack-videopress-pkg' ) }
+							src={ `https://videopress.com/embed/${ currentVideo.guid }?cover=1&preloadContent=metadata` }
+							allowFullScreen
+							allow="clipboard-write"
+						/>
+					</div>
+				) }
+
+				<ul className="videopress-playlist__items">
+					{ videos.map( ( video: PlaylistVideo, index: number ) => (
+						<li key={ `${ video.guid }-${ index }` }>
+							<button
+								type="button"
+								className={
+									index === currentIndex
+										? 'videopress-playlist__item is-current'
+										: 'videopress-playlist__item'
+								}
+								onClick={ () => setCurrentIndex( index ) }
+								aria-label={ sprintf(
+									/* translators: %d: position of the video in the playlist. */
+									__( 'Preview video %d', 'jetpack-videopress-pkg' ),
+									index + 1
+								) }
+							>
+								<span className="videopress-playlist__item-thumb">
+									{ video.poster && <img src={ video.poster } alt="" loading="lazy" /> }
+									<span className="videopress-playlist__item-index">{ index + 1 }</span>
+									{ formatDuration( video.durationMs ) && (
+										<span className="videopress-playlist__item-thumb-duration">
+											{ formatDuration( video.durationMs ) }
+										</span>
+									) }
+								</span>
+								<span className="videopress-playlist__item-text">
+									<span className="videopress-playlist__item-title">
+										{ video.title || video.guid }
+									</span>
+									<span className="videopress-playlist__item-meta">
+										{ qualityLabel( video.height ) && (
+											<span className="videopress-playlist__item-badge">
+												{ qualityLabel( video.height ) }
+											</span>
+										) }
+										{ formatDuration( video.durationMs ) && (
+											<span className="videopress-playlist__item-duration">
+												{ formatDuration( video.durationMs ) }
+											</span>
+										) }
+									</span>
+								</span>
+							</button>
+						</li>
+					) ) }
+				</ul>
+			</div>
 		</div>
 	);
 }

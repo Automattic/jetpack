@@ -28,17 +28,20 @@ function buildPlaylist( guids: string[], autoAdvance = '1', loop = '0' ): HTMLEl
 			( guid, index ) =>
 				`<li><button type="button" class="videopress-playlist__item${
 					index === 0 ? ' is-current' : ''
-				}" data-guid="${ guid }" data-src="https://videopress.com/embed/${ guid }?autoPlay=1" aria-current="${
+				}" data-guid="${ guid }" data-src="https://videopress.com/embed/${ guid }?autoPlay=1" data-duration-ms="0" aria-current="${
 					index === 0 ? 'true' : 'false'
-				}"><span class="videopress-playlist__item-title">Video ${
+				}"><span class="videopress-playlist__item-thumb"><span class="videopress-playlist__item-index">${
 					index + 1
-				}</span><span class="videopress-playlist__item-badge"></span><span class="videopress-playlist__item-duration"></span></button></li>`
+				}</span><span class="videopress-playlist__item-thumb-duration"></span></span><span class="videopress-playlist__item-text"><span class="videopress-playlist__item-title">Video ${
+					index + 1
+				}</span><span class="videopress-playlist__item-meta"><span class="videopress-playlist__item-badge"></span><span class="videopress-playlist__item-duration"></span></span></span></button></li>`
 		)
 		.join( '' );
 
 	block.innerHTML =
-		`<div class="videopress-playlist__player-wrapper"><iframe class="videopress-playlist__player" title="player" src="https://videopress.com/embed/${ guids[ 0 ] }?autoPlay=0" data-guid="${ guids[ 0 ] }"></iframe></div>` +
-		`<ol class="videopress-playlist__items">${ items }</ol>`;
+		`<div class="videopress-playlist__header"><span class="videopress-playlist__count">${ guids.length } videos</span><span class="videopress-playlist__runtime"></span></div>` +
+		`<div class="videopress-playlist__body"><div class="videopress-playlist__player-wrapper"><iframe class="videopress-playlist__player" title="player" src="https://videopress.com/embed/${ guids[ 0 ] }?autoPlay=0" data-guid="${ guids[ 0 ] }"></iframe></div>` +
+		`<ul class="videopress-playlist__items">${ items }</ul></div>`;
 
 	document.body.appendChild( block );
 	return block;
@@ -181,7 +184,7 @@ describe( 'playlist view script', () => {
 		);
 	} );
 
-	it( 'refreshes titles, durations, and quality badges from the video data', async () => {
+	it( 'refreshes titles, durations, badges, posters, and the total runtime', async () => {
 		const block = buildPlaylist( [ 'aaaa1111', 'bbbb2222' ] );
 		( global.fetch as jest.Mock ).mockImplementation( ( url: string ) =>
 			Promise.resolve( {
@@ -189,7 +192,12 @@ describe( 'playlist view script', () => {
 				json: () =>
 					Promise.resolve(
 						url.includes( 'aaaa1111' )
-							? { title: 'Renamed on VideoPress', duration: 83000, height: 1080 }
+							? {
+									title: 'Renamed on VideoPress',
+									duration: 83000,
+									height: 1080,
+									poster: 'https://example.test/poster-a.jpg',
+							  }
 							: { title: 'Second video', duration: 3723000, height: 2160 }
 					),
 			} )
@@ -204,14 +212,25 @@ describe( 'playlist view script', () => {
 		expect( items[ 0 ].querySelector( '.videopress-playlist__item-duration' ) ).toHaveTextContent(
 			'1:23'
 		);
+		expect(
+			items[ 0 ].querySelector( '.videopress-playlist__item-thumb-duration' )
+		).toHaveTextContent( '1:23' );
 		expect( items[ 0 ].querySelector( '.videopress-playlist__item-badge' ) ).toHaveTextContent(
 			'1080p'
+		);
+		expect( items[ 0 ].querySelector( '.videopress-playlist__item-thumb img' ) ).toHaveAttribute(
+			'src',
+			'https://example.test/poster-a.jpg'
 		);
 		expect( items[ 1 ].querySelector( '.videopress-playlist__item-duration' ) ).toHaveTextContent(
 			'1:02:03'
 		);
 		expect( items[ 1 ].querySelector( '.videopress-playlist__item-badge' ) ).toHaveTextContent(
 			'4K'
+		);
+		// 83000 + 3723000 ms ≈ 1 hr 3 min total runtime.
+		expect( block.querySelector( '.videopress-playlist__runtime' ) ).toHaveTextContent(
+			'1 hr 3 min'
 		);
 	} );
 

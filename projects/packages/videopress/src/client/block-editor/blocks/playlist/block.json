@@ -32,11 +32,44 @@
 		"loop": {
 			"type": "boolean",
 			"default": false
+		},
+		"layout": {
+			"type": "string",
+			"enum": [ "rail", "grid", "strip" ],
+			"default": "rail"
+		},
+		"darkSurface": {
+			"type": "boolean",
+			"default": false
+		},
+		"showThumbnail": {
+			"type": "boolean",
+			"default": true
+		},
+		"showTitle": {
+			"type": "boolean",
+			"default": true
+		},
+		"showResolution": {
+			"type": "boolean",
+			"default": true
+		},
+		"showDuration": {
+			"type": "boolean",
+			"default": true
+		},
+		"showPosition": {
+			"type": "boolean",
+			"default": false
+		},
+		"showTotalRuntime": {
+			"type": "boolean",
+			"default": true
 		}
 	},
 	"textdomain": "jetpack-videopress-pkg",
 	"editorScript": "file:./index.js",
-	"editorStyle": "file:./index.css",
+	"editorStyle": [ "file:./index.css", "file:./view.css" ],
 	"viewScript": "file:./view.js",
 	"viewStyle": "file:./view.css"
 }

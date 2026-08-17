@@ -6,7 +6,10 @@ import domReady from '@wordpress/dom-ready';
  * Internal dependencies
  */
 import { isAllowedOrigin } from '../../../lib/videopress-allowed-origins';
+import { formatDuration, formatRuntimeLong, qualityLabel } from './utils';
 import './view.scss';
+
+export { formatDuration, formatRuntimeLong, qualityLabel };
 
 type PlayerMessage = {
 	event?: string;
@@ -17,62 +20,21 @@ type VideoMetadata = {
 	title?: string;
 	duration?: number;
 	height?: number;
+	poster?: string;
 };
 
 /**
- * Format a millisecond duration as m:ss or h:mm:ss.
- *
- * @param durationMs - Duration in milliseconds.
- * @return Formatted duration, or an empty string for unusable input.
- */
-export function formatDuration( durationMs: number ): string {
-	if ( ! Number.isFinite( durationMs ) || durationMs <= 0 ) {
-		return '';
-	}
-
-	const totalSeconds = Math.round( durationMs / 1000 );
-	const hours = Math.floor( totalSeconds / 3600 );
-	const minutes = Math.floor( ( totalSeconds % 3600 ) / 60 );
-	const seconds = totalSeconds % 60;
-
-	const paddedSeconds = String( seconds ).padStart( 2, '0' );
-
-	if ( hours > 0 ) {
-		return `${ hours }:${ String( minutes ).padStart( 2, '0' ) }:${ paddedSeconds }`;
-	}
-
-	return `${ minutes }:${ paddedSeconds }`;
-}
-
-/**
- * Map a video height to a quality/resolution badge label.
- *
- * @param height - Video height in pixels.
- * @return Badge label, or an empty string for unusable input.
- */
-export function qualityLabel( height: number ): string {
-	if ( ! Number.isFinite( height ) || height <= 0 ) {
-		return '';
-	}
-
-	if ( height >= 2160 ) {
-		return '4K';
-	}
-
-	return `${ height }p`;
-}
-
-/**
- * Refresh a playlist's item metadata (title, duration, quality) from the
- * VideoPress API, so the list always reflects the videos' current data.
+ * Refresh a playlist's item metadata (title, thumbnail, duration, quality)
+ * from the VideoPress API, so the list always reflects the videos' current
+ * data, and update the header's total runtime.
  *
  * Lookups are anonymous: private videos (or API failures) keep their
- * server-rendered title and simply get no duration/quality badge.
+ * server-rendered fields and simply get no duration/quality badge.
  *
  * @param block - The playlist block wrapper element.
  * @return Promise resolving once every item has been processed.
  */
-export function refreshPlaylistMetadata( block: HTMLElement ): Promise< void[] > {
+export function refreshPlaylistMetadata( block: HTMLElement ): Promise< void > {
 	const items = Array.from(
 		block.querySelectorAll< HTMLButtonElement >( '.videopress-playlist__item' )
 	);
@@ -104,17 +66,58 @@ export function refreshPlaylistMetadata( block: HTMLElement ): Promise< void[] >
 				}
 			}
 
+			if ( Number.isFinite( metadata?.duration ) && metadata.duration > 0 ) {
+				item.dataset.durationMs = String( metadata.duration );
+			}
+
 			const durationElement = item.querySelector( '.videopress-playlist__item-duration' );
 			if ( durationElement ) {
 				durationElement.textContent = formatDuration( metadata?.duration );
+			}
+
+			const thumbDurationElement = item.querySelector(
+				'.videopress-playlist__item-thumb-duration'
+			);
+			if ( thumbDurationElement ) {
+				thumbDurationElement.textContent = formatDuration( metadata?.duration );
 			}
 
 			const badgeElement = item.querySelector( '.videopress-playlist__item-badge' );
 			if ( badgeElement ) {
 				badgeElement.textContent = qualityLabel( metadata?.height );
 			}
+
+			const thumbElement = item.querySelector( '.videopress-playlist__item-thumb' );
+			if ( thumbElement && metadata?.poster ) {
+				let image = thumbElement.querySelector( 'img' );
+				if ( ! image ) {
+					image = document.createElement( 'img' );
+					image.alt = '';
+					image.loading = 'lazy';
+					thumbElement.prepend( image );
+				}
+				if ( image.src !== metadata.poster ) {
+					image.src = metadata.poster;
+				}
+			}
 		} )
-	);
+	).then( () => {
+		// Recompute the header's total runtime from the freshest durations.
+		const runtimeElement = block.querySelector( '.videopress-playlist__runtime' );
+		if ( ! runtimeElement ) {
+			return;
+		}
+
+		const total = items.reduce( ( sum, item ) => {
+			const durationMs = Number( item.dataset.durationMs );
+			return Number.isFinite( durationMs ) && durationMs > 0 ? sum + durationMs : sum;
+		}, 0 );
+
+		const runtime = formatRuntimeLong( total );
+		if ( runtime ) {
+			runtimeElement.textContent = runtime;
+		}
+	} );
 }
 
 /**

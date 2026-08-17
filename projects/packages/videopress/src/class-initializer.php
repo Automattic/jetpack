@@ -625,6 +625,73 @@ class Initializer {
 	}
 
 	/**
+	 * Format a millisecond duration as m:ss or h:mm:ss.
+	 *
+	 * @param int $duration_ms Duration in milliseconds.
+	 *
+	 * @return string Formatted duration, or an empty string for unusable input.
+	 */
+	private static function format_playlist_duration( $duration_ms ) {
+		if ( ! is_numeric( $duration_ms ) || $duration_ms <= 0 ) {
+			return '';
+		}
+
+		$total_seconds = (int) round( $duration_ms / 1000 );
+		$hours         = (int) floor( $total_seconds / 3600 );
+		$minutes       = (int) floor( ( $total_seconds % 3600 ) / 60 );
+		$seconds       = $total_seconds % 60;
+
+		if ( $hours > 0 ) {
+			return sprintf( '%d:%02d:%02d', $hours, $minutes, $seconds );
+		}
+
+		return sprintf( '%d:%02d', $minutes, $seconds );
+	}
+
+	/**
+	 * Format a millisecond duration as a long runtime, e.g. "1 hr 13 min".
+	 *
+	 * @param int $duration_ms Duration in milliseconds.
+	 *
+	 * @return string Formatted runtime, or an empty string for unusable input.
+	 */
+	private static function format_playlist_runtime( $duration_ms ) {
+		if ( ! is_numeric( $duration_ms ) || $duration_ms <= 0 ) {
+			return '';
+		}
+
+		$total_minutes = max( 1, (int) round( $duration_ms / 60000 ) );
+		$hours         = (int) floor( $total_minutes / 60 );
+		$minutes       = $total_minutes % 60;
+
+		if ( $hours > 0 ) {
+			return $minutes > 0
+				/* translators: 1: hours, 2: minutes. */
+				? sprintf( __( '%1$d hr %2$d min', 'jetpack-videopress-pkg' ), $hours, $minutes )
+				/* translators: %d: hours. */
+				: sprintf( __( '%d hr', 'jetpack-videopress-pkg' ), $hours );
+		}
+
+		/* translators: %d: minutes. */
+		return sprintf( __( '%d min', 'jetpack-videopress-pkg' ), $minutes );
+	}
+
+	/**
+	 * Map a video height to a quality/resolution badge label.
+	 *
+	 * @param int $height Video height in pixels.
+	 *
+	 * @return string Badge label, or an empty string for unusable input.
+	 */
+	private static function playlist_quality_label( $height ) {
+		if ( ! is_numeric( $height ) || $height <= 0 ) {
+			return '';
+		}
+
+		return $height >= 2160 ? '4K' : ( (int) $height ) . 'p';
+	}
+
+	/**
 	 * VideoPress playlist block render method.
 	 *
 	 * @param array $block_attributes Block attributes.
@@ -646,8 +713,11 @@ class Initializer {
 				}
 
 				$videos[] = array(
-					'guid'  => $video['guid'],
-					'title' => isset( $video['title'] ) && is_string( $video['title'] ) ? $video['title'] : '',
+					'guid'       => $video['guid'],
+					'title'      => isset( $video['title'] ) && is_string( $video['title'] ) ? $video['title'] : '',
+					'durationMs' => isset( $video['durationMs'] ) && is_numeric( $video['durationMs'] ) ? (int) $video['durationMs'] : 0,
+					'height'     => isset( $video['height'] ) && is_numeric( $video['height'] ) ? (int) $video['height'] : 0,
+					'poster'     => isset( $video['poster'] ) && is_string( $video['poster'] ) ? $video['poster'] : '',
 				);
 			}
 		}
@@ -659,31 +729,91 @@ class Initializer {
 		$auto_advance = ! isset( $block_attributes['autoAdvance'] ) || $block_attributes['autoAdvance'];
 		$loop         = ! empty( $block_attributes['loop'] );
 
+		$layout = isset( $block_attributes['layout'] ) && in_array( $block_attributes['layout'], array( 'rail', 'grid', 'strip' ), true )
+			? $block_attributes['layout']
+			: 'rail';
+
+		$show = function ( $key ) use ( $block_attributes ) {
+			return ! isset( $block_attributes[ $key ] ) || $block_attributes[ $key ];
+		};
+
+		$wrapper_classes = array( 'videopress-playlist--' . $layout );
+		if ( ! empty( $block_attributes['darkSurface'] ) ) {
+			$wrapper_classes[] = 'is-dark';
+		}
+		if ( ! $show( 'showThumbnail' ) ) {
+			$wrapper_classes[] = 'hide-thumbnails';
+		}
+		if ( ! $show( 'showTitle' ) ) {
+			$wrapper_classes[] = 'hide-titles';
+		}
+		if ( ! $show( 'showResolution' ) ) {
+			$wrapper_classes[] = 'hide-resolution';
+		}
+		if ( ! $show( 'showDuration' ) ) {
+			$wrapper_classes[] = 'hide-duration';
+		}
+		if ( ! empty( $block_attributes['showPosition'] ) ) {
+			$wrapper_classes[] = 'show-position';
+		}
+		if ( ! $show( 'showTotalRuntime' ) ) {
+			$wrapper_classes[] = 'hide-runtime';
+		}
+
 		// The JWT token bridge lets the embed play private videos for authorized viewers.
 		Jwt_Token_Bridge::enqueue_jwt_token_bridge();
 
+		/*
+		 * Stored metadata is initial content only; the view script refreshes
+		 * title, thumbnail, duration, and quality from the VideoPress API on
+		 * the client so entries always reflect the videos' current data.
+		 */
 		$items_markup = '';
+		$total_ms     = 0;
 		foreach ( $videos as $index => $video ) {
 			$title = '' !== $video['title']
 				? $video['title']
 				/* translators: %d: position of the video in the playlist. */
 				: sprintf( __( 'Video %d', 'jetpack-videopress-pkg' ), $index + 1 );
 
-			/*
-			 * The stored title is initial content only; the view script refreshes
-			 * title, duration, and quality from the VideoPress API on the client,
-			 * filling the empty badge/duration placeholders.
-			 */
+			$duration  = self::format_playlist_duration( $video['durationMs'] );
+			$total_ms += $video['durationMs'];
+
+			$thumb_markup = '' !== $video['poster']
+				? sprintf( '<img src="%s" alt="" loading="lazy" />', esc_url( $video['poster'] ) )
+				: '';
+
 			$items_markup .= sprintf(
-				'<li><button type="button" class="videopress-playlist__item%1$s" data-guid="%2$s" data-src="%3$s" aria-current="%4$s"><span class="videopress-playlist__item-index">%5$d.</span><span class="videopress-playlist__item-title">%6$s</span><span class="videopress-playlist__item-badge"></span><span class="videopress-playlist__item-duration"></span></button></li>',
+				'<li><button type="button" class="videopress-playlist__item%1$s" data-guid="%2$s" data-src="%3$s" data-duration-ms="%4$d" aria-current="%5$s">' .
+					'<span class="videopress-playlist__item-thumb">%6$s<span class="videopress-playlist__item-index">%7$d</span><span class="videopress-playlist__item-thumb-duration">%8$s</span></span>' .
+					'<span class="videopress-playlist__item-text"><span class="videopress-playlist__item-title">%9$s</span><span class="videopress-playlist__item-meta"><span class="videopress-playlist__item-badge">%10$s</span><span class="videopress-playlist__item-duration">%11$s</span></span></span>' .
+					'</button></li>',
 				0 === $index ? ' is-current' : '',
 				esc_attr( $video['guid'] ),
 				esc_url( self::get_playlist_embed_url( $video['guid'], true ) ),
+				$video['durationMs'],
 				0 === $index ? 'true' : 'false',
+				$thumb_markup,
 				$index + 1,
-				esc_html( $title )
+				esc_html( $duration ),
+				esc_html( $title ),
+				esc_html( self::playlist_quality_label( $video['height'] ) ),
+				esc_html( $duration )
 			);
 		}
+
+		$runtime       = self::format_playlist_runtime( $total_ms );
+		$header_markup = sprintf(
+			'<div class="videopress-playlist__header"><span class="videopress-playlist__count">%s</span><span class="videopress-playlist__runtime">%s</span></div>',
+			esc_html(
+				sprintf(
+					/* translators: %d: number of videos in the playlist. */
+					_n( '%d video', '%d videos', count( $videos ), 'jetpack-videopress-pkg' ),
+					count( $videos )
+				)
+			),
+			esc_html( $runtime )
+		);
 
 		$player_markup = sprintf(
 			'<div class="videopress-playlist__player-wrapper"><iframe class="videopress-playlist__player" title="%1$s" aria-label="%1$s" src="%2$s" data-guid="%3$s" allowfullscreen allow="clipboard-write; presentation"></iframe></div>',
@@ -694,6 +824,7 @@ class Initializer {
 
 		$wrapper_attributes = get_block_wrapper_attributes(
 			array(
+				'class'             => implode( ' ', $wrapper_classes ),
 				'data-auto-advance' => $auto_advance ? '1' : '0',
 				'data-loop'         => $loop ? '1' : '0',
 			)
@@ -702,8 +833,9 @@ class Initializer {
 		// An unordered list: item numbering comes from the index spans, so theme
 		// list styles can never double up the numbers.
 		return sprintf(
-			'<figure %1$s>%2$s<ul class="videopress-playlist__items">%3$s</ul></figure>',
+			'<figure %1$s>%2$s<div class="videopress-playlist__body">%3$s<ul class="videopress-playlist__items">%4$s</ul></div></figure>',
 			$wrapper_attributes,
+			$header_markup,
 			$player_markup,
 			$items_markup
 		);
