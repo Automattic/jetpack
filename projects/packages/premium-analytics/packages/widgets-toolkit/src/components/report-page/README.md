@@ -50,8 +50,20 @@ on the right.
 Pass the report's title as `title` and the `useReportDateFilters` controller as
 `dateFilters`; the layout composes `DateFiltersPanel` and derives the subtitle
 with `getSectionSubtitle` itself. Every report mounts the same instance of the
-picker — comparison available, no interval control, because a records table is
-not bucketed by one — and that is one decision here rather than one per report.
+picker, which is one decision here rather than one per report.
+
+That instance is the range alone: no interval control, because a records table
+is not bucketed by one, and no period-over-period comparison. The subtitle names
+neither, since a header must not describe a configuration its reader cannot
+reach.
+
+Hiding them is presentational. The controller still carries the comparison and
+the interval, nothing here writes to the URL, and `buildRangePatch` keeps
+`compare_from`/`compare_to` in step with a range edited on a report page. A
+comparison set on the dashboard therefore survives a trip through a report, and
+comes back pointing at the right period rather than at stale dates. Making this
+server-driven per report, the way sections already declare
+`date_filter_options.with_date_comparison`, is WOOA7S-1952.
 
 Give `title` the same string as the trailing breadcrumb. Repeating it is the
 point: the breadcrumb is page chrome, while the header names the surface the

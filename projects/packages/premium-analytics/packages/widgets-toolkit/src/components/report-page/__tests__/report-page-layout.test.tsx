@@ -105,26 +105,49 @@ describe( 'ReportPageLayout', () => {
 			</ReportPageLayout>
 		);
 
-		const subtitle = screen.getByText( /vs\./ );
-
-		expect( subtitle ).toHaveTextContent( '2024' );
-		expect( subtitle ).not.toHaveTextContent( '2019' );
-		expect( subtitle ).toHaveTextContent( 'vs. Previous period' );
-		expect( subtitle ).not.toHaveTextContent( 'Previous month' );
+		expect( screen.getByText( /2024/ ) ).not.toHaveTextContent( '2019' );
 	} );
 
-	// A records table is not bucketed by an interval, so these pages carry no
-	// interval control and the subtitle must not name a bucket nobody can change.
-	it( 'names no chart interval, even when the controller carries one', () => {
+	/*
+	 * A records table is not bucketed by an interval and this surface offers no
+	 * comparison, so the header must describe neither. Both stay on the
+	 * controller — and in the URL — for the dashboard to pick back up.
+	 */
+	it( 'names neither the chart interval nor the comparison the controller carries', () => {
 		render(
 			<ReportPageLayout title="Posts & Pages" dateFilters={ buildDateFilters() }>
 				table
 			</ReportPageLayout>
 		);
 
-		expect( screen.getByText( /vs\./ ) ).not.toHaveTextContent(
-			/hourly|daily|weekly|monthly|quarterly|yearly/
+		const subtitle = screen.getByText( /2024/ );
+
+		expect( subtitle ).not.toHaveTextContent( /hourly|daily|weekly|monthly|quarterly|yearly/ );
+		expect( subtitle ).not.toHaveTextContent( /vs\.|Previous period|Previous month/ );
+	} );
+
+	it( 'offers no comparison control, without disturbing the comparison state', () => {
+		const dateFilters = buildDateFilters();
+
+		render(
+			<ReportPageLayout title="Posts & Pages" dateFilters={ dateFilters }>
+				table
+			</ReportPageLayout>
 		);
+
+		const panelProps = dateFiltersPanelMock.mock.calls[ 0 ][ 0 ];
+
+		expect( panelProps.showComparison ).toBe( false );
+		// The panel's own default, spelled out here because the interval control
+		// is as absent from this surface as the comparison is.
+		expect( panelProps.withIntervalControl ).toBeUndefined();
+
+		// Hiding the controls is presentational: the committed comparison and
+		// interval ride along untouched, so the dashboard still has them.
+		expect( panelProps.comparisonPresetId ).toBe( 'previous-month' );
+		expect( panelProps.interval ).toBe( 'week' );
+		expect( dateFilters.onComparisonChange ).not.toHaveBeenCalled();
+		expect( dateFilters.onIntervalChange ).not.toHaveBeenCalled();
 	} );
 
 	it( 'leaves the header the title alone on a report with no date window', () => {

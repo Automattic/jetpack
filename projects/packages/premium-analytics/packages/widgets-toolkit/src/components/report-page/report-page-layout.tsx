@@ -24,6 +24,10 @@ export interface ReportPageLayoutProps {
 	 * renders beside the title and the applied window is spelled out under it.
 	 * Left out on a report with no date window (Annual insights, Emails, …),
 	 * whose header is the title alone.
+	 *
+	 * The controller is the dashboard's, comparison and interval included, but
+	 * this surface renders a control for neither. Both stay in the URL
+	 * untouched, so the dashboard still has them on the way back.
 	 */
 	dateFilters?: ReportDateFilters;
 	/** Internal tab bar for pages with multiple views (e.g. Posts & Pages / Archives). */
@@ -41,9 +45,16 @@ export interface ReportPageLayoutProps {
  * The header is `SectionHeader`, the same component the dashboard's sections
  * use, so a report and the section it was reached from describe their date
  * configuration identically. The panel is composed here rather than taken as a
- * slot: every report mounts the same instance of it — no interval control over
- * a records table, comparison available — and that is one decision, not
- * fourteen.
+ * slot: every report mounts the same instance of it, and that is one decision
+ * rather than fourteen.
+ *
+ * That instance is the range alone. A records table is not bucketed, so there
+ * is no interval control (the panel's default), and these pages do not offer
+ * the period-over-period comparison either. Hiding both is presentational: the
+ * controller still carries them and nothing here writes to the URL, so a
+ * comparison or interval set on the dashboard survives a trip through a report
+ * — and `buildRangePatch` keeps the comparison window in step with a range
+ * edited here, so it is still the right one on the way back.
  *
  * @param {ReportPageLayoutProps} props - The component props.
  * @return The report page scaffold.
@@ -51,29 +62,25 @@ export interface ReportPageLayoutProps {
 export function ReportPageLayout( { title, dateFilters, tabs, children }: ReportPageLayoutProps ) {
 	const appliedRange = dateFilters?.appliedRange;
 	const appliedPresetId = dateFilters?.appliedPresetId;
-	const appliedComparisonPresetId = dateFilters?.appliedComparisonPresetId;
 
 	/*
 	 * States what the records below are showing, so it follows the applied
-	 * range rather than the picker's staged draft. No interval: a records table
-	 * is not bucketed by one, so these pages carry no interval control and the
-	 * subtitle must not name a bucket the reader cannot change.
+	 * range rather than the picker's staged draft.
+	 *
+	 * Neither the interval nor the comparison is named, because this surface
+	 * offers a control for neither and a header must not describe a
+	 * configuration its reader cannot reach.
 	 */
 	const subtitle = useMemo(
-		() =>
-			getSectionSubtitle( {
-				range: appliedRange,
-				presetId: appliedPresetId,
-				comparisonPresetId: appliedComparisonPresetId,
-			} ),
-		[ appliedRange, appliedPresetId, appliedComparisonPresetId ]
+		() => getSectionSubtitle( { range: appliedRange, presetId: appliedPresetId } ),
+		[ appliedRange, appliedPresetId ]
 	);
 
 	return (
 		<div className={ styles.root }>
 			{ tabs }
 			<SectionHeader title={ title } subtitle={ subtitle }>
-				{ dateFilters ? <DateFiltersPanel { ...dateFilters } /> : null }
+				{ dateFilters ? <DateFiltersPanel { ...dateFilters } showComparison={ false } /> : null }
 			</SectionHeader>
 			<div className={ styles.sections }>{ children }</div>
 		</div>
