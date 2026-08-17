@@ -30,6 +30,17 @@ the class only when no `GlobalChartsProvider` is above them (via
 `useStandaloneScopeClass()`), so a component used inside a provider still resolves
 through the provider's own declaration rather than shadowing it with a second one.
 
+Carrying the class unconditionally has a cost: because a portal tooltip re-declares
+the catalog on itself rather than inheriting the provider's, it only ever sees the
+catalog *default* for a role, not an instance override. Neither the inline var
+`GlobalChartsProvider` writes on its wrapper from a `theme`-prop override (Precedence
+step 2 below), nor a consumer rule scoped more tightly than the bare
+`.a8c-charts-scope` class (e.g. targeting the provider wrapper by its own selector),
+reaches the tooltip's own `.a8c-charts-scope` declaration — both live on an ancestor
+the portal's DOM position is not a descendant of. A plain `.a8c-charts-scope { … }`
+rule with no other selector *does* reach it, because that selector matches the
+tooltip's own class directly rather than relying on inheritance.
+
 Each catalog entry maps to a WordPress design-system token with the WPDS spec value as
 its fallback:
 
@@ -75,6 +86,22 @@ inherited from further up the tree, the same way any CSS custom property re-decl
 on a closer element beats one from an ancestor. The supported place to set an override
 is inside the provider tree — on the chart element, an element between it and the
 provider, or the provider wrapper itself — never on an ancestor of the provider.
+
+#### A `theme`-prop override reaches every reader of its role
+
+`theme={ { svgLabelSmall: { fill: 'purple' } } }` is not a narrow "recolour this one
+SVG label" override. It is published as the `--a8c-charts-color-label` catalog role
+(step 2 above), so it reaches every reader of that role, not only the field it was
+set from. Two roles have readers beyond their originating theme field:
+
+| Theme field | Role | Also paints |
+|---|---|---|
+| `svgLabelSmall.fill` | `--a8c-charts-color-label` | `legend.labelStyles.color`, `.heatmap-chart__cell-value` |
+| `backgroundColor` | `--a8c-charts-color-background` | `annotationStyles.label.backgroundFill`, `.x-zoom__reset` background, the heatmap blend base |
+
+This is the intended effect of a single-source catalog, not a bug — a consumer who
+wants to change only one reader should target that reader's own selector directly
+instead of the `theme` prop.
 
 ### The SVG bridge
 

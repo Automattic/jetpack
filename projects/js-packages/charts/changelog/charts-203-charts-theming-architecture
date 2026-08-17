@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Emit the `--a8c-charts-*` token catalog on the charts provider, so any token can be overridden in CSS anywhere inside it or through the `theme` prop, and resolve tokens against the chart element so CSS-painted and SVG-painted colors honour the same override.
+Emit the `--a8c-charts-*` token catalog on the charts provider, so any token can be overridden in CSS anywhere inside it or through the `theme` prop, and resolve tokens against the chart element so CSS-painted and SVG-painted colors honour the same override. A `theme`-prop override for `svgLabelSmall.fill` or `backgroundColor` is published as its catalog role, so it now also reaches other readers of that role (legend labels and heatmap cell values; annotation and zoom-reset backgrounds).
