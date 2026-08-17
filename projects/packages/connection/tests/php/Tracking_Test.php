@@ -60,6 +60,12 @@ class Tracking_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		unset( $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT'], $_SERVER['HTTP_ACCEPT_LANGUAGE'] );
+		unset(
+			$_REQUEST['tracksNonce'],
+			$_REQUEST['tracksEventName'],
+			$_REQUEST['tracksEventType'],
+			$_REQUEST['tracksEventProp']
+		);
 
 		parent::tearDown();
 		Monkey\tearDown();
@@ -175,6 +181,146 @@ class Tracking_Test extends TestCase {
 		$this->assertSame( '', $captured['_via_ua'] );
 		$this->assertSame( '', $captured['_via_ip'] );
 		$this->assertSame( '', $captured['_lg'] );
+	}
+
+	/**
+	 * Build a Tracking object that captures what ajax_tracks() forwards to record_user_event(),
+	 * with the WordPress functions that method reaches stubbed out.
+	 *
+	 * The two sanitizers return distinguishable markers so a test can assert which of them guards a
+	 * given field. map_deep() is given a real recursive implementation, since the point of using it
+	 * is that it reaches nested values.
+	 *
+	 * @param string $event_name Set by reference to the event name passed on.
+	 * @param array  $properties Set by reference to the properties passed on.
+	 * @return Tracking
+	 */
+	private function tracking_capturing_ajax_event( &$event_name, &$properties ) {
+		Monkey\Functions\when( 'wp_unslash' )->returnArg();
+		Monkey\Functions\when( 'wp_verify_nonce' )->justReturn( true );
+		Monkey\Functions\when( 'wp_send_json_error' )->justReturn( null );
+		Monkey\Functions\when( 'wp_send_json_success' )->justReturn( null );
+		Monkey\Functions\when( 'sanitize_key' )->alias(
+			function ( $str ) {
+				return 'key:' . $str;
+			}
+		);
+		Monkey\Functions\when( 'sanitize_text_field' )->alias(
+			function ( $str ) {
+				return 'text:' . $str;
+			}
+		);
+
+		$deep = function ( $value, $callback ) use ( &$deep ) {
+			if ( is_array( $value ) ) {
+				return array_map(
+					function ( $item ) use ( &$deep, $callback ) {
+						return $deep( $item, $callback );
+					},
+					$value
+				);
+			}
+			return $callback( $value );
+		};
+		Monkey\Functions\when( 'map_deep' )->alias( $deep );
+
+		$tracking = $this->getMockBuilder( Tracking::class )
+			->setConstructorArgs( array( 'jetpack', $this->connection ) )
+			->onlyMethods( array( 'record_user_event' ) )
+			->getMock();
+
+		$tracking->method( 'record_user_event' )
+			->willReturnCallback(
+				function ( $name, $data = array() ) use ( &$event_name, &$properties ) {
+					$event_name = $name;
+					$properties = $data;
+					return true;
+				}
+			);
+
+		return $tracking;
+	}
+
+	/**
+	 * The event name reaches Tracks as a key, so it is sanitized with sanitize_key() rather than
+	 * passed through. Tracks itself only accepts lowercase alphanumerics and underscores.
+	 */
+	public function test_ajax_tracks_sanitizes_the_event_name() {
+		$event_name = null;
+		$properties = null;
+		$tracking   = $this->tracking_capturing_ajax_event( $event_name, $properties );
+
+		$_REQUEST['tracksNonce']     = 'nonce';
+		$_REQUEST['tracksEventName'] = 'jetpack_about_click';
+		$_REQUEST['tracksEventType'] = 'view';
+
+		$tracking->ajax_tracks();
+
+		$this->assertSame( 'key:jetpack_about_click', $event_name );
+	}
+
+	/**
+	 * A scalar event property is sanitized as free-form text before it is recorded.
+	 */
+	public function test_ajax_tracks_sanitizes_a_scalar_event_prop() {
+		$event_name = null;
+		$properties = null;
+		$tracking   = $this->tracking_capturing_ajax_event( $event_name, $properties );
+
+		$_REQUEST['tracksNonce']     = 'nonce';
+		$_REQUEST['tracksEventName'] = 'jetpack_about_click';
+		$_REQUEST['tracksEventType'] = 'click';
+		$_REQUEST['tracksEventProp'] = '<script>alert(1)</script>';
+
+		$tracking->ajax_tracks();
+
+		$this->assertSame( array( 'clicked' => 'text:<script>alert(1)</script>' ), $properties );
+	}
+
+	/**
+	 * Array event properties are sanitized at every depth. The request is client-supplied, so it
+	 * can nest even though the shipped JavaScript client only sends a flat object.
+	 */
+	public function test_ajax_tracks_sanitizes_array_event_props_at_any_depth() {
+		$event_name = null;
+		$properties = null;
+		$tracking   = $this->tracking_capturing_ajax_event( $event_name, $properties );
+
+		$_REQUEST['tracksNonce']     = 'nonce';
+		$_REQUEST['tracksEventName'] = 'jetpack_about_click';
+		$_REQUEST['tracksEventType'] = 'click';
+		$_REQUEST['tracksEventProp'] = array(
+			'feature' => 'backups',
+			'nested'  => array( 'inner' => 'value' ),
+		);
+
+		$tracking->ajax_tracks();
+
+		$this->assertSame(
+			array(
+				'feature' => 'text:backups',
+				'nested'  => array( 'inner' => 'text:value' ),
+			),
+			$properties
+		);
+	}
+
+	/**
+	 * Properties are only collected for click events, so another event type records none.
+	 */
+	public function test_ajax_tracks_ignores_props_for_non_click_events() {
+		$event_name = null;
+		$properties = null;
+		$tracking   = $this->tracking_capturing_ajax_event( $event_name, $properties );
+
+		$_REQUEST['tracksNonce']     = 'nonce';
+		$_REQUEST['tracksEventName'] = 'jetpack_about_click';
+		$_REQUEST['tracksEventType'] = 'view';
+		$_REQUEST['tracksEventProp'] = 'ignored';
+
+		$tracking->ajax_tracks();
+
+		$this->assertSame( array(), $properties );
 	}
 
 	/**
