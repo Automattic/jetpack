@@ -129,7 +129,11 @@ function UsageCard( { upgradeUrl, planName } ) {
 									</Text>
 								) : (
 									<>
-										<Text as="p" variant="heading-xl">
+										<Text
+											as="p"
+											variant="heading-xl"
+											className="jetpack-ai-overview__requests-value"
+										>
 											{ hasNumbers ? usage.requestsAvailable : '—' }
 										</Text>
 										{ hasNumbers && (
@@ -153,9 +157,9 @@ function UsageCard( { upgradeUrl, planName } ) {
 							<Text as="p" variant="heading-sm" className="jetpack-ai-overview__eyebrow">
 								{ __( 'Plan', 'jetpack' ) }
 							</Text>
-							<Stack direction="row" justify="space-between" align="flex-end" gap="md">
+							<Stack direction="row" justify="space-between" align="flex-start" gap="lg">
 								{ planLabel && (
-									<Text as="p" variant="heading-xl">
+									<Text as="p" variant="heading-xl" className="jetpack-ai-overview__plan-name">
 										{ planLabel }
 									</Text>
 								) }
@@ -165,7 +169,11 @@ function UsageCard( { upgradeUrl, planName } ) {
 									</Button>
 								) }
 								{ ! usage.showUpgrade && usage.renewsOn && (
-									<Text as="p" variant="body-md" className="jetpack-ai-overview__muted">
+									<Text
+										as="p"
+										variant="body-sm"
+										className="jetpack-ai-overview__muted jetpack-ai-overview__renewal"
+									>
 										{ sprintf(
 											/* translators: %s: localized date the plan renews on. */
 											__( 'Renews on: %s', 'jetpack' ),
@@ -257,7 +265,7 @@ export default function AiOverview( { blogId, activityLogUrl, upgradeUrl, planNa
 								loading="lazy"
 							/>
 							<span className="jetpack-ai-overview__video-meta">
-								<Text as="span" variant="body-md">
+								<Text as="span" variant="heading-md">
 									{ title }
 								</Text>
 								<Text as="span" variant="body-md" className="jetpack-ai-overview__muted">

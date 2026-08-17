@@ -50,6 +50,25 @@
 		color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 	}
 
+	// Basis auto, not 0: the name starts from its own width so the renewal
+	// date beside it yields and wraps, rather than squeezing the name.
+	&__plan-name {
+		flex: 1 1 auto;
+	}
+
+	// Capped as in the frame, but only beside a plan name: uncapped the date
+	// claims a full line and the name breaks, while alone it needs no cap.
+	&__plan-name + &__renewal {
+		max-inline-size: 118px;
+	}
+
+	// The frame gives the requests number a taller line box than the plan name,
+	// which one shared heading-xl variant cannot express. Two classes, because the
+	// variant's runtime-injected line-height rule outranks a lone class in order.
+	&__usage &__requests-value {
+		line-height: var(--wpds-typography-line-height-xl, 32px);
+	}
+
 	// Clip the row's hover background to the card's rounded corners.
 	&__row-card {
 		overflow: hidden;
@@ -121,18 +140,25 @@
 		color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 	}
 
-	&__unlimited {
+	// Two classes: the Text component's runtime-injected p reset (margin: 0)
+	// otherwise outranks the auto margin by order alone.
+	&__usage &__unlimited {
 		text-transform: uppercase;
 		margin-inline-start: auto;
 	}
 
 	// Doubled class beats the component's runtime-injected rules. ProgressBar
-	// derives its track from the foreground colour (accent at 10%); the i4
-	// card wants a neutral track under the accent, so it is set explicitly.
+	// derives its track from the foreground colour (accent at 10%); the frame
+	// wants a neutral track under a rounded brand-coloured fill.
 	&__meter#{&}__meter {
 		inline-size: 100%;
 		block-size: 4px;
+		// The frame's meter sits flush under the number's line box, so the
+		// cell's own gap is cancelled here.
+		margin-block-start: calc(-1 * var(--wpds-dimension-gap-sm, 8px));
+		border-radius: var(--wpds-border-radius-lg, 8px);
+		overflow: hidden;
 		background-color: var(--wpds-color-background-interactive-neutral-weak-active, #ededed);
-		--wp-components-color-foreground: var(--wp-admin-theme-color, #3858e9);
+		--wp-components-color-foreground: var(--wpds-color-foreground-interactive-brand, #3858e9);
 	}
 }
