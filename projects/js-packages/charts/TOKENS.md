@@ -30,14 +30,32 @@ Charts reference the catalog bare — `stroke: var(--a8c-charts-color-grid)`. Fo
 Highest first:
 
 1. The role set on the chart element, or on any element between it and the provider — the closest declaration wins.
-2. The inline instance var `GlobalChartsProvider` writes from a `theme` prop override, on the provider wrapper.
-3. The role set by a consumer rule targeting the provider wrapper. It beats the catalog default because `:where()` is zero-specificity, and loses to step 2 because inline style beats any stylesheet rule.
+2. The role set by a consumer rule targeting the provider wrapper. It beats the catalog default because `:where()` is zero-specificity.
+3. The theme layer `GlobalChartsProvider` writes inline from a `theme` prop override — see below.
 4. The catalog default on the provider wrapper, resolving the mapped `--wpds-*` token.
 5. The WPDS spec-value fallback, when no `--wpds-*` token is set either (SSR, jsdom, or WPDS not loaded).
 
 For the four roles with a deprecated alias, that alias wins ahead of all five — see "Public override variables".
 
-An override set **above** `GlobalChartsProvider` does not apply: the provider's own declaration on its wrapper beats a value merely inherited from an ancestor. Set overrides inside the provider tree.
+A CSS declaration of a role therefore beats a `theme` prop override *anywhere* it is set, the wrapper included — the prop writes a variable the role reads, not the role itself, and a role declared in CSS never reads it.
+
+An override set **above** `GlobalChartsProvider` does not apply: the provider's own declaration on its wrapper beats a value merely inherited from an ancestor. Set overrides inside the provider tree. The same rule limits `@wordpress/theme`'s `ThemeProvider` to *above* the charts provider: the catalog substitutes its `--wpds-*` tokens at the wrapper, so a `ThemeProvider` mounted between the wrapper and a chart is never consulted and CSS-painted colours keep their light-mode spec fallbacks. The JS-painted ones do not — `getElementStyles` resolves at the chart element — so that nesting shows up as a chart whose SVG marks retint while its gridlines and surfaces do not.
+
+#### The theme layer
+
+Each of the five roles a `theme` prop field can override is declared reading a `*-theme` variable first:
+
+```scss
+:where(.a8c-charts-scope) {
+	--a8c-charts-color-grid: var(--a8c-charts-color-grid-theme, var(--wpds-color-stroke-surface-neutral, #dbdbdb));
+}
+```
+
+`GlobalChartsProvider` writes `--a8c-charts-color-grid-theme` inline from `theme.gridStyles.stroke`. Publishing the consumer's value one layer out is what keeps the catalog default reachable: a value that is invalid at computed-value time — `var(--wpds-color-stroke-surface-neutral)` with no fallback, in a host that never loaded the WPDS stylesheet — invalidates only the theme layer, and the role still resolves its mapped token. Written as the role itself, that same value made the role guaranteed-invalid, and that propagates to every bare `var(--a8c-charts-color-grid)` read site: `stroke` computed to `unset`, so the gridlines disappeared rather than degrading to the spec grey.
+
+A value that reads the role it would override is not published at all. The role reads its theme layer, so such a value closes a cycle through the catalog entry, and CSS marks *every* custom property in a cycle invalid — the role's own fallback is not used, and the token resolves to nothing. `withCatalogPointers` restores the theme field to the catalog pointer whether or not the value was published, so visx never paints a literal the CSS side cannot see.
+
+`src/styles/test/chart-scope.test.ts` pins which roles carry the layer, from the same list the provider maps fields with.
 
 #### A `theme`-prop override keeps the reach of the field it was set from
 

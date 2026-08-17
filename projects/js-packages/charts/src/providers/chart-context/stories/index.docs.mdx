@@ -191,9 +191,14 @@ The package's `--a8c-charts-*` token catalog is emitted once, on the `GlobalChar
 </GlobalChartsProvider>
 ```
 
-Setting these on an ancestor of `GlobalChartsProvider` has no effect — the provider's own declaration on its wrapper always beats a value inherited from further up the tree. See TOKENS.md for the full precedence order.
+Setting these on an ancestor of `GlobalChartsProvider` has no effect — the provider's own declaration on its wrapper always beats a value inherited from further up the tree. If you are upgrading from a version that resolved tokens at `:root`, move those declarations inside the provider. See TOKENS.md for the full precedence order.
 
-The `theme` prop is a second, narrower override path. Five `ChartTheme` fields map to a catalog role, and setting one republishes it as that instance's `--a8c-charts-*` variable on the provider wrapper — so it also reaches the SVG- and Google-Charts-painted colors those tools can't read from `theme` directly:
+Two placements need care:
+
+- **Tooltips rendered in a portal** — the line and area chart tooltips — sit outside the provider's DOM tree, so they re-declare the catalog on themselves and never see an override scoped to the provider or to an element inside it. To retheme tooltip text and surfaces, target the scope class directly: `.a8c-charts-scope { --a8c-charts-color-label: #fff; }`.
+- **`@wordpress/theme`'s `ThemeProvider` belongs above `GlobalChartsProvider`**, not between it and a chart. The catalog reads its `--wpds-*` tokens at the provider wrapper, so a `ThemeProvider` mounted below that wrapper is never consulted and CSS-painted colors keep the light-mode spec values.
+
+The `theme` prop is a second, narrower override path. Five `ChartTheme` fields map to a catalog role, and setting one publishes it as that role's theme-layer variable (`--a8c-charts-color-grid-theme` for the grid) on the provider wrapper — so it also reaches the SVG- and Google-Charts-painted colors those tools can't read from `theme` directly:
 
 | `theme` field | Catalog role |
 | --- | --- |
@@ -205,7 +210,11 @@ The `theme` prop is a second, narrower override path. Five `ChartTheme` fields m
 
 Each field publishes a role read by exactly the elements that field already controlled, so a `theme` override never spreads further than the element class it names. Where the obvious role has wider readership, one side takes a role of its own: `svgLabelSmall.fill` writes the narrow `--a8c-charts-color-label-axis`, leaving legend labels, heatmap cell values, funnel labels and the line-chart tooltip on the broad `--a8c-charts-color-label`. Set the broad role in CSS to move them all together.
 
-A value that already points at the role it would define is not republished — emitting it would make the custom property reference itself, which CSS discards. See TOKENS.md for the full catalog and precedence order.
+A CSS declaration of the role wins over the `theme` prop wherever you set it, the provider wrapper included: the prop writes the theme layer, and a role declared in CSS never reads that layer.
+
+Publishing the value one layer out is what keeps the catalog default reachable. An override CSS cannot resolve — most often `var(--wpds-…)` with no fallback, when the design-system stylesheet isn't loaded — leaves the role resolving its own mapped token instead of taking every reader of that role down with it. A value that points at the role it would override is not published at all, since that would make the role depend on itself; the field falls back to the catalog default on both the CSS and SVG paths, so the two never disagree.
+
+See TOKENS.md for the full catalog and precedence order.
 
 ## Chart Registration
 
