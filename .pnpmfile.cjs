@@ -24,7 +24,6 @@ const wpPkgs = [
 ];
 const wpPkgFetches = {};
 const wpPkgsUsed = new Set();
-const wpPkgKey = deplist => deplist.slice( -2 ).join( ' -> ' );
 const addWpPkgDep = async ( pkg, fromPkg, ver, deplist ) => {
 	const [ dep, ...rest ] = deplist;
 
@@ -47,7 +46,7 @@ const addWpPkgDep = async ( pkg, fromPkg, ver, deplist ) => {
 			// Ditto.
 			return;
 		}
-		wpPkgsUsed.add( `${ fromPkg } -> ${ dep }` );
+		wpPkgsUsed.add( dep );
 		pkg.optionalDependencies[ dep ] = deps[ dep ];
 	}
 };
@@ -469,11 +468,13 @@ function afterAllResolved( lockfile, context ) {
 	}
 
 	for ( const deplist of wpPkgs ) {
-		if ( ! wpPkgsUsed.has( wpPkgKey( deplist ) ) ) {
-			context.log(
-				// prettier-ignore
-				`pnpmfile hack needs updating: wpPkgs entry [ ${ deplist.join( ', ' ) } ] was not used by any resolved version. Is it obsolete?`
-			);
+		for ( const dep of deplist ) {
+			if ( ! wpPkgFetches[ dep ] && ! wpPkgsUsed.has( dep ) ) {
+				context.log(
+					// prettier-ignore
+					`pnpmfile hack needs updating: wpPkgs entry [ ${ deplist.join( ', ' ) } ] was not used. Is it obsolete?`
+				);
+			}
 		}
 	}
 
