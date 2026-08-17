@@ -81,6 +81,16 @@ class Wpcom_Feature_Flags {
 	const CAPABILITY = 'manage_options';
 
 	/**
+	 * Request-scoped cache of the sanitized override map.
+	 *
+	 * Null means "not read from the option yet", which is distinct from the empty
+	 * array a site with no overrides legitimately has.
+	 *
+	 * @var array<array-key, bool>|null
+	 */
+	private static $overrides = null;
+
+	/**
 	 * Register the hooks this feature needs.
 	 *
 	 * @return void
@@ -100,7 +110,9 @@ class Wpcom_Feature_Flags {
 	 *
 	 * A support session reaches an Atomic site through the same proxy, but it is
 	 * a Happiness Engineer acting on the site owner's behalf rather than an
-	 * Automattician testing unreleased work, so it is excluded.
+	 * Automattician testing unreleased work, so it is excluded. That exclusion
+	 * fails closed too — see is_support_session() for why it cannot just ask
+	 * wpcomsh and believe the answer.
 	 *
 	 * AT_PROXIED_REQUEST is read through Constants rather than defined() — which
 	 * is what the neighbouring code uses — so the Atomic branch is reachable from
@@ -135,26 +147,38 @@ class Wpcom_Feature_Flags {
 	/**
 	 * Return this site's flag overrides.
 	 *
-	 * @return array<string, bool> Map of flag name to forced value.
+	 * Memoized for the request. filter_enabled() runs once per flag resolution,
+	 * and the screen resolves every listed flag to fill its Effective column, so
+	 * without this the option read, the per-entry preg_match(), and the ksort()
+	 * in sanitize_overrides() all repeat for every flag checked. The option
+	 * cannot change mid-request except through save_overrides(), which clears
+	 * this. Code that writes the option behind our back — wp-cli, a direct
+	 * update_option() — is picked up on the next request.
+	 *
+	 * @return array<array-key, bool> Map of flag name to forced value.
 	 */
 	public static function get_overrides() {
-		$stored = get_option( self::OVERRIDES_OPTION );
-
-		if ( ! is_array( $stored ) ) {
-			return array();
+		if ( null !== self::$overrides ) {
+			return self::$overrides;
 		}
 
-		return self::sanitize_overrides( $stored );
+		$stored = get_option( self::OVERRIDES_OPTION );
+
+		self::$overrides = is_array( $stored ) ? self::sanitize_overrides( $stored ) : array();
+
+		return self::$overrides;
 	}
 
 	/**
 	 * Persist this site's flag overrides, replacing whatever was stored.
 	 *
-	 * @param array<string, bool> $overrides Map of flag name to forced value.
+	 * @param array<array-key, bool> $overrides Map of flag name to forced value.
 	 * @return void
 	 */
 	public static function save_overrides( array $overrides ) {
 		$overrides = self::sanitize_overrides( $overrides );
+
+		self::$overrides = null;
 
 		if ( empty( $overrides ) ) {
 			delete_option( self::OVERRIDES_OPTION );
@@ -166,6 +190,18 @@ class Wpcom_Feature_Flags {
 	}
 
 	/**
+	 * Forget the memoized override map.
+	 *
+	 * Intended for tests, which write the option directly rather than through
+	 * save_overrides(). Mirrors Feature_Flags::reset() in the registry package.
+	 *
+	 * @return void
+	 */
+	public static function reset_overrides_cache() {
+		self::$overrides = null;
+	}
+
+	/**
 	 * Turn the form's three-state controls into an override map.
 	 *
 	 * "default" means the absence of an override rather than an override to the
@@ -173,13 +209,26 @@ class Wpcom_Feature_Flags {
 	 * code that registered it decides later.
 	 *
 	 * @param array $states Map of flag name to 'on', 'off', or 'default'.
-	 * @return array<string, bool> Override map.
+	 * @return array<array-key, bool> Override map.
 	 */
 	public static function overrides_from_states( array $states ) {
 		$overrides = array();
 
 		foreach ( $states as $name => $state ) {
-			if ( ! is_string( $name ) || ! is_string( $state ) ) {
+			/*
+			 * PHP casts a decimal-integer array key to int, so an all-digit flag
+			 * name — which the documented ^[a-z0-9][a-z0-9_-]*$ pattern allows —
+			 * arrives from $_POST as an int. Rejecting non-strings here would drop
+			 * it silently after the screen had already offered a working-looking
+			 * control for it. save_overrides() is what validates the name.
+			 */
+			if ( ! is_string( $name ) && ! is_int( $name ) ) {
+				continue;
+			}
+
+			$name = (string) $name;
+
+			if ( ! is_string( $state ) ) {
 				continue;
 			}
 
@@ -345,9 +394,9 @@ class Wpcom_Feature_Flags {
 	/**
 	 * Print the screen's markup.
 	 *
-	 * @param array<string, array> $rows      Flags to list, keyed by flag name.
-	 * @param array<string, bool>  $overrides The overrides currently in force.
-	 * @param string               $notice    'saved', 'rejected', or '' for a plain load.
+	 * @param array<string, array>   $rows      Flags to list, keyed by flag name.
+	 * @param array<array-key, bool> $overrides The overrides currently in force.
+	 * @param string                 $notice    'saved', 'rejected', or '' for a plain load.
 	 * @return void
 	 */
 	private static function print_screen( array $rows, array $overrides, $notice = '' ) {
@@ -494,16 +543,44 @@ class Wpcom_Feature_Flags {
 	}
 
 	/**
-	 * Whether this request looks like a wpcomsh support session.
+	 * Whether this request has to be treated as a wpcomsh support session.
 	 *
-	 * Guarded with class_exists because the detector ships in wpcomsh, so it
-	 * only exists on Atomic.
+	 * Fails closed: anything short of a positive "not a support session" answer
+	 * counts as one.
 	 *
-	 * @return bool Whether this is probably a support session.
+	 * The detector keeps its verdict in a client-side cookie and reports a
+	 * missing cookie as "not a support session"
+	 * (WPCOMSH_Support_Session_Detect::is_probably_support_session()). That
+	 * default is right for the thing it was written for — suppressing a Tracks
+	 * event — and wrong for an authorization gate, because the cookie is absent
+	 * in cases nobody intended: it carries whatever lifetime wpcom passed as
+	 * `expires`, so it can lapse while the login session lives on, and it is set
+	 * SameSite=Strict, so a cross-site navigation into wp-admin does not send it
+	 * on the first request. It can also simply be deleted; httponly stops page
+	 * script from touching it, not a person with devtools open.
+	 *
+	 * So require has_detection_result() before trusting the verdict. The cost is
+	 * that an Automattician whose browser holds no detection result does not see
+	 * the screen until they log in through WordPress.com SSO again, which is what
+	 * sets the cookie. Losing the screen for one navigation is the cheaper
+	 * failure.
+	 *
+	 * Guarded with class_exists because the detector ships in wpcomsh, so it only
+	 * exists on Atomic. Its absence counts as a support session for the same
+	 * reason: with no detector there is no way to rule one out.
+	 *
+	 * @return bool Whether this request has to be treated as a support session.
 	 */
 	private static function is_support_session() {
-		return class_exists( 'WPCOMSH_Support_Session_Detect' )
-			&& WPCOMSH_Support_Session_Detect::is_probably_support_session();
+		if ( ! class_exists( 'WPCOMSH_Support_Session_Detect' ) ) {
+			return true;
+		}
+
+		if ( ! WPCOMSH_Support_Session_Detect::has_detection_result() ) {
+			return true;
+		}
+
+		return WPCOMSH_Support_Session_Detect::is_probably_support_session();
 	}
 
 	/**
@@ -513,13 +590,18 @@ class Wpcom_Feature_Flags {
 	 * flag names arrive as submitted form keys, so both directions are sanitized.
 	 *
 	 * @param array $overrides Untrusted override map.
-	 * @return array<string, bool> Sanitized override map, sorted by flag name.
+	 * @return array<array-key, bool> Sanitized override map, sorted by flag name.
 	 */
 	private static function sanitize_overrides( array $overrides ) {
 		$sanitized = array();
 
 		foreach ( $overrides as $name => $enabled ) {
-			if ( ! is_string( $name ) || ! self::is_valid_flag_name( $name ) ) {
+			// An all-digit flag name reaches this as an int key. See overrides_from_states().
+			if ( ! is_string( $name ) && ! is_int( $name ) ) {
+				continue;
+			}
+
+			if ( ! self::is_valid_flag_name( (string) $name ) ) {
 				continue;
 			}
 

@@ -15,8 +15,10 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-feature-flags/class-wpcom-feature-flags.php';
 
-// The real support session detector, so the Atomic branch of the gate is tested
-// against wpcomsh's own logic rather than a stand-in.
+/*
+ * The real support session detector, so the Atomic branch of the gate is tested
+ * against wpcomsh's own logic rather than a stand-in.
+ */
 require_once Jetpack_Mu_Wpcom::PKG_DIR . '../../plugins/wpcomsh/support-session.php';
 
 /**
@@ -58,6 +60,8 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		Constants::clear_constants();
 		unset( $_COOKIE[ \WPCOMSH_Support_Session_Detect::COOKIE_NAME ] );
 		delete_option( Wpcom_Feature_Flags::OVERRIDES_OPTION );
+		// These tests write the option directly, which save_overrides() is not there to notice.
+		Wpcom_Feature_Flags::reset_overrides_cache();
 		remove_all_filters( 'jetpack_feature_flag_enabled' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_my-feature' );
 		remove_all_filters( 'wp_die_handler' );
@@ -71,9 +75,15 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Make the request look like a proxied Automattician request on Atomic.
+	 *
+	 * The detection cookie has to say "not a support session" out loud. The gate
+	 * fails closed on a missing verdict, so the proxy constant alone is not enough
+	 * — which is what test_gate_rejects_atomic_request_without_a_detection_result
+	 * pins.
 	 */
 	private function simulate_proxied_atomic_request() {
 		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+		$_COOKIE[ \WPCOMSH_Support_Session_Detect::COOKIE_NAME ] = 'false';
 	}
 
 	/**
@@ -142,6 +152,37 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		$_COOKIE[ \WPCOMSH_Support_Session_Detect::COOKIE_NAME ] = 'true';
 
 		$this->assertFalse( Wpcom_Feature_Flags::is_a11n() );
+	}
+
+	/**
+	 * The proxy alone is not enough: without a stored detection result there is
+	 * nothing ruling out a support session, so the gate must stay shut.
+	 *
+	 * wpcomsh reports a missing cookie as "not a support session", which is the
+	 * wrong default to build an authorization gate on — the cookie expires on
+	 * wpcom's schedule, is SameSite=Strict so a cross-site navigation omits it,
+	 * and can simply be deleted. Trusting that answer let the support session this
+	 * gate exists to exclude walk straight through it.
+	 */
+	public function test_gate_rejects_atomic_request_without_a_detection_result() {
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+
+		$this->assertArrayNotHasKey(
+			\WPCOMSH_Support_Session_Detect::COOKIE_NAME,
+			$_COOKIE,
+			'Guard: this test is meaningless if a detection result is present.'
+		);
+		$this->assertFalse( Wpcom_Feature_Flags::is_a11n() );
+	}
+
+	/**
+	 * A positive "not a support session" verdict is what opens the Atomic gate.
+	 */
+	public function test_gate_passes_for_proxied_request_with_a_negative_detection_result() {
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+		$_COOKIE[ \WPCOMSH_Support_Session_Detect::COOKIE_NAME ] = 'false';
+
+		$this->assertTrue( Wpcom_Feature_Flags::is_a11n() );
 	}
 
 	/**
@@ -259,6 +300,41 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertSame( array( 'forced-on' => true ), $overrides );
+	}
+
+	/**
+	 * An all-digit flag name is legal under the documented
+	 * ^[a-z0-9][a-z0-9_-]*$ pattern, but PHP casts such an array key to int on
+	 * the way in from $_POST. Rejecting non-string keys dropped the override
+	 * while the screen still drew a control for it and still said "Overrides
+	 * saved." — the control snapped back to Default with no explanation.
+	 */
+	public function test_states_map_an_all_digit_flag_name() {
+		$this->assertSame(
+			array( '2026' => true ),
+			Wpcom_Feature_Flags::overrides_from_states( array( '2026' => 'on' ) )
+		);
+	}
+
+	/**
+	 * And the same name survives a round trip through the option.
+	 */
+	public function test_save_overrides_persists_an_all_digit_flag_name() {
+		Wpcom_Feature_Flags::save_overrides( array( '2026' => true ) );
+
+		$this->assertSame( array( 2026 => true ), Wpcom_Feature_Flags::get_overrides() );
+	}
+
+	/**
+	 * An all-digit override still answers the resolution filter, which is the
+	 * whole point of storing it.
+	 */
+	public function test_override_applies_to_an_all_digit_flag_name() {
+		Feature_Flags::register( '2026', array( 'default' => false ) );
+		Wpcom_Feature_Flags::save_overrides( array( '2026' => true ) );
+		Wpcom_Feature_Flags::init();
+
+		$this->assertTrue( Feature_Flags::is_enabled( '2026' ) );
 	}
 
 	/**
