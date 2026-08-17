@@ -99,35 +99,34 @@ body.jetpack_page_jetpack-ai {
 // Card.FullBleed dividers inherit the same padding var for their
 // edge-to-edge negative margins, so they stay in sync.
 .jetpack-ai-features__card {
-	--wp-ui-card-padding: var(--wpds-dimension-padding-xl, 20px);
+	--wp-ui-card-padding: var(--wpds-dimension-padding-xl);
 }
 
 .jetpack-ai-features__card-content {
-	padding-block-start: var(--wpds-dimension-padding-2xl, 24px);
+	padding-block-start: var(--wpds-dimension-padding-2xl);
 }
 
 // Figma: Body SM in foreground/content/neutral-weak.
 .jetpack-ai-features__card-subtitle {
-	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 // Section divider inside the Agent capabilities card. Card.FullBleed already
 // pulls the hr edge-to-edge past the card padding (margin-inline); this only
-// draws the rule and sets the vertical rhythm.
+// draws the rule and sets the vertical rhythm. Build-time PostCSS injects
+// token fallbacks so the shorthand stays valid when the token sheet isn't
+// loaded on this page.
 .jetpack-ai-features__divider {
 	border: 0;
-	// Fallbacks match the token values — the theme token sheet is not loaded
-	// on this page, and two undefined vars would invalidate the whole
-	// shorthand (no rule drawn at all).
 	border-block-start:
-		var(--wpds-border-width-xs, 1px) solid
-		var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral);
 	// Figma rhythm: 20px after a section's rows, 16px before the next header;
 	// the first divider sits 16px under the card subtitle instead.
-	margin-block: var(--wpds-dimension-padding-xl, 20px) var(--wpds-dimension-padding-lg, 16px);
+	margin-block: var(--wpds-dimension-padding-xl) var(--wpds-dimension-padding-lg);
 
 	&:first-of-type {
-		margin-block-start: var(--wpds-dimension-padding-lg, 16px);
+		margin-block-start: var(--wpds-dimension-padding-lg);
 	}
 }
 
