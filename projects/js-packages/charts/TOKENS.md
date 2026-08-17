@@ -134,7 +134,7 @@ The heatmap Tier-2 variables and `--a8c-charts-dimension-leaderboard-bar-hover-i
 
 ## Removed override variables
 
-Every role in the catalog is a supported override point, on the precedence rules above. The names below were the override points before the `--a8c-charts-{category}-{name}` convention landed; they no longer resolve, so set the role instead:
+Every role in the catalog is a supported override point, on the precedence rules above. These names are not, and no longer resolve — set the replacement instead:
 
 | Removed | Set instead |
 |---|---|
@@ -142,7 +142,6 @@ Every role in the catalog is a supported override point, on the precedence rules
 | `--charts-trend-down-color` | `--a8c-charts-color-trend-down` |
 | `--charts-trend-neutral-color` | `--a8c-charts-color-trend-neutral` |
 | `--a8c--charts--leaderboard--bar--border-radius` | `--a8c-charts-border-radius-leaderboard-bar` |
+| `--a8c-charts-color-focus` | `--wpds-color-stroke-focus` |
 
-`--a8c-charts-color-focus` is also gone: focus and selection rings are no longer themeable per chart.
-
-Removing these also removes the precedence quirk they carried. Each was read at its component's own call site as the *outer* layer around the role — `var(--deprecated-name, var(--a8c-charts-*))` — so the old name beat the new one wherever both were set. No `--a8c-charts-*` role is now read anywhere but bare.
+Removing the first four also removes the precedence quirk they carried: each was read at its component's own call site as the *outer* layer around the role — `var(--deprecated-name, var(--a8c-charts-*))` — so the old name beat the new one wherever both were set. No `--a8c-charts-*` role is now read anywhere but bare.
