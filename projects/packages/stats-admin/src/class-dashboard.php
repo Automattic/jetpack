@@ -88,10 +88,14 @@ class Dashboard {
 	 * who can manage the connection can act on. Once connected it is a reporting page, open to
 	 * everyone allowed to view stats.
 	 *
+	 * Pre-connection that is `jetpack_connect`: it maps to `manage_options` on a normal site,
+	 * but is `do_not_allow` in offline mode and honours the same multisite/filter rules as the
+	 * register endpoint, so the menu is not offered where the connection cannot be completed.
+	 *
 	 * @return string
 	 */
 	protected function get_capability() {
-		return Main::is_site_connected() ? 'view_stats' : 'manage_options';
+		return Main::is_site_connected() ? 'view_stats' : 'jetpack_connect';
 	}
 
 	/**
@@ -157,7 +161,11 @@ class Dashboard {
 
 		// The app is served from our CDN and so cannot bundle the connection package. Print the
 		// state Search and Protect print on their own pages, so it can read the connection status
-		// and register the site through the connection REST API itself.
-		Connection_Initial_State::render_script( 'jp-stats-dashboard' );
+		// and register the site through the connection REST API itself. Connected sites fetch
+		// `jetpack/v4/connection` over REST instead, and must not receive registrationNonce and
+		// the connected-plugin list on a page that `view_stats` users can open.
+		if ( ! Main::is_site_connected() ) {
+			Connection_Initial_State::render_script( 'jp-stats-dashboard' );
+		}
 	}
 }

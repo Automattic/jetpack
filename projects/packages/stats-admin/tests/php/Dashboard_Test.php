@@ -60,11 +60,24 @@ class Dashboard_Test extends Stats_TestCase {
 	 * site through the connection REST API using the state printed alongside it.
 	 */
 	public function test_load_admin_scripts_prints_the_connection_state() {
+		$this->disconnect_site();
+
 		( new Dashboard() )->load_admin_scripts();
 
 		$inline_scripts = implode( '', (array) wp_scripts()->get_data( 'jp-stats-dashboard', 'before' ) );
 
 		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline_scripts );
+	}
+
+	/**
+	 * A connected site reads connection status over REST, so the blob is not printed there.
+	 */
+	public function test_load_admin_scripts_does_not_print_the_connection_state_when_connected() {
+		( new Dashboard() )->load_admin_scripts();
+
+		$inline_scripts = implode( '', (array) wp_scripts()->get_data( 'jp-stats-dashboard', 'before' ) );
+
+		$this->assertStringNotContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline_scripts );
 	}
 
 	/**
@@ -75,12 +88,13 @@ class Dashboard_Test extends Stats_TestCase {
 	}
 
 	/**
-	 * Before that it offers a plan and connects the site, which only an administrator can act on.
+	 * Before that it offers a plan and connects the site, which only a user who can manage the
+	 * connection can act on.
 	 */
 	public function test_capability_when_not_connected() {
 		$this->disconnect_site();
 
-		$this->assertSame( 'manage_options', $this->get_capability() );
+		$this->assertSame( 'jetpack_connect', $this->get_capability() );
 	}
 
 	/**
