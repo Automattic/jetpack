@@ -31,8 +31,13 @@ The package is migrating to WordPress UI and Theme as its defaults. When adding 
 - **Package CSS variables.** Package-owned custom properties follow
   `--a8c-charts-{category}-{name}` (see `TOKENS.md` for the catalog and its
   `--wpds-*` mappings). The catalog is emitted once on the `GlobalChartsProvider`
-  wrapper by `src/styles/chart-scope.scss` — that stylesheet is the only place a
-  `--wpds-*` token may be named. Everywhere else, reference the catalog bare:
+  wrapper by `src/styles/chart-scope.scss` — for anything that is a catalog role,
+  that stylesheet is the only place its `--wpds-*` mapping may be named. Values
+  that are *not* chart roles — incidental typography and spacing, interaction
+  motion, and the keyboard focus ring — read their design-system token directly at
+  the call site instead, because they are chrome that should track the host's theme
+  rather than charts-level theming. Do not add a catalog role for the focus ring.
+  For actual roles, reference the catalog bare:
   `var(--a8c-charts-color-grid)`. JS theme strings add a terminal literal for
   the SSR and jsdom paths: `var(--a8c-charts-color-grid, #dbdbdb)`. Any JS
   token resolution must still pass the element from `useChartScopeElement()`

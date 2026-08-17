@@ -50,12 +50,19 @@ its fallback:
 }
 ```
 
-Charts reference the catalog bare — `stroke: var(--a8c-charts-color-grid)`. The
-`--wpds-*` mapping for a role lives in `chart-scope.scss`, the only place a
-`--wpds-*` token may be named. The exception is the four deprecated public aliases
-(three trend colours, one leaderboard radius): each is read at its own component's
-call site, layered *outside* the catalog reference, not inside the catalog entry —
-see "Public override variables" below for why.
+Charts reference the catalog bare — `stroke: var(--a8c-charts-color-grid)`. For anything
+that *is* a catalog role, `chart-scope.scss` is the only place its `--wpds-*` mapping is
+named, so design-system churn lands in one file.
+
+Two kinds of `--wpds-*` reference live outside it, both deliberately:
+
+- **Values that are not chart roles.** Incidental typography, padding, gap and interaction
+  motion — and the keyboard focus ring — read their design-system token directly at the
+  call site. They are interface chrome that should track the host's theme rather than
+  charts-level theming. See "The focus ring is deliberately not a catalog role" below.
+- **The four deprecated public aliases** (three trend colours, one leaderboard radius).
+  Each is read at its own component's call site, layered *outside* the catalog reference
+  rather than inside the catalog entry — see "Public override variables" below for why.
 
 ### Precedence
 
@@ -161,32 +168,28 @@ They deliberately do **not** cover interaction motion. Hover, opacity, width and
 transitions read `--wpds-motion-duration-sm`/`-md`/`-lg` and `--wpds-motion-easing-subtle`
 directly, because those are interface chrome rather than a chart role.
 
-## Accessibility affordances — emitted, but not theming knobs
+## The focus ring is deliberately not a catalog role
 
-| Token | Maps to `--wpds-*` | Fallback |
-|---|---|---|
-| `--a8c-charts-color-focus` | `--wpds-color-stroke-focus` | `var(--wp-admin-theme-color, #3858e9)` |
-| `--a8c-charts-border-width-focus` | `--wpds-border-width-focus` | `var(--wp-admin-border-width-focus, 2px)` |
+The keyboard focus ring on interactive leaderboard rows and heatmap cells reads the
+design-system tokens directly at its call sites:
 
-These two paint the keyboard focus ring on interactive leaderboard rows and heatmap
-cells. They are emitted like every other catalog entry, but they are **not** offered as
-theming knobs and are deliberately absent from the tables above.
+```scss
+$focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
+outline: $focus-ring-width solid var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9));
+```
 
-A focus indicator is an accessibility affordance, not branding. Its colour already
-derives from `--wp-admin-theme-color`, which is the *user's* admin colour scheme — a user
-preference, and one that should outrank a consumer's styling choice, for the same reason
-`prefers-reduced-motion` does. A consumer who restyles it is overwhelmingly likely to
-reduce its contrast against the chart surface rather than improve it, and WCAG 2.4.11
-(Focus Appearance) sets a contrast floor that charts cannot verify on a consumer's behalf.
+There is no `--a8c-charts-color-focus` or `--a8c-charts-border-width-focus`, and there
+should not be. A focus indicator is platform chrome and an accessibility affordance, not
+a chart role — it should look the same on a chart as on every other focusable control on
+the page. Giving it a charts-level token would invite exactly the divergence we don't
+want, and a consumer restyling it is far more likely to reduce its contrast than improve
+it (WCAG 2.4.11 sets a contrast floor charts cannot verify on a consumer's behalf).
 
-Being honest about the limit: CSS cannot enforce this. Custom properties are always
-settable, so a consumer *can* override these — and if we removed them entirely they could
-just set `--wpds-color-stroke-focus` instead. What this section changes is what the
-package advertises. If you genuinely need a different focus colour — a dark chart surface
-where the admin theme colour fails contrast is the realistic case — set the WPDS token at
-your application level so the change applies consistently to every focusable control in
-your UI, not only to charts. Charts diverging from the rest of the page on focus is its
-own accessibility problem.
+To change it, theme it where it belongs: a `@wordpress/theme` `ThemeProvider` above the
+charts provider, or the `--wpds-*` tokens at your application level. Either way the change
+applies to your whole UI rather than to charts alone. The `--wp-admin-*` layer in each
+fallback chain means that, absent any of that, the ring still follows the user's own
+wp-admin colour scheme.
 
 `--a8c-charts-border-radius-bar` sizes the conversion-funnel bar corners.
 `--a8c-charts-border-radius-cell` sizes heatmap cells and the heatmap legend swatch —

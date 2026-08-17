@@ -1,7 +1,10 @@
 // Focus-ring width shared across the grid and cell-selected focus outlines. A
 // Sass var, not a custom property: a compile-time constant scoped to this
 // module, so it needs no runtime cascade and never lands on the DOM.
-$focus-ring-width: var(--a8c-charts-border-width-focus);
+// Reads the design-system token directly, not an --a8c-charts-* role: the
+// focus ring is platform chrome rather than a chart role, so it follows the
+// host's WPDS theme and the user's wp-admin colour scheme.
+$focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
 
 .heatmap-chart {
 	width: 100%;
@@ -39,7 +42,7 @@ $focus-ring-width: var(--a8c-charts-border-width-focus);
 	&:focus-visible {
 		outline:
 			$focus-ring-width solid
-			var(--a8c-charts-color-focus);
+			var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9));
 		outline-offset: 2px;
 		border-radius: var(--wpds-border-radius-sm, 2px);
 	}
@@ -112,7 +115,7 @@ $focus-ring-width: var(--a8c-charts-border-width-focus);
 .heatmap-chart__cell--selected {
 	outline:
 		$focus-ring-width solid
-		var(--a8c-charts-color-focus);
+		var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9));
 	outline-offset: calc(-1 * #{$focus-ring-width});
 }
 

@@ -33,11 +33,6 @@
 	--a8c-charts-color-track: var(--wpds-color-background-track-neutral-weak, #f0f0f0);
 	// Translucent dark surface; no WPDS token carries this.
 	--a8c-charts-color-tooltip-surface: rgb(0 0 0 / 85%);
-	// Focus ring colour. NOT a theming knob — see the "Accessibility affordances"
-	// section of TOKENS.md before adding it to any override table or doc example.
-	// The --wp-admin-theme-color layer is load-bearing: in wp-admin the user's own
-	// admin colour scheme sets it, and WPDS may not be loaded at all.
-	--a8c-charts-color-focus: var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9));
 	--a8c-charts-color-zoom-selection: var(--wpds-color-background-interactive-brand-strong, #3858e9);
 	--a8c-charts-color-zoom-selection-stroke: var(--wpds-color-stroke-interactive-brand, #3858e9);
 
@@ -55,9 +50,6 @@
 		0 6px 6px 0 #00000008,
 		0 8px 8px 0 #00000005;
 
-	// Focus ring width. Not a theming knob either — same reasoning as
-	// --a8c-charts-color-focus above.
-	--a8c-charts-border-width-focus: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
 	--a8c-charts-motion-duration-entrance: var(--wpds-motion-duration-xl, 400ms);
 	--a8c-charts-motion-easing-entrance: var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1));
 	--a8c-charts-border-radius-bar: var(--wpds-border-radius-md, 4px);
