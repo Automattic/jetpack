@@ -8,8 +8,8 @@ import type { SettingsResponse } from './settings-types';
 
 /**
  * Build the changed-fields payload for WordPress core's settings endpoint
- * (`/wp/v2/settings`) — every SEO setting that's backed by an option, which is
- * all of them except the site-verification module's activation state.
+ * (`/wp/v2/settings`) — every SEO setting that's a plain option, which is all of
+ * them except the three whose write switches a Jetpack module.
  *
  * Only changed fields are included, so an unchanged save is a no-op. The server
  * owns validation and sanitization for every key here (see
@@ -29,12 +29,6 @@ export function buildCorePayload(
 	// (1 = allow indexing, 0 = discourage).
 	if ( local.search_engines_visible !== baseline.search_engines_visible ) {
 		payload.blog_public = local.search_engines_visible ? 1 : 0;
-	}
-	if ( local.sitemap_active !== baseline.sitemap_active ) {
-		payload.jetpack_seo_sitemap_enabled = local.sitemap_active;
-	}
-	if ( local.canonical_active !== baseline.canonical_active ) {
-		payload.jetpack_seo_canonical_urls_enabled = local.canonical_active;
 	}
 	if (
 		baseline.title_formats_editable &&
@@ -56,23 +50,34 @@ export function buildCorePayload(
 	return payload;
 }
 
+// The settings whose write switches a Jetpack module. Core's settings endpoint
+// can't own them: switching a module can fail, and `/wp/v2/settings` has no way
+// to say a value was refused — so they go to the package's own route, which can.
+const MODULE_FIELDS = [
+	'sitemap_active',
+	'canonical_active',
+	'verification_tools_active',
+] as const;
+
 /**
  * Build the changed-fields payload for the package's module route
- * (`/jetpack/v4/seo/modules`). Site verification is a Jetpack module rather than
- * an option, which is the one thing `register_setting()` can't express — so it's
- * the only field that doesn't go through core's settings endpoint.
+ * (`/jetpack/v4/seo/modules`).
  *
  * @param baseline - The last-saved server state.
  * @param local    - The current form state.
- * @return The payload for `/jetpack/v4/seo/modules`, or `{}` if unchanged.
+ * @return The changed-fields payload for `/jetpack/v4/seo/modules`, or `{}` if unchanged.
  */
 export function buildModulesPayload(
 	baseline: SettingsResponse,
 	local: SettingsResponse
 ): Record< string, unknown > {
-	if ( local.verification_tools_active === baseline.verification_tools_active ) {
-		return {};
-	}
+	const payload: Record< string, unknown > = {};
 
-	return { verification_tools_active: local.verification_tools_active };
+	MODULE_FIELDS.forEach( field => {
+		if ( local[ field ] !== baseline[ field ] ) {
+			payload[ field ] = local[ field ];
+		}
+	} );
+
+	return payload;
 }

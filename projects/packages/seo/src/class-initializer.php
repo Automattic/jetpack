@@ -241,11 +241,11 @@ class Initializer {
 				Ai_Crawlers::init();
 			}
 
-			// Registered here rather than on `rest_api_init`: the sanitizers this attaches
-			// are what keep the legacy sitemap and canonical-urls modules in step with
-			// their durable options, and that has to hold for every write of those
-			// options — WP-CLI and cron included — not just the dashboard's.
-			Dashboard_Data::register_rest_settings();
+			// Late on `init` rather than here: which option the front page description is
+			// stored in depends on `jetpack_disable_seo_tools`, which a conflicting SEO
+			// plugin can add as late as `init`. Still long before `rest_api_init`, where
+			// core builds the settings route from the registry.
+			add_action( 'init', array( Dashboard_Data::class, 'register_rest_settings' ), 20 );
 			// Package-owned route for the module toggle that has no option behind it.
 			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 			// Package-owned route for the site-level Schema settings (see the controller).

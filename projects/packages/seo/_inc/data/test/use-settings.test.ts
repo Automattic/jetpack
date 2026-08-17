@@ -102,8 +102,12 @@ describe( 'useSettingsForm', () => {
 		act( () => result.current.commit( { canonical_active: true } ) );
 
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );
-		const call = mockApiFetch.mock.calls[ 0 ][ 0 ] as { data: Record< string, unknown > };
-		expect( call.data ).toHaveProperty( 'jetpack_seo_canonical_urls_enabled', true );
+		const call = mockApiFetch.mock.calls[ 0 ][ 0 ] as {
+			path: string;
+			data: Record< string, unknown >;
+		};
+		expect( call.path ).toBe( '/jetpack/v4/seo/modules' );
+		expect( call.data ).toHaveProperty( 'canonical_active', true );
 		// The unsaved front-page edit must NOT be dragged into the toggle's save.
 		expect( call.data ).not.toHaveProperty( 'advanced_seo_front_page_description' );
 		// It stays pending until its own Save.
@@ -165,7 +169,10 @@ describe( 'useSettingsForm', () => {
 		);
 
 		act( () =>
-			result.current.commit( { sitemap_active: true, verification_tools_active: false } )
+			result.current.commit( {
+				front_page_description: 'New description.',
+				verification_tools_active: false,
+			} )
 		);
 
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
@@ -191,8 +198,8 @@ describe( 'useSettingsForm', () => {
 	it( 'adopts the server state, so a value the server refused is not shown as saved', async () => {
 		const { result } = renderHook( () => useSettingsForm() );
 
-		// The write succeeds, but the server refuses the value (the sitemap setting
-		// only takes if its legacy module switches with it) and reports the truth.
+		// The module write reports success for something the server then shows
+		// differently — whatever the reason, the form must follow the server.
 		mockApiFetch.mockResolvedValueOnce( {} );
 		mockApiFetch.mockResolvedValueOnce( { ...SEED, sitemap_active: false } );
 
@@ -209,22 +216,73 @@ describe( 'useSettingsForm', () => {
 
 		// Settings write lands, module write fails.
 		mockApiFetch.mockResolvedValueOnce( {} );
-		mockApiFetch.mockRejectedValueOnce( { message: 'Site verification could not be updated.' } );
+		mockApiFetch.mockRejectedValueOnce( {
+			message: 'The verification-tools module could not be switched.',
+		} );
 		mockApiFetch.mockResolvedValueOnce( {
 			...SEED,
-			sitemap_active: true,
+			front_page_description: 'New description.',
 			verification_tools_active: true,
 		} );
 
 		act( () =>
-			result.current.commit( { sitemap_active: true, verification_tools_active: false } )
+			result.current.commit( {
+				front_page_description: 'New description.',
+				verification_tools_active: false,
+			} )
 		);
 
 		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
 		expect( createErrorNotice ).toHaveBeenCalled();
 		// The part that did save is shown as saved; the part that didn't is not.
-		expect( result.current.local?.sitemap_active ).toBe( true );
+		expect( result.current.local?.front_page_description ).toBe( 'New description.' );
 		expect( result.current.local?.verification_tools_active ).toBe( true );
+	} );
+
+	it( 'surfaces the error when a module-backed write is refused', async () => {
+		const { result } = renderHook( () => useSettingsForm() );
+
+		// The module route can say no — that's why these settings don't go through
+		// core's settings endpoint, which answers 200 either way.
+		mockApiFetch.mockRejectedValueOnce( {
+			message: 'The sitemaps module could not be switched.',
+		} );
+		mockApiFetch.mockResolvedValueOnce( { ...SEED, sitemap_active: false } );
+
+		act( () => result.current.commit( { sitemap_active: true } ) );
+
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+		expect( createErrorNotice ).toHaveBeenCalledWith(
+			'The sitemaps module could not be switched.',
+			expect.anything()
+		);
+		expect( createSuccessNotice ).not.toHaveBeenCalled();
+		// And the toggle shows the state the site is actually in.
+		expect( result.current.local?.sitemap_active ).toBe( false );
+	} );
+
+	it( 'releases the controls even if the post-save read never comes back', async () => {
+		jest.useFakeTimers();
+		const { result } = renderHook( () => useSettingsForm() );
+
+		mockApiFetch.mockResolvedValueOnce( {} );
+		// A refresh that hangs forever must not leave every control disabled.
+		mockApiFetch.mockImplementationOnce( () => new Promise( () => {} ) );
+
+		act( () => result.current.commit( { sitemap_active: true } ) );
+
+		await act( async () => {
+			await Promise.resolve();
+		} );
+		expect( result.current.isSaving ).toBe( true );
+
+		await act( async () => {
+			jest.advanceTimersByTime( 10000 );
+			await Promise.resolve();
+		} );
+
+		expect( result.current.isSaving ).toBe( false );
+		jest.useRealTimers();
 	} );
 
 	it( 'refreshes the sitemap URL after toggling the sitemap on', async () => {
@@ -249,7 +307,7 @@ describe( 'useSettingsForm', () => {
 		const paths = mockApiFetch.mock.calls.map(
 			( [ options ] ) => ( options as { path: string } ).path
 		);
-		expect( paths ).toContain( '/wp/v2/settings' );
+		expect( paths ).toContain( '/jetpack/v4/seo/modules' );
 		expect( paths ).toContain( '/jetpack/v4/seo/settings' );
 	} );
 

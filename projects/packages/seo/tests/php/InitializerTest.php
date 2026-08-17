@@ -145,10 +145,13 @@ class InitializerTest extends TestCase {
 			$this->assertNotFalse(
 				has_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ) )
 			);
-			// The settings are registered inline rather than on `rest_api_init`, so the
-			// module-reconciling sanitizers they attach cover every write of those
-			// options — WP-CLI and cron included, not just the dashboard's.
-			$this->assertArrayHasKey( Initializer::SITEMAP_ENABLED_OPTION, get_registered_settings() );
+			// Settings register late on `init`, after a conflicting SEO plugin could have
+			// filtered `jetpack_disable_seo_tools` and changed which option the front page
+			// description belongs in, and still well before `rest_api_init`.
+			$this->assertSame(
+				20,
+				has_action( 'init', array( Dashboard_Data::class, 'register_rest_settings' ) )
+			);
 			$this->assertNotFalse(
 				has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) )
 			);

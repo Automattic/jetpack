@@ -39,22 +39,6 @@ describe( 'buildCorePayload', () => {
 		expect( buildCorePayload( baseline, local ) ).toEqual( { blog_public: 0 } );
 	} );
 
-	it( 'maps the sitemap toggle to the durable sitemap setting', () => {
-		const baseline = makeSettings( { sitemap_active: false } );
-		const local = makeSettings( { sitemap_active: true } );
-		expect( buildCorePayload( baseline, local ) ).toEqual( {
-			jetpack_seo_sitemap_enabled: true,
-		} );
-	} );
-
-	it( 'maps the canonical toggle to the durable canonical setting', () => {
-		const baseline = makeSettings( { canonical_active: false } );
-		const local = makeSettings( { canonical_active: true } );
-		expect( buildCorePayload( baseline, local ) ).toEqual( {
-			jetpack_seo_canonical_urls_enabled: true,
-		} );
-	} );
-
 	it( 'maps a front-page description change to advanced_seo_front_page_description', () => {
 		const baseline = makeSettings( { front_page_description: '' } );
 		const local = makeSettings( { front_page_description: 'Hello.' } );
@@ -115,20 +99,22 @@ describe( 'buildCorePayload', () => {
 		const baseline = makeSettings();
 		const verification = { google: 'g', bing: '', pinterest: '', yandex: '', facebook: '' };
 		const local = makeSettings( {
-			sitemap_active: true,
 			front_page_description: 'Desc',
 			verification,
 		} );
 		expect( buildCorePayload( baseline, local ) ).toEqual( {
-			jetpack_seo_sitemap_enabled: true,
 			advanced_seo_front_page_description: 'Desc',
 			verification_services_codes: verification,
 		} );
 	} );
 
-	it( 'ignores the verification module toggle (that is not an option)', () => {
-		const baseline = makeSettings( { verification_tools_active: true } );
-		const local = makeSettings( { verification_tools_active: false } );
+	it( 'ignores every module-backed setting (core REST cannot refuse a value)', () => {
+		const baseline = makeSettings();
+		const local = makeSettings( {
+			sitemap_active: true,
+			canonical_active: true,
+			verification_tools_active: false,
+		} );
 		expect( buildCorePayload( baseline, local ) ).toEqual( {} );
 	} );
 
@@ -148,24 +134,34 @@ describe( 'buildCorePayload', () => {
 } );
 
 describe( 'buildModulesPayload', () => {
-	it( 'returns an empty payload when the module toggle is unchanged', () => {
-		const baseline = makeSettings( { verification_tools_active: true } );
-		expect(
-			buildModulesPayload( baseline, makeSettings( { verification_tools_active: true } ) )
-		).toEqual( {} );
+	it( 'returns an empty payload when nothing module-backed changed', () => {
+		const baseline = makeSettings();
+		expect( buildModulesPayload( baseline, makeSettings() ) ).toEqual( {} );
 	} );
 
-	it( 'emits the verification module state when it changed', () => {
-		const baseline = makeSettings( { verification_tools_active: true } );
-		const local = makeSettings( { verification_tools_active: false } );
+	it( 'emits each module-backed setting that changed', () => {
+		const baseline = makeSettings();
+		const local = makeSettings( {
+			sitemap_active: true,
+			canonical_active: true,
+			verification_tools_active: false,
+		} );
 		expect( buildModulesPayload( baseline, local ) ).toEqual( {
+			sitemap_active: true,
+			canonical_active: true,
 			verification_tools_active: false,
 		} );
 	} );
 
+	it( 'emits only what changed, so an unchanged module is never re-toggled', () => {
+		const baseline = makeSettings( { canonical_active: true } );
+		const local = makeSettings( { canonical_active: true, sitemap_active: true } );
+		expect( buildModulesPayload( baseline, local ) ).toEqual( { sitemap_active: true } );
+	} );
+
 	it( 'ignores option-backed fields', () => {
 		const baseline = makeSettings();
-		const local = makeSettings( { sitemap_active: true, front_page_description: 'x' } );
+		const local = makeSettings( { front_page_description: 'x' } );
 		expect( buildModulesPayload( baseline, local ) ).toEqual( {} );
 	} );
 } );

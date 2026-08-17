@@ -15,6 +15,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_SEO_Utils;
 use WP_Error;
 use WP_REST_Request;
@@ -174,10 +175,11 @@ class Dashboard_Data {
 	 * this runs behind the same `seo-tools` gate as the rest of the settings
 	 * surface, and why the dashboard hides its controls when that module is off.
 	 *
-	 * Called during package init rather than on `rest_api_init`, so the sanitizers
-	 * registered here — which are also what keeps the legacy sitemap and
-	 * canonical-urls modules in step with their durable options — apply to every
-	 * write of those options, including WP-CLI, cron and wp-admin.
+	 * Hooked late on `init`, not at package init: which option the front page
+	 * description is stored in depends on `jetpack_disable_seo_tools`, and a conflicting
+	 * SEO plugin adds that filter on `plugins_loaded` or `init`. Registering after them
+	 * — and still well before `rest_api_init` — means the save targets the option the
+	 * front end will actually read.
 	 *
 	 * @return void
 	 */
@@ -215,8 +217,16 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * Keep the package's own registration arguments authoritative for the options it
-	 * owns, no matter who else registers them or in what order.
+	 * Keep the REST contract of the options this package owns authoritative, no matter
+	 * who else registers them or in what order.
+	 *
+	 * Only the three arguments that decide whether and how the option round-trips
+	 * through `/wp/v2/settings` are forced. Everything else is the caller's: its label
+	 * and description still describe its own surface, and leaving its `sanitize_callback`
+	 * in place is what keeps the verification-tools module's `jetpack_verification_validate`
+	 * attached — and with it the `jetpack_site_verification_validate` action its consumers
+	 * listen for. Our own sanitizer is attached by our own `register_setting()` call and
+	 * stays attached alongside it, since sanitize filters accumulate.
 	 *
 	 * @param array  $args     Arguments the caller passed to `register_setting()`.
 	 * @param array  $defaults Default arguments.
@@ -226,8 +236,20 @@ class Dashboard_Data {
 	 */
 	public static function force_setting_args( $args, $defaults, $group, $option ) {
 		$ours = self::settings_definitions();
+		if ( ! isset( $ours[ $option ] ) ) {
+			return $args;
+		}
 
-		return isset( $ours[ $option ] ) ? wp_parse_args( $ours[ $option ], $defaults ) : $args;
+		return array_merge(
+			$args,
+			array(
+				'type'         => $ours[ $option ]['type'],
+				// `filter_default_option()` reads this key unconditionally once the option
+				// is registered, so it has to survive a caller that didn't set one.
+				'default'      => $ours[ $option ]['default'],
+				'show_in_rest' => $ours[ $option ]['show_in_rest'],
+			)
+		);
 	}
 
 	/**
@@ -240,24 +262,6 @@ class Dashboard_Data {
 	 */
 	private static function settings_definitions() {
 		return array(
-			// The durable sitemap/canonical flags the dashboard already reads (see
-			// is_sitemap_enabled() / is_canonical_enabled()). Writing them here rather
-			// than toggling the legacy modules over REST is what makes these settings
-			// work on platforms that have no Jetpack modules on disk; where the modules
-			// do exist, the sanitizer toggles them to match and refuses the write if
-			// the module won't move, so the setting can't claim a state the site isn't in.
-			Initializer::SITEMAP_ENABLED_OPTION   => array(
-				'type'              => 'boolean',
-				'default'           => false,
-				'sanitize_callback' => array( __CLASS__, 'sanitize_sitemap_enabled' ),
-				'show_in_rest'      => true,
-			),
-			Initializer::CANONICAL_ENABLED_OPTION => array(
-				'type'              => 'boolean',
-				'default'           => false,
-				'sanitize_callback' => array( __CLASS__, 'sanitize_canonical_enabled' ),
-				'show_in_rest'      => true,
-			),
 			self::AI_SEO_ENHANCER_OPTION          => array(
 				'type'         => 'boolean',
 				'default'      => false,
@@ -426,19 +430,30 @@ class Dashboard_Data {
 	 * Whether Jetpack's SEO output is live for this site, which is what decides
 	 * where the front page description is stored and read from.
 	 *
-	 * Matches `Jetpack_SEO_Utils::is_enabled_jetpack_seo()` without depending on it:
-	 * the conflicting-plugin filter, then the WordPress.com plan gate (never gated on
-	 * self-hosted, where `Initializer::is_gated()` is always false).
+	 * Defers to `Jetpack_SEO_Utils` wherever it's loaded, because that helper is what
+	 * the front end reads the description by and the two must not disagree. The fallback
+	 * reproduces it exactly rather than approximately: the conflicting-plugin filter,
+	 * then the plan gate on WordPress.com **Simple only** — the helper plan-gates behind
+	 * `IS_WPCOM`, so an Atomic site is never gated by it even without `advanced-seo`, and
+	 * a wider copy would send that site's edits to the legacy option while its front end
+	 * kept reading the modern one.
 	 *
 	 * @return bool
 	 */
 	private static function is_jetpack_seo_enabled() {
+		if ( class_exists( 'Jetpack_SEO_Utils' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
+			return (bool) Jetpack_SEO_Utils::is_enabled_jetpack_seo();
+		}
+
 		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
 		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
 			return false;
 		}
 
-		return ! Initializer::is_gated();
+		// `Initializer::is_gated()` on Simple reduces to the helper's own
+		// `wpcom_site_has_feature( 'advanced-seo' )` check.
+		return ( new Host() )->is_wpcom_simple() ? ! Initializer::is_gated() : true;
 	}
 
 	/**
@@ -478,18 +493,6 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * Whether this site can switch Jetpack modules on and off at all.
-	 *
-	 * Bootstrapped to the dashboard so it can hide the controls that toggle a module
-	 * rather than offer one that would spring straight back.
-	 *
-	 * @return bool
-	 */
-	public static function has_switchable_modules() {
-		return (bool) ( new Modules() )->get_available();
-	}
-
-	/**
 	 * Toggle a legacy Jetpack module to match the setting that now drives it.
 	 *
 	 * A no-op where the module already agrees, which is also what stops the Jetpack
@@ -510,51 +513,6 @@ class Dashboard_Data {
 		$modules->update_status( $module, $enabled, false, false );
 
 		return $modules->is_active( $module ) === $enabled;
-	}
-
-	/**
-	 * Sanitize callback for a setting that a legacy Jetpack module mirrors.
-	 *
-	 * Runs inside `update_option()`, so it is the last point at which the write can
-	 * still be refused: the module is switched first, and if it won't move the stored
-	 * value is returned unchanged. `update_option()` then sees no change and writes
-	 * nothing, so the settings response reports the state the site is really in
-	 * instead of one the module never reached.
-	 *
-	 * @param mixed  $value  Submitted value.
-	 * @param string $module Module slug the setting mirrors.
-	 * @param string $option Option the setting is stored in.
-	 * @return bool
-	 */
-	private static function reconcile_module_setting( $value, $module, $option ) {
-		$value = (bool) $value;
-
-		// Nothing to keep in step: the option is the whole story on this site.
-		if ( ! self::has_module( $module ) ) {
-			return $value;
-		}
-
-		return self::sync_module_to_option( $module, $value ) ? $value : (bool) get_option( $option, false );
-	}
-
-	/**
-	 * Switch the legacy `sitemaps` module with the sitemap setting.
-	 *
-	 * @param mixed $value Submitted value.
-	 * @return bool
-	 */
-	public static function sanitize_sitemap_enabled( $value ) {
-		return self::reconcile_module_setting( $value, 'sitemaps', Initializer::SITEMAP_ENABLED_OPTION );
-	}
-
-	/**
-	 * Switch the legacy `canonical-urls` module with the canonical URLs setting.
-	 *
-	 * @param mixed $value Submitted value.
-	 * @return bool
-	 */
-	public static function sanitize_canonical_enabled( $value ) {
-		return self::reconcile_module_setting( $value, 'canonical-urls', Initializer::CANONICAL_ENABLED_OPTION );
 	}
 
 	/**
@@ -673,11 +631,31 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * Register the write route for the one dashboard toggle that isn't an option.
+	 * The dashboard settings that are backed by a Jetpack module rather than by a plain
+	 * option: request field => [ module slug, durable option or null ].
 	 *
-	 * Site verification is a Jetpack module, and module activation is the one thing
-	 * `register_setting()` can't express — everything else the dashboard saves goes
-	 * through core's `/wp/v2/settings` ({@see self::register_rest_settings()}).
+	 * These are the settings core's `/wp/v2/settings` can't own. Writing them switches a
+	 * module, that can fail, and a failure has to reach the user — and a `register_setting()`
+	 * sanitizer is the wrong place for a side effect, since it runs before the write and
+	 * fires on paths where nothing is ever persisted. So they get a route callback that
+	 * switches the module, checks it took, and returns a real error when it didn't.
+	 *
+	 * Sitemap and canonical URLs also have a durable option, which is what the dashboard
+	 * reads and what keeps them working where there's no module at all. Site verification
+	 * has none: the module's own state is the setting.
+	 *
+	 * @return array<string, array{0:string, 1:string|null}>
+	 */
+	private static function module_settings() {
+		return array(
+			'sitemap_active'            => array( 'sitemaps', Initializer::SITEMAP_ENABLED_OPTION ),
+			'canonical_active'          => array( 'canonical-urls', Initializer::CANONICAL_ENABLED_OPTION ),
+			'verification_tools_active' => array( 'verification-tools', null ),
+		);
+	}
+
+	/**
+	 * Register the write route for the dashboard settings that switch a Jetpack module.
 	 *
 	 * Write-only: the current state is already served by `/jetpack/v4/seo/settings`,
 	 * which the dashboard reads on load.
@@ -685,6 +663,12 @@ class Dashboard_Data {
 	 * @return void
 	 */
 	public static function register_module_routes() {
+		$args = array();
+		foreach ( array_keys( self::module_settings() ) as $field ) {
+			// All optional: the dashboard sends only what changed.
+			$args[ $field ] = array( 'type' => 'boolean' );
+		}
+
 		register_rest_route(
 			self::REST_NAMESPACE,
 			self::MODULES_REST_BASE,
@@ -692,48 +676,61 @@ class Dashboard_Data {
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => array( __CLASS__, 'update_modules' ),
 				'permission_callback' => array( __CLASS__, 'permission_check' ),
-				'args'                => array(
-					'verification_tools_active' => array(
-						'type'     => 'boolean',
-						'required' => true,
-					),
-				),
+				'args'                => $args,
 			)
 		);
 	}
 
 	/**
-	 * Activate or deactivate the `verification-tools` module.
+	 * Apply the submitted module-backed settings, and report the state the site ended up in.
 	 *
-	 * Errors rather than reporting a success it didn't achieve. The two failures are
-	 * different things: a site with no Jetpack modules can't support the request at
-	 * all (400 — the dashboard hides the control there, see
-	 * {@see self::has_switchable_modules()}), while a module that won't switch is a
-	 * genuine server-side failure (500).
+	 * Each one switches its module first and only records the durable option once that
+	 * took, so the option can never claim a state the module never reached. Where the
+	 * module doesn't exist the option is the whole story and is written directly — that's
+	 * what makes the sitemap and canonical toggles work on a site with no Jetpack modules.
+	 * Site verification has no such option, so there it's a request the site can't support.
 	 *
 	 * @param WP_REST_Request $request The REST request.
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function update_modules( WP_REST_Request $request ) {
-		$active = (bool) $request['verification_tools_active'];
+		$applied = array();
 
-		if ( ! self::has_module( 'verification-tools' ) ) {
-			return new WP_Error(
-				'jetpack_seo_module_unavailable',
-				__( 'This site has no site verification module to switch.', 'jetpack-seo' ),
-				array( 'status' => 400 )
-			);
+		foreach ( self::module_settings() as $field => $target ) {
+			if ( null === $request[ $field ] ) {
+				continue;
+			}
+
+			list( $module, $option ) = $target;
+			$enabled                 = (bool) $request[ $field ];
+
+			if ( self::has_module( $module ) ) {
+				if ( ! self::sync_module_to_option( $module, $enabled ) ) {
+					return new WP_Error(
+						'jetpack_seo_module_toggle_failed',
+						/* translators: %s: name of a Jetpack module, e.g. "sitemaps". */
+						sprintf( __( 'The %s module could not be switched.', 'jetpack-seo' ), $module ),
+						array( 'status' => 500 )
+					);
+				}
+			} elseif ( null === $option ) {
+				// Nothing to switch and nothing to remember it in.
+				return new WP_Error(
+					'jetpack_seo_module_unavailable',
+					/* translators: %s: name of a Jetpack module, e.g. "verification-tools". */
+					sprintf( __( 'This site has no %s module to switch.', 'jetpack-seo' ), $module ),
+					array( 'status' => 400 )
+				);
+			}
+
+			if ( null !== $option ) {
+				update_option( $option, $enabled );
+			}
+
+			$applied[ $field ] = $enabled;
 		}
 
-		if ( ! self::sync_module_to_option( 'verification-tools', $active ) ) {
-			return new WP_Error(
-				'jetpack_seo_module_toggle_failed',
-				__( 'Site verification could not be updated.', 'jetpack-seo' ),
-				array( 'status' => 500 )
-			);
-		}
-
-		return rest_ensure_response( array( 'verification_tools_active' => $active ) );
+		return rest_ensure_response( $applied );
 	}
 
 	/**
@@ -752,7 +749,7 @@ class Dashboard_Data {
 		}
 
 		return array(
-			'site_visibility'    => array(
+			'site_visibility'         => array(
 				'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
 				// Read the durable SEO option (seeded/synced from the `sitemaps` module
 				// by the Jetpack plugin) so the state survives the module's removal. The
@@ -762,22 +759,22 @@ class Dashboard_Data {
 			),
 			// Per-service booleans (a code is set or not) for the Overview's
 			// Site verification card.
-			'site_verification'  => array(
+			'site_verification'       => array(
 				'google'    => ! empty( $codes['google'] ),
 				'bing'      => ! empty( $codes['bing'] ),
 				'pinterest' => ! empty( $codes['pinterest'] ),
 				'yandex'    => ! empty( $codes['yandex'] ),
 				'facebook'  => ! empty( $codes['facebook'] ),
 			),
-			'content_coverage'   => Content_Coverage::get(),
-			'plan'               => array(
+			'content_coverage'        => Content_Coverage::get(),
+			'plan'                    => array(
 				'seo_enabled_for_site' => $seo_enabled,
 			),
-			// Whether the controls that switch a Jetpack module on or off can do
-			// anything here. False on WordPress.com Simple, which ships no Jetpack
-			// modules and reports every one of them active, so the dashboard hides
-			// those controls rather than offering a toggle that springs back.
-			'modules_switchable' => self::has_switchable_modules(),
+			// Whether the site-verification toggle can do anything here. False where
+			// that module isn't present — WordPress.com Simple ships no Jetpack modules
+			// and reports every one of them active — so the dashboard hides the control
+			// rather than offering a toggle the route would refuse.
+			'verification_switchable' => self::has_module( 'verification-tools' ),
 		);
 	}
 

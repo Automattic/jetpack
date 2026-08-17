@@ -23,9 +23,14 @@ const SEO_SETTINGS_PATH = '/jetpack/v4/seo/settings';
 // on WordPress.com and self-hosted alike.
 const CORE_SETTINGS_PATH = '/wp/v2/settings';
 
-// The package's own route for the site-verification module toggle — module
-// activation is the one dashboard setting that isn't an option.
+// The package's own route for the settings whose write switches a Jetpack module,
+// which core's settings endpoint can't own because it has no way to refuse a value.
 const SEO_MODULES_PATH = '/jetpack/v4/seo/modules';
+
+// Cap on the post-save re-read. It's a courtesy refresh, so a hung request must
+// never be what keeps the controls disabled: a stale form is recoverable, a
+// permanently locked one isn't.
+const REFRESH_TIMEOUT_MS = 10000;
 
 export interface SettingsForm {
 	local: SettingsResponse | null;
@@ -103,31 +108,45 @@ export function useSettingsForm(): SettingsForm {
 	// along because it's read-only and recomputed by the sitemap toggle.
 	const adoptServerState = useCallback(
 		( touched: Array< keyof SettingsResponse > ) =>
-			apiFetch< SettingsResponse >( { path: SEO_SETTINGS_PATH } )
-				.then( fresh => {
-					const current = localRef.current;
-					const baseline = baselineRef.current;
-					if ( ! current || ! baseline || ! fresh ) {
-						return;
-					}
-					// Only fields the response actually carries: a truncated payload must
-					// blank nothing out.
-					const patch: Partial< SettingsResponse > = {};
-					[ ...touched, 'sitemap_url' as const ].forEach( field => {
-						if ( field in fresh ) {
-							( patch as Record< string, unknown > )[ field ] = fresh[ field ];
-						}
-					} );
+			new Promise< void >( resolve => {
+				// Always settles: on the response, on an error, or on the timeout that
+				// aborts a request which never came back.
+				const controller = new AbortController();
+				const timer = setTimeout( () => {
+					controller.abort();
+					resolve();
+				}, REFRESH_TIMEOUT_MS );
 
-					localRef.current = { ...current, ...patch };
-					baselineRef.current = { ...baseline, ...patch };
-					setLocal( localRef.current );
-					setSettings( baselineRef.current );
-				} )
-				.catch( () => {
-					// Nothing better to show than what's already on screen; the next load
-					// is authoritative either way.
-				} ),
+				apiFetch< SettingsResponse >( { path: SEO_SETTINGS_PATH, signal: controller.signal } )
+					.then( fresh => {
+						const current = localRef.current;
+						const baseline = baselineRef.current;
+						if ( ! current || ! baseline || ! fresh ) {
+							return;
+						}
+						// Only fields the response actually carries: a truncated payload must
+						// blank nothing out.
+						const patch: Partial< SettingsResponse > = {};
+						[ ...touched, 'sitemap_url' as const ].forEach( field => {
+							if ( field in fresh ) {
+								( patch as Record< string, unknown > )[ field ] = fresh[ field ];
+							}
+						} );
+
+						localRef.current = { ...current, ...patch };
+						baselineRef.current = { ...baseline, ...patch };
+						setLocal( localRef.current );
+						setSettings( baselineRef.current );
+					} )
+					.catch( () => {
+						// Nothing better to show than what's already on screen; the next load
+						// is authoritative either way.
+					} )
+					.then( () => {
+						clearTimeout( timer );
+						resolve();
+					} );
+			} ),
 		[ setSettings ]
 	);
 
@@ -190,7 +209,7 @@ export function useSettingsForm(): SettingsForm {
 				// committed — the form is reconciled with the server before the controls
 				// unlock, so `isSaving` also serializes this against the next save.
 				.then( () => adoptServerState( touched ) )
-				.then( () => setIsSaving( false ) );
+				.finally( () => setIsSaving( false ) );
 		},
 		[ createInfoNotice, createSuccessNotice, createErrorNotice, setSettings, adoptServerState ]
 	);
