@@ -94,6 +94,21 @@ describe( 'WidgetState', () => {
 		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
 	} );
 
+	it( 'keeps a slow first load out of a busy region, though it reports as fetching too', () => {
+		// React Query raises `isFetching` alongside `isLoading` on the first load,
+		// so a load that outlasts the delay must not be mistaken for a refetch and
+		// wrapped in the busy region that would defer its own announcement.
+		render(
+			<WidgetState isLoading isFetching isError={ false } isEmpty={ false }>
+				{ CONTENT }
+			</WidgetState>
+		);
+
+		elapseFetchDelay();
+		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
+	} );
+
 	it( 'renders the loading state whenever isLoading, regardless of the caller-derived isEmpty', () => {
 		// `isEmpty` is derived by the caller and can be false during first load
 		// (e.g. `data?.rows.length === 0` while data is still undefined); loading

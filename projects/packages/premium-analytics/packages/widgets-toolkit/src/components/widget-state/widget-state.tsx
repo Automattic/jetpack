@@ -52,7 +52,10 @@ export function WidgetState( {
 	renderLoading,
 	children,
 }: WidgetStateProps ) {
-	const showFetchingState = useDelayedLoading( isFetching );
+	// A refetch-only signal: React Query reports `isFetching` on the first load
+	// too, and letting that through would mark the region busy over the first-load
+	// skeleton — the one state whose "Loading…" is meant to be announced.
+	const showFetchingState = useDelayedLoading( isFetching && ! isLoading );
 	const rootRef = useRef< HTMLDivElement >( null );
 	const contentRef = useRef< HTMLDivElement >( null );
 	const focusToRestore = useRef< HTMLElement | null >( null );
