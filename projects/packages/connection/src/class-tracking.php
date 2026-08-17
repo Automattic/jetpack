@@ -94,13 +94,17 @@ class Tracking {
 		$tracks_data = array();
 		if ( 'click' === $_REQUEST['tracksEventType'] && isset( $_REQUEST['tracksEventProp'] ) ) {
 			if ( is_array( $_REQUEST['tracksEventProp'] ) ) {
-				$tracks_data = array_map( 'filter_var', wp_unslash( $_REQUEST['tracksEventProp'] ) );
+				// map_deep() rather than array_map(): the request is client-supplied and may nest,
+				// and sanitize_text_field() returns an empty string when handed an array.
+				$tracks_data = map_deep( wp_unslash( $_REQUEST['tracksEventProp'] ), 'sanitize_text_field' );
 			} else {
-				$tracks_data = array( 'clicked' => filter_var( wp_unslash( $_REQUEST['tracksEventProp'] ) ) );
+				$tracks_data = array( 'clicked' => sanitize_text_field( wp_unslash( $_REQUEST['tracksEventProp'] ) ) );
 			}
 		}
 
-		$this->record_user_event( filter_var( wp_unslash( $_REQUEST['tracksEventName'] ) ), $tracks_data, null, false );
+		// Tracks only accepts lowercase alphanumerics and underscores in an event name
+		// (see Jetpack_Tracks_Event::EVENT_NAME_REGEX), which is what sanitize_key() permits.
+		$this->record_user_event( sanitize_key( wp_unslash( $_REQUEST['tracksEventName'] ) ), $tracks_data, null, false );
 
 		wp_send_json_success( null, null, JSON_UNESCAPED_SLASHES );
 	}
