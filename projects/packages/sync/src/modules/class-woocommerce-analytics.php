@@ -526,8 +526,8 @@ class WooCommerce_Analytics extends Module {
 		/**
 		 * Filter the reports data before syncing.
 		 *
-		 * @param array $data The reports data.
-		 * @param WC_Order $order The order object.
+		 * @param array                        $data  The reports data.
+		 * @param WC_Abstract_Order|int|string $order The order object or ID.
 		 */
 		return apply_filters( 'woocommerce_analytics_reports_data', $reports_data, $order );
 	}
@@ -556,9 +556,9 @@ class WooCommerce_Analytics extends Module {
 		/**
 		 * Filter the reports lookup data before syncing.
 		 *
-		 * @param array $data The reports lookup data.
-		 * @param WC_Order $order The order object.
-		 * @param string $object_type The object type.
+		 * @param array                        $data        The reports lookup data.
+		 * @param WC_Abstract_Order|int|string $order       The order object or ID.
+		 * @param string                       $object_type The object type.
 		 */
 		return apply_filters( 'woocommerce_analytics_reports_lookup_data', $report_data, $order, $object_type );
 	}
