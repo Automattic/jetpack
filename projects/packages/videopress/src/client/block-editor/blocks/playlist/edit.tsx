@@ -88,12 +88,17 @@ function entryFromApiResponse( guid: string, item: Record< string, unknown > ): 
 	if ( typeof item?.title === 'string' && item.title ) {
 		entry.title = decodeEntities( item.title );
 	}
-	if ( typeof item?.duration === 'number' && item.duration > 0 ) {
-		entry.durationMs = item.duration;
+
+	// The API isn't strict about numeric types, so coerce rather than type-check.
+	const duration = Number( item?.duration );
+	if ( Number.isFinite( duration ) && duration > 0 ) {
+		entry.durationMs = duration;
 	}
-	if ( typeof item?.height === 'number' && item.height > 0 ) {
-		entry.height = item.height;
+	const height = Number( item?.height );
+	if ( Number.isFinite( height ) && height > 0 ) {
+		entry.height = height;
 	}
+
 	if ( typeof item?.poster === 'string' && item.poster ) {
 		entry.poster = item.poster;
 	}
@@ -409,6 +414,12 @@ export default function PlaylistEdit( {
 			if ( typeof poster === 'string' && poster ) {
 				entry.poster = poster;
 			}
+			// Attachments know the video height, so the resolution badge
+			// shows for library picks too (240p included).
+			const height = Number( item.height );
+			if ( Number.isFinite( height ) && height > 0 ) {
+				entry.height = height;
+			}
 
 			entries.push( entry );
 		}
@@ -506,12 +517,20 @@ export default function PlaylistEdit( {
 	const notices = (
 		<>
 			{ addError && (
-				<Notice status="error" isDismissible={ false }>
+				<Notice
+					className="videopress-playlist-editor__notice"
+					status="error"
+					isDismissible={ false }
+				>
 					{ addError }
 				</Notice>
 			) }
 			{ duplicateGuid && (
-				<Notice status="warning" isDismissible={ false }>
+				<Notice
+					className="videopress-playlist-editor__notice"
+					status="warning"
+					isDismissible={ false }
+				>
 					{ sprintf(
 						/* translators: %s: title (or GUID) of the video. */
 						__( '“%s” is already in this playlist', 'jetpack-videopress-pkg' ),

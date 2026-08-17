@@ -33,13 +33,26 @@
 
 	/* Header (count · total runtime) */
 
+	/*
+	 * One right-aligned meta line, "5 videos · 1 hr 13 min", per the side-rail
+	 * design; the separator lives on the runtime so the count stands alone
+	 * when the total runtime is toggled off.
+	 */
+
 	&__header {
 		display: flex;
 		align-items: baseline;
-		justify-content: space-between;
-		gap: 12px;
+		justify-content: flex-end;
 		margin-block-end: 14px;
-		font-size: 0.8125rem;
+		font-family: ui-monospace, Menlo, monospace;
+		font-size: 0.75rem;
+	}
+
+	&__count + &__runtime::before {
+		content: " · ";
+
+		/* The spans are flex items; keep the separator spaces intact. */
+		white-space: pre;
 	}
 
 	&__runtime,

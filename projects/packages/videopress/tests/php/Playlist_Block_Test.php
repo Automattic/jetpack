@@ -388,7 +388,9 @@ class Playlist_Block_Test extends BaseTestCase {
 	 * Runs in this test's separate process, so the fake Jetpack class doesn't leak.
 	 */
 	public function test_register_skips_when_videopress_module_is_inactive() {
-		class_alias( \stdClass::class, 'Jetpack' );
+		// An anonymous class stands in for the plugin: class_alias() (and Phan)
+		// require a user-defined class, and internal ones only work on PHP 8.3+.
+		class_alias( get_class( new class() {} ), 'Jetpack' );
 
 		$this->fixture_dir = get_temp_dir() . 'playlist-block-' . wp_generate_password( 8, false );
 		mkdir( $this->fixture_dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir

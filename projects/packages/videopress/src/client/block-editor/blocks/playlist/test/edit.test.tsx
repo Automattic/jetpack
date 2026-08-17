@@ -311,12 +311,13 @@ describe( 'PlaylistEdit', () => {
 		expect( fetchVideoItemMock ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'adds media library selections, reading guid, title and poster', async () => {
+	it( 'adds media library selections, reading guid, title, poster and height', async () => {
 		mockMediaSelection = [
 			{
 				videopress_guid: [ 'aaaaaaaa' ],
 				title: 'From array',
 				image: { src: 'https://example.com/image.jpg' },
+				height: 240,
 			},
 			{
 				videopress_guid: 'bbbbbbbb',
@@ -331,10 +332,33 @@ describe( 'PlaylistEdit', () => {
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			videos: [
-				{ guid: 'aaaaaaaa', title: 'From array', poster: 'https://example.com/image.jpg' },
+				{
+					guid: 'aaaaaaaa',
+					title: 'From array',
+					poster: 'https://example.com/image.jpg',
+					height: 240,
+				},
 				{ guid: 'bbbbbbbb', poster: 'https://example.com/thumb.jpg' },
 			],
 		} );
+	} );
+
+	it( 'coerces numeric metadata the API returns as strings', async () => {
+		fetchVideoItemMock.mockResolvedValue( {
+			title: 'Low-res upload',
+			duration: '724000',
+			height: '240',
+		} );
+		const setAttributes = jest.fn();
+		renderEdit( {}, setAttributes );
+
+		await submitUrl( 'abcDEF12' );
+
+		await waitFor( () =>
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				videos: [ { guid: 'abcDEF12', title: 'Low-res upload', durationMs: 724000, height: 240 } ],
+			} )
+		);
 	} );
 
 	it( 'accepts a single media library selection object', async () => {
