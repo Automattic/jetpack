@@ -330,6 +330,10 @@ export class PodcastPlayer extends Component {
 						currentTime={ currentTime }
 						onTimeChange={ this.handleTimeChange }
 						onMetadataLoaded={ this.updateMediaData }
+						// Avoid fetching the episode before the listener presses play. Preloading
+						// generates phantom downloads that inflate podcast metrics and skew hosts'
+						// IAB-compliant analytics. See https://github.com/Automattic/jetpack/issues/51138.
+						preload="none"
 					/>
 				</Header>
 
