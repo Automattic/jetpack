@@ -38,4 +38,32 @@ describe( 'themeOverrideVars', () => {
 			themeOverrideVars( { gridStyles: { stroke: 'var(--a8c-charts-color-grid, #dbdbdb)' } } )
 		).toEqual( {} );
 	} );
+
+	// `var()` allows whitespace after the opening paren. Emitting a self-referential
+	// declaration makes it invalid at computed-value time, so the token resolves to
+	// nothing at all and every chart silently loses that colour.
+	it.each( [
+		'var( --a8c-charts-color-grid, #dbdbdb )',
+		'var(\t--a8c-charts-color-grid, #dbdbdb)',
+		'var(\n--a8c-charts-color-grid, #dbdbdb)',
+	] )( 'ignores a self-referential pointer written as %j', stroke => {
+		expect( themeOverrideVars( { gridStyles: { stroke } } ) ).toEqual( {} );
+	} );
+
+	it( 'still emits a value that merely mentions a different role', () => {
+		expect(
+			themeOverrideVars( { gridStyles: { stroke: 'var( --a8c-charts-color-axis, #dbdbdb )' } } )
+		).toEqual( { '--a8c-charts-color-grid': 'var( --a8c-charts-color-axis, #dbdbdb )' } );
+	} );
+
+	// `--a8c-charts-color-label` is a prefix of the real role
+	// `--a8c-charts-color-label-secondary`, so a prefix match would treat a legitimate
+	// cross-role pointer as a self-reference and silently drop the override.
+	it( 'does not mistake a longer role name for the one it guards', () => {
+		expect(
+			themeOverrideVars( {
+				svgLabelSmall: { fill: 'var(--a8c-charts-color-label-secondary, #707070)' },
+			} )
+		).toEqual( { '--a8c-charts-color-label': 'var(--a8c-charts-color-label-secondary, #707070)' } );
+	} );
 } );
