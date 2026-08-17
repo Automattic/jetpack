@@ -14,7 +14,7 @@ const label = __( 'All pages' );
 	subTitle={ __( 'All your posts and archive pages.' ) }
 	actions={ downloadButton }
 >
-	<ReportPageLayout title={ getTabTitle( activeTab ) } dateFilters={ dateFilters }>
+	<ReportPageLayout title={ getTabTitle( activeTab ) ?? getTitle() } dateFilters={ dateFilters }>
 		<ReportPerformanceChart
 			primary={ visits.primary.data }
 			comparison={ visits.hasComparison ? visits.comparison.data : undefined }
@@ -93,11 +93,11 @@ A report page carries three names, and they are not interchangeable:
 | tab label | the tab strip | `Posts & Pages`, `Archives` |
 | section title | the header's `h2` | `Posts & pages report` |
 
-`title` is the third one. On a tabbed report it belongs to the open tab, so take
-it from the tab set's `getTabTitle()` (`defineReportTabs` in
-`@jetpack-premium-analytics/routing`), which falls back to that tab's own label
-where no title is declared. A report with no tabs takes `getTitle()` from its
-registry entry.
+`title` is the third one, and it comes from the report's `getTitle()`. A tabbed
+report whose open tab reads differently can override it — compose
+`getTabTitle( activeTab ) ?? getTitle()`, where `getTabTitle` is the tab set's
+(`defineReportTabs` in `@jetpack-premium-analytics/routing`) and returns a
+heading only for tabs that declare one.
 
 The breadcrumb takes the report's `getLabel()` instead, and the two differ on
 purpose: one names the report, the other names the records currently on screen.

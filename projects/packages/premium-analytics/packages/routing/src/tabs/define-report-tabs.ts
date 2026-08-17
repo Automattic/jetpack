@@ -14,7 +14,8 @@ export type ReportTabDefinition< TabId extends string > = {
 	/**
 	 * Heading for the section this tab opens, when it reads differently from
 	 * the tab itself: `Posts & Pages` names the tab, `Posts & pages report`
-	 * heads the records under it. Omit it and the tab's own label is used.
+	 * heads the records under it. Declare it only where the tab deserves a
+	 * heading of its own; otherwise the surface heads every tab the same way.
 	 *
 	 * Same split the dashboard's sections have between `label` and `title`,
 	 * one level further down.
@@ -48,10 +49,12 @@ export type ReportTabs< TabId extends string > = {
 	getTabLabel: ( id: TabId ) => string;
 
 	/**
-	 * The heading for a tab's section, falling back to the tab's label where
-	 * the definition declares none.
+	 * The heading declared for a tab's section, or `undefined` where the tab
+	 * declares none. The caller supplies the fallback, because what a section
+	 * is called when its tab does not name it belongs to the surface, not to
+	 * the tab set: report pages fall back to the report's own title.
 	 */
-	getTabTitle: ( id: TabId ) => string;
+	getTabTitle: ( id: TabId ) => string | undefined;
 };
 
 /**
@@ -77,11 +80,8 @@ export function defineReportTabs< TabId extends string >(
 	const getTabLabel = ( id: TabId ): string =>
 		definitions.find( def => def.id === id )?.getLabel() ?? id;
 
-	const getTabTitle = ( id: TabId ): string => {
-		const definition = definitions.find( def => def.id === id );
-
-		return definition?.getTitle?.() ?? definition?.getLabel() ?? id;
-	};
+	const getTabTitle = ( id: TabId ): string | undefined =>
+		definitions.find( def => def.id === id )?.getTitle?.();
 
 	return { ids, resolve, getTabs, getTabLabel, getTabTitle };
 }

@@ -46,11 +46,12 @@ two cannot drift. This is interim: WOOA7S-1950 moves the whole page header up to
 the stage, which already resolves the definition, and the pages stop naming
 themselves at all.
 
-A report with tabs heads each section from the open tab instead, through
-`getTabTitle()` on its `config/tabs.ts` (see `defineReportTabs` in
-`@jetpack-premium-analytics/routing`), which falls back to that tab's label. On
-those reports `getTitle` never reaches the screen — the crumb still uses
-`getLabel`.
+A tabbed report heads its sections with `getTitle` too. A tab that reads
+differently from the report can override it by declaring its own heading, which
+the page composes as `getTabTitle( activeTab ) ?? getTitle()`. Only Posts &
+Pages does today: its tabs head `Posts & pages report` and `Archive pages
+report`, while the other tabbed reports head every section with the report's
+title.
 
 ## Providers the stage mounts for every report
 

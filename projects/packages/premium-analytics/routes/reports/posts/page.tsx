@@ -197,13 +197,13 @@ function PostsReport(): JSX.Element {
 			/>
 		);
 
-	const label = REPORTS.posts.getLabel();
+	const { getLabel, getTitle } = REPORTS.posts;
 
 	return (
 		<ReportPageShell
 			tabbed
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics-pkg' ) }
 			actions={
 				canExport ? (
@@ -212,7 +212,7 @@ function PostsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
+				title={ getTabTitle( activeTab ) ?? getTitle() }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>

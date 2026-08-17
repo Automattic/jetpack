@@ -84,13 +84,13 @@ function CommentsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const label = REPORTS.comments.getLabel();
+	const { getLabel, getTitle } = REPORTS.comments;
 
 	return (
 		<ReportPageShell
 			tabbed
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			subTitle={ __(
 				'Learn about the comments your site receives by authors, posts, and pages.',
 				'jetpack-premium-analytics-pkg'
@@ -102,7 +102,7 @@ function CommentsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
+				title={ getTabTitle( activeTab ) ?? getTitle() }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 			>
 				{ /*

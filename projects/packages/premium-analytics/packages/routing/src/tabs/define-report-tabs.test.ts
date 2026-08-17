@@ -57,14 +57,15 @@ describe( 'defineReportTabs', () => {
 			expect( tabs.getTabLabel( 'one' ) ).toBe( 'Posts & Pages' );
 		} );
 
-		// A tab whose copy has not landed yet still heads its section with
-		// something, so nothing renders an empty `h2` waiting on a string.
-		it( 'falls back to the tab label where no title is declared', () => {
-			expect( build().getTabTitle( 'two' ) ).toBe( 'Two' );
+		// Undefined rather than the tab's label: what a section is called when
+		// its tab does not name it belongs to the surface, which heads every
+		// tab with the report's own title.
+		it( 'reports no title where the tab declares none', () => {
+			expect( build().getTabTitle( 'two' ) ).toBeUndefined();
 		} );
 
-		it( 'falls back to the tab id when neither exists', () => {
-			expect( build().getTabTitle( 'missing' as 'one' ) ).toBe( 'missing' );
+		it( 'reports no title for an unknown tab', () => {
+			expect( build().getTabTitle( 'missing' as 'one' ) ).toBeUndefined();
 		} );
 
 		it( 'resolves the title lazily on each call', () => {

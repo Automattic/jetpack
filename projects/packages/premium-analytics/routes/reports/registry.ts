@@ -47,9 +47,9 @@ export type ReportDefinition = {
 
 	/**
 	 * Heading for the report's records — `Referrers report` where the label is
-	 * `Referrers`. A tabbed report heads each section from its tab instead (see
-	 * `getTabTitle` in `defineReportTabs`), so this only reaches the screen on
-	 * reports without tabs.
+	 * `Referrers`. It heads every section of a tabbed report as well, unless
+	 * that tab declares a heading of its own (`getTitle` in `defineReportTabs`),
+	 * which only the tabs that read differently from the report do.
 	 */
 	getTitle: () => string;
 

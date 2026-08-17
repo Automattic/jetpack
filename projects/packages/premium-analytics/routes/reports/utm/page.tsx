@@ -112,13 +112,13 @@ function UtmReport(): JSX.Element {
 		status: records,
 	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const label = REPORTS.utm.getLabel();
+	const { getLabel, getTitle } = REPORTS.utm;
 
 	return (
 		<ReportPageShell
 			tabbed
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
@@ -126,7 +126,7 @@ function UtmReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
+				title={ getTabTitle( activeTab ) ?? getTitle() }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>

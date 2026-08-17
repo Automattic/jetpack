@@ -149,13 +149,13 @@ export default function LocationsReportPage(): JSX.Element {
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
-	const label = REPORTS.locations.getLabel();
+	const { getLabel, getTitle } = REPORTS.locations;
 
 	return (
 		<ReportPageShell
 			tabbed
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
@@ -163,7 +163,7 @@ export default function LocationsReportPage(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
+				title={ getTabTitle( activeTab ) ?? getTitle() }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ handleTabChange } /> }
 				dateFilters={ dateFilters }
 			>
