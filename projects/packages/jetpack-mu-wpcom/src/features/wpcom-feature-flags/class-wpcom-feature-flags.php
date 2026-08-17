@@ -1,6 +1,12 @@
 <?php
 /**
- * Automattician-only controls for Jetpack feature flags.
+ * AUTOMATTICIANS ONLY. Internal Automattic tooling for flipping Jetpack feature
+ * flags on WordPress.com Simple and Atomic sites.
+ *
+ * This is not a WordPress.com feature and is not supported. Site owners never
+ * see it: the screen, its menu entry, and its save path are each gated on the
+ * Automattician check below, which fails closed. Nothing here should ever be
+ * documented for, linked to, or demonstrated to anyone outside Automattic.
  *
  * The jetpack-feature-flags package is a registry: it resolves every flag
  * through the `jetpack_feature_flag_enabled` filter and deliberately stores no
@@ -9,8 +15,7 @@
  *
  * This feature adds the missing control surface, on Simple and Atomic both:
  * a Tools -> Feature Flags screen listing the registered flags with a
- * three-state control each, plus a row for forcing a flag the local registry
- * has never heard of.
+ * three-state control each.
  *
  * Two properties are load-bearing:
  *
@@ -38,6 +43,13 @@ use WPCOMSH_Support_Session_Detect;
 
 /**
  * Site-wide feature flag overrides, and the Automattician-only screen that sets them.
+ *
+ * AUTOMATTICIANS ONLY — internal Automattic tooling, not a supported
+ * user-facing feature. Every entry point that exposes the screen or writes an
+ * override goes through current_user_can_manage(); do not add one that skips it.
+ *
+ * (Deliberately not tagged `@internal`: Phan reads that as "callable only from
+ * this namespace" and rejects the loader in \Automattic\Jetpack calling init().)
  */
 class Wpcom_Feature_Flags {
 
@@ -207,8 +219,8 @@ class Wpcom_Feature_Flags {
 
 		return add_submenu_page(
 			'tools.php',
-			'Feature Flags',
-			'Feature Flags',
+			'Feature Flags (a8c)',
+			'Feature Flags (a8c)',
 			self::CAPABILITY,
 			self::PAGE_SLUG,
 			array( self::class, 'render_admin_page' )
@@ -237,16 +249,6 @@ class Wpcom_Feature_Flags {
 
 		$states = isset( $request['flag_state'] ) && is_array( $request['flag_state'] ) ? $request['flag_state'] : array();
 
-		$custom_name = isset( $request['custom_flag_name'] ) && is_string( $request['custom_flag_name'] )
-			? strtolower( trim( $request['custom_flag_name'] ) )
-			: '';
-
-		if ( '' !== $custom_name ) {
-			$states[ $custom_name ] = isset( $request['custom_flag_state'] ) && is_string( $request['custom_flag_state'] )
-				? $request['custom_flag_state']
-				: 'on';
-		}
-
 		self::save_overrides( self::overrides_from_states( $states ) );
 
 		return true;
@@ -259,7 +261,7 @@ class Wpcom_Feature_Flags {
 	 */
 	public static function render_admin_page() {
 		if ( ! self::current_user_can_manage() ) {
-			wp_die( 'You do not have permission to manage this site&#8217;s Jetpack feature flags.' );
+			wp_die( 'Jetpack feature flag controls are Automatticians only. This is internal Automattic tooling, not a site feature.' );
 		}
 
 		$saved = false;
@@ -289,13 +291,22 @@ class Wpcom_Feature_Flags {
 
 		?>
 		<div class="wrap">
-			<h1>Feature Flags</h1>
+			<h1>
+				Feature Flags
+				<span class="dashicons dashicons-lock" style="vertical-align: middle;" aria-hidden="true"></span>
+				<span style="font-size: 0.6em; font-weight: normal; vertical-align: middle;">Automatticians only</span>
+			</h1>
 
 			<?php if ( $saved ) : ?>
 				<div class="notice notice-success is-dismissible"><p>Overrides saved.</p></div>
 			<?php endif; ?>
 
-			<div class="notice notice-warning">
+			<div class="notice notice-error">
+				<p>
+					<strong>Automatticians only — internal Automattic tooling.</strong> This screen is
+					not part of WordPress.com, is not visible to the site&#8217;s owner, and is not
+					supported. Do not point anyone outside Automattic at it.
+				</p>
 				<p>
 					<strong>Overrides here are site-wide.</strong> They change what this site does for
 					everyone — the site&#8217;s owner and logged-out visitors included — not just for
@@ -326,7 +337,8 @@ class Wpcom_Feature_Flags {
 							<tr>
 								<td colspan="4">
 									No feature flags are registered on this site, and nothing is
-									overridden. Use the row below to force a flag by name.
+									overridden. Flags appear here once code running on this site calls
+									<code>Feature_Flags::register()</code>.
 								</td>
 							</tr>
 						<?php endif; ?>
@@ -375,26 +387,6 @@ class Wpcom_Feature_Flags {
 					</tbody>
 				</table>
 
-				<h2>Force a flag by name</h2>
-				<p>
-					A flag that is checked on this site but registered elsewhere will not be listed
-					above. Unknown flags still pass through the resolution filter, so forcing one by
-					name works.
-				</p>
-				<p>
-					<label>
-						Flag name
-						<input type="text" name="custom_flag_name" value="" class="regular-text" pattern="[a-z0-9][a-z0-9_\-]*" />
-					</label>
-					<label>
-						State
-						<select name="custom_flag_state">
-							<option value="on">Force on</option>
-							<option value="off">Force off</option>
-						</select>
-					</label>
-				</p>
-
 				<?php submit_button( 'Save overrides' ); ?>
 			</form>
 		</div>
@@ -417,9 +409,8 @@ class Wpcom_Feature_Flags {
 	/**
 	 * Drop anything from an override map that could not have come from the form.
 	 *
-	 * The screen accepts a hand-typed flag name, and the option is read on
-	 * requests that have nothing to do with the screen, so both directions are
-	 * sanitized.
+	 * The option is read on requests that have nothing to do with the screen, and
+	 * flag names arrive as submitted form keys, so both directions are sanitized.
 	 *
 	 * @param array $overrides Untrusted override map.
 	 * @return array<string, bool> Sanitized override map, sorted by flag name.
@@ -462,8 +453,9 @@ class Wpcom_Feature_Flags {
 	 * Build the rows the screen lists.
 	 *
 	 * Registered flags come from the jetpack-feature-flags registry. Overrides
-	 * for names the registry has never heard of are listed too, so a flag forced
-	 * by hand does not silently disappear from the screen that set it.
+	 * for names the registry no longer knows are listed too — flags get retired,
+	 * and an override that outlives its registration must stay visible on the
+	 * screen that set it rather than becoming an invisible stuck value.
 	 *
 	 * @return array<string, array> Map of flag name to row data.
 	 */

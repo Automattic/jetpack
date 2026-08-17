@@ -256,9 +256,10 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Nothing registers flags on Simple yet, and a flag is often checked in one
-	 * codebase before it is registered in another. An override typed by hand
-	 * must therefore work for a name the registry has never heard of.
+	 * Unknown flags still pass through the package's resolution filter, and a
+	 * flag is often checked in one codebase before it is registered in another,
+	 * so an override has to keep resolving for a name the local registry does
+	 * not know.
 	 */
 	public function test_override_applies_to_unregistered_flag() {
 		Wpcom_Feature_Flags::save_overrides( array( 'not-registered-anywhere' => true ) );
@@ -291,6 +292,54 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		$this->simulate_proxied_atomic_request();
 
 		$this->assertNotFalse( Wpcom_Feature_Flags::register_admin_page() );
+	}
+
+	/**
+	 * The Tools menu is a shared surface a site owner also looks at, so the
+	 * entry has to read as internal Automattic tooling at a glance rather than
+	 * as one more site feature.
+	 */
+	public function test_menu_entry_is_labelled_as_internal() {
+		$this->become_automattician_admin();
+
+		Wpcom_Feature_Flags::register_admin_page();
+
+		$titles = wp_list_pluck( $GLOBALS['submenu']['tools.php'], 0 );
+		$this->assertNotEmpty(
+			array_filter(
+				$titles,
+				static function ( $title ) {
+					return is_string( $title ) && str_contains( $title, 'a8c' );
+				}
+			),
+			'Expected the Tools submenu entry to be marked a8c.'
+		);
+	}
+
+	/**
+	 * The screen says what it is, so an Automattician who lands on it — or a
+	 * site owner watching a screen share — is not left guessing whether this is
+	 * a supported feature.
+	 */
+	public function test_admin_page_states_it_is_automatticians_only() {
+		$this->become_automattician_admin();
+
+		$output = $this->render_admin_page();
+
+		$this->assertStringContainsString( 'Automatticians only', $output );
+	}
+
+	/**
+	 * The refusal explains why rather than reading as a generic capability
+	 * failure a site owner might file a support ticket about.
+	 */
+	public function test_refusal_explains_the_screen_is_automatticians_only() {
+		$this->login_as_admin();
+		add_filter( 'wp_die_handler', array( $this, 'throwing_wp_die_handler' ) );
+
+		$this->expectExceptionMessageMatches( '/Automatticians only/' );
+
+		Wpcom_Feature_Flags::render_admin_page();
 	}
 
 	/**
@@ -369,25 +418,6 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The hand-typed row is merged into the submitted states, so an
-	 * Automattician can force a flag the registry does not list.
-	 */
-	public function test_save_handler_accepts_a_custom_flag_name() {
-		$this->login_as_admin();
-		$this->simulate_proxied_atomic_request();
-
-		Wpcom_Feature_Flags::handle_save(
-			array(
-				'_wpnonce'          => wp_create_nonce( Wpcom_Feature_Flags::NONCE_ACTION ),
-				'custom_flag_name'  => 'typed-by-hand',
-				'custom_flag_state' => 'on',
-			)
-		);
-
-		$this->assertSame( array( 'typed-by-hand' => true ), Wpcom_Feature_Flags::get_overrides() );
-	}
-
-	/**
 	 * Saving with every control back on "default" clears the site's overrides.
 	 */
 	public function test_save_handler_clears_overrides() {
@@ -450,9 +480,9 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A flag forced by hand has to stay visible on the screen that forced it,
-	 * even though the local registry knows nothing about it — otherwise there is
-	 * no way to find it again and set it back.
+	 * Flags get retired, and an override can outlive the register() call it was
+	 * set against. It has to stay visible on the screen that set it — otherwise
+	 * it becomes a stuck value with no way to find it again and clear it.
 	 */
 	public function test_admin_page_lists_an_overridden_flag_that_is_not_registered() {
 		$this->become_automattician_admin();
@@ -478,7 +508,6 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		$output = $this->render_admin_page();
 
 		$this->assertStringContainsString( 'No feature flags are registered on this site', $output );
-		$this->assertStringContainsString( 'name="custom_flag_name"', $output );
 	}
 
 	/**

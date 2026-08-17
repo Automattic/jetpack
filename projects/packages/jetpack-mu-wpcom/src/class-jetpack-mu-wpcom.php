@@ -44,6 +44,9 @@ class Jetpack_Mu_Wpcom {
 		 * is wired here at mu-plugin time rather than from load_features().
 		 * Registering the filter reads nothing — the option is only touched when
 		 * a flag is actually resolved.
+		 *
+		 * The overrides themselves are site-wide, but the screen that sets them
+		 * is Automatticians-only internal tooling and gates itself accordingly.
 		 */
 		require_once __DIR__ . '/features/wpcom-feature-flags/class-wpcom-feature-flags.php';
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Feature_Flags::init();
