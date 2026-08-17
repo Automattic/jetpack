@@ -6,6 +6,7 @@ Everything that can change a flag's answer, and where each one applies.
 - [Code filters](#code-filters)
 - [Jurassic Ninja: the Companion WP-CLI command](#jurassic-ninja-the-companion-wp-cli-command)
 - [Companion settings page](#companion-settings-page)
+- [Local Docker](#local-docker)
 - [WordPress.com Simple and Atomic: the Automattician screen](#wordpresscom-simple-and-atomic-the-automattician-screen)
 - [Which surface to reach for](#which-surface-to-reach-for)
 
@@ -74,14 +75,19 @@ Columns: `flag`, `default`, `override`, `effective`, `owner`, `description`.
 
 Flags with a stored override that nobody registers are listed too, described as `Not registered on this site.` — stale, set ahead of the code landing, or belonging to a feature that is not loaded here.
 
-**A flag you expect to see may be legitimately absent.** Registration happens on the hook where the owning feature loads, so a flag whose module or feature is inactive on this site never registers and never appears. Activate the owning feature, or set the override by name anyway — unregistered names are accepted and still resolve.
+**A flag you expect to see may be legitimately absent — or may be a bug.** Two different causes, and they look identical here:
+
+- *The owning feature is inactive on this site.* Expected. Activate it, or set the override by name anyway — unregistered names are accepted and still resolve.
+- *The flag registers on a hook that WP-CLI never fires.* A bug. `admin_menu`, `_admin_menu`, `admin_init`, and `load-*` do not run under WP-CLI, REST, or cron, so a flag registered there is invisible to this command and resolves to `false` on every non-admin request.
+
+Tell them apart by checking the same site through the browser: if the a8c screen lists a flag that `list` does not, the registration hook is admin-only and needs moving to `plugins_loaded` or `init`.
 
 ### Behaviour worth knowing
 
 - **Overrides are site-wide.** They apply to logged-out visitors, which is what makes end-to-end testing possible — and means an override changes what everyone sees.
 - **Unregistered names are accepted**, with a warning, so a flag can be set before its code arrives.
-- **Names are validated** against `/^[a-z0-9][a-z0-9_-]*$/`; an invalid name is a hard error, not a silent drop.
-- **`reset --all` confirms** unless `--yes` is passed.
+- **Names are validated** against `/^[a-z0-9][a-z0-9_-]*$/` on `enable` and `disable`, where an invalid name is a hard error rather than a silent drop. `reset` does not validate — an invalid name there just warns that nothing is stored.
+- **`reset --all` confirms** unless `--yes` is passed. The prompt fires only on `--all`; a single-flag `reset` never prompts, and resetting a flag with no override is a warning and exit 0.
 - **Success is reported from what was stored**, not what was requested, so a normalized-away write reports an error rather than a false success.
 - **Without the Jetpack feature flags package loaded**, `list` warns that no flags can be discovered and prints `effective` as `-` rather than `off` — an unknowable state, not a resolved one.
 
@@ -89,7 +95,22 @@ Storage is the Companion plugin's own `jetpack_feature_flags` option, applied th
 
 ## Companion settings page
 
-Companion also renders a feature-flags section on the WordPress Settings screen, backed by the same option, with a radio per flag (default / on / off). The section is hidden when the Jetpack package is absent, though the option still sanitizes and stores. Use it when clicking is easier than a shell; the CLI is the same data.
+Companion renders a feature-flags section on **its own** settings subpage — `options-general.php?page=companion_settings`, which appears in the menu as **Settings → Jetpack Constants**. It is not on Settings → General.
+
+Same option, a radio per flag storing `default` / `on` / `off`, labelled "Default (on)" / "Default (off)" / "On" / "Off". The section is hidden when the Jetpack package is absent, though the option still sanitizes and stores. Use it when clicking is easier than a shell; the CLI is the same data.
+
+The page disappears entirely when Jetpack Beta above v3 is active — a common Jurassic Ninja configuration, and precisely when someone goes looking for it. Use the CLI there.
+
+## Local Docker
+
+`wp companion` is the Jurassic Ninja Companion plugin. It does **not** exist in `jp docker`, where reaching for it fails with `'companion' is not a registered wp command`. Locally, use the filter directly — as an mu-plugin, so it survives across requests including logged-out ones:
+
+```php
+// wp-content/mu-plugins/force-flag.php
+add_filter( 'jetpack_feature_flag_enabled_<flag>', '__return_true' );
+```
+
+`wp eval` with an inline `add_filter` affects only that single request and will not change what a browser sees. Prefer Docker for the code-and-check loop; go to JN when you need a site that looks like production, or when someone else needs to click it.
 
 ## WordPress.com Simple and Atomic: the Automattician screen
 
@@ -106,6 +127,7 @@ This is a different option from Companion's, but both answer the same generic fi
 
 | Situation | Use |
 |---|---|
+| Local code-and-check loop | mu-plugin with `add_filter( 'jetpack_feature_flag_enabled_<flag>', '__return_true' )` |
 | Testing on a Jurassic Ninja site | `wp companion feature-flag enable <flag>` |
 | Automated setup / scripted test runs | Same CLI, with `--format=json` and `--yes` |
 | Clicking through on a site you already have open | Companion settings section |

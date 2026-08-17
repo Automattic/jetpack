@@ -1,7 +1,7 @@
 ---
 name: jetpack-feature-flag
-description: "Use when adding, gating, testing, or retiring a Jetpack feature flag in the monorepo — registering with Feature_Flags::register(), branching on is_enabled(), declaring the automattic/jetpack-feature-flags dependency and regenerating dependent plugin lock files, exposing a flag to the block editor, and forcing a flag on for testing on a Jurassic Ninja site with `wp companion feature-flag`. Triggers on 'add a feature flag', 'put this behind a flag', 'gate this feature', 'feature flag', 'ship this disabled by default', 'kill switch', or 'turn the flag on for testing'."
-compatibility: "Jetpack monorepo. Requires the `automattic/jetpack-feature-flags` package (`projects/packages/feature-flags`, PHP 7.2+). The `wp companion feature-flag` command used for testing is preinstalled on every Jurassic Ninja site."
+description: "Use when adding, gating, testing, or retiring a Jetpack feature flag built on the `automattic/jetpack-feature-flags` package — Feature_Flags::register(), branching on is_enabled(), declaring and installing the dependency, regenerating dependent plugin lock files, bridging the flag to JS, and forcing it on for testing via the `jetpack_feature_flag_enabled_<flag>` filter or `wp companion feature-flag` on Jurassic Ninja. Triggers on 'add a feature flag', 'put this behind a flag', 'gate this feature', 'ship this disabled by default', 'kill switch', 'staged rollout', 'remove the feature flag'. NOT for other things loosely called flags: ExPlat experiments, paid-plan gating via Current_Plan::supports(), module activation, JETPACK_* constants, Jetpack_Options, or adding a key to the `jetpack_block_editor_feature_flags` filter. Use only when the toggle is, or should become, a registered Feature_Flags flag."
+compatibility: "Jetpack monorepo. Requires the `automattic/jetpack-feature-flags` package (`projects/packages/feature-flags`, PHP 7.2+). The `wp companion feature-flag` command used for testing is preinstalled on every Jurassic Ninja site; it does not exist in `jp docker`."
 ---
 
 # Jetpack Feature Flags
@@ -14,21 +14,51 @@ A flag is for **temporary** branching you can change without changing code: gati
 
 Reach for something else when the toggle is **permanent** — that is site configuration, a user-facing setting, or a constant. A flag that would live forever is really config wearing a flag's clothes.
 
-## 1. Register the flag
+## Package or plugin?
 
-Register **on the hook where the owning feature loads** — not from a global bootstrap, and not lazily inside a request branch. Flags do not need to exist on every request; they need to exist on the requests that read them, and they need to be there *before* the first read.
+Three steps below fork on this. Decide once, up front.
 
-Registration allocates nothing and stores no state, so within your feature's own load there is no reason to defer or guard it. Call it first thing.
+| | Flag in `projects/packages/…` | Flag in `projects/plugins/…` |
+|---|---|---|
+| Register (step 2) | On the hook the consuming feature loads | On `init`, or `plugins_loaded`, from the plugin's main class |
+| Lock files (step 5) | Every plugin that bundles the package | That plugin's own lock, and only it |
+| Changelog (step 6) | Package entry, plus one per shipping plugin if user-facing | One entry, in that plugin |
 
-**The read deadlines.** Register before all of these, or the flag is invisible to them:
+## 1. Add and install the dependency — before writing any code
 
-| Reader | When it reads |
-|---|---|
-| Your own `is_enabled()` calls | Whenever your code runs |
-| Tools → Feature Flags (a8c) | `admin_menu` |
-| `wp companion feature-flag list` | WP-CLI command execution |
+Every step below fails without this. The `use` statement in step 2 fatals under `jp phan`, a direct `phpunit` run, and your IDE.
 
-The canonical example is `projects/packages/forms/src/class-jetpack-forms.php`:
+```json
+"require": {
+    "automattic/jetpack-feature-flags": "@dev"
+}
+```
+
+```bash
+jp install <type>/<project>
+```
+
+Editing `composer.json` does **not** put the class in the project's own `vendor/` — install it. (`jp test php` happens to run its own install, so that one command self-heals; nothing else does.)
+
+Declare every package you `use`, not just this one. A class that resolves transitively today breaks silently when the intermediate package drops its own dependency.
+
+## 2. Register the flag
+
+### Choosing the hook
+
+Register on the **earliest hook that fires in every context that reads the flag** — not the hook the gated feature happens to load on.
+
+**Admin-only hooks are almost always wrong**, even for an admin-only feature. `admin_menu`, `_admin_menu`, `admin_init`, and `load-*` never fire under WP-CLI, REST, or cron. Register there and `wp companion feature-flag list` reports the flag missing, and every non-admin `is_enabled()` call silently returns the unregistered default of `false`.
+
+**When the loader is nested**, register at the outermost entry point that is gated by *whether the feature ships at all*, above every "this site isn't eligible" early return. The flag should stay visible while you are diagnosing why the feature is off.
+
+Registering earlier than the feature loads is never a bug. Registering later than any reader always is.
+
+Safe choices: `plugins_loaded`, `init`, or file scope in an already-loaded bootstrap.
+
+### In a package
+
+`projects/packages/forms/src/class-jetpack-forms.php`:
 
 ```php
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
@@ -47,19 +77,44 @@ public static function register_feature_flags() {
 }
 ```
 
-Called first thing from the package's loader, `Jetpack_Forms::load_contact_form()`. Follow that call up and the hook is Jetpack's module loader: `projects/plugins/jetpack/modules/contact-form.php` calls it at file scope, and Jetpack requires active module files on `after_setup_theme` at priority `-2` — comfortably before every reader in the table above.
+Called first thing from `Jetpack_Forms::load_contact_form()`, which `projects/plugins/jetpack/modules/contact-form.php` calls at file scope — and Jetpack requires active module files on `after_setup_theme` priority `-2`, so it beats every reader.
 
-The name is a class constant, so the registration and every check share one spelling.
+### In a plugin
 
-**A flag only exists where its owning code loads, and that is fine.** The Forms flag registers only when the Forms module is active. On a site where it isn't, the flag is absent from `Feature_Flags::all()`, from the a8c screen, and from `wp companion feature-flag list` — that is correct behaviour, not a bug to work around by hoisting registration somewhere more global. Overrides are still settable by name, because unregistered names pass through the resolution filters.
+There is no module loader to inherit, and the plugin's own bootstrap is not a "separate always-on bootstrap" to avoid — the plugin *is* the unit of activation. Call the registrar first thing from the main class:
 
-So: pick the hook your feature already loads on. Do not invent a separate always-on bootstrap just to register flags.
+```php
+public function __construct() {
+	add_action( 'init', array( $this, 'init' ) );
+}
 
-**Naming.** Names must match `/^[a-z0-9][a-z0-9_-]*$/` and should be prefixed with the owning product area (`forms-conditional-logic`, not `conditional-logic`).
+public function init() {
+	self::register_feature_flags();   // Before REST, admin menus, or CLI can read it.
+	// …
+}
+```
 
-The pattern is enforced **only at lint time**, by the `Jetpack.FeatureFlags.FeatureFlagName` PHPCS sniff — `register()` never validates at runtime. So the sniff does not protect flags registered from outside this monorepo, and a name it would reject is stored but cannot be overridden from the control surfaces. Get the name right at registration.
+Use `plugins_loaded` instead if anything reads the flag before `init`. Do not register inside the method that builds the admin menu, even when the admin menu is all the flag gates.
 
-## 2. Gate the code
+### Naming
+
+Names must match `/^[a-z0-9][a-z0-9_-]*$/`, prefixed with the owning product area (`forms-conditional-logic`, not `conditional-logic`).
+
+**Nothing will check this for you.** `register()` never validates at runtime, and the `Jetpack.FeatureFlags.FeatureFlagName` PHPCS sniff only inspects a **plain string literal** in the first argument — the class constant recommended below is skipped entirely, as is the Forms example above. Verify by eye, or inline the literal once, run PHPCS, then move it into the constant.
+
+A bad name is not a lint error later. It registers and reads fine, but the Companion CLI hard-errors rather than storing an override for it and the a8c screen lists it with no control, so the feature becomes untestable on every site.
+
+Hold the name in a class constant anyway, so registration and every check share one spelling.
+
+### Where the flag will and won't exist
+
+**A flag only exists where its owning code loads, and that is fine.** The Forms flag registers only when the Forms module is active. On a site where it isn't, the flag is absent from `Feature_Flags::all()`, from the a8c screen, and from `wp companion feature-flag list` — correct behaviour, not a bug to work around by hoisting registration somewhere more global.
+
+Distinguish that from the failure above: absent because the **owning feature** is inactive is expected; absent because you registered on a hook that **this request type** never fires is a bug.
+
+**When a reader runs before your feature loads** — an admin redirect, a REST permission callback — do not hoist `register()` to chase it. Give the early reader a separate lightweight default at its own tier, as Forms does in `Util::init()` (`projects/packages/forms/src/contact-form/class-util.php`). The two must agree on name and default, or you have two flags with one name.
+
+## 3. Gate the code
 
 ```php
 if ( Feature_Flags::is_enabled( self::CONDITIONAL_LOGIC_FLAG ) ) {
@@ -71,69 +126,103 @@ Wrap it in a named predicate (`Jetpack_Forms::is_conditional_logic_enabled()`) r
 
 `is_enabled()` on an unregistered name returns `false` but still runs the filters, so a typo fails silently in the "off" direction. That is why the name lives in a constant.
 
-## 3. Expose it to the block editor, if the feature has JS
+**Do not add `class_exists()` guards** around `Feature_Flags`. Steps 1 and 5 are what make the class present; a guard converts a loud missing-dependency fatal into a silently all-flags-off site. The only guarded caller in the repo is the a8c control screen, which has to render on sites that legitimately lack the package.
 
-Do not re-derive the flag in JS. Bridge the PHP answer so both sides read one source under one name — Forms does this through its editor features array in `class-contact-form-block.php`:
+## 4. Bridge it to JS, if the feature has any
 
-```php
-$features[ Jetpack_Forms::CONDITIONAL_LOGIC_FLAG ] = Jetpack_Forms::is_conditional_logic_enabled();
-```
+Do not re-derive the flag in JS, and do not add a second transport. Find the channel the target project already uses to hand PHP state to its JS, and put the predicate's answer on it:
 
-Then JS checks it with the package's existing feature-flag helper (`hasFeatureFlag()` in Forms). Use whatever the target package already uses to ship editor flags; do not invent a second channel.
+- **Block editor** → the `jetpack_block_editor_feature_flags` filter, which Forms hooks in `class-contact-form-block.php` and which lands as `window.Jetpack_Editor_Initial_State.feature_flags`
+- **Front-end app** → the package's existing state builder, e.g. Search's `Helper::generate_initial_javascript_state()`
+- **React admin app** → the plugin's existing initial-state payload, under a `featureFlags` map keyed by flag name
 
-## 4. Declare the dependency — and regenerate the plugin lock files
+**Name-collision warning.** `hasFeatureFlag()` from `@automattic/jetpack-shared-extension-utils` is *not* part of `automattic/jetpack-feature-flags`. It reads `getJetpackData().feature_flags`, populated by `jetpack_block_editor_feature_flags` — a separate mechanism that also carries `Current_Plan::supports()` paid-plan gates and plain bootstrap defaults. Forms routes its `Feature_Flags` answer *through* it, which is why they look connected. Adding a key to that filter **instead of** registering a flag gives you something no control surface in this skill can toggle.
 
-**This is the step that breaks CI and ships a dead flag if skipped.**
+If the payload goes through `wp_localize_script` rather than `wp_json_encode`, nest the map — top-level booleans get stringified to `"1"`/`""`.
 
-Add the package to the consuming project's `composer.json`:
+## 5. Regenerate the lock files
 
-```json
-"require": {
-    "automattic/jetpack-feature-flags": "@dev"
-}
-```
-
-Then regenerate the lock file of **every plugin that bundles that project**. Package `composer.lock` files are gitignored; **plugin** lock files are tracked, and the `lock_files` CI job fails when they drift.
+**If the flag lives in a package** — find the plugins that bundle it, and regenerate each one's lock:
 
 ```bash
-# Which plugins ship this project?
-jp dependencies list packages/<project> --add-dependents --extra build --no-dev | grep '^plugins/'
-
-# Regenerate each one's lock file.
+jp dependencies list packages/<package> --add-dependents --extra build --no-dev | grep '^plugins/'
 tools/composer-update-monorepo.sh --root-reqs projects/plugins/<plugin>
 ```
 
-Skipping this fails **soft**, which is worse than failing loudly: the class is not autoloadable in the built plugin, callers guarded with `class_exists()` quietly behave as if no flags exist, and the control screen shows an empty list that looks exactly like "no flags registered yet".
-
-## 5. Changelog
-
-Add an entry to the project you touched. If the flagged change is user-facing, also add one to each plugin that ships it — a package entry never reaches a plugin's changelog. Plugins whose lock file you regenerated in step 4 count as touched and need an entry too.
+**If the flag lives in a plugin** — skip the discovery command; it returns only the plugin itself. Regenerate that plugin's own lock, which is the one that is tracked:
 
 ```bash
-jp changelog add packages/<project> -s minor -t added -e "Add a feature flag for <thing>."
+tools/composer-update-monorepo.sh --root-reqs projects/plugins/<plugin>
+```
+
+Run both from the repo root. `--root-reqs` is load-bearing: the script builds its update list from `composer info --locked`, which cannot list a package that is not in the lock yet, so without it a newly added requirement never lands.
+
+Package `composer.lock` files are gitignored; **plugin** lock files are tracked, and the `lock_files` CI job fails when they drift. Confirm before pushing:
+
+```bash
+git diff --stat projects/plugins/<plugin>/composer.lock   # must be non-empty
+.github/files/check-lock-files.sh                          # what the lock_files CI job runs
+```
+
+Skipping this breaks CI, and if it slips through, **fatals the built plugin** — the class is not autoloadable and the unguarded `register()` call dies on load. Only the `class_exists()`-guarded control screen degrades quietly, showing an empty list that looks exactly like "no flags registered yet".
+
+## 6. Changelog
+
+Add an entry to the project you touched. Every plugin whose lock file you regenerated counts as touched and needs one too.
+
+**Types are per-project.** `plugins/jetpack` uses `major | enhancement | compat | bugfix | other` — `-t added` is rejected there. Check `.extra.changelogger.types` in the project's `composer.json`; most projects use the default `security | added | changed | deprecated | removed | fixed`. A wrong type passes the pre-push hook and fails the "Changelogger validity" CI job.
+
+**A flag that ships off is not user-facing.** Nothing a site owner can observe has changed, so describe the flag, not the feature, and keep the significance low. Save the `-s minor` entry describing the feature for the PR that flips the default or deletes the flag.
+
+```bash
+jp changelog add packages/<project> -s patch -t added   -e "Add a feature flag for <thing>."
+jp changelog add plugins/jetpack    -s patch -t other   -e "" -c "Update package dependencies."
+jp changelog add plugins/<other>    -s patch -t changed -e "" -c "Update package dependencies."
 ```
 
 Use `$$next-version$$` in any `@since` you write. Never substitute a real version.
 
-## 6. Verify
+## 7. Verify
 
 ```bash
-jp test php packages/<project>
-jp phan packages/<project>
-composer phpcs:lint -- projects/packages/<project>/
+jp test php <type>/<project>
+jp phan <type>/<project>
+composer phpcs:lint -- projects/<type>/<project>/
 ```
 
-Test **both** branches. A flag registered `'default' => false` means the default test run exercises the old path only; force the new one with the per-flag filter:
+PHPCS needs a monorepo-root `composer install`; without one it aborts on a missing `jetpack-phpcs-filter` bootstrap, which is a setup failure, not a clean lint.
+
+**If the project has no PHPUnit suite, `jp test php` exits 0 having run nothing.** That is not verification — either put the predicate somewhere testable, or state in the PR that the branches were checked manually and how.
+
+**In tests**, force the new branch with the per-flag filter, and clean up two things, not one:
 
 ```php
 add_filter( 'jetpack_feature_flag_enabled_my-flag', '__return_true' );
 ```
 
-Remove it in `tear_down()` — it is a global filter and will leak into later tests.
+- Remove the filter in teardown — and check which name your base class uses. WorDBless `BaseTestCase` subclasses override `tear_down()`; classes extending `PHPUnit\Framework\TestCase` directly override `tearDown(): void`. The wrong one is a method PHPUnit never calls.
+- Call `Feature_Flags::reset()` too. The registry is `private static`, so anything your test registered stays registered for the rest of the suite.
+- In Brain Monkey suites `add_filter()` does not apply filters at all — use `Filters\expectApplied( … )` instead.
 
-## 7. Turn it on to test — Jurassic Ninja
+Test **both** branches. A flag registered `'default' => false` means the default test run exercises the old path only.
 
-Flags ship off, so a JN site shows the old behaviour until you force the flag. Every Jurassic Ninja site already has the Companion plugin, so the command is there — nothing to install:
+**None of the above catches the failures this skill exists to prevent** — a flag registered too late, or a package that is not autoloadable in the built plugin. Both pass CI and fail on a real site. Check on Docker or JN:
+
+```bash
+# bool(false) means step 1 or 5 was skipped.
+wp eval 'var_dump( class_exists( "Automattic\\Jetpack\\Feature_Flags\\Feature_Flags" ) );'
+
+# Is the flag registered on this request type? Repeat under `wp` and in the browser.
+wp eval 'var_dump( array_keys( \Automattic\Jetpack\Feature_Flags\Feature_Flags::all() ) );'
+```
+
+If the second is missing your flag while the first is `true`, the registration hook did not fire for this request — re-read "Choosing the hook" before assuming it is the expected inactive-feature case.
+
+## 8. Turn it on to test
+
+Flags ship off, so a site shows the old behaviour until you force the flag.
+
+Every Jurassic Ninja site already has the Companion plugin, so the command is there with no setup:
 
 ```bash
 wp companion feature-flag list
@@ -149,28 +238,29 @@ Overrides are **site-wide**, not per-user: they change what the site does for lo
 
 Enabling a name nothing has registered yet succeeds with a warning, so you can set a flag before the code that registers it reaches the site.
 
-For the full command surface, the Settings-page equivalent, the two code filters, and the Automattician-only screen on WordPress.com Simple and Atomic, read `jetpack-feature-flag/references/controlling-flags.md`.
+`wp companion` does **not** exist in `jp docker`. For the local loop, the two code filters, the Companion settings page, and the Automattician-only screen on WordPress.com Simple and Atomic, read `jetpack-feature-flag/references/controlling-flags.md`.
 
-## 8. Retire the flag
+## 9. Retire the flag
 
 Flags are temporary. Once the feature ships (or is abandoned), remove it promptly — a stale flag is undocumented permanent config:
 
 1. Delete the `register()` call and the name constant.
-2. Collapse `is_enabled()` branches down to the winning path; delete the predicate wrapper.
+2. Collapse `is_enabled()` branches down to the winning path; delete the predicate wrapper and the JS bridge entry.
 3. Drop any `jetpack_feature_flag_enabled*` filters that referenced it, in code and in sandbox/mu-plugin patches.
-4. Clear stored overrides on sites that have them — `wp companion feature-flag reset <flag>` on test sites. A retired flag's override outlives its registration and still resolves.
+4. Clear stored overrides on sites that have them — `wp companion feature-flag reset <flag>`. A retired flag's override outlives its registration and still resolves.
 5. If nothing else in the project uses the package, drop the composer dependency and regenerate the plugin locks again.
 
 ## Checklist
 
 - [ ] Flag is genuinely temporary, not config in disguise
-- [ ] Name matches `/^[a-z0-9][a-z0-9_-]*$/`, prefixed with the product area, held in a constant
-- [ ] `register()` called on the hook the owning feature already loads on, ahead of every reader, with `default`, `description`, `owner`
-- [ ] Checks go through one named predicate
-- [ ] Editor/JS reads the PHP answer rather than re-deriving it
-- [ ] `automattic/jetpack-feature-flags` in the project's `composer.json`
-- [ ] Dependent **plugin** lock files regenerated and committed
-- [ ] Changelog entries for the project, and for each plugin when user-facing
-- [ ] Tests cover both branches; forcing filters removed in teardown
-- [ ] `jp test php`, `jp phan`, and PHPCS pass
+- [ ] Dependency declared **and installed** before any code was written
+- [ ] Name matches `/^[a-z0-9][a-z0-9_-]*$/`, checked by eye — neither the sniff nor `register()` sees a constant — prefixed with the product area, held in a constant
+- [ ] Registered on a hook that fires in every context that reads the flag, not an admin-only one
+- [ ] Checks go through one named predicate, with no `class_exists()` guard
+- [ ] JS reads the PHP answer through the project's existing state channel
+- [ ] Dependent **plugin** lock files regenerated; `git diff --stat` on each is non-empty
+- [ ] Changelog entries use each project's own type vocabulary
+- [ ] Tests cover both branches; filter removed and `Feature_Flags::reset()` called in the right teardown
+- [ ] `jp test php` actually ran tests rather than exiting 0 on an empty suite
+- [ ] On a real site: `class_exists()` is true and the flag appears in `Feature_Flags::all()`
 - [ ] Verified on JN with `wp companion feature-flag enable <flag>`
