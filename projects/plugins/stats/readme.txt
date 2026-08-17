@@ -136,7 +136,15 @@ Service privacy policy: [Privacy Policy](https://automattic.com/privacy/)
 Jetpack Stats is developed in the open. The plugin, every bundled `automattic/jetpack-*` package, and the build tools that produce the released package are all in the Jetpack monorepo:
 
 * Plugin source: [Automattic/jetpack/projects/plugins/stats](https://github.com/Automattic/jetpack/tree/trunk/projects/plugins/stats)
+* Stats collection and reporting: [projects/packages/stats](https://github.com/Automattic/jetpack/tree/trunk/projects/packages/stats)
+* Stats dashboard integration: [projects/packages/stats-admin](https://github.com/Automattic/jetpack/tree/trunk/projects/packages/stats-admin)
 * Monorepo and build tools: [Automattic/jetpack](https://github.com/Automattic/jetpack)
+
+The dashboard interface itself is a React application called Odyssey Stats. It is served as a prebuilt bundle from `widgets.wp.com`, and its source is in a second public repository:
+
+* Odyssey Stats application: [Automattic/wp-calypso/apps/odyssey-stats](https://github.com/Automattic/wp-calypso/tree/trunk/apps/odyssey-stats)
+* Shared Stats interface it is built from: [Automattic/wp-calypso/client/my-sites/stats](https://github.com/Automattic/wp-calypso/tree/trunk/client/my-sites/stats)
+* Repository and build tools: [Automattic/wp-calypso](https://github.com/Automattic/wp-calypso)
 
 To build the plugin from source, follow the instructions in the monorepo [development guide](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md).
 
