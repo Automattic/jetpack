@@ -14,6 +14,7 @@ namespace Automattic\Jetpack\Backup\V0005\REST;
 
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WP_REST_Server;
 use function add_action;
@@ -108,5 +109,76 @@ class Rest_Bridge_Gating_Test extends TestCase {
 		sort( $expected );
 
 		$this->assertSame( $expected, $added );
+	}
+
+	/**
+	 * `named_types()` is the PHP half of the shared `types` contract, used
+	 * by both the download and restore bridges.
+	 *
+	 * It exists because WordPress validates `'type' => 'object'` with
+	 * `rest_is_object()`, which is `is_array()` — so a JSON list reaches
+	 * the callback intact and WPCOM reads its numeric keys as category
+	 * names. Rebuilding from named keys is what makes the object form a
+	 * guarantee rather than a convention.
+	 *
+	 * @param string $label    Case description.
+	 * @param mixed  $input    Raw `types` parameter.
+	 * @param array  $expected Expected named map.
+	 * @dataProvider provide_types
+	 */
+	#[DataProvider( 'provide_types' )]
+	public function test_named_types( $label, $input, $expected ) {
+		$this->assertSame( $expected, Rest_Controller::named_types( $input ), $label );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: mixed, 2: array}>
+	 */
+	public static function provide_types() {
+		return array(
+			'keeps selected, drops unselected' => array(
+				'keeps selected, drops unselected',
+				array(
+					'themes'  => true,
+					'plugins' => false,
+					'sqls'    => true,
+				),
+				array(
+					'themes' => true,
+					'sqls'   => true,
+				),
+			),
+			'normalises truthy values to true' => array(
+				'normalises truthy values to true',
+				array( 'themes' => '1' ),
+				array( 'themes' => true ),
+			),
+			'reads "false" and "0" as skip'    => array(
+				'reads "false" and "0" as skip',
+				array(
+					'themes'  => 'false',
+					'plugins' => '0',
+				),
+				array(),
+			),
+			'drops a list of names'            => array(
+				'drops a list of names',
+				array( 'themes', 'plugins' ),
+				array(),
+			),
+			'drops a list of booleans'         => array(
+				'drops a list of booleans',
+				array( true, false ),
+				array(),
+			),
+			'empty array'                      => array( 'empty array', array(), array() ),
+			'null'                             => array( 'null', null, array() ),
+			'scalar'                           => array( 'scalar', 'themes', array() ),
+			'object'                           => array(
+				'object',
+				(object) array( 'themes' => true ),
+				array( 'themes' => true ),
+			),
+		);
 	}
 }

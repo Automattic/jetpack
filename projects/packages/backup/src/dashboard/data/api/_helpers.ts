@@ -31,8 +31,26 @@ export function apiPath(
 
 /**
  * Strip the decimal suffix WPCOM ships on rewind ids (e.g.
- * `'1777035492.615'` → `'1777035492'`). The `/rewind/backup/$rewindId`
- * URLs reject the suffixed form with a 404.
+ * `'1777035492.615'` → `'1777035492'`).
+ *
+ * Truncating is a WPCOM-side requirement, not a local one — no route in
+ * this package matches the id against `\d+`. Where the two remaining
+ * callers stand:
+ *
+ * `fetchFileTree` needs it. It sends the id in the body as `rewind_id`,
+ * and the bridge forwards that to WPCOM as `backup_id`, which is an
+ * integer identifier there.
+ *
+ * `initiateRestore` still calls it, but only because it targets the v1
+ * activity-log route with the id in the *path*. That is a temporary
+ * arrangement: the v2 restore route takes the id in the body, in full,
+ * and the call moves with it when it is repointed. Note the Jetpack
+ * route it goes through already accepts a decimal, so the truncation is
+ * not protecting anything.
+ *
+ * Download no longer calls it at all: `/rewind/downloads` takes the id
+ * in the body and truncating it there addresses a different backup than
+ * the reader picked.
  *
  * @param rewindId - Raw rewind id, possibly with a decimal suffix.
  * @return The integer-seconds portion only.
@@ -40,6 +58,40 @@ export function apiPath(
 export function toIntRewindId( rewindId: string ): string {
 	const idx = rewindId.indexOf( '.' );
 	return idx === -1 ? rewindId : rewindId.slice( 0, idx );
+}
+
+/**
+ * Serialize a restore/download category checklist for WPCOM.
+ *
+ * WPCOM selects the enabled categories with a **loose** comparison, so a
+ * JSON array of names does not mean what it looks like: every name
+ * compares equal, and what comes back out is the array's own integer
+ * indices. `[ "themes" ]` becomes `[ 0 ]` and `[ "themes", "plugins" ]`
+ * becomes `[ 0, 1 ]`, which are then treated as category names. An
+ * emptiness check would never catch it, because the list is not empty.
+ *
+ * The object form is therefore the only safe spelling, and this is the
+ * single place that builds it. Only `true` entries are included, so the
+ * result never depends on that loose comparison.
+ *
+ * Returns `undefined` when nothing is selected. Callers must omit the
+ * key entirely in that case rather than sending `{}` — the restore route
+ * rejects any `types` value that names no type, and on the download side
+ * an empty list would silently ask for nothing.
+ *
+ * @param items - The category checklist.
+ * @return The object form, or undefined when no category is selected.
+ */
+export function serializeTypes(
+	items: Record< string, boolean >
+): Record< string, true > | undefined {
+	const selected: Record< string, true > = {};
+	for ( const key of Object.keys( items ) ) {
+		if ( items[ key ] ) {
+			selected[ key ] = true;
+		}
+	}
+	return Object.keys( selected ).length ? selected : undefined;
 }
 
 /**
