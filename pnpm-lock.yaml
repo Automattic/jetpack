@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-ZW2BoUDYyI5nkZ8o3EkCzocg7Bspf+AzfFGBEEoeEK8=
+pnpmfileChecksum: sha256-LT+E4Lff3bPPxejSSqYmnqPP+5a7UzazrKPK8+691o8=
 
 patchedDependencies:
   '@wordpress/build': 151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022
@@ -6819,8 +6819,8 @@ importers:
         specifier: 29.15.4
         version: 29.15.4(eslint@10.6.0)(jest@30.4.2)(typescript@6.0.3)
       eslint-plugin-jest-dom:
-        specifier: 5.5.0
-        version: 5.5.0(@testing-library/dom@10.4.1)(eslint@10.6.0)
+        specifier: 5.10.1
+        version: 5.10.1(@testing-library/dom@10.4.1)(eslint@10.6.0)
       eslint-plugin-jsdoc:
         specifier: 63.0.12
         version: 63.0.12(eslint@10.6.0)
@@ -13625,12 +13625,12 @@ packages:
       '@typescript-eslint/parser':
         optional: true
 
-  eslint-plugin-jest-dom@5.5.0:
-    resolution: {integrity: sha512-CRlXfchTr7EgC3tDI7MGHY6QjdJU5Vv2RPaeeGtkXUHnKZf04kgzMPIJUXt4qKCvYWVVIEo9ut9Oq1vgXAykEA==}
+  eslint-plugin-jest-dom@5.10.1:
+    resolution: {integrity: sha512-IIJdzbACbhJUJyMAqpA9E9gxp1Gv29TeQ3DtL+pepwP8Oq2WiqjOB2HbnEIs23h0ewdKIZRDI56yLro2eUO+DA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0, npm: '>=6', yarn: '>=1'}
     peerDependencies:
       '@testing-library/dom': ^8.0.0 || ^9.0.0 || ^10.0.0
-      eslint: ^6.8.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10
+      eslint: ^6.8.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
     peerDependenciesMeta:
       '@testing-library/dom':
         optional: true
@@ -35682,9 +35682,8 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-plugin-jest-dom@5.5.0(@testing-library/dom@10.4.1)(eslint@10.6.0):
+  eslint-plugin-jest-dom@5.10.1(@testing-library/dom@10.4.1)(eslint@10.6.0):
     dependencies:
-      '@babel/runtime': 7.29.7
       eslint: 10.6.0
       requireindex: 1.2.0
     optionalDependencies:
