@@ -39,6 +39,26 @@ const label = __( 'All pages' );
   the section header, and stacked sections.
   `ReportPageSection` is the bordered card each section renders in.
 
+- **`ReportPerformanceChart`** — the multi-metric visits chart
+  (Views/Visitors/Comments/Likes via `useStatsVisits` `stat_fields`), with a
+  metric show/hide menu, the time-bucket selector (owned by the page — it
+  changes the query), and a collapse toggle. With exactly one visible metric
+  and comparison data, the previous period draws as a dashed overlay.
+- **`ReportRecordsTable`** — a Core DataViews table over the module's
+  summarized rows; search, sorting, column config, and pagination run
+  client-side via `filterSortAndPaginate`.
+- **`ReportPageTabs`** — the presentational tab bar for report pages with
+  multiple views (the `tabs` slot above). It renders `{ id, label }` triggers
+  and reports selection upward; panel children render inside the same `Tabs.Root`
+  so the tablist and content share one tab/panel relationship. Generic over the
+  tab-id string type; pair it with `defineReportTabs` / `useSectionTab` from
+  `@jetpack-premium-analytics/routing` for the URL-backed tab state. Panels in
+  the children MUST use `ReportPageTabPanel`, not `Tabs.Panel` from
+  `@wordpress/ui`: routes and this toolkit each bundle their own `@wordpress/ui`
+  copy, and Base UI's tabs context does not cross bundle copies — a route's
+  `Tabs.Panel` throws `TabsRootContext is missing` at runtime even though the
+  JSX nesting looks right.
+
 ## The section header
 
 `ReportPageLayout` renders `SectionHeader` from `@jetpack-premium-analytics/ui`
@@ -87,25 +107,6 @@ passes `title` alone. Its header is the title, with no subtitle and no controls.
 Not pinned, unlike the dashboard's: on a report page the header scrolls away
 with the content. The pin and its condense-on-scroll live in the surface's own
 CSS, not in `SectionHeader` (see `routes/dashboard/stage.module.scss`).
-- **`ReportPerformanceChart`** — the multi-metric visits chart
-  (Views/Visitors/Comments/Likes via `useStatsVisits` `stat_fields`), with a
-  metric show/hide menu, the time-bucket selector (owned by the page — it
-  changes the query), and a collapse toggle. With exactly one visible metric
-  and comparison data, the previous period draws as a dashed overlay.
-- **`ReportRecordsTable`** — a Core DataViews table over the module's
-  summarized rows; search, sorting, column config, and pagination run
-  client-side via `filterSortAndPaginate`.
-- **`ReportPageTabs`** — the presentational tab bar for report pages with
-  multiple views (the `tabs` slot above). It renders `{ id, label }` triggers
-  and reports selection upward; panel children render inside the same `Tabs.Root`
-  so the tablist and content share one tab/panel relationship. Generic over the
-  tab-id string type; pair it with `defineReportTabs` / `useSectionTab` from
-  `@jetpack-premium-analytics/routing` for the URL-backed tab state. Panels in
-  the children MUST use `ReportPageTabPanel`, not `Tabs.Panel` from
-  `@wordpress/ui`: routes and this toolkit each bundle their own `@wordpress/ui`
-  copy, and Base UI's tabs context does not cross bundle copies — a route's
-  `Tabs.Panel` throws `TabsRootContext is missing` at runtime even though the
-  JSX nesting looks right.
 
 Pass `StatsBreadcrumbs` from `@jetpack-premium-analytics/ui` to the shell's
 `breadcrumbs` slot. It owns the leading `Stats` crumb and links it back to the
