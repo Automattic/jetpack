@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Charts: allow the --a8c-charts-* token catalog to be overridden anywhere inside a GlobalChartsProvider, and resolve tokens against the chart element so both CSS and JS honor the same override.
+Emit the `--a8c-charts-*` token catalog on the charts provider, so any token can be overridden in CSS anywhere inside it or through the `theme` prop, and resolve tokens against the chart element so CSS-painted and SVG-painted colors honour the same override.
