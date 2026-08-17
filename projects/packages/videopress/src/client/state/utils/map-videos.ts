@@ -25,6 +25,11 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		privacy_setting: privacySetting,
 		needs_playback_token: needsPlaybackToken,
 		is_private: isPrivate,
+		// Whether this site still owns the video on WordPress.com. A video that was
+		// moved to another blog stays in this (local) library with stale metadata;
+		// the server marks it not-owned so the UI can flag it as read-only. Absent
+		// means unknown -> treat as owned so nothing is spuriously flagged.
+		is_owned: isOwned = true,
 	} = jetpackVideoPress;
 
 	const {
@@ -75,6 +80,7 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		thumbnail,
 		finished,
 		filename,
+		isOwned,
 	};
 };
 

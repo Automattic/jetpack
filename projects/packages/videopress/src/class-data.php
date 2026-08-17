@@ -17,12 +17,74 @@ use WP_REST_Request;
 class Data {
 
 	/**
+	 * Transient-key prefix for the per-GUID video-ownership cache.
+	 */
+	const OWNERSHIP_CACHE_PREFIX = 'jetpack_vp_owner_';
+
+	/**
+	 * How long a resolved video owner is cached. Moves are rare, so a long TTL keeps
+	 * the per-GUID WPCOM lookups off the hot path; a moved-away video may keep showing
+	 * on the source for up to this long before it is flagged.
+	 */
+	const OWNERSHIP_CACHE_TTL = 12 * HOUR_IN_SECONDS;
+
+	/**
 	 * Gets the Jetpack blog ID
 	 *
 	 * @return int The blog ID
 	 */
 	public static function get_blog_id() {
 		return VideoPressToken::blog_id();
+	}
+
+	/**
+	 * Whether this site still owns a VideoPress video, per WPCOM's canonical record.
+	 *
+	 * The dashboard library is built entirely from LOCAL media-library attachments, so
+	 * a video that has been moved to another blog ( its canonical `videos` row re-pointed )
+	 * still lists here with stale local metadata, and can no longer be edited from this
+	 * site. This confirms current ownership against WPCOM so the UI can flag / hide such
+	 * videos.
+	 *
+	 * Fails OPEN: on any transient or unknown lookup failure it returns true, so a WPCOM
+	 * hiccup never makes a site's own videos disappear. Results are cached per GUID
+	 * ( including the "not owned" outcome ) to keep this off the hot path.
+	 *
+	 * @param string $guid The VideoPress GUID.
+	 * @return bool True when owned ( or ownership can't be determined ); false only when
+	 *              WPCOM confirms the video belongs to a different blog.
+	 */
+	public static function is_video_owned_by_site( $guid ) {
+		if ( empty( $guid ) ) {
+			return true;
+		}
+
+		$site_blog_id = (int) self::get_blog_id();
+		if ( $site_blog_id <= 0 ) {
+			// Can't determine our own blog id; don't hide anything.
+			return true;
+		}
+
+		$cache_key  = self::OWNERSHIP_CACHE_PREFIX . md5( $guid );
+		$owner_blog = get_transient( $cache_key );
+
+		if ( false === $owner_blog ) {
+			$owner_blog = Site::get_video_owner_blog_id( $guid );
+			if ( is_wp_error( $owner_blog ) ) {
+				// Transient/unknown failure -> fail open and do not cache, so we retry.
+				return true;
+			}
+			set_transient( $cache_key, (int) $owner_blog, self::OWNERSHIP_CACHE_TTL );
+		}
+
+		$owner_blog = (int) $owner_blog;
+
+		// 0 means WPCOM denied this blog access to the video -> not the owner.
+		if ( 0 === $owner_blog ) {
+			return false;
+		}
+
+		return $owner_blog === $site_blog_id;
 	}
 
 	/**

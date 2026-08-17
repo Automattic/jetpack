@@ -27,12 +27,18 @@ const QuickActions = ( {
 	id,
 	onVideoDetailsClick,
 	className,
+	isOwned = true,
 }: {
 	id: VideoCardProps[ 'id' ];
 	onVideoDetailsClick: VideoCardProps[ 'onVideoDetailsClick' ];
 	className?: VideoCardProps[ 'className' ];
+	isOwned?: VideoCardProps[ 'isOwned' ];
 } ) => {
 	const { canPerformAction } = usePermission();
+
+	// A video that was moved to another blog stays in this local library but can no
+	// longer be edited here, so disable the edit action for it.
+	const editDisabled = ! canPerformAction || isOwned === false;
 
 	return (
 		<div className={ clsx( styles[ 'video-card__quick-actions-section' ], className ) }>
@@ -41,12 +47,12 @@ const QuickActions = ( {
 				size="small"
 				onClick={ onVideoDetailsClick }
 				className={ styles[ 'video-card__quick-actions__edit-button' ] }
-				disabled={ ! canPerformAction }
+				disabled={ editDisabled }
 			>
 				{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }
 			</Button>
 
-			{ id && <ConnectVideoQuickActions videoId={ id } /> }
+			{ id && isOwned !== false && <ConnectVideoQuickActions videoId={ id } /> }
 		</div>
 	);
 };
@@ -71,6 +77,7 @@ export const VideoCard = ( {
 	processing = false,
 	uploadProgress,
 	onVideoDetailsClick,
+	isOwned = true,
 }: VideoCardProps ) => {
 	const isBlank = ! title && ! duration && ! plays && ! thumbnail && ! loading;
 
@@ -136,6 +143,11 @@ export const VideoCard = ( {
 									{ playsCount }
 								</Text>
 							) }
+							{ isOwned === false && (
+								<Text component="div">
+									{ __( 'Moved to another site', 'jetpack-videopress-pkg' ) }
+								</Text>
+							) }
 						</>
 					) }
 				</div>
@@ -146,6 +158,7 @@ export const VideoCard = ( {
 					<QuickActions
 						id={ id }
 						onVideoDetailsClick={ onVideoDetailsClick }
+						isOwned={ isOwned }
 						className={ clsx( {
 							[ styles[ 'is-blank' ] ]: loading,
 						} ) }
@@ -157,6 +170,7 @@ export const VideoCard = ( {
 				<QuickActions
 					id={ id }
 					onVideoDetailsClick={ onVideoDetailsClick }
+					isOwned={ isOwned }
 					className={ styles.small }
 				/>
 			) }

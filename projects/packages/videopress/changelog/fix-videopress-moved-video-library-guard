@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+VideoPress: Flag videos that have been moved to another site as read-only in the library, and show a clear message instead of a generic error when trying to edit one.
