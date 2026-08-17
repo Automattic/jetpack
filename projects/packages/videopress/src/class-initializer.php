@@ -699,8 +699,10 @@ class Initializer {
 			)
 		);
 
+		// An unordered list: item numbering comes from the index spans, so theme
+		// list styles can never double up the numbers.
 		return sprintf(
-			'<figure %1$s>%2$s<ol class="videopress-playlist__items">%3$s</ol></figure>',
+			'<figure %1$s>%2$s<ul class="videopress-playlist__items">%3$s</ul></figure>',
 			$wrapper_attributes,
 			$player_markup,
 			$items_markup

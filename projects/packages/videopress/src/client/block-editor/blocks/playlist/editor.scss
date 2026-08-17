@@ -40,50 +40,85 @@
 	}
 
 	&__item-index {
+		flex-shrink: 0;
 		opacity: 0.7;
 	}
 
 	&__item-title {
-		flex-grow: 1;
+		flex: 1 1 auto;
+		min-inline-size: 0;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
+}
 
-	// Sidebar panel: playlist management (add, sort, delete).
-	&__manage-list {
-		list-style: none;
-		margin: 0 0 12px;
-		padding: 0;
+// Sidebar panel: playlist management (add, drag-to-sort, delete). These
+// elements render in the editor sidebar, outside the block wrapper.
+.videopress-playlist-editor__manage-list {
+	list-style: none;
+	margin: 0 0 16px;
+	padding: 0;
+}
+
+.videopress-playlist-editor__manage-item {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 4px;
+	border: 1px solid transparent;
+	border-radius: 2px;
+	cursor: grab;
+
+	&:hover {
+		background: rgba(0, 0, 0, 0.04);
 	}
 
-	&__manage-item {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 4px;
-		padding: 2px 0;
+	&.is-dragging {
+		opacity: 0.4;
 	}
 
-	&__manage-item-title {
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+	&.is-drop-target {
+		border-color: var(--wp-admin-theme-color, #3858e9);
 	}
 
-	&__manage-item-actions {
+	.videopress-playlist-editor__manage-item-handle {
 		display: flex;
 		flex-shrink: 0;
+		opacity: 0.6;
 	}
 
-	&__add {
-		display: flex;
-		flex-direction: column;
-		align-items: stretch;
-		gap: 8px;
+	.videopress-playlist-editor__manage-item-index {
+		flex-shrink: 0;
+		opacity: 0.7;
 	}
 
-	.components-notice {
-		margin: 8px 0 0;
+	.videopress-playlist-editor__manage-item-title {
+		flex: 1 1 auto;
+		min-inline-size: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
+
+	.videopress-playlist-editor__manage-item-remove {
+		flex-shrink: 0;
+	}
+}
+
+// The sidebar is a narrow column: stack the add controls vertically,
+// full width, rather than flowing them side by side.
+.videopress-playlist-editor__add {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 8px;
+
+	.components-button {
+		justify-content: center;
+	}
+}
+
+.videopress-playlist-editor__notice {
+	margin: 8px 0 0;
 }

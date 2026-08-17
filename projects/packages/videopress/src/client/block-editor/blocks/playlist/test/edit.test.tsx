@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { fetchVideoItem } from '../../../../lib/fetch-video-item';
 import Edit from '../edit';
@@ -122,14 +122,15 @@ describe( 'PlaylistBlockEdit', () => {
 			expect.stringContaining( 'videopress.com/embed/abcd1234' )
 		);
 
-		expect( screen.getByText( 'First' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'efgh5678' ) ).toBeInTheDocument();
+		// Titles list in both the canvas preview and the sidebar manage list.
+		expect( screen.getAllByText( 'First' ) ).toHaveLength( 2 );
+		expect( screen.getAllByText( 'efgh5678' ) ).toHaveLength( 2 );
 	} );
 
 	it( 'shows item titles as plain text, with only the add-video field editable', () => {
 		renderEdit( { videos: [ { guid: 'abcd1234', title: 'First' } ] } );
 
-		expect( screen.getByText( 'First' ) ).toBeInTheDocument();
+		expect( screen.getAllByText( 'First' ).length ).toBeGreaterThan( 0 );
 		expect( screen.getAllByRole( 'textbox' ) ).toHaveLength( 1 );
 		expect( screen.getByRole( 'textbox' ) ).toHaveAttribute(
 			'placeholder',
@@ -170,20 +171,39 @@ describe( 'PlaylistBlockEdit', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( { videos: [ { guid: 'efgh5678' } ] } );
 	} );
 
-	it( 'moves an item down and disables the impossible directions', async () => {
-		const user = userEvent.setup();
+	it( 'reorders videos with drag and drop', () => {
 		const { setAttributes } = renderEdit( {
-			videos: [ { guid: 'abcd1234' }, { guid: 'efgh5678' } ],
+			videos: [ { guid: 'abcd1234' }, { guid: 'efgh5678' }, { guid: 'ijkl9012' } ],
 		} );
 
-		expect( screen.getAllByLabelText( 'Move up' )[ 0 ] ).toBeDisabled();
-		expect( screen.getAllByLabelText( 'Move down' )[ 1 ] ).toBeDisabled();
+		const sidebar = within( screen.getByTestId( 'inspector-controls' ) );
+		const items = sidebar.getAllByRole( 'listitem' );
 
-		await user.click( screen.getAllByLabelText( 'Move down' )[ 0 ] );
+		fireEvent.dragStart( items[ 0 ] );
+		fireEvent.dragOver( items[ 2 ] );
+		fireEvent.drop( items[ 2 ] );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
-			videos: [ { guid: 'efgh5678' }, { guid: 'abcd1234' } ],
+			videos: [ { guid: 'efgh5678' }, { guid: 'ijkl9012' }, { guid: 'abcd1234' } ],
 		} );
+	} );
+
+	it( 'marks the hovered item as the drop target while dragging', () => {
+		renderEdit( { videos: [ { guid: 'abcd1234' }, { guid: 'efgh5678' } ] } );
+
+		const sidebar = within( screen.getByTestId( 'inspector-controls' ) );
+		const items = sidebar.getAllByRole( 'listitem' );
+
+		fireEvent.dragStart( items[ 0 ] );
+		fireEvent.dragOver( items[ 1 ] );
+
+		expect( items[ 0 ] ).toHaveClass( 'is-dragging' );
+		expect( items[ 1 ] ).toHaveClass( 'is-drop-target' );
+
+		fireEvent.dragEnd( items[ 0 ] );
+
+		expect( items[ 0 ] ).not.toHaveClass( 'is-dragging' );
+		expect( items[ 1 ] ).not.toHaveClass( 'is-drop-target' );
 	} );
 
 	it( 'switches the preview when selecting another item', async () => {
@@ -241,17 +261,17 @@ describe( 'PlaylistBlockEdit', () => {
 
 		const sidebar = within( screen.getByTestId( 'inspector-controls' ) );
 
-		// Add, sort, and delete all live in the sidebar.
+		// Add, drag-to-sort, and delete all live in the sidebar.
 		expect( sidebar.getByPlaceholderText( 'VideoPress GUID or URL' ) ).toBeInTheDocument();
 		expect( sidebar.getByText( 'Add to playlist' ) ).toBeInTheDocument();
 		expect( sidebar.getByText( 'Choose from library' ) ).toBeInTheDocument();
-		expect( sidebar.getAllByLabelText( 'Move up' ) ).toHaveLength( 2 );
-		expect( sidebar.getAllByLabelText( 'Move down' ) ).toHaveLength( 2 );
 		expect( sidebar.getAllByLabelText( 'Remove from playlist' ) ).toHaveLength( 2 );
+		for ( const item of sidebar.getAllByRole( 'listitem' ) ) {
+			expect( item ).toHaveAttribute( 'draggable', 'true' );
+		}
 
 		// The canvas only previews: item selection, no management controls.
 		expect( screen.getAllByLabelText( 'Remove from playlist' ) ).toHaveLength( 2 );
-		expect( screen.getAllByLabelText( 'Move up' ) ).toHaveLength( 2 );
 		expect( screen.getByLabelText( 'Preview video 2' ) ).toBeInTheDocument();
 	} );
 

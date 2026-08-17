@@ -18,7 +18,7 @@ import {
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
-import { chevronDown, chevronUp, closeSmall } from '@wordpress/icons';
+import { closeSmall, dragHandle, Icon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -72,6 +72,8 @@ export default function PlaylistBlockEdit( {
 	const [ newVideoInput, setNewVideoInput ] = useState( '' );
 	const [ errorNotice, setErrorNotice ] = useState< string | null >( null );
 	const [ isAddingVideo, setIsAddingVideo ] = useState( false );
+	const [ draggedIndex, setDraggedIndex ] = useState< number | null >( null );
+	const [ dropTargetIndex, setDropTargetIndex ] = useState< number | null >( null );
 
 	// Always points at the latest videos so async title fetches never clobber newer edits.
 	const videosRef = useRef( videos );
@@ -201,20 +203,23 @@ export default function PlaylistBlockEdit( {
 		}
 	};
 
-	const moveVideo = ( index: number, direction: -1 | 1 ) => {
-		const target = index + direction;
-		if ( target < 0 || target >= videos.length ) {
+	const reorderVideo = ( from: number, to: number ) => {
+		if ( from === to || from < 0 || to < 0 || from >= videos.length || to >= videos.length ) {
 			return;
 		}
 
 		const reordered = [ ...videos ];
-		[ reordered[ index ], reordered[ target ] ] = [ reordered[ target ], reordered[ index ] ];
+		const [ moved ] = reordered.splice( from, 1 );
+		reordered.splice( to, 0, moved );
 		setAttributes( { videos: reordered } );
 
-		if ( currentIndex === index ) {
-			setCurrentIndex( target );
-		} else if ( currentIndex === target ) {
-			setCurrentIndex( index );
+		// Keep the canvas preview on the same video it showed before the move.
+		if ( currentIndex === from ) {
+			setCurrentIndex( to );
+		} else if ( from < currentIndex && to >= currentIndex ) {
+			setCurrentIndex( currentIndex - 1 );
+		} else if ( from > currentIndex && to <= currentIndex ) {
+			setCurrentIndex( currentIndex + 1 );
 		}
 	};
 
@@ -223,40 +228,80 @@ export default function PlaylistBlockEdit( {
 	const inspectorControls = (
 		<InspectorControls>
 			<PanelBody title={ __( 'Videos', 'jetpack-videopress-pkg' ) }>
-				<ol className="videopress-playlist-editor__manage-list">
-					{ videos.map( ( video: PlaylistVideo, index: number ) => (
-						<li
-							key={ `${ video.guid }-${ index }` }
-							className="videopress-playlist-editor__manage-item"
-						>
-							<span className="videopress-playlist-editor__manage-item-title">
-								{ index + 1 }. { video.title || video.guid }
-							</span>
-							<span className="videopress-playlist-editor__manage-item-actions">
+				<ul className="videopress-playlist-editor__manage-list">
+					{ videos.map( ( video: PlaylistVideo, index: number ) => {
+						const classes = [ 'videopress-playlist-editor__manage-item' ];
+						if ( index === draggedIndex ) {
+							classes.push( 'is-dragging' );
+						}
+						if ( index === dropTargetIndex && index !== draggedIndex ) {
+							classes.push( 'is-drop-target' );
+						}
+
+						return (
+							<li
+								key={ `${ video.guid }-${ index }` }
+								className={ classes.join( ' ' ) }
+								draggable
+								aria-label={ sprintf(
+									/* translators: %d: position of the video in the playlist. */
+									__( 'Video %d. Drag to reorder.', 'jetpack-videopress-pkg' ),
+									index + 1
+								) }
+								onDragStart={ event => {
+									setDraggedIndex( index );
+									event.dataTransfer?.setData( 'text/plain', String( index ) );
+									if ( event.dataTransfer ) {
+										event.dataTransfer.effectAllowed = 'move';
+									}
+								} }
+								onDragOver={ event => {
+									event.preventDefault();
+									if ( event.dataTransfer ) {
+										event.dataTransfer.dropEffect = 'move';
+									}
+									if ( draggedIndex !== null && index !== draggedIndex ) {
+										setDropTargetIndex( index );
+									}
+								} }
+								onDragLeave={ () => {
+									if ( dropTargetIndex === index ) {
+										setDropTargetIndex( null );
+									}
+								} }
+								onDrop={ event => {
+									event.preventDefault();
+									if ( draggedIndex !== null ) {
+										reorderVideo( draggedIndex, index );
+									}
+									setDraggedIndex( null );
+									setDropTargetIndex( null );
+								} }
+								onDragEnd={ () => {
+									setDraggedIndex( null );
+									setDropTargetIndex( null );
+								} }
+							>
+								<span className="videopress-playlist-editor__manage-item-handle">
+									<Icon icon={ dragHandle } size={ 16 } />
+								</span>
+								<span className="videopress-playlist-editor__manage-item-index">
+									{ index + 1 }.
+								</span>
+								<span className="videopress-playlist-editor__manage-item-title">
+									{ video.title || video.guid }
+								</span>
 								<Button
-									size="small"
-									icon={ chevronUp }
-									disabled={ index === 0 }
-									onClick={ () => moveVideo( index, -1 ) }
-									label={ __( 'Move up', 'jetpack-videopress-pkg' ) }
-								/>
-								<Button
-									size="small"
-									icon={ chevronDown }
-									disabled={ index === videos.length - 1 }
-									onClick={ () => moveVideo( index, 1 ) }
-									label={ __( 'Move down', 'jetpack-videopress-pkg' ) }
-								/>
-								<Button
+									className="videopress-playlist-editor__manage-item-remove"
 									size="small"
 									icon={ closeSmall }
 									onClick={ () => removeVideo( index ) }
 									label={ __( 'Remove from playlist', 'jetpack-videopress-pkg' ) }
 								/>
-							</span>
-						</li>
-					) ) }
-				</ol>
+							</li>
+						);
+					} ) }
+				</ul>
 
 				<div className="videopress-playlist-editor__add">
 					<TextControl
@@ -301,7 +346,11 @@ export default function PlaylistBlockEdit( {
 					</MediaUploadCheck>
 				</div>
 				{ errorNotice && (
-					<Notice status="error" isDismissible={ false }>
+					<Notice
+						className="videopress-playlist-editor__notice"
+						status="error"
+						isDismissible={ false }
+					>
 						{ errorNotice }
 					</Notice>
 				) }
@@ -364,7 +413,7 @@ export default function PlaylistBlockEdit( {
 				</div>
 			) }
 
-			<ol className="videopress-playlist-editor__items">
+			<ul className="videopress-playlist-editor__items">
 				{ videos.map( ( video: PlaylistVideo, index: number ) => (
 					<li
 						key={ `${ video.guid }-${ index }` }
@@ -390,7 +439,7 @@ export default function PlaylistBlockEdit( {
 						</Button>
 					</li>
 				) ) }
-			</ol>
+			</ul>
 		</div>
 	);
 }
