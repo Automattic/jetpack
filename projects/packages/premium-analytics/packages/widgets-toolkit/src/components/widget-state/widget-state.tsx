@@ -112,7 +112,10 @@ export function WidgetState( {
 		// target that survives but refuses focus — disabled, hidden — needs no
 		// branch of its own: `focus()` is silent and focus stays parked on the
 		// root, which is where that branch would have put it anyway.
-		( target.isConnected ? target : rootRef.current )?.focus();
+		// `preventScroll` for the same reason as the park: focus never left the
+		// widget, so a reader who scrolled away meanwhile chose that view and
+		// shouldn't be yanked back by an update they can't see.
+		( target.isConnected ? target : rootRef.current )?.focus( { preventScroll: true } );
 	}, [ showFetchingState ] );
 
 	const skeleton = renderLoading ?? <GenericSkeleton />;
