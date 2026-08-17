@@ -8,7 +8,6 @@ import {
 	createStore,
 	storeName,
 	StylesPanel,
-	StylesSidebar,
 	useCanEditEmailStyles,
 } from '@woocommerce/email-editor';
 import { PanelBody } from '@wordpress/components';
@@ -37,26 +36,6 @@ if ( config ) {
 	dispatch( storeName ).setEditorConfig( config );
 }
 
-/**
- * Which placement to demo.
- *
- * `panel` (default) renders the chrome-free StylesPanel inside the existing
- * Jetpack Newsletter sidebar — the placement we would ship.
- *
- * `sidebar` renders the unmodified StylesSidebar, which registers its own
- * complementary area. That is the zero-glue case: if it works untouched in the
- * post editor, "does the panel run outside the email editor shell" is settled
- * without any of our wiring to argue about.
- *
- * Switch with ?jetpack_styles_placement=sidebar on the editor URL.
- *
- * @return {'panel'|'sidebar'} The placement to render.
- */
-function getPlacement() {
-	const placement = new URLSearchParams( window.location.search ).get( 'jetpack_styles_placement' );
-	return placement === 'sidebar' ? 'sidebar' : 'panel';
-}
-
 const NewsletterStylesFill = () => {
 	const canEdit = useCanEditEmailStyles();
 
@@ -73,36 +52,16 @@ const NewsletterStylesFill = () => {
 	);
 };
 
-/**
- * Whether we are in the site editor rather than the post editor.
- *
- * The newsletter sidebar is a post-editor thing, so there is nothing to fill
- * into here — the panel has to bring its own complementary area.
- *
- * @return {boolean} True in the site editor.
- */
-function isSiteEditor() {
-	return window.location.pathname.endsWith( '/site-editor.php' );
-}
-
 const NewsletterStyles = () => {
 	const postType = useSelect( select => select( 'core/editor' )?.getCurrentPostType(), [] );
 
-	if ( ! config ) {
-		return null;
-	}
-
-	if ( isSiteEditor() ) {
-		return <StylesSidebar />;
-	}
-
 	// Newsletters are ordinary posts. Everything else in the post editor is out
 	// of scope for the spike.
-	if ( postType !== 'post' ) {
+	if ( ! config || postType !== 'post' ) {
 		return null;
 	}
 
-	return getPlacement() === 'sidebar' ? <StylesSidebar /> : <NewsletterStylesFill />;
+	return <NewsletterStylesFill />;
 };
 
 export default NewsletterStyles;

@@ -29,7 +29,6 @@ const EXTENSION_NAME = 'newsletter-styles';
 const NEWSLETTER_TEMPLATE_SLUG = 'newsletter';
 
 require_once __DIR__ . '/newsletter-editor-page.php';
-require_once __DIR__ . '/newsletter-styles-page.php';
 
 /**
  * The post name the WooCommerce email editor stores its user theme under.
@@ -65,6 +64,24 @@ function has_email_editor_package() {
 }
 
 /**
+ * Whether the stand-ins for a missing email editor package may be used.
+ *
+ * Off unless a site explicitly opts in with
+ * `define( 'JETPACK_NEWSLETTER_STYLES_DEV', true );`.
+ *
+ * The fallbacks fabricate an email theme and, more importantly, *create* a
+ * `wp_global_styles` post. Doing that as a side effect of loading the post
+ * editor is not something to inflict on a site that simply does not have the
+ * package — without the opt-in the extension stays inert instead, which also
+ * makes "the package is missing" visible rather than silently papered over.
+ *
+ * @return bool
+ */
+function development_fallbacks_enabled() {
+	return defined( 'JETPACK_NEWSLETTER_STYLES_DEV' ) && JETPACK_NEWSLETTER_STYLES_DEV;
+}
+
+/**
  * The base email theme, as raw theme.json data.
  *
  * This is the theme the panel layers user edits on top of — deliberately the
@@ -75,7 +92,7 @@ function has_email_editor_package() {
  */
 function get_base_email_theme() {
 	if ( ! has_email_editor_package() ) {
-		return get_development_email_theme();
+		return development_fallbacks_enabled() ? get_development_email_theme() : null;
 	}
 
 	$container        = \Automattic\WooCommerce\EmailEditor\Email_Editor_Container::container();
@@ -129,7 +146,9 @@ function get_global_styles_post_id() {
 		return $user_theme->get_user_theme_post()->ID;
 	}
 
-	return ensure_development_user_theme_post();
+	// Never create the record on a site that has not opted in — see
+	// development_fallbacks_enabled().
+	return development_fallbacks_enabled() ? ensure_development_user_theme_post() : null;
 }
 
 /**
@@ -194,21 +213,16 @@ function register_newsletter_template() {
 add_action( 'init', __NAMESPACE__ . '\register_newsletter_template' );
 
 /**
- * Whether the current admin screen is one the panel is demoed on.
+ * Whether the current admin screen is the one the panel mounts on.
  *
- * The post editor is where the newsletter sidebar lives. The site editor is the
- * second placement design asked about, and is a different editor shell — proving
- * the panel survives both is the point of the spike.
+ * The post editor only: that is where the newsletter sidebar lives.
  *
  * @return bool
  */
 function is_supported_screen() {
 	$screen = get_current_screen();
-	if ( ! $screen ) {
-		return false;
-	}
 
-	return 'post' === $screen->post_type || 'site-editor' === $screen->base;
+	return $screen && 'post' === $screen->post_type;
 }
 
 /**

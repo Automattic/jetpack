@@ -38,7 +38,7 @@ const EDITOR_ELEMENT_ID = 'jetpack-newsletter-email-editor';
  */
 function register_editor_page() {
 	add_submenu_page(
-		'', // phpcs:ignore WordPress.Security.NonceVerification -- Not a form handler.
+		'',
 		__( 'Newsletter email design', 'jetpack' ),
 		__( 'Newsletter email design', 'jetpack' ),
 		'edit_theme_options',

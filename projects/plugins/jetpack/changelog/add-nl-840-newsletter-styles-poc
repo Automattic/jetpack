@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Newsletter: add a proof of concept that mounts the WooCommerce email editor's global styles UI outside the email editor. Behind a development constant; no change for users.
