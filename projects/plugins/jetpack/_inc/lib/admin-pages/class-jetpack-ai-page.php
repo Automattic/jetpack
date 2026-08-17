@@ -229,7 +229,13 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		}
 
 		$purchase = \Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai::get_paid_plan_purchase_for_product();
-		$name     = '';
+
+		// A WordPress.com site names its own plan, never a Jetpack one.
+		if ( self::is_jetpack_purchase( $purchase ) && ( new Host() )->is_woa_site() ) {
+			$purchase = self::get_wpcom_plan_purchase();
+		}
+
+		$name = '';
 		if ( $purchase && ! empty( $purchase->product_name ) && 'expired' !== ( $purchase->expiry_status ?? '' ) ) {
 			// The design shows the bare plan name ("Complete", "Business"), so
 			// trim the store names' brand prefixes; they are untranslated.
@@ -239,6 +245,40 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		set_transient( 'jetpack_ai_overview_plan_name', $name, HOUR_IN_SECONDS );
 
 		return $name;
+	}
+
+	/**
+	 * Whether a purchase was bought from the Jetpack store.
+	 *
+	 * @param object|null $purchase Purchase from My Jetpack.
+	 * @return bool
+	 */
+	private static function is_jetpack_purchase( $purchase ) {
+		return (bool) $purchase && 0 === strpos( (string) ( $purchase->product_slug ?? '' ), 'jetpack_' );
+	}
+
+	/**
+	 * The purchase behind the site's current WordPress.com plan.
+	 *
+	 * The plan record carries only a slug and a display name lives on purchases,
+	 * so the slug is matched back to the purchase that created it.
+	 *
+	 * @return object|null Null when the plan or its purchase cannot be found.
+	 */
+	private static function get_wpcom_plan_purchase() {
+		$current_plan = \Automattic\Jetpack\My_Jetpack\Wpcom_Products::get_site_current_plan();
+		$plan_slug    = is_array( $current_plan ) && ! empty( $current_plan['product_slug'] )
+			? (string) $current_plan['product_slug']
+			: '';
+
+		// An empty slug simply matches nothing below, so it needs no guard.
+		foreach ( (array) \Automattic\Jetpack\My_Jetpack\Wpcom_Products::get_site_current_purchases() as $purchase ) {
+			if ( $plan_slug === ( $purchase->product_slug ?? '' ) ) {
+				return $purchase;
+			}
+		}
+
+		return null;
 	}
 
 	/**
