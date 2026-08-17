@@ -272,6 +272,70 @@ describe( 'PlaylistBlockEdit', () => {
 		} );
 	} );
 
+	it( 'does not reorder from the edges or while filtering', async () => {
+		const user = userEvent.setup();
+		// Titles match the fetch mock so the background refresh no-ops.
+		const videos = Array.from( { length: 9 }, ( _, i ) => ( {
+			guid: `guid000${ i }`,
+			title: 'Fetched title',
+		} ) );
+		const { setAttributes } = renderEdit( { videos } );
+
+		// ArrowUp on the first item is a no-op.
+		await user.click( sidebar().getAllByRole( 'option' )[ 0 ] );
+		await user.keyboard( '{ArrowUp}' );
+		expect( setAttributes ).not.toHaveBeenCalled();
+
+		// While filtering (the haystack includes the GUID), items are not
+		// draggable and arrows do nothing.
+		await user.type( sidebar().getByPlaceholderText( 'Filter 9 videos' ), 'guid0003' );
+		const filtered = sidebar().getAllByRole( 'option' );
+		expect( filtered ).toHaveLength( 1 );
+		expect( filtered[ 0 ] ).toHaveAttribute( 'draggable', 'false' );
+		await user.click( filtered[ 0 ] );
+		await user.keyboard( '{ArrowDown}' );
+		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
+	it( 'clears the drop target when the drag leaves an item', () => {
+		renderEdit( { videos: [ { guid: 'abcd1234' }, { guid: 'efgh5678' } ] } );
+
+		const items = sidebar().getAllByRole( 'option' );
+
+		fireEvent.dragStart( items[ 0 ] );
+		fireEvent.dragOver( items[ 1 ] );
+		expect( items[ 1 ] ).toHaveClass( 'is-drop-target' );
+
+		fireEvent.dragLeave( items[ 1 ] );
+		expect( items[ 1 ] ).not.toHaveClass( 'is-drop-target' );
+
+		// Dropping on the dragged item itself is a no-op reorder.
+		fireEvent.drop( items[ 0 ] );
+		expect( items[ 0 ] ).not.toHaveClass( 'is-dragging' );
+	} );
+
+	it( 'shows the skeleton row while metadata is being read', async () => {
+		const user = userEvent.setup();
+		let resolveFetch: ( value: unknown ) => void;
+		mockFetchVideoItem.mockImplementationOnce(
+			() =>
+				new Promise( resolve => {
+					resolveFetch = resolve;
+				} )
+		);
+		renderEdit();
+
+		await user.type( sidebar().getByPlaceholderText( 'Paste a video URL' ), 'abcd1234' );
+		await user.click( sidebar().getByText( 'Add' ) );
+
+		expect( sidebar().getByText( 'Reading metadata…' ) ).toBeInTheDocument();
+
+		resolveFetch( { title: 'Fetched title' } );
+		await waitFor( () =>
+			expect( sidebar().queryByText( 'Reading metadata…' ) ).not.toBeInTheDocument()
+		);
+	} );
+
 	it( 'marks the hovered item as the drop target while dragging', () => {
 		renderEdit( { videos: [ { guid: 'abcd1234' }, { guid: 'efgh5678' } ] } );
 

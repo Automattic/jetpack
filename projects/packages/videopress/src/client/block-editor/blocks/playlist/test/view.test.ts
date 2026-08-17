@@ -234,6 +234,31 @@ describe( 'playlist view script', () => {
 		);
 	} );
 
+	it( 'reuses the poster image and tolerates missing header/guid on refresh', async () => {
+		const block = buildPlaylist( [ 'aaaa1111' ] );
+		// No runtime element and an item without a GUID must not break the refresh.
+		block.querySelector( '.videopress-playlist__runtime' ).remove();
+		block
+			.querySelector< HTMLButtonElement >( ITEM_SELECTOR )
+			.insertAdjacentHTML(
+				'beforebegin',
+				'<li><button type="button" class="videopress-playlist__item"></button></li>'
+			);
+
+		( global.fetch as jest.Mock ).mockResolvedValue( {
+			ok: true,
+			json: () => Promise.resolve( { duration: 5000, poster: 'https://example.test/p.jpg' } ),
+		} );
+
+		await refreshPlaylistMetadata( block );
+		await refreshPlaylistMetadata( block );
+
+		// The second refresh reuses the created img instead of adding another.
+		expect( block.querySelectorAll( '.videopress-playlist__item-thumb img' ) ).toHaveLength( 1 );
+		// Only the GUID-carrying item was fetched, once per refresh.
+		expect( global.fetch ).toHaveBeenCalledTimes( 2 );
+	} );
+
 	it( 'keeps server-rendered labels when the metadata lookup fails', async () => {
 		const block = buildPlaylist( [ 'aaaa1111' ] );
 

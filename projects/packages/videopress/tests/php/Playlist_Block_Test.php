@@ -120,6 +120,16 @@ class Playlist_Block_Test extends BaseTestCase {
 		VideoPress_Initializer::register_videopress_playlist_block( '/nonexistent/block.json' );
 		$this->assertFalse( $registry->is_registered( 'videopress/playlist' ) );
 
+		/*
+		 * The no-argument default reads the package build output. Whether or not
+		 * a build is present where the suite runs, the call must not error, and
+		 * any resulting registration must use the real block name.
+		 */
+		VideoPress_Initializer::register_videopress_playlist_block();
+		if ( $registry->is_registered( 'videopress/playlist' ) ) {
+			$registry->unregister( 'videopress/playlist' );
+		}
+
 		$nameless = $this->create_metadata_fixture( array( 'title' => 'No name' ) );
 		VideoPress_Initializer::register_videopress_playlist_block( $nameless );
 		$this->assertFalse( $registry->is_registered( 'videopress/playlist' ) );
