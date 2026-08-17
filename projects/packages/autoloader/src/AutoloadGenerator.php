@@ -111,15 +111,17 @@ class AutoloadGenerator {
 		$psr4     = $this->parseAutoloadsType( $packageMap, 'psr-4', $mainPackage );
 		$classmap = $this->parseAutoloadsType( array_reverse( $sortedPackageMap ), 'classmap', $mainPackage );
 		$files    = $this->parseAutoloadsType( $sortedPackageMap, 'files', $mainPackage );
+		$exclude  = $this->parseAutoloadsType( $sortedPackageMap, 'exclude-from-classmap', $mainPackage );
 
 		krsort( $psr0 );
 		krsort( $psr4 );
 
 		return array(
-			'psr-0'    => $psr0,
-			'psr-4'    => $psr4,
-			'classmap' => $classmap,
-			'files'    => $files,
+			'psr-0'                 => $psr0,
+			'psr-4'                 => $psr4,
+			'classmap'              => $classmap,
+			'files'                 => $files,
+			'exclude-from-classmap' => $exclude,
 		);
 	}
 
@@ -209,7 +211,7 @@ class AutoloadGenerator {
 	 * This function differs from the composer parseAutoloadsType in that beside returning the path.
 	 * It also return the path and the version of a package.
 	 *
-	 * Supports PSR-4, PSR-0, and classmap parsing.
+	 * Supports PSR-4, PSR-0, classmap, files, and exclude-from-classmap parsing.
 	 *
 	 * @param array            $packageMap Map of all the packages.
 	 * @param string           $type Type of autoloader to use.
@@ -273,6 +275,47 @@ class AutoloadGenerator {
 							'version' => $version,
 						);
 					}
+				}
+			}
+			if ( 'exclude-from-classmap' === $type && isset( $autoload['exclude-from-classmap'] ) && is_array( $autoload['exclude-from-classmap'] ) ) {
+				foreach ( $autoload['exclude-from-classmap'] as $path ) {
+					// First escape user input, normalize slashes, and trim.
+					$path = preg_replace( '{/+}', '/', preg_quote( trim( strtr( $path, '\\', '/' ), '/' ), '{' ) );
+
+					// Add support for wildcards * and **.
+					$path = strtr(
+						$path,
+						array(
+							'\\*\\*' => '.+?',
+							'\\*'    => '[^/]+?',
+						)
+					);
+
+					// Handle up-level relative paths (e.g., ../).
+					$updir = '';
+					$path  = preg_replace_callback(
+						'{^((?:(?:\\\\\\.){1,2}+/)+)}',
+						function ( $matches ) use ( &$updir ) {
+							// Undo preg_quote for the matched string.
+							$updir = str_replace( '\\.', '.', $matches[1] );
+							return '';
+						},
+						$path
+					);
+
+					// Determine the base path for resolution.
+					$basePath = $installPath;
+					if ( empty( $basePath ) ) {
+						$basePath = $this->filesystem->normalizePath( getcwd() );
+					}
+
+					// Resolve the full path.
+					$resolvedPath = realpath( $basePath . '/' . $updir );
+					if ( false === $resolvedPath ) {
+						continue;
+					}
+
+					$autoloads[] = preg_quote( strtr( $resolvedPath, '\\', '/' ), '{' ) . '/' . $path . '($|/)';
 				}
 			}
 		}
