@@ -61,11 +61,13 @@
 		min-width: var(--wpds-dimension-size-5xs, 4px);
 
 		// The deprecated --a8c--charts--leaderboard--bar--border-radius name is read
-		// here at the call site, not inside the :root catalog entry: types.ts
-		// documents it as a `style` prop key, which sets it on the chart element —
-		// below :root — where an inner-fallback var() inside the catalog entry could
-		// never see it (it was already resolved to a fixed string at :root). Reading
-		// it here means the deprecated name beats the new one when both are set.
+		// here at the call site, not inside the catalog entry in chart-scope.scss:
+		// types.ts documents it as a `style` prop key, which sets it on the chart
+		// element — a descendant of the provider wrapper the catalog entry declares
+		// on — where an inner-fallback var() inside that catalog entry could never
+		// see it (it was already resolved to a fixed string on the provider
+		// wrapper). Reading it here means the deprecated name beats the new one
+		// when both are set.
 		border-radius: var(--a8c--charts--leaderboard--bar--border-radius, var(--a8c-charts-border-radius-leaderboard-bar));
 		z-index: -1; /* places it behind the label */
 

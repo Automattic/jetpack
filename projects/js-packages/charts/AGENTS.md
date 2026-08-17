@@ -30,15 +30,15 @@ The package is migrating to WordPress UI and Theme as its defaults. When adding 
 - **Chart element styles.** Read chart element styles via `getElementStyles` from `GlobalChartsProvider`, not directly from `theme`. This is the supported path for color/style resolution across themes.
 - **Package CSS variables.** Package-owned custom properties follow
   `--a8c-charts-{category}-{name}` (see `TOKENS.md` for the catalog and its
-  `--wpds-*` mappings). The catalog is emitted once at `:root` by
-  `src/styles/chart-scope.scss` — that stylesheet is the only place a
+  `--wpds-*` mappings). The catalog is emitted once on the `GlobalChartsProvider`
+  wrapper by `src/styles/chart-scope.scss` — that stylesheet is the only place a
   `--wpds-*` token may be named. Everywhere else, reference the catalog bare:
   `var(--a8c-charts-color-grid)`. JS theme strings add a terminal literal for
   the SSR and jsdom paths: `var(--a8c-charts-color-grid, #dbdbdb)`. Any JS
-  token resolution must still pass the chart scope element from
-  `useChartScopeElement()` to `resolveCssVariable` — never resolve against
-  `document.documentElement` directly — since `getComputedStyle` on that
-  element also picks up any ancestor override through normal CSS inheritance.
+  token resolution must still pass the element from `useChartScopeElement()`
+  to `resolveCssVariable` — never resolve against `document.documentElement`
+  directly — since `getComputedStyle` on that element also picks up any
+  override set inside the provider tree through normal CSS inheritance.
 - **Two consumption paths — this changes what a charts change can break.**
   `@wordpress/build` apps (premium-analytics, publicize, podcast, videopress)
   consume the Rolldown output in `dist/` and load it as a **WordPress Script

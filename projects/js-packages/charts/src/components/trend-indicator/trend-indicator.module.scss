@@ -8,8 +8,9 @@
 
 	// Trend colours use the --a8c-charts-color-trend-* catalog roles, with the
 	// deprecated --charts-trend-*-color override read here at the call site — not
-	// inside the :root catalog entry, where an inner fallback can only ever see a
-	// value also set at :root, never one set on a descendant (e.g. the chart's own
+	// inside the catalog entry in chart-scope.scss, where an inner fallback can
+	// only ever see a value also set on that same declaring element (the
+	// provider wrapper), never one set on a descendant (e.g. the chart's own
 	// style prop). Reading it here means the deprecated name beats the new one
 	// when both are set; that inversion is the price of the alias working at all.
 	&--up {

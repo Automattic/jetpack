@@ -50,18 +50,33 @@ interface GlobalChartsContextValue {
 
 ## Theming
 
-The package's `--a8c-charts-*` catalog (see `TOKENS.md`) is emitted once at `:root`,
-so every chart — whether or not it sits under a `GlobalChartsProvider` — resolves its
-colors, focus ring, motion, and border-radius roles from that catalog by CSS
-inheritance. Consumers override a role by setting the matching `--a8c-charts-*` custom
-property on any ancestor of a chart, including plain CSS with no provider involved —
-the closest ancestor wins:
+The package's `--a8c-charts-*` catalog (see `TOKENS.md`) is emitted once, on the
+`GlobalChartsProvider` wrapper element — every chart either sits under an explicit
+`GlobalChartsProvider` or auto-mounts its own, so a chart always has the catalog
+available by CSS inheritance. Consumers override a role by setting the matching
+`--a8c-charts-*` custom property on the provider wrapper, or on any element **inside**
+the provider tree between the wrapper and the chart — the closest such declaration
+wins:
 
 ```css
 .my-dashboard {
+	/* .my-dashboard must be inside GlobalChartsProvider's tree for this to apply */
 	--a8c-charts-color-grid: #e0e0e0;
 }
 ```
+
+```tsx
+<GlobalChartsProvider>
+	<div className="my-dashboard">
+		<LineChart data={ salesData } />
+	</div>
+</GlobalChartsProvider>
+```
+
+Setting `--a8c-charts-color-grid` on an ancestor of `GlobalChartsProvider` itself has
+no effect — the provider's own catalog declaration on its wrapper element beats a
+value merely inherited from further up the tree, so the override must be made inside
+the provider's tree (see TOKENS.md's "Precedence" section for the full ordering).
 
 The `theme` prop is a second, narrower override path. Five `ChartTheme` fields
 correspond directly to a catalog role, and setting one republishes it as the matching

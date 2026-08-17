@@ -6,17 +6,35 @@ token type (`color`, `dimension`, `border-radius`).
 
 ## How it resolves
 
-`src/styles/chart-scope.scss` declares the whole catalog once, at `:root` —
-mirroring how `@wordpress/theme`'s own `prebuilt/css/design-tokens.css` ships its
-catalog. `src/providers/chart-context/global-charts-provider.tsx` imports the
-stylesheet for its side effect, so it always reaches the bundle: every chart either
-sits under a `GlobalChartsProvider` or auto-mounts its own.
+`src/styles/chart-scope.scss` declares the whole catalog once, on the
+`GlobalChartsProvider` wrapper, via `:where(.a8c-charts-scope)`. `:where()` keeps the
+rule at zero specificity, so a consumer rule targeting that same wrapper element wins
+over the catalog default without needing `!important` or a more specific selector.
+`global-charts-provider.tsx` imports the stylesheet for its side effect, so it always
+reaches the bundle: every chart either sits under a `GlobalChartsProvider` or
+auto-mounts its own.
 
-Each entry maps to a WordPress design-system token with the WPDS spec value as its
-fallback:
+Chart roots deliberately do *not* carry the `a8c-charts-scope` class themselves — only
+the provider wrapper (and, as below, a few components with no provider above them)
+does. That is what lets an override set *anywhere inside the
+provider tree* reach a chart: a CSS custom property inherits down through descendants,
+and an element only shadows an inherited value by re-declaring it itself. If every
+chart root re-declared the catalog, that re-declaration would win over an override set
+on an ancestor between the chart and the provider, closing off the one place consumers
+are meant to set overrides.
+
+Portal-rendered tooltips carry the class unconditionally: a React portal renders
+outside the provider's DOM tree, so without its own class it would inherit nothing —
+not even the catalog default. `TrendIndicator`, `BaseTooltip`, and `BaseLegend` carry
+the class only when no `GlobalChartsProvider` is above them (via
+`useStandaloneScopeClass()`), so a component used inside a provider still resolves
+through the provider's own declaration rather than shadowing it with a second one.
+
+Each catalog entry maps to a WordPress design-system token with the WPDS spec value as
+its fallback:
 
 ```scss
-:root {
+:where(.a8c-charts-scope) {
 	--a8c-charts-color-grid: var(--wpds-color-stroke-surface-neutral, #dbdbdb);
 }
 ```
@@ -25,33 +43,38 @@ Charts reference the catalog bare — `stroke: var(--a8c-charts-color-grid)`. Th
 `--wpds-*` mapping for a role lives in `chart-scope.scss`, the only place a
 `--wpds-*` token may be named. The exception is the four deprecated public aliases
 (three trend colours, one leaderboard radius): each is read at its own component's
-call site, layered *outside* the catalog reference, not inside the `:root` catalog
-entry — see "Public override variables" below for why.
+call site, layered *outside* the catalog reference, not inside the catalog entry —
+see "Public override variables" below for why.
 
 ### Precedence
 
-The closest ancestor override wins, then the `:root` catalog default, then the mapped
-`--wpds-*` token, then the spec fallback:
+Highest first:
 
-1. `--a8c-charts-color-grid` set on any ancestor of a chart — including a consumer's
-   own CSS with no provider involved. The closest ancestor wins, since CSS custom
-   properties inherit down the tree and a descendant only re-declares one when it sets
-   its own value.
-2. The value `GlobalChartsProvider` writes from a `theme` prop override, as an
-   instance-scoped custom property on its own wrapper element.
-3. The catalog default emitted once at `:root`.
-4. The mapped `--wpds-*` token.
-5. The spec-value fallback.
+1. `--a8c-charts-color-grid` set on the chart element itself, or on any element
+   between it and the provider. CSS custom properties inherit down the tree, and a
+   descendant only re-declares an inherited one when it sets its own value, so the
+   closest such declaration wins.
+2. The inline instance var `GlobalChartsProvider` writes from a `theme` prop override,
+   set directly on the provider wrapper element.
+3. A `--a8c-charts-color-grid` value set by a consumer rule targeting the provider
+   wrapper itself. This beats the catalog default (next) because `:where()` makes the
+   catalog's own declaration zero-specificity, but it loses to step 2 because an
+   inline style always wins over a stylesheet rule regardless of specificity.
+4. The catalog default declared on the provider wrapper, which resolves the mapped
+   `--wpds-*` token.
+5. The WPDS spec-value fallback, for when no `--wpds-*` token is set either (SSR,
+   jsdom, or WPDS not loaded).
 
 For the four roles with a deprecated public alias, a value set anywhere via the
 deprecated name wins ahead of all five steps above — see "Public override variables"
 below.
 
-A WPDS `ThemeProvider` nested *inside* `GlobalChartsProvider` does not retint the
-charts inside it — the catalog resolves once at `:root`, above where a nested
-`ThemeProvider` writes its own `--wpds-*` overrides. The supported place for a
-`ThemeProvider` is above `GlobalChartsProvider`, retinting the whole subtree including
-the `:root`-inherited catalog before the provider maps it.
+An override set **above** `GlobalChartsProvider` does not apply: the provider's own
+declaration on its wrapper (step 4, or step 2/3 when set) beats a value merely
+inherited from further up the tree, the same way any CSS custom property re-declared
+on a closer element beats one from an ancestor. The supported place to set an override
+is inside the provider tree — on the chart element, an element between it and the
+provider, or the provider wrapper itself — never on an ancestor of the provider.
 
 ### The SVG bridge
 
@@ -104,7 +127,7 @@ ring in contexts where WPDS is not loaded.
 | `--a8c-charts-motion-easing-series` | `--wpds-motion-easing-expressive` | `cubic-bezier(0.25, 0, 0, 1)` |
 | `--a8c-charts-border-radius-bar` | `--wpds-border-radius-md` | `4px` |
 | `--a8c-charts-border-radius-cell` | `--wpds-border-radius-sm` | `2px` |
-| `--a8c-charts-border-radius-leaderboard-bar` | _(none — pill shape, no WPDS radius fits)_ | `var(--a8c--charts--leaderboard--bar--border-radius, 9999px)` |
+| `--a8c-charts-border-radius-leaderboard-bar` | _(none — pill shape, no WPDS radius fits)_ | `9999px` |
 | `--a8c-charts-elevation-xs` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 1px 0 #00000008, 0 1px 2px 0 #00000005, 0 3px 3px 0 #00000005, 0 4px 4px 0 #00000003` |
 | `--a8c-charts-elevation-sm` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005` |
 
@@ -158,8 +181,8 @@ The heatmap Tier-2 variables (`--a8c-charts-color-heatmap-*`,
 `--a8c-charts-dimension-heatmap-*`, `--a8c-charts-heatmap-cell-intensity`) and
 `--a8c-charts-dimension-leaderboard-bar-hover-inset` are **component-emitted** —
 the heatmap chart sets its variables from JS per render, and the leaderboard chart
-defines its hover-inset variable in its own stylesheet — rather than at `:root`.
-They are deliberately absent from `chart-scope.scss` and are not consumer
+defines its hover-inset variable in its own stylesheet — rather than on the provider
+wrapper. They are deliberately absent from `chart-scope.scss` and are not consumer
 override points in the same sense as the catalog above.
 
 ## Public override variables
@@ -173,16 +196,28 @@ These are documented, supported override points. Deprecated names still work:
 | `--a8c-charts-color-trend-neutral` | `--charts-trend-neutral-color` |
 | `--a8c-charts-border-radius-leaderboard-bar` | `--a8c--charts--leaderboard--bar--border-radius` |
 
-Each deprecated alias is read at its component's own call site, as the *outer* layer
-around the new name — `var(--deprecated-name, var(--a8c-charts-*))` — not inside the
-`:root` catalog entry. An inner fallback declared inside a `:root` declaration is
-substituted at `:root`, so it can only ever see a value also set at `:root`; a value
-set on a descendant (an ancestor of the chart, or the chart element's own `style`
-prop — how `--a8c--charts--leaderboard--bar--border-radius` is documented to be set)
-is invisible to it, because the `:root` entry's value was already computed and
-inherited down as a fixed string. Reading the deprecated name at the call site instead
-means it resolves like any other cascading custom property, settable anywhere.
+Both deprecated aliases are read at their component's own call site, as the *outer*
+layer around the new name — `var(--deprecated-name, var(--a8c-charts-*))` — not inside
+the catalog entry in `chart-scope.scss`. That makes precedence, highest first:
 
-The trade-off: the deprecated name now beats the new name when both are set on the
-same element. That inversion is deliberate — it's the price of the alias working at
-all — not a bug to fix.
+1. The deprecated alias, set on the chart element or any ancestor up to the provider.
+2. The `--a8c-charts-*` role, resolved per the "Precedence" section above.
+3. The catalog default.
+
+This is the constraint that keeps biting throughout this document: a `var()`
+fallback inside a declaration is substituted **at the element that declares it**, so
+an inner fallback can only ever see a value also present at that same element. A
+catalog entry declared on the provider wrapper can only see a deprecated-alias value
+also set on the provider wrapper — never one set on a descendant, such as the chart
+element's own `style` prop, which is how `--a8c--charts--leaderboard--bar--border-radius`
+is documented to be set. That is why the catalog lives on the provider wrapper rather
+than `:root` (a nested WPDS `ThemeProvider`'s `--wpds-*` overrides are a descendant
+relative to `:root`, so a `:root` fallback can't see them either), and why both
+deprecated aliases are read at their own call sites instead of nested inside the
+catalog entry: reading the deprecated name at the call site makes it resolve like any
+other cascading custom property, settable anywhere, rather than being pinned to
+whatever the catalog entry's own declaring element happens to be.
+
+The trade-off: the deprecated name beats the new name when both are set on the same
+element. That inversion is deliberate — it's the price of the alias working at all —
+not a bug to fix.

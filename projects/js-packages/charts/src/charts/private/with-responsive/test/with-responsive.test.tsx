@@ -315,9 +315,12 @@ describe( 'withResponsive', () => {
 	} );
 
 	it( 'publishes the responsive wrapper element as the chart scope', () => {
-		// The catalog is emitted once at :root now (Task 10), so the wrapper no
-		// longer carries a scope class — but it must still be the element the JS
-		// bridge resolves scoped CSS variables against, via ChartScopeContext.
+		// The catalog is declared on the GlobalChartsProvider wrapper (or a
+		// standalone component's own element), not on every chart root, so this
+		// wrapper doesn't carry a scope class itself — but it must still be the
+		// element the JS bridge resolves scoped CSS variables against, via
+		// ChartScopeContext, so it picks up any override set inside the provider
+		// tree the same way a CSS-painted sibling would.
 		const ScopeProbe = () => {
 			const scopeNode = useContext( ChartScopeContext );
 			return <span data-testid="scope-probe">{ scopeNode?.dataset.testid }</span>;

@@ -172,10 +172,12 @@ Themes are merged with the default theme, so you only need to specify the proper
 
 ### CSS Custom Property Overrides
 
-The package's `--a8c-charts-*` token catalog is emitted once at `:root`, so you can
-retheme any chart with plain CSS — no `theme` prop or `GlobalChartsProvider`
-required. Set the role you want to change on any ancestor of a chart; the closest
-ancestor wins:
+The package's `--a8c-charts-*` token catalog is emitted once, on the
+`GlobalChartsProvider` wrapper element, so you can retheme any chart with plain CSS —
+no `theme` prop required, as long as a `GlobalChartsProvider` is present (every chart
+either sits under one explicitly or auto-mounts its own). Set the role you want to
+change on the provider wrapper, or on any element **inside** the provider tree between
+the wrapper and the chart; the closest such declaration wins:
 
 ```css
 .my-dashboard {
@@ -183,6 +185,18 @@ ancestor wins:
 	--a8c-charts-color-trend-up: #007a3d;
 }
 ```
+
+```tsx
+<GlobalChartsProvider>
+	<div className="my-dashboard">
+		<LineChart data={ salesData } />
+	</div>
+</GlobalChartsProvider>
+```
+
+Setting these on an ancestor of `GlobalChartsProvider` has no effect — the provider's
+own declaration on its wrapper always beats a value inherited from further up the
+tree. See TOKENS.md for the full precedence order.
 
 The `theme` prop's `backgroundColor`, `gridStyles.stroke`, `xAxisLineStyles.stroke`,
 `xTickLineStyles.stroke`, and `svgLabelSmall.fill` fields map to a catalog role too —
