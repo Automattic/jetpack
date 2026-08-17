@@ -26,13 +26,40 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . '../../plugins/wpcomsh/support-session.
 class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 
 	/**
+	 * What the package bootstrap wired, captured before any test runs.
+	 *
+	 * The suite's bootstrap calls Jetpack_Mu_Wpcom::init(), which is what makes
+	 * this feature exist on real sites. Recorded here because tear_down() strips
+	 * the same hooks between tests.
+	 *
+	 * @var array<string, mixed>
+	 */
+	private static $bootstrap_wiring = array();
+
+	/**
+	 * Record the bootstrap's hook registrations before any test disturbs them.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+
+		self::$bootstrap_wiring = array(
+			'filter' => has_filter( 'jetpack_feature_flag_enabled', array( Wpcom_Feature_Flags::class, 'filter_enabled' ) ),
+			'action' => has_action( 'admin_menu', array( Wpcom_Feature_Flags::class, 'register_admin_page' ) ),
+		);
+	}
+
+	/**
 	 * Reset every piece of global state these tests touch.
 	 */
 	public function tear_down() {
+		unset( $_SERVER['REQUEST_METHOD'] );
+		$_POST = array();
+		$_GET  = array();
 		Constants::clear_constants();
 		unset( $_COOKIE[ \WPCOMSH_Support_Session_Detect::COOKIE_NAME ] );
 		delete_option( Wpcom_Feature_Flags::OVERRIDES_OPTION );
 		remove_all_filters( 'jetpack_feature_flag_enabled' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_my-feature' );
 		remove_all_filters( 'wp_die_handler' );
 		Feature_Flags::reset();
 		wp_set_current_user( 0 );
@@ -67,6 +94,25 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		wp_set_current_user( $user_id );
 
 		return (int) $user_id;
+	}
+
+	/**
+	 * The package bootstrap has to actually wire this feature up.
+	 *
+	 * Everything else here calls Wpcom_Feature_Flags::init() by hand, so without
+	 * this the whole suite stays green while the two lines in
+	 * Jetpack_Mu_Wpcom::init() that make the feature exist on Simple and Atomic
+	 * are deleted — the screen and every override silently stop working.
+	 */
+	public function test_package_bootstrap_wires_the_feature() {
+		$this->assertNotFalse(
+			self::$bootstrap_wiring['filter'],
+			'Jetpack_Mu_Wpcom::init() must call Wpcom_Feature_Flags::init() so overrides answer the resolution filter.'
+		);
+		$this->assertNotFalse(
+			self::$bootstrap_wiring['action'],
+			'Jetpack_Mu_Wpcom::init() must call Wpcom_Feature_Flags::init() so the admin screen is registered.'
+		);
 	}
 
 	/**
@@ -139,8 +185,9 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The panel accepts a hand-typed flag name, so anything that could not be a
-	 * real flag name has to be discarded before it reaches the option.
+	 * Flag names arrive as submitted form keys and registration never validates
+	 * them at runtime, so anything that could not be a real flag name has to be
+	 * discarded before it reaches the option.
 	 */
 	public function test_save_overrides_drops_invalid_flag_names() {
 		Wpcom_Feature_Flags::save_overrides(
@@ -486,14 +533,14 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_admin_page_lists_an_overridden_flag_that_is_not_registered() {
 		$this->become_automattician_admin();
-		Wpcom_Feature_Flags::save_overrides( array( 'typed-by-hand' => false ) );
+		Wpcom_Feature_Flags::save_overrides( array( 'retired-flag' => false ) );
 
 		$output = $this->render_admin_page();
 
-		$this->assertStringContainsString( 'typed-by-hand', $output );
+		$this->assertStringContainsString( 'retired-flag', $output );
 		$this->assertStringContainsString( 'Not registered on this site.', $output );
 		$this->assertMatchesRegularExpression(
-			'/name="flag_state\[typed-by-hand\]"\s+value="off"\s+checked/',
+			'/name="flag_state\[retired-flag]"\s+value="off"\s+checked/',
 			$output
 		);
 	}
@@ -508,6 +555,184 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		$output = $this->render_admin_page();
 
 		$this->assertStringContainsString( 'No feature flags are registered on this site', $output );
+	}
+
+	/**
+	 * An accepted submission saves and redirects, so a reload cannot re-post it.
+	 */
+	public function test_submission_saves_and_redirects() {
+		$this->become_automattician_admin();
+		$this->simulate_post(
+			array(
+				'_wpnonce'   => wp_create_nonce( Wpcom_Feature_Flags::NONCE_ACTION ),
+				'flag_state' => array( 'my-feature' => 'on' ),
+			)
+		);
+
+		$redirect = Wpcom_Feature_Flags::maybe_handle_submission();
+
+		$this->assertIsString( $redirect );
+		$this->assertStringContainsString( 'flags-notice=saved', $redirect );
+		$this->assertSame( array( 'my-feature' => true ), Wpcom_Feature_Flags::get_overrides() );
+	}
+
+	/**
+	 * A rejected submission has to be reported, not swallowed.
+	 *
+	 * A nonce goes stale on a tab left open, and this is a screen you leave open.
+	 * Redirecting back with no notice is indistinguishable from a successful save
+	 * of the values already stored, so the flag silently keeps its old value.
+	 */
+	public function test_rejected_submission_redirects_with_a_rejection() {
+		$this->become_automattician_admin();
+		$this->simulate_post(
+			array(
+				'_wpnonce'   => 'stale-nonce',
+				'flag_state' => array( 'my-feature' => 'on' ),
+			)
+		);
+
+		$redirect = Wpcom_Feature_Flags::maybe_handle_submission();
+
+		$this->assertIsString( $redirect );
+		$this->assertStringContainsString( 'flags-notice=rejected', $redirect );
+		$this->assertSame( array(), Wpcom_Feature_Flags::get_overrides() );
+	}
+
+	/**
+	 * Loading the screen is not a submission.
+	 */
+	public function test_a_plain_page_load_is_not_a_submission() {
+		$this->become_automattician_admin();
+
+		$this->assertNull( Wpcom_Feature_Flags::maybe_handle_submission() );
+	}
+
+	/**
+	 * The redirect's outcome is what the screen reports.
+	 */
+	public function test_admin_page_confirms_a_save() {
+		$this->become_automattician_admin();
+		$_GET['flags-notice'] = 'saved';
+
+		$output = $this->render_admin_page();
+
+		$this->assertStringContainsString( 'Overrides saved.', $output );
+	}
+
+	/**
+	 * A rejection is surfaced as an error, not silence.
+	 */
+	public function test_admin_page_reports_a_rejection() {
+		$this->become_automattician_admin();
+		$_GET['flags-notice'] = 'rejected';
+
+		$output = $this->render_admin_page();
+
+		$this->assertStringContainsString( 'not saved', $output );
+		$this->assertStringNotContainsString( 'Overrides saved.', $output );
+	}
+
+	/**
+	 * A plain load reports neither outcome.
+	 */
+	public function test_admin_page_reports_nothing_when_not_submitting() {
+		$this->become_automattician_admin();
+
+		$output = $this->render_admin_page();
+
+		$this->assertStringNotContainsString( 'not saved', $output );
+		$this->assertStringNotContainsString( 'Overrides saved.', $output );
+	}
+
+	/**
+	 * The Effective column reports what the flag actually resolves to, so an
+	 * override that took hold reads as On even though the flag was registered Off.
+	 */
+	public function test_admin_page_shows_the_effective_value() {
+		$this->become_automattician_admin();
+		Feature_Flags::register( 'my-feature', array( 'default' => false ) );
+		Wpcom_Feature_Flags::save_overrides( array( 'my-feature' => true ) );
+		Wpcom_Feature_Flags::init();
+
+		$output = $this->render_admin_page();
+
+		// Default, then Effective.
+		$this->assertStringContainsString( '<td>Off</td><td>On</td>', $this->compact( $output ) );
+	}
+
+	/**
+	 * The per-flag `jetpack_feature_flag_enabled_{flag}` filter runs after ours
+	 * and beats it. Without the Effective column the screen cannot answer the one
+	 * question it exists for — "I forced it on, so why is the feature still off?"
+	 * — because the control would still read "Force on".
+	 */
+	public function test_admin_page_effective_value_reflects_a_winning_per_flag_filter() {
+		$this->become_automattician_admin();
+		Feature_Flags::register( 'my-feature', array( 'default' => false ) );
+		Wpcom_Feature_Flags::save_overrides( array( 'my-feature' => true ) );
+		Wpcom_Feature_Flags::init();
+		add_filter( 'jetpack_feature_flag_enabled_my-feature', '__return_false' );
+
+		$output = $this->render_admin_page();
+
+		$this->assertFalse( Feature_Flags::is_enabled( 'my-feature' ), 'Guard: the per-flag filter must win.' );
+		$this->assertMatchesRegularExpression(
+			'/name="flag_state\[my-feature\]"\s+value="on"\s+checked/',
+			$output,
+			'The control still shows the override this screen set.'
+		);
+		// Default, then Effective — the override says on, the effective value does not.
+		$this->assertStringContainsString( '<td>Off</td><td>Off</td>', $this->compact( $output ) );
+	}
+
+	/**
+	 * A flag whose name fails the package's pattern cannot have an override
+	 * stored, because sanitize_overrides() drops it. Offering a control anyway
+	 * means clicking Save, seeing "Overrides saved.", and watching the control
+	 * snap back with no explanation.
+	 */
+	public function test_admin_page_refuses_to_offer_a_control_for_an_invalid_flag_name() {
+		$this->become_automattician_admin();
+		// phpcs:ignore Jetpack.FeatureFlags.FeatureFlagName.Invalid -- Deliberately invalid; the sniff never runs against the wpcom Simple codebase, which is why the screen has to cope with such a name at all.
+		Feature_Flags::register( 'Invalid_Name', array( 'default' => false ) );
+
+		$output = $this->render_admin_page();
+
+		$this->assertStringContainsString( 'Invalid_Name', $output );
+		$this->assertStringNotContainsString( 'name="flag_state[Invalid_Name]"', $output );
+		$this->assertStringContainsString( 'cannot', $output );
+	}
+
+	/**
+	 * Flag names are the row headers, so a screen reader announces which flag a
+	 * cell belongs to.
+	 */
+	public function test_admin_page_uses_row_headers_for_flag_names() {
+		$this->become_automattician_admin();
+		Feature_Flags::register( 'my-feature', array( 'default' => false ) );
+
+		$output = $this->render_admin_page();
+
+		$this->assertMatchesRegularExpression( '/<th scope="row">\s*<code>my-feature<\/code>/', $output );
+	}
+
+	/**
+	 * Each flag's three radios are one group, and the group carries the flag
+	 * name. Without it a screen reader reads every row as the same anonymous
+	 * "Default / Force on / Force off" with no way to tell which flag is being
+	 * changed.
+	 */
+	public function test_admin_page_names_each_flags_radio_group() {
+		$this->become_automattician_admin();
+		Feature_Flags::register( 'my-feature', array( 'default' => false ) );
+
+		$output = $this->render_admin_page();
+
+		$this->assertMatchesRegularExpression(
+			'/<legend class="screen-reader-text">[^<]*my-feature[^<]*<\/legend>/',
+			$output
+		);
 	}
 
 	/**
@@ -566,6 +791,27 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	private function become_automattician_admin() {
 		$this->login_as_admin();
 		$this->simulate_proxied_atomic_request();
+	}
+
+	/**
+	 * Make the next render look like a form submission.
+	 *
+	 * @param array $post The submitted fields.
+	 * @return void
+	 */
+	private function simulate_post( array $post ) {
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		$_POST                     = $post;
+	}
+
+	/**
+	 * Strip whitespace so markup can be asserted on without pinning indentation.
+	 *
+	 * @param string $output Rendered markup.
+	 * @return string The markup with all whitespace runs removed.
+	 */
+	private function compact( $output ) {
+		return (string) preg_replace( '/\s+/', '', $output );
 	}
 
 	/**

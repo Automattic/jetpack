@@ -15,6 +15,7 @@
 		"automattic/jetpack-classic-theme-helper": "@dev",
 		"automattic/jetpack-compat": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-feature-flags": "@dev",
 		"automattic/jetpack-google-analytics": "@dev",

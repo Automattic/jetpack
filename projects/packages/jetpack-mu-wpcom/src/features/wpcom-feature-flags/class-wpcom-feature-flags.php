@@ -102,11 +102,18 @@ class Wpcom_Feature_Flags {
 	 * a Happiness Engineer acting on the site owner's behalf rather than an
 	 * Automattician testing unreleased work, so it is excluded.
 	 *
+	 * AT_PROXIED_REQUEST is read through Constants rather than defined() — which
+	 * is what the neighbouring code uses — so the Atomic branch is reachable from
+	 * tests at all. That is safe here because Constants::set_constant() is only
+	 * callable by code already executing in this process, which by then can do
+	 * anything this gate protects, and because manage_options is required on top.
+	 * Do not lean on this gate alone for anything stronger.
+	 *
 	 * @return bool Whether the current visitor is an Automattician.
 	 */
 	public static function is_a11n() {
 		if ( ( new Host() )->is_wpcom_simple() ) {
-			return function_exists( 'is_automattician' ) && (bool) is_automattician( get_current_user_id() );
+			return function_exists( 'is_automattician' ) && (bool) is_automattician();
 		}
 
 		if ( ! Constants::is_true( 'AT_PROXIED_REQUEST' ) ) {
@@ -217,7 +224,7 @@ class Wpcom_Feature_Flags {
 			return false;
 		}
 
-		return add_submenu_page(
+		$hook_suffix = add_submenu_page(
 			'tools.php',
 			'Feature Flags (a8c)',
 			'Feature Flags (a8c)',
@@ -225,6 +232,58 @@ class Wpcom_Feature_Flags {
 			self::PAGE_SLUG,
 			array( self::class, 'render_admin_page' )
 		);
+
+		if ( $hook_suffix ) {
+			// Submissions are handled before any output, so the save can redirect.
+			add_action( 'load-' . $hook_suffix, array( self::class, 'handle_admin_post' ) );
+		}
+
+		return $hook_suffix;
+	}
+
+	/**
+	 * Handle a submission and redirect back to the screen.
+	 *
+	 * Post/Redirect/Get: without the redirect, reloading the screen after a save
+	 * re-submits the form, and back/forward navigation replays it.
+	 *
+	 * @return void
+	 */
+	public static function handle_admin_post() {
+		$redirect = self::maybe_handle_submission();
+
+		if ( null === $redirect ) {
+			return;
+		}
+
+		wp_safe_redirect( $redirect );
+		exit;
+	}
+
+	/**
+	 * Apply a submission, if this request is one, and say where to go next.
+	 *
+	 * Split from handle_admin_post() so everything except the redirect-and-exit
+	 * is reachable from tests.
+	 *
+	 * @return string|null URL to redirect to, or null when this is not a submission.
+	 */
+	public static function maybe_handle_submission() {
+		if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) ) {
+			return null;
+		}
+
+		/*
+		 * Three outcomes, not two: a rejected submission has to be
+		 * distinguishable from a plain page load. handle_save() returns false for
+		 * a stale nonce — which this screen invites, being one you leave open —
+		 * and re-rendering the unchanged page silently would look exactly like a
+		 * successful save of the values already stored.
+		 */
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- handle_save() verifies the nonce and sanitizes every value it stores.
+		$result = self::handle_save( wp_unslash( $_POST ) ) ? 'saved' : 'rejected';
+
+		return add_query_arg( 'flags-notice', $result, admin_url( 'tools.php?page=' . self::PAGE_SLUG ) );
 	}
 
 	/**
@@ -232,6 +291,12 @@ class Wpcom_Feature_Flags {
 	 *
 	 * Re-checks the Automattician gate, the capability, and the nonce: the
 	 * screen's absence from the menu is not authorization on its own.
+	 *
+	 * The submitted map replaces the stored one wholesale, so two Automatticians
+	 * saving the same site concurrently is last-write-wins. Every form carries
+	 * every flag the screen listed, so in practice they overwrite each other with
+	 * the same values; this is not an atomic read-modify-write and is not meant
+	 * to be one.
 	 *
 	 * @param array $request Unslashed request data.
 	 * @return bool Whether the overrides were saved.
@@ -261,17 +326,20 @@ class Wpcom_Feature_Flags {
 	 */
 	public static function render_admin_page() {
 		if ( ! self::current_user_can_manage() ) {
-			wp_die( 'Jetpack feature flag controls are Automatticians only. This is internal Automattic tooling, not a site feature.' );
+			wp_die(
+				'Jetpack feature flag controls are Automatticians only. This is internal Automattic tooling, not a site feature.',
+				'Feature Flags',
+				array( 'response' => 403 )
+			);
 		}
 
-		$saved = false;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only flag set by our own redirect; nothing is written here.
+		$notice = isset( $_GET['flags-notice'] ) && is_string( $_GET['flags-notice'] )
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- As above.
+			? sanitize_key( wp_unslash( $_GET['flags-notice'] ) )
+			: '';
 
-		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- handle_save() verifies the nonce and sanitizes every value it stores.
-			$saved = self::handle_save( wp_unslash( $_POST ) );
-		}
-
-		self::print_screen( self::get_rows(), self::get_overrides(), $saved );
+		self::print_screen( self::get_rows(), self::get_overrides(), $notice );
 	}
 
 	/**
@@ -279,10 +347,10 @@ class Wpcom_Feature_Flags {
 	 *
 	 * @param array<string, array> $rows      Flags to list, keyed by flag name.
 	 * @param array<string, bool>  $overrides The overrides currently in force.
-	 * @param bool                 $saved     Whether a submission was just applied.
+	 * @param string               $notice    'saved', 'rejected', or '' for a plain load.
 	 * @return void
 	 */
-	private static function print_screen( array $rows, array $overrides, $saved ) {
+	private static function print_screen( array $rows, array $overrides, $notice = '' ) {
 		$states = array(
 			'default' => 'Default',
 			'on'      => 'Force on',
@@ -297,11 +365,19 @@ class Wpcom_Feature_Flags {
 				<span style="font-size: 0.6em; font-weight: normal; vertical-align: middle;">Automatticians only</span>
 			</h1>
 
-			<?php if ( $saved ) : ?>
+			<?php if ( 'saved' === $notice ) : ?>
 				<div class="notice notice-success is-dismissible"><p>Overrides saved.</p></div>
+			<?php elseif ( 'rejected' === $notice ) : ?>
+				<div class="notice notice-error is-dismissible">
+					<p>
+						<strong>Your changes were not saved.</strong> The form&#8217;s security token had
+						expired, or this session no longer passes the Automattician check. Reload the
+						screen and try again — the states below are what is actually stored.
+					</p>
+				</div>
 			<?php endif; ?>
 
-			<div class="notice notice-error">
+			<div class="notice notice-warning">
 				<p>
 					<strong>Automatticians only — internal Automattic tooling.</strong> This screen is
 					not part of WordPress.com, is not visible to the site&#8217;s owner, and is not
@@ -324,18 +400,22 @@ class Wpcom_Feature_Flags {
 				<?php wp_nonce_field( self::NONCE_ACTION ); ?>
 
 				<table class="widefat striped">
+					<caption class="screen-reader-text">
+						Feature flags registered on this site, with the override forced from this screen.
+					</caption>
 					<thead>
 						<tr>
 							<th scope="col">Flag</th>
 							<th scope="col">Owner</th>
 							<th scope="col">Default</th>
+							<th scope="col">Effective</th>
 							<th scope="col">State</th>
 						</tr>
 					</thead>
 					<tbody>
 						<?php if ( empty( $rows ) ) : ?>
 							<tr>
-								<td colspan="4">
+								<td colspan="5">
 									No feature flags are registered on this site, and nothing is
 									overridden. Flags appear here once code running on this site calls
 									<code>Feature_Flags::register()</code>.
@@ -351,14 +431,14 @@ class Wpcom_Feature_Flags {
 							}
 							?>
 							<tr>
-								<td>
+								<th scope="row">
 									<code><?php echo esc_html( $flag_name ); ?></code>
 									<?php if ( ! $row['registered'] ) : ?>
 										<p class="description">Not registered on this site.</p>
 									<?php elseif ( '' !== $row['description'] ) : ?>
 										<p class="description"><?php echo esc_html( $row['description'] ); ?></p>
 									<?php endif; ?>
-								</td>
+								</th>
 								<td><?php echo '' === $row['owner'] ? '&#8212;' : esc_html( $row['owner'] ); ?></td>
 								<td>
 									<?php
@@ -370,17 +450,37 @@ class Wpcom_Feature_Flags {
 									?>
 								</td>
 								<td>
-									<?php foreach ( $states as $value => $label ) : ?>
-										<label style="margin-inline-end: 1em;">
-											<input
-												type="radio"
-												name="flag_state[<?php echo esc_attr( $flag_name ); ?>]"
-												value="<?php echo esc_attr( $value ); ?>"
-												<?php checked( $current, $value ); ?>
-											/>
-											<?php echo esc_html( $label ); ?>
-										</label>
-									<?php endforeach; ?>
+									<?php
+									if ( null === $row['effective'] ) {
+										echo '&#8212;';
+									} else {
+										echo $row['effective'] ? 'On' : 'Off';
+									}
+									?>
+								</td>
+								<td>
+									<?php if ( ! $row['overridable'] ) : ?>
+										<p class="description">
+											This flag&#8217;s name does not match
+											<code>^[a-z0-9][a-z0-9_-]*$</code>, so an override for it cannot
+											be stored. Fix the name where the flag is registered.
+										</p>
+									<?php else : ?>
+										<fieldset>
+											<legend class="screen-reader-text">Override state for <?php echo esc_html( $flag_name ); ?></legend>
+											<?php foreach ( $states as $value => $label ) : ?>
+												<label style="margin-inline-end: 1em;">
+													<input
+														type="radio"
+														name="flag_state[<?php echo esc_attr( $flag_name ); ?>]"
+														value="<?php echo esc_attr( $value ); ?>"
+														<?php checked( $current, $value ); ?>
+													/>
+													<?php echo esc_html( $label ); ?>
+												</label>
+											<?php endforeach; ?>
+										</fieldset>
+									<?php endif; ?>
 								</td>
 							</tr>
 						<?php endforeach; ?>
@@ -460,8 +560,9 @@ class Wpcom_Feature_Flags {
 	 * @return array<string, array> Map of flag name to row data.
 	 */
 	private static function get_rows() {
-		$registered = class_exists( Feature_Flags::class ) ? Feature_Flags::all() : array();
-		$rows       = array();
+		$has_registry = class_exists( Feature_Flags::class );
+		$registered   = $has_registry ? Feature_Flags::all() : array();
+		$rows         = array();
 
 		foreach ( $registered as $name => $definition ) {
 			$rows[ $name ] = array(
@@ -483,6 +584,27 @@ class Wpcom_Feature_Flags {
 				'description' => '',
 				'owner'       => '',
 			);
+		}
+
+		foreach ( $rows as $name => $row ) {
+			/*
+			 * Registration does not validate names at runtime — the package
+			 * enforces the pattern with a PHPCS sniff, which never runs against
+			 * the wpcom Simple codebase. sanitize_overrides() would silently drop
+			 * an override for a name that fails it, so flag those rows here and
+			 * render them without a control rather than offering one that does
+			 * nothing.
+			 */
+			$rows[ $name ]['overridable'] = self::is_valid_flag_name( $name );
+
+			/*
+			 * What the flag actually resolves to right now, which is not always
+			 * what this screen set: the per-flag
+			 * `jetpack_feature_flag_enabled_{$name}` filter runs after ours and
+			 * wins. Showing it turns the screen from a settings form into
+			 * something that answers "I forced it on, so why is it still off?".
+			 */
+			$rows[ $name ]['effective'] = $has_registry ? Feature_Flags::is_enabled( $name ) : null;
 		}
 
 		ksort( $rows );
