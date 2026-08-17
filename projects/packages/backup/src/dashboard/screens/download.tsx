@@ -1,7 +1,7 @@
 import { Notice, ProgressBar, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, arrowLeft } from '@wordpress/icons';
 import { Link, useParams } from '@wordpress/route';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
@@ -105,6 +105,20 @@ export default function DownloadScreen() {
 							>
 								{ __( 'Download the file', 'jetpack-backup-pkg' ) }
 							</a>
+							{ /*
+							 * WPCOM signs the archive URL with an expiry. Saying
+							 * when it lapses is the difference between coming back
+							 * to a dead link and knowing to fetch it again.
+							 */ }
+							{ state.validUntil && (
+								<Text variant="body-sm" className="jpb-text-muted">
+									{ sprintf(
+										/* translators: %s: date and time the download link stops working. */
+										__( 'This link expires %s.', 'jetpack-backup-pkg' ),
+										dateI18n( 'M j, Y, g:i A', state.validUntil, undefined )
+									) }
+								</Text>
+							) }
 						</Stack>
 					) }
 					{ state.phase === 'error' && (

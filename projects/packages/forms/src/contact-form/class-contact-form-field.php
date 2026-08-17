@@ -126,6 +126,20 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public $label_styles = '';
 
 	/**
+	 * Input tuple used for the cached hidden-field filter result.
+	 *
+	 * @var array|null
+	 */
+	private $hidden_field_filter_input;
+
+	/**
+	 * Cached hidden-field filter result.
+	 *
+	 * @var mixed
+	 */
+	private $hidden_field_filter_value;
+
+	/**
 	 * Constructor function.
 	 *
 	 * @param array        $attributes An associative array of shortcode attributes.  @see shortcode_atts().
@@ -203,10 +217,19 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'showotheroption'              => null,
 				// derived from block metadata for blockVisibility support
 				'labelhiddenbyblockvisibility' => null,
+				// JSON-encoded conditional logic config; decoded below.
+				'conditionallogic'             => null,
 			),
 			$attributes,
 			'contact-field'
 		);
+
+		if ( ! empty( $attributes['conditionallogic'] ) && is_string( $attributes['conditionallogic'] ) ) {
+			$decoded                        = json_decode( html_entity_decode( $attributes['conditionallogic'], ENT_COMPAT ), true );
+			$attributes['conditionallogic'] = is_array( $decoded ) ? $decoded : null;
+		} elseif ( ! is_array( $attributes['conditionallogic'] ) ) {
+			$attributes['conditionallogic'] = null;
+		}
 
 		// special default for subject field
 		if ( 'subject' === $attributes['type'] && $attributes['default'] === null && $form !== null ) {
@@ -334,6 +357,17 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return ! empty( array_filter( $field_value ) );
 		}
 		return ! empty( trim( $field_value ) );
+	}
+
+	/**
+	 * Whether this field's visibility is governed by conditional logic.
+	 *
+	 * @return bool True when the field carries an enabled conditional-logic config.
+	 */
+	public function has_conditional_logic() {
+		$logic = $this->get_attribute( 'conditionallogic' );
+
+		return is_array( $logic ) && ! empty( $logic['enabled'] );
 	}
 
 	/**
@@ -799,6 +833,26 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return sanitize_textarea_field( wp_unslash( $_POST[ $field_id ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
 		}
 
+		// Explicit consent never renders checked, so a missing POST value must remain empty
+		// rather than falling through to a query-string or configured default.
+		if ( 'consent' === $field_type && 'explicit' === $this->get_attribute( 'consenttype' ) ) {
+			return '';
+		}
+
+		// Checkbox controls are omitted from the request when unchecked. During an actual
+		// submission that absence is the submitted value; falling through to a query-string
+		// or configured default would silently check the field again.
+		$is_checkbox_control = in_array( $field_type, array( 'checkbox', 'checkbox-multiple' ), true );
+		if ( $is_checkbox_control && $this->form && $this->form->is_current_submission() ) {
+			return '';
+		}
+
+		// Implicit consent renders as a hidden input with this value, so its computed value
+		// must match what the browser will submit from the first render onward.
+		if ( 'consent' === $field_type && 'explicit' !== $this->get_attribute( 'consenttype' ) ) {
+			return __( 'Yes', 'jetpack-forms' );
+		}
+
 		// Use the GET Field if it is available.
 		if ( isset( $_GET[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 			if ( is_array( $_GET[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
@@ -836,6 +890,74 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 
 		return $this->get_attribute( 'default' );
+	}
+
+	/**
+	 * Get the field value used to resolve conditional logic.
+	 *
+	 * Hidden-field filters affect the value rendered into the browser, so apply the same
+	 * filter before the server evaluates a rule that uses a hidden field as its subject.
+	 *
+	 * @return string|array Field value.
+	 */
+	public function get_conditional_logic_value() {
+		$field_type = $this->get_attribute( 'type' );
+		$field_id   = $this->get_attribute( 'id' );
+		$value      = $this->get_computed_field_value( $field_type, $field_id );
+
+		if ( 'hidden' === $field_type && ! $this->is_submitted_hidden_field_value( $field_id ) ) {
+			$value = $this->get_filtered_hidden_field_value( $value, $this->get_attribute( 'label' ), $field_id );
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Filter the value of a hidden field once per input tuple.
+	 *
+	 * Rendering and conditional logic must use the exact same filtered value. Caching also
+	 * prevents stateful filters from returning a different value on their second invocation.
+	 *
+	 * @param mixed  $value The value of the hidden field.
+	 * @param string $label The label of the hidden field.
+	 * @param string $id    The ID of the hidden field.
+	 * @return mixed The modified value of the hidden field.
+	 */
+	private function get_filtered_hidden_field_value( $value, $label, $id ) {
+		$input = array( $value, $label, $id );
+
+		if ( $input === $this->hidden_field_filter_input ) {
+			return $this->hidden_field_filter_value;
+		}
+
+		/**
+		 * Filter the value of the hidden field.
+		 *
+		 * @since 6.3.0
+		 *
+		 * @param string $value The value of the hidden field.
+		 * @param string $label The label of the hidden field.
+		 * @param string $id The ID of the hidden field.
+		 */
+		$this->hidden_field_filter_input = $input;
+		$this->hidden_field_filter_value = apply_filters( 'jetpack_forms_hidden_field_value', $value, $label, $id );
+
+		return $this->hidden_field_filter_value;
+	}
+
+	/**
+	 * Whether a hidden value came from a matching form submission.
+	 *
+	 * Hidden values rendered into the browser have already passed through the hidden-field
+	 * filter, so their submitted values must not be filtered a second time.
+	 *
+	 * @param string $id The ID of the hidden field.
+	 * @return bool Whether the submitted value should be treated as already filtered.
+	 */
+	private function is_submitted_hidden_field_value( $id ) {
+		return isset( $_POST[ $id ] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+			&& $this->form
+			&& $this->form->is_current_submission();
 	}
 
 	/**
@@ -1986,20 +2108,26 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML for the hidden field.
 	 */
 	private function render_hidden_field( $id, $label, $value ) {
-		/**
-		 *
-		 * Filter the value of the hidden field.
-		 *
-		 * @since 6.3.0
-		 *
-		 * @param string $value The value of the hidden field.
-		 * @param string $label The label of the hidden field.
-		 * @param string $id The ID of the hidden field.
-		 *
-		 * @return string The modified value of the hidden field.
-		 */
-		$value = apply_filters( 'jetpack_forms_hidden_field_value', $value, $label, $id );
-		return "<input type='hidden' name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' value='" . esc_attr( $value ) . "' />\n";
+		if ( ! $this->is_submitted_hidden_field_value( $id ) ) {
+			$value = $this->get_filtered_hidden_field_value( $value, $label, $id );
+		}
+
+		$context = array(
+			'fieldId'         => $id,
+			'fieldType'       => 'hidden',
+			'fieldLabel'      => $label,
+			'fieldValue'      => $value,
+			'fieldIsRequired' => false,
+			'fieldExtra'      => array(),
+			'formHash'        => $this->form ? $this->form->hash : '',
+		);
+
+		$interactivity_attributes = "data-jp-field-id='" . esc_attr( $id ) . "' data-wp-interactive='jetpack/form' "
+			. wp_interactivity_data_wp_context( $context )
+			. " data-wp-init='callbacks.initializeField' data-wp-on--jetpack-form-reset='callbacks.initializeField'";
+
+		return "<input type='hidden' name='" . esc_attr( $id ) . "' id='" . esc_attr( $id )
+			. "' value='" . esc_attr( $value ) . "' " . $interactivity_attributes . " />\n";
 	}
 
 	/**
@@ -2927,7 +3055,25 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'formHash'          => $this->form->hash,
 		);
 
+		// Conditional logic is not emitted per field: it cascades, so resolving it needs every
+		// field's logic and type at once. The form block emits that map once as
+		// `conditionalLogic`, and this field's wrapper reads its own entry from there.
 		$interactivity_attrs = ' data-wp-interactive="jetpack/form" ' . wp_interactivity_data_wp_context( $context ) . ' ';
+
+		// Hiding a field has to hide whichever element occupies the slot in the row, or the
+		// field disappears and leaves a hole behind it. For an inset label that is the outer
+		// wrapper, which is where the width class lives -- the inner div is inside it and
+		// carries no width of its own.
+		// data-jp-visibility-root names the element the initial server-side render stamps, so
+		// the first paint and the runtime always hide the same element. Matching on
+		// data-jp-field-id instead would stamp the inner div even when the wrapper is the one
+		// the runtime hides.
+		$visibility_attrs = " data-jp-visibility-root='" . esc_attr( $id ) . "'"
+			. ( $this->has_conditional_logic() ? " data-jp-conditional='1'" : '' )
+			. ' data-wp-class--jetpack-field--conditionally-hidden="state.isFieldHidden"'
+			// Runs whenever the field's visibility changes, so focus does not fall to <body>
+			// when the field the visitor is filling in disappears under them.
+			. ' data-wp-watch--conditional-focus="callbacks.manageConditionalFocus"';
 
 		// Fields with an inset label need an extra wrapper to show the error message below the input.
 		if ( $has_inset_label ) {
@@ -2938,11 +3084,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				array_push( $inset_label_class, 'grunion-field-width-' . $field_width . '-wrap' );
 			}
 
-			$field              .= "\n<div class='" . implode( ' ', $inset_label_class ) . "' {$interactivity_attrs} >\n";
+			$field              .= "\n<div class='" . implode( ' ', $inset_label_class ) . "' {$interactivity_attrs} {$visibility_attrs} >\n";
 			$interactivity_attrs = ''; // Reset interactivity attributes for the field wrapper.
+			$visibility_attrs    = ''; // The outer wrapper owns visibility for this layout.
 		}
 
-		$field .= "\n<div {$block_style} {$interactivity_attrs} {$shell_field_class} data-wp-init='callbacks.initializeField' data-wp-on--jetpack-form-reset='callbacks.initializeField' >\n"; // new in Jetpack 6.8.0
+		$field .= "\n<div {$block_style} {$interactivity_attrs} {$shell_field_class} data-jp-field-id='" . esc_attr( $id ) . "'{$visibility_attrs} data-wp-init='callbacks.initializeField' data-wp-on--jetpack-form-reset='callbacks.initializeField' >\n"; // new in Jetpack 6.8.0
 
 		switch ( $type ) {
 			case 'email':

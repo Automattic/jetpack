@@ -1,0 +1,3 @@
+Significance: patch
+Type: added
+Comment: Backup: give the modernized dashboard a first-run state — first backup, in-progress progress bar, error-will-retry and no-good-backups — and wire "Back up now" to the enqueue endpoint. No-op when the modernization filter is off.

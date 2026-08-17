@@ -31,7 +31,7 @@ function wpcom_forms_has_blog_sticker( $sticker, $blog_id ) {
 /**
  * Check if Central Forms Management is enabled for a given blog.
  *
- * Enabled for all WordPress.com sites except e2e test sites.
+ * Enabled for all WordPress.com sites, except those that opt out by sticker.
  *
  * @param int|null $blog_id Blog ID. Defaults to the current WP.com blog ID.
  * @return bool
@@ -39,11 +39,6 @@ function wpcom_forms_has_blog_sticker( $sticker, $blog_id ) {
 function wpcom_is_central_forms_management_enabled( $blog_id = null ) {
 	if ( null === $blog_id ) {
 		$blog_id = function_exists( 'get_wpcom_blog_id' ) ? get_wpcom_blog_id() : get_current_blog_id();
-	}
-
-	// Exclude e2e test sites — their tests aren't ready for CFM yet.
-	if ( wpcom_forms_has_blog_sticker( 'a8c-e2e-test-blog', $blog_id ) ) {
-		return false;
 	}
 
 	// Allow disabling CFM for individual sites via blog sticker.
@@ -58,8 +53,8 @@ function wpcom_is_central_forms_management_enabled( $blog_id = null ) {
  * Disable Central Forms Management for excluded WordPress.com sites.
  *
  * CFM is now enabled by default in the Forms package. This function
- * explicitly disables it for sites that should be excluded (e2e test
- * sites, sites with the disable-central-forms-management sticker).
+ * explicitly disables it for sites that carry the
+ * disable-central-forms-management sticker.
  *
  * Called immediately on file load since this file is required during
  * plugins_loaded (priority 10) inside load_wpcom_sites_features().

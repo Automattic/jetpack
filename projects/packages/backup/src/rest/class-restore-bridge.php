@@ -42,7 +42,11 @@ class Restore_Bridge {
 						'required' => true,
 					),
 					'types'     => array(
-						'type' => 'object',
+						'type'                 => 'object',
+						// See the download bridge: `object` alone accepts a
+						// JSON list, because WordPress validates it with
+						// `is_array()`.
+						'additionalProperties' => array( 'type' => 'boolean' ),
 					),
 				),
 			)
@@ -88,10 +92,17 @@ class Restore_Bridge {
 		$rewind_id = (string) $request->get_param( 'rewind_id' );
 		$types     = $request->get_param( 'types' );
 
-		$body = array(
-			'force_rewind' => true,
-			'types'        => is_array( $types ) || is_object( $types ) ? $types : (object) array(),
-		);
+		$body = array( 'force_rewind' => true );
+		// Omit `types` entirely when nothing is named, and rebuild it as a
+		// named map otherwise — the same contract the download bridge and
+		// the client's `serializeTypes` follow. Defaulting to `{}` sent the
+		// one value that names no category, which the v2 restore route
+		// rejects outright and which the client had already been careful to
+		// leave out.
+		$named_types = Rest_Controller::named_types( $types );
+		if ( ! empty( $named_types ) ) {
+			$body['types'] = $named_types;
+		}
 
 		// `base_api_path` defaults to 'wpcom' on `as_user`, but the
 		// activity-log endpoints live under `rest/v1/...`

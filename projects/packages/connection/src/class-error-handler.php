@@ -26,18 +26,21 @@ namespace Automattic\Jetpack\Connection;
  * 6. This endpoint adds this error to the Verified errors in the database
  * 7. Triggers a workflow depending on the error (display user an error message, do some self healing, etc.)
  *
- * Flow 2 — outgoing request errors. Entry points: `check_api_response_for_errors()` and
- * `check_signed_request_for_errors()`.
+ * Flow 2 — outgoing request errors. Entry points: `check_api_response_for_errors()`,
+ * `check_signed_request_for_errors()`, and `check_xmlrpc_fault_for_errors()`.
  *
  * 1. Every signed request made through `Client::remote_request()` has its response checked
  *    by `check_api_response_for_errors()`. A request that could not be signed at all never
  *    gets a response, so `Client::remote_request()` passes the signing failure to
- *    `check_signed_request_for_errors()` instead.
- * 2. When the response (or the signing failure) carries a known error code, the error is
- *    stored and immediately marked verified (the same hourly gate applies). The WP.com
- *    verification round-trip of flow 1 is skipped because the error arrived in a response to
- *    a request this site itself initiated and signed — the failed response is its own
- *    evidence — or, for signing failures, because the evidence is the site's own state.
+ *    `check_signed_request_for_errors()` instead. An XML-RPC fault arrives as an HTTP 200
+ *    response with an XML body, so it never reaches `check_api_response_for_errors()` either
+ *    (which returns immediately on a 200 and decodes the body as JSON); `Jetpack_IXR_Client::query()`
+ *    calls `check_xmlrpc_fault_for_errors()` directly from its fault branch instead.
+ * 2. When the response (or the signing failure, or the fault) carries a known error code, the
+ *    error is stored and immediately marked verified (the same hourly gate applies). The
+ *    WP.com verification round-trip of flow 1 is skipped because the error arrived in a
+ *    response to a request this site itself initiated and signed — the failed response is its
+ *    own evidence — or, for signing failures, because the evidence is the site's own state.
  *
  * Stored errors carry two orthogonal classification fields:
  *
@@ -197,7 +200,8 @@ class Error_Handler {
 		'no_valid_blog_token',       // The stored blog token doesn't match the key the request was signed with.
 		'unknown_token',             // No stored token matches the request token's key.
 		// Signature verification problems (Jetpack_Signature), or errors WPCOM returned
-		// for an outbound request (Error_Handler::check_api_response_for_errors).
+		// for an outbound request (Error_Handler::check_api_response_for_errors,
+		// Error_Handler::check_xmlrpc_fault_for_errors).
 		'could_not_sign',            // Signing the request failed for an unknown reason.
 		'invalid_scheme',            // Invalid URL scheme when signing.
 		'unknown_scheme_port',       // The URL scheme has no known port, so the signature cannot be built.
@@ -307,6 +311,8 @@ class Error_Handler {
 			// Only process error codes that are meant to be displayed to users.
 			// `no_user_tokens` and `no_token_for_user` are deliberately excluded: both mean the
 			// targeted user simply never connected their WordPress.com account, which is expected.
+			// `invalid_signature` is excluded: in both directions this code means clock skew or a
+			// malformed parameter, which a reconnect cannot fix.
 			// The owner flavor is covered by `invalid_connection_owner`.
 			$displayable_error_codes = array(
 				'malformed_token',
@@ -318,7 +324,6 @@ class Error_Handler {
 				'could_not_sign',
 				'invalid_token',
 				'token_mismatch',
-				'invalid_signature',
 				'signature_mismatch',
 				'invalid_connection_owner',
 				'xmlrpc_request_blocked',
@@ -1567,8 +1572,8 @@ class Error_Handler {
 	 *
 	 * Note: XML-RPC faults arrive as HTTP 200 responses with an XML body, so they are
 	 * invisible to this method — only errors surfaced at the HTTP level with a JSON error
-	 * envelope are captured. This is one of the reasons outgoing calls are being migrated
-	 * from XML-RPC to REST.
+	 * envelope are captured. `Jetpack_IXR_Client::query()` reports faults itself, via
+	 * check_xmlrpc_fault_for_errors().
 	 *
 	 * @see wp_remote_request() For more information on the $http_response array format.
 	 * @param array|\WP_Error $http_response The response or WP_Error on failure.
@@ -1681,6 +1686,53 @@ class Error_Handler {
 			// (e.g. `tokens_locked`, `malformed_token` from `Client` itself) carry no such data,
 			// and fall back to unattributed there.
 			array( 'user_id' => isset( $data['user_id'] ) ? (int) $data['user_id'] : 0 )
+		);
+
+		$this->report_error( $error, false, true );
+	}
+
+	/**
+	 * Check an outgoing XML-RPC request's fault response for errors, and store them if needed.
+	 *
+	 * This is the third entry point of the outgoing-request error flow (flow 2 in the class
+	 * docblock). XML-RPC faults arrive as HTTP 200 responses with an XML body, so
+	 * check_api_response_for_errors() never sees them — it returns immediately on a 200,
+	 * and decodes the body as JSON rather than XML anyway. `Jetpack_IXR_Client::query()`
+	 * calls this method directly from its fault branch instead.
+	 *
+	 * The code/message pair is recovered from the fault string by the caller, via
+	 * `Jetpack_IXR_Client::parse_jetpack_fault_string()` — the class that owns the
+	 * `Jetpack: [code] message` convention. An unparseable fault string is the caller's
+	 * concern, not this method's; a fault code reaching here is untrusted input, and it's
+	 * `report_error()`'s `$known_errors` allowlist, not this method, that keeps an
+	 * unrecognized code from being stored. In practice every `jetpack.*` XML-RPC handler
+	 * on WP.com emits fixed string literals here, never attacker- or request-composed
+	 * ones, and the handful that are also `$known_errors` (`unknown_token`,
+	 * `signature_mismatch`, `invalid_token`, `token_mismatch`, `invalid_signature`) are
+	 * the same codes this site itself raises for the same failure — WP.com is just
+	 * verifying signatures with the same scheme.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $error_code    The Jetpack error code parsed from the fault string.
+	 * @param string $error_message The error message parsed from the fault string.
+	 * @param string $url           Request URL.
+	 * @param string $method        Request method.
+	 * @param int    $user_id       The local user ID the request was signed for, or `0` for the blog token.
+	 *
+	 * @return void
+	 */
+	public function check_xmlrpc_fault_for_errors( string $error_code, string $error_message, string $url, string $method, int $user_id = 0 ) {
+		$error = self::build_connection_wp_error(
+			$error_code,
+			$error_message,
+			array(
+				'method' => $method,
+				'url'    => $url,
+			),
+			self::ERROR_TYPE_XMLRPC,
+			self::DIRECTION_OUTGOING,
+			array( 'user_id' => $user_id )
 		);
 
 		$this->report_error( $error, false, true );
