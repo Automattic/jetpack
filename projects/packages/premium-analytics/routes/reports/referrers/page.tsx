@@ -21,6 +21,7 @@ import { useSearch } from '@wordpress/route';
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
 import { getReferrerFields, useReferrersReportRecords, type ReferrerRecord } from './config';
 
 const ROUTE_FROM = route.path;
@@ -97,19 +98,19 @@ function ReferrersReport(): JSX.Element {
 	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const title = __( 'Referrers', 'jetpack-premium-analytics-pkg' );
+	const { getLabel, getTitle } = REPORTS.referrers;
 
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: title } ] } /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ title } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load referrers', 'jetpack-premium-analytics-pkg' ) }

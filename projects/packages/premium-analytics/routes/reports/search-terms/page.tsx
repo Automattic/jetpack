@@ -21,6 +21,7 @@ import { useSearch } from '@wordpress/route';
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
 import { getSearchTermsFields, useSearchTermsReportRecords, type SearchTermRow } from './config';
 
 const ROUTE_FROM = route.path;
@@ -85,19 +86,19 @@ export default function SearchTermsReportPage(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 
-	const title = __( 'Search terms', 'jetpack-premium-analytics-pkg' );
+	const { getLabel, getTitle } = REPORTS[ 'search-terms' ];
 
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: title } ] } /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ title } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load search terms', 'jetpack-premium-analytics-pkg' ) }

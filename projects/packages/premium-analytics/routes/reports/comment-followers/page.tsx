@@ -22,6 +22,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { REPORTS } from '../registry';
 import { getCommentFollowersFields, useCommentFollowersReportRecords } from './config';
 import styles from './page.module.css';
 
@@ -90,19 +91,19 @@ function CommentFollowersReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const title = __( 'Comments Subscribers', 'jetpack-premium-analytics-pkg' );
+	const { getLabel, getTitle } = REPORTS[ 'comment-followers' ];
 
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: title } ] } /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ title }>
+			<ReportPageLayout title={ getTitle() }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load subscribers', 'jetpack-premium-analytics-pkg' ) }

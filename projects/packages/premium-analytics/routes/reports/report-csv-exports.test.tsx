@@ -44,6 +44,7 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/',
 	useReportDateFilters: () => ( {} ),
 	useSectionTab: jest.fn(),

@@ -22,6 +22,7 @@ import { useSearch } from '@wordpress/route';
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
 import {
 	getReportUtmTabs,
 	getTabTitle,
@@ -111,8 +112,7 @@ function UtmReport(): JSX.Element {
 		status: records,
 	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	// The crumb names the report; the header names the section open inside it.
-	const label = __( 'All UTM values', 'jetpack-premium-analytics-pkg' );
+	const label = REPORTS.utm.getLabel();
 
 	return (
 		<ReportPageShell

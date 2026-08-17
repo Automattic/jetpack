@@ -40,7 +40,16 @@ export type ReportDefinition = {
 	id: string;
 
 	/**
-	 * Translated page title, resolved lazily.
+	 * What the report is called from outside itself: the trailing breadcrumb on
+	 * its own page, and the crumb linking back to it from a detail page.
+	 */
+	getLabel: () => string;
+
+	/**
+	 * Heading for the report's records — `Referrers report` where the label is
+	 * `Referrers`. A tabbed report heads each section from its tab instead (see
+	 * `getTabTitle` in `defineReportTabs`), so this only reaches the screen on
+	 * reports without tabs.
 	 */
 	getTitle: () => string;
 
@@ -82,6 +91,7 @@ export type ReportDefinition = {
 export const REPORTS: Record< string, ReportDefinition > = {
 	'annual-insights': {
 		id: 'annual-insights',
+		getLabel: () => __( 'Annual insights', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'Annual insights report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__( 'Year-by-year publishing and engagement totals.', 'jetpack-premium-analytics-pkg' ),
@@ -89,21 +99,25 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	},
 	authors: {
 		id: 'authors',
+		getLabel: () => __( 'Top authors', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'Top authors report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './authors/page' ),
 	},
 	'comment-followers': {
 		id: 'comment-followers',
+		getLabel: () => __( 'Comments Subscribers', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'Comments Subscribers report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './comment-followers/page' ),
 	},
 	clicks: {
 		id: 'clicks',
+		getLabel: () => __( 'Clicks', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'Clicks report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './clicks/page' ),
 	},
 	comments: {
 		id: 'comments',
+		getLabel: () => __( 'All comments', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'All comments report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__(
@@ -115,6 +129,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	},
 	downloads: {
 		id: 'downloads',
+		getLabel: () => __( 'File downloads', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'File downloads report', 'jetpack-premium-analytics-pkg' ),
 		// File download tracking happens on WPCOM infrastructure; Calypso only
 		// shows the module on Simple sites ("not yet supported in Jetpack
@@ -125,6 +140,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	},
 	emails: {
 		id: 'emails',
+		getLabel: () => __( 'Emails', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'Emails report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__( 'Open and click performance of your latest emails.', 'jetpack-premium-analytics-pkg' ),
@@ -132,6 +148,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	},
 	locations: {
 		id: 'locations',
+		getLabel: () => __( 'All locations', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'All locations report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__( 'See where your visitors are viewing from.', 'jetpack-premium-analytics-pkg' ),
@@ -140,6 +157,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	},
 	posts: {
 		id: 'posts',
+		getLabel: () => __( 'All pages', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'All pages report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__( 'All your posts and archive pages.', 'jetpack-premium-analytics-pkg' ),
@@ -148,11 +166,13 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	},
 	'search-terms': {
 		id: 'search-terms',
+		getLabel: () => __( 'Search terms', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'Search terms report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './search-terms/page' ),
 	},
 	tags: {
 		id: 'tags',
+		getLabel: () => __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'Tags & categories report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__( 'Your most visited tags and categories.', 'jetpack-premium-analytics-pkg' ),
@@ -160,18 +180,21 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	},
 	videos: {
 		id: 'videos',
+		getLabel: () => __( 'Videos', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'Videos report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () => __( 'See how your videos perform.', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './videos/page' ),
 	},
 	utm: {
 		id: 'utm',
+		getLabel: () => __( 'All UTM values', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'All UTM values report', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveUtmSection,
 		load: () => import( './utm/page' ),
 	},
 	referrers: {
 		id: 'referrers',
+		getLabel: () => __( 'Referrers', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'Referrers report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './referrers/page' ),
 	},

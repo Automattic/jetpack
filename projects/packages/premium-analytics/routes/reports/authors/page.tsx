@@ -21,6 +21,7 @@ import { useSearch } from '@wordpress/route';
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
 import { getAuthorName, getAuthorsFields, useAuthorsReportRecords, type AuthorRow } from './config';
 
 const ROUTE_FROM = route.path;
@@ -107,19 +108,19 @@ function AuthorsReport(): JSX.Element {
 	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const title = __( 'Top authors', 'jetpack-premium-analytics-pkg' );
+	const { getLabel, getTitle } = REPORTS.authors;
 
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: title } ] } /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ title } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
 				{ /*
 				 * Replace the row-count-based table state when either request fails,
 				 * so cached rows are not shown as current and an initial failure does

@@ -25,6 +25,7 @@ import { useSearch } from '@wordpress/route';
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
 import { getVideosFields, useVideosReportRecords } from './config';
 
 const ROUTE_FROM = route.path;
@@ -125,12 +126,12 @@ function VideosReport(): JSX.Element {
 	const isTableLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const title = __( 'Videos', 'jetpack-premium-analytics-pkg' );
+	const { getLabel, getTitle } = REPORTS.videos;
 
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: title } ] } /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			subTitle={ __( 'See how your videos perform.', 'jetpack-premium-analytics-pkg' ) }
 			actions={
 				canExport ? (
@@ -138,7 +139,7 @@ function VideosReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ title } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load videos', 'jetpack-premium-analytics-pkg' ) }

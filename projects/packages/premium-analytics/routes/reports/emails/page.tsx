@@ -17,6 +17,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { REPORTS } from '../registry';
 import { getEmailsFields, useEmailsReportRecords } from './config';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
 
@@ -100,12 +101,12 @@ function EmailsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const title = __( 'Emails', 'jetpack-premium-analytics-pkg' );
+	const { getLabel, getTitle } = REPORTS.emails;
 
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: title } ] } /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			subTitle={ __(
 				'Open and click performance of your latest emails.',
 				'jetpack-premium-analytics-pkg'
@@ -116,7 +117,7 @@ function EmailsReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ title }>
+			<ReportPageLayout title={ getTitle() }>
 				{ /*
 				 * The error state replaces the table rather than sitting beside it:
 				 * `ReportRecordsTable`'s `empty` renders on row count, not fetch

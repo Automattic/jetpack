@@ -12,7 +12,7 @@ definition and lazily renders that report's page component. Adding a report does
    The component owns all of the page chrome (header, tabs, widget grid) — the
    stage renders it as-is.
 
-2. **Register one entry** in `REPORTS` in `registry.ts`. Labels are getters so
+2. **Register one entry** in `REPORTS` in `registry.ts`. Names are getters so
    translations resolve after the i18n locale data has loaded; `load` is a
    dynamic import of the page component:
 
@@ -22,7 +22,8 @@ definition and lazily renders that report's page component. Adding a report does
    export const REPORTS: Record< string, ReportDefinition > = {
    	posts: {
    		id: 'posts',
-   		getTitle: () => __( 'Posts & pages', 'jetpack-premium-analytics-pkg' ),
+   		getLabel: () => __( 'All pages', 'jetpack-premium-analytics-pkg' ),
+   		getTitle: () => __( 'All pages report', 'jetpack-premium-analytics-pkg' ),
    		// Optional — only for reports that own sections:
    		// resolveSection: value => resolveSectionId( value ),
    		load: () => import( './posts/page' ),
@@ -32,6 +33,24 @@ definition and lazily renders that report's page component. Adding a report does
 
 That's it. The report is reachable at `/reports/<id>`. An unknown or missing
 `$report` redirects to the dashboard (`route.ts`).
+
+## The two names, and the third
+
+`getLabel` is what the report is called from outside itself: its own trailing
+breadcrumb, and the crumb linking back to it from a post or video detail page.
+`getTitle` heads its records — `All pages report` where the label is
+`All pages`.
+
+The page reads both from `REPORTS` rather than declaring its own strings, so the
+two cannot drift. This is interim: WOOA7S-1950 moves the whole page header up to
+the stage, which already resolves the definition, and the pages stop naming
+themselves at all.
+
+A report with tabs heads each section from the open tab instead, through
+`getTabTitle()` on its `config/tabs.ts` (see `defineReportTabs` in
+`@jetpack-premium-analytics/routing`), which falls back to that tab's label. On
+those reports `getTitle` never reaches the screen — the crumb still uses
+`getLabel`.
 
 ## Providers the stage mounts for every report
 

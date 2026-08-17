@@ -22,6 +22,7 @@ import { useSearch } from '@wordpress/route';
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
 import {
 	getLocationFields,
 	getReportLocationsTabs,
@@ -148,8 +149,7 @@ export default function LocationsReportPage(): JSX.Element {
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
-	// The crumb names the report; the header names the section open inside it.
-	const label = __( 'All locations', 'jetpack-premium-analytics-pkg' );
+	const label = REPORTS.locations.getLabel();
 
 	return (
 		<ReportPageShell

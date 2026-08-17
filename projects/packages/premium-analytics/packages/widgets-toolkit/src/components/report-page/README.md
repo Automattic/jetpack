@@ -96,10 +96,12 @@ A report page carries three names, and they are not interchangeable:
 `title` is the third one. On a tabbed report it belongs to the open tab, so take
 it from the tab set's `getTabTitle()` (`defineReportTabs` in
 `@jetpack-premium-analytics/routing`), which falls back to that tab's own label
-where no title is declared. A report with no tabs passes its own name.
+where no title is declared. A report with no tabs takes `getTitle()` from its
+registry entry.
 
-The breadcrumb takes the report label instead, and the two differ on purpose:
-one names the report, the other names the records currently on screen.
+The breadcrumb takes the report's `getLabel()` instead, and the two differ on
+purpose: one names the report, the other names the records currently on screen.
+Both live in `routes/reports/registry.ts`, so a page declares neither.
 
 A report with no date window (Annual insights, Emails, Tags & categories, …)
 passes `title` alone. Its header is the title, with no subtitle and no controls.

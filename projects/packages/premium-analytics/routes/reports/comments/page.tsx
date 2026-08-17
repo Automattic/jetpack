@@ -20,6 +20,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
 import {
 	getCommentsFields,
 	getCommentsReportTabs,
@@ -83,8 +84,7 @@ function CommentsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	// The crumb names the report; the header names the section open inside it.
-	const label = __( 'All comments', 'jetpack-premium-analytics-pkg' );
+	const label = REPORTS.comments.getLabel();
 
 	return (
 		<ReportPageShell

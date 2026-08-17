@@ -26,6 +26,7 @@ import { useSearch } from '@wordpress/route';
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
 import {
 	buildArchiveCsvRows,
 	getArchivesFields,
@@ -196,8 +197,7 @@ function PostsReport(): JSX.Element {
 			/>
 		);
 
-	// The crumb names the report; the header names the section open inside it.
-	const label = __( 'All pages', 'jetpack-premium-analytics-pkg' );
+	const label = REPORTS.posts.getLabel();
 
 	return (
 		<ReportPageShell

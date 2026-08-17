@@ -25,6 +25,7 @@ import { useSearch } from '@wordpress/route';
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
 import { getDownloadsFields, useDownloadsReportRecords } from './config';
 
 const ROUTE_FROM = route.path;
@@ -97,19 +98,19 @@ function DownloadsReport(): JSX.Element {
 	const isRecordsLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const title = __( 'File downloads', 'jetpack-premium-analytics-pkg' );
+	const { getLabel, getTitle } = REPORTS.downloads;
 
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: title } ] } /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ title } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load file downloads', 'jetpack-premium-analytics-pkg' ) }

@@ -17,6 +17,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { REPORTS } from '../registry';
 import { getTagRowId, getTagsFields, useTagsReportRecords } from './config';
 import type { StatsTagsItem } from '@jetpack-premium-analytics/data';
 
@@ -72,12 +73,12 @@ function TagsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const title = __( 'Tags & categories', 'jetpack-premium-analytics-pkg' );
+	const { getLabel, getTitle } = REPORTS.tags;
 
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: title } ] } /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			subTitle={ __( 'Your most visited tags and categories.', 'jetpack-premium-analytics-pkg' ) }
 			actions={
 				canExport ? (
@@ -85,7 +86,7 @@ function TagsReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ title }>
+			<ReportPageLayout title={ getTitle() }>
 				{ /*
 				 * The error state replaces the table rather than sitting beside it:
 				 * `ReportRecordsTable`'s `empty` renders on row count, not fetch
