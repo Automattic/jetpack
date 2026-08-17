@@ -44,46 +44,14 @@ interface GlobalChartsContextValue {
 }
 ```
 
-`isColorPaletteResolved` is `false` until the provider's color cache has been resolved from the DOM and painted. Chart components can use this to defer CSS transitions or animations that would otherwise interpolate from a fallback color to the resolved theme color on initial render.
+**Member notes:**
 
-`resolveThemeColor` resolves a color value — including a `--wpds-*` token or `var(...)` expression — to a hex string in the provider's own (theme-scoped) element. Use it when JS needs the *resolved* value of a themed color, such as reading `theme.backgroundColor` to compute text contrast. It resolves at call time, so the result tracks a light/dark theme switch where the token string is unchanged but its resolved value differs. Returns `''` for an empty input.
+| Member | Note |
+| ------ | ---- |
+| `isColorPaletteResolved` | `false` until the color cache has resolved from the DOM and painted. Use it to defer transitions that would otherwise interpolate from a fallback color. |
+| `resolveThemeColor` | Resolves a color value — a `--wpds-*` token or `var(...)` expression included — to a hex string, at call time. Returns `''` for empty input. Always resolves at the `GlobalChartsProvider` wrapper; to pick up an override set closer to one chart, resolve against `useChartScopeElement()` instead. |
 
-It always resolves at the `GlobalChartsProvider` wrapper, not at the calling chart. A caller that needs the value as overridden closer to its own chart — for example a chart-scoped override between the provider and that one chart — should instead resolve against `useChartScopeElement()` directly (see the pattern used by `area-chart`, `line-chart`, `geo-chart`, and `heatmap-chart`).
-
-## Theming
-
-The package's `--a8c-charts-*` catalog (see `TOKENS.md`) is emitted once, on the `GlobalChartsProvider` wrapper element — every chart either sits under an explicit `GlobalChartsProvider` or auto-mounts its own, so a chart always has the catalog available by CSS inheritance. Consumers override a role by setting the matching `--a8c-charts-*` custom property on the provider wrapper, or on any element **inside** the provider tree between the wrapper and the chart — the closest such declaration wins:
-
-```css
-.my-dashboard {
-	/* .my-dashboard must be inside GlobalChartsProvider's tree for this to apply */
-	--a8c-charts-color-grid: #e0e0e0;
-}
-```
-
-```tsx
-<GlobalChartsProvider>
-	<div className="my-dashboard">
-		<LineChart data={ salesData } />
-	</div>
-</GlobalChartsProvider>
-```
-
-Setting `--a8c-charts-color-grid` on an ancestor of `GlobalChartsProvider` itself has no effect — the provider's own catalog declaration on its wrapper element beats a value merely inherited from further up the tree, so the override must be made inside the provider's tree (see TOKENS.md's "Precedence" section for the full ordering).
-
-The `theme` prop is a second, narrower override path. Five `ChartTheme` fields correspond directly to a catalog role, and setting one republishes it as the matching instance-scoped `--a8c-charts-*` variable on the provider's wrapper element — so the CSS-painted value (read by SVG/Google Charts through `getComputedStyle`) and the JS-resolved value (read through `resolveThemeColor` / `getElementStyles`) stay in step:
-
-| `theme` field | Catalog role |
-| --- | --- |
-| `backgroundColor` | `--a8c-charts-color-background` |
-| `gridStyles.stroke` | `--a8c-charts-color-grid` |
-| `xAxisLineStyles.stroke` | `--a8c-charts-color-axis` |
-| `xTickLineStyles.stroke` | `--a8c-charts-color-tick` |
-| `svgLabelSmall.fill` | `--a8c-charts-color-label-axis` |
-
-Each field maps to a role read by exactly the elements that field already controlled. Where the obvious role is shared more widely, the field maps to a narrow role that derives from it: `svgLabelSmall.fill` writes `--a8c-charts-color-label-axis`, which defaults to `--a8c-charts-color-label` but leaves legend labels, heatmap cell values, funnel labels and the line-chart tooltip alone. Set the broad role in CSS to move all of them together.
-
-A value that already points at the role it would define (the default theme's own catalog pointer, surviving `mergeThemes`) is not republished — emitting it would make the custom property reference itself, which CSS discards. Because `theme` is merged sparsely with `defaultTheme`, a field you don't set falls through to the catalog default rather than to a separate JS default value.
+For theming, CSS custom-property overrides, and how `resolveThemeColor` is meant to be used, see the [Global Charts Context guide](?path=/docs/js-packages-charts-library-global-context--docs) and `TOKENS.md`.
 
 ## ChartRegistration Type
 

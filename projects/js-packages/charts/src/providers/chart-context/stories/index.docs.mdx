@@ -170,6 +170,8 @@ Themes are merged with the default theme, so you only need to specify the proper
 	</GlobalChartsProvider>` }
 />
 
+A field you leave out doesn't fall back to a separate JS default value — it falls through to the catalog default, because `defaultTheme` holds a `--a8c-charts-*` pointer for every color rather than a literal. Omitting a color is therefore how you opt into design-system theming, not how you opt out of theming.
+
 ### CSS Custom Property Overrides
 
 The package's `--a8c-charts-*` token catalog is emitted once, on the `GlobalChartsProvider` wrapper element, so you can retheme any chart with plain CSS — no `theme` prop required, as long as a `GlobalChartsProvider` is present (every chart either sits under one explicitly or auto-mounts its own). Set the role you want to change on the provider wrapper, or on any element **inside** the provider tree between the wrapper and the chart; the closest such declaration wins:
@@ -191,7 +193,19 @@ The package's `--a8c-charts-*` token catalog is emitted once, on the `GlobalChar
 
 Setting these on an ancestor of `GlobalChartsProvider` has no effect — the provider's own declaration on its wrapper always beats a value inherited from further up the tree. See TOKENS.md for the full precedence order.
 
-The `theme` prop's `backgroundColor`, `gridStyles.stroke`, `xAxisLineStyles.stroke`, `xTickLineStyles.stroke`, and `svgLabelSmall.fill` fields map to a catalog role too — setting one through `GlobalChartsProvider` republishes it as that instance's `--a8c-charts-*` variable, so it also reaches the SVG- and Google-Charts-painted colors those tools can't read from `theme` directly. See TOKENS.md for the full catalog.
+The `theme` prop is a second, narrower override path. Five `ChartTheme` fields map to a catalog role, and setting one republishes it as that instance's `--a8c-charts-*` variable on the provider wrapper — so it also reaches the SVG- and Google-Charts-painted colors those tools can't read from `theme` directly:
+
+| `theme` field | Catalog role |
+| --- | --- |
+| `backgroundColor` | `--a8c-charts-color-background` |
+| `gridStyles.stroke` | `--a8c-charts-color-grid` |
+| `xAxisLineStyles.stroke` | `--a8c-charts-color-axis` |
+| `xTickLineStyles.stroke` | `--a8c-charts-color-tick` |
+| `svgLabelSmall.fill` | `--a8c-charts-color-label-axis` |
+
+Each field publishes a role read by exactly the elements that field already controlled, so a `theme` override never spreads further than the element class it names. Where the obvious role has wider readership, one side takes a role of its own: `svgLabelSmall.fill` writes the narrow `--a8c-charts-color-label-axis`, leaving legend labels, heatmap cell values, funnel labels and the line-chart tooltip on the broad `--a8c-charts-color-label`. Set the broad role in CSS to move them all together.
+
+A value that already points at the role it would define is not republished — emitting it would make the custom property reference itself, which CSS discards. See TOKENS.md for the full catalog and precedence order.
 
 ## Chart Registration
 
@@ -251,6 +265,12 @@ Access the full context for advanced chart functionality:
 		);
 	}` }
 />
+
+#### Resolving a themed color in JS
+
+`resolveThemeColor` turns a color value — a `--wpds-*` token or `var(...)` expression included — into a hex string. Reach for it when JS needs the *resolved* value rather than the token string: computing text contrast against `theme.backgroundColor`, for example, or feeding a color to Google Charts, which cannot read `var()`. It resolves at call time, so the result follows a light/dark theme switch even when the token string never changes. An empty input returns `''`.
+
+It always resolves at the `GlobalChartsProvider` wrapper. That is the right scope for anything provider-level, but it means a chart-scoped override — one set between the provider and a single chart — is invisible to it. To pick those up, resolve against the element from `useChartScopeElement()` instead; `area-chart`, `line-chart`, `geo-chart` and `heatmap-chart` all take that path.
 
 ### useGlobalChartsTheme
 
