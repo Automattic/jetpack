@@ -74,8 +74,9 @@ describe( 'TrendIndicator', () => {
 			<TrendIndicator direction="up" value="+10%" style={ { fontSize: '2rem' } } />
 		);
 
+		// Note getComputedStyle converts lengths to px.
 		// eslint-disable-next-line testing-library/no-node-access
-		expect( container.firstChild ).toHaveStyle( { fontSize: '2rem' } );
+		expect( container.firstChild ).toHaveStyle( { fontSize: '32px' } );
 	} );
 
 	describe( 'accessibility', () => {
