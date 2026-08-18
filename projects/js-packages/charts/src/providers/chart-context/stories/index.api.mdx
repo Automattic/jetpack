@@ -32,7 +32,6 @@ interface GlobalChartsContextValue {
 	// Theme and styling
 	theme: CompleteChartTheme;
 	getElementStyles: (params: GetElementStylesParams) => ElementStyles;
-	resolveThemeColor: (value: string) => string;
 
 	// Series visibility management for interactive legends
 	toggleSeriesVisibility: (chartId: string, seriesLabel: string) => void;
@@ -49,9 +48,8 @@ interface GlobalChartsContextValue {
 | Member | Note |
 | ------ | ---- |
 | `isColorPaletteResolved` | `false` until the color cache has resolved from the DOM and painted. Use it to defer transitions that would otherwise interpolate from a fallback color. |
-| `resolveThemeColor` | Resolves a color value — a `--wpds-*` token or `var(...)` expression included — to a hex string, at call time. Returns `''` for empty input. Always resolves at the `GlobalChartsProvider` wrapper; to pick up an override set closer to one chart, resolve against `useChartScopeElement()` instead. |
 
-For theming, CSS custom-property overrides, and how `resolveThemeColor` is meant to be used, see the [Global Charts Context guide](?path=/docs/js-packages-charts-library-global-context--docs) and `TOKENS.md`.
+For theming and CSS custom-property overrides, see the [Global Charts Context guide](?path=/docs/js-packages-charts-library-global-context--docs) and `TOKENS.md`.
 
 ## ChartRegistration Type
 
@@ -76,3 +74,21 @@ type ElementStyles = {
 ```
 
 `barStyles` carries bar-specific styling resolved from the theme by semantic series type (e.g. `barChart.barStyles.comparison`) — `{ widthFactor?, opacity? }`. It is `{}` for series with no matching bar style and for non-`SeriesData` inputs.
+
+## Token resolution in JS
+
+```typescript
+function useChartScopeElement(): HTMLElement | null;
+
+function normalizeColorToHex(
+	color: string,
+	element?: HTMLElement | null,
+	resolveCss?: ( value: string, el?: HTMLElement | null ) => string | null
+): string;
+
+function resolveCssVariable( value: string, element?: HTMLElement | null ): string | null;
+```
+
+`normalizeColorToHex` returns a `var(...)` input unchanged when `resolveCss` is omitted — it converts formats, it does not read the cascade.
+
+Which element to resolve against, and why it matters, is covered in the [Global Charts Context guide](?path=/docs/js-packages-charts-library-global-context--docs).
