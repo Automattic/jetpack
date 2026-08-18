@@ -157,11 +157,13 @@ class Tracking_Test extends TestCase {
 				return false;
 			}
 		);
-		Functions\when( 'wp_send_json_error' )->alias(
-			function () {
-				throw new \RuntimeException( 'wp_send_json_error' );
-			}
-		);
+		/**
+		 * @return never
+		 */
+		$bail = function () {
+			throw new \RuntimeException( 'wp_send_json_error' );
+		};
+		Functions\when( 'wp_send_json_error' )->alias( $bail );
 
 		$_REQUEST['tracksNonce'] = $raw;
 
@@ -198,12 +200,15 @@ class Tracking_Test extends TestCase {
 	 */
 	public function test_ajax_tracks_still_accepts_a_valid_nonce() {
 		$message = null;
-		Functions\when( 'wp_send_json_error' )->alias(
-			function ( $error ) use ( &$message ) {
-				$message = $error;
-				throw new \RuntimeException( 'wp_send_json_error' );
-			}
-		);
+		/**
+		 * @param string $error Message passed to wp_send_json_error().
+		 * @return never
+		 */
+		$bail = function ( $error ) use ( &$message ) {
+			$message = $error;
+			throw new \RuntimeException( 'wp_send_json_error' );
+		};
+		Functions\when( 'wp_send_json_error' )->alias( $bail );
 
 		$_REQUEST['tracksNonce'] = wp_create_nonce( 'jp-tracks-ajax-nonce' );
 
