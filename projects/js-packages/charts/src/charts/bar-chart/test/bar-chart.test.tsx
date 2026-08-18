@@ -326,6 +326,39 @@ describe( 'BarChart', () => {
 			warn.mockRestore();
 		} );
 
+		test( 'drops the buckets of a series the legend has hidden', async () => {
+			const user = userEvent.setup();
+			renderWithTheme( {
+				chartId: 'hidden-series',
+				showLegend: true,
+				legend: { interactive: true },
+				data: [
+					{
+						label: 'Long',
+						data: [
+							dated( 2026, 0, 1, 1 ),
+							dated( 2026, 0, 3, 2 ),
+							dated( 2026, 0, 5, 3 ),
+							dated( 2026, 0, 7, 4 ),
+						],
+						options: {},
+					},
+					{
+						label: 'Short',
+						data: [ dated( 2026, 0, 1, 5 ), dated( 2026, 0, 3, 6 ) ],
+						options: {},
+					},
+				],
+			} );
+
+			await user.click( screen.getByText( 'Long' ) );
+
+			// Jan 5 and Jan 7 belong only to the hidden series, so they are no longer
+			// keys of the band scale; ticking them parks a label at the axis origin.
+			expect( inChart().queryByText( 'Jan 5' ) ).not.toBeInTheDocument();
+			expect( inChart().queryByText( 'Jan 7' ) ).not.toBeInTheDocument();
+		} );
+
 		test( 'keeps every dated bucket across series, in the order visx concatenates them', () => {
 			const { result } = renderHook( () =>
 				useBarChartOptions(

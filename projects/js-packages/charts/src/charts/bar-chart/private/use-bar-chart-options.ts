@@ -18,6 +18,9 @@ const DEFAULT_NUM_TICKS = 4;
 // memo below, so defaulting inline recomputed all of them on every render.
 const NO_OPTIONS: BaseChartProps[ 'options' ] = {};
 
+// Same reason as NO_OPTIONS: a stable reference for callers that do not hide series.
+const ALL_RENDERED = () => true;
+
 // The axis abbreviates to fit a tick; a tooltip has room to spell the same
 // bucket out in full.
 const TOOLTIP_FORMAT_BY_RESOLUTION: Record<
@@ -74,20 +77,21 @@ const bucketAccessor = ( d: DataPointDate ) => d?.label || d?.date;
  * `undefined` for one it does not, which parks the tick at the origin. Null
  * rather than a partial list when any bucket is labelled instead of dated.
  *
- * Still wider than what visx registers when the legend hides a series, since
- * this runs before visibility is known — see CHARTS follow-up in the PR.
- *
- * @param data - The series the chart will render.
+ * @param data             - Every series handed to the chart.
+ * @param isSeriesRendered - Whether visx mounts a series, i.e. the legend shows it.
  * @return Bucket dates in axis order, or null if the axis cannot be ticked by date.
  */
-const getBandDomain = ( data: SeriesData[] ): Date[] | null => {
+const getBandDomain = (
+	data: SeriesData[],
+	isSeriesRendered: ( series: SeriesData ) => boolean
+): Date[] | null => {
 	const byTimestamp = new Map< number, Date >();
 
 	for ( const series of data ) {
 		// Comparison series register nothing with visx — `comparison-bars.tsx` draws
-		// onto the scales the primary series established — so their buckets are not
-		// keys of the band scale.
-		if ( series.options?.type === 'comparison' ) {
+		// onto the scales the primary series established — and a hidden series is
+		// unmounted, so neither contributes a key to the band scale.
+		if ( series.options?.type === 'comparison' || ! isSeriesRendered( series ) ) {
 			continue;
 		}
 
@@ -118,15 +122,17 @@ const getGroupPadding = ( scale: Record< string, unknown > ): number => {
 /**
  * Returns the merged options for the bar chart, including axis and scale configuration based on the orientation.
  *
- * @param data       - The data to be displayed in the chart.
- * @param horizontal - Whether the chart is horizontal or vertical.
- * @param options    - The options for the chart.
+ * @param data             - The data to be displayed in the chart.
+ * @param horizontal       - Whether the chart is horizontal or vertical.
+ * @param options          - The options for the chart.
+ * @param isSeriesRendered - Whether visx mounts a series, i.e. the legend shows it.
  * @return The merged options for the chart.
  */
 export function useBarChartOptions(
 	data: SeriesData[],
 	horizontal: boolean,
-	options: BaseChartProps[ 'options' ] = NO_OPTIONS
+	options: BaseChartProps[ 'options' ] = NO_OPTIONS,
+	isSeriesRendered: ( series: SeriesData ) => boolean = ALL_RENDERED
 ) {
 	// `labelOverflow` and `tickResolution` are consumed by this hook rather than
 	// forwarded — visx has an axis prop for neither — so they are split off the
@@ -183,7 +189,7 @@ export function useBarChartOptions(
 			: getTooltipFormatter( data, tickResolution );
 		const valueFormatter = formatNumberCompact as TickFormatter< unknown >;
 
-		const bandDomain = timeTickFormatter ? getBandDomain( data ) : null;
+		const bandDomain = timeTickFormatter ? getBandDomain( data, isSeriesRendered ) : null;
 
 		const valueAccessor = ( d: DataPointDate | EnhancedDataPoint ) => {
 			// Use visualValue for bar rendering if available (for zero values), otherwise use value
@@ -218,7 +224,7 @@ export function useBarChartOptions(
 				yScale: bandScale,
 			},
 		};
-	}, [ data, tickResolution ] );
+	}, [ data, tickResolution, isSeriesRendered ] );
 
 	return useMemo( () => {
 		const orientationKey = horizontal ? 'horizontal' : 'vertical';
