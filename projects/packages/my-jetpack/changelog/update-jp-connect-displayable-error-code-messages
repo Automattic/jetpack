@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connection Error UI: Ensures the error allowlist is an explicit, documented contracted with meaningful user-facing text for displayable errors.
