@@ -121,8 +121,11 @@ class Expiry_Data {
 			if ( $will_renew ) {
 				// Nothing to say about a plan that is still expected to renew
 				// itself, until a scheduled attempt has come and gone without
-				// renewing it.
-				$state = self::is_past_first_auto_renew_attempt( $purchase, $now )
+				// renewing it. Monthly terms are excluded outright: their first
+				// attempt doesn't land until some unknown hour of the expiry
+				// date, so there is never a "an attempt failed" window to warn
+				// about beforehand.
+				$state = ( ! $is_monthly && self::is_past_first_auto_renew_attempt( $purchase, $now ) )
 					? self::STATE_APPROACHING
 					: self::STATE_ACTIVE;
 			} else {

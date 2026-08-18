@@ -45,8 +45,9 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 	 * @param bool      $raw_auto_renew         The customer's raw auto-renew flag.
 	 * @param bool|null $might_still_auto_renew Effective answer, or null when unknown.
 	 * @param int|null  $attempt_days_from_now  First renewal attempt, relative to the fixed now.
+	 * @param string    $slug                   Product slug.
 	 */
-	private function declared_purchase( int $days_until_expiry, bool $raw_auto_renew, ?bool $might_still_auto_renew, ?int $attempt_days_from_now = null ): object {
+	private function declared_purchase( int $days_until_expiry, bool $raw_auto_renew, ?bool $might_still_auto_renew, ?int $attempt_days_from_now = null, string $slug = 'business-bundle' ): object {
 		$purchase = new class() {
 			public string $product_slug         = 'business-bundle';
 			public string $expiry_date          = '';
@@ -71,6 +72,7 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 			}
 		};
 
+		$purchase->product_slug           = $slug;
 		$purchase->expiry_date            = gmdate( 'c', self::FIXED_NOW + ( $days_until_expiry * DAY_IN_SECONDS ) );
 		$purchase->user_allows_auto_renew = $raw_auto_renew;
 		$purchase->might_still            = $might_still_auto_renew;
@@ -165,6 +167,39 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		);
 		$this->assertIsArray( $state );
 		$this->assertSame( Expiry_Data::STATE_ACTIVE, $state['state'] );
+		$this->assertTrue( $state['auto_renew'] );
+	}
+
+	public function test_annual_still_renewing_warns_once_an_attempt_has_passed(): void {
+		$state = Expiry_Data::compute_state_from_purchase(
+			$this->declared_purchase( 20, true, true, -1 ),
+			self::FIXED_NOW
+		);
+		$this->assertIsArray( $state );
+		$this->assertSame( Expiry_Data::STATE_APPROACHING, $state['state'] );
+		$this->assertTrue( $state['auto_renew'] );
+	}
+
+	public function test_monthly_still_renewing_never_warns_before_expiry(): void {
+		// Same passed-attempt shape as above, but a monthly term. The spec keeps
+		// the still-renewing warning to annual and longer terms.
+		$state = Expiry_Data::compute_state_from_purchase(
+			$this->declared_purchase( 3, true, true, -1, 'business-bundle-monthly' ),
+			self::FIXED_NOW
+		);
+		$this->assertIsArray( $state );
+		$this->assertSame( Expiry_Data::STATE_ACTIVE, $state['state'] );
+	}
+
+	public function test_monthly_still_renewing_warns_once_in_grace(): void {
+		// After expiry both terms get the notice, so the exclusion above must not
+		// leak past the expiry date.
+		$state = Expiry_Data::compute_state_from_purchase(
+			$this->declared_purchase( -3, true, true, -5, 'business-bundle-monthly' ),
+			self::FIXED_NOW
+		);
+		$this->assertIsArray( $state );
+		$this->assertSame( Expiry_Data::STATE_EXPIRED_GRACE, $state['state'] );
 		$this->assertTrue( $state['auto_renew'] );
 	}
 
