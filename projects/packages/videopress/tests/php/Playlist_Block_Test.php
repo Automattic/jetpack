@@ -248,18 +248,9 @@ class Playlist_Block_Test extends BaseTestCase {
 	 */
 	public function test_render_title_font_presets() {
 		$markup = VideoPress_Initializer::render_videopress_playlist_block(
-			$this->attributes(
-				array(
-					'nowTitleFontFamily'   => 'serif-pro',
-					'entryTitleFontFamily' => 'grotesk',
-				)
-			)
+			$this->attributes( array( 'entryTitleFontFamily' => 'grotesk' ) )
 		);
 
-		$this->assertStringContainsString(
-			'--vpp-now-title-font:var(--wp--preset--font-family--serif-pro);',
-			$markup
-		);
 		$this->assertStringContainsString(
 			'--vpp-entry-title-font:var(--wp--preset--font-family--grotesk);',
 			$markup
@@ -267,14 +258,13 @@ class Playlist_Block_Test extends BaseTestCase {
 
 		// No selection, no style attribute payload.
 		$default_markup = VideoPress_Initializer::render_videopress_playlist_block( $this->attributes() );
-		$this->assertStringNotContainsString( '--vpp-now-title-font', $default_markup );
 		$this->assertStringNotContainsString( '--vpp-entry-title-font', $default_markup );
 
 		// Hostile "slugs" never reach the style attribute.
 		$hostile_markup = VideoPress_Initializer::render_videopress_playlist_block(
-			$this->attributes( array( 'nowTitleFontFamily' => 'x);}body{display:none' ) )
+			$this->attributes( array( 'entryTitleFontFamily' => 'x);}body{display:none' ) )
 		);
-		$this->assertStringNotContainsString( '--vpp-now-title-font', $hostile_markup );
+		$this->assertStringNotContainsString( '--vpp-entry-title-font', $hostile_markup );
 		$this->assertStringNotContainsString( 'display:none', $hostile_markup );
 	}
 

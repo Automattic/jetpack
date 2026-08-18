@@ -853,15 +853,6 @@ class Initializer {
 
 		$first          = $entries[0];
 		$first_title    = __( 'Video 1', 'jetpack-videopress-pkg' );
-		$first_details  = implode(
-			' · ',
-			array_filter(
-				array(
-					self::playlist_resolution_label( $first['height'] ),
-					self::playlist_timecode( $first['durationMs'] ),
-				)
-			)
-		);
 		$runtime_label  = self::playlist_runtime_label( $total_ms );
 		$runtime_markup = $show_runtime && '' !== $runtime_label
 			? sprintf( '<span class="videopress-playlist__runtime">%s</span>', esc_html( $runtime_label ) )
@@ -874,26 +865,23 @@ class Initializer {
 			$runtime_markup
 		);
 
-		$now_runtime_markup = $show_runtime && '' !== $runtime_label
+		/*
+		 * The player renders its own title overlay, so the stage carries no
+		 * duplicate now-playing text — only the grid layout's runtime line.
+		 */
+		$now_markup = $show_runtime && '' !== $runtime_label
 			? sprintf(
-				'<span class="videopress-playlist__now-runtime">%s</span>',
+				'<div class="videopress-playlist__now"><span class="videopress-playlist__now-runtime">%s</span></div>',
 				esc_html( $count_label . ' · ' . $runtime_label )
 			)
 			: '';
 
 		$stage_markup = sprintf(
 			'<div class="videopress-playlist__stage">' .
-				'<div class="videopress-playlist__player"><iframe class="videopress-playlist__iframe" title="%1$s" src="%2$s" allowfullscreen allow="clipboard-write"></iframe></div>' .
-				'<div class="videopress-playlist__now"><span class="videopress-playlist__now-title">%3$s</span>' .
-				'<span class="videopress-playlist__now-meta"><span class="videopress-playlist__now-position">%4$s</span><span class="videopress-playlist__now-details">%5$s</span></span>%6$s</div>' .
-				'</div>',
+				'<div class="videopress-playlist__player"><iframe class="videopress-playlist__iframe" title="%1$s" src="%2$s" allowfullscreen allow="clipboard-write"></iframe></div>%3$s</div>',
 			esc_attr( $first_title ),
 			esc_url( self::playlist_embed_url( $first['guid'], false ) ),
-			esc_html( $first_title ),
-			/* translators: 1: position of the current video. 2: number of videos in the playlist. */
-			esc_html( sprintf( __( '%1$d of %2$d', 'jetpack-videopress-pkg' ), 1, $count ) ),
-			esc_html( $first_details ),
-			$now_runtime_markup
+			$now_markup
 		);
 
 		$progress_markup = '' !== $total_timecode
@@ -925,7 +913,6 @@ class Initializer {
 		 */
 		$font_style = '';
 		foreach ( array(
-			'nowTitleFontFamily'   => '--vpp-now-title-font',
 			'entryTitleFontFamily' => '--vpp-entry-title-font',
 		) as $font_attribute => $css_variable ) {
 			if ( ! empty( $block_attributes[ $font_attribute ] )

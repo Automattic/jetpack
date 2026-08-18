@@ -161,7 +161,6 @@ function PlaylistPreview( {
 } ) {
 	const { videos, showPositionNumber, showTotalRuntime } = attributes;
 	const current = videos[ currentIndex ];
-	const currentTitle = liveMetadata[ current.guid ]?.title || current.guid;
 
 	/*
 	 * Mirrors the front-end view script: while more entries hide beyond the
@@ -188,13 +187,6 @@ function PlaylistPreview( {
 		_n( '%d video', '%d videos', videos.length, 'jetpack-videopress-pkg' ),
 		videos.length
 	);
-	const nowPosition = sprintf(
-		/* translators: 1: position of the current video. 2: number of videos in the playlist. */
-		__( '%1$d of %2$d', 'jetpack-videopress-pkg' ),
-		currentIndex + 1,
-		videos.length
-	);
-
 	return (
 		<>
 			<div className="videopress-playlist__body">
@@ -211,22 +203,13 @@ function PlaylistPreview( {
 							allow="clipboard-write"
 						/>
 					</div>
-					<div className="videopress-playlist__now">
-						<span className="videopress-playlist__now-title">{ currentTitle }</span>
-						<span className="videopress-playlist__now-meta">
-							<span className="videopress-playlist__now-position">{ nowPosition }</span>
-							{ entryMetaLine( current ) && (
-								<span className="videopress-playlist__now-details">
-									{ entryMetaLine( current ) }
-								</span>
-							) }
-						</span>
-						{ showTotalRuntime && runtime && (
+					{ showTotalRuntime && runtime && (
+						<div className="videopress-playlist__now">
 							<span className="videopress-playlist__now-runtime">
 								{ `${ countLabel } · ${ runtime }` }
 							</span>
-						) }
-					</div>
+						</div>
+					) }
 				</div>
 
 				<div
@@ -357,7 +340,6 @@ export default function PlaylistEdit( {
 		showDuration,
 		showPositionNumber,
 		showTotalRuntime,
-		nowTitleFontFamily,
 		entryTitleFontFamily,
 	} = attributes;
 
@@ -452,11 +434,6 @@ export default function PlaylistEdit( {
 	// The chosen presets reach the stylesheet as CSS custom properties, the
 	// same way the PHP render exposes them on the front end.
 	const fontVariables: Record< string, string > = {};
-	if ( nowTitleFontFamily ) {
-		fontVariables[
-			'--vpp-now-title-font'
-		] = `var(--wp--preset--font-family--${ nowTitleFontFamily })`;
-	}
 	if ( entryTitleFontFamily ) {
 		fontVariables[
 			'--vpp-entry-title-font'
@@ -966,16 +943,6 @@ export default function PlaylistEdit( {
 			</PanelBody>
 			{ fontFamilies.length > 0 && (
 				<PanelBody title={ __( 'Typography', 'jetpack-videopress-pkg' ) }>
-					<div className="videopress-playlist-editor__font-control">
-						<FontFamilyControl
-							fontFamilies={ fontFamilies }
-							label={ __( 'Now playing title', 'jetpack-videopress-pkg' ) }
-							value={ fontFamilyValueOf( nowTitleFontFamily ) }
-							onChange={ ( value: string ) =>
-								setAttributes( { nowTitleFontFamily: fontFamilySlugOf( value ) } )
-							}
-						/>
-					</div>
 					<div className="videopress-playlist-editor__font-control">
 						<FontFamilyControl
 							fontFamilies={ fontFamilies }

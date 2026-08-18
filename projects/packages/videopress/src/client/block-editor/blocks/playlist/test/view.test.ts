@@ -39,13 +39,6 @@ function setUpPlaylist( autoplayNext = true ): HTMLElement {
 					'autoPlay=1',
 					'autoPlay=0'
 				) }" title="First"></iframe>
-				<div class="videopress-playlist__now">
-					<span class="videopress-playlist__now-title">First</span>
-					<span class="videopress-playlist__now-meta">
-						<span class="videopress-playlist__now-position">1 of 3</span>
-						<span class="videopress-playlist__now-details">1080p · 12:04</span>
-					</span>
-				</div>
 			</div>
 			<div class="videopress-playlist__list">
 				<div class="videopress-playlist__list-header">
@@ -105,18 +98,11 @@ describe( 'initPlaylistBlock', () => {
 		expect( entries[ 0 ] ).not.toHaveAttribute( 'aria-current' );
 	} );
 
-	it( 'updates the now-playing text and progress counter', () => {
+	it( 'updates the progress counter', () => {
 		const root = setUpPlaylist();
 
 		root.querySelectorAll< HTMLButtonElement >( '.videopress-playlist__select' )[ 2 ].click();
 
-		expect( root.querySelector( '.videopress-playlist__now-title' ) ).toHaveTextContent( 'Third' );
-		expect( root.querySelector( '.videopress-playlist__now-position' ) ).toHaveTextContent(
-			'3 of 3'
-		);
-		expect( root.querySelector( '.videopress-playlist__now-details' ) ).toHaveTextContent(
-			'720p · 6:15'
-		);
 		expect( root.querySelector( '.videopress-playlist__list-progress' ) ).toHaveTextContent(
 			'3 / 3 · 25:00 total'
 		);
@@ -210,11 +196,6 @@ describe( 'initPlaylistBlock', () => {
 		expect( entries[ 0 ].querySelector( '.videopress-playlist__entry-thumb img' ) ).toHaveAttribute(
 			'src',
 			'https://example.com/first.jpg'
-		);
-
-		// The current entry's live title also lands in the now-playing row.
-		expect( root.querySelector( '.videopress-playlist__now-title' ) ).toHaveTextContent(
-			'Live first'
 		);
 
 		expect( entries[ 1 ].querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(

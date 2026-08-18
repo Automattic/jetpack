@@ -71,7 +71,6 @@ const DEFAULT_ATTRIBUTES: PlaylistAttributes = {
 	showDuration: true,
 	showPositionNumber: false,
 	showTotalRuntime: true,
-	nowTitleFontFamily: '',
 	entryTitleFontFamily: '',
 };
 
@@ -555,38 +554,25 @@ describe( 'PlaylistEdit', () => {
 		renderEdit( { videos: [ { guid: 'aaaaaaaa' } ] }, setAttributes );
 
 		await userEvent.selectOptions(
-			screen.getByRole( 'combobox', { name: 'Now playing title' } ),
-			'"Serif Pro", serif'
-		);
-		expect( setAttributes ).toHaveBeenCalledWith( { nowTitleFontFamily: 'serif-pro' } );
-
-		await userEvent.selectOptions(
 			screen.getByRole( 'combobox', { name: 'Entry titles' } ),
 			'Grotesk, sans-serif'
 		);
 		expect( setAttributes ).toHaveBeenCalledWith( { entryTitleFontFamily: 'grotesk' } );
 
 		// Picking Default resets back to inheriting.
-		await userEvent.selectOptions(
-			screen.getByRole( 'combobox', { name: 'Now playing title' } ),
-			''
-		);
-		expect( setAttributes ).toHaveBeenCalledWith( { nowTitleFontFamily: '' } );
+		await userEvent.selectOptions( screen.getByRole( 'combobox', { name: 'Entry titles' } ), '' );
+		expect( setAttributes ).toHaveBeenCalledWith( { entryTitleFontFamily: '' } );
 	} );
 
 	it( 'exposes the chosen fonts as CSS custom properties on the wrapper', async () => {
 		renderEdit( {
 			videos: [ { guid: 'aaaaaaaa' } ],
-			nowTitleFontFamily: 'serif-pro',
 			entryTitleFontFamily: 'grotesk',
 		} );
 		// Let the live metadata lookup settle.
 		await expect( screen.findAllByText( 'First' ) ).resolves.toBeTruthy();
 
 		const figure = screen.getByRole( 'figure' );
-		expect( figure.style.getPropertyValue( '--vpp-now-title-font' ) ).toBe(
-			'var(--wp--preset--font-family--serif-pro)'
-		);
 		expect( figure.style.getPropertyValue( '--vpp-entry-title-font' ) ).toBe(
 			'var(--wp--preset--font-family--grotesk)'
 		);

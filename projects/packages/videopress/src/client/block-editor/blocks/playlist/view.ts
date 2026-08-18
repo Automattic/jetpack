@@ -50,7 +50,6 @@ async function fetchLiveMetadata( guid: string ): Promise< LiveVideoMetadata | n
  * @return Promise resolving once every entry has been processed.
  */
 export function hydratePlaylistMetadata( root: HTMLElement ): Promise< void[] > {
-	const nowTitle = root.querySelector( '.videopress-playlist__now-title' );
 	const entries = Array.from(
 		root.querySelectorAll< HTMLButtonElement >( '.videopress-playlist__select' )
 	);
@@ -72,9 +71,6 @@ export function hydratePlaylistMetadata( root: HTMLElement ): Promise< void[] > 
 				const titleElement = entry.querySelector( '.videopress-playlist__entry-title' );
 				if ( titleElement ) {
 					titleElement.textContent = metadata.title;
-				}
-				if ( nowTitle && entry.classList.contains( 'is-current' ) ) {
-					nowTitle.textContent = metadata.title;
 				}
 			}
 
@@ -147,9 +143,6 @@ export function initPlaylistBlock( root: HTMLElement ) {
 	// posters can change entry heights, so refresh the scroll hint after.
 	hydratePlaylistMetadata( root ).then( updateScrollHint );
 
-	const nowTitle = root.querySelector( '.videopress-playlist__now-title' );
-	const nowPosition = root.querySelector( '.videopress-playlist__now-position' );
-	const nowDetails = root.querySelector( '.videopress-playlist__now-details' );
 	const listProgress = root.querySelector( '.videopress-playlist__list-progress' );
 
 	let currentIndex = Math.max(
@@ -177,15 +170,6 @@ export function initPlaylistBlock( root: HTMLElement ) {
 			}
 		} );
 
-		if ( nowTitle ) {
-			nowTitle.textContent = entry.dataset.title ?? '';
-		}
-		if ( nowPosition && entry.dataset.position ) {
-			nowPosition.textContent = entry.dataset.position;
-		}
-		if ( nowDetails ) {
-			nowDetails.textContent = entry.dataset.details ?? '';
-		}
 		if ( listProgress && entry.dataset.progress ) {
 			listProgress.textContent = entry.dataset.progress;
 		}

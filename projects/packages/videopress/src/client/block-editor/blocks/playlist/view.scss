@@ -92,37 +92,14 @@ $vpp-mono: ui-monospace, menlo, monospace;
 		border: 0;
 	}
 
+	/* The player renders its own title overlay; this row only carries the
+	   grid layout's playlist runtime line. */
+
 	&__now {
-		display: flex;
-		flex-wrap: wrap;
-		column-gap: 12px;
-		align-items: baseline;
-		margin-block-start: 10px;
-	}
-
-	&__now-title {
-		font-weight: 500;
-		font-size: 0.9375rem;
-		flex: 1 1 auto;
-		min-inline-size: 0;
-
-		/* User-selected theme font preset; inherits when none is chosen. */
-		font-family: var(--vpp-now-title-font, inherit);
-	}
-
-	&__now-meta {
-		font-size: 0.75rem;
-		color: var(--vpp-muted);
-		flex-basis: 100%;
-		margin-block-start: 3px;
-	}
-
-	&__now-position + &__now-details::before {
-		content: " · ";
+		display: none;
 	}
 
 	&__now-runtime {
-		display: none;
 		font-family: $vpp-mono;
 
 		/* 11.5px per the design's grid meta row. */
@@ -298,14 +275,6 @@ $vpp-mono: ui-monospace, menlo, monospace;
 		min-inline-size: 0;
 	}
 
-	&.is-layout-side-rail &__now-position {
-		display: none;
-	}
-
-	&.is-layout-side-rail &__now-position + &__now-details::before {
-		content: "";
-	}
-
 	/*
 	 * The rail never grows past the player column: zero natural height keeps
 	 * it out of the grid row sizing, min-block-size stretches it back to the
@@ -397,13 +366,11 @@ $vpp-mono: ui-monospace, menlo, monospace;
 	}
 
 	&.is-layout-grid &__now {
+		display: flex;
+		justify-content: flex-end;
+		margin-block-start: 10px;
 		padding-block-end: 12px;
 		border-block-end: 1px solid var(--vpp-border);
-	}
-
-	&.is-layout-grid &__now-runtime {
-		display: block;
-		flex: none;
 	}
 
 	&.is-layout-grid &__list {
@@ -449,10 +416,6 @@ $vpp-mono: ui-monospace, menlo, monospace;
 	/*
 	 * Strip: player on top, compact horizontal scroller below.
 	 */
-
-	&.is-layout-strip &__now {
-		display: none;
-	}
 
 	&.is-layout-strip &__list {
 		margin-block-start: 16px;
