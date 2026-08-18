@@ -257,14 +257,25 @@ describe( 'PlaylistEdit', () => {
 		await expect( screen.findAllByText( 'Video 8' ) ).resolves.toBeTruthy();
 	} );
 
-	it( 'shows an error when Add is pressed with an empty input', async () => {
+	it( 'only enables Add once something has been typed into the URL field', async () => {
 		const setAttributes = jest.fn();
 		renderEdit( {}, setAttributes );
 
-		await userEvent.click( screen.getAllByRole( 'button', { name: 'Add' } )[ 0 ] );
+		const addButton = screen.getAllByRole( 'button', { name: 'Add' } )[ 0 ];
+		expect( addButton ).toHaveAttribute( 'aria-disabled', 'true' );
 
-		expect( screen.getAllByText( /No video found at that link/ ).length ).toBeGreaterThan( 0 );
+		// Clicking while empty does nothing.
+		await userEvent.click( addButton );
+		expect( fetchVideoItemMock ).not.toHaveBeenCalled();
 		expect( setAttributes ).not.toHaveBeenCalled();
+
+		// Typing a URL enables the button, and clicking it adds the video.
+		await userEvent.type( screen.getAllByPlaceholderText( 'Paste a video URL' )[ 0 ], 'abcDEF12' );
+		await userEvent.click( addButton );
+
+		await waitFor( () =>
+			expect( setAttributes ).toHaveBeenCalledWith( { videos: [ { guid: 'abcDEF12' } ] } )
+		);
 	} );
 
 	it( 'submits the URL with the Enter key', async () => {

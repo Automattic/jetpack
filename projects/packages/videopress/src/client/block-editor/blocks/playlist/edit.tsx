@@ -558,7 +558,8 @@ export default function PlaylistEdit( {
 				__next40pxDefaultSize
 				variant="primary"
 				isBusy={ isAdding }
-				aria-disabled={ isAdding }
+				disabled={ isAdding || ! urlInput.trim() }
+				accessibleWhenDisabled
 				onClick={ addFromInput }
 			>
 				{ /* Kept as two expressions so minification can't merge the two
