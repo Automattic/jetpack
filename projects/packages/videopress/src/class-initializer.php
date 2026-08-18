@@ -930,10 +930,13 @@ class Initializer {
 			}
 		}
 
+		// Looping implies auto-advancing, so it forces the autoplay-next flag on.
+		$loop_playlist = $enabled( 'loopPlaylist', false );
+
 		$wrapper_extra_attributes = array(
 			'class'              => implode( ' ', $classes ),
-			'data-autoplay-next' => $enabled( 'autoplayNext', false ) ? '1' : '0',
-			'data-loop'          => $enabled( 'loopPlaylist', false ) ? '1' : '0',
+			'data-autoplay-next' => $enabled( 'autoplayNext', false ) || $loop_playlist ? '1' : '0',
+			'data-loop'          => $loop_playlist ? '1' : '0',
 		);
 		if ( '' !== $font_style ) {
 			$wrapper_extra_attributes['style'] = $font_style;

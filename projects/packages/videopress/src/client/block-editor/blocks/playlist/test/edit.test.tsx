@@ -433,6 +433,17 @@ describe( 'PlaylistEdit', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( { loopPlaylist: true } );
 	} );
 
+	it( 'locks Autoplay next on while the playlist loops', async () => {
+		renderEdit( { videos: [ { guid: 'aaaaaaaa' } ], loopPlaylist: true, autoplayNext: false } );
+		// Let the live metadata lookup settle.
+		await expect( screen.findAllByText( 'First' ) ).resolves.toBeTruthy();
+
+		const autoplayToggle = screen.getByRole( 'checkbox', { name: 'Autoplay next' } );
+		expect( autoplayToggle ).toBeChecked();
+		expect( autoplayToggle ).toBeDisabled();
+		expect( screen.getByText( 'Looping the playlist keeps autoplay on.' ) ).toBeInTheDocument();
+	} );
+
 	it( 'changes the per-entry display options from the sidebar', async () => {
 		const setAttributes = jest.fn();
 		renderEdit( { videos: [ { guid: 'aaaaaaaa' } ] }, setAttributes );

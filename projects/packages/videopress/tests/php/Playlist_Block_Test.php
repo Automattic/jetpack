@@ -291,6 +291,18 @@ class Playlist_Block_Test extends BaseTestCase {
 
 		// Muted playback rides on every embed URL: the player and the entries.
 		$this->assertSame( 3, substr_count( $markup, 'muted=1' ) );
+
+		// Looping implies auto-advancing even with autoplay-next toggled off.
+		$loop_only = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes(
+				array(
+					'autoplayNext' => false,
+					'loopPlaylist' => true,
+				)
+			)
+		);
+		$this->assertStringContainsString( 'data-autoplay-next="1"', $loop_only );
+		$this->assertStringContainsString( 'data-loop="1"', $loop_only );
 	}
 
 	/**

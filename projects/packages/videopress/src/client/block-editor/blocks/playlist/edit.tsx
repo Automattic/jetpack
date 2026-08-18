@@ -673,6 +673,17 @@ export default function PlaylistEdit( {
 				.includes( filter.trim().toLowerCase() );
 		} );
 
+	// Kept as separate statements: a shared ternary of __() calls would let
+	// the minifier merge them, breaking translation extraction.
+	const autoplayHelp = __(
+		'Play the next video automatically when one ends.',
+		'jetpack-videopress-pkg'
+	);
+	const autoplayImpliedHelp = __(
+		'Looping the playlist keeps autoplay on.',
+		'jetpack-videopress-pkg'
+	);
+
 	const inspectorControls = (
 		<InspectorControls>
 			<PanelBody title={ __( 'Add a video', 'jetpack-videopress-pkg' ) }>
@@ -848,11 +859,9 @@ export default function PlaylistEdit( {
 				<ToggleControl
 					__nextHasNoMarginBottom
 					label={ __( 'Autoplay next', 'jetpack-videopress-pkg' ) }
-					help={ __(
-						'Play the next video automatically when one ends.',
-						'jetpack-videopress-pkg'
-					) }
-					checked={ autoplayNext }
+					help={ loopPlaylist ? autoplayImpliedHelp : autoplayHelp }
+					checked={ autoplayNext || loopPlaylist }
+					disabled={ loopPlaylist }
 					onChange={ ( value: boolean ) => setAttributes( { autoplayNext: value } ) }
 				/>
 				<ToggleControl
