@@ -121,6 +121,34 @@ class AI_Answers_Test extends Search_TestCase {
 		delete_option( 'jetpack_search_ai_answers_enabled' );
 	}
 
+	// -------------------------------------------------------------------------
+	// Tests for the host's AI opt-out
+	// -------------------------------------------------------------------------
+
+	/**
+	 * The host's opt-out is core's call, so the package follows wp_supports_ai().
+	 */
+	public function test_host_allows_ai_follows_core_when_the_host_opts_out() {
+		add_filter( 'wp_supports_ai', '__return_false' );
+
+		$this->assertFalse( AI_Answers::host_allows_ai() );
+
+		remove_filter( 'wp_supports_ai', '__return_false' );
+	}
+
+	public function test_host_allows_ai_follows_core_when_the_host_allows_it() {
+		add_filter( 'wp_supports_ai', '__return_true' );
+
+		$this->assertTrue( AI_Answers::host_allows_ai() );
+
+		remove_filter( 'wp_supports_ai', '__return_true' );
+	}
+
+	public function test_host_allows_ai_defaults_to_true() {
+		// No host opt-out configured: AI Answers must not be gated.
+		$this->assertTrue( AI_Answers::host_allows_ai() );
+	}
+
 	public function test_get_behavior_instructions_returns_empty_by_default() {
 		// wp_guideline is not registered; option is unset — expect empty string.
 		$this->assertSame( '', AI_Answers::get_behavior_instructions() );

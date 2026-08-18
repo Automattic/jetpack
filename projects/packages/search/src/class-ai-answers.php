@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Constants;
+
 /**
  * Registers behavior meta on the Gutenberg Guidelines CPT and exposes the
  * jetpack_search_ai_answers_enabled option.
@@ -113,5 +115,21 @@ class AI_Answers {
 	 */
 	public static function is_master_enabled() {
 		return (bool) apply_filters( 'jetpack_search_ai_answers_enabled', true );
+	}
+
+	/**
+	 * Whether the host allows AI at all — core's wp_supports_ai(), falling back
+	 * to the WP_AI_SUPPORT constant on WordPress versions that predate it.
+	 * Mirrors the Jetpack plugin's Jetpack_AI_Settings::host_allows_ai().
+	 *
+	 * @return bool
+	 */
+	public static function host_allows_ai() {
+		if ( function_exists( 'wp_supports_ai' ) ) {
+			return wp_supports_ai();
+		}
+
+		// WordPress versions predating wp_supports_ai() only have the constant.
+		return ! Constants::is_defined( 'WP_AI_SUPPORT' ) || (bool) Constants::get_constant( 'WP_AI_SUPPORT' );
 	}
 }
