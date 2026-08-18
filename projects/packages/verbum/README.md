@@ -24,6 +24,16 @@ Verbum::init();
 
 `Verbum::init()` registers everything: the front end comment form, the Discussion settings, wp-admin comment moderation, and the REST endpoints. It gates itself, so it is safe to call unconditionally: everything stays inert outside WordPress.com Simple, and the comment form additionally stays off for the Reader, GlotPress, wp-admin, P2, the support forums, and any blog with `enable_verbum_commenting` disabled.
 
+### Migration switch
+
+While Verbum is being extracted, `jetpack-mu-wpcom` still ships its own copy and loads that one by default. The `jetpack_verbum_rewrite` filter picks which copy runs:
+
+```php
+add_filter( 'jetpack_verbum_rewrite', '__return_true' );
+```
+
+It is read on `plugins_loaded` at priority 0, so the filter has to be added from a plugin or mu-plugin — a theme is too late. Only one copy loads either way. The filter goes away once the package owns Verbum outright.
+
 ## Architecture
 
 ### PHP (`src/`)

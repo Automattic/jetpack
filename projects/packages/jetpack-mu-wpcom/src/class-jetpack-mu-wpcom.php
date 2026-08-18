@@ -83,9 +83,8 @@ class Jetpack_Mu_Wpcom {
 
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
-			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
-			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
+			// Priority 0 so `jetpack_verbum_rewrite` can still be filtered from a plugin or mu-plugin.
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum' ), 0 );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_premium_analytics' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
@@ -741,6 +740,29 @@ class Jetpack_Mu_Wpcom {
 
 		// Don't load any comment experience in the Reader, GlotPress, wp-admin, or P2.
 		return ( 1 === $blog_id || TRANSLATE_BLOG_ID === $blog_id || is_admin() || $is_p2 || $is_forums );
+	}
+
+	/**
+	 * Load Verbum, either from the jetpack-verbum package or from the copy bundled here.
+	 */
+	public static function load_verbum() {
+		/**
+		 * Load Verbum from the extracted jetpack-verbum package instead of the copy in this package.
+		 *
+		 * Temporary switch for the extraction work; it goes away once the package owns Verbum.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $use_package Whether to load Verbum from the package. Default false.
+		 */
+		if ( apply_filters( 'jetpack_verbum_rewrite', false ) ) {
+			Verbum::init();
+			return;
+		}
+
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
+		add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 	}
 
 	/**
