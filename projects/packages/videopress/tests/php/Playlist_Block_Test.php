@@ -75,17 +75,13 @@ class Playlist_Block_Test extends BaseTestCase {
 				'videos' => array(
 					array(
 						'guid'       => 'abcDEF12',
-						'title'      => 'Kiln loading, start to finish',
 						'durationMs' => 724000,
 						'height'     => 1080,
-						'poster'     => 'https://example.com/poster.jpg',
 					),
 					array(
 						'guid'       => 'ghiJKL34',
-						'title'      => 'Wedging clay by hand',
 						'durationMs' => 401000,
 						'height'     => 2160,
-						'poster'     => '',
 					),
 				),
 			),
@@ -160,36 +156,23 @@ class Playlist_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( '1080p', $markup );
 		$this->assertStringContainsString( '4K', $markup );
 		$this->assertStringContainsString( '12:04', $markup );
-		$this->assertStringContainsString( 'https://example.com/poster.jpg', $markup );
+
+		// Titles are positional fallbacks; the view script hydrates live data.
+		$this->assertStringContainsString( 'data-title="Video 1"', $markup );
+		$this->assertStringContainsString( '>Video 2<', $markup );
+		$this->assertStringNotContainsString( '<img', $markup );
 	}
 
 	/**
-	 * Attribute-controlled text is escaped.
+	 * Display metadata is live-only: stored title/poster values (including
+	 * hostile ones) never reach the markup.
 	 */
-	public function test_render_escapes_titles() {
-		$attributes = array(
-			'videos' => array(
-				array(
-					'guid'  => 'abcDEF12',
-					'title' => '<script>alert(1)</script>',
-				),
-			),
-		);
-
-		$markup = VideoPress_Initializer::render_videopress_playlist_block( $attributes );
-
-		$this->assertStringNotContainsString( '<script>alert(1)</script>', $markup );
-		$this->assertStringContainsString( '&lt;script&gt;', $markup );
-	}
-
-	/**
-	 * Poster URLs that aren't URLs don't survive escaping into an img tag.
-	 */
-	public function test_render_escapes_poster_url() {
+	public function test_render_ignores_stored_display_metadata() {
 		$attributes = array(
 			'videos' => array(
 				array(
 					'guid'   => 'abcDEF12',
+					'title'  => '<script>alert(1)</script>',
 					// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 					'poster' => '"><script src="https://evil.example/x.js"></script>',
 				),
@@ -199,7 +182,10 @@ class Playlist_Block_Test extends BaseTestCase {
 		$markup = VideoPress_Initializer::render_videopress_playlist_block( $attributes );
 
 		$this->assertStringNotContainsString( '<script', $markup );
+		$this->assertStringNotContainsString( 'alert(1)', $markup );
 		$this->assertStringNotContainsString( 'evil.example', $markup );
+		$this->assertStringNotContainsString( '<img', $markup );
+		$this->assertStringContainsString( '>Video 1<', $markup );
 	}
 
 	/**
@@ -324,7 +310,6 @@ class Playlist_Block_Test extends BaseTestCase {
 				'videos' => array(
 					array(
 						'guid'       => 'abcDEF12',
-						'title'      => 'Full workshop recording',
 						'durationMs' => 4384000, // 1:13:04.
 					),
 				),
@@ -339,7 +324,6 @@ class Playlist_Block_Test extends BaseTestCase {
 				'videos' => array(
 					array(
 						'guid'       => 'abcDEF12',
-						'title'      => 'Two hours of throwing',
 						'durationMs' => 7200000, // 2:00:00.
 					),
 				),

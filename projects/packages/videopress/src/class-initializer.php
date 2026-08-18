@@ -625,12 +625,15 @@ class Initializer {
 				continue;
 			}
 
+			/*
+			 * Only the video reference and numeric metadata are stored. Display
+			 * metadata (title, poster) is always live: the view script reads it
+			 * from the video data after the page loads.
+			 */
 			$entries[] = array(
 				'guid'       => $video['guid'],
-				'title'      => isset( $video['title'] ) && is_string( $video['title'] ) ? $video['title'] : '',
 				'durationMs' => isset( $video['durationMs'] ) && is_numeric( $video['durationMs'] ) ? max( 0, (int) $video['durationMs'] ) : 0,
 				'height'     => isset( $video['height'] ) && is_numeric( $video['height'] ) ? max( 0, (int) $video['height'] ) : 0,
-				'poster'     => isset( $video['poster'] ) && is_string( $video['poster'] ) ? $video['poster'] : '',
 			);
 		}
 
@@ -789,10 +792,12 @@ class Initializer {
 
 		$items = '';
 		foreach ( $entries as $index => $entry ) {
-			$title = '' !== $entry['title']
-				? $entry['title']
-				/* translators: %d: position of the video in the playlist. */
-				: sprintf( __( 'Video %d', 'jetpack-videopress-pkg' ), $index + 1 );
+			/*
+			 * Positional fallback only: the view script replaces titles (and
+			 * adds posters) with live video data once the page loads.
+			 */
+			/* translators: %d: position of the video in the playlist. */
+			$title = sprintf( __( 'Video %d', 'jetpack-videopress-pkg' ), $index + 1 );
 
 			$timecode   = self::playlist_timecode( $entry['durationMs'] );
 			$resolution = self::playlist_resolution_label( $entry['height'] );
@@ -812,10 +817,6 @@ class Initializer {
 				)
 				: '';
 
-			$poster_markup = '' !== $entry['poster']
-				? sprintf( '<img src="%s" alt="" loading="lazy" />', esc_url( $entry['poster'] ) )
-				: '';
-
 			$time_markup = '' !== $timecode
 				? sprintf( '<span class="videopress-playlist__entry-time">%s</span>', esc_html( $timecode ) )
 				: '';
@@ -830,8 +831,8 @@ class Initializer {
 
 			$items .= sprintf(
 				'<li class="videopress-playlist__entry"><button type="button" class="videopress-playlist__select%1$s"%2$s data-guid="%3$s" data-embed-url="%4$s" data-title="%5$s" data-position="%6$s" data-details="%7$s" data-progress="%8$s">' .
-					'%9$s<span class="videopress-playlist__entry-thumb">%10$s<span class="videopress-playlist__entry-flag">%11$s</span>%12$s</span>' .
-					'<span class="videopress-playlist__entry-body"><span class="videopress-playlist__entry-title">%13$s</span><span class="videopress-playlist__entry-meta">%14$s%15$s</span></span>' .
+					'%9$s<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-flag">%10$s</span>%11$s</span>' .
+					'<span class="videopress-playlist__entry-body"><span class="videopress-playlist__entry-title">%12$s</span><span class="videopress-playlist__entry-meta">%13$s%14$s</span></span>' .
 					'</button></li>',
 				0 === $index ? ' is-current' : '',
 				0 === $index ? ' aria-current="true"' : '',
@@ -842,7 +843,6 @@ class Initializer {
 				esc_attr( $details ),
 				esc_attr( $progress ),
 				$number_markup,
-				$poster_markup,
 				esc_html__( 'Playing', 'jetpack-videopress-pkg' ),
 				$time_markup,
 				esc_html( $title ),
@@ -852,7 +852,7 @@ class Initializer {
 		}
 
 		$first          = $entries[0];
-		$first_title    = '' !== $first['title'] ? $first['title'] : __( 'Video 1', 'jetpack-videopress-pkg' );
+		$first_title    = __( 'Video 1', 'jetpack-videopress-pkg' );
 		$first_details  = implode(
 			' · ',
 			array_filter(

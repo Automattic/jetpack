@@ -1,4 +1,23 @@
-import { initPlaylistBlock } from '../view';
+import { hydratePlaylistMetadata, initPlaylistBlock } from '../view';
+
+// Live metadata the mocked videos API returns, keyed by GUID.
+let mockLiveMetadata: Record< string, { title?: string; poster?: string } > = {};
+
+beforeEach( () => {
+	mockLiveMetadata = {};
+	const fetchMock = jest.fn( ( url: string ) => {
+		const guid = String( url ).split( '/' ).pop();
+		const metadata = guid ? mockLiveMetadata[ guid ] : undefined;
+		if ( ! metadata ) {
+			return Promise.resolve( { ok: false } as Response );
+		}
+		return Promise.resolve( {
+			ok: true,
+			json: () => Promise.resolve( metadata ),
+		} as Response );
+	} );
+	( global as { fetch: unknown } ).fetch = fetchMock;
+} );
 
 const EMBED_A = 'https://videopress.com/embed/aaaaaaaa?cover=1&preloadContent=metadata&autoPlay=1';
 const EMBED_B = 'https://videopress.com/embed/bbbbbbbb?cover=1&preloadContent=metadata&autoPlay=1';
@@ -35,13 +54,22 @@ function setUpPlaylist( autoplayNext = true ): HTMLElement {
 				<ol class="videopress-playlist__entries">
 					<li><button type="button" class="videopress-playlist__select is-current" aria-current="true"
 						data-guid="aaaaaaaa" data-embed-url="${ EMBED_A }" data-title="First"
-						data-position="1 of 3" data-details="1080p · 12:04" data-progress="1 / 3 · 25:00 total"></button></li>
+						data-position="1 of 3" data-details="1080p · 12:04" data-progress="1 / 3 · 25:00 total">
+						<span class="videopress-playlist__entry-thumb"></span>
+						<span class="videopress-playlist__entry-title">First</span>
+					</button></li>
 					<li><button type="button" class="videopress-playlist__select"
 						data-guid="bbbbbbbb" data-embed-url="${ EMBED_B }" data-title="Second"
-						data-position="2 of 3" data-details="4K · 6:41" data-progress="2 / 3 · 25:00 total"></button></li>
+						data-position="2 of 3" data-details="4K · 6:41" data-progress="2 / 3 · 25:00 total">
+						<span class="videopress-playlist__entry-thumb"></span>
+						<span class="videopress-playlist__entry-title">Second</span>
+					</button></li>
 					<li><button type="button" class="videopress-playlist__select"
 						data-guid="cccccccc" data-embed-url="${ EMBED_C }" data-title="Third"
-						data-position="3 of 3" data-details="720p · 6:15" data-progress="3 / 3 · 25:00 total"></button></li>
+						data-position="3 of 3" data-details="720p · 6:15" data-progress="3 / 3 · 25:00 total">
+						<span class="videopress-playlist__entry-thumb"></span>
+						<span class="videopress-playlist__entry-title">Third</span>
+					</button></li>
 				</ol>
 			</div>
 		</figure>
@@ -162,6 +190,41 @@ describe( 'initPlaylistBlock', () => {
 		postPlayerMessage( 'https://videopress.com', { event: 'videopress_ended', id: 'aaaaaaaa' } );
 		expect( root.querySelector< HTMLIFrameElement >( '.videopress-playlist__iframe' ).src ).toBe(
 			'about:blank'
+		);
+	} );
+
+	it( 'hydrates titles and posters from live video data', async () => {
+		const root = setUpPlaylist();
+		mockLiveMetadata = {
+			aaaaaaaa: { title: 'Live first', poster: 'https://example.com/first.jpg' },
+			bbbbbbbb: { title: 'Live second' },
+		};
+
+		await hydratePlaylistMetadata( root );
+
+		const entries = root.querySelectorAll< HTMLButtonElement >( '.videopress-playlist__select' );
+		expect( entries[ 0 ].querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
+			'Live first'
+		);
+		expect( entries[ 0 ].dataset.title ).toBe( 'Live first' );
+		expect( entries[ 0 ].querySelector( '.videopress-playlist__entry-thumb img' ) ).toHaveAttribute(
+			'src',
+			'https://example.com/first.jpg'
+		);
+
+		// The current entry's live title also lands in the now-playing row.
+		expect( root.querySelector( '.videopress-playlist__now-title' ) ).toHaveTextContent(
+			'Live first'
+		);
+
+		expect( entries[ 1 ].querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
+			'Live second'
+		);
+		expect( entries[ 1 ].querySelector( 'img' ) ).toBeNull();
+
+		// Unreachable video data keeps the server-rendered fallback.
+		expect( entries[ 2 ].querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
+			'Third'
 		);
 	} );
 

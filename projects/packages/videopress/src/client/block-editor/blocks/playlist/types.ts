@@ -1,10 +1,23 @@
 import type { VideoGUID } from '../video/types';
 
+/**
+ * A stored playlist entry. Only the video reference and numeric metadata
+ * (used for server-rendered totals) are persisted; display metadata —
+ * title and poster — is always read live from the video data, by the
+ * editor and by the front-end view script alike.
+ */
 export type PlaylistEntry = {
 	guid: VideoGUID;
-	title?: string;
 	durationMs?: number;
 	height?: number;
+};
+
+/**
+ * Live display metadata for one video, fetched from the videos API and
+ * never persisted in block attributes.
+ */
+export type PlaylistLiveMetadata = {
+	title?: string;
 	poster?: string;
 };
 

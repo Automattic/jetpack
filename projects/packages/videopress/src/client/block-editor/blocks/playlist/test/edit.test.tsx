@@ -70,9 +70,24 @@ async function submitUrl( value: string ) {
 	await userEvent.click( screen.getAllByRole( 'button', { name: 'Add' } )[ 0 ] );
 }
 
+const LIVE_TITLES: Record< string, string > = {
+	aaaaaaaa: 'First',
+	bbbbbbbb: 'Second',
+	cccccccc: 'Third',
+	abcDEF12: 'Existing video',
+};
+
 beforeEach( () => {
 	jest.clearAllMocks();
 	mockMediaSelection = [];
+	// Titles are live data resolved per GUID, never stored in attributes.
+	fetchVideoItemMock.mockImplementation( ( { guid }: { guid: string } ) => {
+		const numbered = guid.match( /^aaaaaaa(\d)$/ );
+		if ( numbered ) {
+			return Promise.resolve( { title: `Video ${ numbered[ 1 ] }` } );
+		}
+		return Promise.resolve( LIVE_TITLES[ guid ] ? { title: LIVE_TITLES[ guid ] } : {} );
+	} );
 } );
 
 describe( 'PlaylistEdit', () => {
@@ -99,15 +114,7 @@ describe( 'PlaylistEdit', () => {
 
 		await waitFor( () =>
 			expect( setAttributes ).toHaveBeenCalledWith( {
-				videos: [
-					{
-						guid: 'abcDEF12',
-						title: 'Kiln loading, start to finish',
-						durationMs: 724000,
-						height: 1080,
-						poster: 'https://example.com/poster.jpg',
-					},
-				],
+				videos: [ { guid: 'abcDEF12', durationMs: 724000, height: 1080 } ],
 			} )
 		);
 	} );
@@ -120,9 +127,7 @@ describe( 'PlaylistEdit', () => {
 		await submitUrl( 'https://videopress.com/v/abcDEF12' );
 
 		await waitFor( () =>
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				videos: [ { guid: 'abcDEF12', title: 'By URL' } ],
-			} )
+			expect( setAttributes ).toHaveBeenCalledWith( { videos: [ { guid: 'abcDEF12' } ] } )
 		);
 		expect( fetchVideoItemMock ).toHaveBeenCalledWith(
 			expect.objectContaining( { guid: 'abcDEF12' } )
@@ -155,29 +160,29 @@ describe( 'PlaylistEdit', () => {
 
 	it( 'warns about duplicates and only adds after "Add anyway"', async () => {
 		fetchVideoItemMock.mockResolvedValue( { title: 'Existing video' } );
-		const existing = { guid: 'abcDEF12', title: 'Existing video' };
+		const existing = { guid: 'abcDEF12' };
 		const setAttributes = jest.fn();
 		renderEdit( { videos: [ existing ] }, setAttributes );
 
 		await submitUrl( 'abcDEF12' );
 
-		expect(
-			screen.getByText( '“Existing video” is already in this playlist' )
-		).toBeInTheDocument();
+		await expect(
+			screen.findByText( '“Existing video” is already in this playlist' )
+		).resolves.toBeInTheDocument();
 		expect( setAttributes ).not.toHaveBeenCalled();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Add anyway' } ) );
 
 		await waitFor( () =>
 			expect( setAttributes ).toHaveBeenCalledWith( {
-				videos: [ existing, { guid: 'abcDEF12', title: 'Existing video' } ],
+				videos: [ existing, { guid: 'abcDEF12' } ],
 			} )
 		);
 	} );
 
 	it( 'dismisses the duplicate warning on Cancel', async () => {
 		const setAttributes = jest.fn();
-		renderEdit( { videos: [ { guid: 'abcDEF12', title: 'Existing' } ] }, setAttributes );
+		renderEdit( { videos: [ { guid: 'abcDEF12' } ] }, setAttributes );
 
 		await submitUrl( 'abcDEF12' );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
@@ -188,47 +193,41 @@ describe( 'PlaylistEdit', () => {
 	} );
 
 	it( 'removes an entry', async () => {
-		const videos = [
-			{ guid: 'aaaaaaaa', title: 'First' },
-			{ guid: 'bbbbbbbb', title: 'Second' },
-		];
+		const videos = [ { guid: 'aaaaaaaa' }, { guid: 'bbbbbbbb' } ];
 		const setAttributes = jest.fn();
 		renderEdit( { videos }, setAttributes );
 
 		await userEvent.click(
-			screen.getByRole( 'button', { name: 'Remove “First” from the playlist' } )
+			await screen.findByRole( 'button', { name: 'Remove “First” from the playlist' } )
 		);
 
 		expect( setAttributes ).toHaveBeenCalledWith( { videos: [ videos[ 1 ] ] } );
 	} );
 
 	it( 'reorders entries with the arrow keys on a drag handle', async () => {
-		const videos = [
-			{ guid: 'aaaaaaaa', title: 'First' },
-			{ guid: 'bbbbbbbb', title: 'Second' },
-		];
+		const videos = [ { guid: 'aaaaaaaa' }, { guid: 'bbbbbbbb' } ];
 		const setAttributes = jest.fn();
 		renderEdit( { videos }, setAttributes );
 
 		// Clicking the handle focuses it (it has no click action of its own).
 		await userEvent.click(
-			screen.getByRole( 'button', { name: 'Reorder “First”. Press up or down to move it.' } )
+			await screen.findByRole( 'button', { name: 'Reorder “First”. Press up or down to move it.' } )
 		);
 		await userEvent.keyboard( '{ArrowDown}' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { videos: [ videos[ 1 ], videos[ 0 ] ] } );
 	} );
 
-	it( 'renders the canvas preview mirroring the playlist', () => {
+	it( 'renders the canvas preview mirroring the playlist', async () => {
 		renderEdit( {
 			videos: [
-				{ guid: 'aaaaaaaa', title: 'First', durationMs: 60000, height: 1080 },
-				{ guid: 'bbbbbbbb', title: 'Second', durationMs: 120000, height: 2160 },
+				{ guid: 'aaaaaaaa', durationMs: 60000, height: 1080 },
+				{ guid: 'bbbbbbbb', durationMs: 120000, height: 2160 },
 			],
 		} );
 
 		expect( screen.getAllByText( '2 videos' ).length ).toBeGreaterThan( 0 );
-		expect( screen.getByTitle( 'First' ) ).toBeInTheDocument();
+		await expect( screen.findByTitle( 'First' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Up next' ) ).toBeInTheDocument();
 		expect(
 			screen.getByText(
@@ -237,11 +236,8 @@ describe( 'PlaylistEdit', () => {
 		).toBeInTheDocument();
 	} );
 
-	it( 'only offers the filter input on long playlists', () => {
-		const shortList = Array.from( { length: 3 }, ( _, i ) => ( {
-			guid: `aaaaaaa${ i }`,
-			title: `Video ${ i }`,
-		} ) );
+	it( 'only offers the filter input on long playlists', async () => {
+		const shortList = Array.from( { length: 3 }, ( _, i ) => ( { guid: `aaaaaaa${ i }` } ) );
 		const { unmount } = render(
 			<PlaylistEdit
 				{ ...( {
@@ -251,14 +247,14 @@ describe( 'PlaylistEdit', () => {
 			/>
 		);
 		expect( screen.queryByPlaceholderText( 'Filter 3 videos' ) ).not.toBeInTheDocument();
+		// Let the live metadata lookups settle before unmounting.
+		await expect( screen.findAllByText( 'Video 2' ) ).resolves.toBeTruthy();
 		unmount();
 
-		const longList = Array.from( { length: 9 }, ( _, i ) => ( {
-			guid: `aaaaaaa${ i }`,
-			title: `Video ${ i }`,
-		} ) );
+		const longList = Array.from( { length: 9 }, ( _, i ) => ( { guid: `aaaaaaa${ i }` } ) );
 		renderEdit( { videos: longList } );
 		expect( screen.getByPlaceholderText( 'Filter 9 videos' ) ).toBeInTheDocument();
+		await expect( screen.findAllByText( 'Video 8' ) ).resolves.toBeTruthy();
 	} );
 
 	it( 'shows an error when Add is pressed with an empty input', async () => {
@@ -282,9 +278,7 @@ describe( 'PlaylistEdit', () => {
 		);
 
 		await waitFor( () =>
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				videos: [ { guid: 'abcDEF12', title: 'Via Enter' } ],
-			} )
+			expect( setAttributes ).toHaveBeenCalledWith( { videos: [ { guid: 'abcDEF12' } ] } )
 		);
 	} );
 
@@ -331,15 +325,7 @@ describe( 'PlaylistEdit', () => {
 		await userEvent.click( screen.getAllByRole( 'button', { name: 'Media Library' } )[ 0 ] );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
-			videos: [
-				{
-					guid: 'aaaaaaaa',
-					title: 'From array',
-					poster: 'https://example.com/image.jpg',
-					height: 240,
-				},
-				{ guid: 'bbbbbbbb', poster: 'https://example.com/thumb.jpg' },
-			],
+			videos: [ { guid: 'aaaaaaaa', height: 240 }, { guid: 'bbbbbbbb' } ],
 		} );
 	} );
 
@@ -356,7 +342,7 @@ describe( 'PlaylistEdit', () => {
 
 		await waitFor( () =>
 			expect( setAttributes ).toHaveBeenCalledWith( {
-				videos: [ { guid: 'abcDEF12', title: 'Low-res upload', durationMs: 724000, height: 240 } ],
+				videos: [ { guid: 'abcDEF12', durationMs: 724000, height: 240 } ],
 			} )
 		);
 	} );
@@ -368,9 +354,7 @@ describe( 'PlaylistEdit', () => {
 
 		await userEvent.click( screen.getAllByRole( 'button', { name: 'Media Library' } )[ 0 ] );
 
-		expect( setAttributes ).toHaveBeenCalledWith( {
-			videos: [ { guid: 'cccccccc', title: 'Single' } ],
-		} );
+		expect( setAttributes ).toHaveBeenCalledWith( { videos: [ { guid: 'cccccccc' } ] } );
 	} );
 
 	it( 'shows an error when no media library selection is a VideoPress video', async () => {
@@ -388,7 +372,7 @@ describe( 'PlaylistEdit', () => {
 
 	it( 'changes the layout and playback options from the sidebar', async () => {
 		const setAttributes = jest.fn();
-		renderEdit( { videos: [ { guid: 'aaaaaaaa', title: 'First' } ] }, setAttributes );
+		renderEdit( { videos: [ { guid: 'aaaaaaaa' } ] }, setAttributes );
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Grid' } ) );
 		expect( setAttributes ).toHaveBeenCalledWith( { layout: 'grid' } );
@@ -405,7 +389,7 @@ describe( 'PlaylistEdit', () => {
 
 	it( 'changes the per-entry display options from the sidebar', async () => {
 		const setAttributes = jest.fn();
-		renderEdit( { videos: [ { guid: 'aaaaaaaa', title: 'First' } ] }, setAttributes );
+		renderEdit( { videos: [ { guid: 'aaaaaaaa' } ] }, setAttributes );
 
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Thumbnail' } ) );
 		expect( setAttributes ).toHaveBeenCalledWith( { showThumbnail: false } );
@@ -427,17 +411,16 @@ describe( 'PlaylistEdit', () => {
 	} );
 
 	it( 'reorders entries with drag and drop', async () => {
-		const videos = [
-			{ guid: 'aaaaaaaa', title: 'First' },
-			{ guid: 'bbbbbbbb', title: 'Second' },
-			{ guid: 'cccccccc', title: 'Third' },
-		];
+		const videos = [ { guid: 'aaaaaaaa' }, { guid: 'bbbbbbbb' }, { guid: 'cccccccc' } ];
 		const setAttributes = jest.fn();
 		renderEdit( { videos }, setAttributes );
 
 		const list = screen.getByRole( 'list', { name: 'Playlist videos' } );
 		const dataTransfer = { effectAllowed: '', dropEffect: '', setData: jest.fn() };
 		const rows = () => within( list ).getAllByRole( 'listitem' );
+
+		// Let the live metadata lookups settle before dragging.
+		await expect( within( list ).findByText( 'Third' ) ).resolves.toBeInTheDocument();
 
 		fireEvent.dragStart( rows()[ 0 ], { dataTransfer } );
 		expect( rows()[ 0 ] ).toHaveClass( 'is-dragging' );
@@ -460,14 +443,13 @@ describe( 'PlaylistEdit', () => {
 	} );
 
 	it( 'narrows the sidebar rows while filtering and disables reordering', async () => {
-		const videos = Array.from( { length: 9 }, ( _, i ) => ( {
-			guid: `aaaaaaa${ i }`,
-			title: `Video ${ i }`,
-		} ) );
+		const videos = Array.from( { length: 9 }, ( _, i ) => ( { guid: `aaaaaaa${ i }` } ) );
 		renderEdit( { videos } );
 
 		const list = screen.getByRole( 'list', { name: 'Playlist videos' } );
 		expect( within( list ).getAllByRole( 'listitem' ) ).toHaveLength( 9 );
+		// Titles arrive from the live metadata lookups; wait for the last one.
+		await expect( within( list ).findByText( 'Video 8' ) ).resolves.toBeInTheDocument();
 
 		await userEvent.type( screen.getByPlaceholderText( 'Filter 9 videos' ), 'Video 3' );
 
@@ -478,20 +460,16 @@ describe( 'PlaylistEdit', () => {
 	} );
 
 	it( 'keeps the preview on the same entry when one is moved from above it', async () => {
-		const videos = [
-			{ guid: 'aaaaaaaa', title: 'First' },
-			{ guid: 'bbbbbbbb', title: 'Second' },
-			{ guid: 'cccccccc', title: 'Third' },
-		];
+		const videos = [ { guid: 'aaaaaaaa' }, { guid: 'bbbbbbbb' }, { guid: 'cccccccc' } ];
 		const setAttributes = jest.fn();
 		renderEdit( { videos }, setAttributes );
 
 		// Preview the second entry from the canvas list.
-		await userEvent.click( screen.getByRole( 'button', { name: /Playing.*Second/ } ) );
-		expect( screen.getByTitle( 'Second' ) ).toBeInTheDocument();
+		await userEvent.click( await screen.findByRole( 'button', { name: /Playing.*Second/ } ) );
+		await expect( screen.findByTitle( 'Second' ) ).resolves.toBeInTheDocument();
 
 		await userEvent.click(
-			screen.getByRole( 'button', { name: 'Reorder “First”. Press up or down to move it.' } )
+			await screen.findByRole( 'button', { name: 'Reorder “First”. Press up or down to move it.' } )
 		);
 		await userEvent.keyboard( '{ArrowDown}' );
 		expect( setAttributes ).toHaveBeenCalledWith( {
@@ -500,16 +478,15 @@ describe( 'PlaylistEdit', () => {
 	} );
 
 	it( 'keeps the preview on the same entry when one is moved from below it', async () => {
-		const videos = [
-			{ guid: 'aaaaaaaa', title: 'First' },
-			{ guid: 'bbbbbbbb', title: 'Second' },
-		];
+		const videos = [ { guid: 'aaaaaaaa' }, { guid: 'bbbbbbbb' } ];
 		const setAttributes = jest.fn();
 		renderEdit( { videos }, setAttributes );
 
 		// The default preview is the first entry; move the second above it.
 		await userEvent.click(
-			screen.getByRole( 'button', { name: 'Reorder “Second”. Press up or down to move it.' } )
+			await screen.findByRole( 'button', {
+				name: 'Reorder “Second”. Press up or down to move it.',
+			} )
 		);
 		await userEvent.keyboard( '{ArrowUp}' );
 
@@ -517,32 +494,25 @@ describe( 'PlaylistEdit', () => {
 	} );
 
 	it( 'keeps the preview on the same entry when one is removed above it', async () => {
-		const videos = [
-			{ guid: 'aaaaaaaa', title: 'First' },
-			{ guid: 'bbbbbbbb', title: 'Second' },
-			{ guid: 'cccccccc', title: 'Third' },
-		];
+		const videos = [ { guid: 'aaaaaaaa' }, { guid: 'bbbbbbbb' }, { guid: 'cccccccc' } ];
 		const setAttributes = jest.fn();
 		renderEdit( { videos }, setAttributes );
 
-		await userEvent.click( screen.getByRole( 'button', { name: /Playing.*Second/ } ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: /Playing.*Second/ } ) );
 		await userEvent.click(
-			screen.getByRole( 'button', { name: 'Remove “First” from the playlist' } )
+			await screen.findByRole( 'button', { name: 'Remove “First” from the playlist' } )
 		);
 
 		expect( setAttributes ).toHaveBeenCalledWith( { videos: [ videos[ 1 ], videos[ 2 ] ] } );
 	} );
 
 	it( 'ignores out-of-range keyboard reorders', async () => {
-		const videos = [
-			{ guid: 'aaaaaaaa', title: 'First' },
-			{ guid: 'bbbbbbbb', title: 'Second' },
-		];
+		const videos = [ { guid: 'aaaaaaaa' }, { guid: 'bbbbbbbb' } ];
 		const setAttributes = jest.fn();
 		renderEdit( { videos }, setAttributes );
 
 		await userEvent.click(
-			screen.getByRole( 'button', { name: 'Reorder “First”. Press up or down to move it.' } )
+			await screen.findByRole( 'button', { name: 'Reorder “First”. Press up or down to move it.' } )
 		);
 		await userEvent.keyboard( '{ArrowUp}' );
 

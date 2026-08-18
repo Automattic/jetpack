@@ -15,7 +15,7 @@ import {
 	TextControl,
 	ToggleControl,
 } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { closeSmall, dragHandle, Icon } from '@wordpress/icons';
@@ -38,7 +38,12 @@ import './editor.scss';
 /**
  * Types
  */
-import type { PlaylistAttributes, PlaylistEntry, PlaylistLayout } from './types';
+import type {
+	PlaylistAttributes,
+	PlaylistEntry,
+	PlaylistLayout,
+	PlaylistLiveMetadata,
+} from './types';
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../types';
 import type { BlockEditProps } from '@wordpress/blocks';
 
@@ -76,7 +81,8 @@ export function guidFromInput( input: string ): string | null {
 }
 
 /**
- * Build a playlist entry from a videos API response item.
+ * Build a stored playlist entry from a videos API response item. Only the
+ * numeric metadata is stored; title and poster stay live-only.
  *
  * @param guid - The video GUID.
  * @param item - The videos API response.
@@ -84,10 +90,6 @@ export function guidFromInput( input: string ): string | null {
  */
 function entryFromApiResponse( guid: string, item: Record< string, unknown > ): PlaylistEntry {
 	const entry: PlaylistEntry = { guid };
-
-	if ( typeof item?.title === 'string' && item.title ) {
-		entry.title = decodeEntities( item.title );
-	}
 
 	// The API isn't strict about numeric types, so coerce rather than type-check.
 	const duration = Number( item?.duration );
@@ -99,11 +101,27 @@ function entryFromApiResponse( guid: string, item: Record< string, unknown > ): 
 		entry.height = height;
 	}
 
+	return entry;
+}
+
+/**
+ * Pick the live display metadata (title, poster) out of a videos API
+ * response item.
+ *
+ * @param item - The videos API response.
+ * @return Live metadata; fields are omitted when the API has none.
+ */
+function liveMetadataFromApiResponse( item: Record< string, unknown > ): PlaylistLiveMetadata {
+	const metadata: PlaylistLiveMetadata = {};
+
+	if ( typeof item?.title === 'string' && item.title ) {
+		metadata.title = decodeEntities( item.title );
+	}
 	if ( typeof item?.poster === 'string' && item.poster ) {
-		entry.poster = item.poster;
+		metadata.poster = item.poster;
 	}
 
-	return entry;
+	return metadata;
 }
 
 /**
@@ -124,20 +142,24 @@ function entryMetaLine( entry: PlaylistEntry ): string {
  * @param props              - Component props.
  * @param props.attributes   - Block attributes.
  * @param props.currentIndex - Index of the entry shown in the player.
+ * @param props.liveMetadata - Live title/poster per GUID, from the video data.
  * @param props.onSelect     - Called with an entry index when it is clicked.
  * @return Preview element.
  */
 function PlaylistPreview( {
 	attributes,
 	currentIndex,
+	liveMetadata,
 	onSelect,
 }: {
 	attributes: PlaylistAttributes;
 	currentIndex: number;
+	liveMetadata: Record< string, PlaylistLiveMetadata >;
 	onSelect: ( index: number ) => void;
 } ) {
 	const { videos, showPositionNumber, showTotalRuntime } = attributes;
 	const current = videos[ currentIndex ];
+	const currentTitle = liveMetadata[ current.guid ]?.title || current.guid;
 	const runtime = formatRuntime( playlistRuntimeMs( videos ) );
 	const countLabel = sprintf(
 		/* translators: %d: number of videos in the playlist. */
@@ -158,16 +180,17 @@ function PlaylistPreview( {
 					<div className="videopress-playlist__player">
 						<iframe
 							className="videopress-playlist__iframe"
-							title={ current.title || __( 'Video Playlist player', 'jetpack-videopress-pkg' ) }
+							title={
+								liveMetadata[ current.guid ]?.title ||
+								__( 'Video Playlist player', 'jetpack-videopress-pkg' )
+							}
 							src={ playlistEmbedUrl( current.guid, false ) }
 							allowFullScreen
 							allow="clipboard-write"
 						/>
 					</div>
 					<div className="videopress-playlist__now">
-						<span className="videopress-playlist__now-title">
-							{ current.title || current.guid }
-						</span>
+						<span className="videopress-playlist__now-title">{ currentTitle }</span>
 						<span className="videopress-playlist__now-meta">
 							<span className="videopress-playlist__now-position">{ nowPosition }</span>
 							{ entryMetaLine( current ) && (
@@ -231,7 +254,9 @@ function PlaylistPreview( {
 										</span>
 									) }
 									<span className="videopress-playlist__entry-thumb">
-										{ entry.poster && <img src={ entry.poster } alt="" loading="lazy" /> }
+										{ liveMetadata[ entry.guid ]?.poster && (
+											<img src={ liveMetadata[ entry.guid ].poster } alt="" loading="lazy" />
+										) }
 										<span className="videopress-playlist__entry-flag">
 											{ __( 'Playing', 'jetpack-videopress-pkg' ) }
 										</span>
@@ -243,7 +268,7 @@ function PlaylistPreview( {
 									</span>
 									<span className="videopress-playlist__entry-body">
 										<span className="videopress-playlist__entry-title">
-											{ entry.title || entry.guid }
+											{ liveMetadata[ entry.guid ]?.title || entry.guid }
 										</span>
 										<span className="videopress-playlist__entry-meta">
 											{ resolutionLabel( entry.height ) && (
@@ -313,6 +338,46 @@ export default function PlaylistEdit( {
 	const [ dragIndex, setDragIndex ] = useState< number | null >( null );
 	const [ dropIndex, setDropIndex ] = useState< number | null >( null );
 
+	/*
+	 * Live display metadata (title, poster) per GUID. It is never written to
+	 * block attributes: the editor reads it fresh from the video data, the
+	 * same way the front-end view script does.
+	 */
+	const [ liveMetadata, setLiveMetadata ] = useState< Record< string, PlaylistLiveMetadata > >(
+		{}
+	);
+	// GUIDs with a lookup already started this session; failed lookups keep the fallback.
+	const metadataFetchesStarted = useRef( new Set< string >() );
+
+	const cacheLiveMetadata = ( guid: string, metadata: PlaylistLiveMetadata ) => {
+		if ( ! Object.keys( metadata ).length ) {
+			return;
+		}
+		setLiveMetadata( cache => ( { ...cache, [ guid ]: { ...cache[ guid ], ...metadata } } ) );
+	};
+
+	useEffect( () => {
+		videos.forEach( ( { guid } ) => {
+			if ( metadataFetchesStarted.current.has( guid ) ) {
+				return;
+			}
+			metadataFetchesStarted.current.add( guid );
+
+			fetchVideoItem( { guid, isPrivate: false, skipRatingControl: true } )
+				.then( item =>
+					cacheLiveMetadata(
+						guid,
+						liveMetadataFromApiResponse( item as Record< string, unknown > )
+					)
+				)
+				.catch( () => {
+					// The entry keeps its GUID fallback when the video data isn't reachable.
+				} );
+		} );
+	}, [ videos ] );
+
+	const displayTitle = ( guid: string ) => liveMetadata[ guid ]?.title || guid;
+
 	const currentIndex = Math.min( previewIndex, Math.max( 0, videos.length - 1 ) );
 	const isLongPlaylist = videos.length > LONG_PLAYLIST_THRESHOLD;
 	const isFiltering = isLongPlaylist && filter.trim() !== '';
@@ -345,6 +410,8 @@ export default function PlaylistEdit( {
 
 		try {
 			const item = await fetchVideoItem( { guid, isPrivate: false, skipRatingControl: true } );
+			metadataFetchesStarted.current.add( guid );
+			cacheLiveMetadata( guid, liveMetadataFromApiResponse( item as Record< string, unknown > ) );
 			setAttributes( {
 				videos: [ ...videos, entryFromApiResponse( guid, item as Record< string, unknown > ) ],
 			} );
@@ -406,19 +473,24 @@ export default function PlaylistEdit( {
 			}
 
 			const entry: PlaylistEntry = { guid };
-			if ( typeof item.title === 'string' && item.title ) {
-				entry.title = decodeEntities( item.title );
-			}
-			const poster = item.image?.src || item.thumb?.src;
-			if ( typeof poster === 'string' && poster ) {
-				entry.poster = poster;
-			}
 			// Attachments know the video height, so the resolution badge
 			// shows for library picks too (240p included).
 			const height = Number( item.height );
 			if ( Number.isFinite( height ) && height > 0 ) {
 				entry.height = height;
 			}
+
+			// Seed the live cache from the attachment; the metadata effect
+			// still refreshes it from the video data.
+			const seed: PlaylistLiveMetadata = {};
+			if ( typeof item.title === 'string' && item.title ) {
+				seed.title = decodeEntities( item.title );
+			}
+			const poster = item.image?.src || item.thumb?.src;
+			if ( typeof poster === 'string' && poster ) {
+				seed.poster = poster;
+			}
+			cacheLiveMetadata( guid, seed );
 
 			entries.push( entry );
 		}
@@ -533,7 +605,7 @@ export default function PlaylistEdit( {
 					{ sprintf(
 						/* translators: %s: title (or GUID) of the video. */
 						__( '“%s” is already in this playlist', 'jetpack-videopress-pkg' ),
-						videos.find( entry => entry.guid === duplicateGuid )?.title || duplicateGuid
+						displayTitle( duplicateGuid )
 					) }
 					<span className="videopress-playlist-editor__duplicate-actions">
 						<Button size="small" variant="secondary" onClick={ () => appendVideo( duplicateGuid ) }>
@@ -554,7 +626,7 @@ export default function PlaylistEdit( {
 			if ( ! isFiltering ) {
 				return true;
 			}
-			return `${ entry.title ?? '' } ${ entry.guid }`
+			return `${ liveMetadata[ entry.guid ]?.title ?? '' } ${ entry.guid }`
 				.toLowerCase()
 				.includes( filter.trim().toLowerCase() );
 		} );
@@ -658,7 +730,7 @@ export default function PlaylistEdit( {
 										label={ sprintf(
 											/* translators: %s: title (or GUID) of the video. */
 											__( 'Reorder “%s”. Press up or down to move it.', 'jetpack-videopress-pkg' ),
-											entry.title || entry.guid
+											displayTitle( entry.guid )
 										) }
 										onKeyDown={ ( event: React.KeyboardEvent ) => {
 											if ( event.key === 'ArrowUp' ) {
@@ -677,11 +749,13 @@ export default function PlaylistEdit( {
 									</span>
 								) }
 								<span className="videopress-playlist-editor__row-thumb">
-									{ entry.poster && <img src={ entry.poster } alt="" loading="lazy" /> }
+									{ liveMetadata[ entry.guid ]?.poster && (
+										<img src={ liveMetadata[ entry.guid ].poster } alt="" loading="lazy" />
+									) }
 								</span>
 								<span className="videopress-playlist-editor__row-body">
 									<span className="videopress-playlist-editor__row-title">
-										{ entry.title || entry.guid }
+										{ displayTitle( entry.guid ) }
 									</span>
 									{ entryMetaLine( entry ) && (
 										<span className="videopress-playlist-editor__row-meta">
@@ -696,7 +770,7 @@ export default function PlaylistEdit( {
 									label={ sprintf(
 										/* translators: %s: title (or GUID) of the video. */
 										__( 'Remove “%s” from the playlist', 'jetpack-videopress-pkg' ),
-										entry.title || entry.guid
+										displayTitle( entry.guid )
 									) }
 									onClick={ () => removeVideo( index ) }
 								/>
@@ -854,6 +928,7 @@ export default function PlaylistEdit( {
 			<PlaylistPreview
 				attributes={ attributes }
 				currentIndex={ currentIndex }
+				liveMetadata={ liveMetadata }
 				onSelect={ setPreviewIndex }
 			/>
 		</figure>
