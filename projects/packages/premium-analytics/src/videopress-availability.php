@@ -10,6 +10,12 @@
  * request and answers entitlement rather than whether VideoPress is running.
  * The off-platform question is therefore answered from the module or plugin.
  *
+ * The canonical gates already exist: `VideoPress\Status::is_active()` for the
+ * off-platform branch, the WPCOM arm of `Current_Plan::supports()` for the
+ * platform one. Neither `jetpack-videopress` nor `jetpack-plans` is in this
+ * package's dependency graph, so the detection below is local by necessity.
+ * Widen the graph before writing another detector.
+ *
  * @package automattic/jetpack-premium-analytics
  */
 
@@ -32,7 +38,11 @@ const VIDEOPRESS_AVAILABLE_FILTER = 'jetpack_premium_analytics_videopress_availa
  * Atomic reads the plan feature alongside Simple, not the module: wpcomsh
  * provides `wpcom_site_has_feature()` there, and the VideoPress module has no
  * `Auto Activate` header, so a plan that includes VideoPress routinely comes
- * with the module off.
+ * with the module off. wpcomsh grants `videopress` to every business-and-higher
+ * plan and WoA only exists on those, so the platform branch effectively gates
+ * Simple alone: an Atomic site with the module off keeps the video surfaces.
+ * That is intended — hosting is service-level on WPCOM, so the module would be
+ * a false negative there.
  *
  * Off-platform the question becomes "is VideoPress running here", not "is it
  * paid for" — without the module there is no new play data to report. That is
