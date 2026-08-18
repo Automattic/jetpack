@@ -62,3 +62,23 @@ if ( ! function_exists( 'sanitize_key' ) ) {
 		return apply_filters( 'sanitize_key', $sanitized_key, $key );
 	}
 }
+
+if ( ! function_exists( 'sanitize_text_field' ) ) {
+	/**
+	 * Workalike for WordPress's `sanitize_text_field`.
+	 *
+	 * @param string $str String to sanitize.
+	 * @return string Sanitized string.
+	 */
+	function sanitize_text_field( $str ) {
+		$filtered = strip_tags( (string) $str );
+		$filtered = preg_replace( '/[\r\n\t ]+/', ' ', $filtered );
+		$filtered = trim( $filtered );
+
+		while ( preg_match( '/%[a-f0-9]{2}/i', $filtered, $match ) ) {
+			$filtered = str_replace( $match[0], '', $filtered );
+		}
+
+		return $filtered;
+	}
+}
