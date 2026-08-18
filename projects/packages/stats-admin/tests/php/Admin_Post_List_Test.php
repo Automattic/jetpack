@@ -180,6 +180,52 @@ class Admin_Post_List_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that the cell links wherever the URL filter points it.
+	 *
+	 * @return void
+	 */
+	public function test_add_stats_post_table_cell_url_is_filterable() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Filtered Test Post',
+				'post_status' => 'publish',
+				'post_author' => 1,
+			)
+		);
+
+		global $wp_query;
+		$wp_query = $this->get_wp_query_mock( $post_id );
+
+		$filtered_url = 'https://example.com/analytics/post/' . $post_id;
+		$received     = array();
+		$filter       = function ( $url, $url_post_id ) use ( &$received, $filtered_url ) {
+			$received = array( $url, $url_post_id );
+			return $filtered_url;
+		};
+		add_filter( 'jetpack_stats_post_list_column_url', $filter, 10, 2 );
+
+		$column_mock = $this->getMockBuilder( Admin_Post_List_Column::class )
+							->onlyMethods( array( 'get_stats' ) )
+							->getMock();
+		$column_mock->method( 'get_stats' )->willReturn(
+			$this->createStub( Automattic\Jetpack\Stats\WPCOM_Stats::class )
+		);
+
+		ob_start();
+		$column_mock->add_stats_post_table_cell( 'stats', $post_id );
+		$output = ob_get_clean();
+
+		remove_filter( 'jetpack_stats_post_list_column_url', $filter, 10 );
+
+		$this->assertStringContainsString( $filtered_url, html_entity_decode( $output, ENT_QUOTES, 'UTF-8' ) );
+		$this->assertStringContainsString( 'admin.php?page=stats', $received[0], 'The filter receives the unfiltered stats URL.' );
+		$this->assertSame( $post_id, $received[1] );
+
+		wp_delete_post( $post_id, true );
+		$wp_query = null;
+	}
+
+	/**
 	 * @return void
 	 */
 	public function test_add_stats_post_table_cell_with_no_stats() {

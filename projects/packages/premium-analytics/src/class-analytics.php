@@ -190,6 +190,25 @@ class Analytics {
 		Export::configure();
 
 		self::register_script_data();
+
+		// The posts and pages list tables link their views column here.
+		Post_List_Link::register();
+	}
+
+	/**
+	 * URL of a dashboard route on this site.
+	 *
+	 * The SPA path travels in `p`; the router reads that param and ignores the
+	 * rest of the query. Encoded here because add_query_arg() leaves values
+	 * alone, and a `?` inside the path would read as an outer query param.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $path Route path, e.g. `/post/123`.
+	 * @return string
+	 */
+	public static function dashboard_url( $path = '/' ) {
+		return admin_url( 'admin.php?page=' . self::MENU_PAGE_SLUG . '&p=' . rawurlencode( $path ) );
 	}
 
 	/**

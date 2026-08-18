@@ -84,6 +84,7 @@ class Analytics_Test extends TestCase {
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'admin_menu' );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
+		remove_all_filters( 'jetpack_stats_post_list_column_url' );
 		remove_all_filters( 'rest_post_dispatch' );
 		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
 		Capabilities::unregister();
@@ -153,6 +154,43 @@ class Analytics_Test extends TestCase {
 
 		$this->assertNotFalse(
 			has_filter( 'map_meta_cap', array( Capabilities::class, 'map_meta_caps' ) )
+		);
+	}
+
+	/**
+	 * The post list table's views column links here once the dashboard boots.
+	 *
+	 * @param bool $wpcom_simple Whether to boot the WordPress.com Simple path.
+	 * @dataProvider provide_init_entry_points
+	 */
+	#[DataProvider( 'provide_init_entry_points' )]
+	public function test_init_claims_the_post_list_column_link( $wpcom_simple ) {
+		$this->reset_analytics_init_state();
+
+		if ( $wpcom_simple ) {
+			Analytics::init_wpcom_simple();
+		} else {
+			Analytics::init();
+		}
+
+		$this->assertNotFalse(
+			has_filter( 'jetpack_stats_post_list_column_url', array( Post_List_Link::class, 'filter_url' ) )
+		);
+	}
+
+	/**
+	 * The SPA path travels in `p`, encoded: the router reads that param and a raw
+	 * `?` inside it would read as an outer query param instead.
+	 */
+	public function test_dashboard_url_carries_the_encoded_route_in_the_p_param() {
+		$this->assertSame(
+			admin_url( 'admin.php?page=' . self::MENU_SLUG . '&p=%2Fpost%2F123' ),
+			Analytics::dashboard_url( '/post/123' )
+		);
+
+		$this->assertStringEndsWith(
+			'&p=%2Fpost%2F123%3Fsection%3Dpost-traffic',
+			Analytics::dashboard_url( '/post/123?section=post-traffic' )
 		);
 	}
 
