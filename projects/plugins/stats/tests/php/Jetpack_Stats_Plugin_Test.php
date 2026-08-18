@@ -6,9 +6,8 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Stats\Main as Stats_Main;
-use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
+use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
 use Automattic\Jetpack\Stats_Plugin\Jetpack_Stats_Plugin;
 use WorDBless\BaseTestCase;
 
@@ -18,11 +17,41 @@ use WorDBless\BaseTestCase;
 class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 
 	/**
+	 * The Stats packages record their initialization in statics that outlive the per-test
+	 * database and hook reset, and each one registers its hooks on the first call only. Any
+	 * test that walks `plugins_loaded` would otherwise leave the next one initializing
+	 * nothing, so clear them before every test rather than in the tests that notice.
+	 */
+	public function set_up() {
+		$this->reset_static( Stats_Dashboard::class, 'initialized', false );
+		$this->reset_static( Stats_Admin_Main::class, 'instance', null );
+	}
+
+	/**
 	 * `Connection_Manager::is_connected()` caches its answer in a static, which survives
 	 * the per-test database reset. Clear it so a faked connection cannot leak.
 	 */
 	public function tear_down() {
 		( new Connection_Manager() )->reset_connection_status();
+	}
+
+	/**
+	 * Write a private static property the packages use to guard their initialization.
+	 *
+	 * @param string $class    Class holding the property.
+	 * @param string $property Property name.
+	 * @param mixed  $value    Value to write.
+	 */
+	private function reset_static( $class, $property, $value ) {
+		$reflected = new ReflectionProperty( $class, $property );
+
+		// Reflection cannot write a private property before PHP 8.1 without this, and the
+		// method is deprecated from PHP 8.5. The plugin supports 7.2, so both ends apply.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflected->setAccessible( true );
+		}
+
+		$reflected->setValue( null, $value );
 	}
 
 	/**
@@ -86,20 +115,24 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * `Stats_Admin\Dashboard` records its initialization in a static that survives the
-	 * per-test hook restore, and it registers the menu only on the first call. Clear it so a
-	 * test that expects the dashboard to register controls its own precondition.
+	 * Whether the plugin hooked a menu of its own onto `admin_menu`.
+	 *
+	 * @return bool
 	 */
-	private function reset_dashboard_initialization() {
-		$initialized = new ReflectionProperty( Stats_Dashboard::class, 'initialized' );
-
-		// Reflection cannot write a private property before PHP 8.1 without this, and the
-		// method is deprecated from PHP 8.5. The plugin supports 7.2, so both ends apply.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$initialized->setAccessible( true );
+	private function plugin_registered_an_admin_menu() {
+		if ( ! isset( $GLOBALS['wp_filter']['admin_menu'] ) ) {
+			return false;
 		}
 
-		$initialized->setValue( null, false );
+		foreach ( $GLOBALS['wp_filter']['admin_menu']->callbacks as $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				if ( is_array( $callback['function'] ) && Jetpack_Stats_Plugin::class === $callback['function'][0] ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -212,61 +245,44 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * On an unconnected site the Stats menu is still registered, but it is the stand-in
-	 * that redirects to the connection flow, not the Odyssey dashboard.
+	 * `Stats_Admin\Main` registers the dashboard while the site has no connection, where the
+	 * app offers a plan and drives the connection itself. A second registration here would
+	 * claim the same `stats` slug and hide that screen.
 	 */
-	public function test_disconnected_site_registers_the_stand_in_menu() {
+	public function test_disconnected_site_leaves_the_menu_to_the_stats_admin_package() {
+		$this->assertFalse( ( new Connection_Manager() )->is_connected(), 'Test environment is expected to be unconnected.' );
+
 		Jetpack_Stats_Plugin::initialize_other_packages();
 
-		$this->assertSame(
-			999,
-			has_action( 'admin_menu', array( Jetpack_Stats_Plugin::class, 'register_disconnected_menu' ) )
-		);
+		$this->assertFalse( $this->dashboard_menu_is_registered() );
+		$this->assertFalse( $this->plugin_registered_an_admin_menu() );
 	}
 
 	/**
-	 * The stand-in menu keeps the `stats` slug so the plugin action link, the post-activation
-	 * redirect and any bookmark stay valid across a connection. Opening it without a
-	 * connection forwards to My Jetpack onboarding.
+	 * The other half: leaving the menu to the package is only safe while the package really
+	 * registers one. Walk the plugin's own wiring — `configure_packages()` and then the
+	 * `Config` initializer — so a lost `Config::ensure( 'stats_admin' )` and a package that
+	 * stopped registering both surface here rather than as a site with no Stats menu at all.
 	 */
-	public function test_stand_in_menu_uses_the_dashboard_slug() {
-		$GLOBALS['menu'] = array();
+	public function test_disconnected_site_gets_its_menu_from_the_stats_admin_package() {
+		$this->assertFalse( ( new Connection_Manager() )->is_connected(), 'Test environment is expected to be unconnected.' );
 
-		// `add_menu_page()` checks `view_stats`, which `Stats\Main` maps to `read` for any
-		// role listed in the Stats `roles` option.
-		Stats_Main::init();
-		Stats_Options::set_option( 'roles', array( 'administrator' ) );
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'stats_admin',
-				'user_pass'  => 'password',
-				'role'       => 'administrator',
-			)
-		);
-		wp_set_current_user( $user_id );
+		Jetpack_Stats_Plugin::configure_packages();
+		do_action( 'plugins_loaded' );
 
-		Jetpack_Stats_Plugin::register_disconnected_menu();
-
-		$this->assertContains( 'stats', array_column( $GLOBALS['menu'], 2 ) );
-		$this->assertNotFalse(
-			has_action( 'load-toplevel_page_stats', array( Jetpack_Stats_Plugin::class, 'redirect_to_connection_flow' ) )
-		);
+		$this->assertTrue( $this->dashboard_menu_is_registered() );
 	}
 
 	/**
-	 * The connected counterpart of the two tests above. Both menus claim the `stats` slug, so
-	 * the dashboard must take it and the stand-in must stay out of the way.
+	 * The connected counterpart: nothing else registers the Stats menu for a connected site
+	 * running without the Jetpack plugin, so this plugin has to.
 	 */
 	public function test_connected_site_initializes_the_dashboard() {
 		$this->fake_connection();
-		$this->reset_dashboard_initialization();
 
 		Jetpack_Stats_Plugin::initialize_other_packages();
 
 		$this->assertTrue( $this->dashboard_menu_is_registered() );
-		$this->assertFalse(
-			has_action( 'admin_menu', array( Jetpack_Stats_Plugin::class, 'register_disconnected_menu' ) )
-		);
 	}
 
 	/**

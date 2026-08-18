@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers: fix the chart legend rendering its date range reversed.

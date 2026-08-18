@@ -632,10 +632,9 @@ function StageInner() {
 		() =>
 			getRowActions( {
 				navigate,
-				searchParams,
 				view: statusView,
 			} ),
-		[ navigate, searchParams, statusView ]
+		[ navigate, statusView ]
 	);
 
 	const paginationInfo = useMemo(

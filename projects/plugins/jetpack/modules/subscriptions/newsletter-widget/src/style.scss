@@ -129,4 +129,11 @@ $spacing-lg: variables.$grid-unit-20;      // 16px
 		padding: 0;
 		margin: 0;
 	}
+
+	// Core rounds dashboard postboxes to 8px but leaves overflow visible, so the
+	// footer has to round with the box or its background covers the corner.
+	.newsletter-widget__footer {
+		border-end-start-radius: variables.$radius-large;
+		border-end-end-radius: variables.$radius-large;
+	}
 }

@@ -5,5 +5,11 @@ export {
 	buildArchiveCsvRows,
 	type ArchiveRow,
 } from './fields';
-export { getReportPostsTabs, getTabLabel, resolveTabId, type ReportPostsTabId } from './tabs';
+export {
+	getReportPostsTabs,
+	getTabLabel,
+	getTabTitle,
+	resolveTabId,
+	type ReportPostsTabId,
+} from './tabs';
 export { usePostsReportRecords } from './use-report-records';

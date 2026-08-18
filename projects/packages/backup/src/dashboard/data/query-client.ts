@@ -32,6 +32,11 @@ export const queryClient = new QueryClient( {
  */
 export const keys = {
 	capabilities: () => [ 'backup', 'capabilities' ] as const,
+	// The site's recent backup attempts, from the unconditionally
+	// registered `/jetpack/v4/backups`. Polled while a backup runs, so it
+	// deliberately does not share the activity-log family's key.
+	backups: () => [ 'backup', 'backups' ] as const,
+	siteSize: () => [ 'backup', 'site-size' ] as const,
 	// Family prefix for any rewindable-activity-log page. Use as a
 	// query-filter root to scan all cached pages (e.g. when looking up
 	// a row by id across pages).

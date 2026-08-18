@@ -90,4 +90,38 @@ class Rest_Controller {
 		}
 		return $blog_id;
 	}
+
+	/**
+	 * Rebuild a restore/download `types` parameter as a named map.
+	 *
+	 * The PHP counterpart of the client's `serializeTypes`, and the reason
+	 * it exists here rather than being trusted from the request: WordPress
+	 * validates `'type' => 'object'` with `rest_is_object()`, which is
+	 * `is_array()`. A JSON list therefore passes validation and arrives as
+	 * a PHP list, whose numeric keys WPCOM reads as category names. The
+	 * route schema rejects the realistic version of that, but only because
+	 * the members fail a boolean check — shape itself is never asserted —
+	 * so the guarantee is made here, where the payload is actually built.
+	 *
+	 * Only string keys with a truthy value survive, and every surviving
+	 * value is normalized to `true`. Values are read with
+	 * `rest_sanitize_boolean()` so a form-encoded `"false"` or `"0"` means
+	 * skip rather than select.
+	 *
+	 * @param mixed $types Raw `types` parameter from the request.
+	 * @return array<string, true> Named types, empty when none are selected.
+	 */
+	public static function named_types( $types ) {
+		if ( ! is_array( $types ) && ! is_object( $types ) ) {
+			return array();
+		}
+
+		$named = array();
+		foreach ( (array) $types as $key => $value ) {
+			if ( is_string( $key ) && '' !== $key && rest_sanitize_boolean( $value ) ) {
+				$named[ $key ] = true;
+			}
+		}
+		return $named;
+	}
 }

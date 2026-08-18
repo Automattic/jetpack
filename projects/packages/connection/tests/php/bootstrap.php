@@ -23,19 +23,6 @@ if ( empty( $_SERVER['PHP_SELF'] ) ) {
 	$_SERVER['PHP_SELF'] = '';
 }
 
-// WordPress runs `_wp_cron()` on `shutdown`, handing this superglobal to
-// `str_contains()`. CLI leaves it unset, and Mockery's strictly typed polyfill turns
-// that into a fatal on PHP without a native `str_contains()`. Filling it in earlier
-// would change what the tests see, so do it last: shutdown functions run in
-// registration order, and WordPress registers its own later than this.
-register_shutdown_function(
-	function () {
-		if ( ! isset( $_SERVER['REQUEST_URI'] ) ) {
-			$_SERVER['REQUEST_URI'] = '/';
-		}
-	}
-);
-
 define( 'WP_DEBUG', true );
 
 // Preloading the file to reconcile Brain\Monkey with Wordbless.
