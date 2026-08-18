@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useStatsVisits } from '@jetpack-premium-analytics/data';
+import { useStatsVisits, withoutComparison } from '@jetpack-premium-analytics/data';
 import { Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
@@ -10,7 +10,6 @@ import {
 	useWidgetRootContext,
 	WidgetRoot,
 	WidgetState,
-	withoutComparison,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';

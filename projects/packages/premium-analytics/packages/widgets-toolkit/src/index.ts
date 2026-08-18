@@ -165,7 +165,6 @@ export {
 	toDay,
 	defaultPeriodForInterval,
 	buildMetricTab,
-	withoutComparison,
 	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,
 	granularityAttributeField,
