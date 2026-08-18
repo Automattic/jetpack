@@ -48,14 +48,14 @@ describe( 'DateRangeFilter', () => {
 		expect( screen.getByRole( 'button', { name: 'Custom' } ) ).toHaveFocus();
 
 		await user.keyboard( '{ArrowLeft}' );
-		expect( screen.getByRole( 'button', { name: 'Last 12 months' } ) ).toHaveFocus();
+		expect( screen.getByRole( 'button', { name: '12 months' } ) ).toHaveFocus();
 	} );
 
 	it( 'applies a preset immediately on click', async () => {
 		const user = userEvent.setup();
 		const { onChange, onApply } = renderFilter();
 
-		await user.click( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
+		await user.click( screen.getByRole( 'button', { name: '30 days' } ) );
 
 		expect( onChange ).toHaveBeenCalledWith(
 			expect.objectContaining( { from: expect.any( Date ), to: expect.any( Date ) } ),
