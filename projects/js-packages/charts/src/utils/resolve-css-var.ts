@@ -4,6 +4,21 @@
 const CSS_VAR_NAME_PATTERN = /^--[\w-]+$/;
 
 /**
+ * Resolves a CSS custom property (variable) to its computed value.
+ * Handles multiple formats:
+ * - Plain variable names: '--my-color'
+ * - CSS var() syntax: 'var(--my-color)'
+ * - CSS var() with fallback: 'var(--my-color, #ffffff)'
+ * - Regular values (returned as-is): '#ffffff', 'red'
+ *
+ * @param value   - A CSS variable name, var() expression, or regular value
+ * @param element - Optional DOM element to resolve the variable from (defaults to document.documentElement)
+ * @return The resolved value, fallback value, or null if unresolvable
+ */
+export const resolveCssVariable = ( value: string, element?: HTMLElement | null ): string | null =>
+	createCssVariableResolver( element )( value );
+
+/**
  * Builds a resolver that reads every value from one `getComputedStyle` snapshot.
  *
  * `getComputedStyle` is the expensive half of resolving a token: each call can force the browser to flush pending style, and a chart theme resolves five roles at once. Taking the snapshot once per build turns that into a single query. The reads that share a snapshot happen synchronously inside one memo body, so no style change can land between them — the resolver is single-pass by design and is not meant to be held across renders.
@@ -11,9 +26,9 @@ const CSS_VAR_NAME_PATTERN = /^--[\w-]+$/;
  * @param element - The element to resolve against, or null/undefined for the document root.
  * @return A resolver that resolves each value exactly as `resolveCssVariable` does.
  */
-export const createCssVariableResolver = (
+export function createCssVariableResolver(
 	element?: HTMLElement | null
-): ( ( value: string ) => string | null ) => {
+): ( value: string ) => string | null {
 	let styles: CSSStyleDeclaration | null = null;
 
 	// Deferred so a resolver for a theme that turns out to hold only literals costs nothing. Only a successful read is kept: caching the null would leave a resolver built before its element is in the document dead for the rest of its life.
@@ -25,7 +40,7 @@ export const createCssVariableResolver = (
 		return styles;
 	};
 
-	return value => {
+	return ( value: string ): string | null => {
 		if ( ! value ) {
 			return null;
 		}
@@ -50,22 +65,7 @@ export const createCssVariableResolver = (
 		// Return regular values as-is (e.g., '#ffffff', 'red')
 		return value;
 	};
-};
-
-/**
- * Resolves a CSS custom property (variable) to its computed value.
- * Handles multiple formats:
- * - Plain variable names: '--my-color'
- * - CSS var() syntax: 'var(--my-color)'
- * - CSS var() with fallback: 'var(--my-color, #ffffff)'
- * - Regular values (returned as-is): '#ffffff', 'red'
- *
- * @param value   - A CSS variable name, var() expression, or regular value
- * @param element - Optional DOM element to resolve the variable from (defaults to document.documentElement)
- * @return The resolved value, fallback value, or null if unresolvable
- */
-export const resolveCssVariable = ( value: string, element?: HTMLElement | null ): string | null =>
-	createCssVariableResolver( element )( value );
+}
 
 /**
  * Parses a var() expression into its variable name and optional fallback.
