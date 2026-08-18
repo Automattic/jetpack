@@ -64,4 +64,13 @@
 	&__description {
 		margin: 0;
 	}
+
+	// The variants carry size and weight; only the colours are ours.
+	&__title {
+		color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+	}
+
+	&__description {
+		color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+	}
 }

@@ -3,11 +3,9 @@
  * Renders a link when `href` is given, a button otherwise.
  */
 
-import {
-	Icon,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Icon } from '@wordpress/components';
 import { chevronRight } from '@wordpress/icons';
+import { Text } from '@wordpress/ui';
 
 import './style.scss';
 
@@ -40,11 +38,11 @@ export default function NavRow( { icon, title, description, href, onClick, tone 
 				<Icon icon={ icon } size={ 24 } />
 			</span>
 			<span className="jetpack-ai-nav-row__text">
-				<Text render={ <p /> } className="jetpack-ai-nav-row__title" weight={ 600 }>
+				<Text render={ <p /> } variant="heading-lg" className="jetpack-ai-nav-row__title">
 					{ title }
 				</Text>
 				{ description && (
-					<Text render={ <p /> } className="jetpack-ai-nav-row__description" variant="muted">
+					<Text render={ <p /> } variant="body-md" className="jetpack-ai-nav-row__description">
 						{ description }
 					</Text>
 				) }
