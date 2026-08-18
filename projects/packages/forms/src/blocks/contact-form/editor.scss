@@ -221,7 +221,7 @@
 		// .is-layout-grid)) > .wp-block` does not skip it and hands its children
 		// `margin-inline: auto`. Auto margins absorb a flex item's free space, and
 		// a multistep form is vertical, so on the cross axis that beats the step's
-		// own `align-items` and centres anything narrower than the row: a
+		// own `align-items` and centers anything narrower than the row: a
 		// paragraph, a heading, or a field with a width setting. Only blocks the
 		// container rule in jetpack-forms-layout.scss already stretches escape it.
 		// The front end never had this — grunion.scss gives step children
@@ -231,8 +231,8 @@
 		// `aligncenter` is the one place auto inline margins are meant, so leave
 		// it alone.
 		// Clearing the margins is only half of it: a block also has to be wide
-		// enough for the centring to be visible, or `text-align: center` has
-		// nothing to centre. That half is `:where(.wp-block-jetpack-form-step) > *`
+		// enough for the centering to be visible, or `text-align: center` has
+		// nothing to center. That half is `:where(.wp-block-jetpack-form-step) > *`
 		// in jetpack-forms-layout.scss, which both surfaces share — the width
 		// problem is not editor-specific. Only the auto margins are, so only they
 		// are handled here.
@@ -278,7 +278,7 @@
 	// here is the inline axis, which is load-bearing. classic.min.css also sets
 	// `margin-left: auto; margin-right: auto` on the direct children of anything
 	// that is not `is-layout-flex`/`grid`, and the options list is neither, so
-	// without this its rows would centre instead of sitting at `flex-start`.
+	// without this its rows would center instead of sitting at `flex-start`.
 	[data-type="jetpack/field-checkbox-multiple"],
 	[data-type="jetpack/field-radio"] {
 
