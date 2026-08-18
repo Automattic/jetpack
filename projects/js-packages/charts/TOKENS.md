@@ -26,7 +26,7 @@ Charts reference the catalog bare — `stroke: var(--a8c-charts-color-grid)`. Fo
 
 Highest first:
 
-1. The role set on the chart element, or on any element between it and the provider — the closest declaration wins.
+1. The role set on any element between the chart and the provider — the closest declaration wins. A role set on the chart's *own* element reaches only what CSS paints; see "The SVG bridge".
 2. The role set by a consumer rule targeting the provider wrapper. It beats the catalog default because `:where()` is zero-specificity.
 3. The theme layer `GlobalChartsProvider` writes inline from a `theme` prop override — see below.
 4. The catalog default on the provider wrapper, resolving the mapped `--wpds-*` token.
@@ -72,6 +72,8 @@ The consequence: `--a8c-charts-color-label` moves every label, but no single rol
 ### The SVG bridge
 
 visx and Google Charts apply colours as SVG presentation attributes, where `var()` does not resolve. Those colours are resolved in JS through `getComputedStyle` against the chart's own scope element — never `document.documentElement` — so both delivery paths obey the same cascade. The JS theme in `themes.ts` therefore holds a bare catalog pointer with a terminal literal (`var(--a8c-charts-color-grid, #dbdbdb)`); the literal is the last resort for SSR and jsdom, where `getComputedStyle` resolves nothing.
+
+The scope element is the wrapper a chart is rendered into, which sits **above** the element the chart's own `className` lands on. A role declared on that inner element is therefore invisible to this bridge: `.line-chart { --a8c-charts-color-grid: red }` recolours what the chart paints in CSS and leaves the gridlines, axis lines and tick labels at the inherited value, because the SVG carries a value already resolved higher up. Scope such a rule to a wrapper around the chart, not to the chart itself. CHARTS-255 tracks closing this.
 
 `GeoChart` (Google Charts) takes a resolved-hex snapshot at render, so it does not live-update on a theme change without a re-render.
 

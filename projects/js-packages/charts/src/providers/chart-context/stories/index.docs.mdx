@@ -174,7 +174,7 @@ A field you leave out doesn't fall back to a separate JS default value — it fa
 
 ### CSS Custom Property Overrides
 
-The package's `--a8c-charts-*` token catalog is emitted once, on the `GlobalChartsProvider` wrapper element, so you can retheme any chart with plain CSS — no `theme` prop required, as long as a `GlobalChartsProvider` is present (every chart either sits under one explicitly or auto-mounts its own). Set the role you want to change on the provider wrapper, or on any element **inside** the provider tree between the wrapper and the chart; the closest such declaration wins:
+The package's `--a8c-charts-*` token catalog is emitted once, on the `GlobalChartsProvider` wrapper element, so you can retheme any chart with plain CSS — no `theme` prop required, as long as a `GlobalChartsProvider` is present (every chart either sits under one explicitly or auto-mounts its own). Set the role you want to change on the provider wrapper, or on any element **inside** the provider tree that is an **ancestor** of the chart; the closest such declaration wins:
 
 ```css
 .my-dashboard {
@@ -201,7 +201,9 @@ Setting these on an ancestor of `GlobalChartsProvider` has no effect — the pro
 
 That rule matches every provider wrapper — including the one a bare chart mounts for itself — and it beats the catalog default, which is declared through `:where()` at zero specificity. If you previously set `--a8c-charts-*` on `:root` or on a wrapper above your charts, this is the replacement. See TOKENS.md for the full precedence order.
 
-Two placements need care:
+Three placements need care:
+
+- **A chart's own class is too deep to reach the SVG colours.** Setting a role on the element a chart's `className` lands on — `.line-chart { --a8c-charts-color-grid: … }` — moves everything that chart paints in CSS, but not the gridlines, axis lines or tick labels: visx and Google Charts need concrete values, which are resolved in JS at the chart's scope element, an ancestor of the class you targeted. The result is a half-applied override, so scope this kind of rule to a wrapper **around** the chart instead. Supporting it on the chart itself is tracked in CHARTS-255.
 
 - **Tooltips rendered in a portal** — the line and area chart tooltips — sit outside the provider's DOM tree, so they re-declare the catalog on themselves and never see an override scoped to the provider or to an element inside it. They do carry the scope class, so the `.a8c-charts-scope` rule above reaches them.
 - **`@wordpress/theme`'s `ThemeProvider` belongs above `GlobalChartsProvider`**, not between it and a chart. The catalog reads its `--wpds-*` tokens at the provider wrapper, so a `ThemeProvider` mounted below that wrapper is never consulted and CSS-painted colors keep the light-mode spec values.
