@@ -5,7 +5,8 @@ import { dateI18n, getSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
-import { withShortMonth, withWeekday, withoutYear } from './php-format';
+import { intlLocale } from './elide-range';
+import { hasToken, withShortMonth, withWeekday, withoutYear } from './php-format';
 
 /** Fixed because this format backs form values and query parameters. */
 const ISO_FORMAT = 'Y-m-d';
@@ -105,4 +106,52 @@ export const formatWeekday = ( weekday: number ): string => {
 	const weekdays = getSettings().l10n.weekdays as string[];
 
 	return weekdays[ weekday ] ?? '';
+};
+
+/** 12-hour clock tokens, zero-padded and not. */
+const TWELVE_HOUR_TOKENS = new Set( [ 'g', 'h' ] );
+
+/** The lowercase meridiem token; `A` is its uppercase counterpart. */
+const LOWERCASE_MERIDIEM_TOKENS = new Set( [ 'a' ] );
+
+/**
+ * Render an hour of the day the way the site's locale names one.
+ *
+ * `Intl` is asked for the hour rather than an hour-only pattern being derived
+ * from `time_format`, which names minutes these buckets never carry. It also
+ * supplies the unit a locale attaches to a bare hour (`19 Uhr`, `19時`), which
+ * no subset of the site's format spells out. Only the clock's length and the
+ * meridiem's case are still read from `time_format`: those are the site's
+ * choice, not the locale's.
+ *
+ * @param hour - Site-local hour, 0–23.
+ * @return The localized hour label, e.g. `7 pm`, `19`, or `19時`.
+ */
+export const formatHourOfDay = ( hour: number ): string => {
+	const timeFormat = getSettings().formats.time;
+	const isTwelveHour = hasToken( timeFormat, TWELVE_HOUR_TOKENS );
+	// A UTC date read back in UTC: the bucket is already site-local, and
+	// converting it again would move it.
+	const date = new Date( Date.UTC( 2001, 0, 1, hour ) );
+	const locale = intlLocale();
+
+	if ( ! locale ) {
+		return dateI18n( isTwelveHour ? 'g a' : 'G', date, '+00:00' );
+	}
+
+	const parts = new Intl.DateTimeFormat( locale, {
+		hour: 'numeric',
+		// `hour12` leaves the cycle to the locale, which can answer midnight as
+		// `24`; the explicit cycles do not.
+		hourCycle: isTwelveHour ? 'h12' : 'h23',
+		timeZone: 'UTC',
+	} ).formatToParts( date );
+
+	const lowercaseMeridiem = hasToken( timeFormat, LOWERCASE_MERIDIEM_TOKENS );
+
+	return parts
+		.map( part =>
+			part.type === 'dayPeriod' && lowercaseMeridiem ? part.value.toLowerCase() : part.value
+		)
+		.join( '' );
 };
