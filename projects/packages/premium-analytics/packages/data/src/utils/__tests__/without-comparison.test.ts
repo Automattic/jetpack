@@ -1,6 +1,7 @@
 /**
  * Internal dependencies
  */
+import { hasComparisonEnabled } from '../search';
 import { withoutComparison } from '../without-comparison';
 import type { ReportParams } from '../search';
 
@@ -36,6 +37,16 @@ describe( 'withoutComparison', () => {
 
 	it( 'leaves params that carry no comparison untouched', () => {
 		expect( withoutComparison( PARAMS ) ).toEqual( PARAMS );
+	} );
+
+	/*
+	 * The two halves of the same notion, and the reason the report pages can
+	 * strip a comparison and trust it is gone. It holds only while the fields
+	 * `hasComparisonEnabled` reads stay a subset of the ones removed here.
+	 */
+	it( 'leaves nothing `hasComparisonEnabled` still recognises', () => {
+		expect( hasComparisonEnabled( COMPARING_PARAMS ) ).toBe( true );
+		expect( hasComparisonEnabled( withoutComparison( COMPARING_PARAMS ) ) ).toBe( false );
 	} );
 
 	it( 'does not mutate the input', () => {
