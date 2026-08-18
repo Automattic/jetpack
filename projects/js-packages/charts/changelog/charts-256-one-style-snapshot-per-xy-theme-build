@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Resolve an XY chart theme's colour roles from a single computed-style snapshot instead of one per role.
