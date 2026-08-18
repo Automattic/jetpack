@@ -15,8 +15,6 @@ export const BASE_BAND_PADDING_INNER = 0.1;
 /** Ticks each axis carries unless the caller asks for a different count. */
 const DEFAULT_NUM_TICKS = 4;
 
-// Shared rather than a fresh literal: this lands in the dependencies of every
-// memo below, so defaulting inline recomputed all of them on every render.
 // A stable reference for callers that hide no series, so the memos below hold.
 const ALL_RENDERED = () => true;
 
