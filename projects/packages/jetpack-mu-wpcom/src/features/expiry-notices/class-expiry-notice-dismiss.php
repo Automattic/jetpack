@@ -7,6 +7,14 @@
  * the dismissal. `sanitize_callback` substitutes `time()` for whatever the
  * client posts, so clients don't need to be trusted with a timestamp.
  *
+ * Notices dismiss per surface and the modal dismisses everywhere, so they do
+ * not share a key. Dismissing the reverted-site notice in the hosting
+ * dashboard is meant to leave wp-admin's showing — "it'll show once again in
+ * the admin" — whereas closing the modal on one page is meant to remove it
+ * from all of them. Each notice surface therefore gets its own key; when the
+ * hosting-dashboard notice lands it registers a sibling of META_BANNER rather
+ * than reusing it.
+ *
  * @package automattic/jetpack-mu-wpcom
  */
 
@@ -19,8 +27,10 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
  */
 class Expiry_Notice_Dismiss {
 
-	const META_BANNER = 'wpcom_plan_expiry_banner_dismiss';
-	const META_MODAL  = 'wpcom_plan_expiry_modal_dismiss';
+	// Scoped to wp-admin: this notice's dismissal is its own, not the platform's.
+	const META_BANNER = 'wpcom_plan_expiry_notice_dismiss_wp_admin';
+	// Not scoped: one dismissal of the modal clears it on every surface.
+	const META_MODAL = 'wpcom_plan_expiry_modal_dismiss';
 
 	const FINAL_WINDOW_DAYS = 7;
 

@@ -91,6 +91,18 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		$this->assertTrue( Expiry_Notice_Dismiss::should_show_banner( $this->state( 45 ), $user_id ) );
 	}
 
+	public function test_the_notice_and_modal_dismissals_are_stored_separately(): void {
+		// The notice dismisses per surface and the modal dismisses everywhere, so
+		// sharing a key would make one silence the other.
+		$this->assertNotSame( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL );
+	}
+
+	public function test_the_wp_admin_notice_dismissal_key_is_surface_scoped(): void {
+		// Dismissing the reverted-site notice in the hosting dashboard must leave
+		// wp-admin's showing, so the key can't be a generic platform-wide one.
+		$this->assertStringEndsWith( '_wp_admin', Expiry_Notice_Dismiss::META_BANNER );
+	}
+
 	public function test_register_user_meta_registers_both_dismiss_keys(): void {
 		Expiry_Notice_Dismiss::register_user_meta();
 		$registered = get_registered_meta_keys( 'user' );
