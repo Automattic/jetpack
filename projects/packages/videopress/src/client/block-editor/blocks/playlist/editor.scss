@@ -174,7 +174,9 @@
 
 	&__layout-sketch {
 		display: block;
-		block-size: 22px;
+
+		/* Fixed desktop proportions (66.664 × 39 px) at every screen size. */
+		aspect-ratio: 66.664 / 39;
 		position: relative;
 
 		i {
