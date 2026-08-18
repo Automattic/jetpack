@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { toPostId } from '@jetpack-premium-analytics/data';
+import { STATS_CHART_BUCKET_PERIODS, toPostId } from '@jetpack-premium-analytics/data';
 import {
 	MetricTabsChart,
 	WidgetRoot,
@@ -20,7 +20,6 @@ import { video } from '@wordpress/icons';
  */
 import styles from './style.module.css';
 import useVideoViews from './use-video-views';
-import type { StatsChartBucketPeriod } from '@jetpack-premium-analytics/data';
 import type {
 	VideoDetailViewsPerformanceAttributes,
 	VideoDetailViewsPerformanceChartType,
@@ -37,14 +36,6 @@ const DATA_FORMAT = {
 	options: { useMultipliers: true, decimals: 0 },
 };
 
-// Ordered finest to coarsest, as `defaultPeriodForInterval` requires. The
-// endpoint serves daily history; these are the buckets it is summed into.
-const VIDEO_VIEWS_PERIODS = [
-	'day',
-	'week',
-	'month',
-] as const satisfies readonly StatsChartBucketPeriod[];
-
 type VideoDetailViewsPerformanceInnerProps = {
 	/** How the views series is drawn. `MetricTabsChart` owns the default. */
 	chartType?: VideoDetailViewsPerformanceChartType;
@@ -57,7 +48,7 @@ type VideoDetailViewsPerformanceInnerProps = {
 function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerformanceInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const videoId = toPostId( reportParams.post_id );
-	const period = defaultPeriodForInterval( reportParams.interval, VIDEO_VIEWS_PERIODS );
+	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
 	const { current, isLoading, isFetching, isError, error, hasData, refetch } = useVideoViews(
 		videoId,

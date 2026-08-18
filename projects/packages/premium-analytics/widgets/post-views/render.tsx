@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { toPostId } from '@jetpack-premium-analytics/data';
+import { STATS_CHART_BUCKET_PERIODS, toPostId } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTabsChart,
@@ -19,7 +19,7 @@ import { __ } from '@wordpress/i18n';
  */
 import styles from './style.module.css';
 import usePostViews from './use-post-views';
-import type { StatsChartBucketPeriod } from '@jetpack-premium-analytics/data';
+
 import type { PostViewsAttributes, PostViewsChartType } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -30,14 +30,6 @@ const DATA_FORMAT = {
 	type: 'number' as const,
 	options: { useMultipliers: true, decimals: 0 },
 };
-
-// Ordered finest to coarsest, as `defaultPeriodForInterval` requires. The
-// endpoint serves daily history; these are the buckets it is summed into.
-const POST_VIEWS_PERIODS = [
-	'day',
-	'week',
-	'month',
-] as const satisfies readonly StatsChartBucketPeriod[];
 
 type PostViewsInnerProps = {
 	/** How the views series is drawn. `MetricTabsChart` owns the default. */
@@ -51,7 +43,7 @@ type PostViewsInnerProps = {
 function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
-	const period = defaultPeriodForInterval( reportParams.interval, POST_VIEWS_PERIODS );
+	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
 	const { current, isLoading, isFetching, isError, hasData, refetch } = usePostViews(
 		postId,

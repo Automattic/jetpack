@@ -11,7 +11,11 @@ export type {
 	FlattenStatsLeavesOptions,
 	StatsComparisonRowContext,
 } from './utils';
-export { bucketStatsTimeSeries, getStatsChartBucketKey } from './chart-buckets';
+export {
+	bucketStatsTimeSeries,
+	getStatsChartBucketKey,
+	STATS_CHART_BUCKET_PERIODS,
+} from './chart-buckets';
 export type { StatsChartBucketPeriod } from './chart-buckets';
 export { aggregateStatsDrilldownRows } from './drilldown-rows';
 export type {

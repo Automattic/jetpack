@@ -6,6 +6,9 @@ import type { ReactNode } from 'react';
 let mockSearch: Record< string, unknown > = {};
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	// Minimal stub: the real module is heavy. Mirrors STATS_CHART_BUCKET_PERIODS
+	// in packages/data/src/processing/stats/chart-buckets.ts.
+	STATS_CHART_BUCKET_PERIODS: [ 'day', 'week', 'month' ],
 	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );

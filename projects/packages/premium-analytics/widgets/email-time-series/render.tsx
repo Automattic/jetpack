@@ -6,7 +6,7 @@ import {
 	toPostId,
 	useStatsEmailClicksTimeSeries,
 	useStatsEmailOpensTimeSeries,
-	type StatsChartBucketPeriod,
+	STATS_CHART_BUCKET_PERIODS,
 	type StatsEmailTimeSeriesReport,
 } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
@@ -54,14 +54,6 @@ function metricLabel( metric: EmailTimeSeriesMetric ): string {
 		: __( 'Total opens', 'jetpack-premium-analytics-pkg' );
 }
 
-// Ordered finest to coarsest, as `defaultPeriodForInterval` requires. The
-// endpoint reports daily buckets; these are what they are aggregated into.
-const EMAIL_TIME_SERIES_PERIODS = [
-	'day',
-	'week',
-	'month',
-] as const satisfies readonly StatsChartBucketPeriod[];
-
 type EmailTimeSeriesReportProps = {
 	metric: EmailTimeSeriesMetric;
 	/** How the timeline is drawn. `MetricTabsChart` owns the default. */
@@ -81,7 +73,7 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 	const hasSelection = postId > 0;
-	const period = defaultPeriodForInterval( reportParams.interval, EMAIL_TIME_SERIES_PERIODS );
+	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
 	// Both hooks are called every render (hooks rule); only the active
 	// metric's query is enabled.

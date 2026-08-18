@@ -2,16 +2,17 @@
  * External dependencies
  */
 import { useMemo } from '@wordpress/element';
+import { STATS_CHART_BUCKET_PERIODS } from '@jetpack-premium-analytics/data';
 import { defaultPeriodForInterval } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { IntervalType } from '@jetpack-premium-analytics/data';
 
 /**
- * The buckets the detail pages' charts can draw. Their series are summed from
- * daily history client-side, so the `hour` interval a one-day range offers and
- * the `quarter`/`year` intervals a multi-year range offers are all coerced into
- * this set before a chart ever sees them.
+ * The buckets these charts draw, as an `IntervalType` list. They sum daily
+ * history client-side, so the `hour` a one-day range offers and the
+ * `quarter`/`year` a multi-year range offers are all coerced into this set
+ * before a chart ever sees them.
  */
-const DETAIL_CHART_INTERVALS: readonly IntervalType[] = [ 'day', 'week', 'month' ];
+const HONOURED_INTERVALS: readonly IntervalType[] = STATS_CHART_BUCKET_PERIODS;
 
 type DetailChartIntervals = {
 	withIntervalControl: boolean;
@@ -37,7 +38,7 @@ export function useDetailChartIntervals(
 	intervalOptions: IntervalType[]
 ): DetailChartIntervals {
 	return useMemo( () => {
-		const honoured = intervalOptions.filter( option => DETAIL_CHART_INTERVALS.includes( option ) );
+		const honoured = intervalOptions.filter( option => HONOURED_INTERVALS.includes( option ) );
 
 		if ( ! honoured.length ) {
 			return { withIntervalControl: false, interval, intervalOptions: [] };
