@@ -77,7 +77,7 @@ class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 	 * @return void
 	 */
 	private function make_email_subscriber_active( string $status = 'active' ) {
-		Blog_Subscriber::$subscribers_by_email = array( self::SUBSCRIBER_EMAIL => (object) array() );
+		Blog_Subscriber::$subscribers_by_email = array( self::SUBSCRIBER_EMAIL => new Blog_Subscriber() );
 		Blog_Subscription::$status             = $status;
 	}
 
