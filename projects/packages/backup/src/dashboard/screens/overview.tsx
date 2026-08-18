@@ -159,8 +159,19 @@ export default function OverviewScreen() {
 			 * still failing, so the report moves here rather than vanishing
 			 * with it. See `BackupTroubleBanner` for why those were two jobs
 			 * in one predicate.
+			 *
+			 * Held back while the activity log is still loading. Both
+			 * queries start together and `/jetpack/v4/backups` is one round
+			 * trip against the activity log's paginated one, so it normally
+			 * wins — and during that window the veto is still up, which puts
+			 * us here. On a site that turns out to have no restore points
+			 * the veto then lifts and the takeover panel replaces the body,
+			 * saying the same thing the banner just said. Waiting costs
+			 * nothing and avoids announcing the most alarming state in the
+			 * dashboard twice in two different shapes. `isError` is not
+			 * loading, so the terminal case still reports immediately.
 			 */ }
-			<BackupTroubleBanner state={ backupsState } />
+			{ ! restorePointsLoading && <BackupTroubleBanner state={ backupsState } /> }
 			<div className="jpb-overview">
 				<ActivityList
 					selectedId={ selectedId }

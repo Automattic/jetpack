@@ -80,24 +80,37 @@ export default function DownloadScreen() {
 							</Text>
 							<RestoreItemsChecklist value={ items } onChange={ setItems } />
 							{ /*
-							 * `role="status"` so clearing the last box is announced, and
-							 * `aria-describedby` so the reason travels with the control.
-							 * Without both, the guard whose whole purpose is telling the
-							 * reader before they click tells nobody who cannot see it:
-							 * `@wordpress/ui` renders a disabled button as `aria-disabled`
-							 * and keeps it focusable, so it is reachable but silent about
-							 * why.
+							 * The live region is mounted unconditionally and only its text
+							 * changes. A region that appears together with its first message
+							 * is unreliable — assistive tech generally needs it in the tree
+							 * before the content changes, and VoiceOver in particular often
+							 * misses the simultaneous case. `jpb-visually-hidden` takes it out
+							 * of flow while empty rather than unmounting it, because this card
+							 * is a flex column with a gap and an in-flow empty node would cost
+							 * 16px of dead space on every render where there is nothing to say.
+							 *
+							 * `aria-describedby` is likewise unconditional: it resolves to the
+							 * same element either way, and an empty target contributes nothing
+							 * to the accessible description. Between them the reader is told
+							 * both when they clear the last box and when they reach the button
+							 * — @wordpress/ui renders a disabled button as focusable
+							 * `aria-disabled`, so it is reachable but silent about why.
 							 */ }
-							{ ! hasSelection && (
-								<Text id={ SELECTION_HINT_ID } variant="body-sm" role="status">
-									{ __( 'Select at least one item to download.', 'jetpack-backup-pkg' ) }
-								</Text>
-							) }
+							<Text
+								id={ SELECTION_HINT_ID }
+								variant="body-sm"
+								role="status"
+								className={ hasSelection ? 'jpb-visually-hidden' : undefined }
+							>
+								{ hasSelection
+									? ''
+									: __( 'Select at least one item to download.', 'jetpack-backup-pkg' ) }
+							</Text>
 							<Button
 								className="jpb-download__confirm"
 								variant="solid"
 								disabled={ ! hasSelection || state.phase === 'submitting' }
-								aria-describedby={ hasSelection ? undefined : SELECTION_HINT_ID }
+								aria-describedby={ SELECTION_HINT_ID }
 								onClick={ handleGenerate }
 							>
 								{ state.phase === 'submitting' ? (

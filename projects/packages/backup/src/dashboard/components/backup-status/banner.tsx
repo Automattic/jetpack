@@ -101,7 +101,10 @@ export function BackupTroubleBanner( { state }: { state: BackupsState } ) {
 	return (
 		<Stack className="jpb-backup-trouble-banner" direction="column" gap="xs" role="status">
 			<Text variant="body-sm">
-				{ __( "We're having trouble backing up your site.", 'jetpack-backup-pkg' ) }
+				{
+					/* translators: sentence form of the takeover panel's heading, which is the same words without the full stop. The two render in mutually exclusive situations — this one is a line of body copy, that one a title — so both spellings are wanted. */
+					__( "We're having trouble backing up your site.", 'jetpack-backup-pkg' )
+				}
 			</Text>
 			<Text variant="body-sm">
 				<ContactSupportLine />

@@ -121,6 +121,28 @@ describe( 'Download screen with nothing selected', () => {
 		expect( button( /Generate download/ ) ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 
+	// The reason has to reach someone who cannot see it. Both halves of
+	// that depend on `@wordpress/ui`'s `Text` forwarding arbitrary props,
+	// which that package does not promise — so if a release stopped
+	// forwarding `id`, `aria-describedby` would dangle and every other
+	// assertion here would stay green.
+	it( 'points the button at the hint, and keeps the live region mounted', async () => {
+		render( <DownloadStage /> );
+
+		// Mounted and empty before anything is wrong: a live region that
+		// appears together with its first message is unreliable.
+		const hint = await screen.findByRole( 'status', undefined, SETTLE );
+		expect( hint ).toBeEmptyDOMElement();
+		expect( button( /Generate download/ ) ).toHaveAttribute( 'aria-describedby', hint.id );
+
+		await untickEverything();
+
+		// The same element, now carrying the message — an update to a
+		// region already in the tree, not an insertion.
+		expect( screen.getByRole( 'status' ) ).toBe( hint );
+		expect( hint ).toHaveTextContent( 'Select at least one item to download.' );
+	} );
+
 	it( 'issues no request when the button is clicked anyway', async () => {
 		render( <DownloadStage /> );
 		await untickEverything();
