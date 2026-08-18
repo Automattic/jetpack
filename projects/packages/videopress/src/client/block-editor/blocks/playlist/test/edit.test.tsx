@@ -8,6 +8,12 @@ import type { BlockEditProps } from '@wordpress/blocks';
 // What the mocked media library modal "selects" when the button is clicked.
 let mockMediaSelection: unknown = [];
 
+// The publish-tracking hook has its own isolated test suite.
+jest.mock( '../use-publish-tracking', () => ( {
+	__esModule: true,
+	default: jest.fn(),
+} ) );
+
 jest.mock( '@wordpress/block-editor', () => ( {
 	useBlockProps: ( props: Record< string, unknown > = {} ) => props,
 	InspectorControls: ( { children }: { children: React.ReactNode } ) => (
@@ -89,6 +95,7 @@ function renderEdit(
 	const props = {
 		attributes: { ...DEFAULT_ATTRIBUTES, ...overrides },
 		setAttributes,
+		clientId: 'playlist-client-1',
 	} as unknown as BlockEditProps< PlaylistAttributes >;
 
 	render( <PlaylistEdit { ...props } /> );

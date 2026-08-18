@@ -28,6 +28,7 @@ import { fetchVideoItem } from '../../../lib/fetch-video-item';
 import { isVideoPressGuid, pickGUIDFromUrl } from '../../../lib/url';
 import { VideoPressIcon } from '../video/components/icons';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../video/constants';
+import usePublishTracking from './use-publish-tracking';
 import {
 	formatRuntime,
 	formatTimecode,
@@ -316,11 +317,13 @@ function PlaylistPreview( {
  * @param props               - Block edit props.
  * @param props.attributes    - Block attributes.
  * @param props.setAttributes - Attribute setter.
+ * @param props.clientId      - This block instance's client id.
  * @return Edit component.
  */
 export default function PlaylistEdit( {
 	attributes,
 	setAttributes,
+	clientId,
 }: BlockEditProps< PlaylistAttributes > ) {
 	const {
 		videos,
@@ -408,6 +411,9 @@ export default function PlaylistEdit( {
 	}, [ videos ] );
 
 	const displayTitle = ( guid: string ) => liveMetadata[ guid ]?.title || guid;
+
+	// Records a Tracks event when a post/page is published with the playlist.
+	usePublishTracking( { clientId, layout, videoCount: videos.length } );
 
 	const currentIndex = Math.min( previewIndex, Math.max( 0, videos.length - 1 ) );
 	const isLongPlaylist = videos.length > LONG_PLAYLIST_THRESHOLD;
