@@ -5,34 +5,3 @@
 	block-size: 100%;
 	min-block-size: 0;
 }
-
-.body {
-	display: flex;
-	flex-direction: column;
-	block-size: 100%;
-	min-block-size: 0;
-	gap: var(--wpds-dimension-gap-sm);
-}
-
-/* The weekday and its view count sit on one line in the prototype, with the
-   count riding the weekday's baseline. `baseline` alignment keeps that true as
-   the two font sizes change. */
-.headline {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: baseline;
-	gap: var(--wpds-dimension-gap-sm);
-}
-
-.views {
-	color: var(--wpds-color-foreground-content-neutral-weak);
-}
-
-/* `Sparkline` is the responsive variant, so it fills this box: let the box take
-   whatever the headline leaves, rather than pinning it to a fixed band that
-   strands empty space as the card grows. `min-block-size: 0` is what lets a
-   flex child shrink below its content size. */
-.chart {
-	flex: 1 1 auto;
-	min-block-size: 0;
-}

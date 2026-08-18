@@ -6,6 +6,8 @@ export {
 	MetricTileGrid,
 	MetricValue,
 	MetricWithComparison,
+	PeakDistribution,
+	type PeakDistributionProps,
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
 	ComparativeBarChart,
