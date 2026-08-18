@@ -8,5 +8,3 @@ export const useChartInstanceContext = (): ChartInstanceContextValue => {
 	}
 	return context;
 };
-
-export const useSingleChartContext = useChartInstanceContext;

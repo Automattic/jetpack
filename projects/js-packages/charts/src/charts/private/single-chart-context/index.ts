@@ -1,8 +1,3 @@
-export { SingleChartContext, ChartInstanceContext } from './single-chart-context';
-export { useChartInstanceContext, useSingleChartContext } from './use-single-chart-context';
-export type {
-	ChartInstanceContextValue,
-	ChartInstanceRef,
-	SingleChartContextValue,
-	SingleChartRef,
-} from './single-chart-context';
+export { ChartInstanceContext } from './single-chart-context';
+export { useChartInstanceContext } from './use-single-chart-context';
+export type { ChartInstanceContextValue, ChartInstanceRef } from './single-chart-context';
