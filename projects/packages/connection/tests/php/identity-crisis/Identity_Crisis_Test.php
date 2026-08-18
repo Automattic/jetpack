@@ -21,6 +21,13 @@ class Identity_Crisis_Test extends BaseTestCase {
 	const TEST_URL = 'https://www.example.org/test';
 
 	/**
+	 * Capability filter registered by set_up_disconnect_user(), so it can be removed again.
+	 *
+	 * @var callable|null
+	 */
+	private $disconnect_cap_filter = null;
+
+	/**
 	 * Set up tests.
 	 */
 	public function set_up() {
@@ -35,6 +42,12 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 * Tear down tests.
 	 */
 	public function tear_down() {
+		if ( $this->disconnect_cap_filter !== null ) {
+			remove_filter( 'user_has_cap', $this->disconnect_cap_filter );
+			$this->disconnect_cap_filter = null;
+			wp_set_current_user( 0 );
+		}
+
 		Constants::clear_constants();
 		StatusCache::clear();
 
@@ -1791,5 +1804,80 @@ class Identity_Crisis_Test extends BaseTestCase {
 		$this->assertGreaterThan( $initial_sync_error['last_checked'], $stored_option['last_checked'] );
 		// next_check_delay should be doubled (exponential backoff).
 		$this->assertEquals( 7200, $stored_option['next_check_delay'] );
+	}
+
+	/**
+	 * Grants the current user the capability wordpress_init() gates on.
+	 *
+	 * @return void
+	 */
+	private function set_up_disconnect_user() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'idc_nonce_user',
+				'user_pass'  => 'password',
+				'user_email' => 'idc_nonce_user@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$this->disconnect_cap_filter = function ( $allcaps ) {
+			$allcaps['jetpack_disconnect'] = true;
+			return $allcaps;
+		};
+		add_filter( 'user_has_cap', $this->disconnect_cap_filter );
+	}
+
+	/**
+	 * Tests that a valid confirmation nonce still clears safe mode after sanitization.
+	 *
+	 * @param string $nonce_wrapper Sprintf pattern applied to the generated nonce.
+	 * @dataProvider data_provider_valid_confirmation_nonce
+	 */
+	#[DataProvider( 'data_provider_valid_confirmation_nonce' )]
+	public function test_wordpress_init_clears_safe_mode_with_a_valid_nonce( $nonce_wrapper ) {
+		$this->set_up_disconnect_user();
+		Jetpack_Options::update_option( 'safe_mode_confirmed', true );
+
+		$_GET['jetpack_idc_clear_confirmation'] = '1';
+		$_GET['_wpnonce']                       = sprintf( $nonce_wrapper, wp_create_nonce( 'jetpack_idc_clear_confirmation' ) );
+
+		Identity_Crisis::init()->wordpress_init();
+
+		unset( $_GET['jetpack_idc_clear_confirmation'], $_GET['_wpnonce'] );
+
+		$this->assertFalse( Identity_Crisis::$is_safe_mode_confirmed );
+		$this->assertFalse( Jetpack_Options::get_option( 'safe_mode_confirmed' ) );
+	}
+
+	/**
+	 * Data provider for 'test_wordpress_init_clears_safe_mode_with_a_valid_nonce'.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_valid_confirmation_nonce() {
+		return array(
+			'as sent by the browser' => array( '%s' ),
+			'padded with whitespace' => array( "  %s\n" ),
+		);
+	}
+
+	/**
+	 * Tests that safe mode survives a confirmation link carrying a nonce that does not verify.
+	 */
+	public function test_wordpress_init_keeps_safe_mode_with_an_invalid_nonce() {
+		$this->set_up_disconnect_user();
+		Jetpack_Options::update_option( 'safe_mode_confirmed', true );
+
+		$_GET['jetpack_idc_clear_confirmation'] = '1';
+		$_GET['_wpnonce']                       = '<b>not-a-nonce</b>';
+
+		Identity_Crisis::init()->wordpress_init();
+
+		unset( $_GET['jetpack_idc_clear_confirmation'], $_GET['_wpnonce'] );
+
+		$this->assertTrue( Identity_Crisis::$is_safe_mode_confirmed );
+		$this->assertTrue( (bool) Jetpack_Options::get_option( 'safe_mode_confirmed' ) );
 	}
 }

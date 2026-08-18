@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Brain\Monkey;
+use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -135,5 +136,85 @@ class Tracking_Test extends TestCase {
 				false,
 			),
 		);
+	}
+
+	/**
+	 * Tests that the Tracks nonce is unslashed and sanitized before it is verified.
+	 *
+	 * Nonce verification is pluggable, so the value handed to wp_verify_nonce() has to be
+	 * cleaned first.
+	 *
+	 * @param string $raw      Raw $_REQUEST value.
+	 * @param string $expected Value wp_verify_nonce() is expected to receive.
+	 * @dataProvider data_provider_test_nonce_is_sanitized
+	 */
+	#[DataProvider( 'data_provider_test_nonce_is_sanitized' )]
+	public function test_ajax_tracks_sanitizes_the_nonce( $raw, $expected ) {
+		$received = null;
+		Functions\when( 'wp_verify_nonce' )->alias(
+			function ( $nonce ) use ( &$received ) {
+				$received = $nonce;
+				return false;
+			}
+		);
+		Functions\when( 'wp_send_json_error' )->alias(
+			function () {
+				throw new \RuntimeException( 'wp_send_json_error' );
+			}
+		);
+
+		$_REQUEST['tracksNonce'] = $raw;
+
+		try {
+			$this->tracking->ajax_tracks();
+		} catch ( \RuntimeException $e ) {
+			unset( $e );
+		}
+
+		unset( $_REQUEST['tracksNonce'] );
+
+		$this->assertSame( $expected, $received );
+	}
+
+	/**
+	 * Data provider for 'test_ajax_tracks_sanitizes_the_nonce'.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_nonce_is_sanitized() {
+		return array(
+			'a real nonce is unchanged' => array( 'a1b2c3d4e5', 'a1b2c3d4e5' ),
+			'markup is stripped'        => array( '<b>a1b2c3d4e5</b>', 'a1b2c3d4e5' ),
+			'whitespace is trimmed'     => array( "  a1b2c3d4e5\n", 'a1b2c3d4e5' ),
+			'slashes are removed'       => array( "a1b2\\'c3d4", "a1b2'c3d4" ),
+		);
+	}
+
+	/**
+	 * Tests that sanitizing the nonce does not stop a valid one from verifying.
+	 *
+	 * The handler bails on the event name rather than the nonce, which only happens once
+	 * nonce verification has passed.
+	 */
+	public function test_ajax_tracks_still_accepts_a_valid_nonce() {
+		$message = null;
+		Functions\when( 'wp_send_json_error' )->alias(
+			function ( $error ) use ( &$message ) {
+				$message = $error;
+				throw new \RuntimeException( 'wp_send_json_error' );
+			}
+		);
+
+		$_REQUEST['tracksNonce'] = wp_create_nonce( 'jp-tracks-ajax-nonce' );
+
+		try {
+			$this->tracking->ajax_tracks();
+		} catch ( \RuntimeException $e ) {
+			unset( $e );
+		}
+
+		unset( $_REQUEST['tracksNonce'] );
+
+		$this->assertSame( 'No valid event name or type.', $message );
 	}
 }
