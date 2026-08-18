@@ -1,24 +1,25 @@
 /**
+ * External dependencies
+ */
+import { getStatsPeriodFromInterval, type StatsPeriod } from '@jetpack-premium-analytics/data';
+
+/**
  * Bucket sizes ordered finest to coarsest, so a mapped period the widget does
  * not offer can be clamped in the right direction.
  */
-const PERIOD_ORDER = [ 'hour', 'day', 'week', 'month', 'year' ] as const;
-
-/**
- * Dashboard interval to chart bucket size. Quarters have no Stats bucket of
- * their own and collapse onto months; anything unmapped falls back to `day`.
- */
-const PERIOD_FOR_INTERVAL: Record< string, string > = {
-	hour: 'hour',
-	week: 'week',
-	month: 'month',
-	quarter: 'month',
-	year: 'year',
-};
+const PERIOD_ORDER = [
+	'hour',
+	'day',
+	'week',
+	'month',
+	'year',
+] as const satisfies readonly StatsPeriod[];
 
 /**
  * Chart granularity for a dashboard interval: the bucket size a widget draws
- * for whatever the page's interval control has selected.
+ * for whatever the page's interval control has selected. The interval maps to a
+ * bucket the same way a Stats request does, so a chart is bucketed as the data
+ * behind it is.
  *
  * A widget rarely supports every granularity, so the mapped period is clamped
  * into the set it does support. `allowed` is ordered finest to coarsest, so a
@@ -30,20 +31,19 @@ const PERIOD_FOR_INTERVAL: Record< string, string > = {
  * @param allowed  - The periods this widget offers, ordered finest to coarsest.
  * @return The matching granularity.
  */
-export function defaultPeriodForInterval< P extends string >(
+export function defaultPeriodForInterval< P extends StatsPeriod >(
 	interval: string | undefined,
 	allowed: readonly [ P, ...P[] ]
 ): P {
-	const mapped = PERIOD_FOR_INTERVAL[ interval ?? '' ] ?? 'day';
+	const mapped = getStatsPeriodFromInterval( interval );
 
-	if ( allowed.includes( mapped as P ) ) {
+	if ( ( allowed as readonly StatsPeriod[] ).includes( mapped ) ) {
 		return mapped as P;
 	}
 
 	const finest = allowed[ 0 ];
 
-	return PERIOD_ORDER.indexOf( mapped as ( typeof PERIOD_ORDER )[ number ] ) <
-		PERIOD_ORDER.indexOf( finest as ( typeof PERIOD_ORDER )[ number ] )
+	return PERIOD_ORDER.indexOf( mapped ) < PERIOD_ORDER.indexOf( finest )
 		? finest
 		: allowed[ allowed.length - 1 ];
 }
