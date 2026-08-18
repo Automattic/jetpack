@@ -24,6 +24,41 @@
  */
 class WPCOM_Site_Purchase {
 	/**
+	 * Object-cache group for billing-derived state. Shared with the site's purchases, which the
+	 * same two hooks already invalidate, and registered as a global group in object-cache.php --
+	 * the keys carry their own blog ID and are read from whichever blog is current.
+	 */
+	private const BILLING_STATES_CACHE_GROUP = 'site_purchases';
+
+	/**
+	 * How long billing-derived state stays cached. See billing_states_for_blog() for why this is
+	 * minutes rather than the day the neighbouring purchases get.
+	 */
+	private const BILLING_STATES_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
+
+	/**
+	 * How long a *failed* lookup stays cached.
+	 *
+	 * Much shorter than a successful one. Caching the failure at all is what stops a persistently
+	 * broken billing stack from being asked again on every pageview, but a momentary blip should
+	 * not outlive itself by minutes: while it is cached, both accessors answer null and consumers
+	 * fall back to the raw auto-renew flag -- the very value they exist to distrust.
+	 */
+	private const BILLING_STATES_FAILURE_TTL = 30;
+
+	/**
+	 * MC stat name under which billing-state lookups are counted, and the bins broken out of it.
+	 *
+	 * Static strings, and within the 32-character limit MC imposes on both a name and a bin.
+	 * Visible at https://mc.a8c.com/s/wpcom-site-purchase/stat-total/ -- and only there until it
+	 * clears 100 hits a day, which is the threshold for the searchable stat list.
+	 */
+	private const BILLING_STATES_STAT_NAME   = 'wpcom-site-purchase';
+	private const BILLING_STATES_STAT_LOOKUP = 'billing-lookup';
+	private const BILLING_STATES_STAT_HIT    = 'billing-cache-hit';
+	private const BILLING_STATES_STAT_ERROR  = 'billing-error';
+
+	/**
 	 * The blog the purchase belongs to.
 	 *
 	 * @var int
@@ -198,6 +233,12 @@ class WPCOM_Site_Purchase {
 	 * The raw auto-renew flag stays true for subscriptions that cannot renew — one with no
 	 * chargeable payment method attached, for instance — so only billing can answer this.
 	 * Null wherever billing cannot be reached.
+	 *
+	 * NOT A FREE GETTER. On a Simple site whose purchase carries no stored answer this reaches
+	 * billing: a store query, and the whole billing code-base loaded into a request that may
+	 * never have needed it. Cached for a few minutes, so the repeat cost is a memcache get, but
+	 * the first one is real. Don't call it on a path that runs for every site regardless of
+	 * expiry; gate it on the site actually being close enough to expiry for the answer to matter.
 	 */
 	public function might_still_auto_renew(): ?bool {
 		return $this->might_still_auto_renew ?? $this->billing_state()?->might_still_auto_renew;
@@ -212,6 +253,12 @@ class WPCOM_Site_Purchase {
 	 * nor that it runs at this time of day. Null either because nothing is scheduled -- no
 	 * meaningful expiry to schedule against, e.g. a VIP domain or a one-time product -- or
 	 * because billing could not be reached; a consumer cannot tell the two apart.
+	 *
+	 * NOT A FREE GETTER. On a Simple site whose purchase carries no stored answer this reaches
+	 * billing: a store query, and the whole billing code-base loaded into a request that may
+	 * never have needed it. Cached for a few minutes, so the repeat cost is a memcache get, but
+	 * the first one is real. Don't call it on a path that runs for every site regardless of
+	 * expiry; gate it on the site actually being close enough to expiry for the answer to matter.
 	 */
 	public function first_auto_renew_attempt_date(): ?string {
 		return $this->first_auto_renew_attempt_date ?? $this->billing_state()?->first_auto_renew_attempt_date;
@@ -233,8 +280,16 @@ class WPCOM_Site_Purchase {
 	 * yield an empty map, so every value must be treated as optional.
 	 *
 	 * Memoized per request, so that a site with many purchases costs one lookup rather than one
-	 * per purchase. Deliberately not cached beyond the request: these values track the passage of
-	 * time, while the `site_purchases` cache lives for a day.
+	 * per purchase, and cached in the object cache for a few minutes on top, so that a careless
+	 * caller costs a memcache get rather than the query and the load. Cleared on
+	 * `subscription_changed` and `wpcom_site_purchases_cleared`, alongside the other
+	 * `site_purchases` entries.
+	 *
+	 * The TTL is short, and much shorter than the day-long `site_purchases` cache, because
+	 * `might_still_auto_renew` can stop being true without any subscription event to hang an
+	 * invalidation on -- a card reaching its own expiry date, say. The hooks cover everything a
+	 * user does; the TTL is the backstop for what merely happens. `first_auto_renew_attempt_date`
+	 * needs no such care: it is a date, and callers compare it against their own clock.
 	 *
 	 * @param int $blog_id Blog ID to look up.
 	 *
@@ -251,10 +306,26 @@ class WPCOM_Site_Purchase {
 
 		// The whole loader rather than just the class file, as get_site_billing_upgrades() also
 		// reaches for store_logger(). Unreadable wherever the billing code-base does not ship.
+		// Checked before the cache is consulted, so that Atomic -- where this is never readable
+		// -- pays nothing at all, not even a memcache round trip.
 		$billing_loader = WP_CONTENT_DIR . '/admin-plugins/wpcom-billing.php';
 		if ( ! is_readable( $billing_loader ) ) {
 			return $states[ $blog_id ];
 		}
+
+		$cache_key = self::billing_states_cache_key( $blog_id );
+		$cached    = wp_cache_get( $cache_key, self::BILLING_STATES_CACHE_GROUP );
+		if ( is_array( $cached ) ) {
+			self::bump_billing_stat( self::BILLING_STATES_STAT_HIT );
+			$states[ $blog_id ] = $cached;
+			return $states[ $blog_id ];
+		}
+
+		// Bumped where the work actually happens, so that a consumer which has wandered onto a
+		// hot path shows up in MC as a spike rather than as a billing incident.
+		self::bump_billing_stat( self::BILLING_STATES_STAT_LOOKUP );
+
+		$failed = false;
 
 		try {
 			require_once $billing_loader;
@@ -269,8 +340,68 @@ class WPCOM_Site_Purchase {
 			}
 		} catch ( \Throwable $e ) {
 			$states[ $blog_id ] = array();
+			$failed             = true;
+			self::bump_billing_stat( self::BILLING_STATES_STAT_ERROR );
 		}
 
+		// The empty map is cached too. Reaching billing and coming back with nothing costs the
+		// same as reaching it and finding something, and a site that has just thrown is exactly
+		// the one that should not be asked again on the next pageview -- but only briefly, so a
+		// blip does not keep answering null long after it has passed.
+		wp_cache_set(
+			$cache_key,
+			$states[ $blog_id ],
+			self::BILLING_STATES_CACHE_GROUP,
+			$failed ? self::BILLING_STATES_FAILURE_TTL : self::BILLING_STATES_CACHE_TTL
+		);
+
 		return $states[ $blog_id ];
+	}
+
+	/**
+	 * Object-cache key for a blog's billing-derived state.
+	 *
+	 * Carries the store-subscriptions table name, as the neighbouring `site_purchases` entries
+	 * do, to keep the production and test stores from reading each other's answers.
+	 *
+	 * Kept public so that the invalidation wired up in wpcom-features.php builds the same key
+	 * this does, rather than a copy of it that can drift.
+	 *
+	 * WPCOM ONLY, despite living in a class that is otherwise safe on Atomic: there are no store
+	 * tables there, so `$wpdb->store_subscriptions` is not a property and there is nothing to key
+	 * on. Nothing calls this on Atomic today -- billing_states_for_blog() bails before reaching
+	 * it, and the other caller is a wpcom-only mu-plugin -- and nothing should start.
+	 *
+	 * @param int $blog_id Blog ID to look up.
+	 */
+	public static function billing_states_cache_key( int $blog_id ): string {
+		global $wpdb;
+
+		return "billing_states_$blog_id-{$wpdb->store_subscriptions}";
+	}
+
+	/**
+	 * Count a billing-state lookup in MC.
+	 *
+	 * A counter rather than a log line: this sits behind a feature-check path, where per-event
+	 * logging would be a firehose, and the question worth asking is how often it runs, not which
+	 * request ran it. Best-effort -- stats must never be the reason a page fails to render.
+	 *
+	 * @param string $bin Stat bin to bump.
+	 */
+	private static function bump_billing_stat( string $bin ): void {
+		if ( ! function_exists( 'require_lib' ) ) {
+			return;
+		}
+
+		try {
+			require_lib( 'mc-stats' );
+
+			if ( function_exists( 'bump_stats_extras' ) ) {
+				bump_stats_extras( self::BILLING_STATES_STAT_NAME, $bin );
+			}
+		} catch ( \Throwable $e ) {
+			return;
+		}
 	}
 }
