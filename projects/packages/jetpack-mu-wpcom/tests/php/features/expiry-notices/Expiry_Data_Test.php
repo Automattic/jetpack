@@ -63,11 +63,27 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 			 */
 			public ?string $first_attempt = null;
 
+			/**
+			 * Counts reads of each billing-backed accessor. On a Simple site
+			 * these are not getters: they reach the store DB and pull in the
+			 * whole billing stack.
+			 *
+			 * @var int
+			 */
+			public int $might_still_reads = 0;
+
+			/**
+			 * @var int
+			 */
+			public int $first_attempt_reads = 0;
+
 			public function might_still_auto_renew(): ?bool {
+				++$this->might_still_reads;
 				return $this->might_still;
 			}
 
 			public function first_auto_renew_attempt_date(): ?string {
+				++$this->first_attempt_reads;
 				return $this->first_attempt;
 			}
 		};
@@ -129,6 +145,91 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		);
 		$this->assertNotNull( $on );
 		$this->assertSame( Expiry_Data::STATE_ACTIVE, $on['state'] );
+	}
+
+	public function test_no_billing_is_consulted_far_from_expiry(): void {
+		// Reading either accessor costs a store-DB query and loads the billing
+		// stack, on every admin pageview of every Simple site. Outside the
+		// widest notice window the answer cannot change the state, so it must
+		// not be asked for. Both raw flags, because the flag picks the branch.
+		// The attempt lands 30 days before expiry, as a real annual plan's does.
+		foreach ( array( true, false ) as $raw_auto_renew ) {
+			$purchase = $this->declared_purchase( 300, $raw_auto_renew, true, 270 );
+
+			$state = Expiry_Data::compute_state_from_purchase( $purchase, self::FIXED_NOW );
+
+			$this->assertNotNull( $state );
+			$this->assertSame( Expiry_Data::STATE_ACTIVE, $state['state'] );
+			$this->assertSame( 0, $purchase->might_still_reads );
+			$this->assertSame( 0, $purchase->first_attempt_reads );
+		}
+	}
+
+	public function test_a_renewal_attempt_beyond_the_widest_window_is_ignored(): void {
+		// The gate assumes no plan schedules its first renewal attempt more
+		// than ANNUAL_NOTICE_DAYS before expiry. Should one ever do so, this
+		// is what changes: the warning waits for the window instead of firing
+		// as soon as the attempt passes. Pinned so the trade-off is visible if
+		// the assumption is ever broken.
+		$purchase = $this->declared_purchase( 300, true, true, -1 );
+
+		$state = Expiry_Data::compute_state_from_purchase( $purchase, self::FIXED_NOW );
+
+		$this->assertNotNull( $state );
+		$this->assertSame( Expiry_Data::STATE_ACTIVE, $state['state'] );
+	}
+
+	public function test_no_billing_is_consulted_for_a_monthly_plan_outside_its_own_window(): void {
+		// A monthly plan's window is 7 days, not the annual 60, and gating on
+		// the wider of the two would keep paying for billing through the whole
+		// 8-60 day band for nothing: a monthly term is excluded from the
+		// attempt-passed warning outright, and 30 days is well outside its
+		// auto-renew-off window, so both branches land on STATE_ACTIVE.
+		foreach ( array( true, false ) as $raw_auto_renew ) {
+			$purchase = $this->declared_purchase( 30, $raw_auto_renew, true, -1, 'personal-bundle-monthly' );
+
+			$state = Expiry_Data::compute_state_from_purchase( $purchase, self::FIXED_NOW );
+
+			$this->assertNotNull( $state );
+			$this->assertSame( Expiry_Data::STATE_ACTIVE, $state['state'] );
+			$this->assertSame( 0, $purchase->might_still_reads );
+			$this->assertSame( 0, $purchase->first_attempt_reads );
+		}
+	}
+
+	public function test_billing_is_consulted_for_a_monthly_plan_inside_its_window(): void {
+		$purchase = $this->declared_purchase( 3, false, false, null, 'personal-bundle-monthly' );
+
+		$state = Expiry_Data::compute_state_from_purchase( $purchase, self::FIXED_NOW );
+
+		$this->assertNotNull( $state );
+		$this->assertSame( Expiry_Data::STATE_APPROACHING, $state['state'] );
+		$this->assertGreaterThan( 0, $purchase->might_still_reads );
+	}
+
+	public function test_billing_is_consulted_inside_the_notice_window(): void {
+		// The other half of the gate: it must not be so wide that a site which
+		// does need a notice stops asking the question.
+		$purchase = $this->declared_purchase( 45, true, true, -1 );
+
+		$state = Expiry_Data::compute_state_from_purchase( $purchase, self::FIXED_NOW );
+
+		$this->assertNotNull( $state );
+		$this->assertSame( Expiry_Data::STATE_APPROACHING, $state['state'] );
+		$this->assertGreaterThan( 0, $purchase->might_still_reads );
+	}
+
+	public function test_billing_is_consulted_after_expiry(): void {
+		// Past expiry the copy distinguishes "still trying to renew" from
+		// "gone", so the effective answer is still needed.
+		$purchase = $this->declared_purchase( -5, true, false );
+
+		$state = Expiry_Data::compute_state_from_purchase( $purchase, self::FIXED_NOW );
+
+		$this->assertNotNull( $state );
+		$this->assertSame( Expiry_Data::STATE_EXPIRED_GRACE, $state['state'] );
+		$this->assertFalse( $state['auto_renew'] );
+		$this->assertGreaterThan( 0, $purchase->might_still_reads );
 	}
 
 	public function test_is_monthly_plan(): void {

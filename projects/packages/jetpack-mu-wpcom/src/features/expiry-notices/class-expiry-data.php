@@ -112,13 +112,33 @@ class Expiry_Data {
 		// is the effective answer, but it is null until a site is serving the
 		// declared purchase shape, so fall back to the flag there.
 		$raw_auto_renew = ! empty( $purchase->user_allows_auto_renew ?? $purchase->auto_renew ?? null );
-		$will_renew     = self::might_still_auto_renew( $purchase ) ?? $raw_auto_renew;
 		$is_atomic      = defined( 'IS_ATOMIC' ) && IS_ATOMIC;
+
+		// Neither the effective renewal state nor the attempt schedule is a
+		// free read: on a Simple site each one queries the store and pulls in
+		// the whole billing stack, on every admin pageview. Outside this plan's
+		// own notice window neither can change the answer, so don't ask. Per
+		// cadence rather than the widest of the two, because a monthly plan
+		// that is still weeks out lands on STATE_ACTIVE either way: it is
+		// excluded from the attempt-passed warning outright, and its
+		// auto-renew-off window is only the last 7 days.
+		$notice_window   = $is_monthly ? self::MONTHLY_NOTICE_DAYS : self::ANNUAL_NOTICE_DAYS;
+		$in_notice_range = $days_remaining <= $notice_window;
+		$will_renew      = $in_notice_range
+			? ( self::might_still_auto_renew( $purchase ) ?? $raw_auto_renew )
+			: $raw_auto_renew;
 
 		if ( $days_remaining >= 0 ) {
 			$grace_days_left = null;
 
-			if ( $will_renew ) {
+			if ( ! $in_notice_range ) {
+				// Too early for either warning: the auto-renew-off window has
+				// not opened, and the first renewal attempt is at most 30 days
+				// before expiry, so it cannot already have passed. This has to
+				// come before the branch below, which would otherwise reach
+				// billing for the attempt date and discard it.
+				$state = self::STATE_ACTIVE;
+			} elseif ( $will_renew ) {
 				// Nothing to say about a plan that is still expected to renew
 				// itself, until a scheduled attempt has come and gone without
 				// renewing it. Monthly terms are excluded outright: their first
@@ -129,10 +149,11 @@ class Expiry_Data {
 					? self::STATE_APPROACHING
 					: self::STATE_ACTIVE;
 			} else {
-				$notice_window = $is_monthly ? self::MONTHLY_NOTICE_DAYS : self::ANNUAL_NOTICE_DAYS;
-				$state         = $days_remaining <= $notice_window
-					? self::STATE_APPROACHING
-					: self::STATE_ACTIVE;
+				// Inside the window with no renewal expected: the plan is
+				// going to lapse unless the owner acts. Nothing left to test
+				// -- being here already means $days_remaining is within this
+				// plan's own notice window.
+				$state = self::STATE_APPROACHING;
 			}
 		} else {
 			$days_past = abs( $days_remaining );
