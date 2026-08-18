@@ -22,7 +22,7 @@ use Automattic\Jetpack\Verbum;
 Verbum::init();
 ```
 
-`Verbum::init()` registers everything: the front end comment form, the Discussion settings, wp-admin comment moderation, and the REST endpoints. It gates itself, so it is safe to call unconditionally on WordPress.com — the comment form stays off for the Reader, GlotPress, wp-admin, P2, the support forums, and any blog with `enable_verbum_commenting` disabled.
+`Verbum::init()` registers everything: the front end comment form, the Discussion settings, wp-admin comment moderation, and the REST endpoints. It gates itself, so it is safe to call unconditionally: everything stays inert outside WordPress.com Simple, and the comment form additionally stays off for the Reader, GlotPress, wp-admin, P2, the support forums, and any blog with `enable_verbum_commenting` disabled.
 
 ## Architecture
 

@@ -4,6 +4,9 @@
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # (see also entries in the monorepo root .gitattributes)
-# Remember to end all directories with `/**` to properly tag every file.
-src/comment-form/**    production-exclude
-src/moderation/*.js    production-exclude
+# Exclude by extension: `src/` holds the PHP that ships alongside the app sources.
+src/**/*.js       production-exclude
+src/**/*.jsx      production-exclude
+src/**/*.scss     production-exclude
+src/**/*.ts       production-exclude
+src/**/*.tsx      production-exclude

@@ -27,6 +27,11 @@ class Verbum {
 	 * Register the hooks that load each part of Verbum.
 	 */
 	public static function init() {
+		// Verbum leans on WordPress.com-only functions and constants throughout; it fatals anywhere else.
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			return;
+		}
+
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_comment_form' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_moderation' ) );
 		add_action( 'wp_loaded', array( __CLASS__, 'load_settings' ) );
