@@ -25,7 +25,13 @@
 }
 
 .wpcom-plugins-banner__content {
-	width: 540px;
+	width: 640px;
+}
+
+.wpcom-plugins-banner__content img {
+	display: block;
+	height: 21px;
+	width: auto;
 }
 
 #wpcontent .wpcom-plugins-banner h3,
@@ -54,13 +60,13 @@
 	background-color: #3858e9;
 	color: #fff;
 	border-radius: 4px;
-	padding: 10px 24px;
+	padding: 14px 24px;
 	font-size: 14px;
 	line-height: 20px;
 	letter-spacing: 0.32px;
 	text-decoration: none;
 	display: inline-block;
-	margin-top: 32px;
+	margin-top: 17px;
 }
 
 .wpcom-plugins-banner a:hover,
