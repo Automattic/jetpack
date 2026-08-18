@@ -98,18 +98,16 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringNotContainsString( '/plans/', $out );
 	}
 
-	public function test_post_grace_recent_dismiss_hides_for_cadence(): void {
+	public function test_post_grace_dismiss_hides_the_banner(): void {
 		$this->set_purchase( -45 );
 		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_BANNER, time() - DAY_IN_SECONDS );
 		$this->assertSame( '', $this->render() );
 	}
 
-	public function test_post_grace_old_dismiss_reappears_after_cadence(): void {
+	public function test_post_grace_dismiss_never_lapses(): void {
 		$this->set_purchase( -45 );
-		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_BANNER, time() - ( 14 * DAY_IN_SECONDS ) );
-		$out = $this->render();
-		$this->assertStringContainsString( 'notice-error', $out );
-		$this->assertStringContainsString( 'wpcom-expiry-banner__dismiss', $out );
+		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_BANNER, time() - YEAR_IN_SECONDS );
+		$this->assertSame( '', $this->render() );
 	}
 
 	public function test_final_7_days_renders_as_error_with_no_dismiss(): void {

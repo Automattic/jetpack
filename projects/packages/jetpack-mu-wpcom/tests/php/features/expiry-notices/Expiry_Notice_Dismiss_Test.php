@@ -42,22 +42,26 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		);
 	}
 
-	public function test_no_prior_dismissal_shows(): void {
-		$this->assertTrue( Expiry_Notice_Dismiss::evaluate_show( null, 7 * DAY_IN_SECONDS, self::NOW ) );
+	public function test_is_dismissed_is_false_without_a_stored_dismissal(): void {
+		$user_id = $this->make_admin( 'never_dismissed' );
+		$this->assertFalse( Expiry_Notice_Dismiss::is_dismissed( $user_id, Expiry_Notice_Dismiss::META_BANNER ) );
 	}
 
-	public function test_recent_dismissal_within_cadence_hides(): void {
-		$dismissed_at = self::NOW - DAY_IN_SECONDS;
-		$this->assertFalse( Expiry_Notice_Dismiss::evaluate_show( $dismissed_at, 7 * DAY_IN_SECONDS, self::NOW ) );
+	public function test_is_dismissed_is_true_once_stored(): void {
+		$user_id = $this->make_admin( 'has_dismissed' );
+		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_BANNER, self::NOW );
+		$this->assertTrue( Expiry_Notice_Dismiss::is_dismissed( $user_id, Expiry_Notice_Dismiss::META_BANNER ) );
 	}
 
-	public function test_old_dismissal_past_cadence_shows(): void {
-		$dismissed_at = self::NOW - ( 10 * DAY_IN_SECONDS );
-		$this->assertTrue( Expiry_Notice_Dismiss::evaluate_show( $dismissed_at, 7 * DAY_IN_SECONDS, self::NOW ) );
-	}
-
-	public function test_zero_cadence_means_every_session(): void {
-		$this->assertTrue( Expiry_Notice_Dismiss::evaluate_show( self::NOW - 1, 0, self::NOW ) );
+	public function test_dismissal_never_lapses(): void {
+		$user_id = $this->make_admin( 'dismissed_long_ago' );
+		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_BANNER, self::NOW - YEAR_IN_SECONDS );
+		$this->assertFalse(
+			Expiry_Notice_Dismiss::should_show_banner(
+				array( 'state' => Expiry_Data::STATE_EXPIRED ),
+				$user_id
+			)
+		);
 	}
 
 	public function test_pre_revert_states_are_not_dismissible(): void {
@@ -84,7 +88,7 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_BANNER, self::NOW - 1 );
 		// Nothing before the revert is dismissible, so a stored dismissal from an
 		// earlier stage must not silence the notice.
-		$this->assertTrue( Expiry_Notice_Dismiss::should_show_banner( $this->state( 45 ), $user_id, self::NOW ) );
+		$this->assertTrue( Expiry_Notice_Dismiss::should_show_banner( $this->state( 45 ), $user_id ) );
 	}
 
 	public function test_register_user_meta_registers_both_dismiss_keys(): void {
@@ -110,8 +114,7 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		$this->assertTrue(
 			Expiry_Notice_Dismiss::should_show_modal(
 				array( 'state' => Expiry_Data::STATE_EXPIRED ),
-				0,
-				self::NOW
+				0
 			)
 		);
 	}
@@ -121,8 +124,8 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		$state   = array( 'state' => Expiry_Data::STATE_EXPIRED );
 		// Banner-key dismiss must not silence the modal.
 		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_BANNER, self::NOW - 1 );
-		$this->assertTrue( Expiry_Notice_Dismiss::should_show_modal( $state, $user_id, self::NOW ) );
+		$this->assertTrue( Expiry_Notice_Dismiss::should_show_modal( $state, $user_id ) );
 		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_MODAL, self::NOW - DAY_IN_SECONDS );
-		$this->assertFalse( Expiry_Notice_Dismiss::should_show_modal( $state, $user_id, self::NOW ) );
+		$this->assertFalse( Expiry_Notice_Dismiss::should_show_modal( $state, $user_id ) );
 	}
 }

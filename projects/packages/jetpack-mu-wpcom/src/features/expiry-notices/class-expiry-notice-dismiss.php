@@ -1,6 +1,6 @@
 <?php
 /**
- * Expiry_Notice_Dismiss: dismiss + cadence logic for the banner and modal.
+ * Expiry_Notice_Dismiss: dismiss logic for the banner and modal.
  *
  * Storage is per-site user_meta exposed via the WP REST `/wp/v2/users/me`
  * endpoint so Atomic JS and Calypso (via wpcom's site-proxy) can both write
@@ -67,14 +67,9 @@ class Expiry_Notice_Dismiss {
 	 *
 	 * @param array<string,mixed> $expiry_state State from Expiry_Data::get_expiry_state().
 	 * @param int|null            $user_id      Defaults to current user.
-	 * @param int|null            $now          Optional "now" timestamp for testing.
 	 */
-	public static function should_show_banner( array $expiry_state, ?int $user_id = null, ?int $now = null ): bool {
-		if ( ! self::is_dismissible( $expiry_state ) ) {
-			return true;
-		}
-		$dismissed_at = self::get_dismissed_at( $user_id, self::META_BANNER );
-		return self::evaluate_show( $dismissed_at, self::post_grace_cadence_seconds(), $now );
+	public static function should_show_banner( array $expiry_state, ?int $user_id = null ): bool {
+		return ! self::is_dismissible( $expiry_state ) || ! self::is_dismissed( $user_id, self::META_BANNER );
 	}
 
 	/**
@@ -82,41 +77,20 @@ class Expiry_Notice_Dismiss {
 	 *
 	 * @param array<string,mixed> $expiry_state State from Expiry_Data::get_expiry_state().
 	 * @param int|null            $user_id      Defaults to current user.
-	 * @param int|null            $now          Optional "now" timestamp for testing.
 	 */
-	public static function should_show_modal( array $expiry_state, ?int $user_id = null, ?int $now = null ): bool {
-		if ( ! self::is_dismissible( $expiry_state ) ) {
-			return true;
-		}
-		$dismissed_at = self::get_dismissed_at( $user_id, self::META_MODAL );
-		return self::evaluate_show( $dismissed_at, self::post_grace_cadence_seconds(), $now );
+	public static function should_show_modal( array $expiry_state, ?int $user_id = null ): bool {
+		return ! self::is_dismissible( $expiry_state ) || ! self::is_dismissed( $user_id, self::META_MODAL );
 	}
 
 	/**
-	 * Pure: should the notice show given a prior dismissal and cadence?
-	 * Cadence 0 means "show every session" (re-shown regardless of meta);
-	 * JS layers handle within-session dedup.
+	 * Whether this user has already dismissed the given notice. Dismissal is
+	 * permanent: the notice does not come back on its own.
 	 *
-	 * @param int|null $dismissed_at Stored dismissal unix timestamp, or null.
-	 * @param int      $cadence_secs Cadence window in seconds (0 = every session).
-	 * @param int|null $now          Optional "now" timestamp for testing.
+	 * @param int|null $user_id  Defaults to current user.
+	 * @param string   $meta_key One of self::META_BANNER, self::META_MODAL.
 	 */
-	public static function evaluate_show( ?int $dismissed_at, int $cadence_secs, ?int $now = null ): bool {
-		if ( null === $dismissed_at || $dismissed_at <= 0 ) {
-			return true;
-		}
-		if ( 0 === $cadence_secs ) {
-			return true;
-		}
-		$now ??= time();
-		return ( $now - $dismissed_at ) > $cadence_secs;
-	}
-
-	/**
-	 * How long a post-grace dismissal holds before the notice comes back.
-	 */
-	public static function post_grace_cadence_seconds(): int {
-		return 7 * DAY_IN_SECONDS;
+	public static function is_dismissed( ?int $user_id, string $meta_key ): bool {
+		return null !== self::get_dismissed_at( $user_id, $meta_key );
 	}
 
 	/**
