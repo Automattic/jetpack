@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Responses: Preserve line breaks in multi-line answers.
