@@ -172,6 +172,32 @@ class Rest_Bridge_Gating_Test extends TestCase {
 				array( true, false ),
 				array(),
 			),
+			// Unknown keys are dropped rather than forwarded, which is what
+			// makes `types_name_nothing()` total: a payload naming only
+			// categories WPCOM does not know would otherwise satisfy the
+			// guard and be sent on, and what WPCOM does with a `types` that
+			// matches nothing is uncharacterized.
+			'drops an unknown category'        => array(
+				'drops an unknown category',
+				array( 'bogus' => true ),
+				array(),
+			),
+			'keeps known, drops unknown'       => array(
+				'keeps known, drops unknown',
+				array(
+					'sqls' => true,
+					'sql'  => true,
+				),
+				array( 'sqls' => true ),
+			),
+			// The granular selector, paired with include/exclude path
+			// lists. Nothing sends it yet (C3), but it is part of the same
+			// contract and must not be filtered out when it is wired up.
+			'keeps paths'                      => array(
+				'keeps paths',
+				array( 'paths' => true ),
+				array( 'paths' => true ),
+			),
 			'empty array'                      => array( 'empty array', array(), array() ),
 			'null'                             => array( 'null', null, array() ),
 			'scalar'                           => array( 'scalar', 'themes', array() ),
@@ -213,6 +239,11 @@ class Rest_Bridge_Gating_Test extends TestCase {
 			'absent'             => array( 'absent', null, false ),
 			'names one category' => array( 'names one', array( 'themes' => true ), false ),
 			'empty object'       => array( 'empty object', array(), true ),
+			// The case the allowlist exists for. A future client-side typo
+			// — a checklist key renamed `sqls` to `sql` — names nothing
+			// WPCOM recognizes, and is refused rather than forwarded.
+			'only unknown names' => array( 'only unknown names', array( 'sql' => true ), true ),
+			'granular paths'     => array( 'granular paths', array( 'paths' => true ), false ),
 			'every value false'  => array( 'every value false', array( 'themes' => false ), true ),
 			'form-encoded false' => array( 'form-encoded false', array( 'themes' => '0' ), true ),
 			// The shape the route schema cannot reject, because it
