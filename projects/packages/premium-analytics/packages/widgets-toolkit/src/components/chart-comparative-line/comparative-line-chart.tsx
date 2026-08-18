@@ -5,7 +5,6 @@ import { LineChart, Stack, type TickResolution } from '@jetpack-premium-analytic
 import {
 	formatDate,
 	formatMetricValue,
-	formatViewerDate,
 	type DateFormatName,
 } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
@@ -16,7 +15,7 @@ import { type ComponentProps } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import { isEmptyChartData, getFixedYAxis } from '../../helpers';
+import { isEmptyChartData, fromChartDate, getFixedYAxis } from '../../helpers';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
 import { alignSeriesDates } from './utils';
@@ -178,9 +177,9 @@ export function ComparativeLineChart( {
 			const displayDate = isComparison ? datum.realDate ?? datum.date : datum.date;
 
 			// At hourly buckets a date alone names 24 of them, so the label carries
-			// the time — and resolves in the viewer's zone, the one the axis ticks
-			// it sits under are drawn in. See `formatViewerDate`.
-			return isHourly ? formatViewerDate( displayDate, 'dateTime' ) : formatDate( displayDate );
+			// the time. Either way the point is a wall clock, so it goes back
+			// through `fromChartDate` before a site-zone formatter reads it.
+			return formatDate( fromChartDate( displayDate ), isHourly ? 'dateTime' : 'medium' );
 		},
 		[ isHourly ]
 	);

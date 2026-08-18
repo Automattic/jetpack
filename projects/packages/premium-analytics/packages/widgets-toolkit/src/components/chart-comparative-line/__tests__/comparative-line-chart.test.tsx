@@ -2,9 +2,11 @@
  * External dependencies
  */
 import { render } from '@testing-library/react';
+import { setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
+import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { ComparativeLineChart } from '../comparative-line-chart';
 import type { ComparativeLineChartSeries } from '../types';
 
@@ -34,23 +36,16 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 	};
 } );
 
-// Which formatter the tooltip reaches for is the decision under test; how each
-// one renders is covered where they live. Stubbing both keeps these assertions
-// off the zone of whatever machine runs the suite.
-jest.mock( '@jetpack-premium-analytics/formatters', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/formatters' ),
-	formatDate: ( date: Date, name = 'medium' ) => `site:${ name }:${ date.toISOString() }`,
-	formatViewerDate: ( date: Date, name = 'medium' ) => `viewer:${ name }:${ date.toISOString() }`,
-} ) );
-
 jest.mock( '../../../hooks', () => ( {
 	useSeriesStyles: () => [],
 } ) );
 
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 
-const JULY_1 = new Date( '2026-07-01T00:00:00Z' );
-const JULY_2 = new Date( '2026-07-02T00:00:00Z' );
+// Chart points are wall clocks, so they are built from local parts — the same
+// way `toChartDate` builds them — rather than from an instant.
+const JULY_1 = new Date( 2026, 6, 1, 0, 0 );
+const JULY_2 = new Date( 2026, 6, 2, 14, 0 );
 
 const SERIES: ComparativeLineChartSeries[] = [
 	{
@@ -67,7 +62,7 @@ const SERIES: ComparativeLineChartSeries[] = [
 // previous-period date in `realDate`; that is what `alignSeriesDates` does.
 const COMPARISON_POINT = {
 	date: JULY_1,
-	realDate: new Date( '2026-06-01T00:00:00Z' ),
+	realDate: new Date( 2026, 5, 1, 9, 0 ),
 	value: 80,
 };
 
@@ -105,34 +100,41 @@ describe( 'ComparativeLineChart', () => {
 		mockLineSpy.mockClear();
 	} );
 
-	it( 'labels a tooltip with the site-zone date alone by default', () => {
-		render( <ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
+	// Two site timezones, so the assertion holds whatever zone the machine
+	// running the suite is in: a label naming the point's own wall clock cannot
+	// depend on either zone, while one resolved in the site's follows it.
+	it.each( [ 'Asia/Tokyo', 'America/Los_Angeles' ] )(
+		'labels a tooltip with the bucket the point names, on a site in %s',
+		siteZone => {
+			setSettings( siteSettingsIn( siteZone ) );
+			render( <ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
-		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( `site:medium:${ JULY_2.toISOString() }` );
-	} );
+			expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( 'July 2, 2026' );
+		}
+	);
 
 	// A date alone names 24 hourly buckets, so it cannot identify the one hovered
-	// — and the time it gains has to be read in the zone the points were laid out
-	// in, or it names an hour the axis under it does not agree with.
-	it( 'adds the time, in the viewer zone, at the hourly resolution', () => {
-		render(
-			<ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } tickResolution="hour" />
-		);
+	// — and the hour it gains has to be the one the axis tick under it shows.
+	it.each( [ 'Asia/Tokyo', 'America/Los_Angeles' ] )(
+		'adds the hour the point names at the hourly resolution, on a site in %s',
+		siteZone => {
+			setSettings( siteSettingsIn( siteZone ) );
+			render(
+				<ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } tickResolution="hour" />
+			);
 
-		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe(
-			`viewer:dateTime:${ JULY_2.toISOString() }`
-		);
-	} );
+			expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( 'July 2, 2026 2:00 pm' );
+		}
+	);
 
 	it( 'labels a comparison row from its own date, not the axis date it shares', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		render(
 			<ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } tickResolution="hour" />
 		);
 
 		// Reading `datum.date` here would repeat the current period's date on both
 		// rows; the point of `realDate` is that the previous period keeps its own.
-		expect( tooltipLabelFor( COMPARISON_POINT, 1 ) ).toBe(
-			`viewer:dateTime:${ COMPARISON_POINT.realDate.toISOString() }`
-		);
+		expect( tooltipLabelFor( COMPARISON_POINT, 1 ) ).toBe( 'June 1, 2026 9:00 am' );
 	} );
 } );

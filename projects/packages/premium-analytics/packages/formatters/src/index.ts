@@ -1,6 +1,5 @@
 export {
 	formatDate,
-	formatViewerDate,
 	formatWeekday,
 	formatDateRange,
 	formatDateRangeCompact,

@@ -2,9 +2,11 @@
  * External dependencies
  */
 import { render, screen } from '@testing-library/react';
+import { setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
+import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { ComparativeBarChart } from '../comparative-bar-chart';
 import type { ComparativeBarChartSeries } from '../types';
 
@@ -44,15 +46,6 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 	};
 } );
 
-// Which formatter the tooltip reaches for is the decision under test; how each
-// one renders is covered where they live. Stubbing both keeps these assertions
-// off the zone of whatever machine runs the suite.
-jest.mock( '@jetpack-premium-analytics/formatters', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/formatters' ),
-	formatDate: ( _date: Date, name = 'medium' ) => `site:${ name }`,
-	formatViewerDate: ( _date: Date, name = 'medium' ) => `viewer:${ name }`,
-} ) );
-
 // jsdom's ResizeObserver is a no-op stub, so the real hook's callback never
 // fires and the chart would measure as infinitely tall in every test — leaving
 // the whole `compactWhenShort` branch unreachable. Drive the height instead.
@@ -75,6 +68,10 @@ const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 
 const JULY_1 = new Date( '2026-07-01T00:00:00Z' );
 const JULY_2 = new Date( '2026-07-02T00:00:00Z' );
+
+// A chart point is a wall clock, so a label assertion builds one from local
+// parts — the same way `toChartDate` builds them — rather than from an instant.
+const JULY_2_2PM = new Date( 2026, 6, 2, 14, 0 );
 
 const SERIES: ComparativeBarChartSeries[] = [
 	{
@@ -236,22 +233,32 @@ describe( 'ComparativeBarChart', () => {
 		expect( recordedOptions().axis.x.tickResolution ).toBe( 'hour' );
 	} );
 
-	it( 'labels a tooltip with the site-zone date alone by default', () => {
-		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
+	// Two site timezones, so the assertion holds whatever zone the machine
+	// running the suite is in: a label naming the point's own wall clock cannot
+	// depend on either zone, while one resolved in the site's follows it.
+	it.each( [ 'Asia/Tokyo', 'America/Los_Angeles' ] )(
+		'labels a tooltip with the bucket the point names, on a site in %s',
+		siteZone => {
+			setSettings( siteSettingsIn( siteZone ) );
+			render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
-		expect( tooltipLabelFor( JULY_1 ) ).toBe( 'site:medium' );
-	} );
+			expect( tooltipLabelFor( JULY_2_2PM ) ).toBe( 'July 2, 2026' );
+		}
+	);
 
 	// A date alone names 24 hourly buckets, so it cannot identify the one hovered
-	// — and the time it gains has to be read in the zone the points were laid out
-	// in, or it names an hour the axis does not agree with.
-	it( 'adds the time, in the viewer zone, at the hourly resolution', () => {
-		render(
-			<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } tickResolution="hour" />
-		);
+	// — and the hour it gains has to be the one the axis tick under it shows.
+	it.each( [ 'Asia/Tokyo', 'America/Los_Angeles' ] )(
+		'adds the hour the point names at the hourly resolution, on a site in %s',
+		siteZone => {
+			setSettings( siteSettingsIn( siteZone ) );
+			render(
+				<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } tickResolution="hour" />
+			);
 
-		expect( tooltipLabelFor( JULY_1 ) ).toBe( 'viewer:dateTime' );
-	} );
+			expect( tooltipLabelFor( JULY_2_2PM ) ).toBe( 'July 2, 2026 2:00 pm' );
+		}
+	);
 
 	it( 'adds the previous-period value to the tooltip when comparing', () => {
 		render( <ComparativeBarChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );

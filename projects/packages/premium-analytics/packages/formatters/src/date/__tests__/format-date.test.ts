@@ -6,14 +6,7 @@ import { setSettings } from '@wordpress/date';
  * Internal dependencies
  */
 import { EN_US_SETTINGS, ES_ES_SETTINGS, settingsFor } from '../__fixtures__/wp-date-settings';
-import { formatDate, formatViewerDate, formatWeekday } from '../format-date';
-
-// The fixtures put the site in UTC. Pinning the viewer somewhere else — rather
-// than letting it be whatever machine runs the suite — is what makes the two
-// formatters distinguishable at all.
-jest.mock( '../viewer-time-zone', () => ( {
-	viewerTimeZone: () => 'America/New_York',
-} ) );
+import { formatDate, formatWeekday } from '../format-date';
 
 // Midnight UTC, matching the fixtures' timezone, so no day shift is in play.
 const JUNE_21 = new Date( '2025-06-21T00:00:00+00:00' );
@@ -91,32 +84,5 @@ describe( 'formatDate', () => {
 		setSettings( EN_US_SETTINGS );
 
 		expect( formatDate( JUNE_21, 'dateTime' ) ).toBe( 'June 21, 2025 12:00 am' );
-	} );
-} );
-
-describe( 'formatViewerDate', () => {
-	beforeEach( () => {
-		setSettings( EN_US_SETTINGS );
-	} );
-
-	// 04:00 UTC on the 21st is 00:00 on the 21st in New York, so the calendar day
-	// agrees and only the clock time can distinguish the two readings.
-	const JUNE_21_04_UTC = new Date( '2025-06-21T04:00:00+00:00' );
-
-	it( 'reads the clock the viewer sees, where the site formatter reads its own', () => {
-		expect( formatViewerDate( JUNE_21_04_UTC, 'dateTime' ) ).toBe( 'June 21, 2025 12:00 am' );
-		expect( formatDate( JUNE_21_04_UTC, 'dateTime' ) ).toBe( 'June 21, 2025 4:00 am' );
-	} );
-
-	it( 'moves the calendar day with the viewer, not the site', () => {
-		// 02:00 UTC on the 21st is still 22:00 on the 20th in New York.
-		const justAfterUtcMidnight = new Date( '2025-06-21T02:00:00+00:00' );
-
-		expect( formatViewerDate( justAfterUtcMidnight ) ).toBe( 'June 20, 2025' );
-		expect( formatDate( justAfterUtcMidnight ) ).toBe( 'June 21, 2025' );
-	} );
-
-	it( 'defaults to "medium", the same named format as formatDate', () => {
-		expect( formatViewerDate( JUNE_21_04_UTC ) ).toBe( 'June 21, 2025' );
 	} );
 } );

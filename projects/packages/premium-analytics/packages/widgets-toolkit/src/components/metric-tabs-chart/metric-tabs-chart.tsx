@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { fromChartDate } from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
@@ -100,7 +101,11 @@ export interface MetricTabsChartProps {
 function rangeLabel( points: MetricTabDatum[] ): string {
 	const first = points[ 0 ];
 	const last = points[ points.length - 1 ];
-	return first && last ? formatDateRange( { from: first.date, to: last.date } ) : '';
+	// Points are wall clocks, so they go back through `fromChartDate` before the
+	// site-zone range formatter reads them.
+	return first && last
+		? formatDateRange( { from: fromChartDate( first.date ), to: fromChartDate( last.date ) } )
+		: '';
 }
 
 /**
@@ -179,7 +184,14 @@ function MetricChart( {
 	const resolvedDataFormat = metric.dataFormat ?? dataFormat;
 
 	if ( metric.unavailable ) {
-		return <div className={ styles.unavailableChart }>{ metric.unavailable }</div>;
+		// The chart area is otherwise identical between renders here, so without
+		// the overlay a refetch — an interval change, a Retry — looks frozen.
+		return (
+			<>
+				<div className={ styles.unavailableChart }>{ metric.unavailable }</div>
+				{ loading && <WidgetLoadingOverlay /> }
+			</>
+		);
 	}
 
 	return chartType === 'bar' ? (

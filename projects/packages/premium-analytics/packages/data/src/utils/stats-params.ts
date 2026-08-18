@@ -6,7 +6,7 @@ import {
 	differenceInCalendarISOWeeks,
 	differenceInCalendarMonths,
 	differenceInCalendarYears,
-	differenceInHours,
+	differenceInMilliseconds,
 } from 'date-fns';
 /**
  * Internal dependencies
@@ -15,6 +15,8 @@ import { localTZDate } from './date';
 import { getDaysBetweenInclusive } from './interval';
 import type { ReportParams } from './search';
 import type { StatsProxyParams } from '../api/stats-proxy-fetch';
+
+const MS_PER_HOUR = 60 * 60 * 1000;
 
 export type StatsPeriod = 'hour' | 'day' | 'week' | 'month' | 'year';
 
@@ -84,12 +86,14 @@ export function getPeriodsBetweenInclusive(
 	to: string
 ): number {
 	// Hourly is the one granularity finer than the calendar day the other
-	// branches key on, so it diffs the instants themselves. A range ending at
-	// `23:59:59` is a second short of the full span, hence the inclusive `+ 1`.
+	// branches key on, so it diffs the instants themselves. Rounding the span up
+	// counts the bucket a partial hour falls in without adding one to a range
+	// that already ends on the hour — the presets end at `23:59:59.999`, but a
+	// hand-edited or deep-linked range need not.
 	if ( period === 'hour' ) {
-		const hours = differenceInHours( localTZDate( to ), localTZDate( from ) );
+		const span = differenceInMilliseconds( localTZDate( to ), localTZDate( from ) );
 
-		return Number.isNaN( hours ) || hours < 0 ? 1 : hours + 1;
+		return Number.isNaN( span ) || span <= 0 ? 1 : Math.ceil( span / MS_PER_HOUR );
 	}
 
 	if ( period === 'day' ) {

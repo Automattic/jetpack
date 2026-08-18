@@ -10,7 +10,6 @@ import {
 import {
 	formatDate,
 	formatMetricValue,
-	formatViewerDate,
 	type DateFormatName,
 } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
@@ -20,7 +19,7 @@ import { useCallback, useId, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import { isEmptyChartData, getFixedYAxis } from '../../helpers';
+import { isEmptyChartData, fromChartDate, getFixedYAxis } from '../../helpers';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-bar-chart.module.scss';
@@ -189,9 +188,9 @@ export function ComparativeBarChart( {
 			}
 
 			// At hourly buckets a date alone names 24 of them, so the label carries
-			// the time — and resolves in the viewer's zone, which is the one the
-			// points were laid out in. See `formatViewerDate`.
-			return isHourly ? formatViewerDate( displayDate, 'dateTime' ) : formatDate( displayDate );
+			// the time. Either way the point is a wall clock, so it goes back
+			// through `fromChartDate` before a site-zone formatter reads it.
+			return formatDate( fromChartDate( displayDate ), isHourly ? 'dateTime' : 'medium' );
 		},
 		[ isHourly ]
 	);

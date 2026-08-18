@@ -2,9 +2,11 @@
  * External dependencies
  */
 import { render, screen } from '@testing-library/react';
+import { setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
+import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { MetricTabsChart } from '../metric-tabs-chart';
 import type { ComparativeLineChartSeries } from '../../chart-comparative-line/types';
 import type { MetricTab } from '../metric-tabs-chart';
@@ -34,6 +36,10 @@ jest.mock( '../../../hooks', () => ( {
 	useSeriesStyles: () => [],
 } ) );
 
+jest.mock( '../../widget-loading-overlay', () => ( {
+	WidgetLoadingOverlay: () => <div data-testid="loading-overlay" />,
+} ) );
+
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 
 const METRIC: MetricTab = {
@@ -49,6 +55,17 @@ const METRIC: MetricTab = {
 		{ date: new Date( '2026-06-01T00:00:00Z' ), value: 80 },
 		{ date: new Date( '2026-06-02T00:00:00Z' ), value: 120 },
 	],
+};
+
+// Chart points are wall clocks, so this one is built from local parts, the same
+// way `toChartDate` builds them.
+const WALL_CLOCK_METRIC: MetricTab = {
+	...METRIC,
+	current: [
+		{ date: new Date( 2026, 6, 1, 0, 0 ), value: 100 },
+		{ date: new Date( 2026, 6, 2, 0, 0 ), value: 200 },
+	],
+	previous: undefined,
 };
 
 /**
@@ -146,6 +163,33 @@ describe( 'MetricTabsChart', () => {
 		// the endpoint never returned.
 		expect( screen.queryByText( '300' ) ).not.toBeInTheDocument();
 	} );
+
+	// The chart area is otherwise identical between renders here, so without the
+	// overlay a refetch looks like nothing happened at all.
+	it( 'still shows the busy overlay over an unavailable metric', () => {
+		const unavailable = { ...METRIC, unavailable: "Hourly data isn't available for this metric." };
+
+		render( <MetricTabsChart metrics={ [ unavailable ] } dataFormat={ DATA_FORMAT } loading /> );
+
+		expect( screen.getByTestId( 'loading-overlay' ) ).toBeInTheDocument();
+	} );
+
+	// The legend names each series by its date range, read off the points — which
+	// are wall clocks, so the range must not move with the site's timezone.
+	it.each( [ 'Asia/Tokyo', 'America/Los_Angeles' ] )(
+		'labels a series with the range its points name, on a site in %s',
+		siteZone => {
+			setSettings( siteSettingsIn( siteZone ) );
+
+			render( <MetricTabsChart metrics={ [ WALL_CLOCK_METRIC ] } dataFormat={ DATA_FORMAT } /> );
+
+			// `elideRange` borrows CLDR's range pattern, whose separator spaces are
+			// typographic rather than plain ones.
+			const label = recordedSeries( mockLineSpy )[ 0 ].label.replace( /\s/gu, ' ' );
+
+			expect( label ).toBe( 'July 1 – 2, 2026' );
+		}
+	);
 
 	it( 'keeps an unavailable metric selectable, so its reason stays reachable', () => {
 		const unavailable = {

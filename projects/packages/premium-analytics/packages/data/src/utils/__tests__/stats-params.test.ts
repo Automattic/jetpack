@@ -45,12 +45,17 @@ describe( 'getPeriodsBetweenInclusive', () => {
 	);
 
 	// Hourly is the one granularity finer than a calendar day, so it counts the
-	// instants rather than the days they fall on.
+	// instants rather than the days they fall on. A range ending on the hour is
+	// not a bucket longer than one ending a millisecond before it, so the span
+	// rounds up rather than gaining a fixed `+ 1`.
 	it.each( [
 		[ '2026-06-01T00:00:00.000-07:00', '2026-06-01T23:59:59.999-07:00', 24 ],
 		[ '2026-06-01T09:00:00.000-07:00', '2026-06-02T08:59:59.999-07:00', 24 ],
 		[ '2026-06-01T00:00:00.000-07:00', '2026-06-02T23:59:59.999-07:00', 48 ],
 		[ '2026-06-01T09:00:00.000-07:00', '2026-06-01T09:30:00.000-07:00', 1 ],
+		[ '2026-06-01T00:00:00.000-07:00', '2026-06-02T00:00:00.000-07:00', 24 ],
+		[ '2026-06-01', '2026-06-02', 24 ],
+		[ '2026-06-01T09:00:00.000-07:00', '2026-06-01T09:00:00.000-07:00', 1 ],
 	] )( 'counts the hour buckets from %s to %s', ( from, to, expected ) => {
 		expect( getPeriodsBetweenInclusive( 'hour', from, to ) ).toBe( expected );
 	} );
