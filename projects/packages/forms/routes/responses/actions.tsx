@@ -16,6 +16,7 @@ import * as React from 'react';
 import { notSpam, spam } from '../../src/dashboard/icons';
 import { defaultView } from '../../src/dashboard/inbox/stage/views.js';
 import { getFormsMenuBadgeSlug, getMenuBadgeCount } from '../../src/dashboard/inbox/utils';
+import { deleteResponse, saveResponse } from '../../src/dashboard/response-records';
 import { store as dashboardStore } from '../../src/dashboard/store';
 import printIcon from './print-icon.tsx';
 /**
@@ -445,8 +446,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 				const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 					items,
 					newStatus: 'spam',
-					apiCall: ( id: number ) =>
-						saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ),
+					apiCall: ( id: number ) => saveResponse( saveEntityRecord, { id, status: 'spam' } ),
 					editEntityRecord,
 					updateCountsOptimistically,
 					queryParams,
@@ -587,8 +587,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 				const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 					items,
 					newStatus: 'publish',
-					apiCall: ( id: number ) =>
-						saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } ),
+					apiCall: ( id: number ) => saveResponse( saveEntityRecord, { id, status: 'publish' } ),
 					editEntityRecord,
 					updateCountsOptimistically,
 					queryParams,
@@ -722,8 +721,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 				const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 					items,
 					newStatus,
-					apiCall: ( id: number ) =>
-						saveEntityRecord( 'postType', 'feedback', { id, status: newStatus } ),
+					apiCall: ( id: number ) => saveResponse( saveEntityRecord, { id, status: newStatus } ),
 					editEntityRecord,
 					updateCountsOptimistically,
 					queryParams,
@@ -853,7 +851,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 					items,
 					newStatus: 'trash',
 					apiCall: ( id: number ) =>
-						deleteEntityRecord( 'postType', 'feedback', id, {}, { throwOnError: true } ),
+						deleteResponse( deleteEntityRecord, id, {}, { throwOnError: true } ),
 					editEntityRecord,
 					updateCountsOptimistically,
 					queryParams,
@@ -969,7 +967,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 
 			const promises = await Promise.allSettled(
 				items.map( ( { id } ) =>
-					deleteEntityRecord( 'postType', 'feedback', id, { force: true }, { throwOnError: true } )
+					deleteResponse( deleteEntityRecord, id, { force: true }, { throwOnError: true } )
 				)
 			);
 

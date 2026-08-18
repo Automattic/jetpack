@@ -5,6 +5,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { saveResponse } from '../response-records.ts';
 import { store as dashboardStore } from '../store/index.js';
 /**
  * Types
@@ -54,13 +55,9 @@ export const useMarkAsSpam = ( response: FormResponse | null, options: UseMarkAs
 			// `throwOnError` matters: without it core-data resolves `undefined` on a
 			// failed save instead of rejecting, so the `catch` below never runs and
 			// callers act on a change the server refused.
-			await saveEntityRecord(
-				'postType',
-				'feedback',
-				{
-					id: response.id,
-					status: 'spam',
-				},
+			await saveResponse(
+				saveEntityRecord,
+				{ id: response.id, status: 'spam' },
 				{ throwOnError: true }
 			);
 
