@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Charts: choose a bar chart's time-axis tick values from the buckets the axis actually renders, so a mix of dated and labelled points can no longer place a tick off the scale.
+Charts: keep a bar chart's time axis on the buckets it actually draws, so a labelled bar or a comparison series can no longer strand a tick at the axis origin.

@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix a misplaced tick on bar charts that mix dated and labelled bars, and cut redundant work when a chart re-renders.
+Fix a stray label stacked at the left edge of a bar chart's time axis when the chart mixes labelled bars with dated ones, or compares two periods.

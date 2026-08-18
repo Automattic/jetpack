@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Premium Analytics: fix a misplaced tick on charts that mix dated and labelled bars, and cut redundant work when a chart re-renders.
+Premium Analytics: fix a stray label stacked at the left edge of a chart's time axis when the chart mixes labelled bars with dated ones, or compares two periods.

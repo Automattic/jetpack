@@ -118,9 +118,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	legend = {},
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
-	// Deliberately undefined rather than `{}`: the value reaches
-	// `useBarChartOptions` memo dependencies, where a fresh literal per render
-	// would defeat them. That hook supplies a shared default.
+	// Left undefined so `useBarChartOptions` can apply its shared default.
 	options,
 	orientation = 'vertical',
 	withPatterns = false,

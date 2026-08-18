@@ -247,6 +247,10 @@ describe( 'BarChart', () => {
 			value,
 		} );
 
+		// Scoped to the chart: @visx/text parks a measuring node on document.body,
+		// which a negative assertion would otherwise match.
+		const inChart = () => within( screen.getByRole( 'grid', { name: /bar chart/i } ) );
+
 		test( 'leaves tick values alone when a bucket is labelled rather than dated', () => {
 			// visx builds the band domain from `label || date`, so a labelled bucket
 			// is not a `Date` on the axis at all. Choosing `Date` tick values for a
@@ -269,6 +273,57 @@ describe( 'BarChart', () => {
 			);
 
 			expect( result.current.axis.x.tickValues ).toBeUndefined();
+		} );
+
+		test( 'labels a bucket that carries a label, on an otherwise dated axis', () => {
+			// `hasLabels` samples only the first point, so this axis keeps the time
+			// formatter; the labelled bucket still has to render as itself rather
+			// than as a date parsed out of its label.
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Views',
+						data: [
+							dated( 2026, 0, 1, 1 ),
+							{ ...dated( 2026, 0, 2, 2 ), label: 'Launch day' },
+							dated( 2026, 0, 3, 3 ),
+						],
+						options: {},
+					},
+				],
+			} );
+
+			expect( inChart().getByText( 'Launch day' ) ).toBeInTheDocument();
+			expect( inChart().queryByText( /Invalid Date/ ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'ignores comparison series, which visx never puts on the band scale', () => {
+			// A comparison series carrying its own dates is a misuse the chart already
+			// warns about; the point here is that it does not also break the axis.
+			const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+
+			renderWithTheme( {
+				data: [
+					{
+						label: 'This period',
+						data: [ dated( 2026, 0, 1, 1 ), dated( 2026, 0, 4, 2 ) ],
+						options: {},
+					},
+					{
+						label: 'Prior period',
+						data: [ dated( 2025, 11, 26, 1 ), dated( 2025, 11, 29, 2 ) ],
+						options: { type: 'comparison' },
+					},
+				],
+			} );
+
+			// Dec 26/29 are buckets of a series the band scale never saw; ticking
+			// them parks a label at the axis origin.
+			expect( inChart().queryByText( 'Dec 26' ) ).not.toBeInTheDocument();
+			expect( inChart().queryByText( 'Dec 29' ) ).not.toBeInTheDocument();
+			expect( inChart().getByText( 'Jan 1' ) ).toBeInTheDocument();
+
+			warn.mockRestore();
 		} );
 
 		test( 'keeps every dated bucket across series, in the order visx concatenates them', () => {

@@ -14,9 +14,8 @@ export const BASE_BAND_PADDING_INNER = 0.1;
 /** Ticks each axis carries unless the caller asks for a different count. */
 const DEFAULT_NUM_TICKS = 4;
 
-// Shared rather than a fresh literal per call: it is in the dependencies of
-// every memo below, so defaulting inline recomputed all of them on every render
-// for the callers that pass no options at all.
+// Shared rather than a fresh literal: this lands in the dependencies of every
+// memo below, so defaulting inline recomputed all of them on every render.
 const NO_OPTIONS: BaseChartProps[ 'options' ] = {};
 
 // The axis abbreviates to fit a tick; a tooltip has room to spell the same
@@ -64,29 +63,34 @@ const getTooltipFormatter = ( data: SeriesData[], tickResolution?: TickResolutio
 	return ( timestamp: number ) => new Date( timestamp ).toLocaleString( undefined, format );
 };
 
-// The bucket a point sits on, as handed to visx for the band axis. Module-level
-// so the domain below is read through the same function the scale is, and so
-// the reference stays stable across renders.
+// Shared with the domain below so both read a bucket the same way.
 const bucketAccessor = ( d: DataPointDate ) => d?.label || d?.date;
 
 /**
- * The band scale's domain: the buckets the axis can put a tick on, as visx will
- * build them.
+ * The buckets the band axis can put a tick on.
  *
- * Reads the same accessor visx does and keeps its order — series concatenated,
- * first occurrence winning — rather than re-deriving from `date` and sorting.
- * Tick values are chosen as positions in this domain, so anything but the same
- * list can place a tick on a bucket that is not on screen. Null when any bucket
- * is labelled rather than dated: a `Date` tick value would not be in the domain
- * at all, and `scaleBand` returns `undefined` for a key it does not hold.
+ * Built from the accessor visx is given, in the order visx concatenates it, so
+ * that a tick value is a key the scale actually holds; `scaleBand` returns
+ * `undefined` for one it does not, which parks the tick at the origin. Null
+ * rather than a partial list when any bucket is labelled instead of dated.
+ *
+ * Still wider than what visx registers when the legend hides a series, since
+ * this runs before visibility is known — see CHARTS follow-up in the PR.
  *
  * @param data - The series the chart will render.
- * @return Distinct bucket dates in axis order, or null if any bucket is labelled.
+ * @return Bucket dates in axis order, or null if the axis cannot be ticked by date.
  */
 const getBandDomain = ( data: SeriesData[] ): Date[] | null => {
 	const byTimestamp = new Map< number, Date >();
 
 	for ( const series of data ) {
+		// Comparison series register nothing with visx — `comparison-bars.tsx` draws
+		// onto the scales the primary series established — so their buckets are not
+		// keys of the band scale.
+		if ( series.options?.type === 'comparison' ) {
+			continue;
+		}
+
 		for ( const point of series.data ) {
 			const bucket = bucketAccessor( point as DataPointDate );
 			if ( ! ( bucket instanceof Date ) ) {
@@ -98,7 +102,7 @@ const getBandDomain = ( data: SeriesData[] ): Date[] | null => {
 		}
 	}
 
-	return [ ...byTimestamp.values() ];
+	return byTimestamp.size ? [ ...byTimestamp.values() ] : null;
 };
 
 /**
@@ -168,14 +172,17 @@ export function useBarChartOptions(
 		// size; the tooltip stays at the bucket's own granularity.
 		const hasLabels = Boolean( data?.[ 0 ]?.data?.[ 0 ]?.label );
 		const timeTickFormatter = hasLabels ? null : getFormatter( data, tickResolution );
-		const labelFormatter = timeTickFormatter ?? ( ( label: string ) => label );
+		// `hasLabels` only samples the first point, so a later labelled bucket still
+		// reaches the axis — as its own string, not a timestamp.
+		const labelFormatter = timeTickFormatter
+			? ( bucket: Date | string | number ) =>
+					typeof bucket === 'string' ? bucket : timeTickFormatter( Number( bucket ) )
+			: ( label: string ) => label;
 		const tooltipDatumFormatter = hasLabels
 			? labelFormatter
 			: getTooltipFormatter( data, tickResolution );
 		const valueFormatter = formatNumberCompact as TickFormatter< unknown >;
 
-		// Only for a dated axis, and only when every bucket is dated: without a
-		// domain there is nothing to choose tick values from.
 		const bandDomain = timeTickFormatter ? getBandDomain( data ) : null;
 
 		const valueAccessor = ( d: DataPointDate | EnhancedDataPoint ) => {

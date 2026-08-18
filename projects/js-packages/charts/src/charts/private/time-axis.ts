@@ -62,11 +62,9 @@ const formatMonthTick = dateTimeFormat( { month: 'short' } );
 /**
  * A tick format, carrying the boundary test that decides its coarser label.
  *
- * A format that prints a coarser unit at a boundary — the date at midnight, the
- * year at January — says what its neighbours leave out. A time scale always
- * lands on those boundaries; a band scale samples by index and has to be
- * steered onto them, so `getBandTickValues` needs the same test the format
- * itself branches on. Hanging it off the format keeps the two from drifting.
+ * A band scale samples by index, so `getBandTickValues` has to steer ticks onto
+ * the boundaries a format prints the date or the year at. Hanging the test off
+ * the format that branches on it keeps the two from drifting apart.
  */
 export type TickFormat = ( ( timestamp: number ) => string ) & {
 	isAnchor?: ( date: Date ) => boolean;
