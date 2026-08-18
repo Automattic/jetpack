@@ -290,19 +290,51 @@ function measureMultistep( root: Locator, sel: Selectors ): Promise< MultistepMe
 }
 
 /**
- * Waits for the editor canvas to have painted the form.
+ * Waits for the editor canvas to have painted the form, and returns whichever
+ * frame it landed in.
+ *
+ * Whether the post editor iframes its canvas is not a constant: it varies by
+ * WordPress version and by whether the active theme is a block theme, and the
+ * iframe is torn down and rebuilt when the theme changes underneath it. So
+ * rather than name a frame and hope, look for the form in every frame the page
+ * has and hand back the one holding it — the main frame when the editor is not
+ * iframed, the canvas iframe when it is. Callers measure against the returned
+ * frame for the same reason: `editor.canvas` only ever resolves an iframed
+ * canvas, so on a surface that is not iframed it waits for something that never
+ * arrives.
  *
  * @param page - The page.
- * @return The canvas frame, or the main frame when the editor is not iframed.
+ * @return The frame containing the form.
  */
 async function waitForEditorCanvas( page: Page ): Promise< Frame > {
-	await page.waitForFunction( () => {
-		const frame = document.querySelector< HTMLIFrameElement >( 'iframe[name="editor-canvas"]' );
-		const doc = frame ? frame.contentDocument : document;
-		return !! doc?.querySelector( '.jetpack-contact-form' );
-	} );
-	const frame = page.frames().find( f => f.name() === 'editor-canvas' );
-	return frame ?? page.mainFrame();
+	let canvas: Frame | undefined;
+
+	await expect
+		.poll(
+			async () => {
+				for ( const frame of page.frames() ) {
+					try {
+						if ( ( await frame.locator( EDITOR_SELECTORS.form ).count() ) > 0 ) {
+							canvas = frame;
+							return true;
+						}
+					} catch {
+						/*
+						 * The editor swaps its canvas out while it boots, so a frame can
+						 * detach mid-poll. That just means this pass missed it.
+						 */
+					}
+				}
+				return false;
+			},
+			{
+				timeout: 60000,
+				message: 'Expected the form to render in the editor canvas',
+			}
+		)
+		.toBe( true );
+
+	return canvas as Frame;
 }
 
 for ( const theme of [ CLASSIC_THEME, BLOCK_THEME ] ) {
@@ -365,13 +397,12 @@ for ( const theme of [ CLASSIC_THEME, BLOCK_THEME ] ) {
 		test( 'editor: a field keeps its label on its input, and containers fill the form', async ( {
 			admin,
 			page,
-			editor,
 		} ) => {
 			await admin.editPost( singleStepPageId );
-			await waitForEditorCanvas( page );
+			const canvas = await waitForEditorCanvas( page );
 
 			const metrics = await measureSingleStep(
-				editor.canvas.locator( EDITOR_SELECTORS.form ).first(),
+				canvas.locator( EDITOR_SELECTORS.form ).first(),
 				EDITOR_SELECTORS
 			);
 			logger.debug( `editor/${ theme } single step: ${ JSON.stringify( metrics ) }` );
@@ -415,13 +446,12 @@ for ( const theme of [ CLASSIC_THEME, BLOCK_THEME ] ) {
 		test( 'editor: a step lays its blocks out full width and flush left', async ( {
 			admin,
 			page,
-			editor,
 		} ) => {
 			await admin.editPost( multistepPageId );
-			await waitForEditorCanvas( page );
+			const canvas = await waitForEditorCanvas( page );
 
 			const metrics = await measureMultistep(
-				editor.canvas.locator( EDITOR_SELECTORS.form ).first(),
+				canvas.locator( EDITOR_SELECTORS.form ).first(),
 				EDITOR_SELECTORS
 			);
 			logger.debug( `editor/${ theme } multistep: ${ JSON.stringify( metrics ) }` );
