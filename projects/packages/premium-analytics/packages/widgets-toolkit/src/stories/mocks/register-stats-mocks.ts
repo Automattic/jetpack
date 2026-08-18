@@ -1100,8 +1100,15 @@ function getLocationRows(
 	}
 
 	if ( geoMode === 'region' ) {
-		const countryCode = query.get( 'filter_by_country' ) || 'US';
+		const countryCode = query.get( 'filter_by_country' );
 		const regionRows = isComparison ? REGION_COMPARISON_ROWS_BY_COUNTRY : REGION_ROWS_BY_COUNTRY;
+
+		// Unfiltered, the endpoint returns the top regions worldwide.
+		if ( ! countryCode ) {
+			return Object.values( regionRows )
+				.flat()
+				.sort( ( a, b ) => b.views - a.views );
+		}
 
 		return regionRows[ countryCode ] ?? regionRows.US;
 	}

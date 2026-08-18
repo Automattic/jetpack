@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Report errors from XML-RPC faults, which were invisible to the existing intake. We also remove invalid_signature from the displayable error codes as it is not actionable.

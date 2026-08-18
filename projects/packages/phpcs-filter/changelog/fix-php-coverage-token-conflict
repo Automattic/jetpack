@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
+Comment: Test only, end users won't care.
 
-Fix PHP coverage compatibility with PHP_CodeSniffer.

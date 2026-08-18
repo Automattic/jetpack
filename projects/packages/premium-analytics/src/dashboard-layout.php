@@ -247,7 +247,7 @@ function get_dashboard_default_section_layouts() {
 					'max' => 10,
 				)
 			),
-			// Row 4: VideoPress + clicks + authors.
+			// Row 4: VideoPress (sites running VideoPress only) + clicks + authors.
 			get_dashboard_default_widget_instance(
 				'default-videopress-widget-instance',
 				'jpa/videopress',

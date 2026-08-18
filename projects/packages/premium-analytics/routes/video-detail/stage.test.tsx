@@ -140,6 +140,15 @@ function mockSummary( overrides: Record< string, unknown > = {} ) {
 }
 
 describe( 'video detail stage', () => {
+	// The page only renders on sites running VideoPress, and the report registry
+	// behind the Videos crumb reads that from script data.
+	beforeAll( () => {
+		Object.defineProperty( window, 'JetpackScriptData', {
+			configurable: true,
+			value: { premium_analytics: { has_videopress: true } },
+		} );
+	} );
+
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockDashboardLayouts.length = 0;
@@ -148,6 +157,10 @@ describe( 'video detail stage', () => {
 			to: '2026-06-16',
 			section: 'embeds',
 		};
+	} );
+
+	afterAll( () => {
+		delete window.JetpackScriptData;
 	} );
 
 	it( 'shows a not-found state with a date-preserving link back to Videos', () => {

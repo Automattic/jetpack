@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 
 /**
@@ -68,7 +69,7 @@ class Dashboard {
 		$page_suffix = add_menu_page(
 			__( 'Stats', 'jetpack-stats-admin' ),
 			_x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' ),
-			'view_stats',
+			$this->get_capability(),
 			'stats',
 			array( $this, 'render' ),
 			'dashicons-chart-bar',
@@ -81,12 +82,31 @@ class Dashboard {
 	}
 
 	/**
+	 * Capability a user needs to reach the dashboard.
+	 *
+	 * Until the site is connected the page exists to pick a plan and connect, which only a user
+	 * who can manage the connection can act on. Once connected it is a reporting page, open to
+	 * everyone allowed to view stats.
+	 *
+	 * Pre-connection that is `jetpack_connect`: it maps to `manage_options` on a normal site,
+	 * but is `do_not_allow` in offline mode and honours the same multisite/filter rules as the
+	 * register endpoint, so the menu is not offered where the connection cannot be completed.
+	 *
+	 * @return string
+	 */
+	protected function get_capability() {
+		return Main::is_site_connected() ? 'view_stats' : 'jetpack_connect';
+	}
+
+	/**
 	 * Override render funtion
 	 */
 	public function render() {
-		// Record the number of views of the stats dashboard on the initial several loads for the purpose of showing feedback notice.
+		// Record the number of views of the stats dashboard on the initial several loads for the
+		// purpose of showing feedback notice. Views before the site is connected show the plan
+		// choice rather than the dashboard, and there is nothing to give feedback on yet.
 		$views = intval( Stats_Options::get_option( 'views' ) ) + 1;
-		if ( $views <= Notices::VIEWS_TO_SHOW_FEEDBACK ) {
+		if ( $views <= Notices::VIEWS_TO_SHOW_FEEDBACK && Main::is_site_connected() ) {
 			Stats_Options::set_option( 'views', $views );
 		}
 
@@ -138,5 +158,14 @@ class Dashboard {
 	 */
 	public function load_admin_scripts() {
 		( new Odyssey_Assets() )->load_admin_scripts( 'jp-stats-dashboard', 'build.min', array( 'config_variable_name' => 'jetpackStatsOdysseyAppConfigData' ) );
+
+		// The app is served from our CDN and so cannot bundle the connection package. Print the
+		// state Search and Protect print on their own pages, so it can read the connection status
+		// and register the site through the connection REST API itself. Connected sites fetch
+		// `jetpack/v4/connection` over REST instead, and must not receive registrationNonce and
+		// the connected-plugin list on a page that `view_stats` users can open.
+		if ( ! Main::is_site_connected() ) {
+			Connection_Initial_State::render_script( 'jp-stats-dashboard' );
+		}
 	}
 }

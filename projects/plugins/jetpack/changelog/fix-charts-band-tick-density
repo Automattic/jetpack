@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: keep the full set of ticks on the traffic chart's time axis, which could thin out to two labels on longer date ranges.

@@ -226,7 +226,7 @@ describe( 'post detail stage', () => {
 
 		render( stage() );
 
-		expect( getBreadcrumbLabels() ).toEqual( [ 'Stats', 'Posts & Pages', 'Hello world' ] );
+		expect( getBreadcrumbLabels() ).toEqual( [ 'Stats', 'All pages', 'Hello world' ] );
 	} );
 
 	it.each( [ { title: undefined, isLoading: true }, { title: '' } ] )(

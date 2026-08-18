@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Podcast Player: stop preloading episode audio before playback to avoid inflating podcast download metrics.
