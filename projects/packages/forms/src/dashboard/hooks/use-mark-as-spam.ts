@@ -3,7 +3,7 @@
  */
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as dashboardStore } from '../store/index.js';
 /**
@@ -51,10 +51,18 @@ export const useMarkAsSpam = ( response: FormResponse | null, options: UseMarkAs
 		try {
 			setIsSaving( true );
 
-			await saveEntityRecord( 'postType', 'feedback', {
-				id: response.id,
-				status: 'spam',
-			} );
+			// `throwOnError` matters: without it core-data resolves `undefined` on a
+			// failed save instead of rejecting, so the `catch` below never runs and
+			// callers act on a change the server refused.
+			await saveEntityRecord(
+				'postType',
+				'feedback',
+				{
+					id: response.id,
+					status: 'spam',
+				},
+				{ throwOnError: true }
+			);
 
 			await invalidateCounts();
 
@@ -76,12 +84,27 @@ export const useMarkAsSpam = ( response: FormResponse | null, options: UseMarkAs
 		removeParameter();
 	}, [ removeParameter ] );
 
-	// Email links have a query param that triggers the confirmation dialog.
+	// Email links carry a query param that triggers the confirmation dialog. The
+	// trigger is consumed exactly once: a response that is already spam or trashed
+	// has nothing to confirm, so the param is cleared rather than left armed. On a
+	// screen that keeps the user in place, an armed param would re-fire the dialog
+	// unprompted as soon as a later action moved the response back to the inbox.
+	const hasConsumedSpamParameter = useRef( false );
+
 	useEffect( () => {
-		if ( hasSpamParameter && response && ! [ 'spam', 'trash' ].includes( response.status ) ) {
-			setIsConfirmDialogOpen( true );
+		if ( ! hasSpamParameter || ! response || hasConsumedSpamParameter.current ) {
+			return;
 		}
-	}, [ response?.status, hasSpamParameter, response ] );
+
+		hasConsumedSpamParameter.current = true;
+
+		if ( [ 'spam', 'trash' ].includes( response.status ) ) {
+			removeParameter();
+			return;
+		}
+
+		setIsConfirmDialogOpen( true );
+	}, [ response?.status, hasSpamParameter, response, removeParameter ] );
 
 	return {
 		isConfirmDialogOpen,

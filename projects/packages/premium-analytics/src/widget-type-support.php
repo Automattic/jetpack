@@ -3,7 +3,9 @@
  * Widget type support shared by the registry and default layouts.
  *
  * Persisted layouts are left unchanged so missing types remain as removable
- * ghost widgets. Temporary restrictions belong in the runtime types filter.
+ * ghost widgets. This is for hard availability — the host, or a feature the site
+ * either has or does not. Request-dependent or soft state (shown locked, say)
+ * belongs in the runtime types filter instead.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -12,21 +14,38 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Status\Host;
 
+// Guarded on a symbol the file declares, so a second copy of the package can't
+// redeclare it. See the include block in Analytics::load_dashboard_components().
+if ( ! function_exists( __NAMESPACE__ . '\\is_videopress_available' ) ) {
+	require_once __DIR__ . '/videopress-availability.php';
+}
+
+/**
+ * Widget types that only have data on a site running VideoPress.
+ */
+const VIDEOPRESS_WIDGET_TYPES = array(
+	'jpa/videopress',
+	'jpa/video-detail-highlights',
+	'jpa/video-detail-views-performance',
+	'jpa/video-detail-embeds',
+);
+
 /**
  * Returns the current widget support context.
  *
- * @return array{is_wpcom_simple:bool} Widget support context.
+ * @return array{is_wpcom_simple:bool,has_videopress:bool} Widget support context.
  */
 function get_widget_support_context() {
 	return array(
 		'is_wpcom_simple' => ( new Host() )->is_wpcom_simple(),
+		'has_videopress'  => is_videopress_available(),
 	);
 }
 
 /**
  * Returns unsupported widget types for a context.
  *
- * @param array{is_wpcom_simple:bool} $context Widget support context.
+ * @param array{is_wpcom_simple?:bool,has_videopress?:bool} $context Widget support context; a missing key reads as false.
  * @return string[] Unsupported widget type names.
  */
 function get_unsupported_widget_types( $context ) {
@@ -34,7 +53,7 @@ function get_unsupported_widget_types( $context ) {
 
 	// File download tracking is served only on WPCOM Simple. Calypso applies
 	// the same boundary, which excludes self-hosted Jetpack and Atomic sites.
-	if ( ! $context['is_wpcom_simple'] ) {
+	if ( empty( $context['is_wpcom_simple'] ) ) {
 		$unsupported[] = 'jpa/file-downloads';
 
 		// Share counts are recorded when the share request is processed, which
@@ -45,15 +64,22 @@ function get_unsupported_widget_types( $context ) {
 		$unsupported[] = 'jpa/shares';
 	}
 
+	// Play counts only exist for VideoPress-hosted videos, so without VideoPress
+	// these widgets have nothing to report. Calypso gates its Videos module the
+	// same way (see videopress-availability.php).
+	if ( empty( $context['has_videopress'] ) ) {
+		$unsupported = array_merge( $unsupported, VIDEOPRESS_WIDGET_TYPES );
+	}
+
 	return $unsupported;
 }
 
 /**
  * Removes unsupported widget records.
  *
- * @param array                       $items    Widget records.
- * @param string                      $type_key Record key containing the widget type.
- * @param array{is_wpcom_simple:bool} $context  Widget support context.
+ * @param array                                             $items    Widget records.
+ * @param string                                            $type_key Record key containing the widget type.
+ * @param array{is_wpcom_simple?:bool,has_videopress?:bool} $context  Widget support context; a missing key reads as false.
  * @return array Filtered and re-indexed widget records.
  */
 function remove_unsupported_widget_items( $items, $type_key, $context ) {

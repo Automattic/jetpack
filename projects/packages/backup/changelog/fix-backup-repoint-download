@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Backup: repoint the modernized dashboard's download flow at the v2 downloads routes, project the status response, and fix the progress scale. No-op when the modernization filter is off.

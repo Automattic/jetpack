@@ -27,7 +27,7 @@ export function useDetailBreadcrumbs( title?: string ): BreadcrumbItem[] {
 
 	if ( definition ) {
 		items.push( {
-			label: definition.getTitle(),
+			label: definition.getLabel(),
 			to: buildReportLink( definition.id, search, originSection ),
 		} );
 	}

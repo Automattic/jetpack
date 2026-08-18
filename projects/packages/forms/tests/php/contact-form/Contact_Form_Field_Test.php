@@ -117,6 +117,127 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A missing checkbox value on a real submission means the visitor unchecked it.
+	 * It must not be repopulated from the query string or configured default.
+	 *
+	 * @dataProvider submitted_unchecked_field_provider
+	 *
+	 * @param string $field_type  Field type.
+	 * @param array  $attributes  Additional field attributes.
+	 */
+	#[DataProvider( 'submitted_unchecked_field_provider' )]
+	public function test_submitted_unchecked_fields_do_not_fall_back_to_prefills( $field_type, $attributes ) {
+		$form  = new Contact_Form( array( 'id' => 'submitted-form' ) );
+		$field = new Contact_Form_Field(
+			array_merge(
+				array(
+					'id'      => 'choice',
+					'type'    => $field_type,
+					'default' => 'Yes',
+				),
+				$attributes
+			),
+			'',
+			$form
+		);
+
+		$_GET['choice']             = 'Yes';
+		$_POST['action']            = 'grunion-contact-form';
+		$_POST['contact-form-id']   = $form->get_attribute( 'id' );
+		$_POST['contact-form-hash'] = $form->hash;
+
+		$this->assertSame( '', $field->get_computed_field_value( $field_type, 'choice' ) );
+	}
+
+	/**
+	 * Field types represented by checkbox controls.
+	 *
+	 * @return array
+	 */
+	public static function submitted_unchecked_field_provider() {
+		return array(
+			'checkbox'          => array( 'checkbox', array() ),
+			'checkbox-multiple' => array( 'checkbox-multiple', array() ),
+			'explicit consent'  => array( 'consent', array( 'consenttype' => 'explicit' ) ),
+		);
+	}
+
+	/**
+	 * Explicit consent never renders checked, so prefills must not satisfy its conditions.
+	 *
+	 * @dataProvider explicit_consent_prefill_provider
+	 *
+	 * @param string $default   Configured default value.
+	 * @param string $get_value Query-string value.
+	 */
+	#[DataProvider( 'explicit_consent_prefill_provider' )]
+	public function test_explicit_consent_conditional_value_ignores_prefills( $default, $get_value ) {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'        => 'consent',
+				'id'          => 'choice',
+				'default'     => $default,
+				'consenttype' => 'explicit',
+			)
+		);
+
+		if ( '' !== $get_value ) {
+			$_GET['choice'] = $get_value;
+		}
+
+		$this->assertSame( '', $field->get_conditional_logic_value() );
+	}
+
+	/**
+	 * Prefills that cannot check an explicit-consent control.
+	 *
+	 * @return array
+	 */
+	public static function explicit_consent_prefill_provider() {
+		return array(
+			'configured default' => array( 'Yes', '' ),
+			'query string'       => array( '', 'Yes' ),
+		);
+	}
+
+	/**
+	 * Implicit consent is represented by a hidden input whose submitted value is always Yes.
+	 */
+	public function test_implicit_consent_computed_value_matches_its_hidden_input() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'        => 'consent',
+				'id'          => 'test_consent',
+				'consenttype' => 'implicit',
+			)
+		);
+
+		$this->assertSame( 'Yes', $field->get_computed_field_value( 'consent', 'test_consent' ) );
+	}
+
+	/**
+	 * JWT submissions omit the normal form action but still represent a submitted checkbox.
+	 */
+	public function test_submitted_unchecked_field_is_empty_for_jwt_submission() {
+		$form  = new Contact_Form( array( 'id' => 'submitted-form' ) );
+		$field = new Contact_Form_Field(
+			array(
+				'id'      => 'choice',
+				'type'    => 'checkbox',
+				'default' => 'Yes',
+			),
+			'',
+			$form
+		);
+
+		$_POST['contact-form-id']          = $form->get_attribute( 'id' );
+		$_POST['contact-form-hash']        = $form->hash;
+		$_POST['jetpack_contact_form_jwt'] = 'validated-by-submission-handler';
+
+		$this->assertSame( '', $field->get_computed_field_value( 'checkbox', 'choice' ) );
+	}
+
+	/**
 	 * Test logged-in user email return
 	 */
 	public function test_returns_logged_in_user_email() {
@@ -202,6 +323,12 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'value=\'Yes\'', $html );
 		$this->assertStringContainsString( 'consent-implicit', $html );
 		$this->assertStringContainsString( 'By submitting this form, you agree to our terms.', $html );
+
+		$processor = new \WP_HTML_Tag_Processor( $html );
+		$this->assertTrue( $processor->next_tag( array( 'tag_name' => 'DIV' ) ) );
+		$context = json_decode( (string) $processor->get_attribute( 'data-wp-context' ), true );
+		$this->assertIsArray( $context );
+		$this->assertSame( 'Yes', $context['fieldValue'] );
 	}
 
 	/**
@@ -243,6 +370,98 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		// Should default to implicit (hidden field)
 		$this->assertStringContainsString( 'type=\'hidden\'', $html );
 		$this->assertStringContainsString( 'consent-implicit', $html );
+	}
+
+	/**
+	 * Hidden fields can drive conditional logic, so the browser store must register them.
+	 */
+	public function test_render_hidden_field_registers_its_value_with_interactivity() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'    => 'hidden',
+				'id'      => 'campaign',
+				'default' => 'summer',
+			)
+		);
+
+		$processor = new \WP_HTML_Tag_Processor( $field->render() );
+		$this->assertTrue( $processor->next_tag( array( 'tag_name' => 'INPUT' ) ) );
+		$this->assertSame( 'campaign', $processor->get_attribute( 'data-jp-field-id' ) );
+		$this->assertSame( 'callbacks.initializeField', $processor->get_attribute( 'data-wp-init' ) );
+
+		$context = json_decode( (string) $processor->get_attribute( 'data-wp-context' ), true );
+		$this->assertIsArray( $context );
+		$this->assertSame( 'hidden', $context['fieldType'] );
+		$this->assertSame( 'summer', $context['fieldValue'] );
+	}
+
+	/**
+	 * Hidden field rendering and server-side visibility share one filtered value.
+	 */
+	public function test_hidden_field_value_filter_runs_once_for_render_and_conditional_logic() {
+		$filter_calls = 0;
+		$filter       = static function () use ( &$filter_calls ) {
+			++$filter_calls;
+			return 'filtered-' . $filter_calls;
+		};
+		add_filter( 'jetpack_forms_hidden_field_value', $filter );
+
+		$field = $this->get_new_field_instance(
+			array(
+				'type'    => 'hidden',
+				'id'      => 'campaign',
+				'default' => 'summer',
+			)
+		);
+
+		try {
+			$html = $field->render();
+			$this->assertSame( 'filtered-1', $field->get_conditional_logic_value() );
+			$this->assertStringContainsString( "value='filtered-1'", $html );
+			$this->assertSame( 1, $filter_calls );
+		} finally {
+			remove_filter( 'jetpack_forms_hidden_field_value', $filter );
+		}
+	}
+
+	/**
+	 * A submitted hidden value was filtered before it was rendered into the browser.
+	 */
+	public function test_submitted_hidden_field_value_is_not_filtered_again() {
+		$filter_calls = 0;
+		$filter       = static function ( $value ) use ( &$filter_calls ) {
+			++$filter_calls;
+			return 'prefix-' . $value;
+		};
+		add_filter( 'jetpack_forms_hidden_field_value', $filter );
+
+		$form  = new Contact_Form( array( 'id' => 'submitted-form' ) );
+		$field = new Contact_Form_Field(
+			array(
+				'type'    => 'hidden',
+				'id'      => 'campaign',
+				'default' => 'summer',
+			),
+			'',
+			$form
+		);
+
+		try {
+			$this->assertStringContainsString( "value='prefix-summer'", $field->render() );
+
+			$_POST['action']            = 'grunion-contact-form';
+			$_POST['contact-form-id']   = $form->get_attribute( 'id' );
+			$_POST['contact-form-hash'] = $form->hash;
+			$_POST['campaign']          = 'prefix-summer';
+
+			$this->assertSame( 'prefix-summer', $field->get_conditional_logic_value() );
+			$submission_html = $field->render();
+			$this->assertStringContainsString( "value='prefix-summer'", $submission_html );
+			$this->assertStringNotContainsString( 'prefix-prefix-summer', $submission_html );
+			$this->assertSame( 1, $filter_calls );
+		} finally {
+			remove_filter( 'jetpack_forms_hidden_field_value', $filter );
+		}
 	}
 
 	/**

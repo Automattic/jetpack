@@ -2,6 +2,7 @@ export { MetricDelta } from './metric-delta';
 export { MetricTileGrid } from './metric-tile';
 export { MetricValue } from './metric-value';
 export { MetricWithComparison } from './metric-with-comparison';
+export { PeakDistribution, type PeakDistributionProps } from './peak-distribution';
 export {
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,

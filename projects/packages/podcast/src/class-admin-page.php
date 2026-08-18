@@ -103,6 +103,25 @@ class Admin_Page {
 	public static function admin_init() {
 		// MediaUpload (cover-image-control) reads wp.media.view — only defined after this runs.
 		add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
+	}
+
+	/**
+	 * Load the Tracks transport for the dashboard's client-side events.
+	 *
+	 * `jetpackAnalytics.tracks.recordEvent()` only pushes onto `window._tkq`,
+	 * which stays an inert array until `w.js` loads and drains it. Nothing
+	 * supplies that on Atomic or self-hosted, so without this the queue grows
+	 * for the life of the page. Simple is skipped because stats.php already
+	 * prints the same script on `admin_footer`, and loading it twice would
+	 * re-drain a queue that has already been flushed.
+	 */
+	public static function enqueue_tracks_transport() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 	}
 
 	/**
@@ -155,6 +174,7 @@ class Admin_Page {
 			'feed_limit_max'      => Settings::feed_limit_max(),
 			'preload'             => rest_preload_api_request( array(), '/wpcom/v2/podcast/settings' ),
 			'selected_category'   => self::get_selected_category(),
+			'tracks_user_data'    => self::get_tracks_user_data(),
 			'upgrade'             => array(
 				'product_slug' => $is_wpcom ? 'premium' : 'jetpack_growth_yearly',
 				'plan_name'    => $is_wpcom ? 'Premium' : 'Growth',
@@ -162,6 +182,32 @@ class Admin_Page {
 		);
 
 		return $data;
+	}
+
+	/**
+	 * Connected-user identity for Tracks, so client events aren't anonymous on
+	 * Atomic and self-hosted. Null on Simple, where stats.php already pushes
+	 * `identifyUser` before our bundle runs.
+	 *
+	 * Deliberately narrower than `get_connected_user_tracks_identity()`, which
+	 * also returns email, blogid and locale — none of which Tracks needs here.
+	 *
+	 * @return array{userid:mixed, username:mixed}|null
+	 */
+	private static function get_tracks_user_data() {
+		if ( ! class_exists( 'Jetpack_Tracks_Client' ) ) {
+			return null;
+		}
+
+		$identity = \Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+		if ( ! is_array( $identity ) || ! isset( $identity['userid'] ) || ! isset( $identity['username'] ) ) {
+			return null;
+		}
+
+		return array(
+			'userid'   => $identity['userid'],
+			'username' => $identity['username'],
+		);
 	}
 
 	/**
