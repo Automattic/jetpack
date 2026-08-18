@@ -259,4 +259,49 @@ class Visitor_Test extends TestCase {
 
 		$this->assertTrue( $this->visitor_obj->is_tracking_automattician() );
 	}
+
+	/**
+	 * Tests that get_ip only returns REMOTE_ADDR when it holds a valid IP address.
+	 *
+	 * @param string $remote_addr Raw REMOTE_ADDR value.
+	 * @param string $expected    Expected return value.
+	 * @dataProvider remote_addr_validation_provider
+	 */
+	#[DataProvider( 'remote_addr_validation_provider' )]
+	public function test_get_ip_validates_remote_addr( $remote_addr, $expected ) {
+		$_SERVER['REMOTE_ADDR'] = $remote_addr;
+
+		$this->assertSame( $expected, $this->visitor_obj->get_ip() );
+	}
+
+	/**
+	 * Data provider for 'test_get_ip_validates_remote_addr'.
+	 *
+	 * @return array
+	 */
+	public static function remote_addr_validation_provider() {
+		return array(
+			'IPv4'                => array( '1.2.3.4', '1.2.3.4' ),
+			'IPv6'                => array( '2001:db8::1', '2001:db8::1' ),
+			'markup'              => array( '<script>alert(1)</script>', '' ),
+			'arbitrary text'      => array( 'not-an-ip-address', '' ),
+			'octets out of range' => array( '999.999.999.999', '' ),
+			'address with a port' => array( '1.2.3.4:8080', '' ),
+			'list of addresses'   => array( '1.2.3.4, 5.6.7.8', '' ),
+		);
+	}
+
+	/**
+	 * Tests that the forwarded headers are sanitized rather than validated as a single
+	 * address, because they may legitimately carry a list.
+	 */
+	public function test_get_ip_sanitizes_forwarded_headers_and_keeps_lists() {
+		$_SERVER['REMOTE_ADDR']          = '1.2.3.4';
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = '<b>5.6.7.8</b>, 9.10.11.12';
+
+		$ip = $this->visitor_obj->get_ip( true );
+
+		$this->assertStringNotContainsString( '<', $ip );
+		$this->assertSame( '5.6.7.8, 9.10.11.12', $ip );
+	}
 }
