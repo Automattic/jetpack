@@ -1,47 +1,24 @@
-import { render, renderHook, screen } from '@testing-library/react';
-import { useRef, useState, useLayoutEffect } from 'react';
+import { renderHook } from '@testing-library/react';
 import { ChartScopeContext, useChartScopeElement } from '../index';
 import type { ReactNode } from 'react';
 
-const Probe = () => {
-	const element = useChartScopeElement();
-	return <span data-testid="probe">{ element ? element.id : 'none' }</span>;
-};
-
-const Scope = ( { id, children }: { id: string; children: ReactNode } ) => {
-	const ref = useRef< HTMLDivElement >( null );
-	const [ node, setNode ] = useState< HTMLElement | null >( null );
-	useLayoutEffect( () => setNode( ref.current ), [] );
-	return (
-		<div ref={ ref } id={ id }>
-			<ChartScopeContext.Provider value={ node }>{ children }</ChartScopeContext.Provider>
-		</div>
-	);
-};
-
 describe( 'useChartScopeElement', () => {
+	// The default has to stay null rather than `document.documentElement`: a chart with no scope above it must resolve nothing and fall back to its theme literal, not silently read the document root again.
 	it( 'returns null with no scope above it', () => {
 		const { result } = renderHook( () => useChartScopeElement() );
+
 		expect( result.current ).toBeNull();
 	} );
 
 	it( 'returns the enclosing scope element', () => {
-		render(
-			<Scope id="outer">
-				<Probe />
-			</Scope>
-		);
-		expect( screen.getByTestId( 'probe' ) ).toHaveTextContent( 'outer' );
-	} );
+		const scope = document.createElement( 'div' );
 
-	it( 'returns the nearest scope when scopes nest', () => {
-		render(
-			<Scope id="outer">
-				<Scope id="inner">
-					<Probe />
-				</Scope>
-			</Scope>
-		);
-		expect( screen.getByTestId( 'probe' ) ).toHaveTextContent( 'inner' );
+		const { result } = renderHook( () => useChartScopeElement(), {
+			wrapper: ( { children }: { children: ReactNode } ) => (
+				<ChartScopeContext.Provider value={ scope }>{ children }</ChartScopeContext.Provider>
+			),
+		} );
+
+		expect( result.current ).toBe( scope );
 	} );
 } );

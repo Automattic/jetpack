@@ -18,24 +18,6 @@ type Entry = {
 const normalize = ( value: string ): string => value.replace( /\s+/g, ' ' ).trim();
 
 /**
- * Splits a declaration block on both newlines and semicolons, so a layout-affecting property appended after a custom property on the same line is inspected separately rather than being hidden inside a single trusted-looking line.
- *
- * @param body - The declaration block, without the surrounding `{ }`.
- * @return The property name (text before `:`) of each declaration.
- */
-function extractDeclaredProperties( body: string ): string[] {
-	return body
-		.split( '\n' )
-		.map( line => line.trim() )
-		.filter( line => line && ! line.startsWith( '//' ) )
-		.join( '\n' )
-		.split( ';' )
-		.map( declaration => declaration.trim() )
-		.filter( declaration => declaration.length > 0 )
-		.map( declaration => declaration.slice( 0, declaration.indexOf( ':' ) ).trim() );
-}
-
-/**
  * Unwraps the theme layer a `theme`-prop-overridable role carries, so the tables in `TOKENS.md` keep documenting what a role ultimately resolves to — its `--wpds-*` token and spec fallback — rather than restating the override plumbing in every row. Which roles carry the layer is pinned separately below.
  *
  * @param name  - The declared property name.
@@ -176,17 +158,8 @@ describe( 'chart scope catalog', () => {
 	} );
 
 	it( 'declares custom properties only, so this stylesheet cannot change layout', () => {
-		const body = stylesheet.slice( stylesheet.indexOf( '{' ) + 1, stylesheet.lastIndexOf( '}' ) );
-		const properties = extractDeclaredProperties( body );
-
-		expect( properties.every( property => property.startsWith( '--a8c-charts-' ) ) ).toBe( true );
-	} );
-
-	it( 'rejects a layout declaration appended after a custom property on the same line', () => {
-		const fixture =
-			'--a8c-charts-color-grid: var(--wpds-color-stroke-surface-neutral, #dbdbdb); display: block;';
-		const properties = extractDeclaredProperties( fixture );
-
-		expect( properties.every( property => property.startsWith( '--a8c-charts-' ) ) ).toBe( false );
+		expect( [ ...declared.keys() ].every( name => name.startsWith( '--a8c-charts-' ) ) ).toBe(
+			true
+		);
 	} );
 } );

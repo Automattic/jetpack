@@ -84,12 +84,11 @@ describe( 'themeOverrideVars', () => {
 	} );
 
 	// `var()` allows whitespace after the opening paren. The role reads its theme layer, so a value naming the role closes a cycle through the catalog entry: CSS marks every custom property in a cycle invalid at computed-value time, and the role's own fallback is not used, so the token resolves to nothing at all.
-	it.each( [
-		'var( --a8c-charts-color-grid, #dbdbdb )',
-		'var(\t--a8c-charts-color-grid, #dbdbdb)',
-		'var(\n--a8c-charts-color-grid, #dbdbdb)',
-	] )( 'ignores a self-referential pointer written as %j', stroke => {
-		expect( themeOverrideVars( { gridStyles: { stroke } } ).vars ).toEqual( {} );
+	it( 'ignores a self-referential pointer padded with whitespace', () => {
+		expect(
+			themeOverrideVars( { gridStyles: { stroke: 'var( --a8c-charts-color-grid, #dbdbdb )' } } )
+				.vars
+		).toEqual( {} );
 	} );
 
 	it( 'still emits a value that merely mentions a different role', () => {

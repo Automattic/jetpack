@@ -4,37 +4,7 @@ import { defaultTheme } from '../themes';
 import type { ChartTheme } from '../../../types';
 
 describe( 'withCatalogPointers', () => {
-	it( 'restores an overridden role to its catalog pointer', () => {
-		const merged = mergeThemes( defaultTheme, {
-			gridStyles: { stroke: 'red' },
-		} as Partial< ChartTheme > );
-
-		const result = withCatalogPointers( merged, [ '--a8c-charts-color-grid' ] );
-
-		expect( result.gridStyles.stroke ).toBe( defaultTheme.gridStyles.stroke );
-		expect( result.gridStyles.stroke ).not.toBe( 'red' );
-	} );
-
-	it( 'leaves a role untouched when it was not overridden', () => {
-		const merged = mergeThemes( defaultTheme, { tickLength: 8 } as Partial< ChartTheme > );
-
-		const result = withCatalogPointers( merged, [] );
-
-		expect( result.gridStyles.stroke ).toBe( defaultTheme.gridStyles.stroke );
-		expect( result.tickLength ).toBe( 8 );
-	} );
-
-	it( 'leaves a non-mapped field carrying its literal override', () => {
-		const merged = mergeThemes( defaultTheme, {
-			leaderboardChart: { deltaColors: [ 'red', 'grey', 'green' ] },
-		} as Partial< ChartTheme > );
-
-		const result = withCatalogPointers( merged, [] );
-
-		expect( result.leaderboardChart.deltaColors ).toEqual( [ 'red', 'grey', 'green' ] );
-	} );
-
-	it( 'restores every mapped role at once, without mutating the input theme', () => {
+	it( 'restores every overridden role to its catalog pointer, without mutating the input theme', () => {
 		const merged = mergeThemes( defaultTheme, {
 			backgroundColor: '#111',
 			gridStyles: { stroke: '#222' },
@@ -59,5 +29,19 @@ describe( 'withCatalogPointers', () => {
 
 		expect( merged.backgroundColor ).toBe( '#111' );
 		expect( merged.gridStyles.stroke ).toBe( '#222' );
+	} );
+
+	it( 'leaves fields alone when no role was overridden', () => {
+		const merged = mergeThemes( defaultTheme, {
+			tickLength: 8,
+			leaderboardChart: { deltaColors: [ 'red', 'grey', 'green' ] },
+		} as Partial< ChartTheme > );
+
+		const result = withCatalogPointers( merged, [] );
+
+		expect( result.tickLength ).toBe( 8 );
+		expect( result.gridStyles.stroke ).toBe( defaultTheme.gridStyles.stroke );
+		// Not a mapped role, so its literal survives even when other roles are being restored.
+		expect( result.leaderboardChart.deltaColors ).toEqual( [ 'red', 'grey', 'green' ] );
 	} );
 } );

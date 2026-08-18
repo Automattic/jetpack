@@ -31,14 +31,7 @@ describe( 'useXYChartTheme style reads', () => {
 			),
 		} );
 
-	it( 'takes one computed-style snapshot per theme build, not one per role', () => {
-		const { result } = renderWithScope();
-
-		expect( getComputedStyleSpy ).toHaveBeenCalledTimes( 1 );
-		expect( result.current.gridStyles.stroke ).toBe( '#00ff00' );
-	} );
-
-	it( 'reads every role from that one snapshot', () => {
+	it( 'reads every role from one computed-style snapshot, not one per role', () => {
 		scope.style.setProperty( '--a8c-charts-color-background', '#111111' );
 		scope.style.setProperty( '--a8c-charts-color-axis', '#222222' );
 
