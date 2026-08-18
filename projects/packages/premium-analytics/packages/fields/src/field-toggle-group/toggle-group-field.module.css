@@ -14,3 +14,22 @@
 .control[role="radiogroup"] button {
 	block-size: 100%;
 }
+
+/*
+ * The selection indicator, which core positions and animates over the active
+ * segment. Filling it and inverting the glyph reads at a glance; core's own
+ * pale fill barely separates the two segments.
+ */
+.control[role="radiogroup"]::before {
+	background: var(--wpds-color-background-interactive-neutral-strong);
+	border-color: transparent;
+}
+
+/*
+ * The `:hover` twin outranks the component's own hover rule, which would
+ * otherwise repaint the glyph dark over the dark fill.
+ */
+.control[role="radiogroup"] button[aria-checked="true"],
+.control[role="radiogroup"] button[aria-checked="true"]:hover {
+	color: var(--wpds-color-foreground-interactive-neutral-strong);
+}
