@@ -1,2 +1,2 @@
 export { DashboardSections } from './dashboard-sections/dashboard-sections';
-export { SectionSyncGate } from './section-sync-gate/section-sync-gate';
+export { SectionSyncNotice } from './section-sync-notice/section-sync-notice';

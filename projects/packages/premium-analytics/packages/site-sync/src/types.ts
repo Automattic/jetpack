@@ -40,3 +40,18 @@ export type UseSyncStatusReturn = {
 	 */
 	triggerSync: () => Promise< void >;
 };
+
+export type UseSyncStatusOptions = {
+	/**
+	 * Whether to watch the sync at all. `false` skips polling and auto-start, for
+	 * callers with nothing waiting on it — a site with no section that needs the
+	 * analytics data has no reason to run the sync.
+	 */
+	enabled?: boolean;
+
+	/**
+	 * Start the sync when the poll reports none started. Off by default: reading
+	 * the status should not have side effects.
+	 */
+	autoStart?: boolean;
+};

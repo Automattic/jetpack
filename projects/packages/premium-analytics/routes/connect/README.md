@@ -12,8 +12,8 @@ needs to know whether the site is connected, and route accordingly.
 Onboarding is two routes:
 
 - **`/connect`** — surfaces the not-connected state (this route).
-- **`/` (dashboard)** — the data view. It is not gated on the analytics sync;
-  only the store section waits on it, in place of its own widgets.
+- **`/` (dashboard)** — the data view. Nothing waits on the analytics sync; the
+  store section notes that its numbers are incomplete until that sync lands.
 
 ## Structure
 

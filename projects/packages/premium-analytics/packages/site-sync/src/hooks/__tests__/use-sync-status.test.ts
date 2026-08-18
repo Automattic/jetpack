@@ -120,6 +120,44 @@ describe( 'useSyncStatus', () => {
 		expect( mockFetch ).not.toHaveBeenCalled();
 	} );
 
+	it( 'neither polls nor starts a sync when disabled', async () => {
+		renderHook( () => useSyncStatus( { enabled: false, autoStart: true } ) );
+
+		await act( async () => {
+			jest.advanceTimersByTime( POLL_INTERVAL * 3 );
+		} );
+		expect( mockFetch ).not.toHaveBeenCalled();
+		expect( mockTrigger ).not.toHaveBeenCalled();
+	} );
+
+	it( 'starts the sync once when autoStart is set and none is running', async () => {
+		mockFetch.mockResolvedValue( rawStatus( { started: false, progress: {} } ) );
+		const { result } = renderHook( () => useSyncStatus( { autoStart: true } ) );
+
+		await waitFor( () => expect( mockTrigger ).toHaveBeenCalledTimes( 1 ) );
+
+		// A later poll still reporting nothing started must not start a second one.
+		await act( async () => {
+			jest.advanceTimersByTime( POLL_INTERVAL * 2 );
+		} );
+		expect( mockTrigger ).toHaveBeenCalledTimes( 1 );
+		expect( result.current.isComplete ).toBe( false );
+	} );
+
+	it( 'does not autoStart a sync that already finished', async () => {
+		mockScriptData.mockReturnValue( {
+			premium_analytics: { initial_full_sync_finished: 1_700_000_000 },
+		} as ReturnType< typeof getScriptData > );
+
+		const { result } = renderHook( () => useSyncStatus( { autoStart: true } ) );
+
+		await waitFor( () => expect( result.current.isComplete ).toBe( true ) );
+		await act( async () => {
+			jest.advanceTimersByTime( POLL_INTERVAL * 2 );
+		} );
+		expect( mockTrigger ).not.toHaveBeenCalled();
+	} );
+
 	it( 'keeps polling on each interval while the sync is still running', async () => {
 		mockFetch.mockResolvedValue( rawStatus() ); // 50%, never completes.
 		const { result } = renderHook( () => useSyncStatus() );

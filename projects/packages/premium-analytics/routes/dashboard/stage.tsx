@@ -1,6 +1,7 @@
-import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
+import { GlobalErrorProvider, queryClient } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { useSyncStatus } from '@jetpack-premium-analytics/site-sync';
 import {
 	DateFiltersPanel,
 	DateIntervalDropdown,
@@ -15,18 +16,17 @@ import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { DashboardSections, SectionSyncGate } from './components';
+import { DashboardSections, SectionSyncNotice } from './components';
 import {
 	DATE_FILTER_YEAR,
 	isSectionAwaitingSync,
 	offersDateComparison,
 	resolveSectionHeading,
-	type DashboardSection,
 } from './config';
 import {
 	useActiveSection,
@@ -48,6 +48,42 @@ function Dashboard(): JSX.Element {
 	const [ activeSection, setActiveSection ] = useActiveSection( sections );
 	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout( activeSection, sections );
 	const [ gridSettings ] = useDashboardGridSettings();
+
+	/*
+	 * Only a section whose data reaches WordPress.com through the analytics full
+	 * sync waits on it; the rest read data it already holds. The watcher runs at
+	 * the dashboard level rather than inside the notice below, so the sync starts
+	 * as soon as the dashboard opens instead of only once that section is
+	 * visited.
+	 */
+	const isSyncFinished = isPremiumAnalyticsInitialSyncFinished();
+	const sectionsAwaitSync = sections.some( section =>
+		isSectionAwaitingSync( section, isSyncFinished )
+	);
+	const {
+		data: syncStatus,
+		error: syncError,
+		isComplete: isSyncComplete,
+		isStalled: isSyncStalled,
+		triggerSync,
+	} = useSyncStatus( { enabled: sectionsAwaitSync, autoStart: true } );
+
+	const [ isRetryingSync, setIsRetryingSync ] = useState( false );
+	const retrySync = useCallback( async () => {
+		setIsRetryingSync( true );
+		try {
+			await triggerSync();
+		} finally {
+			setIsRetryingSync( false );
+		}
+	}, [ triggerSync ] );
+
+	// Widgets that rendered mid-sync cached numbers the sync has since filled in.
+	useEffect( () => {
+		if ( isSyncComplete ) {
+			queryClient.invalidateQueries();
+		}
+	}, [ isSyncComplete ] );
 
 	const widgetModules = useSelect(
 		select =>
@@ -156,24 +192,6 @@ function Dashboard(): JSX.Element {
 		);
 	}
 
-	// Only a section whose data waits on the analytics sync holds back its
-	// widgets; the rest render whatever WordPress.com already has.
-	const isSyncFinished = isPremiumAnalyticsInitialSyncFinished();
-	const renderSectionBody = ( section: DashboardSection ) =>
-		isSectionAwaitingSync( section, isSyncFinished ) ? (
-			<SectionSyncGate />
-		) : (
-			<>
-				<WidgetDashboard.NoWidgetsState />
-				<WidgetDashboard.Widgets className={ styles.widgets } />
-			</>
-		);
-
-	// A gated section renders no widget canvas, so the edit controls would act on
-	// nothing.
-	const canEditActiveSection =
-		!! activeSectionRecord && ! isSectionAwaitingSync( activeSectionRecord, isSyncFinished );
-
 	/*
 	 * The date controls belong to the active section: the tab panels unmount
 	 * when they lose focus, so only the active section's header is ever rendered
@@ -234,7 +252,7 @@ function Dashboard(): JSX.Element {
 					visual={ <StatsPageIcon /> }
 					breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 					subTitle={ activeSectionRecord?.description }
-					actions={ canEditActiveSection ? <WidgetDashboard.Actions /> : null }
+					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.dashboard }
 				>
 					<DashboardSections
@@ -262,7 +280,21 @@ function Dashboard(): JSX.Element {
 									</SectionHeader>
 								</div>
 
-								{ activeSection === section.slug ? renderSectionBody( section ) : null }
+								{ activeSection === section.slug ? (
+									<>
+										{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
+											<SectionSyncNotice
+												percentage={ syncStatus?.percentage ?? 0 }
+												hasError={ !! syncError || isSyncStalled }
+												onRetry={ retrySync }
+												isRetrying={ isRetryingSync }
+											/>
+										) : null }
+
+										<WidgetDashboard.NoWidgetsState />
+										<WidgetDashboard.Widgets className={ styles.widgets } />
+									</>
+								) : null }
 							</SectionTabPanel>
 						) ) }
 					</DashboardSections>

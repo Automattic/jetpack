@@ -115,7 +115,7 @@ final class Dashboard_Section {
 
 	/**
 	 * Whether the section's data only reaches WordPress.com through the analytics
-	 * full sync, so it shows sync progress until that sync has finished once.
+	 * full sync, so its numbers are incomplete until that sync has finished once.
 	 *
 	 * @since $$next-version$$
 	 * @var bool

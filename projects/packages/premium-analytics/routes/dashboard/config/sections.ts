@@ -101,7 +101,8 @@ export function resolveSectionHeading( section: DashboardSection ): string {
 }
 
 /**
- * Whether a section must show sync progress instead of its widgets.
+ * Whether a section's data is still waiting on the analytics full sync, so its
+ * widgets show incomplete numbers.
  *
  * @param section        - The section to render.
  * @param isSyncFinished - Whether the analytics initial full sync has finished.

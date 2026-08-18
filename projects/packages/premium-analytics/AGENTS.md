@@ -136,15 +136,21 @@ bounces to the dashboard," with nothing in the console pointing at the cause. Th
 when the other four routes were migrated to the shared helpers, so it fell out of sync with
 `/connect`'s guard and the two routes bounced traffic between each other on Simple.
 
-### The analytics sync gates one section, not the dashboard
+### The analytics sync blocks nothing
 
-No route waits on the initial analytics full sync. Only historical store data depends on it, so
-the section that declares `requires_sync` (Store) renders `<SectionSyncGate>` in place of its
-widgets until the milestone is set, while every other section renders immediately. Gating the
-whole page instead made every already-synced site sit through a sync screen it did not need
-(STATS-410), because the milestone is only written by a sync that runs after this package is
-installed. Sections declare the dependency server-side in `register_default_dashboard_sections()`;
-do not re-derive it from a section id in the SPA.
+No route and no section waits on the initial analytics full sync. Only historical store data
+depends on it, so the section that declares `requires_sync` (Store) renders `<SectionSyncNotice>`
+above its widgets until the milestone is set — the widgets stay on screen, and the copy says the
+numbers are incomplete, because mid-sync they read as zeros. Blocking the whole page instead made
+every already-synced site sit through a sync screen it did not need (STATS-410), since the
+milestone is only written by a sync that runs after this package is installed. Sections declare
+the dependency server-side in `register_default_dashboard_sections()`; do not re-derive it from a
+section id in the SPA.
+
+The dashboard stage — not the notice — owns `useSyncStatus( { enabled, autoStart } )`, so the sync
+starts when the dashboard opens rather than only once someone visits the section that needs it,
+and so a site with no such section never runs it at all. Starting it server-side when the package
+is enabled would be better still; nothing does yet.
 
 Adding a new route with a connection/sync guard: grep `routes/` for
 `isPremiumAnalyticsSiteConnected` first and copy that shape — don't re-derive the check from

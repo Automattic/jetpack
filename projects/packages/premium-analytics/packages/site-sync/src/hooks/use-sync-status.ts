@@ -11,7 +11,7 @@ import { fetchSyncStatus } from '../api/fetch-sync-status';
 import { triggerFullSync } from '../api/trigger-full-sync';
 import { POLL_INTERVAL, MAX_POLL_FAILURES } from '../constants';
 import { toSyncStatus, isSyncComplete, isSyncStalled } from '../status';
-import type { SyncStatus, UseSyncStatusReturn } from '../types';
+import type { SyncStatus, UseSyncStatusOptions, UseSyncStatusReturn } from '../types';
 
 /**
  * Read the page-load milestone injected by the backend Sync_Status_Tracker.
@@ -34,9 +34,15 @@ function readMilestone(): number {
  * and no polling occurs. `triggerSync` POSTs the full-sync trigger and resumes
  * polling; it never rejects (failures surface via `error`).
  *
+ * @param options           - Hook options.
+ * @param options.enabled   - Whether to watch the sync at all.
+ * @param options.autoStart - Whether to start a sync when none is running.
  * @return The current sync state plus a `triggerSync` action.
  */
-export function useSyncStatus(): UseSyncStatusReturn {
+export function useSyncStatus( {
+	enabled = true,
+	autoStart = false,
+}: UseSyncStatusOptions = {} ): UseSyncStatusReturn {
 	const milestoneRef = useRef< number >( readMilestone() );
 	const [ data, setData ] = useState< SyncStatus >();
 	const [ error, setError ] = useState< Error | null >( null );
@@ -134,7 +140,12 @@ export function useSyncStatus(): UseSyncStatusReturn {
 	}, [ clearPolling, poll, startPolling ] );
 
 	useEffect( () => {
-		// Already finished before this page load — gate open, no polling needed.
+		if ( ! enabled ) {
+			return;
+		}
+
+		// Already finished before this page load — nothing is waiting, no polling
+		// needed.
 		if ( milestoneRef.current > 0 ) {
 			setData( toSyncStatus( {}, milestoneRef.current ) );
 			return;
@@ -143,7 +154,22 @@ export function useSyncStatus(): UseSyncStatusReturn {
 		poll();
 		startPolling();
 		return clearPolling;
-	}, [ poll, startPolling, clearPolling ] );
+	}, [ enabled, poll, startPolling, clearPolling ] );
+
+	// Once per mount: a sync the user declined to retry must stay stopped.
+	const didAutoStart = useRef( false );
+	useEffect( () => {
+		if ( ! enabled || ! autoStart || ! data || didAutoStart.current ) {
+			return;
+		}
+
+		if ( isSyncComplete( data ) || data.isStarted || data.isRunning ) {
+			return;
+		}
+
+		didAutoStart.current = true;
+		void triggerSync();
+	}, [ enabled, autoStart, data, triggerSync ] );
 
 	const isComplete = data ? isSyncComplete( data ) : false;
 	const isLoading = ! data && ! error;

@@ -300,7 +300,7 @@ function get_dashboard_section_schema() {
 				'readonly'    => true,
 			),
 			'requires_sync'       => array(
-				'description' => __( 'Whether the section shows sync progress in place of its widgets until the analytics initial full sync has finished.', 'jetpack-premium-analytics-pkg' ),
+				'description' => __( 'Whether the section\'s numbers stay incomplete until the analytics initial full sync has finished.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'boolean',
 				'default'     => false,
 				'readonly'    => true,
