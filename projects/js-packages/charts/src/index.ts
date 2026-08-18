@@ -61,7 +61,6 @@ export type {
 	ChartLegendConfig,
 	SeriesChartLegendConfig,
 	BaseChartProps,
-	GridProps,
 	GoogleDataTableColumn,
 	GoogleDataTableColumnRoleType,
 	GoogleDataTableRow,
