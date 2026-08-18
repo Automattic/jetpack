@@ -27,6 +27,23 @@ use WP_User;
 class Tracks {
 
 	/**
+	 * Settings a show needs before a directory will accept it. Mirrors the
+	 * dashboard's `getValidationIssues()` rule in
+	 * `src/dashboard/hooks/use-validation-issues.ts` — keep the two in step.
+	 *
+	 * @var string[]
+	 */
+	private const SETUP_OPTIONS = array(
+		'podcasting_category_id',
+		'podcasting_title',
+		'podcasting_summary',
+		'podcasting_talent_name',
+		'podcasting_email',
+		'podcasting_category_1',
+		'podcasting_image',
+	);
+
+	/**
 	 * Wire the recorder hooks.
 	 */
 	public static function init(): void {
@@ -41,6 +58,15 @@ class Tracks {
 
 		add_action( 'add_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_added' ), 10, 2 );
 		add_action( 'update_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_updated' ), 10, 3 );
+
+		// Watch every required setting rather than the REST endpoint's
+		// `jetpack_podcast_settings_saved` action, so the milestone lands
+		// whichever path fills the last field — dashboard, Media Settings
+		// form, or WP-CLI.
+		foreach ( self::SETUP_OPTIONS as $option ) {
+			add_action( "add_option_{$option}", array( __CLASS__, 'record_setup_option_added' ), 10, 2 );
+			add_action( "update_option_{$option}", array( __CLASS__, 'record_setup_option_updated' ), 10, 3 );
+		}
 	}
 
 	/**
@@ -259,6 +285,98 @@ class Tracks {
 	}
 
 	/**
+	 * `add_option_{$option}` callback for a required setting.
+	 *
+	 * @param string $option Option name.
+	 * @param mixed  $value  Stored value.
+	 */
+	public static function record_setup_option_added( $option, $value ): void {
+		unset( $option, $value );
+		self::maybe_record_setup_completed();
+	}
+
+	/**
+	 * `update_option_{$option}` callback for a required setting.
+	 *
+	 * @param mixed  $old_value Previous stored value.
+	 * @param mixed  $new_value Newly stored value.
+	 * @param string $option    Option name.
+	 */
+	public static function record_setup_option_updated( $old_value, $new_value, $option ): void {
+		unset( $old_value, $new_value, $option );
+		self::maybe_record_setup_completed();
+	}
+
+	/**
+	 * Emit `wpcom_podcast_setup_completed` the first time every required
+	 * setting holds a value.
+	 *
+	 * Deliberately a milestone, not a per-save event: it answers "did this
+	 * site finish setting up a show", so it fires once and never again — same
+	 * atomic `add_option()` guard as `show_launched`. Which field completed
+	 * the set is not recorded, because a save that fills several at once
+	 * writes them in `Settings::OPTION_NAMES` order and the last one would be
+	 * an artifact of that order rather than a signal.
+	 */
+	private static function maybe_record_setup_completed(): void {
+		try {
+			if ( ! self::is_setup_complete() ) {
+				return;
+			}
+
+			// Atomic INSERT — only one concurrent caller per site wins.
+			if ( ! add_option( 'podcast_setup_completed_tracked', time(), '', false ) ) {
+				return;
+			}
+
+			self::record_event(
+				'wpcom_podcast_setup_completed',
+				array(
+					'user_id'      => (int) get_current_user_id(),
+					'product_slug' => self::current_product_slug(),
+				)
+			);
+		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Tracks is best-effort — never break a settings save.
+		}
+	}
+
+	/**
+	 * True once every required setting holds a value.
+	 */
+	private static function is_setup_complete(): bool {
+		foreach ( self::SETUP_OPTIONS as $option ) {
+			$value = get_option( $option, '' );
+
+			if ( 'podcasting_category_id' === $option ) {
+				if ( (int) $value < 1 ) {
+					return false;
+				}
+				continue;
+			}
+
+			if ( ! is_string( $value ) || '' === trim( $value ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Current plan slug. `WPCOM_Store_API` on Simple, `Current_Plan` on Atomic
+	 * and self-hosted — same dual pattern as
+	 * `Masterbar\Dashboard_Switcher_Tracking::get_plan()`.
+	 */
+	private static function current_product_slug(): string {
+		$plan = class_exists( '\WPCOM_Store_API' )
+			? \WPCOM_Store_API::get_current_plan( (int) get_current_blog_id() )
+			: ( class_exists( '\Automattic\Jetpack\Current_Plan' ) ? \Automattic\Jetpack\Current_Plan::get() : array() );
+
+		return (string) ( $plan['product_slug'] ?? '' );
+	}
+
+	/**
 	 * Emit `wpcom_podcasting_status_changed` (enabled / disabled / changed)
 	 * when the `podcasting_category_id` option transitions.
 	 *
@@ -278,12 +396,6 @@ class Tracks {
 			$status = 'changed';
 		}
 
-		// `WPCOM_Store_API` on Simple, `Current_Plan` on Atomic — same dual
-		// pattern as `Masterbar\Dashboard_Switcher_Tracking::get_plan()`.
-		$plan = class_exists( '\WPCOM_Store_API' )
-			? \WPCOM_Store_API::get_current_plan( (int) get_current_blog_id() )
-			: ( class_exists( '\Automattic\Jetpack\Current_Plan' ) ? \Automattic\Jetpack\Current_Plan::get() : array() );
-
 		self::record_event(
 			'wpcom_podcasting_status_changed',
 			array(
@@ -292,7 +404,7 @@ class Tracks {
 				'previous_category_id' => $old_value,
 				'new_category_id'      => $new_value,
 				'user_id'              => (int) get_current_user_id(),
-				'product_slug'         => (string) ( $plan['product_slug'] ?? '' ),
+				'product_slug'         => self::current_product_slug(),
 			)
 		);
 
