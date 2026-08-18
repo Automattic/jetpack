@@ -17,6 +17,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
+use WP_REST_Request;
 use WP_REST_Server;
 use function add_action;
 use function add_filter;
@@ -173,7 +174,7 @@ class Rest_Bridge_Gating_Test extends TestCase {
 				array(),
 			),
 			// Unknown keys are dropped rather than forwarded, which is what
-			// makes `types_name_nothing()` total: a payload naming only
+			// makes `request_names_no_types()` total: a payload naming only
 			// categories WPCOM does not know would otherwise satisfy the
 			// guard and be sent on, and what WPCOM does with a `types` that
 			// matches nothing is uncharacterized.
@@ -210,7 +211,7 @@ class Rest_Bridge_Gating_Test extends TestCase {
 	}
 
 	/**
-	 * `types_name_nothing()` separates "asked for everything" from
+	 * `request_names_no_types()` separates "asked for everything" from
 	 * "asked for nothing", which are one byte apart on the wire and
 	 * opposite in effect.
 	 *
@@ -220,37 +221,51 @@ class Rest_Bridge_Gating_Test extends TestCase {
 	 * that as an omission turns "restore nothing" into "restore
 	 * everything" against a live site.
 	 *
+	 * Driven through a real request rather than a bare value because the
+	 * value alone cannot tell the two apart for `null`.
+	 *
 	 * @param string $label    Case description.
+	 * @param bool   $supplied Whether the request carries a `types` key at all.
 	 * @param mixed  $input    Raw `types` parameter.
-	 * @param bool   $expected Whether the parameter names nothing.
+	 * @param bool   $expected Whether the request names nothing.
 	 * @dataProvider provide_empty_type_selections
 	 */
 	#[DataProvider( 'provide_empty_type_selections' )]
-	public function test_types_name_nothing( $label, $input, $expected ) {
-		$this->assertSame( $expected, Rest_Controller::types_name_nothing( $input ), $label );
+	public function test_request_names_no_types( $label, $supplied, $input, $expected ) {
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/rewind/to/1786663613.9425' );
+		if ( $supplied ) {
+			$request->set_param( 'types', $input );
+		}
+
+		$this->assertSame( $expected, Rest_Controller::request_names_no_types( $request ), $label );
 	}
 
 	/**
-	 * @return array<string, array{0: string, 1: mixed, 2: bool}>
+	 * @return array<string, array{0: string, 1: bool, 2: mixed, 3: bool}>
 	 */
 	public static function provide_empty_type_selections() {
 		return array(
 			// The one case that must NOT be refused.
-			'absent'             => array( 'absent', null, false ),
-			'names one category' => array( 'names one', array( 'themes' => true ), false ),
-			'empty object'       => array( 'empty object', array(), true ),
+			'absent'             => array( 'absent', false, null, false ),
+			// Supplied as null, which is the case a value-only helper
+			// cannot see. WordPress skips `validate_callback` for a null
+			// param, so the schema passes it through and `get_param()`
+			// answers exactly what an omitted key answers.
+			'supplied as null'   => array( 'supplied as null', true, null, true ),
+			'names one category' => array( 'names one', true, array( 'themes' => true ), false ),
+			'empty object'       => array( 'empty object', true, array(), true ),
 			// The case the allowlist exists for. A future client-side typo
 			// — a checklist key renamed `sqls` to `sql` — names nothing
 			// WPCOM recognizes, and is refused rather than forwarded.
-			'only unknown names' => array( 'only unknown names', array( 'sql' => true ), true ),
-			'granular paths'     => array( 'granular paths', array( 'paths' => true ), false ),
-			'every value false'  => array( 'every value false', array( 'themes' => false ), true ),
-			'form-encoded false' => array( 'form-encoded false', array( 'themes' => '0' ), true ),
+			'only unknown names' => array( 'only unknown names', true, array( 'sql' => true ), true ),
+			'granular paths'     => array( 'granular paths', true, array( 'paths' => true ), false ),
+			'every value false'  => array( 'every value false', true, array( 'themes' => false ), true ),
+			'form-encoded false' => array( 'form-encoded false', true, array( 'themes' => '0' ), true ),
 			// The shape the route schema cannot reject, because it
 			// constrains values rather than shape.
-			'list of booleans'   => array( 'list of booleans', array( true, false ), true ),
-			'list of names'      => array( 'list of names', array( 'themes' ), true ),
-			'scalar'             => array( 'scalar', 'themes', true ),
+			'list of booleans'   => array( 'list of booleans', true, array( true, false ), true ),
+			'list of names'      => array( 'list of names', true, array( 'themes' ), true ),
+			'scalar'             => array( 'scalar', true, 'themes', true ),
 		);
 	}
 

@@ -142,11 +142,6 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	 * once every category is named.
 	 */
 	public function test_initiate_allows_an_absent_types() {
-		// `restore_id` is what this bridge still reads as its success
-		// signal. That is wrong against the v2 contract, where `ok` is the
-		// signal and a null id means "queued" — but repointing the bridge
-		// is B1/B9, and this test only cares that the `types` guard stays
-		// out of the way.
 		$this->arrange_wpcom(
 			array(
 				'ok'         => true,
@@ -172,6 +167,13 @@ class Rest_Restore_Bridge_Test extends TestCase {
 			'empty array'      => array( 'empty array', array() ),
 			'all false'        => array( 'all false', array( 'themes' => false ) ),
 			'list of booleans' => array( 'list of booleans', array( true, false ) ),
+			// Supplied as null, which is the case the guard used to miss:
+			// WordPress skips `validate_callback` for a null param, so the
+			// schema passes it and `get_param()` answers exactly what an
+			// omitted key answers. Only `has_param()` can tell them apart,
+			// and getting it wrong means a whole-site restore.
+			'supplied as null' => array( 'supplied as null', null ),
+			'unknown names'    => array( 'unknown names', array( 'sql' => true ) ),
 		);
 	}
 

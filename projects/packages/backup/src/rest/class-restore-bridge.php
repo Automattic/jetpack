@@ -1,6 +1,6 @@
 <?php
 /**
- * Restore REST bridge — proxies /activity-log/{site}/rewind/to and /rewind/{id}/restore-status.
+ * Restore REST bridge — proxies wpcom/v2 /sites/{site}/rewind/restores.
  *
  * @package automattic/jetpack-backup-plugin
  */
@@ -104,12 +104,10 @@ class Restore_Bridge {
 		// empty selection as an omission would overwrite the live site
 		// with exactly the parts the caller excluded.
 		//
-		// This bridge is currently the only guard on that: the call below
-		// still targets the v1 activity-log route, which has no such
-		// check. The v2 restore route does reject it, so once B1 repoints
-		// this there will be a second line of defence — but it will always
-		// be the slower one, since it only fires after the request leaves.
-		if ( Rest_Controller::types_name_nothing( $types ) ) {
+		// The v2 route this now calls rejects it too, so there are two
+		// lines of defence — but this is the one that matters, since the
+		// other only fires after the request has left the site.
+		if ( Rest_Controller::request_names_no_types( $request ) ) {
 			return new WP_Error(
 				'no_types_selected',
 				__( 'Select at least one item to restore.', 'jetpack-backup-pkg' ),

@@ -11,6 +11,7 @@ use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
 use WP_Error;
+use WP_REST_Request;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -30,11 +31,19 @@ class Rest_Controller {
 	 * Every category WPCOM's rewind endpoints recognize in a `types` map.
 	 *
 	 * The first six are the whole-site checklist the Restore and Download
-	 * screens render. `paths` is the granular selector, paired with
-	 * `include_path_list` / `exclude_path_list` — nothing sends it yet,
-	 * but it is part of the same documented contract and leaving it out
-	 * would make the file browser's granular download fail closed with a
-	 * confusing 400 the day it is wired up.
+	 * screens render.
+	 *
+	 * `paths` covers the granular *download* shape only — `types: { paths:
+	 * true }`, paired with `include_path_list` / `exclude_path_list`.
+	 * Nothing sends it yet (C3), but leaving it out would make the file
+	 * browser's granular download fail closed with a confusing 400 the day
+	 * it is wired up.
+	 *
+	 * It does not carry over to granular *restore*, whatever that ends up
+	 * spelling: the v1 route took `types: 'paths'` as a bare string, which
+	 * is not a map at all and would never reach this allowlist. Granular
+	 * restore has to establish its own shape against the v2 route before
+	 * anything here can claim to cover it.
 	 *
 	 * This list has to grow if VaultPress adds a category. WPCOM's own
 	 * route deliberately does not allowlist, so that it stays open to new
@@ -122,7 +131,7 @@ class Rest_Controller {
 	/**
 	 * Rebuild a restore/download `types` parameter as a named map.
 	 *
-	 * The PHP counterpart of the client's `serializeTypes`, and the reason
+	 * The PHP counterpart of the client's `requireTypes`, and the reason
 	 * it exists here rather than being trusted from the request: WordPress
 	 * validates `'type' => 'object'` with `rest_is_object()`, which is
 	 * `is_array()`. A JSON list therefore passes validation and arrives as
@@ -137,7 +146,7 @@ class Rest_Controller {
 	 * skip rather than select.
 	 *
 	 * Unknown keys are dropped rather than forwarded, which is what makes
-	 * `types_name_nothing()` a total guard: without it a payload naming
+	 * `request_names_no_types()` a total guard: without it a payload naming
 	 * only categories WPCOM does not recognize would satisfy the guard and
 	 * be sent on, and what WPCOM does with a `types` that matches nothing
 	 * is not characterized. Dropping them means such a payload names
@@ -165,7 +174,7 @@ class Rest_Controller {
 	}
 
 	/**
-	 * Whether a `types` parameter was supplied but names no category.
+	 * Whether the request supplied a `types` parameter that names no category.
 	 *
 	 * The distinction this draws is the whole point of the helper, and it
 	 * is the opposite of what it looks like. An **absent** `types` is a
@@ -177,15 +186,26 @@ class Rest_Controller {
 	 * omission would quietly upgrade "restore nothing" into "restore
 	 * everything", against a live site.
 	 *
+	 * It takes the request rather than the value because the value cannot
+	 * answer the question. `{"types": null}` is supplied and names nothing,
+	 * but arrives as the same `null` an omitted key does — and the schema
+	 * never sees it, since `WP_REST_Request::has_valid_params()` skips
+	 * `validate_callback` for a null param. `has_param()` is the only thing
+	 * that knows the key was on the wire.
+	 *
 	 * Nothing upstream catches it on both routes. The v2 restore route
 	 * rejects a `types` naming nothing, but `/rewind/downloads` does not,
 	 * so the guarantee has to be made here for the pair to behave alike.
 	 *
-	 * @param mixed $types Raw `types` parameter from the request, or null when absent.
+	 * @param WP_REST_Request $request The REST request.
 	 * @return bool True when the caller supplied a `types` that names no category.
 	 */
-	public static function types_name_nothing( $types ) {
-		return null !== $types && ! self::named_types( $types );
+	public static function request_names_no_types( WP_REST_Request $request ) {
+		if ( ! $request->has_param( 'types' ) ) {
+			return false;
+		}
+
+		return ! self::named_types( $request->get_param( 'types' ) );
 	}
 
 	/**

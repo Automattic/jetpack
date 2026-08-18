@@ -196,6 +196,12 @@ class Rest_Download_Bridge_Test extends TestCase {
 			'empty array'      => array( 'empty array', array() ),
 			'all false'        => array( 'all false', array( 'themes' => false ) ),
 			'list of booleans' => array( 'list of booleans', array( true, false ) ),
+			// Supplied as null, which the guard used to miss: WordPress
+			// skips `validate_callback` for a null param, so the schema
+			// passes it and `get_param()` answers exactly what an omitted
+			// key answers. Only `has_param()` can tell them apart.
+			'supplied as null' => array( 'supplied as null', null ),
+			'unknown names'    => array( 'unknown names', array( 'sql' => true ) ),
 		);
 	}
 

@@ -76,6 +76,7 @@ function respondWith( {
 }
 
 type RenderedRestore = { current: { submit: ( items: typeof DEFAULT_RESTORE_ITEMS ) => void } };
+type PhaseResult = { current: { state: { phase: string } } };
 
 /**
  * Start a restore with every category selected.
@@ -202,7 +203,7 @@ describe( 'useRestore — a restore WordPress.com accepted without naming', () =
 	it( 'recovers the id from the restores collection and resumes polling', async () => {
 		respondWith( {
 			initiate: { id: null, rewind_id: REWIND_ID },
-			restores: [ { restore_id: 912682, rewind_id: REWIND_ID, status: 'running' } ],
+			restores: [ { restore_id: 912682, rewind_id: REWIND_ID } ],
 			status: statusPayload( { status: 'running', progress: 17 } ),
 		} );
 		const { wrapper } = makeWrapper();
@@ -217,7 +218,7 @@ describe( 'useRestore — a restore WordPress.com accepted without naming', () =
 	it( 'ignores a restore of a different backup', async () => {
 		respondWith( {
 			initiate: { id: null, rewind_id: REWIND_ID },
-			restores: [ { restore_id: 111, rewind_id: '1700000000.1', status: 'running' } ],
+			restores: [ { restore_id: 111, rewind_id: '1700000000.1' } ],
 		} );
 		const { wrapper } = makeWrapper();
 
@@ -278,5 +279,181 @@ describe( 'useRestore — failing safe', () => {
 
 		act( () => result.current.reset() );
 		expect( result.current.state.phase ).toBe( 'idle' );
+	} );
+} );
+
+describe( 'useRestore — the silence deadline', () => {
+	// The deadline is enforced by a timer, not by comparing the clock
+	// while rendering, and these are the cases that tell the difference.
+	// Fake timers here rather than in the file-wide setup: every other
+	// suite depends on React Query's real polling.
+	beforeEach( () => {
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	const LOST_TRACK = /lost track of this restore/;
+
+	/**
+	 * Advance fake timers inside `act`, letting queued promises settle.
+	 *
+	 * @param ms - How far to advance.
+	 */
+	async function advance( ms: number ) {
+		await act( async () => {
+			await jest.advanceTimersByTimeAsync( ms );
+		} );
+	}
+
+	/**
+	 * Wait for the hook to reach a phase before jumping the clock.
+	 *
+	 * Required rather than tidy: the deadline timer is scheduled when the
+	 * restore is accepted, so a single large `advance()` from a standing
+	 * start moves the clock past the point the timer is armed at, and it
+	 * is then scheduled to fire five minutes after a `now` the test has
+	 * already left behind. Real time does not jump.
+	 *
+	 * @param result - The rendered hook result.
+	 * @param phase  - The phase to wait for.
+	 */
+	async function settleAt( result: PhaseResult, phase: string ) {
+		await waitFor( () => expect( result.current.state.phase ).toBe( phase ) );
+	}
+
+	// The case with no safety net before: the status query is disabled
+	// while the id is unknown, so the recovery poll is the only thing
+	// running — and a refetch that keeps returning the same empty list is
+	// structurally shared into the same array, so the observer never
+	// notifies and nothing re-renders. A deadline evaluated during render
+	// is never reached, and the reader is left on "queued and will begin
+	// shortly…" indefinitely, having just been told a destructive
+	// operation was about to start.
+	it( 'gives up on a restore accepted without an id that never appears in the collection', async () => {
+		respondWith( { initiate: { id: null, rewind_id: REWIND_ID }, restores: [] } );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		await settleAt( result, 'queued' );
+
+		// Still queued a minute in — the deadline caps silence, it does
+		// not cap the restore.
+		await advance( 60_000 );
+		expect( result.current.state.phase ).toBe( 'queued' );
+
+		await advance( 5 * 60_000 );
+		expect( result.current.state.phase ).toBe( 'error' );
+		expect( result.current.state ).toMatchObject( {
+			message: expect.stringMatching( LOST_TRACK ),
+		} );
+	} );
+
+	it( 'gives up on a restore whose status never leaves queued', async () => {
+		respondWith( { status: statusPayload( { status: 'queued' } ) } );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		await settleAt( result, 'queued' );
+
+		await advance( 5 * 60_000 + 1000 );
+		expect( result.current.state.phase ).toBe( 'error' );
+		expect( result.current.state ).toMatchObject( {
+			message: expect.stringMatching( LOST_TRACK ),
+		} );
+	} );
+
+	// The half that matters as much as firing: a long restore that keeps
+	// reporting progress must never be cut off. Each `running` reading
+	// restarts the deadline.
+	it( 'never cuts off a restore that keeps reporting progress', async () => {
+		respondWith( { status: statusPayload( { status: 'running', progress: 12 } ) } );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		await settleAt( result, 'progress' );
+
+		// Twenty minutes of steady progress, four times the deadline.
+		await advance( 20 * 60_000 );
+		expect( result.current.state.phase ).toBe( 'progress' );
+	} );
+
+	it( 'stops polling once it has given up', async () => {
+		respondWith( { initiate: { id: null, rewind_id: REWIND_ID }, restores: [] } );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		await settleAt( result, 'queued' );
+		await advance( 5 * 60_000 + 1000 );
+		expect( result.current.state.phase ).toBe( 'error' );
+
+		const before = mockedApiFetch.mock.calls.length;
+		await advance( 60_000 );
+		// A request in flight behind an error notice is a request nobody
+		// will ever read the answer to.
+		expect( mockedApiFetch.mock.calls ).toHaveLength( before );
+	} );
+
+	it( 'starts over after a reset', async () => {
+		respondWith( { initiate: { id: null, rewind_id: REWIND_ID }, restores: [] } );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		await settleAt( result, 'queued' );
+		await advance( 5 * 60_000 + 1000 );
+		expect( result.current.state.phase ).toBe( 'error' );
+
+		act( () => result.current.reset() );
+		expect( result.current.state.phase ).toBe( 'idle' );
+	} );
+} );
+
+describe( 'useRestore — matching the restore we started', () => {
+	it( 'matches a rewind id the collection formatted differently', async () => {
+		// The value in `recent_restores[]` has been round-tripped through
+		// VaultPress rather than echoed back, so a trailing zero gained or
+		// lost is the same instant spelled two ways. A strict string
+		// comparison would miss it and leave the restore unrecoverable.
+		respondWith( {
+			initiate: { id: null, rewind_id: REWIND_ID },
+			restores: [ { restore_id: 912682, rewind_id: `${ REWIND_ID }0` } ],
+			status: statusPayload( { status: 'running', progress: 33 } ),
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'progress' ) );
+		expect( result.current.state ).toMatchObject( { percent: 33 } );
+	} );
+
+	it( 'still refuses a different backup taken in the same second', async () => {
+		respondWith( {
+			initiate: { id: null, rewind_id: REWIND_ID },
+			restores: [ { restore_id: 111, rewind_id: '1786663613.1111' } ],
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'queued' ) );
+		const polled = mockedApiFetch.mock.calls.some( ( [ o ] ) =>
+			( o?.path ?? '' ).includes( '/rewind/restore/111/status' )
+		);
+		expect( polled ).toBe( false );
 	} );
 } );

@@ -45,11 +45,19 @@ export type RestoreStatusResponse = {
 	message: string;
 };
 
-/** One row of `GET /jetpack/v4/restores` — the last ten restores, any state. */
+/**
+ * One row of `GET /jetpack/v4/restores` — the last ten restores, any state.
+ *
+ * Deliberately only the two fields the recovery match needs. The rows
+ * also carry a `status`, and it is not the status route's vocabulary:
+ * WordPress.com's docblock for the collection claims `finished/started/
+ * fail` while its own consumer matches `running`. Nothing here reads it,
+ * and mapping a second, differently-spelled status enum would invite
+ * something to.
+ */
 export type RecentRestore = {
 	restore_id: number;
 	rewind_id: string;
-	status: string;
 };
 
 /**
@@ -121,7 +129,6 @@ export async function fetchRecentRestores(): Promise< RecentRestore[] > {
 		.map( row => ( {
 			restore_id: Number( row.restore_id ) || 0,
 			rewind_id: typeof row.rewind_id === 'string' ? row.rewind_id : String( row.rewind_id ?? '' ),
-			status: typeof row.status === 'string' ? row.status : '',
 		} ) )
 		.filter( row => row.restore_id > 0 );
 }
