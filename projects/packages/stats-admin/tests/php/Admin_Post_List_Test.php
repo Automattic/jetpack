@@ -225,7 +225,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 	 * @return void
 	 */
 	public function test_stats_load_admin_css() {
-		wp_styles()->add_inline_style( 'common', '' );
+		$this->assertTrue( wp_style_is( 'common', 'registered' ), 'The column CSS rides on core\'s common stylesheet.' );
 		wp_styles()->add_data( 'common', 'after', array() );
 
 		Admin_Post_List_Column::register()->stats_load_admin_css( 'edit.php' );
@@ -242,6 +242,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 	 * @return void
 	 */
 	public function test_stats_load_admin_css_is_limited_to_the_post_list() {
+		$this->assertTrue( wp_style_is( 'common', 'registered' ), 'The column CSS rides on core\'s common stylesheet.' );
 		wp_styles()->add_data( 'common', 'after', array() );
 
 		Admin_Post_List_Column::register()->stats_load_admin_css( 'index.php' );
