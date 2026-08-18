@@ -128,6 +128,11 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		// everyone is a single change here.
 		$show_gated_views = jetpack_is_internal_testing_environment();
 
+		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array(
+			'name'      => '',
+			'renews_on' => '',
+		);
+
 		wp_add_inline_script(
 			'jetpack-ai-admin',
 			'var jetpackAiSettings = ' . wp_json_encode(
@@ -146,7 +151,10 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					// The purchase granting AI, for the Overview usage card — the
 					// usage endpoint cannot name it. Only looked up when a gated
 					// view can render it.
-					'planName'         => $show_gated_views ? self::get_ai_plan_name() : '',
+					'planName'         => $plan_info['name'],
+					// The plan's own renewal date, matching My Jetpack — the
+					// usage-period rollover is a different, monthly date.
+					'planRenewsOn'     => $plan_info['renews_on'],
 					'showFeaturesView' => $show_gated_views,
 					// The walkthrough videos link to WordPress.com courses, so the
 					// Overview only shows them on WordPress.com-hosted sites (i4 thread).
@@ -217,27 +225,37 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Name of the purchase granting this site AI ("Jetpack Complete"), from
-	 * My Jetpack's purchase data — the same source as its Plans section.
+	 * Name and renewal date of the purchase granting this site AI ("Jetpack
+	 * Complete"), from My Jetpack's purchase data — its Plans section's source.
 	 *
-	 * @return string Empty when nothing paid grants AI or the data is unavailable.
+	 * The renewal is the purchase's expiry date, matching what My Jetpack
+	 * shows — not the AI usage-period rollover, which is a different date.
+	 *
+	 * @return array{name: string, renews_on: string} Empty strings when nothing
+	 *                                                paid grants AI or the data
+	 *                                                is unavailable.
 	 */
-	private static function get_ai_plan_name() {
+	private static function get_ai_plan_info() {
+		$empty = array(
+			'name'      => '',
+			'renews_on' => '',
+		);
+
 		if ( ! class_exists( '\Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai' ) ) {
-			return '';
+			return $empty;
 		}
 
 		// The purchase lookup can make remote requests; cache the outcome
 		// (empty included) so the admin page pays that cost at most hourly.
-		$cached = get_transient( 'jetpack_ai_overview_plan_name' );
-		if ( false !== $cached ) {
-			return (string) $cached;
+		$cached = get_transient( 'jetpack_ai_overview_plan_info' );
+		if ( is_array( $cached ) ) {
+			return array_merge( $empty, $cached );
 		}
 
 		// A failed lookup is not "no purchase": skip the hour-long cache so the
 		// next page load can try again instead of pinning a blank plan cell.
 		if ( is_wp_error( \Automattic\Jetpack\My_Jetpack\Wpcom_Products::get_site_current_purchases() ) ) {
-			return '';
+			return $empty;
 		}
 
 		$purchase = \Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai::get_paid_plan_purchase_for_product();
@@ -247,16 +265,17 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			$purchase = self::get_wpcom_plan_purchase();
 		}
 
-		$name = '';
+		$info = $empty;
 		if ( $purchase && ! empty( $purchase->product_name ) && 'expired' !== ( $purchase->expiry_status ?? '' ) ) {
 			// The design shows the bare plan name ("Complete", "Business"), so
 			// trim the store names' brand prefixes; they are untranslated.
-			$name = (string) preg_replace( '/^(Jetpack|WordPress\.com) /', '', (string) $purchase->product_name );
+			$info['name']      = (string) preg_replace( '/^(Jetpack|WordPress\.com) /', '', (string) $purchase->product_name );
+			$info['renews_on'] = (string) ( $purchase->expiry_date ?? '' );
 		}
 
-		set_transient( 'jetpack_ai_overview_plan_name', $name, HOUR_IN_SECONDS );
+		set_transient( 'jetpack_ai_overview_plan_info', $info, HOUR_IN_SECONDS );
 
-		return $name;
+		return $info;
 	}
 
 	/**

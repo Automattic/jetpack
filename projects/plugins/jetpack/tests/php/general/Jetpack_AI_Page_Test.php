@@ -30,7 +30,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	public function tear_down() {
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		unset( $GLOBALS['wp_scripts'] );
-		delete_transient( 'jetpack_ai_overview_plan_name' );
+		delete_transient( 'jetpack_ai_overview_plan_info' );
 		Status_Cache::clear();
 
 		parent::tear_down();
@@ -44,7 +44,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 * @param string $plan_slug Slug of the site's current plan, or '' for a free site.
 	 */
 	private function given_site( array $purchases, $plan_slug = '' ) {
-		delete_transient( 'jetpack_ai_overview_plan_name' );
+		delete_transient( 'jetpack_ai_overview_plan_info' );
 
 		add_filter(
 			'pre_transient_my-jetpack-purchases',
@@ -84,6 +84,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 			'product_slug'  => 'jetpack_ai_yearly',
 			'product_name'  => 'Jetpack AI Assistant',
 			'expiry_status' => 'active',
+			'expiry_date'   => '2027-03-15T00:00:00+00:00',
 		);
 	}
 
@@ -229,6 +230,20 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * The Plan cell's renewal date is the purchase's own expiry — the date My
+	 * Jetpack shows — not the monthly AI usage-period rollover.
+	 */
+	public function test_plan_renewal_date_comes_from_the_purchase() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->given_woa( false );
+		$this->given_site( array( $this->jetpack_ai_purchase() ) );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( '2027-03-15T00:00:00+00:00', $settings['planRenewsOn'] );
+	}
+
+	/**
 	 * An expired purchase names nothing, so a lapsed site cannot read as paid.
 	 */
 	public function test_expired_purchase_is_not_named() {
@@ -250,11 +265,19 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 */
 	public function test_a_cached_name_is_reused() {
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		set_transient( 'jetpack_ai_overview_plan_name', 'Cached', HOUR_IN_SECONDS );
+		set_transient(
+			'jetpack_ai_overview_plan_info',
+			array(
+				'name'      => 'Cached',
+				'renews_on' => '2027-03-15T00:00:00+00:00',
+			),
+			HOUR_IN_SECONDS
+		);
 
 		$settings = $this->get_injected_settings();
 
 		$this->assertSame( 'Cached', $settings['planName'] );
+		$this->assertSame( '2027-03-15T00:00:00+00:00', $settings['planRenewsOn'] );
 	}
 
 	/**

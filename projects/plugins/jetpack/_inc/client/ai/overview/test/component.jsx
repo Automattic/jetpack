@@ -81,6 +81,32 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByText( 'Jetpack Complete' ) ).not.toBeInTheDocument();
 	} );
 
+	test( 'plan renewal: the purchase date wins over the usage-period rollover', async () => {
+		// The payload's next-start is the monthly usage rollover; the Plan cell
+		// shows the purchase's own renewal, matching My Jetpack (design QA).
+		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
+
+		render(
+			<AiOverview { ...PROPS } planName="Business" planRenewsOn="2026-12-23T00:00:00+00:00" />
+		);
+
+		await expect( screen.findByText( /December 23, 2026/ ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /September 1, 2026/ ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'sections: headed at level two under the page title', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect(
+			screen.findByRole( 'heading', { level: 2, name: 'Documentation' } )
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.getByRole( 'heading', { level: 2, name: 'Walkthrough videos' } )
+		).toBeInTheDocument();
+	} );
+
 	test( 'upgrade: links to the shared upgrade URL when a next tier exists', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 

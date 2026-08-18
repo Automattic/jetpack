@@ -77,15 +77,20 @@ const DOC_LINKS = [
  * left, plan + upgrade-or-renewal on the right. Loading and error states stay
  * inside the card so the rest of the Overview renders immediately.
  *
- * @param {object} props            - Component props.
- * @param {string} props.upgradeUrl - Upgrade destination (shared with the MCP upsell).
- * @param {string} [props.planName] - Purchase name granting AI ("WordPress.com Business");
- *                                  preferred over the derived label when present.
+ * @param {object} props                - Component props.
+ * @param {string} props.upgradeUrl     - Upgrade destination (shared with the MCP upsell).
+ * @param {string} [props.planName]     - Purchase name granting AI ("WordPress.com Business");
+ *                                      preferred over the derived label when present.
+ * @param {string} [props.planRenewsOn] - The purchase's own renewal date; preferred over
+ *                                      the usage-period rollover, which is monthly.
  * @return {object} Component markup.
  */
-function UsageCard( { upgradeUrl, planName } ) {
+function UsageCard( { upgradeUrl, planName, planRenewsOn } ) {
 	const { isLoading, data, error } = useAiUsage();
 	const usage = normalizeUsage( data );
+	// The Plan cell's date is the purchase's renewal, matching My Jetpack; the
+	// usage-period rollover only stands in when no purchase date is available.
+	const renewsOn = planRenewsOn || usage.renewsOn;
 	// The purchase name only labels a paid state — the usage endpoint is
 	// authoritative for the tier, so an expired purchase cannot relabel Free.
 	const planLabel = ( ! usage.isFree && planName ) || usage.planLabel;
@@ -184,7 +189,7 @@ function UsageCard( { upgradeUrl, planName } ) {
 										{ __( 'Upgrade', 'jetpack' ) }
 									</LinkButton>
 								) }
-								{ ! usage.showUpgrade && usage.renewsOn && (
+								{ ! usage.showUpgrade && renewsOn && (
 									<Text
 										render={ <p /> }
 										variant="body-sm"
@@ -195,7 +200,7 @@ function UsageCard( { upgradeUrl, planName } ) {
 											__( 'Renews on: %s', 'jetpack' ),
 											// The endpoint sends a UTC instant; formatting it in the
 											// site timezone would shift the date west of UTC.
-											dateI18n( getDateSettings().formats.date, usage.renewsOn, 'UTC' )
+											dateI18n( getDateSettings().formats.date, renewsOn, 'UTC' )
 										) }
 									</Text>
 								) }
@@ -216,6 +221,7 @@ function UsageCard( { upgradeUrl, planName } ) {
  * @param {string}  [props.activityLogUrl]  - URL for the site's activity log; row hidden without it.
  * @param {string}  [props.upgradeUrl]      - Upgrade destination for the usage card.
  * @param {string}  [props.planName]        - Purchase name granting AI, from the page data.
+ * @param {string}  [props.planRenewsOn]    - The purchase's renewal date, from the page data.
  * @param {boolean} [props.isWpcomHosted]   - Whether the site is hosted on WordPress.com;
  *                                          the video row links to WP.com courses and hides elsewhere.
  * @param {boolean} [props.showActivityLog] - Whether the activity-log row applies: the row's
@@ -231,6 +237,7 @@ export default function AiOverview( {
 	activityLogUrl,
 	upgradeUrl,
 	planName,
+	planRenewsOn,
 	isWpcomHosted,
 	showActivityLog,
 	hostAllowsAi,
@@ -267,7 +274,7 @@ export default function AiOverview( {
 				</Card.Root>
 			) }
 			{ blogId && ! hostBlocked && ! userUnlinked && (
-				<UsageCard upgradeUrl={ upgradeUrl } planName={ planName } />
+				<UsageCard upgradeUrl={ upgradeUrl } planName={ planName } planRenewsOn={ planRenewsOn } />
 			) }
 			{ ! blogId && (
 				// Disconnected: skip the fetch (it can only fail) and explain
@@ -308,7 +315,7 @@ export default function AiOverview( {
 
 			{ isWpcomHosted && (
 				<div className="jetpack-ai-overview__videos">
-					<Text render={ <h3 /> } variant="heading-lg">
+					<Text render={ <h2 /> } variant="heading-lg">
 						{ __( 'Walkthrough videos', 'jetpack' ) }
 					</Text>
 					<div className="jetpack-ai-overview__video-grid">
@@ -351,7 +358,7 @@ export default function AiOverview( {
 			) }
 
 			<div className="jetpack-ai-overview__docs">
-				<Text render={ <h3 /> } variant="heading-lg">
+				<Text render={ <h2 /> } variant="heading-lg">
 					{ __( 'Documentation', 'jetpack' ) }
 				</Text>
 				<Stack direction="column" gap="sm" align="flex-start">
