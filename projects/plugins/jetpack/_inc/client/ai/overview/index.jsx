@@ -164,14 +164,16 @@ function UsageCard( { upgradeUrl, planName } ) {
 							<Stack
 								direction="row"
 								justify="space-between"
-								align="flex-start"
+								align="flex-end"
 								gap="lg"
 								className="jetpack-ai-overview__plan-row"
 							>
 								{ planLabel && (
 									<Text
 										render={ <p /> }
-										variant="heading-xl"
+										// Long names wrap to two lines, where XL reads too
+										// heavy; the cutoff approximates the half-card column.
+										variant={ ( planLabel?.length ?? 0 ) > 16 ? 'heading-lg' : 'heading-xl' }
 										className="jetpack-ai-overview__plan-name"
 									>
 										{ planLabel }

@@ -25,6 +25,12 @@
 		flex-direction: column;
 		gap: var(--wpds-dimension-gap-sm, 8px);
 
+		// Label stays at the top; value + meter (and plan name + renewal) drop to the
+		// bottom so both cells share a baseline — matches the Figma paid-plan card.
+		.jetpack-ai-overview__eyebrow {
+			margin-block-end: auto;
+		}
+
 		&--plan {
 			border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral, #dbdbdb);
 			padding-inline-start: var(--wpds-dimension-gap-xl, 24px);
@@ -48,12 +54,6 @@
 
 	&__muted {
 		color: var(--wpds-color-foreground-content-neutral-weak, #707070);
-	}
-
-	// The plan value sits 8px lower than the requests number: the frame aligns
-	// it against the number-plus-meter block, not the number alone (design QA).
-	&__usage &__plan-row {
-		margin-block-start: var(--wpds-dimension-gap-sm, 8px);
 	}
 
 	// Basis auto, not 0: the name starts from its own width so the renewal
