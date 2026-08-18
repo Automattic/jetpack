@@ -251,8 +251,12 @@ class Playlist_Block_Test extends BaseTestCase {
 			$this->attributes( array( 'entryTitleFontFamily' => 'grotesk' ) )
 		);
 
+		/*
+		 * No trailing semicolon in the expectation: get_block_wrapper_attributes() serializes the
+		 * style attribute itself, and WordPress 7.0 stopped keeping the trailing separator.
+		 */
 		$this->assertStringContainsString(
-			'--vpp-entry-title-font:var(--wp--preset--font-family--grotesk);',
+			'--vpp-entry-title-font:var(--wp--preset--font-family--grotesk)',
 			$markup
 		);
 

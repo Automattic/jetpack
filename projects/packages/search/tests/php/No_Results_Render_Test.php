@@ -265,7 +265,8 @@ class No_Results_Render_Test extends TestCase {
 		$this->assertSame(
 			1,
 			preg_match(
-				'/<div class="jetpack-search-no-results__variant"[^>]*>\s*<p>STRAY COPY<\/p>\s*<\/div>/',
+				// The <p> carries core's own classes — wp-block-paragraph as of WordPress 7.0 — so don't pin them.
+				'/<div class="jetpack-search-no-results__variant"[^>]*>\s*<p[^>]*>STRAY COPY<\/p>\s*<\/div>/',
 				$markup
 			),
 			'the stray block must be wrapped in an unscoped variant'

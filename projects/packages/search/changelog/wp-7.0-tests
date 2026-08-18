@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Tests: stop pinning core's paragraph classes, which WordPress 7.0 adds to.
+
+

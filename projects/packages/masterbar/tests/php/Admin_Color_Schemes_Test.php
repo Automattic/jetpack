@@ -88,13 +88,16 @@ class Admin_Color_Schemes_Test extends BaseTestCase {
 	public function test_get_color_scheme() {
 		wp_set_current_user( static::$user_id );
 
+		// Set the scheme explicitly: core's default changed from 'fresh' to 'modern' in WordPress 7.0.
+		update_user_meta( static::$user_id, 'admin_color', 'sunrise' );
+
 		$request  = new WP_REST_Request( Requests::GET, '/wp/v2/users/' . static::$user_id );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		$this->assertArrayHasKey( 'meta', $data );
 		$this->assertArrayHasKey( 'admin_color', $data['meta'] );
-		$this->assertSame( 'fresh', $data['meta']['admin_color'] );
+		$this->assertSame( 'sunrise', $data['meta']['admin_color'] );
 	}
 
 	/**

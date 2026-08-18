@@ -732,9 +732,12 @@ class Jetpack_Connector_Test extends TestCase {
 	public function test_connectors_page_path_gutenberg() {
 		$_SERVER['SCRIPT_NAME'] = '/wp-admin/options-general.php';
 
-		$screen                    = new \stdClass();
-		$screen->id                = Jetpack_Connector::GUTENBERG_CONNECTORS_SCREEN_ID;
-		$GLOBALS['current_screen'] = $screen;
+		/*
+		 * As of WordPress 7.0, get_current_screen() returns null unless the global is a real
+		 * WP_Screen, so a stdClass stub is not enough here.
+		 */
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		$GLOBALS['current_screen'] = \WP_Screen::get( Jetpack_Connector::GUTENBERG_CONNECTORS_SCREEN_ID );
 
 		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connectors_page_path' );
 		if ( PHP_VERSION_ID < 80100 ) {
