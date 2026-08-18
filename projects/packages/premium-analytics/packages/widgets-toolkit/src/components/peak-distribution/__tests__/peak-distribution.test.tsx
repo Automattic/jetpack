@@ -34,6 +34,34 @@ describe( 'PeakDistribution', () => {
 		expect( screen.getByText( '25 views' ) ).not.toHaveAttribute( 'aria-hidden' );
 	} );
 
+	it( 'renders a fractional daily average without rounding it to zero', () => {
+		render(
+			<PeakDistribution
+				label="7 pm"
+				value={ 0.3 }
+				points={ [ 0.1, 0.3 ] }
+				valueDecimals={ 1 }
+				valueUnit="views-per-day"
+			/>
+		);
+
+		expect( screen.getByText( '0.3 views per day' ) ).toBeInTheDocument();
+	} );
+
+	it( 'uses the singular daily-average label for exactly one view', () => {
+		render(
+			<PeakDistribution label="7 pm" value={ 1 } points={ [ 1 ] } valueUnit="views-per-day" />
+		);
+
+		expect( screen.getByText( '1 view per day' ) ).toBeInTheDocument();
+	} );
+
+	it( 'chooses the plural form from the displayed precision', () => {
+		render( <PeakDistribution label="Monday" value={ 1.4 } points={ [ 1.4 ] } /> );
+
+		expect( screen.getByText( '1 view' ) ).toBeInTheDocument();
+	} );
+
 	it( 'passes the points to the chart in order', () => {
 		render(
 			<PeakDistribution label="Tuesday" value={ 25 } points={ [ 10, 25, 0, 0, 0, 0, 0 ] } />

@@ -877,11 +877,16 @@ function buildSubscribersResponse( query: URLSearchParams ) {
  */
 const VISITS_STEP_DAYS: Record< string, number > = { day: 1, week: 7, month: 30, year: 365 };
 
+/**
+ * Build an hour-of-day response over the requested date range.
+ */
 function buildHourOfDayResponse( query: URLSearchParams ) {
 	const endDate = parseDateParam( query.get( 'date' ), new Date() );
+	const requestedDays = Number.parseInt( query.get( 'days' ) ?? '', 10 );
+	const fallbackDays = Number.isInteger( requestedDays ) && requestedDays > 0 ? requestedDays : 30;
 	const startDate = parseDateParam(
 		query.get( 'start_date' ),
-		new Date( endDate.getTime() - 29 * DAY_MS )
+		new Date( endDate.getTime() - ( fallbackDays - 1 ) * DAY_MS )
 	);
 	const days = Math.max(
 		1,

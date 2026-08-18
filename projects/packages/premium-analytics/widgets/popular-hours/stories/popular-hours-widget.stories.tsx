@@ -31,10 +31,12 @@ const POPULAR_HOURS_RENDER_MODULE = 'storybook/popular-hours';
 
 const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
+/** Render the widget with the default report range. */
 function renderPopularHours() {
 	return <PopularHoursRender attributes={ { reportParams: getDefaultQueryParams( false ) } } />;
 }
 
+/** Render the widget on a specific date preset. */
 function renderPopularHoursOnPreset( preset: PresetType ) {
 	return (
 		<PopularHoursRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
@@ -49,7 +51,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Popular hours" card: the busiest hour of the day for the selected range, as a site-format hour label and its mean daily views, over an area chart of the whole day\'s distribution. Data comes from `stats/views-by/hour-of-day`, which folds the range into 24 buckets in the site\'s own timezone; `stats/insights` also reports an hours map, but keyed in UTC while its `highest_hour` is offset-applied, so its chart and headline disagree. The endpoint caps the range at 366 days, so `all time` and long custom ranges are clamped to the most recent 12 months. There is no WithComparison story — the widget strips comparison from its request and renders no delta, so it would be identical to Default.',
+					'The "Popular hours" card: the busiest hour of the day for the selected range, as a site-format hour label and its mean daily views, over an area chart of the whole day\'s distribution. Data comes from `stats/views-by/hour-of-day`, which folds the range into 24 buckets in the site\'s own timezone; `stats/insights` also reports an hours map, but keyed in UTC while its `highest_hour` is offset-applied, so its chart and headline disagree. Because the endpoint rejects ranges longer than 366 days, the client limits `all time` and long custom ranges to the most recent 12 months. There is no WithComparison story — the widget strips comparison from its request and renders no delta, so it would be identical to Default.',
 			},
 		},
 	},

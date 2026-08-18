@@ -14,6 +14,13 @@ export type PopularHourBucket = {
 	average: number;
 };
 
+/**
+ * Pick the busiest hour by total views.
+ *
+ * Every hour occurs once per reported day, so ranking by total and average is
+ * equivalent. Totals avoid allowing division or display rounding to affect the
+ * selected bucket.
+ */
 function pickPeakHour( buckets: PopularHourBucket[] ) {
 	const peak = buckets.reduce< PopularHourBucket | undefined >(
 		( best, bucket ) => ( ! best || bucket.total > best.total ? bucket : best ),

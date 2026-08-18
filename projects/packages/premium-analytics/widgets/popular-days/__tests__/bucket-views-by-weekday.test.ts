@@ -111,11 +111,10 @@ describe( 'pickPeakWeekday', () => {
 		expect( pickPeakWeekday( buckets ) ).toMatchObject( { weekday: 1, average: 25 } );
 	} );
 
-	it( 'ignores weekdays the range never covered', () => {
+	it( 'returns undefined when the covered days received no views', () => {
 		const buckets = bucketViewsByWeekday( [ dailyRow( '2026-07-06', 0 ) ] );
 
-		// Monday occurred and drew nothing; the other six never occurred at all.
-		expect( pickPeakWeekday( buckets ) ).toMatchObject( { weekday: 0, occurrences: 1 } );
+		expect( pickPeakWeekday( buckets ) ).toBeUndefined();
 	} );
 
 	it( 'returns undefined when the range covers no days', () => {

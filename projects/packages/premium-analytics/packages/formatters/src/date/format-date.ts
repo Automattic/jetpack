@@ -111,6 +111,12 @@ export const formatWeekday = ( weekday: number ): string => {
 /** 12-hour clock tokens, zero-padded and not. */
 const TWELVE_HOUR_TOKENS = new Set( [ 'g', 'h' ] );
 
+/** Zero-padded hour tokens for 12- and 24-hour clocks. */
+const PADDED_HOUR_TOKENS = new Set( [ 'h', 'H' ] );
+
+/** Lowercase and uppercase meridiem tokens. */
+const MERIDIEM_TOKENS = new Set( [ 'a', 'A' ] );
+
 /** The lowercase meridiem token; `A` is its uppercase counterpart. */
 const LOWERCASE_MERIDIEM_TOKENS = new Set( [ 'a' ] );
 
@@ -130,17 +136,29 @@ const LOWERCASE_MERIDIEM_TOKENS = new Set( [ 'a' ] );
 export const formatHourOfDay = ( hour: number ): string => {
 	const timeFormat = getSettings().formats.time;
 	const isTwelveHour = hasToken( timeFormat, TWELVE_HOUR_TOKENS );
+	const isPadded = hasToken( timeFormat, PADDED_HOUR_TOKENS );
+	const hasMeridiem = hasToken( timeFormat, MERIDIEM_TOKENS );
 	// A UTC date read back in UTC: the bucket is already site-local, and
 	// converting it again would move it.
 	const date = new Date( Date.UTC( 2001, 0, 1, hour ) );
 	const locale = intlLocale();
 
 	if ( ! locale ) {
-		return dateI18n( isTwelveHour ? 'g a' : 'G', date, '+00:00' );
+		let hourToken = isPadded ? 'H' : 'G';
+
+		if ( isTwelveHour ) {
+			hourToken = isPadded ? 'h' : 'g';
+		}
+
+		const meridiemToken = hasMeridiem
+			? ` ${ hasToken( timeFormat, LOWERCASE_MERIDIEM_TOKENS ) ? 'a' : 'A' }`
+			: '';
+
+		return dateI18n( `${ hourToken }${ meridiemToken }`, date, '+00:00' );
 	}
 
 	const parts = new Intl.DateTimeFormat( locale, {
-		hour: 'numeric',
+		hour: '2-digit',
 		// `hour12` leaves the cycle to the locale, which can answer midnight as
 		// `24`; the explicit cycles do not.
 		hourCycle: isTwelveHour ? 'h12' : 'h23',
@@ -148,10 +166,19 @@ export const formatHourOfDay = ( hour: number ): string => {
 	} ).formatToParts( date );
 
 	const lowercaseMeridiem = hasToken( timeFormat, LOWERCASE_MERIDIEM_TOKENS );
+	const unpaddedHour = new Intl.NumberFormat( locale, { useGrouping: false } ).format(
+		isTwelveHour ? hour % 12 || 12 : hour
+	);
 
 	return parts
-		.map( part =>
-			part.type === 'dayPeriod' && lowercaseMeridiem ? part.value.toLowerCase() : part.value
-		)
-		.join( '' );
+		.filter( part => hasMeridiem || part.type !== 'dayPeriod' )
+		.map( part => {
+			if ( part.type === 'hour' && ! isPadded ) {
+				return unpaddedHour;
+			}
+
+			return part.type === 'dayPeriod' && lowercaseMeridiem ? part.value.toLowerCase() : part.value;
+		} )
+		.join( '' )
+		.trim();
 };

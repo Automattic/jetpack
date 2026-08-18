@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { StatsResponseShapeError } from '@jetpack-premium-analytics/data';
 import {
 	describeError,
 	PeakDistribution,
@@ -31,8 +32,10 @@ function PopularHoursReport() {
 
 	const points = useMemo( () => buckets.map( bucket => bucket.average ), [ buckets ] );
 
-	// Keep stale data visible when a background refresh fails.
-	const showError = isError && ! peak;
+	// Keep stale data visible for transient refetch failures. A changed response
+	// contract invalidates the cached interpretation, so surface that error.
+	const showError = isError && ( ! peak || error instanceof StatsResponseShapeError );
+	const valueDecimals = peak && peak.average < 10 && ! Number.isInteger( peak.average ) ? 1 : 0;
 
 	return (
 		<div className={ styles.root }>
@@ -61,12 +64,17 @@ function PopularHoursReport() {
 					label={ peak?.label ?? '' }
 					value={ peak?.average ?? 0 }
 					points={ points }
+					valueDecimals={ valueDecimals }
+					valueUnit="views-per-day"
 				/>
 			</WidgetState>
 		</div>
 	);
 }
 
+/**
+ * Render the Popular hours widget inside its shared widget context.
+ */
 export default function PopularHoursRender( {
 	attributes = {},
 	setError,

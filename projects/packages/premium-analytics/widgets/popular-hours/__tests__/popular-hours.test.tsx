@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useStatsHourOfDay } from '@jetpack-premium-analytics/data';
+import { StatsResponseShapeError, useStatsHourOfDay } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
@@ -95,7 +95,7 @@ describe( 'PopularHoursWidget', () => {
 
 		renderWidget();
 
-		expect( screen.getByText( '30 views' ) ).toBeInTheDocument();
+		expect( screen.getByText( '30 views per day' ) ).toBeInTheDocument();
 	} );
 
 	it( 'updates the average when the response reports a different range', () => {
@@ -104,7 +104,23 @@ describe( 'PopularHoursWidget', () => {
 		renderWidget();
 
 		// The same 300 views average 60 over five days instead of 30 over ten.
-		expect( screen.getByText( '60 views' ) ).toBeInTheDocument();
+		expect( screen.getByText( '60 views per day' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps a low-traffic daily average visible', () => {
+		mockUseStatsHourOfDay.mockReturnValue(
+			hourOfDayResult( {
+				...report(),
+				buckets: Array.from( { length: 24 }, ( _, hour ) => ( {
+					hour,
+					views: hour === 19 ? 3 : 0,
+				} ) ),
+			} )
+		);
+
+		renderWidget();
+
+		expect( screen.getByText( '0.3 views per day' ) ).toBeInTheDocument();
 	} );
 
 	it( 'plots all 24 hourly averages in hour order', () => {
@@ -134,10 +150,10 @@ describe( 'PopularHoursWidget', () => {
 
 		renderWidget();
 
-		expect( screen.getByText( '166.9K views' ) ).toBeInTheDocument();
+		expect( screen.getByText( '166.9K views per day' ) ).toBeInTheDocument();
 		expect( screen.getByTitle( '166,900' ) ).toBeInTheDocument();
-		expect( screen.getByText( '166.9K views' ) ).toHaveAttribute( 'aria-hidden', 'true' );
-		expect( screen.getByText( '166,900 views' ) ).toBeInTheDocument();
+		expect( screen.getByText( '166.9K views per day' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( '166,900 views per day' ) ).toBeInTheDocument();
 	} );
 
 	it( 'strips comparison params, since the endpoint has no comparison period', () => {
@@ -205,5 +221,19 @@ describe( 'PopularHoursWidget', () => {
 
 		expect( screen.getByText( '7 pm' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'surfaces an incompatible response even when stale data exists', () => {
+		mockUseStatsHourOfDay.mockReturnValue(
+			hourOfDayResult( report(), {
+				isError: true,
+				error: new StatsResponseShapeError( 'bad shape' ),
+			} )
+		);
+
+		renderWidget();
+
+		expect( screen.getByText( 'This data is unavailable right now.' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '7 pm' ) ).not.toBeInTheDocument();
 	} );
 } );

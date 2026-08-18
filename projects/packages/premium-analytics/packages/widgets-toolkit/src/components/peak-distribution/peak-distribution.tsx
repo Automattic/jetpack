@@ -3,7 +3,7 @@
  */
 import { Sparkline, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { __, sprintf } from '@wordpress/i18n';
+import { _n, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -13,6 +13,8 @@ export type PeakDistributionProps = {
 	label: string;
 	value: number;
 	points: number[];
+	valueDecimals?: number;
+	valueUnit?: 'views' | 'views-per-day';
 };
 
 // `decimals: 0` would round 166,900 to "167K"; the prototype's secondary figure
@@ -23,16 +25,30 @@ const PLAIN_VIEWS_OPTIONS = { decimals: 0 };
 /**
  * Display a peak label and view count above its distribution.
  */
-export function PeakDistribution( { label, value, points }: PeakDistributionProps ) {
-	const exactViews = formatMetricValue( value, 'number', PLAIN_VIEWS_OPTIONS );
+export function PeakDistribution( {
+	label,
+	value,
+	points,
+	valueDecimals = 0,
+	valueUnit = 'views',
+}: PeakDistributionProps ) {
+	const plainViewsOptions = { ...PLAIN_VIEWS_OPTIONS, decimals: valueDecimals };
+	const exactViews = formatMetricValue( value, 'number', plainViewsOptions );
 	const formattedViews = formatMetricValue(
 		value,
 		'number',
-		value >= 1000 ? ABBREVIATED_VIEWS_OPTIONS : PLAIN_VIEWS_OPTIONS
+		value >= 1000 ? ABBREVIATED_VIEWS_OPTIONS : plainViewsOptions
 	);
+	// Choose the plural form from the displayed precision, so a value rendered
+	// as "1" is not followed by the plural "views".
+	const displayedValue = Number( value.toFixed( valueDecimals ) );
 
-	/* translators: %s is a number of views, e.g. "166.9K". */
-	const viewsTemplate = __( '%s views', 'jetpack-premium-analytics-pkg' );
+	const viewsTemplate =
+		valueUnit === 'views-per-day'
+			? /* translators: %s is the average number of views per day, e.g. "1.4". */
+			  _n( '%s view per day', '%s views per day', displayedValue, 'jetpack-premium-analytics-pkg' )
+			: /* translators: %s is a number of views, e.g. "166.9K". */
+			  _n( '%s view', '%s views', displayedValue, 'jetpack-premium-analytics-pkg' );
 	const viewsLabel = sprintf( viewsTemplate, formattedViews );
 	const exactViewsLabel = sprintf( viewsTemplate, exactViews );
 

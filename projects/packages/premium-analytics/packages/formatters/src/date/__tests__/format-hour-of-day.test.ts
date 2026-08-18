@@ -61,6 +61,22 @@ describe( 'formatHourOfDay', () => {
 		expect( label( 7 ) ).toBe( '07' );
 	} );
 
+	it( 'preserves whether the site pads its hour', () => {
+		withSite( 'G:i', 0 );
+		expect( label( 7 ) ).toBe( '7' );
+
+		withSite( 'H:i', 0, 'ja' );
+		expect( label( 7 ) ).toBe( '07時' );
+	} );
+
+	it( 'does not add a meridiem the site format omits', () => {
+		withSite( 'g:i', 0 );
+		expect( label( 19 ) ).toBe( '7' );
+
+		withSite( 'h:i', 0 );
+		expect( label( 7 ) ).toBe( '07' );
+	} );
+
 	it( 'cases the meridiem the way the site format does', () => {
 		withSite( 'g:i A', 0 );
 
