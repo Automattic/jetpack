@@ -939,6 +939,7 @@ export default function PlaylistEdit( {
 		<InspectorControls group="styles">
 			<PanelBody title={ __( 'Typography', 'jetpack-videopress-pkg' ) }>
 				<FontFamilyControl
+					className="videopress-playlist-editor__font-control"
 					fontFamilies={ fontFamilies }
 					label={ __( 'Now playing title', 'jetpack-videopress-pkg' ) }
 					value={ fontFamilyValueOf( nowTitleFontFamily ) }
@@ -947,6 +948,7 @@ export default function PlaylistEdit( {
 					}
 				/>
 				<FontFamilyControl
+					className="videopress-playlist-editor__font-control"
 					fontFamilies={ fontFamilies }
 					label={ __( 'Entry titles', 'jetpack-videopress-pkg' ) }
 					value={ fontFamilyValueOf( entryTitleFontFamily ) }

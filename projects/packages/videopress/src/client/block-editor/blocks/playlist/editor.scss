@@ -36,6 +36,12 @@
 		margin-block-start: 12px;
 	}
 
+	/* The font controls bring no outer margin of their own; give stacked
+	   ones the standard control separation. */
+	&__font-control + &__font-control {
+		margin-block-start: 16px;
+	}
+
 	/* Notices render flush against the controls above them without this. */
 	&__notice.components-notice {
 		margin: 12px 0 0;
