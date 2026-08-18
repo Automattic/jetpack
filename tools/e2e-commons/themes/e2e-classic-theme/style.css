@@ -1,6 +1,6 @@
 /*
-Theme Name: E2E Classic Theme
-Description: A deliberately minimal classic theme for end-to-end tests. Its defining feature is what it does NOT have: a theme.json. See functions.php.
+Theme Name: WP E2E Classic Theme
+Description: A deliberately minimal classic theme for end-to-end tests. Its defining feature is what it does NOT have: a theme.json. See functions.php. The name has to sort after the bundled Twenty* themes — see below.
 Version: 1.0.0
 Requires at least: 6.7
 Requires PHP: 7.2
@@ -8,6 +8,21 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: e2e-classic-theme
 */
+
+/*
+ * On the `Theme Name` above: this theme is mounted into every e2e container,
+ * not just the suites that activate it, so it shows up on wp-admin/themes.php
+ * everywhere. Jetpack Boost's Critical CSS spec switches themes by clicking the
+ * first activate link on that screen
+ * (projects/plugins/boost/tests/e2e/specs/critical-css/critical-css.test.ts),
+ * and WordPress sorts that screen by theme name. A name starting with "E"
+ * would put this fixture ahead of every Twenty* theme, handing Boost a bare
+ * stylesheet to generate Critical CSS from. "WP ..." sorts after them.
+ *
+ * That is a fragile contract on both ends. The durable fix is for that spec to
+ * name the theme it wants instead of taking the first one, but until it does,
+ * do not rename this theme to something that sorts earlier.
+ */
 
 body {
 	margin: 0;

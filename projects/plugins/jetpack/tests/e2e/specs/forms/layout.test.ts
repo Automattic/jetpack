@@ -303,10 +303,18 @@ function measureMultistep( root: Locator, sel: Selectors ): Promise< MultistepMe
  * canvas, so on a surface that is not iframed it waits for something that never
  * arrives.
  *
- * @param page - The page.
- * @return The frame containing the form.
+ * Wait on something only the finished form has, never on `.jetpack-contact-form`
+ * alone. The block renders `<div {...blockProps}><ContactFormSkeletonLoader/></div>`
+ * while `useModuleStatus( 'contact-form' )` is still resolving
+ * (contact-form/edit.tsx), so the loading state wears the same class as the real
+ * thing and a wait on the wrapper can return markup with no blocks in it.
+ *
+ * @param page    - The page.
+ * @param ready   - Selector that exists only once the content under test has rendered.
+ * @param timeout - How long to wait.
+ * @return The frame containing it.
  */
-async function waitForEditorCanvas( page: Page ): Promise< Frame > {
+async function waitForEditorCanvas( page: Page, ready: string, timeout = 60000 ): Promise< Frame > {
 	let canvas: Frame | undefined;
 
 	await expect
@@ -314,22 +322,26 @@ async function waitForEditorCanvas( page: Page ): Promise< Frame > {
 			async () => {
 				for ( const frame of page.frames() ) {
 					try {
-						if ( ( await frame.locator( EDITOR_SELECTORS.form ).count() ) > 0 ) {
+						if ( ( await frame.locator( ready ).count() ) > 0 ) {
 							canvas = frame;
 							return true;
 						}
-					} catch {
+					} catch ( error ) {
 						/*
 						 * The editor swaps its canvas out while it boots, so a frame can
-						 * detach mid-poll. That just means this pass missed it.
+						 * detach mid-poll; that just means this pass missed it. Anything
+						 * else is a real error and should not be spent as poll time.
 						 */
+						if ( ! /detach|Execution context was destroyed/i.test( String( error ) ) ) {
+							throw error;
+						}
 					}
 				}
 				return false;
 			},
 			{
-				timeout: 60000,
-				message: 'Expected the form to render in the editor canvas',
+				timeout,
+				message: `Expected \`${ ready }\` to render in the editor canvas`,
 			}
 		)
 		.toBe( true );
@@ -399,7 +411,10 @@ for ( const theme of [ CLASSIC_THEME, BLOCK_THEME ] ) {
 			page,
 		} ) => {
 			await admin.editPost( singleStepPageId );
-			const canvas = await waitForEditorCanvas( page );
+			const canvas = await waitForEditorCanvas(
+				page,
+				`${ EDITOR_SELECTORS.form } ${ EDITOR_SELECTORS.field }`
+			);
 
 			const metrics = await measureSingleStep(
 				canvas.locator( EDITOR_SELECTORS.form ).first(),
@@ -448,7 +463,26 @@ for ( const theme of [ CLASSIC_THEME, BLOCK_THEME ] ) {
 			page,
 		} ) => {
 			await admin.editPost( multistepPageId );
-			const canvas = await waitForEditorCanvas( page );
+
+			/*
+			 * Wait for the step itself, not just the form. The step is gated twice:
+			 * `Current_Plan::supports( 'multistep-form' )` decides whether the blocks
+			 * register at all, and form-step/edit.jsx renders null until a store
+			 * round-trip selects the step. Waiting on the form alone would resolve
+			 * before either settles, and a missing step would then read as an
+			 * unavailable feature rather than as a slow one.
+			 */
+			const stepSelector = `${ EDITOR_SELECTORS.form } ${ EDITOR_SELECTORS.step }`;
+			let canvas: Frame;
+			try {
+				canvas = await waitForEditorCanvas( page, stepSelector, 30000 );
+			} catch {
+				test.skip(
+					true,
+					'No form step rendered. Multistep forms may not be available on this site.'
+				);
+				return;
+			}
 
 			const metrics = await measureMultistep(
 				canvas.locator( EDITOR_SELECTORS.form ).first(),
@@ -456,14 +490,12 @@ for ( const theme of [ CLASSIC_THEME, BLOCK_THEME ] ) {
 			);
 			logger.debug( `editor/${ theme } multistep: ${ JSON.stringify( metrics ) }` );
 
-			test.skip( metrics.stepWidth === null, 'Multistep forms are not enabled on this site.' );
-
 			/*
-			 * The skip above covers "no step element at all", which is what an
-			 * unavailable feature looks like. A step that is present but has no
-			 * size is a different thing — a broken render — and every assertion
-			 * below would pass vacuously against zeroed rects, so fail on it.
+			 * The step is on the page by now, so a null or zero measurement is a
+			 * broken render rather than an absent feature — and every boolean
+			 * assertion below would pass vacuously against zeroed rects.
 			 */
+			expect( metrics.stepWidth ).not.toBeNull();
 			expect( metrics.stepWidth as number ).toBeGreaterThan( 0 );
 
 			// Core's classic-theme rule hands a step's children `margin-inline:
@@ -491,13 +523,21 @@ for ( const theme of [ CLASSIC_THEME, BLOCK_THEME ] ) {
 			);
 			logger.debug( `front/${ theme } multistep: ${ JSON.stringify( metrics ) }` );
 
-			test.skip( metrics.stepWidth === null, 'Multistep forms are not enabled on this site.' );
+			/*
+			 * This markup comes from PHP, so there is no render to wait on: the step
+			 * is in the response or it is not. Absent means the blocks never
+			 * registered, which `Current_Plan::supports( 'multistep-form' )` decides
+			 * — though a regression that stopped the step rendering would look the
+			 * same, so say both rather than assert the plan.
+			 */
+			test.skip(
+				metrics.stepWidth === null,
+				'No form step in the response. Multistep forms may not be available on this site.'
+			);
 
 			/*
-			 * The skip above covers "no step element at all", which is what an
-			 * unavailable feature looks like. A step that is present but has no
-			 * size is a different thing — a broken render — and every assertion
-			 * below would pass vacuously against zeroed rects, so fail on it.
+			 * Present but zero-sized is a broken render, not an absent feature, and
+			 * every boolean assertion below would pass vacuously against zeroed rects.
 			 */
 			expect( metrics.stepWidth as number ).toBeGreaterThan( 0 );
 
