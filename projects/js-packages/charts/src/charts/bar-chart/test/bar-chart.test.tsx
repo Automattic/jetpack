@@ -1,4 +1,4 @@
-import { render, renderHook, screen } from '@testing-library/react';
+import { render, renderHook, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import BarChart from '../bar-chart';
@@ -222,6 +222,12 @@ describe( 'BarChart', () => {
 		const distinctTexts = ( elements: HTMLElement[] ) =>
 			new Set( elements.map( el => el.textContent ) );
 
+		// @visx/text measures label widths through one reusable <text> node parked
+		// on document.body, which outlives RTL's cleanup still holding the last
+		// string measured. Query inside the chart so a previous test's measurement
+		// can't answer for this one's axis.
+		const inChart = () => within( screen.getByRole( 'grid', { name: /bar chart/i } ) );
+
 		test( 'renders distinct date ticks for daily buckets within a year', () => {
 			renderWithTheme( {
 				width: 800,
@@ -325,6 +331,68 @@ describe( 'BarChart', () => {
 			expect( screen.queryByText( /\d{1,2}\s(AM|PM)/ ) ).not.toBeInTheDocument();
 		} );
 
+		test( 'dates a midnight tick for sub-daily buckets spanning days', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 48 }, ( _, i ) => ( {
+							date: new Date( 2026, 7, 2, i ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			// Band ticks are sampled by index, so without steering they land on
+			// bare hours belonging to days the axis never names.
+			expect( inChart().getByText( 'Aug 2' ) ).toBeInTheDocument();
+			expect( inChart().getByText( 'Aug 3' ) ).toBeInTheDocument();
+		} );
+
+		test( 'dates every tick for sub-daily buckets spanning a week', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 168 }, ( _, i ) => ( {
+							date: new Date( 2026, 7, 2, i ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			// Too long for a step within one day to fit the tick count, so the axis
+			// has to step whole days to keep naming them.
+			expect( inChart().queryByText( /\d{1,2}\s(AM|PM)/ ) ).not.toBeInTheDocument();
+			expect( inChart().getByText( 'Aug 2' ) ).toBeInTheDocument();
+			expect( inChart().getByText( 'Aug 8' ) ).toBeInTheDocument();
+		} );
+
+		test( 'names the year for monthly buckets that do not start in January', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 36 }, ( _, i ) => ( {
+							date: new Date( 2023, 6 + i, 1 ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			const ticks = inChart().getAllByText( /^\d{4}$/ );
+			expect( distinctTexts( ticks ) ).toEqual( new Set( [ '2024', '2025', '2026' ] ) );
+		} );
+
 		test( 'reads tickResolution off the y axis on a horizontal chart', () => {
 			renderWithTheme( {
 				width: 800,
@@ -341,7 +409,7 @@ describe( 'BarChart', () => {
 
 			// The dates move to the y axis with the orientation, so the hint has to
 			// follow them; read off `axis.x` this would fall back to a date tick.
-			expect( screen.getByText( /^1\sPM$/ ) ).toBeInTheDocument();
+			expect( inChart().getByText( /^1\sPM$/ ) ).toBeInTheDocument();
 		} );
 
 		test( 'renders an hour tick when tickResolution declares the buckets sub-daily', () => {
@@ -359,7 +427,7 @@ describe( 'BarChart', () => {
 				options: { axis: { x: { tickResolution: 'hour' } } },
 			} );
 
-			expect( screen.getByText( /^1\sPM$/ ) ).toBeInTheDocument();
+			expect( inChart().getByText( /^1\sPM$/ ) ).toBeInTheDocument();
 		} );
 	} );
 

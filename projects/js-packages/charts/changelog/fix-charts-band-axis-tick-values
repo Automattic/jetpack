@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: choose the tick values for a bar chart's time axis instead of sampling the band domain by index, so the axis stops skipping the tick that names the year or dates the day and no longer repeats a label.

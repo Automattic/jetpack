@@ -1,4 +1,4 @@
-import { getBucketResolution, getFormatter } from '../time-axis';
+import { getBandTickValues, getBucketResolution, getFormatter } from '../time-axis';
 import type { useChartDataTransform } from '../../../hooks';
 
 type SortedData = ReturnType< typeof useChartDataTransform >;
@@ -286,5 +286,90 @@ describe( 'getBucketResolution', () => {
 		// Weeks and days are both calendar-date buckets as far as labelling goes,
 		// and 'week' is not a label format of its own.
 		expect( getBucketResolution( toSeries( [] ), 'week' ) ).toBe( 'day' );
+	} );
+} );
+
+describe( 'getBandTickValues', () => {
+	const monthlyDomain = ( year: number, month: number, months: number ) =>
+		Array.from( { length: months }, ( _, i ) => new Date( year, month + i, 1 ) );
+
+	const hourlyDomain = ( start: Date, hours: number ) =>
+		Array.from( { length: hours }, ( _, i ) => new Date( start.getTime() + i * 60 * 60 * 1000 ) );
+
+	const labelsFor = ( domain: Date[], maxTicks = 4 ) => {
+		const formatter = getFormatter( toSeries( domain ) );
+		return getBandTickValues( domain, formatter, maxTicks ).map( date =>
+			formatter( date.getTime() )
+		);
+	};
+
+	it( 'shifts the sampling offset onto January for a monthly series starting mid-year', () => {
+		// Sampling from index 0 gives Aug, Nov, Feb, May, Aug — no year at all on a
+		// series that crosses one, and "Aug" twice.
+		expect( labelsFor( monthlyDomain( 2025, 7, 13 ) ) ).toContain( '2026' );
+	} );
+
+	it( 'lands on every January of a multi-year monthly series that starts mid-year', () => {
+		expect( labelsFor( monthlyDomain( 2023, 6, 36 ) ) ).toEqual( [ '2024', '2025', '2026' ] );
+	} );
+
+	it( 'keeps the dated midnight ticks for sub-daily data spanning days', () => {
+		// Every bare hour tick needs a dated one before it to say which day it is.
+		expect( labelsFor( hourlyDomain( new Date( 2026, 7, 2 ), 48 ) ) ).toEqual( [
+			'Aug 2',
+			'12 PM',
+			'Aug 3',
+			'12 PM',
+		] );
+	} );
+
+	it( 'steps whole days once a sub-daily span is too long to date any other way', () => {
+		// No step inside a day fits four ticks across a week, so the offset sweep
+		// alone would leave every tick but the first a bare hour on an unnamed day.
+		expect( labelsFor( hourlyDomain( new Date( 2026, 7, 2 ), 168 ) ) ).toEqual( [
+			'Aug 2',
+			'Aug 4',
+			'Aug 6',
+			'Aug 8',
+		] );
+	} );
+
+	it( 'steps whole years once a monthly span is too long to reach January any other way', () => {
+		expect( labelsFor( monthlyDomain( 2023, 6, 120 ) ) ).toEqual( [
+			'2024',
+			'2027',
+			'2030',
+			'2033',
+		] );
+	} );
+
+	it( 'still names a year at the lowest tick counts a caller can ask for', () => {
+		// An anchor outranks a denser axis, so without a step that reaches two of
+		// them a two-tick axis would settle for a single January.
+		expect( labelsFor( monthlyDomain( 2023, 6, 36 ), 2 ) ).toEqual( [ '2024', '2026' ] );
+		expect( labelsFor( monthlyDomain( 2023, 6, 36 ), 3 ) ).toEqual( [ '2024', '2025', '2026' ] );
+	} );
+
+	it( 'never repeats a label on adjacent ticks', () => {
+		const labels = labelsFor( monthlyDomain( 2024, 0, 36 ) );
+
+		expect( labels.some( ( label, i ) => i > 0 && label === labels[ i - 1 ] ) ).toBe( false );
+	} );
+
+	it( 'keeps the whole domain when it already fits', () => {
+		const domain = monthlyDomain( 2023, 0, 4 );
+
+		expect( getBandTickValues( domain, String, 4 ) ).toEqual( domain );
+	} );
+
+	it( 'never exceeds the requested tick count', () => {
+		const domain = monthlyDomain( 2023, 6, 36 );
+
+		expect( getBandTickValues( domain, String, 4 ).length ).toBeLessThanOrEqual( 4 );
+		expect( getBandTickValues( domain, String, 7 ).length ).toBeLessThanOrEqual( 7 );
+	} );
+
+	it( 'returns nothing for an empty domain', () => {
+		expect( getBandTickValues( [], String, 4 ) ).toEqual( [] );
 	} );
 } );
