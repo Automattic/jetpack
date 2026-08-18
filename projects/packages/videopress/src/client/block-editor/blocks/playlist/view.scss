@@ -17,6 +17,7 @@ $vpp-mono: ui-monospace, menlo, monospace;
 	--vpp-accent: #2a78d6;
 	--vpp-accent-tint: rgba(42, 120, 214, 0.08);
 	--vpp-thumb-bg: #e6e4df;
+	--vpp-list-fade: #fff;
 
 	margin: 0;
 	color: var(--vpp-text);
@@ -28,6 +29,7 @@ $vpp-mono: ui-monospace, menlo, monospace;
 		--vpp-border-soft: #232329;
 		--vpp-accent-tint: rgba(42, 120, 214, 0.18);
 		--vpp-thumb-bg: #2c2c31;
+		--vpp-list-fade: #131315;
 
 		background: #131315;
 		border-radius: 8px;
@@ -286,13 +288,13 @@ $vpp-mono: ui-monospace, menlo, monospace;
 	 */
 
 	&.is-layout-side-rail &__body {
-		display: flex;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) min(296px, 38%);
 		gap: 18px;
-		align-items: flex-start;
+		align-items: stretch;
 	}
 
 	&.is-layout-side-rail &__stage {
-		flex: 1 1 auto;
 		min-inline-size: 0;
 	}
 
@@ -304,15 +306,49 @@ $vpp-mono: ui-monospace, menlo, monospace;
 		content: "";
 	}
 
+	/*
+	 * The rail never grows past the player column: zero natural height keeps
+	 * it out of the grid row sizing, min-block-size stretches it back to the
+	 * row, and the entry list scrolls the overflow.
+	 */
+
 	&.is-layout-side-rail &__list {
-		flex: none;
-		inline-size: min(296px, 38%);
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		block-size: 0;
+		min-block-size: 100%;
 		border: 1px solid var(--vpp-border);
 		border-radius: 6px;
 		overflow: hidden;
 	}
 
+	&.is-layout-side-rail &__entries {
+		flex: 1 1 auto;
+		min-block-size: 0;
+		overflow-y: auto;
+	}
+
+	/* Fades the list bottom while more entries hide below the scroll. */
+
+	&.is-layout-side-rail &__list::after {
+		content: "";
+		position: absolute;
+		inset-inline: 0;
+		inset-block-end: 0;
+		block-size: 52px;
+		background: linear-gradient(transparent, var(--vpp-list-fade));
+		opacity: 0;
+		transition: opacity 0.2s;
+		pointer-events: none;
+	}
+
+	&.is-layout-side-rail &__list.has-more-videos::after {
+		opacity: 1;
+	}
+
 	&.is-layout-side-rail &__list-header {
+		flex: none;
 		padding: 9px 12px;
 		border-block-end: 1px solid var(--vpp-border-soft);
 	}
@@ -486,11 +522,12 @@ $vpp-mono: ui-monospace, menlo, monospace;
 	@media ( max-width: 599px ) {
 
 		&.is-layout-side-rail &__body {
-			flex-direction: column;
+			grid-template-columns: 1fr;
 		}
 
 		&.is-layout-side-rail &__list {
-			inline-size: 100%;
+			block-size: auto;
+			min-block-size: 0;
 		}
 	}
 }

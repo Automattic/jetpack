@@ -228,6 +228,24 @@ describe( 'initPlaylistBlock', () => {
 		);
 	} );
 
+	it( 'shows the more-videos fade only while entries hide below the scroll', () => {
+		const root = setUpPlaylist();
+		const list = root.querySelector< HTMLElement >( '.videopress-playlist__list' );
+		const entriesContainer = root.querySelector< HTMLElement >( '.videopress-playlist__entries' );
+
+		// jsdom has no layout; give the list a scrollable geometry.
+		Object.defineProperty( entriesContainer, 'scrollHeight', { configurable: true, value: 400 } );
+		Object.defineProperty( entriesContainer, 'clientHeight', { configurable: true, value: 200 } );
+
+		entriesContainer.scrollTop = 0;
+		entriesContainer.dispatchEvent( new Event( 'scroll' ) );
+		expect( list ).toHaveClass( 'has-more-videos' );
+
+		entriesContainer.scrollTop = 200;
+		entriesContainer.dispatchEvent( new Event( 'scroll' ) );
+		expect( list ).not.toHaveClass( 'has-more-videos' );
+	} );
+
 	it( 'ignores clicks on entries without an embed URL', () => {
 		const root = setUpPlaylist();
 		const entries = root.querySelectorAll< HTMLButtonElement >( '.videopress-playlist__select' );

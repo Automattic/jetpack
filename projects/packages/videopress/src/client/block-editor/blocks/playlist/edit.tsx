@@ -162,6 +162,21 @@ function PlaylistPreview( {
 	const { videos, showPositionNumber, showTotalRuntime } = attributes;
 	const current = videos[ currentIndex ];
 	const currentTitle = liveMetadata[ current.guid ]?.title || current.guid;
+
+	/*
+	 * Mirrors the front-end view script: while more entries hide below the
+	 * capped side-rail list's scroll position, the list shows a bottom fade.
+	 */
+	const entriesRef = useRef< HTMLOListElement | null >( null );
+	const [ hasMoreBelow, setHasMoreBelow ] = useState( false );
+	const updateScrollHint = () => {
+		const container = entriesRef.current;
+		if ( ! container ) {
+			return;
+		}
+		setHasMoreBelow( container.scrollHeight - container.scrollTop - container.clientHeight > 1 );
+	};
+	useEffect( updateScrollHint, [ videos, attributes.layout, liveMetadata ] );
 	const runtime = formatRuntime( playlistRuntimeMs( videos ) );
 	const countLabel = sprintf(
 		/* translators: %d: number of videos in the playlist. */
@@ -209,7 +224,11 @@ function PlaylistPreview( {
 					</div>
 				</div>
 
-				<div className="videopress-playlist__list">
+				<div
+					className={
+						hasMoreBelow ? 'videopress-playlist__list has-more-videos' : 'videopress-playlist__list'
+					}
+				>
 					<div className="videopress-playlist__list-header">
 						<span className="videopress-playlist__list-label videopress-playlist__list-label--rail">
 							{ __( 'Up next', 'jetpack-videopress-pkg' ) }
@@ -237,7 +256,11 @@ function PlaylistPreview( {
 							) }
 						</span>
 					</div>
-					<ol className="videopress-playlist__entries">
+					<ol
+						className="videopress-playlist__entries"
+						ref={ entriesRef }
+						onScroll={ updateScrollHint }
+					>
 						{ videos.map( ( entry, index ) => (
 							<li className="videopress-playlist__entry" key={ `${ entry.guid }-${ index }` }>
 								<button

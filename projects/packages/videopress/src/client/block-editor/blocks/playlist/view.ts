@@ -117,9 +117,29 @@ export function initPlaylistBlock( root: HTMLElement ) {
 		return;
 	}
 
+	/*
+	 * The side rail caps the list at the player column's height; while more
+	 * entries hide below the scroll position, the list carries a class that
+	 * shows the bottom fade.
+	 */
+	const list = root.querySelector< HTMLElement >( '.videopress-playlist__list' );
+	const entriesContainer = root.querySelector< HTMLElement >( '.videopress-playlist__entries' );
+	const updateScrollHint = () => {
+		if ( ! list || ! entriesContainer ) {
+			return;
+		}
+		list.classList.toggle(
+			'has-more-videos',
+			entriesContainer.scrollHeight - entriesContainer.scrollTop - entriesContainer.clientHeight > 1
+		);
+	};
+	entriesContainer?.addEventListener( 'scroll', updateScrollHint, { passive: true } );
+	updateScrollHint();
+
 	// Fire-and-forget: the list is usable with the server-rendered fallbacks
-	// while (or if) the live metadata lookups are still pending.
-	hydratePlaylistMetadata( root );
+	// while (or if) the live metadata lookups are still pending. Hydrated
+	// posters can change entry heights, so refresh the scroll hint after.
+	hydratePlaylistMetadata( root ).then( updateScrollHint );
 
 	const nowTitle = root.querySelector( '.videopress-playlist__now-title' );
 	const nowPosition = root.querySelector( '.videopress-playlist__now-position' );
