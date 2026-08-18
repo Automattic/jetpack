@@ -144,6 +144,17 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * The video row only belongs on WordPress.com-hosted sites (i4 thread), and
+	 * the test environment is self-hosted, so the flag rides along as false.
+	 */
+	public function test_video_row_flag_is_false_off_wpcom() {
+		$settings = $this->get_injected_settings();
+
+		$this->assertArrayHasKey( 'isWpcomHosted', $settings );
+		$this->assertFalse( $settings['isWpcomHosted'] );
+	}
+
+	/**
 	 * A proxied request is a test environment regardless of who made it, so
 	 * isTest follows jetpack_is_internal_testing_environment().
 	 */

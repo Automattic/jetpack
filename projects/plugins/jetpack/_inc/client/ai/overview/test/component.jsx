@@ -15,6 +15,7 @@ const PROPS = {
 	blogId: 1,
 	activityLogUrl: 'https://example.com/activity',
 	upgradeUrl: 'https://example.com/upgrade',
+	isWpcomHosted: true,
 };
 
 // The design-system Notice mirrors its text into a hidden wp.a11y.speak live
@@ -149,6 +150,19 @@ describe( 'AiOverview', () => {
 
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'walkthrough videos: hidden on sites not hosted on WordPress.com', async () => {
+		// The cards link to WordPress.com courses (i4 thread), so the row only
+		// belongs on WordPress.com-hosted sites — absent flag means hidden.
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } isWpcomHosted={ false } /> );
+
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Walkthrough videos' ) ).not.toBeInTheDocument();
+		// The docs section is host-agnostic and stays.
+		expect( screen.getByText( 'Documentation' ) ).toBeInTheDocument();
 	} );
 
 	test( 'walkthrough videos: renders the four cards with their durations', async () => {

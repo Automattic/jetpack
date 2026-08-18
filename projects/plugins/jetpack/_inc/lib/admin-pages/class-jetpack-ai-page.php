@@ -148,6 +148,9 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					// view can render it.
 					'planName'         => $show_gated_views ? self::get_ai_plan_name() : '',
 					'showFeaturesView' => $show_gated_views,
+					// The walkthrough videos link to WordPress.com courses, so the
+					// Overview only shows them on WordPress.com-hosted sites (i4 thread).
+					'isWpcomHosted'    => ( new Host() )->is_woa_site(),
 					// Tracks audience properties for the jetpack_mcp_* events, per the
 					// Tracks standards for AI product events (AIINT-586). The client
 					// sends them as the strings 'true'/'false' (AIINT-576).

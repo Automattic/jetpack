@@ -201,14 +201,22 @@ function UsageCard( { upgradeUrl, planName } ) {
 /**
  * Overview view.
  *
- * @param {object} props                  - Component props.
- * @param {number} [props.blogId]         - Current site's blog ID; falsy when not connected.
- * @param {string} [props.activityLogUrl] - URL for the site's activity log; row hidden without it.
- * @param {string} [props.upgradeUrl]     - Upgrade destination for the usage card.
- * @param {string} [props.planName]       - Purchase name granting AI, from the page data.
+ * @param {object}  props                  - Component props.
+ * @param {number}  [props.blogId]         - Current site's blog ID; falsy when not connected.
+ * @param {string}  [props.activityLogUrl] - URL for the site's activity log; row hidden without it.
+ * @param {string}  [props.upgradeUrl]     - Upgrade destination for the usage card.
+ * @param {string}  [props.planName]       - Purchase name granting AI, from the page data.
+ * @param {boolean} [props.isWpcomHosted]  - Whether the site is hosted on WordPress.com;
+ *                                         the video row links to WP.com courses and hides elsewhere.
  * @return {object} Component markup.
  */
-export default function AiOverview( { blogId, activityLogUrl, upgradeUrl, planName } ) {
+export default function AiOverview( {
+	blogId,
+	activityLogUrl,
+	upgradeUrl,
+	planName,
+	isWpcomHosted,
+} ) {
 	return (
 		<Stack direction="column" gap="xl">
 			{ blogId ? (
@@ -250,43 +258,49 @@ export default function AiOverview( { blogId, activityLogUrl, upgradeUrl, planNa
 				</Card.Root>
 			) }
 
-			<div className="jetpack-ai-overview__videos">
-				<Text render={ <h3 /> } variant="heading-lg">
-					{ __( 'Walkthrough videos', 'jetpack' ) }
-				</Text>
-				<div className="jetpack-ai-overview__video-grid">
-					{ WALKTHROUGH_VIDEOS.map( ( { slug, title, duration, thumbnail } ) => (
-						<a
-							className="jetpack-ai-overview__video"
-							href={ getRedirectUrl( slug ) }
-							key={ slug }
-							target="_blank"
-							rel="noopener noreferrer"
-						>
-							{ /* Decorative: the card's title carries the meaning. */ }
-							<img
-								className="jetpack-ai-overview__video-thumb"
-								src={ thumbnail }
-								alt=""
-								width="644"
-								height="348"
-								loading="lazy"
-							/>
-							<span className="jetpack-ai-overview__video-meta">
-								<Text render={ <span /> } variant="heading-md">
-									{ title }
-								</Text>
-								<Text render={ <span /> } variant="body-md" className="jetpack-ai-overview__muted">
-									{ duration }
-								</Text>
-							</span>
-							{ /* The design leaves the cards unmarked, so announce the
+			{ isWpcomHosted && (
+				<div className="jetpack-ai-overview__videos">
+					<Text render={ <h3 /> } variant="heading-lg">
+						{ __( 'Walkthrough videos', 'jetpack' ) }
+					</Text>
+					<div className="jetpack-ai-overview__video-grid">
+						{ WALKTHROUGH_VIDEOS.map( ( { slug, title, duration, thumbnail } ) => (
+							<a
+								className="jetpack-ai-overview__video"
+								href={ getRedirectUrl( slug ) }
+								key={ slug }
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								{ /* Decorative: the card's title carries the meaning. */ }
+								<img
+									className="jetpack-ai-overview__video-thumb"
+									src={ thumbnail }
+									alt=""
+									width="644"
+									height="348"
+									loading="lazy"
+								/>
+								<span className="jetpack-ai-overview__video-meta">
+									<Text render={ <span /> } variant="heading-md">
+										{ title }
+									</Text>
+									<Text
+										render={ <span /> }
+										variant="body-md"
+										className="jetpack-ai-overview__muted"
+									>
+										{ duration }
+									</Text>
+								</span>
+								{ /* The design leaves the cards unmarked, so announce the
 							     new tab the way ExternalLink does, minus its arrow. */ }
-							<VisuallyHidden>{ __( '(opens in a new tab)', 'jetpack' ) }</VisuallyHidden>
-						</a>
-					) ) }
+								<VisuallyHidden>{ __( '(opens in a new tab)', 'jetpack' ) }</VisuallyHidden>
+							</a>
+						) ) }
+					</div>
 				</div>
-			</div>
+			) }
 
 			<div className="jetpack-ai-overview__docs">
 				<Text render={ <h3 /> } variant="heading-lg">
