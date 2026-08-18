@@ -9,31 +9,18 @@
  * Modeled on `@wordpress/theme`'s `add-fallback-to-var` helper:
  * https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/src/postcss-plugins/add-fallback-to-var.mjs
  *
- * @param {string}                 cssValue               - A CSS declaration value.
- * @param {Record<string, string>} tokenFallbacks         - Map of CSS variable names to their fallback expressions.
- * @param {object}                 [options]              - Options.
- * @param {boolean}                [options.escapeQuotes] - When true, escape `"` and `'` in fallback values.
- * @param {boolean}                [options.strict]       - When true, throw if a matched token is missing from the map.
+ * @param {string}                 cssValue       - A CSS declaration value.
+ * @param {Record<string, string>} tokenFallbacks - Map of CSS variable names to their fallback expressions.
  * @return {string} The value with fallbacks injected.
  */
-function addFallbackToVar(
-	cssValue,
-	tokenFallbacks,
-	{ escapeQuotes = false, strict = false } = {}
-) {
+function addFallbackToVar( cssValue, tokenFallbacks ) {
 	return cssValue.replace( /var\(\s*(--(?:color|studio)-[\w-]+)\s*\)/g, ( match, tokenName ) => {
-		let fallback = tokenFallbacks[ tokenName ];
+		const fallback = tokenFallbacks[ tokenName ];
 		if ( fallback === undefined ) {
-			if ( strict ) {
-				throw new Error(
-					`Unknown color token: ${ tokenName }. ` +
-						'This token is not in the Calypso / Color Studio fallback map.'
-				);
-			}
-			return match;
-		}
-		if ( escapeQuotes ) {
-			fallback = fallback.replaceAll( '"', '\\"' ).replaceAll( "'", "\\'" );
+			throw new Error(
+				`Unknown token: ${ tokenName }. ` +
+					'This token is not in Calypso color schemes / Studio / Jetpack base styles.'
+			);
 		}
 		return `var(${ tokenName }, ${ fallback })`;
 	} );
