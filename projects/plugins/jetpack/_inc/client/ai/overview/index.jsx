@@ -115,13 +115,13 @@ function UsageCard( { upgradeUrl, planName } ) {
 				{ ! isLoading && ! error && (
 					<div className="jetpack-ai-overview__usage">
 						<div className="jetpack-ai-overview__usage-cell">
-							<Text as="p" variant="heading-sm" className="jetpack-ai-overview__eyebrow">
+							<Text render={ <p /> } variant="heading-sm" className="jetpack-ai-overview__eyebrow">
 								{ __( 'Available requests', 'jetpack' ) }
 							</Text>
 							<Stack direction="row" justify="space-between" align="baseline">
 								{ usage.unlimited ? (
 									<Text
-										as="p"
+										render={ <p /> }
 										variant="body-md"
 										className="jetpack-ai-overview__muted jetpack-ai-overview__unlimited"
 									>
@@ -130,14 +130,18 @@ function UsageCard( { upgradeUrl, planName } ) {
 								) : (
 									<>
 										<Text
-											as="p"
+											render={ <p /> }
 											variant="heading-xl"
 											className="jetpack-ai-overview__requests-value"
 										>
 											{ hasNumbers ? usage.requestsAvailable : '—' }
 										</Text>
 										{ hasNumbers && (
-											<Text as="p" variant="body-md" className="jetpack-ai-overview__muted">
+											<Text
+												render={ <p /> }
+												variant="body-md"
+												className="jetpack-ai-overview__muted"
+											>
 												{ usage.requestsLimit }
 											</Text>
 										) }
@@ -154,12 +158,16 @@ function UsageCard( { upgradeUrl, planName } ) {
 						</div>
 
 						<div className="jetpack-ai-overview__usage-cell jetpack-ai-overview__usage-cell--plan">
-							<Text as="p" variant="heading-sm" className="jetpack-ai-overview__eyebrow">
+							<Text render={ <p /> } variant="heading-sm" className="jetpack-ai-overview__eyebrow">
 								{ __( 'Plan', 'jetpack' ) }
 							</Text>
 							<Stack direction="row" justify="space-between" align="flex-start" gap="lg">
 								{ planLabel && (
-									<Text as="p" variant="heading-xl" className="jetpack-ai-overview__plan-name">
+									<Text
+										render={ <p /> }
+										variant="heading-xl"
+										className="jetpack-ai-overview__plan-name"
+									>
 										{ planLabel }
 									</Text>
 								) }
@@ -170,7 +178,7 @@ function UsageCard( { upgradeUrl, planName } ) {
 								) }
 								{ ! usage.showUpgrade && usage.renewsOn && (
 									<Text
-										as="p"
+										render={ <p /> }
 										variant="body-sm"
 										className="jetpack-ai-overview__muted jetpack-ai-overview__renewal"
 									>
@@ -243,7 +251,7 @@ export default function AiOverview( { blogId, activityLogUrl, upgradeUrl, planNa
 			) }
 
 			<div className="jetpack-ai-overview__videos">
-				<Text as="h3" variant="heading-lg">
+				<Text render={ <h3 /> } variant="heading-lg">
 					{ __( 'Walkthrough videos', 'jetpack' ) }
 				</Text>
 				<div className="jetpack-ai-overview__video-grid">
@@ -265,10 +273,10 @@ export default function AiOverview( { blogId, activityLogUrl, upgradeUrl, planNa
 								loading="lazy"
 							/>
 							<span className="jetpack-ai-overview__video-meta">
-								<Text as="span" variant="heading-md">
+								<Text render={ <span /> } variant="heading-md">
 									{ title }
 								</Text>
-								<Text as="span" variant="body-md" className="jetpack-ai-overview__muted">
+								<Text render={ <span /> } variant="body-md" className="jetpack-ai-overview__muted">
 									{ duration }
 								</Text>
 							</span>
@@ -281,7 +289,7 @@ export default function AiOverview( { blogId, activityLogUrl, upgradeUrl, planNa
 			</div>
 
 			<div className="jetpack-ai-overview__docs">
-				<Text as="h3" variant="heading-lg">
+				<Text render={ <h3 /> } variant="heading-lg">
 					{ __( 'Documentation', 'jetpack' ) }
 				</Text>
 				<Stack direction="column" gap="sm" align="flex-start">

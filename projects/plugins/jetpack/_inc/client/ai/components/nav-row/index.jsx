@@ -40,11 +40,11 @@ export default function NavRow( { icon, title, description, href, onClick, tone 
 				<Icon icon={ icon } size={ 24 } />
 			</span>
 			<span className="jetpack-ai-nav-row__text">
-				<Text as="p" className="jetpack-ai-nav-row__title" weight={ 600 }>
+				<Text render={ <p /> } className="jetpack-ai-nav-row__title" weight={ 600 }>
 					{ title }
 				</Text>
 				{ description && (
-					<Text as="p" className="jetpack-ai-nav-row__description" variant="muted">
+					<Text render={ <p /> } className="jetpack-ai-nav-row__description" variant="muted">
 						{ description }
 					</Text>
 				) }
