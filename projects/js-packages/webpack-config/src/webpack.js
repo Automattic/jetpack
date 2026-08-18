@@ -144,14 +144,6 @@ const defaultRequestMap = {
 		external: 'JetpackSharedStores',
 		handle: 'jetpack-shared-stores',
 	},
-	// Bundle rather than externalize: WordPress ships no `wp-kebab-case` script
-	// handle in any version, so the default `@wordpress/*` externalization would
-	// leave every dependent script with an unregistered dependency, which
-	// WordPress refuses to enqueue at all. Reached through `@wordpress/components`
-	// and `@wordpress/dataviews`.
-	'@wordpress/kebab-case': {
-		external: null,
-	},
 };
 
 const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {
