@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sanitize nonces and request URIs read from the request before use.
