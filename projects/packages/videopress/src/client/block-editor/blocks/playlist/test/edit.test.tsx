@@ -21,12 +21,18 @@ jest.mock( '@wordpress/block-editor', () => ( {
 		render: ( args: { open: () => void } ) => React.ReactNode;
 	} ) => renderProp( { open: () => onSelect( mockMediaSelection ) } ),
 	MediaUploadCheck: ( { children }: { children: React.ReactNode } ) => <>{ children }</>,
-	useSettings: () => [
-		[
-			{ name: 'Serif Pro', slug: 'serif-pro', fontFamily: '"Serif Pro", serif' },
-			{ name: 'Grotesk', slug: 'grotesk', fontFamily: 'Grotesk, sans-serif' },
-		],
-	],
+	// Mirrors core: font families resolve per origin path; the bare
+	// `typography.fontFamilies` path yields the raw origins object.
+	useSettings: ( ...paths: string[] ) =>
+		paths.map( path => {
+			if ( path === 'typography.fontFamilies.theme' ) {
+				return [
+					{ name: 'Serif Pro', slug: 'serif-pro', fontFamily: '"Serif Pro", serif' },
+					{ name: 'Grotesk', slug: 'grotesk', fontFamily: 'Grotesk, sans-serif' },
+				];
+			}
+			return undefined;
+		} ),
 	__experimentalFontFamilyControl: ( {
 		label,
 		value,

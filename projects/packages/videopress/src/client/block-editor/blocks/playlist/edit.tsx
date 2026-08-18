@@ -335,10 +335,20 @@ export default function PlaylistEdit( {
 
 	/*
 	 * Theme font-family presets, as used by core blocks' typography tools.
-	 * Attributes store the preset slug; the control works in CSS values.
+	 * Queried per origin — the bare `typography.fontFamilies` path returns
+	 * the raw origins object, not a list. Attributes store the preset slug;
+	 * the control works in CSS values.
 	 */
-	const [ fontFamilies = [] ] = useSettings( 'typography.fontFamilies' ) as [
-		Array< { name?: string; slug: string; fontFamily: string } > | undefined,
+	type FontFamilyPreset = { name?: string; slug: string; fontFamily: string };
+	const [ customFontFamilies, themeFontFamilies, defaultFontFamilies ] = useSettings(
+		'typography.fontFamilies.custom',
+		'typography.fontFamilies.theme',
+		'typography.fontFamilies.default'
+	) as Array< FontFamilyPreset[] | undefined >;
+	const fontFamilies: FontFamilyPreset[] = [
+		...( customFontFamilies ?? [] ),
+		...( themeFontFamilies ?? [] ),
+		...( defaultFontFamilies ?? [] ),
 	];
 	const fontFamilyValueOf = ( slug: string ) =>
 		fontFamilies.find( preset => preset.slug === slug )?.fontFamily ?? '';
@@ -929,6 +939,7 @@ export default function PlaylistEdit( {
 		<InspectorControls group="styles">
 			<PanelBody title={ __( 'Typography', 'jetpack-videopress-pkg' ) }>
 				<FontFamilyControl
+					fontFamilies={ fontFamilies }
 					label={ __( 'Now playing title', 'jetpack-videopress-pkg' ) }
 					value={ fontFamilyValueOf( nowTitleFontFamily ) }
 					onChange={ ( value: string ) =>
@@ -936,6 +947,7 @@ export default function PlaylistEdit( {
 					}
 				/>
 				<FontFamilyControl
+					fontFamilies={ fontFamilies }
 					label={ __( 'Entry titles', 'jetpack-videopress-pkg' ) }
 					value={ fontFamilyValueOf( entryTitleFontFamily ) }
 					onChange={ ( value: string ) =>
