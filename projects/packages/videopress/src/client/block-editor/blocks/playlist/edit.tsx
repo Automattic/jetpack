@@ -844,6 +844,50 @@ export default function PlaylistEdit( {
 				) }
 			</PanelBody>
 
+			<PanelBody title={ __( 'Show on each entry', 'jetpack-videopress-pkg' ) }>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Thumbnail', 'jetpack-videopress-pkg' ) }
+					checked={ showThumbnail }
+					onChange={ ( value: boolean ) => setAttributes( { showThumbnail: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Title', 'jetpack-videopress-pkg' ) }
+					checked={ showTitle }
+					onChange={ ( value: boolean ) => setAttributes( { showTitle: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Resolution', 'jetpack-videopress-pkg' ) }
+					checked={ showResolution }
+					onChange={ ( value: boolean ) => setAttributes( { showResolution: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Duration', 'jetpack-videopress-pkg' ) }
+					checked={ showDuration }
+					onChange={ ( value: boolean ) => setAttributes( { showDuration: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Position number', 'jetpack-videopress-pkg' ) }
+					checked={ showPositionNumber }
+					onChange={ ( value: boolean ) => setAttributes( { showPositionNumber: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Total runtime in header', 'jetpack-videopress-pkg' ) }
+					checked={ showTotalRuntime }
+					onChange={ ( value: boolean ) => setAttributes( { showTotalRuntime: value } ) }
+				/>
+			</PanelBody>
+		</InspectorControls>
+	);
+
+	// In the Styles tab, where WordPress surfaces style settings for core blocks.
+	const stylesControls = (
+		<InspectorControls group="styles">
 			<PanelBody title={ __( 'Layout', 'jetpack-videopress-pkg' ) }>
 				<div
 					className="videopress-playlist-editor__layouts"
@@ -892,71 +936,28 @@ export default function PlaylistEdit( {
 					onChange={ ( value: boolean ) => setAttributes( { autoplayNext: value } ) }
 				/>
 			</PanelBody>
-
-			<PanelBody title={ __( 'Show on each entry', 'jetpack-videopress-pkg' ) }>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Thumbnail', 'jetpack-videopress-pkg' ) }
-					checked={ showThumbnail }
-					onChange={ ( value: boolean ) => setAttributes( { showThumbnail: value } ) }
-				/>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Title', 'jetpack-videopress-pkg' ) }
-					checked={ showTitle }
-					onChange={ ( value: boolean ) => setAttributes( { showTitle: value } ) }
-				/>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Resolution', 'jetpack-videopress-pkg' ) }
-					checked={ showResolution }
-					onChange={ ( value: boolean ) => setAttributes( { showResolution: value } ) }
-				/>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Duration', 'jetpack-videopress-pkg' ) }
-					checked={ showDuration }
-					onChange={ ( value: boolean ) => setAttributes( { showDuration: value } ) }
-				/>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Position number', 'jetpack-videopress-pkg' ) }
-					checked={ showPositionNumber }
-					onChange={ ( value: boolean ) => setAttributes( { showPositionNumber: value } ) }
-				/>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Total runtime in header', 'jetpack-videopress-pkg' ) }
-					checked={ showTotalRuntime }
-					onChange={ ( value: boolean ) => setAttributes( { showTotalRuntime: value } ) }
-				/>
-			</PanelBody>
-		</InspectorControls>
-	);
-
-	// In the Styles tab, where WordPress surfaces typography for core blocks.
-	const typographyControls = fontFamilies.length > 0 && (
-		<InspectorControls group="styles">
-			<PanelBody title={ __( 'Typography', 'jetpack-videopress-pkg' ) }>
-				<FontFamilyControl
-					className="videopress-playlist-editor__font-control"
-					fontFamilies={ fontFamilies }
-					label={ __( 'Now playing title', 'jetpack-videopress-pkg' ) }
-					value={ fontFamilyValueOf( nowTitleFontFamily ) }
-					onChange={ ( value: string ) =>
-						setAttributes( { nowTitleFontFamily: fontFamilySlugOf( value ) } )
-					}
-				/>
-				<FontFamilyControl
-					className="videopress-playlist-editor__font-control"
-					fontFamilies={ fontFamilies }
-					label={ __( 'Entry titles', 'jetpack-videopress-pkg' ) }
-					value={ fontFamilyValueOf( entryTitleFontFamily ) }
-					onChange={ ( value: string ) =>
-						setAttributes( { entryTitleFontFamily: fontFamilySlugOf( value ) } )
-					}
-				/>
-			</PanelBody>
+			{ fontFamilies.length > 0 && (
+				<PanelBody title={ __( 'Typography', 'jetpack-videopress-pkg' ) }>
+					<FontFamilyControl
+						className="videopress-playlist-editor__font-control"
+						fontFamilies={ fontFamilies }
+						label={ __( 'Now playing title', 'jetpack-videopress-pkg' ) }
+						value={ fontFamilyValueOf( nowTitleFontFamily ) }
+						onChange={ ( value: string ) =>
+							setAttributes( { nowTitleFontFamily: fontFamilySlugOf( value ) } )
+						}
+					/>
+					<FontFamilyControl
+						className="videopress-playlist-editor__font-control"
+						fontFamilies={ fontFamilies }
+						label={ __( 'Entry titles', 'jetpack-videopress-pkg' ) }
+						value={ fontFamilyValueOf( entryTitleFontFamily ) }
+						onChange={ ( value: string ) =>
+							setAttributes( { entryTitleFontFamily: fontFamilySlugOf( value ) } )
+						}
+					/>
+				</PanelBody>
+			) }
 		</InspectorControls>
 	);
 
@@ -964,7 +965,7 @@ export default function PlaylistEdit( {
 		return (
 			<div { ...blockProps }>
 				{ inspectorControls }
-				{ typographyControls }
+				{ stylesControls }
 				<Placeholder
 					icon={ VideoPressIcon }
 					label={ __( 'Build a video playlist', 'jetpack-videopress-pkg' ) }
@@ -994,7 +995,7 @@ export default function PlaylistEdit( {
 	return (
 		<figure { ...blockProps }>
 			{ inspectorControls }
-			{ typographyControls }
+			{ stylesControls }
 			<PlaylistPreview
 				attributes={ attributes }
 				currentIndex={ currentIndex }
