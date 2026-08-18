@@ -42,10 +42,12 @@ jest.mock( '../../../hooks', () => ( {
 
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 
-// Chart points are wall clocks, so they are built from local parts — the same
-// way `toChartDate` builds them — rather than from an instant.
-const JULY_1 = new Date( 2026, 6, 1, 0, 0 );
-const JULY_2 = new Date( 2026, 6, 2, 14, 0 );
+// A tooltip label reads its point as the instant it is, in the site's timezone,
+// so these are instants and every assertion below fixes the site's zone. Callers
+// whose points are wall clocks instead pass their own `formatTooltipDate`.
+const JULY_1 = new Date( '2026-07-01T00:00:00Z' );
+// 2pm on July 2 in Tokyo.
+const JULY_2 = new Date( '2026-07-02T05:00:00Z' );
 
 const SERIES: ComparativeLineChartSeries[] = [
 	{
@@ -62,7 +64,8 @@ const SERIES: ComparativeLineChartSeries[] = [
 // previous-period date in `realDate`; that is what `alignSeriesDates` does.
 const COMPARISON_POINT = {
 	date: JULY_1,
-	realDate: new Date( 2026, 5, 1, 9, 0 ),
+	// 9am on June 1 in Tokyo.
+	realDate: new Date( '2026-06-01T00:00:00Z' ),
 	value: 80,
 };
 
@@ -100,32 +103,40 @@ describe( 'ComparativeLineChart', () => {
 		mockLineSpy.mockClear();
 	} );
 
-	// Two site timezones, so the assertion holds whatever zone the machine
-	// running the suite is in: a label naming the point's own wall clock cannot
-	// depend on either zone, while one resolved in the site's follows it.
-	it.each( [ 'Asia/Tokyo', 'America/Los_Angeles' ] )(
-		'labels a tooltip with the bucket the point names, on a site in %s',
-		siteZone => {
-			setSettings( siteSettingsIn( siteZone ) );
-			render( <ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
+	it( "labels a tooltip with the point's date, read in the site's timezone", () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render( <ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
-			expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( 'July 2, 2026' );
-		}
-	);
+		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( 'July 2, 2026' );
+	} );
 
 	// A date alone names 24 hourly buckets, so it cannot identify the one hovered
 	// — and the hour it gains has to be the one the axis tick under it shows.
-	it.each( [ 'Asia/Tokyo', 'America/Los_Angeles' ] )(
-		'adds the hour the point names at the hourly resolution, on a site in %s',
-		siteZone => {
-			setSettings( siteSettingsIn( siteZone ) );
-			render(
-				<ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } tickResolution="hour" />
-			);
+	it( 'adds the hour the point names at the hourly resolution', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render(
+			<ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } tickResolution="hour" />
+		);
 
-			expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( 'July 2, 2026 2:00 pm' );
-		}
-	);
+		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( 'July 2, 2026 2:00 pm' );
+	} );
+
+	// How a point's date is read is the caller's to decide — Stats buckets are
+	// wall clocks rather than instants — while which format names it stays here.
+	it( 'hands the point and the format it picked to a caller-supplied formatter', () => {
+		const formatTooltipDate = jest.fn( () => 'the bucket' );
+		render(
+			<ComparativeLineChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				tickResolution="hour"
+				formatTooltipDate={ formatTooltipDate }
+			/>
+		);
+
+		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( 'the bucket' );
+		expect( formatTooltipDate ).toHaveBeenCalledWith( JULY_2, 'dateTime' );
+	} );
 
 	it( 'labels a comparison row from its own date, not the axis date it shares', () => {
 		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );

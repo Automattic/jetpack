@@ -69,9 +69,10 @@ const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 const JULY_1 = new Date( '2026-07-01T00:00:00Z' );
 const JULY_2 = new Date( '2026-07-02T00:00:00Z' );
 
-// A chart point is a wall clock, so a label assertion builds one from local
-// parts — the same way `toChartDate` builds them — rather than from an instant.
-const JULY_2_2PM = new Date( 2026, 6, 2, 14, 0 );
+// A tooltip label reads its point as the instant it is, in the site's timezone,
+// so this one is an instant and every label assertion fixes the site's zone.
+// Callers whose points are wall clocks pass their own `formatTooltipDate`.
+const JULY_2_2PM_TOKYO = new Date( '2026-07-02T05:00:00Z' );
 
 const SERIES: ComparativeBarChartSeries[] = [
 	{
@@ -233,32 +234,40 @@ describe( 'ComparativeBarChart', () => {
 		expect( recordedOptions().axis.x.tickResolution ).toBe( 'hour' );
 	} );
 
-	// Two site timezones, so the assertion holds whatever zone the machine
-	// running the suite is in: a label naming the point's own wall clock cannot
-	// depend on either zone, while one resolved in the site's follows it.
-	it.each( [ 'Asia/Tokyo', 'America/Los_Angeles' ] )(
-		'labels a tooltip with the bucket the point names, on a site in %s',
-		siteZone => {
-			setSettings( siteSettingsIn( siteZone ) );
-			render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
+	it( "labels a tooltip with the point's date, read in the site's timezone", () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
-			expect( tooltipLabelFor( JULY_2_2PM ) ).toBe( 'July 2, 2026' );
-		}
-	);
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'July 2, 2026' );
+	} );
 
 	// A date alone names 24 hourly buckets, so it cannot identify the one hovered
 	// — and the hour it gains has to be the one the axis tick under it shows.
-	it.each( [ 'Asia/Tokyo', 'America/Los_Angeles' ] )(
-		'adds the hour the point names at the hourly resolution, on a site in %s',
-		siteZone => {
-			setSettings( siteSettingsIn( siteZone ) );
-			render(
-				<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } tickResolution="hour" />
-			);
+	it( 'adds the hour the point names at the hourly resolution', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render(
+			<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } tickResolution="hour" />
+		);
 
-			expect( tooltipLabelFor( JULY_2_2PM ) ).toBe( 'July 2, 2026 2:00 pm' );
-		}
-	);
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'July 2, 2026 2:00 pm' );
+	} );
+
+	// How a point's date is read is the caller's to decide — Stats buckets are
+	// wall clocks rather than instants — while which format names it stays here.
+	it( 'hands the point and the format it picked to a caller-supplied formatter', () => {
+		const formatTooltipDate = jest.fn( () => 'the bucket' );
+		render(
+			<ComparativeBarChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				tickResolution="hour"
+				formatTooltipDate={ formatTooltipDate }
+			/>
+		);
+
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'the bucket' );
+		expect( formatTooltipDate ).toHaveBeenCalledWith( JULY_2_2PM_TOKYO, 'dateTime' );
+	} );
 
 	it( 'adds the previous-period value to the tooltip when comparing', () => {
 		render( <ComparativeBarChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );

@@ -10,6 +10,7 @@ import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { MetricTabsChart } from '../metric-tabs-chart';
 import type { ComparativeLineChartSeries } from '../../chart-comparative-line/types';
 import type { MetricTab } from '../metric-tabs-chart';
+import type { DateFormatName } from '@jetpack-premium-analytics/formatters';
 
 // The charts themselves render SVG through a provider that jsdom cannot lay
 // out. Standing them in for prop recorders keeps this test on what this
@@ -79,6 +80,19 @@ function recordedSeries( spy: jest.Mock ): ComparativeLineChartSeries[] {
 	// assertions below fail as a TypeError that names the wrong cause.
 	expect( spy ).toHaveBeenCalled();
 	return spy.mock.calls.at( -1 )[ 0 ].series;
+}
+
+/**
+ * The tooltip date formatter the most recent chart render received.
+ *
+ * @param spy - The chart stand-in to read.
+ * @return The recorded formatter.
+ */
+function recordedTooltipDateFormatter(
+	spy: jest.Mock
+): ( date: Date, format: DateFormatName ) => string {
+	expect( spy ).toHaveBeenCalled();
+	return spy.mock.calls.at( -1 )[ 0 ].formatTooltipDate;
 }
 
 describe( 'MetricTabsChart', () => {
@@ -188,6 +202,23 @@ describe( 'MetricTabsChart', () => {
 			const label = recordedSeries( mockLineSpy )[ 0 ].label.replace( /\s/gu, ' ' );
 
 			expect( label ).toBe( 'July 1 – 2, 2026' );
+		}
+	);
+
+	// The charts read a point's date as an instant unless told otherwise, and
+	// these points are wall clocks, so the reading is this component's to supply.
+	it.each( [ 'Asia/Tokyo', 'America/Los_Angeles' ] )(
+		'labels a chart point with the bucket it names, on a site in %s',
+		siteZone => {
+			setSettings( siteSettingsIn( siteZone ) );
+
+			render( <MetricTabsChart metrics={ [ WALL_CLOCK_METRIC ] } dataFormat={ DATA_FORMAT } /> );
+
+			const formatTooltipDate = recordedTooltipDateFormatter( mockLineSpy );
+
+			expect( formatTooltipDate( new Date( 2026, 6, 2, 14, 0 ), 'dateTime' ) ).toBe(
+				'July 2, 2026 2:00 pm'
+			);
 		}
 	);
 

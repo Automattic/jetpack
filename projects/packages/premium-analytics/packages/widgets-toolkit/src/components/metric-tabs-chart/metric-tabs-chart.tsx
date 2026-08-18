@@ -1,8 +1,18 @@
 /**
  * External dependencies
  */
-import { SelectControl, Tabs, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
-import { formatDateRange } from '@jetpack-premium-analytics/formatters';
+import {
+	SelectControl,
+	Tabs,
+	Text,
+	VisuallyHidden,
+	type TickResolution,
+} from '@jetpack-premium-analytics/externals';
+import {
+	formatDate,
+	formatDateRange,
+	type DateFormatName,
+} from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -87,8 +97,23 @@ export interface MetricTabsChartProps {
 	 * The series' bucket size, declared to the x-axis so tick formats follow the
 	 * known granularity rather than being inferred from point spacing.
 	 */
-	tickResolution?: ComponentProps< typeof ComparativeLineChart >[ 'tickResolution' ];
+	tickResolution?: TickResolution;
 }
+
+/**
+ * Read a chart point's date in the site's timezone.
+ *
+ * Every date here is a Stats bucket's wall clock (see `toChartDate`), not an
+ * instant, so it is re-anchored before a site-zone formatter reads it —
+ * otherwise a label lands on the bucket next door for any viewer whose timezone
+ * differs from the site's.
+ *
+ * @param date   - The point's date.
+ * @param format - The named format to render it in.
+ * @return The formatted date.
+ */
+const formatPointDate = ( date: Date, format: DateFormatName ): string =>
+	formatDate( fromChartDate( date ), format );
 
 /**
  * Format a series' legend label as its date range (first to last point), so the
@@ -101,8 +126,7 @@ export interface MetricTabsChartProps {
 function rangeLabel( points: MetricTabDatum[] ): string {
 	const first = points[ 0 ];
 	const last = points[ points.length - 1 ];
-	// Points are wall clocks, so they go back through `fromChartDate` before the
-	// site-zone range formatter reads them.
+	// As in `formatPointDate`, the range's ends are wall clocks.
 	return first && last
 		? formatDateRange( { from: fromChartDate( first.date ), to: fromChartDate( last.date ) } )
 		: '';
@@ -171,7 +195,7 @@ function MetricChart( {
 	metric: MetricTab;
 	dataFormat: DataFormat;
 	chartType: MetricTabsChartType;
-	tickResolution?: MetricTabsChartProps[ 'tickResolution' ];
+	tickResolution?: TickResolution;
 } ) {
 	const series = useMemo( () => buildSeries( metric, chartType ), [ metric, chartType ] );
 
@@ -199,6 +223,7 @@ function MetricChart( {
 			series={ series }
 			dataFormat={ resolvedDataFormat }
 			tickResolution={ tickResolution }
+			formatTooltipDate={ formatPointDate }
 			compactWhenShort
 		/>
 	) : (
@@ -207,6 +232,7 @@ function MetricChart( {
 			styles={ seriesStyles }
 			dataFormat={ resolvedDataFormat }
 			tickResolution={ tickResolution }
+			formatTooltipDate={ formatPointDate }
 			compactWhenShort
 		/>
 	);

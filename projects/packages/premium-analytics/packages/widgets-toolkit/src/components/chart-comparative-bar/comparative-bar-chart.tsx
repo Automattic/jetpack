@@ -19,7 +19,7 @@ import { useCallback, useId, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import { isEmptyChartData, fromChartDate, getFixedYAxis } from '../../helpers';
+import { isEmptyChartData, getFixedYAxis } from '../../helpers';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-bar-chart.module.scss';
@@ -85,6 +85,14 @@ export type ComparativeBarChartProps = {
 	tickResolution?: TickResolution;
 
 	/**
+	 * Renders a point's date for a tooltip row, in the named format this chart
+	 * picked for it. Defaults to reading the date as the instant it is. Callers
+	 * whose points are wall clocks rather than instants — Stats buckets, built by
+	 * `toChartDate` — pass a variant that re-anchors them first.
+	 */
+	formatTooltipDate?: ( date: Date, format: DateFormatName ) => string;
+
+	/**
 	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area
 	 * is too short for readable axis labels. Defaults to false.
 	 */
@@ -116,6 +124,7 @@ export function ComparativeBarChart( {
 	dataFormat,
 	tickFormat: xTickFormatType,
 	tickResolution,
+	formatTooltipDate = formatDate,
 	compactWhenShort = false,
 	maxWidth = Infinity,
 }: ComparativeBarChartProps ) {
@@ -188,11 +197,10 @@ export function ComparativeBarChart( {
 			}
 
 			// At hourly buckets a date alone names 24 of them, so the label carries
-			// the time. Either way the point is a wall clock, so it goes back
-			// through `fromChartDate` before a site-zone formatter reads it.
-			return formatDate( fromChartDate( displayDate ), isHourly ? 'dateTime' : 'medium' );
+			// the time.
+			return formatTooltipDate( displayDate, isHourly ? 'dateTime' : 'medium' );
 		},
-		[ isHourly ]
+		[ isHourly, formatTooltipDate ]
 	);
 
 	/**
