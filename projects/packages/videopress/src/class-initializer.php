@@ -867,8 +867,9 @@ class Initializer {
 			? sprintf( '<span class="videopress-playlist__runtime">%s</span>', esc_html( $runtime_label ) )
 			: '';
 
-		$header_markup = sprintf(
-			'<header class="videopress-playlist__header"><span class="videopress-playlist__count">%s</span>%s</header>',
+		// Count · runtime meta line, shown by the side-rail layout in the list header.
+		$list_meta_markup = sprintf(
+			'<span class="videopress-playlist__list-meta"><span class="videopress-playlist__count">%s</span>%s</span>',
 			esc_html( $count_label ),
 			$runtime_markup
 		);
@@ -907,11 +908,12 @@ class Initializer {
 			'<div class="videopress-playlist__list">' .
 				'<div class="videopress-playlist__list-header">' .
 				'<span class="videopress-playlist__list-label videopress-playlist__list-label--rail">%1$s</span>' .
-				'<span class="videopress-playlist__list-label videopress-playlist__list-label--strip">%2$s</span>%3$s</div>' .
-				'<ol class="videopress-playlist__entries">%4$s</ol></div>',
+				'<span class="videopress-playlist__list-label videopress-playlist__list-label--strip">%2$s</span>%3$s%4$s</div>' .
+				'<ol class="videopress-playlist__entries">%5$s</ol></div>',
 			esc_html__( 'Up next', 'jetpack-videopress-pkg' ),
 			/* translators: %s: number of videos in the playlist, e.g. "5 videos". */
 			esc_html( sprintf( __( 'Playlist — %s', 'jetpack-videopress-pkg' ), $count_label ) ),
+			$list_meta_markup,
 			$progress_markup,
 			$items
 		);
@@ -924,9 +926,8 @@ class Initializer {
 		);
 
 		return sprintf(
-			'<figure %1$s>%2$s<div class="videopress-playlist__body">%3$s%4$s</div></figure>',
+			'<figure %1$s><div class="videopress-playlist__body">%2$s%3$s</div></figure>',
 			$wrapper_attributes,
-			$header_markup,
 			$stage_markup,
 			$list_markup
 		);

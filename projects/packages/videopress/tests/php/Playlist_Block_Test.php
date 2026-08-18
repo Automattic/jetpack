@@ -151,9 +151,12 @@ class Playlist_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'videopress-playlist__select is-current', $markup );
 		$this->assertStringContainsString( 'aria-current="true"', $markup );
 
-		// Header and metadata.
-		$this->assertStringContainsString( '2 videos', $markup );
-		$this->assertStringContainsString( '19 min', $markup );
+		// The count · runtime meta line lives in the list header, next to "Up next".
+		$this->assertStringContainsString(
+			'<span class="videopress-playlist__list-meta"><span class="videopress-playlist__count">2 videos</span><span class="videopress-playlist__runtime">19 min</span></span>',
+			$markup
+		);
+		$this->assertStringNotContainsString( 'videopress-playlist__header', $markup );
 		$this->assertStringContainsString( '1080p', $markup );
 		$this->assertStringContainsString( '4K', $markup );
 		$this->assertStringContainsString( '12:04', $markup );

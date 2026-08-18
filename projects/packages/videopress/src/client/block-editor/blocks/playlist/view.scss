@@ -31,27 +31,23 @@
 		padding: 24px;
 	}
 
-	/* Header (count · total runtime) */
-
 	/*
-	 * One right-aligned meta line, "5 videos · 1 hr 13 min", per the side-rail
-	 * design; the separator lives on the runtime so the count stands alone
-	 * when the total runtime is toggled off.
+	 * Count · total runtime meta line, "5 videos · 1 hr 13 min". It lives in
+	 * the list header and only the side rail shows it, to the right of the
+	 * "Up next" label; the separator lives on the runtime so the count stands
+	 * alone when the total runtime is toggled off.
 	 */
 
-	&__header {
-		display: flex;
-		align-items: baseline;
-		justify-content: flex-end;
-		margin-block-end: 14px;
+	&__list-meta {
+		display: none;
 		font-family: ui-monospace, Menlo, monospace;
-		font-size: 0.75rem;
+		font-size: 0.71875rem;
 	}
 
 	&__count + &__runtime::before {
 		content: " · ";
 
-		/* The spans are flex items; keep the separator spaces intact. */
+		/* Keep the separator's spaces from collapsing. */
 		white-space: pre;
 	}
 
@@ -305,6 +301,10 @@
 		display: none;
 	}
 
+	&.is-layout-side-rail &__list-meta {
+		display: inline;
+	}
+
 	&.is-layout-side-rail &__select {
 		padding: 10px 12px;
 		border-inline-start: 3px solid transparent;
@@ -335,7 +335,6 @@
 	 * Grid: player on top, meta row, thumbnails in a grid below.
 	 */
 
-	&.is-layout-grid &__header,
 	&.is-layout-grid &__list-header {
 		display: none;
 	}
@@ -394,7 +393,6 @@
 	 * Strip: player on top, compact horizontal scroller below.
 	 */
 
-	&.is-layout-strip &__header,
 	&.is-layout-strip &__now {
 		display: none;
 	}

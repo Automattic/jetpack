@@ -153,13 +153,6 @@ function PlaylistPreview( {
 
 	return (
 		<>
-			<header className="videopress-playlist__header">
-				<span className="videopress-playlist__count">{ countLabel }</span>
-				{ showTotalRuntime && runtime && (
-					<span className="videopress-playlist__runtime">{ runtime }</span>
-				) }
-			</header>
-
 			<div className="videopress-playlist__body">
 				<div className="videopress-playlist__stage">
 					<div className="videopress-playlist__player">
@@ -201,6 +194,12 @@ function PlaylistPreview( {
 								/* translators: %d: number of videos in the playlist. */
 								__( 'Playlist — %d videos', 'jetpack-videopress-pkg' ),
 								videos.length
+							) }
+						</span>
+						<span className="videopress-playlist__list-meta">
+							<span className="videopress-playlist__count">{ countLabel }</span>
+							{ showTotalRuntime && runtime && (
+								<span className="videopress-playlist__runtime">{ runtime }</span>
 							) }
 						</span>
 						<span className="videopress-playlist__list-progress">
