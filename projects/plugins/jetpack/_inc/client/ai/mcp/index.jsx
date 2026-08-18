@@ -24,7 +24,6 @@ import {
 	list,
 } from '@wordpress/icons';
 import { Badge, Button, Stack } from '@wordpress/ui';
-import NavRow from '../components/nav-row';
 import { isWriteTool } from './categories';
 import { recordMcpTracksEvent } from './tracks';
 import {
@@ -297,15 +296,22 @@ export default function McpHub( {
 
 			{ showActivityLog && isMcpEnabled && activityLogUrl && (
 				<Card className="jetpack-ai-mcp__action-card">
-					<NavRow
-						icon={ list }
-						title={ __( 'Activity log', 'jetpack' ) }
-						description={ __(
-							'Review recent actions taken by AI agents on your site.',
-							'jetpack'
-						) }
-						href={ activityLogUrl }
-					/>
+					<a className="jetpack-ai-mcp__connect-row" href={ activityLogUrl }>
+						<span className="jetpack-ai-mcp__connect-row-icon">
+							<Icon icon={ list } size={ 24 } />
+						</span>
+						<span className="jetpack-ai-mcp__connect-row-text">
+							<Text as="p" className="jetpack-ai-mcp__connect-row-title" weight={ 600 }>
+								{ __( 'Activity log', 'jetpack' ) }
+							</Text>
+							<Text as="p" className="jetpack-ai-mcp__connect-row-description" variant="muted">
+								{ __( 'Review recent actions taken by AI agents on your site.', 'jetpack' ) }
+							</Text>
+						</span>
+						<span className="jetpack-ai-mcp__connect-row-chevron">
+							<Icon icon={ chevronRight } size={ 24 } />
+						</span>
+					</a>
 				</Card>
 			) }
 		</>
