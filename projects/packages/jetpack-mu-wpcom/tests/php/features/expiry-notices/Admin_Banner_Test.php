@@ -118,6 +118,33 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringNotContainsString( 'wpcom-expiry-banner__dismiss', $out );
 	}
 
+	public function test_renders_across_both_post_expiry_windows_then_stops(): void {
+		// Grace (0-29) and self-serve restore (30-59) both render in wp-admin;
+		// the support-only window (60+) renders nowhere yet.
+		foreach ( array( -1, -29, -30, -59 ) as $days ) {
+			$this->set_purchase( $days );
+			$this->assertStringContainsString( 'notice-error', $this->render(), "expected a notice {$days} days past expiry" );
+		}
+		foreach ( array( -60, -90 ) as $days ) {
+			$this->set_purchase( $days );
+			$this->assertSame( '', $this->render(), "expected no notice {$days} days past expiry" );
+		}
+	}
+
+	public function test_the_two_post_expiry_windows_ask_for_different_things(): void {
+		$this->set_purchase( -5 );
+		$grace = $this->render();
+		$this->set_purchase( -45 );
+		$reverted = $this->render();
+
+		// Grace: the site is intact, so the ask is to renew before it isn't.
+		$this->assertStringContainsString( 'Renew now', $grace );
+		$this->assertStringNotContainsString( 'wpcom-expiry-banner__dismiss', $grace );
+		// Reverted: already on Free, so the ask is to restore — and it can be dismissed.
+		$this->assertStringContainsString( 'Restore site', $reverted );
+		$this->assertStringContainsString( 'wpcom-expiry-banner__dismiss', $reverted );
+	}
+
 	public function test_no_render_for_active_state(): void {
 		$this->set_purchase( 200 );
 		$this->assertSame( '', $this->render() );

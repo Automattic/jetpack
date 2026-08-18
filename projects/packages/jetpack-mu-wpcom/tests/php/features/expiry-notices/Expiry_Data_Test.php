@@ -230,6 +230,35 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( Expiry_Data::STATE_APPROACHING, $state['state'] );
 	}
 
+	/**
+	 * The three post-expiry windows, pinned to the day. The spec names them
+	 * "grace 0-29 days past expiry", "self-serve restore 30-59", and "restore by
+	 * support only, 60+" — the last of which no surface renders yet, so it must
+	 * stay absent rather than fall through to the reverted notice.
+	 */
+	public function test_post_expiry_window_boundaries(): void {
+		$windows = array(
+			-1  => Expiry_Data::STATE_EXPIRED_GRACE,
+			-29 => Expiry_Data::STATE_EXPIRED_GRACE,
+			-30 => Expiry_Data::STATE_EXPIRED,
+			-59 => Expiry_Data::STATE_EXPIRED,
+			-60 => null,
+			-90 => null,
+		);
+		foreach ( $windows as $days => $expected ) {
+			$state = Expiry_Data::compute_state_from_purchase(
+				$this->purchase( 'business-bundle', $days ),
+				self::FIXED_NOW
+			);
+			if ( null === $expected ) {
+				$this->assertNull( $state, "{$days} days past expiry should produce no state" );
+				continue;
+			}
+			$this->assertIsArray( $state );
+			$this->assertSame( $expected, $state['state'], "wrong state {$days} days past expiry" );
+		}
+	}
+
 	public function test_expired_grace_just_after_expiry(): void {
 		$state = Expiry_Data::compute_state_from_purchase(
 			$this->purchase( 'business-bundle', -1 ),
