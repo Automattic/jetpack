@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
@@ -16,12 +15,12 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import { getReferrerFields, useReferrersReportRecords, type ReferrerRecord } from './config';
 
 const ROUTE_FROM = route.path;
@@ -65,11 +64,7 @@ const RECORDS_VIEW = {
  * @return {JSX.Element} The Referrers report page.
  */
 function ReferrersReport(): JSX.Element {
-	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
-	const reportParams = useMemo(
-		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
-		[ search ]
-	);
+	const reportParams = useReportParams();
 
 	const records = useReferrersReportRecords( reportParams );
 	const retry = useReportRetry( records.refetch );

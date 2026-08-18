@@ -2,7 +2,6 @@
  * External dependencies
  */
 import {
-	normalizeReportParams,
 	type StatsFileDownloadsItem,
 	type StatsFileDownloadsComparisonItem,
 } from '@jetpack-premium-analytics/data';
@@ -20,12 +19,12 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import { getDownloadsFields, useDownloadsReportRecords } from './config';
 
 const ROUTE_FROM = route.path;
@@ -59,11 +58,7 @@ const sortDownloadCsvRows = ( a: StatsFileDownloadsItem, b: StatsFileDownloadsIt
  * @return The rendered report page.
  */
 function DownloadsReport(): JSX.Element {
-	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
-	const reportParams = useMemo(
-		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
-		[ search ]
-	);
+	const reportParams = useReportParams();
 	const records = useDownloadsReportRecords( reportParams );
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo(
