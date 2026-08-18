@@ -52,4 +52,7 @@ export const keys = {
 	downloadStatus: ( rewindId: string, downloadId: number ) =>
 		[ 'backup', 'download-status', rewindId, downloadId ] as const,
 	restoreStatus: ( restoreId: number ) => [ 'backup', 'restore-status', restoreId ] as const,
+	// The site's recent restores, not one restore's status: read to
+	// recover an id WordPress.com accepted but did not return.
+	recentRestores: () => [ 'backup', 'recent-restores' ] as const,
 };

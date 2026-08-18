@@ -36,9 +36,45 @@ export function hasSelectedItems( items: RestoreItems ): boolean {
 	return Object.values( items ).some( Boolean );
 }
 
+/**
+ * What the Restore screen is showing.
+ *
+ * `queued` is separate from `progress` because they are different
+ * promises to the reader: one says the restore is under way and here is
+ * how far, the other says WordPress.com has accepted it and has not
+ * started reporting yet. Collapsing them means rendering a progress bar
+ * pinned at 0% for the opening seconds of every restore, which reads as
+ * a stall.
+ *
+ * `success-with-errors` is its own terminal state rather than a shade of
+ * either neighbour. A restore that finished but not cleanly should not
+ * be dismissed as done, and should not be retried as if nothing landed.
+ *
+ * `lost-track` is separate from `error` for the same reason, and it
+ * matters more. The two say opposite things about the live site: `error`
+ * means nothing is running, `lost-track` means something probably is and
+ * we can no longer see it — either the silence deadline passed or the
+ * status poll stopped answering. Folding them together is not a wording
+ * problem. The screen offers "Try again" on `error`, which resets to an
+ * armed Confirm button, so a reader following the only control on screen
+ * would start a *second concurrent restore* of the same site, directly
+ * beneath a notice telling them the first may still be running. Nothing
+ * upstream is known to refuse that.
+ *
+ * The rule the split encodes: a retry is offered only when we know
+ * nothing is running.
+ *
+ * `detail` carries a transport failure's own text when there is one,
+ * shown beneath the shared message rather than replacing it — why we
+ * stopped seeing the restore is worth reporting, but it is not the
+ * headline.
+ */
 export type RestoreState =
 	| { phase: 'idle' }
 	| { phase: 'submitting' }
+	| { phase: 'queued' }
 	| { phase: 'progress'; percent: number }
 	| { phase: 'success' }
+	| { phase: 'success-with-errors'; message: string }
+	| { phase: 'lost-track'; detail: string | null }
 	| { phase: 'error'; message: string };

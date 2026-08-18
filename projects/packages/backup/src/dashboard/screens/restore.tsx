@@ -124,6 +124,21 @@ export default function RestoreScreen() {
 							</Button>
 						</>
 					) }
+					{ /*
+					 * Accepted, but nothing to report yet — either WordPress.com has
+					 * not started publishing progress, or it queued the restore
+					 * without naming an id we can poll. Indeterminate rather than a
+					 * determinate bar pinned at 0%, which reads as a stall during the
+					 * opening seconds of every restore.
+					 */ }
+					{ state.phase === 'queued' && (
+						<Stack direction="column" gap="sm">
+							<Text>
+								{ __( 'Your restore is queued and will begin shortly…', 'jetpack-backup-pkg' ) }
+							</Text>
+							<ProgressBar />
+						</Stack>
+					) }
 					{ state.phase === 'progress' && (
 						<Stack direction="column" gap="sm">
 							<Text>{ __( 'Restoring…', 'jetpack-backup-pkg' ) }</Text>
@@ -138,6 +153,63 @@ export default function RestoreScreen() {
 							<Link to="/">{ __( 'Back to overview', 'jetpack-backup-pkg' ) }</Link>
 						</Stack>
 					) }
+					{ /*
+					 * Finished, but not cleanly. Warning rather than success or error:
+					 * the site has been restored, so treating it as a failure invites a
+					 * pointless retry — but parts of it did not land, and "Restore
+					 * complete." would be a lie the reader discovers later.
+					 */ }
+					{ state.phase === 'success-with-errors' && (
+						<Stack direction="column" gap="sm">
+							<Notice status="warning" isDismissible={ false }>
+								{ __(
+									'Restore finished, but some items could not be restored.',
+									'jetpack-backup-pkg'
+								) }
+							</Notice>
+							{ state.message && (
+								<Text variant="body-sm" className="jpb-text-muted">
+									{ state.message }
+								</Text>
+							) }
+							<Link to="/">{ __( 'Back to overview', 'jetpack-backup-pkg' ) }</Link>
+						</Stack>
+					) }
+					{ /*
+					 * Accepted, and then out of sight — the silence deadline passed, or
+					 * the status poll stopped answering. Deliberately not the error
+					 * branch below, which offers "Try again": that resets to an armed
+					 * Confirm button, so the only control on screen would start a second
+					 * concurrent restore of the same site directly beneath a notice
+					 * saying the first may still be running. Nothing upstream is known
+					 * to refuse that.
+					 *
+					 * Warning rather than error for the same reason the copy says "may":
+					 * we have no evidence the restore failed, only that we cannot see
+					 * it. There is nothing for the reader to do here, so the only way
+					 * out is the way out.
+					 */ }
+					{ state.phase === 'lost-track' && (
+						<Stack direction="column" gap="sm">
+							<Notice status="warning" isDismissible={ false }>
+								{ __(
+									"We've lost track of this restore. It may still be running — you'll get an email when it finishes.",
+									'jetpack-backup-pkg'
+								) }
+							</Notice>
+							{ state.detail && (
+								<Text variant="body-sm" className="jpb-text-muted">
+									{ state.detail }
+								</Text>
+							) }
+							<Link to="/">{ __( 'Back to overview', 'jetpack-backup-pkg' ) }</Link>
+						</Stack>
+					) }
+					{ /*
+					 * Nothing is running: the submission was refused, or the restore
+					 * reached `failed`/`aborted`. That is what makes "Try again" safe
+					 * here and nowhere else.
+					 */ }
 					{ state.phase === 'error' && (
 						<Stack direction="column" gap="sm">
 							<Notice status="error" isDismissible={ false }>
