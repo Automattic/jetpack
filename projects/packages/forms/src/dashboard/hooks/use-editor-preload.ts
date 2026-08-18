@@ -6,20 +6,16 @@ import { useCallback } from '@wordpress/element';
  * Internal dependencies
  */
 import useConfigValue from '../../hooks/use-config-value.ts';
+import { getNewFormEditorUrl } from '../utils.ts';
 
 /**
- * Upper bound on how many subresources we will queue for prefetching.
+ * Upper bound on how many subresources we will warm.
  *
  * The block editor screen enqueues well over a hundred scripts and stylesheets, which is exactly
- * what makes it slow to open. The cap is only here so a pathological page can't make us inject an
- * unbounded number of <link> elements.
+ * what makes it slow to open. The cap is only here so a pathological page can't make us issue an
+ * unbounded number of requests.
  */
 const MAX_PREFETCHED_ASSETS = 300;
-
-/**
- * Marks the <link> elements we inject, so repeated calls can recognise their own work.
- */
-const PRELOAD_LINK_ATTRIBUTE = 'data-jetpack-forms-editor-preload';
 
 /**
  * Module-level latch. Warming the cache is only useful once per page load, and the request that
@@ -32,40 +28,58 @@ let hasPreloadStarted = false;
  */
 export function resetEditorPreloadState(): void {
 	hasPreloadStarted = false;
-	document.querySelectorAll( `link[${ PRELOAD_LINK_ATTRIBUTE }]` ).forEach( link => link.remove() );
 }
 
 /**
- * Build the wp-admin URL that opens the block editor on a new form.
+ * Whether the browser will honour <link rel="prefetch">.
  *
- * @param adminUrl  - Absolute wp-admin URL, from the dashboard config.
- * @param formTitle - Optional title to seed the new post with.
- * @return The editor URL.
+ * WebKit has never shipped it, so on Safari the link element is inert and we have to warm the cache
+ * some other way or the whole optimization is cost without benefit.
+ *
+ * @return Whether <link rel="prefetch"> will do anything.
  */
-export function getNewFormEditorUrl( adminUrl: string | undefined, formTitle?: string ): string {
-	let url = `${ adminUrl || '' }post-new.php?post_type=jetpack_form`;
-	const trimmedFormTitle = formTitle?.trim();
+function supportsLinkPrefetch(): boolean {
+	try {
+		return !! document.createElement( 'link' ).relList?.supports?.( 'prefetch' );
+	} catch {
+		return false;
+	}
+}
 
-	if ( trimmedFormTitle ) {
-		url += `&post_title=${ encodeURIComponent( trimmedFormTitle ) }`;
+/**
+ * Whether the user has asked us not to spend their bandwidth speculatively.
+ *
+ * @return Whether to skip the warm-up entirely.
+ */
+function prefersLessData(): boolean {
+	const connection = (
+		navigator as Navigator & {
+			connection?: { saveData?: boolean; effectiveType?: string };
+		}
+	 ).connection;
+
+	return !! connection?.saveData || [ 'slow-2g', '2g' ].includes( connection?.effectiveType ?? '' );
+}
+
+/**
+ * Warm the cache for a single subresource.
+ *
+ * @param href            - Absolute URL of the asset.
+ * @param as              - The `as` value describing the asset ("script" or "style").
+ * @param useLinkPrefetch - Whether to use <link rel="prefetch"> rather than a low-priority fetch.
+ */
+function warmAsset( href: string, as: 'script' | 'style', useLinkPrefetch: boolean ): void {
+	if ( ! useLinkPrefetch ) {
+		// Same cache entry, just without the browser's idle-priority scheduling.
+		fetch( href, { credentials: 'same-origin', priority: 'low' } as RequestInit ).catch( () => {} );
+		return;
 	}
 
-	return url;
-}
-
-/**
- * Queue a low-priority prefetch for a single subresource.
- *
- * @param href - Absolute URL of the asset.
- * @param as   - The `as` value describing the asset ("script" or "style").
- */
-function prefetchAsset( href: string, as: 'script' | 'style' ): void {
 	const link = document.createElement( 'link' );
 
 	link.rel = 'prefetch';
 	link.as = as;
 	link.href = href;
-	link.setAttribute( PRELOAD_LINK_ATTRIBUTE, '' );
 
 	document.head.appendChild( link );
 }
@@ -79,37 +93,44 @@ function prefetchAsset( href: string, as: 'script' | 'style' ): void {
  *
  * We deliberately do not use a hidden iframe: rendering the editor off-screen would boot a second
  * copy of Gutenberg and compete with the dashboard for the main thread. Instead we fetch the editor
- * HTML (which never executes), read the asset list out of it, and prefetch those assets at low
- * priority. The wp-admin document itself is sent with no-store headers and cannot be reused, so
- * there is nothing to gain from prefetching it.
+ * HTML (which never executes), read the asset list out of it, and warm those assets at low priority.
+ * The wp-admin document itself is sent with no-store headers and cannot be reused, so there is
+ * nothing to gain from warming it.
  *
- * Note that requesting `post-new.php` creates an `auto-draft` post, exactly as clicking through
- * would. Auto-drafts are excluded from every Forms query and WordPress core garbage-collects them
- * after seven days, so the extra row is not user-visible.
+ * Scraping the page for its asset list is the shortcut here, and it has two costs worth naming.
+ * WordPress knows this list server-side, so discovering it this way spends a whole duplicate editor
+ * render that is thrown away — and that render happens before any prefetch can start, so it eats
+ * into the head start we are buying. It also creates an `auto-draft` post as a side effect, exactly
+ * as clicking through would. (Auto-drafts are excluded from every Forms query and core
+ * garbage-collects them after seven days, so the extra row is not user-visible.) Passing the asset
+ * URLs down through the dashboard config instead would remove the render, the parse and the
+ * auto-draft; reproducing the block editor's enqueue list outside the real screen load is the
+ * awkward part, which is why this does it the blunt way for now.
  *
  * @param editorUrl - The editor URL to warm.
+ * @return Whether the warm-up actually ran, so a no-op can be retried later.
  */
-async function preloadEditorAssets( editorUrl: string ): Promise< void > {
+async function preloadEditorAssets( editorUrl: string ): Promise< boolean > {
 	const base = new URL( editorUrl, window.location.href );
 
 	// An admin on another origin would not receive our cookies here, so the request could only ever
 	// warm the login page. Skip it rather than spend a round trip on nothing.
 	if ( base.origin !== window.location.origin ) {
-		return;
+		return false;
 	}
 
 	const response = await fetch( base.href, { credentials: 'same-origin' } );
 
 	if ( ! response.ok ) {
-		return;
+		return false;
 	}
 
 	const doc = new DOMParser().parseFromString( await response.text(), 'text/html' );
 	const seen = new Set< string >();
-	let queued = 0;
+	const useLinkPrefetch = supportsLinkPrefetch();
 
 	const queue = ( rawHref: string | null, as: 'script' | 'style' ) => {
-		if ( ! rawHref || queued >= MAX_PREFETCHED_ASSETS ) {
+		if ( ! rawHref || seen.size >= MAX_PREFETCHED_ASSETS ) {
 			return;
 		}
 
@@ -127,16 +148,19 @@ async function preloadEditorAssets( editorUrl: string ): Promise< void > {
 		}
 
 		seen.add( asset.href );
-		queued++;
-		prefetchAsset( asset.href, as );
+		warmAsset( asset.href, as, useLinkPrefetch );
 	};
 
-	doc
-		.querySelectorAll( 'script[src]' )
-		.forEach( el => queue( el.getAttribute( 'src' ), 'script' ) );
+	// Stylesheets first: they are render-blocking and far smaller, so queueing them ahead of the
+	// scripts gets the editor painting sooner when requests are served in order.
 	doc
 		.querySelectorAll( 'link[rel="stylesheet"][href]' )
 		.forEach( el => queue( el.getAttribute( 'href' ), 'style' ) );
+	doc
+		.querySelectorAll( 'script[src]' )
+		.forEach( el => queue( el.getAttribute( 'src' ), 'script' ) );
+
+	return true;
 }
 
 /**
@@ -153,15 +177,19 @@ export default function useEditorPreload(): () => void {
 	const adminUrl = useConfigValue( 'adminUrl' );
 
 	return useCallback( () => {
-		if ( hasPreloadStarted ) {
+		// The config store loads asynchronously. Without a base URL we would guess at a relative one
+		// and likely 404, so wait to be called again rather than burning the single attempt.
+		if ( hasPreloadStarted || ! adminUrl || prefersLessData() ) {
 			return;
 		}
 
 		hasPreloadStarted = true;
 
-		preloadEditorAssets( getNewFormEditorUrl( adminUrl ) ).catch( () => {
-			// Preloading is best-effort. Allow a later attempt if this one never got off the ground.
-			hasPreloadStarted = false;
-		} );
+		preloadEditorAssets( getNewFormEditorUrl( undefined, adminUrl ) )
+			.catch( () => false )
+			.then( started => {
+				// Best-effort: if nothing was warmed, allow a later attempt.
+				hasPreloadStarted = started;
+			} );
 	}, [ adminUrl ] );
 }

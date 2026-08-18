@@ -33,9 +33,9 @@ import EmptyTrashConfirmationModal from '../../components/empty-trash-button/con
 import ExportResponsesButton from '../../components/export-responses/button';
 import ExportResponsesModal from '../../components/export-responses/modal';
 import { FormNameModal } from '../../components/form-name-modal';
+import { CreateFormModal } from '../../components/form-name-modal/create-form-modal';
 import { getFormStatusLabel } from '../../constants';
 import useCreateForm from '../../hooks/use-create-form';
-import useEditorPreload from '../../hooks/use-editor-preload';
 import useEmptySpam from '../../hooks/use-empty-spam';
 import useEmptyTrash from '../../hooks/use-empty-trash';
 import useExportResponses from '../../hooks/use-export-responses';
@@ -109,7 +109,6 @@ export default function usePageHeaderDetails(
 
 	// Hooks for mobile dropdown menu actions
 	const { openNewForm } = useCreateForm();
-	const preloadEditor = useEditorPreload();
 	const [ isCreateFormModalOpen, setIsCreateFormModalOpen ] = useState( false );
 	const handleCreateFormClick = useCallback( () => {
 		setIsCreateFormModalOpen( true );
@@ -650,18 +649,11 @@ export default function usePageHeaderDetails(
 				// Include modals when on mobile
 				...( isCreateFormModalOpen
 					? [
-							<FormNameModal
+							<CreateFormModal
 								key="create-form-modal"
 								isOpen={ isCreateFormModalOpen }
 								onClose={ closeCreateFormModal }
 								onSave={ handleCreateFormSave }
-								title={ __( 'Create form', 'jetpack-forms' ) }
-								primaryButtonLabel={ __( 'Create', 'jetpack-forms' ) }
-								secondaryButtonLabel={ __( 'Cancel', 'jetpack-forms' ) }
-								placeholder={ __( 'Enter form title', 'jetpack-forms' ) }
-								onFirstEdit={ preloadEditor }
-								closeOnSave={ false }
-								busyMessage={ __( 'Opening the editor…', 'jetpack-forms' ) }
 							/>,
 					  ]
 					: [] ),
@@ -847,7 +839,6 @@ export default function usePageHeaderDetails(
 		isCreateFormModalOpen,
 		closeCreateFormModal,
 		handleCreateFormSave,
-		preloadEditor,
 		openExportModal,
 		showExportModal,
 		closeExportModal,

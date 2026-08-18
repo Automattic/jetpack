@@ -81,16 +81,6 @@ export type FormNameModalProps = {
 	onFirstEdit?: () => void;
 
 	/**
-	 * Whether a successful save should close the modal.
-	 *
-	 * Set to false when onSave hands off to a full page navigation: closing would drop the busy
-	 * state at the exact moment the user needs to see it, leaving the screen looking idle while the
-	 * browser loads the next page.
-	 * @default true
-	 */
-	closeOnSave?: boolean;
-
-	/**
 	 * Message shown alongside the busy primary button while saving.
 	 */
 	busyMessage?: string;
@@ -111,7 +101,6 @@ export type FormNameModalProps = {
  * @param props.inputLabel           - Label for the input field.
  * @param props.fallbackName         - Fallback name when input is empty.
  * @param props.onFirstEdit          - Called once when the user first edits the name.
- * @param props.closeOnSave          - Whether a successful save closes the modal.
  * @param props.busyMessage          - Message shown next to the busy primary button.
  * @return The modal component or null if not open.
  */
@@ -127,7 +116,6 @@ export function FormNameModal( {
 	inputLabel,
 	fallbackName,
 	onFirstEdit,
-	closeOnSave = true,
 	busyMessage,
 }: FormNameModalProps ) {
 	const [ name, setName ] = useState( initialValue );
@@ -170,18 +158,15 @@ export function FormNameModal( {
 
 		try {
 			await onSave( finalName );
-
-			if ( closeOnSave ) {
-				onClose();
-				setIsSaving( false );
-			}
-			// Otherwise stay open and stay busy: onSave has started a page navigation, and the modal
-			// is the only thing telling the user that something is happening until it completes.
+			onClose();
 		} catch {
 			// onSave threw — keep the modal open so the user can retry.
-			setIsSaving( false );
 		}
-	}, [ name, fallbackName, isSaving, onSave, onClose, closeOnSave ] );
+
+		// An onSave that hands off to a page navigation never settles, so neither of the branches above
+		// runs and the modal stays open and busy for as long as the browser takes to get there.
+		setIsSaving( false );
+	}, [ name, fallbackName, isSaving, onSave, onClose ] );
 
 	const onSubmitForm = useCallback(
 		( event: FormEvent ) => {

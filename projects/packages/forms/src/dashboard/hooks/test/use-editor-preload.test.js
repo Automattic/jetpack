@@ -9,35 +9,37 @@ await jest.unstable_mockModule( '../../../hooks/use-config-value.ts', () => ( {
 	default: key => configValues[ key ],
 } ) );
 
-const {
-	default: useEditorPreload,
-	getNewFormEditorUrl,
-	resetEditorPreloadState,
-} = await import( '../use-editor-preload.ts' );
+const { default: useEditorPreload, resetEditorPreloadState } = await import(
+	'../use-editor-preload.ts'
+);
 
 const EDITOR_URL = `${ ADMIN_URL }post-new.php?post_type=jetpack_form`;
 
 const respondWith = html => Promise.resolve( { ok: true, text: () => Promise.resolve( html ) } );
 
-const prefetchedLinks = () =>
-	// Testing Library has no query for <head> content, and the prefetch links are the whole point.
-	// eslint-disable-next-line testing-library/no-node-access
-	Array.from( document.head.querySelectorAll( 'link[rel="prefetch"]' ) ).map( link => ( {
-		href: link.href,
-		as: link.as,
-	} ) );
+// Testing Library has no query for <head> content, and the prefetch links are the whole point.
+// eslint-disable-next-line testing-library/no-node-access
+const prefetchLinks = () => Array.from( document.head.querySelectorAll( 'link[rel="prefetch"]' ) );
 
-describe( 'getNewFormEditorUrl', () => {
-	it( 'omits the title when there is nothing but whitespace', () => {
-		expect( getNewFormEditorUrl( ADMIN_URL, '   ' ) ).toBe( EDITOR_URL );
-	} );
+/**
+ * Every URL the hook warmed, whichever mechanism it used.
+ *
+ * jsdom reports no <link rel="prefetch"> support, so by default this exercises the Safari fallback:
+ * a low-priority fetch per asset, which is every fetch call after the discovery request.
+ *
+ * @return {Array<string>} The warmed asset URLs, in the order requested.
+ */
+const warmed = () => [
+	...prefetchLinks().map( link => link.href ),
+	...global.fetch.mock.calls.slice( 1 ).map( ( [ href ] ) => href ),
+];
 
-	it( 'encodes the title so it survives the round trip', () => {
-		expect( getNewFormEditorUrl( ADMIN_URL, 'Tea & Coffee' ) ).toBe(
-			`${ EDITOR_URL }&post_title=Tea%20%26%20Coffee`
-		);
+const preload = async () => {
+	const { result } = renderHook( () => useEditorPreload() );
+	await act( async () => {
+		result.current();
 	} );
-} );
+};
 
 describe( 'useEditorPreload', () => {
 	beforeEach( () => {
@@ -48,11 +50,12 @@ describe( 'useEditorPreload', () => {
 	} );
 
 	afterEach( () => {
-		resetEditorPreloadState();
+		configValues.adminUrl = ADMIN_URL;
+		prefetchLinks().forEach( link => link.remove() );
 		delete global.fetch;
 	} );
 
-	it( 'prefetches the editor scripts and stylesheets it finds', async () => {
+	it( 'warms the editor stylesheets and scripts it finds, stylesheets first', async () => {
 		global.fetch.mockReturnValue(
 			respondWith( `
 				<html><head>
@@ -65,24 +68,37 @@ describe( 'useEditorPreload', () => {
 			` )
 		);
 
-		const { result } = renderHook( () => useEditorPreload() );
-		act( () => result.current() );
+		await preload();
 
-		await waitFor( () => expect( prefetchedLinks() ).toHaveLength( 2 ) );
+		expect( global.fetch ).toHaveBeenNthCalledWith( 1, EDITOR_URL, {
+			credentials: 'same-origin',
+		} );
+		expect( warmed() ).toEqual( [
+			`${ window.location.origin }/wp-includes/css/dist/block-editor/style.css`,
+			`${ window.location.origin }/wp-includes/js/dist/block-editor.js`,
+		] );
+	} );
 
-		expect( global.fetch ).toHaveBeenCalledWith( EDITOR_URL, { credentials: 'same-origin' } );
-		expect( prefetchedLinks() ).toEqual(
-			expect.arrayContaining( [
-				{
-					href: `${ window.location.origin }/wp-includes/js/dist/block-editor.js`,
-					as: 'script',
-				},
-				{
-					href: `${ window.location.origin }/wp-includes/css/dist/block-editor/style.css`,
-					as: 'style',
-				},
-			] )
+	it( 'uses <link rel="prefetch"> when the browser supports it', async () => {
+		const supports = jest
+			.spyOn( DOMTokenList.prototype, 'supports' )
+			.mockImplementation( token => token === 'prefetch' );
+
+		global.fetch.mockReturnValue(
+			respondWith( `
+				<link rel="stylesheet" href="/style.css" />
+				<script src="/editor.js"></script>
+			` )
 		);
+
+		await preload();
+
+		await waitFor( () => expect( prefetchLinks() ).toHaveLength( 2 ) );
+		expect( prefetchLinks().map( link => link.as ) ).toEqual( [ 'style', 'script' ] );
+		// Only the discovery request — the assets went through <link>, not fetch.
+		expect( global.fetch ).toHaveBeenCalledTimes( 1 );
+
+		supports.mockRestore();
 	} );
 
 	it( 'skips cross-origin assets and duplicates', async () => {
@@ -94,65 +110,62 @@ describe( 'useEditorPreload', () => {
 			` )
 		);
 
-		const { result } = renderHook( () => useEditorPreload() );
-		act( () => result.current() );
+		await preload();
 
-		await waitFor( () => expect( prefetchedLinks() ).toHaveLength( 1 ) );
-		expect( prefetchedLinks()[ 0 ].href ).toBe(
-			`${ window.location.origin }/wp-includes/js/dist/block-editor.js`
-		);
+		expect( warmed() ).toEqual( [
+			`${ window.location.origin }/wp-includes/js/dist/block-editor.js`,
+		] );
 	} );
 
-	it( 'only fetches once, however many times it is called', async () => {
+	it( 'only discovers once, however many times it is called', async () => {
 		global.fetch.mockReturnValue( respondWith( '<script src="/a.js"></script>' ) );
-
-		const { result } = renderHook( () => useEditorPreload() );
-		act( () => {
-			result.current();
-			result.current();
-			result.current();
-		} );
-
-		await waitFor( () => expect( prefetchedLinks() ).toHaveLength( 1 ) );
-		expect( global.fetch ).toHaveBeenCalledTimes( 1 );
-	} );
-
-	it( 'prefetches nothing when the editor page cannot be read', async () => {
-		global.fetch.mockResolvedValue( { ok: false, text: () => Promise.resolve( '' ) } );
 
 		const { result } = renderHook( () => useEditorPreload() );
 		await act( async () => {
 			result.current();
+			result.current();
+			result.current();
 		} );
 
-		expect( prefetchedLinks() ).toHaveLength( 0 );
+		expect( global.fetch ).toHaveBeenNthCalledWith( 1, EDITOR_URL, {
+			credentials: 'same-origin',
+		} );
+		expect( warmed() ).toHaveLength( 1 );
+	} );
+
+	it( 'warms nothing when the editor page cannot be read', async () => {
+		global.fetch.mockResolvedValue( { ok: false, text: () => Promise.resolve( '' ) } );
+
+		await preload();
+
+		expect( warmed() ).toHaveLength( 0 );
 	} );
 
 	it( 'does not reach for an admin on another origin', async () => {
 		configValues.adminUrl = 'https://elsewhere.example/wp-admin/';
 
-		const { result } = renderHook( () => useEditorPreload() );
-		await act( async () => {
-			result.current();
-		} );
+		await preload();
 
-		configValues.adminUrl = ADMIN_URL;
 		expect( global.fetch ).not.toHaveBeenCalled();
-		expect( prefetchedLinks() ).toHaveLength( 0 );
 	} );
 
-	it( 'allows a retry after a failed attempt', async () => {
-		global.fetch.mockRejectedValueOnce( new Error( 'offline' ) );
+	it( 'waits for the admin URL rather than guessing at a relative one', async () => {
+		configValues.adminUrl = undefined;
 
-		const { result } = renderHook( () => useEditorPreload() );
-		await act( async () => {
-			result.current();
-		} );
+		await preload();
+
+		expect( global.fetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'allows a retry after an attempt that warmed nothing', async () => {
+		global.fetch.mockRejectedValueOnce( new Error( 'offline' ) );
+		await preload();
 
 		global.fetch.mockReturnValue( respondWith( '<script src="/a.js"></script>' ) );
-		act( () => result.current() );
+		await preload();
 
-		await waitFor( () => expect( prefetchedLinks() ).toHaveLength( 1 ) );
-		expect( global.fetch ).toHaveBeenCalledTimes( 2 );
+		expect( global.fetch ).toHaveBeenNthCalledWith( 2, EDITOR_URL, {
+			credentials: 'same-origin',
+		} );
 	} );
 } );

@@ -6,9 +6,19 @@ import { useCallback } from '@wordpress/element';
  * Internal dependencies
  */
 import useConfigValue from '../../hooks/use-config-value.ts';
-import { getNewFormEditorUrl } from './use-editor-preload.ts';
+import { getNewFormEditorUrl } from '../utils.ts';
 
-const openFormLink = ( url: string ) => {
+/**
+ * Navigate the page to a form URL.
+ *
+ * Returns a promise that never settles. The page is on its way out, so there is no "done" to report:
+ * resolving would tell callers the work finished and let them tear down the progress they are showing
+ * while the browser is still loading the editor.
+ *
+ * @param url - The form URL to navigate to.
+ * @return A promise that never settles.
+ */
+const openFormLink = ( url: string ): Promise< never > => {
 	/*
 	 * We are using a temporary link click to navigate. Using window.open() does not work reliably due
 	 * to Safari's popup blocker, especially after async work.
@@ -20,6 +30,8 @@ const openFormLink = ( url: string ) => {
 	document.body.appendChild( link );
 	link.click();
 	document.body.removeChild( link );
+
+	return new Promise< never >( () => {} );
 };
 
 type ClickHandlerProps = {
@@ -82,8 +94,7 @@ export default function useCreateForm(): CreateFormReturn {
 				if ( isCentralFormManagementEnabled === true ) {
 					analyticsEvent?.( { formPattern: formPattern ?? '' } );
 					// Use config adminUrl to build full URL for external admin contexts.
-					openFormLink( getNewFormEditorUrl( adminUrl, formTitle ) );
-					return;
+					return await openFormLink( getNewFormEditorUrl( formTitle, adminUrl ) );
 				}
 
 				const postUrl = await createForm( formPattern );
@@ -99,7 +110,7 @@ export default function useCreateForm(): CreateFormReturn {
 				const url = `${ postUrl }${
 					showPatterns && ! formPattern ? '&showJetpackFormsPatterns' : ''
 				}`;
-				openFormLink( url );
+				return await openFormLink( url );
 			} catch ( error ) {
 				console.error( error.message ); // eslint-disable-line no-console
 				// Re-throw so callers can tell a started navigation from a failed creation, and keep

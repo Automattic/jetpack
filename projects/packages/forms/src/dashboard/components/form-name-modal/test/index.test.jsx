@@ -1,4 +1,4 @@
-import { describe, expect, it, jest, beforeEach } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FormNameModal } from '../index.tsx';
@@ -25,10 +25,6 @@ const setup = ( props = {} ) => {
 const createButton = () => screen.getByRole( 'button', { name: 'Create' } );
 
 describe( 'FormNameModal', () => {
-	beforeEach( () => {
-		jest.clearAllMocks();
-	} );
-
 	it( 'signals the first edit exactly once', async () => {
 		const user = userEvent.setup();
 		const onFirstEdit = jest.fn();
@@ -48,8 +44,9 @@ describe( 'FormNameModal', () => {
 
 	it( 'stays open and busy after a save that navigates away', async () => {
 		const user = userEvent.setup();
+		// A save that hands off to a page load never settles — there is no "done" to report.
 		const { onClose } = setup( {
-			closeOnSave: false,
+			onSave: jest.fn( () => new Promise( () => {} ) ),
 			busyMessage: 'Opening the editor…',
 		} );
 
@@ -60,7 +57,7 @@ describe( 'FormNameModal', () => {
 		expect( onClose ).not.toHaveBeenCalled();
 	} );
 
-	it( 'closes after a save when asked to', async () => {
+	it( 'closes once the save resolves', async () => {
 		const user = userEvent.setup();
 		const { onClose } = setup();
 
@@ -74,7 +71,6 @@ describe( 'FormNameModal', () => {
 		const onSave = jest.fn().mockRejectedValue( new Error( 'nope' ) );
 		const { onClose } = setup( {
 			onSave,
-			closeOnSave: false,
 			busyMessage: 'Opening the editor…',
 		} );
 
