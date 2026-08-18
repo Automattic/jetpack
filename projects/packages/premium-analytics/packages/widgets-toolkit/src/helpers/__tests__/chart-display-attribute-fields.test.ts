@@ -39,7 +39,7 @@ describe( 'granularityAttributeField', () => {
 describe( 'chartTypeAttributeField', () => {
 	it( 'offers every chart type the shared list names', () => {
 		expect( chartTypeAttributeField().elements ).toEqual(
-			CHART_DISPLAY_CHART_TYPES.map( ( { id, label } ) => ( { value: id, label } ) )
+			CHART_DISPLAY_CHART_TYPES.map( ( { id, label, icon } ) => ( { value: id, label, icon } ) )
 		);
 	} );
 
