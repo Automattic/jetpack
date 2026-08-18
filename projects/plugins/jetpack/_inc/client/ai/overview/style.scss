@@ -135,7 +135,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: var(--wpds-dimension-gap-md, 12px);
+		// gap-sm, not the frame's 12: at the shipped 600 weight the longest
+		// title misses a single line by under a pixel, and 8px seats it.
+		gap: var(--wpds-dimension-gap-sm, 8px);
 		padding: var(--wpds-dimension-padding-md, 12px) var(--wpds-dimension-padding-xl, 20px);
 		border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral, #dbdbdb);
 	}
