@@ -89,9 +89,11 @@ describe( 'ToggleGroupField', () => {
 
 	it( 'writes the selected option value on click', async () => {
 		const onChange = jest.fn();
+		const user = userEvent.setup();
+
 		renderField( { elements: ICON_ELEMENTS, onChange } );
 
-		await userEvent.click( screen.getByRole( 'radio', { name: 'Bar chart' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'Bar chart' } ) );
 
 		expect( onChange ).toHaveBeenCalledWith( { chartType: 'bar' } );
 	} );
