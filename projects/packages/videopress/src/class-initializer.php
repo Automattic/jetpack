@@ -918,12 +918,33 @@ class Initializer {
 			$items
 		);
 
-		$wrapper_attributes = get_block_wrapper_attributes(
-			array(
-				'class'              => implode( ' ', $classes ),
-				'data-autoplay-next' => $enabled( 'autoplayNext', false ) ? '1' : '0',
-			)
+		/*
+		 * User-selected theme font presets (theme.json slugs) for the
+		 * customizable titles, exposed as CSS custom properties the
+		 * stylesheet reads. Anything but a plain preset slug is dropped.
+		 */
+		$font_style = '';
+		foreach ( array(
+			'nowTitleFontFamily'   => '--vpp-now-title-font',
+			'entryTitleFontFamily' => '--vpp-entry-title-font',
+		) as $font_attribute => $css_variable ) {
+			if ( ! empty( $block_attributes[ $font_attribute ] )
+				&& is_string( $block_attributes[ $font_attribute ] )
+				&& preg_match( '/^[a-zA-Z0-9-]+$/', $block_attributes[ $font_attribute ] )
+			) {
+				$font_style .= $css_variable . ':var(--wp--preset--font-family--' . $block_attributes[ $font_attribute ] . ');';
+			}
+		}
+
+		$wrapper_extra_attributes = array(
+			'class'              => implode( ' ', $classes ),
+			'data-autoplay-next' => $enabled( 'autoplayNext', false ) ? '1' : '0',
 		);
+		if ( '' !== $font_style ) {
+			$wrapper_extra_attributes['style'] = $font_style;
+		}
+
+		$wrapper_attributes = get_block_wrapper_attributes( $wrapper_extra_attributes );
 
 		return sprintf(
 			'<figure %1$s><div class="videopress-playlist__body">%2$s%3$s</div></figure>',

@@ -2,10 +2,12 @@
  * WordPress dependencies
  */
 import {
+	__experimentalFontFamilyControl as FontFamilyControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	InspectorControls,
 	MediaUpload,
 	MediaUploadCheck,
 	useBlockProps,
+	useSettings,
 } from '@wordpress/block-editor';
 import {
 	Button,
@@ -327,7 +329,21 @@ export default function PlaylistEdit( {
 		showDuration,
 		showPositionNumber,
 		showTotalRuntime,
+		nowTitleFontFamily,
+		entryTitleFontFamily,
 	} = attributes;
+
+	/*
+	 * Theme font-family presets, as used by core blocks' typography tools.
+	 * Attributes store the preset slug; the control works in CSS values.
+	 */
+	const [ fontFamilies = [] ] = useSettings( 'typography.fontFamilies' ) as [
+		Array< { name?: string; slug: string; fontFamily: string } > | undefined,
+	];
+	const fontFamilyValueOf = ( slug: string ) =>
+		fontFamilies.find( preset => preset.slug === slug )?.fontFamily ?? '';
+	const fontFamilySlugOf = ( value: string ) =>
+		fontFamilies.find( preset => preset.fontFamily === value )?.slug ?? '';
 
 	const [ previewIndex, setPreviewIndex ] = useState( 0 );
 	const [ urlInput, setUrlInput ] = useState( '' );
@@ -395,8 +411,23 @@ export default function PlaylistEdit( {
 		.filter( Boolean )
 		.join( ' ' );
 
+	// The chosen presets reach the stylesheet as CSS custom properties, the
+	// same way the PHP render exposes them on the front end.
+	const fontVariables: Record< string, string > = {};
+	if ( nowTitleFontFamily ) {
+		fontVariables[
+			'--vpp-now-title-font'
+		] = `var(--wp--preset--font-family--${ nowTitleFontFamily })`;
+	}
+	if ( entryTitleFontFamily ) {
+		fontVariables[
+			'--vpp-entry-title-font'
+		] = `var(--wp--preset--font-family--${ entryTitleFontFamily })`;
+	}
+
 	const blockProps = useBlockProps( {
 		className: videos.length ? wrapperClasses : 'videopress-playlist is-empty',
+		style: fontVariables,
 	} );
 
 	const clearFeedback = () => {
@@ -890,6 +921,25 @@ export default function PlaylistEdit( {
 					onChange={ ( value: boolean ) => setAttributes( { showTotalRuntime: value } ) }
 				/>
 			</PanelBody>
+
+			{ fontFamilies.length > 0 && (
+				<PanelBody title={ __( 'Typography', 'jetpack-videopress-pkg' ) }>
+					<FontFamilyControl
+						label={ __( 'Now playing title', 'jetpack-videopress-pkg' ) }
+						value={ fontFamilyValueOf( nowTitleFontFamily ) }
+						onChange={ ( value: string ) =>
+							setAttributes( { nowTitleFontFamily: fontFamilySlugOf( value ) } )
+						}
+					/>
+					<FontFamilyControl
+						label={ __( 'Entry titles', 'jetpack-videopress-pkg' ) }
+						value={ fontFamilyValueOf( entryTitleFontFamily ) }
+						onChange={ ( value: string ) =>
+							setAttributes( { entryTitleFontFamily: fontFamilySlugOf( value ) } )
+						}
+					/>
+				</PanelBody>
+			) }
 		</InspectorControls>
 	);
 

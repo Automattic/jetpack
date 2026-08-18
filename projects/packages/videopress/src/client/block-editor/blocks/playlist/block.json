@@ -62,6 +62,14 @@
 		"showTotalRuntime": {
 			"type": "boolean",
 			"default": true
+		},
+		"nowTitleFontFamily": {
+			"type": "string",
+			"default": ""
+		},
+		"entryTitleFontFamily": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"editorScript": "file:./index.js",

@@ -103,6 +103,9 @@ $vpp-mono: ui-monospace, menlo, monospace;
 		font-size: 0.9375rem;
 		flex: 1 1 auto;
 		min-inline-size: 0;
+
+		/* User-selected theme font preset; inherits when none is chosen. */
+		font-family: var(--vpp-now-title-font, inherit);
 	}
 
 	&__now-meta {
@@ -242,6 +245,9 @@ $vpp-mono: ui-monospace, menlo, monospace;
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
+
+		/* User-selected theme font preset; inherits when none is chosen. */
+		font-family: var(--vpp-entry-title-font, inherit);
 	}
 
 	&.hide-titles &__entry-title {

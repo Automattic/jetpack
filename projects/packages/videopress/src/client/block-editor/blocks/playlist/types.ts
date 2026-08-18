@@ -34,4 +34,11 @@ export type PlaylistAttributes = {
 	showDuration: boolean;
 	showPositionNumber: boolean;
 	showTotalRuntime: boolean;
+
+	/*
+	 * Theme font-family preset slugs (theme.json) for the customizable UI
+	 * parts; an empty string inherits the surrounding font.
+	 */
+	nowTitleFontFamily: string;
+	entryTitleFontFamily: string;
 };

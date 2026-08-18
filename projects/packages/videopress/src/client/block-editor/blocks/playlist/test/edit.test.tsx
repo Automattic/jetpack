@@ -21,6 +21,31 @@ jest.mock( '@wordpress/block-editor', () => ( {
 		render: ( args: { open: () => void } ) => React.ReactNode;
 	} ) => renderProp( { open: () => onSelect( mockMediaSelection ) } ),
 	MediaUploadCheck: ( { children }: { children: React.ReactNode } ) => <>{ children }</>,
+	useSettings: () => [
+		[
+			{ name: 'Serif Pro', slug: 'serif-pro', fontFamily: '"Serif Pro", serif' },
+			{ name: 'Grotesk', slug: 'grotesk', fontFamily: 'Grotesk, sans-serif' },
+		],
+	],
+	__experimentalFontFamilyControl: ( {
+		label,
+		value,
+		onChange,
+	}: {
+		label: string;
+		value: string;
+		onChange: ( value: string ) => void;
+	} ) => (
+		<select
+			aria-label={ label }
+			value={ value }
+			onChange={ event => onChange( event.target.value ) }
+		>
+			<option value="">Default</option>
+			<option value='"Serif Pro", serif'>Serif Pro</option>
+			<option value="Grotesk, sans-serif">Grotesk</option>
+		</select>
+	),
 } ) );
 
 jest.mock( '../../../../lib/fetch-video-item', () => ( {
@@ -40,6 +65,8 @@ const DEFAULT_ATTRIBUTES: PlaylistAttributes = {
 	showDuration: true,
 	showPositionNumber: false,
 	showTotalRuntime: true,
+	nowTitleFontFamily: '',
+	entryTitleFontFamily: '',
 };
 
 /**
@@ -515,6 +542,48 @@ describe( 'PlaylistEdit', () => {
 		);
 
 		expect( setAttributes ).toHaveBeenCalledWith( { videos: [ videos[ 1 ], videos[ 2 ] ] } );
+	} );
+
+	it( 'sets the title font families from theme presets', async () => {
+		const setAttributes = jest.fn();
+		renderEdit( { videos: [ { guid: 'aaaaaaaa' } ] }, setAttributes );
+
+		await userEvent.selectOptions(
+			screen.getByRole( 'combobox', { name: 'Now playing title' } ),
+			'"Serif Pro", serif'
+		);
+		expect( setAttributes ).toHaveBeenCalledWith( { nowTitleFontFamily: 'serif-pro' } );
+
+		await userEvent.selectOptions(
+			screen.getByRole( 'combobox', { name: 'Entry titles' } ),
+			'Grotesk, sans-serif'
+		);
+		expect( setAttributes ).toHaveBeenCalledWith( { entryTitleFontFamily: 'grotesk' } );
+
+		// Picking Default resets back to inheriting.
+		await userEvent.selectOptions(
+			screen.getByRole( 'combobox', { name: 'Now playing title' } ),
+			''
+		);
+		expect( setAttributes ).toHaveBeenCalledWith( { nowTitleFontFamily: '' } );
+	} );
+
+	it( 'exposes the chosen fonts as CSS custom properties on the wrapper', async () => {
+		renderEdit( {
+			videos: [ { guid: 'aaaaaaaa' } ],
+			nowTitleFontFamily: 'serif-pro',
+			entryTitleFontFamily: 'grotesk',
+		} );
+		// Let the live metadata lookup settle.
+		await expect( screen.findAllByText( 'First' ) ).resolves.toBeTruthy();
+
+		const figure = screen.getByRole( 'figure' );
+		expect( figure.style.getPropertyValue( '--vpp-now-title-font' ) ).toBe(
+			'var(--wp--preset--font-family--serif-pro)'
+		);
+		expect( figure.style.getPropertyValue( '--vpp-entry-title-font' ) ).toBe(
+			'var(--wp--preset--font-family--grotesk)'
+		);
 	} );
 
 	it( 'ignores out-of-range keyboard reorders', async () => {
