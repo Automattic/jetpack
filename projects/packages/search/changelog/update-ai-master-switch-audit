@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+AI Answers: report the saved choice and the site-wide AI state in settings, disable the controls while AI is off, and honor the host AI opt-out in the AI Answer block.
