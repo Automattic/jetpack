@@ -24,6 +24,7 @@ import McpSetup from './mcp/setup';
 import { recordMcpTracksEvent } from './mcp/tracks';
 import McpUpsell from './mcp/upsell';
 import { useMcpSettings } from './mcp/use-mcp-settings';
+import { getSiteLevelEnabled } from './mcp/utils';
 import McpWrite from './mcp/write';
 import AiOverview from './overview';
 
@@ -119,8 +120,16 @@ export default function App() {
 	// Read at render time, not module scope, so the injected page data is
 	// honoured wherever App mounts (the inline script always runs first in
 	// production; tests inject per-case).
-	const { blogId, activityLogUrl, apiRoot, apiNonce, upgradeUrl, planName, isWpcomHosted } =
-		window?.jetpackAiSettings ?? {};
+	const {
+		blogId,
+		activityLogUrl,
+		apiRoot,
+		apiNonce,
+		upgradeUrl,
+		planName,
+		isWpcomHosted,
+		isUserConnected,
+	} = window?.jetpackAiSettings ?? {};
 	const [ view, setView ] = useState( getViewFromHash );
 	// Save feedback goes through the shared GlobalNotices snackbars (the
 	// design-system SnackbarList behind @wordpress/notices): transient,
@@ -326,6 +335,13 @@ export default function App() {
 						upgradeUrl={ upgradeUrl }
 						planName={ planName }
 						isWpcomHosted={ isWpcomHosted }
+						isUserConnected={ isUserConnected }
+						hostAllowsAi={ aiSettings?.host_allows_ai }
+						// Same preconditions the MCP hub applies to its copy of the
+						// row: the copy promises AI-agent actions, which need MCP.
+						showActivityLog={
+							!! blogId && hasMcpAccess && getSiteLevelEnabled( mcpAbilities ?? {}, blogId )
+						}
 					/>
 				) }
 

@@ -191,7 +191,9 @@ function UsageCard( { upgradeUrl, planName } ) {
 										{ sprintf(
 											/* translators: %s: localized date the plan renews on. */
 											__( 'Renews on: %s', 'jetpack' ),
-											dateI18n( getDateSettings().formats.date, usage.renewsOn )
+											// The endpoint sends a UTC instant; formatting it in the
+											// site timezone would shift the date west of UTC.
+											dateI18n( getDateSettings().formats.date, usage.renewsOn, 'UTC' )
 										) }
 									</Text>
 								) }
@@ -207,13 +209,19 @@ function UsageCard( { upgradeUrl, planName } ) {
 /**
  * Overview view.
  *
- * @param {object}  props                  - Component props.
- * @param {number}  [props.blogId]         - Current site's blog ID; falsy when not connected.
- * @param {string}  [props.activityLogUrl] - URL for the site's activity log; row hidden without it.
- * @param {string}  [props.upgradeUrl]     - Upgrade destination for the usage card.
- * @param {string}  [props.planName]       - Purchase name granting AI, from the page data.
- * @param {boolean} [props.isWpcomHosted]  - Whether the site is hosted on WordPress.com;
- *                                         the video row links to WP.com courses and hides elsewhere.
+ * @param {object}  props                   - Component props.
+ * @param {number}  [props.blogId]          - Current site's blog ID; falsy when not connected.
+ * @param {string}  [props.activityLogUrl]  - URL for the site's activity log; row hidden without it.
+ * @param {string}  [props.upgradeUrl]      - Upgrade destination for the usage card.
+ * @param {string}  [props.planName]        - Purchase name granting AI, from the page data.
+ * @param {boolean} [props.isWpcomHosted]   - Whether the site is hosted on WordPress.com;
+ *                                          the video row links to WP.com courses and hides elsewhere.
+ * @param {boolean} [props.showActivityLog] - Whether the activity-log row applies: the row's
+ *                                          copy promises AI-agent actions, which need MCP.
+ * @param {boolean} [props.hostAllowsAi]    - The host's AI switch; when explicitly false, no
+ *                                          usage is shown and no upgrade is ever offered.
+ * @param {boolean} [props.isUserConnected] - Whether the current user's own WordPress.com
+ *                                          account is linked; the usage fetch needs it.
  * @return {object} Component markup.
  */
 export default function AiOverview( {
@@ -222,12 +230,44 @@ export default function AiOverview( {
 	upgradeUrl,
 	planName,
 	isWpcomHosted,
+	showActivityLog,
+	hostAllowsAi,
+	isUserConnected,
 } ) {
+	const hostBlocked = hostAllowsAi === false;
+	const userUnlinked = isUserConnected === false;
 	return (
 		<Stack direction="column" gap="xl">
-			{ blogId ? (
+			{ blogId && hostBlocked && (
+				<Notice.Root intent="warning">
+					<Notice.Description>
+						{ __( 'AI has been turned off for this site.', 'jetpack' ) }
+					</Notice.Description>
+				</Notice.Root>
+			) }
+			{ blogId && ! hostBlocked && userUnlinked && (
+				// The usage endpoint proxies as the current user, so without a
+				// linked account the fetch can only fail — say so instead.
+				<Card.Root>
+					<Card.Content>
+						<Notice.Root intent="warning">
+							<Notice.Title>
+								{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
+							</Notice.Title>
+							<Notice.Description>
+								{ __( 'Connect your account to see your AI usage.', 'jetpack' ) }{ ' ' }
+								<Link href="admin.php?page=my-jetpack#/connection">
+									{ __( 'Connect account', 'jetpack' ) }
+								</Link>
+							</Notice.Description>
+						</Notice.Root>
+					</Card.Content>
+				</Card.Root>
+			) }
+			{ blogId && ! hostBlocked && ! userUnlinked && (
 				<UsageCard upgradeUrl={ upgradeUrl } planName={ planName } />
-			) : (
+			) }
+			{ ! blogId && (
 				// Disconnected: skip the fetch (it can only fail) and explain
 				// the actual problem instead of a fetch error.
 				<Card.Root>
@@ -247,7 +287,7 @@ export default function AiOverview( {
 				</Card.Root>
 			) }
 
-			{ activityLogUrl && (
+			{ showActivityLog && activityLogUrl && (
 				// The row pads itself, so it sits directly in the card —
 				// Card.FullBleed's negative margins would cancel that padding.
 				<Card.Root className="jetpack-ai-overview__row-card">

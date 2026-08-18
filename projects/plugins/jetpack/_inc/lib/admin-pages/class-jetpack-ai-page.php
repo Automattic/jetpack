@@ -151,6 +151,9 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					// The walkthrough videos link to WordPress.com courses, so the
 					// Overview only shows them on WordPress.com-hosted sites (i4 thread).
 					'isWpcomHosted'    => ( new Host() )->is_woa_site(),
+					// The usage endpoint proxies as the current user, which needs
+					// their own WordPress.com account linked — not just the site.
+					'isUserConnected'  => ( new Connection_Manager() )->is_user_connected(),
 					// Tracks audience properties for the jetpack_mcp_* events, per the
 					// Tracks standards for AI product events (AIINT-586). The client
 					// sends them as the strings 'true'/'false' (AIINT-576).
@@ -229,6 +232,12 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		$cached = get_transient( 'jetpack_ai_overview_plan_name' );
 		if ( false !== $cached ) {
 			return (string) $cached;
+		}
+
+		// A failed lookup is not "no purchase": skip the hour-long cache so the
+		// next page load can try again instead of pinning a blank plan cell.
+		if ( is_wp_error( \Automattic\Jetpack\My_Jetpack\Wpcom_Products::get_site_current_purchases() ) ) {
+			return '';
 		}
 
 		$purchase = \Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai::get_paid_plan_purchase_for_product();

@@ -52,7 +52,7 @@ describe( 'normalizeUsage', () => {
 		// The plan name can only come from the purchase; "Unlimited" would
 		// just repeat the requests cell.
 		expect( usage.planLabel ).toBeNull();
-		expect( usage.renewsOn ).toBe( '2026-09-01' );
+		expect( usage.renewsOn ).toBe( '2026-09-01T00:00:00+00:00' );
 		expect( usage.showUpgrade ).toBe( false );
 	} );
 
@@ -64,6 +64,25 @@ describe( 'normalizeUsage', () => {
 		} );
 
 		expect( usage.showUpgrade ).toBe( false );
+	} );
+
+	test( 'free: keeps the upgrade even when the payload carries no next tier', () => {
+		// next-tier is nullable on the wire; free is upgradable by definition.
+		const usage = normalizeUsage( { ...freePayload(), 'next-tier': null } );
+
+		expect( usage.isFree ).toBe( true );
+		expect( usage.showUpgrade ).toBe( true );
+	} );
+
+	test( 'missing current-tier: reads the free-shape pair, not period count against the free limit', () => {
+		const payload = tieredPayload();
+		delete payload[ 'current-tier' ];
+		const usage = normalizeUsage( payload );
+
+		// 950 used of 20 floors at 0 available — but the pair is consistent,
+		// not the usage-period count charged against an unrelated limit.
+		expect( usage.requestsCount ).toBe( 950 );
+		expect( usage.requestsLimit ).toBe( 20 );
 	} );
 
 	test( 'missing data: nulls, never NaN', () => {

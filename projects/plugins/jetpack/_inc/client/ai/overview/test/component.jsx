@@ -16,6 +16,7 @@ const PROPS = {
 	activityLogUrl: 'https://example.com/activity',
 	upgradeUrl: 'https://example.com/upgrade',
 	isWpcomHosted: true,
+	showActivityLog: true,
 };
 
 // The design-system Notice mirrors its text into a hidden wp.a11y.speak live
@@ -143,10 +144,48 @@ describe( 'AiOverview', () => {
 		expect( screen.getByText( 'Walkthrough videos' ) ).toBeInTheDocument();
 	} );
 
+	test( 'activity log: absent without the MCP preconditions', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } showActivityLog={ false } /> );
+
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'host AI off: a notice replaces the usage card and no upgrade is offered', async () => {
+		render( <AiOverview { ...PROPS } hostAllowsAi={ false } /> );
+
+		expect(
+			screen.getByText( 'AI has been turned off for this site.', IGNORE_A11Y )
+		).toBeInTheDocument();
+		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
+		expect( apiFetch ).not.toHaveBeenCalled();
+		// The rest of the tab is unrelated to AI billing and stays.
+		expect( screen.getByText( 'Documentation' ) ).toBeInTheDocument();
+	} );
+
+	test( 'user account not linked: explains the account, does not fetch', async () => {
+		render( <AiOverview { ...PROPS } isUserConnected={ false } /> );
+
+		expect(
+			screen.getByText( 'Your WordPress.com account isn’t connected.', IGNORE_A11Y )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Connect account' } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=my-jetpack#/connection'
+		);
+		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
+		expect( apiFetch ).not.toHaveBeenCalled();
+	} );
+
 	test( 'activity log: absent without an activityLogUrl', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
-		render( <AiOverview blogId={ PROPS.blogId } upgradeUrl={ PROPS.upgradeUrl } /> );
+		render(
+			<AiOverview blogId={ PROPS.blogId } upgradeUrl={ PROPS.upgradeUrl } showActivityLog />
+		);
 
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();

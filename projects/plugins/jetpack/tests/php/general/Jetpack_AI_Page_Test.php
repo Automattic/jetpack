@@ -155,6 +155,17 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * The usage endpoint proxies as the current user, so the page reports
+	 * whether their own account is linked. The test environment links nobody.
+	 */
+	public function test_user_connection_flag_is_false_without_a_linked_account() {
+		$settings = $this->get_injected_settings();
+
+		$this->assertArrayHasKey( 'isUserConnected', $settings );
+		$this->assertFalse( $settings['isUserConnected'] );
+	}
+
+	/**
 	 * A proxied request is a test environment regardless of who made it, so
 	 * isTest follows jetpack_is_internal_testing_environment().
 	 */

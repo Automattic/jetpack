@@ -1,18 +1,21 @@
 /**
  * Read-only AI usage data for the Overview view. Off WPCOM the endpoint
  * proxies to WordPress.com server-side, so loading/error states matter here.
+ * The wordpress-com/plans store fetches the same endpoint but swallows
+ * failures (its catch only logs), so the fetch stays local until the store
+ * exposes an error state the card's error notice can render.
  */
 
+import {
+	PLAN_TYPE_FREE,
+	PLAN_TYPE_UNLIMITED,
+	usePlanType as getPlanType,
+} from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const ENDPOINT = '/wpcom/v2/jetpack-ai/ai-assistant-feature';
-
-// Tier `value` semantics, mirroring shared-extension-utils' usePlanType:
-// 0 = free, 1 = the legacy unlimited plan, anything else = a tiered plan.
-const TIER_VALUE_FREE = 0;
-const TIER_VALUE_UNLIMITED = 1;
 
 /**
  * Normalize the ai-assistant-feature payload for display, following
@@ -24,18 +27,24 @@ const TIER_VALUE_UNLIMITED = 1;
  */
 export function normalizeUsage( data ) {
 	const currentTier = data?.[ 'current-tier' ] ?? null;
-	const unlimited = currentTier?.value === TIER_VALUE_UNLIMITED;
-	const isFree = currentTier?.value === TIER_VALUE_FREE;
+	const planType = getPlanType( currentTier );
+	const unlimited = planType === PLAN_TYPE_UNLIMITED;
+	const isFree = planType === PLAN_TYPE_FREE;
+	// A payload without a tier can't be split into period-vs-limit halves, so
+	// it reads the free-shape pair — a consistent count against its own limit.
+	const useFreeCounts = isFree || ! currentTier;
 
 	let requestsCount = null;
 	let requestsLimit = null;
 	if ( ! unlimited ) {
 		requestsCount =
-			( isFree ? data?.[ 'requests-count' ] : data?.[ 'usage-period' ]?.[ 'requests-count' ] ) ??
-			null;
+			( useFreeCounts
+				? data?.[ 'requests-count' ]
+				: data?.[ 'usage-period' ]?.[ 'requests-count' ] ) ?? null;
 		requestsLimit =
-			( isFree ? data?.[ 'requests-limit' ] : currentTier?.limit || data?.[ 'requests-limit' ] ) ??
-			null;
+			( useFreeCounts
+				? data?.[ 'requests-limit' ]
+				: currentTier?.limit || data?.[ 'requests-limit' ] ) ?? null;
 	}
 	const requestsAvailable =
 		requestsCount !== null && requestsLimit !== null
@@ -44,9 +53,10 @@ export function normalizeUsage( data ) {
 
 	const renewsOn = data?.[ 'usage-period' ]?.[ 'next-start' ] ?? null;
 
+	// Free is upgradable by definition, whatever the payload says about tiers.
 	const showUpgrade =
 		! unlimited &&
-		( Boolean( data?.[ 'next-tier' ] ) || data?.[ 'site-require-upgrade' ] === true );
+		( isFree || Boolean( data?.[ 'next-tier' ] ) || data?.[ 'site-require-upgrade' ] === true );
 
 	// Only a real plan name belongs here. "Free" is one; a tier's limit or
 	// "Unlimited" is not — both just repeat the requests cell — so a paid site
