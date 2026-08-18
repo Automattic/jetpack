@@ -4,3 +4,14 @@
 	gap: 8px;
 	margin-block-start: 16px;
 }
+
+.jp-forms-name-modal__busy-message {
+	margin: 0;
+	margin-inline-end: auto;
+	align-self: center;
+	color: var(--jp-gray-60, #50575e);
+	font-size: 12px;
+
+	// Reserve the line so the buttons don't shift when the message appears.
+	min-height: 1em;
+}

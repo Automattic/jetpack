@@ -6,6 +6,7 @@ import { useCallback } from '@wordpress/element';
  * Internal dependencies
  */
 import useConfigValue from '../../hooks/use-config-value.ts';
+import { getNewFormEditorUrl } from './use-editor-preload.ts';
 
 const openFormLink = ( url: string ) => {
 	/*
@@ -81,12 +82,7 @@ export default function useCreateForm(): CreateFormReturn {
 				if ( isCentralFormManagementEnabled === true ) {
 					analyticsEvent?.( { formPattern: formPattern ?? '' } );
 					// Use config adminUrl to build full URL for external admin contexts.
-					let url = `${ adminUrl || '' }post-new.php?post_type=jetpack_form`;
-					const trimmedFormTitle = formTitle?.trim();
-					if ( trimmedFormTitle ) {
-						url += `&post_title=${ encodeURIComponent( trimmedFormTitle ) }`;
-					}
-					openFormLink( url );
+					openFormLink( getNewFormEditorUrl( adminUrl, formTitle ) );
 					return;
 				}
 
@@ -102,6 +98,9 @@ export default function useCreateForm(): CreateFormReturn {
 				}
 			} catch ( error ) {
 				console.error( error.message ); // eslint-disable-line no-console
+				// Re-throw so callers can tell a started navigation from a failed creation, and keep
+				// their own UI (a busy button, an open modal) in the right state.
+				throw error;
 			}
 		},
 		[ createForm, isCentralFormManagementEnabled, adminUrl ]

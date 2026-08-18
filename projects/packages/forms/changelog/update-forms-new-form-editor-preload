@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Speed up opening the editor after creating a form, and show progress while it loads.

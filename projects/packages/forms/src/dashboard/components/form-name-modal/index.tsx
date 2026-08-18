@@ -6,7 +6,7 @@
  */
 
 import { Button, Modal, TextControl } from '@wordpress/components';
-import { useState, useCallback, useEffect } from '@wordpress/element';
+import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import type { FormEvent } from 'react';
 import './style.scss';
@@ -71,6 +71,29 @@ export type FormNameModalProps = {
 	 * @default "Untitled Form"
 	 */
 	fallbackName?: string;
+
+	/**
+	 * Called once per opening, the first time the user edits the name.
+	 *
+	 * Typing is the earliest reliable signal that the user intends to go through with the action, so
+	 * this is the hook for speculative work such as warming a cache.
+	 */
+	onFirstEdit?: () => void;
+
+	/**
+	 * Whether a successful save should close the modal.
+	 *
+	 * Set to false when onSave hands off to a full page navigation: closing would drop the busy
+	 * state at the exact moment the user needs to see it, leaving the screen looking idle while the
+	 * browser loads the next page.
+	 * @default true
+	 */
+	closeOnSave?: boolean;
+
+	/**
+	 * Message shown alongside the busy primary button while saving.
+	 */
+	busyMessage?: string;
 };
 
 /**
@@ -87,6 +110,9 @@ export type FormNameModalProps = {
  * @param props.placeholder          - Placeholder text for the input field.
  * @param props.inputLabel           - Label for the input field.
  * @param props.fallbackName         - Fallback name when input is empty.
+ * @param props.onFirstEdit          - Called once when the user first edits the name.
+ * @param props.closeOnSave          - Whether a successful save closes the modal.
+ * @param props.busyMessage          - Message shown next to the busy primary button.
  * @return The modal component or null if not open.
  */
 export function FormNameModal( {
@@ -100,16 +126,33 @@ export function FormNameModal( {
 	placeholder,
 	inputLabel,
 	fallbackName,
+	onFirstEdit,
+	closeOnSave = true,
+	busyMessage,
 }: FormNameModalProps ) {
 	const [ name, setName ] = useState( initialValue );
 	const [ isSaving, setIsSaving ] = useState( false );
+	const hasEdited = useRef( false );
 
 	// Reset name when modal opens with a new initial value
 	useEffect( () => {
 		if ( isOpen ) {
 			setName( initialValue );
+			hasEdited.current = false;
 		}
 	}, [ isOpen, initialValue ] );
+
+	const handleChange = useCallback(
+		( value: string ) => {
+			setName( value );
+
+			if ( ! hasEdited.current ) {
+				hasEdited.current = true;
+				onFirstEdit?.();
+			}
+		},
+		[ onFirstEdit ]
+	);
 
 	const handleClose = useCallback( () => {
 		if ( ! isSaving ) {
@@ -127,13 +170,18 @@ export function FormNameModal( {
 
 		try {
 			await onSave( finalName );
-			onClose();
+
+			if ( closeOnSave ) {
+				onClose();
+				setIsSaving( false );
+			}
+			// Otherwise stay open and stay busy: onSave has started a page navigation, and the modal
+			// is the only thing telling the user that something is happening until it completes.
 		} catch {
 			// onSave threw — keep the modal open so the user can retry.
-		} finally {
 			setIsSaving( false );
 		}
-	}, [ name, fallbackName, isSaving, onSave, onClose ] );
+	}, [ name, fallbackName, isSaving, onSave, onClose, closeOnSave ] );
 
 	const onSubmitForm = useCallback(
 		( event: FormEvent ) => {
@@ -153,12 +201,17 @@ export function FormNameModal( {
 				<TextControl
 					label={ inputLabel || __( 'Name', 'jetpack-forms' ) }
 					value={ name }
-					onChange={ setName }
+					onChange={ handleChange }
 					__next40pxDefaultSize
 					placeholder={ placeholder }
 					disabled={ isSaving }
 				/>
 				<div className="jp-forms-name-modal__buttons">
+					{ busyMessage && (
+						<p className="jp-forms-name-modal__busy-message" aria-live="polite">
+							{ isSaving ? busyMessage : '' }
+						</p>
+					) }
 					<Button variant="tertiary" onClick={ handleClose } disabled={ isSaving }>
 						{ secondaryButtonLabel || __( 'Cancel', 'jetpack-forms' ) }
 					</Button>

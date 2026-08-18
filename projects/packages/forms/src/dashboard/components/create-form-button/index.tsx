@@ -10,6 +10,7 @@ import { plus } from '@wordpress/icons';
  * Internal dependencies
  */
 import useCreateForm from '../../hooks/use-create-form.ts';
+import useEditorPreload from '../../hooks/use-editor-preload.ts';
 import { FormNameModal } from '../form-name-modal';
 
 type CreateFormButtonProps = {
@@ -39,6 +40,7 @@ export default function CreateFormButton( {
 	showNameModal = false,
 }: CreateFormButtonProps ): JSX.Element {
 	const { openNewForm } = useCreateForm();
+	const preloadEditor = useEditorPreload();
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 
 	const onButtonClickHandler = useCallback( () => {
@@ -94,6 +96,9 @@ export default function CreateFormButton( {
 				primaryButtonLabel={ __( 'Create', 'jetpack-forms' ) }
 				secondaryButtonLabel={ __( 'Cancel', 'jetpack-forms' ) }
 				placeholder={ __( 'Enter form title', 'jetpack-forms' ) }
+				onFirstEdit={ preloadEditor }
+				closeOnSave={ false }
+				busyMessage={ __( 'Opening the editor…', 'jetpack-forms' ) }
 			/>
 		</>
 	);
