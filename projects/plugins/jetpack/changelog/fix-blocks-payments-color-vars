@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Replace invalid --color-gray-* CSS custom properties with Calypso --color-neutral-* tokens in payment button editor styles.
