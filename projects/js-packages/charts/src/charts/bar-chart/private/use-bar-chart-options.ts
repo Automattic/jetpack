@@ -14,6 +14,11 @@ export const BASE_BAND_PADDING_INNER = 0.1;
 /** Ticks each axis carries unless the caller asks for a different count. */
 const DEFAULT_NUM_TICKS = 4;
 
+// Shared rather than a fresh literal per call: it is in the dependencies of
+// every memo below, so defaulting inline recomputed all of them on every render
+// for the callers that pass no options at all.
+const NO_OPTIONS: BaseChartProps[ 'options' ] = {};
+
 // The axis abbreviates to fit a tick; a tooltip has room to spell the same
 // bucket out in full.
 const TOOLTIP_FORMAT_BY_RESOLUTION: Record<
@@ -59,28 +64,41 @@ const getTooltipFormatter = ( data: SeriesData[], tickResolution?: TickResolutio
 	return ( timestamp: number ) => new Date( timestamp ).toLocaleString( undefined, format );
 };
 
-/**
- * The band scale's domain, as the dates the axis can put a tick on. Series are
- * individually sorted already, so a merge on the timestamp restores axis order
- * across all of them.
- *
- * @param data - Date-based series.
- * @return Distinct dates, earliest first.
- */
-const getBandDomain = ( data: SeriesData[] ): Date[] => {
-	const byTimestamp = new Map< number, Date >();
-	data.forEach( series =>
-		series.data.forEach( point => {
-			const { date } = point as DataPointDate;
-			if ( date && ! byTimestamp.has( date.getTime() ) ) {
-				byTimestamp.set( date.getTime(), date );
-			}
-		} )
-	);
+// The bucket a point sits on, as handed to visx for the band axis. Module-level
+// so the domain below is read through the same function the scale is, and so
+// the reference stays stable across renders.
+const bucketAccessor = ( d: DataPointDate ) => d?.label || d?.date;
 
-	return [ ...byTimestamp.keys() ]
-		.sort( ( a, b ) => a - b )
-		.map( timestamp => byTimestamp.get( timestamp ) );
+/**
+ * The band scale's domain: the buckets the axis can put a tick on, as visx will
+ * build them.
+ *
+ * Reads the same accessor visx does and keeps its order — series concatenated,
+ * first occurrence winning — rather than re-deriving from `date` and sorting.
+ * Tick values are chosen as positions in this domain, so anything but the same
+ * list can place a tick on a bucket that is not on screen. Null when any bucket
+ * is labelled rather than dated: a `Date` tick value would not be in the domain
+ * at all, and `scaleBand` returns `undefined` for a key it does not hold.
+ *
+ * @param data - The series the chart will render.
+ * @return Distinct bucket dates in axis order, or null if any bucket is labelled.
+ */
+const getBandDomain = ( data: SeriesData[] ): Date[] | null => {
+	const byTimestamp = new Map< number, Date >();
+
+	for ( const series of data ) {
+		for ( const point of series.data ) {
+			const bucket = bucketAccessor( point as DataPointDate );
+			if ( ! ( bucket instanceof Date ) ) {
+				return null;
+			}
+			if ( ! byTimestamp.has( bucket.getTime() ) ) {
+				byTimestamp.set( bucket.getTime(), bucket );
+			}
+		}
+	}
+
+	return [ ...byTimestamp.values() ];
 };
 
 /**
@@ -104,7 +122,7 @@ const getGroupPadding = ( scale: Record< string, unknown > ): number => {
 export function useBarChartOptions(
 	data: SeriesData[],
 	horizontal: boolean,
-	options: BaseChartProps[ 'options' ] = {}
+	options: BaseChartProps[ 'options' ] = NO_OPTIONS
 ) {
 	// `labelOverflow` and `tickResolution` are consumed by this hook rather than
 	// forwarded — visx has an axis prop for neither — so they are split off the
@@ -156,7 +174,10 @@ export function useBarChartOptions(
 			: getTooltipFormatter( data, tickResolution );
 		const valueFormatter = formatNumberCompact as TickFormatter< unknown >;
 
-		const labelAccessor = ( d: DataPointDate ) => d?.label || d?.date;
+		// Only for a dated axis, and only when every bucket is dated: without a
+		// domain there is nothing to choose tick values from.
+		const bandDomain = timeTickFormatter ? getBandDomain( data ) : null;
+
 		const valueAccessor = ( d: DataPointDate | EnhancedDataPoint ) => {
 			// Use visualValue for bar rendering if available (for zero values), otherwise use value
 			const enhancedPoint = d as EnhancedDataPoint;
@@ -164,15 +185,16 @@ export function useBarChartOptions(
 		};
 
 		return {
-			timeAxis: timeTickFormatter && {
-				domain: getBandDomain( data ),
-				tickFormatter: timeTickFormatter,
-			},
+			timeAxis: bandDomain &&
+				timeTickFormatter && {
+					domain: bandDomain,
+					tickFormatter: timeTickFormatter,
+				},
 			vertical: {
 				xTickFormat: labelFormatter,
 				yTickFormat: valueFormatter,
 				tooltipLabelFormatter: tooltipDatumFormatter,
-				xAccessor: labelAccessor,
+				xAccessor: bucketAccessor,
 				yAccessor: valueAccessor,
 				gridVisibility: 'x',
 				xScale: bandScale,
@@ -183,7 +205,7 @@ export function useBarChartOptions(
 				yTickFormat: labelFormatter,
 				tooltipLabelFormatter: tooltipDatumFormatter,
 				xAccessor: valueAccessor,
-				yAccessor: labelAccessor,
+				yAccessor: bucketAccessor,
 				gridVisibility: 'y',
 				xScale: linearScale,
 				yScale: bandScale,

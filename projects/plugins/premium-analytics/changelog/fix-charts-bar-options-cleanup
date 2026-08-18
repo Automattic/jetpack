@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a misplaced tick on bar charts that mix dated and labelled bars, and cut redundant work when a chart re-renders.

@@ -289,6 +289,31 @@ describe( 'getBucketResolution', () => {
 	} );
 } );
 
+describe( 'tick format anchors', () => {
+	// The band axis steers ticks onto boundaries using the predicate the format
+	// hangs off itself. If the two ever disagree, the axis aims at buckets that
+	// do not actually print the coarser label.
+	it( 'marks exactly the buckets whose label carries the coarser unit', () => {
+		const hourly = Array.from( { length: 48 }, ( _, i ) => new Date( 2026, 7, 2, i ) );
+		const hourFormat = getFormatter( toSeries( hourly ) );
+
+		expect( hourFormat.isAnchor ).toBeDefined();
+		hourly.forEach( date => {
+			const isDateLabel = ! /(AM|PM)/.test( hourFormat( date.getTime() ) );
+			expect( hourFormat.isAnchor( date ) ).toBe( isDateLabel );
+		} );
+
+		const monthly = Array.from( { length: 36 }, ( _, i ) => new Date( 2023, 6 + i, 1 ) );
+		const monthFormat = getFormatter( toSeries( monthly ) );
+
+		expect( monthFormat.isAnchor ).toBeDefined();
+		monthly.forEach( date => {
+			const isYearLabel = /^\d{4}$/.test( monthFormat( date.getTime() ) );
+			expect( monthFormat.isAnchor( date ) ).toBe( isYearLabel );
+		} );
+	} );
+} );
+
 describe( 'getBandTickValues', () => {
 	const monthlyDomain = ( year: number, month: number, months: number ) =>
 		Array.from( { length: months }, ( _, i ) => new Date( year, month + i, 1 ) );

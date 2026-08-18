@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import BarChart from '../bar-chart';
 import { useBarChartOptions } from '../private';
+import type { SeriesData } from '../../../types';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();
@@ -215,6 +216,87 @@ describe( 'BarChart', () => {
 			// Query for tspan elements that contain the formatted date.
 			const tspansWithDate = screen.getAllByText( '1/3/24' );
 			expect( tspansWithDate.length ).toBeGreaterThan( 0 );
+		} );
+	} );
+
+	describe( 'Bar chart options memoization', () => {
+		const stableData: SeriesData[] = [
+			{
+				label: 'Views',
+				data: [
+					{ date: new Date( 2026, 0, 1 ), value: 1 },
+					{ date: new Date( 2026, 0, 2 ), value: 2 },
+				],
+				options: {},
+			},
+		];
+
+		test( 'returns the same options when nothing changed and no options were passed', () => {
+			const { result, rerender } = renderHook( () => useBarChartOptions( stableData, false ) );
+			const first = result.current;
+
+			rerender();
+
+			expect( result.current ).toBe( first );
+		} );
+	} );
+
+	describe( 'Band domain', () => {
+		const dated = ( year: number, month: number, day: number, value: number ) => ( {
+			date: new Date( year, month, day ),
+			value,
+		} );
+
+		test( 'leaves tick values alone when a bucket is labelled rather than dated', () => {
+			// visx builds the band domain from `label || date`, so a labelled bucket
+			// is not a `Date` on the axis at all. Choosing `Date` tick values for a
+			// domain like that puts a tick on a key `scaleBand` does not hold.
+			const { result } = renderHook( () =>
+				useBarChartOptions(
+					[
+						{
+							label: 'Views',
+							data: [
+								dated( 2026, 0, 1, 1 ),
+								{ ...dated( 2026, 0, 2, 2 ), label: 'Launch day' },
+								dated( 2026, 0, 3, 3 ),
+							],
+							options: {},
+						},
+					],
+					false
+				)
+			);
+
+			expect( result.current.axis.x.tickValues ).toBeUndefined();
+		} );
+
+		test( 'keeps every dated bucket across series, in the order visx concatenates them', () => {
+			const { result } = renderHook( () =>
+				useBarChartOptions(
+					[
+						{
+							label: 'A',
+							data: [ dated( 2026, 0, 1, 1 ), dated( 2026, 0, 3, 3 ) ],
+							options: {},
+						},
+						{
+							label: 'B',
+							data: [ dated( 2026, 0, 1, 4 ), dated( 2026, 0, 2, 5 ) ],
+							options: {},
+						},
+					],
+					false
+				)
+			);
+
+			// Jan 1 is shared, so the domain is Jan 1, Jan 3, Jan 2 — first
+			// occurrence wins and the second series appends what it adds.
+			expect( result.current.axis.x.tickValues ).toEqual( [
+				new Date( 2026, 0, 1 ),
+				new Date( 2026, 0, 3 ),
+				new Date( 2026, 0, 2 ),
+			] );
 		} );
 	} );
 

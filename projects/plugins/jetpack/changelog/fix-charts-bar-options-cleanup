@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: fix a misplaced tick on charts that mix dated and labelled bars, and cut redundant work when a chart re-renders.
