@@ -14,7 +14,7 @@ class Atomic_Record_Jetpack_Token_Errors {
 	 * The error_code has one of the following values:
 	 * - malformed_token
 	 * - malformed_user_id
-	 * - unknown_token
+	 * - tokens_locked
 	 * - could_not_sign
 	 * - invalid_nonce
 	 * - signature_mismatch

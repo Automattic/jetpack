@@ -102,7 +102,10 @@ const useConnectionErrorsNotice = (
 	const tracksArgs = useMemo(
 		() => ( {
 			error_count: errorList.length,
-			error_code: trackedError?.error_code ?? null,
+			// The payload comes from the server, so the declared type is a promise the
+			// data cannot keep. Report a code only when it really is one, rather than
+			// sending Tracks whatever arrived.
+			error_code: typeof trackedError?.error_code === 'string' ? trackedError.error_code : null,
 			audience: trackedError?.audience ?? 'site',
 		} ),
 		[ errorList.length, trackedError?.error_code, trackedError?.audience ]
@@ -121,19 +124,21 @@ const useConnectionErrorsNotice = (
 			ownerName,
 		};
 
-		// Where the title already names the scope, the detail line drops it and
-		// carries the code alone rather than repeating itself.
+		// A detail line only ever states the scope, so where the title already names
+		// it there is nothing left to say and no line is rendered.
 		const scopeIsInTitle = titleIncludesScope( errorList );
 
 		// Keep the backend message as the headline, then group broken-token errors under one
-		// shared description with each error's scope and code.
+		// shared description with each error's scope beneath it.
 		const errorMessage = (
 			<Col>
 				{ restoreConnectionError && (
 					<Text mb={ 2 }>{ getReconnectErrorMessage( restoreConnectionError ) }</Text>
 				) }
 				{ groupConnectionErrorsByMessage( errorList ).map( ( group, groupIndex ) => {
-					const detailLines = getConnectionErrorDetailLines( group.errors, viewer, scopeIsInTitle );
+					const detailLines = scopeIsInTitle
+						? []
+						: getConnectionErrorDetailLines( group.errors, viewer );
 
 					return (
 						<div key={ group.message }>
