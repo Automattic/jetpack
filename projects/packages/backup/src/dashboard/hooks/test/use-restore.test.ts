@@ -252,6 +252,10 @@ describe( 'useRestore — failing safe', () => {
 		expect( result.current.state.phase ).not.toBe( 'success' );
 	} );
 
+	// Losing the connection is not the same as the restore failing: it
+	// was accepted and is very likely still running. Reporting it as an
+	// error would offer a retry, and the retry starts a second concurrent
+	// restore — so it reports what is true, that we can no longer watch.
 	it( 'surfaces a mid-poll network failure rather than sitting at the last percent', async () => {
 		mockedApiFetch.mockImplementation( ( options: { method?: string } ) => {
 			if ( options?.method === 'POST' ) {
@@ -264,8 +268,22 @@ describe( 'useRestore — failing safe', () => {
 		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
 		submitAll( result );
 
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'lost-track' ) );
+		// The transport's own text is kept, beneath the message rather
+		// than replacing it.
+		expect( result.current.state ).toMatchObject( { detail: 'Could not reach WordPress.com.' } );
+	} );
+
+	// The property the phase exists for, asserted on the state machine as
+	// well as on the screen: `error` is reserved for "nothing is running".
+	it( 'reserves the error phase for restores that definitely are not running', async () => {
+		respondWith( { status: statusPayload( { status: 'failed', message: 'Restore aborted.' } ) } );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
 		await waitFor( () => expect( result.current.state.phase ).toBe( 'error' ) );
-		expect( result.current.state ).toMatchObject( { message: 'Could not reach WordPress.com.' } );
 	} );
 
 	it( 'reports a refused submission and can be reset back to idle', async () => {
@@ -294,8 +312,6 @@ describe( 'useRestore — the silence deadline', () => {
 	afterEach( () => {
 		jest.useRealTimers();
 	} );
-
-	const LOST_TRACK = /lost track of this restore/;
 
 	/**
 	 * Advance fake timers inside `act`, letting queued promises settle.
@@ -347,10 +363,10 @@ describe( 'useRestore — the silence deadline', () => {
 		expect( result.current.state.phase ).toBe( 'queued' );
 
 		await advance( 5 * 60_000 );
-		expect( result.current.state.phase ).toBe( 'error' );
-		expect( result.current.state ).toMatchObject( {
-			message: expect.stringMatching( LOST_TRACK ),
-		} );
+		// `lost-track`, never `error`: the screen offers "Try again" on
+		// `error`, and here that would start a second concurrent restore.
+		expect( result.current.state.phase ).toBe( 'lost-track' );
+		expect( result.current.state ).toMatchObject( { detail: null } );
 	} );
 
 	it( 'gives up on a restore whose status never leaves queued', async () => {
@@ -363,10 +379,8 @@ describe( 'useRestore — the silence deadline', () => {
 		await settleAt( result, 'queued' );
 
 		await advance( 5 * 60_000 + 1000 );
-		expect( result.current.state.phase ).toBe( 'error' );
-		expect( result.current.state ).toMatchObject( {
-			message: expect.stringMatching( LOST_TRACK ),
-		} );
+		expect( result.current.state.phase ).toBe( 'lost-track' );
+		expect( result.current.state ).toMatchObject( { detail: null } );
 	} );
 
 	// The half that matters as much as firing: a long restore that keeps
@@ -395,7 +409,7 @@ describe( 'useRestore — the silence deadline', () => {
 
 		await settleAt( result, 'queued' );
 		await advance( 5 * 60_000 + 1000 );
-		expect( result.current.state.phase ).toBe( 'error' );
+		expect( result.current.state.phase ).toBe( 'lost-track' );
 
 		const before = mockedApiFetch.mock.calls.length;
 		await advance( 60_000 );
@@ -413,7 +427,7 @@ describe( 'useRestore — the silence deadline', () => {
 
 		await settleAt( result, 'queued' );
 		await advance( 5 * 60_000 + 1000 );
-		expect( result.current.state.phase ).toBe( 'error' );
+		expect( result.current.state.phase ).toBe( 'lost-track' );
 
 		act( () => result.current.reset() );
 		expect( result.current.state.phase ).toBe( 'idle' );

@@ -141,12 +141,13 @@ function deriveState( input: DeriveInput ): RestoreState {
 	}
 	// A network failure mid-poll, surfaced rather than left sitting at
 	// the last known percent with no way out.
+	//
+	// `lost-track` and not `error`: the restore was accepted and is very
+	// likely still running — we just cannot watch it any more. Reporting
+	// that as an error offers a retry, and the retry starts a second
+	// concurrent restore of the same site.
 	if ( restoreId !== null && statusError ) {
-		return {
-			phase: 'error',
-			message:
-				statusError.message || __( 'Lost connection while restoring.', 'jetpack-backup-pkg' ),
-		};
+		return { phase: 'lost-track', detail: statusError.message || null };
 	}
 
 	switch ( data?.status ) {
@@ -170,14 +171,11 @@ function deriveState( input: DeriveInput ): RestoreState {
 			// reader: accepted, nothing to show. Unless it has been that
 			// way long enough that we should stop implying something is
 			// about to happen.
+			//
+			// The copy for that lives on the screen, like every other
+			// phase's: this one is entirely ours, with no upstream part.
 			if ( lostTrack ) {
-				return {
-					phase: 'error',
-					message: __(
-						"We've lost track of this restore. It may still be running — you'll get an email when it finishes.",
-						'jetpack-backup-pkg'
-					),
-				};
+				return { phase: 'lost-track', detail: null };
 			}
 			return { phase: 'queued' };
 	}
