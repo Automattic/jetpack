@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Internal rename of the private single-chart context module; no user-facing change.
+
+
