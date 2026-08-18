@@ -88,14 +88,18 @@ export default function useCreateForm(): CreateFormReturn {
 
 				const postUrl = await createForm( formPattern );
 
-				if ( postUrl ) {
-					analyticsEvent?.( { formPattern } );
-
-					const url = `${ postUrl }${
-						showPatterns && ! formPattern ? '&showJetpackFormsPatterns' : ''
-					}`;
-					openFormLink( url );
+				if ( ! postUrl ) {
+					// Resolving here would look like success to callers that are waiting to hand off to a
+					// page load, leaving them stuck showing progress for a navigation that never starts.
+					throw new Error( 'Creating the form did not return an editor URL.' );
 				}
+
+				analyticsEvent?.( { formPattern } );
+
+				const url = `${ postUrl }${
+					showPatterns && ! formPattern ? '&showJetpackFormsPatterns' : ''
+				}`;
+				openFormLink( url );
 			} catch ( error ) {
 				console.error( error.message ); // eslint-disable-line no-console
 				// Re-throw so callers can tell a started navigation from a failed creation, and keep

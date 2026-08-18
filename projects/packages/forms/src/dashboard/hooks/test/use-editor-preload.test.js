@@ -128,6 +128,19 @@ describe( 'useEditorPreload', () => {
 		expect( prefetchedLinks() ).toHaveLength( 0 );
 	} );
 
+	it( 'does not reach for an admin on another origin', async () => {
+		configValues.adminUrl = 'https://elsewhere.example/wp-admin/';
+
+		const { result } = renderHook( () => useEditorPreload() );
+		await act( async () => {
+			result.current();
+		} );
+
+		configValues.adminUrl = ADMIN_URL;
+		expect( global.fetch ).not.toHaveBeenCalled();
+		expect( prefetchedLinks() ).toHaveLength( 0 );
+	} );
+
 	it( 'allows a retry after a failed attempt', async () => {
 		global.fetch.mockRejectedValueOnce( new Error( 'offline' ) );
 

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useRef } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -90,7 +90,15 @@ function prefetchAsset( href: string, as: 'script' | 'style' ): void {
  * @param editorUrl - The editor URL to warm.
  */
 async function preloadEditorAssets( editorUrl: string ): Promise< void > {
-	const response = await fetch( editorUrl, { credentials: 'same-origin' } );
+	const base = new URL( editorUrl, window.location.href );
+
+	// An admin on another origin would not receive our cookies here, so the request could only ever
+	// warm the login page. Skip it rather than spend a round trip on nothing.
+	if ( base.origin !== window.location.origin ) {
+		return;
+	}
+
+	const response = await fetch( base.href, { credentials: 'same-origin' } );
 
 	if ( ! response.ok ) {
 		return;
@@ -106,21 +114,21 @@ async function preloadEditorAssets( editorUrl: string ): Promise< void > {
 		}
 
 		// Resolve against the editor URL so root-relative and protocol-relative sources work.
-		let href: string;
+		let asset: URL;
 		try {
-			href = new URL( rawHref, new URL( editorUrl, window.location.href ) ).href;
+			asset = new URL( rawHref, base );
 		} catch {
 			return;
 		}
 
 		// Only warm our own origin. Third-party assets are not ours to speculatively request.
-		if ( new URL( href ).origin !== window.location.origin || seen.has( href ) ) {
+		if ( asset.origin !== window.location.origin || seen.has( asset.href ) ) {
 			return;
 		}
 
-		seen.add( href );
+		seen.add( asset.href );
 		queued++;
-		prefetchAsset( href, as );
+		prefetchAsset( asset.href, as );
 	};
 
 	doc
@@ -143,20 +151,17 @@ async function preloadEditorAssets( editorUrl: string ): Promise< void > {
  */
 export default function useEditorPreload(): () => void {
 	const adminUrl = useConfigValue( 'adminUrl' );
-	const isPreloading = useRef( false );
 
 	return useCallback( () => {
-		if ( hasPreloadStarted || isPreloading.current ) {
+		if ( hasPreloadStarted ) {
 			return;
 		}
 
 		hasPreloadStarted = true;
-		isPreloading.current = true;
 
 		preloadEditorAssets( getNewFormEditorUrl( adminUrl ) ).catch( () => {
 			// Preloading is best-effort. Allow a later attempt if this one never got off the ground.
 			hasPreloadStarted = false;
-			isPreloading.current = false;
 		} );
 	}, [ adminUrl ] );
 }
