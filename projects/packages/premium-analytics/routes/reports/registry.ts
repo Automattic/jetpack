@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { isVideoPressAvailable } from '../site-readiness';
 // Import the tab resolver from `config/tabs` directly rather than the report's
 // `config` barrel. `route.ts` imports this registry in `beforeLoad`, so the
 // registry must stay free of React/UI at module scope; the `config/index.ts`
@@ -181,6 +182,10 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		getLabel: () => __( 'Videos', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'Videos report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () => __( 'See how your videos perform.', 'jetpack-premium-analytics-pkg' ),
+		// Play counts only exist for VideoPress-hosted videos, and Calypso gates
+		// its Videos module on the same signal. Mirrors the widget-level gate in
+		// `src/widget-type-support.php`.
+		isAvailable: isVideoPressAvailable,
 		load: () => import( './videos/page' ),
 	},
 	utm: {

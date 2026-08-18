@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -36,6 +37,10 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		Constants::clear_constants();
+		// The default layout now reaches Host::is_wpcom_platform(), which memoizes
+		// `is_woa_site` past Constants::clear_constants().
+		Cache::clear();
+		remove_all_filters( VIDEOPRESS_AVAILABLE_FILTER );
 		parent::tear_down();
 	}
 
@@ -237,6 +242,26 @@ class Dashboard_Layout_Test extends BaseTestCase {
 
 		$this->assertNotContains( 'jpa/file-downloads', $layout_types, 'Simple-only widget instances must not be part of the default layout on self-hosted sites.' );
 		$this->assertContains( 'jpa/clicks', $layout_types, 'Regular widget instances remain in the default layout.' );
+	}
+
+	/**
+	 * The Top videos instance follows VideoPress, which this test env lacks.
+	 */
+	public function test_traffic_default_excludes_videopress_widget_without_videopress() {
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ), 'type' );
+
+		$this->assertNotContains( 'jpa/videopress', $layout_types, 'Top videos must not be part of the default layout without VideoPress.' );
+	}
+
+	/**
+	 * With VideoPress, the Top videos instance is back in the default layout.
+	 */
+	public function test_traffic_default_keeps_videopress_widget_with_videopress() {
+		add_filter( VIDEOPRESS_AVAILABLE_FILTER, '__return_true' );
+
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ), 'type' );
+
+		$this->assertContains( 'jpa/videopress', $layout_types );
 	}
 
 	/**
