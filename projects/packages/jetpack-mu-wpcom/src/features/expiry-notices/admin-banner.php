@@ -168,6 +168,30 @@ function wpcom_expiry_notices_admin_banner_heading( array $state ): string {
 		);
 	}
 
+	// A plan that is still expected to renew hasn't failed yet, so it gets a
+	// neutral count rather than the language of an expiry deadline. Asserting a
+	// failed renewal would be wrong for someone who just switched auto-renew on.
+	if ( ! empty( $state['auto_renew'] ) && $days > 0 ) {
+		if ( '' === $plan ) {
+			return sprintf(
+				/* translators: %d is the number of days remaining. */
+				_n( 'Your plan has %d day remaining', 'Your plan has %d days remaining', $days, 'jetpack-mu-wpcom' ),
+				$days
+			);
+		}
+		return sprintf(
+			/* translators: %1$s is the plan name (e.g. Business). %2$d is the number of days remaining. */
+			_n(
+				'Your %1$s plan has %2$d day remaining',
+				'Your %1$s plan has %2$d days remaining',
+				$days,
+				'jetpack-mu-wpcom'
+			),
+			$plan,
+			$days
+		);
+	}
+
 	// Never "expired" while the day of expiry is still running: a plan can
 	// still renew at any hour of it.
 	if ( 0 === $days ) {
@@ -237,6 +261,30 @@ function wpcom_expiry_notices_admin_banner_body( array $state ): string {
 		return sprintf(
 			/* translators: %d is a number of gigabytes of storage. */
 			__( 'Your site will move to the Free plan. That means losing plugins, custom themes, and %d GB of storage. But it’s not too late. Renew now to keep your site as it is.', 'jetpack-mu-wpcom' ),
+			$storage_gb
+		);
+	}
+
+	// Everything below is still before expiry. A plan with a renewal attempt
+	// still to come is described conditionally; one that cannot renew itself is
+	// described as a certainty.
+	if ( $auto_renew ) {
+		if ( $days <= Expiry_Notice_Dismiss::FINAL_WINDOW_DAYS ) {
+			if ( null === $storage_gb ) {
+				return __( 'If renewal doesn’t go through, your site will move to the Free plan and you’ll lose plugins, custom themes, and additional storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' );
+			}
+			return sprintf(
+				/* translators: %d is a number of gigabytes of storage. */
+				__( 'If renewal doesn’t go through, your site will move to the Free plan and you’ll lose plugins, custom themes, and %d GB of storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' ),
+				$storage_gb
+			);
+		}
+		if ( null === $storage_gb ) {
+			return __( 'If renewal doesn’t go through, your site will move to the Free plan, and you’ll lose access to plugins, custom themes, and additional storage.', 'jetpack-mu-wpcom' );
+		}
+		return sprintf(
+			/* translators: %d is a number of gigabytes of storage. */
+			__( 'If renewal doesn’t go through, your site will move to the Free plan, and you’ll lose access to plugins, custom themes, and %d GB of storage.', 'jetpack-mu-wpcom' ),
 			$storage_gb
 		);
 	}

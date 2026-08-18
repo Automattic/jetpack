@@ -249,6 +249,54 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'Renew now to keep everything in place.', $body );
 	}
 
+	public function test_heading_counts_down_neutrally_when_auto_renew_on(): void {
+		$state = $this->message_state( array( 'auto_renew' => true ) );
+		$this->assertSame( 'Your Business plan has 45 days remaining', wpcom_expiry_notices_admin_banner_heading( $state ) );
+	}
+
+	public function test_heading_on_day_of_expiry_is_the_same_either_way(): void {
+		$state = $this->message_state(
+			array(
+				'days_remaining' => 0,
+				'auto_renew'     => true,
+			)
+		);
+		$this->assertSame( 'Your Business plan expires today', wpcom_expiry_notices_admin_banner_heading( $state ) );
+	}
+
+	public function test_body_before_the_final_week_is_conditional_when_auto_renew_on(): void {
+		$state = $this->message_state( array( 'auto_renew' => true ) );
+		$this->assertSame(
+			'If renewal doesn’t go through, your site will move to the Free plan, and you’ll lose access to plugins, custom themes, and 50 GB of storage.',
+			wpcom_expiry_notices_admin_banner_body( $state )
+		);
+	}
+
+	public function test_body_in_the_final_week_is_conditional_when_auto_renew_on(): void {
+		$state = $this->message_state(
+			array(
+				'days_remaining' => 5,
+				'auto_renew'     => true,
+			)
+		);
+		$this->assertSame(
+			'If renewal doesn’t go through, your site will move to the Free plan and you’ll lose plugins, custom themes, and 50 GB of storage. Renew now to keep everything in place.',
+			wpcom_expiry_notices_admin_banner_body( $state )
+		);
+	}
+
+	public function test_body_on_day_of_expiry_is_conditional_when_auto_renew_on(): void {
+		$state = $this->message_state(
+			array(
+				'days_remaining' => 0,
+				'auto_renew'     => true,
+			)
+		);
+		$body  = wpcom_expiry_notices_admin_banner_body( $state );
+		$this->assertStringStartsWith( 'If renewal doesn’t go through,', $body );
+		$this->assertStringNotContainsString( 'Unless you renew your plan', $body );
+	}
+
 	public function test_body_grace_mentions_pending_renewal_when_auto_renew_on(): void {
 		$state = $this->message_state(
 			array(
