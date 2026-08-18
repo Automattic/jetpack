@@ -161,7 +161,13 @@ function UsageCard( { upgradeUrl, planName } ) {
 							<Text render={ <p /> } variant="heading-sm" className="jetpack-ai-overview__eyebrow">
 								{ __( 'Plan', 'jetpack' ) }
 							</Text>
-							<Stack direction="row" justify="space-between" align="flex-start" gap="lg">
+							<Stack
+								direction="row"
+								justify="space-between"
+								align="flex-start"
+								gap="lg"
+								className="jetpack-ai-overview__plan-row"
+							>
 								{ planLabel && (
 									<Text
 										render={ <p /> }

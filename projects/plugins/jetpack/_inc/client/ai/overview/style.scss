@@ -50,6 +50,12 @@
 		color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 	}
 
+	// The plan value sits 8px lower than the requests number: the frame aligns
+	// it against the number-plus-meter block, not the number alone (design QA).
+	&__usage &__plan-row {
+		margin-block-start: var(--wpds-dimension-gap-sm, 8px);
+	}
+
 	// Basis auto, not 0: the name starts from its own width so the renewal
 	// date beside it yields and wraps, rather than squeezing the name.
 	&__plan-name {
