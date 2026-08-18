@@ -30,12 +30,12 @@ const TEXT_ELEMENTS: Option[] = [
 
 function renderField( {
 	elements,
-	value = 'line',
+	data = { chartType: 'line' },
 	hideLabelFromVision = true,
 	onChange = jest.fn(),
 }: {
 	elements: Option[];
-	value?: string;
+	data?: ChartAttributes;
 	hideLabelFromVision?: boolean;
 	onChange?: jest.Mock;
 } ) {
@@ -50,7 +50,7 @@ function renderField( {
 
 	render(
 		<ToggleGroupField
-			data={ { chartType: value } }
+			data={ data }
 			field={ field }
 			onChange={ onChange }
 			hideLabelFromVision={ hideLabelFromVision }
@@ -81,7 +81,7 @@ describe( 'ToggleGroupField', () => {
 	} );
 
 	it( 'marks the segment matching the current value as selected', () => {
-		renderField( { elements: ICON_ELEMENTS, value: 'bar' } );
+		renderField( { elements: ICON_ELEMENTS, data: { chartType: 'bar' } } );
 
 		expect( screen.getByRole( 'radio', { name: 'Bar chart' } ) ).toBeChecked();
 		expect( screen.getByRole( 'radio', { name: 'Line chart' } ) ).not.toBeChecked();
@@ -94,6 +94,18 @@ describe( 'ToggleGroupField', () => {
 		await userEvent.click( screen.getByRole( 'radio', { name: 'Bar chart' } ) );
 
 		expect( onChange ).toHaveBeenCalledWith( { chartType: 'bar' } );
+	} );
+
+	it( 'selects the first option when the value is absent', () => {
+		renderField( { elements: ICON_ELEMENTS, data: {} } );
+
+		expect( screen.getByRole( 'radio', { name: 'Line chart' } ) ).toBeChecked();
+	} );
+
+	it( 'selects the first option when the value matches none', () => {
+		renderField( { elements: ICON_ELEMENTS, data: { chartType: 'area' } } );
+
+		expect( screen.getByRole( 'radio', { name: 'Line chart' } ) ).toBeChecked();
 	} );
 
 	it( 'labels the control where the label is visible', () => {
