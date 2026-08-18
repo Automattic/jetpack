@@ -33,6 +33,7 @@ export {
 	GlobalChartsContext,
 	defaultTheme,
 	useChartScopeElement,
+	useChartRegistration,
 } from './providers';
 
 // Types - explicit exports (excludes internal types like DataPointPercentageCalculated)
