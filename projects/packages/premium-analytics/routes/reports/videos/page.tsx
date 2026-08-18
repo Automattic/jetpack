@@ -7,7 +7,7 @@ import {
 	type StatsVideoPlaysComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportPageLayout,
@@ -25,6 +25,7 @@ import { useSearch } from '@wordpress/route';
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
 import { getVideosFields, useVideosReportRecords } from './config';
 
 const ROUTE_FROM = route.path;
@@ -125,14 +126,12 @@ function VideosReport(): JSX.Element {
 	const isTableLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	const { getLabel, getTitle } = REPORTS.videos;
+
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={
-				<StatsBreadcrumbs
-					items={ [ { label: __( 'Videos', 'jetpack-premium-analytics-pkg' ) } ] }
-				/>
-			}
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			subTitle={ __( 'See how your videos perform.', 'jetpack-premium-analytics-pkg' ) }
 			actions={
 				canExport ? (
@@ -140,7 +139,7 @@ function VideosReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout filters={ <DateFiltersPanel { ...dateFilters } /> }>
+			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load videos', 'jetpack-premium-analytics-pkg' ) }

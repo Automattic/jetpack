@@ -40,7 +40,14 @@ export type ReportDefinition = {
 	id: string;
 
 	/**
-	 * Translated page title, resolved lazily.
+	 * What the report is called from outside itself: its own trailing crumb,
+	 * and the crumb linking back to it from a detail page. `All pages`.
+	 */
+	getLabel: () => string;
+
+	/**
+	 * Heading for the report's records: `Referrers report`. Unused on a tabbed
+	 * report, which heads each section from its tab.
 	 */
 	getTitle: () => string;
 
@@ -82,29 +89,34 @@ export type ReportDefinition = {
 export const REPORTS: Record< string, ReportDefinition > = {
 	'annual-insights': {
 		id: 'annual-insights',
-		getTitle: () => __( 'Annual insights', 'jetpack-premium-analytics-pkg' ),
+		getLabel: () => __( 'Annual insights', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'Annual insights report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__( 'Year-by-year publishing and engagement totals.', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './annual-insights/page' ),
 	},
 	authors: {
 		id: 'authors',
-		getTitle: () => __( 'Top authors', 'jetpack-premium-analytics-pkg' ),
+		getLabel: () => __( 'Top authors', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'Top authors report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './authors/page' ),
 	},
 	'comment-followers': {
 		id: 'comment-followers',
-		getTitle: () => __( 'Comments Subscribers', 'jetpack-premium-analytics-pkg' ),
+		getLabel: () => __( 'Comments Subscribers', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'Comments Subscribers report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './comment-followers/page' ),
 	},
 	clicks: {
 		id: 'clicks',
-		getTitle: () => __( 'Clicks', 'jetpack-premium-analytics-pkg' ),
+		getLabel: () => __( 'Clicks', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'Clicks report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './clicks/page' ),
 	},
 	comments: {
 		id: 'comments',
-		getTitle: () => __( 'Comments', 'jetpack-premium-analytics-pkg' ),
+		getLabel: () => __( 'All comments', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'All comments report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__(
 				'Learn about the comments your site receives by authors, posts, and pages.',
@@ -115,7 +127,8 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	},
 	downloads: {
 		id: 'downloads',
-		getTitle: () => __( 'File downloads', 'jetpack-premium-analytics-pkg' ),
+		getLabel: () => __( 'File downloads', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'File downloads report', 'jetpack-premium-analytics-pkg' ),
 		// File download tracking happens on WPCOM infrastructure; Calypso only
 		// shows the module on Simple sites ("not yet supported in Jetpack
 		// environment") and we mirror that boundary. Mirrors the widget-level
@@ -125,14 +138,16 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	},
 	emails: {
 		id: 'emails',
-		getTitle: () => __( 'Emails', 'jetpack-premium-analytics-pkg' ),
+		getLabel: () => __( 'Emails', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'Emails report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__( 'Open and click performance of your latest emails.', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './emails/page' ),
 	},
 	locations: {
 		id: 'locations',
-		getTitle: () => __( 'Locations', 'jetpack-premium-analytics-pkg' ),
+		getLabel: () => __( 'All locations', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'All locations report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__( 'See where your visitors are viewing from.', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveLocationsSection,
@@ -140,7 +155,8 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	},
 	posts: {
 		id: 'posts',
-		getTitle: () => __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' ),
+		getLabel: () => __( 'All pages', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'All pages report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__( 'All your posts and archive pages.', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveTabId,
@@ -148,31 +164,36 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	},
 	'search-terms': {
 		id: 'search-terms',
-		getTitle: () => __( 'Search terms', 'jetpack-premium-analytics-pkg' ),
+		getLabel: () => __( 'Search terms', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'Search terms report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './search-terms/page' ),
 	},
 	tags: {
 		id: 'tags',
-		getTitle: () => __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ),
+		getLabel: () => __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'Tags & categories report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__( 'Your most visited tags and categories.', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './tags/page' ),
 	},
 	videos: {
 		id: 'videos',
-		getTitle: () => __( 'Videos', 'jetpack-premium-analytics-pkg' ),
+		getLabel: () => __( 'Videos', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'Videos report', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () => __( 'See how your videos perform.', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './videos/page' ),
 	},
 	utm: {
 		id: 'utm',
-		getTitle: () => __( 'UTM', 'jetpack-premium-analytics-pkg' ),
+		getLabel: () => __( 'All UTM values', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'All UTM values report', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveUtmSection,
 		load: () => import( './utm/page' ),
 	},
 	referrers: {
 		id: 'referrers',
-		getTitle: () => __( 'Referrers', 'jetpack-premium-analytics-pkg' ),
+		getLabel: () => __( 'Referrers', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'Referrers report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './referrers/page' ),
 	},
 };

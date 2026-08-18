@@ -3,7 +3,7 @@
  */
 import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportCsvAction,
 	ReportErrorState,
@@ -22,9 +22,11 @@ import { useSearch } from '@wordpress/route';
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
 import {
 	getLocationFields,
 	getReportLocationsTabs,
+	getTabTitle,
 	resolveSection,
 	supportsCountryFilter,
 	useLocationsReportRecords,
@@ -147,16 +149,13 @@ export default function LocationsReportPage(): JSX.Element {
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
+	const { getLabel } = REPORTS.locations;
 
 	return (
 		<ReportPageShell
 			tabbed
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={
-				<StatsBreadcrumbs
-					items={ [ { label: __( 'Locations', 'jetpack-premium-analytics-pkg' ) } ] }
-				/>
-			}
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
@@ -164,8 +163,9 @@ export default function LocationsReportPage(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
+				title={ getTabTitle( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ handleTabChange } /> }
-				filters={ <DateFiltersPanel { ...dateFilters } /> }
+				dateFilters={ dateFilters }
 			>
 				{ records.isError ? (
 					<ReportErrorState

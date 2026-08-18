@@ -43,13 +43,13 @@ function expectReportLink( link: string | undefined, report: string, section?: s
 }
 
 const validOrigins = [
-	[ 'posts', 'Posts & Pages', 'archives' ],
+	[ 'posts', 'All pages', 'archives' ],
 	[ 'videos', 'Videos', undefined ],
 	[ 'emails', 'Emails', undefined ],
-	[ 'comments', 'Comments', 'posts' ],
+	[ 'comments', 'All comments', 'posts' ],
 	[ 'authors', 'Top authors', undefined ],
 	[ 'comment-followers', 'Comments Subscribers', undefined ],
-	[ 'utm', 'UTM', 'campaign' ],
+	[ 'utm', 'All UTM values', 'campaign' ],
 ] as const;
 
 describe( 'useDetailBreadcrumbs', () => {

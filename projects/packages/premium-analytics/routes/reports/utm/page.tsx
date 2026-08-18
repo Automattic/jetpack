@@ -3,7 +3,7 @@
  */
 import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportDrilldownTable,
@@ -22,8 +22,10 @@ import { useSearch } from '@wordpress/route';
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
 import {
 	getReportUtmTabs,
+	getTabTitle,
 	getUtmFields,
 	getUtmTabLabel,
 	resolveSection,
@@ -110,13 +112,13 @@ function UtmReport(): JSX.Element {
 		status: records,
 	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	const { getLabel } = REPORTS.utm;
+
 	return (
 		<ReportPageShell
 			tabbed
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={
-				<StatsBreadcrumbs items={ [ { label: __( 'UTM', 'jetpack-premium-analytics-pkg' ) } ] } />
-			}
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
@@ -124,8 +126,9 @@ function UtmReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
+				title={ getTabTitle( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-				filters={ <DateFiltersPanel { ...dateFilters } /> }
+				dateFilters={ dateFilters }
 			>
 				{ records.isError ? (
 					<ReportErrorState

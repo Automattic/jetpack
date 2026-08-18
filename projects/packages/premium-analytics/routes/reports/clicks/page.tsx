@@ -3,7 +3,7 @@
  */
 import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
 	ReportErrorState,
@@ -21,6 +21,7 @@ import { useSearch } from '@wordpress/route';
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
 import { getClickCsvGroup, getClicksFields, useClicksReportRecords, type ClickRow } from './config';
 
 const ROUTE_FROM = route.path;
@@ -112,21 +113,19 @@ function ClicksReport(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const isTableLoading = records.isLoading || records.isFetching;
 
+	const { getLabel, getTitle } = REPORTS.clicks;
+
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={
-				<StatsBreadcrumbs
-					items={ [ { label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ) } ] }
-				/>
-			}
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ exportRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>
-			<ReportPageLayout filters={ <DateFiltersPanel { ...dateFilters } /> }>
+			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load clicks', 'jetpack-premium-analytics-pkg' ) }
