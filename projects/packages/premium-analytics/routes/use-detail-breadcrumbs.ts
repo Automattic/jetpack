@@ -27,8 +27,6 @@ export function useDetailBreadcrumbs( title?: string ): BreadcrumbItem[] {
 
 	if ( definition ) {
 		items.push( {
-			// The label, not the title: this is the report named from outside
-			// itself, the same string its own trailing crumb carries.
 			label: definition.getLabel(),
 			to: buildReportLink( definition.id, search, originSection ),
 		} );

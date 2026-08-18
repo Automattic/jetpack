@@ -144,10 +144,8 @@ const withChartProviders: Decorator = Story => (
 );
 
 /**
- * Stand-in for the `Breadcrumbs` the real page passes into the shell's
- * `breadcrumbs` slot. Core's component renders router links, and no router is
- * mounted in Storybook, so this mirrors its output instead: a leading crumb, a
- * separator, and the trailing crumb as the page's `h1`.
+ * Stand-in for `Breadcrumbs`, which renders router links Storybook has no
+ * router for. The trailing crumb is the page's `h1`.
  *
  * @return The breadcrumb stand-in.
  */
@@ -162,12 +160,9 @@ function StoryBreadcrumbs() {
 const STORY_TIMEZONE = 'America/New_York';
 const STORY_RANGE = computePrimaryRange( 'last-30-days', STORY_TIMEZONE );
 
-/*
- * Stand-in for `useReportDateFilters`, which is backed by the URL search params
- * and needs a mounted router. Inert on purpose: the picker's staging and commit
- * behavior has its own coverage in the DateFiltersPanel and SectionHeader
- * stories, and what this one shows is the page composed around it.
- */
+// Stand-in for `useReportDateFilters`, which needs a mounted router. Inert:
+// the picker's own behaviour is covered by its story.
+
 const STORY_DATE_FILTERS: ReportDateFilters = {
 	presetId: 'last-30-days',
 	range: { from: STORY_RANGE?.from, to: STORY_RANGE?.to },
@@ -188,10 +183,8 @@ const STORY_DATE_FILTERS: ReportDateFilters = {
 };
 
 /**
- * The full second-level report page: the shell's breadcrumb header with a
- * Download action, the section header carrying the report title and its date
- * controls, the multi-metric performance chart, and the Core DataViews records
- * table.
+ * The full second-level report page: shell header, section header, performance
+ * chart and records table.
  *
  * @param {ReportPageStoryControls} props - The story controls.
  * @return The composed report page.

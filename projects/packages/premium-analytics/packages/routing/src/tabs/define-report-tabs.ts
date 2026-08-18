@@ -12,13 +12,9 @@ export type ReportTabDefinition< TabId extends string > = {
 	getLabel: () => string;
 
 	/**
-	 * Heading for the section this tab opens, when it reads differently from
+	 * Heading for the section this tab opens, where it reads differently from
 	 * the tab itself: `Posts & Pages` names the tab, `Posts & pages report`
-	 * heads the records under it. Declare it only where the tab deserves a
-	 * heading of its own; otherwise the surface heads every tab the same way.
-	 *
-	 * Same split the dashboard's sections have between `label` and `title`,
-	 * one level further down.
+	 * heads the records under it.
 	 */
 	getTitle?: () => string;
 };
@@ -49,10 +45,8 @@ export type ReportTabs< TabId extends string > = {
 	getTabLabel: ( id: TabId ) => string;
 
 	/**
-	 * The heading declared for a tab's section, or `undefined` where the tab
-	 * declares none. The caller supplies the fallback, because what a section
-	 * is called when its tab does not name it belongs to the surface, not to
-	 * the tab set: report pages fall back to the report's own title.
+	 * The heading a tab declares, or `undefined`. The caller owns the fallback;
+	 * report pages use the report's own title.
 	 */
 	getTabTitle: ( id: TabId ) => string | undefined;
 };

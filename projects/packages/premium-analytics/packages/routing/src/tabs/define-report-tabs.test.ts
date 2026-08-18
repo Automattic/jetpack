@@ -57,9 +57,7 @@ describe( 'defineReportTabs', () => {
 			expect( tabs.getTabLabel( 'one' ) ).toBe( 'Posts & Pages' );
 		} );
 
-		// Undefined rather than the tab's label: what a section is called when
-		// its tab does not name it belongs to the surface, which heads every
-		// tab with the report's own title.
+		// The surface owns the fallback, not the tab set.
 		it( 'reports no title where the tab declares none', () => {
 			expect( build().getTabTitle( 'two' ) ).toBeUndefined();
 		} );

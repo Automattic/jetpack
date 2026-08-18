@@ -34,24 +34,17 @@ definition and lazily renders that report's page component. Adding a report does
 That's it. The report is reachable at `/reports/<id>`. An unknown or missing
 `$report` redirects to the dashboard (`route.ts`).
 
-## The two names, and the third
+## Naming a report
 
-`getLabel` is what the report is called from outside itself: its own trailing
-breadcrumb, and the crumb linking back to it from a post or video detail page.
-`getTitle` heads its records — `All pages report` where the label is
-`All pages`.
+`getLabel` names the report from outside itself: its own trailing breadcrumb,
+and the crumb back to it from a detail page. `getTitle` heads its records —
+`All pages report` where the label is `All pages`.
 
-The page reads both from `REPORTS` rather than declaring its own strings, so the
-two cannot drift. This is interim: WOOA7S-1950 moves the whole page header up to
-the stage, which already resolves the definition, and the pages stop naming
-themselves at all.
+Pages read both from `REPORTS` and declare no strings of their own.
 
-A tabbed report heads its sections with `getTitle` too. A tab that reads
-differently from the report can override it by declaring its own heading, which
-the page composes as `getTabTitle( activeTab ) ?? getTitle()`. Only Posts &
-Pages does today: its tabs head `Posts & pages report` and `Archive pages
-report`, while the other tabbed reports head every section with the report's
-title.
+`getTitle` heads a tabbed report's sections too. A tab whose section reads
+differently declares its own, which the page composes as
+`getTabTitle( activeTab ) ?? getTitle()`.
 
 ## Providers the stage mounts for every report
 

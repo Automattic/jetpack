@@ -10,8 +10,7 @@ import { getSettings, setSettings } from '@wordpress/date';
 import { ReportPageLayout } from '../report-page-layout';
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 
-// The panel's own behavior has its own suite; here it only has to be
-// identifiable and to record what the layout hands it.
+// Identifiable, and recording what the layout hands it.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/ui' ),
 	DateFiltersPanel: jest.fn( () => <div data-testid="date-filters-panel" /> ),
@@ -19,7 +18,7 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 const dateFiltersPanelMock = jest.mocked( DateFiltersPanel );
 
-/** Captured before any test installs settings, so repeats do not compound. */
+// Captured before any test installs settings, so repeats do not compound.
 const DEFAULT_SETTINGS = getSettings();
 
 const APPLIED_RANGE = {
@@ -27,18 +26,15 @@ const APPLIED_RANGE = {
 	to: new Date( Date.UTC( 2024, 0, 14, 23, 59, 59, 999 ) ),
 };
 
-/*
- * A draft in another year, so a subtitle reading the staged range instead of
- * the applied one is unmistakable rather than a formatting difference.
- */
+// Another year, so a subtitle reading the draft instead of the applied range
+// is unmistakable.
 const STAGED_RANGE = {
 	from: new Date( Date.UTC( 2019, 0, 7 ) ),
 	to: new Date( Date.UTC( 2019, 0, 13, 23, 59, 59, 999 ) ),
 };
 
 /**
- * A controller mid-edit: a staged range and comparison the reader has not
- * applied yet, over an applied window the records below are actually showing.
+ * A controller mid-edit: a staged range and comparison over an applied window.
  *
  * @return The date filters.
  */
@@ -96,8 +92,7 @@ describe( 'ReportPageLayout', () => {
 		);
 	} );
 
-	// The records below follow the applied window, so the subtitle has to hold
-	// still while an edit is open and only move once Apply commits it.
+	// Holds still while an edit is open; moves only on Apply.
 	it( 'describes the applied window rather than the staged draft', () => {
 		render(
 			<ReportPageLayout title="Posts & Pages" dateFilters={ buildDateFilters() }>
@@ -108,11 +103,7 @@ describe( 'ReportPageLayout', () => {
 		expect( screen.getByText( /2024/ ) ).not.toHaveTextContent( '2019' );
 	} );
 
-	/*
-	 * A records table is not bucketed by an interval and this surface offers no
-	 * comparison, so the header must describe neither. Both stay on the
-	 * controller — and in the URL — for the dashboard to pick back up.
-	 */
+	// The header offers a control for neither, so it describes neither.
 	it( 'names neither the chart interval nor the comparison the controller carries', () => {
 		render(
 			<ReportPageLayout title="Posts & Pages" dateFilters={ buildDateFilters() }>
@@ -138,12 +129,9 @@ describe( 'ReportPageLayout', () => {
 		const panelProps = dateFiltersPanelMock.mock.calls[ 0 ][ 0 ];
 
 		expect( panelProps.showComparison ).toBe( false );
-		// The panel's own default, spelled out here because the interval control
-		// is as absent from this surface as the comparison is.
 		expect( panelProps.withIntervalControl ).toBeUndefined();
 
-		// Hiding the controls is presentational: the committed comparison and
-		// interval ride along untouched, so the dashboard still has them.
+		// Hidden, not cleared: both ride along for the dashboard.
 		expect( panelProps.comparisonPresetId ).toBe( 'previous-month' );
 		expect( panelProps.interval ).toBe( 'week' );
 		expect( dateFilters.onComparisonChange ).not.toHaveBeenCalled();

@@ -12,26 +12,9 @@ import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 import type { ReactNode } from 'react';
 
 export interface ReportPageLayoutProps {
-	/**
-	 * Heading for the section on screen, which on a tabbed report is the open
-	 * tab's — `Posts & pages report` under the `Posts & Pages` tab, inside the
-	 * `All pages` report. Three names, not one: the crumb names the report, the
-	 * tab names itself, and this names what the records below are.
-	 *
-	 * Take it from the tab set's `getTabTitle()`, which falls back to the tab's
-	 * own label. A report with no tabs passes its own name.
-	 */
+	/** Heading for the section on screen: `Posts & pages report`. */
 	title: string;
-	/**
-	 * The date-filter controller, from `useReportDateFilters`. The picker
-	 * renders beside the title and the applied window is spelled out under it.
-	 * Left out on a report with no date window (Annual insights, Emails, …),
-	 * whose header is the title alone.
-	 *
-	 * The controller is the dashboard's, comparison and interval included, but
-	 * this surface renders a control for neither. Both stay in the URL
-	 * untouched, so the dashboard still has them on the way back.
-	 */
+	/** Date-filter controller, from `useReportDateFilters`. Omit on a report with no date window. */
 	dateFilters?: ReportDateFilters;
 	/** Internal tab bar for pages with multiple views (e.g. Posts & Pages / Archives). */
 	tabs?: ReactNode;
@@ -41,23 +24,10 @@ export interface ReportPageLayoutProps {
 
 /**
  * The shared second-level report page scaffold: optional internal tabs, the
- * section header carrying the report's title and its date controls, and the
- * stacked report sections. Every module report page (Posts & Pages, Referrers,
- * …) composes this layout instead of re-implementing the page chrome.
+ * section header, and the stacked report sections.
  *
- * The header is `SectionHeader`, the same component the dashboard's sections
- * use, so a report and the section it was reached from describe their date
- * configuration identically. The panel is composed here rather than taken as a
- * slot: every report mounts the same instance of it, and that is one decision
- * rather than fourteen.
- *
- * That instance is the range alone. A records table is not bucketed, so there
- * is no interval control (the panel's default), and these pages do not offer
- * the period-over-period comparison either. Hiding both is presentational: the
- * controller still carries them and nothing here writes to the URL, so a
- * comparison or interval set on the dashboard survives a trip through a report
- * — and `buildRangePatch` keeps the comparison window in step with a range
- * edited here, so it is still the right one on the way back.
+ * The header offers the range alone. Its interval and comparison controls are
+ * hidden rather than cleared, so both survive on the URL for the dashboard.
  *
  * @param {ReportPageLayoutProps} props - The component props.
  * @return The report page scaffold.
@@ -66,14 +36,8 @@ export function ReportPageLayout( { title, dateFilters, tabs, children }: Report
 	const appliedRange = dateFilters?.appliedRange;
 	const appliedPresetId = dateFilters?.appliedPresetId;
 
-	/*
-	 * States what the records below are showing, so it follows the applied
-	 * range rather than the picker's staged draft.
-	 *
-	 * Neither the interval nor the comparison is named, because this surface
-	 * offers a control for neither and a header must not describe a
-	 * configuration its reader cannot reach.
-	 */
+	// The applied range, not the picker's staged draft. No interval or
+	// comparison: the header must not describe what it offers no control for.
 	const subtitle = useMemo(
 		() => getSectionSubtitle( { range: appliedRange, presetId: appliedPresetId } ),
 		[ appliedRange, appliedPresetId ]

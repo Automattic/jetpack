@@ -27,10 +27,7 @@ export const getReportLocationsTabs = reportLocationsTabs.getTabs;
  */
 export const resolveSection = reportLocationsTabs.resolve;
 
-/**
- * Heading for the active tab's section. No tab declares one yet, so this reads
- * back the tab's own label until the copy lands.
- */
+/** Heading for the active tab's section, where the tab declares one. */
 export const getTabTitle = reportLocationsTabs.getTabTitle;
 
 /**

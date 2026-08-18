@@ -61,31 +61,15 @@ const label = __( 'All pages' );
 
 ## The section header
 
-`ReportPageLayout` renders `SectionHeader` from `@jetpack-premium-analytics/ui`
-— the same component the dashboard's sections use — so a report and the section
-it was reached from describe their date configuration identically: the report's
-title on the left with the applied window spelled out under it, the date picker
-on the right.
+`ReportPageLayout` renders `SectionHeader`, the component the dashboard's
+sections use. Pass `title` and the `useReportDateFilters` controller; the layout
+composes `DateFiltersPanel` and derives the subtitle with `getSectionSubtitle`.
 
-Pass the report's title as `title` and the `useReportDateFilters` controller as
-`dateFilters`; the layout composes `DateFiltersPanel` and derives the subtitle
-with `getSectionSubtitle` itself. Every report mounts the same instance of the
-picker, which is one decision here rather than one per report.
+The picker offers the range alone — no interval control, no comparison — and the
+subtitle names neither. Both stay on the URL untouched, so the dashboard keeps
+them. Declaring this per report is WOOA7S-1952.
 
-That instance is the range alone: no interval control, because a records table
-is not bucketed by one, and no period-over-period comparison. The subtitle names
-neither, since a header must not describe a configuration its reader cannot
-reach.
-
-Hiding them is presentational. The controller still carries the comparison and
-the interval, nothing here writes to the URL, and `buildRangePatch` keeps
-`compare_from`/`compare_to` in step with a range edited on a report page. A
-comparison set on the dashboard therefore survives a trip through a report, and
-comes back pointing at the right period rather than at stale dates. Making this
-server-driven per report, the way sections already declare
-`date_filter_options.with_date_comparison`, is WOOA7S-1952.
-
-A report page carries three names, and they are not interchangeable:
+A report page carries three names:
 
 | name | where it shows | example |
 | --- | --- | --- |
@@ -93,22 +77,13 @@ A report page carries three names, and they are not interchangeable:
 | tab label | the tab strip | `Posts & Pages`, `Archives` |
 | section title | the header's `h2` | `Posts & pages report` |
 
-`title` is the third one, and it comes from the report's `getTitle()`. A tabbed
-report whose open tab reads differently can override it — compose
-`getTabTitle( activeTab ) ?? getTitle()`, where `getTabTitle` is the tab set's
-(`defineReportTabs` in `@jetpack-premium-analytics/routing`) and returns a
-heading only for tabs that declare one.
+The first two come from `routes/reports/registry.ts` (`getLabel`) and the tab
+set. `title` is the third: `getTabTitle( activeTab ) ?? getTitle()`, since
+`getTabTitle` returns a heading only for tabs that declare one.
 
-The breadcrumb takes the report's `getLabel()` instead, and the two differ on
-purpose: one names the report, the other names the records currently on screen.
-Both live in `routes/reports/registry.ts`, so a page declares neither.
-
-A report with no date window (Annual insights, Emails, Tags & categories, …)
-passes `title` alone. Its header is the title, with no subtitle and no controls.
-
-Not pinned, unlike the dashboard's: on a report page the header scrolls away
-with the content. The pin and its condense-on-scroll live in the surface's own
-CSS, not in `SectionHeader` (see `routes/dashboard/stage.module.scss`).
+Omit `dateFilters` on a report with no date window; the header is then the title
+alone. It does not pin, unlike the dashboard's — that lives in the surface's own
+CSS (`routes/dashboard/stage.module.scss`).
 
 Pass `StatsBreadcrumbs` from `@jetpack-premium-analytics/ui` to the shell's
 `breadcrumbs` slot. It owns the leading `Stats` crumb and links it back to the

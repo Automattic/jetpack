@@ -40,16 +40,15 @@ export type ReportDefinition = {
 	id: string;
 
 	/**
-	 * What the report is called from outside itself: the trailing breadcrumb on
-	 * its own page, and the crumb linking back to it from a detail page.
+	 * What the report is called from outside itself: its own trailing crumb,
+	 * and the crumb linking back to it from a detail page. `All pages`.
 	 */
 	getLabel: () => string;
 
 	/**
-	 * Heading for the report's records — `Referrers report` where the label is
-	 * `Referrers`. It heads every section of a tabbed report as well, unless
-	 * that tab declares a heading of its own (`getTitle` in `defineReportTabs`),
-	 * which only the tabs that read differently from the report do.
+	 * Heading for the report's records: `All pages report`. Heads every section
+	 * of a tabbed report too, unless that tab declares its own (`getTitle` in
+	 * `defineReportTabs`).
 	 */
 	getTitle: () => string;
 

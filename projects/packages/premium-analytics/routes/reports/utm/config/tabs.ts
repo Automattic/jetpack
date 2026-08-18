@@ -51,10 +51,7 @@ export const getUtmTabLabel = reportUtmTabs.getTabLabel;
 /** Resolve an arbitrary URL section to a supported UTM report tab. */
 export const resolveSection = reportUtmTabs.resolve;
 
-/**
- * Heading for the active tab's section. No tab declares one yet, so this reads
- * back the tab's own label until the copy lands.
- */
+/** Heading for the active tab's section, where the tab declares one. */
 export const getTabTitle = reportUtmTabs.getTabTitle;
 
 /**
