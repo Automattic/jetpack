@@ -314,7 +314,7 @@ describe( 'getBandTickValues', () => {
 	} );
 
 	it( 'keeps the dated midnight ticks for sub-daily data spanning days', () => {
-		// Every bare hour tick needs a dated one before it to say which day it is.
+		// Index sampling already lands here; this pins that the steering keeps it.
 		expect( labelsFor( hourlyDomain( new Date( 2026, 7, 2 ), 48 ) ) ).toEqual( [
 			'Aug 2',
 			'12 PM',
@@ -351,9 +351,36 @@ describe( 'getBandTickValues', () => {
 	} );
 
 	it( 'never repeats a label on adjacent ticks', () => {
-		const labels = labelsFor( monthlyDomain( 2024, 0, 36 ) );
+		// 49 buckets put every fourth tick a whole year apart, so sampling by index
+		// spells the same month five times over: Feb, Feb, Feb, Feb, Feb.
+		const labels = labelsFor( monthlyDomain( 2023, 1, 49 ) );
 
 		expect( labels.some( ( label, i ) => i > 0 && label === labels[ i - 1 ] ) ).toBe( false );
+	} );
+
+	it( 'keeps the axis dense when only a sparser one could reach an anchor', () => {
+		// Ranking anchors above everything picked the two ticks that happened to be
+		// Januaries and dropped the rest of the axis with them.
+		expect( labelsFor( monthlyDomain( 2023, 3, 30 ) ) ).toEqual( [ 'Apr', '2024', 'Oct', 'Jul' ] );
+	} );
+
+	it( 'names the single year of a short series without thinning the axis to it', () => {
+		expect( labelsFor( monthlyDomain( 2023, 6, 9 ) ) ).toEqual( [ 'Jul', 'Oct', '2024' ] );
+	} );
+
+	it( 'reaches anchors that sit an uneven number of buckets apart', () => {
+		// A spring-forward day is 23 hourly buckets, not 24, so a fixed stride
+		// slides off midnight and leaves the rest of the week on bare hours.
+		const domain: Date[] = [];
+		for ( let day = 0; day < 7; day++ ) {
+			for ( let hour = 0; hour < 24; hour++ ) {
+				if ( day !== 2 || hour !== 2 ) {
+					domain.push( new Date( 2026, 2, 6 + day, hour ) );
+				}
+			}
+		}
+
+		expect( labelsFor( domain ) ).toEqual( [ 'Mar 6', 'Mar 8', 'Mar 10', 'Mar 12' ] );
 	} );
 
 	it( 'keeps the whole domain when it already fits', () => {
