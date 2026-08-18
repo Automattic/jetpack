@@ -37,26 +37,34 @@ export function SectionSyncNotice( {
 	onRetry,
 	isRetrying,
 }: SectionSyncNoticeProps ) {
+	let message: string = __(
+		'Your store data is still syncing. The numbers below are incomplete until it finishes.',
+		'jetpack-premium-analytics-pkg'
+	);
+
+	if ( hasError ) {
+		message = __(
+			'Something went wrong while syncing your store data, so the numbers below are incomplete.',
+			'jetpack-premium-analytics-pkg'
+		);
+	} else if ( percentage ) {
+		message = sprintf(
+			/* translators: %d: sync progress percentage. */
+			__(
+				'Your store data is still syncing (%d%%). The numbers below are incomplete until it finishes.',
+				'jetpack-premium-analytics-pkg'
+			),
+			percentage
+		);
+	}
+
 	return (
 		<Stack direction="column" gap="sm" className={ styles.notice } role="status">
-			<span className={ styles.message }>
-				{ hasError
-					? __(
-							'Something went wrong while syncing your store data. The numbers below are incomplete until it finishes.',
-							'jetpack-premium-analytics-pkg'
-					  )
-					: sprintf(
-							/* translators: %d: sync progress percentage. */
-							__(
-								'Your store data is still syncing (%d%%). The numbers below are incomplete until it finishes.',
-								'jetpack-premium-analytics-pkg'
-							),
-							percentage
-					  ) }
-			</span>
+			<span className={ styles.message }>{ message }</span>
 
 			{ hasError ? (
 				<Button
+					className={ styles.retry }
 					variant="outline"
 					onClick={ onRetry }
 					disabled={ isRetrying }
@@ -65,7 +73,12 @@ export function SectionSyncNotice( {
 					{ __( 'Try again', 'jetpack-premium-analytics-pkg' ) }
 				</Button>
 			) : (
-				<ProgressBar value={ percentage } />
+				/*
+				 * Indeterminate until the sync reports progress: a store with no
+				 * orders to send sits at 0 for the whole sync, and a bar frozen at
+				 * zero reads as a sync that never started.
+				 */
+				<ProgressBar className={ styles.progress } value={ percentage || undefined } />
 			) }
 		</Stack>
 	);
