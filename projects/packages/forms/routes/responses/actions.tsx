@@ -13,7 +13,7 @@ import * as React from 'react';
 /**
  * Internal dependencies
  */
-import { notSpam, spam } from '../../src/dashboard/icons';
+import { notSpam, print as printIcon, spam } from '../../src/dashboard/icons';
 import { defaultView } from '../../src/dashboard/inbox/stage/views.js';
 import { getFormsMenuBadgeSlug, getMenuBadgeCount } from '../../src/dashboard/inbox/utils';
 import { store as dashboardStore } from '../../src/dashboard/store';
@@ -299,6 +299,7 @@ type GetActionsParams = {
 
 type GetActionsReturn = {
 	viewAction: Action;
+	printAction: Action;
 	editFormAction: Action;
 	markAsSpamAction: ReportingAction;
 	markAsNotSpamAction: ReportingAction;
@@ -339,6 +340,40 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 
 			// Open the standalone single response page rather than the inspector panel.
 			navigate( { to: `/response/${ item.id }` } );
+		},
+	};
+
+	const printAction: Action = {
+		id: 'print-response',
+		isPrimary: false,
+		icon: <Icon icon={ printIcon } />,
+		label: __( 'Print', 'jetpack-forms' ),
+		supportsBulk: false,
+		async callback( items ) {
+			jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+				action: 'print-response',
+				multiple: false,
+			} );
+
+			const [ item ] = items;
+
+			if ( ! item ) {
+				return;
+			}
+
+			// Printing happens on the standalone response page rather than here: it
+			// already knows how to fetch and lay out a response, and its stylesheet
+			// carries the `@media print` rules that strip the admin chrome. The page
+			// consumes `print=1` once the response is on screen and clears it again
+			// afterwards, the same way it handles the `mark_as_spam=1` flag arriving
+			// from a response email.
+			navigate( {
+				to: `/response/${ item.id }`,
+				// Router types aren't registered in this build, so `search` resolves to a
+				// reducer signature rather than the route's own param shape. Same cast as
+				// `routes/response/breadcrumbs.tsx`.
+				search: { print: 1 } as unknown as never,
+			} );
 		},
 	};
 
@@ -1240,6 +1275,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 
 	return {
 		viewAction,
+		printAction,
 		editFormAction,
 		markAsSpamAction,
 		markAsNotSpamAction,
@@ -1260,6 +1296,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 export function getRowActions( { navigate, view }: GetRowActionsParams ): Action[] {
 	const {
 		viewAction,
+		printAction,
 		editFormAction,
 		markAsSpamAction,
 		markAsNotSpamAction,
@@ -1272,13 +1309,21 @@ export function getRowActions( { navigate, view }: GetRowActionsParams ): Action
 
 	switch ( view ) {
 		case 'trash':
-			return [ viewAction, restoreAction, deleteAction, markAsUnreadAction, editFormAction ];
+			return [
+				viewAction,
+				restoreAction,
+				deleteAction,
+				markAsUnreadAction,
+				printAction,
+				editFormAction,
+			];
 		case 'spam':
 			return [
 				viewAction,
 				markAsNotSpamAction,
 				moveToTrashAction,
 				markAsUnreadAction,
+				printAction,
 				editFormAction,
 			];
 		default: // inbox
@@ -1288,6 +1333,7 @@ export function getRowActions( { navigate, view }: GetRowActionsParams ): Action
 				markAsSpamAction,
 				moveToTrashAction,
 				markAsUnreadAction,
+				printAction,
 				editFormAction,
 			];
 	}

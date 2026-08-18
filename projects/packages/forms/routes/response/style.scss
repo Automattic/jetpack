@@ -115,3 +115,166 @@
 		display: none;
 	}
 }
+
+// ── Printing a response ───────────────────────────────────────────────────
+// Reached from the responses list's "Print" row action (which lands here with
+// `print=1`) or the page's own Print menu item.
+
+// The dashboard lays itself out as a viewport-pinned flex column: the shared
+// `jetpack-admin-page-layout` mixin makes `#wpbody-content` `position: fixed`
+// with `overflow: hidden`, and the page's scrolling middle another
+// `overflow: auto` box. Printed as-is, that yields a single clipped page — the
+// first viewport of the response and nothing after it. So the first job here is
+// unwinding that chain back into normal document flow so a long response
+// paginates; the second is dropping the admin chrome so only the response
+// reaches the paper.
+
+// `!important` throughout: the rules being undone are ID-scoped
+// (`#wpbody-content`) and arrive from a shared stylesheet whose bundle order
+// isn't guaranteed, so matching specificity is not enough to reliably win.
+@media print {
+
+	#wpadminbar,
+	#adminmenumain,
+	#adminmenuback,
+	#adminmenuwrap,
+	#wpfooter,
+	#screen-meta,
+	#screen-meta-links,
+	.notice,
+	.update-nag,
+	.jetpack-footer {
+		display: none !important;
+	}
+
+	html.wp-toolbar {
+		padding-top: 0 !important;
+	}
+
+	#wpcontent,
+	#wpbody,
+	#wpbody-content {
+		position: static !important;
+		inset: auto !important;
+		display: block !important;
+		width: auto !important;
+		height: auto !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		overflow: visible !important;
+	}
+
+	// The page header holds the breadcrumbs, title, status badge and the actions
+	// menu the print was triggered from — none of which belongs on paper. Anchored
+	// structurally because admin-ui ships its internals as CSS modules with no
+	// stable class hook; this is the same `> :first-child` anchor the shared
+	// layout mixin uses to target the header.
+	.jp-admin-page__page > :first-child {
+		display: none !important;
+	}
+
+	// The dashboard mounts inside `@wordpress/boot`'s layout, whose stage is a
+	// second scroll container (`overflow: auto` at a fixed viewport height)
+	// sitting
+	// above `.jp-admin-page`. Undoing only the admin-page chain leaves a response
+	// taller than the viewport clipped at the stage's edge, so unwind boot's
+	// wrappers too. The document itself has to be free to grow with them, hence
+	// `html`/`body`/`#wpwrap` below.
+	html.wp-toolbar,
+	body.wp-admin,
+	#wpwrap,
+	.boot-layout,
+	.boot-layout__surfaces,
+	.boot-layout__stage,
+	.jp-admin-page,
+	.jp-admin-page__page,
+	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer),
+	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) > * {
+		// `position` matters as much as `overflow` here: `.boot-layout` is
+		// `position: absolute`, which takes the whole response out of normal flow.
+		// An out-of-flow subtree leaves `html`/`body` measuring zero height, and
+		// browsers print only the first page of one — the response looks cut off
+		// at the page break with the remainder dropped. Returning these to
+		// `static` puts the content back in flow so it paginates normally.
+		position: static !important;
+		inset: auto !important;
+		display: block !important;
+		flex: none !important;
+		height: auto !important;
+		max-height: none !important;
+		min-height: 0 !important;
+		overflow: visible !important;
+	}
+
+	// Belt and braces over the explicit hides above: anything that is neither an
+	// ancestor of the response nor part of it is chrome. Enumerating admin chrome
+	// by id only covers what we already know about — it misses menus and popovers
+	// rendered into portals at body level, and whatever else a host page adds
+	// around the dashboard.
+	body *:not(:has(.jp-forms__single-response)):not(.jp-forms__single-response):not(.jp-forms__single-response *) {
+		display: none !important;
+	}
+
+	// Physical paper margin lives here, so the content itself can run the full
+	// width of the printable area instead of carrying its own inset.
+	@page {
+		margin: 12mm;
+	}
+
+	// On screen the response is a fixed, readable measure centered in a card. On
+	// paper the sheet already provides the measure and the margin, so the column
+	// cap, the centering and the card's frame all come off.
+	.jp-forms__single-response {
+		width: 100% !important;
+		max-width: none !important;
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+
+	.jp-forms__single-response-card {
+		border: none;
+		border-radius: 0;
+		overflow: visible;
+
+		// These carry the card's internal gutter; with the card frame gone the
+		// gutter just narrows the text for no reason.
+		.jp-forms__inbox-response-meta,
+		.jp-forms__inbox-response-data {
+			padding-inline: 0;
+		}
+	}
+
+	// Copy-to-clipboard buttons (and any other control that sneaks into the
+	// response body) do nothing on paper.
+	.jp-forms__copy-clipboard-button,
+	.jp-forms__single-response-card button {
+		display: none !important;
+	}
+
+	// Fields run continuously, one after another, rather than each being held
+	// whole. Keeping a long answer intact sounds tidier but pushes it to the next
+	// sheet and leaves most of a page blank, which costs more paper than the
+	// occasional mid-answer break saves. What actually must not happen is a label
+	// stranded at the foot of a page, so the label stays glued to the start of its
+	// value and only the value is free to break.
+	.jp-forms__field-preview {
+		break-inside: auto;
+	}
+
+	.jp-forms__field-preview-label {
+		break-after: avoid;
+		break-inside: avoid;
+	}
+
+	// Don't leave one or two lines of an answer marooned either side of a break.
+	.jp-forms__field-preview-value {
+		orphans: 3;
+		widows: 3;
+	}
+
+	// The meta header is compact and reads as a single unit, so it still stays
+	// whole rather than splitting across sheets.
+	.jp-forms__inbox-response-meta {
+		break-inside: avoid;
+	}
+}
