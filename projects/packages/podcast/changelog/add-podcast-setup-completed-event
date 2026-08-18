@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Record a one-time event when a show's required settings have all been filled in.
+Record when each required podcast setting is first filled in, so setup completion can be measured.

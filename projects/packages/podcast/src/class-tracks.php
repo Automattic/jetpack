@@ -59,13 +59,13 @@ class Tracks {
 		add_action( 'add_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_added' ), 10, 2 );
 		add_action( 'update_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_updated' ), 10, 3 );
 
-		// Watch every required setting rather than the REST endpoint's
-		// `jetpack_podcast_settings_saved` action, so the milestone lands
-		// whichever path fills the last field — dashboard, Media Settings
-		// form, or WP-CLI.
+		// Watch the options themselves rather than the REST endpoint's
+		// `jetpack_podcast_settings_saved` action, so setup progress is
+		// recorded whichever path writes the value — dashboard, Media
+		// Settings form, or WP-CLI.
 		foreach ( self::SETUP_OPTIONS as $option ) {
-			add_action( "add_option_{$option}", array( __CLASS__, 'record_setup_option_added' ), 10, 2 );
-			add_action( "update_option_{$option}", array( __CLASS__, 'record_setup_option_updated' ), 10, 3 );
+			add_action( "add_option_{$option}", array( __CLASS__, 'record_setting_added' ), 10, 2 );
+			add_action( "update_option_{$option}", array( __CLASS__, 'record_setting_updated' ), 10, 3 );
 		}
 	}
 
@@ -285,14 +285,14 @@ class Tracks {
 	}
 
 	/**
-	 * `add_option_{$option}` callback for a required setting.
+	 * `add_option_{$option}` callback for a required setting. No prior row, so
+	 * the previous value is empty by definition.
 	 *
 	 * @param string $option Option name.
 	 * @param mixed  $value  Stored value.
 	 */
-	public static function record_setup_option_added( $option, $value ): void {
-		unset( $option, $value );
-		self::maybe_record_setup_completed();
+	public static function record_setting_added( $option, $value ): void {
+		self::maybe_record_setting_first_saved( (string) $option, '', $value );
 	}
 
 	/**
@@ -302,36 +302,44 @@ class Tracks {
 	 * @param mixed  $new_value Newly stored value.
 	 * @param string $option    Option name.
 	 */
-	public static function record_setup_option_updated( $old_value, $new_value, $option ): void {
-		unset( $old_value, $new_value, $option );
-		self::maybe_record_setup_completed();
+	public static function record_setting_updated( $old_value, $new_value, $option ): void {
+		self::maybe_record_setting_first_saved( (string) $option, $old_value, $new_value );
 	}
 
 	/**
-	 * Emit `wpcom_podcast_setup_completed` the first time every required
-	 * setting holds a value.
+	 * Emit `wpcom_podcast_setting_first_saved` when a required setting picks up
+	 * a value for the first time.
 	 *
-	 * Deliberately a milestone, not a per-save event: it answers "did this
-	 * site finish setting up a show", so it fires once and never again — same
-	 * atomic `add_option()` guard as `show_launched`. Which field completed
-	 * the set is not recorded, because a save that fills several at once
-	 * writes them in `Settings::OPTION_NAMES` order and the last one would be
-	 * an artifact of that order rather than a signal.
+	 * Only the empty → filled transition is recorded, so this is bounded at one
+	 * event per required setting rather than one per save — later edits to an
+	 * already-populated setting aren't part of setup. `is_complete` marks the
+	 * transition that finished the set, which is the "this site is properly set
+	 * up" milestone; `setting` and `filled_count` describe where sites that
+	 * never get there stopped.
+	 *
+	 * Sites already fully configured before this shipped stay silent, because
+	 * none of their settings are transitioning from empty.
+	 *
+	 * @param string $option    Option name.
+	 * @param mixed  $old_value Previous stored value.
+	 * @param mixed  $new_value Newly stored value.
 	 */
-	private static function maybe_record_setup_completed(): void {
+	private static function maybe_record_setting_first_saved( string $option, $old_value, $new_value ): void {
 		try {
-			if ( ! self::is_setup_complete() ) {
+			if ( self::has_value( $option, $old_value ) || ! self::has_value( $option, $new_value ) ) {
 				return;
 			}
 
-			// Atomic INSERT — only one concurrent caller per site wins.
-			if ( ! add_option( 'podcast_setup_completed_tracked', time(), '', false ) ) {
-				return;
-			}
+			// Both hooks fire after the write and its cache update, so the
+			// count already includes the setting that triggered this.
+			$filled_count = self::filled_setting_count();
 
 			self::record_event(
-				'wpcom_podcast_setup_completed',
+				'wpcom_podcast_setting_first_saved',
 				array(
+					'setting'      => $option,
+					'filled_count' => $filled_count,
+					'is_complete'  => count( self::SETUP_OPTIONS ) === $filled_count,
 					'user_id'      => (int) get_current_user_id(),
 					'product_slug' => self::current_product_slug(),
 				)
@@ -342,25 +350,34 @@ class Tracks {
 	}
 
 	/**
-	 * True once every required setting holds a value.
+	 * How many required settings currently hold a value.
 	 */
-	private static function is_setup_complete(): bool {
+	private static function filled_setting_count(): int {
+		$filled = 0;
+
 		foreach ( self::SETUP_OPTIONS as $option ) {
-			$value = get_option( $option, '' );
-
-			if ( 'podcasting_category_id' === $option ) {
-				if ( (int) $value < 1 ) {
-					return false;
-				}
-				continue;
-			}
-
-			if ( ! is_string( $value ) || '' === trim( $value ) ) {
-				return false;
+			if ( self::has_value( $option, get_option( $option, '' ) ) ) {
+				++$filled;
 			}
 		}
 
-		return true;
+		return $filled;
+	}
+
+	/**
+	 * Whether a required setting counts as filled in. The category is an ID, so
+	 * 0 means unset; the rest are strings the dashboard treats as blank when
+	 * they hold nothing but whitespace.
+	 *
+	 * @param string $option Option name.
+	 * @param mixed  $value  Value to test.
+	 */
+	private static function has_value( string $option, $value ): bool {
+		if ( 'podcasting_category_id' === $option ) {
+			return (int) $value >= 1;
+		}
+
+		return is_string( $value ) && '' !== trim( $value );
 	}
 
 	/**
