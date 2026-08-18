@@ -133,37 +133,61 @@ class Main_Test extends StatsBaseTestCase {
 	}
 
 	/**
-	 * Test Main::init does not add the `wp_head` hook if an older version of the
+	 * Test Main::init does not add the stylesheet hook if an older version of the
 	 * Jetpack plugin is active.
 	 */
-	public function test_wp_head_hook_not_added_with_jp_version_lt_11_5_a_2() {
-		$has_action = has_action( 'wp_head', array( 'Automattic\Jetpack\Stats\Main', 'hide_smile_css' ) );
+	public function test_hide_smile_css_hook_not_added_with_jp_version_lt_11_5_a_2() {
+		$has_action = has_action( 'wp_enqueue_scripts', array( 'Automattic\Jetpack\Stats\Main', 'hide_smile_css' ) );
 		$this->assertFalse( $has_action );
 	}
 
 	/**
-	 * Test Main::init adds the `wp_head` hook.
+	 * Test Main::init adds the stylesheet hook.
 	 */
-	public function test_wp_head_hook() {
-		$has_action = has_action( 'wp_head', array( 'Automattic\Jetpack\Stats\Main', 'hide_smile_css' ) );
+	public function test_hide_smile_css_hook() {
+		$has_action = has_action( 'wp_enqueue_scripts', array( 'Automattic\Jetpack\Stats\Main', 'hide_smile_css' ) );
 		$this->assertEquals( 10, $has_action );
 	}
 
 	/**
-	 * Test Main::init does not add the `wp_head` hook if an older version of the
-	 * Jetpack plugin is active.
+	 * Drop the stylesheet between tests. wp_styles() is a global that outlives each test, so a
+	 * handle enqueued by one would otherwise be seen by the next.
+	 *
+	 * @return void
 	 */
-	public function test_embed_head_hook_not_added_with_jp_version_lt_11_5_a_2() {
-		$has_action = has_action( 'embed_head', array( 'Automattic\Jetpack\Stats\Main', 'hide_smile_css' ) );
-		$this->assertFalse( $has_action );
+	private function forget_hide_smile_css_style() {
+		wp_dequeue_style( 'jetpack-stats' );
+		wp_deregister_style( 'jetpack-stats' );
 	}
 
 	/**
-	 * Test Main::init adds the `embed_head` hook.
+	 * The rule that hides the tracking pixel goes through the stylesheet queue rather than
+	 * being printed into the page.
 	 */
-	public function test_embed_head_hook() {
-		$has_action = has_action( 'embed_head', array( 'Automattic\Jetpack\Stats\Main', 'hide_smile_css' ) );
-		$this->assertEquals( 10, $has_action );
+	public function test_hide_smile_css_is_enqueued() {
+		$this->forget_hide_smile_css_style();
+
+		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
+		Stats::hide_smile_css();
+		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10 );
+
+		$this->assertTrue( wp_style_is( 'jetpack-stats', 'enqueued' ) );
+		$this->assertStringContainsString(
+			'img#wpstats',
+			implode( '', (array) wp_styles()->get_data( 'jetpack-stats', 'after' ) )
+		);
+	}
+
+	/**
+	 * Nothing is enqueued on a request that is not being tracked, which is what the stats
+	 * module being inactive means here.
+	 */
+	public function test_hide_smile_css_is_not_enqueued_when_not_tracking() {
+		$this->forget_hide_smile_css_style();
+
+		Stats::hide_smile_css();
+
+		$this->assertFalse( wp_style_is( 'jetpack-stats', 'enqueued' ) );
 	}
 
 	/**
