@@ -1323,24 +1323,78 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Place a fixture `search-blocks-editor/register-blocks.asset.php` at the
+	 * path `enqueue_editor_assets()` reads, without clobbering a real Build.
+	 * Returns a cleanup callback that restores the prior state (original
+	 * contents, or removal of anything this created).
+	 *
+	 * @param array $asset Asset array to write.
+	 * @return callable Cleanup callback.
+	 */
+	private function stub_editor_asset_file( array $asset ): callable {
+		$dir  = Package::get_installed_path() . 'build/search-blocks-editor';
+		$file = $dir . '/register-blocks.asset.php';
+
+		$created_dirs = array();
+		foreach ( array( Package::get_installed_path() . 'build', $dir ) as $d ) {
+			if ( ! is_dir( $d ) ) {
+				mkdir( $d );
+				$created_dirs[] = $d;
+			}
+		}
+
+		$had_file = file_exists( $file );
+		$original = $had_file ? file_get_contents( $file ) : null;
+		$export   = var_export( $asset, true );
+		file_put_contents( $file, "<?php return $export;\n" );
+
+		return static function () use ( $file, $had_file, $original, $created_dirs ) {
+			if ( $had_file ) {
+				file_put_contents( $file, $original );
+			} elseif ( file_exists( $file ) ) {
+				unlink( $file );
+			}
+			foreach ( array_reverse( $created_dirs ) as $d ) {
+				// Only directories this fixture created, and only while
+				// empty — scandir() returns just '.' and '..' for an empty
+				// dir, so guard on that instead of silencing rmdir().
+				if ( is_dir( $d ) && 2 === count( scandir( $d ) ) ) {
+					rmdir( $d );
+				}
+			}
+		};
+	}
+
+	/**
 	 * `enqueue_editor_assets()` must wire up `wp_set_script_translations()`
 	 * for the register-blocks bundle, or every `__()` call in the editor
 	 * settings panel silently renders in English regardless of site locale —
 	 * `block.json`'s `editorScript` auto-wiring doesn't apply here since this
-	 * bundle is enqueued manually, not declared per-block.
+	 * bundle is enqueued manually, not declared per-block. Stub the asset
+	 * file so this passes in CI's PHP-only test job, which has no JS build.
 	 */
 	public function test_enqueue_editor_assets_sets_script_translations() {
-		Search_Blocks::enqueue_editor_assets();
-
-		$handle = 'jetpack-search-blocks-register';
-		$this->assertTrue( wp_script_is( $handle, 'registered' ), "$handle must be registered before its translations can be set" );
-		$this->assertSame(
-			'jetpack-search-pkg',
-			wp_scripts()->registered[ $handle ]->textdomain,
-			'enqueue_editor_assets must call wp_set_script_translations() with the jetpack-search-pkg domain'
+		$cleanup = $this->stub_editor_asset_file(
+			array(
+				'dependencies' => array(),
+				'version'      => 'test-editor-version',
+			)
 		);
 
-		wp_deregister_script( $handle );
+		$handle = 'jetpack-search-blocks-register';
+		try {
+			Search_Blocks::enqueue_editor_assets();
+
+			$this->assertTrue( wp_script_is( $handle, 'registered' ), "$handle must be registered before its translations can be set" );
+			$this->assertSame(
+				'jetpack-search-pkg',
+				wp_scripts()->registered[ $handle ]->textdomain,
+				'enqueue_editor_assets must call wp_set_script_translations() with the jetpack-search-pkg domain'
+			);
+		} finally {
+			wp_deregister_script( $handle );
+			$cleanup();
+		}
 	}
 
 	/**
