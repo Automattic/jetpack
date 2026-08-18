@@ -90,17 +90,11 @@ class Terms_Of_Service {
 	 * @return bool
 	 */
 	protected function get_raw_has_agreed() {
-		$option_name = 'jetpack_' . self::OPTION_NAME;
-
-		// Probe existence via the raw option so the sentinel default never crosses the public
-		// jetpack_options filter, whose callbacks treat the value as an array. Both this and the
-		// read below are option-cache hits, not database queries.
-		$sentinel = '__jetpack_tos_agreed_absent__';
-		if ( $sentinel === get_option( $option_name, $sentinel ) ) {
+		if ( ! \Jetpack_Options::option_exists( self::OPTION_NAME ) ) {
 			// Seed an autoloaded default so it isn't re-queried every request on sites without a
 			// persistent object cache. add_option, not update_option (which no-ops when the new
 			// value equals the current default).
-			add_option( $option_name, false, '', true );
+			add_option( 'jetpack_' . self::OPTION_NAME, false, '', true );
 		}
 
 		// Read canonically on every path, including the request that just seeded, so callers still
