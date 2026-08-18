@@ -252,6 +252,15 @@
 		flex-direction: column;
 		gap: 10px;
 		max-inline-size: 400px;
+
+		/* Center the form column within the placeholder, per the design. */
+		margin-inline: auto;
+
+		/* The library button keeps its natural width, centered — the
+		   stretch default made it span the whole column. */
+		> .components-button {
+			align-self: center;
+		}
 	}
 
 	&__placeholder-divider {
@@ -281,6 +290,17 @@
 /* The canvas hint is editor chrome: only show it on the selected block. */
 .videopress-playlist:not(.is-selected) .videopress-playlist-editor__canvas-hint {
 	display: none;
+}
+
+/* Empty state: the design centers the icon, title, instructions and form. */
+.videopress-playlist.is-empty .components-placeholder {
+	align-items: center;
+	text-align: center;
+
+	.components-placeholder__label,
+	.components-placeholder__fieldset {
+		justify-content: center;
+	}
 }
 
 @keyframes videopress-playlist-editor-shimmer {
