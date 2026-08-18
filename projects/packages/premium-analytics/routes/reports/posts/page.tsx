@@ -197,7 +197,7 @@ function PostsReport(): JSX.Element {
 			/>
 		);
 
-	const { getLabel, getTitle } = REPORTS.posts;
+	const { getLabel } = REPORTS.posts;
 
 	return (
 		<ReportPageShell
@@ -212,7 +212,7 @@ function PostsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) ?? getTitle() }
+				title={ getTabTitle( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>

@@ -14,7 +14,7 @@ const label = __( 'All pages' );
 	subTitle={ __( 'All your posts and archive pages.' ) }
 	actions={ downloadButton }
 >
-	<ReportPageLayout title={ getTabTitle( activeTab ) ?? getTitle() } dateFilters={ dateFilters }>
+	<ReportPageLayout title={ getTabTitle( activeTab ) } dateFilters={ dateFilters }>
 		<ReportPerformanceChart
 			primary={ visits.primary.data }
 			comparison={ visits.hasComparison ? visits.comparison.data : undefined }
@@ -78,8 +78,8 @@ A report page carries three names:
 | section title | the header's `h2` | `Posts & pages report` |
 
 The first two come from `routes/reports/registry.ts` (`getLabel`) and the tab
-set. `title` is the third: `getTabTitle( activeTab ) ?? getTitle()`, since
-`getTabTitle` returns a heading only for tabs that declare one.
+set. `title` is the third: `getTabTitle( activeTab )` on a tabbed report, which
+falls back to the tab's label, and the report's `getTitle()` otherwise.
 
 Omit `dateFilters` on a report with no date window; the header is then the title
 alone. It does not pin, unlike the dashboard's — that lives in the surface's own

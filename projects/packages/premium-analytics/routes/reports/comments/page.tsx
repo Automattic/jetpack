@@ -84,7 +84,7 @@ function CommentsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS.comments;
+	const { getLabel } = REPORTS.comments;
 
 	return (
 		<ReportPageShell
@@ -102,7 +102,7 @@ function CommentsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) ?? getTitle() }
+				title={ getTabTitle( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 			>
 				{ /*

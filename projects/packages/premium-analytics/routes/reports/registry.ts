@@ -46,9 +46,8 @@ export type ReportDefinition = {
 	getLabel: () => string;
 
 	/**
-	 * Heading for the report's records: `All pages report`. Heads every section
-	 * of a tabbed report too, unless that tab declares its own (`getTitle` in
-	 * `defineReportTabs`).
+	 * Heading for the report's records: `Referrers report`. Unused on a tabbed
+	 * report, which heads each section from its tab.
 	 */
 	getTitle: () => string;
 

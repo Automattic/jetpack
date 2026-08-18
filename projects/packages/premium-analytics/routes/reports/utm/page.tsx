@@ -112,7 +112,7 @@ function UtmReport(): JSX.Element {
 		status: records,
 	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const { getLabel, getTitle } = REPORTS.utm;
+	const { getLabel } = REPORTS.utm;
 
 	return (
 		<ReportPageShell
@@ -126,7 +126,7 @@ function UtmReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) ?? getTitle() }
+				title={ getTabTitle( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>

@@ -57,13 +57,12 @@ describe( 'defineReportTabs', () => {
 			expect( tabs.getTabLabel( 'one' ) ).toBe( 'Posts & Pages' );
 		} );
 
-		// The surface owns the fallback, not the tab set.
-		it( 'reports no title where the tab declares none', () => {
-			expect( build().getTabTitle( 'two' ) ).toBeUndefined();
+		it( 'falls back to the tab label where no title is declared', () => {
+			expect( build().getTabTitle( 'two' ) ).toBe( 'Two' );
 		} );
 
-		it( 'reports no title for an unknown tab', () => {
-			expect( build().getTabTitle( 'missing' as 'one' ) ).toBeUndefined();
+		it( 'falls back to the tab id when neither exists', () => {
+			expect( build().getTabTitle( 'missing' as 'one' ) ).toBe( 'missing' );
 		} );
 
 		it( 'resolves the title lazily on each call', () => {

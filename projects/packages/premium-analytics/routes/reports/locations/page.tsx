@@ -149,7 +149,7 @@ export default function LocationsReportPage(): JSX.Element {
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
-	const { getLabel, getTitle } = REPORTS.locations;
+	const { getLabel } = REPORTS.locations;
 
 	return (
 		<ReportPageShell
@@ -163,7 +163,7 @@ export default function LocationsReportPage(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) ?? getTitle() }
+				title={ getTabTitle( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ handleTabChange } /> }
 				dateFilters={ dateFilters }
 			>

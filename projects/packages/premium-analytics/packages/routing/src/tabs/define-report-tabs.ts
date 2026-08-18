@@ -44,11 +44,8 @@ export type ReportTabs< TabId extends string > = {
 
 	getTabLabel: ( id: TabId ) => string;
 
-	/**
-	 * The heading a tab declares, or `undefined`. The caller owns the fallback;
-	 * report pages use the report's own title.
-	 */
-	getTabTitle: ( id: TabId ) => string | undefined;
+	/** The heading for a tab's section, falling back to the tab's own label. */
+	getTabTitle: ( id: TabId ) => string;
 };
 
 /**
@@ -74,8 +71,11 @@ export function defineReportTabs< TabId extends string >(
 	const getTabLabel = ( id: TabId ): string =>
 		definitions.find( def => def.id === id )?.getLabel() ?? id;
 
-	const getTabTitle = ( id: TabId ): string | undefined =>
-		definitions.find( def => def.id === id )?.getTitle?.();
+	const getTabTitle = ( id: TabId ): string => {
+		const definition = definitions.find( def => def.id === id );
+
+		return definition?.getTitle?.() ?? definition?.getLabel() ?? id;
+	};
 
 	return { ids, resolve, getTabs, getTabLabel, getTabTitle };
 }

@@ -42,9 +42,9 @@ and the crumb back to it from a detail page. `getTitle` heads its records —
 
 Pages read both from `REPORTS` and declare no strings of their own.
 
-`getTitle` heads a tabbed report's sections too. A tab whose section reads
-differently declares its own, which the page composes as
-`getTabTitle( activeTab ) ?? getTitle()`.
+A tabbed report heads each section from its open tab instead, through
+`getTabTitle( activeTab )`, which falls back to that tab's label. Its `getTitle`
+goes unused.
 
 ## Providers the stage mounts for every report
 
