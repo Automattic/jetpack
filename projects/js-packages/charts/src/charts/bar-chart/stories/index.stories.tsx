@@ -163,6 +163,145 @@ export const TimeSeries: Story = {
 	},
 };
 
+// Wall-clock dates in the browser frame — the library's parsing convention —
+// so the ticks read the same in any viewer timezone.
+const timeAxisSeries = ( points: Array< [ Date, number ] > ): SeriesData[] => [
+	{
+		label: 'Views',
+		data: points.map( ( [ date, value ] ) => ( { date, value } ) ),
+		options: {},
+	},
+];
+
+const hourlyPoints: Array< [ Date, number ] > = Array.from( { length: 24 }, ( _, i ) => [
+	new Date( 2026, 7, 2, i ),
+	Math.round( 60 + 40 * Math.sin( i / 3.5 ) ),
+] );
+
+const dailyPoints: Array< [ Date, number ] > = Array.from( { length: 30 }, ( _, i ) => [
+	new Date( 2026, 6, 1 + i ),
+	Math.round( 60 + 40 * Math.sin( i / 4 ) ),
+] );
+
+const threeDayHourlyPoints: Array< [ Date, number ] > = Array.from( { length: 72 }, ( _, i ) => [
+	new Date( 2026, 7, 2, i ),
+	Math.round( 60 + 40 * Math.sin( i / 3.5 ) ),
+] );
+
+const oneYearMonthlyPoints: Array< [ Date, number ] > = Array.from( { length: 12 }, ( _, i ) => [
+	new Date( 2026, i, 1 ),
+	Math.round( 60 + 40 * Math.sin( i / 2 ) ),
+] );
+
+const monthlyPoints: Array< [ Date, number ] > = Array.from( { length: 36 }, ( _, i ) => [
+	new Date( 2024, i, 1 ),
+	Math.round( 60 + 40 * Math.sin( i / 2 ) ),
+] );
+
+const yearlyPoints: Array< [ Date, number ] > = [ 72, 95, 58, 86 ].map( ( value, i ) => [
+	new Date( 2023 + i, 0, 1 ),
+	value,
+] );
+
+// A single bucket has no point spacing to infer the resolution from, so only a
+// declared `tickResolution` can reach the hour format.
+const loneHourlyBucket = timeAxisSeries( [ [ new Date( 2026, 7, 2, 13 ), 42 ] ] );
+
+const weeklyPoints: Array< [ Date, number ] > = Array.from( { length: 8 }, ( _, i ) => [
+	new Date( 2026, 0, 5 + i * 7 ),
+	Math.round( 60 + 40 * Math.sin( i / 2 ) ),
+] );
+
+type TimeAxisPanelProps = {
+	title: string;
+	data: SeriesData[];
+	options?: React.ComponentProps< typeof BarChart >[ 'options' ];
+};
+
+const TimeAxisPanel = ( { title, data, options }: TimeAxisPanelProps ) => (
+	<div>
+		<h3>{ title }</h3>
+		<BarChart width={ 460 } height={ 220 } withTooltips data={ data } options={ options } />
+	</div>
+);
+
+const timeAxisPanelGrid = {
+	display: 'grid',
+	gap: '2rem',
+	gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))',
+} as const;
+
+export const TimeAxisTickFormats: Story = {
+	render: () => (
+		<div style={ timeAxisPanelGrid }>
+			<TimeAxisPanel
+				title="Hourly buckets, single day → hour ticks"
+				data={ timeAxisSeries( hourlyPoints ) }
+			/>
+			<TimeAxisPanel
+				title="Hourly buckets over three days → hour ticks, dated at midnight"
+				data={ timeAxisSeries( threeDayHourlyPoints ) }
+			/>
+			<TimeAxisPanel title="Daily buckets → date ticks" data={ timeAxisSeries( dailyPoints ) } />
+			<TimeAxisPanel
+				title="Monthly buckets within a year → month ticks, year at January"
+				data={ timeAxisSeries( oneYearMonthlyPoints ) }
+			/>
+			<TimeAxisPanel
+				title="Monthly buckets over three years → month ticks, year at January"
+				data={ timeAxisSeries( monthlyPoints ) }
+			/>
+			<TimeAxisPanel title="Yearly buckets → year ticks" data={ timeAxisSeries( yearlyPoints ) } />
+		</div>
+	),
+	args: {
+		containerWidth: '1020px',
+		containerHeight: '1050px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Date-based series share the time-axis tick formatter with the line and area charts. Month-or-coarser buckets follow the resolution alone — month names with the year at January, or plain years for yearly buckets — since they carry no day to print at any span. Daily-or-finer buckets narrow with the span: hour ticks within a day, hour ticks dated at midnight for sub-daily data spanning up to a week, calendar dates within a year, and years beyond that. Hover any bar: the tooltip names that bar's bucket spelled out in full — `August 2026` for a monthly bar, `2026` for a yearly one, never a day the bucket doesn't carry. It always names the bucket's own granularity, so on the daily panel it stays finer than the ticks once a long span coarsens the axis. An explicit `options.axis.x.tickFormat` still overrides.",
+			},
+		},
+	},
+};
+
+export const TimeAxisTickResolution: Story = {
+	render: () => (
+		<div style={ timeAxisPanelGrid }>
+			<TimeAxisPanel
+				title="Lone hourly bucket, resolution inferred → date tick"
+				data={ loneHourlyBucket }
+				options={ { yScale: { zero: true } } }
+			/>
+			<TimeAxisPanel
+				title="Same bar, tickResolution: 'hour' → hour tick"
+				data={ loneHourlyBucket }
+				options={ { yScale: { zero: true }, axis: { x: { tickResolution: 'hour' } } } }
+			/>
+			<TimeAxisPanel
+				title="Weekly buckets, tickResolution: 'week' → date ticks, 'Week of' tooltips"
+				data={ timeAxisSeries( weeklyPoints ) }
+				options={ { axis: { x: { tickResolution: 'week' } } } }
+			/>
+		</div>
+	),
+	args: {
+		containerWidth: '1020px',
+		containerHeight: '700px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"When the caller already knows the data's bucket resolution — e.g. from a granularity selector — `options.axis.x.tickResolution` declares it and the tick formatter derives the format from it instead of inferring the resolution from point spacing. Inference needs at least two points, so a single-bucket series always falls back to date ticks; the declared resolution picks the right format, and the tooltip follows it. `'week'` is the other case that has to be declared: seven-day spacing is indistinguishable from sparse daily data, so undeclared weekly buckets are read as daily and their tooltips name a single day rather than `Week of …`. On a horizontal bar chart the hint lives on `axis.y`, which is where the dates are. An explicit `tickFormat` takes precedence over the hint.",
+			},
+		},
+	},
+};
+
 export const WithPatterns: Story = {
 	args: {
 		...Default.args,
