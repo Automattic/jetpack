@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add constraint-aware version selection to prevent fatal errors when multiple plugins ship different major versions of the same package.

@@ -50,7 +50,7 @@ class ManifestReaderTest extends TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$this->reader = new Manifest_Reader( new Version_Selector() );
+		$this->reader = new Manifest_Reader( new Version_Selector(), new Constraint_Checker() );
 	}
 
 	/**
@@ -106,6 +106,9 @@ class ManifestReaderTest extends TestCase {
 	public function test_read_overwrites_older_version_in_manifest() {
 		$input_array = array();
 
+		// Suppress the expected conflict warning for cross-major-version test data (2.6.0.0 vs 5.0.16).
+		$this->expectOutputRegex( '//' );
+
 		$this->reader->read_manifests(
 			array( self::$older_plugin_dir, TEST_PLUGIN_DIR ),
 			'vendor/composer/jetpack_autoload_classmap.php',
@@ -122,6 +125,9 @@ class ManifestReaderTest extends TestCase {
 	 */
 	public function test_read_ignores_older_version_when_newer_already_loaded() {
 		$input_array = array();
+
+		// Suppress the expected conflict warning for cross-major-version test data (2.6.0.0 vs 5.0.16).
+		$this->expectOutputRegex( '//' );
 
 		$this->reader->read_manifests(
 			array( TEST_PLUGIN_DIR, self::$older_plugin_dir ),

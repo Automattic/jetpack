@@ -51,15 +51,19 @@ class ManifestGenerator {
 	private static function buildStandardManifest( $fileName, $manifestData ) {
 		$fileContent = PHP_EOL;
 		foreach ( $manifestData as $key => $data ) {
-			$key          = var_export( $key, true );
-			$versionCode  = var_export( $data['version'], true );
-			$fileContent .= <<<MANIFEST_CODE
+			$key             = var_export( $key, true );
+			$versionCode     = var_export( $data['version'], true );
+			$packageCode     = var_export( isset( $data['package'] ) ? $data['package'] : '', true );
+			$constraintsCode = self::exportConstraints( isset( $data['constraints'] ) ? $data['constraints'] : array() );
+			$fileContent    .= <<<MANIFEST_CODE
 	$key => array(
-		'version' => $versionCode,
-		'path'    => {$data['path']}
+		'version'     => $versionCode,
+		'path'        => {$data['path']},
+		'package'     => $packageCode,
+		'constraints' => $constraintsCode
 	),
 MANIFEST_CODE;
-			$fileContent .= PHP_EOL;
+			$fileContent    .= PHP_EOL;
 		}
 
 		return self::buildFile( $fileName, $fileContent );
@@ -76,19 +80,43 @@ MANIFEST_CODE;
 	private static function buildPsr4Manifest( $fileName, $namespaces ) {
 		$fileContent = PHP_EOL;
 		foreach ( $namespaces as $namespace => $data ) {
-			$namespaceCode = var_export( $namespace, true );
-			$versionCode   = var_export( $data['version'], true );
-			$pathCode      = 'array( ' . implode( ', ', $data['path'] ) . ' )';
-			$fileContent  .= <<<MANIFEST_CODE
+			$namespaceCode   = var_export( $namespace, true );
+			$versionCode     = var_export( $data['version'], true );
+			$pathCode        = 'array( ' . implode( ', ', $data['path'] ) . ' )';
+			$packageCode     = var_export( isset( $data['package'] ) ? $data['package'] : '', true );
+			$constraintsCode = self::exportConstraints( isset( $data['constraints'] ) ? $data['constraints'] : array() );
+			$fileContent    .= <<<MANIFEST_CODE
 	$namespaceCode => array(
-		'version' => $versionCode,
-		'path'    => $pathCode
+		'version'     => $versionCode,
+		'path'        => $pathCode,
+		'package'     => $packageCode,
+		'constraints' => $constraintsCode
 	),
 MANIFEST_CODE;
-			$fileContent  .= PHP_EOL;
+			$fileContent    .= PHP_EOL;
 		}
 
 		return self::buildFile( $fileName, $fileContent );
+	}
+
+	/**
+	 * Exports a constraints array as a PHP array literal string.
+	 *
+	 * @param array $constraints The constraint strings to export.
+	 *
+	 * @return string The PHP code representing the array.
+	 */
+	private static function exportConstraints( $constraints ) {
+		if ( empty( $constraints ) ) {
+			return 'array()';
+		}
+
+		$items = array();
+		foreach ( $constraints as $constraint ) {
+			$items[] = var_export( $constraint, true );
+		}
+
+		return 'array( ' . implode( ', ', $items ) . ' )';
 	}
 
 	/**

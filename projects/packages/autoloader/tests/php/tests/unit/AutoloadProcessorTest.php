@@ -73,12 +73,16 @@ class AutoloadProcessorTest extends TestCase {
 		$this->assertEquals(
 			array(
 				'TestClass'  => array(
-					'version' => 'dev-test',
-					'path'    => 'converted-src/TestClass.php',
+					'version'     => 'dev-test',
+					'path'        => 'converted-src/TestClass.php',
+					'package'     => '',
+					'constraints' => array(),
 				),
 				'TestClass2' => array(
-					'version' => 'dev-test',
-					'path'    => 'converted-src/TestClass2.php',
+					'version'     => 'dev-test',
+					'path'        => 'converted-src/TestClass2.php',
+					'package'     => '',
+					'constraints' => array(),
 				),
 			),
 			$processed
@@ -122,12 +126,16 @@ class AutoloadProcessorTest extends TestCase {
 		$this->assertEquals(
 			array(
 				'TestClass'  => array(
-					'version' => 'dev-test2',
-					'path'    => 'converted2-src/TestClass.php',
+					'version'     => 'dev-test2',
+					'path'        => 'converted2-src/TestClass.php',
+					'package'     => '',
+					'constraints' => array(),
 				),
 				'TestClass2' => array(
-					'version' => 'dev-test2',
-					'path'    => 'converted2-src/TestClass2.php',
+					'version'     => 'dev-test2',
+					'path'        => 'converted2-src/TestClass2.php',
+					'package'     => '',
+					'constraints' => array(),
 				),
 			),
 			$processed
@@ -171,12 +179,16 @@ class AutoloadProcessorTest extends TestCase {
 		$this->assertEquals(
 			array(
 				'TestClass'  => array(
-					'version' => 'dev-test',
-					'path'    => 'converted-src/TestClass.php',
+					'version'     => 'dev-test',
+					'path'        => 'converted-src/TestClass.php',
+					'package'     => '',
+					'constraints' => array(),
 				),
 				'TestClass2' => array(
-					'version' => 'dev-test',
-					'path'    => 'converted-src/TestClass2.php',
+					'version'     => 'dev-test',
+					'path'        => 'converted-src/TestClass2.php',
+					'package'     => '',
+					'constraints' => array(),
 				),
 			),
 			$processed
@@ -208,8 +220,10 @@ class AutoloadProcessorTest extends TestCase {
 		$this->assertEquals(
 			array(
 				'Jetpack\\Autoloader\\' => array(
-					'path'    => array( 'converted-src' ),
-					'version' => 'dev-test',
+					'path'        => array( 'converted-src' ),
+					'version'     => 'dev-test',
+					'package'     => '',
+					'constraints' => array(),
 				),
 			),
 			$processed
@@ -261,8 +275,10 @@ class AutoloadProcessorTest extends TestCase {
 		$this->assertEquals(
 			array(
 				'abcdef' => array(
-					'path'    => 'converted-src/file.php',
-					'version' => 'dev-test',
+					'path'        => 'converted-src/file.php',
+					'version'     => 'dev-test',
+					'package'     => '',
+					'constraints' => array(),
 				),
 			),
 			$processed

@@ -13,7 +13,8 @@
 	],
 	"require": {
 		"php": ">=7.2",
-		"composer-plugin-api": "^2.2"
+		"composer-plugin-api": "^2.2",
+		"composer/semver": "^1.0 || ^2.0 || ^3.0"
 	},
 	"require-dev": {
 		"composer/composer": "^2.2",

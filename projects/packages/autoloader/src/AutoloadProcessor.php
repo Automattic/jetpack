@@ -72,8 +72,10 @@ class AutoloadProcessor {
 
 					foreach ( $classmap as $class => $path ) {
 						$processed[ $class ] = array(
-							'version' => $source['version'],
-							'path'    => call_user_func( $this->pathCodeTransformer, $path ),
+							'version'     => $source['version'],
+							'path'        => call_user_func( $this->pathCodeTransformer, $path ),
+							'package'     => isset( $source['package'] ) ? $source['package'] : '',
+							'constraints' => isset( $source['constraints'] ) ? $source['constraints'] : array(),
 						);
 					}
 				}
@@ -92,8 +94,10 @@ class AutoloadProcessor {
 					$classmap = call_user_func( $this->classmapScanner, $source['path'], $excludedClasses, $namespace );
 					foreach ( $classmap as $class => $path ) {
 						$processed[ $class ] = array(
-							'version' => $source['version'],
-							'path'    => call_user_func( $this->pathCodeTransformer, $path ),
+							'version'     => $source['version'],
+							'path'        => call_user_func( $this->pathCodeTransformer, $path ),
+							'package'     => isset( $source['package'] ) ? $source['package'] : '',
+							'constraints' => isset( $source['constraints'] ) ? $source['constraints'] : array(),
 						);
 					}
 				}
@@ -106,8 +110,10 @@ class AutoloadProcessor {
 
 				foreach ( $classmap as $class => $path ) {
 					$processed[ $class ] = array(
-						'version' => $package['version'],
-						'path'    => call_user_func( $this->pathCodeTransformer, $path ),
+						'version'     => $package['version'],
+						'path'        => call_user_func( $this->pathCodeTransformer, $path ),
+						'package'     => isset( $package['package'] ) ? $package['package'] : '',
+						'constraints' => isset( $package['constraints'] ) ? $package['constraints'] : array(),
 					);
 				}
 			}
@@ -142,8 +148,10 @@ class AutoloadProcessor {
 			}
 
 			$processed[ $namespace ] = array(
-				'version' => $package['version'],
-				'path'    => $paths,
+				'version'     => $package['version'],
+				'path'        => $paths,
+				'package'     => isset( $package['package'] ) ? $package['package'] : '',
+				'constraints' => isset( $package['constraints'] ) ? $package['constraints'] : array(),
 			);
 		}
 
@@ -166,8 +174,10 @@ class AutoloadProcessor {
 
 		foreach ( $autoloads['files'] as $file_id => $package ) {
 			$processed[ $file_id ] = array(
-				'version' => $package['version'],
-				'path'    => call_user_func( $this->pathCodeTransformer, $package['path'] ),
+				'version'     => $package['version'],
+				'path'        => call_user_func( $this->pathCodeTransformer, $package['path'] ),
+				'package'     => isset( $package['package'] ) ? $package['package'] : '',
+				'constraints' => isset( $package['constraints'] ) ? $package['constraints'] : array(),
 			);
 		}
 
