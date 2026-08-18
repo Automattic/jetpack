@@ -1,5 +1,4 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useDebounce } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -10,11 +9,13 @@ import {
 	useRef,
 	useState,
 } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { store as socialStore } from '../../../social-store';
 import { Connection } from '../../../social-store/types';
 import { hasSocialPaidFeatures } from '../../../utils';
+import { features } from '../../../utils/constants';
+import { getSimpleSiteUpgradeUrl, getUpgradePlanName } from '../../../utils/script-data';
 import { MessageTemplateEditor } from '../../message-template-editor';
 import styles from './style.module.scss';
 
@@ -44,7 +45,7 @@ const NOOP = () => {};
  * Renders the live editor when the site has social paid features and the user
  * can manage the connection. On plan tiers without paid features it renders a
  * disabled-textarea variant with an Upgrade link showing the global default
- * message; Simple sites render nothing.
+ * message.
  *
  * @param {ConnectionTemplateEditorProps} props - The component's props.
  * @return The rendered editor, its locked upsell variant, or null.
@@ -109,29 +110,38 @@ export function ConnectionTemplateEditor( props: ConnectionTemplateEditorProps )
 
 	if ( ! hasSocialPaidFeatures() ) {
 		// The site's plan tier lacks per-connection customization; surface the
-		// upgrade path. Simple sites render nothing.
-		if ( isSimpleSite() ) {
-			return null;
-		}
+		// upgrade path. Simple sites go to the WordPress.com plans page, since the
+		// standalone Jetpack Social plan can't be bought there.
+		const upgradeUrl =
+			getSimpleSiteUpgradeUrl( features.ENHANCED_PUBLISHING, window.location.href ) ??
+			getRedirectUrl( 'jetpack-social-per-connection-template-upsell', {
+				site: getSiteFragment() || '',
+				query: 'redirect_to=' + encodeURIComponent( window.location.href ),
+			} );
 
-		const upgradeUrl = getRedirectUrl( 'jetpack-social-per-connection-template-upsell', {
-			site: getSiteFragment() || '',
-			query: 'redirect_to=' + encodeURIComponent( window.location.href ),
-		} );
-
-		const upsellHelp = createInterpolateElement(
-			__(
-				'Showing your default share message. To customize it for this account, <a>upgrade your plan</a>.',
-				'jetpack-publicize-pkg'
-			),
-			{
-				a: (
-					<Link href={ upgradeUrl } onClick={ onUpgradeClick } openInNewTab>
-						{ null }
-					</Link>
-				),
-			}
+		const planName = getUpgradePlanName();
+		const genericUpsellText = __(
+			'Showing your default share message. To customize it for this account, <a>upgrade your plan</a>.',
+			'jetpack-publicize-pkg'
 		);
+		const upsellText = planName
+			? sprintf(
+					/* translators: %s: name of the plan that unlocks the feature, e.g. "Business". */
+					__(
+						'Showing your default share message. To customize it for this account, <a>upgrade to the %s plan</a>.',
+						'jetpack-publicize-pkg'
+					),
+					planName
+			  )
+			: genericUpsellText;
+
+		const upsellHelp = createInterpolateElement( upsellText, {
+			a: (
+				<Link href={ upgradeUrl } onClick={ onUpgradeClick } openInNewTab>
+					{ null }
+				</Link>
+			),
+		} );
 
 		return (
 			<div className={ styles.editor }>

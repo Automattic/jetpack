@@ -1,5 +1,11 @@
-import { getAdminUrl, getScriptData, siteHasFeature } from '@automattic/jetpack-script-data';
-import { SocialScriptData } from '../types';
+import {
+	getAdminUrl,
+	getScriptData,
+	isSimpleSite,
+	siteHasFeature,
+} from '@automattic/jetpack-script-data';
+import { addQueryArgs } from '@wordpress/url';
+import { SocialScriptData, SocialUpgrade } from '../types';
 import { features } from './constants';
 
 /**
@@ -28,6 +34,65 @@ export function hasSocialPaidFeatures() {
  */
 export function hasAdminUiV2() {
 	return siteHasFeature( features.ADMIN_UI_V2 );
+}
+
+/**
+ * Get the plan a site needs to buy to unlock Social's paid features.
+ *
+ * Only WordPress.com Simple sites get this: every other site type is sent to
+ * the Jetpack redirect service, which resolves the product on its own.
+ *
+ * @return The upgrade details, or null when the site has no such upgrade path.
+ */
+function getSocialUpgrade(): SocialUpgrade | null {
+	return getSocialScriptData()?.upgrade ?? null;
+}
+
+/**
+ * Get the short name ("Business") of the plan that unlocks Social's paid features.
+ *
+ * @return The plan name, or null when it isn't known. Callers fall back to copy
+ * that doesn't name a plan.
+ */
+export function getUpgradePlanName(): string | null {
+	return getSocialUpgrade()?.plan_name ?? null;
+}
+
+/**
+ * Build the upgrade URL for a WordPress.com Simple site.
+ *
+ * Simple sites can't buy the standalone Jetpack Social plan — checkout rejects it
+ * as incompatible — so they're sent to the WordPress.com plans page for the plan
+ * that does unlock the feature. Mirrors how Global Styles upsells Simple sites
+ * (`wpcom-global-styles/index.php`).
+ *
+ * Returns null on every other site type, where the caller keeps using the Jetpack
+ * redirect service.
+ *
+ * @param feature    - Feature slug, tagged onto the URL so the upsell is attributable.
+ * @param redirectTo - Absolute URL to return to once the upgrade is done.
+ * @return The plans page URL, or null when the site isn't a Simple site.
+ */
+export function getSimpleSiteUpgradeUrl( feature: string, redirectTo: string ): string | null {
+	if ( ! isSimpleSite() ) {
+		return null;
+	}
+
+	const planSlug = getSocialUpgrade()?.plan_slug;
+	// Without a site slug the plans page still works — it just asks which site
+	// first — where `plans/undefined` would 404.
+	const siteSuffix = getScriptData()?.site?.suffix;
+	const plansUrl = siteSuffix
+		? `https://wordpress.com/plans/${ siteSuffix }`
+		: 'https://wordpress.com/plans';
+
+	return addQueryArgs( plansUrl, {
+		// Preselects the plan card. Omitted when the slug didn't resolve, which
+		// still leaves a usable — if less specific — plans page.
+		...( planSlug ? { plan: planSlug } : {} ),
+		feature,
+		redirect_to: redirectTo,
+	} );
 }
 
 /**

@@ -147,7 +147,10 @@ export function postPublishFetchHandler( postData ) {
 /**
  * Mocks JetpackScriptData with the provided data.
  *
- * @param {import('@automattic/jetpack-script-data').JetpackScriptData} data - The data
+ * Takes a partial: each key is merged over the defaults below, so a test only
+ * spells out what it actually cares about.
+ *
+ * @param {Record<string, any>} data - Partial script data
  */
 export function mockScriptData( data = {} ) {
 	Object.defineProperty( global, 'JetpackScriptData', {
