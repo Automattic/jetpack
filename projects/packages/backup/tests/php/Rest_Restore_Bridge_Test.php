@@ -208,4 +208,219 @@ class Rest_Restore_Bridge_Test extends TestCase {
 		$this->assertSame( 'restore_status_fetch_failed', $response->get_error_code() );
 		$this->assertSame( 502, $response->get_error_data()['status'] );
 	}
+
+	/**
+	 * The rewind id goes in the body, in full, and the target is the v2
+	 * restores collection.
+	 *
+	 * The old target was the v1 activity-log route, which discards Jetpack
+	 * user tokens by design and answered 401 for every restore ever
+	 * attempted from wp-admin.
+	 */
+	public function test_initiate_targets_v2_with_the_full_rewind_id_in_the_body() {
+		$this->arrange_wpcom(
+			array(
+				'ok'         => true,
+				'restore_id' => 912682,
+			)
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/rewind/to/1786663613.9425' );
+		$request->set_param( 'rewind_id', '1786663613.9425' );
+		$request->set_param( 'types', array( 'themes' => true ) );
+		$response = Restore_Bridge::initiate_restore( $request );
+
+		$sent = (array) $this->captured_body;
+
+		$this->assertStringContainsString( '/sites/999/rewind/restores', $this->captured_url );
+		$this->assertStringNotContainsString( 'activity-log', $this->captured_url );
+		// In full: truncating the decimal addresses a different backup.
+		$this->assertSame( '1786663613.9425', $sent['rewindId'] );
+		$this->assertSame( array( 'themes' => true ), $sent['types'] );
+		$this->assertSame( 912682, $response->get_data()['id'] );
+	}
+
+	/**
+	 * `force_rewind` is sent explicitly.
+	 *
+	 * It is optional upstream and now defaults to false, so omitting it
+	 * would silently change behaviour for a caller that has always sent
+	 * true.
+	 */
+	public function test_initiate_sends_force_rewind_explicitly() {
+		$this->arrange_wpcom(
+			array(
+				'ok'         => true,
+				'restore_id' => 1,
+			)
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/rewind/to/123' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'types', array( 'sqls' => true ) );
+		Restore_Bridge::initiate_restore( $request );
+
+		$this->assertTrue( ( (array) $this->captured_body )['force_rewind'] );
+	}
+
+	/**
+	 * A null `restore_id` is a queued restore, not a failure.
+	 *
+	 * VaultPress does not reliably echo an id back — the documented
+	 * response for the underlying call is only `{ ok, error }`. Reading
+	 * the id as the success signal reported a successfully queued restore
+	 * as a 500, and could not tell null from zero in any case.
+	 */
+	public function test_initiate_treats_a_null_restore_id_as_queued() {
+		$this->arrange_wpcom(
+			array(
+				'ok'         => true,
+				'restore_id' => null,
+				'rewind_id'  => '1786663613.9425',
+			)
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/rewind/to/1786663613.9425' );
+		$request->set_param( 'rewind_id', '1786663613.9425' );
+		$request->set_param( 'types', array( 'themes' => true ) );
+		$response = Restore_Bridge::initiate_restore( $request );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertNull( $response->get_data()['id'] );
+		// Echoed back so the client can find the restore in the collection.
+		$this->assertSame( '1786663613.9425', $response->get_data()['rewind_id'] );
+	}
+
+	/**
+	 * `ok: false` is the failure, whatever else the payload carries.
+	 */
+	public function test_initiate_reports_a_falsey_ok_as_failure() {
+		$this->arrange_wpcom(
+			array(
+				'ok'         => false,
+				'restore_id' => 42,
+			)
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/rewind/to/123' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'types', array( 'themes' => true ) );
+		$response = Restore_Bridge::initiate_restore( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'restore_initiate_failed', $response->get_error_code() );
+	}
+
+	/**
+	 * The status poll targets the v2 route and is signed with the blog
+	 * token.
+	 *
+	 * Watching a restore does not need a user, unlike starting one — which
+	 * is what lets progress survive the initiating user's session.
+	 */
+	public function test_status_targets_the_v2_route() {
+		$this->arrange_wpcom(
+			array(
+				'restore_id' => 912682,
+				'status'     => 'running',
+				'percent'    => 42,
+				'rewind_id'  => '1786663613.9425',
+				'message'    => 'Restoring wp-content/uploads',
+			)
+		);
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/restore/912682/status' );
+		$request->set_param( 'restore_id', 912682 );
+		$data = Restore_Bridge::get_restore_status( $request )->get_data();
+
+		$this->assertStringContainsString( '/sites/999/rewind/restores/912682', $this->captured_url );
+		$this->assertSame( 'running', $data['status'] );
+		$this->assertSame( 42.0, $data['progress'] );
+		$this->assertSame( '1786663613.9425', $data['rewind_id'] );
+		$this->assertSame( 'Restoring wp-content/uploads', $data['message'] );
+	}
+
+	/**
+	 * WPCOM's status vocabulary is mapped to the client's.
+	 *
+	 * The client used to test for `in-progress`, `queued`, `finished` and
+	 * `failed` — none of which WPCOM returns — so no terminal state was
+	 * ever reachable and the poll stopped after one response.
+	 *
+	 * @param string $upstream WPCOM's status value.
+	 * @param string $expected What the bridge should report.
+	 * @dataProvider provide_statuses
+	 */
+	#[DataProvider( 'provide_statuses' )]
+	public function test_status_is_mapped( $upstream, $expected ) {
+		$this->arrange_wpcom(
+			array(
+				'restore_id' => 1,
+				'status'     => $upstream,
+			)
+		);
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/restore/1/status' );
+		$request->set_param( 'restore_id', 1 );
+		$data = Restore_Bridge::get_restore_status( $request )->get_data();
+
+		$this->assertSame( $expected, $data['status'], "upstream: $upstream" );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public static function provide_statuses() {
+		return array(
+			'running'                 => array( 'running', 'running' ),
+			'success'                 => array( 'success', 'finished' ),
+			// Kept distinct rather than folded into either neighbour: a
+			// restore that completed but not cleanly is neither.
+			'success-with-errors'     => array( 'success-with-errors', 'finished-with-errors' ),
+			'fail'                    => array( 'fail', 'failed' ),
+			'aborted'                 => array( 'aborted', 'aborted' ),
+			// Anything WPCOM adds later is reported as unknown, which the
+			// client keeps polling through rather than freezing on.
+			'a status we do not know' => array( 'paused-for-lunch', 'unknown' ),
+			'absent'                  => array( '', 'queued' ),
+		);
+	}
+
+	/**
+	 * A 404 means "queued, not visible yet" — the normal first answer for
+	 * a restore that has only just been accepted.
+	 *
+	 * Mapping every non-200 to a hard error, as the v1 code did, turns the
+	 * opening seconds of every restore into a user-visible failure. Safe
+	 * to treat softly only because the route now answers 502 when
+	 * VaultPress returns nothing parseable, so a 404 can no longer
+	 * secretly mean "upstream is down".
+	 */
+	public function test_status_treats_404_as_queued() {
+		$this->arrange_wpcom( array( 'error' => 'not_found' ), 404 );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/restore/7/status' );
+		$request->set_param( 'restore_id', 7 );
+		$response = Restore_Bridge::get_restore_status( $request );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'queued', $response->get_data()['status'] );
+		$this->assertSame( 7, $response->get_data()['id'] );
+	}
+
+	/**
+	 * A 5xx is still a hard error — that is the half of the old behaviour
+	 * worth keeping.
+	 */
+	public function test_status_still_hard_errors_on_5xx() {
+		$this->arrange_wpcom( array( 'error' => 'rewind_error' ), 502 );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/restore/7/status' );
+		$request->set_param( 'restore_id', 7 );
+		$response = Restore_Bridge::get_restore_status( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'restore_status_fetch_failed', $response->get_error_code() );
+		$this->assertSame( 502, $response->get_error_data()['status'] );
+	}
 }

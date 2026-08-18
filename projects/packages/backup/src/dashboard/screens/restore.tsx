@@ -124,6 +124,21 @@ export default function RestoreScreen() {
 							</Button>
 						</>
 					) }
+					{ /*
+					 * Accepted, but nothing to report yet — either WordPress.com has
+					 * not started publishing progress, or it queued the restore
+					 * without naming an id we can poll. Indeterminate rather than a
+					 * determinate bar pinned at 0%, which reads as a stall during the
+					 * opening seconds of every restore.
+					 */ }
+					{ state.phase === 'queued' && (
+						<Stack direction="column" gap="sm">
+							<Text>
+								{ __( 'Your restore is queued and will begin shortly…', 'jetpack-backup-pkg' ) }
+							</Text>
+							<ProgressBar />
+						</Stack>
+					) }
 					{ state.phase === 'progress' && (
 						<Stack direction="column" gap="sm">
 							<Text>{ __( 'Restoring…', 'jetpack-backup-pkg' ) }</Text>
@@ -135,6 +150,28 @@ export default function RestoreScreen() {
 							<Notice status="success" isDismissible={ false }>
 								{ __( 'Restore complete.', 'jetpack-backup-pkg' ) }
 							</Notice>
+							<Link to="/">{ __( 'Back to overview', 'jetpack-backup-pkg' ) }</Link>
+						</Stack>
+					) }
+					{ /*
+					 * Finished, but not cleanly. Warning rather than success or error:
+					 * the site has been restored, so treating it as a failure invites a
+					 * pointless retry — but parts of it did not land, and "Restore
+					 * complete." would be a lie the reader discovers later.
+					 */ }
+					{ state.phase === 'success-with-errors' && (
+						<Stack direction="column" gap="sm">
+							<Notice status="warning" isDismissible={ false }>
+								{ __(
+									'Restore finished, but some items could not be restored.',
+									'jetpack-backup-pkg'
+								) }
+							</Notice>
+							{ state.message && (
+								<Text variant="body-sm" className="jpb-text-muted">
+									{ state.message }
+								</Text>
+							) }
 							<Link to="/">{ __( 'Back to overview', 'jetpack-backup-pkg' ) }</Link>
 						</Stack>
 					) }

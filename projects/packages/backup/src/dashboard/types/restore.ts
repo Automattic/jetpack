@@ -36,9 +36,25 @@ export function hasSelectedItems( items: RestoreItems ): boolean {
 	return Object.values( items ).some( Boolean );
 }
 
+/**
+ * What the Restore screen is showing.
+ *
+ * `queued` is separate from `progress` because they are different
+ * promises to the reader: one says the restore is under way and here is
+ * how far, the other says WordPress.com has accepted it and has not
+ * started reporting yet. Collapsing them means rendering a progress bar
+ * pinned at 0% for the opening seconds of every restore, which reads as
+ * a stall.
+ *
+ * `success-with-errors` is its own terminal state rather than a shade of
+ * either neighbour. A restore that finished but not cleanly should not
+ * be dismissed as done, and should not be retried as if nothing landed.
+ */
 export type RestoreState =
 	| { phase: 'idle' }
 	| { phase: 'submitting' }
+	| { phase: 'queued' }
 	| { phase: 'progress'; percent: number }
 	| { phase: 'success' }
+	| { phase: 'success-with-errors'; message: string }
 	| { phase: 'error'; message: string };
