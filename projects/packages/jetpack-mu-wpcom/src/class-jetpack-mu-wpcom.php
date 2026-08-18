@@ -21,6 +21,10 @@ class Jetpack_Mu_Wpcom {
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
 
+	// Themes (by template slug) and plugins (by basename) known to break with React 19.
+	const REACT_19_INCOMPATIBLE_THEMES  = array( 'divi' );
+	const REACT_19_INCOMPATIBLE_PLUGINS = array( 'wp-table-builder/wp-table-builder.php' );
+
 	/**
 	 * Initialize the class.
 	 */
@@ -919,11 +923,17 @@ class Jetpack_Mu_Wpcom {
 			return true;
 		}
 
-		if ( 'divi' === strtolower( get_template() ) ) {
+		if ( in_array( strtolower( get_template() ), self::REACT_19_INCOMPATIBLE_THEMES, true ) ) {
 			return true;
 		}
 
-		return is_plugin_active( 'wp-table-builder/wp-table-builder.php' );
+		foreach ( self::REACT_19_INCOMPATIBLE_PLUGINS as $plugin_file ) {
+			if ( is_plugin_active( $plugin_file ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
