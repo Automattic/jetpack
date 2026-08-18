@@ -43,3 +43,15 @@
 .jetpack-wordads__mobile-visibility {
 	margin-top: 20px;
 }
+
+.jetpack-wordads__disclaimer {
+	color: var(--color-neutral-20);
+	flex-basis: 100%;
+	margin: 0;
+	font-style: italic;
+
+	a {
+		color: var(--color-neutral-40);
+		line-height: 36px;
+	}
+}

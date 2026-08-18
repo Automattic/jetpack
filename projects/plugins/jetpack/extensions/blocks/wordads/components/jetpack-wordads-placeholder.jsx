@@ -26,7 +26,7 @@ export const WordAdsPlaceholder = ( { changeStatus, isLoading, isModuleActive } 
 					? __( 'Activating WordAds', 'jetpack' )
 					: __( 'Activate WordAds', 'jetpack', 0 ) }
 			</Button>
-			<div className="membership-button__disclaimer">
+			<div className="jetpack-wordads__disclaimer">
 				<Link openInNewTab href="https://jetpack.com/support/ads/">
 					{ __( 'Learn more about the WordAds feature.', 'jetpack' ) }
 				</Link>
