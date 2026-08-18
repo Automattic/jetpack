@@ -1,6 +1,7 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
+import { useDeepMemo } from '../../../hooks';
 import { getBandTickValues, getBucketResolution, getFormatter } from '../../private/time-axis';
 import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
 import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
@@ -16,9 +17,7 @@ const DEFAULT_NUM_TICKS = 4;
 
 // Shared rather than a fresh literal: this lands in the dependencies of every
 // memo below, so defaulting inline recomputed all of them on every render.
-const NO_OPTIONS: BaseChartProps[ 'options' ] = {};
-
-// Same reason as NO_OPTIONS: a stable reference for callers that do not hide series.
+// A stable reference for callers that hide no series, so the memos below hold.
 const ALL_RENDERED = () => true;
 
 // The axis abbreviates to fit a tick; a tooltip has room to spell the same
@@ -149,9 +148,13 @@ const getGroupPadding = ( scale: Record< string, unknown > ): number => {
 export function useBarChartOptions(
 	data: SeriesData[],
 	horizontal: boolean,
-	options: BaseChartProps[ 'options' ] = NO_OPTIONS,
+	options: BaseChartProps[ 'options' ] = {},
 	isSeriesRendered: ( series: SeriesData ) => boolean = ALL_RENDERED
 ) {
+	// Callers reasonably pass an object literal, which is a fresh reference every
+	// render and would defeat every memo below.
+	const stableOptions = useDeepMemo( options );
+
 	// `labelOverflow` and `tickResolution` are consumed by this hook rather than
 	// forwarded — visx has an axis prop for neither — so they are split off the
 	// caller's axis options once, here, and only the rest reaches visx below.
@@ -160,12 +163,12 @@ export function useBarChartOptions(
 			labelOverflow: xLabelOverflow,
 			tickResolution: xTickResolution,
 			...xAxisOptions
-		} = options.axis?.x || {};
+		} = stableOptions.axis?.x || {};
 		const {
 			labelOverflow: yLabelOverflow,
 			tickResolution: yTickResolution,
 			...yAxisOptions
-		} = options.axis?.y || {};
+		} = stableOptions.axis?.y || {};
 
 		return {
 			xLabelOverflow,
@@ -176,7 +179,7 @@ export function useBarChartOptions(
 			// chart is horizontal, so the hint follows them.
 			tickResolution: horizontal ? yTickResolution : xTickResolution,
 		};
-	}, [ options, horizontal ] );
+	}, [ stableOptions, horizontal ] );
 	const { tickResolution } = axisConfig;
 
 	const defaultOptions = useMemo( () => {
@@ -259,7 +262,7 @@ export function useBarChartOptions(
 		const hasComparisonSeries = data.some( s => s.options?.type === 'comparison' );
 		if ( hasComparisonSeries ) {
 			const valueAxisIsY = ! horizontal;
-			const userDomain = valueAxisIsY ? options.yScale?.domain : options.xScale?.domain;
+			const userDomain = valueAxisIsY ? stableOptions.yScale?.domain : stableOptions.xScale?.domain;
 			if ( ! userDomain ) {
 				const allValues: number[] = [];
 				data.forEach( series => {
@@ -285,12 +288,12 @@ export function useBarChartOptions(
 
 		const xScale = {
 			...baseXScale,
-			...( options.xScale || {} ),
+			...( stableOptions.xScale || {} ),
 			...( horizontal ? valueScaleDomainOverride : {} ),
 		};
 		const yScale = {
 			...baseYScale,
-			...( options.yScale || {} ),
+			...( stableOptions.yScale || {} ),
 			...( ! horizontal ? valueScaleDomainOverride : {} ),
 		};
 		const { xLabelOverflow, yLabelOverflow, xAxisOptions, yAxisOptions } = axisConfig;
@@ -347,5 +350,5 @@ export function useBarChartOptions(
 				labelFormatter: providedToolTipLabelFormatter || defaultTooltipLabelFormatter,
 			},
 		};
-	}, [ defaultOptions, axisConfig, options, horizontal, data ] );
+	}, [ defaultOptions, axisConfig, stableOptions, horizontal, data ] );
 }

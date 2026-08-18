@@ -118,8 +118,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	legend = {},
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
-	// Left undefined so `useBarChartOptions` can apply its shared default.
-	options,
+	options = {},
 	orientation = 'vertical',
 	withPatterns = false,
 	showZeroValues = false,

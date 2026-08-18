@@ -231,6 +231,33 @@ describe( 'BarChart', () => {
 			},
 		];
 
+		test( 'returns the same options when the caller passes an equal object literal', () => {
+			// The literal is rebuilt on every render, so only a deep comparison can
+			// keep the memos below it from recomputing.
+			const { result, rerender } = renderHook( () =>
+				useBarChartOptions( stableData, false, { axis: { x: { numTicks: 6 } } } )
+			);
+			const first = result.current;
+
+			rerender();
+
+			expect( result.current ).toBe( first );
+		} );
+
+		test( 'still recomputes when the options actually change', () => {
+			const { result, rerender } = renderHook(
+				( { numTicks }: { numTicks: number } ) =>
+					useBarChartOptions( stableData, false, { axis: { x: { numTicks } } } ),
+				{ initialProps: { numTicks: 6 } }
+			);
+			const first = result.current;
+
+			rerender( { numTicks: 3 } );
+
+			expect( result.current ).not.toBe( first );
+			expect( result.current.axis.x.numTicks ).toBe( 3 );
+		} );
+
 		test( 'returns the same options when nothing changed and no options were passed', () => {
 			const { result, rerender } = renderHook( () => useBarChartOptions( stableData, false ) );
 			const first = result.current;
