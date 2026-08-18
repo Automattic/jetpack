@@ -10,6 +10,10 @@ test( 'the block editor loads where blocks are enabled', async ( { surface, verb
 
 	await verbum.open( 'open_comments' );
 
+	// Fails loudly when the site has `enable_blocks_comments` off, rather than timing out
+	// below on a placeholder that was never going to render.
+	expect( await verbum.blocksEnabled() ).toBe( true );
+
 	await expect( verbum.editorPlaceholder ).toBeVisible();
 	await verbum.editorPlaceholder.click();
 	await expect( verbum.blockEditor ).toBeVisible();
@@ -20,6 +24,8 @@ test( 'the plain textarea is used where blocks are disabled', async ( { surface,
 
 	await verbum.open( 'open_comments' );
 
-	await expect( verbum.editorPlaceholder ).toHaveCount( 0 );
+	// Asserting the placeholder is absent would pass before it could ever mount, so read
+	// the flag it renders from instead.
+	expect( await verbum.blocksEnabled() ).toBe( false );
 	await expect( verbum.textarea ).toBeVisible();
 } );

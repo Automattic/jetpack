@@ -24,8 +24,8 @@ test( 'a visitor can comment by supplying a name and email', async ( {
 	await expect( verbum.submitButton ).toBeDisabled();
 
 	await verbum.write( comment );
-	await verbum.root.getByPlaceholder( 'Email (Address never made' ).fill( email );
-	await verbum.root.getByPlaceholder( 'Name' ).fill( name );
+	await verbum.emailField.fill( email );
+	await verbum.nameField.fill( name );
 
 	await verbum.submit( comment );
 

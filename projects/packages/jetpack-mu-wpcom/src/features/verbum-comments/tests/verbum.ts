@@ -4,13 +4,16 @@ import type { Scenario, Surface } from './sites';
 
 const JETPACK_IFRAME = 'iframe[name="jetpack_remote_comment"]';
 
+/** The subset of the `window.VerbumComments` blob the specs read. */
+type VerbumWindow = { VerbumComments?: { enableBlocks?: boolean } };
+
 /**
  * Drives the Verbum comment form, hiding the one thing that differs between platforms:
  * where the form lives. Taking the iframe away (milestone 3) makes `root` the page
  * everywhere and leaves the specs untouched.
  */
 export class VerbumForm {
-	readonly root: Page | FrameLocator;
+	private readonly root: Page | FrameLocator;
 
 	constructor(
 		private readonly page: Page,
@@ -30,6 +33,14 @@ export class VerbumForm {
 
 	get textarea() {
 		return this.root.locator( 'textarea#comment' );
+	}
+
+	get nameField() {
+		return this.root.locator( '#verbum-email-form-name' );
+	}
+
+	get emailField() {
+		return this.root.locator( '#verbum-email-form-email' );
 	}
 
 	// Only rendered when the block editor is enabled; it stands in until the editor loads.
@@ -57,30 +68,40 @@ export class VerbumForm {
 		await expect( this.submitButton ).toBeVisible();
 	}
 
+	// `should_load_gutenberg_comments()` as the client sees it. Reading the flag is
+	// race-free, unlike looking for the markup Verbum renders from it — that only appears
+	// a tick after first paint, so its absence proves nothing on its own.
+	async blocksEnabled(): Promise< boolean > {
+		return this.root
+			.locator( 'body' )
+			.evaluate( () =>
+				Boolean( ( window as unknown as VerbumWindow ).VerbumComments?.enableBlocks )
+			);
+	}
+
 	async write( comment: string ) {
-		if ( ( await this.editorPlaceholder.count() ) === 0 ) {
-			await this.textarea.pressSequentially( comment );
-			return;
+		if ( await this.blockEditorOffered() ) {
+			// The placeholder swaps itself for the block editor on first click, then falls
+			// back to the textarea if that editor can't be fetched from widgets.wp.com.
+			await this.editorPlaceholder.click();
+			const loaded = await this.blockEditor
+				.waitFor( { timeout: 15000 } )
+				.then( () => true )
+				.catch( () => false );
+
+			if ( loaded ) {
+				await this.blockEditor.pressSequentially( comment );
+				return;
+			}
 		}
 
-		// The placeholder swaps itself for the block editor on first click, then falls back
-		// to the textarea if that editor can't be fetched from widgets.wp.com.
-		await this.editorPlaceholder.click();
-		try {
-			await this.blockEditor.waitFor( { timeout: 15000 } );
-		} catch {
-			await this.textarea.pressSequentially( comment );
-			return;
-		}
-
-		await this.blockEditor.pressSequentially( comment );
+		await this.textarea.pressSequentially( comment );
 	}
 
 	// Submit, then confirm the comment is published on the post.
 	async submit( comment: string ) {
 		await this.submitButton.click();
 		await this.dismissSubscriptionModal();
-		await this.page.waitForLoadState( 'domcontentloaded' );
 		await expect( this.page.getByText( comment ) ).toBeVisible();
 	}
 
@@ -98,6 +119,20 @@ export class VerbumForm {
 		await popup.getByRole( 'button', { name: 'Log In' } ).click();
 
 		await expect( this.root.locator( '.verbum__user-name' ) ).toContainText( testingUser.username );
+	}
+
+	// Verbum picks between the block editor and the plain textarea a tick after first
+	// paint, and only offers the editor when `isFastConnection()` agrees, so wait the
+	// decision out. Guessing early types into a textarea that is about to be hidden.
+	private async blockEditorOffered() {
+		if ( ! this.surface.blocksEnabled ) {
+			return false;
+		}
+
+		return this.editorPlaceholder
+			.waitFor( { timeout: 5000 } )
+			.then( () => true )
+			.catch( () => false );
 	}
 
 	// WordPress.com shows a consent banner in some regions, and it covers the form.

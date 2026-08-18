@@ -135,6 +135,8 @@ Verbum is served from a WordPress.com Simple site on every platform — rendered
 
 2. Run `npx playwright install` to install the browsers needed.
 
+3. Leave the `enable_blocks_comments` option on for `e2esiteopencommentstoeveryone.wordpress.com`. It is the other half of `should_load_gutenberg_comments()`, so turning it off makes `block-editor.test.ts` fail on the `simple` surface.
+
 Run everything with `pnpm run e2e-tests`, one surface with `--project`, and watch it unfold with `--ui`:
 
 ```sh
