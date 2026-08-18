@@ -78,7 +78,6 @@
 	--a8c-charts-motion-easing-entrance: var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1));
 	--a8c-charts-border-radius-bar: var(--wpds-border-radius-md, 4px);
 	--a8c-charts-border-radius-cell: var(--wpds-border-radius-sm, 2px);
-	// Pill shape; no WPDS radius reaches it. The deprecated public name is read at
-	// the leaderboard call site, not here — see leaderboard-chart.module.scss.
+	// Pill shape; no WPDS radius reaches it.
 	--a8c-charts-border-radius-leaderboard-bar: 9999px;
 }
