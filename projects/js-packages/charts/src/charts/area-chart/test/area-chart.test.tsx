@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { createRef } from 'react';
 import { GlobalChartsProvider } from '../../../providers';
 import AreaChart, { AreaChartUnresponsive } from '../area-chart';
-import type { SingleChartRef } from '../../private/single-chart-context';
+import type { ChartInstanceRef } from '../../private/single-chart-context';
 
 const mockRefCallback = jest.fn();
 jest.mock( '../../../hooks/use-element-size', () => ( {
@@ -42,7 +42,7 @@ describe( 'AreaChart', () => {
 		);
 	};
 
-	const renderUnresponsive = ( props = {}, ref?: React.Ref< SingleChartRef > ) => {
+	const renderUnresponsive = ( props = {}, ref?: React.Ref< ChartInstanceRef > ) => {
 		return render(
 			<GlobalChartsProvider>
 				<AreaChartUnresponsive { ...defaultProps } { ...props } ref={ ref } />
@@ -242,7 +242,7 @@ describe( 'AreaChart', () => {
 
 		test( 'y-axis rescales across legend toggles by default', async () => {
 			const user = userEvent.setup();
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			render(
 				<GlobalChartsProvider>
 					<AreaChartUnresponsive
@@ -274,7 +274,7 @@ describe( 'AreaChart', () => {
 			// Exercises the non-stacked branch of fixedYDomain, which scans the
 			// raw min/max across all series rather than summing stack columns.
 			const user = userEvent.setup();
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			render(
 				<GlobalChartsProvider>
 					<AreaChartUnresponsive
@@ -306,7 +306,7 @@ describe( 'AreaChart', () => {
 
 		test( 'y-axis stays pinned when rescaleYOnLegendToggle is false', async () => {
 			const user = userEvent.setup();
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			render(
 				<GlobalChartsProvider>
 					<AreaChartUnresponsive
@@ -335,7 +335,7 @@ describe( 'AreaChart', () => {
 
 		test( 'y-axis stays pinned when rescaleYOnVisibilityChange is false', async () => {
 			const user = userEvent.setup();
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			render(
 				<GlobalChartsProvider>
 					<AreaChartUnresponsive
@@ -367,7 +367,7 @@ describe( 'AreaChart', () => {
 			// opts into pinned-Y behavior; visx's natural domain derivation for
 			// a `stackOffset: 'none'` stack does not extend below zero for
 			// purely-negative series, which is what this test guards against.
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			render(
 				<GlobalChartsProvider>
 					<AreaChartUnresponsive
@@ -406,7 +406,7 @@ describe( 'AreaChart', () => {
 		} );
 
 		test( 'does not pin domain for non-default stack offsets', () => {
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			render(
 				<GlobalChartsProvider>
 					<AreaChartUnresponsive
@@ -448,7 +448,7 @@ describe( 'AreaChart', () => {
 
 	describe( 'Chart Ref Interface', () => {
 		test( 'exposes getScales via ref', () => {
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			renderUnresponsive( {}, ref );
 
 			expect( ref.current?.getScales() ).toBeDefined();
@@ -457,7 +457,7 @@ describe( 'AreaChart', () => {
 		} );
 
 		test( 'exposes getChartDimensions via ref', () => {
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			renderUnresponsive( { width: 800, height: 400 }, ref );
 
 			const dimensions = ref.current?.getChartDimensions();

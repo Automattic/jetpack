@@ -33,7 +33,7 @@ import { attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
-import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
+import { ChartInstanceContext, type ChartInstanceRef } from '../private/single-chart-context';
 import { SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
@@ -119,7 +119,7 @@ const validateData = ( data: SeriesData[] ) => {
 
 // Inner component to access DataContext and provide scale data to ref
 const LineChartScalesRef: FC< {
-	chartRef?: Ref< SingleChartRef >;
+	chartRef?: Ref< ChartInstanceRef >;
 	width: number;
 	height: number;
 	margin?: { top?: number; right?: number; bottom?: number; left?: number };
@@ -150,7 +150,7 @@ const LineChartScalesRef: FC< {
 	return null; // This component only provides the ref interface
 };
 
-const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
+const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 	(
 		{
 			data,
@@ -199,7 +199,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
-		const internalChartRef = useRef< SingleChartRef >( null );
+		const internalChartRef = useRef< ChartInstanceRef >( null );
 
 		const zoom = useXZoom< Date >( {
 			enabled: zoomable,
@@ -412,7 +412,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		return (
-			<SingleChartContext.Provider
+			<ChartInstanceContext.Provider
 				value={ {
 					chartId,
 					chartRef: internalChartRef,
@@ -619,7 +619,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 						);
 					} }
 				</ChartLayout>
-			</SingleChartContext.Provider>
+			</ChartInstanceContext.Provider>
 		);
 	}
 );
@@ -634,16 +634,16 @@ type LineChartAnnotationComponents = {
 type LineChartBaseProps = Optional< LineChartProps, 'width' | 'height' | 'size' >;
 
 type LineChartComponent = React.ForwardRefExoticComponent<
-	LineChartBaseProps & React.RefAttributes< SingleChartRef >
+	LineChartBaseProps & React.RefAttributes< ChartInstanceRef >
 > &
 	LineChartAnnotationComponents;
 
 type LineChartResponsiveComponent = React.ForwardRefExoticComponent<
-	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< SingleChartRef >
+	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< ChartInstanceRef >
 > &
 	LineChartAnnotationComponents;
 
-const LineChartWithProvider = forwardRef< SingleChartRef, LineChartProps >( ( props, ref ) => {
+const LineChartWithProvider = forwardRef< ChartInstanceRef, LineChartProps >( ( props, ref ) => {
 	const existingContext = useContext( GlobalChartsContext );
 
 	// If we're already in a GlobalChartsProvider context, render the core component directly

@@ -19,7 +19,7 @@ import {
 import { Center } from '../private/center';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
-import { SingleChartContext } from '../private/single-chart-context';
+import { ChartInstanceContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
 import {
@@ -306,7 +306,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	return (
 		<HeatmapContext.Provider value={ heatmapContext }>
-			<SingleChartContext.Provider value={ { chartId } }>
+			<ChartInstanceContext.Provider value={ { chartId } }>
 				<ChartLayout
 					legendPosition="bottom"
 					// Legend renders via trailingContent, not the legend slot.
@@ -449,7 +449,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						</TooltipInPortal>
 					) }
 				</ChartLayout>
-			</SingleChartContext.Provider>
+			</ChartInstanceContext.Provider>
 		</HeatmapContext.Provider>
 	);
 };

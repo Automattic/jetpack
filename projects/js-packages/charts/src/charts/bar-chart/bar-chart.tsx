@@ -23,7 +23,7 @@ import {
 import { attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
-import { SingleChartContext } from '../private/single-chart-context';
+import { ChartInstanceContext } from '../private/single-chart-context';
 import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './bar-chart.module.scss';
@@ -514,7 +514,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	return (
-		<SingleChartContext.Provider
+		<ChartInstanceContext.Provider
 			value={ {
 				chartId,
 				chartWidth: width,
@@ -673,7 +673,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					);
 				} }
 			</ChartLayout>
-		</SingleChartContext.Provider>
+		</ChartInstanceContext.Provider>
 	);
 };
 

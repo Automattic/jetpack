@@ -2,7 +2,7 @@ import { DataContext, TooltipContext } from '@visx/xychart';
 import { useContext, useImperativeHandle } from 'react';
 import type { ElementStyles, GetElementStylesParams } from '../../../providers';
 import type { DataPointDate, SeriesData } from '../../../types';
-import type { SingleChartRef } from '../../private/single-chart-context';
+import type { ChartInstanceRef } from '../../private/single-chart-context';
 import type { FC, ReactNode, Ref } from 'react';
 
 export type VisibleSeriesEntry = { series: SeriesData; index: number; isVisible: boolean };
@@ -11,10 +11,10 @@ export type VisibleSeriesEntry = { series: SeriesData; index: number; isVisible:
 // instead of spreading `any`. `Number(...)` + `isFinite` guards every call.
 type ScaleFn = ( input: Date | number ) => number;
 
-// Bridges visx's `DataContext` to the chart's `SingleChartRef` so consumers
+// Bridges visx's `DataContext` to the chart's `ChartInstanceRef` so consumers
 // can read scales and dimensions imperatively. Must be inside `<XYChart>`.
 export const AreaChartScalesRef: FC< {
-	chartRef?: Ref< SingleChartRef >;
+	chartRef?: Ref< ChartInstanceRef >;
 	width: number;
 	height: number;
 	margin?: { top?: number; right?: number; bottom?: number; left?: number };

@@ -2,7 +2,7 @@ import { act, render, renderHook, screen, waitFor } from '@testing-library/react
 import userEvent from '@testing-library/user-event';
 import { useCallback, useRef, useState } from 'react';
 import { useXZoom, ZoomResetButton } from '../index';
-import type { SingleChartRef } from '../../single-chart-context';
+import type { ChartInstanceRef } from '../../single-chart-context';
 import type { EventHandlerParams } from '@visx/xychart';
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 
@@ -23,7 +23,7 @@ const makeChartRef = (
 			getScales: () => ( scale ? { xScale: scale, yScale: scale } : null ),
 			getChartDimensions: () => ( { width: 0, height: 0, margin: {} } ),
 		},
-	} ) as unknown as ReturnType< typeof useRef< SingleChartRef > >;
+	} ) as unknown as ReturnType< typeof useRef< ChartInstanceRef > >;
 
 const makeParams = ( x: number ): EventHandlerParams< object > =>
 	( {
