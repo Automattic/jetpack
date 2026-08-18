@@ -72,7 +72,7 @@ class Tracking {
 		// Check for nonce.
 		if (
 			empty( $_REQUEST['tracksNonce'] )
-			|| ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
+			|| ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['tracksNonce'] ) ), 'jp-tracks-ajax-nonce' )
 		) {
 			wp_send_json_error(
 				__( 'You aren’t authorized to do that.', 'jetpack-connection' ),

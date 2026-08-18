@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sanitize nonce values before passing them to wp_verify_nonce().
