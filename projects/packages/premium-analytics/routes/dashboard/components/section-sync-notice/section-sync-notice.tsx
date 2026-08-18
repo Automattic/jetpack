@@ -59,12 +59,27 @@ export function SectionSyncNotice( {
 	}
 
 	return (
-		<Notice.Root intent={ hasError ? 'error' : 'info' } className={ styles.notice }>
+		/*
+		 * `spokenMessage` defaults to `children`, which Notice serializes with
+		 * `renderToString` — rendering the progress bar and the action button
+		 * mid-render throws inside their ref merging and takes the dashboard down
+		 * with it. The sentence is what should be announced anyway.
+		 */
+		<Notice.Root
+			intent={ hasError ? 'error' : 'info' }
+			spokenMessage={ message }
+			className={ styles.notice }
+		>
 			<Notice.Description>{ message }</Notice.Description>
 
 			{ hasError ? (
 				<Notice.Actions>
-					<Notice.ActionButton onClick={ onRetry } disabled={ isRetrying } loading={ isRetrying }>
+					<Notice.ActionButton
+						variant="outline"
+						onClick={ onRetry }
+						disabled={ isRetrying }
+						loading={ isRetrying }
+					>
 						{ __( 'Try again', 'jetpack-premium-analytics-pkg' ) }
 					</Notice.ActionButton>
 				</Notice.Actions>

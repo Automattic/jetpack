@@ -59,4 +59,30 @@ describe( 'SectionSyncNotice', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
 		expect( onRetry ).toHaveBeenCalledTimes( 1 );
 	} );
+
+	it( 'survives the switch from progress bar to retry and back', () => {
+		const { container, rerender } = render(
+			<SectionSyncNotice
+				percentage={ 40 }
+				hasError={ false }
+				onRetry={ noop }
+				isRetrying={ false }
+			/>
+		);
+
+		rerender(
+			<SectionSyncNotice percentage={ 40 } hasError onRetry={ noop } isRetrying={ false } />
+		);
+		expect( container ).toHaveTextContent( 'Something went wrong' );
+
+		rerender(
+			<SectionSyncNotice
+				percentage={ 40 }
+				hasError={ false }
+				onRetry={ noop }
+				isRetrying={ false }
+			/>
+		);
+		expect( container ).toHaveTextContent( 'still syncing' );
+	} );
 } );
