@@ -22,9 +22,9 @@ import {
 import { attachSubComponents } from '../../utils';
 import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation';
-import { ChartInstanceContext } from '../private/single-chart-context';
 import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './pie-semi-circle-chart.module.scss';

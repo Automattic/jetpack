@@ -30,8 +30,8 @@ import {
 import { attachSubComponents } from '../../utils';
 import { renderDefaultTooltip } from '../line-chart';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { ChartInstanceContext, type ChartInstanceRef } from '../private/single-chart-context';
 import { SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';

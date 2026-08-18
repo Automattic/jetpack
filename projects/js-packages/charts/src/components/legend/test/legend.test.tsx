@@ -2,7 +2,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useMemo } from 'react';
-import { ChartInstanceContext } from '../../../charts/private/single-chart-context';
+import { ChartInstanceContext } from '../../../charts/private/chart-instance-context';
 import {
 	GlobalChartsProvider,
 	useChartId,

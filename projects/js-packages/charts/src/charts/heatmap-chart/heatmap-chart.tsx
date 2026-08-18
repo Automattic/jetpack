@@ -18,8 +18,8 @@ import {
 } from '../../utils/color-utils';
 import { Center } from '../private/center';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { ChartInstanceContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
 import {

@@ -1,6 +1,6 @@
 import { DataContext } from '@visx/xychart';
 import { useEffect, useState, useCallback } from 'react';
-import { useChartInstanceContext } from '../../private/single-chart-context';
+import { useChartInstanceContext } from '../../private/chart-instance-context';
 import styles from '../line-chart.module.scss';
 import type { AxisScale } from '@visx/axis';
 import type { FC, ReactNode } from 'react';

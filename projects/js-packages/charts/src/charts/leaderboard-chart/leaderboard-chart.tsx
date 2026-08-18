@@ -17,8 +17,8 @@ import {
 } from '../../providers';
 import { formatMetricValue, attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { ChartInstanceContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import { useFittedRowCount, useLeaderboardLegendItems } from './hooks';
 import styles from './leaderboard-chart.module.scss';

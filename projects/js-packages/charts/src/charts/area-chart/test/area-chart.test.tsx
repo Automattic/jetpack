@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { createRef } from 'react';
 import { GlobalChartsProvider } from '../../../providers';
 import AreaChart, { AreaChartUnresponsive } from '../area-chart';
-import type { ChartInstanceRef } from '../../private/single-chart-context';
+import type { ChartInstanceRef } from '../../private/chart-instance-context';
 
 const mockRefCallback = jest.fn();
 jest.mock( '../../../hooks/use-element-size', () => ( {

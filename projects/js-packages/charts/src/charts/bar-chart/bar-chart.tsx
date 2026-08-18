@@ -22,8 +22,8 @@ import {
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { ChartInstanceContext } from '../private/single-chart-context';
 import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './bar-chart.module.scss';

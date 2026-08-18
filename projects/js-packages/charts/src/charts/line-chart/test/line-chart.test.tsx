@@ -6,7 +6,7 @@ import { GlyphDiamond } from '@visx/glyph';
 import { createElement, createRef } from 'react';
 import { GlobalChartsProvider, defaultTheme } from '../../../providers';
 import LineChart, { LineChartUnresponsive } from '../line-chart';
-import type { ChartInstanceRef } from '../../private/single-chart-context';
+import type { ChartInstanceRef } from '../../private/chart-instance-context';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();

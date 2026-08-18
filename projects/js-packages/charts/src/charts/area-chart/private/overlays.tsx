@@ -2,7 +2,7 @@ import { DataContext, TooltipContext } from '@visx/xychart';
 import { useContext, useImperativeHandle } from 'react';
 import type { ElementStyles, GetElementStylesParams } from '../../../providers';
 import type { DataPointDate, SeriesData } from '../../../types';
-import type { ChartInstanceRef } from '../../private/single-chart-context';
+import type { ChartInstanceRef } from '../../private/chart-instance-context';
 import type { FC, ReactNode, Ref } from 'react';
 
 export type VisibleSeriesEntry = { series: SeriesData; index: number; isVisible: boolean };
