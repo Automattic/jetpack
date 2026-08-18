@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { buildCalendarHeatmapData } from '@jetpack-premium-analytics/externals';
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -10,6 +10,7 @@ import { computeCalendarHeatmapLayout } from '../../helpers/calendar-heatmap-lay
 import { buildDenseDaySeries } from '../../helpers/calendar-heatmap-window';
 import { useElementSize } from '../../hooks';
 import styles from './adaptive-calendar-heatmap.module.scss';
+import type { CalendarHeatmapPager } from './calendar-heatmap-pager-overlay';
 import type { CalendarHeatmapWindow } from '../../helpers/calendar-heatmap-window';
 import type { HeatmapColumn } from '@jetpack-premium-analytics/externals';
 import type { ReactNode } from 'react';
@@ -48,7 +49,15 @@ export type AdaptiveCalendarHeatmapProps = {
 	 * The period the values cover. The grid never renders dates outside this range.
 	 */
 	period: CalendarHeatmapWindow;
-	children: ( chartProps: AdaptiveCalendarHeatmapChartProps ) => ReactNode;
+	/**
+	 * Renders the chart. `pager` exists only while the period holds more week
+	 * columns than the tile draws; pass it to `CalendarHeatmapPagerOverlay` so
+	 * the extra weeks are reachable instead of silently dropped.
+	 */
+	children: (
+		chartProps: AdaptiveCalendarHeatmapChartProps,
+		pager?: CalendarHeatmapPager
+	) => ReactNode;
 };
 
 /**
@@ -57,8 +66,10 @@ export type AdaptiveCalendarHeatmapProps = {
  * The tile's height picks the cell size and its width picks how many week columns
  * it shows. The grid spans the columns the width can draw within the supplied
  * period, ending on its last day, and fills the tile when the period contains
- * enough history. Both widgets share this, so they stay consistent as the
- * dashboard is resized.
+ * enough history. A period holding more weeks than the tile draws is paged —
+ * the newest page first, a window of whole columns at a time — through the
+ * `pager` handed to the children. Both widgets share this, so they stay
+ * consistent as the dashboard is resized.
  *
  * It renders the measured tile wrapper and hands the caller the chart props to
  * spread, leaving the widget to own its data, states, and tooltip.
@@ -123,21 +134,62 @@ export function AdaptiveCalendarHeatmap( {
 		};
 	}, [ size.width, size.height, heatmapData.length ] );
 
+	// Pages step back whole windows from the range end; a new period restarts at
+	// the newest page. A resize keeps the offset — it is clamped below instead,
+	// so dragging the tile wider cannot leave the window past the oldest data.
+	const [ pageOffset, setPageOffset ] = useState( 0 );
+	useEffect( () => {
+		setPageOffset( 0 );
+	}, [ period.startDate, period.endDate ] );
+
+	const total = heatmapData.length;
+	const isPaged = columns > 0 && total > columns;
+	// The oldest page clamps to the range start and fills forward (overlapping
+	// the page after it) rather than padding out-of-range blanks before it.
+	const maxOffset = isPaged ? Math.ceil( total / columns ) - 1 : 0;
+	const offset = Math.min( pageOffset, maxOffset );
+
 	const chartProps = useMemo( () => {
+		// `slice( -0 )` returns the whole array, so an unmeasured or collapsed tile
+		// leaves the period's own columns intact.
+		let data = heatmapData.slice( -columns );
+		if ( isPaged && offset > 0 ) {
+			const start = Math.max( 0, total - ( offset + 1 ) * columns );
+			data = heatmapData.slice( start, start + columns );
+		}
+
 		return {
-			// `slice( -0 )` returns the whole array, so an unmeasured or collapsed tile
-			// leaves the period's own columns intact.
-			data: heatmapData.slice( -columns ),
+			data,
 			rowLabels,
 			className: styles.heatmap,
 			...sizingProps,
 		};
-	}, [ heatmapData, rowLabels, columns, sizingProps ] );
+	}, [ heatmapData, rowLabels, columns, sizingProps, isPaged, offset, total ] );
+
+	const showOlder = useCallback( () => setPageOffset( previous => previous + 1 ), [] );
+	const showNewer = useCallback(
+		() => setPageOffset( previous => Math.max( 0, previous - 1 ) ),
+		[]
+	);
+
+	// Only while weeks are being trimmed: a range that fits has nothing to page.
+	const pager = useMemo< CalendarHeatmapPager | undefined >( () => {
+		if ( ! isPaged ) {
+			return undefined;
+		}
+
+		return {
+			canShowOlder: offset < maxOffset,
+			canShowNewer: offset > 0,
+			showOlder,
+			showNewer,
+		};
+	}, [ isPaged, offset, maxOffset, showOlder, showNewer ] );
 
 	return (
 		<div className={ styles.root }>
 			<div className={ styles.content } ref={ setRef }>
-				{ children( chartProps ) }
+				{ children( chartProps, pager ) }
 			</div>
 		</div>
 	);

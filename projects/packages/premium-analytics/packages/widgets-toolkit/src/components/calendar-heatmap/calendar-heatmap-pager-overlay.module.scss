@@ -1,0 +1,43 @@
+.host {
+	position: relative;
+}
+
+.arrow {
+	position: absolute;
+	inset-block-start: 50%;
+	translate: 0 -50%;
+	z-index: 1;
+
+	/* Hidden until the pointer (or keyboard focus) is over the chart; inert
+	   while hidden so the cells underneath keep their hover tooltips. */
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.15s ease-out;
+
+	/* Draw the focus ring inside the button; the default outset ring gets
+	   clipped by the content area's overflow. */
+	outline-offset: calc(-1 * var(--wpds-border-width-focus));
+}
+
+.older {
+	inset-inline-start: 0;
+}
+
+.newer {
+	inset-inline-end: 0;
+}
+
+.host:hover .arrow,
+.host:focus-within .arrow {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+/* No hover on touch viewports — the arrows have to stay visible to exist. */
+@media (hover: none) {
+
+	.arrow {
+		opacity: 1;
+		pointer-events: auto;
+	}
+}

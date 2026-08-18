@@ -5,6 +5,7 @@ import { useStatsStreak } from '@jetpack-premium-analytics/data';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
 	AdaptiveCalendarHeatmap,
+	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
 	HeatmapChartUnresponsive,
 	WidgetRoot,
@@ -97,7 +98,7 @@ function PostingActivityInner() {
 
 	return (
 		<AdaptiveCalendarHeatmap valueByDay={ postsByDay } period={ streakRange }>
-			{ chartProps => (
+			{ ( chartProps, pager ) => (
 				<WidgetState
 					isLoading={ isLoading }
 					isFetching={ isFetching }
@@ -122,12 +123,14 @@ function PostingActivityInner() {
 				>
 					{ /* No legend: the cell tooltips carry the counts, and the legend's
 					     44px comes out of the cells. */ }
-					<HeatmapChartUnresponsive
-						{ ...chartProps }
-						primaryColor="var(--wp-admin-theme-color, #3858e9)"
-						withTooltips
-						renderTooltip={ renderCellTooltip }
-					/>
+					<CalendarHeatmapPagerOverlay pager={ pager }>
+						<HeatmapChartUnresponsive
+							{ ...chartProps }
+							primaryColor="var(--wp-admin-theme-color, #3858e9)"
+							withTooltips
+							renderTooltip={ renderCellTooltip }
+						/>
+					</CalendarHeatmapPagerOverlay>
 				</WidgetState>
 			) }
 		</AdaptiveCalendarHeatmap>

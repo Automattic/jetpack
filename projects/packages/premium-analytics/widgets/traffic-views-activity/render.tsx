@@ -10,6 +10,7 @@ import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate } from '@jetpack-premium-analytics/formatters';
 import {
 	AdaptiveCalendarHeatmap,
+	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
 	HeatmapChartUnresponsive,
 	WidgetRoot,
@@ -127,7 +128,7 @@ function TrafficViewsActivityInner() {
 
 	return (
 		<AdaptiveCalendarHeatmap valueByDay={ viewsByDay } period={ fetchWindow }>
-			{ chartProps => (
+			{ ( chartProps, pager ) => (
 				<WidgetState
 					isLoading={ isLoading }
 					isFetching={ isFetching }
@@ -146,12 +147,14 @@ function TrafficViewsActivityInner() {
 						description: emptyDescription,
 					} }
 				>
-					<HeatmapChartUnresponsive
-						{ ...chartProps }
-						primaryColor="var(--wp-admin-theme-color, #3858e9)"
-						withTooltips
-						renderTooltip={ renderCellTooltip }
-					/>
+					<CalendarHeatmapPagerOverlay pager={ pager }>
+						<HeatmapChartUnresponsive
+							{ ...chartProps }
+							primaryColor="var(--wp-admin-theme-color, #3858e9)"
+							withTooltips
+							renderTooltip={ renderCellTooltip }
+						/>
+					</CalendarHeatmapPagerOverlay>
 				</WidgetState>
 			) }
 		</AdaptiveCalendarHeatmap>

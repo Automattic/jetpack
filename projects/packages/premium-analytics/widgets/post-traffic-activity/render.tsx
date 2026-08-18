@@ -4,6 +4,7 @@
 import { toPostId } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
+	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
 	HeatmapChartUnresponsive,
 	WidgetRoot,
@@ -19,8 +20,6 @@ import {
 import { useResizeObserver } from '@wordpress/compose';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { chevronLeft, chevronRight } from '@wordpress/icons';
-import { Button, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -62,9 +61,10 @@ function weeksForWidth( width?: number ): number {
 
 /**
  * Renders one page of the post's daily views as a calendar heatmap. Ranges
- * longer than one page grow a header pager stepping through the range; without
- * a post scope (e.g. the widget added outside a post detail page) the query
- * never enables and the empty state shows.
+ * longer than one page grow floating pager arrows over the chart's edges,
+ * stepping through the range; without a post scope (e.g. the widget added
+ * outside a post detail page) the query never enables and the empty state
+ * shows.
  */
 function PostTrafficActivityInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -158,51 +158,29 @@ function PostTrafficActivityInner() {
 					} }
 				>
 					<div className={ styles.content }>
-						{ /* The pager centers with the grid as one block; it only exists
-						     when the range exceeds one page (and only in the ready state,
-						     where the grid it steps is visible). */ }
-						{ isPaged && (
-							<Stack align="center" justify="flex-end" gap="sm" className={ styles.pager }>
-								<Button
-									type="button"
-									variant="minimal"
-									tone="neutral"
-									size="small"
-									onClick={ showOlder }
-									disabled={ ! canShowOlder }
-									aria-label={ __( 'Older activity', 'jetpack-premium-analytics-pkg' ) }
-								>
-									<Button.Icon icon={ chevronLeft } size={ 16 } />
-								</Button>
-								<Button
-									type="button"
-									variant="minimal"
-									tone="neutral"
-									size="small"
-									onClick={ showNewer }
-									disabled={ ! canShowNewer }
-									aria-label={ __( 'Newer activity', 'jetpack-premium-analytics-pkg' ) }
-								>
-									<Button.Icon icon={ chevronRight } size={ 16 } />
-								</Button>
-							</Stack>
-						) }
-						{ /* The unresponsive chart export: the capped grid is
-						     content-sized and the page span is derived from the widget's
-						     own measurement, so the responsive wrapper's full-height
-						     measuring container would only break the centered block. */ }
-						<HeatmapChartUnresponsive
-							data={ heatmapData }
-							rowLabels={ rowLabels }
-							primaryColor="var(--wp-admin-theme-color, #3858e9)"
-							withTooltips
-							// Cap cells at the design's 64x42; the page span is already
-							// sized to the card, so tracks never need to shrink below it.
-							maxCellWidth={ 64 }
-							maxCellHeight={ 42 }
-							renderTooltip={ renderCellTooltip }
-							className={ styles.heatmap }
-						/>
+						{ /* The arrows float over the grid's edges on hover; they only
+						     exist when the range exceeds one page (and only in the ready
+						     state, where the grid they step is visible). */ }
+						<CalendarHeatmapPagerOverlay
+							pager={ isPaged ? { canShowOlder, canShowNewer, showOlder, showNewer } : undefined }
+						>
+							{ /* The unresponsive chart export: the capped grid is
+							     content-sized and the page span is derived from the widget's
+							     own measurement, so the responsive wrapper's full-height
+							     measuring container would only break the centered block. */ }
+							<HeatmapChartUnresponsive
+								data={ heatmapData }
+								rowLabels={ rowLabels }
+								primaryColor="var(--wp-admin-theme-color, #3858e9)"
+								withTooltips
+								// Cap cells at the design's 64x42; the page span is already
+								// sized to the card, so tracks never need to shrink below it.
+								maxCellWidth={ 64 }
+								maxCellHeight={ 42 }
+								renderTooltip={ renderCellTooltip }
+								className={ styles.heatmap }
+							/>
+						</CalendarHeatmapPagerOverlay>
 					</div>
 				</WidgetState>
 			</div>

@@ -52,9 +52,12 @@ export { BarChart, type BarChartProps, type BarChartData, type BarChartStyle } f
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';
 export {
 	AdaptiveCalendarHeatmap,
+	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
 	type AdaptiveCalendarHeatmapChartProps,
 	type AdaptiveCalendarHeatmapProps,
+	type CalendarHeatmapPager,
+	type CalendarHeatmapPagerOverlayProps,
 	type CalendarHeatmapTooltipProps,
 } from './calendar-heatmap';
 export { WidgetLoadingOverlay } from './widget-loading-overlay';
