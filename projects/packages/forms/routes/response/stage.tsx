@@ -226,16 +226,9 @@ function Stage(): React.JSX.Element {
 	// "Mark as unread" menu item on this page re-running the effect.
 	useMarkAsReadOnView( response );
 
-	// The responses list's "Print" action navigates here with `print=1` rather than
-	// printing from the list: this page is the only place a single response is laid
-	// out on its own, and its stylesheet carries the `@media print` rules that strip
-	// the surrounding admin chrome. `window.print()` blocks until the dialog closes,
-	// so it must not fire while the page is still a spinner — wait for the resolved
-	// response.
-	//
-	// The ref records which response was printed rather than a bare "has printed"
-	// flag: prev/next moves between responses without remounting this route, so a
-	// boolean would suppress a later print request on a different response.
+	// Arrives from the list's Print action. `window.print()` blocks, so it must not
+	// fire while the page is still a spinner. The ref is keyed by id because
+	// prev/next moves between responses without remounting this route.
 	const hasPrintRequest = ( searchParams as { print?: number } )?.print === 1;
 	const printedForIdRef = useRef< number | null >( null );
 
@@ -246,17 +239,12 @@ function Stage(): React.JSX.Element {
 
 		printedForIdRef.current = id;
 
-		// Called straight from the effect, with no timer: `useEffect` already runs
-		// after the response has been committed to the DOM. Deferring it to a
-		// `setTimeout` instead would put the print behind a cancellable macrotask —
-		// clearing the flag below, or `useMarkAsReadOnView` marking this response
-		// read, re-runs this effect, and the cleanup would then cancel the pending
-		// print before it ever opened.
+		// Deliberately untimed: a deferred print would be cancelled when this effect
+		// re-runs, and `useEffect` already runs after the response is in the DOM.
 		window.print();
 
-		// `print()` blocks until the dialog is dismissed, so by here the user is
-		// done. Drop the flag so a reload, or a Back navigation into this entry,
-		// doesn't reprint; `replace` keeps the flagged URL out of the history stack.
+		// `print()` blocks, so by here the dialog is closed. Drop the flag so a
+		// reload doesn't reprint.
 		navigate( {
 			search: { ...searchParams, print: undefined },
 			replace: true,

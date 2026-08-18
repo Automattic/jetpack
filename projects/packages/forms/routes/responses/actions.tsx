@@ -13,10 +13,11 @@ import * as React from 'react';
 /**
  * Internal dependencies
  */
-import { notSpam, print as printIcon, spam } from '../../src/dashboard/icons';
+import { notSpam, spam } from '../../src/dashboard/icons';
 import { defaultView } from '../../src/dashboard/inbox/stage/views.js';
 import { getFormsMenuBadgeSlug, getMenuBadgeCount } from '../../src/dashboard/inbox/utils';
 import { store as dashboardStore } from '../../src/dashboard/store';
+import printIcon from './print-icon.tsx';
 /**
  * Types
  */
@@ -361,17 +362,11 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 				return;
 			}
 
-			// Printing happens on the standalone response page rather than here: it
-			// already knows how to fetch and lay out a response, and its stylesheet
-			// carries the `@media print` rules that strip the admin chrome. The page
-			// consumes `print=1` once the response is on screen and clears it again
-			// afterwards, the same way it handles the `mark_as_spam=1` flag arriving
-			// from a response email.
+			// The standalone page owns the print stylesheet and consumes `print=1`
+			// once the response is on screen.
 			navigate( {
 				to: `/response/${ item.id }`,
-				// Router types aren't registered in this build, so `search` resolves to a
-				// reducer signature rather than the route's own param shape. Same cast as
-				// `routes/response/breadcrumbs.tsx`.
+				// Router types aren't registered in this build; same cast as breadcrumbs.tsx.
 				search: { print: 1 } as unknown as never,
 			} );
 		},

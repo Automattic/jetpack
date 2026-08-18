@@ -136,9 +136,7 @@ export default function SingleResponseActions( {
 				runAction( response.is_unread ? actions.markAsReadAction : actions.markAsUnreadAction ),
 		};
 
-		// Printing needs no request and nothing to serialize against, so it skips
-		// `runAction` entirely. The `@media print` rules in this route's stylesheet
-		// reduce the page to the response itself.
+		// No request to serialize against, so it skips `runAction`.
 		const printResponse: Control = {
 			title: __( 'Print', 'jetpack-forms' ),
 			onClick: () => window.print(),

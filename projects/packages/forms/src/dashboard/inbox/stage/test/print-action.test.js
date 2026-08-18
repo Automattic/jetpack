@@ -1,11 +1,7 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-// The responses list's "Print" row action hands printing off to the standalone
-// response page rather than printing from the list: it navigates to
-// `/response/<id>` with `print=1`, and the page opens the browser dialog once the
-// response has rendered. Located here for the same reason as `view-action.test.js`
-// — `routes/*/package.json` has no `"type": "module"`, which makes `.js` under
-// those directories CJS and unable to import the route's TS modules.
+// Located here rather than beside the route for the same reason as
+// `view-action.test.js`: `routes/*/package.json` has no `"type": "module"`.
 const { getActions } = await import( '../../../../../routes/responses/actions.tsx' );
 
 describe( 'printAction', () => {
