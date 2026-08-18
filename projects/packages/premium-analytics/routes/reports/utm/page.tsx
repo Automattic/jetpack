@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
@@ -17,12 +16,12 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import {
 	getReportUtmTabs,
 	getTabTitle,
@@ -84,11 +83,7 @@ function getUtmCsvLabel( item: UtmReportRow ): string {
  * @return The UTM report page.
  */
 function UtmReport(): JSX.Element {
-	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
-	const reportParams = useMemo(
-		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
-		[ search ]
-	);
+	const reportParams = useReportParams();
 	const tabs = useMemo( () => getReportUtmTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
 	const records = useUtmReportRecords( activeTab, reportParams );

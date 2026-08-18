@@ -1,7 +1,7 @@
 /**
- * Types
+ * Internal dependencies
  */
-import type { ReportParams } from '@jetpack-premium-analytics/data';
+import type { ReportParams } from './search';
 
 /**
  * Copy report params with the comparison fields removed.

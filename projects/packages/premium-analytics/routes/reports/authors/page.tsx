@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
@@ -16,12 +15,12 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import { getAuthorName, getAuthorsFields, useAuthorsReportRecords, type AuthorRow } from './config';
 
 const ROUTE_FROM = route.path;
@@ -74,11 +73,7 @@ function getAuthorCsvLabel( item: AuthorRow ): string {
  * @return The Authors report page.
  */
 function AuthorsReport(): JSX.Element {
-	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
-	const reportParams = useMemo(
-		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
-		[ search ]
-	);
+	const reportParams = useReportParams();
 
 	const records = useAuthorsReportRecords( reportParams );
 	const retry = useReportRetry( records.refetch );

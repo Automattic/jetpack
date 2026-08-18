@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { withoutComparison } from '../without-comparison';
-import type { ReportParams } from '@jetpack-premium-analytics/data';
+import type { ReportParams } from '../search';
 
 const PARAMS = {
 	from: '2026-07-01',

@@ -63,7 +63,7 @@ export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
 export { defaultPeriodForInterval } from './default-period-for-interval';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
-export { withoutComparison } from './without-comparison';
+export { withoutComparison } from '@jetpack-premium-analytics/data';
 export {
 	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,

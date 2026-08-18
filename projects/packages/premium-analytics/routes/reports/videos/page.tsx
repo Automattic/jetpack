@@ -2,7 +2,6 @@
  * External dependencies
  */
 import {
-	normalizeReportParams,
 	type StatsVideoPlaysItem,
 	type StatsVideoPlaysComparisonItem,
 } from '@jetpack-premium-analytics/data';
@@ -20,12 +19,12 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import { getVideosFields, useVideosReportRecords } from './config';
 
 const ROUTE_FROM = route.path;
@@ -71,11 +70,7 @@ const sortVideoCsvRows = ( a: StatsVideoPlaysItem, b: StatsVideoPlaysItem ) => b
  * @return The Videos report page.
  */
 function VideosReport(): JSX.Element {
-	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
-	const reportParams = useMemo(
-		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
-		[ search ]
-	);
+	const reportParams = useReportParams();
 	const records = useVideosReportRecords( reportParams );
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo(
