@@ -5,24 +5,35 @@ import type { Frame, Locator, Page } from '@playwright/test';
 /**
  * Layout regressions in the Form block are almost always a disagreement between
  * the editor and the front end, and almost always invisible on the theme the
- * developer happens to be running. Two things make that so:
+ * developer happens to be running. Two things make that so.
  *
- * 1. A theme with no `theme.json` makes WordPress load
- *    `wp-includes/css/dist/edit-post/classic.min.css` into the editor, which
- *    gives every `.wp-block` a 28px vertical margin and auto inline margins.
- *    Neither reaches a block theme, so a bug can be plainly visible on Twenty
- *    Sixteen and absent on Twenty Twenty-Four.
- * 2. The form renders from React in the editor and from PHP on the front end,
- *    so the two surfaces have different markup for the same content.
+ * First, a theme with no `theme.json` makes WordPress load
+ * `wp-includes/css/dist/edit-post/classic.min.css` into the editor, which gives
+ * every `.wp-block` a 28px vertical margin and auto inline margins. Neither
+ * reaches a block theme, so a bug can be plainly visible on a classic theme and
+ * absent on a block theme.
  *
- * These tests therefore run the same fixture through both themes and both
- * surfaces, and assert on geometry rather than on CSS properties. That matters:
- * `margin-inline: auto` reports a *used* value of `0px` when there is no free
- * space, so reading computed margins cannot distinguish "the rule is off" from
- * "the rule has nothing to do". Positions and widths are what a user sees.
+ * Second, the form renders from React in the editor and from PHP on the front
+ * end, so the two surfaces have different markup for the same content.
+ *
+ * These tests therefore run the same fixture through both kinds of theme and
+ * both surfaces, and assert on geometry rather than on CSS properties. That
+ * matters: `margin-inline: auto` reports a *used* value of `0px` when there is
+ * no free space, so reading computed margins cannot distinguish "the rule is
+ * off" from "the rule has nothing to do". Positions and widths are what a user
+ * sees.
  */
 
-const CLASSIC_THEME = 'twentysixteen';
+/*
+ * A fixture theme from `tools/e2e-commons/themes/`, mounted into the container
+ * by `tools/docker/jetpack-docker-config-default.yml`, rather than a bundled
+ * WordPress theme. WordPress only ships its most recent default themes and they
+ * are all block themes, so a classic one would have to be pulled from
+ * wordpress.org at test time — and any theme that gained a `theme.json` in a
+ * later release would silently stop exercising the classic-editor stylesheet
+ * this half of the matrix exists for.
+ */
+const CLASSIC_THEME = 'e2e-classic-theme';
 const BLOCK_THEME = 'twentytwentyfour';
 
 /**
@@ -73,7 +84,7 @@ const SINGLE_STEP_FORM = `<!-- wp:jetpack/contact-form {"subject":"Layout test",
 
 /**
  * A multistep form. The step is a flex container that carries no
- * `is-layout-flex` class, which is what lets core's classic-theme rule centre
+ * `is-layout-flex` class, which is what lets core's classic-theme rule center
  * its children, and it is `flex-direction: column`, which is why a `flex-basis`
  * of 100% sizes the height rather than the width.
  */
@@ -207,8 +218,7 @@ function measureSingleStep( root: Locator, sel: Selectors ): Promise< SingleStep
 			formWidth: formBox ? formBox.width : 0,
 			labelInputGap: gap( labelBox, inputBox ),
 			groupWidth: groupBox ? groupBox.width : null,
-			groupFillsForm:
-				groupBox && formBox ? Math.abs( groupBox.width - formBox.width ) <= 2 : null,
+			groupFillsForm: groupBox && formBox ? Math.abs( groupBox.width - formBox.width ) <= 2 : null,
 			groupParagraphGap: paras.length > 1 ? gap( paras[ 0 ], paras[ 1 ] ) : null,
 			columnCount: columns.length,
 			columnsSideBySide:
@@ -283,12 +293,11 @@ function measureMultistep( root: Locator, sel: Selectors ): Promise< MultistepMe
  * Waits for the editor canvas to have painted the form.
  *
  * @param page - The page.
+ * @return The canvas frame, or the main frame when the editor is not iframed.
  */
 async function waitForEditorCanvas( page: Page ): Promise< Frame > {
 	await page.waitForFunction( () => {
-		const frame = document.querySelector< HTMLIFrameElement >(
-			'iframe[name="editor-canvas"]'
-		);
+		const frame = document.querySelector< HTMLIFrameElement >( 'iframe[name="editor-canvas"]' );
 		const doc = frame ? frame.contentDocument : document;
 		return !! doc?.querySelector( '.jetpack-contact-form' );
 	} );
@@ -300,8 +309,15 @@ for ( const theme of [ CLASSIC_THEME, BLOCK_THEME ] ) {
 	test.describe( `Form block layout: ${ theme }`, () => {
 		let singleStepPageId: number;
 		let multistepPageId: number;
+		let originalTheme: string | null = null;
 
 		test.beforeAll( async ( { requestUtils } ) => {
+			const active = await requestUtils.rest( {
+				path: '/wp/v2/themes',
+				params: { status: 'active' },
+			} );
+			originalTheme = active?.[ 0 ]?.stylesheet ?? null;
+
 			await requestUtils.activateTheme( theme );
 
 			const single = await requestUtils.createPage( {
@@ -320,13 +336,29 @@ for ( const theme of [ CLASSIC_THEME, BLOCK_THEME ] ) {
 		} );
 
 		test.afterAll( async ( { requestUtils } ) => {
-			// `deletePage` is not bound onto RequestUtils, so go through REST.
-			for ( const id of [ singleStepPageId, multistepPageId ] ) {
-				await requestUtils.rest( {
-					method: 'DELETE',
-					path: `/wp/v2/pages/${ id }`,
-					params: { force: true },
-				} );
+			try {
+				// `deletePage` is not bound onto RequestUtils, so go through REST.
+				for ( const id of [ singleStepPageId, multistepPageId ] ) {
+					/*
+					 * `beforeAll` can throw before either page exists. Deleting
+					 * `undefined` 404s, and the hook's own error would then bury
+					 * the one that actually broke the run.
+					 */
+					if ( ! id ) {
+						continue;
+					}
+					await requestUtils.rest( {
+						method: 'DELETE',
+						path: `/wp/v2/pages/${ id }`,
+						params: { force: true },
+					} );
+				}
+			} finally {
+				// Activating a theme is site-wide and outlasts this file, so put
+				// the old one back for whatever spec runs next against the site.
+				if ( originalTheme && originalTheme !== theme ) {
+					await requestUtils.activateTheme( originalTheme );
+				}
 			}
 		} );
 
@@ -396,8 +428,16 @@ for ( const theme of [ CLASSIC_THEME, BLOCK_THEME ] ) {
 
 			test.skip( metrics.stepWidth === null, 'Multistep forms are not enabled on this site.' );
 
+			/*
+			 * The skip above covers "no step element at all", which is what an
+			 * unavailable feature looks like. A step that is present but has no
+			 * size is a different thing — a broken render — and every assertion
+			 * below would pass vacuously against zeroed rects, so fail on it.
+			 */
+			expect( metrics.stepWidth as number ).toBeGreaterThan( 0 );
+
 			// Core's classic-theme rule hands a step's children `margin-inline:
-			// auto`, and auto margins eat a flex item's free space — which centres
+			// auto`, and auto margins eat a flex item's free space — which centers
 			// them, because the step is a column and this beats its `align-items`.
 			expect( metrics.paragraphOffsetLeft ).toBe( 0 );
 			expect( metrics.halfFieldOffsetLeft ).toBe( 0 );
@@ -422,6 +462,14 @@ for ( const theme of [ CLASSIC_THEME, BLOCK_THEME ] ) {
 			logger.debug( `front/${ theme } multistep: ${ JSON.stringify( metrics ) }` );
 
 			test.skip( metrics.stepWidth === null, 'Multistep forms are not enabled on this site.' );
+
+			/*
+			 * The skip above covers "no step element at all", which is what an
+			 * unavailable feature looks like. A step that is present but has no
+			 * size is a different thing — a broken render — and every assertion
+			 * below would pass vacuously against zeroed rects, so fail on it.
+			 */
+			expect( metrics.stepWidth as number ).toBeGreaterThan( 0 );
 
 			expect( metrics.paragraphOffsetLeft ).toBe( 0 );
 			expect( metrics.halfFieldOffsetLeft ).toBe( 0 );

@@ -74,3 +74,4 @@ e2e:
     tools/e2e-commons/plugins/e2e-search-test-helper.php: /var/www/html/wp-content/plugins/e2e-search-test-helper.php
     tools/e2e-commons/plugins/e2e-wpcom-request-interceptor.php: /var/www/html/wp-content/plugins/e2e-wpcom-request-interceptor.php
     tools/e2e-commons/plugins/e2e-plan-helper.php: /var/www/html/wp-content/plugins/e2e-plan-helper.php
+    tools/e2e-commons/themes/e2e-classic-theme/: /var/www/html/wp-content/themes/e2e-classic-theme/

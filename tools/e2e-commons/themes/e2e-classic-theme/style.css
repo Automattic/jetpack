@@ -1,0 +1,30 @@
+/*
+Theme Name: E2E Classic Theme
+Description: A deliberately minimal classic theme for end-to-end tests. Its defining feature is what it does NOT have: a theme.json. See functions.php.
+Version: 1.0.0
+Requires at least: 6.7
+Requires PHP: 7.2
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: e2e-classic-theme
+*/
+
+body {
+	margin: 0;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	font-size: 16px;
+	line-height: 1.5;
+}
+
+/*
+ * A predictable, generously sized content column. Specs measure block geometry
+ * relative to the block under test rather than to the viewport, so the exact
+ * width does not matter — but it has to be wide enough that a two-column layout
+ * has room to sit side by side rather than collapsing.
+ */
+.e2e-content {
+	box-sizing: border-box;
+	max-width: 840px;
+	margin-inline: auto;
+	padding-inline: 20px;
+}
