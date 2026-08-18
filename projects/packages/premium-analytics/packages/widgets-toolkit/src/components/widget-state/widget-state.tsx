@@ -52,23 +52,15 @@ export function WidgetState( {
 	renderLoading,
 	children,
 }: WidgetStateProps ) {
-	// A refetch-only signal: React Query reports `isFetching` on the first load
-	// too, and letting that through would mark the region busy over the first-load
-	// skeleton — the one state whose "Loading…" is meant to be announced.
+	// React Query also reports `isFetching` on the first load; delay only refetches.
 	const showFetchingState = useDelayedLoading( isFetching && ! isLoading );
 	const rootRef = useRef< HTMLDivElement >( null );
 	const contentRef = useRef< HTMLDivElement >( null );
 	const focusToRestore = useRef< HTMLElement | null >( null );
 
-	// Hiding the children makes them unfocusable, and the browser drops focus to
-	// the body at the next rendering update. That strands keyboard users who
-	// activated something inside the body — a drill-down row, which refetches by
-	// definition — at the top of the document. A layout effect runs before that
-	// fixup, so it still sees where focus was, and can move it somewhere that
-	// survives the whole skeleton window rather than only restoring at the end.
+	// Park focus before hidden content becomes unfocusable, then restore it after the refetch.
 	useLayoutEffect( () => {
-		// Read focus through the root's own document rather than the global one,
-		// so the two reads below cannot end up describing different documents.
+		// Use the widget's document to support rendering in another window or iframe.
 		const ownerDocument = rootRef.current?.ownerDocument;
 		const view = ownerDocument?.defaultView;
 		if ( ! ownerDocument || ! view ) {
@@ -77,18 +69,13 @@ export function WidgetState( {
 
 		if ( showFetchingState ) {
 			const active = ownerDocument.activeElement;
-			// `view.HTMLElement` rather than the global one: elements belong to
-			// their own realm's constructor, so a bare `instanceof` can silently
-			// never match and the widget would never park.
+			// Elements must be checked against their own document's constructor.
 			const wasInside =
 				active instanceof view.HTMLElement && !! contentRef.current?.contains( active );
-			// Always assign, so a later refetch can never restore a target this one
-			// captured.
+			// Clear stale targets when focus is outside the widget.
 			focusToRestore.current = wasInside ? active : null;
 			if ( wasInside ) {
-				// The root is never hidden, so parking focus here keeps Tab
-				// continuing from the widget for the length of the fetch. Nothing
-				// moves on screen, so neither should the viewport.
+				// The root remains mounted and keeps keyboard navigation at the widget.
 				rootRef.current?.focus( { preventScroll: true } );
 			}
 			return;
@@ -99,22 +86,11 @@ export function WidgetState( {
 		if ( ! target ) {
 			return;
 		}
-		// Only reclaim focus still sitting exactly where this component left it.
-		// Anywhere else means the reader moved on during the fetch, and pulling
-		// them back would be the worse bug. The body counts as moved on: the root
-		// outlives every state now, so the only way focus reaches the body from
-		// here is the reader clicking something unfocusable.
+		// Do not reclaim focus if the user moved it during the refetch.
 		if ( ownerDocument.activeElement !== rootRef.current ) {
 			return;
 		}
-		// A drill-down replaces the rows it was triggered from, so the original
-		// target is often gone; the root keeps the next Tab where it was. A
-		// target that survives but refuses focus — disabled, hidden — needs no
-		// branch of its own: `focus()` is silent and focus stays parked on the
-		// root, which is where that branch would have put it anyway.
-		// `preventScroll` for the same reason as the park: focus never left the
-		// widget, so a reader who scrolled away meanwhile chose that view and
-		// shouldn't be yanked back by an update they can't see.
+		// Fall back to the root if the original target was removed, without changing the viewport.
 		( target.isConnected ? target : rootRef.current )?.focus( { preventScroll: true } );
 	}, [ showFetchingState ] );
 
@@ -154,9 +130,7 @@ export function WidgetState( {
 			</Stack>
 		);
 	} else if ( isLoading || ( isEmpty && showFetchingState ) ) {
-		// Reached on a refetch too, when the last result was empty. Announce only
-		// on first load, so whether a widget speaks up depends on what the user
-		// did rather than on what it happened to be showing beforehand.
+		// Announce the skeleton only on first load, not when refetching an empty result.
 		body = (
 			<div className={ styles.loading } aria-hidden={ ! isLoading || undefined }>
 				{ skeleton }
@@ -196,26 +170,14 @@ export function WidgetState( {
 		);
 	}
 
-	// One root for every state, rather than one per branch: focus parked here
-	// has to survive a refetch that resolves into the empty or error state, and
-	// an element that unmounts underneath it would hand focus back to the
-	// document body — the exact thing the parking exists to prevent.
+	// Keep the focus target mounted when a refetch resolves to any state.
 	return (
 		<div
 			ref={ rootRef }
-			// Not in the tab order; only ever focused by the effect above, as the
-			// part of the widget body that stays visible through a refetch.
+			// Focused programmatically during refetches, but omitted from the tab order.
 			tabIndex={ -1 }
 			className={ styles.root }
-			// Only while a delayed skeleton is up, for two reasons. A refetch that
-			// resolves inside the delay changes nothing on screen, so flipping the
-			// region busy and back would interrupt a screen reader over an update a
-			// sighted reader never sees — the opposite of what the delay is for.
-			// And busy defers descendant changes, so covering the first load would
-			// hold back the skeleton's own "Loading…" until the moment that status
-			// node is removed, which is to say forever. Busy therefore only ever
-			// wraps a skeleton that is already `aria-hidden`; the first load speaks
-			// for itself through its live region instead.
+			// Mark only visible refetch skeletons as busy; the first-load skeleton announces itself.
 			aria-busy={ showFetchingState || undefined }
 		>
 			{ body }
