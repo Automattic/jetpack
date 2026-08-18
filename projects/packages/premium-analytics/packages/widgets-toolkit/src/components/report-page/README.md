@@ -8,7 +8,7 @@ not a bespoke page per module.
 ```tsx
 const label = __( 'All pages' );
 
-<ReportPageShell
+<Page
 	visual={ <StatsPageIcon /> }
 	breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
 	subTitle={ __( 'All your posts and archive pages.' ) }
@@ -30,13 +30,13 @@ const label = __( 'All pages' );
 			initialView={ { sort: { field: 'views', direction: 'desc' } } }
 		/>
 	</ReportPageLayout>
-</ReportPageShell>
+</Page>
 ```
 
-- **`ReportPageShell`** — the outer `Page` shell: the shared Jetpack visual,
-  Stats breadcrumbs, subtitle, and page-level actions.
-- **`ReportPageLayout`** — the report content scaffold: optional internal tabs,
-  the section header, and stacked sections.
+- **`Page`** (from `@wordpress/admin-ui`) — the page header: the shared Jetpack
+  visual, Stats breadcrumbs, subtitle, and page-level actions. Used directly.
+- **`ReportPageLayout`** — the content box, which is also the scroll container:
+  optional internal tabs, the section header, and stacked sections.
   `ReportPageSection` is the bordered card each section renders in.
 
 - **`ReportPerformanceChart`** — the multi-metric visits chart

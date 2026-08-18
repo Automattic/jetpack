@@ -7,7 +7,6 @@ import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportPageLayout,
-	ReportPageShell,
 	ReportPageTabs,
 	ReportDrilldownTable,
 	ReportRecordsTable,
@@ -16,6 +15,7 @@ import {
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -193,8 +193,7 @@ function PostsReport(): JSX.Element {
 	const { getLabel } = REPORTS.posts;
 
 	return (
-		<ReportPageShell
-			tabbed
+		<Page
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics-pkg' ) }
@@ -218,7 +217,7 @@ function PostsReport(): JSX.Element {
 					recordsTable
 				) }
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }
 

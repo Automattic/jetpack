@@ -31,13 +31,13 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ReportCsvAction: () => null,
 	ReportErrorState: () => null,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
-	ReportPageShell: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportRecordsTable: jest.fn( () => null ),
 	useReportCsvExport: () => ( { canExport: false, rows: [], filename: 'file-downloads' } ),
 	useReportRetry: ( refetch: () => unknown ) => refetch,
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
+	Page: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	Breadcrumbs: () => null,
 } ) );
 

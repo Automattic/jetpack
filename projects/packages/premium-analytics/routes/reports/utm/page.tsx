@@ -7,13 +7,13 @@ import {
 	ReportErrorState,
 	ReportDrilldownTable,
 	ReportPageLayout,
-	ReportPageShell,
 	ReportPageTabs,
 	ReportCsvAction,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -110,8 +110,7 @@ function UtmReport(): JSX.Element {
 	const { getLabel } = REPORTS.utm;
 
 	return (
-		<ReportPageShell
-			tabbed
+		<Page
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
@@ -144,7 +143,7 @@ function UtmReport(): JSX.Element {
 					/>
 				) }
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }
 

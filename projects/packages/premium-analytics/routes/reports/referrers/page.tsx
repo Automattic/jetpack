@@ -7,12 +7,12 @@ import {
 	ReportDrilldownTable,
 	ReportErrorState,
 	ReportPageLayout,
-	ReportPageShell,
 	ReportCsvAction,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -96,7 +96,7 @@ function ReferrersReport(): JSX.Element {
 	const { getLabel, getTitle } = REPORTS.referrers;
 
 	return (
-		<ReportPageShell
+		<Page
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
@@ -124,7 +124,7 @@ function ReferrersReport(): JSX.Element {
 					/>
 				) }
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }
 

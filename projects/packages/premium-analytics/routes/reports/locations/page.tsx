@@ -7,13 +7,13 @@ import {
 	ReportCsvAction,
 	ReportErrorState,
 	ReportPageLayout,
-	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -147,8 +147,7 @@ export default function LocationsReportPage(): JSX.Element {
 	const { getLabel } = REPORTS.locations;
 
 	return (
-		<ReportPageShell
-			tabbed
+		<Page
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
@@ -180,6 +179,6 @@ export default function LocationsReportPage(): JSX.Element {
 					/>
 				) }
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }

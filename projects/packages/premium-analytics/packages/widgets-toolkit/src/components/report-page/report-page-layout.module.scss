@@ -1,7 +1,25 @@
+/*
+ * The scroll container for a report's content, and the gutter that lines it up
+ * with the page header above. `Page` renders no content box without
+ * `hasPadding`, and its `hasPadding` box pads the bottom as lightly as the top,
+ * which a long records table needs more room than.
+ */
 .root {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg);
+
+	flex: 1 1 auto;
+	overflow-y: auto;
+
+	padding-block-start: var(--wpds-dimension-padding-lg);
+	padding-block-end: var(--wpds-dimension-padding-2xl);
+	padding-inline: var(--wpds-dimension-padding-2xl);
+}
+
+// The tab strip is designed to sit flush under the page header's border.
+.rootTabbed {
+	padding-block-start: 0;
 }
 
 .sections {

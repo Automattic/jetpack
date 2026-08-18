@@ -83,7 +83,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
 		ReportErrorState: () => null,
 		ReportPageLayout: Container,
 		ReportPageSection: Container,
-		ReportPageShell: Container,
 		ReportPageTabs: () => null,
 		ReportPerformanceChart: () => null,
 		ReportRecordsTable: () => null,

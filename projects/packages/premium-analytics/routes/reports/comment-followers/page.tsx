@@ -9,13 +9,13 @@ import {
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageSection,
-	ReportPageShell,
 	ReportRecordsTable,
 	ReportCsvAction,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -94,7 +94,7 @@ function CommentFollowersReport(): JSX.Element {
 	const { getLabel, getTitle } = REPORTS[ 'comment-followers' ];
 
 	return (
-		<ReportPageShell
+		<Page
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
@@ -142,7 +142,7 @@ function CommentFollowersReport(): JSX.Element {
 					</>
 				) }
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }
 

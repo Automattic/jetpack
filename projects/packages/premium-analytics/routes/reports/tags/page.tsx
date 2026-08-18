@@ -5,13 +5,13 @@ import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportPageLayout,
-	ReportPageShell,
 	ReportRecordsTable,
 	ReportCsvAction,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -76,7 +76,7 @@ function TagsReport(): JSX.Element {
 	const { getLabel, getTitle } = REPORTS.tags;
 
 	return (
-		<ReportPageShell
+		<Page
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			subTitle={ __( 'Your most visited tags and categories.', 'jetpack-premium-analytics-pkg' ) }
@@ -109,7 +109,7 @@ function TagsReport(): JSX.Element {
 					/>
 				) }
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }
 

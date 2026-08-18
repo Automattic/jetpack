@@ -4,6 +4,7 @@
 import { computePrimaryRange } from '@jetpack-premium-analytics/datetime';
 import { GlobalChartsProvider, Text, type Field } from '@jetpack-premium-analytics/externals';
 import '@wordpress/dataviews/build-style/style.css';
+import { Page } from '@wordpress/admin-ui';
 import { Button } from '@wordpress/components';
 import { Icon, external } from '@wordpress/icons';
 import { useState } from 'react';
@@ -12,7 +13,6 @@ import { useState } from 'react';
  */
 import { useChartTheme } from '../../../hooks';
 import { ReportPageLayout } from '../report-page-layout';
-import { ReportPageShell } from '../report-page-shell';
 import { ReportPerformanceChart } from '../report-performance-chart';
 import { ReportRecordsTable } from '../report-records-table';
 import styles from './report-page.stories.module.scss';
@@ -193,7 +193,7 @@ function ComposedReportPage( { withComparison, isLoading }: ReportPageStoryContr
 	const [ interval, setInterval ] = useState< IntervalType >( 'day' );
 
 	return (
-		<ReportPageShell
+		<Page
 			breadcrumbs={ <StoryBreadcrumbs /> }
 			subTitle="All your posts and archive pages."
 			actions={ <Button variant="secondary">Download</Button> }
@@ -236,7 +236,7 @@ function ComposedReportPage( { withComparison, isLoading }: ReportPageStoryContr
 					) }
 				/>
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }
 

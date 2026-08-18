@@ -44,7 +44,7 @@ export function ReportPageLayout( { title, dateFilters, tabs, children }: Report
 	);
 
 	return (
-		<div className={ styles.root }>
+		<div className={ clsx( styles.root, tabs && styles.rootTabbed ) }>
 			{ tabs }
 			<SectionHeader title={ title } subtitle={ subtitle }>
 				{ dateFilters ? <DateFiltersPanel { ...dateFilters } showComparison={ false } /> : null }

@@ -42,12 +42,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		</div>
 	) ),
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
-	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
-		<>
-			{ actions ? <div data-testid="page-actions">{ actions }</div> : null }
-			{ children }
-		</>
-	),
 	ReportRecordsTable: jest.fn( () => null ),
 	ReportCsvAction: jest.fn( () => <button>Download</button> ),
 	useReportCsvExport: jest.fn(),
@@ -57,6 +51,12 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
+	Page: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
+		<>
+			{ actions ? <div data-testid="page-actions">{ actions }</div> : null }
+			{ children }
+		</>
+	),
 	Breadcrumbs: () => null,
 } ) );
 

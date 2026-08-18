@@ -8,11 +8,11 @@ import {
 	ReportCsvAction,
 	ReportErrorState,
 	ReportPageLayout,
-	ReportPageShell,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -106,7 +106,7 @@ function AuthorsReport(): JSX.Element {
 	const { getLabel, getTitle } = REPORTS.authors;
 
 	return (
-		<ReportPageShell
+		<Page
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
@@ -139,7 +139,7 @@ function AuthorsReport(): JSX.Element {
 					/>
 				) }
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }
 

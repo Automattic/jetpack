@@ -59,12 +59,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		</>
 	),
 	ReportCsvAction: jest.fn( () => <button>Download</button> ),
-	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
-		<>
-			{ actions }
-			{ children }
-		</>
-	),
 	ReportPageTabs: jest.fn( () => null ),
 	// The table's own tests cover how it renders the field config and reports
 	// view changes; here only the props the page hands it matter.
@@ -76,6 +70,12 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
+	Page: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
+		<>
+			{ actions }
+			{ children }
+		</>
+	),
 	Breadcrumbs: () => null,
 } ) );
 

@@ -6,7 +6,6 @@ export {
 } from './report-page-layout';
 export { ReportErrorState, type ReportErrorStateProps } from './report-error-state';
 export { ReportCsvAction, type ReportCsvActionProps } from './report-csv-action';
-export { ReportPageShell, type ReportPageShellProps } from './report-page-shell';
 export {
 	ReportPerformanceChart,
 	type ReportPerformanceChartProps,

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Internal: report pages render Page directly instead of a wrapper around it.
+
+
