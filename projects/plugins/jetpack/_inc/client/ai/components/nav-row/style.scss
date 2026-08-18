@@ -24,10 +24,13 @@
 		background: var(--color-surface-backdrop, #f0f0f1);
 	}
 
-	// The row fills a card that clips its overflow, which would swallow a
-	// focus ring drawn outside the row — keep it inside so it stays visible.
+	// wp-admin's a:focus indicator is a box-shadow drawn outside the edge,
+	// which the card's overflow clips — and its outline is transparent. Draw
+	// an opaque inset outline instead so keyboard focus is actually visible.
 	&:focus-visible {
-		outline-offset: -2px;
+		outline: var(--wpds-border-width-focus, 2px) solid var(--wpds-color-stroke-focus, #3858e9);
+		outline-offset: calc(-1 * var(--wpds-border-width-focus, 2px));
+		box-shadow: none;
 	}
 
 	// Default colours mirror the MCP rows this is modelled on: the leading
