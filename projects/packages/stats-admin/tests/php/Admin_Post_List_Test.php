@@ -197,9 +197,11 @@ class Admin_Post_List_Test extends BaseTestCase {
 		$wp_query = $this->get_wp_query_mock( $post_id );
 
 		$filtered_url = 'https://example.com/analytics/post/' . $post_id;
-		$received     = array();
-		$filter       = function ( $url, $url_post_id ) use ( &$received, $filtered_url ) {
-			$received = array( $url, $url_post_id );
+		$received_url = '';
+		$received_id  = 0;
+		$filter       = function ( $url, $url_post_id ) use ( &$received_url, &$received_id, $filtered_url ) {
+			$received_url = $url;
+			$received_id  = $url_post_id;
 			return $filtered_url;
 		};
 		add_filter( 'jetpack_stats_post_list_column_url', $filter, 10, 2 );
@@ -218,8 +220,8 @@ class Admin_Post_List_Test extends BaseTestCase {
 		remove_filter( 'jetpack_stats_post_list_column_url', $filter, 10 );
 
 		$this->assertStringContainsString( $filtered_url, html_entity_decode( $output, ENT_QUOTES, 'UTF-8' ) );
-		$this->assertStringContainsString( 'admin.php?page=stats', $received[0], 'The filter receives the unfiltered stats URL.' );
-		$this->assertSame( $post_id, $received[1] );
+		$this->assertStringContainsString( 'admin.php?page=stats', $received_url, 'The filter receives the unfiltered stats URL.' );
+		$this->assertSame( $post_id, $received_id );
 
 		wp_delete_post( $post_id, true );
 		$wp_query = null;
