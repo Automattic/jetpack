@@ -52,6 +52,24 @@ class Terms_Of_Service_Seeding_Test extends BaseTestCase {
 	}
 
 	/**
+	 * On the seeding request itself, the value must still come through the jetpack_options filter,
+	 * not bypass it. wpcomsh/masterbar force tos_agreed to true via that filter while recording a
+	 * Tracks event; returning false directly on first read would drop that event.
+	 */
+	public function test_seeding_read_honors_jetpack_options_filter() {
+		add_filter(
+			'jetpack_options',
+			function ( $value, $name ) {
+				return Terms_Of_Service::OPTION_NAME === $name ? true : $value;
+			},
+			10,
+			2
+		);
+
+		$this->assertTrue( (bool) $this->read(), 'Filter override must win even on the seeding read.' );
+	}
+
+	/**
 	 * A stored "agreed" value is returned as-is and never overwritten.
 	 */
 	public function test_returns_stored_true_without_reseeding() {

@@ -101,9 +101,11 @@ class Terms_Of_Service {
 			// persistent object cache. add_option, not update_option (which no-ops when the new
 			// value equals the current default).
 			add_option( $option_name, false, '', true );
-			return false;
 		}
 
+		// Read canonically on every path, including the request that just seeded, so callers still
+		// see any jetpack_options filter override (e.g. wpcomsh/masterbar forcing agreement while
+		// recording a Tracks event).
 		return \Jetpack_Options::get_option( self::OPTION_NAME );
 	}
 
