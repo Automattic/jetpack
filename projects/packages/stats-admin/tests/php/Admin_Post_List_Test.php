@@ -220,18 +220,33 @@ class Admin_Post_List_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test the CSS output.
+	 * Test that the column CSS is attached to an enqueued stylesheet on the post list screen.
 	 *
 	 * @return void
 	 */
 	public function test_stats_load_admin_css() {
-		// Capture output from the `stats_load_admin_css` method
-		ob_start();
-		Admin_Post_List_Column::register()->stats_load_admin_css();
-		$output = ob_get_clean();
+		wp_styles()->add_inline_style( 'common', '' );
+		wp_styles()->add_data( 'common', 'after', array() );
 
-		// Ensure the correct CSS is outputted for the Stats column width
-		$this->assertStringContainsString( '.fixed .column-stats', $output );
+		Admin_Post_List_Column::register()->stats_load_admin_css( 'edit.php' );
+
+		$this->assertStringContainsString(
+			'.fixed .column-stats',
+			implode( '', wp_styles()->get_data( 'common', 'after' ) )
+		);
+	}
+
+	/**
+	 * Test that the column CSS is not added to admin screens without the post list.
+	 *
+	 * @return void
+	 */
+	public function test_stats_load_admin_css_is_limited_to_the_post_list() {
+		wp_styles()->add_data( 'common', 'after', array() );
+
+		Admin_Post_List_Column::register()->stats_load_admin_css( 'index.php' );
+
+		$this->assertSame( array(), wp_styles()->get_data( 'common', 'after' ) );
 	}
 
 	/**
