@@ -14,6 +14,7 @@ namespace Automattic\Jetpack\Search;
 class AI_Answers {
 	const BEHAVIOR_META_KEY   = '_guideline_block_jetpack_search-ai-summary';
 	const BEHAVIOR_OPTION_KEY = 'jetpack_search_ai_behavior_instructions';
+	const ENABLED_OPTION      = 'jetpack_search_ai_answers_enabled';
 
 	/**
 	 * Hook up meta/setting registration.
@@ -88,9 +89,29 @@ class AI_Answers {
 	 * Whether AI Answers is enabled for the current site.
 	 */
 	public static function is_enabled() {
-		return (bool) apply_filters(
-			'jetpack_search_ai_answers_enabled',
-			(bool) get_option( 'jetpack_search_ai_answers_enabled', false )
-		);
+		return (bool) apply_filters( 'jetpack_search_ai_answers_enabled', self::is_saved_on() );
+	}
+
+	/**
+	 * The saved AI Answers choice — the raw option, ignoring any gates on the filter.
+	 *
+	 * @return bool
+	 */
+	public static function is_saved_on() {
+		return (bool) get_option( self::ENABLED_OPTION, false );
+	}
+
+	/**
+	 * Whether the site-wide AI gates currently allow AI Answers.
+	 *
+	 * The Jetpack plugin enforces the AI master switch and the host's AI opt-out
+	 * through the `jetpack_search_ai_answers_enabled` filter; probing the chain
+	 * with `true` reads that verdict without depending on the plugin. Sites with
+	 * no gate registered (e.g. standalone Search) report on.
+	 *
+	 * @return bool
+	 */
+	public static function is_master_enabled() {
+		return (bool) apply_filters( 'jetpack_search_ai_answers_enabled', true );
 	}
 }

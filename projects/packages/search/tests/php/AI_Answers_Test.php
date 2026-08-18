@@ -13,6 +13,8 @@ use Automattic\Jetpack\Search\TestCase as Search_TestCase;
  * Unit tests for the AI_Answers class.
  */
 class AI_Answers_Test extends Search_TestCase {
+	use Toggles_Ai_Master;
+
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
 		( new AI_Answers() )->init();
@@ -35,6 +37,8 @@ class AI_Answers_Test extends Search_TestCase {
 		$this->test_post_ids = array();
 
 		parent::tearDown();
+
+		$this->remove_ai_master_filters();
 
 		if ( $this->posts_query_filter !== null ) {
 			remove_filter( 'posts_pre_query', $this->posts_query_filter, 10 );
@@ -59,6 +63,62 @@ class AI_Answers_Test extends Search_TestCase {
 		add_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
 		$this->assertTrue( AI_Answers::is_enabled() );
 		remove_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
+	}
+
+	// -------------------------------------------------------------------------
+	// Tests for the site-wide Jetpack AI master switch
+	// -------------------------------------------------------------------------
+
+	/**
+	 * The saved choice is the raw option.
+	 */
+	public function test_is_saved_on_returns_the_raw_option() {
+		$this->assertFalse( AI_Answers::is_saved_on() );
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+		$this->assertTrue( AI_Answers::is_saved_on() );
+		delete_option( 'jetpack_search_ai_answers_enabled' );
+	}
+
+	public function test_is_saved_on_ignores_the_filter() {
+		// The saved choice is the raw option; gates on the filter must not leak in.
+		add_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
+		$this->assertFalse( AI_Answers::is_saved_on() );
+		remove_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
+	}
+
+	public function test_is_enabled_is_false_when_the_master_is_off() {
+		// The saved choice persists while the master is off; only is_enabled() gates it.
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+		$this->turn_ai_master_off();
+
+		$this->assertTrue( AI_Answers::is_saved_on() );
+		$this->assertFalse( AI_Answers::is_enabled() );
+
+		delete_option( 'jetpack_search_ai_answers_enabled' );
+	}
+
+	public function test_is_master_enabled_is_true_without_a_master_gate() {
+		// Standalone Jetpack Search plugin: nothing subscribes to the filter, so
+		// there is no master switch to obey and the site must not be gated.
+		$this->assertTrue( AI_Answers::is_master_enabled() );
+	}
+
+	public function test_is_master_enabled_is_false_when_the_master_is_off() {
+		$this->turn_ai_master_off();
+		$this->assertFalse( AI_Answers::is_master_enabled() );
+	}
+
+	public function test_is_master_enabled_is_true_when_the_master_is_on() {
+		$this->turn_ai_master_on();
+		$this->assertTrue( AI_Answers::is_master_enabled() );
+	}
+
+	public function test_is_master_enabled_ignores_the_option() {
+		// The master state is about the gates, not the feature's saved choice.
+		update_option( 'jetpack_search_ai_answers_enabled', false );
+		$this->turn_ai_master_on();
+		$this->assertTrue( AI_Answers::is_master_enabled() );
+		delete_option( 'jetpack_search_ai_answers_enabled' );
 	}
 
 	public function test_get_behavior_instructions_returns_empty_by_default() {

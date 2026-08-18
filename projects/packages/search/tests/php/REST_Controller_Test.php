@@ -14,6 +14,7 @@ use WP_REST_Server;
  * @package automattic/jetpack-search
  */
 class REST_Controller_Test extends Search_TestCase {
+	use Toggles_Ai_Master;
 
 	/**
 	 * REST Server object.
@@ -62,6 +63,7 @@ class REST_Controller_Test extends Search_TestCase {
 			unregister_setting( 'general', 'reader_chat' );
 		}
 		delete_option( 'reader_chat' );
+		$this->remove_ai_master_filters();
 		parent::tearDown();
 	}
 
@@ -145,6 +147,8 @@ class REST_Controller_Test extends Search_TestCase {
 				'experience'                           => 'overlay',
 				'search_suggestions_enabled'           => false,
 				'override_woocommerce_search_template' => false,
+				'ai_answers_saved'                     => false,
+				'ai_master_enabled'                    => true,
 			)
 		);
 
@@ -205,6 +209,8 @@ class REST_Controller_Test extends Search_TestCase {
 				'experience'                           => 'off',
 				'search_suggestions_enabled'           => false,
 				'override_woocommerce_search_template' => false,
+				'ai_answers_saved'                     => false,
+				'ai_master_enabled'                    => true,
 			)
 		);
 
@@ -232,6 +238,8 @@ class REST_Controller_Test extends Search_TestCase {
 			'ai_answers_enabled'                   => false,
 			'search_suggestions_enabled'           => false,
 			'override_woocommerce_search_template' => false,
+			'ai_answers_saved'                     => false,
+			'ai_master_enabled'                    => true,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -258,6 +266,8 @@ class REST_Controller_Test extends Search_TestCase {
 			'ai_answers_enabled'                   => false,
 			'search_suggestions_enabled'           => false,
 			'override_woocommerce_search_template' => false,
+			'ai_answers_saved'                     => false,
+			'ai_master_enabled'                    => true,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -284,6 +294,8 @@ class REST_Controller_Test extends Search_TestCase {
 			'ai_answers_enabled'                   => false,
 			'search_suggestions_enabled'           => false,
 			'override_woocommerce_search_template' => false,
+			'ai_answers_saved'                     => false,
+			'ai_master_enabled'                    => true,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -310,6 +322,8 @@ class REST_Controller_Test extends Search_TestCase {
 			'ai_answers_enabled'                   => false,
 			'search_suggestions_enabled'           => false,
 			'override_woocommerce_search_template' => false,
+			'ai_answers_saved'                     => false,
+			'ai_master_enabled'                    => true,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -643,6 +657,87 @@ class REST_Controller_Test extends Search_TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
 		$this->assertFalse( $data['ai_answers_enabled'] );
+	}
+
+	/**
+	 * Testing that ai_answers_enabled cannot be enabled while the site-wide
+	 * Jetpack AI master switch is off.
+	 */
+	public function test_update_settings_cannot_enable_ai_answers_when_ai_master_is_off() {
+		wp_set_current_user( $this->admin_id );
+		$this->turn_ai_master_off();
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'ai_answers_enabled' => true ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertFalse( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+	}
+
+	/**
+	 * Testing that ai_answers_enabled can still be turned off while the site-wide
+	 * Jetpack AI master switch is off.
+	 */
+	public function test_update_settings_can_disable_ai_answers_when_ai_master_is_off() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+		$this->turn_ai_master_off();
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'ai_answers_enabled' => false ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertFalse( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+	}
+
+	/**
+	 * Testing that the settings payload reports the master switch state, so the
+	 * dashboard can explain why the toggle is unavailable.
+	 */
+	public function test_get_settings_reports_the_ai_master_state() {
+		wp_set_current_user( $this->admin_id );
+		$this->turn_ai_master_off();
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/search/settings' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertFalse( $response->get_data()['ai_master_enabled'] );
+	}
+
+	/**
+	 * Testing that the settings payload reports the saved choice separately from
+	 * the effective one, so the dashboard can show it while the master is off.
+	 */
+	public function test_get_settings_reports_the_saved_ai_answers_choice() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+		$this->turn_ai_master_off();
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/search/settings' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertFalse( $data['ai_answers_enabled'] );
+		$this->assertTrue( $data['ai_answers_saved'] );
+	}
+
+	/**
+	 * The reported master state is true on a site that has no master switch.
+	 */
+	public function test_get_settings_reports_the_ai_master_on_without_a_master_switch() {
+		wp_set_current_user( $this->admin_id );
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/search/settings' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( $response->get_data()['ai_master_enabled'] );
 	}
 
 	/**

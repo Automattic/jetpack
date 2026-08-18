@@ -10,6 +10,7 @@
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/class-testcase.php';
+require_once __DIR__ . '/trait-toggles-ai-master.php';
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Search\Helper;
