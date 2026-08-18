@@ -174,7 +174,7 @@ class User_Agent_Info {
 		if ( $ua ) {
 			$this->useragent = $ua;
 		} elseif ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			$this->useragent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This class is all about validating.
+			$this->useragent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
 		}
 	}
 
@@ -553,7 +553,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) );
 		if ( ( strpos( $ua, 'iphone' ) !== false ) || ( strpos( $ua, 'ipod' ) !== false ) ) {
 			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
 				return false;
@@ -579,7 +579,7 @@ class User_Agent_Info {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
 			return false;
 		}
-		return wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		return sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
 	}
 
 	/**
@@ -1957,7 +1957,7 @@ class User_Agent_Info {
 			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
 				return false;
 			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+			$user_agent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
 
 			// Use cached result only when using the default $_SERVER['HTTP_USER_AGENT'].
 			if ( $is_bot === null ) {
@@ -2304,7 +2304,7 @@ class User_Agent_Info {
 				// Empty User-Agent is likely programmatic - real browsers always send one.
 				return true;
 			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+			$user_agent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
 
 			// Use cache for default user agent, but invalidate if UA changed.
 			if ( $cached_ua === $user_agent && null !== $cached_result ) {

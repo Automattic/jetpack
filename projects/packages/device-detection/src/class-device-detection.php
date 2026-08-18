@@ -11,6 +11,7 @@ require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/class-user-agent-info.php';
 
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use function Automattic\Jetpack\Device_Detection\sanitize_text_field;
 use function Automattic\Jetpack\Device_Detection\wp_unslash;
 
 /**
@@ -188,7 +189,7 @@ class Device_Detection {
 			return false;
 		}
 
-		$agent = strtolower( filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) );
+		$agent = strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) );
 		if ( strpos( $agent, 'ipad' ) ) {
 			return false;
 		}

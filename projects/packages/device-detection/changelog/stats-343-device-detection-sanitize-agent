@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sanitize the user agent string read from the request.

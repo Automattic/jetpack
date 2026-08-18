@@ -34,3 +34,35 @@ if ( ! function_exists( __NAMESPACE__ . '\\wp_unslash' ) ) {
 		}
 	}
 }
+
+// Check if the function is already defined, in case someone bypassed the autoloader or something
+// to get the two classes from different copies of the package.
+if ( ! function_exists( __NAMESPACE__ . '\\sanitize_text_field' ) ) {
+
+	/**
+	 * A wrapper for WordPress's `sanitize_text_field()`.
+	 *
+	 * On WordPress.com this package is loaded before WordPress itself, so the core
+	 * function cannot be relied on. The fallback mirrors what core does to a user agent
+	 * string, so that detection does not depend on how early the package was loaded.
+	 *
+	 * @param string $value String of data to sanitize.
+	 * @return string Sanitized $value.
+	 */
+	function sanitize_text_field( $value ) {
+		if ( function_exists( '\\sanitize_text_field' ) ) {
+			return \sanitize_text_field( $value );
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags -- This branch only runs when WordPress is absent, so wp_strip_all_tags() does not exist.
+		$filtered = strip_tags( (string) $value );
+		$filtered = preg_replace( '/[\x00-\x1F\x7F]/', '', $filtered );
+		$filtered = trim( preg_replace( '/[\r\n\t ]+/', ' ', $filtered ) );
+
+		while ( preg_match( '/%[a-f0-9]{2}/i', $filtered, $match ) ) {
+			$filtered = str_replace( $match[0], '', $filtered );
+		}
+
+		return $filtered;
+	}
+}
