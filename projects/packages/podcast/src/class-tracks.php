@@ -27,9 +27,10 @@ use WP_User;
 class Tracks {
 
 	/**
-	 * Settings a show needs before a directory will accept it. Mirrors the
-	 * dashboard's `getValidationIssues()` rule in
+	 * Mirrors `getValidationIssues()` in
 	 * `src/dashboard/hooks/use-validation-issues.ts` — keep the two in step.
+	 * Not the directory-submission bar, which also wants an episode and a
+	 * conforming cover.
 	 *
 	 * @var string[]
 	 */
@@ -59,10 +60,10 @@ class Tracks {
 		add_action( 'add_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_added' ), 10, 2 );
 		add_action( 'update_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_updated' ), 10, 3 );
 
-		// Watch the options themselves rather than the REST endpoint's
-		// `jetpack_podcast_settings_saved` action, so setup progress is
-		// recorded whichever path writes the value — dashboard, Media
-		// Settings form, or WP-CLI.
+		// The options rather than the endpoint's `jetpack_podcast_settings_saved`,
+		// so setup lands whichever path writes it. `podcasting_category_id`
+		// intentionally overlaps `status_changed` above, which stays canonical
+		// for "site enabled podcasting".
 		foreach ( self::SETUP_OPTIONS as $option ) {
 			add_action( "add_option_{$option}", array( __CLASS__, 'record_setting_added' ), 10, 2 );
 			add_action( "update_option_{$option}", array( __CLASS__, 'record_setting_updated' ), 10, 3 );
@@ -296,7 +297,9 @@ class Tracks {
 	}
 
 	/**
-	 * `update_option_{$option}` callback for a required setting.
+	 * `update_option_{$option}` callback for a required setting. Seldom the live
+	 * path: `update_option()` defers to `add_option()` while the stored value
+	 * still equals the registered empty default.
 	 *
 	 * @param mixed  $old_value Previous stored value.
 	 * @param mixed  $new_value Newly stored value.
@@ -310,15 +313,10 @@ class Tracks {
 	 * Emit `wpcom_podcast_setting_first_saved` when a required setting picks up
 	 * a value for the first time.
 	 *
-	 * Only the empty → filled transition is recorded, so this is bounded at one
-	 * event per required setting rather than one per save — later edits to an
-	 * already-populated setting aren't part of setup. `is_complete` marks the
-	 * transition that finished the set, which is the "this site is properly set
-	 * up" milestone; `setting` and `filled_count` describe where sites that
-	 * never get there stopped.
-	 *
-	 * Sites already fully configured before this shipped stay silent, because
-	 * none of their settings are transitioning from empty.
+	 * Recording only the empty → filled transition bounds this at one event per
+	 * setting instead of one per save, and keeps sites configured before it
+	 * shipped silent rather than reporting a false completion. `is_complete`
+	 * marks the transition that finished the set.
 	 *
 	 * @param string $option    Option name.
 	 * @param mixed  $old_value Previous stored value.
@@ -326,12 +324,11 @@ class Tracks {
 	 */
 	private static function maybe_record_setting_first_saved( string $option, $old_value, $new_value ): void {
 		try {
-			if ( self::has_value( $option, $old_value ) || ! self::has_value( $option, $new_value ) ) {
+			if ( self::has_value( $old_value ) || ! self::has_value( $new_value ) ) {
 				return;
 			}
 
-			// Both hooks fire after the write and its cache update, so the
-			// count already includes the setting that triggered this.
+			// Both hooks fire after the write, so this counts the new value too.
 			$filled_count = self::filled_setting_count();
 
 			self::record_event(
@@ -356,7 +353,7 @@ class Tracks {
 		$filled = 0;
 
 		foreach ( self::SETUP_OPTIONS as $option ) {
-			if ( self::has_value( $option, get_option( $option, '' ) ) ) {
+			if ( self::has_value( get_option( $option, '' ) ) ) {
 				++$filled;
 			}
 		}
@@ -365,19 +362,16 @@ class Tracks {
 	}
 
 	/**
-	 * Whether a required setting counts as filled in. The category is an ID, so
-	 * 0 means unset; the rest are strings the dashboard treats as blank when
-	 * they hold nothing but whitespace.
+	 * Whether a required setting counts as filled in. Options read back as
+	 * strings, so one rule covers both shapes: blank for the text fields, `'0'`
+	 * for `podcasting_category_id`, where 0 is the disabled sentinel.
 	 *
-	 * @param string $option Option name.
-	 * @param mixed  $value  Value to test.
+	 * @param mixed $value Value to test.
 	 */
-	private static function has_value( string $option, $value ): bool {
-		if ( 'podcasting_category_id' === $option ) {
-			return (int) $value >= 1;
-		}
+	private static function has_value( $value ): bool {
+		$value = is_scalar( $value ) ? trim( (string) $value ) : '';
 
-		return is_string( $value ) && '' !== trim( $value );
+		return '' !== $value && '0' !== $value;
 	}
 
 	/**
