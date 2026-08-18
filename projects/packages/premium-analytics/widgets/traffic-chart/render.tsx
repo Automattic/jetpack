@@ -80,7 +80,12 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 				// `useTrafficChart` already gates `isError` per query on that query
 				// having no rows, so a transient refetch failure keeps the chart.
 				isError={ isError }
-				isEmpty={ servedMetrics.every( metric => metric.current.length === 0 ) }
+				// `[].every()` is true, so the length test is what keeps a chart whose
+				// every metric is unavailable out of the empty state, which would
+				// replace those explanations with "no data".
+				isEmpty={
+					servedMetrics.length > 0 && servedMetrics.every( metric => metric.current.length === 0 )
+				}
 				error={ {
 					description: __(
 						"We couldn't load traffic data. Please try again in a moment.",
