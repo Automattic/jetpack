@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
-use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -31,19 +30,16 @@ class Post_List_Link_Test extends BaseTestCase {
 	const DETAIL_URL = 'http://example.org/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Fpost%2F123';
 
 	/**
-	 * Hook the capability mapping and mark the sync milestone reached, the way a
-	 * site the dashboard can actually serve would look.
+	 * Hook the capability mapping, the way an entry point would.
 	 */
 	public function set_up() {
 		Capabilities::register();
-		update_option( Sync_Status_Tracker::INITIAL_SITE_SYNC_OPTION, 1730000123 );
 	}
 
 	/**
 	 * Drop the mapping, the filter, and the logged-in user.
 	 */
 	public function tear_down() {
-		delete_option( Sync_Status_Tracker::INITIAL_SITE_SYNC_OPTION );
 		remove_all_filters( 'jetpack_stats_post_list_column_url' );
 		$this->reset_analytics_capabilities();
 		wp_set_current_user( 0 );
@@ -91,17 +87,6 @@ class Post_List_Link_Test extends BaseTestCase {
 	 */
 	public function test_filter_url_leaves_the_legacy_url_when_the_capability_is_absent() {
 		$this->login_as( 'editor' );
-
-		$this->assertSame( self::LEGACY_URL, Post_List_Link::filter_url( self::LEGACY_URL, 123 ) );
-	}
-
-	/**
-	 * Before the milestone the detail route redirects to /syncing, so claiming the
-	 * link would swap a working Stats page for a dead end.
-	 */
-	public function test_filter_url_leaves_the_legacy_url_until_the_sync_milestone_fires() {
-		$this->login_as( 'administrator' );
-		delete_option( Sync_Status_Tracker::INITIAL_SITE_SYNC_OPTION );
 
 		$this->assertSame( self::LEGACY_URL, Post_List_Link::filter_url( self::LEGACY_URL, 123 ) );
 	}

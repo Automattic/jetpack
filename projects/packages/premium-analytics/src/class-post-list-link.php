@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
-use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
-
 /**
  * Sends the views column in the posts and pages list tables to the dashboard's
  * post detail page instead of the Stats one.
@@ -32,11 +30,9 @@ class Post_List_Link {
 	/**
 	 * Point one row at its post detail page.
 	 *
-	 * Hands the link back untouched whenever the detail page cannot serve it, so
-	 * the column never trades a working Stats link for a dead end. On a site the
-	 * dashboard can serve it wins even where the row would otherwise point at
-	 * Calypso: the dashboard is this site's analytics UI, and it only exists in
-	 * wp-admin, so the admin-interface preference has no bearing on it.
+	 * Wins even where the row would otherwise point at Calypso: the dashboard is
+	 * this site's analytics UI, and it only exists in wp-admin, so the
+	 * admin-interface preference has no bearing on where analytics lives.
 	 *
 	 * The capability arm is defence in depth rather than a path a reader reaches:
 	 * `Admin_Post_List_Column::add_stats_post_table()` already drops the whole
@@ -56,12 +52,6 @@ class Post_List_Link {
 		}
 
 		if ( ! Capabilities::current_user_can_view_analytics() ) {
-			return $url;
-		}
-
-		// Until the sync milestone fires, the detail route redirects to /syncing,
-		// which is a worse answer than the Stats page the column already had.
-		if ( ! Sync_Status_Tracker::initial_sync_finished() ) {
 			return $url;
 		}
 

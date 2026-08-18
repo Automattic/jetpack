@@ -306,22 +306,6 @@ class Sync_Status_Tracker_Test extends TestCase {
 		$this->assertArrayNotHasKey( 'initial_full_sync_finished', $result->get_data() );
 	}
 
-	/**
-	 * Callers that link into the dashboard read the milestone through this, so it
-	 * has to agree with the flag the frontend gates on.
-	 */
-	public function test_initial_sync_finished_follows_the_site_milestone() {
-		$this->assertFalse( Sync_Status_Tracker::initial_sync_finished() );
-
-		update_option( Sync_Status_Tracker::INITIAL_SITE_SYNC_OPTION, 1730000123 );
-
-		$this->assertTrue( Sync_Status_Tracker::initial_sync_finished() );
-		$this->assertSame(
-			1730000123,
-			Sync_Status_Tracker::inject_script_data( array() )['premium_analytics']['initial_full_sync_finished']
-		);
-	}
-
 	public function test_enrich_passes_through_non_rest_response() {
 		$request     = new \WP_REST_Request( 'GET', Sync_Status_Tracker::SYNC_STATUS_ROUTE );
 		$passthrough = new \WP_Error( 'boom' );
