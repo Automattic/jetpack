@@ -3,7 +3,7 @@ Contributors: automattic
 Tags: analytics, jetpack
 Requires at least: 7.0
 Requires PHP: 7.2
-Tested up to: 7.0
+Tested up to: 7.1
 Stable tag: 0.1.0-alpha
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html

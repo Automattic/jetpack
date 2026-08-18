@@ -3,7 +3,7 @@ Contributors: automattic,
 Tags: jetpack, stuff
 Requires at least: 7.0
 Requires PHP: 7.2
-Tested up to: 7.0
+Tested up to: 7.1
 Stable tag: 2.0.0-a.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
