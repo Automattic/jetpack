@@ -155,8 +155,8 @@ describe( 'Chapters editor (timeline strip + panel)', () => {
 			renderChapters();
 			const found = markers();
 			expect( found ).toHaveLength( 2 );
-			expect( found[ 0 ] ).toHaveAttribute( 'aria-valuenow', '10000' );
-			expect( found[ 1 ] ).toHaveAttribute( 'aria-valuenow', '30000' );
+			expect( found[ 0 ] ).toHaveValue( 10000 );
+			expect( found[ 1 ] ).toHaveValue( 30000 );
 			// Clamp windows: prev+1s … next−1s; the last is capped at duration−1s.
 			expect( found[ 0 ] ).toHaveAttribute( 'aria-valuemin', '1000' );
 			expect( found[ 0 ] ).toHaveAttribute( 'aria-valuemax', '29000' );
@@ -207,13 +207,13 @@ describe( 'Chapters editor (timeline strip + panel)', () => {
 			fireEvent.pointerMove( marker, { pointerId: 1, clientX: 800 } );
 			fireEvent.pointerUp( marker, { pointerId: 1 } );
 
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '29000' );
+			expect( marker ).toHaveValue( 29000 );
 			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'true' );
 
 			// ONE undo entry for the whole gesture: straight back to 10s, and
 			// nothing older to undo.
 			fireEvent.click( screen.getByTestId( 'harness-undo' ) );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '10000' );
+			expect( marker ).toHaveValue( 10000 );
 			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'false' );
 		} );
 
@@ -224,10 +224,10 @@ describe( 'Chapters editor (timeline strip + panel)', () => {
 			fireEvent.pointerDown( marker, { button: 0, pointerId: 1, clientX: 100 } );
 			// 205px → pointer 12300ms + 4000ms grab offset → raw 16300 mid-drag.
 			fireEvent.pointerMove( marker, { pointerId: 1, clientX: 205 } );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '16300' );
+			expect( marker ).toHaveValue( 16300 );
 
 			fireEvent.pointerUp( marker, { pointerId: 1 } );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '16000' );
+			expect( marker ).toHaveValue( 16000 );
 		} );
 
 		it( 'quantizes a drag against a fractional video end to a whole second', () => {
@@ -243,10 +243,10 @@ describe( 'Chapters editor (timeline strip + panel)', () => {
 			// Far past the right edge: the clamp saturates, so the grab-offset
 			// math is irrelevant and the drag parks on the fractional ceiling.
 			fireEvent.pointerMove( marker, { pointerId: 1, clientX: 1300 } );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '59900' );
+			expect( marker ).toHaveValue( 59900 );
 
 			fireEvent.pointerUp( marker, { pointerId: 1 } );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '59000' );
+			expect( marker ).toHaveValue( 59000 );
 		} );
 
 		it( 'commits nothing for a drag that returns to its start', () => {
@@ -258,7 +258,7 @@ describe( 'Chapters editor (timeline strip + panel)', () => {
 			fireEvent.pointerMove( marker, { pointerId: 1, clientX: 100 } );
 			fireEvent.pointerUp( marker, { pointerId: 1 } );
 
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '10000' );
+			expect( marker ).toHaveValue( 10000 );
 			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'false' );
 		} );
 
@@ -267,15 +267,15 @@ describe( 'Chapters editor (timeline strip + panel)', () => {
 			const marker = markers()[ 0 ];
 
 			fireEvent.keyDown( marker, { key: 'ArrowLeft' } );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '9000' );
+			expect( marker ).toHaveValue( 9000 );
 			fireEvent.keyDown( marker, { key: 'ArrowRight' } );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '10000' );
+			expect( marker ).toHaveValue( 10000 );
 
 			// Each nudge folds its transient gesture into ONE undo entry.
 			fireEvent.click( screen.getByTestId( 'harness-undo' ) );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '9000' );
+			expect( marker ).toHaveValue( 9000 );
 			fireEvent.click( screen.getByTestId( 'harness-undo' ) );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '10000' );
+			expect( marker ).toHaveValue( 10000 );
 			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'false' );
 		} );
 
@@ -294,11 +294,11 @@ describe( 'Chapters editor (timeline strip + panel)', () => {
 				durationMs: 60900,
 			} );
 			const marker = markers()[ 0 ];
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '59000' );
+			expect( marker ).toHaveValue( 59000 );
 
 			fireEvent.keyDown( marker, { key: 'ArrowRight' } );
 
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '59000' );
+			expect( marker ).toHaveValue( 59000 );
 			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'false' );
 		} );
 	} );
@@ -330,7 +330,7 @@ describe( 'Chapters editor (timeline strip + panel)', () => {
 			expect( added ).toHaveTextContent( 'Chapter 2' );
 			expect( added.className ).toContain( 'vp-chapters__segment--selected' );
 			// Whole-second rounding: 5400 → 5000.
-			expect( markers()[ 0 ] ).toHaveAttribute( 'aria-valuenow', '5000' );
+			expect( markers()[ 0 ] ).toHaveValue( 5000 );
 		} );
 
 		it( 'hands focus to the new chapter’s title input with the default title selected', async () => {

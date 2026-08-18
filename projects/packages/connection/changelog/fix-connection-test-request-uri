@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: CI: Keep the shutdown cron run from fataling on PHP versions without a native str_contains().
+
+

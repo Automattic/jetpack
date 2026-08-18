@@ -25,8 +25,10 @@ import type {
 	QueryParams,
 	Registry,
 	Action,
+	ReportingAction,
 } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../src/types/index.ts';
+import type { UseNavigateResult } from '@wordpress/route';
 /**
  * Helper function to extract count-relevant query params from the current query.
  *
@@ -284,30 +286,25 @@ export const BULK_ACTIONS = {
 	markAsNotSpam: 'mark_as_not_spam',
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type NavigateFunction = ( options: any ) => void;
-
-type SearchParams = {
-	[ key: string ]: string | string[] | undefined;
-};
-
-type ActionWithDestructive = Action & {
-	isDestructive?: boolean;
-};
+// The router's own navigate type, rather than `( options: any ) => void`. Note what
+// this does and does not buy: it checks the options shape (a misspelled `to` fails),
+// but not path *values* — the route tree isn't registered as a type in this build, so
+// `to` widens to `string` and a typo'd path still compiles. Same limitation the
+// `search` cast in `routes/response/breadcrumbs.tsx` works around.
+type NavigateFunction = UseNavigateResult< string >;
 
 type GetActionsParams = {
 	navigate: NavigateFunction;
-	searchParams: SearchParams;
 };
 
 type GetActionsReturn = {
 	viewAction: Action;
 	editFormAction: Action;
-	markAsSpamAction: Action;
-	markAsNotSpamAction: Action;
-	restoreAction: Action;
-	moveToTrashAction: Action;
-	deleteAction: ActionWithDestructive;
+	markAsSpamAction: ReportingAction;
+	markAsNotSpamAction: ReportingAction;
+	restoreAction: ReportingAction;
+	moveToTrashAction: ReportingAction;
+	deleteAction: ReportingAction;
 	markAsReadAction: Action;
 	markAsUnreadAction: Action;
 };
@@ -322,7 +319,7 @@ type GetRowActionsParams = GetActionsParams & {
  * @param {GetActionsParams} params - Parameters for generating actions.
  * @return {GetActionsReturn} Object containing the actions.
  */
-export function getActions( { navigate, searchParams }: GetActionsParams ): GetActionsReturn {
+export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 	const viewAction: Action = {
 		id: 'view-response',
 		isPrimary: true,
@@ -334,13 +331,14 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 				multiple: items.length > 1,
 			} );
 
-			const ids = items.map( item => item.id.toString() );
-			navigate( {
-				search: {
-					...searchParams,
-					responseIds: ids,
-				},
-			} );
+			const [ item ] = items;
+
+			if ( ! item ) {
+				return;
+			}
+
+			// Open the standalone single response page rather than the inspector panel.
+			navigate( { to: `/response/${ item.id }` } );
 		},
 	};
 
@@ -367,7 +365,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 		},
 	};
 
-	const markAsSpamAction: Action = {
+	const markAsSpamAction: ReportingAction = {
 		id: 'mark-as-spam',
 		isPrimary: true,
 		icon: <Icon icon={ spam } />,
@@ -495,6 +493,8 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 						BULK_ACTIONS.markAsSpam
 					);
 				}
+
+				return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 			} finally {
 				if ( waitForRecordsPromise ) {
 					await waitForRecordsPromise;
@@ -507,7 +507,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 		},
 	};
 
-	const markAsNotSpamAction: Action = {
+	const markAsNotSpamAction: ReportingAction = {
 		id: 'mark-as-not-spam',
 		isPrimary: true,
 		icon: <Icon icon={ notSpam } />,
@@ -627,6 +627,8 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 						BULK_ACTIONS.markAsNotSpam
 					);
 				}
+
+				return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 			} finally {
 				if ( waitForRecordsPromise ) {
 					await waitForRecordsPromise;
@@ -639,7 +641,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 		},
 	};
 
-	const restoreAction: Action = {
+	const restoreAction: ReportingAction = {
 		id: 'restore',
 		isPrimary: true,
 		icon: <Icon icon={ backup } />,
@@ -746,7 +748,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 						removeNotice( 'restore-action' );
 					}
 
-					return;
+					return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 				}
 
 				// There is at least one failure.
@@ -754,6 +756,8 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 
 				removeNotice( 'restore-action' );
 				createErrorNotice( errorMessage, { type: 'snackbar' } );
+
+				return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 			} finally {
 				if ( waitForRecordsPromise ) {
 					await waitForRecordsPromise;
@@ -766,7 +770,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 		},
 	};
 
-	const moveToTrashAction: Action = {
+	const moveToTrashAction: ReportingAction = {
 		id: 'move-to-trash',
 		isPrimary: true,
 		icon: <Icon icon={ trash } />,
@@ -886,7 +890,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 						removeNotice( 'move-to-trash-action' );
 					}
 
-					return;
+					return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 				}
 
 				// There is at least one failure.
@@ -894,6 +898,8 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 
 				removeNotice( 'move-to-trash-action' );
 				createErrorNotice( errorMessage, { type: 'snackbar' } );
+
+				return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 			} finally {
 				if ( waitForRecordsPromise ) {
 					await waitForRecordsPromise;
@@ -906,7 +912,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 		},
 	};
 
-	const deleteAction: ActionWithDestructive = {
+	const deleteAction: ReportingAction = {
 		id: 'delete',
 		isPrimary: true,
 		icon: <Icon icon={ trash } />,
@@ -938,6 +944,9 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 			);
 
 			const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+			// Every settled promise is either fulfilled or rejected, so the failures are
+			// the remainder — no need to filter the list a second time.
+			const numberOfErrors = promises.length - itemsUpdated.length;
 
 			// If there is at least one successful update, invalidate the cache for filters.
 			if ( itemsUpdated.length ) {
@@ -945,7 +954,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 				invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'trash' );
 			}
 
-			if ( itemsUpdated.length === items.length ) {
+			if ( numberOfErrors === 0 ) {
 				// Every request was successful.
 				const successMessage =
 					items.length === 1
@@ -983,14 +992,12 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 
 				const hashString = hashParams.toString();
 				window.location.hash = hashString ? `${ hashBase }?${ hashString }` : hashBase;
-
-				return;
+			} else {
+				// There is at least one failure.
+				createErrorNotice( getGenericErrorMessage( numberOfErrors ), { type: 'snackbar' } );
 			}
-			// There is at least one failure.
-			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
-			const errorMessage = getGenericErrorMessage( numberOfErrors );
 
-			createErrorNotice( errorMessage, { type: 'snackbar' } );
+			return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 		},
 	};
 
@@ -1248,13 +1255,9 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
  * Get actions configuration for form responses DataViews.
  *
  * @param {GetRowActionsParams} params - Parameters for generating actions.
- * @return {ActionWithDestructive[]} Array of action configurations.
+ * @return {Action[]} Array of action configurations.
  */
-export function getRowActions( {
-	navigate,
-	searchParams,
-	view,
-}: GetRowActionsParams ): ActionWithDestructive[] {
+export function getRowActions( { navigate, view }: GetRowActionsParams ): Action[] {
 	const {
 		viewAction,
 		editFormAction,
@@ -1265,10 +1268,7 @@ export function getRowActions( {
 		deleteAction,
 		markAsReadAction,
 		markAsUnreadAction,
-	} = getActions( {
-		navigate,
-		searchParams,
-	} );
+	} = getActions( { navigate } );
 
 	switch ( view ) {
 		case 'trash':

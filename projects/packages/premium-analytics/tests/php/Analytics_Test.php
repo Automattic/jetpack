@@ -960,6 +960,13 @@ class Analytics_Test extends TestCase {
 			),
 			'The CSV export script data is not wired on a front-end request.'
 		);
+		$this->assertFalse(
+			has_filter(
+				'jetpack_admin_js_script_data',
+				__NAMESPACE__ . '\\inject_videopress_script_data'
+			),
+			'The VideoPress availability flag is not wired on a front-end request.'
+		);
 	}
 
 	/**
@@ -1015,6 +1022,13 @@ class Analytics_Test extends TestCase {
 				__NAMESPACE__ . '\\inject_csv_exports_script_data'
 			),
 			'Simple still wires the CSV export script data.'
+		);
+		$this->assertNotFalse(
+			has_filter(
+				'jetpack_admin_js_script_data',
+				__NAMESPACE__ . '\\inject_videopress_script_data'
+			),
+			'Simple still publishes the VideoPress availability flag.'
 		);
 	}
 }

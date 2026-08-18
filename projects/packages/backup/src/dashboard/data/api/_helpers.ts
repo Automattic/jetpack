@@ -1,4 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
+import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import type { APIFetchOptions } from '@wordpress/api-fetch';
 
@@ -31,8 +32,26 @@ export function apiPath(
 
 /**
  * Strip the decimal suffix WPCOM ships on rewind ids (e.g.
- * `'1777035492.615'` → `'1777035492'`). The `/rewind/backup/$rewindId`
- * URLs reject the suffixed form with a 404.
+ * `'1777035492.615'` → `'1777035492'`).
+ *
+ * Truncating is a WPCOM-side requirement, not a local one — no route in
+ * this package matches the id against `\d+`. Where the two remaining
+ * callers stand:
+ *
+ * `fetchFileTree` needs it. It sends the id in the body as `rewind_id`,
+ * and the bridge forwards that to WPCOM as `backup_id`, which is an
+ * integer identifier there.
+ *
+ * `initiateRestore` still calls it, but only because it targets the v1
+ * activity-log route with the id in the *path*. That is a temporary
+ * arrangement: the v2 restore route takes the id in the body, in full,
+ * and the call moves with it when it is repointed. Note the Jetpack
+ * route it goes through already accepts a decimal, so the truncation is
+ * not protecting anything.
+ *
+ * Download no longer calls it at all: `/rewind/downloads` takes the id
+ * in the body and truncating it there addresses a different backup than
+ * the reader picked.
  *
  * @param rewindId - Raw rewind id, possibly with a decimal suffix.
  * @return The integer-seconds portion only.
@@ -57,6 +76,58 @@ export class ApiError extends Error {
 		this.code = code;
 		this.data = data;
 	}
+}
+
+/**
+ * Serialize a restore/download category checklist for WPCOM, refusing an
+ * empty one.
+ *
+ * Two hazards, and the single place both are answered.
+ *
+ * **The shape.** WPCOM selects the enabled categories with a **loose**
+ * comparison, so a JSON array of names does not mean what it looks like:
+ * every name compares equal, and what comes back out is the array's own
+ * integer indices. `[ "themes" ]` becomes `[ 0 ]` and `[ "themes",
+ * "plugins" ]` becomes `[ 0, 1 ]`, which are then treated as category
+ * names. An emptiness check would never catch it, because the list is not
+ * empty. The object form is therefore the only safe spelling, and only
+ * `true` entries are included so the result never depends on that loose
+ * comparison.
+ *
+ * **The empty case.** The bodies must always *name* what they want. An
+ * absent `types` is not a request for nothing — it is WPCOM's shorthand
+ * for all six categories ("omit it for everything", in the contract's
+ * words), so a checklist with every box cleared would submit the full
+ * archive on the download side and a full destructive restore on the
+ * other. That is the exact inverse of what the reader asked for, and it
+ * is silent: the request succeeds.
+ *
+ * The v2 restore route rejects a supplied-but-empty `types` and the
+ * downloads route does not, so this cannot be left to the server. Both
+ * screens also disable their submit button, but the button is not where
+ * the danger is — a future caller reaching these functions directly gets
+ * the same protection here.
+ *
+ * @param  items - The category checklist.
+ * @throws {ApiError} When no category is selected.
+ * @return The object form, always naming at least one category.
+ */
+export function requireTypes( items: Record< string, boolean > ): Record< string, true > {
+	const selected: Record< string, true > = {};
+	for ( const key of Object.keys( items ) ) {
+		if ( items[ key ] ) {
+			selected[ key ] = true;
+		}
+	}
+
+	if ( ! Object.keys( selected ).length ) {
+		throw new ApiError(
+			'no_types_selected',
+			__( 'Select at least one item to continue.', 'jetpack-backup-pkg' )
+		);
+	}
+
+	return selected;
 }
 
 /**

@@ -89,7 +89,7 @@ describe( 'DateFiltersPanel', () => {
 		const { resizeTo } = mockContainerResize();
 		renderPanel();
 
-		expect( screen.getByText( 'Last 30 days' ) ).toBeInTheDocument();
+		expect( screen.getByText( '30 days' ) ).toBeInTheDocument();
 
 		resizeTo( mockFullRowWidth - 100 );
 
@@ -104,7 +104,7 @@ describe( 'DateFiltersPanel', () => {
 		resizeTo( mockFullRowWidth + 100 );
 
 		expect( screen.queryByText( '30D' ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'Last 30 days' ) ).toBeInTheDocument();
+		expect( screen.getByText( '30 days' ) ).toBeInTheDocument();
 	} );
 
 	it( 'subtracts the reserved share from an external measure', () => {

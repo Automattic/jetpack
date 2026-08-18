@@ -24,7 +24,8 @@ type SectionHeaderProps = {
 	condenseOnScroll?: boolean;
 
 	/**
-	 * Date controls anchored to the end of the header row.
+	 * Date controls anchored to the end of the header row. Left out, the cell is
+	 * not rendered: an empty one costs a band of space in the stacked layout.
 	 */
 	children?: ReactNode;
 };
@@ -59,9 +60,11 @@ export function SectionHeader( {
 					{ title }
 				</Text>
 
-				<Stack direction="row" align="center" className={ styles.controls }>
-					{ children }
-				</Stack>
+				{ children ? (
+					<Stack direction="row" align="center" className={ styles.controls }>
+						{ children }
+					</Stack>
+				) : null }
 
 				{ subtitle ? (
 					<div className={ styles.subtitleRow }>
