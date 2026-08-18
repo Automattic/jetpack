@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: fix the blank Library page on right-to-left locales caused by a missing RTL stylesheet.

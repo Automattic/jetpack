@@ -141,9 +141,7 @@ function bucketDays(
 	// The endpoint's bucket keys are plain site-local calendar dates, so each
 	// point's instant must be that day's site-local midnight. `parseSiteDateTime`
 	// anchors the offset-less key in the site timezone; the chart's `formatDate`
-	// labels render in the same zone, so the calendar day round-trips without a
-	// TZ-induced day shift (a date-only string fed to `localTZDate` would parse
-	// as UTC midnight and read as the previous day on negative-offset sites).
+	// labels render in the same zone, so the calendar day round-trips.
 	return buckets.map( bucket => ( {
 		date: parseSiteDateTime( bucket.date ) ?? parseISO( bucket.date ),
 		value: totals.get( bucket.date ) ?? 0,

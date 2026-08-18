@@ -4,7 +4,7 @@ Guidance for AI coding agents working in this package.
 
 ## Overview
 
-Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connected sites — a full-page React SPA in wp-admin. It consolidates two older surfaces:
+Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connected sites — a React SPA in wp-admin. It consolidates two older surfaces:
 
 - **Jetpack Stats** — the Odyssey dashboard; backend from the `stats-admin` package, frontend built from `apps/odyssey-stats` in Calypso. Covers traffic, posts, subscribers, email stats, WordAds, and more.
 - **Woo Analytics** — store reports (orders, products, customers, coupons, order attribution), from the private repo at https://github.com/woocommerce/woocommerce-analytics.
@@ -19,15 +19,19 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 
 `Analytics::init()` loads the generated `build/build.php` on requests that render an admin screen
 (not on front-end page views, REST, cron, `admin-ajax.php`, or `admin-post.php` — see
-`renders_admin_chrome()`), which registers an `admin_init` interceptor for
-`?page=jetpack-premium-analytics`. REST requests reach the
-dashboard's data without it: `Dashboard_Support_Routes::boot_routes()` registers the routes on
+`renders_admin_chrome()`). The dashboard is served from one URL,
+`?page=jetpack-premium-analytics-wp-admin` (`Analytics::MENU_PAGE_SLUG`), registered with
+`add_menu_page()` and gated on `Capabilities::VIEW_ANALYTICS`. REST requests reach the dashboard's data
+without the build: `Dashboard_Support_Routes::boot_routes()` registers the routes on
 `rest_api_init`, and `ensure_widget_registry_ready()` loads the widget manifest lazily, when a
-route callback actually reads it. The interceptor takes over the request before WordPress renders
-the admin chrome; `@wordpress/boot` provides the SPA shell and routing; each route under
-`routes/<name>/` is a lazy-loaded ES module discovered at build time from its `package.json`.
+route callback actually reads it. `@wordpress/boot` provides the SPA shell and routing; each route
+under `routes/<name>/` is a lazy-loaded ES module discovered at build time from its `package.json`.
 WordPress core or Jetpack's wp-build polyfills provide the WordPress script handles/modules used
 by the dashboard, so the Gutenberg plugin is not required.
+
+wp-build also generates an ungated full-page route at `?page=jetpack-premium-analytics`;
+`Analytics::remove_full_page_interceptor()` disables it. Use only the `-wp-admin` page hooks and
+filters.
 
 ## Structure
 
@@ -523,9 +527,12 @@ To review a widget's loading / error / empty state directly, force it with
 `setReportMockState( '<endpoint>', 'loading' | 'error' | 'error-retryable' | 'empty' )` in the
 story's `beforeEach`, clearing it in the returned cleanup. Keep such stories off the shared
 autodocs page (`tags: [ '!autodocs' ]`, since the override is keyed by path and would otherwise
-force the sibling stories into the same state) and give each one a date preset distinct from the
-other stories so it hits the mock fresh instead of reading their cached success. See
-`widgets/search-terms/stories/` for the reference.
+force the sibling stories into the same state). See `widgets/search-terms/stories/` for the
+reference.
+
+Setting or clearing a forced state evicts the shared query cache, so unique query keys are not
+required for isolation. Different presets or parameters can still help distinguish stories, but
+do not rely on them: distinct preset IDs may compute the same date range (WOOA7S-1899).
 
 `error` mocks a permission-gated 403 and `error-retryable` the proxy's `no_connection` 403. A
 widget that maps its error through `describeError` renders a Retry action only for the latter, so

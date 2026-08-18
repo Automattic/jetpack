@@ -1,3 +1,13 @@
+/**
+ * The connection owner of record, derived server-side from the `master_user`
+ * option. Unlike `UserConnectionData.connectionOwner` this survives a broken
+ * owner token, which is exactly when connection-error UIs need it.
+ */
+export interface ConnectionOwner {
+	id: number;
+	displayName: string;
+}
+
 export type ConnectionScriptData = {
 	apiRoot: string;
 	apiNonce: string;
@@ -55,8 +65,5 @@ export type ConnectionScriptData = {
 	isOfflineMode: boolean;
 	isOwnershipTransferable: boolean;
 	/** Owner identity; null when unresolvable or when the viewer lacks the jetpack_connect capability. */
-	connectionOwner: {
-		id: number;
-		displayName: string;
-	} | null;
+	connectionOwner: ConnectionOwner | null;
 };

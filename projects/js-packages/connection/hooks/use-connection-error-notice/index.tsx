@@ -2,6 +2,7 @@ import ConnectionErrorNotice from '../../components/connection-error-notice';
 import useConnection from '../../components/use-connection';
 import useRestoreConnection from '../../hooks/use-restore-connection';
 import { resolveConnectionErrorActions } from './resolve-actions';
+import { isOtherUsersConnectionError } from './viewer-scope';
 import type {
 	ConnectionErrorMap,
 	ConnectionErrorObject,
@@ -38,7 +39,8 @@ export default function useConnectionErrorNotice( {
 	navigate,
 	includeHealthErrors = false,
 }: ConnectionErrorProps = {} ): UseConnectionErrorNoticeResult {
-	const { connectionErrors, connectionHealthErrors } = useConnection( {} );
+	const { connectionErrors, connectionHealthErrors, connectionOwner, userConnectionData } =
+		useConnection( {} );
 	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
 		useRestoreConnection();
 
@@ -69,11 +71,33 @@ export default function useConnectionErrorNotice( {
 			? Object.values( connectionErrorList ).shift()
 			: undefined;
 
-	const connectionErrorMessage = firstError?.error_message;
+	const currentUserId = userConnectionData?.currentUser?.id;
+
+	// Not `currentUser.isMaster`: that goes false for the owner themselves once
+	// their token breaks, which is exactly when this runs.
+	const isCurrentUserConnectionOwner = Boolean(
+		connectionOwner && connectionOwner.id === currentUserId
+	);
+
+	// The CTA comes from an error the viewer can actually resolve, and one they can
+	// see: a message-less error is never rendered, and another user's broken token
+	// is not this viewer's to act on — see `isOtherUsersConnectionError`.
+	const actionError =
+		Object.values( errorMap )
+			.flatMap( byUser => ( byUser && typeof byUser === 'object' ? Object.values( byUser ) : [] ) )
+			.find(
+				error =>
+					error?.error_message &&
+					error.error_data?.action !== 'none' &&
+					! isOtherUsersConnectionError( error, currentUserId )
+			) ?? firstError;
+
+	// Message and CTA describe the same error.
+	const connectionErrorMessage = actionError?.error_message;
 	const hasConnectionError = Boolean( connectionErrorMessage );
 
-	const actions = firstError
-		? resolveConnectionErrorActions( firstError, {
+	const actions = actionError
+		? resolveConnectionErrorActions( actionError, {
 				actionHandlers,
 				trackingCallback,
 				customActions,
@@ -87,12 +111,15 @@ export default function useConnectionErrorNotice( {
 	return {
 		hasConnectionError,
 		connectionErrorMessage,
-		connectionError: firstError, // Full error object with error_type, etc.
+		connectionError: actionError, // Full error object with error_type, etc.
 		connectionErrors: errorMap, // All errors for advanced use cases.
 		actions, // Resolved CTA actions for the connection error.
 		restoreConnection,
 		isRestoringConnection,
 		restoreConnectionError,
+		connectionOwner,
+		isCurrentUserConnectionOwner,
+		currentUserId,
 	};
 }
 

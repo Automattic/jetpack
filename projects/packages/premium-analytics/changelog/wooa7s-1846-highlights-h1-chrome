@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Highlights: Always show the most recent year, and fit the full metrics at the minimum widget height. Tighten metric tile spacing in wide, short widgets. Show every metric when the widget has no saved metric selection, matching what the Metrics control displays.

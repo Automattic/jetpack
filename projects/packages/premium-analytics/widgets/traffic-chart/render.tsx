@@ -16,12 +16,7 @@ import { __ } from '@wordpress/i18n';
  */
 import styles from './style.module.css';
 import useTrafficChart, { type TrafficPeriod } from './use-traffic-chart';
-import type {
-	TrafficChartAttributes,
-	TrafficChartGranularity,
-	TrafficChartMetricId,
-	TrafficChartType,
-} from './widget';
+import type { TrafficChartAttributes, TrafficChartGranularity, TrafficChartType } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
@@ -47,21 +42,17 @@ type TrafficChartInnerProps = {
 	 */
 	granularity: TrafficChartGranularity;
 	/**
-	 * Selected metric tab ids; defaults to every metric.
-	 */
-	metrics?: TrafficChartMetricId[];
-	/**
 	 * How to draw the selected metric. `MetricTabsChart` owns the default.
 	 */
 	chartType?: TrafficChartType;
 };
 
 /**
- * The "Group by" control is the `granularity` attribute, the tab selection is the
- * `metrics` attribute, and the "Chart type" control is the `chartType` attribute
- * (all `relevance: 'high'`), rendered by the widget host.
+ * The "Group by" control is the `granularity` attribute and the "Chart type"
+ * control is the `chartType` attribute (both `relevance: 'high'`), rendered by
+ * the widget host. Which metric is plotted is the chart's own tab selection.
  */
-function TrafficChartInner( { granularity, metrics, chartType }: TrafficChartInnerProps ) {
+function TrafficChartInner( { granularity, chartType }: TrafficChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	// `auto` means "follow the dashboard range"; an explicit value sticks
 	// across range changes, so a wide range doesn't stay stuck on `day`
@@ -78,19 +69,8 @@ function TrafficChartInner( { granularity, metrics, chartType }: TrafficChartInn
 		isFetching,
 		isError,
 		refetch,
-	} = useTrafficChart( reportParams, period, metrics );
+	} = useTrafficChart( reportParams, period );
 	const groupLabel = __( 'Traffic metric', 'jetpack-premium-analytics-pkg' );
-
-	if ( ! metricTabs.length ) {
-		return (
-			<div className={ styles.emptyState }>
-				{ __(
-					'No metric selected. Please select a metric from the metrics list.',
-					'jetpack-premium-analytics-pkg'
-				) }
-			</div>
-		);
-	}
 
 	return (
 		<div className={ styles.root }>
@@ -146,11 +126,7 @@ export default function TrafficChart( { attributes = {}, setError }: TrafficChar
 
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<TrafficChartInner
-				granularity={ granularity }
-				metrics={ attributes.metrics }
-				chartType={ attributes.chartType }
-			/>
+			<TrafficChartInner granularity={ granularity } chartType={ attributes.chartType } />
 		</WidgetRoot>
 	);
 }

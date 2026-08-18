@@ -150,12 +150,9 @@ function bucketDays( days: StatsPostDay[], buckets: BucketWindow[] ): PostViewsP
 	// The endpoint's day keys are plain site-local calendar dates, so each
 	// point's instant must be that day's site-local midnight. `parseSiteDateTime`
 	// anchors the offset-less key in the site timezone; the chart's `formatDate`
-	// labels render in the same zone, so the calendar day round-trips without a
-	// TZ-induced day shift (a date-only string fed to `localTZDate` would parse
-	// as UTC midnight and read as the previous day on negative-offset sites).
+	// labels render in the same zone, so the calendar day round-trips.
 	// `bucket.date` comes from `format( start, 'yyyy-MM-dd' )`, so the parse
-	// cannot fail in practice; if it ever does, drop the point rather than
-	// fall back to a browser-local instant that reintroduces the day shift.
+	// cannot fail in practice; drop the point rather than guess if it ever does.
 	return buckets.flatMap( bucket => {
 		const date = parseSiteDateTime( bucket.date );
 		return date ? [ { date, value: totals.get( bucket.date ) ?? 0 } ] : [];

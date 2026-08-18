@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.4] - 2026-08-14
+### Added
+- Expose the Automattician tracking signal to the Agents Manager frontend. [#51217]
+
+## [0.9.3] - 2026-08-11
+### Fixed
+- Agents Manager: skip the sidebar pre-render when the user has no WordPress.com connection, so a stale cached open state no longer flashes a shell the app never mounts into after disconnecting. [#51158]
+
+## [0.9.2] - 2026-08-10
+### Added
+- Expose `isWpcomPlatform` in the `agentsManagerData` inline data so the frontend can gate WordPress.com-only menu items. [#51067]
+
 ## [0.9.1] - 2026-08-06
 ### Fixed
 - Allow integrations to request the full Agents Manager shell without taking over the Help Center. [#50922]
@@ -105,6 +117,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Agents Manager: Allow overriding variant and sectionName through filters [#49283]
 - Initial version, extracted from Jetpack MU WPCOM to its own package for external consumption. [#49202]
 
+[0.9.4]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.9.3...v0.9.4
+[0.9.3]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.9.2...v0.9.3
+[0.9.2]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.8.4...v0.9.0
 [0.8.4]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.8.3...v0.8.4

@@ -88,6 +88,27 @@ class Initializer {
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 
+		/*
+		 * Keep the videopress_guid attachment meta out of reach of the
+		 * user-facing meta write APIs (Custom Fields, XML-RPC set_custom_fields,
+		 * the WordPress.com JSON API metadata op, REST). The post <-> guid
+		 * mapping is what the VideoPress meta and poster endpoints authorize
+		 * against, so a writable guid would let a caller point an object they
+		 * can edit at somebody else's video and still pass the edit_post check.
+		 *
+		 * These auth_* filters are consulted by map_meta_cap() for the
+		 * add/edit/delete_post_meta capabilities only, so unlike marking the key
+		 * protected they leave is_protected_meta() false and meta_key queries
+		 * against the WordPress.com JSON API keep working. VideoPress writes the
+		 * mapping itself with update_post_meta(), which does not consult
+		 * capabilities, so uploads and transcoding are unaffected.
+		 *
+		 * The subtype-specific filter covers attachments; the generic one covers
+		 * calls made before a subtype can be resolved.
+		 */
+		add_filter( 'auth_post_meta_videopress_guid_for_attachment', '__return_false' );
+		add_filter( 'auth_post_meta_videopress_guid', '__return_false' );
+
 		Module_Control::init();
 
 		/*
@@ -132,6 +153,34 @@ class Initializer {
 		}
 
 		return version_compare( JETPACK__VERSION, '11.3-a.7', '>=' );
+	}
+
+	/**
+	 * Prepare a poster URL for a quoted CSS url() inside an HTML attribute.
+	 *
+	 * @param mixed $poster Poster URL.
+	 * @return string Sanitized and HTML-encoded poster URL, or an empty string.
+	 */
+	private static function prepare_poster_url_for_inline_style( $poster ) {
+		if ( ! is_string( $poster ) || '' === $poster ) {
+			return '';
+		}
+
+		/*
+		 * Decode one layer so ordinarily encoded URLs retain their semantics. Any
+		 * remaining entities are encoded again below and stay inert after the HTML
+		 * parser performs its single decoding pass.
+		 */
+		$poster_url = esc_url_raw( html_entity_decode( $poster, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
+		if ( '' === $poster_url ) {
+			return '';
+		}
+
+		/*
+		 * Force existing character references to be encoded. esc_attr() preserves
+		 * them, but this value crosses from an HTML attribute into a CSS string.
+		 */
+		return htmlspecialchars( $poster_url, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8', true );
 	}
 
 	/**
@@ -244,9 +293,17 @@ class Initializer {
 
 		// Inline style.
 		$style     = '';
-		$max_width = $block_attributes['maxWidth'] ?? null;
+		$max_width = isset( $block_attributes['maxWidth'] ) && is_string( $block_attributes['maxWidth'] )
+			? trim( $block_attributes['maxWidth'] )
+			: '';
 
-		if ( $max_width && $max_width !== '100%' ) {
+		// maxWidth is rendered into an inline style. Accept only a plain CSS length
+		// or percentage so the value stays a single, well-formed declaration;
+		// anything else is dropped and the block renders at full width (as with the
+		// "100%" default).
+		if ( '' !== $max_width && '100%' !== $max_width
+			&& preg_match( '/^\d+(\.\d+)?(px|%|em|rem|vw|vh|vmin|vmax|ch|ex|cm|mm|in|pt|pc|q)$/i', $max_width )
+		) {
 			$style    = sprintf( 'max-width: %s;', $max_width );
 			$classes .= ' wp-block-jetpack-videopress--has-max-width';
 		}
@@ -308,10 +365,13 @@ class Initializer {
 
 			// Create inline style in case video has a custom poster.
 			$inline_style = '';
-			if ( $poster ) {
+			$poster_url   = self::prepare_poster_url_for_inline_style( $poster );
+			if ( $poster_url ) {
+				// Emit the poster URL as a double-quoted CSS string so it stays
+				// contained within url() and cannot affect the surrounding style.
 				$inline_style = sprintf(
-					'style="background-image: url(%s); background-size: cover; background-position: center center;"',
-					esc_attr( $poster )
+					'style="background-image: url(&quot;%s&quot;); background-size: cover; background-position: center center;"',
+					$poster_url
 				);
 			}
 

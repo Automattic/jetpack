@@ -2,6 +2,7 @@ export { MetricDelta } from './metric-delta';
 export { MetricTileGrid } from './metric-tile';
 export { MetricValue } from './metric-value';
 export { MetricWithComparison } from './metric-with-comparison';
+export { PeakDistribution, type PeakDistributionProps } from './peak-distribution';
 export {
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
@@ -49,6 +50,13 @@ export {
 } from './chart-leaderboard';
 export { BarChart, type BarChartProps, type BarChartData, type BarChartStyle } from './chart-bar';
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';
+export {
+	AdaptiveCalendarHeatmap,
+	CalendarHeatmapTooltip,
+	type AdaptiveCalendarHeatmapChartProps,
+	type AdaptiveCalendarHeatmapProps,
+	type CalendarHeatmapTooltipProps,
+} from './calendar-heatmap';
 export { WidgetLoadingOverlay } from './widget-loading-overlay';
 export {
 	WidgetState,

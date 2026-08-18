@@ -18,7 +18,13 @@ export { formatRelativeSince } from './relative-since';
 
 export { INTERVAL_TYPES, isIntervalType, type IntervalType } from './interval';
 
+export { getDateRangeSpan, type DateRangeSpan, type DateRangeSpanUnit } from './date-range-span';
+
+export { stepDateRange, canStepForward, type StepDirection } from './step-date-range';
+
 export { parseSiteDateTime } from './site-datetime';
+
+export { siteTimeZone } from './site-time-zone';
 
 export {
 	formatDatePartWithTime,

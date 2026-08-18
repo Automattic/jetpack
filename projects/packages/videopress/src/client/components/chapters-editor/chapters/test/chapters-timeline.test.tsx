@@ -1,5 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event -- Drag gestures need raw pointer events carrying clientX/pointerId (userEvent has no pointer-capture drag primitive), and the shortcuts under test listen for raw keydowns on document. */
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useReducer } from 'react';
 import {
@@ -8,6 +8,7 @@ import {
 	createChaptersSession,
 } from '../../state/chapters-session';
 import { canUndo, createHistory, withHistory } from '../../state/history';
+import ChaptersPanel from '../chapters-panel';
 import ChaptersTimeline from '../chapters-timeline';
 import type { ChapterRow } from '../../../../utils/video-chapters/description';
 import type { ChaptersSession, ChaptersSessionAction } from '../../state/chapters-session';
@@ -56,10 +57,13 @@ type HarnessProps = Partial< ChaptersTimelineProps > & {
 	durationMs?: number;
 };
 
+const noopSeek = () => {};
+
 /**
- * The timeline under a REAL history-wrapped store, so gestures, coalescing,
- * and undo semantics are exercised end to end. An extra harness button
- * dispatches UNDO and a probe span reports canUndo.
+ * The timeline AND the chapters panel over one REAL history-wrapped store —
+ * the same composition both hosts render — so gestures, coalescing, undo
+ * semantics, and the strip ↔ rows interplay are exercised end to end. An
+ * extra harness button dispatches UNDO and a probe span reports canUndo.
  *
  * @param props            - Timeline prop overrides plus the initial rows/duration.
  * @param props.rows       - Rows LOADed into the store at mount.
@@ -76,16 +80,31 @@ function Harness( { rows, durationMs = 60000, ...overrides }: HarnessProps ): Re
 			} )
 		)
 	);
+	// The gating props and the seek callback are shared between the strip and
+	// the panel, exactly as the hosts wire them. The default onSeek is a
+	// stable module-level noop so the memoized panel's props are
+	// identity-stable except the session — the update assertions below then
+	// genuinely prove memo re-renders on session change.
+	const { onSeek = noopSeek, locked, readOnly } = overrides;
 	return (
-		<>
+		// The tokens wrapper mirrors both hosts and is what the add-button's
+		// scoped focus query resolves against.
+		<div className="vp-chapters-tokens">
 			<ChaptersTimeline
 				session={ history.present }
 				dispatch={ dispatch }
 				currentMs={ 0 }
-				onSeek={ () => {} }
 				onTogglePlay={ () => {} }
 				playing={ false }
 				{ ...overrides }
+				onSeek={ onSeek }
+			/>
+			<ChaptersPanel
+				session={ history.present }
+				dispatch={ dispatch }
+				onSeek={ onSeek }
+				locked={ locked }
+				readOnly={ readOnly }
 			/>
 			<button data-testid="harness-undo" onClick={ () => dispatch( { type: 'UNDO' } ) }>
 				harness undo
@@ -93,7 +112,7 @@ function Harness( { rows, durationMs = 60000, ...overrides }: HarnessProps ): Re
 			<span data-testid="harness-can-undo">
 				{ String( canUndo( history, chaptersEditsEqual ) ) }
 			</span>
-		</>
+		</div>
 	);
 }
 
@@ -115,7 +134,7 @@ const markers = () => screen.queryAllByTestId( /^chapters-marker-/ );
 const addButton = () => screen.getByRole( 'button', { name: 'Add chapter at playhead' } );
 const isAriaDisabled = ( el: HTMLElement ) => el.getAttribute( 'aria-disabled' ) === 'true';
 
-describe( 'ChaptersTimeline', () => {
+describe( 'Chapters editor (timeline strip + panel)', () => {
 	describe( 'strip', () => {
 		it( 'renders segments spanning start → next start, the last running to the video end', () => {
 			renderChapters();
@@ -136,8 +155,8 @@ describe( 'ChaptersTimeline', () => {
 			renderChapters();
 			const found = markers();
 			expect( found ).toHaveLength( 2 );
-			expect( found[ 0 ] ).toHaveAttribute( 'aria-valuenow', '10000' );
-			expect( found[ 1 ] ).toHaveAttribute( 'aria-valuenow', '30000' );
+			expect( found[ 0 ] ).toHaveValue( 10000 );
+			expect( found[ 1 ] ).toHaveValue( 30000 );
 			// Clamp windows: prev+1s … next−1s; the last is capped at duration−1s.
 			expect( found[ 0 ] ).toHaveAttribute( 'aria-valuemin', '1000' );
 			expect( found[ 0 ] ).toHaveAttribute( 'aria-valuemax', '29000' );
@@ -188,13 +207,13 @@ describe( 'ChaptersTimeline', () => {
 			fireEvent.pointerMove( marker, { pointerId: 1, clientX: 800 } );
 			fireEvent.pointerUp( marker, { pointerId: 1 } );
 
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '29000' );
+			expect( marker ).toHaveValue( 29000 );
 			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'true' );
 
 			// ONE undo entry for the whole gesture: straight back to 10s, and
 			// nothing older to undo.
 			fireEvent.click( screen.getByTestId( 'harness-undo' ) );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '10000' );
+			expect( marker ).toHaveValue( 10000 );
 			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'false' );
 		} );
 
@@ -205,10 +224,10 @@ describe( 'ChaptersTimeline', () => {
 			fireEvent.pointerDown( marker, { button: 0, pointerId: 1, clientX: 100 } );
 			// 205px → pointer 12300ms + 4000ms grab offset → raw 16300 mid-drag.
 			fireEvent.pointerMove( marker, { pointerId: 1, clientX: 205 } );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '16300' );
+			expect( marker ).toHaveValue( 16300 );
 
 			fireEvent.pointerUp( marker, { pointerId: 1 } );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '16000' );
+			expect( marker ).toHaveValue( 16000 );
 		} );
 
 		it( 'quantizes a drag against a fractional video end to a whole second', () => {
@@ -224,10 +243,10 @@ describe( 'ChaptersTimeline', () => {
 			// Far past the right edge: the clamp saturates, so the grab-offset
 			// math is irrelevant and the drag parks on the fractional ceiling.
 			fireEvent.pointerMove( marker, { pointerId: 1, clientX: 1300 } );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '59900' );
+			expect( marker ).toHaveValue( 59900 );
 
 			fireEvent.pointerUp( marker, { pointerId: 1 } );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '59000' );
+			expect( marker ).toHaveValue( 59000 );
 		} );
 
 		it( 'commits nothing for a drag that returns to its start', () => {
@@ -239,7 +258,7 @@ describe( 'ChaptersTimeline', () => {
 			fireEvent.pointerMove( marker, { pointerId: 1, clientX: 100 } );
 			fireEvent.pointerUp( marker, { pointerId: 1 } );
 
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '10000' );
+			expect( marker ).toHaveValue( 10000 );
 			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'false' );
 		} );
 
@@ -248,15 +267,15 @@ describe( 'ChaptersTimeline', () => {
 			const marker = markers()[ 0 ];
 
 			fireEvent.keyDown( marker, { key: 'ArrowLeft' } );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '9000' );
+			expect( marker ).toHaveValue( 9000 );
 			fireEvent.keyDown( marker, { key: 'ArrowRight' } );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '10000' );
+			expect( marker ).toHaveValue( 10000 );
 
 			// Each nudge folds its transient gesture into ONE undo entry.
 			fireEvent.click( screen.getByTestId( 'harness-undo' ) );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '9000' );
+			expect( marker ).toHaveValue( 9000 );
 			fireEvent.click( screen.getByTestId( 'harness-undo' ) );
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '10000' );
+			expect( marker ).toHaveValue( 10000 );
 			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'false' );
 		} );
 
@@ -275,11 +294,11 @@ describe( 'ChaptersTimeline', () => {
 				durationMs: 60900,
 			} );
 			const marker = markers()[ 0 ];
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '59000' );
+			expect( marker ).toHaveValue( 59000 );
 
 			fireEvent.keyDown( marker, { key: 'ArrowRight' } );
 
-			expect( marker ).toHaveAttribute( 'aria-valuenow', '59000' );
+			expect( marker ).toHaveValue( 59000 );
 			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'false' );
 		} );
 	} );
@@ -311,7 +330,24 @@ describe( 'ChaptersTimeline', () => {
 			expect( added ).toHaveTextContent( 'Chapter 2' );
 			expect( added.className ).toContain( 'vp-chapters__segment--selected' );
 			// Whole-second rounding: 5400 → 5000.
-			expect( markers()[ 0 ] ).toHaveAttribute( 'aria-valuenow', '5000' );
+			expect( markers()[ 0 ] ).toHaveValue( 5000 );
+		} );
+
+		it( 'hands focus to the new chapter’s title input with the default title selected', async () => {
+			const user = userEvent.setup();
+			renderChapters( { currentMs: 5400 } );
+
+			await user.click( addButton() );
+
+			// The hand-off is a frame behind the add (the rows live in the
+			// sibling panel and render on the next flush).
+			const input = ( await screen.findByLabelText( 'Chapter 2 title' ) ) as HTMLInputElement;
+			await waitFor( () => expect( input ).toHaveFocus() );
+			// The default title is selected so typing replaces it directly.
+			expect( input.value ).toBe( 'Chapter 2' );
+			expect( input.value.slice( input.selectionStart ?? 0, input.selectionEnd ?? 0 ) ).toBe(
+				'Chapter 2'
+			);
 		} );
 	} );
 
@@ -366,33 +402,26 @@ describe( 'ChaptersTimeline', () => {
 			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'false' );
 		} );
 
-		it( 'formats the row duration as a timecode rather than raw seconds', () => {
-			// Real media durations are fractional, and the last row runs to the
-			// video end — so this row used to read "4437.055s".
-			renderChapters( { rows: [ { startAtSeconds: 0, title: 'Only' } ], durationMs: 4437055 } );
-
-			const row = screen.getAllByTestId( /^chapters-row-chapter/ )[ 0 ];
-			expect( row ).toHaveTextContent( '1:13:57.0' );
-			expect( row ).not.toHaveTextContent( '4437.055s' );
-		} );
-
-		it( 'shows index, start time, and duration per row and seeks from the time button', async () => {
+		it( 'shows the start time per row and seeks from the time button', async () => {
 			const onSeek = jest.fn();
 			const user = userEvent.setup();
 			renderChapters( { onSeek } );
 
-			const rows = screen.getAllByTestId( /^chapters-row-chapter/ );
-			expect( rows[ 0 ] ).toHaveTextContent( '01' );
-			expect( rows[ 2 ] ).toHaveTextContent( '03' );
-			// Durations: next start − start; the last runs to the video end.
-			expect( rows[ 0 ] ).toHaveTextContent( '0:00:10.0' );
-			expect( rows[ 1 ] ).toHaveTextContent( '0:00:20.0' );
-			expect( rows[ 2 ] ).toHaveTextContent( '0:00:30.0' );
-
 			const timeButtons = screen.getAllByTestId( /^chapters-row-time-/ );
+			expect( timeButtons[ 0 ] ).toHaveTextContent( '0:00:00.0' );
+			expect( timeButtons[ 1 ] ).toHaveTextContent( '0:00:10.0' );
 			expect( timeButtons[ 2 ] ).toHaveTextContent( '0:00:30.0' );
 			await user.click( timeButtons[ 2 ] );
 			expect( onSeek ).toHaveBeenCalledWith( 30000 );
+		} );
+
+		it( 'shows the live chapter count in the panel header', async () => {
+			const user = userEvent.setup();
+			renderChapters( { currentMs: 5000 } );
+			expect( screen.getByTestId( 'chapters-count' ) ).toHaveTextContent( '3' );
+
+			await user.click( addButton() );
+			expect( screen.getByTestId( 'chapters-count' ) ).toHaveTextContent( '4' );
 		} );
 
 		it( 're-pins the new first chapter to 0 when the first is removed', async () => {
@@ -507,7 +536,7 @@ describe( 'ChaptersTimeline', () => {
 		it( 'shows nothing while the chapter set is valid', () => {
 			renderChapters();
 			expect( screen.queryAllByTestId( /^chapters-row-issue-/ ) ).toHaveLength( 0 );
-			expect( screen.queryByTestId( 'chapters-validation' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'chapters-validation' ) ).toBeEmptyDOMElement();
 		} );
 
 		it( 'flags the offending row and describes its title input with the message', () => {
@@ -532,7 +561,7 @@ describe( 'ChaptersTimeline', () => {
 				issues[ 0 ].id
 			);
 			// Nothing row-less to report here.
-			expect( screen.queryByTestId( 'chapters-validation' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'chapters-validation' ) ).toBeEmptyDOMElement();
 		} );
 
 		it( 'checks the duration on the same basis the hosts use at save time', () => {
@@ -556,7 +585,7 @@ describe( 'ChaptersTimeline', () => {
 			);
 		} );
 
-		it( 'reports issues with no row of their own next to the footer help line', () => {
+		it( 'reports issues with no row of their own under the panel header', () => {
 			renderChapters( {
 				rows: [
 					{ startAtSeconds: 0, title: 'Intro' },
@@ -570,13 +599,48 @@ describe( 'ChaptersTimeline', () => {
 			expect( screen.queryAllByTestId( /^chapters-row-issue-/ ) ).toHaveLength( 0 );
 		} );
 
+		it( 'rolls up untitled chapters under the header while the row carries its own message', () => {
+			renderChapters( {
+				rows: [
+					{ startAtSeconds: 0, title: 'Intro' },
+					{ startAtSeconds: 20, title: '' },
+					{ startAtSeconds: 40, title: 'End' },
+				],
+			} );
+
+			expect( screen.getByTestId( 'chapters-validation' ) ).toHaveTextContent(
+				'1 chapter still needs a title.'
+			);
+			const issues = screen.getAllByTestId( /^chapters-row-issue-/ );
+			expect( issues ).toHaveLength( 1 );
+			expect( issues[ 0 ] ).toHaveTextContent( 'Every chapter needs a title.' );
+			expect( screen.getAllByTestId( /^chapters-row-chapter/ )[ 1 ] ).toContainElement(
+				issues[ 0 ]
+			);
+		} );
+
+		it( 'pluralizes the untitled rollup and flags every offending row', () => {
+			renderChapters( {
+				rows: [
+					{ startAtSeconds: 0, title: 'Intro' },
+					{ startAtSeconds: 20, title: '' },
+					{ startAtSeconds: 40, title: '' },
+				],
+			} );
+
+			expect( screen.getByTestId( 'chapters-validation' ) ).toHaveTextContent(
+				'2 chapters still need a title.'
+			);
+			expect( screen.getAllByTestId( /^chapters-row-issue-/ ) ).toHaveLength( 2 );
+		} );
+
 		// A description with no chapter lines loads as one seeded chapter, so
 		// validating it would scold the user on arrival for a set they have
 		// not written yet.
 		it( 'stays quiet until there is more than one chapter to judge', () => {
 			renderChapters( { rows: [ { startAtSeconds: 0, title: 'Only' } ] } );
 
-			expect( screen.queryByTestId( 'chapters-validation' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'chapters-validation' ) ).toBeEmptyDOMElement();
 			expect( screen.queryAllByTestId( /^chapters-row-issue-/ ) ).toHaveLength( 0 );
 		} );
 
@@ -588,7 +652,7 @@ describe( 'ChaptersTimeline', () => {
 					{ startAtSeconds: 30, title: 'Second' },
 				],
 			} );
-			expect( screen.queryByTestId( 'chapters-validation' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'chapters-validation' ) ).toBeEmptyDOMElement();
 		} );
 	} );
 
@@ -601,9 +665,11 @@ describe( 'ChaptersTimeline', () => {
 			expect( markers() ).toHaveLength( 0 );
 			expect( screen.queryByTestId( 'chapters-rows' ) ).not.toBeInTheDocument();
 			expect( isAriaDisabled( addButton() ) ).toBe( true );
-			expect( screen.getByRole( 'status' ) ).toHaveTextContent(
-				'Chapters for this video are managed by an uploaded VTT file, so they can’t be edited here.'
-			);
+			expect(
+				screen.getByText(
+					'Chapters for this video are managed by an uploaded VTT file, so they can’t be edited here.'
+				)
+			).toBeInTheDocument();
 		} );
 
 		it( 'drops the Delete shortcut', () => {

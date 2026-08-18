@@ -1,4 +1,18 @@
-export type ActivityKind = 'backup' | 'post' | 'upload' | 'plugin-update' | 'theme-update';
+/**
+ * `other` is the catch-all for any WPCOM gridicon we don't map to a
+ * specific kind. WPCOM's rewindable feed spans more event families than
+ * the five we render icons for (`video`, `cog`, `plans`, and — on the
+ * parent activity endpoint — `notice`, `lock`, `checkmark`), and that
+ * set grows without notice. Dropping the unrecognized ones hid 27% of
+ * this site's activity, so unknown maps here instead.
+ */
+export type ActivityKind =
+	| 'backup'
+	| 'post'
+	| 'upload'
+	| 'plugin-update'
+	| 'theme-update'
+	| 'other';
 
 export type ActivityActor = {
 	type: 'Application' | 'Person';

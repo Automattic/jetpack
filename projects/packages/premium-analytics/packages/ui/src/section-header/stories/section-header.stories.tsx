@@ -278,9 +278,10 @@ function YearDateControls( {
 type SectionHeaderStoryProps = {
 	title: string;
 	subtitle?: string;
+	condenseOnScroll?: boolean;
 };
 
-function RollingSectionHeaderStory( { title }: SectionHeaderStoryProps ) {
+function RollingSectionHeaderStory( { title, condenseOnScroll }: SectionHeaderStoryProps ) {
 	const [ applied, setApplied ] = useState< AppliedDateState >( () => {
 		const initial = buildInitialPrimaryState();
 
@@ -292,7 +293,11 @@ function RollingSectionHeaderStory( { title }: SectionHeaderStoryProps ) {
 	} );
 
 	return (
-		<SectionHeader title={ title } subtitle={ getSectionSubtitle( applied ) }>
+		<SectionHeader
+			title={ title }
+			subtitle={ getSectionSubtitle( applied ) }
+			condenseOnScroll={ condenseOnScroll }
+		>
 			<RollingDateControls onAppliedChange={ setApplied } />
 		</SectionHeader>
 	);
@@ -331,6 +336,18 @@ export const Default: Story = {
 };
 
 /**
+ * A title long enough to overflow its track: it truncates with an ellipsis
+ * instead of wrapping or compressing the date controls, which keep their
+ * natural width for as long as the title stays above its floor.
+ */
+export const LongTitle: Story = {
+	args: {
+		title: 'Traffic for every site, network, and channel this account has ever measured',
+	},
+	render: ( { title } ) => <RollingSectionHeaderStory title={ title } />,
+};
+
+/**
  * The **Insights-like** instance: the year surface (all time plus calendar
  * years) and the chart interval in the slot.
  *
@@ -360,6 +377,55 @@ export const Stacked: Story = {
 	render: ( { title } ) => (
 		<div style={ { inlineSize: 520 } }>
 			<RollingSectionHeaderStory title={ title } />
+		</div>
+	),
+};
+
+/*
+ * Story-only stand-in for what a surface provides around a pinned header: a
+ * strip to scroll past and the pin marker publishing the view timeline. The
+ * dashboard does this in `routes/dashboard/stage.module.scss`.
+ */
+const PIN_TIMELINE = '--section-header-pin';
+const PIN_MARKER_STYLE = {
+	position: 'absolute',
+	insetBlockStart: 0,
+	inlineSize: 1,
+	blockSize: 40,
+	visibility: 'hidden',
+	pointerEvents: 'none',
+	viewTimelineName: PIN_TIMELINE,
+	viewTimelineAxis: 'block',
+} as const;
+
+/**
+ * `condenseOnScroll` on a pinned header: scroll the box below, and once the
+ * header clears the strip above it and pins, the subtitle fades and gives its
+ * row back over the next 40px. Nothing condenses while the header is still on
+ * its way up, and the effect reverses as you scroll back up. Browsers without
+ * scroll-driven animations, surfaces that publish no pin marker, and readers
+ * who asked for reduced motion all keep the subtitle in place.
+ */
+export const CondensingOnScroll: Story = {
+	args: {
+		title: 'Site traffic',
+	},
+	render: ( { title } ) => (
+		<div style={ { blockSize: 320, overflowY: 'auto' } }>
+			<div style={ { blockSize: 48 } }>Something to scroll past, as the section tabs are.</div>
+			<div style={ { position: 'relative', timelineScope: PIN_TIMELINE } }>
+				<div style={ PIN_MARKER_STYLE } aria-hidden="true" />
+				<div
+					style={ {
+						position: 'sticky',
+						insetBlockStart: 0,
+						background: 'var(--wpds-color-background-surface-neutral-strong)',
+					} }
+				>
+					<RollingSectionHeaderStory title={ title } condenseOnScroll />
+				</div>
+				<div style={ { blockSize: 900 } } />
+			</div>
 		</div>
 	),
 };

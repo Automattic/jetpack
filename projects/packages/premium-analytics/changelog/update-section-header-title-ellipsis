@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Section header: truncate a long title with an ellipsis instead of wrapping it and compressing the date controls.

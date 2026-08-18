@@ -73,23 +73,37 @@ function get_dashboard_default_layout_for( $dashboard_name ) {
 }
 
 /**
+ * Returns availability gates for conditional dashboard tabs.
+ *
+ * The callbacks are used directly because the section registry may not be
+ * initialized when this route runs.
+ *
+ * @since $$next-version$$
+ *
+ * @return callable[] Resolved tab ID mapped to its availability callback.
+ */
+function get_dashboard_default_layout_gates() {
+	return array(
+		DASHBOARD_STORE_SECTION_ID       => array( Capabilities::class, 'current_user_can_view_store_reports' ),
+		DASHBOARD_SUBSCRIBERS_SECTION_ID => __NAMESPACE__ . '\\is_subscribers_dashboard_section_available',
+	);
+}
+
+/**
  * REST callback returning the default layout for the requested dashboard.
  *
- * The route admits every dashboard reader, but its name also resolves to a
- * single tab, so the store tab is refused here the way the section route
- * refuses it through {@see Dashboard_Section::is_available()}. The check keys
- * on the resolved tab rather than the string because two spellings arrive: the
- * bare `store` alias in the URL, and `?name=woocommerce/store`, which WordPress
- * reads ahead of the URL capture.
+ * Availability is checked after resolving the name because tabs can be
+ * requested by alias or full section ID.
  *
  * @param \WP_REST_Request $request REST request carrying the dashboard name.
  * @return \WP_REST_Response|\WP_Error Response wrapping the default layout array.
  */
 function get_dashboard_default_layout_response( $request ) {
 	$dashboard_name = $request['name'];
+	$gates          = get_dashboard_default_layout_gates();
+	$section_id     = get_dashboard_default_section_id_for( $dashboard_name );
 
-	if ( DASHBOARD_STORE_SECTION_ID === get_dashboard_default_section_id_for( $dashboard_name )
-		&& ! Capabilities::current_user_can_view_store_reports() ) {
+	if ( isset( $gates[ $section_id ] ) && ! call_user_func( $gates[ $section_id ] ) ) {
 		return new \WP_Error(
 			'dashboard_section_unavailable',
 			__( 'Dashboard section is not available.', 'jetpack-premium-analytics-pkg' ),
@@ -233,7 +247,7 @@ function get_dashboard_default_section_layouts() {
 					'max' => 10,
 				)
 			),
-			// Row 4: VideoPress + clicks + authors.
+			// Row 4: VideoPress (sites running VideoPress only) + clicks + authors.
 			get_dashboard_default_widget_instance(
 				'default-videopress-widget-instance',
 				'jpa/videopress',
@@ -299,8 +313,7 @@ function get_dashboard_default_section_layouts() {
 		),
 		DASHBOARD_INSIGHTS_SECTION_ID    => array(
 			// Follows the prototype's rows (WOOA7S-1786). Emails lives on the
-			// Subscribers tab, and the site-wide views heatmap has no widget
-			// yet (WOOA7S-1787), so that row is absent.
+			// Subscribers tab, so that row is absent.
 			// Row 1: highlights banner.
 			get_dashboard_default_widget_instance(
 				'default-annual-highlights-widget-instance',
@@ -332,8 +345,9 @@ function get_dashboard_default_section_layouts() {
 				2,
 				2
 			),
-			// Row 4: the period totals + the two most-popular cards. The
-			// most-popular cards still crop at this height (WOOA7S-1846).
+			// Row 4: the period totals, the weekday distribution, and the
+			// all-time best day. The most-popular-day card still crops at this
+			// height (WOOA7S-1846).
 			get_dashboard_default_widget_instance(
 				'default-total-views-widget-instance',
 				'jpa/total-views',
@@ -349,8 +363,8 @@ function get_dashboard_default_section_layouts() {
 				1
 			),
 			get_dashboard_default_widget_instance(
-				'default-most-popular-time-widget-instance',
-				'jpa/most-popular-time',
+				'default-popular-days-widget-instance',
+				'jpa/popular-days',
 				6,
 				1,
 				1
@@ -362,11 +376,21 @@ function get_dashboard_default_section_layouts() {
 				1,
 				1
 			),
-			// Row 5: the comment leaderboards, shares, and tags.
+			// Row 5: daily views heatmap. Two rows tall, as in the prototype: the
+			// cells are sized from the tile's height, and only at this height do they
+			// grow wide enough to label each day with its view count.
+			get_dashboard_default_widget_instance(
+				'default-traffic-views-activity-widget-instance',
+				'jpa/traffic-views-activity',
+				8,
+				4,
+				2
+			),
+			// Row 6: the comment leaderboards, shares, and tags.
 			get_dashboard_default_widget_instance(
 				'default-most-commented-posts-widget-instance',
 				'jpa/most-commented-posts',
-				8,
+				9,
 				1,
 				2,
 				array(
@@ -376,7 +400,7 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-most-commented-authors-widget-instance',
 				'jpa/most-commented-authors',
-				9,
+				10,
 				1,
 				2,
 				array(
@@ -386,7 +410,7 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-shares-widget-instance',
 				'jpa/shares',
-				10,
+				11,
 				1,
 				2,
 				array(
@@ -396,7 +420,7 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-tags-widget-instance',
 				'jpa/tags',
-				11,
+				12,
 				1,
 				2,
 				array(

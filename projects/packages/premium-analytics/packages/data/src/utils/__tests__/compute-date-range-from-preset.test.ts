@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { tz } from '@date-fns/tz';
+import { getSettings, setSettings } from '@wordpress/date';
 import {
 	startOfDay,
 	endOfDay,
@@ -17,22 +18,24 @@ import {
 	endOfYear,
 } from 'date-fns';
 /**
- * Mocks – getSiteTimezone and dateToISOStringWithLocalTZ
- * depend on WordPress core store.
- * We mock them to remove that dependency.
- *
- * dateToISOStringWithLocalTZ normalizes to UTC Z-format
- * (matching native Date.toISOString) since the mock timezone
- * is +00:00 and all dates are UTC.
+ * Mocks – `dateToISOStringWithLocalTZ` normalizes to UTC Z-format (matching
+ * native Date.toISOString) so the expectations below can be plain UTC instants.
+ * The site zone itself is pinned through `setSettings` after the imports.
  */
 jest.mock( '../date', () => ( {
-	getSiteTimezone: jest.fn( () => '+00:00' ),
 	dateToISOStringWithLocalTZ: jest.fn( ( date: Date ) => new Date( date.getTime() ).toISOString() ),
 } ) );
 /**
  * Internal dependencies
  */
 import { computeDateRangeFromPreset } from '../preset-date-range';
+
+// `computePrimaryRange` resolves its day bounds in the site zone, so pin it
+// rather than letting the machine timezone decide.
+setSettings( {
+	...getSettings(),
+	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+} );
 
 /*
  * Pin "now" to 2026-02-19 12:00:00 UTC for deterministic results.
@@ -146,6 +149,22 @@ describe( 'computeDateRangeFromPreset', () => {
 		expect( range ).toBeDefined();
 		expect( range!.from ).toBe( toZ( startOfYear( lastYear, { in: UTC } ) ) );
 		expect( range!.to ).toBe( toZ( endOfYear( lastYear, { in: UTC } ) ) );
+	} );
+
+	it( 'returns the current calendar year through the end of today', () => {
+		const range = computeDateRangeFromPreset( 'year-2026' );
+
+		expect( range ).toBeDefined();
+		expect( range!.from ).toBe( toZ( startOfYear( TODAY_START, { in: UTC } ) ) );
+		expect( range!.to ).toBe( toZ( TODAY_END ) );
+	} );
+
+	it( 'returns the default year surface through the end of today for all time', () => {
+		const range = computeDateRangeFromPreset( 'all-time' );
+
+		expect( range ).toBeDefined();
+		expect( range!.from ).toBe( toZ( startOfYear( subYears( TODAY_START, 5 ), { in: UTC } ) ) );
+		expect( range!.to ).toBe( toZ( TODAY_END ) );
 	} );
 
 	it( 'returns undefined for unrecognized preset', () => {

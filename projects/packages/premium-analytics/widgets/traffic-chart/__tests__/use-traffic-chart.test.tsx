@@ -108,8 +108,8 @@ describe( 'useTrafficChart', () => {
 		expect( metrics.map( metric => metric.key ) ).toEqual( [
 			'views',
 			'visitors',
-			'likes',
 			'comments',
+			'likes',
 		] );
 		// This only proves `value` is each metric's correct total (not a
 		// hardcoded or swapped field) — sanitizeStatsTimeSeriesResponse derives
@@ -117,8 +117,8 @@ describe( 'useTrafficChart', () => {
 		// summary-read apart from a re-sum of the points.
 		expect( metrics[ 0 ].value ).toBe( 2000 );
 		expect( metrics[ 1 ].value ).toBe( 1500 );
-		expect( metrics[ 2 ].value ).toBe( 50 );
-		expect( metrics[ 3 ].value ).toBe( 20 );
+		expect( metrics[ 2 ].value ).toBe( 20 );
+		expect( metrics[ 3 ].value ).toBe( 50 );
 	} );
 
 	it( 'maps one chart point per period, oldest first', async () => {
@@ -157,12 +157,16 @@ describe( 'useTrafficChart', () => {
 
 		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
-		const metrics = result.current.metrics;
-		expect( metrics[ 0 ].previousValue ).toBe( 500 );
-		expect( metrics[ 1 ].previousValue ).toBe( 400 );
-		expect( metrics[ 2 ].previousValue ).toBe( 10 );
-		expect( metrics[ 3 ].previousValue ).toBe( 4 );
-		expect( metrics[ 0 ].previous ).toHaveLength( 1 );
+		// Keyed rather than indexed: tab order is the sibling test's subject, not
+		// this one's, so a reorder shouldn't silently re-point these totals.
+		const byKey = Object.fromEntries(
+			result.current.metrics.map( metric => [ metric.key, metric ] )
+		);
+		expect( byKey.views.previousValue ).toBe( 500 );
+		expect( byKey.visitors.previousValue ).toBe( 400 );
+		expect( byKey.likes.previousValue ).toBe( 10 );
+		expect( byKey.comments.previousValue ).toBe( 4 );
+		expect( byKey.views.previous ).toHaveLength( 1 );
 	} );
 
 	// The misleading-zero guard: an empty comparison response must read as "no
@@ -188,18 +192,5 @@ describe( 'useTrafficChart', () => {
 			expect( metric.previous ).toBeUndefined();
 			expect( metric.previousValue ).toBeUndefined();
 		}
-	} );
-
-	it( 'yields only the selected metrics, in canonical order', async () => {
-		// Ids passed out of canonical order to prove the order comes from the
-		// definitions, not the selection.
-		const { result } = renderHook(
-			() => useTrafficChart( RANGE, 'month', [ 'comments', 'views' ] ),
-			{ wrapper }
-		);
-
-		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
-
-		expect( result.current.metrics.map( metric => metric.key ) ).toEqual( [ 'views', 'comments' ] );
 	} );
 } );

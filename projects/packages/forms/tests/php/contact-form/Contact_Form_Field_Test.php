@@ -117,6 +117,127 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A missing checkbox value on a real submission means the visitor unchecked it.
+	 * It must not be repopulated from the query string or configured default.
+	 *
+	 * @dataProvider submitted_unchecked_field_provider
+	 *
+	 * @param string $field_type  Field type.
+	 * @param array  $attributes  Additional field attributes.
+	 */
+	#[DataProvider( 'submitted_unchecked_field_provider' )]
+	public function test_submitted_unchecked_fields_do_not_fall_back_to_prefills( $field_type, $attributes ) {
+		$form  = new Contact_Form( array( 'id' => 'submitted-form' ) );
+		$field = new Contact_Form_Field(
+			array_merge(
+				array(
+					'id'      => 'choice',
+					'type'    => $field_type,
+					'default' => 'Yes',
+				),
+				$attributes
+			),
+			'',
+			$form
+		);
+
+		$_GET['choice']             = 'Yes';
+		$_POST['action']            = 'grunion-contact-form';
+		$_POST['contact-form-id']   = $form->get_attribute( 'id' );
+		$_POST['contact-form-hash'] = $form->hash;
+
+		$this->assertSame( '', $field->get_computed_field_value( $field_type, 'choice' ) );
+	}
+
+	/**
+	 * Field types represented by checkbox controls.
+	 *
+	 * @return array
+	 */
+	public static function submitted_unchecked_field_provider() {
+		return array(
+			'checkbox'          => array( 'checkbox', array() ),
+			'checkbox-multiple' => array( 'checkbox-multiple', array() ),
+			'explicit consent'  => array( 'consent', array( 'consenttype' => 'explicit' ) ),
+		);
+	}
+
+	/**
+	 * Explicit consent never renders checked, so prefills must not satisfy its conditions.
+	 *
+	 * @dataProvider explicit_consent_prefill_provider
+	 *
+	 * @param string $default   Configured default value.
+	 * @param string $get_value Query-string value.
+	 */
+	#[DataProvider( 'explicit_consent_prefill_provider' )]
+	public function test_explicit_consent_conditional_value_ignores_prefills( $default, $get_value ) {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'        => 'consent',
+				'id'          => 'choice',
+				'default'     => $default,
+				'consenttype' => 'explicit',
+			)
+		);
+
+		if ( '' !== $get_value ) {
+			$_GET['choice'] = $get_value;
+		}
+
+		$this->assertSame( '', $field->get_conditional_logic_value() );
+	}
+
+	/**
+	 * Prefills that cannot check an explicit-consent control.
+	 *
+	 * @return array
+	 */
+	public static function explicit_consent_prefill_provider() {
+		return array(
+			'configured default' => array( 'Yes', '' ),
+			'query string'       => array( '', 'Yes' ),
+		);
+	}
+
+	/**
+	 * Implicit consent is represented by a hidden input whose submitted value is always Yes.
+	 */
+	public function test_implicit_consent_computed_value_matches_its_hidden_input() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'        => 'consent',
+				'id'          => 'test_consent',
+				'consenttype' => 'implicit',
+			)
+		);
+
+		$this->assertSame( 'Yes', $field->get_computed_field_value( 'consent', 'test_consent' ) );
+	}
+
+	/**
+	 * JWT submissions omit the normal form action but still represent a submitted checkbox.
+	 */
+	public function test_submitted_unchecked_field_is_empty_for_jwt_submission() {
+		$form  = new Contact_Form( array( 'id' => 'submitted-form' ) );
+		$field = new Contact_Form_Field(
+			array(
+				'id'      => 'choice',
+				'type'    => 'checkbox',
+				'default' => 'Yes',
+			),
+			'',
+			$form
+		);
+
+		$_POST['contact-form-id']          = $form->get_attribute( 'id' );
+		$_POST['contact-form-hash']        = $form->hash;
+		$_POST['jetpack_contact_form_jwt'] = 'validated-by-submission-handler';
+
+		$this->assertSame( '', $field->get_computed_field_value( 'checkbox', 'choice' ) );
+	}
+
+	/**
 	 * Test logged-in user email return
 	 */
 	public function test_returns_logged_in_user_email() {
@@ -202,6 +323,12 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'value=\'Yes\'', $html );
 		$this->assertStringContainsString( 'consent-implicit', $html );
 		$this->assertStringContainsString( 'By submitting this form, you agree to our terms.', $html );
+
+		$processor = new \WP_HTML_Tag_Processor( $html );
+		$this->assertTrue( $processor->next_tag( array( 'tag_name' => 'DIV' ) ) );
+		$context = json_decode( (string) $processor->get_attribute( 'data-wp-context' ), true );
+		$this->assertIsArray( $context );
+		$this->assertSame( 'Yes', $context['fieldValue'] );
 	}
 
 	/**
@@ -243,6 +370,98 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		// Should default to implicit (hidden field)
 		$this->assertStringContainsString( 'type=\'hidden\'', $html );
 		$this->assertStringContainsString( 'consent-implicit', $html );
+	}
+
+	/**
+	 * Hidden fields can drive conditional logic, so the browser store must register them.
+	 */
+	public function test_render_hidden_field_registers_its_value_with_interactivity() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'    => 'hidden',
+				'id'      => 'campaign',
+				'default' => 'summer',
+			)
+		);
+
+		$processor = new \WP_HTML_Tag_Processor( $field->render() );
+		$this->assertTrue( $processor->next_tag( array( 'tag_name' => 'INPUT' ) ) );
+		$this->assertSame( 'campaign', $processor->get_attribute( 'data-jp-field-id' ) );
+		$this->assertSame( 'callbacks.initializeField', $processor->get_attribute( 'data-wp-init' ) );
+
+		$context = json_decode( (string) $processor->get_attribute( 'data-wp-context' ), true );
+		$this->assertIsArray( $context );
+		$this->assertSame( 'hidden', $context['fieldType'] );
+		$this->assertSame( 'summer', $context['fieldValue'] );
+	}
+
+	/**
+	 * Hidden field rendering and server-side visibility share one filtered value.
+	 */
+	public function test_hidden_field_value_filter_runs_once_for_render_and_conditional_logic() {
+		$filter_calls = 0;
+		$filter       = static function () use ( &$filter_calls ) {
+			++$filter_calls;
+			return 'filtered-' . $filter_calls;
+		};
+		add_filter( 'jetpack_forms_hidden_field_value', $filter );
+
+		$field = $this->get_new_field_instance(
+			array(
+				'type'    => 'hidden',
+				'id'      => 'campaign',
+				'default' => 'summer',
+			)
+		);
+
+		try {
+			$html = $field->render();
+			$this->assertSame( 'filtered-1', $field->get_conditional_logic_value() );
+			$this->assertStringContainsString( "value='filtered-1'", $html );
+			$this->assertSame( 1, $filter_calls );
+		} finally {
+			remove_filter( 'jetpack_forms_hidden_field_value', $filter );
+		}
+	}
+
+	/**
+	 * A submitted hidden value was filtered before it was rendered into the browser.
+	 */
+	public function test_submitted_hidden_field_value_is_not_filtered_again() {
+		$filter_calls = 0;
+		$filter       = static function ( $value ) use ( &$filter_calls ) {
+			++$filter_calls;
+			return 'prefix-' . $value;
+		};
+		add_filter( 'jetpack_forms_hidden_field_value', $filter );
+
+		$form  = new Contact_Form( array( 'id' => 'submitted-form' ) );
+		$field = new Contact_Form_Field(
+			array(
+				'type'    => 'hidden',
+				'id'      => 'campaign',
+				'default' => 'summer',
+			),
+			'',
+			$form
+		);
+
+		try {
+			$this->assertStringContainsString( "value='prefix-summer'", $field->render() );
+
+			$_POST['action']            = 'grunion-contact-form';
+			$_POST['contact-form-id']   = $form->get_attribute( 'id' );
+			$_POST['contact-form-hash'] = $form->hash;
+			$_POST['campaign']          = 'prefix-summer';
+
+			$this->assertSame( 'prefix-summer', $field->get_conditional_logic_value() );
+			$submission_html = $field->render();
+			$this->assertStringContainsString( "value='prefix-summer'", $submission_html );
+			$this->assertStringNotContainsString( 'prefix-prefix-summer', $submission_html );
+			$this->assertSame( 1, $filter_calls );
+		} finally {
+			remove_filter( 'jetpack_forms_hidden_field_value', $filter );
+		}
 	}
 
 	/**
@@ -512,5 +731,172 @@ class Contact_Form_Field_Test extends BaseTestCase {
 				),
 			),
 		);
+	}
+
+	/**
+	 * Invoke the private file-field content sanitizer.
+	 *
+	 * Tested directly because the full file render short-circuits without an active
+	 * Jetpack (see test_file_dropzone_aria_label).
+	 *
+	 * @param string|null $content Raw field content.
+	 *
+	 * @return string
+	 */
+	private function sanitize_file_content( $content ) {
+		$field  = $this->get_new_field_instance( array( 'type' => 'file' ) );
+		$method = new \ReflectionMethod( $field, 'sanitize_file_field_content' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method->invoke( $field, $content );
+	}
+
+	/**
+	 * The file field's inner content is entity-decoded before output so the dropzone's
+	 * inner blocks render (they are stored esc_html()-encoded by
+	 * Contact_Form::parse_contact_field()). An author without unfiltered_html can abuse
+	 * that by storing entity-encoded markup, which post-save KSES never inspects because
+	 * it is plain text at that point. Decoded output must therefore be filtered.
+	 *
+	 * @dataProvider data_file_field_content_xss
+	 *
+	 * @param string $content Entity-encoded field content.
+	 */
+	#[DataProvider( 'data_file_field_content_xss' )]
+	public function test_file_field_content_strips_executable_markup( $content ) {
+		$output = $this->sanitize_file_content( $content );
+
+		$this->assertDoesNotMatchRegularExpression( '/<\s*script/i', $output );
+		$this->assertDoesNotMatchRegularExpression( '/<[^>]+\son[a-z]+\s*=/i', $output );
+		$this->assertStringNotContainsString( '<iframe', $output );
+	}
+
+	/**
+	 * Data provider for test_file_field_content_strips_executable_markup.
+	 *
+	 * @return array
+	 */
+	public static function data_file_field_content_xss() {
+		return array(
+			'img onerror'      => array( '&lt;img src=x onerror=alert(document.domain)&gt;' ),
+			'script tag'       => array( '&lt;script&gt;alert(1)&lt;/script&gt;' ),
+			'svg onload'       => array( '&lt;svg onload=alert(1)&gt;&lt;/svg&gt;' ),
+			'iframe'           => array( '&lt;iframe src="//evil.example"&gt;&lt;/iframe&gt;' ),
+			'div onmouseover'  => array( '&lt;div onmouseover=alert(1)&gt;hi&lt;/div&gt;' ),
+			'script in svg'    => array( '&lt;svg&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;/svg&gt;' ),
+			'body onload'      => array( '&lt;body onload=alert(1)&gt;' ),
+			'already-raw html' => array( '<img src=x onerror=alert(1)>' ),
+		);
+	}
+
+	/**
+	 * Double-encoding must not survive as live markup either: it decodes to escaped text
+	 * (&lt;img …&gt;), which the browser renders as characters rather than an element.
+	 */
+	public function test_file_field_content_double_encoding_stays_inert() {
+		$output = $this->sanitize_file_content( '&amp;lt;img src=x onerror=alert(1)&amp;gt;' );
+
+		$this->assertStringNotContainsString( '<img', $output );
+		$this->assertStringContainsString( '&lt;img', $output );
+	}
+
+	/**
+	 * Links using the javascript: scheme in the decoded content must lose that scheme.
+	 */
+	public function test_file_field_content_strips_javascript_urls() {
+		$output = $this->sanitize_file_content( '&lt;a href="javascript:alert(1)"&gt;x&lt;/a&gt;' );
+
+		$this->assertStringNotContainsString( 'javascript:', $output );
+	}
+
+	/**
+	 * The legitimate dropzone markup must still render. It reaches this method
+	 * esc_html()-encoded, and has to survive the round trip intact - including the
+	 * tabindex Contact_Form_Plugin::gutenblock_render_dropzone() adds to keep the
+	 * dropzone a single tab stop, and the inline SVG core/icon emits.
+	 */
+	public function test_file_field_content_preserves_dropzone_markup() {
+		$output = $this->sanitize_file_content(
+			esc_html(
+				'<div class="wp-block-jetpack-dropzone">'
+				. '<p class="has-text-align-center">Drag and drop or <strong>browse</strong></p>'
+				. '<div class="wp-block-button"><a class="wp-block-button__link" tabindex="-1">Choose file</a></div>'
+				. '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true"><path d="M12 3l4 4h-3v6h-2V7H8z"></path></svg>'
+				. '<hr class="wp-block-separator" />'
+				. '</div>'
+			)
+		);
+
+		$this->assertStringContainsString( 'wp-block-jetpack-dropzone', $output );
+		$this->assertStringContainsString( '<strong>browse</strong>', $output );
+		$this->assertStringContainsString( 'tabindex="-1"', $output );
+		$this->assertStringContainsString( '<svg', $output );
+		$this->assertStringContainsString( '<path', $output );
+		$this->assertStringContainsString( '<hr', $output );
+	}
+
+	/**
+	 * The core/image block is an allowed dropzone inner block, so responsive-image attributes
+	 * have to survive. The stock post allowlist omits srcset/sizes/decoding, which would
+	 * silently degrade the image to its full-size source.
+	 */
+	public function test_file_field_content_preserves_responsive_image_attributes() {
+		$output = $this->sanitize_file_content(
+			esc_html(
+				'<figure class="wp-block-image size-large"><img src="https://example.com/a.png"'
+				. ' alt="x" class="wp-image-1"'
+				. ' srcset="https://example.com/a-300.png 300w, https://example.com/a.png 900w"'
+				. ' sizes="(max-width: 900px) 100vw, 900px" decoding="async" loading="lazy" /></figure>'
+			)
+		);
+
+		$this->assertStringContainsString( 'srcset=', $output );
+		$this->assertStringContainsString( 'sizes=', $output );
+		$this->assertStringContainsString( 'decoding=', $output );
+		$this->assertStringContainsString( 'loading=', $output );
+	}
+
+	/**
+	 * The core/icon block serializes rotation as `rotate: <deg>`, which is not in WordPress's
+	 * safe_style_css list. Without the scoped filter the icon would render unrotated.
+	 */
+	public function test_file_field_content_preserves_icon_rotation() {
+		$output = $this->sanitize_file_content(
+			esc_html( '<svg style="width:48px;rotate: 45deg;" viewBox="0 0 24 24"><path d="M12 3l4 4h-3z"></path></svg>' )
+		);
+
+		$this->assertStringContainsString( 'rotate', $output );
+	}
+
+	/**
+	 * The safe_style_css filter that allows `rotate` must not outlive the sanitize call.
+	 */
+	public function test_file_field_content_rotate_filter_does_not_leak() {
+		$this->sanitize_file_content( esc_html( '<svg style="rotate: 45deg;"></svg>' ) );
+
+		$this->assertStringNotContainsString( 'rotate', safecss_filter_attr( 'width:48px;rotate: 45deg;' ) );
+	}
+
+	/**
+	 * `style` is not allowed on SVG children: safecss_filter_attr() strips the presentation
+	 * properties that would justify it, while still permitting position:fixed overlays.
+	 */
+	public function test_file_field_content_blocks_style_on_svg_children() {
+		$output = $this->sanitize_file_content(
+			esc_html( '<svg><path style="position:fixed;top:0;left:0;width:100vw;height:100vh" d="M0 0"></path></svg>' )
+		);
+
+		$this->assertStringNotContainsString( 'position:fixed', $output );
+		$this->assertStringContainsString( '<path', $output );
+	}
+
+	/**
+	 * Empty and non-string content is handled without notices.
+	 */
+	public function test_file_field_content_handles_empty_content() {
+		$this->assertSame( '', $this->sanitize_file_content( null ) );
+		$this->assertSame( '', $this->sanitize_file_content( '' ) );
 	}
 } // end class

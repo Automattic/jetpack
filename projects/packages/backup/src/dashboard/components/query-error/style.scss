@@ -1,0 +1,9 @@
+// Rendered in two very different slots — DataViews' centered
+// `.dataviews-no-results` box and the left-aligned file tree — so it
+// takes the width it is given and left-aligns its own contents rather
+// than inheriting the container's text alignment.
+.jpb-query-error {
+	inline-size: 100%;
+	margin: 0;
+	text-align: start;
+}

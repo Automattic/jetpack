@@ -59,7 +59,7 @@ class Feedback {
 	 * fields, whose names a site owner can set by hand. An unprefixed `form_fill_duration`
 	 * field would silently overwrite this one.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.24.0
 	 *
 	 * @var string
 	 */
@@ -326,6 +326,13 @@ class Feedback {
 	protected $has_consent = false;
 
 	/**
+	 * Whether this response was loaded from structured feedback data.
+	 *
+	 * @var bool
+	 */
+	protected $uses_structured_fields = false;
+
+	/**
 	 * Whether the feedback entry is unread.
 	 *
 	 * @var bool
@@ -507,6 +514,15 @@ class Feedback {
 	 */
 	private function load_from_submission( $post_data, $form, $current_post = null, $current_page_number = 1 ) {
 
+		// Drop the answers to fields conditional logic hid, once, before anything reads them.
+		//
+		// get_computed_fields() already skips hidden fields for the stored response, but the
+		// comment content, the consent flag, the author details and the notification
+		// recipients all read $post_data directly and were still seeing them. Stripping here
+		// is what makes "a hidden field was never answered" true for every consumer instead
+		// of just the one.
+		$post_data = self::without_hidden_answers( $post_data, $form );
+
 		$this->source = Feedback_Source::from_submission( $current_post, $current_page_number );
 
 		// Use the form's ref attribute as the authoritative form ID.
@@ -541,6 +557,32 @@ class Feedback {
 				'id'           => $current_user->ID,
 			);
 		}
+	}
+
+	/**
+	 * Remove submitted values belonging to fields conditional logic resolved as hidden.
+	 *
+	 * The form owns the resolution and caches it, so this asks rather than resolving again --
+	 * a second resolution over a different value source is exactly what let validation and
+	 * storage disagree about a prefilled consent field.
+	 *
+	 * @param array        $post_data The post data from the form submission.
+	 * @param Contact_Form $form      The form object.
+	 * @return array The post data, less any hidden field's answer.
+	 */
+	private static function without_hidden_answers( $post_data, $form ) {
+		if ( ! is_array( $post_data ) ) {
+			return $post_data;
+		}
+
+		// Empty when the feature is off, so this is a no-op then.
+		foreach ( $form->get_resolved_field_visibility() as $field_id => $is_visible ) {
+			if ( false === $is_visible ) {
+				unset( $post_data[ $field_id ] );
+			}
+		}
+
+		return $post_data;
 	}
 
 	/**
@@ -773,6 +815,15 @@ class Feedback {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Whether this response uses structured feedback fields.
+	 *
+	 * @return bool
+	 */
+	public function uses_structured_fields() {
+		return $this->uses_structured_fields;
 	}
 
 	/**
@@ -1654,9 +1705,11 @@ class Feedback {
 	 */
 	private function parse_content( $post_content = '', $version = null ) {
 		if ( $version === 'v3' ) {
+			$this->uses_structured_fields = true;
 			return $this->parse_content_v3( $post_content );
 		}
 		if ( $version === 'v2' ) {
+			$this->uses_structured_fields = true;
 			return $this->parse_content_v2( $post_content );
 		}
 
@@ -1671,6 +1724,7 @@ class Feedback {
 				$decoded_content = json_decode( stripslashes( trim( $post_content ) ), true );
 			}
 			if ( isset( $decoded_content['fields'] ) && is_array( $decoded_content['fields'] ) ) {
+				$this->uses_structured_fields = true;
 				return $this->parse_content_v3( $post_content );
 			}
 		}
@@ -2202,16 +2256,54 @@ class Feedback {
 		$fields = array();
 
 		$field_ids = $form->get_field_ids();
-		// For all fields, grab label and value
-		$i = 1;
+
+		// Collect renderable fields and their submitted values up front so conditional logic
+		// rules (which may reference any sibling field) can be evaluated in the loop below.
+		$renderable  = array();
+		$form_values = array();
 		foreach ( $field_ids['all'] as $field_id ) {
 			$field = $form->fields[ $field_id ];
 			$type  = $field->get_attribute( 'type' );
 			if ( ! $field->is_field_renderable( $type ) ) {
 				continue;
 			}
+			$value                    = $this->get_field_value( $field_id, $post_data, $type );
+			$form_values[ $field_id ] = $value;
+			$renderable[ $field_id ]  = array(
+				'field' => $field,
+				'type'  => $type,
+				'value' => $value,
+			);
+		}
 
-			$value = $this->get_field_value( $field_id, $post_data, $type );
+		// Ask the form, rather than resolving a second time.
+		//
+		// Storage used to run its own resolve_visibility() over a different value source and a
+		// different field set than validation did, and the two disagreed. Validation reads
+		// get_computed_field_value() -- POST, then GET, then the field's default, then the
+		// logged-in user -- while this loop reads POST only; and it skips anything
+		// is_field_renderable() rejects, so a rule whose subject is an option-less select was
+		// evaluated during validation and ignored here.
+		//
+		// Unchecking a consent field prefilled from a query argument hit both: the browser
+		// posts nothing, validation fell back to the query argument and read it checked,
+		// storage read '' and read it unchecked. The dependent field was required-validated
+		// and then had its answer dropped -- the silently discarded answer this feature is
+		// supposed to make impossible.
+		//
+		// Returns an empty array when the flag is off, so there is nothing extra to guard.
+		$visibility = $form->get_resolved_field_visibility();
+
+		$i = 1;
+		foreach ( $renderable as $field_id => $entry ) {
+			$field = $entry['field'];
+			$type  = $entry['type'];
+			$value = $entry['value'];
+
+			if ( isset( $visibility[ $field_id ] ) && false === $visibility[ $field_id ] ) {
+				continue;
+			}
+
 			$label = wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			$key   = $i . '_' . $label;
 
@@ -2227,7 +2319,7 @@ class Feedback {
 			if ( ! $this->has_file && $fields[ $key ]->has_file() ) {
 				$this->has_file = true;
 			}
-			++$i; // Increment prefix counter for the next field.
+			++$i;
 		}
 
 		return $fields;
@@ -2303,7 +2395,7 @@ class Feedback {
 	 * The value is left empty when the submitter never interacted with the form, or ran without
 	 * JavaScript, which is also an unknown duration.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.24.0
 	 *
 	 * @param array $post_data The post data from the form submission.
 	 * @return int|null
