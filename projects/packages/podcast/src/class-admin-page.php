@@ -110,11 +110,17 @@ class Admin_Page {
 	 * Load the Tracks transport for the dashboard's client-side events.
 	 *
 	 * `jetpackAnalytics.tracks.recordEvent()` only pushes onto `window._tkq`,
-	 * which stays an inert array until `w.js` loads and drains it. On Simple
-	 * wpcom's stats.php supplies that for free; nothing does on Atomic or
-	 * self-hosted, so without this the queue grows for the life of the page.
+	 * which stays an inert array until `w.js` loads and drains it. Nothing
+	 * supplies that on Atomic or self-hosted, so without this the queue grows
+	 * for the life of the page. Simple is skipped because stats.php already
+	 * prints the same script on `admin_footer`, and loading it twice would
+	 * re-drain a queue that has already been flushed.
 	 */
 	public static function enqueue_tracks_transport() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
 		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 	}
 
@@ -184,7 +190,7 @@ class Admin_Page {
 	 * `identifyUser` before our bundle runs.
 	 *
 	 * Deliberately narrower than `get_connected_user_tracks_identity()`, which
-	 * also returns the user's email — no reason to put that in page JS.
+	 * also returns email, blogid and locale — none of which Tracks needs here.
 	 *
 	 * @return array{userid:mixed, username:mixed}|null
 	 */

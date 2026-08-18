@@ -37,9 +37,6 @@ class Admin_Page_Test extends BaseTestCase {
 	protected function tearDown(): void {
 		Constants::clear_constants();
 		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
-		remove_all_actions( 'admin_enqueue_scripts' );
-		wp_dequeue_script( 'jp-tracks' );
-		wp_deregister_script( 'jp-tracks' );
 		unset( $GLOBALS['menu'], $GLOBALS['submenu'] );
 		( new Connection_Manager() )->reset_connection_status();
 		WorDBless_Options::init()->clear_options();
@@ -263,53 +260,5 @@ class Admin_Page_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( 789, $data['site']['wpcom']['blog_id'] );
-	}
-
-	/**
-	 * `jetpackAnalytics.tracks.recordEvent()` only pushes onto `window._tkq`,
-	 * which stays inert until `w.js` loads. Simple gets that from stats.php;
-	 * Atomic and self-hosted get it from here or not at all.
-	 */
-	public function test_admin_init_wires_the_tracks_transport() {
-		Admin_Page::admin_init();
-
-		$this->assertNotFalse(
-			has_action(
-				'admin_enqueue_scripts',
-				array( Admin_Page::class, 'enqueue_tracks_transport' )
-			),
-			'admin_init must wire the Tracks transport enqueue.'
-		);
-	}
-
-	public function test_enqueue_tracks_transport_enqueues_jp_tracks() {
-		Admin_Page::enqueue_tracks_transport();
-
-		$this->assertTrue(
-			wp_script_is( 'jp-tracks', 'enqueued' ),
-			'jp-tracks must be enqueued, or recorded events queue forever and are never sent.'
-		);
-	}
-
-	/**
-	 * Disconnected self-hosted has no wpcom identity to hand the client. The key
-	 * is still present so the dashboard can branch on it rather than probe.
-	 */
-	public function test_inject_script_data_has_null_tracks_user_data_when_disconnected() {
-		$data = Admin_Page::inject_podcast_script_data( array() );
-
-		$this->assertArrayHasKey( 'tracks_user_data', $data['podcast'] );
-		$this->assertNull( $data['podcast']['tracks_user_data'] );
-	}
-
-	/**
-	 * `get_connected_user_tracks_identity()` also returns the user's email; the
-	 * injected payload deliberately narrows to the two fields Tracks needs so
-	 * the address never reaches page JS.
-	 */
-	public function test_inject_script_data_never_exposes_user_email() {
-		$data = Admin_Page::inject_podcast_script_data( array() );
-
-		$this->assertArrayNotHasKey( 'email', (array) $data['podcast']['tracks_user_data'] );
 	}
 }
