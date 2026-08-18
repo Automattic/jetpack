@@ -11,7 +11,6 @@ import { NewsletterEmailDocumentSettings } from '../../shared/memberships/settin
 import SubscribersAffirmation from '../../shared/memberships/subscribers-affirmation';
 import { NewsletterTestEmailModal } from './email-preview';
 import { SendIcon } from './icons';
-import { Slot as NewsletterSidebarSlot } from './newsletter-sidebar-slot';
 
 const NewsletterMenu = ( { openPreviewModal } ) => {
 	const [ isTestEmailModalOpen, setIsTestEmailModalOpen ] = useState( false );
@@ -94,7 +93,6 @@ const NewsletterMenu = ( { openPreviewModal } ) => {
 					</>
 				) }
 			</PanelBody>
-			<NewsletterSidebarSlot />
 		</PluginSidebar>
 	);
 };

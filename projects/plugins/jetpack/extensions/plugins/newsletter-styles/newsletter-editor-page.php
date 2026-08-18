@@ -1,7 +1,7 @@
 <?php
 /**
- * NL-840 proof of concept, option C: the whole WooCommerce email editor as its
- * own admin screen, editing the Jetpack newsletter template.
+ * The newsletter email design screen: the WooCommerce email editor on its own
+ * admin page, editing the Jetpack newsletter template.
  *
  * `ExperimentalEmailEditor` mounts core's private `Editor` provider inside its
  * own `SlotFillProvider`, includes `FullscreenMode`, and mutates global editor
@@ -31,8 +31,9 @@ const EDITOR_ELEMENT_ID = 'jetpack-newsletter-email-editor';
 /**
  * Register the editor screen.
  *
- * Hidden from the menu with a null parent: the spike is about whether the
- * editor runs at all, not about where the entry point belongs.
+ * Hidden from the menu with a null parent. Where the entry point belongs is a
+ * design question rather than an engineering one, and is tracked separately in
+ * NL-844 — reach the screen by URL until that lands.
  *
  * @return void
  */
@@ -69,16 +70,23 @@ function is_editor_page() {
  * ID we registered (`jetpack//newsletter`) is not the ID the editor and the
  * REST API use. Resolve it rather than hardcoding either form.
  *
+ * @return \WP_Block_Template|null
+ */
+function get_newsletter_template() {
+	$template = get_block_template( 'jetpack//' . NEWSLETTER_TEMPLATE_SLUG, 'wp_template' );
+
+	return $template instanceof \WP_Block_Template ? $template : null;
+}
+
+/**
+ * The ID of the template the editor edits.
+ *
  * @return string|null
  */
 function get_newsletter_template_id() {
-	$template = get_block_template( 'jetpack//' . NEWSLETTER_TEMPLATE_SLUG, 'wp_template' );
+	$template = get_newsletter_template();
 
-	if ( $template instanceof \WP_Block_Template ) {
-		return $template->id;
-	}
-
-	return null;
+	return $template ? $template->id : null;
 }
 
 /**
@@ -104,12 +112,17 @@ function enqueue_editor_page_assets() {
 	wp_enqueue_global_styles_css_custom_properties();
 	wp_enqueue_media();
 
-	$template_id = get_newsletter_template_id();
-	if ( ! $template_id ) {
+	$template = get_newsletter_template();
+	if ( ! $template ) {
 		return;
 	}
 
-	$context = new \WP_Block_Editor_Context( array( 'name' => 'core/edit-site' ) );
+	// Build the context from the template alone, with no `name`. Naming it
+	// `core/edit-site` brings core's own global styles sidebar along, so the
+	// screen ends up with two visible "Styles" buttons — the email editor's and
+	// core's. WooCommerce passes only the edited item for the same reason; see
+	// `Engine\Assets_Manager::enqueue_editor_assets()`.
+	$context = new \WP_Block_Editor_Context( array( 'post' => $template ) );
 
 	// Without these the editor warns about missing block categories and titles.
 	wp_add_inline_script(
@@ -131,7 +144,7 @@ function enqueue_editor_page_assets() {
 
 	$config = array(
 		'elementId'          => EDITOR_ELEMENT_ID,
-		'postId'             => $template_id,
+		'postId'             => $template->id,
 		'postType'           => 'wp_template',
 		'editorSettings'     => array( '__experimentalFeatures' => $theme['settings'] ?? array() ),
 		'theme'              => $theme,

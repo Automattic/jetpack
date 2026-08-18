@@ -15,9 +15,10 @@ const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plug
 /**
  * Internal variables
  */
-// NL-840 proof of concept: resolve @woocommerce/email-editor from a local
-// WooCommerce checkout until the styles panel export is released. Defaults to a
-// sibling checkout of this monorepo.
+// NL-839 proof of concept: resolve @woocommerce/email-editor from a local
+// WooCommerce checkout rather than adding it as a dependency of this branch.
+// Everything used from it is already published, so a real version would depend
+// on the package properly. Defaults to a sibling checkout of this monorepo.
 const woocommerceCheckout =
 	process.env.WOOCOMMERCE_CHECKOUT || path.join( __dirname, '../../../../../woocommerce' );
 const woocommerceEmailEditorPath = fs.existsSync(
@@ -36,9 +37,9 @@ if ( ! woocommerceEmailEditorPath ) {
 	console.warn(
 		'\n[newsletter-styles] No WooCommerce checkout found at:\n' +
 			`  ${ woocommerceCheckout }\n` +
-			'Skipping the NL-840 newsletter-styles extension. Builds produced without it\n' +
-			'cannot render the email styles panel, even though the PHP side will behave as\n' +
-			'though it is present. Set WOOCOMMERCE_CHECKOUT to a checkout whose\n' +
+			'Skipping the newsletter email design extension. Builds produced without it\n' +
+			'cannot render the email design screen, even though the PHP side will behave\n' +
+			'as though it is present. Set WOOCOMMERCE_CHECKOUT to a checkout whose\n' +
 			'packages/js/email-editor has been built if you need this extension.\n'
 	);
 }
@@ -83,9 +84,11 @@ function presetProductionExtensions( type, inputDir, presetBlocks ) {
 const presetPath = path.join( __dirname, '../extensions', 'index.json' );
 const presetIndex = require( presetPath );
 const presetProductionBlocks = ( presetIndex.production || [] ).filter(
-	// NL-840 proof of concept: without a local WooCommerce checkout there is no
+	// NL-839 proof of concept: without a local WooCommerce checkout there is no
 	// @woocommerce/email-editor to import, so drop the extension rather than
-	// fail everyone else's build.
+	// fail everyone else's build. This is also why CI and release builds carry
+	// none of the package's weight — they have no checkout, so the extension
+	// never enters the bundle.
 	block => block !== 'newsletter-styles' || woocommerceEmailEditorPath
 );
 const presetNoPostEditorBlocks = presetIndex[ 'no-post-editor' ] || [];
@@ -169,10 +172,9 @@ const sharedWebpackConfig = {
 		...jetpackWebpackConfig.resolve,
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
-			// NL-840 proof of concept. The styles panel export is not released
-			// yet, so resolve the package from a local WooCommerce checkout.
-			// Point WOOCOMMERCE_CHECKOUT at yours; without one the alias is
-			// dropped and the extension is filtered out of the build above.
+			// NL-839 proof of concept. Point WOOCOMMERCE_CHECKOUT at your
+			// WooCommerce checkout; without one the alias is dropped and the
+			// extension is filtered out of the build above.
 			...( woocommerceEmailEditorPath
 				? { '@woocommerce/email-editor': woocommerceEmailEditorPath }
 				: {} ),
@@ -182,9 +184,9 @@ const sharedWebpackConfig = {
 	plugins: [
 		new webpack.DefinePlugin( {
 			// `@woocommerce/email-editor` leaves this identifier for the
-			// consumer to substitute at bundle time. Importing a submodule
-			// skips the package's own runtime fallback, so it has to be
-			// defined here or every `__()` inside the panel throws.
+			// consumer to substitute at bundle time. Without it the package
+			// falls back to the `woocommerce` text domain, so every string in
+			// the editor would look for translations we do not ship.
 			__i18n_text_domain__: JSON.stringify( 'jetpack' ),
 		} ),
 		...jetpackWebpackConfig.StandardPlugins( {

@@ -1,7 +1,10 @@
 /*
- * NL-840 proof of concept, option C: mount the whole WooCommerce email editor
- * on its own admin screen. The package is resolved by a webpack alias to a
- * local WooCommerce checkout, so eslint's resolver cannot see it.
+ * Proof of concept for NL-839: mount the WooCommerce email editor on its own
+ * admin screen, editing the Jetpack newsletter template.
+ *
+ * `@woocommerce/email-editor` is resolved by a webpack alias to a local
+ * WooCommerce checkout rather than installed, so eslint's resolver cannot see
+ * it. See `tools/webpack.config.extensions.js`.
  */
 /* eslint-disable import/no-unresolved */
 import { ExperimentalEmailEditor } from '@woocommerce/email-editor';
@@ -12,9 +15,10 @@ import { createRoot, StrictMode } from '@wordpress/element';
 /**
  * Mount the email editor into the container rendered by the admin page.
  *
- * Unlike the styles panel, this takes its whole configuration as a prop —
- * `ExperimentalEmailEditor` registers and populates the store itself. That is
- * the contract difference NL-840 is trying to settle.
+ * `ExperimentalEmailEditor` takes its whole configuration as a prop and
+ * registers the `email-editor/editor` store itself, so there is no store setup
+ * to do here. It has been part of the package's public exports since before
+ * this spike started.
  *
  * @return {void}
  */
