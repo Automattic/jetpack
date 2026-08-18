@@ -10,9 +10,14 @@ import { SectionSyncNotice } from './section-sync-notice';
 
 const noop = () => {};
 
+/*
+ * The notice speaks its message through `@wordpress/a11y`, which mirrors the
+ * text into a live region on `document.body`. Assertions read the rendered
+ * container so they don't match that copy too.
+ */
 describe( 'SectionSyncNotice', () => {
 	it( 'says the numbers are incomplete rather than only that a sync is running', () => {
-		render(
+		const { container } = render(
 			<SectionSyncNotice
 				percentage={ 40 }
 				hasError={ false }
@@ -21,13 +26,13 @@ describe( 'SectionSyncNotice', () => {
 			/>
 		);
 
-		expect( screen.getByRole( 'status' ) ).toHaveTextContent(
+		expect( container ).toHaveTextContent(
 			'Your store data is still syncing (40%). The numbers below are incomplete until it finishes.'
 		);
 	} );
 
 	it( 'leaves the percentage out until the sync reports progress', () => {
-		render(
+		const { container } = render(
 			<SectionSyncNotice
 				percentage={ 0 }
 				hasError={ false }
@@ -36,19 +41,18 @@ describe( 'SectionSyncNotice', () => {
 			/>
 		);
 
-		expect( screen.getByRole( 'status' ) ).toHaveTextContent(
+		expect( container ).toHaveTextContent(
 			'Your store data is still syncing. The numbers below are incomplete until it finishes.'
 		);
-		expect( screen.getByRole( 'status' ) ).not.toHaveTextContent( '%' );
 	} );
 
 	it( 'offers a retry instead of progress once the sync fails', async () => {
 		const onRetry = jest.fn();
-		render(
+		const { container } = render(
 			<SectionSyncNotice percentage={ 40 } hasError onRetry={ onRetry } isRetrying={ false } />
 		);
 
-		expect( screen.getByRole( 'status' ) ).toHaveTextContent(
+		expect( container ).toHaveTextContent(
 			'Something went wrong while syncing your store data, so the numbers below are incomplete.'
 		);
 

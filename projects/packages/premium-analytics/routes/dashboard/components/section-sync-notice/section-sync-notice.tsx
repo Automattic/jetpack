@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button, Stack } from '@jetpack-premium-analytics/externals';
+import { Notice } from '@jetpack-premium-analytics/externals';
 import { ProgressBar } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 /**
@@ -59,27 +59,27 @@ export function SectionSyncNotice( {
 	}
 
 	return (
-		<Stack direction="column" gap="sm" className={ styles.notice } role="status">
-			<span className={ styles.message }>{ message }</span>
+		<Notice.Root intent={ hasError ? 'error' : 'info' } className={ styles.notice }>
+			<Notice.Description>{ message }</Notice.Description>
 
 			{ hasError ? (
-				<Button
-					className={ styles.retry }
-					variant="outline"
-					onClick={ onRetry }
-					disabled={ isRetrying }
-					loading={ isRetrying }
-				>
-					{ __( 'Try again', 'jetpack-premium-analytics-pkg' ) }
-				</Button>
+				<Notice.Actions>
+					<Notice.ActionButton onClick={ onRetry } disabled={ isRetrying } loading={ isRetrying }>
+						{ __( 'Try again', 'jetpack-premium-analytics-pkg' ) }
+					</Notice.ActionButton>
+				</Notice.Actions>
 			) : (
 				/*
+				 * The bar is not part of the Notice API, so it needs the text
+				 * column of the notice's grid to line up under the message.
 				 * Indeterminate until the sync reports progress: a store with no
 				 * orders to send sits at 0 for the whole sync, and a bar frozen at
 				 * zero reads as a sync that never started.
 				 */
-				<ProgressBar className={ styles.progress } value={ percentage || undefined } />
+				<div className={ styles.progress }>
+					<ProgressBar className={ styles.bar } value={ percentage || undefined } />
+				</div>
 			) }
-		</Stack>
+		</Notice.Root>
 	);
 }

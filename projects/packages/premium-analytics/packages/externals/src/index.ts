@@ -74,6 +74,7 @@ export {
 	IconButton,
 	Input,
 	Link,
+	Notice,
 	SelectControl,
 	Stack,
 	Tabs,

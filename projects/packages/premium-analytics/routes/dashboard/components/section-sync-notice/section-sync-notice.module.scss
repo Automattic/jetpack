@@ -1,27 +1,17 @@
 .notice {
-	padding: var(--wpds-dimension-padding-md);
 	margin-block-end: var(--wpds-dimension-gap-lg);
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
-	border-radius: var(--wpds-border-radius-md);
-	background: var(--wpds-color-background-surface-neutral-weak);
 }
 
-.message {
-	color: var(--wpds-color-foreground-content-neutral);
-	font-size: var(--wpds-typography-font-size-sm);
-	line-height: var(--wpds-typography-line-height-sm);
+.progress {
+	// Second column of the notice's grid, the one its text sits in.
+	grid-column: 2;
+	margin-block-start: var(--wpds-dimension-gap-sm);
 }
 
 // Doubled up to outrank ProgressBar's own emotion class, which gives the track
-// a fixed 160px width and a 1.5px height — a stray hairline under the banner.
-.notice .progress {
+// a fixed 160px width and a 1.5px height — a stray hairline under the message.
+.progress .bar {
 	inline-size: 100%;
 	block-size: 4px;
 	border-radius: var(--wpds-border-radius-sm);
-}
-
-.notice .retry {
-	// The banner is a column flex container, so a stretched button would span its
-	// whole width.
-	align-self: flex-start;
 }
