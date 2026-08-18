@@ -72,6 +72,31 @@ class Dedicated_Sender_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that a percent-encoded rest_route in the request URI is still recognised.
+	 *
+	 * The check urldecodes the value before matching, so whatever sanitizer is applied to
+	 * the raw input has to preserve percent-encoding.
+	 */
+	public function test_is_dedicated_sync_request_with_percent_encoded_request_uri() {
+		$_SERVER['REQUEST_URI'] = '/index.php?rest_route=%2Fjetpack%2Fv4%2Fsync%2Fspawn-sync';
+
+		$this->assertTrue( Dedicated_Sender::is_dedicated_sync_request() );
+	}
+
+	/**
+	 * Tests that a percent-encoded rest_route query argument is still recognised.
+	 */
+	public function test_is_dedicated_sync_request_with_percent_encoded_rest_route() {
+		$_SERVER['REQUEST_URI'] = '/index.php';
+		$_GET['rest_route']     = '%2Fjetpack%2Fv4%2Fsync%2Fspawn-sync';
+
+		$is_dedicated_sync_request = Dedicated_Sender::is_dedicated_sync_request();
+		unset( $_GET['rest_route'] );
+
+		$this->assertTrue( $is_dedicated_sync_request );
+	}
+
+	/**
 	 * Tests Dedicated_Sender::is_dedicated_sync_request with a random request.
 	 */
 	public function test_is_dedicated_sync_request_with_random_request() {
