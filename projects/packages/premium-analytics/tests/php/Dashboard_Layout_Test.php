@@ -378,7 +378,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			'default-total-views-widget-instance'          => array( 'jpa/total-views', 1, 1, 4 ),
 			'default-total-visitors-widget-instance'       => array( 'jpa/total-visitors', 1, 1, 5 ),
 			'default-popular-days-widget-instance'         => array( 'jpa/popular-days', 1, 1, 6 ),
-			'default-most-popular-day-widget-instance'     => array( 'jpa/most-popular-day', 1, 1, 7 ),
+			'default-popular-hours-widget-instance'        => array( 'jpa/popular-hours', 1, 1, 7 ),
 			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 4, 2, 8 ),
 			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 9 ),
 			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 10 ),
