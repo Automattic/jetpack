@@ -921,25 +921,28 @@ export default function PlaylistEdit( {
 					onChange={ ( value: boolean ) => setAttributes( { showTotalRuntime: value } ) }
 				/>
 			</PanelBody>
+		</InspectorControls>
+	);
 
-			{ fontFamilies.length > 0 && (
-				<PanelBody title={ __( 'Typography', 'jetpack-videopress-pkg' ) }>
-					<FontFamilyControl
-						label={ __( 'Now playing title', 'jetpack-videopress-pkg' ) }
-						value={ fontFamilyValueOf( nowTitleFontFamily ) }
-						onChange={ ( value: string ) =>
-							setAttributes( { nowTitleFontFamily: fontFamilySlugOf( value ) } )
-						}
-					/>
-					<FontFamilyControl
-						label={ __( 'Entry titles', 'jetpack-videopress-pkg' ) }
-						value={ fontFamilyValueOf( entryTitleFontFamily ) }
-						onChange={ ( value: string ) =>
-							setAttributes( { entryTitleFontFamily: fontFamilySlugOf( value ) } )
-						}
-					/>
-				</PanelBody>
-			) }
+	// In the Styles tab, where WordPress surfaces typography for core blocks.
+	const typographyControls = fontFamilies.length > 0 && (
+		<InspectorControls group="styles">
+			<PanelBody title={ __( 'Typography', 'jetpack-videopress-pkg' ) }>
+				<FontFamilyControl
+					label={ __( 'Now playing title', 'jetpack-videopress-pkg' ) }
+					value={ fontFamilyValueOf( nowTitleFontFamily ) }
+					onChange={ ( value: string ) =>
+						setAttributes( { nowTitleFontFamily: fontFamilySlugOf( value ) } )
+					}
+				/>
+				<FontFamilyControl
+					label={ __( 'Entry titles', 'jetpack-videopress-pkg' ) }
+					value={ fontFamilyValueOf( entryTitleFontFamily ) }
+					onChange={ ( value: string ) =>
+						setAttributes( { entryTitleFontFamily: fontFamilySlugOf( value ) } )
+					}
+				/>
+			</PanelBody>
 		</InspectorControls>
 	);
 
@@ -947,6 +950,7 @@ export default function PlaylistEdit( {
 		return (
 			<div { ...blockProps }>
 				{ inspectorControls }
+				{ typographyControls }
 				<Placeholder
 					icon={ VideoPressIcon }
 					label={ __( 'Build a video playlist', 'jetpack-videopress-pkg' ) }
@@ -976,6 +980,7 @@ export default function PlaylistEdit( {
 	return (
 		<figure { ...blockProps }>
 			{ inspectorControls }
+			{ typographyControls }
 			<PlaylistPreview
 				attributes={ attributes }
 				currentIndex={ currentIndex }
