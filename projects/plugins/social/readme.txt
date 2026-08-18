@@ -1,7 +1,7 @@
 === Jetpack Social  ===
 Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk
 Tags: social media automation, social media scheduling, auto share, social sharing, social media marketing
-Requires at least: 6.9
+Requires at least: 7.0
 Requires PHP: 7.2
 Tested up to: 7.0
 Stable tag: 9.0.3

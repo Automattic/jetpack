@@ -1,7 +1,7 @@
 === Jetpack Premium Analytics ===
 Contributors: automattic
 Tags: analytics, jetpack
-Requires at least: 6.9
+Requires at least: 7.0
 Requires PHP: 7.2
 Tested up to: 7.0
 Stable tag: 0.1.0-alpha
