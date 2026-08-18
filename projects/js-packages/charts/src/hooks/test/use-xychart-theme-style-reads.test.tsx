@@ -46,13 +46,38 @@ describe( 'useXYChartTheme style reads', () => {
 		expect( getComputedStyleSpy ).not.toHaveBeenCalled();
 	} );
 
-	// A caller passing an inline array literal — `<LineChart data={ [ … ] } />` — gives the memo a new identity on every render, so the theme rebuilds each time. That costs one style query now; before the roles shared a snapshot it cost five.
-	it( 'rebuilds once per render when the caller passes a fresh data array', () => {
+	// A caller passing an inline array literal — `<LineChart data={ [ … ] } />` — hands the hook a new array identity on every render. The memo keys on the series strokes instead, so the theme is not rebuilt and no style is read. Keyed on `data` this cost one query per render, and before the roles shared a snapshot it cost five.
+	it( 'does not rebuild when the caller passes a fresh data array of the same strokes', () => {
 		const { rerender } = renderTheme( [] );
 
 		getComputedStyleSpy.mockClear();
 		rerender( { series: [] } );
 
+		expect( getComputedStyleSpy ).not.toHaveBeenCalled();
+	} );
+
+	it( 'rebuilds when a series stroke actually changes', () => {
+		const withStroke = ( stroke: string ) =>
+			[ { label: 'A', options: { stroke }, data: [] } ] as unknown as SeriesData[];
+		const { result, rerender } = renderTheme( withStroke( 'rgba(0, 0, 0, 0.5)' ) );
+
+		getComputedStyleSpy.mockClear();
+		rerender( { series: withStroke( 'rebeccapurple' ) } );
+
 		expect( getComputedStyleSpy ).toHaveBeenCalledTimes( 1 );
+		expect( result.current.colors[ 0 ] ).toBe( 'rebeccapurple' );
+	} );
+
+	// The memo key serialises the strokes rather than joining them, so a colour containing a comma or a space survives the round-trip intact.
+	it( 'keeps a stroke that contains separators intact', () => {
+		const { result } = renderTheme( [
+			{ label: 'A', options: { stroke: 'rgba(0, 0, 0, 0.5)' }, data: [] },
+			{ label: 'B', options: { stroke: 'var(--brand, #fff)' }, data: [] },
+		] as unknown as SeriesData[] );
+
+		expect( result.current.colors.slice( 0, 2 ) ).toEqual( [
+			'rgba(0, 0, 0, 0.5)',
+			'var(--brand, #fff)',
+		] );
 	} );
 } );

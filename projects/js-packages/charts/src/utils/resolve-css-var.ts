@@ -4,6 +4,55 @@
 const CSS_VAR_NAME_PATTERN = /^--[\w-]+$/;
 
 /**
+ * Builds a resolver that reads every value from one `getComputedStyle` snapshot.
+ *
+ * `getComputedStyle` is the expensive half of resolving a token: each call can force the browser to flush pending style, and a chart theme resolves five roles at once. Taking the snapshot once per build turns that into a single query. The reads that share a snapshot happen synchronously inside one memo body, so no style change can land between them — the resolver is single-pass by design and is not meant to be held across renders.
+ *
+ * @param element - The element to resolve against, or null/undefined for the document root.
+ * @return A resolver that resolves each value exactly as `resolveCssVariable` does.
+ */
+export const createCssVariableResolver = (
+	element?: HTMLElement | null
+): ( ( value: string ) => string | null ) => {
+	let styles: CSSStyleDeclaration | null = null;
+
+	// Deferred so a resolver for a theme that turns out to hold only literals costs nothing. Only a successful read is kept: caching the null would leave a resolver built before its element is in the document dead for the rest of its life.
+	const getStyles = () => {
+		if ( ! styles ) {
+			styles = computedStyleFor( element );
+		}
+
+		return styles;
+	};
+
+	return value => {
+		if ( ! value ) {
+			return null;
+		}
+
+		// Check if it's a var() expression: var(--name) or var(--name, fallback)
+		// Parse manually to avoid regex backtracking vulnerabilities
+		if ( value.startsWith( 'var(' ) && value.endsWith( ')' ) ) {
+			const parsed = parseVarExpression( value );
+
+			if ( parsed ) {
+				const resolved = readCustomProperty( parsed.varName, getStyles() );
+
+				return resolved || parsed.fallback;
+			}
+		}
+
+		// Check if it's a plain variable name (starts with --)
+		if ( value.startsWith( '--' ) ) {
+			return readCustomProperty( value, getStyles() );
+		}
+
+		// Return regular values as-is (e.g., '#ffffff', 'red')
+		return value;
+	};
+};
+
+/**
  * Resolves a CSS custom property (variable) to its computed value.
  * Handles multiple formats:
  * - Plain variable names: '--my-color'
@@ -16,65 +65,7 @@ const CSS_VAR_NAME_PATTERN = /^--[\w-]+$/;
  * @return The resolved value, fallback value, or null if unresolvable
  */
 export const resolveCssVariable = ( value: string, element?: HTMLElement | null ): string | null =>
-	resolveWith( value, () => computedStyleFor( element ) );
-
-/**
- * Builds a resolver that reads every value from one `getComputedStyle` snapshot.
- *
- * `getComputedStyle` is the expensive half of resolving a token: each call can force the browser to flush pending style, and a chart theme resolves five roles at once. Taking the snapshot once per theme build turns that into a single query — the returned styles object stays live, so later reads still see current values.
- *
- * @param element - The element to resolve against, or null/undefined for the document root.
- * @return A resolver with the same contract as `resolveCssVariable`.
- */
-export const createCssVariableResolver = (
-	element?: HTMLElement | null
-): ( ( value: string ) => string | null ) => {
-	let styles: CSSStyleDeclaration | null | undefined;
-
-	// Deferred so a resolver built for a theme that turns out to hold only literals costs nothing.
-	const getStyles = () => {
-		if ( styles === undefined ) {
-			styles = computedStyleFor( element );
-		}
-
-		return styles;
-	};
-
-	return value => resolveWith( value, getStyles );
-};
-
-/**
- * The shared resolution contract, over a lazily-obtained computed-style snapshot.
- *
- * @param value     - A CSS variable name, var() expression, or regular value.
- * @param getStyles - Returns the computed styles to read custom properties from.
- * @return The resolved value, fallback value, or null if unresolvable.
- */
-function resolveWith( value: string, getStyles: () => CSSStyleDeclaration | null ): string | null {
-	if ( ! value ) {
-		return null;
-	}
-
-	// Check if it's a var() expression: var(--name) or var(--name, fallback)
-	// Parse manually to avoid regex backtracking vulnerabilities
-	if ( value.startsWith( 'var(' ) && value.endsWith( ')' ) ) {
-		const parsed = parseVarExpression( value );
-
-		if ( parsed ) {
-			const resolved = readCustomProperty( parsed.varName, getStyles() );
-
-			return resolved || parsed.fallback;
-		}
-	}
-
-	// Check if it's a plain variable name (starts with --)
-	if ( value.startsWith( '--' ) ) {
-		return readCustomProperty( value, getStyles() );
-	}
-
-	// Return regular values as-is (e.g., '#ffffff', 'red')
-	return value;
-}
+	createCssVariableResolver( element )( value );
 
 /**
  * Parses a var() expression into its variable name and optional fallback.
@@ -154,7 +145,7 @@ function readCustomProperty( varName: string, styles: CSSStyleDeclaration | null
 
 		return computedValue || null;
 	} catch {
-		// A snapshot can outlive what it describes: reading a property off a stale CSSStyleDeclaration throws in some engines.
+		// Belt and braces — no engine is known to throw here. Kept because a caller may hand in a stand-in for CSSStyleDeclaration; `resolve-css-var.test.ts` covers exactly that.
 		return null;
 	}
 }
