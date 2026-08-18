@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Drop a Phan suppression only needed while get_echo() was untyped, before WP 7.0.
+
+
