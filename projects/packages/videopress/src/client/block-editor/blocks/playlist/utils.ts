@@ -117,14 +117,18 @@ export function moveEntry< T >( list: T[], from: number, to: number ): T[] {
  *
  * @param guid     - Video GUID.
  * @param autoplay - Whether the video should start playing once loaded.
+ * @param muted    - Whether playback should start muted.
  * @return Embed URL.
  */
-export function playlistEmbedUrl( guid: string, autoplay: boolean ): string {
+export function playlistEmbedUrl( guid: string, autoplay: boolean, muted = false ): string {
 	const params = new URLSearchParams( {
 		cover: '1',
 		preloadContent: 'metadata',
 		autoPlay: autoplay ? '1' : '0',
 	} );
+	if ( muted ) {
+		params.set( 'muted', '1' );
+	}
 
 	return `https://videopress.com/embed/${ encodeURIComponent( guid ) }?${ params.toString() }`;
 }

@@ -159,7 +159,7 @@ function PlaylistPreview( {
 	liveMetadata: Record< string, PlaylistLiveMetadata >;
 	onSelect: ( index: number ) => void;
 } ) {
-	const { videos, showPositionNumber, showTotalRuntime } = attributes;
+	const { videos, muteByDefault, showPositionNumber, showTotalRuntime } = attributes;
 	const current = videos[ currentIndex ];
 
 	/*
@@ -198,7 +198,7 @@ function PlaylistPreview( {
 								liveMetadata[ current.guid ]?.title ||
 								__( 'Video Playlist player', 'jetpack-videopress-pkg' )
 							}
-							src={ playlistEmbedUrl( current.guid, false ) }
+							src={ playlistEmbedUrl( current.guid, false, muteByDefault ) }
 							allowFullScreen
 							allow="clipboard-write"
 						/>
@@ -327,6 +327,8 @@ export default function PlaylistEdit( {
 		layout,
 		darkPlayer,
 		autoplayNext,
+		muteByDefault,
+		loopPlaylist,
 		showThumbnail,
 		showTitle,
 		showResolution,
@@ -842,6 +844,36 @@ export default function PlaylistEdit( {
 				) }
 			</PanelBody>
 
+			<PanelBody title={ __( 'Playback', 'jetpack-videopress-pkg' ) }>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Autoplay next', 'jetpack-videopress-pkg' ) }
+					help={ __(
+						'Play the next video automatically when one ends.',
+						'jetpack-videopress-pkg'
+					) }
+					checked={ autoplayNext }
+					onChange={ ( value: boolean ) => setAttributes( { autoplayNext: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Mute by default', 'jetpack-videopress-pkg' ) }
+					help={ __( 'Start playback muted.', 'jetpack-videopress-pkg' ) }
+					checked={ muteByDefault }
+					onChange={ ( value: boolean ) => setAttributes( { muteByDefault: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Loop playlist', 'jetpack-videopress-pkg' ) }
+					help={ __(
+						'Restart from the first video after the last one ends.',
+						'jetpack-videopress-pkg'
+					) }
+					checked={ loopPlaylist }
+					onChange={ ( value: boolean ) => setAttributes( { loopPlaylist: value } ) }
+				/>
+			</PanelBody>
+
 			<PanelBody title={ __( 'Show on each entry', 'jetpack-videopress-pkg' ) }>
 				<ToggleControl
 					__nextHasNoMarginBottom
@@ -922,16 +954,6 @@ export default function PlaylistEdit( {
 					label={ __( 'Dark player surface', 'jetpack-videopress-pkg' ) }
 					checked={ darkPlayer }
 					onChange={ ( value: boolean ) => setAttributes( { darkPlayer: value } ) }
-				/>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Autoplay next', 'jetpack-videopress-pkg' ) }
-					help={ __(
-						'Play the next video automatically when one ends.',
-						'jetpack-videopress-pkg'
-					) }
-					checked={ autoplayNext }
-					onChange={ ( value: boolean ) => setAttributes( { autoplayNext: value } ) }
 				/>
 			</PanelBody>
 			{ fontFamilies.length > 0 && (

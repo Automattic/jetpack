@@ -269,16 +269,28 @@ class Playlist_Block_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The autoplay-next flag is exposed to the view script as a data attribute.
+	 * The playback flags are exposed to the view script and embed URLs.
 	 */
-	public function test_render_autoplay_next_flag() {
-		$off = VideoPress_Initializer::render_videopress_playlist_block( $this->attributes() );
-		$this->assertStringContainsString( 'data-autoplay-next="0"', $off );
+	public function test_render_playback_options() {
+		$defaults = VideoPress_Initializer::render_videopress_playlist_block( $this->attributes() );
+		$this->assertStringContainsString( 'data-autoplay-next="0"', $defaults );
+		$this->assertStringContainsString( 'data-loop="0"', $defaults );
+		$this->assertStringNotContainsString( 'muted=1', $defaults );
 
-		$on = VideoPress_Initializer::render_videopress_playlist_block(
-			$this->attributes( array( 'autoplayNext' => true ) )
+		$markup = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes(
+				array(
+					'autoplayNext'  => true,
+					'loopPlaylist'  => true,
+					'muteByDefault' => true,
+				)
+			)
 		);
-		$this->assertStringContainsString( 'data-autoplay-next="1"', $on );
+		$this->assertStringContainsString( 'data-autoplay-next="1"', $markup );
+		$this->assertStringContainsString( 'data-loop="1"', $markup );
+
+		// Muted playback rides on every embed URL: the player and the entries.
+		$this->assertSame( 3, substr_count( $markup, 'muted=1' ) );
 	}
 
 	/**

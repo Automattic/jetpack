@@ -65,6 +65,8 @@ const DEFAULT_ATTRIBUTES: PlaylistAttributes = {
 	layout: 'side-rail',
 	darkPlayer: false,
 	autoplayNext: false,
+	muteByDefault: false,
+	loopPlaylist: false,
 	showThumbnail: true,
 	showTitle: true,
 	showResolution: true,
@@ -423,6 +425,12 @@ describe( 'PlaylistEdit', () => {
 
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Autoplay next' } ) );
 		expect( setAttributes ).toHaveBeenCalledWith( { autoplayNext: true } );
+
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Mute by default' } ) );
+		expect( setAttributes ).toHaveBeenCalledWith( { muteByDefault: true } );
+
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Loop playlist' } ) );
+		expect( setAttributes ).toHaveBeenCalledWith( { loopPlaylist: true } );
 	} );
 
 	it( 'changes the per-entry display options from the sidebar', async () => {

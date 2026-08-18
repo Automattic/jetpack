@@ -645,16 +645,22 @@ class Initializer {
 	 *
 	 * @param string $guid     Video GUID.
 	 * @param bool   $autoplay Whether the video should start playing once loaded.
+	 * @param bool   $muted    Whether playback should start muted.
 	 *
 	 * @return string Embed URL.
 	 */
-	private static function playlist_embed_url( $guid, $autoplay ) {
+	private static function playlist_embed_url( $guid, $autoplay, $muted = false ) {
+		$args = array(
+			'cover'          => 1,
+			'preloadContent' => 'metadata',
+			'autoPlay'       => $autoplay ? 1 : 0,
+		);
+		if ( $muted ) {
+			$args['muted'] = 1;
+		}
+
 		return add_query_arg(
-			array(
-				'cover'          => 1,
-				'preloadContent' => 'metadata',
-				'autoPlay'       => $autoplay ? 1 : 0,
-			),
+			$args,
 			'https://videopress.com/embed/' . rawurlencode( $guid )
 		);
 	}
@@ -756,6 +762,7 @@ class Initializer {
 		$show_duration  = $enabled( 'showDuration' );
 		$show_number    = $enabled( 'showPositionNumber', false );
 		$show_runtime   = $enabled( 'showTotalRuntime' );
+		$muted          = $enabled( 'muteByDefault', false );
 
 		$classes = array( 'videopress-playlist', 'is-layout-' . $layout );
 		if ( $enabled( 'darkPlayer', false ) ) {
@@ -837,7 +844,7 @@ class Initializer {
 				0 === $index ? ' is-current' : '',
 				0 === $index ? ' aria-current="true"' : '',
 				esc_attr( $entry['guid'] ),
-				esc_url( self::playlist_embed_url( $entry['guid'], true ) ),
+				esc_url( self::playlist_embed_url( $entry['guid'], true, $muted ) ),
 				esc_attr( $title ),
 				esc_attr( $position ),
 				esc_attr( $details ),
@@ -880,7 +887,7 @@ class Initializer {
 			'<div class="videopress-playlist__stage">' .
 				'<div class="videopress-playlist__player"><iframe class="videopress-playlist__iframe" title="%1$s" src="%2$s" allowfullscreen allow="clipboard-write"></iframe></div>%3$s</div>',
 			esc_attr( $first_title ),
-			esc_url( self::playlist_embed_url( $first['guid'], false ) ),
+			esc_url( self::playlist_embed_url( $first['guid'], false, $muted ) ),
 			$now_markup
 		);
 
@@ -926,6 +933,7 @@ class Initializer {
 		$wrapper_extra_attributes = array(
 			'class'              => implode( ' ', $classes ),
 			'data-autoplay-next' => $enabled( 'autoplayNext', false ) ? '1' : '0',
+			'data-loop'          => $enabled( 'loopPlaylist', false ) ? '1' : '0',
 		);
 		if ( '' !== $font_style ) {
 			$wrapper_extra_attributes['style'] = $font_style;

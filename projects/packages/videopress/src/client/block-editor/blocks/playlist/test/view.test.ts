@@ -27,13 +27,14 @@ const EMBED_C = 'https://videopress.com/embed/cccccccc?cover=1&preloadContent=me
  * Render a playlist block's front-end markup and initialize it.
  *
  * @param autoplayNext - Value of the wrapper's data-autoplay-next flag.
+ * @param loop         - Value of the wrapper's data-loop flag.
  * @return The block root element.
  */
-function setUpPlaylist( autoplayNext = true ): HTMLElement {
+function setUpPlaylist( autoplayNext = true, loop = false ): HTMLElement {
 	document.body.innerHTML = `
 		<figure class="wp-block-videopress-playlist videopress-playlist is-layout-side-rail" data-autoplay-next="${
 			autoplayNext ? '1' : '0'
-		}">
+		}" data-loop="${ loop ? '1' : '0' }">
 			<div class="videopress-playlist__stage">
 				<iframe class="videopress-playlist__iframe" src="${ EMBED_A.replace(
 					'autoPlay=1',
@@ -150,6 +151,18 @@ describe( 'initPlaylistBlock', () => {
 
 		expect( iframe.src ).toBe( EMBED_C );
 		expect( entries[ 2 ] ).toHaveClass( 'is-current' );
+	} );
+
+	it( 'loops back to the first entry when looping is on', () => {
+		const root = setUpPlaylist( true, true );
+		const entries = root.querySelectorAll< HTMLButtonElement >( '.videopress-playlist__select' );
+		const iframe = root.querySelector< HTMLIFrameElement >( '.videopress-playlist__iframe' );
+
+		entries[ 2 ].click();
+		postPlayerMessage( 'https://videopress.com', { event: 'videopress_ended', id: 'cccccccc' } );
+
+		expect( iframe.src ).toBe( EMBED_A );
+		expect( entries[ 0 ] ).toHaveClass( 'is-current' );
 	} );
 
 	it( 'does not auto-advance when autoplay next is off', () => {

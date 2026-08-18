@@ -39,6 +39,14 @@
 			"type": "boolean",
 			"default": false
 		},
+		"muteByDefault": {
+			"type": "boolean",
+			"default": false
+		},
+		"loopPlaylist": {
+			"type": "boolean",
+			"default": false
+		},
 		"showThumbnail": {
 			"type": "boolean",
 			"default": true

@@ -28,6 +28,8 @@ export type PlaylistAttributes = {
 	layout: PlaylistLayout;
 	darkPlayer: boolean;
 	autoplayNext: boolean;
+	muteByDefault: boolean;
+	loopPlaylist: boolean;
 	showThumbnail: boolean;
 	showTitle: boolean;
 	showResolution: boolean;

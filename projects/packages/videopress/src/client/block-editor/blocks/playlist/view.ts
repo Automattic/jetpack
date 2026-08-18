@@ -201,6 +201,8 @@ export function initPlaylistBlock( root: HTMLElement ) {
 
 		if ( currentIndex + 1 < entries.length ) {
 			activate( currentIndex + 1, true );
+		} else if ( root.dataset.loop === '1' ) {
+			activate( 0, true );
 		}
 	} );
 }
