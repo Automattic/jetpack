@@ -33,20 +33,31 @@ export const getCurveType = ( type?: CurveType, smoothing?: boolean ): typeof cu
 	}
 };
 
-const formatYearTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleDateString( undefined, { year: 'numeric' } );
+// Built once and reused: these run per bucket over the whole band domain when
+// the axis picks its tick values, and `toLocaleDateString` rebuilds its
+// formatter on every call once an options object is passed.
+const dateTimeFormat = ( options: Intl.DateTimeFormatOptions ) => {
+	let formatter: Intl.DateTimeFormat;
+	return ( timestamp: number ) => {
+		// `Intl.DateTimeFormat` throws on an invalid date where the `Date`
+		// methods it replaces return "Invalid Date", and charts are expected to
+		// render past a bad point rather than fail.
+		// visx hands its tick formatter a `Date`, so coerce before the check.
+		if ( ! Number.isFinite( Number( timestamp ) ) ) {
+			return new Date( timestamp ).toLocaleDateString();
+		}
+		formatter = formatter ?? new Intl.DateTimeFormat( undefined, options );
+		return formatter.format( timestamp );
+	};
 };
 
-const formatDateTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleDateString( undefined, { month: 'short', day: 'numeric' } );
-};
+const formatYearTick = dateTimeFormat( { year: 'numeric' } );
 
-const formatHourTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleTimeString( undefined, { hour: 'numeric', hour12: true } );
-};
+const formatDateTick = dateTimeFormat( { month: 'short', day: 'numeric' } );
+
+const formatHourTick = dateTimeFormat( { hour: 'numeric', hour12: true } );
+
+const formatMonthTick = dateTimeFormat( { month: 'short' } );
 
 // Hour ticks with the date at midnight boundaries, so multi-day spans of
 // sub-daily data keep their days identifiable.
@@ -61,9 +72,7 @@ const formatDateOrHourTick = ( timestamp: number ) => {
 // buckets where a full "Sep 1" date would misread as a daily point.
 const formatMonthOrYearTick = ( timestamp: number ) => {
 	const date = new Date( timestamp );
-	return date.getMonth() === 0
-		? formatYearTick( timestamp )
-		: date.toLocaleDateString( undefined, { month: 'short' } );
+	return date.getMonth() === 0 ? formatYearTick( timestamp ) : formatMonthTick( timestamp );
 };
 
 // Overall time span of the data. Series with no dated points are dropped rather
@@ -189,14 +198,38 @@ const TICK_ANCHORS = new Map< ( timestamp: number ) => string, ( date: Date ) =>
 	[ formatMonthOrYearTick, date => date.getMonth() === 0 ],
 ] );
 
-// Index distance between consecutive anchor buckets, or null below two of them.
-// The steps that can land on more than one anchor are the ones that divide it
-// and the ones that are whole multiples of it.
-const getAnchorPeriod = ( domain: Date[], isAnchor: ( date: Date ) => boolean ) => {
-	const first = domain.findIndex( isAnchor );
-	const second = domain.findIndex( ( date, index ) => index > first && isAnchor( date ) );
+// Indices of the buckets whose label carries the coarser unit.
+const getAnchorIndices = ( domain: Date[], isAnchor: ( date: Date ) => boolean ) =>
+	domain.reduce< number[] >( ( indices, date, index ) => {
+		if ( isAnchor( date ) ) {
+			indices.push( index );
+		}
+		return indices;
+	}, [] );
 
-	return first < 0 || second < 0 ? null : second - first;
+// Index strides worth sampling the domain at. Both roundings of each tick count
+// are needed: flooring alone skips the stride that fits a mid-series anchor on
+// short domains. Anchors add the strides that can land on more than one of them
+// — those dividing their spacing, and the smallest whole multiple that still
+// fits, which carries spans too long for any divisor to reach.
+const getCandidateSteps = ( length: number, maxTicks: number, anchorSpacing: number | null ) => {
+	const steps = new Set< number >();
+	for ( let count = maxTicks; count > 1; count-- ) {
+		steps.add( Math.max( 1, Math.floor( ( length - 1 ) / ( count - 1 ) ) ) );
+		steps.add( Math.max( 1, Math.ceil( ( length - 1 ) / ( count - 1 ) ) ) );
+	}
+
+	if ( anchorSpacing ) {
+		for ( let divisor = 1; divisor <= anchorSpacing; divisor++ ) {
+			if ( anchorSpacing % divisor === 0 ) {
+				steps.add( anchorSpacing / divisor );
+			}
+		}
+		const minStep = Math.floor( ( length - 1 ) / Math.max( 1, maxTicks ) ) + 1;
+		steps.add( Math.ceil( minStep / anchorSpacing ) * anchorSpacing );
+	}
+
+	return steps;
 };
 
 /**
@@ -205,10 +238,10 @@ const getAnchorPeriod = ( domain: Date[], isAnchor: ( date: Date ) => boolean ) 
  * visx samples a band domain by index from offset zero, blind to which labels
  * carry a boundary and without collapsing repeats — so the tick that prints the
  * year or the date often isn't sampled at all, and a long series can show the
- * same label twice. Choose the values instead: keep the even spacing, but slide
- * the offset onto the anchor buckets — stepping by whole anchor periods once the
- * span is too long to reach them any other way — and reject any step that would
- * put two identical labels side by side.
+ * same label twice. Choose the values instead: sweep the evenly spaced
+ * candidates, including those that step from anchor to anchor, and keep the one
+ * that reaches the most anchors without thinning the axis or putting two
+ * identical labels side by side.
  *
  * @param domain        - Band domain, in axis order.
  * @param tickFormatter - Formatter the axis will render these values with.
@@ -225,58 +258,64 @@ export const getBandTickValues = (
 	}
 
 	const isAnchor = TICK_ANCHORS.get( tickFormatter );
-
-	const steps = new Set< number >();
-	for ( let count = maxTicks; count > 1; count-- ) {
-		steps.add( Math.max( 1, Math.floor( ( domain.length - 1 ) / ( count - 1 ) ) ) );
-	}
-	const anchorPeriod = isAnchor ? getAnchorPeriod( domain, isAnchor ) : null;
-	for ( let divisor = 1; divisor <= ( anchorPeriod ?? 0 ); divisor++ ) {
-		if ( anchorPeriod % divisor === 0 ) {
-			steps.add( anchorPeriod / divisor );
-		}
-	}
-	if ( anchorPeriod ) {
-		// A divisor reaches every anchor but outruns `maxTicks` beyond a few
-		// periods, which would leave a week of hourly buckets naming one day out
-		// of seven. Whole multiples carry those longer spans, and the smallest one
-		// that still fits is the densest, so it reaches the most anchors.
-		const minStep = Math.floor( ( domain.length - 1 ) / Math.max( 1, maxTicks ) ) + 1;
-		steps.add( Math.ceil( minStep / anchorPeriod ) * anchorPeriod );
-	}
+	const anchorIndices = isAnchor ? getAnchorIndices( domain, isAnchor ) : [];
 
 	// Once per bucket rather than once per bucket per candidate: the sweep reads
-	// the same labels back for every step and offset, and these formatters go
-	// through `toLocaleDateString`.
+	// the same labels back for every step and offset.
 	const domainLabels = domain.map( date => tickFormatter( date.getTime() ) );
 
-	let best: { values: Date[]; anchors: number } | null = null;
-	for ( const step of steps ) {
+	const candidates: number[][] = [];
+	const consider = ( indices: number[] ) => {
+		if ( ! indices.length || indices.length > maxTicks ) {
+			return;
+		}
+		const repeats = indices.some(
+			( index, position ) =>
+				position > 0 && domainLabels[ index ] === domainLabels[ indices[ position - 1 ] ]
+		);
+		if ( ! repeats ) {
+			candidates.push( indices );
+		}
+	};
+
+	const anchorSpacing = anchorIndices.length > 1 ? anchorIndices[ 1 ] - anchorIndices[ 0 ] : null;
+	for ( const step of getCandidateSteps( domain.length, maxTicks, anchorSpacing ) ) {
 		for ( let offset = 0; offset < step; offset++ ) {
-			const values: Date[] = [];
-			const labels: string[] = [];
+			const indices: number[] = [];
 			for ( let index = offset; index < domain.length; index += step ) {
-				values.push( domain[ index ] );
-				labels.push( domainLabels[ index ] );
+				indices.push( index );
 			}
-			if ( ! values.length || values.length > maxTicks ) {
-				continue;
-			}
-
-			if ( labels.some( ( label, index ) => index > 0 && label === labels[ index - 1 ] ) ) {
-				continue;
-			}
-
-			// The anchors first, then the denser axis.
-			const anchors = isAnchor ? values.filter( isAnchor ).length : 0;
-			const denser = anchors === best?.anchors && values.length > best.values.length;
-			if ( ! best || anchors > best.anchors || denser ) {
-				best = { values, anchors };
-			}
+			consider( indices );
 		}
 	}
 
-	return best ? best.values : [ domain[ 0 ] ];
+	// Stepping the anchors themselves rather than the domain, so that anchors an
+	// uneven number of buckets apart are still all reachable — a wall-clock day
+	// is 23 buckets of hourly data across a spring-forward DST transition, and a
+	// fixed stride drifts off midnight for the rest of the span.
+	for ( let stride = 1; stride <= anchorIndices.length; stride++ ) {
+		consider( anchorIndices.filter( ( _, position ) => position % stride === 0 ) );
+	}
+
+	if ( ! candidates.length ) {
+		return [ domain[ 0 ] ];
+	}
+
+	// An anchor is worth at most one tick. Ranking anchors above density outright
+	// collapsed ordinary monthly axes to two ticks — worse than sampling by index,
+	// which at least stayed dense — while ignoring anchors leaves the year unnamed.
+	const densest = candidates.reduce( ( most, indices ) => Math.max( most, indices.length ), 0 );
+	const anchorsIn = ( indices: number[] ) =>
+		isAnchor ? indices.filter( index => isAnchor( domain[ index ] ) ).length : 0;
+
+	const best = candidates
+		.filter( indices => indices.length >= densest - 1 )
+		.reduce( ( chosen, indices ) => {
+			const gain = anchorsIn( indices ) - anchorsIn( chosen );
+			return gain > 0 || ( gain === 0 && indices.length > chosen.length ) ? indices : chosen;
+		} );
+
+	return best.map( index => domain[ index ] );
 };
 
 // Estimate the largest number of x-axis ticks that fit without producing
