@@ -1,0 +1,16 @@
+/*
+ * The widget header's other controls are compact WPDS fields — a 32px box with
+ * a resting neutral border — while the core control is 40px and only draws its
+ * border when `isBlock`. Both are restated here so the toggle sits on the same
+ * line as its neighbours. The `[role]` qualifier outranks the component's own
+ * class, which is injected at runtime and would otherwise land last.
+ */
+.control[role="radiogroup"] {
+	block-size: var(--wpds-dimension-size-md);
+	border-color: var(--wpds-color-stroke-interactive-neutral);
+}
+
+/* Icon segments carry a fixed height instead of filling the control. */
+.control[role="radiogroup"] button {
+	block-size: 100%;
+}
