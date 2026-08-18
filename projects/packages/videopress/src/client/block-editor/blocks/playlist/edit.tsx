@@ -302,13 +302,6 @@ function PlaylistPreview( {
 					</ol>
 				</div>
 			</div>
-
-			<p className="videopress-playlist-editor__canvas-hint">
-				{ __(
-					'The canvas preview mirrors the sidebar order live — the block is not editable in place.',
-					'jetpack-videopress-pkg'
-				) }
-			</p>
 		</>
 	);
 }

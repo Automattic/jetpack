@@ -3,8 +3,7 @@
  *
  * The canvas preview reuses the front-end stylesheet (view.scss, loaded as
  * an additional editorStyle); these rules cover the editor-only chrome: the
- * sidebar playlist manager, the layout picker, the placeholder form, and
- * the canvas hint.
+ * sidebar playlist manager, the layout picker, and the placeholder form.
  */
 
 .videopress-playlist-editor {
@@ -284,18 +283,6 @@
 			background: #e0e0e0;
 		}
 	}
-
-	&__canvas-hint {
-		margin: 10px 0 0;
-		font-size: 0.71875rem;
-		color: #757575;
-		text-align: center;
-	}
-}
-
-/* The canvas hint is editor chrome: only show it on the selected block. */
-.videopress-playlist:not(.is-selected) .videopress-playlist-editor__canvas-hint {
-	display: none;
 }
 
 /* Empty state: the design centers the icon, title, instructions and form. */

@@ -261,11 +261,6 @@ describe( 'PlaylistEdit', () => {
 		expect( screen.getAllByText( '2 videos' ).length ).toBeGreaterThan( 0 );
 		await expect( screen.findByTitle( 'First' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Up next' ) ).toBeInTheDocument();
-		expect(
-			screen.getByText(
-				'The canvas preview mirrors the sidebar order live — the block is not editable in place.'
-			)
-		).toBeInTheDocument();
 	} );
 
 	it( 'only offers the filter input on long playlists', async () => {
