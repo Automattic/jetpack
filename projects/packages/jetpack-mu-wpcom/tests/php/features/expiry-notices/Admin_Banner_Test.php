@@ -181,6 +181,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 				'plan_name'      => 'Business',
 				'product_slug'   => 'business-bundle',
 				'auto_renew'     => false,
+				'is_atomic'      => false,
 			),
 			$overrides
 		);
@@ -318,6 +319,47 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$body  = wpcom_expiry_notices_admin_banner_body( $state );
 		$this->assertStringStartsWith( 'Your site will move to the Free plan.', $body );
 		$this->assertStringContainsString( 'But it’s not too late.', $body );
+	}
+
+	public function test_body_after_revert_on_atomic_mentions_the_site_going_private(): void {
+		$state = $this->message_state(
+			array(
+				'state'          => Expiry_Data::STATE_EXPIRED,
+				'days_remaining' => -45,
+				'is_atomic'      => true,
+			)
+		);
+		$this->assertSame(
+			'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or 50 GB of storage. Upgrade your plan to restore your site.',
+			wpcom_expiry_notices_admin_banner_body( $state )
+		);
+	}
+
+	public function test_body_after_revert_on_simple_stays_public(): void {
+		$state = $this->message_state(
+			array(
+				'state'          => Expiry_Data::STATE_EXPIRED,
+				'days_remaining' => -45,
+				'is_atomic'      => false,
+			)
+		);
+		$body  = wpcom_expiry_notices_admin_banner_body( $state );
+		$this->assertStringNotContainsString( 'set to private', $body );
+		$this->assertStringContainsString( '50 GB of storage', $body );
+	}
+
+	public function test_after_revert_the_cta_offers_to_restore_the_site(): void {
+		$this->set_purchase( -45 );
+		$out = $this->render();
+		$this->assertStringContainsString( 'Restore site', $out );
+		$this->assertStringNotContainsString( 'Renew now', $out );
+	}
+
+	public function test_before_revert_the_cta_still_asks_for_a_renewal(): void {
+		$this->set_purchase( -5 );
+		$out = $this->render();
+		$this->assertStringContainsString( 'Renew now', $out );
+		$this->assertStringNotContainsString( 'Restore site', $out );
 	}
 
 	public function test_body_falls_back_to_additional_storage_for_unknown_slug(): void {

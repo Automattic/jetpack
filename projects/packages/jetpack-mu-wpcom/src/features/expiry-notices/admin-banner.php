@@ -43,8 +43,26 @@ function wpcom_expiry_notices_admin_banner_data(): ?array {
 		'state'            => $state,
 		'is_early_warning' => $is_early_warning,
 		'is_dismissible'   => Expiry_Notice_Dismiss::is_dismissible( $state ),
-		'urls'             => Expiry_Data::get_cta_urls( $state, wpcom_expiry_notices_current_admin_url() ),
+		'urls'             => wpcom_expiry_notices_admin_banner_urls( $state ),
 	);
+}
+
+/**
+ * CTA URLs for the banner.
+ *
+ * Once the site has been reverted the ask is no longer "renew" but "put the
+ * site back", and wp-admin labels that button "Restore site" where the other
+ * surfaces say "Restore my site".
+ *
+ * @param array<string,mixed> $state Expiry state.
+ * @return array<string,array>
+ */
+function wpcom_expiry_notices_admin_banner_urls( array $state ): array {
+	$urls = Expiry_Data::get_cta_urls( $state, wpcom_expiry_notices_current_admin_url() );
+	if ( Expiry_Data::STATE_EXPIRED === ( $state['state'] ?? '' ) ) {
+		$urls['primary']['label'] = __( 'Restore site', 'jetpack-mu-wpcom' );
+	}
+	return $urls;
 }
 
 /**
@@ -239,7 +257,26 @@ function wpcom_expiry_notices_admin_banner_body( array $state ): string {
 	$auto_renew = ! empty( $state['auto_renew'] );
 
 	if ( Expiry_Data::STATE_EXPIRED === ( $state['state'] ?? '' ) ) {
-		return __( 'Your site has been moved to the Free plan. You no longer have access to plugins, custom themes, or additional storage. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' );
+		// Reverting an Atomic site also takes it private; a Simple site stays
+		// public, so only Atomic mentions it.
+		if ( ! empty( $state['is_atomic'] ) ) {
+			if ( null === $storage_gb ) {
+				return __( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or additional storage. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' );
+			}
+			return sprintf(
+				/* translators: %d is a number of gigabytes of storage. */
+				__( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or %d GB of storage. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' ),
+				$storage_gb
+			);
+		}
+		if ( null === $storage_gb ) {
+			return __( 'Your site has been moved to the Free plan. You no longer have access to plugins, custom themes, or additional storage. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' );
+		}
+		return sprintf(
+			/* translators: %d is a number of gigabytes of storage. */
+			__( 'Your site has been moved to the Free plan. You no longer have access to plugins, custom themes, or %d GB of storage. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' ),
+			$storage_gb
+		);
 	}
 
 	if ( Expiry_Data::STATE_EXPIRED_GRACE === ( $state['state'] ?? '' ) ) {
