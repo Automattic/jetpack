@@ -5,7 +5,8 @@ const tokenFallbacks = buildColorTokenFallbacks();
 
 /**
  * PostCSS plugin that injects static fallbacks into bare
- * `var(--color-*)` and `var(--studio-*)` calls for Calypso / Color Studio tokens.
+ * `var(--color-*)`, `var(--studio-*)`, and `var(--jp-*)` calls for
+ * Calypso / Color Studio / Jetpack tokens.
  *
  * @return {import('postcss').Plugin} PostCSS plugin.
  */
