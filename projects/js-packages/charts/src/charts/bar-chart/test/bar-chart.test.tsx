@@ -302,28 +302,28 @@ describe( 'BarChart', () => {
 			// warns about; the point here is that it does not also break the axis.
 			const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
 
-			renderWithTheme( {
-				data: [
-					{
-						label: 'This period',
-						data: [ dated( 2026, 0, 1, 1 ), dated( 2026, 0, 4, 2 ) ],
-						options: {},
-					},
-					{
-						label: 'Prior period',
-						data: [ dated( 2025, 11, 26, 1 ), dated( 2025, 11, 29, 2 ) ],
-						options: { type: 'comparison' },
-					},
-				],
-			} );
+			try {
+				renderWithTheme( {
+					data: [
+						{
+							label: 'This period',
+							data: [ dated( 2026, 0, 1, 1 ), dated( 2026, 0, 4, 2 ) ],
+							options: {},
+						},
+						{
+							label: 'Prior period',
+							data: [ dated( 2025, 11, 26, 1 ), dated( 2025, 11, 29, 2 ) ],
+							options: { type: 'comparison' },
+						},
+					],
+				} );
 
-			// Dec 26/29 are buckets of a series the band scale never saw; ticking
-			// them parks a label at the axis origin.
-			expect( inChart().queryByText( 'Dec 26' ) ).not.toBeInTheDocument();
-			expect( inChart().queryByText( 'Dec 29' ) ).not.toBeInTheDocument();
-			expect( inChart().getByText( 'Jan 1' ) ).toBeInTheDocument();
-
-			warn.mockRestore();
+				expect( inChart().queryByText( 'Dec 26' ) ).not.toBeInTheDocument();
+				expect( inChart().queryByText( 'Dec 29' ) ).not.toBeInTheDocument();
+				expect( inChart().getByText( 'Jan 1' ) ).toBeInTheDocument();
+			} finally {
+				warn.mockRestore();
+			}
 		} );
 
 		test( 'drops the buckets of a series the legend has hidden', async () => {
@@ -353,10 +353,69 @@ describe( 'BarChart', () => {
 
 			await user.click( screen.getByText( 'Long' ) );
 
-			// Jan 5 and Jan 7 belong only to the hidden series, so they are no longer
-			// keys of the band scale; ticking them parks a label at the axis origin.
 			expect( inChart().queryByText( 'Jan 5' ) ).not.toBeInTheDocument();
 			expect( inChart().queryByText( 'Jan 7' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'labels a bucket that carries a label in the tooltip too', () => {
+			const { result } = renderHook( () =>
+				useBarChartOptions(
+					[
+						{
+							label: 'Views',
+							data: [ dated( 2026, 0, 1, 1 ), { ...dated( 2026, 0, 2, 2 ), label: 'Launch day' } ],
+							options: {},
+						},
+					],
+					false
+				)
+			);
+
+			// visx calls a tick formatter with (value, index, values).
+			const format = result.current.tooltip.labelFormatter;
+			expect( format( 'Launch day', 0, [] ) ).toBe( 'Launch day' );
+			expect( format( new Date( 2026, 0, 1 ), 0, [] ) ).toMatch( /2026/ );
+		} );
+
+		test( 'keeps only the later of two series sharing a label, as the registry does', () => {
+			const warn = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+
+			try {
+				const { result } = renderHook( () =>
+					useBarChartOptions(
+						[
+							{ label: 'Dup', data: [ dated( 2026, 0, 1, 1 ) ], options: {} },
+							{ label: 'Dup', data: [ dated( 2026, 0, 5, 2 ) ], options: {} },
+						],
+						false
+					)
+				);
+
+				expect( result.current.axis.x.tickValues ).toEqual( [ new Date( 2026, 0, 5 ) ] );
+			} finally {
+				warn.mockRestore();
+			}
+		} );
+
+		test( 'puts the band tick values on the y axis when horizontal', () => {
+			const { result } = renderHook( () =>
+				useBarChartOptions(
+					[
+						{
+							label: 'Views',
+							data: [ dated( 2026, 0, 1, 1 ), dated( 2026, 0, 2, 2 ) ],
+							options: {},
+						},
+					],
+					true
+				)
+			);
+
+			expect( result.current.axis.y.tickValues ).toEqual( [
+				new Date( 2026, 0, 1 ),
+				new Date( 2026, 0, 2 ),
+			] );
+			expect( result.current.axis.x.tickValues ).toBeUndefined();
 		} );
 
 		test( 'keeps every dated bucket across series, in the order visx concatenates them', () => {
@@ -378,8 +437,6 @@ describe( 'BarChart', () => {
 				)
 			);
 
-			// Jan 1 is shared, so the domain is Jan 1, Jan 3, Jan 2 — first
-			// occurrence wins and the second series appends what it adds.
 			expect( result.current.axis.x.tickValues ).toEqual( [
 				new Date( 2026, 0, 1 ),
 				new Date( 2026, 0, 3 ),

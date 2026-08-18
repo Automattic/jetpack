@@ -66,14 +66,23 @@ const getTooltipFormatter = ( data: SeriesData[], tickResolution?: TickResolutio
 	return ( timestamp: number ) => new Date( timestamp ).toLocaleString( undefined, format );
 };
 
+const identity = ( label: string ) => label;
+
+// `hasLabels` only samples the first point of the first series, so a labelled
+// bucket can still reach a formatter that was chosen for timestamps. It arrives
+// as its own string; only a dated bucket has a timestamp to format.
+const byBucket =
+	( format: ( timestamp: number ) => string ) => ( bucket: Date | string | number ) =>
+		typeof bucket === 'string' ? bucket : format( Number( bucket ) );
+
 // Shared with the domain below so both read a bucket the same way.
 const bucketAccessor = ( d: DataPointDate ) => d?.label || d?.date;
 
 /**
  * The buckets the band axis can put a tick on.
  *
- * Built from the accessor visx is given, in the order visx concatenates it, so
- * that a tick value is a key the scale actually holds; `scaleBand` returns
+ * Built from the accessor visx is given, over the same series in the same order,
+ * so that a tick value is a key the scale actually holds; `scaleBand` returns
  * `undefined` for one it does not, which parks the tick at the origin. Null
  * rather than a partial list when any bucket is labelled instead of dated.
  *
@@ -85,7 +94,11 @@ const getBandDomain = (
 	data: SeriesData[],
 	isSeriesRendered: ( series: SeriesData ) => boolean
 ): Date[] | null => {
-	const byTimestamp = new Map< number, Date >();
+	// visx keys its data registry on the series label and reads it back with
+	// `Object.keys`, so a plain object reproduces both of the things that follow
+	// from that: two series sharing a label collapse to the later one, and an
+	// integer-like label sorts ahead of the rest whatever order it arrived in.
+	const registry: Record< string, SeriesData > = {};
 
 	for ( const series of data ) {
 		// Comparison series register nothing with visx — `comparison-bars.tsx` draws
@@ -94,8 +107,13 @@ const getBandDomain = (
 		if ( series.options?.type === 'comparison' || ! isSeriesRendered( series ) ) {
 			continue;
 		}
+		registry[ series.label ] = series;
+	}
 
-		for ( const point of series.data ) {
+	const byTimestamp = new Map< number, Date >();
+
+	for ( const key of Object.keys( registry ) ) {
+		for ( const point of registry[ key ].data ) {
 			const bucket = bucketAccessor( point as DataPointDate );
 			if ( ! ( bucket instanceof Date ) ) {
 				return null;
@@ -178,15 +196,10 @@ export function useBarChartOptions(
 		// size; the tooltip stays at the bucket's own granularity.
 		const hasLabels = Boolean( data?.[ 0 ]?.data?.[ 0 ]?.label );
 		const timeTickFormatter = hasLabels ? null : getFormatter( data, tickResolution );
-		// `hasLabels` only samples the first point, so a later labelled bucket still
-		// reaches the axis — as its own string, not a timestamp.
-		const labelFormatter = timeTickFormatter
-			? ( bucket: Date | string | number ) =>
-					typeof bucket === 'string' ? bucket : timeTickFormatter( Number( bucket ) )
-			: ( label: string ) => label;
+		const labelFormatter = timeTickFormatter ? byBucket( timeTickFormatter ) : identity;
 		const tooltipDatumFormatter = hasLabels
 			? labelFormatter
-			: getTooltipFormatter( data, tickResolution );
+			: byBucket( getTooltipFormatter( data, tickResolution ) );
 		const valueFormatter = formatNumberCompact as TickFormatter< unknown >;
 
 		const bandDomain = timeTickFormatter ? getBandDomain( data, isSeriesRendered ) : null;
