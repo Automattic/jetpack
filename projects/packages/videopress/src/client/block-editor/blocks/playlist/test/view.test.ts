@@ -246,6 +246,24 @@ describe( 'initPlaylistBlock', () => {
 		expect( list ).not.toHaveClass( 'has-more-videos' );
 	} );
 
+	it( 'shows the fade for horizontal strip overflow too', () => {
+		const root = setUpPlaylist();
+		const list = root.querySelector< HTMLElement >( '.videopress-playlist__list' );
+		const entriesContainer = root.querySelector< HTMLElement >( '.videopress-playlist__entries' );
+
+		// jsdom has no layout; give the strip a horizontally scrollable geometry.
+		Object.defineProperty( entriesContainer, 'scrollWidth', { configurable: true, value: 800 } );
+		Object.defineProperty( entriesContainer, 'clientWidth', { configurable: true, value: 400 } );
+
+		entriesContainer.scrollLeft = 0;
+		entriesContainer.dispatchEvent( new Event( 'scroll' ) );
+		expect( list ).toHaveClass( 'has-more-videos' );
+
+		entriesContainer.scrollLeft = 400;
+		entriesContainer.dispatchEvent( new Event( 'scroll' ) );
+		expect( list ).not.toHaveClass( 'has-more-videos' );
+	} );
+
 	it( 'ignores clicks on entries without an embed URL', () => {
 		const root = setUpPlaylist();
 		const entries = root.querySelectorAll< HTMLButtonElement >( '.videopress-playlist__select' );

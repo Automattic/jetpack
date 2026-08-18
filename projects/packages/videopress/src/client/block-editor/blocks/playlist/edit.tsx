@@ -164,8 +164,9 @@ function PlaylistPreview( {
 	const currentTitle = liveMetadata[ current.guid ]?.title || current.guid;
 
 	/*
-	 * Mirrors the front-end view script: while more entries hide below the
-	 * capped side-rail list's scroll position, the list shows a bottom fade.
+	 * Mirrors the front-end view script: while more entries hide beyond the
+	 * scroll position — below it in the capped side rail, past the trailing
+	 * edge in the horizontal strip — the list shows the matching fade.
 	 */
 	const entriesRef = useRef< HTMLOListElement | null >( null );
 	const [ hasMoreBelow, setHasMoreBelow ] = useState( false );
@@ -174,7 +175,11 @@ function PlaylistPreview( {
 		if ( ! container ) {
 			return;
 		}
-		setHasMoreBelow( container.scrollHeight - container.scrollTop - container.clientHeight > 1 );
+		const moreBelow = container.scrollHeight - container.scrollTop - container.clientHeight > 1;
+		// scrollLeft is negative in right-to-left scrollers.
+		const moreInline =
+			container.scrollWidth - Math.abs( container.scrollLeft ) - container.clientWidth > 1;
+		setHasMoreBelow( moreBelow || moreInline );
 	};
 	useEffect( updateScrollHint, [ videos, attributes.layout, liveMetadata ] );
 	const runtime = formatRuntime( playlistRuntimeMs( videos ) );

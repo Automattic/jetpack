@@ -466,11 +466,38 @@ $vpp-mono: ui-monospace, menlo, monospace;
 		display: none;
 	}
 
+	&.is-layout-strip &__list {
+		position: relative;
+	}
+
 	&.is-layout-strip &__entries {
 		display: flex;
 		gap: 10px;
 		overflow-x: auto;
 		padding-block-end: 4px;
+	}
+
+	/*
+	 * Fades the strip's trailing edge while more entries hide beyond the
+	 * horizontal scroll position. Sticky keeps it pinned to the scrollport
+	 * edge; the negative margin keeps it out of the layout flow.
+	 */
+
+	&.is-layout-strip &__entries::after {
+		content: "";
+		position: sticky;
+		inset-inline-end: 0;
+		flex: none;
+		inline-size: 52px;
+		margin-inline-start: -52px;
+		background: linear-gradient(to right, transparent, var(--vpp-list-fade));
+		opacity: 0;
+		transition: opacity 0.2s;
+		pointer-events: none;
+	}
+
+	&.is-layout-strip &__list.has-more-videos &__entries::after {
+		opacity: 1;
 	}
 
 	&.is-layout-strip &__entry {

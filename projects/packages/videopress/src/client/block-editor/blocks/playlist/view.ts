@@ -118,9 +118,9 @@ export function initPlaylistBlock( root: HTMLElement ) {
 	}
 
 	/*
-	 * The side rail caps the list at the player column's height; while more
-	 * entries hide below the scroll position, the list carries a class that
-	 * shows the bottom fade.
+	 * While more entries hide beyond the scroll position — below it in the
+	 * capped side rail, past its trailing edge in the horizontal strip — the
+	 * list carries a class that shows the matching fade.
 	 */
 	const list = root.querySelector< HTMLElement >( '.videopress-playlist__list' );
 	const entriesContainer = root.querySelector< HTMLElement >( '.videopress-playlist__entries' );
@@ -128,10 +128,16 @@ export function initPlaylistBlock( root: HTMLElement ) {
 		if ( ! list || ! entriesContainer ) {
 			return;
 		}
-		list.classList.toggle(
-			'has-more-videos',
-			entriesContainer.scrollHeight - entriesContainer.scrollTop - entriesContainer.clientHeight > 1
-		);
+		const moreBelow =
+			entriesContainer.scrollHeight - entriesContainer.scrollTop - entriesContainer.clientHeight >
+			1;
+		// scrollLeft is negative in right-to-left scrollers.
+		const moreInline =
+			entriesContainer.scrollWidth -
+				Math.abs( entriesContainer.scrollLeft ) -
+				entriesContainer.clientWidth >
+			1;
+		list.classList.toggle( 'has-more-videos', moreBelow || moreInline );
 	};
 	entriesContainer?.addEventListener( 'scroll', updateScrollHint, { passive: true } );
 	updateScrollHint();
