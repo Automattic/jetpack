@@ -743,6 +743,17 @@ class Jetpack_Memberships {
 	}
 
 	/**
+	 * Check if a given plan is a one-time payment (not recurring).
+	 *
+	 * @param int $plan_id The plan post ID.
+	 * @return bool True if the plan interval is 'one-time'.
+	 */
+	public static function is_one_time_plan( $plan_id ) {
+		$interval = get_post_meta( $plan_id, 'jetpack_memberships_interval', true );
+		return 'one-time' === $interval;
+	}
+
+	/**
 	 * Determines whether the current user can edit.
 	 *
 	 * @return bool Whether the user can edit.

@@ -95,7 +95,7 @@ export function getMessageByProductType( message, productType = PRODUCT_TYPE_PAY
 const titles = {
 	'1 month': __( 'Monthly Subscription', 'jetpack' ),
 	'1 year': __( 'Yearly Subscription', 'jetpack' ),
-	'one-time': __( 'Subscription', 'jetpack' ),
+	'one-time': __( 'One-time Payment', 'jetpack' ),
 };
 
 export function getTitleByProps( interval ) {

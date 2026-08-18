@@ -145,7 +145,16 @@ function render_block( $attributes ) {
 	$log_in_label               = ! empty( $attributes['logInLabel'] ) ? sanitize_text_field( $attributes['logInLabel'] ) : esc_html__( 'Log in', 'jetpack' );
 	$log_out_label              = ! empty( $attributes['logOutLabel'] ) ? sanitize_text_field( $attributes['logOutLabel'] ) : esc_html__( 'Log out', 'jetpack' );
 	$show_manage_link           = ! empty( $attributes['showManageSubscriptionsLink'] );
-	$manage_subscriptions_label = ! empty( $attributes['manageSubscriptionsLabel'] ) ? sanitize_text_field( $attributes['manageSubscriptionsLabel'] ) : esc_html__( 'Manage subscription', 'jetpack' );
+	if ( ! empty( $attributes['manageSubscriptionsLabel'] ) ) {
+		$manage_subscriptions_label = sanitize_text_field( $attributes['manageSubscriptionsLabel'] );
+	} else {
+		$default_manage_label = esc_html__( 'Manage subscription', 'jetpack' );
+		$post_tier            = Jetpack_Memberships::get_post_tier();
+		if ( $post_tier && Jetpack_Memberships::is_one_time_plan( $post_tier->ID ) ) {
+			$default_manage_label = esc_html__( 'Manage purchase', 'jetpack' );
+		}
+		$manage_subscriptions_label = $default_manage_label;
+	}
 
 	if ( ! is_subscriber_logged_in() ) {
 		return sprintf(
