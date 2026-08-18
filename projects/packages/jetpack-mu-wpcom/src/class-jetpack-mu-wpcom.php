@@ -21,6 +21,10 @@ class Jetpack_Mu_Wpcom {
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
 
+	// Themes (by template slug) and plugins (by basename) known to break with React 19.
+	const REACT_19_INCOMPATIBLE_THEMES  = array( 'divi' );
+	const REACT_19_INCOMPATIBLE_PLUGINS = array( 'wp-table-builder/wp-table-builder.php' );
+
 	/**
 	 * Initialize the class.
 	 */
@@ -859,7 +863,8 @@ class Jetpack_Mu_Wpcom {
 	 *
 	 * The `disable-gutenberg-react-19` blog sticker force-disables the experiment,
 	 * the `gutenberg-react-19` sticker opts the site in. With neither sticker,
-	 * the experiment is enabled on 1% of Atomic sites.
+	 * the experiment is enabled on a certain percentage of Atomic sites,
+	 * known incompatible plugins and themes are excluded.
 	 *
 	 * @param mixed $experiments The current value of the gutenberg-experiments option.
 	 * @return mixed Original option value or the filtered experiments.
@@ -879,8 +884,10 @@ class Jetpack_Mu_Wpcom {
 			// Don't enable if the site ID is unknown (zero).
 			if ( ! $site_id ) {
 				$is_enabled = false;
+			} elseif ( self::has_react_19_incompatible_extension() ) {
+				$is_enabled = false;
 			} else {
-				$current_segment = 1; // Segment of Atomic sites in the experiment, in %.
+				$current_segment = 2; // Segment of Atomic sites in the experiment, in %.
 				$site_segment    = $site_id % 100;
 
 				/*
@@ -903,6 +910,30 @@ class Jetpack_Mu_Wpcom {
 
 		$experiments['gutenberg-react-19'] = true;
 		return $experiments;
+	}
+
+	/**
+	 * Whether the site runs an extension that's known to break with React 19.
+	 *
+	 * @return bool
+	 */
+	private static function has_react_19_incompatible_extension() {
+		// Outside wp-admin the plugin check is unavailable, and the experiment isn't needed.
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			return true;
+		}
+
+		if ( in_array( strtolower( get_template() ), self::REACT_19_INCOMPATIBLE_THEMES, true ) ) {
+			return true;
+		}
+
+		foreach ( self::REACT_19_INCOMPATIBLE_PLUGINS as $plugin_file ) {
+			if ( is_plugin_active( $plugin_file ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
