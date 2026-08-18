@@ -32,8 +32,11 @@ class Visitor {
 				'HTTP_VIA',
 			) as $key ) {
 				if ( ! empty( $_SERVER[ $key ] ) ) {
-					// @todo Some of these might actually be lists of IPs (e.g. HTTP_X_FORWARDED_FOR) or something else entirely (HTTP_VIA).
-					return sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );
+					// @todo Some of these might actually be lists of IPs (e.g. HTTP_X_FORWARDED_FOR) or something else entirely (HTTP_VIA). Those fail validation and fall through to the next header.
+					$ip = filter_var( wp_unslash( $_SERVER[ $key ] ), FILTER_VALIDATE_IP );
+					if ( false !== $ip ) {
+						return $ip;
+					}
 				}
 			}
 		}

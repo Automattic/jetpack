@@ -292,16 +292,47 @@ class Visitor_Test extends TestCase {
 	}
 
 	/**
-	 * Tests that the forwarded headers are sanitized rather than validated as a single
-	 * address, because they may legitimately carry a list.
+	 * Tests that a forwarded header is only used when it holds a single valid address.
+	 *
+	 * @param string $header_value Raw HTTP_X_FORWARDED_FOR value.
+	 * @param string $expected     Expected return value.
+	 * @dataProvider forwarded_header_validation_provider
 	 */
-	public function test_get_ip_sanitizes_forwarded_headers_and_keeps_lists() {
+	#[DataProvider( 'forwarded_header_validation_provider' )]
+	public function test_get_ip_validates_forwarded_headers( $header_value, $expected ) {
 		$_SERVER['REMOTE_ADDR']          = '1.2.3.4';
-		$_SERVER['HTTP_X_FORWARDED_FOR'] = '<b>5.6.7.8</b>, 9.10.11.12';
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = $header_value;
 
-		$ip = $this->visitor_obj->get_ip( true );
+		$this->assertSame( $expected, $this->visitor_obj->get_ip( true ) );
+	}
 
-		$this->assertStringNotContainsString( '<', $ip );
-		$this->assertSame( '5.6.7.8, 9.10.11.12', $ip );
+	/**
+	 * Data provider for 'test_get_ip_validates_forwarded_headers'.
+	 *
+	 * '1.2.3.4' is REMOTE_ADDR, so it is the expected value whenever the header is rejected.
+	 *
+	 * @return array
+	 */
+	public static function forwarded_header_validation_provider() {
+		return array(
+			'single IPv4'         => array( '5.6.7.8', '5.6.7.8' ),
+			'single IPv6'         => array( '2001:db8::1', '2001:db8::1' ),
+			'list of addresses'   => array( '5.6.7.8, 9.10.11.12', '1.2.3.4' ),
+			'markup'              => array( '<b>5.6.7.8</b>', '1.2.3.4' ),
+			'address with a port' => array( '5.6.7.8:8080', '1.2.3.4' ),
+			'arbitrary text'      => array( 'not-an-ip-address', '1.2.3.4' ),
+		);
+	}
+
+	/**
+	 * Tests that a header holding no address does not hide a valid address further down
+	 * the list. HTTP_CF_CONNECTING_IP is checked before HTTP_X_FORWARDED_FOR.
+	 */
+	public function test_get_ip_skips_an_invalid_header_for_a_later_valid_one() {
+		$_SERVER['REMOTE_ADDR']           = '1.2.3.4';
+		$_SERVER['HTTP_CF_CONNECTING_IP'] = 'not-an-ip-address';
+		$_SERVER['HTTP_X_FORWARDED_FOR']  = '5.6.7.8';
+
+		$this->assertSame( '5.6.7.8', $this->visitor_obj->get_ip( true ) );
 	}
 }
