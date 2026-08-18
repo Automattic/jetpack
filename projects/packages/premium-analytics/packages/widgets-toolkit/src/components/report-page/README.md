@@ -75,7 +75,7 @@ A report page carries three names:
 | --- | --- | --- |
 | report label | the trailing breadcrumb | `All pages` |
 | tab label | the tab strip | `Posts & Pages`, `Archives` |
-| section title | the header's `h2` | `Posts & pages report` |
+| section title | the header's `h2` | `Posts & Pages report` |
 
 The first two come from `routes/reports/registry.ts` (`getLabel`) and the tab
 set. `title` is the third: `getTabTitle( activeTab )` on a tabbed report, which

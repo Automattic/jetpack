@@ -22,14 +22,28 @@ const reportUtmTabs = defineReportTabs< UtmReportTabId >(
 		{
 			id: 'source-medium',
 			getLabel: () => __( 'Source / Medium', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Source / Medium report', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			id: 'campaign-source-medium',
 			getLabel: () => __( 'Campaign / Source / Medium', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Campaign / Source / Medium report', 'jetpack-premium-analytics-pkg' ),
 		},
-		{ id: 'source', getLabel: () => __( 'Source', 'jetpack-premium-analytics-pkg' ) },
-		{ id: 'medium', getLabel: () => __( 'Medium', 'jetpack-premium-analytics-pkg' ) },
-		{ id: 'campaign', getLabel: () => __( 'Campaign', 'jetpack-premium-analytics-pkg' ) },
+		{
+			id: 'source',
+			getLabel: () => __( 'Source', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Source report', 'jetpack-premium-analytics-pkg' ),
+		},
+		{
+			id: 'medium',
+			getLabel: () => __( 'Medium', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Medium report', 'jetpack-premium-analytics-pkg' ),
+		},
+		{
+			id: 'campaign',
+			getLabel: () => __( 'Campaign', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Campaign report', 'jetpack-premium-analytics-pkg' ),
+		},
 	],
 	DEFAULT_TAB_ID
 );
