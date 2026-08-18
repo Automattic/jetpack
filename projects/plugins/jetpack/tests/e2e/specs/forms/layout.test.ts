@@ -290,6 +290,53 @@ function measureMultistep( root: Locator, sel: Selectors ): Promise< MultistepMe
 }
 
 /**
+ * Reads why the Form block did or did not register, for a failure message.
+ *
+ * A missing form is silent by design: `jp-forms-blocks` declares
+ * `jetpack-blocks-editor` as a dependency (contact-form/class-contact-form-block.php),
+ * and WordPress drops a script whose dependency is unregistered without a console
+ * error or a failed request. The forms JS then gates `registerBlockType` on
+ * `Jetpack_Editor_Initial_State.available_blocks['contact-form']`. So "no form"
+ * has three distinct causes that look identical on screen, and the failure needs
+ * to say which one it hit.
+ *
+ * @param page - The page.
+ * @return What the editor knows about the Form block.
+ */
+async function readEditorBlockState( page: Page ) {
+	return page
+		.evaluate( () => {
+			const win = window as unknown as {
+				Jetpack_Editor_Initial_State?: {
+					available_blocks?: Record< string, unknown >;
+					modules?: Record< string, unknown >;
+				};
+				wp?: {
+					blocks?: {
+						getBlockTypes?: () => Array< { name: string } >;
+						getBlockType?: ( name: string ) => unknown;
+					};
+				};
+			};
+			const state = win.Jetpack_Editor_Initial_State;
+			const types = win.wp?.blocks?.getBlockTypes?.() ?? [];
+			return {
+				jetpackBlockCount: types.filter( b => b.name.startsWith( 'jetpack/' ) ).length,
+				contactFormRegistered: !! win.wp?.blocks?.getBlockType?.( 'jetpack/contact-form' ),
+				formsScriptPresent: !! document.querySelector( '[id^="jp-forms-blocks"]' ),
+				blocksEditorScriptPresent: !! document.querySelector( '[id^="jetpack-blocks-editor"]' ),
+				availability: state?.available_blocks?.[ 'contact-form' ] ?? null,
+				moduleState: state?.modules?.[ 'contact-form' ] ?? null,
+				initialStatePresent: !! state,
+				warnings: Array.from( document.querySelectorAll( '.block-editor-warning__message' ) )
+					.map( e => e.textContent )
+					.slice( 0, 2 ),
+			};
+		} )
+		.catch( e => ( { error: String( e ) } ) );
+}
+
+/**
  * Waits for the editor canvas to have painted the form, and returns whichever
  * frame it landed in.
  *
@@ -317,34 +364,43 @@ function measureMultistep( root: Locator, sel: Selectors ): Promise< MultistepMe
 async function waitForEditorCanvas( page: Page, ready: string, timeout = 60000 ): Promise< Frame > {
 	let canvas: Frame | undefined;
 
-	await expect
-		.poll(
-			async () => {
-				for ( const frame of page.frames() ) {
-					try {
-						if ( ( await frame.locator( ready ).count() ) > 0 ) {
-							canvas = frame;
-							return true;
-						}
-					} catch ( error ) {
-						/*
-						 * The editor swaps its canvas out while it boots, so a frame can
-						 * detach mid-poll; that just means this pass missed it. Anything
-						 * else is a real error and should not be spent as poll time.
-						 */
-						if ( ! /detach|Execution context was destroyed/i.test( String( error ) ) ) {
-							throw error;
+	try {
+		await expect
+			.poll(
+				async () => {
+					for ( const frame of page.frames() ) {
+						try {
+							if ( ( await frame.locator( ready ).count() ) > 0 ) {
+								canvas = frame;
+								return true;
+							}
+						} catch ( error ) {
+							/*
+							 * The editor swaps its canvas out while it boots, so a frame can
+							 * detach mid-poll; that just means this pass missed it. Anything
+							 * else is a real error and should not be spent as poll time.
+							 */
+							if ( ! /detach|Execution context was destroyed/i.test( String( error ) ) ) {
+								throw error;
+							}
 						}
 					}
+					return false;
+				},
+				{
+					timeout,
+					message: `Expected \`${ ready }\` to render in the editor canvas`,
 				}
-				return false;
-			},
-			{
-				timeout,
-				message: `Expected \`${ ready }\` to render in the editor canvas`,
-			}
-		)
-		.toBe( true );
+			)
+			.toBe( true );
+	} catch ( error ) {
+		const state = await readEditorBlockState( page );
+		throw new Error(
+			`Expected \`${ ready }\` to render in the editor canvas.\n` +
+				`Editor block state: ${ JSON.stringify( state ) }`,
+			{ cause: error }
+		);
+	}
 
 	return canvas as Frame;
 }
