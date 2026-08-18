@@ -12,10 +12,12 @@
 	line-height: var(--wpds-typography-line-height-sm);
 }
 
-// Doubled up to outrank ProgressBar's own emotion class, which sizes the track
-// to a fixed 160px — a stray rule under the width of the banner.
+// Doubled up to outrank ProgressBar's own emotion class, which gives the track
+// a fixed 160px width and a 1.5px height — a stray hairline under the banner.
 .notice .progress {
 	inline-size: 100%;
+	block-size: 4px;
+	border-radius: var(--wpds-border-radius-sm);
 }
 
 .notice .retry {
