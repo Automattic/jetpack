@@ -938,24 +938,26 @@ export default function PlaylistEdit( {
 			</PanelBody>
 			{ fontFamilies.length > 0 && (
 				<PanelBody title={ __( 'Typography', 'jetpack-videopress-pkg' ) }>
-					<FontFamilyControl
-						className="videopress-playlist-editor__font-control"
-						fontFamilies={ fontFamilies }
-						label={ __( 'Now playing title', 'jetpack-videopress-pkg' ) }
-						value={ fontFamilyValueOf( nowTitleFontFamily ) }
-						onChange={ ( value: string ) =>
-							setAttributes( { nowTitleFontFamily: fontFamilySlugOf( value ) } )
-						}
-					/>
-					<FontFamilyControl
-						className="videopress-playlist-editor__font-control"
-						fontFamilies={ fontFamilies }
-						label={ __( 'Entry titles', 'jetpack-videopress-pkg' ) }
-						value={ fontFamilyValueOf( entryTitleFontFamily ) }
-						onChange={ ( value: string ) =>
-							setAttributes( { entryTitleFontFamily: fontFamilySlugOf( value ) } )
-						}
-					/>
+					<div className="videopress-playlist-editor__font-control">
+						<FontFamilyControl
+							fontFamilies={ fontFamilies }
+							label={ __( 'Now playing title', 'jetpack-videopress-pkg' ) }
+							value={ fontFamilyValueOf( nowTitleFontFamily ) }
+							onChange={ ( value: string ) =>
+								setAttributes( { nowTitleFontFamily: fontFamilySlugOf( value ) } )
+							}
+						/>
+					</div>
+					<div className="videopress-playlist-editor__font-control">
+						<FontFamilyControl
+							fontFamilies={ fontFamilies }
+							label={ __( 'Entry titles', 'jetpack-videopress-pkg' ) }
+							value={ fontFamilyValueOf( entryTitleFontFamily ) }
+							onChange={ ( value: string ) =>
+								setAttributes( { entryTitleFontFamily: fontFamilySlugOf( value ) } )
+							}
+						/>
+					</div>
 				</PanelBody>
 			) }
 		</InspectorControls>
