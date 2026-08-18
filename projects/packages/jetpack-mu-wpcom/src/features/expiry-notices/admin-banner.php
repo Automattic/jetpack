@@ -12,7 +12,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
  * Resolve the data needed to render the banner, or null if it shouldn't show.
  * Shared by the enqueue and render hooks.
  *
- * @return array{state:array,cadence_secs:int,is_expired:bool,urls:array}|null
+ * @return array{state:array,is_early_warning:bool,is_dismissible:bool,is_expired:bool,urls:array}|null
  */
 function wpcom_expiry_notices_admin_banner_data(): ?array {
 	if ( ! current_user_can( 'manage_options' ) ) {
@@ -28,13 +28,11 @@ function wpcom_expiry_notices_admin_banner_data(): ?array {
 		return null;
 	}
 
-	$cadence_secs = Expiry_Notice_Dismiss::banner_cadence_seconds( $state );
-
-	// Scope progression: the gentle pre-window reminder (approaching, more than
-	// 7 days out) shows on the Dashboard only; every other visible state —
-	// final 7 days, grace, post-grace — shows on all wp-admin screens. Note
-	// post-grace also has a cadence, so the gate must key on state.
-	if ( Expiry_Data::STATE_APPROACHING === $state['state'] && $cadence_secs > 0 ) {
+	// Scope progression: the gentle pre-window reminder shows on the Dashboard
+	// only; every other visible state — final 7 days, grace, post-grace — shows
+	// on all wp-admin screens.
+	$is_early_warning = wpcom_expiry_notices_is_early_warning( $state );
+	if ( $is_early_warning ) {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 		if ( ! $screen || 'dashboard' !== $screen->id ) {
 			return null;
@@ -42,15 +40,31 @@ function wpcom_expiry_notices_admin_banner_data(): ?array {
 	}
 
 	return array(
-		'state'        => $state,
-		'cadence_secs' => $cadence_secs,
-		'is_expired'   => in_array(
+		'state'            => $state,
+		'is_early_warning' => $is_early_warning,
+		'is_dismissible'   => Expiry_Notice_Dismiss::is_dismissible( $state ),
+		'is_expired'       => in_array(
 			$state['state'],
 			array( Expiry_Data::STATE_EXPIRED_GRACE, Expiry_Data::STATE_EXPIRED ),
 			true
 		),
-		'urls'         => Expiry_Data::get_cta_urls( $state, wpcom_expiry_notices_current_admin_url() ),
+		'urls'             => Expiry_Data::get_cta_urls( $state, wpcom_expiry_notices_current_admin_url() ),
 	);
+}
+
+/**
+ * Whether this is the early reminder: approaching expiry with more than the
+ * final week to go. It is the one stage the banner keeps to the Dashboard, and
+ * the one stage styled as a warning rather than an error.
+ *
+ * @param array<string,mixed> $state Expiry state.
+ */
+function wpcom_expiry_notices_is_early_warning( array $state ): bool {
+	if ( Expiry_Data::STATE_APPROACHING !== ( $state['state'] ?? '' ) ) {
+		return false;
+	}
+	$days = isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0;
+	return $days > Expiry_Notice_Dismiss::FINAL_WINDOW_DAYS;
 }
 
 /**
@@ -89,7 +103,8 @@ function wpcom_expiry_notices_render_admin_banner() {
 	wpcom_expiry_notices_render_admin_banner_html(
 		$data['state'],
 		$data['urls'],
-		$data['cadence_secs'],
+		$data['is_early_warning'],
+		$data['is_dismissible'],
 		$data['is_expired']
 	);
 }
@@ -98,17 +113,15 @@ add_action( 'admin_notices', 'wpcom_expiry_notices_render_admin_banner' );
 /**
  * Render the banner DOM.
  *
- * @param array<string,mixed> $state        Expiry state.
- * @param array<string,array> $urls         CTA URLs from Expiry_Data::get_cta_urls().
- * @param int                 $cadence_secs Banner cadence (0 = every session).
- * @param bool                $is_expired   Whether the state is expired/grace.
+ * @param array<string,mixed> $state            Expiry state.
+ * @param array<string,array> $urls             CTA URLs from Expiry_Data::get_cta_urls().
+ * @param bool                $is_early_warning Whether this is the pre-final-week reminder.
+ * @param bool                $is_dismissible   Whether the notice can be dismissed.
+ * @param bool                $is_expired       Whether the state is expired/grace.
  */
-function wpcom_expiry_notices_render_admin_banner_html( array $state, array $urls, int $cadence_secs, bool $is_expired ): void {
-	// Approaching > 7 days is a warning; everything else is an error.
-	$is_warning   = $cadence_secs > 0 && Expiry_Data::STATE_APPROACHING === $state['state'];
-	$notice_class = $is_warning ? 'notice-warning' : 'notice-error';
+function wpcom_expiry_notices_render_admin_banner_html( array $state, array $urls, bool $is_early_warning, bool $is_dismissible, bool $is_expired ): void {
+	$notice_class = $is_early_warning ? 'notice-warning' : 'notice-error';
 	$message      = wpcom_expiry_notices_admin_banner_message( $state, $is_expired );
-	$remind_days  = $cadence_secs > 0 ? (int) round( $cadence_secs / DAY_IN_SECONDS ) : 0;
 	$is_grace     = Expiry_Data::STATE_EXPIRED_GRACE === $state['state'];
 	?>
 	<div id="wpcom-expiry-banner" class="notice <?php echo esc_attr( $notice_class ); ?>">
@@ -117,26 +130,15 @@ function wpcom_expiry_notices_render_admin_banner_html( array $state, array $url
 			<a class="button button-primary" href="<?php echo esc_url( $urls['primary']['url'] ); ?>">
 				<?php echo esc_html( $urls['primary']['label'] ); ?>
 			</a>
-			<?php if ( $remind_days > 0 ) : ?>
-				<button type="button" class="button wpcom-expiry-banner__remind">
-					<?php
-					// Post-grace is plainly dismissible; promising a reminder
-					// interval only fits the pre-expiry reminder window.
-					if ( Expiry_Data::STATE_EXPIRED === $state['state'] ) {
-						esc_html_e( 'Dismiss', 'jetpack-mu-wpcom' );
-					} else {
-						printf(
-							/* translators: %d is days remaining until the next banner appearance. */
-							esc_html( _n( 'Remind me in %d day', 'Remind me in %d days', $remind_days, 'jetpack-mu-wpcom' ) ),
-							(int) $remind_days // phpcs needs an explicit cast/escape; phan sees it as redundant. @phan-suppress-current-line PhanRedundantCondition
-						);
-					}
-					?>
-				</button>
-			<?php elseif ( $is_grace ) : ?>
+			<?php if ( $is_grace ) : ?>
 				<a class="button" href="<?php echo esc_url( $urls['secondary']['url'] ); ?>">
 					<?php echo esc_html( $urls['secondary']['label'] ); ?>
 				</a>
+			<?php endif; ?>
+			<?php if ( $is_dismissible ) : ?>
+				<button type="button" class="button wpcom-expiry-banner__dismiss">
+					<?php esc_html_e( 'Dismiss', 'jetpack-mu-wpcom' ); ?>
+				</button>
 			<?php endif; ?>
 		</p>
 	</div>

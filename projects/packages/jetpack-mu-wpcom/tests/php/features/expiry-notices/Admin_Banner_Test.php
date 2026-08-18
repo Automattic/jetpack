@@ -78,7 +78,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$out = $this->render();
 		$this->assertStringContainsString( 'notice-warning', $out );
 		$this->assertStringContainsString( '/checkout/business-bundle/', $out );
-		$this->assertStringContainsString( 'wpcom-expiry-banner__remind', $out );
+		$this->assertStringNotContainsString( 'wpcom-expiry-banner__dismiss', $out );
 	}
 
 	public function test_renders_for_expired_grace_state(): void {
@@ -87,14 +87,14 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'notice-error', $out );
 		$this->assertStringContainsString( '/checkout/business-bundle/', $out );
 		$this->assertStringContainsString( '/plans/', $out );
-		$this->assertStringNotContainsString( 'wpcom-expiry-banner__remind', $out );
+		$this->assertStringNotContainsString( 'wpcom-expiry-banner__dismiss', $out );
 	}
 
 	public function test_renders_for_expired_post_grace_state(): void {
 		$this->set_purchase( -45 );
 		$out = $this->render();
 		$this->assertStringContainsString( 'notice-error', $out );
-		$this->assertStringContainsString( 'wpcom-expiry-banner__remind', $out );
+		$this->assertStringContainsString( 'wpcom-expiry-banner__dismiss', $out );
 		$this->assertStringNotContainsString( '/plans/', $out );
 	}
 
@@ -109,7 +109,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_BANNER, time() - ( 14 * DAY_IN_SECONDS ) );
 		$out = $this->render();
 		$this->assertStringContainsString( 'notice-error', $out );
-		$this->assertStringContainsString( 'wpcom-expiry-banner__remind', $out );
+		$this->assertStringContainsString( 'wpcom-expiry-banner__dismiss', $out );
 	}
 
 	public function test_final_7_days_renders_as_error_with_no_dismiss(): void {
@@ -117,7 +117,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$out = $this->render();
 		$this->assertStringContainsString( 'notice-error', $out );
 		$this->assertStringNotContainsString( 'notice-warning', $out );
-		$this->assertStringNotContainsString( 'wpcom-expiry-banner__remind', $out );
+		$this->assertStringNotContainsString( 'wpcom-expiry-banner__dismiss', $out );
 	}
 
 	public function test_no_render_for_active_state(): void {
@@ -140,19 +140,19 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( '', $this->render() );
 	}
 
-	public function test_hides_when_recently_dismissed_within_cadence(): void {
+	public function test_stale_dismissal_does_not_hide_pre_revert_banner(): void {
 		$this->set_purchase( 45 );
 		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_BANNER, time() - DAY_IN_SECONDS );
-		$this->assertSame( '', $this->render() );
+		$this->assertStringContainsString( 'notice-warning', $this->render() );
 	}
 
-	public function test_cadence_above_zero_hides_on_non_dashboard_screen(): void {
+	public function test_early_warning_hides_on_non_dashboard_screen(): void {
 		$this->set_purchase( 45 );
 		set_current_screen( 'edit-post' );
 		$this->assertSame( '', $this->render() );
 	}
 
-	public function test_cadence_zero_shows_on_non_dashboard_screen(): void {
+	public function test_final_window_shows_on_non_dashboard_screen(): void {
 		$this->set_purchase( 5 );
 		set_current_screen( 'edit-post' );
 		$out = $this->render();
@@ -164,20 +164,14 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		set_current_screen( 'edit-post' );
 		$out = $this->render();
 		$this->assertStringContainsString( 'notice-error', $out );
-		$this->assertStringContainsString( 'wpcom-expiry-banner__remind', $out );
+		$this->assertStringContainsString( 'wpcom-expiry-banner__dismiss', $out );
 	}
 
-	public function test_post_grace_shows_dismiss_label_not_remind(): void {
-		$this->set_purchase( -45 );
-		$out = $this->render();
-		$this->assertStringContainsString( 'Dismiss', $out );
-		$this->assertStringNotContainsString( 'Remind me in', $out );
-	}
-
-	public function test_approaching_shows_remind_label(): void {
-		$this->set_purchase( 45 );
-		$out = $this->render();
-		$this->assertStringContainsString( 'Remind me in 7 days', $out );
+	public function test_no_reminder_button_in_any_state(): void {
+		foreach ( array( 45, 5, 0, -5, -45 ) as $days ) {
+			$this->set_purchase( $days );
+			$this->assertStringNotContainsString( 'Remind me in', $this->render() );
+		}
 	}
 
 	private function message_state( array $overrides = array() ): array {

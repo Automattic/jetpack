@@ -48,6 +48,21 @@ class Expiry_Notice_Dismiss {
 	}
 
 	/**
+	 * Whether the notice for this state can be dismissed at all.
+	 *
+	 * Every stage from the first reminder through the grace period stays put:
+	 * the site still has something to lose, and the "remind me in X days"
+	 * system those stages used to offer was dropped in design review. Once the
+	 * grace period is over the revert has already happened, so there is nothing
+	 * left for the notice to prevent and it can be dismissed.
+	 *
+	 * @param array<string,mixed> $expiry_state State from Expiry_Data::get_expiry_state().
+	 */
+	public static function is_dismissible( array $expiry_state ): bool {
+		return Expiry_Data::STATE_EXPIRED === ( $expiry_state['state'] ?? '' );
+	}
+
+	/**
 	 * Should the banner show for the given user right now?
 	 *
 	 * @param array<string,mixed> $expiry_state State from Expiry_Data::get_expiry_state().
@@ -55,8 +70,11 @@ class Expiry_Notice_Dismiss {
 	 * @param int|null            $now          Optional "now" timestamp for testing.
 	 */
 	public static function should_show_banner( array $expiry_state, ?int $user_id = null, ?int $now = null ): bool {
+		if ( ! self::is_dismissible( $expiry_state ) ) {
+			return true;
+		}
 		$dismissed_at = self::get_dismissed_at( $user_id, self::META_BANNER );
-		return self::evaluate_show( $dismissed_at, self::banner_cadence_seconds( $expiry_state ), $now );
+		return self::evaluate_show( $dismissed_at, self::post_grace_cadence_seconds(), $now );
 	}
 
 	/**
@@ -67,8 +85,11 @@ class Expiry_Notice_Dismiss {
 	 * @param int|null            $now          Optional "now" timestamp for testing.
 	 */
 	public static function should_show_modal( array $expiry_state, ?int $user_id = null, ?int $now = null ): bool {
+		if ( ! self::is_dismissible( $expiry_state ) ) {
+			return true;
+		}
 		$dismissed_at = self::get_dismissed_at( $user_id, self::META_MODAL );
-		return self::evaluate_show( $dismissed_at, self::modal_cadence_seconds( $expiry_state ), $now );
+		return self::evaluate_show( $dismissed_at, self::post_grace_cadence_seconds(), $now );
 	}
 
 	/**
@@ -92,38 +113,9 @@ class Expiry_Notice_Dismiss {
 	}
 
 	/**
-	 * Banner cadence in seconds.
-	 *
-	 * @param array<string,mixed> $expiry_state State.
+	 * How long a post-grace dismissal holds before the notice comes back.
 	 */
-	public static function banner_cadence_seconds( array $expiry_state ): int {
-		$state = $expiry_state['state'] ?? '';
-		if ( Expiry_Data::STATE_EXPIRED === $state ) {
-			return 7 * DAY_IN_SECONDS;
-		}
-		if ( Expiry_Data::STATE_EXPIRED_GRACE === $state ) {
-			return 0;
-		}
-		$days_remaining = isset( $expiry_state['days_remaining'] ) ? (int) $expiry_state['days_remaining'] : 0;
-		if ( $days_remaining <= self::FINAL_WINDOW_DAYS ) {
-			return 0;
-		}
-		if ( $days_remaining <= Expiry_Data::ANNUAL_NOTICE_DAYS ) {
-			return 7 * DAY_IN_SECONDS;
-		}
-		return 30 * DAY_IN_SECONDS;
-	}
-
-	/**
-	 * Modal cadence in seconds.
-	 *
-	 * @param array<string,mixed> $expiry_state State.
-	 */
-	public static function modal_cadence_seconds( array $expiry_state ): int {
-		$grace_days_left = isset( $expiry_state['grace_days_left'] ) ? (int) $expiry_state['grace_days_left'] : 0;
-		if ( $grace_days_left <= self::FINAL_WINDOW_DAYS ) {
-			return 0;
-		}
+	public static function post_grace_cadence_seconds(): int {
 		return 7 * DAY_IN_SECONDS;
 	}
 

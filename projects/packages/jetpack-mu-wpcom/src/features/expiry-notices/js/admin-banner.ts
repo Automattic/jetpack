@@ -44,7 +44,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	};
 
 	// Fire impression once per browser session — the banner re-renders on
-	// every load in cadence-0 states but we count unique sessions.
+	// every load in the non-dismissible states but we count unique sessions.
 	const impressionKey = `${ data.metaKey }_impression_fired`;
 	if ( safeSessionGet( impressionKey ) !== '1' ) {
 		wpcomTrackEvent( 'jetpack_expiry_banner_impression', trackProps );
@@ -56,8 +56,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		wpcomTrackEvent( 'jetpack_expiry_banner_cta_click', trackProps );
 	} );
 
-	const remindBtn = banner.querySelector( '.wpcom-expiry-banner__remind' );
-	remindBtn?.addEventListener( 'click', async ( e: Event ) => {
+	const dismissBtn = banner.querySelector( '.wpcom-expiry-banner__dismiss' );
+	dismissBtn?.addEventListener( 'click', async ( e: Event ) => {
 		e.preventDefault();
 		banner.style.display = 'none';
 

@@ -31,6 +31,17 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		);
 	}
 
+	private function make_admin( string $login ): int {
+		return (int) wp_insert_user(
+			array(
+				'user_login' => $login,
+				'user_pass'  => 'pass',
+				'user_email' => $login . '@example.com',
+				'role'       => 'administrator',
+			)
+		);
+	}
+
 	public function test_no_prior_dismissal_shows(): void {
 		$this->assertTrue( Expiry_Notice_Dismiss::evaluate_show( null, 7 * DAY_IN_SECONDS, self::NOW ) );
 	}
@@ -49,40 +60,31 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		$this->assertTrue( Expiry_Notice_Dismiss::evaluate_show( self::NOW - 1, 0, self::NOW ) );
 	}
 
-	public function test_banner_cadence_outside_notice_window(): void {
-		$this->assertSame(
-			30 * DAY_IN_SECONDS,
-			Expiry_Notice_Dismiss::banner_cadence_seconds( $this->state( 90 ) )
+	public function test_pre_revert_states_are_not_dismissible(): void {
+		$this->assertFalse( Expiry_Notice_Dismiss::is_dismissible( $this->state( 90 ) ) );
+		$this->assertFalse( Expiry_Notice_Dismiss::is_dismissible( $this->state( 45 ) ) );
+		$this->assertFalse( Expiry_Notice_Dismiss::is_dismissible( $this->state( 1 ) ) );
+		$this->assertFalse(
+			Expiry_Notice_Dismiss::is_dismissible(
+				array( 'state' => Expiry_Data::STATE_EXPIRED_GRACE )
+			)
 		);
 	}
 
-	public function test_banner_cadence_inside_60_day_window(): void {
-		$this->assertSame(
-			7 * DAY_IN_SECONDS,
-			Expiry_Notice_Dismiss::banner_cadence_seconds( $this->state( 45 ) )
-		);
-		$this->assertSame(
-			7 * DAY_IN_SECONDS,
-			Expiry_Notice_Dismiss::banner_cadence_seconds( $this->state( 60 ) )
+	public function test_post_grace_is_dismissible(): void {
+		$this->assertTrue(
+			Expiry_Notice_Dismiss::is_dismissible(
+				array( 'state' => Expiry_Data::STATE_EXPIRED )
+			)
 		);
 	}
 
-	public function test_banner_cadence_inside_final_7_days(): void {
-		$this->assertSame( 0, Expiry_Notice_Dismiss::banner_cadence_seconds( $this->state( 7 ) ) );
-		$this->assertSame( 0, Expiry_Notice_Dismiss::banner_cadence_seconds( $this->state( 1 ) ) );
-		$this->assertSame( 0, Expiry_Notice_Dismiss::banner_cadence_seconds( $this->state( -1 ) ) );
-	}
-
-	public function test_modal_cadence_during_grace(): void {
-		$this->assertSame(
-			7 * DAY_IN_SECONDS,
-			Expiry_Notice_Dismiss::modal_cadence_seconds( $this->state( -1, 29 ) )
-		);
-	}
-
-	public function test_modal_cadence_inside_final_7_days_before_revert(): void {
-		$this->assertSame( 0, Expiry_Notice_Dismiss::modal_cadence_seconds( $this->state( -23, 7 ) ) );
-		$this->assertSame( 0, Expiry_Notice_Dismiss::modal_cadence_seconds( $this->state( -28, 2 ) ) );
+	public function test_should_show_banner_ignores_dismissal_before_revert(): void {
+		$user_id = $this->make_admin( 'banner_dismiss_test' );
+		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_BANNER, self::NOW - 1 );
+		// Nothing before the revert is dismissible, so a stored dismissal from an
+		// earlier stage must not silence the notice.
+		$this->assertTrue( Expiry_Notice_Dismiss::should_show_banner( $this->state( 45 ), $user_id, self::NOW ) );
 	}
 
 	public function test_register_user_meta_registers_both_dismiss_keys(): void {
@@ -106,27 +108,21 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 
 	public function test_should_show_modal_with_no_dismissal_shows(): void {
 		$this->assertTrue(
-			Expiry_Notice_Dismiss::should_show_modal( $this->state( -1, 29 ), 0, self::NOW )
+			Expiry_Notice_Dismiss::should_show_modal(
+				array( 'state' => Expiry_Data::STATE_EXPIRED ),
+				0,
+				self::NOW
+			)
 		);
 	}
 
 	public function test_should_show_modal_uses_modal_meta_not_banner(): void {
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'modal_dismiss_test',
-				'user_pass'  => 'pass',
-				'user_email' => 'modal_dismiss_test@example.com',
-				'role'       => 'administrator',
-			)
-		);
+		$user_id = $this->make_admin( 'modal_dismiss_test' );
+		$state   = array( 'state' => Expiry_Data::STATE_EXPIRED );
 		// Banner-key dismiss must not silence the modal.
-		update_user_meta( (int) $user_id, Expiry_Notice_Dismiss::META_BANNER, self::NOW - 1 );
-		$this->assertTrue(
-			Expiry_Notice_Dismiss::should_show_modal( $this->state( -1, 29 ), (int) $user_id, self::NOW )
-		);
-		update_user_meta( (int) $user_id, Expiry_Notice_Dismiss::META_MODAL, self::NOW - DAY_IN_SECONDS );
-		$this->assertFalse(
-			Expiry_Notice_Dismiss::should_show_modal( $this->state( -1, 29 ), (int) $user_id, self::NOW )
-		);
+		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_BANNER, self::NOW - 1 );
+		$this->assertTrue( Expiry_Notice_Dismiss::should_show_modal( $state, $user_id, self::NOW ) );
+		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_MODAL, self::NOW - DAY_IN_SECONDS );
+		$this->assertFalse( Expiry_Notice_Dismiss::should_show_modal( $state, $user_id, self::NOW ) );
 	}
 }
