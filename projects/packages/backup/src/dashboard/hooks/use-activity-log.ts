@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import {
 	fetchActivityLog,
 	type WpcomActivityEntry,
@@ -20,7 +20,15 @@ type Result = {
 	totalItems: number;
 	totalPages: number;
 	isLoading: boolean;
+	/**
+	 * True while a refetch is in flight. Distinct from `isLoading`, which
+	 * React Query defines as `isPending && isFetching` — a query in the
+	 * error state is never pending, so `isLoading` stays false for the
+	 * whole duration of a retry.
+	 */
+	isFetching: boolean;
 	error: Error | null;
+	refetch: () => void;
 };
 
 /**
@@ -69,22 +77,31 @@ function useActivityPageQuery( page: number, pageSize: number ) {
  * @param args          - Query args.
  * @param args.page     - 1-indexed page number.
  * @param args.pageSize - Items per page.
- * @return Items, total items, total pages, loading, error.
+ * @return Items, total items, total pages, loading, error, refetch.
  */
 export function useActivityLog( { page, pageSize }: Args ): Result {
 	const query = useActivityPageQuery( page, pageSize );
+	const { refetch } = query;
 
 	const items = useMemo(
 		() => normalizeActivityLog( query.data?.current?.orderedItems ),
 		[ query.data ]
 	);
 
+	// Wrapped so callers can hand it straight to `onClick` without
+	// returning a floating promise from the event handler.
+	const retry = useCallback( () => {
+		refetch();
+	}, [ refetch ] );
+
 	return {
 		items,
 		totalItems: query.data?.totalItems ?? items.length,
 		totalPages: query.data?.totalPages ?? Math.max( 1, Math.ceil( items.length / pageSize ) ),
 		isLoading: query.isLoading,
+		isFetching: query.isFetching,
 		error: query.error ?? null,
+		refetch: retry,
 	};
 }
 
@@ -165,6 +182,35 @@ export function useDefaultBackupRewindId(): string | null {
 		}
 		return null;
 	}, [ query.data ] );
+}
+
+/**
+ * Whether the newest page of rewindable activity holds any backup row,
+ * and whether that is known yet.
+ *
+ * Shares the page-1 query with `useDefaultBackupRewindId`, so it costs
+ * no extra request.
+ *
+ * This is a second, independent opinion on "does this site have a
+ * restore point". `/jetpack/v4/backups` only reports VaultPress's most
+ * recent handful of rows, and scan-only rows are filtered out of that
+ * window — so it can say "nothing usable" for a site that still has
+ * perfectly good restore points a little further back. The activity log
+ * is paginated over the full retention window and does not have that
+ * blind spot.
+ *
+ * @return Whether a restore point is visible, and whether the answer has loaded.
+ */
+export function useHasRestorePoints(): { hasRestorePoints: boolean; isLoading: boolean } {
+	const query = useActivityPageQuery( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE );
+	const hasRestorePoints = useMemo(
+		() =>
+			normalizeActivityLog( query.data?.current?.orderedItems ).some(
+				item => item.kind === 'backup'
+			),
+		[ query.data ]
+	);
+	return { hasRestorePoints, isLoading: query.isLoading };
 }
 
 /**

@@ -92,7 +92,9 @@ class Feedback_Email_Renderer {
 	 *   'comment_author'       => string  Author name.
 	 *   'comment_author_email' => string  Author email.
 	 *   'comment_author_ip'    => string  Author IP address.
-	 *   'is_spam'              => bool    Whether submission is spam.
+	 *   'is_spam'              => bool    Whether submission is spam. Suppresses the
+	 *                                    Mark-as-spam button, which would otherwise
+	 *                                    link to a page with nothing to confirm.
 	 *   'feedback_status'      => string  Post status of the feedback.
 	 *
 	 * @return array{title: string, message: string} The email title and rendered HTML message.
@@ -103,7 +105,7 @@ class Feedback_Email_Renderer {
 		$comment_author       = $context_data['comment_author'];
 		$comment_author_email = $context_data['comment_author_email'];
 		$comment_author_ip    = $context_data['comment_author_ip'];
-		$is_spam              = $context_data['is_spam'];
+		$is_spam              = ! empty( $context_data['is_spam'] );
 		$is_test              = ! empty( $context_data['is_test'] );
 		$feedback_status      = $context_data['feedback_status'];
 
@@ -161,10 +163,9 @@ class Feedback_Email_Renderer {
 			esc_url( $url )
 		);
 
-		// Get the status of the feedback.
-		$status = $is_spam ? 'spam' : 'inbox';
-
-		// Build the dashboard URL with the status and the feedback's post id if we have a post id.
+		// Build the dashboard URL for the feedback's post id if we have one. The
+		// single response page shows the response whatever its status, so the
+		// destination no longer depends on whether this submission was spam.
 		$dashboard_url           = '';
 		$mark_as_spam_url        = '';
 		$footer_mark_as_spam_url = '';
@@ -181,11 +182,21 @@ class Feedback_Email_Renderer {
 		$show_email_actions = apply_filters( 'jetpack_forms_email_show_actions', true );
 
 		if ( $feedback_status !== 'jp-temp-feedback' && $show_email_actions ) {
-			$dashboard_url = Forms_Dashboard::get_forms_admin_url( $status, $post_id );
+			// Both buttons open the response on its own page. "Mark as spam" adds a
+			// parameter that opens a confirmation dialog there, so the destructive
+			// step is never taken on the strength of an email click alone.
+			$dashboard_url = Forms_Dashboard::get_single_response_admin_url( $post_id );
 			// Test responses don't get a Mark-as-spam link in the email — marking
 			// a test entry as spam from email is confusing and the form owner can
-			// always do it from the dashboard if they want.
-			if ( ! $is_test ) {
+			// always do it from the dashboard if they want. Neither do submissions
+			// that already sit outside the inbox: sites can mail spam via
+			// `grunion_still_email_spam`, and a disallowed-list hit is emailed with
+			// `$feedback_status = 'trash'` while `$is_spam` stays false. The single
+			// response page has nothing to confirm for either, so the button would
+			// land somewhere that silently does nothing.
+			$is_already_filed = $is_spam || in_array( $feedback_status, array( 'spam', 'trash' ), true );
+
+			if ( ! $is_test && ! $is_already_filed ) {
 				$mark_as_spam_url        = self::add_mark_as_spam_to_url( $dashboard_url );
 				$footer_mark_as_spam_url = sprintf(
 					'<a href="%1$s">%2$s</a>',
@@ -227,9 +238,10 @@ class Feedback_Email_Renderer {
 		// Use fully table-based layout for maximum email client compatibility - no display:inline-block.
 		$actions = '';
 		if ( $dashboard_url ) {
-			if ( $is_test ) {
-				// For test submissions, only show the "View in dashboard" button
-				// centered — we deliberately drop the Mark-as-spam shortcut.
+			if ( ! $mark_as_spam_url ) {
+				// Only "View in dashboard", centered. Keyed on the URL rather than on
+				// why it is missing, so every suppression path renders one button
+				// instead of an empty `href`.
 				$actions = sprintf(
 					'<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="button-table" align="center" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto;">
 						<tr>
@@ -389,12 +401,16 @@ class Feedback_Email_Renderer {
 	public static function get_compiled_form_for_email( $feedback_id, $form ) {
 		$compiled_form    = array();
 		$field_collection = array();
+		$raw_values       = array();
 		$response         = Feedback::get( $feedback_id );
 
 		if ( $response instanceof Feedback ) {
 			// Get both formats: 'all' for backward-compat filter, 'collection' for type-aware rendering.
 			$compiled_form    = $response->get_compiled_fields( 'email', 'all' );
 			$field_collection = $response->get_compiled_fields( 'email_html', 'collection' );
+			// The collection's 'value' is already rendered HTML, but a checkbox's
+			// icon depends on the underlying answer, so keep the raw values too.
+			$raw_values = $response->get_compiled_fields( 'email', 'key-value' );
 		}
 
 		/**
@@ -436,7 +452,8 @@ class Feedback_Email_Renderer {
 			// No filter customization — use new type-aware rendering.
 			$compiled_form = array();
 			foreach ( $field_collection as $field_data ) {
-				$compiled_form[] = self::format_field_for_email( $field_data );
+				$field_key       = $field_data['key'] ?? '';
+				$compiled_form[] = self::format_field_for_email( $field_data, $raw_values[ $field_key ] ?? null );
 			}
 		}
 
@@ -446,10 +463,18 @@ class Feedback_Email_Renderer {
 	/**
 	 * Get the icon name for a given field type.
 	 *
-	 * @param string $type The field type.
+	 * @param string $type  The field type.
+	 * @param mixed  $value The submitted value, for field types whose icon
+	 *                      depends on the answer as well as the type.
 	 * @return string The icon name.
 	 */
-	private static function get_field_icon_name( $type ) {
+	private static function get_field_icon_name( $type, $value = null ) {
+		// A checkbox reflects the respondent's answer: an unticked box gets the
+		// empty-square variant rather than the ticked one.
+		if ( 'checkbox' === $type && ! Feedback_Field::is_checked_value( $value ) ) {
+			return 'field-checkbox-unchecked';
+		}
+
 		$map = array(
 			'text'              => 'field-text',
 			'name'              => 'field-text',
@@ -482,15 +507,17 @@ class Feedback_Email_Renderer {
 	 * and produces a table row with an icon, label, and type-specific value.
 	 *
 	 * @param array $field_data Field data with keys: label, value, type, id, key, meta.
+	 * @param mixed $raw_value  The underlying (unrendered) value, for field types
+	 *                          whose icon depends on the answer as well as the type.
 	 * @return string HTML for the field row.
 	 */
-	private static function format_field_for_email( $field_data ) {
+	private static function format_field_for_email( $field_data, $raw_value = null ) {
 		$label = $field_data['label'] ?? '';
 		$value = $field_data['value'] ?? '';
 		$type  = $field_data['type'] ?? 'text';
 
 		$safe_label = Contact_Form::escape_and_sanitize_field_label( $label );
-		$icon_name  = self::get_field_icon_name( $type );
+		$icon_name  = self::get_field_icon_name( $type, $raw_value );
 		$icon_url   = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/' . $icon_name . '@2x.png';
 
 		// Value is already rendered as HTML by Feedback_Field::get_render_email_html_value().

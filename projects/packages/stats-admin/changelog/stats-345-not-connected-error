@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Return a clear error instead of a server error when a stats request is made before the site is connected to WordPress.com.

@@ -25,7 +25,7 @@ describe( 'DateRangeQuickPresets', () => {
 		renderPresets( { value: 'last-7-days' } );
 
 		expect( screen.getAllByRole( 'button' ) ).toHaveLength( 4 );
-		expect( screen.getByRole( 'button', { name: 'Last 7 days' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'button', { name: '7 days' } ) ).toHaveAttribute(
 			'aria-pressed',
 			'true'
 		);
@@ -84,7 +84,7 @@ describe( 'DateRangeQuickPresets', () => {
 	it( 'keeps the full label as the accessible name when abbreviated', () => {
 		renderPresets( { labelMode: 'abbreviated', value: 'last-7-days' } );
 
-		expect( screen.getByRole( 'button', { name: 'Last 7 days' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'button', { name: '7 days' } ) ).toHaveAttribute(
 			'aria-pressed',
 			'true'
 		);
@@ -93,8 +93,6 @@ describe( 'DateRangeQuickPresets', () => {
 	it( 'leaves the accessible name alone when labels are full', () => {
 		renderPresets( { labelMode: 'full' } );
 
-		expect( screen.getByRole( 'button', { name: 'Last 7 days' } ) ).not.toHaveAttribute(
-			'aria-label'
-		);
+		expect( screen.getByRole( 'button', { name: '7 days' } ) ).not.toHaveAttribute( 'aria-label' );
 	} );
 } );

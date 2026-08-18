@@ -73,30 +73,48 @@ describe( 'getCustomTriggerLabel', () => {
 	const formatRange = ( { from, to }: { from?: Date; to?: Date } ) =>
 		`${ from?.toISOString() ?? '' }–${ to?.toISOString() ?? '' }`;
 
-	const rememberedCustomRange = {
+	const stagedRange = {
 		from: new Date( '2026-07-05T00:00:00.000Z' ),
 		to: new Date( '2026-07-10T23:59:59.000Z' ),
 	};
 
-	it( 'shows the remembered custom range while idle on a preset', () => {
+	const committedRange = {
+		from: new Date( '2026-06-01T00:00:00.000Z' ),
+		to: new Date( '2026-06-30T23:59:59.000Z' ),
+	};
+
+	it( 'shows the staged range while a custom draft is open', () => {
 		expect(
 			getCustomTriggerLabel( {
-				triggerState: 'idle',
-				range: rememberedCustomRange,
-				committedRange: rememberedCustomRange,
-				rememberedCustomRange,
+				triggerState: 'staged',
+				range: stagedRange,
+				committedRange,
 				customLabel,
 				formatRange,
 			} )
 		).toBe( '2026-07-05T00:00:00.000Z–2026-07-10T23:59:59.000Z' );
 	} );
 
-	it( 'falls back to the custom label when nothing is remembered', () => {
+	it( 'shows the committed range once the custom draft is applied', () => {
+		expect(
+			getCustomTriggerLabel( {
+				triggerState: 'applied',
+				range: stagedRange,
+				committedRange,
+				customLabel,
+				formatRange,
+			} )
+		).toBe( '2026-06-01T00:00:00.000Z–2026-06-30T23:59:59.000Z' );
+	} );
+
+	// The range on screen belongs to the preset, so the trigger must not show a
+	// second one (WOOA7S-1936).
+	it( 'shows the custom label while a preset drives the range', () => {
 		expect(
 			getCustomTriggerLabel( {
 				triggerState: 'idle',
-				range: rememberedCustomRange,
-				committedRange: rememberedCustomRange,
+				range: committedRange,
+				committedRange,
 				customLabel,
 				formatRange,
 			} )
