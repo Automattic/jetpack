@@ -22,3 +22,30 @@
 .jpb-text-muted {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
+
+// Keeps an element in the accessibility tree while taking it out of the
+// visual layout. Used for a live region that has to stay mounted before
+// it has anything to say: assistive tech needs the region present in the
+// tree *before* its content changes, so a region that appears together
+// with its first message is unreliable — VoiceOver in particular often
+// misses it.
+
+// `position: absolute` is doing more work than hiding here. These regions
+// sit inside flex columns with a `gap`, and a gap applies between all
+// in-flow children no matter how small — so a zero-height placeholder
+// would still cost a full 16px of dead space on every render where the
+// message is absent, which is most of them. Taking it out of flow costs
+// nothing. `display: none` and `visibility: hidden` are both wrong: they
+// remove it from the accessibility tree too, which is the one thing this
+// has to preserve.
+.jpb-visually-hidden {
+	position: absolute;
+	inline-size: 1px;
+	block-size: 1px;
+	margin: -1px;
+	padding: 0;
+	border: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}

@@ -104,10 +104,23 @@ class Download_Bridge {
 		$rewind_id = (string) $request->get_param( 'rewind_id' );
 		$types     = $request->get_param( 'types' );
 
+		// A supplied `types` that names nothing is refused rather than
+		// dropped. Omitting the key is not "download nothing" — WPCOM
+		// reads an absent `types` as every category, so forwarding an
+		// empty selection as an omission would hand back the full archive
+		// the caller had just excluded. `/rewind/downloads` has no
+		// server-side guard of its own, unlike the v2 restore route.
+		if ( Rest_Controller::types_name_nothing( $types ) ) {
+			return new WP_Error(
+				'no_types_selected',
+				__( 'Select at least one item to download.', 'jetpack-backup-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		$body = array( 'rewindId' => $rewind_id );
-		// Omit `types` rather than defaulting it to an empty object.
-		// WPCOM selects the enabled categories loosely, so an empty
-		// value names no category and asks for a download of nothing.
+		// Absent when the caller named no categories at all, which is how
+		// a whole-archive download is spelled upstream.
 		$named_types = Rest_Controller::named_types( $types );
 		if ( ! empty( $named_types ) ) {
 			$body['types'] = $named_types;
@@ -122,7 +135,7 @@ class Download_Bridge {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			return $response;
+			return Rest_Controller::transport_error( $response, 'download_initiate_failed' );
 		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );
@@ -183,7 +196,7 @@ class Download_Bridge {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			return $response;
+			return Rest_Controller::transport_error( $response, 'download_status_fetch_failed' );
 		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );

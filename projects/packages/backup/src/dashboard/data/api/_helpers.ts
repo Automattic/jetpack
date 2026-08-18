@@ -1,4 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
+import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import type { APIFetchOptions } from '@wordpress/api-fetch';
 
@@ -74,10 +75,10 @@ export function toIntRewindId( rewindId: string ): string {
  * single place that builds it. Only `true` entries are included, so the
  * result never depends on that loose comparison.
  *
- * Returns `undefined` when nothing is selected. Callers must omit the
- * key entirely in that case rather than sending `{}` — the restore route
- * rejects any `types` value that names no type, and on the download side
- * an empty list would silently ask for nothing.
+ * Returns `undefined` when nothing is selected, which is a signal to the
+ * caller rather than a payload. Do not resolve it by omitting the key:
+ * see `requireTypes`, which is what the mutations use and which explains
+ * why omission is the most dangerous option available here.
  *
  * @param items - The category checklist.
  * @return The object form, or undefined when no category is selected.
@@ -109,6 +110,38 @@ export class ApiError extends Error {
 		this.code = code;
 		this.data = data;
 	}
+}
+
+/**
+ * Serialize a checklist for a mutation, refusing an empty one.
+ *
+ * The restore and download bodies must always *name* what they want.
+ * An absent `types` is not a request for nothing — it is WPCOM's
+ * shorthand for all six categories ("omit it for everything", in the
+ * contract's words), so a checklist with every box cleared would submit
+ * the full archive on the download side and a full destructive restore
+ * on the other. That is the exact inverse of what the reader asked for,
+ * and it is silent: the request succeeds.
+ *
+ * The v2 restore route rejects a supplied-but-empty `types` and the
+ * downloads route does not, so this cannot be left to the server. Both
+ * screens also disable their submit button, but the button is not where
+ * the danger is — a future caller reaching these functions directly gets
+ * the same protection here.
+ *
+ * @param  items - The category checklist.
+ * @throws {ApiError} When no category is selected.
+ * @return The object form, always naming at least one category.
+ */
+export function requireTypes( items: Record< string, boolean > ): Record< string, true > {
+	const selected = serializeTypes( items );
+	if ( ! selected ) {
+		throw new ApiError(
+			'no_types_selected',
+			__( 'Select at least one item to continue.', 'jetpack-backup-pkg' )
+		);
+	}
+	return selected;
 }
 
 /**
