@@ -1,4 +1,3 @@
 Significance: patch
 Type: other
-
-WordAds: Use the WordPress UI Button in the editor placeholder.
+Comment: Use the WordPress UI components instead of CSS in the editor block placeholder when Ads module is disabled.

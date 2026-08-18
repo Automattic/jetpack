@@ -1,3 +1,0 @@
-Significance: patch
-Type: other
-Comment: Move WordAds disclaimer styles into the WordAds editor stylesheet and remove unused membership-button__disclaimer rules.
