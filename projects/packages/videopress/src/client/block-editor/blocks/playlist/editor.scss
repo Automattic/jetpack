@@ -31,6 +31,11 @@
 		margin-block-start: 8px;
 	}
 
+	/* Separates the library action from the URL form's help text above it. */
+	&__library {
+		margin-block-start: 12px;
+	}
+
 	/* Notices render flush against the controls above them without this. */
 	&__notice.components-notice {
 		margin: 12px 0 0;

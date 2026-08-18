@@ -569,7 +569,7 @@ export default function PlaylistEdit( {
 						'jetpack-videopress-pkg'
 					) }
 				</p>
-				{ mediaLibraryButton }
+				<div className="videopress-playlist-editor__library">{ mediaLibraryButton }</div>
 				{ notices }
 			</PanelBody>
 
