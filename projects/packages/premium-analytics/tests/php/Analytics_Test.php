@@ -192,6 +192,13 @@ class Analytics_Test extends TestCase {
 			'&p=%2Fpost%2F123%3Fsection%3Dpost-traffic',
 			Analytics::dashboard_url( '/post/123?section=post-traffic' )
 		);
+
+		// The router falls back to `/` for an absent or empty `p`, so the default
+		// has to encode a route rather than drop the param.
+		$this->assertSame(
+			admin_url( 'admin.php?page=' . self::MENU_SLUG . '&p=%2F' ),
+			Analytics::dashboard_url()
+		);
 	}
 
 	/**

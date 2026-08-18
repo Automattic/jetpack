@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -23,16 +24,26 @@ class Post_List_Link_Test extends BaseTestCase {
 	const LEGACY_URL = 'https://example.org/wp-admin/admin.php?page=stats#!/stats/post/123/9';
 
 	/**
-	 * Hook the capability mapping, the way an entry point would.
+	 * Spelled out rather than built with Analytics::dashboard_url(), so a change
+	 * to how that method encodes the route fails here instead of moving both
+	 * sides of the assertion together. WorDBless pins the site URL.
+	 */
+	const DETAIL_URL = 'http://example.org/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Fpost%2F123';
+
+	/**
+	 * Hook the capability mapping and mark the sync milestone reached, the way a
+	 * site the dashboard can actually serve would look.
 	 */
 	public function set_up() {
 		Capabilities::register();
+		update_option( Sync_Status_Tracker::INITIAL_SITE_SYNC_OPTION, 1730000123 );
 	}
 
 	/**
 	 * Drop the mapping, the filter, and the logged-in user.
 	 */
 	public function tear_down() {
+		delete_option( Sync_Status_Tracker::INITIAL_SITE_SYNC_OPTION );
 		remove_all_filters( 'jetpack_stats_post_list_column_url' );
 		$this->reset_analytics_capabilities();
 		wp_set_current_user( 0 );
@@ -41,9 +52,17 @@ class Post_List_Link_Test extends BaseTestCase {
 	}
 
 	public function test_register_hooks_the_column_url_filter() {
+		// Without this the test passes on a filter something else left hooked, and
+		// would keep passing if register() became a no-op.
+		$this->assertFalse(
+			has_filter( 'jetpack_stats_post_list_column_url', array( Post_List_Link::class, 'filter_url' ) ),
+			'The filter was already hooked, so register() proves nothing here.'
+		);
+
 		Post_List_Link::register();
 
-		$this->assertNotFalse(
+		$this->assertSame(
+			10,
 			has_filter( 'jetpack_stats_post_list_column_url', array( Post_List_Link::class, 'filter_url' ) )
 		);
 	}
@@ -51,19 +70,48 @@ class Post_List_Link_Test extends BaseTestCase {
 	public function test_filter_url_points_at_the_post_detail_page() {
 		$this->login_as( 'administrator' );
 
-		$this->assertSame(
-			Analytics::dashboard_url( '/post/123' ),
-			Post_List_Link::filter_url( self::LEGACY_URL, 123 )
-		);
+		$this->assertSame( self::DETAIL_URL, Post_List_Link::filter_url( self::LEGACY_URL, 123 ) );
 	}
 
 	/**
-	 * The legacy page has its own access rules, so a reader who cannot open the
-	 * dashboard keeps the link they had.
+	 * A site can grant Stats access to a non-administrator, and the dashboard
+	 * honours that grant, so the link has to follow it too.
 	 */
-	public function test_filter_url_leaves_the_legacy_url_for_a_user_without_access() {
+	public function test_filter_url_points_a_view_stats_reader_at_the_post_detail_page() {
+		$user_id = $this->login_as( 'editor' );
+		$this->grant_view_stats_to( $user_id );
+
+		$this->assertSame( self::DETAIL_URL, Post_List_Link::filter_url( self::LEGACY_URL, 123 ) );
+	}
+
+	/**
+	 * Defence in depth: the column itself is already gated on the same primitives,
+	 * so no reader reaches this arm from the post list. It guards the next caller
+	 * of a public filter.
+	 */
+	public function test_filter_url_leaves_the_legacy_url_when_the_capability_is_absent() {
 		$this->login_as( 'editor' );
 
 		$this->assertSame( self::LEGACY_URL, Post_List_Link::filter_url( self::LEGACY_URL, 123 ) );
+	}
+
+	/**
+	 * Before the milestone the detail route redirects to /syncing, so claiming the
+	 * link would swap a working Stats page for a dead end.
+	 */
+	public function test_filter_url_leaves_the_legacy_url_until_the_sync_milestone_fires() {
+		$this->login_as( 'administrator' );
+		delete_option( Sync_Status_Tracker::INITIAL_SITE_SYNC_OPTION );
+
+		$this->assertSame( self::LEGACY_URL, Post_List_Link::filter_url( self::LEGACY_URL, 123 ) );
+	}
+
+	/**
+	 * A row with no real post has no detail page to send anyone to.
+	 */
+	public function test_filter_url_leaves_the_legacy_url_without_a_post_id() {
+		$this->login_as( 'administrator' );
+
+		$this->assertSame( self::LEGACY_URL, Post_List_Link::filter_url( self::LEGACY_URL, 0 ) );
 	}
 }

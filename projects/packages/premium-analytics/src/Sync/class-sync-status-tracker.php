@@ -249,6 +249,22 @@ class Sync_Status_Tracker {
 	}
 
 	/**
+	 * Whether the dashboard has enough synced data to render a report.
+	 *
+	 * The same value the frontend gates on, published to it as
+	 * `premium_analytics.initial_full_sync_finished`. Exposed so a caller that
+	 * links into the dashboard can ask first, rather than send someone to a route
+	 * that will bounce them straight to /syncing.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function initial_sync_finished(): bool {
+		return self::milestone_reached( Configuration::is_woocommerce_active() );
+	}
+
+	/**
 	 * The option name whose timestamp gates the dashboard for the given mode.
 	 *
 	 * @param bool $has_store_data Whether the site has store data (WooCommerce active).

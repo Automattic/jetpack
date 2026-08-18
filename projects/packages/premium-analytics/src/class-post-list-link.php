@@ -7,9 +7,13 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
+
 /**
  * Sends the views column in the posts and pages list tables to the dashboard's
  * post detail page instead of the Stats one.
+ *
+ * @since $$next-version$$
  */
 class Post_List_Link {
 
@@ -28,18 +32,39 @@ class Post_List_Link {
 	/**
 	 * Point one row at its post detail page.
 	 *
-	 * A reader who cannot open the dashboard keeps the Stats link: that page has
-	 * its own access rules and may still be theirs to read.
+	 * Hands the link back untouched whenever the detail page cannot serve it, so
+	 * the column never trades a working Stats link for a dead end. On a site the
+	 * dashboard can serve it wins even where the row would otherwise point at
+	 * Calypso: the dashboard is this site's analytics UI, and it only exists in
+	 * wp-admin, so the admin-interface preference has no bearing on it.
+	 *
+	 * The capability arm is defence in depth rather than a path a reader reaches:
+	 * `Admin_Post_List_Column::add_stats_post_table()` already drops the whole
+	 * column unless the user has `view_stats` or `manage_options`, the same
+	 * primitives `jetpack_view_analytics` maps to. It stays because the filter is
+	 * public and its next caller may not gate anything.
 	 *
 	 * @param string $url     Stats URL for the post.
 	 * @param int    $post_id The post the row belongs to.
 	 * @return string
 	 */
 	public static function filter_url( $url, $post_id ) {
+		$post_id = (int) $post_id;
+
+		if ( $post_id <= 0 ) {
+			return $url;
+		}
+
 		if ( ! Capabilities::current_user_can_view_analytics() ) {
 			return $url;
 		}
 
-		return Analytics::dashboard_url( '/post/' . (int) $post_id );
+		// Until the sync milestone fires, the detail route redirects to /syncing,
+		// which is a worse answer than the Stats page the column already had.
+		if ( ! Sync_Status_Tracker::initial_sync_finished() ) {
+			return $url;
+		}
+
+		return Analytics::dashboard_url( '/post/' . $post_id );
 	}
 }
