@@ -6,6 +6,9 @@
  * `is-dark` surface variant and `hide-*` classes for the display toggles.
  */
 
+// Numeric/meta text stack, as specified by the design.
+$vpp-mono: ui-monospace, menlo, monospace;
+
 .videopress-playlist {
 	--vpp-text: #1e1e1e;
 	--vpp-muted: #6f6f6f;
@@ -40,8 +43,14 @@
 
 	&__list-meta {
 		display: none;
-		font-family: ui-monospace, Menlo, monospace;
-		font-size: 0.71875rem;
+		color: var(--vpp-muted);
+		font-family: $vpp-mono;
+
+		/* 12px per the design's count · duration meta line. */
+		font-size: 0.75rem;
+		font-weight: 400;
+		letter-spacing: normal;
+		text-transform: none;
 	}
 
 	&__count + &__runtime::before {
@@ -108,8 +117,11 @@
 	}
 
 	&__now-runtime {
-		font-size: 0.75rem;
 		display: none;
+		font-family: $vpp-mono;
+
+		/* 11.5px per the design's grid meta row. */
+		font-size: 0.71875rem;
 	}
 
 	/* Entry list */
@@ -130,8 +142,11 @@
 	}
 
 	&__list-progress {
-		font-size: 0.71875rem;
 		color: var(--vpp-muted);
+		font-family: $vpp-mono;
+
+		/* 11.5px per the design's strip header counter. */
+		font-size: 0.71875rem;
 	}
 
 	&__entries {
