@@ -112,7 +112,7 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			__( 'Howdy %s! Let’s schedule a task.', 'jetpack' ),
 			$current_user->display_name
 		);
-		$data['emptyViewHelp'] = __( 'Got a different request? Ask away.', 'jetpack' );
+		$data['emptyViewHelp']                     = __( 'Got a different request? Ask away.', 'jetpack' );
 		$data['scheduledTaskEmptyViewSuggestions'] = array(
 			array(
 				'id'         => 'create-daily-reminder',
