@@ -31,18 +31,19 @@ class WPCOM_Site_Purchase {
 	private const BILLING_STATES_CACHE_GROUP = 'site_purchases';
 
 	/**
-	 * How long billing-derived state stays cached. See billing_states_for_blog() for why this is
-	 * minutes rather than the day the neighbouring purchases get.
+	 * How long billing-derived state stays cached. See billing_states_for_blog() for what the TTL
+	 * is actually covering, which is less than it first appears.
 	 */
-	private const BILLING_STATES_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
+	private const BILLING_STATES_CACHE_TTL = HOUR_IN_SECONDS;
 
 	/**
 	 * How long a *failed* lookup stays cached.
 	 *
-	 * Much shorter than a successful one. Caching the failure at all is what stops a persistently
-	 * broken billing stack from being asked again on every pageview, but a momentary blip should
-	 * not outlive itself by minutes: while it is cached, both accessors answer null and consumers
-	 * fall back to the raw auto-renew flag -- the very value they exist to distrust.
+	 * Far shorter than a successful one. Caching the failure at all is what stops a persistently
+	 * broken billing stack from being asked again on every pageview, but a blip lasting one request
+	 * should not go on being answered for the rest of the hour: while it is cached, both accessors
+	 * answer null and consumers fall back to the raw auto-renew flag -- the very value they exist
+	 * to distrust.
 	 */
 	private const BILLING_STATES_FAILURE_TTL = 30;
 
@@ -280,16 +281,28 @@ class WPCOM_Site_Purchase {
 	 * yield an empty map, so every value must be treated as optional.
 	 *
 	 * Memoized per request, so that a site with many purchases costs one lookup rather than one
-	 * per purchase, and cached in the object cache for a few minutes on top, so that a careless
-	 * caller costs a memcache get rather than the query and the load. Cleared on
-	 * `subscription_changed` and `wpcom_site_purchases_cleared`, alongside the other
-	 * `site_purchases` entries.
+	 * per purchase, and cached in the object cache for an hour on top, so that a careless caller
+	 * costs a memcache get rather than the query and the load. Cleared on `subscription_changed`
+	 * and `wpcom_site_purchases_cleared`, alongside the other `site_purchases` entries -- though
+	 * those two are one signal rather than two, since every caller of the latter is itself hooked
+	 * to the former.
 	 *
-	 * The TTL is short, and much shorter than the day-long `site_purchases` cache, because
-	 * `might_still_auto_renew` can stop being true without any subscription event to hang an
-	 * invalidation on -- a card reaching its own expiry date, say. The hooks cover everything a
-	 * user does; the TTL is the backstop for what merely happens. `first_auto_renew_attempt_date`
-	 * needs no such care: it is a date, and callers compare it against their own clock.
+	 * That signal is scoped to the subscription row, which covers more of `might_still_auto_renew`
+	 * than it looks: both the subscription's status and the `auto_renew` column live there, so
+	 * everything a user actively does is reflected at once -- including the case that would
+	 * otherwise be a support ticket, "I re-enabled auto-renew, why is it still nagging me?".
+	 *
+	 * The TTL therefore only has to cover what no subscription event announces, which is two
+	 * things. `is_past_last_auto_renew_attempt_date()` is a clock comparison, but against a
+	 * timestamp pinned to the start of a UTC day, so it flips once, on a day boundary -- a shorter
+	 * TTL would be measuring a day-granular signal to the minute. And the payment method reached
+	 * through `will_auto_renew()` lives in Billingdaddy ownerships rather than on the subscription,
+	 * so a card being replaced, removed, or reaching its own expiry never touches the row and never
+	 * fires the hook. There is no Billingdaddy action to subscribe to for that today; an hour is
+	 * the bound on how stale a notice can be because of it.
+	 *
+	 * `first_auto_renew_attempt_date` needs none of this care: it is a date, and callers compare it
+	 * against their own clock.
 	 *
 	 * @param int $blog_id Blog ID to look up.
 	 *
