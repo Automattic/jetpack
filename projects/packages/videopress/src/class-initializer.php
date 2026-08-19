@@ -288,6 +288,14 @@ class Initializer {
 	public static function render_videopress_video_block( $block_attributes, $content, $block ) {
 		global $wp_embed;
 
+		// Pre-build and cache the GUID list for this post to optimize authorization checks.
+		// This is called once per page render and caches GUIDs from all VideoPress blocks
+		// (including those in synced patterns), allowing fast O(1) lookups during token requests.
+		$post_id = $block->context['postId'] ?? get_the_ID();
+		if ( $post_id ) {
+			Access_Control::build_and_cache_post_guids( absint( $post_id ) );
+		}
+
 		// CSS classes.
 		$align        = $block_attributes['align'] ?? null;
 		$align_class  = $align ? ' align' . $align : '';
