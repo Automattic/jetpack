@@ -18,6 +18,20 @@ import { __ } from '@wordpress/i18n';
 const ENDPOINT = '/wpcom/v2/jetpack-ai/ai-assistant-feature';
 
 /**
+ * Pin a date string without timezone information to UTC.
+ *
+ * @param {string} value - Date string, e.g. "2026-09-01" or "2026-09-01 00:00:00".
+ * @return {string} The same instant with an explicit UTC offset.
+ */
+export function anchorDateToUtc( value ) {
+	if ( /[Zz]$|[+-]\d\d:?\d\d$/.test( value ) ) {
+		return value;
+	}
+	const withTime = value.includes( ':' ) ? value.replace( ' ', 'T' ) : `${ value }T00:00:00`;
+	return `${ withTime }+00:00`;
+}
+
+/**
  * Normalize the ai-assistant-feature payload for display, following
  * ai-client's free/tiered/unlimited rules. The i4 card shows what is
  * AVAILABLE (limit − used), so that is derived here.
@@ -51,7 +65,11 @@ export function normalizeUsage( data ) {
 			? Math.max( 0, requestsLimit - requestsCount )
 			: null;
 
-	const renewsOn = data?.[ 'usage-period' ]?.[ 'next-start' ] ?? null;
+	// The endpoint sends next-start as a bare calendar date with no offset;
+	// anchor it to UTC so formatters cannot parse it in the browser's timezone
+	// and render the previous day east of UTC.
+	const nextStart = data?.[ 'usage-period' ]?.[ 'next-start' ] ?? null;
+	const renewsOn = nextStart ? anchorDateToUtc( nextStart ) : null;
 
 	// Free is upgradable by definition, whatever the payload says about tiers.
 	const showUpgrade =

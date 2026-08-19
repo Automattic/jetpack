@@ -8,7 +8,7 @@ export const freePayload = () => ( {
 	'has-feature': false,
 	'requests-count': 12,
 	'requests-limit': 20,
-	'usage-period': { 'requests-count': 3, 'next-start': '2026-09-01T00:00:00+00:00' },
+	'usage-period': { 'requests-count': 3, 'next-start': '2026-09-01' },
 	'current-tier': { value: 0, limit: 20 },
 	'next-tier': { value: 100, limit: 100 },
 } );
@@ -17,7 +17,7 @@ export const tieredPayload = () => ( {
 	'has-feature': true,
 	'requests-count': 950,
 	'requests-limit': 20,
-	'usage-period': { 'requests-count': 340, 'next-start': '2026-09-01T00:00:00+00:00' },
+	'usage-period': { 'requests-count': 340, 'next-start': '2026-09-01' },
 	// Tiered tiers carry no readable limit — only the unlimited tier does.
 	'current-tier': { value: 500, limit: 500 },
 	'next-tier': { value: 750, limit: 750 },

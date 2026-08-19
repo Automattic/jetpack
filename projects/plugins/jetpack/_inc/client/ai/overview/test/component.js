@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { normalizeUsage, useAiUsage } from '../use-ai-usage';
+import { anchorDateToUtc, normalizeUsage, useAiUsage } from '../use-ai-usage';
 import { freePayload, tieredPayload, unlimitedPayload } from './fixtures';
 
 // The hook fetches through @wordpress/api-fetch; stub it so nothing hits the
@@ -9,6 +9,21 @@ jest.mock( '@wordpress/api-fetch' );
 
 afterEach( () => {
 	jest.resetAllMocks();
+} );
+
+describe( 'anchorDateToUtc', () => {
+	test( 'pins the naive shapes the endpoint actually sends', () => {
+		// The live payload sends a bare calendar date; parsing it in the
+		// browser timezone shows the previous day east of UTC.
+		expect( anchorDateToUtc( '2026-09-01' ) ).toBe( '2026-09-01T00:00:00+00:00' );
+		expect( anchorDateToUtc( '2026-09-01 00:00:00' ) ).toBe( '2026-09-01T00:00:00+00:00' );
+	} );
+
+	test( 'leaves values that already carry timezone information alone', () => {
+		expect( anchorDateToUtc( '2026-09-01T00:00:00+00:00' ) ).toBe( '2026-09-01T00:00:00+00:00' );
+		expect( anchorDateToUtc( '2026-09-01T00:00:00Z' ) ).toBe( '2026-09-01T00:00:00Z' );
+		expect( anchorDateToUtc( '2026-09-01T10:00:00-04:00' ) ).toBe( '2026-09-01T10:00:00-04:00' );
+	} );
 } );
 
 describe( 'normalizeUsage', () => {

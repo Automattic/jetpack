@@ -88,9 +88,12 @@ const DOC_LINKS = [
 function UsageCard( { upgradeUrl, planName, planRenewsOn } ) {
 	const { isLoading, data, error } = useAiUsage();
 	const usage = normalizeUsage( data );
-	// The Plan cell's date is the purchase's renewal, matching My Jetpack; the
-	// usage-period rollover only stands in when no purchase date is available.
-	const renewsOn = planRenewsOn || usage.renewsOn;
+	// The Plan cell's date is the purchase's renewal, formatted exactly as My
+	// Jetpack formats it (site timezone) so the two screens agree; the usage-
+	// period fallback is a UTC-anchored calendar date and must stay in UTC.
+	const renewsOnDisplay = planRenewsOn
+		? dateI18n( getDateSettings().formats.date, planRenewsOn )
+		: usage.renewsOn && dateI18n( getDateSettings().formats.date, usage.renewsOn, 'UTC' );
 	// The purchase name only labels a paid state — the usage endpoint is
 	// authoritative for the tier, so an expired purchase cannot relabel Free.
 	const planLabel = ( ! usage.isFree && planName ) || usage.planLabel;
@@ -120,7 +123,12 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn } ) {
 				{ ! isLoading && ! error && (
 					<div className="jetpack-ai-overview__usage">
 						<div className="jetpack-ai-overview__usage-cell">
-							<Text render={ <p /> } variant="heading-sm" className="jetpack-ai-overview__eyebrow">
+							<Text
+								render={ <p /> }
+								id="jetpack-ai-overview-requests-label"
+								variant="heading-sm"
+								className="jetpack-ai-overview__eyebrow"
+							>
 								{ __( 'Available requests', 'jetpack' ) }
 							</Text>
 							<Stack direction="row" justify="space-between" align="baseline">
@@ -155,7 +163,20 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn } ) {
 							</Stack>
 							{ showMeter && (
 								<ProgressBar
-									aria-label={ __( 'Available requests', 'jetpack' ) }
+									// The component injects a default aria-label; undefined
+									// clears it so the heading is the only accessible name.
+									aria-label={ undefined }
+									aria-labelledby="jetpack-ai-overview-requests-label"
+									aria-valuetext={
+										usage.unlimited
+											? __( 'Unlimited requests', 'jetpack' )
+											: sprintf(
+													/* translators: %1$s: requests remaining. %2$s: total requests. */
+													__( '%1$s of %2$s requests remaining', 'jetpack' ),
+													usage.requestsAvailable,
+													usage.requestsLimit
+											  )
+									}
 									className="jetpack-ai-overview__meter"
 									value={ meterValue }
 								/>
@@ -189,7 +210,7 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn } ) {
 										{ __( 'Upgrade', 'jetpack' ) }
 									</LinkButton>
 								) }
-								{ ! usage.showUpgrade && renewsOn && (
+								{ ! usage.showUpgrade && renewsOnDisplay && (
 									<Text
 										render={ <p /> }
 										variant="body-sm"
@@ -198,9 +219,7 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn } ) {
 										{ sprintf(
 											/* translators: %s: localized date the plan renews on. */
 											__( 'Renews on: %s', 'jetpack' ),
-											// The endpoint sends a UTC instant; formatting it in the
-											// site timezone would shift the date west of UTC.
-											dateI18n( getDateSettings().formats.date, renewsOn, 'UTC' )
+											renewsOnDisplay
 										) }
 									</Text>
 								) }

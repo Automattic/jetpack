@@ -38,6 +38,19 @@ describe( 'AiOverview', () => {
 		expect( screen.getByText( 'Free' ) ).toBeInTheDocument();
 	} );
 
+	test( 'meter a11y: named by the visible heading, value announced as counts', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		// The bar points at the heading (no duplicated label) and announces
+		// counts, not a bare percentage that reads backwards for a meter.
+		const meter = await screen.findByRole( 'progressbar', { name: 'Available requests' } );
+		expect( meter ).toHaveAttribute( 'aria-labelledby', 'jetpack-ai-overview-requests-label' );
+		expect( meter ).not.toHaveAttribute( 'aria-label' );
+		expect( meter ).toHaveAttribute( 'aria-valuetext', '8 of 20 requests remaining' );
+	} );
+
 	test( 'tiered plan: renders remaining period requests against the tier limit', async () => {
 		apiFetch.mockResolvedValueOnce( tieredPayload() );
 
@@ -58,7 +71,9 @@ describe( 'AiOverview', () => {
 		// renewal date where the free card has the Upgrade button.
 		await expect( screen.findAllByText( 'Unlimited' ) ).resolves.toHaveLength( 1 );
 		expect( screen.getByRole( 'progressbar', { name: 'Available requests' } ) ).toBeInTheDocument();
-		expect( screen.getByText( /Renews on/ ) ).toBeInTheDocument();
+		// The fixture's next-start is the bare calendar date the live payload
+		// sends; the UTC anchor must render that exact day, never the day before.
+		expect( screen.getByText( 'Renews on: September 1, 2026' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
