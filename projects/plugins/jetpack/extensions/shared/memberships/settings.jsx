@@ -3,7 +3,6 @@ import {
 	BaseControl,
 	Flex,
 	FlexBlock,
-	Notice,
 	RadioControl,
 	Spinner,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -14,7 +13,7 @@ import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/c
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
-import { Link as ExternalLink } from '@wordpress/ui';
+import { Link as ExternalLink, Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import { store as membershipProductsStore } from '../../store/membership-products';
@@ -300,25 +299,17 @@ export function NewsletterAccessRadioButtons( {
 	return (
 		<div className="jetpack-newsletter-access-radio-buttons">
 			{ showEverybodyAsDisabled && (
-				<Notice
-					status="info"
-					isDismissible={ false }
-					className="jetpack-newsletter-access-radio-buttons__paywall-notice"
-				>
-					{ /*
-					 * Notice does not forward arbitrary props, so the id that "Everyone" points
-					 * at lives on a wrapper. It covers only the copy, which keeps the visually
-					 * hidden "Information notice" label out of the option's description.
-					 */ }
-					<span id={ paywallNoticeId }>
-						<strong>{ __( 'Paywall active', 'jetpack' ) }</strong>
-						<br />
+				// icon={ null } matches the mockup, which shows the notice without the
+				// intent icon @wordpress/ui would otherwise render for "info".
+				<Notice.Root intent="info" icon={ null } id={ paywallNoticeId }>
+					<Notice.Title>{ __( 'Paywall active', 'jetpack' ) }</Notice.Title>
+					<Notice.Description>
 						{ __(
 							'Choose who can read the full post. Everyone can still read the content above the paywall.',
 							'jetpack'
 						) }
-					</span>
-				</Notice>
+					</Notice.Description>
+				</Notice.Root>
 			) }
 			<fieldset role="radiogroup" className="components-radio-control">
 				<BaseControl.VisualLabel as="legend">

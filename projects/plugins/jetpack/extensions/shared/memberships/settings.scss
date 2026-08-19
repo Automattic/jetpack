@@ -39,12 +39,6 @@
 		}
 	}
 
-	// The notice explains why "Everyone" is not selectable, so it reads as an
-	// introduction to the group rather than a banner floating above it.
-	&__paywall-notice {
-		margin: 0;
-	}
-
 	// The group is built by hand rather than by RadioControl (see AccessOption),
 	// so it supplies the spacing RadioControl would get from its own VStack.
 	.components-radio-control__group-wrapper {
