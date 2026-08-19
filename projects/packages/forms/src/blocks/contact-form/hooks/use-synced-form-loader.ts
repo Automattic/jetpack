@@ -20,12 +20,12 @@ interface UseSyncedFormLoaderParams {
 interface UseSyncedFormLoaderResult {
 	isSyncingRef: React.MutableRefObject< boolean >;
 	/**
-	 * Incremented every time a sync finishes. `isSyncingRef` is a ref because the
-	 * debounced auto-save has to read it at fire time, but ref writes don't re-render —
-	 * so a consumer that skipped work while syncing would never learn that syncing
-	 * ended. Depending on this counter gives them that render.
+	 * Opaque token that changes every time a sync finishes; depend on it, don't read it.
+	 * `isSyncingRef` is a ref because the debounced auto-save has to read it at fire
+	 * time, but ref writes don't re-render — so a consumer that skipped work while
+	 * syncing would never learn that syncing ended. This gives them that render.
 	 */
-	syncCompletionCount: number;
+	syncGeneration: number;
 }
 
 /**
@@ -70,7 +70,7 @@ export function useSyncedFormLoader( {
 }: UseSyncedFormLoaderParams ): UseSyncedFormLoaderResult {
 	// Track if we're currently syncing to prevent save-back loops
 	const isSyncingRef = useRef( false );
-	const [ syncCompletionCount, setSyncCompletionCount ] = useState( 0 );
+	const [ syncGeneration, setSyncGeneration ] = useState( 0 );
 	const lastLoadedRefId = useRef< number | null >( null );
 	const animationFrameIdRef = useRef< number | null >( null );
 
@@ -105,12 +105,11 @@ export function useSyncedFormLoader( {
 			setActiveStep( clientId, firstStepClientId );
 		}
 
-		// Reset syncing flag after React commits, and re-render so consumers can act on
-		// the editor's settled, not-yet-edited state.
+		// Reset syncing flag after React commits
 		animationFrameIdRef.current = requestAnimationFrame( () => {
 			animationFrameIdRef.current = null;
 			isSyncingRef.current = false;
-			setSyncCompletionCount( count => count + 1 );
+			setSyncGeneration( generation => generation + 1 );
 		} );
 
 		// Cleanup: cancel pending rAF if component unmounts or effect re-runs
@@ -133,5 +132,5 @@ export function useSyncedFormLoader( {
 		setActiveStep,
 	] );
 
-	return { isSyncingRef, syncCompletionCount };
+	return { isSyncingRef, syncGeneration };
 }

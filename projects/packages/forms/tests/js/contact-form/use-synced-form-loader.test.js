@@ -8,7 +8,6 @@ import { renderHook } from '@testing-library/react';
 // Mock WordPress dependencies
 const mockUseEffect = jest.fn();
 const mockUseRef = jest.fn();
-const mockSetState = jest.fn();
 
 // Track rAF callbacks and cleanup
 let rafCallback = null;
@@ -25,9 +24,9 @@ await jest.unstable_mockModule( '@wordpress/element', () => ( {
 		mockUseRef( ref );
 		return ref;
 	},
-	// The hook only uses state as a re-render signal, so a stub setter is enough here;
-	// the behaviour it drives is covered in use-synced-form-auto-save.test.js.
-	useState: initialValue => [ initialValue, mockSetState ],
+	// State is only a re-render signal here, so a no-op setter suffices; the behaviour
+	// it drives is covered in use-synced-form-auto-save.test.js.
+	useState: initialValue => [ initialValue, () => {} ],
 } ) );
 
 await jest.unstable_mockModule( '../../../src/blocks/contact-form/util/form-sync.ts', () => ( {

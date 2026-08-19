@@ -225,52 +225,56 @@ describe( 'useSyncedFormAutoSave', () => {
 	} );
 
 	/**
-	 * Drive the hook through a synced form load, then apply edits.
+	 * Render the hook with everything but the blocks and the sync generation fixed.
 	 *
-	 * The loader flips `isSyncingRef` from a requestAnimationFrame callback — a ref
-	 * write, which renders nothing — and signals the same moment by bumping
-	 * `syncCompletionCount`.
-	 *
-	 * @return {object} The `editEntityRecord` spy and an `edit` helper.
+	 * @param {object} isSyncingRef     - The loader's syncing flag.
+	 * @param {object} editEntityRecord - Spy standing in for the entity store dispatch.
+	 * @return {object} The renderHook result.
 	 */
-	const loadForm = () => {
-		const editEntityRecord = jest.fn();
-		const isSyncingRef = { current: true };
-		let syncCompletionCount = 0;
-		let blocks = [];
-
-		const { rerender } = renderHook(
-			( { currentInnerBlocks, count } ) =>
+	const renderAutoSave = ( isSyncingRef, editEntityRecord ) =>
+		renderHook(
+			( { currentInnerBlocks, syncGeneration } ) =>
 				useSyncedFormAutoSave( {
 					ref: 123,
 					syncedForm: SYNCED_FORM,
 					attributes: FORM_ATTRIBUTES,
 					currentInnerBlocks,
 					isSyncingRef,
-					syncCompletionCount: count,
+					syncGeneration,
 					editEntityRecord,
 				} ),
-			{ initialProps: { currentInnerBlocks: blocks, count: syncCompletionCount } }
+			{ initialProps: { currentInnerBlocks: [], syncGeneration: 0 } }
 		);
 
-		const render = () => rerender( { currentInnerBlocks: blocks, count: syncCompletionCount } );
+	/**
+	 * Drive the hook through a synced form load, leaving it ready for edits.
+	 *
+	 * @return {object} The `editEntityRecord` spy and an `edit` helper.
+	 */
+	const loadForm = () => {
+		const editEntityRecord = jest.fn();
+		const isSyncingRef = { current: true };
+		const { rerender } = renderAutoSave( isSyncingRef, editEntityRecord );
+		// One array, passed to both renders below. The blocks do not change when syncing
+		// ends, so if the generation bump is not what re-runs the effect, nothing is —
+		// a fresh array here would re-run it on identity alone and the test would pass
+		// against the bug it exists to catch.
+		const loadedBlocks = [ field( false ) ];
 
 		// The loader lands the synced inner blocks while syncing is still in progress.
-		blocks = [ field( false ) ];
-		render();
+		rerender( { currentInnerBlocks: loadedBlocks, syncGeneration: 0 } );
 
-		// requestAnimationFrame fires: syncing is done.
+		// requestAnimationFrame fires: the flag clears without a render, and the
+		// generation bump supplies the render it could not.
 		isSyncingRef.current = false;
-		syncCompletionCount++;
-		render();
+		rerender( { currentInnerBlocks: loadedBlocks, syncGeneration: 1 } );
 
 		return {
 			editEntityRecord,
-			edit: nextBlocks => {
-				blocks = nextBlocks;
-				render();
+			edit: currentInnerBlocks => {
+				rerender( { currentInnerBlocks, syncGeneration: 1 } );
 				act( () => {
-					jest.advanceTimersByTime( 2000 );
+					jest.advanceTimersByTime( 1000 );
 				} );
 			},
 		};
@@ -285,7 +289,7 @@ describe( 'useSyncedFormAutoSave', () => {
 
 		expect( editEntityRecord ).toHaveBeenCalledWith(
 			'postType',
-			expect.any( String ),
+			'jetpack_form',
 			123,
 			expect.objectContaining( { content: expect.any( String ) } )
 		);
@@ -303,24 +307,11 @@ describe( 'useSyncedFormAutoSave', () => {
 	it( 'does not stage while the form is still syncing', () => {
 		const editEntityRecord = jest.fn();
 		const isSyncingRef = { current: true };
+		const { rerender } = renderAutoSave( isSyncingRef, editEntityRecord );
 
-		const { rerender } = renderHook(
-			( { currentInnerBlocks } ) =>
-				useSyncedFormAutoSave( {
-					ref: 123,
-					syncedForm: SYNCED_FORM,
-					attributes: FORM_ATTRIBUTES,
-					currentInnerBlocks,
-					isSyncingRef,
-					syncCompletionCount: 0,
-					editEntityRecord,
-				} ),
-			{ initialProps: { currentInnerBlocks: [] } }
-		);
-
-		rerender( { currentInnerBlocks: [ field( false ) ] } );
+		rerender( { currentInnerBlocks: [ field( false ) ], syncGeneration: 0 } );
 		act( () => {
-			jest.advanceTimersByTime( 2000 );
+			jest.advanceTimersByTime( 1000 );
 		} );
 
 		expect( editEntityRecord ).not.toHaveBeenCalled();

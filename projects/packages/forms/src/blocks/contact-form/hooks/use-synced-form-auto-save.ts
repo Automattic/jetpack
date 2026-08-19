@@ -15,12 +15,11 @@ interface UseSyncedFormAutoSaveParams {
 	currentInnerBlocks: Block[];
 	isSyncingRef: React.MutableRefObject< boolean >;
 	/**
-	 * Counter from `useSyncedFormLoader` that changes when a sync finishes. Only used as
-	 * an effect dependency: it gives us a render on which to capture the baseline from
-	 * the loaded-but-unedited form. Without it the first edit after a load would be the
-	 * render that captures the baseline, and so would compare equal and never stage.
+	 * Changes when `useSyncedFormLoader` finishes a sync — see that hook for why it has
+	 * to be a render-triggering value. Used only as an effect dependency, so the
+	 * baseline below is captured from the loaded-but-unedited form.
 	 */
-	syncCompletionCount: number;
+	syncGeneration: number;
 	editEntityRecord: (
 		kind: string,
 		name: string,
@@ -117,7 +116,7 @@ export function useSyncedFormAutoSave( {
 	attributes,
 	currentInnerBlocks,
 	isSyncingRef,
-	syncCompletionCount,
+	syncGeneration,
 	editEntityRecord,
 }: UseSyncedFormAutoSaveParams ): UseSyncedFormAutoSaveResult {
 	const pendingTimeoutRef = useRef< ReturnType< typeof setTimeout > | null >( null );
@@ -136,6 +135,8 @@ export function useSyncedFormAutoSave( {
 		if ( ! ref ) {
 			return;
 		}
+		const hadBaseline = baselineRef.current?.ref === ref;
+
 		// Only capture baseline after sync completes to ensure it reflects synced content
 		const baseline = captureBaseline(
 			ref,
@@ -146,8 +147,9 @@ export function useSyncedFormAutoSave( {
 			baselineRef
 		);
 
-		// Not ready or no changes - don't stage
-		if ( ! baseline ) {
+		// Not ready - don't stage. A baseline captured on this very run was serialized
+		// from the arguments below, so it would compare equal; skip the second pass.
+		if ( ! baseline || ! hadBaseline ) {
 			return;
 		}
 
@@ -178,9 +180,7 @@ export function useSyncedFormAutoSave( {
 		editEntityRecord,
 		attributes,
 		isSyncingRef,
-		// Re-runs this effect once syncing ends, so the baseline is captured from the
-		// loaded form rather than from whatever the user changed first.
-		syncCompletionCount,
+		syncGeneration,
 	] );
 
 	const flushPendingSave = useCallback( () => {

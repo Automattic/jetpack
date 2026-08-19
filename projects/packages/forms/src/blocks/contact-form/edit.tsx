@@ -449,7 +449,7 @@ function JetpackContactFormEdit( {
 	);
 
 	// Sync synced form content INTO the editor (one-time on ref change)
-	const { isSyncingRef, syncCompletionCount } = useSyncedFormLoader( {
+	const { isSyncingRef, syncGeneration } = useSyncedFormLoader( {
 		ref,
 		syncedFormBlocks,
 		syncedFormAttributes,
@@ -467,7 +467,7 @@ function JetpackContactFormEdit( {
 		attributes,
 		currentInnerBlocks,
 		isSyncingRef,
-		syncCompletionCount,
+		syncGeneration,
 		editEntityRecord,
 	} );
 
