@@ -11,7 +11,6 @@ require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/class-user-agent-info.php';
 
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
-use function Automattic\Jetpack\Device_Detection\sanitize_text_field;
 use function Automattic\Jetpack\Device_Detection\wp_unslash;
 
 /**
@@ -189,13 +188,13 @@ class Device_Detection {
 			return false;
 		}
 
-		$agent = strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) );
-		if ( strpos( $agent, 'ipad' ) ) {
+		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		if ( strpos( $agent, 'ipad' ) !== false ) {
 			return false;
 		}
 
 		// Remove Samsung Galaxy tablets (SCH-I800) from being mobile devices.
-		if ( strpos( $agent, 'sch-i800' ) ) {
+		if ( strpos( $agent, 'sch-i800' ) !== false ) {
 			return false;
 		}
 
