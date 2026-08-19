@@ -1,5 +1,6 @@
 import { withChartTheme } from '../../../stories/with-chart-theme';
 import { MetricTabsChart, type MetricTab } from '../metric-tabs-chart';
+import { MetricTabsChartSkeleton } from '../metric-tabs-chart-skeleton';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
@@ -61,6 +62,31 @@ const withCanvas: Decorator = Story => (
 	</div>
 );
 
+const WidgetCard = ( {
+	width,
+	height,
+	children,
+}: {
+	width: string;
+	height: string;
+	children: React.ReactNode;
+} ) => (
+	<div
+		style={ {
+			width,
+			height,
+			border: '1px solid var(--wpds-color-stroke-surface-neutral-weak)',
+			borderRadius: 'var(--wpds-border-radius-md)',
+			background: 'var(--wpds-color-background-surface-neutral)',
+			display: 'flex',
+			flexDirection: 'column',
+			overflow: 'hidden',
+		} }
+	>
+		<div style={ { position: 'relative', flex: 1, minHeight: 0 } }>{ children }</div>
+	</div>
+);
+
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/MetricTabsChart',
 	component: MetricTabsChart,
@@ -70,7 +96,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'A metric switcher over a comparative line chart: selectable cards (value + period-over-period delta), and the selected metric drawn as a current line with a dashed previous-period overlay. Shared by the subscribers and traffic charts.',
+					'A metric switcher over a comparative chart: selectable cards (value + period-over-period delta), and the selected metric drawn with its previous-period overlay. `chartType` picks the mark — a current line with a dashed previous-period overlay, or bars with a translucent previous-period shadow. Shared by the subscribers and traffic charts.',
 			},
 		},
 	},
@@ -90,6 +116,8 @@ export const Default: Story = {
 
 /**
  * A single metric with no previous period — just the current line, no delta.
+ * With nothing to switch to, the card drops its fill and pointer and reads as
+ * the widget's headline figure.
  */
 export const SingleMetric: Story = {
 	args: {
@@ -99,10 +127,29 @@ export const SingleMetric: Story = {
 };
 
 /**
- * The loading overlay shown over the chart while data resolves.
+ * The same metrics drawn as bars, with the previous period as the translucent
+ * shadow bar behind each current-period bar.
  */
-export const Loading: Story = {
-	args: { metrics: METRICS, dataFormat: DATA_FORMAT, loading: true },
+export const Bars: Story = {
+	args: { metrics: METRICS, dataFormat: DATA_FORMAT, chartType: 'bar' },
+};
+
+type SkeletonStory = StoryObj< typeof MetricTabsChartSkeleton >;
+
+export const Skeleton: SkeletonStory = {
+	render: () => (
+		<WidgetCard width="720px" height="320px">
+			<MetricTabsChartSkeleton />
+		</WidgetCard>
+	),
+};
+
+export const SkeletonShortTile: SkeletonStory = {
+	render: () => (
+		<WidgetCard width="360px" height="140px">
+			<MetricTabsChartSkeleton />
+		</WidgetCard>
+	),
 };
 
 /**

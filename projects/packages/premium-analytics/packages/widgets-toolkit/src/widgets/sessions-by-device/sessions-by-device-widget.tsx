@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { useReportSessionsByDevice } from '@jetpack-premium-analytics/data';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { device } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import { useMemo } from 'react';
 import { SemiCircleChart, WidgetState } from '../../components';
 /**
@@ -16,24 +16,10 @@ import { useSegmentStyles } from '../common';
 import styles from './sessions-by-device-widget.module.scss';
 
 /**
- * Sessions by Device Type Widget Component
+ * Semi-circle chart of sessions by device category (Mobile, Desktop, Tablet),
+ * with the period total in the center and per-device counts in the legend.
  *
- * Displays a semi-circle chart showing the breakdown of website sessions
- * by device category: Mobile, Desktop, and Tablet.
- *
- * Features:
- * - Shows total sessions in the center with comparison delta
- * - Legend with individual device counts and comparison deltas
- * - Supports comparison periods
- *
- * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <SessionsByDeviceWidget />
- * </WidgetRoot>
- * ```
+ * Must render within a WidgetRoot, which provides reportParams via context.
  */
 export function SessionsByDeviceWidget() {
 	const { reportParams } = useWidgetRootContext();
@@ -60,13 +46,13 @@ export function SessionsByDeviceWidget() {
 			error={ {
 				description: __(
 					"We couldn't load sessions data. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: device,
-				description: __( 'No session data in this period.', 'jetpack-premium-analytics' ),
+				description: __( 'No session data in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			{ /*

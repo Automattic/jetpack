@@ -414,6 +414,23 @@ function get_attribute( $attributes, $attribute_name ) {
 		'saveInPostContent' => false,
 	);
 
+	if ( 'element' === $attribute_name ) {
+		/**
+		 * Filter the HTML element the Button block falls back to when the block itself
+		 * does not specify one.
+		 *
+		 * Jetpack Forms uses this to default its submit button to `button` while a form
+		 * renders, since an `a` inside a form can never submit it.
+		 *
+		 * Values outside 'a', 'button' and 'input' are ignored by the render callback.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $element The default element. One of 'a', 'button', or 'input'.
+		 */
+		return apply_filters( 'jetpack_button_default_element', $default_attributes['element'] );
+	}
+
 	if ( isset( $default_attributes[ $attribute_name ] ) ) {
 		return $default_attributes[ $attribute_name ];
 	}

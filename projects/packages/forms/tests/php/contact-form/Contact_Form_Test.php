@@ -1307,6 +1307,29 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The rendered form must carry the hidden duration input and the focusin binding that
+	 * populates it. The storage-level tests build their POST data by hand, so without this
+	 * the whole feature could be removed from the markup and they would all still pass.
+	 */
+	public function test_rendered_form_carries_form_fill_duration_markup() {
+		$html = do_shortcode( "[contact-form][contact-field label='Name' type='name' required='1'/][/contact-form]" );
+
+		// Asserted as a pair: an unanchored `value=''` would also match the Name field, which
+		// renders an empty value of its own, so it would pass even if the duration input
+		// carried a default.
+		$this->assertStringContainsString(
+			"name='" . Feedback::FORM_FILL_DURATION_FIELD . "' value=''",
+			$html,
+			'The duration input should render empty so an unrecorded duration stores as null'
+		);
+		$this->assertStringContainsString(
+			'data-wp-on--focusin="actions.trackFirstInteraction"',
+			$html,
+			'The form wrapper should bind focusin to start the fill timer'
+		);
+	}
+
+	/**
 	 * Tests that the field attributes remain the same when no escaping is necessary.
 	 *
 	 * @author tonykova
@@ -1642,6 +1665,167 @@ class Contact_Form_Test extends BaseTestCase {
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'select' ) );
 		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	/**
+	 * Renders a slider field, optionally under a given form style.
+	 *
+	 * @param string $form_class_name The contact form's className attribute, e.g. 'is-style-outlined'.
+	 *
+	 * @return string The field html string.
+	 */
+	private function render_slider_field( $form_class_name = '' ) {
+		return $this->render_field(
+			array(
+				'label'               => 'How happy are you?',
+				'type'                => 'slider',
+				'fieldwrapperclasses' => 'wp-block-jetpack-field-slider',
+				'id'                  => 'sliderID',
+				'min'                 => 0,
+				'max'                 => 100,
+			),
+			$form_class_name ? array( 'className' => $form_class_name ) : array()
+		);
+	}
+
+	/**
+	 * Form styles that render an inset (in-field) label.
+	 *
+	 * @return array
+	 */
+	public static function inset_label_form_style_provider() {
+		return array(
+			'outlined' => array( 'is-style-outlined' ),
+			'animated' => array( 'is-style-animated' ),
+		);
+	}
+
+	/**
+	 * The slider has no single text-like input for a label to sit inside, so it must
+	 * keep the plain default label under the inset styles rather than have the label
+	 * positioned over the slider track.
+	 *
+	 * @dataProvider inset_label_form_style_provider
+	 *
+	 * @param string $form_class_name The contact form's className attribute.
+	 */
+	#[DataProvider( 'inset_label_form_style_provider' )]
+	public function test_slider_field_does_not_render_an_inset_label( $form_class_name ) {
+		$html = $this->render_slider_field( $form_class_name );
+
+		$this->assertStringNotContainsString( 'notched-label__label', $html );
+		$this->assertStringNotContainsString( 'animated-label__label', $html );
+	}
+
+	/**
+	 * Excluding a type from the inset label makes render_label() fall through to its
+	 * `! $always_render` early return, so the slider must pass $always_render = true
+	 * or its label disappears entirely under the inset styles.
+	 *
+	 * @dataProvider inset_label_form_style_provider
+	 *
+	 * @param string $form_class_name The contact form's className attribute.
+	 */
+	#[DataProvider( 'inset_label_form_style_provider' )]
+	public function test_slider_field_still_renders_its_label( $form_class_name ) {
+		$html = $this->render_slider_field( $form_class_name );
+
+		$this->assertStringContainsString( 'How happy are you?', $html );
+		$this->assertStringContainsString( '<label', $html );
+	}
+
+	/**
+	 * The 'below' style renders the label outside the field, so it is unaffected by
+	 * the inset-label exclusion and must still apply to sliders.
+	 */
+	public function test_slider_field_still_uses_the_below_label() {
+		$html = $this->render_slider_field( 'is-style-below' );
+
+		$this->assertStringContainsString( 'below-label__label', $html );
+		$this->assertStringContainsString( 'How happy are you?', $html );
+	}
+
+	/**
+	 * The exclusion must be scoped to the slider: ordinary text-like fields still get
+	 * their inset label under the same form styles.
+	 *
+	 * @dataProvider inset_label_form_style_provider
+	 *
+	 * @param string $form_class_name The contact form's className attribute.
+	 */
+	#[DataProvider( 'inset_label_form_style_provider' )]
+	public function test_text_field_still_renders_an_inset_label( $form_class_name ) {
+		$html = $this->render_field(
+			array(
+				'label' => 'Name',
+				'type'  => 'text',
+				'id'    => 'nameID',
+			),
+			array( 'className' => $form_class_name )
+		);
+
+		$expected_class = $form_class_name === 'is-style-outlined'
+			? 'notched-label__label'
+			: 'animated-label__label';
+
+		$this->assertStringContainsString( $expected_class, $html );
+	}
+
+	/**
+	 * Renders a rating field, optionally under a given form style.
+	 *
+	 * @param string $form_class_name The contact form's className attribute, e.g. 'is-style-outlined'.
+	 *
+	 * @return string The field html string.
+	 */
+	private function render_rating_field( $form_class_name = '' ) {
+		return $this->render_field(
+			array(
+				'label'               => 'Rate your experience',
+				'type'                => 'rating',
+				'fieldwrapperclasses' => 'wp-block-jetpack-field-rating',
+				'id'                  => 'ratingID',
+				'max'                 => 5,
+			),
+			$form_class_name ? array( 'className' => $form_class_name ) : array()
+		);
+	}
+
+	/**
+	 * The rating field is a group of radio inputs with no single text-like box, so it
+	 * must keep its plain legend label under the inset styles rather than have the
+	 * label positioned over the icons.
+	 *
+	 * Unlike the slider, it reaches this via render_legend_as_label() and never calls
+	 * render_label(), so it needs no entry in TYPES_WITHOUT_INSET_LABEL. This test
+	 * guards that assumption.
+	 *
+	 * @dataProvider inset_label_form_style_provider
+	 *
+	 * @param string $form_class_name The contact form's className attribute.
+	 */
+	#[DataProvider( 'inset_label_form_style_provider' )]
+	public function test_rating_field_does_not_render_an_inset_label( $form_class_name ) {
+		$html = $this->render_rating_field( $form_class_name );
+
+		$this->assertStringNotContainsString( 'notched-label__label', $html );
+		$this->assertStringNotContainsString( 'animated-label__label', $html );
+	}
+
+	/**
+	 * The rating field's label must survive under the inset styles, rendered as the
+	 * fieldset's legend.
+	 *
+	 * @dataProvider inset_label_form_style_provider
+	 *
+	 * @param string $form_class_name The contact form's className attribute.
+	 */
+	#[DataProvider( 'inset_label_form_style_provider' )]
+	public function test_rating_field_still_renders_its_label( $form_class_name ) {
+		$html = $this->render_rating_field( $form_class_name );
+
+		$this->assertStringContainsString( 'Rate your experience', $html );
+		$this->assertStringContainsString( '<legend', $html );
 	}
 
 	/**
@@ -2464,6 +2648,75 @@ class Contact_Form_Test extends BaseTestCase {
 	public function test_get_default_to_for_editor_with_null() {
 		$result = Contact_Form::get_default_to_for_editor( null );
 		$this->assertEquals( get_option( 'admin_email' ), $result );
+	}
+
+	/**
+	 * Tests get_default_to_with_source reports the post author branch.
+	 */
+	public function test_get_default_to_with_source_reports_post_author() {
+		$email     = 'source_author@example.com';
+		$author_id = wp_insert_user(
+			array(
+				'user_email' => $email,
+				'user_login' => 'test_source_author',
+				'user_pass'  => 'password123',
+				'role'       => 'editor',
+			)
+		);
+		$post_id   = wp_insert_post(
+			array(
+				'post_title'  => 'Test Post',
+				'post_status' => 'publish',
+				'post_author' => $author_id,
+			)
+		);
+
+		$result = Contact_Form::get_default_to_with_source( get_post( $post_id ) );
+
+		$this->assertSame( $email, $result['to'] );
+		$this->assertSame( 'post_author', $result['source'] );
+
+		wp_delete_user( $author_id );
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Tests get_default_to_with_source falls back to the site admin when there is no post.
+	 */
+	public function test_get_default_to_with_source_reports_site_admin_without_post() {
+		$result = Contact_Form::get_default_to_with_source( null );
+
+		$this->assertSame( get_option( 'admin_email' ), $result['to'] );
+		$this->assertSame( 'site_admin', $result['source'] );
+	}
+
+	/**
+	 * Tests get_default_to_with_source falls back to the site admin when the author cannot edit the post.
+	 */
+	public function test_get_default_to_with_source_reports_site_admin_for_subscriber_author() {
+		$author_id = wp_insert_user(
+			array(
+				'user_email' => 'source_subscriber@example.com',
+				'user_login' => 'test_source_subscriber',
+				'user_pass'  => 'password123',
+				'role'       => 'subscriber',
+			)
+		);
+		$post_id   = wp_insert_post(
+			array(
+				'post_title'  => 'Test Post',
+				'post_status' => 'publish',
+				'post_author' => $author_id,
+			)
+		);
+
+		$result = Contact_Form::get_default_to_with_source( get_post( $post_id ) );
+
+		$this->assertSame( get_option( 'admin_email' ), $result['to'] );
+		$this->assertSame( 'site_admin', $result['source'] );
+
+		wp_delete_user( $author_id );
+		wp_delete_post( $post_id, true );
 	}
 
 	/**
@@ -4824,5 +5077,60 @@ class Contact_Form_Test extends BaseTestCase {
 			array_keys( $form->fields ),
 			'Explicit suffixed IDs that collide with generated ones should still resolve to unique IDs.'
 		);
+	}
+
+	/**
+	 * Invoke a private static Contact_Form method.
+	 *
+	 * @param string $name Method name.
+	 * @param array  $args Arguments.
+	 * @return mixed
+	 */
+	private function invoke_private_static( $name, $args ) {
+		$method = new \ReflectionMethod( Contact_Form::class, $name );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invokeArgs( null, $args );
+	}
+
+	/**
+	 * The icon key is written into data-rendered-type and compared by the JS
+	 * hydration callback, so a checkbox has to key off its answer as well as its
+	 * type. Everything else keys off the type alone.
+	 */
+	public function test_get_field_type_icon_key_reflects_the_checkbox_answer() {
+		$this->assertSame( 'checkbox', $this->invoke_private_static( 'get_field_type_icon_key', array( 'checkbox', 'Yes' ) ) );
+		$this->assertSame( 'checkbox:unchecked', $this->invoke_private_static( 'get_field_type_icon_key', array( 'checkbox', '' ) ) );
+		$this->assertSame( 'checkbox:unchecked', $this->invoke_private_static( 'get_field_type_icon_key', array( 'checkbox', 'No' ) ) );
+
+		// Other types never vary with the value.
+		$this->assertSame( 'text', $this->invoke_private_static( 'get_field_type_icon_key', array( 'text', '' ) ) );
+		$this->assertSame( 'consent', $this->invoke_private_static( 'get_field_type_icon_key', array( 'consent', '' ) ) );
+	}
+
+	/**
+	 * A ticked and an unticked checkbox must render different SVGs, and only the
+	 * ticked one carries the checkmark path.
+	 */
+	public function test_get_field_type_icon_returns_the_variant_for_an_unchecked_box() {
+		$checkmark_path = 'M10.5171 16.4421';
+
+		$checked   = $this->invoke_private_static( 'get_field_type_icon', array( 'checkbox', 'Yes' ) );
+		$unchecked = $this->invoke_private_static( 'get_field_type_icon', array( 'checkbox', '' ) );
+
+		$this->assertNotSame( '', $checked, 'The checkbox icon should be readable from disk.' );
+		$this->assertNotSame( $checked, $unchecked );
+		$this->assertStringContainsString( $checkmark_path, $checked );
+		$this->assertStringNotContainsString( $checkmark_path, $unchecked );
+	}
+
+	/**
+	 * A field type that does not fit the `field-{type}` convention is rejected
+	 * rather than turned into a path.
+	 */
+	public function test_get_field_type_icon_rejects_unexpected_types() {
+		$this->assertSame( '', $this->invoke_private_static( 'get_field_type_icon', array( '../../etc/passwd', '' ) ) );
+		$this->assertSame( '', $this->invoke_private_static( 'get_field_type_icon', array( '', '' ) ) );
 	}
 }

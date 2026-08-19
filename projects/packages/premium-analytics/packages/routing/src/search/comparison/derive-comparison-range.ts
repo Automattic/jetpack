@@ -4,11 +4,11 @@
 import {
 	normalizeReportParams,
 	dateToISOStringWithLocalTZ,
-	getSiteTimezone,
 	localTZDate,
 } from '@jetpack-premium-analytics/data';
 import {
 	getComparisonRangeFromPreset,
+	siteTimeZone,
 	type ComparisonPresetId,
 } from '@jetpack-premium-analytics/datetime';
 
@@ -26,9 +26,6 @@ const toComparisonPresetId = ( value?: string ): ComparisonPresetId | undefined 
 		case 'previous-period':
 		case 'previous_period':
 			return 'previous-period';
-		case 'previous-week':
-		case 'previous_week':
-			return 'previous-week';
 		case 'previous-month':
 		case 'previous_month':
 			return 'previous-month';
@@ -56,36 +53,36 @@ export function deriveComparisonRange( opts: ReportParams ):
 			compare_to: string;
 	  }
 	| undefined {
-	// Require comparison enabled + preset
+	// Require comparison enabled + preset. `comp` is compared loosely: the
+	// router JSON-parses search values, so an unquoted URL delivers number 1.
 	const presetId = toComparisonPresetId( opts.compare_preset );
-	if ( opts.comp !== '1' || ! presetId ) {
+	if ( String( opts.comp ) !== '1' || ! presetId ) {
 		return undefined;
 	}
 
-	// Need valid main range
 	if ( ! opts.from || ! opts.to ) {
 		return undefined;
 	}
 
-	// Parse URL params (ISO+offset) to instants
-	const fromInstant = new Date( opts.from );
-	const toInstant = new Date( opts.to );
-	if ( isNaN( fromInstant.getTime() ) || isNaN( toInstant.getTime() ) ) {
+	/*
+	 * Parse the URL params through the same reader the picker uses, so an
+	 * offset-less `from`/`to` anchors to the site zone here too. Parsing them as
+	 * raw instants would put a date-only deep link on UTC midnight, which is a
+	 * different calendar day — and a different alignment — than the picker shows.
+	 * Day boundaries then resolve site-locally: day-aligned ranges keep
+	 * day-aligned comparisons; rolling windows (e.g. last-24-hours) mirror the
+	 * exact window.
+	 */
+	const timezone = siteTimeZone();
+	const reference = {
+		from: localTZDate( opts.from, timezone ),
+		to: localTZDate( opts.to, timezone ),
+	};
+
+	if ( isNaN( reference.from.getTime() ) || isNaN( reference.to.getTime() ) ) {
 		return undefined;
 	}
 
-	/*
-	 * Interpret the instants in the site timezone so day boundaries resolve
-	 * site-locally. Day-aligned ranges keep day-aligned comparisons; rolling
-	 * windows (e.g. last-24-hours) mirror the exact window.
-	 */
-	const timezone = getSiteTimezone();
-	const reference = {
-		from: localTZDate( fromInstant.getTime(), timezone ),
-		to: localTZDate( toInstant.getTime(), timezone ),
-	};
-
-	// Compute comparison range (Dates)
 	const cmp = getComparisonRangeFromPreset( reference, presetId );
 	if ( ! cmp?.from || ! cmp?.to ) {
 		return undefined;

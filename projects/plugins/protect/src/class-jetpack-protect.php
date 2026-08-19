@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Automattic\Jetpack\Account_Protection\Settings as Account_Protection_Settings;
+use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
@@ -139,6 +140,9 @@ class Jetpack_Protect {
 
 		REST_Controller::init();
 		My_Jetpack_Initializer::init();
+		// Activity Log. Idempotent, so it no-ops when the Jetpack plugin already
+		// initialized the package on this request.
+		Jetpack_Activity_Log::initialize();
 		Site_Health::init();
 
 		// Sets up JITMS.

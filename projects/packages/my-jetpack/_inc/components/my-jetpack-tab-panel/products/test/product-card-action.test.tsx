@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router';
 import { ProductCamelCase } from '../../../../data/types';
 import { MyJetpackModule } from '../../../../types';
 import { setPendingSuccessNotice } from '../pending-notice';
@@ -48,6 +49,11 @@ const formsModule = { available: true, activated: true } as unknown as MyJetpack
 describe( 'ProductCardAction', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		// The suite renders as an internal tester by default so the AI toggle is
+		// visible; the pre-release gate tests below override this per test.
+		window.myJetpackInitialState = {
+			myJetpackFlags: { showAiModuleToggle: true },
+		} as unknown as Window[ 'myJetpackInitialState' ];
 	} );
 
 	it( 'renders the activation toggle for the Forms product instead of a Learn more link', () => {
@@ -56,6 +62,108 @@ describe( 'ProductCardAction', () => {
 		// Active product shows the "Active" badge and a toggle, not a "Learn more" button.
 		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /learn more/i } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the activation toggle for AI even when inactive, instead of a Learn more link', () => {
+		// AI is the site-wide master switch: the card must show an inline on/off toggle
+		// in both states rather than the "Learn more" upsell that routes to the pricing
+		// interstitial. An inactive product with no paid plan would otherwise fall through
+		// to the UpgradeAction ("Learn more") path.
+		render(
+			<ProductCardAction
+				product={ buildProduct( { slug: 'jetpack-ai', name: 'AI', status: 'inactive' } ) }
+				module={ formsModule }
+			/>
+		);
+
+		expect( screen.queryByRole( 'button', { name: /learn more/i } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox' ) ).toBeInTheDocument();
+	} );
+
+	it( 'reflects the AI module active state, not product.status (free tier reports can_upgrade)', () => {
+		// Jetpack AI on a free site reports status "can_upgrade" even when its module
+		// is active. The toggle must follow the module's activated state, or it reads
+		// "off" while AI is actually running.
+		const activeModule = { available: true, activated: true } as unknown as MyJetpackModule;
+		render(
+			<ProductCardAction
+				product={ buildProduct( { slug: 'jetpack-ai', name: 'AI', status: 'can_upgrade' } ) }
+				module={ activeModule }
+			/>
+		);
+
+		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
+	} );
+
+	it( 'reloads the page after toggling AI: the toggle reads module state the mutation does not update', async () => {
+		// The AI toggle is driven by $module.activated (not product.status), and
+		// the activate mutation only updates product.status — without a reload
+		// the just-flipped toggle keeps showing the old state.
+		const inactiveModule = { available: true, activated: false } as unknown as MyJetpackModule;
+		render(
+			<ProductCardAction
+				product={ buildProduct( { slug: 'jetpack-ai', name: 'AI', status: 'inactive' } ) }
+				module={ inactiveModule }
+			/>
+		);
+
+		await userEvent.click( screen.getByRole( 'checkbox' ) );
+
+		expect( mockActivate ).toHaveBeenCalled();
+		expect( setPendingSuccessNotice ).toHaveBeenCalledWith(
+			expect.stringContaining( 'activated' )
+		);
+		expect( reloadPage ).toHaveBeenCalled();
+	} );
+
+	it( 'pre-release gate: hides the AI toggle without the showAiModuleToggle flag', () => {
+		// Outside internal testing environments the AI card keeps its standard
+		// action: an inactive free product falls through to "Learn more".
+		window.myJetpackInitialState = {
+			myJetpackFlags: {},
+		} as unknown as Window[ 'myJetpackInitialState' ];
+		// UpgradeAction navigates to the interstitial, so it needs a router.
+		render(
+			<MemoryRouter>
+				<ProductCardAction
+					product={ buildProduct( { slug: 'jetpack-ai', name: 'AI', status: 'inactive' } ) }
+					module={ formsModule }
+				/>
+			</MemoryRouter>
+		);
+
+		expect( screen.getByRole( 'button', { name: /learn more/i } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'pre-release gate: an AI card built without a module renders an inert toggle', () => {
+		// Gated cards are built with no module (see getProductModules), which is
+		// what the card looked like before AI became a module: the generic
+		// branch renders a toggle that cannot be flipped.
+		window.myJetpackInitialState = {
+			myJetpackFlags: {},
+		} as unknown as Window[ 'myJetpackInitialState' ];
+		render(
+			<ProductCardAction
+				product={ buildProduct( {
+					slug: 'jetpack-ai',
+					name: 'AI',
+					status: 'active',
+					hasPaidPlanForProduct: true,
+				} ) }
+			/>
+		);
+
+		expect( screen.getByRole( 'checkbox' ) ).toBeDisabled();
+	} );
+
+	it( 'pre-release gate: the Forms toggle is unaffected by the flag', () => {
+		window.myJetpackInitialState = {
+			myJetpackFlags: {},
+		} as unknown as Window[ 'myJetpackInitialState' ];
+		render( <ProductCardAction product={ buildProduct() } module={ formsModule } /> );
+
 		expect( screen.getByRole( 'checkbox' ) ).toBeInTheDocument();
 	} );
 
@@ -85,10 +193,12 @@ describe( 'ProductCardAction', () => {
 	} );
 
 	it( 'reloads the page after activating Forms so the admin sidebar updates', async () => {
+		// Toggle starts off (module inactive), so clicking it activates.
+		const inactiveModule = { available: true, activated: false } as unknown as MyJetpackModule;
 		render(
 			<ProductCardAction
 				product={ buildProduct( { status: 'inactive' } ) }
-				module={ formsModule }
+				module={ inactiveModule }
 			/>
 		);
 

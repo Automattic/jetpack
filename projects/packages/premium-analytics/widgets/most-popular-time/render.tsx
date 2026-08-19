@@ -9,7 +9,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { scheduled } from '@wordpress/icons';
-import { Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -42,9 +42,6 @@ type HighlightProps = {
 /**
  * A single "best day" / "best hour" highlight: a label, the peak value rendered
  * as a large display figure, and its share of total views.
- *
- * @param {HighlightProps} props - The component props.
- * @return The highlight block.
  */
 function Highlight( { label, value, percent }: HighlightProps ) {
 	return (
@@ -58,7 +55,7 @@ function Highlight( { label, value, percent }: HighlightProps ) {
 			<Text variant="body-md" className={ styles.caption }>
 				{ sprintf(
 					/* translators: %d: share of total views as a whole percent. */
-					__( '%d%% of views', 'jetpack-premium-analytics' ),
+					__( '%d%% of views', 'jetpack-premium-analytics-pkg' ),
 					percent
 				) }
 			</Text>
@@ -70,8 +67,6 @@ function Highlight( { label, value, percent }: HighlightProps ) {
  * Fetches the insights report through the `useStatsInsights` Stats hook and
  * renders the most-popular-time highlights — the peak day and hour, each with
  * its share of views.
- *
- * @return The widget content.
  */
 function MostPopularTimeReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsInsights();
@@ -90,29 +85,32 @@ function MostPopularTimeReport() {
 				error={ {
 					description: __(
 						"We couldn't load your most popular time. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					actions: [
-						{ label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: () => void refetch() },
+						{
+							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
+							onClick: () => void refetch(),
+						},
 					],
 				} }
 				empty={ {
 					icon: scheduled,
 					description: __(
 						'Not enough data to determine your most popular time yet.',
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 				} }
 			>
 				{ report?.day && report?.hour && (
 					<Stack className={ styles.root } direction="column" gap="lg">
 						<Highlight
-							label={ __( 'Best day', 'jetpack-premium-analytics' ) }
+							label={ __( 'Best day', 'jetpack-premium-analytics-pkg' ) }
 							value={ report.day }
 							percent={ report.percent ?? 0 }
 						/>
 						<Highlight
-							label={ __( 'Best hour', 'jetpack-premium-analytics' ) }
+							label={ __( 'Best hour', 'jetpack-premium-analytics-pkg' ) }
 							value={ report.hour }
 							percent={ report.hourPercent ?? 0 }
 						/>
@@ -124,14 +122,9 @@ function MostPopularTimeReport() {
 }
 
 /**
- * Widget render entry point.
- *
  * Passes host attributes into `WidgetRoot` for the widget contract. The insights
  * report takes no parameters, so the inner component reads nothing from
  * `attributes`.
- *
- * @param {MostPopularTimeWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function MostPopularTime( { attributes = {} }: MostPopularTimeWidgetProps ) {
 	return (

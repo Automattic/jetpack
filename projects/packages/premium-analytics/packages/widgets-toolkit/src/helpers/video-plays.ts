@@ -21,7 +21,7 @@ import type { StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
 export function getVideoLabel( video: StatsVideoPlaysItem ) {
 	return typeof video.label === 'string' && video.label
 		? video.label
-		: __( 'Untitled video', 'jetpack-premium-analytics' );
+		: __( 'Untitled video', 'jetpack-premium-analytics-pkg' );
 }
 
 /**

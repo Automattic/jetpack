@@ -15,18 +15,21 @@ export const POST_DETAIL_TAB_IDS = [ 'post-traffic', 'email-opens', 'email-click
 
 /**
  * Post-detail tab identifier.
- * Derived from POST_DETAIL_TAB_IDS to keep the union in sync with the source list.
  */
 export type PostDetailTabId = ( typeof POST_DETAIL_TAB_IDS )[ number ];
+
+/**
+ * The tabs that describe the post's newsletter send rather than the post
+ * itself. The header keys its email identity off this list, so a future tab
+ * defaults to the post identity unless it is added here.
+ */
+export const EMAIL_TAB_IDS: readonly PostDetailTabId[] = [ 'email-opens', 'email-clicks' ];
 
 /**
  * Default tab shown when the URL has no (or an unknown) tab param.
  */
 export const DEFAULT_TAB_ID: PostDetailTabId = 'post-traffic';
 
-/**
- * A post-detail tab definition.
- */
 export type PostDetailTab = {
 	id: PostDetailTabId;
 	label: string;
@@ -43,9 +46,9 @@ const TAB_DEFINITIONS: ReadonlyArray< {
 	id: PostDetailTabId;
 	getLabel: () => string;
 } > = [
-	{ id: 'post-traffic', getLabel: () => __( 'Post traffic', 'jetpack-premium-analytics' ) },
-	{ id: 'email-opens', getLabel: () => __( 'Email opens', 'jetpack-premium-analytics' ) },
-	{ id: 'email-clicks', getLabel: () => __( 'Email clicks', 'jetpack-premium-analytics' ) },
+	{ id: 'post-traffic', getLabel: () => __( 'Post traffic', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'email-opens', getLabel: () => __( 'Email opens', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'email-clicks', getLabel: () => __( 'Email clicks', 'jetpack-premium-analytics-pkg' ) },
 ];
 
 /**
@@ -60,9 +63,6 @@ export function getTabLabel( id: PostDetailTabId ): string {
 
 /**
  * Build the ordered list of tab definitions ({ id, label }).
- *
- * Labels are resolved lazily (at call time) so translations are applied after
- * the i18n locale data has loaded.
  *
  * @return Ordered list of tab definitions.
  */

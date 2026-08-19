@@ -22,7 +22,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Contr
  * This controller automatically filters for booking product types:
  * 'booking', 'bookable-event', and 'bookable-service'.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Bookings_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 
@@ -41,7 +41,7 @@ class Bookings_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Bookings Over Time', 'jetpack-premium-analytics' );
+		return __( 'Bookings Over Time', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -62,7 +62,7 @@ class Bookings_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 	public function get_column_headers( ?string $interval = null ): array {
 		return array(
 			'time_interval' => $this->get_interval_label( $interval ),
-			'orders_no'     => __( 'Bookings created', 'jetpack-premium-analytics' ),
+			'orders_no'     => __( 'Bookings created', 'jetpack-premium-analytics-pkg' ),
 		);
 	}
 

@@ -54,6 +54,6 @@
 }
 
 .legend-item-value {
-	font-weight: var(--wpds-typography-font-weight-medium, 499);
+	font-weight: var(--wpds-typography-font-weight-emphasis, 499);
 	flex-shrink: 0; // Prevent value from shrinking when text is ellipsized
 }

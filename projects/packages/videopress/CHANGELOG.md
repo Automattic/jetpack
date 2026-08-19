@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.46.0] - 2026-08-13
+### Added
+- Show the free-plan upgrade notice on the Library and Settings tabs once the free video upload has been used. [#51186]
+
+### Changed
+- Update package dependencies. [#51125]
+
+## [0.45.0] - 2026-08-10
+### Security
+- Improve escaping of block attributes rendered into inline styles.
+- Restrict the site information endpoint to administrators.
+- Verify per-attachment permissions when uploading or promoting a video.
+- Verify per-video access before issuing a playback token via the REST endpoint.
+- Verify per-video permissions on the poster endpoint.
+- Verify per-video permissions when updating video metadata.
+
+### Added
+- Chapters: Add an Editor tab with a Chapters tool to the video dashboard and a chapter manager modal in the block editor, behind a feature flag that is off by default. [#50986]
+
+### Changed
+- Dashboard: Update the admin page subtitle copy. [#51062]
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Dashboard: Fix the blank Library page on right-to-left locales caused by a missing RTL stylesheet. [#51111]
+- Dashboard: Prevent a fatal error on the VideoPress page when the WordPress.com pricing request fails on a disconnected site. [#50986]
+- Editor: Fix the age gate so the birth date can be submitted and lowering a video's rating removes the gate. [#51069]
+
+## [0.44.0] - 2026-08-03
+### Added
+- Library: Allow selecting multiple video files from the Upload video button for bulk uploading. [#50794]
+
+### Fixed
+- Block: Fix selecting an existing local video from the media library on WordPress.com Simple (promote in place instead of the unreachable videopress/v1 upload), and stop the error screen's Retry from crashing when there is no file to restart. [#50844]
+- Dashboard: Fix cramped spacing in the Chapters help modal and let long dialog content scroll. [#50968]
+- Library: Allow multi-selecting local videos; Upload to VideoPress works as a bulk action and Delete covers local rows. [#50840]
+- Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundles. [#50762]
+- Video block: Keep preview-on-hover poster and title customization in sync with the player API. [#50702]
+
+## [0.43.0] - 2026-07-27
+### Added
+- Admin menu: Keep the VideoPress item under the Jetpack menu when VideoPress is not active, linking to the My Jetpack page to activate it. [#50740]
+- Library: Show an orientation indicator icon on each video in the dashboard library. [#50793]
+- Allow promoting existing local videos to VideoPress on WordPress.com Simple via an in-process wpcom/v2 endpoint. [#50611]
+
+### Changed
+- Update package dependencies. [#50751] [#50753] [#50792]
+- Make Library the default dashboard screen and move stats to a Stats tab. [#50698]
+
 ## [0.42.0] - 2026-07-20
 ### Added
 - Library: Show live transcoding progress on processing videos after upload. [#50550]
@@ -2100,6 +2149,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.46.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.45.0...v0.46.0
+[0.45.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.44.0...v0.45.0
+[0.44.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.43.0...v0.44.0
+[0.43.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.42.0...v0.43.0
 [0.42.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.41.0...v0.42.0
 [0.41.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.40.0...v0.41.0
 [0.40.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.39.0...v0.40.0

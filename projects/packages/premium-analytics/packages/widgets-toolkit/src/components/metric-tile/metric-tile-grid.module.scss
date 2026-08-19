@@ -1,4 +1,5 @@
-$metric-tile-grid-wide-min-inline-size: 640px;
+@use "../../styles/widget-container" as *;
+
 // Height at which a wide cell has room for a balanced two-row grid instead of a
 // single row of tiles. Tunable — below this, wide cells stay one row.
 $metric-tile-grid-grid-min-block-size: 360px;
@@ -68,7 +69,7 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	overflow: hidden;
 	color: var(--wpds-color-foreground-content-neutral);
 	font-size: clamp(var(--wpds-typography-font-size-xl), 10cqh, $metric-tile-grid-row-value-font-size-max);
-	font-weight: var(--wpds-typography-font-weight-regular);
+	font-weight: var(--wpds-typography-font-weight-default);
 	line-height: 1.2;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -95,7 +96,7 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 }
 
 .placeholder {
-	font-weight: var(--wpds-typography-font-weight-medium);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
 }
 
 .tile .placeholder {
@@ -104,7 +105,7 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 
 /* Wide but short: one row of centered tiles. `grid-auto-flow: column` makes the
  * column count follow the tile count on its own — no explicit column value. */
-@container (min-width: #{$metric-tile-grid-wide-min-inline-size}) {
+@container (min-inline-size: #{$widget-wide-min-inline-size}) {
 
 	.grid {
 		grid-template-columns: none;
@@ -141,9 +142,23 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	}
 }
 
+/* Wide but height-1 short: keep the columns — stacked rows are taller past one
+ * tile — and tighten the tile so the value still fits. */
+@container (min-inline-size: #{$widget-wide-min-inline-size}) and (max-block-size: #{$widget-short-max-block-size}) {
+
+	.tile {
+		padding-block: var(--wpds-dimension-padding-sm);
+	}
+
+	.tile .value,
+	.tile .placeholder {
+		line-height: 1;
+	}
+}
+
 /* Wide and tall: a balanced two-column grid of large centered tiles. Resets the
  * one-row flow set above so tiles wrap into rows again. */
-@container (min-width: #{$metric-tile-grid-wide-min-inline-size}) and (min-height: #{$metric-tile-grid-grid-min-block-size}) {
+@container (min-inline-size: #{$widget-wide-min-inline-size}) and (min-block-size: #{$metric-tile-grid-grid-min-block-size}) {
 
 	.grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));

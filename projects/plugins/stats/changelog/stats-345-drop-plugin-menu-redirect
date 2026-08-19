@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Show the Stats dashboard on a site with no connection instead of redirecting to My Jetpack.

@@ -2,7 +2,8 @@
  * External dependencies
  */
 import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data';
-import { useDashboardLink } from '@jetpack-premium-analytics/routing';
+import { EmptyState, Text } from '@jetpack-premium-analytics/externals';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	MetricValue,
 	ReportErrorState,
@@ -10,16 +11,18 @@ import {
 	ReportPageSection,
 	ReportPageShell,
 	ReportRecordsTable,
+	ReportCsvAction,
+	useReportCsvExport,
 	useReportRetry,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { EmptyState, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import { REPORTS } from '../registry';
 import { getCommentFollowersFields, useCommentFollowersReportRecords } from './config';
 import styles from './page.module.css';
 
@@ -36,6 +39,9 @@ const RECORDS_VIEW = {
 		},
 	},
 };
+
+const sortCommentFollowerCsvRows = ( a: StatsCommentFollowersItem, b: StatsCommentFollowersItem ) =>
+	b.followers - a.followers;
 
 /**
  * Stable row id for the records table.
@@ -59,33 +65,55 @@ function getCommentFollowerRowId( item: StatsCommentFollowersItem ): string {
 function CommentFollowersReport(): JSX.Element {
 	const records = useCommentFollowersReportRecords();
 	const fields = useMemo( () => getCommentFollowersFields(), [] );
+	const csvColumns = useMemo< CsvColumn< StatsCommentFollowersItem >[] >(
+		() => [
+			{
+				label: __( 'Post', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => String( row.label ?? '' ),
+			},
+			{
+				label: __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.followers,
+			},
+			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
+		],
+		[]
+	);
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows: records.rows,
+		filenamePrefix: 'comment-subscribers',
+		status: records,
+		sort: sortCommentFollowerCsvRows,
+	} );
 	const retry = useReportRetry( records.refetch );
 
-	// Preserve the shared report window when returning to the dashboard.
-	const dashboardLink = useDashboardLink();
+	const { getLabel, getTitle } = REPORTS[ 'comment-followers' ];
 
 	return (
 		<ReportPageShell
-			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Comments Subscribers', 'jetpack-premium-analytics' ) },
-					] }
-				/>
+			visual={ <StatsPageIcon /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
+			actions={
+				canExport ? (
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) : undefined
 			}
 		>
-			<ReportPageLayout>
+			<ReportPageLayout title={ getTitle() }>
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load subscribers', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load subscribers', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (
 					<>
 						<ReportPageSection className={ styles.summary }>
 							<Text variant="heading-md" render={ <h3 /> }>
-								{ __( 'All Posts', 'jetpack-premium-analytics' ) }
+								{ __( 'All Posts', 'jetpack-premium-analytics-pkg' ) }
 							</Text>
 							{ records.isLoading ? (
 								<Spinner />
@@ -102,11 +130,11 @@ function CommentFollowersReport(): JSX.Element {
 							getItemId={ getCommentFollowerRowId }
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
 							empty={
 								<EmptyState.Root>
 									<EmptyState.Title>
-										{ __( 'No subscribers', 'jetpack-premium-analytics' ) }
+										{ __( 'No subscribers', 'jetpack-premium-analytics-pkg' ) }
 									</EmptyState.Title>
 								</EmptyState.Root>
 							}

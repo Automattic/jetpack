@@ -4,12 +4,15 @@
 import {
 	GeoChart,
 	LeaderboardChart,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
 	calculateDelta,
 	flagUrl,
+	getCombinedPeriodMax,
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -23,7 +26,7 @@ import {
 import { location as locationIcon } from '@jetpack-premium-analytics/icons';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -60,6 +63,18 @@ const MISSING_MAP_ERROR_MESSAGE = 'Requested map does not exist';
 // load each country pays the failed draw (a brief error flash) at most once.
 const runtimeUnsupportedProvinceMapCountries = new Set< string >();
 
+type GeoGranularity = NonNullable< LocationsAttributes[ 'geoGranularity' ] >;
+// Tab ids owned by the Locations report; `ReportLink` takes a bare string, so
+// naming them here is what catches a typo at build time.
+type LocationsReportSection = 'countries' | 'regions' | 'cities';
+
+const REPORT_SECTIONS: Record< GeoGranularity, LocationsReportSection > = {
+	country: 'countries',
+	region: 'regions',
+	city: 'cities',
+};
+const DEFAULT_GEO_GRANULARITY: GeoGranularity = 'country';
+
 function getGeoChartCountryId( countryCode: string ): string {
 	if ( countryCode.toUpperCase() === 'TW' ) {
 		return 'Taiwan';
@@ -74,9 +89,6 @@ type LocationsInnerProps = Required< Pick< LocationsAttributes, 'max' | 'geoGran
  * Locations widget inner component. Reads report params from WidgetRoot
  * context. Attributes arrive already normalized by the outer component, so
  * defaults are applied in exactly one place.
- *
- * @param {LocationsInnerProps} props - The normalized widget attributes.
- * @return The rendered widget content.
  */
 function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -91,9 +103,10 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	} = useWidgetDrillDown< DrillDownCountry >();
 
 	// The "View by" control lives in the widget host header (the
-	// `relevance: 'high'` attribute). City mode disables country drill-down.
+	// `relevance: 'high'` attribute). Only Countries mode drills down, so leaving
+	// the other modes would strand a selected country the user can't clear.
 	useEffect( () => {
-		if ( geoGranularity === 'city' ) {
+		if ( geoGranularity !== 'country' ) {
 			clearSelectedCountry();
 		}
 	}, [ clearSelectedCountry, geoGranularity ] );
@@ -107,7 +120,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 			reportParams,
 			max,
 			geoMode,
-			countryFilter: geoMode === 'region' ? activeSelectedCountry?.code : undefined,
+			countryFilter: activeSelectedCountry?.code,
 		} );
 	const [ renderLocationState, setRenderLocationState ] = useState< RenderLocationState >( {
 		geoMode,
@@ -134,11 +147,15 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	const useCountryFallbackMap =
 		renderGeoMode === 'region' && !! renderSelectedCountry && ! useProvinceMap;
 	const fallbackCountry = useCountryFallbackMap ? renderSelectedCountry : undefined;
-	const useCityCountryMap = renderGeoMode === 'city';
-	const cityCountryRows = useMemo( () => {
+	// Cities, and Regions outside a country drill-down, span the whole world.
+	// Google GeoChart can't place either row type on the world map, so both are
+	// summed back up to their country.
+	const useCountrySummaryMap =
+		renderGeoMode === 'city' || ( renderGeoMode === 'region' && ! renderSelectedCountry );
+	const countrySummaryRows = useMemo( () => {
 		const countryRows = new Map< string, { countryFull: string; value: number } >();
 
-		if ( ! useCityCountryMap ) {
+		if ( ! useCountrySummaryMap ) {
 			return [];
 		}
 
@@ -152,7 +169,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 		} );
 
 		return Array.from( countryRows.entries() );
-	}, [ data, useCityCountryMap ] );
+	}, [ data, useCountrySummaryMap ] );
 	const handleGeoChartError = useCallback(
 		( error: GeoChartError ) => {
 			const message = `${ error.message ?? '' } ${ error.detailedMessage ?? '' }`;
@@ -201,12 +218,13 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	);
 
 	const geoData = useMemo( (): GeoData => {
-		const useLocationHeader = renderGeoMode === 'region' && ! useCountryFallbackMap;
+		// Only the provinces map plots sub-country rows; every other map is
+		// country-scoped, whatever the leaderboard beside it lists.
 		const header: GoogleDataTableColumn[] = [
-			useLocationHeader
-				? __( 'Location', 'jetpack-premium-analytics' )
-				: __( 'Country', 'jetpack-premium-analytics' ),
-			__( 'Views', 'jetpack-premium-analytics' ),
+			useProvinceMap
+				? __( 'Location', 'jetpack-premium-analytics-pkg' )
+				: __( 'Country', 'jetpack-premium-analytics-pkg' ),
+			__( 'Views', 'jetpack-premium-analytics-pkg' ),
 		];
 
 		if ( fallbackCountry ) {
@@ -227,10 +245,10 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 			];
 		}
 
-		if ( useCityCountryMap ) {
+		if ( useCountrySummaryMap ) {
 			return [
 				header,
-				...cityCountryRows.map(
+				...countrySummaryRows.map(
 					( [ countryCode, location ] ): GoogleDataTableRow => [
 						{
 							v: getGeoChartCountryId( countryCode ),
@@ -244,18 +262,13 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 
 		const rows: GoogleDataTableRow[] = data.map( location => [ location.label, location.value ] );
 		return [ header, ...rows ];
-	}, [
-		cityCountryRows,
-		data,
-		fallbackCountry,
-		renderGeoMode,
-		useCityCountryMap,
-		useCountryFallbackMap,
-	] );
+	}, [ countrySummaryRows, data, fallbackCountry, useCountrySummaryMap, useProvinceMap ] );
 
 	const leaderboardData = useMemo( () => {
-		const maxValue = Math.max( ...data.map( l => l.value ), 0 );
-		const maxComparisonValue = Math.max( ...data.map( l => l.previousValue ?? 0 ), 0 );
+		const maxValue = getCombinedPeriodMax(
+			data.map( location => location.value ),
+			hasComparison ? data.map( location => location.previousValue ) : []
+		);
 
 		return data.map( location => {
 			const imageUrl = flagUrl( location.countryCode );
@@ -282,7 +295,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 										} ),
 									ariaLabel: sprintf(
 										/* translators: %s is the country name */
-										__( 'View regions in %s', 'jetpack-premium-analytics' ),
+										__( 'View regions in %s', 'jetpack-premium-analytics-pkg' ),
 										location.countryFull
 									),
 							  }
@@ -293,7 +306,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 				currentShare: sharePercentage( location.value, maxValue ),
 				previousShare:
 					hasComparison && previousValue !== undefined
-						? sharePercentage( previousValue, maxComparisonValue )
+						? sharePercentage( previousValue, maxValue )
 						: undefined,
 				delta:
 					hasComparison && previousValue !== undefined
@@ -305,8 +318,8 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 
 	const backLink = renderSelectedCountry ? (
 		<WidgetBackLink
-			label={ __( 'All Locations', 'jetpack-premium-analytics' ) }
-			ariaLabel={ __( 'View all locations', 'jetpack-premium-analytics' ) }
+			label={ __( 'All locations', 'jetpack-premium-analytics-pkg' ) }
+			ariaLabel={ __( 'View all locations', 'jetpack-premium-analytics-pkg' ) }
 			onClick={ clearSelectedCountry }
 			className={ styles.backLink }
 		/>
@@ -332,13 +345,15 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 					error={ {
 						description: __(
 							"We couldn't load location data. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					empty={ {
 						icon: locationIcon,
-						description: __( 'No location data in this period.', 'jetpack-premium-analytics' ),
+						description: __( 'No location data in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
 				>
 					<div className={ styles.chartArea }>
@@ -375,18 +390,26 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
  * Locations widget: visitor views by country/region/city, as a map plus a
  * leaderboard. Click a country to drill into its regions. Ported from the
  * Jetpack Stats Locations module.
- *
- * @param {LocationsWidgetProps} props - The widget render props.
- * @return The rendered Locations widget.
  */
 export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 	const max = attributes?.max ?? 10;
-	const geoGranularity = attributes?.geoGranularity ?? 'country';
+	// Attributes are persisted, so a stale layout can carry a granularity this
+	// widget no longer knows. Normalize once, before it becomes both the endpoint
+	// path segment and the report tab.
+	const storedGranularity = attributes?.geoGranularity ?? DEFAULT_GEO_GRANULARITY;
+	// `in` would also accept inherited keys such as `toString`, which would then
+	// reach the endpoint as a path segment.
+	const geoGranularity = Object.prototype.hasOwnProperty.call( REPORT_SECTIONS, storedGranularity )
+		? storedGranularity
+		: DEFAULT_GEO_GRANULARITY;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<LocationsInner max={ max } geoGranularity={ geoGranularity } />
+				<WidgetFooter>
+					<ReportLink report="locations" section={ REPORT_SECTIONS[ geoGranularity ] } />
+				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

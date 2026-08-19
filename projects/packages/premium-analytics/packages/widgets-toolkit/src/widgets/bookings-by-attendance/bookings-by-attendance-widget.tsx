@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { useReportBookings } from '@jetpack-premium-analytics/data';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import { useMemo } from 'react';
 import { DonutChart, WidgetState } from '../../components';
 /**
@@ -16,21 +16,12 @@ import { useSegmentStyles } from '../common';
 import styles from '../common/donut-widget.module.scss';
 
 /**
- * Bookings by Status Widget Component
- *
  * Displays a donut chart showing bookings breakdown by status.
  * Shows the total bookings count in the center with a breakdown in the legend.
  *
  * Statuses include: Booked, Checked In, No Show, and Cancelled.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <BookingsByAttendanceWidget />
- * </WidgetRoot>
- * ```
  */
 export function BookingsByAttendanceWidget() {
 	const { reportParams } = useWidgetRootContext();
@@ -57,13 +48,13 @@ export function BookingsByAttendanceWidget() {
 			error={ {
 				description: __(
 					"We couldn't load bookings data. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: calendar,
-				description: __( 'No bookings in this period.', 'jetpack-premium-analytics' ),
+				description: __( 'No bookings in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">

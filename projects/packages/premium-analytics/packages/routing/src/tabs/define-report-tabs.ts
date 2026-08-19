@@ -10,11 +10,15 @@
 export type ReportTabDefinition< TabId extends string > = {
 	id: TabId;
 	getLabel: () => string;
+
+	/**
+	 * Heading for the section this tab opens, where it reads differently from
+	 * the tab itself: `Posts & Pages` names the tab, `Posts & Pages report`
+	 * heads the records under it.
+	 */
+	getTitle?: () => string;
 };
 
-/**
- * A resolved report tab ({ id, label }).
- */
 export type ReportTab< TabId extends string > = {
 	id: TabId;
 	label: string;
@@ -36,27 +40,16 @@ export type ReportTabs< TabId extends string > = {
 	 */
 	resolve: ( value: string | undefined ) => TabId;
 
-	/**
-	 * Build the ordered list of tab definitions ({ id, label }). Labels are
-	 * resolved lazily (at call time) so translations apply after the i18n locale
-	 * data has loaded.
-	 */
 	getTabs: () => ReportTab< TabId >[];
 
-	/**
-	 * Get the translated display label for a single tab (also resolved lazily).
-	 */
 	getTabLabel: ( id: TabId ) => string;
+
+	/** The heading for a tab's section, falling back to the tab's own label. */
+	getTabTitle: ( id: TabId ) => string;
 };
 
 /**
  * Capture a report page's tab machinery from an ordered list of definitions.
- *
- * Given an ordered list of `{ id, getLabel }` definitions and a default id,
- * returns `{ ids, resolve, getTabs, getTabLabel }`. Labels stay lazy — they are
- * resolved only when `getTabs`/`getTabLabel` is called — so translations apply
- * after the locale data loads. The definitions array is the source of truth for
- * which tabs exist and in what order.
  *
  * @param definitions - Ordered tab definitions with lazy label getters.
  * @param defaultId   - The tab shown when the URL has no (or an unknown) tab value.
@@ -78,5 +71,11 @@ export function defineReportTabs< TabId extends string >(
 	const getTabLabel = ( id: TabId ): string =>
 		definitions.find( def => def.id === id )?.getLabel() ?? id;
 
-	return { ids, resolve, getTabs, getTabLabel };
+	const getTabTitle = ( id: TabId ): string => {
+		const definition = definitions.find( def => def.id === id );
+
+		return definition?.getTitle?.() ?? definition?.getLabel() ?? id;
+	};
+
+	return { ids, resolve, getTabs, getTabLabel, getTabTitle };
 }

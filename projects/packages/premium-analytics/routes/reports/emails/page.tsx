@@ -1,21 +1,24 @@
 /**
  * External dependencies
  */
-import { useDashboardLink } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportPageLayout,
+	ReportPageShell,
 	ReportRecordsTable,
+	ReportCsvAction,
+	useReportCsvExport,
 	useReportRetry,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { REPORTS } from '../registry';
 import { getEmailsFields, useEmailsReportRecords } from './config';
-import styles from './page.module.css';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
 
 /**
@@ -35,6 +38,9 @@ const RECORDS_VIEW = {
 		},
 	},
 };
+
+const sortEmailCsvRows = ( a: StatsEmailSummaryItem, b: StatsEmailSummaryItem ) =>
+	String( b.date ?? '' ).localeCompare( String( a.date ?? '' ) );
 
 /**
  * Stable row id for the records table.
@@ -60,53 +66,81 @@ function getEmailRowId( item: StatsEmailSummaryItem ): string {
 function EmailsReport(): JSX.Element {
 	const records = useEmailsReportRecords();
 	const fields = useMemo( () => getEmailsFields(), [] );
+	const csvColumns = useMemo< CsvColumn< StatsEmailSummaryItem >[] >(
+		() => [
+			{
+				label: __( 'Email', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => String( row.label ?? '' ),
+			},
+			{
+				label: __( 'Sent', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => String( row.date ?? '' ),
+			},
+			{ label: __( 'Opens', 'jetpack-premium-analytics-pkg' ), getValue: row => row.opens },
+			{
+				label: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.opens_rate,
+			},
+			{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ), getValue: row => row.clicks },
+			{
+				label: __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.clicks_rate,
+			},
+		],
+		[]
+	);
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows: records.rows,
+		filenamePrefix: 'emails',
+		status: records,
+		sort: sortEmailCsvRows,
+	} );
 	const retry = useReportRetry( records.refetch );
 
-	// Preserve the shared report window when returning to the dashboard.
-	const dashboardLink = useDashboardLink();
+	const { getLabel, getTitle } = REPORTS.emails;
 
 	return (
-		<Page
-			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Emails', 'jetpack-premium-analytics' ) },
-					] }
-				/>
-			}
+		<ReportPageShell
+			visual={ <StatsPageIcon /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			subTitle={ __(
 				'Open and click performance of your latest emails.',
-				'jetpack-premium-analytics'
+				'jetpack-premium-analytics-pkg'
 			) }
-			className={ styles.page }
+			actions={
+				canExport ? (
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) : undefined
+			}
 		>
-			<div className={ styles.content }>
-				<ReportPageLayout>
-					{ /*
-					 * The error state replaces the table rather than sitting beside it:
-					 * `ReportRecordsTable`'s `empty` renders on row count, not fetch
-					 * status, so a failed refetch over cached rows would otherwise leave
-					 * stale data on screen with no notice and no way to retry.
-					 */ }
-					{ records.isError ? (
-						<ReportErrorState
-							title={ __( 'Unable to load emails', 'jetpack-premium-analytics' ) }
-							onRetry={ retry }
-						/>
-					) : (
-						<ReportRecordsTable< StatsEmailSummaryItem >
-							data={ records.rows }
-							fields={ fields }
-							getItemId={ getEmailRowId }
-							isLoading={ records.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search emails', 'jetpack-premium-analytics' ) }
-						/>
-					) }
-				</ReportPageLayout>
-			</div>
-		</Page>
+			<ReportPageLayout title={ getTitle() }>
+				{ /*
+				 * The error state replaces the table rather than sitting beside it:
+				 * `ReportRecordsTable`'s `empty` renders on row count, not fetch
+				 * status, so a failed refetch over cached rows would otherwise leave
+				 * stale data on screen with no notice and no way to retry.
+				 */ }
+				{ records.isError ? (
+					<ReportErrorState
+						title={ __( 'Unable to load emails', 'jetpack-premium-analytics-pkg' ) }
+						onRetry={ retry }
+					/>
+				) : (
+					<ReportRecordsTable< StatsEmailSummaryItem >
+						data={ records.rows }
+						fields={ fields }
+						getItemId={ getEmailRowId }
+						isLoading={ records.isLoading }
+						initialView={ RECORDS_VIEW }
+						searchLabel={ __( 'Search emails', 'jetpack-premium-analytics-pkg' ) }
+					/>
+				) }
+			</ReportPageLayout>
+		</ReportPageShell>
 	);
 }
 

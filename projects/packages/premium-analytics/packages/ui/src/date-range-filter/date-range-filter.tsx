@@ -10,6 +10,7 @@ import { useCallback, useMemo } from 'react';
  */
 import { DateRangePopover } from '../date-range-popover';
 import { DateRangeQuickPresets, getSurfacePresetId } from '../date-range-quick-presets';
+import type { PresetLabelMode } from '../date-range-layout';
 import type { DateRange } from '../date-range-popover';
 import './date-range-filter.scss';
 
@@ -17,13 +18,13 @@ type DateRangePopoverProps = Parameters< typeof DateRangePopover >[ 0 ];
 
 export type DateRangeFilterProps = Omit<
 	DateRangePopoverProps,
-	'isCompact' | 'isWideScreen' | 'triggerAsCompositeItem'
+	'isWideScreen' | 'triggerAsCompositeItem'
 > & {
 	/**
-	 * Compact (mobile) layout: render the presets as a select and the custom
-	 * trigger as a bordered button. Owned and measured by `DateFiltersPanel`.
+	 * How much room the preset labels have. Owned and measured by
+	 * `DateFiltersPanel`; this component only routes it.
 	 */
-	isCompact?: boolean;
+	labelMode?: PresetLabelMode;
 
 	/**
 	 * Wide layout: let the calendar popover show two months. Owned and measured
@@ -47,7 +48,7 @@ export function DateRangeFilter( {
 	canApply,
 	timeZone,
 	onOpenChange,
-	isCompact = false,
+	labelMode = 'full',
 	isWideScreen = false,
 }: DateRangeFilterProps ) {
 	const surfacePresetId = useMemo(
@@ -68,7 +69,7 @@ export function DateRangeFilter( {
 			value={ surfacePresetId }
 			onSelect={ handlePresetSelect }
 			timeZone={ timeZone }
-			isCompact={ isCompact }
+			labelMode={ labelMode }
 		/>
 	);
 
@@ -85,21 +86,19 @@ export function DateRangeFilter( {
 			timeZone={ timeZone }
 			isWideScreen={ isWideScreen }
 			onOpenChange={ onOpenChange }
-			triggerAsCompositeItem={ ! isCompact }
-			isCompact={ isCompact }
+			triggerAsCompositeItem
 		/>
 	);
 
 	/*
 	 * One composite group: preset pills plus the custom-range trigger share a
-	 * single tab stop with arrow-key navigation between them. The compact-layout
-	 * styling cascades from `.date-filters-panel.is-compact`.
+	 * single tab stop with arrow-key navigation between them.
 	 */
 	return (
 		<Composite
 			className="date-range-filter__group"
 			role="toolbar"
-			aria-label={ __( 'Date range', 'jetpack-premium-analytics' ) }
+			aria-label={ __( 'Date range', 'jetpack-premium-analytics-pkg' ) }
 			orientation="horizontal"
 		>
 			{ quickPresets }

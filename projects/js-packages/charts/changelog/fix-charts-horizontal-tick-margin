@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: measure a horizontal chart's left margin from the labels it will actually draw, so a caller's tick formatter is applied exactly once and time-of-day labels stop reserving room for the string "Invalid Date".

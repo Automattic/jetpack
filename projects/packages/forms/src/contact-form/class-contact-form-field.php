@@ -30,6 +30,32 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public $shortcode_name = 'contact-field';
 
 	/**
+	 * Field types that never render a style-specific label.
+	 *
+	 * These have no single labellable input — they are groups of inputs, or a
+	 * control with its own labelling — so every non-default form style falls back
+	 * to the plain default label.
+	 *
+	 * @var string[]
+	 */
+	const TYPES_WITHOUT_STYLED_LABEL = array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' );
+
+	/**
+	 * Field types that never render an *inset* (Outlined / Animated) label.
+	 *
+	 * Their input is not a single text-like box for a label to sit inside, so an
+	 * inset label would overlap the control. Styles that render the label outside
+	 * the field, such as 'below', still apply — unlike TYPES_WITHOUT_STYLED_LABEL,
+	 * this only opts out of the inset styles.
+	 *
+	 * Keep in sync with the editor (`blocks/label/edit.jsx`) and the wrapper
+	 * exclusion list in `contact-form/css/grunion.scss`.
+	 *
+	 * @var string[]
+	 */
+	const TYPES_WITHOUT_INSET_LABEL = array( 'slider' );
+
+	/**
 	 * The parent form.
 	 *
 	 * @var Contact_Form
@@ -98,6 +124,20 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @var string
 	 */
 	public $label_styles = '';
+
+	/**
+	 * Input tuple used for the cached hidden-field filter result.
+	 *
+	 * @var array|null
+	 */
+	private $hidden_field_filter_input;
+
+	/**
+	 * Cached hidden-field filter result.
+	 *
+	 * @var mixed
+	 */
+	private $hidden_field_filter_value;
 
 	/**
 	 * Constructor function.
@@ -177,10 +217,19 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'showotheroption'              => null,
 				// derived from block metadata for blockVisibility support
 				'labelhiddenbyblockvisibility' => null,
+				// JSON-encoded conditional logic config; decoded below.
+				'conditionallogic'             => null,
 			),
 			$attributes,
 			'contact-field'
 		);
+
+		if ( ! empty( $attributes['conditionallogic'] ) && is_string( $attributes['conditionallogic'] ) ) {
+			$decoded                        = json_decode( html_entity_decode( $attributes['conditionallogic'], ENT_COMPAT ), true );
+			$attributes['conditionallogic'] = is_array( $decoded ) ? $decoded : null;
+		} elseif ( ! is_array( $attributes['conditionallogic'] ) ) {
+			$attributes['conditionallogic'] = null;
+		}
 
 		// special default for subject field
 		if ( 'subject' === $attributes['type'] && $attributes['default'] === null && $form !== null ) {
@@ -308,6 +357,17 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return ! empty( array_filter( $field_value ) );
 		}
 		return ! empty( trim( $field_value ) );
+	}
+
+	/**
+	 * Whether this field's visibility is governed by conditional logic.
+	 *
+	 * @return bool True when the field carries an enabled conditional-logic config.
+	 */
+	public function has_conditional_logic() {
+		$logic = $this->get_attribute( 'conditionallogic' );
+
+		return is_array( $logic ) && ! empty( $logic['enabled'] );
 	}
 
 	/**
@@ -773,6 +833,26 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return sanitize_textarea_field( wp_unslash( $_POST[ $field_id ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
 		}
 
+		// Explicit consent never renders checked, so a missing POST value must remain empty
+		// rather than falling through to a query-string or configured default.
+		if ( 'consent' === $field_type && 'explicit' === $this->get_attribute( 'consenttype' ) ) {
+			return '';
+		}
+
+		// Checkbox controls are omitted from the request when unchecked. During an actual
+		// submission that absence is the submitted value; falling through to a query-string
+		// or configured default would silently check the field again.
+		$is_checkbox_control = in_array( $field_type, array( 'checkbox', 'checkbox-multiple' ), true );
+		if ( $is_checkbox_control && $this->form && $this->form->is_current_submission() ) {
+			return '';
+		}
+
+		// Implicit consent renders as a hidden input with this value, so its computed value
+		// must match what the browser will submit from the first render onward.
+		if ( 'consent' === $field_type && 'explicit' !== $this->get_attribute( 'consenttype' ) ) {
+			return __( 'Yes', 'jetpack-forms' );
+		}
+
 		// Use the GET Field if it is available.
 		if ( isset( $_GET[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 			if ( is_array( $_GET[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
@@ -813,6 +893,74 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Get the field value used to resolve conditional logic.
+	 *
+	 * Hidden-field filters affect the value rendered into the browser, so apply the same
+	 * filter before the server evaluates a rule that uses a hidden field as its subject.
+	 *
+	 * @return string|array Field value.
+	 */
+	public function get_conditional_logic_value() {
+		$field_type = $this->get_attribute( 'type' );
+		$field_id   = $this->get_attribute( 'id' );
+		$value      = $this->get_computed_field_value( $field_type, $field_id );
+
+		if ( 'hidden' === $field_type && ! $this->is_submitted_hidden_field_value( $field_id ) ) {
+			$value = $this->get_filtered_hidden_field_value( $value, $this->get_attribute( 'label' ), $field_id );
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Filter the value of a hidden field once per input tuple.
+	 *
+	 * Rendering and conditional logic must use the exact same filtered value. Caching also
+	 * prevents stateful filters from returning a different value on their second invocation.
+	 *
+	 * @param mixed  $value The value of the hidden field.
+	 * @param string $label The label of the hidden field.
+	 * @param string $id    The ID of the hidden field.
+	 * @return mixed The modified value of the hidden field.
+	 */
+	private function get_filtered_hidden_field_value( $value, $label, $id ) {
+		$input = array( $value, $label, $id );
+
+		if ( $input === $this->hidden_field_filter_input ) {
+			return $this->hidden_field_filter_value;
+		}
+
+		/**
+		 * Filter the value of the hidden field.
+		 *
+		 * @since 6.3.0
+		 *
+		 * @param string $value The value of the hidden field.
+		 * @param string $label The label of the hidden field.
+		 * @param string $id The ID of the hidden field.
+		 */
+		$this->hidden_field_filter_input = $input;
+		$this->hidden_field_filter_value = apply_filters( 'jetpack_forms_hidden_field_value', $value, $label, $id );
+
+		return $this->hidden_field_filter_value;
+	}
+
+	/**
+	 * Whether a hidden value came from a matching form submission.
+	 *
+	 * Hidden values rendered into the browser have already passed through the hidden-field
+	 * filter, so their submitted values must not be filtered a second time.
+	 *
+	 * @param string $id The ID of the hidden field.
+	 * @return bool Whether the submitted value should be treated as already filtered.
+	 */
+	private function is_submitted_hidden_field_value( $id ) {
+		return isset( $_POST[ $id ] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+			&& $this->form
+			&& $this->form->is_current_submission();
+	}
+
+	/**
 	 * Return the HTML for the label.
 	 *
 	 * @param string $type - the field type.
@@ -833,12 +981,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$form_style = $this->get_form_style();
 
 		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
-			if ( ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' ), true ) ) {
+			if ( ! in_array( $type, self::TYPES_WITHOUT_STYLED_LABEL, true ) ) {
 				switch ( $form_style ) {
 					case 'outlined':
-						return $this->render_outline_label( $id, $label, $required, $required_field_text, $required_indicator );
+						if ( $this->type_has_inset_label( $type ) ) {
+							return $this->render_outline_label( $id, $label, $required, $required_field_text, $required_indicator );
+						}
+						break;
 					case 'animated':
-						return $this->render_animated_label( $id, $label, $required, $required_field_text, $required_indicator );
+						if ( $this->type_has_inset_label( $type ) ) {
+							return $this->render_animated_label( $id, $label, $required, $required_field_text, $required_indicator );
+						}
+						break;
 					case 'below':
 						return $this->render_below_label( $id, $label, $required, $required_field_text, $required_indicator );
 				}
@@ -1773,8 +1927,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		>
 			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
 				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker" data-wp-on--keydown="actions.handleKeyDown" tabindex="0" role="button" aria-label="<?php echo esc_attr( $dropzone_aria_label ); ?>"></div>
-				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is intentionally unescaped as it contains block content that was previously escaped ?>
-				<?php echo html_entity_decode( $this->content, ENT_COMPAT, 'UTF-8' ); ?>
+				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Decoded dropzone markup is filtered through an allowlist by sanitize_file_field_content(). ?>
+				<?php echo $this->sanitize_file_field_content( $this->content ); ?>
 				<input
 					type="file" class="jetpack-form-file-field"
 					accept="<?php echo esc_attr( $accept_attribute_value ); ?>"
@@ -1811,6 +1965,140 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Sanitize the file field's inner (dropzone) content for output.
+	 *
+	 * The dropzone's inner blocks are serialized into the [contact-field] shortcode with
+	 * esc_html() (see Contact_Form::parse_contact_field()), so the stored content has to be
+	 * entity-decoded before it can render. Decoding is what makes this dangerous: an author
+	 * who cannot post raw HTML can still store entity-encoded markup in the shortcode's inner
+	 * content, which post-save KSES treats as plain text and never inspects. Decoding it would
+	 * turn that text back into live markup, so the decoded result is filtered here instead of
+	 * being echoed as-is.
+	 *
+	 * @since 7.24.0
+	 *
+	 * @param string|null $content The raw (entity-encoded) field content.
+	 *
+	 * @return string Safe HTML.
+	 */
+	private function sanitize_file_field_content( $content ) {
+		if ( ! is_string( $content ) || $content === '' ) {
+			return '';
+		}
+
+		// core/icon serializes its rotation as `rotate: 45deg`, which is not in WordPress's
+		// safe_style_css list, so safecss_filter_attr() would strip it and render the icon
+		// unrotated. Allow it just for the duration of this call.
+		$allow_rotate = static function ( $attrs ) {
+			$attrs[] = 'rotate';
+			return $attrs;
+		};
+
+		add_filter( 'safe_style_css', $allow_rotate );
+
+		try {
+			return wp_kses(
+				html_entity_decode( $content, ENT_COMPAT, 'UTF-8' ),
+				self::get_file_field_allowed_html()
+			);
+		} finally {
+			remove_filter( 'safe_style_css', $allow_rotate );
+		}
+	}
+
+	/**
+	 * Build the allowlist of HTML permitted inside the file field's dropzone.
+	 *
+	 * Starts from the standard post allowlist and adds the things the dropzone's allowed inner
+	 * blocks legitimately rely on that wp_kses_post() would otherwise drop:
+	 *
+	 * - `tabindex`, which Contact_Form_Plugin::gutenblock_render_dropzone() sets to "-1" on inner
+	 *   links and buttons so the dropzone stays a single tab stop.
+	 * - `srcset`, `sizes` and `decoding` on images, so core/image keeps serving responsive
+	 *   sources instead of silently degrading to the full-size file.
+	 * - A conservative inline SVG subset, since core/icon is an allowed inner block of the
+	 *   dropzone. Only presentational elements and attributes are listed; because wp_kses() is
+	 *   allowlist-based, event handlers and scripting constructs are dropped automatically.
+	 *
+	 * Note that wp_kses_allowed_html( 'post' ) permits `data-*` globally, so Interactivity API
+	 * directives survive this filter. Their values are store paths rather than executable code,
+	 * and removing them would also break core/image's lightbox markup, so they are left alone.
+	 *
+	 * @since 7.24.0
+	 *
+	 * @return array Allowed HTML, in wp_kses() format.
+	 */
+	private static function get_file_field_allowed_html() {
+		$allowed = wp_kses_allowed_html( 'post' );
+
+		foreach ( array( 'a', 'button' ) as $tag ) {
+			if ( isset( $allowed[ $tag ] ) && is_array( $allowed[ $tag ] ) ) {
+				$allowed[ $tag ]['tabindex'] = true;
+			}
+		}
+
+		// wp_kses() only runs its protocol check on a fixed set of URL attributes, which does not
+		// include `srcset`. That is not a script vector - srcset candidates are fetched as images,
+		// so a `javascript:` candidate never executes - and `src` is still protocol-checked.
+		if ( isset( $allowed['img'] ) && is_array( $allowed['img'] ) ) {
+			$allowed['img'] += array(
+				'srcset'   => true,
+				'sizes'    => true,
+				'decoding' => true,
+			);
+		}
+
+		// `style` is deliberately absent here: safecss_filter_attr() strips the SVG presentation
+		// properties (fill, stroke) that would justify it, while still permitting things like
+		// position:fixed. It is allowed on the root <svg> below, where block supports need it.
+		$svg_common = array(
+			'class'           => true,
+			'fill'            => true,
+			'fill-rule'       => true,
+			'clip-rule'       => true,
+			'stroke'          => true,
+			'stroke-width'    => true,
+			'stroke-linecap'  => true,
+			'stroke-linejoin' => true,
+			'opacity'         => true,
+			'transform'       => true,
+		);
+
+		$allowed['svg'] = array_merge(
+			$svg_common,
+			array(
+				'style'       => true,
+				'xmlns'       => true,
+				'viewbox'     => true,
+				'width'       => true,
+				'height'      => true,
+				'role'        => true,
+				'focusable'   => true,
+				'aria-hidden' => true,
+				'aria-label'  => true,
+			)
+		);
+
+		// Child elements: the shared presentation attributes plus each element's own geometry.
+		$svg_children = array(
+			'g'        => array(),
+			'path'     => array( 'd' ),
+			'circle'   => array( 'cx', 'cy', 'r' ),
+			'ellipse'  => array( 'cx', 'cy', 'rx', 'ry' ),
+			'line'     => array( 'x1', 'y1', 'x2', 'y2' ),
+			'polygon'  => array( 'points' ),
+			'polyline' => array( 'points' ),
+			'rect'     => array( 'x', 'y', 'width', 'height', 'rx', 'ry' ),
+		);
+
+		foreach ( $svg_children as $tag => $attrs ) {
+			$allowed[ $tag ] = $svg_common + array_fill_keys( $attrs, true );
+		}
+
+		return $allowed;
+	}
+
+	/**
 	 * Render a hidden field.
 	 *
 	 * @param string $id - the field ID.
@@ -1820,20 +2108,26 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML for the hidden field.
 	 */
 	private function render_hidden_field( $id, $label, $value ) {
-		/**
-		 *
-		 * Filter the value of the hidden field.
-		 *
-		 * @since 6.3.0
-		 *
-		 * @param string $value The value of the hidden field.
-		 * @param string $label The label of the hidden field.
-		 * @param string $id The ID of the hidden field.
-		 *
-		 * @return string The modified value of the hidden field.
-		 */
-		$value = apply_filters( 'jetpack_forms_hidden_field_value', $value, $label, $id );
-		return "<input type='hidden' name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' value='" . esc_attr( $value ) . "' />\n";
+		if ( ! $this->is_submitted_hidden_field_value( $id ) ) {
+			$value = $this->get_filtered_hidden_field_value( $value, $label, $id );
+		}
+
+		$context = array(
+			'fieldId'         => $id,
+			'fieldType'       => 'hidden',
+			'fieldLabel'      => $label,
+			'fieldValue'      => $value,
+			'fieldIsRequired' => false,
+			'fieldExtra'      => array(),
+			'formHash'        => $this->form ? $this->form->hash : '',
+		);
+
+		$interactivity_attributes = "data-jp-field-id='" . esc_attr( $id ) . "' data-wp-interactive='jetpack/form' "
+			. wp_interactivity_data_wp_context( $context )
+			. " data-wp-init='callbacks.initializeField' data-wp-on--jetpack-form-reset='callbacks.initializeField'";
+
+		return "<input type='hidden' name='" . esc_attr( $id ) . "' id='" . esc_attr( $id )
+			. "' value='" . esc_attr( $value ) . "' " . $interactivity_attributes . " />\n";
 	}
 
 	/**
@@ -2761,7 +3055,25 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'formHash'          => $this->form->hash,
 		);
 
+		// Conditional logic is not emitted per field: it cascades, so resolving it needs every
+		// field's logic and type at once. The form block emits that map once as
+		// `conditionalLogic`, and this field's wrapper reads its own entry from there.
 		$interactivity_attrs = ' data-wp-interactive="jetpack/form" ' . wp_interactivity_data_wp_context( $context ) . ' ';
+
+		// Hiding a field has to hide whichever element occupies the slot in the row, or the
+		// field disappears and leaves a hole behind it. For an inset label that is the outer
+		// wrapper, which is where the width class lives -- the inner div is inside it and
+		// carries no width of its own.
+		// data-jp-visibility-root names the element the initial server-side render stamps, so
+		// the first paint and the runtime always hide the same element. Matching on
+		// data-jp-field-id instead would stamp the inner div even when the wrapper is the one
+		// the runtime hides.
+		$visibility_attrs = " data-jp-visibility-root='" . esc_attr( $id ) . "'"
+			. ( $this->has_conditional_logic() ? " data-jp-conditional='1'" : '' )
+			. ' data-wp-class--jetpack-field--conditionally-hidden="state.isFieldHidden"'
+			// Runs whenever the field's visibility changes, so focus does not fall to <body>
+			// when the field the visitor is filling in disappears under them.
+			. ' data-wp-watch--conditional-focus="callbacks.manageConditionalFocus"';
 
 		// Fields with an inset label need an extra wrapper to show the error message below the input.
 		if ( $has_inset_label ) {
@@ -2772,11 +3084,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				array_push( $inset_label_class, 'grunion-field-width-' . $field_width . '-wrap' );
 			}
 
-			$field              .= "\n<div class='" . implode( ' ', $inset_label_class ) . "' {$interactivity_attrs} >\n";
+			$field              .= "\n<div class='" . implode( ' ', $inset_label_class ) . "' {$interactivity_attrs} {$visibility_attrs} >\n";
 			$interactivity_attrs = ''; // Reset interactivity attributes for the field wrapper.
+			$visibility_attrs    = ''; // The outer wrapper owns visibility for this layout.
 		}
 
-		$field .= "\n<div {$block_style} {$interactivity_attrs} {$shell_field_class} data-wp-init='callbacks.initializeField' data-wp-on--jetpack-form-reset='callbacks.initializeField' >\n"; // new in Jetpack 6.8.0
+		$field .= "\n<div {$block_style} {$interactivity_attrs} {$shell_field_class} data-jp-field-id='" . esc_attr( $id ) . "'{$visibility_attrs} data-wp-init='callbacks.initializeField' data-wp-on--jetpack-form-reset='callbacks.initializeField' >\n"; // new in Jetpack 6.8.0
 
 		switch ( $type ) {
 			case 'email':
@@ -2948,7 +3261,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Checks if the field has an inset label, i.e., a label displayed inside the field instead of above.
+	 * Checks if the form style renders labels inside the field rather than above it.
+	 *
+	 * This is a property of the *style* alone: it stays true for a field type that
+	 * opts out of the inset label itself, because it also governs the extra
+	 * `.contact-form__inset-label-wrap` wrapper, which those fields still need (it
+	 * carries the field width). Use type_has_inset_label() to decide whether a given
+	 * field actually renders an inset label.
 	 *
 	 * @return boolean
 	 */
@@ -2956,6 +3275,19 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$form_style = $this->get_form_style();
 
 		return in_array( $form_style, array( 'outlined', 'animated' ), true );
+	}
+
+	/**
+	 * Checks whether a field type renders an inset label under the current form style.
+	 *
+	 * @param string $type The field type.
+	 *
+	 * @return boolean
+	 */
+	private function type_has_inset_label( $type ) {
+		return $this->has_inset_label()
+			&& ! in_array( $type, self::TYPES_WITHOUT_STYLED_LABEL, true )
+			&& ! in_array( $type, self::TYPES_WITHOUT_INSET_LABEL, true );
 	}
 
 	/**
@@ -3131,7 +3463,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$min_text_label = $extra_attrs['minLabel'] ?? '';
 		$max_text_label = $extra_attrs['maxLabel'] ?? '';
 
-		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
+		// $always_render must be true: 'slider' is excluded from inset labels in
+		// render_label(), so without it the label would be dropped entirely when the
+		// form uses the Outlined or Animated style.
+		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text, array(), true, $required_indicator );
 
 		ob_start();
 		?>

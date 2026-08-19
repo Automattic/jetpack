@@ -1,14 +1,19 @@
 /**
  * External dependencies
  */
-import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
+import {
+	DataViews,
+	filterSortAndPaginate,
+	type Field,
+	type SupportedLayouts,
+	type View,
+} from '@jetpack-premium-analytics/externals';
 import { useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
 import './style.scss';
 import styles from './style.module.scss';
-import type { Field, SupportedLayouts, View } from '@wordpress/dataviews';
 import type { ReactNode } from 'react';
 
 const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];

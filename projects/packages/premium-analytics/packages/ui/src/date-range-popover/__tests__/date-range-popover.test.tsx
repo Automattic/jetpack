@@ -68,4 +68,28 @@ describe( 'DateRangePopover', () => {
 		expect( onCancel ).toHaveBeenCalledTimes( 1 );
 		expect( onApply ).not.toHaveBeenCalled();
 	} );
+
+	// The default props apply a rolling preset, so the preset's range is the only
+	// one on screen and the trigger stays neutral (WOOA7S-1936).
+	it( 'labels the trigger Custom while a preset is applied', () => {
+		renderPopover();
+
+		expect( screen.getByRole( 'button', { name: 'Custom' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'stages no range when opened on an applied preset', async () => {
+		const user = userEvent.setup();
+		const { onChange } = renderPopover();
+
+		await user.click( getTrigger() );
+
+		expect( onChange ).not.toHaveBeenCalled();
+		expect( screen.getByRole( 'button', { name: 'Custom' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'labels the trigger with the applied custom range', () => {
+		renderPopover( { presetId: 'custom', appliedPresetId: 'custom' } );
+
+		expect( screen.queryByRole( 'button', { name: 'Custom' } ) ).not.toBeInTheDocument();
+	} );
 } );

@@ -21,6 +21,10 @@ class Jetpack_Mu_Wpcom {
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
 
+	// Themes (by template slug) and plugins (by basename) known to break with React 19.
+	const REACT_19_INCOMPATIBLE_THEMES  = array( 'divi' );
+	const REACT_19_INCOMPATIBLE_PLUGINS = array( 'wp-table-builder/wp-table-builder.php' );
+
 	/**
 	 * Initialize the class.
 	 */
@@ -37,6 +41,19 @@ class Jetpack_Mu_Wpcom {
 		// PCG confirmation probe wires its `pre_option_active_plugins`
 		// filter at mu-plugin time, before WP loads active plugins.
 		require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
+
+		/*
+		 * Feature flag overrides answer the jetpack-feature-flags resolution
+		 * filter, and a flag can be checked well before plugins_loaded, so this
+		 * is wired here at mu-plugin time rather than from load_features().
+		 * Registering the filter reads nothing — the option is only touched when
+		 * a flag is actually resolved.
+		 *
+		 * The overrides themselves are site-wide, but the screen that sets them
+		 * is Automatticians-only internal tooling and gates itself accordingly.
+		 */
+		require_once __DIR__ . '/features/wpcom-feature-flags/class-wpcom-feature-flags.php';
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Feature_Flags::init();
 
 		// Load features that don't need any special loading considerations.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_features' ) );
@@ -76,7 +93,6 @@ class Jetpack_Mu_Wpcom {
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
 			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
-			add_action( 'plugins_loaded', array( __CLASS__, 'load_plugin_state' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -100,17 +116,7 @@ class Jetpack_Mu_Wpcom {
 		// Filter to populate JetpackScriptData.site.wpcom.blog_id with the actual WP.com blog ID.
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'set_wpcom_blog_id_script_data' ), 10, 1 );
 
-		// Allow sites with the `classic-block-inserter-support` blog sticker to insert the Classic block.
-		if ( wpcom_has_blog_sticker( 'classic-block-inserter-support', get_wpcom_blog_id() ) ) {
-			add_filter( 'wp_classic_block_supports_inserter', '__return_true' );
-		}
-
-		// Enable the `gutenberg-classic-block-deprecation` Gutenberg experiment for all sites, with an opt-out via the `disable-classic-block-deprecation` blog sticker.
-		// Both filters are needed: `default_option_` fires when the option doesn't exist in the DB, `option_` fires when it does.
-		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
-		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
-
-		// Enable the `gutenberg-react-19` Gutenberg experiment for sites with the `gutenberg-react-19` blog sticker.
+		// Enable the `gutenberg-react-19` Gutenberg experiment on selected sites.
 		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
 		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
 
@@ -368,8 +374,8 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_user_features() {
 		// To avoid potential collisions with ETK.
-		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
-			require_once __DIR__ . '/features/help-center/class-help-center.php';
+		if ( ! class_exists( 'A8C\FSE\Help_Center' ) && class_exists( \Automattic\Jetpack\Help_Center\Help_Center::class ) ) {
+			add_action( 'init', array( \Automattic\Jetpack\Help_Center\Help_Center::class, 'init' ), 10, 0 );
 		}
 
 		if ( ! is_wpcom_user() ) {
@@ -807,7 +813,9 @@ class Jetpack_Mu_Wpcom {
 
 		Premium_Analytics::init_wpcom_simple(
 			array(
-				'menu_title' => 'Premium Analytics',
+				// A closure, not a string: we run on plugins_loaded, too early to translate.
+				// The package calls this back on admin_menu.
+				'menu_title' => fn () => __( 'Stats v2', 'jetpack-mu-wpcom' ),
 			)
 		);
 	}
@@ -818,13 +826,6 @@ class Jetpack_Mu_Wpcom {
 	public static function load_custom_css() {
 		require_once __DIR__ . '/features/custom-css/custom-css/preprocessors.php';
 		require_once __DIR__ . '/features/custom-css/custom-css.php';
-	}
-
-	/**
-	 * Load the Plugin State feature.
-	 */
-	public static function load_plugin_state() {
-		require_once __DIR__ . '/features/plugin-state/plugin-state.php';
 	}
 
 	/**
@@ -858,34 +859,48 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Add `gutenberg-classic-block-deprecation` to the list of enabled Gutenberg experiments.
-	 * Skip sites that have the `disable-classic-block-deprecation` sticker enabled.
-	 *
-	 * @param mixed $experiments The current value of the gutenberg-experiments option.
-	 * @return mixed Original option value or the filtered experiments.
-	 */
-	public static function enable_gutenberg_classic_block_deprecation_experiment( $experiments ) {
-		if ( wpcom_has_blog_sticker( 'disable-classic-block-deprecation', get_wpcom_blog_id() ) ) {
-			return $experiments;
-		}
-
-		if ( ! is_array( $experiments ) ) {
-			$experiments = array();
-		}
-
-		$experiments['gutenberg-classic-block-deprecation'] = true;
-		return $experiments;
-	}
-
-	/**
 	 * Add `gutenberg-react-19` to the list of enabled Gutenberg experiments.
-	 * Only sites with the `gutenberg-react-19` blog sticker are opted in.
+	 *
+	 * The `disable-gutenberg-react-19` blog sticker force-disables the experiment,
+	 * the `gutenberg-react-19` sticker opts the site in. With neither sticker,
+	 * the experiment is enabled on a certain percentage of Atomic sites,
+	 * known incompatible plugins and themes are excluded.
 	 *
 	 * @param mixed $experiments The current value of the gutenberg-experiments option.
 	 * @return mixed Original option value or the filtered experiments.
 	 */
 	public static function enable_gutenberg_react_19_experiment( $experiments ) {
-		if ( ! wpcom_has_blog_sticker( 'gutenberg-react-19', get_wpcom_blog_id() ) ) {
+		$blog_id = get_wpcom_blog_id();
+
+		if ( wpcom_has_blog_sticker( 'disable-gutenberg-react-19', $blog_id ) ) {
+			return $experiments;
+		}
+
+		$is_enabled = wpcom_has_blog_sticker( 'gutenberg-react-19', $blog_id );
+
+		if ( ! $is_enabled && function_exists( 'wpcomsh_get_atomic_site_id' ) ) {
+			$site_id = wpcomsh_get_atomic_site_id();
+
+			// Don't enable if the site ID is unknown (zero).
+			if ( ! $site_id ) {
+				$is_enabled = false;
+			} elseif ( self::has_react_19_incompatible_extension() ) {
+				$is_enabled = false;
+			} else {
+				$current_segment = 2; // Segment of Atomic sites in the experiment, in %.
+				$site_segment    = $site_id % 100;
+
+				/*
+				 * Sites whose Atomic site ID ends in digits < $current_segment are in the segment.
+				 * Must stay in sync with the error reporting rollout in wpcomsh
+				 * (wpcomsh_enable_error_reporting_for_react_19), so that every site in
+				 * the experiment also reports JS errors.
+				 */
+				$is_enabled = $site_segment < $current_segment;
+			}
+		}
+
+		if ( ! $is_enabled ) {
 			return $experiments;
 		}
 
@@ -895,6 +910,30 @@ class Jetpack_Mu_Wpcom {
 
 		$experiments['gutenberg-react-19'] = true;
 		return $experiments;
+	}
+
+	/**
+	 * Whether the site runs an extension that's known to break with React 19.
+	 *
+	 * @return bool
+	 */
+	private static function has_react_19_incompatible_extension() {
+		// Outside wp-admin the plugin check is unavailable, and the experiment isn't needed.
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			return true;
+		}
+
+		if ( in_array( strtolower( get_template() ), self::REACT_19_INCOMPATIBLE_THEMES, true ) ) {
+			return true;
+		}
+
+		foreach ( self::REACT_19_INCOMPATIBLE_PLUGINS as $plugin_file ) {
+			if ( is_plugin_active( $plugin_file ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

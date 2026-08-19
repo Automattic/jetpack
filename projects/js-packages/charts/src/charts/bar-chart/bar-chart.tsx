@@ -37,12 +37,22 @@ import {
 	BASE_BAND_PADDING_INNER,
 } from './private';
 import type { ComparisonSeriesEntry } from './private';
-import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
+import type {
+	BaseChartProps,
+	DataPointDate,
+	SeriesData,
+	SeriesChartLegendConfig,
+	Optional,
+} from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { FC, ReactNode, ComponentType } from 'react';
 
 export interface BarChartProps extends BaseChartProps< SeriesData[] > {
+	/**
+	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
+	 */
+	legend?: SeriesChartLegendConfig;
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
@@ -117,6 +127,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	gap = 'md',
 } ) => {
 	const legendInteractive = legend.interactive ?? false;
+	const legendCollapseGroups = legend.collapseGroups ?? false;
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
 	const theme = useXYChartTheme( data );
@@ -131,8 +142,28 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	} );
 
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendItems( dataSorted );
-	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
+	const legendOptions = useMemo(
+		() => ( { collapseGroups: legendCollapseGroups } ),
+		[ legendCollapseGroups ]
+	);
+	const legendItems = useChartLegendItems( dataSorted, legendOptions );
+
+	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+
+	// A hidden series is unmounted, so it is not on the band scale either — the
+	// axis has to choose its tick values from what is left.
+	const isSeriesRendered = useCallback(
+		( series: SeriesData ) =>
+			! chartId || ! legendInteractive || isSeriesVisible( chartId, series.label ),
+		[ chartId, legendInteractive, isSeriesVisible ]
+	);
+
+	const chartOptions = useBarChartOptions(
+		dataWithVisibleZeros,
+		horizontal,
+		options,
+		isSeriesRendered
+	);
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const chartRef = useRef< HTMLDivElement >( null );
 
@@ -167,23 +198,16 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		totalPoints,
 	} );
 
-	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
-
 	// Add visibility information to series when using interactive legends
-	const seriesWithVisibility = useMemo( () => {
-		if ( ! chartId || ! legendInteractive ) {
-			return dataWithVisibleZeros.map( ( series, index ) => ( {
+	const seriesWithVisibility = useMemo(
+		() =>
+			dataWithVisibleZeros.map( ( series, index ) => ( {
 				series,
 				index,
-				isVisible: true,
-			} ) );
-		}
-		return dataWithVisibleZeros.map( ( series, index ) => ( {
-			series,
-			index,
-			isVisible: isSeriesVisible( chartId, series.label ),
-		} ) );
-	}, [ dataWithVisibleZeros, chartId, isSeriesVisible, legendInteractive ] );
+				isVisible: isSeriesRendered( series ),
+			} ) ),
+		[ dataWithVisibleZeros, isSeriesRendered ]
+	);
 
 	// Check if all series are hidden
 	const allSeriesHidden = useMemo( () => {
@@ -544,11 +568,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										horizontal={ horizontal }
 										pointerEventsDataKey="nearest"
 									>
-										<Grid
-											columns={ gridVisibility.includes( 'y' ) }
-											rows={ gridVisibility.includes( 'x' ) }
-											numTicks={ 4 }
-										/>
+										{ ! allSeriesHidden && (
+											<Grid
+												columns={ gridVisibility.includes( 'y' ) }
+												rows={ gridVisibility.includes( 'x' ) }
+												numTicks={ 4 }
+											/>
+										) }
 
 										{ withPatterns && (
 											<>
@@ -615,8 +641,15 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											) ) }
 										</BarGroup>
 
-										<Axis { ...chartOptions.axis.x } />
-										<Axis { ...chartOptions.axis.y } />
+										{ /* With every series hidden there is no data to build the value scale from, so
+										     visx collapses the domain and the axes render squished at the top. Drop them
+										     while the empty state stands in. */ }
+										{ ! allSeriesHidden && (
+											<>
+												<Axis { ...chartOptions.axis.x } />
+												<Axis { ...chartOptions.axis.y } />
+											</>
+										) }
 
 										{ withTooltips && (
 											<AccessibleTooltip

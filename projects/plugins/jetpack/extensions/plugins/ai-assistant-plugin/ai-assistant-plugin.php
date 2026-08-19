@@ -14,6 +14,11 @@ use Automattic\Jetpack\Status\Host;
 // Feature name.
 const FEATURE_NAME = 'ai-assistant-plugin';
 
+// Required directly rather than relying on the plugin bootstrap: on
+// WordPress.com Simple the extension files load through wpcom's own loader
+// and load-jetpack.php never runs.
+require_once __DIR__ . '/../../../_inc/lib/class-jetpack-ai-settings.php';
+
 /**
  * Register the AI assistant plugin.
  * The feature is only available on sites
@@ -22,13 +27,18 @@ const FEATURE_NAME = 'ai-assistant-plugin';
  * @return void
  */
 function register_plugin() {
-	// Check Jetpack AI feature availability.
+	// Connection check, the AI master switch, and the writing toggle that owns
+	// the legacy "Improve with AI" panel on the AI settings page. Grouping the
+	// connection term explicitly also makes the master gate (host + master via
+	// is_ai_enabled()) effective on WordPress.com Simple — the previous
+	// precedence short-circuited it there.
 	if (
 		(
-			new Host() )->is_wpcom_simple()
-			|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode()
+			( new Host() )->is_wpcom_simple()
+			|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
 		)
-		&& apply_filters( 'jetpack_ai_enabled', true )
+		&& \Jetpack_AI_Settings::is_ai_enabled()
+		&& \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' )
 	) {
 		// Register AI assistant plugin.
 		\Jetpack_Gutenberg::set_extension_available( FEATURE_NAME );

@@ -1,25 +1,27 @@
 /**
  * External dependencies
  */
-import { normalizeReportParams } from '@jetpack-premium-analytics/data';
-import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
+	ReportCsvAction,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
+	useReportCsvExport,
 	useReportRetry,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
-import { getAuthorsFields, useAuthorsReportRecords, type AuthorRow } from './config';
+import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
+import { getAuthorName, getAuthorsFields, useAuthorsReportRecords, type AuthorRow } from './config';
 
 const ROUTE_FROM = route.path;
 
@@ -54,16 +56,24 @@ const RECORDS_VIEW = {
 };
 
 /**
+ * Keep nested posts identifiable after the table hierarchy is flattened into CSV rows.
+ *
+ * @param item - The author or nested post row.
+ * @return The author name or author-qualified post title.
+ */
+function getAuthorCsvLabel( item: AuthorRow ): string {
+	return item.parentName
+		? `${ getAuthorName( item.parentName ) } > ${ item.label }`
+		: getAuthorName( item.label );
+}
+
+/**
  * Premium Analytics Authors report page component.
  *
  * @return The Authors report page.
  */
 function AuthorsReport(): JSX.Element {
-	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
-	const reportParams = useMemo(
-		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
-		[ search ]
-	);
+	const reportParams = useReportParams();
 
 	const records = useAuthorsReportRecords( reportParams );
 	const retry = useReportRetry( records.refetch );
@@ -71,29 +81,41 @@ function AuthorsReport(): JSX.Element {
 		() => getAuthorsFields( records.hasComparison ),
 		[ records.hasComparison ]
 	);
+	const csvColumns = useMemo< CsvColumn< AuthorRow >[] >(
+		() => [
+			{
+				label: __( 'Author / post', 'jetpack-premium-analytics-pkg' ),
+				getValue: getAuthorCsvLabel,
+			},
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
+		],
+		[]
+	);
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows: records.rows,
+		filenamePrefix: 'top-authors',
+		range: reportParams,
+		status: records,
+	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
+	const { getLabel, getTitle } = REPORTS.authors;
 
 	return (
 		<ReportPageShell
-			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Top authors', 'jetpack-premium-analytics' ) },
-					] }
-				/>
+			visual={ <StatsPageIcon /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
+			actions={
+				canExport ? (
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) : undefined
 			}
 		>
-			<ReportPageLayout
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
-			>
+			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
 				{ /*
 				 * Replace the row-count-based table state when either request fails,
 				 * so cached rows are not shown as current and an initial failure does
@@ -101,7 +123,7 @@ function AuthorsReport(): JSX.Element {
 				 */ }
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load authors', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load authors', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (
@@ -112,7 +134,7 @@ function AuthorsReport(): JSX.Element {
 						getItemParentId={ getAuthorRowParentId }
 						isLoading={ records.isLoading }
 						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search authors', 'jetpack-premium-analytics' ) }
+						searchLabel={ __( 'Search authors', 'jetpack-premium-analytics-pkg' ) }
 						hideLevelMarkers
 					/>
 				) }

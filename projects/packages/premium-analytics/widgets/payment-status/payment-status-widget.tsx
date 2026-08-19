@@ -12,7 +12,7 @@ import {
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -20,19 +20,8 @@ import { useMemo } from 'react';
 import styles from './style.module.css';
 
 /**
- * Payment Status Widget Component
- *
- * Displays a donut chart comparing revenue from paid orders vs unpaid orders.
- * Shows the total revenue in the center with a breakdown in the legend.
- *
- * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <PaymentStatusWidget />
- * </WidgetRoot>
- * ```
+ * Paid vs unpaid order revenue donut. Must render inside a `WidgetRoot`, which
+ * supplies `reportParams` through context.
  */
 export function PaymentStatusWidget() {
 	const { reportParams } = useWidgetRootContext();
@@ -61,13 +50,13 @@ export function PaymentStatusWidget() {
 			error={ {
 				description: __(
 					"We couldn't load payment data. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: payment,
-				description: __( 'No order revenue in this period.', 'jetpack-premium-analytics' ),
+				description: __( 'No order revenue in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">

@@ -2,9 +2,13 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+/**
+ * Internal dependencies
+ */
+import { resetForcedStateQueries } from '../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 
-type ForcedMockState = 'error' | 'loading' | 'empty';
+type ForcedMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
 
 const stateOverrides = new Map< string, ForcedMockState >();
 
@@ -24,12 +28,24 @@ const forcedStateMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 			// (`summary` / `days` / `data`), so the widget resolves to its empty state.
 			return { date: '2026-01-01', period: 'day', summary: {}, days: {}, data: [] };
 		}
-		// A 403 is not retried by `shouldRetryApiError`, so the error UI shows at
-		// once instead of after the query's retry backoff.
+		if ( state === 'error-retryable' ) {
+			// The local proxy's `no_connection` shape. Still a 403, so the error UI
+			// shows at once, but `describeError` keeps it retryable: a broken Jetpack
+			// connection can heal, unlike a permission gate.
+			return Promise.reject( {
+				code: 'no_connection',
+				message: 'Mocked connection failure for Storybook.',
+				data: { status: 403 },
+			} );
+		}
+		// The WPCOM pass-through envelope, with the status attached the way the fetch
+		// layer attaches it. A 403 is not retried by `shouldRetryApiError`, so the
+		// error UI shows at once instead of after the query's retry backoff. Widgets
+		// on `describeError` read this as a permission gate and drop their Retry action.
 		return Promise.reject( {
-			code: 'stats_mock_error',
+			error: 'unauthorized',
 			message: 'Mocked error response for Storybook.',
-			data: { status: 403 },
+			status: 403,
 		} );
 	}
 
@@ -37,33 +53,13 @@ const forcedStateMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 };
 
 /**
- * Story-side counterpart of `setReportMockState` for endpoints owned by
- * story-local or legacy stats mocks, e.g. `stats/clicks`, `stats/referrers`,
- * `reports/products`, or `latest-post`.
+ * Force a state for requests handled by story-local or legacy mocks.
  *
- * The shared override in `register-report-mocks.ts` can miss those requests:
- * the last-registered `apiFetch` middleware runs first, so legacy stats mocks or
- * story-local endpoint mocks can answer before the shared override loop sees
- * the request. Storybook can lazy-load more story modules later, so this helper
- * re-registers its shared middleware whenever a forced state is set. The
- * duplicate registrations are intentional: they share the same override map and
- * keep the forced-state middleware ahead of any later endpoint-specific
- * middleware.
+ * Re-register the middleware when setting a state because the most recently
+ * registered `apiFetch` middleware runs first and stories load lazily.
  *
- * Same contract as `setReportMockState`: call it in a story's `beforeEach` and
- * clear the override with `null` in the returned cleanup.
- *
- * Conventions for the forced-state stories that drive this helper (the per-story
- * comments point here rather than repeating the rationale in every widget file):
- * - Tag them `!autodocs`. The override is keyed by path, so on the shared
- *   autodocs page it would force every sibling story into the same state.
- * - Render each on a date preset distinct from the widget's other stories. The
- *   query key derives from the date range, so a unique preset gives the story
- *   its own cache entry and it hits the mock fresh instead of reading another
- *   story's cached success from the shared query client. When a widget's query
- *   key carries no date params, a distinct preset can't isolate it — evict the
- *   query from the shared client on enter and cleanup instead (see the
- *   `latest-post` stories).
+ * Use in `beforeEach`, clear on cleanup, and exclude the story from autodocs
+ * because overrides are keyed by path. Cache isolation is automatic.
  *
  * @param pathFragment - Substring matched against the request path (e.g. `stats/clicks`).
  * @param state        - The forced state, or `null` to clear.
@@ -75,4 +71,5 @@ export function forceStatsMockState( pathFragment: string, state: ForcedMockStat
 		apiFetch.use( forcedStateMiddleware );
 		stateOverrides.set( pathFragment, state );
 	}
+	resetForcedStateQueries();
 }

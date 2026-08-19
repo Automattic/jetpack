@@ -60,8 +60,9 @@ class WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed extends WP_REST_Con
 		$this->is_wpcom                     = true;
 		$this->wpcom_is_wpcom_only_endpoint = true;
 
-		// Match the suggest-guidelines endpoint: register on Simple/Atomic only.
-		if ( ! \Jetpack_AI_Helper::is_enabled() ) {
+		// Match the suggest-guidelines endpoint: register on Simple, Atomic,
+		// and WordPress VIP sites only.
+		if ( ! \Jetpack_AI_Helper::is_enabled_for_content_guidelines() ) {
 			return;
 		}
 

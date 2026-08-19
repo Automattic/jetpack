@@ -75,10 +75,9 @@ export const useChartMargin = (
 		const allDataPoints = data.flatMap( series => series.data as DataPointDate[] );
 
 		if ( horizontal ) {
-			// When horizontal, y ticks renders fixed tick labels.
-			return allDataPoints.map(
-				d => d.label || options.axis?.y?.tickFormat( d.date.getTime(), 0, [] )
-			);
+			// When horizontal, y ticks render the category values; leave them raw so
+			// the axis tick formatter is applied exactly once, when measuring below.
+			return allDataPoints.map( d => d.label || d.date?.getTime() );
 		}
 
 		if ( options.axis?.y?.tickValues?.length ) {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: fade the section header subtitle out as the widgets scroll.

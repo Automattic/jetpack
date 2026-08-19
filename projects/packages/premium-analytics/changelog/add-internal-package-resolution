@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add a tsconfig paths alias and typecheck script so internal packages/* resolve for types/IDE.

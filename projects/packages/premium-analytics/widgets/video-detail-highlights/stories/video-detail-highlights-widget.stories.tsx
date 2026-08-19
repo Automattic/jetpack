@@ -1,13 +1,14 @@
 /**
  * The Video highlights widget is the video detail page's highlights card: the
- * selected video's views, impressions, and hours watched as
- * metric tiles. The video scope arrives through `reportParams.post_id` (seeded
- * from the detail page URL in product); the `hasVideoScope` control toggles it
- * to exercise the scopeless empty state. The tiles cover the trailing 30 days,
- * matching the existing Calypso video-detail summary.
+ * selected video's impressions, hours watched, and retention rate as metric
+ * tiles. The video scope arrives through `reportParams.post_id` (seeded from
+ * the detail page URL in product); the `hasVideoScope` control toggles it to
+ * exercise the scopeless empty state.
  *
- * Data comes from three proxied `stats/video/{id}` metric series, covered by
- * the shared single-video report mock.
+ * Data comes from one proxied `stats/video/{id}` `statType=all` range request
+ * (wpcom #229903), whose server-computed window totals — including the
+ * play-weighted retention rate — back the tiles. Covered by the shared
+ * single-video report mock.
  */
 /**
  * External dependencies
@@ -45,9 +46,6 @@ interface VideoDetailHighlightsStoryControls {
 /**
  * Builds the widget attributes: report params with the video scope the detail
  * page seeds from its URL when `hasVideoScope` is on.
- *
- * @param {VideoDetailHighlightsStoryControls} controls - The story controls.
- * @return The widget attributes.
  */
 function getVideoDetailHighlightsAttributes( {
 	hasVideoScope,
@@ -62,12 +60,6 @@ function getVideoDetailHighlightsAttributes( {
 	};
 }
 
-/**
- * Renders the data-connected widget with the composed attributes.
- *
- * @param {VideoDetailHighlightsStoryControls} controls - The story controls.
- * @return The rendered widget.
- */
 function renderVideoDetailHighlights( controls: VideoDetailHighlightsStoryControls ) {
 	return (
 		<VideoDetailHighlightsRender attributes={ getVideoDetailHighlightsAttributes( controls ) } />
@@ -88,7 +80,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Video highlights" widget: the selected video\'s trailing-30-day views, impressions, and hours watched as metric tiles. It uses the per-video `stats/video/{id}` endpoint, matching Calypso without downloading stats for every active video. Without a video scope the widget renders a scopeless empty state.',
+					'The "Video highlights" widget: the selected video\'s impressions, hours watched, and retention rate over the selected period as metric tiles. One `stats/video/{id}` `statType=all` request returns every metric plus canonical window totals — including the play-weighted retention rate — and is shared with the Views performance widget\'s chart query. Without a video scope the widget renders a scopeless empty state.',
 			},
 		},
 	},
@@ -101,7 +93,7 @@ export default meta;
 type Story = StoryObj< VideoDetailHighlightsStoryControls >;
 
 /**
- * Default — the selected video's trailing-30-day highlights.
+ * Default — the selected video's highlight metrics.
  */
 export const Default: Story = {
 	render: renderVideoDetailHighlights,
@@ -127,9 +119,6 @@ interface VideoDetailHighlightsDashboardStoryProps
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders
  * exactly as it does in product (framed card, sizing, host environment).
- *
- * @param {VideoDetailHighlightsDashboardStoryProps} props - The dashboard story controls.
- * @return The widget mounted inside the real dashboard.
  */
 function VideoDetailHighlightsDashboardStory( {
 	hasVideoScope,

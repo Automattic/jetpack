@@ -1855,4 +1855,192 @@ class Helpers_Test extends TestCase {
 		$this->assertTrue( $found_pa_size, 'Should have pa_size attribute (was in included_attributes)' );
 		$this->assertFalse( $found_pa_material, 'Should NOT have pa_material attribute (was NOT in included_attributes)' );
 	}
+
+	/**
+	 * Test that parse_instant_search_query_options normalizes empty / invalid option values.
+	 */
+	public function test_parse_instant_search_query_options_edge_cases() {
+		$parsed = Helper::parse_instant_search_query_options(
+			array(
+				'highlightFields'     => array( '', '' ),
+				'customResults'       => array(
+					'not-an-array',
+					array(
+						'pattern' => 'hello',
+						'ids'     => array( 1 ),
+					),
+					array(
+						'pattern' => '',
+						'ids'     => array( 2 ),
+					),
+					array(
+						'pattern' => 'missing-ids',
+						'ids'     => array(),
+					),
+				),
+				'highlightPhraseOnly' => false,
+			)
+		);
+
+		$this->assertNull( $parsed['highlightFields'] );
+		$this->assertSame(
+			array(
+				array(
+					'pattern' => 'hello',
+					'ids'     => array( 1 ),
+				),
+			),
+			$parsed['customResults']
+		);
+		$this->assertFalse( $parsed['highlightPhraseOnly'] );
+	}
+
+	/**
+	 * Test that stopwords drop when combined with highlightPhraseOnly — the v1.3 API
+	 * rejects requests carrying both.
+	 */
+	public function test_parse_instant_search_query_options_phrase_only_wins_over_stopwords() {
+		$parsed = Helper::parse_instant_search_query_options(
+			array(
+				'highlightPhraseOnly'      => true,
+				'highlightFilterStopwords' => array( 'the', 'a' ),
+			)
+		);
+
+		$this->assertTrue( $parsed['highlightPhraseOnly'] );
+		$this->assertSame( array(), $parsed['highlightFilterStopwords'] );
+
+		$parsed = Helper::parse_instant_search_query_options(
+			array(
+				'highlightFilterStopwords' => array( 'the', 'a' ),
+			)
+		);
+
+		$this->assertFalse( $parsed['highlightPhraseOnly'] );
+		$this->assertSame( array( 'the', 'a' ), $parsed['highlightFilterStopwords'] );
+	}
+
+	/**
+	 * Test that get_instant_search_query_options ignores a non-array filter return.
+	 */
+	public function test_get_instant_search_query_options_non_array_filter() {
+		$callback = static function () {
+			return 'not-an-array';
+		};
+		$options  = array(
+			'highlightPhraseOnly' => false,
+			'customResults'       => array(),
+		);
+		add_filter( 'jetpack_instant_search_options', $callback );
+		try {
+			$options = Helper::get_instant_search_query_options();
+		} finally {
+			remove_filter( 'jetpack_instant_search_options', $callback );
+		}
+
+		$this->assertFalse( $options['highlightPhraseOnly'] );
+		$this->assertSame( array(), $options['customResults'] );
+	}
+
+	/**
+	 * Test apply_instant_search_query_options_to_api_args for regex customResults,
+	 * missing fields, and a non-array options filter when options are loaded via generate.
+	 */
+	public function test_apply_instant_search_query_options_to_api_args_edge_cases() {
+		$with_regex = Helper::apply_instant_search_query_options_to_api_args(
+			array(
+				'query' => 'hello world',
+			),
+			array(
+				'customResults'     => array(
+					array(
+						'pattern' => 'regex:hello.*',
+						'ids'     => array( 99 ),
+					),
+				),
+				'additionalBlogIds' => array( 7 ),
+			)
+		);
+		$this->assertSame( array( 99 ), $with_regex['custom_results'] );
+		$this->assertSame( array( 7 ), $with_regex['additional_blog_ids'] );
+		$this->assertSame(
+			Helper::MULTISITE_SEARCH_FIELD_NAMES,
+			$with_regex['fields']
+		);
+
+		$no_match = Helper::apply_instant_search_query_options_to_api_args(
+			array( 'query' => 'nope' ),
+			array(
+				'customResults' => array(
+					array(
+						'pattern' => 'hello',
+						'ids'     => array( 1 ),
+					),
+					array(
+						'pattern' => 'regex:^world$',
+						'ids'     => array( 2 ),
+					),
+				),
+			)
+		);
+		$this->assertArrayNotHasKey( 'custom_results', $no_match );
+
+		$callback = static function () {
+			return 'not-an-array';
+		};
+		add_filter( 'jetpack_instant_search_options', $callback );
+		try {
+			$passthrough = Helper::apply_instant_search_query_options_to_api_args(
+				array( 'query' => 'keep-me' )
+			);
+		} finally {
+			remove_filter( 'jetpack_instant_search_options', $callback );
+		}
+		$this->assertSame( array( 'query' => 'keep-me' ), $passthrough );
+	}
+
+	/**
+	 * Test that resolve_instant_search_custom_results matches exact and regex: patterns.
+	 */
+	public function test_resolve_instant_search_custom_results() {
+		$rules = array(
+			array(
+				'pattern' => 'exact',
+				'ids'     => array( 1 ),
+			),
+			array(
+				'pattern' => 'regex:^hello.*',
+				'ids'     => array( 2, 3 ),
+			),
+		);
+
+		$this->assertNull( Helper::resolve_instant_search_custom_results( 'x', array() ) );
+		$this->assertSame( array( 1 ), Helper::resolve_instant_search_custom_results( 'exact', $rules ) );
+		$this->assertSame( array( 2, 3 ), Helper::resolve_instant_search_custom_results( 'hello there', $rules ) );
+		$this->assertNull( Helper::resolve_instant_search_custom_results( 'nope', $rules ) );
+		$this->assertNull(
+			Helper::resolve_instant_search_custom_results(
+				'hello',
+				array(
+					array(
+						'pattern' => 'regex:[invalid',
+						'ids'     => array( 9 ),
+					),
+				)
+			)
+		);
+		$this->assertSame(
+			array( 4 ),
+			Helper::resolve_instant_search_custom_results(
+				'docs/getting-started',
+				array(
+					array(
+						'pattern' => 'regex:docs/.*',
+						'ids'     => array( 4 ),
+					),
+				)
+			),
+			'Patterns containing the PCRE delimiter should still match.'
+		);
+	}
 }

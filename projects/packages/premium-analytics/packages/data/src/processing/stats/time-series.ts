@@ -95,6 +95,15 @@ function parseTimeSeriesRows( payload: unknown ) {
 	} );
 }
 
+// Not `localeCompare`: a collation may ignore the separators these bounds carry.
+function compareBucketBounds( a: string, b: string ) {
+	if ( a === b ) {
+		return 0;
+	}
+
+	return a < b ? -1 : 1;
+}
+
 function getPrimaryMetricValue( row: StatsRecord ) {
 	// The first numeric metric is the headline value; matrix payloads preserve API field order.
 	const primaryMetric = Object.entries( row ).find(
@@ -226,6 +235,17 @@ function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: strin
 	return getTimeSeriesIntervalFields( rawPeriod, unit );
 }
 
+// Rebuild a summary bound from a query date when no rows came back. Rows stamp
+// `date_start`/`date_end` as full ISO 8601 with a nominal +00:00 (see
+// getStatsIntervalFields), so the query's own site-local offset can't be passed
+// through verbatim: consumers read these as wall-clock bucket labels, and a real
+// offset would be converted a second time. Mirrors getStatsSummaryIntervalFields.
+function toSummaryBound( value: string | undefined, time: string ) {
+	const datePart = getDatePart( value );
+
+	return datePart ? formatDatePartWithTime( datePart, time ) : '';
+}
+
 function getTimeSeriesSummarySidecars( response: StatsRecord ) {
 	return {
 		...normalizeStatsSummary( coerceStatsRecord( response.summary ) ),
@@ -268,19 +288,24 @@ export function sanitizeStatsTimeSeriesResponse(
 
 		return totals;
 	}, {} );
-	const data = rows.map< StatsTimeSeriesDataPoint >( row => {
-		const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
-		const range = getRowIntervalFields( row, rawPeriod, unit );
-		const value = safeParseFloat( getPrimaryMetricValue( row ) );
+	const data = rows
+		.map< StatsTimeSeriesDataPoint >( row => {
+			const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
+			const range = getRowIntervalFields( row, rawPeriod, unit );
+			const value = safeParseFloat( getPrimaryMetricValue( row ) );
 
-		return {
-			...row,
-			...range,
-			label: range.time_interval,
-			value,
-			items: [],
-		};
-	} );
+			return {
+				...row,
+				...range,
+				label: range.time_interval,
+				value,
+				items: [],
+			};
+		} )
+		// `stats/visits` returns buckets oldest first, `stats/subscribers` newest
+		// first, but everything downstream reads `data[0]` as the oldest bucket —
+		// starting with the summary bounds below.
+		.sort( ( a, b ) => compareBucketBounds( a.date_start, b.date_start ) );
 	const firstRow = data[ 0 ];
 	const lastRow = data[ data.length - 1 ];
 
@@ -288,8 +313,8 @@ export function sanitizeStatsTimeSeriesResponse(
 		summary: {
 			...getTimeSeriesSummarySidecars( response ),
 			...summary,
-			date_start: firstRow?.date_start ?? query?.start_date ?? '',
-			date_end: lastRow?.date_end ?? query?.end_date ?? query?.date ?? '',
+			date_start: firstRow?.date_start ?? toSummaryBound( query?.start_date, '00:00:00' ),
+			date_end: lastRow?.date_end ?? toSummaryBound( query?.end_date ?? query?.date, '23:59:59' ),
 		},
 		data,
 	};

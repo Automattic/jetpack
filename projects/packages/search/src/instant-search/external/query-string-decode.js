@@ -4,7 +4,14 @@ function toValue( mix, tcBools, tcNumbers ) {
 	if ( ! mix ) {
 		return '';
 	}
-	const str = decodeURIComponent( mix );
+	let str;
+	try {
+		str = decodeURIComponent( mix );
+	} catch {
+		// Malformed percent-encoding (e.g. an unresolved email merge tag) can't be decoded;
+		// treat it as an empty value rather than crash Instant Search init (#50709).
+		return '';
+	}
 	if ( tcBools && str === 'false' ) {
 		return false;
 	}

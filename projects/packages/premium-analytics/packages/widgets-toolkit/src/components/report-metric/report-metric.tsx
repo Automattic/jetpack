@@ -1,10 +1,9 @@
 /**
  * External dependencies
  */
-import { useGlobalChartsContext } from '@automattic/charts';
+import { useGlobalChartsContext, Icon } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
-import { Icon } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -14,9 +13,6 @@ import { MetricComparisonWidget } from '../../widgets/metric-comparison';
 import { WidgetState } from '../widget-state';
 import type { DataFormat } from '../../types';
 
-/**
- * Generic type for report data with time series
- */
 type ReportData = {
 	summary: {
 		date_start: string;
@@ -44,9 +40,6 @@ type ReportHookResult = {
 };
 
 export type ReportMetricWidgetProps = {
-	/**
-	 * The metric key to display from the data
-	 */
 	metricKey: string;
 
 	/**
@@ -54,9 +47,6 @@ export type ReportMetricWidgetProps = {
 	 */
 	data: ReportHookResult;
 
-	/**
-	 * The format configuration for the metric
-	 */
 	dataFormat: DataFormat;
 
 	/**
@@ -65,9 +55,6 @@ export type ReportMetricWidgetProps = {
 	 */
 	emptyStateIcon?: React.ComponentProps< typeof Icon >[ 'icon' ];
 
-	/**
-	 * Copy for the empty state.
-	 */
 	emptyStateText?: string;
 
 	/**
@@ -79,10 +66,6 @@ export type ReportMetricWidgetProps = {
 };
 
 /**
- * Report Metric Widget - Internal Component
- *
- * @param {ReportMetricWidgetProps} props - The component props
- *
  * @internal
  */
 export function ReportMetricWidget( {
@@ -99,7 +82,6 @@ export function ReportMetricWidget( {
 	const comparisonData = data.comparison.data;
 	const { isLoading, isFetching, hasData, isError, refetch } = data;
 
-	// Build series[] data.
 	const series = buildTimeSeriesChartData( {
 		primary: primaryData ?? {
 			summary: {
@@ -114,7 +96,6 @@ export function ReportMetricWidget( {
 		emptyDataFallback: 'empty-array',
 	} );
 
-	// Build seriesStyles[] data.
 	const seriesStyles = useMemo(
 		() =>
 			series.map( ( seriesData, index ) => {
@@ -152,7 +133,7 @@ export function ReportMetricWidget( {
 				// Omitted copy falls back to WidgetState's generic line, so the
 				// default lives in one place instead of being restated here.
 				description: errorText,
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: emptyStateIcon,

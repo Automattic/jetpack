@@ -3,9 +3,6 @@
  *
  * WordPress REST API errors and fetch errors can expose the status in
  * different places depending on which layer produced the failure.
- *
- * @param error - Unknown thrown error.
- * @return HTTP status code, or null when unavailable.
  */
 export function getApiErrorStatus( error: unknown ): number | null {
 	if ( ! error || typeof error !== 'object' ) {
@@ -38,8 +35,8 @@ export function getApiErrorStatus( error: unknown ): number | null {
 /**
  * Extract an API error code from common WordPress REST error shapes.
  *
- * @param error - Unknown thrown error.
- * @return Error code, or null when unavailable.
+ * WPCOM pass-through errors (every real Stats failure) put the code in `error`,
+ * while our own `WP_Error` responses use `code`.
  */
 export function getApiErrorCode( error: unknown ): string | null {
 	if ( ! error || typeof error !== 'object' ) {
@@ -52,6 +49,10 @@ export function getApiErrorCode( error: unknown ): string | null {
 		return err.code;
 	}
 
+	if ( typeof err.error === 'string' ) {
+		return err.error;
+	}
+
 	if ( err.data && typeof err.data === 'object' ) {
 		const data = err.data as Record< string, unknown >;
 		if ( typeof data.code === 'string' ) {
@@ -62,39 +63,16 @@ export function getApiErrorCode( error: unknown ): string | null {
 	return null;
 }
 
-export type StatsPlanErrorReason = 'upgrade-required' | null;
-
-const NON_PLAN_FORBIDDEN_ERROR_CODES = new Set( [ 'no_connection' ] );
-
-/**
- * Maps Stats API errors to widget-level plan error reasons.
- *
- * @param error - Unknown thrown error.
- * @return The plan error reason when the response is plan-gated.
- */
-export function getStatsPlanErrorReason( error: unknown ): StatsPlanErrorReason {
-	const errorCode = getApiErrorCode( error );
-
-	return getApiErrorStatus( error ) === 403 &&
-		! NON_PLAN_FORBIDDEN_ERROR_CODES.has( errorCode ?? '' )
-		? 'upgrade-required'
-		: null;
-}
-
 /**
  * Determine whether a failed API query should be retried.
  *
- * Authentication and authorization failures are deterministic for the current
- * user/session, so retrying only delays the widget-specific error UI.
- *
- * @param failureCount - Number of failed attempts so far.
- * @param error        - Unknown thrown error.
- * @return Whether React Query should retry.
+ * Authentication, authorization and not-found failures are deterministic for the
+ * current user/session, so retrying only delays the widget-specific error UI.
  */
 export function shouldRetryApiError( failureCount: number, error: unknown ): boolean {
 	const status = getApiErrorStatus( error );
 
-	if ( status === 401 || status === 403 ) {
+	if ( status === 401 || status === 403 || status === 404 ) {
 		return false;
 	}
 

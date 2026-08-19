@@ -17,6 +17,7 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/read
  */
 class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	use Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+	use \Activates_Ai_Module;
 
 	/**
 	 * Saved wp_scripts global.
@@ -47,6 +48,9 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		// tests that don't intend to simulate an AJAX request.
 		add_filter( 'wp_doing_ajax', '__return_false' );
 		$this->simulate_connected_owner();
+		// Off-Simple the `ai` module is the AI master switch; activate it so the
+		// default has_ai_features() path (jetpack_ai_enabled) reads on.
+		$this->activate_ai_module_for_test();
 		$this->set_search_plan_access( true );
 	}
 
@@ -54,6 +58,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
+		$this->deactivate_ai_module_for_test();
 		delete_transient( AiAssistantPlugin\READER_CHAT_ASSET_TRANSIENT );
 		remove_all_filters( 'jetpack_reader_chat_enabled' );
 		remove_all_filters( 'jetpack_reader_chat_enqueue_enabled' );
@@ -295,6 +300,11 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertEmpty(
 			$registered_settings['reader_chat']['show_in_rest'] ?? false,
 			'reader_chat should not be exposed through the core REST settings endpoint.'
+		);
+		$this->assertSame(
+			__( 'Whether Site Chat is enabled on this site.', 'jetpack' ),
+			$registered_settings['reader_chat']['description'] ?? '',
+			'reader_chat description should use the Site Chat name.'
 		);
 	}
 

@@ -13,10 +13,11 @@ const GoodreadsEdit = props => {
 	const [ userInput, setUserInput ] = useState( '' );
 	const [ url, setUrl ] = useState( '' );
 	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
-	const prevPropsRef = useRef( null );
 	const blockProps = useBlockProps();
 
 	const { isFetchingData, goodreadsUserId, isError } = useFetchGoodreadsData( url );
+	const { goodreadsId, widgetId, link, style } = attributes;
+	const hasSyncedRef = useRef( false );
 
 	useEffect( () => {
 		if ( isFetchingData ) {
@@ -31,46 +32,66 @@ const GoodreadsEdit = props => {
 				setErrorNotice();
 			}
 
-			// Applies when transforming from Legacy Widget,
-			// in which case goodreadsId is already known.
-			if ( attributes.goodreadsId ) {
-				setRequestLink();
-			}
-
 			if ( goodreadsUserId && ! isError ) {
 				setAttributes( { goodreadsId: goodreadsUserId } );
-				setRequestLink();
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ goodreadsUserId, isFetchingData, isResolvingUrl, isError, setAttributes ] );
 
+	// Rebuild the embed link and container id whenever the block settings change,
+	// minting a fresh widget id each time. Goodreads caches each widget render by
+	// widget_id on first fetch and then ignores changed query params, so reusing
+	// the same widget_id would leave the editor preview stuck on the first render;
+	// a new widget_id busts that cache and lets the preview reflect the new
+	// settings. This intentionally replaces the previous prop-identity trigger,
+	// which regenerated on every render and caused an infinite refresh loop.
+	//
+	// The ref skips the first run for an already-configured block (goodreadsId,
+	// widgetId and link all present) so simply opening a saved post does not mint
+	// a new widget_id and mark the post dirty. Fresh embeds and Legacy Widget
+	// transforms (goodreadsId set, no widgetId yet) fall through and generate.
 	useEffect( () => {
-		if (
-			prevPropsRef.current &&
-			attributes.goodreadsId &&
-			attributes.widgetId === prevPropsRef.current.attributes.widgetId
-		) {
-			setRequestLink();
+		if ( ! goodreadsId ) {
+			return;
 		}
-		prevPropsRef.current = props;
+
+		if ( ! hasSyncedRef.current && widgetId && link ) {
+			hasSyncedRef.current = true;
+			return;
+		}
+		hasSyncedRef.current = true;
+
+		const newWidgetId = Math.floor( Math.random() * 9999999 );
+		const selector = style === 'grid' ? 'gr_grid_widget_' : 'gr_custom_widget_';
+		setAttributes( {
+			widgetId: newWidgetId,
+			id: selector + newWidgetId,
+			link: createGoodreadsEmbedLink( { attributes: { ...attributes, widgetId: newWidgetId } } ),
+		} );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ props, attributes.goodreadsId, attributes.widgetId ] );
+	}, [
+		goodreadsId,
+		style,
+		attributes.shelfOption,
+		attributes.bookNumber,
+		attributes.orderOption,
+		attributes.customTitle,
+		attributes.sortOption,
+		attributes.showAuthor,
+		attributes.showCover,
+		attributes.showRating,
+		attributes.showReview,
+		attributes.showTags,
+		attributes.showTitle,
+		setAttributes,
+	] );
 
 	const setErrorNotice = () => {
 		noticeOperations.removeAllNotices();
 		noticeOperations.createErrorNotice(
 			<>{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }</>
 		);
-	};
-
-	const setRequestLink = () => {
-		const selector = attributes.style === 'grid' ? 'gr_grid_widget_' : 'gr_custom_widget_';
-		setAttributes( {
-			widgetId: Math.floor( Math.random() * 9999999 ),
-			link: createGoodreadsEmbedLink( { attributes } ),
-			id: selector + attributes.widgetId,
-		} );
 	};
 
 	const submitForm = event => {
@@ -119,7 +140,7 @@ const GoodreadsEdit = props => {
 	};
 
 	const renderInlinePreview = () => {
-		const { link, id } = attributes;
+		const { id } = attributes;
 
 		const html = `
 		<style> [class^=gr_custom_container_] { border: 1px solid gray; border-radius: 10px; margin: auto; padding: 0 5px 10px 5px; background-color: #fff; color: #000; width: 300px; }  [class^=gr_custom_header_] { border-bottom: 1px solid gray; width: 100%; padding: 10px 0; margin: auto; text-align: center; font-size: 120%; }  [class^=gr_custom_each_container_] { width: 100%; clear: both; margin: auto; overflow: auto; padding-bottom: 4px; border-bottom: 1px solid #aaa; }  [class^=gr_custom_each_container_] { width: 100%; clear: both; margin-bottom: 10px; overflow: auto; padding-bottom: 4px; border-bottom: 1px solid #aaa; }  [class^=gr_custom_book_container_] { overflow: hidden; height: 60px; float: left; margin-right: 6px; width: 39px; }  [class^=gr_custom_author_] { font-size: 10px; }  [class^=gr_custom_tags_] { font-size: 10px; color: gray; }  [class^=gr_custom_rating_] { float: right; }  [class^=gr_grid_book_container] { float: left; width: 98px; height: 160px; padding: 0 0; overflow: hidden; }  [class^=gr_grid_book_container] img { height: 100%; width: 100%; }  a { text-decoration: none; }  a:hover { text-decoration: underline; }  img { max-width: 100%; }</style>

@@ -28,10 +28,7 @@ type PostCommentsWidgetProps = WidgetRenderProps< PostCommentsRenderAttributes >
 const COMMENTS_SHOWN = 10;
 
 /**
- * Latest comments inner component. Reads the post scope from WidgetRoot's
- * report params and lists approved comments in reverse chronological order.
- *
- * @return The rendered widget content.
+ * Lists the scoped post's approved comments, newest first.
  */
 function PostCommentsInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -72,9 +69,9 @@ function PostCommentsInner() {
 				error={ {
 					description: __(
 						"We couldn't load these comments. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: reports,
@@ -82,9 +79,9 @@ function PostCommentsInner() {
 						postId <= 0
 							? __(
 									'Open a post or page report to see its comments here.',
-									'jetpack-premium-analytics'
+									'jetpack-premium-analytics-pkg'
 							  )
-							: __( 'There are no comments yet.', 'jetpack-premium-analytics' ),
+							: __( 'There are no comments yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<SubscriberList items={ items } moreCount={ Math.max( 0, found - items.length ) } />
@@ -93,13 +90,6 @@ function PostCommentsInner() {
 	);
 }
 
-/**
- * Latest comments widget: the scoped post's recent commenters as an avatar
- * roster.
- *
- * @param {PostCommentsWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function PostComments( { attributes = {} }: PostCommentsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

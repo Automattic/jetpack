@@ -1,37 +1,25 @@
 import { render, screen } from '@testing-library/react';
+import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
 import { getVideosFields } from './fields';
-import type { StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
-import type { ReactNode } from 'react';
+import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 
 // The router is built dynamically at runtime, so a field-level test has no
 // router to mount. Render `Link` as the anchor it becomes, keeping `to`/
 // `params`/`search` assertable, matching the other report field tests.
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( {
-		to,
-		params,
-		search,
-		children,
-	}: {
-		to: string;
-		params: Record< string, string >;
-		search?: Record< string, string >;
-		children: ReactNode;
-	} ) => {
-		const path = to.replace( /\$(\w+)/g, ( _match, key ) => params[ key ] );
-		const query = new URLSearchParams( search ?? {} ).toString();
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../../../../tests/js/route-test-utils' );
 
-		return <a href={ query ? `${ path }?${ query }` : path }>{ children }</a>;
-	},
-	useSearch: () => ( {
-		from: '2026-06-01',
-		to: '2026-06-16',
-		// A page-owned param the detail link must not carry along.
-		chart_period: 'week',
-	} ),
-} ) );
+	return mockWordPressRoute;
+} );
 
-const video: StatsVideoPlaysItem = {
+setMockRouteSearch( {
+	from: '2026-06-01',
+	to: '2026-06-16',
+	interval: 'day',
+	chart_period: 'week',
+} );
+
+const video: StatsVideoPlaysComparisonItem = {
 	id: 12,
 	label: 'Launch video',
 	plays: 11,
@@ -48,7 +36,7 @@ const video: StatsVideoPlaysItem = {
  * @param item - The video row to render.
  * @return The RTL render result.
  */
-function renderTitleField( item: StatsVideoPlaysItem ) {
+function renderTitleField( item: StatsVideoPlaysComparisonItem ) {
 	const field = getVideosFields().find( candidate => candidate.id === 'label' );
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
 	const TitleField = field?.render;
@@ -60,6 +48,30 @@ function renderTitleField( item: StatsVideoPlaysItem ) {
 	return render( <TitleField item={ item } field={ field as never } /> );
 }
 
+/**
+ * Render one metric field for a video row.
+ *
+ * @param fieldId        - The metric field to render.
+ * @param item           - The video row.
+ * @param withComparison - Whether comparison deltas are enabled.
+ * @return The RTL render result.
+ */
+function renderMetricField(
+	fieldId: 'plays' | 'impressions',
+	item: StatsVideoPlaysComparisonItem,
+	withComparison = false
+) {
+	const field = getVideosFields( withComparison ).find( candidate => candidate.id === fieldId );
+	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
+	const MetricField = field?.render;
+
+	if ( ! field || ! MetricField ) {
+		throw new Error( `Videos ${ fieldId } field render callback is unavailable` );
+	}
+
+	return render( <MetricField item={ item } field={ field as never } /> );
+}
+
 describe( 'videos fields', () => {
 	it( 'links a video title to its internal detail page, carrying the date window', () => {
 		renderTitleField( video );
@@ -67,7 +79,14 @@ describe( 'videos fields', () => {
 		const link = screen.getByRole( 'link', { name: 'Launch video' } );
 		// Only the shared report-window params travel; page-owned params
 		// (`chart_period`) stay behind.
-		expect( link ).toHaveAttribute( 'href', '/video/12?from=2026-06-01&to=2026-06-16' );
+		const url = getMockRouteLinkUrl( link );
+		expect( url.pathname ).toBe( '/video/12' );
+		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			ref: 'videos',
+		} );
 		expect( link ).not.toHaveAttribute( 'target' );
 	} );
 
@@ -120,5 +139,34 @@ describe( 'videos fields', () => {
 		expect(
 			fields.find( field => field.id === 'impressions' )?.getValue?.( { item: video } )
 		).toBe( 42 );
+	} );
+
+	it( 'shows plays and impressions deltas when comparison is enabled', () => {
+		const comparedVideo: StatsVideoPlaysComparisonItem = {
+			...video,
+			plays: 20,
+			previousPlays: 10,
+			impressions: 42,
+			previousImpressions: 28,
+		};
+
+		renderMetricField( 'plays', comparedVideo, true );
+		renderMetricField( 'impressions', comparedVideo, true );
+
+		expect( screen.getByText( '20' ) ).toBeInTheDocument();
+		expect( screen.getByText( '+100%' ) ).toBeInTheDocument();
+		expect( screen.getByText( '42' ) ).toBeInTheDocument();
+		expect( screen.getByText( '+50%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides comparison deltas when comparison is disabled', () => {
+		renderMetricField( 'plays', {
+			...video,
+			plays: 20,
+			previousPlays: 10,
+		} );
+
+		expect( screen.getByText( '20' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
 	} );
 } );

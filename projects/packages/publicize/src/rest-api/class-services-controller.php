@@ -140,7 +140,15 @@ class Services_Controller extends Base_Controller {
 
 			$items = array();
 
-			foreach ( Services::wpcom_get_all() as $item ) {
+			/*
+			 * Neither path goes through Services::get_all(), so the filter is applied
+			 * here too to keep the REST route consistent with it.
+			 *
+			 * This filter is documented in projects/packages/publicize/src/class-services.php
+			 */
+			$services = (array) apply_filters( 'jetpack_publicize_services', Services::wpcom_get_all() );
+
+			foreach ( $services as $item ) {
 				$data = $this->prepare_item_for_response( $item, $request );
 
 				$items[] = $this->prepare_response_for_collection( $data );
@@ -151,6 +159,9 @@ class Services_Controller extends Base_Controller {
 			if ( is_wp_error( $items ) ) {
 				return $items;
 			}
+
+			/** This filter is documented in projects/packages/publicize/src/class-services.php */
+			$items = (array) apply_filters( 'jetpack_publicize_services', $items );
 		}
 
 		$response = rest_ensure_response( $items );

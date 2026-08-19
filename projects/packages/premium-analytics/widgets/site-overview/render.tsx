@@ -5,6 +5,7 @@ import { useStatsSummary, type StatsSummaryResponse } from '@jetpack-premium-ana
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -13,7 +14,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { comment, globe, people, seen, starEmpty } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
+import { Text } from '@jetpack-premium-analytics/externals';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -67,7 +68,7 @@ const TILE_CONFIG: Record<
 		// visitors, so a returning visitor counts once per day, not once overall.
 		note: __(
 			'Sum of daily visitors — a returning visitor is counted once per day, not once for the whole period.',
-			'jetpack-premium-analytics'
+			'jetpack-premium-analytics-pkg'
 		),
 	},
 	likes: { icon: starEmpty, value: summary => summary.likes },
@@ -75,18 +76,10 @@ const TILE_CONFIG: Record<
 };
 
 /**
- * Fetches the period summary through the designated `useStatsSummary` Stats hook
- * and renders views, visitors, likes, and comments as metric tiles. The date
- * range and comparison period come from the dashboard picker via `reportParams`.
- *
  * When a comparison period is requested and returns data, each tile shows its
  * period-over-period change; the comparison total is looked up per metric so a
  * primary metric is never paired with a fabricated previous value. Which tiles
- * appear is controlled by the `metrics` attribute.
- *
- * @param props           - The component props.
- * @param props.metricIds - The selected metric tile ids; missing means every metric.
- * @return The widget content.
+ * appear is controlled by the `metrics` attribute — missing means every metric.
  */
 function SiteOverviewReport( {
 	metricIds = DEFAULT_SITE_OVERVIEW_METRICS,
@@ -115,7 +108,7 @@ function SiteOverviewReport( {
 			<div className={ styles.root }>
 				<div className={ styles.state }>
 					<Text>
-						{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
+						{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics-pkg' ) }
 					</Text>
 				</div>
 			</div>
@@ -151,27 +144,22 @@ function SiteOverviewReport( {
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				// `isPending` covers the query being disabled before a date resolves;
-				// once a period's totals are on screen a date-range change refetches in
-				// the background and the busy overlay layers over the stale tiles.
 				isLoading={ ( isLoading || primary.isPending ) && ! summary }
 				isFetching={ isFetching }
-				// As with `isLoading` above: the stale totals stay on screen through a
-				// transient refetch failure, so only surface the error when there is
-				// nothing to show.
 				isError={ ! summary && isError }
 				isEmpty={ isEmpty }
 				error={ {
 					description: __(
 						"We couldn't load the site overview. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: globe,
-					description: __( 'No stats recorded for this period.', 'jetpack-premium-analytics' ),
+					description: __( 'No stats recorded for this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <MetricTileGridSkeleton tiles={ visibleMetrics.length } /> }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			</WidgetState>
@@ -179,17 +167,6 @@ function SiteOverviewReport( {
 	);
 }
 
-/**
- * Widget render entry point.
- *
- * WidgetRoot provides the analytics query client, chart theme, and the report
- * params consumed by the inner report — resolved from the dashboard date range
- * and comparison state via context, the same way the other Stats widgets read
- * them.
- *
- * @param {SiteOverviewWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function SiteOverview( { attributes = {} }: SiteOverviewWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

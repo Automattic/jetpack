@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { BarChart as BarChartBase } from '@automattic/charts';
-import { Icon } from '@wordpress/ui';
+import { BarChart as BarChartBase, Icon } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
 import { useCallback, useMemo, useId } from 'react';
 /**
@@ -39,9 +38,6 @@ export type BarChartProps = {
 	 */
 	chartData: BarChartData;
 
-	/**
-	 * Format configuration for chart values (tooltips)
-	 */
 	dataFormat: DataFormat;
 
 	/**
@@ -50,19 +46,10 @@ export type BarChartProps = {
 	 */
 	styles?: BarChartStyle[];
 
-	/**
-	 * Optional className for the container
-	 */
 	className?: string;
 
-	/**
-	 * Icon to display in the empty state
-	 */
 	emptyStateIcon?: React.ComponentProps< typeof Icon >[ 'icon' ];
 
-	/**
-	 * Text to display in the empty state
-	 */
 	emptyStateText?: string;
 
 	/**
@@ -88,12 +75,10 @@ function resolveSeriesStyles(
 	stylesFromProp: BarChartStyle[] | undefined,
 	chartData: BarChartData
 ): BarChartStyle[] {
-	// If styles prop is provided, use it directly
 	if ( stylesFromProp?.length ) {
 		return stylesFromProp;
 	}
 
-	// Fallback: extract styles from chartData options
 	return (
 		chartData?.map( series => ( {
 			stroke: series.options?.stroke ?? 'currentColor',
@@ -101,14 +86,6 @@ function resolveSeriesStyles(
 	);
 }
 
-/**
- * Applies resolved styles to chart data for the internal BarChart.
- * Sets options.stroke on each series.
- *
- * @param chartData      - Original chart data
- * @param resolvedStyles - Styles to apply
- * @return Chart data with styles applied to options
- */
 function applyStylesToSeries(
 	chartData: BarChartData,
 	resolvedStyles: BarChartStyle[]
@@ -131,11 +108,8 @@ function applyStylesToSeries(
 }
 
 /**
- * Pure BarChart component.
- * Does not depend on any context provider - all data flows through props.
- *
- * Colors can be provided via chartData[].options.stroke or via styles prop.
- * Uses RectShape from chart library for tooltip indicators.
+ * Context-free BarChart: everything, colors included, arrives through props.
+ * The `styles` prop takes priority over `chartData[].options.stroke`.
  */
 export function BarChart( {
 	chartData,
@@ -148,42 +122,27 @@ export function BarChart( {
 }: BarChartProps ) {
 	const chartId = useId();
 
-	/**
-	 * Resolve styles: prop takes priority, fallback to chartData options.
-	 * This array is used for tooltip styling and to decorate chart data.
-	 */
+	// Also used for tooltip styling, not only to decorate the chart data.
 	const resolvedStyles = useMemo< BarChartStyle[] >(
 		() => resolveSeriesStyles( stylesProp, chartData ),
 		[ stylesProp, chartData ]
 	);
 
-	/**
-	 * Apply resolved styles to chart data for the internal BarChart.
-	 * Only needed when styles come from prop; otherwise chartData already has styles.
-	 */
 	const styledChartData = useMemo( () => {
-		// If no styles prop, chartData already has its styles in options
+		// Without a styles prop, chartData already carries its styles in options.
 		if ( ! stylesProp?.length ) {
 			return chartData;
 		}
 		return applyStylesToSeries( chartData, resolvedStyles );
 	}, [ stylesProp, chartData, resolvedStyles ] );
 
-	/**
-	 * Detect if chart data is empty (all values are 0).
-	 * Used to disable tooltips when there's no meaningful data to display.
-	 */
 	const isEmptyData = useMemo( () => isEmptyChartData( styledChartData ), [ styledChartData ] );
 
-	/**
-	 * Chart options for empty data state.
-	 * Sets a fixed Y-axis domain so the chart shows 0 at the bottom
-	 * with meaningful tick values instead of a flat line.
-	 */
+	// Empty data gets a fixed Y-axis domain, so the chart shows 0 at the bottom
+	// with meaningful tick values instead of a flat line.
 	const chartOptions = useMemo( () => {
 		if ( ! isEmptyData ) {
 			return {
-				// Apply ellipsis to x-axis labels when they overflow.
 				axis: {
 					x: {
 						labelOverflow: 'ellipsis' as const,

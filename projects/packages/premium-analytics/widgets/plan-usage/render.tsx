@@ -12,7 +12,7 @@ import {
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { percent } from '@wordpress/icons';
-import { Link, Stack, Text } from '@wordpress/ui';
+import { Link, Stack, Text } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -21,10 +21,9 @@ import styles from './style.module.css';
 import type { PlanUsageAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-// Report params are dashboard-driven and injected via `attributes`; the usage
-// endpoint ignores them (it reports the current billing cycle, with no date
-// range or comparison period), but WidgetRoot still expects them on
-// `attributes`.
+// The usage endpoint ignores report params — it reports the current billing
+// cycle, with no date range or comparison period — but WidgetRoot still expects
+// them on `attributes`.
 type PlanUsageRenderAttributes = PlanUsageAttributes & Partial< ReportParamsFieldAttributes >;
 type PlanUsageWidgetProps = WidgetRenderProps< PlanUsageRenderAttributes >;
 
@@ -34,37 +33,25 @@ type PlanUsageBarProps = {
 	 * no-limit states are handled by `WidgetState` before the bar renders.
 	 */
 	limit: number;
-	/**
-	 * Billable views used so far in the current cycle.
-	 */
 	usage?: number;
-	/**
-	 * Days remaining until the current cycle resets.
-	 */
 	daysToReset?: number;
-	/**
-	 * Number of recent cycles the site has exceeded its limit.
-	 */
+	/** Number of recent billing cycles the site has exceeded its limit. */
 	overLimitMonths?: number | null;
 };
 
 /**
- * The over-limit warning shown when the site has exceeded its limit in recent
- * cycles. One cycle reads as a single lapse; two or more escalates the wording,
- * mirroring the Stats "Plan usage" section.
- *
- * @param overLimitMonths - Number of recent cycles over the limit (>= 1).
- * @return The translated warning text.
+ * One cycle reads as a single lapse; two or more escalates the wording,
+ * mirroring the Stats "Plan usage" section. Expects `overLimitMonths >= 1`.
  */
 function overLimitMessage( overLimitMonths: number ): string {
 	if ( overLimitMonths >= 2 ) {
 		return __(
 			"You've surpassed your limit for two consecutive periods already.",
-			'jetpack-premium-analytics'
+			'jetpack-premium-analytics-pkg'
 		);
 	}
 
-	return __( "You've surpassed your limit the past month.", 'jetpack-premium-analytics' );
+	return __( "You've surpassed your limit the past month.", 'jetpack-premium-analytics-pkg' );
 }
 
 /**
@@ -72,8 +59,6 @@ function overLimitMessage( overLimitMonths: number ): string {
  * Stats "Plan usage" section links to — returning to this dashboard after
  * checkout. `undefined` where script data is absent (e.g. Storybook without a
  * seeded `window.JetpackScriptData`).
- *
- * @return The purchase screen URL.
  */
 function upgradeUrl(): string | undefined {
 	const site = getScriptData()?.site;
@@ -87,16 +72,8 @@ function upgradeUrl(): string | undefined {
 }
 
 /**
- * Presentational bar for the "Plan usage" widget, following the Stats "Plan
- * usage" section: a horizontal meter filled proportionally to the billable
- * views used against the plan's cycle limit, the figures and days-until-reset
- * inside the bar, and the upgrade note (with the over-limit warning when
- * applicable) below it when a purchase URL or warning is available. Renders
- * the populated state only — `WidgetState` owns loading, error, and
- * unavailable.
- *
- * @param {PlanUsageBarProps} props - The component props.
- * @return The rendered bar.
+ * Presentational bar, following the Stats "Plan usage" section. Renders the
+ * populated state only — `WidgetState` owns loading, error, and unavailable.
  */
 function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsageBarProps ) {
 	const usageValue = usage ?? 0;
@@ -117,12 +94,12 @@ function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsage
 					className={ styles.progressMeter }
 					value={ Math.min( usageValue, limit ) }
 					max={ limit }
-					aria-label={ __( 'Plan usage', 'jetpack-premium-analytics' ) }
+					aria-label={ __( 'Plan usage', 'jetpack-premium-analytics-pkg' ) }
 				/>
 				<Text className={ styles.progressLabel } variant="body-sm">
 					{ sprintf(
 						/* translators: 1: views used in the current cycle, 2: the plan's views limit. */
-						__( '%1$s / %2$s views', 'jetpack-premium-analytics' ),
+						__( '%1$s / %2$s views', 'jetpack-premium-analytics-pkg' ),
 						formatMetricValue( usageValue, 'number', { decimals: 0 } ),
 						formatMetricValue( limit, 'number', { decimals: 0 } )
 					) }
@@ -135,7 +112,7 @@ function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsage
 								'Restarts in %d day',
 								'Restarts in %d days',
 								daysToReset,
-								'jetpack-premium-analytics'
+								'jetpack-premium-analytics-pkg'
 							),
 							daysToReset
 						) }
@@ -155,7 +132,7 @@ function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsage
 						createInterpolateElement(
 							__(
 								'Do you want to increase your views limit? <a>Upgrade now</a>',
-								'jetpack-premium-analytics'
+								'jetpack-premium-analytics-pkg'
 							),
 							{ a: <Link href={ upgradeHref } /> }
 						) }
@@ -166,13 +143,8 @@ function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsage
 }
 
 /**
- * Fetches the plan-usage report through the `useStatsAppPlanUsage` hook and
- * hands the current-cycle figures to the presentational bar through
- * `WidgetState`, which owns the loading, error, and unavailable states. The
- * endpoint is a point-in-time reading of the connected plan, so it takes no
- * report params.
- *
- * @return The widget content.
+ * The plan-usage endpoint is a point-in-time reading of the connected plan, so
+ * it takes no report params.
  */
 function PlanUsageReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsAppPlanUsage();
@@ -200,15 +172,15 @@ function PlanUsageReport() {
 			error={ {
 				description: __(
 					"We couldn't load plan usage. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: percent,
 				description: __(
 					"Plan usage isn't available for your current plan.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
 			} }
 		>
@@ -224,16 +196,6 @@ function PlanUsageReport() {
 	);
 }
 
-/**
- * Widget render entry point.
- *
- * Passes host attributes into `WidgetRoot` for the widget contract and to
- * provide the query client the inner bar needs. The usage report takes no
- * parameters, so the inner component reads nothing from `attributes`.
- *
- * @param {PlanUsageWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function PlanUsage( { attributes = {} }: PlanUsageWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

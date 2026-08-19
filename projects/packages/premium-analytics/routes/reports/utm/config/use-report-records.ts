@@ -22,7 +22,9 @@ export function useUtmReportRecords( activeTab: UtmReportTabId, reportParams: Re
 			...reportParams,
 			max: 0,
 			summarize: 0,
-			query_top_posts: false,
+			// Match Calypso's full UTM report request and include the posts
+			// grouped under each UTM value.
+			query_top_posts: true,
 		} ),
 		[ reportParams ]
 	);
@@ -60,13 +62,14 @@ export function useUtmReportRecords( activeTab: UtmReportTabId, reportParams: Re
 		campaign,
 	}[ activeTab ];
 	const rows = useMemo(
-		() => aggregateUtmRows( activeReport.primary.data ),
-		[ activeReport.primary.data ]
+		() => aggregateUtmRows( activeReport.comparisonRows?.rows ?? [] ),
+		[ activeReport.comparisonRows ]
 	);
 
 	return {
 		rows,
 		isLoading: activeReport.isLoading,
+		isFetching: activeReport.isFetching,
 		isError: activeReport.isError,
 		refetch: activeReport.refetch,
 	};

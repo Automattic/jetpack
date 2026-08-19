@@ -13,13 +13,15 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 	'post-traffic': [
 		{
 			uuid: 'post-detail-highlights',
+			// Full-width row like the email highlights, per the updated design
+			// mocks; the widget spreads its three tiles across the span.
 			type: 'jpa/post-detail-highlights',
-			placement: { width: 3, height: 1, order: 1 },
+			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
 		},
 		{
 			uuid: 'post-views',
 			type: 'jpa/post-views',
-			placement: { width: 2, height: 1, order: 2 },
+			placement: { width: 2, height: 2, order: 2 },
 		},
 		{
 			uuid: 'post-likes',
@@ -32,18 +34,20 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			placement: { width: 1, height: 2, order: 4 },
 		},
 		{
+			uuid: 'post-traffic-activity',
+			type: 'jpa/post-traffic-activity',
+			placement: { width: 3, height: 2, order: 5 },
+		},
+		{
 			uuid: 'post-utm',
-			type: 'jpa/utm-insights',
-			// Detail-page widgets carry no "See report" action per the design
+			// The alias carries the mock's "UTM" card title; the registry's
+			// global "UTM Insights" title is owned by the copy spreadsheet work.
+			type: 'jpa/utm-insights--utm',
+			// Detail-page widgets carry no "View all" action per the design
 			// mocks — the post detail page is itself the terminal page, and the
 			// site-wide UTM report would silently drop this post's scope.
 			attributes: { utmDimension: 'utm_source,utm_medium', max: 10, showReportLink: false },
-			placement: { width: 2, height: 2, order: 5 },
-		},
-		{
-			uuid: 'post-traffic-activity',
-			type: 'jpa/post-traffic-activity',
-			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 2, order: 6 },
+			placement: { width: 1, height: 2, order: 6 },
 		},
 	],
 	'email-opens': [
@@ -51,13 +55,13 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			uuid: 'email-opens-highlights',
 			type: 'jpa/email-top-row',
 			attributes: { metric: 'opens' },
-			placement: { width: 3, height: 1, order: 1 },
+			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
 		},
 		{
 			uuid: 'email-opens-trend',
 			type: 'jpa/email-time-series--total-opens',
 			attributes: { metric: 'opens' },
-			placement: { width: 3, height: 1, order: 2 },
+			placement: { width: 3, height: 2, order: 2 },
 		},
 		{
 			uuid: 'email-opens-countries',
@@ -83,13 +87,13 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			uuid: 'email-clicks-highlights',
 			type: 'jpa/email-top-row',
 			attributes: { metric: 'clicks' },
-			placement: { width: 3, height: 1, order: 1 },
+			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
 		},
 		{
 			uuid: 'email-clicks-trend',
 			type: 'jpa/email-time-series--total-clicks',
 			attributes: { metric: 'clicks' },
-			placement: { width: 2, height: 1, order: 2 },
+			placement: { width: 2, height: 2, order: 2 },
 		},
 		{
 			uuid: 'email-clicks-devices',
@@ -105,9 +109,12 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 		},
 		{
 			uuid: 'email-clicks-countries',
+			// The updated design mocks draw the country map beside the
+			// leaderboard again (the earlier mocks dropped it in #50928); the
+			// widget still unmounts the map below its 720px container floor.
 			type: 'jpa/email-breakdown--location-clicks',
-			attributes: { view: 'countries', metric: 'clicks', max: 7, showMap: true },
-			placement: { width: 3, height: 2, order: 5 },
+			attributes: { view: 'countries', metric: 'clicks', max: 8, showMap: true },
+			placement: { width: 2, height: 2, order: 5 },
 		},
 		{
 			uuid: 'email-clicks-links',
