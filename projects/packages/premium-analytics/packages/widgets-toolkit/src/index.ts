@@ -17,6 +17,7 @@ export {
 	Legend,
 	ReportMetricWidget,
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	type MetricTab,
 	type MetricTabDatum,
 	type MetricTabsChartProps,
@@ -120,6 +121,9 @@ export {
 	flattenEarningsBreakdown,
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
+	GenericSkeleton,
+	SkeletonRoot,
+	type SkeletonRootProps,
 } from './components';
 
 /**

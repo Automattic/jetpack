@@ -26,6 +26,7 @@ export { DonutChart, type DonutChartData } from './chart-donut';
 export { ReportMetricWidget } from './report-metric';
 export {
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	type MetricTab,
 	type MetricTabDatum,
 	type MetricTabsChartProps,
@@ -127,3 +128,4 @@ export {
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
 } from './wordads-earnings-history';
+export { GenericSkeleton, SkeletonRoot, type SkeletonRootProps } from './widget-skeleton';

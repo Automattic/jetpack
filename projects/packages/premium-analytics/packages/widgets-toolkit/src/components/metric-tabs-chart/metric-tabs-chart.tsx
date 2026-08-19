@@ -14,7 +14,6 @@ import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
 import { MetricWithComparison } from '../metric-with-comparison';
-import { WidgetLoadingOverlay } from '../widget-loading-overlay';
 import styles from './metric-tabs-chart.module.scss';
 import type { DataFormat } from '../../types';
 import type { ComparativeLineChartSeries } from '../chart-comparative-line/types';
@@ -75,8 +74,6 @@ export interface MetricTabsChartProps {
 	onMetricChange?: ( key: string ) => void;
 	/** Header-right slot for widget-specific controls (e.g. a granularity dropdown). */
 	controls?: ReactNode;
-	/** Show the loading overlay over the chart. */
-	loading?: boolean;
 	/** Accessible label for the metric tab list. */
 	groupLabel?: string;
 }
@@ -152,12 +149,10 @@ function buildSeries(
 function MetricChart( {
 	metric,
 	dataFormat,
-	loading,
 	chartType,
 }: {
 	metric: MetricTab;
 	dataFormat: DataFormat;
-	loading: boolean;
 	chartType: MetricTabsChartType;
 } ) {
 	const series = useMemo( () => buildSeries( metric, chartType ), [ metric, chartType ] );
@@ -170,20 +165,15 @@ function MetricChart( {
 	const seriesStyles = useSeriesStyles( series );
 	const resolvedDataFormat = metric.dataFormat ?? dataFormat;
 
-	return (
-		<>
-			{ chartType === 'bar' ? (
-				<ComparativeBarChart series={ series } dataFormat={ resolvedDataFormat } compactWhenShort />
-			) : (
-				<ComparativeLineChart
-					series={ series }
-					styles={ seriesStyles }
-					dataFormat={ resolvedDataFormat }
-					compactWhenShort
-				/>
-			) }
-			{ loading && <WidgetLoadingOverlay /> }
-		</>
+	return chartType === 'bar' ? (
+		<ComparativeBarChart series={ series } dataFormat={ resolvedDataFormat } compactWhenShort />
+	) : (
+		<ComparativeLineChart
+			series={ series }
+			styles={ seriesStyles }
+			dataFormat={ resolvedDataFormat }
+			compactWhenShort
+		/>
 	);
 }
 
@@ -209,7 +199,6 @@ export function MetricTabsChart( {
 	defaultMetricKey,
 	onMetricChange,
 	controls,
-	loading = false,
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
@@ -287,12 +276,7 @@ export function MetricTabsChart( {
 					{ controls }
 				</div>
 				<div className={ styles.chart }>
-					<MetricChart
-						metric={ activeMetric }
-						dataFormat={ dataFormat }
-						loading={ loading }
-						chartType={ chartType }
-					/>
+					<MetricChart metric={ activeMetric } dataFormat={ dataFormat } chartType={ chartType } />
 				</div>
 			</div>
 		);
@@ -368,7 +352,6 @@ export function MetricTabsChart( {
 						<MetricChart
 							metric={ activeMetric }
 							dataFormat={ dataFormat }
-							loading={ loading }
 							chartType={ chartType }
 						/>
 					) }
@@ -414,12 +397,7 @@ export function MetricTabsChart( {
 			     metric's panel renders its chart; the rest stay empty. */ }
 			{ metrics.map( metric => (
 				<Tabs.Panel key={ metric.key } value={ metric.key } className={ styles.chart }>
-					<MetricChart
-						metric={ metric }
-						dataFormat={ dataFormat }
-						loading={ loading }
-						chartType={ chartType }
-					/>
+					<MetricChart metric={ metric } dataFormat={ dataFormat } chartType={ chartType } />
 				</Tabs.Panel>
 			) ) }
 		</Tabs.Root>
