@@ -33,6 +33,12 @@ import type { Frame, Locator, Page } from '@playwright/test';
  * later release would silently stop exercising the classic-editor stylesheet
  * this half of the matrix exists for.
  */
+// The bug this guards is core's 28px block margin landing between a field's
+// label and its input. Anything comfortably under that means the reset held;
+// the exact residue is the theme's own label spacing and differs per surface,
+// so do not pin it.
+const MAX_LABEL_INPUT_GAP = 20;
+
 const CLASSIC_THEME = 'e2e-classic-theme';
 const BLOCK_THEME = 'twentytwentyfour';
 
@@ -127,7 +133,6 @@ type Selectors = {
 	para: string;
 	column: string;
 	step: string;
-	stepPara: string;
 	halfField: string;
 };
 
@@ -140,7 +145,6 @@ const EDITOR_SELECTORS: Selectors = {
 	para: '[data-type="core/paragraph"]',
 	column: '[data-type="core/column"]',
 	step: '.wp-block-jetpack-form-step',
-	stepPara: '[data-type="core/paragraph"]',
 	halfField: '[data-type="jetpack/field-text"]',
 };
 
@@ -153,7 +157,6 @@ const FRONT_END_SELECTORS: Selectors = {
 	para: 'p',
 	column: '.wp-block-column',
 	step: '.wp-block-jetpack-form-step',
-	stepPara: 'p',
 	halfField: '.grunion-field-width-50-wrap',
 };
 
@@ -265,7 +268,7 @@ function measureMultistep( root: Locator, sel: Selectors ): Promise< MultistepMe
 		}
 
 		const stepBox = box( step );
-		const paraEl = step.querySelector( s.stepPara );
+		const paraEl = step.querySelector( s.para );
 		const paraBox = box( paraEl );
 		const halfBox = box( step.querySelector( s.halfField ) );
 
@@ -482,7 +485,7 @@ for ( const theme of [ CLASSIC_THEME, BLOCK_THEME ] ) {
 			// block a 28px vertical margin, which pushes a field's label a full
 			// line off its own input.
 			expect( metrics.labelInputGap ).not.toBeNull();
-			expect( metrics.labelInputGap ).toBeLessThanOrEqual( 8 );
+			expect( metrics.labelInputGap ).toBeLessThanOrEqual( MAX_LABEL_INPUT_GAP );
 
 			// A Group added to a form fills the form, so fields nested in it are
 			// usable rather than shrink-wrapped.
@@ -508,7 +511,7 @@ for ( const theme of [ CLASSIC_THEME, BLOCK_THEME ] ) {
 			logger.debug( `front/${ theme } single step: ${ JSON.stringify( metrics ) }` );
 
 			expect( metrics.labelInputGap ).not.toBeNull();
-			expect( metrics.labelInputGap ).toBeLessThanOrEqual( 12 );
+			expect( metrics.labelInputGap ).toBeLessThanOrEqual( MAX_LABEL_INPUT_GAP );
 			expect( metrics.groupFillsForm ).toBe( true );
 			expect( metrics.columnCount ).toBe( 2 );
 			expect( metrics.columnsSideBySide ).toBe( true );

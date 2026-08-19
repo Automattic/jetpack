@@ -222,20 +222,13 @@
 		// `margin-inline: auto`. Auto margins absorb a flex item's free space, and
 		// a multistep form is vertical, so on the cross axis that beats the step's
 		// own `align-items` and centers anything narrower than the row: a
-		// paragraph, a heading, or a field with a width setting. Only blocks the
-		// container rule in jetpack-forms-layout.scss already stretches escape it.
-		// The front end never had this — grunion.scss gives step children
-		// `flex: 0 0 100%` — and neither did any Jetpack release: the reset this
-		// file has always carried is block-axis only, so the inline axis was never
-		// covered.
+		// paragraph, a heading, or a field with a width setting.
 		// `aligncenter` is the one place auto inline margins are meant, so leave
 		// it alone.
-		// Clearing the margins is only half of it: a block also has to be wide
-		// enough for the centering to be visible, or `text-align: center` has
-		// nothing to center. That half is `:where(.wp-block-jetpack-form-step) > *`
-		// in jetpack-forms-layout.scss, which both surfaces share — the width
-		// problem is not editor-specific. Only the auto margins are, so only they
-		// are handled here.
+		// Only the margins are editor-specific. The other half of making a step's
+		// blocks look right — being wide enough for that centering to be visible
+		// at all — is `.wp-block-jetpack-form-step > *` in
+		// jetpack-forms-layout.scss, which both surfaces share.
 		&:not(.aligncenter) {
 			margin-inline: 0;
 		}
@@ -253,8 +246,11 @@
 	// also catch the `jetpack/field-option*` inner blocks. A field's inner blocks
 	// are a label plus an input or an options list, never a container block, so
 	// this cannot reach into a Group.
+	// Both axes: classic.min.css also gives the children of anything that is not
+	// `is-layout-flex`/`grid` auto inline margins, and a choice field's options
+	// list is neither, so its rows would center instead of sitting at flex-start.
 	.jetpack-field .wp-block {
-		margin-block: 0;
+		margin: 0;
 	}
 
 	.wp-block-jetpack-field-option-radio,
@@ -272,19 +268,6 @@
 
 	.block-list-appender {
 		flex: 0 0 100%;
-	}
-
-	// The block axis is handled by the `.jetpack-field` rule above; what is left
-	// here is the inline axis, which is load-bearing. classic.min.css also sets
-	// `margin-left: auto; margin-right: auto` on the direct children of anything
-	// that is not `is-layout-flex`/`grid`, and the options list is neither, so
-	// without this its rows would center instead of sitting at `flex-start`.
-	[data-type="jetpack/field-checkbox-multiple"],
-	[data-type="jetpack/field-radio"] {
-
-		.wp-block {
-			margin-inline: unset;
-		}
 	}
 
 }

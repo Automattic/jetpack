@@ -10,11 +10,13 @@
 // This lives here rather than in grunion.scss because grunion.scss is front-end
 // only (registered in class-contact-form-plugin.php, not among the block's
 // `style_handles`), and the editor needs the same rule.
-// `:where()` keeps the whole selector at zero specificity, so anything that
-// deliberately sizes a step child still wins — a field's width setting
-// (`.grunion-field-width-50-wrap` on the front end, `.jetpack-field__width-50`
-// in the editor) is unaffected.
-:where(.wp-block-jetpack-form-step) > * {
+// One class of specificity is deliberate: high enough to beat a theme styling
+// a bare element, low enough that a field's own width setting still wins
+// (`.grunion-field-width-50-wrap` front end, `.jetpack-field__width-50` editor,
+// both two classes). A button cannot be a step child — `form-step`'s
+// ALLOWED_BLOCKS is the field blocks, the step nav and CORE_BLOCKS — so `*`
+// carries none of the risk it would at form level.
+.wp-block-jetpack-form-step > * {
 	box-sizing: border-box;
 	width: 100%;
 }
@@ -53,11 +55,10 @@
 	// levels down — `.jetpack-form-steps-wrapper` >
 	// `.wp-block-jetpack-form-step-container` > `.wp-block-jetpack-form-step` —
 	// so the second selector matches the step as a descendant, not a child.
-	// grunion.scss does set `.wp-block-jetpack-form-step > * { flex: 0 0 100% }`,
-	// but that does not make the containers full width: a multistep form is
-	// vertical, which gives the step `flex-direction: column` (below), so that
-	// `100%` is a height basis and the width falls to `align-items` — which
-	// `is-content-justification-left` sets to `flex-start`, i.e. shrink to fit.
+	// The step half overlaps the rule at the top of this file, which already
+	// stretches every step child. It stays because it is four classes rather
+	// than one, so a container block keeps its full width even against a theme
+	// that sizes `.wp-block-group` directly.
 	> :is(.wp-block-group, .wp-block-columns, .wp-block-details, .wp-block-accordion),
 	.wp-block-jetpack-form-step > :is(.wp-block-group, .wp-block-columns, .wp-block-details, .wp-block-accordion) {
 		box-sizing: border-box;
