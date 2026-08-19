@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef } from '@wordpress/element';
 
 /**
  * Hold a query's error across its own retry.

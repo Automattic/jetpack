@@ -6,6 +6,7 @@ import { Icon, backup as backupIcon, arrowLeft } from '@wordpress/icons';
 import { Link, useParams } from '@wordpress/route';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
+import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { useRestore } from '../hooks/use-restore';
 import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
@@ -32,35 +33,18 @@ export default function RestoreScreen() {
 	// see `hasSelectedItems`. On this screen that is unrecoverable.
 	const hasSelection = hasSelectedItems( items );
 
-	// A malformed id can only produce a failed restore, so there is
-	// nothing here for the reader to do but go back. Before this, the id
-	// changed only whether the restore-point line appeared: the Confirm
-	// button stayed live, and an id like `123abc` parsed to `123` and put
-	// a January 1970 restore point above it. Only the shape is checked —
-	// whether the backup exists is upstream's answer.
+	// A malformed id can only produce a failed restore, so the screen
+	// offers the way back and nothing else — see `InvalidRewindId`.
 	if ( ! isValidRewindId( rewindId ) ) {
 		return (
-			<DashboardLayout>
-				<div className="jpb-restore">
-					<Link to="/" className="jpb-restore__back">
-						<Icon icon={ arrowLeft } size={ 18 } />
-						{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
-					</Link>
-					<Card.Root className="jpb-restore__card">
-						<Stack direction="column" gap="xs">
-							<Text variant="heading-md" render={ <h3 /> }>
-								{ __( "This restore link isn't valid.", 'jetpack-backup-pkg' ) }
-							</Text>
-							<Text variant="body-sm" className="jpb-text-muted">
-								{ __(
-									'The address is missing a valid restore point. Go back to the overview and choose a backup to restore.',
-									'jetpack-backup-pkg'
-								) }
-							</Text>
-						</Stack>
-					</Card.Root>
-				</div>
-			</DashboardLayout>
+			<InvalidRewindId
+				prefix="jpb-restore"
+				title={ __( "This restore link isn't valid.", 'jetpack-backup-pkg' ) }
+				body={ __(
+					'The address is missing a valid restore point. Go back to the overview and choose a backup to restore.',
+					'jetpack-backup-pkg'
+				) }
+			/>
 		);
 	}
 

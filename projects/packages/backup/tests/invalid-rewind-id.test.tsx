@@ -76,6 +76,18 @@ describe( 'isValidRewindId', () => {
 		[ 'a negative number', '-1786644531' ],
 		[ 'a trailing dot', '1786644531.' ],
 		[ 'whitespace', ' 1786644531' ],
+		// Digits are not enough. `Date` is only defined within ±8.64e15 ms,
+		// so an id past that ceiling is well-formed and still throws in
+		// `rewindIdToIso` — which put the route's error boundary on screen,
+		// with a "Reload the page" button that reloads into the same throw,
+		// in place of the card this gate exists to show.
+		//
+		// The gate stops there: it does not judge whether a representable
+		// date is a *plausible* one. `8640000000000` is accepted and renders
+		// "Sep 13, +275760", which is odd but harmless and unreachable
+		// except by typing it. Rejecting it means picking an arbitrary
+		// horizon, which risks turning away genuinely old backups.
+		[ 'an unrepresentable date', '8640000000001' ],
 	] )( 'rejects %s', ( _label, id ) => {
 		expect( isValidRewindId( id ) ).toBe( false );
 	} );

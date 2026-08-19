@@ -33,7 +33,7 @@ jest.mock( '@wordpress/route', () => ( {
 // Imports must come after the jest.mock factories above.
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useState } from 'react';
+import { useState } from '@wordpress/element';
 import ActivityList from '../src/dashboard/components/activity-list';
 import FileBrowser, { EMPTY_FILE_SELECTION } from '../src/dashboard/components/file-browser';
 import { queryClient } from '../src/dashboard/data/query-client';
