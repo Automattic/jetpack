@@ -11,11 +11,10 @@ import type { DataFormControlProps } from '@wordpress/dataviews';
 
 /**
  * Generic `Edit` control for DataForm fields with `elements`, rendering
- * Jetpack's public `RadioControl` instead of DataViews' bundled
- * `Edit: 'radio'` shorthand. The bundled control resolves the same
- * `ValidatedToggleControl` private API as `Edit: 'toggle'`, which breaks
- * once Gutenberg stops exposing it (see
- * https://github.com/WordPress/gutenberg/pull/81492).
+ * Core's public `RadioControl` instead of DataViews' bundled `Edit: 'radio'`
+ * shorthand. The bundled control resolves the same `ValidatedToggleControl`
+ * private API as `Edit: 'toggle'`, which breaks once Gutenberg stops
+ * exposing it (see https://github.com/WordPress/gutenberg/pull/81492).
  *
  * @param {DataFormControlProps<NewsletterSettings>} props - DataForm edit control props.
  * @return {JSX.Element} The radio control.
