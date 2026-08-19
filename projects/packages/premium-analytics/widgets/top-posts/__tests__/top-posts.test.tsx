@@ -446,10 +446,7 @@ describe( 'TopPostsWidget', () => {
 	} );
 
 	it( 'caps the visible posts list at the row limit including the homepage entry', async () => {
-		// The API caps postviews at the requested count but appends the homepage
-		// entry on top, so the widget re-caps the ranked list client-side. A full
-		// page of posts plus the homepage is one row too many; the homepage
-		// outranks the last post, so that post is the one cut.
+		// The API appends the homepage after applying its limit, so re-cap the list.
 		const posts = Array.from( { length: WIDGET_ROW_LIMIT }, ( _, index ) => ( {
 			id: index + 1,
 			href: `https://example.com/post-${ index + 1 }/`,

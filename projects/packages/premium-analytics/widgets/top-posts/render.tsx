@@ -252,8 +252,6 @@ function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
 function TopPostsReport( { max }: TopPostsReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 
-	// The date range is owned by the dashboard picker and carried in
-	// `reportParams`; `max` is the shared widget row limit.
 	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
 	// Row matching, ranked capping (the API caps `postviews` at `max` but

@@ -121,10 +121,7 @@ type SubscribersListRenderAttributes = SubscribersListAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type SubscribersListWidgetProps = WidgetRenderProps< SubscribersListRenderAttributes >;
 
-/**
- * The followers query has no date range, so the inner component reads nothing
- * from the dashboard's report params.
- */
+/** The followers query does not use dashboard report parameters. */
 export default function SubscribersList( { attributes = {} }: SubscribersListWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

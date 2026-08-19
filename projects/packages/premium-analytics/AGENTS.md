@@ -598,19 +598,13 @@ the query factory — do not do it in the widget or the view hook.
 
 **Row count**
 
-A widget is not the place to tune how many rows to fetch: it renders into a
-fixed-height tile and shows only the rows that fit, so the count is invisible to
-the reader while it silently changes what gets loaded and exported. Request
-`WIDGET_ROW_LIMIT` from `@jetpack-premium-analytics/widgets-toolkit` — never a
-per-widget default, and never a user-editable attribute. "Show me more rows"
-belongs to the report page, which paginates.
+List widgets request `WIDGET_ROW_LIMIT` from
+`@jetpack-premium-analytics/widgets-toolkit`. Do not add per-widget defaults or
+user-editable row counts; report pages handle larger result sets with pagination.
 
-The data layer still understands `max = 0` as "all rows", but only where rows are
-capped _after_ fetching, via `limitStatsRows()`: use
-`slice( 0, max > 0 ? max : undefined )`, never `slice( 0, max )` (the latter
-returns an empty array when `max` is 0). Where `max` is instead passed straight to
-the endpoint as a request param it is a page size, and `0` carries no "all rows"
-meaning there.
+In helpers that cap rows after fetching, `max = 0` means "all rows". Use
+`slice( 0, max > 0 ? max : undefined )`, not `slice( 0, max )`. Endpoint request
+parameters treat `max` as a page size, so `0` does not mean "all rows" there.
 
 **Loading / error / empty state**
 

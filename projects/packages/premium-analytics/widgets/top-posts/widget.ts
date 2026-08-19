@@ -33,8 +33,7 @@ export type TopPostsAttributes = {
  * the `contentView` attribute (`relevance: 'high'`), so the widget host
  * renders its control in the frame header.
  *
- * `example.attributes` doubles as the defaults applied to new instances: the
- * Posts & pages view. The date range comes from the dashboard picker.
+ * New instances default to the Posts & pages view.
  */
 export default {
 	icon: page,

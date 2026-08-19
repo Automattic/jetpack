@@ -135,8 +135,6 @@ describe( 'EmailBreakdownWidget', () => {
 	} );
 
 	it( 'renders the country map from all rows while capping the adjacent leaderboard', async () => {
-		// One row past the shared limit, so the map's row count and the
-		// leaderboard's disagree.
 		const rowCount = WIDGET_ROW_LIMIT + 1;
 		mockApiFetch.mockResolvedValue( {
 			countries: {
