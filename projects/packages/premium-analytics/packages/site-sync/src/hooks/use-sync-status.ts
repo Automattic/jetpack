@@ -132,6 +132,9 @@ export function useSyncStatus( {
 					? e.message
 					: __( 'Unable to start sync.', 'jetpack-premium-analytics-pkg' );
 			setError( new Error( message ) );
+			// The request may still have reached the server despite the error. Resume
+			// observation so the next status response can establish what happened.
+			startPolling();
 		}
 	}, [ clearPolling, poll, startPolling ] );
 

@@ -20,8 +20,8 @@ export function toSyncStatus( raw: SyncStatusApiResponse, milestone: number ): S
 	const sent = bucket?.sent ?? 0;
 
 	// "Started" means the analytics module is in the sync progress — not Jetpack's
-	// generic `raw.started`, which its connection-time initial_sync also sets, making
-	// the screen show "Sync interrupted" instead of auto-triggering the analytics sync.
+	// generic `raw.started`, which its connection-time initial_sync also sets. Using
+	// that flag would misclassify the analytics sync as stalled and suppress auto-start.
 	const analyticsStarted = bucket !== undefined;
 
 	let percentage = 0;

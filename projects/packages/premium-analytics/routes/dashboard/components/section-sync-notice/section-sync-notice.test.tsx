@@ -75,6 +75,42 @@ describe( 'SectionSyncNotice', () => {
 		expect( onRetry ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'does not announce every percentage update', () => {
+		const { rerender } = render(
+			<SectionSyncNotice
+				percentage={ 40 }
+				hasError={ false }
+				onRetry={ noop }
+				isRetrying={ false }
+			/>
+		);
+
+		const liveRegion = screen.getByText(
+			'Your store data is still syncing. The numbers below are incomplete until it finishes.',
+			{ selector: '#a11y-speak-polite' }
+		);
+		expect( liveRegion ).not.toHaveTextContent( '40%' );
+		rerender(
+			<SectionSyncNotice
+				percentage={ 41 }
+				hasError={ false }
+				onRetry={ noop }
+				isRetrying={ false }
+			/>
+		);
+		rerender(
+			<SectionSyncNotice
+				percentage={ 42 }
+				hasError={ false }
+				onRetry={ noop }
+				isRetrying={ false }
+			/>
+		);
+
+		expect( liveRegion ).not.toHaveTextContent( '41%' );
+		expect( liveRegion ).not.toHaveTextContent( '42%' );
+	} );
+
 	it( 'survives the switch to the retry state and back', () => {
 		const { container, rerender } = render(
 			<SectionSyncNotice

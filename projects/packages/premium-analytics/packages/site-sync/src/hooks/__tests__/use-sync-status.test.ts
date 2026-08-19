@@ -95,7 +95,7 @@ describe( 'useSyncStatus', () => {
 		);
 	} );
 
-	it( 'surfaces trigger errors without rejecting triggerSync', async () => {
+	it( 'resumes polling after a trigger error', async () => {
 		const { result } = renderHook( () => useSyncStatus() );
 
 		await waitFor( () => expect( result.current.data ).toBeDefined() );
@@ -104,6 +104,12 @@ describe( 'useSyncStatus', () => {
 			await result.current.triggerSync();
 		} );
 		expect( result.current.error?.message ).toBe( 'nope' );
+		const callsAfterFailure = mockFetch.mock.calls.length;
+		await act( async () => {
+			jest.advanceTimersByTime( POLL_INTERVAL );
+		} );
+		expect( mockFetch.mock.calls.length ).toBeGreaterThan( callsAfterFailure );
+		await waitFor( () => expect( result.current.error ).toBeNull() );
 	} );
 
 	it( 'starts complete and skips polling when the milestone is set', async () => {
@@ -139,6 +145,27 @@ describe( 'useSyncStatus', () => {
 		} );
 		expect( mockTrigger ).toHaveBeenCalledTimes( 1 );
 		expect( result.current.isComplete ).toBe( false );
+	} );
+
+	it( 'does not autoStart while another full sync is running', async () => {
+		mockFetch.mockResolvedValue( rawStatus( { progress: {} } ) );
+		const { result } = renderHook( () => useSyncStatus( { autoStart: true } ) );
+
+		await waitFor( () => expect( result.current.data?.isRunning ).toBe( true ) );
+		await act( async () => {
+			jest.advanceTimersByTime( POLL_INTERVAL * 2 );
+		} );
+		expect( mockTrigger ).not.toHaveBeenCalled();
+	} );
+
+	it( 'leaves a stalled analytics sync stopped until the user retries it', async () => {
+		mockFetch.mockResolvedValue( rawStatus( { finished: true } ) );
+		const { result } = renderHook( () => useSyncStatus( { autoStart: true } ) );
+
+		await waitFor( () => expect( result.current.error ).toBeInstanceOf( Error ) );
+		expect( result.current.data?.isStarted ).toBe( true );
+		expect( result.current.data?.isRunning ).toBe( false );
+		expect( mockTrigger ).not.toHaveBeenCalled();
 	} );
 
 	it( 'does not autoStart a sync that already finished', async () => {

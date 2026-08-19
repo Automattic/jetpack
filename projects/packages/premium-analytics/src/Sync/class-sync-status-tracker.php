@@ -24,8 +24,8 @@ use Automattic\Jetpack\Sync\Modules;
 class Sync_Status_Tracker {
 
 	/**
-	 * Milestone (unix ts) for the analytics-module initial full sync. Gates the
-	 * dashboard's store section.
+	 * Milestone (unix ts) for the analytics-module initial full sync. Marks the
+	 * dashboard's store data as complete.
 	 */
 	const INITIAL_ANALYTICS_SYNC_OPTION = 'jetpack_premium_analytics_initial_analytics_sync_finished';
 
@@ -144,7 +144,7 @@ class Sync_Status_Tracker {
 	 * ending, and flip the milestone if so.
 	 *
 	 * Only a full sync whose config includes an analytics module counts, so a
-	 * generic sync can't open the gate before store data lands. Split out so unit
+	 * generic sync can't mark the store data complete. Split out so unit
 	 * tests can exercise the decision without the Jetpack sync module registry.
 	 *
 	 * @param array $full_status Result of Full_Sync_Immediately::get_status().

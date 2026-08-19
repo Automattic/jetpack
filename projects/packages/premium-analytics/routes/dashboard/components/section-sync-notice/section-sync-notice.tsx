@@ -36,16 +36,18 @@ export function SectionSyncNotice( {
 	onRetry,
 	isRetrying,
 }: SectionSyncNoticeProps ) {
-	let message: string = __(
+	const syncingMessage = __(
 		'Your store data is still syncing. The numbers below are incomplete until it finishes.',
 		'jetpack-premium-analytics-pkg'
 	);
+	const errorMessage = __(
+		'Something went wrong while syncing your store data, so the numbers below are incomplete.',
+		'jetpack-premium-analytics-pkg'
+	);
+	let message: string = syncingMessage;
 
 	if ( hasError ) {
-		message = __(
-			'Something went wrong while syncing your store data, so the numbers below are incomplete.',
-			'jetpack-premium-analytics-pkg'
-		);
+		message = errorMessage;
 	} else if ( percentage > 0 && percentage < 100 ) {
 		// 100 before the milestone lands means everything queued has been sent and
 		// WordPress.com has yet to confirm it — "still syncing (100%)" reads as a
@@ -62,14 +64,13 @@ export function SectionSyncNotice( {
 
 	return (
 		/*
-		 * `spokenMessage` defaults to `children`, which Notice serializes with
-		 * `renderToString` — rendering the action button mid-render throws inside
-		 * its ref merging and takes the dashboard down with it. The sentence is
-		 * what should be announced anyway.
+		 * Announce only status changes. The visible percentage updates every poll,
+		 * but repeating the full sentence that often would overwhelm screen-reader
+		 * users; the action label is already exposed by its button.
 		 */
 		<Notice.Root
 			intent={ hasError ? 'error' : 'info' }
-			spokenMessage={ message }
+			spokenMessage={ hasError ? errorMessage : syncingMessage }
 			className={ styles.notice }
 		>
 			<Notice.Description>{ message }</Notice.Description>
