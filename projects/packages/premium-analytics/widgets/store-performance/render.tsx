@@ -311,7 +311,7 @@ function StorePerformanceContent() {
 		[ enrichedMetrics, dataSources ]
 	);
 
-	const isInitialLoading = reports.some( report => report.isLoading && ! report.hasData );
+	const isInitialLoading = reports.some( report => report.isLoading );
 	const isFetching = reports.some( report => report.isFetching );
 
 	return (

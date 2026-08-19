@@ -92,7 +92,6 @@ function PostTrafficActivityInner() {
 		isLoading,
 		isFetching,
 		isError,
-		hasData,
 		refetch,
 	} = usePostTrafficActivity( postId, reportParams, weeksForWidth( width ) * 7 );
 
@@ -134,7 +133,7 @@ function PostTrafficActivityInner() {
 		<div ref={ measureRef } className={ styles.root }>
 			<div className={ styles.body }>
 				<WidgetState
-					isLoading={ isLoading && ! hasData }
+					isLoading={ isLoading }
 					isFetching={ isFetching }
 					isError={ isError }
 					isEmpty={ postId <= 0 || heatmapData.length === 0 }

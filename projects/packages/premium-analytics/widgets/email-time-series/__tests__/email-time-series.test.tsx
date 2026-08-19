@@ -268,12 +268,9 @@ describe( 'EmailTimeSeriesWidget', () => {
 			jest.advanceTimersByTime( 1000 );
 		} );
 
-		// The skeleton, not the removed spinner — and a silent one: a refetch
-		// must not announce, only a first load does. `hidden: true` widens the
-		// query to include hidden nodes rather than requiring them, so it only
-		// pins the silence paired with the negative assertion above it.
-		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'status', { hidden: true } ) ).toBeInTheDocument();
+		// The previous range's "no activity" is not an answer about this one, so
+		// it gives way to an announced skeleton.
+		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
 		expect(
 			screen.queryByText( 'No activity for this email in this period.' )
 		).not.toBeInTheDocument();

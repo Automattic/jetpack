@@ -162,7 +162,9 @@ export function TopPerformingProductLeaderboardWidget( {
 
 	return (
 		<WidgetState
-			isLoading={ ( isLoading || imagesLoading ) && ! hasData }
+			// Images gate only the first paint, so rows never appear with blank
+			// thumbnails; after that they stay put and the thumbnails fill in.
+			isLoading={ isLoading || ( imagesLoading && ! hasData ) }
 			isFetching={ isFetching || imagesLoading }
 			// The report queries keep the previous period's data as placeholders
 			// across range changes, so only surface the error when there is

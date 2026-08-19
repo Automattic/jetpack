@@ -3,8 +3,6 @@
  */
 import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
-import clsx from 'clsx';
-import { useLayoutEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -29,9 +27,16 @@ export interface WidgetStateEmpty {
 }
 
 export interface WidgetStateProps {
-	/** A fetch is in flight and there is no data yet (React Query `isLoading`). */
+	/**
+	 * Nothing on screen answers the current params: a first load, or a param
+	 * change still showing the previous response. Pass the data hook's
+	 * `isLoading`, which is already widened to cover both.
+	 */
 	isLoading: boolean;
-	/** A refetch is in flight while data is already shown (React Query `isFetching`). */
+	/**
+	 * Unchanged params being revalidated (React Query `isFetching`). Draws
+	 * nothing — the numbers on screen are still the right answer.
+	 */
 	isFetching?: boolean;
 	isError: boolean;
 	isEmpty: boolean;
@@ -52,47 +57,9 @@ export function WidgetState( {
 	renderLoading,
 	children,
 }: WidgetStateProps ) {
-	// React Query also reports `isFetching` on the first load; delay only refetches.
-	const showFetchingState = useDelayedLoading( isFetching && ! isLoading );
-	const rootRef = useRef< HTMLDivElement >( null );
-	const contentRef = useRef< HTMLDivElement >( null );
-	const focusToRestore = useRef< HTMLElement | null >( null );
-
-	// Park focus before hidden content becomes unfocusable, then restore it after the refetch.
-	useLayoutEffect( () => {
-		// Use the widget's document to support rendering in another window or iframe.
-		const ownerDocument = rootRef.current?.ownerDocument;
-		const view = ownerDocument?.defaultView;
-		if ( ! ownerDocument || ! view ) {
-			return;
-		}
-
-		if ( showFetchingState ) {
-			const active = ownerDocument.activeElement;
-			// Elements must be checked against their own document's constructor.
-			const wasInside =
-				active instanceof view.HTMLElement && !! contentRef.current?.contains( active );
-			// Clear stale targets when focus is outside the widget.
-			focusToRestore.current = wasInside ? active : null;
-			if ( wasInside ) {
-				// The root remains mounted and keeps keyboard navigation at the widget.
-				rootRef.current?.focus( { preventScroll: true } );
-			}
-			return;
-		}
-
-		const target = focusToRestore.current;
-		focusToRestore.current = null;
-		if ( ! target ) {
-			return;
-		}
-		// Do not reclaim focus if the user moved it during the refetch.
-		if ( ownerDocument.activeElement !== rootRef.current ) {
-			return;
-		}
-		// Fall back to the root if the original target was removed, without changing the viewport.
-		( target.isConnected ? target : rootRef.current )?.focus( { preventScroll: true } );
-	}, [ showFetchingState ] );
+	// `isFetching` is true on the first load too, and a quick revalidation is not
+	// worth announcing.
+	const isRevalidating = useDelayedLoading( isFetching && ! isLoading );
 
 	const skeleton = renderLoading ?? <GenericSkeleton />;
 	let body: ReactNode;
@@ -129,13 +96,8 @@ export function WidgetState( {
 				) }
 			</Stack>
 		);
-	} else if ( isLoading || ( isEmpty && showFetchingState ) ) {
-		// Announce the skeleton only on first load, not when refetching an empty result.
-		body = (
-			<div className={ styles.loading } aria-hidden={ ! isLoading || undefined }>
-				{ skeleton }
-			</div>
-		);
+	} else if ( isLoading ) {
+		body = <div className={ styles.loading }>{ skeleton }</div>;
 	} else if ( isEmpty ) {
 		body = (
 			<ChartEmptyState
@@ -151,34 +113,15 @@ export function WidgetState( {
 			/>
 		);
 	} else {
-		// Keep children mounted during refetches so their state and layout survive.
-		body = (
-			<>
-				<div
-					ref={ contentRef }
-					className={ clsx( styles.content, showFetchingState && styles.contentHidden ) }
-				>
-					{ children }
-				</div>
-				{ /* Avoid announcing one status message per widget during refetches. */ }
-				{ showFetchingState && (
-					<div className={ styles.skeletonOverlay } aria-hidden="true">
-						{ skeleton }
-					</div>
-				) }
-			</>
-		);
+		body = <div className={ styles.content }>{ children }</div>;
 	}
 
-	// Keep the focus target mounted when a refetch resolves to any state.
 	return (
 		<div
-			ref={ rootRef }
-			// Focused programmatically during refetches, but omitted from the tab order.
-			tabIndex={ -1 }
 			className={ styles.root }
-			// Mark only visible refetch skeletons as busy; the first-load skeleton announces itself.
-			aria-busy={ showFetchingState || undefined }
+			// Nothing on screen moves, so a reader is told the region is updating
+			// rather than shown it.
+			aria-busy={ isRevalidating || undefined }
 		>
 			{ body }
 		</div>

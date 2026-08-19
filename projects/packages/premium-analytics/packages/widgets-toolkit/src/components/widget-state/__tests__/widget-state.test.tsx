@@ -11,15 +11,6 @@ import { errorStateIcon } from '../error-state-icon';
 import { WidgetState } from '../widget-state';
 import type { ReactElement } from 'react';
 
-// The shared CSS Module stub resolves every stylesheet to `{}`, so class names
-// never reach the DOM. Name the two this file asserts on, rather than swapping
-// the stub package-wide for one test: that would put class names on every
-// component in every suite.
-jest.mock( '../widget-state.module.scss', () => ( {
-	content: 'content',
-	contentHidden: 'contentHidden',
-} ) );
-
 const CONTENT = <div>rows</div>;
 
 function Counter() {
@@ -122,7 +113,7 @@ describe( 'WidgetState', () => {
 		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows loading, not the empty state, once a refetch over an empty result drags on', () => {
+	it( 'keeps the empty state on screen through a refetch that drags on', () => {
 		render(
 			<WidgetState
 				isLoading={ false }
@@ -137,12 +128,10 @@ describe( 'WidgetState', () => {
 		expect( screen.getByText( 'No posts here.' ) ).toBeInTheDocument();
 
 		elapseFetchDelay();
-		expect( screen.queryByText( 'No posts here.' ) ).not.toBeInTheDocument();
-		// Silent, like the ready branch's overlay: this is still a refetch, and
-		// only a first load announces. Otherwise whether a widget speaks up would
-		// depend on what it happened to be showing beforehand.
-		expect( screen.getByRole( 'status', { hidden: true } ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+		// Still the right answer for these params, so a revalidation has nothing
+		// to correct.
+		expect( screen.getByText( 'No posts here.' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the caller loading override instead of the default skeleton', () => {
@@ -155,7 +144,7 @@ describe( 'WidgetState', () => {
 		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'uses the caller loading override during a refetch too, not just the first load', () => {
+	it( 'keeps the caller loading override out of a refetch, however long it drags on', () => {
 		render(
 			<WidgetState
 				isLoading={ false }
@@ -168,8 +157,8 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		elapseFetchDelay();
-		expect( screen.getByText( 'override' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'override' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the empty state (not error) when resolved with no rows', () => {
@@ -270,29 +259,59 @@ describe( 'WidgetState', () => {
 		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
 	} );
 
-	it( 'covers the children with a silent skeleton once a refetch drags on, marking the region busy', () => {
+	it( 'marks the region busy once a refetch drags on, without covering the children', () => {
 		render(
 			<WidgetState isLoading={ false } isFetching isError={ false } isEmpty={ false }>
 				{ CONTENT }
 			</WidgetState>
 		);
 		elapseFetchDelay();
-		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'status', { hidden: true } ) ).toBeInTheDocument();
+		// A long revalidation changes only `aria-busy` — no skeleton at all,
+		// hidden or otherwise.
+		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
 		expect( screen.getAllByRole( 'generic', { busy: true } ) ).toHaveLength( 1 );
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
 	} );
 
-	it( 'keeps the children mounted across a refetch, so their own state survives it', () => {
+	it( 'never takes the numbers off screen across a whole revalidation cycle', () => {
+		// The bug lived in the transition, so pinning `isFetching` to one value
+		// cannot catch it. `isLoading` stays false throughout: same params.
 		const props = { isLoading: false, isError: false, isEmpty: false };
-		const { container, rerender } = render(
+		const rowsOnScreen = () => !! screen.queryByText( 'rows' );
+
+		const { rerender } = render(
+			<WidgetState { ...props } isFetching={ false }>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect( rowsOnScreen() ).toBe( true );
+
+		rerender(
+			<WidgetState { ...props } isFetching>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect( rowsOnScreen() ).toBe( true );
+
+		elapseFetchDelay();
+		expect( rowsOnScreen() ).toBe( true );
+
+		rerender(
+			<WidgetState { ...props } isFetching={ false }>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect( rowsOnScreen() ).toBe( true );
+		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
+	} );
+
+	it( 'leaves the children their own state through a revalidation', () => {
+		const props = { isLoading: false, isError: false, isEmpty: false };
+		const { rerender } = render(
 			<WidgetState { ...props } isFetching={ false }>
 				<Counter />
 			</WidgetState>
 		);
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the CSS Module class is the behavior under test.
-		const content = container.querySelector( '.content' );
-		expect( content ).not.toHaveClass( 'contentHidden' );
 		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
 		fireEvent.click( screen.getByRole( 'button' ) );
 		expect( screen.getByRole( 'button' ) ).toHaveTextContent( '1' );
@@ -303,211 +322,15 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		elapseFetchDelay();
-		expect( content ).toHaveClass( 'contentHidden' );
+		expect( screen.getByRole( 'button' ) ).toHaveTextContent( '1' );
+
 		rerender(
 			<WidgetState { ...props } isFetching={ false }>
 				<Counter />
 			</WidgetState>
 		);
-		expect( content ).not.toHaveClass( 'contentHidden' );
 		expect( screen.getByRole( 'button' ) ).toHaveTextContent( '1' );
 	} );
-
-	it( 'holds focus in the widget body for the length of the refetch', () => {
-		// Not just on the way out: the browser drops focus to the body as soon as
-		// the children are hidden, and the skeleton window is 400ms at best.
-		const props = { isLoading: false, isError: false, isEmpty: false };
-		const { rerender } = render(
-			<WidgetState { ...props } isFetching={ false }>
-				<button type="button">Taiwan</button>
-			</WidgetState>
-		);
-		const row = screen.getByRole( 'button', { name: 'Taiwan' } );
-		act( () => row.focus() );
-
-		rerender(
-			<WidgetState { ...props } isFetching>
-				<button type="button">Taiwan</button>
-			</WidgetState>
-		);
-		elapseFetchDelay();
-
-		// Parked on the wrapper: not the hidden row, and not the document body,
-		// where the next Tab would jump to the top of the page.
-		expect( row ).not.toHaveFocus();
-		expect( document.body ).not.toHaveFocus();
-		// eslint-disable-next-line @wordpress/no-global-active-element, testing-library/no-node-access -- which element the browser focused is the assertion, and the wrapper is deliberately not queryable.
-		expect( document.activeElement ).toContainElement( row );
-	} );
-
-	it( 'returns focus to the element a refetch took it from', () => {
-		// Keyboard-activating a drill-down row refetches by definition, so this is
-		// the common path, not an edge case.
-		const props = { isLoading: false, isError: false, isEmpty: false };
-		const { rerender } = render(
-			<WidgetState { ...props } isFetching={ false }>
-				<button type="button">Taiwan</button>
-			</WidgetState>
-		);
-		const row = screen.getByRole( 'button', { name: 'Taiwan' } );
-		act( () => row.focus() );
-
-		rerender(
-			<WidgetState { ...props } isFetching>
-				<button type="button">Taiwan</button>
-			</WidgetState>
-		);
-		elapseFetchDelay();
-
-		rerender(
-			<WidgetState { ...props } isFetching={ false }>
-				<button type="button">Taiwan</button>
-			</WidgetState>
-		);
-		expect( row ).toHaveFocus();
-	} );
-
-	it( 'parks focus in the widget body when the refetch replaced that element', () => {
-		// The drill-down case: the row that was activated is not in the new data.
-		// Keyed, so React unmounts it rather than reusing the node for the new row
-		// — reuse would keep the original target connected and miss this path.
-		const props = { isLoading: false, isError: false, isEmpty: false };
-		const { rerender } = render(
-			<WidgetState { ...props } isFetching={ false }>
-				<button type="button" key="tw">
-					Taiwan
-				</button>
-			</WidgetState>
-		);
-		act( () => screen.getByRole( 'button', { name: 'Taiwan' } ).focus() );
-
-		rerender(
-			<WidgetState { ...props } isFetching>
-				<button type="button" key="tw">
-					Taiwan
-				</button>
-			</WidgetState>
-		);
-		elapseFetchDelay();
-
-		rerender(
-			<WidgetState { ...props } isFetching={ false }>
-				<button type="button" key="tp">
-					Taipei
-				</button>
-			</WidgetState>
-		);
-		// Focus sits on the body wrapper, so the next Tab continues from the widget
-		// rather than the top of the document.
-		expect( document.body ).not.toHaveFocus();
-		// eslint-disable-next-line @wordpress/no-global-active-element, testing-library/no-node-access -- which element the browser focused is the assertion, and the body wrapper is deliberately not queryable.
-		expect( document.activeElement ).toContainElement(
-			screen.getByRole( 'button', { name: 'Taipei' } )
-		);
-	} );
-
-	it( 'leaves focus alone when the reader moved on during the refetch', () => {
-		const props = { isLoading: false, isError: false, isEmpty: false };
-		const { rerender } = render(
-			<>
-				<button type="button">Elsewhere</button>
-				<WidgetState { ...props } isFetching={ false }>
-					<button type="button">Taiwan</button>
-				</WidgetState>
-			</>
-		);
-		act( () => screen.getByRole( 'button', { name: 'Taiwan' } ).focus() );
-
-		rerender(
-			<>
-				<button type="button">Elsewhere</button>
-				<WidgetState { ...props } isFetching>
-					<button type="button">Taiwan</button>
-				</WidgetState>
-			</>
-		);
-		elapseFetchDelay();
-		const elsewhere = screen.getByRole( 'button', { name: 'Elsewhere' } );
-		act( () => elsewhere.focus() );
-
-		rerender(
-			<>
-				<button type="button">Elsewhere</button>
-				<WidgetState { ...props } isFetching={ false }>
-					<button type="button">Taiwan</button>
-				</WidgetState>
-			</>
-		);
-		expect( elsewhere ).toHaveFocus();
-	} );
-
-	it( 'leaves focus alone when it reached the document body during the refetch', () => {
-		// Clicking something unfocusable blurs the parked root and drops focus to
-		// the body. jsdom cannot click that way, but the end state is the same —
-		// and since the root now outlives every branch, that click is the only
-		// way focus gets to the body from here. Restoring would haul the reader
-		// back to a widget they just clicked away from.
-		const props = { isLoading: false, isError: false, isEmpty: false };
-		const { rerender } = render(
-			<WidgetState { ...props } isFetching={ false }>
-				<button type="button">Taiwan</button>
-			</WidgetState>
-		);
-		const row = screen.getByRole( 'button', { name: 'Taiwan' } );
-		act( () => row.focus() );
-
-		rerender(
-			<WidgetState { ...props } isFetching>
-				<button type="button">Taiwan</button>
-			</WidgetState>
-		);
-		elapseFetchDelay();
-		// eslint-disable-next-line @wordpress/no-global-active-element, testing-library/no-node-access -- the parked root is deliberately not queryable, and blurring it is the setup.
-		act( () => ( document.activeElement as HTMLElement ).blur() );
-
-		rerender(
-			<WidgetState { ...props } isFetching={ false }>
-				<button type="button">Taiwan</button>
-			</WidgetState>
-		);
-
-		expect( row ).not.toHaveFocus();
-		expect( document.body ).toHaveFocus();
-	} );
-
-	it.each( [
-		[ 'empty', { isEmpty: true, isError: false } ],
-		[ 'an error', { isEmpty: false, isError: true } ],
-	] )( 'keeps focus in the widget when the refetch resolves to %s', ( _label, resolved ) => {
-		// Changing to a range with no data, or losing the connection mid-fetch,
-		// swaps the ready branch for a different one. Parking on anything that
-		// only exists while ready would unmount here and hand focus back to the
-		// document body.
-		const { rerender } = render(
-			<WidgetState isLoading={ false } isError={ false } isEmpty={ false } isFetching={ false }>
-				<button type="button">Taiwan</button>
-			</WidgetState>
-		);
-		act( () => screen.getByRole( 'button', { name: 'Taiwan' } ).focus() );
-
-		rerender(
-			<WidgetState isLoading={ false } isError={ false } isEmpty={ false } isFetching>
-				<button type="button">Taiwan</button>
-			</WidgetState>
-		);
-		elapseFetchDelay();
-
-		rerender(
-			<WidgetState isLoading={ false } { ...resolved } isFetching={ false }>
-				<button type="button">Taiwan</button>
-			</WidgetState>
-		);
-
-		expect( document.body ).not.toHaveFocus();
-		// eslint-disable-next-line @wordpress/no-global-active-element, testing-library/no-node-access -- which element the browser focused is the assertion, and the root is deliberately not queryable.
-		expect( document.activeElement ).toHaveAttribute( 'tabindex', '-1' );
-	} );
-
 	it( 'error wins over loading and empty (retry in flight after a failed fetch)', () => {
 		// The production shape on a failed fetch: isError with isEmpty derived
 		// true, plus loading signals while a retry is in flight. The priority

@@ -65,7 +65,7 @@ const meta: Meta< typeof WidgetState > = {
 		docs: {
 			description: {
 				component:
-					'Data-agnostic widget content-area state. Derives one state (error → loading → empty → ready) from four boolean signals and renders it; any fetch in flight shows the loading skeleton, refetches included. Callers map their fetch result to the signals and pass generic `error` / `empty` descriptors. Stories render it inside a mock widget card; the ready state shows a mock bar chart standing in for real widget content.',
+					'Data-agnostic widget content-area state. Derives one state (error → loading → empty → ready) from four boolean signals and renders it. The skeleton is reserved for `isLoading`, meaning nothing on screen answers the current params; a background revalidation (`isFetching` alone) draws nothing and only marks the widget busy. Callers map their fetch result to the signals and pass generic `error` / `empty` descriptors. Stories render it inside a mock widget card; the ready state shows a mock bar chart standing in for real widget content.',
 			},
 		},
 	},
@@ -212,6 +212,10 @@ export const Ready: Story = {
 	},
 };
 
+/**
+ * Unchanged params being revalidated. Identical to `Ready` by design — only
+ * `aria-busy` differs.
+ */
 export const Refetching: Story = {
 	args: {
 		isLoading: false,

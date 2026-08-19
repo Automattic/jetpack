@@ -619,10 +619,10 @@ interpolated into a shared frame) so translators see the whole sentence:
 
 ```tsx
 <WidgetState
-	isLoading={ isLoading }            // first load, no data yet
+	isLoading={ isLoading }            // nothing on screen answers the current params
 	isError={ isError }
 	isEmpty={ data.length === 0 }
-	// Optional: draws the delayed skeleton during refetches too.
+	// Optional: marks the widget busy while unchanged params revalidate.
 	isFetching={ isFetching }
 	error={ describeError( error, {
 		retryDescription: __( "We couldn't load search terms. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
@@ -640,9 +640,14 @@ area. Notes:
 - Expose `refetch` from the data/view hook so the error state's Retry can re-run the query.
 - The loading state defaults to `GenericSkeleton`. Pass a content-specific shape through
   `renderLoading` when needed, and build new shapes on `SkeletonRoot`.
-- Passing `isFetching` shows a delayed skeleton while keeping children mounted, preserving their
-  state through refetches. Keyboard focus inside the body is captured and restored across that
-  window, so a drill-down activated from the keyboard does not strand the reader.
+- **Pass the hook's `isLoading` straight through — never `isLoading && ! hasData`.** The hooks
+  widen it to "nothing on screen answers the current params", which covers a range change: the
+  queries carry `placeholderData`, so the previous range's numbers stay mounted. A `&& ! hasData`
+  guard sees those and cancels the skeleton, leaving one period's figures under another period's
+  heading.
+- `isFetching` draws nothing — it only marks the widget `aria-busy`. A revalidation of unchanged
+  params leaves the right numbers on screen, and blanking them reports a refresh nobody asked for
+  (WOOA7S-1934).
 - When a view hook masks `isError` (e.g. `rows.length === 0 && isError` to keep placeholder
   rows), gate `error` with the same predicate (`error: showError ? error : null`) so the two
   fields can't disagree.
