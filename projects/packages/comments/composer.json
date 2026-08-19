@@ -1,0 +1,57 @@
+{
+	"name": "automattic/jetpack-comments",
+	"description": "Jetpack Comments: the commenting experience for WordPress.com sites",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=8.1",
+		"automattic/block-delimiter": "@dev",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-status": "@dev"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"NODE_ENV=production BABEL_ENV=production pnpm run build"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"branch-alias": {
+			"dev-trunk": "0.1.x-dev"
+		},
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-comments/compare/v${old}...v${new}"
+		},
+		"mirror-repo": "Automattic/jetpack-comments",
+		"textdomain": "jetpack-comments",
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-comments.php"
+		}
+	}
+}

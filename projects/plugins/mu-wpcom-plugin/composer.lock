@@ -546,6 +546,63 @@
             }
         },
         {
+            "name": "automattic/jetpack-comments",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/comments",
+                "reference": "9a0030b2018598da4ade7776fd2d2da168275874"
+            },
+            "require": {
+                "automattic/block-delimiter": "@dev",
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "php": ">=8.1"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-comments/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-comments",
+                "textdomain": "jetpack-comments",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-comments.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "NODE_ENV=production BABEL_ENV=production pnpm run build"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Jetpack Comments: the commenting experience for WordPress.com sites",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-compat",
             "version": "dev-trunk",
             "dist": {
@@ -1497,7 +1554,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "63ecd45c303b53eb998a2fa7fdc06467c31e4d14"
+                "reference": "a7c1861360b1c879ad74e68e9eb4d528e9964815"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1505,6 +1562,7 @@
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
                 "automattic/jetpack-classic-theme-helper": "@dev",
+                "automattic/jetpack-comments": "@dev",
                 "automattic/jetpack-compat": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",

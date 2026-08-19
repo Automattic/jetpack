@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Comments\Comments;
 use Automattic\Jetpack\PremiumAnalytics\Analytics as Premium_Analytics;
 
 define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
@@ -83,8 +84,7 @@ class Jetpack_Mu_Wpcom {
 
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			// Priority 0 so `jetpack_verbum_rewrite` can still be filtered from a plugin or mu-plugin.
-			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum' ), 0 );
+			self::load_comment_experience();
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_premium_analytics' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
@@ -743,20 +743,28 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Load Verbum, either from the jetpack-verbum package or from the copy bundled here.
+	 * Register the comment experience, either from the jetpack-comments package or from the
+	 * Verbum copy bundled here.
+	 *
+	 * Both branches register their hooks from here rather than from a `plugins_loaded`
+	 * callback, so the comment experience keeps the same position in the `plugins_loaded`
+	 * queue it has always had. It clears other plugins' comment form hooks, so that
+	 * position matters.
 	 */
-	public static function load_verbum() {
+	public static function load_comment_experience() {
 		/**
-		 * Load Verbum from the extracted jetpack-verbum package instead of the copy in this package.
+		 * Load the comment experience from the extracted jetpack-comments package instead of
+		 * the Verbum copy in this package.
 		 *
-		 * Temporary switch for the extraction work; it goes away once the package owns Verbum.
+		 * Temporary switch for the extraction work; it goes away once the package owns the comment experience.
+		 * Read while mu-plugins load, so it has to be set from an earlier-loading mu-plugin.
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param bool $use_package Whether to load Verbum from the package. Default false.
+		 * @param bool $use_package Whether to load the comment experience from the package. Default false.
 		 */
-		if ( apply_filters( 'jetpack_verbum_rewrite', false ) ) {
-			Verbum::init();
+		if ( apply_filters( 'jetpack_comments_new_hotness', false ) ) {
+			Comments::init();
 			return;
 		}
 

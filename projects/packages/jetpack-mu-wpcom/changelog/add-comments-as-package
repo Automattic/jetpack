@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Comments: Add the jetpack_comments_new_hotness filter to load the comment experience from the jetpack-comments package.
