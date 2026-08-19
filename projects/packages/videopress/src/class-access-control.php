@@ -386,7 +386,8 @@ class Access_Control {
 		}
 
 		foreach ( $matches[0] as $url ) {
-			if ( $guid === Utils::extract_videopress_guid_from_url( $url ) ) {
+			$extracted_guid = Utils::extract_videopress_guid_from_url( $url );
+			if ( $extracted_guid === $guid ) {
 				return true;
 			}
 		}
@@ -409,7 +410,7 @@ class Access_Control {
 			return array();
 		}
 
-		$post_id = absint( $post_id );
+		$post_id       = absint( $post_id );
 		$transient_key = "videopress_guids_{$post_id}";
 
 		// Check if already cached.
@@ -424,7 +425,7 @@ class Access_Control {
 			return array();
 		}
 
-		$guids = array();
+		$guids    = array();
 		$instance = self::instance();
 
 		// Scan for VideoPress blocks (including those in synced patterns).
@@ -507,7 +508,7 @@ class Access_Control {
 
 		// Try fast lookup from cache.
 		$transient_key = "videopress_guids_{$embedded_post_id}";
-		$cached_guids = get_transient( $transient_key );
+		$cached_guids  = get_transient( $transient_key );
 
 		if ( false !== $cached_guids ) {
 			return in_array( $guid, (array) $cached_guids, true );
