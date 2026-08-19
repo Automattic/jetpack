@@ -2,8 +2,12 @@
  * Tests for synced form auto-save helper functions
  */
 
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { act, renderHook } from '@testing-library/react';
+
+afterEach( () => {
+	jest.useRealTimers();
+} );
 
 // Mock WordPress dependencies before importing
 const mockCreateBlock = jest.fn();
