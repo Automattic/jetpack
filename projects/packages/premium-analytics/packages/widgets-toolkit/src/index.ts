@@ -125,7 +125,7 @@ export {
 /**
  * Constants
  */
-export { WOO_COLORS, COLOR_GRAY_100 } from './constants';
+export { COLOR_GRAY_100 } from './constants';
 
 /**
  * Widget edit fields
