@@ -1,17 +1,18 @@
 /**
  * External dependencies
  */
-import { useReportScope } from '@jetpack-premium-analytics/routing';
+import { useReportScope } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
 import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
-import { useDashboardSections, useSectionDateFilter } from './hooks';
+import { useActiveSection, useDashboardSections, useSectionDateFilter } from './hooks';
 import { stage as Dashboard } from './stage';
 import type { ReactNode } from 'react';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
@@ -33,7 +34,9 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: () => null,
+	DateFiltersPanel: ( { showComparison }: { showComparison?: boolean } ) => (
+		<span>{ showComparison ? 'header offers comparison' : 'header offers no comparison' }</span>
+	),
 	DateIntervalDropdown: () => null,
 	DateYearFilter: () => null,
 	SectionHeader: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
@@ -86,7 +89,7 @@ jest.mock( '../widget-module-i18n', () => ( {
 } ) );
 
 jest.mock( './hooks', () => ( {
-	useActiveSection: () => [ 'insights', jest.fn() ],
+	useActiveSection: jest.fn(),
 	useDashboardGridSettings: () => [ {} ],
 	useDashboardSectionLayout: () => [ [], jest.fn(), jest.fn() ],
 	useDashboardSections: jest.fn(),
@@ -95,6 +98,7 @@ jest.mock( './hooks', () => ( {
 
 const useDashboardSectionsMock = jest.mocked( useDashboardSections );
 const useSectionDateFilterMock = jest.mocked( useSectionDateFilter );
+const useActiveSectionMock = jest.mocked( useActiveSection );
 
 /**
  * Resolve the sections entity with one active section.
@@ -117,6 +121,11 @@ function mockSection( overrides: Record< string, unknown > = {} ) {
 }
 
 describe( 'Dashboard report scope', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+	} );
+
 	it( 'declares no comparison for a section whose header offers none', () => {
 		mockSection();
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
@@ -133,6 +142,7 @@ describe( 'Dashboard report scope', () => {
 		render( <Dashboard /> );
 
 		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
 	} );
 
 	it( 'declares no comparison for a range section that opted out', () => {
@@ -145,5 +155,41 @@ describe( 'Dashboard report scope', () => {
 		render( <Dashboard /> );
 
 		expect( screen.getByText( 'no comparison' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'header offers no comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'updates the scope when switching between sections', () => {
+		useDashboardSectionsMock.mockReturnValue( {
+			sections: [
+				{
+					slug: 'traffic',
+					label: 'Traffic',
+					title: 'Traffic',
+					date_filter: DATE_FILTER_RANGE,
+				},
+				{
+					slug: 'insights',
+					label: 'Insights',
+					title: 'Activity insights',
+					date_filter: DATE_FILTER_YEAR,
+				},
+			],
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		const { rerender } = render( <Dashboard /> );
+
+		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
+
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		rerender( <Dashboard /> );
+		expect( screen.getByText( 'no comparison' ) ).toBeInTheDocument();
+
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		rerender( <Dashboard /> );
+		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
 	} );
 } );

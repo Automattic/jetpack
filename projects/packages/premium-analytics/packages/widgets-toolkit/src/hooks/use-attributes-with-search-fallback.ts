@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { withoutComparison } from '@jetpack-premium-analytics/data';
-import { useReportScope } from '@jetpack-premium-analytics/routing';
+import { useReportScope, withoutComparison } from '@jetpack-premium-analytics/data';
 import { useSearch } from '@wordpress/route';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -14,12 +14,12 @@ import type { ReportParamsFieldAttributes } from '../fields';
  * so a widget works in both hosts: Dashboard-v2 passes no attributes and needs
  * the URL, Post-Launch passes attributes and ignores it.
  *
- * @param { Partial< ReportParamsFieldAttributes > } attributes - The widget attributes (may be empty or partial)
- * @return { ReportParamsFieldAttributes } Effective attributes with reportParams guaranteed
+ * @param attributes - The widget attributes, which may be empty or partial.
+ * @return The original attributes with effective reportParams guaranteed.
  */
-export function useAttributesWithSearchFallback(
-	attributes: Partial< ReportParamsFieldAttributes >
-): ReportParamsFieldAttributes {
+export function useAttributesWithSearchFallback< T extends Partial< ReportParamsFieldAttributes > >(
+	attributes: T
+): T & ReportParamsFieldAttributes {
 	// `useSearch` throws outside a router context, which is how Post-Launch
 	// renders widgets, so the call is guarded rather than assumed.
 	let search: Record< string, any >;
@@ -35,14 +35,17 @@ export function useAttributesWithSearchFallback(
 
 	const hasReportParams =
 		!! attributes?.reportParams && Object.keys( attributes.reportParams ).length > 0;
-
-	const reportParams = hasReportParams
+	const sourceReportParams = hasReportParams
 		? ( attributes as ReportParamsFieldAttributes ).reportParams
 		: search;
 
-	// Stripped after the source is chosen, so the surface's no-comparison
-	// invariant holds whichever one won. See `WidgetRoot`, which does the same.
 	const { offersComparison } = useReportScope();
 
-	return { reportParams: offersComparison ? reportParams : withoutComparison( reportParams ) };
+	return useMemo( () => {
+		const reportParams = offersComparison
+			? sourceReportParams
+			: withoutComparison( sourceReportParams );
+
+		return { ...attributes, reportParams };
+	}, [ attributes, offersComparison, sourceReportParams ] );
 }

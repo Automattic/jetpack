@@ -6,7 +6,6 @@ export {
 } from './search/date-range';
 
 export { deriveComparisonRange } from './search/comparison';
-export { ReportScopeProvider, useReportScope, type ReportScope } from './report-scope';
 export {
 	REPORT_DATE_PARAM_KEYS,
 	omitComparisonReportParams,

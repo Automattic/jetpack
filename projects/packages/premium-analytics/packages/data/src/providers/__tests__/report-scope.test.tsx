@@ -20,13 +20,15 @@ describe( 'useReportScope', () => {
 		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
 	} );
 
-	it( 'takes the value the nearest provider declares', () => {
+	it( 'takes the value from the nearest provider', () => {
 		render(
 			<ReportScopeProvider offersComparison={ false }>
-				<ScopeProbe />
+				<ReportScopeProvider offersComparison>
+					<ScopeProbe />
+				</ReportScopeProvider>
 			</ReportScopeProvider>
 		);
 
-		expect( screen.getByText( 'no comparison' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
 	} );
 } );

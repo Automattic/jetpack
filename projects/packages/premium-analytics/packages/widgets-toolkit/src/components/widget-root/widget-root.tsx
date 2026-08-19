@@ -5,10 +5,10 @@ import {
 	AnalyticsQueryClientProvider,
 	getDefaultPreset,
 	normalizeReportParams,
+	useReportScope,
 	withoutComparison,
 } from '@jetpack-premium-analytics/data';
 import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
-import { useReportScope } from '@jetpack-premium-analytics/routing';
 import { useSearch } from '@wordpress/route';
 import { useMemo, type ReactNode } from 'react';
 import { getStoreInfo } from '../../helpers/store-info';
@@ -90,13 +90,19 @@ export function WidgetRoot( { attributes, children, setError }: WidgetRootProps 
 	 * surfaces that do offer one to pick back up.
 	 */
 	const { offersComparison } = useReportScope();
-	const reportParams = useMemo( () => {
-		const normalized = normalizeReportParams( rawReportParams, defaultPreset );
+	const navigationParams = useMemo(
+		() => normalizeReportParams( rawReportParams, defaultPreset ),
+		[ rawReportParams, defaultPreset ]
+	);
+	const reportParams = useMemo(
+		() => ( offersComparison ? navigationParams : withoutComparison( navigationParams ) ),
+		[ navigationParams, offersComparison ]
+	);
 
-		return offersComparison ? normalized : withoutComparison( normalized );
-	}, [ rawReportParams, defaultPreset, offersComparison ] );
-
-	const contextValue = useMemo( () => ( { reportParams, setError } ), [ reportParams, setError ] );
+	const contextValue = useMemo(
+		() => ( { reportParams, navigationParams, setError } ),
+		[ reportParams, navigationParams, setError ]
+	);
 
 	return (
 		<AnalyticsQueryClientProvider>

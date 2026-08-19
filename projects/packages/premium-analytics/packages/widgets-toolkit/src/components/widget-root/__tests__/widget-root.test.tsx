@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ReportScopeProvider } from '@jetpack-premium-analytics/routing';
+import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 import { useSearch } from '@wordpress/route';
 /**
@@ -28,13 +28,22 @@ const COMPARED_WINDOW = {
 };
 
 function ParamsProbe() {
-	const { reportParams } = useWidgetRootContext();
+	const { reportParams, navigationParams } = useWidgetRootContext();
 
-	return <span data-testid="report-params">{ JSON.stringify( reportParams ) }</span>;
+	return (
+		<>
+			<span data-testid="report-params">{ JSON.stringify( reportParams ) }</span>
+			<span data-testid="navigation-params">{ JSON.stringify( navigationParams ) }</span>
+		</>
+	);
 }
 
 function resolvedParams(): ReportParams {
 	return JSON.parse( screen.getByTestId( 'report-params' ).textContent ?? '{}' );
+}
+
+function resolvedNavigationParams(): ReportParams {
+	return JSON.parse( screen.getByTestId( 'navigation-params' ).textContent ?? '{}' );
 }
 
 describe( 'WidgetRoot report params', () => {
@@ -72,6 +81,11 @@ describe( 'WidgetRoot report params', () => {
 		expect( params ).not.toHaveProperty( 'compare_to' );
 		expect( params ).not.toHaveProperty( 'compare_preset' );
 		expect( params.from ).toBe( COMPARED_WINDOW.from );
+		expect( resolvedNavigationParams() ).toMatchObject( {
+			comp: '1',
+			compare_from: COMPARED_WINDOW.compare_from,
+			compare_to: COMPARED_WINDOW.compare_to,
+		} );
 	} );
 
 	it( 'drops the comparison a widget carries in its own attributes', () => {
@@ -90,5 +104,24 @@ describe( 'WidgetRoot report params', () => {
 		expect( params ).not.toHaveProperty( 'comp' );
 		expect( params ).not.toHaveProperty( 'compare_from' );
 		expect( params.from ).toBe( COMPARED_WINDOW.from );
+	} );
+
+	it( 'drops and restores comparison when the surface changes', () => {
+		const renderTree = ( offersComparison: boolean ) => (
+			<ReportScopeProvider offersComparison={ offersComparison }>
+				<WidgetRoot>
+					<ParamsProbe />
+				</WidgetRoot>
+			</ReportScopeProvider>
+		);
+		const { rerender } = render( renderTree( true ) );
+
+		expect( resolvedParams() ).toHaveProperty( 'comp', '1' );
+
+		rerender( renderTree( false ) );
+		expect( resolvedParams() ).not.toHaveProperty( 'comp' );
+
+		rerender( renderTree( true ) );
+		expect( resolvedParams() ).toHaveProperty( 'comp', '1' );
 	} );
 } );

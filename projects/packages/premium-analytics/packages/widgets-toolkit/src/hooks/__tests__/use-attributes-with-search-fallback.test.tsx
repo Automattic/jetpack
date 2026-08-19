@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ReportScopeProvider } from '@jetpack-premium-analytics/routing';
+import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { renderHook } from '@testing-library/react';
 import { useSearch } from '@wordpress/route';
 /**
@@ -58,5 +58,18 @@ describe( 'useAttributesWithSearchFallback', () => {
 
 		expect( result.current.reportParams ).not.toHaveProperty( 'comp' );
 		expect( result.current.reportParams ).toMatchObject( { from: COMPARED_WINDOW.from } );
+	} );
+
+	it( 'preserves other attributes and a stable result when its inputs do not change', () => {
+		const attributes = { reportParams: COMPARED_WINDOW, max: 10 };
+		const { result, rerender } = renderHook( () => useAttributesWithSearchFallback( attributes ), {
+			wrapper: noComparison,
+		} );
+		const firstResult = result.current;
+
+		rerender();
+
+		expect( result.current.max ).toBe( 10 );
+		expect( result.current ).toBe( firstResult );
 	} );
 } );
