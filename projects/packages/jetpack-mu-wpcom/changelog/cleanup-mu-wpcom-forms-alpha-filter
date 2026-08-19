@@ -1,4 +1,4 @@
-Significance: patch
-Type: removed
+Significance: minor
+Type: deprecated
 
-Contact form flags: stop setting the retired jetpack_forms_alpha filter.
+Contact form flags: retire the disable-central-forms-management gating; Central Forms Management is enabled for every site.
