@@ -1,3 +1,4 @@
+import { useReportScope } from '@jetpack-premium-analytics/routing';
 import { render, screen, within } from '@testing-library/react';
 import { usePostSummary } from './hooks';
 import { stage } from './stage';
@@ -55,9 +56,20 @@ jest.mock(
 		)
 );
 
+/**
+ * Reads the scope from where the page's widgets render.
+ *
+ * @return The declared scope, as text.
+ */
+function MockScopeProbe() {
+	const { offersComparison } = useReportScope();
+
+	return <div>{ offersComparison ? 'Post widgets' : 'Post widgets without comparison' }</div>;
+}
+
 jest.mock( '@wordpress/widget-dashboard', () => {
 	const WidgetDashboard = ( { children }: { children: ReactNode } ) => <>{ children }</>;
-	WidgetDashboard.Widgets = () => <div>Post widgets</div>;
+	WidgetDashboard.Widgets = () => <MockScopeProbe />;
 
 	return {
 		WidgetDashboard,
@@ -122,7 +134,8 @@ jest.mock( './components', () => ( {
 jest.mock( './hooks', () => ( {
 	usePostSummary: jest.fn(),
 	usePostDetailTabs: () => ( {
-		tabs: [],
+		// One tab, so the panel carrying the widget grid actually mounts.
+		tabs: [ { id: 'traffic', label: 'Traffic' } ],
 		activeTab: 'traffic',
 		setActiveTab: jest.fn(),
 		layout: [],
@@ -210,6 +223,14 @@ describe( 'post detail stage', () => {
 		render( stage() );
 
 		expect( screen.getByText( 'Date filters without comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'declares no comparison for the widgets it renders', () => {
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByText( 'Post widgets without comparison' ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the two-crumb trail when no report origin is present', () => {

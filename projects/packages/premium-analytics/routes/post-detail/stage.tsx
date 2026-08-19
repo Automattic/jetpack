@@ -1,6 +1,6 @@
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { Button } from '@jetpack-premium-analytics/externals';
-import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { ReportScopeProvider, useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
 	SectionTabPanel,
@@ -174,9 +174,10 @@ function PostDetail(): JSX.Element {
 									{ /*
 									 * The design has no period-over-period comparison on
 									 * this page, so the Compare control is opted out;
-									 * comparison params stay in the URL (stripped from the
-									 * widgets' injected reportParams) so the breadcrumb
-									 * carries them back to the dashboard.
+									 * comparison params stay in the URL so the breadcrumb
+									 * carries them back to the dashboard. What keeps the
+									 * widgets from reading them is the report scope the
+									 * stage declares, not this prop.
 									 */ }
 									<DateFiltersPanel
 										{ ...dateFilters }
@@ -213,7 +214,14 @@ function PostDetail(): JSX.Element {
 export function stage(): JSX.Element {
 	return (
 		<AnalyticsQueryClientProvider>
-			<PostDetail />
+			{ /*
+			 * The page names no compared period and offers no control for one, so
+			 * nothing below may fetch or draw a comparison. The params stay on the
+			 * URL so the breadcrumb carries the dashboard's state back out.
+			 */ }
+			<ReportScopeProvider offersComparison={ false }>
+				<PostDetail />
+			</ReportScopeProvider>
 		</AnalyticsQueryClientProvider>
 	);
 }
