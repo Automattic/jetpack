@@ -75,6 +75,7 @@ The package is migrating to WordPress UI and Theme as its defaults. When adding 
 - Reuse existing hooks/providers/utilities before adding new abstractions.
 - Avoid `!important` unless there is no viable alternative and the rationale is documented.
 - Add focused behavioral tests for changed behavior; avoid speculative tests for unimplemented behavior.
+- **Never silence `testing-library/no-node-access` (or `no-container`) in a new test.** Reach the element by role, label or `data-testid` instead — add a `data-testid` to the component if nothing else identifies it, as `GlobalChartsProvider`'s scope wrapper does with `charts-scope`. Node access (`container.firstChild`, `.parentElement`, `querySelector`) ties the assertion to a tree shape the test does not care about, so an unrelated wrapper breaks it. A disable is acceptable only for a node rendered by a third party — visx above all — which cannot be given an attribute; say so in the comment. Existing disables in the older test files predate this rule; do not copy them.
 - Verify behavior/UI changes in Storybook using browser automation, not only unit tests.
 - Prefer charts-scoped PR titles (e.g. `Charts: ...`, `CHARTS-###: ...`).
 - Include test steps and visual evidence (screenshots/GIFs) in PR descriptions for UI changes.
