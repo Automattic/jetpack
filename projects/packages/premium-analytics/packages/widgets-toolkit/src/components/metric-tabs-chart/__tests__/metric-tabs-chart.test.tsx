@@ -37,10 +37,6 @@ jest.mock( '../../../hooks', () => ( {
 	useSeriesStyles: () => [],
 } ) );
 
-jest.mock( '../../widget-loading-overlay', () => ( {
-	WidgetLoadingOverlay: () => <div data-testid="loading-overlay" />,
-} ) );
-
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 
 const METRIC: MetricTab = {
@@ -176,16 +172,6 @@ describe( 'MetricTabsChart', () => {
 		// The headline stands down to a placeholder rather than reporting a total
 		// the endpoint never returned.
 		expect( screen.queryByText( '300' ) ).not.toBeInTheDocument();
-	} );
-
-	// The chart area is otherwise identical between renders here, so without the
-	// overlay a refetch looks like nothing happened at all.
-	it( 'still shows the busy overlay over an unavailable metric', () => {
-		const unavailable = { ...METRIC, unavailable: "Hourly data isn't available for this metric." };
-
-		render( <MetricTabsChart metrics={ [ unavailable ] } dataFormat={ DATA_FORMAT } loading /> );
-
-		expect( screen.getByTestId( 'loading-overlay' ) ).toBeInTheDocument();
 	} );
 
 	// The legend names each series by its date range, read off the points — which

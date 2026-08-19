@@ -208,14 +208,7 @@ function MetricChart( {
 	const resolvedDataFormat = metric.dataFormat ?? dataFormat;
 
 	if ( metric.unavailable ) {
-		// The chart area is otherwise identical between renders here, so without
-		// the overlay a refetch — an interval change, a Retry — looks frozen.
-		return (
-			<>
-				<div className={ styles.unavailableChart }>{ metric.unavailable }</div>
-				{ loading && <WidgetLoadingOverlay /> }
-			</>
-		);
+		return <div className={ styles.unavailableChart }>{ metric.unavailable }</div>;
 	}
 
 	return chartType === 'bar' ? (
