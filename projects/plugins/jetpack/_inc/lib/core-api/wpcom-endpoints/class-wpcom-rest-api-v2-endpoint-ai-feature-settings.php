@@ -219,8 +219,8 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 					'enabled'   => $stored['feature_clip'],
 					'available' => $this->is_feature_clip_available(),
 				),
-				'seo_enhancer'      => array(
-					'enabled'   => $stored['seo_enhancer'],
+				'ai_seo'            => array(
+					'enabled'   => $stored['ai_seo'],
 					'available' => $this->is_seo_enhancer_available(),
 				),
 				'ai_search'         => array(
@@ -232,9 +232,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 	}
 
 	/**
-	 * Whether the AI SEO enhancer is available on this site, so the settings
-	 * page can hide its row. Defers to the SEO package's shared gate; the
-	 * terms are unchanged.
+	 * Whether the SEO feature row is available, so the settings page can hide
+	 * it. Reuses the SEO enhancer's shared gate (kill filter, seo-tools
+	 * module, ai-seo-enhancer plan slug) as the feature's availability.
 	 *
 	 * @return bool
 	 */

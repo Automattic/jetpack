@@ -65,6 +65,7 @@ class Jetpack_AI_Settings {
 		'writing_assistant' => 'jetpack_ai_writing_assistant_enabled',
 		'image_editor'      => 'jetpack_ai_image_editor_enabled',
 		'feature_clip'      => 'jetpack_ai_feature_clip_enabled',
+		'ai_seo'            => 'jetpack_ai_seo_enabled',
 		'seo_enhancer'      => 'ai_seo_enhancer_enabled',
 		'ai_search'         => 'jetpack_search_ai_answers_enabled',
 	);
@@ -79,6 +80,7 @@ class Jetpack_AI_Settings {
 		'writing_assistant' => true,
 		'image_editor'      => true,
 		'feature_clip'      => true,
+		'ai_seo'            => true,
 		'seo_enhancer'      => false,
 		'ai_search'         => false,
 	);
@@ -89,7 +91,7 @@ class Jetpack_AI_Settings {
 	 *
 	 * @var array
 	 */
-	const OWNED_FEATURES = array( 'writing_assistant', 'image_editor', 'feature_clip' );
+	const OWNED_FEATURES = array( 'writing_assistant', 'image_editor', 'feature_clip', 'ai_seo' );
 
 	/**
 	 * Whether init() has already run.
@@ -123,6 +125,7 @@ class Jetpack_AI_Settings {
 		// AI surfaces that do not flow through jetpack_ai_enabled.
 		add_filter( 'jetpack_search_ai_answers_enabled', array( __CLASS__, 'apply_master_gates' ) );
 		add_filter( 'jetpack_ai_sidebar_enabled', array( __CLASS__, 'apply_master_gates' ) );
+		add_filter( 'jetpack_ai_seo_enabled', array( __CLASS__, 'apply_master_gates' ) );
 	}
 
 	/**
@@ -138,6 +141,7 @@ class Jetpack_AI_Settings {
 			self::FEATURE_OPTIONS['writing_assistant'] => __( 'Whether the Jetpack AI writing assistant is enabled.', 'jetpack' ),
 			self::FEATURE_OPTIONS['image_editor']      => __( 'Whether the Jetpack AI image editor is enabled.', 'jetpack' ),
 			self::FEATURE_OPTIONS['feature_clip']      => __( 'Whether Jetpack AI video clip generation is enabled.', 'jetpack' ),
+			self::FEATURE_OPTIONS['ai_seo']            => __( 'Whether the Jetpack AI SEO features are enabled.', 'jetpack' ),
 		);
 
 		foreach ( $options as $option => $description ) {
@@ -317,6 +321,29 @@ class Jetpack_AI_Settings {
 		$option = self::FEATURE_OPTIONS[ $feature ];
 
 		return (bool) get_option( $option, self::FEATURE_DEFAULTS[ $feature ] );
+	}
+
+	/**
+	 * Whether the AI SEO feature (metadata generation, manual and automatic)
+	 * is effectively enabled: its own toggle (gate 4) through the filter, with
+	 * the host and master gates ANDed after the chain so no late-priority
+	 * callback can turn the feature back on — same finality as is_ai_enabled().
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_ai_seo_enabled() {
+		/**
+		 * Filter whether the Jetpack AI SEO feature is enabled.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether the SEO feature toggle is on.
+		 */
+		$enabled = (bool) apply_filters( 'jetpack_ai_seo_enabled', self::is_feature_enabled( 'ai_seo' ) );
+
+		return $enabled && self::host_allows_ai() && self::is_master_enabled();
 	}
 }
 

@@ -299,16 +299,16 @@ class Jetpack_AI_Sidebar {
 	 * of the Optimize Title suggestion: SEO suggestions target the SEO meta fields,
 	 * not the visible post title.
 	 *
-	 * The user-facing ai_seo_enhancer_enabled *option* is consulted since the AI
-	 * settings page surfaced it as the SEO feature toggle: a switched-off feature
-	 * must not offer suggestions, even user-initiated ones, and even when an
-	 * external host (Big Sky, Woo) draws the sidebar.
+	 * The SEO *feature* option is consulted — the AI settings page surfaces it
+	 * as the SEO toggle, and a switched-off feature must not offer suggestions,
+	 * even user-initiated ones. The automatic-generation option governs only
+	 * automatic runs and is deliberately not consulted here.
 	 *
 	 * @return bool
 	 */
 	private static function is_seo_suggestions_enabled(): bool {
 		return (bool) apply_filters( 'ai_seo_enhancer_enabled', true )
-			&& \Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' )
+			&& \Jetpack_AI_Settings::is_ai_seo_enabled()
 			&& self::has_seo_feature()
 			&& self::is_seo_tools_usable();
 	}

@@ -83,6 +83,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->assertNotFalse( has_filter( 'jetpack_ai_enabled', $callback ) );
 		$this->assertNotFalse( has_filter( 'jetpack_search_ai_answers_enabled', $callback ) );
 		$this->assertNotFalse( has_filter( 'jetpack_ai_sidebar_enabled', $callback ) );
+		$this->assertNotFalse( has_filter( 'jetpack_ai_seo_enabled', $callback ) );
 	}
 
 	/**
@@ -108,6 +109,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->assertFalse( apply_filters( 'jetpack_ai_enabled', true ) );
 		$this->assertFalse( apply_filters( 'jetpack_search_ai_answers_enabled', true ) );
 		$this->assertFalse( apply_filters( 'jetpack_ai_sidebar_enabled', true ) );
+		$this->assertFalse( apply_filters( 'jetpack_ai_seo_enabled', true ) );
 	}
 
 	/**
@@ -334,9 +336,74 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	public function test_feature_defaults() {
 		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) );
 		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'image_editor' ) );
+		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'ai_seo' ) );
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' ) );
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'ai_search' ) );
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'no_such_feature' ) );
+	}
+
+	/**
+	 * The SEO feature (AI SEO metadata generation, manual and automatic) is a
+	 * listed control: its own option switches it off while every outer gate is
+	 * open.
+	 */
+	public function test_seo_feature_follows_its_option() {
+		$this->force_ai_module_active();
+
+		$this->assertTrue( Jetpack_AI_Settings::is_ai_seo_enabled(), 'Defaults on with every gate open.' );
+
+		update_option( 'jetpack_ai_seo_enabled', 0 );
+
+		$this->assertFalse( Jetpack_AI_Settings::is_ai_seo_enabled() );
+	}
+
+	/**
+	 * The master gate rides the SEO feature filter: master off means the
+	 * feature is effectively off while the saved option value is preserved,
+	 * so the choice returns when the master does.
+	 */
+	public function test_seo_feature_master_off_preserves_saved_value() {
+		// Seed off first so the row exists: a write equal to the registered
+		// default is short-circuited by update_option and stores nothing.
+		update_option( 'jetpack_ai_seo_enabled', 0 );
+		update_option( 'jetpack_ai_seo_enabled', 1 );
+
+		// Off-Simple the `ai` module is the master and is inactive by default here.
+		$this->assertFalse( Jetpack_AI_Settings::is_master_enabled() );
+		$this->assertFalse( Jetpack_AI_Settings::is_ai_seo_enabled(), 'Master off must turn the SEO feature off.' );
+		$this->assertTrue( (bool) get_option( 'jetpack_ai_seo_enabled', false ), 'The saved value must survive the master.' );
+
+		// The saved choice returns when the master does.
+		$this->force_ai_module_active();
+		$this->assertTrue( Jetpack_AI_Settings::is_ai_seo_enabled() );
+	}
+
+	/**
+	 * The gates are final in is_ai_seo_enabled() too: a late-priority filter can
+	 * override the in-chain gate callback, but not the helper's hard AND.
+	 */
+	public function test_seo_feature_late_filter_cannot_beat_master() {
+		add_filter( 'jetpack_ai_seo_enabled', '__return_true', 999 );
+
+		// Off-Simple the `ai` module is the master and is inactive by default here.
+		$this->assertFalse( Jetpack_AI_Settings::is_master_enabled() );
+		$late_filter_wins = Jetpack_AI_Settings::is_ai_seo_enabled();
+
+		remove_filter( 'jetpack_ai_seo_enabled', '__return_true', 999 );
+
+		$this->assertFalse( $late_filter_wins, 'A late filter must not resurrect the SEO feature past the master.' );
+	}
+
+	/**
+	 * On WordPress.com Simple the owned features have no per-feature toggles,
+	 * so a stored off value cannot switch the SEO feature off there.
+	 */
+	public function test_seo_feature_forced_on_for_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		update_option( Jetpack_AI_Settings::MASTER_OPTION, 1 );
+		update_option( 'jetpack_ai_seo_enabled', 0 );
+
+		$this->assertTrue( Jetpack_AI_Settings::is_ai_seo_enabled() );
 	}
 
 	/**
@@ -413,6 +480,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->assertNotContains( 'jetpack_ai_enabled', $whitelist );
 		$this->assertContains( 'jetpack_ai_writing_assistant_enabled', $whitelist );
 		$this->assertContains( 'jetpack_ai_image_editor_enabled', $whitelist );
+		$this->assertContains( 'jetpack_ai_seo_enabled', $whitelist );
 		$this->assertNotContains( 'jetpack_ai_image_label_enabled', $whitelist );
 	}
 
@@ -430,6 +498,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->assertArrayHasKey( 'jetpack_ai_enabled', $registered );
 		$this->assertArrayHasKey( 'jetpack_ai_writing_assistant_enabled', $registered );
 		$this->assertArrayHasKey( 'jetpack_ai_image_editor_enabled', $registered );
+		$this->assertArrayHasKey( 'jetpack_ai_seo_enabled', $registered );
 		$this->assertArrayNotHasKey( 'jetpack_ai_image_label_enabled', $registered );
 
 		$this->assertFalse( $registered['jetpack_ai_enabled']['show_in_rest'], 'The master option is never exposed over core settings REST.' );
