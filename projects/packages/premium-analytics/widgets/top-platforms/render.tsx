@@ -40,22 +40,18 @@ type PlatformMode = 'browser' | 'platform';
 
 type TopPlatformsInnerProps = {
 	/**
-	 * Max rows to display.
-	 */
-	max: number;
-	/**
 	 * Device dimension to rank: browsers or operating systems.
 	 */
 	platformDimension: PlatformMode;
 };
 
-function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps ) {
+function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 
 	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = usePlatformViews(
 		{
 			reportParams,
-			max,
+			max: WIDGET_ROW_LIMIT,
 			deviceProperty: platformDimension,
 		}
 	);
@@ -130,7 +126,7 @@ export default function TopPlatformsWidget( { attributes }: TopPlatformsWidgetPr
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<TopPlatformsInner max={ WIDGET_ROW_LIMIT } platformDimension={ platformDimension } />
+				<TopPlatformsInner platformDimension={ platformDimension } />
 			</div>
 		</WidgetRoot>
 	);

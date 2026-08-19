@@ -84,7 +84,6 @@ export type TopPostRow = {
 type TopPostsRenderAttributes = TopPostsAttributes & Partial< ReportParamsFieldAttributes >;
 type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
 
-type TopPostsReportProps = { max: number };
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 /**
@@ -249,16 +248,19 @@ function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
  * in the Posts & pages list — same distribution as the Stats "Most viewed"
  * card, where the Archives list excludes it.
  */
-function TopPostsReport( { max }: TopPostsReportProps ) {
+function TopPostsReport() {
 	const { reportParams } = useWidgetRootContext();
 
-	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
+	const statsParams = useMemo(
+		() => ( { ...reportParams, max: WIDGET_ROW_LIMIT } ),
+		[ reportParams ]
+	);
 
 	// Row matching, ranked capping (the API caps `postviews` at `max` but
 	// appends the homepage entry on top of it), and comparison-overlap gating
 	// all live in the data layer's merge helper (see AGENTS.md).
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsTopPosts( statsParams, { maxRows: max } );
+		useStatsTopPosts( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
 	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
@@ -431,7 +433,7 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
  * comparison period come from the dashboard picker via `reportParams`, and
  * comparison UI is gated on real row overlap between the two periods.
  */
-function ArchivesReport( { max }: { max: number } ) {
+function ArchivesReport() {
 	const { reportParams } = useWidgetRootContext();
 	const { drillDownItem: drillPath, drillDown, resetDrillDown } = useWidgetDrillDown< string[] >();
 
@@ -439,7 +441,7 @@ function ArchivesReport( { max }: { max: number } ) {
 	// cannot cross-match), the visible-row cap, and the comparison-overlap
 	// gate all live in the data layer's merge helper (see AGENTS.md).
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsArchives( reportParams, { maxRows: max } );
+		useStatsArchives( reportParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
 		() =>
@@ -556,13 +558,13 @@ export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
 			<div className={ styles.root }>
 				{ contentView === 'archives' ? (
 					<>
-						<ArchivesReport max={ WIDGET_ROW_LIMIT } />
+						<ArchivesReport />
 						<WidgetFooter>
 							<ReportLink report="posts" section="archives" />
 						</WidgetFooter>
 					</>
 				) : (
-					<TopPostsReport max={ WIDGET_ROW_LIMIT } />
+					<TopPostsReport />
 				) }
 			</div>
 		</WidgetRoot>

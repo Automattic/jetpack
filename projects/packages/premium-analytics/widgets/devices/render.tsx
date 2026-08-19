@@ -43,18 +43,11 @@ function toRatio( percentage: number ) {
 	return percentage / 100;
 }
 
-type DevicesInnerProps = {
-	/**
-	 * Max rows to display.
-	 */
-	max: number;
-};
-
-function DevicesInner( { max }: DevicesInnerProps ) {
+function DevicesInner() {
 	const { reportParams } = useWidgetRootContext();
 	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useDeviceViews( {
 		reportParams,
-		max,
+		max: WIDGET_ROW_LIMIT,
 		deviceProperty: 'screensize',
 	} );
 
@@ -127,7 +120,7 @@ export default function DevicesWidget( { attributes = {} }: DevicesWidgetProps )
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<DevicesInner max={ WIDGET_ROW_LIMIT } />
+				<DevicesInner />
 			</div>
 		</WidgetRoot>
 	);

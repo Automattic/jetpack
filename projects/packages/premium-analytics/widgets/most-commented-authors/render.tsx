@@ -32,22 +32,15 @@ type MostCommentedAuthorsWidgetProps = WidgetRenderProps< MostCommentedAuthorsRe
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
-interface MostCommentedAuthorsInnerProps {
-	/**
-	 * Maximum number of rows to display. `0` means all rows.
-	 */
-	max: number;
-}
-
 /**
  * Top commented authors inner component. The comment counts come from the
  * all-time `stats/comments` report, so there is no date range or comparison
  * period to read from context.
  */
-function MostCommentedAuthorsInner( { max }: MostCommentedAuthorsInnerProps ) {
+function MostCommentedAuthorsInner() {
 	const { rows, isLoading, isFetching, isError, error, refetch } = useStatsCommentsRows( {
 		group: 'authors',
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
@@ -124,7 +117,7 @@ export default function MostCommentedAuthors( {
 }: MostCommentedAuthorsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<MostCommentedAuthorsInner max={ WIDGET_ROW_LIMIT } />
+			<MostCommentedAuthorsInner />
 		</WidgetRoot>
 	);
 }

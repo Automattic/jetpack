@@ -55,10 +55,6 @@ type UtmInsightsInnerProps = {
 	 */
 	utmDimension: StatsUtmParam;
 	/**
-	 * Max rows to display.
-	 */
-	max: number;
-	/**
 	 * Whether to render the "View all" footer link.
 	 */
 	showReportLink: boolean;
@@ -80,7 +76,7 @@ function getUtmReportSection( utmDimension: StatsUtmParam ): UtmReportSection {
 	}
 }
 
-function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInnerProps ) {
+function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const {
 		drillDownItem: selectedUtmLabel,
@@ -97,7 +93,7 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useUtmInsights( {
 		reportParams,
 		utmParam: utmDimension,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} );
 
 	const selectedUtm = useMemo(
@@ -232,11 +228,7 @@ export default function UtmInsightsWidget( { attributes = {} }: UtmInsightsWidge
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<UtmInsightsInner
-					utmDimension={ utmDimension }
-					max={ WIDGET_ROW_LIMIT }
-					showReportLink={ showReportLink }
-				/>
+				<UtmInsightsInner utmDimension={ utmDimension } showReportLink={ showReportLink } />
 			</div>
 		</WidgetRoot>
 	);

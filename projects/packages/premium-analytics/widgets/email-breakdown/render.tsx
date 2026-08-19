@@ -253,7 +253,6 @@ export const EmailBreakdownLeaderboard = ( {
 type EmailBreakdownReportProps = {
 	view: EmailBreakdownView;
 	metric: EmailBreakdownMetric;
-	max: number;
 	showMap: boolean;
 };
 
@@ -263,7 +262,7 @@ type EmailBreakdownReportProps = {
  * is scoped by the host through `reportParams.post_id` — the shared
  * single-resource "detail page" param — so the widget needs no id attribute.
  */
-function EmailBreakdownReport( { view, metric, max, showMap }: EmailBreakdownReportProps ) {
+function EmailBreakdownReport( { view, metric, showMap }: EmailBreakdownReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 
@@ -271,7 +270,7 @@ function EmailBreakdownReport( { view, metric, max, showMap }: EmailBreakdownRep
 		postId,
 		view,
 		metric,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} );
 
 	return (
@@ -306,12 +305,7 @@ export default function EmailBreakdown( { attributes = {} }: EmailBreakdownWidge
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<EmailBreakdownReport
-				view={ view }
-				metric={ metric }
-				max={ WIDGET_ROW_LIMIT }
-				showMap={ showMap }
-			/>
+			<EmailBreakdownReport view={ view } metric={ metric } showMap={ showMap } />
 		</WidgetRoot>
 	);
 }

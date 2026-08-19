@@ -84,8 +84,8 @@ function getGeoChartCountryId( countryCode: string ): string {
 	return countryCode.toUpperCase();
 }
 
-type LocationsInnerProps = Required< Pick< LocationsAttributes, 'geoGranularity' > > & {
-	max: number;
+type LocationsInnerProps = {
+	geoGranularity: NonNullable< LocationsAttributes[ 'geoGranularity' ] >;
 };
 
 /**
@@ -93,7 +93,7 @@ type LocationsInnerProps = Required< Pick< LocationsAttributes, 'geoGranularity'
  * context. Attributes arrive already normalized by the outer component, so
  * defaults are applied in exactly one place.
  */
-function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
+function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const [ unsupportedProvinceMapCountries, setUnsupportedProvinceMapCountries ] = useState<
 		Set< string >
@@ -121,7 +121,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	const { data, hasComparison, isLoading, isFetching, isError, isPlaceholderData, refetch } =
 		useLocationViews( {
 			reportParams,
-			max,
+			max: WIDGET_ROW_LIMIT,
 			geoMode,
 			countryFilter: activeSelectedCountry?.code,
 		} );
@@ -408,7 +408,7 @@ export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<LocationsInner max={ WIDGET_ROW_LIMIT } geoGranularity={ geoGranularity } />
+				<LocationsInner geoGranularity={ geoGranularity } />
 				<WidgetFooter>
 					<ReportLink report="locations" section={ REPORT_SECTIONS[ geoGranularity ] } />
 				</WidgetFooter>

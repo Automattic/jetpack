@@ -215,18 +215,11 @@ export function ClicksLeaderboard( {
 	);
 }
 
-type ClicksInnerProps = {
-	/**
-	 * Maximum rows to display. 0 means all rows returned by the API.
-	 */
-	max: number;
-};
-
 /**
  * Clicks widget inner component. Reads report params from WidgetRoot context
  * and renders the leaderboard, with drill-down into a link's child clicks.
  */
-function ClicksInner( { max }: ClicksInnerProps ) {
+function ClicksInner() {
 	const { reportParams } = useWidgetRootContext();
 	const {
 		drillDownItem: selectedClickLabel,
@@ -235,11 +228,11 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 	} = useWidgetDrillDown< string >();
 	const statsParams = {
 		...reportParams,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} as StatsReportParams;
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } = useStatsClicks(
 		statsParams,
-		{ maxRows: max }
+		{ maxRows: WIDGET_ROW_LIMIT }
 	);
 
 	const rows = useMemo(
@@ -323,7 +316,7 @@ export default function ClicksWidget( { attributes = {} }: ClicksWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<ClicksInner max={ WIDGET_ROW_LIMIT } />
+				<ClicksInner />
 				<WidgetFooter>
 					<ReportLink report="clicks" />
 				</WidgetFooter>

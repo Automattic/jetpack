@@ -211,21 +211,17 @@ export function AuthorsLeaderboard( {
 	);
 }
 
-type AuthorsReportProps = {
-	/**
-	 * Maximum number of authors to display.
-	 */
-	max: number;
-};
-
 /**
  * Fetches the top-authors report through the Jetpack Stats hook, builds the
  * leaderboard rows from the data layer's merged comparison rows, and hands
  * them to the presentational `AuthorsLeaderboard`.
  */
-function AuthorsReport( { max }: AuthorsReportProps ) {
+function AuthorsReport() {
 	const { reportParams } = useWidgetRootContext();
-	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
+	const statsParams = useMemo(
+		() => ( { ...reportParams, max: WIDGET_ROW_LIMIT } ),
+		[ reportParams ]
+	);
 
 	const {
 		primary,
@@ -236,7 +232,7 @@ function AuthorsReport( { max }: AuthorsReportProps ) {
 		hasData,
 		isError,
 		refetch,
-	} = useStatsTopAuthors( statsParams, { maxRows: max } );
+	} = useStatsTopAuthors( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
@@ -275,14 +271,13 @@ function AuthorsReport( { max }: AuthorsReportProps ) {
  * Passes host `attributes` into `WidgetRoot`, which resolves the report params:
  * the dashboard leaves `reportParams` out of `attributes`, so it falls back to
  * the date-range URL search params the picker writes to; Storybook injects
- * `attributes.reportParams` directly. The widget's own `max` is forwarded to
- * the inner component.
+ * `attributes.reportParams` directly.
  */
 export default function Authors( { attributes = {} }: AuthorsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<AuthorsReport max={ WIDGET_ROW_LIMIT } />
+				<AuthorsReport />
 			</div>
 		</WidgetRoot>
 	);

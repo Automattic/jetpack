@@ -31,7 +31,7 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
 // The dashboard injects its date range and comparison state through
-// `reportParams`; the widget's own settings come from `VideoPressAttributes`.
+// `reportParams`; the widget has no settings of its own.
 type VideoPressRenderAttributes = VideoPressAttributes & Partial< ReportParamsFieldAttributes >;
 
 type VideoPressWidgetProps = WidgetRenderProps< VideoPressRenderAttributes > & {
@@ -90,20 +90,16 @@ function buildLeaderboardData(
 	} ) );
 }
 
-type VideoPressReportProps = {
-	/**
-	 * Maximum number of videos to display.
-	 */
-	max: number;
-};
-
 /**
  * Fetches the video-plays report through the Jetpack Stats hook, builds the
  * leaderboard rows, and renders them through the shared widget content states.
  */
-function VideoPressReport( { max }: VideoPressReportProps ) {
+function VideoPressReport() {
 	const { reportParams } = useWidgetRootContext();
-	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
+	const statsParams = useMemo(
+		() => ( { ...reportParams, max: WIDGET_ROW_LIMIT } ),
+		[ reportParams ]
+	);
 
 	// The hook merges comparison rows in the data layer and gates
 	// `hasComparison` on at least one visible row (`maxRows`) having a matching
@@ -117,7 +113,7 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 		hasData,
 		isError,
 		refetch,
-	} = useStatsVideoPlays( statsParams, { maxRows: max } );
+	} = useStatsVideoPlays( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
@@ -171,7 +167,7 @@ export default function VideoPress( { attributes = {}, setError }: VideoPressWid
 		<WidgetRoot attributes={ attributes } setError={ setError }>
 			<div className={ styles.root }>
 				<div className={ styles.content }>
-					<VideoPressReport max={ WIDGET_ROW_LIMIT } />
+					<VideoPressReport />
 				</div>
 				<WidgetFooter>
 					<ReportLink report="videos" />

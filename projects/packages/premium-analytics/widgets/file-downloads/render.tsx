@@ -150,17 +150,10 @@ export function FileDownloadsLeaderboard( {
 	);
 }
 
-type FileDownloadsInnerProps = {
-	/**
-	 * Max rows to display.
-	 */
-	max: number;
-};
-
-function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
+function FileDownloadsInner() {
 	const { reportParams } = useWidgetRootContext();
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsFileDownloads( reportParams as StatsReportParams, { maxRows: max } );
+		useStatsFileDownloads( reportParams as StatsReportParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
 		() => toFileDownloadRows( comparisonRows?.rows ?? [] ),
@@ -211,7 +204,7 @@ export default function FileDownloadsWidget( { attributes = {} }: FileDownloadsW
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<FileDownloadsInner max={ WIDGET_ROW_LIMIT } />
+				<FileDownloadsInner />
 			</div>
 		</WidgetRoot>
 	);

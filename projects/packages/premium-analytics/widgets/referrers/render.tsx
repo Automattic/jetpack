@@ -161,18 +161,18 @@ export function ReferrersLeaderboard( {
 	);
 }
 
-function ReferrersInner( { max }: { max: number } ) {
+function ReferrersInner() {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = {
 		...reportParams,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} as StatsReportParams;
 
 	// Row matching (per level, so same-named rows at different drill levels
 	// cannot cross-match), the visible-row cap, and the comparison-overlap
 	// gate all live in the data layer's merge helper (see AGENTS.md).
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsReferrers( statsParams, { maxRows: max } );
+		useStatsReferrers( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
 		() => ( comparisonRows?.rows ?? [] ).map( toReferrerRow ),
@@ -313,7 +313,7 @@ export default function ReferrersWidget( {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<ReferrersInner max={ WIDGET_ROW_LIMIT } />
+				<ReferrersInner />
 				<WidgetFooter>
 					<ReportLink report="referrers" />
 				</WidgetFooter>
