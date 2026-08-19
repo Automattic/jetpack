@@ -14,6 +14,13 @@ interface UseSyncedFormAutoSaveParams {
 	attributes: Record< string, unknown >;
 	currentInnerBlocks: Block[];
 	isSyncingRef: React.MutableRefObject< boolean >;
+	/**
+	 * Counter from `useSyncedFormLoader` that changes when a sync finishes. Only used as
+	 * an effect dependency: it gives us a render on which to capture the baseline from
+	 * the loaded-but-unedited form. Without it the first edit after a load would be the
+	 * render that captures the baseline, and so would compare equal and never stage.
+	 */
+	syncCompletionCount: number;
 	editEntityRecord: (
 		kind: string,
 		name: string,
@@ -110,6 +117,7 @@ export function useSyncedFormAutoSave( {
 	attributes,
 	currentInnerBlocks,
 	isSyncingRef,
+	syncCompletionCount,
 	editEntityRecord,
 }: UseSyncedFormAutoSaveParams ): UseSyncedFormAutoSaveResult {
 	const pendingTimeoutRef = useRef< ReturnType< typeof setTimeout > | null >( null );
@@ -163,7 +171,17 @@ export function useSyncedFormAutoSave( {
 			clearTimeout( timeoutId );
 			pendingTimeoutRef.current = null;
 		};
-	}, [ currentInnerBlocks, ref, syncedForm, editEntityRecord, attributes, isSyncingRef ] );
+	}, [
+		currentInnerBlocks,
+		ref,
+		syncedForm,
+		editEntityRecord,
+		attributes,
+		isSyncingRef,
+		// Re-runs this effect once syncing ends, so the baseline is captured from the
+		// loaded form rather than from whatever the user changed first.
+		syncCompletionCount,
+	] );
 
 	const flushPendingSave = useCallback( () => {
 		if ( ! ref ) {

@@ -3,6 +3,7 @@
  */
 
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { act, renderHook } from '@testing-library/react';
 
 // Mock WordPress dependencies before importing
 const mockCreateBlock = jest.fn();
@@ -13,7 +14,7 @@ await jest.unstable_mockModule( '@wordpress/blocks', () => ( {
 	serialize: mockSerialize,
 } ) );
 
-const { captureBaseline, stageFormEdits } = await import(
+const { captureBaseline, stageFormEdits, useSyncedFormAutoSave } = await import(
 	'../../../src/blocks/contact-form/hooks/use-synced-form-auto-save.ts'
 );
 
@@ -194,5 +195,134 @@ describe( 'stageFormEdits', () => {
 		expect( edits ).toHaveProperty( 'content', serialized );
 		expect( edits ).toHaveProperty( 'blocks' );
 		expect( edits.blocks ).toEqual( [ mockFormBlock ] );
+	} );
+} );
+
+describe( 'useSyncedFormAutoSave', () => {
+	// Serialize enough of the block for a `required` flip to change the string.
+	const serializeFake = block =>
+		JSON.stringify( ( block.innerBlocks || [] ).map( b => [ b.name, b.attributes ] ) );
+	const field = required => ( {
+		name: 'jetpack/field-name',
+		attributes: { required },
+		innerBlocks: [],
+	} );
+	// Referentially stable across renders, exactly like the real block attributes and
+	// entity record. Fresh literals would re-run the effect on every render and hide
+	// whether it re-runs for the right reason.
+	const FORM_ATTRIBUTES = {};
+	const SYNCED_FORM = { content: { raw: 'x' } };
+
+	beforeEach( () => {
+		jest.clearAllMocks();
+		jest.useFakeTimers();
+		mockCreateBlock.mockImplementation( ( name, attributes, innerBlocks ) => ( {
+			name,
+			attributes,
+			innerBlocks,
+		} ) );
+		mockSerialize.mockImplementation( serializeFake );
+	} );
+
+	/**
+	 * Drive the hook through a synced form load, then apply edits.
+	 *
+	 * The loader flips `isSyncingRef` from a requestAnimationFrame callback — a ref
+	 * write, which renders nothing — and signals the same moment by bumping
+	 * `syncCompletionCount`.
+	 *
+	 * @return {object} The `editEntityRecord` spy and an `edit` helper.
+	 */
+	const loadForm = () => {
+		const editEntityRecord = jest.fn();
+		const isSyncingRef = { current: true };
+		let syncCompletionCount = 0;
+		let blocks = [];
+
+		const { rerender } = renderHook(
+			( { currentInnerBlocks, count } ) =>
+				useSyncedFormAutoSave( {
+					ref: 123,
+					syncedForm: SYNCED_FORM,
+					attributes: FORM_ATTRIBUTES,
+					currentInnerBlocks,
+					isSyncingRef,
+					syncCompletionCount: count,
+					editEntityRecord,
+				} ),
+			{ initialProps: { currentInnerBlocks: blocks, count: syncCompletionCount } }
+		);
+
+		const render = () => rerender( { currentInnerBlocks: blocks, count: syncCompletionCount } );
+
+		// The loader lands the synced inner blocks while syncing is still in progress.
+		blocks = [ field( false ) ];
+		render();
+
+		// requestAnimationFrame fires: syncing is done.
+		isSyncingRef.current = false;
+		syncCompletionCount++;
+		render();
+
+		return {
+			editEntityRecord,
+			edit: nextBlocks => {
+				blocks = nextBlocks;
+				render();
+				act( () => {
+					jest.advanceTimersByTime( 2000 );
+				} );
+			},
+		};
+	};
+
+	it( 'stages the first edit made after the form loads', () => {
+		const { editEntityRecord, edit } = loadForm();
+
+		// Flipping "Field is required" is a single atomic change — it used to be
+		// swallowed into the baseline and silently dropped.
+		edit( [ field( true ) ] );
+
+		expect( editEntityRecord ).toHaveBeenCalledWith(
+			'postType',
+			expect.any( String ),
+			123,
+			expect.objectContaining( { content: expect.any( String ) } )
+		);
+	} );
+
+	it( 'stages subsequent edits too', () => {
+		const { editEntityRecord, edit } = loadForm();
+
+		edit( [ field( true ) ] );
+		edit( [ field( true ), field( false ) ] );
+
+		expect( editEntityRecord ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it( 'does not stage while the form is still syncing', () => {
+		const editEntityRecord = jest.fn();
+		const isSyncingRef = { current: true };
+
+		const { rerender } = renderHook(
+			( { currentInnerBlocks } ) =>
+				useSyncedFormAutoSave( {
+					ref: 123,
+					syncedForm: SYNCED_FORM,
+					attributes: FORM_ATTRIBUTES,
+					currentInnerBlocks,
+					isSyncingRef,
+					syncCompletionCount: 0,
+					editEntityRecord,
+				} ),
+			{ initialProps: { currentInnerBlocks: [] } }
+		);
+
+		rerender( { currentInnerBlocks: [ field( false ) ] } );
+		act( () => {
+			jest.advanceTimersByTime( 2000 );
+		} );
+
+		expect( editEntityRecord ).not.toHaveBeenCalled();
 	} );
 } );

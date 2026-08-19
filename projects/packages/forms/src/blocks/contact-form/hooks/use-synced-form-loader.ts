@@ -2,7 +2,7 @@
  * Hook to load synced form content into the editor (one-time sync on mount/ref change)
  */
 
-import { useEffect, useRef } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { filterSyncedAttributes } from '../util/form-sync.ts';
 import type { Block } from '@wordpress/blocks';
 
@@ -19,6 +19,13 @@ interface UseSyncedFormLoaderParams {
 
 interface UseSyncedFormLoaderResult {
 	isSyncingRef: React.MutableRefObject< boolean >;
+	/**
+	 * Incremented every time a sync finishes. `isSyncingRef` is a ref because the
+	 * debounced auto-save has to read it at fire time, but ref writes don't re-render —
+	 * so a consumer that skipped work while syncing would never learn that syncing
+	 * ended. Depending on this counter gives them that render.
+	 */
+	syncCompletionCount: number;
 }
 
 /**
@@ -63,6 +70,7 @@ export function useSyncedFormLoader( {
 }: UseSyncedFormLoaderParams ): UseSyncedFormLoaderResult {
 	// Track if we're currently syncing to prevent save-back loops
 	const isSyncingRef = useRef( false );
+	const [ syncCompletionCount, setSyncCompletionCount ] = useState( 0 );
 	const lastLoadedRefId = useRef< number | null >( null );
 	const animationFrameIdRef = useRef< number | null >( null );
 
@@ -97,10 +105,12 @@ export function useSyncedFormLoader( {
 			setActiveStep( clientId, firstStepClientId );
 		}
 
-		// Reset syncing flag after React commits
+		// Reset syncing flag after React commits, and re-render so consumers can act on
+		// the editor's settled, not-yet-edited state.
 		animationFrameIdRef.current = requestAnimationFrame( () => {
 			animationFrameIdRef.current = null;
 			isSyncingRef.current = false;
+			setSyncCompletionCount( count => count + 1 );
 		} );
 
 		// Cleanup: cancel pending rAF if component unmounts or effect re-runs
@@ -123,5 +133,5 @@ export function useSyncedFormLoader( {
 		setActiveStep,
 	] );
 
-	return { isSyncingRef };
+	return { isSyncingRef, syncCompletionCount };
 }
