@@ -150,9 +150,22 @@ export class VerbumForm {
 			this.root.locator( 'button.social-button.wordpress' ).first().click(),
 		] );
 
-		await popup.getByLabel( 'Email Address or Username' ).fill( testingUser.username );
+		// The popup lands on WordPress.com's signup flow, which keeps the log-in form one
+		// link away. Optional so the spec survives wpcom serving the form directly again.
+		const logInLink = popup.getByRole( 'link', { name: 'Log in', exact: true } );
+		if ( await appears( logInLink, 10000 ) ) {
+			await logInLink.click();
+		}
+
+		// The label reads "Email address or username", but the accessible name comes from
+		// the screen-reader copy that qualifies it.
+		await popup
+			.getByLabel( 'WordPress.com email address or username' )
+			.fill( testingUser.username );
 		await popup.getByRole( 'button', { name: 'Continue', exact: true } ).click();
-		await popup.getByLabel( 'Password' ).fill( testingUser.password );
+		// Exact: the show/hide toggle beside the field is labelled "Show password", and a
+		// loose match claims both.
+		await popup.getByLabel( 'Password', { exact: true } ).fill( testingUser.password );
 		await popup.getByRole( 'button', { name: 'Log In' } ).click();
 
 		await expect( this.root.locator( '.verbum__user-name' ) ).toContainText( testingUser.username );
