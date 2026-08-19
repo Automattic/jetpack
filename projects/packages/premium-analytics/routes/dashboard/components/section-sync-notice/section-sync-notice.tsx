@@ -47,7 +47,10 @@ export function SectionSyncNotice( {
 			'Something went wrong while syncing your store data, so the numbers below are incomplete.',
 			'jetpack-premium-analytics-pkg'
 		);
-	} else if ( percentage ) {
+	} else if ( percentage > 0 && percentage < 100 ) {
+		// 100 before the milestone lands means everything queued has been sent and
+		// WordPress.com has yet to confirm it — "still syncing (100%)" reads as a
+		// finished sync nagging the user, so the plain sentence covers that window.
 		message = sprintf(
 			/* translators: %d: sync progress percentage. */
 			__(

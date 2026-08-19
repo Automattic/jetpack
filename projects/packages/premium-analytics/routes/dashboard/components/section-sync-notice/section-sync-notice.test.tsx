@@ -46,6 +46,21 @@ describe( 'SectionSyncNotice', () => {
 		);
 	} );
 
+	it( 'drops the percentage at 100, where the sync is sent but not yet confirmed', () => {
+		const { container } = render(
+			<SectionSyncNotice
+				percentage={ 100 }
+				hasError={ false }
+				onRetry={ noop }
+				isRetrying={ false }
+			/>
+		);
+
+		expect( container ).toHaveTextContent(
+			'Your store data is still syncing. The numbers below are incomplete until it finishes.'
+		);
+	} );
+
 	it( 'offers a retry instead of progress once the sync fails', async () => {
 		const onRetry = jest.fn();
 		const { container } = render(
