@@ -136,7 +136,7 @@ jobs:
           if [[ ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-php-coverage" ) && ( "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ) ]]; then
             VER=$(composer --format=json --working-dir="tools/php-test-env" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
             if [[ -n "$VER" ]]; then
-              INSVER=$WORDPRESS_TAG
+              INSVER="=$WORDPRESS_TAG"
               [[ "$WORDPRESS_TAG" == 'trunk' ]] && INSVER="dev-main as $VER"
               echo "Supposed to run tests against WordPress $WORDPRESS_TAG, so setting roots/wordpress and roots/wordpress-no-content to \"$INSVER\""
               # Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
