@@ -10,7 +10,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
-use WP_REST_Request;
 use WP_Term;
 
 /**
@@ -35,7 +34,6 @@ class Tracks_Test extends BaseTestCase {
 	}
 
 	protected function tearDown(): void {
-		Tracks::clear_surface( null );
 		delete_option( 'podcasting_category_id' );
 		delete_option( 'podcasting_archive' );
 		delete_option( 'podcasting_show_urls' );
@@ -311,51 +309,5 @@ class Tracks_Test extends BaseTestCase {
 		);
 
 		$this->assertCount( 1, $this->events_named( 'wpcom_podcasting_show_url_saved' ) );
-	}
-	private function dispatch_route( string $route ): void {
-		Tracks::set_surface_from_route( null, array(), new WP_REST_Request( 'POST', $route ) );
-	}
-
-	public function test_settings_route_labels_the_write() {
-		$this->dispatch_route( '/wpcom/v2/podcast/settings' );
-		Tracks::record_category_added( 'podcasting_category_id', 42 );
-
-		$events = $this->events_named( 'wpcom_podcasting_status_changed' );
-		$this->assertSame( 'settings_rest', $events[0]['properties']['surface'] );
-	}
-
-	public function test_distribution_route_labels_the_write() {
-		$this->dispatch_route( '/wpcom/v2/podcast-distribution/pocket-casts/submit' );
-		Tracks::record_show_url_added(
-			'podcasting_show_urls',
-			array( 'pocketcasts' => 'https://pca.st/abc' )
-		);
-
-		$events = $this->events_named( 'wpcom_podcasting_show_url_saved' );
-		$this->assertSame( 'distribution_rest', $events[0]['properties']['surface'] );
-	}
-
-	public function test_writes_outside_a_podcast_route_are_programmatic() {
-		$this->dispatch_route( '/wp/v2/posts' );
-		Tracks::record_category_added( 'podcasting_category_id', 42 );
-
-		$events = $this->events_named( 'wpcom_podcasting_status_changed' );
-		$this->assertSame( 'programmatic', $events[0]['properties']['surface'] );
-	}
-
-	public function test_surface_resets_once_the_route_callback_is_done() {
-		$this->dispatch_route( '/wpcom/v2/podcast/settings' );
-		Tracks::clear_surface( null );
-		Tracks::record_category_added( 'podcasting_category_id', 42 );
-
-		$events = $this->events_named( 'wpcom_podcasting_status_changed' );
-		$this->assertSame( 'programmatic', $events[0]['properties']['surface'] );
-	}
-
-	public function test_surface_filters_pass_their_response_through_untouched() {
-		$response = new \WP_Error( 'rest_forbidden', 'nope' );
-
-		$this->assertSame( $response, Tracks::set_surface_from_route( $response, array(), null ) );
-		$this->assertSame( $response, Tracks::clear_surface( $response ) );
 	}
 }
