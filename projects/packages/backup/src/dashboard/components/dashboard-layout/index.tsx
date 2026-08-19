@@ -3,6 +3,7 @@ import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Page } from '@wordpress/admin-ui';
 import { __ } from '@wordpress/i18n';
 import Gates from '../gates';
+import '../../utilities.scss';
 import './style.scss';
 import type { ReactNode } from 'react';
 

@@ -19,12 +19,11 @@ use WP_REST_Server;
 use function add_action;
 use function add_filter;
 use function do_action;
-use function get_current_user_id;
-use function remove_all_filters;
 use function remove_filter;
 use function wp_insert_user;
-use function wp_json_encode;
 use function wp_set_current_user;
+
+require_once __DIR__ . '/trait-wpcom-request-mock.php';
 
 /**
  * Tests for the /jetpack/v4/backups/download/* routes.
@@ -41,19 +40,7 @@ class Rest_Download_Bridge_Test extends TestCase {
 	 */
 	private $server;
 
-	/**
-	 * URL of the last request the bridge made to WPCOM.
-	 *
-	 * @var string
-	 */
-	private $captured_url = '';
-
-	/**
-	 * Decoded body of the last request the bridge made to WPCOM.
-	 *
-	 * @var array|null
-	 */
-	private $captured_body = null;
+	use Wpcom_Request_Mock;
 
 	/**
 	 * Enable modernization, register routes, and prepare a fresh REST server.
@@ -75,12 +62,7 @@ class Rest_Download_Bridge_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		remove_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
-		remove_all_filters( 'pre_http_request' );
-		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10 );
-		wp_set_current_user( 0 );
-
-		$this->captured_url  = '';
-		$this->captured_body = null;
+		$this->reset_wpcom_request_mock();
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
@@ -128,66 +110,6 @@ class Rest_Download_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * Stand in for a connected site so `Client` can sign a request.
-	 *
-	 * @param mixed  $value Original option value.
-	 * @param string $name  Option name.
-	 * @return mixed
-	 */
-	public function mock_jetpack_connection_options( $value, $name ) {
-		switch ( $name ) {
-			case 'blog_token':
-				return 'test.blogtoken';
-			case 'id':
-				return '999';
-			case 'user_tokens':
-				$user_id = get_current_user_id();
-				if ( $user_id ) {
-					return array( $user_id => sprintf( 'token%d.secret%d.%d', $user_id, $user_id, $user_id ) );
-				}
-		}
-		return $value;
-	}
-
-	/**
-	 * Sign in as an administrator and intercept the bridge's WPCOM call.
-	 *
-	 * The callbacks below are invoked directly rather than dispatched
-	 * through the REST server, because `Rest_Controller::permission_check()`
-	 * additionally requires a user-level WPCOM connection that WorDBless
-	 * cannot stand up. The permission boundary itself is covered by
-	 * `test_routes_require_manage_options`.
-	 *
-	 * @param array $body   Payload WPCOM should answer with.
-	 * @param int   $status HTTP status WPCOM should answer with.
-	 */
-	private function arrange_wpcom( array $body, $status = 200 ) {
-		$admin_id = wp_insert_user(
-			array(
-				'user_login' => 'admin_user_' . wp_rand( 1, PHP_INT_MAX ),
-				'user_pass'  => 'dummy_pass',
-				'role'       => 'administrator',
-			)
-		);
-		wp_set_current_user( $admin_id );
-
-		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10, 2 );
-		add_filter(
-			'pre_http_request',
-			function ( $preempt, $args, $url ) use ( $body, $status ) {
-				$this->captured_url  = $url;
-				$this->captured_body = isset( $args['body'] ) ? json_decode( $args['body'], true ) : null;
-				return array(
-					'response' => array( 'code' => $status ),
-					'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
-				);
-			},
-			10,
-			3
-		);
-	}
-
-	/**
 	 * The rewind id goes in the body, in full, and the target is the
 	 * downloads collection.
 	 *
@@ -213,45 +135,110 @@ class Rest_Download_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * An empty `types` is omitted rather than sent as `{}`.
+	 * An absent `types` is forwarded as an omission, because that is how
+	 * a whole-archive download is spelled upstream.
 	 *
-	 * WPCOM selects the enabled categories loosely, so an empty value
-	 * names no category — it asks for a download containing nothing.
-	 *
-	 * @param string $label Case description.
-	 * @param mixed  $types The `types` parameter to send, or null to omit it.
-	 * @dataProvider provide_types_that_name_nothing
+	 * The only empty-looking case that stays allowed, and the distinction
+	 * is load-bearing — see the refusal test below.
 	 */
-	#[DataProvider( 'provide_types_that_name_nothing' )]
-	public function test_initiate_omits_types_that_name_nothing( $label, $types ) {
+	public function test_initiate_omits_an_absent_types() {
 		$this->arrange_wpcom( array( 'downloadId' => 1 ) );
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/123' );
 		$request->set_param( 'rewind_id', '123' );
-		if ( null !== $types ) {
-			$request->set_param( 'types', $types );
-		}
 		Download_Bridge::initiate_download( $request );
 
-		$this->assertArrayNotHasKey( 'types', (array) $this->captured_body, $label );
+		$this->assertArrayNotHasKey( 'types', (array) $this->captured_body );
 	}
 
 	/**
-	 * Every shape that names no category.
+	 * A supplied `types` that names nothing is refused, not omitted.
 	 *
-	 * `absent` is what the client actually sends when the checklist is
-	 * empty; `list of booleans` is the shape the route schema cannot
-	 * reject, since it constrains values rather than shape.
+	 * This test asserted the opposite until now, and the reasoning
+	 * recorded with it was wrong: an omitted `types` does not ask WPCOM
+	 * for a download containing nothing, it asks for **all six
+	 * categories**. Dropping an empty selection therefore handed back the
+	 * full archive the caller had just excluded — and the same code path
+	 * on the restore bridge overwrote a live site with it.
+	 * `/rewind/downloads` has no server-side guard of its own, unlike the
+	 * v2 restore route, so this one has to hold.
+	 *
+	 * @param string $label Case description.
+	 * @param mixed  $types The `types` parameter to send.
+	 * @dataProvider provide_types_that_name_nothing
+	 */
+	#[DataProvider( 'provide_types_that_name_nothing' )]
+	public function test_initiate_refuses_types_that_name_nothing( $label, $types ) {
+		$this->arrange_wpcom( array( 'downloadId' => 1 ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/123' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'types', $types );
+		$response = Download_Bridge::initiate_download( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $response, $label );
+		$this->assertSame( 'no_types_selected', $response->get_error_code(), $label );
+		$this->assertSame( 400, $response->get_error_data()['status'], $label );
+		// And nothing was asked of WPCOM at all.
+		$this->assertNull( $this->captured_body, $label );
+	}
+
+	/**
+	 * Every supplied shape that names no category.
+	 *
+	 * `list of booleans` is the shape the route schema cannot reject,
+	 * since it constrains values rather than shape.
 	 *
 	 * @return array<string, array{0: string, 1: mixed}>
 	 */
 	public static function provide_types_that_name_nothing() {
 		return array(
 			'empty array'      => array( 'empty array', array() ),
-			'absent'           => array( 'absent', null ),
 			'all false'        => array( 'all false', array( 'themes' => false ) ),
 			'list of booleans' => array( 'list of booleans', array( true, false ) ),
+			// Supplied as null, which the guard used to miss: WordPress
+			// skips `validate_callback` for a null param, so the schema
+			// passes it and `get_param()` answers exactly what an omitted
+			// key answers. Only `has_param()` can tell them apart.
+			'supplied as null' => array( 'supplied as null', null ),
+			'unknown names'    => array( 'unknown names', array( 'sql' => true ) ),
 		);
+	}
+
+	/**
+	 * A transport failure surfaces as the bridge's own error rather than
+	 * cURL's text, which the dashboard renders to the reader verbatim.
+	 */
+	public function test_initiate_wraps_a_transport_failure() {
+		$this->arrange_wpcom_unreachable();
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/123' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'types', array( 'themes' => true ) );
+		$response = Download_Bridge::initiate_download( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'download_initiate_failed', $response->get_error_code() );
+		$this->assertStringNotContainsString( 'cURL', $response->get_error_message() );
+		$this->assertSame( 502, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * The status poll wraps a transport failure too. Worth its own case:
+	 * this is the call that runs on a timer, so it is the one most likely
+	 * to meet a flaky network.
+	 */
+	public function test_status_wraps_a_transport_failure() {
+		$this->arrange_wpcom_unreachable();
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/backups/download/123/status' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'download_id', 4321 );
+		$response = Download_Bridge::get_download_status( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'download_status_fetch_failed', $response->get_error_code() );
+		$this->assertSame( 502, $response->get_error_data()['status'] );
 	}
 
 	/**

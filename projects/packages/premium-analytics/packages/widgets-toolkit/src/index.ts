@@ -17,6 +17,7 @@ export {
 	Legend,
 	ReportMetricWidget,
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	type MetricTab,
 	type MetricTabDatum,
 	type MetricTabsChartProps,
@@ -120,12 +121,15 @@ export {
 	flattenEarningsBreakdown,
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
+	GenericSkeleton,
+	SkeletonRoot,
+	type SkeletonRootProps,
 } from './components';
 
 /**
  * Constants
  */
-export { WOO_COLORS, COLOR_GRAY_100 } from './constants';
+export { COLOR_GRAY_100 } from './constants';
 
 /**
  * Widget edit fields
