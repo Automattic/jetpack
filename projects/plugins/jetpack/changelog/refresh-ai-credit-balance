@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Assistant: Allow the free-credit balance to refresh without waiting for the local cache.

@@ -251,14 +251,12 @@ class Jetpack_AI_Sidebar {
 	 */
 	private static function get_ai_sidebar_asset_data() {
 		$skip_cache = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
-		$cached     = get_transient( AI_SIDEBAR_ASSET_TRANSIENT );
 
-		if ( 0 === $cached ) {
-			return false;
-		}
-
-		if ( ! $skip_cache && false !== $cached ) {
-			return is_array( $cached ) ? $cached : false;
+		if ( ! $skip_cache ) {
+			$cached = get_transient( AI_SIDEBAR_ASSET_TRANSIENT );
+			if ( false !== $cached ) {
+				return $cached;
+			}
 		}
 
 		$json_path = AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.asset.json';
@@ -276,7 +274,6 @@ class Jetpack_AI_Sidebar {
 			// — for example when the server cannot reach widgets.wp.com. Skip
 			// rather than enqueue a provider whose bundle the browser may also
 			// be unable to load, which would break the Agents Manager merge.
-			set_transient( AI_SIDEBAR_ASSET_TRANSIENT, 0, MINUTE_IN_SECONDS );
 			return false;
 		}
 
@@ -319,21 +316,20 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * UI feature flag for the public Jetpack AI Sidebar Preview surface.
 	 *
-	 * Defaults to enabled off the WordPress.com platform, so self-hosted sites
-	 * get the sidebar without opting in. WordPress.com platform sites (Simple or
-	 * WoA) keep following Big Sky instead: the plugin must be present and
-	 * enabled, which defaults on for Simple sites and off on WoA/Atomic. The
-	 * jetpack_ai_sidebar_enabled filter is a host-level override of that default,
-	 * respected by init() and every sidebar surface that gates on this method.
-	 * Independently of the filter, the sidebar requires at least one of its
-	 * features (writing assistant or SEO enhancer) to be enabled.
+	 * Defaults to enabled only on WordPress.com platform sites (Simple or WoA)
+	 * that have the Big Sky plugin present and enabled. Big Sky defaults on for
+	 * Simple sites and off on WoA/Atomic. The jetpack_ai_sidebar_enabled filter
+	 * is a host-level override of that default, respected by init() and every
+	 * sidebar surface that gates on this method. Independently of the filter,
+	 * the sidebar requires at least one of its features (writing assistant or
+	 * SEO enhancer) to be enabled.
 	 *
 	 * @return bool
 	 */
 	private static function is_jetpack_ai_sidebar_preview_enabled(): bool {
 		$host = new Host();
 
-		$enabled = ! $host->is_wpcom_platform();
+		$enabled = false;
 		if ( $host->is_wpcom_platform() && class_exists( 'Big_Sky' ) ) {
 			$default = $host->is_wpcom_simple() ? '1' : '0';
 			$enabled = (bool) get_option( 'big_sky_enable', $default );
@@ -342,13 +338,12 @@ class Jetpack_AI_Sidebar {
 		/**
 		 * Filter to enable or disable the Jetpack AI sidebar feature.
 		 *
-		 * Defaults to true off the WordPress.com platform, and on WordPress.com
-		 * platform sites only with Big Sky present and enabled. Acts as a
-		 * host-level override that can force the sidebar on (e.g. for local
-		 * development) or off, and is respected by init() and every sidebar
-		 * surface. The override cannot force the sidebar on while the
-		 * writing-assistant and SEO enhancer features are both off — a
-		 * featureless sidebar never loads.
+		 * Defaults to true only on WordPress.com platform sites with Big Sky
+		 * present and enabled. Acts as a host-level override that can force the
+		 * sidebar on (e.g. for local development) or off, and is respected by
+		 * init() and every sidebar surface. The override cannot force the
+		 * sidebar on while the writing-assistant and SEO enhancer features are
+		 * both off — a featureless sidebar never loads.
 		 *
 		 * @param bool $enabled Whether the Jetpack AI sidebar is enabled.
 		 */
