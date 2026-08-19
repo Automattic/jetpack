@@ -103,6 +103,15 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 		openWordPressAgent();
 	};
 
+	const movedMessage = __(
+		'AI tools have a new home with a new interface and content guidelines built in.',
+		'jetpack'
+	);
+	const chatOpenMessage = __(
+		'AI tools have a new home in the WordPress Agent. It’s open now.',
+		'jetpack'
+	);
+
 	const dismiss = () => {
 		tracks.recordEvent( 'jetpack_ai_agent_notice_dismiss', eventProperties );
 		set( PREFERENCE_SCOPE, DISMISSED_PREFERENCE, true );
@@ -111,29 +120,12 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 	};
 
 	return (
-		<Notice.Root
-			intent="info"
-			icon={ null }
-			// Shown on every load until dismissed, so it must not announce itself
-			// over whatever the reader is doing. Notice.Root otherwise speaks its
-			// own children. No test covers this: jsdom cannot render the children
-			// to a string, so the announcement never fires there either way.
-			spokenMessage=""
-		>
-			<Notice.Description>
-				{ isChatOnScreen
-					? __( 'AI tools have a new home in the WordPress Agent. It’s open now.', 'jetpack' )
-					: __(
-							'AI tools have a new home with a new interface and content guidelines built in.',
-							'jetpack'
-					  ) }
-			</Notice.Description>
+		// Notice.Root speaks its children by default; this notice appears on every load.
+		<Notice.Root intent="info" icon={ null } spokenMessage="">
+			<Notice.Description>{ isChatOnScreen ? chatOpenMessage : movedMessage }</Notice.Description>
 
-			{ /* The action needs an Agent to open, and does nothing once the chat is already showing. */ }
 			{ isAgentReady && ! isChatOnScreen && (
 				<Notice.Actions>
-					{ /* A plain Button rather than Notice.ActionButton, which forces a
-					     neutral tone. This action wants the brand colour. */ }
 					<Button size="compact" onClick={ openAgent }>
 						{ /* translators: Button that opens the WordPress Agent chat. "WordPress Agent" is a product name. */ }
 						{ __( 'Open WordPress Agent', 'jetpack' ) }
