@@ -16,6 +16,7 @@ use Automattic\Jetpack\Status\Host;
 use Throwable;
 use WP_Post;
 use WP_Query;
+use WP_REST_Request;
 use WP_User;
 
 /**
@@ -47,8 +48,8 @@ class Tracks {
 
 	/**
 	 * What is driving the option write in flight. Option hooks fire
-	 * synchronously inside `update_option()`, so a static set around the write
-	 * is read by the recorder it belongs to.
+	 * synchronously inside `update_option()`, so the value set for the
+	 * dispatching route is the one the recorder reads.
 	 *
 	 * @var string
 	 */
@@ -78,6 +79,9 @@ class Tracks {
 			add_action( "add_option_{$option}", array( __CLASS__, 'record_setting_added' ), 10, 2 );
 			add_action( "update_option_{$option}", array( __CLASS__, 'record_setting_updated' ), 10, 3 );
 		}
+
+		add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'set_surface_from_route' ), 10, 3 );
+		add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'clear_surface' ) );
 	}
 
 	/**
@@ -386,18 +390,44 @@ class Tracks {
 	}
 
 	/**
-	 * Set the surface for the writes about to happen. Callers restore the
-	 * returned value in a `finally` — leaving it set would mislabel every
-	 * later write in the request.
+	 * Label writes made by the dashboard's own REST routes. Derived from the
+	 * route rather than set by the endpoints, so nothing outside this class
+	 * sits in a save path holding a reference to it.
 	 *
-	 * @param string $surface `programmatic`, `settings_rest` or `distribution_rest`.
-	 * @return string Surface in effect before this call.
+	 * @param mixed $response Passed through untouched.
+	 * @param array $handler  Unused.
+	 * @param mixed $request  Request being dispatched.
+	 * @return mixed
 	 */
-	public static function set_surface( string $surface ): string {
-		$previous      = self::$surface;
-		self::$surface = $surface;
+	public static function set_surface_from_route( $response, $handler, $request ) {
+		unset( $handler );
 
-		return $previous;
+		if ( ! $request instanceof WP_REST_Request ) {
+			return $response;
+		}
+
+		$route = (string) $request->get_route();
+
+		if ( 0 === strpos( $route, '/wpcom/v2/podcast/settings' ) ) {
+			self::$surface = 'settings_rest';
+		} elseif ( 0 === strpos( $route, '/wpcom/v2/podcast-distribution/' ) ) {
+			self::$surface = 'distribution_rest';
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Reset once the route's callback is done, so a nested subrequest doesn't
+	 * leave its surface set for the rest of the request.
+	 *
+	 * @param mixed $response Passed through untouched.
+	 * @return mixed
+	 */
+	public static function clear_surface( $response ) {
+		self::$surface = 'programmatic';
+
+		return $response;
 	}
 
 	/**

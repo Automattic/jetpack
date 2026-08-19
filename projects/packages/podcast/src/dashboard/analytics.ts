@@ -37,7 +37,6 @@ export function initializeAnalytics(): void {
 interface DashboardView {
 	view: string;
 	is_set_up: boolean;
-	settings_complete: boolean;
 	settings_missing: number;
 	has_product_access: boolean;
 	is_connected: boolean;

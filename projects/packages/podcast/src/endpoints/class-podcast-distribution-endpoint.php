@@ -127,16 +127,10 @@ class Podcast_Distribution_Endpoint extends WP_REST_Controller {
 			return;
 		}
 
-		$previous_surface = Tracks::set_surface( 'distribution_rest' );
+		update_option( 'podcasting_show_states', array( 'pocketcasts' => 'rejected' === $state ? '' : $state ) );
 
-		try {
-			update_option( 'podcasting_show_states', array( 'pocketcasts' => 'rejected' === $state ? '' : $state ) );
-
-			if ( 'active' === $state && ! empty( $data['share_link'] ) && is_string( $data['share_link'] ) ) {
-				update_option( 'podcasting_show_urls', array( 'pocketcasts' => $data['share_link'] ) );
-			}
-		} finally {
-			Tracks::set_surface( $previous_surface );
+		if ( 'active' === $state && ! empty( $data['share_link'] ) && is_string( $data['share_link'] ) ) {
+			update_option( 'podcasting_show_urls', array( 'pocketcasts' => $data['share_link'] ) );
 		}
 	}
 }

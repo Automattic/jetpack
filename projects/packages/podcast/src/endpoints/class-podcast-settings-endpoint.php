@@ -109,20 +109,14 @@ class Podcast_Settings_Endpoint extends WP_REST_Controller {
 	public function update_item( $request ) {
 		$saved = false;
 
-		$previous_surface = Tracks::set_surface( 'settings_rest' );
-
-		try {
-			foreach ( Settings::OPTION_NAMES as $name ) {
-				$value = $request->get_param( $name );
-				if ( null === $value ) {
-					continue;
-				}
-				if ( update_option( $name, $value ) ) {
-					$saved = true;
-				}
+		foreach ( Settings::OPTION_NAMES as $name ) {
+			$value = $request->get_param( $name );
+			if ( null === $value ) {
+				continue;
 			}
-		} finally {
-			Tracks::set_surface( $previous_surface );
+			if ( update_option( $name, $value ) ) {
+				$saved = true;
+			}
 		}
 
 		if ( $saved ) {

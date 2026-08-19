@@ -112,12 +112,10 @@ const App = () => {
 		if ( isLoading || ! settings ) {
 			return;
 		}
-		const missing = getValidationIssues( settings ).length;
 		recordDashboardView( {
 			view: showWelcome ? 'welcome' : activeTab,
 			is_set_up: isSetUp,
-			settings_complete: missing === 0,
-			settings_missing: missing,
+			settings_missing: getValidationIssues( settings ).length,
 			has_product_access: hasAccess,
 			is_connected: connected,
 		} );
