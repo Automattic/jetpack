@@ -585,11 +585,7 @@ class Error_Handler {
 			'no_possible_tokens'       => array(),
 			'no_valid_user_token'      => array(),
 			'no_valid_blog_token'      => array(),
-			// Reconnect is not reliably the fix — see get_unknown_token_message().
-			'unknown_token'            => array(
-				'message_callback' => array( $this, 'get_unknown_token_message' ),
-				'support_link'     => true,
-			),
+			'unknown_token'            => array(),
 			'could_not_sign'           => array(),
 			// Both are about the URL being signed, not the connection: a code bug or an
 			// exotic site URL, which reconnecting does not change.
@@ -610,10 +606,12 @@ class Error_Handler {
 			'invalid_body_hash'        => false,
 			// A replay, or object-cache trouble. Self-resolving per request.
 			'invalid_nonce'            => false,
-			// Ambiguous cause — see get_signature_mismatch_message().
+			// Ambiguous cause: could be a genuine secret desync (reconnect fixes it) or a
+			// proxy/CDN/WAF/security plugin altering the request in transit (reconnect
+			// doesn't help). Uses the generic message — support_link offers an
+			// alternative either way.
 			'signature_mismatch'       => array(
-				'message_callback' => array( $this, 'get_signature_mismatch_message' ),
-				'support_link'     => true,
+				'support_link' => true,
 			),
 			// Two flavors with different remedies — see
 			// get_invalid_connection_owner_message().
@@ -641,23 +639,6 @@ class Error_Handler {
 	}
 
 	/**
-	 * Builds the displayable message for the signature-mismatch error.
-	 *
-	 * Ambiguous cause: could be a genuine secret desync (site restored from an old
-	 * backup, a staging clone, a botched migration) — reconnect fixes that. Or a
-	 * proxy/CDN/WAF/security plugin altering the URL or body in transit — reconnect
-	 * does nothing, it just produces a new token that fails the same way next
-	 * request.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string The message.
-	 */
-	private function get_signature_mismatch_message() {
-		return __( "The connection with WordPress.com couldn't be verified. Please try reconnecting.", 'jetpack-connection' );
-	}
-
-	/**
 	 * Builds the displayable message for the invalid-connection-owner error.
 	 *
 	 * `has_user_token` (set in Manager::get_connection_owner(), carried through into
@@ -680,24 +661,6 @@ class Error_Handler {
 		}
 
 		return __( 'The WordPress.com account for this connection no longer exists on this site. An administrator needs to reconnect to become the new connection owner.', 'jetpack-connection' );
-	}
-
-	/**
-	 * Builds the displayable message for the unknown-token error.
-	 *
-	 * This code is raised from several call sites on WordPress.com's side, and
-	 * reconnect is not uniformly the correct remedy across them — and since several
-	 * of those sites are XML-RPC-facing, there's no reliable way for WordPress.com to
-	 * tell us which case this is: `IXR_Error` (legacy/class-jetpack-ixr-client.php)
-	 * only ever carries a code and a string message, no structured data field to put
-	 * a per-occurrence hint in.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string The message.
-	 */
-	private function get_unknown_token_message() {
-		return __( 'WordPress.com no longer recognizes this connection. Please try reconnecting.', 'jetpack-connection' );
 	}
 
 	/**

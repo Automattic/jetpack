@@ -158,7 +158,7 @@ const useConnectionErrorsNotice = (
 									variant="body-small"
 									mb={ index === detailLines.length - 1 ? 0 : 1 }
 								>
-									{ line.text }
+									{ `- ${ line.text }` }
 								</Text>
 							) ) }
 						</div>

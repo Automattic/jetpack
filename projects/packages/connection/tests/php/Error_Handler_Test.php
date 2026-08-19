@@ -3258,9 +3258,9 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that `signature_mismatch` and `unknown_token` — the two codes where a reconnect
-	 * is not reliably the fix — emit `error_data['support_link']` so the notice offers a
-	 * support link, while a code without that display config does not.
+	 * Test that `signature_mismatch` — the code where a reconnect is not reliably
+	 * the fix — emits `error_data['support_link']` so the notice offers a support
+	 * link, while a code without that display config does not.
 	 *
 	 * @dataProvider support_link_error_data
 	 *
@@ -3298,7 +3298,7 @@ class Error_Handler_Test extends BaseTestCase {
 	public static function support_link_error_data() {
 		return array(
 			'signature_mismatch' => array( 'signature_mismatch', true ),
-			'unknown_token'      => array( 'unknown_token', true ),
+			'unknown_token'      => array( 'unknown_token', false ),
 			'token_malformed'    => array( 'token_malformed', false ),
 		);
 	}
@@ -3495,18 +3495,19 @@ class Error_Handler_Test extends BaseTestCase {
 	public static function scope_neutral_message_data() {
 		return array(
 			// No override: reconnecting is the remedy, which is what the generic copy says.
-			'invalid_token uses the generic copy' => array(
+			'invalid_token'      => array(
 				'invalid_token',
 				'Your connection with WordPress.com seems to be broken',
 			),
-			// Overridden because reconnect is not guaranteed to help, not because of scope.
-			'unknown_token'                       => array(
+			// Also uses the generic copy — reconnect is not guaranteed to help, but that
+			// distinction lives in support_link, not in bespoke message text.
+			'unknown_token'      => array(
 				'unknown_token',
-				'WordPress.com no longer recognizes this connection',
+				'Your connection with WordPress.com seems to be broken',
 			),
-			'signature_mismatch'                  => array(
+			'signature_mismatch' => array(
 				'signature_mismatch',
-				"The connection with WordPress.com couldn't be verified",
+				'Your connection with WordPress.com seems to be broken',
 			),
 		);
 	}
