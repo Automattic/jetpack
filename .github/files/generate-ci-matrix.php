@@ -62,16 +62,11 @@ $default_matrix_vars = array(
 $matrix = array();
 
 // Add PHP tests.
-foreach ( array( '7.2', '7.3' ) as $php ) {
-	$matrix[] = array(
-		'name'                => "PHP tests: PHP $php WP previous",
-		'script'              => 'test-php',
-		'php'                 => $php,
-		'wp'                  => 'previous',
-		'force-package-tests' => true,
-		'timeout'             => 20, // 2025-11-06: Successful runs seem to take ~7 minutes.
-	);
-}
+
+/*
+ * PHP 7.2 and 7.3 have no WP-versus-PHP combination left to test: WordPress 7.0,
+ * the minimum we support, requires PHP 7.4.
+ */
 foreach ( array( '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ) as $php ) {
 	$matrix[] = array(
 		'name'    => "PHP tests: PHP $php WP latest",
