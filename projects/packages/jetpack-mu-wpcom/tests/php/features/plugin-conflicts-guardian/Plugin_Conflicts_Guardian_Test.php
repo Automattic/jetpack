@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -40,6 +41,16 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	private $tmp_dir = null;
 
 	/**
+	 * The rollout gate only runs on Atomic, where plugins can be installed.
+	 * `Constants` (rather than a bare `defined()`) is what makes that
+	 * testable without defining IS_ATOMIC across the whole suite.
+	 */
+	public function set_up() {
+		parent::set_up();
+		Constants::set_constant( 'IS_ATOMIC', true );
+	}
+
+	/**
 	 * Clean up any temp directory and guard filter after each test.
 	 */
 	public function tear_down() {
@@ -57,6 +68,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		remove_all_filters( 'pcg_guard_updates' );
 		remove_all_filters( 'pcg_backup_root' );
 		remove_all_filters( 'pcg_rollout_percentage' );
+		Constants::clear_single_constant( 'IS_ATOMIC' );
 		// PCG_Rollout::init() registers itself on require_once. We tear
 		// the gate callbacks down by name (not via remove_all_filters,
 		// which would also drop any test-local pcg_guard_* filters set
@@ -1312,6 +1324,18 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		// Roughly 20% of 200 blogs, with generous slack for crc32 clumping.
 		$this->assertGreaterThan( 20, $in );
 		$this->assertLessThan( 60, $in );
+	}
+
+	/**
+	 * Simple sites can't install plugins, so they're never in the cohort —
+	 * not even at 100%, which otherwise means every site.
+	 */
+	public function test_rollout_gate_excludes_simple_sites() {
+		Constants::clear_single_constant( 'IS_ATOMIC' );
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
+
+		$this->assertFalse( apply_filters( 'pcg_guard_activation', true ) );
+		$this->assertFalse( apply_filters( 'pcg_guard_updates', true ) );
 	}
 
 	/**

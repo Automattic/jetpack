@@ -30,6 +30,12 @@ class PCG_Rollout {
 		if ( ! $enabled ) {
 			return $enabled;
 		}
+		// Simple sites can't install or activate plugins, so there's nothing
+		// to guard — and including them would swamp the cohort with sites the
+		// feature never runs on.
+		if ( ! \Automattic\Jetpack\Constants::is_true( 'IS_ATOMIC' ) ) {
+			return false;
+		}
 		return self::is_enabled_for_blog( (int) get_wpcom_blog_id() );
 	}
 
