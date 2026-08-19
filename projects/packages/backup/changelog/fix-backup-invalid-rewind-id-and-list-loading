@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Backup: refuse a malformed rewind id in the modernized restore and download screens instead of arming a form that cannot succeed, keep a failed request's reason on screen while it is being retried, and report the activity list as busy while a page change is in flight. No-op when the modernization filter is off.
+
+
