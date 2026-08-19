@@ -33,12 +33,18 @@ const openNewAgentChat = () => {
 		) {
 			return false;
 		}
+		// Agents Manager's catch-all route converts `/` into `/chat` with the
+		// `isNewChat` state that clears any persisted session.
 		actions.chatNavigate?.( '/' );
 		actions.setChatDocked?.( true );
 		actions.setChatOpen?.( true );
 		return true;
 	};
-	if ( ! open() ) {
+	const actions = window.__agentsManagerActions;
+	const isReady = actions?.isReady;
+	if ( actions && isReady !== false && ( typeof isReady !== 'function' || isReady() ) ) {
+		open();
+	} else {
 		window.addEventListener( 'agents-manager-ready', open, { once: true } );
 	}
 };

@@ -34,6 +34,8 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		Status_Cache::clear();
 		remove_all_filters( 'agents_manager_should_load' );
 		remove_all_filters( 'agents_manager_agent_id' );
+		remove_all_filters( 'agents_manager_agent_providers' );
+		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
 
 		parent::tear_down();
 	}
@@ -188,6 +190,58 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['planAutoRenew'] );
+	}
+
+	/**
+	 * The AI Hub Agents Manager includes the scheduled task starter prompts.
+	 */
+	public function test_agents_manager_uses_scheduled_task_empty_view() {
+		$user_id = self::factory()->user->create(
+			array(
+				'display_name' => 'Sanja',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$page = new Jetpack_AI_Page();
+		$page->load_agents_manager();
+
+		$providers = apply_filters( 'agents_manager_agent_providers', array() );
+		$this->assertContains(
+			add_query_arg(
+				'ver',
+				JETPACK__VERSION,
+				plugins_url( '_inc/jetpack-ai-scheduled-tasks-provider.js', JETPACK__PLUGIN_FILE )
+			),
+			$providers
+		);
+
+		$data = apply_filters( 'jetpack_ai_sidebar_agents_manager_data', array() );
+		$this->assertSame( 'Howdy Sanja! Let’s schedule a task.', $data['emptyViewHeading'] );
+		$this->assertSame( 'Got a different request? Ask away.', $data['emptyViewHelp'] );
+		$this->assertSame(
+			array(
+				array(
+					'id'         => 'create-daily-reminder',
+					'label'      => 'Create a daily reminder',
+					'prompt'     => 'Create a daily reminder',
+					'autoSubmit' => true,
+				),
+				array(
+					'id'         => 'draft-weekly-post',
+					'label'      => 'Draft a weekly post',
+					'prompt'     => 'Draft a weekly post',
+					'autoSubmit' => true,
+				),
+				array(
+					'id'         => 'schedule-monthly-report',
+					'label'      => 'Schedule a monthly report',
+					'prompt'     => 'Schedule a monthly report',
+					'autoSubmit' => true,
+				),
+			),
+			$data['scheduledTaskEmptyViewSuggestions']
+		);
 	}
 
 	/**

@@ -69,6 +69,8 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 
 		add_filter( 'agents_manager_should_load', '__return_true' );
 		add_filter( 'agents_manager_agent_id', array( $this, 'get_agents_manager_agent_id' ) );
+		add_filter( 'agents_manager_agent_providers', array( $this, 'add_scheduled_tasks_provider' ) );
+		add_filter( 'jetpack_ai_sidebar_agents_manager_data', array( $this, 'add_scheduled_tasks_data' ) );
 	}
 
 	/**
@@ -78,6 +80,61 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	 */
 	public function get_agents_manager_agent_id() {
 		return 'wp-orchestrator';
+	}
+
+	/**
+	 * Add the AI Hub provider that supplies scheduled task starter prompts.
+	 *
+	 * @param array $providers Existing provider module URLs.
+	 * @return array Updated provider module URLs.
+	 */
+	public function add_scheduled_tasks_provider( $providers ) {
+		$providers[] = add_query_arg(
+			'ver',
+			JETPACK__VERSION,
+			plugins_url( '_inc/jetpack-ai-scheduled-tasks-provider.js', JETPACK__PLUGIN_FILE )
+		);
+
+		return $providers;
+	}
+
+	/**
+	 * Customize Agents Manager's empty view for the Scheduled tasks page.
+	 *
+	 * @param array $data Existing Agents Manager data.
+	 * @return array Updated Agents Manager data.
+	 */
+	public function add_scheduled_tasks_data( $data ) {
+		$current_user = wp_get_current_user();
+
+		$data['emptyViewHeading'] = sprintf(
+			/* translators: %s: Current user's display name. */
+			__( 'Howdy %s! Let’s schedule a task.', 'jetpack' ),
+			$current_user->display_name
+		);
+		$data['emptyViewHelp'] = __( 'Got a different request? Ask away.', 'jetpack' );
+		$data['scheduledTaskEmptyViewSuggestions'] = array(
+			array(
+				'id'         => 'create-daily-reminder',
+				'label'      => __( 'Create a daily reminder', 'jetpack' ),
+				'prompt'     => __( 'Create a daily reminder', 'jetpack' ),
+				'autoSubmit' => true,
+			),
+			array(
+				'id'         => 'draft-weekly-post',
+				'label'      => __( 'Draft a weekly post', 'jetpack' ),
+				'prompt'     => __( 'Draft a weekly post', 'jetpack' ),
+				'autoSubmit' => true,
+			),
+			array(
+				'id'         => 'schedule-monthly-report',
+				'label'      => __( 'Schedule a monthly report', 'jetpack' ),
+				'prompt'     => __( 'Schedule a monthly report', 'jetpack' ),
+				'autoSubmit' => true,
+			),
+		);
+
+		return $data;
 	}
 
 	/**
