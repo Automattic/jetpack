@@ -145,10 +145,19 @@ class Dashboard {
 	 * it, where apply_filters_deprecated() would return a `false` this code can no longer
 	 * act on. Guarded by has_filter() so sites that never used it stay silent.
 	 *
+	 * Admin-only, because this class is loaded on every request but the filter only ever
+	 * affected admin. Without the guard the notice lands in front-end, REST and cron
+	 * output on any site still carrying the filter.
+	 *
+	 * The has_filter() check runs at this class's load time, so a callback registered
+	 * later — on `init`, say — is not seen and no notice is emitted. That covers the
+	 * ordinary case: filters added at the top level of a plugin file, and the WordPress.com
+	 * writer on `plugins_loaded`. It is a missed warning, never a wrong one.
+	 *
 	 * @since $$next-version$$
 	 */
 	private static function announce_retired_filter() {
-		if ( ! has_filter( 'jetpack_forms_alpha' ) ) {
+		if ( ! is_admin() || ! has_filter( 'jetpack_forms_alpha' ) ) {
 			return;
 		}
 
