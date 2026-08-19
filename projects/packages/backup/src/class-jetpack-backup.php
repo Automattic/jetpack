@@ -250,9 +250,17 @@ class Jetpack_Backup {
 				wp_enqueue_script( 'wp-jp-i18n-loader' );
 			}
 
-			// wp-build manages its own enqueue pipeline. The legacy script,
-			// initial state, and tracking are intentionally skipped for the
-			// wp-build dashboard.
+			// Tracks needs its client callables (`jpTracks.recordEvent`) on the
+			// page before any dashboard component can record an event. The
+			// esbuild bundles don't declare them as a dependency either, so
+			// enqueue them here, before the early return, on the same
+			// `can_use_analytics()` gate the legacy path uses below.
+			if ( self::can_use_analytics() ) {
+				Tracking::register_tracks_functions_scripts( true );
+			}
+
+			// wp-build manages its own enqueue pipeline. The legacy script and
+			// its initial state are skipped for the wp-build dashboard.
 			return;
 		}
 
