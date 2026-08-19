@@ -29,9 +29,17 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 	const BASIC_ROUTE        = '/wpcom/v2/jetpack-ai/ai-assistant-feature';
 	const GATED_ROUTE        = '/wpcom/v2/jetpack-ai/completions';
 	const GATED_IMAGES_ROUTE = '/wpcom/v2/jetpack-ai/images/generations';
+	const BLOG_ID            = 1234;
 
 	const CHAT_SEARCH_ROUTE = '/wpcom/v2/jetpack-search/ai/search';
 	const CHAT_RANK_ROUTE   = '/wpcom/v2/jetpack-search/ai/rank';
+
+	/**
+	 * Current HTTP mock callback.
+	 *
+	 * @var callable|null
+	 */
+	private $pre_http_request_filter;
 
 	/**
 	 * Reset the environment to its original state after the test.
@@ -58,6 +66,14 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 		remove_filter( 'jetpack_ai_enabled', '__return_true' );
 		remove_filter( 'jetpack_ai_chat_enabled', '__return_false' );
 		remove_filter( 'jetpack_ai_chat_enabled', '__return_true' );
+		if ( $this->pre_http_request_filter ) {
+			remove_filter( 'pre_http_request', $this->pre_http_request_filter, 10 );
+			$this->pre_http_request_filter = null;
+		}
+		delete_transient( Jetpack_AI_Helper::transient_name_for_ai_assistance_feature( self::BLOG_ID ) );
+		Jetpack_Options::delete_option( array( 'id', 'blog_token', 'master_user', 'user_tokens' ) );
+		( new Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+		wp_set_current_user( 0 );
 
 		parent::tear_down();
 	}
@@ -92,6 +108,54 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 			$routes,
 			'The ungated jetpack-ai route must register on rest_api_init.'
 		);
+		$this->assertSame( 'boolean', $routes[ self::BASIC_ROUTE ][0]['args']['skip_cache']['type'] );
+		$this->assertFalse( $routes[ self::BASIC_ROUTE ][0]['args']['skip_cache']['default'] );
+	}
+
+	/**
+	 * The REST callback forwards skip_cache to the helper.
+	 */
+	public function test_ai_assistance_feature_route_passes_skip_cache_to_helper() {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		Jetpack_Options::update_option( 'id', self::BLOG_ID );
+		Jetpack_Options::update_option( 'blog_token', 'blog.secret' );
+		Jetpack_Options::update_option( 'master_user', $user_id );
+		Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
+		( new Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+
+		$cached         = array( 'requests-count' => 3 );
+		$fresh          = array( 'requests-count' => 4 );
+		$transient_name = Jetpack_AI_Helper::transient_name_for_ai_assistance_feature( self::BLOG_ID );
+		$request_count  = 0;
+		set_transient( $transient_name, $cached, MINUTE_IN_SECONDS );
+		$this->pre_http_request_filter = static function ( $preempt, $parsed_args, $url ) use ( $fresh, &$request_count ) {
+			$is_feature_request = false !== strpos( $url, '/sites/' . self::BLOG_ID . '/jetpack-ai/ai-assistant-feature' );
+			if ( 'GET' !== $parsed_args['method'] || ! $is_feature_request ) {
+				return $preempt;
+			}
+
+			++$request_count;
+
+			return array(
+				'headers'  => array( 'content-type' => 'application/json' ),
+				'body'     => wp_json_encode( $fresh, JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+			);
+		};
+		add_filter( 'pre_http_request', $this->pre_http_request_filter, 10, 3 );
+
+		$request = new WP_REST_Request( 'GET', self::BASIC_ROUTE );
+		$request->set_param( 'skip_cache', true );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( $fresh, $response->get_data() );
+		$this->assertSame( 1, $request_count );
 	}
 
 	public function test_gated_routes_stay_unregistered_when_ai_disabled() {

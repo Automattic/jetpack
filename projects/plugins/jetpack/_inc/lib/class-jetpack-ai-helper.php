@@ -419,9 +419,10 @@ class Jetpack_AI_Helper {
 	/**
 	 * Get an object with useful data about the requests made to the AI.
 	 *
+	 * @param bool $skip_cache Whether to fetch fresh data from WordPress.com.
 	 * @return mixed
 	 */
-	public static function get_ai_assistance_feature() {
+	public static function get_ai_assistance_feature( $skip_cache = false ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			// On WPCOM, we can get the ID from the site.
 			$blog_id                  = get_current_blog_id();
@@ -474,13 +475,14 @@ class Jetpack_AI_Helper {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		// Try to pick the AI Assistant feature from cache.
-		$transient_name = self::transient_name_for_ai_assistance_feature( $blog_id );
-		$cache          = get_transient( $transient_name );
-		if ( $cache ) {
+		$transient_name   = self::transient_name_for_ai_assistance_feature( $blog_id );
+		$cache            = get_transient( $transient_name );
+		$has_usable_cache = is_array( $cache ) && array_key_exists( 'requests-count', $cache );
+		if ( ! $skip_cache && $cache ) {
 			return $cache;
 		}
 
-		if ( null !== static::$ai_assistant_failed_request ) {
+		if ( ! $skip_cache && null !== static::$ai_assistant_failed_request ) {
 			return static::$ai_assistant_failed_request;
 		}
 
@@ -503,27 +505,37 @@ class Jetpack_AI_Helper {
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 		if ( 200 === $response_code ) {
 			$ai_assistant_feature_data = json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
+			$has_requests_count        = is_array( $ai_assistant_feature_data )
+				&& array_key_exists( 'requests-count', $ai_assistant_feature_data );
+
+			if ( $skip_cache && $has_usable_cache && ! $has_requests_count ) {
+				return $cache;
+			}
 
 			// Cache the AI Assistant feature, for Jetpack sites.
 			set_transient( $transient_name, $ai_assistant_feature_data, self::$ai_assistant_feature_cache_timeout );
 
 			return $ai_assistant_feature_data;
-		} else {
-			$error = new WP_Error(
-				'failed_to_fetch_data',
-				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
-				array(
-					'status' => $response_code,
-					'ts'     => time(),
-				)
-			);
-
-			// Cache the AI Assistant feature error, for Jetpack sites, avoid API hammering.
-			set_transient( $transient_name, $error, self::$ai_assistant_feature_error_cache_timeout );
-
-			static::$ai_assistant_failed_request = $error;
-
-			return $error;
 		}
+
+		$error = new WP_Error(
+			'failed_to_fetch_data',
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+			array(
+				'status' => $response_code,
+				'ts'     => time(),
+			)
+		);
+
+		if ( $skip_cache && $has_usable_cache ) {
+			return $cache;
+		}
+
+		static::$ai_assistant_failed_request = $error;
+
+		// Cache the AI Assistant feature error, for Jetpack sites, avoid API hammering.
+		set_transient( $transient_name, $error, self::$ai_assistant_feature_error_cache_timeout );
+
+		return $error;
 	}
 }
