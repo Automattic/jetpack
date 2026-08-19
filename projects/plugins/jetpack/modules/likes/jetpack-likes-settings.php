@@ -484,7 +484,7 @@ class Jetpack_Likes_Settings {
 
 		// Default visibility settings
 		if ( ! isset( $sharing['global']['show'] ) ) {
-			$public_cpts = array_filter(
+			$public_commentable_cpts = array_filter(
 				get_post_types(
 					array(
 						'public'   => true,
@@ -495,7 +495,7 @@ class Jetpack_Likes_Settings {
 					return post_type_supports( $post_type, 'comments' );
 				}
 			);
-			$public_cpts = array_values( $public_cpts );
+			$public_commentable_cpts = array_values( $public_commentable_cpts );
 
 			/**
 			 * Filters the default post types that show Likes when no sharing settings have been saved.
@@ -509,7 +509,7 @@ class Jetpack_Likes_Settings {
 			 */
 			$sharing['global']['show'] = apply_filters(
 				'jetpack_likes_default_post_types',
-				array_merge( array( 'post', 'page' ), $public_cpts )
+				array_merge( array( 'post', 'page' ), $public_commentable_cpts )
 			);
 
 			// Scalar check
