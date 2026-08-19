@@ -1,4 +1,4 @@
 Significance: minor
 Type: other
 
-Forms: deprecate the jetpack_forms_alpha and jetpack_forms_dashboard_enable filters, which no longer select anything.
+Forms: deprecate the jetpack_forms_alpha filter, which no longer selects anything.
