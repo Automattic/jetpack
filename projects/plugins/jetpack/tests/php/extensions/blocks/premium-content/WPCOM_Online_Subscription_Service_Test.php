@@ -52,15 +52,20 @@ class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 		wp_set_current_user( $this->user_id );
 		$this->blog_id = get_current_blog_id();
 
-		Blog_Subscriber::$subscribers_by_email           = array();
-		Blog_Subscription::$status                       = '';
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Mock-only property, not on the real wpcom class/stub.
+		Blog_Subscriber::$subscribers_by_email = array();
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Mock-only property, not on the real wpcom class/stub.
+		Blog_Subscription::$status = '';
+
 		$GLOBALS['wpcom_subs_is_subscribed_mock_return'] = false;
 		$GLOBALS['wpcom_subs_is_subscribed_mock_calls']  = array();
 	}
 
 	public function tear_down() {
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Mock-only property, not on the real wpcom class/stub.
 		Blog_Subscriber::$subscribers_by_email = array();
-		Blog_Subscription::$status             = '';
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Mock-only property, not on the real wpcom class/stub.
+		Blog_Subscription::$status = '';
 		unset(
 			$GLOBALS['wpcom_subs_is_subscribed_mock_return'],
 			$GLOBALS['wpcom_subs_is_subscribed_mock_calls'],
@@ -77,8 +82,10 @@ class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 	 * @return void
 	 */
 	private function make_email_subscriber_active( string $status = 'active' ) {
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Mock-only property, not on the real wpcom class/stub.
 		Blog_Subscriber::$subscribers_by_email = array( self::SUBSCRIBER_EMAIL => new Blog_Subscriber() );
-		Blog_Subscription::$status             = $status;
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Mock-only property, not on the real wpcom class/stub.
+		Blog_Subscription::$status = $status;
 	}
 
 	/**
@@ -94,7 +101,7 @@ class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 	private function without_wpcom_include_warning( callable $callback ) {
 		set_error_handler( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_set_error_handler
 			static function ( $errno, $errstr ) {
-				return (bool) str_contains( $errstr, 'email-subscriptions/subscriptions.php' );
+				return str_contains( $errstr, 'email-subscriptions/subscriptions.php' );
 			},
 			E_WARNING
 		);

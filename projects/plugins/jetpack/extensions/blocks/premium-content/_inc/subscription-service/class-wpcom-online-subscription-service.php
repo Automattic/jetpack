@@ -74,7 +74,7 @@ class WPCOM_Online_Subscription_Service extends Jetpack_Token_Subscription_Servi
 			$has_active_email_sub = 'active' === $subscription_status;
 		}
 
-		$is_following = function_exists( 'wpcom_subs_is_subscribed' ) && wpcom_subs_is_subscribed(
+		$is_following = ! $has_active_email_sub && function_exists( 'wpcom_subs_is_subscribed' ) && wpcom_subs_is_subscribed(
 			array(
 				'user_id' => get_current_user_id(),
 				'blog_id' => $blog_id,
