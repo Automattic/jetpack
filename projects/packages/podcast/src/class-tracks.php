@@ -290,7 +290,10 @@ class Tracks {
 
 				self::record_event(
 					'wpcom_podcasting_show_url_saved',
-					array( 'app' => (string) $app )
+					array(
+						'app'     => (string) $app,
+						'surface' => self::$surface,
+					)
 				);
 				return;
 			}
