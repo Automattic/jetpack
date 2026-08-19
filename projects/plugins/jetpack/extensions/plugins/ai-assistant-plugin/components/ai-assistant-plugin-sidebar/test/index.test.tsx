@@ -2,12 +2,23 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { applyFilters } from '@wordpress/hooks';
 import AiAssistantPluginSidebar from '..';
+import { getFeatureAvailability } from '../../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
+import { useSidebarOpenFromUrl } from '../open-sidebar-from-url';
 
 const mockEditPost = jest.fn();
 const mockRecordEvent = jest.fn();
+let mockIsAgentNoticeDismissed = false;
 
 jest.mock( '@wordpress/hooks', () => ( {
 	applyFilters: jest.fn(),
+} ) );
+
+jest.mock( '@wordpress/preferences', () => ( { store: 'core/preferences' } ) );
+
+// The hook's own behaviour is covered in open-sidebar-from-url.test.ts. Here we
+// only need to see what the sidebar asks of it.
+jest.mock( '../open-sidebar-from-url', () => ( {
+	useSidebarOpenFromUrl: jest.fn( () => false ),
 } ) );
 
 jest.mock( '@wordpress/data', () => ( {
@@ -19,6 +30,9 @@ jest.mock( '@wordpress/data', () => ( {
 			},
 			core: {
 				getPostType: () => ( { viewable: true } ),
+			},
+			'core/preferences': {
+				get: () => mockIsAgentNoticeDismissed,
 			},
 		};
 		return selector( ( store: string ) => stores[ store ] );
@@ -55,8 +69,16 @@ jest.mock( '@automattic/jetpack-shared-extension-utils/components', () => ( {
 } ) );
 
 jest.mock( '@wordpress/editor', () => ( {
-	PluginPrePublishPanel: ( { children }: { children: React.ReactNode } ) => (
-		<div data-testid="pre-publish-panel">{ children }</div>
+	PluginPrePublishPanel: ( {
+		children,
+		initialOpen,
+	}: {
+		children: React.ReactNode;
+		initialOpen?: boolean;
+	} ) => (
+		<div data-testid="pre-publish-panel" data-initial-open={ String( !! initialOpen ) }>
+			{ children }
+		</div>
 	),
 	PluginDocumentSettingPanel: ( { children }: { children: React.ReactNode } ) => (
 		<div data-testid="document-panel">{ children }</div>
@@ -68,6 +90,7 @@ jest.mock( '@wordpress/components', () => ( {
 	PanelBody: ( {
 		children,
 		title,
+		initialOpen,
 	}: {
 		children: React.ReactNode;
 		title: string;
@@ -75,7 +98,11 @@ jest.mock( '@wordpress/components', () => ( {
 		onToggle?: ( isOpen: boolean ) => void;
 		className?: string;
 	} ) => (
-		<div data-testid="panel-body" data-title={ title }>
+		<div
+			data-testid="panel-body"
+			data-title={ title }
+			data-initial-open={ String( !! initialOpen ) }
+		>
 			{ children }
 		</div>
 	),
@@ -112,13 +139,46 @@ jest.mock( '@wordpress/components', () => ( {
 			{ children }
 		</button>
 	),
-	Notice: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+	Notice: ( {
+		children,
+		actions = [],
+	}: {
+		children: React.ReactNode;
+		actions?: Array< { label: string; onClick: () => void } >;
+	} ) => (
+		<div>
+			{ children }
+			{ actions.map( ( { label, onClick } ) => (
+				<button key={ label } onClick={ onClick }>
+					{ label }
+				</button>
+			) ) }
+		</div>
+	),
 } ) );
 
 jest.mock( '@wordpress/ui', () => ( {
+	Button: ( { children, onClick }: { children: React.ReactNode; onClick?: () => void } ) => (
+		<button onClick={ onClick }>{ children }</button>
+	),
 	Link: ( { children, href }: { children: React.ReactNode; href: string } ) => (
 		<a href={ href }>{ children }</a>
 	),
+	Notice: {
+		Root: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+		Description: ( { children }: { children: React.ReactNode } ) => <span>{ children }</span>,
+		Actions: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+		ActionButton: ( {
+			children,
+			onClick,
+		}: {
+			children: React.ReactNode;
+			onClick?: () => void;
+		} ) => <button onClick={ onClick }>{ children }</button>,
+		CloseIcon: ( { onClick }: { onClick?: () => void } ) => (
+			<button onClick={ onClick }>Dismiss</button>
+		),
+	},
 } ) );
 
 jest.mock( '@wordpress/core-data', () => {
@@ -143,7 +203,7 @@ jest.mock( '../../../../../blocks/ai-assistant/hooks/use-ai-product-page', () =>
 } ) );
 
 jest.mock( '../../../../../blocks/ai-assistant/lib/utils/get-feature-availability', () => ( {
-	getFeatureAvailability: () => false,
+	getFeatureAvailability: jest.fn( () => false ),
 } ) );
 
 jest.mock( '../../../../../shared/jetpack-plugin-sidebar', () => ( {
@@ -170,10 +230,145 @@ jest.mock( '../../usage-panel', () => ( { __esModule: true, default: () => null 
 jest.mock( '../upgrade', () => ( { __esModule: true, default: () => null } ) );
 jest.mock( '../style.scss', () => ( {} ) );
 
+const AGENT_NOTICE_FEATURE = 'ai-sidebar-agent-notice';
+const AGENT_NOTICE_TEXT =
+	'AI tools have a new home with a new interface and content guidelines built in.';
+
 describe( 'AiAssistantPluginSidebar', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		jest.mocked( applyFilters ).mockReturnValue( null );
+		jest.mocked( getFeatureAvailability ).mockReturnValue( false );
+		mockIsAgentNoticeDismissed = false;
+		// The notice reads this to decide whether to offer its action, so stand in
+		// for a loaded Agents Manager the way production has one.
+		( window as unknown as { __agentsManagerActions?: unknown } ).__agentsManagerActions = {
+			isReady: true,
+			setChatOpen: jest.fn(),
+		};
+	} );
+
+	afterEach( () => {
+		delete ( window as unknown as { __agentsManagerActions?: unknown } ).__agentsManagerActions;
+	} );
+
+	describe( 'WordPress Agent notice', () => {
+		beforeEach( () => {
+			jest
+				.mocked( getFeatureAvailability )
+				.mockImplementation( feature => feature === AGENT_NOTICE_FEATURE );
+		} );
+
+		it( 'shows the notice in the Jetpack sidebar, the document panel and the pre-publish panel', () => {
+			render( <AiAssistantPluginSidebar /> );
+
+			expect(
+				within( screen.getByTestId( 'jetpack-sidebar' ) ).getByText( AGENT_NOTICE_TEXT )
+			).toBeInTheDocument();
+			expect(
+				within( screen.getByTestId( 'document-panel' ) ).getByText( AGENT_NOTICE_TEXT )
+			).toBeInTheDocument();
+			expect(
+				within( screen.getByTestId( 'pre-publish-panel' ) ).getByText( AGENT_NOTICE_TEXT )
+			).toBeInTheDocument();
+		} );
+
+		it( 'takes the place of the AI tools rather than sitting beside them', () => {
+			render( <AiAssistantPluginSidebar /> );
+
+			expect( screen.queryByText( 'Get Feedback' ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: 'Generate using AI' } )
+			).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Learn more about Jetpack AI' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'offers the action to open the Agent', () => {
+			render( <AiAssistantPluginSidebar /> );
+
+			expect(
+				within( screen.getByTestId( 'document-panel' ) ).getByRole( 'button', {
+					name: 'Open WordPress Agent',
+				} )
+			).toBeInTheDocument();
+		} );
+
+		it.each( [
+			[ 'jetpack-sidebar', 'jetpack-sidebar' ],
+			[ 'document-panel', 'document-settings' ],
+			[ 'pre-publish-panel', 'pre-publish' ],
+		] )( 'reports %s as placement %s', async ( testId, placement ) => {
+			const user = userEvent.setup();
+			render( <AiAssistantPluginSidebar /> );
+
+			await user.click(
+				within( screen.getByTestId( testId ) ).getByRole( 'button', {
+					name: 'Open WordPress Agent',
+				} )
+			);
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_ai_agent_notice_click',
+				expect.objectContaining( { placement } )
+			);
+		} );
+
+		it( 'leaves the collapsed panels alone when there is no notice to show', () => {
+			jest.mocked( getFeatureAvailability ).mockReturnValue( false );
+
+			render( <AiAssistantPluginSidebar /> );
+
+			expect( screen.getByTestId( 'panel-body' ) ).toHaveAttribute( 'data-initial-open', 'false' );
+			expect( screen.getByTestId( 'pre-publish-panel' ) ).toHaveAttribute(
+				'data-initial-open',
+				'false'
+			);
+		} );
+
+		it( 'opens the panels that are collapsed by default, so the notice is visible', () => {
+			render( <AiAssistantPluginSidebar /> );
+
+			expect( screen.getByTestId( 'panel-body' ) ).toHaveAttribute( 'data-initial-open', 'true' );
+			expect( screen.getByTestId( 'pre-publish-panel' ) ).toHaveAttribute(
+				'data-initial-open',
+				'true'
+			);
+		} );
+
+		it( 'renders nothing once the notice is dismissed', () => {
+			mockIsAgentNoticeDismissed = true;
+
+			render( <AiAssistantPluginSidebar /> );
+
+			expect( screen.queryByTestId( 'jetpack-sidebar' ) ).not.toBeInTheDocument();
+			expect( screen.queryByTestId( 'document-panel' ) ).not.toBeInTheDocument();
+			expect( screen.queryByTestId( 'pre-publish-panel' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'stops the "Try it out" link opening a sidebar it has emptied', () => {
+			mockIsAgentNoticeDismissed = true;
+
+			render( <AiAssistantPluginSidebar /> );
+
+			expect( useSidebarOpenFromUrl ).toHaveBeenCalledWith( false );
+		} );
+
+		it( 'still lets the "Try it out" link open the sidebar while the notice is there', () => {
+			render( <AiAssistantPluginSidebar /> );
+
+			expect( useSidebarOpenFromUrl ).toHaveBeenCalledWith( true );
+		} );
+
+		it( 'keeps the AI tools when the notice is not available for the site', () => {
+			jest.mocked( getFeatureAvailability ).mockReturnValue( false );
+
+			render( <AiAssistantPluginSidebar /> );
+
+			expect( screen.queryByText( AGENT_NOTICE_TEXT ) ).not.toBeInTheDocument();
+			expect(
+				within( screen.getByTestId( 'document-panel' ) ).getByText( 'Get Feedback' )
+			).toBeInTheDocument();
+		} );
 	} );
 
 	describe( 'imageGenerationHandler filter', () => {
