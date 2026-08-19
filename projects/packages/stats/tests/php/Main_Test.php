@@ -253,6 +253,62 @@ class Main_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test Main::should_track
+	 *
+	 * Visitor::get_ip() returns a normalized address, so an excluded entry written in an
+	 * equivalent form still has to match. '::ffff:203.0.113.5' reaches get_ip() as
+	 * '203.0.113.5', and the configured list has to be normalized the same way.
+	 */
+	public function test_should_track_is_false_for_an_excluded_ip_written_in_another_form() {
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = '::ffff:203.0.113.5';
+
+		$should_track = $this->should_track_with_excluded_ips();
+
+		$this->assertFalse( $should_track );
+	}
+
+	/**
+	 * Test Main::should_track
+	 *
+	 * A visitor who is not on the excluded list is still counted.
+	 */
+	public function test_should_track_is_true_for_an_ip_that_is_not_excluded() {
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = '198.51.100.9';
+
+		$should_track = $this->should_track_with_excluded_ips();
+
+		$this->assertTrue( $should_track );
+	}
+
+	/**
+	 * Calls Main::should_track with the stats module active and one excluded IP address
+	 * configured, cleaning up the filters and the request header afterwards.
+	 *
+	 * @return bool
+	 */
+	private function should_track_with_excluded_ips() {
+		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
+		add_filter( 'jetpack_stats_excluded_ips', array( __CLASS__, 'filter_jetpack_stats_excluded_ips' ) );
+
+		$should_track = Stats::should_track();
+
+		remove_filter( 'jetpack_stats_excluded_ips', array( __CLASS__, 'filter_jetpack_stats_excluded_ips' ) );
+		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10 );
+		unset( $_SERVER['HTTP_X_FORWARDED_FOR'] );
+
+		return $should_track;
+	}
+
+	/**
+	 * Excludes one address from tracking, written with an IPv4-mapped IPv6 prefix.
+	 *
+	 * @return array
+	 */
+	public static function filter_jetpack_stats_excluded_ips() {
+		return array( '::ffff:203.0.113.5' );
+	}
+
+	/**
 	 * Test Main::template_redirect adds the `wp_footer` hook.
 	 */
 	public function test_template_redirect_adds_wp_footer_hook() {

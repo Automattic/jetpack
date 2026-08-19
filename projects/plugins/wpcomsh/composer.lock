@@ -2291,11 +2291,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "8a5b63c4879aab4d7e2cbf96fe6361841ffbeb01"
+                "reference": "afe4ad6934c05fa4d8ec07e6039c68a0f42312db"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-wp-abilities": "@dev",
                 "php": ">=7.2"

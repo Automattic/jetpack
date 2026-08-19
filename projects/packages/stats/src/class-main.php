@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Stats;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Stats\Abilities\Stats_Abilities;
 use Automattic\Jetpack\Status;
@@ -252,10 +253,22 @@ class Main {
 		 */
 		$excluded_ips = (array) apply_filters( 'jetpack_stats_excluded_ips', array() );
 
+		/*
+		 * Visitor::get_ip() returns a normalized address, so normalize the configured list the
+		 * same way before comparing. Without this an entry written as `::ffff:203.0.113.5` or
+		 * with uppercase IPv6 hex would never match, and the site owner's traffic would be
+		 * counted with no indication why. Non-strings are dropped: they could never match the
+		 * string get_ip() returns under the strict comparison below.
+		 */
+		$excluded_ips = array_filter(
+			array_map( array( IP_Utils::class, 'clean_ip' ), array_filter( $excluded_ips, 'is_string' ) )
+		);
+
 		// Should we be counting views for this IP address?
 		$current_user_ip = ( new Visitor() )->get_ip( true );
 		if (
-			! empty( $excluded_ips )
+			'' !== $current_user_ip
+			&& ! empty( $excluded_ips )
 			&& in_array( $current_user_ip, $excluded_ips, true )
 		) {
 			return false;
