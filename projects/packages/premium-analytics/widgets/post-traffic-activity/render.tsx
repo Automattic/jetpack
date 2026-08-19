@@ -4,6 +4,8 @@
 import { toPostId } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
+	CALENDAR_HEATMAP_CELL_GAP,
+	CALENDAR_HEATMAP_HEADER_HEIGHT,
 	CalendarHeatmapTooltip,
 	HeatmapChartUnresponsive,
 	WidgetRoot,
@@ -36,12 +38,12 @@ type PostTrafficActivityWidgetProps = WidgetRenderProps< PostTrafficActivityRend
 
 /**
  * Sizing the page to the card: one page shows as many whole week columns as
- * fit at the design's cell width. The constants mirror the chart's non-compact
- * metrics — 64px design cells and the 4px cell gap. The weekday-label gutter is
- * the chart's own, so `fitWeekColumns` owns it.
+ * fit at the design's cell width. The cell is the design's 64px; the gap and
+ * the month-label header height come from the shared layout helper, so the
+ * grid metrics are stated once. The weekday-label gutter is the chart's own,
+ * so `fitWeekColumns` owns it.
  */
 const CELL_WIDTH = 64;
-const CELL_GAP = 4;
 const MIN_PAGE_WEEKS = 4;
 const DEFAULT_PAGE_WEEKS = 16;
 
@@ -56,7 +58,7 @@ function weeksForWidth( width?: number ): number {
 	return fitWeekColumns( {
 		availWidth: width,
 		cellWidth: CELL_WIDTH,
-		cellGap: CELL_GAP,
+		cellGap: CALENDAR_HEATMAP_CELL_GAP,
 		minColumns: MIN_PAGE_WEEKS,
 	} );
 }
@@ -64,9 +66,8 @@ function weeksForWidth( width?: number ): number {
 const MAX_CELL_HEIGHT = 42;
 const MIN_CELL_HEIGHT = 8;
 // The grid's vertical overhead around the seven cell tracks: the auto header
-// row holding the month labels (16px, matching the shared layout helper's
-// allowance) plus its gap and the six inter-row gaps.
-const GRID_VERTICAL_OVERHEAD = 16 + 7 * CELL_GAP;
+// row holding the month labels, plus its gap and the six inter-row gaps.
+const GRID_VERTICAL_OVERHEAD = CALENDAR_HEATMAP_HEADER_HEIGHT + 7 * CALENDAR_HEATMAP_CELL_GAP;
 
 /**
  * Cell height that keeps the whole grid — month-label header row included —
