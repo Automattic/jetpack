@@ -2,12 +2,12 @@
 .root {
 	display: flex;
 	flex-direction: column;
-	height: 100%;
-	min-height: 0;
+	block-size: 100%;
+	min-block-size: 0;
 }
 
 /* Allow WidgetState to fill and shrink within the tile. */
 .root > * {
 	flex: 1 1 auto;
-	min-height: 0;
+	min-block-size: 0;
 }

@@ -49,7 +49,11 @@ export type SubscriberListProps = {
 	 */
 	moreCount?: number;
 	/**
-	 * Whether to show only the rows that fit the available height.
+	 * Show only the whole rows that fit the available height instead of letting
+	 * the roster grow and the widget host scroll it. Hidden rows are added to
+	 * the "N more" footer, so the footer can appear with `moreCount` at zero.
+	 * Requires an ancestor with a definite height.
+	 * @default true
 	 */
 	fitRows?: boolean;
 	className?: string;
@@ -75,7 +79,7 @@ export function SubscriberList( {
 	fitRows = true,
 	className,
 }: SubscriberListProps ) {
-	const { listRef, fittedCount } = useFittedRosterRows( fitRows, items.length );
+	const { listRef, fittedCount } = useFittedRosterRows( fitRows, items.length, moreCount > 0 );
 
 	if ( items.length === 0 ) {
 		return <ChartEmptyState text={ emptyStateText } />;
@@ -85,7 +89,10 @@ export function SubscriberList( {
 	const hiddenCount = moreCount + ( items.length - fittedCount );
 
 	return (
-		<Stack direction="column" className={ clsx( styles.root, className ) }>
+		<Stack
+			direction="column"
+			className={ clsx( styles.root, fitRows && styles.fitted, className ) }
+		>
 			<div ref={ listRef } className={ styles.list }>
 				{ items.map( ( item, index ) => {
 					// Callers pass `href` straight from report data, so the scheme is
@@ -137,7 +144,7 @@ export function SubscriberList( {
 				} ) }
 			</div>
 			{ hiddenCount > 0 && (
-				<Text className={ styles.more }>
+				<Text className={ styles.more } data-roster-footer>
 					{ sprintf(
 						// translators: %d is the number of additional subscribers not shown.
 						_n( '%d more', '%d more', hiddenCount, 'jetpack-premium-analytics-pkg' ),

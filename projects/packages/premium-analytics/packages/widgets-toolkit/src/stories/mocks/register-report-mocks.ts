@@ -775,6 +775,8 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
  * expects (`{ subscribers, total, … }`); `total` exceeds the shown rows so the
  * "N more" footer appears.
  *
+ * @param max - Page size from the request's `max` query param; `0` or a missing
+ *            param returns every row.
  * @return Raw followers response.
  */
 function buildFollowersResponse( max: number ) {

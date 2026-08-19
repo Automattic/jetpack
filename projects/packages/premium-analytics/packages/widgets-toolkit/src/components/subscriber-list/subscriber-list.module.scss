@@ -1,12 +1,22 @@
 .root {
-	block-size: 100%;
 	min-block-size: 0;
 }
 
-/* Hide rows that do not fit while keeping the footer visible. */
+/* Clamp to the tile so the rows can be fitted to the available height. Without
+ * fitting the roster grows instead, and the widget host's content area scrolls
+ * it. */
+.fitted {
+	block-size: 100%;
+}
+
 .list {
-	flex: 1;
+	flex: 1 1 auto;
 	min-block-size: 0;
+}
+
+/* Clip the rows the fitting logic hid, so no partial row shows below the last
+ * whole one. */
+.fitted .list {
 	overflow: hidden;
 }
 
