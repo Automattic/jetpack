@@ -240,11 +240,13 @@ class Configuration {
 	 * @return bool
 	 */
 	private function is_order_attribution_enabled(): bool {
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- Missing from older WooCommerce stubs.
 		if ( ! class_exists( FeaturesUtil::class ) ) {
 			return false;
 		}
 
 		try {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Missing from older WooCommerce stubs.
 			$is_enabled = FeaturesUtil::feature_is_enabled( 'order_attribution' );
 
 			// Account for a feature-settings form submission before WooCommerce updates
