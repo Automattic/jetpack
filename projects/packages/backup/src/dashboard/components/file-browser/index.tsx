@@ -1,12 +1,19 @@
 import { CheckboxControl, Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+// The upstream icon names don't describe what they draw. In
+// `@wordpress/icons` 15.3.0, `file` draws a folder (a folder shape with a
+// tab), `page` draws a document with text lines, and `category` draws a
+// 2x2 grid of squares. There is no `folder` icon in that version. The
+// aliases below are named for the glyph rather than the export, so the
+// rows render what they say — please don't "correct" them back to
+// matching names.
 import {
 	Icon,
 	chevronRight,
 	chevronDown,
-	file as fileIcon,
-	category as folderIcon,
+	file as folderIcon,
+	page as fileIcon,
 } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
 import { useFileTree } from '../../hooks/use-file-tree';
