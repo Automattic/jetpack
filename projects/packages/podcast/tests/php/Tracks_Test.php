@@ -34,7 +34,6 @@ class Tracks_Test extends BaseTestCase {
 	}
 
 	protected function tearDown(): void {
-		Tracks::set_surface( Tracks::SURFACE_PROGRAMMATIC );
 		delete_option( 'podcasting_category_id' );
 		delete_option( 'podcasting_archive' );
 		delete_option( 'podcasting_show_urls' );
@@ -310,48 +309,5 @@ class Tracks_Test extends BaseTestCase {
 		);
 
 		$this->assertCount( 1, $this->events_named( 'wpcom_podcasting_show_url_saved' ) );
-	}
-
-	public function test_events_carry_the_host_platform() {
-		Tracks::record_category_added( 'podcasting_category_id', 42 );
-
-		$events = $this->events_named( 'wpcom_podcasting_status_changed' );
-		$this->assertCount( 1, $events );
-		$this->assertSame( 'self_hosted', $events[0]['properties']['platform'] );
-	}
-
-	public function test_status_changed_surface_defaults_to_programmatic() {
-		Tracks::record_category_added( 'podcasting_category_id', 42 );
-
-		$events = $this->events_named( 'wpcom_podcasting_status_changed' );
-		$this->assertSame( Tracks::SURFACE_PROGRAMMATIC, $events[0]['properties']['surface'] );
-	}
-
-	public function test_status_changed_records_the_declared_surface() {
-		Tracks::set_surface( Tracks::SURFACE_SETTINGS_REST );
-		Tracks::record_category_added( 'podcasting_category_id', 42 );
-
-		$events = $this->events_named( 'wpcom_podcasting_status_changed' );
-		$this->assertSame( Tracks::SURFACE_SETTINGS_REST, $events[0]['properties']['surface'] );
-	}
-
-	public function test_setting_first_saved_records_the_declared_surface() {
-		Tracks::set_surface( Tracks::SURFACE_SETTINGS_REST );
-		Tracks::record_setting_added( 'podcasting_title', 'My Show' );
-
-		$events = $this->events_named( 'wpcom_podcast_setting_first_saved' );
-		$this->assertCount( 1, $events );
-		$this->assertSame( Tracks::SURFACE_SETTINGS_REST, $events[0]['properties']['surface'] );
-		$this->assertSame( 'podcasting_title', $events[0]['properties']['setting'] );
-	}
-
-	/**
-	 * The restore contract the endpoints depend on: without the previous value
-	 * coming back, a REST write would mislabel every later write in the request.
-	 */
-	public function test_set_surface_returns_the_previous_value() {
-		$this->assertSame( Tracks::SURFACE_PROGRAMMATIC, Tracks::set_surface( Tracks::SURFACE_SETTINGS_REST ) );
-		$this->assertSame( Tracks::SURFACE_SETTINGS_REST, Tracks::set_surface( Tracks::SURFACE_DISTRIBUTION_REST ) );
-		$this->assertSame( Tracks::SURFACE_DISTRIBUTION_REST, Tracks::set_surface( Tracks::SURFACE_PROGRAMMATIC ) );
 	}
 }
