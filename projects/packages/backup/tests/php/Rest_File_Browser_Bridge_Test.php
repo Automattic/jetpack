@@ -126,6 +126,35 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 	}
 
 	/**
+	 * The manifest path reaches WPCOM as raw, unescaped base64.
+	 *
+	 * WPCOM's stream route runs a plain `base64_decode()` on this URL
+	 * segment, so percent-encoding it first is silently destructive:
+	 * PHP's non-strict decoder discards the `%` and keeps the `3` and
+	 * the `D`, both of which are valid base64 characters. The segment
+	 * `ZjU6L3dwLWNvbmZpZy5waHA%3D` therefore decodes to the non-empty
+	 * but wrong `f5:/wp-config.php7`, and VaultPress correctly reports
+	 * `File not found` for a file that is really there.
+	 *
+	 * Only paths whose base64 needs no `=` padding and happens to avoid
+	 * `+` and `/` survive the round trip — which is why `readme.html`
+	 * (15 bytes) previewed while `wp-config.php` (17 bytes) did not.
+	 */
+	public function test_file_content_sends_the_manifest_path_as_raw_base64() {
+		$this->arrange_wpcom( array( 'url' => 'https://public-api.wordpress.com/signed-stream' ) );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backup/file-content' );
+		$request->set_param( 'file_period', '1748888135' );
+		$request->set_param( 'encoded_manifest_path', 'ZjU6L3dwLWNvbmZpZy5waHA=' );
+		File_Browser_Bridge::get_file_content( $request );
+
+		$this->assertStringContainsString(
+			'/rewind/backup/1748888135/file/ZjU6L3dwLWNvbmZpZy5waHA=/url',
+			$this->captured_urls[0]
+		);
+	}
+
+	/**
 	 * The signed-URL leg wraps a transport failure too.
 	 *
 	 * Worth covering separately from the listing: the file-content

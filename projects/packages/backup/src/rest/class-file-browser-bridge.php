@@ -138,12 +138,25 @@ class File_Browser_Bridge {
 		$encoded_manifest_path = (string) $request->get_param( 'encoded_manifest_path' );
 
 		// Step 1: resolve the signed stream URL.
+		//
+		// `$encoded_manifest_path` goes in verbatim. It is already
+		// base64, and WPCOM's stream route runs a plain
+		// `base64_decode()` on this segment, so percent-encoding it
+		// first is silently destructive: PHP's non-strict decoder
+		// discards the `%` and keeps the `3` and the `D`, both valid
+		// base64 characters. `ZjU6L3dwLWNvbmZpZy5waHA%3D` decodes to
+		// `f5:/wp-config.php7`, and VaultPress then correctly reports
+		// `File not found` for a file that is really there. Base64's
+		// `+`, `/` and `=` are all legal in a path segment, and the
+		// upstream route captures it as `\S+`, so nothing needs
+		// escaping. `$file_period` is digits, so its encoding is a
+		// no-op either way.
 		$url_response = Client::wpcom_json_api_request_as_user(
 			sprintf(
 				'/sites/%d/rewind/backup/%s/file/%s/url',
 				$blog_id,
 				rawurlencode( $file_period ),
-				rawurlencode( $encoded_manifest_path )
+				$encoded_manifest_path
 			),
 			'v2',
 			array(),
