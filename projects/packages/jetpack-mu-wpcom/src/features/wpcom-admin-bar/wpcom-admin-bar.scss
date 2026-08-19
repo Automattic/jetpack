@@ -101,32 +101,6 @@
 	}
 }
 
-/**
- * Trailing arrow on external sub-items (e.g. Themes), per Calypso.
- */
-#wpadminbar #wp-admin-bar-wp-logo .wpcom-admin-bar-external-link > .ab-item::after {
-	content: "";
-	display: inline-block;
-	width: 16px;
-	height: 16px;
-	margin-inline-start: 4px;
-	vertical-align: middle;
-	opacity: 0.7;
-	// Inherit the link color, beating the modern scheme's `li:hover
-	// .ab-item::after` rule so the arrow follows the link, not the open menu.
-	color: inherit;
-	background-color: currentColor;
-	mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTcgMTcgMTcgNyIvPjxwYXRoIGQ9Ik04IDdoOXY5Ii8+PC9zdmc+);
-	mask-position: center;
-	mask-repeat: no-repeat;
-	mask-size: contain;
-}
-
-// The external arrow points up-and-out; mirror it to up-and-out for RTL.
-[dir="rtl"] #wpadminbar #wp-admin-bar-wp-logo .wpcom-admin-bar-external-link > .ab-item::after {
-	transform: scaleX(-1);
-}
-
 #wpadminbar #wp-admin-bar-site-name {
 
 	&:not(.has-site-icon) > .ab-item::before {

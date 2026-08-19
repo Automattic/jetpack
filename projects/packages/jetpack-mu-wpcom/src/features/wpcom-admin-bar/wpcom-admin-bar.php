@@ -289,21 +289,6 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 		)
 	);
 
-	// Themes is not yet part of the hosting dashboard, so it always opens classic Calypso in a new tab.
-	$wp_admin_bar->add_node(
-		array(
-			'parent' => 'wp-logo',
-			'id'     => 'wpcom-themes',
-			'title'  => __( 'Themes', 'jetpack-mu-wpcom' ),
-			'href'   => 'https://wordpress.com/themes',
-			'meta'   => array(
-				'target' => '_blank',
-				'rel'    => 'noopener noreferrer',
-				'class'  => 'wpcom-admin-bar-external-link',
-			),
-		)
-	);
-
 	if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 		$wp_admin_bar->add_group(
 			array(
