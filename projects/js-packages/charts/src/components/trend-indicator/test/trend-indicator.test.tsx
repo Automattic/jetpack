@@ -83,10 +83,9 @@ describe( 'TrendIndicator', () => {
 
 	describe( 'chart scope class', () => {
 		it( 'carries the scope class when rendered with no provider above it', () => {
-			const { container } = render( <TrendIndicator direction="up" value="+10%" /> );
+			render( <TrendIndicator direction="up" value="+10%" /> );
 
-			// eslint-disable-next-line testing-library/no-node-access
-			expect( container.firstChild ).toHaveClass( CHART_SCOPE_CLASS );
+			expect( screen.getByLabelText( 'Increase: +10%' ) ).toHaveClass( CHART_SCOPE_CLASS );
 		} );
 
 		it( 'does not carry the scope class when rendered inside a GlobalChartsProvider', () => {

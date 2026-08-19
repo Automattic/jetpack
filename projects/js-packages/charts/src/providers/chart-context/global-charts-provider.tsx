@@ -312,6 +312,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			<div
 				ref={ setWrapperNode }
 				className={ CHART_SCOPE_CLASS }
+				data-testid="charts-scope"
 				style={ { display: 'contents', ...overrideVars } as CSSProperties }
 			>
 				<ChartScopeContext.Provider value={ scopeNode }>{ children }</ChartScopeContext.Provider>
