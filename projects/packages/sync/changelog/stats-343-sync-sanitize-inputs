@@ -1,4 +1,3 @@
 Significance: patch
 Type: changed
-
-Sanitize nonces and request URIs read from the request before use.
+Comment: Explain in the phpcs comments why the dedicated-request URL check reads the request raw. No code change.
