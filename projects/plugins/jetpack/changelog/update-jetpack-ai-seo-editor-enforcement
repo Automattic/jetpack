@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Jetpack AI: Make the editor honor the AI SEO feature control — switching it off removes the Metadata AI Generator section, automatic generation at publish, and automatic image alt text, with saved choices returning when it is switched back on. Also disable the Traffic card's enhancer toggle while site-wide AI is off, and hide the enhancer setting on sites running an outdated copy of the SEO package.

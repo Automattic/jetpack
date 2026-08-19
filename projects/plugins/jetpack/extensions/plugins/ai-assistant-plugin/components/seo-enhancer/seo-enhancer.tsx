@@ -137,7 +137,7 @@ export function SeoEnhancer( {
 					) }
 				</BaseControl>
 			</PanelRow>
-			{ ! isEnabled && (
+			{ ( ! isEnabled || disableAutoEnhance ) && (
 				<PanelRow className="jetpack-seo-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true } className="ai-seo-enhancer-toggle">
 						<Button
