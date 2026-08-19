@@ -927,3 +927,15 @@ export function subscriptionSiteEditSupported( state ) {
 export function isSeoEnhancerAvailable( state ) {
 	return 'ai_seo_enhancer_enabled' in state.jetpack.initialState.getModules[ 'seo-tools' ].options;
 }
+
+/**
+ * Returns whether Jetpack AI is effectively enabled, as the server computed it
+ * through the full gate chain. Defaults to true when absent so the UI never
+ * reports AI off on its own authority.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} Whether Jetpack AI is effectively enabled.
+ */
+export function isAiEnabled( state ) {
+	return state.jetpack.initialState.isAiEnabled ?? true;
+}

@@ -240,6 +240,10 @@ class Jetpack_Redux_State_Helper {
 			'isOdysseyStatsEnabled'                => Stats_Options::get_option( 'enable_odyssey_stats' ),
 			'shouldInitializeBlaze'                => Blaze::should_initialize(),
 			'isBlazeDashboardEnabled'              => Blaze::is_dashboard_enabled(),
+			// The composed AI gate chain (host, and the master where its rollout
+			// is active) — what the editor enforces, for settings UI that must
+			// not contradict it.
+			'isAiEnabled'                          => Jetpack_AI_Settings::is_ai_enabled(),
 			'isSubscriptionSiteEnabled'            => apply_filters( 'jetpack_subscription_site_enabled', false ),
 			'newsletterDateExample'                => gmdate( get_option( 'date_format' ), time() ),
 			'subscriptionSiteEditSupported'        => $current_theme->is_block_theme(),

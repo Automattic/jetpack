@@ -26,6 +26,7 @@ import {
 	getSiteIcon,
 	isSeoEnhancerAvailable,
 	getSiteRepresentativeImage,
+	isAiEnabled,
 } from 'state/initial-state';
 import { siteHasFeature } from 'state/site';
 import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
@@ -334,7 +335,9 @@ export const SEO = withModuleSettingsFormHelpers(
 										__nextHasNoMarginBottom={ true }
 										id="seo-enhancer"
 										disabled={
-											! this.props.getOptionValue( 'seo-tools' ) || ! this.props.hasSeoEnhancer
+											! this.props.getOptionValue( 'seo-tools' ) ||
+											! this.props.hasSeoEnhancer ||
+											! this.props.aiEnabled
 										}
 										checked={
 											this.props.hasSeoEnhancer &&
@@ -350,6 +353,14 @@ export const SEO = withModuleSettingsFormHelpers(
 											</span>
 										}
 									/>
+									{ this.props.getOptionValue( 'seo-tools' ) && ! this.props.aiEnabled && (
+										<span className="jp-form-setting-explanation">
+											{ __(
+												'Jetpack AI is turned off for this site, so nothing is generated. Your choice is saved and applies again when Jetpack AI is turned back on.',
+												'jetpack'
+											) }
+										</span>
+									) }
 								</FormFieldset>
 							) }
 						</SettingsGroup>
@@ -514,5 +525,9 @@ export default connect( state => {
 		seoEnhancerAvailable: isSeoEnhancerAvailable( state ),
 		state,
 		hasSeoEnhancer: siteHasFeature( state, 'ai-seo-enhancer' ),
+		// The server-composed AI gate chain: with it closed nothing generates,
+		// so the control says so rather than accepting a change that cannot
+		// take effect.
+		aiEnabled: isAiEnabled( state ),
 	};
 } )( SEO );
