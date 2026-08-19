@@ -10,8 +10,16 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  */
 import {
 	chartTypeAttributeField,
+	granularityAttributeField,
 	type ChartDisplayChartType,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+
+/**
+ * Bucket size the chart groups by. There is no `auto`: the bucket follows the
+ * dashboard's interval control until a reader picks one here, and goes back to
+ * following it the next time that control moves.
+ */
+export type TrafficChartGranularity = 'hour' | 'day' | 'week' | 'month';
 
 /**
  * How the selected metric is drawn. The shared chart-display list keeps every
@@ -36,9 +44,11 @@ export const TRAFFIC_CHART_METRICS = [
  * `attributes.reportParams` when a host injects them (e.g. Storybook and
  * dashboard previews).
  *
- * @property chartType - How to draw the selected metric. Defaults to `line`.
+ * @property granularity - Bucket size to group by. Follows the dashboard interval when absent.
+ * @property chartType   - How to draw the selected metric. Defaults to `line`.
  */
 export type TrafficChartAttributes = {
+	granularity?: TrafficChartGranularity;
 	chartType?: TrafficChartType;
 };
 
@@ -48,14 +58,19 @@ export type TrafficChartAttributes = {
  * Ported from the Jetpack Stats `stats-chart-tabs` card in wp-calypso (the chart
  * above the Traffic page). Renders the selected period's Views, Visitors,
  * Comments, and Likes as selectable metric tabs over a comparative chart. The
- * date range, comparison state, and bucket size all come from the dashboard via
- * `reportParams`; `chartType` switches between lines and bars. Which metric is
- * plotted is the chart's own tab selection, not an attribute.
+ * date range and comparison state come from the dashboard via `reportParams`;
+ * the `granularity` attribute (`relevance: 'high'`) is the bucket size, seeded
+ * and re-seeded from the dashboard's interval control, and `chartType` switches
+ * between lines and bars. Which metric is plotted is the chart's own tab
+ * selection, not an attribute.
  * `example.attributes` doubles as the defaults applied to new instances.
  */
 export default {
 	icon: trendingUp,
-	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< TrafficChartAttributes >[],
+	attributes: [
+		granularityAttributeField( [ 'hour', 'day', 'week', 'month' ] ),
+		chartTypeAttributeField(),
+	] as WidgetAttributeField< TrafficChartAttributes >[],
 	example: {
 		attributes: {
 			chartType: 'line',

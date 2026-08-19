@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Traffic: follow the dashboard's chart interval instead of a widget setting, including hourly ranges.
+Traffic: start the chart's Group by control from the dashboard's interval, and add hourly grouping.

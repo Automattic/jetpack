@@ -5,14 +5,25 @@ import {
 	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,
 	granularityAttributeField,
+	granularityOptions,
 } from '../chart-display-attribute-fields';
+
+describe( 'granularityOptions', () => {
+	it( 'labels every bucket, in the order asked for', () => {
+		expect( granularityOptions( [ 'month', 'hour', 'day' ] ) ).toEqual( [
+			{ value: 'month', label: 'By months' },
+			{ value: 'hour', label: 'By hours' },
+			{ value: 'day', label: 'By days' },
+		] );
+	} );
+} );
 
 describe( 'granularityAttributeField', () => {
 	it( 'offers the buckets the widget asked for, in the order it asked for them', () => {
-		const field = granularityAttributeField( [ 'auto', 'day', 'week', 'month' ] );
+		const field = granularityAttributeField( [ 'hour', 'day', 'week', 'month' ] );
 
 		expect( field.elements ).toEqual( [
-			{ value: 'auto', label: 'Auto' },
+			{ value: 'hour', label: 'By hours' },
 			{ value: 'day', label: 'By days' },
 			{ value: 'week', label: 'By weeks' },
 			{ value: 'month', label: 'By months' },

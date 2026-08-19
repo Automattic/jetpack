@@ -12,12 +12,13 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { reports } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
+import { useCallback, useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
 import useTrafficChart, { type TrafficPeriod } from './use-traffic-chart';
-import type { TrafficChartAttributes, TrafficChartType } from './widget';
+import type { TrafficChartAttributes, TrafficChartGranularity, TrafficChartType } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
@@ -44,20 +45,67 @@ const TRAFFIC_PERIODS = [
 
 type TrafficChartInnerProps = {
 	/**
+	 * Bucket size to draw, as stored on the widget. Absent on a new instance,
+	 * where the page's interval supplies it.
+	 */
+	granularity?: TrafficChartGranularity;
+	/**
 	 * How to draw the selected metric. `MetricTabsChart` owns the default.
 	 */
 	chartType?: TrafficChartType;
+	/**
+	 * Host setter, used to realign `granularity` when the page interval moves.
+	 */
+	setGranularity?: ( granularity: TrafficChartGranularity ) => void;
 };
 
 /**
- * The "Chart type" control is the `chartType` attribute (`relevance: 'high'`),
- * rendered by the widget host. Which metric is plotted is the chart's own tab
- * selection, and the bucket size is not a widget setting either: it follows the
- * dashboard's interval control, clamped to a bucket this chart can draw.
+ * "Group by" and "Chart type" are both `relevance: 'high'` attributes, so the
+ * host renders them in the widget's header.
+ *
+ * The bucket is the page's decision until a reader overrides it here, and it
+ * goes back to being the page's the moment the page interval moves again — so
+ * the stored value can never outlive the interval it was chosen under, and a
+ * reader looking at one widget by weeks does not stay stuck there after moving
+ * the whole page. Which metric is plotted is the chart's own tab selection.
  */
-function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
+function TrafficChartInner( { granularity, chartType, setGranularity }: TrafficChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const period: TrafficPeriod = defaultPeriodForInterval( reportParams.interval, TRAFFIC_PERIODS );
+	const pagePeriod: TrafficPeriod = defaultPeriodForInterval(
+		reportParams.interval,
+		TRAFFIC_PERIODS
+	);
+
+	const previousPagePeriod = useRef( pagePeriod );
+	const pageMoved = previousPagePeriod.current !== pagePeriod;
+
+	// A layout saved before this widget offered hourly can still carry `auto`,
+	// which is no longer one of the buckets and would otherwise reach the request.
+	const stored =
+		granularity && ( TRAFFIC_PERIODS as readonly string[] ).includes( granularity )
+			? granularity
+			: undefined;
+
+	// Read the new bucket on the same render the page moved, rather than waiting
+	// for the effect below to write it back — otherwise the requests go out for
+	// the outgoing bucket first and are thrown away.
+	const period: TrafficPeriod = pageMoved ? pagePeriod : stored ?? pagePeriod;
+
+	useEffect( () => {
+		// Mount is not a move: whatever was stored stands until the page's own
+		// interval changes. An unstored (or no-longer-offered) bucket is seeded
+		// instead — without an `Auto` option the control would otherwise display
+		// the first bucket on the list while the chart drew the page's.
+		if ( previousPagePeriod.current === pagePeriod && stored ) {
+			return;
+		}
+
+		previousPagePeriod.current = pagePeriod;
+
+		if ( period !== granularity ) {
+			setGranularity?.( period );
+		}
+	}, [ pagePeriod, stored, period, granularity, setGranularity ] );
 
 	const {
 		metrics: metricTabs,
@@ -111,10 +159,23 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 	);
 }
 
-export default function TrafficChart( { attributes = {}, setError }: TrafficChartWidgetProps ) {
+export default function TrafficChart( {
+	attributes = {},
+	setAttributes,
+	setError,
+}: TrafficChartWidgetProps ) {
+	const setGranularity = useCallback(
+		( granularity: TrafficChartGranularity ) => setAttributes?.( { granularity } ),
+		[ setAttributes ]
+	);
+
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<TrafficChartInner chartType={ attributes.chartType } />
+			<TrafficChartInner
+				granularity={ attributes.granularity }
+				chartType={ attributes.chartType }
+				setGranularity={ setAttributes ? setGranularity : undefined }
+			/>
 		</WidgetRoot>
 	);
 }

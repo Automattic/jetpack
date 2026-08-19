@@ -187,6 +187,7 @@ export {
 	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,
 	granularityAttributeField,
+	granularityOptions,
 	type ChartDisplayChartType,
 	type ChartGranularityOption,
 	CALENDAR_HEATMAP_CELL_GAP,

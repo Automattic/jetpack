@@ -67,6 +67,7 @@ export {
 	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,
 	granularityAttributeField,
+	granularityOptions,
 	type ChartDisplayChartType,
 	type ChartGranularityOption,
 } from './chart-display-attribute-fields';
