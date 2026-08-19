@@ -3,6 +3,7 @@
  */
 import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
+import { useLayoutEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -12,7 +13,7 @@ import { ChartEmptyState } from '../chart-empty-state';
 import { GenericSkeleton } from '../widget-skeleton';
 import { errorStateIcon } from './error-state-icon';
 import styles from './widget-state.module.scss';
-import type { ComponentProps, ReactNode } from 'react';
+import type { ComponentProps, FocusEvent, ReactNode } from 'react';
 
 export interface WidgetStateError {
 	title?: string;
@@ -60,6 +61,51 @@ export function WidgetState( {
 	// `isFetching` is true on the first load too, and a quick revalidation is not
 	// worth announcing.
 	const isRevalidating = useDelayedLoading( isFetching && ! isLoading );
+
+	const rootRef = useRef< HTMLDivElement >( null );
+	// What the reader is standing on inside this widget, so the effect below can
+	// tell "their element was taken away" from "they walked off".
+	const focusedInside = useRef< HTMLElement | null >( null );
+
+	const rememberFocus = ( event: FocusEvent< HTMLDivElement > ) => {
+		focusedInside.current = event.target;
+	};
+
+	const forgetFocus = ( event: FocusEvent< HTMLDivElement > ) => {
+		// An element on its way out fires focusout in some browsers and not in
+		// others. Keep it either way: that is the case the effect below exists for.
+		if ( ! event.target.isConnected ) {
+			return;
+		}
+		// Moving within the widget is not leaving it.
+		if ( ! event.currentTarget.contains( event.relatedTarget ) ) {
+			focusedInside.current = null;
+		}
+	};
+
+	// Every branch but the ready one unmounts the children, and a drill-down or a
+	// range change reaches the skeleton by definition — both take the row the
+	// reader activated with them, and the browser hands focus to <body>, where the
+	// next Tab restarts at the top of the page. Catch it on the root instead.
+	//
+	// Deliberately unconditional: a branch change is the common way to lose the
+	// focused element, but not the only one — new rows arriving under unchanged
+	// params unmount it just the same, without any branch change to key on.
+	useLayoutEffect( () => {
+		const target = focusedInside.current;
+		const root = rootRef.current;
+		// Use the widget's own document to support rendering in another window.
+		const ownerDocument = root?.ownerDocument;
+		if ( ! target || ! root || ! ownerDocument ) {
+			return;
+		}
+		// Step in only for focus this widget just dropped: a target still in the
+		// document, or focus that went anywhere but <body>, is not ours to move.
+		if ( target.isConnected || ownerDocument.activeElement !== ownerDocument.body ) {
+			return;
+		}
+		root.focus( { preventScroll: true } );
+	} );
 
 	const skeleton = renderLoading ?? <GenericSkeleton />;
 	let body: ReactNode;
@@ -118,9 +164,15 @@ export function WidgetState( {
 
 	return (
 		<div
+			ref={ rootRef }
+			// Focused programmatically when a branch change drops the reader's
+			// element, but never in the tab order itself.
+			tabIndex={ -1 }
 			className={ styles.root }
-			// Nothing on screen moves, so a reader is told the region is updating
-			// rather than shown it.
+			onFocus={ rememberFocus }
+			onBlur={ forgetFocus }
+			// A marker, not an announcement: on a roleless container most screen
+			// readers stay quiet, which is the point — nothing on screen moved.
 			aria-busy={ isRevalidating || undefined }
 		>
 			{ body }

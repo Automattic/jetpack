@@ -87,3 +87,19 @@
 .root {
 	min-block-size: 0;
 }
+
+// The root is only focused programmatically, to catch focus a branch change
+// dropped, so it carries no ring by default.
+.root:focus {
+	outline: none;
+}
+
+// `:focus-visible` still separates the two cases: the flag carries across a
+// programmatic focus move, so a reader navigating by keyboard sees where they
+// landed, while a mouse user gets no ring around the whole widget body. Drawn
+// inset for the reason `.reportLink` documents — widgets clip their own
+// overflow, so an outset ring on a full-height element is cut off entirely.
+.root:focus-visible {
+	outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+	outline-offset: calc(-1 * var(--wpds-border-width-focus));
+}

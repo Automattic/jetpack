@@ -331,6 +331,122 @@ describe( 'WidgetState', () => {
 		);
 		expect( screen.getByRole( 'button' ) ).toHaveTextContent( '1' );
 	} );
+
+	it.each( [
+		[ 'the skeleton', { isLoading: true, isEmpty: false, isError: false } ],
+		[ 'the empty state', { isLoading: false, isEmpty: true, isError: false } ],
+		[ 'an error', { isLoading: false, isEmpty: false, isError: true } ],
+	] )( 'catches the focus %s takes down with the children', ( _label, resolved ) => {
+		// Keyboard-activating a drill-down row changes the params by definition,
+		// so it lands on the skeleton and unmounts the row that was activated.
+		// Without this the browser drops focus to <body> and the next Tab
+		// restarts at the top of the page.
+		const { rerender } = render(
+			<WidgetState isLoading={ false } isError={ false } isEmpty={ false }>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+		act( () => screen.getByRole( 'button', { name: 'Taiwan' } ).focus() );
+
+		rerender(
+			<WidgetState { ...resolved }>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+
+		expect( document.body ).not.toHaveFocus();
+		// eslint-disable-next-line @wordpress/no-global-active-element, testing-library/no-node-access -- which element the browser focused is the assertion, and the root is deliberately not queryable.
+		expect( document.activeElement ).toHaveAttribute( 'tabindex', '-1' );
+	} );
+
+	it( 'catches focus when new rows replace the focused one with no branch change', () => {
+		// A revalidation that comes back reordered unmounts the focused row
+		// without the state ever changing, so there is no branch to key on.
+		// Keyed, so React unmounts the old row rather than reusing the node.
+		const props = { isLoading: false, isError: false, isEmpty: false };
+		const { rerender } = render(
+			<WidgetState { ...props }>
+				<button type="button" key="tw">
+					Taiwan
+				</button>
+			</WidgetState>
+		);
+		act( () => screen.getByRole( 'button', { name: 'Taiwan' } ).focus() );
+
+		rerender(
+			<WidgetState { ...props }>
+				<button type="button" key="tp">
+					Taipei
+				</button>
+			</WidgetState>
+		);
+
+		expect( document.body ).not.toHaveFocus();
+		// eslint-disable-next-line @wordpress/no-global-active-element, testing-library/no-node-access -- which element the browser focused is the assertion, and the root is deliberately not queryable.
+		expect( document.activeElement ).toContainElement(
+			screen.getByRole( 'button', { name: 'Taipei' } )
+		);
+	} );
+
+	it( 'leaves focus alone when the reader had already left the widget', () => {
+		// Clicking something unfocusable drops focus to <body> on its own.
+		// Reclaiming it would haul the reader back to a widget they left.
+		const props = { isError: false, isEmpty: false };
+		const { rerender } = render(
+			<WidgetState { ...props } isLoading={ false }>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+		const row = screen.getByRole( 'button', { name: 'Taiwan' } );
+		act( () => row.focus() );
+		act( () => row.blur() );
+
+		rerender(
+			<WidgetState { ...props } isLoading>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+
+		expect( document.body ).toHaveFocus();
+	} );
+
+	it( 'leaves focus alone when it never entered the widget', () => {
+		const props = { isError: false, isEmpty: false };
+		const { rerender } = render(
+			<WidgetState { ...props } isLoading={ false }>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+
+		rerender(
+			<WidgetState { ...props } isLoading>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+
+		expect( document.body ).toHaveFocus();
+	} );
+
+	it( 'never moves focus through a revalidation, which unmounts nothing', () => {
+		const props = { isLoading: false, isError: false, isEmpty: false };
+		const { rerender } = render(
+			<WidgetState { ...props } isFetching={ false }>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+		const row = screen.getByRole( 'button', { name: 'Taiwan' } );
+		act( () => row.focus() );
+
+		rerender(
+			<WidgetState { ...props } isFetching>
+				<button type="button">Taiwan</button>
+			</WidgetState>
+		);
+		elapseFetchDelay();
+
+		expect( row ).toHaveFocus();
+	} );
+
 	it( 'error wins over loading and empty (retry in flight after a failed fetch)', () => {
 		// The production shape on a failed fetch: isError with isEmpty derived
 		// true, plus loading signals while a retry is in flight. The priority
