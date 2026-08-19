@@ -5,6 +5,7 @@ import { toPostId } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -114,6 +115,7 @@ function PostDetailHighlightsInner() {
 						'jetpack-premium-analytics-pkg'
 					),
 				} }
+				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			</WidgetState>

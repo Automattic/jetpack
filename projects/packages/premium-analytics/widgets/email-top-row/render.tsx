@@ -9,6 +9,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -238,12 +239,27 @@ export function toEmailTopRowMetrics(
 	return tiles;
 }
 
+/**
+ * How many tiles a view shows, read from the same table. The view is known
+ * before the rate summaries are, so this is the count the loading shape can
+ * draw; `hideWhenZero` may still drop one once the data lands.
+ */
+function countEmailTopRowTiles( metric: EmailMetric ): number {
+	return EMAIL_METRICS.filter( spec => spec.views.includes( metric ) ).length;
+}
+
 type EmailTopRowTilesProps = {
 	/**
 	 * The ordered metric tiles to render. When omitted, the empty state is shown
 	 * (unless the widget is loading or in error).
 	 */
 	metrics?: EmailTopRowMetric[];
+	/**
+	 * Tiles the active view will show, so the loading shape draws the row that is
+	 * coming. The view lives in the report above, not here, and `metrics` is
+	 * `undefined` until the request resolves.
+	 */
+	tileCount?: number;
 	/**
 	 * Whether an email is selected. Drives the empty-state message: a prompt to
 	 * select an email when `false`, or a "no stats yet" message when `true`.
@@ -269,6 +285,7 @@ type EmailTopRowTilesProps = {
  */
 const EmailTopRowTiles = ( {
 	metrics,
+	tileCount,
 	hasSelection = false,
 	isLoading = false,
 	isFetching = false,
@@ -298,6 +315,7 @@ const EmailTopRowTiles = ( {
 							? __( 'No stats are available for this email yet.', 'jetpack-premium-analytics-pkg' )
 							: __( 'Select an email to see its stats.', 'jetpack-premium-analytics-pkg' ),
 					} }
+					renderLoading={ <MetricTileGridSkeleton tiles={ tileCount } /> }
 				>
 					<MetricTileGrid tiles={ metrics ?? [] } />
 				</WidgetState>
@@ -363,6 +381,7 @@ function EmailTopRowReport( { metric }: EmailTopRowReportProps ) {
 	return (
 		<EmailTopRowTiles
 			metrics={ metrics }
+			tileCount={ countEmailTopRowTiles( metric ) }
 			hasSelection={ hasSelection }
 			isLoading={ activeQueries.some( query => query.isLoading ) }
 			isFetching={ activeQueries.some( query => query.isFetching ) }
