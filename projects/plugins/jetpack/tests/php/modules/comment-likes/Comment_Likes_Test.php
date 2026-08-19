@@ -41,4 +41,24 @@ class Comment_Likes_Test extends WP_UnitTestCase {
 
 		$this->assertTrue( wp_style_is( 'jetpack_likes' ) );
 	}
+
+	/**
+	 * With the Likes module off and the Sharing module off, nothing registers
+	 * Settings > Sharing, where the settings gating comment likes are displayed.
+	 * Comment Likes carries its own copy of that wiring, so it needs its own test.
+	 */
+	public function test_registers_sharing_menu_when_sharedaddy_is_inactive() {
+		Jetpack_Options::update_option( 'active_modules', array( 'comment-likes' ) );
+
+		// Sidestep the singleton in Jetpack_Comment_Likes::init(), which memoizes the wiring.
+		$class       = new ReflectionClass( 'Jetpack_Comment_Likes' );
+		$instance    = $class->newInstanceWithoutConstructor();
+		$constructor = $class->getConstructor();
+		$constructor->setAccessible( true );
+		$constructor->invoke( $instance );
+
+		Jetpack_Options::delete_option( 'active_modules' );
+
+		$this->assertNotFalse( has_action( 'admin_menu', array( $instance->settings, 'sharing_menu' ) ) );
+	}
 }
