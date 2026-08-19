@@ -170,8 +170,7 @@ JS;
 		// The bootstrap runs on jQuery, which the Odyssey bundle does not depend on. It gets its own
 		// handle rather than jQuery being added to that bundle, which the dashboard widget shares
 		// and which has no use for it.
-		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- The handle carries an inline script only, so there is no file to version.
-		wp_register_script( 'jp-stats-dashboard-bootstrap', false, array( 'jquery' ), null, true );
+		wp_register_script( 'jp-stats-dashboard-bootstrap', false, array( 'jquery' ), Main::VERSION, true );
 		wp_enqueue_script( 'jp-stats-dashboard-bootstrap' );
 		wp_add_inline_script( 'jp-stats-dashboard-bootstrap', $this->get_bootstrap_script() );
 
