@@ -46,6 +46,13 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 	private $rest_connector;
 
 	/**
+	 * Whether the test simulated a request signed by WordPress.com, so tear_down knows to undo it.
+	 *
+	 * @var bool
+	 */
+	private $signed_request_simulated = false;
+
+	/**
 	 * Set up the REST server and register the package routes.
 	 */
 	public function set_up() {
@@ -78,10 +85,69 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 
 		unset( $_COOKIE['store_sandbox'] );
 
+		if ( $this->signed_request_simulated ) {
+			unset( $_GET['_for'], $_GET['token'], $_GET['signature'], $_SERVER['REQUEST_METHOD'] );
+			self::clear_auth_singleton();
+			$this->signed_request_simulated = false;
+		}
+
 		StatusCache::clear();
 		Constants::clear_constants();
 
 		wp_set_current_user( 0 );
+	}
+
+	/**
+	 * Delete any cached Rest_Authentication singleton.
+	 */
+	private static function clear_auth_singleton() {
+		$instance_property = ( new \ReflectionClass( Rest_Authentication::class ) )->getProperty( 'instance' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance_property->setAccessible( true );
+		}
+		$instance_property->setValue( null, false );
+	}
+
+	/**
+	 * Make the current request read as signed with a user connection token, the way the
+	 * WordPress.com post-purchase plan refresh arrives.
+	 *
+	 * Drives the real `Rest_Authentication::wp_rest_authenticate()` with a mocked signature
+	 * verifier, because a real signature would consume a single-use nonce.
+	 */
+	private function sign_request_as_wpcom() {
+		$this->signed_request_simulated = true;
+
+		self::clear_auth_singleton();
+		$authentication = Rest_Authentication::init();
+
+		$verifier = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'verify_xml_rpc_signature' ) )
+			->getMock();
+		$verifier->expects( $this->once() )->method( 'verify_xml_rpc_signature' )->willReturn(
+			array(
+				'type'      => 'user',
+				'token_key' => 'asdasd',
+				'user_id'   => 1,
+			)
+		);
+
+		$manager_property = ( new \ReflectionClass( Rest_Authentication::class ) )->getProperty( 'connection_manager' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$manager_property->setAccessible( true );
+		}
+		$manager_property->setValue( $authentication, $verifier );
+
+		$_GET['_for']              = 'jetpack';
+		$_GET['token']             = 'asdasd:1:1';
+		$_GET['signature']         = 'signature';
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		$authentication->wp_rest_authenticate( false );
+
+		$this->assertTrue( Rest_Authentication::is_signed_with_user_token() );
 	}
 
 	/**
@@ -445,6 +511,62 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 
 		$this->assertSame( 1, $requests );
 		$this->assertNotFalse( get_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234 ) );
+	}
+
+	/**
+	 * WordPress.com requests this route right after a purchase so the site stores the new plan.
+	 * That request arrives signed with a connection token. Serving it from the cache would hand
+	 * it the pre-purchase record and turn the refresh into a no-op, so a signed request reads
+	 * from WordPress.com and replaces the cache with the record it fetched.
+	 */
+	public function test_a_signed_request_reads_fresh_and_replaces_the_cache() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"After purchase"}' );
+
+		// A browser read moments earlier left the pre-purchase record in the cache.
+		set_transient(
+			Manager::SITE_DATA_TRANSIENT_PREFIX . 1234,
+			array( 'body' => '{"ID":1234,"name":"Before purchase"}' ),
+			5 * MINUTE_IN_SECONDS
+		);
+
+		$this->sign_request_as_wpcom();
+
+		$record   = null;
+		$requests = $this->count_http_requests(
+			function () use ( &$record ) {
+				$record = $this->manager->get_connected_site_data();
+			}
+		);
+
+		$this->assertSame( 1, $requests );
+		$this->assertSame( 'After purchase', $record->name );
+
+		$cached = get_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234 );
+		$this->assertSame( '{"ID":1234,"name":"After purchase"}', $cached['body'] );
+	}
+
+	/**
+	 * A signed read that fails must not replace a still-usable cached record with the failure,
+	 * or a hiccup during the WordPress.com refresh would put an error in front of every browser
+	 * read for the failure window.
+	 */
+	public function test_a_failed_signed_read_keeps_the_cached_record() {
+		$this->fake_http_response( 500, '{"error":"unavailable"}' );
+
+		set_transient(
+			Manager::SITE_DATA_TRANSIENT_PREFIX . 1234,
+			array( 'body' => '{"ID":1234,"name":"Before purchase"}' ),
+			5 * MINUTE_IN_SECONDS
+		);
+
+		$this->sign_request_as_wpcom();
+
+		$result = $this->manager->get_connected_site_data();
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+
+		$cached = get_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234 );
+		$this->assertSame( '{"ID":1234,"name":"Before purchase"}', $cached['body'] );
 	}
 
 	/**

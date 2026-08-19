@@ -1052,12 +1052,21 @@ class Manager {
 		// A sandboxed request must neither read the shared cache nor seed it with sandbox data.
 		$sandboxed     = null !== $sandbox_secret;
 		$transient_key = self::SITE_DATA_TRANSIENT_PREFIX . $site_id;
-		$result        = $sandboxed ? false : get_transient( $transient_key );
+
+		// WordPress.com itself requests this route right after a purchase, for the side effect of
+		// the `jetpack_site_data_fetched` consumers storing the new plan. Those requests arrive
+		// signed with a connection token, which no browser request carries. A cached read would
+		// hand that refresh the pre-purchase record and turn it into a no-op, so a signed request
+		// always reads from WordPress.com and replaces the cache with the record it fetched.
+		$signed = Rest_Authentication::is_signed_with_blog_token() || Rest_Authentication::is_signed_with_user_token();
+
+		$result = ( $sandboxed || $signed ) ? false : get_transient( $transient_key );
 
 		if ( false === $result ) {
 			$result = $this->fetch_connected_site_data( $site_id, $sandbox_secret );
 
-			if ( ! $sandboxed ) {
+			// A signed read that failed must not replace a still-usable cached record with the failure.
+			if ( ! $sandboxed && ! ( $signed && isset( $result['error'] ) ) ) {
 				// Failures expire sooner so an outage recovers without waiting out a full success window.
 				set_transient(
 					$transient_key,
