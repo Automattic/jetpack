@@ -50,6 +50,11 @@ class Main_Test extends StatsBaseTestCase {
 
 		unset( $_SERVER['HTTP_DNT'] );
 
+		// wp_styles() is a global that outlives each test, so a handle enqueued by one would
+		// otherwise be seen by the next.
+		wp_dequeue_style( 'jetpack-stats' );
+		wp_deregister_style( 'jetpack-stats' );
+
 		// Reset the REST server so the lazy-registration test below does not leak its
 		// populated server (with the stats route registered) into later tests in the suite.
 		global $wp_rest_server;
@@ -150,32 +155,22 @@ class Main_Test extends StatsBaseTestCase {
 	}
 
 	/**
-	 * Drop the stylesheet between tests. wp_styles() is a global that outlives each test, so a
-	 * handle enqueued by one would otherwise be seen by the next.
-	 *
-	 * @return void
-	 */
-	private function forget_hide_smile_css_style() {
-		wp_dequeue_style( 'jetpack-stats' );
-		wp_deregister_style( 'jetpack-stats' );
-	}
-
-	/**
 	 * The rule that hides the tracking pixel goes through the stylesheet queue rather than
 	 * being printed into the page.
 	 */
 	public function test_hide_smile_css_is_enqueued() {
-		$this->forget_hide_smile_css_style();
-
 		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
 		Stats::hide_smile_css();
 		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10 );
 
 		$this->assertTrue( wp_style_is( 'jetpack-stats', 'enqueued' ) );
-		$this->assertStringContainsString(
-			'img#wpstats',
-			implode( '', (array) wp_styles()->get_data( 'jetpack-stats', 'after' ) )
-		);
+
+		ob_start();
+		wp_styles()->do_items( 'jetpack-stats' );
+		$output = ob_get_clean();
+
+		$this->assertMatchesRegularExpression( '/<style id=["\']jetpack-stats-inline-css["\']/', $output );
+		$this->assertStringContainsString( 'img#wpstats{display:none}', $output );
 	}
 
 	/**
@@ -183,8 +178,6 @@ class Main_Test extends StatsBaseTestCase {
 	 * module being inactive means here.
 	 */
 	public function test_hide_smile_css_is_not_enqueued_when_not_tracking() {
-		$this->forget_hide_smile_css_style();
-
 		Stats::hide_smile_css();
 
 		$this->assertFalse( wp_style_is( 'jetpack-stats', 'enqueued' ) );

@@ -188,9 +188,7 @@ class Main {
 			return;
 		}
 
-		// This one rule is the whole stylesheet, so the handle carries no file.
-		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- There is no file to version.
-		wp_register_style( 'jetpack-stats', false, array(), null );
+		wp_register_style( 'jetpack-stats', false, array(), Package_Version::PACKAGE_VERSION );
 		wp_enqueue_style( 'jetpack-stats' );
 		wp_add_inline_style( 'jetpack-stats', 'img#wpstats{display:none}' );
 	}
