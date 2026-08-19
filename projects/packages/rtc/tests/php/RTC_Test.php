@@ -618,16 +618,6 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the setting defaults to off once RTC is gated by the experiment.
-	 */
-	public function test_default_rtc_option_returns_0_when_using_experiment() {
-		$this->use_experiment_and_allow();
-
-		$this->assertSame( '0', RTC::default_rtc_option( '', RTC::OPTION_NEW ) );
-		$this->assertSame( '0', RTC::default_rtc_option( '', RTC::OPTION_OLD ) );
-	}
-
-	/**
 	 * Tests that the experiment is enabled when the setting is on.
 	 */
 	public function test_filter_experiments_enables_when_turned_on() {
@@ -972,10 +962,10 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 		$this->use_experiment_and_allow();
 
 		update_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN, '1' );
-		$this->assertSame( '0', RTC::default_rtc_option( '', RTC::OPTION_NEW ) );
+		$this->assertSame( '0', RTC::default_rtc_option() );
 
 		update_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN, '0' );
-		$this->assertSame( '0', RTC::default_rtc_option( '', RTC::OPTION_NEW ) );
+		$this->assertSame( '0', RTC::default_rtc_option() );
 	}
 
 	/**
