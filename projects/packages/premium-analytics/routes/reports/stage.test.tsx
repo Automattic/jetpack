@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useReportScope } from '@jetpack-premium-analytics/routing';
+import { useReportScope } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
@@ -10,6 +10,7 @@ import { stage as ReportStage } from './stage';
 import type { ReactNode } from 'react';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );

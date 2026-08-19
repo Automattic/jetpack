@@ -1,4 +1,4 @@
-import { useReportScope } from '@jetpack-premium-analytics/routing';
+import { useReportScope } from '@jetpack-premium-analytics/data';
 import { render, screen, within } from '@testing-library/react';
 import { usePostSummary } from './hooks';
 import { stage } from './stage';
@@ -7,6 +7,7 @@ import type { ReactNode } from 'react';
 let mockSearch: Record< string, unknown > = {};
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );

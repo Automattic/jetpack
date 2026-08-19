@@ -1,6 +1,10 @@
-import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
+import {
+	AnalyticsQueryClientProvider,
+	GlobalErrorProvider,
+	ReportScopeProvider,
+} from '@jetpack-premium-analytics/data';
 import { Button } from '@jetpack-premium-analytics/externals';
-import { ReportScopeProvider, useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
 	SectionTabPanel,

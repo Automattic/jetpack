@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
-import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
 import {
-	pickReportDateParams,
+	AnalyticsQueryClientProvider,
+	GlobalErrorProvider,
 	ReportScopeProvider,
-	useReportDateFilters,
-} from '@jetpack-premium-analytics/routing';
+} from '@jetpack-premium-analytics/data';
+import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
+import { pickReportDateParams, useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';

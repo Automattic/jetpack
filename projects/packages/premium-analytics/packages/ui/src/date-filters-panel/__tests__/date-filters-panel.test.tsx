@@ -1,4 +1,4 @@
-import { ReportScopeProvider } from '@jetpack-premium-analytics/routing';
+import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateFiltersPanel } from '../date-filters-panel';

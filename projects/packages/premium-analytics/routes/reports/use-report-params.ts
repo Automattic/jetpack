@@ -1,8 +1,11 @@
 /**
  * External dependencies
  */
-import { normalizeReportParams, withoutComparison } from '@jetpack-premium-analytics/data';
-import { useReportScope } from '@jetpack-premium-analytics/routing';
+import {
+	normalizeReportParams,
+	useReportScope,
+	withoutComparison,
+} from '@jetpack-premium-analytics/data';
 import { useSearch } from '@wordpress/route';
 import { useMemo } from 'react';
 /**

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ReportScopeProvider } from '@jetpack-premium-analytics/routing';
+import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { renderHook } from '@testing-library/react';
 /**
  * Internal dependencies

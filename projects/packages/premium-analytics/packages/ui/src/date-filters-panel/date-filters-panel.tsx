@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useReportScope } from '@jetpack-premium-analytics/data';
 import {
 	getQuickSurfacePresets,
 	canStepForward,
@@ -13,7 +14,6 @@ import {
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { formatDateRangeMinimal } from '@jetpack-premium-analytics/formatters';
-import { useReportScope } from '@jetpack-premium-analytics/routing';
 import { BaseControl } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { flushSync } from '@wordpress/element';
