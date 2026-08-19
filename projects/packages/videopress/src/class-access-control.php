@@ -425,8 +425,7 @@ class Access_Control {
 			return array();
 		}
 
-		$guids    = array();
-		$instance = self::instance();
+		$guids = array();
 
 		// Scan for VideoPress blocks (including those in synced patterns).
 		$guids = array_merge( $guids, self::collect_guids_from_blocks( parse_blocks( $post->post_content ) ) );
