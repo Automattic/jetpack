@@ -51,8 +51,10 @@ class Jetpack_Forms {
 
 		Util::init();
 
-		$dashboard = new Dashboard();
-		$dashboard->init();
+		if ( self::is_feedback_dashboard_enabled() ) {
+			$dashboard = new Dashboard();
+			$dashboard->init();
+		}
 
 		if ( is_admin() && apply_filters_deprecated( 'tmp_grunion_allow_editor_view', array( true ), '0.30.5', '', 'This functionality will be removed in an upcoming version.' ) ) {
 			add_action( 'current_screen', '\Automattic\Jetpack\Forms\ContactForm\Editor_View::add_hooks' );
@@ -90,17 +92,21 @@ class Jetpack_Forms {
 	/**
 	 * Returns true if the feedback dashboard is enabled.
 	 *
-	 * The `jetpack_forms_dashboard_enable` filter behind this was retired: there is one
-	 * dashboard and it is always enabled. Kept so existing callers keep working.
-	 *
-	 * @deprecated $$next-version$$ The dashboard is always enabled.
-	 *
-	 * @return boolean Always true.
+	 * @return boolean
 	 */
 	public static function is_feedback_dashboard_enabled() {
-		_deprecated_function( __METHOD__, 'jetpack-forms-$$next-version$$' );
-
-		return true;
+		/**
+		 * Enable the Jetpack Forms dashboard.
+		 *
+		 * Returning false hides the Forms admin menu entry and skips the dashboard
+		 * entirely. Unrelated to which dashboard renders — there is only one.
+		 *
+		 * @module contact-form
+		 * @since 0.3.0
+		 *
+		 * @param bool $enabled Should the Jetpack Forms dashboard be enabled? Default true.
+		 */
+		return apply_filters( 'jetpack_forms_dashboard_enable', true );
 	}
 
 	/**
