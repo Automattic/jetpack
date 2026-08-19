@@ -86,6 +86,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		$this->deactivate_ai_module_for_test();
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		delete_transient( ImageStudio\ASSET_TRANSIENT );
 		remove_all_filters( 'jetpack_image_studio_enabled' );
 		remove_all_filters( 'jetpack_image_studio_can_generate_video_clips' );
@@ -524,6 +525,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_master_option_off_disables_image_studio() {
 		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->force_master_enforcement_for_test();
 		$this->deactivate_ai_module_for_test();
 
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
@@ -537,6 +539,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
 
 		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->force_master_enforcement_for_test();
 		$this->deactivate_ai_module_for_test();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
@@ -560,13 +563,14 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	/**
 	 * Test that a later jetpack_ai_enabled filter cannot re-enable Image Studio
 	 * once the master switch is off — the contract's "off must stay off" state
-	 * test. This is why the environment gate calls apply_master_gates() directly
+	 * test. This is why the environment gate calls apply_site_wide_gates() directly
 	 * instead of re-applying the filter: apply_filters() would let any
 	 * later-priority callback overturn the master switch.
 	 */
 	public function test_master_off_cannot_be_reenabled_by_late_filter() {
 		$this->enable_big_sky();
 		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->force_master_enforcement_for_test();
 		$this->deactivate_ai_module_for_test();
 		add_filter( 'jetpack_ai_enabled', '__return_true', 99 );
 

@@ -82,6 +82,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	 * Reset the options and filters this test touches.
 	 */
 	public function tear_down() {
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		delete_option( Jetpack_AI_Settings::MASTER_OPTION );
 		foreach ( Jetpack_AI_Settings::FEATURE_OPTIONS as $option ) {
 			delete_option( $option );
@@ -316,6 +317,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	public function test_feature_clip_unavailable_when_environment_gate_fails() {
 		wp_set_current_user( self::$admin_id );
 		self::connect_owner();
+
+		// Master enforcement only runs on internal testing environments.
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 
 		// Off-Simple the master is the `ai` module; turn it off.
 		self::set_ai_module_active( false );
@@ -588,6 +592,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	 */
 	public function test_post_master_switch() {
 		wp_set_current_user( self::$admin_id );
+
+		// Master enforcement only runs on internal testing environments.
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 
 		// Off-Simple the master is the `ai` module; start it active so the write
 		// actually flips state and we exercise the setter's module routing.

@@ -61,6 +61,7 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 		}
 
 		$this->deactivate_ai_module_for_test();
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		delete_option( 'jetpack_ai_enabled' );
 		delete_option( 'jetpack_ai_writing_assistant_enabled' );
 		delete_option( 'jetpack_ai_image_editor_enabled' );
@@ -100,6 +101,7 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	 */
 	public function test_block_and_extensions_not_registered_when_master_disabled() {
 		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->force_master_enforcement_for_test();
 		$this->deactivate_ai_module_for_test();
 
 		AIAssistant\register_block();

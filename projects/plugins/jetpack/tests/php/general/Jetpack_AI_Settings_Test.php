@@ -49,9 +49,19 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Master enforcement only runs on internal testing environments while the
+	 * AI controls are not publicly launched. The predicate treats a proxied
+	 * A8C request as internal, so that is the lever the enforcement tests pull.
+	 */
+	private function force_internal_testing_env() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+	}
+
+	/**
 	 * Reset the options and filters this test touches.
 	 */
 	public function tear_down() {
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		delete_option( Jetpack_AI_Settings::MASTER_OPTION );
 		foreach ( Jetpack_AI_Settings::FEATURE_OPTIONS as $option ) {
 			delete_option( $option );
@@ -78,7 +88,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	 * Loading the settings class registers every master-gate filter.
 	 */
 	public function test_class_self_initializes_on_load() {
-		$callback = array( Jetpack_AI_Settings::class, 'apply_master_gates' );
+		$callback = array( Jetpack_AI_Settings::class, 'apply_site_wide_gates' );
 
 		$this->assertNotFalse( has_filter( 'jetpack_ai_enabled', $callback ) );
 		$this->assertNotFalse( has_filter( 'jetpack_search_ai_answers_enabled', $callback ) );
@@ -101,9 +111,12 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Master off (off-Simple: the `ai` module inactive) turns off every AI filter
-	 * the settings class guards.
+	 * the settings class guards — on an internal testing environment, where
+	 * master enforcement is live.
 	 */
 	public function test_master_off_disables_ai_filters() {
+		$this->force_internal_testing_env();
+
 		// Off-Simple, the module is the master and is inactive by default here.
 		$this->assertFalse( Jetpack_AI_Settings::is_master_enabled() );
 		$this->assertFalse( apply_filters( 'jetpack_ai_enabled', true ) );
@@ -113,12 +126,58 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Until the AI controls ship publicly, the master gate is waived outside
+	 * internal testing environments: an inactive `ai` module must not turn AI
+	 * off for the public.
+	 */
+	public function test_master_not_enforced_outside_internal_testing_env() {
+		// Plain test env: not internal, module inactive.
+		$this->assertFalse( Jetpack_AI_Settings::is_master_enabled(), 'Precondition: the stored master state reads off.' );
+
+		$this->assertTrue( apply_filters( 'jetpack_ai_enabled', true ) );
+		$this->assertTrue( apply_filters( 'jetpack_search_ai_answers_enabled', true ) );
+		$this->assertTrue( apply_filters( 'jetpack_ai_sidebar_enabled', true ) );
+		$this->assertTrue( apply_filters( 'jetpack_ai_seo_enabled', true ) );
+		$this->assertTrue( Jetpack_AI_Settings::is_ai_enabled() );
+		$this->assertTrue( Jetpack_AI_Settings::is_ai_seo_enabled() );
+	}
+
+	/**
+	 * The waiver covers only the master gate: the host gate (a server-owner
+	 * decision) keeps enforcing everywhere.
+	 */
+	public function test_host_gate_enforced_outside_internal_testing_env() {
+		if ( ! function_exists( 'wp_supports_ai' ) ) {
+			$this->markTestSkipped( 'wp_supports_ai() is not available in this WordPress version.' );
+		}
+
+		add_filter( 'wp_supports_ai', '__return_false' );
+
+		$this->assertFalse( Jetpack_AI_Settings::is_ai_enabled() );
+		$this->assertFalse( Jetpack_AI_Settings::is_ai_seo_enabled() );
+	}
+
+	/**
+	 * The waiver is an off-Simple concern: WordPress.com Simple keeps its
+	 * existing contract, where the master option enforces regardless of the
+	 * internal-testing predicate.
+	 */
+	public function test_master_option_enforced_on_wpcom_simple_regardless_of_env() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		update_option( Jetpack_AI_Settings::MASTER_OPTION, 0 );
+
+		$this->assertFalse( Jetpack_AI_Settings::is_ai_enabled() );
+		$this->assertFalse( Jetpack_AI_Settings::is_ai_seo_enabled() );
+	}
+
+	/**
 	 * The master gate is final in is_ai_enabled(). A callback registered at the
 	 * latest possible priority can override the in-chain gate callback — that
 	 * bypass is exactly why the helper exists — but it must not get past the
 	 * helper's hard AND.
 	 */
 	public function test_is_ai_enabled_master_gate_is_final() {
+		$this->force_internal_testing_env();
 		update_option( Jetpack_AI_Settings::MASTER_OPTION, 0 );
 		add_filter( 'jetpack_ai_enabled', '__return_true', PHP_INT_MAX );
 
@@ -363,6 +422,8 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	 * so the choice returns when the master does.
 	 */
 	public function test_seo_feature_master_off_preserves_saved_value() {
+		$this->force_internal_testing_env();
+
 		// Seed off first so the row exists: a write equal to the registered
 		// default is short-circuited by update_option and stores nothing.
 		update_option( 'jetpack_ai_seo_enabled', 0 );
@@ -383,6 +444,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	 * override the in-chain gate callback, but not the helper's hard AND.
 	 */
 	public function test_seo_feature_late_filter_cannot_beat_master() {
+		$this->force_internal_testing_env();
 		add_filter( 'jetpack_ai_seo_enabled', '__return_true', 999 );
 
 		// Off-Simple the `ai` module is the master and is inactive by default here.

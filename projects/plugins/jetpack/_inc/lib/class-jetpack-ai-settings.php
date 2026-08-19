@@ -120,12 +120,12 @@ class Jetpack_AI_Settings {
 		// the package consumers that cannot reference this plugin class
 		// (external-media, my-jetpack): there the gates keep their pre-helper,
 		// priority-10 behavior.
-		add_filter( 'jetpack_ai_enabled', array( __CLASS__, 'apply_master_gates' ) );
+		add_filter( 'jetpack_ai_enabled', array( __CLASS__, 'apply_site_wide_gates' ) );
 
 		// AI surfaces that do not flow through jetpack_ai_enabled.
-		add_filter( 'jetpack_search_ai_answers_enabled', array( __CLASS__, 'apply_master_gates' ) );
-		add_filter( 'jetpack_ai_sidebar_enabled', array( __CLASS__, 'apply_master_gates' ) );
-		add_filter( 'jetpack_ai_seo_enabled', array( __CLASS__, 'apply_master_gates' ) );
+		add_filter( 'jetpack_search_ai_answers_enabled', array( __CLASS__, 'apply_site_wide_gates' ) );
+		add_filter( 'jetpack_ai_sidebar_enabled', array( __CLASS__, 'apply_site_wide_gates' ) );
+		add_filter( 'jetpack_ai_seo_enabled', array( __CLASS__, 'apply_site_wide_gates' ) );
 	}
 
 	/**
@@ -199,8 +199,25 @@ class Jetpack_AI_Settings {
 	 * @param bool $enabled The value the call site computed so far.
 	 * @return bool
 	 */
-	public static function apply_master_gates( $enabled ) {
-		return (bool) $enabled && self::host_allows_ai() && self::is_master_enabled();
+	public static function apply_site_wide_gates( $enabled ) {
+		return (bool) $enabled
+			&& self::host_allows_ai()
+			&& ( ! self::is_master_rollout_active() || self::is_master_enabled() );
+	}
+
+	/**
+	 * Whether master enforcement has rolled out here: the AI controls are still
+	 * limited to internal testing environments, so the master only enforces
+	 * there; Simple keeps its option contract. Remove at public launch.
+	 *
+	 * @return bool
+	 */
+	private static function is_master_rollout_active() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return true;
+		}
+
+		return function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment();
 	}
 
 	/**
@@ -217,7 +234,7 @@ class Jetpack_AI_Settings {
 	 * @since 16.2
 	 *
 	 * @param bool $default The call site's computed default. Defaults differ
-	 *                      between call sites — see apply_master_gates().
+	 *                      between call sites — see apply_site_wide_gates().
 	 * @return bool
 	 */
 	public static function is_ai_enabled( $default = true ) {
@@ -230,7 +247,7 @@ class Jetpack_AI_Settings {
 		 */
 		$enabled = (bool) apply_filters( 'jetpack_ai_enabled', $default );
 
-		return $enabled && self::host_allows_ai() && self::is_master_enabled();
+		return self::apply_site_wide_gates( $enabled );
 	}
 
 	/**
@@ -343,7 +360,7 @@ class Jetpack_AI_Settings {
 		 */
 		$enabled = (bool) apply_filters( 'jetpack_ai_seo_enabled', self::is_feature_enabled( 'ai_seo' ) );
 
-		return $enabled && self::host_allows_ai() && self::is_master_enabled();
+		return self::apply_site_wide_gates( $enabled );
 	}
 }
 

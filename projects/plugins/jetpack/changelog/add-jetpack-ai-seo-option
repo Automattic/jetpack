@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Jetpack AI: Add a jetpack_ai_seo_enabled option as the AI SEO feature control. The AI settings page's SEO row and the AI sidebar's user-initiated SEO suggestions now follow it instead of the automatic-generation option, so switching automatic generation off no longer removes user-initiated suggestions, and the saved choice is preserved while site-wide AI is off.
+Jetpack AI: Add a jetpack_ai_seo_enabled option as the AI SEO feature control. The AI settings page's SEO row and the AI sidebar's user-initiated SEO suggestions now follow it instead of the automatic-generation option, so switching automatic generation off no longer removes user-initiated suggestions, and the saved choice is preserved while site-wide AI is off. The site-wide AI switch enforces only on internal testing environments while its controls remain limited to them.

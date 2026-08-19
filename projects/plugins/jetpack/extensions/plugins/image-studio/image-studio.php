@@ -46,7 +46,7 @@ const ASSET_TRANSIENT        = 'jetpack_image_studio_asset';
 function is_image_studio_environment_available() {
 	// The host and master switches win over every environment-based enable
 	// below: off must mean Jetpack loads nothing, even in Big Sky or CIAB.
-	if ( ! \Jetpack_AI_Settings::apply_master_gates( true ) ) {
+	if ( ! \Jetpack_AI_Settings::apply_site_wide_gates( true ) ) {
 		return false;
 	}
 

@@ -32,6 +32,7 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		$this->deactivate_ai_module_for_test();
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		unregister_setting( 'general', 'jetpack_ai_agents_enabled' );
 		Constants::clear_single_constant( 'IS_WPCOM' );
 
@@ -161,6 +162,7 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 		$this->reset_availability();
 		$this->simulate_connected_owner();
 		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->force_master_enforcement_for_test();
 		$this->deactivate_ai_module_for_test();
 
 		AiAssistantPlugin\register_plugin();

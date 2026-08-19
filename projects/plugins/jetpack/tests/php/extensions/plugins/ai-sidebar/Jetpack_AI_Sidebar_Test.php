@@ -80,6 +80,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		$this->deactivate_ai_module_for_test();
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		delete_transient( AiAssistantPlugin\AI_SIDEBAR_ASSET_TRANSIENT );
 		$this->reset_sidebar_hooks();
 		remove_all_filters( 'pre_http_request' );
@@ -693,7 +694,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * Master interplay, both directions. The master gate keeps flowing through
-	 * apply_master_gates on the jetpack_ai_sidebar_enabled filter (re-attached
+	 * apply_site_wide_gates on the jetpack_ai_sidebar_enabled filter (re-attached
 	 * here because set_up() strips the filter): master off hides the sidebar
 	 * regardless of the feature toggles, and master on cannot save a sidebar
 	 * whose features are both off.
@@ -701,10 +702,11 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_preview_master_gate_composes_with_feature_toggles() {
 		// Run the master gate after set_up()'s __return_true override so it
 		// narrows the forced-open base gate, as it does in production.
-		add_filter( 'jetpack_ai_sidebar_enabled', array( \Jetpack_AI_Settings::class, 'apply_master_gates' ), 11 );
+		add_filter( 'jetpack_ai_sidebar_enabled', array( \Jetpack_AI_Settings::class, 'apply_site_wide_gates' ), 11 );
 
 		// Master off + features on: hidden (existing rule, no regression).
 		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->force_master_enforcement_for_test();
 		$this->deactivate_ai_module_for_test();
 		update_option( 'jetpack_ai_writing_assistant_enabled', 1 );
 		update_option( 'jetpack_ai_seo_enabled', 1 );
@@ -736,6 +738,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function test_init_does_nothing_when_master_off_despite_late_filter() {
 		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->force_master_enforcement_for_test();
 		$this->deactivate_ai_module_for_test();
 		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true', 999 );
 
