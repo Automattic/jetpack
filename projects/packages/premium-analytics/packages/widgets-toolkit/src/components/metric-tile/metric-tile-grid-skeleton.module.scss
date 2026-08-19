@@ -7,20 +7,24 @@
  * `metric-tile-grid.module.scss` instead, which stacks full-width rows until
  * `$widget-wide-min-inline-size` — at a 360px dashboard tile, the common
  * case, a centred wrap would read as a block of cards against four full-width
- * rows. */
-$label-block-size: 10px;
-$value-block-size: 24px;
+ * rows.
+ *
+ * Lengths use WPDS dimension tokens wherever the scale expresses them, so the
+ * label stand-in carries the same weight as the leaderboard skeleton's and the
+ * value gap matches the gap the loaded tile puts there. What stays literal is
+ * what no token reaches: the proportional widths, and the two stand-ins sized
+ * from the text they replace. */
 $row-label-inline-size: 45%;
 
 /* Stands in for the formatted count at the end of a narrow row ("12.8k"), which
  * barely varies in width, so it is fixed rather than proportional. */
 $row-value-inline-size: 72px;
 
-$tile-gap: 24px;
+/* Stands in for a tile's minimum width, which the loaded grid expresses as a
+ * fraction of the row rather than a token. */
 $tile-min-inline-size: 90px;
 $tile-label-inline-size: 55%;
 $tile-value-inline-size: 70%;
-$tile-value-gap: 10px;
 
 /* The skeleton renders outside the grid's own container, so it establishes one
  * to query. */
@@ -52,13 +56,13 @@ $tile-value-gap: 10px;
 
 .label {
 	inline-size: $row-label-inline-size;
-	block-size: $label-block-size;
+	block-size: var(--wpds-dimension-size-4xs);
 	border-radius: var(--wpds-border-radius-md);
 }
 
 .value {
 	inline-size: $row-value-inline-size;
-	block-size: $value-block-size;
+	block-size: var(--wpds-dimension-size-sm);
 	border-radius: var(--wpds-border-radius-md);
 }
 
@@ -71,7 +75,7 @@ $tile-value-gap: 10px;
 	.tiles {
 		flex-flow: row wrap;
 		align-content: safe center;
-		gap: $tile-gap;
+		gap: var(--wpds-dimension-gap-xl);
 	}
 
 	.tile {
@@ -88,6 +92,6 @@ $tile-value-gap: 10px;
 
 	.value {
 		inline-size: $tile-value-inline-size;
-		margin-block-start: $tile-value-gap;
+		margin-block-start: var(--wpds-dimension-gap-sm);
 	}
 }

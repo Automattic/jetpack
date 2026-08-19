@@ -16,10 +16,26 @@ const TILES = [
 	{ key: 'comments', icon: comment, label: 'Comments', value: 42 },
 ];
 
+/* Frames a story as a dashboard widget body: the tile's own box, inset by the
+ * dashboard's `--wp-ui-card-padding` override, so a shape clears the card
+ * border by the same distance it does in product. */
 const makeCanvas = ( width: string, height: string ): Decorator =>
 	function CanvasDecorator( Story ) {
 		return (
-			<div style={ { width, height, display: 'flex', flexDirection: 'column' } }>
+			<div
+				style={ {
+					width,
+					height,
+					border: '1px solid var(--wpds-color-stroke-surface-neutral-weak)',
+					borderRadius: 'var(--wpds-border-radius-md)',
+					background: 'var(--wpds-color-background-surface-neutral)',
+					padding: 'var(--wpds-dimension-padding-lg)',
+					boxSizing: 'border-box',
+					display: 'flex',
+					flexDirection: 'column',
+					overflow: 'hidden',
+				} }
+			>
 				<Story />
 			</div>
 		);
