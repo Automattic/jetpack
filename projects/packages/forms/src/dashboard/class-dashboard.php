@@ -358,6 +358,22 @@ class Dashboard {
 	}
 
 	/**
+	 * Render the legacy dashboard mount point.
+	 *
+	 * Nothing registers this any more — the legacy dashboard was retired and its bundle
+	 * is no longer enqueued, so the container it prints stays empty. Kept, and left
+	 * printing the same markup, so any caller outside this package behaves as before.
+	 *
+	 * @deprecated $$next-version$$ The legacy dashboard was retired.
+	 */
+	public function render_dashboard() {
+		_deprecated_function( __METHOD__, 'jetpack-forms-$$next-version$$' );
+		?>
+		<div id="jp-forms-dashboard"></div>
+		<?php
+	}
+
+	/**
 	 * Render an error notice when the wp-build dashboard cannot render.
 	 *
 	 * The wp-build dashboard renders through a callback generated into `build/build.php`.
@@ -601,6 +617,39 @@ class Dashboard {
 		}
 
 		return '/responses/inbox';
+	}
+
+	/**
+	 * Legacy (hash-based) URL suffix for the forms admin page.
+	 *
+	 * Unused since the legacy dashboard was retired: get_forms_admin_url() always builds
+	 * the wp-build URL now. Kept rather than deleted, and still private, so nothing
+	 * outside this class ever depended on it.
+	 *
+	 * @deprecated $$next-version$$ The legacy dashboard was retired.
+	 *
+	 * @param string|null $tab    Tab to open.
+	 * @param int|null    $post_id Post ID of response.
+	 * @return string URL suffix (e.g. '#/responses?status=inbox&r=123', or '#/forms').
+	 */
+	private static function get_forms_admin_suffix_legacy( $tab, $post_id ) {
+		$post_id    = ! empty( $post_id ) ? absint( $post_id ) : null;
+		$valid_tabs = array( 'spam', 'inbox', 'trash' );
+		$r_param    = ! empty( $post_id ) ? '&r=' . $post_id : '';
+
+		if ( in_array( $tab, $valid_tabs, true ) ) {
+			return '#/responses?status=' . $tab . $r_param;
+		}
+
+		if ( $tab === 'forms' ) {
+			return '#/forms';
+		}
+
+		if ( ! empty( $post_id ) ) {
+			return '#/responses?status=inbox' . $r_param;
+		}
+
+		return '';
 	}
 
 	/**

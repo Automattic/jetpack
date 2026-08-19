@@ -1,4 +1,4 @@
 Significance: minor
-Type: removed
+Type: deprecated
 
-Dashboard: retire the jetpack_forms_alpha and jetpack_forms_dashboard_enable filters.
+Dashboard: deprecate the jetpack_forms_alpha and jetpack_forms_dashboard_enable filters, which no longer select anything.
