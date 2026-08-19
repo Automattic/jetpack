@@ -261,11 +261,35 @@ class Dashboard_Test extends BaseTestCase {
 			}
 		);
 
+		set_current_screen( 'dashboard' );
 		add_filter( 'jetpack_forms_alpha', '__return_false' );
 		( new Dashboard() )->init();
 		remove_filter( 'jetpack_forms_alpha', '__return_false' );
 
 		$this->assertContains( 'jetpack_forms_alpha', $announced );
+	}
+
+	/**
+	 * The filter only ever affected wp-admin, and this class loads on every request.
+	 * Announcing outside admin would drop the notice into front-end, REST and cron
+	 * output on any site still carrying the filter.
+	 */
+	public function test_init_does_not_announce_outside_admin() {
+		$announced = array();
+		add_filter( 'deprecated_hook_trigger_error', '__return_false' );
+		add_action(
+			'deprecated_hook_run',
+			function ( $hook ) use ( &$announced ) {
+				$announced[] = $hook;
+			}
+		);
+
+		set_current_screen( 'front' );
+		add_filter( 'jetpack_forms_alpha', '__return_false' );
+		( new Dashboard() )->init();
+		remove_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		$this->assertNotContains( 'jetpack_forms_alpha', $announced );
 	}
 
 	/**
@@ -281,6 +305,7 @@ class Dashboard_Test extends BaseTestCase {
 			}
 		);
 
+		set_current_screen( 'dashboard' );
 		( new Dashboard() )->init();
 
 		$this->assertNotContains( 'jetpack_forms_alpha', $announced );
