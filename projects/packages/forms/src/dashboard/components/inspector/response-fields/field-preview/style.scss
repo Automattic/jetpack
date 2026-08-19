@@ -44,6 +44,9 @@
 	font-weight: 300;
 }
 
-.jp-forms__inbox-response-data-value {
+.jp-forms__inbox-response-data-value,
+.jp-forms__field-preview-value {
+	// Answers to multi-line fields are stored with their newlines; without this
+	// they collapse into a single run-on paragraph.
 	white-space: pre-wrap;
 }

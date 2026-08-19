@@ -261,11 +261,12 @@ class No_Results_Render_Test extends TestCase {
 		);
 
 		// The stray sits inside a variant wrapper bound to the unscoped
-		// condition, not loose in the container.
+		// condition, not loose in the container. Only the nesting is asserted:
+		// the paragraph's attributes come from core, and WP 7.0 adds a
+		// `wp-block-paragraph` class to them.
 		$this->assertSame(
 			1,
 			preg_match(
-				// The <p> carries core's own classes — wp-block-paragraph as of WordPress 7.0 — so don't pin them.
 				'/<div class="jetpack-search-no-results__variant"[^>]*>\s*<p[^>]*>STRAY COPY<\/p>\s*<\/div>/',
 				$markup
 			),

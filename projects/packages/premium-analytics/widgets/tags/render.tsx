@@ -3,6 +3,7 @@
  */
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
 	WidgetBackLink,
 	WidgetFooter,
@@ -176,6 +177,9 @@ function TagsInner( { max = 10 }: TagsAttributes ) {
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
+					// The drilled-in view is a plain link list, not a leaderboard, so it
+					// keeps the default shape.
+					renderLoading={ selectedGroup ? undefined : <LeaderboardSkeleton rows={ max } /> }
 				>
 					{ selectedGroup ? (
 						<TagGroupMembers members={ selectedGroup.children } />

@@ -18,7 +18,6 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/verbum-comments/assets/cl
  */
 #[CoversClass( Verbum_Block_Utils::class )]
 class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
-
 	/**
 	 * Ensure string comments are not modified when 'render_verbum_blocks' is applied
 	 */
@@ -45,12 +44,11 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 		$comment_content  = '<!-- wp:paragraph --><p>test</p><!-- /wp:paragraph --><!-- wp:list --><ul><!-- wp:list-item --><li>1</li><!-- /wp:list-item --><!-- wp:list-item --><li>2</li><!-- /wp:list-item --><!-- wp:list-item --><li>3</li><!-- /wp:list-item --></ul><!-- /wp:list --><!-- wp:quote --><blockquote class="wp-block-quote"><!-- wp:paragraph --><p>something</p><!-- /wp:paragraph --><cite>someone</cite></blockquote><!-- /wp:quote -->';
 		$filtered_content = preg_replace( '/\R+/', '', Verbum_Block_Utils::render_verbum_blocks( $comment_content ) );
 
-		/*
-		 * The classes here come from core's block rendering, not from Verbum, and they move
-		 * between WordPress releases. Update them when core changes rather than reading
-		 * anything into them.
-		 */
-		$expected_content = '<p class="wp-block-paragraph">test</p><ul><li>1</li><li>2</li><li>3</li></ul><blockquote class="wp-block-quote is-layout-flow wp-block-quote-is-layout-flow"><p class="wp-block-paragraph">something</p><cite>someone</cite></blockquote>';
+		// WP 7.0 appends `wp-block-paragraph` to rendered paragraph blocks; detected through core's own
+		// filter rather than a version compare, so check for a rename here if this ever mismatches.
+		// The quote's layout classes are emitted by both 6.9 and 7.0.
+		$paragraph_class  = false !== has_filter( 'render_block_core/paragraph', 'block_core_paragraph_add_class' ) ? ' class="wp-block-paragraph"' : '';
+		$expected_content = "<p{$paragraph_class}>test</p><ul><li>1</li><li>2</li><li>3</li></ul><blockquote class=\"wp-block-quote is-layout-flow wp-block-quote-is-layout-flow\"><p{$paragraph_class}>something</p><cite>someone</cite></blockquote>";
 
 		$this->assertSame( $expected_content, $filtered_content );
 	}

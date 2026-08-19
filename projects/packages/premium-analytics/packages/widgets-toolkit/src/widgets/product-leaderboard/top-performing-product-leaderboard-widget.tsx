@@ -10,7 +10,11 @@ import { Icon } from '@jetpack-premium-analytics/externals';
 import { productBlouse } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { buildLeaderboardRow, LeaderboardChart } from '../../components/chart-leaderboard';
+import {
+	buildLeaderboardRow,
+	LeaderboardChart,
+	LeaderboardSkeleton,
+} from '../../components/chart-leaderboard';
 import { useWidgetRootContext } from '../../components/widget-root';
 import { WidgetState } from '../../components/widget-state';
 /**
@@ -184,6 +188,7 @@ export function TopPerformingProductLeaderboardWidget( {
 					emptyStateText ??
 					__( 'No product sales in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <LeaderboardSkeleton rows={ limit } /> }
 		>
 			<LeaderboardChart
 				data={ chartData }

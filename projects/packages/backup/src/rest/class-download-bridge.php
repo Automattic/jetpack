@@ -110,7 +110,7 @@ class Download_Bridge {
 		// empty selection as an omission would hand back the full archive
 		// the caller had just excluded. `/rewind/downloads` has no
 		// server-side guard of its own, unlike the v2 restore route.
-		if ( Rest_Controller::types_name_nothing( $types ) ) {
+		if ( Rest_Controller::request_names_no_types( $request ) ) {
 			return new WP_Error(
 				'no_types_selected',
 				__( 'Select at least one item to download.', 'jetpack-backup-pkg' ),

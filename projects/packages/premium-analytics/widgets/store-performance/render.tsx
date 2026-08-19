@@ -8,6 +8,7 @@ import {
 import {
 	BOOKINGS_FILTER,
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	buildTimeSeriesChartData,
@@ -317,6 +318,7 @@ function StorePerformanceContent() {
 		<div className={ styles.widgetRoot }>
 			<WidgetState
 				isLoading={ isInitialLoading }
+				isFetching={ isFetching }
 				isError={ isError }
 				// The tabs are fixed, so there is always something to render: the only
 				// empty state this widget ever had was "no metric selected".
@@ -328,23 +330,11 @@ function StorePerformanceContent() {
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
-				// First load keeps the widget's chart-shaped skeleton (the metric tabs
-				// over the chart's own loading overlay) instead of the default overlay.
-				renderLoading={
-					<MetricTabsChart
-						metrics={ metricTabs }
-						dataFormat={ DEFAULT_DATA_FORMAT }
-						loading
-						groupLabel={ __( 'Store metric', 'jetpack-premium-analytics-pkg' ) }
-					/>
-				}
+				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
-				{ /* Background refetches keep the overlay scoped to the chart area so
-				     the metric tabs stay usable, matching the pre-WidgetState behavior. */ }
 				<MetricTabsChart
 					metrics={ metricTabs }
 					dataFormat={ DEFAULT_DATA_FORMAT }
-					loading={ isFetching }
 					groupLabel={ __( 'Store metric', 'jetpack-premium-analytics-pkg' ) }
 				/>
 			</WidgetState>
