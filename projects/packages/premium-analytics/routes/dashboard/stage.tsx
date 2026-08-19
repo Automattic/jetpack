@@ -25,7 +25,7 @@ import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { DashboardSections, SectionSyncNotice } from './components';
+import { DashboardSections, RefreshFailureNotice, SectionSyncNotice } from './components';
 import {
 	DATE_FILTER_YEAR,
 	isSectionAwaitingSync,
@@ -292,6 +292,9 @@ function Dashboard(): JSX.Element {
 										>
 											{ dateControls }
 										</SectionHeader>
+										{ /* Inside the pinned band so the only Retry on the page stays
+										     reachable however far the reader has scrolled. */ }
+										<RefreshFailureNotice className={ styles.refreshFailure } />
 									</div>
 
 									{ activeSection === section.slug ? (

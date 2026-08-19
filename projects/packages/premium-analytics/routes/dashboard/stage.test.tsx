@@ -111,6 +111,9 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 
 jest.mock( './components', () => ( {
 	DashboardSections: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	// Reads the shared query cache, which these tests don't stand up; the notice
+	// has its own coverage in `use-refresh-failure` and `stale-data-notice`.
+	RefreshFailureNotice: () => null,
 	SectionSyncNotice: ( {
 		percentage,
 		hasError,

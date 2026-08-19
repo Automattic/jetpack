@@ -197,6 +197,7 @@ export type {
 	StatsAppDashboardStoreModule,
 } from './use-stats-app-dashboard-modules';
 export type { UseStatsOptions } from './use-stats-report';
+export { useRefreshFailure, type RefreshFailure } from './use-refresh-failure';
 
 /**
  * @deprecated Use individual hooks instead: useReportOrders, useReportOrderAttribution, useReportCoupons

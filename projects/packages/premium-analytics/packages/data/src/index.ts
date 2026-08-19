@@ -230,6 +230,7 @@ export type {
 } from './hooks/use-stats-app-dashboard-modules';
 export type { StatsDeviceProperty } from './queries/stats-devices-query';
 export type { UseStatsOptions } from './hooks/use-stats-report';
+export { useRefreshFailure, type RefreshFailure } from './hooks/use-refresh-failure';
 export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,
