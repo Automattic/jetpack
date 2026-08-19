@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Date controls: derive both the comparison control and the comparison params from one declaration per surface, instead of each page answering the same question twice.

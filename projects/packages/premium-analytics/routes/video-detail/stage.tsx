@@ -166,13 +166,12 @@ function VideoDetail(): JSX.Element {
 						<div className={ styles.dateFilters }>
 							{ /*
 							 * The design has no period-over-period comparison on this
-							 * page, so the Compare control is opted out. What keeps the
-							 * widgets from reading the params is the report scope the
-							 * stage declares, not this prop.
+							 * page. The panel reads that from the scope the stage
+							 * declares, which is the same declaration that keeps the
+							 * params away from the widgets.
 							 */ }
 							<DateFiltersPanel
 								{ ...dateFilters }
-								showComparison={ false }
 								containerElement={ headerElement }
 								reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
 							/>

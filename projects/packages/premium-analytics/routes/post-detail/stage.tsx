@@ -173,15 +173,14 @@ function PostDetail(): JSX.Element {
 								<div className={ styles.dateFilters }>
 									{ /*
 									 * The design has no period-over-period comparison on
-									 * this page, so the Compare control is opted out;
-									 * comparison params stay in the URL so the breadcrumb
-									 * carries them back to the dashboard. What keeps the
-									 * widgets from reading them is the report scope the
-									 * stage declares, not this prop.
+									 * this page. The panel reads that from the scope the
+									 * stage declares, which is the same declaration that
+									 * keeps the params away from the widgets; the params
+									 * themselves stay in the URL so the breadcrumb carries
+									 * them back to the dashboard.
 									 */ }
 									<DateFiltersPanel
 										{ ...dateFilters }
-										showComparison={ false }
 										containerElement={ headerElement }
 										reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
 									/>

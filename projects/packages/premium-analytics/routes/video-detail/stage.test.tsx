@@ -25,9 +25,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: ( { showComparison }: { showComparison?: boolean } ) => (
-		<div>{ showComparison === false ? 'Date filters without comparison' : 'Date filters' }</div>
-	),
+	DateFiltersPanel: () => <div>Date filters</div>,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
 	StatsPageIcon: () => null,
@@ -329,14 +327,9 @@ describe( 'video detail stage', () => {
 		).toBeInTheDocument();
 	} );
 
-	it( 'renders the date filters without the comparison control', () => {
-		mockSummary( { title: 'Launch recap' } );
-
-		render( stage() );
-
-		expect( screen.getByText( 'Date filters without comparison' ) ).toBeInTheDocument();
-	} );
-
+	// One declaration drives both halves: the panel reads it to drop the Compare
+	// control (covered in the ui package) and `WidgetRoot` reads it to strip the
+	// params. This asserts the declaration the page makes.
 	it( 'declares no comparison for the widgets it renders', () => {
 		mockSummary( { title: 'Launch recap' } );
 		mockSearch = {
