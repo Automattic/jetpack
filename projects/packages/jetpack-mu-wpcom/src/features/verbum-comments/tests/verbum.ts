@@ -1,14 +1,21 @@
-import { expect, type FrameLocator, type Locator, type Page } from '@playwright/test';
+import { errors, expect, type FrameLocator, type Locator, type Page } from '@playwright/test';
 import { testingUser } from './utils';
 import type { Scenario, Surface } from './sites';
 
 const JETPACK_IFRAME = 'iframe[name="jetpack_remote_comment"]';
 
-// `waitFor` throws on timeout; every caller here wants a yes/no instead.
+// `waitFor` throws on timeout; every caller here wants a yes/no instead. Anything else it
+// throws is a real fault (an ambiguous selector, a closed page), so let it through rather
+// than reporting the element as absent and failing somewhere less obvious.
 const appears = ( locator: Locator, timeout: number ) =>
 	locator.waitFor( { timeout } ).then(
 		() => true,
-		() => false
+		error => {
+			if ( error instanceof errors.TimeoutError ) {
+				return false;
+			}
+			throw error;
+		}
 	);
 
 /** The subset of the `window.VerbumComments` blob the specs read. */
@@ -51,8 +58,11 @@ export class VerbumForm {
 	}
 
 	// Only rendered when the block editor is enabled; it stands in until the editor loads.
+	// `attachGutenberg` gives the real editor a second `.verbum-editor-wrapper` and the
+	// placeholder outlives it by a tick, so match on the class only the placeholder carries
+	// rather than leaving a window where this resolves to two elements.
 	get editorPlaceholder() {
-		return this.root.locator( '.verbum-editor-wrapper' );
+		return this.root.locator( '.verbum-editor-wrapper:has(.loading-placeholder)' );
 	}
 
 	get blockEditor() {
@@ -73,20 +83,26 @@ export class VerbumForm {
 		await this.page.goto( `${ url }#respond` );
 		// The banner covers the form but doesn't stop it rendering, so let the two waits
 		// overlap rather than paying for the banner's absence before starting this one.
-		const consent = this.dismissCookieConsent();
-		await expect( this.submitButton ).toBeVisible();
-		await consent;
+		// Both go through `Promise.all` so a failed form wait can't orphan the other and
+		// surface later as an unhandled rejection against an unrelated test.
+		await Promise.all( [ expect( this.submitButton ).toBeVisible(), this.dismissCookieConsent() ] );
 	}
 
 	// `should_load_gutenberg_comments()` as the client sees it. Reading the flag is
-	// race-free, unlike looking for the markup Verbum renders from it — that only appears
-	// a tick after first paint, so its absence proves nothing on its own.
+	// race-free, unlike looking for the markup Verbum renders from it. That markup only
+	// appears a tick after first paint, so its absence proves nothing on its own.
 	async blocksEnabled(): Promise< boolean > {
-		return this.root
-			.locator( 'body' )
-			.evaluate( () =>
-				Boolean( ( window as unknown as VerbumWindow ).VerbumComments?.enableBlocks )
-			);
+		return this.root.locator( 'body' ).evaluate( () => {
+			const settings = ( window as unknown as VerbumWindow ).VerbumComments;
+
+			// Coercing a missing blob to `false` would let "blocks are off" and "the
+			// settings never printed" pass the same assertion.
+			if ( ! settings ) {
+				throw new Error( 'window.VerbumComments is missing: the settings blob never printed.' );
+			}
+
+			return Boolean( settings.enableBlocks );
+		} );
 	}
 
 	async write( comment: string ) {
@@ -111,18 +127,28 @@ export class VerbumForm {
 
 	// Submit, then confirm the comment is published on the post.
 	async submit( comment: string ) {
+		// Name the stuck gate directly. Clicking a disabled button instead burns the whole
+		// test timeout and reports only that the click never landed.
+		await expect( this.submitButton ).toBeEnabled();
 		await this.submitButton.click();
 		await this.dismissSubscriptionModal();
 		await expect( this.page.getByText( comment ) ).toBeVisible();
 	}
 
-	// Log in through the WordPress.com popup — the one identity path offered on every
+	// Log in through the WordPress.com popup, the one identity path offered on every
 	// surface. Signing in to the host site instead (`hc_post_as=jetpack`) needs per-site
 	// credentials and is covered by the manual checklist in README.md.
+	//
+	// Call `write()` first. The social buttons sit in the subscription tray, which is
+	// collapsed to `grid-template-rows: 0fr` with `overflow: hidden` until a keyup in the
+	// comment field opens it, so clicking before typing has no hit target.
 	async logIn() {
-		const popupPromise = this.page.waitForEvent( 'popup' );
-		await this.root.locator( 'button.social-button.wordpress' ).first().click();
-		const popup = await popupPromise;
+		// Both in one `Promise.all` so a failed click can't orphan the popup wait and have
+		// it reject 30s later against whichever test is running by then.
+		const [ popup ] = await Promise.all( [
+			this.page.waitForEvent( 'popup' ),
+			this.root.locator( 'button.social-button.wordpress' ).first().click(),
+		] );
 
 		await popup.getByLabel( 'Email Address or Username' ).fill( testingUser.username );
 		await popup.getByRole( 'button', { name: 'Continue', exact: true } ).click();
@@ -154,14 +180,20 @@ export class VerbumForm {
 		}
 	}
 
-	// Simple sites interpose a subscription offer before landing on the new comment.
+	// Simple renders Verbum's subscription modal. Atomic renders Jetpack's modal in the
+	// host page. Both close controls live on the page rather than inside the Verbum iframe.
 	private async dismissSubscriptionModal() {
-		if ( this.surface.iframe ) {
-			return;
-		}
-
-		// Absent for site members and when the modal is turned off.
-		const close = this.root.locator( '.verbum-simple-subscribe-modal__close-button' );
+		// Absent for site members and when the relevant modal is turned off. Only one can
+		// render per surface, but `appears()` rethrows a strict-mode violation, so take the
+		// first match rather than failing the test if that ever stops being true.
+		const close = this.page
+			.locator(
+				[
+					'.verbum-simple-subscribe-modal__close-button',
+					'.jetpack-subscription-modal__close a',
+				].join( ', ' )
+			)
+			.first();
 
 		if ( await appears( close, 15000 ) ) {
 			await close.click();

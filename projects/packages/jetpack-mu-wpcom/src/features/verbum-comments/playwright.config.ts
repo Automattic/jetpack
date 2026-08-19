@@ -14,9 +14,10 @@ export default defineConfig< { surface: Surface } >( {
 	forbidOnly: !! process.env.CI,
 	/* Retry on CI only */
 	retries: process.env.CI ? 2 : 0,
-	/* A page load, a WordPress.com login popup, and the block editor fetched from
-	   widgets.wp.com all have to fit inside one test, so 30s is not enough. */
-	timeout: 90000,
+	/* A page load, a WordPress.com login popup, the block editor fetched from
+	   widgets.wp.com, and the wait for a subscription modal that may never open all have
+	   to fit inside one test, so 30s is nowhere near enough. */
+	timeout: 120000,
 	expect: {
 		timeout: 30000,
 	},

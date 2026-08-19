@@ -20,13 +20,18 @@ test( 'a visitor can comment by supplying a name and email', async ( {
 	await expect( verbum.panel ).toContainText(
 		'Log in or provide your name and email to leave a comment.'
 	);
-	// Nothing can be submitted until the required fields are filled in.
+	await verbum.write( comment );
+
+	// Assert after writing: an empty comment disables the button on its own, so checking
+	// earlier would pass on a site that asks for neither field. With the comment in place,
+	// only the missing name and email hold it.
 	await expect( verbum.submitButton ).toBeDisabled();
 
-	await verbum.write( comment );
 	await verbum.emailField.fill( email );
 	await verbum.nameField.fill( name );
 
+	// submit() asserts the button is enabled first, so this fails loudly if supplying the
+	// fields did not release the gate.
 	await verbum.submit( comment );
 
 	await expect( page.getByText( name ) ).toBeVisible();

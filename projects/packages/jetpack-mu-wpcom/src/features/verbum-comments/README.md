@@ -117,7 +117,7 @@ On Atomic Sites: Sync the Verbum code changes to your sandbox and sandbox `jetpa
 
 ### Testing
 
-Verbum is served from a WordPress.com Simple site on every platform — rendered in the page on Simple, and embedded from `jetpack.wordpress.com` on Atomic and self-hosted. So the specs in `tests/specs` are written once and run once per *surface*, where a surface says how the form is embedded and whether blocks are available. Surfaces are defined in `tests/sites.ts` and become Playwright projects, so adding a platform is one entry there rather than a new directory of tests.
+Verbum is served from a WordPress.com Simple site on every platform, rendered in the page on Simple, and embedded from `jetpack.wordpress.com` on Atomic and self-hosted. So the specs in `tests/specs` are written once and run once per *surface*, where a surface says how the form is embedded and whether blocks are available. Surfaces are defined in `tests/sites.ts` and become Playwright projects, so adding a platform is one entry there rather than a new directory of tests.
 
 | surface | form | blocks |
 | --- | --- | --- |
@@ -155,17 +155,19 @@ There is no permanent self-hosted test site, so that surface is opt-in: set `VER
 VERBUM_SELFHOSTED_URL=https://your-site.jurassic.ninja/2024/01/01/hello-world/ pnpm run e2e-tests
 ```
 
-Two scenarios need their own post, because they depend on the site's discussion settings. Set them if you want those specs to run instead of skip:
+`VERBUM_SELFHOSTED_URL` is the open-comments post, so turn **both** discussion settings off on that site first. WordPress ships "Comment author must fill out name and email" *on*, so a stock site fails the logged-out spec on the panel text before it ever submits.
 
-- `VERBUM_SELFHOSTED_NAME_EMAIL_URL` — a post on a site with "Comment author must fill out name and email" on.
-- `VERBUM_SELFHOSTED_LOGIN_URL` — a post on a site with "Users must be registered and logged in to comment" on.
+Two more scenarios need their own post, because they depend on those same settings. Set them if you want those specs to run instead of skip:
+
+- `VERBUM_SELFHOSTED_NAME_EMAIL_URL`, a post on a site with "Comment author must fill out name and email" on.
+- `VERBUM_SELFHOSTED_LOGIN_URL`, a post on a site with "Users must be registered and logged in to comment" on.
 
 The iframe origin `jetpack.wordpress.com` is hardcoded, so point it at your sandbox in `/etc/hosts` before running. The suite uses Firefox because it respects the hosts file.
 
 #### Known gaps
 
 - **Signing in to the host site is not covered.** On Atomic and self-hosted, a visitor already logged in to the site itself comments as `hc_post_as=jetpack` with a signed identity, which is a different path from the WordPress.com popup the specs use. It needs per-site credentials, so check it by hand: log in to the site's `wp-admin`, open a post, and confirm the form reads "Logged in as <name>" with no logout link, then leave a comment and confirm it is attributed to that user.
-- **Blocks on the iframe surfaces cannot be tested as enabled.** `should_load_gutenberg_comments()` hard-returns `false` for blog `522232`, the blog the iframe runs as, so `block-editor.test.ts` asserts blocks are *off* there. That assertion is the point — it pins today's behavior until the iframe comes out.
+- **Blocks on the iframe surfaces cannot be tested as enabled.** `should_load_gutenberg_comments()` hard-returns `false` for blog `522232`, the blog the iframe runs as, so `block-editor.test.ts` asserts blocks are *off* there. That assertion is the point. It pins today's behavior until the iframe comes out.
 - **The block editor spec depends on connection speed.** `isFastConnection()` only enables the editor when the bundle loads within about two seconds, so a slow network makes Simple fall back to the plain textarea and the spec fail. Re-run on a better connection before chasing it as a regression.
 
 ### Where to track new Verbum Issues

@@ -1,6 +1,6 @@
 /**
- * `should_load_gutenberg_comments()` hard-returns false for blog 522232 — the blog the
- * jetpack.wordpress.com iframe runs as — so blocks reach Simple only. Pinning both halves
+ * `should_load_gutenberg_comments()` hard-returns false for blog 522232, the blog the
+ * jetpack.wordpress.com iframe runs as, so blocks reach Simple only. Pinning both halves
  * means milestone 3 flips `blocksEnabled` rather than rewriting the spec.
  */
 import { test, expect } from '../fixtures';

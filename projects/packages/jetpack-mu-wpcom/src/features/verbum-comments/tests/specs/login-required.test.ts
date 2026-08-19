@@ -15,9 +15,13 @@ test( 'a visitor must log in first when the site requires registration', async (
 	await verbum.open( 'require_login' );
 
 	await expect( verbum.panel ).toContainText( 'Log in to leave a comment.' );
-	await expect( verbum.submitButton ).toBeDisabled();
 
 	await verbum.write( comment );
+
+	// Assert after writing: an empty comment disables the button on its own, so checking
+	// earlier would pass on a site with no registration requirement at all.
+	await expect( verbum.submitButton ).toBeDisabled();
+
 	await verbum.logIn();
 
 	await verbum.submit( comment );

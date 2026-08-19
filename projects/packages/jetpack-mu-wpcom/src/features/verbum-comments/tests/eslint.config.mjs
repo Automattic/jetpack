@@ -12,7 +12,8 @@ export default defineConfig(
 			// unconditional skip is still worth catching.
 			'playwright/no-skipped-test': [ 'warn', { allowConditional: true } ],
 			// VerbumForm.submit() asserts the comment published, so a spec ending there
-			// is not assertion-free.
+			// is not assertion-free. The rule matches on the bare method name, so this
+			// counts any `.submit()` call, not just VerbumForm's.
 			'playwright/expect-expect': [ 'warn', { assertFunctionNames: [ 'submit' ] } ],
 		},
 	},
