@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
 
 /**
@@ -39,6 +40,8 @@ class AI_Answers_Test extends Search_TestCase {
 		parent::tearDown();
 
 		$this->remove_ai_master_filters();
+		unset( $GLOBALS['jetpack_search_test_internal_env'] );
+		Constants::clear_single_constant( 'IS_WPCOM' );
 
 		if ( $this->posts_query_filter !== null ) {
 			remove_filter( 'posts_pre_query', $this->posts_query_filter, 10 );
@@ -111,6 +114,38 @@ class AI_Answers_Test extends Search_TestCase {
 	public function test_is_master_enabled_is_true_when_the_master_is_on() {
 		$this->turn_ai_master_on();
 		$this->assertTrue( AI_Answers::is_master_enabled() );
+	}
+
+	public function test_is_master_enabled_reports_on_outside_internal_testing_environments() {
+		// The master rollout is a12s-scoped: public sites report ungated even
+		// when the gate is registered, so no master-off UI leaks before the sweep.
+		$this->turn_ai_master_off();
+		$GLOBALS['jetpack_search_test_internal_env'] = false;
+
+		$this->assertTrue( AI_Answers::is_master_enabled() );
+	}
+
+	public function test_is_master_enabled_reports_the_gate_on_wpcom_simple_regardless_of_environment() {
+		// On Simple the option keeps its contract and the master enforces
+		// publicly (see the plugin's is_master_rollout_active()), so the
+		// reporting must follow it there even outside internal environments.
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->turn_ai_master_off();
+		$GLOBALS['jetpack_search_test_internal_env'] = false;
+
+		$this->assertFalse( AI_Answers::is_master_enabled() );
+	}
+
+	public function test_is_enabled_still_gated_outside_internal_testing_environments() {
+		// Enforcement is the plugin's public filter — only the *reporting* is
+		// scoped. A public master-off site still reports the feature off.
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+		$this->turn_ai_master_off();
+		$GLOBALS['jetpack_search_test_internal_env'] = false;
+
+		$this->assertFalse( AI_Answers::is_enabled() );
+
+		delete_option( 'jetpack_search_ai_answers_enabled' );
 	}
 
 	public function test_is_master_enabled_ignores_the_option() {

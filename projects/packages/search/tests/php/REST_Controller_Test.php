@@ -64,6 +64,7 @@ class REST_Controller_Test extends Search_TestCase {
 		}
 		delete_option( 'reader_chat' );
 		$this->remove_ai_master_filters();
+		unset( $GLOBALS['jetpack_search_test_internal_env'] );
 		parent::tearDown();
 	}
 
@@ -819,6 +820,30 @@ class REST_Controller_Test extends Search_TestCase {
 		$data = $response->get_data();
 		$this->assertFalse( $data['ai_answers_enabled'] );
 		$this->assertTrue( $data['ai_answers_saved'] );
+	}
+
+	/**
+	 * Outside internal testing environments the payload reports the master as
+	 * on and enabling stays allowed — the rollout must not leak publicly.
+	 */
+	public function test_master_reporting_is_scoped_to_internal_testing_environments() {
+		wp_set_current_user( $this->admin_id );
+		$this->enable_instant_search();
+		$this->turn_ai_master_off();
+		$GLOBALS['jetpack_search_test_internal_env'] = false;
+
+		$get = new WP_REST_Request( 'GET', '/jetpack/v4/search/settings' );
+		$this->assertTrue( $this->server->dispatch( $get )->get_data()['ai_master_enabled'] );
+
+		$post = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$post->set_header( 'content-type', 'application/json' );
+		$post->set_body( wp_json_encode( array( 'ai_answers_enabled' => true ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $post );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+
+		unset( $GLOBALS['jetpack_search_test_internal_env'] );
 	}
 
 	/**

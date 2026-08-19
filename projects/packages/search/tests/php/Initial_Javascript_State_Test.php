@@ -17,7 +17,17 @@ class Initial_Javascript_State_Test extends Search_TestCase {
 
 	public function tearDown(): void {
 		$this->remove_ai_master_filters();
+		unset( $GLOBALS['jetpack_search_test_internal_env'] );
 		parent::tearDown();
+	}
+
+	public function test_it_reports_the_master_as_on_outside_internal_testing_environments() {
+		$this->turn_ai_master_off();
+		$GLOBALS['jetpack_search_test_internal_env'] = false;
+
+		$state = Helper::generate_initial_javascript_state();
+
+		$this->assertTrue( $state['aiMasterEnabled'] );
 	}
 
 	public function test_it_reports_the_ai_master_switch_as_off() {

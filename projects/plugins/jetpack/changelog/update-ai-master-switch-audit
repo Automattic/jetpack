@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Search: report the saved AI Answers choice while the site-wide AI switch is off, disable the controls, and honor the host AI opt-out in the AI Answer block. Require Instant Search to enable AI Answers.
+Search: report the saved AI Answers choice while the site-wide AI switch is off, disable the controls, and honor the host AI opt-out in the AI Answer block. Require Instant Search to enable AI Answers. The master-state reporting follows the rollout: live on WordPress.com Simple, internal testing environments elsewhere.

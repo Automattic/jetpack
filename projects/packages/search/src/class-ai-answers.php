@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Registers behavior meta on the Gutenberg Guidelines CPT and exposes the
@@ -97,6 +98,8 @@ class AI_Answers {
 	/**
 	 * The saved AI Answers choice — the raw option, ignoring any gates on the filter.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return bool
 	 */
 	public static function is_saved_on() {
@@ -111,16 +114,41 @@ class AI_Answers {
 	 * with `true` reads that verdict without depending on the plugin. Sites with
 	 * no gate registered (e.g. standalone Search) report on.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return bool
 	 */
 	public static function is_master_enabled() {
+		// Where enforcement hasn't rolled out, report ungated so no master-off
+		// UI shows before the switch itself does. Remove at public launch.
+		if ( ! self::is_master_rollout_active() ) {
+			return true;
+		}
+
 		return (bool) apply_filters( 'jetpack_search_ai_answers_enabled', true );
+	}
+
+	/**
+	 * Whether master enforcement has rolled out here — mirrors the Jetpack
+	 * plugin's rollout scoping: Simple keeps its option contract; elsewhere
+	 * the rollout is internal-only for now.
+	 *
+	 * @return bool
+	 */
+	private static function is_master_rollout_active() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return true;
+		}
+
+		return function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment();
 	}
 
 	/**
 	 * Whether the host allows AI at all — core's wp_supports_ai(), falling back
 	 * to the WP_AI_SUPPORT constant on WordPress versions that predate it.
 	 * Mirrors the Jetpack plugin's Jetpack_AI_Settings::host_allows_ai().
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
