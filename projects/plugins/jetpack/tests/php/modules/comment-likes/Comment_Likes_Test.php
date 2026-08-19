@@ -54,7 +54,11 @@ class Comment_Likes_Test extends WP_UnitTestCase {
 		$class       = new ReflectionClass( 'Jetpack_Comment_Likes' );
 		$instance    = $class->newInstanceWithoutConstructor();
 		$constructor = $class->getConstructor();
-		$constructor->setAccessible( true );
+		// setAccessible() is a no-op as of PHP 8.1 and deprecated in 8.5; only
+		// needed (and only called) on the older PHP versions Jetpack still supports.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$constructor->setAccessible( true );
+		}
 		$constructor->invoke( $instance );
 
 		Jetpack_Options::delete_option( 'active_modules' );
