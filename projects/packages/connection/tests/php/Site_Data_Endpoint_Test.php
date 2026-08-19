@@ -531,15 +531,13 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 
 		$this->sign_request_as_wpcom();
 
-		$record   = null;
 		$requests = $this->count_http_requests(
-			function () use ( &$record ) {
-				$record = $this->manager->get_connected_site_data();
+			function () {
+				$this->assertSame( 'After purchase', $this->manager->get_connected_site_data()->name );
 			}
 		);
 
 		$this->assertSame( 1, $requests );
-		$this->assertSame( 'After purchase', $record->name );
 
 		$cached = get_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234 );
 		$this->assertSame( '{"ID":1234,"name":"After purchase"}', $cached['body'] );
