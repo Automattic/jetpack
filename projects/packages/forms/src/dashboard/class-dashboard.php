@@ -161,12 +161,9 @@ class Dashboard {
 			return;
 		}
 
-		_deprecated_hook(
-			'jetpack_forms_alpha',
-			'jetpack-forms-$$next-version$$',
-			'',
-			'The legacy Forms dashboard has been removed, so this filter no longer selects anything.'
-		);
+		// Kept on one line: replace-next-version-tag.sh only recognises the token in a
+		// single-line deprecation call, and errors the build out otherwise.
+		_deprecated_hook( 'jetpack_forms_alpha', 'jetpack-forms-$$next-version$$', '', 'The legacy Forms dashboard has been removed, so this filter no longer selects anything.' );
 	}
 
 	/**
