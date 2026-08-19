@@ -16,6 +16,8 @@ if ( ! function_exists( 'wpcom_expiry_notices_is_enabled_for_site' ) ) {
 	 * Whether the site is in the expiry-notices rollout.
 	 *
 	 * @return bool
+	 *
+	 * @phan-suppress PhanRedefineFunction -- wpcomsh vendors jetpack-mu-wpcom, so phan sees this and the real function as two definitions even though the function_exists guard means only one ever loads.
 	 */
 	function wpcom_expiry_notices_is_enabled_for_site() {
 		return (bool) apply_filters( 'wpcom_expiry_notices_enabled', false, 0 );
