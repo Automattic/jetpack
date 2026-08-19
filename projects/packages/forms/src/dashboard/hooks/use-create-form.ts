@@ -43,7 +43,15 @@ type ClickHandlerProps = {
 
 type CreateFormReturn = {
 	createForm: ( pattern: string ) => Promise< string >;
-	openNewForm: ( props: ClickHandlerProps ) => Promise< void >;
+
+	/**
+	 * Create a form and open it in the editor.
+	 *
+	 * Rejects if the form could not be created. Otherwise it never settles: success means the browser
+	 * is navigating away, so there is no "done" to report and nothing after an `await` of this will
+	 * run. Callers can rely on that to hold a busy state until the next page takes over.
+	 */
+	openNewForm: ( props: ClickHandlerProps ) => Promise< never >;
 };
 
 /**

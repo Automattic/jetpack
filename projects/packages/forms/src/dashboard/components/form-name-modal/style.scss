@@ -5,17 +5,13 @@
 	margin-block-start: 16px;
 }
 
-.jp-forms-name-modal__status {
+.jp-forms-name-modal__busy-message {
 	margin: 0;
 	margin-inline-end: auto;
 	align-self: center;
 	color: var(--wpds-color-foreground-content-neutral-weak);
-	font-size: 12px;
+	font-size: var(--wpds-typography-font-size-sm);
 
 	// Reserve the line so the buttons don't shift when the message appears.
 	min-height: 1em;
-
-	&.is-error {
-		color: var(--wpds-color-foreground-content-error);
-	}
 }

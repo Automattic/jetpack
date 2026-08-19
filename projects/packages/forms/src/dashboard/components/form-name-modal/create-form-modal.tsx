@@ -5,25 +5,13 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { FormNameModal } from './index.tsx';
+import { FormNameModal, type FormNameModalProps } from './index.tsx';
 
-export type CreateFormModalProps = {
-	/**
-	 * Whether the modal is open.
-	 */
-	isOpen: boolean;
-
-	/**
-	 * Callback when the modal is closed.
-	 */
-	onClose: () => void;
-
-	/**
-	 * Called with the chosen title. Expected to navigate to the editor, in which case it never
-	 * settles and the modal stays busy until the browser gets there.
-	 */
-	onSave: ( name: string ) => Promise< void >;
-};
+/**
+ * The subset of FormNameModal's contract a create entry point supplies; the rest is the shared
+ * copy this component fills in.
+ */
+export type CreateFormModalProps = Pick< FormNameModalProps, 'isOpen' | 'onClose' | 'onSave' >;
 
 /**
  * The "Create form" naming modal.
@@ -51,5 +39,3 @@ export function CreateFormModal( { isOpen, onClose, onSave }: CreateFormModalPro
 		/>
 	);
 }
-
-export default CreateFormModal;

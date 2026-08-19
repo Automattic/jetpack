@@ -1,15 +1,25 @@
 import { describe, expect, it, jest } from '@jest/globals';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FormNameModal } from '../index.tsx';
+
+const BUSY = 'Opening the editor…';
+const ERROR = 'Could not create the form. Please try again.';
+
+// A save that hands off to a page load never settles — there is no "done" to report.
+const navigatingSave = { onSave: jest.fn( () => new Promise( () => {} ) ), busyMessage: BUSY };
+const failingSave = {
+	onSave: jest.fn().mockRejectedValue( new Error( 'nope' ) ),
+	busyMessage: BUSY,
+	errorMessage: ERROR,
+};
 
 const setup = ( props = {} ) => {
 	const onClose = jest.fn();
 	const onSave = jest.fn().mockResolvedValue( undefined );
-
-	render(
+	const ui = isOpen => (
 		<FormNameModal
-			isOpen
+			isOpen={ isOpen }
 			onClose={ onClose }
 			onSave={ onSave }
 			title="Create form"
@@ -19,97 +29,70 @@ const setup = ( props = {} ) => {
 		/>
 	);
 
-	return { onClose, onSave };
+	const view = render( ui( true ) );
+
+	return { onClose, onSave, rerender: isOpen => view.rerender( ui( isOpen ) ) };
 };
 
 const createButton = () => screen.getByRole( 'button', { name: 'Create' } );
 
+// Notice.Root announces through @wordpress/a11y's speak(), which mirrors the text into a global
+// live region outside the dialog. Scope assertions to the dialog so they see only what is rendered.
+const inDialog = () => within( screen.getByRole( 'dialog' ) );
+
 describe( 'FormNameModal', () => {
-	it( 'can still be dismissed while a navigating save is in flight', async () => {
+	it( 'stays open, busy and dismissable while a navigating save is in flight', async () => {
 		const user = userEvent.setup();
-		const { onClose } = setup( {
-			onSave: jest.fn( () => new Promise( () => {} ) ),
-			busyMessage: 'Opening the editor…',
-		} );
+		const { onClose } = setup( navigatingSave );
 
 		await user.click( createButton() );
-		await expect( screen.findByText( 'Opening the editor…' ) ).resolves.toBeInTheDocument();
 
+		await expect( screen.findByText( BUSY ) ).resolves.toBeInTheDocument();
+		expect( createButton() ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( onClose ).not.toHaveBeenCalled();
+
+		// A navigation that never starts must not trap the user in the dialog.
 		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
-
 		expect( onClose ).toHaveBeenCalled();
 	} );
 
-	it( 'tells the user when saving failed', async () => {
+	it( 'reopens idle after being dismissed mid-navigation', async () => {
 		const user = userEvent.setup();
-		setup( {
-			onSave: jest.fn().mockRejectedValue( new Error( 'nope' ) ),
-			errorMessage: 'Could not create the form. Please try again.',
-		} );
+		const { rerender } = setup( navigatingSave );
+
+		await user.click( createButton() );
+		await expect( screen.findByText( BUSY ) ).resolves.toBeInTheDocument();
+
+		// Callers that keep the modal mounted while closed must not resurrect the busy state.
+		rerender( false );
+		rerender( true );
+
+		expect( createButton() ).toHaveAttribute( 'aria-disabled', 'false' );
+		expect( screen.queryByText( BUSY ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'clears the busy state and explains the failure when the save rejects', async () => {
+		const user = userEvent.setup();
+		const { onClose } = setup( failingSave );
 
 		await user.click( createButton() );
 
-		await expect(
-			screen.findByText( 'Could not create the form. Please try again.' )
-		).resolves.toBeInTheDocument();
+		await waitFor( () => expect( inDialog().getByText( ERROR ) ).toBeInTheDocument() );
+		await waitFor( () => expect( createButton() ).toHaveAttribute( 'aria-disabled', 'false' ) );
+		expect( screen.queryByText( BUSY ) ).not.toBeInTheDocument();
+		expect( onClose ).not.toHaveBeenCalled();
 	} );
 
 	it( 'clears the failure once the user edits the name again', async () => {
 		const user = userEvent.setup();
-		setup( {
-			onSave: jest.fn().mockRejectedValue( new Error( 'nope' ) ),
-			errorMessage: 'Could not create the form. Please try again.',
-		} );
+		setup( failingSave );
 
 		await user.click( createButton() );
-		await expect(
-			screen.findByText( 'Could not create the form. Please try again.' )
-		).resolves.toBeInTheDocument();
+		await waitFor( () => expect( inDialog().getByText( ERROR ) ).toBeInTheDocument() );
 
 		await user.type( screen.getByRole( 'textbox' ), 'x' );
 
-		expect(
-			screen.queryByText( 'Could not create the form. Please try again.' )
-		).not.toBeInTheDocument();
-	} );
-
-	it( 'stays open and busy after a save that navigates away', async () => {
-		const user = userEvent.setup();
-		// A save that hands off to a page load never settles — there is no "done" to report.
-		const { onClose } = setup( {
-			onSave: jest.fn( () => new Promise( () => {} ) ),
-			busyMessage: 'Opening the editor…',
-		} );
-
-		await user.click( createButton() );
-
-		await expect( screen.findByText( 'Opening the editor…' ) ).resolves.toBeInTheDocument();
-		expect( createButton() ).toHaveAttribute( 'aria-disabled', 'true' );
-		expect( onClose ).not.toHaveBeenCalled();
-	} );
-
-	it( 'closes once the save resolves', async () => {
-		const user = userEvent.setup();
-		const { onClose } = setup();
-
-		await user.click( createButton() );
-
-		await waitFor( () => expect( onClose ).toHaveBeenCalled() );
-	} );
-
-	it( 'clears the busy state when the save fails, so the user can retry', async () => {
-		const user = userEvent.setup();
-		const onSave = jest.fn().mockRejectedValue( new Error( 'nope' ) );
-		const { onClose } = setup( {
-			onSave,
-			busyMessage: 'Opening the editor…',
-		} );
-
-		await user.click( createButton() );
-
-		await waitFor( () => expect( createButton() ).toHaveAttribute( 'aria-disabled', 'false' ) );
-		expect( screen.queryByText( 'Opening the editor…' ) ).not.toBeInTheDocument();
-		expect( onClose ).not.toHaveBeenCalled();
+		expect( inDialog().queryByText( ERROR ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'falls back to a default name when nothing is typed', async () => {

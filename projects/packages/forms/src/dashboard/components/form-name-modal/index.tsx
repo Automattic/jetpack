@@ -8,6 +8,7 @@
 import { Button, Modal, TextControl } from '@wordpress/components';
 import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import type { FormEvent } from 'react';
 import './style.scss';
 
@@ -78,38 +79,13 @@ export type FormNameModalProps = {
 	busyMessage?: string;
 
 	/**
-	 * Message shown when onSave rejects. Defaults to a generic retry prompt.
+	 * Message shown in the dialog when onSave rejects.
+	 *
+	 * Opt-in: callers whose save handler already reports its own failure (most dashboard mutations
+	 * raise a snackbar) should leave this unset rather than report the same failure twice.
 	 */
 	errorMessage?: string;
 };
-
-/**
- * Pick the status line shown beside the buttons.
- *
- * @param props              - The current modal status.
- * @param props.isSaving     - Whether a save is in flight.
- * @param props.hasFailed    - Whether the last save rejected.
- * @param props.busyMessage  - Message for the in-flight state.
- * @param props.errorMessage - Message for the failed state.
- * @return The message to display, or an empty string to hold the space.
- */
-function getStatusMessage( {
-	isSaving,
-	hasFailed,
-	busyMessage,
-	errorMessage,
-}: {
-	isSaving: boolean;
-	hasFailed: boolean;
-	busyMessage?: string;
-	errorMessage?: string;
-} ): string {
-	if ( hasFailed ) {
-		return errorMessage || __( 'Something went wrong. Please try again.', 'jetpack-forms' );
-	}
-
-	return isSaving ? busyMessage ?? '' : '';
-}
 
 /**
  * A reusable modal component for entering or editing a form name.
@@ -144,46 +120,42 @@ export function FormNameModal( {
 	errorMessage,
 }: FormNameModalProps ) {
 	const [ name, setName ] = useState( initialValue );
-	const [ isSaving, setIsSaving ] = useState( false );
-	const [ hasFailed, setHasFailed ] = useState( false );
+	const [ status, setStatus ] = useState< 'idle' | 'saving' | 'failed' >( 'idle' );
+	const isSaving = status === 'saving';
 
-	// Reset name when modal opens with a new initial value
+	// Reset on open. Clearing the status matters as much as the name: a save that handed off to a
+	// page navigation never settles, so a dialog dismissed mid-navigation would otherwise reopen
+	// permanently busy in call sites that keep it mounted while closed.
 	useEffect( () => {
 		if ( isOpen ) {
 			setName( initialValue );
-			setHasFailed( false );
+			setStatus( 'idle' );
 		}
 	}, [ isOpen, initialValue ] );
 
 	const handleChange = useCallback( ( value: string ) => {
 		setName( value );
-		setHasFailed( false );
+		setStatus( current => ( current === 'failed' ? 'idle' : current ) );
 	}, [] );
-
-	// Always dismissable. An onSave that hands off to a page load never settles, so a modal that
-	// refused to close while busy could never be closed again if that navigation failed to start.
-	const handleClose = useCallback( () => onClose(), [ onClose ] );
 
 	const handleConfirm = useCallback( async () => {
 		if ( isSaving ) {
 			return;
 		}
 
-		setIsSaving( true );
-		setHasFailed( false );
+		setStatus( 'saving' );
 		const finalName = name.trim() || fallbackName || __( 'Untitled Form', 'jetpack-forms' );
 
 		try {
 			await onSave( finalName );
 			onClose();
+			setStatus( 'idle' );
 		} catch {
 			// onSave threw — keep the modal open, and say so, so the user can retry.
-			setHasFailed( true );
+			setStatus( 'failed' );
 		}
-
-		// An onSave that hands off to a page navigation never settles, so neither of the branches above
-		// runs and the modal stays open and busy for as long as the browser takes to get there.
-		setIsSaving( false );
+		// An onSave that hands off to a page navigation settles neither way, so the dialog simply
+		// stays busy for as long as the browser takes to get to the next page.
 	}, [ name, fallbackName, isSaving, onSave, onClose ] );
 
 	const onSubmitForm = useCallback(
@@ -199,8 +171,15 @@ export function FormNameModal( {
 	}
 
 	return (
-		<Modal title={ title } onRequestClose={ handleClose } size="medium">
+		// Always dismissable: an onSave that hands off to a page load never settles, so a dialog that
+		// refused to close while busy could never be closed again if that navigation failed to start.
+		<Modal title={ title } onRequestClose={ onClose } size="medium">
 			<form onSubmit={ onSubmitForm }>
+				{ status === 'failed' && errorMessage && (
+					<Notice.Root intent="error">
+						<Notice.Description>{ errorMessage }</Notice.Description>
+					</Notice.Root>
+				) }
 				<TextControl
 					label={ inputLabel || __( 'Name', 'jetpack-forms' ) }
 					value={ name }
@@ -212,15 +191,14 @@ export function FormNameModal( {
 					readOnly={ isSaving }
 				/>
 				<div className="jp-forms-name-modal__buttons">
-					{ ( busyMessage || hasFailed ) && (
-						<p
-							className={ `jp-forms-name-modal__status${ hasFailed ? ' is-error' : '' }` }
-							aria-live="polite"
-						>
-							{ getStatusMessage( { isSaving, hasFailed, busyMessage, errorMessage } ) }
+					{ /* Mounted whenever the caller supplies copy, so the live region exists before its
+					     text does — a region inserted with its content already in place is not announced. */ }
+					{ busyMessage && (
+						<p className="jp-forms-name-modal__busy-message" aria-live="polite">
+							{ isSaving ? busyMessage : '' }
 						</p>
 					) }
-					<Button variant="tertiary" onClick={ handleClose }>
+					<Button variant="tertiary" onClick={ onClose }>
 						{ secondaryButtonLabel || __( 'Cancel', 'jetpack-forms' ) }
 					</Button>
 					<Button aria-disabled={ isSaving } isBusy={ isSaving } variant="primary" type="submit">

@@ -10,7 +10,7 @@ import { plus } from '@wordpress/icons';
  * Internal dependencies
  */
 import useCreateForm from '../../hooks/use-create-form.ts';
-import { CreateFormModal } from '../form-name-modal/create-form-modal.tsx';
+import { CreateFormModal } from '../form-name-modal/create-form-modal';
 
 type CreateFormButtonProps = {
 	label?: string;

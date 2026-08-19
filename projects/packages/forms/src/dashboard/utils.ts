@@ -1,4 +1,5 @@
 import { addQueryArgs } from '@wordpress/url';
+import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
 
 /**
  * Get the edit URL for a form post.
@@ -20,7 +21,7 @@ export function getFormEditUrl( formId: number, adminUrl?: string ): string {
  */
 export function getNewFormEditorUrl( formTitle?: string, adminUrl?: string ): string {
 	return addQueryArgs( `${ adminUrl ?? '' }post-new.php`, {
-		post_type: 'jetpack_form',
+		post_type: FORM_POST_TYPE,
 		post_title: formTitle?.trim() || undefined,
 	} );
 }
