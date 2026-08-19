@@ -34,21 +34,22 @@ describe( 'AiOverview', () => {
 		await expect( screen.findByText( '8' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( '20' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Available requests' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'progressbar', { name: 'Available requests' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Free' ) ).toBeInTheDocument();
 	} );
 
-	test( 'meter a11y: named by the visible heading, value announced as counts', async () => {
+	test( 'meter a11y: decorative bar, the text carries the counts', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
 
-		// The bar points at the heading (no duplicated label) and announces
-		// counts, not a bare percentage that reads backwards for a meter.
-		const meter = await screen.findByRole( 'progressbar', { name: 'Available requests' } );
-		expect( meter ).toHaveAttribute( 'aria-labelledby', 'jetpack-ai-overview-requests-label' );
-		expect( meter ).not.toHaveAttribute( 'aria-label' );
-		expect( meter ).toHaveAttribute( 'aria-valuetext', '8 of 20 requests remaining' );
+		// The bar only restates the visible numbers, so it is hidden from
+		// assistive tech; a hidden "of" turns the numbers into "8 of 20"
+		// instead of a duplicated label plus a bare percentage.
+		await expect( screen.findByText( '8' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
+		expect( screen.getByText( 'of' ) ).toBeInTheDocument();
 	} );
 
 	test( 'tiered plan: renders remaining period requests against the tier limit', async () => {
@@ -59,7 +60,7 @@ describe( 'AiOverview', () => {
 		await expect( screen.findByText( '160' ) ).resolves.toBeInTheDocument();
 		// The limit shows once, on the meter — never repeated as a plan name.
 		expect( screen.getAllByText( '500' ) ).toHaveLength( 1 );
-		expect( screen.getByRole( 'progressbar', { name: 'Available requests' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
 	} );
 
 	test( 'legacy unlimited: full meter, renewal date, no upgrade', async () => {
@@ -70,7 +71,7 @@ describe( 'AiOverview', () => {
 		// The i4 paid card shows UNLIMITED over a full meter — once — and a
 		// renewal date where the free card has the Upgrade button.
 		await expect( screen.findAllByText( 'Unlimited' ) ).resolves.toHaveLength( 1 );
-		expect( screen.getByRole( 'progressbar', { name: 'Available requests' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
 		// The fixture's next-start is the bare calendar date the live payload
 		// sends; the UTC anchor must render that exact day, never the day before.
 		expect( screen.getByText( 'Renews on: September 1, 2026' ) ).toBeInTheDocument();

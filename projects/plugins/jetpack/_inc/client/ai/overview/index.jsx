@@ -7,7 +7,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink, ProgressBar, Spinner, VisuallyHidden } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { sprintf, __ } from '@wordpress/i18n';
+import { sprintf, __, _x } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
 import { Card, Link, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
 import NavRow from '../components/nav-row';
@@ -123,12 +123,7 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn } ) {
 				{ ! isLoading && ! error && (
 					<div className="jetpack-ai-overview__usage">
 						<div className="jetpack-ai-overview__usage-cell">
-							<Text
-								render={ <p /> }
-								id="jetpack-ai-overview-requests-label"
-								variant="heading-sm"
-								className="jetpack-ai-overview__eyebrow"
-							>
+							<Text render={ <p /> } variant="heading-sm" className="jetpack-ai-overview__eyebrow">
 								{ __( 'Available requests', 'jetpack' ) }
 							</Text>
 							<Stack direction="row" justify="space-between" align="baseline">
@@ -150,6 +145,11 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn } ) {
 											{ hasNumbers ? usage.requestsAvailable : '—' }
 										</Text>
 										{ hasNumbers && (
+											<VisuallyHidden>
+												{ _x( 'of', 'requests remaining: "8 of 20"', 'jetpack' ) }
+											</VisuallyHidden>
+										) }
+										{ hasNumbers && (
 											<Text
 												render={ <p /> }
 												variant="body-md"
@@ -162,21 +162,11 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn } ) {
 								) }
 							</Stack>
 							{ showMeter && (
+								// The bar only restates the visible numbers, so it is
+								// decorative — screen readers get "8 of 20" from the text
+								// (VoiceOver reads a named bar's label and percent again).
 								<ProgressBar
-									// The component injects a default aria-label; undefined
-									// clears it so the heading is the only accessible name.
-									aria-label={ undefined }
-									aria-labelledby="jetpack-ai-overview-requests-label"
-									aria-valuetext={
-										usage.unlimited
-											? __( 'Unlimited requests', 'jetpack' )
-											: sprintf(
-													/* translators: %1$s: requests remaining. %2$s: total requests. */
-													__( '%1$s of %2$s requests remaining', 'jetpack' ),
-													usage.requestsAvailable,
-													usage.requestsLimit
-											  )
-									}
+									aria-hidden="true"
 									className="jetpack-ai-overview__meter"
 									value={ meterValue }
 								/>
