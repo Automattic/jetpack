@@ -4,6 +4,7 @@
 import { useStatsCommentsRows } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	LeaderboardPostLabel,
 	ReportLink,
 	WidgetFooter,
@@ -85,6 +86,7 @@ function MostCommentedPostsInner( { max }: MostCommentedPostsInnerProps ) {
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ max } /> }
 				>
 					<LeaderboardChart
 						data={ leaderboardData }

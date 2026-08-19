@@ -32,6 +32,8 @@ export {
 	type LegendItem,
 	type SeriesStyle,
 	LeaderboardChart,
+	LeaderboardSkeleton,
+	type LeaderboardSkeletonProps,
 	type LeaderboardChartProps,
 	type LeaderboardChartData,
 	type LegendLabels,

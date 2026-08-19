@@ -8,6 +8,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
 	WidgetBackLink,
 	WidgetFooter,
@@ -295,6 +296,7 @@ function ReferrersInner( { max }: { max: number } ) {
 					icon: globe,
 					description: __( 'No referrers in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <LeaderboardSkeleton rows={ max } /> }
 			>
 				<ReferrersLeaderboard
 					rows={ activeRows }
