@@ -1125,12 +1125,13 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * missing from index.json never reaches Jetpack_Editor_Initial_State.
 	 */
 	public function test_agent_notice_extension_is_declared_in_the_manifest() {
-		$manifest = json_decode(
+		$manifest = (array) json_decode(
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			file_get_contents( JETPACK__PLUGIN_DIR . 'extensions/index.json' ),
 			true
 		);
 
+		$this->assertArrayHasKey( 'production', $manifest );
 		$this->assertContains(
 			AiAssistantPlugin\AI_SIDEBAR_AGENT_NOTICE_EXTENSION,
 			$manifest['production'],
