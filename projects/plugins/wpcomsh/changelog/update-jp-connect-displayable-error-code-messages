@@ -1,4 +1,4 @@
-Significance: minor
-Type: added
+Significance: patch
+Type: fixed
 
-Connection Error UI: Ensure the error allowlist is an explicit, documented contract with meaningful user-facing text for displayable errors.
+Connection: Update wording for some connection error notices.
