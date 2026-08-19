@@ -414,6 +414,41 @@ describe( 'NewsletterAccessRadioButtons', () => {
 			const everyone = screen.getByRole( 'radio', { name: 'Everyone' } );
 			expect( everyone ).toBeChecked();
 			expect( everyone ).not.toHaveAttribute( 'aria-disabled' );
+			expect( screen.queryByText( 'Paywall active' ) ).not.toBeInTheDocument();
+		} );
+
+		// The paywall block's own inspector opts out, because Gutenberg's block card
+		// directly above it already explains the paywall.
+		describe( 'when the caller opts out of the explanation', () => {
+			const renderOptedOut = () => renderPaywalled( { explainPaywallConstraint: false } );
+
+			test( 'hides the notice but keeps Everyone visible and disabled', () => {
+				renderOptedOut();
+
+				expect( screen.queryByText( 'Paywall active' ) ).not.toBeInTheDocument();
+				expect( screen.getByRole( 'radio', { name: 'Everyone' } ) ).toHaveAttribute(
+					'aria-disabled',
+					'true'
+				);
+			} );
+
+			// Gating the notice without gating aria-describedby would leave the option
+			// pointing at an id that is no longer rendered, which assistive tech reports as
+			// no description at all — worse than deliberately having none.
+			test( 'leaves no dangling description reference behind', () => {
+				renderOptedOut();
+
+				const everyone = screen.getByRole( 'radio', { name: 'Everyone' } );
+				expect( everyone ).not.toHaveAttribute( 'aria-describedby' );
+				expect( everyone ).toHaveAccessibleDescription( '' );
+			} );
+
+			test( 'still refuses to save the everybody level', async () => {
+				renderOptedOut();
+
+				await userEvent.click( screen.getByRole( 'radio', { name: 'Everyone' } ) );
+				expect( mockSetPostMeta ).not.toHaveBeenCalled();
+			} );
 		} );
 	} );
 

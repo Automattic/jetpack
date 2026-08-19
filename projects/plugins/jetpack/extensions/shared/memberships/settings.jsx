@@ -229,6 +229,7 @@ export function NewsletterAccessRadioButtons( {
 	hasTierPlans,
 	stripeConnectUrl,
 	postHasPaywallBlock: postHasPaywallBlock = false,
+	explainPaywallConstraint = true,
 } ) {
 	const isStripeConnected = stripeConnectUrl === null;
 	const { totalSubscribers, paidSubscribers } = useSelect( select =>
@@ -252,6 +253,13 @@ export function NewsletterAccessRadioButtons( {
 	// not leave the group with nothing selected.
 	const isEverybodySelected = accessLevel === accessOptions.everybody.key;
 	const showEverybodyAsDisabled = !! postHasPaywallBlock && ! isEverybodySelected;
+
+	// The paywall block's own inspector opts out: it sits directly under Gutenberg's
+	// block card, which already says what a paywall does, so the notice repeats the
+	// heading above it. Both the notice and the option's aria-describedby derive from
+	// this one flag — gating only the notice would leave the option pointing at an id
+	// that is no longer in the DOM, which reads as no description at all.
+	const showPaywallNotice = showEverybodyAsDisabled && explainPaywallConstraint;
 
 	const setAccess = useSetAccess();
 	// The count beside each option is the size of the audience that can read it, which
@@ -280,7 +288,7 @@ export function NewsletterAccessRadioButtons( {
 			value: accessOptions.everybody.key,
 			label: accessOptions.everybody.label,
 			disabled: showEverybodyAsDisabled,
-			describedBy: showEverybodyAsDisabled ? paywallNoticeId : undefined,
+			describedBy: showPaywallNotice ? paywallNoticeId : undefined,
 		},
 		{
 			value: accessOptions.subscribers.key,
@@ -298,7 +306,7 @@ export function NewsletterAccessRadioButtons( {
 
 	return (
 		<div className="jetpack-newsletter-access-radio-buttons">
-			{ showEverybodyAsDisabled && (
+			{ showPaywallNotice && (
 				// icon={ null } matches the mockup, which shows the notice without the
 				// intent icon @wordpress/ui would otherwise render for "info".
 				<Notice.Root intent="info" icon={ null } id={ paywallNoticeId }>
