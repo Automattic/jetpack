@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Podcast feeds: drop the SimplePie get_body_content() fallback, unreachable at a WP 7.0 floor.
-
-
