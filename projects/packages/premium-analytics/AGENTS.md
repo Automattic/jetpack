@@ -136,20 +136,18 @@ bounces to the dashboard," with nothing in the console pointing at the cause. Th
 when the other four routes were migrated to the shared helpers, so it fell out of sync with
 `/connect`'s guard and the two routes bounced traffic between each other on Simple.
 
-### The analytics sync blocks nothing
+### Initial analytics sync must not block rendering
 
-No route or section waits on the initial analytics full sync. Only historical store data depends
-on it, so the section that declares `requires_sync` (Store) renders `<SectionSyncNotice>` above
-its widgets — mid-sync they read as zeros, so the copy says the numbers are incomplete. Blocking
-the page instead sent every already-synced site through a sync screen it did not need (STATS-410).
-Sections declare the dependency server-side in `register_default_dashboard_sections()`; do not
-re-derive it from a section id in the SPA.
+The initial analytics full sync must not gate routes, sections, or widgets. A section that depends
+on synchronized data declares `requires_sync` in its server-provided configuration; never infer
+that dependency from the section slug in the SPA.
 
-The stage, not the notice, owns `useSyncStatus( { enabled, autoStart } )`, so the sync starts when
-the dashboard opens rather than when someone visits the Store section — and never on a site with
-no section that needs it.
+Monitor and start the sync from the dashboard stage whenever any available section requires it,
+independent of the active section. Do not start it when no available section requires it. Use
+`isPremiumAnalyticsInitialSyncFinished()` for readiness checks so WordPress.com Simple remains
+supported.
 
-Adding a new route with a connection/sync guard: grep `routes/` for
+Adding a new route with a connection guard: grep `routes/` for
 `isPremiumAnalyticsSiteConnected` first and copy that shape — don't re-derive the check from
 script data.
 
