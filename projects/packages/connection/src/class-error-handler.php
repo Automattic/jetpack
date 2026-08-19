@@ -416,10 +416,21 @@ class Error_Handler {
 					// already fall back to the reconnect CTA when no action is set, and
 					// injecting an explicit 'reconnect' could trip consumer code paths
 					// reserved for custom actions.
-					if ( null !== $action ) {
-						$error_data           = ( isset( $error['error_data'] ) && is_array( $error['error_data'] ) ) ? $error['error_data'] : array();
-						$error_data['action'] = $action;
-						$error['error_data']  = $error_data;
+					if ( null !== $action || ! empty( $display_config['support_link'] ) ) {
+						$error_data = ( isset( $error['error_data'] ) && is_array( $error['error_data'] ) ) ? $error['error_data'] : array();
+
+						if ( null !== $action ) {
+							$error_data['action'] = $action;
+						}
+
+						// Flags a reconnect-may-not-fix-it error so the notice offers a
+						// support link alongside the reconnect CTA. See `support_link` in
+						// get_error_display_configs().
+						if ( ! empty( $display_config['support_link'] ) ) {
+							$error_data['support_link'] = true;
+						}
+
+						$error['error_data'] = $error_data;
 					}
 
 					if ( ! isset( $displayable_errors[ $error_code ] ) ) {
@@ -505,6 +516,10 @@ class Error_Handler {
 	 *   Set it only for a code that is not a token problem, and so is not waiting on
 	 *   the owner's reconnect to become actionable. Setting it does not make the code
 	 *   trigger that reduction — it only exempts it from one.
+	 * - `support_link` (bool): when true, `error_data['support_link']` is set on the
+	 *   displayable error, and My Jetpack's notice appends a "Contact Jetpack
+	 *   Support" link next to the reconnect CTA. Set it only where reconnecting is
+	 *   not reliably the fix, so the viewer has somewhere else to go.
 	 *
 	 * @since 8.10.0
 	 * @since $$next-version$$ Merged with the former hardcoded list in get_displayable_errors():
@@ -535,11 +550,17 @@ class Error_Handler {
 	 * @return array Display configuration (array) or `false`, keyed by error code.
 	 */
 	private function get_error_display_configs() {
+		static $configs = null;
+
+		if ( null !== $configs ) {
+			return $configs;
+		}
+
 		// What each code means is documented once, on `$known_errors`. The comments
 		// here record only the display decision, and only where it isn't obvious: an
 		// uncommented `array()` is a broken token that reconnecting fixes, which is
 		// what the generic copy already says.
-		return array(
+		$configs = array(
 			// Attacker-controllable garbage in an incoming request. Nothing about this
 			// site's own connection is wrong.
 			'malformed_user_id'        => false,
@@ -567,6 +588,7 @@ class Error_Handler {
 			// Reconnect is not reliably the fix — see get_unknown_token_message().
 			'unknown_token'            => array(
 				'message_callback' => array( $this, 'get_unknown_token_message' ),
+				'support_link'     => true,
 			),
 			'could_not_sign'           => array(),
 			// Both are about the URL being signed, not the connection: a code bug or an
@@ -591,6 +613,7 @@ class Error_Handler {
 			// Ambiguous cause — see get_signature_mismatch_message().
 			'signature_mismatch'       => array(
 				'message_callback' => array( $this, 'get_signature_mismatch_message' ),
+				'support_link'     => true,
 			),
 			// Two flavors with different remedies — see
 			// get_invalid_connection_owner_message().
@@ -613,6 +636,8 @@ class Error_Handler {
 				),
 			),
 		);
+
+		return $configs;
 	}
 
 	/**
@@ -629,7 +654,7 @@ class Error_Handler {
 	 * @return string The message.
 	 */
 	private function get_signature_mismatch_message() {
-		return __( "The connection with WordPress.com couldn't be verified. Please try again. If the issue continues, reconnect — or contact Jetpack Support.", 'jetpack-connection' );
+		return __( "The connection with WordPress.com couldn't be verified. Please try reconnecting.", 'jetpack-connection' );
 	}
 
 	/**
@@ -672,7 +697,7 @@ class Error_Handler {
 	 * @return string The message.
 	 */
 	private function get_unknown_token_message() {
-		return __( 'WordPress.com no longer recognizes this connection. Please try again. If the issue continues, reconnect — or contact Jetpack Support.', 'jetpack-connection' );
+		return __( 'WordPress.com no longer recognizes this connection. Please try reconnecting.', 'jetpack-connection' );
 	}
 
 	/**

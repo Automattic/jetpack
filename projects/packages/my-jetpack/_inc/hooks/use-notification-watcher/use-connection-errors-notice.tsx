@@ -1,9 +1,12 @@
-import { Col, Text } from '@automattic/jetpack-components';
+import { Col, Text, getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	getReconnectErrorMessage,
 	useConnectionErrorNotice,
 	type ConnectionErrorObject,
 } from '@automattic/jetpack-connection';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { useContext, useEffect, useCallback, useMemo } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
@@ -128,6 +131,10 @@ const useConnectionErrorsNotice = (
 		// it there is nothing left to say and no line is rendered.
 		const scopeIsInTitle = titleIncludesScope( errorList );
 
+		// Set by the backend (see `support_link` in Error_Handler::get_error_display_configs())
+		// for errors where reconnecting may not be the fix, so the viewer has somewhere else to go.
+		const showSupportLink = errorList.some( error => Boolean( error?.error_data?.support_link ) );
+
 		// Keep the backend message as the headline, then group broken-token errors under one
 		// shared description with each error's scope beneath it.
 		const errorMessage = (
@@ -157,6 +164,25 @@ const useConnectionErrorsNotice = (
 						</div>
 					);
 				} ) }
+				{ showSupportLink && (
+					<Text mt={ 1 }>
+						{ createInterpolateElement(
+							__(
+								'Still having trouble? <link>Contact Jetpack Support</link>.',
+								'jetpack-my-jetpack'
+							),
+							{
+								link: (
+									<Link
+										openInNewTab
+										href={ getRedirectUrl( 'jetpack-support' ) }
+										children={ null }
+									/>
+								),
+							}
+						) }
+					</Text>
+				) }
 			</Col>
 		);
 

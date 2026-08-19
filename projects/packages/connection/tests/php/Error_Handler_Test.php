@@ -3258,6 +3258,52 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that `signature_mismatch` and `unknown_token` — the two codes where a reconnect
+	 * is not reliably the fix — emit `error_data['support_link']` so the notice offers a
+	 * support link, while a code without that display config does not.
+	 *
+	 * @dataProvider support_link_error_data
+	 *
+	 * @param string $error_code    The error code.
+	 * @param bool   $expect_flag   Whether `support_link` should be present and true.
+	 */
+	#[DataProvider( 'support_link_error_data' )]
+	public function test_get_displayable_errors_emits_support_link( $error_code, $expect_flag ) {
+		// User ID 0 is the blog token: site-wide, visible to any viewer.
+		$error = array(
+			'error_code'    => $error_code,
+			'user_id'       => '0',
+			'error_message' => 'Original message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'nonce_support_link',
+			'error_type'    => 'xmlrpc',
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( $error_code => array( '0' => $error ) ) );
+
+		$displayed = $this->error_handler->get_displayable_errors()[ $error_code ]['0'];
+
+		if ( $expect_flag ) {
+			$this->assertTrue( $displayed['error_data']['support_link'] );
+		} else {
+			$this->assertArrayNotHasKey( 'support_link', $displayed['error_data'] );
+		}
+	}
+
+	/**
+	 * Data provider for test_get_displayable_errors_emits_support_link.
+	 *
+	 * @return array
+	 */
+	public static function support_link_error_data() {
+		return array(
+			'signature_mismatch' => array( 'signature_mismatch', true ),
+			'unknown_token'      => array( 'unknown_token', true ),
+			'token_malformed'    => array( 'token_malformed', false ),
+		);
+	}
+
+	/**
 	 * Test that an `invalid_connection_owner` error, reported with an empty token but an
 	 * explicit `user_id` in its error data (as Manager::get_connection_owner() reports it),
 	 * is stored under the owner's real user ID via the wp_error_to_array() fallback and is
