@@ -61,7 +61,7 @@ describe( 'SectionSyncNotice', () => {
 		);
 	} );
 
-	it( 'offers a retry instead of progress once the sync fails', async () => {
+	it( 'offers a retry once the sync fails', async () => {
 		const onRetry = jest.fn();
 		const { container } = render(
 			<SectionSyncNotice percentage={ 40 } hasError onRetry={ onRetry } isRetrying={ false } />
@@ -75,7 +75,7 @@ describe( 'SectionSyncNotice', () => {
 		expect( onRetry ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'survives the switch from progress bar to retry and back', () => {
+	it( 'survives the switch to the retry state and back', () => {
 		const { container, rerender } = render(
 			<SectionSyncNotice
 				percentage={ 40 }

@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { Notice } from '@jetpack-premium-analytics/externals';
-import { ProgressBar } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -64,9 +63,9 @@ export function SectionSyncNotice( {
 	return (
 		/*
 		 * `spokenMessage` defaults to `children`, which Notice serializes with
-		 * `renderToString` — rendering the progress bar and the action button
-		 * mid-render throws inside their ref merging and takes the dashboard down
-		 * with it. The sentence is what should be announced anyway.
+		 * `renderToString` — rendering the action button mid-render throws inside
+		 * its ref merging and takes the dashboard down with it. The sentence is
+		 * what should be announced anyway.
 		 */
 		<Notice.Root
 			intent={ hasError ? 'error' : 'info' }
@@ -75,7 +74,7 @@ export function SectionSyncNotice( {
 		>
 			<Notice.Description>{ message }</Notice.Description>
 
-			{ hasError ? (
+			{ hasError && (
 				<Notice.Actions>
 					<Notice.ActionButton
 						variant="outline"
@@ -86,17 +85,6 @@ export function SectionSyncNotice( {
 						{ __( 'Try again', 'jetpack-premium-analytics-pkg' ) }
 					</Notice.ActionButton>
 				</Notice.Actions>
-			) : (
-				/*
-				 * The bar is not part of the Notice API, so it needs the text
-				 * column of the notice's grid to line up under the message.
-				 * Indeterminate until the sync reports progress: a store with no
-				 * orders to send sits at 0 for the whole sync, and a bar frozen at
-				 * zero reads as a sync that never started.
-				 */
-				<div className={ styles.progress }>
-					<ProgressBar className={ styles.bar } value={ percentage || undefined } />
-				</div>
 			) }
 		</Notice.Root>
 	);
