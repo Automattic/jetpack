@@ -1,13 +1,12 @@
 /* Geometry from the design prototype's `donut` skeleton variant: a ring beside
- * a legend of swatch-and-label rows. */
+ * a legend of swatch-and-label rows. Lengths are on WPDS dimension tokens
+ * except the three below, which the scale does not reach: the gap scale steps
+ * straight from 16px to 24px, and the ring is larger than any dimension
+ * token. */
 $shape-column-gap: 20px;
 $ring-size: 96px;
 $ring-hole-radius: 30px;
 $ring-edge-radius: 31px;
-$legend-row-gap: 12px;
-$legend-swatch-gap: 8px;
-$swatch-size: 10px;
-$label-block-size: 9px;
 
 /* The ring is a fixed 96px, so on a tile too short for it `min-block-size: 0`
  * plus `overflow: hidden` clip it inside the widget body instead of letting it
@@ -40,7 +39,7 @@ $label-block-size: 9px;
 	display: flex;
 	flex: 1 1 0;
 	flex-direction: column;
-	gap: $legend-row-gap;
+	gap: var(--wpds-dimension-gap-md);
 	min-inline-size: 0;
 }
 
@@ -50,7 +49,7 @@ $label-block-size: 9px;
 	display: flex;
 	flex: none;
 	align-items: center;
-	gap: $legend-swatch-gap;
+	gap: var(--wpds-dimension-gap-sm);
 }
 
 /* `sm` (2px) is the nearest token to the prototype's 3px radius — this package
@@ -58,8 +57,8 @@ $label-block-size: 9px;
  * the row out of width. */
 .swatch {
 	flex: none;
-	inline-size: $swatch-size;
-	block-size: $swatch-size;
+	inline-size: var(--wpds-dimension-size-3xs);
+	block-size: var(--wpds-dimension-size-3xs);
 	border-radius: var(--wpds-border-radius-sm);
 }
 
@@ -67,6 +66,6 @@ $label-block-size: 9px;
 .label {
 	flex: 1 1 0;
 	min-inline-size: 0;
-	block-size: $label-block-size;
+	block-size: var(--wpds-dimension-size-4xs);
 	border-radius: var(--wpds-border-radius-md);
 }

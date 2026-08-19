@@ -1,17 +1,15 @@
 /* Geometry from the design prototype's `post` skeleton variant: the post's
  * title lines above a row of stat columns. The prototype's leading 60px
- * thumbnail is omitted — see the note on the component. */
-$block-gap: 16px;
-$title-line-block-size: 12px;
+ * thumbnail is omitted — see the note on the component. Lengths are on WPDS
+ * dimension tokens; the block gap lands on the same `gap-lg` the loaded card
+ * puts between its title and metric row. */
 $title-line-inline-size: 90%;
 $title-line-short-inline-size: 65%;
-$title-line-gap: 8px;
+
+/* Sits 4px from `gap-xl` and from `gap-2xl`, and the loaded card's own
+ * `gap-lg` does not transfer: its metric columns are `flex: 1` text, while
+ * these are fixed-width blocks that would read as cramped at the same gap. */
 $stats-column-gap: 28px;
-$stat-label-inline-size: 30px;
-$stat-label-block-size: 9px;
-$stat-value-inline-size: 40px;
-$stat-value-block-size: 16px;
-$stat-line-gap: 6px;
 
 /* `safe` keeps the centring from pushing the title out of the top of the tile:
  * once the shape no longer fits it falls back to packing it at the start, so a
@@ -21,7 +19,7 @@ $stat-line-gap: 6px;
 	flex: 1 1 auto;
 	flex-direction: column;
 	justify-content: safe center;
-	gap: $block-gap;
+	gap: var(--wpds-dimension-gap-lg);
 	min-block-size: 0;
 	overflow: hidden;
 }
@@ -35,14 +33,14 @@ $stat-line-gap: 6px;
 /* `md` is 4px, the radius the prototype leaves these lines at. */
 .titleLine {
 	inline-size: $title-line-inline-size;
-	block-size: $title-line-block-size;
+	block-size: var(--wpds-dimension-size-3xs);
 	border-radius: var(--wpds-border-radius-md);
 }
 
 .titleLineShort {
 	inline-size: $title-line-short-inline-size;
-	block-size: $title-line-block-size;
-	margin-block-start: $title-line-gap;
+	block-size: var(--wpds-dimension-size-3xs);
+	margin-block-start: var(--wpds-dimension-gap-sm);
 	border-radius: var(--wpds-border-radius-md);
 }
 
@@ -59,16 +57,16 @@ $stat-line-gap: 6px;
 }
 
 .statLabel {
-	inline-size: $stat-label-inline-size;
-	block-size: $stat-label-block-size;
+	inline-size: var(--wpds-dimension-size-md);
+	block-size: var(--wpds-dimension-size-4xs);
 	border-radius: var(--wpds-border-radius-md);
 }
 
 /* `md` (4px) is the nearest token to the prototype's 5px radius — this package
  * has no 5px token. */
 .statValue {
-	inline-size: $stat-value-inline-size;
-	block-size: $stat-value-block-size;
-	margin-block-start: $stat-line-gap;
+	inline-size: var(--wpds-dimension-size-lg);
+	block-size: var(--wpds-dimension-size-2xs);
+	margin-block-start: var(--wpds-dimension-gap-xs);
 	border-radius: var(--wpds-border-radius-md);
 }

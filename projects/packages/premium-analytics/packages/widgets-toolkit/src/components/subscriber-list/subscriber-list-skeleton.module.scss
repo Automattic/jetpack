@@ -1,11 +1,8 @@
 @use "sass:list";
 
-/* Geometry from the design prototype's `list` skeleton variant. */
-$row-gap: 15px;
-$column-gap: 10px;
-$avatar-size: 22px;
-$line-block-size: 10px;
-$secondary-inline-size: 34px;
+/* Geometry from the design prototype's `list` skeleton variant, on WPDS
+ * dimension tokens. Only the proportional widths stay literal — no token
+ * expresses them. */
 
 /* These widths stand in for name text, so they vary without trending down — a
  * subscriber's name length says nothing about their place in the list. */
@@ -19,7 +16,7 @@ $name-widths: 85%, 70%, 78%, 58%, 66%, 48%;
 	flex: 1 1 auto;
 	flex-direction: column;
 	justify-content: safe center;
-	gap: $row-gap;
+	gap: var(--wpds-dimension-gap-lg);
 	min-block-size: 0;
 	overflow: hidden;
 }
@@ -28,22 +25,23 @@ $name-widths: 85%, 70%, 78%, 58%, 66%, 48%;
 	display: flex;
 	flex: none;
 	align-items: center;
-	column-gap: $column-gap;
+	column-gap: var(--wpds-dimension-gap-sm);
 }
 
-/* Circular, following `SubscriberList`'s own avatar rather than the prototype's
- * 5px-radius square. */
+/* Circular and 32px, following `SubscriberList`'s own avatar rather than the
+ * prototype's 22px 5px-radius square, so the rows load at the pitch they
+ * settle into. */
 .avatar {
 	flex: none;
-	inline-size: $avatar-size;
-	block-size: $avatar-size;
+	inline-size: var(--wpds-dimension-size-md);
+	block-size: var(--wpds-dimension-size-md);
 	border-radius: 50%;
 }
 
 /* `md` is 4px, the radius the prototype leaves these lines at. */
 .name {
 	inline-size: list.nth($name-widths, 1);
-	block-size: $line-block-size;
+	block-size: var(--wpds-dimension-size-4xs);
 	border-radius: var(--wpds-border-radius-md);
 }
 
@@ -54,8 +52,8 @@ $name-widths: 85%, 70%, 78%, 58%, 66%, 48%;
 }
 
 .secondary {
-	inline-size: $secondary-inline-size;
-	block-size: $line-block-size;
+	inline-size: var(--wpds-dimension-size-md);
+	block-size: var(--wpds-dimension-size-4xs);
 	margin-inline-start: auto;
 	border-radius: var(--wpds-border-radius-md);
 }
