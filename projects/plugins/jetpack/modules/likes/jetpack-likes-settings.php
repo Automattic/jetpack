@@ -256,8 +256,6 @@ class Jetpack_Likes_Settings {
 
 	/**
 	 * Returns the settings have been saved message.
-	 *
-	 * @deprecated 13.2
 	 */
 	public function updated_message() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ignoring since we are just displaying that the settings have been saved and not making  any other changes to the site.
@@ -268,8 +266,6 @@ class Jetpack_Likes_Settings {
 
 	/**
 	 * Returns just the "sharing buttons" w/ like option block, so it can be inserted into different sharing page contexts
-	 *
-	 * @deprecated 13.2
 	 */
 	public function sharing_block() {
 		?>
