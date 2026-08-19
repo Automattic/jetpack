@@ -265,11 +265,15 @@ class Jetpack_Likes_Settings {
 	}
 
 	/**
-	 * Returns just the "sharing buttons" w/ like option block, so it can be inserted into different sharing page contexts
+	 * Returns the Likes options block, so it can be inserted into different sharing page contexts.
+	 *
+	 * Only rendered when the Sharing (sharedaddy) module is off, which is why the heading
+	 * does not mention sharing buttons: what lands under it is the Likes settings, the
+	 * "Show buttons on" setting that governs where Likes appear, and the Twitter Site Tag.
 	 */
 	public function sharing_block() {
 		?>
-		<h2><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h2>
+		<h2><?php esc_html_e( 'Likes and Sharing', 'jetpack' ); ?></h2>
 		<form method="post" action="">
 			<table class="form-table">
 				<tbody>
