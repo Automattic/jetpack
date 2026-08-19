@@ -128,8 +128,8 @@ class Dashboard {
 	public function init() {
 		add_action( 'admin_menu', array( $this, 'add_admin_submenu' ), self::MENU_PRIORITY );
 		add_action( 'admin_menu', array( __CLASS__, 'redirect_dashboard_url_cross_variant' ), 1 );
+		add_action( 'admin_notices', array( __CLASS__, 'announce_retired_filter' ) );
 
-		self::announce_retired_filter();
 		self::load_wp_build();
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
@@ -145,19 +145,20 @@ class Dashboard {
 	 * it, where apply_filters_deprecated() would return a `false` this code can no longer
 	 * act on. Guarded by has_filter() so sites that never used it stay silent.
 	 *
-	 * Admin-only, because this class is loaded on every request but the filter only ever
-	 * affected admin. Without the guard the notice lands in front-end, REST and cron
-	 * output on any site still carrying the filter.
+	 * Hooked to `admin_notices` rather than called from init(). This class loads at
+	 * `after_setup_theme` priority -2, so with WP_DEBUG display on the notice would print
+	 * — and send headers — before load_wp_build() and redirect_dashboard_url_cross_variant()
+	 * get to redirect, leaving both on "headers already sent" and a blank page.
 	 *
-	 * The has_filter() check runs at this class's load time, so a callback registered
-	 * later — on `init`, say — is not seen and no notice is emitted. That covers the
-	 * ordinary case: filters added at the top level of a plugin file, and the WordPress.com
-	 * writer on `plugins_loaded`. It is a missed warning, never a wrong one.
+	 * That hook also fires only while an admin screen renders, so the notice stays out of
+	 * admin-ajax and admin-post responses, which `is_admin()` would have let through. And
+	 * it runs late enough that has_filter() sees callbacks registered on `init`, not just
+	 * those added at file scope.
 	 *
 	 * @since $$next-version$$
 	 */
-	private static function announce_retired_filter() {
-		if ( ! is_admin() || ! has_filter( 'jetpack_forms_alpha' ) ) {
+	public static function announce_retired_filter() {
+		if ( ! has_filter( 'jetpack_forms_alpha' ) ) {
 			return;
 		}
 
@@ -629,10 +630,9 @@ class Dashboard {
 	 * Legacy (hash-based) URL suffix for the forms admin page.
 	 *
 	 * Unused since the legacy dashboard was retired: get_forms_admin_url() always builds
-	 * the wp-build URL now. Kept rather than deleted, and still private, so nothing
-	 * outside this class ever depended on it.
-	 *
-	 * @deprecated $$next-version$$ The legacy dashboard was retired.
+	 * the wp-build URL now. Private, so nothing outside this class ever called it, which
+	 * is why it carries no deprecation notice — there is no audience for one. Goes with
+	 * the rest of the legacy tree.
 	 *
 	 * @param string|null $tab    Tab to open.
 	 * @param int|null    $post_id Post ID of response.
