@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: added
 
 Add a filter for the post list table's views column link.
