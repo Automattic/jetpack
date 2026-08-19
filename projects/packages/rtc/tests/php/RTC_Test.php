@@ -759,6 +759,54 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Renders the Writing settings field and returns the markup.
+	 *
+	 * @return string
+	 */
+	private function render_setting_field() {
+		ob_start();
+		RTC::render_rtc_setting_field();
+		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Tests that the field renders unchecked when collaboration is off.
+	 */
+	public function test_render_rtc_setting_field_unchecked_by_default() {
+		$this->use_experiment_and_allow();
+		RTC::init();
+
+		$markup = $this->render_setting_field();
+
+		$this->assertStringContainsString( 'name="' . RTC::OPTION_NEW . '"', $markup );
+		$this->assertStringContainsString( 'type="checkbox"', $markup );
+		$this->assertStringNotContainsString( "checked='checked'", $markup );
+	}
+
+	/**
+	 * Tests that the field renders checked once collaboration is switched on.
+	 */
+	public function test_render_rtc_setting_field_checked_when_enabled() {
+		$this->use_experiment_and_allow();
+		RTC::init();
+		update_option( RTC::OPTION_NEW, '1' );
+
+		$markup = $this->render_setting_field();
+
+		$this->assertStringContainsString( "checked='checked'", $markup );
+	}
+
+	/**
+	 * Tests that the field describes what it does.
+	 */
+	public function test_render_rtc_setting_field_includes_description() {
+		$this->use_experiment_and_allow();
+		RTC::init();
+
+		$this->assertStringContainsString( 'real-time collaboration', $this->render_setting_field() );
+	}
+
+	/**
 	 * Tests that init hooks the experiment filter registration and the setting.
 	 */
 	public function test_init_hooks_experiment_setup() {
@@ -863,6 +911,25 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 		RTC::carry_over_opt_in();
 
 		$this->assertSame( '0', get_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN ) );
+	}
+
+	/**
+	 * Tests that reading the stored value adds no filters when none were hooked.
+	 *
+	 * The carry-over lifts this class's option filters to read the raw value. If it
+	 * restored them unconditionally it would register filters on a site where init() had
+	 * never run.
+	 */
+	public function test_carry_over_adds_no_filters_when_none_were_hooked() {
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		add_filter( 'jetpack_rtc_uses_experiment', '__return_true' );
+
+		// Deliberately no RTC::init(), so none of the option filters are registered.
+		RTC::carry_over_opt_in();
+
+		$this->assertFalse( has_filter( 'option_' . RTC::OPTION_NEW, array( RTC::class, 'filter_rtc_option' ) ) );
+		$this->assertFalse( has_filter( 'default_option_' . RTC::OPTION_NEW, array( RTC::class, 'default_rtc_option' ) ) );
+		$this->assertFalse( has_filter( 'pre_option_' . RTC::OPTION_NEW, array( RTC::class, 'pre_rtc_option' ) ) );
 	}
 
 	/**
