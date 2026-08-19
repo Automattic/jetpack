@@ -6,13 +6,16 @@
 
 export type Scenario = 'open_comments' | 'require_name_email' | 'require_login';
 
+/** These depend on the site's discussion settings, so their specs skip when unconfigured. */
+type OptionalScenario = Exclude< Scenario, 'open_comments' >;
+
 export interface Surface {
 	name: string;
 	/** Verbum arrives in the jetpack.wordpress.com iframe rather than rendering in the page. */
 	iframe: boolean;
 	/** `should_load_gutenberg_comments()` returns false for blog 522232, so for every iframe request. */
 	blocksEnabled: boolean;
-	posts: Partial< Record< Scenario, string > >;
+	posts: { open_comments: string } & Partial< Record< OptionalScenario, string > >;
 }
 
 // The monorepo's shared `process` declaration only covers NODE_ENV.

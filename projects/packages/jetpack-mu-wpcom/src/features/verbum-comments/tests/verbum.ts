@@ -1,8 +1,15 @@
-import { expect, type FrameLocator, type Page } from '@playwright/test';
+import { expect, type FrameLocator, type Locator, type Page } from '@playwright/test';
 import { testingUser } from './utils';
 import type { Scenario, Surface } from './sites';
 
 const JETPACK_IFRAME = 'iframe[name="jetpack_remote_comment"]';
+
+// `waitFor` throws on timeout; every caller here wants a yes/no instead.
+const appears = ( locator: Locator, timeout: number ) =>
+	locator.waitFor( { timeout } ).then(
+		() => true,
+		() => false
+	);
 
 /** The subset of the `window.VerbumComments` blob the specs read. */
 type VerbumWindow = { VerbumComments?: { enableBlocks?: boolean } };
@@ -64,8 +71,11 @@ export class VerbumForm {
 		}
 
 		await this.page.goto( `${ url }#respond` );
-		await this.dismissCookieConsent();
+		// The banner covers the form but doesn't stop it rendering, so let the two waits
+		// overlap rather than paying for the banner's absence before starting this one.
+		const consent = this.dismissCookieConsent();
 		await expect( this.submitButton ).toBeVisible();
+		await consent;
 	}
 
 	// `should_load_gutenberg_comments()` as the client sees it. Reading the flag is
@@ -81,20 +91,21 @@ export class VerbumForm {
 
 	async write( comment: string ) {
 		if ( await this.blockEditorOffered() ) {
-			// The placeholder swaps itself for the block editor on first click, then falls
-			// back to the textarea if that editor can't be fetched from widgets.wp.com.
+			// The placeholder swaps itself for the block editor on first click.
 			await this.editorPlaceholder.click();
-			const loaded = await this.blockEditor
-				.waitFor( { timeout: 15000 } )
-				.then( () => true )
-				.catch( () => false );
 
-			if ( loaded ) {
+			if ( await appears( this.blockEditor, 15000 ) ) {
 				await this.blockEditor.pressSequentially( comment );
 				return;
 			}
 		}
 
+		// The textarea is `display: none` for as long as the block editor is the chosen
+		// input, so it is typeable only once Verbum has settled on it: after failing to
+		// fetch the editor from widgets.wp.com, or by never offering it in the first
+		// place. Say so plainly rather than typing into something invisible until the
+		// test times out.
+		await expect( this.textarea ).toBeVisible( { timeout: 5000 } );
 		await this.textarea.pressSequentially( comment );
 	}
 
@@ -129,21 +140,17 @@ export class VerbumForm {
 			return false;
 		}
 
-		return this.editorPlaceholder
-			.waitFor( { timeout: 5000 } )
-			.then( () => true )
-			.catch( () => false );
+		return appears( this.editorPlaceholder, 5000 );
 	}
 
 	// WordPress.com shows a consent banner in some regions, and it covers the form.
 	private async dismissCookieConsent() {
-		try {
-			await this.page
-				.frameLocator( '#cmp-app-container iframe' )
-				.getByRole( 'button', { name: 'I Agree!' } )
-				.click( { timeout: 5000 } );
-		} catch {
-			// It's ok if it wasn't there to be dismissed.
+		const agree = this.page
+			.frameLocator( '#cmp-app-container iframe' )
+			.getByRole( 'button', { name: 'I Agree!' } );
+
+		if ( await appears( agree, 5000 ) ) {
+			await agree.click();
 		}
 	}
 
@@ -153,12 +160,11 @@ export class VerbumForm {
 			return;
 		}
 
-		try {
-			await this.root
-				.locator( '.verbum-simple-subscribe-modal__close-button' )
-				.click( { timeout: 15000 } );
-		} catch {
-			// Skipped for site members and when the modal is turned off.
+		// Absent for site members and when the modal is turned off.
+		const close = this.root.locator( '.verbum-simple-subscribe-modal__close-button' );
+
+		if ( await appears( close, 15000 ) ) {
+			await close.click();
 		}
 	}
 }
