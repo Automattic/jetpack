@@ -398,6 +398,16 @@ class REST_Controller {
 			);
 		}
 
+		// AI Answers runs inside Instant Search, so enabling it requires Instant
+		// Search on — either already, or turned on by this same request.
+		if ( true === $ai_answers_enabled && true !== $instant_search_enabled && ! $this->search_module->is_instant_search_enabled() ) {
+			return new WP_Error(
+				'rest_invalid_arguments',
+				esc_html__( 'AI Answers cannot be enabled while Instant Search is off.', 'jetpack-search-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		// `experience` is the canonical source of truth and writes the legacy booleans in lockstep.
 		// Reject requests that mix it with any other settings field so callers don't silently
 		// lose those fields — the `experience` branch in update_settings() early-returns and

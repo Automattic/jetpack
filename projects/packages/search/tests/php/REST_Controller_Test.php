@@ -631,6 +631,7 @@ class REST_Controller_Test extends Search_TestCase {
 	 */
 	public function test_update_settings_ai_answers_enabled_true() {
 		wp_set_current_user( $this->admin_id );
+		$this->enable_instant_search();
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
@@ -657,6 +658,99 @@ class REST_Controller_Test extends Search_TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
 		$this->assertFalse( $data['ai_answers_enabled'] );
+	}
+
+	/**
+	 * Turn Instant Search on through the settings endpoint, the way the
+	 * dashboard does, so AI Answers' Instant Search precondition is met.
+	 */
+	private function enable_instant_search() {
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'module_active'          => true,
+					'instant_search_enabled' => true,
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+		$this->assertEquals( 200, $this->server->dispatch( $request )->get_status() );
+	}
+
+	/**
+	 * Testing that ai_answers_enabled cannot be enabled while Instant Search is
+	 * off — AI Answers only runs inside Instant Search, so the precondition is
+	 * validated server-side, not just in the dashboard UI.
+	 */
+	public function test_update_settings_cannot_enable_ai_answers_without_instant_search() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'ai_answers_enabled' => true ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertFalse( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+	}
+
+	/**
+	 * Testing that ai_answers_enabled can be enabled once Instant Search is on.
+	 */
+	public function test_update_settings_can_enable_ai_answers_with_instant_search_on() {
+		wp_set_current_user( $this->admin_id );
+		$this->enable_instant_search();
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'ai_answers_enabled' => true ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+	}
+
+	/**
+	 * Testing that one request may turn Instant Search and AI Answers on together.
+	 */
+	public function test_update_settings_can_enable_ai_answers_and_instant_search_together() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'module_active'          => true,
+					'instant_search_enabled' => true,
+					'ai_answers_enabled'     => true,
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+	}
+
+	/**
+	 * Testing that ai_answers_enabled can still be turned off while Instant
+	 * Search is off — only enabling carries the precondition.
+	 */
+	public function test_update_settings_can_disable_ai_answers_without_instant_search() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'ai_answers_enabled' => false ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertFalse( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
 	}
 
 	/**
