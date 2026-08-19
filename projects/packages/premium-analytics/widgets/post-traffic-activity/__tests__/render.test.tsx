@@ -20,13 +20,21 @@ let mockCardWidth: number | undefined;
 // Reports a later width, so a test can drive a resize rather than only a mount.
 let mockFireResize: ( ( width: number ) => void ) | undefined;
 let mockAttachRef: ( ( element: HTMLElement | null ) => void ) | undefined;
+type ResizeHandler = ( entries: { contentRect: { width: number } }[] ) => void;
+let mockResizeHandlers: ResizeHandler[] = [];
 
 // jsdom's ResizeObserver never fires, so the real hook leaves the card unmeasured
 // and the width-driven page span is unreachable from a test. Drive it directly.
+// The widget consumes the hook twice — its own card-width observer plus the one
+// inside `useElementSize` — so a resize is broadcast to every handler: the width
+// handler reads the entry, while `useElementSize` falls back to measuring its
+// own element, and both dedupe repeats.
 jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
-	useResizeObserver: ( onResize: ( entries: { contentRect: { width: number } }[] ) => void ) => {
-		mockFireResize = width => onResize( [ { contentRect: { width } } ] );
+	useResizeObserver: ( onResize: ResizeHandler ) => {
+		mockResizeHandlers.push( onResize );
+		mockFireResize = width =>
+			mockResizeHandlers.forEach( handler => handler( [ { contentRect: { width } } ] ) );
 		// One stable ref callback for the whole file. A fresh arrow per render would
 		// make React detach and re-attach on every commit, replaying the mount width
 		// and undoing whatever a test fired.
@@ -115,6 +123,7 @@ const REPORT_PARAMS = {
 beforeEach( () => {
 	mockCardWidth = undefined;
 	mockFireResize = undefined;
+	mockResizeHandlers = [];
 	mockUsePostTrafficActivity.mockReset();
 	mockUsePostTrafficActivity.mockReturnValue( {
 		days: twoWeeksOfDays(),
