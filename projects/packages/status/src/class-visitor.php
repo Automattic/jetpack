@@ -66,7 +66,7 @@ class Visitor {
 	 * IMPORTANT: Reporting signal only, never authorization. A proxied request says
 	 * something about where the request came from, not who the user is.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.4.0
 	 *
 	 * @return bool True if the request looks like Automattician traffic, false otherwise.
 	 */

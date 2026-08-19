@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.47.0] - 2026-08-19
+### Added
+- Add a Video Playlist block. [#51332]
+
+### Changed
+- Chapters editor: move the chapter list into a side panel beside the preview and timeline. [#51147]
+- Update package dependencies. [#51399]
+
+### Fixed
+- Fix: Private VideoPress videos in synced patterns intermittently fail authorization by caching GUID lists at render time for fast O(1) lookup during token requests. [#51398]
+
 ## [0.46.0] - 2026-08-13
 ### Added
 - Show the free-plan upgrade notice on the Library and Settings tabs once the free video upload has been used. [#51186]
@@ -2149,6 +2160,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.47.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.46.0...v0.47.0
 [0.46.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.45.0...v0.46.0
 [0.45.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.44.0...v0.45.0
 [0.44.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.43.0...v0.44.0

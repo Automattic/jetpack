@@ -180,6 +180,8 @@ export {
 	granularityAttributeField,
 	type ChartDisplayChartType,
 	type ChartGranularityOption,
+	CALENDAR_HEATMAP_CELL_GAP,
+	CALENDAR_HEATMAP_HEADER_HEIGHT,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
 	formatViewCount,

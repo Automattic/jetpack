@@ -3,7 +3,7 @@ Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski,
 Tags: video, video-hosting, video-player, cdn, video-streaming
 Requires at least: 7.0
 Tested up to: 7.1
-Stable tag: 3.3
+Stable tag: 3.4
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -83,11 +83,10 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 3.3 - 2026-08-13
-#### Added
-- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed.
-
+### 3.4 - 2026-08-19
 #### Changed
-- Update dependencies.
 - Update package dependencies.
+
+#### Fixed
+- Connection: Stop showing a duplicate account notice when your WordPress.com email differs from your site email only in letter case.
 
