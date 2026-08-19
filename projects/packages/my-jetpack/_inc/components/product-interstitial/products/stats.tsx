@@ -66,13 +66,13 @@ export function getStatsConfig(): ProductConfig {
 				name: __( 'Device stats', 'jetpack-my-jetpack' ),
 				free: { included: false, label: NOT_INCLUDED },
 				paid: { included: true, label: INCLUDED },
-				bundle: { included: true, label: VIDEO_HOSTING_1TB },
+				bundle: { included: true, label: SOCIAL_TOOLS },
 			},
 			{
 				name: __( 'Locations', 'jetpack-my-jetpack' ),
 				free: { included: true, label: __( 'Country-level', 'jetpack-my-jetpack' ) },
 				paid: { included: true, label: __( 'Region and city', 'jetpack-my-jetpack' ) },
-				bundle: { included: true, label: SOCIAL_TOOLS },
+				bundle: { included: true, label: VIDEO_HOSTING_1TB },
 			},
 			{
 				name: PRIORITY_SUPPORT,

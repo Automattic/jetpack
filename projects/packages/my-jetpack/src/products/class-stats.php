@@ -124,7 +124,7 @@ class Stats extends Module_Product {
 	/**
 	 * Get the internationalized features list
 	 *
-	 * @return array CRM features list
+	 * @return array Stats features list
 	 */
 	public static function get_features() {
 		return array(
