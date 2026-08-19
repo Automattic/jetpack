@@ -1,8 +1,9 @@
 @use "sass:list";
 
-/* Geometry from the design prototype's `columns` skeleton variant. */
-$column-gap: 6px;
-$column-padding-block: 12px 4px;
+/* Geometry from the design prototype's `columns` skeleton variant, on WPDS
+ * dimension tokens: the prototype's 6px column gap sits between `xs` and `sm`,
+ * and `xs` is the one that leaves the bars their width. Only the proportional
+ * heights stay literal — no token expresses them. */
 $column-block-sizes: 40%, 62%, 34%, 78%, 52%, 88%, 46%, 70%, 30%, 60%, 82%, 44%;
 
 /* Bottom-aligned so the varying heights read as a bar chart, not a grid. */
@@ -11,9 +12,9 @@ $column-block-sizes: 40%, 62%, 34%, 78%, 52%, 88%, 46%, 70%, 30%, 60%, 82%, 44%;
 	flex: 1 1 auto;
 	flex-direction: row;
 	align-items: flex-end;
-	gap: $column-gap;
+	gap: var(--wpds-dimension-gap-xs);
 	min-block-size: 0;
-	padding-block: $column-padding-block;
+	padding-block: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-xs);
 }
 
 /* The prototype's 3px radius has no token here; `sm` (2px) is the nearest. */

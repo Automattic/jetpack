@@ -1,8 +1,6 @@
 /* Geometry from the design prototype's `heatmap` skeleton variant: 28 columns
  * of square cells, 4px apart, with the strip inset from the body. */
 $columns: 28;
-$cell-gap: 4px;
-$grid-block-padding: 8px;
 
 /* Auto margins centre the strip the way the loaded heatmap centres in the tile,
  * and — unlike `justify-content` — give up their space instead of pushing the
@@ -17,10 +15,10 @@ $grid-block-padding: 8px;
 	display: grid;
 	grid-template-columns: repeat($columns, 1fr);
 	grid-auto-rows: 1fr;
-	gap: $cell-gap;
+	gap: var(--wpds-dimension-gap-xs);
 	min-block-size: 0;
 	margin-block: auto;
-	padding-block: $grid-block-padding;
+	padding-block: var(--wpds-dimension-padding-sm);
 	overflow: hidden;
 }
 
