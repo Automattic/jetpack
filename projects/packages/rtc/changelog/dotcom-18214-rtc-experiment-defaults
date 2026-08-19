@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+RTC: Drive the Gutenberg 23.8 real-time collaboration experiment from the Settings > Writing toggle, default that toggle to off, and preserve the choice of sites that had already opted in.

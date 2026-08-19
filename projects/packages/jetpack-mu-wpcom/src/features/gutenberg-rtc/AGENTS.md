@@ -48,15 +48,69 @@ A site has RTC running only when **both** are true:
 
 `RTC::is_enabled()` (`projects/packages/rtc/src/class-rtc.php`) = `is_allowed()`
 **AND** `get_option( 'wp_collaboration_enabled' )` **AND** not in the Site Editor.
+`RTC::is_turned_on()` is the same minus the Site Editor check — use it when you
+mean "how is this site configured" rather than "what is this request doing".
 
-The option **defaults to OFF**. When a site is *not* allowed, the Writing field
-is unregistered (hidden) and the option value is forced to `0`. So a missing
-"Enable real-time collaboration" checkbox means the site is not allowed — not
-that the admin forgot to check it.
+When a site is *not* allowed, the Writing field is unregistered (hidden) and the
+option value is forced to `0`. So a missing "Enable real-time collaboration"
+checkbox means the site is not allowed — not that the admin forgot to check it.
 
 > Gotcha — super admins who are **not members** of the blog get the option
 > forced off everywhere except the Writing settings page (`pre_rtc_option`),
 > so HEs/support don't silently broadcast presence on customer sites.
+
+## Gutenberg 23.8+ — the experiment gate
+
+Gutenberg [PR #80658](https://github.com/WordPress/gutenberg/pull/80658) moved
+collaboration and its bundled HTTP polling provider behind a single
+`gutenberg-real-time-collaboration` experiment. On those builds Gutenberg:
+
+- reads `wp_is_collaboration_enabled()` from the experiment, not from an option,
+- **removes** its own collaboration field from Settings → Writing,
+- **deletes** the `wp_collaboration_enabled` option in a one-time migration,
+- drops `WP_ALLOW_COLLABORATION` / `wp_is_collaboration_allowed()`.
+
+`RTC::uses_experiment()` feature-detects those builds (it checks that
+`wp_is_collaboration_enabled()` exists while `wp_is_collaboration_allowed()` does
+not; override with the `jetpack_rtc_uses_experiment` filter). On them the package:
+
+- registers its **own** Writing field (`register_rtc_setting`), since the
+  Gutenberg Experiments page is hidden on WP.com Simple sites and is the wrong
+  level of exposure for a hosted product anyway;
+- **defaults the option to OFF** (`default_rtc_option`), per DOTCOM-18214;
+- toggles the experiment to match the option (`filter_experiments` on
+  `option_gutenberg-experiments`), keeping the setting the single source of truth
+  so collaboration is never on without a provider registered.
+
+On older Gutenberg every one of those callbacks no-ops and the option still
+**defaults to ON**, so behaviour changes exactly when Gutenberg does.
+
+### Carrying over existing opt-ins
+
+Gutenberg's migration deletes `wp_collaboration_enabled` outright, so on its own
+every site would come back with RTC off — including sites that had deliberately
+switched it on. `carry_over_opt_in()` runs on `init` priority 0, ahead of that
+migration at priority 20, and records the answer in
+`jetpack_rtc_pre_experiment_opt_in` ('1' or '0'). `restore_opt_in()` then runs at
+priority 30 — after the migration — and writes `wp_collaboration_enabled` back as a
+**real stored value**, consuming the flag so it only ever happens once.
+
+> Why a stored value and not a default: unchecking the box on Settings → Writing
+> does not store '0', it **removes the option row**. Expressing the carried opt-in
+> as a default therefore re-applied it on the very next request, leaving those
+> sites permanently unable to switch collaboration off. `default_rtc_option()` is
+> unconditionally '0' under the experiment for exactly this reason.
+
+The signal is whether the option was **stored**, not its effective value: it only
+exists in the database when something wrote it (saving Settings → Writing, WP-CLI,
+REST). An absent option means the site was only ever on because the old default
+was on, which is exactly the group we want to switch off.
+
+Sites that are not allowed are skipped, so we do not write an option platform-wide.
+
+> Ordering caveat — this only works if the package ships **before** Gutenberg 23.8
+> reaches a site. If the migration runs first the stored values are already gone
+> and there is nothing left to carry.
 
 ## Layer 1 — this directory (`wpcom_enable_rtc`, priority 10)
 

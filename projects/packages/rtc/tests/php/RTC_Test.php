@@ -26,6 +26,13 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	private $original_wp_settings_fields;
 
 	/**
+	 * Original value of $wp_registered_settings to restore after each test.
+	 *
+	 * @var mixed
+	 */
+	private $original_wp_registered_settings;
+
+	/**
 	 * Original WP_Scripts instance to restore after each test.
 	 *
 	 * @var \WP_Scripts|null
@@ -51,24 +58,34 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function set_up(): void {
 		parent::set_up();
-		global $wp_settings_fields, $wp_scripts, $wp_styles, $pagenow;
-		$this->original_wp_settings_fields = $wp_settings_fields;
-		$this->original_wp_scripts         = $wp_scripts;
-		$this->original_wp_styles          = $wp_styles;
-		$this->original_pagenow            = $pagenow;
+		global $wp_settings_fields, $wp_registered_settings, $wp_scripts, $wp_styles, $pagenow;
+		$this->original_wp_settings_fields     = $wp_settings_fields;
+		$this->original_wp_registered_settings = $wp_registered_settings;
+		$this->original_wp_scripts             = $wp_scripts;
+		$this->original_wp_styles              = $wp_styles;
+		$this->original_pagenow                = $pagenow;
 	}
 
 	/**
 	 * Clean up filters and restore global state after each test.
 	 */
 	public function tear_down(): void {
-		global $wp_settings_fields, $wp_scripts, $wp_styles, $pagenow;
-		$wp_settings_fields = $this->original_wp_settings_fields;
-		$wp_scripts         = $this->original_wp_scripts;
-		$wp_styles          = $this->original_wp_styles;
-		$pagenow            = $this->original_pagenow;
+		global $wp_settings_fields, $wp_registered_settings, $wp_scripts, $wp_styles, $pagenow;
+		$wp_settings_fields     = $this->original_wp_settings_fields;
+		$wp_registered_settings = $this->original_wp_registered_settings;
+		$wp_scripts             = $this->original_wp_scripts;
+		$wp_styles              = $this->original_wp_styles;
+		$pagenow                = $this->original_pagenow;
 		remove_all_filters( 'jetpack_rtc_enabled' );
 		remove_all_filters( 'jetpack_rtc_providers' );
+		remove_all_filters( 'jetpack_rtc_uses_experiment' );
+		delete_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN );
+
+		// The pre_rtc_option tests log a user in; leaving them logged in makes
+		// pre_rtc_option short-circuit get_option() in every test that follows.
+		wp_set_current_user( 0 );
+		remove_all_filters( 'option_' . RTC::EXPERIMENTS_OPTION );
+		remove_all_filters( 'default_option_' . RTC::EXPERIMENTS_OPTION );
 		foreach ( array( RTC::OPTION_OLD, RTC::OPTION_NEW ) as $option ) {
 			remove_all_filters( 'option_' . $option );
 			remove_all_filters( 'default_option_' . $option );
@@ -562,5 +579,418 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 		$pagenow = 'options-writing.php';
 
 		$this->assertFalse( RTC::pre_rtc_option() );
+	}
+
+	// -------------------------------------------------------------------------
+	// Gutenberg experiment tests (Gutenberg 23.8+)
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Allowed site running a Gutenberg that gates RTC behind the experiment.
+	 */
+	private function use_experiment_and_allow() {
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		add_filter( 'jetpack_rtc_uses_experiment', '__return_true' );
+	}
+
+	/**
+	 * Tests that the experiment is not detected without Gutenberg 23.8+ loaded.
+	 */
+	public function test_uses_experiment_defaults_false() {
+		$this->assertFalse( RTC::uses_experiment() );
+	}
+
+	/**
+	 * Tests that experiment detection can be overridden by filter.
+	 */
+	public function test_uses_experiment_respects_filter() {
+		add_filter( 'jetpack_rtc_uses_experiment', '__return_true' );
+		$this->assertTrue( RTC::uses_experiment() );
+	}
+
+	/**
+	 * Tests that is_turned_on describes the site, ignoring the current admin screen.
+	 */
+	public function test_is_turned_on_ignores_site_editor() {
+		global $pagenow;
+
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( RTC::OPTION_NEW, '1' );
+
+		$pagenow = 'site-editor.php';
+
+		$this->assertTrue( RTC::is_turned_on() );
+		$this->assertFalse( RTC::is_enabled() );
+	}
+
+	/**
+	 * Tests that the setting defaults to off once RTC is gated by the experiment.
+	 */
+	public function test_default_rtc_option_returns_0_when_using_experiment() {
+		$this->use_experiment_and_allow();
+
+		$this->assertSame( '0', RTC::default_rtc_option( '', RTC::OPTION_NEW ) );
+		$this->assertSame( '0', RTC::default_rtc_option( '', RTC::OPTION_OLD ) );
+	}
+
+	/**
+	 * Tests that the experiment is enabled when the setting is on.
+	 */
+	public function test_filter_experiments_enables_when_turned_on() {
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( RTC::OPTION_NEW, '1' );
+
+		$this->assertSame(
+			array( RTC::EXPERIMENT => true ),
+			RTC::filter_experiments( array() )
+		);
+	}
+
+	/**
+	 * Tests that the experiment is removed when the setting is off.
+	 */
+	public function test_filter_experiments_removes_when_turned_off() {
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( RTC::OPTION_NEW, '0' );
+
+		$this->assertSame(
+			array(),
+			RTC::filter_experiments( array( RTC::EXPERIMENT => true ) )
+		);
+	}
+
+	/**
+	 * Tests that unrelated experiments are left untouched.
+	 */
+	public function test_filter_experiments_preserves_other_experiments() {
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( RTC::OPTION_NEW, '1' );
+
+		$this->assertSame(
+			array(
+				'gutenberg-guidelines' => true,
+				RTC::EXPERIMENT        => true,
+			),
+			RTC::filter_experiments( array( 'gutenberg-guidelines' => true ) )
+		);
+	}
+
+	/**
+	 * Tests that a missing option (passed as false) is handled.
+	 */
+	public function test_filter_experiments_handles_non_array() {
+		$this->assertSame( array(), RTC::filter_experiments( false ) );
+	}
+
+	/**
+	 * Tests that a stored setting cannot enable the experiment on a site that is not allowed.
+	 */
+	public function test_filter_experiments_ignores_setting_when_not_allowed() {
+		add_filter( 'jetpack_rtc_uses_experiment', '__return_true' );
+		update_option( RTC::OPTION_NEW, '1' );
+
+		$this->assertSame( array(), RTC::filter_experiments( array() ) );
+	}
+
+	/**
+	 * Tests that the experiment filters are not registered on older Gutenberg.
+	 */
+	public function test_register_experiment_filters_skips_on_legacy_gutenberg() {
+		RTC::register_experiment_filters();
+
+		$this->assertFalse( has_filter( 'option_' . RTC::EXPERIMENTS_OPTION ) );
+		$this->assertFalse( has_filter( 'default_option_' . RTC::EXPERIMENTS_OPTION ) );
+	}
+
+	/**
+	 * Tests that the experiment filters are registered on Gutenberg 23.8+.
+	 */
+	public function test_register_experiment_filters_registers_on_new_gutenberg() {
+		add_filter( 'jetpack_rtc_uses_experiment', '__return_true' );
+
+		RTC::register_experiment_filters();
+
+		$this->assertNotFalse( has_filter( 'option_' . RTC::EXPERIMENTS_OPTION, array( RTC::class, 'filter_experiments' ) ) );
+		$this->assertNotFalse( has_filter( 'default_option_' . RTC::EXPERIMENTS_OPTION, array( RTC::class, 'filter_experiments' ) ) );
+	}
+
+	/**
+	 * Tests that we do not re-register Gutenberg's setting back to a default of enabled.
+	 */
+	public function test_override_rtc_setting_default_bails_when_using_experiment() {
+		global $wp_registered_settings;
+
+		$this->use_experiment_and_allow();
+		$wp_registered_settings = array( RTC::OPTION_NEW => array( 'default' => false ) );
+
+		RTC::override_rtc_setting_default();
+
+		$this->assertFalse( $wp_registered_settings[ RTC::OPTION_NEW ]['default'] );
+	}
+
+	/**
+	 * Tests that no replacement setting is registered when RTC is not allowed.
+	 */
+	public function test_register_rtc_setting_skips_when_not_allowed() {
+		global $wp_settings_fields;
+
+		add_filter( 'jetpack_rtc_uses_experiment', '__return_true' );
+		$wp_settings_fields = array();
+
+		RTC::register_rtc_setting();
+
+		$this->assertSame( array(), $wp_settings_fields );
+	}
+
+	/**
+	 * Tests that the replacement setting is registered, defaulting to off.
+	 */
+	public function test_register_rtc_setting_registers_field_when_allowed() {
+		global $wp_settings_fields, $wp_registered_settings;
+
+		$this->use_experiment_and_allow();
+		$wp_settings_fields = array();
+
+		RTC::register_rtc_setting();
+
+		$this->assertArrayHasKey( RTC::OPTION_NEW, $wp_settings_fields['writing']['default'] );
+		$this->assertFalse( $wp_registered_settings[ RTC::OPTION_NEW ]['default'] );
+	}
+
+	/**
+	 * Tests that init hooks the experiment filter registration and the setting.
+	 */
+	public function test_init_hooks_experiment_setup() {
+		RTC::init();
+
+		$this->assertNotFalse( has_action( 'init', array( RTC::class, 'register_experiment_filters' ) ) );
+		$this->assertNotFalse( has_action( 'admin_init', array( RTC::class, 'register_rtc_setting' ) ) );
+		// Must land after Gutenberg's migration, which runs at priority 20.
+		$this->assertSame( 30, has_action( 'init', array( RTC::class, 'restore_opt_in' ) ) );
+	}
+
+	// -------------------------------------------------------------------------
+	// Opt-in carry-over tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Tests that a site that explicitly turned collaboration on keeps it.
+	 */
+	public function test_carry_over_records_explicit_opt_in() {
+		$this->use_experiment_and_allow();
+		RTC::init();
+		update_option( RTC::OPTION_NEW, '1' );
+
+		RTC::carry_over_opt_in();
+
+		$this->assertSame( '1', get_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN ) );
+	}
+
+	/**
+	 * Tests that a site that never touched the setting is not opted in.
+	 */
+	public function test_carry_over_records_no_opt_in_when_nothing_stored() {
+		$this->use_experiment_and_allow();
+		RTC::init();
+
+		RTC::carry_over_opt_in();
+
+		$this->assertSame( '0', get_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN ) );
+	}
+
+	/**
+	 * Tests that an explicit opt-out is not read as an opt-in.
+	 */
+	public function test_carry_over_records_no_opt_in_when_explicitly_disabled() {
+		$this->use_experiment_and_allow();
+		RTC::init();
+		update_option( RTC::OPTION_NEW, '0' );
+
+		RTC::carry_over_opt_in();
+
+		$this->assertSame( '0', get_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN ) );
+	}
+
+	/**
+	 * Tests that an opt-in stored under the pre-rename option name is still found.
+	 */
+	public function test_carry_over_falls_back_to_legacy_option() {
+		$this->use_experiment_and_allow();
+		RTC::init();
+		update_option( RTC::OPTION_OLD, '1' );
+
+		RTC::carry_over_opt_in();
+
+		$this->assertSame( '1', get_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN ) );
+	}
+
+	/**
+	 * Tests that sites which cannot run RTC are not written to.
+	 */
+	public function test_carry_over_skips_when_not_allowed() {
+		add_filter( 'jetpack_rtc_uses_experiment', '__return_true' );
+		RTC::init();
+		update_option( RTC::OPTION_NEW, '1' );
+
+		RTC::carry_over_opt_in();
+
+		$this->assertFalse( get_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN, false ) );
+	}
+
+	/**
+	 * Tests that nothing is recorded on Gutenberg versions without the experiment.
+	 */
+	public function test_carry_over_skips_on_legacy_gutenberg() {
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		RTC::init();
+		update_option( RTC::OPTION_NEW, '1' );
+
+		RTC::carry_over_opt_in();
+
+		$this->assertFalse( get_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN, false ) );
+	}
+
+	/**
+	 * Tests that the carry-over runs once and does not revisit its answer.
+	 */
+	public function test_carry_over_is_idempotent() {
+		$this->use_experiment_and_allow();
+		RTC::init();
+		update_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN, '0' );
+		update_option( RTC::OPTION_NEW, '1' );
+
+		RTC::carry_over_opt_in();
+
+		$this->assertSame( '0', get_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN ) );
+	}
+
+	/**
+	 * Tests that reading the stored value leaves this class's option filters intact.
+	 */
+	public function test_carry_over_leaves_option_filters_intact() {
+		$this->use_experiment_and_allow();
+		RTC::init();
+		update_option( RTC::OPTION_NEW, '1' );
+
+		RTC::carry_over_opt_in();
+
+		$this->assertSame( 10, has_filter( 'option_' . RTC::OPTION_NEW, array( RTC::class, 'filter_rtc_option' ) ) );
+		$this->assertSame( 20, has_filter( 'default_option_' . RTC::OPTION_NEW, array( RTC::class, 'default_rtc_option' ) ) );
+		$this->assertSame( 10, has_filter( 'pre_option_' . RTC::OPTION_NEW, array( RTC::class, 'pre_rtc_option' ) ) );
+	}
+
+	/**
+	 * Tests that the default stays off even for a site that had opted in.
+	 *
+	 * The opt-in is re-applied as a stored value by restore_opt_in(), never as a default.
+	 */
+	public function test_default_rtc_option_is_off_regardless_of_carried_flag() {
+		$this->use_experiment_and_allow();
+
+		update_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN, '1' );
+		$this->assertSame( '0', RTC::default_rtc_option( '', RTC::OPTION_NEW ) );
+
+		update_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN, '0' );
+		$this->assertSame( '0', RTC::default_rtc_option( '', RTC::OPTION_NEW ) );
+	}
+
+	/**
+	 * Tests that a carried opt-in turns the experiment back on end to end.
+	 */
+	public function test_carried_opt_in_enables_the_experiment() {
+		$this->use_experiment_and_allow();
+		RTC::init();
+		update_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN, '1' );
+
+		// Gutenberg's migration has removed the option by this point.
+		delete_option( RTC::OPTION_NEW );
+		RTC::restore_opt_in();
+
+		$this->assertSame(
+			array( RTC::EXPERIMENT => true ),
+			RTC::filter_experiments( array() )
+		);
+	}
+
+	/**
+	 * Tests that restoring writes a real stored value, not just a default.
+	 */
+	public function test_restore_opt_in_stores_a_real_value() {
+		$this->use_experiment_and_allow();
+		RTC::init();
+		update_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN, '1' );
+		delete_option( RTC::OPTION_NEW );
+
+		RTC::restore_opt_in();
+
+		$this->assertSame( '1', get_option( RTC::OPTION_NEW ) );
+		// The flag is consumed, so this only ever happens once.
+		$this->assertSame( '0', get_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN ) );
+	}
+
+	/**
+	 * Tests that a site which never opted in is left alone.
+	 */
+	public function test_restore_opt_in_skips_when_nothing_carried() {
+		$this->use_experiment_and_allow();
+		RTC::init();
+		update_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN, '0' );
+		delete_option( RTC::OPTION_NEW );
+
+		RTC::restore_opt_in();
+
+		$this->assertFalse( RTC::is_turned_on() );
+	}
+
+	/**
+	 * Tests that restoring never overwrites a choice the site already has stored.
+	 */
+	public function test_restore_opt_in_does_not_overwrite_a_stored_choice() {
+		$this->use_experiment_and_allow();
+		RTC::init();
+		update_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN, '1' );
+		// add_option, not update_option: the default is already '0', so update_option
+		// would see no change and write nothing.
+		add_option( RTC::OPTION_NEW, '0' );
+
+		RTC::restore_opt_in();
+
+		$this->assertSame( '0', get_option( RTC::OPTION_NEW ) );
+	}
+
+	/**
+	 * Tests that a carried-over site can still switch collaboration off.
+	 *
+	 * Regression test: unchecking the box on Settings > Writing deletes the option row
+	 * rather than storing '0'. While the carried opt-in was expressed as a default, that
+	 * default re-applied on the next request and the setting could never be turned off.
+	 */
+	public function test_carried_site_can_turn_collaboration_off() {
+		$this->use_experiment_and_allow();
+		RTC::init();
+		update_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN, '1' );
+		delete_option( RTC::OPTION_NEW );
+
+		RTC::restore_opt_in();
+		$this->assertTrue( RTC::is_turned_on(), 'collaboration should be restored' );
+
+		// The user unchecks the box, which removes the row.
+		delete_option( RTC::OPTION_NEW );
+		RTC::restore_opt_in();
+
+		$this->assertFalse( RTC::is_turned_on(), 'collaboration should stay off' );
+		$this->assertSame( array(), RTC::filter_experiments( array() ) );
+	}
+
+	/**
+	 * Tests that init hooks the carry-over ahead of Gutenberg's migration.
+	 */
+	public function test_init_hooks_carry_over_before_migration() {
+		RTC::init();
+
+		$priority = has_action( 'init', array( RTC::class, 'carry_over_opt_in' ) );
+
+		$this->assertSame( 0, $priority );
+		$this->assertLessThan( 20, $priority );
 	}
 }
