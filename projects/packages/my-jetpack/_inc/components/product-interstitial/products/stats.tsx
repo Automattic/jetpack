@@ -56,6 +56,7 @@ export function getStatsConfig(): ProductConfig {
 				bundle: { included: true, label: SPAM_FILTERING },
 			},
 			{
+				/* translators: UTM refers to the Urchin Tracking Module campaign parameters appended to a URL. */
 				name: __( 'UTM tracking', 'jetpack-my-jetpack' ),
 				free: { included: false, label: NOT_INCLUDED },
 				paid: { included: true, label: INCLUDED },
@@ -87,6 +88,7 @@ export function getStatsConfig(): ProductConfig {
 			},
 			paid: {
 				name: 'Stats',
+				/* translators: "Stats" here shouldn't be translated as it's the name of the product */
 				cta: __( 'Get Paid Stats', 'jetpack-my-jetpack' ),
 			},
 			bundle: {
