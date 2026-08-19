@@ -72,7 +72,6 @@ class RTC {
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'register_providers' ) );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_notices' ) );
 		add_action( 'load-options-writing.php', array( __CLASS__, 'unregister_rtc_setting' ) );
-		add_action( 'load-options-writing.php', array( __CLASS__, 'override_rtc_setting_default' ) );
 
 		/*
 		 * Gutenberg 23.8+ only. Both callbacks no-op on older Gutenberg, and the
@@ -304,47 +303,17 @@ class RTC {
 	}
 
 	/**
-	 * When RTC is allowed and the option is NOT stored yet,
-	 * default the option to enabled (1), unless the old option
-	 * has a stored value to migrate from.
+	 * Default the collaboration setting to off.
 	 *
-	 * This handles the Gutenberg upgrade path: e.g. a site on 22.7 stored
-	 * wp_enable_real_time_collaboration, then upgraded to 22.8 which reads
-	 * wp_collaboration_enabled — the new option inherits the old value.
+	 * Real-time collaboration is opt-in: Gutenberg 23.8 made it an experiment that sites
+	 * must enable explicitly, and on earlier versions there is no longer a reason to have
+	 * it on by default either. Sites that turned it on have a stored value, which
+	 * `get_option()` returns without ever consulting this filter.
 	 *
-	 * @param mixed  $default The default value.
-	 * @param string $option  The option name.
-	 * @return mixed
+	 * @return string Always '0'.
 	 */
-	public static function default_rtc_option( $default = '', $option = '' ) {
-		// RTC not allowed: keep default disabled.
-		if ( ! self::is_allowed() ) {
-			return '0';
-		}
-
-		/*
-		 * Gutenberg 23.8+ makes collaboration opt-in and deliberately does not migrate
-		 * existing sites onto the experiment, so default the setting off to match. This
-		 * is the behaviour DOTCOM-18214 asks for: RTC inactive by default, one checkbox
-		 * away in Settings > Writing.
-		 *
-		 * Sites that had already opted in keep collaboration, but that is handled by
-		 * `restore_opt_in()` storing a real value rather than by bending this default.
-		 * Unchecking the box on Settings > Writing removes the option row, so a default
-		 * of '1' here would immediately switch collaboration back on and leave those
-		 * sites unable to turn it off at all.
-		 */
-		if ( self::uses_experiment() ) {
-			return '0';
-		}
-
-		// RTC allowed and option is not stored yet
-		if ( $option === self::OPTION_NEW ) {
-			// If the old option is set, use that.
-			return get_option( self::OPTION_OLD );
-		}
-		// Default to enabled.
-		return '1';
+	public static function default_rtc_option() {
+		return '0';
 	}
 
 	/**
@@ -363,51 +332,6 @@ class RTC {
 
 		// Returning false to let `get_option` proceed normally.
 		return false;
-	}
-
-	/**
-	 * Override the default for the Gutenberg RTC setting so it defaults to enabled in the UI.
-	 *
-	 * @return void
-	 */
-	public static function override_rtc_setting_default() {
-		global $wp_registered_settings;
-
-		// No need to override the setting when RTC is not allowed, since we unregister it
-		// in `unregister_rtc_setting`.
-		if ( ! self::is_allowed() ) {
-			return;
-		}
-
-		/*
-		 * Gutenberg 23.8+ no longer registers a collaboration setting for us to adjust;
-		 * `register_rtc_setting` registers our own, already defaulting to off. Bail so we
-		 * do not immediately re-register it here with a default of enabled.
-		 */
-		if ( self::uses_experiment() ) {
-			return;
-		}
-
-		foreach ( array( self::OPTION_OLD, self::OPTION_NEW ) as $option ) {
-			// Only re-register the option if Gutenberg already registered it.
-			if ( ! isset( $wp_registered_settings[ $option ] ) ) {
-				continue;
-			}
-
-			unregister_setting( 'writing', $option );
-
-			register_setting(
-				'writing',
-				$option,
-				array(
-					'type'              => 'boolean',
-					'description'       => __( 'Enable Real-Time Collaboration', 'jetpack-rtc' ),
-					'sanitize_callback' => 'rest_sanitize_boolean',
-					'default'           => true,
-					'show_in_rest'      => true,
-				)
-			);
-		}
 	}
 
 	/**
@@ -444,14 +368,12 @@ class RTC {
 		}
 
 		/*
-		 * Skip sites that cannot run RTC anyway. Their stored value was forced to '0' by
-		 * `filter_rtc_option`, so there is nothing meaningful to preserve, and this keeps
-		 * us from writing an option to every site on the platform.
+		 * Record an answer for every site, including ones that cannot run RTC. Writing the
+		 * marker unconditionally is what lets the check above short-circuit on subsequent
+		 * requests; skipping disallowed sites would leave them re-evaluating this on every
+		 * admin request forever. Whether RTC is allowed is still enforced at read time by
+		 * `is_turned_on()`.
 		 */
-		if ( ! self::is_allowed() ) {
-			return;
-		}
-
 		update_option( self::OPTION_PRE_EXPERIMENT_OPT_IN, self::had_explicit_opt_in() ? '1' : '0' );
 	}
 
@@ -563,7 +485,18 @@ class RTC {
 
 		// 'option_' fires when the option exists in the DB, 'default_option_' when it does not.
 		add_filter( 'option_' . self::EXPERIMENTS_OPTION, array( __CLASS__, 'filter_experiments' ) );
-		add_filter( 'default_option_' . self::EXPERIMENTS_OPTION, array( __CLASS__, 'filter_experiments' ) );
+
+		/*
+		 * Priority 20 because Gutenberg registers `gutenberg-experiments` with a default
+		 * of array() on `rest_api_init`. register_setting() hooks core's
+		 * filter_default_option() onto `default_option_gutenberg-experiments` at priority
+		 * 10, and that callback ignores the value it is handed and returns the registered
+		 * default. At the same priority ours runs first and its result is thrown away, so
+		 * the experiment would read as disabled on every REST request no matter what the
+		 * setting says. Running after core's callback is the same reason default_rtc_option
+		 * is registered at 20.
+		 */
+		add_filter( 'default_option_' . self::EXPERIMENTS_OPTION, array( __CLASS__, 'filter_experiments' ), 20 );
 	}
 
 	/**

@@ -77,13 +77,18 @@ not; override with the `jetpack_rtc_uses_experiment` filter). On them the packag
 - registers its **own** Writing field (`register_rtc_setting`), since the
   Gutenberg Experiments page is hidden on WP.com Simple sites and is the wrong
   level of exposure for a hosted product anyway;
-- **defaults the option to OFF** (`default_rtc_option`), per DOTCOM-18214;
 - toggles the experiment to match the option (`filter_experiments` on
   `option_gutenberg-experiments`), keeping the setting the single source of truth
   so collaboration is never on without a provider registered.
 
-On older Gutenberg every one of those callbacks no-ops and the option still
-**defaults to ON**, so behaviour changes exactly when Gutenberg does.
+On older Gutenberg those callbacks no-op — Gutenberg still registers its own field
+there, so there is nothing for us to add.
+
+**The option defaults to OFF on every Gutenberg version** (`default_rtc_option`),
+per DOTCOM-18214. That is deliberately not gated on the experiment: there is no
+longer a reason for collaboration to be on by default anywhere. Sites that turned
+it on have a stored value, and `get_option()` returns that without ever consulting
+the default.
 
 ### Carrying over existing opt-ins
 
