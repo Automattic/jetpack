@@ -126,6 +126,55 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 	}
 
 	/**
+	 * The path-info route registers when the modernization filter is on.
+	 */
+	public function test_path_info_route_registers_when_modernized() {
+		$routes = $this->server->get_routes();
+		$this->assertArrayHasKey( '/jetpack/v4/rewind/backup/path-info', $routes );
+	}
+
+	/**
+	 * The path-info leg is addressed by the file's own period and the
+	 * *raw* manifest path.
+	 *
+	 * Both halves are easy to get wrong and neither fails loudly. WPCOM
+	 * names the parameter `backup_id`, but VaultPress hands it straight
+	 * to an exact `period = %d` match against the row for this file
+	 * version — so the parent backup's rewindId, the backup period and
+	 * VaultPress's own id all resolve to nothing. And unlike the stream
+	 * leg, this route takes the manifest path unencoded in the request
+	 * body; base64-ing it here would look for a file literally named
+	 * `ZjU6L3dwLWNvbmZpZy5waHA=`.
+	 */
+	public function test_path_info_sends_the_file_period_and_the_raw_manifest_path() {
+		$this->arrange_wpcom(
+			array(
+				'size'  => 3247,
+				'hash'  => 'abc123',
+				'mtime' => 1748888135,
+			)
+		);
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backup/path-info' );
+		$request->set_param( 'file_period', '1748888135' );
+		$request->set_param( 'manifest_path', 'f5:/wp-config.php' );
+		File_Browser_Bridge::get_path_info( $request );
+
+		// Asserted whole rather than key by key: it pins that nothing
+		// extra is sent, and it fails loudly on a null body — the trait
+		// leaves it null when a guard refused before reaching the
+		// network, which per-key assertions would skip in silence.
+		$this->assertSame(
+			array(
+				'backup_id'      => '1748888135',
+				'manifest_path'  => 'f5:/wp-config.php',
+				'extension_type' => '',
+			),
+			$this->captured_body
+		);
+	}
+
+	/**
 	 * The manifest path reaches WPCOM as raw, unescaped base64.
 	 *
 	 * WPCOM's stream route runs a plain `base64_decode()` on this URL

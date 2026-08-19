@@ -20,13 +20,20 @@ if ( ! defined( 'ABSPATH' ) ) {
  * File browser endpoints powering the BackupDetail file tree:
  *   - POST /jetpack/v4/rewind/backup/ls           → list folder children
  *   - GET  /jetpack/v4/rewind/backup/file-content → text preview proxy
+ *   - GET  /jetpack/v4/rewind/backup/path-info    → per-file metadata
  *
- * NOTE: WPCOM's `/sites/{id}/rewind/backup/path-info` endpoint was
- * removed from this bridge in 2026-05. It returned "No file found"
- * for every input variant we could synthesize and there's no working
- * caller of it elsewhere in the monorepo; the React layer derives the
- * `lastModified` field from `/ls`'s `period` and the mime type from
- * the file extension instead.
+ * All three address a file by the *file's own* `period` from `/ls` —
+ * the timestamp at which that file last changed — never by the parent
+ * backup's rewindId. VaultPress records one row per file version and
+ * matches `period` exactly, with no nearest-earlier fallback, so a
+ * file that did not change during the backup the reader is browsing
+ * has no row under the backup's own id.
+ *
+ * Note the two paths take the manifest path in *different* encodings,
+ * because the upstream routes do: `path-info` carries it raw in the
+ * request body, while `file-content` puts standard base64 in a URL
+ * segment that WPCOM `base64_decode()`s. Neither tolerates the other's
+ * form.
  */
 class File_Browser_Bridge {
 
@@ -57,6 +64,31 @@ class File_Browser_Bridge {
 					'path'      => array(
 						'type'     => 'string',
 						'required' => true,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/rewind/backup/path-info',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_path_info' ),
+				'permission_callback' => array( Rest_Controller::class, 'permission_check' ),
+				'args'                => array(
+					'file_period'    => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+					'manifest_path'  => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+					'extension_type' => array(
+						'type'     => 'string',
+						'required' => false,
+						'default'  => '',
 					),
 				),
 			)
@@ -107,6 +139,49 @@ class File_Browser_Bridge {
 		);
 
 		return self::forward_response( $response, 'backup_ls_fetch_failed', __( 'Could not list backup contents.', 'jetpack-backup-pkg' ) );
+	}
+
+	/**
+	 * Read one file's real metadata. Proxies POST wpcom/v2
+	 * /sites/{id}/rewind/backup/path-info.
+	 *
+	 * Gives the info card the `size`, `hash` and `mtime` VaultPress
+	 * actually recorded, rather than the snapshot `period` `/ls` carries.
+	 * `manifest_filter` comes back too, which is what a future granular
+	 * per-file download needs.
+	 *
+	 * Two fields are deliberately not surfaced. `download_url` is
+	 * hardcoded empty upstream behind a TODO, so it says nothing about
+	 * whether the bytes exist. And `data_type` is a small integer type
+	 * code — the second character of the manifest path — not a mime
+	 * type, so it cannot drive the preview decision; the card keeps
+	 * deriving that from the file extension, as Calypso does.
+	 *
+	 * Upstream answers 200 with an `error` string when the file has no
+	 * row, so a caller must branch on `error` rather than on the status.
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function get_path_info( WP_REST_Request $request ) {
+		$blog_id = Rest_Controller::get_blog_id_or_error();
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/rewind/backup/path-info', $blog_id ),
+			'v2',
+			array( 'method' => 'POST' ),
+			array(
+				'backup_id'      => $request->get_param( 'file_period' ),
+				'manifest_path'  => $request->get_param( 'manifest_path' ),
+				'extension_type' => (string) $request->get_param( 'extension_type' ),
+			),
+			'wpcom'
+		);
+
+		return self::forward_response( $response, 'backup_path_info_failed', __( 'Could not read file details.', 'jetpack-backup-pkg' ) );
 	}
 
 	/**
