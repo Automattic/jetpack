@@ -14,6 +14,7 @@ import {
 	PostTitleLink,
 	ReportLink,
 	RowsCsvDownloadButton,
+	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
@@ -251,8 +252,8 @@ function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
 function TopPostsReport( { max }: TopPostsReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 
-	// The widget's "Number of results" maps to the WPCOM stats API's `max`; the
-	// date range is owned by the dashboard picker and carried in `reportParams`.
+	// The date range is owned by the dashboard picker and carried in
+	// `reportParams`; `max` is the shared widget row limit.
 	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
 	// Row matching, ranked capping (the API caps `postviews` at `max` but
@@ -550,7 +551,6 @@ function ArchivesReport( { max }: { max: number } ) {
  * before the inner components receive them.
  */
 export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
-	const max = attributes.max ?? 10;
 	const contentView = attributes.contentView ?? 'posts';
 
 	return (
@@ -558,13 +558,13 @@ export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
 			<div className={ styles.root }>
 				{ contentView === 'archives' ? (
 					<>
-						<ArchivesReport max={ max } />
+						<ArchivesReport max={ WIDGET_ROW_LIMIT } />
 						<WidgetFooter>
 							<ReportLink report="posts" section="archives" />
 						</WidgetFooter>
 					</>
 				) : (
-					<TopPostsReport max={ max } />
+					<TopPostsReport max={ WIDGET_ROW_LIMIT } />
 				) }
 			</div>
 		</WidgetRoot>

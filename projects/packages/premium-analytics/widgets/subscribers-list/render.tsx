@@ -11,6 +11,7 @@ import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
 import { customer } from '@jetpack-premium-analytics/icons';
 import {
 	SubscriberList,
+	WIDGET_ROW_LIMIT,
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
@@ -71,29 +72,15 @@ export const SubscribersRoster = ( { items = [], moreCount = 0 }: SubscribersRos
 	);
 };
 
-type SubscribersReportProps = {
-	/**
-	 * Widget attributes.
-	 */
-	attributes?: SubscribersListAttributes;
-};
-
 /**
  * Fetches the latest subscribers through the designated `useStatsFollowers`
  * Stats hook and hands the normalized rows to the presentational roster, with
  * the loading / error / empty states rendered through `<WidgetState>`.
  */
-function SubscribersReport( { attributes }: SubscribersReportProps ) {
-	// Show six rows by default (matching the card design). A missing or
-	// non-positive setting falls back to that default — `?? 6` alone wouldn't,
-	// since an explicit `0` from the number field is not nullish. `max` goes
-	// straight to the paginated `stats/followers` endpoint, which has no
-	// client-side cap, so 0 does not mean "all rows" here.
-	const max = attributes?.max && attributes.max > 0 ? attributes.max : 6;
-
+function SubscribersReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsFollowers( {
 		type: 'all',
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} );
 
 	const report = data as StatsNormalizedReport< StatsFollowersItem > | undefined;
@@ -135,13 +122,13 @@ type SubscribersListRenderAttributes = SubscribersListAttributes &
 type SubscribersListWidgetProps = WidgetRenderProps< SubscribersListRenderAttributes >;
 
 /**
- * Attributes flow to the inner component via props rather than context: the
- * dashboard's WC-shaped `reportParams` does not fit the followers query.
+ * The followers query has no date range, so the inner component reads nothing
+ * from the dashboard's report params.
  */
 export default function SubscribersList( { attributes = {} }: SubscribersListWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SubscribersReport attributes={ attributes } />
+			<SubscribersReport />
 		</WidgetRoot>
 	);
 }

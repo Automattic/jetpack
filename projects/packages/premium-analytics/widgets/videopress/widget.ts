@@ -1,41 +1,24 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
- * Default number of videos shown when the `max` attribute is unset or invalid.
+ * The VideoPress widget has no configurable attributes: it requests
+ * the shared `WIDGET_ROW_LIMIT` rows and renders as many of them as its tile
+ * fits.
+ *
+ * `Record< never, never >` (not `Record< string, never >`) so the render-only
+ * type can compose host fields such as `reportParams` without collapsing them
+ * to `never`.
  */
-export const DEFAULT_MAX = 7;
-
-/**
- * Configurable attributes for the VideoPress widget. Mirrors the `attributes`
- * declared on the widget definition below; the host passes the selected values
- * through to `render.tsx`.
- */
-export type VideoPressAttributes = {
-	/**
-	 * Maximum number of videos to show; `0` means all. Maps to the WPCOM stats
-	 * `max` param. Integer form controls can serialize the value to a string, so
-	 * the render entry accepts either.
-	 */
-	max?: string | number;
-};
+export type VideoPressAttributes = Record< never, never >;
 
 export default {
 	icon: video,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Maximum videos', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
-	] as WidgetAttributeField< VideoPressAttributes >[],
+	attributes: [] as WidgetAttributeField< VideoPressAttributes >[],
 	example: {
-		attributes: {
-			max: DEFAULT_MAX,
-		},
+		attributes: {},
 	},
 };

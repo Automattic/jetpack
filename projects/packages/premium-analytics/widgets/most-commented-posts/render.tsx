@@ -6,12 +6,12 @@ import {
 	LeaderboardChart,
 	LeaderboardPostLabel,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	describeError,
 	sharePercentage,
-	toMaxRows,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -31,8 +31,6 @@ type MostCommentedPostsRenderAttributes = MostCommentedPostsAttributes &
 type MostCommentedPostsWidgetProps = WidgetRenderProps< MostCommentedPostsRenderAttributes >;
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
-
-const DEFAULT_MAX = 10;
 
 interface MostCommentedPostsInnerProps {
 	/**
@@ -117,7 +115,7 @@ function MostCommentedPostsInner( { max }: MostCommentedPostsInnerProps ) {
 export default function MostCommentedPosts( { attributes = {} }: MostCommentedPostsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<MostCommentedPostsInner max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
+			<MostCommentedPostsInner max={ WIDGET_ROW_LIMIT } />
 		</WidgetRoot>
 	);
 }

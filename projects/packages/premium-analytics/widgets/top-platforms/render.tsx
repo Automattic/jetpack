@@ -8,6 +8,7 @@ import { device } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@jetpack-premium-analytics/externals';
 import {
+	WIDGET_ROW_LIMIT,
 	calculateDelta,
 	describeError,
 	getCombinedPeriodMax,
@@ -124,13 +125,12 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
  * the widget host.
  */
 export default function TopPlatformsWidget( { attributes }: TopPlatformsWidgetProps ) {
-	const max = attributes?.max ?? 10;
 	const platformDimension = attributes?.platformDimension ?? 'browser';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<TopPlatformsInner max={ max } platformDimension={ platformDimension } />
+				<TopPlatformsInner max={ WIDGET_ROW_LIMIT } platformDimension={ platformDimension } />
 			</div>
 		</WidgetRoot>
 	);

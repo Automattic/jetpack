@@ -12,6 +12,7 @@ import {
 import {
 	LeaderboardChart,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
@@ -319,12 +320,10 @@ function ClicksInner( { max }: ClicksInnerProps ) {
  * comes from the shared dashboard date picker via WidgetRoot.
  */
 export default function ClicksWidget( { attributes = {} }: ClicksWidgetProps ) {
-	const max = attributes?.max ?? 10;
-
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<ClicksInner max={ max } />
+				<ClicksInner max={ WIDGET_ROW_LIMIT } />
 				<WidgetFooter>
 					<ReportLink report="clicks" />
 				</WidgetFooter>

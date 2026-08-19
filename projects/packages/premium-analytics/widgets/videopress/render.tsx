@@ -7,13 +7,13 @@ import {
 	LeaderboardChart,
 	ReportLink,
 	VideoTitleLink,
+	WIDGET_ROW_LIMIT,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
 	getCombinedPeriodMax,
 	sharePercentage,
-	toMaxRows,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -26,7 +26,7 @@ import { useMemo } from 'react';
  */
 import { toVideoPlaysRows, type VideoPlaysRow } from './build-video-plays-data';
 import styles from './style.module.css';
-import { DEFAULT_MAX, type VideoPressAttributes } from './widget';
+import type { VideoPressAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
@@ -171,7 +171,7 @@ export default function VideoPress( { attributes = {}, setError }: VideoPressWid
 		<WidgetRoot attributes={ attributes } setError={ setError }>
 			<div className={ styles.root }>
 				<div className={ styles.content }>
-					<VideoPressReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
+					<VideoPressReport max={ WIDGET_ROW_LIMIT } />
 				</div>
 				<WidgetFooter>
 					<ReportLink report="videos" />

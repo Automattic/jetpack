@@ -18,11 +18,6 @@ import { SelectField } from '@jetpack-premium-analytics/fields';
  */
 export type TopPostsAttributes = {
 	/**
-	 * Maximum number of rows to display.
-	 */
-	max?: number;
-
-	/**
 	 * Which report the widget shows: published posts and pages (including the
 	 * homepage entry, via `skip_archives=1`), or archive pages (taxonomy,
 	 * post-type, search, and date archives).
@@ -38,17 +33,12 @@ export type TopPostsAttributes = {
  * the `contentView` attribute (`relevance: 'high'`), so the widget host
  * renders its control in the frame header.
  *
- * `example.attributes` doubles as the defaults applied to new instances: ten
- * rows, Posts & pages view. The date range comes from the dashboard picker.
+ * `example.attributes` doubles as the defaults applied to new instances: the
+ * Posts & pages view. The date range comes from the dashboard picker.
  */
 export default {
 	icon: page,
 	attributes: [
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
 		{
 			id: 'contentView',
 			label: __( 'View', 'jetpack-premium-analytics-pkg' ),
@@ -63,7 +53,6 @@ export default {
 	] as WidgetAttributeField< TopPostsAttributes >[],
 	example: {
 		attributes: {
-			max: 10,
 			contentView: 'posts',
 		},
 	},

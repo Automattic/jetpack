@@ -6,13 +6,13 @@ import {
 	LeaderboardChart,
 	LeaderboardPostLabel,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
 	formatLegendLabels,
-	toMaxRows,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -29,8 +29,6 @@ import { buildTopAuthorsData, type AuthorLeaderboardRow } from './build-top-auth
 import styles from './style.module.css';
 import type { AuthorsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-
-const DEFAULT_MAX = 7;
 
 // Report params are usually URL-driven (WidgetRoot's fallback), but callers may
 // also pass them via `attributes`. Compose the render-only shape to cover both.
@@ -284,7 +282,7 @@ export default function Authors( { attributes = {} }: AuthorsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<AuthorsReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
+				<AuthorsReport max={ WIDGET_ROW_LIMIT } />
 			</div>
 		</WidgetRoot>
 	);

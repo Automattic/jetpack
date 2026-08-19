@@ -3,6 +3,7 @@
  */
 import {
 	LeaderboardChart,
+	WIDGET_ROW_LIMIT,
 	WidgetRoot,
 	WidgetState,
 	sharePercentage,
@@ -28,8 +29,10 @@ type SharesWidgetProps = WidgetRenderProps< SharesRenderAttributes >;
  * Shares widget inner component. The share counts come from the all-time site
  * summary, so there is no date range or comparison period to read from context.
  */
-function SharesInner( { max = 10 }: SharesAttributes ) {
-	const { data, isLoading, isFetching, isError, refetch } = useShareViews( { max } );
+function SharesInner() {
+	const { data, isLoading, isFetching, isError, refetch } = useShareViews( {
+		max: WIDGET_ROW_LIMIT,
+	} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = Math.max( ...data.map( s => s.value ), 0 );
@@ -93,7 +96,7 @@ function SharesInner( { max = 10 }: SharesAttributes ) {
 export default function Shares( { attributes = {} }: SharesWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SharesInner max={ attributes.max } />
+			<SharesInner />
 		</WidgetRoot>
 	);
 }

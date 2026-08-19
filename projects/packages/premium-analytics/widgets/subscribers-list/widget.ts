@@ -1,40 +1,27 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
- * Configurable attributes for the Latest Subscribers widget. Mirrors the
- * `attributes` declared on the widget definition below; the host passes the
- * selected values through to `render.tsx`.
+ * The Latest subscribers widget has no configurable attributes: it requests
+ * the shared `WIDGET_ROW_LIMIT` rows and renders as many of them as its tile
+ * fits.
+ *
+ * `Record< never, never >` (not `Record< string, never >`) so the render-only
+ * type can compose host fields such as `reportParams` without collapsing them
+ * to `never`.
  */
-export type SubscribersListAttributes = {
-	/**
-	 * Number of subscribers to show. Maps to the WPCOM stats `max` param.
-	 */
-	max?: number;
-};
+export type SubscribersListAttributes = Record< never, never >;
 
 /**
  * Widget type definition.
- *
- * `example.attributes` doubles as the defaults applied to new instances: the
- * six most recent subscribers.
  */
 export default {
 	icon: people,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
-	] as WidgetAttributeField< SubscribersListAttributes >[],
+	attributes: [] as WidgetAttributeField< SubscribersListAttributes >[],
 	example: {
-		attributes: {
-			max: 6,
-		},
+		attributes: {},
 	},
 };

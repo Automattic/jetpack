@@ -5,6 +5,7 @@ import {
 	GeoChart,
 	LeaderboardChart,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
@@ -83,7 +84,9 @@ function getGeoChartCountryId( countryCode: string ): string {
 	return countryCode.toUpperCase();
 }
 
-type LocationsInnerProps = Required< Pick< LocationsAttributes, 'max' | 'geoGranularity' > >;
+type LocationsInnerProps = Required< Pick< LocationsAttributes, 'geoGranularity' > > & {
+	max: number;
+};
 
 /**
  * Locations widget inner component. Reads report params from WidgetRoot
@@ -392,7 +395,6 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
  * Jetpack Stats Locations module.
  */
 export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
-	const max = attributes?.max ?? 10;
 	// Attributes are persisted, so a stale layout can carry a granularity this
 	// widget no longer knows. Normalize once, before it becomes both the endpoint
 	// path segment and the report tab.
@@ -406,7 +408,7 @@ export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<LocationsInner max={ max } geoGranularity={ geoGranularity } />
+				<LocationsInner max={ WIDGET_ROW_LIMIT } geoGranularity={ geoGranularity } />
 				<WidgetFooter>
 					<ReportLink report="locations" section={ REPORT_SECTIONS[ geoGranularity ] } />
 				</WidgetFooter>

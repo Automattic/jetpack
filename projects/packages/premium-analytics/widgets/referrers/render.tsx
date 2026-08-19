@@ -9,6 +9,7 @@ import {
 import {
 	LeaderboardChart,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
@@ -309,12 +310,10 @@ function ReferrersInner( { max }: { max: number } ) {
 export default function ReferrersWidget( {
 	attributes = {},
 }: WidgetRenderProps< ReferrersRenderAttributes > ) {
-	const max = attributes?.max ?? 10;
-
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<ReferrersInner max={ max } />
+				<ReferrersInner max={ WIDGET_ROW_LIMIT } />
 				<WidgetFooter>
 					<ReportLink report="referrers" />
 				</WidgetFooter>

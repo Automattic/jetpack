@@ -1,19 +1,19 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
- * Configurable attributes for the File downloads widget.
+ * The File downloads widget has no configurable attributes: it requests
+ * the shared `WIDGET_ROW_LIMIT` rows and renders as many of them as its tile
+ * fits.
+ *
+ * `Record< never, never >` (not `Record< string, never >`) so the render-only
+ * type can compose host fields such as `reportParams` without collapsing them
+ * to `never`.
  */
-export type FileDownloadsAttributes = {
-	/**
-	 * Maximum rows to display (0 = all). Defaults to 10.
-	 */
-	max?: number;
-};
+export type FileDownloadsAttributes = Record< never, never >;
 
 /**
  * File downloads widget type definition.
@@ -24,16 +24,8 @@ export type FileDownloadsAttributes = {
  */
 export default {
 	icon: download,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
-	] as WidgetAttributeField< FileDownloadsAttributes >[],
+	attributes: [] as WidgetAttributeField< FileDownloadsAttributes >[],
 	example: {
-		attributes: {
-			max: 10,
-		},
+		attributes: {},
 	},
 };

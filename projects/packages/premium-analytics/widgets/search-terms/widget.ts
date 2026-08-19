@@ -1,16 +1,19 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { search } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-export type SearchTermsAttributes = {
-	/**
-	 * Maximum number of rows to display.
-	 */
-	max?: number;
-};
+/**
+ * The Search terms widget has no configurable attributes: it requests
+ * the shared `WIDGET_ROW_LIMIT` rows and renders as many of them as its tile
+ * fits.
+ *
+ * `Record< never, never >` (not `Record< string, never >`) so the render-only
+ * type can compose host fields such as `reportParams` without collapsing them
+ * to `never`.
+ */
+export type SearchTermsAttributes = Record< never, never >;
 
 /**
  * Widget type definition for the Search Terms widget.
@@ -23,16 +26,8 @@ export type SearchTermsAttributes = {
  */
 export default {
 	icon: search,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
-	] as WidgetAttributeField< SearchTermsAttributes >[],
+	attributes: [] as WidgetAttributeField< SearchTermsAttributes >[],
 	example: {
-		attributes: {
-			max: 10,
-		},
+		attributes: {},
 	},
 };

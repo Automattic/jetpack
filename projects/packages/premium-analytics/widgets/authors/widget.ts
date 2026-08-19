@@ -1,37 +1,27 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { postAuthor } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
- * Configurable attributes for the Authors widget. Mirrors the `attributes`
- * declared on the widget definition below; the host passes the selected values
- * through to `render.tsx`.
+ * The Authors widget has no configurable attributes: it requests
+ * the shared `WIDGET_ROW_LIMIT` rows and renders as many of them as its tile
+ * fits.
+ *
+ * `Record< never, never >` (not `Record< string, never >`) so the render-only
+ * type can compose host fields such as `reportParams` without collapsing them
+ * to `never`.
  */
-export type AuthorsAttributes = {
-	/**
-	 * Maximum number of authors to display.
-	 */
-	max?: number;
-};
+export type AuthorsAttributes = Record< never, never >;
 
 /**
  * Widget type definition.
  */
 export default {
 	icon: postAuthor,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Maximum authors', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
-	] as WidgetAttributeField< AuthorsAttributes >[],
+	attributes: [] as WidgetAttributeField< AuthorsAttributes >[],
 	example: {
-		attributes: {
-			max: 7,
-		},
+		attributes: {},
 	},
 };

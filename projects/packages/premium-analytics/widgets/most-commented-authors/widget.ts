@@ -1,16 +1,19 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { postAuthor } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-export type MostCommentedAuthorsAttributes = {
-	/**
-	 * Maximum number of rows to display. `0` means all rows.
-	 */
-	max?: number;
-};
+/**
+ * The Top commented authors widget has no configurable attributes: it requests
+ * the shared `WIDGET_ROW_LIMIT` rows and renders as many of them as its tile
+ * fits.
+ *
+ * `Record< never, never >` (not `Record< string, never >`) so the render-only
+ * type can compose host fields such as `reportParams` without collapsing them
+ * to `never`.
+ */
+export type MostCommentedAuthorsAttributes = Record< never, never >;
 
 /**
  * Widget type definition for the Top commented authors widget.
@@ -25,16 +28,8 @@ export type MostCommentedAuthorsAttributes = {
  */
 export default {
 	icon: postAuthor,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
-	] as WidgetAttributeField< MostCommentedAuthorsAttributes >[],
+	attributes: [] as WidgetAttributeField< MostCommentedAuthorsAttributes >[],
 	example: {
-		attributes: {
-			max: 10,
-		},
+		attributes: {},
 	},
 };

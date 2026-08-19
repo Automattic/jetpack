@@ -155,13 +155,8 @@ export const ByClickRate: Story = {
 	decorators: [ withWidgetCanvas, withEmailsWidgetRoot, withStoryRouter ],
 };
 
-// Renders the data-connected widget with a `max` distinct from the other
-// stories. The email summary is all-time — its query key carries the row count,
-// not a date range — so a unique `max` (→ `quantity`) gives each forced-state
-// story its own cache entry and it hits the mock fresh instead of reading
-// another story's cached success from the shared query client.
-function renderEmailsWithMax( max: number ) {
-	return <EmailsRender attributes={ { max, metric: 'opens' } } />;
+function renderEmails() {
+	return <EmailsRender attributes={ { metric: 'opens' } } />;
 }
 
 /**
@@ -169,7 +164,7 @@ function renderEmailsWithMax( max: number ) {
  * mock is forced to never resolve for the duration of this story.
  */
 export const Loading: Story = {
-	render: () => renderEmailsWithMax( 7 ),
+	render: renderEmails,
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
@@ -184,7 +179,7 @@ export const Loading: Story = {
  * re-runs the query — still mocked as failing while this story is active).
  */
 export const Error: Story = {
-	render: () => renderEmailsWithMax( 8 ),
+	render: renderEmails,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
@@ -198,7 +193,7 @@ export const Error: Story = {
  * will appear here once you send a newsletter.").
  */
 export const Empty: Story = {
-	render: () => renderEmailsWithMax( 9 ),
+	render: renderEmails,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
@@ -265,7 +260,7 @@ function EmailsDashboardStory( props: WidgetDashboardWithWidgetControls ) {
 			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ EMAILS_RENDER_MODULE }
 			renderComponent={ EmailsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 6, metric: 'opens' } }
+			attributes={ { metric: 'opens' } }
 		/>
 	);
 }

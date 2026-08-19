@@ -5,6 +5,7 @@ import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Text } from '@jetpack-premium-analytics/externals';
 import {
+	WIDGET_ROW_LIMIT,
 	calculateDelta,
 	describeError,
 	getCombinedPeriodMax,
@@ -226,7 +227,6 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
  */
 export default function UtmInsightsWidget( { attributes = {} }: UtmInsightsWidgetProps ) {
 	const utmDimension = attributes.utmDimension ?? DEFAULT_UTM_DIMENSION;
-	const max = attributes.max ?? 10;
 	const showReportLink = attributes.showReportLink ?? true;
 
 	return (
@@ -234,7 +234,7 @@ export default function UtmInsightsWidget( { attributes = {} }: UtmInsightsWidge
 			<div className={ styles.root }>
 				<UtmInsightsInner
 					utmDimension={ utmDimension }
-					max={ max }
+					max={ WIDGET_ROW_LIMIT }
 					showReportLink={ showReportLink }
 				/>
 			</div>

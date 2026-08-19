@@ -5,6 +5,7 @@ import { toPostId } from '@jetpack-premium-analytics/data';
 import {
 	GeoChart,
 	LeaderboardChart,
+	WIDGET_ROW_LIMIT,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
@@ -301,12 +302,16 @@ function EmailBreakdownReport( { view, metric, max, showMap }: EmailBreakdownRep
 export default function EmailBreakdown( { attributes = {} }: EmailBreakdownWidgetProps ) {
 	const view = attributes.view ?? 'countries';
 	const metric = attributes.metric ?? 'opens';
-	const max = attributes.max ?? 10;
 	const showMap = attributes.showMap ?? false;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<EmailBreakdownReport view={ view } metric={ metric } max={ max } showMap={ showMap } />
+			<EmailBreakdownReport
+				view={ view }
+				metric={ metric }
+				max={ WIDGET_ROW_LIMIT }
+				showMap={ showMap }
+			/>
 		</WidgetRoot>
 	);
 }

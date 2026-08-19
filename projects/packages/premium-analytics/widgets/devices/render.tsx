@@ -9,6 +9,7 @@ import { device } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import {
 	Legend,
+	WIDGET_ROW_LIMIT,
 	describeError,
 	SemiCircleChart,
 	WidgetRoot,
@@ -123,12 +124,10 @@ function DevicesInner( { max }: DevicesInnerProps ) {
  * Shows screen size breakdown (Desktop / Mobile / Tablet) as a semi-circle chart.
  */
 export default function DevicesWidget( { attributes = {} }: DevicesWidgetProps ) {
-	const max = attributes?.max ?? 5;
-
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<DevicesInner max={ max } />
+				<DevicesInner max={ WIDGET_ROW_LIMIT } />
 			</div>
 		</WidgetRoot>
 	);

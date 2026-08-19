@@ -14,6 +14,7 @@ import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
 import { Link } from '@jetpack-premium-analytics/externals';
 import {
+	WIDGET_ROW_LIMIT,
 	calculateDelta,
 	getCombinedPeriodMax,
 	safeHttpUrl,
@@ -207,12 +208,10 @@ function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
  * from the shared dashboard date picker via WidgetRoot.
  */
 export default function FileDownloadsWidget( { attributes = {} }: FileDownloadsWidgetProps ) {
-	const max = attributes?.max ?? 10;
-
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<FileDownloadsInner max={ max } />
+				<FileDownloadsInner max={ WIDGET_ROW_LIMIT } />
 			</div>
 		</WidgetRoot>
 	);
