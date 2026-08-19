@@ -30,8 +30,82 @@ if ( ! function_exists( 'wpcom_expiry_get_purchases' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
+/**
+ * Share of sites the new expiry notices are switched on for, as a percentage.
+ *
+ * The notices replace older per-host banners, so this number governs both
+ * sides of the swap: a site inside the share gets the new notices and must
+ * have the old ones suppressed, a site outside keeps the old ones and must not
+ * see the new. Every surface making that decision has to call
+ * `wpcom_expiry_notices_is_enabled_for_site()` rather than re-derive it, or the
+ * two halves drift and a site ends up with both notices or neither.
+ */
+function wpcom_expiry_notices_rollout_percentage(): int {
+	return 10;
+}
+
+/**
+ * The WP.com blog ID, or 0 when it can't be established.
+ *
+ * Deliberately not `get_wpcom_blog_id()`: that falls back to the *local* blog
+ * ID on Atomic when `jetpack_options['id']` isn't readable, which is 1 on a
+ * single-site install. A wrong-but-plausible ID is worse than none here — 1
+ * lands inside every bucket, so each site with an unreadable option would
+ * quietly join the rollout. Returning 0 keeps them out instead.
+ */
+function wpcom_expiry_notices_wpcom_blog_id(): int {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return (int) get_current_blog_id();
+	}
+
+	$jetpack_options = get_option( 'jetpack_options' );
+	if ( is_array( $jetpack_options ) && ! empty( $jetpack_options['id'] ) ) {
+		return (int) $jetpack_options['id'];
+	}
+
+	return 0;
+}
+
+/**
+ * Whether this site is in the share of sites running the new expiry notices.
+ *
+ * Buckets on the blog ID modulo 100 rather than modulo the share itself, so
+ * raising the percentage only ever adds sites. Modulo-the-share does not hold
+ * that property — going from 10% as `id % 10 === 0` to 33% as `id % 3 === 0`
+ * drops blog 10 — and a site that gained the new notices only to lose them
+ * again would flip back to the old ones mid-rollout.
+ */
+function wpcom_expiry_notices_is_enabled_for_site(): bool {
+	$percentage = wpcom_expiry_notices_rollout_percentage();
+
+	if ( $percentage >= 100 ) {
+		// Fully rolled out. Answered before resolving an ID so that a site
+		// whose blog ID can't be read still gets the notices at the end of the
+		// ramp, rather than being stranded outside it forever.
+		$enabled = true;
+	} elseif ( $percentage <= 0 ) {
+		$enabled = false;
+	} else {
+		$blog_id = wpcom_expiry_notices_wpcom_blog_id();
+		$enabled = $blog_id > 0 && ( $blog_id % 100 ) < $percentage;
+	}
+
+	/**
+	 * Filters whether the new expiry notices are enabled for this site.
+	 *
+	 * Both the new notices and the suppression of the ones they replace read
+	 * this, so an override moves the whole swap together.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $enabled Whether the site is in the rollout.
+	 * @param int  $percentage Share of sites the rollout currently targets.
+	 */
+	return (bool) apply_filters( 'wpcom_expiry_notices_enabled', $enabled, $percentage );
+}
+
 // @codeCoverageIgnoreStart -- file-load admin-only require runs at bootstrap.
-if ( is_admin() ) {
+if ( is_admin() && wpcom_expiry_notices_is_enabled_for_site() ) {
 	require_once __DIR__ . '/admin-banner.php';
 }
 // @codeCoverageIgnoreEnd
@@ -42,6 +116,9 @@ if ( is_admin() ) {
  */
 function wpcom_expiry_notices_register_meta() {
 	if ( ! is_admin() && ! ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+		return;
+	}
+	if ( ! wpcom_expiry_notices_is_enabled_for_site() ) {
 		return;
 	}
 	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss::register_user_meta();
