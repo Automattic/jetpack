@@ -27,6 +27,24 @@ use WP_User;
 class Tracks {
 
 	/**
+	 * Mirrors `getValidationIssues()` in
+	 * `src/dashboard/hooks/use-validation-issues.ts` — keep the two in step.
+	 * Not the directory-submission bar, which also wants an episode and a
+	 * conforming cover.
+	 *
+	 * @var string[]
+	 */
+	private const SETUP_OPTIONS = array(
+		'podcasting_category_id',
+		'podcasting_title',
+		'podcasting_summary',
+		'podcasting_talent_name',
+		'podcasting_email',
+		'podcasting_category_1',
+		'podcasting_image',
+	);
+
+	/**
 	 * Wire the recorder hooks.
 	 */
 	public static function init(): void {
@@ -41,6 +59,15 @@ class Tracks {
 
 		add_action( 'add_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_added' ), 10, 2 );
 		add_action( 'update_option_podcasting_show_urls', array( __CLASS__, 'record_show_url_updated' ), 10, 3 );
+
+		// The options rather than the endpoint's `jetpack_podcast_settings_saved`,
+		// so setup lands whichever path writes it. `podcasting_category_id`
+		// intentionally overlaps `status_changed` above, which stays canonical
+		// for "site enabled podcasting".
+		foreach ( self::SETUP_OPTIONS as $option ) {
+			add_action( "add_option_{$option}", array( __CLASS__, 'record_setting_added' ), 10, 2 );
+			add_action( "update_option_{$option}", array( __CLASS__, 'record_setting_updated' ), 10, 3 );
+		}
 	}
 
 	/**
@@ -259,6 +286,108 @@ class Tracks {
 	}
 
 	/**
+	 * `add_option_{$option}` callback for a required setting. No prior row, so
+	 * the previous value is empty by definition.
+	 *
+	 * @param string $option Option name.
+	 * @param mixed  $value  Stored value.
+	 */
+	public static function record_setting_added( $option, $value ): void {
+		self::maybe_record_setting_first_saved( (string) $option, '', $value );
+	}
+
+	/**
+	 * `update_option_{$option}` callback for a required setting. Seldom the live
+	 * path: `update_option()` defers to `add_option()` while the stored value
+	 * still equals the registered empty default.
+	 *
+	 * @param mixed  $old_value Previous stored value.
+	 * @param mixed  $new_value Newly stored value.
+	 * @param string $option    Option name.
+	 */
+	public static function record_setting_updated( $old_value, $new_value, $option ): void {
+		self::maybe_record_setting_first_saved( (string) $option, $old_value, $new_value );
+	}
+
+	/**
+	 * Emit `wpcom_podcast_setting_first_saved` when a required setting picks up
+	 * a value for the first time.
+	 *
+	 * Recording only the empty → filled transition bounds this at one event per
+	 * setting instead of one per save, and keeps sites configured before it
+	 * shipped silent rather than reporting a false completion. `is_complete`
+	 * marks the transition that finished the set.
+	 *
+	 * @param string $option    Option name.
+	 * @param mixed  $old_value Previous stored value.
+	 * @param mixed  $new_value Newly stored value.
+	 */
+	private static function maybe_record_setting_first_saved( string $option, $old_value, $new_value ): void {
+		try {
+			if ( self::has_value( $old_value ) || ! self::has_value( $new_value ) ) {
+				return;
+			}
+
+			// Both hooks fire after the write, so this counts the new value too.
+			$filled_count = self::filled_setting_count();
+
+			self::record_event(
+				'wpcom_podcast_setting_first_saved',
+				array(
+					'setting'      => $option,
+					'filled_count' => $filled_count,
+					'is_complete'  => count( self::SETUP_OPTIONS ) === $filled_count,
+					'user_id'      => (int) get_current_user_id(),
+					'product_slug' => self::current_product_slug(),
+				)
+			);
+		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Tracks is best-effort — never break a settings save.
+		}
+	}
+
+	/**
+	 * How many required settings currently hold a value.
+	 */
+	private static function filled_setting_count(): int {
+		$filled = 0;
+
+		foreach ( self::SETUP_OPTIONS as $option ) {
+			if ( self::has_value( get_option( $option, '' ) ) ) {
+				++$filled;
+			}
+		}
+
+		return $filled;
+	}
+
+	/**
+	 * Whether a required setting counts as filled in. Options read back as
+	 * strings, so one rule covers both shapes: blank for the text fields, `'0'`
+	 * for `podcasting_category_id`, where 0 is the disabled sentinel.
+	 *
+	 * @param mixed $value Value to test.
+	 */
+	private static function has_value( $value ): bool {
+		$value = is_scalar( $value ) ? trim( (string) $value ) : '';
+
+		return '' !== $value && '0' !== $value;
+	}
+
+	/**
+	 * Current plan slug. `WPCOM_Store_API` on Simple, `Current_Plan` on Atomic
+	 * and self-hosted — same dual pattern as
+	 * `Masterbar\Dashboard_Switcher_Tracking::get_plan()`.
+	 */
+	private static function current_product_slug(): string {
+		$plan = class_exists( '\WPCOM_Store_API' )
+			? \WPCOM_Store_API::get_current_plan( (int) get_current_blog_id() )
+			: ( class_exists( '\Automattic\Jetpack\Current_Plan' ) ? \Automattic\Jetpack\Current_Plan::get() : array() );
+
+		return (string) ( $plan['product_slug'] ?? '' );
+	}
+
+	/**
 	 * Emit `wpcom_podcasting_status_changed` (enabled / disabled / changed)
 	 * when the `podcasting_category_id` option transitions.
 	 *
@@ -278,12 +407,6 @@ class Tracks {
 			$status = 'changed';
 		}
 
-		// `WPCOM_Store_API` on Simple, `Current_Plan` on Atomic — same dual
-		// pattern as `Masterbar\Dashboard_Switcher_Tracking::get_plan()`.
-		$plan = class_exists( '\WPCOM_Store_API' )
-			? \WPCOM_Store_API::get_current_plan( (int) get_current_blog_id() )
-			: ( class_exists( '\Automattic\Jetpack\Current_Plan' ) ? \Automattic\Jetpack\Current_Plan::get() : array() );
-
 		self::record_event(
 			'wpcom_podcasting_status_changed',
 			array(
@@ -292,7 +415,7 @@ class Tracks {
 				'previous_category_id' => $old_value,
 				'new_category_id'      => $new_value,
 				'user_id'              => (int) get_current_user_id(),
-				'product_slug'         => (string) ( $plan['product_slug'] ?? '' ),
+				'product_slug'         => self::current_product_slug(),
 			)
 		);
 
