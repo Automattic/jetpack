@@ -41,6 +41,7 @@ return [
         'safeguard/utils.php' => ['PhanTypeMismatchArgument'],
         'tests/ActivityPubTest.php' => ['PhanUndeclaredClassMethod'],
         'tests/FrontendNoticesTest.php' => ['PhanUndeclaredStaticMethod'],
+        'tests/PlanNoticesTest.php' => ['PhanDeprecatedProperty', 'PhanPluginUseReturnValueInternalKnown', 'PhanUndeclaredStaticMethod'],
         'tests/WpcomFeaturesTest.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredStaticMethod'],
         'tests/WpcomSitePurchaseTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/WpcomshPremiumAnalyticsTest.php' => ['PhanUndeclaredStaticMethod'],
