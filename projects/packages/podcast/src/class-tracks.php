@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Podcast;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use Automattic\Jetpack\Podcast\Feed\Episode_Block_Tags;
+use Automattic\Jetpack\Status\Host;
 use Throwable;
 use WP_Post;
 use WP_Query;
@@ -43,6 +44,28 @@ class Tracks {
 		'podcasting_category_1',
 		'podcasting_image',
 	);
+
+	/**
+	 * Default `surface`: the write came from somewhere we don't instrument —
+	 * site setup, an importer, WP-CLI, another plugin. Most option writes in
+	 * production land here, which is the point of recording it.
+	 */
+	public const SURFACE_PROGRAMMATIC = 'programmatic';
+
+	/** Write came through `wpcom/v2/podcast/settings` — the dashboard's save path. */
+	public const SURFACE_SETTINGS_REST = 'settings_rest';
+
+	/** Write came through `wpcom/v2/podcast/distribution` — the Pocket Casts submit. */
+	public const SURFACE_DISTRIBUTION_REST = 'distribution_rest';
+
+	/**
+	 * What is driving the option write currently in flight. Option hooks fire
+	 * synchronously inside `update_option()`, so a static set around the write
+	 * is read by the recorder it belongs to.
+	 *
+	 * @var string
+	 */
+	private static $surface = self::SURFACE_PROGRAMMATIC;
 
 	/**
 	 * Wire the recorder hooks.
@@ -337,6 +360,7 @@ class Tracks {
 					'setting'      => $option,
 					'filled_count' => $filled_count,
 					'is_complete'  => count( self::SETUP_OPTIONS ) === $filled_count,
+					'surface'      => self::$surface,
 					'user_id'      => (int) get_current_user_id(),
 					'product_slug' => self::current_product_slug(),
 				)
@@ -372,6 +396,42 @@ class Tracks {
 		$value = is_scalar( $value ) ? trim( (string) $value ) : '';
 
 		return '' !== $value && '0' !== $value;
+	}
+
+	/**
+	 * Declare what is driving the option writes about to happen, and get the
+	 * previous value back so the caller can restore it.
+	 *
+	 * Callers must restore in a `finally` — leaving a REST surface set would
+	 * mislabel every later write in the request.
+	 *
+	 * @param string $surface One of the `SURFACE_*` constants.
+	 * @return string The surface that was in effect before this call.
+	 */
+	public static function set_surface( string $surface ): string {
+		$previous      = self::$surface;
+		self::$surface = $surface;
+
+		return $previous;
+	}
+
+	/**
+	 * Which environment the event came from. Plan slug is a lossy proxy for it —
+	 * Atomic reports a WordPress.com plan server-side and a Jetpack one
+	 * client-side — so record it explicitly.
+	 */
+	private static function platform(): string {
+		$host = new Host();
+
+		if ( $host->is_wpcom_simple() ) {
+			return 'simple';
+		}
+
+		if ( $host->is_woa_site() ) {
+			return 'atomic';
+		}
+
+		return 'self_hosted';
 	}
 
 	/**
@@ -411,7 +471,7 @@ class Tracks {
 			'wpcom_podcasting_status_changed',
 			array(
 				'status'               => $status,
-				'surface'              => 'option_write',
+				'surface'              => self::$surface,
 				'previous_category_id' => $old_value,
 				'new_category_id'      => $new_value,
 				'user_id'              => (int) get_current_user_id(),
@@ -492,8 +552,9 @@ class Tracks {
 	 */
 	private static function record_event( string $event_name, array $properties, ?WP_User $user = null ) {
 		try {
-			$user                  = $user ?? wp_get_current_user();
-			$properties['blog_id'] = (int) Connection_Manager::get_site_id( true );
+			$user                   = $user ?? wp_get_current_user();
+			$properties['blog_id']  = (int) Connection_Manager::get_site_id( true );
+			$properties['platform'] = self::platform();
 
 			if ( ! function_exists( 'tracks_record_event' ) && function_exists( 'require_lib' ) ) {
 				require_lib( 'tracks/client' );
