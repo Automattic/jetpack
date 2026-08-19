@@ -32,6 +32,7 @@ const AI_SIDEBAR_RTL_CSS_URL              = 'https://' . AM_ASSET_BASE_PATH . 'j
 const AI_SIDEBAR_PROVIDER_URL             = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
 const AI_SIDEBAR_AGENT_ID                 = 'wp-orchestrator';
 const AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION = 'ai-sidebar-toolbar-button';
+const AI_SIDEBAR_AGENT_NOTICE_EXTENSION   = 'ai-sidebar-agent-notice';
 
 /**
  * Initializes the Agents Manager package and registers the Jetpack AI
@@ -81,6 +82,9 @@ class Jetpack_AI_Sidebar {
 
 		// Let editor JS know when the Jetpack AI Sidebar toolbar button replaces the legacy AI toolbar.
 		add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'register_toolbar_button_extension' ), 99 );
+
+		// Let editor JS know when the legacy AI panel can point people at the WordPress Agent.
+		add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'register_agent_notice_extension' ), 99 );
 	}
 
 	// ──────────────────────────────────────────────────
@@ -517,6 +521,36 @@ class Jetpack_AI_Sidebar {
 		}
 
 		\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION );
+	}
+
+	/**
+	 * Whether the legacy AI panel should point people at the WordPress Agent.
+	 *
+	 * The notice replaces the panel, so it needs an agent to send people to. A
+	 * disconnected user gets the Agents Manager's reduced build, which has no chat.
+	 *
+	 * @return bool
+	 */
+	public static function is_agent_notice_enabled(): bool {
+		return self::should_expose_provider() && ! self::is_agents_manager_disconnected();
+	}
+
+	/**
+	 * Register the WordPress Agent notice feature.
+	 *
+	 * @return void
+	 */
+	public static function register_agent_notice_extension(): void {
+		if ( ! self::is_agent_notice_enabled() ) {
+			// Its own reason, so the payload tells this apart from the toolbar button.
+			\Jetpack_Gutenberg::set_extension_unavailable(
+				AI_SIDEBAR_AGENT_NOTICE_EXTENSION,
+				'jetpack_ai_sidebar_agent_notice_disabled'
+			);
+			return;
+		}
+
+		\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_AGENT_NOTICE_EXTENSION );
 	}
 
 	/**
