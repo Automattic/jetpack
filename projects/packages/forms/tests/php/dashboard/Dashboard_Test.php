@@ -30,6 +30,13 @@ class Dashboard_Test extends BaseTestCase {
 	private $doing_it_wrong = array();
 
 	/**
+	 * Hook names captured from _deprecated_hook() during a test.
+	 *
+	 * @var string[]
+	 */
+	private $deprecations = array();
+
+	/**
 	 * The Dashboard instance the submenu was registered from.
 	 *
 	 * @var Dashboard|null
@@ -56,7 +63,6 @@ class Dashboard_Test extends BaseTestCase {
 	 * Verifies the responseIds query parameter is correctly encoded in the path.
 	 */
 	public function test_get_forms_admin_url_with_post_id_wp_build() {
-
 		// Tab + post_id: path includes responseIds in the path.
 		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/responses/inbox?responseIds=["123"]' );
 		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'inbox', 123 ) );
@@ -73,7 +79,6 @@ class Dashboard_Test extends BaseTestCase {
 	 * Test get_single_response_admin_url points at the standalone response page (wp-build mode).
 	 */
 	public function test_get_single_response_admin_url_wp_build() {
-
 		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/response/123' );
 		$this->assertEquals( $expected, Dashboard::get_single_response_admin_url( 123 ) );
 
@@ -126,7 +131,6 @@ class Dashboard_Test extends BaseTestCase {
 	 * Test get_forms_admin_url with tab for wp-build dashboard
 	 */
 	public function test_get_forms_admin_url_wp_build_with_tab() {
-
 		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/responses/inbox' );
 		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'inbox' ) );
 
@@ -257,64 +261,58 @@ class Dashboard_Test extends BaseTestCase {
 	 * `jetpack_forms_alpha` no longer selects anything, so anyone still filtering it
 	 * is told rather than left wondering why their filter stopped working.
 	 */
-	public function test_init_announces_the_retired_filter() {
-		$announced = array();
-		add_filter( 'deprecated_hook_trigger_error', '__return_false' );
-		add_action(
-			'deprecated_hook_run',
-			function ( $hook ) use ( &$announced ) {
-				$announced[] = $hook;
-			}
-		);
+	public function test_announces_the_retired_filter() {
+		$this->capture_deprecations();
 
-		set_current_screen( 'dashboard' );
 		add_filter( 'jetpack_forms_alpha', '__return_false' );
 		( new Dashboard() )->init();
+		do_action( 'admin_notices' );
 		remove_filter( 'jetpack_forms_alpha', '__return_false' );
 
-		$this->assertContains( 'jetpack_forms_alpha', $announced );
-	}
-
-	/**
-	 * The filter only ever affected wp-admin, and this class loads on every request.
-	 * Announcing outside admin would drop the notice into front-end, REST and cron
-	 * output on any site still carrying the filter.
-	 */
-	public function test_init_does_not_announce_outside_admin() {
-		$announced = array();
-		add_filter( 'deprecated_hook_trigger_error', '__return_false' );
-		add_action(
-			'deprecated_hook_run',
-			function ( $hook ) use ( &$announced ) {
-				$announced[] = $hook;
-			}
-		);
-
-		set_current_screen( 'front' );
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
-		( new Dashboard() )->init();
-		remove_filter( 'jetpack_forms_alpha', '__return_false' );
-
-		$this->assertNotContains( 'jetpack_forms_alpha', $announced );
+		$this->assertContains( 'jetpack_forms_alpha', $this->deprecations );
 	}
 
 	/**
 	 * ...and stays quiet for the overwhelming majority who never used it.
 	 */
-	public function test_init_is_silent_without_the_retired_filter() {
-		$announced = array();
+	public function test_is_silent_without_the_retired_filter() {
+		$this->capture_deprecations();
+
+		( new Dashboard() )->init();
+		do_action( 'admin_notices' );
+
+		$this->assertNotContains( 'jetpack_forms_alpha', $this->deprecations );
+	}
+
+	/**
+	 * Nothing may be emitted while init() runs. This class loads at after_setup_theme
+	 * priority -2, and printing there sends headers before load_wp_build() and
+	 * redirect_dashboard_url_cross_variant() can redirect — both would then die on
+	 * "headers already sent". Waiting for admin_notices also keeps the notice out of
+	 * admin-ajax and admin-post responses.
+	 */
+	public function test_does_not_announce_before_admin_notices() {
+		$this->capture_deprecations();
+
+		add_filter( 'jetpack_forms_alpha', '__return_false' );
+		( new Dashboard() )->init();
+		remove_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		$this->assertNotContains( 'jetpack_forms_alpha', $this->deprecations );
+	}
+
+	/**
+	 * Record deprecated-hook reports instead of letting them raise.
+	 */
+	private function capture_deprecations() {
+		$this->deprecations = array();
 		add_filter( 'deprecated_hook_trigger_error', '__return_false' );
 		add_action(
 			'deprecated_hook_run',
-			function ( $hook ) use ( &$announced ) {
-				$announced[] = $hook;
+			function ( $hook ) {
+				$this->deprecations[] = $hook;
 			}
 		);
-
-		set_current_screen( 'dashboard' );
-		( new Dashboard() )->init();
-
-		$this->assertNotContains( 'jetpack_forms_alpha', $announced );
 	}
 
 	/**
@@ -363,7 +361,6 @@ class Dashboard_Test extends BaseTestCase {
 	 * Test get_forms_admin_url with screen ID equivalents for wp-build dashboard
 	 */
 	public function test_get_forms_admin_url_wp_build_with_screen_id_equivalents() {
-
 		$url_form = Dashboard::get_forms_admin_url( 'forms' );
 		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG, $url_form );
 		$this->assertStringContainsString( '&p=%2Fforms', $url_form );

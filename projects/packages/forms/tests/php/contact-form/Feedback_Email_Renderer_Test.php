@@ -695,7 +695,6 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 	 * confirmation, so pin it here.
 	 */
 	public function test_build_email_content_action_urls_target_single_response_page() {
-
 		$post_id = Utility::create_legacy_feedback(
 			array(
 				'Name'  => 'Test User',
@@ -756,7 +755,6 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 	 * already-spam response, leaving the trigger armed in the URL.
 	 */
 	public function test_build_email_content_omits_mark_as_spam_for_spam_submission() {
-
 		$post_id = Utility::create_legacy_feedback(
 			array(
 				'Name'  => 'Test User',
@@ -815,7 +813,6 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 	 * would leave the button pointing at a page with nothing to confirm.
 	 */
 	public function test_build_email_content_omits_mark_as_spam_for_trashed_submission() {
-
 		$post_id = Utility::create_legacy_feedback(
 			array(
 				'Name'  => 'Test User',
