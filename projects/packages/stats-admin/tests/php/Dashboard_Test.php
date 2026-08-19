@@ -17,6 +17,8 @@ class Dashboard_Test extends Stats_TestCase {
 	public function tearDown(): void {
 		wp_dequeue_script( 'jp-stats-dashboard' );
 		wp_deregister_script( 'jp-stats-dashboard' );
+		wp_dequeue_script( 'jp-stats-dashboard-bootstrap' );
+		wp_deregister_script( 'jp-stats-dashboard-bootstrap' );
 		parent::tearDown();
 	}
 
