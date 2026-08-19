@@ -18,9 +18,13 @@ class Visitor {
 	 * Gets current user IP address.
 	 *
 	 * Only a value that parses as an IP address is returned. With `$check_all_headers`, the
-	 * forwarded headers are tried in order: a comma-separated list yields its first valid entry,
-	 * an address carrying a port or IPv6 brackets is reduced to the address, and a header with no
-	 * valid address is skipped.
+	 * forwarded headers are tried in order, a comma-separated list yields its first valid entry,
+	 * and a header holding no valid address is skipped.
+	 *
+	 * The address is normalized by `IP\Utils::clean_ip()`: it is lowercased, anything following an
+	 * " unless " separator is dropped, and a port suffix, IPv6 brackets, or an `::ffff:` IPv4
+	 * mapping are reduced to the bare address. Code comparing this value against a stored or
+	 * configured address should normalize that address the same way.
 	 *
 	 * @param  bool $check_all_headers Check all headers? Default is `false`.
 	 *

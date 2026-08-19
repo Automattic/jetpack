@@ -342,4 +342,25 @@ class Visitor_Test extends TestCase {
 
 		$this->assertSame( '5.6.7.8', $this->visitor_obj->get_ip( true ) );
 	}
+
+	/**
+	 * Tests that nothing is returned when no entry of a forwarded header holds an address and
+	 * REMOTE_ADDR does not either.
+	 */
+	public function test_get_ip_returns_an_empty_string_when_no_source_holds_an_address() {
+		$_SERVER['REMOTE_ADDR']          = 'not-an-ip-address';
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = 'unknown, also-unknown';
+
+		$this->assertSame( '', $this->visitor_obj->get_ip( true ) );
+	}
+
+	/**
+	 * Tests that an unset REMOTE_ADDR is treated the same as an invalid one.
+	 */
+	public function test_get_ip_returns_an_empty_string_when_remote_addr_is_unset() {
+		unset( $_SERVER['REMOTE_ADDR'] );
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = 'not-an-ip-address';
+
+		$this->assertSame( '', $this->visitor_obj->get_ip( true ) );
+	}
 }

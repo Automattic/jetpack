@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Visitor: return only a valid IP address, and take the client address from a comma-separated forwarded header.
+Visitor: Return only a valid IP address, and take the client address from a comma-separated forwarded header.
