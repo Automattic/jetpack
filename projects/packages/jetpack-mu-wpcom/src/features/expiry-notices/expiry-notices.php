@@ -67,6 +67,46 @@ function wpcom_expiry_notices_wpcom_blog_id(): int {
 }
 
 /**
+ * Per-site override for the rollout, or null when the site hasn't got one.
+ *
+ * Set on individual sites to pull one into the rollout early, or hold one out,
+ * regardless of the bucket its blog ID falls in. Three-state on purpose:
+ * absent means "follow the share", which is not the same as "stay out", so
+ * clearing the option returns a site to the normal rule rather than pinning it
+ * off forever.
+ *
+ * Reading a missing option is served from the `notoptions` cache, so sites
+ * without one pay nothing for this.
+ */
+function wpcom_expiry_notices_rollout_override(): ?bool {
+	$override = get_option( 'wpcom_expiry_notices_enabled', null );
+	if ( null === $override ) {
+		return null;
+	}
+
+	if ( is_string( $override ) ) {
+		$override = strtolower( trim( $override ) );
+	}
+
+	/*
+	 * Parsed against known values rather than through wp_validate_boolean(),
+	 * which reads every non-empty string as true -- "no" and "off" included.
+	 * This option is typed by hand on individual sites, so a value meant to
+	 * hold a site out that quietly opts it in is the wrong way to be wrong.
+	 */
+	if ( in_array( $override, array( true, 1, '1', 'true', 'yes', 'on' ), true ) ) {
+		return true;
+	}
+	if ( in_array( $override, array( false, 0, '0', 'false', 'no', 'off' ), true ) ) {
+		return false;
+	}
+
+	// An empty or unrecognised value is a mistake, not an instruction. Leave
+	// the site on the normal rule rather than guessing which way it meant.
+	return null;
+}
+
+/**
  * Whether this site is in the share of sites running the new expiry notices.
  *
  * Buckets on the blog ID modulo 100 rather than modulo the share itself, so
@@ -77,8 +117,13 @@ function wpcom_expiry_notices_wpcom_blog_id(): int {
  */
 function wpcom_expiry_notices_is_enabled_for_site(): bool {
 	$percentage = wpcom_expiry_notices_rollout_percentage();
+	$override   = wpcom_expiry_notices_rollout_override();
 
-	if ( $percentage >= 100 ) {
+	if ( null !== $override ) {
+		// Hand-picked, either way. Checked first so a site can be pulled in
+		// ahead of its bucket or held out of one it already falls in.
+		$enabled = $override;
+	} elseif ( $percentage >= 100 ) {
 		// Fully rolled out. Answered before resolving an ID so that a site
 		// whose blog ID can't be read still gets the notices at the end of the
 		// ramp, rather than being stranded outside it forever.
@@ -94,7 +139,9 @@ function wpcom_expiry_notices_is_enabled_for_site(): bool {
 	 * Filters whether the new expiry notices are enabled for this site.
 	 *
 	 * Both the new notices and the suppression of the ones they replace read
-	 * this, so an override moves the whole swap together.
+	 * this, so an override moves the whole swap together. Shares its name with
+	 * the per-site option and runs after it, so code can still override a site
+	 * that has one set.
 	 *
 	 * @since $$next-version$$
 	 *
