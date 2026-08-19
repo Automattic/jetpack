@@ -1043,20 +1043,17 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Fields that build their own input markup reference their error message
-	 * even with no help text.
+	 * Fields that build their own input markup reference their error message.
 	 *
-	 * Select and slider gained an aria-describedby they never had. The provider
-	 * above sets help text on every row, so without this the common case — a
-	 * plain field with nothing but an error to describe — would be uncovered,
-	 * and a regression that returned an empty describedby would pass.
+	 * Select and slider gained an aria-describedby they never had, so without
+	 * this a regression returning an empty describedby would go unnoticed.
 	 *
 	 * @param array  $attributes Extra field attributes.
 	 * @param string $type       The description type used in element ids.
 	 * @dataProvider hand_rolled_field_provider
 	 */
 	#[DataProvider( 'hand_rolled_field_provider' )]
-	public function test_hand_rolled_fields_reference_their_error_without_help_text( $attributes, $type ) {
+	public function test_hand_rolled_fields_reference_their_error_message( $attributes, $type ) {
 		$field = $this->get_new_field_instance(
 			array_merge(
 				array(
@@ -1077,7 +1074,6 @@ class Contact_Form_Field_Test extends BaseTestCase {
 			$html
 		);
 		$this->assertStringNotContainsString( 'contact-form__field-hints', $html );
-		$this->assertStringNotContainsString( 'g1-x-' . $type . '-help', $html );
 	}
 
 	/**
@@ -1150,12 +1146,12 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		$this->assertCount(
 			0,
 			$xpath->query( $inside_inner ),
-			'Help text must be hoisted outside the inner field div, not rendered inside it.'
+			'The hint must be hoisted outside the inner field div, not rendered inside it.'
 		);
 		$this->assertCount(
 			1,
 			$xpath->query( $inside_outer ),
-			'Help text must remain inside the inset-label wrap.'
+			'The hint must remain inside the inset-label wrap.'
 		);
 	}
 

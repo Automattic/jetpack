@@ -4,11 +4,11 @@ import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls.jsx';
-import JetpackFieldHints from '../shared/components/jetpack-field-hints.jsx';
 import useFieldSelected from '../shared/hooks/use-field-selected.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
 import { ALLOWED_INNER_BLOCKS, DATE_FORMAT_OPTIONS } from '../shared/util/constants.js';
+import DateFieldHints from './hints.jsx';
 
 export default function DateFieldEdit( props ) {
 	const { attributes, clientId, isSelected, name, setAttributes } = props;
@@ -51,7 +51,7 @@ export default function DateFieldEdit( props ) {
 		<>
 			<div { ...blockProps }>
 				<div { ...innerBlocksProps } />
-				<JetpackFieldHints attributes={ attributes } isDateField />
+				<DateFieldHints dateFormat={ dateFormat } />
 			</div>
 			<JetpackFieldControls
 				id={ id }

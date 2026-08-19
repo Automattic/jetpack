@@ -140,12 +140,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	private $hidden_field_filter_value;
 
 	/**
-	 * Description markup (help text, format hint, error div) built at the input
-	 * site but held back so an inset-label wrapper can emit it outside the
-	 * field div. Null when nothing has been deferred.
-	 *
-	 * Building it once, where the input's aria-describedby is built, is what
-	 * keeps the emitted ids and the referenced ids identical.
+	 * Description markup built at the input site but held back so an
+	 * inset-label wrapper can emit it outside the field div. Null when nothing
+	 * has been deferred. See render_field() for why the deferral exists.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -1268,7 +1265,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return '';
 		}
 		return '
-			<div id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error" class="contact-form__input-error" data-wp-class--has-errors="state.fieldHasErrors">
+			<div id="' . esc_attr( $this->get_description_id( $id, $type, 'error' ) ) . '" class="contact-form__input-error" data-wp-class--has-errors="state.fieldHasErrors">
 				<span class="contact-form__warning-icon" aria-hidden="true">
 					<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z" />
@@ -1276,48 +1273,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						<path fill-rule="evenodd" clip-rule="evenodd" d="M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z" />
 					</svg>
 				</span>
-				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message"></span>
+				<span data-wp-text="state.errorMessage" id="' . esc_attr( $this->get_description_id( $id, $type, 'error-message' ) ) . '"></span>
 			</div>';
-	}
-
-	/**
-	 * The format instruction for date fields, or null for every other type.
-	 *
-	 * Note this keys off the field's own `type` attribute, not the type passed
-	 * to the render helpers — the date field renders a `text` input.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string|null
-	 */
-	private function get_format_hint() {
-		if ( $this->get_attribute( 'type' ) !== 'date' ) {
-			return null;
-		}
-
-		$formats = self::get_date_formats();
-
-		return $formats[ $this->get_date_format() ] ?? null;
-	}
-
-	/**
-	 * How to open the date picker, for screen reader users.
-	 *
-	 * Announced after the label and the format so the order is: what the field
-	 * is, what to type, then how to reach the picker. Deliberately says nothing
-	 * about the format — get_format_hint() owns that, and repeating it here is
-	 * how the two drift apart.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string|null
-	 */
-	private function get_datepicker_hint() {
-		if ( $this->get_attribute( 'type' ) !== 'date' ) {
-			return null;
-		}
-
-		return __( 'Use the down arrow key to open the date picker.', 'jetpack-forms' );
 	}
 
 	/**
@@ -1335,7 +1292,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string
 	 */
 	private function get_described_by( $id, $type ) {
-		$ids = array( $id . '-' . $type . '-error-message' );
+		$ids = array( $this->get_description_id( $id, $type, 'error-message' ) );
 
 		foreach ( $this->get_description_parts( $id, $type ) as $part ) {
 			$ids[] = $part['id'];
@@ -1360,24 +1317,32 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return array List of array( 'id' => string, 'class' => string, 'text' => string ).
 	 */
 	private function get_description_parts( $id, $type ) {
+		// Both descriptions are date-only. Stating that once here keeps the
+		// condition out of the shared builder's callers.
+		if ( $this->get_attribute( 'type' ) !== 'date' ) {
+			return array();
+		}
+
 		$parts       = array();
-		$format_hint = $this->get_format_hint();
+		$format_hint = self::get_date_formats()[ $this->get_date_format() ] ?? null;
 
 		if ( $format_hint !== null ) {
 			$parts[] = array(
-				'id'    => $id . '-' . $type . '-format',
+				'id'    => $this->get_description_id( $id, $type, 'format' ),
 				'class' => 'contact-form__field-format',
 				'text'  => $format_hint,
 			);
 		}
 
-		$datepicker_hint = $this->get_datepicker_hint();
-
-		if ( $datepicker_hint !== null ) {
+		// Announced after the label and the format, so the order is: what the
+		// field is, what to type, then how to reach the picker. Deliberately
+		// silent about the format — repeating it here is how the two drift.
+		// AMP swaps in <amp-date-picker>, which these key hints do not describe.
+		if ( ! $this->is_amp_request() ) {
 			$parts[] = array(
-				'id'    => $id . '-' . $type . '-datepicker',
-				'class' => 'contact-form__field-instructions visually-hidden',
-				'text'  => $datepicker_hint,
+				'id'    => $this->get_description_id( $id, $type, 'datepicker' ),
+				'class' => 'visually-hidden',
+				'text'  => __( 'Use the down arrow key to open the date picker.', 'jetpack-forms' ),
 			);
 		}
 
@@ -1385,14 +1350,40 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Return the HTML for a field's descriptions: help text, format hint, and
-	 * the error div, in that DOM order.
+	 * Build the id of one of a field's description elements.
 	 *
-	 * These travel together because inset-label form styles render them outside
-	 * the field wrapper. In that case the markup is deferred to
-	 * $this->deferred_descriptions and render_field() emits it, so it is only
-	 * ever built here — with the same $type the input used for its
-	 * aria-describedby.
+	 * Every id in the description chain comes from here so the ids
+	 * aria-describedby references and the ids the markup carries cannot drift.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $id     - the field ID.
+	 * @param string $type   - the description type.
+	 * @param string $suffix - which description, e.g. 'error-message' or 'format'.
+	 *
+	 * @return string
+	 */
+	private function get_description_id( $id, $type, $suffix ) {
+		return $id . '-' . $type . '-' . $suffix;
+	}
+
+	/**
+	 * Whether this is an AMP request, which renders <amp-date-picker> instead
+	 * of the JS picker.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private function is_amp_request() {
+		return class_exists( 'Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request();
+	}
+
+	/**
+	 * Return the HTML for a field's descriptions, followed by the error div.
+	 *
+	 * For inset-label styles the markup is deferred to
+	 * $this->deferred_descriptions instead, and render_field() emits it there.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -2585,7 +2576,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required, $extra_attrs );
 
 		/* For AMP requests, use amp-date-picker element: https://amp.dev/documentation/components/amp-date-picker */
-		if ( class_exists( 'Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request() ) {
+		if ( $this->is_amp_request() ) {
 			return sprintf(
 				'<%1$s mode="overlay" layout="container" type="single" input-selector="[name=%2$s]">%3$s</%1$s>',
 				'amp-date-picker',
