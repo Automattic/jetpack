@@ -147,7 +147,7 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					// Route through the Jetpack redirect service so the upgrade
 					// destination for the MCP upsell can be retargeted without
 					// shipping a code change.
-					'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites' ),
+					'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites', array( 'path' => 'jetpack_ai_yearly' ) ),
 					// The purchase granting AI, for the Overview usage card — the
 					// usage endpoint cannot name it. Only looked up when a gated
 					// view can render it.
