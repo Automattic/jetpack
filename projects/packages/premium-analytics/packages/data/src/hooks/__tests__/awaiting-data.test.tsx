@@ -130,5 +130,9 @@ describe( 'isAwaitingData', () => {
 		// placeholder data — already the right answer.
 		expect( read( 'shown' ) ).toBe( 'january' );
 		expect( read( 'awaiting' ) ).toBe( 'false' );
+
+		// The invalidation above leaves a refetch in flight; let it land inside
+		// the test rather than during teardown.
+		await settleOn( 'january' );
 	} );
 } );
