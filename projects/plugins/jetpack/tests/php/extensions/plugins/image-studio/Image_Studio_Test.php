@@ -65,6 +65,8 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		delete_transient( ImageStudio\ASSET_TRANSIENT );
+		delete_transient( ImageStudio\FAILURE_REPORT_TRANSIENT );
+		ImageStudio\last_manifest_failure( null );
 		$this->saved_wp_scripts = $GLOBALS['wp_scripts'] ?? null;
 		$this->saved_wp_styles  = $GLOBALS['wp_styles'] ?? null;
 		$GLOBALS['wp_scripts']  = new WP_Scripts();
@@ -87,6 +89,8 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	public function tear_down() {
 		$this->deactivate_ai_module_for_test();
 		delete_transient( ImageStudio\ASSET_TRANSIENT );
+		delete_transient( ImageStudio\FAILURE_REPORT_TRANSIENT );
+		ImageStudio\last_manifest_failure( null );
 		remove_all_filters( 'jetpack_image_studio_enabled' );
 		remove_all_filters( 'jetpack_image_studio_can_generate_video_clips' );
 		remove_all_filters( 'pre_http_request' );
@@ -330,6 +334,60 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 				);
 			}
 		);
+	}
+
+	/**
+	 * Intercept every HTTP request, recording each URL and letting none escape.
+	 *
+	 * The manifest URL gets $manifest_response (a WP_Error or a response array);
+	 * every other URL — including the MC stats pixel — gets an empty 200.
+	 *
+	 * @param \WP_Error|array|null $manifest_response Response for the manifest URL, or null to 200 it too.
+	 * @return \ArrayObject The recorded request URLs, in order.
+	 */
+	private function capture_http_requests( $manifest_response = null ) {
+		$requests = new \ArrayObject();
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $requests, $manifest_response ) {
+				unset( $preempt, $args );
+				$requests[] = $url;
+
+				if ( null !== $manifest_response && false !== strpos( $url, 'image-studio.asset.json' ) ) {
+					return $manifest_response;
+				}
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'headers'  => array(),
+					'body'     => '',
+				);
+			},
+			5,
+			3
+		);
+
+		return $requests;
+	}
+
+	/**
+	 * Filter captured request URLs down to MC stats pixel requests.
+	 *
+	 * Matches the MC pixel (b.gif) specifically, so a Tracks pixel (t.gif)
+	 * ever firing in a test is never miscounted as an MC stat.
+	 *
+	 * @param \ArrayObject $requests The URLs recorded by capture_http_requests().
+	 * @return array Decoded pixel URLs.
+	 */
+	private function get_pixel_requests( $requests ) {
+		$pixels = array();
+		foreach ( $requests as $url ) {
+			if ( false !== strpos( $url, 'pixel.wp.com/b.gif' ) ) {
+				$pixels[] = urldecode( $url );
+			}
+		}
+		return $pixels;
 	}
 
 	// -------------------------------------------------------------------------
@@ -1727,69 +1785,398 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_asset_data_from_remote returns false on WP_Error.
+	 * Test get_asset_data_from_remote classifies a transport failure as manifest_request_failed.
 	 */
-	public function test_get_asset_data_from_remote_returns_false_on_wp_error() {
+	public function test_get_asset_data_from_remote_returns_error_on_wp_error() {
 		$this->mock_remote_asset( false );
 
 		$result = ImageStudio\get_asset_data_from_remote();
 
-		$this->assertFalse( $result );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'manifest_request_failed', $result->get_error_code() );
 	}
 
 	/**
-	 * Test get_asset_data_from_remote returns false on non-200 status code.
+	 * Test get_asset_data_from_remote classifies a non-200 status as manifest_http_error
+	 * and records the status code.
 	 */
-	public function test_get_asset_data_from_remote_returns_false_on_non_200() {
+	public function test_get_asset_data_from_remote_returns_error_on_non_200() {
 		$this->mock_remote_asset_with_status( 500, 'Internal Server Error' );
 
 		$result = ImageStudio\get_asset_data_from_remote();
 
-		$this->assertFalse( $result );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'manifest_http_error', $result->get_error_code() );
+		$this->assertSame( array( 'http_code' => 500 ), $result->get_error_data() );
 	}
 
 	/**
-	 * Test get_asset_data_from_remote returns false on 404 status code.
+	 * Test get_asset_data_from_remote records a 404 status code in the failure data.
 	 */
-	public function test_get_asset_data_from_remote_returns_false_on_404() {
+	public function test_get_asset_data_from_remote_returns_error_on_404() {
 		$this->mock_remote_asset_with_status( 404, 'Not Found' );
 
 		$result = ImageStudio\get_asset_data_from_remote();
 
-		$this->assertFalse( $result );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'manifest_http_error', $result->get_error_code() );
+		$this->assertSame( array( 'http_code' => 404 ), $result->get_error_data() );
 	}
 
 	/**
-	 * Test get_asset_data_from_remote returns false on invalid JSON body.
+	 * Test get_asset_data_from_remote classifies an invalid JSON body as manifest_invalid.
 	 */
-	public function test_get_asset_data_from_remote_returns_false_on_invalid_json() {
+	public function test_get_asset_data_from_remote_returns_error_on_invalid_json() {
 		$this->mock_remote_asset_with_status( 200, 'not valid json{{{' );
 
 		$result = ImageStudio\get_asset_data_from_remote();
 
-		$this->assertFalse( $result );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'manifest_invalid', $result->get_error_code() );
 	}
 
 	/**
-	 * Test get_asset_data_from_remote returns false on JSON string body.
+	 * Test get_asset_data_from_remote classifies a JSON string body as manifest_invalid.
 	 */
-	public function test_get_asset_data_from_remote_returns_false_on_json_string() {
+	public function test_get_asset_data_from_remote_returns_error_on_json_string() {
 		$this->mock_remote_asset_with_status( 200, '"just a string"' );
 
 		$result = ImageStudio\get_asset_data_from_remote();
 
-		$this->assertFalse( $result );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'manifest_invalid', $result->get_error_code() );
 	}
 
 	/**
-	 * Test get_asset_data_from_remote returns false on non-JSON content type.
+	 * Test get_asset_data_from_remote classifies a non-JSON content type as manifest_invalid.
 	 */
-	public function test_get_asset_data_from_remote_returns_false_on_non_json_content_type() {
+	public function test_get_asset_data_from_remote_returns_error_on_non_json_content_type() {
 		$this->mock_remote_asset_with_status( 200, '<html>Not JSON</html>', 'text/html' );
 
 		$result = ImageStudio\get_asset_data_from_remote();
 
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'manifest_invalid', $result->get_error_code() );
+	}
+
+	// -------------------------------------------------------------------------
+	// Manifest failure telemetry tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test that get_asset_data() records the failure that made it return false.
+	 */
+	public function test_get_asset_data_records_request_failure() {
+		$this->mock_remote_asset( false );
+
+		$this->assertFalse( ImageStudio\get_asset_data() );
+
+		$failure = ImageStudio\last_manifest_failure();
+		$this->assertInstanceOf( WP_Error::class, $failure );
+		$this->assertSame( 'manifest_request_failed', $failure->get_error_code() );
+	}
+
+	/**
+	 * Test that get_asset_data() records an HTTP failure with its status code.
+	 */
+	public function test_get_asset_data_records_http_failure_with_code() {
+		$this->mock_remote_asset_with_status( 503, 'Service Unavailable' );
+
+		$this->assertFalse( ImageStudio\get_asset_data() );
+
+		$failure = ImageStudio\last_manifest_failure();
+		$this->assertInstanceOf( WP_Error::class, $failure );
+		$this->assertSame( 'manifest_http_error', $failure->get_error_code() );
+		$this->assertSame( array( 'http_code' => 503 ), $failure->get_error_data() );
+	}
+
+	/**
+	 * Test that get_asset_data() clears a previously recorded failure on success.
+	 */
+	public function test_get_asset_data_clears_failure_on_success() {
+		$this->mock_remote_asset( false );
+		ImageStudio\get_asset_data();
+		$this->assertInstanceOf( WP_Error::class, ImageStudio\last_manifest_failure() );
+
+		remove_all_filters( 'pre_http_request' );
+		$this->mock_remote_asset(
+			array(
+				'version'      => '1.0.0',
+				'dependencies' => array(),
+			)
+		);
+
+		$this->assertIsArray( ImageStudio\get_asset_data() );
+		$this->assertNull( ImageStudio\last_manifest_failure() );
+	}
+
+	/**
+	 * When the local manifest is invalid but the remote succeeds, data is
+	 * returned and no failure is recorded.
+	 */
+	public function test_local_invalid_falls_back_to_remote_and_clears_failure() {
+		$local_path = ABSPATH . ImageStudio\ASSET_JSON_PATH;
+		wp_mkdir_p( dirname( $local_path ) );
+		file_put_contents( $local_path, 'not valid json{{{' );
+
+		$remote_data = array(
+			'version'      => '9.0.0',
+			'dependencies' => array(),
+		);
+		$this->mock_remote_asset( $remote_data );
+
+		$result = ImageStudio\get_asset_data();
+
+		unlink( $local_path );
+
+		$this->assertEquals( $remote_data, $result );
+		$this->assertNull( ImageStudio\last_manifest_failure() );
+	}
+
+	/**
+	 * When both local and remote manifests fail, the remote failure is recorded.
+	 */
+	public function test_remote_failure_recorded_when_local_also_fails() {
+		$local_path = ABSPATH . ImageStudio\ASSET_JSON_PATH;
+		wp_mkdir_p( dirname( $local_path ) );
+		file_put_contents( $local_path, 'not valid json{{{' );
+
+		$this->mock_remote_asset( false );
+
+		$result = ImageStudio\get_asset_data();
+
+		unlink( $local_path );
+
 		$this->assertFalse( $result );
+		$failure = ImageStudio\last_manifest_failure();
+		$this->assertInstanceOf( WP_Error::class, $failure );
+		$this->assertSame( 'manifest_request_failed', $failure->get_error_code() );
+	}
+
+	/**
+	 * Failure classes map from the recorded WP_Error codes.
+	 *
+	 * @dataProvider provide_failure_classes
+	 *
+	 * @param \WP_Error|null $failure  The recorded failure.
+	 * @param string         $expected The expected telemetry class.
+	 */
+	#[DataProvider( 'provide_failure_classes' )]
+	public function test_get_manifest_failure_class( $failure, $expected ) {
+		$this->assertSame( $expected, ImageStudio\get_manifest_failure_class( $failure ) );
+	}
+
+	/**
+	 * Data provider for failure class mapping.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_failure_classes() {
+		return array(
+			'request'    => array( new WP_Error( 'manifest_request_failed' ), 'request' ),
+			'http'       => array( new WP_Error( 'manifest_http_error' ), 'http' ),
+			'invalid'    => array( new WP_Error( 'manifest_invalid' ), 'invalid' ),
+			'other code' => array( new WP_Error( 'something_else' ), 'unknown' ),
+			'no failure' => array( null, 'none' ),
+		);
+	}
+
+	/**
+	 * Tracks props carry the failure class and host, without an http_code for
+	 * non-HTTP failures.
+	 */
+	public function test_manifest_failure_props_for_request_failure() {
+		$props = ImageStudio\get_manifest_failure_props( new WP_Error( 'manifest_request_failed' ) );
+
+		$this->assertSame( 'request', $props['failure_class'] );
+		$this->assertSame( 'jetpack', $props['host'] );
+		$this->assertArrayNotHasKey( 'http_code', $props );
+	}
+
+	/**
+	 * Tracks props include the status code for HTTP failures.
+	 */
+	public function test_manifest_failure_props_include_http_code() {
+		$failure = new WP_Error( 'manifest_http_error', '', array( 'http_code' => 502 ) );
+
+		$props = ImageStudio\get_manifest_failure_props( $failure );
+
+		$this->assertSame( 'http', $props['failure_class'] );
+		$this->assertSame( 502, $props['http_code'] );
+	}
+
+	/**
+	 * Test that report_manifest_unavailable() sends one MC stats pixel carrying
+	 * the failure cause and the legacy-fallback effect, and sets the rate-limit
+	 * transient for an hour.
+	 */
+	public function test_report_sends_pixel_and_sets_transient() {
+		$requests = $this->capture_http_requests();
+		ImageStudio\last_manifest_failure( new WP_Error( 'manifest_http_error', '', array( 'http_code' => 500 ) ) );
+
+		ImageStudio\report_manifest_unavailable();
+
+		$pixels = $this->get_pixel_requests( $requests );
+		$this->assertCount( 1, $pixels );
+		$this->assertStringContainsString( 'x_jetpack-image-studio=manifest-fail-http,legacy-fallback', $pixels[0] );
+		$this->assertNotFalse( get_transient( ImageStudio\FAILURE_REPORT_TRANSIENT ) );
+
+		if ( ! wp_using_ext_object_cache() ) {
+			$timeout = (int) get_option( '_transient_timeout_' . ImageStudio\FAILURE_REPORT_TRANSIENT );
+			$this->assertEqualsWithDelta( time() + HOUR_IN_SECONDS, $timeout, 30, 'Rate-limit window should be one hour.' );
+		}
+	}
+
+	/**
+	 * Test that an invalid-manifest failure reports the invalid class end to end.
+	 */
+	public function test_report_sends_invalid_class() {
+		$requests = $this->capture_http_requests();
+		ImageStudio\last_manifest_failure( new WP_Error( 'manifest_invalid' ) );
+
+		ImageStudio\report_manifest_unavailable();
+
+		$pixels = $this->get_pixel_requests( $requests );
+		$this->assertCount( 1, $pixels );
+		$this->assertStringContainsString( 'x_jetpack-image-studio=manifest-fail-invalid,legacy-fallback', $pixels[0] );
+	}
+
+	/**
+	 * A second report within the rate-limit window sends nothing.
+	 */
+	public function test_report_rate_limited_by_transient() {
+		$requests = $this->capture_http_requests();
+		ImageStudio\last_manifest_failure( new WP_Error( 'manifest_request_failed' ) );
+
+		ImageStudio\report_manifest_unavailable();
+		ImageStudio\report_manifest_unavailable();
+
+		$this->assertCount( 1, $this->get_pixel_requests( $requests ) );
+	}
+
+	/**
+	 * A pre-existing rate-limit transient suppresses the report entirely.
+	 */
+	public function test_report_suppressed_by_existing_transient() {
+		set_transient( ImageStudio\FAILURE_REPORT_TRANSIENT, time(), HOUR_IN_SECONDS );
+		$requests = $this->capture_http_requests();
+
+		ImageStudio\report_manifest_unavailable();
+
+		$this->assertCount( 0, $this->get_pixel_requests( $requests ) );
+	}
+
+	/**
+	 * Reporting without a recorded failure still sends, classed as none.
+	 */
+	public function test_report_defaults_to_none_class() {
+		$requests = $this->capture_http_requests();
+
+		ImageStudio\report_manifest_unavailable();
+
+		$pixels = $this->get_pixel_requests( $requests );
+		$this->assertCount( 1, $pixels );
+		$this->assertStringContainsString( 'x_jetpack-image-studio=manifest-fail-none,legacy-fallback', $pixels[0] );
+	}
+
+	/**
+	 * The fallback branch reports the manifest failure without changing the
+	 * fallback behaviour: legacy extensions stay available and Image Studio
+	 * carries the unavailable reason.
+	 */
+	public function test_fallback_branch_reports_manifest_failure() {
+		$this->enable_image_studio_extension_availability_checks();
+		$this->enable_big_sky();
+		ImageStudio\register_plugin();
+		$this->make_ai_extensions_available();
+		$requests = $this->capture_http_requests( new WP_Error( 'http_request_failed', 'Request failed' ) );
+
+		ImageStudio\disable_jetpack_ai_image_extensions();
+
+		$pixels = $this->get_pixel_requests( $requests );
+		$this->assertCount( 1, $pixels );
+		$this->assertStringContainsString( 'x_jetpack-image-studio=manifest-fail-request,legacy-fallback', $pixels[0] );
+		$this->assertNotFalse( get_transient( ImageStudio\FAILURE_REPORT_TRANSIENT ) );
+
+		foreach ( self::get_ai_image_extensions() as $ext ) {
+			$this->assertTrue(
+				\Jetpack_Gutenberg::is_available( $ext ),
+				"Extension $ext should remain available when the manifest failure is reported."
+			);
+		}
+
+		$availability = \Jetpack_Gutenberg::get_availability();
+		$this->assertFalse( $availability[ ImageStudio\FEATURE_NAME ]['available'] );
+		$this->assertSame(
+			'image_studio_asset_manifest_unavailable',
+			$availability[ ImageStudio\FEATURE_NAME ]['unavailable_reason']
+		);
+	}
+
+	/**
+	 * No report is sent for a disconnected user: the fallback branch is not
+	 * taken and the legacy extensions stay suppressed.
+	 */
+	public function test_no_report_when_current_user_not_connected() {
+		$this->enable_big_sky();
+		ImageStudio\register_plugin();
+		$this->make_ai_extensions_available();
+		$requests = $this->capture_http_requests( new WP_Error( 'http_request_failed', 'Request failed' ) );
+
+		$non_connected_admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $non_connected_admin );
+
+		ImageStudio\disable_jetpack_ai_image_extensions();
+
+		$this->assertCount( 0, $this->get_pixel_requests( $requests ) );
+		$this->assertFalse( get_transient( ImageStudio\FAILURE_REPORT_TRANSIENT ) );
+
+		foreach ( self::get_ai_image_extensions() as $ext ) {
+			$this->assertFalse(
+				\Jetpack_Gutenberg::is_available( $ext ),
+				"Extension $ext should stay suppressed for a disconnected user."
+			);
+		}
+	}
+
+	/**
+	 * No report is sent when the manifest loads.
+	 */
+	public function test_no_report_when_manifest_available() {
+		$this->enable_big_sky();
+		$this->make_image_studio_assets_available();
+		ImageStudio\register_plugin();
+		$this->make_ai_extensions_available();
+		$requests = $this->capture_http_requests();
+
+		ImageStudio\disable_jetpack_ai_image_extensions();
+
+		$this->assertCount( 0, $this->get_pixel_requests( $requests ) );
+		$this->assertFalse( get_transient( ImageStudio\FAILURE_REPORT_TRANSIENT ) );
+	}
+
+	/**
+	 * The telemetry rate limit never changes the fallback outcome: with the
+	 * report suppressed by the transient, a manifest failure still preserves
+	 * the legacy extensions and marks Image Studio unavailable.
+	 */
+	public function test_rate_limited_report_does_not_change_fallback() {
+		set_transient( ImageStudio\FAILURE_REPORT_TRANSIENT, time(), HOUR_IN_SECONDS );
+		$this->enable_big_sky();
+		ImageStudio\register_plugin();
+		$this->make_ai_extensions_available();
+		$requests = $this->capture_http_requests( new WP_Error( 'http_request_failed', 'Request failed' ) );
+
+		ImageStudio\disable_jetpack_ai_image_extensions();
+
+		$this->assertCount( 0, $this->get_pixel_requests( $requests ) );
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
+		foreach ( self::get_ai_image_extensions() as $ext ) {
+			$this->assertTrue(
+				\Jetpack_Gutenberg::is_available( $ext ),
+				"Extension $ext should remain available when the report is rate-limited."
+			);
+		}
 	}
 
 	// -------------------------------------------------------------------------
@@ -2226,6 +2613,22 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_asset_transient_constant() {
 		$this->assertEquals( 'jetpack_image_studio_asset', ImageStudio\ASSET_TRANSIENT );
+	}
+
+	/**
+	 * Test that the failure report transient constant is defined correctly.
+	 */
+	public function test_failure_report_transient_constant() {
+		$this->assertEquals( 'jetpack_image_studio_manifest_fail_reported', ImageStudio\FAILURE_REPORT_TRANSIENT );
+	}
+
+	/**
+	 * Test that the Tracks event name constant is defined correctly. Tracking
+	 * prefixes it with the jetpack product, giving
+	 * jetpack_image_studio_manifest_unavailable on the wire.
+	 */
+	public function test_failure_event_name_constant() {
+		$this->assertEquals( 'image_studio_manifest_unavailable', ImageStudio\FAILURE_EVENT_NAME );
 	}
 
 	// -------------------------------------------------------------------------

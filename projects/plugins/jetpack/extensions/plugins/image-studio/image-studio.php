@@ -7,10 +7,12 @@
 
 namespace Automattic\Jetpack\Extensions\ImageStudio;
 
+use Automattic\Jetpack\A8c_Mc_Stats;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
+use Automattic\Jetpack\Tracking;
 use function Automattic\Jetpack\Extensions\Shared\determine_iso_639_locale;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -23,16 +25,18 @@ require_once __DIR__ . '/../../shared/cdn-locale.php';
 // and load-jetpack.php never runs.
 require_once __DIR__ . '/../../../_inc/lib/class-jetpack-ai-settings.php';
 
-const FEATURE_NAME           = 'image-studio';
-const FEATURE_CLIP_META_KEY  = '_jetpack_feature_clip_id';
-const ASSET_BASE_PATH        = 'widgets.wp.com/agents-manager/';
-const ASSET_JS_URL           = 'https://' . ASSET_BASE_PATH . 'image-studio.min.js';
-const ASSET_CSS_URL          = 'https://' . ASSET_BASE_PATH . 'image-studio.css';
-const ASSET_RTL_URL          = 'https://' . ASSET_BASE_PATH . 'image-studio.rtl.css';
-const ASSET_JSON_URL         = 'https://' . ASSET_BASE_PATH . 'image-studio.asset.json';
-const ASSET_JSON_PATH        = ASSET_BASE_PATH . 'image-studio.asset.json';
-const ASSET_TRANSLATIONS_URL = 'https://' . ASSET_BASE_PATH . 'languages/';
-const ASSET_TRANSIENT        = 'jetpack_image_studio_asset';
+const FEATURE_NAME             = 'image-studio';
+const FEATURE_CLIP_META_KEY    = '_jetpack_feature_clip_id';
+const ASSET_BASE_PATH          = 'widgets.wp.com/agents-manager/';
+const ASSET_JS_URL             = 'https://' . ASSET_BASE_PATH . 'image-studio.min.js';
+const ASSET_CSS_URL            = 'https://' . ASSET_BASE_PATH . 'image-studio.css';
+const ASSET_RTL_URL            = 'https://' . ASSET_BASE_PATH . 'image-studio.rtl.css';
+const ASSET_JSON_URL           = 'https://' . ASSET_BASE_PATH . 'image-studio.asset.json';
+const ASSET_JSON_PATH          = ASSET_BASE_PATH . 'image-studio.asset.json';
+const ASSET_TRANSLATIONS_URL   = 'https://' . ASSET_BASE_PATH . 'languages/';
+const ASSET_TRANSIENT          = 'jetpack_image_studio_asset';
+const FAILURE_REPORT_TRANSIENT = 'jetpack_image_studio_manifest_fail_reported';
+const FAILURE_EVENT_NAME       = 'image_studio_manifest_unavailable';
 
 /**
  * Whether the environment offers Image Studio at all: the host and master
@@ -315,14 +319,19 @@ function get_asset_data() {
 		return $cached;
 	}
 
+	// A local-file miss or failure falls through to the remote fetch, so only
+	// the remote attempt — the last one made — is classified for telemetry.
 	$data = get_asset_data_from_file();
-	if ( false === $data ) {
+	if ( ! is_array( $data ) ) {
 		$data = get_asset_data_from_remote();
 	}
 
-	if ( false === $data ) {
+	if ( is_wp_error( $data ) ) {
+		last_manifest_failure( $data );
 		return false;
 	}
+
+	last_manifest_failure( null );
 
 	if ( ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ) {
 		set_transient( ASSET_TRANSIENT, $data, HOUR_IN_SECONDS );
@@ -333,7 +342,9 @@ function get_asset_data() {
 /**
  * Try to read the asset manifest from the local filesystem.
  *
- * On WordPress.com, widgets.wp.com assets are available at ABSPATH.
+ * On WordPress.com, widgets.wp.com assets are available at ABSPATH. Every
+ * failure returns false because the caller falls back to the remote fetch,
+ * whose failure is the one classified for telemetry.
  *
  * @return array|false The decoded asset data, or false if not available locally.
  */
@@ -362,26 +373,149 @@ function get_asset_data_from_file() {
  *
  * Used as a fallback when the file is not available locally (e.g. self-hosted sites).
  *
- * @return array|false The decoded asset data, or false on failure.
+ * @return array|\WP_Error The decoded asset data, or WP_Error classifying the failure.
  */
 function get_asset_data_from_remote() {
 	$response = wp_safe_remote_get( ASSET_JSON_URL );
-	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-		return false;
+	if ( is_wp_error( $response ) ) {
+		return new \WP_Error( 'manifest_request_failed', 'The Image Studio asset manifest request failed.' );
+	}
+
+	$response_code = wp_remote_retrieve_response_code( $response );
+	if ( 200 !== $response_code ) {
+		return new \WP_Error(
+			'manifest_http_error',
+			'The Image Studio asset manifest request returned an unexpected status.',
+			// An empty code means the response had no status line; attach nothing.
+			$response_code ? array( 'http_code' => (int) $response_code ) : null
+		);
 	}
 
 	$content_type = wp_remote_retrieve_header( $response, 'content-type' );
 	if ( is_string( $content_type ) && false === stripos( $content_type, 'json' ) ) {
-		return false;
+		return new \WP_Error( 'manifest_invalid', 'The Image Studio asset manifest response is not JSON.' );
 	}
 
 	$body = wp_remote_retrieve_body( $response );
 	$data = json_decode( $body, true );
 	if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $data ) ) {
-		return false;
+		return new \WP_Error( 'manifest_invalid', 'The Image Studio asset manifest response is not JSON.' );
 	}
 
 	return $data;
+}
+
+/**
+ * Remember or read the manifest failure behind get_asset_data()'s last result.
+ *
+ * Telemetry-only per-request state: get_asset_data() stores the failure that
+ * made it return false (and clears it on success), and
+ * report_manifest_unavailable() reads it back.
+ *
+ * @param \WP_Error|null $failure When passed, replaces the stored failure (null clears it).
+ * @return \WP_Error|null The stored failure.
+ */
+function last_manifest_failure( $failure = null ) {
+	static $stored = null;
+
+	if ( func_num_args() > 0 ) {
+		$stored = $failure;
+	}
+
+	return $stored;
+}
+
+/**
+ * Map a manifest failure to its telemetry class.
+ *
+ * 'none' means no failure was recorded (e.g. an empty manifest was cached);
+ * 'unknown' means a failure carried an unrecognised error code.
+ *
+ * @param \WP_Error|null $failure The failure recorded by get_asset_data().
+ * @return string One of 'request', 'http', 'invalid', 'none', or 'unknown'.
+ */
+function get_manifest_failure_class( $failure ) {
+	if ( ! is_wp_error( $failure ) ) {
+		return 'none';
+	}
+
+	switch ( $failure->get_error_code() ) {
+		case 'manifest_request_failed':
+			return 'request';
+		case 'manifest_http_error':
+			return 'http';
+		case 'manifest_invalid':
+			return 'invalid';
+		default:
+			return 'unknown';
+	}
+}
+
+/**
+ * Build the Tracks properties describing a manifest failure.
+ *
+ * Tracking::record_user_event() appends the standard Jetpack Tracks props and
+ * request metadata (blog_id, blog_url, jetpack_version, user agent, and so
+ * on), so only the failure specifics and the host type are included here.
+ *
+ * @param \WP_Error|null $failure The failure recorded by get_asset_data().
+ * @return array
+ */
+function get_manifest_failure_props( $failure ) {
+	$props = array(
+		'failure_class' => get_manifest_failure_class( $failure ),
+		'host'          => get_tracking_site_type(),
+	);
+
+	if ( is_wp_error( $failure ) ) {
+		$data = $failure->get_error_data();
+		if ( is_array( $data ) && isset( $data['http_code'] ) ) {
+			$props['http_code'] = (int) $data['http_code'];
+		}
+	}
+
+	return $props;
+}
+
+/**
+ * Record that the manifest failed and the legacy AI image tools were offered.
+ *
+ * Telemetry only: never changes Image Studio's availability or fallback
+ * decision. Rate-limited to one report per site per hour via a transient, set
+ * before sending so a failing stats endpoint is not hammered on every request.
+ *
+ * @return void
+ */
+function report_manifest_unavailable() {
+	if ( get_transient( FAILURE_REPORT_TRANSIENT ) ) {
+		return;
+	}
+
+	set_transient( FAILURE_REPORT_TRANSIENT, time(), HOUR_IN_SECONDS );
+
+	$failure = last_manifest_failure();
+
+	$stats = new A8c_Mc_Stats();
+	$stats->add( 'image-studio', 'manifest-fail-' . get_manifest_failure_class( $failure ) );
+	$stats->add( 'image-studio', 'legacy-fallback' );
+
+	// Dispatched without waiting, like the Tracks pixel: this can run during
+	// extension registration on a front-end request, and a firewalled host
+	// must not stall there for the stats endpoint's timeout.
+	foreach ( $stats->get_stats_urls() as $stats_url ) {
+		wp_remote_get(
+			esc_url_raw( $stats_url ),
+			array(
+				'blocking' => false,
+				'timeout'  => 2,
+			)
+		);
+	}
+
+	( new Tracking( 'jetpack', new Connection_Manager( 'jetpack' ) ) )->record_user_event(
+		FAILURE_EVENT_NAME,
+		get_manifest_failure_props( $failure )
+	);
 }
 
 /**
@@ -637,6 +771,7 @@ function disable_jetpack_ai_image_extensions() {
 			FEATURE_NAME,
 			'image_studio_asset_manifest_unavailable'
 		);
+		report_manifest_unavailable();
 		return;
 	}
 

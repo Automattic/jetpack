@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Image Studio: Record MC stats and a Tracks event when the asset manifest cannot load and the legacy AI image tools are offered instead.
