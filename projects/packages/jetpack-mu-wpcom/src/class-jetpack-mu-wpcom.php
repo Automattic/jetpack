@@ -38,9 +38,13 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/common/fatal-error-signature.php';
 		require_once __DIR__ . '/utils.php';
 
-		// PCG confirmation probe wires its `pre_option_active_plugins`
-		// filter at mu-plugin time, before WP loads active plugins.
-		require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
+		// The Plugin Conflicts Guardian only applies where plugins can be
+		// installed, which is Atomic. Its confirmation probe wires a
+		// `pre_option_active_plugins` filter at mu-plugin time, before WP
+		// loads active plugins.
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
+		}
 
 		/*
 		 * Feature flag overrides answer the jetpack-feature-flags resolution
@@ -319,7 +323,9 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/logo-tool/logo-tool.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
-		require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
+		}
 		require_once __DIR__ . '/features/post-categories/quick-actions.php';
 		require_once __DIR__ . '/features/post-like-from-email/post-like-from-email.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
