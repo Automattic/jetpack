@@ -16,10 +16,10 @@ use Automattic\Jetpack\Sync\Modules;
  * `/jetpack/v4/sync/status` REST response.
  *
  * Why this exists: /jetpack/v4/sync/status reports current sync state, but not
- * whether the analytics full sync has completed at least once, which is what the
- * dashboard's store section waits on. The milestone also lets consumer plugins
- * (e.g. WooCommerce Analytics) fire one-time side-effects like the
- * full-sync-complete email, via the action hook below.
+ * whether the analytics full sync has completed at least once, which tells the
+ * dashboard's store section whether its numbers are complete. The milestone
+ * also lets consumer plugins (e.g. WooCommerce Analytics) fire one-time
+ * side-effects like the full-sync-complete email, via the action hook below.
  */
 class Sync_Status_Tracker {
 

@@ -46,7 +46,6 @@ connect/
 | `/connect`      | already registered → `/`          |
 | `/` (dashboard) | not registered → `/connect`       |
 
-Connection state is read synchronously from
-`getScriptData()?.connection?.connectionStatus?.isRegistered`, and the sync
-milestone from `getScriptData()?.premium_analytics?.initial_full_sync_finished`
-(injected by the backend `Sync_Status_Tracker`).
+Route guards read connection state synchronously through
+`isPremiumAnalyticsSiteConnected()`, which also treats WordPress.com Simple as
+connected. Do not read connection script data directly in a route guard.

@@ -30,9 +30,7 @@ export type SyncStatus = {
 export type UseSyncStatusReturn = {
 	data: SyncStatus | undefined;
 	error: Error | null;
-	isLoading: boolean;
 	isComplete: boolean;
-	isStalled: boolean;
 	/**
 	 * POST the full-sync trigger and resume polling. The returned promise always
 	 * resolves; failures surface via `error` so callers can `void triggerSync()`

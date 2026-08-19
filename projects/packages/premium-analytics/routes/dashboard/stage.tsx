@@ -51,10 +51,10 @@ function Dashboard(): JSX.Element {
 
 	/*
 	 * Only a section whose data reaches WordPress.com through the analytics full
-	 * sync waits on it; the rest read data it already holds. The watcher runs at
-	 * the dashboard level rather than inside the notice below, so the sync starts
-	 * as soon as the dashboard opens instead of only once that section is
-	 * visited.
+	 * sync has incomplete numbers; the rest read data it already holds. The
+	 * watcher runs at the dashboard level rather than inside the notice below, so
+	 * the sync starts as soon as the dashboard opens instead of only once that
+	 * section is visited.
 	 */
 	const isSyncFinished = isPremiumAnalyticsInitialSyncFinished();
 	const sectionsAwaitSync = sections.some( section =>
@@ -64,7 +64,6 @@ function Dashboard(): JSX.Element {
 		data: syncStatus,
 		error: syncError,
 		isComplete: isSyncComplete,
-		isStalled: isSyncStalled,
 		triggerSync,
 	} = useSyncStatus( { enabled: sectionsAwaitSync, autoStart: true } );
 
@@ -81,7 +80,7 @@ function Dashboard(): JSX.Element {
 	// Widgets that rendered mid-sync cached numbers the sync has since filled in.
 	useEffect( () => {
 		if ( isSyncComplete ) {
-			queryClient.invalidateQueries();
+			queryClient.invalidateQueries( { queryKey: [ 'reports' ] } );
 		}
 	}, [ isSyncComplete ] );
 
@@ -285,7 +284,7 @@ function Dashboard(): JSX.Element {
 										{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
 											<SectionSyncNotice
 												percentage={ syncStatus?.percentage ?? 0 }
-												hasError={ !! syncError || isSyncStalled }
+												hasError={ !! syncError }
 												onRetry={ retrySync }
 												isRetrying={ isRetryingSync }
 											/>

@@ -55,7 +55,7 @@ describe( 'useSyncStatus', () => {
 	it( 'exposes normalized progress after the first poll', async () => {
 		const { result } = renderHook( () => useSyncStatus() );
 
-		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		await waitFor( () => expect( result.current.data ).toBeDefined() );
 		expect( result.current.data?.percentage ).toBe( 50 );
 		expect( result.current.data?.isRunning ).toBe( true );
 		expect( result.current.error ).toBeNull();
@@ -90,18 +90,15 @@ describe( 'useSyncStatus', () => {
 		);
 		const { result } = renderHook( () => useSyncStatus() );
 
-		await waitFor( () => expect( result.current.isStalled ).toBe( true ) );
-		expect( result.current.error ).toBeInstanceOf( Error );
+		await waitFor( () =>
+			expect( result.current.error?.message ).toBe( 'Sync has stalled. Please try again.' )
+		);
 	} );
 
-	it( 'surfaces fetch errors and never rejects triggerSync', async () => {
-		mockFetch.mockRejectedValueOnce( new Error( 'boom' ) );
+	it( 'surfaces trigger errors without rejecting triggerSync', async () => {
 		const { result } = renderHook( () => useSyncStatus() );
 
-		await waitFor( () => expect( result.current.error ).toBeInstanceOf( Error ) );
-		expect( result.current.error?.message ).toBe( 'boom' );
-
-		// triggerSync resolves even if the trigger call fails.
+		await waitFor( () => expect( result.current.data ).toBeDefined() );
 		mockTrigger.mockRejectedValueOnce( new Error( 'nope' ) );
 		await act( async () => {
 			await result.current.triggerSync();
@@ -162,7 +159,7 @@ describe( 'useSyncStatus', () => {
 		mockFetch.mockResolvedValue( rawStatus() ); // 50%, never completes.
 		const { result } = renderHook( () => useSyncStatus() );
 
-		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		await waitFor( () => expect( result.current.data ).toBeDefined() );
 		expect( mockFetch ).toHaveBeenCalledTimes( 1 );
 
 		await act( async () => {
@@ -179,7 +176,7 @@ describe( 'useSyncStatus', () => {
 	it( 'stops polling after the hook unmounts', async () => {
 		const { result, unmount } = renderHook( () => useSyncStatus() );
 
-		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		await waitFor( () => expect( result.current.data ).toBeDefined() );
 		const callsAtUnmount = mockFetch.mock.calls.length;
 
 		unmount();
@@ -193,7 +190,7 @@ describe( 'useSyncStatus', () => {
 		// Start stalled so the initial poll tears down the interval.
 		mockFetch.mockResolvedValue( rawStatus( { started: true, finished: true } ) );
 		const { result } = renderHook( () => useSyncStatus() );
-		await waitFor( () => expect( result.current.isStalled ).toBe( true ) );
+		await waitFor( () => expect( result.current.error ).toBeInstanceOf( Error ) );
 
 		// Backend is healthy again on the next trigger.
 		mockFetch.mockResolvedValue( rawStatus() );
@@ -206,7 +203,6 @@ describe( 'useSyncStatus', () => {
 		expect( mockTrigger ).toHaveBeenCalledTimes( 1 );
 		expect( mockFetch.mock.calls.length ).toBeGreaterThan( before ); // Immediate poll().
 		expect( result.current.error ).toBeNull();
-		expect( result.current.isStalled ).toBe( false );
 
 		const afterTrigger = mockFetch.mock.calls.length;
 		await act( async () => {
@@ -219,8 +215,9 @@ describe( 'useSyncStatus', () => {
 		mockFetch.mockRejectedValueOnce( new Error( 'blip' ) );
 		const { result } = renderHook( () => useSyncStatus() );
 
-		// The error surfaces, but polling is not torn down.
-		await waitFor( () => expect( result.current.error?.message ).toBe( 'blip' ) );
+		// A recoverable error does not ask the user to retry while polling continues.
+		await waitFor( () => expect( mockFetch ).toHaveBeenCalledTimes( 1 ) );
+		expect( result.current.error ).toBeNull();
 
 		// The next tick succeeds and clears the error.
 		await act( async () => {
@@ -234,12 +231,14 @@ describe( 'useSyncStatus', () => {
 		mockFetch.mockRejectedValue( new Error( 'down' ) );
 		const { result } = renderHook( () => useSyncStatus() );
 
-		await waitFor( () => expect( result.current.error?.message ).toBe( 'down' ) );
+		await waitFor( () => expect( mockFetch ).toHaveBeenCalledTimes( 1 ) );
+		expect( result.current.error ).toBeNull();
 
-		// Drive past the failure cap, then confirm polling has stopped.
+		// Reach the failure cap, then confirm polling has stopped.
 		await act( async () => {
-			jest.advanceTimersByTime( POLL_INTERVAL * ( MAX_POLL_FAILURES + 1 ) );
+			jest.advanceTimersByTime( POLL_INTERVAL * ( MAX_POLL_FAILURES - 1 ) );
 		} );
+		await waitFor( () => expect( result.current.error?.message ).toBe( 'down' ) );
 		const callsAfterGivingUp = mockFetch.mock.calls.length;
 
 		await act( async () => {
@@ -249,7 +248,7 @@ describe( 'useSyncStatus', () => {
 		expect( result.current.error?.message ).toBe( 'down' );
 	} );
 
-	it( 'updates the milestone live from the sync-status poll', async () => {
+	it( 'completes when the sync-status poll reports the milestone', async () => {
 		// Milestone unset at page load; the backend then exposes it on the poll.
 		mockFetch.mockResolvedValue( rawStatus( { initial_full_sync_finished: 1_700_000_500 } ) );
 
@@ -258,8 +257,9 @@ describe( 'useSyncStatus', () => {
 		await waitFor( () =>
 			expect( result.current.data?.initialFullSyncFinished ).toBe( 1_700_000_500 )
 		);
-		// Milestone is live, but analytics progress is only 50% ⇒ not complete (AND).
-		expect( result.current.isComplete ).toBe( false );
+		// The milestone is written only after the analytics sync ends, so it is the
+		// authoritative completion signal even if the progress payload lags behind.
+		expect( result.current.isComplete ).toBe( true );
 		expect( result.current.data?.percentage ).toBe( 50 );
 	} );
 } );

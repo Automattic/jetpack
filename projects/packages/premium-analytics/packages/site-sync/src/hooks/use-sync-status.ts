@@ -46,7 +46,6 @@ export function useSyncStatus( {
 	const milestoneRef = useRef< number >( readMilestone() );
 	const [ data, setData ] = useState< SyncStatus >();
 	const [ error, setError ] = useState< Error | null >( null );
-	const [ isStalled, setIsStalled ] = useState( false );
 
 	const intervalRef = useRef< ReturnType< typeof setInterval > | null >( null );
 	// Consecutive fetch failures. Reset on every success and whenever polling
@@ -79,7 +78,6 @@ export function useSyncStatus( {
 				failureCountRef.current = 0;
 				setData( status );
 				setError( null );
-				setIsStalled( false );
 
 				if ( isSyncComplete( status ) ) {
 					clearPolling();
@@ -88,7 +86,6 @@ export function useSyncStatus( {
 
 				if ( isSyncStalled( status ) ) {
 					clearPolling();
-					setIsStalled( true );
 					setError(
 						new Error(
 							__( 'Sync has stalled. Please try again.', 'jetpack-premium-analytics-pkg' )
@@ -106,8 +103,8 @@ export function useSyncStatus( {
 				failureCountRef.current += 1;
 				if ( failureCountRef.current >= MAX_POLL_FAILURES ) {
 					clearPolling();
+					setError( new Error( message ) );
 				}
-				setError( new Error( message ) );
 			} );
 	}, [ clearPolling ] );
 
@@ -124,7 +121,6 @@ export function useSyncStatus( {
 	const triggerSync = useCallback( async () => {
 		clearPolling();
 		setError( null );
-		setIsStalled( false );
 
 		try {
 			await triggerFullSync();
@@ -172,7 +168,6 @@ export function useSyncStatus( {
 	}, [ enabled, autoStart, data, triggerSync ] );
 
 	const isComplete = data ? isSyncComplete( data ) : false;
-	const isLoading = ! data && ! error;
 
-	return { data, error, isLoading, isComplete, isStalled, triggerSync };
+	return { data, error, isComplete, triggerSync };
 }

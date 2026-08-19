@@ -83,13 +83,13 @@ describe( 'toSyncStatus', () => {
 		);
 		expect( status.percentage ).toBe( 100 );
 		expect( status.isRunning ).toBe( true );
-		// 100% progress but the milestone is unset ⇒ not complete (AND), and not
+		// 100% progress but the milestone is unset ⇒ not complete, and not
 		// stalled because the sync is still running.
 		expect( isSyncComplete( status ) ).toBe( false );
 		expect( isSyncStalled( status ) ).toBe( false );
 	} );
 
-	it( 'is complete once progress is 100% and the milestone is set', () => {
+	it( 'is complete once the milestone is set', () => {
 		const status = toSyncStatus(
 			{
 				started: true,
@@ -166,7 +166,7 @@ describe( 'isSyncComplete', () => {
 		).toBe( false );
 	} );
 
-	it( 'is not complete when the milestone is set but progress is below 100', () => {
+	it( 'is complete when the milestone is set even if progress lags behind', () => {
 		expect(
 			isSyncComplete( {
 				isStarted: true,
@@ -174,7 +174,7 @@ describe( 'isSyncComplete', () => {
 				percentage: 50,
 				initialFullSyncFinished: 1_700_000_000,
 			} )
-		).toBe( false );
+		).toBe( true );
 	} );
 
 	it( 'is not complete mid-progress', () => {

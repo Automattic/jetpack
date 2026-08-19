@@ -48,7 +48,7 @@ export function toSyncStatus( raw: SyncStatusApiResponse, milestone: number ): S
  * @return Whether the analytics initial sync has finished.
  */
 export function isSyncComplete( status: SyncStatus ): boolean {
-	return status.percentage >= 100 && status.initialFullSyncFinished > 0;
+	return status.initialFullSyncFinished > 0;
 }
 
 /**
