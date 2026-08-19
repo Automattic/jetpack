@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Date controls: stop handing widgets a period-over-period comparison in dashboard sections whose header offers no control to switch it off. A comparison chosen elsewhere is still kept and restored on the way back.

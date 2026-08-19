@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import { withoutComparison } from '@jetpack-premium-analytics/data';
+import { useReportScope } from '@jetpack-premium-analytics/routing';
 import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -34,5 +36,13 @@ export function useAttributesWithSearchFallback(
 	const hasReportParams =
 		!! attributes?.reportParams && Object.keys( attributes.reportParams ).length > 0;
 
-	return hasReportParams ? ( attributes as ReportParamsFieldAttributes ) : { reportParams: search };
+	const reportParams = hasReportParams
+		? ( attributes as ReportParamsFieldAttributes ).reportParams
+		: search;
+
+	// Stripped after the source is chosen, so the surface's no-comparison
+	// invariant holds whichever one won. See `WidgetRoot`, which does the same.
+	const { offersComparison } = useReportScope();
+
+	return { reportParams: offersComparison ? reportParams : withoutComparison( reportParams ) };
 }

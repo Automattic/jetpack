@@ -5,8 +5,10 @@ import {
 	AnalyticsQueryClientProvider,
 	getDefaultPreset,
 	normalizeReportParams,
+	withoutComparison,
 } from '@jetpack-premium-analytics/data';
 import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
+import { useReportScope } from '@jetpack-premium-analytics/routing';
 import { useSearch } from '@wordpress/route';
 import { useMemo, type ReactNode } from 'react';
 import { getStoreInfo } from '../../helpers/store-info';
@@ -80,10 +82,19 @@ export function WidgetRoot( { attributes, children, setError }: WidgetRootProps 
 	const { launchedDate } = getStoreInfo();
 	const defaultPreset = getDefaultPreset( launchedDate );
 
-	const reportParams = useMemo(
-		() => normalizeReportParams( rawReportParams, defaultPreset ),
-		[ rawReportParams, defaultPreset ]
-	);
+	/*
+	 * Stripped after resolution rather than at either source, so a surface that
+	 * offers no comparison holds the invariant by construction: neither the URL
+	 * nor a widget's own attributes can put a comparison in front of a reader
+	 * who has no control to switch it off. The params stay in the URL, for the
+	 * surfaces that do offer one to pick back up.
+	 */
+	const { offersComparison } = useReportScope();
+	const reportParams = useMemo( () => {
+		const normalized = normalizeReportParams( rawReportParams, defaultPreset );
+
+		return offersComparison ? normalized : withoutComparison( normalized );
+	}, [ rawReportParams, defaultPreset, offersComparison ] );
 
 	const contextValue = useMemo( () => ( { reportParams, setError } ), [ reportParams, setError ] );
 

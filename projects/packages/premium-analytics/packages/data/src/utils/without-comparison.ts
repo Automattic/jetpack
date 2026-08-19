@@ -14,7 +14,17 @@ import type { ReportParams } from './search';
  * @param params - The report params to copy.
  * @return The params without comparison fields.
  */
-export function withoutComparison< T extends Partial< ReportParams > >( params: T ): T {
+/**
+ * Only the fields this drops are constrained: report params come in both the
+ * normalizer's input and output shapes, which disagree on `preset`, and neither
+ * disagreement is this function's business.
+ */
+type ComparisonFields = Pick<
+	ReportParams,
+	'comp' | 'compare_from' | 'compare_to' | 'compare_preset'
+>;
+
+export function withoutComparison< T extends Partial< ComparisonFields > >( params: T ): T {
 	const next = { ...params };
 
 	delete next.comp;
