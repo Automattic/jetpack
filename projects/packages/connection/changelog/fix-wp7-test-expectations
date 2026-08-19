@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Test-only: build a real WP_Screen in the Connectors page path test, which WordPress 7.0 requires.
+
+
