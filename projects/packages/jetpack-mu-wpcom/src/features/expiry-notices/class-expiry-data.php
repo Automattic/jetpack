@@ -180,7 +180,12 @@ class Expiry_Data {
 			'plan_name'       => $plan_name,
 			'product_slug'    => $product_slug,
 			// Whether a renewal is still expected to go through, not merely
-			// whether the customer left auto-renew switched on.
+			// whether the customer left auto-renew switched on -- but only
+			// once the state is past active. Outside the notice window this
+			// falls back to the customer's raw flag, which stays true for a
+			// subscription that can no longer be charged, because the
+			// effective answer costs a billing query no notice would have
+			// read. Don't trust this field on an active plan.
 			'auto_renew'      => $will_renew,
 		);
 	}
