@@ -237,9 +237,9 @@ class WPCOM_Site_Purchase {
 	 *
 	 * NOT A FREE GETTER. On a Simple site whose purchase carries no stored answer this reaches
 	 * billing: a store query, and the whole billing code-base loaded into a request that may
-	 * never have needed it. Cached for a few minutes, so the repeat cost is a memcache get, but
-	 * the first one is real. Don't call it on a path that runs for every site regardless of
-	 * expiry; gate it on the site actually being close enough to expiry for the answer to matter.
+	 * never have needed it. Cached for an hour, so the repeat cost is a memcache get, but the
+	 * first one is real. Don't call it on a path that runs for every site regardless of expiry;
+	 * gate it on the site actually being close enough to expiry for the answer to matter.
 	 */
 	public function might_still_auto_renew(): ?bool {
 		return $this->might_still_auto_renew ?? $this->billing_state()?->might_still_auto_renew;
@@ -257,9 +257,9 @@ class WPCOM_Site_Purchase {
 	 *
 	 * NOT A FREE GETTER. On a Simple site whose purchase carries no stored answer this reaches
 	 * billing: a store query, and the whole billing code-base loaded into a request that may
-	 * never have needed it. Cached for a few minutes, so the repeat cost is a memcache get, but
-	 * the first one is real. Don't call it on a path that runs for every site regardless of
-	 * expiry; gate it on the site actually being close enough to expiry for the answer to matter.
+	 * never have needed it. Cached for an hour, so the repeat cost is a memcache get, but the
+	 * first one is real. Don't call it on a path that runs for every site regardless of expiry;
+	 * gate it on the site actually being close enough to expiry for the answer to matter.
 	 */
 	public function first_auto_renew_attempt_date(): ?string {
 		return $this->first_auto_renew_attempt_date ?? $this->billing_state()?->first_auto_renew_attempt_date;
@@ -283,14 +283,13 @@ class WPCOM_Site_Purchase {
 	 * Memoized per request, so that a site with many purchases costs one lookup rather than one
 	 * per purchase, and cached in the object cache for an hour on top, so that a careless caller
 	 * costs a memcache get rather than the query and the load. Cleared on `subscription_changed`
-	 * and `wpcom_site_purchases_cleared`, alongside the other `site_purchases` entries -- though
-	 * those two are one signal rather than two, since every caller of the latter is itself hooked
-	 * to the former.
+	 * and `wpcom_site_purchases_cleared`, alongside the other `site_purchases` entries.
 	 *
-	 * That signal is scoped to the subscription row, which covers more of `might_still_auto_renew`
-	 * than it looks: both the subscription's status and the `auto_renew` column live there, so
-	 * everything a user actively does is reflected at once -- including the case that would
-	 * otherwise be a support ticket, "I re-enabled auto-renew, why is it still nagging me?".
+	 * `subscription_changed` is the one that carries the weight, and it is scoped to the
+	 * subscription row -- which covers more of `might_still_auto_renew` than it looks, since both
+	 * the subscription's status and the `auto_renew` column live there. Everything a user actively
+	 * does is therefore reflected at once, including the case that would otherwise be a support
+	 * ticket: "I re-enabled auto-renew, why is it still nagging me?".
 	 *
 	 * The TTL therefore only has to cover what no subscription event announces, which is two
 	 * things. `is_past_last_auto_renew_attempt_date()` is a clock comparison, but against a
@@ -377,8 +376,9 @@ class WPCOM_Site_Purchase {
 	 * Carries the store-subscriptions table name, as the neighbouring `site_purchases` entries
 	 * do, to keep the production and test stores from reading each other's answers.
 	 *
-	 * Kept public so that the invalidation wired up in wpcom-features.php builds the same key
-	 * this does, rather than a copy of it that can drift.
+	 * Public for inspection -- reading the entry by hand while debugging, or asserting on it in a
+	 * test. Invalidation goes through forget_billing_states() instead, so that the group name does
+	 * not have to travel with the key.
 	 *
 	 * WPCOM ONLY, despite living in a class that is otherwise safe on Atomic: there are no store
 	 * tables there, so `$wpdb->store_subscriptions` is not a property and there is nothing to key
@@ -391,6 +391,21 @@ class WPCOM_Site_Purchase {
 		global $wpdb;
 
 		return "billing_states_$blog_id-{$wpdb->store_subscriptions}";
+	}
+
+	/**
+	 * Drop a blog's cached billing-derived state.
+	 *
+	 * The whole of the invalidation, so that a caller needs neither the key nor the group and
+	 * cannot drift from either. `clear_wp_cache_site_purchases()` in wpcom-features.php is the
+	 * one that matters; it runs on `subscription_changed` and `wpcom_site_purchases_cleared`.
+	 *
+	 * WPCOM ONLY, for the same reason as the key it builds.
+	 *
+	 * @param int $blog_id Blog whose entry should be forgotten.
+	 */
+	public static function forget_billing_states( int $blog_id ): void {
+		wp_cache_delete( self::billing_states_cache_key( $blog_id ), self::BILLING_STATES_CACHE_GROUP );
 	}
 
 	/**
