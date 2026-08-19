@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { RadioControl } from '@automattic/jetpack-components';
+import { RadioControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 /**
  * Internal dependencies

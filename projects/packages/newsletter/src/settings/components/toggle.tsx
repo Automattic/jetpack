@@ -67,9 +67,9 @@ export function Toggle( {
 								{ linkText }
 							</Link>
 						) : (
-							<a href={ url } onClick={ onLinkClick }>
+							<Link href={ url } onClick={ onLinkClick }>
 								{ linkText }
-							</a>
+							</Link>
 						) }
 					</span>
 				) : (
