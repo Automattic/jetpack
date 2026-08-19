@@ -78,13 +78,23 @@ foreach ( array( '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ) as $php ) {
 }
 
 foreach ( array( 'previous', 'trunk' ) as $wp ) {
-	$phpver   = $versions['PHP_VERSION'];
+	$phpver = $versions['PHP_VERSION'];
+
+	/*
+	 * Package tests are skipped outside WP latest unless forced, so force them on
+	 * "previous" to keep the minimum supported WordPress covered. The PHP 7.2/7.3
+	 * jobs used to be what did this, before WordPress 7.0's PHP 7.4 floor retired
+	 * them. Give that job the same timeout those had, since it now does their work.
+	 */
+	$is_previous = 'previous' === $wp;
+
 	$matrix[] = array(
-		'name'    => "PHP tests: PHP {$phpver} WP $wp",
-		'script'  => 'test-php',
-		'php'     => $phpver,
-		'wp'      => $wp,
-		'timeout' => 15, // 2025-11-06: Successful runs seem to take ~7 minutes.
+		'name'                => "PHP tests: PHP {$phpver} WP $wp",
+		'script'              => 'test-php',
+		'php'                 => $phpver,
+		'wp'                  => $wp,
+		'force-package-tests' => $is_previous,
+		'timeout'             => $is_previous ? 20 : 15, // 2025-11-06: Successful runs seem to take ~7 minutes.
 	);
 }
 
