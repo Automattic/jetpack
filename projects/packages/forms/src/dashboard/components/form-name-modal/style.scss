@@ -5,7 +5,7 @@
 	margin-block-start: 16px;
 }
 
-.jp-forms-name-modal__busy-message {
+.jp-forms-name-modal__status {
 	margin: 0;
 	margin-inline-end: auto;
 	align-self: center;
@@ -14,4 +14,8 @@
 
 	// Reserve the line so the buttons don't shift when the message appears.
 	min-height: 1em;
+
+	&.is-error {
+		color: var(--wpds-color-foreground-content-error);
+	}
 }

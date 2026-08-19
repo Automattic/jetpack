@@ -25,21 +25,69 @@ const setup = ( props = {} ) => {
 const createButton = () => screen.getByRole( 'button', { name: 'Create' } );
 
 describe( 'FormNameModal', () => {
-	it( 'signals the first edit exactly once', async () => {
+	it( 'signals every edit, so a handler that was not ready can try again', async () => {
 		const user = userEvent.setup();
-		const onFirstEdit = jest.fn();
-		setup( { onFirstEdit } );
+		const onEdit = jest.fn();
+		setup( { onEdit } );
 
 		await user.type( screen.getByRole( 'textbox' ), 'Contact' );
 
-		expect( onFirstEdit ).toHaveBeenCalledTimes( 1 );
+		expect( onEdit ).toHaveBeenCalledTimes( 'Contact'.length );
 	} );
 
 	it( 'does not signal an edit before the user types', () => {
-		const onFirstEdit = jest.fn();
-		setup( { onFirstEdit, initialValue: 'Existing name' } );
+		const onEdit = jest.fn();
+		setup( { onEdit, initialValue: 'Existing name' } );
 
-		expect( onFirstEdit ).not.toHaveBeenCalled();
+		expect( onEdit ).not.toHaveBeenCalled();
+	} );
+
+	it( 'can still be dismissed while a navigating save is in flight', async () => {
+		const user = userEvent.setup();
+		const { onClose } = setup( {
+			onSave: jest.fn( () => new Promise( () => {} ) ),
+			busyMessage: 'Opening the editor…',
+		} );
+
+		await user.click( createButton() );
+		await expect( screen.findByText( 'Opening the editor…' ) ).resolves.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+
+		expect( onClose ).toHaveBeenCalled();
+	} );
+
+	it( 'tells the user when saving failed', async () => {
+		const user = userEvent.setup();
+		setup( {
+			onSave: jest.fn().mockRejectedValue( new Error( 'nope' ) ),
+			errorMessage: 'Could not create the form. Please try again.',
+		} );
+
+		await user.click( createButton() );
+
+		await expect(
+			screen.findByText( 'Could not create the form. Please try again.' )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'clears the failure once the user edits the name again', async () => {
+		const user = userEvent.setup();
+		setup( {
+			onSave: jest.fn().mockRejectedValue( new Error( 'nope' ) ),
+			errorMessage: 'Could not create the form. Please try again.',
+		} );
+
+		await user.click( createButton() );
+		await expect(
+			screen.findByText( 'Could not create the form. Please try again.' )
+		).resolves.toBeInTheDocument();
+
+		await user.type( screen.getByRole( 'textbox' ), 'x' );
+
+		expect(
+			screen.queryByText( 'Could not create the form. Please try again.' )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'stays open and busy after a save that navigates away', async () => {

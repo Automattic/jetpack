@@ -6,7 +6,7 @@
  */
 
 import { Button, Modal, TextControl } from '@wordpress/components';
-import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
+import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import type { FormEvent } from 'react';
 import './style.scss';
@@ -73,18 +73,53 @@ export type FormNameModalProps = {
 	fallbackName?: string;
 
 	/**
-	 * Called once per opening, the first time the user edits the name.
+	 * Called on every edit to the name.
 	 *
 	 * Typing is the earliest reliable signal that the user intends to go through with the action, so
-	 * this is the hook for speculative work such as warming a cache.
+	 * this is the hook for speculative work such as warming a cache. It fires per keystroke rather
+	 * than once because only the handler knows whether an attempt actually got anywhere — a handler
+	 * that no-opped because it was not ready yet needs a later keystroke to try again.
 	 */
-	onFirstEdit?: () => void;
+	onEdit?: () => void;
 
 	/**
 	 * Message shown alongside the busy primary button while saving.
 	 */
 	busyMessage?: string;
+
+	/**
+	 * Message shown when onSave rejects. Defaults to a generic retry prompt.
+	 */
+	errorMessage?: string;
 };
+
+/**
+ * Pick the status line shown beside the buttons.
+ *
+ * @param props              - The current modal status.
+ * @param props.isSaving     - Whether a save is in flight.
+ * @param props.hasFailed    - Whether the last save rejected.
+ * @param props.busyMessage  - Message for the in-flight state.
+ * @param props.errorMessage - Message for the failed state.
+ * @return The message to display, or an empty string to hold the space.
+ */
+function getStatusMessage( {
+	isSaving,
+	hasFailed,
+	busyMessage,
+	errorMessage,
+}: {
+	isSaving: boolean;
+	hasFailed: boolean;
+	busyMessage?: string;
+	errorMessage?: string;
+} ): string {
+	if ( hasFailed ) {
+		return errorMessage || __( 'Something went wrong. Please try again.', 'jetpack-forms' );
+	}
+
+	return isSaving ? busyMessage ?? '' : '';
+}
 
 /**
  * A reusable modal component for entering or editing a form name.
@@ -100,8 +135,9 @@ export type FormNameModalProps = {
  * @param props.placeholder          - Placeholder text for the input field.
  * @param props.inputLabel           - Label for the input field.
  * @param props.fallbackName         - Fallback name when input is empty.
- * @param props.onFirstEdit          - Called once when the user first edits the name.
+ * @param props.onEdit               - Called on every edit to the name.
  * @param props.busyMessage          - Message shown next to the busy primary button.
+ * @param props.errorMessage         - Message shown when saving fails.
  * @return The modal component or null if not open.
  */
 export function FormNameModal( {
@@ -115,38 +151,34 @@ export function FormNameModal( {
 	placeholder,
 	inputLabel,
 	fallbackName,
-	onFirstEdit,
+	onEdit,
 	busyMessage,
+	errorMessage,
 }: FormNameModalProps ) {
 	const [ name, setName ] = useState( initialValue );
 	const [ isSaving, setIsSaving ] = useState( false );
-	const hasEdited = useRef( false );
+	const [ hasFailed, setHasFailed ] = useState( false );
 
 	// Reset name when modal opens with a new initial value
 	useEffect( () => {
 		if ( isOpen ) {
 			setName( initialValue );
-			hasEdited.current = false;
+			setHasFailed( false );
 		}
 	}, [ isOpen, initialValue ] );
 
 	const handleChange = useCallback(
 		( value: string ) => {
 			setName( value );
-
-			if ( ! hasEdited.current ) {
-				hasEdited.current = true;
-				onFirstEdit?.();
-			}
+			setHasFailed( false );
+			onEdit?.();
 		},
-		[ onFirstEdit ]
+		[ onEdit ]
 	);
 
-	const handleClose = useCallback( () => {
-		if ( ! isSaving ) {
-			onClose();
-		}
-	}, [ isSaving, onClose ] );
+	// Always dismissable. An onSave that hands off to a page load never settles, so a modal that
+	// refused to close while busy could never be closed again if that navigation failed to start.
+	const handleClose = useCallback( () => onClose(), [ onClose ] );
 
 	const handleConfirm = useCallback( async () => {
 		if ( isSaving ) {
@@ -154,13 +186,15 @@ export function FormNameModal( {
 		}
 
 		setIsSaving( true );
+		setHasFailed( false );
 		const finalName = name.trim() || fallbackName || __( 'Untitled Form', 'jetpack-forms' );
 
 		try {
 			await onSave( finalName );
 			onClose();
 		} catch {
-			// onSave threw — keep the modal open so the user can retry.
+			// onSave threw — keep the modal open, and say so, so the user can retry.
+			setHasFailed( true );
 		}
 
 		// An onSave that hands off to a page navigation never settles, so neither of the branches above
@@ -189,15 +223,20 @@ export function FormNameModal( {
 					onChange={ handleChange }
 					__next40pxDefaultSize
 					placeholder={ placeholder }
-					disabled={ isSaving }
+					// Read-only rather than disabled: disabling the focused field drops focus to the
+					// document body, out of the dialog, where Escape no longer reaches its handler.
+					readOnly={ isSaving }
 				/>
 				<div className="jp-forms-name-modal__buttons">
-					{ busyMessage && (
-						<p className="jp-forms-name-modal__busy-message" aria-live="polite">
-							{ isSaving ? busyMessage : '' }
+					{ ( busyMessage || hasFailed ) && (
+						<p
+							className={ `jp-forms-name-modal__status${ hasFailed ? ' is-error' : '' }` }
+							aria-live="polite"
+						>
+							{ getStatusMessage( { isSaving, hasFailed, busyMessage, errorMessage } ) }
 						</p>
 					) }
-					<Button variant="tertiary" onClick={ handleClose } disabled={ isSaving }>
+					<Button variant="tertiary" onClick={ handleClose }>
 						{ secondaryButtonLabel || __( 'Cancel', 'jetpack-forms' ) }
 					</Button>
 					<Button aria-disabled={ isSaving } isBusy={ isSaving } variant="primary" type="submit">

@@ -3,7 +3,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 
 // Same-origin as jsdom's location, which is what the browser sees on a real dashboard.
 const ADMIN_URL = `${ window.location.origin }/wp-admin/`;
-const configValues = { adminUrl: ADMIN_URL };
+const configValues = { adminUrl: ADMIN_URL, isCentralFormManagementEnabled: true };
 
 await jest.unstable_mockModule( '../../../hooks/use-config-value.ts', () => ( {
 	default: key => configValues[ key ],
@@ -15,7 +15,14 @@ const { default: useEditorPreload, resetEditorPreloadState } = await import(
 
 const EDITOR_URL = `${ ADMIN_URL }post-new.php?post_type=jetpack_form`;
 
-const respondWith = html => Promise.resolve( { ok: true, text: () => Promise.resolve( html ) } );
+const blob = jest.fn();
+
+const respondWith = html =>
+	Promise.resolve( {
+		ok: true,
+		text: () => Promise.resolve( html ),
+		blob,
+	} );
 
 // Testing Library has no query for <head> content, and the prefetch links are the whole point.
 // eslint-disable-next-line testing-library/no-node-access
@@ -47,10 +54,13 @@ describe( 'useEditorPreload', () => {
 		// jest.spyOn() needs an existing property, and this environment has no global fetch to wrap.
 		// eslint-disable-next-line jest/prefer-spy-on
 		global.fetch = jest.fn();
+		blob.mockReset();
+		blob.mockResolvedValue( new Blob() );
 	} );
 
 	afterEach( () => {
 		configValues.adminUrl = ADMIN_URL;
+		configValues.isCentralFormManagementEnabled = true;
 		prefetchLinks().forEach( link => link.remove() );
 		delete global.fetch;
 	} );
@@ -143,6 +153,23 @@ describe( 'useEditorPreload', () => {
 
 	it( 'does not reach for an admin on another origin', async () => {
 		configValues.adminUrl = 'https://elsewhere.example/wp-admin/';
+
+		await preload();
+
+		expect( global.fetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'drains each asset body, since an unread response never reaches the cache', async () => {
+		global.fetch.mockReturnValue( respondWith( '<script src="/a.js"></script>' ) );
+
+		await preload();
+
+		// Once for the asset. The discovery request reads .text() instead.
+		expect( blob ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'does not warm anything when central form management is off', async () => {
+		configValues.isCentralFormManagementEnabled = false;
 
 		await preload();
 

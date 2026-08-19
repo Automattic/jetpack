@@ -18,6 +18,14 @@ import { getNewFormEditorUrl } from '../utils.ts';
 const MAX_PREFETCHED_ASSETS = 300;
 
 /**
+ * How many assets the fetch fallback downloads at once.
+ *
+ * Unlike <link rel="prefetch">, these are ordinary requests the browser will not deprioritise, so
+ * they need a window narrow enough to leave room for the navigation the user is about to make.
+ */
+const FETCH_CONCURRENCY = 6;
+
+/**
  * Module-level latch. Warming the cache is only useful once per page load, and the request that
  * discovers the asset list is not free, so we never run it twice.
  */
@@ -61,27 +69,61 @@ function prefersLessData(): boolean {
 	return !! connection?.saveData || [ 'slow-2g', '2g' ].includes( connection?.effectiveType ?? '' );
 }
 
+type Asset = { href: string; as: 'script' | 'style' };
+
 /**
- * Warm the cache for a single subresource.
+ * Warm assets with <link rel="prefetch">, letting the browser schedule them at idle priority.
  *
- * @param href            - Absolute URL of the asset.
- * @param as              - The `as` value describing the asset ("script" or "style").
- * @param useLinkPrefetch - Whether to use <link rel="prefetch"> rather than a low-priority fetch.
+ * @param assets - The assets to warm.
  */
-function warmAsset( href: string, as: 'script' | 'style', useLinkPrefetch: boolean ): void {
-	if ( ! useLinkPrefetch ) {
-		// Same cache entry, just without the browser's idle-priority scheduling.
-		fetch( href, { credentials: 'same-origin', priority: 'low' } as RequestInit ).catch( () => {} );
-		return;
-	}
+function warmWithLinkPrefetch( assets: Asset[] ): void {
+	assets.forEach( ( { href, as } ) => {
+		const link = document.createElement( 'link' );
 
-	const link = document.createElement( 'link' );
+		link.rel = 'prefetch';
+		link.as = as;
+		link.href = href;
 
-	link.rel = 'prefetch';
-	link.as = as;
-	link.href = href;
+		document.head.appendChild( link );
+	} );
+}
 
-	document.head.appendChild( link );
+/**
+ * Warm assets by fetching them, for browsers without <link rel="prefetch"> (i.e. Safari).
+ *
+ * Two details matter here. The response body has to be drained: a fetch body is a stream the network
+ * stack only advances as the consumer reads it, so an unread response stalls once its buffer fills
+ * and is dropped when garbage collected — never reaching the cache, which would defeat the entire
+ * point. And because the bodies really do download, they need a concurrency window so they don't
+ * saturate the connection the user is about to navigate over.
+ *
+ * @param assets - The assets to warm.
+ */
+async function warmWithFetch( assets: Asset[] ): Promise< void > {
+	const queue = [ ...assets ];
+
+	const worker = async () => {
+		let asset = queue.shift();
+
+		while ( asset ) {
+			try {
+				const response = await fetch( asset.href, {
+					credentials: 'same-origin',
+					priority: 'low',
+				} as RequestInit );
+
+				await response.blob();
+			} catch {
+				// Best effort — a cold asset is a slower editor, not a broken one.
+			}
+
+			asset = queue.shift();
+		}
+	};
+
+	await Promise.all(
+		Array.from( { length: Math.min( FETCH_CONCURRENCY, queue.length ) }, worker )
+	);
 }
 
 /**
@@ -127,7 +169,7 @@ async function preloadEditorAssets( editorUrl: string ): Promise< boolean > {
 
 	const doc = new DOMParser().parseFromString( await response.text(), 'text/html' );
 	const seen = new Set< string >();
-	const useLinkPrefetch = supportsLinkPrefetch();
+	const assets: Asset[] = [];
 
 	const queue = ( rawHref: string | null, as: 'script' | 'style' ) => {
 		if ( ! rawHref || seen.size >= MAX_PREFETCHED_ASSETS ) {
@@ -148,7 +190,7 @@ async function preloadEditorAssets( editorUrl: string ): Promise< boolean > {
 		}
 
 		seen.add( asset.href );
-		warmAsset( asset.href, as, useLinkPrefetch );
+		assets.push( { href: asset.href, as } );
 	};
 
 	// Stylesheets first: they are render-blocking and far smaller, so queueing them ahead of the
@@ -160,26 +202,46 @@ async function preloadEditorAssets( editorUrl: string ): Promise< boolean > {
 		.querySelectorAll( 'script[src]' )
 		.forEach( el => queue( el.getAttribute( 'src' ), 'script' ) );
 
+	if ( ! assets.length ) {
+		return false;
+	}
+
+	if ( supportsLinkPrefetch() ) {
+		warmWithLinkPrefetch( assets );
+	} else {
+		await warmWithFetch( assets );
+	}
+
 	return true;
 }
 
 /**
  * Hook returning a function that warms the browser cache for the new-form editor.
  *
- * Call it as soon as the user shows intent to create a form — typing a title, for example — so the
- * download overlaps with the time they spend in the modal. It is safe to call repeatedly; only the
- * first call in a page load does any work, and failures are swallowed because a cold cache is a
- * slower experience, not a broken one.
+ * Call it as soon as, and as often as, the user shows intent to create a form — on every keystroke
+ * in the title field, for example — so the download overlaps with the time they spend in the modal.
+ * Calling repeatedly is both safe and expected: at most one warm-up runs per page load, and a call
+ * that declines to start (config not loaded yet, Save-Data on) leaves the door open for the next one
+ * to succeed. Failures are swallowed because a cold cache is a slower experience, not a broken one.
  *
  * @return A no-argument preload trigger.
  */
 export default function useEditorPreload(): () => void {
 	const adminUrl = useConfigValue( 'adminUrl' );
+	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
 
 	return useCallback( () => {
-		// The config store loads asynchronously. Without a base URL we would guess at a relative one
-		// and likely 404, so wait to be called again rather than burning the single attempt.
+		// `adminUrl` arrives asynchronously from the config store, so early keystrokes can land before
+		// it does. Returning without latching is what makes a later keystroke able to try again — do
+		// not move this bookkeeping into the caller, which has no way to know an attempt was skipped.
 		if ( hasPreloadStarted || ! adminUrl || prefersLessData() ) {
+			return;
+		}
+
+		// Only the centralized-form-management flow navigates to `post-new.php`. With the flag off,
+		// `jetpack_form` is not a registered post type, so warming that URL would fetch wp-admin's
+		// "Invalid post type" page — which answers 200, and would latch the feature as done.
+		if ( isCentralFormManagementEnabled !== true ) {
 			return;
 		}
 
@@ -191,5 +253,5 @@ export default function useEditorPreload(): () => void {
 				// Best-effort: if nothing was warmed, allow a later attempt.
 				hasPreloadStarted = started;
 			} );
-	}, [ adminUrl ] );
+	}, [ adminUrl, isCentralFormManagementEnabled ] );
 }

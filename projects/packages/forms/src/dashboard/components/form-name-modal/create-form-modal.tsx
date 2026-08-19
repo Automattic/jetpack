@@ -29,8 +29,8 @@ export type CreateFormModalProps = {
 /**
  * The "Create form" naming modal.
  *
- * Wraps FormNameModal with the copy every create entry point shares, and starts warming the editor
- * as soon as the user types — so the download overlaps with the time they spend choosing a name.
+ * Wraps FormNameModal with the copy every create entry point shares, and warms the editor while the
+ * user types — so the download overlaps with the time they spend choosing a name.
  *
  * @param props         - Component props.
  * @param props.isOpen  - Whether the modal is open.
@@ -50,8 +50,9 @@ export function CreateFormModal( { isOpen, onClose, onSave }: CreateFormModalPro
 			primaryButtonLabel={ __( 'Create', 'jetpack-forms' ) }
 			secondaryButtonLabel={ __( 'Cancel', 'jetpack-forms' ) }
 			placeholder={ __( 'Enter form title', 'jetpack-forms' ) }
-			onFirstEdit={ preloadEditor }
+			onEdit={ preloadEditor }
 			busyMessage={ __( 'Opening the editor…', 'jetpack-forms' ) }
+			errorMessage={ __( 'Could not create the form. Please try again.', 'jetpack-forms' ) }
 		/>
 	);
 }
