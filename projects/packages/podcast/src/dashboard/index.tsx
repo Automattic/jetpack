@@ -7,10 +7,11 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from '@wordp
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Button, Tabs } from '@wordpress/ui';
-import { initializeAnalytics } from './analytics';
+import { initializeAnalytics, recordDashboardView } from './analytics';
 import { isSiteConnected } from './connection';
 import ErrorBoundary from './error-boundary';
 import { usePodcastSettings } from './hooks/use-podcast-settings';
+import { getValidationIssues } from './hooks/use-validation-issues';
 import './style.scss';
 import type { TabName } from './types';
 import type { ReactNode } from 'react';
@@ -106,6 +107,25 @@ const App = () => {
 	const requestedTab: TabName | null = isValidTab( search.tab ) ? search.tab : null;
 	const activeTab: TabName =
 		requestedTab && ( isSetUp || requestedTab === 'settings' ) ? requestedTab : defaultTab;
+
+	// Once settings resolve, so `is_set_up` and the completeness fields are real
+	// rather than the empty-state defaults. Skipped entirely when settings fail
+	// to load — `getValidationIssues( undefined )` returns no issues, which
+	// would report a blank dashboard as fully set up.
+	useEffect( () => {
+		if ( isLoading || ! settings ) {
+			return;
+		}
+		const missing = getValidationIssues( settings ).length;
+		recordDashboardView( {
+			view: showWelcome ? 'welcome' : activeTab,
+			is_set_up: isSetUp,
+			settings_complete: missing === 0,
+			settings_missing: missing,
+			has_product_access: hasAccess,
+			is_connected: connected,
+		} );
+	}, [ isLoading, settings, showWelcome, activeTab, isSetUp, hasAccess, connected ] );
 
 	const navigate = useNavigate();
 
