@@ -30,7 +30,7 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostViewsRender from '../render';
-import widgetDefinition, { type PostViewsGranularity } from '../widget';
+import widgetDefinition, { type PostViewsChartType, type PostViewsGranularity } from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -47,6 +47,7 @@ const POST_VIEWS_RENDER_MODULE = 'storybook/post-views';
 interface PostViewsStoryControls {
 	hasPostScope: boolean;
 	granularity: PostViewsGranularity;
+	chartType: PostViewsChartType;
 }
 
 /**
@@ -56,11 +57,12 @@ interface PostViewsStoryControls {
  * comparison params without duplicating the scoping rule.
  */
 function getPostViewsAttributes(
-	{ hasPostScope, granularity }: PostViewsStoryControls,
+	{ hasPostScope, granularity, chartType }: PostViewsStoryControls,
 	withComparison = false
 ): ComponentProps< typeof PostViewsRender >[ 'attributes' ] {
 	return {
 		granularity,
+		chartType,
 		reportParams: {
 			...getDefaultQueryParams( withComparison ),
 			...( hasPostScope ? { post_id: MOCK_POST_ID } : {} ),
@@ -86,6 +88,11 @@ const meta = {
 			options: [ 'day', 'week', 'month' ],
 			description: 'The "Group by" toolbar attribute rendered by the widget host.',
 		},
+		chartType: {
+			control: 'radio',
+			options: [ 'line', 'bar' ],
+			description: 'The "Chart type" toolbar attribute rendered by the widget host.',
+		},
 	},
 	parameters: {
 		docs: {
@@ -107,7 +114,7 @@ type Story = StoryObj< PostViewsStoryControls >;
  */
 export const Default: Story = {
 	render: renderPostViews,
-	args: { hasPostScope: true, granularity: 'day' },
+	args: { hasPostScope: true, granularity: 'day', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -118,7 +125,7 @@ export const Default: Story = {
  */
 export const NoPostScope: Story = {
 	render: renderPostViews,
-	args: { hasPostScope: false, granularity: 'day' },
+	args: { hasPostScope: false, granularity: 'day', chartType: 'line' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -136,6 +143,7 @@ interface PostViewsDashboardStoryProps
 function PostViewsDashboardStory( {
 	hasPostScope,
 	granularity,
+	chartType,
 	...dashboardArgs
 }: PostViewsDashboardStoryProps ) {
 	return (
@@ -144,7 +152,7 @@ function PostViewsDashboardStory( {
 			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ POST_VIEWS_RENDER_MODULE }
 			renderComponent={ PostViewsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ getPostViewsAttributes( { hasPostScope, granularity }, true ) }
+			attributes={ getPostViewsAttributes( { hasPostScope, granularity, chartType }, true ) }
 		/>
 	);
 }

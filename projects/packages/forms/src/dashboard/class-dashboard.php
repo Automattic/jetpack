@@ -203,6 +203,16 @@ class Dashboard {
 					if ( ! empty( $m[3] ) && strpos( $m[3], 'mark_as_spam' ) !== false ) {
 						$has_mark_as_spam = true;
 					}
+				} elseif ( preg_match( '#^/response/(\d+)(?:\?(.*))?$#', $p, $m ) ) {
+					// Standalone single response page (wp-build only) — the legacy
+					// dashboard shows the response in the inbox list instead. The path
+					// is matched whole so trailing junk isn't read as a response ID,
+					// but it may legitimately carry the email's mark_as_spam trigger.
+					$post_id = absint( $m[1] );
+
+					if ( ! empty( $m[2] ) && strpos( $m[2], 'mark_as_spam' ) !== false ) {
+						$has_mark_as_spam = true;
+					}
 				} elseif ( preg_match( '#^/forms#', $p ) ) {
 					$tab = 'forms';
 				}
@@ -633,6 +643,28 @@ class Dashboard {
 	}
 
 	/**
+	 * Returns the URL of the standalone single response page for a given response.
+	 *
+	 * The standalone page is a wp-build route (`/response/<id>`). The legacy
+	 * dashboard has no equivalent, so it falls back to the responses list with the
+	 * response selected — as does a missing/empty post ID.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int|null $post_id Post ID of the response to open.
+	 *
+	 * @return string
+	 */
+	public static function get_single_response_admin_url( $post_id = null ) {
+		$post_id = ! empty( $post_id ) ? absint( $post_id ) : null;
+
+		// `get_forms_admin_url()` owns the URL scheme for both dashboards. The
+		// 'response' tab resolves to the standalone page on wp-build, and falls
+		// through to the responses list on legacy, which has no such route.
+		return self::get_forms_admin_url( $post_id ? 'response' : 'inbox', $post_id );
+	}
+
+	/**
 	 * WP-Build path for the forms admin URL.
 	 *
 	 * @param string|null $tab    Tab to open.
@@ -642,6 +674,12 @@ class Dashboard {
 	private static function get_forms_admin_path_wp_build( $tab, $post_id ) {
 		$post_id      = ! empty( $post_id ) ? absint( $post_id ) : null;
 		$response_ids = ! empty( $post_id ) ? '?responseIds=["' . $post_id . '"]' : '';
+
+		// The standalone single response page, which addresses the response by path
+		// rather than selecting it in a list.
+		if ( $tab === 'response' && ! empty( $post_id ) ) {
+			return '/response/' . $post_id;
+		}
 
 		$path_map = array(
 			'inbox'           => '/responses/inbox',

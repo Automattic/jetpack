@@ -151,6 +151,7 @@ jest.mock( '@wordpress/ui', () => ( {
 		Root: ( { children }: { children: React.ReactNode } ) => <div role="alert">{ children }</div>,
 		Description: ( { children }: { children: React.ReactNode } ) => <p>{ children }</p>,
 	},
+	Stack: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
 	Text: ( { children }: { children: React.ReactNode } ) => <span>{ children }</span>,
 } ) );
 

@@ -76,16 +76,41 @@
 	min-block-size: 0;
 }
 
-.ready {
+.root,
+.content {
 	position: relative;
 	block-size: 100%;
 }
 
-.busy {
+// Same rationale as `.state`: no floor, so a short tile's body stays inside the
+// widget instead of underlapping the footer.
+.root {
+	min-block-size: 0;
+}
+
+// Preserve layout measurements during refetches.
+.contentHidden {
+	visibility: hidden;
+}
+
+// The root is only ever focused programmatically, to hold focus while a refetch
+// hides the children, so it carries no ring by default.
+.root:focus {
+	outline: none;
+}
+
+// `:focus-visible` still separates the two cases: the flag carries across a
+// programmatic focus move, so a reader who activated a row from the keyboard
+// sees where they landed, while a mouse user gets no ring around the whole
+// widget body. Drawn inset for the reason `.reportLink` documents — widgets
+// clip their own overflow, so an outset ring on a full-height element is cut
+// off entirely.
+.root:focus-visible {
+	outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+	outline-offset: calc(-1 * var(--wpds-border-width-focus));
+}
+
+.skeletonOverlay {
 	position: absolute;
 	inset: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	pointer-events: none;
 }

@@ -7,6 +7,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from '@wordp
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Button, Tabs } from '@wordpress/ui';
+import { initializeAnalytics } from './analytics';
 import { isSiteConnected } from './connection';
 import ErrorBoundary from './error-boundary';
 import { usePodcastSettings } from './hooks/use-podcast-settings';
@@ -81,6 +82,12 @@ const App = () => {
 	// `hasAccess` keeps gating the tabs so a missing flag never locks anyone out.
 	const hasConfirmedAccess = hasConfirmedProductAccess();
 	const connected = isSiteConnected();
+
+	// Once for the whole page, so every tab's events carry identity regardless
+	// of which one the visitor lands on.
+	useEffect( () => {
+		initializeAnalytics();
+	}, [] );
 
 	// `?tab=` owns the active tab; absent `?tab=` falls back to `defaultTab`.
 	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StageSearch;

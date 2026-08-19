@@ -1,5 +1,8 @@
 import type { ConnectionErrorMap } from '../../hooks/use-connection-error-notice/types.ts';
+import type { ConnectionOwner } from '../../types.ts';
 import type { SyntheticEvent } from 'react';
+
+export type { ConnectionOwner };
 
 export interface UseConnectionProps {
 	/**
@@ -49,6 +52,8 @@ export interface UserConnectionData {
 	currentUser?: {
 		wpcomUser?: WpcomUser;
 		username?: string;
+		/** The viewer's local WordPress user ID. */
+		id?: number;
 		isMaster?: boolean;
 		possibleAccountErrors?: Record< string, unknown >;
 		[ key: string ]: unknown;
@@ -73,6 +78,8 @@ export interface UseConnectionReturn {
 	userIsConnecting: boolean;
 	registrationError: RegistrationError | false;
 	userConnectionData: UserConnectionData;
+	/** The owner of record; null when unresolvable or withheld from this viewer. */
+	connectionOwner: ConnectionOwner | null;
 	hasConnectedOwner: boolean;
 	connectedPlugins: Record< string, unknown > | unknown[];
 	connectionErrors: Array< string | object >;

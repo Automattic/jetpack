@@ -951,4 +951,39 @@ class Feedback_Field_Test extends BaseTestCase {
 		$color = Feedback_Field::get_admin_theme_color();
 		$this->assertMatchesRegularExpression( '/^#[0-9a-f]{6}$/i', $color );
 	}
+
+	/**
+	 * A ticked box submits a translated string, so anything non-empty counts.
+	 */
+	public function test_is_checked_value_accepts_any_non_empty_answer() {
+		$this->assertTrue( Feedback_Field::is_checked_value( 'Yes' ) );
+		$this->assertTrue( Feedback_Field::is_checked_value( 'Oui' ) );
+		$this->assertTrue( Feedback_Field::is_checked_value( '1' ) );
+		$this->assertTrue( Feedback_Field::is_checked_value( array( 'a' ) ) );
+	}
+
+	/**
+	 * An unticked box submits an empty value; some stored responses use "No".
+	 */
+	public function test_is_checked_value_rejects_empty_and_no() {
+		$this->assertFalse( Feedback_Field::is_checked_value( '' ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( '   ' ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( null ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( array() ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( 'no' ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( 'No' ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( ' NO ' ) );
+	}
+
+	/**
+	 * The consent/checkbox email chip is rendered from the same predicate, so the
+	 * label must follow it.
+	 */
+	public function test_email_consent_label_follows_the_checked_predicate() {
+		$checked   = new Feedback_Field( 'consent', 'Consent', 'Yes', 'consent' );
+		$unchecked = new Feedback_Field( 'consent', 'Consent', '', 'consent' );
+
+		$this->assertStringContainsString( 'Yes', $checked->get_render_value( 'email_html' ) );
+		$this->assertStringContainsString( 'No', $unchecked->get_render_value( 'email_html' ) );
+	}
 }

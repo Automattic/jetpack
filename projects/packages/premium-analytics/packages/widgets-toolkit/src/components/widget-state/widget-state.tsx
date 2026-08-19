@@ -3,11 +3,15 @@
  */
 import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
+import { useLayoutEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
+// Avoid pulling the `widgets/common` graph in through the hooks barrel.
+import { useDelayedLoading } from '../../hooks/use-delayed-loading';
 import { ChartEmptyState } from '../chart-empty-state';
-import { WidgetLoadingOverlay } from '../widget-loading-overlay';
+import { GenericSkeleton } from '../widget-skeleton';
 import { errorStateIcon } from './error-state-icon';
 import styles from './widget-state.module.scss';
 import type { ComponentProps, ReactNode } from 'react';
@@ -27,32 +31,17 @@ export interface WidgetStateEmpty {
 export interface WidgetStateProps {
 	/** A fetch is in flight and there is no data yet (React Query `isLoading`). */
 	isLoading: boolean;
-	/** A background refetch is in flight while data is shown (React Query `isFetching`). */
+	/** A refetch is in flight while data is already shown (React Query `isFetching`). */
 	isFetching?: boolean;
 	isError: boolean;
-	/** Resolved, but there is nothing meaningful to show. */
 	isEmpty: boolean;
 	error?: WidgetStateError;
 	empty?: WidgetStateEmpty;
-	/** Optional per-widget loading override (e.g. a chart skeleton). */
+	/** Optional content-shaped loading override; defaults to `GenericSkeleton`. */
 	renderLoading?: ReactNode;
-	/** Success content, rendered only when the state is `ready`. */
 	children: ReactNode;
 }
 
-/**
- * Data-agnostic widget content-area state. Derives one state from the four
- * signals and renders loading / error / empty / the success children. Knows
- * nothing about the data layer — callers map their fetch result to the signals
- * and pass generic `error` / `empty` descriptors.
- *
- * Priority: error → loading (first load) → empty → ready. During a background
- * refetch (`isFetching` with data) the children stay visible under a busy
- * overlay. The empty state carries no icon by default (staying visually distinct
- * from the error state's glyph); a caller opts in via `empty.icon`.
- *
- * @return The rendered widget state.
- */
 export function WidgetState( {
 	isLoading,
 	isFetching = false,
@@ -63,11 +52,56 @@ export function WidgetState( {
 	renderLoading,
 	children,
 }: WidgetStateProps ) {
+	// React Query also reports `isFetching` on the first load; delay only refetches.
+	const showFetchingState = useDelayedLoading( isFetching && ! isLoading );
+	const rootRef = useRef< HTMLDivElement >( null );
+	const contentRef = useRef< HTMLDivElement >( null );
+	const focusToRestore = useRef< HTMLElement | null >( null );
+
+	// Park focus before hidden content becomes unfocusable, then restore it after the refetch.
+	useLayoutEffect( () => {
+		// Use the widget's document to support rendering in another window or iframe.
+		const ownerDocument = rootRef.current?.ownerDocument;
+		const view = ownerDocument?.defaultView;
+		if ( ! ownerDocument || ! view ) {
+			return;
+		}
+
+		if ( showFetchingState ) {
+			const active = ownerDocument.activeElement;
+			// Elements must be checked against their own document's constructor.
+			const wasInside =
+				active instanceof view.HTMLElement && !! contentRef.current?.contains( active );
+			// Clear stale targets when focus is outside the widget.
+			focusToRestore.current = wasInside ? active : null;
+			if ( wasInside ) {
+				// The root remains mounted and keeps keyboard navigation at the widget.
+				rootRef.current?.focus( { preventScroll: true } );
+			}
+			return;
+		}
+
+		const target = focusToRestore.current;
+		focusToRestore.current = null;
+		if ( ! target ) {
+			return;
+		}
+		// Do not reclaim focus if the user moved it during the refetch.
+		if ( ownerDocument.activeElement !== rootRef.current ) {
+			return;
+		}
+		// Fall back to the root if the original target was removed, without changing the viewport.
+		( target.isConnected ? target : rootRef.current )?.focus( { preventScroll: true } );
+	}, [ showFetchingState ] );
+
+	const skeleton = renderLoading ?? <GenericSkeleton />;
+	let body: ReactNode;
+
 	if ( isError ) {
 		// Vertical centering lives in the stylesheet (`safe center`), not the
 		// `justify` prop: the prop's inline style would beat the class rule and
 		// reintroduce the unreachable-top overflow on short tiles.
-		return (
+		body = (
 			<Stack className={ styles.state } direction="column" gap="lg" align="center" role="alert">
 				<Icon size={ 40 } className={ styles.stateIcon } icon={ errorStateIcon } />
 				{ error?.title && <div className={ styles.title }>{ error.title }</div> }
@@ -95,21 +129,15 @@ export function WidgetState( {
 				) }
 			</Stack>
 		);
-	}
-
-	// `isLoading` blocks unconditionally — it means "no data yet", so there is
-	// nothing to keep visible regardless of how the caller derived `isEmpty`.
-	// `isFetching` only blocks when the resolved data is empty; with rows shown
-	// it falls through to the ready branch's non-blocking busy overlay.
-	// The wrapper anchors the absolute overlay to the widget body — without a
-	// positioned ancestor it would reach the framed host card and cover the
-	// header title.
-	if ( isLoading || ( isEmpty && isFetching ) ) {
-		return <div className={ styles.loading }>{ renderLoading ?? <WidgetLoadingOverlay /> }</div>;
-	}
-
-	if ( isEmpty ) {
-		return (
+	} else if ( isLoading || ( isEmpty && showFetchingState ) ) {
+		// Announce the skeleton only on first load, not when refetching an empty result.
+		body = (
+			<div className={ styles.loading } aria-hidden={ ! isLoading || undefined }>
+				{ skeleton }
+			</div>
+		);
+	} else if ( isEmpty ) {
+		body = (
 			<ChartEmptyState
 				// No default icon: the caller opts in via `empty.icon`. Keeping the
 				// component icon-agnostic avoids a domain-specific default (e.g. a
@@ -122,16 +150,37 @@ export function WidgetState( {
 				text={ empty?.description }
 			/>
 		);
+	} else {
+		// Keep children mounted during refetches so their state and layout survive.
+		body = (
+			<>
+				<div
+					ref={ contentRef }
+					className={ clsx( styles.content, showFetchingState && styles.contentHidden ) }
+				>
+					{ children }
+				</div>
+				{ /* Avoid announcing one status message per widget during refetches. */ }
+				{ showFetchingState && (
+					<div className={ styles.skeletonOverlay } aria-hidden="true">
+						{ skeleton }
+					</div>
+				) }
+			</>
+		);
 	}
 
+	// Keep the focus target mounted when a refetch resolves to any state.
 	return (
-		<div className={ styles.ready }>
-			{ children }
-			{ isFetching && (
-				<div className={ styles.busy } aria-hidden="true">
-					<WidgetLoadingOverlay />
-				</div>
-			) }
+		<div
+			ref={ rootRef }
+			// Focused programmatically during refetches, but omitted from the tab order.
+			tabIndex={ -1 }
+			className={ styles.root }
+			// Mark only visible refetch skeletons as busy; the first-load skeleton announces itself.
+			aria-busy={ showFetchingState || undefined }
+		>
+			{ body }
 		</div>
 	);
 }

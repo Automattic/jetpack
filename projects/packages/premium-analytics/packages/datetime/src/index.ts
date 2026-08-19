@@ -24,6 +24,8 @@ export { stepDateRange, canStepForward, type StepDirection } from './step-date-r
 
 export { parseSiteDateTime } from './site-datetime';
 
+export { siteTimeZone } from './site-time-zone';
+
 export {
 	formatDatePartWithTime,
 	getDateIntervalDateParts,

@@ -47,8 +47,8 @@ export function VideoSummaryCard( { summary, performanceRange }: VideoSummaryCar
 	const publishedSentence =
 		publishedDateObject && isValid( publishedDateObject )
 			? sprintf(
-					/* translators: %s: the video publish date, e.g. "Aug 19, 2025". */
-					__( 'Video published on %s.', 'jetpack-premium-analytics-pkg' ),
+					/* translators: %s: the video upload date, e.g. "Aug 19, 2025". */
+					__( 'Video uploaded on %s.', 'jetpack-premium-analytics-pkg' ),
 					format( publishedDateObject, DATE_FORMAT )
 			  )
 			: undefined;

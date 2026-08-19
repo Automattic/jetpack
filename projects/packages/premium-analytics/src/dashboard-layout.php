@@ -73,23 +73,37 @@ function get_dashboard_default_layout_for( $dashboard_name ) {
 }
 
 /**
+ * Returns availability gates for conditional dashboard tabs.
+ *
+ * The callbacks are used directly because the section registry may not be
+ * initialized when this route runs.
+ *
+ * @since $$next-version$$
+ *
+ * @return callable[] Resolved tab ID mapped to its availability callback.
+ */
+function get_dashboard_default_layout_gates() {
+	return array(
+		DASHBOARD_STORE_SECTION_ID       => array( Capabilities::class, 'current_user_can_view_store_reports' ),
+		DASHBOARD_SUBSCRIBERS_SECTION_ID => __NAMESPACE__ . '\\is_subscribers_dashboard_section_available',
+	);
+}
+
+/**
  * REST callback returning the default layout for the requested dashboard.
  *
- * The route admits every dashboard reader, but its name also resolves to a
- * single tab, so the store tab is refused here the way the section route
- * refuses it through {@see Dashboard_Section::is_available()}. The check keys
- * on the resolved tab rather than the string because two spellings arrive: the
- * bare `store` alias in the URL, and `?name=woocommerce/store`, which WordPress
- * reads ahead of the URL capture.
+ * Availability is checked after resolving the name because tabs can be
+ * requested by alias or full section ID.
  *
  * @param \WP_REST_Request $request REST request carrying the dashboard name.
  * @return \WP_REST_Response|\WP_Error Response wrapping the default layout array.
  */
 function get_dashboard_default_layout_response( $request ) {
 	$dashboard_name = $request['name'];
+	$gates          = get_dashboard_default_layout_gates();
+	$section_id     = get_dashboard_default_section_id_for( $dashboard_name );
 
-	if ( DASHBOARD_STORE_SECTION_ID === get_dashboard_default_section_id_for( $dashboard_name )
-		&& ! Capabilities::current_user_can_view_store_reports() ) {
+	if ( isset( $gates[ $section_id ] ) && ! call_user_func( $gates[ $section_id ] ) ) {
 		return new \WP_Error(
 			'dashboard_section_unavailable',
 			__( 'Dashboard section is not available.', 'jetpack-premium-analytics-pkg' ),
@@ -233,7 +247,7 @@ function get_dashboard_default_section_layouts() {
 					'max' => 10,
 				)
 			),
-			// Row 4: VideoPress + clicks + authors.
+			// Row 4: VideoPress (sites running VideoPress only) + clicks + authors.
 			get_dashboard_default_widget_instance(
 				'default-videopress-widget-instance',
 				'jpa/videopress',
@@ -362,15 +376,15 @@ function get_dashboard_default_section_layouts() {
 				1,
 				1
 			),
-			// Row 5: daily views heatmap. One row tall, as in the prototype: at this
-			// height it renders compact squares, so the tile's width buys years of
-			// history instead of the ~14 weeks labelled cells would fit.
+			// Row 5: daily views heatmap. Two rows tall, as in the prototype: the
+			// cells are sized from the tile's height, and only at this height do they
+			// grow wide enough to label each day with its view count.
 			get_dashboard_default_widget_instance(
 				'default-traffic-views-activity-widget-instance',
 				'jpa/traffic-views-activity',
 				8,
 				4,
-				1
+				2
 			),
 			// Row 6: the comment leaderboards, shares, and tags.
 			get_dashboard_default_widget_instance(

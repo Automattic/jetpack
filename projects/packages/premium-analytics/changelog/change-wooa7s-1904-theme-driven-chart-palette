@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Charts: derive series colors from the theme accent instead of a fixed palette, so neighbouring categories stay distinguishable.

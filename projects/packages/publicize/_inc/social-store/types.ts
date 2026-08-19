@@ -222,9 +222,24 @@ export interface KeyringAdditionalUser {
 	external_profile_picture: string;
 }
 
+/**
+ * Reason codes wpcom reports for an empty Instagram Business account list.
+ */
+export type AccountsEmptyReason =
+	| 'no_instagram_account'
+	| 'no_pages'
+	| 'page_access_denied'
+	| 'account_check_failed'
+	| 'service_error';
+
 export interface KeyringResult extends KeyringAdditionalUser {
 	ID: number;
 	additional_external_users: Array< KeyringAdditionalUser >;
+	/**
+	 * Why `additional_external_users` came back empty; null or absent means no
+	 * reason. Kept open because wpcom may add codes; unknown gets generic copy.
+	 */
+	additional_external_users_empty_reason?: AccountsEmptyReason | ( string & {} ) | null;
 	external_display: string;
 	label: string;
 	service: string;

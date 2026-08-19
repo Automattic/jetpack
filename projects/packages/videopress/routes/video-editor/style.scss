@@ -20,12 +20,26 @@
 }
 
 .vp-video-editor__body {
+	// The card is the query container deciding when the chapters panel drops
+	// below the main column, so the arrangement keys off the space the card
+	// actually has (wp-admin sidebar and tools rail already subtracted from
+	// the viewport) rather than the viewport itself.
+	container-type: inline-size;
 	display: flex;
 	align-items: stretch;
 	border: 1px solid var(--vp-gray-300);
 	border-radius: var(--vp-radius-medium);
 	background: #fff;
 	overflow: hidden;
+}
+
+// Everything beside the tools rail: the main column (canvas + timeline) with
+// the chapters panel to its right.
+.vp-video-editor__workspace {
+	flex: 1;
+	min-inline-size: 0;
+	display: flex;
+	align-items: stretch;
 }
 
 // The tools rail: a fixed-width "Edit" section of icon + label items, the
@@ -108,8 +122,31 @@
 	.vp-chapters-preview {
 		inline-size: 100%;
 		margin-inline: auto;
-		max-inline-size: min(640px, calc(var(--vp-chapters-stage-max-height, 612px) * 16 / 9));
+		max-inline-size: min(880px, calc(var(--vp-chapters-stage-max-height, 612px) * 16 / 9));
 	}
+}
+
+// The chapters panel rail: fixed width beside the main column. The panel
+// component is pulled out of flow (absolute against this wrapper) so the
+// row's height is set by the main column alone — a long chapter list
+// scrolls inside the panel instead of stretching the card past the canvas.
+.vp-video-editor__panel {
+	position: relative;
+	flex: none;
+	inline-size: 320px;
+	border-inline-start: 1px solid var(--vp-gray-200);
+
+	.vp-chapters-panel {
+		position: absolute;
+		inset: 0;
+		padding: 16px;
+	}
+}
+
+// Same presentation-only dim as the timeline while a probe or save locks
+// editing; the panel's own controls disable individually.
+.vp-video-editor__panel--locked {
+	opacity: 0.6;
 }
 
 // The timeline docked below the canvas, full width.
@@ -144,6 +181,31 @@
 	background: var(--vp-gray-300, #ddd);
 }
 
+// Narrow card: the chapters panel drops below the main column — the same
+// stacked layout every width had before the side panel existed. Keyed off
+// the card's own width (the wp-admin sidebar states and the tools rail make
+// viewport width a poor proxy for it).
+@container ( max-inline-size: 1023px ) {
+
+	.vp-video-editor__workspace {
+		flex-direction: column;
+	}
+
+	.vp-video-editor__panel {
+		// The page scrolls the stacked layout, so the panel's list stops
+		// scrolling internally (a published knob on the shared panel).
+		--vp-chapters-panel-list-overflow: visible;
+
+		inline-size: auto;
+		border-inline-start: 0;
+		border-block-start: 1px solid var(--vp-gray-200);
+
+		.vp-chapters-panel {
+			position: static;
+		}
+	}
+}
+
 // Narrow viewports (wp-admin's mobile breakpoint): the rail collapses to
 // icon-only — the tool buttons keep their accessible names via aria-label —
 // leaving the width to the chapters editor, and the widest single-line rows
@@ -175,14 +237,6 @@
 
 	.vp-video-editor__timeline-section {
 		padding-inline: 16px;
-	}
-
-	// Page-scoped override of the shared timeline toolbar: its single line
-	// (transport, add-at-playhead, now-indicator, zoom) is wider than a phone
-	// viewport; wrapping keeps every control reachable without side-scroll.
-	.vp-chapters-timeline__toolbar {
-		flex-wrap: wrap;
-		row-gap: 8px;
 	}
 
 	.vp-video-editor__header-actions {

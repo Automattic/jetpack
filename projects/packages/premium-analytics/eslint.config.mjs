@@ -67,6 +67,15 @@ export default defineConfig(
 		},
 	},
 	{
+		// `ToggleGroupField` is built on the `__experimental*` ToggleGroupControl
+		// exports from `@wordpress/components`, which have no stable equivalent
+		// yet — the same exemption the widgets-toolkit block carries.
+		files: [ 'packages/fields/**' ],
+		rules: {
+			'@wordpress/no-unsafe-wp-apis': 'off',
+		},
+	},
+	{
 		// The routing port also imports `react` directly (the staged-search
 		// hook), flagged as extraneous because the internal package's deps are
 		// declared on the parent manifest.

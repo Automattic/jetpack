@@ -12,7 +12,7 @@ import {
 	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { formatDateRangeCompact } from '@jetpack-premium-analytics/formatters';
+import { formatDateRangeMinimal } from '@jetpack-premium-analytics/formatters';
 import { BaseControl } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { flushSync } from '@wordpress/element';
@@ -26,12 +26,7 @@ import { DateIntervalDropdown } from '../date-interval-dropdown';
 import { DatePeriodNavigation } from '../date-period-navigation';
 import { DateRangeFilter } from '../date-range-filter';
 import { resolvePresetLabelMode, WIDE_CALENDAR_CONTAINER_THRESHOLD } from '../date-range-layout';
-import {
-	getCommittedCustomRange,
-	getCustomTriggerLabel,
-	getCustomTriggerState,
-	type RememberedCustomRange,
-} from '../date-range-popover';
+import { getCustomTriggerLabel, getCustomTriggerState } from '../date-range-popover';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 import { PresetRowProbe } from './preset-row-probe';
 
@@ -272,27 +267,6 @@ export function DateFiltersPanel( {
 		return () => setObserverRef( null );
 	}, [ containerElement, rootElement, setObserverRef ] );
 
-	/*
-	 * The last applied custom range, so the trigger can offer the way back to it
-	 * while a preset drives the range.
-	 *
-	 * Owned here rather than in the popover because the probe has to reproduce
-	 * the trigger's label exactly; held downstream it would measure "Custom"
-	 * against a trigger showing a formatted range. Only ever set: a preset
-	 * selection clears the committed custom range, which is the thing worth
-	 * surviving.
-	 */
-	const [ rememberedCustomRange, setRememberedCustomRange ] =
-		useState< RememberedCustomRange | null >( null );
-
-	useEffect( () => {
-		const committedCustomRange = getCommittedCustomRange( validatedAppliedPresetId, appliedRange );
-
-		if ( committedCustomRange ) {
-			setRememberedCustomRange( committedCustomRange );
-		}
-	}, [ validatedAppliedPresetId, appliedRange ] );
-
 	// Derived through the same helpers the trigger uses, so the probe measures
 	// the string the trigger is actually showing.
 	const customTriggerLabel = useMemo( () => {
@@ -307,16 +281,14 @@ export function DateFiltersPanel( {
 			} ),
 			range,
 			committedRange,
-			rememberedCustomRange,
 			customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
-			formatRange: formatDateRangeCompact,
+			formatRange: formatDateRangeMinimal,
 		} );
 	}, [
 		appliedRange,
 		canApply,
 		isPrimaryPickerOpen,
 		range,
-		rememberedCustomRange,
 		validatedAppliedPresetId,
 		validatedPresetId,
 	] );
@@ -430,8 +402,8 @@ export function DateFiltersPanel( {
 				presets={ surfacePresets }
 				customTriggerLabel={ customTriggerLabel }
 				navigation={ navigationControl }
-				interval={ intervalControl }
 				comparison={ comparisonControl }
+				interval={ intervalControl }
 				onMeasure={ handleProbeMeasure }
 			/>
 
@@ -456,13 +428,12 @@ export function DateFiltersPanel( {
 						timeZone={ timeZone }
 						labelMode={ labelMode }
 						isWideScreen={ isWideScreen }
-						rememberedCustomRange={ rememberedCustomRange }
 						onOpenChange={ setIsPrimaryPickerOpen }
 					/>
 				</BaseControl>
 
-				{ intervalControl }
-
+				{ /* Comparison before the interval: it qualifies the range the
+				     presets just set, while the interval only buckets the charts. */ }
 				{ showComparison && (
 					<BaseControl
 						className="date-filters-panel__comparison"
@@ -471,6 +442,8 @@ export function DateFiltersPanel( {
 						{ comparisonControl }
 					</BaseControl>
 				) }
+
+				{ intervalControl }
 			</Stack>
 		</div>
 	);

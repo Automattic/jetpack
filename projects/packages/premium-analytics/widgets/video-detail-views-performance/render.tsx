@@ -3,13 +3,13 @@
  */
 import { toPostId } from '@jetpack-premium-analytics/data';
 import {
-	ComparativeLineChart,
+	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	describeError,
-	useSeriesStyles,
 	useWidgetRootContext,
-	type ComparativeLineChartSeries,
+	type MetricTab,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -22,6 +22,7 @@ import styles from './style.module.css';
 import useVideoViews from './use-video-views';
 import type {
 	VideoDetailViewsPerformanceAttributes,
+	VideoDetailViewsPerformanceChartType,
 	VideoDetailViewsPerformanceGranularity,
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -39,6 +40,8 @@ const DATA_FORMAT = {
 type VideoDetailViewsPerformanceInnerProps = {
 	/** The granularity attribute: the chart's bucket size. */
 	granularity: VideoDetailViewsPerformanceGranularity;
+	/** How the views series is drawn. `MetricTabsChart` owns the default. */
+	chartType?: VideoDetailViewsPerformanceChartType;
 };
 
 /**
@@ -47,6 +50,7 @@ type VideoDetailViewsPerformanceInnerProps = {
  */
 function VideoDetailViewsPerformanceInner( {
 	granularity,
+	chartType,
 }: VideoDetailViewsPerformanceInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const videoId = toPostId( reportParams.post_id );
@@ -57,23 +61,20 @@ function VideoDetailViewsPerformanceInner( {
 		granularity
 	);
 
-	// The video detail page has no comparison control, so the chart always
-	// draws the single "Views" series.
-	const series = useMemo< ComparativeLineChartSeries[] >( () => {
-		if ( ! current.length ) {
-			return [];
-		}
-
-		return [
+	// One "Views" metric: the headline is the window total (views are summed
+	// per bucket, so the sum of buckets is the range's views). The video detail
+	// page has no comparison control, so there is no previous series.
+	const metricTabs = useMemo< MetricTab[] >(
+		() => [
 			{
+				key: 'views',
 				label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
-				group: 'views',
-				data: current,
+				value: current.reduce( ( sum, point ) => sum + point.value, 0 ),
+				current,
 			},
-		];
-	}, [ current ] );
-	const seriesStyles = useSeriesStyles( series );
-
+		],
+		[ current ]
+	);
 	return (
 		<div className={ styles.root }>
 			<WidgetState
@@ -95,12 +96,14 @@ function VideoDetailViewsPerformanceInner( {
 						'jetpack-premium-analytics-pkg'
 					),
 				} }
+				// The chart is the whole content here, so its block replaces the
+				// generic stacked lines.
+				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
-				<ComparativeLineChart
-					className={ styles.chart }
-					series={ series }
-					styles={ seriesStyles }
+				<MetricTabsChart
+					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
 				/>
 			</WidgetState>
 		</div>
@@ -109,21 +112,22 @@ function VideoDetailViewsPerformanceInner( {
 
 /**
  * Views performance widget: the scoped video's view trend over the dashboard
- * date range as a line chart. The view series comes from the
- * `stats/video/{id}` daily history for the selected window, zero-filled and
- * bucketed client-side per the granularity attribute.
+ * date range, with the window total as the metric headline. The view series
+ * comes from the `stats/video/{id}` daily history for the selected window,
+ * zero-filled and bucketed client-side per the granularity attribute.
  */
 export default function VideoDetailViewsPerformance( {
 	attributes = {},
 }: VideoDetailViewsPerformanceWidgetProps ) {
-	// Coerce unknown persisted values to the default.
+	// Coerce unknown persisted values to the defaults.
 	const attrGranularity = attributes?.granularity;
 	const granularity =
 		attrGranularity === 'week' || attrGranularity === 'month' ? attrGranularity : 'day';
+	const chartType = attributes?.chartType === 'bar' ? 'bar' : 'line';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<VideoDetailViewsPerformanceInner granularity={ granularity } />
+			<VideoDetailViewsPerformanceInner granularity={ granularity } chartType={ chartType } />
 		</WidgetRoot>
 	);
 }

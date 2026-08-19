@@ -43,11 +43,13 @@ return [
         'tests/FrontendNoticesTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/PlanNoticesTest.php' => ['PhanDeprecatedProperty', 'PhanPluginUseReturnValueInternalKnown', 'PhanUndeclaredStaticMethod'],
         'tests/WpcomFeaturesTest.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredStaticMethod'],
+        'tests/WpcomSitePurchaseTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/WpcomshPremiumAnalyticsTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/feature-manager/FeatureHookTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/imports/SQLGeneratorTest.php' => ['PhanTypeObjectUnsetDeclaredProperty'],
         'widgets/class-widget-top-clicks.php' => ['PhanDeprecatedFunction'],
         'wpcom-features/class-wpcom-features.php' => ['PhanPluginMixedKeyNoKey'],
+        'wpcom-features/class-wpcom-site-purchase.php' => ['PhanUndeclaredStaticMethod'],
         'wpcom-features/functions-wpcom-features.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredMethod'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

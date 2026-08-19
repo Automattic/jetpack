@@ -390,20 +390,15 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * Whether any feature the sidebar surfaces is effectively enabled.
-	 *
-	 * The sidebar only hosts writing-assistant and SEO suggestions; when both
-	 * are off it has nothing to offer and must not load. The SEO half folds in
-	 * the ai_seo_enhancer_enabled kill-switch filter, the same way every other
-	 * SEO enhancer consumer resolves the effective value; the writing half gets
-	 * its filter inside is_feature_enabled() (owned feature).
+	 * Whether any feature the sidebar surfaces is effectively enabled; with
+	 * nothing to offer it must not load. Caveat: init() runs before seo-tools
+	 * registers jetpack_disable_seo_tools, so that term reads its default here.
 	 *
 	 * @return bool
 	 */
 	private static function has_enabled_sidebar_features(): bool {
 		return \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' )
-			|| ( (bool) apply_filters( 'ai_seo_enhancer_enabled', true )
-				&& \Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' ) );
+			|| self::is_seo_suggestions_enabled();
 	}
 
 	/**

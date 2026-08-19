@@ -92,6 +92,7 @@ class Jetpack_Options {
 			'id',                                  // (int)    The Client ID/WP.com Blog ID of this site.
 			'publicize_connections',               // (array)  An array of Publicize connections from WordPress.com.
 			'master_user',                         // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
+			'protected_owner',                     // (array)  Anchor identifying the locked connection owner. WordPress.com is authoritative; this is a local cache. Keys: wpcom_user_id, email, local_user_id, locked, confirmed_at, confirmed_by.
 			'version',                             // (string) Used during upgrade procedure to auto-activate new modules. version:time.
 			'old_version',                         // (string) Used to determine which modules are the most recently added. previous_version:time.
 			'fallback_no_verify_ssl_certs',        // (int)    Flag for determining if this host must skip SSL Certificate verification due to misconfigured SSL.
@@ -250,7 +251,7 @@ class Jetpack_Options {
 	 *
 	 * @var array
 	 */
-	private static $external_storage_allowlist = array( 'blog_token', 'id', 'master_user', 'user_tokens' );
+	private static $external_storage_allowlist = array( 'blog_token', 'id', 'master_user', 'protected_owner', 'user_tokens' );
 
 	/**
 	 * Determines if external storage should be used for a given option.
@@ -604,6 +605,7 @@ class Jetpack_Options {
 			$unsafe_options = array(
 				'id',                           // (int)    The Client ID/WP.com Blog ID of this site.
 				'master_user',                  // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
+				'protected_owner',              // (array)  Anchor identifying the locked connection owner. Resetting it would unlock ownership while the connection survives.
 				'version',                      // (string) Used during upgrade procedure to auto-activate new modules. version:time
 
 				// non_compact.

@@ -4,50 +4,6 @@
 	gap: var(--wpds-dimension-gap-lg);
 }
 
-.header {
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	align-items: flex-start;
-	gap: var(--wpds-dimension-gap-md);
-}
-
-.heading {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs);
-	min-inline-size: 0;
-}
-
-.description {
-	color: var(--wpds-color-foreground-content-neutral-weak);
-}
-
-.actions {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	gap: var(--wpds-dimension-gap-sm);
-	flex-shrink: 0;
-}
-
-.filters {
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: var(--wpds-dimension-gap-sm);
-}
-
-/*
- * The slot content (e.g. the date-filters measurement wrapper) spans the full
- * row so DateFiltersPanel can measure its real container width; controls
- * inside it still flow inline.
- */
-.filtersContent {
-	inline-size: 100%;
-}
-
 .sections {
 	display: flex;
 	flex-direction: column;
