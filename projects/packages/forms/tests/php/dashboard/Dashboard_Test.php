@@ -42,6 +42,12 @@ class Dashboard_Test extends BaseTestCase {
 	public function tear_down() {
 		$this->reset_wp_build_polyfills();
 		unset( $_GET['page'], $_GET['p'] );
+
+		// Tests that call set_current_screen() would otherwise leave it set for whatever
+		// runs next, which decides is_admin() and is_jetpack_forms_admin_page().
+		global $current_screen;
+		$current_screen = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Test teardown.
+
 		parent::tear_down();
 	}
 
