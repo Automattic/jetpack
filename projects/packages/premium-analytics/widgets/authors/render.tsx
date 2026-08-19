@@ -4,6 +4,7 @@
 import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	LeaderboardPostLabel,
 	ReportLink,
 	WIDGET_ROW_LIMIT,
@@ -194,6 +195,7 @@ export function AuthorsLeaderboard( {
 						  )
 						: __( 'No author views in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<LeaderboardChart
 					data={ chartData }

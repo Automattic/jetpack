@@ -11,6 +11,7 @@ import { reports } from '@jetpack-premium-analytics/icons';
 import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	PostTitleLink,
 	ReportLink,
 	RowsCsvDownloadButton,
@@ -322,6 +323,7 @@ function TopPostsReport() {
 						icon: reports,
 						description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<TopPostsLeaderboard
 						rows={ rows }
@@ -533,6 +535,7 @@ function ArchivesReport() {
 					icon: reports,
 					description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<TopPostsLeaderboard
 					rows={ activeRows }

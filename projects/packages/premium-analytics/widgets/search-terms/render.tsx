@@ -7,6 +7,7 @@ import {
 	describeError,
 	getCombinedPeriodMax,
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
 	WidgetFooter,
 	WidgetRoot,
@@ -93,6 +94,7 @@ function SearchTermsInner() {
 						icon: search,
 						description: __( 'No search terms in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
 						data={ leaderboardData }

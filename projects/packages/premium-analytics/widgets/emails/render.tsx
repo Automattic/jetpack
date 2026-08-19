@@ -4,6 +4,7 @@
 import { useStatsEmailSummary, type StatsEmailSummary } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	LeaderboardPostLabel,
 	ReportLink,
 	WIDGET_ROW_LIMIT,
@@ -204,6 +205,7 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<EmailsLeaderboard rows={ rows } metric={ metric } />
 				</WidgetState>

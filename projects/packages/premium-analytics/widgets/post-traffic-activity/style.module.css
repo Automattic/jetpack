@@ -1,6 +1,6 @@
 /* The non-compact heatmap grid fills its container (1fr tracks), so the
  * height chain must stay bounded from the widget frame's viewport down:
- * root → WidgetState's block-level `.ready` (block-size 100%) → content. */
+ * this `.root` → WidgetState's own `.root` (block-size 100%) → `.content`. */
 .root {
 	display: flex;
 	flex-direction: column;
@@ -19,7 +19,7 @@
 	outline-offset: calc(-1 * var(--wpds-border-width-focus));
 }
 
-/* Remaining tile height for WidgetState's block-level ready wrapper. */
+/* Remaining tile height for WidgetState's block-level root wrapper. */
 .body {
 	flex: 1 1 0;
 	min-height: 0;

@@ -148,10 +148,6 @@ type EmailBreakdownLeaderboardProps = {
 	 * When `true` and there are no rows yet, the loading state is shown.
 	 */
 	isLoading?: boolean;
-	/**
-	 * When `true`, a non-blocking busy overlay is shown over existing rows during
-	 * a background refetch.
-	 */
 	isFetching?: boolean;
 	/**
 	 * When `true`, the error state is rendered in place of the chart.

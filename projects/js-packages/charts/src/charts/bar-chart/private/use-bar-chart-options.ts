@@ -1,6 +1,7 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
+import { useDeepMemo } from '../../../hooks';
 import { getBandTickValues, getBucketResolution, getFormatter } from '../../private/time-axis';
 import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
 import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
@@ -13,6 +14,9 @@ export const BASE_BAND_PADDING = 0.2;
 export const BASE_BAND_PADDING_INNER = 0.1;
 /** Ticks each axis carries unless the caller asks for a different count. */
 const DEFAULT_NUM_TICKS = 4;
+
+// A stable reference for callers that hide no series, so the memos below hold.
+const ALL_RENDERED = () => true;
 
 // The axis abbreviates to fit a tick; a tooltip has room to spell the same
 // bucket out in full.
@@ -59,28 +63,65 @@ const getTooltipFormatter = ( data: SeriesData[], tickResolution?: TickResolutio
 	return ( timestamp: number ) => new Date( timestamp ).toLocaleString( undefined, format );
 };
 
-/**
- * The band scale's domain, as the dates the axis can put a tick on. Series are
- * individually sorted already, so a merge on the timestamp restores axis order
- * across all of them.
- *
- * @param data - Date-based series.
- * @return Distinct dates, earliest first.
- */
-const getBandDomain = ( data: SeriesData[] ): Date[] => {
-	const byTimestamp = new Map< number, Date >();
-	data.forEach( series =>
-		series.data.forEach( point => {
-			const { date } = point as DataPointDate;
-			if ( date && ! byTimestamp.has( date.getTime() ) ) {
-				byTimestamp.set( date.getTime(), date );
-			}
-		} )
-	);
+const identity = ( label: string ) => label;
 
-	return [ ...byTimestamp.keys() ]
-		.sort( ( a, b ) => a - b )
-		.map( timestamp => byTimestamp.get( timestamp ) );
+// `hasLabels` only samples the first point of the first series, so a labelled
+// bucket can still reach a formatter that was chosen for timestamps. It arrives
+// as its own string; only a dated bucket has a timestamp to format.
+const byBucket =
+	( format: ( timestamp: number ) => string ) => ( bucket: Date | string | number ) =>
+		typeof bucket === 'string' ? bucket : format( Number( bucket ) );
+
+// Shared with the domain below so both read a bucket the same way.
+const bucketAccessor = ( d: DataPointDate ) => d?.label || d?.date;
+
+/**
+ * The buckets the band axis can put a tick on.
+ *
+ * Built from the accessor visx is given, over the same series in the same order,
+ * so that a tick value is a key the scale actually holds; `scaleBand` returns
+ * `undefined` for one it does not, which parks the tick at the origin. Null
+ * rather than a partial list when any bucket is labelled instead of dated.
+ *
+ * @param data             - Every series handed to the chart.
+ * @param isSeriesRendered - Whether visx mounts a series, i.e. the legend shows it.
+ * @return Bucket dates in axis order, or null if the axis cannot be ticked by date.
+ */
+const getBandDomain = (
+	data: SeriesData[],
+	isSeriesRendered: ( series: SeriesData ) => boolean
+): Date[] | null => {
+	// visx keys its data registry on the series label and reads it back with
+	// `Object.keys`, so a plain object reproduces both of the things that follow
+	// from that: two series sharing a label collapse to the later one, and an
+	// integer-like label sorts ahead of the rest whatever order it arrived in.
+	const registry: Record< string, SeriesData > = {};
+
+	for ( const series of data ) {
+		// Comparison series register nothing with visx — `comparison-bars.tsx` draws
+		// onto the scales the primary series established — and a hidden series is
+		// unmounted, so neither contributes a key to the band scale.
+		if ( series.options?.type === 'comparison' || ! isSeriesRendered( series ) ) {
+			continue;
+		}
+		registry[ series.label ] = series;
+	}
+
+	const byTimestamp = new Map< number, Date >();
+
+	for ( const key of Object.keys( registry ) ) {
+		for ( const point of registry[ key ].data ) {
+			const bucket = bucketAccessor( point as DataPointDate );
+			if ( ! ( bucket instanceof Date ) ) {
+				return null;
+			}
+			if ( ! byTimestamp.has( bucket.getTime() ) ) {
+				byTimestamp.set( bucket.getTime(), bucket );
+			}
+		}
+	}
+
+	return byTimestamp.size ? [ ...byTimestamp.values() ] : null;
 };
 
 /**
@@ -96,16 +137,22 @@ const getGroupPadding = ( scale: Record< string, unknown > ): number => {
 /**
  * Returns the merged options for the bar chart, including axis and scale configuration based on the orientation.
  *
- * @param data       - The data to be displayed in the chart.
- * @param horizontal - Whether the chart is horizontal or vertical.
- * @param options    - The options for the chart.
+ * @param data             - The data to be displayed in the chart.
+ * @param horizontal       - Whether the chart is horizontal or vertical.
+ * @param options          - The options for the chart.
+ * @param isSeriesRendered - Whether visx mounts a series, i.e. the legend shows it.
  * @return The merged options for the chart.
  */
 export function useBarChartOptions(
 	data: SeriesData[],
 	horizontal: boolean,
-	options: BaseChartProps[ 'options' ] = {}
+	options: BaseChartProps[ 'options' ] = {},
+	isSeriesRendered: ( series: SeriesData ) => boolean = ALL_RENDERED
 ) {
+	// Callers reasonably pass an object literal, which is a fresh reference every
+	// render and would defeat every memo below.
+	const stableOptions = useDeepMemo( options );
+
 	// `labelOverflow` and `tickResolution` are consumed by this hook rather than
 	// forwarded — visx has an axis prop for neither — so they are split off the
 	// caller's axis options once, here, and only the rest reaches visx below.
@@ -114,12 +161,12 @@ export function useBarChartOptions(
 			labelOverflow: xLabelOverflow,
 			tickResolution: xTickResolution,
 			...xAxisOptions
-		} = options.axis?.x || {};
+		} = stableOptions.axis?.x || {};
 		const {
 			labelOverflow: yLabelOverflow,
 			tickResolution: yTickResolution,
 			...yAxisOptions
-		} = options.axis?.y || {};
+		} = stableOptions.axis?.y || {};
 
 		return {
 			xLabelOverflow,
@@ -130,7 +177,7 @@ export function useBarChartOptions(
 			// chart is horizontal, so the hint follows them.
 			tickResolution: horizontal ? yTickResolution : xTickResolution,
 		};
-	}, [ options, horizontal ] );
+	}, [ stableOptions, horizontal ] );
 	const { tickResolution } = axisConfig;
 
 	const defaultOptions = useMemo( () => {
@@ -150,13 +197,14 @@ export function useBarChartOptions(
 		// size; the tooltip stays at the bucket's own granularity.
 		const hasLabels = Boolean( data?.[ 0 ]?.data?.[ 0 ]?.label );
 		const timeTickFormatter = hasLabels ? null : getFormatter( data, tickResolution );
-		const labelFormatter = timeTickFormatter ?? ( ( label: string ) => label );
+		const labelFormatter = timeTickFormatter ? byBucket( timeTickFormatter ) : identity;
 		const tooltipDatumFormatter = hasLabels
 			? labelFormatter
-			: getTooltipFormatter( data, tickResolution );
+			: byBucket( getTooltipFormatter( data, tickResolution ) );
 		const valueFormatter = formatNumberCompact as TickFormatter< unknown >;
 
-		const labelAccessor = ( d: DataPointDate ) => d?.label || d?.date;
+		const bandDomain = timeTickFormatter ? getBandDomain( data, isSeriesRendered ) : null;
+
 		const valueAccessor = ( d: DataPointDate | EnhancedDataPoint ) => {
 			// Use visualValue for bar rendering if available (for zero values), otherwise use value
 			const enhancedPoint = d as EnhancedDataPoint;
@@ -164,15 +212,16 @@ export function useBarChartOptions(
 		};
 
 		return {
-			timeAxis: timeTickFormatter && {
-				domain: getBandDomain( data ),
-				tickFormatter: timeTickFormatter,
-			},
+			timeAxis: bandDomain &&
+				timeTickFormatter && {
+					domain: bandDomain,
+					tickFormatter: timeTickFormatter,
+				},
 			vertical: {
 				xTickFormat: labelFormatter,
 				yTickFormat: valueFormatter,
 				tooltipLabelFormatter: tooltipDatumFormatter,
-				xAccessor: labelAccessor,
+				xAccessor: bucketAccessor,
 				yAccessor: valueAccessor,
 				gridVisibility: 'x',
 				xScale: bandScale,
@@ -183,13 +232,13 @@ export function useBarChartOptions(
 				yTickFormat: labelFormatter,
 				tooltipLabelFormatter: tooltipDatumFormatter,
 				xAccessor: valueAccessor,
-				yAccessor: labelAccessor,
+				yAccessor: bucketAccessor,
 				gridVisibility: 'y',
 				xScale: linearScale,
 				yScale: bandScale,
 			},
 		};
-	}, [ data, tickResolution ] );
+	}, [ data, tickResolution, isSeriesRendered ] );
 
 	return useMemo( () => {
 		const orientationKey = horizontal ? 'horizontal' : 'vertical';
@@ -211,7 +260,7 @@ export function useBarChartOptions(
 		const hasComparisonSeries = data.some( s => s.options?.type === 'comparison' );
 		if ( hasComparisonSeries ) {
 			const valueAxisIsY = ! horizontal;
-			const userDomain = valueAxisIsY ? options.yScale?.domain : options.xScale?.domain;
+			const userDomain = valueAxisIsY ? stableOptions.yScale?.domain : stableOptions.xScale?.domain;
 			if ( ! userDomain ) {
 				const allValues: number[] = [];
 				data.forEach( series => {
@@ -237,12 +286,12 @@ export function useBarChartOptions(
 
 		const xScale = {
 			...baseXScale,
-			...( options.xScale || {} ),
+			...( stableOptions.xScale || {} ),
 			...( horizontal ? valueScaleDomainOverride : {} ),
 		};
 		const yScale = {
 			...baseYScale,
-			...( options.yScale || {} ),
+			...( stableOptions.yScale || {} ),
 			...( ! horizontal ? valueScaleDomainOverride : {} ),
 		};
 		const { xLabelOverflow, yLabelOverflow, xAxisOptions, yAxisOptions } = axisConfig;
@@ -299,5 +348,5 @@ export function useBarChartOptions(
 				labelFormatter: providedToolTipLabelFormatter || defaultTooltipLabelFormatter,
 			},
 		};
-	}, [ defaultOptions, axisConfig, options, horizontal, data ] );
+	}, [ defaultOptions, axisConfig, stableOptions, horizontal, data ] );
 }

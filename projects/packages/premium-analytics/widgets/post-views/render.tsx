@@ -5,6 +5,7 @@ import { toPostId } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -68,9 +69,7 @@ function PostViewsInner( { granularity, chartType }: PostViewsInnerProps ) {
 		<div className={ styles.root }>
 			<WidgetState
 				isLoading={ isLoading && ! hasData }
-				// `isFetching` is deliberately not passed: the chart renders its
-				// own scoped overlay below, so WidgetState's full-widget one
-				// would double up and cover the metric headline.
+				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ postId <= 0 }
 				error={ {
@@ -87,12 +86,14 @@ function PostViewsInner( { granularity, chartType }: PostViewsInnerProps ) {
 						'jetpack-premium-analytics-pkg'
 					),
 				} }
+				// The chart is the whole content here, so its block replaces the
+				// generic stacked lines.
+				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
-					loading={ isFetching }
 				/>
 			</WidgetState>
 		</div>

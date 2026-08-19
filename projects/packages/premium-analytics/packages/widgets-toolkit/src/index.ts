@@ -4,6 +4,8 @@
 export {
 	MetricDelta,
 	MetricTileGrid,
+	MetricTileGridSkeleton,
+	type MetricTileGridSkeletonProps,
 	MetricValue,
 	MetricWithComparison,
 	PeakDistribution,
@@ -17,6 +19,7 @@ export {
 	Legend,
 	ReportMetricWidget,
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	type MetricTab,
 	type MetricTabDatum,
 	type MetricTabsChartProps,
@@ -29,6 +32,8 @@ export {
 	type LegendItem,
 	type SeriesStyle,
 	LeaderboardChart,
+	LeaderboardSkeleton,
+	type LeaderboardSkeletonProps,
 	type LeaderboardChartProps,
 	type LeaderboardChartData,
 	type LegendLabels,
@@ -120,6 +125,9 @@ export {
 	flattenEarningsBreakdown,
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
+	GenericSkeleton,
+	SkeletonRoot,
+	type SkeletonRootProps,
 } from './components';
 
 /**

@@ -4,6 +4,7 @@
 import { useStatsCommentsRows } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetFooter,
@@ -83,6 +84,7 @@ function MostCommentedAuthorsInner() {
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
 						data={ leaderboardData }

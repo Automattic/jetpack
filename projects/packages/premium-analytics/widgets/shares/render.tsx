@@ -3,6 +3,7 @@
  */
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	WIDGET_ROW_LIMIT,
 	WidgetRoot,
 	WidgetState,
@@ -73,6 +74,7 @@ function SharesInner() {
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
 						data={ leaderboardData }

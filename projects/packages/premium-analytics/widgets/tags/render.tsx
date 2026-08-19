@@ -3,6 +3,7 @@
  */
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
@@ -180,6 +181,11 @@ function TagsInner() {
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
+					// The drilled-in view is a plain link list, not a leaderboard, so it
+					// keeps the default shape.
+					renderLoading={
+						selectedGroup ? undefined : <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } />
+					}
 				>
 					{ selectedGroup ? (
 						<TagGroupMembers members={ selectedGroup.children } />
