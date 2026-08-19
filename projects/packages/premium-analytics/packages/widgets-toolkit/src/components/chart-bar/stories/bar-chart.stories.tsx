@@ -354,9 +354,10 @@ type SkeletonStory = StoryObj< typeof BarChartSkeleton >;
 
 /**
  * The loading shape widgets pass through `WidgetState`'s `renderLoading`: a
- * bottom-aligned row of columns. The count is fixed at the prototype's twelve —
- * the loaded chart's bar count comes from the response, so a data-derived count
- * would land as the jump the placeholder is there to prevent.
+ * bottom-aligned row of columns, here at the default four. Widgets that know
+ * their bar count up front pass it through `columns`; the rest keep the default
+ * rather than deriving one from a response that has not arrived, which would
+ * land as the jump the placeholder is there to prevent.
  */
 export const Skeleton: SkeletonStory = {
 	render: () => (
