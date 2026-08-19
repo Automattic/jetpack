@@ -168,11 +168,12 @@ type EmailsReportProps = {
  */
 function EmailsReport( { attributes }: EmailsReportProps ) {
 	const metric = attributes?.metric ?? 'opens';
-	// The summary endpoint accepts 1–30 rows and resets anything outside that
-	// range to 10.
-	const quantity = Math.min( WIDGET_ROW_LIMIT, 30 );
 
-	const { data, isLoading, isFetching, isError, refetch } = useStatsEmailSummary( { quantity } );
+	// The summary endpoint accepts 1–30 rows and silently resets anything outside
+	// that range to 10, so the shared limit has to stay inside it.
+	const { data, isLoading, isFetching, isError, refetch } = useStatsEmailSummary( {
+		quantity: WIDGET_ROW_LIMIT,
+	} );
 
 	const rows = useMemo( () => toEmailRows( data, WIDGET_ROW_LIMIT ), [ data ] );
 
