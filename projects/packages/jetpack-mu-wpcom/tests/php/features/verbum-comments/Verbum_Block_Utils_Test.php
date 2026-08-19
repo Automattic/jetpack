@@ -25,7 +25,7 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		// `wp_render_layout_support_flag()` (since WP 7.2) calls `wp_get_global_settings()`,
+		// `wp_render_layout_support_flag()` (since WP 7.1) calls `wp_get_global_settings()`,
 		// which winds up in our `wpcom_block_global_styles_frontend()` which tries to call wpcom-only
 		// functions (wpcom_site_has_feature et al.) that aren't defined in the test env,
 		// Detach the incidental filter so that doesn't break.
