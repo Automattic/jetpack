@@ -88,6 +88,22 @@ class Jetpack_Forms {
 	}
 
 	/**
+	 * Returns true if the feedback dashboard is enabled.
+	 *
+	 * The `jetpack_forms_dashboard_enable` filter behind this was retired: there is one
+	 * dashboard and it is always enabled. Kept so existing callers keep working.
+	 *
+	 * @deprecated $$next-version$$ The dashboard is always enabled.
+	 *
+	 * @return boolean Always true.
+	 */
+	public static function is_feedback_dashboard_enabled() {
+		_deprecated_function( __METHOD__, 'jetpack-forms-$$next-version$$' );
+
+		return true;
+	}
+
+	/**
 	 * Returns true if the legacy menu item is retired.
 	 *
 	 * @return boolean
