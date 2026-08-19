@@ -18,6 +18,7 @@ import { Button, Card, Fieldset, Link, Notice, Text } from '@wordpress/ui';
  * Internal dependencies
  */
 import { fetchCategories } from '../api';
+import { Toggle } from '../components/toggle';
 import {
 	CreatableCategoriesControl,
 	CreatableCategoryContext,
@@ -121,7 +122,7 @@ export function NewsletterCategoriesSection( {
 			id: 'wpcom_newsletter_categories_enabled',
 			label: __( 'Enable newsletter categories', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit: Toggle,
 		},
 		{
 			id: 'wpcom_newsletter_categories',

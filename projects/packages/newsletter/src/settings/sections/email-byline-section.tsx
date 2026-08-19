@@ -9,7 +9,7 @@ import { Card, Text } from '@wordpress/ui';
  * Internal dependencies
  */
 import { BylinePreview } from '../components/byline-preview';
-import { ToggleWithLink } from '../components/toggle-with-link';
+import { Toggle } from '../components/toggle';
 import { getNewsletterScriptData } from '../script-data';
 import type { NewsletterSettings } from '../types';
 
@@ -40,7 +40,7 @@ export function EmailBylineSection( {
 			type: 'boolean' as const,
 			Edit: newsletterScriptData?.email
 				? ( { data: fieldData, field, onChange: fieldOnChange } ) => (
-						<ToggleWithLink
+						<Toggle
 							data={ fieldData }
 							field={ field }
 							onChange={ fieldOnChange }
@@ -48,7 +48,7 @@ export function EmailBylineSection( {
 							linkText={ __( 'Update your Gravatar', 'jetpack-newsletter' ) }
 						/>
 				  )
-				: ( 'toggle' as const ),
+				: Toggle,
 			description: __(
 				'We use Gravatar, a service that associates an avatar image with your primary email address.',
 				'jetpack-newsletter'
@@ -58,14 +58,14 @@ export function EmailBylineSection( {
 			id: 'jetpack_author_in_email',
 			label: __( 'Show author display name', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit: Toggle,
 		},
 		{
 			id: 'jetpack_post_date_in_email',
 			label: __( 'Add the post date', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: ( { data: fieldData, field, onChange: fieldOnChange } ) => (
-				<ToggleWithLink
+				<Toggle
 					data={ fieldData }
 					field={ field }
 					onChange={ fieldOnChange }

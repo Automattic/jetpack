@@ -11,30 +11,34 @@ import { Link } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 import type { NewsletterSettings } from '../types';
 
-interface ToggleWithLinkProps {
+interface ToggleProps {
 	data: NewsletterSettings;
 	field: NormalizedField< NewsletterSettings >;
 	onChange: ( value: DeepPartial< NewsletterSettings > ) => void;
-	url: string;
-	linkText: string;
+	url?: string;
+	linkText?: string;
 	isExternal?: boolean;
 	onLinkClick?: () => void;
 }
 
 /**
- * Generic toggle control with a link in the label
+ * `Edit` control for DataForm boolean fields, optionally with a link in the
+ * label. Renders the public `ToggleControl` in place of the bundled
+ * `Edit: 'toggle'` shorthand, which resolves `ValidatedToggleControl` through
+ * `@wordpress/components` private APIs and breaks once Gutenberg stops
+ * exposing it there (see https://github.com/WordPress/gutenberg/pull/81492).
  *
  * @param {object}   props             - Component props
  * @param {object}   props.data        - The data object
  * @param {object}   props.field       - The field definition
  * @param {Function} props.onChange    - Change handler
- * @param {string}   props.url         - URL for the link
- * @param {string}   props.linkText    - Text for the link
+ * @param {string}   props.url         - URL for the link. Omit for a plain toggle.
+ * @param {string}   props.linkText    - Text for the link. Omit for a plain toggle.
  * @param {boolean}  props.isExternal  - Whether the link is external (default: true)
  * @param {Function} props.onLinkClick - Optional callback when link is clicked
- * @return {JSX.Element} The toggle control with link
+ * @return {JSX.Element} The toggle control, with a link in the label when `url`/`linkText` are set.
  */
-export function ToggleWithLink( {
+export function Toggle( {
 	data,
 	field,
 	onChange,
@@ -42,7 +46,7 @@ export function ToggleWithLink( {
 	linkText,
 	isExternal = true,
 	onLinkClick,
-}: ToggleWithLinkProps ): JSX.Element {
+}: ToggleProps ): JSX.Element {
 	const handleChange = useCallback( () => {
 		onChange( {
 			[ field.id ]: ! ( data as Record< string, unknown > )[ field.id ],
@@ -55,18 +59,22 @@ export function ToggleWithLink( {
 			checked={ !! ( data as Record< string, unknown > )[ field.id ] }
 			onChange={ handleChange }
 			label={
-				<span>
-					{ field.label }{ ' ' }
-					{ isExternal ? (
-						<Link openInNewTab href={ url } onClick={ onLinkClick }>
-							{ linkText }
-						</Link>
-					) : (
-						<a href={ url } onClick={ onLinkClick }>
-							{ linkText }
-						</a>
-					) }
-				</span>
+				url && linkText ? (
+					<span>
+						{ field.label }{ ' ' }
+						{ isExternal ? (
+							<Link openInNewTab href={ url } onClick={ onLinkClick }>
+								{ linkText }
+							</Link>
+						) : (
+							<Link href={ url } onClick={ onLinkClick }>
+								{ linkText }
+							</Link>
+						) }
+					</span>
+				) : (
+					field.label
+				)
 			}
 			help={ field.description }
 		/>
@@ -121,7 +129,7 @@ export function ToggleWithEditorLink( {
 	}, [ siteType, templateId ] );
 
 	return (
-		<ToggleWithLink
+		<Toggle
 			data={ data }
 			field={ field }
 			onChange={ onChange }
