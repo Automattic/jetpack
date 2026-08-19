@@ -749,7 +749,8 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 		global $wp_settings_fields, $wp_registered_settings;
 
 		$this->use_experiment_and_allow();
-		$wp_settings_fields = array();
+		// Seed the group rather than an empty array, so the shape is unambiguous.
+		$wp_settings_fields = array( 'writing' => array( 'default' => array() ) );
 
 		RTC::register_rtc_setting();
 
