@@ -9,21 +9,7 @@ import DashboardLayout from '../components/dashboard-layout';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { useDownload } from '../hooks/use-download';
 import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
-
-/**
- * Derive an ISO timestamp for the download-point label from the WPCOM
- * rewind id (unix seconds, possibly suffixed with a decimal).
- *
- * @param rewindId - The rewind id from the URL.
- * @return ISO timestamp or null when the id isn't numeric.
- */
-function rewindIdToIso( rewindId: string ): string | null {
-	const seconds = Number.parseInt( rewindId, 10 );
-	if ( ! Number.isFinite( seconds ) || seconds <= 0 ) {
-		return null;
-	}
-	return new Date( seconds * 1000 ).toISOString();
-}
+import { isValidRewindId, rewindIdToIso } from '../types/rewind-id';
 
 // Stable so the submit button can point at the hint with
 // `aria-describedby`. A module constant rather than `useInstanceId`
@@ -40,13 +26,46 @@ const SELECTION_HINT_ID = 'jpb-download__selection-hint';
  */
 export default function DownloadScreen() {
 	const { rewindId } = useParams( { from: '/download/$rewindId' } );
-	const downloadPoint = rewindIdToIso( rewindId );
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
 	const { state, submit, reset } = useDownload( rewindId );
 	const handleGenerate = useCallback( () => submit( items ), [ submit, items ] );
 	// An empty checklist would ask WPCOM for the *whole* archive, not for
 	// nothing — see `hasSelectedItems`.
 	const hasSelection = hasSelectedItems( items );
+
+	// A malformed id can only produce a failed download, so there is
+	// nothing here for the reader to do but go back. Before this, the id
+	// changed only whether the download-point line appeared: the button
+	// stayed live, and an id like `123abc` parsed to `123` and put a
+	// January 1970 download point above it. Only the shape is checked —
+	// whether the backup exists is upstream's answer.
+	if ( ! isValidRewindId( rewindId ) ) {
+		return (
+			<DashboardLayout>
+				<div className="jpb-download">
+					<Link to="/" className="jpb-download__back">
+						<Icon icon={ arrowLeft } size={ 18 } />
+						{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
+					</Link>
+					<Card.Root className="jpb-download__card">
+						<Stack direction="column" gap="xs">
+							<Text variant="heading-md" render={ <h3 /> }>
+								{ __( "This download link isn't valid.", 'jetpack-backup-pkg' ) }
+							</Text>
+							<Text variant="body-sm" className="jpb-text-muted">
+								{ __(
+									'The address is missing a valid restore point. Go back to the overview and choose a backup to download.',
+									'jetpack-backup-pkg'
+								) }
+							</Text>
+						</Stack>
+					</Card.Root>
+				</div>
+			</DashboardLayout>
+		);
+	}
+
+	const downloadPoint = rewindIdToIso( rewindId );
 
 	return (
 		<DashboardLayout>
@@ -62,12 +81,10 @@ export default function DownloadScreen() {
 							<Text variant="heading-md" render={ <h3 /> }>
 								{ __( 'Download backup', 'jetpack-backup-pkg' ) }
 							</Text>
-							{ downloadPoint && (
-								<Text variant="body-sm" className="jpb-text-muted">
-									{ __( 'Download point:', 'jetpack-backup-pkg' ) }{ ' ' }
-									{ dateI18n( 'M j, Y, g:i A', downloadPoint, undefined ) }
-								</Text>
-							) }
+							<Text variant="body-sm" className="jpb-text-muted">
+								{ __( 'Download point:', 'jetpack-backup-pkg' ) }{ ' ' }
+								{ dateI18n( 'M j, Y, g:i A', downloadPoint, undefined ) }
+							</Text>
 						</Stack>
 					</Stack>
 					{ ( state.phase === 'idle' || state.phase === 'submitting' ) && (

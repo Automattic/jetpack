@@ -9,23 +9,7 @@ import DashboardLayout from '../components/dashboard-layout';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { useRestore } from '../hooks/use-restore';
 import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
-
-/**
- * Derive an ISO timestamp for the restore-point label from the WPCOM
- * rewind id. WPCOM rewind ids are unix-seconds (with an optional decimal
- * suffix), so we don't need to look the activity row up in cache just
- * to render "Restore point: …".
- *
- * @param rewindId - The rewind id from the URL.
- * @return ISO timestamp or null when the id isn't numeric.
- */
-function rewindIdToIso( rewindId: string ): string | null {
-	const seconds = Number.parseInt( rewindId, 10 );
-	if ( ! Number.isFinite( seconds ) || seconds <= 0 ) {
-		return null;
-	}
-	return new Date( seconds * 1000 ).toISOString();
-}
+import { isValidRewindId, rewindIdToIso } from '../types/rewind-id';
 
 // Stable so the submit button can point at the hint with
 // `aria-describedby`. A module constant rather than `useInstanceId`
@@ -41,13 +25,46 @@ const SELECTION_HINT_ID = 'jpb-restore__selection-hint';
  */
 export default function RestoreScreen() {
 	const { rewindId } = useParams( { from: '/restore/$rewindId' } );
-	const restorePoint = rewindIdToIso( rewindId );
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
 	const { state, submit, reset } = useRestore( rewindId );
 	const handleConfirm = useCallback( () => submit( items ), [ submit, items ] );
 	// An empty checklist would restore *everything* rather than nothing —
 	// see `hasSelectedItems`. On this screen that is unrecoverable.
 	const hasSelection = hasSelectedItems( items );
+
+	// A malformed id can only produce a failed restore, so there is
+	// nothing here for the reader to do but go back. Before this, the id
+	// changed only whether the restore-point line appeared: the Confirm
+	// button stayed live, and an id like `123abc` parsed to `123` and put
+	// a January 1970 restore point above it. Only the shape is checked —
+	// whether the backup exists is upstream's answer.
+	if ( ! isValidRewindId( rewindId ) ) {
+		return (
+			<DashboardLayout>
+				<div className="jpb-restore">
+					<Link to="/" className="jpb-restore__back">
+						<Icon icon={ arrowLeft } size={ 18 } />
+						{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
+					</Link>
+					<Card.Root className="jpb-restore__card">
+						<Stack direction="column" gap="xs">
+							<Text variant="heading-md" render={ <h3 /> }>
+								{ __( "This restore link isn't valid.", 'jetpack-backup-pkg' ) }
+							</Text>
+							<Text variant="body-sm" className="jpb-text-muted">
+								{ __(
+									'The address is missing a valid restore point. Go back to the overview and choose a backup to restore.',
+									'jetpack-backup-pkg'
+								) }
+							</Text>
+						</Stack>
+					</Card.Root>
+				</div>
+			</DashboardLayout>
+		);
+	}
+
+	const restorePoint = rewindIdToIso( rewindId );
 
 	return (
 		<DashboardLayout>
@@ -63,12 +80,10 @@ export default function RestoreScreen() {
 							<Text variant="heading-md" render={ <h3 /> }>
 								{ __( 'Restore backup', 'jetpack-backup-pkg' ) }
 							</Text>
-							{ restorePoint && (
-								<Text variant="body-sm" className="jpb-text-muted">
-									{ __( 'Restore point:', 'jetpack-backup-pkg' ) }{ ' ' }
-									{ dateI18n( 'M j, Y, g:i A', restorePoint, undefined ) }
-								</Text>
-							) }
+							<Text variant="body-sm" className="jpb-text-muted">
+								{ __( 'Restore point:', 'jetpack-backup-pkg' ) }{ ' ' }
+								{ dateI18n( 'M j, Y, g:i A', restorePoint, undefined ) }
+							</Text>
 						</Stack>
 					</Stack>
 					{ ( state.phase === 'idle' || state.phase === 'submitting' ) && (
