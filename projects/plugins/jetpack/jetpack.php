@@ -54,7 +54,6 @@ defined( 'JETPACK__API_VERSION' ) || define( 'JETPACK__API_VERSION', 1 );
 defined( 'JETPACK__PLUGIN_DIR' ) || define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 defined( 'JETPACK__PLUGIN_FILE' ) || define( 'JETPACK__PLUGIN_FILE', __FILE__ );
 
-defined( 'JETPACK__RELEASE_POST_BLOG_SLUG' ) || define( 'JETPACK__RELEASE_POST_BLOG_SLUG', 'jetpackreleaseblog.wordpress.com' );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) || define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 
 /**
