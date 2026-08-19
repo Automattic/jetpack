@@ -40,6 +40,21 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	private $tmp_dir = null;
 
 	/**
+	 * WP.com blog ID seeded for tests, so the rollout gate has something to
+	 * bucket on. `PCG_Rollout::resolve_blog_id()` reads `jetpack_options`
+	 * off WP.com Simple and keeps an unattributable site out of the cohort.
+	 */
+	private const TEST_WPCOM_BLOG_ID = 240190614;
+
+	/**
+	 * Seed the WP.com blog ID the rollout gate resolves against.
+	 */
+	public function set_up() {
+		parent::set_up();
+		update_option( 'jetpack_options', array( 'id' => self::TEST_WPCOM_BLOG_ID ) );
+	}
+
+	/**
 	 * Clean up any temp directory and guard filter after each test.
 	 */
 	public function tear_down() {
@@ -57,6 +72,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		remove_all_filters( 'pcg_guard_updates' );
 		remove_all_filters( 'pcg_backup_root' );
 		remove_all_filters( 'pcg_rollout_percentage' );
+		delete_option( 'jetpack_options' );
 		// PCG_Rollout::init() registers itself on require_once. We tear
 		// the gate callbacks down by name (not via remove_all_filters,
 		// which would also drop any test-local pcg_guard_* filters set
@@ -1287,5 +1303,82 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 		add_filter( 'pcg_guard_activation', static fn() => false, 1 );
 		$this->assertFalse( apply_filters( 'pcg_guard_activation', true ) );
+	}
+
+	/**
+	 * Off WP.com Simple the cohort must be keyed on the WP.com blog ID from
+	 * `jetpack_options`, not the local blog ID — the latter is 1 on every
+	 * Atomic single-site install, which collapses the whole fleet into one
+	 * bucket.
+	 */
+	public function test_rollout_resolves_wpcom_blog_id_on_atomic() {
+		$this->assertSame( self::TEST_WPCOM_BLOG_ID, PCG_Rollout::resolve_blog_id() );
+		$this->assertNotSame( get_current_blog_id(), PCG_Rollout::resolve_blog_id() );
+	}
+
+	/**
+	 * An unattributable site stays out of the cohort rather than falling back
+	 * to the local blog ID (or to bucket 0, which would enroll it at any
+	 * non-zero percentage).
+	 */
+	public function test_rollout_resolves_zero_without_wpcom_blog_id() {
+		delete_option( 'jetpack_options' );
+		$this->assertSame( 0, PCG_Rollout::resolve_blog_id() );
+		$this->assertFalse( PCG_Rollout::is_enabled_for_blog( PCG_Rollout::resolve_blog_id() ) );
+	}
+
+	/**
+	 * `jetpack_options` without a usable `id` is treated the same as missing.
+	 */
+	public function test_rollout_resolves_zero_for_malformed_jetpack_options() {
+		update_option( 'jetpack_options', array( 'id' => 0 ) );
+		$this->assertSame( 0, PCG_Rollout::resolve_blog_id() );
+
+		update_option( 'jetpack_options', 'not-an-array' );
+		$this->assertSame( 0, PCG_Rollout::resolve_blog_id() );
+	}
+
+	/**
+	 * The regression this guards: bucketing on the local blog ID gives every
+	 * Atomic single-site the same bucket, so a partial rollout is all-or-nothing
+	 * across the fleet. Bucketing on distinct WP.com blog IDs must spread.
+	 */
+	public function test_rollout_partial_percentage_spreads_across_wpcom_blog_ids() {
+		add_filter( 'pcg_rollout_percentage', static fn() => 20 );
+
+		$in       = 0;
+		$blog_ids = range( 200000000, 200000199 );
+		foreach ( $blog_ids as $blog_id ) {
+			if ( PCG_Rollout::is_enabled_for_blog( $blog_id ) ) {
+				++$in;
+			}
+		}
+
+		// Roughly 20% of 200 blogs, with generous slack for crc32 clumping.
+		$this->assertGreaterThan( 0, $in );
+		$this->assertLessThan( count( $blog_ids ), $in );
+		$this->assertGreaterThan( 20, $in );
+		$this->assertLessThan( 60, $in );
+	}
+
+	/**
+	 * The gate reads the resolved WP.com blog ID, so a site whose bucket falls
+	 * under the percentage is enrolled even though its local blog ID is 1.
+	 */
+	public function test_rollout_gate_uses_resolved_wpcom_blog_id() {
+		$in_cohort = null;
+		foreach ( range( 200000000, 200000199 ) as $blog_id ) {
+			if ( PCG_Rollout::blog_bucket( $blog_id ) < 20 ) {
+				$in_cohort = $blog_id;
+				break;
+			}
+		}
+		$this->assertNotNull( $in_cohort, 'no blog ID bucketed under 20%' );
+
+		update_option( 'jetpack_options', array( 'id' => $in_cohort ) );
+		add_filter( 'pcg_rollout_percentage', static fn() => 20 );
+
+		$this->assertTrue( apply_filters( 'pcg_guard_activation', true ) );
+		$this->assertTrue( apply_filters( 'pcg_guard_updates', true ) );
 	}
 }
