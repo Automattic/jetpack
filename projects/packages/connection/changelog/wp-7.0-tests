@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Tests: build a real WP_Screen; WordPress 7.0's get_current_screen() rejects stand-ins.
-
-
