@@ -9,6 +9,7 @@
  */
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Agents_Manager\Agents_Manager;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
@@ -64,6 +65,8 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	 * Request the existing Agents Manager shell for this page.
 	 */
 	public function load_agents_manager() {
+		Agents_Manager::init();
+
 		add_filter( 'agents_manager_should_load', '__return_true' );
 		add_filter( 'agents_manager_agent_id', array( $this, 'get_agents_manager_agent_id' ) );
 	}

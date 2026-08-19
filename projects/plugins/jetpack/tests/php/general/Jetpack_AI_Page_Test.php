@@ -154,6 +154,12 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$page = new Jetpack_AI_Page();
 		$page->load_agents_manager();
 
+		$agents_manager = \Automattic\Jetpack\Agents_Manager\Agents_Manager::get_instance();
+
+		$this->assertInstanceOf( \Automattic\Jetpack\Agents_Manager\Agents_Manager::class, $agents_manager );
+		$this->assertNotFalse(
+			has_action( 'admin_enqueue_scripts', array( $agents_manager, 'enqueue_scripts' ) )
+		);
 		$this->assertTrue( apply_filters( 'agents_manager_should_load', false ) );
 		$this->assertSame( 'wp-orchestrator', apply_filters( 'agents_manager_agent_id', null ) );
 	}
