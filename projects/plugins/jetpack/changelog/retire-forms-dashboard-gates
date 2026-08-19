@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Forms: retire the jetpack_forms_alpha and jetpack_forms_dashboard_enable filters, which no longer select anything.
