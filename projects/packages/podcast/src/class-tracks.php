@@ -12,9 +12,11 @@ namespace Automattic\Jetpack\Podcast;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use Automattic\Jetpack\Podcast\Feed\Episode_Block_Tags;
+use Automattic\Jetpack\Status\Host;
 use Throwable;
 use WP_Post;
 use WP_Query;
+use WP_REST_Request;
 use WP_User;
 
 /**
@@ -45,6 +47,15 @@ class Tracks {
 	);
 
 	/**
+	 * What is driving the option write in flight. Option hooks fire
+	 * synchronously inside `update_option()`, so the value set for the
+	 * dispatching route is the one the recorder reads.
+	 *
+	 * @var string
+	 */
+	private static $surface = 'programmatic';
+
+	/**
 	 * Wire the recorder hooks.
 	 */
 	public static function init(): void {
@@ -68,6 +79,9 @@ class Tracks {
 			add_action( "add_option_{$option}", array( __CLASS__, 'record_setting_added' ), 10, 2 );
 			add_action( "update_option_{$option}", array( __CLASS__, 'record_setting_updated' ), 10, 3 );
 		}
+
+		add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'set_surface_from_route' ), 10, 3 );
+		add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'clear_surface' ) );
 	}
 
 	/**
@@ -276,7 +290,10 @@ class Tracks {
 
 				self::record_event(
 					'wpcom_podcasting_show_url_saved',
-					array( 'app' => (string) $app )
+					array(
+						'app'     => (string) $app,
+						'surface' => self::$surface,
+					)
 				);
 				return;
 			}
@@ -337,6 +354,7 @@ class Tracks {
 					'setting'      => $option,
 					'filled_count' => $filled_count,
 					'is_complete'  => count( self::SETUP_OPTIONS ) === $filled_count,
+					'surface'      => self::$surface,
 					'user_id'      => (int) get_current_user_id(),
 					'product_slug' => self::current_product_slug(),
 				)
@@ -372,6 +390,61 @@ class Tracks {
 		$value = is_scalar( $value ) ? trim( (string) $value ) : '';
 
 		return '' !== $value && '0' !== $value;
+	}
+
+	/**
+	 * Label writes made by the dashboard's own REST routes. Derived from the
+	 * route rather than set by the endpoints, so nothing outside this class
+	 * sits in a save path holding a reference to it.
+	 *
+	 * @param mixed $response Passed through untouched.
+	 * @param array $handler  Unused.
+	 * @param mixed $request  Request being dispatched.
+	 * @return mixed
+	 */
+	public static function set_surface_from_route( $response, $handler, $request ) {
+		unset( $handler );
+
+		if ( ! $request instanceof WP_REST_Request ) {
+			return $response;
+		}
+
+		$route = (string) $request->get_route();
+
+		if ( 0 === strpos( $route, '/wpcom/v2/podcast/settings' ) ) {
+			self::$surface = 'settings_rest';
+		} elseif ( 0 === strpos( $route, '/wpcom/v2/podcast-distribution/' ) ) {
+			self::$surface = 'distribution_rest';
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Reset once the route's callback is done, so a nested subrequest doesn't
+	 * leave its surface set for the rest of the request.
+	 *
+	 * @param mixed $response Passed through untouched.
+	 * @return mixed
+	 */
+	public static function clear_surface( $response ) {
+		self::$surface = 'programmatic';
+
+		return $response;
+	}
+
+	/**
+	 * Host the event came from. Plan slug is a lossy proxy — Atomic reports a
+	 * WordPress.com plan server-side and a Jetpack one client-side.
+	 */
+	private static function platform(): string {
+		$host = new Host();
+
+		if ( $host->is_wpcom_simple() ) {
+			return 'simple';
+		}
+
+		return $host->is_woa_site() ? 'atomic' : 'self_hosted';
 	}
 
 	/**
@@ -411,7 +484,7 @@ class Tracks {
 			'wpcom_podcasting_status_changed',
 			array(
 				'status'               => $status,
-				'surface'              => 'option_write',
+				'surface'              => self::$surface,
 				'previous_category_id' => $old_value,
 				'new_category_id'      => $new_value,
 				'user_id'              => (int) get_current_user_id(),
@@ -492,8 +565,9 @@ class Tracks {
 	 */
 	private static function record_event( string $event_name, array $properties, ?WP_User $user = null ) {
 		try {
-			$user                  = $user ?? wp_get_current_user();
-			$properties['blog_id'] = (int) Connection_Manager::get_site_id( true );
+			$user                   = $user ?? wp_get_current_user();
+			$properties['blog_id']  = (int) Connection_Manager::get_site_id( true );
+			$properties['platform'] = self::platform();
 
 			if ( ! function_exists( 'tracks_record_event' ) && function_exists( 'require_lib' ) ) {
 				require_lib( 'tracks/client' );
