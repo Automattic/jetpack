@@ -7,7 +7,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink, ProgressBar, Spinner, VisuallyHidden } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { sprintf, __, _x } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
 import { Card, Link, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
 import NavRow from '../components/nav-row';
@@ -98,6 +98,17 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn } ) {
 	// authoritative for the tier, so an expired purchase cannot relabel Free.
 	const planLabel = ( ! usage.isFree && planName ) || usage.planLabel;
 	const hasNumbers = usage.requestsAvailable !== null && usage.requestsLimit > 0;
+	// One translatable sentence for screen readers; the visible value/limit
+	// pair and the meter are its visual restatements.
+	const srSummary = usage.unlimited
+		? __( 'Unlimited requests', 'jetpack' )
+		: hasNumbers &&
+		  sprintf(
+				/* translators: %1$d: requests still available. %2$d: total requests in the plan. */
+				__( '%1$d of %2$d requests available', 'jetpack' ),
+				usage.requestsAvailable,
+				usage.requestsLimit
+		  );
 	// normalizeUsage floors availability at 0 and it can never exceed the
 	// limit, so the ratio needs no clamping here.
 	const showMeter = usage.unlimited || hasNumbers;
@@ -126,7 +137,17 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn } ) {
 							<Text render={ <p /> } variant="heading-sm" className="jetpack-ai-overview__eyebrow">
 								{ __( 'Available requests', 'jetpack' ) }
 							</Text>
-							<Stack direction="row" justify="space-between" align="baseline">
+							{ /* Its own paragraph, padded with spaces — clipped text glues
+						     onto the neighboring heading in some screen readers. */ }
+							{ srSummary && <VisuallyHidden as="p">{ ` ${ srSummary } ` }</VisuallyHidden> }
+							<Stack
+								direction="row"
+								justify="space-between"
+								align="baseline"
+								// With a hidden summary sentence in place, the loose value
+								// and limit nodes would only be read as fragments.
+								aria-hidden={ srSummary ? 'true' : undefined }
+							>
 								{ usage.unlimited ? (
 									<Text
 										render={ <p /> }
@@ -144,11 +165,6 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn } ) {
 										>
 											{ hasNumbers ? usage.requestsAvailable : '—' }
 										</Text>
-										{ hasNumbers && (
-											<VisuallyHidden>
-												{ _x( 'of', 'requests remaining: "8 of 20"', 'jetpack' ) }
-											</VisuallyHidden>
-										) }
 										{ hasNumbers && (
 											<Text
 												render={ <p /> }

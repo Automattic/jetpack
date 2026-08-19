@@ -24,11 +24,16 @@ const ENDPOINT = '/wpcom/v2/jetpack-ai/ai-assistant-feature';
  * @return {string} The same instant with an explicit UTC offset.
  */
 export function anchorDateToUtc( value ) {
-	if ( /[Zz]$|[+-]\d\d:?\d\d$/.test( value ) ) {
+	// Only the two shapes the endpoint is known to send are anchored; anything
+	// else passes through untouched rather than risk assembling a bad string.
+	if (
+		typeof value !== 'string' ||
+		! /^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}:\d{2})?$/.test( value )
+	) {
 		return value;
 	}
-	const withTime = value.includes( ':' ) ? value.replace( ' ', 'T' ) : `${ value }T00:00:00`;
-	return `${ withTime }+00:00`;
+	const [ date, time = '00:00:00' ] = value.split( /[ T]/ );
+	return `${ date }T${ time }+00:00`;
 }
 
 /**

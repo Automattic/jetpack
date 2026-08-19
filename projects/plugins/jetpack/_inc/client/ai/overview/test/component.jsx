@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { getSettings as getDateSettings, setSettings as setDateSettings } from '@wordpress/date';
 import AiOverview from '../index';
 import { freePayload, tieredPayload, unlimitedPayload } from './fixtures';
 
@@ -43,13 +44,13 @@ describe( 'AiOverview', () => {
 
 		render( <AiOverview { ...PROPS } /> );
 
-		// The bar only restates the visible numbers, so it is hidden from
-		// assistive tech; a hidden "of" turns the numbers into "8 of 20"
-		// instead of a duplicated label plus a bare percentage.
+		// The bar and the loose value/limit nodes are decorative; one hidden,
+		// fully translatable sentence carries the counts, so nothing is read
+		// twice and no bare percentage is announced.
 		await expect( screen.findByText( '8' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
-		expect( screen.getByText( 'of' ) ).toBeInTheDocument();
+		expect( screen.getByText( '8 of 20 requests available' ) ).toBeInTheDocument();
 	} );
 
 	test( 'tiered plan: renders remaining period requests against the tier limit', async () => {
@@ -110,6 +111,38 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByText( /September 1, 2026/ ) ).not.toBeInTheDocument();
 	} );
 
+	test( 'renewal dates: hold their day under a western site timezone', async () => {
+		// @wordpress/date defaults to offset 0 in jest, which would make both
+		// assertions vacuous; pin a UTC-7 site for this test only.
+		const saved = getDateSettings();
+		setDateSettings( {
+			...saved,
+			timezone: { ...saved.timezone, offset: -7, string: '' },
+		} );
+		try {
+			// The usage-period fallback is a UTC-anchored calendar date and must
+			// name that exact day on any site.
+			apiFetch.mockResolvedValueOnce( { ...tieredPayload(), 'current-tier': { value: 1 } } );
+			const view = render( <AiOverview { ...PROPS } /> );
+			await expect(
+				screen.findByText( 'Renews on: September 1, 2026' )
+			).resolves.toBeInTheDocument();
+			view.unmount();
+
+			// The purchase date deliberately follows My Jetpack's site-timezone
+			// formatting, so a western site shows My Jetpack's (earlier) day.
+			apiFetch.mockResolvedValueOnce( unlimitedPayload() );
+			render(
+				<AiOverview { ...PROPS } planName="Business" planRenewsOn="2026-12-23T00:00:00+00:00" />
+			);
+			await expect(
+				screen.findByText( 'Renews on: December 22, 2026' )
+			).resolves.toBeInTheDocument();
+		} finally {
+			setDateSettings( saved );
+		}
+	} );
+
 	test( 'sections: headed at level two under the page title', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
@@ -141,7 +174,7 @@ describe( 'AiOverview', () => {
 		// The remote usage call must not block the static sections.
 		expect( screen.getByRole( 'link', { name: /Activity log/ } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /MCP integration guide/ } ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'progressbar', { hidden: true } ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'load failure: the usage card shows an error notice; docs and activity remain', async () => {
@@ -180,7 +213,7 @@ describe( 'AiOverview', () => {
 			'admin.php?page=my-jetpack#/connection'
 		);
 		expect( apiFetch ).not.toHaveBeenCalled();
-		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'progressbar', { hidden: true } ) ).not.toBeInTheDocument();
 		// The rest of the tab is still useful while disconnected.
 		expect( screen.getByRole( 'link', { name: /Activity log/ } ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Walkthrough videos' ) ).toBeInTheDocument();

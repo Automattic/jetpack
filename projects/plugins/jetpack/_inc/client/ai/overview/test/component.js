@@ -24,6 +24,16 @@ describe( 'anchorDateToUtc', () => {
 		expect( anchorDateToUtc( '2026-09-01T00:00:00Z' ) ).toBe( '2026-09-01T00:00:00Z' );
 		expect( anchorDateToUtc( '2026-09-01T10:00:00-04:00' ) ).toBe( '2026-09-01T10:00:00-04:00' );
 	} );
+
+	test( 'passes anything it does not positively recognize through untouched', () => {
+		// A mangled anchor would render "Invalid date"; unrecognized shapes and
+		// non-strings must come back exactly as they went in.
+		expect( anchorDateToUtc( '2026-09-01T00:00:00+00' ) ).toBe( '2026-09-01T00:00:00+00' );
+		expect( anchorDateToUtc( '2026-09-01 00:00:00 UTC' ) ).toBe( '2026-09-01 00:00:00 UTC' );
+		expect( anchorDateToUtc( 'garbage' ) ).toBe( 'garbage' );
+		expect( anchorDateToUtc( 42 ) ).toBe( 42 );
+		expect( anchorDateToUtc( null ) ).toBeNull();
+	} );
 } );
 
 describe( 'normalizeUsage', () => {
