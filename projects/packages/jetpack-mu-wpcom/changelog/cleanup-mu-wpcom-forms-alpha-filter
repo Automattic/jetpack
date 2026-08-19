@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Contact form flags: stop setting the retired jetpack_forms_alpha filter.

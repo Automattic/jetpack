@@ -2,8 +2,9 @@
 /**
  * WordPress.com Contact Form feature flags.
  *
- * Controls the Central Forms Management rollout and disables the integrations
- * tab on WordPress.com sites. Works on both Simple and Atomic infrastructure.
+ * Sets the `central-form-management` block editor feature flag, which the Forms
+ * block reads to decide whether the synced-forms UI is available. Works on both
+ * Simple and Atomic infrastructure.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -33,6 +34,10 @@ function wpcom_forms_has_blog_sticker( $sticker, $blog_id ) {
  *
  * Enabled for all WordPress.com sites, except those that opt out by sticker.
  *
+ * Scope note: this now decides the block editor feature flag only. It used to
+ * pick the Forms dashboard too, via `jetpack_forms_alpha`, but that filter was
+ * retired along with the legacy dashboard — every site gets the same one.
+ *
  * @param int|null $blog_id Blog ID. Defaults to the current WP.com blog ID.
  * @return bool
  */
@@ -48,25 +53,6 @@ function wpcom_is_central_forms_management_enabled( $blog_id = null ) {
 
 	return true;
 }
-
-/**
- * Disable Central Forms Management for excluded WordPress.com sites.
- *
- * CFM is now enabled by default in the Forms package. This function
- * explicitly disables it for sites that carry the
- * disable-central-forms-management sticker.
- *
- * Called immediately on file load since this file is required during
- * plugins_loaded (priority 10) inside load_wpcom_sites_features().
- */
-function wpcom_maybe_disable_central_forms_management() {
-	if ( wpcom_is_central_forms_management_enabled() ) {
-		return;
-	}
-
-	add_filter( 'jetpack_forms_alpha', '__return_false', 999 );
-}
-wpcom_maybe_disable_central_forms_management();
 
 /**
  * Set the 'central-form-management' block editor feature flag.
