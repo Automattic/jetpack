@@ -283,16 +283,17 @@ class Visitor_Test extends TestCase {
 		return array(
 			'IPv4'                => array( '1.2.3.4', '1.2.3.4' ),
 			'IPv6'                => array( '2001:db8::1', '2001:db8::1' ),
+			'IPv4 with a port'    => array( '1.2.3.4:8080', '1.2.3.4' ),
+			'IPv6 in brackets'    => array( '[2001:db8::1]:443', '2001:db8::1' ),
+			'IPv4 mapped to IPv6' => array( '::ffff:1.2.3.4', '1.2.3.4' ),
 			'markup'              => array( '<script>alert(1)</script>', '' ),
 			'arbitrary text'      => array( 'not-an-ip-address', '' ),
 			'octets out of range' => array( '999.999.999.999', '' ),
-			'address with a port' => array( '1.2.3.4:8080', '' ),
-			'list of addresses'   => array( '1.2.3.4, 5.6.7.8', '' ),
 		);
 	}
 
 	/**
-	 * Tests that a forwarded header is only used when it holds a single valid address.
+	 * Tests what a forwarded header resolves to.
 	 *
 	 * @param string $header_value Raw HTTP_X_FORWARDED_FOR value.
 	 * @param string $expected     Expected return value.
@@ -300,7 +301,7 @@ class Visitor_Test extends TestCase {
 	 */
 	#[DataProvider( 'forwarded_header_validation_provider' )]
 	public function test_get_ip_validates_forwarded_headers( $header_value, $expected ) {
-		$_SERVER['REMOTE_ADDR']          = '1.2.3.4';
+		$_SERVER['REMOTE_ADDR']          = '10.0.0.5';
 		$_SERVER['HTTP_X_FORWARDED_FOR'] = $header_value;
 
 		$this->assertSame( $expected, $this->visitor_obj->get_ip( true ) );
@@ -309,18 +310,24 @@ class Visitor_Test extends TestCase {
 	/**
 	 * Data provider for 'test_get_ip_validates_forwarded_headers'.
 	 *
-	 * '1.2.3.4' is REMOTE_ADDR, so it is the expected value whenever the header is rejected.
+	 * REMOTE_ADDR is the private address '10.0.0.5', as it would be behind a proxy, so a case
+	 * expecting it is one where the visitor address is lost to the proxy's.
 	 *
 	 * @return array
 	 */
 	public static function forwarded_header_validation_provider() {
 		return array(
-			'single IPv4'         => array( '5.6.7.8', '5.6.7.8' ),
-			'single IPv6'         => array( '2001:db8::1', '2001:db8::1' ),
-			'list of addresses'   => array( '5.6.7.8, 9.10.11.12', '1.2.3.4' ),
-			'markup'              => array( '<b>5.6.7.8</b>', '1.2.3.4' ),
-			'address with a port' => array( '5.6.7.8:8080', '1.2.3.4' ),
-			'arbitrary text'      => array( 'not-an-ip-address', '1.2.3.4' ),
+			'single IPv4'                  => array( '5.6.7.8', '5.6.7.8' ),
+			'single IPv6'                  => array( '2001:db8::1', '2001:db8::1' ),
+			'list, leftmost is the client' => array( '5.6.7.8, 9.10.11.12', '5.6.7.8' ),
+			'list without spaces'          => array( '5.6.7.8,9.10.11.12', '5.6.7.8' ),
+			'list with an invalid entry'   => array( 'unknown, 5.6.7.8', '5.6.7.8' ),
+			'IPv4 with a port'             => array( '5.6.7.8:41234', '5.6.7.8' ),
+			'IPv6 in brackets with a port' => array( '[2001:db8::1]:443', '2001:db8::1' ),
+			'IPv4 mapped to IPv6'          => array( '::ffff:5.6.7.8', '5.6.7.8' ),
+			'leading whitespace'           => array( ' 5.6.7.8', '5.6.7.8' ),
+			'markup'                       => array( '<b>5.6.7.8</b>', '10.0.0.5' ),
+			'arbitrary text'               => array( 'not-an-ip-address', '10.0.0.5' ),
 		);
 	}
 
@@ -329,7 +336,7 @@ class Visitor_Test extends TestCase {
 	 * the list. HTTP_CF_CONNECTING_IP is checked before HTTP_X_FORWARDED_FOR.
 	 */
 	public function test_get_ip_skips_an_invalid_header_for_a_later_valid_one() {
-		$_SERVER['REMOTE_ADDR']           = '1.2.3.4';
+		$_SERVER['REMOTE_ADDR']           = '10.0.0.5';
 		$_SERVER['HTTP_CF_CONNECTING_IP'] = 'not-an-ip-address';
 		$_SERVER['HTTP_X_FORWARDED_FOR']  = '5.6.7.8';
 

@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: changed
 
-Visitor: validate the IP address read from the request.
+Visitor: return only a valid IP address, and take the client address from a comma-separated forwarded header.

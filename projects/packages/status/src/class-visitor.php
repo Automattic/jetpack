@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Status;
 
+use Automattic\Jetpack\IP\Utils as IP_Utils;
+
 /**
  * Visitor class.
  */
@@ -15,9 +17,14 @@ class Visitor {
 	/**
 	 * Gets current user IP address.
 	 *
+	 * Only a value that parses as an IP address is returned. With `$check_all_headers`, the
+	 * forwarded headers are tried in order: a comma-separated list yields its first valid entry,
+	 * an address carrying a port or IPv6 brackets is reduced to the address, and a header with no
+	 * valid address is skipped.
+	 *
 	 * @param  bool $check_all_headers Check all headers? Default is `false`.
 	 *
-	 * @return string                  Current user IP address.
+	 * @return string Current user IP address, or an empty string if no valid address could be determined.
 	 */
 	public function get_ip( $check_all_headers = false ) {
 		if ( $check_all_headers ) {
@@ -31,9 +38,12 @@ class Visitor {
 				'HTTP_FORWARDED',
 				'HTTP_VIA',
 			) as $key ) {
-				if ( ! empty( $_SERVER[ $key ] ) ) {
-					// @todo Some of these might actually be lists of IPs (e.g. HTTP_X_FORWARDED_FOR) or something else entirely (HTTP_VIA). Those fail validation and fall through to the next header.
-					$ip = filter_var( wp_unslash( $_SERVER[ $key ] ), FILTER_VALIDATE_IP );
+				if ( empty( $_SERVER[ $key ] ) ) {
+					continue;
+				}
+				// Proxies append to the list, so the leftmost entry is the client.
+				foreach ( explode( ',', (string) wp_unslash( $_SERVER[ $key ] ) ) as $candidate ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Each entry is validated by clean_ip() below.
+					$ip = IP_Utils::clean_ip( $candidate );
 					if ( false !== $ip ) {
 						return $ip;
 					}
@@ -41,7 +51,8 @@ class Visitor {
 			}
 		}
 
-		return ! empty( $_SERVER['REMOTE_ADDR'] ) ? (string) filter_var( wp_unslash( $_SERVER['REMOTE_ADDR'] ), FILTER_VALIDATE_IP ) : '';
+		$ip = empty( $_SERVER['REMOTE_ADDR'] ) ? false : IP_Utils::clean_ip( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip() validates it.
+		return false !== $ip ? $ip : '';
 	}
 
 	/**

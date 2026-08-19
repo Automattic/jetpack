@@ -2426,15 +2426,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "9b5d503fe98b1865396194efdf29f3223f2af4c2"
+                "reference": "ed5b72f119f020a1e039de301718868c91fa90e5"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-ip": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-connection": "@dev",
-                "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
