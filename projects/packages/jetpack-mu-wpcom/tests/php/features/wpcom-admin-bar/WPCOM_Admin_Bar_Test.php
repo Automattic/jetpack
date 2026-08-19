@@ -5,13 +5,11 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-bar/wpcom-admin-bar.php';
 require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
-require_once __DIR__ . '/get-user-attribute-stub.php';
 
 /**
  * Class WPCOM_Admin_Bar_Test
@@ -109,86 +107,18 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * With no stored preference (a non-Simple, unconnected site) enrollment
-	 * resolves to false, the result is cached so the admin bar avoids a remote
-	 * lookup on every render, and a cached value short-circuits the resolution.
+	 * The Emails and Plugins sub-items point at the my.wordpress.com hosting dashboard.
 	 */
-	public function test_hosting_dashboard_enrollment_resolves_and_caches() {
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'dashboard_user',
-				'user_pass'  => 'pass',
-				'user_email' => 'dashboard@example.com',
-				'role'       => 'administrator',
-			)
-		);
-		wp_set_current_user( $user_id );
-		$cache_key = 'wpcom-hosting-dashboard-enrolled-' . $user_id;
-
-		$this->assertFalse( wpcom_admin_bar_is_hosting_dashboard_enrolled() );
-		$this->assertSame( 0, (int) get_transient( $cache_key ) );
-
-		set_transient( $cache_key, 1, HOUR_IN_SECONDS );
-		$this->assertTrue( wpcom_admin_bar_is_hosting_dashboard_enrolled() );
-	}
-
-	/**
-	 * On a Simple site the opt-in preference is read locally from the user's
-	 * calypso_preferences attribute.
-	 */
-	public function test_hosting_dashboard_enrollment_reads_simple_preference() {
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'simple_user',
-				'user_pass'  => 'pass',
-				'user_email' => 'simple@example.com',
-				'role'       => 'administrator',
-			)
-		);
-		wp_set_current_user( $user_id );
-		Constants::set_constant( 'IS_WPCOM', true );
-		$GLOBALS['_test_user_attributes']['calypso_preferences'] = array(
-			'hosting-dashboard-opt-in' => array( 'value' => 'opt-in' ),
-		);
-
-		$this->assertTrue( wpcom_admin_bar_is_hosting_dashboard_enrolled() );
-
-		unset( $GLOBALS['_test_user_attributes'] );
-		Constants::clear_single_constant( 'IS_WPCOM' );
-	}
-
-	/**
-	 * When the user's default experience is the hosting dashboard, the Emails
-	 * node is surfaced and Plugins points at the my.wordpress.com dashboard.
-	 */
-	public function test_management_links_when_dashboard_enrolled() {
-		add_filter( 'wpcom_admin_bar_hosting_dashboard_enrolled', '__return_true' );
+	public function test_management_links() {
 		$admin_bar = self::make_test_admin_bar();
-		remove_filter( 'wpcom_admin_bar_hosting_dashboard_enrolled', '__return_true' );
 
 		$emails  = $admin_bar->get_node( 'wpcom-emails' );
 		$plugins = $admin_bar->get_node( 'wpcom-plugins' );
 
-		$this->assertNotNull( $emails, 'The wpcom-emails node should exist when enrolled.' );
+		$this->assertNotNull( $emails, 'The wpcom-emails node should exist.' );
 		$this->assertSame( 'https://my.wordpress.com/emails', $emails->href );
-		$this->assertNotNull( $plugins );
+		$this->assertNotNull( $plugins, 'The wpcom-plugins node should exist.' );
 		$this->assertSame( 'https://my.wordpress.com/plugins/manage', $plugins->href );
-	}
-
-	/**
-	 * When the user is not enrolled in the hosting dashboard, the Emails node is
-	 * omitted and Plugins points at classic Calypso.
-	 */
-	public function test_management_links_when_not_dashboard_enrolled() {
-		add_filter( 'wpcom_admin_bar_hosting_dashboard_enrolled', '__return_false' );
-		$admin_bar = self::make_test_admin_bar();
-		remove_filter( 'wpcom_admin_bar_hosting_dashboard_enrolled', '__return_false' );
-
-		$plugins = $admin_bar->get_node( 'wpcom-plugins' );
-
-		$this->assertNull( $admin_bar->get_node( 'wpcom-emails' ), 'The wpcom-emails node should be absent when not enrolled.' );
-		$this->assertNotNull( $plugins );
-		$this->assertSame( 'https://wordpress.com/plugins/manage/sites', $plugins->href );
 	}
 
 	/**

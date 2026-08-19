@@ -7,13 +7,10 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 
 // The $icon-color variable for admin color schemes.
 // See: https://github.com/WordPress/wordpress-develop/blob/679cc0c4a261a77bd8fdb140cd9b0b2ff80ebf37/src/wp-admin/css/colors/_variables.scss#L9
@@ -54,75 +51,6 @@ function maybe_add_origin_site_id_to_url( $url ) {
  */
 function add_origin_admin_bar_to_url( $url ) {
 	return add_query_arg( 'origin_admin_bar', 'wpcom', $url );
-}
-
-/**
- * Whether the current user's default WordPress.com experience is the hosting dashboard (my.wordpress.com).
- *
- * Mirrors Calypso's `hasDashboardOptIn`: the user is enrolled when their
- * `hosting-dashboard-opt-in` preference is `opt-in` or `forced-opt-in`. The
- * percentage-rollout cohort is intentionally omitted because the corresponding
- * Calypso flag (`dashboard/enable-percentage-rollout`) is disabled in every
- * environment, so enrollment is currently driven solely by the explicit preference.
- *
- * On Simple sites the preference is read locally; on Atomic/self-hosted sites it
- * is fetched from `/me/preferences`. The result is cached per user in a transient
- * to avoid a remote request on every admin bar render.
- *
- * @return bool
- */
-function wpcom_admin_bar_is_hosting_dashboard_enrolled() {
-	/**
-	 * Overrides the hosting dashboard enrollment check.
-	 * Return a bool to force enrollment on or off (e.g. for testing), or null to use the preference.
-	 *
-	 * @param bool|null $override Return a bool to override, or null to use the preference value.
-	 */
-	$override = apply_filters( 'wpcom_admin_bar_hosting_dashboard_enrolled', null );
-	if ( null !== $override ) {
-		return (bool) $override;
-	}
-
-	$user_id = get_current_user_id();
-	if ( ! $user_id ) {
-		return false;
-	}
-
-	$cache_key = 'wpcom-hosting-dashboard-enrolled-' . $user_id;
-	$cached    = get_transient( $cache_key );
-	if ( false !== $cached ) {
-		return (bool) $cached;
-	}
-
-	$opt_in_value = null;
-
-	if ( ( new Host() )->is_wpcom_simple() ) {
-		if ( function_exists( 'get_user_attribute' ) ) {
-			$preferences = get_user_attribute( $user_id, 'calypso_preferences' );
-			if ( is_array( $preferences ) && isset( $preferences['hosting-dashboard-opt-in']['value'] ) ) {
-				$opt_in_value = $preferences['hosting-dashboard-opt-in']['value'];
-			}
-		}
-	} elseif ( ( new Connection_Manager() )->is_user_connected() ) {
-		// @codeCoverageIgnoreStart -- Signed remote request over Connection\Client; exercised in the connection package, not unit-testable here.
-		$response = Client::wpcom_json_api_request_as_user(
-			'/me/preferences',
-			'2',
-			array( 'method' => 'GET' )
-		);
-
-		if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
-			$body         = json_decode( wp_remote_retrieve_body( $response ) );
-			$opt_in_value = $body->calypso_preferences->{'hosting-dashboard-opt-in'}->value ?? null;
-		}
-		// @codeCoverageIgnoreEnd
-	}
-
-	$enrolled = in_array( $opt_in_value, array( 'opt-in', 'forced-opt-in' ), true );
-
-	set_transient( $cache_key, $enrolled ? 1 : 0, HOUR_IN_SECONDS );
-
-	return $enrolled;
 }
 
 /**
@@ -264,28 +192,21 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 		)
 	);
 
-	$is_dashboard_enrolled = wpcom_admin_bar_is_hosting_dashboard_enrolled();
-
-	// Emails is only surfaced for users whose default experience is the hosting dashboard.
-	if ( $is_dashboard_enrolled ) {
-		$wp_admin_bar->add_node(
-			array(
-				'parent' => 'wp-logo',
-				'id'     => 'wpcom-emails',
-				'title'  => __( 'Emails', 'jetpack-mu-wpcom' ),
-				'href'   => 'https://my.wordpress.com/emails',
-			)
-		);
-	}
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'wp-logo',
+			'id'     => 'wpcom-emails',
+			'title'  => __( 'Emails', 'jetpack-mu-wpcom' ),
+			'href'   => 'https://my.wordpress.com/emails',
+		)
+	);
 
 	$wp_admin_bar->add_node(
 		array(
 			'parent' => 'wp-logo',
 			'id'     => 'wpcom-plugins',
 			'title'  => __( 'Plugins', 'jetpack-mu-wpcom' ),
-			'href'   => $is_dashboard_enrolled
-				? 'https://my.wordpress.com/plugins/manage'
-				: 'https://wordpress.com/plugins/manage/sites',
+			'href'   => 'https://my.wordpress.com/plugins/manage',
 		)
 	);
 
