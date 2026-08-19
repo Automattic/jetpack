@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: changed
 
-Speed up opening the editor after creating a form, and show progress while it loads.
+Show progress while a new form's editor opens, and report it when creating a form fails.

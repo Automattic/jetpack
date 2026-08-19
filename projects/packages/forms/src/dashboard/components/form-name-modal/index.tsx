@@ -73,16 +73,6 @@ export type FormNameModalProps = {
 	fallbackName?: string;
 
 	/**
-	 * Called on every edit to the name.
-	 *
-	 * Typing is the earliest reliable signal that the user intends to go through with the action, so
-	 * this is the hook for speculative work such as warming a cache. It fires per keystroke rather
-	 * than once because only the handler knows whether an attempt actually got anywhere — a handler
-	 * that no-opped because it was not ready yet needs a later keystroke to try again.
-	 */
-	onEdit?: () => void;
-
-	/**
 	 * Message shown alongside the busy primary button while saving.
 	 */
 	busyMessage?: string;
@@ -135,7 +125,6 @@ function getStatusMessage( {
  * @param props.placeholder          - Placeholder text for the input field.
  * @param props.inputLabel           - Label for the input field.
  * @param props.fallbackName         - Fallback name when input is empty.
- * @param props.onEdit               - Called on every edit to the name.
  * @param props.busyMessage          - Message shown next to the busy primary button.
  * @param props.errorMessage         - Message shown when saving fails.
  * @return The modal component or null if not open.
@@ -151,7 +140,6 @@ export function FormNameModal( {
 	placeholder,
 	inputLabel,
 	fallbackName,
-	onEdit,
 	busyMessage,
 	errorMessage,
 }: FormNameModalProps ) {
@@ -167,14 +155,10 @@ export function FormNameModal( {
 		}
 	}, [ isOpen, initialValue ] );
 
-	const handleChange = useCallback(
-		( value: string ) => {
-			setName( value );
-			setHasFailed( false );
-			onEdit?.();
-		},
-		[ onEdit ]
-	);
+	const handleChange = useCallback( ( value: string ) => {
+		setName( value );
+		setHasFailed( false );
+	}, [] );
 
 	// Always dismissable. An onSave that hands off to a page load never settles, so a modal that
 	// refused to close while busy could never be closed again if that navigation failed to start.

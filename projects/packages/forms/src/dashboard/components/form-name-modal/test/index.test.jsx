@@ -25,23 +25,6 @@ const setup = ( props = {} ) => {
 const createButton = () => screen.getByRole( 'button', { name: 'Create' } );
 
 describe( 'FormNameModal', () => {
-	it( 'signals every edit, so a handler that was not ready can try again', async () => {
-		const user = userEvent.setup();
-		const onEdit = jest.fn();
-		setup( { onEdit } );
-
-		await user.type( screen.getByRole( 'textbox' ), 'Contact' );
-
-		expect( onEdit ).toHaveBeenCalledTimes( 'Contact'.length );
-	} );
-
-	it( 'does not signal an edit before the user types', () => {
-		const onEdit = jest.fn();
-		setup( { onEdit, initialValue: 'Existing name' } );
-
-		expect( onEdit ).not.toHaveBeenCalled();
-	} );
-
 	it( 'can still be dismissed while a navigating save is in flight', async () => {
 		const user = userEvent.setup();
 		const { onClose } = setup( {
