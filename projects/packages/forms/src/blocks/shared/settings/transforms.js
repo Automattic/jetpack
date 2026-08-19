@@ -109,7 +109,6 @@ const getFieldAttributes = attributes => ( {
 	width: attributes.width || 100,
 	id: attributes.id || '',
 	shareFieldAttributes: attributes.shareFieldAttributes ?? true,
-	helpText: attributes.helpText || undefined,
 } );
 
 const getOptionLabelsFromInnerBlocks = innerBlocks => {

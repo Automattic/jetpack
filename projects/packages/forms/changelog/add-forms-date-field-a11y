@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Date field: show the expected format below the input instead of in its label, and let screen readers announce the field's own label.

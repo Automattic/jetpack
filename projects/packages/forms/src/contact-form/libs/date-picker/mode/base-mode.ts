@@ -226,8 +226,12 @@ function createContainerElement( opts: IDatePickerOptions, containerHTML: string
 }
 
 function attachInputEvents( input: HTMLElement, dp: IDatePicker ) {
+	// Deliberately no ariaLabel here. Naming the input clobbers its <label>, so
+	// the field's own label never reaches the accessible name and a screen
+	// reader announces the picker instructions instead of what the field is
+	// for. The instructions belong in the description chain, which the server
+	// renders into aria-describedby after the format hint.
 	input.ariaLive = 'polite';
-	input.ariaLabel = dp.opts.lang.ariaLabel.dayPicker;
 	const bufferShow = bufferFn( 5, function () {
 		if ( dp.shouldHide() ) {
 			dp.close();

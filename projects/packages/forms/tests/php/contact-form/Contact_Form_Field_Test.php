@@ -976,55 +976,57 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Author help text renders above the format hint and is escaped.
+	 * A date input is described by its error, then the format, then how to
+	 * reach the picker — and is still *named* by its own label.
 	 */
-	public function test_help_text_renders_and_is_escaped() {
+	public function test_aria_describedby_order() {
 		$field = $this->get_new_field_instance(
 			array(
-				'type'     => 'date',
-				'id'       => 'g1-birthday',
-				'label'    => 'Birthday',
-				'helptext' => 'Your <b>birthday</b>',
+				'type'  => 'date',
+				'id'    => 'g1-birthday',
+				'label' => 'Birthday',
 			)
 		);
 
 		$html = $field->render();
 
-		$this->assertStringContainsString( 'id="g1-birthday-text-help"', $html );
-		$this->assertStringContainsString( 'Your &lt;b&gt;birthday&lt;/b&gt;', $html );
-		$this->assertStringNotContainsString( 'Your <b>birthday</b>', $html );
-
-		$help_position   = strpos( $html, 'contact-form__field-help' );
-		$format_position = strpos( $html, 'contact-form__field-format' );
-		$this->assertNotFalse( $help_position );
-		$this->assertNotFalse( $format_position );
-		$this->assertLessThan( $format_position, $help_position, 'Help text must render before the format hint.' );
-		$this->assertSame( 1, substr_count( $html, 'class="contact-form__field-hints"' ) );
+		$this->assertStringContainsString(
+			'aria-describedby=\'g1-birthday-text-error-message g1-birthday-text-format g1-birthday-text-datepicker\'',
+			$html
+		);
+		// The label must supply the accessible name; an aria-label on the input
+		// would silently replace it.
+		$this->assertMatchesRegularExpression( "/<label\s+for='g1-birthday'/", $html );
+		$this->assertStringNotContainsString( 'aria-label', $html );
 	}
 
 	/**
-	 * Aria-describedby lists error, then help, then format.
+	 * The picker instruction is available to screen readers but not on screen,
+	 * and it does not restate the format.
 	 */
-	public function test_aria_describedby_order() {
+	public function test_datepicker_hint_is_visually_hidden_and_format_free() {
 		$field = $this->get_new_field_instance(
 			array(
-				'type'     => 'date',
-				'id'       => 'g1-birthday',
-				'label'    => 'Birthday',
-				'helptext' => 'Pick a day',
+				'type'  => 'date',
+				'id'    => 'g1-birthday',
+				'label' => 'Birthday',
 			)
 		);
 
-		$this->assertStringContainsString(
-			'aria-describedby=\'g1-birthday-text-error-message g1-birthday-text-help g1-birthday-text-format\'',
-			$field->render()
+		$html = $field->render();
+
+		$this->assertMatchesRegularExpression(
+			'/id="g1-birthday-text-datepicker" class="[^"]*visually-hidden[^"]*"/',
+			$html
 		);
+		$this->assertStringContainsString( 'Use the down arrow key to open the date picker.', $html );
+		$this->assertStringNotContainsString( 'type the date in the format', $html );
 	}
 
 	/**
-	 * A field with no help text emits no help element and no dangling id.
+	 * Non-date fields get neither hint.
 	 */
-	public function test_no_help_text_leaves_no_element_or_dangling_id() {
+	public function test_non_date_fields_have_no_date_descriptions() {
 		$field = $this->get_new_field_instance(
 			array(
 				'type'  => 'text',
@@ -1035,105 +1037,9 @@ class Contact_Form_Field_Test extends BaseTestCase {
 
 		$html = $field->render();
 
-		$this->assertStringNotContainsString( 'contact-form__field-help', $html );
-		$this->assertStringNotContainsString( 'g1-name-text-help', $html );
 		$this->assertStringContainsString( 'aria-describedby=\'g1-name-text-error-message\'', $html );
-	}
-
-	/**
-	 * Whitespace-only help text is treated as absent.
-	 */
-	public function test_whitespace_only_help_text_is_ignored() {
-		$field = $this->get_new_field_instance(
-			array(
-				'type'     => 'text',
-				'id'       => 'g1-name',
-				'label'    => 'Name',
-				'helptext' => '   ',
-			)
-		);
-
-		$html = $field->render();
-
-		$this->assertStringNotContainsString( 'contact-form__field-help', $html );
-		$this->assertStringContainsString( 'aria-describedby=\'g1-name-text-error-message\'', $html );
-	}
-
-	/**
-	 * Punctuation in help text survives the block -> shortcode -> render trip.
-	 *
-	 * Contact_Form::esc_shortcode_val() encodes `,` `[` `]` `\` as decimal
-	 * entities so they survive the shortcode parser, and unesc_attr() only
-	 * decodes the hex forms. Help text is the first attribute rendered through
-	 * esc_html() into a text node, so a leftover entity would be escaped again
-	 * and shown to the visitor. Building the field directly, as the other tests
-	 * here do, skips the hop that does the encoding — this one must not.
-	 *
-	 * @param string $help_text The author-supplied help text.
-	 * @dataProvider help_text_punctuation_provider
-	 */
-	#[DataProvider( 'help_text_punctuation_provider' )]
-	public function test_help_text_punctuation_survives_the_shortcode_round_trip( $help_text ) {
-		$field_shortcode = Contact_Form::parse_contact_field(
-			array(
-				'type'     => 'text',
-				'id'       => 'g1-x',
-				'label'    => 'Name',
-				'helpText' => $help_text,
-			),
-			null
-		);
-
-		$html = do_shortcode( '[contact-form]' . $field_shortcode . '[/contact-form]' );
-
-		$this->assertStringContainsString(
-			'class="contact-form__field-help">' . esc_html( $help_text ) . '</span>',
-			$html
-		);
-		$this->assertStringNotContainsString( '&#044;', $html );
-		$this->assertStringNotContainsString( '&#091;', $html );
-		$this->assertStringNotContainsString( '&#092;', $html );
-		$this->assertStringNotContainsString( '&#093;', $html );
-	}
-
-	/**
-	 * Data provider for help text punctuation.
-	 *
-	 * @return array
-	 */
-	public static function help_text_punctuation_provider() {
-		return array(
-			'comma'     => array( 'Enter your name, then your email.' ),
-			'brackets'  => array( 'Use [your] nickname.' ),
-			'backslash' => array( 'Domain\\username, please.' ),
-		);
-	}
-
-	/**
-	 * Hand-rolled input markup gets the same description wiring.
-	 *
-	 * @param array  $attributes Extra field attributes.
-	 * @param string $type       The description type used in element ids.
-	 * @dataProvider hand_rolled_field_provider
-	 */
-	#[DataProvider( 'hand_rolled_field_provider' )]
-	public function test_hand_rolled_fields_get_descriptions( $attributes, $type ) {
-		$field = $this->get_new_field_instance(
-			array_merge(
-				array(
-					'id'       => 'g1-x',
-					'label'    => 'Thing',
-					'helptext' => 'Say hi',
-				),
-				$attributes
-			)
-		);
-
-		$html = $field->render();
-
-		$this->assertStringContainsString( 'id="g1-x-' . $type . '-help"', $html );
-		$this->assertStringContainsString( 'g1-x-' . $type . '-error-message g1-x-' . $type . '-help', $html );
-		$this->assertSame( 1, substr_count( $html, 'class="contact-form__field-hints"' ) );
+		$this->assertStringNotContainsString( 'contact-form__field-hints', $html );
+		$this->assertStringNotContainsString( '-datepicker', $html );
 	}
 
 	/**
@@ -1214,10 +1120,9 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	public function test_inset_label_hoists_hints_with_matching_ids() {
 		$field = $this->get_new_field_instance(
 			array(
-				'type'     => 'date',
-				'id'       => 'g1-birthday',
-				'label'    => 'Birthday',
-				'helptext' => 'Pick a day',
+				'type'  => 'date',
+				'id'    => 'g1-birthday',
+				'label' => 'Birthday',
 			),
 			'outlined'
 		);
@@ -1225,7 +1130,6 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		$html = $field->render();
 
 		$this->assertStringContainsString( 'contact-form__inset-label-wrap', $html );
-		$this->assertStringContainsString( 'id="g1-birthday-text-help"', $html );
 		$this->assertStringContainsString( 'id="g1-birthday-text-format"', $html );
 		$this->assertStringContainsString( 'id="g1-birthday-text-error"', $html );
 
@@ -1240,8 +1144,8 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		$xpath = new \DOMXPath( $doc );
 
 		$has_class    = "contains(concat(' ', normalize-space(@class), ' '), ' %s ')";
-		$inside_inner = sprintf( "//div[$has_class]//*[@id='g1-birthday-text-help']", 'grunion-field-date-wrap' );
-		$inside_outer = sprintf( "//div[$has_class]//*[@id='g1-birthday-text-help']", 'contact-form__inset-label-wrap' );
+		$inside_inner = sprintf( "//div[$has_class]//*[@id='g1-birthday-text-format']", 'grunion-field-date-wrap' );
+		$inside_outer = sprintf( "//div[$has_class]//*[@id='g1-birthday-text-format']", 'contact-form__inset-label-wrap' );
 
 		$this->assertCount(
 			0,

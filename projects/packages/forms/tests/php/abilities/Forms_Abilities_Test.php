@@ -429,7 +429,7 @@ class Forms_Abilities_Test extends BaseTestCase {
 		wp_set_current_user( self::$user_id );
 
 		$content  = '<!-- wp:jetpack/contact-form -->';
-		$content .= '<!-- wp:jetpack/field-text {"required":true,"helpText":"Use your legal name."} -->';
+		$content .= '<!-- wp:jetpack/field-text {"required":true} -->';
 		$content .= '<!-- wp:jetpack/label {"label":"Full name"} /-->';
 		$content .= '<!-- wp:jetpack/input {"type":"text","placeholder":"Enter your name"} /-->';
 		$content .= '<!-- /wp:jetpack/field-text -->';
@@ -448,7 +448,6 @@ class Forms_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 'text', $result['fields'][0]['type'] );
 		$this->assertTrue( $result['fields'][0]['required'] );
 		$this->assertSame( 'Enter your name', $result['fields'][0]['placeholder'] );
-		$this->assertSame( 'Use your legal name.', $result['fields'][0]['help_text'] );
 		$this->assertSame( 'Email', $result['fields'][1]['label'] );
 		$this->assertSame( 'email', $result['fields'][1]['type'] );
 		$this->assertFalse( $result['fields'][1]['required'] );

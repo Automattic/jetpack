@@ -51,12 +51,7 @@ export default function DateFieldEdit( props ) {
 		<>
 			<div { ...blockProps }>
 				<div { ...innerBlocksProps } />
-				<JetpackFieldHints
-					attributes={ attributes }
-					setAttributes={ setAttributes }
-					isActive={ isSelected || isInnerBlockSelected }
-					isDateField
-				/>
+				<JetpackFieldHints attributes={ attributes } isDateField />
 			</div>
 			<JetpackFieldControls
 				id={ id }
@@ -65,7 +60,6 @@ export default function DateFieldEdit( props ) {
 				setAttributes={ setAttributes }
 				attributes={ attributes }
 				type="date"
-				helpTextSupport
 				extraFieldSettings={ [
 					{
 						index: 1,

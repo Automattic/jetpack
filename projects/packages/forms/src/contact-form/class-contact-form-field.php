@@ -188,7 +188,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'width'                        => null,
 				'consenttype'                  => null,
 				'dateformat'                   => null,
-				'helptext'                     => null,
 				'implicitconsentmessage'       => null,
 				'explicitconsentmessage'       => null,
 				'borderradius'                 => null,
@@ -1282,37 +1281,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * The author-supplied help text for this field, or null when unset.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string|null
-	 */
-	private function get_help_text() {
-		$help_text = $this->get_attribute( 'helptext' );
-
-		if ( ! is_string( $help_text ) ) {
-			return null;
-		}
-
-		$help_text = trim( $help_text );
-
-		if ( $help_text === '' ) {
-			return null;
-		}
-
-		// Contact_Form::esc_shortcode_val() encodes `,` `[` `]` `\` as decimal
-		// entities so they survive the shortcode parser, but unesc_attr() only
-		// decodes the hex forms. Other consumers emit through wp_kses_post() or
-		// into an attribute, so the browser decodes whatever is left over; this
-		// is the first to emit through esc_html() into a text node, where the
-		// leftover `&#044;` would be escaped again and shown to the visitor.
-		// Safe to decode here: the value has already been through
-		// unesc_attr()'s strip_tags(), and output is still esc_html()'d.
-		return html_entity_decode( $help_text, ENT_QUOTES );
-	}
-
-	/**
 	 * The format instruction for date fields, or null for every other type.
 	 *
 	 * Note this keys off the field's own `type` attribute, not the type passed
@@ -1330,6 +1298,26 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$formats = self::get_date_formats();
 
 		return $formats[ $this->get_date_format() ] ?? null;
+	}
+
+	/**
+	 * How to open the date picker, for screen reader users.
+	 *
+	 * Announced after the label and the format so the order is: what the field
+	 * is, what to type, then how to reach the picker. Deliberately says nothing
+	 * about the format — get_format_hint() owns that, and repeating it here is
+	 * how the two drift apart.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string|null
+	 */
+	private function get_datepicker_hint() {
+		if ( $this->get_attribute( 'type' ) !== 'date' ) {
+			return null;
+		}
+
+		return __( 'Use the down arrow key to open the date picker.', 'jetpack-forms' );
 	}
 
 	/**
@@ -1372,17 +1360,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return array List of array( 'id' => string, 'class' => string, 'text' => string ).
 	 */
 	private function get_description_parts( $id, $type ) {
-		$parts     = array();
-		$help_text = $this->get_help_text();
-
-		if ( $help_text !== null ) {
-			$parts[] = array(
-				'id'    => $id . '-' . $type . '-help',
-				'class' => 'contact-form__field-help',
-				'text'  => $help_text,
-			);
-		}
-
+		$parts       = array();
 		$format_hint = $this->get_format_hint();
 
 		if ( $format_hint !== null ) {
@@ -1390,6 +1368,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'id'    => $id . '-' . $type . '-format',
 				'class' => 'contact-form__field-format',
 				'text'  => $format_hint,
+			);
+		}
+
+		$datepicker_hint = $this->get_datepicker_hint();
+
+		if ( $datepicker_hint !== null ) {
+			$parts[] = array(
+				'id'    => $id . '-' . $type . '-datepicker',
+				'class' => 'contact-form__field-instructions visually-hidden',
+				'text'  => $datepicker_hint,
 			);
 		}
 
@@ -2655,7 +2643,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						'clear'     => __( 'Clear', 'jetpack-forms' ),
 						'close'     => __( 'Close', 'jetpack-forms' ),
 						'ariaLabel' => array(
-							'enterPicker'       => __( 'You are on a date picker input. Use the down key to focus into the date picker. Or type the date in the format MM/DD/YYYY', 'jetpack-forms' ),
 							'dayPicker'         => __( 'You are currently inside the date picker, use the arrow keys to navigate between the dates. Use tab key to jump to more controls.', 'jetpack-forms' ),
 							'monthPicker'       => __( 'You are currently inside the month picker, use the arrow keys to navigate between the months. Use the space key to select it.', 'jetpack-forms' ),
 							'yearPicker'        => __( 'You are currently inside the year picker, use the up and down arrow keys to navigate between the years. Use the space key to select it.', 'jetpack-forms' ),
