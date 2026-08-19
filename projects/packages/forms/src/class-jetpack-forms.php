@@ -51,10 +51,8 @@ class Jetpack_Forms {
 
 		Util::init();
 
-		if ( self::is_feedback_dashboard_enabled() ) {
-			$dashboard = new Dashboard();
-			$dashboard->init();
-		}
+		$dashboard = new Dashboard();
+		$dashboard->init();
 
 		if ( is_admin() && apply_filters_deprecated( 'tmp_grunion_allow_editor_view', array( true ), '0.30.5', '', 'This functionality will be removed in an upcoming version.' ) ) {
 			add_action( 'current_screen', '\Automattic\Jetpack\Forms\ContactForm\Editor_View::add_hooks' );
@@ -87,23 +85,6 @@ class Jetpack_Forms {
 	 */
 	public static function assets_url() {
 		return plugin_dir_url( __DIR__ ) . 'assets';
-	}
-
-	/**
-	 * Returns true if the feedback dashboard is enabled.
-	 *
-	 * @return boolean
-	 */
-	public static function is_feedback_dashboard_enabled() {
-		/**
-		 * Enable the new Jetpack Forms dashboard.
-		 *
-		 * @module contact-form
-		 * @since 0.3.0
-		 *
-		 * @param bool false Should the new Jetpack Forms dashboard be enabled? Default to false.
-		 */
-		return apply_filters( 'jetpack_forms_dashboard_enable', true );
 	}
 
 	/**

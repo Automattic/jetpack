@@ -9,20 +9,15 @@ export const getPath = item => {
 };
 
 /**
- * The Forms wp-admin submenu badge can be registered under either of two
- * slugs, depending on the `jetpack_forms_alpha` filter: the wp-build slug
- * (`jetpack-forms-responses-wp-admin`), or the legacy slug
- * (`jetpack-forms-admin`, i.e. `Dashboard::ADMIN_SLUG`) when the filter
- * returns false. This selector matches whichever one is actually rendered so
- * callers don't have to hardcode (and potentially mismatch) the active slug.
+ * The Forms wp-admin submenu badge is registered under the Forms dashboard
+ * slug. Matched by attribute rather than assumed, so a slug change surfaces as
+ * a missing badge rather than a silent mismatch.
  */
-const FORMS_MENU_BADGE_SELECTOR =
-	'[data-jp-menu-badge="jetpack-forms-responses-wp-admin"],[data-jp-menu-badge="jetpack-forms-admin"]';
+const FORMS_MENU_BADGE_SELECTOR = '[data-jp-menu-badge="jetpack-forms-responses-wp-admin"]';
 
 /**
  * Fallback slug to use when no Forms menu badge is present in the DOM
  * (e.g. the count is already 0, or the badge simply hasn't rendered yet).
- * This matches the default wp-build slug.
  */
 const DEFAULT_FORMS_MENU_BADGE_SLUG = 'jetpack-forms-responses-wp-admin';
 
@@ -44,10 +39,9 @@ export const getMenuBadgeCount = () => {
 /**
  * Resolve the slug the Forms wp-admin submenu badge is currently registered
  * under, by reading it off the rendered `data-jp-menu-badge` attribute rather
- * than assuming a fixed slug. This is needed because the active slug depends
- * on the `jetpack_forms_alpha` filter (see `FORMS_MENU_BADGE_SELECTOR`
- * above), and using the wrong slug means `window.jetpackMenuBadges.setCount()`
- * silently no-ops against a badge element that doesn't exist.
+ * than assuming a fixed slug. Using the wrong slug means
+ * `window.jetpackMenuBadges.setCount()` silently no-ops against a badge
+ * element that doesn't exist.
  *
  * @return {string} The active Forms menu badge slug, or the default wp-build slug if no badge is rendered.
  */
