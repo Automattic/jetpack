@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix: Private VideoPress videos in synced patterns intermittently fail authorization by caching GUID lists at render time for fast O(1) lookup during token requests.

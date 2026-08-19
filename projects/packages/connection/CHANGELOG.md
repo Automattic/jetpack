@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.10.4] - 2026-08-19
+### Changed
+- Tracking: Sanitize the event name, event properties, user agent, IP address, and language recorded with Tracks events. [#51316]
+
+### Fixed
+- Report errors from XML-RPC faults, which were invisible to the existing intake. We also remove invalid_signature from the displayable error codes as it is not actionable. [#51208]
+
 ## [8.10.3] - 2026-08-14
 ### Fixed
 - Account status: Do not report an account mismatch when the WordPress.com email and the site email differ only in letter case. [#51285]
@@ -2004,6 +2011,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.10.4]: https://github.com/Automattic/jetpack-connection/compare/v8.10.3...v8.10.4
 [8.10.3]: https://github.com/Automattic/jetpack-connection/compare/v8.10.2...v8.10.3
 [8.10.2]: https://github.com/Automattic/jetpack-connection/compare/v8.10.1...v8.10.2
 [8.10.1]: https://github.com/Automattic/jetpack-connection/compare/v8.10.0...v8.10.1
