@@ -35,30 +35,20 @@ export function initializeAnalytics(): void {
 }
 
 interface DashboardView {
-	/** Landing view: `welcome` or the tab the visitor arrived on. */
 	view: string;
 	is_set_up: boolean;
 	settings_complete: boolean;
-	/** How many required settings are still missing — 0 when complete. */
 	settings_missing: number;
 	has_product_access: boolean;
 	is_connected: boolean;
 }
 
 /**
- * Record `jetpack_podcast_dashboard_viewed` once per page load.
+ * Record `jetpack_podcast_dashboard_viewed` once per page load — the
+ * denominator every other dashboard event is missing.
  *
- * Every other dashboard event is a conversion, so without this there is no
- * denominator: an upgrade-click count can't be read as a rate, and the site
- * owners who open the dashboard and leave are invisible.
- *
- * Deliberately carries no episode count — the probe behind it is a REST
- * request, and paying for one on every page load to answer a question
- * `wpcom_podcast_episode_published` already answers server-side is a bad
- * trade. Join on `blogid` instead.
- *
- * Module-level guard rather than a ref, so a remount or a StrictMode
- * double-invoke can't double-count the same page load.
+ * No episode count: the probe behind it is a REST request, and
+ * `wpcom_podcast_episode_published` already answers it server-side.
  *
  * @param props - View properties.
  */

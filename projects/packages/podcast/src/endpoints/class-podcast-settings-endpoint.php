@@ -109,10 +109,7 @@ class Podcast_Settings_Endpoint extends WP_REST_Controller {
 	public function update_item( $request ) {
 		$saved = false;
 
-		// Label the option writes so `wpcom_podcasting_status_changed` and
-		// `wpcom_podcast_setting_first_saved` can be separated from the
-		// programmatic writes that dominate the raw event counts.
-		$previous_surface = Tracks::set_surface( Tracks::SURFACE_SETTINGS_REST );
+		$previous_surface = Tracks::set_surface( 'settings_rest' );
 
 		try {
 			foreach ( Settings::OPTION_NAMES as $name ) {

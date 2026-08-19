@@ -46,26 +46,13 @@ class Tracks {
 	);
 
 	/**
-	 * Default `surface`: the write came from somewhere we don't instrument —
-	 * site setup, an importer, WP-CLI, another plugin. Most option writes in
-	 * production land here, which is the point of recording it.
-	 */
-	public const SURFACE_PROGRAMMATIC = 'programmatic';
-
-	/** Write came through `wpcom/v2/podcast/settings` — the dashboard's save path. */
-	public const SURFACE_SETTINGS_REST = 'settings_rest';
-
-	/** Write came through `wpcom/v2/podcast/distribution` — the Pocket Casts submit. */
-	public const SURFACE_DISTRIBUTION_REST = 'distribution_rest';
-
-	/**
-	 * What is driving the option write currently in flight. Option hooks fire
+	 * What is driving the option write in flight. Option hooks fire
 	 * synchronously inside `update_option()`, so a static set around the write
 	 * is read by the recorder it belongs to.
 	 *
 	 * @var string
 	 */
-	private static $surface = self::SURFACE_PROGRAMMATIC;
+	private static $surface = 'programmatic';
 
 	/**
 	 * Wire the recorder hooks.
@@ -399,14 +386,12 @@ class Tracks {
 	}
 
 	/**
-	 * Declare what is driving the option writes about to happen, and get the
-	 * previous value back so the caller can restore it.
+	 * Set the surface for the writes about to happen. Callers restore the
+	 * returned value in a `finally` — leaving it set would mislabel every
+	 * later write in the request.
 	 *
-	 * Callers must restore in a `finally` — leaving a REST surface set would
-	 * mislabel every later write in the request.
-	 *
-	 * @param string $surface One of the `SURFACE_*` constants.
-	 * @return string The surface that was in effect before this call.
+	 * @param string $surface `programmatic`, `settings_rest` or `distribution_rest`.
+	 * @return string Surface in effect before this call.
 	 */
 	public static function set_surface( string $surface ): string {
 		$previous      = self::$surface;
@@ -416,9 +401,8 @@ class Tracks {
 	}
 
 	/**
-	 * Which environment the event came from. Plan slug is a lossy proxy for it —
-	 * Atomic reports a WordPress.com plan server-side and a Jetpack one
-	 * client-side — so record it explicitly.
+	 * Host the event came from. Plan slug is a lossy proxy — Atomic reports a
+	 * WordPress.com plan server-side and a Jetpack one client-side.
 	 */
 	private static function platform(): string {
 		$host = new Host();
@@ -427,11 +411,7 @@ class Tracks {
 			return 'simple';
 		}
 
-		if ( $host->is_woa_site() ) {
-			return 'atomic';
-		}
-
-		return 'self_hosted';
+		return $host->is_woa_site() ? 'atomic' : 'self_hosted';
 	}
 
 	/**

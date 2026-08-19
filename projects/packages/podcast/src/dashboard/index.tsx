@@ -108,10 +108,6 @@ const App = () => {
 	const activeTab: TabName =
 		requestedTab && ( isSetUp || requestedTab === 'settings' ) ? requestedTab : defaultTab;
 
-	// Once settings resolve, so `is_set_up` and the completeness fields are real
-	// rather than the empty-state defaults. Skipped entirely when settings fail
-	// to load — `getValidationIssues( undefined )` returns no issues, which
-	// would report a blank dashboard as fully set up.
 	useEffect( () => {
 		if ( isLoading || ! settings ) {
 			return;

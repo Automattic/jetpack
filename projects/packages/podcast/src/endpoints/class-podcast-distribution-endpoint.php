@@ -127,7 +127,7 @@ class Podcast_Distribution_Endpoint extends WP_REST_Controller {
 			return;
 		}
 
-		$previous_surface = Tracks::set_surface( Tracks::SURFACE_DISTRIBUTION_REST );
+		$previous_surface = Tracks::set_surface( 'distribution_rest' );
 
 		try {
 			update_option( 'podcasting_show_states', array( 'pocketcasts' => 'rejected' === $state ? '' : $state ) );
