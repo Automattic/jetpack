@@ -34,9 +34,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: ( { showComparison }: { showComparison?: boolean } ) => (
-		<span>{ showComparison ? 'header offers comparison' : 'header offers no comparison' }</span>
-	),
+	DateFiltersPanel: () => <MockHeaderScopeProbe />,
 	DateIntervalDropdown: () => null,
 	DateYearFilter: () => null,
 	SectionHeader: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
@@ -57,6 +55,21 @@ jest.mock( '@wordpress/components', () => ( {
 jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
 
 jest.mock( '@wordpress/data', () => ( { useSelect: () => [] } ) );
+
+/**
+ * Reads the scope the dashboard declares, from where the header's date controls
+ * render. Both halves derive from the one declaration, so the header reads it
+ * rather than being handed a prop.
+ *
+ * @return The declared scope, as text.
+ */
+function MockHeaderScopeProbe() {
+	const { offersComparison } = useReportScope();
+
+	return (
+		<span>{ offersComparison ? 'header offers comparison' : 'header offers no comparison' }</span>
+	);
+}
 
 /**
  * Reads the scope the dashboard declares, from where the widgets actually render.
