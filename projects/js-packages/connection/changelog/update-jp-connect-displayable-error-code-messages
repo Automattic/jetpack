@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Internal: add support_link field to ConnectionErrorData type; no standalone user-facing surface
