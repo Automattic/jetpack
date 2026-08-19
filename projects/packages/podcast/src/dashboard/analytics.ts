@@ -2,6 +2,7 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData, getSiteData } from '@automattic/jetpack-script-data';
 
 let initialized = false;
+let viewRecorded = false;
 
 /**
  * Identify the current user and pin `blog_id` onto every Tracks event.
@@ -31,4 +32,31 @@ export function initializeAnalytics(): void {
 	if ( blogId ) {
 		jetpackAnalytics.assignSuperProps( { blog_id: blogId } );
 	}
+}
+
+interface DashboardView {
+	view: string;
+	is_set_up: boolean;
+	settings_missing: number;
+	has_product_access: boolean;
+	is_connected: boolean;
+}
+
+/**
+ * Record `jetpack_podcast_dashboard_viewed` once per page load — the
+ * denominator every other dashboard event is missing.
+ *
+ * No episode count: the probe behind it is a REST request, and
+ * `wpcom_podcast_episode_published` already answers it server-side.
+ *
+ * @param props - View properties.
+ */
+export function recordDashboardView( props: DashboardView ): void {
+	if ( viewRecorded ) {
+		return;
+	}
+	viewRecorded = true;
+
+	initializeAnalytics();
+	jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_dashboard_viewed', props );
 }
