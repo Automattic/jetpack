@@ -29,11 +29,12 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 	}
 
 	// Content Guidelines AI is only offered on WordPress.com platform sites
-	// (Simple and Atomic) — a hard gate the jetpack_ai_enabled filter below
-	// cannot widen. Free-tier Simple/Atomic sites still load the bundle so
-	// the upgrade path can be shown — the paid-plan requirement is enforced
-	// by the suggest-guidelines API.
-	if ( ! ( new Host() )->is_wpcom_platform() ) {
+	// (Simple and Atomic) and WordPress VIP sites — a hard gate the
+	// jetpack_ai_enabled filter below cannot widen. Free-tier sites still load
+	// the bundle so the upgrade path can be shown — the paid-plan requirement
+	// is enforced by the suggest-guidelines API.
+	$host = new Host();
+	if ( ! $host->is_wpcom_platform() && ! $host->is_vip_site() ) {
 		return;
 	}
 
