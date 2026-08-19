@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useCallback, useMemo } from '@wordpress/element';
 import { fetchFileTree, type WpcomFileNode } from '../data/api/file-tree';
 import { keys } from '../data/query-client';
+import { useStickyError } from './use-sticky-error';
 import type { FileNode } from '../types/file-tree';
 
 const BASE_FOLDER_PATH = '/';
@@ -125,11 +126,16 @@ export function useFileTree( rewindId: string, folderPath: string | null ): Resu
 		refetch();
 	}, [ refetch ] );
 
+	// Held across the retry: React Query rewinds this query to `pending`
+	// when it refetches after a failure, so without this the reason
+	// disappears the moment the reader clicks the retry button.
+	const error = useStickyError( query.error, query.isFetching );
+
 	return {
 		children,
 		isLoading: query.isLoading,
 		isFetching: query.isFetching,
-		error: query.error ?? null,
+		error,
 		refetch: retry,
 	};
 }
