@@ -3,6 +3,7 @@
  */
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
+import { ReportScopeProvider } from '@jetpack-premium-analytics/routing';
 import { GlobalChartsProvider, useChartTheme } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useMemo } from '@wordpress/element';
@@ -87,7 +88,14 @@ function ReportProviders( { children }: { children: ReactNode } ): JSX.Element {
 	return (
 		<AnalyticsQueryClientProvider>
 			<GlobalErrorProvider>
-				<GlobalChartsProvider theme={ chartTheme }>{ children }</GlobalChartsProvider>
+				<GlobalChartsProvider theme={ chartTheme }>
+					{ /*
+					 * A report names no compared period and offers no control for
+					 * one, so nothing below may fetch or draw a comparison. The
+					 * params stay on the URL for the dashboard to pick back up.
+					 */ }
+					<ReportScopeProvider offersComparison={ false }>{ children }</ReportScopeProvider>
+				</GlobalChartsProvider>
 			</GlobalErrorProvider>
 		</AnalyticsQueryClientProvider>
 	);
