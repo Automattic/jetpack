@@ -44,4 +44,54 @@ class Odyssey_Config_Data_Test extends Stats_TestCase {
 		$this->assertArrayHasKey( 'intial_state', $data );
 		$this->assertArrayHasKey( 'is_running_in_jetpack_site', $data['features'] );
 	}
+
+	/**
+	 * The app reads the versions from the site record when there is one, so they have to be
+	 * available on their own for the site that has none.
+	 */
+	public function test_config_data_carries_versions_outside_the_site_record() {
+		$data = ( new Odyssey_Config_Data() )->get_data();
+
+		$this->assertArrayHasKey( 'jetpack_version', $data );
+		$this->assertArrayHasKey( 'stats_admin_version', $data );
+		$this->assertArrayHasKey( 'software_version', $data );
+		$this->assertSame(
+			$data['intial_state']['sites']['items']['999']['options']['admin_url'],
+			$data['admin_url']
+		);
+		$this->assertSame(
+			$data['intial_state']['sites']['items']['999']['options']['stats_admin_version'],
+			$data['stats_admin_version']
+		);
+	}
+
+	/**
+	 * A site that disconnects keeps its blog ID, but the app cannot sign a single request with
+	 * it, so it has to be told there is no site rather than handed one that does not work.
+	 */
+	public function test_config_data_when_a_connected_site_disconnects() {
+		$this->disconnect_site_keeping_blog_id();
+
+		$data = ( new Odyssey_Config_Data() )->get_data();
+
+		$this->assertSame( 0, $data['blog_id'] );
+		$this->assertArrayNotHasKey( 'intial_state', $data );
+	}
+
+	/**
+	 * Without a connection there is no site to describe, and a record keyed on a blog ID of 0
+	 * would only make every lookup in the app miss.
+	 */
+	public function test_config_data_without_a_connection() {
+		$this->disconnect_site();
+
+		$data = ( new Odyssey_Config_Data() )->get_data();
+
+		$this->assertSame( 0, $data['blog_id'] );
+		$this->assertArrayNotHasKey( 'intial_state', $data );
+		$this->assertArrayHasKey( 'api_root', $data );
+		$this->assertArrayHasKey( 'nonce', $data );
+		$this->assertArrayHasKey( 'admin_url', $data );
+		$this->assertArrayHasKey( 'stats_admin_version', $data );
+	}
 }

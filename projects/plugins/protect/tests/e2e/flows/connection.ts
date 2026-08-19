@@ -1,5 +1,5 @@
-import { expect, Admin } from '_jetpack-e2e-commons/fixtures/base-test';
-import logger from '_jetpack-e2e-commons/logger';
+import { expect, Admin } from '@automattic/_jetpack-e2e-commons/fixtures/base-test';
+import logger from '@automattic/_jetpack-e2e-commons/logger';
 import type { Page } from '@playwright/test';
 
 /**

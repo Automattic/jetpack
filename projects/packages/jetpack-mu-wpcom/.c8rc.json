@@ -1,0 +1,6 @@
+{
+	"reporter": [ "json" ],
+	"all": true,
+	"include": [ "src" ],
+	"exclude": [ "src/build", "src/build-module", "**/*.d.ts", "**/test{,s}" ]
+}

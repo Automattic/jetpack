@@ -37,6 +37,43 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Creates an image attachment populated with EXIF image metadata.
+	 *
+	 * @return WP_Post The attachment post object.
+	 */
+	private function create_image_attachment_with_exif() {
+		$attachment_id = self::factory()->attachment->create_object(
+			array(
+				'file'           => dirname( __DIR__, 2 ) . '/jetpack-icon.jpg',
+				'post_parent'    => 0,
+				'post_mime_type' => 'image/jpeg',
+				'post_title'     => 'Test Image',
+				'post_content'   => 'Test Image Description',
+				'post_excerpt'   => 'Test Image Caption',
+				'post_status'    => 'publish',
+			)
+		);
+
+		wp_update_attachment_metadata(
+			$attachment_id,
+			array(
+				'width'      => 100,
+				'height'     => 100,
+				'file'       => 'jetpack-icon.jpg',
+				'image_meta' => array(
+					'camera'        => 'JetpackCam',
+					'aperture'      => '2.8',
+					'focal_length'  => '35',
+					'shutter_speed' => '0.005',
+					'iso'           => '200',
+				),
+			)
+		);
+
+		return get_post( $attachment_id );
+	}
+
+	/**
 	 * Gets the test data for test_add_data_img_tags_and_enqueue_assets().
 	 *
 	 * @return array The test data.
@@ -121,5 +158,59 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 		if ( $is_amp ) {
 			$this->assertFalse( wp_script_is( 'jetpack-carousel' ) );
 		}
+	}
+
+	/**
+	 * Adding the data attributes twice must not add them twice.
+	 *
+	 * Tiled Gallery output passes through this filter once as
+	 * 'jetpack_tiled_galleries_block_content', from inside the block's render
+	 * callback, and again as 'the_content' when single image galleries are enabled.
+	 * Both hooks see the same markup, so without a guard every carousel data-*
+	 * attribute is emitted twice. See JETPACK-1990.
+	 */
+	public function test_add_data_img_tags_and_enqueue_assets_is_idempotent() {
+		$attachment = $this->create_image_attachment_with_exif();
+		$content    = '<div class="tiled-gallery__item"><img alt="" data-id="' . $attachment->ID
+			. '" data-height="100" data-width="100" src="https://example.com/jetpack-icon.jpg" /></div>';
+
+		$once  = $this->instance->add_data_img_tags_and_enqueue_assets( $content );
+		$twice = $this->instance->add_data_img_tags_and_enqueue_assets( $once );
+
+		$this->assertSame( 1, substr_count( $once, 'data-attachment-id=' ) );
+		$this->assertSame( $once, $twice );
+	}
+
+	/**
+	 * When the EXIF display option is enabled (the default), add_data_to_images()
+	 * should include the data-image-meta attribute.
+	 */
+	public function test_add_data_to_images_includes_image_meta_when_exif_enabled() {
+		update_option( 'carousel_display_exif', 1 );
+		$attachment = $this->create_image_attachment_with_exif();
+
+		$attr = $this->instance->add_data_to_images( array(), $attachment );
+
+		$this->assertArrayHasKey( 'data-image-meta', $attr );
+		$this->assertStringContainsString( 'JetpackCam', $attr['data-image-meta'] );
+		$this->assertArrayHasKey( 'data-attachment-id', $attr );
+	}
+
+	/**
+	 * When the EXIF display option is disabled, add_data_to_images() should NOT
+	 * include the data-image-meta attribute, while still emitting the other
+	 * data-* attributes the carousel modal relies on.
+	 */
+	public function test_add_data_to_images_omits_image_meta_when_exif_disabled() {
+		update_option( 'carousel_display_exif', 0 );
+		$attachment = $this->create_image_attachment_with_exif();
+
+		$attr = $this->instance->add_data_to_images( array(), $attachment );
+
+		$this->assertArrayNotHasKey( 'data-image-meta', $attr );
+		// Other attributes the modal needs must still be present.
+		$this->assertArrayHasKey( 'data-attachment-id', $attr );
+		$this->assertArrayHasKey( 'data-permalink', $attr );
+		$this->assertArrayHasKey( 'data-image-title', $attr );
 	}
 }

@@ -3,10 +3,10 @@ import {
 	ADD_CONNECTION,
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
+	FETCHING_KEYRING_RESULT,
 	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
-	SET_SHOW_SINGLE_X_NOTICE,
 	TOGGLE_CONNECTION,
 	TOGGLE_CONNECTIONS_MODAL,
 	UPDATE_CONNECTION,
@@ -140,6 +140,12 @@ const connectionData = ( state: ConnectionData = { connections: [] }, action: Ac
 				keyringResult: action.keyringResult,
 			};
 
+		case FETCHING_KEYRING_RESULT:
+			return {
+				...state,
+				fetchingKeyringResult: action.fetching,
+			};
+
 		case TOGGLE_CONNECTION:
 			return {
 				...state,
@@ -154,12 +160,6 @@ const connectionData = ( state: ConnectionData = { connections: [] }, action: Ac
 					}
 					return connection;
 				} ),
-			};
-
-		case SET_SHOW_SINGLE_X_NOTICE:
-			return {
-				...state,
-				shouldShowSingleXNotice: action.show,
 			};
 
 		case CUSTOMIZE_CONNECTION:

@@ -1,0 +1,4 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"include": [ "./src/js" ]
+}

@@ -1,0 +1,14 @@
+# Files to include in the mirror repo, but excluded via gitignore.
+# Remember to end all directories with `/**` to properly tag every file.
+/build/**            production-include
+
+# Files to exclude from the mirror repo, but included in the monorepo.
+# Remember to end all directories with `/**` to properly tag every file.
+src/modules/**       production-exclude
+tools/**             production-exclude
+declarations.d.ts    production-exclude
+tests/**             production-exclude
+phpunit.8.xml.dist   production-exclude
+phpunit.9.xml.dist   production-exclude
+phpunit.11.xml.dist  production-exclude
+phpunit.12.xml.dist  production-exclude

@@ -206,9 +206,11 @@ class Jetpack_Slideshow_Shortcode {
 			/*
 			 * Blocks can be disabled in Jetpack Settings.
 			 * If that's the case, we need to include the slideshow block manually.
+			 * render_amp() lives in the block's render.php, which is loaded lazily,
+			 * so make sure it is available before calling it.
 			 */
-			if ( ! class_exists( 'Automattic\Jetpack\Extensions\Slideshow' ) ) {
-				require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/slideshow/slideshow.php';
+			if ( ! function_exists( 'Automattic\Jetpack\Extensions\Slideshow\render_amp' ) ) {
+				require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/slideshow/render.php';
 			}
 
 			return Slideshow\render_amp( $amp_args );

@@ -15,15 +15,54 @@ use WorDBless\BaseTestCase;
 #[CoversClass( Settings::class )]
 class Settings_Test extends BaseTestCase {
 
-	public function test_register_settings_exposes_every_option_to_rest() {
+	public function test_register_settings_keeps_sanitizers_but_not_core_rest_exposure() {
 		Settings::register_settings();
 
 		$registered = get_registered_settings();
 
 		foreach ( Settings::OPTION_NAMES as $name ) {
 			$this->assertArrayHasKey( $name, $registered, "$name should be registered" );
-			$this->assertNotEmpty( $registered[ $name ]['show_in_rest'], "$name should declare show_in_rest" );
+			$this->assertNotEmpty( $registered[ $name ]['sanitize_callback'], "$name should keep its sanitize_callback" );
+			$this->assertEmpty( $registered[ $name ]['show_in_rest'], "$name should not be exposed through core /wp/v2/settings" );
 		}
+	}
+
+	public function test_get_all_returns_every_option_key_with_padded_maps() {
+		update_option( 'podcasting_title', 'My Show' );
+		update_option( 'podcasting_show_urls', array( 'apple' => 'https://podcasts.apple.com/show/1' ) );
+
+		$all = Settings::get_all();
+
+		foreach ( Settings::OPTION_NAMES as $name ) {
+			$this->assertArrayHasKey( $name, $all, "$name should be present in get_all()" );
+		}
+
+		$this->assertSame( 'My Show', $all['podcasting_title'] );
+		$this->assertIsBool( $all['podcasting_explicit'] );
+
+		$expected_keys = array_keys( Settings::SHOW_URL_HOSTS );
+		$this->assertSame( $expected_keys, array_keys( $all['podcasting_show_urls'] ) );
+		$this->assertSame( $expected_keys, array_keys( $all['podcasting_show_states'] ) );
+		$this->assertSame( 'https://podcasts.apple.com/show/1', $all['podcasting_show_urls']['apple'] );
+		$this->assertSame( '', $all['podcasting_show_urls']['spotify'] );
+
+		delete_option( 'podcasting_title' );
+		delete_option( 'podcasting_show_urls' );
+	}
+
+	public function test_rest_schema_properties_types_every_option() {
+		$schema = Settings::rest_schema_properties();
+
+		foreach ( Settings::OPTION_NAMES as $name ) {
+			$this->assertArrayHasKey( $name, $schema, "$name should have an update arg schema" );
+			$this->assertArrayHasKey( 'type', $schema[ $name ], "$name schema should declare a type" );
+		}
+
+		$this->assertSame( 'integer', $schema['podcasting_category_id']['type'] );
+		$this->assertSame( 'integer', $schema['podcasting_image_id']['type'] );
+		$this->assertSame( 'object', $schema['podcasting_show_urls']['type'] );
+		$this->assertSame( 'object', $schema['podcasting_show_states']['type'] );
+		$this->assertSame( array( 'boolean', 'string' ), $schema['podcasting_explicit']['type'] );
 	}
 
 	public function test_register_adds_options_to_jetpack_sync_whitelist() {
@@ -73,6 +112,75 @@ class Settings_Test extends BaseTestCase {
 		$this->assertFalse( Settings::sanitize_explicit( 'maybe' ) );
 		$this->assertFalse( Settings::sanitize_explicit( '' ) );
 		$this->assertFalse( Settings::sanitize_explicit( null ) );
+	}
+
+	public function test_feed_limit_clamps_stored_values_on_read() {
+		update_option( 'podcasting_feed_limit', 999999 );
+		$this->assertSame( Settings::FEED_LIMIT_MAX, Settings::feed_limit() );
+
+		update_option( 'posts_per_rss', 12 );
+		update_option( 'podcasting_feed_limit', -5 );
+		$this->assertSame( 12, Settings::feed_limit() );
+
+		delete_option( 'posts_per_rss' );
+		$this->assertSame( Settings::FEED_LIMIT_DEFAULT, Settings::feed_limit() );
+
+		delete_option( 'podcasting_feed_limit' );
+	}
+
+	public function test_feed_limit_seeds_from_the_site_feed_length_until_it_is_set() {
+		Settings::register_settings();
+
+		update_option( 'posts_per_rss', 12 );
+		$this->assertSame( 12, Settings::feed_limit() );
+
+		update_option( 'podcasting_feed_limit', 40 );
+		$this->assertSame( 40, Settings::feed_limit() );
+
+		delete_option( 'podcasting_feed_limit' );
+		delete_option( 'posts_per_rss' );
+	}
+
+	/**
+	 * A registered default other than the unset sentinel makes that one value
+	 * unsavable: `update_option()` reads it back as the current value and returns
+	 * before creating the row, so the save no-ops and the read reseeds from
+	 * `posts_per_rss`.
+	 */
+	public function test_feed_limit_persists_a_value_matching_the_package_default() {
+		Settings::register_settings();
+		update_option( 'posts_per_rss', 12 );
+
+		$this->assertTrue( update_option( 'podcasting_feed_limit', Settings::FEED_LIMIT_DEFAULT ) );
+		$this->assertSame( Settings::FEED_LIMIT_DEFAULT, Settings::feed_limit() );
+
+		delete_option( 'podcasting_feed_limit' );
+		delete_option( 'posts_per_rss' );
+	}
+
+	public function test_feed_limit_max_filter_moves_the_ceiling_both_ways() {
+		update_option( 'podcasting_feed_limit', 900 );
+		add_filter(
+			'jetpack_podcast_feed_limit_max',
+			function () {
+				return 1000;
+			}
+		);
+		$this->assertSame( 900, Settings::feed_limit() );
+
+		remove_all_filters( 'jetpack_podcast_feed_limit_max' );
+		add_filter(
+			'jetpack_podcast_feed_limit_max',
+			function () {
+				return 100;
+			}
+		);
+		$this->assertSame( 100, Settings::feed_limit() );
+
+		delete_option( 'podcasting_feed_limit' );
+		$this->assertSame( 100, Settings::feed_limit() );
+
+		remove_all_filters( 'jetpack_podcast_feed_limit_max' );
 	}
 
 	public function test_sanitize_show_urls_merges_partial_patch_into_stored_value() {
@@ -166,5 +274,133 @@ class Settings_Test extends BaseTestCase {
 		$result = Settings::sanitize_show_states( array( 'apple' => 'pending' ) );
 
 		$this->assertSame( 'active', $result['apple'] );
+	}
+
+	public function test_raw_show_image_url_prefers_image_attachment_over_raw_option() {
+		$attachment_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'image/jpeg',
+				'post_title'     => 'Show Cover',
+			)
+		);
+		update_post_meta( $attachment_id, '_wp_attached_file', '2026/06/cover.jpg' );
+
+		update_option( 'podcasting_image_id', $attachment_id );
+		update_option( 'podcasting_image', 'https://example.com/raw-fallback.png' );
+
+		$url = Settings::raw_show_image_url();
+
+		$this->assertStringEndsWith( '2026/06/cover.jpg', $url );
+
+		delete_option( 'podcasting_image_id' );
+		delete_option( 'podcasting_image' );
+	}
+
+	/**
+	 * The `wp_attachment_is_image` gate: an ID pointing at a non-image
+	 * attachment (or nothing at all) must fall back to the raw option.
+	 */
+	public function test_raw_show_image_url_falls_back_to_raw_option_for_non_image_id() {
+		$attachment_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'audio/mpeg',
+				'post_title'     => 'Episode Audio',
+			)
+		);
+		update_post_meta( $attachment_id, '_wp_attached_file', '2026/06/episode.mp3' );
+
+		update_option( 'podcasting_image_id', $attachment_id );
+		update_option( 'podcasting_image', 'https://example.com/cover.png' );
+
+		$this->assertSame( 'https://example.com/cover.png', Settings::raw_show_image_url() );
+
+		delete_option( 'podcasting_image_id' );
+		delete_option( 'podcasting_image' );
+	}
+
+	public function test_raw_show_image_url_returns_empty_string_when_unconfigured() {
+		delete_option( 'podcasting_image_id' );
+		delete_option( 'podcasting_image' );
+
+		$this->assertSame( '', Settings::raw_show_image_url() );
+	}
+
+	public function test_feed_url_uses_canonical_category_feed_api() {
+		$cat_id = $this->seed_category_term( 7 );
+		update_option( 'podcasting_category_id', $cat_id );
+
+		$feed_url = Settings::feed_url();
+
+		// Built from WordPress's own category-feed API, never the malformed
+		// `?cat=Nfeed/` a naive `feed/` concatenation produces on plain/no-
+		// trailing-slash permalinks.
+		$this->assertNotEmpty( $feed_url );
+		$this->assertStringNotContainsString( 'feed/', $feed_url );
+		$this->assertNotFalse( filter_var( $feed_url, FILTER_VALIDATE_URL ) );
+
+		// Entity-decoded so it's a usable copy-paste URL: the raw core value
+		// HTML-escapes the separator to `&amp;` (for HTML attributes), which would
+		// drop the `cat` filter and serve the whole-site feed if pasted as-is.
+		$this->assertSame( html_entity_decode( get_term_feed_link( $cat_id, 'category' ), ENT_QUOTES ), $feed_url );
+		$this->assertStringNotContainsString( '&amp;', $feed_url );
+
+		delete_option( 'podcasting_category_id' );
+		wp_cache_flush();
+	}
+
+	public function test_feed_url_is_empty_without_a_category() {
+		delete_option( 'podcasting_category_id' );
+
+		$this->assertSame( '', Settings::feed_url() );
+
+		update_option( 'podcasting_category_id', 0 );
+		$this->assertSame( '', Settings::feed_url() );
+
+		delete_option( 'podcasting_category_id' );
+	}
+
+	public function test_get_all_includes_the_derived_feed_url() {
+		$cat_id = $this->seed_category_term( 8 );
+		update_option( 'podcasting_category_id', $cat_id );
+
+		$all = Settings::get_all();
+
+		$this->assertArrayHasKey( 'podcasting_feed_url', $all );
+		$this->assertNotEmpty( $all['podcasting_feed_url'] );
+		$this->assertSame( Settings::feed_url(), $all['podcasting_feed_url'] );
+
+		delete_option( 'podcasting_category_id' );
+		wp_cache_flush();
+	}
+
+	/**
+	 * WorDBless doesn't register core taxonomies or hydrate inserted terms
+	 * through get_term(), which get_term_feed_link() relies on. Register
+	 * `category` and seed the `terms` object cache with a fully-formed WP_Term so
+	 * get_term() resolves it — mirrors Customize_Feed_Test's approach.
+	 *
+	 * @param int $id Term ID to seed.
+	 * @return int The same term ID, for convenience.
+	 */
+	private function seed_category_term( int $id ): int {
+		if ( ! taxonomy_exists( 'category' ) ) {
+			register_taxonomy( 'category', 'post', array( 'hierarchical' => true ) );
+		}
+		wp_cache_set(
+			$id,
+			new \WP_Term(
+				(object) array(
+					'term_id'          => $id,
+					'name'             => 'Podcast Cat',
+					'slug'             => 'podcast-cat-' . $id,
+					'taxonomy'         => 'category',
+					'term_taxonomy_id' => $id,
+				)
+			),
+			'terms'
+		);
+		return $id;
 	}
 }

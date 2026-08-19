@@ -19,7 +19,7 @@ use WP_Error;
  *
  * Individual tests should be added in the Connection_Health_Tests class.
  *
- * @since $$next-version$$
+ * @since 8.5.0
  */
 class Connection_Health_Test_Base {
 
@@ -57,7 +57,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Adds a new test to the connection testing suite.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @param callable $callable Test to add to queue.
 	 * @param string   $name     Unique name for the test.
@@ -90,7 +90,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Lists all tests to run.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @param string $type  Optional. Core Site Health type: 'direct' or 'async'. 'all' by default.
 	 * @param string $group Optional. A specific testing group. 'all' by default.
@@ -118,7 +118,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Run a specific test.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @param string $name Name of test.
 	 *
@@ -134,7 +134,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Runs the connection testing suite.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 */
 	public function run_tests() {
 		foreach ( $this->tests as $test ) {
@@ -151,7 +151,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Returns the full results array.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @param string $type  Test type, async or direct. Default 'all'.
 	 * @param string $group Testing group whose results we want. Default 'all'.
@@ -187,7 +187,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Returns the status of the connection suite.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @param string $type  Test type, async or direct. Default 'all'.
 	 * @param string $group Testing group to check status of. Default 'all'.
@@ -210,7 +210,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Return array of failed test messages.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @param string $type  Test type, direct or async. Default 'all'.
 	 * @param string $group Testing group whose failures we want. Default 'all'.
@@ -232,7 +232,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Helper function to return consistent responses for a passing test.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @param array $args Arguments to override defaults.
 	 *
@@ -252,7 +252,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Helper function to return consistent responses for a skipped test.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @param array $args Arguments to override defaults.
 	 *
@@ -272,7 +272,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Helper function to return consistent responses for an informational test.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @param array $args Arguments to override defaults.
 	 *
@@ -292,7 +292,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Helper function to return consistent responses for a failing test.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @param array $args Arguments to override defaults.
 	 *
@@ -313,7 +313,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Provides defaults for test arguments.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @return array Result defaults.
 	 */
@@ -367,7 +367,7 @@ class Connection_Health_Test_Base {
 		/**
 		 * Filters the URL used to reconnect the Jetpack connection.
 		 *
-		 * @since $$next-version$$
+		 * @since 8.5.0
 		 *
 		 * @param string $url The reconnect URL.
 		 */
@@ -383,7 +383,7 @@ class Connection_Health_Test_Base {
 		/**
 		 * Filters the Jetpack support URL used in connection health tests.
 		 *
-		 * @since $$next-version$$
+		 * @since 8.5.0
 		 *
 		 * @param string $url The support URL.
 		 */
@@ -500,7 +500,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Returns a human-readable explanation of why the site is in offline mode.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @return string The offline mode trigger explanation.
 	 */
@@ -529,7 +529,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Provide WP_CLI friendly testing results.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @param string $group Testing group whose results we are outputting. Default 'all'.
 	 */
@@ -566,7 +566,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Output results of failures in format expected by Core's Site Health tool for async tests.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @return array Array of test results.
 	 */
@@ -629,7 +629,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Provide single WP_Error instance of all failures.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @param string $type  Test type, direct or async. Default 'all'.
 	 * @param string $group Testing group whose failures we want converted. Default 'all'.
@@ -664,7 +664,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Encrypt data for sending to WordPress.com.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @param string $data Data to encrypt with the WP.com Public Key.
 	 *
@@ -707,7 +707,7 @@ class Connection_Health_Test_Base {
 	/**
 	 * Returns the badge label for Site Health integration.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @return string The badge label.
 	 */
@@ -715,7 +715,7 @@ class Connection_Health_Test_Base {
 		/**
 		 * Filters the badge label shown in WordPress Site Health for connection tests.
 		 *
-		 * @since $$next-version$$
+		 * @since 8.5.0
 		 *
 		 * @param string $label The badge label. Default 'Jetpack Connection'.
 		 */

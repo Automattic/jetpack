@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search Blocks: drop the `jetpack-search/clear-filters` block from the default content of the `filters`, `filters-popover`, and `filters-product` containers, the two bundled patterns (`blog-search`, `compact-search`), and the three page templates (`jetpack-search.html`, `jetpack-search-overlay.html`, `jetpack-search-product-results.html`). The block remains registered and stays in each container's `allowedBlocks` so authors can add it manually.

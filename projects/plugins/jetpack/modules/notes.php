@@ -85,20 +85,6 @@ class Jetpack_Notifications {
 			return;
 		}
 
-		// Do not show notifications in the Site Editor, which is always in fullscreen mode.
-		global $pagenow;
-
-		// Pre 13.7 pages that still need to be supported if < 13.7 is
-		// still installed.
-		$allowed_old_pages       = array( 'admin.php', 'themes.php' );
-		$is_old_site_editor_page = in_array( $pagenow, $allowed_old_pages, true ) && isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		// For Gutenberg > 13.7, the core `site-editor.php` route is used instead
-		$is_site_editor_page = 'site-editor.php' === $pagenow;
-
-		if ( $is_site_editor_page || $is_old_site_editor_page ) {
-			return;
-		}
-
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 120 );
 		add_action( 'wp_head', array( $this, 'styles_and_scripts' ), 120 );
 		add_action( 'admin_head', array( $this, 'styles_and_scripts' ) );
@@ -110,9 +96,6 @@ class Jetpack_Notifications {
 	 * @return void
 	 */
 	public function styles_and_scripts() {
-		if ( self::is_block_editor() ) {
-			return;
-		}
 		$is_rtl = is_rtl();
 
 		if ( ( new Host() )->is_woa_site() ) {
@@ -174,10 +157,6 @@ class Jetpack_Notifications {
 			return;
 		}
 
-		if ( self::is_block_editor() ) {
-			return;
-		}
-
 		$user_locale = get_user_locale();
 
 		if ( ! class_exists( 'GP_Locales' ) ) {
@@ -195,6 +174,10 @@ class Jetpack_Notifications {
 
 		$third_party_cookie_check_iframe = '<span style="display:none;"><iframe class="jetpack-notes-cookie-check" src="https://widgets.wp.com/3rd-party-cookie-check/index.html"></iframe></span>';
 
+		// Opt into the v3 notifications panel/iframe via the `notifications=v3` query parameter.
+		$notifications_version = sanitize_key( wp_unslash( $_GET['notifications'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$panel_id              = 'v3' === $notifications_version ? 'wpnt-notes-panel3' : 'wpnt-notes-panel2';
+
 		$title = self::get_notes_markup();
 
 		// The default fallback is `en_US`. Remove underscore if present, noting that lang codes can be more than three chars.
@@ -205,7 +188,7 @@ class Jetpack_Notifications {
 				'id'     => 'notes',
 				'title'  => $title,
 				'meta'   => array(
-					'html'  => '<div id="wpnt-notes-panel2" class="intrinsic-ignore" style="display:none" lang="' . esc_attr( $user_locale ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>' . $third_party_cookie_check_iframe,
+					'html'  => '<div id="' . esc_attr( $panel_id ) . '" class="intrinsic-ignore" style="display:none" lang="' . esc_attr( $user_locale ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>' . $third_party_cookie_check_iframe,
 					'class' => 'menupop',
 				),
 				'parent' => 'top-secondary',

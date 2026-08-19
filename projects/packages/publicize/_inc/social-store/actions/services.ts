@@ -10,5 +10,8 @@ export function refreshServicesList() {
 		registry
 			.dispatch( coreStore )
 			.invalidateResolution( 'getEntityRecords', [ 'wpcom/v2', 'publicize/services' ] );
+
+		// Await the refetch so callers can read the fresh list right after.
+		await registry.resolveSelect( coreStore ).getEntityRecords( 'wpcom/v2', 'publicize/services' );
 	};
 }

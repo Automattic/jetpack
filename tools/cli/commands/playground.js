@@ -197,7 +197,7 @@ function buildBlueprint( pluginPath, tmpDir, options, wpPluginSlug, pluginName )
 		try {
 			custom = JSON.parse( fs.readFileSync( sourceBlueprint, 'utf8' ) );
 		} catch ( err ) {
-			throw new Error( `Failed to parse blueprint: ${ err.message }` );
+			throw new Error( `Failed to parse blueprint: ${ err.message }`, { cause: err } );
 		}
 		blueprint = {
 			...blueprint,

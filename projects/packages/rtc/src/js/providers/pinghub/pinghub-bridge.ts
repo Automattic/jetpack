@@ -439,28 +439,27 @@ export class PingHubBridge {
 			return null;
 		}
 		const start = Date.now();
+		let response: { token: string } | undefined;
 		try {
-			const response = await apiFetch< { token: string } >( {
+			response = await apiFetch< { token: string } >( {
 				path: '/wpcom/v2/rtc/pinghub-token',
 				method: 'POST',
 			} );
-			this.cachedJwt = response?.token ?? null;
-			this.cachedJwtTimestamp = Date.now();
-			this.resetJwtState();
-			pixel( 'pinghub.rtc.jwt_fetch', Date.now() - start, 'ms' );
-			return this.cachedJwt;
 		} catch {
+			const elapsed = Date.now() - start;
 			this.jwtFetchFailures++;
 			this.jwtBackoffUntil = Date.now() + this.jwtBackoffDelay;
 			this.jwtBackoffDelay = Math.min( this.jwtBackoffDelay * 2, JWT_BACKOFF_MAX_MS );
-			const elapsed = Date.now() - start;
-			pixel( 'pinghub.rtc.jwt_fetch_error', elapsed, 'ms' );
 			logConnectionEvent( 'jwt_fetch_error', {
 				duration_ms: elapsed,
 				failure_count: this.jwtFetchFailures,
 			} );
 			return null;
 		}
+		this.cachedJwt = response?.token ?? null;
+		this.cachedJwtTimestamp = Date.now();
+		this.resetJwtState();
+		return this.cachedJwt;
 	}
 
 	/**
@@ -473,14 +472,11 @@ export class PingHubBridge {
 		this.wsState = 'connecting';
 
 		const jwt = await this.fetchPinghubJwt();
-		if ( ! jwt ) {
-			this.wsState = 'idle';
-			const err = new Error( 'PingHub JWT fetch failed' );
-			this.connectingWaiters.splice( 0 ).forEach( ( { reject } ) => reject( err ) );
-			return;
+		let wsUrl = this.channelPath();
+		if ( jwt ) {
+			wsUrl += '?jwt=' + encodeURIComponent( jwt );
 		}
 
-		const wsUrl = this.channelPath() + '?jwt=' + encodeURIComponent( jwt );
 		const ws = new WebSocket( wsUrl );
 		ws.binaryType = 'arraybuffer';
 		this.ws = ws;
@@ -490,7 +486,6 @@ export class PingHubBridge {
 			const elapsed = Date.now() - this.wsConnectStart;
 			this.wsState = 'open';
 			pixel( 'pinghub.conn_open', elapsed, 'ms' );
-			pixel( 'pinghub.rtc.conn_open', elapsed, 'ms' );
 			logConnectionEvent( 'connected', {
 				time_to_connect_ms: elapsed,
 				active_rooms: this.registeredRooms.size,
@@ -505,7 +500,6 @@ export class PingHubBridge {
 		ws.addEventListener( 'close', event => {
 			const elapsed = Date.now() - this.wsConnectStart;
 			pixel( 'pinghub.conn_close_code.' + event.code, elapsed, 'ms' );
-			pixel( 'pinghub.rtc.conn_close_code.' + event.code, elapsed, 'ms' );
 			logConnectionEvent( 'disconnected', {
 				close_code: event.code,
 				close_reason: event.reason,
@@ -528,7 +522,6 @@ export class PingHubBridge {
 
 		ws.addEventListener( 'error', () => {
 			pixel( 'pinghub.conn_err', Date.now() - this.wsConnectStart, 'ms' );
-			pixel( 'pinghub.rtc.conn_err', Date.now() - this.wsConnectStart, 'ms' );
 		} );
 
 		ws.addEventListener( 'message', event => {
@@ -624,15 +617,15 @@ export class PingHubBridge {
 	/**
 	 * Send binary data to peers in the given room.
 	 *
-	 * The payload is tagged with the room name before chunking and sending,
-	 * so all peers on the shared channel can demultiplex by room.
+	 * Small messages are sent as a single room-tagged frame. Larger messages
+	 * are split into chunks, with each chunk individually room-tagged so the
+	 * receiver can demultiplex every chunk independently before reassembly.
 	 *
 	 * @param room - Room name.
 	 * @param data - Payload to send.
 	 */
 	send( room: string, data: Uint8Array ): void {
 		if ( ! this.ws || this.ws.readyState !== WebSocket.OPEN ) {
-			pixel( 'pinghub.rtc.send_drop', 1, 'c' );
 			return;
 		}
 
@@ -644,15 +637,21 @@ export class PingHubBridge {
 			return;
 		}
 
+		// Each chunk is demultiplexed independently on receive by reading its
+		// room tag, so every chunk must carry one. Chunk the RAW payload and
+		// re-tag each slice as room\0<slice>; tagging once and slicing the
+		// tagged buffer would leave later chunks without a room prefix, so the
+		// receiver would drop them and the message would never reassemble.
+		const roomTagLength = textEncoder.encode( room ).length + 1; // room bytes + separator
+		const chunkSize = MAX_PAYLOAD_BEFORE_CHUNK - CHUNK_HEADER_LEN - roomTagLength;
 		// eslint-disable-next-line no-bitwise
 		const msgId = this.chunkMsgId & 0xffff;
 		this.chunkMsgId++;
-		const chunkSize = MAX_PAYLOAD_BEFORE_CHUNK - CHUNK_HEADER_LEN;
-		const totalChunks = Math.ceil( tagged.length / chunkSize );
+		const totalChunks = Math.ceil( data.length / chunkSize );
 		for ( let i = 0; i < totalChunks; i++ ) {
 			const start = i * chunkSize;
-			const payload = tagged.subarray( start, Math.min( start + chunkSize, tagged.length ) );
-			sendOne( buildChunk( msgId, totalChunks, i, payload ) );
+			const slice = data.subarray( start, Math.min( start + chunkSize, data.length ) );
+			sendOne( buildChunk( msgId, totalChunks, i, tagPayload( room, slice ) ) );
 		}
 	}
 }

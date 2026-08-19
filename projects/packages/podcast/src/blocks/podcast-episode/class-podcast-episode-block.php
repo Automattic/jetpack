@@ -9,15 +9,9 @@ namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Status\Request;
 
 /**
  * Registers and renders the Podcast Episode block.
- *
- * Activation is gated by the `jetpack_podcast_untangle` filter; the
- * caller (Podcast::init()) is responsible for the host gate. Each action
- * callback re-checks the filter at hook time, so a late-registered filter
- * callback still takes effect.
  */
 class Podcast_Episode_Block {
 
@@ -30,18 +24,16 @@ class Podcast_Episode_Block {
 	 * Front-end + editor shared style handle. Side-loaded by
 	 * `Assets::register_script` from the sibling `style.css` bundle.
 	 */
-	const STYLE_HANDLE = 'jetpack-podcast-episode-style';
+	const STYLE_HANDLE = 'jetpack-block-podcast-episode';
 
 	/**
-	 * Front-end view script handle. Enqueued from the render callback
-	 * because the block.json `viewScript` field can't resolve to the
-	 * package's dist directory from the deployed src location.
+	 * Front-end view script handle. Enqueued from the render callback because
+	 * block.json `viewScript` can't resolve the package's dist dir.
 	 */
 	const VIEW_HANDLE = 'jetpack-podcast-episode-view';
 
 	/**
-	 * Wire the block's actions. Hooks are added unconditionally; each
-	 * callback re-checks the untangle filter and short-circuits when off.
+	 * Wire the block's actions.
 	 */
 	public static function register_hooks() {
 		add_action( 'init', array( __CLASS__, 'register_block' ), 9 );
@@ -49,32 +41,11 @@ class Podcast_Episode_Block {
 	}
 
 	/**
-	 * Whether the new podcast experience is enabled.
-	 *
-	 * Delegates to {@see Podcast::is_enabled()} so the block honors the
-	 * same default (proxied A8C requests) as the rest of the package.
-	 */
-	private static function is_enabled(): bool {
-		return Podcast::is_enabled();
-	}
-
-	/**
-	 * Register the block when the gate is open.
-	 *
-	 * Also registers the front-end style bundle (built separately from the
-	 * editor bundle so it actually ships on the public post page) and hands
-	 * the handle to `register_block_type` via the `style` arg, which auto-
-	 * enqueues it whenever the block is rendered.
+	 * Register the block and its front-end style bundle (auto-enqueued via the
+	 * `style` arg whenever the block renders).
 	 */
 	public static function register_block() {
-		if ( ! self::is_enabled() ) {
-			return;
-		}
-
-		// Assets::register_script side-loads the sibling style.css and
-		// registers a style handle under the same name. The accompanying
-		// (essentially empty) style.js handle is registered too but never
-		// enqueued — only the style is passed to register_block_type below.
+		// Side-loads the sibling style.css and registers it under STYLE_HANDLE.
 		Assets::register_script(
 			self::STYLE_HANDLE,
 			'../../../dist/blocks/podcast-episode/style.js',
@@ -84,22 +55,50 @@ class Podcast_Episode_Block {
 			)
 		);
 
+		// Register in every context so the RSS feed carries the player — how the
+		// WPCOM Reader shows it on Atomic/Jetpack sites.
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(
-				'render_callback' => array( __CLASS__, 'render_block' ),
-				'style'           => self::STYLE_HANDLE,
+				'render_callback'       => array( __CLASS__, 'render_block' ),
+				'style'                 => self::STYLE_HANDLE,
+				'render_email_callback' => array( __CLASS__, 'render_email' ),
+			)
+		);
+
+		// Flag as plan-gated for the editor upgrade prompt. Priority 11 runs after
+		// jetpack_register_block's own availability action (10), so this wins.
+		// Admin-only: only the editor consumes this availability entry (the
+		// front-end render isn't availability-gated), and the self-hosted access
+		// check can hit WPCOM — it must never run during a front-end page render.
+		if ( is_admin() && class_exists( \Jetpack_Gutenberg::class ) ) {
+			add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'flag_plan_gated' ), 11 );
+		}
+	}
+
+	/**
+	 * Mark the block plan-gated so the editor shows the upgrade prompt (no-op if
+	 * the site has access). Standard paid-block behavior: nudge on Atomic/Simple,
+	 * hidden on self-hosted Jetpack where nudges are off — upsell in the dashboard.
+	 */
+	public static function flag_plan_gated() {
+		if ( Podcast_Gate::has_product_access() ) {
+			return;
+		}
+
+		\Jetpack_Gutenberg::set_extension_unavailable(
+			'podcast-episode',
+			'missing_plan',
+			array(
+				'required_feature' => 'podcast-episode',
+				'required_plan'    => Podcast_Gate::get_required_plan_slug(),
 			)
 		);
 	}
 
 	/**
-	 * Register and enqueue the front-end view script that wires chapter and
-	 * soundbite buttons to the audio player. Called from the render callback
-	 * so the script only ships on pages that actually contain the block.
-	 *
-	 * `Assets::register_script` dedups internally, so calling this for each
-	 * rendered instance of the block is safe.
+	 * Register + enqueue the front-end view script (wires soundbite buttons).
+	 * Called from render so it only ships on pages with the block; dedups internally.
 	 */
 	private static function enqueue_view_script() {
 		Assets::register_script(
@@ -117,10 +116,6 @@ class Podcast_Episode_Block {
 	 * Enqueue the bundled editor script + style from the package's dist/.
 	 */
 	public static function load_editor_scripts() {
-		if ( ! self::is_enabled() ) {
-			return;
-		}
-
 		Assets::register_script(
 			self::EDITOR_HANDLE,
 			'../../../dist/blocks/podcast-episode/editor.js',
@@ -132,20 +127,14 @@ class Podcast_Episode_Block {
 			)
 		);
 
-		// Add the script_loader_src rewrite only while the editor script is
-		// in flight, so the filter doesn't run on every front-end script load.
+		// Only hook the src rewrite while the editor script is loading.
 		add_filter( 'script_loader_src', array( __CLASS__, 'filter_editor_script_src' ), 10, 2 );
 	}
 
 	/**
-	 * Rewrite the editor script src to match the admin scheme.
-	 *
-	 * On WPCOM sites with a custom domain mapping that lacks SSL, `home_url()`
-	 * (and therefore `plugins_url()`) returns `http://mapped-domain.test` even
-	 * though wp-admin is served from `.wordpress.com` over HTTPS. The script
-	 * URL then trips the browser's mixed-content block. Routing through the
-	 * canonical `script_loader_src` filter keeps the URL valid in both cases
-	 * without mutating `$wp_scripts->registered` directly.
+	 * Rewrite the editor script src to the admin scheme, avoiding a mixed-content
+	 * block on WPCOM custom domains without SSL (where `plugins_url()` returns
+	 * http but wp-admin is https).
 	 *
 	 * @param string $src    Script source URL.
 	 * @param string $handle Script handle.
@@ -183,31 +172,46 @@ class Podcast_Episode_Block {
 	}
 
 	/**
-	 * Render callback.
+	 * Resolve the episode cover art URL: episode override → post featured
+	 * image → show-level `podcasting_image` option → empty string.
 	 *
-	 * Pulls title, author, and date from the surrounding post — the post is
-	 * the episode. Cover art falls back to the show-level `podcasting_image`
-	 * option when the block has no episode-specific override.
+	 * @param array    $attributes Block attributes.
+	 * @param \WP_Post $post       Episode post.
+	 * @param string   $size       Featured-image size to request.
+	 * @return string
+	 */
+	private static function resolve_cover_art_url( array $attributes, $post, $size ) {
+		if ( isset( $attributes['coverArt'] ) && is_array( $attributes['coverArt'] ) && ! empty( $attributes['coverArt']['url'] ) ) {
+			return esc_url_raw( $attributes['coverArt']['url'] );
+		}
+
+		$featured_id = (int) get_post_thumbnail_id( $post );
+		if ( $featured_id ) {
+			$featured_url = (string) wp_get_attachment_image_url( $featured_id, $size );
+			if ( '' !== $featured_url ) {
+				return $featured_url;
+			}
+		}
+
+		return (string) get_option( 'podcasting_image', '' );
+	}
+
+	/**
+	 * Render callback. Full player in every context so the RSS feed carries it
+	 * (how the WPCOM Reader shows it on Atomic/Jetpack). Email uses render_email().
 	 *
 	 * @param array     $attributes Block attributes.
-	 * @param string    $content    Inner content (fallback direct-link markup from save.js).
-	 * @param \WP_Block $block      The parsed block instance, used to read post context.
+	 * @param string    $content    Saved inner content; unused, the block renders its own markup.
+	 * @param \WP_Block $block      Parsed block instance, used for post context.
 	 * @return string
 	 */
 	public static function render_block( $attributes, $content, $block = null ) {
-		// Outside the frontend, fall back to the saved direct link so RSS / email / REST export stays
-		// simple and predictable.
-		if ( ! Request::is_frontend() ) {
-			return $content;
-		}
-
 		if ( empty( $attributes['mediaUrl'] ) ) {
 			return '';
 		}
 
-		// Resolve the post that backs this episode. Prefer block context (set by Query Loop / singular
-		// templates / post-bound block contexts) and fall back to the global loop for direct theme
-		// rendering. With no resolvable post, the block has nothing to display.
+		// Resolve the backing post: block context (Query Loop / singular) first,
+		// then the global loop.
 		$post_id = 0;
 		if ( $block && isset( $block->context['postId'] ) ) {
 			$post_id = (int) $block->context['postId'];
@@ -245,8 +249,32 @@ class Podcast_Episode_Block {
 		$soundbites           = isset( $attributes['soundbites'] ) && is_array( $attributes['soundbites'] ) ? $attributes['soundbites'] : array();
 		$alternate_enclosures = isset( $attributes['alternateEnclosures'] ) && is_array( $attributes['alternateEnclosures'] ) ? $attributes['alternateEnclosures'] : array();
 
-		// Only ship the click-to-seek script on episodes that actually have soundbites to wire.
-		// Chapters are hosted as an external JSON file and consumed by Podcasting 2.0 players directly.
+		// Drop incomplete rows up front so an all-empty list doesn't enqueue the seek script or emit a bare <ul>.
+		$soundbites           = array_values(
+			array_filter(
+				$soundbites,
+				static function ( $soundbite ) {
+					return is_array( $soundbite ) && isset( $soundbite['startTime'] );
+				}
+			)
+		);
+		$alternate_enclosures = array_values(
+			array_filter(
+				$alternate_enclosures,
+				static function ( $alt ) {
+					if ( ! is_array( $alt ) || empty( $alt['url'] ) ) {
+						return false;
+					}
+					if ( ! wp_http_validate_url( esc_url_raw( (string) $alt['url'] ) ) ) {
+						return false;
+					}
+					// `type` is required per spec — mirror the feed, which skips typeless entries.
+					return '' !== ( isset( $alt['type'] ) ? trim( (string) $alt['type'] ) : '' );
+				}
+			)
+		);
+
+		// Only ship the click-to-seek script when there are soundbites to wire.
 		if ( ! empty( $soundbites ) ) {
 			self::enqueue_view_script();
 		}
@@ -264,32 +292,15 @@ class Podcast_Episode_Block {
 		$episode_url      = get_permalink( $post );
 		$transcript_type  = isset( $attributes['transcriptType'] ) ? (string) $attributes['transcriptType'] : '';
 
-		// Show-level data backs the `partOfSeries` PodcastSeries reference so
-		// search engines can connect the episode to its parent show.
+		// Show-level data backs the `partOfSeries` schema reference.
 		$show_title     = (string) get_option( 'podcasting_title', '' );
 		$show_image_url = (string) get_option( 'podcasting_image', '' );
 		$show_email     = (string) get_option( 'podcasting_email', '' );
 
-		// Cover art chain: episode override → post featured image → show-level cover → none.
-		// Resolved unconditionally so schema metadata always carries the image; the
-		// `$show_poster` toggle only gates the visible figure and the video poster.
-		$image_url = '';
-		if ( isset( $attributes['coverArt'] ) && is_array( $attributes['coverArt'] ) && ! empty( $attributes['coverArt']['url'] ) ) {
-			$image_url = esc_url_raw( $attributes['coverArt']['url'] );
-		} else {
-			$featured_id = (int) get_post_thumbnail_id( $post );
-			if ( $featured_id ) {
-				$featured_url = (string) wp_get_attachment_image_url( $featured_id, 'full' );
-				if ( '' !== $featured_url ) {
-					$image_url = $featured_url;
-				}
-			}
-			if ( '' === $image_url ) {
-				$image_url = $show_image_url;
-			}
-		}
+		// Resolve cover art unconditionally so schema always carries the image;
+		// `$show_poster` only gates the visible figure/poster.
+		$image_url = self::resolve_cover_art_url( $attributes, $post, 'full' );
 
-		// AudioObject/VideoObject @type for the embedded media.
 		$media_object_type = 'video' === $media_type ? 'VideoObject' : 'AudioObject';
 
 		$wrapper_attributes = get_block_wrapper_attributes();
@@ -347,7 +358,13 @@ class Podcast_Episode_Block {
 					<?php endif; ?>
 
 					<?php if ( $title ) : ?>
-						<h3 class="jetpack-podcast-episode__title" itemprop="name"><?php echo esc_html( $title ); ?></h3>
+						<h3 class="jetpack-podcast-episode__title" itemprop="name">
+							<?php if ( $episode_url ) : ?>
+								<a href="<?php echo esc_url( $episode_url ); ?>"><?php echo esc_html( $title ); ?></a>
+							<?php else : ?>
+								<?php echo esc_html( $title ); ?>
+							<?php endif; ?>
+						</h3>
 					<?php endif; ?>
 
 					<?php if ( $author_name || $publish_date || $duration ) : ?>
@@ -405,7 +422,7 @@ class Podcast_Episode_Block {
 								if ( $mime_type ) :
 									?>
 									data-mime="<?php echo esc_attr( $mime_type ); ?>"<?php endif; ?>
-							></video>
+							><a href="<?php echo esc_url( $media_url ); ?>"><?php esc_html_e( 'Watch the episode', 'jetpack-podcast' ); ?></a></video>
 						<?php else : ?>
 							<audio
 								class="jetpack-podcast-episode__audio"
@@ -416,7 +433,7 @@ class Podcast_Episode_Block {
 								if ( $mime_type ) :
 									?>
 									data-mime="<?php echo esc_attr( $mime_type ); ?>"<?php endif; ?>
-							></audio>
+							><a href="<?php echo esc_url( $media_url ); ?>"><?php esc_html_e( 'Listen to the episode', 'jetpack-podcast' ); ?></a></audio>
 						<?php endif; ?>
 					</div>
 
@@ -429,9 +446,10 @@ class Podcast_Episode_Block {
 								}
 								$start_label     = self::format_seconds_label( $soundbite['startTime'] );
 								$soundbite_title = isset( $soundbite['title'] ) ? trim( (string) $soundbite['title'] ) : '';
-								$start_seconds   = (int) floor( max( 0, (float) $soundbite['startTime'] ) );
-								$end_seconds     = isset( $soundbite['duration'] )
-									? $start_seconds + (int) floor( max( 0, (float) $soundbite['duration'] ) )
+								// Keep fractional offsets so the seek button and Clip metadata match the feed.
+								$start_seconds = max( 0, (float) $soundbite['startTime'] );
+								$end_seconds   = isset( $soundbite['duration'] )
+									? $start_seconds + max( 0, (float) $soundbite['duration'] )
 									: null;
 								?>
 								<li
@@ -582,5 +600,173 @@ class Podcast_Episode_Block {
 		<?php
 
 		return ob_get_clean();
+	}
+
+	/**
+	 * Render the block for email (WooCommerce Email Editor). Email can't run the
+	 * player, so render a static card linking back to the episode post.
+	 *
+	 * @param string $block_content     The original block HTML content.
+	 * @param array  $parsed_block      The parsed block data including attributes.
+	 * @param object $rendering_context Email rendering context.
+	 * @return string
+	 */
+	public static function render_email( $block_content, array $parsed_block, $rendering_context ) {
+		if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
+			! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ||
+			! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
+			return '';
+		}
+
+		$attrs = $parsed_block['attrs'];
+
+		if ( empty( $attrs['mediaUrl'] ) || ! wp_http_validate_url( $attrs['mediaUrl'] ) ) {
+			return '';
+		}
+
+		$post = get_post();
+		if ( ! $post ) {
+			return '';
+		}
+
+		$post_url = get_permalink( $post );
+		if ( empty( $post_url ) ) {
+			return '';
+		}
+
+		$title          = get_the_title( $post );
+		$author_name    = get_the_author_meta( 'display_name', (int) $post->post_author );
+		$publish_date   = get_the_date( '', $post );
+		$duration       = isset( $attrs['duration'] ) ? trim( (string) $attrs['duration'] ) : '';
+		$season_number  = isset( $attrs['seasonNumber'] ) ? (int) $attrs['seasonNumber'] : 0;
+		$episode_number = isset( $attrs['episodeNumber'] ) ? (int) $attrs['episodeNumber'] : 0;
+
+		$image_url = self::resolve_cover_art_url( $attrs, $post, 'thumbnail' );
+		if ( '' !== $image_url && ! wp_http_validate_url( $image_url ) ) {
+			$image_url = '';
+		}
+
+		$cta_label = isset( $attrs['mediaType'] ) && 'video' === $attrs['mediaType']
+			? __( 'Watch the episode', 'jetpack-podcast' )
+			: __( 'Listen to the episode', 'jetpack-podcast' );
+
+		$meta_parts = array();
+		if ( $season_number ) {
+			/* translators: %d: season number. */
+			$meta_parts[] = sprintf( __( 'Season %d', 'jetpack-podcast' ), $season_number );
+		}
+		if ( $episode_number ) {
+			/* translators: %d: episode number. */
+			$meta_parts[] = sprintf( __( 'Episode %d', 'jetpack-podcast' ), $episode_number );
+		}
+
+		$byline_parts = array_filter( array( $author_name, $publish_date, $duration ) );
+
+		$body = '';
+		if ( $meta_parts ) {
+			$body .= sprintf(
+				'<p style="margin: 0 0 4px; font-size: 12px; line-height: 1.4; text-transform: uppercase; letter-spacing: 0.5px; color: #757575;">%s</p>',
+				esc_html( implode( ' · ', $meta_parts ) )
+			);
+		}
+		if ( $title ) {
+			$body .= sprintf(
+				'<h3 style="margin: 0 0 4px; font-size: 18px; line-height: 1.3;"><a href="%s" style="color: inherit; text-decoration: none;">%s</a></h3>',
+				esc_url( $post_url ),
+				esc_html( $title )
+			);
+		}
+		if ( $byline_parts ) {
+			$body .= sprintf(
+				'<p style="margin: 0 0 12px; font-size: 13px; line-height: 1.4; color: #757575;">%s</p>',
+				esc_html( implode( ' · ', $byline_parts ) )
+			);
+		}
+		$body .= sprintf(
+			'<p style="margin: 0; font-size: 14px;"><a href="%s" style="font-weight: 600;">&#9654;&nbsp; %s</a></p>',
+			esc_url( $post_url ),
+			esc_html( $cta_label )
+		);
+
+		$cells = '';
+		if ( '' !== $image_url ) {
+			$image_link = sprintf(
+				'<a href="%s"><img src="%s" alt="" width="96" height="96" style="display: block; width: 96px; height: 96px; border-radius: 4px;" /></a>',
+				esc_url( $post_url ),
+				esc_url( $image_url )
+			);
+
+			// Padding on an inner wrapper, not the cell: the mobile media query
+			// zeroes `.layout-flex-item` padding when the card stacks.
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+			$cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
+				'<div style="padding: 16px 0 0 16px;">' . $image_link . '</div>',
+				array(
+					'class'  => 'layout-flex-item',
+					'width'  => '96',
+					'valign' => 'top',
+					'style'  => 'width: 96px;',
+				)
+			);
+		}
+
+		// Table-wrap the body so bare <p>/<h3> survive email pipelines (core
+		// blocks do the same); padding rides the nested cell, safe when stacked.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+		$body_table = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
+			$body,
+			array( 'style' => 'width: 100%; border-collapse: collapse;' ),
+			array( 'style' => 'padding: 16px;' )
+		);
+
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+		$cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
+			$body_table,
+			array(
+				'class'  => 'layout-flex-item',
+				'valign' => 'top',
+			)
+		);
+
+		// Cap to the email layout width when the context exposes it.
+		$target_width = 600;
+		if ( method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+			$layout_width = (int) \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::parse_value( $rendering_context->get_layout_width_without_padding() );
+			if ( $layout_width > 0 ) {
+				$target_width = $layout_width;
+			}
+		}
+
+		// Preserve the vertical gap from email_attrs (the engine sets margin-top).
+		$email_attrs        = $parsed_block['email_attrs'] ?? array();
+		$table_margin_style = (string) \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin', 'margin-top' ) ) ), '' );
+
+		// `layout-flex-wrapper` opts into the engine's mobile stacking (collapses
+		// under 660px). border-collapse must stay `separate` for the rounded border.
+		$table_style = sprintf(
+			'%s width: 100%%; max-width: %dpx; border-collapse: separate; border: 1px solid #ddd; border-radius: 6px;',
+			$table_margin_style ? $table_margin_style : 'margin: 16px 0;',
+			$target_width
+		);
+
+		// Append user block supports so editor styling overrides the defaults.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+		$user_styles = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::get_block_styles( $attrs, $rendering_context, array( 'padding', 'border', 'background-color', 'color' ) );
+		if ( ! empty( $user_styles['css'] ) ) {
+			$table_style .= ' ' . $user_styles['css'];
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+		return \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
+			$cells,
+			array(
+				'class' => 'jetpack-podcast-episode-email-card layout-flex-wrapper',
+				'style' => $table_style,
+			),
+			array(),
+			array(),
+			false
+		);
 	}
 }

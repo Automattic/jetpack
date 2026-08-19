@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.28
+ * Stubs automatically generated from PHPUnit 12.5.33
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -5726,7 +5726,7 @@ abstract class Assert
     {
     }
     /**
-     * @param array<mixed>|\ArrayAccess<array-key, mixed> $array
+     * @param array<mixed>|\ArrayAccess<array-key, covariant mixed> $array
      * @throws Exception
      * @throws ExpectationFailedException
      */
@@ -5734,7 +5734,7 @@ abstract class Assert
     {
     }
     /**
-     * @param array<mixed>|\ArrayAccess<array-key, mixed> $array
+     * @param array<mixed>|\ArrayAccess<array-key, covariant mixed> $array
      * @throws Exception
      * @throws ExpectationFailedException
      */
@@ -7123,7 +7123,7 @@ function assertArrayIsIdenticalToArrayIgnoringListOfKeys(array $expected, array 
 {
 }
 /**
- * @param array<mixed>|\ArrayAccess<array-key, mixed> $array
+ * @param array<mixed>|\ArrayAccess<array-key, covariant mixed> $array
  * @throws Exception
  * @throws ExpectationFailedException
  * @no-named-arguments
@@ -7133,7 +7133,7 @@ function assertArrayHasKey(mixed $key, array|\ArrayAccess $array, string $messag
 {
 }
 /**
- * @param array<mixed>|\ArrayAccess<array-key, mixed> $array
+ * @param array<mixed>|\ArrayAccess<array-key, covariant mixed> $array
  * @throws Exception
  * @throws ExpectationFailedException
  * @no-named-arguments
@@ -8816,7 +8816,7 @@ final class ErrorLogNotWritableException extends \PHPUnit\Framework\Exception
 class Exception extends \RuntimeException implements \PHPUnit\Exception
 {
     /**
-     * @var list<array{file?: string, line?: int, function: string}>
+     * @var list<array{file?: string, line?: int, function: string, ...}>
      */
     protected array $serializableTrace;
     public function __construct(string $message = '', int|string $code = 0, ?\Throwable $previous = null)
@@ -8826,7 +8826,7 @@ class Exception extends \RuntimeException implements \PHPUnit\Exception
     {
     }
     /**
-     * @return list<array{file?: string, line?: int, function: string}>
+     * @return list<array{file?: string, line?: int, function: string, ...}>
      */
     public function getSerializableTrace(): array
     {
@@ -8970,7 +8970,7 @@ final class ComparisonMethodDoesNotExistException extends \PHPUnit\Framework\Exc
 final class PhptAssertionFailedError extends \PHPUnit\Framework\AssertionFailedError
 {
     /**
-     * @param list<array{file: string, line: int, function: string, type: string}> $trace
+     * @param list<array{file?: string, line?: int, function?: string, type?: string, ...}> $trace
      */
     public function __construct(string $message, int $code, string $file, int $line, array $trace, string $diff)
     {
@@ -8982,7 +8982,7 @@ final class PhptAssertionFailedError extends \PHPUnit\Framework\AssertionFailedE
     {
     }
     /**
-     * @return list<array{file: string, line: int, function: string, type: string}>
+     * @return list<array{file?: string, line?: int, function?: string, type?: string, ...}>
      */
     public function syntheticTrace(): array
     {
@@ -17665,6 +17665,12 @@ final class HookMethodCollection
     {
     }
     public static function defaultAfterClass(): self
+    {
+    }
+    /**
+     * @param non-empty-string $methodName
+     */
+    public function isDefaultHookMethod(string $methodName): bool
     {
     }
     public function add(\PHPUnit\Runner\HookMethod $hookMethod): self
@@ -27280,6 +27286,9 @@ abstract class Renderer
     {
     }
     protected function setCommonTemplateVariables(\SebastianBergmann\Template\Template $template, \SebastianBergmann\CodeCoverage\Node\AbstractNode $node): void
+    {
+    }
+    protected function escapeHtml(string $value): string
     {
     }
     protected function breadcrumbs(\SebastianBergmann\CodeCoverage\Node\AbstractNode $node): string

@@ -20,7 +20,6 @@ use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
-// phpcs:ignore WordPress.Utils.I18nTextDomainFixer.MissingArgs
 use function esc_html__;
 use function get_comment;
 use function get_comment_meta;

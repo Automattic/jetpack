@@ -247,7 +247,6 @@ class Publicize extends Publicize_Base {
 			foreach ( (array) $connections as $service_name => $connections_for_service ) {
 				foreach ( $connections_for_service as $id => $connection ) {
 					$user_id = (int) $connection['connection_data']['user_id'];
-					// phpcs:ignore WordPress.PHP.YodaConditions.NotYoda
 					if ( $user_id === 0 || $this->user_id() === $user_id ) {
 						$connections_to_return[ $service_name ][ $id ] = $connection;
 					}
@@ -551,7 +550,6 @@ class Publicize extends Publicize_Base {
 			'instagram-business' => array(),
 			'nextdoor'           => array(),
 			'threads'            => array(),
-			'x'                  => array(),
 			'bluesky'            => array(),
 		);
 
@@ -590,7 +588,7 @@ class Publicize extends Publicize_Base {
 	 * @param WP_Post $post Post object.
 	 */
 	public function flag_post_for_publicize( $new_status, $old_status, $post ) {
-		if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
+		if ( ! $post instanceof \WP_Post || ! $this->post_type_is_publicizeable( $post->post_type ) ) {
 			return;
 		}
 

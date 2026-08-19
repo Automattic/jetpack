@@ -155,6 +155,9 @@ class Waf_Compatibility {
 	 */
 	public static function merge_ip_allow_lists( $waf_allow_list, $brute_force_allow_list ) {
 
+		// Drop malformed entries.
+		$brute_force_allow_list = is_array( $brute_force_allow_list ) ? array_filter( $brute_force_allow_list, 'is_object' ) : array();
+
 		if ( empty( $brute_force_allow_list ) ) {
 			return $waf_allow_list;
 		}

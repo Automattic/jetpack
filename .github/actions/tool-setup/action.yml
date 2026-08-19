@@ -54,7 +54,7 @@ runs:
 
     - name: Setup PHP
       if: steps.versions.outputs.php-version != 'false'
-      uses: shivammathur/setup-php@v2
+      uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
       with:
         php-version: ${{ steps.versions.outputs.php-version }}
         ini-values: error_reporting=E_ALL, display_errors=On, zend.assertions=1
@@ -76,12 +76,12 @@ runs:
 
     - name: Setup pnpm
       if: steps.versions.outputs.node-version != 'false'
-      uses: pnpm/action-setup@v5.0.0
+      uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
       with:
         version: ${{ steps.versions.outputs.pnpm-version }}
     - name: Setup Node
       if: steps.versions.outputs.node-version != 'false'
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
       with:
         # Prefix the version with a caret as otherwise actions/setup-node will waste API calls finding where to download the exact version.
         node-version: ^${{ steps.versions.outputs.node-version }}

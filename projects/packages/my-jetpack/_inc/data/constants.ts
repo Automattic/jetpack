@@ -18,6 +18,7 @@ export const REST_API_GET_JETPACK_MANAGE_DATA = `${ REST_API_NAMESPACE }/jetpack
 export const REST_API_RED_BUBBLE_ALERTS = `${ REST_API_NAMESPACE }/red-bubble-notifications`;
 export const REST_API_GET_PROTECT_DATA = `${ REST_API_NAMESPACE }/site/protect/data`;
 export const REST_API_GET_VIDEOPRESS_DATA = `${ REST_API_NAMESPACE }/site/videopress/data`;
+export const REST_API_SEO_OPT_IN_ENDPOINT = 'jetpack/v4/seo/opt-in';
 
 export const getStatsHighlightsEndpoint = ( blogId: string ) =>
 	`${ ODYSSEY_STATS_API_NAMESPACE }/sites/${ blogId }/stats/highlights`;
@@ -49,6 +50,7 @@ export const QUERY_RED_BUBBLE_ALERTS_KEY = 'red bubble alerts';
 export const QUERY_GET_PROTECT_DATA_KEY = 'get protect data';
 export const QUERY_GET_VIDEOPRESS_DATA_KEY = 'get videopress data';
 export const QUERY_GET_OAUTH_AUTHORIZE_URL_KEY = 'get oauth authorize url';
+export const QUERY_SEO_OPT_IN_KEY = 'seo opt-in';
 
 // Query key for stats visits (time series data)
 export const QUERY_STATS_VISITS_KEY = 'stats visits';
@@ -63,6 +65,7 @@ export const PRODUCT_SLUGS = {
 	CREATOR: 'creator',
 	EXTRAS: 'extras',
 	JETPACK_AI: 'jetpack-ai',
+	JETPACK_FORMS: 'jetpack-forms',
 	NEWSLETTER: 'newsletter',
 	PROTECT: 'protect',
 	RELATED_POSTS: 'related-posts',

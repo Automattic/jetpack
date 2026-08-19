@@ -3,7 +3,6 @@ import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
@@ -21,6 +20,7 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
+import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation';
@@ -37,7 +37,7 @@ import type {
 } from '../../types';
 import type { ChartComponentWithComposition } from '../private/chart-composition';
 import type { ResponsiveConfig } from '../private/with-responsive';
-import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
+import type { PieProvidedProps } from '@visx/shape';
 import type { FC, MouseEvent, ReactNode } from 'react';
 
 /**
@@ -135,7 +135,7 @@ type PieSemiCircleChartResponsiveComponent = ChartComponentWithComposition<
 	PieSemiCircleChartBaseProps & ResponsiveConfig
 >;
 
-export type ArcData = PieArcDatum< DataPointPercentageCalculated >;
+export type ArcData = PieProvidedProps< DataPointPercentageCalculated >[ 'arcs' ][ number ];
 
 /**
  * Validates the semi-circle pie chart data
@@ -397,12 +397,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					const innerRadius = radius * ( 1 - thickness );
 
 					return (
-						<Stack
-							ref={ containerRef }
-							align="center"
-							justify="center"
-							className={ styles[ 'pie-semi-circle-chart__centering' ] }
-						>
+						<Center ref={ containerRef }>
 							<svg
 								width={ width }
 								height={ height }
@@ -491,7 +486,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 									) }
 								</Group>
 							</svg>
-						</Stack>
+						</Center>
 					);
 				} }
 			</ChartLayout>

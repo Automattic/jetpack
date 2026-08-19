@@ -1,0 +1,18 @@
+.delta {
+	font-size: var(--wpds-typography-font-size-md);
+	font-weight: 400;
+	line-height: var(--wpds-typography-font-size-lg);
+
+	&.invalid,
+	&.neutral {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&.positive {
+		color: var(--wpds-color-stroke-surface-success-strong);
+	}
+
+	&.negative {
+		color: var(--wpds-color-stroke-surface-error-strong);
+	}
+}

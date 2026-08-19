@@ -1,0 +1,575 @@
+/**
+ * External dependencies
+ */
+import {
+	useStatsArchives,
+	useStatsTopPosts,
+	type StatsArchivesComparisonItem,
+	type StatsTopPostsComparisonItem,
+} from '@jetpack-premium-analytics/data';
+import { reports } from '@jetpack-premium-analytics/icons';
+import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
+import {
+	LeaderboardChart,
+	LeaderboardSkeleton,
+	PostTitleLink,
+	ReportLink,
+	RowsCsvDownloadButton,
+	WidgetBackLink,
+	WidgetFooter,
+	WidgetRoot,
+	WidgetState,
+	calculateDelta,
+	getCombinedPeriodMax,
+	safeHttpUrl,
+	sharePercentage,
+	useReportCsvExport,
+	useWidgetDrillDown,
+	useWidgetRootContext,
+	type CsvColumn,
+	type LeaderboardChartData,
+	type ReportParamsFieldAttributes,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+import { __, sprintf } from '@wordpress/i18n';
+import { Text } from '@jetpack-premium-analytics/externals';
+import { useCallback, useEffect, useMemo } from 'react';
+/**
+ * Internal dependencies
+ */
+import styles from './style.module.css';
+import type { TopPostsAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * A single normalized top-posts row, flattened from the designated
+ * `useStatsTopPosts` report into the shape the leaderboard renders.
+ */
+export type TopPostRow = {
+	/**
+	 * Post or page title, or an archive-type label in the Archives view.
+	 */
+	label: string;
+	/**
+	 * View count for the period.
+	 */
+	value: number;
+	/**
+	 * View count for the comparison (previous) period. Only used when the
+	 * leaderboard is rendered with `withComparison`; omit it for single-period
+	 * views.
+	 */
+	previousValue?: number;
+	/**
+	 * Public URL of the content (post, page, or archive page). Only used when
+	 * the row has no post ID, as the fallback link out to the site.
+	 */
+	href?: string;
+	/**
+	 * Post or page ID. Rows carrying one link to the internal detail page.
+	 */
+	postId?: number;
+	/**
+	 * Post type, e.g. `post` or `page`.
+	 */
+	type: string;
+	/**
+	 * Child rows to drill into (the Archives view's grouped items). Rows with
+	 * children render as drill-down rows instead of links.
+	 */
+	children?: TopPostRow[];
+};
+
+// Report params are dashboard-driven — WidgetRoot resolves them from the date
+// picker — but the host (and Storybook) may also inject them via `attributes`.
+type TopPostsRenderAttributes = TopPostsAttributes & Partial< ReportParamsFieldAttributes >;
+type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
+
+type TopPostsReportProps = { max: number };
+const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
+
+/**
+ * Maps normalized top-posts rows onto the shape `LeaderboardChart` expects.
+ * Current shares are computed relative to the most-viewed row so the overlay
+ * bars are proportional. When `withComparison` is set, previous-period shares
+ * and per-row deltas are derived from each row's `previousValue`; otherwise
+ * the comparison fields are zeroed.
+ *
+ * Titles route through `PostTitleLink`: post/page rows navigate to the
+ * internal detail page through the router, and rows without a post ID (the
+ * Archives view) fall back to the public URL and take the external-link icon.
+ * Rows with children instead become drill-down rows (per the widget
+ * drill-down convention they carry no anchors). The label fills its row so
+ * the leaderboard overlay bar gets its height from it.
+ */
+function buildLeaderboardData(
+	rows: TopPostRow[],
+	withComparison: boolean,
+	detailSearch: Record< string, unknown >,
+	onDrillDown?: ( row: TopPostRow ) => void
+): LeaderboardChartData {
+	const maxViews = getCombinedPeriodMax(
+		rows.map( row => row.value ),
+		withComparison ? rows.map( row => row.previousValue ) : []
+	);
+
+	return rows.map( ( row, index ) => {
+		const previousValue = row.previousValue;
+		const hasChildren = !! row.children?.length;
+
+		return {
+			id: `${ index }-${ row.href ?? row.label }`,
+			label: (
+				<span className={ styles.labelRow }>
+					{ /* Rows inside a drill-down button cannot carry anchors. */ }
+					{ hasChildren ? (
+						<Text className={ styles.labelTitle } title={ row.label }>
+							<span className={ styles.labelText }>{ row.label }</span>
+						</Text>
+					) : (
+						<PostTitleLink
+							id={ row.postId }
+							label={ row.label }
+							link={ row.href }
+							search={ detailSearch }
+							title={ row.label }
+							classNames={ {
+								internal: styles.labelTitleLink,
+								external: styles.labelExternalLink,
+								plain: styles.labelTitle,
+								text: styles.labelText,
+							} }
+						/>
+					) }
+				</span>
+			),
+			currentValue: row.value,
+			currentShare: sharePercentage( row.value, maxViews ),
+			// Rows without a comparison-period match keep `undefined` so the chart
+			// renders a placeholder instead of a fabricated delta (see AGENTS.md).
+			previousValue,
+			previousShare:
+				withComparison && previousValue !== undefined
+					? sharePercentage( previousValue, maxViews )
+					: undefined,
+			delta:
+				withComparison && previousValue !== undefined
+					? calculateDelta( row.value, previousValue )
+					: undefined,
+			...( hasChildren &&
+				onDrillDown && {
+					onClick: () => onDrillDown( row ),
+					ariaLabel: sprintf(
+						/* translators: %s is an archive category label, e.g. "Searches". */
+						__( 'View %s archive pages', 'jetpack-premium-analytics-pkg' ),
+						row.label
+					),
+				} ),
+		};
+	} );
+}
+
+type TopPostsLeaderboardProps = {
+	/**
+	 * Normalized top-posts rows to render.
+	 */
+	rows?: TopPostRow[];
+	/**
+	 * When `true`, render the comparison (previous-period) delta next to each
+	 * value, using `previousValue` from each row. Mirrors the overlay
+	 * comparison mode of the toolkit's `LeaderboardChart`.
+	 */
+	withComparison?: boolean;
+	/**
+	 * Callback fired when a row with children is selected. Rows only become
+	 * interactive when this is provided.
+	 */
+	onDrillDown?: ( row: TopPostRow ) => void;
+	/**
+	 * Shared report-window parameters carried into the post-detail route, so
+	 * the detail page opens on the date range the widget is showing.
+	 */
+	detailSearch?: Record< string, unknown >;
+};
+
+/**
+ * Presentational leaderboard for the "Most viewed" widget. Renders
+ * already-fetched rows; loading, error, and empty states are owned by the
+ * `<WidgetState>` wrapper in the report components.
+ */
+export const TopPostsLeaderboard = ( {
+	rows = [],
+	withComparison = false,
+	onDrillDown,
+	detailSearch = {},
+}: TopPostsLeaderboardProps ) => {
+	return (
+		<LeaderboardChart
+			data={ buildLeaderboardData( rows, withComparison, detailSearch, onDrillDown ) }
+			withComparison={ withComparison }
+			withOverlayLabel
+			showLegend={ false }
+			dataFormat={ DATA_FORMAT }
+		/>
+	);
+};
+
+/**
+ * Map the data layer's merged top-posts rows onto the shape the leaderboard
+ * renders. Rows without a link are kept but render unlinked — with
+ * `skip_archives=1` the API still returns the "Homepage (Latest posts)"
+ * entry, which has no URL or post ID. Missing comparison matches stay
+ * `undefined`.
+ */
+function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
+	return items.map( item => {
+		const postId = Number( item.id );
+		const href = safeHttpUrl( item.link );
+
+		return {
+			// A row without a title still needs a visible, clickable label.
+			label: String( item.label ?? '' ) || __( 'Untitled', 'jetpack-premium-analytics-pkg' ),
+			value: item.views,
+			...( item.previousViews !== undefined ? { previousValue: item.previousViews } : {} ),
+			...( href ? { href } : {} ),
+			// The homepage entry (id 0) has no post-detail page.
+			...( Number.isFinite( postId ) && postId > 0 ? { postId } : {} ),
+			type: String( item.type ?? '' ),
+		};
+	} );
+}
+
+/**
+ * Fetches the top-posts report through the designated `useStatsTopPosts` Stats
+ * traffic hook and hands the normalized rows to the presentational
+ * `TopPostsLeaderboard`. The date range and comparison period come from the
+ * dashboard picker via `reportParams`.
+ *
+ * With `skip_archives=1` the API keeps the homepage-as-latest-posts entry in
+ * `postviews` (titled "Homepage (Latest posts)", no URL), so it surfaces here
+ * in the Posts & pages list — same distribution as the Stats "Most viewed"
+ * card, where the Archives list excludes it.
+ */
+function TopPostsReport( { max }: TopPostsReportProps ) {
+	const { reportParams } = useWidgetRootContext();
+
+	// The widget's "Number of results" maps to the WPCOM stats API's `max`; the
+	// date range is owned by the dashboard picker and carried in `reportParams`.
+	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
+
+	// Row matching, ranked capping (the API caps `postviews` at `max` but
+	// appends the homepage entry on top of it), and comparison-overlap gating
+	// all live in the data layer's merge helper (see AGENTS.md).
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+		useStatsTopPosts( statsParams, { maxRows: max } );
+
+	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
+	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
+	const withComparison = hasComparison;
+
+	// Serialize whatever the leaderboard has loaded, mirroring the Jetpack Stats
+	// client-side "Download CSV" (bounded to the rows already in the browser).
+	const csvColumns = useMemo< CsvColumn< TopPostRow >[] >( () => {
+		const base: CsvColumn< TopPostRow >[] = [
+			{ label: __( 'Title', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
+			{ label: __( 'Type', 'jetpack-premium-analytics-pkg' ), getValue: row => row.type },
+			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.href },
+		];
+		if ( withComparison ) {
+			base.splice( 2, 0, {
+				label: __( 'Previous views', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.previousValue,
+			} );
+		}
+		return base;
+	}, [ withComparison ] );
+
+	// Stats queries keep the previous period's rows as placeholder data while a
+	// refetch is in flight. The shared hook keeps the export hidden until those
+	// rows belong to the active date range.
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows,
+		filenamePrefix: 'top-posts',
+		range: reportParams,
+		status: { isLoading, isFetching, isError },
+	} );
+
+	return (
+		<>
+			<div className={ styles.content }>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// The Stats queries carry `placeholderData`, so a failed range change
+					// keeps the prior period's rows visible; only surface the error when
+					// there is nothing to show.
+					isError={ rows.length === 0 && isError }
+					isEmpty={ rows.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load posts and pages. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
+					} }
+					empty={ {
+						icon: reports,
+						description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
+					} }
+					renderLoading={ <LeaderboardSkeleton rows={ max } /> }
+				>
+					<TopPostsLeaderboard
+						rows={ rows }
+						withComparison={ withComparison }
+						detailSearch={ detailSearch }
+					/>
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink report="posts" section="posts-pages" />
+				{ canExport && (
+					<RowsCsvDownloadButton columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) }
+			</WidgetFooter>
+		</>
+	);
+}
+
+/**
+ * Human-readable labels for the archive-type keys the WPCOM `stats/archives`
+ * report groups by. Types the API may add later fall back to the raw key.
+ */
+function archiveTypeLabel( archiveType: string ): string {
+	// Same labels as the Calypso Stats "Most viewed" card's Archives tab
+	// (`getArchiveKeyLabel` in calypso/state/stats/lists/utils.js), so both
+	// surfaces name archive categories identically. `post_type` is a PA
+	// addition — Calypso falls through to capitalization for it.
+	switch ( archiveType ) {
+		case 'author':
+			return __( 'Authors', 'jetpack-premium-analytics-pkg' );
+		case 'cat':
+			return __( 'Categories', 'jetpack-premium-analytics-pkg' );
+		case 'err':
+			return __( 'Error', 'jetpack-premium-analytics-pkg' );
+		case 'home':
+			// Defensive only: with `skip_archives=1` the API surfaces the homepage
+			// entry inside the Posts & pages list (server-titled) and drops it
+			// from this report, and the Archives view filters any residual `home`
+			// entry out. This label matches the server title if one slips through.
+			return __( 'Homepage (Latest posts)', 'jetpack-premium-analytics-pkg' );
+		case 'search':
+			return __( 'Searches', 'jetpack-premium-analytics-pkg' );
+		case 'tag':
+			return __( 'Tags', 'jetpack-premium-analytics-pkg' );
+		case 'tax':
+			return __( 'Taxonomies', 'jetpack-premium-analytics-pkg' );
+		case 'date':
+			return __( 'Dates', 'jetpack-premium-analytics-pkg' );
+		case 'multiple':
+			return __( 'Aggregated', 'jetpack-premium-analytics-pkg' );
+		case 'other':
+			return __( 'Others', 'jetpack-premium-analytics-pkg' );
+		case 'post_type':
+			return __( 'Post types', 'jetpack-premium-analytics-pkg' );
+		default:
+			return archiveType.charAt( 0 ).toUpperCase() + archiveType.slice( 1 ).toLowerCase();
+	}
+}
+
+/**
+ * Humanize an intermediate group label from the API (e.g. the taxonomy key
+ * `post_tag` → "Post tag", `topics` → "Topics"). Leaf labels — search
+ * phrases, term names — are never passed through this.
+ */
+function humanizeArchiveGroupLabel( label: string ): string {
+	const spaced = label.replace( /_/g, ' ' );
+	return spaced.charAt( 0 ).toUpperCase() + spaced.slice( 1 );
+}
+
+/**
+ * Recursively map the data layer's merged archive rows onto leaderboard rows.
+ * Top-level items get the shared archive-category labels; nested group items
+ * (taxonomy keys) are humanized; leaf items keep their own label (term name,
+ * search phrase, …) and carry their archive-page URL. Children are preserved
+ * so grouped rows can drill down, and missing comparison matches stay
+ * `undefined`.
+ */
+function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true ): TopPostRow[] {
+	return items.map( item => {
+		const rawLabel = String( item.label ?? '' );
+		const children = item.children?.length ? toArchiveRows( item.children, false ) : undefined;
+		const href = safeHttpUrl( item.link );
+
+		let label = rawLabel;
+		if ( isTopLevel ) {
+			label = archiveTypeLabel( rawLabel );
+		} else if ( children ) {
+			label = humanizeArchiveGroupLabel( rawLabel );
+		}
+
+		return {
+			label: label || __( 'Untitled', 'jetpack-premium-analytics-pkg' ),
+			value: item.value,
+			type: 'archive',
+			...( item.previousValue !== undefined ? { previousValue: item.previousValue } : {} ),
+			...( href ? { href } : {} ),
+			...( children ? { children } : {} ),
+		};
+	} );
+}
+
+/**
+ * The Archives view: views of archive pages (taxonomy, post-type, search, and
+ * date archives) as one aggregate row per archive type, through the designated
+ * `useStatsArchives` Stats traffic hook. Grouped rows drill into their
+ * individual archive pages (taxonomies drill twice: taxonomy → terms), with a
+ * back link to the parent list — the same convention as the Locations and
+ * Clicks widgets. Mirrors `TopPostsReport` otherwise: the date range and
+ * comparison period come from the dashboard picker via `reportParams`, and
+ * comparison UI is gated on real row overlap between the two periods.
+ */
+function ArchivesReport( { max }: { max: number } ) {
+	const { reportParams } = useWidgetRootContext();
+	const { drillDownItem: drillPath, drillDown, resetDrillDown } = useWidgetDrillDown< string[] >();
+
+	// Row matching (per level, so same-named terms under different parents
+	// cannot cross-match), the visible-row cap, and the comparison-overlap
+	// gate all live in the data layer's merge helper (see AGENTS.md).
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+		useStatsArchives( reportParams, { maxRows: max } );
+
+	const rows = useMemo(
+		() =>
+			// The homepage entry is surfaced in the Posts & pages view instead,
+			// matching the Stats "Most viewed" card — keep it out of Archives.
+			toArchiveRows(
+				( comparisonRows?.rows ?? [] ).filter( item => String( item.label ) !== 'home' )
+			),
+		[ comparisonRows ]
+	);
+	const withComparison = hasComparison;
+
+	// Resolve the drill path against the current rows. The back link names the
+	// list it returns to: the root list on the first drill level, otherwise the
+	// parent row's label.
+	const { activeRows, backLabel, isPathResolved } = useMemo( () => {
+		let list = rows;
+		let label: string | null = null;
+		let previousStep: string | null = null;
+		let resolved = true;
+
+		for ( const step of drillPath ?? [] ) {
+			const parent = list.find( row => row.label === step );
+			if ( ! parent?.children?.length ) {
+				resolved = false;
+				break;
+			}
+			label = previousStep ?? __( 'All archives', 'jetpack-premium-analytics-pkg' );
+			list = parent.children;
+			previousStep = step;
+		}
+
+		return { activeRows: list, backLabel: label, isPathResolved: resolved };
+	}, [ rows, drillPath ] );
+
+	// When the data no longer contains the drilled path (e.g. the date range
+	// changed and the archive type disappeared), drop the stale selection so
+	// the root list is fully interactive again. Skip while a fetch is in
+	// flight: placeholder/refreshing data must not wipe a valid selection.
+	useEffect( () => {
+		if ( drillPath && ! isPathResolved && ! isLoading && ! isFetching ) {
+			resetDrillDown();
+		}
+	}, [ drillPath, isPathResolved, isLoading, isFetching, resetDrillDown ] );
+
+	const handleDrillDown = useCallback(
+		( row: TopPostRow ) => {
+			drillDown( [ ...( drillPath ?? [] ), row.label ] );
+		},
+		[ drillDown, drillPath ]
+	);
+
+	const handleBack = useCallback( () => {
+		const path = drillPath ?? [];
+		if ( path.length <= 1 ) {
+			resetDrillDown();
+			return;
+		}
+		drillDown( path.slice( 0, -1 ) );
+	}, [ drillDown, drillPath, resetDrillDown ] );
+
+	const backLink =
+		activeRows === rows ? null : (
+			<WidgetBackLink
+				label={ backLabel ?? __( 'All archives', 'jetpack-premium-analytics-pkg' ) }
+				ariaLabel={ __( 'Back to the previous archive list', 'jetpack-premium-analytics-pkg' ) }
+				onClick={ handleBack }
+			/>
+		);
+
+	return (
+		<div className={ styles.content }>
+			{ backLink }
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// As above: keep the drilled rows visible through a transient refetch
+				// failure and only surface the error when there is nothing to show.
+				isError={ rows.length === 0 && isError }
+				isEmpty={ activeRows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load archives. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: reports,
+					description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
+				} }
+				renderLoading={ <LeaderboardSkeleton rows={ max } /> }
+			>
+				<TopPostsLeaderboard
+					rows={ activeRows }
+					withComparison={ withComparison }
+					onDrillDown={ handleDrillDown }
+				/>
+			</WidgetState>
+		</div>
+	);
+}
+
+/**
+ * The `contentView` attribute (`relevance: 'high'`, so the widget host renders
+ * its control in the frame header) switches between the Posts & pages and
+ * Archives views. Attribute defaults are applied here, in exactly one place,
+ * before the inner components receive them.
+ */
+export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
+	const max = attributes.max ?? 10;
+	const contentView = attributes.contentView ?? 'posts';
+
+	return (
+		<WidgetRoot attributes={ attributes }>
+			<div className={ styles.root }>
+				{ contentView === 'archives' ? (
+					<>
+						<ArchivesReport max={ max } />
+						<WidgetFooter>
+							<ReportLink report="posts" section="archives" />
+						</WidgetFooter>
+					</>
+				) : (
+					<TopPostsReport max={ max } />
+				) }
+			</div>
+		</WidgetRoot>
+	);
+}

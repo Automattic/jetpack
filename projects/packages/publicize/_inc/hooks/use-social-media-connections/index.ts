@@ -15,11 +15,9 @@ export default function useSocialMediaConnections() {
 		const connections = store.getConnections();
 		const enabledConnections = store.getEnabledConnections();
 		const disabledConnections = store.getDisabledConnections();
-		const connectionsReadyToShare = store.getConnectionsReadyToShare();
 
 		const hasConnections = connections.length > 0;
 		const hasEnabledConnections = enabledConnections.length > 0;
-		const hasConnectionsReadyToShare = connectionsReadyToShare.length > 0;
 
 		return {
 			connections,
@@ -27,20 +25,13 @@ export default function useSocialMediaConnections() {
 			hasEnabledConnections,
 			disabledConnections,
 			enabledConnections,
-			connectionsReadyToShare,
-			hasConnectionsReadyToShare,
 		};
 	}, [] );
 
-	const skippedConnections = useMemo( () => {
-		const readyConnectionIds = connectionsData.connectionsReadyToShare.map(
-			connection => connection.connection_id
-		);
-
-		return connectionsData.connections
-			.filter( connection => ! readyConnectionIds.includes( connection.connection_id ) )
-			.map( connection => connection.connection_id );
-	}, [ connectionsData.connections, connectionsData.connectionsReadyToShare ] );
+	const skippedConnections = useMemo(
+		() => connectionsData.disabledConnections.map( connection => connection.connection_id ),
+		[ connectionsData.disabledConnections ]
+	);
 
 	return useMemo(
 		() => ( {

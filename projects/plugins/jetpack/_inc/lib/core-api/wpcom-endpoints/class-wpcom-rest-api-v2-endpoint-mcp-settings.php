@@ -184,6 +184,12 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 		// when derived from WPCOM (no per-site override concept at this layer).
 		$site_level_enabled_default = $site_level_enabled;
 
+		// Group descriptors (AIINT-469) — pass through if the WPCOM endpoint returns them.
+		$groups = array();
+		if ( isset( $body['groups'] ) && is_array( $body['groups'] ) ) {
+			$groups = $body['groups'];
+		}
+
 		// Use only the explicit per-site user overrides returned by WPCOM in user_overrides.abilities.
 		// These are the raw values stored via SettingsHelper — not the computed effective states
 		// (account defaults merged with overrides). Keeping only explicit overrides here lets the
@@ -211,6 +217,7 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 						),
 					),
 					'site_level_enabled_default' => $site_level_enabled_default,
+					'groups'                     => $groups,
 				),
 			)
 		);

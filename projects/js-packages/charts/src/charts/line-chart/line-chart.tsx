@@ -37,15 +37,15 @@ import { SingleChartContext, type SingleChartRef } from '../private/single-chart
 import { SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
-import { useXZoom, ZoomResetButton, ZoomSelectionRect } from '../private/x-zoom';
+import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import styles from './line-chart.module.scss';
 import { LineChartAnnotation, LineChartAnnotationsOverlay, LineChartGlyph } from './private';
 import type { RenderLineGlyphProps, LineChartProps, TooltipDatum } from './types';
 import type { DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
+import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
-import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, Ref } from 'react';
 
 const defaultRenderGlyph = < Datum extends object >( props: RenderLineGlyphProps< Datum > ) => {
@@ -179,6 +179,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			onPointerMove = undefined,
 			onPointerOut = undefined,
 			zoomable = false,
+			rescaleYOnVisibilityChange = true,
 			children,
 			gridVisibility,
 			gap = 'md',
@@ -186,11 +187,14 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		ref
 	) => {
 		const legendInteractive = legend.interactive ?? false;
+		const legendCollapseGroups = legend.collapseGroups ?? false;
 		const legendShape = legend.shape ?? 'line';
 		const legendPosition = legend.position ?? 'bottom';
 
 		const providerTheme = useGlobalChartsTheme();
 		const theme = useXYChartTheme( data );
+		// Gradient stops apply this as an SVG attribute, where CSS var() cannot resolve. useXYChartTheme has already resolved the same role inside its memo, so read it back rather than paying another getComputedStyle on every render.
+		const resolvedBackgroundColor = theme.backgroundColor ?? providerTheme.backgroundColor;
 		const chartId = useChartId( providedChartId );
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
@@ -248,6 +252,28 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
 		}, [ seriesWithVisibility ] );
 
+		// When the interactive legend can hide series and rescaling is opted out, pin the value axis
+		// to the full data range so it stays put as series are toggled instead of visx rescaling the
+		// domain to whatever is currently visible and making the axis jump. Default is to rescale,
+		// matching the pre-existing behaviour and AreaChart's `rescaleYOnVisibilityChange`.
+		const stableYDomain = useMemo< [ number, number ] | undefined >( () => {
+			if ( ! legendInteractive || rescaleYOnVisibilityChange ) {
+				return undefined;
+			}
+			let min = Infinity;
+			let max = -Infinity;
+			for ( const series of dataSorted ) {
+				for ( const point of series.data ?? [] ) {
+					const value = point?.value;
+					if ( typeof value === 'number' && Number.isFinite( value ) ) {
+						min = Math.min( min, value );
+						max = Math.max( max, value );
+					}
+				}
+			}
+			return min < max ? [ min, max ] : undefined;
+		}, [ legendInteractive, rescaleYOnVisibilityChange, dataSorted ] );
+
 		// Use the keyboard navigation hook
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
 			selectedIndex,
@@ -259,7 +285,8 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		} );
 
 		const chartOptions = useMemo( () => {
-			const formatter = options?.axis?.x?.tickFormat || getFormatter( dataSorted );
+			const { tickResolution, ...xAxisOptions } = options?.axis?.x ?? {};
+			const formatter = xAxisOptions.tickFormat || getFormatter( dataSorted, tickResolution );
 
 			return {
 				axis: {
@@ -268,7 +295,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 						numTicks: guessOptimalNumTicks( dataSorted, width, formatter ),
 						tickFormat: formatter,
 						display: true,
-						...options?.axis?.x,
+						...xAxisOptions,
 					},
 					y: {
 						orientation: 'left' as const,
@@ -287,10 +314,11 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					type: 'linear' as const,
 					nice: true,
 					zero: false,
+					...( stableYDomain ? { domain: stableYDomain } : {} ),
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width, zoom.domain ] );
+		}, [ options, dataSorted, width, zoom.domain, stableYDomain ] );
 
 		const tooltipRenderGlyph = useMemo( () => {
 			return ( props: GlyphProps< DataPointDate > ) => {
@@ -324,9 +352,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			() => ( {
 				withGlyph: withLegendGlyph,
 				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
+				collapseGroups: legendCollapseGroups,
 				renderGlyph,
 			} ),
-			[ withLegendGlyph, glyphStyle?.radius, renderGlyph ]
+			[ withLegendGlyph, glyphStyle?.radius, legendCollapseGroups, renderGlyph ]
 		);
 
 		// Create legend items using the reusable hook
@@ -440,9 +469,18 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 											onPointerOut={ onPointerOut }
 											pointerEventsDataKey="nearest"
 										>
-											{ gridVisibility !== 'none' && <Grid columns={ false } numTicks={ 4 } /> }
-											{ chartOptions.axis.x.display && <Axis { ...chartOptions.axis.x } /> }
-											{ chartOptions.axis.y.display && <Axis { ...chartOptions.axis.y } /> }
+											{ /* With every series hidden there is no data to scale against, so the grid and
+											     axes are dropped while the empty state stands in — otherwise they render
+											     squished at the top. */ }
+											{ ! allSeriesHidden && gridVisibility !== 'none' && (
+												<Grid columns={ false } numTicks={ 4 } />
+											) }
+											{ ! allSeriesHidden && chartOptions.axis.x.display && (
+												<Axis { ...chartOptions.axis.x } />
+											) }
+											{ ! allSeriesHidden && chartOptions.axis.y.display && (
+												<Axis { ...chartOptions.axis.y } />
+											) }
 
 											{ allSeriesHidden ? (
 												<SvgEmptyState
@@ -458,86 +496,93 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 												</SvgEmptyState>
 											) : null }
 
-											{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
-												// Skip rendering invisible series
-												if ( ! isVisible ) {
-													return null;
-												}
+											{ /* Line is not animated, so clip only while zoomed; its edge glyphs sit on the plot border and must not be clipped. */ }
+											<ZoomClip active={ zoomable && !! zoom.domain } chartId={ chartId }>
+												{ seriesWithVisibility.map(
+													( { series: seriesData, index, isVisible } ) => {
+														// Skip rendering invisible series
+														if ( ! isVisible ) {
+															return null;
+														}
 
-												const { color, lineStyles, glyph } = getElementStyles( {
-													data: seriesData,
-													index,
-												} );
+														const { color, lineStyles, glyph } = getElementStyles( {
+															data: seriesData,
+															index,
+														} );
 
-												const lineProps = {
-													stroke: color,
-													...lineStyles,
-												};
+														const lineProps = {
+															stroke: color,
+															...lineStyles,
+														};
 
-												return (
-													<g key={ seriesData?.label || index }>
-														{ withGradientFill && (
-															<LinearGradient
-																id={ `area-gradient-${ chartId }-${ index + 1 }` }
-																from={ color }
-																fromOpacity={ 0.4 }
-																toOpacity={ 0.1 }
-																to={ providerTheme.backgroundColor }
-																{ ...seriesData.options?.gradient }
-																data-testid="line-gradient"
-															>
-																{ seriesData.options?.gradient?.stops?.map( ( stop, stopIndex ) => (
-																	<stop
-																		key={ `${ stop.offset }-${ stop.color || color }` }
-																		offset={ stop.offset }
-																		stopColor={ stop.color || color }
-																		stopOpacity={ stop.opacity ?? 1 }
-																		data-testid={ `line-gradient-stop-${ chartId }-${ index }-${ stopIndex }` }
+														return (
+															<g key={ seriesData?.label || index }>
+																{ withGradientFill && (
+																	<LinearGradient
+																		id={ `area-gradient-${ chartId }-${ index + 1 }` }
+																		from={ color }
+																		fromOpacity={ 0.4 }
+																		toOpacity={ 0.1 }
+																		to={ resolvedBackgroundColor }
+																		{ ...seriesData.options?.gradient }
+																		data-testid="line-gradient"
+																	>
+																		{ seriesData.options?.gradient?.stops?.map(
+																			( stop, stopIndex ) => (
+																				<stop
+																					key={ `${ stop.offset }-${ stop.color || color }` }
+																					offset={ stop.offset }
+																					stopColor={ stop.color || color }
+																					stopOpacity={ stop.opacity ?? 1 }
+																					data-testid={ `line-gradient-stop-${ chartId }-${ index }-${ stopIndex }` }
+																				/>
+																			)
+																		) }
+																	</LinearGradient>
+																) }
+																<AreaSeries
+																	key={ seriesData?.label }
+																	dataKey={ seriesData?.label }
+																	data={ seriesData.data as DataPointDate[] }
+																	{ ...accessors }
+																	fill={
+																		withGradientFill
+																			? `url(#area-gradient-${ chartId }-${ index + 1 })`
+																			: 'transparent'
+																	}
+																	renderLine={ true }
+																	curve={ getCurveType( curveType, smoothing ) }
+																	lineProps={ lineProps }
+																/>
+
+																{ withStartGlyphs && (
+																	<LineChartGlyph
+																		index={ index }
+																		data={ seriesData }
+																		color={ color }
+																		renderGlyph={ glyph ?? renderGlyph }
+																		accessors={ accessors }
+																		glyphStyle={ glyphStyle }
+																		position="start"
 																	/>
-																) ) }
-															</LinearGradient>
-														) }
-														<AreaSeries
-															key={ seriesData?.label }
-															dataKey={ seriesData?.label }
-															data={ seriesData.data as DataPointDate[] }
-															{ ...accessors }
-															fill={
-																withGradientFill
-																	? `url(#area-gradient-${ chartId }-${ index + 1 })`
-																	: 'transparent'
-															}
-															renderLine={ true }
-															curve={ getCurveType( curveType, smoothing ) }
-															lineProps={ lineProps }
-														/>
+																) }
 
-														{ withStartGlyphs && (
-															<LineChartGlyph
-																index={ index }
-																data={ seriesData }
-																color={ color }
-																renderGlyph={ glyph ?? renderGlyph }
-																accessors={ accessors }
-																glyphStyle={ glyphStyle }
-																position="start"
-															/>
-														) }
-
-														{ withEndGlyphs && (
-															<LineChartGlyph
-																index={ index }
-																data={ seriesData }
-																color={ color }
-																renderGlyph={ glyph ?? renderGlyph }
-																accessors={ accessors }
-																glyphStyle={ glyphStyle }
-																position="end"
-															/>
-														) }
-													</g>
-												);
-											} ) }
+																{ withEndGlyphs && (
+																	<LineChartGlyph
+																		index={ index }
+																		data={ seriesData }
+																		color={ color }
+																		renderGlyph={ glyph ?? renderGlyph }
+																		accessors={ accessors }
+																		glyphStyle={ glyphStyle }
+																		position="end"
+																	/>
+																) }
+															</g>
+														);
+													}
+												) }
+											</ZoomClip>
 
 											{ withTooltips && (
 												<AccessibleTooltip

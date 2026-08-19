@@ -1,4 +1,4 @@
-import { store as modulesStore } from '@automattic/jetpack-shared-extension-utils';
+import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { useSelect } from '@wordpress/data';
 import { MyJetpackModule, JetpackModuleSlug } from '../../../types';
 

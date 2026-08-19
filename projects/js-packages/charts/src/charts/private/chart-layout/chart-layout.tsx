@@ -3,9 +3,8 @@ import { useEffect } from 'react';
 import { useElementSize } from '../../../hooks';
 import { renderLegendSlot } from '../chart-composition';
 import styles from './chart-layout.module.scss';
-import type { LegendPosition } from '../../../types';
+import type { GapSize, LegendPosition } from '../../../types';
 import type { LegendChild } from '../chart-composition/use-chart-children';
-import type { GapSize } from '@wordpress/theme';
 import type { CSSProperties, ReactNode } from 'react';
 
 /**

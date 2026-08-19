@@ -8,12 +8,13 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
-use Automattic\Jetpack\Podcast\Podcast;
 use Automattic\Jetpack\Redirect;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
+require_once __DIR__ . '/../../common/class-launchpad-personalization-experiment.php';
 
 /**
  * Checks if the current user has a WordPress.com account connected.
@@ -90,6 +91,22 @@ function wpcom_can_link_to_calypso() {
  */
 function wpcom_add_my_home_menu() {
 	if ( ! wpcom_can_link_to_calypso() ) {
+		return;
+	}
+
+	// Site Setup (manage_options) replaces My Home only for users who can see it; others keep My Home.
+	if (
+		current_user_can( 'manage_options' )
+		&& function_exists( 'wpcom_ai_launchpad_is_eligible' )
+		&& wpcom_ai_launchpad_is_eligible()
+	) {
+		return;
+	}
+
+	// The no_guidance launchpad-personalization variation gets no My Home at all: these
+	// users work from the wp-admin dashboard. Removing the menu item here also removes it
+	// from the Calypso sidebar, which is built from this menu via the admin-menu endpoint.
+	if ( 'no_guidance' === Launchpad_Personalization_Experiment::get_variation() ) {
 		return;
 	}
 
@@ -261,6 +278,33 @@ function wpcom_get_current_plan_name() {
 }
 
 /**
+ * Relabels the WooCommerce menu item to "Store setup" on Commerce-plan sites.
+ *
+ * Only the sidebar label is changed; the page title is left untouched. This builds the
+ * classic wp-admin sidebar; the nav-unified interface is handled by Atomic_Admin_Menu in
+ * jetpack-masterbar. Both share Store_Plan::is_commerce_plan() so their scope stays in sync.
+ * On a nav-unified Atomic site both relabelers run (harmless — both idempotently set "Store
+ * setup"; this one runs last, so the jetpack-mu-wpcom text domain wins, same English string).
+ */
+function wpcom_relabel_woocommerce_menu() {
+	global $menu;
+
+	if ( ! is_array( $menu ) || ! class_exists( \Automattic\Jetpack\Masterbar\Store_Plan::class ) || ! \Automattic\Jetpack\Masterbar\Store_Plan::is_commerce_plan() ) {
+		return;
+	}
+
+	foreach ( $menu as $position => $item ) {
+		if ( isset( $item[2] ) && 'woocommerce' === $item[2] ) {
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$menu[ $position ][0] = __( 'Store setup', 'jetpack-mu-wpcom' );
+			break;
+		}
+	}
+}
+// Priority 999999 so it runs after WooCommerce registers its menu (default priority).
+add_action( 'admin_menu', 'wpcom_relabel_woocommerce_menu', 999999 );
+
+/**
  * Re-order the submenu items of the given menu slug according to a sorted array of submenu slugs.
  *
  * @param string $menu_slug The menu slug.
@@ -276,9 +320,9 @@ function wpcom_reorder_submenu( $menu_slug, $desired_order ) {
 	$domain          = wp_parse_url( home_url(), PHP_URL_HOST );
 	$ordered_submenu = array();
 
-	// Re-add submenu items in the desired order. Dedupe because slugs in
-	// $desired_order can be substrings of one another (e.g. 'podcast' /
-	// 'podcasting'), which would otherwise match the same item twice.
+	// Re-add submenu items in the desired order. Dedupe because a slug in
+	// $desired_order can be a substring of another item's URL, which would
+	// otherwise match the same item twice.
 	foreach ( $desired_order as $submenu_slug ) {
 		foreach ( $submenu[ $menu_slug ] as $item ) {
 			$clean_url = str_replace( $domain, '', $item[2] );
@@ -391,15 +435,18 @@ function wpcom_add_jetpack_submenu() {
 	// Jetpack > Subscribers. Always hide the auto-added Calypso redirect link.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
 
-	// Once the Newsletter modernization filter is on, the unified Newsletter
-	// page owns the Subscribers tab and this standalone submenu is retired.
-	// While the filter is off (the default) we keep the legacy Calypso
-	// "Subscribers" submenu. (The wp-admin subscriber-management variant was
-	// removed with the subscribers-dashboard package and isn't restored.)
-	// Referenced as a string literal (mirrors Newsletter\Settings::MODERNIZATION_FILTER):
-	// the newsletter package isn't a dependency of jetpack-mu-wpcom, and this runs
-	// unconditionally — ahead of the class_exists-guarded Settings use below.
-	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', false ) ) {
+	// The unified Newsletter page now owns the Subscribers tab on every site: the
+	// legacy Calypso "Subscribers" submenu is retired and replaced by a transitional
+	// announcement page that points there. (The wp-admin subscriber-management variant
+	// was removed with the subscribers-dashboard package and isn't restored.) Hosts
+	// (and a11ns who want the legacy view back) can still force the old submenu back
+	// with add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_false' ).
+	//
+	// On WordPress.com (Simple and WoA) this menu is the canonical owner of the
+	// Subscribers entry, so the announcement page is registered here for both
+	// platforms; the standalone plugin's subscriptions module defers to it on
+	// wpcom to avoid a duplicate.
+	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', true ) ) {
 		add_submenu_page(
 			'jetpack',
 			__( 'Subscribers', 'jetpack-mu-wpcom' ),
@@ -408,20 +455,12 @@ function wpcom_add_jetpack_submenu() {
 			'https://wordpress.com/subscribers/' . $domain,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
+	} elseif ( class_exists( '\Automattic\Jetpack\Newsletter\Subscribers_Announcement' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by the sibling autoloader (bundled Jetpack on Simple, standalone plugin on Atomic).
+		\Automattic\Jetpack\Newsletter\Subscribers_Announcement::add_wp_admin_submenu();
 	}
 
-	if ( Podcast::is_enabled() ) {
-		Podcast_Admin_Page::add_wp_admin_submenu();
-	} else {
-		add_submenu_page(
-			'jetpack',
-			__( 'Podcasting', 'jetpack-mu-wpcom' ),
-			__( 'Podcasting', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			'https://wordpress.com/settings/podcasting/' . $domain,
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		);
-	}
+	Podcast_Admin_Page::add_wp_admin_submenu();
 
 	if ( $is_simple_site ) {
 		// Jetpack > Newsletter.
@@ -433,6 +472,21 @@ function wpcom_add_jetpack_submenu() {
 			$newsletter_settings = new Newsletter_Settings();
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
 			$newsletter_settings->add_wp_admin_submenu();
+		}
+
+		// Jetpack > VideoPress.
+		// Register the in-admin VideoPress dashboard page. Like Newsletter above, this
+		// must run here (priority 999999) because the Jetpack parent menu is created by
+		// this function and doesn't exist at earlier priorities. Gated on the VideoPress
+		// site feature so it only surfaces for VideoPress-enabled Simple sites during dev.
+		if (
+			class_exists( '\Automattic\Jetpack\VideoPress\Admin_UI' ) &&
+			function_exists( 'wpcom_site_has_feature' ) &&
+			class_exists( '\WPCOM_Features' ) &&
+			wpcom_site_has_feature( \WPCOM_Features::VIDEOPRESS )
+		) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\VideoPress\Admin_UI::add_wp_admin_submenu();
 		}
 
 		// Jetpack > Traffic
@@ -464,6 +518,7 @@ function wpcom_add_jetpack_submenu() {
 		array(
 			'my-jetpack',
 			'stats',
+			'advertising',
 			'boost',
 			'social',
 			'akismet-key-config',
@@ -476,7 +531,6 @@ function wpcom_add_jetpack_submenu() {
 			'subscribers',
 			'newsletter',
 			'podcast',
-			'podcasting',
 			'traffic',
 			'jetpack#/settings',
 		)
@@ -701,7 +755,7 @@ function wpcom_add_tools_menu() {
 		'tools.php',
 		array(
 			'tools.php',
-			'advertising',
+			'advertising-moved',
 			'marketing',
 			'monetize',
 			'import',
@@ -778,7 +832,6 @@ function wpcom_add_settings_menu() {
 			'crowdsignal',
 			'rating',
 			'newsletter',
-			'podcasting',
 		)
 	);
 }

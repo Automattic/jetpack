@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: blocks-powered Overlay shell now also honors the legacy --background / --foreground theme color tokens, restoring legibility on themes (e.g. Kaze) that don't define --base / --contrast.

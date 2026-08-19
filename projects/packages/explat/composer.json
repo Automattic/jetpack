@@ -20,27 +20,14 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'",
-		"test-php": [
-			"@composer phpunit"
-		],
-		"test-js": [
-			"pnpm run test"
-		],
+		"test-js": "pnpm run test",
+		"test-js-coverage": "pnpm run test-coverage",
 		"test-js-watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run test --watch"
 		],
-		"build-development": [
-			"pnpm run build"
-		],
-		"build-production": [
-			"NODE_ENV=production pnpm run build"
-		],
-		"watch": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm run watch"
-		]
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 	},
 	"repositories": [
 		{
@@ -56,7 +43,7 @@
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.4.x-dev"
+			"dev-trunk": "0.5.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-explat/compare/v${old}...v${new}"

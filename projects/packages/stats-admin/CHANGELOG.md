@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.32.1 - 2026-08-10
+### Security
+- Cast the quick-edit post ID to an integer before requesting its view counts. [#51049]
+
+## 0.32.0 - 2026-08-03
+### Fixed
+- Stats Dashboard: Declare `wp-components` as a stylesheet dependency, so the dashboard's own component styling (Button, Card, Modal, etc.) no longer relies on another admin feature enqueuing it as a side effect, and is emitted in the correct cascade order. [#50881]
+
+## 0.31.11 - 2026-07-27
+### Changed
+- Update dependencies. [#50719]
+
+## 0.31.10 - 2026-07-20
+### Changed
+- Update dependencies. [#44736]
+
+## 0.31.9 - 2026-07-13
+### Changed
+- Internal updates.
+
+## 0.31.8 - 2026-07-06
+### Changed
+- Internal updates.
+
+## 0.31.7 - 2026-06-25
+### Changed
+- Defer Stats Admin REST controller instantiation so the controller class only loads on REST API requests. [#49803]
+
+## 0.31.6 - 2026-06-15
+### Changed
+- Internal updates.
+
+## 0.31.5 - 2026-06-08
+### Changed
+- Internal updates.
+
 ## 0.31.4 - 2026-05-25
 ### Fixed
 - Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]

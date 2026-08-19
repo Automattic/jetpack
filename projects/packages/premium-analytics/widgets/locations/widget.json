@@ -1,0 +1,16 @@
+{
+	"name": "jpa/locations",
+	"title": "Top locations",
+	"description": "Where your visitors are viewing from — by country, region, or city.",
+	"help": {
+		"content": "The countries, regions, and cities where your visitors came from, sorted by views.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://jetpack.com/support/jetpack-stats/"
+			}
+		]
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

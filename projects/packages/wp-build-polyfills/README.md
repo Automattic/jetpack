@@ -1,26 +1,29 @@
 # Jetpack WP Build Polyfills
 
-Polyfills for WordPress Core packages not yet available in WordPress < 7.0.
+Polyfills for WordPress Core packages not yet available or complete in older WordPress versions.
 
 This package conditionally registers `@wordpress/*` packages as both classic scripts (IIFE) and script modules (ESM) when they are not already provided by Core or Gutenberg.
-It is intended to be used until WordPress 7.1 is released, at which point versions of WordPress < 7.0 will no longer be supported and this package will no longer be needed.
+It is intended to be used while Jetpack supports WordPress versions whose bundled packages are missing or incomplete. Revisit this package once Jetpack's minimum supported WordPress version reaches 7.1.
 
 ## Problem
 
-WordPress 7.0 introduces several new packages (`@wordpress/boot`, `@wordpress/route`, `@wordpress/theme`, etc.) that plugins built with [`@wordpress/build`](https://github.com/WordPress/gutenberg/tree/trunk/packages/wp-build) depend on. On older WordPress versions, these packages are missing or ship incomplete implementations — for example, `wp-private-apis` has an allowlist that rejects `@wordpress/theme` and `@wordpress/route`, and `wp-notices` lacks component exports that `@wordpress/boot` requires.
+WordPress 7.0 introduces several new packages (`@wordpress/boot`, `@wordpress/route`, `@wordpress/theme`, etc.) that plugins built with [`@wordpress/build`](https://github.com/WordPress/gutenberg/tree/trunk/packages/wp-build) depend on. On older WordPress versions, these packages are missing or ship incomplete implementations — for example, `wp-private-apis` has an allowlist that rejects `@wordpress/theme`, `@wordpress/route`, and newer dashboard packages, and `wp-notices` lacks component exports that `@wordpress/boot` requires.
 
-This package provides those missing packages so that plugins using `@wordpress/build` can work on WordPress versions before 7.0.
+This package provides those missing or updated packages so that plugins using `@wordpress/build` can work across Jetpack's supported WordPress versions.
 
 ## What it polyfills
 
 ### Classic scripts (IIFE)
 
-| Handle            | Source package          | Force-replaced on WP < 7.0? |
-|-------------------|------------------------|------------------------------|
-| `wp-notices`      | `@wordpress/notices`    | Yes — missing component exports |
-| `wp-private-apis` | `@wordpress/private-apis` | Yes — incomplete allowlist |
+| Handle            | Source package          | Force-replaced? |
+|-------------------|------------------------|-----------------|
+| `wp-notices`      | `@wordpress/notices`    | Yes on WP < 7.0 — missing component exports |
+| `wp-private-apis` | `@wordpress/private-apis` | Yes on WP < 7.1 unless Gutenberg >= 23.5.0 is active — incomplete allowlist |
+| `wp-rich-text`    | `@wordpress/rich-text`  | Yes on WP < 7.1 unless Gutenberg >= 23.6.0 is active — incomplete `privateApis` |
 | `wp-theme`        | `@wordpress/theme`      | No — only registered if absent |
 | `wp-views`        | `@wordpress/views`      | No — only registered if absent |
+
+`wp-rich-text`, `wp-theme` and `wp-views` require `wp-private-apis`, because each opts into private APIs under a package name Core's allowlist rejects (WP 6.9 rejects all three; WP 7.0 still rejects `@wordpress/compose`, which the rich-text polyfill bundles). Requesting any of them implicitly requests `wp-private-apis` too — see `WP_Build_Polyfills::SCRIPT_DEPENDENCIES`.
 
 ### Script modules (ESM)
 
@@ -36,8 +39,10 @@ Script modules use "first-wins" semantics — if Core or Gutenberg already regis
 
 1. `WP_Build_Polyfills::register()` hooks into `wp_default_scripts` at **priority 20**, after Core (priority 0) and Gutenberg (priority 10) have registered their scripts.
 2. For each polyfill, it checks whether a built asset file exists (`build/scripts/*/index.asset.php` or `build/modules/*/index.asset.php`).
-3. For classic scripts, it checks whether the handle is already registered. Scripts marked as `force` are deregistered and re-registered with the polyfill version. Non-force scripts are skipped if already registered.
+3. For classic scripts, it checks whether the handle is already registered. Scripts marked for force replacement are deregistered and re-registered with the polyfill version when the WordPress version is below the script's threshold and active Gutenberg is not known to provide a compatible implementation. Non-force scripts are skipped if already registered.
 4. For script modules, it calls `wp_register_script_module()`, which silently ignores duplicates.
+
+`wp-private-apis` has an additional Gutenberg-version guard because the dashboard packages require a private-apis allowlist that includes `@wordpress/widget-dashboard`. Gutenberg 23.4.0 and older do not include that allowlist entry; Gutenberg 23.5.0 is expected to be the first active-Gutenberg version that matches the current `@next` package build used here.
 
 ## Usage
 
@@ -75,6 +80,19 @@ Consuming packages should add `@automattic/jetpack-wp-build-polyfills` as a devD
 ```json
 "build:boot-proxy": "provide-boot-asset-file"
 ```
+
+## Safety checks
+
+Two checks run after `webpack` (see the `build` script) so version skew in the bundled `@wordpress/*`
+set fails the build instead of silently blanking a dashboard at runtime (as in Jetpack 16.0):
+
+- **`validate-boot-asset.js`** — every dependency handle in the boot module's `.asset.php` is a known
+  Core or polyfill handle (catches a script silently dropped for an unregistered dependency).
+- **`validate-export-contract.js`** — every symbol a consumer (`@wordpress/boot`, …) imports from a
+  polyfilled classic-script provider (`@wordpress/theme`, `@wordpress/notices`, `@wordpress/private-apis`, `@wordpress/views`) exists
+  in that provider's shipped public API (catches the 16.0 `wp.theme.ThemeProvider is undefined`
+  case). Run standalone with `pnpm run check-contracts`. The ESM module providers (`route`, `a11y`)
+  are a follow-up. Regression-tested in `tests/js/validate-export-contract.test.js`.
 
 ## Development
 

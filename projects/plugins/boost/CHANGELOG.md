@@ -5,8 +5,91 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.5.9] - 2026-04-13
+## [4.7.0] - 2026-08-17
+### Security
+- Critical CSS/LCP: Close REST API access to the cache storage, and refuse to load a stored cache entry that contains a PHP object.
 
+### Added
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed. [#51221]
+- Concatenate JS/CSS: Add a `jetpack_boost_minify_use_static_cache_urls` filter to override whether bundles are linked from the static cache. [#50962]
+
+### Changed
+- Boost now reports its problem count to the central menu-badges registry instead of writing admin-menu markup directly. [#50190]
+- Image CDN: update the image quality slider to use the WordPress RangeControl component. [#50289]
+- Performance: reduce the number of database reads performed on every page load by preparing Sync data only when it is actually sent to WordPress.com. [#50835]
+- Update @react-spring/web to v10 and remove the unused @react-spring/core dependency for React 19 compatibility. [#50288]
+- Update package dependencies. [#49272] [#50097] [#50183] [#50212] [#50436] [#50509] [#50510] [#50529] [#50751] [#50753] [#50792] [#51008] [#51125]
+
+### Fixed
+- Concatenate JS/CSS: Fix broken CSS and JS delivery on pages rendered after a site is migrated onto WP Cloud or WordPress.com. Pages already served from a cache keep the old URLs until the cache is purged or expires. [#50962]
+- Connection: Stop showing a duplicate account notice when your WordPress.com email differs from your site email only in letter case. [#51285]
+- Defer JS: Fix a regression where a literal closing body tag inside a script, textarea, comment, or attribute value could corrupt the page when deferred scripts were re-inserted. Previously corrupted copies of a page may persist in Boost's page cache (up to an hour by default) and in any host or CDN cache after updating; purge those caches to clear them immediately. [#51032]
+- Fix a blank Boost admin page on WordPress 6.9 installs without the Gutenberg plugin active, where the wp-theme script handle the embedded My Jetpack app depends on was otherwise unregistered. [#50291]
+- LCP: Preserve analysis results when a page reports an error or when the homepage is also configured as a cornerstone page. [#50728]
+- Modules: Batch the per-module status option reads into a single query to avoid redundant per-request database queries on sites without a persistent object cache. [#50993]
+
+## [4.6.3] - 2026-06-26
+### Changed
+- Update dependencies. [#49962]
+
+### Fixed
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+
+## [4.6.2] - 2026-06-24
+### Added
+- Concatenate JS/CSS: allow administrators to test additional exclude handles per-request via jb-minify-js-excludes / jb-minify-css-excludes GET parameters, without changing saved settings. The parameters are ignored for non-administrators. [#49555]
+- Defer JS: add an exclusion list so specific pages can be excluded by URL pattern without disabling the feature site-wide. [#49556]
+
+### Changed
+- Migrate ToggleControl to @wordpress/components [#49694]
+- Update package dependencies. [#49631] [#49638] [#49691] [#49757] [#49831]
+
+### Fixed
+- Critical CSS: continue generating for remaining providers when one provider fails unexpectedly, instead of failing the whole run. [#49554]
+- Critical CSS: stop stripping inline SVG markup and double quotes from valid CSS values while still preventing style-tag breakout. [#49547]
+- Defer JS: keep position-dependent inline scripts (document.write) in place instead of moving them after the footer. [#49545]
+- Page Cache: more reliably remove the boost-cache directory on uninstall, and avoid cleanup hanging or timing out on very large caches. [#49546]
+
+## [4.6.1] - 2026-06-10
+### Changed
+- Update dependencies. [#49464]
+- Update package dependencies. [#49273] [#49448] [#49492]
+- My Jetpack: Fix fatal error being logged when My Jetpack page is loaded. [#49479]
+
+## [4.6.0] - 2026-06-09
+### Added
+- Concatenate JS: Add a `jetpack_boost_js_minify_fallback` action that fires when JS minification is skipped in favor of the original bundle, so logging plugins can observe how often (and why) the safety net engages. [#49399]
+- Register Jetpack Boost abilities via the WordPress Abilities API (modules read/toggle, latest speed score, and page cache flush) for AI agents on WordPress 6.9+. [#48328]
+
+### Changed
+- Adopt the shared Jetpack admin-page-layout mixin on the Boost admin pages. Drops inline JetpackFooter renders and `showFooter={false}` overrides so AdminPage's built-in footer lives inside the flex column that the mixin pins. [#48109]
+- Boost: Remove translation wrappers from the "Boost" product name. [#48520]
+- Componentry: align Boost UI with the WordPress admin color scheme to match the rest of Jetpack. [#48463]
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- General: Update minimum WordPress version to 6.9. [#49021]
+- Internal: migrate Notice component usages to @wordpress/ui. [#48171]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Remove Beta label from the Optimize LCP Images module. [#48174]
+- Remove Jetpack color overrides on core components, allowing them to use native WordPress admin theme colors. [#47317]
+- Remove the per-page Hello Dolly rule; its content is now covered by the centralized normalize rule shipped with `@automattic/jetpack-components`'s AdminPage component. [#48472]
+- Remove unneeded development and documentation files from the published plugin. [#49014]
+- Replace deprecated jetpack-components Spinner with WordPress Core Spinner. [#47451]
+- Replace Gridicon with Icon and named icon exports from `@wordpress/icons`. [#48537]
+- Tested up to WordPress 7.0. [#48114]
+- Update composer.lock files. [#49415]
+- Updated package dependencies. [#48735] [#48064] [#48106] [#48126] [#48302] [#48404][#48405] [#48683] [#48695] [#48696] [#49012] [#49218] [#49379]
+
+### Fixed
+- Cache debug log: remove the duplicate Jetpack logo and restyle the header breadcrumbs to match the design system, and modernize the "Copy to clipboard" and "See Logs" links. The TanStack Query debugger no longer renders. [#49280]
+- Concatenate JS: Fix pages breaking with an "Unexpected end of input" error when Concatenate JS is enabled on sites that use modern JavaScript under specific conditions. [#49399]
+- Fix Critical CSS progress bar backward jumps and incomplete fill to 100%. [#49244]
+- Fixed a duplicate scrollbar on the Boost dashboard by removing an obsolete full-height override. [#49316]
+- Include blog_id in frontend Tracks events. [#48096]
+- LCP: Fix Cornerstone Page analysis errors on some sites. [#48871]
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+- Render Blocking JS: Fix is_opened_script() regex interpolation and counting asymmetry so unclosed scripts are correctly detected when ignored scripts are present. [#47847]
+
+## [4.5.9] - 2026-04-13
 ### Changed
 - Update package dependencies. [#47505] [#47684] [#47719] [#47799] [#47825] [#47870] [#47890] [#47998]
 
@@ -924,6 +1007,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[4.7.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.3...4.7.0
+[4.6.3]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.2...4.6.3
+[4.6.2]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.1...4.6.2
+[4.6.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.0...4.6.1
+[4.6.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.9...4.6.0
 [4.5.9]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.8-beta...4.5.9
 [4.5.8-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.7...4.5.8-beta
 [4.5.7]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.6...4.5.7

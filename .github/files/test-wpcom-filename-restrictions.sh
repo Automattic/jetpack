@@ -25,22 +25,11 @@ function check_underscores {
 # Based on Automattic/pre-receive-hooks/blob/a8ad6e0c/main-pre-receive-hooks.sh (120_stop_invalid_characters)
 function check_invalid_chars {
 	local FILE="$1"
-	local Z=$( LC_ALL=C grep -aP '[^a-zA-Z._0-9/@\-,]' <<<"$FILE" || true )
+	local Z
+	Z=$( LC_ALL=C grep -aP '[^a-zA-Z._0-9/@\-,]' <<<"$FILE" || true )
 	if [[ -n "$Z" ]]; then
 		echo '  ❌ Filename contains disallowed characters!'
 		failed "$SLUG: Filename \`$FILE\` contains disallowed characters. "'Only a-z, A-Z, 0-9, `.`, `_`, `/`, `@`, `-`, and `,` are allowed.'
-	fi
-}
-
-# Based on Automattic/pre-receive-hooks/blob/b3ca8ab/main-pre-receive-hooks.sh (130_stop_executables)
-function check_executable {
-	local FILE="$1"
-	local line=$( git diff --cached --raw "${FILE}" )
-	local old_mode="$(echo "$line" | cut -d' ' -f1 | cut -c2-)"
-	local new_mode="$(echo "$line" | cut -d' ' -f2)"
-	if [[ "100755" == "$new_mode" && "100755" != "$old_mode" ]]; then
-		echo '  ❌ File cannot be executable!'
-		failed "$SLUG: File \`$FILE\` may not be executable"
 	fi
 }
 
@@ -76,7 +65,6 @@ function failed {
 # Adapted from projects/github-actions/push-to-mirrors/push-to-mirrors.sh
 echo "::group::Fetching commits for Upstream-Ref matching"
 cd "$GITHUB_WORKSPACE/commit"
-git -c protocol.version=2 fetch --unshallow --filter=tree:0 --no-tags --progress --no-recurse-submodules origin HEAD
 # GitHub may not have an up-to-date git
 UPSTREAM_REF_SINCE=2024-04-10
 ARGS=()
@@ -126,7 +114,7 @@ function get_upstream_sha {
 	return 1
 }
 
-while IFS=$'\t' read -r SRC MIRROR SLUG; do
+while IFS=$'\t' read -r _ MIRROR SLUG; do
 	if [[ "$SLUG" == jetpack ]]; then
 		PREFIX=wp-content/mu-plugins/jetpack-plugin/sun
 	elif [[ "$SLUG" == jetpack-mu-wpcom-plugin ]]; then
@@ -163,7 +151,6 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 		echo "- $FILE"
 		check_underscores "$FILE"
 		check_invalid_chars "$FILE"
-		check_executable "$FILE"
 		check_symlink "$FILE"
 	done < <( git -c core.quotepath=off diff --cached --name-only --no-renames --diff-filter=A )
 
@@ -171,7 +158,6 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 	echo 'Modified files:'
 	while IFS= read -r FILE; do
 		echo "- $FILE"
-		check_executable "$FILE"
 		check_symlink "$FILE"
 	done < <( git -c core.quotepath=off diff --cached --name-only --no-renames --diff-filter=MT )
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Serve the dashboard only from its registered, capability-gated admin page.

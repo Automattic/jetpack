@@ -121,7 +121,6 @@ class VideoPress_Divi_Extension extends DiviExtension {
 
 		add_action( 'et_builder_ready', array( $this, 'hook_et_builder_ready' ), 9 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'wp_hook_enqueue_scripts' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_hook_enqueue_scripts' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_js_assets' ) );
 	}
 

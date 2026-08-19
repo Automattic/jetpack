@@ -31,6 +31,9 @@ function pcg_guard_maybe_block_activation() {
 	if ( ! in_array( $action, array( 'activate', 'activate-plugin', 'activate-selected' ), true ) ) {
 		return;
 	}
+	if ( pcg_force_override_active( 'activate_plugins' ) ) {
+		return;
+	}
 
 	if ( 'activate-selected' === $action ) {
 		$bulk_raw         = is_array( $_REQUEST['checked'] ?? null ) ? (array) wp_unslash( $_REQUEST['checked'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each entry is sanitized below.
@@ -251,6 +254,25 @@ function pcg_guard_format_block_reason( $result ) {
 }
 
 /**
+ * Look up a plugin's human-readable Name header. Returns '' when the
+ * file is unreadable or the header is empty.
+ *
+ * @param string $basename Plugin basename (e.g. "akismet/akismet.php").
+ * @return string
+ */
+function pcg_guard_plugin_display_name( $basename ) {
+	$path = WP_PLUGIN_DIR . '/' . ltrim( $basename, '/' );
+	if ( ! is_file( $path ) ) {
+		return '';
+	}
+	if ( ! function_exists( 'get_plugin_data' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+	}
+	$data = get_plugin_data( $path, false, false );
+	return isset( $data['Name'] ) ? (string) $data['Name'] : '';
+}
+
+/**
  * Render the admin notice. Messages are pulled from a per-user transient
  * set by the guard before the redirect.
  */
@@ -279,7 +301,44 @@ function pcg_guard_render_block_notice() {
 				</li>
 			<?php endforeach; ?>
 		</ul>
-		<p><?php esc_html_e( 'No plugins were activated to prevent a site crash. Investigate the error before trying again.', 'jetpack-mu-wpcom' ); ?></p>
+		<p><?php esc_html_e( 'No plugins were activated to prevent a site crash. Investigate the error before trying again, or:', 'jetpack-mu-wpcom' ); ?></p>
+		<ul style="list-style:disc;padding-inline-start:24px;margin-block-end:0;">
+			<?php foreach ( $messages as $plugin => $reason ) : ?>
+				<?php
+				if ( '' === (string) $plugin ) {
+					continue;
+				}
+				$retry_url   = wp_nonce_url(
+					add_query_arg(
+						array(
+							'action'    => 'activate',
+							'plugin'    => $plugin,
+							'pcg_force' => '1',
+						),
+						self_admin_url( 'plugins.php' )
+					),
+					'activate-plugin_' . $plugin
+				);
+				$plugin_name = pcg_guard_plugin_display_name( $plugin );
+				?>
+				<li>
+					<a href="<?php echo esc_url( $retry_url ); ?>" class="button-link">
+						<?php
+						if ( '' !== $plugin_name ) {
+							printf(
+								/* translators: %s: plugin display name. */
+								esc_html__( 'Activate %s anyway', 'jetpack-mu-wpcom' ),
+								esc_html( $plugin_name )
+							);
+						} else {
+							esc_html_e( 'Activate anyway', 'jetpack-mu-wpcom' );
+						}
+						?>
+					</a>
+				</li>
+			<?php endforeach; ?>
+			<li><?php pcg_force_render_bypass_form(); ?></li>
+		</ul>
 	</div>
 	<?php
 }

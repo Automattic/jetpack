@@ -1,15 +1,24 @@
-import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 import defaultSettings from '../shared/settings/index.js';
 import deprecated from './deprecated.js';
-import edit from './edit.js';
-import save from './save.js';
+import edit from './edit.jsx';
+import blockIcon from './icon.jsx';
+import save from './save.jsx';
 
 export const name = 'field-textarea';
 
 export const form_editor = {
 	category: 'basic',
+};
+
+/**
+ * Conditional logic: how this field's value is compared.
+ *
+ * Declared per block so the rule builder can offer the right operators and value
+ * input. A block that omits this simply gets no conditional-logic support.
+ */
+export const conditional_logic = {
+	type: 'string',
 };
 
 export const settings = {
@@ -21,11 +30,7 @@ export const settings = {
 		__( 'Multiline text', 'jetpack-forms' ),
 	],
 	description: __( 'Capture longform text responses from site visitors.', 'jetpack-forms' ),
-	icon: {
-		src: renderMaterialIcon(
-			<Path d="M20 5H4V6.5H20V5ZM5.5 11.5H18.5V18.5H5.5V11.5ZM20 20V10H4V20H20Z" />
-		),
-	},
+	icon: blockIcon,
 	edit,
 	deprecated,
 	save,
@@ -51,4 +56,5 @@ export default {
 	name,
 	settings,
 	form_editor,
+	conditional_logic,
 };

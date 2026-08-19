@@ -1,6 +1,6 @@
 import analytics from '@automattic/jetpack-analytics';
 import useConnection from '@automattic/jetpack-connection/use-connection';
-import { getSiteData, getSiteType } from '@automattic/jetpack-script-data';
+import { getSiteData, getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { useSearch } from '@wordpress/route';
@@ -71,7 +71,11 @@ const Stage = () => {
 
 	// Subscriber management proxies to WP.com signed as the current user, so a
 	// fully connected site AND user are required. Mirrors the VideoPress gate.
-	const canManageSubscribers = isRegistered && hasConnectedOwner && isUserConnected;
+	// Simple sites are already hosted on WP.com — they never have a Jetpack
+	// connection, and the `/wpcom/v2/subscribers/*` endpoints resolve directly
+	// to WP.com authenticated by the logged-in user — so the gate never applies.
+	const canManageSubscribers =
+		isSimpleSite() || ( isRegistered && hasConnectedOwner && isUserConnected );
 
 	// `handleRegisterSite` registers the site if needed and then connects the
 	// user; on an already-registered site it connects the user directly.
@@ -110,7 +114,11 @@ const Stage = () => {
 
 	return (
 		<QueryClientProvider client={ queryClient }>
-			<SubscribersBody>
+			<SubscribersBody
+				importRefreshEnabled={
+					subscribersEnabled && canManageSubscribers && activeTab === 'subscribers'
+				}
+			>
 				{ ( { body, actions } ) => {
 					// Gate the Subscribers tab: connected visitors get the data view,
 					// everyone else gets the connect prompt.
@@ -132,10 +140,10 @@ const Stage = () => {
 						>
 							{ subscribersEnabled ? (
 								<>
-									<Tabs.Panel value="subscribers" focusable={ false }>
+									<Tabs.Panel value="subscribers">
 										{ activeTab === 'subscribers' ? subscribersPanel : null }
 									</Tabs.Panel>
-									<Tabs.Panel value="settings" focusable={ false }>
+									<Tabs.Panel value="settings">
 										{ activeTab === 'settings' ? <NewsletterSettingsBody isModernized /> : null }
 									</Tabs.Panel>
 								</>

@@ -107,14 +107,40 @@ class PCG_Load_Tester {
 		$front_result = $this->parse_response( $responses['front'] );
 		$admin_result = $this->parse_response( $responses['admin'] );
 
-		// fatal/throwable wins; an inconclusive `error` from one probe must
-		// not shadow a real fatal from the other. Front-end is the canonical
-		// "site works" signal when neither probe captured a fatal.
+		// Every surface that captured a fatal. An admin-only fatal still
+		// crashes the site, so both must be confirmed. Front-end is the
+		// canonical verdict when both block.
+		$blocking = array();
 		if ( $this->is_block( $front_result ) ) {
-			return $front_result;
+			$blocking['front'] = $front_result;
 		}
 		if ( $this->is_block( $admin_result ) ) {
-			return $admin_result;
+			$blocking['admin'] = $admin_result;
+		}
+
+		if ( ! empty( $blocking ) ) {
+			$verdict = $this->is_block( $front_result ) ? $front_result : $admin_result;
+
+			// Confirm each blocking surface via WP's normal active-plugin
+			// bootstrap; downgrade only when EVERY one comes back an explicit
+			// clean `ok`. Anything else keeps the captured fatal (see
+			// is_clean_confirmation). Update mode never confirms — fatals must
+			// block so PCG_Rollback can fire.
+			if ( self::MODE_ACTIVATION === $mode ) {
+				$clean_confirmation = null;
+				foreach ( array_keys( $blocking ) as $surface ) {
+					$confirmation = $this->confirm_via_normal_load( $plugin_mains, $surface );
+					if ( ! $this->is_clean_confirmation( $confirmation ) ) {
+						$clean_confirmation = null;
+						break;
+					}
+					$clean_confirmation = $confirmation;
+				}
+				if ( null !== $clean_confirmation ) {
+					return $this->downgrade_after_confirmation( $verdict, $clean_confirmation );
+				}
+			}
+			return $verdict;
 		}
 
 		// Neither probe blocked. Log if either verdict was a transport-level
@@ -128,6 +154,87 @@ class PCG_Load_Tester {
 		}
 
 		return $front_result;
+	}
+
+	/**
+	 * Fire a confirmation probe for a single surface with `pcg_confirm=1`.
+	 * Returns null on transport failure — the caller keeps the original
+	 * verdict on uncertainty.
+	 *
+	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
+	 * @param string   $surface      Which surface to re-probe: `front` or `admin`.
+	 * @return array|null Parsed verdict, or null on transport failure.
+	 */
+	protected function confirm_via_normal_load( array $plugin_mains, $surface = 'front' ) {
+		$is_admin = 'admin' === $surface;
+		$base_url = $is_admin ? admin_url( 'index.php' ) : home_url( '/' );
+		$probe    = $this->prepare_probe( $plugin_mains, $base_url, $is_admin, self::MODE_ACTIVATION, true );
+
+		try {
+			$responses = \WpOrg\Requests\Requests::request_multiple(
+				array( $surface => $probe['request'] ),
+				array(
+					'timeout'   => self::PROBE_TIMEOUT,
+					'redirects' => 5,
+				)
+			);
+		} catch ( \Throwable $t ) {
+			return null;
+		} finally {
+			delete_transient( self::transient_key( $probe['token'] ) );
+		}
+
+		return $this->parse_response( $responses[ $surface ] );
+	}
+
+	/**
+	 * Whether a confirmation-probe verdict is an explicit clean load. Only
+	 * status=`ok` qualifies — the probe endpoint emits it from
+	 * wp_loaded/admin_init once the candidate loaded via the real
+	 * active_plugins path and the whole bootstrap completed without a
+	 * captured fatal. This is the sole result that downgrades a captured
+	 * fatal: a fatal during the active_plugins-driven load dies in
+	 * wp-settings.php before the endpoint registers its shutdown handler,
+	 * so it can never return as status=`fatal` — it comes back as a 500 /
+	 * `ok-inconclusive` / transport error (null), none of which we trust
+	 * to override a genuine captured fatal.
+	 *
+	 * @param array|null $confirmation Confirmation verdict, or null on transport failure.
+	 * @return bool
+	 */
+	protected function is_clean_confirmation( $confirmation ) {
+		return is_array( $confirmation ) && 'ok' === (string) ( $confirmation['status'] ?? '' );
+	}
+
+	/**
+	 * Downgraded verdict after a clean confirmation. Preserves the
+	 * original captured-fatal context for log attribution.
+	 *
+	 * @param array $verdict      Original captured-fatal verdict.
+	 * @param array $confirmation Clean confirmation-probe verdict.
+	 * @return array
+	 */
+	protected function downgrade_after_confirmation( array $verdict, array $confirmation ) {
+		pcg_log_event(
+			'Probe fatal downgraded after confirmation',
+			array(
+				'plugin'  => isset( $verdict['plugin'] ) ? $this->relative_basenames( array( (string) $verdict['plugin'] ) )[0] : '',
+				'status'  => (string) ( $verdict['status'] ?? '' ),
+				'reason'  => (string) ( $verdict['message'] ?? $verdict['reason'] ?? '' ),
+				'file'    => isset( $verdict['file'] ) ? basename( (string) $verdict['file'] ) : '',
+				'confirm' => (string) ( $confirmation['status'] ?? '' ),
+			)
+		);
+		$out = array(
+			'status'  => 'ok-inconclusive',
+			'reason'  => 'Captured fatal did not reproduce when the candidate was loaded via WP\'s normal active-plugin bootstrap; downgrading to allow.',
+			'message' => (string) ( $verdict['message'] ?? '' ),
+			'file'    => (string) ( $verdict['file'] ?? '' ),
+		);
+		if ( '' !== (string) ( $verdict['plugin'] ?? '' ) ) {
+			$out['plugin'] = (string) $verdict['plugin'];
+		}
+		return $out;
 	}
 
 	/**
@@ -252,12 +359,14 @@ class PCG_Load_Tester {
 	 * @internal
 	 * @param string[] $plugin_mains Absolute paths to plugin main PHP files.
 	 * @param string   $mode         Probe mode constant.
-	 * @return array{plugins:string[],mode:string}
+	 * @param bool     $is_confirm   Whether this payload is for a confirmation probe.
+	 * @return array{plugins:string[],mode:string,confirm:bool}
 	 */
-	public static function build_probe_payload( array $plugin_mains, $mode = self::MODE_ACTIVATION ) {
+	public static function build_probe_payload( array $plugin_mains, $mode = self::MODE_ACTIVATION, $is_confirm = false ) {
 		return array(
 			'plugins' => array_values( array_map( static fn( $p ) => (string) $p, $plugin_mains ) ),
 			'mode'    => self::MODE_UPDATE === $mode ? self::MODE_UPDATE : self::MODE_ACTIVATION,
+			'confirm' => (bool) $is_confirm,
 		);
 	}
 
@@ -269,11 +378,12 @@ class PCG_Load_Tester {
 	 * @param string   $base_url     Front-end or admin base URL.
 	 * @param bool     $is_admin     Adds `pcg_admin=1` and forwards auth cookies.
 	 * @param string   $mode         Probe mode constant.
+	 * @param bool     $is_confirm   Adds `pcg_confirm=1` so the early bootstrap injects candidates into active_plugins.
 	 * @return array{token:string,request:array}
 	 */
-	protected function prepare_probe( array $plugin_mains, $base_url, $is_admin, $mode = self::MODE_ACTIVATION ) {
+	protected function prepare_probe( array $plugin_mains, $base_url, $is_admin, $mode = self::MODE_ACTIVATION, $is_confirm = false ) {
 		$token = wp_generate_password( 32, false );
-		set_transient( self::transient_key( $token ), self::build_probe_payload( $plugin_mains, $mode ), self::TOKEN_LIFETIME );
+		set_transient( self::transient_key( $token ), self::build_probe_payload( $plugin_mains, $mode, $is_confirm ), self::TOKEN_LIFETIME );
 
 		$query   = array(
 			'pcg_probe' => '1',
@@ -281,6 +391,9 @@ class PCG_Load_Tester {
 		);
 		$headers = array();
 		$options = array();
+		if ( $is_confirm ) {
+			$query['pcg_confirm'] = '1';
+		}
 		if ( $is_admin ) {
 			$query['pcg_admin'] = '1';
 			$cookie_header      = $this->collect_auth_cookie_header();

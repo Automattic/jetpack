@@ -1,0 +1,134 @@
+{
+	"_note": "Six smoke fixtures, one per goal. Consumed by `bin/eval-ai-launchpad.mjs` (Node runner that POSTs each to `/wpcom/v2/jetpack-ai-query` with the AI Launchpad prompt and validates the response against `agent-output-schema.json`) and by the PL during manual click-through on the Atomic test site. Task IDs are validated against the actual catalog in `jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php` (verified 2026-06-02). Catalog uses snake_case throughout. Expectations are deliberately loose: `must_include_one_of` is a hard assertion, `should_match_niche_vocab` is a soft vocabulary check, `banned_tasks` is a hard exclusion.",
+	"_catalog_caveats": "Two goals are weakly supported by the current catalog: (1) `portfolio` has no native gallery / portfolio-piece tasks, so the portfolio fixture falls back to generic build tasks (theme, about page, first post); (2) `educate` has only `sensei_setup`, so the educate fixture falls back to generic write/build tasks. Adding portfolio/educate-specific tasks is v1.1+.",
+	"version": 1,
+	"fixtures": [
+		{
+			"name": "alpine-notes-write",
+			"input": {
+				"goal": "write",
+				"site_name": "Alpine Notes",
+				"description": "Personal blog about long-distance hiking in the Alps.",
+				"locale": "en"
+			},
+			"expectations": {
+				"must_include_one_of": [ "first_post_published" ],
+				"should_match_niche_vocab": [ "hiking", "outdoor", "trail", "travel", "alps", "mountain" ],
+				"banned_tasks": [
+					"woo_products",
+					"set_up_payments",
+					"stripe_connected",
+					"woo_woocommerce_payments"
+				],
+				"inferred_brand_name": "Alpine Notes",
+				"last_task_is_launch": true
+			}
+		},
+		{
+			"name": "atelier-mercier-build",
+			"input": {
+				"goal": "build",
+				"site_name": "Atelier Mercier",
+				"description": "Small architecture studio in Lyon, residential projects.",
+				"locale": "en"
+			},
+			"expectations": {
+				"must_include_one_of": [ "site_theme_selected", "add_about_page" ],
+				"should_match_niche_vocab": [ "architect", "studio", "design", "portfolio", "project" ],
+				"banned_tasks": [ "woo_products", "set_up_payments", "add_10_email_subscribers" ],
+				"inferred_brand_name": "Atelier Mercier",
+				"last_task_is_launch": true
+			}
+		},
+		{
+			"name": "terra-ceramics-sell",
+			"input": {
+				"goal": "sell",
+				"site_name": "Terra Ceramics",
+				"description": "Handmade ceramic homewares from a one-person studio.",
+				"locale": "en"
+			},
+			"expectations": {
+				"must_include_one_of": [
+					"woo_products",
+					"set_up_payments",
+					"stripe_connected",
+					"woo_woocommerce_payments"
+				],
+				"should_match_niche_vocab": [
+					"ceramic",
+					"homeware",
+					"handmade",
+					"craft",
+					"pottery",
+					"shop"
+				],
+				"banned_tasks": [ "add_10_email_subscribers", "newsletter_plan_created" ],
+				"inferred_brand_name": "Terra Ceramics",
+				"last_task_is_launch": true
+			}
+		},
+		{
+			"name": "off-beat-newsletter",
+			"input": {
+				"goal": "newsletter",
+				"site_name": "Off-Beat",
+				"description": "Weekly digest of independent music recommendations.",
+				"locale": "en"
+			},
+			"expectations": {
+				"must_include_one_of": [
+					"add_10_email_subscribers",
+					"first_post_published",
+					"first_post_published_newsletter",
+					"subscribers_added"
+				],
+				"should_match_niche_vocab": [ "music", "independent", "newsletter", "digest", "subscribe" ],
+				"banned_tasks": [ "woo_products", "stripe_connected", "woo_woocommerce_payments" ],
+				"inferred_brand_name": "Off-Beat",
+				"last_task_is_launch": true
+			}
+		},
+		{
+			"name": "piano-at-40-educate",
+			"input": {
+				"goal": "educate",
+				"site_name": "Piano at 40",
+				"description": "Online piano lessons for adult beginners.",
+				"locale": "en"
+			},
+			"expectations": {
+				"must_include_one_of": [ "first_post_published", "add_about_page", "sensei_setup" ],
+				"should_match_niche_vocab": [ "piano", "lesson", "music", "teach", "student", "adult" ],
+				"banned_tasks": [ "woo_products", "stripe_connected" ],
+				"inferred_brand_name": "Piano at 40",
+				"last_task_is_launch": true,
+				"_caveat": "Catalog has only one education-specific task (`sensei_setup`); fallback to generic write/build tasks is expected."
+			}
+		},
+		{
+			"name": "lea-dupin-portfolio",
+			"input": {
+				"goal": "portfolio",
+				"site_name": "Léa Dupin",
+				"description": "Freelance illustrator showcasing editorial commissions.",
+				"locale": "en"
+			},
+			"expectations": {
+				"must_include_one_of": [ "site_theme_selected", "add_about_page", "first_post_published" ],
+				"should_match_niche_vocab": [
+					"illustrator",
+					"illustration",
+					"editorial",
+					"art",
+					"portfolio",
+					"commission"
+				],
+				"banned_tasks": [ "woo_products", "set_up_payments", "add_10_email_subscribers" ],
+				"inferred_brand_name": "Léa Dupin",
+				"last_task_is_launch": true,
+				"_caveat": "Catalog has no portfolio-specific tasks (no setup_gallery / add_portfolio_piece). Fixture falls back to theme + about page + first post. Adding portfolio tasks is v1.1+."
+			}
+		}
+	]
+}

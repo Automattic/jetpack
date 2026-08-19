@@ -82,6 +82,7 @@ export function ConnectionStatus( { connection, service }: ConnectionStatusProps
 						  );
 				} )( isUnsupported, connection.status ) }
 			</span>
+			{ '\u00A0' }
 			{ ! isUnsupported && service ? (
 				<Reconnect connection={ connection } service={ service } />
 			) : (

@@ -9,6 +9,10 @@ const imageGuideCopyPatterns = [
 			path.dirname( require.resolve( '@automattic/jetpack-image-guide' ) ),
 			'guide.css'
 		),
+		// Emit as `.min.css` so the concatenation serving path treats it as already
+		// minified and skips re-minification (consistent with guide.min.js). The file is
+		// already minified at build time, so re-minifying it is redundant.
+		to: 'guide.min.css',
 	},
 ];
 
@@ -111,7 +115,17 @@ module.exports = [
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
+					extraLoaders: [
+						{
+							loader: 'postcss-loader',
+							options: {
+								postcssOptions: {
+									config: path.join( __dirname, 'postcss.config.js' ),
+								},
+							},
+						},
+						{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
+					],
 				} ),
 
 				// Handle images.
@@ -137,7 +151,11 @@ module.exports = [
 		devtool: jetpackWebpackConfig.devtool,
 		output: {
 			path: path.resolve( './app/modules/image-guide/dist' ),
-			filename: 'guide.js',
+			// Ship as `.min.js` so Boost's own concatenation serving path treats it as
+			// already-minified and skips re-minification. The MatthiasMullie PHP minifier
+			// is ES5-era and silently corrupts the Svelte/ES6 template literals in this
+			// bundle; webpack/Terser has already minified it at build time.
+			filename: 'guide.min.js',
 		},
 		optimization: {
 			...jetpackWebpackConfig.optimization,

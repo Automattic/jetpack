@@ -1,8 +1,10 @@
+import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { JetpackModuleSlug, JetpackProductWithCard } from '../../../types';
 import AntiSpamIcon from '../../products-table-view/icons/anti-spam';
 import BackupIcon from '../../products-table-view/icons/backup';
 import BoostIcon from '../../products-table-view/icons/boost';
 import CrmIcon from '../../products-table-view/icons/crm';
+import FormsIcon from '../../products-table-view/icons/forms';
 import JetpackAiIcon from '../../products-table-view/icons/jetpack-ai';
 import ProtectIcon from '../../products-table-view/icons/protect';
 import SearchIcon from '../../products-table-view/icons/search';
@@ -31,15 +33,15 @@ export const CATEGORY_CARDS_AND_MODULES: {
 		],
 	},
 	growth: {
-		cards: [ 'stats', 'social', 'jetpack-ai', 'crm' ],
+		cards: [ 'stats', 'social', 'jetpack-ai', 'jetpack-forms', 'crm' ],
 		modules: [
 			'blaze',
 			'canonical-urls',
 			'comment-likes',
 			'comments',
-			'contact-form',
 			'copy-post',
 			'likes',
+			'podcast',
 			'related-posts',
 			'seo-tools',
 			'sharedaddy',
@@ -94,6 +96,7 @@ export const PRODUCT_ICONS: {
 	backup: BackupIcon,
 	boost: BoostIcon,
 	'jetpack-ai': JetpackAiIcon,
+	'jetpack-forms': FormsIcon,
 	crm: CrmIcon,
 	protect: ProtectIcon,
 	search: SearchIcon,
@@ -110,4 +113,27 @@ export const PRODUCT_MODULES: {
 } = {
 	backup: 'vaultpress',
 	social: 'publicize',
+	'jetpack-forms': 'contact-form',
+	'jetpack-ai': 'ai',
 };
+
+/**
+ * The product-to-module map to build cards from.
+ *
+ * Pre-release gate: outside internal testing environments the AI card is not
+ * backed by the 'ai' module, so its cards resolve no module and render exactly
+ * as they did before the module existed. Remove when the AI settings page goes
+ * public.
+ *
+ * @return The map, without the AI entry while the gate is on.
+ */
+export function getProductModules() {
+	const { showAiModuleToggle = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
+	if ( showAiModuleToggle ) {
+		return PRODUCT_MODULES;
+	}
+
+	const gated = { ...PRODUCT_MODULES };
+	delete gated[ 'jetpack-ai' ];
+	return gated;
+}

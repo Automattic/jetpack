@@ -4,8 +4,10 @@
 
 # Files to exclude from the mirror repo.
 # (see also entries in the monorepo root .gitattributes)
-**/stories/**     production-exclude
-**/tests/**       production-exclude
-**/docs/**        production-exclude
-agents.md         production-exclude
-/bin/**           production-exclude
+**/stories/**       production-exclude
+**/tests/**         production-exclude
+**/docs/**          production-exclude
+agents.md           production-exclude
+/bin/**             production-exclude
+/tools/**           production-exclude
+/tsdown.config.ts   production-exclude

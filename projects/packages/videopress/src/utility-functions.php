@@ -377,6 +377,11 @@ function videopress_update_meta_data( $post_id ) {
 
 	$info = (object) $meta['videopress'];
 
+	// Without a guid there is no video to query for.
+	if ( ! isset( $info->guid ) ) {
+		return false;
+	}
+
 	$result = Client::wpcom_json_api_request_as_blog( 'videos/' . $info->guid );
 
 	if ( is_wp_error( $result ) ) {
@@ -488,11 +493,15 @@ function videopress_make_resumable_upload_path( $blog_id ) {
  * This is a mock of the internal VideoPress method, which is meant to duplicate the functionality
  * of the WPCOM API, so that the Jetpack REST API returns the same data with no modifications.
  *
- * @param int $blog_id Blog ID.
- * @param int $post_id Post ID.
+ * @param int  $blog_id    Blog ID.
+ * @param int  $post_id    Post ID.
+ * @param bool $cache_bust Ignored. The real WPCOM function caches reads for 12 hours and this
+ *                         param forces a fresh read; the mock reads local postmeta directly.
+ *                         Mirrored here so IS_WPCOM call sites can pass it without the shared
+ *                         signature diverging from the real one.
  * @return stdClass
  */
-function video_get_info_by_blogpostid( $blog_id, $post_id ) {
+function video_get_info_by_blogpostid( $blog_id, $post_id, $cache_bust = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- see docblock.
 	$post = get_post( $post_id );
 
 	$video_info                  = new stdClass();
@@ -602,17 +611,21 @@ function video_format_done( $info, $format ) {
  *
  * @param string $guid VideoPress GUID.
  * @param string $format Video format.
- * @return string
+ * @return string|null The poster image URL, or null if it cannot be resolved.
  */
 function video_image_url_by_guid( $guid, $format ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 	$post = videopress_get_post_by_guid( $guid );
 
-	if ( is_wp_error( $post ) ) {
+	if ( is_wp_error( $post ) || ! $post ) {
 		return null;
 	}
 
 	$meta = wp_get_attachment_metadata( $post->ID );
+
+	if ( ! is_array( $meta ) || ! isset( $meta['videopress']['poster'] ) ) {
+		return null;
+	}
 
 	$poster = apply_filters( 'jetpack_photon_url', $meta['videopress']['poster'] );
 

@@ -65,7 +65,7 @@ class WPCOM_Content_Research {
 
 		// Try filesystem first (Simple sites). Failures are not cached.
 		if ( file_exists( ABSPATH . $filepath ) ) {
-			$contents = file_get_contents( ABSPATH . $filepath ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$contents = file_get_contents( ABSPATH . $filepath );
 			if ( false !== $contents ) {
 				$data = json_decode( $contents, true );
 				if ( is_array( $data ) ) {
@@ -103,9 +103,16 @@ class WPCOM_Content_Research {
 	}
 
 	/**
-	 * Enqueue the Content Research sidebar script on editor screens.
+	 * Enqueue the Content Research sidebar script on post editor screens.
 	 */
 	public function enqueue_scripts() {
+		// Load in the post editor only — the `enqueue_block_editor_assets` action
+		// also fires in the site editor, widgets editor, and customizer.
+		$current_screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $current_screen || 'post' !== $current_screen->base ) {
+			return;
+		}
+
 		if ( ! self::is_enabled() ) {
 			return;
 		}

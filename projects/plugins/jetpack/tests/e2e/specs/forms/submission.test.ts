@@ -1,5 +1,5 @@
+import { expect, test } from '@automattic/_jetpack-e2e-commons/fixtures/base-test';
 import { Response } from '@playwright/test';
-import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test';
 
 test.afterEach( async ( { requestUtils } ) => {
 	// List all feedback submissions.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search Blocks: drop the stale embedded→inline fallback for non-block themes. Embedded now stays Embedded regardless of theme; the dormant `jetpack_search_theme_supports_embedded_experience` filter is removed alongside it.

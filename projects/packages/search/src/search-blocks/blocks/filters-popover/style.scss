@@ -70,7 +70,10 @@
 	// attribute — overriding `[hidden]` via CSS leaves the attribute set,
 	// which screen readers still respect even though sighted users see the
 	// content.
-	&__panel {
+	// Descendant selector raises specificity to (0,2,0), beating
+	// `@wordpress/components` `[role="region"]{position:relative}` at
+	// (0,1,0) which otherwise wins on logged-in pages.
+	& &__panel {
 		position: absolute;
 		inset-inline-end: 0;
 		inset-block-start: calc(100% + 4px);

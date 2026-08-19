@@ -34,7 +34,7 @@ const COUNT_VIEW: View = {
 /**
  * Free-tier state derived from real data sources: server-side library
  * count via useLibrary, in-flight uploads via useUpload, plan-tier flags
- * via useFeatures + Initial State, and atomic via script-data.
+ * via the Initial State boot payload, and atomic via script-data.
  *
  * @return Free-tier state.
  */
@@ -57,7 +57,11 @@ export function useFreeTier(): FreeTierState {
 	const isAtomic = isWoASite();
 	const isUnlimited = useIsVideoPressUnlimited();
 
-	const isAtLimit = isFree && videoCount >= FREE_TIER_UPLOAD_LIMIT;
+	// Only the free, non-unlimited tier is capped. `isUnlimited` (grandfathered
+	// 2TB plans) and paid access come from signals independent of `isFree`, so
+	// guard against an "unlimited yet free-flagged" combination wrongly gating
+	// uploads.
+	const isAtLimit = isFree && ! isUnlimited && videoCount >= FREE_TIER_UPLOAD_LIMIT;
 
 	return {
 		isFree,

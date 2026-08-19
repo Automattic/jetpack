@@ -190,15 +190,15 @@ class AttributesTest extends TestCase {
 	public function testQuotedClasses() {
 	}
 
-	#[RequiresPhp()]
+	#[RequiresPhp]
 	#[RequiresPhp( PHP_VERSION )]
-	#[RequiresPhpunit()]
-	#[RequiresOperatingSystem()]
-	#[RequiresOperatingSystemFamily()]
-	#[RequiresFunction()]
-	#[RequiresMethod()]
+	#[RequiresPhpunit]
+	#[RequiresOperatingSystem]
+	#[RequiresOperatingSystemFamily]
+	#[RequiresFunction]
+	#[RequiresMethod]
 	#[RequiresMethod( 42, TestCase::class )]
-	#[RequiresPhpExtension()]
+	#[RequiresPhpExtension]
 	#[RequiresPhpExtension( 42 )]
 	#[RequiresPhpExtension( 'ok', 42 )]
 	#[RequiresSetting( 'foo.bar' )]

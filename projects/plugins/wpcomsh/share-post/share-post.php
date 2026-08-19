@@ -14,7 +14,7 @@
  *
  * @return int|void|WP_Error
  */
-function wpcomsh_insert_shared_post_data( $target_post_id, $post = null, $update = false ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+function wpcomsh_insert_shared_post_data( $target_post_id, $post = null, $update = false ) {
 
 	// There are cases when plugins trigger insert hooks without arguments, we just return in this case.
 	if ( null === $post ) {
@@ -123,7 +123,7 @@ function wpcomsh_get_text_content( $text, $link ) {
  * @param WP_Post $post       Post object of newly-inserted post.
  * @return string Updated post title from source post.
  */
-function wpcomsh_filter_title( $post_title, $post ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+function wpcomsh_filter_title( $post_title, $post ) {
 	return $post->post_title;
 }
 
@@ -134,6 +134,6 @@ function wpcomsh_filter_title( $post_title, $post ) { // phpcs:ignore Generic.Co
  * @param WP_Post $post         Post object of newly-inserted post.
  * @return string Updated post content from source post.
  */
-function wpcomsh_filter_content( $post_content, $post ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+function wpcomsh_filter_content( $post_content, $post ) {
 	return $post->post_content;
 }

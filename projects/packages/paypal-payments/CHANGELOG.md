@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.11] - 2026-08-03
+### Changed
+- Update dependencies. [#50841]
+
+## [0.7.10] - 2026-07-27
+### Changed
+- Update dependencies. [#50719]
+- Update package dependencies. [#50751] [#50753]
+
+## [0.7.9] - 2026-07-20
+### Changed
+- Update dependencies. [#50551]
+- Update package dependencies. [#50529]
+
+### Fixed
+- Match the PayPal Payment Buttons block icon to the Payment Buttons block for a consistent inserter. [#50528]
+
+## [0.7.8] - 2026-07-13
+### Changed
+- Update package dependencies. [#49272] [#50407]
+
+## [0.7.7] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## [0.7.6] - 2026-06-29
+### Changed
+- Internal updates.
+
+## [0.7.5] - 2026-06-25
+### Changed
+- Update package dependencies. [#49831]
+
+## [0.7.4] - 2026-06-22
+### Changed
+- Update package dependencies. [#49631] [#49691] [#49757]
+
+## [0.7.3] - 2026-06-15
+### Changed
+- Update package dependencies. [#49273]
+
+## [0.7.2] - 2026-06-08
+### Security
+- Simple Payments: Strip seller PayPal email (`spay_email`) from public REST responses while preserving editor read/write. [#49194]
+
+### Changed
+- Update dependencies. [#49354]
+
+## [0.7.1] - 2026-06-01
+### Changed
+- Update package dependencies. [#48404]
+
 ## [0.7.0] - 2026-05-25
 ### Security
 - Restrict REST API write access to `jp_pay_order` by using a read-only REST controller. [#48139]
@@ -236,6 +288,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Simple Payments: Move Simple Payments block to PayPal Payments package. [#43413]
 
+[0.7.11]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.7.10...v0.7.11
+[0.7.10]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.7.9...v0.7.10
+[0.7.9]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.7.8...v0.7.9
+[0.7.8]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.7.7...v0.7.8
+[0.7.7]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.7.6...v0.7.7
+[0.7.6]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.7.5...v0.7.6
+[0.7.5]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.7.4...v0.7.5
+[0.7.4]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.7.3...v0.7.4
+[0.7.3]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.7.2...v0.7.3
+[0.7.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.7.1...v0.7.2
+[0.7.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.20...v0.7.0
 [0.6.20]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.19...v0.6.20
 [0.6.19]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.18...v0.6.19

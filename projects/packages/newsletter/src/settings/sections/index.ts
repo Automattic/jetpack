@@ -10,5 +10,6 @@ export { LegacySubscriptionsSection } from './legacy-subscriptions-section';
 export { NewsletterCategoriesSection } from './newsletter-categories-section';
 export { NewsletterSection } from './newsletter-section';
 export { PaidNewsletterSection } from './paid-newsletter-section';
+export { SubscribeModalSection } from './subscribe-modal-section';
 export { SubscriptionsSection } from './subscriptions-section';
 export { WelcomeEmailSection } from './welcome-email-section';

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: fix the visible seam in the blocks-powered Overlay's header underline at the close-button boundary, and bind the close button's hover surface to the resolved theme tokens so the X stays visible across themes.

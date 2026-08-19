@@ -13,6 +13,8 @@
 const mockRecordEvent = jest.fn();
 const mockInitialize = jest.fn();
 const mockSearch = jest.fn< { tab?: string }, [] >();
+const mockIsSimpleSite = jest.fn< boolean, [] >();
+const mockConnection = jest.fn< Record< string, unknown >, [] >();
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
@@ -25,18 +27,12 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getSiteData: () => ( { admin_url: 'https://example.com/wp-admin/' } ),
 	getSiteType: () => 'jetpack',
+	isSimpleSite: () => mockIsSimpleSite(),
 } ) );
 
 jest.mock( '@automattic/jetpack-connection/use-connection', () => ( {
 	__esModule: true,
-	default: () => ( {
-		isRegistered: false,
-		hasConnectedOwner: false,
-		isUserConnected: false,
-		siteIsRegistering: false,
-		userIsConnecting: false,
-		handleRegisterSite: jest.fn(),
-	} ),
+	default: () => mockConnection(),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -57,19 +53,27 @@ jest.mock( '@wordpress/ui', () => ( {
 
 // SubscribersBody is a render-prop component; the Stage passes a function
 // that builds the panels. The mock invokes it with empty slot data so the
-// downstream render path is exercised without any data-views machinery.
+// downstream render path is exercised without any data-views machinery, and
+// records the `importRefreshEnabled` prop so we can assert the poll gating.
+let mockImportRefreshEnabled: boolean | undefined;
+
 jest.mock( '../_inc/subscribers/components/subscribers-body', () => ( {
 	__esModule: true,
 	default: ( {
+		importRefreshEnabled,
 		children,
 	}: {
+		importRefreshEnabled: boolean;
 		children: ( ctx: { body: React.ReactNode; actions: React.ReactNode } ) => React.ReactNode;
-	} ) => <>{ children( { body: null, actions: null } ) }</>,
+	} ) => {
+		mockImportRefreshEnabled = importRefreshEnabled;
+		return <>{ children( { body: <div data-testid="subscribers-body" />, actions: null } ) }</>;
+	},
 } ) );
 
 jest.mock( '../_inc/subscribers/components/connection-gate', () => ( {
 	__esModule: true,
-	default: () => null,
+	default: () => <div data-testid="connection-gate" />,
 } ) );
 
 jest.mock( '../_inc/subscribers/lib/query-client', () => ( {
@@ -100,7 +104,7 @@ jest.mock( '../src/settings/style.scss', () => ( {} ), { virtual: true } );
 jest.mock( '../routes/dashboard/route.scss', () => ( {} ), { virtual: true } );
 
 // Imports must come after the jest.mock factories above.
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { StrictMode } from 'react';
 import { stage as Stage } from '../routes/dashboard/stage';
 
@@ -109,7 +113,28 @@ beforeEach( () => {
 	mockInitialize.mockReset();
 	mockSearch.mockReset();
 	mockSearch.mockReturnValue( {} );
+	mockIsSimpleSite.mockReset();
+	mockIsSimpleSite.mockReturnValue( false );
+	mockConnection.mockReset();
+	mockConnection.mockReturnValue( {
+		isRegistered: false,
+		hasConnectedOwner: false,
+		isUserConnected: false,
+		siteIsRegistering: false,
+		userIsConnecting: false,
+		handleRegisterSite: jest.fn(),
+	} );
+	mockImportRefreshEnabled = undefined;
 } );
+
+const connected = {
+	isRegistered: true,
+	hasConnectedOwner: true,
+	isUserConnected: true,
+	siteIsRegistering: false,
+	userIsConnecting: false,
+	handleRegisterSite: jest.fn(),
+};
 
 describe( 'Newsletter dashboard Stage analytics', () => {
 	it( 'records jetpack_newsletter_tab_view once on initial mount with the landing tab', () => {
@@ -177,5 +202,63 @@ describe( 'Newsletter dashboard Stage analytics', () => {
 
 		expect( mockInitialize ).toHaveBeenCalledTimes( 1 );
 		expect( mockInitialize ).toHaveBeenCalledWith( 1, 'tester' );
+	} );
+} );
+
+describe( 'Newsletter dashboard Stage connection gate', () => {
+	it( 'shows the connection gate on a disconnected non-Simple site', () => {
+		render( <Stage /> );
+
+		expect( screen.getByTestId( 'connection-gate' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'subscribers-body' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'bypasses the gate on a Simple site even without a Jetpack connection', () => {
+		// Simple sites are hosted on WP.com and never carry a Jetpack
+		// connection; the subscriber endpoints resolve directly to WP.com.
+		mockIsSimpleSite.mockReturnValue( true );
+
+		render( <Stage /> );
+
+		expect( screen.getByTestId( 'subscribers-body' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'connection-gate' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows the subscribers body on a fully connected non-Simple site', () => {
+		mockConnection.mockReturnValue( connected );
+
+		render( <Stage /> );
+
+		expect( screen.getByTestId( 'subscribers-body' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'connection-gate' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Newsletter dashboard Stage import-poll gating', () => {
+	// The import-completion poll lives in the always-mounted SubscribersBody. It must run only for a
+	// visitor who can actually import AND is on the Subscribers tab, so it doesn't hit the WP.com
+	// import endpoint on the Settings tab, for connection-gated users, or on Settings-only sites.
+	it( 'enables the poll for a connected visitor on the Subscribers tab', () => {
+		mockConnection.mockReturnValue( connected );
+
+		render( <Stage /> );
+
+		expect( mockImportRefreshEnabled ).toBe( true );
+	} );
+
+	it( 'disables the poll on the Settings tab, even when connected', () => {
+		mockConnection.mockReturnValue( connected );
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+
+		render( <Stage /> );
+
+		expect( mockImportRefreshEnabled ).toBe( false );
+	} );
+
+	it( 'disables the poll for a connection-gated visitor', () => {
+		// Default mocks: disconnected non-Simple site → cannot manage subscribers.
+		render( <Stage /> );
+
+		expect( mockImportRefreshEnabled ).toBe( false );
 	} );
 } );

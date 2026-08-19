@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Search Blocks: add a Width control (px / %) to the Search Input block inspector, matching `core/search`.

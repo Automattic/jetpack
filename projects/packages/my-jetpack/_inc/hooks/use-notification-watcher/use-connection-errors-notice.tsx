@@ -1,164 +1,193 @@
 import { Col, Text } from '@automattic/jetpack-components';
-import { useConnectionErrorNotice, useRestoreConnection } from '@automattic/jetpack-connection';
-import { __, sprintf } from '@wordpress/i18n';
-import { useContext, useEffect, useCallback } from 'react';
+import {
+	getReconnectErrorMessage,
+	useConnectionErrorNotice,
+	type ConnectionErrorObject,
+} from '@automattic/jetpack-connection';
+import { useContext, useEffect, useCallback, useMemo } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import useAnalytics from '../use-analytics';
 import { assignLocation } from './assignLocation';
+import {
+	excludeOtherUsersErrors,
+	flattenConnectionErrors,
+	getConnectionErrorDetailLines,
+	getConnectionErrorTitle,
+	groupConnectionErrorsByMessage,
+	titleIncludesScope,
+} from './connection-error-details';
+import type { ConnectionErrorViewer } from './connection-error-details';
 import type { NoticeOptions, NoticeButtonAction } from '../../context/notices/types';
-import type { ReactElement } from 'react';
 
-const useConnectionErrorsNotice = ( actionHandlers = {} ) => {
+const useConnectionErrorsNotice = (
+	actionHandlers: Record< string, ( error: ConnectionErrorObject ) => void > = {}
+) => {
 	const { setNotice } = useContext( NoticeContext );
-	const { hasConnectionError, connectionError } = useConnectionErrorNotice();
-	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
-		useRestoreConnection();
 	const { recordEvent } = useAnalytics();
 
-	// Generic handler for custom actions based on error data
-	const handleCustomAction = useCallback(
-		( actionUrl: string, trackingEvent?: string ) => {
-			// Track the action if tracking event is provided and follows expected pattern
-			if ( trackingEvent && trackingEvent.startsWith( 'jetpack_' ) ) {
-				recordEvent( trackingEvent as `jetpack_${ string }`, {} );
+	// Tracking callback for the shared resolver, preserving My Jetpack's
+	// "jetpack_"-prefixed event guard.
+	const trackingCallback = useCallback(
+		( event: string, data: object ) => {
+			if ( event && event.startsWith( 'jetpack_' ) ) {
+				recordEvent(
+					event as `jetpack_${ string }`,
+					data as Parameters< typeof recordEvent >[ 1 ]
+				);
 			}
-
-			// Navigate to the action URL
-			assignLocation( actionUrl );
 		},
 		[ recordEvent ]
 	);
 
+	// Action resolution and copy are owned by the connection package; we only
+	// map the resolved actions into a My Jetpack notice and re-attach our own
+	// tracking event for the reconnect CTA.
+	const {
+		hasConnectionError,
+		connectionError,
+		connectionErrors,
+		actions,
+		isRestoringConnection,
+		restoreConnectionError,
+		connectionOwner,
+		isCurrentUserConnectionOwner,
+		currentUserId,
+	} = useConnectionErrorNotice( {
+		actionHandlers,
+		trackingCallback,
+		navigate: assignLocation,
+		reconnectTrackingEvent: 'jetpack_my_jetpack_connection_error_notice_reconnect_cta_click',
+	} );
+
+	const ownerName = connectionOwner?.displayName;
+
+	// Show every displayable error the backend handed us, not just the first —
+	// minus the ones belonging to other users, which this viewer can neither fix
+	// nor is affected by.
+	const errorList = useMemo( () => {
+		const viewer = { currentUserId };
+		const flattened = excludeOtherUsersErrors(
+			flattenConnectionErrors( connectionErrors ),
+			viewer
+		);
+
+		if ( flattened.length ) {
+			return flattened;
+		}
+
+		return connectionError ? excludeOtherUsersErrors( [ connectionError ], viewer ) : [];
+	}, [ connectionErrors, connectionError, currentUserId ] );
+
+	// Report the error the CTA belongs to rather than whichever came first in the
+	// map — unless that error is one we filtered out, in which case reporting it
+	// would describe something the viewer was never shown. Matched by error code
+	// + user ID (the store's own keying) rather than object identity, since
+	// `errorList` isn't guaranteed to hold the same references `connectionError`
+	// came from.
+	const trackedErrorKey = `${ connectionError?.error_code }:${ connectionError?.user_id ?? '' }`;
+	const trackedError =
+		connectionError &&
+		errorList.some( error => `${ error.error_code }:${ error.user_id ?? '' }` === trackedErrorKey )
+			? connectionError
+			: errorList[ 0 ];
+
+	// `GlobalNotice` fires its view event from an effect that depends on
+	// `tracksArgs` by identity, so a fresh literal on every `setNotice` would
+	// report a second view of the same notice. The notice is re-set at a higher
+	// priority when a reconnect starts, which is exactly that case — so hold one
+	// object and rebuild it only when what it reports actually changes. The deps
+	// are all primitives on purpose: `trackedError` gets a new identity whenever
+	// the store re-emits, and that churn must not reach this object.
+	const tracksArgs = useMemo(
+		() => ( {
+			error_count: errorList.length,
+			error_code: trackedError?.error_code ?? null,
+			audience: trackedError?.audience ?? 'site',
+		} ),
+		[ errorList.length, trackedError?.error_code, trackedError?.audience ]
+	);
+
 	useEffect( () => {
-		if ( ! hasConnectionError || ! connectionError ) {
+		if ( ! hasConnectionError || ! errorList.length ) {
 			return;
 		}
 
-		// Use the error message provided by the backend
-		let errorMessage: string | ReactElement = connectionError.error_message;
+		// Who is looking, so an error's `audience` can be phrased from their point
+		// of view.
+		const viewer: ConnectionErrorViewer = {
+			currentUserId,
+			isOwner: isCurrentUserConnectionOwner,
+			ownerName,
+		};
 
-		if ( restoreConnectionError ) {
-			errorMessage = (
-				<Col>
-					<Text mb={ 2 }>
-						{ sprintf(
-							/* translators: %s: the error. */
-							__( 'There was an error reconnecting Jetpack. Error: %s', 'jetpack-my-jetpack' ),
-							restoreConnectionError
-						) }
-					</Text>
-					<Text mb={ 2 }>{ connectionError.error_message }</Text>
-				</Col>
-			);
-		}
+		// Where the title already names the scope, the detail line drops it and
+		// carries the code alone rather than repeating itself.
+		const scopeIsInTitle = titleIncludesScope( errorList );
 
-		// Build actions based on error data
-		let noticeActions: NoticeButtonAction[] = [];
+		// Keep the backend message as the headline, then group broken-token errors under one
+		// shared description with each error's scope and code.
+		const errorMessage = (
+			<Col>
+				{ restoreConnectionError && (
+					<Text mb={ 2 }>{ getReconnectErrorMessage( restoreConnectionError ) }</Text>
+				) }
+				{ groupConnectionErrorsByMessage( errorList ).map( ( group, groupIndex ) => {
+					const detailLines = getConnectionErrorDetailLines( group.errors, viewer, scopeIsInTitle );
 
-		// Get action info from error data
-		const errorData = connectionError?.error_data || {};
-		const suggestedAction = errorData.action;
-		const actionHandler = actionHandlers[ suggestedAction ];
-		const actionUrl = errorData.action_url;
-		const actionLabel = errorData.action_label;
-		const trackingEvent = errorData.tracking_event;
+					return (
+						<div key={ group.message }>
+							<Text mt={ groupIndex > 0 ? 2 : 0 } mb={ detailLines.length ? 1 : 0 }>
+								{ group.message }
+							</Text>
+							{ detailLines.map( ( line, index ) => (
+								<Text
+									key={ line.key }
+									variant="body-small"
+									mb={ index === detailLines.length - 1 ? 0 : 1 }
+								>
+									{ line.text }
+								</Text>
+							) ) }
+						</div>
+					);
+				} ) }
+			</Col>
+		);
 
-		if ( suggestedAction && actionHandler ) {
-			// Custom action handler provided (function call)
-			noticeActions = [
-				{
-					label: actionLabel || __( 'Take Action', 'jetpack-my-jetpack' ),
-					onClick: () => {
-						if ( trackingEvent && trackingEvent.startsWith( 'jetpack_' ) ) {
-							recordEvent( trackingEvent as `jetpack_${ string }`, {} );
-						}
-						actionHandler( connectionError );
-					},
-					noDefaultClasses: true,
-				},
-			];
-		} else if ( actionUrl && actionLabel ) {
-			// Custom URL action provided (navigation)
-			noticeActions = [
-				{
-					label: actionLabel,
-					onClick: () => handleCustomAction( actionUrl, trackingEvent ),
-					noDefaultClasses: true,
-				},
-			];
-		} else {
-			// Default action - restore connection
-			const onCtaClick = () => {
-				restoreConnection();
-				recordEvent( 'jetpack_my_jetpack_connection_error_notice_reconnect_cta_click' );
-			};
+		// `actions` is mapped over below, so a malformed value would throw inside the
+		// effect and cost the user the error message along with the CTA.
+		const baseActions = Array.isArray( actions ) ? actions : [];
 
-			noticeActions = [
-				{
-					label: __( 'Restore Connection', 'jetpack-my-jetpack' ),
-					onClick: onCtaClick,
-					isLoading: isRestoringConnection,
-					loadingText: __( 'Reconnecting Jetpack…', 'jetpack-my-jetpack' ),
-					noDefaultClasses: true,
-				},
-			];
-		}
-
-		// Add secondary action if available (only for custom errors, not default restore)
-		if ( noticeActions.length > 0 && ( suggestedAction || actionUrl ) ) {
-			const secondaryAction = errorData.secondary_action;
-			const secondaryActionHandler = actionHandlers[ secondaryAction ];
-			const secondaryActionUrl = errorData.secondary_action_url;
-			const secondaryActionLabel = errorData.secondary_action_label;
-			const secondaryTrackingEvent = errorData.secondary_tracking_event;
-
-			// Secondary action with handler
-			if ( secondaryAction && secondaryActionHandler && secondaryActionLabel ) {
-				noticeActions.push( {
-					label: secondaryActionLabel,
-					onClick: () => {
-						if ( secondaryTrackingEvent && secondaryTrackingEvent.startsWith( 'jetpack_' ) ) {
-							recordEvent( secondaryTrackingEvent as `jetpack_${ string }`, {} );
-						}
-						secondaryActionHandler( connectionError );
-					},
-					noDefaultClasses: true,
-					variant: 'secondary',
-				} );
-			}
-			// Secondary action with URL (requires both URL and label)
-			else if ( secondaryActionUrl && secondaryActionLabel ) {
-				noticeActions.push( {
-					label: secondaryActionLabel,
-					onClick: () => handleCustomAction( secondaryActionUrl, secondaryTrackingEvent ),
-					noDefaultClasses: true,
-					variant: 'secondary',
-				} );
-			}
-		}
+		const noticeActions: NoticeButtonAction[] = baseActions.map( action => ( {
+			...action,
+			noDefaultClasses: true,
+		} ) );
 
 		const noticeOptions: NoticeOptions = {
 			id: 'connection-error-notice',
 			level: 'error',
 			actions: noticeActions,
 			priority: NOTICE_PRIORITY_HIGH + ( isRestoringConnection ? 1 : 0 ),
+			tracksArgs,
 		};
 
 		setNotice( {
 			message: errorMessage,
+			title: getConnectionErrorTitle( errorList, viewer ),
 			options: noticeOptions,
 		} );
 	}, [
 		setNotice,
-		recordEvent,
 		hasConnectionError,
-		connectionError,
-		restoreConnection,
+		tracksArgs,
+		errorList,
+		currentUserId,
+		isCurrentUserConnectionOwner,
+		ownerName,
+		actions,
 		isRestoringConnection,
 		restoreConnectionError,
-		handleCustomAction,
-		actionHandlers,
 	] );
 };
 

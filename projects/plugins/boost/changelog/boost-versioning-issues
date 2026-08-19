@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Render Blocking JS: Fix is_opened_script() regex interpolation and counting asymmetry so unclosed scripts are correctly detected when ignored scripts are present.

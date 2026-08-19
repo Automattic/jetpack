@@ -9,13 +9,11 @@
  */
 return [
     // # Issue statistics:
-    // PhanPluginMixedKeyNoKey : 8 occurrences
+    // PhanPluginMixedKeyNoKey : 7 occurrences
     // PhanPluginUnreachableCode : 4 occurrences
     // PhanTypeMismatchArgument : 3 occurrences
-    // PhanTypeMismatchDimFetch : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
     // PhanTypeMismatchArgumentNullable : 2 occurrences
-    // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanTypeMissingReturn : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
     // PhanParamSignatureMismatch : 1 occurrence
@@ -23,7 +21,8 @@ return [
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchDefault : 1 occurrence
-    // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
+    // PhanTypeMismatchDimFetch : 1 occurrence
+    // PhanTypeMismatchReturnProbablyReal : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
@@ -33,12 +32,10 @@ return [
         'src/class-publicize-base.php' => ['PhanDeprecatedFunction', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch'],
         'src/class-publicize-ui.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-publicize.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMissingReturn'],
-        'src/class-rest-controller.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        'src/rest-api/class-connections-controller.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeSuspiciousNonTraversableForeach'],
+        'src/rest-api/class-connections-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/rest-api/class-scheduled-actions-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/rest-api/class-services-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/rest-api/class-share-status-controller.php' => ['PhanPluginMixedKeyNoKey'],
-        'src/rest-api/class-x-usage-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/social-image-generator/class-rest-settings-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/social-image-generator/class-setup.php' => ['PhanTypeMismatchArgumentNullable'],
         'tests/php/Connections_Post_Field_Test.php' => ['PhanPluginUnreachableCode', 'PhanTypeMismatchArgument'],

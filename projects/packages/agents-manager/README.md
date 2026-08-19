@@ -56,6 +56,27 @@ Updates the agents manager state in user preferences.
 
 All parameters are optional; only provided parameters will be updated.
 
+### Jetpack AI JWT
+
+**Namespace:** `jetpack/v4`
+**Route:** `/jetpack-ai-jwt`
+
+#### POST `/wp-json/jetpack/v4/jetpack-ai-jwt`
+
+Requests a JWT token from WordPress.com that AI assistants use to authenticate OpenAI completion requests. This endpoint is required by plugins that embed AI assistants (such as Woo AI), so it is registered here to make it available independently of the Jetpack or My Jetpack plugins.
+
+If the endpoint is already registered (for example, by the Jetpack plugin), the Agents Manager will not register it again to avoid duplicate registration.
+
+**Permissions:** The user must have a connected Jetpack user account and the `edit_posts` capability.
+
+**Response:**
+```json
+{
+  "token": "...",
+  "blog_id": 12345
+}
+```
+
 ## Router History Cleanup
 
 The Agents Manager automatically limits router history entries to 50 via the `calypso_preferences_update` filter. When the limit is exceeded, it keeps the last 49 entries and prepends a root entry to ensure the back button always works.

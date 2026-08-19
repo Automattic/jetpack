@@ -27,16 +27,27 @@ function InternalNavigatorModal( {
 	const overlayRef = useRef< HTMLDivElement >( null );
 	const isUserInteracting = useRef( false );
 
-	// Track pointer interaction on the overlay so we can distinguish
-	// user-initiated overlay clicks from the WP Modal dismisser mechanism,
-	// which also calls onRequestClose() without an event argument.
+	/*
+	 * Track pointer interaction on the overlay so we can distinguish
+	 * user-initiated overlay (backdrop) clicks from the WP Modal dismisser
+	 * mechanism, which also calls onRequestClose() without an event argument.
+	 *
+	 * Only a pointerdown on the overlay element itself counts as a backdrop
+	 * interaction — mirroring WP Modal's own `event.target === event.currentTarget`
+	 * check. Without this target guard, a pointerdown on any control inside the
+	 * modal (e.g. the "Generate image" button) would bubble up and set the flag,
+	 * so when that control opens an external Modal (Image Studio) the resulting
+	 * dismisser call would be misread as an overlay click and wrongly close us.
+	 */
 	useEffect( () => {
 		const overlay = overlayRef.current;
 		if ( ! overlay ) {
 			return;
 		}
-		const handler = () => {
-			isUserInteracting.current = true;
+		const handler = ( event: PointerEvent ) => {
+			if ( event.target === overlay ) {
+				isUserInteracting.current = true;
+			}
 		};
 		overlay.addEventListener( 'pointerdown', handler );
 		return () => overlay.removeEventListener( 'pointerdown', handler );

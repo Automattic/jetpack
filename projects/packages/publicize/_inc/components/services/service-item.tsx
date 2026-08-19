@@ -1,20 +1,25 @@
-import { useBreakpointMatch } from '@automattic/jetpack-components';
-import { Panel, PanelBody } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
-import { useEffect, useReducer, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
-import { Button } from '@wordpress/ui';
+import { chevronDown } from '@wordpress/icons';
+import { Collapsible, Icon, Text } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { ConnectForm } from './connect-form';
 import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-details';
-import { ServiceItemNotice } from './service-item-notice';
 import { ServiceStatus } from './service-status';
 import styles from './style.module.scss';
+import type { SyntheticEvent } from 'react';
 
 export type ServicesItemProps = ServicesItemDetailsProps & {
 	isPanelDefaultOpen?: boolean;
 };
+
+// Stops a child click from bubbling up to the surrounding
+// `Collapsible.Trigger`, which would otherwise toggle the disclosure
+// when the user is trying to interact with an inline control (e.g.
+// the "Connect" button or the broken-connection reauth flow).
+const stopPropagation = ( event: SyntheticEvent ) => event.stopPropagation();
 
 /**
  * Service item component
@@ -28,14 +33,17 @@ export function ServiceItem( {
 	serviceConnections,
 	isPanelDefaultOpen,
 }: ServicesItemProps ) {
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 
-	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, isPanelDefaultOpen );
-	const panelRef = useRef< HTMLDivElement >( null );
+	const [ isPanelOpen, setIsPanelOpen ] = useState( Boolean( isPanelDefaultOpen ) );
+	const togglePanel = useCallback( () => setIsPanelOpen( open => ! open ), [] );
+	// `Collapsible.Trigger` types its ref as `HTMLButtonElement` even when
+	// rendered as a `<div>` (via `render`), so match that to satisfy the ref type.
+	const rowRef = useRef< HTMLButtonElement >( null );
 
 	useEffect( () => {
 		if ( isPanelDefaultOpen ) {
-			panelRef.current?.scrollIntoView( { block: 'center', behavior: 'smooth' } );
+			rowRef.current?.scrollIntoView( { block: 'center', behavior: 'smooth' } );
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
@@ -54,6 +62,13 @@ export function ServiceItem( {
 		[ brokenConnections ]
 	);
 
+	// While reconnecting a credential-based service (e.g. Bluesky), show its input form even
+	// though it has a broken connection, so the user can re-enter credentials in place.
+	const isReconnectingThisService = useSelect(
+		select => select( socialStore ).getReconnectingAccount()?.service_name === service.id,
+		[ service.id ]
+	);
+
 	const hideInitialConnectForm =
 		// For services with custom inputs, the initial Connect button opens the panel,
 		// so we don't want to show it if the panel is already open
@@ -68,14 +83,21 @@ export function ServiceItem( {
 			: _x( 'Fix connection', 'Fix social media connection', 'jetpack-publicize-pkg' );
 
 	return (
-		<div className={ styles[ 'service-item' ] }>
-			<div className={ styles[ 'service-item-info' ] }>
-				<div>
+		<Collapsible.Root open={ isPanelOpen } onOpenChange={ setIsPanelOpen }>
+			<Collapsible.Trigger
+				ref={ rowRef }
+				className={ styles[ 'service-row' ] }
+				nativeButton={ false }
+				render={ <div /> }
+			>
+				<div className={ styles[ 'service-row-icon' ] }>
 					<service.icon iconSize={ isSmall ? 36 : 48 } />
 				</div>
 				<div className={ styles[ 'service-basics' ] }>
 					<div className={ styles.heading }>
-						<span className={ styles.title }>{ service.label }</span>
+						<Text variant="body-lg" className={ styles.title }>
+							{ service.label }
+						</Text>
 					</div>
 					{ ! isSmall && ! serviceConnections.length ? (
 						<span className={ styles.description }>{ service.description }</span>
@@ -86,50 +108,49 @@ export function ServiceItem( {
 						reauthConnections={ reauthConnections }
 					/>
 				</div>
-				<div className={ styles.actions }>
-					{ ! hideInitialConnectForm ? (
+				{ ! hideInitialConnectForm ? (
+					<div
+						className={ styles.actions }
+						onClick={ stopPropagation }
+						onKeyDown={ stopPropagation }
+						role="presentation"
+					>
 						<ConnectForm
 							service={ service }
 							isSmall={ isSmall }
+							compact
 							onSubmit={
 								hasOwnBrokenConnections || service.needsCustomInputs ? togglePanel : undefined
 							}
 							hasConnections={ serviceConnections.length > 0 }
 							buttonLabel={ hasOwnBrokenConnections ? buttonLabel : undefined }
 						/>
-					) : null }
-					<Button
-						size={ 'small' }
-						className={ styles[ 'learn-more' ] }
-						variant="minimal"
-						onClick={ togglePanel }
-						aria-label={ __( 'Learn more', 'jetpack-publicize-pkg' ) }
-					>
-						{ <Icon className={ styles.chevron } icon={ isPanelOpen ? chevronUp : chevronDown } /> }
-					</Button>
-				</div>
-			</div>
-
-			<Panel className={ styles[ 'service-panel' ] } ref={ panelRef }>
-				<PanelBody opened={ isPanelOpen } onToggle={ togglePanel }>
+					</div>
+				) : null }
+				<Icon className={ styles.chevron } icon={ chevronDown } />
+			</Collapsible.Trigger>
+			<Collapsible.Panel className={ styles[ 'service-panel' ] }>
+				<div className={ styles[ 'service-panel-inner' ] }>
 					<ServiceItemDetails service={ service } serviceConnections={ serviceConnections } />
-					<ServiceItemNotice service={ service } serviceConnections={ serviceConnections } />
 					{
-						// Connect form for services that need custom inputs
-						// should be shown only if there are no broken connections
-						service.needsCustomInputs && ! hasOwnBrokenConnections ? (
+						// Connect form for services that need custom inputs. Normally hidden when a
+						// connection is broken (the "Fix connection" flow handles those), but shown
+						// while reconnecting this service so its credentials can be re-entered.
+						service.needsCustomInputs &&
+						( ! hasOwnBrokenConnections || isReconnectingThisService ) ? (
 							<div className={ styles[ 'connect-form-wrapper' ] }>
 								<ConnectForm
 									service={ service }
 									displayInputs
+									compact
 									isSmall={ false }
 									buttonLabel={ __( 'Submit', 'jetpack-publicize-pkg' ) }
 								/>
 							</div>
 						) : null
 					}
-				</PanelBody>
-			</Panel>
-		</div>
+				</div>
+			</Collapsible.Panel>
+		</Collapsible.Root>
 	);
 }

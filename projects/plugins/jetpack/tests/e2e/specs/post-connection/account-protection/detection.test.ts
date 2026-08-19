@@ -1,4 +1,4 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test';
+import { test, expect } from '@automattic/_jetpack-e2e-commons/fixtures/base-test';
 import {
 	getAccountProtectionAuthCodeFromTransient,
 	getAccountProtectionTokenFromUrl,

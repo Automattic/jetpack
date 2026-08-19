@@ -4,8 +4,8 @@ Pre-flight plugin-activation check. When an admin clicks Activate (or finishes a
 
 Two independent filters:
 
-- `pcg_guard_activation` — enables the activation probe and the syntax-only install/update gate. Defaults `true`.
-- `pcg_guard_updates` — enables the post-update health check + rollback flow. Defaults `true`.
+- `pcg_guard_activation` — enables the activation probe. Defaults `true`.
+- `pcg_guard_updates` — enables the syntax-only install/update gate and the post-update health check + rollback flow. Defaults `true`.
 
 ## Files
 
@@ -77,15 +77,40 @@ Two independent filters:
 
 Atomic and some managed hosts sandbox web-PHP so `proc_open` can't find/exec a CLI binary (`open_basedir` + restricted exec). A separate HTTP request is isolated from the admin request: if the plugin fatals, the probe 500s but the parent sees JSON via the shutdown handler, and the admin page keeps rendering.
 
+## Confirmation probe (activation mode)
+
+The probe endpoint loads candidates via a manual `require_once`, which doesn't perfectly match the timing of a real activation page-load (where the candidate is in `active_plugins` from the start, loaded by `wp-settings.php` before `plugins_loaded` fires). Some captured fatals are timing artifacts that wouldn't happen on a real activation.
+
+When the first probe captures a fatal in activation mode, the load tester fires a **confirmation probe** with `pcg_confirm=1`. An early-bootstrap hook (`probe-confirm-bootstrap.php`, required from `Jetpack_Mu_Wpcom::init()` at mu-plugin load time) hooks `pre_option_active_plugins` so the candidate is treated as already-active for that request; the probe endpoint skips its manual require and observes whether `wp_loaded` / `admin_init` complete cleanly.
+
+- Explicit clean `ok` confirmation → downgrade to `ok-inconclusive`; log `Probe fatal downgraded after confirmation`.
+- Anything else — confirmation fatal, transport error, or an ambiguous `ok-inconclusive` / `ok-shutdown` — keeps the original verdict and blocks. A fatal during the injected `active_plugins` load dies in `wp-settings.php` before the probe endpoint arms its shutdown handler, so it can't return as `status=fatal`; treating that ambiguity as a pass would downgrade a real fatal. We only override a captured fatal on positive clean evidence.
+
+Update mode never confirms — the candidate is already loaded by WP's normal bootstrap before the probe fires, so there's no different ordering to test against, and a fatal MUST block to let `PCG_Rollback::to_snapshot()` fire.
+
 ## Percentage rollout
 
-`PCG_Rollout` narrows `pcg_guard_activation` / `pcg_guard_updates` per blog. Default is **0%** — PCG is off everywhere until the operator opts in:
+`PCG_Rollout` narrows `pcg_guard_activation` / `pcg_guard_updates` per blog. Default is **5%** — the `pcg_rollout_percentage` filter overrides it per environment:
 
 ```php
 add_filter( 'pcg_rollout_percentage', fn () => 10 ); // 10% cohort
 ```
 
 Bucketing is `crc32(blog_id) % 100`, so ramping from 10% → 50% strictly adds blogs (no reshuffling between tiers). The gate only narrows — emergency-override filters at priority > 100 on `pcg_guard_activation` / `pcg_guard_updates` can still re-enable or disable a blog.
+
+## Force override
+
+The activation, update, and install block notices each expose opt-out controls so an admin who disagrees with a verdict can still push through:
+
+- **One-shot retry** — re-runs the original action with `pcg_force=1` on the URL. The action's own admin nonce still has to validate; PCG just steps out of the way for that one request.
+  - Activation notice: `Activate <Name> anyway` (one per blocked plugin) — replays `plugins.php?action=activate&plugin=<basename>`.
+  - Update notice: `Update <Name> anyway` — replays `update.php?action=upgrade-plugin&plugin=<basename>`.
+  - Install notice: **no one-shot retry.** `Plugin_Upgrader::install()` doesn't populate `hook_extra['plugin']`; even with a slug recovered from the source basename, the .org `install-plugin` URL can't replay an uploaded zip and can't reliably resolve .org-search installs whose canonical slug differs from the extracted folder name. Operators flip the bypass and re-trigger from Add Plugin themselves.
+- **Time-boxed bypass** — `Disable checks for 10 minutes` sets a user-scoped transient (`pcg_force_bypass_<user_id>`) consumed by `pcg_force_override_active( $cap )`. The activation guard, the syntax-only install/update gate, and the post-update health check + rollback all short-circuit while the transient is live, so a user who turns this on isn't quietly rolled back behind their back.
+
+Capabilities are checked per surface: `activate_plugins` for the activation guard, `update_plugins` for the install/update gate and the healthcheck. The shared bypass-set handler accepts either cap.
+
+Every override is logged via `pcg_log_event( 'Force override used' )` (`source: pcg_force_flag` for one-shot, `bypass_transient` for the 10-min window) and `'Force bypass enabled'` when the transient is set.
 
 ## Limitations
 

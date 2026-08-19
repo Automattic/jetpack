@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 5e8a20c1721863641314794c301fd5b56b14f4d8.
+ * Stubs automatically generated from WordPress.com commit 0df31ec7c9f4fa83103606c5fa6444b3fdf440b5.
  */
 
 namespace {
@@ -278,6 +278,12 @@ namespace {
         static function init()
         {
         }
+        /**
+         * @param int $keyring_token_id
+         * @param bool $force_external_users_refetch
+         * @param bool $force_connection_test
+         * @return array|false
+         */
         public function get_keyring_connection_item($keyring_token_id, $force_external_users_refetch = \false, $force_connection_test = \false)
         {
         }
@@ -289,15 +295,40 @@ namespace {
         public function get_external_services_list($type = \false, $blog_id = \false)
         {
         }
+        /**
+         * @param string $service
+         * @return array|false
+         */
         public function get_external_service_item($service)
         {
         }
         public function delete_keyring_connection($keyring_connection_id)
         {
         }
+        /**
+         * @param int $keyring_token_id
+         * @return bool
+         */
+        public function has_failing_cached_connection_test($keyring_token_id)
+        {
+        }
+        /**
+         * @param string $request_id
+         * @param int|null $blog_id
+         * @param bool $delete
+         * @return array|false
+         */
+        public function get_last_keyring_token_details($request_id, $blog_id = \null, $delete = \true)
+        {
+        }
     }
     abstract class ExternalMediaService
     {
+        /**
+         * @param string $service_name
+         * @param int $user_id
+         * @return Keyring_Access_Token|string|false
+         */
         public static function get_service_token($service_name, $user_id)
         {
         }
@@ -520,7 +551,7 @@ namespace {
         }
     }
     /**
-     * @return array{quota: int, used: int, remaining: int, resetsAt: string|null}
+     * @return array{quota: int, used: int, remaining: int, resetsAt: string}
      */
     function posts_to_podcast_get_usage(int $blog_id, ?int $now = \null): array
     {
@@ -898,6 +929,16 @@ namespace {
     function is_simple_site_redirect($blog_id = 0)
     {
     }
+    class Email_Preview_Guard
+    {
+        /**
+         * @param string $email
+         * @return true|WP_Error
+         */
+        public static function check($email)
+        {
+        }
+    }
     class Subscription_Mailer extends \WordPressMailer
     {
         public function __construct(\Blog_Subscriber $subscriber, $use_wp = \true, $locale_type = self::USER_LOCALE, $woocommerce_email_renderer = \null)
@@ -1017,6 +1058,7 @@ namespace {
     {
         var $name = \false;
         var $meta = array();
+        var $unique_id = \false;
         /**
          * @param int $window
          * @return bool
@@ -1201,7 +1243,17 @@ namespace {
     {
     }
     /**
-     * @phan-return mixed
+     * @param int|false $site_id
+     * @param int $blog_id
+     * @param string $table
+     * @param string $field
+     * @param string|false $end_date
+     * @param int $num_days
+     * @param string $and
+     * @param int $limit
+     * @param bool $summarize
+     * @param bool $rollup
+     * @return array
      */
     function stats_get_daily_history($site_id, $blog_id, $table, $field, $end_date = \false, $num_days = 1, $and = '', $limit = 0, $summarize = \false, $rollup = \false)
     {
@@ -1448,7 +1500,6 @@ namespace {
     }
     class WPCOM_Feature_Flags
     {
-        const GLOBAL_STYLES_ON_PERSONAL_PLAN = 'GLOBAL_STYLES_ON_PERSONAL_PLAN';
         public static function get_features(): array
         {
         }
@@ -1741,26 +1792,9 @@ namespace Publicize {
     {
     }
     /**
-     * @deprecated
-     * @param \WP_Post $post
-     * @param array $items
-     * @param array $post_intent
-     * @return array<int, array<string, mixed>>
-     */
-    function render_messages_for_networks(\WP_Post $post, array $items, array $post_intent = array()): array
-    {
-    }
-    /**
      * @return array<string, array{title:string}>
      */
     function get_supported_placeholders(): array
-    {
-    }
-    /**
-     * @param int $blog_id
-     * @return array
-     */
-    function get_x_usage(int $blog_id = 0): array
     {
     }
 }

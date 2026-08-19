@@ -43,7 +43,7 @@ export const ScanAndThreatStatus: FC< ScanAndThreatStatusProps > = ( { data } ) 
 			...( files ?? [] ),
 		];
 		return allThreats.reduce(
-			( accum, threat ) => ( threat.severity >= 5 ? ( accum += 1 ) : accum ),
+			( accum, threat ) => ( threat.severity >= 5 ? accum + 1 : accum ),
 			0
 		);
 	}, [ plugins, themes, data?.scanData ] );

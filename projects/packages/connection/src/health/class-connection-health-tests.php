@@ -16,7 +16,7 @@ use Jetpack_Options;
 /**
  * Class Connection_Health_Tests contains all connection-specific health tests.
  *
- * @since $$next-version$$
+ * @since 8.5.0
  */
 class Connection_Health_Tests extends Connection_Health_Test_Base {
 
@@ -42,7 +42,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		 *
 		 * @since 7.1.0
 		 * @since 8.3.0 Passes the test suite instance.
-		 * @since $$next-version$$ Moved from Jetpack_Cxn_Tests to Connection_Health_Tests.
+		 * @since 8.5.0 Moved from Jetpack_Cxn_Tests to Connection_Health_Tests.
 		 *
 		 * @param Connection_Health_Tests $this The Connection_Health_Tests instance.
 		 */
@@ -467,15 +467,142 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			);
 		}
 
-		$result       = json_decode( $body );
-		$is_connected = ! empty( $result->connected );
-		$message      = $result->message . ': ' . wp_remote_retrieve_response_code( $response );
+		return $this->evaluate_wpcom_connection_result( $name, json_decode( $body ), wp_remote_retrieve_response_code( $response ) );
+	}
 
-		if ( $is_connected ) {
+	/**
+	 * Turns a decoded WP.com test-connection response into a test result.
+	 *
+	 * Split out from test__wpcom_connection_test() so the decision logic can be
+	 * exercised without performing a signed remote request.
+	 *
+	 * Besides producing the Site Health result, this also keeps the Error_Handler
+	 * state for `xmlrpc_request_blocked` in sync: a blocked result reports the
+	 * error (making it visible on Error_Handler surfaces such as admin notices and
+	 * the dashboard), and a connected result clears it. Runs from every entry point
+	 * of the test: Site Health page loads, Core's weekly Site Health cron, and the
+	 * daily connection check on the heartbeat cron.
+	 *
+	 * @param string      $name        The test name.
+	 * @param object|null $result      The JSON-decoded response body; null when the body was not valid JSON.
+	 * @param int|string  $status_code The HTTP status code of the WP.com response.
+	 *
+	 * @return array Test results.
+	 */
+	public function evaluate_wpcom_connection_result( $name, $result, $status_code ) {
+		if ( ! empty( $result->connected ) ) {
+			$this->clear_blocked_request_error();
 			return self::passing_test( array( 'name' => $name ) );
 		}
 
+		// The site itself rejected WordPress.com's request (firewall, WAF, security
+		// plugin, or server rule). The connection token could be valid, but reconnecting would
+		// be rejected the same way - surface the real cause and don't offer a reconnect.
+		if ( isset( $result->error_code ) && 'xmlrpc_request_blocked' === $result->error_code ) {
+			$site_http_status = (int) ( $result->site_http_status ?? 0 );
+
+			// Skipping the WP.com verification round-trip is safe here: the error was
+			// derived from a response WP.com sent to a request this site initiated and
+			// signed, so it is self-evidencing (same trust model as the outgoing flow).
+			// The method_exists guard and the 'local_state' literal (which matches
+			// Error_Handler::ERROR_TYPE_LOCAL_STATE) protect mid-plugin-update requests,
+			// where a stale Error_Handler predating the factory and the constant can
+			// already be loaded: reporting is best-effort and must never fatal.
+			if ( method_exists( Error_Handler::class, 'build_connection_wp_error' ) ) {
+				Error_Handler::get_instance()->report_error(
+					Error_Handler::build_connection_wp_error(
+						'xmlrpc_request_blocked',
+						'WordPress.com requests to the site are blocked',
+						array( 'token' => '' ),
+						'local_state', // Error_Handler::ERROR_TYPE_LOCAL_STATE.
+						'', // The blocked state describes the site's environment, not one request, so it has no direction.
+						array(
+							'user_id'          => 0,
+							'site_http_status' => $site_http_status,
+							// Reconnecting would be rejected by the same rule that blocks WP.com,
+							// so the error carries its remedy: no reconnect CTA on any surface.
+							'action'           => 'none',
+						)
+					),
+					false,
+					true
+				);
+			}
+
+			return $this->blocked_request_failing_test( $name, $site_http_status );
+		}
+
+		// An explicit `connected` property (falsy here, past the pass branch) proves
+		// WP.com actually ran its test and did not report a blockage — a definitive
+		// non-blocked failure, so a lingering blocked error is stale and its
+		// suppressed-reconnect presentation would be wrong for this failure.
+		// Malformed bodies and service-error envelopes (no `connected` property) are
+		// inconclusive: preserve any existing blocked error, as with timeouts and
+		// 404s. A wrongly preserved error is bounded by ERROR_LIFE_TIME anyway.
+		if ( is_object( $result ) && property_exists( $result, 'connected' ) ) {
+			$this->clear_blocked_request_error();
+		}
+
+		$message = isset( $result->message ) && '' !== $result->message
+			? $result->message
+			: __( 'Connection test failed.', 'jetpack-connection' );
+
+		$message .= ' ' . sprintf(
+			/* translators: %s is the HTTP status code returned by WordPress.com. */
+			__( '(status code: %s)', 'jetpack-connection' ),
+			$status_code
+		);
+
 		return self::connection_failing_test( $name, $message );
+	}
+
+	/**
+	 * Clears a stored `xmlrpc_request_blocked` error, when the loaded Error_Handler supports it.
+	 *
+	 * During a plugin update, a stale Error_Handler predating `delete_error_by_code()` can
+	 * already be in memory while this file is the new version on disk. State sync is
+	 * best-effort and must never fatal such a request, so it is skipped in that window.
+	 *
+	 * @since 8.10.0
+	 */
+	private function clear_blocked_request_error() {
+		if ( method_exists( Error_Handler::class, 'delete_error_by_code' ) ) {
+			Error_Handler::get_instance()->delete_error_by_code( 'xmlrpc_request_blocked' );
+		}
+	}
+
+	/**
+	 * Builds a failing result for the case where the site is blocking WordPress.com's
+	 * connection test (e.g. firewall/WAF/security plugin).
+	 *
+	 * No reconnect action is offered because the connection token could be valid but
+	 * reconnecting would be rejected the same way.
+	 *
+	 * @param string $name             The test name.
+	 * @param int    $site_http_status The HTTP status the site returned, or 0 if unknown.
+	 *
+	 * @return array Test results.
+	 */
+	protected function blocked_request_failing_test( $name, $site_http_status = 0 ) {
+		$connection_error = $site_http_status
+			? sprintf(
+				/* translators: %d is the HTTP status code (e.g. 403) the site returned. */
+				__( 'WordPress.com reached your site but the request was blocked (HTTP %d). This is usually caused by a firewall, security plugin, or server rule rejecting requests from WordPress.com.', 'jetpack-connection' ),
+				$site_http_status
+			)
+			: __( 'WordPress.com reached your site but the request was blocked. This is usually caused by a firewall, security plugin, or server rule rejecting requests from WordPress.com.', 'jetpack-connection' );
+
+		$recommendation = __( 'Ask your host or security provider to allow requests from WordPress.com to your site\'s xmlrpc.php file. Reconnecting will not resolve this. If you need further help, contact Jetpack support.', 'jetpack-connection' );
+
+		return self::failing_test(
+			array(
+				'name'              => $name,
+				'short_description' => $connection_error,
+				'long_description'  => self::helper_get_reconnect_long_description( $connection_error, $recommendation ),
+				'action_label'      => $this->helper_get_support_text(),
+				'action'            => $this->helper_get_support_url(),
+			)
+		);
 	}
 
 	/**

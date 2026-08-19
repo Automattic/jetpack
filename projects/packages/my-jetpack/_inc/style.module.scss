@@ -1,5 +1,13 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 
+// Bring @wordpress/ui design tokens (--wpds-*) into :root for every My Jetpack
+// route. Without this, the @wordpress/ui Button class hooks land on elements
+// but the var() lookups for color and dimension all resolve to empty, so the
+// chrome falls through to wp-admin defaults. The JS-side equivalent gets
+// mis-detected by the WordPress dependency-extraction webpack plugin as a
+// script handle ("wp-theme/design-tokens.css") and blanks the page.
+@import "@wordpress/theme/design-tokens.css";
+
 :global {
 
 	// Apply the shared admin-page-layout mixin so the main My Jetpack page
@@ -19,6 +27,34 @@
 	body.jetpack_page_my-jetpack:not(.jetpack-admin-full-screen) {
 
 		@include jetpack-admin-page-layout;
+
+		// Reserve space for the scrollable middle's vertical scrollbar so toggling
+		// between search results and category browse — which changes the content
+		// height, and thus whether the scrollbar is present — doesn't shift the
+		// layout sideways. Most noticeable on Firefox / platforms with classic
+		// (space-consuming) scrollbars; a no-op where unsupported. The selector
+		// mirrors the "scrollable middle" defined by jetpack-admin-page-layout.
+		.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) {
+			scrollbar-gutter: stable;
+		}
+	}
+
+	// Defend @wordpress/ui Button against wp-admin's unlayered anchor styles
+	// when Button renders as an <a> via nativeButton={false} + render={<a/>}.
+	// The root cause is that @wordpress/ui has no link-button component yet, so
+	// we render a Button-as-anchor; this whole block can go once one exists:
+	// https://github.com/WordPress/gutenberg/issues/77098
+	// @wordpress/ui's component rules live inside @layer wp-ui-components and
+	// per CSS Cascade Layers unlayered wp-admin rules like `a { color, …}`
+	// override them, so the rendered anchor inherits wp-admin's link color
+	// and underline instead of the Button's intended chrome — and worse,
+	// `is-loading { color: transparent }` also loses, so the label stays
+	// visible behind the spinner. `revert-layer` short-circuits the implicit
+	// unlayered layer entirely and falls back to the @wordpress/ui-computed
+	// value, picking up `is-loading` overrides for free.
+	#my-jetpack-container a[class*="__button"] {
+		color: revert-layer;
+		text-decoration: revert-layer;
 	}
 
 	#my-jetpack-container {

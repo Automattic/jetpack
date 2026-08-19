@@ -21,9 +21,7 @@ class WP_Core_Provider extends Provider {
 	 */
 	protected static $name = 'core';
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
-	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public static function get_critical_source_urls( $context_posts = array() ) {
 		$urls = array();
 
@@ -58,7 +56,6 @@ class WP_Core_Provider extends Provider {
 		return $urls;
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_keys() {
 		$keys = array( 'posts_page' );
@@ -70,7 +67,6 @@ class WP_Core_Provider extends Provider {
 		return $keys;
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_current_storage_keys() {
 		if ( is_home() ) {
@@ -87,9 +83,8 @@ class WP_Core_Provider extends Provider {
 		return array( self::$name . '_' . $key );
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
-	public static function get_edit_url( $provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	public static function get_edit_url( $provider_key ) {
 		if ( $provider_key === 'core_front_page' ) {
 			$front_page_id = get_option( 'page_on_front' );
 			if ( ! empty( $front_page_id ) ) {
@@ -100,9 +95,8 @@ class WP_Core_Provider extends Provider {
 		return null;
 	}
 
-	// phpcs:ignore
 	/** @inheritdoc */
-	public static function describe_key( $provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	public static function describe_key( $provider_key ) {
 		$page = substr( $provider_key, strlen( static::$name ) + 1 );
 
 		switch ( $page ) {
@@ -117,7 +111,6 @@ class WP_Core_Provider extends Provider {
 		}
 	}
 
-	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_success_ratio() {
 		return 1;

@@ -8,9 +8,10 @@ export const MESSAGE_TEMPLATE_KEY = 'jetpack_social_message_template';
 
 export const CUSTOMIZE_PER_NETWORK_KEY = '_wpas_customize_per_network';
 
-// X usage quota limits
-export const FREE_PLAN_LIMIT = 5;
-export const PAID_PLAN_LIMIT = 100;
+/**
+ * Services that require an intermediate input step
+ */
+export const CONNECTION_FLOW_INPUT_SERVICES = [ 'bluesky', 'mastodon' ] as const;
 
 /**
  * This is to avoid creating a new empty array each time.
@@ -18,3 +19,8 @@ export const PAID_PLAN_LIMIT = 100;
  * This helps to avoid unnecessary changes to the reference of the array.
  */
 export const EMPTY_ARRAY = [];
+
+/**
+ * Same as {@link EMPTY_ARRAY}, for selectors returning an object.
+ */
+export const EMPTY_OBJECT = {};

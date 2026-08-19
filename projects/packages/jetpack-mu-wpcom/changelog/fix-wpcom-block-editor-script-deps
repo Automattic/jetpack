@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+wpcom-block-editor: Add missing script dependencies for remote editor assets.

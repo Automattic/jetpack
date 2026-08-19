@@ -191,6 +191,14 @@ const blockInfoMapping: { [ key: string ]: { link: string; postId: number } } = 
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/terms-query-block/',
 		postId: 423600,
 	},
+	'core/playlist': {
+		link: 'https://wordpress.com/support/wordpress-editor/blocks/playlist-block/',
+		postId: 445741,
+	},
+	'core/tabs': {
+		link: 'https://wordpress.com/support/wordpress-editor/blocks/tabs-block/',
+		postId: 445742,
+	},
 	'syntaxhighlighter/code': {
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/syntax-highlighter-code-block/',
 		postId: 4743,
@@ -272,6 +280,10 @@ const blockInfoMapping: { [ key: string ]: { link: string; postId: number } } = 
 	'jetpack/opentable': {
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/opentable-block/',
 		postId: 162208,
+	},
+	'jetpack/markdown': {
+		link: 'https://wordpress.com/support/wordpress-editor/blocks/markdown-block/',
+		postId: 149871,
 	},
 	'jetpack/map': {
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/map-block/',

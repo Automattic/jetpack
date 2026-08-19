@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: keep a bar chart's time axis on the buckets it actually draws, so a labelled bar, a comparison series, or a series hidden from the legend can no longer strand a tick at the axis origin, and label such a bar by its label in both the axis and the tooltip.

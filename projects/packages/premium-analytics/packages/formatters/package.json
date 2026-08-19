@@ -1,0 +1,19 @@
+{
+	"name": "@automattic/jetpack-premium-analytics-formatters",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"main": "src/index.ts",
+	"types": "src/index.ts",
+	"sideEffects": false,
+	"dependencies": {
+		"@automattic/number-formatters": "workspace:*",
+		"@jetpack-premium-analytics/datetime": "workspace:*",
+		"@wordpress/date": "5.51.0",
+		"@wordpress/i18n": "^6.9.0",
+		"date-fns": "4.1.0"
+	},
+	"devDependencies": {
+		"@date-fns/tz": "1.4.1"
+	}
+}

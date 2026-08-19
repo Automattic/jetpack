@@ -3,17 +3,19 @@
  * Reusable assertion: a JSON API endpoint's REST dispatch produces the same
  * response body as its XML-RPC dispatch, for the same logical request.
  *
- * Both paths run on the Jetpack site and both end in the same `callback()`:
+ * Both paths run on the Jetpack site and both end in the same `callback()`, then apply
+ * filter_fields() before returning:
  *
  *   XML-RPC: WPCOM_JSON_API::serve()  -> adds user_can_richedit + comment_edit_pre,
  *                                        sets $api->endpoint/path/version
- *                                     -> process_request() -> callback()
- *   REST:    WPCOM_JSON_API_Endpoint::rest_callback() -> the SAME setup -> callback()
+ *                                     -> process_request() -> callback() -> output()/filter_fields()
+ *   REST:    WPCOM_JSON_API_Endpoint::rest_callback() -> the SAME setup -> callback() -> filter_fields()
  *
- * So the only ways the two can diverge are (1) the edit-context filter set drifting
- * out of sync (the jetpack#42377 regression class) and (2) the REST route failing to
- * pass through a request param the XML-RPC query carried. This assertion drives both
- * paths over shared fixtures and compares the decoded bodies, catching exactly that.
+ * So the ways the two can diverge are (1) the edit-context filter set drifting out of sync
+ * (the jetpack#42377 regression class), (2) the REST route failing to pass through a request
+ * param the XML-RPC query carried, and (3) the REST path skipping the field filtering that
+ * output() applies on XML-RPC. This assertion drives both paths over shared fixtures (including
+ * a `fields=` request) and compares the decoded bodies, catching exactly that.
  *
  * Self-contained: it creates its own admin user, aligns the Jetpack blog id, and mocks
  * the request signature internally. A consuming WP_UnitTestCase only needs to call
@@ -134,7 +136,7 @@ trait Assert_Rest_Xmlrpc_Parity {
 		remove_filter( 'user_can_richedit', '__return_true' );
 		remove_filter( 'comment_edit_pre', array( WPCOM_JSON_API::init(), 'comment_edit_pre' ) );
 
-		unset( $_GET['token'], $_GET['timestamp'], $_GET['nonce'], $_GET['body-hash'], $_GET['signature'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		unset( $_GET['token'], $_GET['timestamp'], $_GET['nonce'], $_GET['body-hash'], $_GET['signature'] );
 
 		foreach ( $this->rest_parity_server as $key => $value ) {
 			if ( null === $value ) {
@@ -226,6 +228,12 @@ trait Assert_Rest_Xmlrpc_Parity {
 		remove_filter( 'user_can_richedit', '__return_true' );
 		remove_filter( 'comment_edit_pre', array( $api, 'comment_edit_pre' ) );
 
+		// Mirror WPCOM_JSON_API::output(), which the real serve() path runs after callback():
+		// it applies filter_fields() so a `fields=` request returns only the requested keys.
+		if ( ! is_wp_error( $response ) ) {
+			$response = $api->filter_fields( $response );
+		}
+
 		return $this->normalize_body( $response );
 	}
 
@@ -302,7 +310,7 @@ trait Assert_Rest_Xmlrpc_Parity {
 		$_GET['timestamp'] = (string) time();
 		$_GET['nonce']     = 'testing123';
 
-		$_GET['signature'] = base64_encode( // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature'] = base64_encode(
 			hash_hmac(
 				'sha1',
 				implode(

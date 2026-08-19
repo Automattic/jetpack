@@ -42,6 +42,9 @@
 		<testsuite name="infinite-scroll">
 			<directory suffix="Test.php">tests/php/modules/infinite-scroll</directory>
 		</testsuite>
+		<testsuite name="theme-tools">
+			<directory suffix="Test.php">tests/php/modules/theme-tools</directory>
+		</testsuite>
 		<testsuite name="comment-likes">
 			<directory suffix="Test.php">tests/php/modules/comment-likes</directory>
 		</testsuite>
@@ -78,8 +81,14 @@
 		<testsuite name="sitemaps">
 			<directory suffix="Test.php">tests/php/modules/sitemaps</directory>
 		</testsuite>
+		<testsuite name="stats">
+			<directory suffix="Test.php">tests/php/modules/stats</directory>
+		</testsuite>
 		<testsuite name="subscriptions">
 			<directory suffix="Test.php">tests/php/modules/subscriptions</directory>
+		</testsuite>
+		<testsuite name="memberships">
+			<directory suffix="Test.php">tests/php/modules/memberships</directory>
 		</testsuite>
 		<testsuite name="verification-tools">
 			<directory suffix="Test.php">tests/php/modules/verification-tools</directory>
@@ -137,6 +146,14 @@
 		</testsuite>
 		<testsuite name="autoloaded">
 			<directory suffix="Test.php">tests/php/src</directory>
+		</testsuite>
+		<testsuite name="seo-module-migration">
+			<file>tests/php/SEO_Sitemap_Migration_Test.php</file>
+			<file>tests/php/SEO_Canonical_URLs_Migration_Test.php</file>
+		</testsuite>
+		<testsuite name="seo-discoverability">
+			<file>tests/php/SEO_Visibility_Cohort_Test.php</file>
+			<file>tests/php/SEO_Optin_Test.php</file>
 		</testsuite>
 	</testsuites>
 

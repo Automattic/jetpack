@@ -60,6 +60,11 @@ describe( 'useSocialGate', () => {
 		expect( renderHook( () => useSocialGate() ).result.current.gate ).toBeNull();
 	} );
 
+	it( 'returns null when connected and free but the pricing nudge should not show', () => {
+		mockState( { paid: false, showPricingPage: false, jetpackSite: true } );
+		expect( renderHook( () => useSocialGate() ).result.current.gate ).toBeNull();
+	} );
+
 	it( 'returns null after dismissPricing is called', () => {
 		mockState( { paid: false, showPricingPage: true, jetpackSite: true } );
 		const { result } = renderHook( () => useSocialGate() );

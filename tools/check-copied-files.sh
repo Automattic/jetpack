@@ -6,7 +6,6 @@ cd "$( dirname "${BASH_SOURCE[0]}" )/.."
 . tools/includes/chalk-lite.sh
 
 EXIT=0
-JQWARNED=false
 
 # Compare two files, with optional delimiters.
 # $1 - First file.

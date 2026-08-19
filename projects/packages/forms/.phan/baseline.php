@@ -12,7 +12,6 @@ return [
     // PhanTypeMismatchArgument : 50+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 7 occurrences
     // PhanDeprecatedFunction : 3 occurrences
-    // PhanPluginDuplicateAdjacentStatement : 3 occurrences
     // PhanTypeConversionFromArray : 2 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
     // PhanDeprecatedClass : 1 occurrence
@@ -23,7 +22,7 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/contact-form/class-contact-form-field.php' => ['PhanPossiblyNullTypeMismatchProperty', 'PhanTypeConversionFromArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/contact-form/class-contact-form-plugin.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/contact-form/class-contact-form-plugin.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
         'src/contact-form/class-contact-form-shortcode.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/contact-form/class-contact-form.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
         'src/service/class-google-drive.php' => ['PhanTypeMismatchReturnProbablyReal'],

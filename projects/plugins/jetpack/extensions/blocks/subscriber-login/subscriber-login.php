@@ -94,9 +94,14 @@ function get_subscriber_login_url( $redirect ) {
 		return wpcom_logmein_redirect_url( $redirect, false, null, 'link', get_current_blog_id() );
 	}
 
-	// On self-hosted we will save and hide the token
+	// On self-hosted we will save and hide the token.
+	// rawurlencode the redirect before nesting it: it is already percent-encoded
+	// (e.g. an emoji or non-ASCII slug comes through as %F0%9F%8C%91), and add_query_arg
+	// does not encode the values it inserts. Without this extra layer the value is
+	// over-decoded to raw bytes by the time it reaches the subscribers/auth endpoint,
+	// which strips it and 404s. See NL-273.
 	$redirect_url = get_site_url() . '/wp-json/jetpack/v4/subscribers/auth';
-	$redirect_url = add_query_arg( 'redirect_url', $redirect, $redirect_url );
+	$redirect_url = add_query_arg( 'redirect_url', rawurlencode( $redirect ), $redirect_url );
 
 	return add_query_arg(
 		array(
@@ -108,12 +113,21 @@ function get_subscriber_login_url( $redirect ) {
 }
 
 /**
- * Determines whether the current visitor is a logged in user or a subscriber.
+ * Determines whether the current visitor is a confirmed subscriber -- someone who
+ * actually holds a premium-content session token, not merely someone with a
+ * WordPress session on this site.
+ *
+ * A bare WordPress session is not proof of a subscription (see NL-787): the
+ * previous is_user_logged_in() || has_token_from_cookie() check hid this block's
+ * only "Log in" link -- the sole way to mint a fresh token via the
+ * subscribe.wordpress.com magic-link round trip -- for anyone the site owner
+ * simply added as a WP user (or anyone else with an ordinary session and no
+ * token), leaving them with no way to recover.
  *
  * @return bool
  */
 function is_subscriber_logged_in() {
-	return is_user_logged_in() || Abstract_Token_Subscription_Service::has_token_from_cookie();
+	return is_user_logged_in() && Abstract_Token_Subscription_Service::has_token_from_cookie();
 }
 
 /**

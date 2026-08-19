@@ -116,9 +116,6 @@ export function pollForPostShareStatus( {
 
 		const lastTimestamp = select.getPostShareStatus( postId ).shares[ 0 ]?.timestamp || 0;
 
-		let isTheRequestComplete = false;
-		let hasTimeoutPassed = false;
-
 		dispatch( pollingForPostShareStatus( postId ) );
 
 		createInfoNotice( __( 'Sharing to your social media…', 'jetpack-publicize-pkg' ), {
@@ -127,6 +124,7 @@ export function pollForPostShareStatus( {
 			explicitDismiss: true,
 		} );
 
+		let isTheRequestComplete, hasTimeoutPassed;
 		do {
 			// Do not invalidate the resolution if the request is still loading.
 			if ( ! select.getPostShareStatus( postId ).loading ) {

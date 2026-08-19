@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Reader Chat: skip asset-cache unit tests when SCRIPT_DEBUG is enabled

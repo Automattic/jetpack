@@ -47,10 +47,10 @@ function Stage(): JSX.Element {
 				<ScanPage activeTab={ activeTab }>
 					<MockBanner />
 					<Gates>
-						<Tabs.Panel value="active" focusable={ false }>
+						<Tabs.Panel value="active">
 							{ activeTab === 'active' ? <ActiveThreats /> : null }
 						</Tabs.Panel>
-						<Tabs.Panel value="history" focusable={ false }>
+						<Tabs.Panel value="history">
 							{ activeTab === 'history' ? <ScanHistory /> : null }
 						</Tabs.Panel>
 					</Gates>

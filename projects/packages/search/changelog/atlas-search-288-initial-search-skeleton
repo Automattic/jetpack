@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: show the loading skeleton during the initial client-side search, not just the pre-hydration window, so the results and filters no longer flash empty while the first query loads.

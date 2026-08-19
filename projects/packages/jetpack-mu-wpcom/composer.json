@@ -15,13 +15,19 @@
 		"automattic/jetpack-classic-theme-helper": "@dev",
 		"automattic/jetpack-compat": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-device-detection": "@dev",
+		"automattic/jetpack-feature-flags": "@dev",
 		"automattic/jetpack-google-analytics": "@dev",
+		"automattic/jetpack-help-center": "@dev",
 		"automattic/jetpack-masterbar": "@dev",
 		"automattic/jetpack-podcast": "@dev",
+		"automattic/jetpack-premium-analytics": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-rtc": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-wp-build-polyfills": "@dev",
 		"automattic/scheduled-updates": "@dev",
 		"scssphp/scssphp": "2.1.0",
 		"symfony/filesystem": "^6.0.0",
@@ -45,12 +51,10 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-		],
-		"test-php": [
-			"@composer phpunit"
-		],
+		"test-js": "pnpm run test",
+		"test-js-coverage": "pnpm run test-coverage",
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
 		"build-production": "pnpm run build-production-js",
 		"build-development": "pnpm run build-js",
 		"watch": [
@@ -63,7 +67,14 @@
 			"type": "path",
 			"url": "../../packages/*",
 			"options": {
-				"monorepo": true
+				"monorepo": true,
+				"versions": {
+					"automattic/block-delimiter": "dev-trunk",
+					"automattic/jetpack-assets": "dev-trunk",
+					"automattic/jetpack-connection": "dev-trunk",
+					"automattic/jetpack-constants": "dev-trunk",
+					"automattic/jetpack-device-detection": "dev-trunk"
+				}
 			}
 		}
 	],

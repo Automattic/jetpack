@@ -70,7 +70,12 @@ class Validation_Service {
 			),
 			'invalid_length'     => array(
 				'status'  => null,
-				'message' => __( 'Between 6 and 150 characters', 'jetpack-account-protection' ),
+				'message' => sprintf(
+					/* translators: %1$d is the minimum password length, %2$d is the maximum password length. */
+					__( 'Between %1$d and %2$d characters', 'jetpack-account-protection' ),
+					$this->get_min_length(),
+					$this->get_max_length()
+				),
 				'info'    => null,
 			),
 			'leaked'             => array(
@@ -148,7 +153,12 @@ class Validation_Service {
 		}
 
 		if ( $this->is_invalid_length( $password ) ) {
-			$errors[] = __( '<strong>Error:</strong> The password must be between 6 and 150 characters.', 'jetpack-account-protection' );
+			$errors[] = sprintf(
+				/* translators: %1$d is the minimum password length, %2$d is the maximum password length. */
+				__( '<strong>Error:</strong> The password must be between %1$d and %2$d characters.', 'jetpack-account-protection' ),
+				$this->get_min_length(),
+				$this->get_max_length()
+			);
 		}
 
 		if ( $this->is_leaked_password( $password ) ) {
@@ -185,11 +195,51 @@ class Validation_Service {
 	 *
 	 * @param string $password The password to check.
 	 *
-	 * @return bool True if the password is between 6 and 150 characters, false otherwise.
+	 * @return bool True if the password is between get_min_length() and get_max_length() characters, false otherwise.
 	 */
 	public function is_invalid_length( string $password ): bool {
 		$length = strlen( $password );
-		return $length < Config::VALIDATION_SERVICE_MIN_LENGTH || $length > Config::VALIDATION_SERVICE_MAX_LENGTH;
+		return $length < $this->get_min_length() || $length > $this->get_max_length();
+	}
+
+	/**
+	 * Get the minimum allowed password length.
+	 *
+	 * @return int The minimum allowed password length.
+	 */
+	public function get_min_length(): int {
+		/**
+		 * Filters the minimum allowed password length for Account Protection.
+		 *
+		 * The default is a floor: values below it are ignored, so the filter can only
+		 * raise the minimum, never lower it.
+		 *
+		 * @since 0.3.4
+		 *
+		 * @param int $min_length The minimum allowed password length.
+		 */
+		$min_length = (int) apply_filters( 'jetpack_account_protection_validation_min_length', Config::VALIDATION_SERVICE_MIN_LENGTH );
+		return max( Config::VALIDATION_SERVICE_MIN_LENGTH, $min_length );
+	}
+
+	/**
+	 * Get the maximum allowed password length.
+	 *
+	 * @return int The maximum allowed password length.
+	 */
+	public function get_max_length(): int {
+		/**
+		 * Filters the maximum allowed password length for Account Protection.
+		 *
+		 * The default is a floor: values below it are ignored, so the filter can only
+		 * raise the maximum, never lower it.
+		 *
+		 * @since 0.3.4
+		 *
+		 * @param int $max_length The maximum allowed password length.
+		 */
+		$max_length = (int) apply_filters( 'jetpack_account_protection_validation_max_length', Config::VALIDATION_SERVICE_MAX_LENGTH );
+		return max( Config::VALIDATION_SERVICE_MAX_LENGTH, $max_length );
 	}
 
 	/**

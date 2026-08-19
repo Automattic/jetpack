@@ -17,7 +17,6 @@ return [
     // PhanPluginUnreachableCode : 5 occurrences
     // PhanTypeArraySuspiciousNullable : 5 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
-    // PhanCommentParamWithoutRealParam : 3 occurrences
     // PhanTypeMismatchDimFetch : 3 occurrences
     // PhanUndeclaredFunction : 3 occurrences
     // PhanDeprecatedFunction : 2 occurrences
@@ -42,7 +41,7 @@ return [
         'class.vaultpress-hotfixes.php' => ['PhanDeprecatedFunction', 'PhanRedefineFunction', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypePossiblyInvalidDimOffset'],
         'cron-tasks.php' => ['PhanRedefineFunction'],
         'vaultpress.php' => ['PhanAccessMethodProtected', 'PhanDeprecatedFunction', 'PhanPluginDuplicateExpressionAssignment', 'PhanPluginNeverReturnMethod', 'PhanPluginUnreachableCode', 'PhanTypeArraySuspiciousNullable', 'PhanTypeExpectedObjectPropAccessButGotNull', 'PhanTypeInvalidRightOperandOfNumericOp', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDimFetch', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod', 'PhanUndeclaredVariable'],
-        'vp-scanner.php' => ['PhanCommentParamWithoutRealParam', 'PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredFunction'],
+        'vp-scanner.php' => ['PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredFunction'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

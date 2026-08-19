@@ -4,7 +4,7 @@ use Automattic\Jetpack\Stats_Admin\TestCase as BaseTestCase;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 class Admin_Post_List_Test extends BaseTestCase {
 	/**
 	 * Get a mock for the WP_Query class.
@@ -50,7 +50,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 
 		// Assert that the 'stats' column is added
 		$this->assertArrayHasKey( 'stats', $columns_with_stats );
-		$this->assertEquals( 'Stats', $columns_with_stats['stats'] );
+		$this->assertEquals( 'Views: 30 days', $columns_with_stats['stats'] );
 	}
 
 	/**
@@ -80,7 +80,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 
 		// Assert that the 'stats' column is added
 		$this->assertArrayHasKey( 'stats', $columns_with_stats );
-		$this->assertEquals( 'Stats', $columns_with_stats['stats'] );
+		$this->assertEquals( 'Views: 30 days', $columns_with_stats['stats'] );
 	}
 
 	/**
@@ -220,18 +220,34 @@ class Admin_Post_List_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test the CSS output.
+	 * Test that the column CSS is attached to an enqueued stylesheet on the post list screen.
 	 *
 	 * @return void
 	 */
 	public function test_stats_load_admin_css() {
-		// Capture output from the `stats_load_admin_css` method
-		ob_start();
-		Admin_Post_List_Column::register()->stats_load_admin_css();
-		$output = ob_get_clean();
+		$this->assertTrue( wp_style_is( 'common', 'registered' ), 'The column CSS rides on core\'s common stylesheet.' );
+		wp_styles()->add_data( 'common', 'after', array() );
 
-		// Ensure the correct CSS is outputted for the Stats column width
-		$this->assertStringContainsString( '.fixed .column-stats', $output );
+		Admin_Post_List_Column::register()->stats_load_admin_css( 'edit.php' );
+
+		$this->assertStringContainsString(
+			'.fixed .column-stats',
+			implode( '', wp_styles()->get_data( 'common', 'after' ) )
+		);
+	}
+
+	/**
+	 * Test that the column CSS is not added to admin screens without the post list.
+	 *
+	 * @return void
+	 */
+	public function test_stats_load_admin_css_is_limited_to_the_post_list() {
+		$this->assertTrue( wp_style_is( 'common', 'registered' ), 'The column CSS rides on core\'s common stylesheet.' );
+		wp_styles()->add_data( 'common', 'after', array() );
+
+		Admin_Post_List_Column::register()->stats_load_admin_css( 'index.php' );
+
+		$this->assertSame( array(), wp_styles()->get_data( 'common', 'after' ) );
 	}
 
 	/**

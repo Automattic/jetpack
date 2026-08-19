@@ -11,15 +11,9 @@ import { Card, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import { ToggleWithEditorLink } from '../components/toggle-with-link';
+import { Toggle, ToggleWithEditorLink } from '../components/toggle';
 import { getNewsletterScriptData } from '../script-data';
 import type { NewsletterSettings } from '../types';
-
-interface FieldRenderProps {
-	data: NewsletterSettings;
-	field: Field< Record< string, unknown > >;
-	onChange: ( updates: Partial< NewsletterSettings > ) => void;
-}
 
 interface LegacySubscriptionsSectionProps {
 	data: NewsletterSettings;
@@ -75,7 +69,7 @@ export function LegacySubscriptionsSection( {
 			label: __( 'Add the Subscribe Block at the end of each post', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowSubscriptionEditorLinks
-				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
+				? ( { data: formData, field, onChange: fieldOnChange } ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }
@@ -86,14 +80,14 @@ export function LegacySubscriptionsSection( {
 							siteType={ siteType }
 						/>
 				  )
-				: ( 'toggle' as const ),
+				: Toggle,
 		},
 		{
 			id: 'sm_enabled',
 			label: __( 'Show subscription pop-up when scrolling a post', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowBlockThemeEditorLinks
-				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
+				? ( { data: formData, field, onChange: fieldOnChange } ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }
@@ -104,14 +98,14 @@ export function LegacySubscriptionsSection( {
 							siteType={ siteType }
 						/>
 				  )
-				: ( 'toggle' as const ),
+				: Toggle,
 		},
 		{
 			id: 'jetpack_subscribe_overlay_enabled',
 			label: __( 'Subscription overlay on homepage', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowBlockThemeEditorLinks
-				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
+				? ( { data: formData, field, onChange: fieldOnChange } ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }
@@ -122,14 +116,14 @@ export function LegacySubscriptionsSection( {
 							siteType={ siteType }
 						/>
 				  )
-				: ( 'toggle' as const ),
+				: Toggle,
 		},
 		{
 			id: 'jetpack_subscribe_floating_button_enabled',
 			label: __( "Floating subscribe button on site's bottom corner", 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowBlockThemeEditorLinks
-				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
+				? ( { data: formData, field, onChange: fieldOnChange } ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }
@@ -140,14 +134,14 @@ export function LegacySubscriptionsSection( {
 							siteType={ siteType }
 						/>
 				  )
-				: ( 'toggle' as const ),
+				: Toggle,
 		},
 		{
 			id: 'jetpack_subscriptions_subscribe_navigation_enabled',
 			label: __( 'Add the Subscribe Block to the navigation', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowSubscriptionEditorLinks
-				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
+				? ( { data: formData, field, onChange: fieldOnChange } ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }
@@ -158,14 +152,14 @@ export function LegacySubscriptionsSection( {
 							siteType={ siteType }
 						/>
 				  )
-				: ( 'toggle' as const ),
+				: Toggle,
 		},
 		{
 			id: 'jetpack_subscriptions_login_navigation_enabled',
 			label: __( 'Add the Subscriber Login Block to the navigation', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowSubscriptionEditorLinks
-				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
+				? ( { data: formData, field, onChange: fieldOnChange } ) => (
 						<ToggleWithEditorLink
 							data={ formData }
 							field={ field }
@@ -176,7 +170,7 @@ export function LegacySubscriptionsSection( {
 							siteType={ siteType }
 						/>
 				  )
-				: ( 'toggle' as const ),
+				: Toggle,
 		},
 		{
 			id: 'stb_enabled',
@@ -185,7 +179,7 @@ export function LegacySubscriptionsSection( {
 				'jetpack-newsletter'
 			),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit: Toggle,
 		},
 		{
 			id: 'stc_enabled',
@@ -194,7 +188,7 @@ export function LegacySubscriptionsSection( {
 				'jetpack-newsletter'
 			),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit: Toggle,
 		},
 	];
 

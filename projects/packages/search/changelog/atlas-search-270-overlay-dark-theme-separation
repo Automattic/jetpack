@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search Blocks Overlay: separate the modal card from the dim scrim on dark themes by tinting the resolved surface and painting a token-aware hairline border, so the card visibly layers above the page behind it.

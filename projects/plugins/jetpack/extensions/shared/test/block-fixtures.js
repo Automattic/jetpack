@@ -67,7 +67,8 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 							"File '%s' does not match expected value:\n\n%s",
 							parsedJSONFixtureFileName,
 							err.message
-						)
+						),
+						{ cause: err }
 					);
 				}
 
@@ -131,7 +132,8 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 							"File '%s' does not match expected value:\n\n%s",
 							jsonFixtureFileName,
 							err.message
-						)
+						),
+						{ cause: err }
 					);
 				}
 
@@ -159,7 +161,8 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 							"File '%s' does not match expected value:\n\n%s",
 							serializedHTMLFileName,
 							err.message
-						)
+						),
+						{ cause: err }
 					);
 				}
 			} );

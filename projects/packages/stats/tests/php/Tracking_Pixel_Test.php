@@ -36,6 +36,21 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		$wp_the_query           = new WP_Query();
 		$_SERVER['REQUEST_URI'] = '';
 		unregister_taxonomy( 'testtax' );
+
+		// Unconditionally drop the filters that enqueue_stats_script() registers so a
+		// mid-test assertion failure can't leak them into sibling tests. remove_filter()
+		// is a no-op when the filter isn't registered, so this is always safe.
+		remove_filter( 'wp_script_attributes', array( Tracking_Pixel::class, 'add_low_fetchpriority' ) );
+		remove_filter( 'wp_resource_hints', array( Tracking_Pixel::class, 'remove_stats_dns_prefetch' ), 100 );
+
+		// Reset the Options cache so the next test starts fresh.
+		$reflection = new \ReflectionClass( Options::class );
+		$property   = $reflection->getProperty( 'options' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, array() );
 	}
 
 	/**
@@ -277,6 +292,134 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test that the wp_script_attributes filter adds fetchpriority="low" to the jetpack-stats script.
+	 */
+	public function test_add_fetchpriority_low_via_script_attributes() {
+		$attributes = array(
+			'id'  => 'jetpack-stats-js',
+			'src' => 'https://stats.wp.com/e-202620.js',
+		);
+		$result     = Tracking_Pixel::add_low_fetchpriority( $attributes );
+		$this->assertSame( 'low', $result['fetchpriority'] );
+	}
+
+	/**
+	 * Test that the wp_script_attributes filter does not modify other scripts.
+	 */
+	public function test_add_fetchpriority_low_ignores_other_scripts() {
+		$attributes = array(
+			'id'  => 'other-script-js',
+			'src' => 'https://example.com/script.js',
+		);
+		$result     = Tracking_Pixel::add_low_fetchpriority( $attributes );
+		$this->assertArrayNotHasKey( 'fetchpriority', $result );
+	}
+
+	/**
+	 * Test that the wp_resource_hints filter removes dns-prefetch for stats.wp.com.
+	 */
+	public function test_remove_stats_dns_prefetch() {
+		$urls   = array( '//stats.wp.com', '//example.com', '//other.com' );
+		$result = Tracking_Pixel::remove_stats_dns_prefetch( $urls, 'dns-prefetch' );
+		$this->assertNotContains( '//stats.wp.com', $result );
+		$this->assertContains( '//example.com', $result );
+		$this->assertContains( '//other.com', $result );
+	}
+
+	/**
+	 * Test that the wp_resource_hints filter removes the bare-host form that WordPress core
+	 * actually emits for dns-prefetch (wp_dependencies_unique_hosts() returns bare hosts).
+	 */
+	public function test_remove_stats_dns_prefetch_removes_bare_host() {
+		$urls   = array( 'stats.wp.com', 'example.com', 'mystats.wp.com' );
+		$result = Tracking_Pixel::remove_stats_dns_prefetch( $urls, 'dns-prefetch' );
+		$this->assertNotContains( 'stats.wp.com', $result );
+		$this->assertContains( 'example.com', $result );
+		$this->assertContains( 'mystats.wp.com', $result );
+	}
+
+	/**
+	 * Test that the wp_resource_hints filter removes array-form hints pointing at stats.wp.com
+	 * while leaving array-form hints for other hosts intact.
+	 */
+	public function test_remove_stats_dns_prefetch_removes_array_form() {
+		$stats_hint = array( 'href' => '//stats.wp.com' );
+		$other_hint = array( 'href' => '//fonts.example.com' );
+		$urls       = array( $stats_hint, $other_hint );
+		$result     = Tracking_Pixel::remove_stats_dns_prefetch( $urls, 'dns-prefetch' );
+		$this->assertNotContains( $stats_hint, $result );
+		$this->assertContains( $other_hint, $result );
+	}
+
+	/**
+	 * Test that the wp_resource_hints filter does not affect non-dns-prefetch hints.
+	 */
+	public function test_remove_stats_dns_prefetch_ignores_other_relations() {
+		$urls   = array( '//stats.wp.com', '//example.com' );
+		$result = Tracking_Pixel::remove_stats_dns_prefetch( $urls, 'preconnect' );
+		$this->assertContains( '//stats.wp.com', $result );
+	}
+
+	/**
+	 * Test that the wp_resource_hints filter matches the stats host exactly and leaves
+	 * look-alike hosts and non-string entries (e.g. array-form hints) untouched.
+	 */
+	public function test_remove_stats_dns_prefetch_matches_host_exactly() {
+		$array_hint = array( 'href' => '//fonts.example.com' );
+		$urls       = array(
+			'//stats.wp.com',
+			'https://stats.wp.com/e-202620.js',
+			'//mystats.wp.com',
+			'//stats.wp.com.evil.tld',
+			$array_hint,
+		);
+		$result     = Tracking_Pixel::remove_stats_dns_prefetch( $urls, 'dns-prefetch' );
+
+		$this->assertNotContains( '//stats.wp.com', $result );
+		$this->assertNotContains( 'https://stats.wp.com/e-202620.js', $result );
+		$this->assertContains( '//mystats.wp.com', $result );
+		$this->assertContains( '//stats.wp.com.evil.tld', $result );
+		$this->assertContains( $array_hint, $result );
+	}
+
+	/**
+	 * Test that enqueue_stats_script registers the script-attribute and resource-hint
+	 * filters and that they behave as expected when applied.
+	 */
+	public function test_enqueue_stats_script_registers_filters() {
+		// Registered filters are cleaned up unconditionally in tear_down().
+		Tracking_Pixel::enqueue_stats_script();
+
+		// Assert the exact priorities the implementation relies on: default 10 for the
+		// script attribute, and 100 for resource hints so it runs after WP adds its own.
+		$this->assertSame(
+			10,
+			has_filter( 'wp_script_attributes', array( Tracking_Pixel::class, 'add_low_fetchpriority' ) )
+		);
+		$this->assertSame(
+			100,
+			has_filter( 'wp_resource_hints', array( Tracking_Pixel::class, 'remove_stats_dns_prefetch' ) )
+		);
+
+		$script_attributes = apply_filters(
+			'wp_script_attributes',
+			array(
+				'id'  => 'jetpack-stats-js',
+				'src' => 'https://stats.wp.com/e-202445.js',
+			)
+		);
+		$this->assertSame( 'low', $script_attributes['fetchpriority'] );
+
+		$resource_hints = apply_filters(
+			'wp_resource_hints',
+			array( '//stats.wp.com', '//example.com' ),
+			'dns-prefetch'
+		);
+		$this->assertNotContains( '//stats.wp.com', $resource_hints );
+		$this->assertContains( '//example.com', $resource_hints );
+	}
+
+	/**
 	 * Test for Tracking_Pixel::test_get_footer_to_add for an amp request
 	 */
 	public function test_get_amp_footer() {
@@ -340,5 +483,130 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 
 		remove_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ) );
 		$this->assertSame( $expected_pixel_details, $pixel_details );
+	}
+
+	/**
+	 * Invoke the private build_stats_details() with a fixed data payload.
+	 *
+	 * @param array $data View data for the tracker.
+	 * @return string The emitted inline script.
+	 */
+	private function invoke_build_stats_details( $data ) {
+		$method = new \ReflectionMethod( Tracking_Pixel::class, 'build_stats_details' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( new Tracking_Pixel(), $data );
+	}
+
+	/**
+	 * Sample view data used by the gate tests.
+	 *
+	 * @return array
+	 */
+	private function consent_gate_data() {
+		return array(
+			'v'    => 'ext',
+			'blog' => 1234,
+			'post' => 0,
+			'tz'   => false,
+			'srv'  => 'example.org',
+		);
+	}
+
+	/**
+	 * Invoke the private build_consent_gate() directly with a chosen fail-open value, so both
+	 * branches can be covered without manipulating the global wp_has_consent() function.
+	 *
+	 * @param bool $fail_open Whether the gate should fire when the client-side API is unavailable.
+	 * @return string
+	 */
+	private function invoke_build_consent_gate( $fail_open ) {
+		$method = new \ReflectionMethod( Tracking_Pixel::class, 'build_consent_gate' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( new Tracking_Pixel(), '_stq.push([ "view", {} ]);', $fail_open );
+	}
+
+	/**
+	 * When honor_cookie_consent is on, the tracking pushes must live *inside* the gate function
+	 * and nowhere else — otherwise a refactor could emit them unconditionally and silently
+	 * defeat the consent gate.
+	 */
+	public function test_build_stats_details_gates_on_consent_when_enabled() {
+		Options::set_option( 'honor_cookie_consent', true );
+
+		$pixel_details = $this->invoke_build_stats_details( $this->consent_gate_data() );
+
+		// The gate uses the documented WP Consent API surface.
+		$this->assertStringContainsString( 'window.wp_has_consent( "statistics" )', $pixel_details );
+		$this->assertStringContainsString( 'wp_listen_for_consent_change', $pixel_details );
+
+		// Readiness-aware: the initial check is deferred to DOMContentLoaded rather than run
+		// synchronously at footer-parse time (avoids reading a permissive default too early), and
+		// the wp_consent_type_defined event re-runs the check if the API loads even later.
+		$this->assertStringContainsString( 'DOMContentLoaded', $pixel_details );
+		$this->assertStringContainsString( 'document.readyState', $pixel_details );
+		$this->assertStringContainsString( 'wp_consent_type_defined', $pixel_details );
+
+		// Structural guarantee: the view push appears exactly once, and only within the
+		// _jpStatsFire() body — never in a code path that bypasses the consent check.
+		$this->assertSame( 1, substr_count( $pixel_details, '_stq.push([ "view",' ) );
+		$this->assertSame( 1, preg_match( '/function _jpStatsFire\(\) \{(.*?)\n\}/s', $pixel_details, $matches ) );
+		$this->assertStringContainsString( '_stq.push([ "view",', $matches[1] );
+		$outside_gate = str_replace( $matches[0], '', $pixel_details );
+		$this->assertStringNotContainsString( '_stq.push', $outside_gate );
+	}
+
+	/**
+	 * Fail-open (no WP Consent API plugin on the server): an unavailable client-side API still
+	 * fires the pixel, preserving historical behavior.
+	 */
+	public function test_build_consent_gate_fails_open() {
+		$gate = $this->invoke_build_consent_gate( true );
+
+		$this->assertStringContainsString( 'if ( true ) { _jpStatsFire(); }', $gate );
+		$this->assertStringContainsString( 'consented = true;', $gate );
+	}
+
+	/**
+	 * Fail-closed (WP Consent API plugin active on the server): an unavailable or throwing
+	 * client-side API waits for a consent-change event instead of firing.
+	 */
+	public function test_build_consent_gate_fails_closed() {
+		$gate = $this->invoke_build_consent_gate( false );
+
+		$this->assertStringContainsString( 'if ( false ) { _jpStatsFire(); }', $gate );
+		$this->assertStringContainsString( 'consented = false;', $gate );
+		$this->assertStringNotContainsString( 'if ( true ) { _jpStatsFire(); }', $gate );
+	}
+
+	/**
+	 * The default (no consent plugin in the test env) fails open, and the gate never emits the
+	 * removed withdrawal-suppression flag.
+	 */
+	public function test_build_stats_details_default_is_fail_open_and_has_no_denied_flag() {
+		$this->assertFalse( function_exists( 'wp_has_consent' ), 'Test env must not define wp_has_consent.' );
+		Options::set_option( 'honor_cookie_consent', true );
+
+		$pixel_details = $this->invoke_build_stats_details( $this->consent_gate_data() );
+
+		$this->assertStringContainsString( 'if ( true ) { _jpStatsFire(); }', $pixel_details );
+		$this->assertStringNotContainsString( 'denied', $pixel_details );
+	}
+
+	/**
+	 * When honor_cookie_consent is off (default), the emitted pixel markup is byte-for-byte the
+	 * historical output — this is the backward-compat guarantee for the majority of traffic.
+	 */
+	public function test_build_stats_details_unchanged_when_disabled() {
+		$pixel_details = $this->invoke_build_stats_details( $this->consent_gate_data() );
+
+		$expected = "_stq = window._stq || [];\n"
+			. '_stq.push([ "view", {"v":"ext","blog":"1234","post":"0","tz":"","srv":"example.org"} ]);' . "\n"
+			. '_stq.push([ "clickTrackerInit", "1234", "0" ]);';
+
+		$this->assertSame( $expected, $pixel_details );
 	}
 }

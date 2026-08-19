@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import { baseDomain, firstValid, hardTruncation, shortEnough, stripHtmlTags } from '../helpers';
+import { MediaImage } from '../shared/media-image';
 import { TwitterCardProps } from './types';
 
 const DESCRIPTION_LENGTH = 280;
@@ -12,6 +13,7 @@ const twitterDescription = firstValid(
 export const Card: React.FC< TwitterCardProps > = ( {
 	description,
 	image,
+	imageFocalPoint,
 	title,
 	cardType,
 	url,
@@ -23,7 +25,14 @@ export const Card: React.FC< TwitterCardProps > = ( {
 	return (
 		<div className="twitter-preview__card">
 			<div className={ cardClassNames }>
-				{ image && <img className="twitter-preview__card-image" src={ image } alt="" /> }
+				{ image && (
+					<MediaImage
+						className="twitter-preview__card-image"
+						src={ image }
+						alt=""
+						focalPoint={ imageFocalPoint }
+					/>
+				) }
 				<div className="twitter-preview__card-body">
 					<div className="twitter-preview__card-url">{ baseDomain( url || '' ) }</div>
 					<div className="twitter-preview__card-title">{ title }</div>

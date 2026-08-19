@@ -2,8 +2,11 @@ import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import type {
 	AddSubscribersResponse,
+	ImportJob,
+	NewsletterCategoriesData,
 	RemoveSubscriberPayload,
 	RemoveSubscriberResponse,
+	SubscribedNewsletterCategories,
 	SubscriberDetails,
 	SubscriberStats,
 	SubscribersQueryParams,
@@ -66,17 +69,71 @@ export function removeSubscriber(
 }
 
 /**
- * Send "follower" invitations to a list of email addresses, mirroring Calypso's
- * `addSubscribers` action. The proxy forwards to `/sites/{id}/invites/new`.
+ * Import a list of email addresses as subscribers, mirroring Calypso's Add Subscribers modal
+ * (`importCsvSubscribers`). The proxy forwards to `/sites/{id}/subscribers/import`, which starts
+ * an async job — no invitation email is sent; WP.com emails a "Subscriber import completed"
+ * summary when the job finishes.
  *
- * @param emails - Email addresses to invite.
- * @return WP.com response.
+ * @param emails     - Email addresses to import.
+ * @param categories - Newsletter category ids to opt the imported subscribers into. Omitted from
+ *                   the payload when empty, matching Calypso's behavior when the picker is off.
+ * @return WP.com response carrying the import job id.
  */
-export function addSubscribers( emails: string[] ): Promise< AddSubscribersResponse > {
+export function addSubscribers(
+	emails: string[],
+	categories: number[] = []
+): Promise< AddSubscribersResponse > {
+	const data: { emails: string[]; categories?: number[] } = { emails };
+	if ( categories.length > 0 ) {
+		data.categories = categories;
+	}
+
 	return apiFetch< AddSubscribersResponse >( {
 		path: '/wpcom/v2/subscribers/add',
 		method: 'POST',
-		data: { emails },
+		data,
+	} );
+}
+
+/**
+ * Fetch the site's newsletter categories and whether the feature is enabled, via the Jetpack proxy
+ * (`GET /wpcom/v2/newsletter-categories`). Unlike {@link fetchSubscribedNewsletterCategories} this
+ * is not scoped to a subscriber, so it's usable from the import flow where no subscriber exists
+ * yet. Mirrors Calypso's `useNewsletterCategories`.
+ *
+ * @return Site categories plus the `enabled` feature flag.
+ */
+export function fetchNewsletterCategories(): Promise< NewsletterCategoriesData > {
+	return apiFetch< NewsletterCategoriesData >( {
+		path: '/wpcom/v2/newsletter-categories',
+		method: 'GET',
+	} );
+}
+
+/**
+ * Fetch the site's subscriber import jobs, newest first. Used by the Add Subscribers modal to
+ * detect an in-flight or stale import — WP.com runs one import per site at a time.
+ *
+ * @return Import jobs.
+ */
+export function fetchImportJobs(): Promise< ImportJob[] > {
+	return apiFetch< ImportJob[] >( {
+		path: '/wpcom/v2/subscribers/import',
+		method: 'GET',
+	} );
+}
+
+/**
+ * Cancel stuck (pending / importing) subscriber import jobs, mirroring Calypso's stale-import
+ * "Cancel import" action (`useSubscriberImportStatusReset`). The proxy forwards to
+ * `/sites/{id}/subscribers/import/reset_state`.
+ *
+ * @return WP.com response with the number of jobs reset.
+ */
+export function resetImportState(): Promise< { reset_count?: number } > {
+	return apiFetch( {
+		path: '/wpcom/v2/subscribers/import/reset-state',
+		method: 'POST',
 	} );
 }
 
@@ -110,7 +167,7 @@ export function fetchSubscriberDetails( params: IndividualParams ): Promise< Sub
  */
 export function fetchSubscriberStats( params: IndividualParams ): Promise< SubscriberStats > {
 	return apiFetch< SubscriberStats >( {
-		path: addQueryArgs( '/wpcom/v2/subscribers/stats', {
+		path: addQueryArgs( '/wpcom/v2/subscribers/individual-stats', {
 			subscription_id: params.subscription_id ?? 0,
 			user_id: params.user_id ?? 0,
 		} ),
@@ -118,12 +175,36 @@ export function fetchSubscriberStats( params: IndividualParams ): Promise< Subsc
 	} );
 }
 
+/**
+ * Fetch the site's newsletter categories annotated with this subscriber's opt-in state, via the
+ * Jetpack proxy. Mirrors Calypso's `useSubscribedNewsletterCategories`: WP.com keys the record by
+ * subscription id, but accepts a WP.com user id instead when `type=wpcom` is passed, so prefer
+ * `user_id` when we have one (an email-only subscriber has no user id).
+ *
+ * @param params - Subscription identifiers.
+ * @return Site categories plus the feature flag and per-category `subscribed` state.
+ */
+export function fetchSubscribedNewsletterCategories(
+	params: IndividualParams
+): Promise< SubscribedNewsletterCategories > {
+	const userId = params.user_id ?? 0;
+	const id = userId || params.subscription_id || 0;
+	const path = `/wpcom/v2/newsletter-categories/subscriptions/${ id }`;
+
+	return apiFetch< SubscribedNewsletterCategories >( {
+		path: userId ? addQueryArgs( path, { type: 'wpcom' } ) : path,
+		method: 'GET',
+	} );
+}
+
 export type MembershipsProduct = {
-	ID: number;
+	id: number;
 	title: string;
 	currency?: string;
-	price?: number;
-	renewal_schedule?: string;
+	// The wpcom proxy sends the price as a preformatted string (e.g. `12.00`), not a number.
+	price?: string;
+	// Billing cadence, e.g. `1 month` or `1 year`.
+	interval?: string;
 };
 
 /**

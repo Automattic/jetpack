@@ -361,25 +361,18 @@ class Jetpack_Media_Summary {
 	 * Clean text of shortcodes and tags.
 	 *
 	 * @param string $text Dirty text.
+	 * @param bool   $preserve_urls When true, keep http(s) URLs in the text instead of stripping them. Default false.
 	 *
 	 * @return string Clean text.
 	 */
-	public static function clean_text( $text ) {
-		return trim(
-			preg_replace(
-				'/[\s]+/',
-				' ',
-				preg_replace(
-					'@https?://[\S]+@',
-					'',
-					strip_shortcodes(
-						wp_strip_all_tags(
-							$text
-						)
-					)
-				)
-			)
-		);
+	public static function clean_text( $text, $preserve_urls = false ) {
+		$text = strip_shortcodes( wp_strip_all_tags( $text ) );
+
+		if ( ! $preserve_urls ) {
+			$text = preg_replace( '@https?://[\S]+@', '', $text );
+		}
+
+		return trim( preg_replace( '/[\s]+/', ' ', $text ) );
 	}
 
 	/**
@@ -395,9 +388,10 @@ class Jetpack_Media_Summary {
 	 * @param  int     $max_words Maximum number of words for the excerpt. Used on wp.com. Default 16.
 	 * @param  int     $max_chars Maximum characters in the excerpt. Used on wp.com. Default 256.
 	 * @param  WP_Post $requested_post The post object.
+	 * @param  bool    $preserve_urls When true, keep http(s) URLs in the excerpt instead of stripping them. Default false.
 	 * @return string Post excerpt.
 	 **/
-	public static function get_excerpt( $post_content, $post_excerpt, $max_words = 16, $max_chars = 256, $requested_post = null ) {
+	public static function get_excerpt( $post_content, $post_excerpt, $max_words = 16, $max_chars = 256, $requested_post = null, $preserve_urls = false ) {
 		global $post;
 		$original_post = $post; // Saving the global for later use.
 		if ( empty( $post_excerpt ) && function_exists( 'wpcom_enhanced_excerpt_extract_excerpt' ) ) {
@@ -411,7 +405,8 @@ class Jetpack_Media_Summary {
 						'max_chars'           => $max_chars,
 						'read_more_threshold' => 25,
 					)
-				)
+				),
+				$preserve_urls
 			);
 		} elseif ( $requested_post instanceof WP_Post ) {
 			// @todo Refactor to not need to override the global.
@@ -423,7 +418,7 @@ class Jetpack_Media_Summary {
 			// phpcs:ignore: WordPress.WP.GlobalVariablesOverride.Prohibited
 			$post = $original_post; // wp_reset_postdata uses the $post global.
 			wp_reset_postdata();
-			return self::clean_text( $post_excerpt );
+			return self::clean_text( $post_excerpt, $preserve_urls );
 		}
 		return '';
 	}

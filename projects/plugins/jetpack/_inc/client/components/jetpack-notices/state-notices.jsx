@@ -29,7 +29,7 @@ class JetpackStateNotices extends Component {
 
 	getErrorFromKey = key => {
 		const errorDesc = this.props.jetpackStateNoticesErrorDescription || false;
-		let message = '';
+		let message;
 
 		switch ( key ) {
 			case 'cheatin':

@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack_Boost\Admin\Config as Boost_Admin_Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Cleanup_Stored_Paths;
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
@@ -13,7 +14,32 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
  * to ensure a new version of Jetpack Boost never reuses old cached URLs.
  */
 function jetpack_boost_minify_cache_buster() {
-	return 1;
+	// Bumped to 2 so the JS truncation fix actually reaches already-affected sites:
+	// the cached concat bundle is served before any rebuild, so a site that cached a
+	// corrupted bundle would keep shipping it (until its source mtime changed) even
+	// after upgrade. Changing the buster invalidates those cache keys and forces a
+	// rebuild through the new structural-validation/fallback path.
+	return 2;
+}
+
+/**
+ * Whether a file should be treated as already minified (so the serving path must
+ * not re-minify it).
+ *
+ * This is the load-bearing skip for assets shipped as `.min.js` / `.min.css`
+ * (e.g. Boost's own image-guide bundle, which webpack/Terser has already
+ * minified): re-running the ES5-era PHP minifier over modern, already-minified
+ * JS can silently corrupt it. The mime type already routes JS and CSS down
+ * separate branches, so matching both extensions here is safe for either.
+ *
+ * @since 4.6.0
+ *
+ * @param string $fullpath Absolute path to the file being served.
+ *
+ * @return bool True if the filename indicates already-minified content.
+ */
+function jetpack_boost_page_optimize_is_already_minified( $fullpath ) {
+	return (bool) preg_match( '/\.min\.(css|js)$/', (string) $fullpath );
 }
 
 /**
@@ -168,17 +194,115 @@ function jetpack_boost_enqueued_to_absolute_url( $url ) {
 }
 
 /**
- * Get the list of JS slugs to exclude from minification.
+ * Get the list of JS handles to exclude from minification.
+ *
+ * Administrators can append extra handles for the current request only via the
+ * `jb-minify-js-excludes` GET parameter (comma-separated handles). See
+ * jetpack_boost_page_optimize_merge_debug_excludes() for details.
  */
 function jetpack_boost_page_optimize_js_exclude_list() {
-	return jetpack_boost_ds_get( 'minify_js_excludes' );
+	return jetpack_boost_page_optimize_merge_debug_excludes(
+		jetpack_boost_ds_get( 'minify_js_excludes' ),
+		'jb-minify-js-excludes'
+	);
 }
 
 /**
- * Get the list of CSS slugs to exclude from minification.
+ * Get the list of CSS handles to exclude from minification.
+ *
+ * Administrators can append extra handles for the current request only via the
+ * `jb-minify-css-excludes` GET parameter (comma-separated handles). See
+ * jetpack_boost_page_optimize_merge_debug_excludes() for details.
  */
 function jetpack_boost_page_optimize_css_exclude_list() {
-	return jetpack_boost_ds_get( 'minify_css_excludes' );
+	return jetpack_boost_page_optimize_merge_debug_excludes(
+		jetpack_boost_ds_get( 'minify_css_excludes' ),
+		'jb-minify-css-excludes'
+	);
+}
+
+/**
+ * Debugging aid: merge per-request exclude handles from a GET parameter into a
+ * saved concatenate/minify exclude list.
+ *
+ * Lets administrators test "would excluding handle X fix this page?" by loading
+ * the page with e.g. `?jb-minify-js-excludes=jquery-core,my-plugin-script`
+ * without editing the saved settings, and without needing a staging site.
+ *
+ * Safety properties:
+ * - Only honored for logged-in users with the `manage_options` capability.
+ *   current_user_can() is available during normal page rendering (the exclude
+ *   lists are read while scripts/styles are printed at wp_head/wp_footer); the
+ *   function_exists() guard defensively no-ops in any pre-WordPress context
+ *   (e.g. the page-cache layer) where it is not yet loaded.
+ * - Each handle is validated against a strict allowlist (alphanumerics, dash,
+ *   underscore and dot); anything else is ignored entirely. Case is preserved
+ *   because script/style handles are matched case-sensitively downstream.
+ * - The number of handles processed is capped to bound the work this debug aid
+ *   can be made to do per request.
+ * - The merged list is never persisted — nothing is written to the data sync
+ *   store or options; the merge only affects the current request.
+ * - No Page Cache interaction: logged-in users always bypass Boost's page cache
+ *   (Request::is_cacheable() returns false), so pages rendered with these debug
+ *   parameters are neither served from nor written to the cache.
+ *
+ * Residual note: changing the exclude list changes concatenate-bundle membership,
+ * so each distinct combination an admin renders generates its own concat-path
+ * transient (and static file when static minification is on), just like any new
+ * page does. These are reclaimed by the normal Cleanup_Stored_Paths schedule.
+ * The parameter is intentionally nonce-free so it can be shared as a plain URL,
+ * so this stays capability-gated rather than CSRF-gated.
+ *
+ * @since 4.6.2
+ *
+ * @param mixed  $excludes  The saved exclude list; non-array values are treated as an empty list.
+ * @param string $param     The GET parameter to read extra handles from.
+ *
+ * @return array The exclude list, with any valid per-request handles appended.
+ */
+function jetpack_boost_page_optimize_merge_debug_excludes( $excludes, $param ) {
+	if ( ! is_array( $excludes ) ) {
+		$excludes = array();
+	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only debugging parameter; capability-gated below and never persisted.
+	if ( ! isset( $_GET[ $param ] ) || ! is_string( $_GET[ $param ] ) ) {
+		return $excludes;
+	}
+
+	// Only administrators may use the debug parameters.
+	if ( ! function_exists( 'current_user_can' ) || ! current_user_can( 'manage_options' ) ) {
+		return $excludes;
+	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Each handle is validated against a strict allowlist below.
+	$raw_value = wp_unslash( $_GET[ $param ] );
+
+	// Bound the work: a real debug session never needs more than a handful of
+	// handles, so process at most the first 100. The excess is dropped rather
+	// than discarding the whole value, so a partial list still applies.
+	$raw_handles = array_slice( explode( ',', $raw_value ), 0, 100 );
+
+	$extra_handles = array();
+	foreach ( $raw_handles as $handle ) {
+		$handle = trim( $handle );
+
+		/*
+		 * Allowlist of characters valid in script/style handles. Case is preserved
+		 * (not lowercased) because handles are matched case-sensitively downstream,
+		 * so lowercasing would silently fail to exclude a handle registered with
+		 * uppercase letters. Handles containing any other character are ignored.
+		 */
+		if ( $handle !== '' && preg_match( '/^[a-zA-Z0-9_.\-]+$/', $handle ) ) {
+			$extra_handles[] = $handle;
+		}
+	}
+
+	if ( empty( $extra_handles ) ) {
+		return $excludes;
+	}
+
+	return array_values( array_unique( array_merge( $excludes, $extra_handles ) ) );
 }
 
 /**
@@ -370,6 +494,47 @@ function jetpack_boost_get_static_prefix() {
 	return trailingslashit( $prefix );
 }
 
+/**
+ * Whether concatenated files should be linked from the static cache directory.
+ *
+ * Static cache URLs work only where WordPress sees the 404 for a missing wp-content file: the
+ * first request 404s, and Boost builds the file while answering it. On Atomic and WP Cloud, a
+ * per-site platform setting that Boost cannot read decides whether such a 404 reaches WordPress.
+ * Those hosts get the /_jb_static/ fallback unless the filter below says otherwise. Everywhere
+ * else the 404 tester's verdict decides. But jetpack_boost_static_minification travels with the
+ * database, and a migrated site arrives with its previous host's `1`, so this helper asks the
+ * host first.
+ *
+ * Admin\Config::get_hosting_provider() returns 'other' for any host it does not name, so a host it
+ * does not recognize keeps the static cache. A new named value there opts that provider out.
+ *
+ * This is distinct from Minify\Config::can_use_static_cache(), which ensures the cache directory
+ * exists and is writable.
+ *
+ * @since 4.7.0
+ *
+ * @return bool True if static cache URLs should be used, false to fall back to /_jb_static/.
+ */
+function jetpack_boost_minify_use_static_cache_urls() {
+	$use_static_cache_urls = 'other' === Boost_Admin_Config::get_hosting_provider()
+		&& get_site_option( 'jetpack_boost_static_minification' );
+
+	/**
+	 * Filter whether concatenated CSS and JS are linked from the static cache directory.
+	 *
+	 * Return true on an excluded host only if that host routes missing wp-content file requests
+	 * through WordPress; otherwise every bundle URL 404s at the web server. A true value also
+	 * overrides the 404 tester's verdict, and Boost does not schedule the tester on excluded hosts
+	 * (a cron event inherited from a previous host can still fire until the next release). Boost
+	 * evaluates this filter once per concat group, so return one stable value for the whole render.
+	 *
+	 * @since 4.7.0
+	 *
+	 * @param bool $use_static_cache_urls Whether static cache URLs will be used.
+	 */
+	return (bool) apply_filters( 'jetpack_boost_minify_use_static_cache_urls', $use_static_cache_urls );
+}
+
 function jetpack_boost_get_minify_url( $file_name = '' ) {
 	return content_url( '/boost-cache/static/' . $file_name );
 }
@@ -385,7 +550,6 @@ function jetpack_boost_get_minify_file_path( $file_name = '' ) {
  */
 function jetpack_boost_minify_serve_concatenated() {
 	// Potential improvement: Make concat URL dir configurable
-	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	if ( isset( $_SERVER['REQUEST_URI'] ) ) {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$request_path = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) )[0];

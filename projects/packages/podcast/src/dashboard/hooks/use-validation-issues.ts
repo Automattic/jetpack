@@ -24,7 +24,7 @@ export const getValidationIssues = ( settings: PodcastSettings | undefined ): st
 	}
 	const issues: string[] = [];
 	if ( ! settings.podcasting_category_id ) {
-		issues.push( __( 'Choose a category to use as your podcast feed.', 'jetpack-podcast' ) );
+		issues.push( __( 'Choose a post category to use as your podcast feed.', 'jetpack-podcast' ) );
 	}
 	if ( ! settings.podcasting_title ) {
 		issues.push( __( 'Add a podcast title.', 'jetpack-podcast' ) );
@@ -35,15 +35,15 @@ export const getValidationIssues = ( settings: PodcastSettings | undefined ): st
 		);
 	}
 	if ( ! settings.podcasting_talent_name ) {
-		issues.push( __( 'Set the host or talent name.', 'jetpack-podcast' ) );
+		issues.push( __( 'Set the host, artist, or producer name.', 'jetpack-podcast' ) );
 	}
 	if ( ! settings.podcasting_email ) {
 		issues.push(
-			__( 'Add an owner email so podcast directories can reach you.', 'jetpack-podcast' )
+			__( 'Add an owner email address so podcast directories can reach you.', 'jetpack-podcast' )
 		);
 	}
 	if ( ! settings.podcasting_category_1 ) {
-		issues.push( __( 'Pick at least one Apple Podcasts category.', 'jetpack-podcast' ) );
+		issues.push( __( 'Pick at least one podcast topic.', 'jetpack-podcast' ) );
 	}
 	if ( ! settings.podcasting_image ) {
 		issues.push( __( 'Upload a cover image at least 1400×1400 pixels.', 'jetpack-podcast' ) );
@@ -94,7 +94,7 @@ const getDistributionIssues = (
  * Distribution Submit gate. Reads cover media + an episode probe alongside
  * saved settings; both subqueries are `enabled`-gated.
  *
- * @return `{ issues, isReady, isLoading }` — issues suppressed during load.
+ * @return `{ issues, isLoading }` — issues suppressed during load.
  */
 export function useValidationIssues() {
 	const { data: settings, isLoading: settingsLoading } = usePodcastSettings();
@@ -133,7 +133,6 @@ export function useValidationIssues() {
 
 	return {
 		issues,
-		isReady: ! isLoading && issues.length === 0,
 		isLoading,
 	};
 }

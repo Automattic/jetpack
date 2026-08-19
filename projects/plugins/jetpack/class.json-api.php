@@ -399,7 +399,7 @@ class WPCOM_JSON_API {
 	 * @return string|null Content type (assuming it didn't exit), or null in certain error cases.
 	 */
 	public function serve( $exit = true ) {
-		ini_set( 'display_errors', false ); // phpcs:ignore WordPress.PHP.IniSet.display_errors_Blacklisted
+		ini_set( 'display_errors', false ); // phpcs:ignore WordPress.PHP.IniSet.display_errors_Disallowed
 
 		$this->exit = (bool) $exit;
 
@@ -775,11 +775,10 @@ class WPCOM_JSON_API {
 	 */
 	public static function serializable_error( $error ) {
 
-		$status_code = $error->get_error_data();
-
-		if ( is_array( $status_code ) && isset( $status_code['status_code'] ) ) {
-			$status_code = $status_code['status_code'];
-		}
+		// A missing or non-numeric status resolves to 0 and defaults to 400. Valid HTTP codes, including sub-400 ones, are preserved.
+		$data        = $error->get_error_data();
+		$status_code = ( is_array( $data ) && isset( $data['status_code'] ) ) ? $data['status_code'] : $data;
+		$status_code = is_numeric( $status_code ) ? (int) $status_code : 0;
 
 		if ( ! $status_code ) {
 			$status_code = 400;
@@ -858,7 +857,6 @@ class WPCOM_JSON_API {
 				foreach ( $response[ $key_to_filter ] as $key => $values ) {
 					if ( is_object( $values ) ) {
 						if ( is_object( $response[ $key_to_filter ] ) ) {
-							// phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found -- False positive.
 							$response[ $key_to_filter ]->$key = (object) array_intersect_key( ( (array) $values ), array_flip( $fields ) );
 						} elseif ( is_array( $response[ $key_to_filter ] ) ) {
 							$response[ $key_to_filter ][ $key ] = (object) array_intersect_key( ( (array) $values ), array_flip( $fields ) );

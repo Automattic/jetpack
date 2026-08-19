@@ -12,6 +12,7 @@ export default {
 	entry: {
 		newsletter: path.join( __dirname, 'src/settings/index.tsx' ),
 		'reader-link': path.join( __dirname, 'src/reader-link/style.scss' ),
+		'writing-prompt': path.join( __dirname, 'src/writing-prompt/index.jsx' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,
@@ -52,7 +53,17 @@ export default {
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
-				extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
+				extraLoaders: [
+					{
+						loader: 'postcss-loader',
+						options: {
+							postcssOptions: {
+								config: path.join( __dirname, 'postcss.config.js' ),
+							},
+						},
+					},
+					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
+				],
 			} ),
 
 			// Handle images.

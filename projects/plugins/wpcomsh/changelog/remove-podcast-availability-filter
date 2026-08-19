@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast: Remove the obsolete availability filter while retaining the temporary Atomic activation-state migration.

@@ -13,5 +13,5 @@ if [[ -t 1 ]]; then
 		printf '\e[K'
 	}
 else
-	. "$(dirname "$BASH_SOURCE[0]")/nospin.sh"
+	. "$(dirname "${BASH_SOURCE[0]}")/nospin.sh"
 fi

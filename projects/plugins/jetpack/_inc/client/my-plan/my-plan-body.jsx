@@ -69,7 +69,7 @@ class MyPlanBody extends Component {
 	};
 
 	render() {
-		let planCard = '';
+		let planCard;
 		const planClass = 'offline' !== this.props.plan ? getPlanClass( this.props.plan ) : 'offline';
 		const isPlanPremiumOrBetter = [
 			'is-premium-plan',
@@ -162,7 +162,7 @@ class MyPlanBody extends Component {
 				);
 			}
 
-			let description = '';
+			let description;
 			switch ( planClass ) {
 				case 'is-personal-plan':
 					description = __(

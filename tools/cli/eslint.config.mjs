@@ -8,6 +8,13 @@ export default defineConfig(
 			'n/no-process-exit': 'off',
 		},
 	},
+	// Skeleton intentionally uses an invalid name.
+	{
+		files: [ 'skeletons/common/package.json' ],
+		rules: {
+			'package-json/valid-name': 'off',
+		},
+	},
 	// Test fixtures don't need these rules.
 	{
 		files: [ 'tests/data/**/package.json' ],

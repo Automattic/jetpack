@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Button, Text } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
@@ -79,17 +80,15 @@ export const VideoLibraryWrapper = ( {
 		}
 	}, [ search ] );
 
-	const [ isLg ] = useBreakpointMatch( 'lg' );
+	const isLg = useViewportMatch( 'large' );
 
 	const [ isFilterActive, setIsFilterActive ] = useState( false );
 
-	const singularTotalVideosLabel = __( '1 Video', 'jetpack-videopress-pkg' );
-	const pluralTotalVideosLabel = sprintf(
+	const totalVideosLabel = sprintf(
 		/* translators: %s: the number of videos */
-		__( '%s Videos', 'jetpack-videopress-pkg' ),
-		totalVideos
+		_n( '%s Video', '%s Videos', totalVideos, 'jetpack-videopress-pkg' ),
+		String( totalVideos )
 	);
-	const totalVideosLabel = totalVideos === 1 ? singularTotalVideosLabel : pluralTotalVideosLabel;
 
 	return (
 		<div className={ styles[ 'library-wrapper' ] }>

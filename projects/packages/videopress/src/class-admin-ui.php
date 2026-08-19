@@ -12,11 +12,13 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\VideoPress\Status as VideoPress_Status;
 
 /**
  * Initialized the VideoPress package
@@ -28,12 +30,39 @@ class Admin_UI {
 	const ADMIN_PAGE_SLUG = 'jetpack-videopress';
 
 	/**
+	 * The My Jetpack interstitial where VideoPress can be activated, relative to wp-admin.
+	 *
+	 * Used as the target of the "Jetpack > VideoPress" menu item when VideoPress
+	 * is not active.
+	 */
+	const MY_JETPACK_ADD_VIDEOPRESS_URI = 'admin.php?page=my-jetpack#/add-videopress';
+
+	/**
 	 * Filter name that gates the wp-build–based dashboard.
 	 *
 	 * When this filter returns true, "Jetpack > VideoPress" renders the new
 	 * wp-build dashboard instead of the legacy React app.
 	 */
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_videopress';
+
+	/**
+	 * Filter name that gates the chapters editor.
+	 *
+	 * When this filter returns true, the chapters editor is exposed in both
+	 * places it lives: the dashboard's Editor tab (and the `/video/$id/editor`
+	 * route behind it) and the block editor's chapter manager modal. Unlike the
+	 * modernization filter, this defaults to false.
+	 */
+	const CHAPTERS_EDITOR_FILTER = 'jetpack_videopress_chapters_editor';
+
+	/**
+	 * Route paths that belong to the chapters editor.
+	 *
+	 * Kept in sync with the wp-build route registry (`build/routes/registry.php`);
+	 * entries with these paths are stripped from the registry when the chapters
+	 * editor filter is off, so the routes never register.
+	 */
+	const CHAPTERS_EDITOR_ROUTE_PATHS = array( '/video/$id/editor' );
 
 	/**
 	 * Initializes the Admin UI of VideoPress
@@ -44,6 +73,27 @@ class Admin_UI {
 	 */
 	public static function init() {
 
+		// Load the wp-build dashboard assets on the VideoPress admin page, on every
+		// host. Registered before enable_menu() below — both hook admin_menu:1, and
+		// same-priority callbacks fire in registration order — so the render function
+		// and SCRIPT_HANDLE exist by the time the menu callback is selected: on
+		// standalone/Atomic by enable_menu(), on wpcom Simple by add_wp_admin_submenu()
+		// (wpcom-admin-menu.php, admin_menu:999999). maybe_load_wp_build() self-gates
+		// to the VideoPress admin request, so it's inert on every other page.
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
+
+		// On WordPress.com Simple the standalone menu system (Admin_Menu) is not used:
+		// the Jetpack parent menu is created late (admin_menu priority 999999) by
+		// wpcom-admin-menu.php, which registers the VideoPress submenu directly via
+		// Admin_UI::add_wp_admin_submenu(). So on Simple we skip enable_menu() and the
+		// Jetpack/Atomic media-library hooks below — the media hooks are Phase 3 media
+		// parity, out of scope for menu + boot, and would patch a media library wpcom
+		// owns (their VideoPress branches are inert on Simple anyway: videos keep their
+		// original mime, never video/videopress).
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
 		add_action( 'admin_menu', array( __CLASS__, 'enable_menu' ), 1 ); // Akismet uses 4, so we use 1 to ensure both menus are added when only they exist.
 
 		add_action( 'admin_footer-upload.php', array( __CLASS__, 'attachment_details_two_column_template' ) );
@@ -52,22 +102,80 @@ class Admin_UI {
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'edit_video_link' ), 10, 3 );
 
 		add_action( 'admin_init', array( __CLASS__, 'remove_jetpack_hooks' ) );
-
-		if ( self::is_modernized() && self::is_videopress_admin_request() ) {
-			self::load_wp_build();
-			add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
-		}
 	}
 
 	/**
-	 * Enable the menu, separately to init due to translations needing to run early for the page suffix.
+	 * Load the wp-build dashboard assets when modernization is enabled and the current
+	 * request targets the VideoPress admin page.
+	 *
+	 * The single wp-build load path on every host, hooked at admin_menu:1 from init().
+	 * Requiring build.php here defines the render function that enable_menu() /
+	 * add_wp_admin_submenu() select later in the same hook, and registers the
+	 * SCRIPT_HANDLE that Initial_State::enqueue() hydrates from.
+	 *
+	 * @return void
+	 */
+	public static function maybe_load_wp_build() {
+		if ( ! self::is_modernized() || ! self::is_videopress_admin_request() ) {
+			return;
+		}
+
+		self::load_wp_build();
+
+		// wp-build registers standalone modules (e.g. the init module) on
+		// wp_default_scripts, which has already fired by admin_menu. Register them
+		// directly so the init module makes it into the import map.
+		if ( function_exists( 'jetpack_videopress_register_script_modules' ) ) {
+			jetpack_videopress_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
+		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+	}
+
+	/**
+	 * Select the dashboard render callback: the modernized wp-build render function
+	 * when modernization is on and it's available (loaded by maybe_load_wp_build()),
+	 * otherwise the legacy React root. Shared by enable_menu() (standalone/Atomic)
+	 * and add_wp_admin_submenu() (wpcom Simple).
+	 *
+	 * @return string|array Callback for Admin_Menu::add_menu()/add_submenu_page().
+	 */
+	private static function get_dashboard_render_callback() {
+		return self::is_modernized() && function_exists( 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page' )
+			? 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page'
+			: array( __CLASS__, 'plugin_settings_page' );
+	}
+
+	/**
+	 * Register the "Jetpack > VideoPress" menu item, choosing its target dynamically.
+	 *
+	 * Hooked on admin_menu from both init() and init_inactive_menu(), so the item
+	 * reflects the module state when the menu renders rather than when the package
+	 * initialized: when VideoPress is active it opens the VideoPress library
+	 * (admin.php?page=jetpack-videopress); when it is not, it links to the
+	 * My Jetpack interstitial where VideoPress can be activated.
+	 *
+	 * Registered separately to init due to translations needing to run early for
+	 * the page suffix.
 	 *
 	 * @return void
 	 */
 	public static function enable_menu() {
-		$callback = self::is_modernized() && function_exists( 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page' )
-			? 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page'
-			: array( __CLASS__, 'plugin_settings_page' );
+		if ( VideoPress_Status::is_active() ) {
+			self::enable_dashboard_menu();
+			return;
+		}
+
+		self::enable_inactive_menu();
+	}
+
+	/**
+	 * Register the VideoPress library dashboard page and its menu item.
+	 *
+	 * @return void
+	 */
+	private static function enable_dashboard_menu() {
+		$callback = self::get_dashboard_render_callback();
 
 		$page_suffix = Admin_Menu::add_menu(
 			// "VideoPress" is a product name, do not translate.
@@ -79,6 +187,103 @@ class Admin_UI {
 			3
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+	}
+
+	/**
+	 * Initializes the "Jetpack > VideoPress" menu item when VideoPress is not active.
+	 *
+	 * This method is called by the Initializer class instead of init() when the
+	 * VideoPress module is not active. It hooks the same enable_menu() callback as
+	 * init(), which picks the item's target from the module state at admin_menu
+	 * time — so if the state changed since package initialization, the rendered
+	 * link is still correct.
+	 *
+	 * @return void
+	 */
+	public static function init_inactive_menu() {
+		// On WordPress.com Simple the standalone menu system (Admin_Menu) is not used;
+		// the Jetpack menu is fully managed by wpcom-admin-menu.php. See init().
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		add_action( 'admin_menu', array( __CLASS__, 'enable_menu' ), 1 );
+	}
+
+	/**
+	 * Register the inactive-state menu item: a direct link to the My Jetpack
+	 * "add VideoPress" interstitial.
+	 *
+	 * A slug that is not a registered page makes WordPress render the item as a
+	 * plain link to that URI (same mechanism as the "Upgrade Jetpack" menu item).
+	 *
+	 * @return void
+	 */
+	public static function enable_inactive_menu() {
+		// Activating VideoPress from My Jetpack requires a connected user, so only
+		// offer the item to users with their own Jetpack connection. Checked here,
+		// at admin_menu time, so the item starts rendering as soon as the current
+		// user connects.
+		$connection = new Connection_Manager();
+		if ( ! $connection->is_connected() || ! $connection->is_user_connected() ) {
+			return;
+		}
+
+		// The link targets My Jetpack; don't render a dead link when that page
+		// is not registered (e.g. offline mode).
+		if ( ! My_Jetpack_Initializer::should_initialize() ) {
+			return;
+		}
+
+		Admin_Menu::add_menu(
+			// "VideoPress" is a product name, do not translate.
+			'Jetpack VideoPress',
+			'VideoPress',
+			'manage_options',
+			self::MY_JETPACK_ADD_VIDEOPRESS_URI,
+			null,
+			3
+		);
+	}
+
+	/**
+	 * Add the VideoPress submenu directly under the Jetpack menu on wpcom Simple.
+	 *
+	 * Called from wpcom-admin-menu.php at a late priority (999999), once the Jetpack
+	 * parent menu exists. On Simple enable_menu() is skipped (see init()), so this is
+	 * the only place the submenu is registered there. The callback mirrors enable_menu():
+	 * the wp-build render function when modernized and available (loaded by
+	 * maybe_load_wp_build() at admin_menu:1, which runs first), otherwise the legacy root.
+	 *
+	 * @return void
+	 */
+	public static function add_wp_admin_submenu() {
+		// Unlike standalone/Atomic, Simple has no working fallback: the legacy
+		// React dashboard's data layer rides videopress/v1, which never reaches
+		// the REST dispatcher there. With modernization off (e.g. a site outside
+		// the staged rollout), register no menu rather than a dead page. The
+		// function_exists half of the callback selection can't gate this — the
+		// wp-build render function is only loaded on the VideoPress page itself,
+		// and the menu must register on every admin page.
+		if ( ! self::is_modernized() ) {
+			return;
+		}
+
+		$callback = self::get_dashboard_render_callback();
+
+		$page_suffix = add_submenu_page(
+			'jetpack',
+			// "VideoPress" is a product name, do not translate.
+			'Jetpack VideoPress',
+			'VideoPress',
+			'manage_options',
+			self::ADMIN_PAGE_SLUG,
+			$callback
+		);
+
+		if ( $page_suffix ) {
+			add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+		}
 	}
 
 	/**
@@ -167,15 +372,23 @@ class Admin_UI {
 			// footer) regardless of whether it uses DashboardLayout. Without this,
 			// non-tabbed routes (e.g. Video details) would only get the layout
 			// after a sibling route's chunk happened to inject the same CSS.
-			$shell_css = dirname( __DIR__ ) . '/build/dashboard-shell/index.css';
-			if ( file_exists( $shell_css ) ) {
+			// Pick the flipped build ourselves on RTL locales rather than leaning on
+			// `wp_style_add_data( …, 'rtl', 'replace' )`: core resolves that by
+			// rewriting `index.css` to `index-rtl.css` (hyphenated) *and* dropping
+			// the LTR tag, but webpack emits the flipped file as `index.rtl.css`
+			// (dotted, the same convention `Assets::register_script()`'s `css_path`
+			// follows). The hyphenated file never exists, so RTL sites used to load
+			// no shell stylesheet at all — the layout flex chain never formed and
+			// the dashboard rendered as a blank page.
+			$shell_dir  = dirname( __DIR__ ) . '/build/dashboard-shell/';
+			$shell_file = is_rtl() && file_exists( $shell_dir . 'index.rtl.css' ) ? 'index.rtl.css' : 'index.css';
+			if ( file_exists( $shell_dir . $shell_file ) ) {
 				wp_register_style(
 					'jetpack-videopress-dashboard-shell',
-					plugins_url( 'build/dashboard-shell/index.css', __DIR__ ),
+					plugins_url( 'build/dashboard-shell/' . $shell_file, __DIR__ ),
 					array(),
-					(string) filemtime( $shell_css )
+					(string) filemtime( $shell_dir . $shell_file )
 				);
-				wp_style_add_data( 'jetpack-videopress-dashboard-shell', 'rtl', 'replace' );
 				wp_enqueue_style( 'jetpack-videopress-dashboard-shell' );
 			}
 
@@ -183,6 +396,12 @@ class Admin_UI {
 			// media library (via window.wp.media) for the "Upload image"
 			// action, so the media scripts must be present here too.
 			wp_enqueue_media();
+
+			// The i18n loader is registered on every admin page by jetpack-assets but
+			// only enqueued when depended on; the esbuild bundles don't pull it in.
+			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+				wp_enqueue_script( 'wp-jp-i18n-loader' );
+			}
 
 			// Beyond the shell stylesheet and the media library, wp-build
 			// manages its own enqueue pipeline. The legacy script, initial
@@ -277,8 +496,7 @@ class Admin_UI {
 			return $link;
 		}
 
-		$route = sprintf( '#/video/%d/edit', $post_id );
-		$url   = self::get_admin_page_url() . $route;
+		$url = add_query_arg( 'p', sprintf( '/video/%d', $post_id ), self::get_admin_page_url() );
 
 		if ( 'display' === $context ) {
 			return esc_url( $url );
@@ -485,11 +703,78 @@ class Admin_UI {
 
 		require_once $build_index;
 
+		// Defer the chapters-editor route stripping to the page init actions, at a
+		// priority ahead of the `build/routes.php` readers (default 10). Those
+		// actions fire from the page's `admin_enqueue_scripts` callback, one
+		// priority before `Initial_State` mirrors the chapters-editor filter to
+		// the client (priority 11), so both evaluations of the filter happen at
+		// the same request stage and a filter registered after this method
+		// runs (`init`, `admin_init`, …) is honored consistently by both.
+		add_action( 'jetpack-videopress-dashboard_init', array( __CLASS__, 'maybe_strip_chapters_editor_routes' ), 5 );
+		add_action( 'jetpack-videopress-dashboard-wp-admin_init', array( __CLASS__, 'maybe_strip_chapters_editor_routes' ), 5 );
+
 		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
 			'jetpack-videopress',
 			array_merge(
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
+			)
+		);
+	}
+
+	/**
+	 * Remove the chapters editor routes from the generated route registry when
+	 * the chapters editor filter is off.
+	 *
+	 * The wp-build routes loader (`build/routes.php`) stores each page's route
+	 * list in `$GLOBALS['jetpack_videopress_jetpack_videopress_dashboard_routes_data']`
+	 * and reads it back on the page init hooks at default priority, so
+	 * `load_wp_build()` hooks this on those same actions at priority 5 —
+	 * filtering the global just before it is consumed keeps the chapters editor
+	 * route modules from ever being registered.
+	 *
+	 * @since 0.45.0
+	 *
+	 * @internal Only public so the wp-build page init actions can invoke it.
+	 *
+	 * @return void
+	 */
+	public static function maybe_strip_chapters_editor_routes() {
+		if ( self::is_chapters_editor_enabled() ) {
+			return;
+		}
+
+		$global_name = 'jetpack_videopress_jetpack_videopress_dashboard_routes_data';
+
+		// Guard against a build change renaming the generated global: the
+		// chapters editor route would leak, but nothing fatals.
+		if ( empty( $GLOBALS[ $global_name ] ) || ! is_array( $GLOBALS[ $global_name ] ) ) {
+			return;
+		}
+
+		$GLOBALS[ $global_name ] = self::strip_chapters_editor_routes( $GLOBALS[ $global_name ] );
+	}
+
+	/**
+	 * Filter the chapters editor route entries out of a wp-build route registry array.
+	 *
+	 * Pure helper extracted from `maybe_strip_chapters_editor_routes()` so the
+	 * filtering logic is unit-testable without the generated global.
+	 *
+	 * @since 0.45.0
+	 *
+	 * @internal For use by `maybe_strip_chapters_editor_routes()` and tests only.
+	 *
+	 * @param array $routes Route entries as generated by `build/routes.php`, each an array with a `path` key.
+	 * @return array Route entries with the chapters editor paths removed.
+	 */
+	public static function strip_chapters_editor_routes( $routes ) {
+		return array_values(
+			array_filter(
+				$routes,
+				static function ( $route ) {
+					return ! isset( $route['path'] ) || ! in_array( $route['path'], self::CHAPTERS_EDITOR_ROUTE_PATHS, true );
+				}
 			)
 		);
 	}
@@ -522,7 +807,32 @@ class Admin_UI {
 	 * @return bool
 	 */
 	public static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
+	}
+
+	/**
+	 * Returns true when the chapters editor feature filter is enabled.
+	 *
+	 * Note the default is false: the dashboard Editor tab, the
+	 * `/video/$id/editor` route, the Details-tab deep link, and the block
+	 * editor's "Manage chapters" toolbar button all stay hidden unless a site
+	 * explicitly opts in via the filter.
+	 *
+	 * @since 0.45.0
+	 *
+	 * @return bool
+	 */
+	public static function is_chapters_editor_enabled() {
+		/**
+		 * Whether the VideoPress chapters editor UI is available.
+		 *
+		 * Gates UI only — the chapters REST surface stays registered either way.
+		 *
+		 * @since 0.45.0
+		 *
+		 * @param bool $enabled Whether the chapters editor UI is enabled. Default false.
+		 */
+		return (bool) apply_filters( self::CHAPTERS_EDITOR_FILTER, false );
 	}
 
 	/**

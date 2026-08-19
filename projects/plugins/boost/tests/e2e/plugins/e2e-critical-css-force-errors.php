@@ -22,7 +22,6 @@ add_action(
 	'template_redirect',
 	function () {
 		// Only for testing purposes - normally would require nonce verification
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['cat'] ) && isset( $_GET['jb-generate-critical-css'] ) ) {
 			header( 'HTTP/1.0 500 Internal Server Error' );
 			die();

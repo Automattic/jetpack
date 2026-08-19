@@ -40,7 +40,7 @@ const meta: Meta< StoryArgs > = {
 
 export default meta;
 
-const Template: StoryFn< typeof PieChart > = args => <PieChart { ...args } />;
+const Template: StoryFn< StoryArgs > = args => <PieChart { ...args } />;
 
 const tooltipStoryArgs = {
 	...sharedThemeArgs,
@@ -50,7 +50,7 @@ const tooltipStoryArgs = {
 	containerHeight: '432px',
 };
 
-export const Default: StoryObj< typeof PieChart > = Template.bind( {} );
+export const Default: StoryObj< StoryArgs > = Template.bind( {} );
 Default.args = {
 	...tooltipStoryArgs,
 };
@@ -62,7 +62,7 @@ Default.parameters = {
 	},
 };
 
-export const NoTooltips: StoryObj< typeof PieChart > = Template.bind( {} );
+export const NoTooltips: StoryObj< StoryArgs > = Template.bind( {} );
 NoTooltips.args = {
 	...tooltipStoryArgs,
 	withTooltips: false,
@@ -75,7 +75,7 @@ NoTooltips.parameters = {
 	},
 };
 
-export const Custom: StoryObj< typeof PieChart > = Template.bind( {} );
+export const Custom: StoryObj< StoryArgs > = Template.bind( {} );
 Custom.args = {
 	...tooltipStoryArgs,
 	renderTooltip: ( { tooltipData }: PieChartRenderTooltipParams ) => {
@@ -145,7 +145,7 @@ Custom.parameters = {
 	},
 };
 
-export const CustomWithEmoji: StoryObj< typeof PieChart > = Template.bind( {} );
+export const CustomWithEmoji: StoryObj< StoryArgs > = Template.bind( {} );
 CustomWithEmoji.args = {
 	...tooltipStoryArgs,
 	renderTooltip: ( { tooltipData }: PieChartRenderTooltipParams ) => {
@@ -187,7 +187,7 @@ CustomWithEmoji.parameters = {
 	},
 };
 
-export const CustomTableTooltip: StoryObj< typeof PieChart > = Template.bind( {} );
+export const CustomTableTooltip: StoryObj< StoryArgs > = Template.bind( {} );
 CustomTableTooltip.args = {
 	...tooltipStoryArgs,
 	renderTooltip: ( { tooltipData }: PieChartRenderTooltipParams ) => {
@@ -246,7 +246,7 @@ CustomTableTooltip.parameters = {
 	},
 };
 
-export const TooltipOffset: StoryObj< typeof PieChart > = {
+export const TooltipOffset: StoryObj< StoryArgs > = {
 	render: () => (
 		<GlobalChartsProvider>
 			<div

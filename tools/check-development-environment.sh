@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd "$( dirname "${BASH_SOURCE[0]}" )/.."
+cd "$( dirname "${BASH_SOURCE[0]}" )/.." || exit
 . tools/includes/chalk-lite.sh
 . tools/includes/version-compare.sh
 . .github/versions.sh
@@ -137,7 +137,7 @@ echo "==========="
 echo ""
 
 checking 'Usable version of bash'
-if [[ -n "${BASH_VERSINFO}" && -n "${BASH_VERSINFO[0]}" && ( ${BASH_VERSINFO[0]} -gt 4 || ${BASH_VERSINFO[0]} -eq 4 && ${BASH_VERSINFO[1]} -ge 3 ) ]]; then
+if [[ -n "${BASH_VERSINFO[0]}" && ( ${BASH_VERSINFO[0]} -gt 4 || ${BASH_VERSINFO[0]} -eq 4 && ${BASH_VERSINFO[1]} -ge 3 ) ]]; then
 	success "ok (version $BASH_VERSION)"
 else
 	failure "too old" '' "Bash at $BASH is $BASH_VERSION. Version 4.3 or later is required." "If you're on Mac OS, you can install an updated version of bash with ${CS}brew install bash${CE}"
@@ -274,6 +274,7 @@ fi
 
 checking '[optional] nvm is available'
 # NVM is weird.
+# shellcheck disable=SC1090
 BIN="$([[ -f ~/.nvm/nvm.sh ]] && source ~/.nvm/nvm.sh && command -v nvm)"
 if [[ -z "$BIN" ]]; then
 	warning "no" 'nodejs'
@@ -321,6 +322,14 @@ else
 			failure 'no' 'clone-the-repository' "Origin is \"$URL\", expected something beginning with \"git@github.com:\"."
 		fi
 	fi
+fi
+
+checking '[optional] ShellCheck is available'
+BIN="$(command -v shellcheck)"
+if [[ -z "$BIN" ]]; then
+	warning "no" '' "ShellCheck is used to lint shell scripts. See https://github.com/koalaman/shellcheck#installing for installation instructions."
+else
+	success "yes"
 fi
 
 echo ""

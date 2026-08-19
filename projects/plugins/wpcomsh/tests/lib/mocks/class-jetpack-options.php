@@ -21,7 +21,7 @@ if ( ! class_exists( 'Jetpack_Options' ) ) {
 		 * @param string|boolean $default     Optional. Default false.
 		 * @return mixed Option value.
 		 */
-		public static function get_option( $option_name, $default = false ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.defaultFound
+		public static function get_option( $option_name, $default = false ) {
 			// Handle grouped options based on their actual storage location
 			if ( in_array( $option_name, array( 'master_user', 'id' ), true ) ) {
 				// These are in the 'compact' group -> jetpack_options

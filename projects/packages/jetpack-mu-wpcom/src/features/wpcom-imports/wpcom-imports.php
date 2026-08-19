@@ -24,7 +24,7 @@ function wpcom_imports_register_imports() {
 	$substack_description    = __( 'Import <strong>content and subscribers</strong> from your Substack site.', 'jetpack-mu-wpcom' );
 
 	register_importer( 'wpcom-squarespace', __( 'Squarespace', 'jetpack-mu-wpcom' ), $squarespace_description, $page );
-	register_importer( 'wpcom-medium', __( 'Medium', 'jetpack-mu-wpcom' ), $medium_description, $page );
+	register_importer( 'wpcom-medium', _x( 'Medium', 'Company name', 'jetpack-mu-wpcom' ), $medium_description, $page );
 	register_importer( 'wpcom-wix', __( 'Wix', 'jetpack-mu-wpcom' ), $wix_description, $page );
 	register_importer( 'wpcom-substack', __( 'Substack', 'jetpack-mu-wpcom' ), $substack_description, $page );
 }

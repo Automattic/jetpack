@@ -4,7 +4,7 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
-import { features, SHARING_ACTIVITY_TABS } from '../../utils';
+import { features, hasSocialPaidFeatures, SHARING_ACTIVITY_TABS } from '../../utils';
 import useSocialMediaConnections from '../use-social-media-connections';
 import useSocialMediaMessage from '../use-social-media-message';
 
@@ -21,7 +21,7 @@ type SchedulePostOptions = {
 export function useSchedulePost() {
 	const { scheduleShares, openUnifiedModal } = useDispatch( socialStore );
 	const { message } = useSocialMediaMessage();
-	const { connectionsReadyToShare } = useSocialMediaConnections();
+	const { enabledConnections } = useSocialMediaConnections();
 	const navigator = useNavigator();
 
 	const openSharingActivity = useCallback( () => {
@@ -37,7 +37,7 @@ export function useSchedulePost() {
 
 	return useCallback(
 		async ( { timestamp }: SchedulePostOptions ) => {
-			const connectionIds = connectionsReadyToShare.map( connection =>
+			const connectionIds = enabledConnections.map( connection =>
 				Number( connection.connection_id )
 			);
 
@@ -53,12 +53,10 @@ export function useSchedulePost() {
 			 * SIG is saved to the post meta and will be read on wpcom. Because of that we need to save
 			 * the post before sharing it, if it has the media features to make sure we use the latest data.
 			 */
-			const savePost =
-				siteHasFeature( features.IMAGE_GENERATOR ) ||
-				siteHasFeature( features.ENHANCED_PUBLISHING );
+			const savePost = siteHasFeature( features.IMAGE_GENERATOR ) || hasSocialPaidFeatures();
 
 			return await scheduleShares( { connectionIds, message, timestamp }, { savePost, actions } );
 		},
-		[ connectionsReadyToShare, message, openSharingActivity, scheduleShares ]
+		[ enabledConnections, message, openSharingActivity, scheduleShares ]
 	);
 }

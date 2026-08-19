@@ -100,19 +100,19 @@ class Initial_State {
 		$home_host       = wp_parse_url( get_site_url(), PHP_URL_HOST );
 
 		return array(
-			'API'           => array(
+			'API'                    => array(
 				'WP_API_root'  => esc_url_raw( rest_url() ),
 				'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
 				'contentNonce' => wp_create_nonce( 'videopress-content-nonce' ),
 			),
-			'jetpackStatus' => array(
+			'jetpackStatus'          => array(
 				'calypsoSlug' => ( new Status() )->get_site_suffix(),
 			),
-			'product'       => array(
+			'product'                => array(
 				// Fed to `useProductCheckoutWorkflow` as the product to purchase.
 				'slug' => self::VIDEOPRESS_PRODUCT_SLUG,
 			),
-			'siteData'      => array(
+			'siteData'               => array(
 				'id'                    => Jetpack_Options::get_option( 'id' ),
 				'title'                 => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
 				'adminUrl'              => esc_url_raw( admin_url() ),
@@ -130,15 +130,25 @@ class Initial_State {
 				'isVideoPress1TB'       => self::has_videopress_feature( 'videopress-1tb-storage' ),
 				'isVideoPressUnlimited' => self::has_videopress_feature( 'videopress-unlimited-storage' ),
 			),
-			'assets'        => array(
+			'assets'                 => array(
 				'buildUrl' => plugins_url( '../build/', __FILE__ ),
 			),
+			// Feature gates mirrored from the PHP-side filters so the client can
+			// hide gated UI without a round trip.
+			'features'               => array(
+				'chaptersEditor' => Admin_UI::is_chapters_editor_enabled(),
+			),
+			// Authoritative map of accepted upload types (extension => mimetype),
+			// so the dashboard's drag-and-drop filter accepts exactly what the
+			// VideoPress backend supports rather than guessing client-side.
+			'allowedVideoExtensions' => Admin_UI::get_allowed_video_extensions(),
 			// Product/pricing payload for the pre-connection upsell. Only
 			// populated when the site isn't connected — the only time the
 			// connection gate renders the upsell — so connected dashboards never
 			// incur the synchronous WPCOM pricing request `get_pricing_data()`
-			// makes.
-			'pricing'       => ( new Connection_Manager() )->is_connected() ? null : $this->get_pricing_data(),
+			// makes. Skipped on WordPress.com Simple, where the connection gate is
+			// bypassed (Simple sites are inherently wpcom-connected).
+			'pricing'                => ( ( new Host() )->is_wpcom_simple() || ( new Connection_Manager() )->is_connected() ) ? null : $this->get_pricing_data(),
 		);
 	}
 
@@ -157,7 +167,10 @@ class Initial_State {
 		$site_product  = My_Jetpack_Products::get_product( 'videopress' );
 		$product_price = Plan::get_product_price();
 
-		if ( ! is_array( $site_product ) || ! isset( $product_price['yearly'] ) ) {
+		// Plan::get_product_price() returns a WP_Error when the WPCOM products
+		// request doesn't come back 200, and `isset()` on a non-ArrayAccess
+		// object is a fatal in PHP 8 — so the array check has to come first.
+		if ( ! is_array( $site_product ) || ! is_array( $product_price ) || ! isset( $product_price['yearly'] ) ) {
 			return null;
 		}
 
@@ -179,6 +192,13 @@ class Initial_State {
 	 * @return bool
 	 */
 	public static function has_videopress_access() {
+		// Any paid storage tier grants access; on the WPCOM platform (Simple or
+		// Atomic) the legacy `videopress` slug does too. No Simple special-case is
+		// needed here: each has_videopress_feature() call already routes through the
+		// Simple-local wpcom_site_has_feature() check under IS_WPCOM, and
+		// is_wpcom_platform() is true on Simple, so the third term reduces to
+		// wpcom_site_has_feature( 'videopress' ) there — the check the old early
+		// return performed, minus the redundancy.
 		return self::has_videopress_feature( 'videopress-1tb-storage' )
 			|| self::has_videopress_feature( 'videopress-unlimited-storage' )
 			|| ( ( new Host() )->is_wpcom_platform() && self::has_videopress_feature( 'videopress' ) );
@@ -191,6 +211,10 @@ class Initial_State {
 	 * @return bool
 	 */
 	private static function has_videopress_feature( $feature_slug ) {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return function_exists( 'wpcom_site_has_feature' ) && (bool) wpcom_site_has_feature( $feature_slug );
+		}
+
 		$features = Product::get_site_features_from_wpcom();
 
 		if ( is_wp_error( $features ) ) {

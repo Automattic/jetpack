@@ -3,7 +3,7 @@ Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski,
 Tags: video, video-hosting, video-player, cdn, video-streaming
 Requires at least: 6.9
 Tested up to: 7.0
-Stable tag: 3.1
+Stable tag: 3.3
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -83,12 +83,11 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 3.1 - 2026-05-14
-#### Changed
-- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency.
-- Update package dependencies.
+### 3.3 - 2026-08-13
+#### Added
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed.
 
-#### Fixed
-- Prevent the "Add new video" button from disappearing on the admin dashboard after the first video is uploaded.
-- VideoPress admin: Add padding around the Settings section, make the hero full width on medium screens, and remove an empty pagination placeholder below the video library.
+#### Changed
+- Update dependencies.
+- Update package dependencies.
 

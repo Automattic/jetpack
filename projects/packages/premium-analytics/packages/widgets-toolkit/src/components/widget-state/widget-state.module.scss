@@ -1,0 +1,116 @@
+@use "../../styles/widget-container" as *;
+
+.state {
+	block-size: 100%;
+
+	// No fixed floor: on short tiles (height 1) the widget body gets less than
+	// 120px, and a hard minimum would push the state past the body and paint it
+	// over the widget footer. Overflowing content scrolls instead.
+	min-block-size: 0;
+	overflow-y: auto;
+
+	// Size container so the icon can hide on short tiles (see the query below).
+	// Safe here: the state always sits in a definite-height body (grid tile or
+	// story canvas), so size containment cannot collapse it.
+	container-type: size;
+	padding: var(--wpds-dimension-padding-md);
+	text-align: center;
+}
+
+// On short tiles the icon steals the room the text needs, and a state showing
+// icon + text next to one that fits text-only reads as misaligned. Below the
+// threshold drop the glyph so every state degrades the same way: text only,
+// vertically centered. The threshold is shared with the other components that
+// shed chrome on a height-1 widget — see `$widget-short-max-block-size`.
+@container (max-block-size: #{$widget-short-max-block-size}) {
+
+	.stateIcon {
+		display: none;
+	}
+
+	// The hidden icon generates no flex box, so the start auto margin on
+	// `:first-child` stops centering; hand it to the first visible sibling so
+	// the text stays vertically centered.
+	.state > .stateIcon + * {
+		margin-block-start: auto;
+	}
+}
+
+// Keep the icon and text at their intrinsic size: flex children default to
+// `flex-shrink: 1`, so a too-short tile would squash them (a visibly shrunken
+// icon) before the container ever scrolls.
+.state > * {
+	flex-shrink: 0;
+}
+
+// Overflow-safe vertical centering (in place of the Stack's `justify` prop,
+// whose inline style would win over class rules): auto margins center the
+// content when there is room and collapse to zero when there is not, so the
+// state top-anchors and stays fully scrollable. `justify-content: center`
+// would push the overflow past the top edge where it cannot be scrolled to.
+.state > :first-child {
+	margin-block-start: auto;
+}
+
+.state > :last-child {
+	margin-block-end: auto;
+}
+
+.title {
+	font-weight: 600;
+}
+
+.description {
+	margin: 0;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-sm);
+}
+
+.loading {
+	position: relative;
+	block-size: 100%;
+
+	// Same rationale as `.state`: no floor, so a short tile's loading box stays
+	// inside the widget body instead of underlapping the footer.
+	min-block-size: 0;
+}
+
+.root,
+.content {
+	position: relative;
+	block-size: 100%;
+}
+
+// Same rationale as `.state`: no floor, so a short tile's body stays inside the
+// widget instead of underlapping the footer.
+.root {
+	min-block-size: 0;
+}
+
+// Preserve layout measurements during refetches.
+.contentHidden {
+	visibility: hidden;
+}
+
+// The root is only ever focused programmatically, to hold focus while a refetch
+// hides the children, so it carries no ring by default.
+.root:focus {
+	outline: none;
+}
+
+// `:focus-visible` still separates the two cases: the flag carries across a
+// programmatic focus move, so a reader who activated a row from the keyboard
+// sees where they landed, while a mouse user gets no ring around the whole
+// widget body. Drawn inset for the reason `.reportLink` documents — widgets
+// clip their own overflow, so an outset ring on a full-height element is cut
+// off entirely.
+.root:focus-visible {
+	outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+	outline-offset: calc(-1 * var(--wpds-border-width-focus));
+}
+
+.skeletonOverlay {
+	position: absolute;
+	inset: 0;
+}

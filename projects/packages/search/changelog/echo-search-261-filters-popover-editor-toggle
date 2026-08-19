@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search Blocks: the Collapsible Filters block's trigger button now toggles the panel in the editor too, so authors can close the popover and edit surrounding template parts without it crowding the canvas.

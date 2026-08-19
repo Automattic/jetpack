@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search Blocks: sample the active theme's body color and background at page load and feed them to the overlay card, filters popover, sort menu, and search-input suggestions surfaces — so themes that expose only positional palette slugs (wp.com Global Styles' --theme-N) still render Search surfaces in theme-accurate colors.

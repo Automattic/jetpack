@@ -1,0 +1,16 @@
+{
+	"name": "jpa/stats-top-posts",
+	"title": "Top pages",
+	"description": "Your most viewed posts, pages, and archives.",
+	"help": {
+		"content": "Your most popular posts and pages, sorted by views.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://jetpack.com/support/jetpack-stats/"
+			}
+		]
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

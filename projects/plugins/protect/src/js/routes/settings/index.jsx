@@ -1,15 +1,9 @@
-import {
-	Col,
-	Container,
-	Text,
-	ToggleControl,
-	AdminSectionHero,
-	getRedirectUrl,
-} from '@automattic/jetpack-components';
+import { Col, Container, AdminSectionHero, getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
-import { Notice, Link } from '@wordpress/ui';
+import { Notice, Link, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import useAccountProtectionQuery from '../../data/account-protection/use-account-protection-query';
 import useToggleAccountProtectionMutation from '../../data/account-protection/use-toggle-account-protection-module-mutation';
@@ -54,10 +48,11 @@ const SettingsPage = () => {
 						accountProtection.hasUnsupportedJetpackVersion ||
 						toggleAccountProtectionMutation.isPending
 					}
+					__nextHasNoMarginBottom={ true }
 				/>
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>
-				<Text variant="title-medium">{ __( 'Account protection', 'jetpack-protect' ) }</Text>
+				<Text variant="heading-xl">{ __( 'Account protection', 'jetpack-protect' ) }</Text>
 				{ ! accountProtection.isSupported && (
 					<Notice.Root intent="warning" className={ styles[ 'toggle-section__alert' ] }>
 						<Notice.Title>

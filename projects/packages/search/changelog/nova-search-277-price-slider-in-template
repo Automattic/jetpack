@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Search Blocks: use the price slider variation of filter-wc-price in the product-results template so visitors get a draggable range with paired inputs instead of two flat number inputs.

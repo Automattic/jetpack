@@ -30,7 +30,7 @@ export const getNormalizedGap = ( gap: number | CSSProperties[ 'gap' ] ) =>
  * A flexible layout component using CSS Flexbox for consistent spacing and alignment.
  * Built on design tokens for predictable spacing values.
  */
-export const Stack = forwardRef< HTMLElement, StackProps >( function Stack(
+export const Stack = forwardRef< HTMLElement, StackProps >( function Stack( // eslint-disable-line no-shadow -- Seems intentional so the function has a proper name.
 	{
 		direction,
 		gap = 'initial',

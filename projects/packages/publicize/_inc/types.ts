@@ -18,8 +18,7 @@ export type ConnectionService = {
 		| 'mastodon'
 		| 'nextdoor'
 		| 'threads'
-		| 'tumblr'
-		| 'x';
+		| 'tumblr';
 	label: string;
 	description: string;
 	url: string;
@@ -31,7 +30,6 @@ export type ConnectionService = {
 };
 
 export interface ApiPaths {
-	refreshConnections: string;
 	resharePost: string;
 	socialToggleBase: 'settings' | 'social/settings';
 }

@@ -3,7 +3,6 @@ import { getOctokit } from '@actions/github';
 import debug from '../../utils/debug.ts';
 import getLabels from '../../utils/labels/get-labels.ts';
 import notifyImportantIssues from '../../utils/slack/notify-important-issues.ts';
-import { automatticAssignments } from './automattic-label-team-assignments.ts';
 import type { OctokitClient, IssuesEvent, TeamAssignment } from '../../types.ts';
 
 interface FieldOption {
@@ -551,20 +550,11 @@ async function setTeamField(
 }
 
 /**
- * Load a mapping of teams <> labels from a file.
- *
- * @param ownerLogin - Repository owner login.
+ * Load the repository's configured mapping of teams <> labels.
  *
  * @return Mapping of teams <> labels.
  */
-async function loadTeamAssignments(
-	ownerLogin: string
-): Promise< Record< string, TeamAssignment > > {
-	// If we're in an Automattic repo, we can use the team assignments file that ships with this action.
-	if ( 'automattic' === ownerLogin.toLowerCase() ) {
-		return automatticAssignments;
-	}
-
+export async function loadTeamAssignments(): Promise< Record< string, TeamAssignment > > {
 	const teamAssignmentsString = getInput( 'labels_team_assignments' );
 	if ( ! teamAssignmentsString ) {
 		debug(
@@ -621,8 +611,8 @@ async function assignTeam(
 	const label = 'label' in payload ? payload.label : undefined;
 	const ownerLogin = owner.login;
 
-	const teamAssignments = await loadTeamAssignments( ownerLogin );
-	if ( ! teamAssignments ) {
+	const teamAssignments = await loadTeamAssignments();
+	if ( ! Object.keys( teamAssignments ).length ) {
 		debug(
 			`triage-issues > update-board: No mapping of teams <> labels provided. Cannot automatically assign an issue to a specific team on the board. Aborting.`
 		);
@@ -855,6 +845,7 @@ async function updateBoard(
 	// Try to assign the issue to a specific team, if we have a mapping of teams <> labels and a matching label on the issue.
 	// When assigning, we can also do more to warn the team about the issue, if we have additional info (Slack, project board).
 	if ( projectItemId ) {
+		// eslint-disable-next-line no-useless-assignment -- Parallelism, in case more clauses are added in the future, is more important than skipping the useless assignment here.
 		projectItemId = await assignTeam(
 			projectOctokit,
 			payload,

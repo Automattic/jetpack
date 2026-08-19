@@ -33,7 +33,9 @@ export const MastodonPostPreview: React.FC< MastodonPreviewProps > = props => {
 					</div>
 				) : null }
 			</MastonPostBody>
-			{ ! media?.length ? <MastodonPostCard { ...props } /> : null }
+			{ ! media?.length && props.customText?.includes( props.url ) ? (
+				<MastodonPostCard { ...props } />
+			) : null }
 			<MastodonPostActions />
 		</div>
 	);

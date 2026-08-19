@@ -14,7 +14,7 @@ namespace Automattic\Jetpack\Connection;
  * is present (old Jetpack versions). When no legacy integration is detected,
  * it registers the connection health tests directly.
  *
- * @since $$next-version$$
+ * @since 8.5.0
  */
 class Site_Health {
 
@@ -30,7 +30,7 @@ class Site_Health {
 	 *
 	 * Should be called once, typically from the package's actions.php via a plugins_loaded hook.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 */
 	public static function init() {
 		if ( self::$initialized ) {
@@ -39,6 +39,32 @@ class Site_Health {
 		self::$initialized = true;
 
 		add_action( 'admin_init', array( __CLASS__, 'maybe_register_site_health' ), 1 );
+
+		// Deliberately hooked to the cron-only `jetpack_heartbeat` action (end of
+		// Heartbeat::cron_exec()) and not `jetpack_heartbeat_stats_array`, which
+		// also fires in synchronous request contexts (XML-RPC, REST, WP-CLI) where
+		// a remote test would be slow and an amplification vector.
+		add_action( 'jetpack_heartbeat', array( __CLASS__, 'do_daily_connection_check' ) );
+	}
+
+	/**
+	 * Runs the WP.com connection test once a day on the heartbeat cron.
+	 *
+	 * The test result itself is discarded: the point is the test's side effects,
+	 * which keep the Error_Handler state for failures that WP.com cannot report
+	 * through a request of its own (e.g. the site blocking WP.com requests) fresh —
+	 * reported while the condition persists, cleared once it resolves. Without this,
+	 * the error would only update on Site Health page visits and Core's weekly
+	 * Site Health cron, and would expire (ERROR_LIFE_TIME) while still unresolved.
+	 *
+	 * @since 8.10.0
+	 */
+	public static function do_daily_connection_check() {
+		if ( ! ( new Manager() )->is_connected() ) {
+			return;
+		}
+
+		( new Connection_Health_Tests() )->run_test( 'test__wpcom_connection_test' );
 	}
 
 	/**
@@ -47,7 +73,7 @@ class Site_Health {
 	 * Checks whether the legacy Jetpack debugger has already registered its
 	 * Site Health hooks. If so, we defer to avoid duplicate tests.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 */
 	public static function maybe_register_site_health() {
 		// Defer to the old Jetpack plugin's debugger if it has already registered
@@ -64,7 +90,7 @@ class Site_Health {
 	/**
 	 * Register connection tests with WordPress Site Health.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @param array $core_tests Array of tests from Core's Site Health.
 	 *
@@ -92,7 +118,7 @@ class Site_Health {
 	/**
 	 * Create a closure for a Site Health direct test.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 *
 	 * @param array                   $test      Test definition array.
 	 * @param Connection_Health_Tests $cxn_tests Test suite instance.
@@ -164,7 +190,7 @@ class Site_Health {
 	/**
 	 * AJAX handler for async Site Health tests.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.5.0
 	 */
 	public static function ajax_local_testing_suite() {
 		check_ajax_referer( 'health-check-site-status' );

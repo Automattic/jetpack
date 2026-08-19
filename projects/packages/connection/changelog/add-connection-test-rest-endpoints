@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Connection: Add connection/test and connection/test-wpcom REST endpoints (migrated from Jetpack plugin).

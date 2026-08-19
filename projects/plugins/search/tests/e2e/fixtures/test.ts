@@ -1,5 +1,5 @@
-import { test as baseTest, expect } from '_jetpack-e2e-commons/fixtures/base-test';
-import logger from '_jetpack-e2e-commons/logger';
+import { test as baseTest, expect } from '@automattic/_jetpack-e2e-commons/fixtures/base-test';
+import logger from '@automattic/_jetpack-e2e-commons/logger';
 import { SearchUtils } from '../utils/index';
 
 export const SEARCH_API_PATTERN =

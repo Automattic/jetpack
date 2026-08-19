@@ -3,7 +3,7 @@ import { CheckboxControl, Notice, Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { Notice as UiNotice, Link } from '@wordpress/ui';
+import { Link } from '@wordpress/ui';
 import { store as socialStore } from '../../../social-store';
 import { KeyringResult } from '../../../social-store/types';
 import { useSupportedServices } from '../../services/use-supported-services';
@@ -44,6 +44,48 @@ function AccountInfo( { label, profile_picture }: AccountInfoProps ) {
 const noop = () => {};
 
 /**
+ * Maps the reason wpcom reported for an empty account list to copy the user can
+ * act on. Unknown or absent reasons fall back to the generic message.
+ *
+ * @param reason - Value of `additional_external_users_empty_reason` on the keyring result.
+ *
+ * @return The message to show when there are no accounts to connect.
+ */
+function getNoAccountsFoundMessage(
+	reason: KeyringResult[ 'additional_external_users_empty_reason' ]
+) {
+	switch ( reason ) {
+		case 'no_instagram_account':
+			return __(
+				'None of your Facebook Pages has an Instagram professional account linked. Link one in Meta Business Suite, then try connecting again.',
+				'jetpack-publicize-pkg'
+			);
+		case 'no_pages':
+			return __(
+				"You don't manage any Facebook Pages. Instagram Business posting requires a Facebook Page linked to an Instagram professional account.",
+				'jetpack-publicize-pkg'
+			);
+		case 'page_access_denied':
+			return __(
+				"We couldn't access your Facebook Pages. Reconnect and make sure every Page is selected.",
+				'jetpack-publicize-pkg'
+			);
+		case 'account_check_failed':
+			return __(
+				"We couldn't check your Instagram account just now. Please try again.",
+				'jetpack-publicize-pkg'
+			);
+		case 'service_error':
+			return __(
+				"Facebook didn't respond. Please try again in a few minutes.",
+				'jetpack-publicize-pkg'
+			);
+		default:
+			return __( 'No accounts/pages found.', 'jetpack-publicize-pkg' );
+	}
+}
+
+/**
  * Connection confirmation component
  *
  * @param {ConfirmationFormProps} props - Component props
@@ -70,10 +112,6 @@ export function ConfirmationForm( {
 	const service = supportedServices.find(
 		supportedService => supportedService.id === keyringResult.service
 	);
-	const hasExistingXConnection =
-		service?.id === 'x' &&
-		existingConnections.some( connection => connection.service_name === 'x' );
-
 	const isAlreadyConnected = useCallback(
 		( externalID: string ) => {
 			return existingConnections.some(
@@ -185,16 +223,13 @@ export function ConfirmationForm( {
 		<section className={ styles.confirmation }>
 			{ ! accounts.not_connected.length ? (
 				<p className={ styles[ 'header-text' ] }>
-					{
-						// TODO Make this more useful. For example, in case of Instagram, we could show a message that only Instagra business accounts are supported.
-						accounts.connected.length
-							? _x(
-									'No more accounts/pages found.',
-									'Message shown when there are no connections found to connect',
-									'jetpack-publicize-pkg'
-							  )
-							: __( 'No accounts/pages found.', 'jetpack-publicize-pkg' )
-					}
+					{ accounts.connected.length
+						? _x(
+								'No more accounts/pages found.',
+								'Message shown when there are no connections found to connect',
+								'jetpack-publicize-pkg'
+						  )
+						: getNoAccountsFoundMessage( keyringResult.additional_external_users_empty_reason ) }
 				</p>
 			) : (
 				<div>
@@ -221,19 +256,6 @@ export function ConfirmationForm( {
 								</Link>
 							</p>
 						</Notice>
-					) }
-					{ hasExistingXConnection && (
-						<UiNotice.Root intent="info" className={ styles[ 'x-policy-notice' ] }>
-							<UiNotice.Title>
-								{ __( 'Only one X account can be shared to per post', 'jetpack-publicize-pkg' ) }
-							</UiNotice.Title>
-							<UiNotice.Description>
-								{ __(
-									"As per X's developer policy, you can share a unique post to only one X account. You can pick which X account to share to in the editor.",
-									'jetpack-publicize-pkg'
-								) }
-							</UiNotice.Description>
-						</UiNotice.Root>
 					) }
 					<form className={ styles.form } onSubmit={ onConfirm } id="connection-confirmation-form">
 						{

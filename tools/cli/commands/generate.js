@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import enquirer from 'enquirer';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import pluralize from 'pluralize';
 import semver from 'semver';
 import { doesRepoExist } from '../helpers/github.js';
@@ -594,18 +594,9 @@ function generateJsPackage( answers, pkgDir ) {
 						jetpackWebpackConfig.FileRule(),
 					],
 				},
-				plugins: [${
-					ts
-						? `
-					...jetpackWebpackConfig.StandardPlugins( {
-						// Generate \`.d.ts\` files per tsconfig settings.
-						ForkTSCheckerPlugin: {},
-					} ),
-				`
-						: `
+				plugins: [
 					...jetpackWebpackConfig.StandardPlugins(),
-				`
-				}],
+				],
 			};
 			`.replace( /^\t\t\t/gm, '' )
 		);
@@ -696,7 +687,10 @@ function createPackageJson( packageJson, answers ) {
 			packageJson.devDependencies[ 'webpack-cli' ] = findVersionFromPnpmLock( 'webpack-cli' );
 			packageJson.scripts = {
 				...packageJson.scripts,
-				build: 'pnpm run clean && pnpm exec webpack',
+				// For TS, generate `.d.ts` files with tsgo per tsconfig settings.
+				build: ts
+					? 'pnpm run clean && pnpm exec webpack && pnpm exec tsgo --pretty'
+					: 'pnpm run clean && pnpm exec webpack',
 				clean: 'rm -rf build/',
 			};
 			packageJson.exports = {
@@ -709,10 +703,12 @@ function createPackageJson( packageJson, answers ) {
 		}
 		if ( ts ) {
 			packageJson.devDependencies.typescript = findVersionFromPnpmLock( 'typescript' );
-			if ( answers.typescript === 'ts-tsc' ) {
+			if ( ! answers.typescript.endsWith( '-src' ) ) {
 				packageJson.devDependencies[ '@typescript/native-preview' ] = findVersionFromPnpmLock(
 					'@typescript/native-preview'
 				);
+			}
+			if ( answers.typescript === 'ts-tsc' ) {
 				packageJson.scripts = {
 					...packageJson.scripts,
 					build: 'pnpm run clean && pnpm exec tsgo --pretty',
@@ -804,7 +800,7 @@ async function createComposerJson( composerJson, answers ) {
 			delete composerJson[ 'require-dev' ][ 'yoast/phpunit-polyfills' ];
 			composerJson.scripts = {
 				'test-js': [ 'pnpm run test' ],
-				'test-coverage': [ 'pnpm run test-coverage' ],
+				'test-js-coverage': [ 'pnpm run test-coverage' ],
 			};
 			if ( ! answers.typescript.endsWith( '-src' ) ) {
 				composerJson.scripts = {

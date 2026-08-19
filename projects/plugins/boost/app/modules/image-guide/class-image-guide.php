@@ -34,8 +34,8 @@ class Image_Guide implements Feature {
 	}
 
 	public function enqueue_assets() {
-		wp_enqueue_script( 'jetpack-boost-guide', plugins_url( 'dist/guide.js', __FILE__ ), array( 'wp-i18n' ), JETPACK_BOOST_VERSION, true );
-		wp_enqueue_style( 'jetpack-boost-guide', plugins_url( 'dist/guide.css', __FILE__ ), array(), JETPACK_BOOST_VERSION, 'screen' );
+		wp_enqueue_script( 'jetpack-boost-guide', plugins_url( 'dist/guide.min.js', __FILE__ ), array( 'wp-i18n' ), JETPACK_BOOST_VERSION, true );
+		wp_enqueue_style( 'jetpack-boost-guide', plugins_url( 'dist/guide.min.css', __FILE__ ), array(), JETPACK_BOOST_VERSION, 'screen' );
 
 		wp_localize_script(
 			'jetpack-boost-guide',

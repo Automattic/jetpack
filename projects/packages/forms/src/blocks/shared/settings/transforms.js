@@ -184,7 +184,7 @@ const createChoiceFieldInnerBlocks = ( blockName, existingInnerBlocks = [], attr
 		placeholder: config.labelPlaceholder,
 	} );
 
-	let optionBlocks = [];
+	let optionBlocks;
 	if ( existingOptions?.innerBlocks ) {
 		optionBlocks = existingOptions.innerBlocks.map( block =>
 			createBlock( 'jetpack/option', {

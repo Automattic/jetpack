@@ -95,6 +95,24 @@ class WPCOM_JSON_API_Rest_Parity_Coverage_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Each endpoint also matches across transports for a `fields`-scoped request. This guards the
+	 * rest_callback()->filter_fields() fix generically: any key that reaches the body past the
+	 * caller's `fields` must be trimmed on REST exactly as output()/filter_fields() trims it on
+	 * XML-RPC. (Endpoints needing fixtures or specific `fields` to surface such a key get their own
+	 * bespoke case -- e.g. get-site `updates`, posts `type`/`password` -- next to that endpoint.)
+	 *
+	 * @dataProvider simple_get_endpoints_provider
+	 * @group json-api
+	 *
+	 * @param WPCOM_JSON_API_Endpoint $endpoint The discovered endpoint.
+	 */
+	#[DataProvider( 'simple_get_endpoints_provider' )]
+	#[Group( 'json-api' )]
+	public function test_endpoint_fields_parity( WPCOM_JSON_API_Endpoint $endpoint ) {
+		$this->assert_rest_parity( $endpoint, array( 'fields' => 'ID' ) );
+	}
+
+	/**
 	 * Fail if discovery finds nothing -- an empty provider would mark the parity test risky.
 	 *
 	 * @group json-api

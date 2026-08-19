@@ -288,7 +288,7 @@ store( NAMESPACE, {
 			const controller = new AbortController();
 			suggestionAborts.set( input, controller );
 
-			let suggestions = [];
+			let suggestions;
 			try {
 				suggestions = yield fetchSuggestions( {
 					query,

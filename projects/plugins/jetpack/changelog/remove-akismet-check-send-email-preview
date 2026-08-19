@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Email preview: remove the Akismet-based spam check; spam classification is now handled outside Jetpack via the jetpack_before_send_email_preview action.

@@ -11,8 +11,10 @@
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-external-connections": "@dev",
+		"automattic/jetpack-feature-flags": "@dev",
 		"automattic/jetpack-jwt": "@dev",
 		"automattic/jetpack-logo": "@dev",
+		"automattic/jetpack-menu-badges": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
@@ -38,13 +40,10 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'",
-		"test-php": [
-			"@composer phpunit"
-		],
-		"test-js": [
-			"pnpm run test"
-		],
+		"test-js": "pnpm run test",
+		"test-js-coverage": "pnpm run test-coverage",
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
 		"build-production": [
 			"pnpm run build-production"
 		],
@@ -74,7 +73,7 @@
 			"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "7.21.x-dev"
+			"dev-trunk": "7.24.x-dev"
 		},
 		"textdomain": "jetpack-forms",
 		"version-constants": {

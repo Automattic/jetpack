@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404

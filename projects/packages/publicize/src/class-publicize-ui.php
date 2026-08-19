@@ -329,16 +329,6 @@ jQuery( function($) {
 			fakebox = '<input id="wpas-submit-' + service + '" type="hidden" value="1" name="wpas[submit][' + service + ']" />';
 		$( '#add-publicize-check' ).append( fakebox );
 	} );
-
-	// X Developer Policy forbids posting the same content to more than one
-	// X account. Only one X checkbox may be checked at a time; turning one
-	// on unchecks the others.
-	$( document ).on( 'change', '.wpas-submit-x', function() {
-		if ( ! this.checked ) {
-			return;
-		}
-		$( '.wpas-submit-x' ).not( this ).prop( 'checked', false );
-	} );
 } );
 </script>
 
@@ -583,7 +573,7 @@ jQuery( function($) {
 
 		$is_post_published = 'publish' === get_post_status( $post->ID );
 
-		$templates_enabled = Current_Plan::supports( 'social-message-templates' );
+		$templates_enabled = $this->publicize->has_paid_features();
 
 		$placeholders = $this->get_message_placeholders();
 

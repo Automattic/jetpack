@@ -13,6 +13,9 @@ use PHPUnit\Framework\Attributes\Group;
 
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 require_once JETPACK__PLUGIN_DIR . 'json-endpoints/class.wpcom-json-api-list-posts-endpoint.php';
+// Registers every endpoint version (incl. the v1.1 list-posts endpoint that force-adds
+// type/status/password) so the fields-parity case below can resolve it.
+require_once JETPACK__PLUGIN_DIR . 'json-endpoints.php';
 require_once __DIR__ . '/trait-assert-rest-xmlrpc-parity.php';
 
 /**
@@ -147,6 +150,73 @@ class WPCOM_JSON_API_List_Posts_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A `fields` request must return the same keys on both transports. get_post_by() force-adds
+	 * type/status/password regardless of `fields` because internal processors need them; the
+	 * XML-RPC output() path strips the unrequested ones back out via filter_fields(). Before
+	 * rest_callback() did the same, those keys leaked past `fields` on the REST transport only.
+	 *
+	 * Uses the v1.1 endpoint: only it (not v1) force-adds those keys.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_rest_xmlrpc_parity_fields_strips_forced_keys() {
+		$this->create_post();
+
+		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
+			$this->get_endpoint_v1_1(),
+			array(
+				'number' => 5,
+				'fields' => 'ID,title,date',
+			)
+		);
+
+		$this->assertNotEmpty( $rest['posts'] );
+
+		$post = $rest['posts'][0];
+		$this->assertArrayHasKey( 'ID', $post );
+		$this->assertArrayHasKey( 'title', $post );
+		$this->assertArrayNotHasKey( 'type', $post );
+		$this->assertArrayNotHasKey( 'status', $post );
+		$this->assertArrayNotHasKey( 'password', $post );
+
+		// assert_rest_parity() already asserts the full bodies match; this pins the regression.
+		$this->assertSame( array_keys( $xmlrpc['posts'][0] ), array_keys( $post ) );
+	}
+
+	/**
+	 * The v1 endpoint only honors `fields` in display context -- get_post_by() guards the filter
+	 * on `'display' === $context`, so an edit-context request renders the full object. Before
+	 * rest_callback() ran filter_fields(), that leaked every key on REST while XML-RPC (via
+	 * output()) returned only the requested ones. A distinct trigger from the v1.1 force-add.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_rest_xmlrpc_parity_fields_edit_context_v1() {
+		$this->create_post();
+
+		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
+			$this->get_endpoint(),
+			array(
+				'number'  => 5,
+				'context' => 'edit',
+				'fields'  => 'ID,title,date',
+			)
+		);
+
+		$this->assertNotEmpty( $rest['posts'] );
+
+		$post = $rest['posts'][0];
+		$this->assertCount( 3, $post, 'REST returns only the requested fields, not the full object.' );
+		$this->assertArrayHasKey( 'ID', $post );
+		$this->assertArrayHasKey( 'title', $post );
+		$this->assertArrayHasKey( 'date', $post );
+		$this->assertArrayNotHasKey( 'content', $post );
+		$this->assertSame( array_keys( $xmlrpc['posts'][0] ), array_keys( $post ) );
+	}
+
+	/**
 	 * Retrieve the registered endpoint instance.
 	 *
 	 * The endpoint file registers itself via a top-level `new` call when required,
@@ -168,6 +238,28 @@ class WPCOM_JSON_API_List_Posts_Endpoint_Test extends WP_UnitTestCase {
 			}
 		}
 		$this->fail( 'WPCOM_JSON_API_List_Posts_Endpoint (v1) not found in registered endpoints.' );
+	}
+
+	/**
+	 * Retrieve the registered v1.1 list-posts endpoint (the version that force-adds
+	 * type/status/password in get_post_by()).
+	 *
+	 * @return WPCOM_JSON_API_List_Posts_v1_1_Endpoint
+	 *
+	 * @phan-suppress PhanTypeArraySuspicious
+	 */
+	private function get_endpoint_v1_1() {
+		$api = WPCOM_JSON_API::init();
+		foreach ( $api->endpoints as $endpoints_by_method ) {
+			if (
+				isset( $endpoints_by_method['GET'] )
+				&& get_class( $endpoints_by_method['GET'] ) === 'WPCOM_JSON_API_List_Posts_v1_1_Endpoint'
+				&& '1.1' === $endpoints_by_method['GET']->max_version
+			) {
+				return $endpoints_by_method['GET'];
+			}
+		}
+		$this->fail( 'WPCOM_JSON_API_List_Posts_v1_1_Endpoint not found in registered endpoints.' );
 	}
 
 	/**

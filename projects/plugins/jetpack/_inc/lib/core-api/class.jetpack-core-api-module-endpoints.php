@@ -453,7 +453,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 
-		$settings = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'settings' );
+		$settings = Jetpack_Core_Json_Api_Endpoints::filter_options_for_response(
+			Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'settings' )
+		);
 
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -664,6 +666,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			// Get option attributes, including the group it belongs to.
 			$option_attrs = $options[ $option ];
 
+			// Everything outside the Post by Email group requires the admin capability.
+			if ( 'post-by-email' !== $option_attrs['jp_group'] && ! current_user_can( 'jetpack_configure_modules' ) ) {
+				$not_updated[ $option ] = REST_Connector::get_user_permissions_error_msg();
+				continue;
+			}
+
 			// If this is a module option and the related module isn't active for any reason, continue with the next one.
 			if ( 'settings' !== $option_attrs['jp_group'] ) {
 				if ( ! Jetpack::is_module( $option_attrs['jp_group'] ) ) {
@@ -716,6 +724,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'monitor_receive_notifications':
+					if ( ! class_exists( 'Jetpack_Monitor' ) ) {
+						$updated = false;
+						break;
+					}
+
 					$monitor = new Jetpack_Monitor();
 
 					// If we got true as response, consider it done.
@@ -723,6 +736,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'post_by_email_address':
+					if ( ! class_exists( 'Jetpack_Post_By_Email' ) ) {
+						$updated = false;
+						break;
+					}
+
 					$result = Jetpack_Post_By_Email::init()->process_api_request( $value );
 
 					// If we got an email address (create or regenerate) or 1 (delete), consider it done.
@@ -809,6 +827,15 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$updated = $grouped_options_current !== $grouped_options
 						? update_option( 'verification_services_codes', $grouped_options )
 						: true;
+					break;
+
+				case Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION:
+					Jetpack_SEO_Utils::update_front_page_meta_description( $value );
+					$response[ $option ] = Jetpack_SEO_Utils::get_front_page_meta_description();
+					// The helper returns an empty string for a successful clear or
+					// same-value write, so use its authoritative getter for the response
+					// and treat every valid request reaching this switch as handled.
+					$updated = true;
 					break;
 
 				case 'sharing_services':
@@ -1003,7 +1030,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						break;
 					}
 
-					$allowed_keys   = array( 'invitation', 'comment_follow', 'welcome' );
+					$allowed_keys   = array( 'invitation', 'comment_follow', 'welcome', 'subscribe_modal_heading', 'free_tier_description', 'hide_free_tier' );
 					$filtered_value = array_filter(
 						$value,
 						function ( $key ) use ( $allowed_keys ) {
@@ -1015,6 +1042,15 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					if ( empty( $filtered_value ) ) {
 						break;
 					}
+
+					// `hide_free_tier` is a boolean flag, so pull it out before the HTML
+					// sanitization below (which expects strings). Sanitize it with
+					// rest_sanitize_boolean() so stringy booleans (e.g. "false", "0")
+					// are interpreted correctly rather than being treated as truthy by a
+					// plain `! empty()`.
+					$has_hide_free_tier = array_key_exists( 'hide_free_tier', $filtered_value );
+					$hide_free_tier     = $has_hide_free_tier && rest_sanitize_boolean( $filtered_value['hide_free_tier'] );
+					unset( $filtered_value['hide_free_tier'] );
 
 					array_walk_recursive(
 						$filtered_value,
@@ -1035,6 +1071,31 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 							);
 						}
 					);
+
+					// Normalize whitespace-only `subscribe_modal_heading` input to empty so
+					// the modal template's `empty()` fallback fires. PHP's `empty()` treats
+					// `"   "` as non-empty, which would otherwise render a blank heading.
+					if ( isset( $filtered_value['subscribe_modal_heading'] ) ) {
+						$filtered_value['subscribe_modal_heading'] = trim( $filtered_value['subscribe_modal_heading'] );
+					}
+
+					// The free tier description is stored as plain markdown source, so strip
+					// all HTML and cap its length to match the paid-tier description field.
+					// WordPress core guarantees mb_substr() (polyfilled in wp-includes/compat.php
+					// when the mbstring extension is unavailable), so it's safe to use directly.
+					// A JSON payload could supply a non-scalar (array/object) for this field,
+					// which would fatal in wp_kses()/mb_substr() on PHP 8+, so drop invalid values.
+					if ( isset( $filtered_value['free_tier_description'] ) ) {
+						if ( is_scalar( $filtered_value['free_tier_description'] ) ) {
+							$filtered_value['free_tier_description'] = mb_substr( wp_kses( (string) $filtered_value['free_tier_description'], array() ), 0, 500 );
+						} else {
+							unset( $filtered_value['free_tier_description'] );
+						}
+					}
+
+					if ( $has_hide_free_tier ) {
+						$filtered_value['hide_free_tier'] = $hide_free_tier;
+					}
 
 					$old_subscription_options = get_option( 'subscription_options' );
 					if ( ! is_array( $old_subscription_options ) ) {
@@ -1255,11 +1316,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$params = $request->get_body_params();
 				}
 				$options = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( $params );
-				foreach ( $options as $option => $definition ) {
-					if ( in_array( $options[ $option ]['jp_group'], array( 'post-by-email' ), true ) ) {
-						$module = $options[ $option ]['jp_group'];
-						break;
-					}
+
+				// The Post by Email gate applies only when the request contains nothing else.
+				$groups = array_values( array_unique( array_column( $options, 'jp_group' ) ) );
+				if ( array( 'post-by-email' ) === $groups ) {
+					$module = 'post-by-email';
 				}
 			}
 			// User is trying to create, regenerate or delete its PbE.
@@ -1277,7 +1338,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
  * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 class Jetpack_Core_API_Module_Data_Endpoint {
-	// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 
 	/**
 	 * Process request and return different data based on the module we are interested in.

@@ -1,5 +1,5 @@
 import ConnectionIcon from '../index.tsx';
-import '../../../../../../js-packages/social-logos/src/social-logo-colors.css';
+import 'social-logos/colors.css';
 
 export default {
 	title: 'Packages/Publicize/ConnectionIcon',

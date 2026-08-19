@@ -212,8 +212,10 @@ EXPECTED;
 		add_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivated_modules' ) );
 
 		Jetpack::update_active_modules( array( 'stats' ) );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Later it makes sure the module only shows once.
 		Jetpack::update_active_modules( array( 'stats' ) );
 		Jetpack::update_active_modules( array( 'json-api' ) );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Later it makes sure the module only shows once.
 		Jetpack::update_active_modules( array( 'json-api' ) );
 
 		$this->assertEquals( self::$activated_modules, array( 'stats', 'json-api' ) );
@@ -229,8 +231,10 @@ EXPECTED;
 		add_action( 'jetpack_deactivate_module_stats', array( __CLASS__, 'track_deactivated_modules' ) );
 
 		Jetpack::update_active_modules( array( 'stats' ) );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Later it makes sure the module only shows once.
 		Jetpack::update_active_modules( array( 'stats' ) );
 		Jetpack::update_active_modules( array( 'json-api' ) );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Later it makes sure the module only shows once.
 		Jetpack::update_active_modules( array( 'json-api' ) );
 
 		$this->assertEquals( self::$activated_modules, array( 'stats' ) );
@@ -252,6 +256,7 @@ EXPECTED;
 		add_filter( 'pre_update_option_jetpack_active_modules', array( __CLASS__, 'filter_pre_update_option_jetpack_active_modules' ), 10, 2 );
 
 		Jetpack::update_active_modules( array( 'json-api' ) );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Later it makes sure the module only shows once.
 		Jetpack::update_active_modules( array( 'json-api' ) );
 
 		$this->assertEquals( self::$activated_modules, array( 'json-api', 'stats' ) );
@@ -1151,5 +1156,51 @@ EXPECTED;
 		Jetpack_Options::update_option( 'version', '10.5' );
 		Jetpack::plugin_deactivation();
 		$this->assertFalse( Jetpack_Options::get_option( 'version' ) );
+	}
+
+	/**
+	 * The Connection package fetches the site record and announces it; the plugin is what turns
+	 * that into a refreshed plan. This drives the whole path — the hook registration, the
+	 * response envelope the callback rebuilds, and Current_Plan consuming it — so breaking any
+	 * one of the three fails here rather than silently leaving the plan stale.
+	 */
+	public function test_site_data_action_refreshes_the_cached_plan() {
+		delete_option( 'jetpack_active_plan' );
+		delete_option( 'jetpack_site_products' );
+
+		do_action(
+			'jetpack_site_data_fetched',
+			array(
+				'ID'       => 1234,
+				'plan'     => array( 'product_slug' => 'jetpack_security_t1_yearly' ),
+				'products' => array( array( 'product_slug' => 'jetpack_backup_t1_yearly' ) ),
+			)
+		);
+
+		$this->assertSame(
+			array( 'product_slug' => 'jetpack_security_t1_yearly' ),
+			get_option( 'jetpack_active_plan' ),
+			'The plan from the site record should be cached.'
+		);
+		$this->assertSame(
+			array( array( 'product_slug' => 'jetpack_backup_t1_yearly' ) ),
+			get_option( 'jetpack_site_products' ),
+			'The products from the site record should be cached.'
+		);
+	}
+
+	/**
+	 * A body with no plan must leave the cached plan alone rather than clearing it, otherwise a
+	 * partial response would downgrade the site.
+	 */
+	public function test_site_data_action_keeps_the_plan_when_the_record_has_none() {
+		update_option( 'jetpack_active_plan', array( 'product_slug' => 'jetpack_complete' ) );
+
+		do_action( 'jetpack_site_data_fetched', array( 'ID' => 1234 ) );
+
+		$this->assertSame(
+			array( 'product_slug' => 'jetpack_complete' ),
+			get_option( 'jetpack_active_plan' )
+		);
 	}
 } // end class

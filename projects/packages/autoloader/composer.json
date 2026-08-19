@@ -32,12 +32,10 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": [
+		"test-php": "@composer phpunit",
+		"test-php-coverage": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"./tests/php/tmp/coverage-report.php\"",
 			"php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/php.cov\""
-		],
-		"test-php": [
-			"@composer phpunit"
 		]
 	},
 	"repositories": [

@@ -8,7 +8,7 @@
 #   2: Settings file creation failed
 
 # Go to monorepo root.
-cd "$(dirname "${BASH_SOURCE[0]}")/.."
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit
 
 template_file=.vscode/settings.dist.jsonc
 dest_file=.vscode/settings.json

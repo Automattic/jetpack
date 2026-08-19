@@ -1,10 +1,10 @@
 <?php
 /**
- * Polyfill registration for Core packages not available in WordPress < 7.0.
+ * Polyfill registration for Core packages not available or incomplete in older WordPress versions.
  *
  * Conditionally registers wp-notices, wp-private-apis, wp-theme (classic scripts) and
- * `@wordpress/boot`, `@wordpress/route`, `@wordpress/a11y` (script modules)
- * ONLY when they are not already provided by Core or Gutenberg.
+ * `@wordpress/boot`, `@wordpress/route`, `@wordpress/a11y`, `@wordpress/widget-primitives`
+ * (script modules) ONLY when they are not already provided by Core or Gutenberg.
  *
  * @package automattic/jetpack-wp-build-polyfills
  */
@@ -19,12 +19,50 @@ class WP_Build_Polyfills {
 	/**
 	 * Available polyfill handles for classic scripts.
 	 */
-	const SCRIPT_HANDLES = array( 'wp-notices', 'wp-private-apis', 'wp-theme', 'wp-views' );
+	const SCRIPT_HANDLES = array( 'wp-notices', 'wp-private-apis', 'wp-rich-text', 'wp-theme', 'wp-views' );
 
 	/**
 	 * Available polyfill module IDs.
 	 */
-	const MODULE_IDS = array( '@wordpress/boot', '@wordpress/route', '@wordpress/a11y' );
+	const MODULE_IDS = array( '@wordpress/boot', '@wordpress/route', '@wordpress/a11y', '@wordpress/widget-primitives' );
+
+	/**
+	 * Polyfills that only work when another polyfill is registered alongside them.
+	 *
+	 * These bundles call `__dangerousOptInToUnstableAPIsOnlyForCoreModules()` at
+	 * module scope, which throws unless the `wp-private-apis` implementation that
+	 * actually loads allowlists their package name. Core's allowlist does not:
+	 * WP 6.9 omits `@wordpress/rich-text`, `@wordpress/theme` and
+	 * `@wordpress/views`, and WP 7.0 still omits `@wordpress/compose` (bundled
+	 * into the rich-text polyfill). Requesting one of these without
+	 * `wp-private-apis` therefore throws at load time and blanks the page.
+	 *
+	 * The `wp-private-apis` script dependency in each `.asset.php` is not enough
+	 * on its own — it makes WordPress enqueue the *handle*, which resolves to
+	 * Core's incomplete implementation unless the polyfill was requested too.
+	 *
+	 * @var array<string, string[]>
+	 */
+	const SCRIPT_DEPENDENCIES = array(
+		'wp-rich-text' => array( 'wp-private-apis' ),
+		'wp-theme'     => array( 'wp-private-apis' ),
+		'wp-views'     => array( 'wp-private-apis' ),
+	);
+
+	/**
+	 * Minimum Gutenberg plugin version known to ship a private-apis allowlist
+	 * that includes the dashboard packages used by this package's current build.
+	 */
+	const GUTENBERG_PRIVATE_APIS_MIN_VERSION = '23.5.0';
+
+	/**
+	 * Minimum Gutenberg plugin version whose rich-text ships all the privateApis
+	 * keys dashboard packages unlock (useRichText, KeyboardShortcutContext,
+	 * InputEventContext, shortcutsListener, inputEventsListener). They were
+	 * completed by Gutenberg PR #78471, first released in 23.6.0 — verified
+	 * against the released builds: 23.5.0 lacks three of the five keys.
+	 */
+	const GUTENBERG_RICH_TEXT_MIN_VERSION = '23.6.0';
 
 	/**
 	 * Tracks which polyfills have been requested and by which consumers.
@@ -60,6 +98,11 @@ class WP_Build_Polyfills {
 	 * When multiple consumers call this method with different thresholds, the
 	 * highest threshold wins (most conservative — polyfills active on more versions).
 	 *
+	 * Polyfills listed in SCRIPT_DEPENDENCIES pull in their companion polyfill
+	 * automatically, so consumers cannot request a combination that throws at
+	 * load time. Those companions show up in get_consumers() under the
+	 * requesting consumer's name.
+	 *
 	 * @param string   $consumer             A unique identifier for the consumer (e.g. plugin slug).
 	 * @param string[] $polyfills             List of polyfill handles/module IDs to register.
 	 *                                        Use class constants SCRIPT_HANDLES and MODULE_IDS for reference.
@@ -71,11 +114,16 @@ class WP_Build_Polyfills {
 			if ( ! in_array( $handle, self::SCRIPT_HANDLES, true ) && ! in_array( $handle, self::MODULE_IDS, true ) ) {
 				continue;
 			}
-			if ( ! isset( self::$requested[ $handle ] ) ) {
-				self::$requested[ $handle ] = array();
-			}
-			if ( ! in_array( $consumer, self::$requested[ $handle ], true ) ) {
-				self::$requested[ $handle ][] = $consumer;
+
+			$required = array_merge( array( $handle ), self::SCRIPT_DEPENDENCIES[ $handle ] ?? array() );
+
+			foreach ( $required as $required_handle ) {
+				if ( ! isset( self::$requested[ $required_handle ] ) ) {
+					self::$requested[ $required_handle ] = array();
+				}
+				if ( ! in_array( $consumer, self::$requested[ $required_handle ], true ) ) {
+					self::$requested[ $required_handle ][] = $consumer;
+				}
 			}
 		}
 
@@ -133,30 +181,40 @@ class WP_Build_Polyfills {
 	 * @param string      $wp_version_threshold  WP version below which force-replacements apply.
 	 */
 	private static function register_scripts( $scripts, $build_dir, $base_file, $wp_version_threshold ) {
-		// Force-replace only when Core's bundled scripts are incomplete (WP < 7.0)
-		// AND Gutenberg is not active. When Gutenberg is present, its script
-		// registrations (priority 10) are always self-consistent — replacing them
-		// with our polyfills can break packages that Gutenberg adds in the future while
-		// our polyfill's allowlist doesn't cover them yet.
-		$gutenberg_active = defined( 'GUTENBERG_VERSION' );
-		$force_replace    = ! $gutenberg_active
-			&& version_compare( $GLOBALS['wp_version'] ?? '0', $wp_version_threshold, '<' );
+		// Force-replace only when Core's bundled scripts are incomplete and
+		// Gutenberg cannot be trusted to provide a compatible implementation.
+		$gutenberg_version = defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : null;
 
 		$polyfills = array(
 			'wp-notices'      => array(
-				'path'  => 'notices',
+				'path'            => 'notices',
+				'force_threshold' => '7.0',
 				// Only force-replace on older WP without Gutenberg: older Core
 				// versions ship notices without SnackbarNotices and InlineNotices
 				// component exports that @wordpress/boot depends on.
-				'force' => $force_replace,
 			),
 			'wp-private-apis' => array(
-				'path'  => 'private-apis',
-				// Only force-replace on older WP without Gutenberg: older Core
-				// versions ship private-apis with an incomplete allowlist that
-				// rejects @wordpress/theme and @wordpress/route.
-				// Our version is a strict superset (same API, larger allowlist).
-				'force' => $force_replace,
+				'path'                  => 'private-apis',
+				'force_threshold'       => '7.1',
+				'gutenberg_min_version' => self::GUTENBERG_PRIVATE_APIS_MIN_VERSION,
+				// WP 7.0 and older versions ship private-apis with an incomplete
+				// allowlist that rejects @wordpress/theme, @wordpress/route, and
+				// newer dashboard packages. Active Gutenberg is only a safe
+				// substitute once its private-apis allowlist includes those
+				// dashboard packages too.
+			),
+			'wp-rich-text'    => array(
+				'path'                  => 'rich-text',
+				'force_threshold'       => '7.1',
+				'gutenberg_min_version' => self::GUTENBERG_RICH_TEXT_MIN_VERSION,
+				// WP 7.0 and older ship a rich-text whose `privateApis` current
+				// dashboard dependencies cannot use (e.g. @wordpress/dataviews
+				// >= 17.2 dataform controls, which unlock it at module scope).
+				// WP 6.9 exports no `privateApis` at all, which throws "Cannot
+				// unlock an undefined object"; WP 7.0 exports one locked with
+				// only `useRichText`, so destructuring the other keys yields
+				// undefined. Either way the page blanks. Older Gutenberg is not
+				// a safe substitute either — see the constant's doc.
 			),
 			'wp-theme'        => array(
 				'path' => 'theme',
@@ -177,14 +235,27 @@ class WP_Build_Polyfills {
 				continue;
 			}
 
-			$force = ! empty( $data['force'] );
+			$force_threshold = $data['force_threshold'] ?? null;
+			if ( null !== $force_threshold && version_compare( $wp_version_threshold, $force_threshold, '>' ) ) {
+				$force_threshold = $wp_version_threshold;
+			}
+
+			$force = null !== $force_threshold
+				&& ! self::is_gutenberg_version_safe( $data['gutenberg_min_version'] ?? null, $gutenberg_version )
+				&& version_compare( $GLOBALS['wp_version'] ?? '0', $force_threshold, '<' );
 
 			if ( ! $force && $scripts->query( $handle, 'registered' ) ) {
 				continue;
 			}
 
 			// Deregister first when forcing replacement of an existing registration.
+			// `remove()` drops everything Core set up alongside the src — notably
+			// `$args` (Core registers package scripts with `1`, i.e. in the footer)
+			// and the registered translations. Both are restored after `add()` so
+			// the replacement is a drop-in for the registration it displaces.
+			$replaced = null;
 			if ( $force && $scripts->query( $handle, 'registered' ) ) {
+				$replaced = $scripts->registered[ $handle ];
 				$scripts->remove( $handle );
 			}
 
@@ -194,9 +265,40 @@ class WP_Build_Polyfills {
 				$handle,
 				plugins_url( 'build/scripts/' . $data['path'] . '/index.js', $base_file ),
 				$asset['dependencies'],
-				$asset['version']
+				$asset['version'],
+				// Match Core's `wp_default_packages_scripts()`, which registers every
+				// `wp-*` package script in the footer.
+				null !== $replaced ? $replaced->args : 1
 			);
+
+			if ( null !== $replaced && null !== $replaced->textdomain ) {
+				$scripts->set_translations( $handle, $replaced->textdomain, $replaced->translations_path );
+			} elseif ( in_array( 'wp-i18n', $asset['dependencies'], true ) ) {
+				// Same rule Core applies when registering its own package scripts.
+				// Translations resolve via `{locale}-{handle}.json`, which is keyed
+				// by handle, so the polyfill's own src path does not break the lookup.
+				$scripts->set_translations( $handle );
+			}
 		}
+	}
+
+	/**
+	 * Check whether the active Gutenberg plugin can satisfy a forced script.
+	 *
+	 * @param string|null $minimum_version   Minimum Gutenberg version required for the script, or null when any active Gutenberg is sufficient.
+	 * @param string|null $gutenberg_version Active Gutenberg version, or null when Gutenberg is inactive.
+	 * @return bool True when Gutenberg is active and new enough.
+	 */
+	private static function is_gutenberg_version_safe( $minimum_version, $gutenberg_version ) {
+		if ( null === $gutenberg_version ) {
+			return false;
+		}
+
+		if ( null === $minimum_version ) {
+			return true;
+		}
+
+		return version_compare( $gutenberg_version, $minimum_version, '>=' );
 	}
 
 	/**
@@ -213,7 +315,7 @@ class WP_Build_Polyfills {
 			return;
 		}
 
-		$modules = array( 'boot', 'route', 'a11y' );
+		$modules = array( 'boot', 'route', 'a11y', 'widget-primitives' );
 
 		foreach ( $modules as $name ) {
 			$module_id = '@wordpress/' . $name;

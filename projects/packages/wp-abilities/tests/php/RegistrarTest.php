@@ -17,7 +17,6 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
-// phpcs:disable Squiz.Commenting.ClassComment.Missing
 
 /**
  * Unit tests for the abstract Registrar base class.
@@ -348,8 +347,6 @@ class RegistrarTest extends TestCase {
 		TestExplicitCategoryRegistrar::register_category();
 	}
 }
-
-// phpcs:disable Squiz.Commenting.FunctionComment.Missing -- Fixture subclasses below implement the Registrar contract; their method bodies are the documentation.
 
 class TestFixtureRegistrar extends Registrar {
 	public static function get_category_slug(): string {

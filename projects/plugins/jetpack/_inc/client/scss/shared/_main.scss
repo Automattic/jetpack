@@ -42,26 +42,6 @@
 	}
 }
 
-// Hello Dolly positioning overwrite
-.jetpack-pagestyles #dolly {
-	float: none;
-	position: relative;
-	right: 0;
-	left: 0;
-	top: 0;
-	padding: rem.convert(10px);
-	text-align: right;
-	background: colors.$white;
-	font-size: rem.convert(12px);
-	font-style: italic;
-	color: colors.$gray;
-	border-bottom: none;
-
-	@include breakpoints.breakpoint( "<660px" ) {
-		display: none;
-	}
-}
-
 .dops-notice__text a {
 	text-decoration: underline;
 }

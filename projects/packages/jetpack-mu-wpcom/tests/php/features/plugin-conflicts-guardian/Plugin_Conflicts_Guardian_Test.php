@@ -11,12 +11,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/pcg-log.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-load-tester.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-rollout.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/force-override.php';
 // probe-endpoint.php registers a shutdown handler and reads $_GET on
 // require; the entry function `pcg_maybe_handle_probe()` is the one
 // that does that work, and it bails immediately when `$_GET['pcg_probe']`
 // isn't set. Loading the file in tests is safe and gives us access to
 // helpers like `pcg_probe_already_emitted()` for unit testing.
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/probe-endpoint.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/activation-guard.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/update-guard.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/plugin-conflicts-guardian/class-pcg-snapshot.php';
@@ -238,6 +240,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 			array(
 				'plugins' => array( '/abs/foo/foo.php' ),
 				'mode'    => 'activation',
+				'confirm' => false,
 			),
 			$default
 		);
@@ -247,9 +250,278 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 			array(
 				'plugins' => array( '/abs/foo/foo.php', '/abs/bar/bar.php' ),
 				'mode'    => 'update',
+				'confirm' => false,
 			),
 			$update
 		);
+	}
+
+	/**
+	 * `build_probe_payload` carries the `confirm` flag so the early
+	 * bootstrap and probe endpoint can branch on confirmation-mode.
+	 */
+	public function test_build_probe_payload_carries_confirm_flag() {
+		$payload = PCG_Load_Tester::build_probe_payload( array( '/abs/foo/foo.php' ), PCG_Load_Tester::MODE_ACTIVATION, true );
+		$this->assertTrue( $payload['confirm'] );
+	}
+
+	/**
+	 * `prepare_probe` adds `pcg_confirm=1` to the loopback URL when
+	 * `$is_confirm` is true, so the early-bootstrap hook and the probe
+	 * endpoint can both detect the confirmation path.
+	 */
+	public function test_prepare_probe_includes_pcg_confirm_query_when_confirming() {
+		$tester = new PCG_Load_Tester();
+		$ref    = new \ReflectionMethod( PCG_Load_Tester::class, 'prepare_probe' );
+		$probe  = $ref->invoke( $tester, array( '/abs/foo/foo.php' ), 'https://example.test/', false, PCG_Load_Tester::MODE_ACTIVATION, true );
+
+		$this->assertStringContainsString( 'pcg_confirm=1', (string) $probe['request']['url'] );
+		$this->assertStringContainsString( 'pcg_probe=1', (string) $probe['request']['url'] );
+
+		// Non-confirm probes must NOT carry the flag — that would route
+		// the request through the early-bootstrap injection path
+		// inadvertently.
+		$normal = $ref->invoke( $tester, array( '/abs/foo/foo.php' ), 'https://example.test/', false );
+		$this->assertStringNotContainsString( 'pcg_confirm', (string) $normal['request']['url'] );
+	}
+
+	/**
+	 * `downgrade_after_confirmation` rewrites the captured-fatal verdict
+	 * as `ok-inconclusive` while preserving the original `plugin`,
+	 * `message`, and `file` so logstash can still attribute the
+	 * downgrade to a specific candidate.
+	 */
+	public function test_downgrade_after_confirmation_preserves_attribution() {
+		$tester  = new PCG_Load_Tester();
+		$ref     = new \ReflectionMethod( PCG_Load_Tester::class, 'downgrade_after_confirmation' );
+		$verdict = array(
+			'status'  => 'fatal',
+			'plugin'  => '/abs/foo/foo.php',
+			'message' => 'Class "Foo\\Bar" not found',
+			'file'    => '/abs/foo/inc/missing.php',
+		);
+		$out     = $ref->invoke( $tester, $verdict, array( 'status' => 'ok' ) );
+
+		$this->assertSame( 'ok-inconclusive', $out['status'] );
+		$this->assertSame( '/abs/foo/foo.php', $out['plugin'] );
+		$this->assertSame( 'Class "Foo\\Bar" not found', $out['message'] );
+		$this->assertSame( '/abs/foo/inc/missing.php', $out['file'] );
+		$this->assertNotEmpty( $out['reason'] );
+	}
+
+	/**
+	 * Downgrade omits the `plugin` key when the original verdict didn't
+	 * carry one (e.g. shutdown-classify fatal without explicit
+	 * attribution).
+	 */
+	public function test_downgrade_after_confirmation_omits_plugin_when_unset() {
+		$tester  = new PCG_Load_Tester();
+		$ref     = new \ReflectionMethod( PCG_Load_Tester::class, 'downgrade_after_confirmation' );
+		$verdict = array(
+			'status'  => 'fatal',
+			'message' => 'engine death',
+			'file'    => '/abs/foo/foo.php',
+		);
+		$out     = $ref->invoke( $tester, $verdict, array( 'status' => 'ok' ) );
+
+		$this->assertSame( 'ok-inconclusive', $out['status'] );
+		$this->assertArrayNotHasKey( 'plugin', $out );
+	}
+
+	/**
+	 * When the `pre_option_active_plugins` filter passes `false` (meaning
+	 * "let WP read the option"), the injector must read the alloptions
+	 * cache directly instead of calling `get_option` — otherwise it
+	 * would re-enter the same filter and recurse forever.
+	 */
+	public function test_confirm_inject_active_plugins_merges_without_recursion() {
+		// Seed the alloptions cache so wp_load_alloptions() returns the
+		// existing active-plugin list.
+		update_option( 'active_plugins', array( 'akismet/akismet.php' ) );
+		wp_cache_delete( 'alloptions', 'options' );
+
+		$plugin_mains = array( WP_PLUGIN_DIR . '/woocommerce/woocommerce.php' );
+
+		// Counter to detect recursion: every time the filter fires, bump.
+		// If the injector calls get_option, the filter re-fires.
+		$fire_count = 0;
+		$counter    = static function ( $value ) use ( &$fire_count ) {
+			++$fire_count;
+			return $value;
+		};
+		add_filter( 'pre_option_active_plugins', $counter, 1 );
+
+		$merged = pcg_confirm_inject_active_plugins( false, $plugin_mains );
+
+		remove_filter( 'pre_option_active_plugins', $counter, 1 );
+		delete_option( 'active_plugins' );
+
+		$this->assertContains( 'akismet/akismet.php', $merged );
+		$this->assertContains( 'woocommerce/woocommerce.php', $merged );
+		// Injector itself must not have re-fired the filter while
+		// resolving existing active plugins.
+		$this->assertSame( 0, $fire_count, 'pcg_confirm_inject_active_plugins must not call get_option on active_plugins' );
+	}
+
+	/**
+	 * When the filter already has a list (someone hooked at higher
+	 * priority), the injector merges onto that list rather than the DB
+	 * value, so other filters compose cleanly.
+	 */
+	public function test_confirm_inject_active_plugins_respects_filtered_value() {
+		$merged = pcg_confirm_inject_active_plugins(
+			array( 'a/a.php', 'b/b.php' ),
+			array( WP_PLUGIN_DIR . '/c/c.php' )
+		);
+		$this->assertSame( array( 'a/a.php', 'b/b.php', 'c/c.php' ), $merged );
+	}
+
+	/**
+	 * Duplicate basenames (a candidate already in active_plugins) appear
+	 * only once in the merged list.
+	 */
+	public function test_confirm_inject_active_plugins_dedupes_candidates() {
+		$merged = pcg_confirm_inject_active_plugins(
+			array( 'foo/foo.php' ),
+			array( WP_PLUGIN_DIR . '/foo/foo.php' )
+		);
+		$this->assertSame( array( 'foo/foo.php' ), $merged );
+	}
+
+	/**
+	 * Scenarios for `pcg_confirm_validate_request` bail paths.
+	 *
+	 * @return array<string,array{0:array<string,string>}>
+	 */
+	public static function provide_confirm_validate_bail_requests(): array {
+		$valid_token = str_repeat( 'a', 32 );
+		return array(
+			'empty request'         => array( array() ),
+			'pcg_probe missing'     => array(
+				array(
+					'pcg_confirm' => '1',
+					'token'       => $valid_token,
+				),
+			),
+			'pcg_confirm missing'   => array(
+				array(
+					'pcg_probe' => '1',
+					'token'     => $valid_token,
+				),
+			),
+			'pcg_probe wrong value' => array(
+				array(
+					'pcg_probe'   => '0',
+					'pcg_confirm' => '1',
+					'token'       => $valid_token,
+				),
+			),
+			'token wrong length'    => array(
+				array(
+					'pcg_probe'   => '1',
+					'pcg_confirm' => '1',
+					'token'       => 'short',
+				),
+			),
+			'token disallowed char' => array(
+				array(
+					'pcg_probe'   => '1',
+					'pcg_confirm' => '1',
+					'token'       => str_repeat( 'a', 31 ) . '!',
+				),
+			),
+			'token missing'         => array(
+				array(
+					'pcg_probe'   => '1',
+					'pcg_confirm' => '1',
+				),
+			),
+		);
+	}
+
+	/**
+	 * `pcg_confirm_validate_request` returns an empty array — and therefore
+	 * `pcg_confirm_maybe_register_hook` would not register the filter — for
+	 * malformed requests: missing flags, wrong values, or tokens that don't
+	 * match the `wp_generate_password( 32, false )` shape.
+	 *
+	 * @param array $request Faux $_GET payload.
+	 * @dataProvider provide_confirm_validate_bail_requests
+	 */
+	#[DataProvider( 'provide_confirm_validate_bail_requests' )]
+	public function test_confirm_validate_request_bails_on_malformed_input( array $request ) {
+		$this->assertSame( array(), pcg_confirm_validate_request( $request ) );
+	}
+
+	/**
+	 * Even with valid flags and a well-formed token, missing transient
+	 * (token never set, or expired) keeps the validator on the bail path.
+	 */
+	public function test_confirm_validate_request_bails_when_transient_missing() {
+		$this->assertSame(
+			array(),
+			pcg_confirm_validate_request(
+				array(
+					'pcg_probe'   => '1',
+					'pcg_confirm' => '1',
+					'token'       => str_repeat( 'a', 32 ),
+				)
+			)
+		);
+	}
+
+	/**
+	 * A transient written by a pre-confirmation-feature deploy (no
+	 * `confirm` key, or `confirm => false`) must bail — strict `true ===`
+	 * keeps mixed-version deploys on the safe side, so the probe endpoint
+	 * still manually requires the candidate as before.
+	 */
+	public function test_confirm_validate_request_bails_when_payload_confirm_flag_unset() {
+		$token = str_repeat( 'b', 32 );
+		set_transient(
+			PCG_Load_Tester::transient_key( $token ),
+			array(
+				'plugins' => array( '/abs/foo/foo.php' ),
+				'mode'    => 'activation',
+			),
+			60
+		);
+		$out = pcg_confirm_validate_request(
+			array(
+				'pcg_probe'   => '1',
+				'pcg_confirm' => '1',
+				'token'       => $token,
+			)
+		);
+		delete_transient( PCG_Load_Tester::transient_key( $token ) );
+		$this->assertSame( array(), $out );
+	}
+
+	/**
+	 * Happy path: flags + format + matching transient with `confirm =>
+	 * true` returns the candidate list ready for the
+	 * `pre_option_active_plugins` injection.
+	 */
+	public function test_confirm_validate_request_returns_plugins_on_valid_payload() {
+		$token = str_repeat( 'c', 32 );
+		set_transient(
+			PCG_Load_Tester::transient_key( $token ),
+			PCG_Load_Tester::build_probe_payload(
+				array( '/abs/foo/foo.php', '/abs/bar/bar.php' ),
+				PCG_Load_Tester::MODE_ACTIVATION,
+				true
+			),
+			60
+		);
+		$out = pcg_confirm_validate_request(
+			array(
+				'pcg_probe'   => '1',
+				'pcg_confirm' => '1',
+				'token'       => $token,
+			)
+		);
+		delete_transient( PCG_Load_Tester::transient_key( $token ) );
+		$this->assertSame( array( '/abs/foo/foo.php', '/abs/bar/bar.php' ), $out );
 	}
 
 	/**
@@ -729,7 +1001,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * The filter returns the source unchanged when the guard is disabled.
 	 */
 	public function test_update_guard_check_passthrough_when_disabled() {
-		add_filter( 'pcg_guard_activation', '__return_false' );
+		add_filter( 'pcg_guard_updates', '__return_false' );
 
 		$dir = $this->make_tmp_dir();
 		file_put_contents( $dir . '/bad.php', "<?php function ( {\n" );
@@ -751,7 +1023,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * Non-plugin extensions (themes, core) are not inspected.
 	 */
 	public function test_update_guard_check_ignores_non_plugin_types() {
-		add_filter( 'pcg_guard_activation', '__return_true' );
+		add_filter( 'pcg_guard_updates', '__return_true' );
 		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();
@@ -774,7 +1046,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * Actions other than install/update are not inspected.
 	 */
 	public function test_update_guard_check_ignores_unrelated_actions() {
-		add_filter( 'pcg_guard_activation', '__return_true' );
+		add_filter( 'pcg_guard_updates', '__return_true' );
 		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();
@@ -797,7 +1069,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * Clean plugin packages pass through untouched.
 	 */
 	public function test_update_guard_check_allows_clean_plugin_package() {
-		add_filter( 'pcg_guard_activation', '__return_true' );
+		add_filter( 'pcg_guard_updates', '__return_true' );
 		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();
@@ -820,7 +1092,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	 * Packages with parse errors are rejected with a descriptive WP_Error.
 	 */
 	public function test_update_guard_check_blocks_plugin_with_parse_error() {
-		add_filter( 'pcg_guard_activation', '__return_true' );
+		add_filter( 'pcg_guard_updates', '__return_true' );
 		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 
 		$dir = $this->make_tmp_dir();
