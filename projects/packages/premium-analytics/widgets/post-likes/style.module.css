@@ -1,6 +1,4 @@
-/* Fill the tile exactly. The roster shows only the rows that fit and keeps its
- * "N more" footer pinned below them, so growing past the tile — and scrolling
- * that footer out of the host's content viewport — is what we're avoiding. */
+/* Fill the tile so the roster can fit its rows to the available height. */
 .root {
 	display: flex;
 	flex-direction: column;
@@ -8,10 +6,7 @@
 	min-height: 0;
 }
 
-/* Grow the state container to the tile: WidgetState centers error/empty via a
- * percentage block-size, which needs a definite height to resolve against.
- * min-height: 0 lets it shrink to the tile instead of being sized by the roster
- * it contains, which is what gives the roster a height to fit itself to. */
+/* Allow WidgetState to fill and shrink within the tile. */
 .root > * {
 	flex: 1 1 auto;
 	min-height: 0;

@@ -65,9 +65,7 @@ type SubscribersRosterProps = {
  * already-fetched rows via props so Storybook can exercise the populated state
  * without an analytics backend.
  */
-// No wrapper element: an auto-height div between the tile and the roster would
-// leave the roster's percentage height with nothing to resolve against, and it
-// would fit itself to its own content instead of to the tile.
+// Avoid a wrapper so the roster's percentage height resolves against the tile.
 export const SubscribersRoster = ( { items = [], moreCount = 0 }: SubscribersRosterProps ) => (
 	<SubscriberList items={ items } moreCount={ moreCount } />
 );

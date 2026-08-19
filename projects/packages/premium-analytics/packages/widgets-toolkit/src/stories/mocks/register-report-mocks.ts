@@ -796,9 +796,7 @@ function buildFollowersResponse( max: number ) {
 		{ name: 'Priya Sharma', offset: 6 * DAY },
 		{ name: 'Tomás Silva', offset: 8 * DAY },
 	];
-	// Honour the requested page size. A fixture pinned to a fixed row count
-	// renders the same roster whatever the widget asks for, which hides both the
-	// requested-row-count change and the tile fitting that trims it.
+	// Match the requested page size.
 	const subscribers = people.slice( 0, max > 0 ? max : undefined ).map( ( person, index ) => ( {
 		ID: 1000 + index,
 		subscription_id: 1000 + index,

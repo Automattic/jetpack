@@ -45,15 +45,11 @@ export type SubscriberListProps = {
 	 */
 	emptyStateText?: string;
 	/**
-	 * Count of rows the caller did not pass at all — those beyond what it
-	 * fetched. Rows that are passed but do not fit the tile are added to this
-	 * for the "N more" footer, which renders when the total is greater than zero.
+	 * Number of additional rows not included in `items`.
 	 */
 	moreCount?: number;
 	/**
-	 * Show only the rows that fit the tile instead of overflowing it. On by
-	 * default: a roster sits in a fixed-height tile, and a half-clipped row with
-	 * the "N more" footer pushed out of sight reads as broken.
+	 * Whether to show only the rows that fit the available height.
 	 */
 	fitRows?: boolean;
 	className?: string;
@@ -85,8 +81,7 @@ export function SubscriberList( {
 		return <ChartEmptyState text={ emptyStateText } />;
 	}
 
-	// Rows that were fetched but do not fit are still "more" to the reader, so
-	// they join the rows the caller never fetched in the footer's count.
+	// Include fetched rows hidden by the fitting logic.
 	const hiddenCount = moreCount + ( items.length - fittedCount );
 
 	return (
@@ -106,9 +101,7 @@ export function SubscriberList( {
 							gap="md"
 							className={ styles.row }
 							data-roster-row
-							// Rows past the fit stay mounted so the container keeps its
-							// natural height for the next measurement; unmounting them would
-							// shrink it and let every row "fit" again on the following pass.
+							// Keep hidden rows mounted so they remain available for measurement.
 							aria-hidden={ index >= fittedCount ? true : undefined }
 							style={ index >= fittedCount ? { visibility: 'hidden' } : undefined }
 						>

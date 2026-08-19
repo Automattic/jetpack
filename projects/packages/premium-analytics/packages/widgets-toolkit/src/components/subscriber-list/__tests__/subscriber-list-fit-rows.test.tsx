@@ -19,13 +19,7 @@ const makeItems = ( count: number ): SubscriberListItem[] =>
 	} ) );
 
 /**
- * Give the list container a height and lay every roster row out in a uniform
- * stack beneath it. JSDOM performs no layout, so the geometry the component
- * measures has to be supplied here.
- *
- * The height is mutable and `resizeTo` re-fires the observed callbacks, because
- * a fixed height would let the whole ResizeObserver path be deleted with the
- * suite still green.
+ * Mocks the element geometry that JSDOM does not calculate.
  *
  * @param listHeight - Starting height of the roster's list container.
  * @return Handle for resizing the container and restoring the globals.
@@ -45,8 +39,7 @@ const mockLayout = ( listHeight: number ) => {
 			return { top: bottom - ROW_HEIGHT, bottom, height: ROW_HEIGHT } as DOMRect;
 		}
 
-		// The list container is the only element holding roster rows directly.
-		// eslint-disable-next-line testing-library/no-node-access -- Same: identifying the measured container needs a raw DOM query.
+		// eslint-disable-next-line testing-library/no-node-access -- Identifying the measured container requires a DOM query.
 		if ( this.querySelector?.( ':scope > [data-roster-row]' ) ) {
 			return { top: 0, bottom: box.height, height: box.height } as DOMRect;
 		}
@@ -88,8 +81,7 @@ const mockLayout = ( listHeight: number ) => {
 	};
 };
 
-// Rows that do not fit are marked `aria-hidden`, so ignoring that subtree leaves
-// exactly the rows a reader can see.
+// Ignore rows hidden by the fitting logic.
 const visibleNames = () =>
 	screen
 		.getAllByText( /^Person \d+$/, { ignore: '[aria-hidden="true"], [aria-hidden="true"] *' } )
@@ -161,8 +153,7 @@ describe( 'SubscriberList fitRows', () => {
 	} );
 
 	it( 'falls back to showing every row when the rows cannot be measured', () => {
-		// No layout mock: JSDOM reports every rect as zero-sized, so no row's
-		// bottom can be trusted. Failing open keeps the data reachable.
+		// JSDOM reports zero-sized rects without the layout mock.
 		render( <SubscriberList items={ makeItems( 10 ) } /> );
 
 		expect( visibleNames() ).toHaveLength( 10 );
