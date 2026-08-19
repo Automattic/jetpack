@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -17,6 +18,8 @@ use Automattic\Jetpack\Status\Host;
 class AI_Answers {
 	const BEHAVIOR_META_KEY   = '_guideline_block_jetpack_search-ai-summary';
 	const BEHAVIOR_OPTION_KEY = 'jetpack_search_ai_behavior_instructions';
+	const AI_MODULE           = 'ai';
+	const AI_MASTER_OPTION    = 'jetpack_ai_enabled';
 	const ENABLED_OPTION      = 'jetpack_search_ai_answers_enabled';
 
 	/**
@@ -89,25 +92,8 @@ class AI_Answers {
 	}
 
 	/**
-	 * Whether AI Answers is enabled for the current site.
-	 */
-	public static function is_enabled() {
-		return (bool) apply_filters( 'jetpack_search_ai_answers_enabled', self::is_saved_on() );
-	}
-
-	/**
-	 * The saved AI Answers choice — the raw option, ignoring any gates on the filter.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return bool
-	 */
-	public static function is_saved_on() {
-		return (bool) get_option( self::ENABLED_OPTION, false );
-	}
-
-	/**
-	 * Whether the site-wide AI gates currently allow AI Answers.
+	 * Whether the site-wide AI gates currently allow AI Answers — the reporting
+	 * predicate.
 	 *
 	 * The Jetpack plugin enforces the AI master switch and the host's AI opt-out
 	 * through the `jetpack_search_ai_answers_enabled` filter; probing the chain
@@ -125,7 +111,10 @@ class AI_Answers {
 			return true;
 		}
 
-		return (bool) apply_filters( 'jetpack_search_ai_answers_enabled', true );
+		// ANDed with the computed predicate so reporting can never be more
+		// permissive than enforcement — e.g. a Simple request where the plugin's
+		// filter never registered, or plugin/package version skew.
+		return (bool) apply_filters( 'jetpack_search_ai_answers_enabled', true ) && self::should_enforce_master();
 	}
 
 	/**
@@ -141,6 +130,65 @@ class AI_Answers {
 		}
 
 		return function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment();
+	}
+
+	/**
+	 * Whether this package should enforce the master switch — the rollout-scoped
+	 * enforcement predicate behind the block gate.
+	 *
+	 * Mirrors `Jetpack_AI_Settings::is_master_enabled()` in the Jetpack plugin —
+	 * the source of truth, unreferenceable from standalone installs. Computed
+	 * rather than filtered so no plugin can flip a gate that must hold.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool True when Jetpack AI is on, or when the site has no master switch.
+	 */
+	public static function should_enforce_master() {
+		if ( ! self::is_master_rollout_active() ) {
+			return true;
+		}
+
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return (bool) get_option( self::AI_MASTER_OPTION, true );
+		}
+
+		$modules = new Modules();
+
+		// Without the Jetpack plugin — a standalone Jetpack Search install — the
+		// `ai` module is not registered, so is_active() would report false for a
+		// master switch that was never installed. Don't gate those sites.
+		if ( ! in_array( self::AI_MODULE, $modules->get_available(), true ) ) {
+			return true;
+		}
+
+		// Availability is already proven above, so skip is_active()'s repeat intersect.
+		return $modules->is_active( self::AI_MODULE, false );
+	}
+
+	/**
+	 * The stored AI Answers choice, ignoring every gate.
+	 *
+	 * The dashboard shows this while the master switch is off, so a saved choice
+	 * isn't misreported back to the user as off.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_saved_on() {
+		return (bool) get_option( self::ENABLED_OPTION, false );
+	}
+
+	/**
+	 * Whether AI Answers is enabled for the current site.
+	 */
+	public static function is_enabled() {
+		$enabled = (bool) apply_filters( 'jetpack_search_ai_answers_enabled', self::is_saved_on() );
+
+		// The master gate is applied after the filter chain so it cannot be
+		// filtered back on, matching `Jetpack_AI_Settings::is_ai_enabled()`.
+		return $enabled && self::should_enforce_master();
 	}
 
 	/**

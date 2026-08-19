@@ -93,6 +93,7 @@ class Ai_Answer_Render_Test extends TestCase {
 		remove_filter( 'wp_supports_ai', '__return_false' );
 		remove_filter( 'wp_supports_ai', '__return_true' );
 		$this->remove_ai_master_filters();
+		unset( $GLOBALS['jetpack_search_test_internal_env'] );
 		parent::tearDown();
 	}
 
@@ -225,6 +226,18 @@ class Ai_Answer_Render_Test extends TestCase {
 		$this->assertStringNotContainsString( 'data-wp-interactive', $markup );
 	}
 
+	public function test_renders_nothing_when_ai_master_is_off() {
+		// Paid plan, but the site-wide Jetpack AI master switch is off: the
+		// block must emit nothing, same as a failed plan check — the master
+		// is a site-wide off switch, not a preference the block may ignore.
+		$this->turn_ai_master_off();
+
+		$markup = $this->render();
+
+		$this->assertStringNotContainsString( 'jp-search-answers-panel', $markup );
+		$this->assertStringNotContainsString( 'data-wp-interactive', $markup );
+	}
+
 	public function test_renders_with_the_master_on_independent_of_site_option() {
 		// The contract's Search row: with the master on, the site option only
 		// governs the overlay — the embedded block renders either way.
@@ -259,6 +272,39 @@ class Ai_Answer_Render_Test extends TestCase {
 
 		$this->assertStringNotContainsString( 'jp-search-answers-panel', $markup );
 		$this->assertStringNotContainsString( 'data-wp-interactive', $markup );
+	}
+
+	public function test_renders_when_ai_master_is_on() {
+		$this->turn_ai_master_on();
+
+		$markup = $this->render();
+
+		$this->assertStringContainsString( 'jp-search-answers-panel', $markup );
+		$this->assertStringContainsString( 'data-wp-interactive="jetpack-search"', $markup );
+	}
+
+	public function test_renders_when_master_is_off_outside_internal_testing_environments() {
+		// The master switch UI ships internal-only for now, so on a public site
+		// the front-end gate must stay inert: even with the master off, the
+		// block keeps rendering. If the rollout scoping ever moves out of
+		// `should_enforce_master()`, this pin has to change deliberately with it.
+		$this->turn_ai_master_off();
+		$GLOBALS['jetpack_search_test_internal_env'] = false;
+
+		$markup = $this->render();
+
+		$this->assertStringContainsString( 'jp-search-answers-panel', $markup );
+		$this->assertStringContainsString( 'data-wp-interactive="jetpack-search"', $markup );
+	}
+
+	public function test_renders_when_ai_module_is_not_registered() {
+		// Standalone Jetpack Search: no Jetpack plugin, so the `ai` module —
+		// and with it the master switch — was never installed. Those sites
+		// must keep rendering the block.
+		$markup = $this->render();
+
+		$this->assertStringContainsString( 'jp-search-answers-panel', $markup );
+		$this->assertStringContainsString( 'data-wp-interactive="jetpack-search"', $markup );
 	}
 
 	public function test_renders_when_the_host_allows_ai() {
