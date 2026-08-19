@@ -54,7 +54,7 @@ function restoreLabel( count: number ): string {
 /**
  * Right-pane detail card for a selected backup activity item.
  *
- * Shows the status header with Download / Restore actions linking to the
+ * Shows the item's title header with Download / Restore actions linking to the
  * matching sibling routes, the backup's summary line, a timestamp by-line,
  * and the file browser. File selection state lives here so the header
  * actions can switch between "Download backup" and "Download N selected
@@ -92,8 +92,17 @@ export default function BackupDetail( { item }: Props ) {
 						align="center"
 					>
 						<Icon icon={ cloud } />
+						{ /*
+						 * The row's own title, the same string the list shows
+						 * for it — the two panes sit side by side, so a fixed
+						 * header contradicted the selected row (list: "Initial
+						 * backup complete", detail: "Backup and scan
+						 * complete"). It also claimed a scan that may not have
+						 * run: scanning is a plan capability, and no per-backup
+						 * scan signal reaches this component.
+						 */ }
 						<Text variant="heading-md" render={ <h3 /> }>
-							{ __( 'Backup and scan complete', 'jetpack-backup-pkg' ) }
+							{ item.title }
 						</Text>
 					</Stack>
 					<Stack

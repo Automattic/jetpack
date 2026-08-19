@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup dashboard: show each restore point's own status, draw the correct file and folder icons, and indent the restore checklist helper text correctly in RTL.
