@@ -18,6 +18,21 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/verbum-comments/assets/cl
  */
 #[CoversClass( Verbum_Block_Utils::class )]
 class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
+
+	/**
+	 * Runs the routine before each test is executed.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		// `wp_render_layout_support_flag()` (since WP 7.2) calls `wp_get_global_settings()`,
+		// which winds up in our `wpcom_block_global_styles_frontend()` which tries to call wpcom-only
+		// functions (wpcom_site_has_feature et al.) that aren't defined in the test env,
+		// Detach the incidental filter so that doesn't break.
+		// `\WorDBless\BaseTestCase::tear_down()` will restore the hook for future tests.
+		remove_filter( 'wp_theme_json_data_user', 'wpcom_block_global_styles_frontend' );
+	}
+
 	/**
 	 * Ensure string comments are not modified when 'render_verbum_blocks' is applied
 	 */
