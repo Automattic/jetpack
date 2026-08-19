@@ -56,10 +56,10 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		parent::tear_down();
 	}
 
-	private function set_purchase( int $days_until_expiry, bool $auto_renew = false ): void {
+	private function set_purchase( int $days_until_expiry, bool $auto_renew = false, string $slug = 'business-bundle' ): void {
 		$GLOBALS['wpcom_get_site_purchases_test_value'] = array(
 			(object) array(
-				'product_slug'           => 'business-bundle',
+				'product_slug'           => $slug,
 				'product_type'           => 'bundle',
 				'expiry_date'            => gmdate( 'c', time() + ( $days_until_expiry * DAY_IN_SECONDS ) ),
 				'user_allows_auto_renew' => $auto_renew,
@@ -143,6 +143,47 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		// Reverted: already on Free, so the ask is to restore — and it can be dismissed.
 		$this->assertStringContainsString( 'Restore site', $reverted );
 		$this->assertStringContainsString( 'wpcom-expiry-banner__dismiss', $reverted );
+	}
+
+	/**
+	 * The 7-day mark escalates two things at once: wp-admin widens from the
+	 * Dashboard to every admin screen, and monthly plans enter the flow at all.
+	 * Before it, an annual plan gets a Dashboard-only warning and a monthly plan
+	 * gets nothing anywhere.
+	 */
+	public function test_surface_and_severity_escalate_together_at_seven_days(): void {
+		$cases = array(
+			// [ days, slug, expected on Dashboard, expected on a non-Dashboard screen ]
+			array( 45, 'business-bundle', 'notice-warning', '' ),
+			array( 8, 'business-bundle', 'notice-warning', '' ),
+			array( 7, 'business-bundle', 'notice-error', 'notice-error' ),
+			array( 5, 'business-bundle', 'notice-error', 'notice-error' ),
+			// Monthly sees nothing until it too reaches the final week.
+			array( 45, 'business-bundle-monthly', '', '' ),
+			array( 8, 'business-bundle-monthly', '', '' ),
+			array( 5, 'business-bundle-monthly', 'notice-error', 'notice-error' ),
+		);
+
+		foreach ( $cases as list( $days, $slug, $on_dashboard, $elsewhere ) ) {
+			$this->set_purchase( $days, false, $slug );
+			$where = "{$slug} at {$days} days";
+
+			set_current_screen( 'dashboard' );
+			$out = $this->render();
+			if ( '' === $on_dashboard ) {
+				$this->assertSame( '', $out, "expected no Dashboard notice for {$where}" );
+			} else {
+				$this->assertStringContainsString( $on_dashboard, $out, "wrong Dashboard notice for {$where}" );
+			}
+
+			set_current_screen( 'edit-post' );
+			$out = $this->render();
+			if ( '' === $elsewhere ) {
+				$this->assertSame( '', $out, "expected no notice outside the Dashboard for {$where}" );
+			} else {
+				$this->assertStringContainsString( $elsewhere, $out, "wrong notice outside the Dashboard for {$where}" );
+			}
+		}
 	}
 
 	public function test_no_render_for_active_state(): void {
