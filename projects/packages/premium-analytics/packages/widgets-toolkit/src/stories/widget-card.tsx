@@ -13,7 +13,9 @@ export interface WidgetCardProps {
 
 /**
  * Widget card wrapper for skeleton stories, simulating a dashboard widget
- * container so a shape is shown within typical widget dimensions.
+ * container so a shape is shown within typical widget dimensions. The inset
+ * matches the dashboard's `--wp-ui-card-padding` override, so a story's shape
+ * clears the card border by the same distance it does in product.
  *
  * @param props          - Component props.
  * @param props.height   - Card height.
@@ -30,6 +32,8 @@ export function WidgetCard( { height, width = '360px', children }: WidgetCardPro
 				border: '1px solid var(--wpds-color-stroke-surface-neutral-weak)',
 				borderRadius: 'var(--wpds-border-radius-md)',
 				background: 'var(--wpds-color-background-surface-neutral)',
+				padding: 'var(--wpds-dimension-padding-lg)',
+				boxSizing: 'border-box',
 				display: 'flex',
 				flexDirection: 'column',
 				overflow: 'hidden',

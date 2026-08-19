@@ -1,22 +1,19 @@
 @use "sass:list";
 
 /* Geometry from the design prototype's two leaderboard skeletons, which read
- * lighter than the loaded rows rather than tracing their 36px height. */
-$row-gap: 15px;
+ * lighter than the loaded rows rather than tracing their 36px height. Every
+ * length is snapped to the nearest WPDS dimension token: the prototype's values
+ * sat 1–2px off the scale, close enough that the tokens preserve the intended
+ * density (the list row's pitch moves 25px → 24px, the bar row's 43px → 44px).
+ * Only the proportional widths stay literal — no token expresses them. */
 
 /* `bars`: a fixed-width label line above the row's proportional bar. */
 $bar-label-inline-size: 40%;
-$bar-label-block-size: 9px;
-$bar-block-size: 12px;
-$bar-row-gap: 7px;
 $bar-widths: 92%, 78%, 64%, 50%, 38%;
 
 /* `list`: the label on one line with the value trailing it. These widths stand
  * in for label text, so they vary without trending down — a label's length says
  * nothing about its rank. */
-$list-column-gap: 10px;
-$list-line-block-size: 10px;
-$list-value-inline-size: 34px;
 $list-label-widths: 85%, 70%, 78%, 58%, 66%, 48%;
 
 /* `safe` keeps the centring from pushing the first rows out of the top of the
@@ -28,7 +25,7 @@ $list-label-widths: 85%, 70%, 78%, 58%, 66%, 48%;
 	flex: 1 1 auto;
 	flex-direction: column;
 	justify-content: safe center;
-	gap: $row-gap;
+	gap: var(--wpds-dimension-gap-lg);
 	min-block-size: 0;
 	overflow: hidden;
 }
@@ -40,17 +37,17 @@ $list-label-widths: 85%, 70%, 78%, 58%, 66%, 48%;
 
 .bars .row {
 	flex-direction: column;
-	row-gap: $bar-row-gap;
+	row-gap: var(--wpds-dimension-gap-sm);
 }
 
 .list .row {
 	align-items: center;
-	column-gap: $list-column-gap;
+	column-gap: var(--wpds-dimension-gap-sm);
 }
 
 .barLabel {
 	inline-size: $bar-label-inline-size;
-	block-size: $bar-label-block-size;
+	block-size: var(--wpds-dimension-size-4xs);
 	border-radius: var(--wpds-border-radius-md);
 }
 
@@ -58,7 +55,7 @@ $list-label-widths: 85%, 70%, 78%, 58%, 66%, 48%;
  * browser clamps the radius to half the bar's height, giving the prototype's
  * fully rounded ends. */
 .bar {
-	block-size: $bar-block-size;
+	block-size: var(--wpds-dimension-size-3xs);
 	border-radius: var(--wpds-border-radius-lg);
 }
 
@@ -70,7 +67,7 @@ $list-label-widths: 85%, 70%, 78%, 58%, 66%, 48%;
 
 /* Width comes from the `@for` loop below, which covers every row. */
 .listLabel {
-	block-size: $list-line-block-size;
+	block-size: var(--wpds-dimension-size-4xs);
 	border-radius: var(--wpds-border-radius-md);
 }
 
@@ -81,8 +78,8 @@ $list-label-widths: 85%, 70%, 78%, 58%, 66%, 48%;
 }
 
 .value {
-	inline-size: $list-value-inline-size;
-	block-size: $list-line-block-size;
+	inline-size: var(--wpds-dimension-size-md);
+	block-size: var(--wpds-dimension-size-4xs);
 	margin-inline-start: auto;
 	border-radius: var(--wpds-border-radius-md);
 }
