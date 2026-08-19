@@ -777,7 +777,7 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
  *
  * @return Raw followers response.
  */
-function buildFollowersResponse() {
+function buildFollowersResponse( max: number ) {
 	const now = Date.now();
 	const MINUTE = 60 * 1000;
 	const HOUR = 60 * MINUTE;
@@ -789,8 +789,17 @@ function buildFollowersResponse() {
 		{ name: 'Emma Rossi', offset: 3 * HOUR },
 		{ name: 'Aarav Patel', offset: 5 * HOUR },
 		{ name: 'Sofia Nguyen', offset: DAY },
+		{ name: 'Chloe Dubois', offset: 2 * DAY },
+		{ name: 'Liam Carter', offset: 3 * DAY },
+		{ name: 'Mia Andersson', offset: 4 * DAY },
+		{ name: 'Noah Bergström', offset: 5 * DAY },
+		{ name: 'Priya Sharma', offset: 6 * DAY },
+		{ name: 'Tomás Silva', offset: 8 * DAY },
 	];
-	const subscribers = people.map( ( person, index ) => ( {
+	// Honour the requested page size. A fixture pinned to a fixed row count
+	// renders the same roster whatever the widget asks for, which hides both the
+	// requested-row-count change and the tile fitting that trims it.
+	const subscribers = people.slice( 0, max > 0 ? max : undefined ).map( ( person, index ) => ( {
 		ID: 1000 + index,
 		subscription_id: 1000 + index,
 		display_name: person.name,
@@ -1412,7 +1421,11 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 	}
 
 	if ( requestPath.startsWith( STATS_FOLLOWERS_PATH ) ) {
-		return buildFollowersResponse();
+		const queryIndex = requestPath.indexOf( '?' );
+		const query = new URLSearchParams(
+			queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 )
+		);
+		return buildFollowersResponse( Number( query.get( 'max' ) ) );
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_COUNTS_PATH ) ) {

@@ -1,3 +1,20 @@
+/* Fixed-height column so the roster fills the tile and the "N more"
+ * footer stays pinned below the list instead of being pushed out of it. */
+.root {
+	block-size: 100%;
+	min-block-size: 0;
+}
+
+/* The scroll viewport is the widget host's content area, so a roster
+ * taller than the tile would scroll the footer out of sight. Clip here
+ * instead and let `useFittedRosterRows` hide the rows that do not fit —
+ * the clip only covers the sliver below the last fitting row. */
+.list {
+	flex: 1;
+	min-block-size: 0;
+	overflow: hidden;
+}
+
 .row {
 	padding-block: var(--wpds-dimension-padding-sm);
 }
@@ -45,7 +62,10 @@ a.name:focus {
 	white-space: nowrap;
 }
 
+/* flex-shrink: 0 — the footer is the roster's "there is more" signal, so
+ * it must survive a tile too short for the rows above it. */
 .more {
+	flex-shrink: 0;
 	padding-block: var(--wpds-dimension-padding-sm);
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-size: var(--wpds-typography-font-size-sm);
