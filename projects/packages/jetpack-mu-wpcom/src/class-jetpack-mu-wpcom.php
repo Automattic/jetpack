@@ -9,7 +9,6 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Comments\Comments;
 use Automattic\Jetpack\PremiumAnalytics\Analytics as Premium_Analytics;
 
 define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
@@ -84,7 +83,9 @@ class Jetpack_Mu_Wpcom {
 
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			self::load_comment_experience();
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
+			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_premium_analytics' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
@@ -740,39 +741,6 @@ class Jetpack_Mu_Wpcom {
 
 		// Don't load any comment experience in the Reader, GlotPress, wp-admin, or P2.
 		return ( 1 === $blog_id || TRANSLATE_BLOG_ID === $blog_id || is_admin() || $is_p2 || $is_forums );
-	}
-
-	/**
-	 * Register the comment experience, either from the jetpack-comments package or from the
-	 * Verbum copy bundled here.
-	 *
-	 * Both branches register their hooks from here rather than from a `plugins_loaded`
-	 * callback, so the comment experience keeps the same position in the `plugins_loaded`
-	 * queue it has always had. It clears other plugins' comment form hooks, so that
-	 * position matters.
-	 */
-	public static function load_comment_experience() {
-		/**
-		 * Load the comment experience from the extracted jetpack-comments package instead of
-		 * the Verbum copy in this package.
-		 *
-		 * Temporary switch for the extraction work; it goes away once the package owns the comment experience.
-		 * Read while mu-plugins load, so it has to be set from an earlier-loading mu-plugin.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param bool $use_package Whether to load the comment experience from the package. Default false.
-		 */
-		// The package ships with mu-wpcom-plugin on Simple, not with wpcomsh on Atomic,
-		// so only defer to it when it is actually installed.
-		if ( apply_filters( 'jetpack_comments_new_hotness', false ) && class_exists( Comments::class ) ) {
-			Comments::init();
-			return;
-		}
-
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
-		add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 	}
 
 	/**

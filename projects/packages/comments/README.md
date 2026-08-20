@@ -6,7 +6,7 @@ This package was extracted from the feature WordPress.com ships as **Verbum**, a
 
 ## Usage
 
-Add the package as a dependency in your plugin's `composer.json`:
+Nothing requires this package yet. When something does, it would add it to its `composer.json`:
 
 ```json
 "require": {
@@ -26,17 +26,15 @@ Comments::init();
 
 Call it while plugins load, before `plugins_loaded` fires — that is the hook the comment form and moderation register on.
 
-### Migration switch
+### Not wired up yet
 
-While the comment experience is being extracted, `jetpack-mu-wpcom` still ships its own Verbum copy and loads that one by default. The `jetpack_comments_new_hotness` filter picks which copy runs:
+Nothing loads this package. WordPress.com still runs the copy in `jetpack-mu-wpcom`
+(`src/features/verbum-comments/`), and this is a duplicate of it that ships inert until a
+follow-up hooks it up and deletes the old one.
 
-```php
-add_filter( 'jetpack_comments_new_hotness', '__return_true' );
-```
-
-`Jetpack_Mu_Wpcom::init()` reads it while mu-plugins load, so the filter has to be added from an mu-plugin that loads earlier — a regular plugin or theme is too late. On WordPress.com that means above the `mu-wpcom-plugin.php` require in `0-wpcom-jetpack-loader.php`, or in one of the few mu-plugins that sort ahead of it. Both branches register their hooks at that same moment, so the comment experience keeps its position in the `plugins_loaded` queue either way. Only one copy loads. The filter goes away once the package owns the feature outright.
-
-One rollout prerequisite: the strings here use the `jetpack-comments` text domain, not `jetpack-mu-wpcom`. Every string the app renders is a PHP `__()` call marshalled into `window.VerbumComments`, so the whole i18n surface hangs off that one domain. Two things are missing, and both have to land. WordPress.com ships a `.mo` for `jetpack-mu-wpcom` from its own GlotPress project, and there is no equivalent for `jetpack-comments`. Separately, neither `mu-wpcom-plugin.php` nor `wpcomsh.php` calls `Assets::alias_textdomains_from_file()`, so the `jetpack_vendor/i18n-map.php` the composer plugin generates is never loaded for this stack at all. Until both are fixed, flipping this filter serves an English comment form in every other locale.
+Before it can be enabled, `jetpack-comments` needs a translation source on the wpcom side.
+Every string the app renders is a PHP `__()` call marshalled into `window.VerbumComments`,
+so the whole i18n surface hangs off that one text domain, and nothing registers it today.
 
 ## Architecture
 

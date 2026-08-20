@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "74895b9eb45499940ddc13e1a8d3496d",
+    "content-hash": "b75cc6cc6217dbca51f8bee7af4e35e7",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -541,63 +541,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Features used with classic themes",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-comments",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/comments",
-                "reference": "9a0030b2018598da4ade7776fd2d2da168275874"
-            },
-            "require": {
-                "automattic/block-delimiter": "@dev",
-                "automattic/jetpack-assets": "@dev",
-                "automattic/jetpack-status": "@dev",
-                "php": ">=8.1"
-            },
-            "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
-                },
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-comments/compare/v${old}...v${new}"
-                },
-                "mirror-repo": "Automattic/jetpack-comments",
-                "textdomain": "jetpack-comments",
-                "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-comments.php"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "build-development": [
-                    "pnpm run build"
-                ],
-                "build-production": [
-                    "NODE_ENV=production BABEL_ENV=production pnpm run build"
-                ],
-                "watch": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "pnpm run watch"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Jetpack Comments: the commenting experience for WordPress.com sites",
             "transport-options": {
                 "relative": true
             }
@@ -5146,7 +5089,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "automattic/jetpack-comments": 20,
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-mu-wpcom": 20,
         "automattic/phpunit-select-config": 20
