@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Guard the post query array access flagged by the WordPress 7.0 Phan stubs.
+
+

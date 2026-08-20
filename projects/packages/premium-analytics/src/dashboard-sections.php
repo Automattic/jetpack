@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Modules;
+
 require_once __DIR__ . '/dashboard-layout.php';
 require_once __DIR__ . '/dashboard-grammar.php';
 require_once __DIR__ . '/class-dashboard-section.php';
@@ -16,6 +18,11 @@ require_once __DIR__ . '/class-dashboard-section-registry.php';
  * Filter through which WooCommerce section availability is resolved.
  */
 const WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_woocommerce_dashboard_section_available';
+
+/**
+ * Filter through which Subscribers section availability is resolved.
+ */
+const SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_subscribers_dashboard_section_available';
 
 /**
  * Registers a dashboard section.
@@ -81,6 +88,29 @@ function is_woocommerce_dashboard_section_available_to_current_user() {
 }
 
 /**
+ * Whether the Subscribers dashboard section should be exposed.
+ *
+ * Sites without Jetpack have no module state to check, so the section remains
+ * available. Modules::is_active() also returns true on WPCOM Simple.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool True when the subscriptions module is active.
+ */
+function is_subscribers_dashboard_section_available() {
+	$is_available = ! class_exists( 'Jetpack' ) || ( new Modules() )->is_active( 'subscriptions' );
+
+	/**
+	 * Filters whether the Subscribers dashboard section is available.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $is_available Whether the subscriptions module was detected in the current request.
+	 */
+	return (bool) apply_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, $is_available );
+}
+
+/**
  * Returns the default widget layout for the WooCommerce dashboard section.
  *
  * @return array Array of widget instances.
@@ -127,6 +157,7 @@ function register_default_dashboard_sections() {
 			'title'          => __( 'Subscribers stats', 'jetpack-premium-analytics-pkg' ),
 			'description'    => __( 'How your subscriber list is growing, and how your emails land.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 30,
+			'is_available'   => __NAMESPACE__ . '\\is_subscribers_dashboard_section_available',
 			'default_layout' => static function () {
 				return get_dashboard_default_layout_for( 'analytics/subscribers' );
 			},

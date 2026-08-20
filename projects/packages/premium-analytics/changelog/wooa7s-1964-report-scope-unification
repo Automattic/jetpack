@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Unify the no-comparison surfaces on one report-scope declaration. Pure refactor, no behavior change.

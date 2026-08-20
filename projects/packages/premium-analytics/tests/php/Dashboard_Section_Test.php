@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Jetpack_Options;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -36,6 +39,13 @@ class Dashboard_Section_Test extends BaseTestCase {
 	private $doing_it_wrong = array();
 
 	/**
+	 * Standalone-module filter callback registered by a test.
+	 *
+	 * @var callable|null
+	 */
+	private $available_modules_filter = null;
+
+	/**
 	 * Set up a fresh REST server for each test.
 	 */
 	public function set_up() {
@@ -63,6 +73,14 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
+		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
+
+		if ( null !== $this->available_modules_filter ) {
+			remove_filter( 'jetpack_get_available_standalone_modules', $this->available_modules_filter );
+			$this->available_modules_filter = null;
+		}
+
+		Jetpack_Options::delete_option( 'active_modules' );
 
 		// Drops the package's mapping along with any per-user view_stats grant a
 		// test added; set_up() hooks the mapping again.
@@ -71,6 +89,32 @@ class Dashboard_Section_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Mark the subscriptions module as both active and available.
+	 *
+	 * @return void
+	 */
+	private function activate_subscriptions_module() {
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+
+		$this->available_modules_filter = static function ( $modules ) {
+			$modules[] = 'subscriptions';
+
+			return $modules;
+		};
+
+		add_filter( 'jetpack_get_available_standalone_modules', $this->available_modules_filter );
+	}
+
+	/**
+	 * Load the Jetpack class mock for a separate-process test.
+	 *
+	 * @return void
+	 */
+	private function fake_jetpack_plugin() {
+		require_once __DIR__ . '/mocks/jetpack-plugin-mock.php';
 	}
 
 	/**
@@ -745,6 +789,151 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			get_dashboard_default_layout_for( 'woocommerce/store' ),
 			$woocommerce->get_default_layout()
+		);
+	}
+
+	/**
+	 * Section IDs the registry currently offers.
+	 *
+	 * @return string[]
+	 */
+	private function available_section_ids() {
+		return array_map(
+			static function ( Dashboard_Section $section ) {
+				return $section->id;
+			},
+			get_available_dashboard_sections( DASHBOARD_NAME )
+		);
+	}
+
+	/**
+	 * Section slugs the sections route currently serves.
+	 *
+	 * @return string[]
+	 */
+	private function request_section_slugs() {
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/sections' )
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+
+		return array_column( $response->get_data(), 'slug' );
+	}
+
+	/**
+	 * A site without a local module system keeps the tab.
+	 */
+	public function test_registers_subscribers_dashboard_section_without_a_module_system() {
+		register_default_dashboard_sections();
+
+		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
+		$this->assertTrue( $subscribers->is_available() );
+		$this->assertContains( 'analytics/subscribers', $this->available_section_ids() );
+	}
+
+	/**
+	 * A Jetpack site with the module inactive hides the tab.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_omits_subscribers_dashboard_section_when_module_is_inactive() {
+		$this->fake_jetpack_plugin();
+
+		register_default_dashboard_sections();
+
+		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
+		$this->assertFalse( $subscribers->is_available() );
+
+		$ids = $this->available_section_ids();
+
+		$this->assertNotContains( 'analytics/subscribers', $ids );
+		$this->assertContains( 'analytics/traffic', $ids );
+	}
+
+	/**
+	 * A Jetpack site with the module active offers the tab.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_registers_subscribers_dashboard_section_when_module_is_active() {
+		$this->fake_jetpack_plugin();
+		$this->activate_subscriptions_module();
+
+		register_default_dashboard_sections();
+
+		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
+		$this->assertTrue( $subscribers->is_available() );
+		$this->assertContains( 'analytics/subscribers', $this->available_section_ids() );
+	}
+
+	/**
+	 * WPCOM Simple offers the tab without the module.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_wpcom_simple_offers_subscribers_dashboard_section_without_the_module() {
+		$this->fake_jetpack_plugin();
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
+
+		register_default_dashboard_sections();
+
+		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
+		$this->assertTrue( $subscribers->is_available() );
+	}
+
+	/**
+	 * Consumers can refuse the section through its availability filter.
+	 */
+	public function test_subscribers_availability_filter_overrides_the_module_state() {
+		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		register_default_dashboard_sections();
+
+		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
+		$this->assertFalse( $subscribers->is_available() );
+		$this->assertNotContains( 'analytics/subscribers', $this->available_section_ids() );
+	}
+
+	/**
+	 * The sections route drops the Subscribers tab once it is unavailable.
+	 */
+	public function test_sections_route_reflects_subscribers_availability() {
+		$this->set_admin_user();
+
+		register_default_dashboard_sections();
+
+		$this->assertSame(
+			array( 'traffic', 'insights', 'subscribers' ),
+			$this->request_section_slugs()
+		);
+
+		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		$this->assertSame(
+			array( 'traffic', 'insights' ),
+			$this->request_section_slugs()
 		);
 	}
 

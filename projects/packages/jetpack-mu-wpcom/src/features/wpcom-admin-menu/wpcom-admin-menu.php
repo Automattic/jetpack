@@ -9,6 +9,7 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
 use Automattic\Jetpack\Redirect;
@@ -460,7 +461,12 @@ function wpcom_add_jetpack_submenu() {
 		\Automattic\Jetpack\Newsletter\Subscribers_Announcement::add_wp_admin_submenu();
 	}
 
-	Podcast_Admin_Page::add_wp_admin_submenu();
+	// Atomic loads Podcast through the Jetpack module, which the owner can switch
+	// off, and this builder runs either way. is_active() is always true on Simple,
+	// where the package loads unconditionally.
+	if ( ( new Modules() )->is_active( 'podcast' ) ) {
+		Podcast_Admin_Page::add_wp_admin_submenu();
+	}
 
 	if ( $is_simple_site ) {
 		// Jetpack > Newsletter.

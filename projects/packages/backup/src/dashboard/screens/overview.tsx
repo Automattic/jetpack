@@ -1,17 +1,22 @@
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { calendar } from '@wordpress/icons';
 import { useNavigate, useSearch } from '@wordpress/route';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Text } from '@wordpress/ui';
 import ActivityDetail from '../components/activity-detail';
 import ActivityList from '../components/activity-list';
 import BackupDetail from '../components/backup-detail';
+import BackupNowButton from '../components/backup-now-button';
+import BackupStatusPanel, { replacesOverview } from '../components/backup-status';
+import BackupStatusBanner, { BackupTroubleBanner } from '../components/backup-status/banner';
 import DashboardLayout from '../components/dashboard-layout';
+import QueryError from '../components/query-error';
 import {
 	ACTIVITY_LOG_DEFAULT_PER_PAGE,
 	useActivityById,
 	useDefaultBackupRewindId,
+	useHasRestorePoints,
 } from '../hooks/use-activity-log';
+import { useBackups } from '../hooks/use-backups';
 import { isBackupItem } from '../types/activity';
 import type { View } from '@wordpress/dataviews';
 
@@ -62,6 +67,34 @@ export default function OverviewScreen() {
 	// fetch when the list is on page 1 with the default per-page.
 	const defaultSelectedId = useDefaultBackupRewindId();
 	const selectedId = typeof search.selected === 'string' ? search.selected : defaultSelectedId;
+	// `/site/rewindable-activity` only lists completed restore points, so
+	// on its own it cannot tell "no backups yet" from "the first one is
+	// running" from "they're all failing". This second query answers that.
+	const {
+		state: backupsState,
+		progress,
+		isInitialBackup,
+		error: backupsError,
+		isRefetching: backupsRefetching,
+		refetch: refetchBackups,
+	} = useBackups();
+	// A second opinion on whether anything is restorable, from the
+	// paginated activity log rather than the short `/backups` window.
+	// While it is still unknown, assume there *are* restore points:
+	// briefly showing the two-pane view is a milder error than briefly
+	// telling an established customer they have no backups.
+	//
+	// A failed request is "still unknown" too, and that is the whole
+	// point of reading `isError` here. React Query reports an errored
+	// query as not-loading with no rows, so without this the veto lifts
+	// on a question nobody managed to ask: the first-run panel takes the
+	// body over and takes the activity log's own error report down with
+	// it, and a 5xx reads as "your first backup is on its way".
+	const {
+		hasRestorePoints,
+		isLoading: restorePointsLoading,
+		isError: restorePointsError,
+	} = useHasRestorePoints();
 
 	const setSelected = useCallback(
 		( id: string ) => {
@@ -73,21 +106,72 @@ export default function OverviewScreen() {
 		[ navigate, search ]
 	);
 
+	if (
+		replacesOverview(
+			backupsState,
+			isInitialBackup,
+			restorePointsLoading || restorePointsError || hasRestorePoints
+		)
+	) {
+		return (
+			<DashboardLayout actions={ <BackupNowButton /> }>
+				<BackupStatusPanel state={ backupsState } progress={ progress } />
+			</DashboardLayout>
+		);
+	}
+
 	return (
-		<DashboardLayout
-			actions={
-				<Stack direction="row" gap="sm">
-					<Button variant="outline" tone="neutral">
-						<Button.Icon icon={ calendar } />
-						{ /* Placeholder copy for the upcoming date-range filter — not translated until the real UI lands. */ }
-						Apr 16, 2026 to May 15, 2026
-					</Button>
-					<Button variant="outline" tone="neutral">
-						{ __( 'Back up now', 'jetpack-backup-pkg' ) }
-					</Button>
-				</Stack>
-			}
-		>
+		<DashboardLayout actions={ <BackupNowButton /> }>
+			{ /*
+			 * A backup running on a site that already has restore points is
+			 * reported alongside the list rather than in place of it. The
+			 * banner is a sibling of `.jpb-overview` — not a child — because
+			 * that element is a two-column grid above 960px, and a third
+			 * child would be auto-placed into it.
+			 */ }
+			{ backupsState === 'in-progress' && <BackupStatusBanner progress={ progress } /> }
+			{ /*
+			 * The backup-state read failed. Reported here rather than as a
+			 * takeover for the same reason as the banner: whatever the
+			 * activity log managed to load is still worth showing, and this
+			 * failure says nothing about it.
+			 *
+			 * `error` is very often null on this path and that is not a bug.
+			 * The route answers a non-200 from WPCOM with a bare `null`
+			 * body, which WordPress serves as HTTP 200 — so the request
+			 * resolves, React Query records a success, and the only signal
+			 * left is the derived state. That is also why the retry button
+			 * matters more here than elsewhere: nothing else will ask again.
+			 * The poll stops deliberately on an unreadable response rather
+			 * than hammering a failing upstream.
+			 */ }
+			{ backupsState === 'error' && (
+				<QueryError
+					className="jpb-query-error--standalone"
+					title={ __( "We couldn't check your site's backup status.", 'jetpack-backup-pkg' ) }
+					error={ backupsError }
+					onRetry={ refetchBackups }
+					isRetrying={ backupsRefetching }
+				/>
+			) }
+			{ /*
+			 * The takeover panel has stood down but the site's backups are
+			 * still failing, so the report moves here rather than vanishing
+			 * with it. See `BackupTroubleBanner` for why those were two jobs
+			 * in one predicate.
+			 *
+			 * Held back while the activity log is still loading. Both
+			 * queries start together and `/jetpack/v4/backups` is one round
+			 * trip against the activity log's paginated one, so it normally
+			 * wins — and during that window the veto is still up, which puts
+			 * us here. On a site that turns out to have no restore points
+			 * the veto then lifts and the takeover panel replaces the body,
+			 * saying the same thing the banner just said. Waiting costs
+			 * nothing and avoids announcing the most alarming state in the
+			 * dashboard twice in two different shapes. `isError` is not
+			 * loading, so the terminal case still reports immediately.
+			 */ }
+			{ ! restorePointsLoading && <BackupTroubleBanner state={ backupsState } /> }
 			<div className="jpb-overview">
 				<ActivityList
 					selectedId={ selectedId }

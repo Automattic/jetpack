@@ -244,6 +244,38 @@ Bar charts support both categorical labels and time-series data:
 
 <Canvas of={ BarChartStories.TimeSeries } />
 
+Date-based series pick their default tick format from the data's bucket resolution and
+overall span, the same way line and area charts do. Month-or-coarser buckets follow the
+resolution alone — month names with the year at January, or plain years for yearly buckets
+— since they carry no day to print at any span. Daily-or-finer buckets narrow with the
+span: hour ticks within a day, hour ticks dated at midnight for sub-daily data spanning up
+to a week, calendar dates within a year, and years beyond that. An explicit
+`options.axis.x.tickFormat` still overrides (`axis.y` on a horizontal chart).
+
+Because bars sit on a band scale, which has no ticks of its own, the tick values are
+chosen rather than sampled evenly by index — otherwise the axis would routinely skip the
+bucket that prints the year or dates the day, and could repeat a label. Over spans long
+enough that nothing closer together reaches a boundary, the ticks fall on whole days or
+whole years instead. `numTicks` caps how many it picks.
+
+<Canvas of={ BarChartStories.TimeAxisTickFormats } />
+
+Default tooltip labels name the hovered bar's bucket, spelled out in full:
+`August 2, 2026 at 6 AM` for hourly buckets, `August 2, 2026` for daily ones,
+`August 2026` for monthly, `2026` for yearly, and `Week of January 12, 2026` for weekly.
+A monthly bar reads `August 2026` rather than `August 1, 2026` — the day is precision the
+bucket doesn't carry. The tooltip always names the bucket's own granularity, so it stays
+finer than the ticks whenever the span coarsens the axis.
+
+When the bucket resolution is already known — from a granularity selector, say — declare it
+with `options.axis.x.tickResolution` (`axis.y` on a horizontal chart) instead of leaving the
+chart to infer it from point spacing. Two cases need it: a single-bucket series, which has
+no spacing to measure, and weekly buckets, whose seven-day spacing is indistinguishable from
+sparse daily data — undeclared, they are read as daily and the tooltip names one day instead
+of the week.
+
+<Canvas of={ BarChartStories.TimeAxisTickResolution } />
+
 <Source
 	language="jsx"
 	code={ `// Date objects

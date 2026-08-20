@@ -225,7 +225,7 @@ class Analytics {
 
 	/**
 	 * Prefers `timezone_string` over `gmt_offset`, matching the dashboard's own
-	 * `getSiteTimezone()`: analytics links point at past dates, so they cross
+	 * `siteTimeZone()`: analytics links point at past dates, so they cross
 	 * daylight-saving boundaries routinely, and a fixed offset applied to the far
 	 * side of a transition shifts the day.
 	 *
@@ -327,6 +327,13 @@ class Analytics {
 			require_once __DIR__ . '/csv-exports.php';
 		}
 		configure_csv_exports();
+
+		// VideoPress availability for the client's video routes. The widget layer
+		// reads the same signal through widget-type-support.php.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_videopress_availability' ) ) {
+			require_once __DIR__ . '/videopress-availability.php';
+		}
+		configure_videopress_availability();
 	}
 
 	/**

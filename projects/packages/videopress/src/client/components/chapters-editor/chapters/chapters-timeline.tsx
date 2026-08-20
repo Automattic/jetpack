@@ -1,35 +1,32 @@
 /**
  * The chapters editor timeline: the shared {@link TimelineShell} (toolbar
  * slot, scaled scrub surface, gridlines, playhead) composed with the
- * chapter-segments track, the draggable chapter-start markers, and the rows
- * list below the strip.
+ * chapter-segments track and the draggable chapter-start markers. The
+ * editable rows list lives in the sibling ChaptersPanel, which hosts place
+ * beside this strip (or stacked below it on narrow surfaces).
  *
- * This module owns everything chapters-specific: the toolbar's
- * "Add chapter at playhead" wiring (inert per the reducer's ADD_AT no-op
- * predicate), the "Now: {chapter}" indicator, and the document-level
- * shortcuts instance that attaches while THIS tool is mounted (space,
- * arrows, Home/End to the video bounds, Delete removes the selected chapter
- * — the reducer floors removal at one). The zoom ladder is the
- * duration-scaled filmstrip-less ladder ({@link getFilmstripZoomLadder})
+ * This module owns everything chapters-specific about the STRIP: the
+ * toolbar's "Add chapter at playhead" wiring (inert per the reducer's
+ * ADD_AT no-op predicate), the "Now: {chapter}" indicator, and the
+ * document-level shortcuts instance that attaches while THIS tool is
+ * mounted (space, arrows, Home/End to the video bounds, Delete removes the
+ * selected chapter — the reducer floors removal at one). The zoom ladder is
+ * the duration-scaled filmstrip-less ladder ({@link getFilmstripZoomLadder})
  * even though this strip draws no tiles, so the zoom stops stay on the
  * filmstrip grammar's meaningful densities.
  *
  * `readOnly` (a manually uploaded chapters VTT exists) keeps the strip as a
  * visualization — segments render, the playhead scrubs — but removes every
- * edit affordance: no markers, the add button is disabled, and the rows list
- * is replaced by a notice.
+ * edit affordance: no markers and the add button is disabled (the panel
+ * carries the explanatory notice).
  *
- * The publish rules live in `validateRows` and are what decides whether the
- * player gets a chapters track at all, so this module reads them live and
- * shows them where the problem is: row-scoped issues on the offending row,
- * the rest next to the footer help line. It is a pure read of the session —
+ * The publish-rule messages moved to the panel with the rows they qualify;
  * nothing here gates saving, which stays a host decision.
  */
 import { Button } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
-import { useCallback, useMemo } from 'react';
-import { validateRows } from '../../../utils/video-chapters/description';
-import { canAddChapterAt, chaptersToRows } from '../state/chapters-session';
+import { useCallback } from 'react';
+import { canAddChapterAt } from '../state/chapters-session';
 import TimeRuler from '../timeline/time-ruler';
 import TimelineShell, { clampToDuration } from '../timeline/timeline-shell';
 import TimelineTransport from '../timeline/transport';
@@ -37,7 +34,6 @@ import { useKeyboardShortcuts } from '../timeline/use-keyboard-shortcuts';
 import ZoomControl from '../timeline/zoom-control';
 import { getFilmstripZoomLadder } from '../timeline/zoom-ladder';
 import ChapterMarker from './chapter-marker';
-import ChapterRows from './chapter-rows';
 import ChapterTrack from './chapter-track';
 import './style.scss';
 import type { ChaptersSession, ChaptersSessionAction } from '../state/chapters-session';
@@ -135,39 +131,6 @@ export default function ChaptersTimeline( {
 }: ChaptersTimelineProps ): ReactElement {
 	const durationMs = session.durationMs;
 
-	// Live publish-rule check. Row-scoped issues are keyed by ROW POSITION —
-	// the same order `chaptersToRows` and the rows list walk — so they index
-	// straight into the rows array; the rest (no chapters, too few) have no
-	// row to sit on and go by the footer help line.
-	//
-	// The duration is passed UNROUNDED, matching what both hosts hand
-	// `validateRows` at save time: rounding here would let a chapter sitting
-	// on the rounded-up second (reachable through LOAD, which reflects the
-	// description as-is) read as fine in the editor and then warn on save,
-	// with no row flagged to explain it.
-	const { rowIssues, generalIssues } = useMemo( () => {
-		// A lone chapter is the "nothing authored yet" state: a description
-		// with no chapter lines loads as one seeded chapter at 0:00, and
-		// greeting that with "at least three chapters are required" scolds
-		// the user before they have done anything. Stay quiet until there is
-		// a set to judge; the save-time message still tells the truth if they
-		// save one anyway.
-		if ( session.chapters.length < 2 ) {
-			return { rowIssues: [], generalIssues: [] };
-		}
-		const { issues } = validateRows( chaptersToRows( session ), session.durationMs / 1000 );
-		const perRow: ( string | undefined )[] = [];
-		for ( const issue of issues ) {
-			if ( issue.rowIndex !== undefined && perRow[ issue.rowIndex ] === undefined ) {
-				perRow[ issue.rowIndex ] = issue.message;
-			}
-		}
-		return {
-			rowIssues: perRow,
-			generalIssues: issues.filter( issue => issue.rowIndex === undefined ),
-		};
-	}, [ session ] );
-
 	const seekClamped = useCallback(
 		( ms: number ) => onSeek( clampToDuration( ms, durationMs ) ),
 		[ onSeek, durationMs ]
@@ -214,7 +177,35 @@ export default function ChaptersTimeline( {
 							size="compact"
 							variant="secondary"
 							disabled={ readOnly || locked || ! canAddChapterAt( session, currentMs ) }
-							onClick={ () => dispatch( { type: 'ADD_AT', atMs: currentMs } ) }
+							onClick={ event => {
+								dispatch( { type: 'ADD_AT', atMs: currentMs } );
+								/*
+								 * Hand focus to the new chapter's title input so naming
+								 * follows adding without a pointer trip to the panel.
+								 * ADD_AT selects the chapter it creates, and the rows
+								 * live in the sibling ChaptersPanel — coordinated only
+								 * through the session — so the selected row is found in
+								 * the DOM once React has flushed the add (next frame).
+								 * The query is scoped to the editor's token wrapper
+								 * (both hosts wrap the strip + panel pair in it) so a
+								 * second mounted editor could never receive the focus.
+								 * Selecting the text lets typing replace the default
+								 * "Chapter N" title directly.
+								 */
+								// ParentNode: the interface Element and Document share — a
+								// plain union of the two leaves querySelector's generic
+								// signatures un-unifiable (TS2347).
+								const scope: ParentNode =
+									event.currentTarget.closest( '.vp-chapters-tokens' ) ??
+									event.currentTarget.ownerDocument;
+								requestAnimationFrame( () => {
+									const input = scope.querySelector< HTMLInputElement >(
+										'.vp-chapters__row--selected input.vp-chapters__row-title'
+									);
+									input?.focus();
+									input?.select();
+								} );
+							} }
 							accessibleWhenDisabled
 						>
 							{ __( 'Add chapter at playhead', 'jetpack-videopress-pkg' ) }
@@ -264,31 +255,6 @@ export default function ChaptersTimeline( {
 					)
 				}
 			/>
-			{ readOnly ? (
-				<p className="vp-chapters__manual-notice" role="status">
-					{ __(
-						'Chapters for this video are managed by an uploaded VTT file, so they can’t be edited here.',
-						'jetpack-videopress-pkg'
-					) }
-				</p>
-			) : (
-				<ChapterRows
-					session={ session }
-					dispatch={ dispatch }
-					onSeek={ seekClamped }
-					locked={ locked }
-					rowIssues={ rowIssues }
-				/>
-			) }
-			{ ! readOnly && generalIssues.length > 0 ? (
-				<div className="vp-chapters__validation" role="status" data-testid="chapters-validation">
-					{ generalIssues.map( issue => (
-						<p key={ issue.code } className="vp-chapters__validation-message">
-							{ issue.message }
-						</p>
-					) ) }
-				</div>
-			) : null }
 			<p className="vp-chapters__help">
 				{ __(
 					'Chapters appear in the player timeline and help viewers jump to a section. The first chapter always starts at 0:00:00.0.',

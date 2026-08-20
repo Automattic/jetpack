@@ -671,6 +671,7 @@ class Search_Blocks {
 			$asset['version'] ?? false,
 			true
 		);
+		wp_set_script_translations( 'jetpack-search-blocks-register', 'jetpack-search-pkg' );
 
 		// Surface PHP gates to the editor bundle so block edits and the
 		// registration loop branch consistently with server-side renders.
@@ -2299,7 +2300,7 @@ HTML;
 	/**
 	 * Read Instant Search query-customization options for the blocks store.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.4.0
 	 *
 	 * @return array Query options with keys:
 	 *               `highlightPhraseOnly`, `highlightFilterStopwords`, `highlightFields`,

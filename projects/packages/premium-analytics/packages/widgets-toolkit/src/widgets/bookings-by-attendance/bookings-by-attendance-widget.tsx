@@ -6,7 +6,7 @@ import { Stack } from '@jetpack-premium-analytics/externals';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { DonutChart, WidgetState } from '../../components';
+import { DonutChart, DonutChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
@@ -38,7 +38,7 @@ export function BookingsByAttendanceWidget() {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading && ! hasData }
+			isLoading={ isLoading }
 			isFetching={ isFetching }
 			// The report queries keep the previous period's data as placeholders
 			// across range changes, so only surface the error when there is
@@ -56,6 +56,7 @@ export function BookingsByAttendanceWidget() {
 				icon: calendar,
 				description: __( 'No bookings in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <DonutChartSkeleton /> }
 		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">
 				<DonutChart

@@ -511,7 +511,7 @@ function jetpack_boost_get_static_prefix() {
  * This is distinct from Minify\Config::can_use_static_cache(), which ensures the cache directory
  * exists and is writable.
  *
- * @since $$next-version$$
+ * @since 4.7.0
  *
  * @return bool True if static cache URLs should be used, false to fall back to /_jb_static/.
  */
@@ -528,7 +528,7 @@ function jetpack_boost_minify_use_static_cache_urls() {
 	 * (a cron event inherited from a previous host can still fire until the next release). Boost
 	 * evaluates this filter once per concat group, so return one stable value for the whole render.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.7.0
 	 *
 	 * @param bool $use_static_cache_urls Whether static cache URLs will be used.
 	 */

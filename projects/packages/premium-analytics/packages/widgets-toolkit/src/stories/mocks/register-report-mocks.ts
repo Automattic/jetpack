@@ -864,7 +864,9 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 		date: endDate.toISOString().slice( 0, 10 ),
 		unit,
 		fields: [ 'period', 'subscribers', 'subscribers_paid' ],
-		data: rows,
+		// Newest first, as the live endpoint returns them. An oldest-first mock here
+		// hid WOOA7S-1907.
+		data: rows.reverse(),
 	};
 }
 

@@ -1,13 +1,18 @@
 /**
  * External dependencies
  */
-import { useStatsVisits, type StatsVisitsResponse } from '@jetpack-premium-analytics/data';
+import {
+	type StatsVisitsResponse,
+	useStatsVisits,
+	withoutComparison,
+} from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate } from '@jetpack-premium-analytics/formatters';
 import {
 	AdaptiveCalendarHeatmap,
 	CalendarHeatmapTooltip,
 	HeatmapChartUnresponsive,
+	HeatmapSkeleton,
 	WidgetRoot,
 	WidgetState,
 	describeError,
@@ -16,7 +21,6 @@ import {
 	resolveCalendarHeatmapWindowDays,
 	useViewportWidth,
 	useWidgetRootContext,
-	withoutComparison,
 	type HeatmapTooltipData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -142,6 +146,7 @@ function TrafficViewsActivityInner() {
 						icon: seen,
 						description: emptyDescription,
 					} }
+					renderLoading={ <HeatmapSkeleton /> }
 				>
 					<HeatmapChartUnresponsive
 						{ ...chartProps }
