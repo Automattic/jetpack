@@ -279,7 +279,6 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		);
 		const filteredRenderTooltip = useCallback(
 			( params: Parameters< typeof renderTooltip >[ 0 ] ) => {
-				if ( ! legendInteractive ) return renderTooltip( params );
 				const datumByKey = params?.tooltipData?.datumByKey;
 				if ( ! datumByKey ) return renderTooltip( params );
 				const filtered = Object.fromEntries(
@@ -303,7 +302,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 					} as typeof params.tooltipData,
 				} );
 			},
-			[ renderTooltip, legendInteractive, visibleLabels ]
+			[ renderTooltip, visibleLabels ]
 		);
 
 		// Defaults that depend on stacked vs overlapping mode.
@@ -350,7 +349,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 					dataKey={ seriesData?.label }
 					data={ seriesData.data as DataPointDate[] }
 					xAccessor={ accessors.xAccessor }
-					yAccessor={ isVisible || ! legendInteractive ? accessors.yAccessor : zeroYAccessor }
+					yAccessor={ isVisible ? accessors.yAccessor : zeroYAccessor }
 					fill={ color }
 					fillOpacity={ resolvedFillOpacity }
 					{ ...( stacked ? {} : { renderLine: resolvedWithStroke, curve } ) }

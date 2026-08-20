@@ -456,6 +456,63 @@ describe( 'AreaChart', () => {
 			expect( after ).toEqual( before );
 		} );
 
+		it( 'collapses only the hidden series when the legend is not interactive', () => {
+			// With a non-interactive legend, `renderSeries` must still zero out a
+			// programmatically-hidden series via `yAccessor` — the same collapse the
+			// interactive legend gets — rather than rendering its real data. With the
+			// default `rescaleYOnVisibilityChange` (true), visx derives the y-scale
+			// domain from what's actually rendered, so hiding the taller of two
+			// series must shrink the domain if the collapse took effect.
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+			const ref = createRef< SingleChartRef >();
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<AreaChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-collapse-area"
+						ref={ ref }
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 200, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const before = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( before ).toBeDefined();
+			expect( before![ 1 ] ).toBeGreaterThanOrEqual( 200 );
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-programmatic-collapse-area', 'Series B' );
+			} );
+
+			const after = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( after ).toBeDefined();
+			expect( after![ 1 ] ).toBeLessThan( before![ 1 ] );
+		} );
+
 		test( 'supports negative stacked values without clipping (with pinned Y)', () => {
 			// The mixed-sign full-extent pin only kicks in when the consumer
 			// opts into pinned-Y behavior; visx's natural domain derivation for

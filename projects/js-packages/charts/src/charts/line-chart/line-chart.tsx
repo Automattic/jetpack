@@ -250,10 +250,11 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
 		}, [ seriesWithVisibility ] );
 
-		// When the interactive legend can hide series and rescaling is opted out, pin the value axis
-		// to the full data range so it stays put as series are toggled instead of visx rescaling the
-		// domain to whatever is currently visible and making the axis jump. Default is to rescale,
-		// matching the pre-existing behaviour and AreaChart's `rescaleYOnVisibilityChange`.
+		// When series visibility changes — via the interactive legend or programmatically —
+		// and rescaling is opted out, pin the value axis to the full data range so it stays
+		// put instead of visx rescaling the domain to whatever is currently visible and
+		// making the axis jump. Default is to rescale, matching the pre-existing behaviour
+		// and AreaChart's `rescaleYOnVisibilityChange`.
 		const stableYDomain = useMemo< [ number, number ] | undefined >( () => {
 			if ( rescaleYOnVisibilityChange ) {
 				return undefined;
