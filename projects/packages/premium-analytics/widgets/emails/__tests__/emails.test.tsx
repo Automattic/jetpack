@@ -8,7 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import Emails, { EmailsLeaderboard, type EmailRow } from '../render';
+import Emails, { EmailsList, type EmailRow } from '../render';
 import type { EmailMetric } from '../widget';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -27,19 +27,19 @@ const rows: EmailRow[] = [
 	},
 ];
 
-function renderLeaderboard( metric: EmailMetric ) {
+function renderEmailsList( metric: EmailMetric ) {
 	return render(
 		<WidgetRoot
 			attributes={ {
 				reportParams: { from: '2026-06-01', to: '2026-06-30' },
 			} }
 		>
-			<EmailsLeaderboard rows={ rows } metric={ metric } />
+			<EmailsList rows={ rows } metric={ metric } />
 		</WidgetRoot>
 	);
 }
 
-describe( 'EmailsLeaderboard', () => {
+describe( 'EmailsList', () => {
 	beforeEach( () => {
 		queryClient.clear();
 		mockApiFetch.mockReset();
@@ -49,7 +49,7 @@ describe( 'EmailsLeaderboard', () => {
 		[ 'opens', 'email-opens' ],
 		[ 'clicks', 'email-clicks' ],
 	] as const )( 'opens the matching detail tab for the %s metric', ( metric, expectedSection ) => {
-		renderLeaderboard( metric );
+		renderEmailsList( metric );
 
 		const link = screen.getByRole( 'link', { name: 'Monthly newsletter' } );
 		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );

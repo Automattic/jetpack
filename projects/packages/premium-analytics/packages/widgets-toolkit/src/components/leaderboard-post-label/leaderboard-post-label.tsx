@@ -1,13 +1,8 @@
 /**
- * External dependencies
- */
-import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
-import { useMemo } from 'react';
-/**
  * Internal dependencies
  */
+import { usePostDetailSearch } from '../../hooks/use-post-detail-search';
 import { LeaderboardRow, type LeaderboardRowVariant } from '../chart-leaderboard/leaderboard-row';
-import { useWidgetRootContext } from '../widget-root';
 import type { ReactElement } from 'react';
 
 /** How tall the row sits. */
@@ -41,10 +36,8 @@ export type LeaderboardPostLabelProps = {
  * A leaderboard row label for a post, page, or email.
  *
  * `LeaderboardRow` renders the row and its `postLink` action; this component
- * exists only to resolve the report window. That window comes from
- * `WidgetRootContext`, the same way `ReportLink` resolves it, so the detail
- * page opens on the range the row was read against without every widget
- * threading it down.
+ * exists only to resolve the report window, which it shares with the plain
+ * list rows through `usePostDetailSearch`.
  *
  * Rows that are not linked entities — an avatar and a name, or a drill-down
  * into child rows — use `buildLeaderboardRow` instead.
@@ -59,14 +52,7 @@ export function LeaderboardPostLabel( {
 	variant = 'compact',
 	className,
 }: LeaderboardPostLabelProps ): ReactElement {
-	const { reportParams, navigationParams = reportParams } = useWidgetRootContext();
-	const search = useMemo(
-		() => ( {
-			...pickReportDateParams( navigationParams ),
-			...( section ? { section } : {} ),
-		} ),
-		[ navigationParams, section ]
-	);
+	const search = usePostDetailSearch( section );
 
 	return (
 		<LeaderboardRow

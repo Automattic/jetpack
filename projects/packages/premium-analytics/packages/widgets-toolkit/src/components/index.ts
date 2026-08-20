@@ -4,6 +4,7 @@ export {
 	MetricTileGridSkeleton,
 	type MetricTileGridSkeletonProps,
 } from './metric-tile';
+export { MetricList, type MetricListItem, type MetricListProps } from './metric-list';
 export { MetricValue } from './metric-value';
 export { MetricWithComparison } from './metric-with-comparison';
 export { PeakDistribution, type PeakDistributionProps } from './peak-distribution';

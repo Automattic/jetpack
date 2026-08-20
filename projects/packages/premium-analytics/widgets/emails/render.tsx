@@ -2,17 +2,18 @@
  * External dependencies
  */
 import { useStatsEmailSummary, type StatsEmailSummary } from '@jetpack-premium-analytics/data';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
-	LeaderboardChart,
 	LeaderboardSkeleton,
-	LeaderboardPostLabel,
+	MetricList,
+	PostTitleLink,
 	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
-	sharePercentage,
-	type LeaderboardChartData,
+	usePostDetailSearch,
+	type MetricListItem,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -30,8 +31,8 @@ type EmailsWidgetProps = WidgetRenderProps< EmailsRenderAttributes >;
 
 /**
  * A single normalized email row, flattened from the `useStatsEmailSummary`
- * report into the shape the leaderboard renders. Exported so Storybook can
- * build fixtures for `EmailsLeaderboard`.
+ * report into the shape the list renders. Exported so Storybook can build
+ * fixtures for `EmailsList`.
  */
 export type EmailRow = {
 	/**
@@ -61,43 +62,14 @@ export type EmailRow = {
 };
 
 /**
- * Maps normalized email rows onto the shape `LeaderboardChart` expects. The
- * selected metric drives both the displayed value and the overlay bar width
- * (shares are relative to the highest rate in the set). The emails summary has
- * no comparison period, so the comparison fields are zeroed.
+ * The detail-page tab each metric drills into.
  */
-function buildLeaderboardData( rows: EmailRow[], metric: EmailMetric ): LeaderboardChartData {
-	const rateOf = ( row: EmailRow ) => ( metric === 'opens' ? row.opensRate : row.clicksRate );
-	// Shares are relative to the real maximum so the top row always fills, even
-	// when every rate is below 1%. The `> 0` check guards the divide-by-zero.
-	const maxRate = Math.max( ...rows.map( rateOf ), 0 );
+const METRIC_SECTION: Record< EmailMetric, string > = {
+	opens: 'email-opens',
+	clicks: 'email-clicks',
+};
 
-	return rows.map( row => {
-		const rate = rateOf( row );
-
-		return {
-			id: String( row.id ),
-			label: (
-				<LeaderboardPostLabel
-					id={ row.postId }
-					label={ row.label }
-					link={ row.link }
-					section={ metric === 'clicks' ? 'email-clicks' : 'email-opens' }
-					variant="overlay"
-				/>
-			),
-			// `LeaderboardChart` formats the value as a percentage, so the rate
-			// is expressed as a fraction here.
-			currentValue: rate / 100,
-			currentShare: sharePercentage( rate, maxRate ),
-			previousValue: 0,
-			previousShare: 0,
-			delta: 0,
-		};
-	} );
-}
-
-type EmailsLeaderboardProps = {
+type EmailsListProps = {
 	/**
 	 * Normalized email rows to render.
 	 */
@@ -109,39 +81,55 @@ type EmailsLeaderboardProps = {
 };
 
 /**
- * Presentational leaderboard for the "Emails" widget. Lists the most recently
- * sent emails with their open or click rate.
+ * Presentational list for the "Emails" widget: the most recently sent emails
+ * with their open or click rate.
+ *
+ * Rows are ordered by send date, not by rate, so they carry no bar — a bar
+ * would read as a ranking the order does not express.
  *
  * Renders the populated (ready) state only — loading, error, and empty are
  * handled by `<WidgetState>` in the data-connected `EmailsReport`. Exported so
- * Storybook can exercise the chart with fixture rows (there is no analytics
+ * Storybook can exercise the list with fixture rows (there is no analytics
  * backend in Storybook, so the data-connected entry point would only ever show
  * chrome).
  */
-export const EmailsLeaderboard = ( { rows = [], metric = 'opens' }: EmailsLeaderboardProps ) => {
-	const data = useMemo( () => buildLeaderboardData( rows, metric ), [ rows, metric ] );
+export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) => {
+	const search = usePostDetailSearch( METRIC_SECTION[ metric ] );
 
-	return (
-		<div className={ styles.root }>
-			<LeaderboardChart
-				className={ styles.leaderboard }
-				data={ data }
-				withComparison={ false }
-				withOverlayLabel
-				showLegend={ false }
-				dataFormat={ {
-					type: 'percentage',
-					options: { decimals: 2, signDisplay: 'never' },
-				} }
-			/>
-		</div>
+	const items = useMemo< MetricListItem[] >(
+		() =>
+			rows.map( row => {
+				const rate = metric === 'clicks' ? row.clicksRate : row.opensRate;
+
+				return {
+					id: row.id,
+					label: (
+						<PostTitleLink
+							id={ row.postId }
+							label={ row.label }
+							link={ row.link }
+							search={ search }
+							title={ row.label }
+						/>
+					),
+					// The formatter takes a fraction and renders the percent sign,
+					// trimming a trailing zero (11.5%, not 11.50%).
+					value: formatMetricValue( rate / 100, 'percentage', {
+						decimals: 2,
+						signDisplay: 'never',
+					} ),
+				};
+			} ),
+		[ rows, metric, search ]
 	);
+
+	return <MetricList className={ styles.list } items={ items } />;
 };
 
 /**
  * Flatten the `useStatsEmailSummary` report into the `{ id, label, opensRate,
- * clicksRate }` rows the leaderboard renders, keeping the endpoint's
- * newest-first order and trimming to `max` (`max = 0` keeps all rows).
+ * clicksRate }` rows the list renders, keeping the endpoint's newest-first
+ * order and trimming to `max` (`max = 0` keeps all rows).
  */
 function toEmailRows( report: StatsEmailSummary | undefined, max: number ): EmailRow[] {
 	const items = report?.data?.[ 0 ]?.items ?? [];
@@ -164,8 +152,8 @@ type EmailsReportProps = {
 
 /**
  * Fetches the email-summary report through the `useStatsEmailSummary` Stats
- * hook and hands the normalized rows to the presentational `EmailsLeaderboard`,
- * with the loading / error / empty states rendered through `<WidgetState>`.
+ * hook and hands the normalized rows to the presentational `EmailsList`, with
+ * the loading / error / empty states rendered through `<WidgetState>`.
  */
 function EmailsReport( { attributes }: EmailsReportProps ) {
 	const metric = attributes?.metric ?? 'opens';
@@ -207,7 +195,7 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 					} }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
-					<EmailsLeaderboard rows={ rows } metric={ metric } />
+					<EmailsList rows={ rows } metric={ metric } />
 				</WidgetState>
 			</div>
 			<WidgetFooter>
