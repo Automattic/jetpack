@@ -1,12 +1,8 @@
 .line-chart {
 	position: relative;
 
-	// The collapsed start state lives in the keyframes, not here: a motion
-	// token holding a value invalid for its slot makes the whole `animation`
-	// shorthand invalid at computed-value time, dropping `animation-name` to
-	// `none` while a `transform` declared here would survive — leaving the
-	// line collapsed rather than merely unanimated. `both` fill-mode applies
-	// the `from` state up front, so the reveal still starts hidden.
+	// Keep the collapsed state in `from` and never on the element: a dropped
+	// animation then fails visible. `both`, not `forwards`, for backwards fill.
 	&--animated {
 
 		path {

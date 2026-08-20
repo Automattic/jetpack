@@ -63,13 +63,9 @@
 		border-radius: var(--a8c-charts-border-radius-leaderboard-bar);
 		z-index: -1; /* places it behind the label */
 
-		// The collapsed start state lives in the keyframes, not here: a
-		// motion token holding a value invalid for its slot makes the whole
-		// `animation` shorthand invalid at computed-value time, dropping
-		// `animation-name` to `none` while a `transform` declared here would
-		// survive — leaving bars collapsed rather than merely unanimated.
-		// `both` fill-mode applies the `from` state up front, so the reveal
-		// still starts hidden.
+		// Keep the collapsed state in `from` and never on the element: a dropped
+		// animation then fails visible. `both`, not `forwards`, for the
+		// backwards fill.
 		&--animated {
 			transform-origin: left;
 			transform-box: fill-box;
