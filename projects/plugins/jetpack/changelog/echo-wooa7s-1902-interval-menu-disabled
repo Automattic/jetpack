@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Analytics: Show every chart interval in the interval menu, disabling the ones the selected date range cannot use instead of hiding them.

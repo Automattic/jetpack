@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { type IntervalType } from '@jetpack-premium-analytics/datetime';
+import { INTERVAL_TYPES, type IntervalType } from '@jetpack-premium-analytics/datetime';
 import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { chartBar, check } from '@wordpress/icons';
@@ -10,11 +10,11 @@ import './date-interval-dropdown.scss';
 
 type DateIntervalDropdownProps = {
 	/**
-	 * The buckets the active range allows, finest first. Derived from the range
-	 * rather than fixed, so the menu can never offer one the range would coerce
-	 * away.
+	 * The buckets the active range allows. Derived from the range rather than
+	 * fixed: the rest of the menu is listed disabled, so the range decides what
+	 * can be picked without deciding what can be seen.
 	 */
-	options: readonly IntervalType[];
+	allowed: readonly IntervalType[];
 
 	/**
 	 * The bucket the widgets are currently drawing.
@@ -52,17 +52,19 @@ function getIntervalLabel( interval: IntervalType ): string {
 
 /**
  * The bucket size every chart on the page draws, as a glyph opening a menu of
- * the buckets the active range allows.
+ * every bucket — the ones the active range cannot fill listed disabled.
  *
  * The glyph is a chart rather than a clock: the control buckets what the charts
  * draw, it does not narrow the period the rest of the surface reports on.
  *
- * A range with one allowed bucket still opens a menu listing it, checked: the
- * trigger carries no text, so the menu is the only place the choice can be
- * inspected. The section header's subtitle names the active bucket.
+ * Listing the whole set keeps the menu a fixed shape, so a bucket the range
+ * disallows reads as unavailable here rather than as absent from the product,
+ * and moving the range shows which buckets that bought. The trigger carries no
+ * text, so the menu is also the only place the choice can be inspected; the
+ * section header's subtitle names the active bucket.
  */
 export function DateIntervalDropdown( {
-	options,
+	allowed,
 	value,
 	label,
 	onChange,
@@ -77,14 +79,19 @@ export function DateIntervalDropdown( {
 		>
 			{ ( { onClose } ) => (
 				<MenuGroup>
-					{ options.map( option => {
-						const isSelected = option === value;
+					{ INTERVAL_TYPES.map( option => {
+						const isAllowed = allowed.includes( option );
+						// A disallowed bucket is never the selection, even transiently:
+						// checking a disabled item would name a bucket the charts
+						// cannot be drawing.
+						const isSelected = isAllowed && option === value;
 
 						return (
 							<MenuItem
 								key={ option }
 								role="menuitemradio"
 								isSelected={ isSelected }
+								disabled={ ! isAllowed }
 								icon={ isSelected ? check : undefined }
 								onClick={ () => {
 									onChange( option );

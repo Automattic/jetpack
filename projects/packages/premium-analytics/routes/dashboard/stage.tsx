@@ -178,7 +178,7 @@ function Dashboard(): JSX.Element {
 				/>
 
 				<DateIntervalDropdown
-					options={ dateFilters.intervalOptions }
+					allowed={ dateFilters.intervalOptions }
 					value={ dateFilters.interval }
 					onChange={ dateFilters.onIntervalChange }
 				/>
