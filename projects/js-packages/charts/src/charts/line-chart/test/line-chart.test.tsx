@@ -1,11 +1,13 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlyphDiamond } from '@visx/glyph';
 import { createElement, createRef } from 'react';
 import { GlobalChartsProvider, defaultTheme } from '../../../providers';
+import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import LineChart, { LineChartUnresponsive } from '../line-chart';
+import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
 import type { SingleChartRef } from '../../private/single-chart-context';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
@@ -1298,7 +1300,7 @@ describe( 'LineChart', () => {
 			expect( buttons ).toHaveLength( 0 );
 		} );
 
-		it( 'shows all series when chartId is missing even if legendInteractive is true', () => {
+		it( 'shows all series when nothing has been hidden', () => {
 			render(
 				<GlobalChartsProvider>
 					<LineChartUnresponsive
@@ -1316,6 +1318,100 @@ describe( 'LineChart', () => {
 			legendItems.forEach( item => {
 				expect( item ).toHaveAttribute( 'aria-pressed', 'true' );
 			} );
+		} );
+
+		it( 'hides a series programmatically when the legend is not interactive', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-line"
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.queryByText( /all series are hidden/i ) ).not.toBeInTheDocument();
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-programmatic-line', 'Series A' );
+				context.toggleSeriesVisibility( 'test-programmatic-line', 'Series B' );
+			} );
+
+			expect( screen.getByText( /all series are hidden/i ) ).toBeInTheDocument();
+		} );
+
+		it( 'pins the value axis across a programmatic hide when rescaleYOnVisibilityChange is false', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+			const ref = createRef< SingleChartRef >();
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-pin-line"
+						rescaleYOnVisibilityChange={ false }
+						ref={ ref }
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 200, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const before = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( before ).toBeDefined();
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-programmatic-pin-line', 'Series B' );
+			} );
+
+			const after = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( after ).toEqual( before );
 		} );
 	} );
 

@@ -124,15 +124,12 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 
 		const seriesWithVisibility = useMemo( () => {
-			if ( ! chartId || ! legendInteractive ) {
-				return dataSorted.map( ( series, index ) => ( { series, index, isVisible: true } ) );
-			}
 			return dataSorted.map( ( series, index ) => ( {
 				series,
 				index,
 				isVisible: isSeriesVisible( chartId, series.label ),
 			} ) );
-		}, [ dataSorted, chartId, isSeriesVisible, legendInteractive ] );
+		}, [ dataSorted, chartId, isSeriesVisible ] );
 
 		const allSeriesHidden = useMemo(
 			() => seriesWithVisibility.every( ( { isVisible } ) => ! isVisible ),
@@ -157,7 +154,6 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		const fixedYDomain = useMemo< [ number, number ] | undefined >( () => {
 			if (
 				rescaleYOnVisibility ||
-				! legendInteractive ||
 				! dataSorted.length ||
 				! dataSorted[ 0 ].data.length ||
 				( stacked && stackOffset !== 'none' )
@@ -199,7 +195,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 			}
 			if ( max === -Infinity ) return undefined;
 			return [ Math.min( 0, min ), max ];
-		}, [ dataSorted, stacked, stackOffset, legendInteractive, rescaleYOnVisibility ] );
+		}, [ dataSorted, stacked, stackOffset, rescaleYOnVisibility ] );
 
 		const chartOptions = useMemo( () => {
 			const { tickResolution, ...xAxisOptions } = options?.axis?.x ?? {};

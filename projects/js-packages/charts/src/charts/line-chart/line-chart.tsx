@@ -235,17 +235,15 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		const dataSorted = useChartDataTransform( data );
 		const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 
-		// Add visibility information to series when using interactive legends
+		// Series visibility is owned by the provider, so it applies whether it changed
+		// through the interactive legend or programmatically.
 		const seriesWithVisibility = useMemo( () => {
-			if ( ! chartId || ! legendInteractive ) {
-				return dataSorted.map( ( series, index ) => ( { series, index, isVisible: true } ) );
-			}
 			return dataSorted.map( ( series, index ) => ( {
 				series,
 				index,
 				isVisible: isSeriesVisible( chartId, series.label ),
 			} ) );
-		}, [ dataSorted, chartId, isSeriesVisible, legendInteractive ] );
+		}, [ dataSorted, chartId, isSeriesVisible ] );
 
 		// Check if all series are hidden
 		const allSeriesHidden = useMemo( () => {
@@ -257,7 +255,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		// domain to whatever is currently visible and making the axis jump. Default is to rescale,
 		// matching the pre-existing behaviour and AreaChart's `rescaleYOnVisibilityChange`.
 		const stableYDomain = useMemo< [ number, number ] | undefined >( () => {
-			if ( ! legendInteractive || rescaleYOnVisibilityChange ) {
+			if ( rescaleYOnVisibilityChange ) {
 				return undefined;
 			}
 			let min = Infinity;
@@ -272,7 +270,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 				}
 			}
 			return min < max ? [ min, max ] : undefined;
-		}, [ legendInteractive, rescaleYOnVisibilityChange, dataSorted ] );
+		}, [ rescaleYOnVisibilityChange, dataSorted ] );
 
 		// Use the keyboard navigation hook
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {

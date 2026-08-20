@@ -1,8 +1,10 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createRef } from 'react';
 import { GlobalChartsProvider } from '../../../providers';
+import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import AreaChart, { AreaChartUnresponsive } from '../area-chart';
+import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
 import type { SingleChartRef } from '../../private/single-chart-context';
 
 const mockRefCallback = jest.fn();
@@ -360,6 +362,98 @@ describe( 'AreaChart', () => {
 				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
 			 )?.domain();
 			expect( afterToggleDomain ).toEqual( initialDomain );
+		} );
+
+		it( 'hides a series programmatically when the legend is not interactive', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<AreaChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-area"
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.queryByText( /all series are hidden/i ) ).not.toBeInTheDocument();
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-programmatic-area', 'Series A' );
+				context.toggleSeriesVisibility( 'test-programmatic-area', 'Series B' );
+			} );
+
+			expect( screen.getByText( /all series are hidden/i ) ).toBeInTheDocument();
+		} );
+
+		it( 'pins the value axis across a programmatic hide when rescaleYOnVisibilityChange is false', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+			const ref = createRef< SingleChartRef >();
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<AreaChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-pin-area"
+						rescaleYOnVisibilityChange={ false }
+						ref={ ref }
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 200, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const before = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( before ).toBeDefined();
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-programmatic-pin-area', 'Series B' );
+			} );
+
+			const after = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( after ).toEqual( before );
 		} );
 
 		test( 'supports negative stacked values without clipping (with pinned Y)', () => {
