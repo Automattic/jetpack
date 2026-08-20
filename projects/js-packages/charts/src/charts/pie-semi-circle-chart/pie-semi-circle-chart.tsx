@@ -250,7 +250,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const { visibleData, allSegmentsHidden, legendData } = useInteractiveLegendData( {
 		data: dataWithPercentages,
 		chartId,
-		legendInteractive,
 		isSeriesVisible,
 	} );
 
@@ -424,10 +423,12 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 								>
 									{ allSegmentsHidden ? (
 										<SvgEmptyState x={ 0 } y={ -radius / 2 } width={ width } height={ height }>
-											{ __(
-												'All segments are hidden. Click legend items to show data.',
-												'jetpack-charts'
-											) }
+											{ legendInteractive
+												? __(
+														'All segments are hidden. Click legend items to show data.',
+														'jetpack-charts'
+												  )
+												: __( 'All segments are hidden.', 'jetpack-charts' ) }
 										</SvgEmptyState>
 									) : (
 										<>

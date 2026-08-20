@@ -616,6 +616,44 @@ describe( 'AreaChart', () => {
 		} );
 	} );
 
+	describe( 'Programmatic visibility (non-interactive legend)', () => {
+		test( 'tooltip omits a series hidden programmatically even though the legend is not clickable', async () => {
+			const user = userEvent.setup();
+			const chartId = 'test-noninteractive-tooltip';
+			let context: GlobalChartsContextValue | undefined;
+
+			const Harness = () => {
+				context = useGlobalChartsContext();
+				return (
+					<AreaChart
+						{ ...defaultProps }
+						chartId={ chartId }
+						showLegend
+						legend={ { interactive: false } }
+					/>
+				);
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Harness />
+				</GlobalChartsProvider>
+			);
+
+			act( () => {
+				context?.setSeriesVisibility( chartId, 'Series A', false );
+			} );
+
+			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			chart.focus();
+			await user.keyboard( '{ArrowRight}' );
+
+			const tooltip = await screen.findByRole( 'tooltip' );
+			expect( tooltip ).not.toHaveTextContent( 'Series A' );
+			expect( tooltip ).toHaveTextContent( 'Series B' );
+		} );
+	} );
+
 	describe( 'Without GlobalChartsProvider', () => {
 		test( 'self-wraps in a provider when none is present', () => {
 			render( <AreaChartUnresponsive { ...defaultProps } /> );

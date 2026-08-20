@@ -1,6 +1,7 @@
 import { Group } from '@visx/group';
 import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legend';
 import { scaleOrdinal } from '@visx/scale';
+import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import {
@@ -61,9 +62,27 @@ const LegendText = ( {
 // when hidden, since a visible item's own text already serves as its accessible name.
 const getLegendItemAriaLabel = ( text: string, visible: boolean, interactive: boolean ) => {
 	if ( interactive ) {
-		return `${ text }: ${ visible ? 'visible' : 'hidden' }. Toggle visibility.`;
+		if ( visible ) {
+			return sprintf(
+				/* translators: %s: legend item label (e.g. a series or segment name) */
+				__( '%s: visible. Toggle visibility.', 'jetpack-charts' ),
+				text
+			);
+		}
+		return sprintf(
+			/* translators: %s: legend item label (e.g. a series or segment name) */
+			__( '%s: hidden. Toggle visibility.', 'jetpack-charts' ),
+			text
+		);
 	}
-	return visible ? undefined : `${ text }: hidden`;
+	if ( visible ) {
+		return undefined;
+	}
+	return sprintf(
+		/* translators: %s: legend item label (e.g. a series or segment name) */
+		__( '%s: hidden', 'jetpack-charts' ),
+		text
+	);
 };
 
 /*

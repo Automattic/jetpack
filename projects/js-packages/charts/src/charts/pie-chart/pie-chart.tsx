@@ -221,7 +221,6 @@ const PieChartInternal = ( {
 	const { visibleData, allSegmentsHidden, legendData } = useInteractiveLegendData( {
 		data: dataWithPercentages,
 		chartId,
-		legendInteractive,
 		isSeriesVisible,
 	} );
 
@@ -382,10 +381,12 @@ const PieChartInternal = ( {
 								>
 									{ allSegmentsHidden ? (
 										<SvgEmptyState x={ 0 } y={ 0 } width={ width } height={ height }>
-											{ __(
-												'All segments are hidden. Click legend items to show data.',
-												'jetpack-charts'
-											) }
+											{ legendInteractive
+												? __(
+														'All segments are hidden. Click legend items to show data.',
+														'jetpack-charts'
+												  )
+												: __( 'All segments are hidden.', 'jetpack-charts' ) }
 										</SvgEmptyState>
 									) : (
 										<Pie< DataPointPercentageCalculated & { index: number } >

@@ -1,6 +1,8 @@
+/* eslint-disable react/jsx-no-bind */
+
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { GlobalChartsProvider } from '../../../providers';
+import { GlobalChartsProvider, useGlobalChartsContext } from '../../../providers';
 import PieChart from '../pie-chart';
 
 describe( 'PieChart', () => {
@@ -546,6 +548,76 @@ describe( 'PieChart', () => {
 
 			// Segment C should now show ~33% (25 out of remaining 75)
 			expect( screen.getByText( /33\.3/ ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Programmatic visibility (non-interactive legend)', () => {
+		const chartId = 'test-programmatic-hide-pie-chart';
+		const testData = [
+			{ label: 'Segment A', value: 50 },
+			{ label: 'Segment B', value: 50 },
+		];
+
+		const Harness = () => {
+			const { setSeriesVisibility } = useGlobalChartsContext();
+			return (
+				<>
+					<button onClick={ () => setSeriesVisibility( chartId, 'Segment A', false ) }>
+						Hide Segment A
+					</button>
+					<button onClick={ () => setSeriesVisibility( chartId, 'Segment B', false ) }>
+						Hide Segment B
+					</button>
+					<PieChart
+						data={ testData }
+						size={ 500 }
+						showLegend
+						legend={ { interactive: false } }
+						chartId={ chartId }
+					/>
+				</>
+			);
+		};
+
+		test( 'removes a segment hidden programmatically even though the legend is not clickable', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<Harness />
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getAllByTestId( 'pie-segment' ) ).toHaveLength( 2 );
+
+			await user.click( screen.getByRole( 'button', { name: 'Hide Segment A' } ) );
+
+			await waitFor( () => {
+				expect( screen.getAllByTestId( 'pie-segment' ) ).toHaveLength( 1 );
+			} );
+
+			// The legend itself stays non-interactive (no toggle button for the segment).
+			expect( screen.queryAllByRole( 'button', { name: /Segment A: /i } ) ).toHaveLength( 0 );
+		} );
+
+		test( 'empty-state copy omits the click instruction when the legend is not interactive', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<Harness />
+				</GlobalChartsProvider>
+			);
+
+			await user.click( screen.getByRole( 'button', { name: 'Hide Segment A' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Hide Segment B' } ) );
+
+			await waitFor( () => {
+				expect( screen.queryAllByTestId( 'pie-segment' ) ).toHaveLength( 0 );
+			} );
+
+			expect( screen.getByText( 'All segments are hidden.' ) ).toBeInTheDocument();
+			expect( screen.queryByText( /Click legend items to show data/i ) ).not.toBeInTheDocument();
 		} );
 	} );
 } );
