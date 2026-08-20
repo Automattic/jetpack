@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Extensions\Contact_Form;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Forms\ContactForm\Conditional_Logic_Container;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\ContactForm\Form_Preview;
@@ -105,6 +106,10 @@ class Contact_Form_Block {
 				'style_handles'         => array( 'jetpack-forms-layout' ),
 			)
 		);
+
+		// Container blocks carry conditional logic of their own; this stamps the ones that do
+		// as they render, before the form parses the field shortcodes around them.
+		Conditional_Logic_Container::init();
 
 		add_filter( 'render_block_data', array( __CLASS__, 'find_nested_html_block' ), 10, 3 );
 		add_filter( 'render_block_core/html', array( __CLASS__, 'render_wrapped_html_block' ), 10, 2 );
