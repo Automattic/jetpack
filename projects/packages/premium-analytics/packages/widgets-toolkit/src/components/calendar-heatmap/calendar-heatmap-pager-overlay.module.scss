@@ -2,11 +2,15 @@
 	position: relative;
 }
 
-.arrow {
+/* The host in the selector outweighs the design system's own tone color so
+   the glyph matches the heatmap's darkest cell (both widgets paint with the
+   admin theme color). */
+.host .arrow {
 	position: absolute;
 	inset-block-start: 50%;
 	translate: 0 -50%;
 	z-index: 1;
+	color: var(--wp-admin-theme-color, #3858e9);
 
 	/* Hidden until the pointer (or keyboard focus) is over the chart; inert
 	   while hidden so the cells underneath keep their hover tooltips. */
