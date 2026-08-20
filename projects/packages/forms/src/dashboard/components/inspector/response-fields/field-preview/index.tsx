@@ -47,10 +47,8 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 	const typeClassName = `is-field-type-${ fieldType }`;
 
 	const renderFieldValue = () => {
-		// An unticked checkbox submits nothing, so it fell through to the dash used for a
-		// field with no answer -- but the respondent did answer, and both the email and the
-		// confirmation summary say "No". A badge, because a ticked one is badged too and the
-		// pair should read as two answers to the same question.
+		// An unticked checkbox submits nothing, so it fell through to the dash meaning "no
+		// answer" -- but the respondent did answer. Badged, as a ticked one already is.
 		if ( fieldType === 'checkbox' && ! isCheckedValue( value ) ) {
 			return <Badge intent="draft">{ __( 'No', 'jetpack-forms' ) }</Badge>;
 		}

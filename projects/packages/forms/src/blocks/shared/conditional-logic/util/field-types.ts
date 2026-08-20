@@ -198,11 +198,8 @@ export const operatorNeedsValue = ( operator: Operator | string ): boolean =>
 /**
  * Whether a value the author has already typed still means something under a new subject.
  *
- * Choosing a subject used to clear the value unconditionally, which cost the author anything
- * they had typed first -- and the value box is offered before a subject is picked, so typing
- * the value first is a natural order to work in. Keeping it needs a check, though: a value the
- * new subject's control cannot represent would sit in the rule invisibly, showing an empty box
- * while the evaluators went on comparing against it.
+ * A value the new subject's control cannot represent would sit in the rule invisibly: an empty
+ * box, with the evaluators still comparing against what it holds.
  *
  * @param value   - The value currently on the rule.
  * @param typeKey - The new subject's comparison behavior.
@@ -225,15 +222,13 @@ export const canValueCarryOver = (
 		case 'none':
 			return false;
 
-		// A dropdown can only show a value that is one of its options.
 		case 'options':
 			return options.some( option => option.value === raw );
 
 		case 'number':
 			return Number.isFinite( Number( raw ) );
 
-		// `<input type="date">` and `<input type="time">` render nothing for a value outside
-		// their format, so anything else has to go rather than be kept out of sight.
+		// A date or time input renders nothing for a value outside its own format.
 		case 'date':
 			return /^\d{4}-\d{2}-\d{2}$/.test( raw );
 

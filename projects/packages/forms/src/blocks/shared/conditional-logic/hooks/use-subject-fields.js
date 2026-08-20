@@ -26,19 +26,10 @@ const toFieldIdBase = label => {
 };
 
 /**
- * The placeholder standing in for a field that has not been named.
- *
- * @return {string} The placeholder label.
- */
-const untitledLabel = () => __( 'Untitled field', 'jetpack-forms' );
-
-/**
  * Read a field block's visible label.
  *
- * Two blocks keep their label somewhere other than a `jetpack/label` inner block: a checkbox
- * and a consent field each write their inline label onto the standalone `jetpack/option`
- * their template inserts. Reading only `jetpack/label` reported both as "Untitled field"
- * however carefully they had been named, which is unusable in a form holding more than one.
+ * A checkbox and a consent field keep theirs on the standalone `jetpack/option` their
+ * template inserts rather than on a `jetpack/label` block.
  *
  * Falls back to the explicit id, then to a placeholder: a field with neither a label nor an
  * id is still selectable, and an empty entry in the dropdown would be unusable.
@@ -55,9 +46,8 @@ const getFieldLabel = block => {
 		return label.trim();
 	}
 
-	// A direct `jetpack/option` child only ever belongs to a checkbox or consent field: the
-	// choice fields nest theirs one level down under a `jetpack/options` wrapper, so this
-	// cannot pick up the first choice of a multiple-choice field by mistake.
+	// A direct child only: the choice fields nest their options under a `jetpack/options`
+	// wrapper, so this cannot pick up one of their choices by mistake.
 	const optionBlock = innerBlocks.find( inner => inner.name === 'jetpack/option' );
 	const optionLabel = optionBlock?.attributes?.label;
 
@@ -67,20 +57,19 @@ const getFieldLabel = block => {
 
 	const id = block.attributes?.id;
 
-	// An id is worth showing when the author chose it, but not when it is the one this panel
-	// minted a moment ago from the placeholder: choosing an unnamed field would then rename it
-	// from "Untitled field" to "untitled-field" inside the very dropdown it was picked from,
-	// so the summary and the builder appeared to name two different fields. The numeric suffix
-	// is matched too, since the second unnamed field of a form is handed `untitled-field-2`.
-	const placeholderId = toFieldIdBase( untitledLabel() );
-	const isMintedFromPlaceholder =
+	// An author's id is worth showing; one this panel minted from the placeholder is not, or
+	// choosing an unnamed field renames it to "untitled-field" in the dropdown it was picked
+	// from. The suffix is matched too -- a second unnamed field is handed `untitled-field-2`.
+	const untitled = __( 'Untitled field', 'jetpack-forms' );
+	const placeholderId = toFieldIdBase( untitled );
+	const isMinted =
 		id === placeholderId || new RegExp( `^${ placeholderId }-\\d+$` ).test( id || '' );
 
-	if ( id && ! isMintedFromPlaceholder ) {
+	if ( id && ! isMinted ) {
 		return id;
 	}
 
-	return untitledLabel();
+	return untitled;
 };
 
 /**

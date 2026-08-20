@@ -148,8 +148,8 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 			const nextSubject = fields.find( field => selectionValue( field ) === selection );
 
 			if ( ! nextSubject ) {
-				// The value survives clearing the subject: the author did not touch it, and
-				// whether it still applies is decided when they pick the next subject.
+				// The value is left alone; whether it still applies is decided by the next
+				// subject the author picks.
 				onChange( index, { field: '', operator: OPERATORS.IS, value: rule.value ?? '' } );
 				return;
 			}
@@ -175,11 +175,9 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 				? rule.operator
 				: defaultOperatorFor( nextSubject.typeKey );
 
-			// The value box is offered before a subject has been chosen, so filling it in
-			// first is a natural order to work in -- and this used to throw that away. It is
-			// kept whenever the new subject can still represent it, and dropped when it
-			// cannot, which would otherwise leave an empty-looking box the evaluators were
-			// still comparing against.
+			// The value box is offered before a subject is chosen, so a value typed first is
+			// kept. Dropped when the new subject cannot represent it, which would otherwise
+			// leave an empty-looking box the evaluators were still comparing against.
 			const keepsValue =
 				operatorNeedsValue( operator ) &&
 				canValueCarryOver( rule.value, nextSubject.typeKey, nextSubject.options );
@@ -204,10 +202,8 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 	const operators = getOperatorsForTypeKey( subject?.typeKey || 'string' );
 	const isComplete = isRuleComplete( rule, subject );
 
-	// A row nobody has touched yet is not a mistake: the builder opens with one waiting, and
-	// showing it in amber greeted an author with a warning about something they had not done.
-	// Amber is kept for the case it was meant for -- a condition begun and left unfinished,
-	// which is the only one where a field will silently not react and nothing says why.
+	// The builder opens with one empty row, which is not a mistake -- so amber is kept for a
+	// condition begun and left unfinished, the only case where a field silently will not react.
 	const isStarted = isRuleStarted( rule );
 
 	const activeReason = __( 'This condition is active.', 'jetpack-forms' );
@@ -272,9 +268,6 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 						role="img"
 						aria-label={ isComplete ? activeReason : inactiveReason }
 					>
-						{ /* An untouched row gets the draft icon: the same thing it says of a
-						     post nobody has finished, and it keeps the column aligned without
-						     passing judgement on a row yet. */ }
 						{ isComplete || isStarted ? (
 							<Icon icon={ isComplete ? published : caution } size={ 20 } />
 						) : (

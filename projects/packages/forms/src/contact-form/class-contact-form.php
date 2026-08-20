@@ -1534,9 +1534,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'network_error'      => __( 'Connection issue while submitting the form. Check that you are connected to the Internet and try again.', 'jetpack-forms' ),
 			),
 			'admin_ajax_url'  => admin_url( 'admin-ajax.php' ),
-			// Translated here rather than in view.js: the interactivity module is a script
-			// module with no i18n dependency, and the string has to match what
-			// get_submission_display_value() rendered server-side or hydration rewrites it.
+			// Translated here because the interactivity module is a script module with no
+			// i18n dependency, and the string has to match what was rendered server-side.
 			'unchecked_label' => __( 'No', 'jetpack-forms' ),
 		);
 		wp_interactivity_config( 'jetpack/form', $config );
@@ -1981,13 +1980,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * The value a submitted field shows in the confirmation summary.
 	 *
-	 * An unticked checkbox submits nothing, so its value arrives empty and the summary drew
-	 * the field's label over a blank line -- which reads as a field that failed to record
-	 * rather than as the answer "no". The email renderer has always said "No" here, so this
-	 * says it too and the two descriptions of one submission agree.
+	 * An unticked checkbox submits nothing, so it arrives empty and the summary drew the
+	 * label over a blank line. The email renderer has always said "No" here.
 	 *
 	 * Mirrored by `getSubmissionDisplayValue()` in src/modules/form/helpers.js, which formats
-	 * the same data for an AJAX submission. The two must produce the same string or the
+	 * the same data for an AJAX submission; the two must produce the same string or the
 	 * summary changes as the Interactivity API hydrates it.
 	 *
 	 * @param mixed  $value The submitted value.

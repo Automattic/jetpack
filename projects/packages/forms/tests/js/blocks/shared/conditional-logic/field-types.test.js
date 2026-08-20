@@ -91,12 +91,9 @@ describe( 'field-types', () => {
 } );
 
 /**
- * Whether a value already typed survives choosing a subject.
- *
- * Choosing one used to clear the value outright, so anything typed first was lost -- and the
- * value box is offered before a subject is picked, so typing it first is a normal way to work.
- * The counter-risk is keeping a value the new subject's control cannot show: the box would
- * look empty while the evaluators went on comparing against it.
+ * Whether a value already typed survives choosing a subject. The risk on the other side is
+ * keeping one the new subject's control cannot show: an empty-looking box the evaluators are
+ * still comparing against.
  */
 describe( 'canValueCarryOver', () => {
 	it( 'keeps a value a text box can show', () => {
@@ -131,8 +128,7 @@ describe( 'canValueCarryOver', () => {
 		expect( canValueCarryOver( 'ten', 'number' ) ).toBe( false );
 	} );
 
-	// A date or time input renders nothing for a value outside its format, so a carried-over
-	// value that does not parse would be invisible rather than merely wrong.
+	// Outside its own format, the input renders nothing at all.
 	it( 'keeps it for date and time only in the format their inputs use', () => {
 		expect( canValueCarryOver( '2026-03-15', 'date' ) ).toBe( true );
 		expect( canValueCarryOver( '15/03/2026', 'date' ) ).toBe( false );

@@ -2,11 +2,9 @@ import { describe, expect, it } from '@jest/globals';
 import { getSubmissionDisplayValue, isCheckedValue } from '../../../../src/modules/form/helpers.js';
 
 /**
- * The confirmation summary an AJAX submission builds in the browser.
- *
- * It has to produce the same strings `Contact_Form::get_submission_display_value()` rendered
- * server-side: the Interactivity API hydrates over that markup, so a disagreement shows up as
- * the summary changing under the respondent a moment after it appears.
+ * The confirmation summary an AJAX submission builds in the browser. It has to produce the
+ * same strings `Contact_Form::get_submission_display_value()` rendered server-side, or the
+ * summary changes as the Interactivity API hydrates over it.
  */
 describe( 'isCheckedValue', () => {
 	it( 'treats a submitted answer as ticked', () => {

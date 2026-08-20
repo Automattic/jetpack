@@ -546,19 +546,13 @@ describe( 'ConditionalLogicPanel', () => {
 		expect( screen.getByRole( 'button', { name: 'Add condition' } ) ).toBeEnabled();
 	} );
 
-	/**
-	 * The builder opens with one empty condition waiting to be filled in, and that row used to
-	 * greet an author with the amber caution icon -- a warning about something they had not
-	 * done yet, which reads as an error before you have touched anything. Amber is kept for
-	 * the case it was meant for: a condition begun and left unfinished.
-	 */
+	// The builder opens with one empty row, so amber there warned about something the author
+	// had not done yet. It is kept for a condition begun and left unfinished.
 	it( 'stays neutral on a condition nobody has started', async () => {
 		await setup( withRules( [] ) );
 
 		const status = screen.getByLabelText( 'Choose a field to compare against.' );
 
-		// The class the muted colour hangs off, and the same condition that chooses
-		// between the draft icon and the caution icon.
 		expect( status ).toHaveClass( 'is-unstarted' );
 		expect( status ).not.toHaveClass( 'is-active' );
 	} );
@@ -605,8 +599,7 @@ describe( 'ConditionalLogicPanel', () => {
 				groups: [
 					{
 						logicalOperator: 'all',
-						// The value rides along: both subjects compare textually, so what was
-						// already typed still says something about the new one.
+						// Carried over: both subjects compare textually.
 						rules: [ { field: 'untitled-field', operator: 'is', value: 'x' } ],
 					},
 				],
@@ -654,11 +647,8 @@ describe( 'ConditionalLogicPanel', () => {
 		} );
 	} );
 
-	/**
-	 * The value box is offered before a subject has been chosen, so filling it in first is a
-	 * natural order to work in -- and choosing the subject used to wipe it, sending the author
-	 * back to retype what they had just entered.
-	 */
+	// The value box is offered before a subject is chosen, so filling it in first is a normal
+	// order to work in -- and choosing the subject used to wipe it.
 	it( 'keeps a value typed before the subject was chosen', async () => {
 		const { setAttributes } = await setup(
 			withRules( [ { field: '', operator: 'is', value: 'iPhone' } ] )
@@ -678,8 +668,7 @@ describe( 'ConditionalLogicPanel', () => {
 		} );
 	} );
 
-	// Kept only where the new subject can actually show it. A checkbox compares against
-	// nothing, so the value has to go rather than sit in the rule out of sight.
+	// A checkbox compares against nothing, so the value has to go rather than sit out of sight.
 	it( 'drops the typed value for a subject that takes none', async () => {
 		const { setAttributes } = await setup(
 			withRules( [ { field: '', operator: 'is', value: 'iPhone' } ] )

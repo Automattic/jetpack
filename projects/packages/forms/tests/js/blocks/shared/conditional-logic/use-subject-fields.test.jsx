@@ -63,8 +63,7 @@ const { default: useSubjectFields, useEnsureFieldId } = await import(
  * @param {string} [options.label]  - Text of the field's label block, if it has one.
  * @param {string} [options.id]     - Explicit field id, if the field carries one.
  * @param {string} [options.name]   - Block name; defaults to a text field.
- * @param {string} [options.option] - Text of a standalone `jetpack/option` inner block, which
- *                                  is where a checkbox or consent field keeps its label.
+ * @param {string} [options.option] - Text of a standalone `jetpack/option` inner block.
  * @return {object} A block instance shaped the way the store returns them.
  */
 const field = ( clientId, { label, id, option, name = 'jetpack/field-text' } = {} ) => {
@@ -232,12 +231,8 @@ describe( 'useSubjectFields', () => {
 		} );
 	} );
 
-	/**
-	 * A checkbox and a consent field keep their inline label on the standalone
-	 * `jetpack/option` their template inserts, not on a `jetpack/label` block. Reading only
-	 * `jetpack/label` reported every one of them as "Untitled field" however carefully it had
-	 * been named, which is unusable in a form holding more than one.
-	 */
+	// A checkbox and a consent field keep their inline label on the standalone `jetpack/option`
+	// their template inserts, not on a `jetpack/label` block.
 	it( 'reads a checkbox label from its standalone option block', () => {
 		blocks = {
 			form: {
@@ -256,8 +251,8 @@ describe( 'useSubjectFields', () => {
 		expect( subjectsFor( 'c-owner' )[ 0 ].label ).toBe( 'Send me a copy' );
 	} );
 
-	// The choice fields nest their options one level down under a `jetpack/options` wrapper,
-	// so only a direct child can be the field's own inline label.
+	// The choice fields nest theirs under a `jetpack/options` wrapper, so only a direct child
+	// can be the field's own inline label.
 	it( 'ignores option blocks nested under an options wrapper', () => {
 		blocks = {
 			form: {
@@ -283,12 +278,8 @@ describe( 'useSubjectFields', () => {
 		expect( subjectsFor( 'c-owner' )[ 0 ].label ).toBe( 'Untitled field' );
 	} );
 
-	/**
-	 * Choosing an unnamed field mints it an id from whatever this hook called it -- and that
-	 * used to be the placeholder, so the field was renamed from "Untitled field" to
-	 * "untitled-field" inside the dropdown it had just been picked from. The builder and the
-	 * inspector summary then appeared to name two different fields.
-	 */
+	// Choosing an unnamed field mints it an id from whatever this hook called it, so a
+	// placeholder-derived one would rename the field inside the dropdown it was picked from.
 	it( 'does not show an id minted from the placeholder as the label', () => {
 		blocks = {
 			form: {

@@ -5099,27 +5099,6 @@ class Contact_Form_Test extends BaseTestCase {
 	 * hydration callback, so a checkbox has to key off its answer as well as its
 	 * type. Everything else keys off the type alone.
 	 */
-	/**
-	 * An unticked checkbox submits nothing, so the confirmation summary drew the field's
-	 * label over a blank line -- which reads as a field that failed to record rather than as
-	 * the answer "no". The email renderer has always said "No" here.
-	 */
-	public function test_get_submission_display_value_names_an_unticked_checkbox() {
-		$this->assertSame( 'No', $this->invoke_private_static( 'get_submission_display_value', array( '', 'checkbox' ) ) );
-		$this->assertSame( 'No', $this->invoke_private_static( 'get_submission_display_value', array( null, 'checkbox' ) ) );
-		$this->assertSame( 'No', $this->invoke_private_static( 'get_submission_display_value', array( 'No', 'checkbox' ) ) );
-	}
-
-	public function test_get_submission_display_value_leaves_other_values_alone() {
-		$this->assertSame( 'Yes', $this->invoke_private_static( 'get_submission_display_value', array( 'Yes', 'checkbox' ) ) );
-
-		// Only the checkbox is treated this way: an empty text field really is unanswered,
-		// and consent keeps its own wording.
-		$this->assertSame( '', $this->invoke_private_static( 'get_submission_display_value', array( '', 'text' ) ) );
-		$this->assertSame( '', $this->invoke_private_static( 'get_submission_display_value', array( '', 'consent' ) ) );
-		$this->assertSame( 'Ada', $this->invoke_private_static( 'get_submission_display_value', array( 'Ada', 'text' ) ) );
-	}
-
 	public function test_get_field_type_icon_key_reflects_the_checkbox_answer() {
 		$this->assertSame( 'checkbox', $this->invoke_private_static( 'get_field_type_icon_key', array( 'checkbox', 'Yes' ) ) );
 		$this->assertSame( 'checkbox:unchecked', $this->invoke_private_static( 'get_field_type_icon_key', array( 'checkbox', '' ) ) );
@@ -5128,6 +5107,27 @@ class Contact_Form_Test extends BaseTestCase {
 		// Other types never vary with the value.
 		$this->assertSame( 'text', $this->invoke_private_static( 'get_field_type_icon_key', array( 'text', '' ) ) );
 		$this->assertSame( 'consent', $this->invoke_private_static( 'get_field_type_icon_key', array( 'consent', '' ) ) );
+	}
+
+	/**
+	 * An unticked checkbox submits nothing, so the summary drew the label over a blank line.
+	 * The email renderer has always said "No" here.
+	 */
+	public function test_get_submission_display_value_names_an_unticked_checkbox() {
+		$this->assertSame( 'No', $this->invoke_private_static( 'get_submission_display_value', array( '', 'checkbox' ) ) );
+		$this->assertSame( 'No', $this->invoke_private_static( 'get_submission_display_value', array( null, 'checkbox' ) ) );
+		$this->assertSame( 'No', $this->invoke_private_static( 'get_submission_display_value', array( 'No', 'checkbox' ) ) );
+	}
+
+	/**
+	 * Only the checkbox is treated this way: an empty text field really is unanswered, and
+	 * consent keeps its own wording.
+	 */
+	public function test_get_submission_display_value_leaves_other_values_alone() {
+		$this->assertSame( 'Yes', $this->invoke_private_static( 'get_submission_display_value', array( 'Yes', 'checkbox' ) ) );
+		$this->assertSame( '', $this->invoke_private_static( 'get_submission_display_value', array( '', 'text' ) ) );
+		$this->assertSame( '', $this->invoke_private_static( 'get_submission_display_value', array( '', 'consent' ) ) );
+		$this->assertSame( 'Ada', $this->invoke_private_static( 'get_submission_display_value', array( 'Ada', 'text' ) ) );
 	}
 
 	/**

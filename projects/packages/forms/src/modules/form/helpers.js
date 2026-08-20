@@ -135,14 +135,12 @@ export const isCheckedValue = value => {
 /**
  * The value a submitted field shows in the confirmation summary.
  *
- * An unticked checkbox submits nothing, so its value arrives empty and the summary drew the
- * field's label over a blank line -- which reads as a field that failed to record rather than
- * as the answer "no". The email renderer has always said "No" here, so this says it too.
+ * An unticked checkbox submits nothing, so it arrives empty and the summary drew the label
+ * over a blank line. The email renderer has always said "No" here.
  *
- * Mirrors `Contact_Form::get_submission_display_value()`, which renders the same summary
- * server-side; the two must agree or the value changes as the Interactivity API hydrates it.
- * The label is translated in PHP and passed through the module config, since a script module
- * carries no i18n dependency.
+ * Mirrors `Contact_Form::get_submission_display_value()`; the two must agree or the value
+ * changes as the Interactivity API hydrates it. The label is translated in PHP and passed
+ * through the module config, since a script module carries no i18n dependency.
  *
  * @param {*}      value          - The submitted value.
  * @param {string} type           - The field type.
