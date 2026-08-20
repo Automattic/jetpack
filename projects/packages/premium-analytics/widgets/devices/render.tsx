@@ -8,6 +8,7 @@ import { device } from '@jetpack-premium-analytics/icons';
  */
 import { __ } from '@wordpress/i18n';
 import {
+	DonutChartSkeleton,
 	Legend,
 	WIDGET_ROW_LIMIT,
 	describeError,
@@ -94,6 +95,7 @@ function DevicesInner() {
 					icon: device,
 					description: __( 'No device data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <DonutChartSkeleton /> }
 			>
 				<div className={ styles.chartWrap }>
 					<div className={ styles.chartShell }>
