@@ -171,15 +171,15 @@ class Jetpack_Backup {
 	 * The page to be added to submenu
 	 */
 	public static function add_wp_admin_submenu() {
-		$is_modernized = self::is_modernized();
-		$callback      = $is_modernized && function_exists( 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page' )
+		$wp_build_active = self::is_wp_build_dashboard_active();
+		$callback        = $wp_build_active
 			? 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page'
 			: array( __CLASS__, 'plugin_settings_page' );
 
-		// Gate the "VaultPress Backup" relabel behind the modernization
-		// filter so the flag-off path stays byte-identical to trunk.
-		$page_title = $is_modernized ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
-		$menu_title = $is_modernized ? 'VaultPress Backup' : 'Backup'; // Product name, do not translate.
+		// The relabel rides the modernized dashboard rather than the filter alone,
+		// so a fallback to the legacy page also falls back to the legacy title.
+		$page_title = $wp_build_active ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
+		$menu_title = $wp_build_active ? 'VaultPress Backup' : 'Backup'; // Product name, do not translate.
 
 		$page_suffix = Admin_Menu::add_menu(
 			$page_title,
@@ -241,7 +241,7 @@ class Jetpack_Backup {
 	public static function enqueue_admin_scripts() {
 		// This callback is registered via `load-{$page_suffix}` in `add_wp_admin_submenu()`,
 		// so it only fires on the Backup admin page — no need to re-check the page here.
-		if ( self::is_modernized() ) {
+		if ( self::is_wp_build_dashboard_active() ) {
 			// The i18n loader is registered on every admin page by jetpack-assets but
 			// only enqueued when depended on; the esbuild bundles don't pull it in.
 			// Enqueue it here, before the early return, so the wp-build dashboard's
@@ -1116,6 +1116,24 @@ class Jetpack_Backup {
 	 */
 	public static function is_modernized() {
 		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+	}
+
+	/**
+	 * Returns true when the modernization filter is on AND the wp-build dashboard loaded.
+	 *
+	 * `build/` is gitignored, so the render function is absent in any unbuilt checkout
+	 * and in any release whose wp-build step failed. Every consumer of the modernized
+	 * surface has to agree on this, or the menu falls back to the legacy page while the
+	 * enqueue path skips the legacy script — an empty div with no JS.
+	 *
+	 * Only meaningful once `maybe_load_wp_build()` has run. It is hooked on `admin_menu`
+	 * at the same priority as `add_wp_admin_submenu()`, so registration order — not
+	 * priority — is what keeps it first. Do not reorder those two `add_action()` calls.
+	 *
+	 * @return bool
+	 */
+	private static function is_wp_build_dashboard_active() {
+		return self::is_modernized() && function_exists( 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page' );
 	}
 
 	/**
