@@ -194,3 +194,53 @@ export const getValueInputForTypeKey = ( typeKey: TypeKey | string ): ValueInput
  */
 export const operatorNeedsValue = ( operator: Operator | string ): boolean =>
 	! OPERATORS_WITHOUT_VALUE.has( operator );
+
+/**
+ * Whether a value the author has already typed still means something under a new subject.
+ *
+ * Choosing a subject used to clear the value unconditionally, which cost the author anything
+ * they had typed first -- and the value box is offered before a subject is picked, so typing
+ * the value first is a natural order to work in. Keeping it needs a check, though: a value the
+ * new subject's control cannot represent would sit in the rule invisibly, showing an empty box
+ * while the evaluators went on comparing against it.
+ *
+ * @param value   - The value currently on the rule.
+ * @param typeKey - The new subject's comparison behavior.
+ * @param options - The new subject's selectable options, where it has any.
+ * @return True when the value can be carried over as-is.
+ */
+export const canValueCarryOver = (
+	value: unknown,
+	typeKey: TypeKey | string,
+	options: ReadonlyArray< { value: string } > = []
+): boolean => {
+	const raw = String( value ?? '' ).trim();
+
+	if ( '' === raw ) {
+		return false;
+	}
+
+	switch ( getValueInputForTypeKey( typeKey ) ) {
+		// No value box at all: `is checked` and friends compare against nothing.
+		case 'none':
+			return false;
+
+		// A dropdown can only show a value that is one of its options.
+		case 'options':
+			return options.some( option => option.value === raw );
+
+		case 'number':
+			return Number.isFinite( Number( raw ) );
+
+		// `<input type="date">` and `<input type="time">` render nothing for a value outside
+		// their format, so anything else has to go rather than be kept out of sight.
+		case 'date':
+			return /^\d{4}-\d{2}-\d{2}$/.test( raw );
+
+		case 'time':
+			return /^\d{2}:\d{2}(:\d{2})?$/.test( raw );
+
+		default:
+			return true;
+	}
+};

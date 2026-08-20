@@ -9,6 +9,7 @@ import { useEnsureFieldId } from '../../hooks/use-subject-fields.js';
 import { getFieldDisplayName } from '../../util/field-label.js';
 import {
 	OPERATORS,
+	canValueCarryOver,
 	getOperatorsForTypeKey,
 	getValueInputForTypeKey,
 	operatorNeedsValue,
@@ -147,7 +148,9 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 			const nextSubject = fields.find( field => selectionValue( field ) === selection );
 
 			if ( ! nextSubject ) {
-				onChange( index, { field: '', operator: OPERATORS.IS, value: '' } );
+				// The value survives clearing the subject: the author did not touch it, and
+				// whether it still applies is decided when they pick the next subject.
+				onChange( index, { field: '', operator: OPERATORS.IS, value: rule.value ?? '' } );
 				return;
 			}
 
@@ -172,9 +175,18 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 				? rule.operator
 				: defaultOperatorFor( nextSubject.typeKey );
 
-			onChange( index, { field: fieldId, operator, value: '' } );
+			// The value box is offered before a subject has been chosen, so filling it in
+			// first is a natural order to work in -- and this used to throw that away. It is
+			// kept whenever the new subject can still represent it, and dropped when it
+			// cannot, which would otherwise leave an empty-looking box the evaluators were
+			// still comparing against.
+			const keepsValue =
+				operatorNeedsValue( operator ) &&
+				canValueCarryOver( rule.value, nextSubject.typeKey, nextSubject.options );
+
+			onChange( index, { field: fieldId, operator, value: keepsValue ? rule.value : '' } );
 		},
-		[ ensureFieldId, fields, ownFieldId, index, onChange, rule.operator ]
+		[ ensureFieldId, fields, ownFieldId, index, onChange, rule.operator, rule.value ]
 	);
 
 	const handleOperatorChange = useCallback(

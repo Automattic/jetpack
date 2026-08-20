@@ -1,5 +1,6 @@
 import {
 	OPERATORS,
+	canValueCarryOver,
 	getOperatorsForTypeKey,
 	getValueInputForTypeKey,
 	operatorNeedsValue,
@@ -86,5 +87,57 @@ describe( 'field-types', () => {
 		expect( operatorNeedsValue( OPERATORS.IS_NOT_EMPTY ) ).toBe( false );
 		expect( operatorNeedsValue( OPERATORS.IS_CHECKED ) ).toBe( false );
 		expect( operatorNeedsValue( OPERATORS.IS_NOT_CHECKED ) ).toBe( false );
+	} );
+} );
+
+/**
+ * Whether a value already typed survives choosing a subject.
+ *
+ * Choosing one used to clear the value outright, so anything typed first was lost -- and the
+ * value box is offered before a subject is picked, so typing it first is a normal way to work.
+ * The counter-risk is keeping a value the new subject's control cannot show: the box would
+ * look empty while the evaluators went on comparing against it.
+ */
+describe( 'canValueCarryOver', () => {
+	it( 'keeps a value a text box can show', () => {
+		expect( canValueCarryOver( 'iPhone', 'string' ) ).toBe( true );
+		expect( canValueCarryOver( 'iPhone', 'hidden' ) ).toBe( true );
+	} );
+
+	it( 'has nothing to keep when the value is blank', () => {
+		expect( canValueCarryOver( '', 'string' ) ).toBe( false );
+		expect( canValueCarryOver( '   ', 'string' ) ).toBe( false );
+		expect( canValueCarryOver( null, 'string' ) ).toBe( false );
+		expect( canValueCarryOver( undefined, 'string' ) ).toBe( false );
+	} );
+
+	it( 'drops it for a subject that takes no value at all', () => {
+		expect( canValueCarryOver( 'iPhone', 'boolean' ) ).toBe( false );
+		expect( canValueCarryOver( 'iPhone', 'file' ) ).toBe( false );
+	} );
+
+	it( 'keeps it for a dropdown only when it is one of the options', () => {
+		const options = [ { value: 'Small' }, { value: 'Large' } ];
+
+		expect( canValueCarryOver( 'Small', 'choice', options ) ).toBe( true );
+		expect( canValueCarryOver( 'Medium', 'choice', options ) ).toBe( false );
+		// A subject whose options have not been filled in yet can show nothing.
+		expect( canValueCarryOver( 'Small', 'choice' ) ).toBe( false );
+	} );
+
+	it( 'keeps it for a number subject only when it is a number', () => {
+		expect( canValueCarryOver( '10', 'number' ) ).toBe( true );
+		expect( canValueCarryOver( '-2.5', 'number' ) ).toBe( true );
+		expect( canValueCarryOver( 'ten', 'number' ) ).toBe( false );
+	} );
+
+	// A date or time input renders nothing for a value outside its format, so a carried-over
+	// value that does not parse would be invisible rather than merely wrong.
+	it( 'keeps it for date and time only in the format their inputs use', () => {
+		expect( canValueCarryOver( '2026-03-15', 'date' ) ).toBe( true );
+		expect( canValueCarryOver( '15/03/2026', 'date' ) ).toBe( false );
+		expect( canValueCarryOver( '09:30', 'time' ) ).toBe( true );
+		expect( canValueCarryOver( '09:30:00', 'time' ) ).toBe( true );
+		expect( canValueCarryOver( 'half nine', 'time' ) ).toBe( false );
 	} );
 } );

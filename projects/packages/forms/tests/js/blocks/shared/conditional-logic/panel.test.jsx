@@ -605,7 +605,9 @@ describe( 'ConditionalLogicPanel', () => {
 				groups: [
 					{
 						logicalOperator: 'all',
-						rules: [ { field: 'untitled-field', operator: 'is', value: '' } ],
+						// The value rides along: both subjects compare textually, so what was
+						// already typed still says something about the new one.
+						rules: [ { field: 'untitled-field', operator: 'is', value: 'x' } ],
 					},
 				],
 			} ),
@@ -646,6 +648,70 @@ describe( 'ConditionalLogicPanel', () => {
 					{
 						logicalOperator: 'all',
 						rules: [ { field: 'budget_1', operator: 'equals', value: '' } ],
+					},
+				],
+			} ),
+		} );
+	} );
+
+	/**
+	 * The value box is offered before a subject has been chosen, so filling it in first is a
+	 * natural order to work in -- and choosing the subject used to wipe it, sending the author
+	 * back to retype what they had just entered.
+	 */
+	it( 'keeps a value typed before the subject was chosen', async () => {
+		const { setAttributes } = await setup(
+			withRules( [ { field: '', operator: 'is', value: 'iPhone' } ] )
+		);
+
+		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), 'name_1' );
+
+		expect( setAttributes ).toHaveBeenCalledWith( {
+			conditionalLogic: expect.objectContaining( {
+				groups: [
+					{
+						logicalOperator: 'all',
+						rules: [ { field: 'name_1', operator: 'is', value: 'iPhone' } ],
+					},
+				],
+			} ),
+		} );
+	} );
+
+	// Kept only where the new subject can actually show it. A checkbox compares against
+	// nothing, so the value has to go rather than sit in the rule out of sight.
+	it( 'drops the typed value for a subject that takes none', async () => {
+		const { setAttributes } = await setup(
+			withRules( [ { field: '', operator: 'is', value: 'iPhone' } ] )
+		);
+
+		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), 'terms_1' );
+
+		expect( setAttributes ).toHaveBeenCalledWith( {
+			conditionalLogic: expect.objectContaining( {
+				groups: [
+					{
+						logicalOperator: 'all',
+						rules: [ { field: 'terms_1', operator: 'is_checked', value: '' } ],
+					},
+				],
+			} ),
+		} );
+	} );
+
+	it( 'keeps the typed value for a dropdown subject that offers it', async () => {
+		const { setAttributes } = await setup(
+			withRules( [ { field: '', operator: 'is', value: 'Large' } ] )
+		);
+
+		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), 'size_1' );
+
+		expect( setAttributes ).toHaveBeenCalledWith( {
+			conditionalLogic: expect.objectContaining( {
+				groups: [
+					{
+						logicalOperator: 'all',
+						rules: [ { field: 'size_1', operator: 'is', value: 'Large' } ],
 					},
 				],
 			} ),
