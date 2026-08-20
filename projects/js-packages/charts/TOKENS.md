@@ -146,4 +146,4 @@ Every role in the catalog is a supported override point, on the precedence rules
 | `--a8c--charts--leaderboard--bar--border-radius` | `--a8c-charts-border-radius-leaderboard-bar` |
 | `--a8c-charts-color-focus` | `--wpds-color-stroke-focus` |
 
-Removing the first four also removes the precedence quirk they carried: each was read at its component's own call site as the *outer* layer around the role — `var(--deprecated-name, var(--a8c-charts-*))` — so the old name beat the new one wherever both were set. No `--a8c-charts-*` role is now read anywhere but bare.
+Removing the first four also removes a second name for a role, read at its component's own call site rather than through the catalog: each sat inside the role as its fallback — `var(--a8c-charts-*, var(--deprecated-name, …))` — so it applied only where the role itself was unset. No `--a8c-charts-*` role is now read anywhere but bare.

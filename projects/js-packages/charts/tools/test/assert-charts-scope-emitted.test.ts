@@ -46,4 +46,14 @@ describe( 'assertChartsScopeEmitted', () => {
 			assertChartsScopeEmitted( distWith( `${ CATALOG }\n:root{--some-other-package-token:12px}` ) )
 		).not.toThrow();
 	} );
+
+	// Minified output puts `{` directly before the nested selector, with no whitespace for the leading-context class to match on.
+	it.each( [
+		[ 'a media query', '@media(min-width:1px){:root{--a8c-charts-color-grid:red}}' ],
+		[ 'a cascade layer', '@layer base{:root{--a8c-charts-color-grid:red}}' ],
+	] )( 'fails when the catalog leaks onto :root inside %s', ( _label, leak ) => {
+		expect( () => assertChartsScopeEmitted( distWith( `${ CATALOG }\n${ leak }` ) ) ).toThrow(
+			/":root" catalog block/
+		);
+	} );
 } );

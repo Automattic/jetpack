@@ -21,7 +21,8 @@ import {
 	resolveCssVariable,
 	normalizeColorToHex,
 } from '../../utils';
-import { ChartScopeContext } from '../chart-scope';
+// Imported from the module rather than the `chart-scope` barrel: the barrel also pulls `use-standalone-scope-class`, which imports `GlobalChartsContext` back from this file. That cycle resolves today only because the binding is read lazily inside the hook body.
+import { ChartScopeContext } from '../chart-scope/chart-scope-context';
 import { getChartColor, type ColorCache } from './private/get-chart-color';
 import { themeOverrideVars } from './private/theme-override-vars';
 import { withCatalogPointers } from './private/with-catalog-pointers';

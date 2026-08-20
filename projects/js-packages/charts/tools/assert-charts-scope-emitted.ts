@@ -15,7 +15,7 @@ const MARKERS: Array< { name: string; test: ( css: string ) => boolean } > = [
 	// Scoped to a `:root` block that declares a charts variable, not to `:root` anywhere in the file: this runs over the whole of `dist/index.css`, so matching the bare selector would fail the production build on any unrelated `:root` rule the package or a bundled dependency stylesheet happens to add — with a message about the catalog leaking, which would not be what happened.
 	{
 		name: 'no ":root" catalog block',
-		test: css => ! /(^|[\s,}]):root[^{}]*\{[^}]*--a8c-charts-/.test( css ),
+		test: css => ! /(^|[\s,}{]):root[^{}]*\{[^}]*--a8c-charts-/.test( css ),
 	},
 ];
 
