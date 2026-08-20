@@ -92,7 +92,6 @@ export default function BackupDetail( { item }: Props ) {
 						align="center"
 					>
 						<Icon icon={ cloud } />
-						{ /* No per-backup scan signal reaches this component. */ }
 						<Text variant="heading-md" render={ <h3 /> }>
 							{ item.title }
 						</Text>
