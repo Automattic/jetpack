@@ -173,6 +173,19 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The module-extras entry point must not be an activatable module.
+	 *
+	 * It sits in modules/, which Modules::get_available() globs, so leaving
+	 * module headers on it would put "Reprint export" in the module list and
+	 * let a user toggle a feature that is not a module.
+	 */
+	public function test_entry_point_is_not_a_module() {
+		$this->assertFileExists( JETPACK__PLUGIN_DIR . 'modules/reprint-export.php' );
+		$this->assertFalse( Jetpack::get_module( 'reprint-export' ) );
+		$this->assertNotContains( 'reprint-export', Jetpack::get_available_modules() );
+	}
+
+	/**
 	 * The REST route is registered.
 	 */
 	public function test_rest_route_registered() {

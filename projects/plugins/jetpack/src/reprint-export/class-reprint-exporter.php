@@ -69,11 +69,13 @@ class Reprint_Exporter {
 	 * Registers the hooks where the feature is available, and does nothing
 	 * where it is not.
 	 *
-	 * Hooked on `plugins_loaded` from Jetpack's constructor rather than called
-	 * from the constructor itself. That path is the hottest in the plugin and
-	 * the worst place to risk a fatal, and it runs before other plugins load,
-	 * so a `jetpack_reprint_export_available` filter added by one of them would
-	 * come too late to be read.
+	 * Called from modules/reprint-export.php, which module-extras.php requires
+	 * on `after_setup_theme`, rather than from Jetpack's constructor. The
+	 * constructor is the hottest path in the plugin and the worst place to risk
+	 * a fatal, and it runs before other plugins load, so a
+	 * `jetpack_reprint_export_available` filter added by one of them would come
+	 * too late to be read. Going through module-extras also means the
+	 * `jetpack_tools_to_include` filter can drop the feature entirely.
 	 */
 	public static function maybe_init() {
 		if ( self::is_available() ) {
