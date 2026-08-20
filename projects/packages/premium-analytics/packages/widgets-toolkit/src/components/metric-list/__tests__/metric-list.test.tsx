@@ -53,6 +53,9 @@ describe( 'MetricList', () => {
 
 		expect( screen.getByText( 'Email 2' ) ).toBeVisible();
 		expect( screen.queryByText( 'Email 3' ) ).not.toBeVisible();
+		// `hidden` is what takes the dropped rows out of the accessibility tree
+		// and the focus order; a display class alone would leave them both.
+		expect( screen.getAllByRole( 'listitem' ) ).toHaveLength( 3 );
 	} );
 
 	it( 'keeps every row when fitting is off', () => {

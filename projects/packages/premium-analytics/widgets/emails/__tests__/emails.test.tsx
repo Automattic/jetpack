@@ -51,6 +51,9 @@ describe( 'EmailsList', () => {
 	] as const )( 'opens the matching detail tab for the %s metric', ( metric, expectedSection ) => {
 		renderEmailsList( metric );
 
+		// Switching the metric swaps the value without reordering the rows.
+		expect( screen.getByText( metric === 'opens' ? '42%' : '7%' ) ).toBeInTheDocument();
+
 		const link = screen.getByRole( 'link', { name: 'Monthly newsletter' } );
 		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
 
@@ -58,6 +61,23 @@ describe( 'EmailsList', () => {
 		expect( url.searchParams.get( 'from' ) ).toBe( '2026-06-01' );
 		expect( url.searchParams.get( 'section' ) ).toBe( expectedSection );
 		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/newsletter/' );
+	} );
+
+	it( 'renders the rate at two decimals, trimming a trailing zero', () => {
+		render(
+			<WidgetRoot attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-30' } } }>
+				<EmailsList
+					rows={ [
+						{ id: 1, label: 'Half a percent', opensRate: 11.5, clicksRate: 0 },
+						{ id: 2, label: 'Three decimals', opensRate: 3.814, clicksRate: 0 },
+					] }
+					metric="opens"
+				/>
+			</WidgetRoot>
+		);
+
+		expect( screen.getByText( '11.5%' ) ).toBeInTheDocument();
+		expect( screen.getByText( '3.81%' ) ).toBeInTheDocument();
 	} );
 
 	it( 'carries the report post ID and URL into the rendered detail link', async () => {

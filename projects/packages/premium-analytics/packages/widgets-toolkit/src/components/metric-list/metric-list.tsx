@@ -32,9 +32,6 @@ export type MetricListProps = {
 	className?: string;
 };
 
-/** Allow for fractional layout rounding. */
-const SUBPIXEL_TOLERANCE = 0.5;
-
 /**
  * Render a list of labels and end-aligned values.
  *
@@ -53,12 +50,18 @@ export function MetricList( {
 	// Show all rows until the list can be measured.
 	let visibleCount = items.length;
 	if ( fitRows && rowHeight > 0 && rootHeight > 0 ) {
-		const fits = Math.floor( ( rootHeight + SUBPIXEL_TOLERANCE ) / rowHeight );
+		// Both measurements arrive rounded from `useElementSize`, so no subpixel slack is needed.
+		const fits = Math.floor( rootHeight / rowHeight );
 		visibleCount = Math.min( items.length, Math.max( 1, fits ) );
 	}
 
 	if ( items.length === 0 ) {
-		return <ChartEmptyState text={ emptyStateText } />;
+		// Keep the caller's box so the empty state does not collapse in a flex column.
+		return (
+			<div className={ clsx( styles.root, className ) }>
+				<ChartEmptyState text={ emptyStateText } />
+			</div>
+		);
 	}
 
 	return (

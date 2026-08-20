@@ -82,6 +82,30 @@ export const LongLabels: Story = {
 	decorators: [ withCard( 'auto' ) ],
 };
 
+/** Linked labels, the shape widgets pass in practice: they inherit the row's color and truncate the same way. */
+export const LinkedLabels: Story = {
+	args: {
+		items: [
+			{
+				id: 1,
+				label: (
+					<a href="#linked-label-story">
+						An exhaustively long, keyword-stuffed subject line that certainly needs truncating
+						before it overflows the row
+					</a>
+				),
+				value: '4.1%',
+			},
+			{
+				id: 2,
+				label: <a href="#linked-label-story">Your monthly digest: billing and features</a>,
+				value: '6.7%',
+			},
+		],
+	},
+	decorators: [ withCard( 'auto' ) ],
+};
+
 export const Empty: Story = {
 	args: { items: [], emptyStateText: 'No emails sent yet.' },
 	decorators: [ withCard( '200px' ) ],
