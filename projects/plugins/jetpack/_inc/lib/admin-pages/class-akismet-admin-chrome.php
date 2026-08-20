@@ -111,6 +111,7 @@ class Akismet_Admin_Chrome {
 				display: flex;
 				align-items: center;
 				gap: 8px;
+				text-decoration: none;
 			}
 			/* 24×24 visual slot centering the 20px logo, matching My Jetpack/Boost. */
 			.jp-akismet-header__visual {
@@ -313,10 +314,10 @@ class Akismet_Admin_Chrome {
 		$this->print_styles();
 		?>
 		<header class="jp-akismet-header">
-			<div class="jp-akismet-header__title">
+			<a class="jp-akismet-header__title" href="<?php echo esc_url( admin_url( 'admin.php?page=akismet-key-config' ) ); ?>">
 				<span class="jp-akismet-header__visual" aria-hidden="true"><?php echo $this->akismet_logo( 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></span>
 				<h1><?php esc_html_e( 'Akismet Anti-spam', 'jetpack' ); ?></h1>
-			</div>
+			</a>
 		</header>
 		<?php
 	}
