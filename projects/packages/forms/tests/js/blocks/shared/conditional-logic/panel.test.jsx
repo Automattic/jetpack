@@ -146,7 +146,7 @@ const withRules = ( rules, extra = {} ) => ( {
 
 const setup = async (
 	conditionalLogic = DEFAULT_ATTRIBUTE,
-	{ openModal = true, sidebarOpen = true } = {}
+	{ openModal = true, sidebarOpen = true, isContainer = false } = {}
 ) => {
 	isSidebarOpen = sidebarOpen;
 
@@ -156,6 +156,7 @@ const setup = async (
 			clientId="abc"
 			attributes={ { conditionalLogic } }
 			setAttributes={ setAttributes }
+			isContainer={ isContainer }
 		/>
 	);
 
@@ -205,6 +206,47 @@ const optionValues = select =>
 	within( select )
 		.getAllByRole( 'option' )
 		.map( o => o.value );
+
+describe( 'ConditionalLogicPanel for a container', () => {
+	// A container is shown or hidden as a unit and takes the fields inside it with it, so the
+	// copy has to promise that rather than reusing the single-field wording.
+	it( 'describes the empty state in container terms', async () => {
+		await setup( DEFAULT_ATTRIBUTE, { openModal: false, isContainer: true } );
+
+		expect(
+			screen.getByText(
+				'Show or hide this group, and everything in it, based on the answer to a field.'
+			)
+		).toBeInTheDocument();
+	} );
+
+	it( 'summarises conditions in container terms', async () => {
+		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ), {
+			openModal: false,
+			isContainer: true,
+		} );
+
+		expect( screen.getByText( 'This group is shown only if:' ) ).toBeInTheDocument();
+	} );
+
+	it( 'states the container default in the rule builder', async () => {
+		await setup( DEFAULT_ATTRIBUTE, { isContainer: true } );
+
+		expect(
+			screen.getByText( 'This group is hidden by default, until the following conditions are met:' )
+		).toBeInTheDocument();
+	} );
+
+	it( 'states the inverted container default for a hide rule', async () => {
+		await setup( withRules( [], { action: 'hide' } ), { isContainer: true } );
+
+		expect(
+			screen.getByText(
+				'This group is visible by default, until the following conditions are met:'
+			)
+		).toBeInTheDocument();
+	} );
+} );
 
 describe( 'ConditionalLogicPanel', () => {
 	beforeEach( () => {

@@ -12,13 +12,30 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
+use WorDBless\BaseTestCase;
 
 /**
  * @covers Automattic\Jetpack\Forms\ContactForm\Conditional_Logic_Container
  */
 #[CoversClass( Conditional_Logic_Container::class )]
-class Conditional_Logic_Container_Test extends TestCase {
+class Conditional_Logic_Container_Test extends BaseTestCase {
+
+	/**
+	 * Turn the feature on. The render filter is gated on it, so with the flag off it returns
+	 * every block untouched and the render tests below would pass vacuously.
+	 */
+	protected function set_up() {
+		parent::set_up();
+		add_filter( 'jetpack_feature_flag_enabled_forms-conditional-logic', '__return_true' );
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function tear_down() {
+		remove_filter( 'jetpack_feature_flag_enabled_forms-conditional-logic', '__return_true' );
+		parent::tear_down();
+	}
 
 	/**
 	 * A minimal enabled logic config.
@@ -73,6 +90,116 @@ class Conditional_Logic_Container_Test extends TestCase {
 	 */
 	private function field( $id ) {
 		return '<div data-jp-visibility-root="' . $id . '"><input name="' . $id . '" /></div>';
+	}
+
+	/**
+	 * The rendered container is stamped with the same visibility contract a field wrapper
+	 * gets, so it hides through the code path that already hides fields.
+	 */
+	public function test_render_stamps_a_container_that_carries_conditions() {
+		$block = array(
+			'blockName' => 'core/group',
+			'attrs'     => array( 'conditionalLogic' => $this->logic() ),
+		);
+
+		$html = Conditional_Logic_Container::add_container_attributes(
+			'<div class="wp-block-group"><p>inside</p></div>',
+			$block
+		);
+
+		$this->assertStringContainsString( 'data-jp-visibility-root="jp-container-', $html );
+		$this->assertStringContainsString( 'data-jp-conditional="1"', $html );
+		$this->assertStringContainsString( 'data-wp-interactive="jetpack/form"', $html );
+		$this->assertStringContainsString(
+			'data-wp-class--jetpack-field--conditionally-hidden="state.isFieldHidden"',
+			$html
+		);
+		$this->assertStringContainsString( 'data-jp-container-logic', $html );
+		// The inner content must survive untouched.
+		$this->assertStringContainsString( '<p>inside</p>', $html );
+	}
+
+	/**
+	 * `enabled` is derived in the editor from whether any rule exists, so a container the
+	 * author merely opened the panel on adds nothing to the page.
+	 */
+	public function test_render_leaves_a_container_without_conditions_alone() {
+		$html = '<div class="wp-block-group"></div>';
+
+		$cases = array(
+			'no attrs'        => array( 'blockName' => 'core/group' ),
+			'no logic'        => array(
+				'blockName' => 'core/group',
+				'attrs'     => array(),
+			),
+			'logic disabled'  => array(
+				'blockName' => 'core/group',
+				'attrs'     => array(
+					'conditionalLogic' => array(
+						'enabled' => false,
+						'groups'  => array(),
+					),
+				),
+			),
+			'logic not array' => array(
+				'blockName' => 'core/group',
+				'attrs'     => array( 'conditionalLogic' => 'nope' ),
+			),
+		);
+
+		foreach ( $cases as $label => $block ) {
+			$this->assertSame( $html, Conditional_Logic_Container::add_container_attributes( $html, $block ), $label );
+		}
+	}
+
+	/**
+	 * Empty content has no element to stamp, so it is returned rather than parsed.
+	 */
+	public function test_render_tolerates_empty_content() {
+		$block = array(
+			'blockName' => 'core/group',
+			'attrs'     => array( 'conditionalLogic' => $this->logic() ),
+		);
+
+		$this->assertSame( '', Conditional_Logic_Container::add_container_attributes( '', $block ) );
+		$this->assertSame( '   ', Conditional_Logic_Container::add_container_attributes( '   ', $block ) );
+	}
+
+	/**
+	 * Each container gets an id of its own, or two on a page would share a visibility entry.
+	 */
+	public function test_render_gives_each_container_a_distinct_id() {
+		$block = array(
+			'blockName' => 'core/group',
+			'attrs'     => array( 'conditionalLogic' => $this->logic() ),
+		);
+		$html  = '<div class="wp-block-group"></div>';
+
+		$first  = Conditional_Logic_Container::add_container_attributes( $html, $block );
+		$second = Conditional_Logic_Container::add_container_attributes( $html, $block );
+
+		$this->assertNotSame( $first, $second );
+	}
+
+	/**
+	 * A container rendered and then harvested round-trips its conditions, which is the whole
+	 * path the runtime depends on.
+	 */
+	public function test_render_then_harvest_round_trips() {
+		$logic = $this->logic();
+		$html  = Conditional_Logic_Container::add_container_attributes(
+			'<div class="wp-block-group">' . $this->field( 'secret' ) . '</div>',
+			array(
+				'blockName' => 'core/group',
+				'attrs'     => array( 'conditionalLogic' => $logic ),
+			)
+		);
+
+		$result = Conditional_Logic_Container::harvest( $html );
+
+		$this->assertCount( 1, $result['logic'] );
+		$this->assertSame( $logic, reset( $result['logic'] ) );
+		$this->assertSame( array( 'secret' ), reset( $result['contains'] ) );
 	}
 
 	/**
