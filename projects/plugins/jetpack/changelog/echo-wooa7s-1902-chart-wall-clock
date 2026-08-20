@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Charts: Label chart points by the bucket they name rather than by the viewer's time zone, and format axis ticks and tooltips at the series' declared bucket size.
