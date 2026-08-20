@@ -5,7 +5,9 @@
  * Storage is per-site user_meta exposed via the WP REST `/wp/v2/users/me`
  * endpoint so Atomic JS and Calypso (via wpcom's site-proxy) can both write
  * the dismissal. `sanitize_callback` substitutes `time()` for whatever the
- * client posts, so clients don't need to be trusted with a timestamp.
+ * client posts, so clients don't need to be trusted with a timestamp. That
+ * time is load-bearing rather than a record: it is what tells a dismissal of
+ * this plan term from one of a term since renewed.
  *
  * Notices dismiss per surface and the modal dismisses everywhere, so they do
  * not share a key. Dismissing the reverted-site notice in the hosting
@@ -79,7 +81,8 @@ class Expiry_Notice_Dismiss {
 	 * @param int|null            $user_id      Defaults to current user.
 	 */
 	public static function should_show_banner( array $expiry_state, ?int $user_id = null ): bool {
-		return ! self::is_dismissible( $expiry_state ) || ! self::is_dismissed( $user_id, self::META_BANNER );
+		return ! self::is_dismissible( $expiry_state )
+			|| ! self::is_dismissed( $user_id, self::META_BANNER, self::term_expiry_ts( $expiry_state ) );
 	}
 
 	/**
@@ -89,18 +92,43 @@ class Expiry_Notice_Dismiss {
 	 * @param int|null            $user_id      Defaults to current user.
 	 */
 	public static function should_show_modal( array $expiry_state, ?int $user_id = null ): bool {
-		return ! self::is_dismissible( $expiry_state ) || ! self::is_dismissed( $user_id, self::META_MODAL );
+		return ! self::is_dismissible( $expiry_state )
+			|| ! self::is_dismissed( $user_id, self::META_MODAL, self::term_expiry_ts( $expiry_state ) );
 	}
 
 	/**
-	 * Whether this user has already dismissed the given notice. Dismissal is
-	 * permanent: the notice does not come back on its own.
+	 * Whether this user has already dismissed the given notice for the term the
+	 * state describes.
 	 *
-	 * @param int|null $user_id  Defaults to current user.
-	 * @param string   $meta_key One of self::META_BANNER, self::META_MODAL.
+	 * Dismissal never lapses on its own, but it does not carry across a
+	 * renewal. A stamp older than the term's own expiry was recorded against a
+	 * purchase that has since been renewed, so the site is lapsing again for
+	 * the first time and has something to say about it. The two can't be
+	 * confused: a notice is only dismissible once the revert has happened, 30
+	 * days past expiry, so a dismissal belonging to this term is always the
+	 * later of the two.
+	 *
+	 * @param int|null $user_id   Defaults to current user.
+	 * @param string   $meta_key  One of self::META_BANNER, self::META_MODAL.
+	 * @param int|null $expiry_ts Expiry of the term being judged. Null when the
+	 *                            caller has no term in hand, where any stored
+	 *                            dismissal counts.
 	 */
-	public static function is_dismissed( ?int $user_id, string $meta_key ): bool {
-		return null !== self::get_dismissed_at( $user_id, $meta_key );
+	public static function is_dismissed( ?int $user_id, string $meta_key, ?int $expiry_ts = null ): bool {
+		$dismissed_at = self::get_dismissed_at( $user_id, $meta_key );
+		if ( null === $dismissed_at ) {
+			return false;
+		}
+		return null === $expiry_ts || $dismissed_at >= $expiry_ts;
+	}
+
+	/**
+	 * The expiry timestamp carried by a state, or null if it has none.
+	 *
+	 * @param array<string,mixed> $expiry_state State from Expiry_Data::get_expiry_state().
+	 */
+	private static function term_expiry_ts( array $expiry_state ): ?int {
+		return isset( $expiry_state['expiry_ts'] ) ? (int) $expiry_state['expiry_ts'] : null;
 	}
 
 	/**

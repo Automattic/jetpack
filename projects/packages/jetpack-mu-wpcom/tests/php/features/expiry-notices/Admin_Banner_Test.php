@@ -105,10 +105,20 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( '', $this->render() );
 	}
 
-	public function test_post_grace_dismiss_never_lapses(): void {
+	public function test_post_grace_dismiss_does_not_lapse_within_the_term(): void {
 		$this->set_purchase( -45 );
-		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_BANNER, time() - YEAR_IN_SECONDS );
+		// Dismissed the day the site was reverted, months ago now. Still the same
+		// lapse, so the notice stays down.
+		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_BANNER, time() - 15 * DAY_IN_SECONDS );
 		$this->assertSame( '', $this->render() );
+	}
+
+	public function test_post_grace_dismiss_of_an_earlier_term_shows_again(): void {
+		$this->set_purchase( -45 );
+		// Dismissed a year ago, against a purchase that has since been renewed and
+		// lapsed again: this revert is news.
+		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_BANNER, time() - YEAR_IN_SECONDS );
+		$this->assertStringContainsString( 'wpcom-expiry-banner__dismiss', $this->render() );
 	}
 
 	public function test_final_7_days_renders_as_error_with_no_dismiss(): void {

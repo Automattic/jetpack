@@ -31,6 +31,13 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		);
 	}
 
+	private function expired_state( int $expiry_ts ): array {
+		return array(
+			'state'     => Expiry_Data::STATE_EXPIRED,
+			'expiry_ts' => $expiry_ts,
+		);
+	}
+
 	private function make_admin( string $login ): int {
 		return (int) wp_insert_user(
 			array(
@@ -53,9 +60,52 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		$this->assertTrue( Expiry_Notice_Dismiss::is_dismissed( $user_id, Expiry_Notice_Dismiss::META_BANNER ) );
 	}
 
-	public function test_dismissal_never_lapses(): void {
+	public function test_dismissal_does_not_lapse_within_the_term(): void {
 		$user_id = $this->make_admin( 'dismissed_long_ago' );
+		// Dismissed a year ago, against a term that expired before that. Nothing
+		// has renewed since, so there is still nothing new to say.
 		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_BANNER, self::NOW - YEAR_IN_SECONDS );
+		$this->assertFalse(
+			Expiry_Notice_Dismiss::should_show_banner(
+				$this->expired_state( self::NOW - YEAR_IN_SECONDS - DAY_IN_SECONDS ),
+				$user_id
+			)
+		);
+	}
+
+	public function test_dismissal_of_an_earlier_term_does_not_carry_over(): void {
+		$user_id = $this->make_admin( 'dismissed_earlier_term' );
+		// Dismissed while a previous purchase was reverted. The site renewed and
+		// has lapsed again since, which the user has not been told about.
+		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_BANNER, self::NOW - YEAR_IN_SECONDS );
+		$this->assertTrue(
+			Expiry_Notice_Dismiss::should_show_banner( $this->expired_state( self::NOW ), $user_id )
+		);
+	}
+
+	public function test_dismissal_of_the_current_term_stays_down(): void {
+		$user_id = $this->make_admin( 'dismissed_current_term' );
+		// Nothing is dismissible until the revert, 30 days past expiry, so a
+		// dismissal of this term is always stamped after the term's own expiry.
+		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_BANNER, self::NOW + 30 * DAY_IN_SECONDS );
+		$this->assertFalse(
+			Expiry_Notice_Dismiss::should_show_banner( $this->expired_state( self::NOW ), $user_id )
+		);
+	}
+
+	public function test_modal_dismissal_resets_per_term_too(): void {
+		$user_id = $this->make_admin( 'modal_earlier_term' );
+		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_MODAL, self::NOW - YEAR_IN_SECONDS );
+		$this->assertTrue(
+			Expiry_Notice_Dismiss::should_show_modal( $this->expired_state( self::NOW ), $user_id )
+		);
+	}
+
+	public function test_a_state_without_an_expiry_counts_any_dismissal(): void {
+		$user_id = $this->make_admin( 'state_without_expiry' );
+		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_BANNER, self::NOW - YEAR_IN_SECONDS );
+		// No term to judge the stamp against. Leaving a closed notice closed is
+		// the safer half of the guess.
 		$this->assertFalse(
 			Expiry_Notice_Dismiss::should_show_banner(
 				array( 'state' => Expiry_Data::STATE_EXPIRED ),
