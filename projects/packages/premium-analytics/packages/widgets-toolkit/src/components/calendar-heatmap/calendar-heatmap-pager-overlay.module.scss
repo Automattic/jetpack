@@ -12,6 +12,12 @@
 	z-index: 1;
 	color: var(--wp-admin-theme-color, #3858e9);
 
+	/* A solid chip with a subtle shadow, per the design: a bare glyph is easy
+	   to miss over the cells. */
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border-radius: 50%;
+	box-shadow: 0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008;
+
 	/* Hidden until the pointer (or keyboard focus) is over the chart; inert
 	   while hidden so the cells underneath keep their hover tooltips. */
 	opacity: 0;
@@ -24,11 +30,11 @@
 }
 
 /* The design system's neutral hover pill is grey on grey over the empty
-   cells, so the hover/pressed background tints from the same primary the
-   glyph and the darkest cell use instead. */
+   cells, so the hover/pressed state tints the chip from the same primary
+   the glyph and the darkest cell use instead. */
 .host .arrow:hover,
 .host .arrow:active {
-	background: color-mix(in srgb, var(--wp-admin-theme-color, #3858e9) 12%, transparent);
+	background: color-mix(in srgb, var(--wp-admin-theme-color, #3858e9) 12%, var(--wpds-color-background-surface-neutral-strong));
 }
 
 /* The appear animation slides each arrow in from its own edge. The offset is
