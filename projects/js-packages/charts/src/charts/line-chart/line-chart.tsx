@@ -29,6 +29,7 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
+import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
 import { attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
@@ -180,6 +181,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			onPointerOut = undefined,
 			zoomable = false,
 			rescaleYOnVisibilityChange = true,
+			defaultHiddenSeries,
 			children,
 			gridVisibility,
 			gap = 'md',
@@ -196,6 +198,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		// Gradient stops apply this as an SVG attribute, where CSS var() cannot resolve. useXYChartTheme has already resolved the same role inside its memo, against the chart's scope element, so read it back rather than paying another getComputedStyle on every render.
 		const resolvedBackgroundColor = theme.backgroundColor ?? providerTheme.backgroundColor;
 		const chartId = useChartId( providedChartId );
+		useDefaultHiddenSeries( chartId, defaultHiddenSeries );
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );

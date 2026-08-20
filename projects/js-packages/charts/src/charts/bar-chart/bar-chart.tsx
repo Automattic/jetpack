@@ -20,6 +20,7 @@ import {
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
+import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
 import { attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
@@ -57,6 +58,13 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
 	showZeroValues?: boolean;
+	/**
+	 * Series labels to hide when the chart first mounts, as if they had been
+	 * toggled off in the legend. The user can reveal them through an interactive
+	 * legend, and revealing sticks — the defaults are not re-applied on re-render.
+	 * A remount re-applies exactly this list and nothing else.
+	 */
+	defaultHiddenSeries?: string[];
 	children?: ReactNode;
 }
 
@@ -122,6 +130,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	orientation = 'vertical',
 	withPatterns = false,
 	showZeroValues = false,
+	defaultHiddenSeries,
 	animation,
 	children,
 	gap = 'md',
@@ -130,6 +139,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const legendCollapseGroups = legend.collapseGroups ?? false;
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
+	useDefaultHiddenSeries( chartId, defaultHiddenSeries );
 	const theme = useXYChartTheme( data );
 
 	const dataSorted = useChartDataTransform( data );
