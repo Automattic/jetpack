@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Add a build-time check that the pre-rendered frontend components only use CSS classes their own stylesheet defines.
