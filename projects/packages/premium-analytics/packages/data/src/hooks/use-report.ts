@@ -7,6 +7,7 @@ import { useCallback } from 'react';
  * Internal dependencies
  */
 import { hasComparisonEnabled, type ReportParams } from '../utils/search';
+import { isAwaitingData } from './awaiting-data';
 
 type UseReportOptions = {
 	enabled?: boolean;
@@ -73,7 +74,9 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 		enabled: queryEnabled && comparisonEnabled && ( comparisonQueryOptions.enabled ?? true ),
 	} );
 
-	const isLoading = primary.isLoading || comparison.isLoading;
+	// Widened past React Query's `isLoading` — see `isAwaitingData`. Its own
+	// flags stay reachable through `primary` and `comparison`.
+	const isLoading = isAwaitingData( primary ) || isAwaitingData( comparison );
 	const isFetching = primary.isFetching || comparison.isFetching;
 
 	/**

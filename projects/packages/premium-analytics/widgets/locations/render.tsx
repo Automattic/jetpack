@@ -42,10 +42,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type LocationsRenderAttributes = LocationsAttributes & Partial< ReportParamsFieldAttributes >;
 type LocationsWidgetProps = WidgetRenderProps< LocationsRenderAttributes >;
 type DrillDownCountry = { code: string; name: string };
-type RenderLocationState = {
-	geoMode: GeoMode;
-	selectedCountry?: DrillDownCountry;
-};
 type GoogleChartsWindow = Window & {
 	google?: {
 		visualization?: {
@@ -118,43 +114,26 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 	const geoMode: GeoMode =
 		geoGranularity === 'country' && activeSelectedCountry ? 'region' : geoGranularity;
 
-	const { data, hasComparison, isLoading, isFetching, isError, isPlaceholderData, refetch } =
-		useLocationViews( {
-			reportParams,
-			max: WIDGET_ROW_LIMIT,
-			geoMode,
-			countryFilter: activeSelectedCountry?.code,
-		} );
-	const [ renderLocationState, setRenderLocationState ] = useState< RenderLocationState >( {
+	const { data, hasComparison, isLoading, isFetching, isError, refetch } = useLocationViews( {
+		reportParams,
+		max: WIDGET_ROW_LIMIT,
 		geoMode,
-		selectedCountry: activeSelectedCountry,
+		countryFilter: activeSelectedCountry?.code,
 	} );
 
-	useEffect( () => {
-		if ( isPlaceholderData ) {
-			return;
-		}
-
-		setRenderLocationState( { geoMode, selectedCountry: activeSelectedCountry } );
-	}, [ activeSelectedCountry, geoMode, isPlaceholderData ] );
-
-	const renderGeoMode = isPlaceholderData ? renderLocationState.geoMode : geoMode;
-	const renderSelectedCountry = isPlaceholderData
-		? renderLocationState.selectedCountry
-		: activeSelectedCountry;
-	const selectedCountryCode = renderSelectedCountry?.code.toUpperCase();
+	const selectedCountryCode = activeSelectedCountry?.code.toUpperCase();
 	const useProvinceMap =
-		renderGeoMode === 'region' &&
+		geoMode === 'region' &&
 		!! selectedCountryCode &&
 		! unsupportedProvinceMapCountries.has( selectedCountryCode );
 	const useCountryFallbackMap =
-		renderGeoMode === 'region' && !! renderSelectedCountry && ! useProvinceMap;
-	const fallbackCountry = useCountryFallbackMap ? renderSelectedCountry : undefined;
+		geoMode === 'region' && !! activeSelectedCountry && ! useProvinceMap;
+	const fallbackCountry = useCountryFallbackMap ? activeSelectedCountry : undefined;
 	// Cities, and Regions outside a country drill-down, span the whole world.
 	// Google GeoChart can't place either row type on the world map, so both are
 	// summed back up to their country.
 	const useCountrySummaryMap =
-		renderGeoMode === 'city' || ( renderGeoMode === 'region' && ! renderSelectedCountry );
+		geoMode === 'city' || ( geoMode === 'region' && ! activeSelectedCountry );
 	const countrySummaryRows = useMemo( () => {
 		const countryRows = new Map< string, { countryFull: string; value: number } >();
 
@@ -288,7 +267,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 						country: location.countryFull,
 					},
 					action:
-						renderGeoMode === 'country' && countryCode
+						geoMode === 'country' && countryCode
 							? {
 									kind: 'drillDown',
 									onClick: () =>
@@ -317,9 +296,9 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 						: undefined,
 			};
 		} ) as LeaderboardChartData;
-	}, [ data, renderGeoMode, hasComparison, selectCountry ] );
+	}, [ data, geoMode, hasComparison, selectCountry ] );
 
-	const backLink = renderSelectedCountry ? (
+	const backLink = activeSelectedCountry ? (
 		<WidgetBackLink
 			label={ __( 'All locations', 'jetpack-premium-analytics-pkg' ) }
 			ariaLabel={ __( 'View all locations', 'jetpack-premium-analytics-pkg' ) }
@@ -377,7 +356,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 							<GeoChart
 								data={ geoData }
 								resizeDebounceTime={ 100 }
-								region={ useProvinceMap ? renderSelectedCountry?.code ?? 'world' : 'world' }
+								region={ useProvinceMap ? activeSelectedCountry?.code ?? 'world' : 'world' }
 								resolution={ useProvinceMap ? 'provinces' : 'countries' }
 								onError={ handleGeoChartError }
 							/>
