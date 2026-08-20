@@ -189,7 +189,7 @@ function Dashboard(): JSX.Element {
 			 * report pages mount this same panel over records tables, which are
 			 * not, so the control is asked for rather than implied by the props.
 			 */
-			<DateFiltersPanel { ...dateFilters } withIntervalControl showComparison={ showComparison } />
+			<DateFiltersPanel { ...dateFilters } withIntervalControl />
 		);
 
 	return (
