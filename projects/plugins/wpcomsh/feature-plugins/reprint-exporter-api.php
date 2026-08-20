@@ -1,6 +1,6 @@
 <?php
 /**
- * Reprint Exporter API — wpcomsh integration for the reprint-exporter package.
+ * Reprint Exporter API — wpcomsh integration for the reprint-server package.
  *
  * Exposes export endpoints at ?reprint-api.
  *

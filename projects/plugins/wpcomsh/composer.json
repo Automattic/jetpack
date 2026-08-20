@@ -17,8 +17,7 @@
 		"automattic/jetpack-mu-wpcom": "@dev",
 		"tubalmartin/cssmin": "^4.1",
 		"automattic/jetpack-explat": "@dev",
-		"wp-php-toolkit/reprint-exporter": "^0.1.47",
-		"wp-php-toolkit/reprint-importer": "^0.1.47"
+		"wp-php-toolkit/reprint-server": "^0.10.0"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
