@@ -69,13 +69,12 @@ describe( 'AiOverview', () => {
 
 		render( <AiOverview { ...PROPS } /> );
 
-		// The i4 paid card shows UNLIMITED over a full meter — once — and a
-		// renewal date where the free card has the Upgrade button.
+		// The i4 paid card shows UNLIMITED over a full meter — once — and no
+		// Upgrade. Without a purchase date there is no renewal line: the usage
+		// period's rollover is a different date and must not stand in for it.
 		await expect( screen.findAllByText( 'Unlimited' ) ).resolves.toHaveLength( 1 );
 		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
-		// The fixture's next-start is the bare calendar date the live payload
-		// sends; the UTC anchor must render that exact day, never the day before.
-		expect( screen.getByText( 'Renews on: September 1, 2026' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /Renews on/ ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
@@ -111,32 +110,23 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByText( /September 1, 2026/ ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'renewal dates: hold their day under a western site timezone', async () => {
-		// @wordpress/date defaults to offset 0 in jest, which would make both
-		// assertions vacuous; pin a UTC-7 site for this test only.
+	test( 'renewal date: holds its day under a western site timezone', async () => {
+		// @wordpress/date defaults to offset 0 in jest, which would make the
+		// assertion vacuous; pin a UTC-7 site for this test only.
 		const saved = getDateSettings();
 		setDateSettings( {
 			...saved,
 			timezone: { ...saved.timezone, offset: -7, string: '' },
 		} );
 		try {
-			// The usage-period fallback is a UTC-anchored calendar date and must
-			// name that exact day on any site.
-			apiFetch.mockResolvedValueOnce( { ...tieredPayload(), 'current-tier': { value: 1 } } );
-			const view = render( <AiOverview { ...PROPS } /> );
-			await expect(
-				screen.findByText( 'Renews on: September 1, 2026' )
-			).resolves.toBeInTheDocument();
-			view.unmount();
-
-			// The purchase date deliberately follows My Jetpack's site-timezone
-			// formatting, so a western site shows My Jetpack's (earlier) day.
+			// The purchase date is UTC midnight, so it must name that same day
+			// on a western site, not the day before.
 			apiFetch.mockResolvedValueOnce( unlimitedPayload() );
 			render(
 				<AiOverview { ...PROPS } planName="Business" planRenewsOn="2026-12-23T00:00:00+00:00" />
 			);
 			await expect(
-				screen.findByText( 'Renews on: December 22, 2026' )
+				screen.findByText( 'Renews on: December 23, 2026' )
 			).resolves.toBeInTheDocument();
 		} finally {
 			setDateSettings( saved );

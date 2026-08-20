@@ -15,7 +15,7 @@ import buildPageThumb from './images/build-page.webp';
 import connectClaudeThumb from './images/connect-claude.webp';
 import mediaLibraryThumb from './images/media-library.webp';
 import optimizeSiteThumb from './images/optimize-site.webp';
-import { normalizeUsage, useAiUsage } from './use-ai-usage';
+import { anchorDateToUtc, normalizeUsage, useAiUsage } from './use-ai-usage';
 
 import './style.scss';
 
@@ -88,12 +88,12 @@ const DOC_LINKS = [
 function UsageCard( { upgradeUrl, planName, planRenewsOn } ) {
 	const { isLoading, data, error } = useAiUsage();
 	const usage = normalizeUsage( data );
-	// The Plan cell's date is the purchase's renewal, formatted exactly as My
-	// Jetpack formats it (site timezone) so the two screens agree; the usage-
-	// period fallback is a UTC-anchored calendar date and must stay in UTC.
-	const renewsOnDisplay = planRenewsOn
-		? dateI18n( getDateSettings().formats.date, planRenewsOn )
-		: usage.renewsOn && dateI18n( getDateSettings().formats.date, usage.renewsOn, 'UTC' );
+	// Only the purchase's own renewal belongs under "Renews on"; the usage
+	// period's rollover is a different date. Formatted in UTC because it names
+	// a calendar day, which a site timezone west of UTC would shift back one.
+	const renewsOnDisplay =
+		planRenewsOn &&
+		dateI18n( getDateSettings().formats.date, anchorDateToUtc( planRenewsOn ), 'UTC' );
 	// The purchase name only labels a paid state — the usage endpoint is
 	// authoritative for the tier, so an expired purchase cannot relabel Free.
 	const planLabel = ( ! usage.isFree && planName ) || usage.planLabel;
