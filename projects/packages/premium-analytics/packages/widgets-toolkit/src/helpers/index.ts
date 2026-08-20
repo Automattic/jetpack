@@ -45,6 +45,7 @@ export {
 } from './build-visitors-by-location-data';
 export { flagUrl } from './flag-url';
 export { isEmptyChartData, isEmptyPieChartData, getEmptyChartDomain } from './chart-empty-state';
+export { getFixedYAxis, type FixedYAxis } from './fixed-y-axis';
 export { formatDisplayLabel } from './format-display-label';
 export {
 	buildCsv,
@@ -56,9 +57,33 @@ export {
 export { sharePercentage } from './share-percentage';
 export { getCombinedPeriodMax } from './get-combined-period-max';
 export { getVideoKey, getVideoLabel } from './video-plays';
-export { toMaxRows } from './to-max-rows';
 export { describeError } from './describe-error';
 export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
 export { defaultPeriodForInterval } from './default-period-for-interval';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
+export {
+	CHART_DISPLAY_CHART_TYPES,
+	chartTypeAttributeField,
+	granularityAttributeField,
+	type ChartDisplayChartType,
+	type ChartGranularityOption,
+} from './chart-display-attribute-fields';
+export {
+	CELL_GAP as CALENDAR_HEATMAP_CELL_GAP,
+	HEADER_HEIGHT as CALENDAR_HEATMAP_HEADER_HEIGHT,
+	compactCalendarHeatmapCapacity,
+	computeCalendarHeatmapLayout,
+	fitWeekColumns,
+	type CalendarHeatmapLayout,
+	type CalendarHeatmapLayoutInput,
+	type FitWeekColumnsInput,
+} from './calendar-heatmap-layout';
+export { formatViewCount } from './format-view-count';
+export {
+	buildDenseDaySeries,
+	resolveCalendarHeatmapWindow,
+	resolveCalendarHeatmapWindowDays,
+	type CalendarHeatmapWindow,
+	type CalendarHeatmapWindowBounds,
+} from './calendar-heatmap-window';

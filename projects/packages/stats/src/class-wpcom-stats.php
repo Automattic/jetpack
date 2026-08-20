@@ -447,7 +447,7 @@ class WPCOM_Stats {
 		$api_version    = self::STATS_REST_API_VERSION;
 		$cache_key      = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ) ) ) );
 		$transient_name = self::STATS_CACHE_TRANSIENT_PREFIX . $cache_key;
-		$stats_cache    = get_transient( $transient_name );
+		$stats_cache    = $this->should_bypass_cache() ? false : get_transient( $transient_name );
 
 		if ( $stats_cache ) {
 			$time = key( $stats_cache );
@@ -461,6 +461,18 @@ class WPCOM_Stats {
 		}
 
 		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args );
+
+		/*
+		 * A site with no connection fails before a request leaves it, so remembering that failure
+		 * saves no remote call -- and the answer stops being true the moment the site connects.
+		 * Caching it left a freshly connected site staring at an empty dashboard until it expired.
+		 *
+		 * `no_possible_tokens` is what the connection package reports for a missing blog token
+		 * since it started naming the reason; `missing_token` is what older versions still return.
+		 */
+		if ( is_wp_error( $wpcom_stats ) && in_array( $wpcom_stats->get_error_code(), array( 'missing_token', 'no_possible_tokens' ), true ) ) {
+			return $wpcom_stats;
+		}
 
 		// To reduce size in storage: store with time as key, store JSON encoded data.
 		$cached_value = is_wp_error( $wpcom_stats ) ? $wpcom_stats : wp_json_encode( $wpcom_stats, JSON_UNESCAPED_SLASHES );
@@ -566,6 +578,42 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Whether the caller has asked for an answer newer than the cached one.
+	 *
+	 * A site that has just connected, or just bought a plan, carries answers from before it did
+	 * -- including failures, which are cached like any other answer. Both markers are the ones
+	 * `Stats_Admin\WPCOM_Client` already honours, so a page load clears every layer or none.
+	 *
+	 * The dashboard asks for its data over REST, and those requests carry none of the page's
+	 * query, so the marker has to be read from the page that sent them as well.
+	 *
+	 * Limited to users who can view stats: `fetch_stats()` also serves public widgets and
+	 * blocks, and those must not skip the cache because a visitor supplied a query arg or a
+	 * Referer that happens to contain one of the markers.
+	 *
+	 * @return bool
+	 */
+	protected function should_bypass_cache() {
+		if ( ! current_user_can( 'view_stats' ) ) {
+			return false;
+		}
+
+		foreach ( array( 'force_refresh', 'statsPurchaseSuccess' ) as $marker ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( isset( $_GET[ $marker ] ) ) {
+				return true;
+			}
+
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			if ( isset( $_SERVER['HTTP_REFERER'] ) && false !== strpos( (string) $_SERVER['HTTP_REFERER'], $marker ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Fetches stats data from WPCOM.
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/
@@ -598,7 +646,7 @@ class WPCOM_Stats {
 	 * @return array
 	 */
 	protected function fetch_stats_on_wpcom_simple( $end_date, $number_of_days, $escaped_post_ids ) {
-		return stats_get_daily_history( null, get_current_blog_id(), 'postviews', 'post_id', $end_date, $number_of_days, " AND post_id IN ($escaped_post_ids)", 0, true );
+		return stats_get_daily_history( false, get_current_blog_id(), 'postviews', 'post_id', $end_date, $number_of_days, " AND post_id IN ($escaped_post_ids)", 0, true );
 	}
 
 	/**

@@ -74,9 +74,6 @@ type PillsMeasurement = {
 /**
  * Content-box width of an element, the same box a ResizeObserver reports, so
  * the first read and the observed updates can't disagree on a padded container.
- *
- * @param element - The element to measure.
- * @return The content width in pixels.
  */
 function getContentWidth( element: HTMLElement ): number {
 	const style = getComputedStyle( element );

@@ -13,9 +13,6 @@ import { MetricComparisonWidget } from '../../widgets/metric-comparison';
 import { WidgetState } from '../widget-state';
 import type { DataFormat } from '../../types';
 
-/**
- * Generic type for report data with time series
- */
 type ReportData = {
 	summary: {
 		date_start: string;
@@ -43,9 +40,6 @@ type ReportHookResult = {
 };
 
 export type ReportMetricWidgetProps = {
-	/**
-	 * The metric key to display from the data
-	 */
 	metricKey: string;
 
 	/**
@@ -53,9 +47,6 @@ export type ReportMetricWidgetProps = {
 	 */
 	data: ReportHookResult;
 
-	/**
-	 * The format configuration for the metric
-	 */
 	dataFormat: DataFormat;
 
 	/**
@@ -64,9 +55,6 @@ export type ReportMetricWidgetProps = {
 	 */
 	emptyStateIcon?: React.ComponentProps< typeof Icon >[ 'icon' ];
 
-	/**
-	 * Copy for the empty state.
-	 */
 	emptyStateText?: string;
 
 	/**
@@ -78,10 +66,6 @@ export type ReportMetricWidgetProps = {
 };
 
 /**
- * Report Metric Widget - Internal Component
- *
- * @param {ReportMetricWidgetProps} props - The component props
- *
  * @internal
  */
 export function ReportMetricWidget( {
@@ -98,7 +82,6 @@ export function ReportMetricWidget( {
 	const comparisonData = data.comparison.data;
 	const { isLoading, isFetching, hasData, isError, refetch } = data;
 
-	// Build series[] data.
 	const series = buildTimeSeriesChartData( {
 		primary: primaryData ?? {
 			summary: {
@@ -113,7 +96,6 @@ export function ReportMetricWidget( {
 		emptyDataFallback: 'empty-array',
 	} );
 
-	// Build seriesStyles[] data.
 	const seriesStyles = useMemo(
 		() =>
 			series.map( ( seriesData, index ) => {
@@ -138,7 +120,7 @@ export function ReportMetricWidget( {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading && ! hasData }
+			isLoading={ isLoading }
 			isFetching={ isFetching }
 			// The report queries keep the previous period's data as placeholders
 			// across range changes, so only surface the error when there is

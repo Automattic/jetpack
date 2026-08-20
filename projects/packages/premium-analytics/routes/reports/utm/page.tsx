@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportDrilldownTable,
@@ -17,13 +16,15 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import {
 	getReportUtmTabs,
+	getTabTitle,
 	getUtmFields,
 	getUtmTabLabel,
 	resolveSection,
@@ -82,11 +83,7 @@ function getUtmCsvLabel( item: UtmReportRow ): string {
  * @return The UTM report page.
  */
 function UtmReport(): JSX.Element {
-	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
-	const reportParams = useMemo(
-		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
-		[ search ]
-	);
+	const reportParams = useReportParams();
 	const tabs = useMemo( () => getReportUtmTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
 	const records = useUtmReportRecords( activeTab, reportParams );
@@ -110,13 +107,13 @@ function UtmReport(): JSX.Element {
 		status: records,
 	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	const { getLabel } = REPORTS.utm;
+
 	return (
 		<ReportPageShell
 			tabbed
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={
-				<StatsBreadcrumbs items={ [ { label: __( 'UTM', 'jetpack-premium-analytics-pkg' ) } ] } />
-			}
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
@@ -124,8 +121,9 @@ function UtmReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
+				title={ getTabTitle( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-				filters={ <DateFiltersPanel { ...dateFilters } /> }
+				dateFilters={ dateFilters }
 			>
 				{ records.isError ? (
 					<ReportErrorState

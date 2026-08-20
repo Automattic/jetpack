@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Preserve line breaks in multi-line answers in the responses dashboard.

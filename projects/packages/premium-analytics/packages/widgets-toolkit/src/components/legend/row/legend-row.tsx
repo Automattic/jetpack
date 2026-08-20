@@ -10,9 +10,6 @@ import type { ReactNode } from 'react';
  */
 
 export type LegendRowProps = {
-	/**
-	 * The label content (usually text)
-	 */
 	children: ReactNode;
 
 	/**

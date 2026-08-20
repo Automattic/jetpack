@@ -115,7 +115,7 @@ jobs:
       CHANGED: ${{ fromJson( needs.prepare.outputs.build_matrix ).all.changed }}
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
       BUILD_BASE: /tmp/jetpack-build
-    timeout-minutes: 40  # 2026-08-04: PRs that rebuild every project take ~26 minutes.
+    timeout-minutes: 30  # 2026-08-18: Successful runs take ~18 minutes.
 
     steps: &build_steps
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -193,7 +193,7 @@ jobs:
       CHANGED: ${{ fromJson( needs.prepare.outputs.build_matrix ).wpcom.changed }}
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
       BUILD_BASE: /tmp/jetpack-build
-    timeout-minutes: 25  # 2026-04-07: Successful runs seem to take ~15 minutes.
+    timeout-minutes: 25  # 2026-08-18: Successful runs take ~13 minutes.
     steps: *build_steps
 
   build_nonwpcom:
@@ -206,7 +206,7 @@ jobs:
       CHANGED: ${{ fromJson( needs.prepare.outputs.build_matrix ).nonwpcom.changed }}
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
       BUILD_BASE: /tmp/jetpack-build
-    timeout-minutes: 25  # 2026-04-07: Successful runs seem to take ~15 minutes.
+    timeout-minutes: 25  # 2026-08-18: Successful runs seem to take ~13 minutes.
     steps: *build_steps
 
   merge_artifacts:

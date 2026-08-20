@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.16] - 2026-08-19
+### Changed
+- Update dependencies. [#51015]
+
+## [2.0.15] - 2026-08-13
+### Changed
+- Update dependencies. [#51015]
+
+## [2.0.14] - 2026-08-11
+### Fixed
+- Upgrade nudge: stop emitting an `undefined__description` class when no class name is passed to the component. [#50873]
+
+## [2.0.13] - 2026-08-10
+### Changed
+- Add skipPhotonDomain to the typed Jetpack script data flags. [#50426]
+- Update package dependencies. [#50509]
+
 ## [2.0.12] - 2026-08-03
 ### Changed
 - Update dependencies. [#50824]
@@ -1027,6 +1044,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[2.0.16]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.15...2.0.16
+[2.0.15]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.14...2.0.15
+[2.0.14]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.13...2.0.14
+[2.0.13]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.12...2.0.13
 [2.0.12]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.11...2.0.12
 [2.0.11]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.10...2.0.11
 [2.0.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.9...2.0.10

@@ -4,8 +4,10 @@
 import { useStatsEmailSummary, type StatsEmailSummary } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	LeaderboardPostLabel,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
@@ -63,10 +65,6 @@ export type EmailRow = {
  * selected metric drives both the displayed value and the overlay bar width
  * (shares are relative to the highest rate in the set). The emails summary has
  * no comparison period, so the comparison fields are zeroed.
- *
- * @param rows   - The normalized email rows.
- * @param metric - Which rate to display (`opens` or `clicks`).
- * @return The leaderboard chart data.
  */
 function buildLeaderboardData( rows: EmailRow[], metric: EmailMetric ): LeaderboardChartData {
 	const rateOf = ( row: EmailRow ) => ( metric === 'opens' ? row.opensRate : row.clicksRate );
@@ -119,9 +117,6 @@ type EmailsLeaderboardProps = {
  * Storybook can exercise the chart with fixture rows (there is no analytics
  * backend in Storybook, so the data-connected entry point would only ever show
  * chrome).
- *
- * @param {EmailsLeaderboardProps} props - The component props.
- * @return The rendered leaderboard.
  */
 export const EmailsLeaderboard = ( { rows = [], metric = 'opens' }: EmailsLeaderboardProps ) => {
 	const data = useMemo( () => buildLeaderboardData( rows, metric ), [ rows, metric ] );
@@ -146,11 +141,7 @@ export const EmailsLeaderboard = ( { rows = [], metric = 'opens' }: EmailsLeader
 /**
  * Flatten the `useStatsEmailSummary` report into the `{ id, label, opensRate,
  * clicksRate }` rows the leaderboard renders, keeping the endpoint's
- * newest-first order and trimming to `max`.
- *
- * @param report - The normalized email-summary report, or undefined while loading.
- * @param max    - Maximum rows to display; `0` keeps all rows.
- * @return The normalized email rows.
+ * newest-first order and trimming to `max` (`max = 0` keeps all rows).
  */
 function toEmailRows( report: StatsEmailSummary | undefined, max: number ): EmailRow[] {
 	const items = report?.data?.[ 0 ]?.items ?? [];
@@ -175,20 +166,17 @@ type EmailsReportProps = {
  * Fetches the email-summary report through the `useStatsEmailSummary` Stats
  * hook and hands the normalized rows to the presentational `EmailsLeaderboard`,
  * with the loading / error / empty states rendered through `<WidgetState>`.
- *
- * @param {EmailsReportProps} props - The component props.
- * @return The widget content.
  */
 function EmailsReport( { attributes }: EmailsReportProps ) {
-	const max = attributes?.max ?? 10;
 	const metric = attributes?.metric ?? 'opens';
-	// The summary endpoint accepts 1–30 rows and resets anything outside that
-	// range to 10, so request its maximum when the widget wants "all rows".
-	const quantity = max > 0 ? Math.min( max, 30 ) : 30;
 
-	const { data, isLoading, isFetching, isError, refetch } = useStatsEmailSummary( { quantity } );
+	// The summary endpoint accepts 1–30 rows and silently resets anything outside
+	// that range to 10, so the shared limit has to stay inside it.
+	const { data, isLoading, isFetching, isError, refetch } = useStatsEmailSummary( {
+		quantity: WIDGET_ROW_LIMIT,
+	} );
 
-	const rows = useMemo( () => toEmailRows( data, max ), [ data, max ] );
+	const rows = useMemo( () => toEmailRows( data, WIDGET_ROW_LIMIT ), [ data ] );
 
 	return (
 		<div className={ styles.widget }>
@@ -217,6 +205,7 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<EmailsLeaderboard rows={ rows } metric={ metric } />
 				</WidgetState>
@@ -229,14 +218,8 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 }
 
 /**
- * Widget render entry point.
- *
  * The displayed rate is the `metric` attribute (`relevance: 'high'`), exposed
- * as a control by the widget host. The email summary still reads `max` from
- * props because it does not use report params.
- *
- * @param {EmailsWidgetProps} props - The widget render props.
- * @return The rendered widget.
+ * as a control by the widget host.
  */
 export default function Emails( { attributes = {} }: EmailsWidgetProps ) {
 	return (

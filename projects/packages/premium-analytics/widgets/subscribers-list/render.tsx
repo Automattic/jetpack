@@ -11,6 +11,8 @@ import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
 import { customer } from '@jetpack-premium-analytics/icons';
 import {
 	SubscriberList,
+	SubscriberListSkeleton,
+	WIDGET_ROW_LIMIT,
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
@@ -26,11 +28,7 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 /**
  * Flattens the designated `useStatsFollowers` report into the rows the roster
- * renders, mapping each subscriber's avatar, name, profile link, and
- * "subscribed since" relative time.
- *
- * @param report - The normalized followers report, or undefined while loading.
- * @return The subscriber rows.
+ * renders.
  */
 function toSubscriberItems(
 	report: StatsNormalizedReport< StatsFollowersItem > | undefined
@@ -66,9 +64,6 @@ type SubscribersRosterProps = {
  * `<WidgetState>` in the data-connected `SubscribersReport`. Takes
  * already-fetched rows via props so Storybook can exercise the populated state
  * without an analytics backend.
- *
- * @param {SubscribersRosterProps} props - The component props.
- * @return The rendered card body.
  */
 export const SubscribersRoster = ( { items = [], moreCount = 0 }: SubscribersRosterProps ) => {
 	return (
@@ -78,32 +73,15 @@ export const SubscribersRoster = ( { items = [], moreCount = 0 }: SubscribersRos
 	);
 };
 
-type SubscribersReportProps = {
-	/**
-	 * Widget attributes.
-	 */
-	attributes?: SubscribersListAttributes;
-};
-
 /**
  * Fetches the latest subscribers through the designated `useStatsFollowers`
  * Stats hook and hands the normalized rows to the presentational roster, with
  * the loading / error / empty states rendered through `<WidgetState>`.
- *
- * @param {SubscribersReportProps} props - The component props.
- * @return The widget content.
  */
-function SubscribersReport( { attributes }: SubscribersReportProps ) {
-	// Show six rows by default (matching the card design). A missing or
-	// non-positive setting falls back to that default — `?? 6` alone wouldn't,
-	// since an explicit `0` from the number field is not nullish. `max` goes
-	// straight to the paginated `stats/followers` endpoint, which has no
-	// client-side cap, so 0 does not mean "all rows" here.
-	const max = attributes?.max && attributes.max > 0 ? attributes.max : 6;
-
+function SubscribersReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsFollowers( {
 		type: 'all',
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} );
 
 	const report = data as StatsNormalizedReport< StatsFollowersItem > | undefined;
@@ -123,6 +101,7 @@ function SubscribersReport( { attributes }: SubscribersReportProps ) {
 			// nothing to show.
 			isError={ items.length === 0 && isError }
 			isEmpty={ items.length === 0 }
+			renderLoading={ <SubscriberListSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			error={ {
 				description: __(
 					"We couldn't load subscribers. Please try again in a moment.",
@@ -144,21 +123,11 @@ type SubscribersListRenderAttributes = SubscribersListAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type SubscribersListWidgetProps = WidgetRenderProps< SubscribersListRenderAttributes >;
 
-/**
- * Widget render entry point.
- *
- * Mirrors the other Stats widgets: attributes flow to the inner component via
- * props (the dashboard's WC-shaped `reportParams` context does not fit the
- * followers query), and `WidgetRoot` provides the analytics query client and
- * receives host attributes for the widget contract.
- *
- * @param {SubscribersListWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
+/** The followers query does not use dashboard report parameters. */
 export default function SubscribersList( { attributes = {} }: SubscribersListWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SubscribersReport attributes={ attributes } />
+			<SubscribersReport />
 		</WidgetRoot>
 	);
 }

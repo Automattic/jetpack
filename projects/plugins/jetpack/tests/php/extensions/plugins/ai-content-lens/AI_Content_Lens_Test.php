@@ -18,6 +18,7 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-content-lens/ai-conte
  */
 class AI_Content_Lens_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+	use \Activates_Ai_Module;
 
 	/**
 	 * Set up before each test.
@@ -26,12 +27,16 @@ class AI_Content_Lens_Test extends \WP_UnitTestCase {
 		parent::set_up();
 		$this->reset_availability();
 		$this->simulate_connected_owner();
+		// Off-Simple the `ai` module is the AI master switch; activate it so the
+		// jetpack_ai_enabled gate reads on.
+		$this->activate_ai_module_for_test();
 	}
 
 	/**
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
+		$this->deactivate_ai_module_for_test();
 		remove_filter( 'jetpack_ai_enabled', '__return_false' );
 		delete_option( 'jetpack_ai_writing_assistant_enabled' );
 		delete_option( 'jetpack_ai_enabled' );
@@ -84,7 +89,8 @@ class AI_Content_Lens_Test extends \WP_UnitTestCase {
 	 * The AI master switch option turns the extension off.
 	 */
 	public function test_not_registered_when_master_option_off() {
-		update_option( 'jetpack_ai_enabled', 0 );
+		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->deactivate_ai_module_for_test();
 
 		Content_Lens\register_plugin();
 

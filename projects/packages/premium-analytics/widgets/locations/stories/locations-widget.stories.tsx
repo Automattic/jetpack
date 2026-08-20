@@ -40,7 +40,6 @@ function getLocationsAttributes( {
 }: LocationsStoryControls ): ComponentProps< typeof LocationsRender >[ 'attributes' ] {
 	return {
 		geoGranularity,
-		max: 10,
 		reportParams: getDefaultQueryParams( withComparison ),
 	};
 }
@@ -55,7 +54,6 @@ function renderLocationsOnPreset( preset: PresetType ) {
 		<LocationsRender
 			attributes={ {
 				geoGranularity: 'country',
-				max: 10,
 				reportParams: getDefaultQueryParams( false, preset ),
 			} }
 		/>
@@ -93,7 +91,7 @@ const meta = {
 		},
 		geoGranularity: {
 			control: 'radio',
-			options: [ 'country', 'city' ],
+			options: [ 'country', 'region', 'city' ],
 			description: 'The "View by" toolbar attribute rendered by the widget host.',
 		},
 	},
@@ -101,7 +99,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Locations" widget. Shows visitor views by country or city, with country drill-down into regions, using the global dashboard date range. The Countries/Cities view is the `geoGranularity` attribute (`relevance: \'high\'`), exposed as a control by the widget host.',
+					'The "Locations" widget. Shows visitor views by country, region, or city, with country drill-down into regions, using the global dashboard date range. The Countries/Regions/Cities view is the `geoGranularity` attribute (`relevance: \'high\'`), exposed as a control by the widget host.',
 			},
 		},
 	},
@@ -120,6 +118,14 @@ export const Default: StoryObj< LocationsStoryControls > = {
 export const WithComparison: StoryObj< LocationsStoryControls > = {
 	render: renderLocationsWidget,
 	args: { withComparison: true, geoGranularity: 'country' },
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+};
+
+// Regions mode — region rows worldwide in the leaderboard, aggregated by country
+// on the map.
+export const RegionsMode: StoryObj< LocationsStoryControls > = {
+	render: renderLocationsWidget,
+	args: { withComparison: false, geoGranularity: 'region' },
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
@@ -190,7 +196,7 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 		},
 		geoGranularity: {
 			control: 'radio',
-			options: [ 'country', 'city' ],
+			options: [ 'country', 'region', 'city' ],
 			description: 'The "View by" toolbar attribute rendered by the widget host.',
 		},
 	},

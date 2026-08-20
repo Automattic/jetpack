@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-08-19
+### Changed
+- Charts: adapt bar chart time-axis tick labels to the data's bucket resolution and time span, support the `tickResolution` hint, and name each bar's bucket in its tooltip. [#51274]
+- Resolve an XY chart theme's color roles from a single computed-style snapshot, and rebuild the theme only when a series color changes rather than on every render. [#51342]
+
+### Fixed
+- Charts: keep a bar chart's time axis on the buckets it actually draws, so a labelled bar, a comparison series, or a series hidden from the legend can no longer strand a tick at the axis origin, and label such a bar by its label in both the axis and the tooltip. [#51343]
+- Charts: keep the year and the day on a bar chart's time axis, which could previously skip the tick that named them, and stop the same label falling on two ticks in a row. [#51339]
+- Charts: measure a horizontal chart's left margin from the labels it will actually draw, so a caller's tick formatter is applied exactly once and time-of-day labels stop reserving room for the string "Invalid Date". [#51272]
+- Charts: stop a bar chart's time axis dropping to a couple of ticks when it reaches for the year, and speed up how it picks them. [#51339]
+
+## [2.0.0] - 2026-08-10
+### Added
+- Time axis: Accept a tickResolution hint on the x-axis options so callers that know the data's bucket size can set tick formats directly instead of relying on inference. [#51017]
+
+### Changed
+- Time axis: Pick tick formats by bucket resolution as well as span — hour ticks (with the date at midnight boundaries) for sub-daily series spanning up to a week, and month ticks (with the year at January) instead of full dates for month-or-coarser buckets. [#51010]
+- Update package dependencies. [#50509]
+- Zoom: Expose the reset button's shadow as `--a8c-charts-elevation-xs`, replacing the `--wpds-elevation-xs` token removed in `@wordpress/theme` 1.0.0. [#50509]
+- Zoom: Restore the accessible tooltip on the reset control. `@wordpress/ui` is no longer bundled into the package output, so each consumer's bundler now resolves it. It remains a dependency and resolves from node_modules by default, but a bundler that externalizes `@wordpress/*` to `window.wp.*` must bundle `@wordpress/ui` instead — `window.wp.ui` does not exist. [#51016]
+
+### Fixed
+- Time axis: Show date ticks rather than hour ticks for a daily-bucket pair spanning exactly one day. [#51013]
+
 ## [1.12.0] - 2026-08-03
 ### Added
 - New `legend.collapseGroups` option folds series that share a `group` into a single legend item, labelled by the group's primary series; with `legend.interactive` that item toggles the whole group in one click. Off by default, so legends keep one item per series unless you opt in. Available on the bar, line and area charts. The line chart gains a `rescaleYOnVisibilityChange` prop (matching the area chart) to pin the value axis to the full data range while series are hidden; and when every series is hidden, the grid and axes are dropped so the empty state stands on its own. The area chart's `rescaleYOnLegendToggle` prop is deprecated in favour of `rescaleYOnVisibilityChange` (still honoured as an alias). [#50194]
@@ -952,6 +976,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[2.0.1]: https://github.com/Automattic/charts/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Automattic/charts/compare/v1.12.0...v2.0.0
 [1.12.0]: https://github.com/Automattic/charts/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/Automattic/charts/compare/v1.10.3...v1.11.0
 [1.10.3]: https://github.com/Automattic/charts/compare/v1.10.2...v1.10.3

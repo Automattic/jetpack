@@ -1,19 +1,14 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { commentAuthorAvatar } from '@wordpress/icons';
+import { postAuthor } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-export type MostCommentedAuthorsAttributes = {
-	/**
-	 * Maximum number of rows to display. `0` means all rows.
-	 */
-	max?: number;
-};
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type MostCommentedAuthorsAttributes = Record< never, never >;
 
 /**
- * Widget type definition for the Most commented authors widget.
+ * Widget type definition for the Top commented authors widget.
  *
  * One half of the Jetpack Stats "Comments" module: the site's most active
  * commenters, ranked by comment count. The other half ships as
@@ -24,17 +19,9 @@ export type MostCommentedAuthorsAttributes = {
  * period, so the widget ignores the dashboard date range.
  */
 export default {
-	icon: commentAuthorAvatar,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
-	] as WidgetAttributeField< MostCommentedAuthorsAttributes >[],
+	icon: postAuthor,
+	attributes: [] as WidgetAttributeField< MostCommentedAuthorsAttributes >[],
 	example: {
-		attributes: {
-			max: 10,
-		},
+		attributes: {},
 	},
 };

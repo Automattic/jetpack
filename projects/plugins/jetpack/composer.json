@@ -63,8 +63,7 @@
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-waf": "@dev",
 		"automattic/jetpack-wp-abilities": "@dev",
-		"automattic/woocommerce-analytics": "^0.16",
-		"wp-php-toolkit/reprint-exporter": "^0.9.1"
+		"automattic/woocommerce-analytics": "^0.16"
 	},
 	"require-dev": {
 		"antecedent/patchwork": "^2.2",
@@ -109,11 +108,6 @@
 	"autoload": {
 		"classmap": [
 			"src"
-		],
-		"exclude-from-classmap": [
-			"vendor/wp-php-toolkit/data-liberation/vendor-patched/psr/log/",
-			"vendor/wp-php-toolkit/data-liberation/vendor-patched/rowbot/",
-			"vendor/wp-php-toolkit/data-liberation/vendor-patched/brick/"
 		]
 	},
 	"minimum-stability": "dev",
@@ -123,7 +117,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ16_1_beta",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ16_1_2",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

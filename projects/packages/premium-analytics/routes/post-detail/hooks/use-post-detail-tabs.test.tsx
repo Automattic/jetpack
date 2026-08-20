@@ -13,6 +13,16 @@ import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	useStagedSearch: jest.fn(),
+	omitComparisonReportParams: jest.requireActual(
+		'../../../packages/routing/src/search/report-params'
+	).omitComparisonReportParams,
+} ) );
+
+// The hook reads the raw URL search to build each layout entry's stripped
+// reportParams; the real useSearch throws outside a matched route.
+let mockRouteSearch: Record< string, unknown > = {};
+jest.mock( '@wordpress/route', () => ( {
+	useSearch: () => mockRouteSearch,
 } ) );
 
 // The email tabs gate on the per-post opens rate summary; the query itself is
@@ -82,6 +92,28 @@ describe( 'usePostDetailTabs', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockEmailSends( 3 );
+		mockRouteSearch = {};
+	} );
+
+	/*
+	 * The page's no-comparison invariant is declared once by the stage, as a
+	 * report scope, and enforced in `WidgetRoot`. The layout this hook returns
+	 * is the fixed one, carrying no injected report params — see
+	 * `stage.test.tsx` for the scope the widgets actually read.
+	 */
+	it( 'returns the tab’s fixed layout untouched', () => {
+		mockSearch( 'post-traffic' );
+		mockRouteSearch = {
+			from: '2026-07-01',
+			to: '2026-07-07',
+			comp: '1',
+			compare_from: '2026-06-24',
+		};
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+
+		expect( result.current.layout.length ).toBeGreaterThan( 0 );
+		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'post-traffic' ] );
 	} );
 
 	it( 'falls back from a hidden tab and replaces the URL', async () => {

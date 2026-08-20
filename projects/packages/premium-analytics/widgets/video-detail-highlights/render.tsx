@@ -4,6 +4,7 @@
 import { toPostId, useStatsSingleVideo } from '@jetpack-premium-analytics/data';
 import {
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	describeError,
@@ -44,8 +45,6 @@ const RATE_FORMAT: DataFormat = {
  * Read the selected video scope from WidgetRoot, fetch one `statType=all`
  * range report, and render its server-computed window totals through the
  * shared tile grid.
- *
- * @return The video highlights widget content.
  */
 function VideoDetailHighlightsInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -123,6 +122,7 @@ function VideoDetailHighlightsInner() {
 								'jetpack-premium-analytics-pkg'
 						  ),
 				} }
+				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			</WidgetState>
@@ -130,12 +130,6 @@ function VideoDetailHighlightsInner() {
 	);
 }
 
-/**
- * Video highlights widget render entry point.
- *
- * @param {VideoDetailHighlightsWidgetProps} props - Widget host props.
- * @return The rendered widget.
- */
 export default function VideoDetailHighlights( {
 	attributes = {},
 }: VideoDetailHighlightsWidgetProps ) {

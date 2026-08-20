@@ -5,10 +5,12 @@ import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Text } from '@jetpack-premium-analytics/externals';
 import {
+	WIDGET_ROW_LIMIT,
 	calculateDelta,
 	describeError,
 	getCombinedPeriodMax,
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	LeaderboardPostLabel,
 	ReportLink,
 	WidgetBackLink,
@@ -54,11 +56,7 @@ type UtmInsightsInnerProps = {
 	 */
 	utmDimension: StatsUtmParam;
 	/**
-	 * Max rows to display.
-	 */
-	max: number;
-	/**
-	 * Whether to render the "See report" footer link.
+	 * Whether to render the "View all" footer link.
 	 */
 	showReportLink: boolean;
 };
@@ -79,13 +77,7 @@ function getUtmReportSection( utmDimension: StatsUtmParam ): UtmReportSection {
 	}
 }
 
-/**
- * Inner component — rendered inside WidgetRoot.
- *
- * @param {UtmInsightsInnerProps} props - The component props.
- * @return The rendered leaderboard or state placeholder.
- */
-function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInnerProps ) {
+function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const {
 		drillDownItem: selectedUtmLabel,
@@ -102,7 +94,7 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useUtmInsights( {
 		reportParams,
 		utmParam: utmDimension,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} );
 
 	const selectedUtm = useMemo(
@@ -180,7 +172,7 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
-			label={ __( 'All UTM Insights', 'jetpack-premium-analytics-pkg' ) }
+			label={ __( 'All UTM insights', 'jetpack-premium-analytics-pkg' ) }
 			ariaLabel={ __( 'View all UTM insights', 'jetpack-premium-analytics-pkg' ) }
 			onClick={ clearSelectedUtm }
 			className={ styles.backLink }
@@ -206,6 +198,7 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 						icon: megaphone,
 						description: __( 'No UTM data in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
 						data={ leaderboardData }
@@ -226,28 +219,18 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 }
 
 /**
- * UTM Insights widget render component.
- *
- * Shows traffic breakdown by UTM parameter as a ranked leaderboard. The active
+ * Traffic breakdown by UTM parameter as a ranked leaderboard. The active
  * dimension (source/medium, campaign, etc.) is the `utmDimension` attribute
  * (`relevance: 'high'`), exposed as a control by the widget host.
- *
- * @param {UtmInsightsWidgetProps} props - The widget render props.
- * @return The rendered widget content.
  */
 export default function UtmInsightsWidget( { attributes = {} }: UtmInsightsWidgetProps ) {
 	const utmDimension = attributes.utmDimension ?? DEFAULT_UTM_DIMENSION;
-	const max = attributes.max ?? 10;
 	const showReportLink = attributes.showReportLink ?? true;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<UtmInsightsInner
-					utmDimension={ utmDimension }
-					max={ max }
-					showReportLink={ showReportLink }
-				/>
+				<UtmInsightsInner utmDimension={ utmDimension } showReportLink={ showReportLink } />
 			</div>
 		</WidgetRoot>
 	);

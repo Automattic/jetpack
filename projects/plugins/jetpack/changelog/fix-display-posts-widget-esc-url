@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Display WordPress Posts widget: Escape remote site data before output.

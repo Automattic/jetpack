@@ -2,8 +2,7 @@
 /**
  * Abstract CSV Report Controller
  *
- * Base class for CSV export report controllers. Provides common functionality
- * for formatting and exporting report data to CSV via the new Report_Registry system.
+ * Base class for the per-report CSV export controllers registered in Report_Registry.
  *
  * @package Automattic\Jetpack\PremiumAnalytics\Reports\Export
  */
@@ -22,22 +21,8 @@ use Exception;
  *
  * All report controllers extend this base, which centralizes comparison-period
  * handling, empty-row logic, requested-field selection, and value formatting.
- *
- * Each concrete controller should implement:
- * - get_report_key(): Unique identifier for the report
- * - get_report_label(): Human-readable name
- * - get_data_endpoint(): API endpoint to fetch data from
- * - get_column_headers(): CSV column headers
- * - format_row_for_csv(): Transform raw data row to CSV format
- *
- * Optional overrides:
- * - get_batch_limit(): Maximum number of items per batch (defaults to DEFAULT_BATCH_LIMIT)
- * - get_additional_params(): Additional parameters to include in data requests (e.g., filters)
- *
- * The parent class handles:
- * - Auto-registration with Report_Registry in constructor
- * - Automatic comparison field handling via format_row_with_comparison()
- * - Helper methods for common formatting tasks
+ * The abstract methods below are the per-report contract; the concrete ones
+ * carry defaults a controller may override.
  *
  * @since 0.1.0
  */
@@ -105,10 +90,6 @@ abstract class Abstract_Csv_Report_Controller implements Csv_Report_Controller_I
 
 		return $this->add_comparison_fields( $row, $item, $interval );
 	}
-
-	// ============================================================================
-	// Abstract Methods - Must be implemented by child classes
-	// ============================================================================
 
 	/**
 	 * Get the report key (unique identifier).
@@ -249,17 +230,13 @@ abstract class Abstract_Csv_Report_Controller implements Csv_Report_Controller_I
 	/**
 	 * Whether to include rows with empty identifying fields in the export.
 	 *
-	 * Calls should_include_empty_rows_by_default() and applies a filter for global control.
-	 * Filterable via 'jetpack_premium_analytics_csv_include_empty_rows' to globally
-	 * control empty row inclusion across all reports or specific reports.
-	 *
-	 * The result is cached per controller instance to avoid repeated filter calls
-	 * when processing large datasets.
+	 * The controller's default, overridable globally or per report through
+	 * 'jetpack_premium_analytics_csv_include_empty_rows'. Cached per instance, since it
+	 * is consulted once per row.
 	 *
 	 * @return bool True to include empty rows with custom label, false to skip them.
 	 */
 	public function should_include_empty_rows(): bool {
-		// Return cached value if already determined.
 		if ( null !== $this->cached_include_empty_rows ) {
 			return $this->cached_include_empty_rows;
 		}
@@ -304,10 +281,6 @@ abstract class Abstract_Csv_Report_Controller implements Csv_Report_Controller_I
 	public function get_empty_row_check_field() {
 		return null;
 	}
-
-	// ============================================================================
-	// Helper Methods
-	// ============================================================================
 
 	/**
 	 * Format a time interval for display in CSV.
@@ -381,12 +354,10 @@ abstract class Abstract_Csv_Report_Controller implements Csv_Report_Controller_I
 		foreach ( $item as $key => $value ) {
 			$has_prefix = ( strpos( $key, $prefix ) === 0 );
 
-			// Include key if it matches our criteria (has prefix when match_prefix is true, or doesn't have prefix when match_prefix is false).
 			if ( $has_prefix === $match_prefix ) {
 				$extracted_key                    = $strip_prefix && $has_prefix ? substr( $key, $prefix_length ) : $key;
 				$extracted_item[ $extracted_key ] = $value;
 
-				// Check if all values are empty strings.
 				if ( '' !== $value ) {
 					$all_empty = false;
 				}
@@ -402,13 +373,10 @@ abstract class Abstract_Csv_Report_Controller implements Csv_Report_Controller_I
 	/**
 	 * Format a row with empty value handling.
 	 *
-	 * Handles empty row checking based on controller configuration:
-	 * - Checks configured field(s) for emptiness
-	 * - Skips row if configured and empty (unless should_include_empty_rows() is true)
-	 * - Includes row with custom label if configured
-	 *
-	 * If all values in the extracted item are empty strings, returns a row
-	 * with all fields set to empty strings instead of using default values.
+	 * A row whose configured identifying field(s) are empty is either skipped or kept with
+	 * the custom empty-row label, per should_include_empty_rows(). A row whose values are
+	 * all empty strings keeps them, rather than picking up the controller's defaults —
+	 * "no data" and "zero" must not collapse into each other.
 	 *
 	 * @param array       $extracted_data The extracted data item and empty flag.
 	 * @param array       $item_to_format The item to use for formatting (may differ from extracted data).
@@ -424,12 +392,11 @@ abstract class Abstract_Csv_Report_Controller implements Csv_Report_Controller_I
 		$is_empty     = ( null !== $check_fields ) ? $this->is_row_empty( $item, $check_fields ) : false;
 
 		if ( $is_empty ) {
-			// Row has empty identifying field(s).
 			if ( ! $this->should_include_empty_rows() ) {
-				// Skip this row entirely.
+				// An empty array is the caller's "skip this row" signal.
 				return array();
 			}
-			// Include the row but we'll replace empty identifying field with custom label later.
+			// Otherwise keep the row; the empty identifying field gets the custom label below.
 		}
 
 		// If all values are empty strings, return empty strings for all fields
@@ -445,7 +412,6 @@ abstract class Abstract_Csv_Report_Controller implements Csv_Report_Controller_I
 			return $row;
 		}
 
-		// Format the row normally.
 		$row = $this->format_row_for_csv( $item_to_format, $interval );
 
 		// If we determined the row is empty but should be included, replace empty identifying field with custom label.
@@ -495,7 +461,6 @@ abstract class Abstract_Csv_Report_Controller implements Csv_Report_Controller_I
 	protected function apply_empty_row_label( array $row, array $check_fields ): array {
 		$custom_label = $this->get_empty_row_label();
 
-		// Update the specified check field(s) if they exist in the formatted row.
 		foreach ( $check_fields as $field_name ) {
 			if ( isset( $row[ $field_name ] ) && '' === $row[ $field_name ] ) {
 				$row[ $field_name ] = $custom_label;
@@ -527,7 +492,6 @@ abstract class Abstract_Csv_Report_Controller implements Csv_Report_Controller_I
 	protected function add_comparison_fields( array $row, array $item, ?string $interval = null ): array {
 		$prefix = Report_Data_Fetcher::COMPARISON_INDEX_PREFIX;
 
-		// Check if comparison data exists by looking for any comparison_ prefixed field.
 		$has_comparison_data = false;
 		foreach ( array_keys( $item ) as $key ) {
 			if ( strpos( $key, $prefix ) === 0 ) {

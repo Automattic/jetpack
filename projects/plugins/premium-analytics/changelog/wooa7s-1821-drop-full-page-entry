@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Point the plugin's Settings link at the dashboard's registered admin page.

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a Print action to form responses, which opens the response on its own page and prints just the response.

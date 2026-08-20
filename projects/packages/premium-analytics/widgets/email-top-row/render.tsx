@@ -9,6 +9,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -166,10 +167,6 @@ export type EmailTopRowMetric = {
 /**
  * Reads a count field off a rate summary, defaulting a missing or non-numeric
  * value to 0.
- *
- * @param summary - The email rate summary.
- * @param key     - The count field to read.
- * @return The count.
  */
 function readCount( summary: EmailRateSummary, key: string ): number {
 	const value = Number( summary[ key ] );
@@ -185,10 +182,6 @@ function readCount( summary: EmailRateSummary, key: string ): number {
  * a missing or zero rate so the tile renders the grid's placeholder ("—")
  * instead of "0%", mirroring the Jetpack Stats top row (a truthy check there
  * turns 0 into "-").
- *
- * @param summary - The email rate summary.
- * @param key     - The rate field to read.
- * @return The rate as a fraction (0–1), or `null` when unavailable.
  */
 function readRate( summary: EmailRateSummary, key: string ): number | null {
 	const value = Number( summary[ key ] );
@@ -200,9 +193,6 @@ function readRate( summary: EmailRateSummary, key: string ): number | null {
  * Whether a rate summary carries any of the email metric fields. Distinguishes a
  * real (possibly all-zero) email from an empty response for a post that has no
  * stats, so the widget can show its empty state rather than a row of zeros.
- *
- * @param summary - The email rate summary, or undefined while loading.
- * @return Whether the summary holds email metrics.
  */
 export function hasEmailMetrics( summary: EmailRateSummary | undefined ): boolean {
 	return (
@@ -218,10 +208,6 @@ export function hasEmailMetrics( summary: EmailRateSummary | undefined ): boolea
 /**
  * Maps a per-post rate summary onto the ordered top-row tiles for the active
  * view, straight from the `EMAIL_METRICS` table.
- *
- * @param summary - The selected email's rate summary.
- * @param metric  - Which view's tiles to build.
- * @return The ordered metric tiles.
  */
 export function toEmailTopRowMetrics(
 	summary: EmailRateSummary,
@@ -253,6 +239,15 @@ export function toEmailTopRowMetrics(
 	return tiles;
 }
 
+/**
+ * How many tiles a view shows, read from the same table. The view is known
+ * before the rate summaries are, so this is the count the loading shape can
+ * draw; `hideWhenZero` may still drop one once the data lands.
+ */
+function countEmailTopRowTiles( metric: EmailMetric ): number {
+	return EMAIL_METRICS.filter( spec => spec.views.includes( metric ) ).length;
+}
+
 type EmailTopRowTilesProps = {
 	/**
 	 * The ordered metric tiles to render. When omitted, the empty state is shown
@@ -260,17 +255,17 @@ type EmailTopRowTilesProps = {
 	 */
 	metrics?: EmailTopRowMetric[];
 	/**
+	 * Tiles the active view will show, so the loading shape draws the row that is
+	 * coming. The view lives in the report above, not here, and `metrics` is
+	 * `undefined` until the request resolves.
+	 */
+	tileCount?: number;
+	/**
 	 * Whether an email is selected. Drives the empty-state message: a prompt to
 	 * select an email when `false`, or a "no stats yet" message when `true`.
 	 */
 	hasSelection?: boolean;
-	/**
-	 * First load with no data yet — shows the loading overlay.
-	 */
 	isLoading?: boolean;
-	/**
-	 * Background refetch with data shown — a non-blocking busy overlay.
-	 */
 	isFetching?: boolean;
 	/**
 	 * Whether the request failed — shows the error state.
@@ -287,12 +282,10 @@ type EmailTopRowTilesProps = {
  * email's headline totals as bordered metric tiles and delegates the loading,
  * error, and empty states to `<WidgetState>`. The rate breakdowns have no
  * comparison period, so each tile shows a bare formatted value with no delta.
- *
- * @param {EmailTopRowTilesProps} props - The component props.
- * @return The rendered top row.
  */
 const EmailTopRowTiles = ( {
 	metrics,
+	tileCount,
 	hasSelection = false,
 	isLoading = false,
 	isFetching = false,
@@ -322,6 +315,7 @@ const EmailTopRowTiles = ( {
 							? __( 'No stats are available for this email yet.', 'jetpack-premium-analytics-pkg' )
 							: __( 'Select an email to see its stats.', 'jetpack-premium-analytics-pkg' ),
 					} }
+					renderLoading={ <MetricTileGridSkeleton tiles={ tileCount } /> }
 				>
 					<MetricTileGrid tiles={ metrics ?? [] } />
 				</WidgetState>
@@ -346,9 +340,6 @@ type EmailTopRowReportProps = {
  * endpoints: total opens comes from the opens response, while total clicks and
  * click rate come from the clicks response. React Query shares the opens
  * result with the Opens tab, so visiting both tabs does not duplicate it.
- *
- * @param {EmailTopRowReportProps} props - The component props.
- * @return The widget content.
  */
 function EmailTopRowReport( { metric }: EmailTopRowReportProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -390,6 +381,7 @@ function EmailTopRowReport( { metric }: EmailTopRowReportProps ) {
 	return (
 		<EmailTopRowTiles
 			metrics={ metrics }
+			tileCount={ countEmailTopRowTiles( metric ) }
 			hasSelection={ hasSelection }
 			isLoading={ activeQueries.some( query => query.isLoading ) }
 			isFetching={ activeQueries.some( query => query.isFetching ) }
@@ -403,17 +395,12 @@ function EmailTopRowReport( { metric }: EmailTopRowReportProps ) {
 }
 
 /**
- * Widget render entry point.
- *
  * The email is selected by the host through `reportParams.post_id` (the shared
  * single-resource "detail page" scope) and the view by the `metric` attribute
  * (defaulting to Opens). Host attributes (including `reportParams`) are passed
  * through to `<WidgetRoot>`, which exposes `reportParams` to the inner report;
  * the all-time rate breakdown ignores the date range but reads the single-email
  * scope from `post_id`.
- *
- * @param {EmailTopRowWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function EmailTopRow( { attributes = {} }: EmailTopRowWidgetProps ) {
 	const metric: EmailMetric = attributes.metric === 'clicks' ? 'clicks' : 'opens';

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI: Add the is_a11n and is_test audience properties to the MCP settings Tracks events.

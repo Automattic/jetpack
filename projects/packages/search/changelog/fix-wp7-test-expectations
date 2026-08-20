@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Test-only: stop the stray-block test asserting core's paragraph attributes, which WordPress 7.0 adds to.
+
+

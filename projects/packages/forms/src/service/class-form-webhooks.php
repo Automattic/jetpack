@@ -141,7 +141,7 @@ class Form_Webhooks {
 		$response_data = array(
 			'timestamp' => gmdate( 'Y-m-d H:i:s', time() ),
 			'http_code' => $response_code,
-			'headers'   => wp_remote_retrieve_headers( $response )->getAll(),
+			'headers'   => $this->normalize_response_headers( wp_remote_retrieve_headers( $response ) ),
 			'body'      => $response_data ?? $response_body, // If the response is not JSON, return the body as is.
 		);
 
@@ -150,6 +150,24 @@ class Form_Webhooks {
 		// Track success (2xx) or failure based on HTTP response code
 		$status = ( $response_code >= 200 && $response_code < 300 ) ? 'success' : 'failed';
 		$this->track_webhook_request( $status );
+	}
+
+	/**
+	 * Normalize the headers of a webhook response into a plain array.
+	 *
+	 * The value returned by wp_remote_retrieve_headers() is usually a case-insensitive dictionary,
+	 * but it is a plain array when the response has no headers, and other shapes are possible when
+	 * a pre_http_request or http_response filter supplies the response.
+	 *
+	 * @param mixed $headers The value returned by wp_remote_retrieve_headers().
+	 * @return array The headers as a plain array, empty when they cannot be read.
+	 */
+	private function normalize_response_headers( $headers ) {
+		if ( is_object( $headers ) && method_exists( $headers, 'getAll' ) ) {
+			$headers = $headers->getAll();
+		}
+
+		return is_array( $headers ) ? $headers : array();
 	}
 
 	/**

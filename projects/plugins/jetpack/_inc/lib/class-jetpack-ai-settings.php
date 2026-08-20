@@ -20,6 +20,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -43,6 +44,14 @@ class Jetpack_AI_Settings {
 	 * @var string
 	 */
 	const MASTER_OPTION = 'jetpack_ai_enabled';
+
+	/**
+	 * Slug of the `ai` module that acts as the site-wide master switch off
+	 * WordPress.com Simple (self-hosted and Atomic), where modules run.
+	 *
+	 * @var string
+	 */
+	const AI_MODULE = 'ai';
 
 	/**
 	 * Feature key => option name for every toggle on the AI settings page.
@@ -139,7 +148,12 @@ class Jetpack_AI_Settings {
 					'type'              => 'boolean',
 					'description'       => $description,
 					'sanitize_callback' => 'rest_sanitize_boolean',
-					'show_in_rest'      => $show_in_rest,
+					// The master option is never exposed over core settings REST:
+					// off-Simple the `ai` module is the master and the option only
+					// holds the legacy pre-module opt-out (a core-REST write would
+					// clobber it without touching the real master); on Simple the
+					// dedicated feature-settings endpoint is the writable surface.
+					'show_in_rest'      => self::MASTER_OPTION === $option ? false : $show_in_rest,
 					'default'           => true,
 				)
 			);
@@ -147,18 +161,22 @@ class Jetpack_AI_Settings {
 	}
 
 	/**
-	 * Add the AI settings options to Jetpack Sync's option whitelist.
+	 * Add the per-feature AI options to Jetpack Sync's option whitelist.
 	 *
 	 * Atomic and self-hosted sites write these locally; syncing them lets
 	 * WordPress.com (Calypso, the multi-site dashboard) read toggle state and
 	 * is the prerequisite for mirroring the dashboard AI toggle later.
 	 *
+	 * The master switch is deliberately absent: off-Simple the `ai` module is
+	 * the master, and module state already reaches WordPress.com through the
+	 * synced `active_modules` callable — syncing the option as well would add
+	 * a second, driftable source of truth for the same bit.
+	 *
 	 * @param array $options Option names allowed to sync.
 	 * @return array Updated option names.
 	 */
 	public static function add_sync_options_whitelist( $options ) {
-		$options   = (array) $options;
-		$options[] = self::MASTER_OPTION;
+		$options = (array) $options;
 		foreach ( self::OWNED_FEATURES as $feature ) {
 			$options[] = self::FEATURE_OPTIONS[ $feature ];
 		}
@@ -214,33 +232,61 @@ class Jetpack_AI_Settings {
 	/**
 	 * Gate 1: whether the host allows AI at all.
 	 *
-	 * Honors core's wp_supports_ai() (backed by the WP_AI_SUPPORT constant) when
-	 * available, falling back to the raw constant on WordPress versions that
-	 * predate the function. This is a server-owner decision: when it is off, no
-	 * AI settings should be shown and no upgrade should ever be offered.
+	 * Defers to core's wp_supports_ai(), which is backed by the WP_AI_SUPPORT
+	 * constant and its own filter. This is a server-owner decision: when it is
+	 * off, no AI settings should be shown and no upgrade should ever be offered.
 	 *
 	 * @return bool
 	 */
 	public static function host_allows_ai() {
-		if ( function_exists( 'wp_supports_ai' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above.
-			return (bool) wp_supports_ai();
-		}
-
-		if ( defined( 'WP_AI_SUPPORT' ) ) {
-			return (bool) WP_AI_SUPPORT;
-		}
-
-		return true;
+		return wp_supports_ai();
 	}
 
 	/**
 	 * Gate 3: whether the site-wide AI master switch is on.
 	 *
+	 * The master lives in a different place depending on the platform. On
+	 * WordPress.com Simple no Jetpack modules run, so the `jetpack_ai_enabled`
+	 * option is the master. Everywhere else (self-hosted and Atomic) the `ai`
+	 * module is the real master switch, toggled through the standard Jetpack
+	 * module machinery; there the option only carries the legacy pre-module
+	 * value the one-time opt-out migration reads, and is never written again.
+	 *
 	 * @return bool
 	 */
 	public static function is_master_enabled() {
-		return (bool) get_option( self::MASTER_OPTION, true );
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return (bool) get_option( self::MASTER_OPTION, true );
+		}
+
+		return ( new Modules() )->is_active( self::AI_MODULE );
+	}
+
+	/**
+	 * Set the site-wide AI master switch, writing to whichever store backs it on
+	 * this platform (see {@see self::is_master_enabled()}).
+	 *
+	 * On WordPress.com Simple the `jetpack_ai_enabled` option is the master, so
+	 * we update it. Off-Simple the `ai` module is the master, so we activate or
+	 * deactivate it. The no-exit / no-redirect arguments are passed to
+	 * `Modules::update_status()` so this is safe to call outside a request that
+	 * expects to terminate (REST handlers, migrations, CLI).
+	 *
+	 * @param bool $enabled Whether AI should be enabled site-wide.
+	 * @return void
+	 */
+	public static function set_master_enabled( bool $enabled ) {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			update_option( self::MASTER_OPTION, $enabled );
+			return;
+		}
+
+		// The module alone is the master off-Simple. The option is deliberately NOT
+		// written here: WordPress.com derives the master state from the synced
+		// `active_modules` callable, and the stored option must keep its legacy
+		// pre-module value so Jetpack::reconcile_ai_master_optout() can read an
+		// explicit opt-out on sites that upgrade later.
+		( new Modules() )->update_status( self::AI_MODULE, $enabled, false, false );
 	}
 
 	/**

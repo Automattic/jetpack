@@ -49,14 +49,14 @@ describe( 'report table count fields', () => {
 			throw new Error( 'Browser-locale formatting should not be used' );
 		} );
 
-		renderCountField( getPostsFields(), 'views', { views: 12345 } as never );
+		renderCountField( getPostsFields( false, 'posts-pages' ), 'views', { views: 12345 } as never );
 		renderCountField( getArchivesFields(), 'views', { views: 12345 } as never );
 		renderCountField( getCommentFollowersFields(), 'subscribers', { followers: 12345 } as never );
 		renderCountField( getVideosFields(), 'plays', { plays: 12345 } as never );
 		renderCountField( getVideosFields(), 'impressions', { impressions: 12345 } as never );
 		renderCountField( getDownloadsFields(), 'downloads', { downloads: 12345 } as never );
 		renderCountField( getClicksFields(), 'clicks', { clicks: 12345 } as never );
-		renderCountField( getCommentsFields(), 'comments', { value: 12345 } as never );
+		renderCountField( getCommentsFields( 'authors' ), 'comments', { value: 12345 } as never );
 		renderCountField( getTagsFields(), 'views', { value: 12345 } as never );
 		renderCountField( getReferrerFields(), 'views', { views: 12345 } as never );
 		renderCountField( getSearchTermsFields(), 'views', { views: 12345 } as never );

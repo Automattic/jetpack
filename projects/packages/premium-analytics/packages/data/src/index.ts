@@ -1,6 +1,7 @@
 export { AnalyticsQueryClientProvider, queryClient } from './providers/query-client-provider';
 export { GlobalErrorProvider, useGlobalError } from './providers/global-error-context';
 export { globalErrorManager, type GlobalErrorType } from './providers/global-error-manager';
+export { ReportScopeProvider, useReportScope, type ReportScope } from './providers/report-scope';
 export { useReportOrders } from './hooks/use-report-orders';
 export { useReportOrderAttribution } from './hooks/use-report-order-attribution';
 export { useReportCoupons } from './hooks/use-report-coupons';
@@ -229,12 +230,11 @@ export {
 	hasComparisonEnabled,
 	type PresetType,
 	type ReportParams,
+	type ReportPresetId,
 } from './utils/search';
 export {
 	dateToISOStringWithLocalTZ,
 	ensureCoreSettingsReady,
-	getSiteTimezone,
-	getSiteGmtOffset,
 	localTZDate,
 	hasProductFilters,
 	isSelectablePreset,
@@ -245,6 +245,7 @@ export {
 	shouldRetryApiError,
 	toPostId,
 	useSiteHomeUrl,
+	withoutComparison,
 } from './utils';
 export type { ReportDataMap } from './types';
 export type { ReportQueryParams } from './api';
@@ -252,6 +253,7 @@ export type { FilterCondition } from './types/filter-condition';
 export type { ProductType } from './types/product-type';
 export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-fetch';
 export {
+	getAllowedIntervalsForPreset,
 	getDateFormatFromInterval,
 	getDefaultIntervalForPeriod,
 	resolveIntervalForRange,

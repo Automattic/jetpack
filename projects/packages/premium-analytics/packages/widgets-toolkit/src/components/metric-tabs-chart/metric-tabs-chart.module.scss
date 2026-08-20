@@ -25,12 +25,13 @@
 	gap: var(--wpds-dimension-gap-md);
 }
 
-/* The metric tab list: a row of cards that wrap (not a text tab bar).
- * `overflow: visible` overrides the toolkit tablist's horizontal scroll —
- * the narrow case collapses to the dropdown instead. */
+/* Equal-width cards fill the room left by the controls. The minimum keeps a
+ * 2xl value + delta readable; when every card cannot fit, grid restores the
+ * wrapping protection that flex-basis: 0 would otherwise remove. */
 .tabs {
-	display: flex;
-	flex-wrap: wrap;
+	display: grid;
+	flex: 1 1 auto;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
 	gap: var(--wpds-dimension-gap-sm);
 	min-width: 0;
 	overflow: visible;
@@ -53,7 +54,7 @@
  * rule sits in a low-priority @layer, so this unlayered override wins. */
 .metricSelect [class*="trigger-wrapper"] {
 	height: auto;
-	padding-block: var(--wpds-dimension-padding-sm);
+	padding-block: var(--wpds-dimension-padding-md);
 }
 
 /* Draw the focus ring inside the card; the default outset ring gets clipped
@@ -70,8 +71,10 @@
 
 .tab {
 	height: auto;
-	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
-	border-radius: var(--wpds-border-radius-md);
+	min-width: 0;
+	overflow: hidden;
+	padding: var(--wpds-dimension-padding-md);
+	border-radius: var(--wpds-border-radius-lg);
 }
 
 /* Hide the selection underline; the card fill shows selection instead. Older
@@ -85,29 +88,50 @@
 	display: none;
 }
 
-.tab:hover {
-	background-color: var(--wpds-color-background-interactive-neutral-weak);
-}
-
+.tab:hover,
 .tab[aria-selected="true"] {
-	background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+	background-color: var(--wpds-color-background-surface-brand);
 }
 
-/* Each tab's content: label stacked over the value + delta, left-aligned. */
+/* A lone metric has nothing to switch to: it reads as the widget's headline
+ * figure rather than a control, so it drops the card fill and the pointer. */
+.singleMetric .tab {
+	cursor: default;
+}
+
+/* A static headline has no selected or hover state. */
+.singleMetric .tab:hover {
+	background-color: transparent;
+}
+
+/* Each tab's content: label stacked over the value + delta, start-aligned.
+ * Growing to fill is what keeps it against the card's leading edge — the
+ * tablist centres a tab's children, which shows as soon as a card is wider
+ * than its text. */
 .tabContent {
 	display: flex;
+	flex: 1 1 auto;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs);
+	gap: var(--wpds-dimension-gap-sm);
 	align-items: flex-start;
-	text-align: left;
+	min-width: 0;
+	text-align: start;
 }
 
 .tabLabel {
-	color: var(--wpds-color-foreground-content-neutral-weak);
+	display: block;
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
-/* Anchors the absolutely positioned loading overlay; fills the room left
- * under the cards and shrinks with the tile. */
+/* Prefer moving the delta below the value over painting into the next card. */
+.metricComparison {
+	flex-wrap: wrap;
+	max-width: 100%;
+	min-width: 0;
+}
+
 .chart {
 	position: relative;
 	flex: 1 1 0;

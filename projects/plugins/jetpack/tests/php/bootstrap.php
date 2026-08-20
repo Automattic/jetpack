@@ -116,6 +116,7 @@ if ( '1' !== getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 }
 
 require __DIR__ . '/lib/mock-functions.php';
+require __DIR__ . '/lib/trait-activates-ai-module.php';
 require __DIR__ . '/lib/CallableMock.php';
 require __DIR__ . '/_inc/lib/mocks/simplepie.php';
 require $test_root . '/includes/functions.php';

@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.43.1] - 2026-08-19
+### Changed
+- Update package dependencies. [#51399]
+
+## [5.43.0] - 2026-08-13
+### Changed
+- Connection: Leave another user's broken token out of the connection error notice, since only that user can restore it. [#51034]
+- Connection: Show the scope and error code of each connection error in the notice, instead of only the first error's message. [#51034]
+
+## [5.42.3] - 2026-08-12
+### Changed
+- Protect: Test the site protection data endpoint against the real firewall configuration. [#51184]
+
+## [5.42.2] - 2026-08-11
+### Changed
+- Update dependencies. [#46951]
+
+## [5.42.1] - 2026-08-11
+### Changed
+- Update package dependencies. [#51125]
+
+## [5.42.0] - 2026-08-10
+### Security
+- Cache the support chat authentication token per user instead of site-wide.
+- Only expose the full firewall configuration and scan report to users who can manage site options.
+
+### Added
+- Jetpack AI: Drive the product card from the new AI module with an inline on/off toggle. [#50718]
+
+### Changed
+- Limit the AI card's module toggle to internal testing environments ahead of release. [#50718]
+- Stats: Point the product card at the Premium Analytics dashboard when it replaces the Stats page. [#50926]
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Fix the My Jetpack page rendering blank on WordPress 6.9. [#50509]
+- Reload after toggling the AI card, so the toggle and every other surface reflect the new module state. [#50718]
+
 ## [5.41.1] - 2026-08-03
 ### Changed
 - Update dependencies. [#46951]
@@ -2811,6 +2849,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.43.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.43.0...5.43.1
+[5.43.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.3...5.43.0
+[5.42.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.2...5.42.3
+[5.42.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.1...5.42.2
+[5.42.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.0...5.42.1
+[5.42.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.41.1...5.42.0
 [5.41.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.41.0...5.41.1
 [5.41.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.9...5.41.0
 [5.40.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.8...5.40.9

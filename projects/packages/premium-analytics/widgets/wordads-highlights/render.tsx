@@ -8,6 +8,7 @@ import {
 import { megaphone } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	type DataFormat,
@@ -63,9 +64,6 @@ const TILE_CONFIG: Record<
  * and renders the totals as a currency `MetricTileGrid`. The earnings module has
  * no comparison period, so each tile shows a bare formatted amount. Which cards
  * appear is controlled by the `metrics` attribute.
- *
- * @param {WordAdsEarningsMetricId[]} metrics - Enabled earnings card ids.
- * @return The widget content.
  */
 function WordAdsHighlightsReport( {
 	metrics = DEFAULT_WORDADS_EARNINGS_METRICS,
@@ -115,6 +113,7 @@ function WordAdsHighlightsReport( {
 						'jetpack-premium-analytics-pkg'
 					),
 				} }
+				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ CURRENCY_FORMAT } currencyCode="USD" />
 			</WidgetState>
@@ -123,14 +122,8 @@ function WordAdsHighlightsReport( {
 }
 
 /**
- * Widget render entry point.
- *
- * WidgetRoot provides the analytics query client and chart theme consumed by the
- * inner report. Host attributes are forwarded so any injected report params are
- * preserved even though the earnings endpoint is not period-scoped.
- *
- * @param {WordAdsHighlightsWidgetProps} props - The widget render props.
- * @return The rendered widget.
+ * Host attributes are forwarded even though the earnings endpoint is not
+ * period-scoped, so injected report params survive the WidgetRoot boundary.
  */
 export default function WordAdsHighlights( { attributes = {} }: WordAdsHighlightsWidgetProps ) {
 	return (

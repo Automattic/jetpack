@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: Fix the dashboard opening as an empty edit-mode canvas when a post or video detail page was loaded first.

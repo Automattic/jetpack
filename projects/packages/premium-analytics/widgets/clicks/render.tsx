@@ -11,7 +11,9 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
@@ -100,12 +102,8 @@ function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
 
 /**
  * Flattens a normalized clicks report into `ClickRow[]` and attaches matching
- * comparison values when a comparison report is present.
- *
- * @param report           - Primary clicks report.
- * @param comparisonReport - Comparison clicks report.
- * @param max              - Maximum rows to keep. 0 keeps all rows.
- * @return Rows ready for the leaderboard.
+ * comparison values when a comparison report is present. Rows are capped
+ * client-side by `max`; `max = 0` keeps all rows.
  */
 export function toClickRowsWithComparison(
 	report: StatsNormalizedReport< StatsClicksItem > | undefined,
@@ -122,13 +120,7 @@ export function toClickRowsWithComparison(
 }
 
 /**
- * Flattens a normalized clicks report into `ClickRow[]` and attaches matching
- * comparison values when a comparison report is present.
- *
- * @param report           - Primary clicks report.
- * @param comparisonReport - Comparison clicks report.
- * @param max              - Maximum rows to keep. 0 keeps all rows.
- * @return Rows ready for the leaderboard.
+ * `toClickRowsWithComparison` without the `hasComparison` flag.
  */
 export function toClickRows(
 	report: StatsNormalizedReport< StatsClicksItem > | undefined,
@@ -140,11 +132,6 @@ export function toClickRows(
 
 /**
  * Maps normalized click rows onto the shape `LeaderboardChart` expects.
- *
- * @param rows           - Normalized click rows.
- * @param withComparison - Whether to include comparison values and deltas.
- * @param onDrillDown    - Callback fired when a row with child links is selected.
- * @return Leaderboard chart data.
  */
 function buildLeaderboardData(
 	rows: ClickRow[],
@@ -212,9 +199,6 @@ export type ClicksLeaderboardProps = {
 
 /**
  * Presentational leaderboard for the Clicks widget.
- *
- * @param {ClicksLeaderboardProps} props - The component props.
- * @return The rendered leaderboard.
  */
 export function ClicksLeaderboard( {
 	rows = [],
@@ -232,21 +216,11 @@ export function ClicksLeaderboard( {
 	);
 }
 
-type ClicksInnerProps = {
-	/**
-	 * Maximum rows to display. 0 means all rows returned by the API.
-	 */
-	max: number;
-};
-
 /**
  * Clicks widget inner component. Reads report params from WidgetRoot context
  * and renders the leaderboard, with drill-down into a link's child clicks.
- *
- * @param {ClicksInnerProps} props - The component props.
- * @return The rendered widget content.
  */
-function ClicksInner( { max }: ClicksInnerProps ) {
+function ClicksInner() {
 	const { reportParams } = useWidgetRootContext();
 	const {
 		drillDownItem: selectedClickLabel,
@@ -255,11 +229,11 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 	} = useWidgetDrillDown< string >();
 	const statsParams = {
 		...reportParams,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} as StatsReportParams;
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } = useStatsClicks(
 		statsParams,
-		{ maxRows: max }
+		{ maxRows: WIDGET_ROW_LIMIT }
 	);
 
 	const rows = useMemo(
@@ -295,7 +269,7 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
-			label={ __( 'All Clicks', 'jetpack-premium-analytics-pkg' ) }
+			label={ __( 'All clicks', 'jetpack-premium-analytics-pkg' ) }
 			ariaLabel={ __( 'View all clicks', 'jetpack-premium-analytics-pkg' ) }
 			onClick={ clearSelectedClick }
 		/>
@@ -324,6 +298,7 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 					icon: link,
 					description: __( 'No clicks in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<ClicksLeaderboard
 					rows={ activeRows }
@@ -336,21 +311,14 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 }
 
 /**
- * Clicks widget render component.
- *
  * Shows the most-clicked external links as a ranked leaderboard. Date range
  * comes from the shared dashboard date picker via WidgetRoot.
- *
- * @param {ClicksWidgetProps} props - The widget render props.
- * @return The rendered widget content.
  */
 export default function ClicksWidget( { attributes = {} }: ClicksWidgetProps ) {
-	const max = attributes?.max ?? 10;
-
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<ClicksInner max={ max } />
+				<ClicksInner />
 				<WidgetFooter>
 					<ReportLink report="clicks" />
 				</WidgetFooter>

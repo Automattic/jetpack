@@ -25,7 +25,7 @@ describe( 'DateRangeQuickPresets', () => {
 		renderPresets( { value: 'last-7-days' } );
 
 		expect( screen.getAllByRole( 'button' ) ).toHaveLength( 4 );
-		expect( screen.getByRole( 'button', { name: 'Last 7 days' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'button', { name: '7 days' } ) ).toHaveAttribute(
 			'aria-pressed',
 			'true'
 		);
@@ -52,28 +52,24 @@ describe( 'DateRangeQuickPresets', () => {
 		expect( onSelect ).toHaveBeenCalledTimes( 1 );
 		const [ range, id ] = onSelect.mock.calls[ 0 ];
 		expect( id ).toBe( 'last-24-hours' );
-		expect( range.to.getTime() - range.from.getTime() ).toBe( 24 * 60 * 60 * 1000 );
+		// 24 hourly buckets, the last one open-ended at :59:59.999.
+		expect( range.to.getTime() - range.from.getTime() ).toBe( 24 * 60 * 60 * 1000 - 1 );
 	} );
 
-	it( 'renders every preset in a select when compact', () => {
-		render(
-			<DateRangeQuickPresets
-				labelMode="select"
-				value="today"
-				onSelect={ jest.fn() }
-				timeZone="UTC"
-			/>
-		);
+	// However narrow the surface gets, the presets stay a row of pills: there is
+	// no mode that hides the choice behind a menu.
+	it( 'never collapses the presets into a select', () => {
+		renderPresets( { labelMode: 'abbreviated' } );
 
-		expect( screen.queryAllByRole( 'button' ) ).toHaveLength( 0 );
-		expect( screen.getByRole( 'combobox', { name: 'Period' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'combobox' ) ).not.toBeInTheDocument();
+		expect( screen.getAllByRole( 'button' ) ).toHaveLength( 4 );
 	} );
 
 	it( 'shortens the visible labels when abbreviated', () => {
 		renderPresets( { labelMode: 'abbreviated' } );
 
 		expect( screen.getAllByRole( 'button' ).map( button => button.textContent ) ).toEqual( [
-			'Last 24H',
+			'24H',
 			'7D',
 			'30D',
 			'12M',
@@ -88,7 +84,7 @@ describe( 'DateRangeQuickPresets', () => {
 	it( 'keeps the full label as the accessible name when abbreviated', () => {
 		renderPresets( { labelMode: 'abbreviated', value: 'last-7-days' } );
 
-		expect( screen.getByRole( 'button', { name: 'Last 7 days' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'button', { name: '7 days' } ) ).toHaveAttribute(
 			'aria-pressed',
 			'true'
 		);
@@ -97,8 +93,6 @@ describe( 'DateRangeQuickPresets', () => {
 	it( 'leaves the accessible name alone when labels are full', () => {
 		renderPresets( { labelMode: 'full' } );
 
-		expect( screen.getByRole( 'button', { name: 'Last 7 days' } ) ).not.toHaveAttribute(
-			'aria-label'
-		);
+		expect( screen.getByRole( 'button', { name: '7 days' } ) ).not.toHaveAttribute( 'aria-label' );
 	} );
 } );

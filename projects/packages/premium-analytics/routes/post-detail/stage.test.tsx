@@ -1,14 +1,21 @@
+import { useReportScope } from '@jetpack-premium-analytics/data';
 import { render, screen, within } from '@testing-library/react';
 import { usePostSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
 
+let mockSearch: Record< string, unknown > = {};
+
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
+	// Spread the real module so the report registry's tab configs, which call
+	// `defineReportTabs`, still resolve now that the registry is not mocked.
+	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: () => ( {} ),
 } ) );
@@ -48,9 +55,20 @@ jest.mock(
 		)
 );
 
+/**
+ * Reads the scope from where the page's widgets render.
+ *
+ * @return The declared scope, as text.
+ */
+function MockScopeProbe() {
+	const { offersComparison } = useReportScope();
+
+	return <div>{ offersComparison ? 'Post widgets' : 'Post widgets without comparison' }</div>;
+}
+
 jest.mock( '@wordpress/widget-dashboard', () => {
 	const WidgetDashboard = ( { children }: { children: ReactNode } ) => <>{ children }</>;
-	WidgetDashboard.Widgets = () => <div>Post widgets</div>;
+	WidgetDashboard.Widgets = () => <MockScopeProbe />;
 
 	return {
 		WidgetDashboard,
@@ -101,7 +119,11 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 
 jest.mock( '@wordpress/route', () => ( {
 	useParams: () => ( { postId: '41' } ),
+	useSearch: () => mockSearch,
 } ) );
+
+// The report registry is deliberately not mocked so the breadcrumb exercises
+// the real report-origin validation.
 
 jest.mock( './components', () => ( {
 	PostDetailTabs: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
@@ -111,7 +133,8 @@ jest.mock( './components', () => ( {
 jest.mock( './hooks', () => ( {
 	usePostSummary: jest.fn(),
 	usePostDetailTabs: () => ( {
-		tabs: [],
+		// One tab, so the panel carrying the widget grid actually mounts.
+		tabs: [ { id: 'traffic', label: 'Traffic' } ],
 		activeTab: 'traffic',
 		setActiveTab: jest.fn(),
 		layout: [],
@@ -137,9 +160,21 @@ function mockSummary( overrides: Record< string, unknown > = {} ) {
 	} );
 }
 
+/**
+ * Read the breadcrumb labels rendered by the page, in order.
+ *
+ * @return The visible breadcrumb labels.
+ */
+function getBreadcrumbLabels(): ( string | null )[] {
+	const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
+
+	return breadcrumbs.getAllByRole( 'listitem' ).map( crumb => crumb.textContent );
+}
+
 describe( 'post detail stage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockSearch = { from: '2026-06-01', to: '2026-06-16', post_id: '41' };
 	} );
 
 	it( 'puts a View post action in the page header, opening the live post in a new tab', () => {
@@ -181,21 +216,32 @@ describe( 'post detail stage', () => {
 		expect( screen.queryByRole( 'link', { name: /^View (post|page)$/ } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'renders the breadcrumb trail with the resolved title', () => {
+	// One declaration drives both halves: the panel reads it to drop the Compare
+	// control (covered in the ui package) and `WidgetRoot` reads it to strip the
+	// params. This asserts the declaration the page makes.
+	it( 'declares no comparison for the widgets it renders', () => {
 		mockSummary();
 
 		render( stage() );
 
-		const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
-		const crumbs = breadcrumbs.getAllByRole( 'listitem' );
-		expect( crumbs.map( crumb => crumb.textContent ) ).toEqual( [ 'Stats', 'Hello world' ] );
-		expect( within( crumbs[ 0 ] ).getByRole( 'link', { name: 'Stats' } ) ).toHaveAttribute(
-			'href',
-			'/?from=2026-06-01&to=2026-06-16'
-		);
-		expect(
-			within( crumbs[ 1 ] ).getByRole( 'heading', { level: 1, name: 'Hello world' } )
-		).toBeInTheDocument();
+		expect( screen.getByText( 'Post widgets without comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the two-crumb trail when no report origin is present', () => {
+		mockSummary();
+
+		render( stage() );
+
+		expect( getBreadcrumbLabels() ).toEqual( [ 'Stats', 'Hello world' ] );
+	} );
+
+	it( 'adds the referring report between Stats and the resolved title', () => {
+		mockSummary();
+		mockSearch = { ...mockSearch, ref: 'posts' };
+
+		render( stage() );
+
+		expect( getBreadcrumbLabels() ).toEqual( [ 'Stats', 'All pages', 'Hello world' ] );
 	} );
 
 	it.each( [ { title: undefined, isLoading: true }, { title: '' } ] )(

@@ -5,7 +5,7 @@ import { useReportOrders } from '@jetpack-premium-analytics/data';
 import { paymentReturn } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { BarChart, WidgetState } from '../../components';
+import { BarChart, BarChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
@@ -14,19 +14,10 @@ import { buildTotalReturnsData, isEmptyChartData } from '../../helpers';
 import { useBarStyles } from '../common';
 
 /**
- * Total Returns Widget Component
- *
  * A widget that displays total returns (refunds) as a bar chart
  * showing refunds and net sales side by side.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <TotalReturnsWidget />
- * </WidgetRoot>
- * ```
  */
 export function TotalReturnsWidget() {
 	const { reportParams } = useWidgetRootContext();
@@ -43,7 +34,7 @@ export function TotalReturnsWidget() {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading && ! hasData }
+			isLoading={ isLoading }
 			isFetching={ isFetching }
 			// The report queries keep the previous period's data as placeholders
 			// across range changes, so only surface the error when there is
@@ -61,6 +52,7 @@ export function TotalReturnsWidget() {
 				icon: paymentReturn,
 				description: __( 'No returns in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <BarChartSkeleton columns={ 2 } /> }
 		>
 			<BarChart
 				chartData={ chartData }

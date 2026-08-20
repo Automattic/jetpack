@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Central Forms Management: stop excluding e2e test sites.

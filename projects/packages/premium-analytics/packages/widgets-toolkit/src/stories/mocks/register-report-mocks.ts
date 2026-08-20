@@ -174,6 +174,16 @@ type ReportMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
 const mockStateOverrides = new Map< string, ReportMockState >();
 
 /**
+ * Clear cached queries after a forced mock override changes.
+ *
+ * Forced-state stories are excluded from autodocs, so clearing the shared cache
+ * is safe and avoids coupling mocks to widget query keys.
+ */
+export function resetForcedStateQueries(): void {
+	queryClient.clear();
+}
+
+/**
  * Force every request whose path contains `pathFragment` into a loading or error
  * state, or clear the override with `null`. Intended for a story's `beforeEach`
  * (set on enter, clear on cleanup). Because the override is keyed by path, scope
@@ -189,6 +199,7 @@ export function setReportMockState( pathFragment: string, state: ReportMockState
 	} else {
 		mockStateOverrides.set( pathFragment, state );
 	}
+	resetForcedStateQueries();
 }
 
 /**
@@ -265,6 +276,7 @@ export function setReportMockResponse( pathFragment: string, response: unknown |
 	} else {
 		mockResponseOverrides.set( pathFragment, response );
 	}
+	resetForcedStateQueries();
 }
 
 /**
@@ -297,11 +309,6 @@ function getMockParams(): MockDataParams {
 	return { ...getMockParamsFromPreset( 'default' ), ...fromGlobal };
 }
 
-/**
- * Gets the end date for the mock data spectrum (end of today).
- *
- * @return Date set to the end of today (23:59:59.999).
- */
 function getSpectrumToday(): Date {
 	const today = new Date();
 	today.setHours( 23, 59, 59, 999 );
@@ -857,7 +864,9 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 		date: endDate.toISOString().slice( 0, 10 ),
 		unit,
 		fields: [ 'period', 'subscribers', 'subscribers_paid' ],
-		data: rows,
+		// Newest first, as the live endpoint returns them. An oldest-first mock here
+		// hid WOOA7S-1907.
+		data: rows.reverse(),
 	};
 }
 

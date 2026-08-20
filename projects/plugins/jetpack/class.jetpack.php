@@ -495,7 +495,7 @@ class Jetpack {
 					self::update_active_modules( $modules );
 				}
 
-				add_action( 'init', array( __CLASS__, 'activate_new_modules' ) );
+				self::register_upgrade_init_hooks();
 
 				// Upgrade to 4.3.0.
 				if ( Jetpack_Options::get_option( 'identity_crisis_whitelist' ) ) {
@@ -732,6 +732,9 @@ class Jetpack {
 		// Update the site's Jetpack plan and products from API on heartbeats.
 		add_action( 'jetpack_heartbeat', array( Jetpack_Plan::class, 'refresh_from_wpcom' ) );
 
+		// The Connection package fetches the site record for `jetpack/v4/site`; reuse it to refresh the plan.
+		add_action( 'jetpack_site_data_fetched', array( Jetpack_Plan::class, 'update_from_site_record' ) );
+
 		// Actually push the stats on shutdown.
 		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
 			add_action( 'shutdown', array( $this, 'push_stats' ) );
@@ -796,13 +799,6 @@ class Jetpack {
 		// Jetpack plugin for now: the Connection package no longer auto-wires these, so
 		// connection-only consumers (Boost, Protect, Search, etc.) do not register them yet.
 		\Automattic\Jetpack\Connection\Abilities\Connection_Abilities::init();
-
-		// Register Reprint export support on Pressable and WordPress.com (Atomic)
-		// hosts (overridable via the `jetpack_reprint_export_available` filter), so
-		// generic self-hosted Jetpack sites never expose the export endpoint.
-		if ( \Automattic\Jetpack\Reprint_Export\Reprint_Exporter::is_available() ) {
-			\Automattic\Jetpack\Reprint_Export\Reprint_Exporter::init();
-		}
 	}
 
 	/**
@@ -2970,21 +2966,18 @@ p {
 	}
 
 	/**
-	 * Runs before bumping version numbers up to a new version
+	 * Runs before bumping version numbers up to a new version.
 	 *
-	 * @param string $version    Version:timestamp.
+	 * Only ever registered the hooks for the release post update modal, which has been removed.
+	 * No longer hooked to `updating_jetpack_version`.
+	 *
+	 * @deprecated $$next-version$$
+	 *
+	 * @param string $version     Version:timestamp.
 	 * @param string $old_version Old Version:timestamp or false if not set yet.
 	 */
-	public static function do_version_bump( $version, $old_version ) {
-		if ( $old_version ) { // For existing Jetpack installations.
-			add_action( 'admin_enqueue_scripts', __CLASS__ . '::enqueue_block_style' );
-
-			// If a front end page is visited after the update, the 'wp' action will fire.
-			add_action( 'wp', 'Jetpack::set_update_modal_display' );
-
-			// If an admin page is visited after the update, the 'current_screen' action will fire.
-			add_action( 'current_screen', 'Jetpack::set_update_modal_display' );
-		}
+	public static function do_version_bump( $version, $old_version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature preserved for the deprecation shim.
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
 	}
 
 	/**
@@ -3023,6 +3016,74 @@ p {
 		if ( self::is_module_active( 'subscriptions' ) || self::activate_module( 'subscriptions', false, false ) ) {
 			update_option( 'jetpack_subscriptions_default_on_migrated', true );
 		}
+	}
+
+	/**
+	 * Option flag that records the AI master-switch opt-out reconciliation has run,
+	 * so it never runs twice.
+	 *
+	 * @var string
+	 */
+	const AI_MASTER_OPTOUT_MIGRATED_OPTION = 'jetpack_ai_master_optout_migrated';
+
+	/**
+	 * Register the on-upgrade init hooks whose relative ORDER matters, extracted so
+	 * the ordering can be asserted in tests without invoking plugin_upgrade() (whose
+	 * guards make it unreliable to trigger under test). activate_new_modules()
+	 * (init, default priority 10) auto-activates "Auto Activate: Yes" modules
+	 * including the `ai` master; reconcile_ai_master_optout() must run at a LATER
+	 * priority to honor an explicit AI opt-out.
+	 *
+	 * @return void
+	 */
+	public static function register_upgrade_init_hooks() {
+		add_action( 'init', array( __CLASS__, 'activate_new_modules' ) );
+		add_action( 'init', array( __CLASS__, 'reconcile_ai_master_optout' ), 20 );
+	}
+
+	/**
+	 * Preserves an explicit Jetpack AI opt-out when the `ai` module becomes the site-wide
+	 * master switch off WordPress.com Simple (self-hosted and Atomic).
+	 *
+	 * The `ai` module is "Auto Activate: Yes", so on upgrade {@see self::activate_new_modules()}
+	 * turns it on for connected sites — the desired default-on / auto-enable-on-connection
+	 * behavior, which this method deliberately leaves alone. The one case it corrects is a site
+	 * that had explicitly disabled Jetpack AI (the `jetpack_ai_enabled` option present and falsey)
+	 * before the module shipped: that opt-out must survive the module becoming the master, so the
+	 * module is deactivated for exactly those sites. An absent or truthy option is left untouched.
+	 *
+	 * Ordering is the whole point. `activate_new_modules()` is hooked on `init` at priority 10 and
+	 * auto-activates the module there; this method is hooked on `init` at priority 20 (see
+	 * {@see self::plugin_upgrade()}), so it runs AFTER the auto-activation and its deactivation is
+	 * the final state. A version-guarded block that ran inline during `plugins_loaded` would be
+	 * undone by the later auto-activation, which is why this is a late-init hook rather than an
+	 * inline upgrade step.
+	 *
+	 * WordPress.com Simple never runs modules — the option stays the master there — so this is a
+	 * no-op on Simple. The {@see self::AI_MASTER_OPTOUT_MIGRATED_OPTION} flag makes it run exactly
+	 * once, which matters because off-Simple the option is no longer the master after this runs:
+	 * a stale falsey option must not keep re-deactivating a module the user later turns back on.
+	 *
+	 * @return void
+	 */
+	public static function reconcile_ai_master_optout() {
+		if ( get_option( self::AI_MASTER_OPTOUT_MIGRATED_OPTION ) ) {
+			return;
+		}
+
+		// Simple keeps the `jetpack_ai_enabled` option as the master; modules don't run there.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		// A sentinel default distinguishes an absent option (leave auto-activation alone) from one
+		// explicitly stored falsey (an opt-out to preserve).
+		$stored = get_option( 'jetpack_ai_enabled', 'not-set' );
+		if ( 'not-set' !== $stored && ! (bool) $stored ) {
+			( new Modules() )->deactivate( 'ai' );
+		}
+
+		update_option( self::AI_MASTER_OPTOUT_MIGRATED_OPTION, true );
 	}
 
 	/**
@@ -3238,17 +3299,30 @@ p {
 
 	/**
 	 * Sets the display_update_modal state.
+	 *
+	 * The release post update modal that read this state has been removed. The write is kept so the
+	 * method still behaves as documented for the deprecation window. When this is deleted, also drop
+	 * the matching `display_update_modal` guard in Automattic\Jetpack\CookieState::should_set_cookie(),
+	 * which exists only to keep this key out of the cookie on the Jetpack admin screen.
+	 *
+	 * @deprecated $$next-version$$
 	 */
 	public static function set_update_modal_display() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
 		self::state( 'display_update_modal', true );
 	}
 
 	/**
 	 * Enqueues the block library styles.
 	 *
+	 * Only ever used by the release post update modal, which has been removed.
+	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @param string $hook The current admin page.
 	 */
 	public static function enqueue_block_style( $hook ) {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
 		if ( 'toplevel_page_jetpack' === $hook ) {
 			wp_enqueue_style( 'wp-block-library' );
 		}
@@ -3554,12 +3628,21 @@ p {
 	/**
 	 * Return stat data for WPCOM sync.
 	 *
+	 * The Sync stats module was this method's last caller and moved to the Connection package's
+	 * `Heartbeat::generate_stats_array()`, which assembles the heartbeat data through the
+	 * `jetpack_heartbeat_stats_array` filter. Note the package method does not include the extended
+	 * data from `get_additional_stat_data()`, so callers relying on `$extended` need to add it themselves.
+	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @param bool $encode JSON encode the result.
 	 * @param bool $extended Adds additional stats data.
 	 *
 	 * @return array|string Stats data. Array if $encode is false. JSON-encoded string is $encode is true.
 	 */
 	public static function get_stat_data( $encode = true, $extended = true ) {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Heartbeat::generate_stats_array' );
+
 		// Site environment stats now live in the Connection package; merge them with the Jetpack-specific stats.
 		$data = array_merge( Jetpack_Heartbeat::generate_stats_array(), Heartbeat::get_environment_stats() );
 
@@ -3667,10 +3750,6 @@ p {
 
 		if ( ! ( is_multisite() && is_plugin_active_for_network( 'jetpack/jetpack.php' ) && ! is_network_admin() ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'deactivate_dialog' ) );
-		}
-
-		if ( isset( $_COOKIE['jetpackState']['display_update_modal'] ) ) {
-			add_action( 'admin_enqueue_scripts', __CLASS__ . '::enqueue_block_style' );
 		}
 
 		add_filter( 'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ), array( $this, 'plugin_action_links' ) );
@@ -5524,13 +5603,18 @@ endif;
 	/**
 	 * Checks if the site is currently in an identity crisis.
 	 *
+	 * Now delegates to the Connection package so this matches what the heartbeat itself reports.
+	 * Note the package guards on `Connection\Manager::is_connected()` where this used to guard on
+	 * `Jetpack::is_connection_ready()`, so the `jetpack_is_connection_ready` filter no longer applies.
+	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @return array|bool Array of options that are in a crisis, or false if everything is OK.
 	 */
 	public static function check_identity_crisis() {
-		if ( ! self::is_connection_ready() || ( new Status() )->is_offline_mode() || ! Identity_Crisis::validate_sync_error_idc_option() ) {
-			return false;
-		}
-		return Jetpack_Options::get_option( 'sync_error_idc' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Identity_Crisis::check_identity_crisis' );
+
+		return Identity_Crisis::check_identity_crisis();
 	}
 
 	/**
@@ -6062,8 +6146,18 @@ endif;
 	 * $return array $filtered_data
 	 */
 	public static function jetpack_check_heartbeat_data() {
-		// Site environment stats (incl. wp-version/php-version checked below) now live in the Connection package.
-		$raw_data = array_merge( Jetpack_Heartbeat::generate_stats_array(), Heartbeat::get_environment_stats() );
+		/*
+		 * Site environment stats (incl. wp-version/php-version checked below) now live in the Connection package,
+		 * and the IDC stat is contributed by the Connection package's `jetpack_heartbeat_stats_array` filter
+		 * callback. We rebuild the stat here rather than running that filter: the filter's callbacks have side
+		 * effects (Connection\Manager::add_stats_to_heartbeat() consumes and deletes the `xmlrpc_errors` option)
+		 * and return non-scalar values, neither of which is appropriate for this read-only diagnostic.
+		 */
+		$raw_data = array_merge(
+			Jetpack_Heartbeat::generate_stats_array(),
+			Heartbeat::get_environment_stats(),
+			array( 'identitycrisis' => Identity_Crisis::check_identity_crisis() ? 'yes' : 'no' )
+		);
 
 		$good    = array();
 		$caution = array();

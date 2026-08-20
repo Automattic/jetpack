@@ -259,4 +259,21 @@ describe( 'resolveConnectionErrorActions', () => {
 
 		expect( actions ).toEqual( [] );
 	} );
+	// The default restore is not scoped to the error that supplied it:
+	// restoreConnection() restores the blog token and then walks the user through
+	// reconnecting their own account when needed. A label naming one error's scope
+	// would understate what the button does.
+	describe( 'restore label', () => {
+		it.each( [ 'user', 'site', 'owner' ] as const )(
+			'keeps the generic label for a %s-audience error',
+			audience => {
+				const actions = resolveConnectionErrorActions(
+					{ error_message: 'Broken', audience },
+					baseOptions
+				);
+
+				expect( actions[ 0 ].label ).toBe( 'Restore Connection' );
+			}
+		);
+	} );
 } );

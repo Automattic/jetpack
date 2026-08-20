@@ -16,24 +16,10 @@ import { useSegmentStyles } from '../common';
 import styles from './sessions-by-device-widget.module.scss';
 
 /**
- * Sessions by Device Type Widget Component
+ * Semi-circle chart of sessions by device category (Mobile, Desktop, Tablet),
+ * with the period total in the center and per-device counts in the legend.
  *
- * Displays a semi-circle chart showing the breakdown of website sessions
- * by device category: Mobile, Desktop, and Tablet.
- *
- * Features:
- * - Shows total sessions in the center with comparison delta
- * - Legend with individual device counts and comparison deltas
- * - Supports comparison periods
- *
- * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <SessionsByDeviceWidget />
- * </WidgetRoot>
- * ```
+ * Must render within a WidgetRoot, which provides reportParams via context.
  */
 export function SessionsByDeviceWidget() {
 	const { reportParams } = useWidgetRootContext();
@@ -50,7 +36,7 @@ export function SessionsByDeviceWidget() {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading && ! hasData }
+			isLoading={ isLoading }
 			isFetching={ isFetching }
 			// The report queries keep the previous period's data as placeholders
 			// across range changes, so only surface the error when there is

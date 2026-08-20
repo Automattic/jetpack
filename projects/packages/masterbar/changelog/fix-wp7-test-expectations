@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Test-only: follow core's default admin color scheme instead of naming it, which changed in WordPress 7.0.
+
+

@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [2.2.0] - 2026-08-19
+### Added
+- Gravatar: pick a stable Color Studio background color per email for initials identity avatars via bg_color [#50578]
+
+## [2.1.1] - 2026-08-06
+### Changed
+- Update package dependencies. [#50509]
+
 ## [2.1.0] - 2026-08-03
 ### Changed
 - Decorative card: Build on the shared Card component, inline the unlink glyph, and hide the card from assistive technology. [#50861]
@@ -1897,6 +1905,8 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[2.2.0]: https://github.com/Automattic/jetpack-components/compare/2.1.1...2.2.0
+[2.1.1]: https://github.com/Automattic/jetpack-components/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/Automattic/jetpack-components/compare/2.0.1...2.1.0
 [2.0.1]: https://github.com/Automattic/jetpack-components/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/Automattic/jetpack-components/compare/1.12.17...2.0.0

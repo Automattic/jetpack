@@ -32,9 +32,6 @@ export type LegendLabels = {
 };
 
 export type LeaderboardChartProps = {
-	/**
-	 * Card container styles
-	 */
 	className?: string;
 
 	/**
@@ -42,54 +39,24 @@ export type LeaderboardChartProps = {
 	 */
 	data: LeaderboardChartData;
 
-	/**
-	 * Whether the widget is in a loading state
-	 */
 	loading?: boolean;
 
-	/**
-	 * Whether to show comparison data
-	 */
 	withComparison?: boolean;
 
-	/**
-	 * Whether to show overlay label on bars
-	 */
 	withOverlayLabel?: boolean;
 
-	/**
-	 * Custom legend labels
-	 */
 	legendLabels?: LegendLabels;
 
-	/**
-	 * Format for displaying values
-	 */
 	dataFormat?: DataFormat;
 
-	/**
-	 * Whether to show the legend
-	 */
 	showLegend?: boolean;
 
-	/**
-	 * Custom empty state content to display when no data is available
-	 */
 	emptyState?: ReactNode;
 
-	/**
-	 * Icon to display in the empty state
-	 */
 	emptyStateIcon?: React.ComponentProps< typeof Icon >[ 'icon' ];
 
-	/**
-	 * Text to display in the empty state
-	 */
 	emptyStateText?: string;
 
-	/**
-	 * Custom styling for the chart container
-	 */
 	style?: React.CSSProperties & {
 		'--a8c--charts--leaderboard--bar--border-radius'?: string;
 	};
@@ -105,20 +72,11 @@ export type LeaderboardChartProps = {
 };
 
 /**
- * Generic LeaderboardChart component for displaying ranking/leaderboard data.
- * Used for "top X by Y" type visualizations (e.g., sales by source, by channel, by campaign).
+ * "Top X by Y" ranking chart wrapping `LeaderboardChartUnresponsive` with the
+ * package's formatting and styling.
  *
- * This component wraps @automattic/charts LeaderboardChartUnresponsive with standardized formatting and styling.
- *
- * **Requirements:**
- * - Must be rendered within a GlobalChartsProvider context to access chart styling (colors, themes, element styles)
- *
- * Features:
- * - Automatic empty state handling
- * - Configurable value formatting (currency, number, percentage, etc.)
- * - Comparison mode support
- * - Customizable legend labels
- * - Overlay label support for alternative styling
+ * Must render inside a `GlobalChartsProvider`: colors, theme, and element
+ * styles are read from that context.
  */
 export function LeaderboardChart( {
 	className,
@@ -139,9 +97,6 @@ export function LeaderboardChart( {
 }: LeaderboardChartProps ) {
 	const { getElementStyles, theme } = useGlobalChartsContext();
 
-	/**
-	 * Create value formatter from dataFormat configuration
-	 */
 	const valueFormatter = useMemo(
 		() => ( value: number ) => formatMetricValue( value, dataFormat.type, dataFormat.options ),
 		[ dataFormat ]
@@ -164,10 +119,7 @@ export function LeaderboardChart( {
 		return lightenHexColor( normalizeColorToHex( primaryColor ), 0.92 );
 	}, [ withOverlayLabel, getElementStyles ] );
 
-	/**
-	 * Merge theme bar border radius with style prop.
-	 * Style prop takes precedence for per-widget overrides.
-	 */
+	// The `style` prop wins over the theme's bar radius, for per-widget overrides.
 	const chartStyle = useMemo( () => {
 		const wooTheme = theme as WooChartTheme | undefined;
 		const barBorderRadius = wooTheme?.leaderboardChart?.barBorderRadius;
@@ -180,7 +132,6 @@ export function LeaderboardChart( {
 		} as React.CSSProperties;
 	}, [ theme, style ] );
 
-	// Check if we have valid data
 	const isEmptyData = ! data || data.length === 0;
 
 	if ( isEmptyData ) {

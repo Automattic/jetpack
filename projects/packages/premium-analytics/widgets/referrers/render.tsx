@@ -8,7 +8,9 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
@@ -61,27 +63,19 @@ export type ReferrerRow = {
 	 * render leaf rows (no children) as an outbound link.
 	 */
 	href?: string;
-	/**
-	 * Optional favicon URL.
-	 */
 	icon?: string | null;
 	/**
 	 * Child referrers for drill-down. Referrer groups can nest twice
 	 * (e.g. Search Engines → Google Search → google.com).
 	 */
 	children?: ReferrerRow[];
-	/**
-	 * Whether the child rows have any matching comparison-period rows.
-	 */
+	/** Whether the child rows have any matching comparison-period rows. */
 	childrenHaveComparison?: boolean;
 };
 
 /**
  * Maps a merged data-layer row (comparison matching, sorting, and the row cap
  * happen in `mergeStatsReferrersComparisonRows`) onto the widget's row shape.
- *
- * @param item - Merged referrers comparison item.
- * @return Row ready for the leaderboard.
  */
 export function toReferrerRow( item: StatsReferrersComparisonItem ): ReferrerRow {
 	return {
@@ -97,11 +91,6 @@ export function toReferrerRow( item: StatsReferrersComparisonItem ): ReferrerRow
 
 /**
  * Maps normalized referrer rows onto the shape `LeaderboardChart` expects.
- *
- * @param rows           - Normalized referrer rows.
- * @param withComparison - Whether to include comparison values and deltas.
- * @param onDrillDown    - Callback fired when a row with child referrers is selected.
- * @return Leaderboard chart data.
  */
 function buildLeaderboardData(
 	rows: ReferrerRow[],
@@ -156,12 +145,6 @@ export type ReferrersLeaderboardProps = {
 /**
  * Presentational leaderboard for the Referrers widget. Loading, error, and
  * empty states are owned by the inner component's `WidgetState`.
- *
- * @param props                - Component props.
- * @param props.rows           - Normalized referrer rows.
- * @param props.withComparison - When true, render comparison deltas.
- * @param props.onDrillDown    - Callback fired when a row with child referrers is selected.
- * @return The rendered leaderboard.
  */
 export function ReferrersLeaderboard( {
 	rows = [],
@@ -179,18 +162,18 @@ export function ReferrersLeaderboard( {
 	);
 }
 
-function ReferrersInner( { max }: { max: number } ) {
+function ReferrersInner() {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = {
 		...reportParams,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} as StatsReportParams;
 
 	// Row matching (per level, so same-named rows at different drill levels
 	// cannot cross-match), the visible-row cap, and the comparison-overlap
 	// gate all live in the data layer's merge helper (see AGENTS.md).
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsReferrers( statsParams, { maxRows: max } );
+		useStatsReferrers( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
 		() => ( comparisonRows?.rows ?? [] ).map( toReferrerRow ),
@@ -314,6 +297,7 @@ function ReferrersInner( { max }: { max: number } ) {
 					icon: globe,
 					description: __( 'No referrers in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<ReferrersLeaderboard
 					rows={ activeRows }
@@ -325,26 +309,13 @@ function ReferrersInner( { max }: { max: number } ) {
 	);
 }
 
-/**
- * Referrers widget render component.
- *
- * Shows the websites and search engines referring visitors as a ranked
- * leaderboard. Date range comes from the shared dashboard date picker via
- * WidgetRoot. Referrer groups drill down into their sources and domains.
- *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes.
- * @return The rendered widget content.
- */
 export default function ReferrersWidget( {
 	attributes = {},
 }: WidgetRenderProps< ReferrersRenderAttributes > ) {
-	const max = attributes?.max ?? 10;
-
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<ReferrersInner max={ max } />
+				<ReferrersInner />
 				<WidgetFooter>
 					<ReportLink report="referrers" />
 				</WidgetFooter>

@@ -1,10 +1,10 @@
 === Jetpack Search ===
 Contributors: automattic, annamcphee, bluefuton, kangzj, jsnmoon, robfelty, gibrown, trakos, dognose24, a8ck3n
 Tags: search, filter, woocommerce search, ajax search, product search, free cloud-based search
-Requires at least: 6.9
+Requires at least: 7.0
 Requires PHP: 7.2
-Tested up to: 7.0
-Stable tag: 7.0.1
+Tested up to: 7.1
+Stable tag: 7.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,14 +122,10 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 7.0.1 - 2026-07-22
-#### Changed
-- Add a results-per-page setting to the Search Results block, falling back to the site's Reading setting when unset.
-- Overlay/embedded templates: Keep the Collapsible Filters panel in sync with the sidebar Filters block, locking it read-only in the editor when both coexist.
-- Overlay/embedded templates: Mark where a new filter belongs when adding it to the Filters (or Product Filters) block in the editor.
-
-#### Fixed
-- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active.
+### 7.1.0 - 2026-08-13
+#### Added
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed.
+- Search Blocks: Add a No Results block so empty states can contain links, images, buttons, and other blocks instead of plain text. Continue rendering existing Results List messages while deprecating their settings.
 
 == Testimonials ==
 

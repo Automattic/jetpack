@@ -1,25 +1,182 @@
+// Width at which the title and the date controls stop fitting side by side.
+// Tunable.
+$section-header-stacked-max-inline-size: 720px;
+
+// Floor under the truncating title, so the controls cannot squeeze it into
+// nothing. Tunable.
+$section-header-title-min-inline-size: 320px;
+
 /*
- * The controls slot takes whatever width the title leaves, so its occupant is
- * sized by the header rather than by its own content.
- *
- * This matters because the date controls measure their own box to pick a
- * responsive layout. In a shrink-to-fit slot they measure the width they want
- * instead of the width they have, always conclude that everything fits, and
- * overflow the header still showing the full labels. The report pages hand the
- * same panel a full-row box for the same reason: see `.filtersContent` in
- * `report-page-layout.module.scss`.
+ * Carries the query and nothing else: a container cannot answer a query about
+ * its own size, so the grid it switches has to be a descendant. A container
+ * query because this header renders at widths the viewport does not describe:
+ * a section panel on the dashboard, a report page's own column.
  */
-.controls {
-	flex: 1 1 0%;
-	min-inline-size: 0;
+.container {
+	container-type: inline-size;
+}
+
+.layout {
+	display: grid;
 
 	/*
-	 * The panel fills the slot, so the header's end-anchoring has to happen
-	 * inside it rather than through the slot's own `justify`. Scoped to the
-	 * panel: the other occupant of this slot is the year filter, a bordered
-	 * group that has to keep its natural width.
+	 * Row one is the title and the controls; the subtitle spans a row of its own
+	 * below. The controls track is capped at its max-content, so the controls
+	 * render at their natural width and a long title truncates instead of
+	 * costing them labels; the title track takes what is left, floored so the
+	 * controls cannot squeeze it into nothing. Only once the title sits at that
+	 * floor does the controls track compress, and the panel adapts internally.
+	 * The subtitle crosses the flexible track, so its length cannot inflate the
+	 * controls track either.
+	 */
+	grid-template-columns: minmax($section-header-title-min-inline-size, 1fr) minmax(0, max-content);
+	align-items: center;
+
+	// Column gap only: the rows carry their spacing as their own padding, so
+	// the condensing subtitle can take it along. A row gap belongs to the
+	// track and would stay behind as a band under the title.
+	column-gap: var(--wpds-dimension-gap-sm);
+	row-gap: 0;
+
+	.title {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	// A row wrapper rather than the text itself: condensing animates the grid
+	// row, and the padding is the row spacing it gives back on the way out.
+	.subtitleRow {
+		grid-column: 1 / -1;
+		padding-block-start: var(--wpds-dimension-gap-sm);
+	}
+}
+
+/*
+ * Condenses the header into a compact bar as it pins: the subtitle fades and
+ * gives its row back, and the title drops a step on the type scale.
+ *
+ * The surface, not this component, knows where the header pins, so it opts in
+ * by publishing a `--section-header-pin` view timeline whose `exit` phase
+ * opens at the pin point (see the dashboard's pin marker in
+ * `routes/dashboard/stage.module.scss`). Progress-driven, so it follows the
+ * scroll in both directions; the short range bounds the per-frame layout cost
+ * of animating the grid row, and `fr` interpolation collapses the row without
+ * measuring the subtitle text.
+ *
+ * The @supports gate is load-bearing: without scroll-driven animation
+ * support, the `animation` shorthand would run as a 0s time animation and its
+ * `both` fill would freeze the header in the condensed state. Inside the gate
+ * an unresolved timeline (a surface that publishes no marker) leaves the
+ * animation inert, which is the resting layout.
+ */
+@supports (animation-timeline: --section-header-pin) {
+
+	.condensing {
+
+		.subtitleRow {
+			display: grid;
+			grid-template-rows: 1fr;
+			animation: condense-subtitle linear both;
+			animation-timeline: --section-header-pin;
+			animation-range: exit;
+
+			> .subtitle {
+				min-block-size: 0;
+				overflow: hidden;
+			}
+		}
+
+		// Buys no height: the row is floored by the date controls beside it.
+		// What changes is what the pinned band reads as.
+		.title {
+			animation: condense-title linear both;
+			animation-timeline: --section-header-pin;
+			animation-range: exit;
+		}
+	}
+
+	// Scroll-driven, but still chrome moving under the reader.
+	@media (prefers-reduced-motion: reduce) {
+
+		.condensing .subtitleRow,
+		.condensing .title {
+			animation: none;
+		}
+	}
+}
+
+@keyframes condense-subtitle {
+
+	to {
+		grid-template-rows: 0fr;
+		opacity: 0;
+		padding-block-start: 0;
+	}
+}
+
+@keyframes condense-title {
+
+	to {
+		font-size: var(--wpds-typography-font-size-xl);
+		line-height: var(--wpds-typography-line-height-xl);
+	}
+}
+
+.controls {
+	min-inline-size: 0;
+	justify-content: flex-end;
+
+	/*
+	 * The panel fills the cell, so the end-anchoring happens inside its row
+	 * rather than through the cell's alignment. Scoped to the panel: the
+	 * slot's other occupant is the year surface's row, which keeps its
+	 * natural width and is anchored by the cell above.
+	 */
+	:global(.date-filters-panel__row) {
+		justify-content: flex-end;
+	}
+
+	/*
+	 * Sized from the panel's published full-labels width, so the column can
+	 * grow back after the presets abbreviate. The track's 0 minimum keeps the
+	 * squeeze unaffected.
 	 */
 	:global(.date-filters-panel) {
-		justify-content: flex-end;
+		inline-size: var(--date-filters-panel-full-row-width, auto);
+		max-inline-size: 100%;
+	}
+}
+
+@container (max-width: #{$section-header-stacked-max-inline-size}) {
+
+	.layout {
+		grid-template-columns: minmax(0, 1fr);
+
+		// A column of its own with nothing competing for it: the title wraps
+		// rather than spending lines it does not have to.
+		.title {
+			overflow: visible;
+			text-overflow: clip;
+			white-space: normal;
+		}
+	}
+
+	// One column, so source order would leave the controls between the title and
+	// the subtitle describing it.
+	.subtitleRow {
+		order: 1;
+	}
+
+	// Last row, reading from the same edge as the title. A row of its own now,
+	// so it carries its row spacing as padding the way the subtitle does.
+	.controls {
+		order: 2;
+		justify-content: flex-start;
+		padding-block-start: var(--wpds-dimension-gap-sm);
+
+		:global(.date-filters-panel__row) {
+			justify-content: flex-start;
+		}
 	}
 }

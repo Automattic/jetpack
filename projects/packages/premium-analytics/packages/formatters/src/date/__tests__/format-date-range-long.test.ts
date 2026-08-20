@@ -84,9 +84,10 @@ describe( 'formatDateRangeLong', () => {
 		).toBe( 'Wednesday, July 29' );
 	} );
 
-	it( 'names a rolling 24-hour window by the day it starts on', () => {
-		// The window straddles two calendar days without being about either in
-		// full, so naming both ends would overstate its reach.
+	it( 'names a rolling 24-hour window by the day it ends on', () => {
+		// The window straddles two calendar days; naming both ends would
+		// overstate its reach, and the day the reading is taken on is the one
+		// it is about.
 		expect(
 			formatDateRangeLong(
 				{
@@ -95,7 +96,7 @@ describe( 'formatDateRangeLong', () => {
 				},
 				{ referenceYear: 2026 }
 			)
-		).toBe( 'Tuesday, July 28' );
+		).toBe( 'Wednesday, July 29' );
 	} );
 
 	it( 'keeps both ends for a window longer than a day', () => {
