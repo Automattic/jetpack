@@ -1,5 +1,4 @@
 Significance: patch
-Type: changed
-Comment: Internal Podcast module wiring only; no user-visible change since 9.0.0.
+Type: removed
 
-
+Podcast: Remove the Atomic module opt-in and force-activation, so the module follows the site's own setting.
