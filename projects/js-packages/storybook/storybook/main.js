@@ -164,7 +164,12 @@ const sbconfig = {
 			resolve: {
 				conditions: [ 'jetpack:src' ],
 				// Somehow or other vitest blows up trying to process `node_modules/storybook/dist/manager-api/index.js` unless we set this.
-				dedupe: [ 'react', 'react-dom' ],
+				// `@wordpress/data` and store packages like `@wordpress/notices` must resolve to a
+				// single copy per page: a store registers itself into the `@wordpress/data` copy it
+				// imports, so a second copy means `select( store )` returns undefined. pnpm keeps
+				// several peer instantiations of the same version, and which one each package links
+				// shifts with lockfile changes (e.g. `pnpm dedupe`).
+				dedupe: [ 'react', 'react-dom', '@wordpress/data', '@wordpress/notices' ],
 				alias: {
 					...config.resolve?.alias,
 

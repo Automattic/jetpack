@@ -1664,10 +1664,16 @@ importers:
       '@wordpress/components':
         specifier: 37.0.0
         version: 37.0.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vite@8.0.16(sass-embedded@1.97.3))
+      '@wordpress/data':
+        specifier: 10.51.0
+        version: 10.51.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/element':
         specifier: 8.3.0
         version: 8.3.0
       '@wordpress/format-library':
+        specifier: 5.51.0
+        version: 5.51.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vite@8.0.16(sass-embedded@1.97.3))
+      '@wordpress/notices':
         specifier: 5.51.0
         version: 5.51.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vite@8.0.16(sass-embedded@1.97.3))
       '@wordpress/theme':
