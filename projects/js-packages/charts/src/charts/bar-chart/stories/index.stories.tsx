@@ -423,7 +423,7 @@ export const WithDefaultHiddenSeries: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
-		legend: { interactive: true },
+		legendInteractive: true,
 		chartId: 'default-hidden-series-demo',
 		defaultHiddenSeries: [ 'Great Britain' ],
 	},

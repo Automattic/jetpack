@@ -202,7 +202,7 @@ export const WithDefaultHiddenSeries: StoryObj< StoryArgs > = Template.bind( {} 
 WithDefaultHiddenSeries.args = {
 	...Default.args,
 	showLegend: true,
-	legend: { interactive: true },
+	legendInteractive: true,
 	chartId: 'default-hidden-series-demo',
 	defaultHiddenSeries: [ 'London' ],
 };
