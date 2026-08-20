@@ -27,6 +27,7 @@ import {
 	isSeoEnhancerAvailable,
 	getSiteRepresentativeImage,
 	isAiEnabled,
+	isAiSeoEnabled,
 } from 'state/initial-state';
 import { siteHasFeature } from 'state/site';
 import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
@@ -337,7 +338,7 @@ export const SEO = withModuleSettingsFormHelpers(
 										disabled={
 											! this.props.getOptionValue( 'seo-tools' ) ||
 											! this.props.hasSeoEnhancer ||
-											! this.props.aiEnabled
+											! this.props.aiSeoEnabled
 										}
 										checked={
 											this.props.hasSeoEnhancer &&
@@ -353,12 +354,17 @@ export const SEO = withModuleSettingsFormHelpers(
 											</span>
 										}
 									/>
-									{ this.props.getOptionValue( 'seo-tools' ) && ! this.props.aiEnabled && (
+									{ this.props.getOptionValue( 'seo-tools' ) && ! this.props.aiSeoEnabled && (
 										<span className="jp-form-setting-explanation">
-											{ __(
-												'Jetpack AI is turned off for this site, so nothing is generated. Your choice is saved and applies again when Jetpack AI is turned back on.',
-												'jetpack'
-											) }
+											{ this.props.aiEnabled
+												? __(
+														'AI SEO is turned off for this site, so nothing is generated. Your choice is saved and applies again when AI SEO is turned back on.',
+														'jetpack'
+												  )
+												: __(
+														'Jetpack AI is turned off for this site, so nothing is generated. Your choice is saved and applies again when Jetpack AI is turned back on.',
+														'jetpack'
+												  ) }
 										</span>
 									) }
 								</FormFieldset>
@@ -529,5 +535,8 @@ export default connect( state => {
 		// so the control says so rather than accepting a change that cannot
 		// take effect.
 		aiEnabled: isAiEnabled( state ),
+		// Automatic generation sits under the AI SEO feature, so the toggle
+		// follows it rather than the site-wide switch alone.
+		aiSeoEnabled: isAiSeoEnabled( state ),
 	};
 } )( SEO );

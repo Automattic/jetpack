@@ -939,3 +939,15 @@ export function isSeoEnhancerAvailable( state ) {
 export function isAiEnabled( state ) {
 	return state.jetpack.initialState.isAiEnabled ?? true;
 }
+
+/**
+ * Returns whether the AI SEO feature is effectively enabled, as the server
+ * computed it (its own toggle plus the AI gates). Defaults to true when absent
+ * so the UI never reports the feature off on its own authority.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} Whether the AI SEO feature is effectively enabled.
+ */
+export function isAiSeoEnabled( state ) {
+	return state.jetpack.initialState.isAiSeoEnabled ?? true;
+}

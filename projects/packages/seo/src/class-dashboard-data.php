@@ -259,14 +259,23 @@ class Dashboard_Data {
 	 * editor (the generation itself is wpcom/AI-Assistant side); this exposes only
 	 * its persisted on/off toggle and whether it's available. Availability mirrors
 	 * the legacy Traffic page: the `ai_seo_enhancer_enabled` feature filter must be
-	 * on (it still depends on AI being available) AND the site's plan must support
-	 * the `ai-seo-enhancer` feature. The toggle writes through the existing
-	 * `/jetpack/v4/settings` endpoint (`ai_seo_enhancer_enabled`).
+	 * on (it still depends on AI being available), the AI SEO feature must be on,
+	 * AND the site's plan must support the `ai-seo-enhancer` feature. The toggle
+	 * writes through the existing `/jetpack/v4/settings` endpoint
+	 * (`ai_seo_enhancer_enabled`).
 	 *
 	 * @return array
 	 */
 	public static function get_ai_data() {
 		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
+
+		/**
+		 * The AI SEO feature covers automatic generation too, so with it off
+		 * there is nothing here to turn on.
+		 *
+		 * This filter is documented in projects/plugins/jetpack/_inc/lib/class-jetpack-ai-settings.php
+		 */
+		$ai_seo_on = (bool) apply_filters( 'jetpack_ai_seo_enabled', (bool) get_option( 'jetpack_ai_seo_enabled', true ) );
 
 		// Current_Plan comes from the jetpack-plans package (a dependency of this
 		// package since the plan-gating work), so it's always available here; the
@@ -276,7 +285,7 @@ class Dashboard_Data {
 
 		return array(
 			'enhancer' => array(
-				'available' => $filter_on && $plan_supports,
+				'available' => $filter_on && $ai_seo_on && $plan_supports,
 				'enabled'   => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
 			),
 			'llmsTxt'  => array(

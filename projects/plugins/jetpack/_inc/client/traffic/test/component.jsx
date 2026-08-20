@@ -1,8 +1,6 @@
 /**
- * The enhancer row's "Jetpack AI is turned off" explanation must only blame
- * AI while AI is genuinely the blocker: with the seo-tools module off, the
- * toggle is disabled by the module gate and the AI message would mislead.
- * Renders the REAL connected SEO card with the real root reducer.
+ * The enhancer row must name whichever switch is actually blocking it.
+ * Renders the real connected SEO card over the real root reducer.
  */
 import { jest } from '@jest/globals';
 import { render as rtlRender, screen } from '@testing-library/react';
@@ -23,16 +21,28 @@ jest.mock( 'lib/analytics', () => ( {
 } ) );
 
 const AI_OFF_MESSAGE = /Jetpack AI is turned off for this site/;
+const AI_SEO_OFF_MESSAGE = /AI SEO is turned off for this site/;
+
+/**
+ * The enhancer toggle carries no associated label, so find it by id.
+ *
+ * @return {HTMLElement} The enhancer toggle input.
+ */
+function enhancerToggle() {
+	return screen.getAllByRole( 'checkbox' ).find( input => input.id === 'seo-enhancer' );
+}
 
 /**
  * State for a site that has the enhancer (plan feature + option registered),
- * with AI effectively off and the seo-tools module on or off.
+ * varying the seo-tools module, Jetpack AI, and the AI SEO feature.
  *
  * @param {object}  _            - Options.
  * @param {boolean} _.seoToolsOn - Whether the seo-tools module is active.
+ * @param {boolean} _.aiOn       - Whether Jetpack AI is effectively on.
+ * @param {boolean} _.aiSeoOn    - Whether the AI SEO feature is effectively on.
  * @return {object} Initial redux state.
  */
-function buildInitialState( { seoToolsOn } ) {
+function buildInitialState( { seoToolsOn, aiOn = false, aiSeoOn = false } ) {
 	return {
 		jetpack: {
 			connection: {
@@ -48,7 +58,8 @@ function buildInitialState( { seoToolsOn } ) {
 			initialState: {
 				userData: { currentUser: { permissions: { manage_modules: true } } },
 				siteTitle: 'Test Site',
-				isAiEnabled: false,
+				isAiEnabled: aiOn,
+				isAiSeoEnabled: aiSeoOn,
 				getModules: {
 					'seo-tools': { options: { ai_seo_enhancer_enabled: {} } },
 				},
@@ -121,6 +132,27 @@ describe( 'SEO card enhancer row explanation', () => {
 	it( 'does not blame AI while the seo-tools module is the blocker', () => {
 		renderSeo( buildInitialState( { seoToolsOn: false } ) );
 
+		expect( screen.queryByText( AI_OFF_MESSAGE ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'disables the enhancer toggle while the AI SEO feature is off', () => {
+		renderSeo( buildInitialState( { seoToolsOn: true, aiOn: true, aiSeoOn: false } ) );
+
+		expect( enhancerToggle() ).toBeDisabled();
+	} );
+
+	it( 'names the AI SEO feature, not Jetpack AI, while only the feature is off', () => {
+		renderSeo( buildInitialState( { seoToolsOn: true, aiOn: true, aiSeoOn: false } ) );
+
+		expect( screen.getByText( AI_SEO_OFF_MESSAGE ) ).toBeInTheDocument();
+		expect( screen.queryByText( AI_OFF_MESSAGE ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves the enhancer toggle alone while both AI and the feature are on', () => {
+		renderSeo( buildInitialState( { seoToolsOn: true, aiOn: true, aiSeoOn: true } ) );
+
+		expect( enhancerToggle() ).toBeEnabled();
+		expect( screen.queryByText( AI_SEO_OFF_MESSAGE ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( AI_OFF_MESSAGE ) ).not.toBeInTheDocument();
 	} );
 } );

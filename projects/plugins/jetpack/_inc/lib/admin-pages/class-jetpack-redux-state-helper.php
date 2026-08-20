@@ -244,6 +244,9 @@ class Jetpack_Redux_State_Helper {
 			// is active) — what the editor enforces, for settings UI that must
 			// not contradict it.
 			'isAiEnabled'                          => Jetpack_AI_Settings::is_ai_enabled(),
+			// The AI SEO feature, gates folded in: controls that drive only its
+			// automatic half must follow it too.
+			'isAiSeoEnabled'                       => Jetpack_AI_Settings::is_ai_seo_enabled(),
 			'isSubscriptionSiteEnabled'            => apply_filters( 'jetpack_subscription_site_enabled', false ),
 			'newsletterDateExample'                => gmdate( get_option( 'date_format' ), time() ),
 			'subscriptionSiteEditSupported'        => $current_theme->is_block_theme(),

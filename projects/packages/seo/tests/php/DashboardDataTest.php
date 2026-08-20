@@ -28,9 +28,29 @@ class DashboardDataTest extends SeoTestCase {
 		\Jetpack_SEO_Utils::$has_legacy_front_page_meta = false;
 		\Jetpack_Redux_State_Helper::$site_image        = '';
 		delete_option( 'advanced_seo_title_formats' );
+		delete_option( 'jetpack_ai_seo_enabled' );
 		remove_all_filters( 'jetpack_active_modules' );
+		remove_all_filters( 'jetpack_ai_seo_enabled' );
+
+		self::reset_plan();
 
 		parent::tearDown();
+	}
+
+	/**
+	 * With the AI SEO feature off the card would offer a toggle that cannot
+	 * generate, so the tab reports it unavailable.
+	 */
+	public function test_get_ai_data_enhancer_unavailable_when_ai_seo_feature_off() {
+		self::set_plan( 'jetpack_business' );
+		self::set_seo_tools_active( true );
+
+		$available_by_default = Dashboard_Data::get_ai_data()['enhancer']['available'];
+
+		update_option( 'jetpack_ai_seo_enabled', 0 );
+
+		$this->assertTrue( $available_by_default, 'Precondition: available while the feature is on.' );
+		$this->assertFalse( Dashboard_Data::get_ai_data()['enhancer']['available'] );
 	}
 
 	/**
