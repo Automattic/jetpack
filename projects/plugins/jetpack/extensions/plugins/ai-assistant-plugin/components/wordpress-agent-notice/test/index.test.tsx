@@ -8,7 +8,7 @@ import WordPressAgentNotice, {
 	PREFERENCE_SCOPE,
 	useWordPressAgentNotice,
 } from '..';
-import { openWordPressAgent } from '../open-agent';
+import { setWordPressAgentChatOpen } from '../open-agent';
 
 const mockRecordEvent = jest.fn();
 let mockCurrentTier: { slug?: string } | undefined;
@@ -23,7 +23,7 @@ jest.mock( '../../../../../blocks/ai-assistant/lib/utils/get-feature-availabilit
 } ) );
 
 jest.mock( '../open-agent', () => ( {
-	openWordPressAgent: jest.fn(),
+	setWordPressAgentChatOpen: jest.fn(),
 	useIsWordPressAgentReady: () => mockIsAgentReady,
 	useIsWordPressAgentChatVisible: () => mockIsChatOnScreen,
 } ) );
@@ -103,20 +103,33 @@ describe( 'WordPressAgentNotice', () => {
 			mockIsChatOnScreen = true;
 		} );
 
-		it( 'says the Agent is open rather than offering to open it', () => {
+		it( 'disables the action, which would open a chat that is already open', () => {
 			render( <WordPressAgentNotice placement="document-settings" /> );
 
-			expect(
-				screen.getByText( 'AI tools have a new home in the WordPress Agent. It’s open now.' )
-			).toBeInTheDocument();
+			// aria-disabled rather than the disabled attribute, so the button stays
+			// focusable and announces why.
+			expect( screen.getByRole( 'button', { name: /WordPress Agent/ } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
 		} );
 
-		it( 'drops the action, which would open a chat that is already open', () => {
+		it( 'does nothing when the disabled action is clicked', async () => {
+			const user = userEvent.setup();
+			render( <WordPressAgentNotice placement="document-settings" /> );
+
+			await user.click( screen.getByRole( 'button', { name: /WordPress Agent/ } ) );
+
+			expect( setWordPressAgentChatOpen ).not.toHaveBeenCalled();
+			expect( mockRecordEvent ).not.toHaveBeenCalled();
+		} );
+
+		it( 'says why the action is disabled, rather than only dimming it', () => {
 			render( <WordPressAgentNotice placement="document-settings" /> );
 
 			expect(
-				screen.queryByRole( 'button', { name: 'Open WordPress Agent' } )
-			).not.toBeInTheDocument();
+				screen.getByRole( 'button', { name: 'WordPress Agent is already open' } )
+			).toBeInTheDocument();
 		} );
 	} );
 
@@ -138,9 +151,7 @@ describe( 'WordPressAgentNotice', () => {
 		it( 'offers no action it cannot carry out', () => {
 			render( <WordPressAgentNotice placement="document-settings" /> );
 
-			expect(
-				screen.queryByRole( 'button', { name: 'Open WordPress Agent' } )
-			).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'WordPress Agent' } ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'can still be dismissed', async () => {
@@ -167,16 +178,16 @@ describe( 'WordPressAgentNotice', () => {
 		const user = userEvent.setup();
 		render( <WordPressAgentNotice placement="document-settings" /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'Open WordPress Agent' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
 
-		expect( openWordPressAgent ).toHaveBeenCalled();
+		expect( setWordPressAgentChatOpen ).toHaveBeenCalledWith( true );
 	} );
 
 	it( 'records the placement when the action is clicked', async () => {
 		const user = userEvent.setup();
 		render( <WordPressAgentNotice placement="jetpack-sidebar" /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'Open WordPress Agent' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
 
 		expect( propertiesOf( 'jetpack_ai_agent_notice_click' ) ).toMatchObject( {
 			placement: 'jetpack-sidebar',
@@ -189,7 +200,7 @@ describe( 'WordPressAgentNotice', () => {
 		mockPostType = 'page';
 		render( <WordPressAgentNotice placement="document-settings" /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'Open WordPress Agent' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
 
 		const expected = {
@@ -206,7 +217,7 @@ describe( 'WordPressAgentNotice', () => {
 		mockSiteType = siteType;
 		render( <WordPressAgentNotice placement="document-settings" /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'Open WordPress Agent' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
 
 		expect( propertiesOf( 'jetpack_ai_agent_notice_click' ) ).toMatchObject( {
 			site_type: siteType,
@@ -218,7 +229,7 @@ describe( 'WordPressAgentNotice', () => {
 		mockPostType = undefined;
 		render( <WordPressAgentNotice placement="document-settings" /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'Open WordPress Agent' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
 
 		expect( propertiesOf( 'jetpack_ai_agent_notice_click' ) ).not.toHaveProperty( 'post_type' );
 	} );
@@ -228,7 +239,7 @@ describe( 'WordPressAgentNotice', () => {
 		mockCurrentTier = undefined;
 		render( <WordPressAgentNotice placement="document-settings" /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'Open WordPress Agent' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
 
 		expect( propertiesOf( 'jetpack_ai_agent_notice_click' ) ).not.toHaveProperty(
 			'current_tier_slug'
@@ -239,7 +250,7 @@ describe( 'WordPressAgentNotice', () => {
 		const user = userEvent.setup();
 		render( <WordPressAgentNotice placement="document-settings" /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'Open WordPress Agent' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
 
 		expect( isDismissed() ).toBeFalsy();
 	} );
@@ -279,6 +290,6 @@ describe( 'WordPressAgentNotice', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
 
-		expect( openWordPressAgent ).not.toHaveBeenCalled();
+		expect( setWordPressAgentChatOpen ).not.toHaveBeenCalled();
 	} );
 } );

@@ -129,13 +129,21 @@ jest.mock( '@wordpress/components', () => ( {
 		onClick,
 		disabled,
 		variant,
+		isPressed,
 	}: {
 		children: React.ReactNode;
 		onClick?: () => void;
 		disabled?: boolean;
 		variant?: string;
+		isPressed?: boolean;
+		icon?: React.ReactNode;
 	} ) => (
-		<button onClick={ onClick } disabled={ disabled } data-variant={ variant }>
+		<button
+			onClick={ onClick }
+			disabled={ disabled }
+			data-variant={ variant }
+			aria-pressed={ isPressed }
+		>
 			{ children }
 		</button>
 	),
@@ -158,8 +166,11 @@ jest.mock( '@wordpress/components', () => ( {
 } ) );
 
 jest.mock( '@wordpress/ui', () => ( {
-	Button: ( { children, onClick }: { children: React.ReactNode; onClick?: () => void } ) => (
-		<button onClick={ onClick }>{ children }</button>
+	Button: Object.assign(
+		( { children, onClick }: { children: React.ReactNode; onClick?: () => void } ) => (
+			<button onClick={ onClick }>{ children }</button>
+		),
+		{ Icon: () => <span data-testid="button-icon" /> }
 	),
 	Link: ( { children, href }: { children: React.ReactNode; href: string } ) => (
 		<a href={ href }>{ children }</a>
@@ -288,7 +299,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 
 			expect(
 				within( screen.getByTestId( 'document-panel' ) ).getByRole( 'button', {
-					name: 'Open WordPress Agent',
+					name: 'WordPress Agent',
 				} )
 			).toBeInTheDocument();
 		} );
@@ -303,7 +314,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 
 			await user.click(
 				within( screen.getByTestId( testId ) ).getByRole( 'button', {
-					name: 'Open WordPress Agent',
+					name: 'WordPress Agent',
 				} )
 			);
 
