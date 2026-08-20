@@ -88,6 +88,14 @@ describe( 'isValidRewindId', () => {
 		// except by typing it. Rejecting it means picking an arbitrary
 		// horizon, which risks turning away genuinely old backups.
 		[ 'an unrepresentable date', '8640000000001' ],
+		// `0` is rejected and `0.5` was not, which is the same hole
+		// `123abc` came through: the positivity check reads
+		// `Number.parseFloat` while the date is built from
+		// `Number.parseInt`, so any id whose integer part is zero passes a
+		// gate that its own `0` case proves was meant to stop it — and
+		// renders "Jan 1, 1970" above a live Confirm button.
+		[ 'a fraction of the first second', '0.5' ],
+		[ 'a fraction written with leading zeros', '00.5' ],
 	] )( 'rejects %s', ( _label, id ) => {
 		expect( isValidRewindId( id ) ).toBe( false );
 	} );

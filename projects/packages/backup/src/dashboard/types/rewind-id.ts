@@ -21,14 +21,23 @@
  * is accepted; rejecting it would mean choosing an arbitrary horizon,
  * and a horizon that is wrong turns away real backups.
  *
+ * Every check runs against the same `seconds`, deliberately. Reading the
+ * id twice with two different parsers is what let `0.5` through: the
+ * positivity test used `Number.parseFloat`, which sees `0.5`, while the
+ * date came from `Number.parseInt`, which sees `0` — so an id the `0`
+ * case was written to stop arrived at `rewindIdToIso` and rendered
+ * "Jan 1, 1970" above a live Confirm button. The gate has to judge the
+ * number the caller will actually use.
+ *
  * @param rewindId - Candidate id, straight from the URL.
  * @return True when the id is shaped like a rewind id and names a representable date.
  */
 export function isValidRewindId( rewindId: string ): boolean {
-	if ( ! /^\d+(\.\d+)?$/.test( rewindId ) || Number.parseFloat( rewindId ) <= 0 ) {
+	if ( ! /^\d+(\.\d+)?$/.test( rewindId ) ) {
 		return false;
 	}
-	return ! Number.isNaN( new Date( Number.parseInt( rewindId, 10 ) * 1000 ).getTime() );
+	const seconds = Number.parseInt( rewindId, 10 );
+	return seconds > 0 && ! Number.isNaN( new Date( seconds * 1000 ).getTime() );
 }
 
 /**
