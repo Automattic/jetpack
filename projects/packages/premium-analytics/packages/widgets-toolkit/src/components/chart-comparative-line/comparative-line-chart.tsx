@@ -15,7 +15,7 @@ import { type ComponentProps } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import { isEmptyChartData, getFixedYAxis } from '../../helpers';
+import { isEmptyChartData, getFixedYAxis, dateFormatForResolution } from '../../helpers';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
 import { alignSeriesDates } from './utils';
@@ -161,7 +161,7 @@ export function ComparativeLineChart( {
 	maxWidth = Infinity,
 	compactWhenShort = false,
 }: ComparativeLineChartProps ) {
-	const isHourly = tickResolution === 'hour';
+	const tooltipDateFormat = dateFormatForResolution( tickResolution );
 	// The measured Stack fills its container (flex), so its height is independent
 	// of whether the axis/legend are shown — no measure/hide feedback loop.
 	const [ chartAreaHeight, setChartAreaHeight ] = useState( Infinity );
@@ -185,11 +185,9 @@ export function ComparativeLineChart( {
 			const isComparison = index > 0;
 			const displayDate = isComparison ? datum.realDate ?? datum.date : datum.date;
 
-			// At hourly buckets a date alone names 24 of them, so the label carries
-			// the time.
-			return formatTooltipDate( displayDate, isHourly ? 'dateTime' : 'medium' );
+			return formatTooltipDate( displayDate, tooltipDateFormat );
 		},
-		[ isHourly, formatTooltipDate ]
+		[ tooltipDateFormat, formatTooltipDate ]
 	);
 
 	const renderTooltip = useCallback(

@@ -19,7 +19,7 @@ import { useCallback, useId, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import { isEmptyChartData, getFixedYAxis } from '../../helpers';
+import { isEmptyChartData, getFixedYAxis, dateFormatForResolution } from '../../helpers';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-bar-chart.module.scss';
@@ -128,7 +128,7 @@ export function ComparativeBarChart( {
 	compactWhenShort = false,
 	maxWidth = Infinity,
 }: ComparativeBarChartProps ) {
-	const isHourly = tickResolution === 'hour';
+	const tooltipDateFormat = dateFormatForResolution( tickResolution );
 	const chartId = useId();
 	const { getElementStyles } = useGlobalChartsContext();
 
@@ -196,11 +196,9 @@ export function ComparativeBarChart( {
 				return key;
 			}
 
-			// At hourly buckets a date alone names 24 of them, so the label carries
-			// the time.
-			return formatTooltipDate( displayDate, isHourly ? 'dateTime' : 'medium' );
+			return formatTooltipDate( displayDate, tooltipDateFormat );
 		},
-		[ isHourly, formatTooltipDate ]
+		[ tooltipDateFormat, formatTooltipDate ]
 	);
 
 	/**

@@ -63,6 +63,7 @@ export { toDay } from './to-day';
 export { defaultPeriodForInterval } from './default-period-for-interval';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
 export { fromChartDate } from './chart-date';
+export { dateFormatForResolution } from './tick-resolution-date-format';
 export {
 	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,

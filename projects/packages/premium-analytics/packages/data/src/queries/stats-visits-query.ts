@@ -13,6 +13,7 @@ import {
 } from './stats-query';
 import type { StatsProxyParams } from '../api';
 import type { StatsTimeSeriesReport } from '../processing/stats';
+import type { StatsPeriod } from '../utils/stats-params';
 
 export type StatsVisitsStatField = 'views' | 'visitors' | 'likes' | 'comments' | 'post_titles';
 
@@ -29,24 +30,44 @@ export type StatsVisitsParams = StatsReportParams & {
 
 export type StatsVisitsResponse = StatsTimeSeriesReport;
 
+type StatsQueryParams = ReturnType< typeof reportParamsToStatsQueryParams >;
+// The units this endpoint accepts a bucket count for.
+const UNITS_TAKING_QUANTITY = [ 'hour', 'day' ] as const satisfies readonly StatsPeriod[];
+
+function takesQuantity(
+	period: StatsPeriod | string | undefined
+): period is ( typeof UNITS_TAKING_QUANTITY )[ number ] {
+	return ( UNITS_TAKING_QUANTITY as readonly string[] ).includes( period ?? '' );
+}
+
+/**
+ * How many buckets to ask for: the number of `unit` buckets the range spans.
+ * Left off for a unit that does not take one, and for a range missing an end —
+ * the endpoint then falls back to its own default window, which need not cover
+ * the range the dashboard asked about.
+ *
+ * @param statsParams - The range and the unit, before they are shaped for the API.
+ * @return The bucket count, or `undefined` when one does not apply.
+ */
+function bucketQuantity( statsParams: StatsQueryParams ): number | undefined {
+	const { period, start_date: startDate, end_date: endDate } = statsParams;
+
+	return takesQuantity( period ) && startDate && endDate
+		? getPeriodsBetweenInclusive( period, startDate, endDate )
+		: undefined;
+}
+
 export const statsVisitsQuery = (
 	params: StatsVisitsParams
 ): StatsReportQueryOptions< 'visits' > => {
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const apiParams = statsQueryParamsToApiParams( statsParams );
-	// The endpoint returns its own default number of buckets unless the request
-	// says how many the range spans. `days` already carries the daily count, so
-	// only the hourly one is derived — and only when hourly is what's asked for.
-	const hourlyQuantity = () =>
-		statsParams.start_date && statsParams.end_date
-			? getPeriodsBetweenInclusive( 'hour', statsParams.start_date, statsParams.end_date )
-			: undefined;
-	const quantity = apiParams.period === 'hour' ? hourlyQuantity() : apiParams.days;
+	const quantity = bucketQuantity( statsParams );
 	const visitsParams: StatsProxyParams = {
 		unit: apiParams.period,
 		date: apiParams.date,
 		start_date: apiParams.start_date,
-		...( apiParams.period === 'day' || apiParams.period === 'hour' ? { quantity } : {} ),
+		...( quantity ? { quantity } : {} ),
 		stat_fields: params.stat_fields ?? 'views,visitors',
 	};
 
