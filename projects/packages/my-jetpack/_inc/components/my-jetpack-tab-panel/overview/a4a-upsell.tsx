@@ -9,6 +9,7 @@ import LoadingBlock from '../../loading-block';
 type A4AData = {
 	isEnabled: boolean;
 	isAgencyAccount: boolean;
+	isDismissed: boolean;
 };
 
 /**
@@ -25,6 +26,8 @@ export function A4AUpsell() {
 	return isLoading ? (
 		<LoadingBlock height="200px" width="100%" />
 	) : (
-		! isError && data.isEnabled && <A4ABanner isAgencyAccount={ data.isAgencyAccount } />
+		! isError && data.isEnabled && ! data.isDismissed && (
+			<A4ABanner isAgencyAccount={ data.isAgencyAccount } />
+		)
 	);
 }

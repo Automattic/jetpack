@@ -42,6 +42,16 @@ class Jetpack_Manage {
 				'permission_callback' => __CLASS__ . '::permissions_callback',
 			)
 		);
+
+		register_rest_route(
+			'my-jetpack/v1',
+			'jetpack-manage/dismiss-banner',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::dismiss_banner',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
 	}
 
 	/**
@@ -154,6 +164,28 @@ class Jetpack_Manage {
 	}
 
 	/**
+	 * Check whether the Automattic for Agencies banner has been dismissed on this site.
+	 *
+	 * The dismissal is site-wide rather than per-user, matching the welcome banner.
+	 *
+	 * @return bool True if the banner has been dismissed.
+	 */
+	public static function is_banner_dismissed() {
+		return (bool) \Jetpack_Options::get_option( 'dismissed_a4a_banner', false );
+	}
+
+	/**
+	 * Dismiss the Automattic for Agencies banner.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function dismiss_banner() {
+		\Jetpack_Options::update_option( 'dismissed_a4a_banner', true );
+
+		return rest_ensure_response( array( 'success' => true ) );
+	}
+
+	/**
 	 * Get Jetpack Manage data for REST API.
 	 *
 	 * @return WP_Error|WP_REST_Response
@@ -166,6 +198,7 @@ class Jetpack_Manage {
 			array(
 				'isEnabled'       => $is_enabled,
 				'isAgencyAccount' => $is_agency_account,
+				'isDismissed'     => self::is_banner_dismissed(),
 			)
 		);
 	}

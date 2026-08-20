@@ -1,5 +1,7 @@
-import { Card, CardBody } from '@wordpress/components';
+import { Button as WPButton, Card, CardBody } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { close } from '@wordpress/icons';
 import Button from '../button/index.tsx';
 import { UpsellBannerProps } from './types.ts';
 import type { FC, ReactNode } from 'react';
@@ -11,6 +13,7 @@ import './style.scss';
  *
  * - The primary CTA is the second button, at the right position.
  * - The secondary CTA is the first button, at the left position.
+ * - Passing `onDismiss` renders a close button in the top corner of the banner.
  *
  * @param {UpsellBannerProps} props - Component props.
  * @return {ReactNode} - UpsellBanner component.
@@ -28,11 +31,23 @@ const UpsellBanner: FC< UpsellBannerProps > = props => {
 		secondaryCtaURL,
 		secondaryCtaIsExternalLink,
 		secondaryCtaOnClick,
+		onDismiss,
+		dismissLabel,
 	} = props;
 
 	return (
 		<Card isRounded={ true } size="large">
 			<CardBody className="upsell-banner" size="large">
+				{ onDismiss && (
+					<WPButton
+						className="upsell-banner--dismiss"
+						icon={ close }
+						size="small"
+						label={ dismissLabel || __( 'Dismiss', 'jetpack-components' ) }
+						showTooltip={ true }
+						onClick={ onDismiss }
+					/>
+				) }
 				{ icon && (
 					<div className="upsell-banner--icon">
 						<img src={ icon } alt="" />
