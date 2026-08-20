@@ -75,6 +75,41 @@ export class ApiError extends Error {
 }
 
 /**
+ * Statuses that mean the request may have been carried out even though
+ * we never saw a usable answer.
+ *
+ * A gateway timeout is not a refusal. WordPress.com may have accepted
+ * and queued the work and only the reply went missing, which for a
+ * destructive operation is the difference between "try again" and
+ * "start a second one".
+ */
+const AMBIGUOUS_STATUSES = new Set( [ 408, 502, 503, 504 ] );
+
+/**
+ * Whether a failure leaves the outcome genuinely unknown.
+ *
+ * The bridges give every failure of one operation the same code — all
+ * three initiate failures are `restore_initiate_failed` — so the code
+ * cannot tell these apart. `data.transport` can: it is attached by
+ * `Rest_Controller::transport_error()` and by nothing else, so its
+ * presence means the request never reached WordPress.com's answer, not
+ * that WordPress.com said no.
+ *
+ * @param error - The rejection from `apiCall`.
+ * @return True when the caller must not assume nothing happened.
+ */
+export function isAmbiguousFailure( error: unknown ): boolean {
+	if ( ! ( error instanceof ApiError ) ) {
+		return false;
+	}
+	const data = error.data as { status?: unknown; transport?: unknown } | undefined;
+	if ( data?.transport ) {
+		return true;
+	}
+	return typeof data?.status === 'number' && AMBIGUOUS_STATUSES.has( data.status );
+}
+
+/**
  * Serialize a restore/download category checklist for WPCOM, refusing an
  * empty one.
  *
