@@ -1,15 +1,4 @@
-// The backup detail pane must head itself with the selected row's own
-// title.
-//
-// It used to render a fixed, translated "Backup and scan complete". The
-// list and the detail pane sit side by side, so that string contradicted
-// the row the reader had just clicked — the list said "Initial backup
-// complete" while the pane beside it said something else.
-//
-// The string also asserted a scan had run. Scanning is a plan capability
-// (`hasScan` on `/site/capabilities`), not a per-backup field, and no
-// per-backup scan signal reaches this component — so there is nothing
-// here that could ever have backed that claim.
+// The pane sits beside the list, so its header must match the clicked row.
 
 const mockApiFetch = jest.fn();
 

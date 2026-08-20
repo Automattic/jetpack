@@ -1,8 +1,6 @@
 // `@wordpress/icons` export names do not describe what they draw, so the
 // file-browser aliases look inverted and invite a "correction". These
-// tests cross-check each row against the package's own artwork instead of
-// a copied path string, so they survive an icons upgrade but fail if the
-// aliases are swapped back.
+// tests cross-check the rows against the package's own artwork.
 
 const mockApiFetch = jest.fn();
 
