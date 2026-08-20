@@ -24,8 +24,11 @@ const mockUseTrafficChart = jest.mocked( useTrafficChart );
 
 // The dashboard only lets a range carry the intervals it can draw, and
 // `normalizeReportParams` coerces anything else away — so each interval needs a
-// range long enough to keep it.
+// range long enough to keep it. The range also bounds the buckets the widget
+// offers, so a case about a pick needs one that allows the picked bucket too:
+// `day` here is a 30-day window, which allows both days and weeks.
 const RANGE_FOR_INTERVAL: Record< string, { from: string; to: string } > = {
+	day: { from: '2026-06-01', to: '2026-06-30' },
 	month: { from: '2025-01-01', to: '2026-06-30' },
 	week: { from: '2026-01-01', to: '2026-06-30' },
 };
@@ -69,6 +72,22 @@ describe( 'TrafficChart bucket size', () => {
 		render(
 			<TrafficChartRender
 				attributes={ {
+					reportParams: reportParams( 'day' ),
+					granularity: 'week',
+					granularityPickedFor: 'day',
+				} }
+			/>
+		);
+
+		expect( requestedBucket() ).toBe( 'week' );
+	} );
+
+	// The pick above survives a page whose bucket has not moved; this one must
+	// not, because the range it now sits in cannot draw it at all.
+	it( 'lets the pick lapse once the range stops allowing it', () => {
+		render(
+			<TrafficChartRender
+				attributes={ {
 					reportParams: reportParams( 'month' ),
 					granularity: 'day',
 					granularityPickedFor: 'month',
@@ -76,7 +95,7 @@ describe( 'TrafficChart bucket size', () => {
 			/>
 		);
 
-		expect( requestedBucket() ).toBe( 'day' );
+		expect( requestedBucket() ).toBe( 'month' );
 	} );
 
 	// Otherwise a reader who looked at one widget by days would keep seeing days

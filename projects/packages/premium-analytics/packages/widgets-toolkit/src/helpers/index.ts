@@ -61,6 +61,7 @@ export { describeError } from './describe-error';
 export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
 export { defaultPeriodForInterval } from './default-period-for-interval';
+export { granularitiesForRange } from './granularities-for-range';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
 export { fromChartDate } from './chart-date';
 export { dateFormatForResolution } from './tick-resolution-date-format';

@@ -8,6 +8,7 @@ import {
 	WidgetState,
 	useWidgetRootContext,
 	followedGranularity,
+	granularitiesForRange,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { reports } from '@jetpack-premium-analytics/icons';
@@ -69,11 +70,14 @@ function TrafficChartInner( {
 	chartType,
 }: TrafficChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
+	// The range narrows what this chart draws, not just what the control offers:
+	// judging the pick against the same set is what makes one that the range no
+	// longer supports lapse instead of outliving the range it was made for.
 	const period = followedGranularity( {
 		picked: granularity,
 		pickedFor: granularityPickedFor,
 		interval: reportParams.interval,
-		allowed: TRAFFIC_PERIODS,
+		allowed: granularitiesForRange( TRAFFIC_PERIODS, reportParams ),
 	} );
 
 	const {

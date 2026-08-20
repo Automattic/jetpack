@@ -4,6 +4,7 @@
 import {
 	getDefaultPreset,
 	normalizeReportParams,
+	type ReportParams,
 	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
 import { SelectField } from '@jetpack-premium-analytics/fields';
@@ -17,25 +18,30 @@ import {
 	GRANULARITY_ATTRIBUTE,
 	GRANULARITY_PICKED_FOR_ATTRIBUTE,
 } from '../../helpers/followed-granularity';
+import { granularitiesForRange } from '../../helpers/granularities-for-range';
 import { getStoreInfo } from '../../helpers/store-info';
 import { useAttributesWithSearchFallback } from '../../hooks/use-attributes-with-search-fallback';
 import type { ReportParamsFieldAttributes } from '../date-report-params-field';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
 
 /**
- * The page's interval, resolved exactly as the widget body resolves it: a host
- * that injects report params through attributes (Storybook, the dashboard
- * previews) must not leave this control reading one interval while the chart
- * reads another.
+ * The page's report params, resolved exactly as the widget body resolves them: a
+ * host that injects them through attributes (Storybook, the dashboard previews)
+ * must not leave this control reading one range while the chart reads another.
  *
  * @param attributes - The widget's attributes, which may carry report params.
- * @return The page's interval.
+ * @return The page's normalized report params.
  */
-function usePageInterval( attributes: Partial< ReportParamsFieldAttributes > ): string | undefined {
+function usePageReportParams( attributes: Partial< ReportParamsFieldAttributes > ): ReportParams {
 	const { reportParams } = useAttributesWithSearchFallback( attributes );
 	const { launchedDate } = getStoreInfo();
 
-	return normalizeReportParams( reportParams, getDefaultPreset( launchedDate ) ).interval;
+	// Memoized because the resolved params key the field memo below, and
+	// `normalizeReportParams` returns a fresh object every call.
+	return useMemo(
+		() => normalizeReportParams( reportParams, getDefaultPreset( launchedDate ) ),
+		[ reportParams, launchedDate ]
+	);
 }
 
 /**
@@ -53,15 +59,23 @@ function usePageInterval( attributes: Partial< ReportParamsFieldAttributes > ): 
  */
 export default function PageGranularityField< Item >( props: DataFormControlProps< Item > ) {
 	const { field, data } = props;
-	const interval = usePageInterval( data as Partial< ReportParamsFieldAttributes > );
+	const params = usePageReportParams( data as Partial< ReportParamsFieldAttributes > );
+	const interval = params.interval;
 
 	const followingField = useMemo( () => {
-		const allowed = ( field.elements ?? [] ).map( element =>
+		const declared = ( field.elements ?? [] ).map( element =>
 			String( element.value )
 		) as unknown as [ StatsPeriod, ...StatsPeriod[] ];
+		// Offer only what the range can fill. The chart narrows its own set the
+		// same way, so the two never name different buckets.
+		const allowed = granularitiesForRange( declared, params );
+		const elements = ( field.elements ?? [] ).filter( element =>
+			( allowed as readonly string[] ).includes( String( element.value ) )
+		);
 
 		return {
 			...field,
+			elements,
 			getValue: ( { item }: { item: Item } ) =>
 				followedGranularity( {
 					picked: field.getValue( { item } ) as string | undefined,
@@ -80,7 +94,7 @@ export default function PageGranularityField< Item >( props: DataFormControlProp
 					[ GRANULARITY_PICKED_FOR_ATTRIBUTE ]: defaultPeriodForInterval( interval, allowed ),
 				} ) as unknown as Partial< Item >,
 		};
-	}, [ field, interval ] );
+	}, [ field, interval, params ] );
 
 	return <SelectField { ...props } field={ followingField } data={ data } />;
 }
