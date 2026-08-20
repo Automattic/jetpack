@@ -250,6 +250,30 @@ Charts automatically register themselves with the Global Charts Context when mou
 	// - Any additional metadata` }
 />
 
+## Series Visibility
+
+The context tracks which series are hidden per chart (by `chartId`) and exposes three ways to change that state, each suited to a different caller:
+
+- **`toggleSeriesVisibility( chartId, seriesLabel )`** — flips a series' current state. This is what an interactive legend (`legend.interactive`) calls on click; use it when you don't know or don't care about the series' current visibility.
+- **`setSeriesVisibility( chartId, seriesLabel, visible )`** — the absolute counterpart to the toggle. Use it when the caller already knows the target state, e.g. driving visibility from an external control instead of a click.
+- **`setChartHiddenSeries( chartId, seriesLabels )`** — replaces a chart's entire hidden set in one call, rather than toggling series one at a time. This is what the `defaultHiddenSeries` prop (available on `LineChart`, `AreaChart`, and `BarChart`) uses internally to seed a series hidden once on mount; revealing a series through the legend afterwards sticks, and only a remount re-applies the declared list.
+
+<Source
+	language="tsx"
+	code={ `import { useGlobalChartsContext } from '@automattic/charts';
+
+	function VisibilityControls( { chartId } ) {
+		const { toggleSeriesVisibility, setSeriesVisibility, setChartHiddenSeries } =
+			useGlobalChartsContext();
+
+		return (
+			<button onClick={ () => toggleSeriesVisibility( chartId, 'Revenue' ) }>
+				Toggle Revenue
+			</button>
+		);
+	}` }
+/>
+
 ## Context Hooks
 
 ### useGlobalChartsContext

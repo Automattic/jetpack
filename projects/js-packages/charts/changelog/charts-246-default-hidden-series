@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add defaultHiddenSeries to seed a series hidden on load, plus absolute visibility setters.

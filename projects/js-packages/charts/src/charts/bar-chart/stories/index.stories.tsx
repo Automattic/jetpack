@@ -419,6 +419,24 @@ export const WithLegend: Story = {
 	},
 };
 
+export const WithDefaultHiddenSeries: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+		legend: { interactive: true },
+		chartId: 'default-hidden-series-demo',
+		defaultHiddenSeries: [ 'Great Britain' ],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Great Britain is seeded hidden and struck through in the legend. Reload the story and watch the load: it must never appear, not even for one frame. Click it to reveal.',
+			},
+		},
+	},
+};
+
 // Story demonstrating composition API
 export const WithCompositionLegend: Story = {
 	render: args => {
