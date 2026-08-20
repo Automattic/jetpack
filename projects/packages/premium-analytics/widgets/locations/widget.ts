@@ -11,7 +11,6 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 import { SelectField } from '@jetpack-premium-analytics/fields';
 
 export type LocationsAttributes = {
-	max?: number;
 	geoGranularity?: 'country' | 'region' | 'city';
 };
 
@@ -34,11 +33,6 @@ export type LocationsAttributes = {
 export default {
 	icon: mapMarker,
 	attributes: [
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
 		{
 			id: 'geoGranularity',
 			label: __( 'View by', 'jetpack-premium-analytics-pkg' ),
@@ -63,7 +57,6 @@ export default {
 	] as WidgetAttributeField< LocationsAttributes >[],
 	example: {
 		attributes: {
-			max: 10,
 			geoGranularity: 'country',
 		},
 	},

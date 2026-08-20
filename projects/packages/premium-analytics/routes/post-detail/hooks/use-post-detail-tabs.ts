@@ -5,12 +5,10 @@ import {
 	useStatsEmailOpensBreakdown,
 	type StatsEmailBreakdown,
 } from '@jetpack-premium-analytics/data';
-import { omitComparisonReportParams } from '@jetpack-premium-analytics/routing';
 /**
  * WordPress dependencies
  */
 import { useEffect, useMemo } from '@wordpress/element';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
@@ -80,26 +78,9 @@ export function usePostDetailTabs( postId: number ) {
 		}
 	}, [ canNormalize, storedTab, activeTab, setActiveTab ] );
 
-	/*
-	 * The page has no period-over-period comparison by design, but the
-	 * comparison params stay in the URL so the breadcrumb carries the
-	 * dashboard's state back out. Without explicit `reportParams`, every
-	 * `WidgetRoot` falls back to reading the raw URL search — comparison
-	 * included — so comparison-capable widgets (UTM, highlights) would render
-	 * deltas. Injecting the stripped params into each layout entry makes the
-	 * page-wide no-comparison invariant hold by construction.
-	 */
-	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
-	const layout = useMemo( () => {
-		const reportParams = omitComparisonReportParams( search );
-		return POST_DETAIL_TAB_LAYOUTS[ activeTab ].map( widget => ( {
-			...widget,
-			attributes: {
-				...( widget.attributes as Record< string, unknown > | undefined ),
-				reportParams,
-			},
-		} ) );
-	}, [ activeTab, search ] );
+	// The page's no-comparison invariant is the report scope the stage declares,
+	// so the layout is the tab's fixed one.
+	const layout = POST_DETAIL_TAB_LAYOUTS[ activeTab ];
 
 	return {
 		tabs,

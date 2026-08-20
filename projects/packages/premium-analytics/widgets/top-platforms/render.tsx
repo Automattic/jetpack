@@ -8,6 +8,7 @@ import { device } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@jetpack-premium-analytics/externals';
 import {
+	WIDGET_ROW_LIMIT,
 	calculateDelta,
 	describeError,
 	getCombinedPeriodMax,
@@ -40,22 +41,18 @@ type PlatformMode = 'browser' | 'platform';
 
 type TopPlatformsInnerProps = {
 	/**
-	 * Max rows to display.
-	 */
-	max: number;
-	/**
 	 * Device dimension to rank: browsers or operating systems.
 	 */
 	platformDimension: PlatformMode;
 };
 
-function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps ) {
+function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 
 	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = usePlatformViews(
 		{
 			reportParams,
-			max,
+			max: WIDGET_ROW_LIMIT,
 			deviceProperty: platformDimension,
 		}
 	);
@@ -106,7 +103,7 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 					icon: device,
 					description: __( 'No platform data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
-				renderLoading={ <LeaderboardSkeleton rows={ max } /> }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<LeaderboardChart
 					data={ leaderboardData }
@@ -126,13 +123,12 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
  * the widget host.
  */
 export default function TopPlatformsWidget( { attributes }: TopPlatformsWidgetProps ) {
-	const max = attributes?.max ?? 10;
 	const platformDimension = attributes?.platformDimension ?? 'browser';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<TopPlatformsInner max={ max } platformDimension={ platformDimension } />
+				<TopPlatformsInner platformDimension={ platformDimension } />
 			</div>
 		</WidgetRoot>
 	);

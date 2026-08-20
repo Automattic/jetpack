@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Resolve an XY chart theme's color roles from a single computed-style snapshot, and rebuild the theme only when a series color changes rather than on every render.

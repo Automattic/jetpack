@@ -1,9 +1,12 @@
-import { Col, Text } from '@automattic/jetpack-components';
+import { Col, Text, getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	getReconnectErrorMessage,
 	useConnectionErrorNotice,
 	type ConnectionErrorObject,
 } from '@automattic/jetpack-connection';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { useContext, useEffect, useCallback, useMemo } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
@@ -102,7 +105,10 @@ const useConnectionErrorsNotice = (
 	const tracksArgs = useMemo(
 		() => ( {
 			error_count: errorList.length,
-			error_code: trackedError?.error_code ?? null,
+			// The payload comes from the server, so the declared type is a promise the
+			// data cannot keep. Report a code only when it really is one, rather than
+			// sending Tracks whatever arrived.
+			error_code: typeof trackedError?.error_code === 'string' ? trackedError.error_code : null,
 			audience: trackedError?.audience ?? 'site',
 		} ),
 		[ errorList.length, trackedError?.error_code, trackedError?.audience ]
@@ -121,19 +127,25 @@ const useConnectionErrorsNotice = (
 			ownerName,
 		};
 
-		// Where the title already names the scope, the detail line drops it and
-		// carries the code alone rather than repeating itself.
+		// A detail line only ever states the scope, so where the title already names
+		// it there is nothing left to say and no line is rendered.
 		const scopeIsInTitle = titleIncludesScope( errorList );
 
+		// Set by the backend (see `support_link` in Error_Handler::get_error_display_configs())
+		// for errors where reconnecting may not be the fix, so the viewer has somewhere else to go.
+		const showSupportLink = errorList.some( error => Boolean( error?.error_data?.support_link ) );
+
 		// Keep the backend message as the headline, then group broken-token errors under one
-		// shared description with each error's scope and code.
+		// shared description with each error's scope beneath it.
 		const errorMessage = (
 			<Col>
 				{ restoreConnectionError && (
 					<Text mb={ 2 }>{ getReconnectErrorMessage( restoreConnectionError ) }</Text>
 				) }
 				{ groupConnectionErrorsByMessage( errorList ).map( ( group, groupIndex ) => {
-					const detailLines = getConnectionErrorDetailLines( group.errors, viewer, scopeIsInTitle );
+					const detailLines = scopeIsInTitle
+						? []
+						: getConnectionErrorDetailLines( group.errors, viewer );
 
 					return (
 						<div key={ group.message }>
@@ -146,12 +158,31 @@ const useConnectionErrorsNotice = (
 									variant="body-small"
 									mb={ index === detailLines.length - 1 ? 0 : 1 }
 								>
-									{ line.text }
+									{ `- ${ line.text }` }
 								</Text>
 							) ) }
 						</div>
 					);
 				} ) }
+				{ showSupportLink && (
+					<Text mt={ 1 }>
+						{ createInterpolateElement(
+							__(
+								'Still having trouble? <link>Contact Jetpack Support</link>.',
+								'jetpack-my-jetpack'
+							),
+							{
+								link: (
+									<Link
+										openInNewTab
+										href={ getRedirectUrl( 'jetpack-support' ) }
+										children={ null }
+									/>
+								),
+							}
+						) }
+					</Text>
+				) }
 			</Col>
 		);
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove a dead CSS rule for the Jetpack release post modal, which no longer exists.
