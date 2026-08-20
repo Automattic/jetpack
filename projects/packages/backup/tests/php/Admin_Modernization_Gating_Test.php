@@ -21,6 +21,7 @@ use WorDBless\Options as WorDBless_Options;
 use function add_filter;
 use function remove_all_actions;
 use function remove_all_filters;
+use function wp_dequeue_script;
 use function wp_deregister_script;
 use function wp_script_is;
 
@@ -35,11 +36,18 @@ require_once __DIR__ . '/mock-wp-build-render-page.php';
 class Admin_Modernization_Gating_Test extends TestCase {
 
 	/**
-	 * Every script handle these tests may leave behind.
+	 * Handles the code under test registers itself.
 	 *
 	 * @var string[]
 	 */
-	private const SCRIPT_HANDLES = array( 'jetpack-backup', 'jp-tracks', 'jp-tracks-functions' );
+	private const OWNED_SCRIPT_HANDLES = array( 'jetpack-backup', 'jp-tracks', 'jp-tracks-functions' );
+
+	/**
+	 * Handles registered elsewhere that the code under test only enqueues.
+	 *
+	 * @var string[]
+	 */
+	private const BORROWED_SCRIPT_HANDLES = array( 'wp-jp-i18n-loader' );
 
 	/**
 	 * Start from a clean script registry and an empty menu queue.
@@ -185,10 +193,20 @@ class Admin_Modernization_Gating_Test extends TestCase {
 	}
 
 	/**
-	 * Deregister every script handle these tests touch.
+	 * Undo every registration and enqueue these tests trigger.
 	 */
 	private function reset_scripts() {
-		foreach ( self::SCRIPT_HANDLES as $handle ) {
+		// `wp_deregister_script()` only unsets the handle from `registered`; it
+		// never touches `queue`. Without an explicit dequeue an enqueued handle
+		// stays queued for every later test, and `wp_script_is( $h, 'enqueued' )`
+		// reads `queue` alone.
+		foreach ( array_merge( self::OWNED_SCRIPT_HANDLES, self::BORROWED_SCRIPT_HANDLES ) as $handle ) {
+			wp_dequeue_script( $handle );
+		}
+
+		// Borrowed handles stay registered: jetpack-assets adds `wp-jp-i18n-loader`
+		// once on `wp_default_scripts`, so nothing puts it back for later tests.
+		foreach ( self::OWNED_SCRIPT_HANDLES as $handle ) {
 			wp_deregister_script( $handle );
 		}
 	}
