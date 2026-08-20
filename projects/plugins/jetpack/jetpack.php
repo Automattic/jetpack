@@ -9,7 +9,7 @@
  * License: GPL2+
  * Text Domain: jetpack
  * Requires at least: 7.0
- * Requires PHP: 7.2
+ * Requires PHP: 7.4
  *
  * @package automattic/jetpack
  */

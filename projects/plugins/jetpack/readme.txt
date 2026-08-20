@@ -3,7 +3,7 @@ Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav
 Tags: Security, backup, malware, scan, performance
 Stable tag: 16.2-a.1
 Requires at least: 7.0
-Requires PHP: 7.2
+Requires PHP: 7.4
 Tested up to: 7.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html

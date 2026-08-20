@@ -999,7 +999,7 @@ function createReadMeTxt( answers ) {
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
 		'Requires at least: 7.0\n' +
-		'Requires PHP: 7.2\n' +
+		'Requires PHP: 7.4\n' +
 		'Tested up to: 7.1\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
