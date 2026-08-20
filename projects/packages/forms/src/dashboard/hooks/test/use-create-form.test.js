@@ -42,6 +42,8 @@ describe( 'useCreateForm', () => {
 	let clickSpy;
 
 	beforeEach( () => {
+		// jest.spyOn() needs an existing property and this environment has no global fetch to wrap,
+		// so the ajax cases assign one directly. afterEach deletes it again.
 		configValues.adminUrl = ADMIN_URL;
 		configValues.ajaxUrl = 'https://example.com/wp-admin/admin-ajax.php';
 		configValues.newFormNonce = 'nonce';
@@ -91,13 +93,10 @@ describe( 'useCreateForm', () => {
 		} );
 
 		it( 'creates the form over ajax, then navigates and never settles', async () => {
-			jest
-				.spyOn( global, 'fetch' )
-				.mockImplementation()
-				.mockResolvedValue( {
-					json: () =>
-						Promise.resolve( { post_url: 'https://example.com/wp-admin/post.php?post=7' } ),
-				} );
+			// eslint-disable-next-line jest/prefer-spy-on -- jsdom has no global fetch to spy on.
+			global.fetch = jest.fn().mockResolvedValue( {
+				json: () => Promise.resolve( { post_url: 'https://example.com/wp-admin/post.php?post=7' } ),
+			} );
 			const { result } = renderHook( () => useCreateForm() );
 
 			let settlement;
@@ -110,12 +109,10 @@ describe( 'useCreateForm', () => {
 		} );
 
 		it( 'rejects when the server reports failure, so the caller can recover', async () => {
-			jest
-				.spyOn( global, 'fetch' )
-				.mockImplementation()
-				.mockResolvedValue( {
-					json: () => Promise.resolve( { success: false, data: 'Nope' } ),
-				} );
+			// eslint-disable-next-line jest/prefer-spy-on -- jsdom has no global fetch to spy on.
+			global.fetch = jest.fn().mockResolvedValue( {
+				json: () => Promise.resolve( { success: false, data: 'Nope' } ),
+			} );
 			const { result } = renderHook( () => useCreateForm() );
 
 			let settlement;
@@ -128,10 +125,8 @@ describe( 'useCreateForm', () => {
 		} );
 
 		it( 'rejects rather than hanging when no editor URL comes back', async () => {
-			jest
-				.spyOn( global, 'fetch' )
-				.mockImplementation()
-				.mockResolvedValue( { json: () => Promise.resolve( {} ) } );
+			// eslint-disable-next-line jest/prefer-spy-on -- jsdom has no global fetch to spy on.
+			global.fetch = jest.fn().mockResolvedValue( { json: () => Promise.resolve( {} ) } );
 			const { result } = renderHook( () => useCreateForm() );
 
 			let settlement;
