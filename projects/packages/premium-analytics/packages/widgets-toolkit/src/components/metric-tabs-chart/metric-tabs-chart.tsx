@@ -98,37 +98,39 @@ export interface MetricTabsChartProps {
 	 * known granularity rather than being inferred from point spacing.
 	 */
 	tickResolution?: TickResolution;
+	/**
+	 * Whether each point's date is a Stats bucket's wall clock (as `toChartDate`
+	 * builds them) rather than a real instant. Wall clocks are re-anchored in the
+	 * site's timezone before a label reads them; instants are read as they are.
+	 * Defaults to instants — re-anchoring one would shift its label by the offset
+	 * between the viewer's timezone and the site's.
+	 */
+	pointsAreWallClocks?: boolean;
 }
 
 /**
- * Read a chart point's date in the site's timezone.
- *
- * Every date here is a Stats bucket's wall clock (see `toChartDate`), not an
- * instant, so it is re-anchored before a site-zone formatter reads it —
- * otherwise a label lands on the bucket next door for any viewer whose timezone
- * differs from the site's.
- *
- * @param date   - The point's date.
- * @param format - The named format to render it in.
- * @return The formatted date.
+ * Resolves a chart point's date to the instant its label should name. Which one
+ * applies is the producer's to declare, through `pointsAreWallClocks`.
  */
-const formatPointDate = ( date: Date, format: DateFormatName ): string =>
-	formatDate( fromChartDate( date ), format );
+type ReadPointDate = ( date: Date ) => Date;
+
+const asInstant: ReadPointDate = date => date;
 
 /**
  * Format a series' legend label as its date range (first to last point), so the
  * legend reads as date ranges — consistent with the other comparative charts
  * (see `buildTimeSeriesChartData`). The selected card names the metric.
  *
- * @param points - The series points, oldest first.
+ * @param points        - The series points, oldest first.
+ * @param readPointDate - Resolves each end to the instant it names.
  * @return The formatted date range, or '' when empty.
  */
-function rangeLabel( points: MetricTabDatum[] ): string {
+function rangeLabel( points: MetricTabDatum[], readPointDate: ReadPointDate ): string {
 	const first = points[ 0 ];
 	const last = points[ points.length - 1 ];
-	// As in `formatPointDate`, the range's ends are wall clocks.
+
 	return first && last
-		? formatDateRange( { from: fromChartDate( first.date ), to: fromChartDate( last.date ) } )
+		? formatDateRange( { from: readPointDate( first.date ), to: readPointDate( last.date ) } )
 		: '';
 }
 
@@ -143,21 +145,27 @@ function rangeLabel( points: MetricTabDatum[] ): string {
  * rather than a stroke. Bars therefore carry `type` alone and let the charts
  * theme resolve the shadow's colour and width factor.
  *
- * @param metric    - The metric to draw.
- * @param chartType - How the metric is drawn.
+ * @param metric        - The metric to draw.
+ * @param chartType     - How the metric is drawn.
+ * @param readPointDate - Resolves a point's date to the instant its label names.
  * @return The chart series.
  */
 function buildSeries(
 	metric: MetricTab,
-	chartType: MetricTabsChartType
+	chartType: MetricTabsChartType,
+	readPointDate: ReadPointDate
 ): ComparativeLineChartSeries[] {
 	const series: ComparativeLineChartSeries[] = [
-		{ label: rangeLabel( metric.current ), group: metric.key, data: metric.current },
+		{
+			label: rangeLabel( metric.current, readPointDate ),
+			group: metric.key,
+			data: metric.current,
+		},
 	];
 
 	if ( metric.previous?.length ) {
 		series.push( {
-			label: rangeLabel( metric.previous ),
+			label: rangeLabel( metric.previous, readPointDate ),
 			group: metric.key,
 			data: metric.previous,
 			options:
@@ -191,13 +199,22 @@ function MetricChart( {
 	dataFormat,
 	chartType,
 	tickResolution,
+	readPointDate,
 }: {
 	metric: MetricTab;
 	dataFormat: DataFormat;
 	chartType: MetricTabsChartType;
 	tickResolution?: TickResolution;
+	readPointDate: ReadPointDate;
 } ) {
-	const series = useMemo( () => buildSeries( metric, chartType ), [ metric, chartType ] );
+	const series = useMemo(
+		() => buildSeries( metric, chartType, readPointDate ),
+		[ metric, chartType, readPointDate ]
+	);
+	const formatTooltipDate = useCallback(
+		( date: Date, format: DateFormatName ) => formatDate( readPointDate( date ), format ),
+		[ readPointDate ]
+	);
 
 	// Resolve each series' colour + line style from the chart theme so the chart
 	// lines and the tooltip glyphs share the same styling — including the dashed
@@ -216,7 +233,7 @@ function MetricChart( {
 			series={ series }
 			dataFormat={ resolvedDataFormat }
 			tickResolution={ tickResolution }
-			formatTooltipDate={ formatPointDate }
+			formatTooltipDate={ formatTooltipDate }
 			compactWhenShort
 		/>
 	) : (
@@ -225,7 +242,7 @@ function MetricChart( {
 			styles={ seriesStyles }
 			dataFormat={ resolvedDataFormat }
 			tickResolution={ tickResolution }
-			formatTooltipDate={ formatPointDate }
+			formatTooltipDate={ formatTooltipDate }
 			compactWhenShort
 		/>
 	);
@@ -316,7 +333,9 @@ export function MetricTabsChart( {
 	controls,
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
 	tickResolution,
+	pointsAreWallClocks = false,
 }: MetricTabsChartProps ) {
+	const readPointDate = pointsAreWallClocks ? fromChartDate : asInstant;
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
 	// Controlled open state: the dashboard's focusable drag-sortable wrapper
@@ -388,6 +407,7 @@ export function MetricTabsChart( {
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						tickResolution={ tickResolution }
+						readPointDate={ readPointDate }
 					/>
 				</div>
 			</div>
@@ -456,6 +476,7 @@ export function MetricTabsChart( {
 							dataFormat={ dataFormat }
 							chartType={ chartType }
 							tickResolution={ tickResolution }
+							readPointDate={ readPointDate }
 						/>
 					) }
 				</div>
@@ -494,6 +515,7 @@ export function MetricTabsChart( {
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						tickResolution={ tickResolution }
+						readPointDate={ readPointDate }
 					/>
 				</Tabs.Panel>
 			) ) }

@@ -91,21 +91,16 @@ function TrafficChartInner( { granularity, chartType, setGranularity }: TrafficC
 	// the outgoing bucket first and are thrown away.
 	const period: TrafficPeriod = pageMoved ? pagePeriod : stored ?? pagePeriod;
 
+	// Store whatever is in force, so the header control names the bucket the chart
+	// drew. Without an `Auto` option an unset attribute would leave the host's
+	// select showing the first bucket on the list over a chart drawing another.
 	useEffect( () => {
-		// Mount is not a move: whatever was stored stands until the page's own
-		// interval changes. An unstored (or no-longer-offered) bucket is seeded
-		// instead — without an `Auto` option the control would otherwise display
-		// the first bucket on the list while the chart drew the page's.
-		if ( previousPagePeriod.current === pagePeriod && stored ) {
-			return;
-		}
-
 		previousPagePeriod.current = pagePeriod;
 
 		if ( period !== granularity ) {
 			setGranularity?.( period );
 		}
-	}, [ pagePeriod, stored, period, granularity, setGranularity ] );
+	}, [ pagePeriod, period, granularity, setGranularity ] );
 
 	const {
 		metrics: metricTabs,
@@ -153,6 +148,7 @@ function TrafficChartInner( { granularity, chartType, setGranularity }: TrafficC
 					chartType={ chartType }
 					groupLabel={ groupLabel }
 					tickResolution={ period }
+					pointsAreWallClocks
 				/>
 			</WidgetState>
 		</div>

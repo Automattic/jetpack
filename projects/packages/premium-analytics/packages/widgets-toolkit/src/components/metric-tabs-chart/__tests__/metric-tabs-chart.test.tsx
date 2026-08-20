@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatDate, type DateFormatName } from '@jetpack-premium-analytics/formatters';
 import { render, screen } from '@testing-library/react';
 import { setSettings } from '@wordpress/date';
 /**
@@ -10,7 +11,6 @@ import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { MetricTabsChart } from '../metric-tabs-chart';
 import type { ComparativeLineChartSeries } from '../../chart-comparative-line/types';
 import type { MetricTab } from '../metric-tabs-chart';
-import type { DateFormatName } from '@jetpack-premium-analytics/formatters';
 
 // The charts themselves render SVG through a provider that jsdom cannot lay
 // out. Standing them in for prop recorders keeps this test on what this
@@ -174,6 +174,32 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.queryByText( '300' ) ).not.toBeInTheDocument();
 	} );
 
+	// Only the Stats widgets build wall clocks; the post and video charts hand over
+	// real instants (`parseSiteDateTime`). Re-anchoring one of those would shift its
+	// label by the offset between the viewer's timezone and the site's, so the
+	// reading has to stay opt-in. Asserted against the formatter rather than a
+	// literal, and over two site zones, so the check cannot come out vacuous on
+	// whichever timezone the machine running it happens to be in.
+	it.each( [ 'Asia/Tokyo', 'America/Los_Angeles' ] )(
+		'reads a point as the instant it is unless the producer says otherwise, on a site in %s',
+		siteZone => {
+			setSettings( siteSettingsIn( siteZone ) );
+
+			const instant = new Date( Date.UTC( 2026, 6, 1, 15, 0 ) );
+
+			render(
+				<MetricTabsChart
+					metrics={ [ { ...WALL_CLOCK_METRIC, current: [ { date: instant, value: 100 } ] } ] }
+					dataFormat={ DATA_FORMAT }
+				/>
+			);
+
+			const { formatTooltipDate } = mockLineSpy.mock.calls.at( -1 )[ 0 ];
+
+			expect( formatTooltipDate( instant, 'dateTime' ) ).toBe( formatDate( instant, 'dateTime' ) );
+		}
+	);
+
 	// The legend names each series by its date range, read off the points — which
 	// are wall clocks, so the range must not move with the site's timezone.
 	it.each( [ 'Asia/Tokyo', 'America/Los_Angeles' ] )(
@@ -181,7 +207,13 @@ describe( 'MetricTabsChart', () => {
 		siteZone => {
 			setSettings( siteSettingsIn( siteZone ) );
 
-			render( <MetricTabsChart metrics={ [ WALL_CLOCK_METRIC ] } dataFormat={ DATA_FORMAT } /> );
+			render(
+				<MetricTabsChart
+					metrics={ [ WALL_CLOCK_METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					pointsAreWallClocks
+				/>
+			);
 
 			// `elideRange` borrows CLDR's range pattern, whose separator spaces are
 			// typographic rather than plain ones.
@@ -198,7 +230,13 @@ describe( 'MetricTabsChart', () => {
 		siteZone => {
 			setSettings( siteSettingsIn( siteZone ) );
 
-			render( <MetricTabsChart metrics={ [ WALL_CLOCK_METRIC ] } dataFormat={ DATA_FORMAT } /> );
+			render(
+				<MetricTabsChart
+					metrics={ [ WALL_CLOCK_METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					pointsAreWallClocks
+				/>
+			);
 
 			const formatTooltipDate = recordedTooltipDateFormatter( mockLineSpy );
 
