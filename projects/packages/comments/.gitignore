@@ -1,4 +1,2 @@
 vendor/
 node_modules/
-.cache/
-build/

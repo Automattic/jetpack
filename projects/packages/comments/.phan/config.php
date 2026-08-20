@@ -10,15 +10,4 @@
 // Require base config.
 require __DIR__ . '/../../../../.phan/config.base.php';
 
-return make_phan_config(
-	dirname( __DIR__ ),
-	array(
-		'+stubs'             => array( 'wpcom' ),
-		'exclude_file_regex' => array(
-			'build/',
-		),
-		'parse_file_list'    => array(
-			__DIR__ . '/../../../plugins/jetpack/_inc/lib/core-api/load-wpcom-endpoints.php', // function wpcom_rest_api_v2_load_plugin
-		),
-	)
-);
+return make_phan_config( dirname( __DIR__ ) );
