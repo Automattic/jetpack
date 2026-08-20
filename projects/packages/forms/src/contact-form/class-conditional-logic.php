@@ -40,6 +40,17 @@ class Conditional_Logic {
 	const OP_IS_NOT_CHECKED   = 'is_not_checked';
 
 	/**
+	 * Pseudo-type for a container block.
+	 *
+	 * A container is only ever the target of a rule, never its subject: it holds no value to
+	 * compare. It is typed at all because the evaluator reads a type for every descriptor it
+	 * is handed, and an untyped one would fall back to string and read as comparable.
+	 *
+	 * @var string
+	 */
+	const TYPE_CONTAINER = 'container';
+
+	/**
 	 * The rule type this release understands.
 	 *
 	 * Rules carry their own type so further condition kinds -- query string, user role, date
