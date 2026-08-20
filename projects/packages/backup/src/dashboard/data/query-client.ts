@@ -32,6 +32,11 @@ export const queryClient = new QueryClient( {
  */
 export const keys = {
 	capabilities: () => [ 'backup', 'capabilities' ] as const,
+	// The site's recent backup attempts, from the unconditionally
+	// registered `/jetpack/v4/backups`. Polled while a backup runs, so it
+	// deliberately does not share the activity-log family's key.
+	backups: () => [ 'backup', 'backups' ] as const,
+	siteSize: () => [ 'backup', 'site-size' ] as const,
 	// Family prefix for any rewindable-activity-log page. Use as a
 	// query-filter root to scan all cached pages (e.g. when looking up
 	// a row by id across pages).
@@ -47,4 +52,7 @@ export const keys = {
 	downloadStatus: ( rewindId: string, downloadId: number ) =>
 		[ 'backup', 'download-status', rewindId, downloadId ] as const,
 	restoreStatus: ( restoreId: number ) => [ 'backup', 'restore-status', restoreId ] as const,
+	// The site's recent restores, not one restore's status: read to
+	// recover an id WordPress.com accepted but did not return.
+	recentRestores: () => [ 'backup', 'recent-restores' ] as const,
 };

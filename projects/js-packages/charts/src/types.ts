@@ -482,12 +482,12 @@ export type AxisOptions = {
 	tickClassName?: string;
 	tickFormat?: TickFormatter< ScaleInput< AxisScale > >;
 	/**
-	 * Bucket resolution of the data on a time x-axis. When set, the automatic
-	 * tick formatter derives tick formats from it directly instead of
-	 * inferring the resolution from point spacing. The overall time span still
-	 * constrains the choice — e.g. hourly buckets spanning more than a week
-	 * get date ticks, since hour ticks would be unreadable at that span.
-	 * Ignored when `tickFormat` is set.
+	 * Bucket resolution of the data, set on whichever axis carries the dates.
+	 * When set, the automatic tick formatter derives tick formats from it
+	 * directly instead of inferring the resolution from point spacing. For
+	 * daily-or-finer buckets the overall time span still constrains the choice —
+	 * e.g. hourly buckets spanning more than a week get date ticks, since hour
+	 * ticks would be unreadable at that span. Ignored when `tickFormat` is set.
 	 */
 	tickResolution?: TickResolution;
 	/**

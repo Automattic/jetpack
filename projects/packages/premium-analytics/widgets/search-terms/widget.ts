@@ -1,16 +1,11 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { search } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-export type SearchTermsAttributes = {
-	/**
-	 * Maximum number of rows to display.
-	 */
-	max?: number;
-};
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type SearchTermsAttributes = Record< never, never >;
 
 /**
  * Widget type definition for the Search Terms widget.
@@ -23,16 +18,8 @@ export type SearchTermsAttributes = {
  */
 export default {
 	icon: search,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
-	] as WidgetAttributeField< SearchTermsAttributes >[],
+	attributes: [] as WidgetAttributeField< SearchTermsAttributes >[],
 	example: {
-		attributes: {
-			max: 10,
-		},
+		attributes: {},
 	},
 };

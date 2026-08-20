@@ -21,15 +21,20 @@ describe( 'toFileNode', () => {
 	} );
 
 	// `period` comes straight from a WPCOM manifest with nothing validating
-	// it. Before the guard, a non-numeric value reached
-	// `new Date( NaN ).toISOString()`, which throws `RangeError: Invalid time
-	// value` — inside a `useMemo` on the render path with no error boundary
-	// above it, so a single bad entry blanked the entire file browser.
+	// it. `toISOString()` throws `RangeError: Invalid time value` on an
+	// unrepresentable date, from inside a `useMemo` on the render path —
+	// so a single bad entry takes the whole file browser down with it.
 	// Dropping one timestamp is the correct failure mode.
+	//
+	// `out-of-range` is the case a `Number.isFinite` check on the parsed
+	// number misses: it is a perfectly finite number, but `Date` is only
+	// defined within ±8.64e15 ms, so a `period` that arrives in
+	// milliseconds or microseconds is still unrepresentable.
 	test.each( [
 		[ 'non-numeric', 'not-a-timestamp' ],
 		[ 'empty string', '' ],
 		[ 'whitespace', '   ' ],
+		[ 'out-of-range', '1777035492000000' ],
 	] )( 'omits lastModified rather than throwing on a %s period', ( _label, period ) => {
 		let node;
 		expect( () => {

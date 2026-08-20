@@ -5,7 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.7.0-beta] - 2026-08-14
+## [4.7.0] - 2026-08-17
+### Security
+- Critical CSS/LCP: Close REST API access to the cache storage, and refuse to load a stored cache entry that contains a PHP object.
+
 ### Added
 - Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed. [#51221]
 - Concatenate JS/CSS: Add a `jetpack_boost_minify_use_static_cache_urls` filter to override whether bundles are linked from the static cache. [#50962]
@@ -1004,7 +1007,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
-[4.7.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.3...4.7.0-beta
+[4.7.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.3...4.7.0
 [4.6.3]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.2...4.6.3
 [4.6.2]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.1...4.6.2
 [4.6.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.0...4.6.1

@@ -1,4 +1,7 @@
 import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
+// Side-effect import: registers the editor.BlockEdit filter that adds the conditional-logic
+// panel to every jetpack/field-* block.
+import '../shared/conditional-logic/register.jsx';
 import DeprecatedOptionCheckbox from '../deprecated/field-option-checkbox/index.js';
 import DeprecatedOptionRadio from '../deprecated/field-option-radio/index.js';
 import JetpackDropzone from '../dropzone/index.jsx';

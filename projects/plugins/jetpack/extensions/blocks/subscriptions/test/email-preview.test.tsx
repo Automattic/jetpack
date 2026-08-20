@@ -164,6 +164,21 @@ describe( 'Newsletter preview: save before fetching', () => {
 		await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 1 ) );
 	} );
 
+	it( 'renders the preview inside a sandboxed iframe with no script execution', async () => {
+		jest.mocked( useDispatch ).mockReturnValue( {
+			__unstableSaveForPreview: jest.fn().mockResolvedValue( undefined ),
+		} );
+		( select as jest.Mock ).mockReturnValue( { isEditedPostDirty: () => false } );
+		jest.mocked( apiFetch ).mockResolvedValue( { html: '<p>Preview</p>' } );
+
+		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+
+		const iframe = await screen.findByTitle( 'Email Preview' );
+		// An empty sandbox strips script execution and same-origin access, so any
+		// markup in the returned HTML stays inert regardless of upstream escaping.
+		expect( iframe ).toHaveAttribute( 'sandbox', '' );
+	} );
+
 	it( 'skips the save and fetches directly when the post is not dirty', async () => {
 		const saveForPreview = jest.fn().mockResolvedValue( undefined );
 		jest.mocked( useDispatch ).mockReturnValue( { __unstableSaveForPreview: saveForPreview } );

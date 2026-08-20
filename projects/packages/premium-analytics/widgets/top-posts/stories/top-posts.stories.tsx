@@ -53,7 +53,6 @@ function renderTopPostsWidget( { withComparison, contentView }: TopPostsStoryCon
 	return (
 		<TopPostsRender
 			attributes={ {
-				max: 10,
 				contentView,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
@@ -73,7 +72,6 @@ function TopPostsDashboardStory( {
 			renderModule={ TOP_POSTS_RENDER_MODULE }
 			renderComponent={ TopPostsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
-				max: 10,
 				contentView,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
@@ -159,7 +157,6 @@ function renderTopPostsOnPreset( preset: PresetType ) {
 	return (
 		<TopPostsRender
 			attributes={ {
-				max: 10,
 				contentView: 'posts',
 				reportParams: getDefaultQueryParams( false, preset ),
 			} }

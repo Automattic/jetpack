@@ -75,7 +75,7 @@ final class Dashboard_Section {
 	 * Section heading, deliberately distinct from the tab label: the tab reads
 	 * `Traffic` where the heading reads `Site traffic`. Null falls back to the label.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 * @var string|null
 	 */
 	public $title = null;
@@ -83,7 +83,7 @@ final class Dashboard_Section {
 	/**
 	 * Section description, shown as the page subtitle while this section is active.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 * @var string|null
 	 */
 	public $description = null;
@@ -106,7 +106,7 @@ final class Dashboard_Section {
 	/**
 	 * Which optional controls the section's date filter offers.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 * @var array
 	 */
 	public $date_filter_options = array(

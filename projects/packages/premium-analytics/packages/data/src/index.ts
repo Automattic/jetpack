@@ -1,6 +1,7 @@
 export { AnalyticsQueryClientProvider, queryClient } from './providers/query-client-provider';
 export { GlobalErrorProvider, useGlobalError } from './providers/global-error-context';
 export { globalErrorManager, type GlobalErrorType } from './providers/global-error-manager';
+export { ReportScopeProvider, useReportScope, type ReportScope } from './providers/report-scope';
 export { useReportOrders } from './hooks/use-report-orders';
 export { useReportOrderAttribution } from './hooks/use-report-order-attribution';
 export { useReportCoupons } from './hooks/use-report-coupons';
@@ -244,6 +245,7 @@ export {
 	shouldRetryApiError,
 	toPostId,
 	useSiteHomeUrl,
+	withoutComparison,
 } from './utils';
 export type { ReportDataMap } from './types';
 export type { ReportQueryParams } from './api';

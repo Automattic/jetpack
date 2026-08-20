@@ -15,6 +15,7 @@ import { ensureDashboardEntities } from '../dashboard-entities';
 import {
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
+	isVideoPressAvailable,
 } from '../site-readiness';
 
 type VideoDetailParams = { videoId?: string };
@@ -33,8 +34,8 @@ function isValidVideoId( value: string | undefined ): value is string {
 /**
  * Route lifecycle for the video detail page.
  *
- * The page is available only to connected sites after the initial analytics
- * sync, and only for positive integer attachment IDs.
+ * The page is available only to connected sites running VideoPress, after the
+ * initial analytics sync, and only for positive integer attachment IDs.
  */
 export const route = {
 	beforeLoad: async ( {
@@ -47,6 +48,13 @@ export const route = {
 
 		if ( ! isPremiumAnalyticsInitialSyncFinished() ) {
 			throw redirect( { to: '/syncing' } );
+		}
+
+		// Kept apart from the id check below: a bookmarked URL on a site without
+		// VideoPress and a malformed one are different events, even though both
+		// currently land on the dashboard.
+		if ( ! isVideoPressAvailable() ) {
+			throw redirect( { to: '/' } );
 		}
 
 		const videoId = params?.videoId;

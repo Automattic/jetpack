@@ -2,8 +2,6 @@
  * External dependencies
  */
 import { useMemo } from 'react';
-import { WOO_COLORS } from '../constants';
-import { useColorPreference } from './use-color-preference';
 import type { ChartTheme } from '@jetpack-premium-analytics/externals';
 
 /**
@@ -16,21 +14,16 @@ export type WooChartTheme = ChartTheme & {
 };
 
 export function useChartTheme(): WooChartTheme {
-	const { preferences } = useColorPreference();
-
 	return useMemo( () => {
-		// If the user is using a custom color theme, use colors generated from the design system accent
-		// color token, otherwise use the default analytics theme colors.
-		const colors =
-			preferences.interfaceTheme === 'custom'
-				? [ '--wpds-color-foreground-interactive-brand' ]
-				: WOO_COLORS;
-
 		return {
 			backgroundColor: 'var(--wpds-color-background-surface-neutral-strong)',
 			labelBackgroundColor: 'var(--wpds-color-background-interactive-neutral-weak)',
 			labelTextColor: 'var(--wpds-color-foreground-interactive-neutral-strong)',
-			colors,
+			// Seed with the accent alone; `@automattic/charts` derives the rest. The nested fallback
+			// is load-bearing: a seed that does not resolve leaves the palette empty and unaccented.
+			colors: [
+				'var(--wpds-color-foreground-interactive-brand, var(--wp-admin-theme-color, #3858e9))',
+			],
 			gridStyles: {
 				stroke: 'var(--wpds-color-stroke-surface-neutral)',
 				strokeWidth: 1,
@@ -111,5 +104,5 @@ export function useChartTheme(): WooChartTheme {
 				},
 			],
 		};
-	}, [ preferences.interfaceTheme ] );
+	}, [] );
 }

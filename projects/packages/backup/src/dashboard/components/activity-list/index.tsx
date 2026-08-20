@@ -6,6 +6,7 @@ import { Icon, cloud, image, post, plugins as pluginsIcon, color, info } from '@
 import { Card, Stack, Text } from '@wordpress/ui';
 import { ACTIVITY_LOG_DEFAULT_PER_PAGE, useActivityLog } from '../../hooks/use-activity-log';
 import { isBackupItem } from '../../types/activity';
+import QueryError from '../query-error';
 import './style.scss';
 import type { ActivityItem, ActivityKind } from '../../types/activity';
 import type { Field, View } from '@wordpress/dataviews';
@@ -102,10 +103,24 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 export default function ActivityList( { selectedId, onSelect, view, onChangeView }: Props ) {
 	const page = view.page ?? 1;
 	const perPage = view.perPage ?? ACTIVITY_LOG_DEFAULT_PER_PAGE;
-	const { items, totalItems, totalPages, isLoading } = useActivityLog( {
+	const { items, totalItems, totalPages, isLoading, isFetching, error, refetch } = useActivityLog( {
 		page,
 		pageSize: perPage,
 	} );
+
+	// DataViews shows its own "No results" whenever `data` is empty, and a
+	// failed request leaves it empty — so without this a 5xx tells the
+	// reader their site has no activity. The `empty` slot is the same node
+	// that copy renders in, so replacing it puts the reason exactly where
+	// the wrong answer used to be.
+	const emptyState = error ? (
+		<QueryError
+			title={ __( "We couldn't load your site's activity.", 'jetpack-backup-pkg' ) }
+			error={ error }
+			onRetry={ refetch }
+			isRetrying={ isFetching }
+		/>
+	) : undefined;
 
 	const fields: Field< ActivityItem >[] = useMemo(
 		() => [
@@ -169,6 +184,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				onChangeSelection={ onChangeSelection }
 				isLoading={ isLoading }
 				search={ false }
+				empty={ emptyState }
 			/>
 		</Card.Root>
 	);

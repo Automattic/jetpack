@@ -121,9 +121,11 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_7_DAYS,
-		getLabel: () => __( 'Last 7 days', 'jetpack-premium-analytics-pkg' ),
+		getLabel: () =>
+			/* translators: Rolling date-range preset pill. The last 7 days; keep it short. */
+			__( '7 days', 'jetpack-premium-analytics-pkg' ),
 		getShortLabel: () =>
-			/* translators: abbreviation for "Last 7 days". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
+			/* translators: abbreviation for "7 days". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
 			_x( '7D', 'short date range preset', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
 			from: subDays( initOfToday, 7 ),
@@ -132,9 +134,11 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_30_DAYS,
-		getLabel: () => __( 'Last 30 days', 'jetpack-premium-analytics-pkg' ),
+		getLabel: () =>
+			/* translators: Rolling date-range preset pill. The last 30 days; keep it short. */
+			__( '30 days', 'jetpack-premium-analytics-pkg' ),
 		getShortLabel: () =>
-			/* translators: abbreviation for "Last 30 days". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
+			/* translators: abbreviation for "30 days". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
 			_x( '30D', 'short date range preset', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
 			from: subDays( initOfToday, 30 ),
@@ -167,9 +171,11 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_12_MONTHS,
-		getLabel: () => __( 'Last 12 months', 'jetpack-premium-analytics-pkg' ),
+		getLabel: () =>
+			/* translators: Rolling date-range preset pill. The last 12 months; keep it short. */
+			__( '12 months', 'jetpack-premium-analytics-pkg' ),
 		getShortLabel: () =>
-			/* translators: abbreviation for "Last 12 months". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
+			/* translators: abbreviation for "12 months". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
 			_x( '12M', 'short date range preset', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
 			from: subMonths( initOfToday, 12 ),

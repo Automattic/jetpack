@@ -21,7 +21,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.3.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -327,6 +327,13 @@ class Analytics {
 			require_once __DIR__ . '/csv-exports.php';
 		}
 		configure_csv_exports();
+
+		// VideoPress availability for the client's video routes. The widget layer
+		// reads the same signal through widget-type-support.php.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_videopress_availability' ) ) {
+			require_once __DIR__ . '/videopress-availability.php';
+		}
+		configure_videopress_availability();
 	}
 
 	/**

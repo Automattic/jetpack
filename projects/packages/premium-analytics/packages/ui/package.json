@@ -11,6 +11,7 @@
 		"*.scss"
 	],
 	"dependencies": {
+		"@jetpack-premium-analytics/data": "workspace:*",
 		"@jetpack-premium-analytics/datetime": "workspace:*",
 		"@jetpack-premium-analytics/externals": "workspace:*",
 		"@jetpack-premium-analytics/formatters": "workspace:*",

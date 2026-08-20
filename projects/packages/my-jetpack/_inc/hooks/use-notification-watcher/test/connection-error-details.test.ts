@@ -1,7 +1,6 @@
 import {
 	excludeOtherUsersErrors,
 	flattenConnectionErrors,
-	getConnectionErrorDetail,
 	getConnectionErrorDetailLines,
 	getConnectionErrorScope,
 	getConnectionErrorTitle,
@@ -219,62 +218,20 @@ describe( 'getConnectionErrorScope', () => {
 	} );
 } );
 
-describe( 'getConnectionErrorDetail', () => {
-	it( 'appends the raw error code so it can be quoted to support', () => {
-		const error = anError( { audience: 'site', error_code: 'no_valid_blog_token' } );
-
-		expect( getConnectionErrorDetail( error ) ).toBe(
-			'Site connection · Error code: no_valid_blog_token'
-		);
-	} );
-
-	it( 'falls back to the scope alone when there is no code', () => {
-		expect( getConnectionErrorDetail( anError( { audience: 'site' } ) ) ).toBe( 'Site connection' );
-	} );
-
-	// Reachable from a server payload that types cannot police.
-	it( 'ignores a non-string error code', () => {
-		const error = {
-			...anError( { audience: 'site' } ),
-			error_code: 500,
-		} as unknown as ConnectionErrorObject;
-
-		expect( getConnectionErrorDetail( error ) ).toBe( 'Site connection' );
-	} );
-
-	// The scope is in the notice title for a single error, so repeating it in the
-	// line below reads as a duplication bug.
-	describe( 'with the scope omitted', () => {
-		it( 'returns the code alone', () => {
-			const error = anError( { audience: 'owner', error_code: 'invalid_connection_owner' } );
-
-			expect( getConnectionErrorDetail( error, { isOwner: true }, { omitScope: true } ) ).toBe(
-				'Error code: invalid_connection_owner'
-			);
-		} );
-
-		it( 'returns nothing when there is no code left to show', () => {
-			expect(
-				getConnectionErrorDetail( anError( { audience: 'site' } ), {}, { omitScope: true } )
-			).toBe( '' );
-		} );
-	} );
-} );
-
 describe( 'getConnectionErrorDetailLines', () => {
-	// Two errors can describe the same thing to this viewer — a code reported
-	// against the blog token and a consumer's injected copy of it. Rendering both
-	// verbatim reads as a duplication bug.
+	// Two errors can describe the same thing to this viewer — two codes both
+	// reported against the blog token. Rendering both verbatim reads as a
+	// duplication bug.
 	it( 'collapses lines that would read identically', () => {
 		const errors = [
 			anError( { audience: 'site', error_code: 'invalid_token' } ),
-			anError( { audience: 'site', error_code: 'invalid_token' } ),
+			anError( { audience: 'site', error_code: 'no_valid_blog_token' } ),
 		];
 
 		const lines = getConnectionErrorDetailLines( errors, { currentUserId: 7 } );
 
 		expect( lines ).toHaveLength( 1 );
-		expect( lines[ 0 ].text ).toBe( 'Site connection · Error code: invalid_token' );
+		expect( lines[ 0 ].text ).toBe( 'Site connection' );
 	} );
 
 	it( 'keeps lines that read differently apart', () => {
@@ -287,9 +244,9 @@ describe( 'getConnectionErrorDetailLines', () => {
 		const lines = getConnectionErrorDetailLines( errors, { currentUserId: 7 } );
 
 		expect( lines.map( line => line.text ) ).toEqual( [
-			'Site connection · Error code: no_valid_blog_token',
-			'Your account · Error code: invalid_token',
-			"Connection owner's account · Error code: invalid_connection_owner",
+			'Site connection',
+			'Your account',
+			"Connection owner's account",
 		] );
 	} );
 
@@ -312,32 +269,14 @@ describe( 'getConnectionErrorDetailLines', () => {
 		expect( getConnectionErrorDetailLines( [] ) ).toEqual( [] );
 	} );
 
-	describe( 'with the scope omitted', () => {
-		it( 'renders the code alone', () => {
-			const errors = [ anError( { audience: 'owner', error_code: 'invalid_connection_owner' } ) ];
+	// The codes are developer vocabulary (`no_possible_tokens`, `could_not_sign`) and
+	// the message already says what to do, so they are never shown to the admin.
+	it( 'never shows the raw error code', () => {
+		const errors = [ anError( { audience: 'site', error_code: 'no_valid_blog_token' } ) ];
 
-			expect(
-				getConnectionErrorDetailLines( errors, { isOwner: true }, true ).map( line => line.text )
-			).toEqual( [ 'Error code: invalid_connection_owner' ] );
-		} );
-
-		// Without the scope there is nothing left to tell them apart.
-		it( 'collapses errors sharing a code across different scopes', () => {
-			const errors = [
-				anError( { audience: 'site', error_code: 'invalid_token' } ),
-				anError( { audience: 'user', user_id: '7', error_code: 'invalid_token' } ),
-			];
-
-			expect(
-				getConnectionErrorDetailLines( errors, { currentUserId: 7 }, true ).map( line => line.text )
-			).toEqual( [ 'Error code: invalid_token' ] );
-		} );
-
-		it( 'drops an error that has no code, leaving nothing to render', () => {
-			expect(
-				getConnectionErrorDetailLines( [ anError( { audience: 'site' } ) ], {}, true )
-			).toEqual( [] );
-		} );
+		expect( getConnectionErrorDetailLines( errors )[ 0 ].text ).not.toContain(
+			'no_valid_blog_token'
+		);
 	} );
 } );
 
