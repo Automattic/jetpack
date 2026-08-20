@@ -151,11 +151,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 
 	// A hidden series is unmounted, so it is not on the band scale either — the
-	// axis has to choose its tick values from what is left.
+	// axis has to choose its tick values from what is left. Visibility is owned by
+	// the provider, whether it changed through the legend or programmatically.
 	const isSeriesRendered = useCallback(
-		( series: SeriesData ) =>
-			! chartId || ! legendInteractive || isSeriesVisible( chartId, series.label ),
-		[ chartId, legendInteractive, isSeriesVisible ]
+		( series: SeriesData ) => isSeriesVisible( chartId, series.label ),
+		[ chartId, isSeriesVisible ]
 	);
 
 	const chartOptions = useBarChartOptions(
