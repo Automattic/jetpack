@@ -352,6 +352,17 @@ class Stats extends Module_Product {
 	}
 
 	/**
+	 * Get the URL the user is taken to after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		// Says the Free-vs-Paid question was already answered here, so the Stats dashboard's own
+		// pricing grid renders the dashboard instead of asking it a second time.
+		return add_query_arg( 'stats_plan_chosen', '1', static::get_manage_url() );
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string

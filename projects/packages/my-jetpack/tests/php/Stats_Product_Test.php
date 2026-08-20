@@ -102,6 +102,21 @@ class Stats_Product_Test extends TestCase {
 		$this->assertStringNotContainsString( 'page=stats', (string) $manage_url );
 	}
 
+	public function test_post_activation_url_reports_the_plan_choice_to_the_stats_dashboard() {
+		$this->set_premium_analytics_enabled( false );
+
+		$this->assertSame(
+			admin_url( 'admin.php?page=stats&stats_plan_chosen=1' ),
+			Stats::get_post_activation_url()
+		);
+	}
+
+	public function test_manage_url_does_not_report_the_plan_choice() {
+		$this->set_premium_analytics_enabled( false );
+
+		$this->assertStringNotContainsString( 'stats_plan_chosen', Stats::get_manage_url() );
+	}
+
 	public function test_purchase_url_points_at_the_stats_purchase_screen_by_default() {
 		$this->set_premium_analytics_enabled( false );
 
