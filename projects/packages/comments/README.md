@@ -10,7 +10,9 @@ WordPress.com still runs the copy in `jetpack-mu-wpcom` (`src/features/verbum-co
 
 ## Moving code in
 
-Verbum names that are contracts rather than labels have to survive the move, because renaming them breaks live sites or loses analytics history:
+Names that are contracts rather than labels have to survive the move, because renaming them breaks live sites or loses analytics history.
+
+The Verbum-named ones:
 
 - `enable_verbum_commenting` and `jetpack_verbum_subscription_modal` blog options
 - the `wpcom/v2/verbum/auth` and `wpcom/v2/verbum/embed` REST routes
@@ -20,6 +22,13 @@ Verbum names that are contracts rather than labels have to survive the move, bec
 - the `verbum-comment-posted`, `verbum-comment-editor`, and `verbum-subscription-modal` stats buckets
 - the `verbum-comments` feature name on the Log2Logstash records for failed comment nonces
 - the `verbum-*` CSS classes and `VERBUM_USING_GUTENBERG`
+
+The ones that aren't Verbum-named carry more risk, because a pass that tidies up legacy naming reaches for them first:
+
+- `highlander_wpcom_post_comment_bump_stat`, the action wpcom's Tracks mu-plugin hooks comment recording to. Rename it and the events stop arriving with nothing failing.
+- the `highlander_comment_nonce` form field and the `highlander_comment` action it verifies against, both read and rewritten from several places in wpcom, including the login popup
+- `verbum_post_message`, the BroadcastChannel wpcom's login popup posts to and `useSocialLogin` subscribes to. Social login doesn't complete without it.
+- `embed_nonce`, the nonce action shared by the settings blob, the moderation script, and the `wpcom/v2/verbum/embed` route
 
 Two things also need to land on the wpcom side before this package can serve any traffic: a translation source for the `jetpack-comments` text domain, and something that registers it. That covers the comment form, whose strings are all PHP `__()` calls marshalled into `window.VerbumComments`.
 
