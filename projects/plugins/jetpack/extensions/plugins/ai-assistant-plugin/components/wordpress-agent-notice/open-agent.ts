@@ -72,15 +72,18 @@ export function useIsWordPressAgentChatVisible(): boolean {
 }
 
 /**
- * Opens the WordPress Agent chat, expanding it from the minimised bar if need be.
+ * Opens or closes the WordPress Agent chat. Opening also expands it from the
+ * minimised bar.
+ *
+ * @param {boolean} isOpen - Whether the chat should end up open.
  */
-export function openWordPressAgent(): void {
+export function setWordPressAgentChatOpen( isOpen: boolean ): void {
 	const setChatOpen = getAgentsManagerActions()?.setChatOpen;
 
 	if ( ! setChatOpen ) {
-		debug( 'Agents Manager exposed no setChatOpen; the chat stays closed' );
+		debug( 'Agents Manager exposed no setChatOpen; the chat stays as it is' );
 		return;
 	}
 
-	setChatOpen( true );
+	setChatOpen( isOpen );
 }

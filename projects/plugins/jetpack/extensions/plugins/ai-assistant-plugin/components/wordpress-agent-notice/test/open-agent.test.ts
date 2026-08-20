@@ -9,7 +9,7 @@ import { createReduxStore, dispatch, register } from '@wordpress/data';
 import {
 	AGENTS_MANAGER_READY_EVENT,
 	useIsWordPressAgentChatVisible,
-	openWordPressAgent,
+	setWordPressAgentChatOpen,
 	useIsWordPressAgentReady,
 } from '../open-agent';
 
@@ -29,28 +29,37 @@ const announceAgentsManagerReady = () =>
 		window.dispatchEvent( new Event( AGENTS_MANAGER_READY_EVENT ) );
 	} );
 
-describe( 'openWordPressAgent', () => {
+describe( 'setWordPressAgentChatOpen', () => {
 	afterEach( () => setAgentsManagerActions( undefined ) );
 
 	it( 'opens the chat', () => {
 		const setChatOpen = jest.fn();
 		setAgentsManagerActions( { isReady: true, setChatOpen } );
 
-		openWordPressAgent();
+		setWordPressAgentChatOpen( true );
 
 		expect( setChatOpen ).toHaveBeenCalledWith( true );
+	} );
+
+	it( 'closes the chat', () => {
+		const setChatOpen = jest.fn();
+		setAgentsManagerActions( { isReady: true, setChatOpen } );
+
+		setWordPressAgentChatOpen( false );
+
+		expect( setChatOpen ).toHaveBeenCalledWith( false );
 	} );
 
 	it( 'does nothing when the Agents Manager exposes no actions', () => {
 		setAgentsManagerActions( undefined );
 
-		expect( () => openWordPressAgent() ).not.toThrow();
+		expect( () => setWordPressAgentChatOpen( true ) ).not.toThrow();
 	} );
 
 	it( 'does nothing when the Agents Manager exposes no open action', () => {
 		setAgentsManagerActions( { isReady: true } );
 
-		expect( () => openWordPressAgent() ).not.toThrow();
+		expect( () => setWordPressAgentChatOpen( true ) ).not.toThrow();
 	} );
 } );
 

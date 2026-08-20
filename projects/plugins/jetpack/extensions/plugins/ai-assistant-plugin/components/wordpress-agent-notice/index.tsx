@@ -5,16 +5,18 @@ import { useAiFeature } from '@automattic/jetpack-ai-client';
 import { getSiteType } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { speak } from '@wordpress/a11y';
+import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as preferencesStore } from '@wordpress/preferences';
-import { Button, Notice } from '@wordpress/ui';
+import { Notice } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
+import bigSkyIcon from './big-sky-icon';
 import {
-	openWordPressAgent,
+	setWordPressAgentChatOpen,
 	useIsWordPressAgentChatVisible,
 	useIsWordPressAgentReady,
 } from './open-agent';
@@ -100,17 +102,8 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 
 	const openAgent = () => {
 		tracks.recordEvent( 'jetpack_ai_agent_notice_click', eventProperties );
-		openWordPressAgent();
+		setWordPressAgentChatOpen( true );
 	};
-
-	const movedMessage = __(
-		'AI tools have a new home with a new interface and content guidelines built in.',
-		'jetpack'
-	);
-	const chatOpenMessage = __(
-		'AI tools have a new home in the WordPress Agent. It’s open now.',
-		'jetpack'
-	);
 
 	const dismiss = () => {
 		tracks.recordEvent( 'jetpack_ai_agent_notice_dismiss', eventProperties );
@@ -122,13 +115,31 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 	return (
 		// Notice.Root speaks its children by default; this notice appears on every load.
 		<Notice.Root intent="info" icon={ null } spokenMessage="">
-			<Notice.Description>{ isChatOnScreen ? chatOpenMessage : movedMessage }</Notice.Description>
+			<Notice.Description>
+				{ __(
+					'AI tools have a new home with a new interface and content guidelines built in.',
+					'jetpack'
+				) }
+			</Notice.Description>
 
-			{ isAgentReady && ! isChatOnScreen && (
+			{ isAgentReady && (
 				<Notice.Actions>
-					<Button size="compact" onClick={ openAgent }>
+					{ /* From @wordpress/components, to match the other buttons in the sidebar. */ }
+					<Button
+						variant="secondary"
+						icon={ bigSkyIcon }
+						onClick={ openAgent }
+						disabled={ isChatOnScreen }
+						accessibleWhenDisabled
+						showTooltip={ isChatOnScreen }
+						// Keeps the product name at the front of the accessible name, which
+						// this prop replaces, while saying why the button is disabled.
+						label={
+							isChatOnScreen ? __( 'WordPress Agent is already open', 'jetpack' ) : undefined
+						}
+					>
 						{ /* translators: Button that opens the WordPress Agent chat. "WordPress Agent" is a product name. */ }
-						{ __( 'Open WordPress Agent', 'jetpack' ) }
+						{ __( 'WordPress Agent', 'jetpack' ) }
 					</Button>
 				</Notice.Actions>
 			) }
