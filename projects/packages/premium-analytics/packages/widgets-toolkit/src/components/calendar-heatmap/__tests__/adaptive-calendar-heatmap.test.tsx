@@ -244,8 +244,9 @@ describe( 'AdaptiveCalendarHeatmap paging', () => {
 
 	const older = () => screen.queryByRole( 'button', { name: 'Older activity' } );
 	const newer = () => screen.queryByRole( 'button', { name: 'Newer activity' } );
-	const isDisabled = ( button: HTMLElement | null ) =>
-		! button || button.matches( '[disabled], [aria-disabled="true"]' );
+	// An arrow with nowhere to go is not rendered at all (per the design), so
+	// "unavailable" is its absence.
+	const isUnavailable = ( button: HTMLElement | null ) => button === null;
 
 	it( 'exposes no pager when the whole period fits the tile', () => {
 		const { restore } = renderPaged( {
@@ -269,8 +270,8 @@ describe( 'AdaptiveCalendarHeatmap paging', () => {
 		try {
 			// The newest page shows first: nothing newer to step to, plenty older.
 			expect( read().lastVisibleLabel ).toBe( 'Wed, Dec 31, 2025' );
-			expect( isDisabled( older() ) ).toBe( false );
-			expect( isDisabled( newer() ) ).toBe( true );
+			expect( isUnavailable( older() ) ).toBe( false );
+			expect( isUnavailable( newer() ) ).toBe( true );
 
 			const newestPage = read();
 			await user.click( older()! );
@@ -280,7 +281,7 @@ describe( 'AdaptiveCalendarHeatmap paging', () => {
 			const olderPage = read();
 			expect( olderPage.lastVisibleLabel ).not.toBe( newestPage.lastVisibleLabel );
 			expect( olderPage.columns ).toBe( newestPage.columns );
-			expect( isDisabled( newer() ) ).toBe( false );
+			expect( isUnavailable( newer() ) ).toBe( false );
 
 			await user.click( newer()! );
 			expect( read().lastVisibleLabel ).toBe( newestPage.lastVisibleLabel );
@@ -297,7 +298,7 @@ describe( 'AdaptiveCalendarHeatmap paging', () => {
 			const newestColumns = read().columns;
 
 			// Walk to the oldest page; the guard caps a runaway loop, not the data.
-			for ( let clicks = 0; ! isDisabled( older() ); clicks++ ) {
+			for ( let clicks = 0; ! isUnavailable( older() ); clicks++ ) {
 				expect( clicks ).toBeLessThan( 60 );
 				await user.click( older()! );
 			}
@@ -307,7 +308,7 @@ describe( 'AdaptiveCalendarHeatmap paging', () => {
 			// out-of-range blanks before it, and it stays a full page wide.
 			expect( oldest.firstVisibleLabel ).toBe( 'Wed, Jan 1, 2025' );
 			expect( oldest.columns ).toBe( newestColumns );
-			expect( isDisabled( newer() ) ).toBe( false );
+			expect( isUnavailable( newer() ) ).toBe( false );
 		} finally {
 			restore();
 		}
@@ -341,7 +342,7 @@ describe( 'AdaptiveCalendarHeatmap paging', () => {
 		try {
 			const view = render( harness( PERIOD ) );
 			await user.click( older()! );
-			expect( isDisabled( newer() ) ).toBe( false );
+			expect( isUnavailable( newer() ) ).toBe( false );
 
 			view.rerender( harness( { startDate: '2024-01-01', endDate: '2024-12-31' } ) );
 
@@ -350,7 +351,7 @@ describe( 'AdaptiveCalendarHeatmap paging', () => {
 				'data-last-visible-label',
 				'Tue, Dec 31, 2024'
 			);
-			expect( isDisabled( newer() ) ).toBe( true );
+			expect( isUnavailable( newer() ) ).toBe( true );
 		} finally {
 			restore();
 		}

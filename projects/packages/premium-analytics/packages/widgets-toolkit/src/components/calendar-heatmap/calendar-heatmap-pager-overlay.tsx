@@ -37,9 +37,10 @@ export type CalendarHeatmapPagerOverlayProps = {
  *
  * Per the design, the arrows appear on hover (or keyboard focus) instead of
  * taking a header row the widget chrome has no room for; viewports without
- * hover keep them visible. The host wraps the chart so the arrows center on it
- * vertically, and it always renders — pager or not — so paging in and out of a
- * range never changes the chart's layout.
+ * hover keep them visible. An arrow with nowhere to go is not rendered at all
+ * rather than shown disabled, also per the design. The host wraps the chart so
+ * the arrows center on it vertically, and it always renders — pager or not —
+ * so paging in and out of a range never changes the chart's layout.
  *
  * @return The chart wrapped in the pager host.
  */
@@ -51,31 +52,29 @@ export function CalendarHeatmapPagerOverlay( {
 	return (
 		<div className={ clsx( styles.host, className ) }>
 			{ children }
-			{ pager && (
-				<>
-					<Button
-						type="button"
-						variant="minimal"
-						tone="neutral"
-						onClick={ pager.showOlder }
-						disabled={ ! pager.canShowOlder }
-						aria-label={ __( 'Older activity', 'jetpack-premium-analytics-pkg' ) }
-						className={ clsx( styles.arrow, styles.older ) }
-					>
-						<Button.Icon icon={ chevronLeft } size={ 24 } />
-					</Button>
-					<Button
-						type="button"
-						variant="minimal"
-						tone="neutral"
-						onClick={ pager.showNewer }
-						disabled={ ! pager.canShowNewer }
-						aria-label={ __( 'Newer activity', 'jetpack-premium-analytics-pkg' ) }
-						className={ clsx( styles.arrow, styles.newer ) }
-					>
-						<Button.Icon icon={ chevronRight } size={ 24 } />
-					</Button>
-				</>
+			{ pager?.canShowOlder && (
+				<Button
+					type="button"
+					variant="minimal"
+					tone="neutral"
+					onClick={ pager.showOlder }
+					aria-label={ __( 'Older activity', 'jetpack-premium-analytics-pkg' ) }
+					className={ clsx( styles.arrow, styles.older ) }
+				>
+					<Button.Icon icon={ chevronLeft } size={ 24 } />
+				</Button>
+			) }
+			{ pager?.canShowNewer && (
+				<Button
+					type="button"
+					variant="minimal"
+					tone="neutral"
+					onClick={ pager.showNewer }
+					aria-label={ __( 'Newer activity', 'jetpack-premium-analytics-pkg' ) }
+					className={ clsx( styles.arrow, styles.newer ) }
+				>
+					<Button.Icon icon={ chevronRight } size={ 24 } />
+				</Button>
 			) }
 		</div>
 	);

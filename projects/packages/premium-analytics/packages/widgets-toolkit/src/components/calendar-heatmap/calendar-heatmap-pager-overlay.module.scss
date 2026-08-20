@@ -12,25 +12,31 @@
 	   while hidden so the cells underneath keep their hover tooltips. */
 	opacity: 0;
 	pointer-events: none;
-	transition: opacity 0.15s ease-out;
+	transition: opacity 0.2s ease-out, margin 0.2s ease-out;
 
 	/* Draw the focus ring inside the button; the default outset ring gets
 	   clipped by the content area's overflow. */
 	outline-offset: calc(-1 * var(--wpds-border-width-focus));
 }
 
+/* The appear animation slides each arrow in from its own edge. The offset is
+   a logical margin rather than a translate so it flips with the writing
+   direction, and it moves an absolutely positioned box, so nothing reflows. */
 .older {
 	inset-inline-start: 0;
+	margin-inline-start: -8px;
 }
 
 .newer {
 	inset-inline-end: 0;
+	margin-inline-end: -8px;
 }
 
 .host:hover .arrow,
 .host:focus-within .arrow {
 	opacity: 1;
 	pointer-events: auto;
+	margin-inline: 0;
 }
 
 /* No hover on touch viewports — the arrows have to stay visible to exist. */
@@ -39,5 +45,15 @@
 	.arrow {
 		opacity: 1;
 		pointer-events: auto;
+		margin-inline: 0;
+	}
+}
+
+/* The fade stays; only the movement goes. */
+@media (prefers-reduced-motion: reduce) {
+
+	.arrow {
+		margin-inline: 0;
+		transition: opacity 0.2s ease-out;
 	}
 }
