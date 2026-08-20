@@ -11,6 +11,7 @@ import { reports } from '@jetpack-premium-analytics/icons';
 import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	PostTitleLink,
 	ReportLink,
 	RowsCsvDownloadButton,
@@ -321,6 +322,7 @@ function TopPostsReport( { max }: TopPostsReportProps ) {
 						icon: reports,
 						description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ max } /> }
 				>
 					<TopPostsLeaderboard
 						rows={ rows }
@@ -532,6 +534,7 @@ function ArchivesReport( { max }: { max: number } ) {
 					icon: reports,
 					description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <LeaderboardSkeleton rows={ max } /> }
 			>
 				<TopPostsLeaderboard
 					rows={ activeRows }

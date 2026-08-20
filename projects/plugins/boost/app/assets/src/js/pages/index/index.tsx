@@ -11,7 +11,6 @@ import Module from '$features/module/module';
 import PageCacheModule from '$features/page-cache/page-cache';
 import RenderBlockingJsMeta from '$features/render-blocking-js/render-blocking-js-meta';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
-import Upgraded from '$features/ui/upgraded/upgraded';
 import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
@@ -91,12 +90,7 @@ const Index = () => {
 			</Module>
 			<Module
 				slug="cloud_css"
-				title={
-					<>
-						{ __( 'Automatically Optimize CSS Loading', 'jetpack-boost' ) }
-						<Upgraded />
-					</>
-				}
+				title={ __( 'Automatically Optimize CSS Loading', 'jetpack-boost' ) }
 				worksOffline={ false }
 				onEnable={ requestRegenerateCriticalCss }
 				description={
@@ -161,12 +155,7 @@ const Index = () => {
 			<MinifyCss />
 			<Module
 				slug="image_cdn"
-				title={
-					<>
-						{ __( 'Image CDN', 'jetpack-boost' ) }
-						{ hasPremiumCdnFeatures && <Upgraded /> }
-					</>
-				}
+				title={ __( 'Image CDN', 'jetpack-boost' ) }
 				worksOffline={ false }
 				description={
 					<p>

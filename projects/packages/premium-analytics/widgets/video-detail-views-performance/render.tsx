@@ -4,6 +4,7 @@
 import { toPostId } from '@jetpack-premium-analytics/data';
 import {
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	describeError,
@@ -78,9 +79,7 @@ function VideoDetailViewsPerformanceInner( {
 		<div className={ styles.root }>
 			<WidgetState
 				isLoading={ isLoading && ! hasData }
-				// `isFetching` is deliberately not passed: the chart renders its
-				// own scoped overlay below, so WidgetState's full-widget one
-				// would double up and cover the metric headline.
+				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ videoId <= 0 }
 				error={ describeError( error, {
@@ -97,12 +96,14 @@ function VideoDetailViewsPerformanceInner( {
 						'jetpack-premium-analytics-pkg'
 					),
 				} }
+				// The chart is the whole content here, so its block replaces the
+				// generic stacked lines.
+				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
-					loading={ isFetching }
 				/>
 			</WidgetState>
 		</div>

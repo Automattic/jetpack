@@ -18,6 +18,7 @@ import {
 	getCombinedPeriodMax,
 	safeHttpUrl,
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
 	sharePercentage,
 	WidgetFooter,
@@ -191,6 +192,7 @@ function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
 						icon: download,
 						description: __( 'No file downloads in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ max } /> }
 				>
 					<FileDownloadsLeaderboard rows={ rows } withComparison={ withComparison } />
 				</WidgetState>

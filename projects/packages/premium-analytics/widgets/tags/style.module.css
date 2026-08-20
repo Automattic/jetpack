@@ -6,8 +6,6 @@
 	overflow: hidden;
 }
 
-/* Positioned anchor so the WidgetState busy overlay (position: absolute;
-   inset: 0) resolves against the widget body, not the host frame. */
 .content {
 	position: relative;
 	display: flex;

@@ -12,6 +12,7 @@ import {
 	describeError,
 	getCombinedPeriodMax,
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	sharePercentage,
 	WidgetRoot,
 	WidgetState,
@@ -105,6 +106,7 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 					icon: device,
 					description: __( 'No platform data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <LeaderboardSkeleton rows={ max } /> }
 			>
 				<LeaderboardChart
 					data={ leaderboardData }

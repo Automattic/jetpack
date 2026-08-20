@@ -103,9 +103,6 @@ export const ClicksView: Story = {
 	decorators: [ withWidgetCanvas ],
 };
 
-/**
- * First load with no data yet: the widget shows its loading overlay.
- */
 export const Loading: Story = {
 	render: args => renderEmailTopRow( args, 2001 ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.

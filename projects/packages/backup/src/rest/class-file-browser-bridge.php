@@ -152,7 +152,7 @@ class File_Browser_Bridge {
 		);
 
 		if ( is_wp_error( $url_response ) ) {
-			return $url_response;
+			return Rest_Controller::transport_error( $url_response, 'backup_file_content_url_failed' );
 		}
 
 		$url_status = wp_remote_retrieve_response_code( $url_response );
@@ -194,7 +194,7 @@ class File_Browser_Bridge {
 		);
 
 		if ( is_wp_error( $stream_response ) ) {
-			return $stream_response;
+			return Rest_Controller::transport_error( $stream_response, 'backup_file_content_stream_failed' );
 		}
 
 		$stream_status = wp_remote_retrieve_response_code( $stream_response );
@@ -211,17 +211,18 @@ class File_Browser_Bridge {
 
 	/**
 	 * Shared response forwarder for the bridges that just pass through
-	 * WPCOM JSON. Wraps WP_Error / non-200 responses with bridge-level
-	 * error codes the front-end branches on.
+	 * WPCOM JSON. Wraps transport failures and non-200 responses alike
+	 * with bridge-level error codes the front-end branches on, so cURL's
+	 * own text never reaches the reader.
 	 *
 	 * @param array|\WP_Error $response The wp_remote_* response.
-	 * @param string          $code     Error code for non-200.
-	 * @param string          $message  Translated error message.
+	 * @param string          $code     Error code for a transport failure or a non-200.
+	 * @param string          $message  Translated error message for a non-200.
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	private static function forward_response( $response, $code, $message ) {
 		if ( is_wp_error( $response ) ) {
-			return $response;
+			return Rest_Controller::transport_error( $response, $code );
 		}
 		$status_code = wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {

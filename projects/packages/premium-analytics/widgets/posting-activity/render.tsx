@@ -8,6 +8,7 @@ import {
 	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
 	HeatmapChartUnresponsive,
+	HeatmapSkeleton,
 	WidgetRoot,
 	WidgetState,
 	describeError,
@@ -120,6 +121,7 @@ function PostingActivityInner() {
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
+					renderLoading={ <HeatmapSkeleton /> }
 				>
 					{ /* No legend: the cell tooltips carry the counts, and the legend's
 					     44px comes out of the cells. */ }

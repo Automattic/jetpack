@@ -81,9 +81,6 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 	 * conversion funnel adds `steps`, so all three are checked. The `as any`
 	 * escapes the generic `TData`, which cannot be constrained without breaking
 	 * existing callers.
-	 *
-	 * Queries set `placeholderData`, so this alone decides between "render the
-	 * data (with a busy indicator while fetching)" and "render a skeleton".
 	 */
 	const hasData =
 		Boolean( ( primary.data as any )?.summary ) ||
