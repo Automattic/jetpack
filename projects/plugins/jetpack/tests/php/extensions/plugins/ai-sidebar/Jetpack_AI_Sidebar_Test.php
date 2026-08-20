@@ -389,24 +389,47 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that init() does nothing on a self-hosted site (off the wpcom platform).
+	 * Test that init() does nothing on an unproxied self-hosted site.
 	 */
-	public function test_init_does_nothing_on_self_hosted() {
+	public function test_init_does_nothing_on_unproxied_self_hosted() {
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		$this->simulate_self_hosted();
 		Jetpack_AI_Sidebar::init();
 
 		$this->assertFalse(
 			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
-			'register_provider should not be hooked on a self-hosted site.'
+			'register_provider should not be hooked on an unproxied self-hosted site.'
 		);
 		$this->assertFalse(
 			has_filter( 'agents_manager_enabled_in_block_editor', array( Jetpack_AI_Sidebar::class, 'enable_agents_manager_on_provider_surfaces' ) ),
-			'enable_agents_manager_on_provider_surfaces should not be hooked on a self-hosted site.'
+			'enable_agents_manager_on_provider_surfaces should not be hooked on an unproxied self-hosted site.'
 		);
 		$this->assertFalse(
 			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
 			'register_toolbar_button_extension should not be hooked when the preview gate is false.'
+		);
+	}
+
+	/**
+	 * Test that init() wires the sidebar up on a proxied self-hosted site.
+	 */
+	public function test_init_registers_hooks_on_proxied_self_hosted() {
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_self_hosted();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		Jetpack_AI_Sidebar::init();
+
+		$this->assertNotFalse(
+			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
+			'register_provider should be hooked on a proxied self-hosted site.'
+		);
+		$this->assertNotFalse(
+			has_filter( 'agents_manager_enabled_in_block_editor', array( Jetpack_AI_Sidebar::class, 'enable_agents_manager_on_provider_surfaces' ) ),
+			'enable_agents_manager_on_provider_surfaces should be hooked on a proxied self-hosted site.'
+		);
+		$this->assertNotFalse(
+			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
+			'register_toolbar_button_extension should be hooked on a proxied self-hosted site.'
 		);
 	}
 
@@ -464,15 +487,28 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The preview gate is closed off the WordPress.com platform, even with Big Sky present.
+	 * The preview gate stays closed on unproxied self-hosted sites, even with Big Sky present.
 	 */
-	public function test_preview_disabled_on_self_hosted() {
+	public function test_preview_disabled_on_unproxied_self_hosted() {
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		$this->simulate_self_hosted();
 		$this->simulate_big_sky_class();
 		update_option( 'big_sky_enable', '1' );
 
 		$this->assertFalse( $this->gate_open() );
+	}
+
+	/**
+	 * The preview gate opens on proxied self-hosted sites even when Big Sky is disabled.
+	 */
+	public function test_preview_enabled_on_proxied_self_hosted() {
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_self_hosted();
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '0' );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$this->assertTrue( $this->gate_open() );
 	}
 
 	/**
@@ -527,6 +563,13 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		$this->simulate_wpcom_simple();
 		$this->simulate_big_sky_class();
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
+		$this->assertFalse( $this->gate_open() );
+
+		// The filter remains the opt-out for the proxied self-hosted default.
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_self_hosted();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
 		$this->assertFalse( $this->gate_open() );
 	}
@@ -1974,9 +2017,12 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Test full flow: init, simulate AM filter, verify provider registered.
+	 * Test the proxied self-hosted default from init through the Agents Manager payload.
 	 */
 	public function test_full_flow_with_default_enabled() {
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_self_hosted();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		$this->set_block_editor_screen();
 		Jetpack_AI_Sidebar::init();
 		$this->cache_sidebar_asset_data();
@@ -1985,6 +2031,14 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertCount( 1, $providers );
 		$this->assert_jetpack_provider_url( $providers[0] );
+		$this->assertTrue( apply_filters( 'agents_manager_enabled_in_block_editor', false ) );
+
+		$data = apply_filters(
+			'jetpack_ai_sidebar_agents_manager_data',
+			array( 'sectionName' => 'gutenberg' )
+		);
+
+		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
 	}
 
 	/**
