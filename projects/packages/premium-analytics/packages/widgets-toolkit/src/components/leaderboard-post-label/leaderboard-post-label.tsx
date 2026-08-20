@@ -35,13 +35,6 @@ export type LeaderboardPostLabelProps = {
 /**
  * A leaderboard row label for a post, page, or email.
  *
- * `LeaderboardRow` renders the row and its `postLink` action; this component
- * exists only to resolve the report window, which it shares with the plain
- * list rows through `usePostDetailSearch`.
- *
- * Rows that are not linked entities — an avatar and a name, or a drill-down
- * into child rows — use `buildLeaderboardRow` instead.
- *
  * @return The row label.
  */
 export function LeaderboardPostLabel( {

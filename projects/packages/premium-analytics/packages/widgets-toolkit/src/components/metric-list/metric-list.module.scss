@@ -1,5 +1,3 @@
-/* Fills a height-bounded parent so the row fitting has a box to measure. In a
-   flex parent the caller's `flex` wins over the 100%, as it should. */
 .root {
 	display: flex;
 	flex-direction: column;
@@ -16,8 +14,7 @@
 	list-style: none;
 }
 
-/* Same 36px floor as a compact leaderboard row, so a list widget and a
-   leaderboard widget side by side keep one row rhythm. */
+/* Match compact leaderboard rows. */
 .row {
 	display: grid;
 	grid-template-columns: 1fr auto;
@@ -40,8 +37,6 @@
 	text-overflow: ellipsis;
 }
 
-/* Labels arrive as nodes, so a linked label is styled here rather than by each
-   widget passing class names down through its link component. */
 .label a {
 	color: inherit;
 	text-decoration: none;

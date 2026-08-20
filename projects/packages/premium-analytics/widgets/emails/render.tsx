@@ -29,70 +29,35 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type EmailsRenderAttributes = EmailsAttributes & Partial< ReportParamsFieldAttributes >;
 type EmailsWidgetProps = WidgetRenderProps< EmailsRenderAttributes >;
 
-/**
- * A single normalized email row, flattened from the `useStatsEmailSummary`
- * report into the shape the list renders. Exported so Storybook can build
- * fixtures for `EmailsList`.
- */
+/** A normalized email summary row. */
 export type EmailRow = {
-	/**
-	 * Stable identifier for the email (post ID or, as a fallback, the array index).
-	 */
+	/** Stable email identifier. */
 	id: string | number;
-	/**
-	 * Post ID of the newsletter, when the report carries one.
-	 */
+	/** Newsletter post ID. */
 	postId?: string | number;
-	/**
-	 * Public URL of the newsletter.
-	 */
+	/** Public newsletter URL. */
 	link?: string | null;
-	/**
-	 * Email subject line.
-	 */
+	/** Email subject. */
 	label: string;
-	/**
-	 * Open rate as a percentage (0–100).
-	 */
+	/** Open rate from 0 to 100. */
 	opensRate: number;
-	/**
-	 * Click rate as a percentage (0–100).
-	 */
+	/** Click rate from 0 to 100. */
 	clicksRate: number;
 };
 
-/**
- * The detail-page tab each metric drills into.
- */
 const METRIC_SECTION: Record< EmailMetric, string > = {
 	opens: 'email-opens',
 	clicks: 'email-clicks',
 };
 
 type EmailsListProps = {
-	/**
-	 * Normalized email rows to render.
-	 */
+	/** Email rows to render. */
 	rows?: EmailRow[];
-	/**
-	 * Which rate to display. Defaults to `opens`.
-	 */
+	/** Rate to display. */
 	metric?: EmailMetric;
 };
 
-/**
- * Presentational list for the "Emails" widget: the most recently sent emails
- * with their open or click rate.
- *
- * Rows are ordered by send date, not by rate, so they carry no bar — a bar
- * would read as a ranking the order does not express.
- *
- * Renders the populated (ready) state only — loading, error, and empty are
- * handled by `<WidgetState>` in the data-connected `EmailsReport`. Exported so
- * Storybook can exercise the list with fixture rows (there is no analytics
- * backend in Storybook, so the data-connected entry point would only ever show
- * chrome).
- */
+/** Render the latest emails with their open or click rate. */
 export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) => {
 	const search = usePostDetailSearch( METRIC_SECTION[ metric ] );
 
@@ -112,8 +77,6 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 							title={ row.label }
 						/>
 					),
-					// The formatter takes a fraction and renders the percent sign,
-					// trimming a trailing zero (11.5%, not 11.50%).
 					value: formatMetricValue( rate / 100, 'percentage', {
 						decimals: 2,
 						signDisplay: 'never',
@@ -126,11 +89,7 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 	return <MetricList className={ styles.list } items={ items } />;
 };
 
-/**
- * Flatten the `useStatsEmailSummary` report into the `{ id, label, opensRate,
- * clicksRate }` rows the list renders, keeping the endpoint's newest-first
- * order and trimming to `max` (`max = 0` keeps all rows).
- */
+/** Normalize and limit the email summary rows. */
 function toEmailRows( report: StatsEmailSummary | undefined, max: number ): EmailRow[] {
 	const items = report?.data?.[ 0 ]?.items ?? [];
 
@@ -150,11 +109,7 @@ type EmailsReportProps = {
 	attributes?: EmailsAttributes;
 };
 
-/**
- * Fetches the email-summary report through the `useStatsEmailSummary` Stats
- * hook and hands the normalized rows to the presentational `EmailsList`, with
- * the loading / error / empty states rendered through `<WidgetState>`.
- */
+/** Fetch and render the email summary. */
 function EmailsReport( { attributes }: EmailsReportProps ) {
 	const metric = attributes?.metric ?? 'opens';
 
@@ -205,10 +160,6 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 	);
 }
 
-/**
- * The displayed rate is the `metric` attribute (`relevance: 'high'`), exposed
- * as a control by the widget host.
- */
 export default function Emails( { attributes = {} }: EmailsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

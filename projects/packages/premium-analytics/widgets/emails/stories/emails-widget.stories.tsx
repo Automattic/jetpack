@@ -1,12 +1,4 @@
-/**
- * The close-up stories exercise the presentational `EmailsList` with
- * fixture rows so the populated list renders without a backend. The `Loading`
- * / `Error` / `Empty` stories force the data-connected widget's `<WidgetState>`
- * states via `setReportMockState`. `WidgetDashboardWithWidget` mounts the real
- * dashboard with the data-connected widget; `registerReportMocks` supplies a
- * mock `stats/emails/summary` response so it renders populated in product
- * context.
- */
+/** Email widget stories and mocked report states. */
 /**
  * External dependencies
  */
@@ -47,7 +39,7 @@ const meta: Meta< typeof EmailsList > = {
 		docs: {
 			description: {
 				component:
-					'The "Emails" widget. Lists the most recently sent emails with their open or click rate, rendered as a plain list — the rows are ordered by send date, not by rate, so they carry no bar. The displayed rate is the `metric` attribute (`relevance: \'high\'`), exposed as a control by the widget host. The close-up stories drive the presentational `EmailsList` with fixtures; `WidgetDashboardWithWidget` mounts the real dashboard with the data-connected widget (fed by a mocked `stats/emails/summary` response).',
+					'Lists the latest emails with their open or click rate. Close-up stories use fixtures; the dashboard story uses a mocked report.',
 			},
 		},
 	},

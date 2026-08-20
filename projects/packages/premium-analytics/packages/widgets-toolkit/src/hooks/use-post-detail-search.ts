@@ -9,13 +9,9 @@ import { useMemo } from 'react';
 import { useWidgetRootContext } from '../components/widget-root';
 
 /**
- * Search params for a post detail link opened from a widget row.
+ * Build search params for a widget's post detail link.
  *
- * The report window comes from `WidgetRootContext`, the same way `ReportLink`
- * resolves it, so the detail page opens on the range the row was read against
- * without every widget threading it down.
- *
- * @param section - Detail-page tab to open, e.g. `email-opens`.
+ * @param section - Optional detail tab to open.
  * @return Search params for the detail route.
  */
 export function usePostDetailSearch( section?: string ) {

@@ -12,7 +12,7 @@ const meta: Meta< typeof MetricList > = {
 		docs: {
 			description: {
 				component:
-					'A label-and-value list for widgets whose rows are ordered by recency rather than ranked by a metric, where a bar leaderboard would read as a ranking the order does not express. Rows share the 36px rhythm of a compact leaderboard row. With `fitRows` on (the default) the list shows only the rows that fit its height, so the last row is never clipped part-way.',
+					'A label-and-value list that shows only complete rows within the available height.',
 			},
 		},
 	},
@@ -31,10 +31,7 @@ const items = [
 	{ id: 6, label: 'Click, Comment, Done: A Better Way to Collaborate', value: '11.5%' },
 ];
 
-/**
- * Frames the list in a widget-sized box so the row rhythm reads as it does in
- * a dashboard tile.
- */
+/** Frame the story in a widget-sized card. */
 const withCard =
 	( height: string ): Decorator =>
 	Story => (
@@ -57,27 +54,19 @@ export const Default: Story = {
 	decorators: [ withCard( 'auto' ) ],
 };
 
-/**
- * A tile too short for every row: the list drops the rows that would be
- * clipped instead of showing a half-row at the bottom.
- */
+/** Hide rows that do not fit. */
 export const FittedToHeight: Story = {
 	args: { items },
 	decorators: [ withCard( '160px' ) ],
 };
 
-/**
- * Fitting off — every row renders and the list overflows its box.
- */
+/** Render every row when fitting is disabled. */
 export const AllRows: Story = {
 	args: { items, fitRows: false },
 	decorators: [ withCard( '160px' ) ],
 };
 
-/**
- * Long labels truncate with an ellipsis so rows stay single-line and the value
- * column keeps its place.
- */
+/** Truncate long labels. */
 export const LongLabels: Story = {
 	args: {
 		items: [

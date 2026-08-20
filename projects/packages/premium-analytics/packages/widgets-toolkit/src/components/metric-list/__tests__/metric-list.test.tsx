@@ -9,11 +9,7 @@ import { MetricList, type MetricListItem } from '../metric-list';
 
 const ROW_HEIGHT = 36;
 
-/**
- * jsdom lays nothing out, so every measurement is zero and the list falls open
- * to "every row fits". Stub the two boxes the fitting reads: the root's
- * available height and one row's height.
- */
+/** Stub list and row heights because jsdom does not perform layout. */
 function mockLayout( rootHeight: number ) {
 	jest.spyOn( HTMLElement.prototype, 'getBoundingClientRect' ).mockImplementation( function (
 		this: HTMLElement
@@ -56,8 +52,6 @@ describe( 'MetricList', () => {
 		render( <MetricList items={ buildItems( 6 ) } /> );
 
 		expect( screen.getByText( 'Email 2' ) ).toBeVisible();
-		// `hidden` rows leave the accessibility tree, so they are not queryable
-		// by their accessible text at all.
 		expect( screen.queryByText( 'Email 3' ) ).not.toBeVisible();
 	} );
 
