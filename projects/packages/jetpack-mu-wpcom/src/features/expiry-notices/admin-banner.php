@@ -19,6 +19,13 @@ function wpcom_expiry_notices_admin_banner_data(): ?array {
 		return null;
 	}
 
+	// The Simple notice this replaces excluded VIP sites, and swapping the
+	// notices was never meant to change who sees one. Guarded because
+	// wpcom_is_vip() only exists on wpcom.
+	if ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) {
+		return null;
+	}
+
 	$state = Expiry_Data::get_expiry_state();
 	if ( null === $state || Expiry_Data::STATE_ACTIVE === $state['state'] ) {
 		return null;

@@ -52,6 +52,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 
 	public function tear_down() {
 		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
+		unset( $GLOBALS['wpcom_is_vip_test_value'] );
 		delete_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_BANNER );
 		parent::tear_down();
 	}
@@ -198,6 +199,22 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 	public function test_no_render_for_auto_renew_on(): void {
 		$this->set_purchase( 30, true );
 		$this->assertSame( '', $this->render() );
+	}
+
+	public function test_no_render_on_vip_sites(): void {
+		// The Simple notice this replaces skipped VIP sites; swapping the
+		// notices must not start showing one where there was never one.
+		$GLOBALS['wpcom_is_vip_test_value'] = true;
+		foreach ( array( 45, 5, 0, -5, -45 ) as $days ) {
+			$this->set_purchase( $days );
+			$this->assertSame( '', $this->render(), "expected no notice on a VIP site {$days} days from expiry" );
+		}
+	}
+
+	public function test_renders_on_non_vip_sites(): void {
+		$GLOBALS['wpcom_is_vip_test_value'] = false;
+		$this->set_purchase( 5 );
+		$this->assertStringContainsString( 'notice-error', $this->render() );
 	}
 
 	public function test_no_render_for_non_admin(): void {
