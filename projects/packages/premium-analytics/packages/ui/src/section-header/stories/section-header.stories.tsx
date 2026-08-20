@@ -8,6 +8,7 @@ import {
 	type YearSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
+import { getSettings, setSettings } from '@wordpress/date';
 import { useCallback, useRef, useState } from 'react';
 import { DateFiltersPanel } from '../../date-filters-panel';
 import { DateIntervalDropdown } from '../../date-interval-dropdown';
@@ -20,6 +21,8 @@ import { getSectionSubtitle } from '../get-section-subtitle';
 import { SectionHeader } from '../section-header';
 import type { DateRange } from '../../date-filters-panel/date-filters-panel';
 import type { Meta, StoryObj } from '@storybook/react';
+
+const STORYBOOK_TIMEZONE = 'America/New_York';
 
 const meta: Meta< typeof SectionHeader > = {
 	title: 'Packages/Premium Analytics/UI/SectionHeader',
@@ -41,15 +44,21 @@ const meta: Meta< typeof SectionHeader > = {
 	argTypes: {
 		children: { control: false },
 	},
+	decorators: [
+		Story => {
+			const settings = getSettings();
+			setSettings( {
+				...settings,
+				timezone: { ...settings.timezone, string: STORYBOOK_TIMEZONE },
+			} );
+
+			return <Story />;
+		},
+	],
 };
 export default meta;
 
 type Story = StoryObj< typeof SectionHeader >;
-
-// Nothing configures `@wordpress/date` in Storybook, so the subtitle renders in
-// UTC: ranges built in another zone show their end-of-day endpoints a calendar
-// day late, and stop agreeing with the length beside them.
-const STORYBOOK_TIMEZONE = 'UTC';
 
 type PrimaryFilterState = {
 	range: DateRange;

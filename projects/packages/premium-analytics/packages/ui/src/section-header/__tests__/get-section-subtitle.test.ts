@@ -118,6 +118,23 @@ describe( 'getSectionSubtitle', () => {
 		).toMatch( /\(7 days\) vs\. June 1\u2009–\u20097, 2025$/ );
 	} );
 
+	it( 'names both sides of a rolling 24-hour comparison by the day they end on', () => {
+		expect(
+			getSectionSubtitle( {
+				range: {
+					from: new TZDate( 2026, 7, 19, 15, 0, 0, 0, TEST_TIMEZONE ),
+					to: new TZDate( 2026, 7, 20, 15, 0, 0, 0, TEST_TIMEZONE ),
+				},
+				comparisonPresetId: 'previous-period',
+				comparisonRange: {
+					from: new TZDate( 2026, 7, 18, 15, 0, 0, 0, TEST_TIMEZONE ),
+					to: new TZDate( 2026, 7, 19, 15, 0, 0, 0, TEST_TIMEZONE ),
+				},
+				interval: 'hour',
+			} )
+		).toBe( 'Thursday, August 20 (24 hours, hourly) vs. August 19, 2026' );
+	} );
+
 	it( 'falls back to naming the preset when the comparison window is missing', () => {
 		expect(
 			getSectionSubtitle( {

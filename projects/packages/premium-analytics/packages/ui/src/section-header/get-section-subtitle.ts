@@ -188,10 +188,10 @@ export function getSectionSubtitle( {
 	 * weekday-led range after "vs." reads as a second selection rather than as
 	 * the baseline for the first.
 	 */
-	const comparisonRangeLabel = formatDateRange( comparisonRange );
+	const comparisonRangeLabel = formatDateRange( comparisonRange, { collapseSingleDay: true } );
 
 	return sprintf(
-		// translators: %1$s is a date range with its length, %2$s is the compared period, e.g. "July 14 – 20, 2026".
+		// translators: %1$s is a date range with its length, %2$s is the compared period — either its dates, e.g. "July 14 – 20, 2026", or a preset name, e.g. "Previous period".
 		__( '%1$s vs. %2$s', 'jetpack-premium-analytics-pkg' ),
 		dateConfiguration,
 		comparisonRangeLabel || comparisonLabel

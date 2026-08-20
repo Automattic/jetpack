@@ -1,16 +1,13 @@
 /**
  * External dependencies
  */
-import {
-	getDateRangeSpan,
-	type DateRange,
-	type DateRangeSpan,
-} from '@jetpack-premium-analytics/datetime';
+import { getDateRangeSpan, type DateRange } from '@jetpack-premium-analytics/datetime';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { formatDate } from './format-date';
+import { isSingleDaySpan } from './is-single-day-span';
 
 type FormatDateRangeLongOptions = {
 	/**
@@ -29,11 +26,6 @@ type FormatDateRangeLongOptions = {
 	 */
 	calendarScale?: boolean;
 };
-
-/**
- * Hours in a day, the longest window still named by a single date.
- */
-const HOURS_IN_DAY = 24;
 
 /**
  * Join two formatted endpoints into a range.
@@ -66,28 +58,6 @@ function joinRange( from: string, to: string ): string {
  */
 function getSiteYear( date: Date | number ): number {
 	return Number( formatDate( date, 'year' ) );
-}
-
-/**
- * Whether the range covers at most a day's worth of time, and so is named by
- * the day it falls on rather than by two endpoints.
- *
- * Covers both shapes a single day takes: a day-aligned one, whose endpoints
- * would otherwise repeat the same date, and a rolling 24-hour window, which
- * straddles two calendar days without being about either of them in full.
- *
- * @param span - The measured span.
- * @return Whether one date describes the range.
- */
-function isSingleDay( span: DateRangeSpan | null ): boolean {
-	if ( ! span ) {
-		return false;
-	}
-
-	return (
-		( span.unit === 'day' && span.value === 1 ) ||
-		( span.unit === 'hour' && span.value <= HOURS_IN_DAY )
-	);
 }
 
 /**
@@ -135,7 +105,7 @@ export const formatDateRangeLong = (
 		getSiteYear( from ) === referenceYear && getSiteYear( to ) === referenceYear;
 	const pattern = inReferenceYear ? 'fullNoYear' : 'full';
 
-	if ( isSingleDay( span ) ) {
+	if ( isSingleDaySpan( span ) ) {
 		// `to`: the same day for a day-aligned window; for a rolling one, the
 		// day the reading is taken on.
 		return formatDate( to, pattern );
