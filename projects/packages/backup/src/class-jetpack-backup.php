@@ -250,11 +250,8 @@ class Jetpack_Backup {
 				wp_enqueue_script( 'wp-jp-i18n-loader' );
 			}
 
-			// Tracks needs its client callables (`jpTracks.recordEvent`) on the
-			// page before any dashboard component can record an event. The
-			// esbuild bundles don't declare them as a dependency either, so
-			// enqueue them here, before the early return, on the same
-			// `can_use_analytics()` gate the legacy path uses below.
+			// The esbuild bundles don't declare the Tracks client as a dependency
+			// either, so it never reaches the page on its own.
 			if ( self::can_use_analytics() ) {
 				Tracking::register_tracks_functions_scripts( true );
 			}

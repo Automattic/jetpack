@@ -1,11 +1,7 @@
 <?php
 /**
- * Unit tests for the modernization gating around the admin UI.
- *
- * The companion of `Rest_Bridge_Gating_Test`, which covers the same guarantee
- * for the REST routes: with the filter off, nothing about the admin page
- * changes; with it on, the legacy assets stay off the page and the wp-build
- * dashboard gets what it needs.
+ * Unit tests for the modernization gating around the admin UI. The REST-side
+ * companion is `Rest_Bridge_Gating_Test`.
  *
  * @package automattic/jetpack-backup-plugin
  */
@@ -35,23 +31,12 @@ require_once __DIR__ . '/mock-wp-build-render-page.php';
 #[CoversClass( Jetpack_Backup::class )]
 class Admin_Modernization_Gating_Test extends TestCase {
 
-	/**
-	 * Handles the code under test registers itself.
-	 *
-	 * @var string[]
-	 */
+	/** @var string[] Handles the code under test registers itself. */
 	private const OWNED_SCRIPT_HANDLES = array( 'jetpack-backup', 'jp-tracks', 'jp-tracks-functions' );
 
-	/**
-	 * Handles registered elsewhere that the code under test only enqueues.
-	 *
-	 * @var string[]
-	 */
+	/** @var string[] Handles registered elsewhere that the code under test only enqueues. */
 	private const BORROWED_SCRIPT_HANDLES = array( 'wp-jp-i18n-loader' );
 
-	/**
-	 * Start from a clean script registry and an empty menu queue.
-	 */
 	public function setUp(): void {
 		parent::setUp();
 
@@ -59,9 +44,6 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->set_admin_menu_items( array() );
 	}
 
-	/**
-	 * Reset everything a test may have installed.
-	 */
 	public function tearDown(): void {
 		remove_all_filters( Jetpack_Backup::MODERNIZATION_FILTER );
 		remove_all_filters( 'jetpack_offline_mode' );
@@ -77,16 +59,10 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		parent::tearDown();
 	}
 
-	/**
-	 * The flag is off unless a filter turns it on.
-	 */
 	public function test_is_modernized_defaults_to_false() {
 		$this->assertFalse( Jetpack_Backup::is_modernized() );
 	}
 
-	/**
-	 * The flag follows the filter in both directions.
-	 */
 	public function test_is_modernized_follows_the_filter() {
 		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 		$this->assertTrue( Jetpack_Backup::is_modernized() );
@@ -96,10 +72,6 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertFalse( Jetpack_Backup::is_modernized() );
 	}
 
-	/**
-	 * With the flag off, the legacy React bundle is still registered and
-	 * enqueued — the path the shipped plugin takes today.
-	 */
 	public function test_enqueue_admin_scripts_registers_legacy_script_when_not_modernized() {
 		Jetpack_Backup::enqueue_admin_scripts();
 
@@ -107,10 +79,7 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertTrue( wp_script_is( 'jetpack-backup', 'enqueued' ) );
 	}
 
-	/**
-	 * With the flag on, the legacy bundle must not reach the page: wp-build
-	 * runs its own enqueue pipeline and would render a second dashboard.
-	 */
+	/** With the flag on, wp-build enqueues its own bundle; a second one renders a second dashboard. */
 	public function test_enqueue_admin_scripts_skips_legacy_script_when_modernized() {
 		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 
@@ -119,10 +88,6 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertFalse( wp_script_is( 'jetpack-backup', 'registered' ) );
 	}
 
-	/**
-	 * The modernized page still gets the Tracks callables, so the dashboard
-	 * can record events. Without this the product's telemetry is blank.
-	 */
 	public function test_enqueue_admin_scripts_enqueues_tracks_when_modernized() {
 		$this->allow_analytics();
 		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
@@ -135,11 +100,6 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertTrue( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
 	}
 
-	/**
-	 * The Tracks enqueue stays behind `can_use_analytics()`, same as the
-	 * legacy path: a site that has not agreed to the terms of service gets
-	 * no tracking script.
-	 */
 	public function test_enqueue_admin_scripts_skips_tracks_when_analytics_denied() {
 		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 
@@ -150,10 +110,6 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertFalse( wp_script_is( 'jp-tracks-functions', 'registered' ) );
 	}
 
-	/**
-	 * With the flag off, the menu points at the legacy settings page and
-	 * keeps the current labels.
-	 */
 	public function test_add_wp_admin_submenu_uses_legacy_callback_when_not_modernized() {
 		Jetpack_Backup::add_wp_admin_submenu();
 
@@ -165,10 +121,6 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertSame( 'Backup', $items[0]['menu_title'] );
 	}
 
-	/**
-	 * With the flag on, the same slug renders through the wp-build callback
-	 * and picks up the VaultPress Backup labels.
-	 */
 	public function test_add_wp_admin_submenu_uses_wp_build_callback_when_modernized() {
 		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 
@@ -182,19 +134,14 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertSame( 'VaultPress Backup', $items[0]['menu_title'] );
 	}
 
-	/**
-	 * Make `can_use_analytics()` return true: the site is not in offline
-	 * mode and has agreed to the terms of service.
-	 */
+	/** `can_use_analytics()` needs offline mode off and the terms of service agreed. */
 	private function allow_analytics() {
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 		Status_Cache::clear();
 		Jetpack_Options::update_option( 'tos_agreed', true );
 	}
 
-	/**
-	 * Undo every registration and enqueue these tests trigger.
-	 */
+	/** Undo every registration and enqueue these tests trigger. */
 	private function reset_scripts() {
 		// `wp_deregister_script()` only unsets the handle from `registered`; it
 		// never touches `queue`. Without an explicit dequeue an enqueued handle
@@ -212,26 +159,20 @@ class Admin_Modernization_Gating_Test extends TestCase {
 	}
 
 	/**
-	 * Read the Admin_Menu package's queued menu items.
-	 *
-	 * @return array
+	 * @return array The Admin_Menu package's queued menu items.
 	 */
 	private function get_admin_menu_items() {
 		return $this->accessible_property( Admin_Menu::class, 'menu_items' )->getValue();
 	}
 
 	/**
-	 * Overwrite the Admin_Menu package's queued menu items.
-	 *
-	 * @param array $items The items to set.
+	 * @param array $items The Admin_Menu package's queued menu items to set.
 	 */
 	private function set_admin_menu_items( $items ) {
 		$this->accessible_property( Admin_Menu::class, 'menu_items' )->setValue( null, $items );
 	}
 
 	/**
-	 * Get an accessible reflection of a non-public property.
-	 *
 	 * @param string $class_name    The class owning the property.
 	 * @param string $property_name The property name.
 	 * @return \ReflectionProperty
