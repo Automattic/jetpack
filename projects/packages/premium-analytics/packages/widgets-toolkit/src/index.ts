@@ -190,6 +190,7 @@ export {
 	toDay,
 	defaultPeriodForInterval,
 	followedGranularity,
+	granularitiesForRange,
 	GRANULARITY_ATTRIBUTE,
 	GRANULARITY_PICKED_FOR_ATTRIBUTE,
 	buildMetricTab,
