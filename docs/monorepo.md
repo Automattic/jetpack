@@ -278,7 +278,7 @@ For all project types other than WordPress plugins, the necessary version of PHP
 
 We currently make use of the following packages in testing; it's encouraged to use these rather than introducing other tools that serve the same purpose.
 
-* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 8.5 to 12.4, to support PHP 7.2 to 8.5.
+* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 9.6 to 12.4, to support PHP 7.4 to 8.5.
 * [automattic/phpunit-select-config](https://packagist.org/packages/automattic/phpunit-select-config) allows for selecting a configuration file based on the version of PHPUnit in use, since configs are often not compatible across major versions since PHPUnit 9.
 * PHPUnit's built-in mocking is used for class mocks.
 * [brain/monkey](https://packagist.org/packages/brain/monkey) is used for mocking functions, and can also provide some functions for minimal WordPress compatibility.
