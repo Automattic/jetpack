@@ -533,10 +533,7 @@ function get_dashboard_default_section_layouts() {
 			),
 		),
 		DASHBOARD_ADS_SECTION_ID         => array(
-			// Follows the Calypso WordAds page: totals, then the chart, then the
-			// earnings tables. Only the chart reads the date range; the rest read
-			// `wordads/earnings`, which takes no date parameters.
-			// Row 1: earnings totals banner.
+			// Match the Calypso WordAds widget order.
 			get_dashboard_default_widget_instance(
 				'default-wordads-highlights-widget-instance',
 				'jpa/wordads-highlights',
@@ -544,7 +541,6 @@ function get_dashboard_default_section_layouts() {
 				4,
 				1
 			),
-			// Row 2: ads served / CPM / revenue chart.
 			get_dashboard_default_widget_instance(
 				'default-wordads-chart-tabs-widget-instance',
 				'jpa/wordads-chart-tabs',
@@ -555,7 +551,6 @@ function get_dashboard_default_section_layouts() {
 					'granularity' => 'auto',
 				)
 			),
-			// Row 3: the earnings history proper.
 			get_dashboard_default_widget_instance(
 				'default-wordads-earnings-history-widget-instance',
 				'jpa/wordads-earnings-history',
@@ -563,9 +558,6 @@ function get_dashboard_default_section_layouts() {
 				4,
 				2
 			),
-			// Row 4: the two rarer earnings sources. Half width each: upstream
-			// hides them when empty, which they are on most sites, and a grid
-			// tile cannot.
 			get_dashboard_default_widget_instance(
 				'default-wordads-sponsored-content-history-widget-instance',
 				'jpa/wordads-sponsored-content-history',

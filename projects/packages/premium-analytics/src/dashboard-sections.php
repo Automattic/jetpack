@@ -25,7 +25,7 @@ const WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytic
 const SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_subscribers_dashboard_section_available';
 
 /**
- * Filter through which Ads section availability is resolved.
+ * Filter for Ads section availability.
  */
 const ADS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_ads_dashboard_section_available';
 
@@ -116,10 +116,7 @@ function is_subscribers_dashboard_section_available() {
 }
 
 /**
- * Whether the Ads dashboard section should be exposed.
- *
- * Sites without Jetpack have no module state to check, so the section remains
- * available. Modules::is_active() also returns true on WPCOM Simple.
+ * Whether the Ads dashboard section is available.
  *
  * @since $$next-version$$
  *
@@ -139,10 +136,7 @@ function is_ads_dashboard_section_available() {
 }
 
 /**
- * Whether the current user should be shown the Ads dashboard section.
- *
- * The sibling is_ads_dashboard_section_available() answers "is WordAds running
- * here"; this adds "and may this reader see the earnings".
+ * Whether the current user can access the Ads dashboard section.
  *
  * @since $$next-version$$
  *
@@ -212,7 +206,6 @@ function register_default_dashboard_sections() {
 			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available_to_current_user',
 			'default_layout' => __NAMESPACE__ . '\\get_woocommerce_dashboard_section_default_layout',
 		),
-		// Last, as in the Calypso stats navigation.
 		'analytics/ads'         => array(
 			'label'          => __( 'Ads', 'jetpack-premium-analytics-pkg' ),
 			'title'          => __( 'Ad revenue', 'jetpack-premium-analytics-pkg' ),

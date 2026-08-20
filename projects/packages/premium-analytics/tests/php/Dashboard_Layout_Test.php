@@ -168,8 +168,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
-	 * `ads` is a tab alias too, and its earnings are gated the same way the store
-	 * reports are: a reader admitted by view_stats alone is refused.
+	 * A stats reader cannot access the Ads tab layout.
 	 */
 	public function test_default_layout_route_refuses_the_ads_tab_for_a_view_stats_reader() {
 		$this->register_route_with_capabilities();
@@ -181,7 +180,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The refusal is the reader's, not the tab's: an administrator still gets it.
+	 * An administrator can access the Ads tab layout.
 	 */
 	public function test_default_layout_route_serves_the_ads_tab_to_an_administrator() {
 		$this->register_route_with_capabilities();
@@ -517,7 +516,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The ads tab receives its bundled WordAds widgets, in the Calypso order.
+	 * The Ads tab receives its WordAds widgets in the Calypso order.
 	 */
 	public function test_seed_default_dashboard_layout_adds_ads_widgets() {
 		$layout         = seed_default_dashboard_layout( array(), DASHBOARD_ADS_SECTION_ID );

@@ -152,8 +152,7 @@ class Capabilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Ad earnings are a separate grant too: view_stats opens the dashboard, not
-	 * the site's revenue.
+	 * A stats reader cannot view ad reports.
 	 */
 	public function test_view_stats_reader_cannot_view_ad_reports() {
 		$user_id = $this->login_as( 'editor' );
@@ -164,13 +163,7 @@ class Capabilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Pins the ad-reports helper to the decision the proxy reaches for its `wordads`
-	 * prefix, for the same reason as the store helper above.
-	 *
-	 * The prefix names `activate_wordads` where the helper names `manage_options`,
-	 * and the two still agree because no user ever holds `activate_wordads` — see
-	 * the note on Capabilities::current_user_can_view_ad_reports(), and
-	 * test_activate_wordads_is_not_a_registered_capability() below.
+	 * The ad reports helper matches the proxy permission check.
 	 */
 	public function test_ad_report_helper_matches_the_proxy_capability() {
 		$controller = new Api_Proxy_Controller();
@@ -196,9 +189,7 @@ class Capabilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The premise the helper rests on: `activate_wordads` is a field in the JSON API
-	 * site payload, not a capability any role carries. If a host ever starts granting
-	 * it, this fails and the helper is the thing to revisit.
+	 * The activate_wordads capability is not assigned to any role.
 	 */
 	public function test_activate_wordads_is_not_a_registered_capability() {
 		foreach ( wp_roles()->roles as $slug => $role ) {

@@ -923,7 +923,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A site without a local module system keeps the Ads tab.
+	 * The Ads tab is available without a local module system.
 	 */
 	public function test_registers_ads_dashboard_section_without_a_module_system() {
 		$this->set_admin_user();
@@ -944,7 +944,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A Jetpack site with the module inactive hides the Ads tab.
+	 * The Ads tab is hidden when the WordAds module is inactive.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -969,7 +969,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A Jetpack site with the module active offers the Ads tab.
+	 * The Ads tab is available when the WordAds module is active.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -991,7 +991,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Consumers can refuse the Ads section through its availability filter.
+	 * The availability filter can hide the Ads tab.
 	 */
 	public function test_ads_availability_filter_overrides_the_module_state() {
 		$this->set_admin_user();
@@ -1007,8 +1007,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Earnings are only served to users who may manage the site's ads, so a
-	 * reader who reached the dashboard through view_stats is not offered the tab.
+	 * A stats reader cannot access the Ads tab.
 	 */
 	public function test_omits_ads_dashboard_section_from_a_view_stats_reader() {
 		$user_id = $this->set_editor_user();
