@@ -153,4 +153,25 @@ class Admin_Wp_Build_Fallback_Test extends TestCase {
 		$this->assertTrue( wp_script_is( 'jetpack-backup', 'registered' ) );
 		$this->assertTrue( wp_script_is( 'jetpack-backup', 'enqueued' ) );
 	}
+
+	public function test_admin_init_suppresses_admin_notices_when_the_build_is_present() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+		add_action( 'admin_notices', '__return_null' );
+		add_action( 'all_admin_notices', '__return_null' );
+
+		Jetpack_Backup::admin_init();
+
+		$this->assertFalse( has_action( 'admin_notices' ) );
+		$this->assertFalse( has_action( 'all_admin_notices' ) );
+	}
+
+	public function test_admin_init_keeps_admin_notices_when_the_filter_is_off() {
+		add_action( 'admin_notices', '__return_null' );
+		add_action( 'all_admin_notices', '__return_null' );
+
+		Jetpack_Backup::admin_init();
+
+		$this->assertNotFalse( has_action( 'admin_notices' ) );
+		$this->assertNotFalse( has_action( 'all_admin_notices' ) );
+	}
 }

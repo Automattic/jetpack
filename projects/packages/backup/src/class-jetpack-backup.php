@@ -201,7 +201,7 @@ class Jetpack_Backup {
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 
-		if ( self::is_modernized() ) {
+		if ( self::is_wp_build_dashboard_active() ) {
 			// The modernized Backup overview is a focused, full-screen product
 			// surface. Suppress JITMs and other core/plugin admin notices so they
 			// don't reflow on top of the dual-pane layout. Mirrors how Jetpack
