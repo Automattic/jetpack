@@ -1,0 +1,184 @@
+/**
+ * The identity block: guest fields when logged out, and the attribution line in
+ * the submit row when logged in.
+ */
+
+.jetpack-comments__identity {
+	padding: 16px;
+	border-block-start: 1px solid var(--jetpack-comments-border-color);
+}
+
+.jetpack-comments__prompt {
+	all: unset;
+	display: block;
+	margin-block-end: 16px;
+	font-size: 14px;
+	line-height: 22px;
+	color: var(--jetpack-comments-font-color);
+}
+
+.jetpack-comments__login {
+	display: inline-block;
+	padding: 7px 20px;
+	border: 1px solid var(--jetpack-comments-border-color);
+	border-radius: 4px;
+	color: inherit;
+	font-size: 14px;
+	text-decoration: none;
+
+	&:hover,
+	&:focus-visible {
+		border-color: var(--jetpack-comments-accent-color);
+	}
+}
+
+.jetpack-comments__guest {
+	display: flex;
+	flex-direction: column;
+	border: 1px solid var(--jetpack-comments-border-color);
+	border-radius: 4px;
+}
+
+.jetpack-comments__guest-field {
+	all: unset;
+	position: relative;
+	display: flex;
+	align-items: center;
+	block-size: 45px;
+	border-block-end: 1px solid var(--jetpack-comments-border-color);
+	color: var(--jetpack-comments-font-color);
+
+	svg {
+		position: absolute;
+		inset-block: 0;
+		inset-inline-start: 16px;
+		margin-block: auto;
+	}
+
+	input {
+		// Themes style bare inputs heavily, so start from nothing.
+		all: initial;
+		box-sizing: border-box;
+		inline-size: 100%;
+		block-size: 100%;
+		padding-inline: 44px 16px;
+		border: none;
+		background: transparent;
+		color: var(--jetpack-comments-font-color);
+		font-family: inherit;
+		font-size: 14px;
+
+		&::placeholder {
+			color: var(--jetpack-comments-font-color);
+			opacity: 0.7;
+		}
+
+		&:focus-visible {
+			outline: 1px solid var(--jetpack-comments-accent-color);
+			outline-offset: -1px;
+		}
+	}
+}
+
+.jetpack-comments__options {
+	padding: 16px 21px;
+	border-block-start: 1px solid var(--jetpack-comments-border-color);
+}
+
+.jetpack-comments__guest-field:last-child,
+.jetpack-comments__guest-field:has(+ .jetpack-comments__options) {
+	border-block-end: none;
+}
+
+.jetpack-comments__toggle {
+	all: unset;
+	display: inline-flex;
+	align-items: flex-start;
+	gap: 10px;
+	cursor: pointer;
+
+	input[type="checkbox"] {
+		all: unset;
+		position: absolute;
+		opacity: 0;
+		transform: scale(0);
+
+		&:checked + .jetpack-comments__toggle-switch {
+			background: var(--jetpack-comments-accent-color);
+			border-color: transparent;
+
+			&::after {
+				// 36px track less the 14px knob less the 2px far gap.
+				inset-inline-start: 20px;
+				background: #fff;
+			}
+		}
+
+		&:focus-visible + .jetpack-comments__toggle-switch {
+			outline: 1px solid var(--jetpack-comments-accent-color);
+			outline-offset: 1px;
+		}
+	}
+}
+
+.jetpack-comments__toggle-switch {
+	position: relative;
+	display: block;
+	box-sizing: border-box;
+	flex-shrink: 0;
+	// A 36x18 inner track, so the 14px knob clears 2px on every side.
+	inline-size: 38px;
+	block-size: 20px;
+	// Optically centres the switch on the first line of its label.
+	margin-block-start: 1px;
+	padding: 0;
+	border: 1px solid currentColor;
+	border-radius: 10px;
+	background: transparent;
+	cursor: pointer;
+
+	&::after {
+		content: "";
+		position: absolute;
+		// Centred against the track rather than offset from the top, so the knob
+		// stays put whatever box-sizing the surrounding reset lands on.
+		inset-block: 0;
+		inset-inline-start: 2px;
+		margin-block: auto;
+		box-sizing: border-box;
+		inline-size: 14px;
+		block-size: 14px;
+		border-radius: 50%;
+		background: currentColor;
+		transition:
+			inset-inline-start 0.2s ease-in-out,
+			background 0.2s ease-in-out;
+	}
+}
+
+.jetpack-comments__toggle-text {
+	display: block;
+	flex: 1;
+	font-size: 14px;
+	font-weight: 500;
+	line-height: 22px;
+}
+
+// Sits in the submit row, pushing the button to the far side.
+.jetpack-comments__user {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-inline-end: auto;
+	font-size: 14px;
+}
+
+.jetpack-comments__avatar {
+	flex-shrink: 0;
+	border-radius: 50%;
+}
+
+.jetpack-comments__logout {
+	color: inherit;
+	font-size: 14px;
+}

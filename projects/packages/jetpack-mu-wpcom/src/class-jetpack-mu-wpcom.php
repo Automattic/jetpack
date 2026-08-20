@@ -760,6 +760,13 @@ class Jetpack_Mu_Wpcom {
 			if ( self::should_disable_comment_experience( $blog_id ) ) {
 				return;
 			}
+
+			// Jetpack Comments renders the form instead.
+			if ( \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
+				\Automattic\Jetpack\Comments\Comments::init();
+				return;
+			}
+
 			require_once __DIR__ . '/features/verbum-comments/class-verbum-comments.php';
 			new \Automattic\Jetpack\Verbum_Comments();
 		}

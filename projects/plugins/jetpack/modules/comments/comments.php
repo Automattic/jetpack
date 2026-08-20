@@ -130,6 +130,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since 1.4
 	 */
 	protected function setup_actions() {
+		// Jetpack Comments renders the form instead.
+		if ( \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
+			return;
+		}
+
 		parent::setup_actions();
 
 		// Selfishly remove everything from the existing comment form.
@@ -153,6 +158,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since 1.6.2
 	 */
 	protected function setup_filters() {
+		// Jetpack Comments renders the form instead.
+		if ( \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
+			return;
+		}
+
 		parent::setup_filters();
 
 		add_filter( 'comment_post_redirect', array( $this, 'capture_comment_post_redirect_to_reload_parent_frame' ), 100 );

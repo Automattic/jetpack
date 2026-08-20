@@ -24,6 +24,7 @@
 		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-boost-speed-score": "@dev",
 		"automattic/jetpack-classic-theme-helper": "@dev",
+		"automattic/jetpack-comments": "@dev",
 		"automattic/jetpack-compat": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",

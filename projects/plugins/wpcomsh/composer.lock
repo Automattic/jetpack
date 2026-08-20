@@ -662,6 +662,79 @@
             }
         },
         {
+            "name": "automattic/jetpack-comments",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/comments",
+                "reference": "bc8fbc2fab0bfb0c426d0215d51e003b0cad110e"
+            },
+            "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-image-cdn": "@dev",
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-comments/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-comments",
+                "textdomain": "jetpack-comments",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-comments.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "typecheck": [
+                    "pnpm run typecheck"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Replaces the default WordPress comment form with social login, subscription options, and block editing.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-compat",
             "version": "dev-trunk",
             "dist": {
@@ -1613,7 +1686,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "397fbe195301460d2ac768a2abdf779dd5d047db"
+                "reference": "e0c15d3c20c66d96917d96b3afde33913aef9985"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1621,6 +1694,7 @@
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
                 "automattic/jetpack-classic-theme-helper": "@dev",
+                "automattic/jetpack-comments": "@dev",
                 "automattic/jetpack-compat": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
