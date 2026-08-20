@@ -30,7 +30,10 @@ const escapeRegExp = value => value.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
 
 // Grouping is opt-in so that targeting a suite directly (`jest widgets/top-posts`)
 // keeps working, and so a confusing grouped failure can be re-run in isolation.
-const useGroups = process.env.PA_TEST_GROUPS === '1' && process.env.PA_NO_GROUPS !== '1';
+// A positional argument filters tests, so keep that established workflow isolated too.
+const hasTestFilter = process.argv.slice( 2 ).some( argument => ! argument.startsWith( '-' ) );
+const useGroups =
+	process.env.PA_TEST_GROUPS === '1' && process.env.PA_NO_GROUPS !== '1' && ! hasTestFilter;
 
 // Whichever mode is active, the other side's files must be ignored — otherwise the
 // grouped suites and their members would both run and every test would count twice.

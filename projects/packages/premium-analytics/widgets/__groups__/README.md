@@ -10,12 +10,13 @@ import '../clicks/__tests__/clicks.test';
 
 ## Running
 
-Grouping is opt-in, via `PA_TEST_GROUPS=1`. `pnpm run test` sets it.
+Grouping is opt-in, via `PA_TEST_GROUPS=1`. `pnpm run test` sets it, unless a
+test filter is passed.
 
 ```bash
-pnpm run test                                                   # grouped
-PA_NO_GROUPS=1 pnpm run test                                    # ungrouped
-pnpm exec jest --config=tests/jest.config.cjs widgets/top-posts # one suite
+pnpm run test                        # grouped
+PA_NO_GROUPS=1 pnpm run test         # ungrouped
+pnpm run test -- widgets/clicks      # one suite
 ```
 
 ## Adding a widget suite to a group

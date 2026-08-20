@@ -3,68 +3,114 @@
  */
 import fs from 'fs';
 import path from 'path';
+import * as ts from 'typescript';
 
 const GROUPS_DIR = path.join( __dirname, '..', '..', 'widgets', '__groups__' );
 
 /**
- * Gets top-level `jest.mock()` calls by balancing their parentheses.
+ * Gets top-level `jest.mock()` calls from a source file.
  *
  * @param {string} source - File contents.
- * @return {string[]} The `jest.mock( … )` calls, in source order.
+ * @return {{ calls: ts.CallExpression[], sourceFile: ts.SourceFile }} Parsed source and mock calls.
  */
-function mockCalls( source: string ): string[] {
-	const calls: string[] = [];
-	let index = 0;
-
-	for (;;) {
-		const start = source.indexOf( '\njest.mock(', index );
-		if ( start < 0 ) {
-			return calls;
+function mockCalls( source: string ): { calls: ts.CallExpression[]; sourceFile: ts.SourceFile } {
+	const sourceFile = ts.createSourceFile(
+		'test.tsx',
+		source,
+		ts.ScriptTarget.Latest,
+		false,
+		ts.ScriptKind.TSX
+	);
+	const calls = sourceFile.statements.flatMap( statement => {
+		if (
+			! ts.isExpressionStatement( statement ) ||
+			! ts.isCallExpression( statement.expression )
+		) {
+			return [];
 		}
 
-		let cursor = start + '\njest.mock'.length;
-		let depth = 0;
-		while ( cursor < source.length ) {
-			if ( source[ cursor ] === '(' ) {
-				depth++;
-			} else if ( source[ cursor ] === ')' ) {
-				depth--;
-				if ( depth === 0 ) {
-					break;
-				}
+		const call = statement.expression;
+		const callee = call.expression;
+		if (
+			! ts.isPropertyAccessExpression( callee ) ||
+			! ts.isIdentifier( callee.expression ) ||
+			callee.expression.text !== 'jest' ||
+			callee.name.text !== 'mock'
+		) {
+			return [];
+		}
+
+		return [ call ];
+	} );
+
+	return { calls, sourceFile };
+}
+
+/**
+ * Prints a mock call after resolving relative strings in its factory.
+ *
+ * @param {ts.CallExpression} call       - Mock call to normalize.
+ * @param {ts.SourceFile}     sourceFile - Parsed source containing the call.
+ * @param {string}            directory  - Directory of the test file.
+ * @return {string} Canonical mock call.
+ */
+function normalizeMockCall(
+	call: ts.CallExpression,
+	sourceFile: ts.SourceFile,
+	directory: string
+): string {
+	const transformer: ts.TransformerFactory< ts.CallExpression > = context => root => {
+		const visitor: ts.Visitor = node => {
+			if ( ts.isStringLiteral( node ) && node.text.startsWith( '.' ) ) {
+				return context.factory.createStringLiteral( path.resolve( directory, node.text ) );
 			}
-			cursor++;
-		}
+			return ts.visitEachChild( node, visitor, context );
+		};
 
-		calls.push( source.slice( start, cursor + 1 ).trim() );
-		index = cursor;
+		return ts.visitNode( root, visitor ) as ts.CallExpression;
+	};
+	const result = ts.transform( call, [ transformer ] );
+
+	try {
+		return ts
+			.createPrinter( { removeComments: true } )
+			.printNode( ts.EmitHint.Expression, result.transformed[ 0 ], sourceFile );
+	} finally {
+		result.dispose();
 	}
 }
 
 /**
  * Gets a normalized signature of a suite's module mocks.
  *
- * @param {string} file - Absolute path of the test file.
+ * @param {string} source - File contents.
+ * @param {string} file   - Absolute path of the test file.
  * @return {string[]|null} Normalised mock calls, or null when the file mocks a
  * relative specifier, which resolves per-file and so can never be shared.
  */
-function mockSignature( file: string ): string[] | null {
+function mockSignatureFromSource( source: string, file: string ): string[] | null {
 	const signature: string[] = [];
+	const { calls, sourceFile } = mockCalls( source );
 
-	for ( const call of mockCalls( fs.readFileSync( file, 'utf8' ) ) ) {
-		const specifier = call.match( /jest\.mock\(\s*'([^']+)'/ )?.[ 1 ];
-		if ( specifier === undefined || specifier.startsWith( '.' ) ) {
+	for ( const call of calls ) {
+		const specifier = call.arguments[ 0 ];
+		if ( ! specifier || ! ts.isStringLiteral( specifier ) || specifier.text.startsWith( '.' ) ) {
 			return null;
 		}
-		const dir = path.dirname( file );
-		signature.push(
-			call
-				.replace( /'(\.[^']*)'/g, ( _match, relative ) => `'${ path.resolve( dir, relative ) }'` )
-				.replace( /\s+/g, ' ' )
-		);
+		signature.push( normalizeMockCall( call, sourceFile, path.dirname( file ) ) );
 	}
 
 	return signature.sort();
+}
+
+/**
+ * Gets a normalized signature for the mocks in a test file.
+ *
+ * @param {string} file - Test file to read.
+ * @return {string[]|null} Normalized module mocks.
+ */
+function mockSignature( file: string ): string[] | null {
+	return mockSignatureFromSource( fs.readFileSync( file, 'utf8' ), file );
 }
 
 /**
@@ -101,6 +147,20 @@ function membersOf( groupFile: string ): string[] {
 		path.resolve( GROUPS_DIR, match[ 1 ] )
 	);
 }
+
+describe( 'mock signature parser', () => {
+	it( 'compares complete factories when comments and strings contain parentheses', () => {
+		const first = `jest.mock( 'example', () => {
+			// A closing parenthesis used to stop the hand-written parser here: )
+			return 'first ) value';
+		} );`;
+		const second = first.replace( 'first ) value', 'second ) value' );
+
+		expect( mockSignatureFromSource( first, '/widgets/first.test.tsx' ) ).not.toEqual(
+			mockSignatureFromSource( second, '/widgets/second.test.tsx' )
+		);
+	} );
+} );
 
 describe( 'widget test groups', () => {
 	const groups = groupFiles();
