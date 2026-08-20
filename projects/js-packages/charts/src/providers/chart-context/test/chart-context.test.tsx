@@ -1813,6 +1813,63 @@ describe( 'ChartContext', () => {
 			expect( contextValue.isSeriesVisible( 'chart-a', 'Series 2' ) ).toBe( true );
 			expect( contextValue.isSeriesVisible( 'chart-b', 'Series 2' ) ).toBe( false );
 		} );
+
+		it( 'a redundant setSeriesVisibility write does not change context identity or re-render', () => {
+			let contextValue: GlobalChartsContextValue;
+			let childUpdateTally = 0;
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				childUpdateTally++;
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			act( () => {
+				contextValue.setSeriesVisibility( 'test-chart', 'Series 1', false );
+			} );
+			const isSeriesVisibleAfterFirstWrite = contextValue.isSeriesVisible;
+			const tallyAfterFirstWrite = childUpdateTally;
+
+			// Redundant write: the series is already hidden, so this must be a no-op.
+			act( () => {
+				contextValue.setSeriesVisibility( 'test-chart', 'Series 1', false );
+			} );
+
+			expect( contextValue.isSeriesVisible ).toBe( isSeriesVisibleAfterFirstWrite );
+			expect( childUpdateTally ).toBe( tallyAfterFirstWrite );
+		} );
+
+		it( 'setting an already-empty hidden set does not create then delete a Map entry', () => {
+			let contextValue: GlobalChartsContextValue;
+			let childUpdateTally = 0;
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				childUpdateTally++;
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const tallyBeforeWrite = childUpdateTally;
+			const isSeriesVisibleBefore = contextValue.isSeriesVisible;
+
+			// This chart has no hidden-series entry at all yet.
+			act( () => {
+				contextValue.setChartHiddenSeries( 'test-chart', [] );
+			} );
+
+			expect( childUpdateTally ).toBe( tallyBeforeWrite );
+			expect( contextValue.isSeriesVisible ).toBe( isSeriesVisibleBefore );
+		} );
 	} );
 
 	describe( 'GlobalChartsProvider - CSS Variable Support', () => {

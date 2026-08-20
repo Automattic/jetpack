@@ -49,6 +49,16 @@ describe( 'useDefaultHiddenSeries paint timing', () => {
 		// deps `[ chartId, setChartHiddenSeries ]`, which is unique to it (the
 		// provider's own effects use different deps shapes). Find that exact call
 		// among both mocks to see which one it landed on.
+		//
+		// Known blind spot: this matches by deps *shape*, not by origin. It fails
+		// closed if useDefaultHiddenSeries's own deps ever change (no call would then
+		// match, and the assertions below go red). It can fail open only in a narrow,
+		// compound case: an unrelated future layout effect that happens to carry a
+		// 2-element deps array starting with the string 'chart', landing at the same
+		// time as this hook regressing from useLayoutEffect to useEffect — that
+		// impostor call would satisfy `isSeedingCall` and mask the regression.
+		// Accepted here because both conditions must hold at once, and neither is
+		// likely on its own.
 		const isSeedingCall = ( call: unknown[] ) =>
 			Array.isArray( call[ 1 ] ) && call[ 1 ][ 0 ] === 'chart' && call[ 1 ].length === 2;
 
