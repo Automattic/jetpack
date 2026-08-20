@@ -20,6 +20,7 @@ use function remove_all_filters;
 use function wp_dequeue_script;
 use function wp_deregister_script;
 use function wp_script_is;
+use function wp_scripts;
 
 require_once __DIR__ . '/mock-wp-build-render-page.php';
 
@@ -99,6 +100,9 @@ class Admin_Modernization_Gating_Test extends TestCase {
 
 		$this->assertTrue( wp_script_is( 'jp-tracks', 'registered' ) );
 		$this->assertTrue( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+
+		// The dependency edge, not the registration, is what puts //stats.wp.com/w.js on the page.
+		$this->assertContains( 'jp-tracks', wp_scripts()->registered['jp-tracks-functions']->deps );
 	}
 
 	public function test_enqueue_admin_scripts_skips_tracks_when_analytics_denied() {
