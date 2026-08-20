@@ -51,10 +51,12 @@
 	margin-inline: 0;
 }
 
-/* No hover on touch viewports — the arrows have to stay visible to exist. */
+/* No hover on touch viewports — the arrows have to stay visible to exist.
+   `.host` keeps these on par with the base rule's specificity, which the
+   selector raised to outweigh the design system. */
 @media (hover: none) {
 
-	.arrow {
+	.host .arrow {
 		opacity: 1;
 		pointer-events: auto;
 		margin-inline: 0;
@@ -64,7 +66,7 @@
 /* The fade stays; only the movement goes. */
 @media (prefers-reduced-motion: reduce) {
 
-	.arrow {
+	.host .arrow {
 		margin-inline: 0;
 		transition: opacity 0.2s ease-out;
 	}
