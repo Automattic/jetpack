@@ -1,0 +1,52 @@
+// Form field answer columns on a single form's responses view. Answers are free
+// text, so each cell is capped to one line and reveals the rest through its tooltip.
+.jp-forms__inbox__field-column {
+	display: block;
+	max-inline-size: 22em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+
+	&.is-empty {
+		opacity: 0.5;
+	}
+}
+
+// Answer columns push the table wider than the viewport, so it scrolls sideways.
+// Freeze the two columns that say *who* a row belongs to — the selection checkbox
+// and From — so a row stays attributable while its answers scroll underneath.
+// DataViews already pins the actions column to the trailing edge the same way.
+.jp-forms-responses-dataviews {
+	// No box of its own: the class exists only to scope these rules to a view that
+	// has answer columns, leaving "All responses" untouched.
+	display: contents;
+}
+
+.jp-forms-responses-dataviews.has-field-columns .dataviews-view-table {
+	// Matches the background DataViews gives its own sticky actions column, so
+	// scrolled cells pass behind these rather than showing through them.
+	--jp-forms-frozen-column-background: var(--wp-dataviews-color-background, var(--wpds-color-background-surface-neutral-strong, #fff));
+	// The checkbox column is the table's leading padding plus the 24px control.
+	--jp-forms-from-column-offset: calc(var(--wpds-dimension-padding-2xl, 24px) + 24px);
+
+	th.dataviews-view-table__checkbox-column,
+	td.dataviews-view-table__checkbox-column {
+		position: sticky;
+		inset-inline-start: 0;
+		z-index: 2;
+		background-color: var(--jp-forms-frozen-column-background);
+	}
+
+	// The From column: the checkbox column's next sibling. DataViews gives the
+	// title column no class of its own, and the checkbox column is always present.
+	th.dataviews-view-table__checkbox-column + th,
+	td.dataviews-view-table__checkbox-column + td {
+		position: sticky;
+		inset-inline-start: var(--jp-forms-from-column-offset);
+		z-index: 2;
+		background-color: var(--jp-forms-frozen-column-background);
+		// Breathing room so answers scrolling past never crowd the name.
+		padding-inline-end: var(--wpds-dimension-padding-2xl, 24px);
+		border-inline-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #f0f0f0);
+	}
+}
