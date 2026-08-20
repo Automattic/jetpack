@@ -100,6 +100,7 @@ function TrafficChartInner( { granularity, chartType }: TrafficChartInnerProps )
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
+					pointsAreWallClocks
 				/>
 			</WidgetState>
 		</div>
