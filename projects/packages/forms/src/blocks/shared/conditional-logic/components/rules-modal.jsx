@@ -44,10 +44,12 @@ const MATCH_OPTIONS = [
 /**
  * The line stating what happens before any condition is met.
  *
- * Four literals rather than a sentence assembled from parts. The trailing 0 on three of them
- * is deliberate and matches how this is handled elsewhere in the package: identically shaped
- * __() calls in a ternary get folded by the production minifier into __( cond ? 'a' : 'b' ),
- * whose msgid is no longer a literal and so cannot be extracted for translation.
+ * Four literals rather than a sentence assembled from parts, and the two branches of each
+ * ternary MUST differ in arity. Identically shaped __() calls get folded by the production
+ * minifier into __( cond ? 'a' : 'b', domain ), whose msgid is no longer a literal and so
+ * cannot be extracted -- which fails the production build, not just the translation pass. The
+ * trailing 0 is the difference; it is ignored at runtime. Putting it on both branches makes
+ * them identical again and reintroduces the fold, so add it to exactly one.
  *
  * @param {string}  action      - `show` or `hide`.
  * @param {boolean} isContainer - Whether the subject is a container block rather than a field.
@@ -70,8 +72,7 @@ const getDefaultStateHint = ( action, isContainer ) => {
 	return 'hide' === action
 		? __(
 				'This field is visible by default, until the following conditions are met:',
-				'jetpack-forms',
-				0
+				'jetpack-forms'
 		  )
 		: __(
 				'This field is hidden by default, until the following conditions are met:',
