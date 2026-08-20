@@ -27,6 +27,7 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
+import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
 import { attachSubComponents } from '../../utils';
 import { renderDefaultTooltip } from '../line-chart';
 import { useChartChildren } from '../private/chart-composition';
@@ -72,6 +73,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			zoomable = false,
 			rescaleYOnVisibilityChange,
 			rescaleYOnLegendToggle,
+			defaultHiddenSeries,
 			children,
 			gridVisibility,
 			gap = 'md',
@@ -88,6 +90,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		const providerTheme = useGlobalChartsTheme();
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
+		useDefaultHiddenSeries( chartId, defaultHiddenSeries );
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
