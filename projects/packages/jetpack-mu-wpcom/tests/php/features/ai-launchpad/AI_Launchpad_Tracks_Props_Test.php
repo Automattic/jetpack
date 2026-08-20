@@ -160,6 +160,35 @@ class AI_Launchpad_Tracks_Props_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * `is_test` and `is_a11n` are the underlying booleans stringified to 'true'/'false' in the
+	 * props array — never PHP bools — because the two Tracks recorders' encoders disagree on
+	 * how a bool serializes (http_build_query() gives "1"/"0", encodeURIComponent() gives
+	 * "true"/"false"). The raw functions themselves stay real booleans; only this array
+	 * stringifies them.
+	 */
+	public function test_is_test_and_is_a11n_are_stringified_in_props() {
+		update_option( 'siteurl', 'https://example.wordpress.com' );
+		update_option( 'home', 'https://example.wordpress.com' );
+		Constants::set_constant( 'IS_WPCOM', false );
+
+		$props = wpcom_ai_launchpad_standard_props();
+		$this->assertSame( 'false', $props['is_test'] );
+		$this->assertSame( 'false', $props['is_a11n'] );
+		$this->assertFalse( wpcom_ai_launchpad_is_test() );
+		$this->assertFalse( wpcom_ai_launchpad_is_a11n() );
+
+		update_option( 'siteurl', 'https://demo.jurassic.ninja' );
+		update_option( 'home', 'https://demo.jurassic.ninja' );
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+
+		$props = wpcom_ai_launchpad_standard_props();
+		$this->assertSame( 'true', $props['is_test'] );
+		$this->assertSame( 'true', $props['is_a11n'] );
+		$this->assertTrue( wpcom_ai_launchpad_is_test() );
+		$this->assertTrue( wpcom_ai_launchpad_is_a11n() );
+	}
+
+	/**
 	 * The identity bundle exists only on Atomic; on Simple it is always null.
 	 */
 	public function test_tracks_identity_is_null_on_simple() {

@@ -21,6 +21,25 @@ interface AiQueryResponse {
 type FetchOutcome = { ok: true; output: TailoredOutput } | { ok: false; retryable: boolean };
 
 /**
+ * Mints a session id for a tailoring run, or '' when `crypto.randomUUID` isn't available.
+ *
+ * `crypto.randomUUID` is undefined outside a secure context and on older Safari/Firefox, and
+ * throws rather than returning undefined — unguarded, that would reject `tailor()` before any
+ * tailoring happens, and every caller catches, so the user would see an empty launchpad instead
+ * of a list. This purely analytical id must not be able to break list rendering; the server
+ * already treats an empty `ai_session_id` as absent.
+ *
+ * @return A UUID, or '' when unavailable.
+ */
+function mintAiSessionId(): string {
+	try {
+		return crypto.randomUUID();
+	} catch {
+		return '';
+	}
+}
+
+/**
  * Call jetpack-ai-query once with the combined prompt and return the validated
  * output, or a failure outcome tagging whether the failure is worth retrying.
  *
@@ -168,7 +187,7 @@ export async function tailor( input: WizardInput ): Promise< TailorResult > {
 	// One id per tailoring run, not per attempt: a retry re-rolls the same checklist. Minted
 	// here rather than server-side so it survives a failed PUT, where the client still renders
 	// a list and still fires events against it.
-	const aiSessionId = crypto.randomUUID();
+	const aiSessionId = mintAiSessionId();
 	const availableTaskIds = await fetchAvailableTaskIds( input.goal );
 	const { output: aiOutput, attempts } = await fetchAiOutputWithRetry( input, availableTaskIds );
 

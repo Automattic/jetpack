@@ -1038,7 +1038,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'ai_launchpad', $props['agent_name'] );
 		$this->assertSame( \Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION, $props['agent_version'] );
 		$this->assertArrayHasKey( 'is_a11n', $props );
-		$this->assertFalse( $props['is_test'] );
+		$this->assertSame( 'false', $props['is_test'] );
 		$this->assertSame( 'ai', $props['source'] );
 		$this->assertSame( 'success', $props['outcome'] );
 		// Null context values are omitted from the recorded event, never "null" strings.
@@ -1376,6 +1376,26 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$envelope = get_option( 'wpcom_ai_launchpad_ai_output' );
 		$this->assertArrayNotHasKey( 'ai_session_id', $envelope );
 		$this->assertSame( 'none', wpcom_ai_launchpad_standard_props()['ai_session_id'] );
+	}
+
+	/**
+	 * Test that the schema rejects an oversized ai_session_id (rather than silently truncating
+	 * it), so an id can't land 100 KB deep in an option, the inline script, and every Tracks
+	 * event fired afterwards.
+	 */
+	public function test_tailored_rejects_an_oversized_ai_session_id() {
+		$result = $this->call_api(
+			'PUT',
+			'/tailored',
+			self::valid_payload(),
+			array(
+				'source'        => 'ai',
+				'ai_session_id' => str_repeat( 'a', 65 ),
+			)
+		);
+
+		$this->assertSame( 400, $result->get_status() );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_ai_output' ) );
 	}
 
 	/**

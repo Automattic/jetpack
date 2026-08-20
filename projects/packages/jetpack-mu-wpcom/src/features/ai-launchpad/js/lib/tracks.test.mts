@@ -34,8 +34,12 @@ const BOOTSTRAP = {
 		site_type: 'simple',
 		agent_name: 'ai_launchpad',
 		agent_version: '6.10.1',
-		is_test: false,
-		is_a11n: false,
+		// Strings, not booleans: the two recorders' encoders disagree on how a bool
+		// serializes (http_build_query() → "1"/"0", encodeURIComponent() → "true"/"false"), so
+		// the server sends the literal strings both pass through unchanged. See
+		// wpcom_ai_launchpad_standard_props().
+		is_test: 'false',
+		is_a11n: 'false',
 		blog_id: 12345,
 		source: 'none',
 		outcome: 'none',
@@ -95,9 +99,9 @@ describe( 'ai-launchpad tracks', () => {
 		} );
 	}
 
-	it( 'keeps is_test false rather than dropping it', () => {
+	it( "keeps is_test 'false' rather than dropping it", () => {
 		trackWizardCompleted();
-		assert.equal( lastProps().is_test, false );
+		assert.equal( lastProps().is_test, 'false' );
 		assert.equal( lastProps().blog_id, 12345 );
 	} );
 

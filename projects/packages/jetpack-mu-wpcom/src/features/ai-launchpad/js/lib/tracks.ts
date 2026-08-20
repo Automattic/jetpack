@@ -144,7 +144,7 @@ export function contextFromTailorResult(
  * Records a Tracks event with the standard props and the shared context merged in, so call
  * sites can't forget either. Null-valued context props are omitted: the Tracks pipeline would
  * otherwise record them as literal "null" strings. The standard props merge outside that
- * filter, and first, so `is_test: false` survives and a call site still wins over both.
+ * filter, and first, so `is_test: 'false'` survives and a call site still wins over both.
  *
  * @param eventName - The Tracks event name, already feature-prefixed.
  * @param props     - Event properties. No PII: task IDs are fine, free text is not.

@@ -359,7 +359,14 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 							'description'       => 'Client-minted id for this tailoring run, carried by every Tracks event fired afterwards.',
 							'type'              => 'string',
 							'default'           => '',
+							// A UUID is 36 characters; 64 leaves headroom without letting an
+							// oversized value reach the option, the inline script, and every
+							// Tracks event. sanitize_key() doesn't bound length on its own, so
+							// the validate_callback is what actually enforces maxLength here —
+							// WP only runs per-arg schema validation when one is wired in.
+							'maxLength'         => 64,
 							'sanitize_callback' => 'sanitize_key',
+							'validate_callback' => 'rest_validate_request_arg',
 						),
 					),
 				),

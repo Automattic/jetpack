@@ -206,8 +206,8 @@ if ( ! function_exists( 'wpcom_ai_launchpad_standard_props' ) ) {
 	 * recorders — the server one below and the client one in `js/lib/tracks.ts`, which reads
 	 * this same array from the page's `window.wpcomAiLaunchpadTracks` global.
 	 *
-	 * Every value is a string, an int or a bool, never null: the standard requires the string
-	 * "none" for a missing value, because null breaks group-by aggregations downstream.
+	 * Every value is a string or an int, never null: the standard requires the string "none"
+	 * for a missing value, because null breaks group-by aggregations downstream.
 	 *
 	 * @return array The standard props.
 	 */
@@ -241,8 +241,14 @@ if ( ! function_exists( 'wpcom_ai_launchpad_standard_props' ) ) {
 			'site_type'     => ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ? 'simple' : 'atomic',
 			'agent_name'    => 'ai_launchpad',
 			'agent_version' => \Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION,
-			'is_test'       => wpcom_ai_launchpad_is_test(),
-			'is_a11n'       => wpcom_ai_launchpad_is_a11n(),
+			// Stringified rather than left as PHP bools: http_build_query() (both PHP Tracks
+			// clients end in one) renders a bool as "1"/"0", while the client recorder's
+			// encodeURIComponent() renders it as "true"/"false" — the same logical value would
+			// reach Tracks differently depending on which recorder fired it. The literal strings
+			// 'true'/'false' are what the Fieldguide standard documents and the only
+			// representation both encoders pass through unchanged.
+			'is_test'       => wpcom_ai_launchpad_is_test() ? 'true' : 'false',
+			'is_a11n'       => wpcom_ai_launchpad_is_a11n() ? 'true' : 'false',
 			// Explicit rather than left to the Tracks super prop: on the client the super prop
 			// is missing on about one page-view fire in twenty, which understates every
 			// per-site rate that uses `viewed` as its denominator.
@@ -305,8 +311,15 @@ if ( ! function_exists( 'wpcom_ai_launchpad_tracks_identity' ) ) {
 
 if ( ! function_exists( 'wpcom_ai_launchpad_record_tracks_event' ) ) {
 	/**
-	 * Records an AI Launchpad Tracks event server-side with the shared context merged in,
-	 * so call sites can't forget it. Explicit props win over the context.
+	 * Records an AI Launchpad Tracks event server-side, merging three layers before it is sent:
+	 *
+	 * 1. `wpcom_ai_launchpad_standard_props()` — the AI standard props shared with the client
+	 *    recorder. Applied first and never dropped: "none" and "false" are values, not gaps.
+	 * 2. `wpcom_ai_launchpad_tracks_context( $rendered_task_ids )` — the feature-specific
+	 *    context (goal, niche, rendered list, …). Its null-valued keys are filtered out here
+	 *    (mirroring the client recorder) rather than reaching Tracks as literal "null" strings,
+	 *    so an unset context value is simply absent, unlike an unset standard prop.
+	 * 3. `$props`, the call site's own properties, which win over both of the above.
 	 *
 	 * @param string        $event_name        The Tracks event name, already feature-prefixed.
 	 * @param array         $props             Event properties. No PII: task IDs are fine, free text is not.
@@ -326,7 +339,7 @@ if ( ! function_exists( 'wpcom_ai_launchpad_record_tracks_event' ) ) {
 		);
 
 		// Merged outside that filter, and first, so the standard props are never dropped
-		// (`is_test: false` is a value, not a gap) and a call site still wins over both.
+		// (`is_test: 'false'` is a value, not a gap) and a call site still wins over both.
 		$props = array_merge( wpcom_ai_launchpad_standard_props(), $context );
 
 		/**
