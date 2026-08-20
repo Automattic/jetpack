@@ -6,8 +6,8 @@ import useSimpleMutation from './use-simple-mutation';
  * Dismiss the Automattic for Agencies banner for this site.
  *
  * POSTs to `/my-jetpack/v1/jetpack-manage/dismiss-banner`, which persists the dismissal so the
- * banner stays hidden on subsequent page loads. The dismissal is site-wide rather than per-user,
- * matching the welcome banner.
+ * banner stays hidden on subsequent page loads. The dismissal is deliberately stored per site
+ * rather than per user, so dismissing it here hides the banner for every admin on the site.
  *
  * @return The mutation result, exposing `dismiss` (the mutate fn) and its `isPending` state.
  */

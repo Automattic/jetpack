@@ -166,7 +166,14 @@ class Jetpack_Manage {
 	/**
 	 * Check whether the Automattic for Agencies banner has been dismissed on this site.
 	 *
-	 * The dismissal is site-wide rather than per-user, matching the welcome banner.
+	 * The dismissal is stored per site rather than per user: whether the people running this site
+	 * want an agency partnership is a property of the site, not of an individual login, so one
+	 * admin dismissing the banner settles it for everyone.
+	 *
+	 * The trade-off is worth stating, because the rest of this payload does not work that way.
+	 * `could_use_jp_manage()` and `is_agency_account()` are both computed from the *current*
+	 * admin's WordPress.com account, so a second admin who would have been shown the banner
+	 * cannot bring it back once someone else has dismissed it.
 	 *
 	 * @return bool True if the banner has been dismissed.
 	 */
