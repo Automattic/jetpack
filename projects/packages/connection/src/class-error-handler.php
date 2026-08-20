@@ -522,7 +522,7 @@ class Error_Handler {
 	 *   not reliably the fix, so the viewer has somewhere else to go.
 	 *
 	 * @since 8.10.0
-	 * @since $$next-version$$ Merged with the former hardcoded list in get_displayable_errors():
+	 * @since 8.11.0 Merged with the former hardcoded list in get_displayable_errors():
 	 *        this method is now also the whitelist, not just the source of overrides.
 	 *
 	 * @param string $error_code The error code.
@@ -545,7 +545,7 @@ class Error_Handler {
 	 * Split out from get_error_display_config() so the full set can be enumerated
 	 * without invoking that method once per known error code.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.11.0
 	 *
 	 * @return array Display configuration (array) or `false`, keyed by error code.
 	 */
@@ -650,7 +650,7 @@ class Error_Handler {
 	 *   reconnecting here means a different admin becoming the new owner, not
 	 *   the original owner logging back in.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.11.0
 	 *
 	 * @param array $error The stored error array.
 	 * @return string The message.
@@ -731,7 +731,7 @@ class Error_Handler {
 	 * owner has to perform first — see that key's documentation on
 	 * get_error_display_config() for when it doesn't.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.11.0
 	 *
 	 * @param array $displayable_errors Displayable errors, keyed by error code then user ID.
 	 * @return array The owner-only subset when the owner is broken, otherwise the input unchanged.

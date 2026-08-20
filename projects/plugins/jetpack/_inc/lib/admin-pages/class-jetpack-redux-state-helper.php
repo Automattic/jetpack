@@ -287,12 +287,12 @@ class Jetpack_Redux_State_Helper {
 	 *
 	 * The update modal that consumed this data has been removed, so there is nothing to return.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 16.2
 	 *
 	 * @return null
 	 */
 	public static function get_update_modal_data() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-16.2' );
 		return null;
 	}
 
@@ -301,13 +301,13 @@ class Jetpack_Redux_State_Helper {
 	 *
 	 * Only ever used while sanitizing the release post for the removed update modal.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 16.2
 	 *
 	 * @param string $tags    The tags.
 	 * @param string $context The context.
 	 */
 	public static function allow_post_embed_iframe( $tags, $context ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-16.2' );
 
 		if ( 'post' === $context ) {
 			$tags['iframe'] = array(
@@ -328,12 +328,12 @@ class Jetpack_Redux_State_Helper {
 	 * The release post blog has had no post tagged for a current Jetpack version since 2023, and the
 	 * update modal that consumed this has been removed, so this no longer makes a remote request.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 16.2
 	 *
 	 * @return null
 	 */
 	public static function get_release_post_data() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-16.2' );
 		return null;
 	}
 

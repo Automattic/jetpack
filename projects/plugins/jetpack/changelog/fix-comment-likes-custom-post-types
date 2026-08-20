@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Likes: Include public custom post types in default visibility settings so Likes and Comment Likes render on CPTs without requiring manual configuration.

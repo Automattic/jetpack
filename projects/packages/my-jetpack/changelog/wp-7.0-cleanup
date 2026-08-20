@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Drop the string branch for the date settings timezone offset; WP 7.0 always sends a number.
-
-

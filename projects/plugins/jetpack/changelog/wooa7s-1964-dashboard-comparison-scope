@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Analytics: Stop applying hidden date comparisons in dashboard sections that do not offer the control.

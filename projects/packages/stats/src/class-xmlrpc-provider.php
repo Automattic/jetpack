@@ -110,7 +110,7 @@ class XMLRPC_Provider {
 	 * Make sure we are only escaping html if the input is a string.
 	 * Used for `esc_html` filter-hook.
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 0.20.3
 	 * @param  string $safe_text The output after esc_html has been applied.
 	 * @param  mixed  $text      The initial input.
 	 * @return mixed

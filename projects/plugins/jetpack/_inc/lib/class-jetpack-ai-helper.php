@@ -131,7 +131,7 @@ class Jetpack_AI_Helper {
 	 * VIP sites. Kept separate from is_enabled() so widening Content Guidelines
 	 * to VIP does not also open the general AI proxy endpoint there.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.2
 	 *
 	 * @return bool
 	 */
