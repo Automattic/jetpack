@@ -75,6 +75,10 @@ export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
  * quantity-based Stats endpoints (e.g. `stats/subscribers`) expect for the given
  * `unit`, mirroring how `days` is derived for day-based requests.
  *
+ * `hour` is inclusive of the buckets a range touches rather than of its
+ * endpoints: it counts from the span itself, so a range ending exactly on the
+ * hour does not pick up the bucket starting there. See the branch below.
+ *
  * @param period - The bucket granularity.
  * @param from   - Range start (`yyyy-MM-dd`, or a full ISO datetime).
  * @param to     - Range end (`yyyy-MM-dd`, or a full ISO datetime).
