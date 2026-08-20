@@ -126,17 +126,17 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	{
 		id: PRESET_LAST_90_DAYS,
 		getLabel: () => __( 'Last 90 days', 'jetpack-premium-analytics-pkg' ),
-		getRange: ( { initOfToday, endOfYesterday } ) => ( {
-			from: subDays( initOfToday, 90 ),
-			to: endOfYesterday,
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: subDays( initOfToday, 89 ),
+			to: endOfToday,
 		} ),
 	},
 	{
 		id: PRESET_LAST_365_DAYS,
 		getLabel: () => __( 'Last 365 days', 'jetpack-premium-analytics-pkg' ),
-		getRange: ( { initOfToday, endOfYesterday } ) => ( {
-			from: subDays( initOfToday, 365 ),
-			to: endOfYesterday,
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: subDays( initOfToday, 364 ),
+			to: endOfToday,
 		} ),
 	},
 	{

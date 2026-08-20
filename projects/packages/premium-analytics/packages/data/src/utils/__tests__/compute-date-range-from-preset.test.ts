@@ -104,20 +104,20 @@ describe( 'computeDateRangeFromPreset', () => {
 		expect( range!.to ).toBe( toZ( TODAY_END ) );
 	} );
 
-	it( 'returns 90-day range ending yesterday for "last-90-days"', () => {
+	it( 'returns 90-day range ending today for "last-90-days"', () => {
 		const range = computeDateRangeFromPreset( 'last-90-days' );
 
 		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( subDays( TODAY_START, 90 ) ) );
-		expect( range!.to ).toBe( toZ( YESTERDAY_END ) );
+		expect( range!.from ).toBe( toZ( subDays( TODAY_START, 89 ) ) );
+		expect( range!.to ).toBe( toZ( TODAY_END ) );
 	} );
 
-	it( 'returns 365-day range ending yesterday for "last-365-days"', () => {
+	it( 'returns 365-day range ending today for "last-365-days"', () => {
 		const range = computeDateRangeFromPreset( 'last-365-days' );
 
 		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( subDays( TODAY_START, 365 ) ) );
-		expect( range!.to ).toBe( toZ( YESTERDAY_END ) );
+		expect( range!.from ).toBe( toZ( subDays( TODAY_START, 364 ) ) );
+		expect( range!.to ).toBe( toZ( TODAY_END ) );
 	} );
 
 	it( 'returns last calendar month for "last-month"', () => {
