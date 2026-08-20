@@ -404,3 +404,41 @@ describe( 'useSubjectFields for a container', () => {
 		expect( subjectsFor( 'c-outside' ).map( f => f.label ) ).toEqual( [ 'Secret' ] );
 	} );
 } );
+
+/**
+ * The walk's defensive guards. Both predate conditional logic on containers, but a container
+ * makes them reachable in a way a field never did: a field's subtree is always its own label
+ * and input, while a container holds whatever the author put there.
+ */
+describe( 'useSubjectFields tolerates a malformed tree', () => {
+	it( 'skips a block whose inner blocks are not an array', () => {
+		blocks = {
+			'c-form': {
+				clientId: 'c-form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [
+					{ clientId: 'c-odd', name: 'core/group', attributes: {}, innerBlocks: null },
+					field( 'c-outside', { label: 'Name' } ),
+				],
+			},
+		};
+		rootOf = { 'c-outside': 'c-form' };
+
+		expect( subjectsFor( 'c-outside' ).map( f => f.label ) ).toEqual( [] );
+	} );
+
+	it( 'skips an empty slot in a block list', () => {
+		blocks = {
+			'c-form': {
+				clientId: 'c-form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [ null, field( 'c-other', { label: 'Other' } ) ],
+			},
+		};
+		rootOf = { 'c-outside': 'c-form' };
+
+		expect( subjectsFor( 'c-outside' ).map( f => f.label ) ).toEqual( [ 'Other' ] );
+	} );
+} );

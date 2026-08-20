@@ -1,0 +1,170 @@
+<?php
+/**
+ * Integration tests for conditional logic on container blocks.
+ *
+ * Separate from Conditional_Logic_Container_Test, which exercises the container helpers in
+ * isolation. These build a real Contact_Form and check that a container's conditions survive
+ * the whole path -- harvested off the body in the constructor, emitted in the context the
+ * interactivity store reads, and honoured when visibility is resolved.
+ *
+ * The class under test is Contact_Form rather than the container helper, which is what makes
+ * the Contact_Form lines these exercise count as covered.
+ *
+ * @package automattic/jetpack-forms
+ */
+
+namespace Automattic\Jetpack\Forms\ContactForm;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use WorDBless\BaseTestCase;
+
+/**
+ * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form
+ */
+#[CoversClass( Contact_Form::class )]
+class Conditional_Logic_Container_Integration_Test extends BaseTestCase {
+
+	/**
+	 * Turn the feature on. Every path below is gated on it.
+	 */
+	protected function set_up() {
+		parent::set_up();
+		add_filter( 'jetpack_feature_flag_enabled_forms-conditional-logic', '__return_true' );
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function tear_down() {
+		remove_filter( 'jetpack_feature_flag_enabled_forms-conditional-logic', '__return_true' );
+		unset( $_POST );
+		parent::tear_down();
+	}
+
+	/**
+	 * A minimal enabled logic config.
+	 *
+	 * @param string $field Subject field id.
+	 * @param string $value Value to compare against.
+	 *
+	 * @return array
+	 */
+	private function logic( $field = 'name', $value = 'Bob' ) {
+		return array(
+			'enabled'         => true,
+			'action'          => 'show',
+			'logicalOperator' => 'any',
+			'groups'          => array(
+				array(
+					'logicalOperator' => 'any',
+					'rules'           => array(
+						array(
+							'type'     => 'fieldValue',
+							'field'    => $field,
+							'operator' => 'is',
+							'value'    => $value,
+						),
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Build a real form whose body holds a stamped container around a field.
+	 *
+	 * Constructed from content rather than by assigning `body` afterwards, because harvesting
+	 * happens in the constructor -- the only place the container and the fields inside it both
+	 * exist. A test that set `body` later would never reach it.
+	 *
+	 * @param string $trigger_value Value submitted for the trigger field.
+	 *
+	 * @return Contact_Form
+	 */
+	private function form_with_container( $trigger_value = '' ) {
+		$container = '<div class="wp-block-group" data-jp-visibility-root="jp-container-1" data-jp-conditional="1" '
+			. "data-jp-container-logic='" . htmlspecialchars( wp_json_encode( $this->logic( 'trigger', 'Bob' ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ), ENT_QUOTES ) . "'>"
+			. '[contact-field id="secret" type="text" label="Secret" required="1" /]'
+			. '</div>';
+
+		$_POST['trigger'] = $trigger_value;
+
+		Contact_Form_Plugin::$using_contact_form_field = true;
+
+		$form = new Contact_Form(
+			array( 'id' => 'cl-container' ),
+			'[contact-field id="trigger" type="text" label="Trigger" /]' . $container
+		);
+
+		Contact_Form_Plugin::$using_contact_form_field = false;
+
+		return $form;
+	}
+
+	/**
+	 * The container's conditions reach the map the interactivity store reads, and the fields
+	 * it encloses are named there too — the browser needs the containment for the same reason
+	 * the server does.
+	 */
+	public function test_container_logic_reaches_the_emitted_context() {
+		$form    = $this->form_with_container();
+		$context = $form->get_conditional_logic_context();
+
+		$this->assertArrayHasKey( 'jp-container-1', $context['logic'] );
+		$this->assertSame( Conditional_Logic::TYPE_CONTAINER, $context['types']['jp-container-1'] );
+		$this->assertSame( array( 'secret' ), $context['contains']['jp-container-1'] );
+		// Fields are still typed, or rules could not resolve their subjects.
+		$this->assertArrayHasKey( 'trigger', $context['types'] );
+	}
+
+	/**
+	 * The attribute the container carried its conditions in is gone from the rendered body:
+	 * the form emits the whole map already, so shipping it twice is waste.
+	 */
+	public function test_container_logic_attribute_is_stripped_from_the_body() {
+		$form = $this->form_with_container();
+
+		$this->assertStringNotContainsString( 'data-jp-container-logic', (string) $form->body );
+		$this->assertStringContainsString( 'data-jp-visibility-root="jp-container-1"', (string) $form->body );
+	}
+
+	/**
+	 * With the condition unmet the container is hidden, and so is the required field inside
+	 * it — which is what stops the form refusing to submit on a field nobody was shown.
+	 */
+	public function test_an_unmet_container_hides_the_field_it_encloses() {
+		$visibility = $this->form_with_container( 'Alice' )->get_resolved_field_visibility();
+
+		$this->assertFalse( $visibility['jp-container-1'] );
+		$this->assertFalse( $visibility['secret'] );
+		$this->assertTrue( $visibility['trigger'] );
+	}
+
+	/**
+	 * Once the condition is met both come back, so the field is enforced again.
+	 */
+	public function test_a_met_container_shows_the_field_it_encloses() {
+		$visibility = $this->form_with_container( 'Bob' )->get_resolved_field_visibility();
+
+		$this->assertTrue( $visibility['jp-container-1'] );
+		$this->assertTrue( $visibility['secret'] );
+	}
+
+	/**
+	 * The container arrives hidden rather than flashing into view on hydration.
+	 */
+	public function test_an_unmet_container_ships_hidden() {
+		$form      = $this->form_with_container( 'Alice' );
+		$processor = new \WP_HTML_Tag_Processor( (string) $form->body );
+		$classes   = '';
+
+		while ( $processor->next_tag( array( 'tag_name' => 'DIV' ) ) ) {
+			if ( 'jp-container-1' === $processor->get_attribute( 'data-jp-visibility-root' ) ) {
+				$classes = (string) $processor->get_attribute( 'class' );
+				break;
+			}
+		}
+
+		$this->assertStringContainsString( 'jetpack-field--conditionally-hidden', $classes );
+	}
+}
