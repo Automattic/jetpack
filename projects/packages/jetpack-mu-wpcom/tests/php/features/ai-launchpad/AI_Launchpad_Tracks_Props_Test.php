@@ -125,6 +125,21 @@ class AI_Launchpad_Tracks_Props_Test extends \WorDBless\BaseTestCase {
 		update_option( 'siteurl', 'https://copons.jurassic.tube' );
 		update_option( 'home', 'https://copons.jurassic.tube' );
 		$this->assertTrue( wpcom_ai_launchpad_is_test() );
+
+		// The host match is case-insensitive.
+		update_option( 'siteurl', 'https://DEMO.Jurassic.Ninja' );
+		update_option( 'home', 'https://DEMO.Jurassic.Ninja' );
+		$this->assertTrue( wpcom_ai_launchpad_is_test() );
+
+		// A suffix match, not a substring match: a host that merely contains the marker, before
+		// or after the real suffix, is not a test host.
+		update_option( 'siteurl', 'https://jurassic.ninja.evil.com' );
+		update_option( 'home', 'https://jurassic.ninja.evil.com' );
+		$this->assertFalse( wpcom_ai_launchpad_is_test() );
+
+		update_option( 'siteurl', 'https://notjurassic.ninja' );
+		update_option( 'home', 'https://notjurassic.ninja' );
+		$this->assertFalse( wpcom_ai_launchpad_is_test() );
 	}
 
 	/**
@@ -145,17 +160,45 @@ class AI_Launchpad_Tracks_Props_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The identity bundle exists only on Atomic, where nothing else pushes identifyUser, and
-	 * never carries the email address the Tracks client helper also returns.
+	 * The identity bundle exists only on Atomic; on Simple it is always null.
 	 */
-	public function test_tracks_identity_is_atomic_only_and_carries_no_email() {
+	public function test_tracks_identity_is_null_on_simple() {
 		Constants::set_constant( 'IS_WPCOM', true );
 		$this->assertNull( wpcom_ai_launchpad_tracks_identity() );
+	}
 
-		Constants::set_constant( 'IS_WPCOM', false );
-		$identity = wpcom_ai_launchpad_tracks_identity();
-		if ( null !== $identity ) {
-			$this->assertSame( array( 'userid', 'username' ), array_keys( $identity ) );
-		}
+	/**
+	 * The shaping step is what actually enforces "no email, no blog id, no locale" — it rebuilds
+	 * the array from scratch rather than unsetting keys, so a field the client helper adds later
+	 * cannot leak through by default.
+	 */
+	public function test_shape_tracks_identity_strips_everything_but_id_and_login() {
+		$raw = array(
+			'blogid'      => 1,
+			'email'       => 'someone@example.com',
+			'userid'      => 7,
+			'username'    => 'copons',
+			'user_locale' => 'en',
+		);
+
+		$shaped = wpcom_ai_launchpad_shape_tracks_identity( $raw );
+
+		$this->assertSame(
+			array(
+				'userid'   => 7,
+				'username' => 'copons',
+			),
+			$shaped
+		);
+		$this->assertArrayNotHasKey( 'email', $shaped );
+	}
+
+	/**
+	 * An identity that isn't usable — no connected user, or a partial record — shapes to null.
+	 */
+	public function test_shape_tracks_identity_is_null_for_unusable_input() {
+		$this->assertNull( wpcom_ai_launchpad_shape_tracks_identity( false ) );
+		$this->assertNull( wpcom_ai_launchpad_shape_tracks_identity( array( 'username' => 'copons' ) ) );
+		$this->assertNull( wpcom_ai_launchpad_shape_tracks_identity( array( 'userid' => 7 ) ) );
 	}
 }

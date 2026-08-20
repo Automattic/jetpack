@@ -162,9 +162,19 @@ if ( ! function_exists( 'wpcom_ai_launchpad_is_test' ) ) {
 			return false;
 		}
 
-		return 'localhost' === $host
-			|| '.jurassic.tube' === stristr( $host, '.jurassic.tube' )
-			|| '.jurassic.ninja' === stristr( $host, '.jurassic.ninja' );
+		$host = strtolower( $host );
+
+		if ( 'localhost' === $host ) {
+			return true;
+		}
+
+		foreach ( array( '.jurassic.tube', '.jurassic.ninja' ) as $suffix ) {
+			if ( substr( $host, - strlen( $suffix ) ) === $suffix ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
 
@@ -244,6 +254,29 @@ if ( ! function_exists( 'wpcom_ai_launchpad_standard_props' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcom_ai_launchpad_shape_tracks_identity' ) ) {
+	/**
+	 * Reduces a Tracks client identity to the two fields the browser is allowed to see.
+	 *
+	 * The client helper also returns an email address, a blog id and a locale. Only the id and
+	 * the login may reach a JS global, so this rebuilds the array rather than unsetting keys —
+	 * a field added to the helper later cannot leak through by default.
+	 *
+	 * @param mixed $identity The raw identity from Jetpack_Tracks_Client, or false.
+	 * @return array|null The id and login, or null when the identity is unusable.
+	 */
+	function wpcom_ai_launchpad_shape_tracks_identity( $identity ) {
+		if ( ! is_array( $identity ) || empty( $identity['userid'] ) || empty( $identity['username'] ) ) {
+			return null;
+		}
+
+		return array(
+			'userid'   => (int) $identity['userid'],
+			'username' => (string) $identity['username'],
+		);
+	}
+}
+
 if ( ! function_exists( 'wpcom_ai_launchpad_tracks_identity' ) ) {
 	/**
 	 * The Tracks user identity the client recorder pushes as `identifyUser`, on Atomic only.
@@ -266,15 +299,7 @@ if ( ! function_exists( 'wpcom_ai_launchpad_tracks_identity' ) ) {
 			return null;
 		}
 
-		$identity = \Jetpack_Tracks_Client::get_connected_user_tracks_identity();
-		if ( ! is_array( $identity ) || empty( $identity['userid'] ) || empty( $identity['username'] ) ) {
-			return null;
-		}
-
-		return array(
-			'userid'   => (int) $identity['userid'],
-			'username' => (string) $identity['username'],
-		);
+		return wpcom_ai_launchpad_shape_tracks_identity( \Jetpack_Tracks_Client::get_connected_user_tracks_identity() );
 	}
 }
 
