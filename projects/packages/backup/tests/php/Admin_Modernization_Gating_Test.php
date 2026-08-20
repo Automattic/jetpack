@@ -15,8 +15,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use function add_filter;
+use function has_action;
+use function remove_action;
 use function remove_all_actions;
 use function remove_all_filters;
+use function set_current_screen;
 use function wp_dequeue_script;
 use function wp_deregister_script;
 use function wp_script_is;
@@ -38,6 +41,12 @@ class Admin_Modernization_Gating_Test extends TestCase {
 	/** @var string[] Handles registered elsewhere that the code under test only enqueues. */
 	private const BORROWED_SCRIPT_HANDLES = array( 'wp-jp-i18n-loader' );
 
+	/** @var array The `current_screen` callback `maybe_load_wp_build()` adds. */
+	private const SCREEN_ALIAS_CALLBACK = array( Jetpack_Backup::class, 'alias_screen_id_for_wp_build' );
+
+	/** @var array The `admin_print_scripts` callback `maybe_load_wp_build()` adds. */
+	private const INITIAL_STATE_CALLBACK = array( Jetpack_Backup::class, 'render_connection_initial_state' );
+
 	public function setUp(): void {
 		parent::setUp();
 
@@ -50,6 +59,7 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		remove_all_filters( 'jetpack_offline_mode' );
 		remove_all_actions( 'load-jetpack_page_jetpack-backup' );
 		remove_all_actions( 'jetpack_use_iframe_authorization_flow' );
+		$this->leave_backup_admin_request();
 
 		$this->reset_scripts();
 		$this->set_admin_menu_items( array() );
@@ -139,11 +149,66 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertSame( 'VaultPress Backup', $items[0]['menu_title'] );
 	}
 
+	public function test_maybe_load_wp_build_does_nothing_when_not_modernized() {
+		$this->enter_backup_admin_request();
+
+		Jetpack_Backup::maybe_load_wp_build();
+
+		$this->assertFalse( has_action( 'current_screen', self::SCREEN_ALIAS_CALLBACK ) );
+		$this->assertFalse( has_action( 'admin_print_scripts', self::INITIAL_STATE_CALLBACK ) );
+	}
+
+	public function test_maybe_load_wp_build_does_nothing_off_the_backup_admin_page() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+		$this->enter_backup_admin_request();
+		$_GET['page'] = 'jetpack';
+
+		Jetpack_Backup::maybe_load_wp_build();
+
+		$this->assertFalse( has_action( 'current_screen', self::SCREEN_ALIAS_CALLBACK ) );
+		$this->assertFalse( has_action( 'admin_print_scripts', self::INITIAL_STATE_CALLBACK ) );
+	}
+
+	public function test_maybe_load_wp_build_hooks_the_page_when_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+		$this->enter_backup_admin_request();
+
+		Jetpack_Backup::maybe_load_wp_build();
+
+		$this->assertNotFalse( has_action( 'current_screen', self::SCREEN_ALIAS_CALLBACK ) );
+		$this->assertNotFalse( has_action( 'admin_print_scripts', self::INITIAL_STATE_CALLBACK ) );
+	}
+
+	public function test_render_connection_initial_state_emits_the_connection_global() {
+		ob_start();
+		Jetpack_Backup::render_connection_initial_state();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '<script id="jetpack-backup-connection-initial-state">', $output );
+		// render() declares a bare `var`; that is a window global only in a classic script tag.
+		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $output );
+	}
+
 	/** `can_use_analytics()` needs offline mode off and the terms of service agreed. */
 	private function allow_analytics() {
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 		Status_Cache::clear();
 		Jetpack_Options::update_option( 'tos_agreed', true );
+	}
+
+	/** `is_backup_admin_request()` reads `is_admin()` and `$_GET['page']`. */
+	private function enter_backup_admin_request() {
+		set_current_screen( 'jetpack_page_jetpack-backup' );
+		$_GET['page'] = Jetpack_Backup::JETPACK_BACKUP_SLUG;
+	}
+
+	/** Undo `enter_backup_admin_request()` and the hooks a successful load adds. */
+	private function leave_backup_admin_request() {
+		remove_action( 'current_screen', self::SCREEN_ALIAS_CALLBACK );
+		remove_action( 'admin_print_scripts', self::INITIAL_STATE_CALLBACK, 1 );
+
+		unset( $_GET['page'] );
+		set_current_screen( 'front' );
 	}
 
 	/** Undo every registration and enqueue these tests trigger. */
