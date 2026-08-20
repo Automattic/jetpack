@@ -57,6 +57,15 @@ const LegendText = ( {
 	);
 };
 
+// Interactive items get a toggle affordance; non-interactive items only need a label
+// when hidden, since a visible item's own text already serves as its accessible name.
+const getLegendItemAriaLabel = ( text: string, visible: boolean, interactive: boolean ) => {
+	if ( interactive ) {
+		return `${ text }: ${ visible ? 'visible' : 'hidden' }. Toggle visibility.`;
+	}
+	return visible ? undefined : `${ text }: hidden`;
+};
+
 /*
  * Base legend component that displays color-coded items with labels based on visx LegendOrdinal.
  * We avoid using LegendOrdinal directly to enable support for advanced features such as interactivity.
@@ -132,15 +141,16 @@ export const BaseLegend: ForwardRefExoticComponent<
 			[ interactive, chartId, context ]
 		);
 
-		// Check if a series is visible
+		// Visibility is display state, not interaction state: a series hidden
+		// programmatically must read as hidden even when the legend cannot be clicked.
 		const isSeriesVisible = useCallback(
 			( seriesLabel: string ) => {
-				if ( ! interactive || ! chartId || ! context ) {
+				if ( ! chartId || ! context ) {
 					return true;
 				}
 				return context.isSeriesVisible( chartId, seriesLabel );
 			},
-			[ interactive, chartId, context ]
+			[ chartId, context ]
 		);
 
 		// Create event handlers to avoid inline arrow functions
@@ -224,11 +234,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 									role={ interactive ? 'button' : undefined }
 									tabIndex={ interactive ? 0 : undefined }
 									aria-pressed={ interactive ? visible : undefined }
-									aria-label={
-										interactive
-											? `${ label.text }: ${ visible ? 'visible' : 'hidden' }. Toggle visibility.`
-											: undefined
-									}
+									aria-label={ getLegendItemAriaLabel( label.text, visible, interactive ) }
 								>
 									{ items[ i ]?.renderGlyph ? (
 										<svg
