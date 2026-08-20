@@ -484,7 +484,33 @@ class Jetpack_Likes_Settings {
 
 		// Default visibility settings
 		if ( ! isset( $sharing['global']['show'] ) ) {
-			$sharing['global']['show'] = array( 'post', 'page' );
+			$public_commentable_cpts = array_filter(
+				get_post_types(
+					array(
+						'public'   => true,
+						'_builtin' => false,
+					)
+				),
+				function ( $post_type ) {
+					return post_type_supports( $post_type, 'comments' );
+				}
+			);
+			$public_commentable_cpts = array_values( $public_commentable_cpts );
+
+			/**
+			 * Filters the default post types that show Likes when no sharing settings have been saved.
+			 *
+			 * Only applies when the site has never explicitly configured Likes visibility.
+			 * Once a site owner saves sharing settings, those are used instead.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param string[] $post_types Array of post type slugs that will show Likes by default.
+			 */
+			$sharing['global']['show'] = apply_filters(
+				'jetpack_likes_default_post_types',
+				array_merge( array( 'post', 'page' ), $public_commentable_cpts )
+			);
 
 			// Scalar check
 		} elseif ( is_scalar( $sharing['global']['show'] ) ) {
@@ -501,8 +527,9 @@ class Jetpack_Likes_Settings {
 			}
 		}
 
-		// Ensure it's always an array (even if not previously empty or scalar)
-		$setting['show'] = ! empty( $sharing['global']['show'] ) ? (array) $sharing['global']['show'] : array();
+		// Ensure it's always an array (even if not previously empty or scalar).
+		$show            = $sharing['global']['show'] ?? array();
+		$setting['show'] = ! empty( $show ) ? (array) $show : array();
 
 		/**
 		 * Filters where the Likes are displayed.
