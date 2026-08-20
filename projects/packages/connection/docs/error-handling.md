@@ -104,7 +104,7 @@ Storage limits and hygiene:
 
 Verified, displayable errors reach the front end through two channels, built from the same `get_displayable_errors()` data:
 
-* **A generic wp-admin notice**, rendered by `handle_verified_errors()` on `admin_init`. This is a PHP-only fallback: plain text as well as a single action link for some codes (see [Most displayable errors](#most-displayable-errors) below). It has no knowledge of React, and nothing to do with the JS consumers described next.
+* **A generic wp-admin notice**, rendered by `handle_verified_errors()` on `admin_init`. This is a PHP-only fallback: plain text as well as a single action link for some codes (see [Display configuration](#display-configuration) below). It has no knowledge of React, and nothing to do with the JS consumers described next.
 * **`connectionErrors` in the React initial state**, populated by `Initial_State::get_data()` (`Automattic\Jetpack\Connection\Initial_State`) from the same `get_displayable_errors()` call but via `jetpack_react_dashboard_error()`, and printed to the page as `window.JP_CONNECTION_INITIAL_STATE.connectionErrors` (or merged into a consuming plugin's own `JetpackScriptData.connection.connectionErrors` via `set_connection_script_data()`). This is the channel every React-based consumer reads from.
 
 Only a subset of error codes is user-displayable (see `get_error_display_configs()`), and each displayable error is classified by audience — `site` (blog token), `owner` (the connection owner's token), or `user` (another user's token) — so consumers can render viewer-appropriate copy.
@@ -117,7 +117,7 @@ Do not re-derive connection-error copy or CTAs from `connectionErrors` by hand. 
 * `<ConnectionError />` is a thin wrapper around the hook that renders `<ConnectionErrorNotice />` directly, for consumers that don't need the hook's raw data.
 * Passing `includeHealthErrors: true` additionally folds in `connectionHealthErrors` — a **separate** store slot for client-side connection *health-check* failures (see `helpers/map-health-check-errors.ts`), used as a fallback only when `connectionErrors` is empty. These are not `Error_Handler`-stored errors and don't go through the verification flow described above; they exist so a broken connection is still surfaced when nothing has been stored yet.
 
-### Most displayable errors
+### Display configuration
 
 `get_error_display_configs()` is the whitelist consulted by `get_displayable_errors()`: every code in `$known_errors` has an entry, either `false` (not shown to users — e.g. `malformed_user_id`, or `no_user_tokens`, which just means the user never connected) or an array of display configuration, kept even when empty (`array()` for a plain "please reconnect" default). A raw verified error whose code maps to `false`, or isn't in the table at all, is never surfaced. Comments on each entry record the display decision only — what the code *means* is documented once, on `$known_errors` itself.
 
@@ -127,9 +127,13 @@ Recognized config keys, all optional:
 * `default_admin_notice` — opts the code into the plain wp-admin notice by default (see [Enabling the error message](#enabling-the-error-message)); leave unset unless the error needs that broader, non-React reach.
 * `notice_link` — a presentational `label`/`url` link appended to that same default admin notice.
 * `support_link` — flags `error_data['support_link']` on the displayable error, for a code where reconnecting isn't reliably the fix and the viewer needs another way out (e.g. `signature_mismatch`, which could equally be a genuine secret desync or a proxy/CDN/WAF altering the request in transit).
-* `survives_owner_promotion` — exempts the code from the owner-promotion reduction described below. Reserve it for a code that isn't a token problem and so isn't waiting on the owner's reconnect to become actionable.
+* `survives_owner_promotion` — exempts the code from the [owner-promotion reduction](#owner-promotion-reduction). Reserve it for a code that isn't a token problem and so isn't waiting on the owner's reconnect to become actionable.
+
+### Special-cased error codes
 
 The one code with special-cased copy today is `invalid_connection_owner`, via `get_invalid_connection_owner_message()`: it distinguishes a merely-missing owner token (the original owner can just reconnect) from an owner whose WordPress user was deleted entirely (nobody can reconnect *as* them; a different admin has to become the new owner). `get_displayable_errors()` further tailors this message per viewer: the owner reading their own missing-token error gets first-person copy (the deleted-user flavor has no such case — an owner who no longer exists can't be the viewer), while a secondary admin's copy of an owner error — and whether they get a reconnect CTA at all — depends on whether `Manager::is_ownership_transferable()` says ownership can move to them; when it can't, the CTA is suppressed with `action = 'none'`. `xmlrpc_request_blocked` remains the other special code: reconnecting would be rejected by the same firewall rule that broke the connection, so its display config sets `support_link` and its (deliberately brief) message names the real cause and points at Site Health — the source of truth with the detailed diagnosis — which the admin notice also links to via `notice_link`. It also sets `survives_owner_promotion`, since a blocked request isn't a token problem the owner reconnecting would fix.
+
+### Owner-promotion reduction
 
 Beyond per-code config, `get_displayable_errors()` applies one cross-cutting reduction: `promote_owner_errors()`. While the connection owner's own connection is broken — any `owner`-audience error, or `invalid_connection_owner` at any audience — every other error in the set is dropped (unless its config sets `survives_owner_promotion`), because nothing else is independently actionable until the owner reconnects. This runs before the `jetpack_connection_get_verified_errors` filter, so consumer-injected errors are never dropped by it.
 
@@ -139,7 +143,7 @@ An error's *action* (`error_data['action']`, e.g. `'none'` to suppress the recon
 
 The filters and action below customize only the plain wp-admin notice from `handle_verified_errors()`; they have no effect on the `connectionErrors` React data or on the [`@automattic/jetpack-connection` consumers](#reactjs-consumers-automatticjetpack-connection) that read it — those are customized through the hook's own `actionHandlers`/`customActions` props instead.
 
-By default, no admin notice text is shown — except for error codes whose [display config](#most-displayable-errors) opts into a default message (currently `xmlrpc_request_blocked`, which would otherwise be invisible outside Site Health). To enable text for other errors, or to override a default, use the `jetpack_connection_error_notice_message` filter. The second argument is an array with the details of all the errors (if more than one).
+By default, no admin notice text is shown — except for error codes whose [display config](#display-configuration) opts into a default message (currently `xmlrpc_request_blocked`, which would otherwise be invisible outside Site Health). To enable text for other errors, or to override a default, use the `jetpack_connection_error_notice_message` filter. The second argument is an array with the details of all the errors (if more than one).
 
 This basic example shows how to display a simple error message no matter the specific error type:
 
