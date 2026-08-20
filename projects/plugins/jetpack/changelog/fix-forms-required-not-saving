@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Fix the first change made to a form after opening a page being discarded when saving.

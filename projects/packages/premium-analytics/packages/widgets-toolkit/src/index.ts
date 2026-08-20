@@ -4,8 +4,12 @@
 export {
 	MetricDelta,
 	MetricTileGrid,
+	MetricTileGridSkeleton,
+	type MetricTileGridSkeletonProps,
 	MetricValue,
 	MetricWithComparison,
+	PeakDistribution,
+	type PeakDistributionProps,
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
 	ComparativeBarChart,
@@ -15,6 +19,7 @@ export {
 	Legend,
 	ReportMetricWidget,
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	type MetricTab,
 	type MetricTabDatum,
 	type MetricTabsChartProps,
@@ -27,6 +32,8 @@ export {
 	type LegendItem,
 	type SeriesStyle,
 	LeaderboardChart,
+	LeaderboardSkeleton,
+	type LeaderboardSkeletonProps,
 	type LeaderboardChartProps,
 	type LeaderboardChartData,
 	type LegendLabels,
@@ -46,6 +53,11 @@ export {
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
+	AdaptiveCalendarHeatmap,
+	CalendarHeatmapTooltip,
+	type AdaptiveCalendarHeatmapChartProps,
+	type AdaptiveCalendarHeatmapProps,
+	type CalendarHeatmapTooltipProps,
 	ChartEmptyState,
 	type ChartEmptyStateProps,
 	WidgetState,
@@ -113,12 +125,15 @@ export {
 	flattenEarningsBreakdown,
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
+	GenericSkeleton,
+	SkeletonRoot,
+	type SkeletonRootProps,
 } from './components';
 
 /**
  * Constants
  */
-export { WOO_COLORS, COLOR_GRAY_100 } from './constants';
+export { COLOR_GRAY_100 } from './constants';
 
 /**
  * Widget edit fields
@@ -160,7 +175,24 @@ export {
 	toDay,
 	defaultPeriodForInterval,
 	buildMetricTab,
-	withoutComparison,
+	CHART_DISPLAY_CHART_TYPES,
+	chartTypeAttributeField,
+	granularityAttributeField,
+	type ChartDisplayChartType,
+	type ChartGranularityOption,
+	CALENDAR_HEATMAP_CELL_GAP,
+	CALENDAR_HEATMAP_HEADER_HEIGHT,
+	computeCalendarHeatmapLayout,
+	fitWeekColumns,
+	formatViewCount,
+	buildDenseDaySeries,
+	resolveCalendarHeatmapWindow,
+	resolveCalendarHeatmapWindowDays,
+	type CalendarHeatmapLayout,
+	type CalendarHeatmapLayoutInput,
+	type FitWeekColumnsInput,
+	type CalendarHeatmapWindow,
+	type CalendarHeatmapWindowBounds,
 } from './helpers';
 
 /**
@@ -173,6 +205,7 @@ export {
 	type ElementSize,
 	useSegmentStyles,
 	useSeriesStyles,
+	useViewportWidth,
 	useWidgetDrillDown,
 } from './hooks';
 
@@ -231,6 +264,7 @@ export {
 	type GeoData,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
+	type HeatmapTooltipData,
 } from '@jetpack-premium-analytics/externals';
 
 /**

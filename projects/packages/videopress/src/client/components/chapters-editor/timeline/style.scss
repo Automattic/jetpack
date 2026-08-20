@@ -18,7 +18,13 @@ $vp-timeline-accent: var(--vp-accent, var(--wp-admin-theme-color, #3858e9));
 .vp-chapters-timeline__toolbar {
 	display: flex;
 	align-items: center;
+	// The side-panel arrangement narrows the strip's column, so the toolbar
+	// wraps wherever its single line no longer fits instead of forcing a
+	// horizontal scroll; the zoom cluster's margin-inline-start: auto keeps
+	// it right-aligned on whichever line it lands.
+	flex-wrap: wrap;
 	gap: 12px;
+	row-gap: 8px;
 	min-height: 36px;
 }
 

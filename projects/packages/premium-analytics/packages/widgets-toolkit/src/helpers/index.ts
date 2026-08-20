@@ -63,4 +63,28 @@ export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
 export { defaultPeriodForInterval } from './default-period-for-interval';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
-export { withoutComparison } from './without-comparison';
+export {
+	CHART_DISPLAY_CHART_TYPES,
+	chartTypeAttributeField,
+	granularityAttributeField,
+	type ChartDisplayChartType,
+	type ChartGranularityOption,
+} from './chart-display-attribute-fields';
+export {
+	CELL_GAP as CALENDAR_HEATMAP_CELL_GAP,
+	HEADER_HEIGHT as CALENDAR_HEATMAP_HEADER_HEIGHT,
+	compactCalendarHeatmapCapacity,
+	computeCalendarHeatmapLayout,
+	fitWeekColumns,
+	type CalendarHeatmapLayout,
+	type CalendarHeatmapLayoutInput,
+	type FitWeekColumnsInput,
+} from './calendar-heatmap-layout';
+export { formatViewCount } from './format-view-count';
+export {
+	buildDenseDaySeries,
+	resolveCalendarHeatmapWindow,
+	resolveCalendarHeatmapWindowDays,
+	type CalendarHeatmapWindow,
+	type CalendarHeatmapWindowBounds,
+} from './calendar-heatmap-window';

@@ -25,11 +25,5 @@
 		@media (min-width: 600px) {
 			font-size: var(--wpds-typography-font-size-md);
 		}
-
-		// The `+` is a square icon button. The labelled state is sized by its
-		// label, the way the select's trigger is.
-		&:not(.date-comparison-dropdown__toggle--active) {
-			min-width: var(--wpds-dimension-size-lg);
-		}
 	}
 }

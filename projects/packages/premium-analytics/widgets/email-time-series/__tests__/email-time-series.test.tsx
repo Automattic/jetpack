@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -15,17 +15,25 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 // the series observable so the tests can assert what the widget charts.
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
-	ComparativeLineChart: ( {
-		series,
+	MetricTabsChart: ( {
+		metrics,
+		chartType,
 	}: {
-		series: { label: string; data: { value: number }[] }[];
+		metrics: {
+			key: string;
+			label: string;
+			value: number;
+			current: { date: Date; value: number }[];
+		}[];
+		chartType?: string;
 	} ) => (
 		<div
-			data-testid="comparative-line-chart"
-			data-series-count={ series.length }
-			data-series-label={ series[ 0 ]?.label }
-			data-values={ series[ 0 ]?.data.map( point => point.value ).join( ',' ) }
-			data-previous-values={ series[ 1 ]?.data.map( point => point.value ).join( ',' ) }
+			data-testid="metric-tabs-chart"
+			data-metric-count={ metrics.length }
+			data-metric-label={ metrics[ 0 ]?.label }
+			data-metric-total={ String( metrics[ 0 ]?.value ) }
+			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
+			data-chart-type={ String( chartType ) }
 		/>
 	),
 } ) );
@@ -72,9 +80,13 @@ describe( 'EmailTimeSeriesWidget', () => {
 			/>
 		);
 
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
-		expect( chart ).toHaveAttribute( 'data-series-label', 'Total opens' );
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect( chart ).toHaveAttribute( 'data-metric-label', 'Total opens' );
 		expect( chart ).toHaveAttribute( 'data-values', '10,5,7' );
+		// The metric headline is the window total, and the chart type
+		// defaults to line.
+		expect( chart ).toHaveAttribute( 'data-metric-total', '22' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'stats/opens/emails/1234' );
@@ -99,8 +111,8 @@ describe( 'EmailTimeSeriesWidget', () => {
 			/>
 		);
 
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
-		expect( chart ).toHaveAttribute( 'data-series-label', 'Total clicks' );
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect( chart ).toHaveAttribute( 'data-metric-label', 'Total clicks' );
 		expect( chart ).toHaveAttribute( 'data-values', '3' );
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
@@ -132,8 +144,8 @@ describe( 'EmailTimeSeriesWidget', () => {
 			/>
 		);
 
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
-		expect( chart ).toHaveAttribute( 'data-series-count', '1' );
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect( chart ).toHaveAttribute( 'data-metric-count', '1' );
 		expect( chart ).toHaveAttribute( 'data-values', '10,5,7' );
 
 		// One request, scoped to the primary window only.
@@ -156,7 +168,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 			/>
 		);
 
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-values', '15,7' );
 	} );
 
@@ -183,7 +195,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 			/>
 		);
 
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-values', '4,15' );
 	} );
 
@@ -204,7 +216,68 @@ describe( 'EmailTimeSeriesWidget', () => {
 		await expect(
 			screen.findByText( 'No activity for this email in this period.' )
 		).resolves.toBeInTheDocument();
-		expect( screen.queryByTestId( 'comparative-line-chart' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'metric-tabs-chart' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows loading instead of the stale empty state once a new range drags on', async () => {
+		const emptyResponse = {
+			timeline: { unit: 'day', fields: [ 'date', 'opens_count' ], data: [] },
+		};
+		mockApiFetch
+			.mockResolvedValueOnce( emptyResponse )
+			// Keep the new range pending so its loading state is observable.
+			.mockImplementationOnce( () => new Promise( () => {} ) );
+
+		const { rerender } = render(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-07-01T00:00:00.000+08:00',
+						to: '2026-07-07T23:59:59.999+08:00',
+						post_id: 1234,
+					},
+					metric: 'opens',
+				} }
+			/>
+		);
+
+		await expect(
+			screen.findByText( 'No activity for this email in this period.' )
+		).resolves.toBeInTheDocument();
+
+		// The skeleton waits out the shared delay, so drive it rather than
+		// sleeping. Switched on here so the fetches above resolve normally.
+		jest.useFakeTimers();
+		rerender(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-08-01T00:00:00.000+08:00',
+						to: '2026-08-07T23:59:59.999+08:00',
+						post_id: 1234,
+					},
+					metric: 'opens',
+				} }
+			/>
+		);
+		act( () => {
+			jest.advanceTimersByTime( 1000 );
+		} );
+
+		// The skeleton, not the removed spinner — and a silent one: a refetch
+		// must not announce, only a first load does. `hidden: true` widens the
+		// query to include hidden nodes rather than requiring them, so it only
+		// pins the silence paired with the negative assertion above it.
+		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'status', { hidden: true } ) ).toBeInTheDocument();
+		expect(
+			screen.queryByText( 'No activity for this email in this period.' )
+		).not.toBeInTheDocument();
+		jest.useRealTimers();
 	} );
 
 	it( 'renders the empty state and makes no request without a selected email', async () => {

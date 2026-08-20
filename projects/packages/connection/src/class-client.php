@@ -39,15 +39,8 @@ class Client {
 			$args['url'] = apply_filters( 'jetpack_remote_request_url', $args['url'] );
 		}
 
-		$result = self::build_signed_request( $args, $body );
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		$response = self::_wp_remote_request( $result['url'], $result['request'] );
-
-		// Feed the response into the outgoing-request error flow of Error_Handler: any known
-		// connection error in it is stored and surfaced to the user. See the Error_Handler
+		// Feed failures into the outgoing-request error flow of Error_Handler: any known
+		// connection error is stored and surfaced to the user. See the Error_Handler
 		// class docblock for the full picture of both error-handling flows.
 		// Outgoing XML-RPC calls (Jetpack_IXR_Client) are funneled through this method too;
 		// tell the transports apart by the endpoint the request targets.
@@ -57,6 +50,27 @@ class Client {
 		// it would fatal the request.
 		$request_path = (string) wp_parse_url( empty( $args['url'] ) ? '' : $args['url'], PHP_URL_PATH );
 		$error_type   = '/xmlrpc.php' === substr( $request_path, -strlen( '/xmlrpc.php' ) ) ? 'xmlrpc' : 'rest';
+
+		$result = self::build_signed_request( $args, $body );
+		if ( is_wp_error( $result ) ) {
+			// The request was never made, so it has no response to check. Report the signing
+			// failure; attribution comes from the error itself — see
+			// `Error_Handler::check_signed_request_for_errors()`.
+			// Reporting is best-effort and must never fatal a request running mid-plugin-update:
+			// skip it when the already-loaded Error_Handler is a stale version predating this method.
+			if ( method_exists( Error_Handler::class, 'check_signed_request_for_errors' ) ) {
+				Error_Handler::get_instance()->check_signed_request_for_errors(
+					$result,
+					empty( $args['url'] ) ? '' : $args['url'],
+					empty( $args['method'] ) ? 'POST' : $args['method'],
+					$error_type
+				);
+			}
+
+			return $result;
+		}
+
+		$response = self::_wp_remote_request( $result['url'], $result['request'] );
 
 		Error_Handler::get_instance()->check_api_response_for_errors(
 			$response,
@@ -122,9 +136,20 @@ class Client {
 			$args['auth_location'] = 'query_string';
 		}
 
-		$token = ( new Tokens() )->get_access_token( $args['user_id'] );
+		// Return the specific reason the token could not be loaded instead of a bare `false`.
+		// Note the returned `WP_Error` is truthy, so this must not be tested with `! $token`.
+		$token = ( new Tokens() )->get_access_token(
+			$args['user_id'],
+			false, // token_key
+			false  // suppress_errors
+		);
+		if ( is_wp_error( $token ) ) {
+			return $token;
+		}
 		if ( ! $token ) {
-			return new WP_Error( 'missing_token' );
+			// `get_access_token()` explains itself for every case but one: it returns a bare
+			// `false` when the tokens are locked. That lock is one-shot and self-healing.
+			return new WP_Error( 'tokens_locked' );
 		}
 
 		$method = strtoupper( $args['method'] );

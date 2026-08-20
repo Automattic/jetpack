@@ -3,6 +3,8 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\My_Jetpack\Products\Protect;
+use Automattic\Jetpack\Waf\Waf_Rules_Manager;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -29,35 +31,24 @@ class Protect_Waf_Config_Test extends TestCase {
 	private $server;
 
 	/**
-	 * A representative Waf_Runner::get_config() payload.
-	 *
-	 * @var array
-	 */
-	private $waf_config = array(
-		'jetpack_waf_automatic_rules'       => '1',
-		'jetpack_waf_ip_allow_list'         => '203.0.113.55',
-		'jetpack_waf_ip_allow_list_enabled' => true,
-		'jetpack_waf_ip_block_list'         => '198.51.100.7',
-		'jetpack_waf_ip_block_list_enabled' => true,
-		'jetpack_waf_share_data'            => '1',
-		'jetpack_waf_share_debug_data'      => '1',
-		'bootstrap_path'                    => '/var/www/html/wp-content/jetpack-waf/bootstrap.php',
-		'standalone_mode'                   => false,
-		'automatic_rules_available'         => true,
-		'brute_force_protection'            => true,
-		'jetpack_waf_ip_list'               => true,
-	);
-
-	/**
 	 * Setting up the test.
 	 */
 	public function setUp(): void {
 		parent::setUp();
 
-		require_once __DIR__ . '/stubs/class-waf-runner.php';
-		// The stub is excluded from Phan so it can't mask the suppressions in class-protect.php.
-		// @phan-suppress-next-line PhanUndeclaredClassStaticProperty
-		Waf_Runner::$config = $this->waf_config;
+		// Populate the options Waf_Runner::get_config() reads, so the endpoint is exercised
+		// against the real WAF package rather than a hand-written stub.
+		update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, '1' );
+		update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, '203.0.113.55' );
+		update_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME, '1' );
+		update_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME, '198.51.100.7' );
+		update_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME, '1' );
+		update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, '1' );
+		update_option( Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME, '1' );
+
+		// Waf_Runner::is_enabled() and Brute_Force_Protection::is_enabled() both read the active
+		// module list, which is empty without the Jetpack plugin present.
+		add_filter( 'jetpack_active_modules', array( $this, 'activate_waf_modules' ) );
 
 		// Protect_Status::get_status() ships in the same response and would otherwise reach out to WPCOM.
 		add_filter( 'pre_http_request', array( $this, 'fail_http_request' ) );
@@ -81,6 +72,7 @@ class Protect_Waf_Config_Test extends TestCase {
 		parent::tearDown();
 
 		remove_filter( 'pre_http_request', array( $this, 'fail_http_request' ) );
+		remove_filter( 'jetpack_active_modules', array( $this, 'activate_waf_modules' ) );
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
@@ -93,6 +85,15 @@ class Protect_Waf_Config_Test extends TestCase {
 	 */
 	public function fail_http_request() {
 		return new \WP_Error( 'http_request_blocked', 'Blocked in tests.' );
+	}
+
+	/**
+	 * Report the WAF and brute force protection modules as active.
+	 *
+	 * @return string[]
+	 */
+	public function activate_waf_modules() {
+		return array( 'waf', 'protect' );
 	}
 
 	/**
@@ -131,17 +132,50 @@ class Protect_Waf_Config_Test extends TestCase {
 	public function test_administrator_receives_full_waf_config() {
 		$this->set_current_user_role( 'administrator' );
 
+		$waf_config = $this->get_served_waf_config();
+
 		$this->assertSame(
 			array_merge(
-				$this->waf_config,
+				Waf_Runner::get_config(),
 				array(
 					'waf_supported'  => true,
 					'waf_enabled'    => true,
 					'blocked_logins' => 0,
 				)
 			),
-			$this->get_served_waf_config()
+			$waf_config
 		);
+
+		// Spot-check the administrator-only values, so the assertion above can't pass on an
+		// empty configuration.
+		$this->assertSame( '203.0.113.55', $waf_config['jetpack_waf_ip_allow_list'] );
+		$this->assertSame( '198.51.100.7', $waf_config['jetpack_waf_ip_block_list'] );
+		$this->assertTrue( $waf_config['jetpack_waf_automatic_rules'] );
+		$this->assertTrue( $waf_config['brute_force_protection'] );
+
+		// Only the key: the value is the absolute WAF bootstrap path, which varies by install.
+		$this->assertArrayHasKey( 'bootstrap_path', $waf_config );
+	}
+
+	/**
+	 * The endpoint filters the WAF configuration by key name. A rename in Waf_Rules_Manager
+	 * would silently drop the non-admin keys from the response instead of failing, so assert
+	 * the allowlist is still a subset of what the real Waf_Runner::get_config() returns.
+	 */
+	public function test_non_admin_allowlist_matches_real_waf_config_keys() {
+		$allowlist = ( new \ReflectionClass( Protect::class ) )->getConstant( 'NON_ADMIN_WAF_CONFIG_KEYS' );
+
+		$this->assertNotEmpty( $allowlist );
+
+		$config_keys = array_keys( Waf_Runner::get_config() );
+
+		foreach ( $allowlist as $key ) {
+			$this->assertContains(
+				$key,
+				$config_keys,
+				"Protect::NON_ADMIN_WAF_CONFIG_KEYS lists '$key', which Waf_Runner::get_config() no longer returns."
+			);
+		}
 	}
 
 	/**
@@ -163,7 +197,7 @@ class Protect_Waf_Config_Test extends TestCase {
 
 		$this->assertSame(
 			array(
-				'jetpack_waf_automatic_rules' => '1',
+				'jetpack_waf_automatic_rules' => true,
 				'brute_force_protection'      => true,
 				'waf_supported'               => true,
 				'waf_enabled'                 => true,

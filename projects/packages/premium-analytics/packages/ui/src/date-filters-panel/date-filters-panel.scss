@@ -33,7 +33,8 @@
 	}
 
 	// A glyph in a square box: nothing to give back when the row runs short.
-	.date-interval-dropdown {
+	.date-interval-dropdown,
+	.date-period-navigation {
 		flex: 0 0 auto;
 	}
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Reports: drop the period-over-period comparison control, which the records tables do not offer a comparison for. A comparison chosen on the dashboard is kept and restored on the way back.

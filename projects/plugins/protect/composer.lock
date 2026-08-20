@@ -1370,7 +1370,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "60c053ace8f2475c24a75c6e509a0944f4374196"
+                "reference": "d35c915c1292adb1ab2a37c7dc1756b87ebd0ea7"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1396,6 +1396,7 @@
                 "automattic/jetpack-search": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/jetpack-videopress": "@dev",
+                "automattic/jetpack-waf": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
@@ -1411,7 +1412,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.42.x-dev"
+                    "dev-trunk": "5.43.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1419,7 +1420,8 @@
                 "dependencies": {
                     "test-only": [
                         "packages/search",
-                        "packages/videopress"
+                        "packages/videopress",
+                        "packages/waf"
                     ]
                 }
             },
@@ -1894,7 +1896,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "26b69f4d41e748bdf466e89bf85f1d92823b7d34"
+                "reference": "d31fe9de419c41854dba64290ad55394ad993d45"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -1919,7 +1921,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.3.x-dev"
+                    "dev-trunk": "6.4.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

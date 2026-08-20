@@ -1,0 +1,97 @@
+@use "../../styles/widget-container" as *;
+
+/* Placeholder treatment from the design prototype's highlights skeleton: flat
+ * label and value stand-ins, without the loaded tile's border or type scale.
+ *
+ * The prototype only draws the wide arrangement. The narrow one below mirrors
+ * `metric-tile-grid.module.scss` instead, which stacks full-width rows until
+ * `$widget-wide-min-inline-size` — at a 360px dashboard tile, the common
+ * case, a centred wrap would read as a block of cards against four full-width
+ * rows.
+ *
+ * Lengths use WPDS dimension tokens wherever the scale expresses them, so the
+ * label stand-in carries the same weight as the leaderboard skeleton's and the
+ * value gap matches the gap the loaded tile puts there. What stays literal is
+ * what no token reaches: the proportional widths, and the two stand-ins sized
+ * from the text they replace. */
+$row-label-inline-size: 45%;
+
+/* Stands in for the formatted count at the end of a narrow row ("12.8k"), which
+ * barely varies in width, so it is fixed rather than proportional. */
+$row-value-inline-size: 72px;
+
+/* Stands in for a tile's minimum width, which the loaded grid expresses as a
+ * fraction of the row rather than a token. */
+$tile-min-inline-size: 90px;
+$tile-label-inline-size: 55%;
+$tile-value-inline-size: 70%;
+
+/* The skeleton renders outside the grid's own container, so it establishes one
+ * to query. */
+.container {
+	container-type: inline-size;
+	display: flex;
+	flex: 1 1 auto;
+	min-block-size: 0;
+}
+
+/* Narrow: one full-width row per metric, as the loaded grid's single column. */
+.tiles {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	justify-content: safe center;
+	gap: var(--wpds-dimension-gap-sm);
+	min-block-size: 0;
+	overflow: hidden;
+}
+
+.tile {
+	display: flex;
+	flex: none;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wpds-dimension-gap-md);
+}
+
+.label {
+	inline-size: $row-label-inline-size;
+	block-size: var(--wpds-dimension-size-4xs);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+.value {
+	inline-size: $row-value-inline-size;
+	block-size: var(--wpds-dimension-size-sm);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+/* Wide: the tiles sit side by side with the value under its label, as the
+ * loaded grid switches to at the same threshold. `safe` keeps a wrapped set
+ * taller than the body from being pushed past the top edge, where `overflow:
+ * hidden` would put it out of reach. */
+@container (min-inline-size: #{$widget-wide-min-inline-size}) {
+
+	.tiles {
+		flex-flow: row wrap;
+		align-content: safe center;
+		gap: var(--wpds-dimension-gap-xl);
+	}
+
+	.tile {
+		flex: 1 1 0;
+		flex-direction: column;
+		justify-content: unset;
+		gap: 0;
+		min-inline-size: $tile-min-inline-size;
+	}
+
+	.label {
+		inline-size: $tile-label-inline-size;
+	}
+
+	.value {
+		inline-size: $tile-value-inline-size;
+		margin-block-start: var(--wpds-dimension-gap-sm);
+	}
+}

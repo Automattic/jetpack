@@ -95,6 +95,14 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 			require_once ABSPATH . 'wp-admin/includes/screen.php';
 		}
 
+		$switched_locale = false;
+		if ( 'user' === $request->get_param( '_locale' ) ) {
+			$user_locale = get_user_locale();
+			if ( $user_locale ) {
+				$switched_locale = switch_to_locale( $user_locale );
+			}
+		}
+
 		// Simulate a wp-admin context.
 		set_current_screen( 'dashboard' );
 
@@ -115,7 +123,13 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 		$nodes          = $wp_admin_bar->get_nodes() ?? array();
 		$filtered_nodes = $this->filter_nodes( $nodes, self::ALLOWED_TOP_LEVEL_NODES );
 
-		return rest_ensure_response( array( 'nodes' => array_values( $filtered_nodes ) ) );
+		$response = rest_ensure_response( array( 'nodes' => array_values( $filtered_nodes ) ) );
+
+		if ( $switched_locale ) {
+			restore_previous_locale();
+		}
+
+		return $response;
 	}
 
 	/**

@@ -15,6 +15,8 @@ declare module '@automattic/jetpack-script-data' {
 			has_store_data: boolean;
 			// Whether CSV export controls should render. Defaults to true server-side.
 			csv_exports_enabled?: boolean;
+			// Whether the site runs VideoPress, which gates the video surfaces.
+			has_videopress?: boolean;
 		};
 	}
 }

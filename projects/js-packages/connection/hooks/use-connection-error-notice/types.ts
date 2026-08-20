@@ -1,4 +1,9 @@
+import type { ConnectionOwner } from '../../types.ts';
 import type { ReactElement } from 'react';
+
+// Part of this hook's public result contract, so re-export it: the package
+// barrel forwards this module's types to consumers.
+export type { ConnectionOwner };
 
 export interface ConnectionErrorData {
 	action?: string;
@@ -95,4 +100,14 @@ export interface UseConnectionErrorNoticeResult {
 	isRestoringConnection: boolean;
 	/** The restore error message, if the last restore attempt failed. */
 	restoreConnectionError: string | null;
+	/** The connection owner of record. Derived server-side from the `master_user`. */
+	connectionOwner: ConnectionOwner | null;
+	/** Whether the current viewer is the owner of record. */
+	isCurrentUserConnectionOwner: boolean;
+	/**
+	 * The viewer's local WordPress user ID, so consumers can tell an error that is
+	 * theirs from one belonging to another user without subscribing to the store
+	 * a second time. Undefined when the connection data has not loaded.
+	 */
+	currentUserId: number | undefined;
 }

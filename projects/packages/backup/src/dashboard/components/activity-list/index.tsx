@@ -1,11 +1,12 @@
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, cloud, image, post, plugins as pluginsIcon, color } from '@wordpress/icons';
+import { Icon, cloud, image, post, plugins as pluginsIcon, color, info } from '@wordpress/icons';
 import { Card, Stack, Text } from '@wordpress/ui';
-import { useMockActivityLog } from '../../hooks/use-mock-activity-log';
+import { ACTIVITY_LOG_DEFAULT_PER_PAGE, useActivityLog } from '../../hooks/use-activity-log';
 import { isBackupItem } from '../../types/activity';
+import QueryError from '../query-error';
 import './style.scss';
 import type { ActivityItem, ActivityKind } from '../../types/activity';
 import type { Field, View } from '@wordpress/dataviews';
@@ -16,11 +17,15 @@ const ICON_BY_KIND: Record< ActivityKind, typeof cloud > = {
 	post,
 	'plugin-update': pluginsIcon,
 	'theme-update': color,
+	// Catch-all for event families we don't give a dedicated icon.
+	other: info,
 };
 
 type Props = {
 	selectedId: string | null;
 	onSelect: ( id: string ) => void;
+	view: View;
+	onChangeView: ( next: View ) => void;
 };
 
 /**
@@ -76,57 +81,46 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 	);
 }
 
-const DEFAULT_PER_PAGE = 10;
-
 /**
  * Left pane of the modernized Overview, rendered as a DataViews list.
  *
  * DataViews gives us the cog/filter affordance, pagination controls,
- * zebra striping, row separators, and search box for free — the legacy
- * affordances `<ActivityList>` was hand-rolling get swapped out for the
+ * zebra striping, and row separators for free — the legacy affordances
+ * `<ActivityList>` was hand-rolling get swapped out for the
  * design-system primitive.
  *
- * Selection lives in the parent (URL-persisted via `?selected=<id>`),
- * with `<DataViews>` driven through its `selection` + `onChangeSelection`
- * props so the row click is the single source of truth for "which row
- * is highlighted".
+ * Controlled: view state (page, perPage) lives in the parent so the
+ * right-pane row lookup can subscribe to the same paginated query the
+ * list reads from. Selection is similarly URL-persisted in the parent.
  *
- * @param props            - Component props.
- * @param props.selectedId - Currently selected row id, or null when nothing is selected.
- * @param props.onSelect   - Callback invoked with the new selection id when a row is activated.
+ * @param props              - Component props.
+ * @param props.selectedId   - Currently selected row id, or null when nothing is selected.
+ * @param props.onSelect     - Callback invoked with the new selection id when a row is activated.
+ * @param props.view         - DataViews view state.
+ * @param props.onChangeView - Callback invoked when the view state changes.
  * @return The rendered list.
  */
-export default function ActivityList( { selectedId, onSelect }: Props ) {
-	// In DataViews' list layout, the `titleField`, `mediaField` and
-	// `descriptionField` fields are rendered implicitly — anything else
-	// in `fields` would render a second time as a generic row. Leave
-	// `fields` empty so the title + media + description are the only
-	// things shown per row.
-	const [ view, setView ] = useState< View >( {
-		type: 'list',
-		page: 1,
-		perPage: DEFAULT_PER_PAGE,
-		search: '',
-		filters: [],
-		titleField: 'title',
-		mediaField: 'icon',
-		descriptionField: 'description',
-		fields: [],
-	} );
-
-	// Drive the hook with DataViews' own view state so the hook is the
-	// single source of truth for the visible slice + counts. The mock
-	// hook's contract matches the real `useActivityLog` from the
-	// data-layer follow-up, so swapping the import line later is the
-	// only change required here.
+export default function ActivityList( { selectedId, onSelect, view, onChangeView }: Props ) {
 	const page = view.page ?? 1;
-	const perPage = view.perPage ?? DEFAULT_PER_PAGE;
-	const search = view.search ?? '';
-	const { items, totalItems, totalPages, isLoading } = useMockActivityLog( {
+	const perPage = view.perPage ?? ACTIVITY_LOG_DEFAULT_PER_PAGE;
+	const { items, totalItems, totalPages, isLoading, isFetching, error, refetch } = useActivityLog( {
 		page,
 		pageSize: perPage,
-		search,
 	} );
+
+	// DataViews shows its own "No results" whenever `data` is empty, and a
+	// failed request leaves it empty — so without this a 5xx tells the
+	// reader their site has no activity. The `empty` slot is the same node
+	// that copy renders in, so replacing it puts the reason exactly where
+	// the wrong answer used to be.
+	const emptyState = error ? (
+		<QueryError
+			title={ __( "We couldn't load your site's activity.", 'jetpack-backup-pkg' ) }
+			error={ error }
+			onRetry={ refetch }
+			isRetrying={ isFetching }
+		/>
+	) : undefined;
 
 	const fields: Field< ActivityItem >[] = useMemo(
 		() => [
@@ -182,15 +176,15 @@ export default function ActivityList( { selectedId, onSelect }: Props ) {
 				data={ items }
 				fields={ fields }
 				view={ view }
-				onChangeView={ setView }
+				onChangeView={ onChangeView }
 				paginationInfo={ { totalItems, totalPages } }
 				defaultLayouts={ { list: {} } }
 				getItemId={ getRowId }
 				selection={ selection }
 				onChangeSelection={ onChangeSelection }
 				isLoading={ isLoading }
-				search={ true }
-				searchLabel={ __( 'Search backups', 'jetpack-backup-pkg' ) }
+				search={ false }
+				empty={ emptyState }
 			/>
 		</Card.Root>
 	);

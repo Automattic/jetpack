@@ -15,6 +15,7 @@
  * Load `WPCOM_Features` class.
  */
 require_once __DIR__ . '/class-wpcom-features.php';
+require_once __DIR__ . '/class-wpcom-site-purchase.php';
 
 /**
  * Internal function to retrieve the current WP.com blog ID depending on the environment.
@@ -140,7 +141,7 @@ function wpcom_site_can_upload_videos( $blog_id = 0 ) {
  *
  * @param int $blog_id Optional. Blog ID. Defaults to current blog.
  *
- * @return array An array of product objects containing product_slug, product_id, subscribed_date, and expiry_date.
+ * @return array An array of WPCOM_Site_Purchase objects.
  */
 function wpcom_get_site_purchases( $blog_id = 0 ) {
 	if ( ! $blog_id ) {
@@ -161,13 +162,23 @@ function wpcom_get_site_purchases( $blog_id = 0 ) {
 			return array();
 		}
 
-		$purchases = (array) json_decode( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
+		// An entry that is not an object cannot be a purchase. Skipping keeps a payload of the
+		// wrong shape a degraded answer rather than a fatal on a near-universal code path.
+		$entries = array_filter( (array) json_decode( $persistent_data->WPCOM_PURCHASES ), 'is_object' ); // phpcs:ignore WordPress.NamingConventions
+
+		$purchases = array_map(
+			static fn ( $entry ) => WPCOM_Site_Purchase::from_synced_payload( $entry, $blog_id ),
+			array_values( $entries )
+		);
 
 	} else {
 		// Allow overriding the blog ID for feature checks.
 		$blog_id = apply_filters( 'wpcom_site_has_feature_blog_id', $blog_id );
 
-		$purchases = _wpcom_features_get_simple_site_purchases( $blog_id );
+		$purchases = array_map(
+			static fn ( $row ) => WPCOM_Site_Purchase::from_store_row( $row, $blog_id ),
+			_wpcom_features_get_simple_site_purchases( $blog_id )
+		);
 	}
 
 	return $purchases;

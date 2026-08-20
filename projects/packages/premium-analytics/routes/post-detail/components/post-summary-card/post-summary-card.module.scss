@@ -59,3 +59,10 @@
 	background: var(--wpds-color-background-surface-neutral-weak);
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
+
+// The email tabs' envelope tile is brand-tinted per the design mocks:
+// the non-interactive brand surface behind the brand foreground.
+.emailTile {
+	background: var(--wpds-color-background-surface-brand);
+	color: var(--wpds-color-foreground-interactive-brand);
+}

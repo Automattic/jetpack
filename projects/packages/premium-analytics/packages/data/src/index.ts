@@ -234,8 +234,6 @@ export {
 export {
 	dateToISOStringWithLocalTZ,
 	ensureCoreSettingsReady,
-	getSiteTimezone,
-	getSiteGmtOffset,
 	localTZDate,
 	hasProductFilters,
 	isSelectablePreset,
@@ -246,6 +244,7 @@ export {
 	shouldRetryApiError,
 	toPostId,
 	useSiteHomeUrl,
+	withoutComparison,
 } from './utils';
 export type { ReportDataMap } from './types';
 export type { ReportQueryParams } from './api';

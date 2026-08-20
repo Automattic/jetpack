@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update wp-coding-standards/wpcs ruleset to v3.4.1 and re-enable `WordPress.WP.EnqueuedResourceParameters`.

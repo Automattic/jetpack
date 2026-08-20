@@ -1,7 +1,12 @@
 export { MetricDelta } from './metric-delta';
-export { MetricTileGrid } from './metric-tile';
+export {
+	MetricTileGrid,
+	MetricTileGridSkeleton,
+	type MetricTileGridSkeletonProps,
+} from './metric-tile';
 export { MetricValue } from './metric-value';
 export { MetricWithComparison } from './metric-with-comparison';
+export { PeakDistribution, type PeakDistributionProps } from './peak-distribution';
 export {
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
@@ -25,6 +30,7 @@ export { DonutChart, type DonutChartData } from './chart-donut';
 export { ReportMetricWidget } from './report-metric';
 export {
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	type MetricTab,
 	type MetricTabDatum,
 	type MetricTabsChartProps,
@@ -32,6 +38,8 @@ export {
 } from './metric-tabs-chart';
 export {
 	LeaderboardChart,
+	LeaderboardSkeleton,
+	type LeaderboardSkeletonProps,
 	type LeaderboardChartProps,
 	type LeaderboardChartData,
 	type LegendLabels,
@@ -49,6 +57,13 @@ export {
 } from './chart-leaderboard';
 export { BarChart, type BarChartProps, type BarChartData, type BarChartStyle } from './chart-bar';
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';
+export {
+	AdaptiveCalendarHeatmap,
+	CalendarHeatmapTooltip,
+	type AdaptiveCalendarHeatmapChartProps,
+	type AdaptiveCalendarHeatmapProps,
+	type CalendarHeatmapTooltipProps,
+} from './calendar-heatmap';
 export { WidgetLoadingOverlay } from './widget-loading-overlay';
 export {
 	WidgetState,
@@ -119,3 +134,4 @@ export {
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
 } from './wordads-earnings-history';
+export { GenericSkeleton, SkeletonRoot, type SkeletonRootProps } from './widget-skeleton';

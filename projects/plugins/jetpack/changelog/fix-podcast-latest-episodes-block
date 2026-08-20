@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Podcast Player: keep showing the most recent episodes when a podcast feed becomes slow or unreachable, instead of failing to load.

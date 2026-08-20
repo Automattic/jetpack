@@ -1,13 +1,16 @@
 /**
  * External dependencies
  */
+import {
+	getDateRangeSpan,
+	type DateRange,
+	type DateRangeSpan,
+} from '@jetpack-premium-analytics/datetime';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { formatDate } from './format-date';
-import { getDateRangeSpan, type DateRangeSpan } from './get-date-range-span';
-import type { DateRange } from './types';
 
 type FormatDateRangeLongOptions = {
 	/**
@@ -133,7 +136,9 @@ export const formatDateRangeLong = (
 	const pattern = inReferenceYear ? 'fullNoYear' : 'full';
 
 	if ( isSingleDay( span ) ) {
-		return formatDate( from, pattern );
+		// `to`: the same day for a day-aligned window; for a rolling one, the
+		// day the reading is taken on.
+		return formatDate( to, pattern );
 	}
 
 	return joinRange( formatDate( from, pattern ), formatDate( to, pattern ) );

@@ -25,8 +25,12 @@ jest.mock( '@wordpress/components', () => ( {
 				{ children ?? label }
 			</button>
 		) ),
+	// `title` is a React node in this modal (the two-tone heading), so the
+	// mock renders it as heading content the way the real Modal's h1 does,
+	// rather than stringifying it into an aria-label.
 	Modal: ( { children, title, headerActions } ) => (
-		<div role="dialog" aria-label={ title }>
+		<div role="dialog">
+			<h1>{ title }</h1>
 			{ headerActions }
 			{ children }
 		</div>
@@ -78,6 +82,24 @@ jest.mock( '../../chapters-editor/preview/preview-player', () => {
 		} ),
 	};
 } );
+
+/*
+ * The panel is exercised alongside the timeline in the chapters-editor test
+ * file; here a stub surfaces the gating props. It must NOT render real rows:
+ * their "Remove chapter N" buttons would collide with the fake timeline's
+ * same-named stand-ins below.
+ */
+jest.mock( '../../chapters-editor/chapters/chapters-panel', () => ( {
+	__esModule: true,
+	default: ( { session, locked, readOnly } ) => (
+		<div
+			data-testid="chapters-panel"
+			data-locked={ String( Boolean( locked ) ) }
+			data-readonly={ String( Boolean( readOnly ) ) }
+			data-count={ String( session.chapters.length ) }
+		/>
+	),
+} ) );
 
 /*
  * The timeline is exercised by its own test file; here a stub surfaces the
@@ -170,9 +192,9 @@ describe( 'ChapterManagerModal', () => {
 	it( 'fetches the item once on open, feeding the timeline, the preview, and the probe', async () => {
 		const timeline = await openReady();
 
-		expect(
-			screen.getByRole( 'dialog', { name: 'Manage chapters for Test video' } )
-		).toBeInTheDocument();
+		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
+		// Two-tone heading: "Chapters" + the muted video name read as one line.
+		expect( screen.getByRole( 'heading' ) ).toHaveTextContent( 'Chapters · Test video' );
 		expect( fetchVideoItem ).toHaveBeenCalledTimes( 1 );
 		expect( fetchVideoItem ).toHaveBeenCalledWith( { guid: 'abc123', isPrivate: false } );
 		// The probe reuses the fetched item instead of fetching it again.
@@ -184,6 +206,11 @@ describe( 'ChapterManagerModal', () => {
 		expect( timeline ).toHaveAttribute( 'data-readonly', 'false' );
 		// Document-level shortcuts stay off; the modal body maps the keys itself.
 		expect( timeline ).toHaveAttribute( 'data-shortcuts', 'false' );
+		// The side panel shares the timeline's gating and sees the same session.
+		const panel = screen.getByTestId( 'chapters-panel' );
+		expect( panel ).toHaveAttribute( 'data-locked', 'false' );
+		expect( panel ).toHaveAttribute( 'data-readonly', 'false' );
+		expect( panel ).toHaveAttribute( 'data-count', '3' );
 		// The shared player receives the item-derived video: the best H.264
 		// rendition, the duration in seconds, and no original-upload fallback.
 		expect( mockPlayerProps.video ).toEqual( {
@@ -228,6 +255,7 @@ describe( 'ChapterManagerModal', () => {
 
 		const timeline = await openReady();
 		expect( timeline ).toHaveAttribute( 'data-readonly', 'true' );
+		expect( screen.getByTestId( 'chapters-panel' ) ).toHaveAttribute( 'data-readonly', 'true' );
 
 		// Defense-in-depth: even a dispatch that slips past the (hidden) edit
 		// affordances must not arm Save against a manually-managed description.
@@ -406,6 +434,14 @@ describe( 'ChapterManagerModal', () => {
 		expect( defaultProps.onClose ).not.toHaveBeenCalled();
 		const confirmation = screen.getByRole( 'alertdialog' );
 		expect( confirmation ).toHaveTextContent( 'Discard unsaved chapter changes?' );
+
+		// The header actions sit OUTSIDE the overlay's coverage; while the
+		// confirmation is up they must be frozen, or a click could mutate the
+		// session the dialog is asking about.
+		expect( screen.getByRole( 'button', { name: 'Undo' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: 'Redo' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: 'Save' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: 'Discard changes' } ) ).toBeDisabled();
 
 		await user.click( screen.getByRole( 'button', { name: 'Discard' } ) );
 		expect( defaultProps.onClose ).toHaveBeenCalledTimes( 1 );
