@@ -1,14 +1,19 @@
 .area-chart {
 	position: relative;
 
+	// The collapsed start state lives in the keyframes, not here: a motion
+	// token holding a value invalid for its slot makes the whole `animation`
+	// shorthand invalid at computed-value time, dropping `animation-name` to
+	// `none` while a `transform` declared here would survive — leaving the
+	// area collapsed rather than merely unanimated. `both` fill-mode applies
+	// the `from` state up front, so the reveal still starts hidden.
 	&--animated {
 
 		path {
 			transform-origin: 0 95%;
-			transform: scaleY(0);
 			animation:
 				rise var(--a8c-charts-motion-duration-entrance)
-				var(--a8c-charts-motion-easing-entrance) forwards;
+				var(--a8c-charts-motion-easing-entrance) both;
 		}
 	}
 
@@ -18,6 +23,10 @@
 }
 
 @keyframes rise {
+
+	from {
+		transform: scaleY(0);
+	}
 
 	to {
 		transform: scaleY(1);

@@ -4,16 +4,25 @@
 		overflow: visible;
 	}
 
+	// The collapsed start state lives in the keyframes, not here: a motion
+	// token holding a value invalid for its slot makes the whole `animation`
+	// shorthand invalid at computed-value time, dropping `animation-name` to
+	// `none` while a `transform` declared here would survive — leaving bars
+	// collapsed rather than merely unanimated. `both` fill-mode applies the
+	// `from` state up front, so the reveal still starts hidden.
 	&--animated rect {
 		transform-origin: bottom;
 		transform-box: fill-box;
-		transform: scaleY(0);
 		animation:
 			rise var(--a8c-charts-motion-duration-entrance)
-			var(--a8c-charts-motion-easing-entrance) forwards;
+			var(--a8c-charts-motion-easing-entrance) both;
 	}
 
 	@keyframes rise {
+
+		from {
+			transform: scaleY(0);
+		}
 
 		to {
 			transform: scaleY(1);
@@ -23,13 +32,16 @@
 	&--animated-horizontal rect {
 		transform-origin: left;
 		transform-box: fill-box;
-		transform: scaleX(0);
 		animation:
 			stretch var(--a8c-charts-motion-duration-entrance)
-			var(--a8c-charts-motion-easing-entrance) forwards;
+			var(--a8c-charts-motion-easing-entrance) both;
 	}
 
 	@keyframes stretch {
+
+		from {
+			transform: scaleX(0);
+		}
 
 		to {
 			transform: scaleX(1);
