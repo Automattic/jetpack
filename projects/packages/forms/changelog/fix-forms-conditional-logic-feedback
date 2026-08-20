@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Conditional logic: name a checkbox by its own label in the conditions dropdown, and show an unanswered checkbox as "No" rather than a blank.
+Conditional logic: name a checkbox by its own label in the conditions dropdown, keep a value typed before the field was chosen, and show an unanswered checkbox as "No" rather than a blank.
