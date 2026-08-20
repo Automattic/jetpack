@@ -152,6 +152,56 @@ class Capabilities_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Ad earnings are a separate grant too: view_stats opens the dashboard, not
+	 * the site's revenue.
+	 */
+	public function test_view_stats_reader_cannot_view_ad_reports() {
+		$user_id = $this->login_as( 'editor' );
+		$this->grant_view_stats_to( $user_id );
+
+		$this->assertTrue( Capabilities::current_user_can_view_analytics() );
+		$this->assertFalse( Capabilities::current_user_can_view_ad_reports() );
+	}
+
+	/**
+	 * Pins the ad-reports helper to the capability the proxy enforces for the
+	 * `wordads` prefix, for the same reason as the store helper above.
+	 */
+	public function test_ad_report_helper_matches_the_proxy_capability() {
+		$controller = new Api_Proxy_Controller();
+		$request    = new WP_REST_Request( 'GET', '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/earnings' );
+		$request->set_param( 'endpoint', 'wordads/earnings' );
+
+		$reader = $this->login_as( 'editor' );
+		$this->grant_view_stats_to( $reader );
+
+		$this->assertSame(
+			$controller->check_data_permission( $request ),
+			Capabilities::current_user_can_view_ad_reports(),
+			'A view_stats reader must be refused by the proxy and by the helper that hides its surfaces.'
+		);
+
+		$this->login_as( 'administrator' );
+
+		$this->assertSame(
+			$controller->check_data_permission( $request ),
+			Capabilities::current_user_can_view_ad_reports(),
+			'An administrator must be admitted by both.'
+		);
+
+		// WordAds' own capability, without manage_options behind it.
+		$ad_manager = $this->login_as( 'subscriber' );
+		$this->grant_capability_to( $ad_manager, 'activate_wordads' );
+
+		$this->assertTrue( Capabilities::current_user_can_view_ad_reports() );
+		$this->assertSame(
+			$controller->check_data_permission( $request ),
+			Capabilities::current_user_can_view_ad_reports(),
+			'A WordAds manager must be admitted by both.'
+		);
+	}
+
+	/**
 	 * Store access is not dashboard access: the capability that opens the store
 	 * reports says nothing about who may read stats.
 	 */

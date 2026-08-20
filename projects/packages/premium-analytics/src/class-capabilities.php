@@ -105,4 +105,21 @@ class Capabilities {
 		// The proxy accepts manage_options for every prefix.
 		return current_user_can( 'manage_options' ) || current_user_can( 'view_woocommerce_reports' );
 	}
+
+	/**
+	 * Whether the current user may read the site's ad earnings.
+	 *
+	 * Mirrors the capability
+	 * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller} enforces
+	 * on its `wordads` prefix (Capabilities_Test pins the two together), for the same
+	 * reason as store reports above: a reader who fails it can only collect 403s.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function current_user_can_view_ad_reports() {
+		// The proxy accepts manage_options for every prefix.
+		return current_user_can( 'manage_options' ) || current_user_can( 'activate_wordads' );
+	}
 }

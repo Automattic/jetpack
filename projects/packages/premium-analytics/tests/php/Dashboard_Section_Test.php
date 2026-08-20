@@ -74,6 +74,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
+		remove_all_filters( ADS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 
 		if ( null !== $this->available_modules_filter ) {
 			remove_filter( 'jetpack_get_available_standalone_modules', $this->available_modules_filter );
@@ -92,15 +93,16 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Mark the subscriptions module as both active and available.
+	 * Mark a Jetpack module as both active and available.
 	 *
+	 * @param string $slug Module slug.
 	 * @return void
 	 */
-	private function activate_subscriptions_module() {
-		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+	private function activate_module( $slug ) {
+		Jetpack_Options::update_option( 'active_modules', array( $slug ) );
 
-		$this->available_modules_filter = static function ( $modules ) {
-			$modules[] = 'subscriptions';
+		$this->available_modules_filter = static function ( $modules ) use ( $slug ) {
+			$modules[] = $slug;
 
 			return $modules;
 		};
@@ -281,6 +283,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'insights'    => Dashboard_Section::DATE_FILTER_YEAR,
 				'subscribers' => Dashboard_Section::DATE_FILTER_RANGE,
 				'store'       => Dashboard_Section::DATE_FILTER_RANGE,
+				'ads'         => Dashboard_Section::DATE_FILTER_RANGE,
 			),
 			array_column(
 				array_map(
@@ -362,6 +365,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'insights'    => array( 'with_date_comparison' => false ),
 				'subscribers' => array( 'with_date_comparison' => true ),
 				'store'       => array( 'with_date_comparison' => true ),
+				'ads'         => array( 'with_date_comparison' => true ),
 			),
 			array_column(
 				array_map(
@@ -400,6 +404,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'insights'    => 'Activity insights',
 				'subscribers' => 'Subscribers stats',
 				'store'       => null,
+				'ads'         => 'Ad revenue',
 			),
 			array_column( $sections, 'title', 'slug' )
 		);
@@ -778,6 +783,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'analytics/insights',
 				'analytics/subscribers',
 				'woocommerce/store',
+				'analytics/ads',
 			),
 			array_map(
 				static function ( Dashboard_Section $section ) {
@@ -868,7 +874,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_registers_subscribers_dashboard_section_when_module_is_active() {
 		$this->fake_jetpack_plugin();
-		$this->activate_subscriptions_module();
+		$this->activate_module( 'subscriptions' );
 
 		register_default_dashboard_sections();
 
@@ -917,6 +923,106 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A site without a local module system keeps the Ads tab.
+	 */
+	public function test_registers_ads_dashboard_section_without_a_module_system() {
+		$this->set_admin_user();
+
+		register_default_dashboard_sections();
+
+		$ads = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/ads' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $ads );
+		$this->assertTrue( $ads->is_available() );
+		$this->assertSame( 'Ads', $ads->label );
+		$this->assertSame( 50, $ads->order );
+		$this->assertContains( 'analytics/ads', $this->available_section_ids() );
+		$this->assertSame(
+			get_dashboard_default_layout_for( 'analytics/ads' ),
+			$ads->get_default_layout()
+		);
+	}
+
+	/**
+	 * A Jetpack site with the module inactive hides the Ads tab.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_omits_ads_dashboard_section_when_module_is_inactive() {
+		$this->set_admin_user();
+		$this->fake_jetpack_plugin();
+
+		register_default_dashboard_sections();
+
+		$ads = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/ads' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $ads );
+		$this->assertFalse( $ads->is_available() );
+
+		$ids = $this->available_section_ids();
+
+		$this->assertNotContains( 'analytics/ads', $ids );
+		$this->assertContains( 'analytics/traffic', $ids );
+	}
+
+	/**
+	 * A Jetpack site with the module active offers the Ads tab.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_registers_ads_dashboard_section_when_module_is_active() {
+		$this->set_admin_user();
+		$this->fake_jetpack_plugin();
+		$this->activate_module( 'wordads' );
+
+		register_default_dashboard_sections();
+
+		$ads = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/ads' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $ads );
+		$this->assertTrue( $ads->is_available() );
+		$this->assertContains( 'analytics/ads', $this->available_section_ids() );
+	}
+
+	/**
+	 * Consumers can refuse the Ads section through its availability filter.
+	 */
+	public function test_ads_availability_filter_overrides_the_module_state() {
+		$this->set_admin_user();
+		add_filter( ADS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		register_default_dashboard_sections();
+
+		$ads = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/ads' );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $ads );
+		$this->assertFalse( $ads->is_available() );
+		$this->assertNotContains( 'analytics/ads', $this->available_section_ids() );
+	}
+
+	/**
+	 * Earnings are only served to users who may manage the site's ads, so a
+	 * reader who reached the dashboard through view_stats is not offered the tab.
+	 */
+	public function test_omits_ads_dashboard_section_from_a_view_stats_reader() {
+		$user_id = $this->set_editor_user();
+		$this->grant_view_stats_to( $user_id );
+
+		register_default_dashboard_sections();
+
+		$ads = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/ads' );
+
+		$this->assertFalse( $ads->is_available() );
+		$this->assertNotContains( 'analytics/ads', $this->available_section_ids() );
+	}
+
+	/**
 	 * The sections route drops the Subscribers tab once it is unavailable.
 	 */
 	public function test_sections_route_reflects_subscribers_availability() {
@@ -925,14 +1031,14 @@ class Dashboard_Section_Test extends BaseTestCase {
 		register_default_dashboard_sections();
 
 		$this->assertSame(
-			array( 'traffic', 'insights', 'subscribers' ),
+			array( 'traffic', 'insights', 'subscribers', 'ads' ),
 			$this->request_section_slugs()
 		);
 
 		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
 
 		$this->assertSame(
-			array( 'traffic', 'insights' ),
+			array( 'traffic', 'insights', 'ads' ),
 			$this->request_section_slugs()
 		);
 	}
@@ -1116,7 +1222,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame(
-			array( 'traffic', 'insights', 'subscribers' ),
+			array( 'traffic', 'insights', 'subscribers', 'ads' ),
 			array_column( $response->get_data(), 'slug' )
 		);
 
@@ -1129,7 +1235,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame(
-			array( 'traffic', 'insights', 'subscribers', 'store' ),
+			array( 'traffic', 'insights', 'subscribers', 'store', 'ads' ),
 			array_column( $response->get_data(), 'slug' )
 		);
 	}
