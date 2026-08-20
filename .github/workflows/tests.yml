@@ -202,7 +202,7 @@ jobs:
             fi
 
             if [[ "${SLUG%%/*}" != "plugins" && "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' && "$FORCE_PACKAGE_TESTS" != "true" ]] &&
-              ! jq -e '.["require-dev"]["automattic/jetpack-test-environment"] // empty' "$P"
+              ! jq -e '.["require-dev"]["automattic/jetpack-test-environment"] // empty' "$P" > /dev/null
             then
               echo "Skipping $SLUG, only plugins and packages dev-depending on automattic/jetpack-test-environment run for WP_BRANCH = $WP_BRANCH"
               continue
