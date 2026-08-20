@@ -36,10 +36,9 @@ export type ReportDateFilters = {
 	appliedComparisonPresetId?: ComparisonPresetId;
 
 	/**
-	 * The applied comparison window, with both endpoints `undefined` when no
-	 * comparison is applied.
+	 * The applied comparison window, when comparison is enabled.
 	 */
-	appliedComparisonRange: PickerRange;
+	appliedComparisonRange?: DateRange;
 
 	/**
 	 * The chart interval the control shows as checked.
@@ -162,23 +161,22 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 	 * Gated on the same predicate the report params run through, so a surface
 	 * can never announce a comparison the widgets did not request.
 	 */
-	const appliedComparisonPresetId = useMemo(
-		() => ( hasComparisonEnabled( committed ) ? committed.compare_preset ?? undefined : undefined ),
-		[ committed ]
-	);
+	const { appliedComparisonPresetId, appliedComparisonRange } = useMemo( () => {
+		if ( ! hasComparisonEnabled( committed ) ) {
+			return { appliedComparisonPresetId: undefined, appliedComparisonRange: undefined };
+		}
 
-	/*
-	 * Read from the params the widgets queried with, not re-derived from the
-	 * preset, so a surface naming the window cannot name a different one than
-	 * the numbers came from.
-	 */
-	const appliedComparisonRange = useMemo(
-		() =>
-			hasComparisonEnabled( committed )
-				? toPickerRange( committed.compare_from, committed.compare_to, timeZone )
-				: { from: undefined, to: undefined },
-		[ committed, timeZone ]
-	);
+		return {
+			appliedComparisonPresetId: committed.compare_preset ?? undefined,
+			// Read the params the widgets queried with so the header cannot name
+			// a different window than the numbers came from.
+			appliedComparisonRange: toPickerRange(
+				committed.compare_from,
+				committed.compare_to,
+				timeZone
+			),
+		};
+	}, [ committed, timeZone ] );
 
 	/*
 	 * Whether the primary picker holds an un-applied edit. The comparison and

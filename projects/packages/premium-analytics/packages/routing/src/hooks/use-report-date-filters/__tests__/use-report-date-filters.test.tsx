@@ -180,10 +180,10 @@ describe( 'useReportDateFilters', () => {
 			compare_to: '2026-06-30T23:59:59.999Z',
 		} );
 		expect( result.current.appliedComparisonPresetId ).toBe( 'previous-period' );
-		expect( result.current.appliedComparisonRange.from?.toISOString() ).toBe(
+		expect( result.current.appliedComparisonRange?.from?.toISOString() ).toBe(
 			'2026-06-01T00:00:00.000Z'
 		);
-		expect( result.current.appliedComparisonRange.to?.toISOString() ).toBe(
+		expect( result.current.appliedComparisonRange?.to?.toISOString() ).toBe(
 			'2026-06-30T23:59:59.999Z'
 		);
 	} );
@@ -195,10 +195,7 @@ describe( 'useReportDateFilters', () => {
 			preset: 'last-30-days',
 		} );
 
-		expect( result.current.appliedComparisonRange ).toEqual( {
-			from: undefined,
-			to: undefined,
-		} );
+		expect( result.current.appliedComparisonRange ).toBeUndefined();
 	} );
 
 	it( 'commits an interval change on its own', () => {
@@ -245,7 +242,7 @@ describe( 'useReportDateFilters', () => {
 		} );
 
 		expect( mockNavigate ).not.toHaveBeenCalled();
-		expect( result.current.appliedComparisonRange.from ).toBeUndefined();
+		expect( result.current.appliedComparisonRange ).toBeUndefined();
 
 		act( () => result.current.onApply() );
 

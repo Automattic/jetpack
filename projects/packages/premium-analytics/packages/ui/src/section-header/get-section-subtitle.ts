@@ -6,6 +6,7 @@ import {
 	getDateRangeSpan,
 	isYearSurfacePresetId,
 	type ComparisonPresetId,
+	type DateRange,
 	type DateRangeSpan,
 	type IntervalType,
 	type PrimaryPresetId,
@@ -17,7 +18,7 @@ type SectionSubtitleArgs = {
 	/**
 	 * The applied date range, not the picker's staged draft.
 	 */
-	range?: { from?: Date; to?: Date };
+	range?: DateRange;
 
 	/**
 	 * The applied comparison preset, when a comparison is active.
@@ -29,7 +30,7 @@ type SectionSubtitleArgs = {
 	 * preset stays readable on the comparison control beside the subtitle,
 	 * while only the dates say which days the deltas are measured against.
 	 */
-	comparisonRange?: { from?: Date; to?: Date };
+	comparisonRange?: DateRange;
 
 	/**
 	 * The applied primary preset. Only read to recognise the year surface,

@@ -3,6 +3,7 @@ import {
 	getComparisonRangeFromPreset,
 	PRESET_ALL_TIME,
 	type ComparisonPresetId,
+	type DateRange,
 	type IntervalType,
 	type PrimaryPresetId,
 	type YearSurfacePresetId,
@@ -19,7 +20,7 @@ import {
 import { DateYearFilter } from '../../date-year-filter';
 import { getSectionSubtitle } from '../get-section-subtitle';
 import { SectionHeader } from '../section-header';
-import type { DateRange } from '../../date-filters-panel/date-filters-panel';
+import type { DateRange as PanelDateRange } from '../../date-filters-panel/date-filters-panel';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const STORYBOOK_TIMEZONE = 'America/New_York';
@@ -44,24 +45,22 @@ const meta: Meta< typeof SectionHeader > = {
 	argTypes: {
 		children: { control: false },
 	},
-	decorators: [
-		Story => {
-			const settings = getSettings();
-			setSettings( {
-				...settings,
-				timezone: { ...settings.timezone, string: STORYBOOK_TIMEZONE },
-			} );
+	beforeEach: () => {
+		const settings = getSettings();
+		setSettings( {
+			...settings,
+			timezone: { ...settings.timezone, string: STORYBOOK_TIMEZONE },
+		} );
 
-			return <Story />;
-		},
-	],
+		return () => setSettings( settings );
+	},
 };
 export default meta;
 
 type Story = StoryObj< typeof SectionHeader >;
 
 type PrimaryFilterState = {
-	range: DateRange;
+	range: PanelDateRange;
 	presetId: PrimaryPresetId;
 };
 
@@ -69,11 +68,9 @@ type PrimaryFilterState = {
  * The applied date configuration the subtitle describes.
  */
 type AppliedDateState = {
-	range: DateRange;
+	range: PanelDateRange;
 	comparisonPresetId?: ComparisonPresetId;
-	// Not the panel's `DateRange`: a derived window can come back with either
-	// endpoint missing, which the subtitle already tolerates.
-	comparisonRange?: { from?: Date; to?: Date };
+	comparisonRange?: DateRange;
 	presetId?: PrimaryPresetId;
 	interval?: IntervalType;
 };
@@ -108,7 +105,7 @@ function hasPrimaryDraft( staged: PrimaryFilterState, committed: PrimaryFilterSt
  * Derived on every commit rather than stored, because `buildRangePatch`
  * re-derives the comparison whenever the primary range moves.
  */
-function comparisonRangeFor( range: DateRange, presetId: ComparisonPresetId | undefined ) {
+function comparisonRangeFor( range: PanelDateRange, presetId: ComparisonPresetId | undefined ) {
 	return presetId ? getComparisonRangeFromPreset( range, presetId ) : undefined;
 }
 
@@ -145,15 +142,18 @@ function RollingDateControls( {
 		[ pickedInterval ]
 	);
 
-	const handleChange = useCallback( ( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
-		const next: PrimaryFilterState = {
-			range: nextRange ?? stagedRef.current.range,
-			presetId: nextPresetId ?? stagedRef.current.presetId,
-		};
+	const handleChange = useCallback(
+		( nextRange?: PanelDateRange, nextPresetId?: PrimaryPresetId ) => {
+			const next: PrimaryFilterState = {
+				range: nextRange ?? stagedRef.current.range,
+				presetId: nextPresetId ?? stagedRef.current.presetId,
+			};
 
-		stagedRef.current = next;
-		setStaged( next );
-	}, [] );
+			stagedRef.current = next;
+			setStaged( next );
+		},
+		[]
+	);
 
 	const handleApply = useCallback( () => {
 		setCommitted( stagedRef.current );
@@ -178,7 +178,7 @@ function RollingDateControls( {
 	 * comparison never commits an un-applied primary draft.
 	 */
 	const handleComparisonChange = useCallback(
-		( _range: DateRange | undefined, nextPresetId?: ComparisonPresetId ) => {
+		( _range: PanelDateRange | undefined, nextPresetId?: ComparisonPresetId ) => {
 			setComparisonPresetId( nextPresetId );
 
 			if ( ! hasPrimaryDraft( stagedRef.current, committed ) ) {

@@ -46,10 +46,6 @@ function buildDateFilters(): ReportDateFilters {
 		appliedRange: APPLIED_RANGE,
 		comparisonPresetId: 'previous-month',
 		appliedComparisonPresetId: 'previous-period',
-		appliedComparisonRange: {
-			from: new Date( Date.UTC( 2024, 0, 1 ) ),
-			to: new Date( Date.UTC( 2024, 0, 7, 23, 59, 59, 999 ) ),
-		},
 		interval: 'week',
 		appliedInterval: 'day',
 		intervalOptions: [ 'day', 'week' ],
