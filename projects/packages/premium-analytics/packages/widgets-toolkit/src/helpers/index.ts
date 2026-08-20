@@ -65,9 +65,15 @@ export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from '.
 export { fromChartDate } from './chart-date';
 export { dateFormatForResolution } from './tick-resolution-date-format';
 export {
+	followedGranularity,
+	GRANULARITY_ATTRIBUTE,
+	GRANULARITY_PICKED_FOR_ATTRIBUTE,
+} from './followed-granularity';
+export {
 	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,
 	granularityAttributeField,
+	granularityOptions,
 	type ChartDisplayChartType,
 	type ChartGranularityOption,
 } from './chart-display-attribute-fields';
