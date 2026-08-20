@@ -88,20 +88,20 @@ describe( 'computeDateRangeFromPreset', () => {
 		expect( range!.to ).toBe( toZ( endOfHour( NOW, { in: UTC } ) ) );
 	} );
 
-	it( 'returns 7-day range ending yesterday for "last-7-days"', () => {
+	it( 'returns 7-day range ending today for "last-7-days"', () => {
 		const range = computeDateRangeFromPreset( 'last-7-days' );
 
 		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( subDays( TODAY_START, 7 ) ) );
-		expect( range!.to ).toBe( toZ( YESTERDAY_END ) );
+		expect( range!.from ).toBe( toZ( subDays( TODAY_START, 6 ) ) );
+		expect( range!.to ).toBe( toZ( TODAY_END ) );
 	} );
 
-	it( 'returns 30-day range ending yesterday for "last-30-days"', () => {
+	it( 'returns 30-day range ending today for "last-30-days"', () => {
 		const range = computeDateRangeFromPreset( 'last-30-days' );
 
 		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( subDays( TODAY_START, 30 ) ) );
-		expect( range!.to ).toBe( toZ( YESTERDAY_END ) );
+		expect( range!.from ).toBe( toZ( subDays( TODAY_START, 29 ) ) );
+		expect( range!.to ).toBe( toZ( TODAY_END ) );
 	} );
 
 	it( 'returns 90-day range ending yesterday for "last-90-days"', () => {
@@ -128,12 +128,12 @@ describe( 'computeDateRangeFromPreset', () => {
 		expect( range!.to ).toBe( toZ( endOfMonth( LAST_MONTH, { in: UTC } ) ) );
 	} );
 
-	it( 'returns rolling 12-month range ending yesterday for "last-12-months"', () => {
+	it( 'returns twelve whole calendar months ending today for "last-12-months"', () => {
 		const range = computeDateRangeFromPreset( 'last-12-months' );
 
 		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( subMonths( TODAY_START, 12 ) ) );
-		expect( range!.to ).toBe( toZ( YESTERDAY_END ) );
+		expect( range!.from ).toBe( toZ( startOfMonth( subMonths( TODAY_START, 11 ), { in: UTC } ) ) );
+		expect( range!.to ).toBe( toZ( TODAY_END ) );
 	} );
 
 	it( 'returns last calendar year for "last-year"', () => {
