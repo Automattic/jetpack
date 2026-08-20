@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats: Bound the visits request with its date range alone; the endpoint recounts its buckets from the range and ignores a bucket count sent alongside it.
