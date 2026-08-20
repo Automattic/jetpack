@@ -20,13 +20,20 @@ if ( ! defined( 'ABSPATH' ) ) {
  * File browser endpoints powering the BackupDetail file tree:
  *   - POST /jetpack/v4/rewind/backup/ls           → list folder children
  *   - GET  /jetpack/v4/rewind/backup/file-content → text preview proxy
+ *   - GET  /jetpack/v4/rewind/backup/path-info    → per-file metadata
  *
- * NOTE: WPCOM's `/sites/{id}/rewind/backup/path-info` endpoint was
- * removed from this bridge in 2026-05. It returned "No file found"
- * for every input variant we could synthesize and there's no working
- * caller of it elsewhere in the monorepo; the React layer derives the
- * `lastModified` field from `/ls`'s `period` and the mime type from
- * the file extension instead.
+ * All three address a file by the *file's own* `period` from `/ls` —
+ * the timestamp at which that file last changed — never by the parent
+ * backup's rewindId. VaultPress records one row per file version and
+ * matches `period` exactly, with no nearest-earlier fallback, so a
+ * file that did not change during the backup the reader is browsing
+ * has no row under the backup's own id.
+ *
+ * Note the two paths take the manifest path in *different* encodings,
+ * because the upstream routes do: `path-info` carries it raw in the
+ * request body, while `file-content` puts standard base64 in a URL
+ * segment that WPCOM `base64_decode()`s. Neither tolerates the other's
+ * form.
  */
 class File_Browser_Bridge {
 
@@ -35,6 +42,24 @@ class File_Browser_Bridge {
 	 * theme style.css, small SQL dumps.
 	 */
 	const PREVIEW_MAX_BYTES = 64 * 1024;
+
+	/**
+	 * Standard base64, with optional padding — the exact alphabet, and
+	 * nothing else.
+	 *
+	 * Notably excludes `%` and `.`, which is what makes it safe to
+	 * interpolate a matching value into a URL path unescaped.
+	 */
+	const BASE64_PATTERN = '^[A-Za-z0-9+/]*={0,2}$';
+
+	/**
+	 * A snapshot period: Unix seconds, digits only.
+	 *
+	 * Matches the upstream route's own `(?P<backup_id>\d+)` capture, so
+	 * a malformed value fails here with a clear 400 instead of an
+	 * opaque upstream 404.
+	 */
+	const PERIOD_PATTERN = '^[0-9]+$';
 
 	/**
 	 * Register routes.
@@ -64,6 +89,35 @@ class File_Browser_Bridge {
 
 		register_rest_route(
 			'jetpack/v4',
+			'/rewind/backup/path-info',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_path_info' ),
+				'permission_callback' => array( Rest_Controller::class, 'permission_check' ),
+				'args'                => array(
+					'file_period'    => array(
+						'type'     => 'string',
+						'required' => true,
+						'pattern'  => self::PERIOD_PATTERN,
+					),
+					// Unconstrained on purpose: this one is forwarded in
+					// the request body, not the URL, and a manifest path
+					// can legitimately contain any byte a filename can.
+					'manifest_path'  => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+					'extension_type' => array(
+						'type'     => 'string',
+						'required' => false,
+						'default'  => '',
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
 			'/rewind/backup/file-content',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -73,10 +127,16 @@ class File_Browser_Bridge {
 					'file_period'           => array(
 						'type'     => 'string',
 						'required' => true,
+						'pattern'  => self::PERIOD_PATTERN,
 					),
+					// Both of these land in the WPCOM URL *path*, and the
+					// manifest path deliberately goes in unescaped, so
+					// these patterns are the only guard on it. See
+					// `get_file_content()` for why escaping is not an option.
 					'encoded_manifest_path' => array(
 						'type'     => 'string',
 						'required' => true,
+						'pattern'  => self::BASE64_PATTERN,
 					),
 				),
 			)
@@ -110,6 +170,49 @@ class File_Browser_Bridge {
 	}
 
 	/**
+	 * Read one file's real metadata. Proxies POST wpcom/v2
+	 * /sites/{id}/rewind/backup/path-info.
+	 *
+	 * Gives the info card the `size`, `hash` and `mtime` VaultPress
+	 * actually recorded, rather than the snapshot `period` `/ls` carries.
+	 * `manifest_filter` comes back too, which is what a future granular
+	 * per-file download needs.
+	 *
+	 * Two fields are deliberately not surfaced. `download_url` is
+	 * hardcoded empty upstream behind a TODO, so it says nothing about
+	 * whether the bytes exist. And `data_type` is a small integer type
+	 * code — the second character of the manifest path — not a mime
+	 * type, so it cannot drive the preview decision; the card keeps
+	 * deriving that from the file extension, as Calypso does.
+	 *
+	 * Upstream answers 200 with an `error` string when the file has no
+	 * row, so a caller must branch on `error` rather than on the status.
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function get_path_info( WP_REST_Request $request ) {
+		$blog_id = Rest_Controller::get_blog_id_or_error();
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/rewind/backup/path-info', $blog_id ),
+			'v2',
+			array( 'method' => 'POST' ),
+			array(
+				'backup_id'      => $request->get_param( 'file_period' ),
+				'manifest_path'  => $request->get_param( 'manifest_path' ),
+				'extension_type' => (string) $request->get_param( 'extension_type' ),
+			),
+			'wpcom'
+		);
+
+		return self::forward_response( $response, 'backup_path_info_failed', __( 'Could not read file details.', 'jetpack-backup-pkg' ) );
+	}
+
+	/**
 	 * Fetch a text file's content for the preview pane.
 	 *
 	 * Resolves the one-time signed URL from WPCOM, then fetches the
@@ -138,12 +241,34 @@ class File_Browser_Bridge {
 		$encoded_manifest_path = (string) $request->get_param( 'encoded_manifest_path' );
 
 		// Step 1: resolve the signed stream URL.
+		//
+		// `$encoded_manifest_path` goes in verbatim. It is already
+		// base64, and WPCOM's stream route runs a plain
+		// `base64_decode()` on this segment, so percent-encoding it
+		// first is silently destructive: PHP's non-strict decoder
+		// discards the `%` and keeps the `3` and the `D`, both valid
+		// base64 characters. `ZjU6L3dwLWNvbmZpZy5waHA%3D` decodes to
+		// `f5:/wp-config.php7`, and VaultPress then correctly reports
+		// `File not found` for a file that is really there. Base64's
+		// `+`, `/` and `=` are all legal in a path segment, and the
+		// upstream route captures it as `\S+`, so nothing needs
+		// escaping. `$file_period` is digits, so its encoding is a
+		// no-op either way.
+		//
+		// Because nothing escapes it here, `BASE64_PATTERN` on the arg
+		// definition is the guard. That matters: cURL applies RFC 3986
+		// dot-segment removal before the request leaves the host, so an
+		// unconstrained value containing `../` would climb out of this
+		// route — with a `?` swallowing the trailing `/url` — and turn
+		// a file proxy into an arbitrary authenticated WPCOM GET. The
+		// base64 alphabet contains neither `%` nor `.`, so the pattern
+		// closes that off without re-breaking the preview.
 		$url_response = Client::wpcom_json_api_request_as_user(
 			sprintf(
 				'/sites/%d/rewind/backup/%s/file/%s/url',
 				$blog_id,
 				rawurlencode( $file_period ),
-				rawurlencode( $encoded_manifest_path )
+				$encoded_manifest_path
 			),
 			'v2',
 			array(),

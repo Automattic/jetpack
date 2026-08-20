@@ -66,9 +66,11 @@ export function toFileNode( name: string, raw: WpcomFileNode, parentPath: string
 	// Testing the resulting `Date` rather than the parsed number is what
 	// makes this complete: `Number.isFinite` alone rejects non-numeric
 	// values but happily passes anything inside float range, and `Date` is
-	// only defined within ±8.64e15 ms. A `period` in milliseconds or
-	// microseconds — ordinary upstream drift for an unvalidated field —
-	// is finite and still unrepresentable.
+	// only defined within ±8.64e15 ms. A `period` in microseconds — one
+	// kind of upstream drift for an unvalidated field — is finite and
+	// still unrepresentable. Note a *millisecond*-scale value is not: it
+	// stays in range and renders a far-future date, which nothing here
+	// can distinguish from a genuine one.
 	const periodSeconds = raw.period ? Number.parseInt( raw.period, 10 ) : NaN;
 	const lastModifiedDate = new Date( periodSeconds * 1000 );
 	const lastModified = Number.isNaN( lastModifiedDate.getTime() )
