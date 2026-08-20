@@ -203,6 +203,8 @@ describe( 'AiOverview', () => {
 			'admin.php?page=my-jetpack#/connection'
 		);
 		expect( apiFetch ).not.toHaveBeenCalled();
+		// A bare `blogId &&` guard would print the 0 itself.
+		expect( screen.queryByText( '0' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'progressbar', { hidden: true } ) ).not.toBeInTheDocument();
 		// The rest of the tab is still useful while disconnected.
 		expect( screen.getByRole( 'link', { name: /Activity log/ } ) ).toBeInTheDocument();

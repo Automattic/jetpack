@@ -272,14 +272,14 @@ export default function AiOverview( {
 	const userUnlinked = isUserConnected === false;
 	return (
 		<Stack direction="column" gap="xl">
-			{ blogId && hostBlocked && (
+			{ !! blogId && hostBlocked && (
 				<Notice.Root intent="warning">
 					<Notice.Description>
 						{ __( 'AI has been turned off for this site.', 'jetpack' ) }
 					</Notice.Description>
 				</Notice.Root>
 			) }
-			{ blogId && ! hostBlocked && userUnlinked && (
+			{ !! blogId && ! hostBlocked && userUnlinked && (
 				// The usage endpoint proxies as the current user, so without a
 				// linked account the fetch can only fail — say so instead.
 				<Card.Root>
@@ -298,7 +298,7 @@ export default function AiOverview( {
 					</Card.Content>
 				</Card.Root>
 			) }
-			{ blogId && ! hostBlocked && ! userUnlinked && (
+			{ !! blogId && ! hostBlocked && ! userUnlinked && (
 				<UsageCard upgradeUrl={ upgradeUrl } planName={ planName } planRenewsOn={ planRenewsOn } />
 			) }
 			{ ! blogId && (
