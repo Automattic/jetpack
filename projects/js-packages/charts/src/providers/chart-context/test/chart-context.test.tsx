@@ -1728,6 +1728,91 @@ describe( 'ChartContext', () => {
 			// Should have empty set after all series are visible
 			expect( hidden.size ).toBe( 0 );
 		} );
+
+		it( 'setSeriesVisibility sets state absolutely rather than toggling', () => {
+			let contextValue: GlobalChartsContextValue;
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			act( () => {
+				contextValue.setSeriesVisibility( 'test-chart', 'Series 1', false );
+			} );
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 1' ) ).toBe( false );
+
+			// Calling it again with the same value must not flip it back.
+			act( () => {
+				contextValue.setSeriesVisibility( 'test-chart', 'Series 1', false );
+			} );
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 1' ) ).toBe( false );
+
+			act( () => {
+				contextValue.setSeriesVisibility( 'test-chart', 'Series 1', true );
+			} );
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 1' ) ).toBe( true );
+		} );
+
+		it( 'setChartHiddenSeries replaces the hidden set rather than merging into it', () => {
+			let contextValue: GlobalChartsContextValue;
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			act( () => {
+				contextValue.setChartHiddenSeries( 'test-chart', [ 'Series 1', 'Series 2' ] );
+			} );
+			expect( contextValue.getHiddenSeries( 'test-chart' ) ).toEqual(
+				new Set( [ 'Series 1', 'Series 2' ] )
+			);
+
+			act( () => {
+				contextValue.setChartHiddenSeries( 'test-chart', [ 'Series 2' ] );
+			} );
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 1' ) ).toBe( true );
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 2' ) ).toBe( false );
+
+			act( () => {
+				contextValue.setChartHiddenSeries( 'test-chart', [] );
+			} );
+			expect( contextValue.getHiddenSeries( 'test-chart' ) ).toEqual( new Set() );
+		} );
+
+		it( 'setChartHiddenSeries leaves other charts alone', () => {
+			let contextValue: GlobalChartsContextValue;
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			act( () => {
+				contextValue.setChartHiddenSeries( 'chart-a', [ 'Series 1' ] );
+				contextValue.setChartHiddenSeries( 'chart-b', [ 'Series 2' ] );
+			} );
+
+			expect( contextValue.isSeriesVisible( 'chart-a', 'Series 1' ) ).toBe( false );
+			expect( contextValue.isSeriesVisible( 'chart-a', 'Series 2' ) ).toBe( true );
+			expect( contextValue.isSeriesVisible( 'chart-b', 'Series 2' ) ).toBe( false );
+		} );
 	} );
 
 	describe( 'GlobalChartsProvider - CSS Variable Support', () => {
