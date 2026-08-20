@@ -1,6 +1,9 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { GlobalChartsProvider } from '../../../providers';
+import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import LeaderboardChart from '../leaderboard-chart';
+import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
 import type { LeaderboardEntry } from '../../../types';
 
 const mockDefaultParentSize = () => ( {
@@ -415,6 +418,78 @@ describe( 'LeaderboardChart', () => {
 			expect( screen.getByText( '8.8K' ) ).toBeInTheDocument();
 			expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
 			expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Programmatic visibility', () => {
+		it( 'hides the primary series programmatically when the legend is not interactive', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LeaderboardChart
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-leaderboard"
+						data={ mockData }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const primaryLabel = screen.getAllByTestId( 'legend-item' )[ 0 ].textContent;
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-programmatic-leaderboard', primaryLabel );
+			} );
+
+			expect( screen.getByText( /all series are hidden/i ) ).toBeInTheDocument();
+		} );
+
+		it( 'still renders the primary series when only the comparison is hidden programmatically', () => {
+			// Hiding every series routes through allSeriesHidden to the empty state and
+			// never exercises the per-series render path. Hiding only the comparison
+			// series exercises that path for the leaderboard's primary/comparison split.
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LeaderboardChart
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						withComparison={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-comparison-leaderboard"
+						data={ mockData }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const comparisonLabel = screen.getAllByTestId( 'legend-item' )[ 1 ].textContent;
+
+			act( () => {
+				context.toggleSeriesVisibility(
+					'test-programmatic-comparison-leaderboard',
+					comparisonLabel
+				);
+			} );
+
+			expect( screen.queryByText( /all series are hidden/i ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Direct' ) ).toBeInTheDocument();
+			expect( screen.getByText( '12.5K' ) ).toBeInTheDocument();
+			expect( screen.queryByText( '+25%' ) ).not.toBeInTheDocument();
 		} );
 	} );
 

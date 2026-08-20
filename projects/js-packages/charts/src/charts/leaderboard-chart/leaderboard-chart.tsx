@@ -227,33 +227,26 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 
 	// Track visibility of primary and comparison series for interactive legends
 	const isPrimaryVisible = useMemo( () => {
-		if ( ! chartId || ! legendInteractive || legendItems.length === 0 ) {
+		if ( legendItems.length === 0 ) {
 			return true;
 		}
 		return isSeriesVisible( chartId, legendItems[ 0 ].label );
-	}, [ chartId, legendInteractive, legendItems, isSeriesVisible ] );
+	}, [ chartId, legendItems, isSeriesVisible ] );
 
 	const isComparisonVisible = useMemo( () => {
-		if ( ! chartId || ! legendInteractive || legendItems.length < 2 ) {
+		if ( legendItems.length < 2 ) {
 			return true;
 		}
 		return isSeriesVisible( chartId, legendItems[ 1 ].label );
-	}, [ chartId, legendInteractive, legendItems, isSeriesVisible ] );
+	}, [ chartId, legendItems, isSeriesVisible ] );
 
 	// Check if all series are hidden
 	const allSeriesHidden = useMemo( () => {
-		if ( ! legendInteractive ) return false;
 		if ( withComparison && ! withOverlayLabel ) {
 			return ! isPrimaryVisible && ! isComparisonVisible;
 		}
 		return ! isPrimaryVisible;
-	}, [
-		legendInteractive,
-		isPrimaryVisible,
-		isComparisonVisible,
-		withComparison,
-		withOverlayLabel,
-	] );
+	}, [ isPrimaryVisible, isComparisonVisible, withComparison, withOverlayLabel ] );
 
 	// Validate data
 	const isDataValid = Boolean( data && data.length > 0 );
