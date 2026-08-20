@@ -135,8 +135,11 @@ export function compactCalendarHeatmapCapacity( availWidth: number ): number {
 	} );
 }
 
-const CELL_GAP = 4;
-const HEADER_HEIGHT = 16;
+// Exported for widgets that mirror the chart's non-compact grid geometry
+// (e.g. deriving a cell height from a measured tile) so the metrics are
+// stated once.
+export const CELL_GAP = 4;
+export const HEADER_HEIGHT = 16;
 const DEFAULT_LEGEND_HEIGHT = 44;
 
 /**

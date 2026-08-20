@@ -96,7 +96,7 @@ describe( 'ReferrersWidget', () => {
 	it( 'drills down through nested referrer groups and navigates back', async () => {
 		render(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
@@ -137,7 +137,7 @@ describe( 'ReferrersWidget', () => {
 	it( 'keeps the drill-down across date range changes while the path still resolves', async () => {
 		const { rerender } = render(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
@@ -154,7 +154,7 @@ describe( 'ReferrersWidget', () => {
 		// survives — matching how Locations keeps its country across ranges.
 		rerender(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
 			/>
 		);
 
@@ -167,7 +167,7 @@ describe( 'ReferrersWidget', () => {
 	it( 'resets the drill-down when the drilled group disappears from the data', async () => {
 		const { rerender } = render(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
@@ -201,7 +201,7 @@ describe( 'ReferrersWidget', () => {
 		} );
 		rerender(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
 			/>
 		);
 
@@ -216,7 +216,7 @@ describe( 'ReferrersWidget', () => {
 	it( 'renders childless referrers with a URL as outbound links that open in a new tab', async () => {
 		render(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
@@ -232,7 +232,7 @@ describe( 'ReferrersWidget', () => {
 
 		render(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
@@ -248,7 +248,7 @@ describe( 'ReferrersWidget', () => {
 	it( 'links to the full Referrers report', () => {
 		render(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 

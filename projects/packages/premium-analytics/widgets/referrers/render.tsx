@@ -8,7 +8,9 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
@@ -160,18 +162,18 @@ export function ReferrersLeaderboard( {
 	);
 }
 
-function ReferrersInner( { max }: { max: number } ) {
+function ReferrersInner() {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = {
 		...reportParams,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} as StatsReportParams;
 
 	// Row matching (per level, so same-named rows at different drill levels
 	// cannot cross-match), the visible-row cap, and the comparison-overlap
 	// gate all live in the data layer's merge helper (see AGENTS.md).
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsReferrers( statsParams, { maxRows: max } );
+		useStatsReferrers( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
 		() => ( comparisonRows?.rows ?? [] ).map( toReferrerRow ),
@@ -295,6 +297,7 @@ function ReferrersInner( { max }: { max: number } ) {
 					icon: globe,
 					description: __( 'No referrers in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<ReferrersLeaderboard
 					rows={ activeRows }
@@ -309,12 +312,10 @@ function ReferrersInner( { max }: { max: number } ) {
 export default function ReferrersWidget( {
 	attributes = {},
 }: WidgetRenderProps< ReferrersRenderAttributes > ) {
-	const max = attributes?.max ?? 10;
-
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<ReferrersInner max={ max } />
+				<ReferrersInner />
 				<WidgetFooter>
 					<ReportLink report="referrers" />
 				</WidgetFooter>

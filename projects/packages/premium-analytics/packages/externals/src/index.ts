@@ -76,6 +76,7 @@ export {
 	Link,
 	Notice,
 	SelectControl,
+	Skeleton,
 	Stack,
 	Tabs,
 	Text,

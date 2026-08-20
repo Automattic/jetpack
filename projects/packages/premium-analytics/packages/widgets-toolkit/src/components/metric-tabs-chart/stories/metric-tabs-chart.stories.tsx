@@ -1,5 +1,6 @@
 import { withChartTheme } from '../../../stories/with-chart-theme';
 import { MetricTabsChart, type MetricTab } from '../metric-tabs-chart';
+import { MetricTabsChartSkeleton } from '../metric-tabs-chart-skeleton';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
@@ -61,6 +62,31 @@ const withCanvas: Decorator = Story => (
 	</div>
 );
 
+const WidgetCard = ( {
+	width,
+	height,
+	children,
+}: {
+	width: string;
+	height: string;
+	children: React.ReactNode;
+} ) => (
+	<div
+		style={ {
+			width,
+			height,
+			border: '1px solid var(--wpds-color-stroke-surface-neutral-weak)',
+			borderRadius: 'var(--wpds-border-radius-md)',
+			background: 'var(--wpds-color-background-surface-neutral)',
+			display: 'flex',
+			flexDirection: 'column',
+			overflow: 'hidden',
+		} }
+	>
+		<div style={ { position: 'relative', flex: 1, minHeight: 0 } }>{ children }</div>
+	</div>
+);
+
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/MetricTabsChart',
 	component: MetricTabsChart,
@@ -108,11 +134,22 @@ export const Bars: Story = {
 	args: { metrics: METRICS, dataFormat: DATA_FORMAT, chartType: 'bar' },
 };
 
-/**
- * The loading overlay shown over the chart while data resolves.
- */
-export const Loading: Story = {
-	args: { metrics: METRICS, dataFormat: DATA_FORMAT, loading: true },
+type SkeletonStory = StoryObj< typeof MetricTabsChartSkeleton >;
+
+export const Skeleton: SkeletonStory = {
+	render: () => (
+		<WidgetCard width="720px" height="320px">
+			<MetricTabsChartSkeleton />
+		</WidgetCard>
+	),
+};
+
+export const SkeletonShortTile: SkeletonStory = {
+	render: () => (
+		<WidgetCard width="360px" height="140px">
+			<MetricTabsChartSkeleton />
+		</WidgetCard>
+	),
 };
 
 /**

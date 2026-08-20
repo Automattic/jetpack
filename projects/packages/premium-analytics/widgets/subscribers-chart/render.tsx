@@ -3,6 +3,7 @@
  */
 import {
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -137,10 +138,7 @@ function SubscribersChartInner( { granularity, chartType }: SubscribersChartInne
 		<div className={ styles.root }>
 			<WidgetState
 				isLoading={ state.isLoading }
-				// `isFetching` is deliberately not passed: the chart renders its own
-				// scoped overlay below, so WidgetState's full-widget one would double
-				// up and cover the metric tabs.
-				//
+				isFetching={ state.isFetching }
 				// The query keeps prior data via `placeholderData`, so a transient
 				// refetch failure keeps the chart visible; only surface the error
 				// when there is nothing to show.
@@ -159,25 +157,12 @@ function SubscribersChartInner( { granularity, chartType }: SubscribersChartInne
 					icon: customer,
 					description: __( 'No subscriber data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
-				// First load keeps the widget's chart-shaped skeleton (the metric tabs
-				// over the chart's own loading overlay) instead of the default overlay.
-				renderLoading={
-					<MetricTabsChart
-						metrics={ metricTabs }
-						dataFormat={ DATA_FORMAT }
-						chartType={ chartType }
-						loading
-						groupLabel={ groupLabel }
-					/>
-				}
+				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
-				{ /* Background refetches keep the overlay scoped to the chart area so
-				     the metric tabs stay usable, matching the pre-WidgetState behavior. */ }
 				<MetricTabsChart
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
-					loading={ state.isFetching }
 					groupLabel={ groupLabel }
 				/>
 			</WidgetState>
