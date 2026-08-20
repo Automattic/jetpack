@@ -164,8 +164,13 @@ class Capabilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Pins the ad-reports helper to the capability the proxy enforces for the
-	 * `wordads` prefix, for the same reason as the store helper above.
+	 * Pins the ad-reports helper to the decision the proxy reaches for its `wordads`
+	 * prefix, for the same reason as the store helper above.
+	 *
+	 * The prefix names `activate_wordads` where the helper names `manage_options`,
+	 * and the two still agree because no user ever holds `activate_wordads` — see
+	 * the note on Capabilities::current_user_can_view_ad_reports(), and
+	 * test_activate_wordads_is_not_a_registered_capability() below.
 	 */
 	public function test_ad_report_helper_matches_the_proxy_capability() {
 		$controller = new Api_Proxy_Controller();
@@ -188,17 +193,26 @@ class Capabilities_Test extends BaseTestCase {
 			Capabilities::current_user_can_view_ad_reports(),
 			'An administrator must be admitted by both.'
 		);
+	}
 
-		// WordAds' own capability, without manage_options behind it.
-		$ad_manager = $this->login_as( 'subscriber' );
-		$this->grant_capability_to( $ad_manager, 'activate_wordads' );
+	/**
+	 * The premise the helper rests on: `activate_wordads` is a field in the JSON API
+	 * site payload, not a capability any role carries. If a host ever starts granting
+	 * it, this fails and the helper is the thing to revisit.
+	 */
+	public function test_activate_wordads_is_not_a_registered_capability() {
+		foreach ( wp_roles()->roles as $slug => $role ) {
+			$this->assertArrayNotHasKey(
+				'activate_wordads',
+				(array) $role['capabilities'],
+				"Role $slug grants activate_wordads."
+			);
+		}
 
-		$this->assertTrue( Capabilities::current_user_can_view_ad_reports() );
-		$this->assertSame(
-			$controller->check_data_permission( $request ),
-			Capabilities::current_user_can_view_ad_reports(),
-			'A WordAds manager must be admitted by both.'
-		);
+		$this->login_as( 'administrator' );
+
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- asserting the capability is unknown is the point.
+		$this->assertFalse( current_user_can( 'activate_wordads' ) );
 	}
 
 	/**

@@ -534,7 +534,8 @@ function get_dashboard_default_section_layouts() {
 		),
 		DASHBOARD_ADS_SECTION_ID         => array(
 			// Follows the Calypso WordAds page: totals, then the chart, then the
-			// earnings tables.
+			// earnings tables. Only the chart reads the date range; the rest read
+			// `wordads/earnings`, which takes no date parameters.
 			// Row 1: earnings totals banner.
 			get_dashboard_default_widget_instance(
 				'default-wordads-highlights-widget-instance',

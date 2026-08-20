@@ -109,17 +109,22 @@ class Capabilities {
 	/**
 	 * Whether the current user may read the site's ad earnings.
 	 *
-	 * Mirrors the capability
-	 * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller} enforces
-	 * on its `wordads` prefix (Capabilities_Test pins the two together), for the same
-	 * reason as store reports above: a reader who fails it can only collect 403s.
+	 * Administrators only, for the same reason as store reports above: a reader who
+	 * fails the check can only collect 403s from the proxy's `wordads` prefix.
+	 *
+	 * That prefix names `activate_wordads`, and this deliberately does not. Despite
+	 * the name, `activate_wordads` is never a registered capability — not here, not
+	 * on WPCOM. It exists only as a field in the JSON API site payload, where it
+	 * carries "is this user the blog owner" for Calypso to read out of its Redux
+	 * capability map; stats-admin's Odyssey config data fills the same field with
+	 * `current_user_can( 'manage_options' )` for exactly that reason. Naming it here
+	 * would read as a second way in that no user ever has.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
 	public static function current_user_can_view_ad_reports() {
-		// The proxy accepts manage_options for every prefix.
-		return current_user_can( 'manage_options' ) || current_user_can( 'activate_wordads' );
+		return current_user_can( 'manage_options' );
 	}
 }
