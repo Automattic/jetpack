@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Status;
 
+use Brain\Monkey;
+use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -32,6 +34,11 @@ class Visitor_Test extends TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
+		Monkey\setUp();
+
+		// Most sites have no trusted header, so the header sweep is the default path under test.
+		Functions\when( 'get_site_option' )->justReturn( false );
+
 		$this->visitor_obj = new Visitor();
 	}
 
@@ -39,6 +46,7 @@ class Visitor_Test extends TestCase {
 	 * Test teardown.
 	 */
 	public function tearDown(): void {
+		Monkey\tearDown();
 		parent::tearDown();
 		unset( $_SERVER['REMOTE_ADDR'] );
 		unset( $_SERVER['HTTP_CF_CONNECTING_IP'] );
@@ -362,5 +370,61 @@ class Visitor_Test extends TestCase {
 		$_SERVER['HTTP_X_FORWARDED_FOR'] = 'not-an-ip-address';
 
 		$this->assertSame( '', $this->visitor_obj->get_ip( true ) );
+	}
+
+	/**
+	 * Configures a trusted header for the site, the way brute force protection does.
+	 *
+	 * @param string $header   Header to trust.
+	 * @param int    $segments How many entries back from the end of the list the visitor sits.
+	 * @param bool   $reverse  Whether the list runs in reverse.
+	 */
+	private function set_trusted_ip_header( $header, $segments = 1, $reverse = false ) {
+		Functions\when( 'get_site_option' )->justReturn(
+			(object) array(
+				'trusted_header' => $header,
+				'segments'       => $segments,
+				'reverse'        => $reverse,
+			)
+		);
+	}
+
+	/**
+	 * Tests that a configured trusted header decides which entry of the list is the visitor,
+	 * rather than the leftmost-wins rule the header sweep applies.
+	 *
+	 * With one trusted hop the visitor is the entry the proxy appended, '203.0.113.7'. The
+	 * sweep would have returned '9.9.9.9', which is whatever the client sent.
+	 */
+	public function test_get_ip_prefers_the_trusted_header_over_the_header_sweep() {
+		$_SERVER['REMOTE_ADDR']          = '10.0.0.5';
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = '9.9.9.9, 203.0.113.7';
+		$this->set_trusted_ip_header( 'HTTP_X_FORWARDED_FOR' );
+
+		$this->assertSame( '203.0.113.7', $this->visitor_obj->get_ip( true ) );
+	}
+
+	/**
+	 * Tests that the header sweep still runs when the site trusts a header the request did not
+	 * carry.
+	 */
+	public function test_get_ip_falls_back_to_the_sweep_when_the_trusted_header_is_absent() {
+		$_SERVER['REMOTE_ADDR']           = '10.0.0.5';
+		$_SERVER['HTTP_CF_CONNECTING_IP'] = '5.6.7.8';
+		$this->set_trusted_ip_header( 'HTTP_X_FORWARDED_FOR' );
+
+		$this->assertSame( '5.6.7.8', $this->visitor_obj->get_ip( true ) );
+	}
+
+	/**
+	 * Tests that a trusted header is only consulted when forwarded headers were asked for.
+	 * Without $check_all_headers the method still reports REMOTE_ADDR and nothing else.
+	 */
+	public function test_get_ip_ignores_the_trusted_header_without_check_all_headers() {
+		$_SERVER['REMOTE_ADDR']          = '10.0.0.5';
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = '9.9.9.9, 203.0.113.7';
+		$this->set_trusted_ip_header( 'HTTP_X_FORWARDED_FOR' );
+
+		$this->assertSame( '10.0.0.5', $this->visitor_obj->get_ip() );
 	}
 }

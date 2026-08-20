@@ -21,6 +21,10 @@ class Visitor {
 	 * forwarded headers are tried in order, a comma-separated list yields its first valid entry,
 	 * and a header holding no valid address is skipped.
 	 *
+	 * A site with a trusted header configured is a special case: that header, and how far back
+	 * to count in it, was worked out for this site's own proxy setup, so it is consulted before
+	 * the list below rather than guessed at. See `get_trusted_header_ip()`.
+	 *
 	 * The address is normalized by `IP\Utils::clean_ip()`: it is lowercased, anything following an
 	 * " unless " separator is dropped, and a port suffix, IPv6 brackets, or an `::ffff:` IPv4
 	 * mapping are reduced to the bare address. Code comparing this value against a stored or
@@ -32,6 +36,11 @@ class Visitor {
 	 */
 	public function get_ip( $check_all_headers = false ) {
 		if ( $check_all_headers ) {
+			$trusted_ip = $this->get_trusted_header_ip();
+			if ( false !== $trusted_ip ) {
+				return $trusted_ip;
+			}
+
 			foreach ( array(
 				'HTTP_CF_CONNECTING_IP',
 				'HTTP_CLIENT_IP',
@@ -57,6 +66,31 @@ class Visitor {
 
 		$ip = empty( $_SERVER['REMOTE_ADDR'] ) ? false : IP_Utils::clean_ip( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip() validates it.
 		return false !== $ip ? $ip : '';
+	}
+
+	/**
+	 * Resolves the visitor address from the header that was verified for this site.
+	 *
+	 * Brute force protection stores the header to read, how many entries back from the end of
+	 * its list the visitor sits, and whether that list runs in reverse, in the
+	 * `trusted_ip_header` site option. That is an answer for this site's actual proxy setup,
+	 * which is more than the header sweep in `get_ip()` can work out on its own, so it wins
+	 * when it is available.
+	 *
+	 * `IP\Utils::get_ip()` owns reading it, so the two stay in step rather than each deciding
+	 * which entry of a forwarded list belongs to the visitor.
+	 *
+	 * @return string|false Visitor IP address, or false when the site has no trusted header,
+	 *                      the request did not carry it, or it held no valid address.
+	 */
+	private function get_trusted_header_ip() {
+		$trusted_header_data = get_site_option( 'trusted_ip_header' );
+
+		if ( ! isset( $trusted_header_data->trusted_header ) || ! isset( $_SERVER[ $trusted_header_data->trusted_header ] ) ) {
+			return false;
+		}
+
+		return IP_Utils::get_ip();
 	}
 
 	/**

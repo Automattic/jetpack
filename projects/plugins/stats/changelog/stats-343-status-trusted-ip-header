@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Report the visitor address a proxied site's trusted header identifies, rather than one the request could name for itself.
