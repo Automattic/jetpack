@@ -207,10 +207,27 @@ class Jetpack_Likes_Settings {
 	}
 
 	/**
-	 * Adds the 'sharing' menu to the settings menu.
-	 * Only ran if sharedaddy and publicize are not already active.
+	 * Should we register the Settings > Sharing screen ourselves?
 	 *
-	 * @deprecated 13.2
+	 * Our settings are displayed on Settings > Sharing, but that screen is registered by
+	 * the Sharing (sharedaddy) module. When that module is off, nothing registers the
+	 * screen and our settings become unreachable.
+	 *
+	 * WordPress.com Simple sites are excluded: the screen is registered elsewhere there.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $sharedaddy_active Whether the Sharing (sharedaddy) module is active.
+	 * @return bool
+	 */
+	public function needs_own_sharing_menu( $sharedaddy_active ) {
+		return ! $sharedaddy_active && $this->in_jetpack;
+	}
+
+	/**
+	 * Adds the 'sharing' menu to the settings menu.
+	 * Only ran when the Sharing (sharedaddy) module is inactive on a Jetpack site,
+	 * since Settings > Sharing is where our settings live. See needs_own_sharing_menu().
 	 */
 	public function sharing_menu() {
 		add_submenu_page( 'options-general.php', esc_html__( 'Sharing Settings', 'jetpack' ), esc_html__( 'Sharing', 'jetpack' ), 'manage_options', 'sharing', array( $this, 'sharing_page' ) );
@@ -219,9 +236,8 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Provides a sharing page with the sharing_global_options hook
 	 * so we can display the setting.
-	 * Only ran if sharedaddy and publicize are not already active.
-	 *
-	 * @deprecated 13.2
+	 * Only ran when the Sharing (sharedaddy) module is inactive on a Jetpack site,
+	 * since Settings > Sharing is where our settings live. See needs_own_sharing_menu().
 	 */
 	public function sharing_page() {
 		$this->updated_message();
@@ -240,8 +256,6 @@ class Jetpack_Likes_Settings {
 
 	/**
 	 * Returns the settings have been saved message.
-	 *
-	 * @deprecated 13.2
 	 */
 	public function updated_message() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ignoring since we are just displaying that the settings have been saved and not making  any other changes to the site.
@@ -251,13 +265,15 @@ class Jetpack_Likes_Settings {
 	}
 
 	/**
-	 * Returns just the "sharing buttons" w/ like option block, so it can be inserted into different sharing page contexts
+	 * Returns the Likes options block, so it can be inserted into different sharing page contexts.
 	 *
-	 * @deprecated 13.2
+	 * Only rendered when the Sharing (sharedaddy) module is off, which is why the heading
+	 * does not mention sharing buttons: what lands under it is the Likes settings, the
+	 * "Show buttons on" setting that governs where Likes appear, and the Twitter Site Tag.
 	 */
 	public function sharing_block() {
 		?>
-		<h2><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h2>
+		<h2><?php esc_html_e( 'Likes and Sharing', 'jetpack' ); ?></h2>
 		<form method="post" action="">
 			<table class="form-table">
 				<tbody>
