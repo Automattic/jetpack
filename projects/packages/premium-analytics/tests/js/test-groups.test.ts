@@ -7,10 +7,7 @@ import path from 'path';
 const GROUPS_DIR = path.join( __dirname, '..', '..', 'widgets', '__groups__' );
 
 /**
- * Top-level `jest.mock()` calls in a source file, as raw text.
- *
- * A regex can't be trusted here — mock factories contain nested parens and
- * arbitrary JSX — so the call is delimited by balancing parentheses instead.
+ * Gets top-level `jest.mock()` calls by balancing their parentheses.
  *
  * @param {string} source - File contents.
  * @return {string[]} The `jest.mock( … )` calls, in source order.
@@ -45,13 +42,7 @@ function mockCalls( source: string ): string[] {
 }
 
 /**
- * A comparable fingerprint of everything a suite mocks.
- *
- * Members of a group share one module registry, so a mock registered by one of
- * them applies to all — grouping suites whose mocks differ silently changes what
- * the other suites are testing. Relative paths inside a factory (typically
- * `jest.requireActual( '../../test-utils' )`) are resolved first, so suites at
- * different nesting depths that mock the same module compare equal.
+ * Gets a normalized signature of a suite's module mocks.
  *
  * @param {string} file - Absolute path of the test file.
  * @return {string[]|null} Normalised mock calls, or null when the file mocks a
@@ -77,9 +68,9 @@ function mockSignature( file: string ): string[] | null {
 }
 
 /**
- * Group files omit the extension, matching how the suites are imported.
+ * Resolves an extensionless suite path.
  *
- * @param {string} member - Extensionless absolute path from a group file.
+ * @param {string} member - Extensionless suite path.
  * @return {string|null} The real file, or null when nothing resolves.
  */
 function resolveSuite( member: string ): string | null {
@@ -87,7 +78,7 @@ function resolveSuite( member: string ): string | null {
 }
 
 /**
- * Lists the group definitions to check.
+ * Gets group file names.
  *
  * @return {string[]} Group file names, sorted for stable test titles.
  */
@@ -99,10 +90,10 @@ function groupFiles(): string[] {
 }
 
 /**
- * Reads the suites a group pulls in.
+ * Gets suites imported by a group.
  *
  * @param {string} groupFile - Group file name.
- * @return {string[]} Absolute, extensionless paths of the suites it imports.
+ * @return {string[]} Suites imported by the group.
  */
 function membersOf( groupFile: string ): string[] {
 	const source = fs.readFileSync( path.join( GROUPS_DIR, groupFile ), 'utf8' );

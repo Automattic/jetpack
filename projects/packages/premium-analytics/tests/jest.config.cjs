@@ -6,10 +6,7 @@ const rootDir = path.join( __dirname, '..' );
 const groupsDir = path.join( rootDir, 'widgets', '__groups__' );
 
 /**
- * Test files pulled in by a group file (see widgets/__groups__/README.md).
- *
- * The group files omit extensions, so each path is resolved to the real file
- * before it can be matched against the paths jest hands testPathIgnorePatterns.
+ * Gets the test suites imported by group files.
  *
  * @return {string[]} Absolute paths of grouped member suites.
  */
