@@ -2,7 +2,25 @@
  * External dependencies
  */
 import { localTZDate, dateToISOStringWithLocalTZ } from '@jetpack-premium-analytics/data';
+import { isValid } from 'date-fns';
 import type { DateRange } from '@jetpack-premium-analytics/datetime';
+
+/**
+ * Parse a stored report-param date for the picker.
+ *
+ * @param value    - The stored `from` or `to`.
+ * @param timezone - The timezone used by the picker.
+ * @return The parsed date, or undefined when it is missing or malformed.
+ */
+export function decodeDateSearchParam( value?: string, timezone?: string ): Date | undefined {
+	if ( ! value ) {
+		return undefined;
+	}
+
+	const date = localTZDate( value, timezone );
+
+	return isValid( date ) ? date : undefined;
+}
 
 /**
  * Serializes a Date into an ISO string with the site's timezone

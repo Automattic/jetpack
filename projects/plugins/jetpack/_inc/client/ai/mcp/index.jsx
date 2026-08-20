@@ -24,8 +24,8 @@ import {
 	list,
 } from '@wordpress/icons';
 import { Badge, Button, Stack } from '@wordpress/ui';
-import analytics from 'lib/analytics';
 import { isWriteTool } from './categories';
+import { recordMcpTracksEvent } from './tracks';
 import {
 	getAccountMcpAbilities,
 	getSiteContextToolIds,
@@ -209,10 +209,12 @@ export default function McpHub( {
 
 	const handleMcpToggle = useCallback(
 		enabled => {
-			analytics.tracks.recordEvent( 'jetpack_mcp_enabled_toggled', { enabled } );
+			recordMcpTracksEvent( 'jetpack_mcp_enabled_toggled', { enabled } );
 			const abilities = {};
 			if ( enabled ) {
-				readTools.forEach( ( [ toolId ] ) => {
+				// Enable all tools (read + write) by default, matching the backend's
+				// new default-on behavior.
+				availableTools.forEach( ( [ toolId ] ) => {
 					abilities[ toolId ] = true;
 				} );
 			}
@@ -226,7 +228,7 @@ export default function McpHub( {
 				],
 			} );
 		},
-		[ blogId, onUpdate, readTools ]
+		[ blogId, onUpdate, availableTools ]
 	);
 
 	const navigateToRead = useCallback( () => onNavigate( 'read' ), [ onNavigate ] );

@@ -25,6 +25,21 @@ function readMilestone(): number {
 }
 
 /**
+ * Whether the site has store data to sync (WooCommerce active). When false the
+ * status is derived from Jetpack's generic initial full sync. Read once at mount;
+ * WooCommerce activation only changes between page loads.
+ *
+ * Defaults to false when the flag is absent (an abnormal boot — the backend always
+ * injects it). "Site data" is the neutral, never-wrong framing: every site has it,
+ * only some have a store, so guessing a store is the riskier miss.
+ *
+ * @return Whether the site has store data.
+ */
+function hasStoreData(): boolean {
+	return getScriptData()?.premium_analytics?.has_store_data ?? false;
+}
+
+/**
  * Polls Jetpack's sync status and returns analytics-scoped progress.
  *
  * Polling auto-stops when the sync completes or stalls, or after
@@ -38,6 +53,7 @@ function readMilestone(): number {
  */
 export function useSyncStatus(): UseSyncStatusReturn {
 	const milestoneRef = useRef< number >( readMilestone() );
+	const hasStoreDataRef = useRef< boolean >( hasStoreData() );
 	const [ data, setData ] = useState< SyncStatus >();
 	const [ error, setError ] = useState< Error | null >( null );
 	const [ isStalled, setIsStalled ] = useState( false );
@@ -69,7 +85,7 @@ export function useSyncStatus(): UseSyncStatusReturn {
 					milestoneRef.current = live;
 				}
 
-				const status = toSyncStatus( raw, milestoneRef.current );
+				const status = toSyncStatus( raw, milestoneRef.current, hasStoreDataRef.current );
 				failureCountRef.current = 0;
 				setData( status );
 				setError( null );
@@ -84,7 +100,9 @@ export function useSyncStatus(): UseSyncStatusReturn {
 					clearPolling();
 					setIsStalled( true );
 					setError(
-						new Error( __( 'Sync has stalled. Please try again.', 'jetpack-premium-analytics' ) )
+						new Error(
+							__( 'Sync has stalled. Please try again.', 'jetpack-premium-analytics-pkg' )
+						)
 					);
 				}
 			} )
@@ -92,7 +110,7 @@ export function useSyncStatus(): UseSyncStatusReturn {
 				const message =
 					e instanceof Error
 						? e.message
-						: __( 'Unable to get sync status.', 'jetpack-premium-analytics' );
+						: __( 'Unable to get sync status.', 'jetpack-premium-analytics-pkg' );
 				// Keep polling through transient blips; only give up once failures
 				// pile up, so a momentary network/500 hiccup self-heals next tick.
 				failureCountRef.current += 1;
@@ -124,7 +142,9 @@ export function useSyncStatus(): UseSyncStatusReturn {
 			startPolling();
 		} catch ( e: unknown ) {
 			const message =
-				e instanceof Error ? e.message : __( 'Unable to start sync.', 'jetpack-premium-analytics' );
+				e instanceof Error
+					? e.message
+					: __( 'Unable to start sync.', 'jetpack-premium-analytics-pkg' );
 			setError( new Error( message ) );
 		}
 	}, [ clearPolling, poll, startPolling ] );
@@ -132,7 +152,7 @@ export function useSyncStatus(): UseSyncStatusReturn {
 	useEffect( () => {
 		// Already finished before this page load — gate open, no polling needed.
 		if ( milestoneRef.current > 0 ) {
-			setData( toSyncStatus( {}, milestoneRef.current ) );
+			setData( toSyncStatus( {}, milestoneRef.current, hasStoreDataRef.current ) );
 			return;
 		}
 

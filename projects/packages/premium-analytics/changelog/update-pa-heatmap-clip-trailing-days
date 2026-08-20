@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stats: align the post activity heatmap with the design: draw the current week only through today, and lead the cell tooltip with the view count.

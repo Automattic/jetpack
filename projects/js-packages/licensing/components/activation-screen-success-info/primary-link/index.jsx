@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import useActivePlugins from '../../../hooks/use-active-plugins';
 import { getProductGroup } from '../../activation-screen/utils';
@@ -21,11 +21,22 @@ const PrimaryLink = props => {
 		productGroup === 'jetpack_social_advanced' || productGroup === 'jetpack_social_basic';
 	const isJetpackProtectActive = isPluginActive( 'Jetpack Protect' );
 
+	// The success-screen CTAs only navigate the current tab. Using onClick keeps
+	// a native @wordpress/ui <button> (so its styles render untouched) rather
+	// than rendering it as an anchor.
+	// TODO: replace these onClick navigations with @wordpress/ui `LinkButton` once it ships (Gutenberg #77098).
+	const navigateTo = url => () => {
+		window.location.href = url;
+	};
+
 	if ( isFetching ) {
 		return (
-			<Button className="jp-license-activation-screen-success-info--button">
-				<Spinner />
-			</Button>
+			<Button
+				className="jp-license-activation-screen-success-info--button"
+				loading
+				loadingAnnouncement={ __( 'Loading…', 'jetpack-licensing' ) }
+				aria-label={ __( 'Loading…', 'jetpack-licensing' ) }
+			/>
 		);
 	}
 
@@ -33,15 +44,15 @@ const PrimaryLink = props => {
 		return (
 			<Button
 				className="jp-license-activation-screen-success-info--button"
-				href={
+				onClick={ navigateTo(
 					siteAdminUrl +
-					( isJetpackActive
-						? 'admin.php?page=jetpack#/recommendations/' +
-						  ( productGroup === 'jetpack_social_advanced'
-								? 'welcome-social-advanced'
-								: 'welcome-social-basic' )
-						: 'admin.php?page=jetpack-social' )
-				}
+						( isJetpackActive
+							? 'admin.php?page=jetpack#/recommendations/' +
+							  ( productGroup === 'jetpack_social_advanced'
+									? 'welcome-social-advanced'
+									: 'welcome-social-basic' )
+							: 'admin.php?page=jetpack-social' )
+				) }
 			>
 				{ __( 'Configure my site', 'jetpack-licensing' ) }
 			</Button>
@@ -53,7 +64,10 @@ const PrimaryLink = props => {
 			? siteAdminUrl + 'admin.php?page=jetpack-protect'
 			: getRedirectUrl( 'jetpack-license-activation-success-scan', { site: siteRawUrl } );
 		return (
-			<Button className="jp-license-activation-screen-success-info--button" href={ redirectSource }>
+			<Button
+				className="jp-license-activation-screen-success-info--button"
+				onClick={ navigateTo( redirectSource ) }
+			>
 				{ __( 'View scan results', 'jetpack-licensing' ) }
 			</Button>
 		);
@@ -64,7 +78,7 @@ const PrimaryLink = props => {
 		return (
 			<Button
 				className="jp-license-activation-screen-success-info--button"
-				href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
+				onClick={ navigateTo( siteAdminUrl + 'admin.php?page=jetpack#/recommendations' ) }
 			>
 				{ __( 'Configure my site', 'jetpack-licensing' ) }
 			</Button>
@@ -74,7 +88,9 @@ const PrimaryLink = props => {
 	return (
 		<Button
 			className="jp-license-activation-screen-success-info--button"
-			href={ getRedirectUrl( 'license-activation-view-my-plans', { site: siteRawUrl } ) }
+			onClick={ navigateTo(
+				getRedirectUrl( 'license-activation-view-my-plans', { site: siteRawUrl } )
+			) }
 		>
 			{ __( 'View my plans', 'jetpack-licensing' ) }
 		</Button>

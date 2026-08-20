@@ -103,9 +103,9 @@ export const Input = ( {
 			<Text
 				component="label"
 				variant={ size === 'small' ? 'body-small' : 'body' }
-				htmlFor={ name }
 				mb={ 1 }
 				className={ styles.label }
+				{ ...( { htmlFor: name } as Record< string, unknown > ) }
 			>
 				{ label }
 			</Text>

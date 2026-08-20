@@ -298,11 +298,45 @@ class Stats extends Module_Product {
 	}
 
 	/**
+	 * Mirrors `Analytics::MENU_PAGE_SLUG`, spelled out because My Jetpack does not
+	 * depend on the premium-analytics package.
+	 *
+	 * @since 5.42.0
+	 */
+	const PREMIUM_ANALYTICS_PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
+
+	/**
+	 * Whether the Premium Analytics dashboard is the site's analytics UI.
+	 *
+	 * Guarded like the other `class_exists( 'Jetpack' )` checks here: My Jetpack
+	 * also ships in plugins without the Jetpack plugin. Public so the UI flags
+	 * report the same answer the URLs are built from.
+	 *
+	 * @since 5.42.0
+	 *
+	 * @return bool
+	 */
+	public static function is_premium_analytics_enabled() {
+		return class_exists( 'Jetpack' )
+			&& method_exists( 'Jetpack', 'is_premium_analytics_enabled' )
+			&& \Jetpack::is_premium_analytics_enabled();
+	}
+
+	/**
 	 * Get the WordPress.com URL for purchasing Jetpack Stats for the current site.
+	 *
+	 * Null once Premium Analytics is the analytics UI: the tier purchase
+	 * screen was a Calypso route inside the Odyssey bundle, so it left with that
+	 * dashboard. Null is also the base-class default, which falls the action
+	 * button back to the existing `#/add-stats` interstitial.
 	 *
 	 * @return ?string
 	 */
 	public static function get_purchase_url() {
+		if ( self::is_premium_analytics_enabled() ) {
+			return null;
+		}
+
 		$status = static::get_status();
 		if ( $status === Products::STATUS_NEEDS_FIRST_SITE_CONNECTION ) {
 			return null;
@@ -323,6 +357,10 @@ class Stats extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
+		if ( self::is_premium_analytics_enabled() ) {
+			return admin_url( 'admin.php?page=' . self::PREMIUM_ANALYTICS_PAGE_SLUG );
+		}
+
 		return admin_url( 'admin.php?page=stats' );
 	}
 

@@ -1,0 +1,129 @@
+/**
+ * External dependencies
+ */
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { device } from '@jetpack-premium-analytics/icons';
+/**
+ * WordPress dependencies
+ */
+import { __ } from '@wordpress/i18n';
+import {
+	DonutChartSkeleton,
+	Legend,
+	WIDGET_ROW_LIMIT,
+	describeError,
+	SemiCircleChart,
+	WidgetRoot,
+	WidgetState,
+	useSegmentStyles,
+	useWidgetRootContext,
+	type LegendItem,
+	type ReportParamsFieldAttributes,
+	type SemiCircleChartData,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * Internal dependencies
+ */
+import styles from './style.module.css';
+import useDeviceViews from './use-device-views';
+import { type DevicesAttributes } from './widget';
+/**
+ * Types
+ */
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+type DevicesRenderAttributes = DevicesAttributes & Partial< ReportParamsFieldAttributes >;
+type DevicesWidgetProps = WidgetRenderProps< DevicesRenderAttributes >;
+
+const PERCENTAGE_DATA_FORMAT = {
+	type: 'percentage' as const,
+	options: { decimals: 1, signDisplay: 'auto' as const },
+};
+
+function toRatio( percentage: number ) {
+	return percentage / 100;
+}
+
+function DevicesInner() {
+	const { reportParams } = useWidgetRootContext();
+	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useDeviceViews( {
+		reportParams,
+		max: WIDGET_ROW_LIMIT,
+		deviceProperty: 'screensize',
+	} );
+
+	const chartData: SemiCircleChartData = data.map( item => ( {
+		label: item.displayLabel,
+		value: toRatio( item.percentage ),
+	} ) );
+
+	const segmentStyles = useSegmentStyles( chartData );
+
+	const legendData: LegendItem[] = data.map( item => ( {
+		label: item.displayLabel,
+		value: toRatio( item.percentage ),
+		displayValue: formatMetricValue(
+			toRatio( item.percentage ),
+			PERCENTAGE_DATA_FORMAT.type,
+			PERCENTAGE_DATA_FORMAT.options
+		),
+		comparison:
+			hasComparison && item.previousPercentage !== undefined
+				? toRatio( item.previousPercentage )
+				: undefined,
+	} ) );
+	const styledLegendData = legendData.map( ( item, index ) => ( {
+		...item,
+		color: segmentStyles[ index ]?.color,
+	} ) );
+
+	return (
+		<div className={ styles.content }>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				isError={ isError }
+				isEmpty={ data.length === 0 }
+				error={ describeError( error, {
+					retryDescription: __(
+						"We couldn't load device data. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					onRetry: refetch,
+				} ) }
+				empty={ {
+					icon: device,
+					description: __( 'No device data in this period.', 'jetpack-premium-analytics-pkg' ),
+				} }
+				renderLoading={ <DonutChartSkeleton /> }
+			>
+				<div className={ styles.chartWrap }>
+					<div className={ styles.chartShell }>
+						<SemiCircleChart
+							chartData={ chartData }
+							styles={ segmentStyles }
+							showLegend={ false }
+							showMetric={ false }
+							withTooltips
+							dataFormat={ PERCENTAGE_DATA_FORMAT }
+						/>
+						<Legend items={ styledLegendData } withComparison={ hasComparison } />
+					</div>
+				</div>
+			</WidgetState>
+		</div>
+	);
+}
+
+/**
+ * Shows screen size breakdown (Desktop / Mobile / Tablet) as a semi-circle chart.
+ */
+export default function DevicesWidget( { attributes = {} }: DevicesWidgetProps ) {
+	return (
+		<WidgetRoot attributes={ attributes }>
+			<div className={ styles.root }>
+				<DevicesInner />
+			</div>
+		</WidgetRoot>
+	);
+}

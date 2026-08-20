@@ -133,8 +133,11 @@
 	font-weight: 700;
 }
 
-.contact-form :where(legend.grunion-field-label) {
-	padding: 0;
+/* Browsers give <legend> 2px of inline padding that <label> does not get, so a
+ * grouped field's label would sit indented from every other field's. Neutralise
+ * just that, at zero specificity so themes and global styles still win. */
+:where(.contact-form legend.grunion-field-label) {
+	padding-inline: 0;
 }
 
 .contact-form :where(label.consent) {
@@ -893,7 +896,9 @@
 		.grunion-field-radio-wrap,
 		.grunion-field-select-wrap,
 		.grunion-field-file-wrap,
-		.grunion-field-phone-wrap
+		.grunion-field-phone-wrap,
+		.grunion-field-slider-wrap,
+		.grunion-field-rating-wrap
 	) {
 		position: relative;
 		display: flex;
@@ -1018,7 +1023,6 @@
 For some reason, when keeping the rule below together with the above selector,
 on production builds, the attributes are being reordered, causing side-effects
 */
-/* stylelint-disable-next-line no-duplicate-selectors*/
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__notch {
 	border-left: none !important;
 	border-right: none;
@@ -1254,7 +1258,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 /* fields with multiple options */
-.wp-block-jetpack-contact-form:not(.is-style-outlined) .jetpack-field-multiple__fieldset {
+.wp-block-jetpack-contact-form .jetpack-field-multiple__fieldset {
 	padding: 8px 0 0 0;
 	border: 0;
 	margin: 0;
@@ -1658,5 +1662,47 @@ on production builds, the attributes are being reordered, causing side-effects
 
 	&.is-visible {
 		display: block;
+	}
+}
+
+/* Conditional logic hides the entire field wrapper and its inputs. */
+.jetpack-field--conditionally-hidden {
+	display: none !important;
+}
+
+/*
+ * Ease a conditional field in and out rather than
+ * snapping it.
+ *
+ * Scoped to [data-jp-conditional] so only fields that
+ * carry a condition transition; every other field
+ * renders with no animation cost. `display` is in the
+ * transition with allow-discrete so the element still
+ * leaves the layout when the exit finishes, and
+ * @starting-style supplies the entry state for an
+ * element arriving from display: none. Browsers without
+ * those features show and hide instantly.
+ *
+ * None of this runs when the visitor has asked for
+ * reduced motion: the rule above is the whole
+ * behaviour in that case.
+ */
+@media not (prefers-reduced-motion) {
+
+	[data-jp-conditional] {
+		transition:
+			opacity 120ms ease-out,
+			transform 120ms ease-out,
+			display 120ms allow-discrete;
+
+		@starting-style {
+			opacity: 0;
+			transform: translateY(-4px);
+		}
+	}
+
+	.jetpack-field--conditionally-hidden[data-jp-conditional] {
+		opacity: 0;
+		transform: translateY(-4px);
 	}
 }

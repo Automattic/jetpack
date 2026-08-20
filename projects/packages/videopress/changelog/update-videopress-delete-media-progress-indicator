@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-VideoPress dashboard: show a Deleting progress state on library rows and the video details page while media is being deleted, and run bulk deletions in parallel.

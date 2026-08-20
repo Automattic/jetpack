@@ -12,9 +12,6 @@ import type { DataFormat } from '../../types';
 import type { FontSize } from '@wordpress/theme';
 
 export type MetricValueProps = {
-	/**
-	 * The numeric value to display
-	 */
 	value: number;
 
 	/**
@@ -28,10 +25,13 @@ export type MetricValueProps = {
 	 */
 	currencyCode?: string;
 
-	/**
-	 * CSS class for styling
-	 */
 	className?: string;
+
+	/**
+	 * `title` tooltip on the value, e.g. the exact count behind a shortened
+	 * display value (`18K` → `18,432`).
+	 */
+	title?: string;
 
 	/**
 	 * Font size token from the WordPress Design System.
@@ -52,12 +52,10 @@ export function MetricValue( {
 	dataFormat = { type: 'number' },
 	currencyCode,
 	className,
+	title,
 	fontSize = 'lg',
 	color = 'neutral',
 }: MetricValueProps ) {
-	/**
-	 * Create display value using dataFormat configuration
-	 */
 	const displayValue = useMemo(
 		() =>
 			formatMetricValue( value, dataFormat.type, {
@@ -74,6 +72,7 @@ export function MetricValue( {
 	return (
 		<span
 			style={ style }
+			title={ title }
 			className={ clsx( styles.metricValue, styles[ `color--${ color }` ], className ) }
 		>
 			{ displayValue }

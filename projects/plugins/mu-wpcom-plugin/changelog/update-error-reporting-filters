@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+WP.com Error Reporting: delegate all decisions to host-specific filters

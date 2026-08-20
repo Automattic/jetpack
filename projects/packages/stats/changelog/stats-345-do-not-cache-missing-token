@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop caching the failure a request makes when the site has no WordPress.com connection, so a site that has just connected sees its stats straight away.

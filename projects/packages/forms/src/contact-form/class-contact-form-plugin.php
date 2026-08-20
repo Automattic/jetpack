@@ -237,7 +237,9 @@ class Contact_Form_Plugin {
 			add_action( 'wp_ajax_grunion_export_to_gdrive', array( $this, 'export_to_gdrive' ) );
 		}
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-		add_action( 'current_screen', array( $this, 'unread_count' ) );
+		// Priority 1000: after Dashboard::add_admin_submenu() (999) registers the Forms submenu,
+		// but well before the menu-badges renderer (100000) reads the registry.
+		add_action( 'admin_menu', array( $this, 'unread_count' ), 1000 );
 		add_action( 'current_screen', array( $this, 'redirect_edit_feedback_to_jetpack_forms' ) );
 
 		add_filter( 'use_block_editor_for_post_type', array( $this, 'use_block_editor_for_post_type' ), 10, 2 );
@@ -567,6 +569,33 @@ class Contact_Form_Plugin {
 			unset( $atts['defaultValue'] );
 		}
 
+		// Serialize the conditionalLogic object so it survives the shortcode roundtrip.
+		// Only emit when explicitly enabled to keep the shortcode and frontend context lean.
+		//
+		// JSON_HEX_TAG matters as much as JSON_HEX_AMP here: this lands in `post_content` as
+		// shortcode text and is decoded back in Contact_Form_Field, and KSES rewrites a bare
+		// `<` on the way in. A rule comparing against a value containing `<` would come back
+		// as unparseable JSON and silently drop the field's whole condition.
+		if ( isset( $atts['conditionalLogic'] ) ) {
+			$logic = $atts['conditionalLogic'];
+			if ( is_array( $logic ) && ! empty( $logic['enabled'] ) ) {
+				$json = \wp_json_encode( $logic, JSON_UNESCAPED_SLASHES | JSON_HEX_AMP | JSON_HEX_TAG );
+
+				// The rules are a JSON array, so the value contains `[` and `]`. WordPress's
+				// shortcode attribute pattern excludes both, so as shortcode text the value is
+				// cut short and the attribute is dropped entirely -- leaving a field that is
+				// still required but no longer conditional, which blocks submission on a
+				// question the visitor cannot see. Numeric entities survive the pattern and
+				// are turned back by the html_entity_decode() in Contact_Form_Field.
+				$atts['conditionallogic'] = str_replace(
+					array( '[', ']' ),
+					array( '&#91;', '&#93;' ),
+					(string) $json
+				);
+			}
+			unset( $atts['conditionalLogic'] );
+		}
+
 		// Process inner blocks to shortcode attributes.
 		if ( $block && ! empty( $block->parsed_block['innerBlocks'] ) ) {
 			// Only apply the block style classes to the field wrapper if the field is one of the new inner block types.
@@ -584,8 +613,22 @@ class Contact_Form_Plugin {
 					$atts['labelstyles']                      = $label_attrs['style'] ?? null;
 					$add_block_style_classes_to_field_wrapper = true;
 
-					// check if the block has been hidden by blockVisibility support
-					$atts['labelhiddenbyblockvisibility'] = isset( $inner_block['attrs']['metadata']['blockVisibility'] ) && false === $inner_block['attrs']['metadata']['blockVisibility'];
+					// Honor blockVisibility support on the label. Full-hide
+					// (blockVisibility === false) skips the label render; per-viewport
+					// hide gets the same wp-block-hidden-{mobile,tablet,desktop} classes
+					// Gutenberg would add — the matching media-query CSS is already
+					// registered by core's render_block visibility filter (the label
+					// keeps visibility support). See FORMS-694.
+					$block_visibility                     = $inner_block['attrs']['metadata']['blockVisibility'] ?? null;
+					$atts['labelhiddenbyblockvisibility'] = false === $block_visibility;
+
+					if ( is_array( $block_visibility ) && isset( $block_visibility['viewport'] ) && is_array( $block_visibility['viewport'] ) ) {
+						foreach ( array( 'mobile', 'tablet', 'desktop' ) as $viewport_size ) {
+							if ( isset( $block_visibility['viewport'][ $viewport_size ] ) && false === $block_visibility['viewport'][ $viewport_size ] ) {
+								$atts['labelclasses'] .= ' wp-block-hidden-' . $viewport_size;
+							}
+						}
+					}
 
 					continue;
 				}
@@ -882,33 +925,29 @@ class Contact_Form_Plugin {
 		);
 
 		// Process content for marker classes and add interactivity
-		$processed_content = $content;
+		$blocks_content = do_blocks( $content );
+		$tags           = new \WP_HTML_Tag_Processor( $blocks_content );
 
-		// Only process if we have the WP_HTML_Tag_Processor
-		if ( class_exists( 'WP_HTML_Tag_Processor' ) ) {
-			$blocks_content = do_blocks( $content );
-			$tags           = new \WP_HTML_Tag_Processor( $blocks_content );
+		// Move to the first token so the bookmark has a valid span, then set the bookmark.
+		$tags->next_tag();
+		$tags->set_bookmark( 'start' );
 
-			// Move to the first token so the bookmark has a valid span, then set the bookmark.
-			$tags->next_tag();
-			$tags->set_bookmark( 'start' );
-
-			// Process blocks with the "next step" trigger
-			while ( $tags->next_tag( array( 'class_name' => 'trigger-next-step' ) ) ) {
-				// No need to set data-wp-interactive since the parent div already has it
-				$tags->set_attribute( 'data-wp-on--click', 'actions.nextStep' );
-			}
-
-			// Reset and process blocks with the "previous step" trigger
-			$tags->seek( 'start' );
-			while ( $tags->next_tag( array( 'class_name' => 'trigger-previous-step' ) ) ) {
-				$tags->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
-			}
-
-			$processed_content = $tags->get_updated_html();
-		} else {
-			$processed_content = do_blocks( $content );
+		// Process blocks with the "next step" trigger
+		while ( $tags->next_tag( array( 'class_name' => 'trigger-next-step' ) ) ) {
+			// No need to set data-wp-interactive since the parent div already has it
+			$tags->set_attribute( 'data-wp-on--click', 'actions.nextStep' );
 		}
+
+		// Reset and process blocks with the "previous step" trigger
+		$tags->seek( 'start' );
+		while ( $tags->next_tag( array( 'class_name' => 'trigger-previous-step' ) ) ) {
+			$tags->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
+		}
+
+		$processed_content = $tags->get_updated_html();
+
+		$processed_content = Contact_Form_Block::apply_background_support( $processed_content, $atts, Contact_Form_Block::STEP_BLOCK_CLASS );
+
 		$is_current_step_class = ( self::$step_count === 1 ? 'is-current-step' : '' );
 		return '<div data-wp-interactive="jetpack/form" class="jetpack-form-step ' . $is_current_step_class . ' " data-wp-class--is-before-current="state.isBeforeCurrent" data-wp-class--is-after-current="state.isAfterCurrent" data-wp-class--is-current-step="state.isCurrentStep" ' . wp_interactivity_data_wp_context( array( 'step' => self::$step_count ) ) . ' >'
 				. $processed_content
@@ -1371,15 +1410,7 @@ class Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_file( $atts, $content, $block ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'file', $block );
-		// Create wrapper div for the file field
-		$output = '<div class="jetpack-form-file-field">';
-
-		// Render the file field
-		$output .= Contact_Form::parse_contact_field( $atts, $content );
-
-		$output .= '</div>';
-
-		return $output;
+		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 	/**
 	 * Render the dropzone field.
@@ -1524,83 +1555,25 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Display the count of new feedback entries received. It's reset when user visits the Feedback screen.
+	 * Report the count of new feedback entries received to the central menu-badges
+	 * registry. It's reset when the user visits the Feedback screen.
 	 *
 	 * @since 4.1.0
 	 */
 	public function unread_count() {
-
-		global $submenu, $menu;
-		if ( current_user_can( 'edit_pages' ) ) {
-			// show the count on Jetpack and Jetpack → Forms
-			$unread = self::get_unread_count();
-
-			if ( isset( $submenu['jetpack'] ) && is_array( $submenu['jetpack'] ) && ! empty( $submenu['jetpack'] ) ) {
-				$forms_unread_count_tag = $this->get_unread_count_badge_markup( $unread );
-				$jetpack_badge_count    = $unread;
-
-				// Main menu entries
-				foreach ( $menu as $index => $main_menu_item ) {
-					if ( isset( $main_menu_item[1] ) && 'jetpack_admin_page' === $main_menu_item[1] ) {
-						// Parse the menu item
-						$jetpack_menu_item = $this->parse_menu_item( $menu[ $index ][0] );
-
-						if ( isset( $jetpack_menu_item['badge'] ) && is_numeric( $jetpack_menu_item['badge'] ) && intval( $jetpack_menu_item['badge'] ) ) {
-							$jetpack_badge_count += intval( $jetpack_menu_item['badge'] );
-						}
-
-						if ( isset( $jetpack_menu_item['count'] ) && is_numeric( $jetpack_menu_item['count'] ) && intval( $jetpack_menu_item['count'] ) ) {
-							$jetpack_badge_count += intval( $jetpack_menu_item['count'] );
-						}
-
-						if ( $unread > 0 ) {
-							$jetpack_unread_tag = $this->get_unread_count_badge_markup(
-								$jetpack_badge_count,
-								$jetpack_badge_count - $unread
-							);
-
-							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-							$menu[ $index ][0] = $jetpack_menu_item['title'] . ' ' . $jetpack_unread_tag;
-						}
-					}
-				}
-
-				// Jetpack submenu entries
-				if ( $unread > 0 ) {
-					foreach ( $submenu['jetpack'] as $index => $menu_item ) {
-						/** This filter is documented in class-dashboard.php::init */
-						$admin_slug = apply_filters( 'jetpack_forms_alpha', true ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
-						if ( $admin_slug === $menu_item[2] ) {
-							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-							$submenu['jetpack'][ $index ][0] .= $forms_unread_count_tag;
-						}
-					}
-				}
-			}
+		if ( ! current_user_can( 'edit_pages' ) ) {
 			return;
 		}
-	}
-
-	/**
-	 * Build the admin menu unread count badge markup.
-	 *
-	 * Uses the `menu-counter` markup expected by admin color schemes so bubble
-	 * colors render correctly in the sidebar.
-	 *
-	 * @since 7.21.3
-	 *
-	 * @param int      $count         Badge count to display.
-	 * @param int|null $unread_diff   Optional diff for combined Jetpack menu badges.
-	 * @return string Badge HTML.
-	 */
-	private function get_unread_count_badge_markup( $count, $unread_diff = null ) {
-		$attributes = "class='menu-counter jp-feedback-unread-counter count-" . (int) $count . "'";
-
-		if ( null !== $unread_diff ) {
-			$attributes = "data-unread-diff='" . (int) $unread_diff . "' " . $attributes;
-		}
-
-		return " <span {$attributes}><span class='count'>" . number_format_i18n( $count ) . '</span></span>';
+		\Automattic\Jetpack\Menu_Badges\Menu_Badges::init(); // idempotent; wires the renderer.
+		$slug = apply_filters( 'jetpack_forms_alpha', true ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
+		\Automattic\Jetpack\Menu_Badges\Notification_Counts::register(
+			'jetpack-forms',
+			array(
+				'menu_slug' => $slug,
+				'count'     => self::get_unread_count(),
+				'type'      => 'count',
+			)
+		);
 	}
 
 	/**
@@ -1903,6 +1876,17 @@ class Contact_Form_Plugin {
 			return Form_Submission_Error::system_error( 'form_not_found', __( 'Form not found.', 'jetpack-forms' ) );
 		}
 
+		// Conditional fields cannot be validated while the form is still being parsed: a rule's
+		// subject may not exist yet, so `parse_contact_field()` defers them. Something has to
+		// validate them once the whole form is known, and on this path nothing did -- the JWT
+		// branch calls `validate()` above, but this one went straight to `has_errors()`. A
+		// required conditional field left empty, an invalid email or an out-of-allow-list choice
+		// would all be stored unchecked.
+		//
+		// Fields that were validated at parse time early-return once `is_error()` is set, so
+		// this is idempotent for everything else.
+		$form->validate();
+
 		if ( $form->has_errors() ) {
 			return $form->errors;
 		}
@@ -2011,8 +1995,10 @@ class Contact_Form_Plugin {
 	 * Enforcement point for outbound-destination authorization on a submitted form.
 	 *
 	 * Destinations declared in the form content — webhooks, the legacy postToUrl attribute and
-	 * the Salesforce integration — are kept only when the source post's author may configure
-	 * them; otherwise they are removed from the form attributes in place, before the submission
+	 * the Salesforce integration — are kept only when whoever placed the form had an
+	 * administrator-level capability (an admin author for post/page forms, or the
+	 * `edit_theme_options` required to author block templates, template parts and widgets);
+	 * otherwise they are removed from the form attributes in place, before the submission
 	 * is processed and the Form_Webhooks / Post_To_Url services read those attributes. The
 	 * mutation is safe because nothing re-reads the original attribute values within the request
 	 * and the form attributes are not persisted after this point.
@@ -2029,7 +2015,8 @@ class Contact_Form_Plugin {
 			return;
 		}
 
-		if ( ! Jetpack_Forms::should_honor_content_destinations( $form->get_source()->get_id() ) ) {
+		$source = $form->get_source();
+		if ( ! Jetpack_Forms::should_honor_content_destinations( $source->get_id(), $source->get_source_type() ) ) {
 			// Drop every content-configured destination before the services read them.
 			// postToUrl and salesforceData are read directly by Post_To_Url.
 			$form->attributes['webhooks']       = array();
@@ -3927,71 +3914,6 @@ class Contact_Form_Plugin {
 		$should_enable_tracking = $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
 
 		return $is_wpcom || $should_enable_tracking;
-	}
-
-	/**
-	 * Jetpack menu item might have a count badge when there are updates available.
-	 * This method parses that information, removes the associated markup and adds it to the response.
-	 * Copied verbatim from WPCOM_REST_API_V2_Endpoint_Admin_Menu::prepare_menu_item.
-	 *
-	 * Also sanitizes the titles from remaining unexpected markup.
-	 *
-	 * @param string $title Title to parse.
-	 * @return array
-	 */
-	private function parse_menu_item( $title ) {
-		$item = array();
-
-		if (
-			str_contains( $title, 'count-' )
-			&& preg_match( '/<span class=".+\s?count-(\d*).+\s?<\/span><\/span>/', $title, $matches )
-		) {
-
-			$count = (int) ( $matches[1] );
-			if ( $count > 0 ) {
-				// Keep the counter in the item array.
-				$item['count'] = $count;
-			}
-
-			// Finally remove the markup.
-			$title = trim( str_replace( $matches[0], '', $title ) );
-		}
-
-		if (
-			str_contains( $title, 'inline-text' )
-			&& preg_match( '/<span class="inline-text".+\s?>(.+)<\/span>/', $title, $matches )
-		) {
-
-			$text = $matches[1];
-			if ( $text ) {
-				// Keep the text in the item array.
-				$item['inlineText'] = $text;
-			}
-
-			// Finally remove the markup.
-			$title = trim( str_replace( $matches[0], '', $title ) );
-		}
-
-		if (
-			str_contains( $title, 'awaiting-mod' )
-			&& preg_match( '/<span class="awaiting-mod">(.+)<\/span>/', $title, $matches )
-		) {
-
-			$text = $matches[1];
-			if ( $text ) {
-				// Keep the text in the item array.
-				$item['badge'] = $text;
-			}
-
-			// Finally remove the markup.
-			$title = trim( str_replace( $matches[0], '', $title ) );
-		}
-
-		// It's important we sanitize the title after parsing data to remove any unexpected markup but keep the content.
-		// We are also capitalizing the first letter in case there was a counter (now parsed) in front of the title.
-		$item['title'] = ucfirst( wp_strip_all_tags( $title ) );
-
-		return $item;
 	}
 
 	/**

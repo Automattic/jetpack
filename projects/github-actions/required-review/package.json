@@ -11,10 +11,10 @@
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
-		"@actions/core": "3.0.0",
-		"@actions/github": "9.0.0",
+		"@actions/core": "3.0.1",
+		"@actions/github": "9.1.1",
 		"error": "10.4.0",
-		"js-yaml": "4.2.0",
+		"js-yaml": "5.2.2",
 		"picomatch": "4.0.4"
 	},
 	"devDependencies": {

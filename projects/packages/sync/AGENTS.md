@@ -126,6 +126,9 @@ Adding a new item to the whitelist in this package controls whether it gets sent
 **Custom post types must be registered via sync**
 Custom post types must be registered through callables/config sync, or posts will land in `jps_non-reg` status on the cache site.
 
+**Callable whitelist values must not instantiate objects at registration**
+The callable whitelist is rebuilt on every request, but callables are only invoked at send time. Use function-name strings, static `array( 'Class', 'method' )` references, or closures that defer construction to invocation time — never `array( new Object(), 'method' )`. Also beware: values failing `is_callable()` are silently skipped (never synced, no error logged), so a typo'd or later-removed method goes unnoticed; cover whitelist entries with a test that invokes them.
+
 **Both test suites must pass**
 Tests live in this package (`tests/php/`) and in the Jetpack plugin (`projects/plugins/jetpack/tests/php/sync/`). Running only one can miss regressions.
 

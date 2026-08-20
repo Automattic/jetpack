@@ -1,0 +1,137 @@
+// Centered content column. Wider than the Settings tab (which is a single 660px
+// form column) because the Overview lays cards out side-by-side — matches the
+// My Jetpack page's content width.
+.root {
+	max-inline-size: 1128px;
+	margin-inline: auto;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: var(--wpds-dimension-gap-lg);
+	align-items: stretch;
+}
+
+// Let each status card's content fill the equal-height grid row so its action
+// stays pinned to the bottom.
+.cardContent {
+	flex: 1 1 auto;
+}
+
+// A status row in the Site verification card: indicator + label on the left,
+// "Verified"/"Not set" on the right.
+.statRow {
+	padding-block: var(--wpds-dimension-gap-xs);
+}
+
+// Card action row (Manage button), pinned to the bottom-right of the card.
+.footer {
+	margin-block-start: auto;
+	padding-block-start: var(--wpds-dimension-gap-md);
+}
+
+// Content SEO card: factual coverage rings. An auto-fit grid (matching the
+// Overview card grid above) so the rings flow into as many columns as fit
+// (up to four) and stack down to a single column as the screen narrows —
+// rather than shrinking to share a single row at every width.
+.rings {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: var(--wpds-dimension-gap-lg);
+}
+
+.ring {
+	text-align: center;
+	// Let the cell shrink below its content width so long labels wrap inside
+	// the grid track instead of forcing the column wider.
+	min-inline-size: 0;
+}
+
+// The Content SEO card sits below the two status cards, spanning the full
+// width of its own row. Margin matches the grid gap above it.
+.contentCard {
+	margin-block-start: var(--wpds-dimension-gap-lg);
+}
+
+// The card-title chip (`.cardTitle` / `.titleIcon`) lives in the shared
+// `components/card-title-icon.module.scss`, which the Settings modules use too.
+
+// Optional scope line under a card title. Indented to start exactly where the
+// title text does: the chip's own width plus the chip-to-title gap. Both come
+// from the same two tokens `card-title-icon.module.scss` uses, so this stays
+// aligned if the chip is ever resized, rather than drifting off a hardcoded px.
+// The class is doubled to raise specificity to (0,2,0). `Text` renders this as
+// a `<p>` and also applies @wordpress/ui's global-CSS defense, whose `p.p`
+// selector is (0,1,1) — and, crucially, *unlayered*, since its job is to beat
+// wp-admin's bare-element rules. It sets the `margin` shorthand, so a
+// single-class rule silently loses both margins below. The defense offers a
+// `--_gcd-p-margin` bridge, but that takes the physical shorthand and would
+// keep the indent on the left in RTL; doubling the class keeps it logical.
+.cardSubtitle.cardSubtitle {
+	margin-block-start: var(--wpds-dimension-gap-xs);
+	margin-inline-start: calc(var(--wpds-dimension-size-md) + var(--wpds-dimension-gap-sm));
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+// Interactive coverage ring: the whole ring is a button that deep-links to the
+// Content tab filtered to the rows still missing this field. Reset the native
+// button chrome; the donut lifts on hover/focus to signal it's actionable.
+.ringTrigger {
+	display: block;
+	inline-size: 100%;
+	margin: 0;
+	padding: var(--wpds-dimension-gap-xs);
+	border: 0;
+	border-radius: 6px;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+}
+
+.ringTrigger:focus-visible {
+	outline: 2px solid var(--wpds-color-stroke-interactive-brand);
+	outline-offset: 2px;
+}
+
+.donutWrap {
+	position: relative;
+	display: inline-flex;
+	transition: transform 0.18s ease;
+}
+
+// Percentage centered in the donut hole. Visual summary only — the count and
+// label below carry the same value for assistive tech, so it's aria-hidden.
+.pct {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+// Bold (700): leads the medium-weight count, same heading-lg size.
+// Literal weight (WPDS has no lint-approved bold weight token). It only wins
+// over @wordpress/ui's layered variant weight because this module CSS is
+// unlayered; if it's ever moved into a cascade layer, make it win explicitly.
+.pctValue {
+	font-weight: 700;
+}
+
+.ringTrigger:hover .donutWrap,
+.ringTrigger:focus-visible .donutWrap {
+	transform: scale(1.06);
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+
+	.donutWrap {
+		transition: none;
+	}
+
+	.ringTrigger:hover .donutWrap,
+	.ringTrigger:focus-visible .donutWrap {
+		transform: none;
+	}
+}

@@ -18,20 +18,14 @@ export interface SessionsByDeviceData {
 }
 
 /**
- * Device type display labels.
- * Maps API device_type values to user-friendly labels.
+ * Maps API `device_type` values to display labels.
  */
 const DEVICE_LABELS: Record< string, string > = {
-	mobile: __( 'Mobile', 'jetpack-premium-analytics' ),
-	desktop: __( 'Desktop', 'jetpack-premium-analytics' ),
-	tablet: __( 'Tablet', 'jetpack-premium-analytics' ),
+	mobile: __( 'Mobile', 'jetpack-premium-analytics-pkg' ),
+	desktop: __( 'Desktop', 'jetpack-premium-analytics-pkg' ),
+	tablet: __( 'Tablet', 'jetpack-premium-analytics-pkg' ),
 };
 
-/**
- * Get the display label for a device type.
- *
- * @param deviceType - The device type from the API
- */
 function getDeviceLabel( deviceType: string ): string {
 	const normalized = deviceType.toLowerCase();
 	return DEVICE_LABELS[ normalized ] || deviceType;
@@ -60,7 +54,6 @@ export function buildSessionsByDeviceData(
 	const total = summary.total_sessions;
 	const comparisonTotal = comparisonSessionsByDevice?.summary?.total_sessions || 0;
 
-	// If there are no sessions, return empty state
 	if ( total === 0 ) {
 		return {
 			chartData: [],
@@ -70,7 +63,6 @@ export function buildSessionsByDeviceData(
 		};
 	}
 
-	// Create a map of comparison data by device type
 	const comparisonMap = new Map< string, number >();
 	if ( comparisonSessionsByDevice?.data ) {
 		comparisonSessionsByDevice.data.forEach( item => {
@@ -78,7 +70,6 @@ export function buildSessionsByDeviceData(
 		} );
 	}
 
-	// Build chart data
 	const chartData: SemiCircleChartData = data.map( item => ( {
 		label: getDeviceLabel( item.device_type ),
 		value: item.active_sessions,
@@ -88,7 +79,6 @@ export function buildSessionsByDeviceData(
 		} ),
 	} ) );
 
-	// Build legend data
 	const legendData: LegendItem[] = data.map( item => {
 		const normalizedType = item.device_type.toLowerCase();
 		const comparisonValue = comparisonSessionsByDevice

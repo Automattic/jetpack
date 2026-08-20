@@ -21,15 +21,18 @@ export type SyncStatusApiResponse = {
 export type SyncStatus = {
 	isStarted: boolean;
 	isRunning: boolean;
-	/** Analytics-module progress, 0–100, computed client-side. */
+	/** Sync progress, 0–100, computed client-side. */
 	percentage: number;
-	/** Milestone (unix ts) when the initial analytics sync first finished — seeded from script-data, refreshed live from the poll; else 0. */
+	/** Milestone (unix ts) when the dashboard-gating initial full sync first finished — seeded from script-data, refreshed live from the poll; else 0. */
 	initialFullSyncFinished: number;
+	/**
+	 * Whether the site has store data to sync (WooCommerce active). When false the
+	 * status is derived from Jetpack's generic initial full sync rather than the
+	 * woocommerce_analytics progress bucket.
+	 */
+	hasStoreData: boolean;
 };
 
-/**
- * Return type for the useSyncStatus hook.
- */
 export type UseSyncStatusReturn = {
 	data: SyncStatus | undefined;
 	error: Error | null;

@@ -43,6 +43,16 @@ class Package_Version_Tracker {
 	const RATE_LIMITER_TIMEOUT = MINUTE_IN_SECONDS;
 
 	/**
+	 * Runs the package version check on the `shutdown` hook.
+	 *
+	 * Static so the callback can be unregistered, and so the tracker is only
+	 * constructed when the hook fires rather than during configuration.
+	 */
+	public static function update_on_shutdown() {
+		( new self() )->maybe_update_package_versions();
+	}
+
+	/**
 	 * Uses the jetpack_package_versions filter to obtain the package versions from packages that need
 	 * version tracking. If the package versions have changed, updates the option and notifies WPCOM.
 	 */

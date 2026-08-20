@@ -19,7 +19,7 @@ use WpOrg\Requests\Requests;
 /**
  * Class Scheduled_Actions_Controller_Test
  */
-#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 class Scheduled_Actions_Controller_Test extends TestCase {
 
 	/**

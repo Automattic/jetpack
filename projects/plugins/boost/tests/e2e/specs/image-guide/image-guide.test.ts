@@ -38,7 +38,7 @@ test.describe( 'Image Guide', () => {
 		await expect(
 			page.locator( '#jetpack-boost-guide-js' ).first(),
 			'Image Guide script should be present'
-		).toBeAttached( { timeout: 20000 } );
+		).toBeAttached();
 
 		await expect(
 			page.locator( '#wp-toolbar #jetpack-boost-guide-bar' ),

@@ -12,6 +12,8 @@ use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -20,7 +22,7 @@ use WP_Error;
 /**
  * Connection Manager functionality testing.
  */
-#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. Plus getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. Plus getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 class ManagerTest extends TestCase {
 
 	/**
@@ -129,6 +131,164 @@ class ManagerTest extends TestCase {
 			->willReturn( false );
 
 		$this->assertFalse( $this->manager->is_active() );
+	}
+
+	/**
+	 * Ownership is transferable by default.
+	 */
+	public function test_is_ownership_transferable_default() {
+		$this->assertTrue( ( new Manager() )->is_ownership_transferable() );
+	}
+
+	/**
+	 * A consumer can lock ownership via the jetpack_connection_ownership_transferable filter.
+	 */
+	public function test_is_ownership_transferable_can_be_locked_via_filter() {
+		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+		$this->assertFalse( ( new Manager() )->is_ownership_transferable() );
+		remove_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+	}
+
+	/**
+	 * `Manager::configure()` registers the package version tracker on `shutdown` when the site is connected.
+	 *
+	 * This intentionally invokes the full `configure()` because it builds its own
+	 * `new self()` internally, so the connection state must be driven through the
+	 * real `is_connected()` path rather than the test's mock. `configure()` registers
+	 * many hooks and schedules cron events as side effects, so the test runs in a
+	 * separate process to avoid polluting global state for sibling tests.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_configure_registers_package_version_shutdown_callback_when_connected() {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		( new Manager() )->reset_connection_status();
+		$this->assertTrue( ( new Manager() )->is_connected(), 'Test setup failed: site should be connected.' );
+
+		remove_all_filters( 'shutdown' );
+
+		Manager::configure();
+
+		$this->assertSame(
+			10,
+			has_filter( 'shutdown', array( Package_Version_Tracker::class, 'update_on_shutdown' ) ),
+			'configure() should register the package version tracker on shutdown when connected.'
+		);
+
+		remove_all_filters( 'shutdown' );
+		( new Manager() )->reset_connection_status();
+	}
+
+	/**
+	 * `Manager::configure()` does not register the package version tracker on `shutdown` when disconnected.
+	 *
+	 * Runs in a separate process for the same reason as the connected case: `configure()`
+	 * registers many hooks and schedules cron events as side effects.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_configure_does_not_register_package_version_shutdown_callback_when_disconnected() {
+		Jetpack_Options::delete_option( 'blog_token' );
+		( new Manager() )->reset_connection_status();
+		$this->assertFalse( ( new Manager() )->is_connected(), 'Test setup failed: site should be disconnected.' );
+
+		remove_all_filters( 'shutdown' );
+
+		Manager::configure();
+
+		$this->assertFalse(
+			has_filter( 'shutdown', array( Package_Version_Tracker::class, 'update_on_shutdown' ) ),
+			'configure() should not register the package version tracker on shutdown when disconnected.'
+		);
+
+		remove_all_filters( 'shutdown' );
+	}
+
+	/**
+	 * `add_stats_to_heartbeat()` reports the missing connection owner stat when connected.
+	 */
+	public function test_add_stats_to_heartbeat_reports_missing_owner() {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'is_connected', 'is_missing_connection_owner' ) )
+			->getMock();
+		$manager->method( 'is_connected' )->willReturn( true );
+		$manager->method( 'is_missing_connection_owner' )->willReturn( true );
+
+		// `add_stats_to_heartbeat()` reads the connected plugins list, which requires Plugin_Storage to be configured.
+		Plugin_Storage::configure();
+		// Avoid a network request for the `ssl` environment stat.
+		set_transient( 'jetpack_https_test', 1 );
+
+		$stats = $manager->add_stats_to_heartbeat( array() );
+
+		$this->assertArrayHasKey( 'missing-owner', $stats );
+		$this->assertTrue( $stats['missing-owner'] );
+		// Site environment stats are merged in from the Connection Heartbeat.
+		$this->assertArrayHasKey( 'wp-version', $stats );
+	}
+
+	/**
+	 * `add_stats_to_heartbeat()` does not add any stats when the site is not connected.
+	 */
+	public function test_add_stats_to_heartbeat_skips_when_not_connected() {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'is_connected' ) )
+			->getMock();
+		$manager->method( 'is_connected' )->willReturn( false );
+
+		$this->assertSame( array(), $manager->add_stats_to_heartbeat( array() ) );
+	}
+
+	/**
+	 * `add_stats_to_heartbeat()` reports the stored XML-RPC errors and clears the option afterwards.
+	 */
+	public function test_add_stats_to_heartbeat_reports_and_clears_xmlrpc_errors() {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'is_connected', 'is_missing_connection_owner' ) )
+			->getMock();
+		$manager->method( 'is_connected' )->willReturn( true );
+		$manager->method( 'is_missing_connection_owner' )->willReturn( false );
+
+		// `add_stats_to_heartbeat()` reads the connected plugins list, which requires Plugin_Storage to be configured.
+		Plugin_Storage::configure();
+		// Avoid a network request for the `ssl` environment stat.
+		set_transient( 'jetpack_https_test', 1 );
+
+		Jetpack_Options::update_option( 'xmlrpc_errors', array( 'malformed_token' => true ) );
+
+		$stats = $manager->add_stats_to_heartbeat( array() );
+
+		$this->assertSame( 'malformed_token', $stats['xmlrpc-errors'] );
+		$this->assertFalse( Jetpack_Options::get_option( 'xmlrpc_errors' ), 'The xmlrpc_errors option should be cleared after reporting.' );
+	}
+
+	/**
+	 * `track_xmlrpc_error()` stores the error code in the `xmlrpc_errors` option.
+	 */
+	public function test_track_xmlrpc_error_records_error_code() {
+		Jetpack_Options::delete_option( 'xmlrpc_errors' );
+
+		$this->manager->track_xmlrpc_error( new WP_Error( 'malformed_token', 'Malformed token.' ) );
+
+		$this->assertSame( array( 'malformed_token' => true ), Jetpack_Options::get_option( 'xmlrpc_errors' ) );
+	}
+
+	/**
+	 * `track_xmlrpc_error()` does not duplicate an already-recorded error code.
+	 */
+	public function test_track_xmlrpc_error_does_not_duplicate_existing_code() {
+		Jetpack_Options::update_option( 'xmlrpc_errors', array( 'malformed_token' => true ) );
+
+		$this->manager->track_xmlrpc_error( new WP_Error( 'malformed_token', 'Malformed token.' ) );
+
+		$this->assertSame( array( 'malformed_token' => true ), Jetpack_Options::get_option( 'xmlrpc_errors' ) );
 	}
 
 	/**
@@ -280,6 +440,48 @@ class ManagerTest extends TestCase {
 			->willReturn( $access_token );
 
 		$this->assertTrue( $this->manager->is_user_connected( $this->user_id ) );
+	}
+
+	/**
+	 * Test that `authorize` deletes cached connected user data, so a cached
+	 * `error` sentinel from a previously broken token does not linger after
+	 * the user reconnects.
+	 */
+	public function test_authorize_deletes_cached_connected_user_data() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_authorize_deletes_cached_user_data',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		set_transient( "jetpack_connected_user_data_$user_id", 'error', 5 * MINUTE_IN_SECONDS );
+
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'get', 'update_user_token' ) )
+			->getMock();
+		$tokens->method( 'get' )->willReturn( 'usertoken.secret' );
+		$tokens->method( 'update_user_token' )->willReturn( true );
+
+		$manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id' ) )
+			->getMock();
+		$manager->method( 'get_tokens' )->willReturn( $tokens );
+		$manager->method( 'get_connection_owner_id' )->willReturn( 123 );
+
+		$result = $manager->authorize(
+			array(
+				'state' => (string) $user_id,
+				'code'  => 'authorization_code',
+			)
+		);
+
+		$cached = get_transient( "jetpack_connected_user_data_$user_id" );
+
+		$this->assertSame( 'linked', $result );
+		$this->assertFalse( $cached );
 	}
 
 	/**
@@ -810,7 +1012,7 @@ class ManagerTest extends TestCase {
 			array( 'abcde:1:aaa', 'bogus signature', 'malformed_user_id' ),
 			array( 'bogus token', 'bogus signature', 'malformed_token' ),
 			array( 'abcde:1:987', 'bogus signature', 'unknown_user' ),
-			array( 'abcde:1:0', 'bogus signature', 'unknown_token' ),
+			array( 'abcde:1:0', 'bogus signature', 'tokens_locked' ),
 		);
 	}
 	/**

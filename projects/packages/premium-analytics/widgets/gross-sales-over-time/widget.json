@@ -1,0 +1,10 @@
+{
+	"name": "jpa/gross-sales-over-time",
+	"title": "Gross sales over time",
+	"description": "Gross sales over the selected time period.",
+	"help": {
+		"content": "Monitor your total revenue — before any discounts, returns, or adjustments — over a set period of time."
+	},
+	"category": "store",
+	"presentation": "framed"
+}

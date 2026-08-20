@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Critical CSS: continue generating for remaining providers when one provider fails unexpectedly, instead of failing the whole run.

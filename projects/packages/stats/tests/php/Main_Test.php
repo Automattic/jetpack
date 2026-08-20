@@ -50,6 +50,16 @@ class Main_Test extends StatsBaseTestCase {
 
 		unset( $_SERVER['HTTP_DNT'] );
 
+		// wp_styles() is a global that outlives each test, so a handle enqueued by one would
+		// otherwise be seen by the next.
+		wp_dequeue_style( 'jetpack-stats' );
+		wp_deregister_style( 'jetpack-stats' );
+
+		// Reset the REST server so the lazy-registration test below does not leak its
+		// populated server (with the stats route registered) into later tests in the suite.
+		global $wp_rest_server;
+		$wp_rest_server = null;
+
 		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\Main' );
 		$reflected_property = $reflected_class->getProperty( 'instance' );
 		// @todo Remove this call once we no longer need to support PHP <8.1.
@@ -65,6 +75,14 @@ class Main_Test extends StatsBaseTestCase {
 			$reflected_property->setAccessible( true );
 		}
 		$reflected_property = $reflected_property->setValue( null, null );
+
+		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\REST_Provider' );
+		$reflected_property = $reflected_class->getProperty( 'instance' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflected_property->setAccessible( true );
+		}
+		$reflected_property->setValue( null, null );
 	}
 
 	/**
@@ -85,37 +103,84 @@ class Main_Test extends StatsBaseTestCase {
 	}
 
 	/**
-	 * Test Main::init does not add the `wp_head` hook if an older version of the
+	 * Main::init() no longer constructs REST_Provider up front; it defers the load to a
+	 * priority-0 `rest_api_init` callback. Guard that firing the hook still registers the
+	 * route — the priority-0 callback builds REST_Provider, whose constructor adds the
+	 * default-priority callback that registers the route within the same firing. A regression
+	 * to that re-entrancy (e.g. bumping the deferred priority) would silently drop the route.
+	 */
+	public function test_rest_provider_route_registers_lazily_on_rest_api_init() {
+		// Reset the REST_Provider singleton so the deferred callback rebuilds it and
+		// re-registers its own rest_api_init handler against this test's hook state.
+		$reflected_property = ( new \ReflectionClass( REST_Provider::class ) )->getProperty( 'instance' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflected_property->setAccessible( true );
+		}
+		$reflected_property->setValue( null, null );
+
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+
+		$this->assertArrayNotHasKey(
+			'/jetpack/v4/stats/blog',
+			$wp_rest_server->get_routes(),
+			'Stats REST route should not be registered before rest_api_init fires.'
+		);
+
+		do_action( 'rest_api_init' );
+
+		$this->assertArrayHasKey(
+			'/jetpack/v4/stats/blog',
+			$wp_rest_server->get_routes(),
+			'Stats REST route should register on rest_api_init via the deferred REST_Provider load.'
+		);
+	}
+
+	/**
+	 * Test Main::init does not add the stylesheet hook if an older version of the
 	 * Jetpack plugin is active.
 	 */
-	public function test_wp_head_hook_not_added_with_jp_version_lt_11_5_a_2() {
-		$has_action = has_action( 'wp_head', array( 'Automattic\Jetpack\Stats\Main', 'hide_smile_css' ) );
+	public function test_hide_smile_css_hook_not_added_with_jp_version_lt_11_5_a_2() {
+		$has_action = has_action( 'wp_enqueue_scripts', array( 'Automattic\Jetpack\Stats\Main', 'hide_smile_css' ) );
 		$this->assertFalse( $has_action );
 	}
 
 	/**
-	 * Test Main::init adds the `wp_head` hook.
+	 * Test Main::init adds the stylesheet hook.
 	 */
-	public function test_wp_head_hook() {
-		$has_action = has_action( 'wp_head', array( 'Automattic\Jetpack\Stats\Main', 'hide_smile_css' ) );
+	public function test_hide_smile_css_hook() {
+		$has_action = has_action( 'wp_enqueue_scripts', array( 'Automattic\Jetpack\Stats\Main', 'hide_smile_css' ) );
 		$this->assertEquals( 10, $has_action );
 	}
 
 	/**
-	 * Test Main::init does not add the `wp_head` hook if an older version of the
-	 * Jetpack plugin is active.
+	 * The rule that hides the tracking pixel goes through the stylesheet queue rather than
+	 * being printed into the page.
 	 */
-	public function test_embed_head_hook_not_added_with_jp_version_lt_11_5_a_2() {
-		$has_action = has_action( 'embed_head', array( 'Automattic\Jetpack\Stats\Main', 'hide_smile_css' ) );
-		$this->assertFalse( $has_action );
+	public function test_hide_smile_css_is_enqueued() {
+		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
+		Stats::hide_smile_css();
+		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10 );
+
+		$this->assertTrue( wp_style_is( 'jetpack-stats', 'enqueued' ) );
+
+		ob_start();
+		wp_styles()->do_items( 'jetpack-stats' );
+		$output = ob_get_clean();
+
+		$this->assertMatchesRegularExpression( '/<style id=["\']jetpack-stats-inline-css["\']/', $output );
+		$this->assertStringContainsString( 'img#wpstats{display:none}', $output );
 	}
 
 	/**
-	 * Test Main::init adds the `embed_head` hook.
+	 * Nothing is enqueued on a request that is not being tracked, which is what the stats
+	 * module being inactive means here.
 	 */
-	public function test_embed_head_hook() {
-		$has_action = has_action( 'embed_head', array( 'Automattic\Jetpack\Stats\Main', 'hide_smile_css' ) );
-		$this->assertEquals( 10, $has_action );
+	public function test_hide_smile_css_is_not_enqueued_when_not_tracking() {
+		Stats::hide_smile_css();
+
+		$this->assertFalse( wp_style_is( 'jetpack-stats', 'enqueued' ) );
 	}
 
 	/**

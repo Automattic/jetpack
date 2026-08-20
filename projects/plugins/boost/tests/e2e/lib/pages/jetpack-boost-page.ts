@@ -128,6 +128,75 @@ export default class JetpackBoostPage {
 	}
 
 	/**
+	 * Waits for Critical CSS generation to reach a terminal state by intercepting the
+	 * DataSync poll for `critical_css_state` (exposed at the hyphenated REST route
+	 * `/jetpack-boost-ds/critical-css-state`). Resolves once the aggregate status
+	 * becomes `generated`, and throws if it becomes `error` — an `error` state renders
+	 * the show-stopper UI rather than the `critical-css-meta` element callers assert
+	 * on, so surfacing it as an explicit failure beats a downstream "element not
+	 * visible" timeout.
+	 *
+	 * The backend only flips the aggregate status away from `pending` once every
+	 * provider has finished (see `Critical_CSS_State::maybe_set_generated()`), so a
+	 * single matching response is a safe completion signal — there is no need to count
+	 * the per-provider saves that generation fans out into.
+	 *
+	 * `page.waitForResponse()` only matches responses that arrive after it is called,
+	 * so create this promise *before* the action that triggers generation. For a
+	 * Regenerate flow where the page already shows previously-generated CSS, gate on
+	 * the `request-regenerate` action first (it flips the server state to `pending`,
+	 * see `Regenerate::start()`) so this wait cannot resolve on the stale `generated`
+	 * poll.
+	 *
+	 * The status literals (`generated`/`error`) and the route are kept in sync with
+	 * `Critical_CSS_State` and the DataSync registry.
+	 *
+	 * @param {number} timeout - Maximum time to wait in milliseconds.
+	 * @return {Promise<void>} Resolves once generation reaches `generated`.
+	 */
+	async waitForCriticalCssGeneration( timeout = 60000 ) {
+		let terminalStatus: string | undefined;
+
+		await this.page.waitForResponse(
+			async response => {
+				if (
+					! response.url().includes( '/jetpack-boost-ds/critical-css-state' ) ||
+					response.request().method() !== 'GET' ||
+					! response.ok()
+				) {
+					return false;
+				}
+				try {
+					/*
+					 * DataSync wraps the value in a { status: 'success', JSON: <state> }
+					 * envelope, so the real Critical CSS status lives at body.JSON.status,
+					 * not the top-level body.status (which is always 'success').
+					 */
+					const body = ( await response.json() ) as { JSON?: { status?: string } };
+					const status = body?.JSON?.status;
+					if ( status === 'generated' || status === 'error' ) {
+						terminalStatus = status;
+						return true;
+					}
+					return false;
+				} catch ( error ) {
+					logger.error(
+						`waitForCriticalCssGeneration: failed to parse critical-css-state response: ${ error }`
+					);
+					return false;
+				}
+			},
+			{ timeout }
+		);
+
+		if ( terminalStatus === 'error' ) {
+			throw new Error(
+				'Critical CSS generation reached the terminal "error" state instead of "generated".'
+			);
+		}
+	}
+
+	/**
 	 * Waits for the client to send the speed score refresh request.
 	 * Use when the test asserts that the client initiated a refresh — for example,
 	 * to verify that a debounce timer has fired. Decouples from backend latency and

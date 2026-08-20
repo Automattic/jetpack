@@ -14,14 +14,12 @@ interface JsonSchema {
 }
 
 /**
- * Inlined copy of contracts/agent-output-schema.json. Bundling the schema as a
- * constant keeps this module free of JSON-import-attribute syntax that differs
- * between the webpack bundle and the node:test runner. The unit test asserts
- * this constant deep-equals the committed contract file, so drift is caught.
+ * Inlined copy of contracts/agent-output-schema.json; a unit test asserts it
+ * matches the committed contract, so drift is caught.
  */
 export const AGENT_OUTPUT_SCHEMA: JsonSchema = {
 	type: 'object',
-	required: [ 'tasks', 'inferred', 'first_post_draft' ],
+	required: [ 'tasks', 'inferred', 'first_post_draft', 'about_page_draft' ],
 	additionalProperties: false,
 	properties: {
 		tasks: {
@@ -47,8 +45,36 @@ export const AGENT_OUTPUT_SCHEMA: JsonSchema = {
 					type: 'string',
 					enum: [ 'write', 'build', 'sell', 'newsletter', 'educate', 'portfolio' ],
 				},
+				inferred_goal: {
+					type: 'string',
+					enum: [ 'write', 'build', 'sell', 'newsletter', 'educate', 'portfolio' ],
+				},
 				brand_name: { type: 'string', maxLength: 80 },
 				niche: { type: 'string', maxLength: 120 },
+				theme_category: {
+					type: 'string',
+					enum: [
+						'blog',
+						'portfolio',
+						'business',
+						'store',
+						'art-design',
+						'about',
+						'real-estate',
+						'health-wellness',
+						'authors-writers',
+						'newsletter',
+						'education',
+						'magazine',
+						'music',
+						'restaurant',
+						'travel-lifestyle',
+						'fashion-beauty',
+						'community-non-profit',
+						'podcast',
+						'entertainment',
+					],
+				},
 				vibe: { type: 'string', maxLength: 120 },
 				audience: { type: 'string', maxLength: 200 },
 				tagline: { type: 'string', maxLength: 200 },
@@ -69,14 +95,39 @@ export const AGENT_OUTPUT_SCHEMA: JsonSchema = {
 				},
 			},
 		},
+		about_page_draft: {
+			type: 'object',
+			required: [ 'title', 'paragraphs' ],
+			additionalProperties: false,
+			properties: {
+				title: { type: 'string', minLength: 1, maxLength: 80 },
+				paragraphs: {
+					type: 'array',
+					minItems: 2,
+					maxItems: 3,
+					items: { type: 'string', minLength: 1, maxLength: 1200 },
+				},
+			},
+		},
+		// Optional, and optional key by key: a page intro exists only for a page task the model chose.
+		// Absent from `required` above rather than expressed as a conditional, which this validator
+		// cannot represent — see the JsonSchema interface for the keywords it supports.
+		page_intros: {
+			type: 'object',
+			additionalProperties: false,
+			properties: {
+				add_contact_page: { type: 'string', minLength: 1, maxLength: 200 },
+				add_events_page: { type: 'string', minLength: 1, maxLength: 200 },
+				add_video_page: { type: 'string', minLength: 1, maxLength: 200 },
+				add_gallery_page: { type: 'string', minLength: 1, maxLength: 200 },
+			},
+		},
 	},
 };
 
 /**
- * Validate a value against the subset of JSON Schema the agent output uses:
- * type, required, additionalProperties:false, enum, minLength, maxLength,
- * minItems, maxItems, items, properties. Returns a list of human-readable
- * errors; an empty list means the value is valid.
+ * Validate a value against the subset of JSON Schema the agent output uses.
+ * Returns human-readable errors; an empty list means valid.
  *
  * @param value  - The value to validate.
  * @param schema - The schema to validate against.
@@ -149,9 +200,8 @@ export function validateAgainstSchema( value: unknown, schema: JsonSchema, path 
 
 /**
  * Parse the raw `content` string returned by jetpack-ai-query and validate it
- * against the agent output schema. Returns the typed output on success, or
- * null if the JSON is malformed or fails schema validation. Callers fall back
- * to the deterministic picker on null.
+ * against the agent output schema. Returns the typed output, or null if the JSON
+ * is malformed or fails validation.
  *
  * @param content - The raw JSON string from `choices[0].message.content`.
  * @return The validated output, or null.

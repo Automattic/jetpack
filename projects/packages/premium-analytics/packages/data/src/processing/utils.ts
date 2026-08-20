@@ -1,10 +1,4 @@
-/**
- * Converts a string number to an actual number, with fallback to 0
- * for invalid values.
- *
- * @param value - String number from API
- * @return Parsed number or 0 if invalid
- */
+/** Parses a numeric string from the API, falling back to 0 when it is not a number. */
 export function sanitizeStringNumber( value: string ): number {
 	const parsed = parseFloat( value );
 	return isNaN( parsed ) ? 0 : parsed;

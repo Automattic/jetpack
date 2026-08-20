@@ -11,33 +11,24 @@ import { getFormatByMetricKey, BOOKINGS_FILTER } from '../../helpers';
 import type { OrderMetricKey } from '../../types';
 
 export type BookingOrderMetricWidgetProps = {
-	/**
-	 * The metric key to display from the data
-	 */
 	metricKey: OrderMetricKey;
+
+	emptyStateText?: string;
+
+	errorText?: string;
 };
 
 /**
- * Booking Order Metric Widget Component
+ * Order metrics over time, filtered to booking product types (booking,
+ * bookable-event, bookable-service).
  *
- * A widget that displays booking order-related metrics over time with comparison support.
- * This component automatically filters data to show only booking product types
- * (booking, bookable-event, bookable-service).
- *
- * This component must be used within a WidgetRoot which provides reportParams
- * via context.
- *
- * @param {object}         props           - Component props
- * @param {OrderMetricKey} props.metricKey - The metric key to display
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <BookingOrderMetricWidget metricKey="orders_value_net" />
- * </WidgetRoot>
- * ```
+ * Must render within a WidgetRoot, which provides reportParams via context.
  */
-export function BookingOrderMetricWidget( { metricKey }: BookingOrderMetricWidgetProps ) {
+export function BookingOrderMetricWidget( {
+	metricKey,
+	emptyStateText,
+	errorText,
+}: BookingOrderMetricWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
 	return (
@@ -48,6 +39,8 @@ export function BookingOrderMetricWidget( { metricKey }: BookingOrderMetricWidge
 				filters: [ BOOKINGS_FILTER ],
 			} ) }
 			dataFormat={ getFormatByMetricKey( metricKey ) }
+			emptyStateText={ emptyStateText }
+			errorText={ errorText }
 		/>
 	);
 }

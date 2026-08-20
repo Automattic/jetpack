@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: WordPress Core (https://core.trac.wordpress.org/changeset/63296) broke the `filter_esc_html_check_if_string` hack. Accomplish the same result in a different manner.
+
+

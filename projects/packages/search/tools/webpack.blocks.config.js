@@ -96,7 +96,7 @@ module.exports = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							postcssOptions: { config: path.join( __dirname, '../postcss.blocks.config.js' ) },
+							postcssOptions: { config: path.join( __dirname, '../postcss.config.js' ) },
 						},
 					},
 					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },

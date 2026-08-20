@@ -1,0 +1,10 @@
+{
+	"name": "jpa/total-returns",
+	"title": "Total returns",
+	"description": "Shows refunds and net sales over the selected time period.",
+	"help": {
+		"content": "Total value of returns issued for physical products over the selected time period."
+	},
+	"category": "store",
+	"presentation": "framed"
+}

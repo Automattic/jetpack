@@ -1,0 +1,243 @@
+/**
+ * Standalone single response page (wp-build route) styles.
+ */
+
+.jp-forms__single-response {
+	// `width: 100%` keeps the column a constant width regardless of each
+	// response's content. The page content area is a flex column, and an item
+	// with only `max-width` + auto inline margins shrink-wraps to its content
+	// (so width jumped per response); a definite width clamped by max-width
+	// pins it at a consistent, readable measure.
+	width: 100%;
+	max-width: 768px;
+	margin-inline: auto;
+	padding-block: 24px;
+	padding-inline: 16px;
+}
+
+// Centered wrapper for the loading / not-found message. Uses text-align rather
+// than the WPDS `Stack` so centering doesn't depend on that component's
+// stylesheet loading (which could briefly leave the message left-aligned).
+.jp-forms__single-response-message {
+	padding: 40px;
+	text-align: center;
+}
+
+// Breadcrumb trail in the page header. Hand-rolled (see breadcrumbs.tsx) so the
+// form crumb can carry a search param. Link color/weight + underline come from
+// the shared wp-build dashboard stylesheet (`nav[aria-label="Breadcrumbs"] a`),
+// so this only owns the trail layout, the separators, and the current crumb.
+.jp-forms__single-response-breadcrumbs {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+
+	&__link {
+		font-size: var(--wpds-typography-font-size-lg);
+		line-height: var(--wpds-typography-line-height-md);
+	}
+
+	&__sep {
+		color: var(--jp-gray-20, #dbdbdb);
+		margin-inline: 8px;
+		user-select: none;
+	}
+
+	&__current {
+		margin: 0;
+		font-family: var(--wpds-typography-font-family-heading);
+		font-size: var(--wpds-typography-font-size-lg);
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+		line-height: var(--wpds-typography-line-height-sm);
+		// Match the page-title color used on the other dashboard headers.
+		color: var(--wpds-color-foreground-content-neutral);
+	}
+}
+
+.jp-forms__single-response-card {
+	background-color: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	// The meta header carries its own top padding, so the card adds none of its
+	// own at the top (avoids the doubled gap above the avatar). `overflow: hidden`
+	// keeps the meta's background within the card's rounded corners.
+	overflow: hidden;
+
+	.jp-forms__inbox-response-meta,
+	.jp-forms__inbox-response-data {
+		padding-inline: 24px;
+	}
+
+	// The last field already supplies the bottom spacing; drop its separator so
+	// it doesn't double up with the card's own bottom border.
+	.jp-forms__inbox-response-data.is-collection-format .jp-forms__field-preview:last-child {
+		border-block-end: none;
+	}
+}
+
+// Prev/next navigation in the page header. The inbox defines these styles in
+// the inspector stylesheet (not loaded in this route bundle), so the relevant
+// flex bits are repeated here. No close button on the standalone page, so the
+// inbox's trailing separator is intentionally omitted.
+.jp-forms-response-navigation {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+
+	.jp-forms-response-navigation__arrows {
+		display: flex;
+		align-items: center;
+	}
+}
+
+// Mobile: drop the outer card frame for an edge-to-edge layout, and hide the
+// prev/next arrows (navigation is via the dropdown/keyboard). Internal
+// separators (the meta border and field separators, minus the last field) are
+// kept so the fields stay visually delineated.
+@media (max-width: 782px) {
+
+	.jp-forms__single-response {
+		padding-inline: 0;
+	}
+
+	.jp-forms__single-response-card {
+		border: none;
+		border-radius: 0;
+
+		// Edge-to-edge mobile: clear the meta header's off-white background so the
+		// card reads as one uniform color (desktop keeps the original two-tone).
+		.jp-forms__inbox-response-meta {
+			background-color: transparent;
+		}
+	}
+
+	.jp-forms__single-response-actions .jp-forms-response-navigation {
+		display: none;
+	}
+}
+
+// ── Printing a response ───────────────────────────────────────────────────
+// The dashboard is laid out as a viewport-pinned flex column, which prints as a
+// single clipped page. These rules put it back into normal document flow so a
+// long response paginates, and drop the admin chrome. `!important` throughout
+// because the rules being undone are ID-scoped and arrive from a shared bundle.
+@media print {
+
+	#wpadminbar,
+	#adminmenumain,
+	#adminmenuback,
+	#adminmenuwrap,
+	#wpfooter,
+	#screen-meta,
+	#screen-meta-links,
+	.notice,
+	.update-nag,
+	.jetpack-footer {
+		display: none !important;
+	}
+
+	html.wp-toolbar {
+		padding-top: 0 !important;
+	}
+
+	#wpcontent,
+	#wpbody,
+	#wpbody-content {
+		position: static !important;
+		inset: auto !important;
+		display: block !important;
+		width: auto !important;
+		height: auto !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		overflow: visible !important;
+	}
+
+	// The page header. Anchored structurally: admin-ui ships its internals as CSS
+	// modules with no stable class hook — same anchor the layout mixin uses.
+	.jp-admin-page__page > :first-child {
+		display: none !important;
+	}
+
+	// `@wordpress/boot`'s stage is a second scroll container above
+	// `.jp-admin-page`, so unwind it too and let the document grow with it.
+	html.wp-toolbar,
+	body.wp-admin,
+	#wpwrap,
+	.boot-layout,
+	.boot-layout__surfaces,
+	.boot-layout__stage,
+	.jp-admin-page,
+	.jp-admin-page__page,
+	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer),
+	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) > * {
+		// `position` matters as much as `overflow`: `.boot-layout` is absolute, and
+		// browsers print only the first page of an out-of-flow subtree.
+		position: static !important;
+		inset: auto !important;
+		display: block !important;
+		flex: none !important;
+		height: auto !important;
+		max-height: none !important;
+		min-height: 0 !important;
+		overflow: visible !important;
+	}
+
+	// Belt and braces: hiding chrome by id misses portal-rendered menus.
+	body *:not(:has(.jp-forms__single-response)):not(.jp-forms__single-response):not(.jp-forms__single-response *) {
+		display: none !important;
+	}
+
+	// The paper margin lives here so the content can run the full printable width.
+	@page {
+		margin: 12mm;
+	}
+
+	// The sheet already provides the measure, so the column cap and centering go.
+	.jp-forms__single-response {
+		width: 100% !important;
+		max-width: none !important;
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+
+	.jp-forms__single-response-card {
+		border: none;
+		border-radius: 0;
+		overflow: visible;
+
+		// With the card frame gone the gutter just narrows the text.
+		.jp-forms__inbox-response-meta,
+		.jp-forms__inbox-response-data {
+			padding-inline: 0;
+		}
+	}
+
+	// Controls do nothing on paper.
+	.jp-forms__copy-clipboard-button,
+	.jp-forms__single-response-card button {
+		display: none !important;
+	}
+
+	// Fields run continuously: holding a long answer whole pushes it to the next
+	// sheet and leaves most of a page blank. Only the label must not be stranded.
+	.jp-forms__field-preview {
+		break-inside: auto;
+	}
+
+	.jp-forms__field-preview-label {
+		break-after: avoid;
+		break-inside: avoid;
+	}
+
+	// No single marooned lines either side of a break.
+	.jp-forms__field-preview-value {
+		orphans: 3;
+		widows: 3;
+	}
+
+	// Compact enough to keep whole.
+	.jp-forms__inbox-response-meta {
+		break-inside: avoid;
+	}
+}

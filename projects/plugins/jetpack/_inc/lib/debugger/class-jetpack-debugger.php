@@ -307,7 +307,7 @@ class Jetpack_Debugger {
 			#debug_info_div {
 				border-radius: var(--wpds-border-radius-lg, 8px);
 				margin-top: 16px;
-				background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+				background: var(--wpds-color-background-surface-neutral-strong, #fff);
 				padding: 16px;
 			}
 			.formbox .contact-support input[type="submit"] {

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a Content tab (a DataViews list of posts/pages backed by core REST, with per-post SEO editing and a SERP preview), a Content SEO coverage card on the Overview, and front-end JSON-LD schema (Article / FAQ).

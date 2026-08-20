@@ -1,3 +1,4 @@
+import { useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, closeSmall } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -11,7 +12,6 @@ import {
 	CSSProperties,
 } from 'react';
 import IconTooltip from '../icon-tooltip/index.tsx';
-import useBreakpointMatch from '../layout/use-breakpoint-match/index.ts';
 import TermsOfService from '../terms-of-service/index.tsx';
 import Text from '../text/index.tsx';
 import styles from './styles.module.scss';
@@ -59,8 +59,8 @@ export const PricingTableItem: FC< PricingTableItemProps > = ( {
 	tooltipTitle,
 	tooltipClassName = '',
 } ) => {
-	const [ isLg ] = useBreakpointMatch( 'lg' );
-	const item = useContext( PricingTableContext )[ index ];
+	const { items, isLg } = useContext( PricingTableContext );
+	const item = items[ index ];
 	const isExplicitlyEmpty = label === '';
 	const showTick = isComingSoon || isIncluded;
 
@@ -157,11 +157,12 @@ const PricingTable: FC< PricingTableProps > = ( {
 	items,
 	children,
 	showIntroOfferDisclaimer = false,
+	breakpoint = 'large',
 } ) => {
-	const [ isLg ] = useBreakpointMatch( 'lg' );
+	const isLg = useViewportMatch( breakpoint );
 
 	return (
-		<PricingTableContext.Provider value={ items }>
+		<PricingTableContext.Provider value={ { items, isLg } }>
 			<div
 				className={ clsx( styles.container, { [ styles[ 'is-viewport-large' ] ]: isLg } ) }
 				style={

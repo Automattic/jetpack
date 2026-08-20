@@ -13,7 +13,12 @@ export { formatPercentage } from './format-percentage';
 export { getLongestTickWidth } from './get-longest-tick-width';
 
 // Style and theming utilities
-export { getSeriesLineStyles, getSeriesStroke, getItemShapeStyles } from './get-styles';
+export {
+	getSeriesBarStyles,
+	getSeriesLineStyles,
+	getSeriesStroke,
+	getItemShapeStyles,
+} from './get-styles';
 
 // Browser detection utilities
 export { isSafari } from './is-safari';
@@ -25,7 +30,7 @@ export { mergeThemes } from './merge-themes';
 export * from './color-utils';
 
 // CSS utilities
-export { resolveCssVariable } from './resolve-css-var';
+export { resolveCssVariable, createCssVariableResolver } from './resolve-css-var';
 
 // Font sizing utilities
 export { resolveFontSize } from './resolve-font-size';

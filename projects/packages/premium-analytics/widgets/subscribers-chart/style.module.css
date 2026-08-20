@@ -1,0 +1,15 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.emptyState {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 250px;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}

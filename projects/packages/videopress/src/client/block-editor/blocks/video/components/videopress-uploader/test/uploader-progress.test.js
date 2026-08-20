@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { usePosterAndTitleUpdate } from '../uploader-progress.js';
+import { usePosterAndTitleUpdate } from '../uploader-progress.jsx';
 
 const mockUploadPoster = jest.fn();
 const mockGetPoster = jest.fn();
@@ -37,7 +37,7 @@ jest.mock( '@wordpress/i18n', () => ( {
 } ) );
 jest.mock( 'debug', () => () => () => {} );
 jest.mock( 'filesize', () => ( { filesize: () => '0 B' } ) );
-jest.mock( '../uploader-editor.js', () => () => null );
+jest.mock( '../uploader-editor.jsx', () => () => null );
 jest.mock( '../../../edit', () => ( {
 	PlaceholderWrapper: () => null,
 } ) );

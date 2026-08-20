@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit bc5daa9ec5b95802d7bc550508c73dfd2badefcd.
+ * Stubs automatically generated from WordPress.com commit 0df31ec7c9f4fa83103606c5fa6444b3fdf440b5.
  */
 
 namespace {
@@ -551,7 +551,7 @@ namespace {
         }
     }
     /**
-     * @return array{quota: int, used: int, remaining: int, resetsAt: string|null}
+     * @return array{quota: int, used: int, remaining: int, resetsAt: string}
      */
     function posts_to_podcast_get_usage(int $blog_id, ?int $now = \null): array
     {
@@ -929,6 +929,16 @@ namespace {
     function is_simple_site_redirect($blog_id = 0)
     {
     }
+    class Email_Preview_Guard
+    {
+        /**
+         * @param string $email
+         * @return true|WP_Error
+         */
+        public static function check($email)
+        {
+        }
+    }
     class Subscription_Mailer extends \WordPressMailer
     {
         public function __construct(\Blog_Subscriber $subscriber, $use_wp = \true, $locale_type = self::USER_LOCALE, $woocommerce_email_renderer = \null)
@@ -1233,7 +1243,17 @@ namespace {
     {
     }
     /**
-     * @phan-return mixed
+     * @param int|false $site_id
+     * @param int $blog_id
+     * @param string $table
+     * @param string $field
+     * @param string|false $end_date
+     * @param int $num_days
+     * @param string $and
+     * @param int $limit
+     * @param bool $summarize
+     * @param bool $rollup
+     * @return array
      */
     function stats_get_daily_history($site_id, $blog_id, $table, $field, $end_date = \false, $num_days = 1, $and = '', $limit = 0, $summarize = \false, $rollup = \false)
     {

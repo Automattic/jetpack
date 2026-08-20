@@ -14,6 +14,13 @@
 }
 
 .jetpack-newsletter-access-radio-buttons {
+	// The container owns the vertical rhythm. Spacing the children with their own
+	// margins does not survive here: wp-admin zeroes paragraph margins inside the
+	// sidebar with a higher-specificity rule. 12px matches the VStack spacing
+	// RadioControl uses between its own options.
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 
 	input[type="radio"] {
 		flex-shrink: 0;
@@ -21,6 +28,47 @@
 
 	label {
 		text-wrap: balance;
+	}
+
+	&__disabled-option {
+
+		input[type="radio"],
+		label {
+			cursor: default;
+			opacity: 0.5;
+		}
+	}
+
+	// The group is built by hand rather than by RadioControl (see AccessOption),
+	// so it supplies the spacing RadioControl would get from its own VStack.
+	.components-radio-control__group-wrapper {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	// Two tiers of spacing: the options sit close together, while the legend, the
+	// setup link and the description are each set apart from the group by a wider
+	// gap. Gutenberg gives the legend 8px of its own, so it needs half as much.
+	legend {
+		margin-block-end: 16px;
+	}
+
+	> a,
+	&__description {
+		padding-block-start: 4px;
+	}
+
+	// The setup link is a @wordpress/ui Link, which brings its own underline and
+	// "opens in a new tab" affordance; it only needs to stop filling the column.
+	> a {
+		align-self: flex-start;
+	}
+
+	&__description {
+		margin: 0;
+		color: gb.$gray-700;
+		font-size: 12px;
 	}
 }
 

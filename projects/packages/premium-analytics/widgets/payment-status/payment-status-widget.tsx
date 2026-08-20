@@ -1,0 +1,82 @@
+/**
+ * External dependencies
+ */
+import { useReportOrders } from '@jetpack-premium-analytics/data';
+import { payment } from '@jetpack-premium-analytics/icons';
+import {
+	DonutChart,
+	DonutChartSkeleton,
+	PAYMENT_STATUS_FILTERS,
+	WidgetState,
+	buildPaymentStatusData,
+	useSegmentStyles,
+	useWidgetRootContext,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+import { __ } from '@wordpress/i18n';
+import { Stack } from '@jetpack-premium-analytics/externals';
+import { useMemo } from 'react';
+/**
+ * Internal dependencies
+ */
+import styles from './style.module.css';
+
+/**
+ * Paid vs unpaid order revenue donut. Must render inside a `WidgetRoot`, which
+ * supplies `reportParams` through context.
+ */
+export function PaymentStatusWidget() {
+	const { reportParams } = useWidgetRootContext();
+
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
+		useReportOrders( {
+			...reportParams,
+			filters: PAYMENT_STATUS_FILTERS,
+		} );
+
+	const { chartData, total, comparisonTotal, legendData } = useMemo(
+		() => buildPaymentStatusData( primary.data, comparison.data ),
+		[ primary.data, comparison.data ]
+	);
+
+	const segmentStyles = useSegmentStyles( chartData );
+
+	return (
+		<WidgetState
+			isLoading={ isLoading }
+			isFetching={ isFetching }
+			// The report queries keep the previous period's data as placeholder across
+			// range changes, so only surface the error when there is nothing to show.
+			isError={ isError && ! hasData }
+			isEmpty={ chartData.length === 0 }
+			error={ {
+				description: __(
+					"We couldn't load payment data. Please try again in a moment.",
+					'jetpack-premium-analytics-pkg'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: payment,
+				description: __( 'No order revenue in this period.', 'jetpack-premium-analytics-pkg' ),
+			} }
+			renderLoading={ <DonutChartSkeleton /> }
+		>
+			<Stack className={ styles.container } direction="column" align="center" justify="center">
+				<DonutChart
+					chartData={ chartData }
+					value={ total }
+					styles={ segmentStyles }
+					comparisonValue={ hasComparison ? comparisonTotal : null }
+					legendData={ legendData }
+					showLegend={ true }
+					dataFormat={ {
+						type: 'currency',
+						options: { useMultipliers: true, decimals: 1 },
+					} }
+					maxSize={ null }
+					withTooltips
+				/>
+			</Stack>
+		</WidgetState>
+	);
+}

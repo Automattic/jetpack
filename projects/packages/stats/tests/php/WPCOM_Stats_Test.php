@@ -30,6 +30,8 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 	protected function set_up() {
 		parent::set_up();
 
+		wp_set_current_user( 0 );
+
 		$this->wpcom_stats = $this->getMockBuilder( 'Automattic\Jetpack\Stats\WPCOM_Stats' )
 			->onlyMethods( array( 'fetch_remote_stats', 'fetch_stats_on_wpcom_simple' ) )
 			->getMock();
@@ -580,6 +582,35 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test that get_total_post_views casts post IDs to integers before they reach the query on Simple sites.
+	 *
+	 * @return void
+	 */
+	public function test_get_total_post_views_casts_post_ids_to_integers_on_simple_sites() {
+		$reflection = new \ReflectionClass( $this->wpcom_stats );
+		$property   = $reflection->getProperty( 'is_wpcom_simple' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $this->wpcom_stats, true );
+
+		// A non-integer post_ids value must be reduced to integers before it reaches the query.
+		$this->wpcom_stats->expects( $this->once() )
+					->method( 'fetch_stats_on_wpcom_simple' )
+					->with( '2025-03-07', 1, '1,2' )
+					->willReturn( array( '-' => array() ) );
+
+		$args = array(
+			'post_ids' => '1abc,2def',
+			'end'      => '2025-03-07',
+			'num'      => 1,
+		);
+
+		$this->wpcom_stats->get_total_post_views( $args );
+	}
+
+	/**
 	 * Test get_visits.
 	 */
 	public function test_get_visits() {
@@ -812,6 +843,120 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 		$stats = $this->wpcom_stats->get_stats();
 		$this->assertSame( $expected_error, $stats );
 		$this->assertSame( $expected_error, self::get_stats_transient( '/sites/1234/stats/' ) );
+	}
+
+	/**
+	 * A site with no connection fails before a request leaves it, so there is no remote call to
+	 * spare by remembering the failure -- and it stops being true the moment the site connects.
+	 */
+	public function test_get_stats_does_not_cache_a_missing_token() {
+		$expected_error = new WP_Error( 'missing_token' );
+
+		$this->wpcom_stats
+			->expects( $this->exactly( 2 ) )
+			->method( 'fetch_remote_stats' )
+			->willReturn( $expected_error );
+
+		$this->assertSame( $expected_error, $this->wpcom_stats->get_stats() );
+		$this->assertFalse( self::get_stats_transient( '/sites/1234/stats/' ) );
+
+		// A second call asks again rather than serving what the first one saw.
+		$this->assertSame( $expected_error, $this->wpcom_stats->get_stats() );
+	}
+
+	/**
+	 * Newer connection packages name the missing blog token `no_possible_tokens`; that failure is
+	 * left uncached for the same reason as `missing_token`.
+	 */
+	public function test_get_stats_does_not_cache_a_missing_blog_token() {
+		$expected_error = new WP_Error( 'no_possible_tokens' );
+
+		$this->wpcom_stats
+			->expects( $this->exactly( 2 ) )
+			->method( 'fetch_remote_stats' )
+			->willReturn( $expected_error );
+
+		$this->assertSame( $expected_error, $this->wpcom_stats->get_stats() );
+		$this->assertFalse( self::get_stats_transient( '/sites/1234/stats/' ) );
+		$this->assertSame( $expected_error, $this->wpcom_stats->get_stats() );
+	}
+
+	/**
+	 * A site returning through the connection or checkout flow carries answers from before it
+	 * had one, failures included, and has to be able to ask again.
+	 */
+	public function test_get_stats_ignores_the_cache_when_asked_to_refresh() {
+		$this->grant_view_stats();
+
+		$this->wpcom_stats
+			->expects( $this->exactly( 2 ) )
+			->method( 'fetch_remote_stats' )
+			->willReturn( array( 'dummy' => 'test' ) );
+
+		$this->wpcom_stats->get_stats();
+
+		$_GET['force_refresh'] = '1';
+		$stats                 = $this->wpcom_stats->get_stats();
+		unset( $_GET['force_refresh'] );
+
+		$this->assertArrayHasKey( 'dummy', $stats );
+		$this->assertArrayNotHasKey( 'cached_at', $stats );
+	}
+
+	/**
+	 * The dashboard asks for its data over REST, and those requests carry none of the query the
+	 * page was loaded with, so the marker has to be read from the page that sent them.
+	 */
+	public function test_get_stats_ignores_the_cache_when_the_page_asked_to_refresh() {
+		$this->grant_view_stats();
+
+		$this->wpcom_stats
+			->expects( $this->exactly( 2 ) )
+			->method( 'fetch_remote_stats' )
+			->willReturn( array( 'dummy' => 'test' ) );
+
+		$this->wpcom_stats->get_stats();
+
+		$_SERVER['HTTP_REFERER'] = 'https://example.com/wp-admin/admin.php?page=stats&force_refresh=1';
+		$stats                   = $this->wpcom_stats->get_stats();
+		unset( $_SERVER['HTTP_REFERER'] );
+
+		$this->assertArrayNotHasKey( 'cached_at', $stats );
+	}
+
+	/**
+	 * Widgets and blocks fetch stats for anonymous visitors. A public URL that happens to
+	 * carry the dashboard's refresh marker must not skip the cache.
+	 */
+	public function test_get_stats_keeps_the_cache_when_a_visitor_asks_to_refresh() {
+		$this->wpcom_stats
+			->expects( $this->once() )
+			->method( 'fetch_remote_stats' )
+			->willReturn( array( 'dummy' => 'test' ) );
+
+		$this->wpcom_stats->get_stats();
+
+		$_GET['force_refresh'] = '1';
+		$stats                 = $this->wpcom_stats->get_stats();
+		unset( $_GET['force_refresh'] );
+
+		$this->assertArrayHasKey( 'cached_at', $stats );
+	}
+
+	/**
+	 * Grant the current user the capability the dashboard uses, so cache-bypass tests exercise
+	 * the authenticated path rather than the public widgets.
+	 */
+	private function grant_view_stats() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'stats_viewer',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		get_userdata( $user_id )->add_cap( 'view_stats' );
+		wp_set_current_user( $user_id );
 	}
 
 	/**

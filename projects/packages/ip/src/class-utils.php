@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\IP;
  */
 class Utils {
 
-	const PACKAGE_VERSION = '0.4.14';
+	const PACKAGE_VERSION = '0.5.0';
 
 	/**
 	 * Get the current user's IP address.
@@ -113,6 +113,108 @@ class Utils {
 				}
 			}
 		}
+		return false;
+	}
+
+	/**
+	 * Checks whether an IP address is a public, globally-routable destination.
+	 *
+	 * Stricter than the inverse of ip_is_private(): on top of private and reserved
+	 * ranges it also rejects the IPv4 special-use ranges PHP's reserved-range
+	 * filter leaves open (CGNAT, IETF protocol assignments, 6to4 relay anycast,
+	 * benchmarking, multicast), the Azure metadata "Wire Server" address, and IPv6
+	 * link-local / unique-local / site-local ranges. IPv6 addresses that embed an
+	 * IPv4 address (IPv4-mapped ::ffff:0:0/96, IPv4-compatible ::/96, NAT64
+	 * 64:ff9b::/96, and 6to4 2002::/16) are decoded to that IPv4 and re-checked, so
+	 * the embedded IPv4 is classified the same way whether or not it is wrapped.
+	 *
+	 * @param string $ip IP address (IPv4, IPv6, or IPv4-mapped IPv6; any IPv6 zone id is ignored).
+	 * @return bool True when the address is a safe public destination, false otherwise.
+	 */
+	public static function ip_is_public( $ip ) {
+		if ( ! is_string( $ip ) || '' === $ip ) {
+			return false;
+		}
+
+		// Strip an IPv6 zone identifier (e.g. fe80::1%eth0). Zone ids are only valid
+		// on IPv6 addresses, so a '%' on anything else (e.g. "8.8.8.8%foo") is malformed.
+		if ( false !== strpos( $ip, '%' ) ) {
+			if ( false === strpos( $ip, ':' ) ) {
+				return false;
+			}
+			$ip = preg_replace( '/%.*$/', '', $ip );
+		}
+
+		// Decode IPv6 forms that embed an IPv4 address to that IPv4 and check it,
+		// so the embedded IPv4 is classified the same way whether or not it is wrapped.
+		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+			$binary = inet_pton( $ip );
+			if ( false !== $binary && 16 === strlen( $binary ) ) {
+				$prefix12 = substr( $binary, 0, 12 );
+				$embedded = null;
+
+				if (
+					"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff" === $prefix12 // IPv4-mapped ::ffff:0:0/96.
+					|| "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" === $prefix12 // IPv4-compatible ::/96 (incl. ::, ::1).
+					|| "\x00\x64\xff\x9b\x00\x00\x00\x00\x00\x00\x00\x00" === $prefix12 // NAT64 64:ff9b::/96.
+				) {
+					$embedded = substr( $binary, 12, 4 );
+				} elseif ( "\x20\x02" === substr( $binary, 0, 2 ) ) {
+					// 6to4 2002::/16: the embedded IPv4 gateway is in bytes 2-5.
+					$embedded = substr( $binary, 2, 4 );
+				}
+
+				if ( null !== $embedded ) {
+					$mapped = inet_ntop( $embedded );
+					if ( is_string( $mapped ) ) {
+						$ip = $mapped;
+					}
+				}
+			}
+		}
+
+		// Reject anything that is not a valid, non-private, non-reserved address.
+		if ( false === filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
+			return false;
+		}
+
+		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			// IPv4 special-use ranges the reserved-range filter above leaves open.
+			$blocked_ranges = array(
+				array( '100.64.0.0', '100.127.255.255' ),   // CGNAT (RFC 6598).
+				array( '168.63.129.16', '168.63.129.16' ),  // Azure metadata "Wire Server".
+				array( '169.254.0.0', '169.254.255.255' ),  // Link-local, incl. cloud metadata.
+				array( '192.0.0.0', '192.0.0.255' ),         // IETF protocol assignments (RFC 6890).
+				array( '192.88.99.0', '192.88.99.255' ),     // 6to4 relay anycast (RFC 7526).
+				array( '198.18.0.0', '198.19.255.255' ),     // Benchmarking (RFC 2544).
+				array( '224.0.0.0', '239.255.255.255' ),     // Multicast (RFC 5771).
+			);
+			foreach ( $blocked_ranges as $range ) {
+				if ( self::ip_address_is_in_range( $ip, $range[0], $range[1] ) ) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+			$binary = inet_pton( $ip );
+			if ( false === $binary || strlen( $binary ) < 2 ) {
+				return false;
+			}
+			$first = unpack( 'n', $binary )[1];
+
+			// fe80::/10 link-local and fec0::/10 site-local (deprecated).
+			if ( 0xfe80 === ( $first & 0xffc0 ) || 0xfec0 === ( $first & 0xffc0 ) ) {
+				return false;
+			}
+			// fc00::/7 unique local addresses.
+			if ( 0xfc00 === ( $first & 0xfe00 ) ) {
+				return false;
+			}
+			return true;
+		}
+
 		return false;
 	}
 

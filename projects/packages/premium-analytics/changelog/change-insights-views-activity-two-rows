@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Insights: give the Traffic views activity heatmap two rows by default, so each day shows its view count.

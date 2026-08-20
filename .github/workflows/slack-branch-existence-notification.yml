@@ -15,7 +15,7 @@ jobs:
     if: github.event.ref == 'prerelease'
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: trunk
       - name: Generate message
@@ -65,7 +65,7 @@ jobs:
           fi
 
       - name: Send message to releases channel
-        uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
+        uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
         with:
           token: ${{ secrets.SLACK_TOKEN }}
           method: chat.postMessage

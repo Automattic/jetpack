@@ -18,6 +18,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once __DIR__ . '/../../shared/cdn-locale.php';
+// Required directly rather than relying on the plugin bootstrap: on
+// WordPress.com Simple the extension files load through wpcom's own loader
+// and load-jetpack.php never runs.
+require_once __DIR__ . '/../../../_inc/lib/class-jetpack-ai-settings.php';
 
 const FEATURE_NAME           = 'image-studio';
 const FEATURE_CLIP_META_KEY  = '_jetpack_feature_clip_id';
@@ -31,23 +35,67 @@ const ASSET_TRANSLATIONS_URL = 'https://' . ASSET_BASE_PATH . 'languages/';
 const ASSET_TRANSIENT        = 'jetpack_image_studio_asset';
 
 /**
- * Check if Image Studio is enabled.
- *
- * Enabled when AI features are available and either the request is from an
- * Automattician or the Big Sky plugin is active and enabled.
+ * Whether the environment offers Image Studio at all: the host and master
+ * gates plus the platform checks, with no per-feature toggles. Shared by the
+ * image surfaces and clip generation, which each apply their own toggle on
+ * top — the toggles are independent of each other by contract, so neither
+ * belongs in this shared half.
  *
  * @return bool
  */
-function is_image_studio_enabled() {
+function is_image_studio_environment_available() {
+	// The host and master switches win over every environment-based enable
+	// below: off must mean Jetpack loads nothing, even in Big Sky or CIAB.
+	if ( ! \Jetpack_AI_Settings::apply_master_gates( true ) ) {
+		return false;
+	}
+
 	if ( is_ciab_environment() || is_big_sky_enabled() ) {
 		return true;
 	}
 
-	if ( ! has_jetpack_ai_features() ) {
-		return false;
+	return has_jetpack_ai_features();
+}
+
+/**
+ * Check whether Image Studio's image surfaces are offered on this site.
+ *
+ * This is a site-level ownership check and intentionally does not consider the
+ * current user's connection (see is_current_user_connected() for that). It
+ * drives the Big Sky stand-down signal and the suppression of the legacy AI
+ * image extensions, so it must stay true for the whole site even when a given
+ * visitor can't use the feature.
+ *
+ * @return bool
+ */
+function is_image_studio_enabled() {
+	// The image editor toggle on the AI settings page wins over every
+	// environment-based enable: off must mean no Jetpack image surfaces,
+	// even when Big Sky or CIAB would otherwise turn Image Studio on.
+	return \Jetpack_AI_Settings::is_feature_enabled( 'image_editor' )
+		&& is_image_studio_environment_available();
+}
+
+/**
+ * Whether the current user may load Image Studio's editor assets.
+ *
+ * True on WordPress.com Simple, which has no per-user Jetpack connection, so the
+ * current user is always treated as connected. Atomic (WoA), self-hosted and VIP
+ * all have per-user connections, so there the current user must have connected
+ * their own WordPress.com account — a user who has disconnected is correctly
+ * treated as not connected. Gates the asset enqueue and the media-library entry
+ * point so non-connected users aren't shown tools that would only error out.
+ *
+ * @return bool
+ */
+function is_current_user_connected() {
+	// Simple has no per-user connection; Atomic/WoA does, so it uses the real
+	// per-user check like self-hosted and VIP rather than short-circuiting.
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		return true;
 	}
 
-	return true;
+	return ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
 }
 
 /**
@@ -104,15 +152,17 @@ function has_jetpack_ai_features() {
 
 	return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
 		&& ! ( new Status() )->is_offline_mode()
-		&& apply_filters( 'jetpack_ai_enabled', true );
+		&& \Jetpack_AI_Settings::is_ai_enabled();
 }
 
 /**
  * Check whether the video clip generation flow can run on the current site.
  *
- * Image Studio enablement is always required — video clip generation is only
- * offered on the same plans/environments that surface Image Studio itself,
- * on WPCOM and off. On WPCOM the helper also mirrors the server-side
+ * Feature Clip is nested under the image editor: generation requires the image
+ * editor to be enabled (`is_image_studio_enabled()` — the shared environment
+ * plus the image editor toggle) as well as clips' own toggle. Image Studio is
+ * the same set of plans/environments on WPCOM and off.
+ * On WPCOM the helper also mirrors the server-side
  * `wpcom_site_can_upload_videos()` capability check so the client and server
  * agree. Off-WPCOM (self-hosted Jetpack, standalone VideoPress, dev
  * environments) that helper isn't loaded, so only the Image Studio gate
@@ -121,7 +171,15 @@ function has_jetpack_ai_features() {
  * @return bool
  */
 function image_studio_can_generate_video_clips() {
+	// Feature Clip is nested under the image editor: the image editor toggle
+	// (via is_image_studio_enabled(), which also covers the shared environment)
+	// and clips' own toggle both gate generation. With the image editor off,
+	// clips cannot generate.
 	if ( ! is_image_studio_enabled() ) {
+		return false;
+	}
+
+	if ( ! \Jetpack_AI_Settings::is_feature_enabled( 'feature_clip' ) ) {
 		return false;
 	}
 
@@ -215,7 +273,14 @@ function feature_clip_meta_auth_callback( $allowed, $meta_key, $object_id ) {
  * @return void
  */
 function register_feature_clip_post_meta() {
-	if ( ! is_image_studio_enabled() ) {
+	// The feature clip meta belongs to clip generation, not the image
+	// surfaces: it follows the clips toggle and the shared environment. It
+	// deliberately ignores the transient video-upload capability — posts that
+	// already carry a clip must keep their meta readable even if the plan or
+	// capability changes later; generation itself stays gated elsewhere.
+	if ( ! is_image_studio_environment_available()
+		|| ! \Jetpack_AI_Settings::is_feature_enabled( 'feature_clip' )
+	) {
 		return;
 	}
 
@@ -355,14 +420,7 @@ function get_tracking_site_type() {
  * @return bool True when the current visitor is an Automattician.
  */
 function is_tracking_automattician() {
-	if ( function_exists( 'wpcom_is_proxied_request' )
-		&& \wpcom_is_proxied_request()
-		&& function_exists( 'is_automattician' )
-	) {
-		return (bool) \is_automattician();
-	}
-
-	return ( new Visitor() )->is_automattician_feature_flags_only();
+	return ( new Visitor() )->is_tracking_automattician();
 }
 
 /**
@@ -371,7 +429,11 @@ function is_tracking_automattician() {
  * @return void
  */
 function do_enqueue_assets() {
-	if ( ! is_image_studio_enabled() ) {
+	// Enqueue still follows the image surfaces only. Clips-only enqueue (image
+	// editor off, clips on) needs the client bundle to gate its image entry
+	// points on a per-feature flag first — until that ships on the widgets.wp.com
+	// side, loading the bundle here would surface image tools the user disabled.
+	if ( ! is_image_studio_enabled() || ! is_current_user_connected() ) {
 		return;
 	}
 
@@ -385,16 +447,18 @@ function do_enqueue_assets() {
 	$locale       = determine_iso_639_locale();
 
 	if ( 'en' !== $locale ) {
-		// Load translations from widgets.wp.com.
+		// Shared handle with the Agents Manager package, which enqueues the same
+		// file. Both register it, so WordPress de-duplicates when both load and
+		// each still works on its own.
 		wp_enqueue_script(
-			'image-studio-translations',
+			'agents-manager-translations',
 			ASSET_TRANSLATIONS_URL . $locale . '-v1.js',
 			array( 'wp-i18n' ),
 			$version,
 			true
 		);
 
-		$dependencies[] = 'image-studio-translations';
+		$dependencies[] = 'agents-manager-translations';
 	}
 
 	wp_enqueue_script(
@@ -514,7 +578,7 @@ function add_image_studio_row_action( $actions, $post ) {
  * @return void
  */
 function register_row_action() {
-	if ( ! is_image_studio_enabled() || ! is_media_library() ) {
+	if ( ! is_image_studio_enabled() || ! is_current_user_connected() || ! is_media_library() ) {
 		return;
 	}
 

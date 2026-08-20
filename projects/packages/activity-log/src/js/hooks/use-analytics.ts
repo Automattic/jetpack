@@ -8,7 +8,10 @@
  * yet; the identify call just fills in ID + login when available.
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { useConnection } from '@automattic/jetpack-connection';
+// Deep import (not the package barrel): wp-build's esbuild bundles the whole
+// re-export graph of a barrel, and the connection barrel pulls in the
+// disconnect-dialog's `.jpg` imports, which esbuild has no loader for.
+import useConnection from '@automattic/jetpack-connection/use-connection';
 import { useEffect } from 'react';
 
 // Module-level guard so multiple consumers of `useAnalytics` don't

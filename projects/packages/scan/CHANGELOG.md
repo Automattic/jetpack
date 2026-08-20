@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.14] - 2026-08-10
+### Changed
+- Update package dependencies. [#50509]
+
+## [0.1.13] - 2026-08-03
+### Removed
+- Remove redundant workaround for a page loading edge case now fixed in bundled dependencies. No functional change. [#50780]
+
+## [0.1.12] - 2026-07-27
+### Changed
+- Update dependencies. [#50719]
+
+## [0.1.11] - 2026-07-20
+### Changed
+- Update package dependencies. [#50510] [#50529] [#50582]
+
+## [0.1.10] - 2026-07-13
+### Changed
+- Update package dependencies. [#49272]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+## [0.1.9] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## [0.1.8] - 2026-06-29
+### Changed
+- Update package dependencies. [#49271]
+
+### Fixed
+- Admin: Align Text, Notice and Tabs.Panel props with the `@wordpress/ui` 0.15 API. [#49796]
+
+## [0.1.7] - 2026-06-25
+### Changed
+- Update dependencies. [#49857]
+
+## [0.1.6] - 2026-06-22
+### Changed
+- Update package dependencies. [#49631] [#49691] [#49757]
+
 ## [0.1.5] - 2026-06-15
 ### Changed
 - Update package dependencies. [#49273]
@@ -58,6 +98,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release.
 
+[0.1.14]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.13...v0.1.14
+[0.1.13]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.12...v0.1.13
+[0.1.12]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.11...v0.1.12
+[0.1.11]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.10...v0.1.11
+[0.1.10]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.9...v0.1.10
+[0.1.9]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.8...v0.1.9
+[0.1.8]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.7...v0.1.8
+[0.1.7]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.6...v0.1.7
+[0.1.6]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.2...v0.1.3
