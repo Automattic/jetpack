@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/dashboard-layout.php';
 require_once __DIR__ . '/dashboard-grammar.php';
@@ -118,19 +119,26 @@ function is_subscribers_dashboard_section_available() {
 /**
  * Whether the Ads dashboard section is available.
  *
+ * WPCOM reads the plan feature rather than the module, which is a false negative
+ * on Atomic and meaningless on Simple. Mirrors is_videopress_available().
+ *
  * @since $$next-version$$
  *
- * @return bool True when the wordads module is active.
+ * @return bool True when the site can produce WordAds earnings.
  */
 function is_ads_dashboard_section_available() {
-	$is_available = ! class_exists( 'Jetpack' ) || ( new Modules() )->is_active( 'wordads' );
+	if ( ( new Host() )->is_wpcom_platform() ) {
+		$is_available = function_exists( 'wpcom_site_has_feature' ) && \wpcom_site_has_feature( 'wordads' );
+	} else {
+		$is_available = ! class_exists( 'Jetpack' ) || ( new Modules() )->is_active( 'wordads' );
+	}
 
 	/**
 	 * Filters whether the Ads dashboard section is available.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param bool $is_available Whether the wordads module was detected in the current request.
+	 * @param bool $is_available Whether WordAds was detected in the current request.
 	 */
 	return (bool) apply_filters( ADS_DASHBOARD_SECTION_AVAILABLE_FILTER, $is_available );
 }
@@ -208,8 +216,7 @@ function register_default_dashboard_sections() {
 		),
 		'analytics/ads'         => array(
 			'label'          => __( 'Ads', 'jetpack-premium-analytics-pkg' ),
-			'title'          => __( 'Ad revenue', 'jetpack-premium-analytics-pkg' ),
-			'description'    => __( 'What the ads on your site are earning, and what you have been paid.', 'jetpack-premium-analytics-pkg' ),
+			'description'    => __( 'How your ads are performing, and what they have earned you.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 50,
 			'is_available'   => __NAMESPACE__ . '\\is_ads_dashboard_section_available_to_current_user',
 			'default_layout' => static function () {

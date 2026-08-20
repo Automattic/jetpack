@@ -7,7 +7,10 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
@@ -51,6 +54,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		Cache::clear();
+		$GLOBALS['jpa_test_wpcom_features'] = array();
+
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
 		register_dashboard_sections_rest_routes();
@@ -82,6 +88,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 		}
 
 		Jetpack_Options::delete_option( 'active_modules' );
+		Constants::clear_constants();
+		Cache::clear();
+		$GLOBALS['jpa_test_wpcom_features'] = array();
 
 		// Drops the package's mapping along with any per-user view_stats grant a
 		// test added; set_up() hooks the mapping again.
@@ -404,7 +413,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'insights'    => 'Activity insights',
 				'subscribers' => 'Subscribers stats',
 				'store'       => null,
-				'ads'         => 'Ad revenue',
+				'ads'         => null,
 			),
 			array_column( $sections, 'title', 'slug' )
 		);
@@ -988,6 +997,80 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertInstanceOf( Dashboard_Section::class, $ads );
 		$this->assertTrue( $ads->is_available() );
 		$this->assertContains( 'analytics/ads', $this->available_section_ids() );
+	}
+
+	/**
+	 * On the WPCOM platform the plan feature decides, never the module list.
+	 *
+	 * The module stays active throughout, so each assertion also proves the
+	 * platform branch was the one taken.
+	 *
+	 * @dataProvider provide_wpcom_platform_sites
+	 *
+	 * @param array<string, mixed> $constants Constants that place the site on the platform.
+	 */
+	#[DataProvider( 'provide_wpcom_platform_sites' )]
+	public function test_ads_dashboard_section_follows_the_plan_feature_on_the_wpcom_platform( $constants ) {
+		$this->set_admin_user();
+		foreach ( $constants as $name => $value ) {
+			Constants::set_constant( $name, $value );
+		}
+		$this->activate_module( 'wordads' );
+
+		register_default_dashboard_sections();
+
+		$this->assertNotContains(
+			'analytics/ads',
+			$this->available_section_ids(),
+			'A plan without the feature has no ad surfaces.'
+		);
+
+		$GLOBALS['jpa_test_wpcom_features'] = array( 'wordads' );
+
+		$this->assertContains(
+			'analytics/ads',
+			$this->available_section_ids(),
+			'The wordads plan feature turns the tab on.'
+		);
+	}
+
+	/**
+	 * A plan carrying the feature keeps the tab with the module off, the routine
+	 * state on Atomic.
+	 *
+	 * @dataProvider provide_wpcom_platform_sites
+	 *
+	 * @param array<string, mixed> $constants Constants that place the site on the platform.
+	 */
+	#[DataProvider( 'provide_wpcom_platform_sites' )]
+	public function test_ads_dashboard_section_ignores_the_module_on_the_wpcom_platform( $constants ) {
+		$this->set_admin_user();
+		foreach ( $constants as $name => $value ) {
+			Constants::set_constant( $name, $value );
+		}
+		$GLOBALS['jpa_test_wpcom_features'] = array( 'wordads' );
+
+		register_default_dashboard_sections();
+
+		$this->assertContains( 'analytics/ads', $this->available_section_ids() );
+	}
+
+	/**
+	 * The constants that place a site on each half of the WPCOM platform.
+	 *
+	 * @return array<string, array{array<string, mixed>}>
+	 */
+	public static function provide_wpcom_platform_sites() {
+		return array(
+			'Simple' => array( array( 'IS_WPCOM' => true ) ),
+			'Atomic' => array(
+				array(
+					'ATOMIC_SITE_ID'       => 123,
+					'ATOMIC_CLIENT_ID'     => 456,
+					'WPCOMSH__PLUGIN_FILE' => '/plugins/wpcomsh/wpcomsh.php',
+				),
+			),
+		);
 	}
 
 	/**
