@@ -357,9 +357,10 @@ class Stats extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_post_activation_url() {
-		// Says the Free-vs-Paid question was already answered here, so the Stats dashboard's own
-		// pricing grid renders the dashboard instead of asking it a second time.
-		return add_query_arg( 'stats_plan_chosen', '1', static::get_manage_url() );
+		// Names the plan the Free-vs-Paid question was already answered with here, so the Stats
+		// dashboard's own pricing grid renders the dashboard instead of asking it a second time,
+		// and records the choice as free rather than as one it cannot name.
+		return add_query_arg( 'stats_plan_chosen', 'free', static::get_manage_url() );
 	}
 
 	/**

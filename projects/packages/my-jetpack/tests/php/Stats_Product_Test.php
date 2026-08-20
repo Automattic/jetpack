@@ -106,7 +106,7 @@ class Stats_Product_Test extends TestCase {
 		$this->set_premium_analytics_enabled( false );
 
 		$this->assertSame(
-			admin_url( 'admin.php?page=stats&stats_plan_chosen=1' ),
+			admin_url( 'admin.php?page=stats&stats_plan_chosen=free' ),
 			Stats::get_post_activation_url()
 		);
 	}
