@@ -1,9 +1,13 @@
 import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
+import { useSelect } from '@wordpress/data';
 import { lazy, Suspense } from '@wordpress/element';
 import { addFilter, hasFilter } from '@wordpress/hooks';
 import { FIELD_BLOCK_PREFIX } from '../util/constants.js';
+import { DEFAULT_LOGIC } from './constants.js';
 import { getTypeKeyForBlockName } from './util/block-types.js';
+import { isConditionalLogicContainer } from './util/container-blocks.js';
 
 /**
  * The panel UI, and everything it pulls in, in a chunk of its own.
@@ -19,6 +23,8 @@ import { getTypeKeyForBlockName } from './util/block-types.js';
 const ConditionalLogicPanel = lazy( () => import( './components/panel.jsx' ) );
 
 export const FILTER_NAMESPACE = 'jetpack/forms-conditional-logic';
+
+export const ATTRIBUTE_FILTER_NAMESPACE = 'jetpack/forms-conditional-logic-container-attributes';
 
 // Matches Jetpack_Forms::CONDITIONAL_LOGIC_FLAG, registered with the jetpack-feature-flags
 // package and bridged into the editor's feature-flag map.
@@ -40,11 +46,85 @@ export const isConditionalLogicField = name =>
 	getTypeKeyForBlockName( name ) !== null;
 
 /**
- * Add the conditional-logic panel to every Jetpack form field block.
+ * Give container blocks somewhere to store their conditions.
+ *
+ * Field blocks declare `conditionalLogic` in their own shared settings, but a container is a
+ * core block this package does not own, so the attribute has to be grafted on at registration
+ * time. It carries no `source`, which means it serializes into the block comment delimiter and
+ * leaves the saved markup untouched — so this needs no deprecation, and a group saved before
+ * the feature existed still parses.
+ *
+ * @param {object} settings - Block settings as registered.
+ * @param {string} name     - Fully qualified block name.
+ * @return {object} The settings, with the attribute added for containers.
+ */
+export const addContainerLogicAttribute = ( settings, name ) => {
+	if ( ! isConditionalLogicContainer( name ) || settings?.attributes?.conditionalLogic ) {
+		return settings;
+	}
+
+	return {
+		...settings,
+		attributes: {
+			...settings.attributes,
+			conditionalLogic: {
+				type: 'object',
+				// A fresh object rather than DEFAULT_LOGIC itself: a default is shared by every
+				// instance of the block, and handing them all the same array would let one
+				// group's conditions surface on another if anything ever mutated it in place.
+				default: { ...DEFAULT_LOGIC, groups: [] },
+			},
+		},
+	};
+};
+
+/**
+ * The panel for a container block, mounted only when the container is inside a form.
+ *
+ * Its own component rather than a branch inside the HOC below, because deciding this needs a
+ * store subscription and the HOC returns early for the blocks it does not handle — a hook
+ * before that return would run for every block in the editor.
+ *
+ * @param {object}   props               - Block edit props.
+ * @param {string}   props.clientId      - The container's client id.
+ * @param {object}   props.attributes    - The container's attributes.
+ * @param {Function} props.setAttributes - The container's attribute setter.
+ * @return {object|null} The panel, or null when the container is not in a form.
+ */
+const ContainerConditionalLogic = ( { clientId, attributes, setAttributes } ) => {
+	// `core/group` is available on every editor screen, so unlike a field block its name alone
+	// says nothing about whether conditions are meaningful. Only a group inside a form has
+	// fields to be conditioned on.
+	const isInsideForm = useSelect(
+		select =>
+			!! select( blockEditorStore ).getBlockParentsByBlockName( clientId, 'jetpack/contact-form' )
+				?.length,
+		[ clientId ]
+	);
+
+	if ( ! isInsideForm ) {
+		return null;
+	}
+
+	return (
+		<Suspense fallback={ null }>
+			<ConditionalLogicPanel
+				clientId={ clientId }
+				attributes={ attributes }
+				setAttributes={ setAttributes }
+				isContainer={ true }
+			/>
+		</Suspense>
+	);
+};
+
+/**
+ * Add the conditional-logic panel to Jetpack form fields and to containers inside a form.
  *
  * A filter rather than per-block wiring: the field blocks share no single inspector
  * component — four of them build their own — so this is the only way to cover all of them
- * without touching nineteen edit files, and new field types inherit it automatically.
+ * without touching nineteen edit files, and new field types inherit it automatically. A
+ * container is a core block, which leaves no option but a filter in any case.
  */
 export const withConditionalLogic = createHigherOrderComponent(
 	BlockEdit => props => {
@@ -53,7 +133,20 @@ export const withConditionalLogic = createHigherOrderComponent(
 		// on all of them meant that walk ran per field on every block-editor store change,
 		// so a keystroke anywhere on the page cost O(fields x blocks). The inspector only
 		// ever shows the selected block's panel, so there is nothing to render otherwise.
-		if ( ! props.isSelected || ! isConditionalLogicField( props.name ) ) {
+		if ( ! props.isSelected ) {
+			return <BlockEdit { ...props } />;
+		}
+
+		if ( isConditionalLogicContainer( props.name ) ) {
+			return (
+				<>
+					<BlockEdit { ...props } />
+					<ContainerConditionalLogic { ...props } />
+				</>
+			);
+		}
+
+		if ( ! isConditionalLogicField( props.name ) ) {
 			return <BlockEdit { ...props } />;
 		}
 
@@ -96,6 +189,13 @@ export const registerConditionalLogicFilter = () => {
 
 	if ( hasFilter( 'editor.BlockEdit', FILTER_NAMESPACE ) ) {
 		return false;
+	}
+
+	// Before the BlockEdit filter, and at module scope, because a block's attributes are fixed
+	// when it registers: arriving after `core/group` has registered would leave the panel
+	// writing an attribute the block does not declare, which the parser then drops on reload.
+	if ( ! hasFilter( 'blocks.registerBlockType', ATTRIBUTE_FILTER_NAMESPACE ) ) {
+		addFilter( 'blocks.registerBlockType', ATTRIBUTE_FILTER_NAMESPACE, addContainerLogicAttribute );
 	}
 
 	addFilter( 'editor.BlockEdit', FILTER_NAMESPACE, withConditionalLogic );

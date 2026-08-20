@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: Allow conditional logic on Group blocks inside a form, so a set of fields can be shown or hidden together.
