@@ -3,28 +3,13 @@
  * of the machine timezone running the tests.
  */
 jest.mock( '@jetpack-premium-analytics/data', () => {
-	const { TZDateMini } = jest.requireActual( '@date-fns/tz' );
+	const { toLocalTZ } = jest.requireActual( '@jetpack-premium-analytics/datetime' );
 
 	return {
 		...jest.requireActual( '@jetpack-premium-analytics/data' ),
-		getSiteTimezone: () => '+00:00',
 		dateToISOStringWithLocalTZ: ( date: Date ) => new Date( date.getTime() ).toISOString(),
-		localTZDate: ( value: number | string | Date, timeZone = '+00:00' ) => {
-			const time = value instanceof Date ? value.getTime() : new Date( value ).getTime();
-			return new TZDateMini( time, timeZone );
-		},
-	};
-} );
-
-jest.mock( '@wordpress/core-data', () => ( { store: 'core' } ) );
-
-jest.mock( '@wordpress/data', () => {
-	const getEntityRecord = () => undefined;
-
-	return {
-		useSelect: ( selector: ( select: () => { getEntityRecord: () => unknown } ) => unknown ) =>
-			selector( () => ( { getEntityRecord } ) ),
-		select: () => ( { getEntityRecord } ),
+		localTZDate: ( value?: number | string | Date, timeZone?: string ) =>
+			toLocalTZ( value, timeZone ?? '+00:00' ),
 	};
 } );
 
@@ -45,10 +30,18 @@ jest.mock( '@wordpress/route', () => ( {
  * External dependencies
  */
 import { act, renderHook } from '@testing-library/react';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
 import { useReportDateFilters } from '../use-report-date-filters';
+
+// The hook reads the site zone from the WordPress date settings, so pin those
+// rather than leaving the pin to the mocked helpers alone.
+setSettings( {
+	...getSettings(),
+	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+} );
 
 function renderDateFilters( search: Record< string, unknown > = {} ) {
 	mockSearch = search;

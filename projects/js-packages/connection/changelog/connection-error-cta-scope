@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Connection: Take the connection error notice's message and CTA from an error the viewer can resolve, so an informational error no longer hides a working button.

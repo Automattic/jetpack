@@ -28,7 +28,7 @@
  * named size container, the same way `widget-state.module.scss` does for
  * its short-tile icon rule. Size containment means the card takes no
  * block size from its content, so it must inherit one: `<WidgetState>`'s
- * `.ready` wrapper is `block-size: 100%` and the dashboard body has a
+ * `.root` wrapper is `block-size: 100%` and the dashboard body has a
  * definite height, which satisfies that.
  *
  * # Structural guarantee: a metric label is never orphaned

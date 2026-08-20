@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Enable wp-admin JS error reporting on 2% of sites, to keep up with the React 19 experiment rollout.

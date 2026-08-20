@@ -1,4 +1,8 @@
-import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
+import {
+	AnalyticsQueryClientProvider,
+	GlobalErrorProvider,
+	ReportScopeProvider,
+} from '@jetpack-premium-analytics/data';
 import { Button } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
@@ -19,7 +23,7 @@ import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, PostSummaryCard } from './components';
-import { POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
+import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import styles from './stage.module.scss';
@@ -161,22 +165,26 @@ function PostDetail(): JSX.Element {
 							 */ }
 							<div ref={ setHeaderElement } className={ styles.header }>
 								<div className={ styles.summary }>
+									{ /* The email tabs give the shared header an email identity
+									     (envelope tile, "Email sent on …") while the title and
+									     performance window stay the post's. */ }
 									<PostSummaryCard
 										summary={ summary }
+										variant={ EMAIL_TAB_IDS.includes( activeTab ) ? 'email' : 'post' }
 										performanceRange={ dateFilters.appliedRange }
 									/>
 								</div>
 								<div className={ styles.dateFilters }>
 									{ /*
 									 * The design has no period-over-period comparison on
-									 * this page, so the Compare control is opted out;
-									 * comparison params stay in the URL (stripped from the
-									 * widgets' injected reportParams) so the breadcrumb
-									 * carries them back to the dashboard.
+									 * this page. The panel reads that from the scope the
+									 * stage declares, which is the same declaration that
+									 * keeps the params away from the widgets; the params
+									 * themselves stay in the URL so the breadcrumb carries
+									 * them back to the dashboard.
 									 */ }
 									<DateFiltersPanel
 										{ ...dateFilters }
-										showComparison={ false }
 										containerElement={ headerElement }
 										reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
 									/>
@@ -209,7 +217,14 @@ function PostDetail(): JSX.Element {
 export function stage(): JSX.Element {
 	return (
 		<AnalyticsQueryClientProvider>
-			<PostDetail />
+			{ /*
+			 * The page names no compared period and offers no control for one, so
+			 * nothing below may fetch or draw a comparison. The params stay on the
+			 * URL so the breadcrumb carries the dashboard's state back out.
+			 */ }
+			<ReportScopeProvider offersComparison={ false }>
+				<PostDetail />
+			</ReportScopeProvider>
 		</AnalyticsQueryClientProvider>
 	);
 }

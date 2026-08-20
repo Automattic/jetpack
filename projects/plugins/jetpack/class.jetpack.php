@@ -2966,21 +2966,18 @@ p {
 	}
 
 	/**
-	 * Runs before bumping version numbers up to a new version
+	 * Runs before bumping version numbers up to a new version.
 	 *
-	 * @param string $version    Version:timestamp.
+	 * Only ever registered the hooks for the release post update modal, which has been removed.
+	 * No longer hooked to `updating_jetpack_version`.
+	 *
+	 * @deprecated $$next-version$$
+	 *
+	 * @param string $version     Version:timestamp.
 	 * @param string $old_version Old Version:timestamp or false if not set yet.
 	 */
-	public static function do_version_bump( $version, $old_version ) {
-		if ( $old_version ) { // For existing Jetpack installations.
-			add_action( 'admin_enqueue_scripts', __CLASS__ . '::enqueue_block_style' );
-
-			// If a front end page is visited after the update, the 'wp' action will fire.
-			add_action( 'wp', 'Jetpack::set_update_modal_display' );
-
-			// If an admin page is visited after the update, the 'current_screen' action will fire.
-			add_action( 'current_screen', 'Jetpack::set_update_modal_display' );
-		}
+	public static function do_version_bump( $version, $old_version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature preserved for the deprecation shim.
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
 	}
 
 	/**
@@ -3302,17 +3299,30 @@ p {
 
 	/**
 	 * Sets the display_update_modal state.
+	 *
+	 * The release post update modal that read this state has been removed. The write is kept so the
+	 * method still behaves as documented for the deprecation window. When this is deleted, also drop
+	 * the matching `display_update_modal` guard in Automattic\Jetpack\CookieState::should_set_cookie(),
+	 * which exists only to keep this key out of the cookie on the Jetpack admin screen.
+	 *
+	 * @deprecated $$next-version$$
 	 */
 	public static function set_update_modal_display() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
 		self::state( 'display_update_modal', true );
 	}
 
 	/**
 	 * Enqueues the block library styles.
 	 *
+	 * Only ever used by the release post update modal, which has been removed.
+	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @param string $hook The current admin page.
 	 */
 	public static function enqueue_block_style( $hook ) {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
 		if ( 'toplevel_page_jetpack' === $hook ) {
 			wp_enqueue_style( 'wp-block-library' );
 		}
@@ -3740,10 +3750,6 @@ p {
 
 		if ( ! ( is_multisite() && is_plugin_active_for_network( 'jetpack/jetpack.php' ) && ! is_network_admin() ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'deactivate_dialog' ) );
-		}
-
-		if ( isset( $_COOKIE['jetpackState']['display_update_modal'] ) ) {
-			add_action( 'admin_enqueue_scripts', __CLASS__ . '::enqueue_block_style' );
 		}
 
 		add_filter( 'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ), array( $this, 'plugin_action_links' ) );

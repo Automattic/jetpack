@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
+import { siteTimeZone } from '@jetpack-premium-analytics/datetime';
 import { getSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
 import { formatDate } from './format-date';
-import { siteTimeZone } from './site-time-zone';
 
 /**
  * Forms a range can be elided in. All three name the month, so the elision

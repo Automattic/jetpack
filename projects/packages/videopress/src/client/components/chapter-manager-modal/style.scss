@@ -37,7 +37,26 @@
 
 	.components-modal__header {
 		padding: 12px 18px;
+		border-block-end: 1px solid #dcdcde;
 	}
+
+	// The header now carries the full action set beside the title, so the
+	// title must truncate instead of pushing the buttons out of the frame.
+	.components-modal__header-heading-container {
+		min-inline-size: 0;
+	}
+
+	.components-modal__header-heading {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+}
+
+// The video name inside the two-tone header title.
+.videopress-chapter-manager__title-video {
+	color: #757575;
+	font-weight: 400;
 }
 
 /* The Escape-intercepting wrapper must not affect the modal's layout. */
@@ -45,59 +64,89 @@
 	display: contents;
 }
 
-.videopress-chapter-manager__action-bar {
+// The session actions in the modal header: undo/redo | discard/save | close.
+.videopress-chapter-manager__header-actions {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	padding: 10px 18px;
-	border-block-end: 1px solid #dcdcde;
-	background: #fff;
-}
-
-.videopress-chapter-manager__action-bar-title {
-	margin: 0;
-	font-size: 14px;
-	line-height: 1.4;
-}
-
-.videopress-chapter-manager__action-buttons {
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	justify-content: flex-end;
 	gap: 8px;
+	flex: none;
 }
 
-.videopress-chapter-manager__action-divider {
+.videopress-chapter-manager__header-divider {
 	inline-size: 1px;
-	align-self: stretch;
+	block-size: 24px;
 	background: #dcdcde;
 }
 
-// The single scroll container: the preview player stacked over the timeline
-// editor (and the rows list the timeline renders below its strip).
+// The workspace: the two-pane editing surface (preview + timeline on the
+// left, the chapters panel on the right) — and the container whose own
+// width decides when the panes stack, so the arrangement keys off the
+// modal's real size rather than the viewport.
 .videopress-chapter-manager__workspace {
+	// Single source for the workspace padding: the panel pulls itself through
+	// it (below) to run its divider the full body height, and that trick
+	// breaks silently if the two values ever drift apart.
+	--vp-chapter-manager-workspace-pad: 18px;
+
+	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
 	flex: 1;
 	min-block-size: 0;
-	padding: 18px;
+	padding: var(--vp-chapter-manager-workspace-pad);
 	background: #fff;
 	overflow-y: auto;
 }
 
-// The shared chapters preview player fills the Editor tab's canvas in its
-// dashboard home; here it is a full-width row above the timeline. The player
-// is the playhead source, not the star: cap the stage height (its own
-// viewport-derived clamp assumes a full admin page) so the timeline and rows
-// stay above the fold. The stage centers itself and derives its width from
-// the capped height and the 16:9 ratio.
+// The player is the pane's star now that the rows sit beside it instead of
+// below: let it take most of the modal height, keeping a viewport-derived
+// cap so short windows still fit the timeline underneath.
 .videopress-chapter-manager__workspace .vp-chapters-preview {
-	--vp-chapters-stage-max-height: min(300px, 34vh);
+	--vp-chapters-stage-max-height: min(540px, 52vh);
 
 	flex: none;
+}
+
+.videopress-chapter-manager__panes {
+	display: flex;
+	align-items: stretch;
+	gap: 18px;
+	flex: 1;
+	min-block-size: 0;
+}
+
+.videopress-chapter-manager__pane-main {
+	flex: 1;
+	min-inline-size: 0;
+	min-block-size: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	overflow-y: auto;
+}
+
+// The chapters panel pane: fixed rail width, its own scrolling list (the
+// shared panel component scrolls its list region when its height is bound,
+// which the stretched pane provides).
+.videopress-chapter-manager__panel {
+	flex: none;
+	inline-size: 320px;
+	min-block-size: 0;
+	display: flex;
+	flex-direction: column;
+	border-inline-start: 1px solid #dcdcde;
+	padding-inline-start: 18px;
+	// Pull the pane through the workspace's block padding so its divider
+	// runs the full modal body, header hairline to bottom edge; the padding
+	// puts the content back where the workspace would have had it.
+	margin-block: calc(var(--vp-chapter-manager-workspace-pad) * -1);
+	padding-block: var(--vp-chapter-manager-workspace-pad);
+
+	.vp-chapters-panel {
+		flex: 1;
+		min-block-size: 0;
+	}
 }
 
 .videopress-chapter-manager__editor {
@@ -106,11 +155,47 @@
 	min-block-size: 0;
 }
 
-// Locked chrome while the probe or a save is in flight: dim the editor. The
-// timeline shell blocks its own scroller's pointer events and the store
-// drops edit dispatches, so this is presentation only.
-.videopress-chapter-manager__editor--locked {
+// Locked chrome while the probe or a save is in flight: dim the editor and
+// the panel. The timeline shell blocks its own scroller's pointer events,
+// the panel's controls disable individually, and the store drops edit
+// dispatches, so this is presentation only.
+.videopress-chapter-manager__editor--locked,
+.videopress-chapter-manager__panel--locked {
 	opacity: 0.6;
+}
+
+// Narrow modal: the panes stack back into the single column (player,
+// timeline, rows) — the same layout every viewport had before the side
+// panel existed — and the workspace becomes the one scroll surface again.
+@container ( max-inline-size: 919px ) {
+
+	.videopress-chapter-manager__panes {
+		flex-direction: column;
+	}
+
+	.videopress-chapter-manager__pane-main {
+		flex: none;
+		overflow-y: visible;
+	}
+
+	.videopress-chapter-manager__panel {
+		// The workspace scrolls the whole stack, so the panel's list stops
+		// scrolling internally (a published knob on the shared panel).
+		--vp-chapters-panel-list-overflow: visible;
+
+		inline-size: auto;
+		border-inline-start: 0;
+		padding-inline-start: 0;
+		margin-block: 0;
+		border-block-start: 1px solid #dcdcde;
+		padding-block: 16px 0;
+	}
+
+	// The stacked column needs the old tighter player cap so the timeline
+	// and rows stay reachable without a scroll expedition.
+	.videopress-chapter-manager__workspace .vp-chapters-preview {
+		--vp-chapters-stage-max-height: min(300px, 34vh);
+	}
 }
 
 .videopress-chapter-manager__status {
@@ -144,13 +229,11 @@
 		height: calc(100vh - 40px);
 	}
 
-	.videopress-chapter-manager__action-bar {
-		align-items: flex-start;
-	}
-
-	// The modal title already names the editor, so the in-body heading is
-	// redundant on mobile — hide it to reclaim horizontal space.
-	.videopress-chapter-manager__action-bar-title {
+	// The header can't fit the full action set beside the title on a phone;
+	// keep the essentials (undo/redo/Save/close). Discarding stays reachable
+	// through undo and the close-time confirmation.
+	.videopress-chapter-manager__header-discard,
+	.videopress-chapter-manager__header-divider--session {
 		display: none;
 	}
 

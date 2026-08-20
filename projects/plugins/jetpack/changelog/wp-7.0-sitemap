@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sitemaps: avoid a PHP notice when a sitemap query returns no posts.

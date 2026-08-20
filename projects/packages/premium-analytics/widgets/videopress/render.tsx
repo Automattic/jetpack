@@ -5,15 +5,16 @@ import { useStatsVideoPlays } from '@jetpack-premium-analytics/data';
 import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
 	VideoTitleLink,
+	WIDGET_ROW_LIMIT,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
 	getCombinedPeriodMax,
 	sharePercentage,
-	toMaxRows,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -26,12 +27,12 @@ import { useMemo } from 'react';
  */
 import { toVideoPlaysRows, type VideoPlaysRow } from './build-video-plays-data';
 import styles from './style.module.css';
-import { DEFAULT_MAX, type VideoPressAttributes } from './widget';
+import type { VideoPressAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
 // The dashboard injects its date range and comparison state through
-// `reportParams`; the widget's own settings come from `VideoPressAttributes`.
+// `reportParams`; the widget has no settings of its own.
 type VideoPressRenderAttributes = VideoPressAttributes & Partial< ReportParamsFieldAttributes >;
 
 type VideoPressWidgetProps = WidgetRenderProps< VideoPressRenderAttributes > & {
@@ -90,38 +91,26 @@ function buildLeaderboardData(
 	} ) );
 }
 
-type VideoPressReportProps = {
-	/**
-	 * Maximum number of videos to display.
-	 */
-	max: number;
-};
-
 /**
  * Fetches the video-plays report through the Jetpack Stats hook, builds the
  * leaderboard rows, and renders them through the shared widget content states.
  */
-function VideoPressReport( { max }: VideoPressReportProps ) {
+function VideoPressReport() {
 	const { reportParams } = useWidgetRootContext();
-	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
+	const statsParams = useMemo(
+		() => ( { ...reportParams, max: WIDGET_ROW_LIMIT } ),
+		[ reportParams ]
+	);
 
 	// The hook merges comparison rows in the data layer and gates
 	// `hasComparison` on at least one visible row (`maxRows`) having a matching
 	// comparison row, so the chart never fabricates vs-zero deltas.
-	const {
-		primary,
-		comparisonRows,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		refetch,
-	} = useStatsVideoPlays( statsParams, { maxRows: max } );
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+		useStatsVideoPlays( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
-	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasData;
+	const isInitialLoading = isLoading || primary.isPending;
 
 	const rows = useMemo( () => toVideoPlaysRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
 	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
@@ -151,6 +140,7 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 				icon: video,
 				description: __( 'No VideoPress plays in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 		>
 			<LeaderboardChart
 				data={ chartData }
@@ -171,7 +161,7 @@ export default function VideoPress( { attributes = {}, setError }: VideoPressWid
 		<WidgetRoot attributes={ attributes } setError={ setError }>
 			<div className={ styles.root }>
 				<div className={ styles.content }>
-					<VideoPressReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
+					<VideoPressReport />
 				</div>
 				<WidgetFooter>
 					<ReportLink report="videos" />

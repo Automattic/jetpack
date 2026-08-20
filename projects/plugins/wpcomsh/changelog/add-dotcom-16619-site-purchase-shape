@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Return site purchases in a declared shape, with billing-derived auto-renew state behind accessors.

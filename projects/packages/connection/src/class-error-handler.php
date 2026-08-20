@@ -26,18 +26,21 @@ namespace Automattic\Jetpack\Connection;
  * 6. This endpoint adds this error to the Verified errors in the database
  * 7. Triggers a workflow depending on the error (display user an error message, do some self healing, etc.)
  *
- * Flow 2 — outgoing request errors. Entry points: `check_api_response_for_errors()` and
- * `check_signed_request_for_errors()`.
+ * Flow 2 — outgoing request errors. Entry points: `check_api_response_for_errors()`,
+ * `check_signed_request_for_errors()`, and `check_xmlrpc_fault_for_errors()`.
  *
  * 1. Every signed request made through `Client::remote_request()` has its response checked
  *    by `check_api_response_for_errors()`. A request that could not be signed at all never
  *    gets a response, so `Client::remote_request()` passes the signing failure to
- *    `check_signed_request_for_errors()` instead.
- * 2. When the response (or the signing failure) carries a known error code, the error is
- *    stored and immediately marked verified (the same hourly gate applies). The WP.com
- *    verification round-trip of flow 1 is skipped because the error arrived in a response to
- *    a request this site itself initiated and signed — the failed response is its own
- *    evidence — or, for signing failures, because the evidence is the site's own state.
+ *    `check_signed_request_for_errors()` instead. An XML-RPC fault arrives as an HTTP 200
+ *    response with an XML body, so it never reaches `check_api_response_for_errors()` either
+ *    (which returns immediately on a 200 and decodes the body as JSON); `Jetpack_IXR_Client::query()`
+ *    calls `check_xmlrpc_fault_for_errors()` directly from its fault branch instead.
+ * 2. When the response (or the signing failure, or the fault) carries a known error code, the
+ *    error is stored and immediately marked verified (the same hourly gate applies). The
+ *    WP.com verification round-trip of flow 1 is skipped because the error arrived in a
+ *    response to a request this site itself initiated and signed — the failed response is its
+ *    own evidence — or, for signing failures, because the evidence is the site's own state.
  *
  * Stored errors carry two orthogonal classification fields:
  *
@@ -183,9 +186,10 @@ class Error_Handler {
 	 */
 	public $known_errors = array(
 		// Incoming request token problems (Manager::internal_verify_xml_rpc_signature).
-		'malformed_token',           // Token in the request is empty/garbled, or its API version doesn't match ours.
 		'malformed_user_id',         // The user_id segment of the request token is not numeric.
 		'unknown_user',              // The request token's user does not exist on this site.
+		// Incoming and outgoing token problems (Manager::internal_verify_xml_rpc_signature; Client::build_signed_request).
+		'malformed_token',           // Request token is empty/garbled or version-mismatched (incoming); or the local token has no secret half (outgoing).
 		// Locally stored token problems (Tokens::get_access_token).
 		'no_user_tokens',            // The user_tokens option is empty; no user tokens exist at all.
 		'empty_master_user_option',  // The owner's token was requested but the master_user option is empty.
@@ -197,7 +201,8 @@ class Error_Handler {
 		'no_valid_blog_token',       // The stored blog token doesn't match the key the request was signed with.
 		'unknown_token',             // No stored token matches the request token's key.
 		// Signature verification problems (Jetpack_Signature), or errors WPCOM returned
-		// for an outbound request (Error_Handler::check_api_response_for_errors).
+		// for an outbound request (Error_Handler::check_api_response_for_errors,
+		// Error_Handler::check_xmlrpc_fault_for_errors).
 		'could_not_sign',            // Signing the request failed for an unknown reason.
 		'invalid_scheme',            // Invalid URL scheme when signing.
 		'unknown_scheme_port',       // The URL scheme has no known port, so the signature cannot be built.
@@ -304,33 +309,18 @@ class Error_Handler {
 		// lookups entirely then. The external filter below still runs so consumers
 		// (e.g. wpcomsh) can inject errors into an empty set.
 		if ( ! empty( $verified_errors ) ) {
-			// Only process error codes that are meant to be displayed to users.
-			// `no_user_tokens` and `no_token_for_user` are deliberately excluded: both mean the
-			// targeted user simply never connected their WordPress.com account, which is expected.
-			// The owner flavor is covered by `invalid_connection_owner`.
-			$displayable_error_codes = array(
-				'malformed_token',
-				'token_malformed',
-				'no_possible_tokens',
-				'no_valid_user_token',
-				'no_valid_blog_token',
-				'unknown_token',
-				'could_not_sign',
-				'invalid_token',
-				'token_mismatch',
-				'invalid_signature',
-				'signature_mismatch',
-				'invalid_connection_owner',
-				'xmlrpc_request_blocked',
-			);
+			$generic_message = __( "Your connection with WordPress.com seems to be broken. If you're experiencing issues, please try reconnecting.", 'jetpack-connection' );
 
 			$owner_id        = (int) \Jetpack_Options::get_option( 'master_user' );
 			$viewer_is_owner = $owner_id > 0 && $viewer_id === $owner_id;
 			$is_transferable = ( new Manager() )->is_ownership_transferable();
 
 			foreach ( $verified_errors as $error_code => $users ) {
-				// Skip error codes that are not meant to be displayed
-				if ( ! in_array( $error_code, $displayable_error_codes, true ) ) {
+				// Only process error codes that are meant to be displayed to users.
+				// A raw verified error whose code is marked non-displayable in
+				// get_error_display_configs() is never surfaced.
+				$display_config = $this->get_error_display_config( $error_code );
+				if ( null === $display_config ) {
 					continue;
 				}
 
@@ -363,17 +353,26 @@ class Error_Handler {
 						continue;
 					}
 
-					$message = __( "Your connection with WordPress.com seems to be broken. If you're experiencing issues, please try reconnecting.", 'jetpack-connection' );
+					$message = $generic_message;
 					$action  = null;
 
-					$display_config = $this->get_error_display_config( $error_code );
-					if ( $display_config && isset( $display_config['message_callback'] ) ) {
+					if ( isset( $display_config['message_callback'] ) ) {
 						$message = call_user_func( $display_config['message_callback'], $error );
 					}
 
-					// A secondary admin looking at the connection owner's token error. What
-					// they can usefully be told depends on whether ownership is transferable.
-					if ( 'owner' === $audience && ! $viewer_is_owner ) {
+					// The owner reading their own missing-token error. The message callback
+					// has no viewer context, so it describes the owner in the third person —
+					// correct for every other reader, but stilted for the owner themselves.
+					// Only the missing-token flavor needs this: the deleted-WP-user flavor
+					// cannot be viewed by an owner who no longer exists.
+					if ( 'owner' === $audience
+						&& $viewer_is_owner
+						&& 'invalid_connection_owner' === $error_code
+						&& ! ( $error['error_data']['has_user_token'] ?? true ) ) {
+						$message = __( 'You need to reconnect your WordPress.com account to restore the connection.', 'jetpack-connection' );
+					} elseif ( 'owner' === $audience && ! $viewer_is_owner ) {
+						// A secondary admin looking at the connection owner's token error. What
+						// they can usefully be told depends on whether ownership is transferable.
 						// Only name the owner, or describe what reconnecting would do, for
 						// viewers who can act on connection issues.
 						$viewer_can_connect = current_user_can( 'jetpack_connect' );
@@ -417,10 +416,21 @@ class Error_Handler {
 					// already fall back to the reconnect CTA when no action is set, and
 					// injecting an explicit 'reconnect' could trip consumer code paths
 					// reserved for custom actions.
-					if ( null !== $action ) {
-						$error_data           = ( isset( $error['error_data'] ) && is_array( $error['error_data'] ) ) ? $error['error_data'] : array();
-						$error_data['action'] = $action;
-						$error['error_data']  = $error_data;
+					if ( null !== $action || ! empty( $display_config['support_link'] ) ) {
+						$error_data = ( isset( $error['error_data'] ) && is_array( $error['error_data'] ) ) ? $error['error_data'] : array();
+
+						if ( null !== $action ) {
+							$error_data['action'] = $action;
+						}
+
+						// Flags a reconnect-may-not-fix-it error so the notice offers a
+						// support link alongside the reconnect CTA. See `support_link` in
+						// get_error_display_configs().
+						if ( ! empty( $display_config['support_link'] ) ) {
+							$error_data['support_link'] = true;
+						}
+
+						$error['error_data'] = $error_data;
 					}
 
 					if ( ! isset( $displayable_errors[ $error_code ] ) ) {
@@ -429,6 +439,11 @@ class Error_Handler {
 					$displayable_errors[ $error_code ][ $user_id ] = $error;
 				}
 			}
+
+			// A broken connection owner outranks everything else in the set. Run this
+			// before the external filter below so consumer-injected errors are never
+			// dropped by it — they are the consumer's own state, not ours to rank.
+			$displayable_errors = $this->promote_owner_errors( $displayable_errors );
 		}
 
 		/**
@@ -464,13 +479,18 @@ class Error_Handler {
 	}
 
 	/**
-	 * Returns the display configuration for error codes that deviate from the default
-	 * presentation (generic "please reconnect" copy with a reconnect CTA).
+	 * Returns the display configuration for error codes that are meant to be
+	 * displayed to users, keyed by error code.
+	 *
+	 * This is the whitelist consulted by get_displayable_errors(): a raw verified
+	 * error whose code is not displayable here is never surfaced. Every code in
+	 * `$known_errors` appears in get_error_display_configs(), non-displayable ones
+	 * as `false` with the reason recorded alongside them.
 	 *
 	 * Copy is resolved at display time rather than stored with the error, so messages
 	 * follow the viewer's locale and stay current across package updates. Adding a new
-	 * special error code means adding one entry here — no branching in the display or
-	 * notice paths.
+	 * error code means adding one entry to get_error_display_configs() — no branching
+	 * in the display or notice paths.
 	 *
 	 * Everything here is display-time state that cannot be stored with the error:
 	 * copy must resolve in each viewer's locale and follow current code, and the
@@ -485,35 +505,162 @@ class Error_Handler {
 	 * - `default_admin_notice` (bool): when true, generic_admin_notice_error() shows
 	 *   this error's message even when no consumer supplies one via the
 	 *   `jetpack_connection_error_notice_message` filter (which still overrides).
+	 *   This is the only key that reaches beyond My Jetpack's own display: it opts
+	 *   the code into a site-wide wp-admin notice. Leave it unset unless the error
+	 *   genuinely needs that broader reach (see `xmlrpc_request_blocked` below for why).
 	 * - `notice_link` (array): presentational `label` and `url` for a link appended to
 	 *   the default admin notice only. Only used when the notice shows this error's
 	 *   default message (a filtered message keeps full control of the copy).
+	 * - `survives_owner_promotion` (bool): when true, this code is not dropped by
+	 *   promote_owner_errors() while the connection owner's own connection is broken.
+	 *   Set it only for a code that is not a token problem, and so is not waiting on
+	 *   the owner's reconnect to become actionable. Setting it does not make the code
+	 *   trigger that reduction — it only exempts it from one.
+	 * - `support_link` (bool): when true, `error_data['support_link']` is set on the
+	 *   displayable error, and My Jetpack's notice appends a "Contact Jetpack
+	 *   Support" link next to the reconnect CTA. Set it only where reconnecting is
+	 *   not reliably the fix, so the viewer has somewhere else to go.
 	 *
 	 * @since 8.10.0
+	 * @since $$next-version$$ Merged with the former hardcoded list in get_displayable_errors():
+	 *        this method is now also the whitelist, not just the source of overrides.
 	 *
 	 * @param string $error_code The error code.
-	 * @return array|null Display configuration, or null for the default presentation.
+	 * @return array|null Display configuration, or null if this code is not displayable.
 	 */
 	private function get_error_display_config( $error_code ) {
-		$config = array(
-			// The site itself is rejecting WordPress.com's requests (firewall, WAF,
-			// security plugin, or server rule). The token could be perfectly valid, so
-			// a reconnect would be rejected the same way: suppress the reconnect CTA
-			// and surface the real cause. Ships a default admin notice because this
-			// error is invisible to every other detection path — WP.com's requests
-			// never reach the site. The message stays brief on purpose: Site Health
-			// is the source of truth with the detailed diagnosis and resolution steps.
-			'xmlrpc_request_blocked' => array(
-				'message_callback'     => array( $this, 'get_blocked_request_message' ),
-				'default_admin_notice' => true,
-				'notice_link'          => array(
+		$config = $this->get_error_display_configs()[ $error_code ] ?? false;
+
+		return false === $config ? null : $config;
+	}
+
+	/**
+	 * Returns the display disposition of every code in `$known_errors`, keyed by
+	 * error code: an array of display configuration for a displayable code, or
+	 * `false` for one that is never surfaced to users.
+	 *
+	 * Kept in the same order as `$known_errors` so the two read side by side, and
+	 * covering every code rather than only the displayable ones.
+	 *
+	 * Split out from get_error_display_config() so the full set can be enumerated
+	 * without invoking that method once per known error code.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array Display configuration (array) or `false`, keyed by error code.
+	 */
+	private function get_error_display_configs() {
+		static $configs = null;
+
+		if ( null !== $configs ) {
+			return $configs;
+		}
+
+		// What each code means is documented once, on `$known_errors`. The comments
+		// here record only the display decision, and only where it isn't obvious: an
+		// uncommented `array()` is a broken token that reconnecting fixes, which is
+		// what the generic copy already says.
+		$configs = array(
+			// Attacker-controllable garbage in an incoming request. Nothing about this
+			// site's own connection is wrong.
+			'malformed_user_id'        => false,
+			// Expected after a user is deleted, and the owner flavor is covered by
+			// invalid_connection_owner. Incoming reports also drive WP.com-side
+			// self-healing, so a notice would surface a problem already resolving itself.
+			'unknown_user'             => false,
+			'malformed_token'          => array(),
+			// Never connecting a WordPress.com account is expected, not broken. The owner
+			// flavor is covered by invalid_connection_owner.
+			'no_user_tokens'           => false,
+			// Same, for a site that has never had an owner. invalid_connection_owner
+			// covers the case where there was one and it broke.
+			'empty_master_user_option' => false,
+			// As no_user_tokens, for a single requested user.
+			'no_token_for_user'        => false,
+			'token_malformed'          => array(),
+			// Corrupt local token data, but for one user only, and the
+			// no_valid_user_token/token_malformed pair surfaces it when it actually
+			// blocks a request.
+			'user_id_mismatch'         => false,
+			'no_possible_tokens'       => array(),
+			'no_valid_user_token'      => array(),
+			'no_valid_blog_token'      => array(),
+			'unknown_token'            => array(),
+			'could_not_sign'           => array(),
+			// Both are about the URL being signed, not the connection: a code bug or an
+			// exotic site URL, which reconnecting does not change.
+			'invalid_scheme'           => false,
+			'unknown_scheme_port'      => false,
+			// Corrupt local token data like token_malformed above, caught at signing time
+			// rather than lookup time. Reconnect fixes it the same way.
+			'invalid_secret'           => array(),
+			'invalid_token'            => array(),
+			'token_mismatch'           => array(),
+			// Per-request and transport-level, so unaffected by the state of the connection.
+			'invalid_body'             => false,
+			// Environmental in both directions — a malformed parameter or clock skew,
+			// neither of which a reconnect fixes.
+			'invalid_signature'        => false,
+			// Something altered the request in transit. Not a token problem, and
+			// signature_mismatch carries the same diagnosis with usable copy.
+			'invalid_body_hash'        => false,
+			// A replay, or object-cache trouble. Self-resolving per request.
+			'invalid_nonce'            => false,
+			// Ambiguous cause: could be a genuine secret desync (reconnect fixes it) or a
+			// proxy/CDN/WAF/security plugin altering the request in transit (reconnect
+			// doesn't help). Uses the generic message — support_link offers an
+			// alternative either way.
+			'signature_mismatch'       => array(
+				'support_link' => true,
+			),
+			// Two flavors with different remedies — see
+			// get_invalid_connection_owner_message().
+			'invalid_connection_owner' => array(
+				'message_callback' => array( $this, 'get_invalid_connection_owner_message' ),
+			),
+			// The token can be perfectly valid here: the site is rejecting WordPress.com's
+			// requests, so a reconnect would be rejected the same way. The callback
+			// suppresses the reconnect CTA and names the real cause, staying brief because
+			// Site Health holds the full diagnosis. Ships a default admin notice because
+			// no other detection path can see this — WP.com's requests never arrive. And
+			// it outlives a broken owner, whose reconnect the same rule would block.
+			'xmlrpc_request_blocked'   => array(
+				'message_callback'         => array( $this, 'get_blocked_request_message' ),
+				'default_admin_notice'     => true,
+				'survives_owner_promotion' => true,
+				'notice_link'              => array(
 					'label' => __( 'Visit Site Health', 'jetpack-connection' ),
 					'url'   => admin_url( 'site-health.php' ),
 				),
 			),
 		);
 
-		return $config[ $error_code ] ?? null;
+		return $configs;
+	}
+
+	/**
+	 * Builds the displayable message for the invalid-connection-owner error.
+	 *
+	 * `has_user_token` (set in Manager::get_connection_owner(), carried through into
+	 * `error_data` by wp_error_to_array()) distinguishes the two flavors:
+	 * - false: the owner's user token is simply missing — they still exist as a
+	 *   WP user, so reconnecting as them restores the connection.
+	 * - true: the token is there, but the WP user it points at was deleted from
+	 *   this site. Nobody can reconnect as a user who no longer exists —
+	 *   reconnecting here means a different admin becoming the new owner, not
+	 *   the original owner logging back in.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $error The stored error array.
+	 * @return string The message.
+	 */
+	private function get_invalid_connection_owner_message( $error ) {
+		if ( ! ( $error['error_data']['has_user_token'] ?? true ) ) {
+			return __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' );
+		}
+
+		return __( 'The WordPress.com account for this connection no longer exists on this site. An administrator needs to reconnect to become the new connection owner.', 'jetpack-connection' );
 	}
 
 	/**
@@ -562,6 +709,61 @@ class Error_Handler {
 		}
 
 		return 'user';
+	}
+
+	/**
+	 * Reduces a set of displayable errors to the connection-owner ones when the
+	 * owner's own connection is broken.
+	 *
+	 * The connection owner is the account every other connection on the site hangs
+	 * off. While it is broken, no other error in the set is independently
+	 * actionable.
+	 *
+	 * Two shapes count as a broken owner:
+	 * - any error classified with the `owner` audience, i.e. attributed to the
+	 *   current owner's user ID; and
+	 * - `invalid_connection_owner` at any audience — when there is no current owner
+	 *   to compare a user ID against, classify_error_audience() falls back to
+	 *   `user`, but the code itself already says the owner cannot be resolved.
+	 *
+	 * A code whose display config sets `survives_owner_promotion` is kept regardless.
+	 * The premise above holds for token errors, whose one remedy is a reconnect the
+	 * owner has to perform first — see that key's documentation on
+	 * get_error_display_config() for when it doesn't.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $displayable_errors Displayable errors, keyed by error code then user ID.
+	 * @return array The owner-only subset when the owner is broken, otherwise the input unchanged.
+	 */
+	private function promote_owner_errors( array $displayable_errors ) {
+		$owner_errors    = array();
+		$has_owner_error = false;
+
+		foreach ( $displayable_errors as $error_code => $users ) {
+			// Errors injected by a consumer through the filter that runs after this
+			// reduction have no config of ours; anything reaching here without one is
+			// treated as ordinary.
+			$display_config = $this->get_error_display_config( $error_code );
+			$survives       = null !== $display_config && ! empty( $display_config['survives_owner_promotion'] );
+
+			foreach ( $users as $user_id => $error ) {
+				$is_owner_error = 'owner' === ( $error['audience'] ?? '' )
+					|| 'invalid_connection_owner' === $error_code;
+
+				if ( ! $is_owner_error && ! $survives ) {
+					continue;
+				}
+
+				$owner_errors[ $error_code ][ $user_id ] = $error;
+
+				// An exempt error is not itself a broken owner, so it must not trigger the
+				// reduction on its own — only survive one triggered by something else.
+				$has_owner_error = $has_owner_error || $is_owner_error;
+			}
+		}
+
+		return $has_owner_error ? $owner_errors : $displayable_errors;
 	}
 
 	/**
@@ -1567,8 +1769,8 @@ class Error_Handler {
 	 *
 	 * Note: XML-RPC faults arrive as HTTP 200 responses with an XML body, so they are
 	 * invisible to this method — only errors surfaced at the HTTP level with a JSON error
-	 * envelope are captured. This is one of the reasons outgoing calls are being migrated
-	 * from XML-RPC to REST.
+	 * envelope are captured. `Jetpack_IXR_Client::query()` reports faults itself, via
+	 * check_xmlrpc_fault_for_errors().
 	 *
 	 * @see wp_remote_request() For more information on the $http_response array format.
 	 * @param array|\WP_Error $http_response The response or WP_Error on failure.
@@ -1681,6 +1883,53 @@ class Error_Handler {
 			// (e.g. `tokens_locked`, `malformed_token` from `Client` itself) carry no such data,
 			// and fall back to unattributed there.
 			array( 'user_id' => isset( $data['user_id'] ) ? (int) $data['user_id'] : 0 )
+		);
+
+		$this->report_error( $error, false, true );
+	}
+
+	/**
+	 * Check an outgoing XML-RPC request's fault response for errors, and store them if needed.
+	 *
+	 * This is the third entry point of the outgoing-request error flow (flow 2 in the class
+	 * docblock). XML-RPC faults arrive as HTTP 200 responses with an XML body, so
+	 * check_api_response_for_errors() never sees them — it returns immediately on a 200,
+	 * and decodes the body as JSON rather than XML anyway. `Jetpack_IXR_Client::query()`
+	 * calls this method directly from its fault branch instead.
+	 *
+	 * The code/message pair is recovered from the fault string by the caller, via
+	 * `Jetpack_IXR_Client::parse_jetpack_fault_string()` — the class that owns the
+	 * `Jetpack: [code] message` convention. An unparseable fault string is the caller's
+	 * concern, not this method's; a fault code reaching here is untrusted input, and it's
+	 * `report_error()`'s `$known_errors` allowlist, not this method, that keeps an
+	 * unrecognized code from being stored. In practice every `jetpack.*` XML-RPC handler
+	 * on WP.com emits fixed string literals here, never attacker- or request-composed
+	 * ones, and the handful that are also `$known_errors` (`unknown_token`,
+	 * `signature_mismatch`, `invalid_token`, `token_mismatch`, `invalid_signature`) are
+	 * the same codes this site itself raises for the same failure — WP.com is just
+	 * verifying signatures with the same scheme.
+	 *
+	 * @since 8.10.4
+	 *
+	 * @param string $error_code    The Jetpack error code parsed from the fault string.
+	 * @param string $error_message The error message parsed from the fault string.
+	 * @param string $url           Request URL.
+	 * @param string $method        Request method.
+	 * @param int    $user_id       The local user ID the request was signed for, or `0` for the blog token.
+	 *
+	 * @return void
+	 */
+	public function check_xmlrpc_fault_for_errors( string $error_code, string $error_message, string $url, string $method, int $user_id = 0 ) {
+		$error = self::build_connection_wp_error(
+			$error_code,
+			$error_message,
+			array(
+				'method' => $method,
+				'url'    => $url,
+			),
+			self::ERROR_TYPE_XMLRPC,
+			self::DIRECTION_OUTGOING,
+			array( 'user_id' => $user_id )
 		);
 
 		$this->report_error( $error, false, true );

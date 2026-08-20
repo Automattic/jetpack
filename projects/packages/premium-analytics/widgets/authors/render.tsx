@@ -4,15 +4,16 @@
 import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	LeaderboardPostLabel,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
 	formatLegendLabels,
-	toMaxRows,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -29,8 +30,6 @@ import { buildTopAuthorsData, type AuthorLeaderboardRow } from './build-top-auth
 import styles from './style.module.css';
 import type { AuthorsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-
-const DEFAULT_MAX = 7;
 
 // Report params are usually URL-driven (WidgetRoot's fallback), but callers may
 // also pass them via `attributes`. Compose the render-only shape to cover both.
@@ -196,6 +195,7 @@ export function AuthorsLeaderboard( {
 						  )
 						: __( 'No author views in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<LeaderboardChart
 					data={ chartData }
@@ -213,36 +213,24 @@ export function AuthorsLeaderboard( {
 	);
 }
 
-type AuthorsReportProps = {
-	/**
-	 * Maximum number of authors to display.
-	 */
-	max: number;
-};
-
 /**
  * Fetches the top-authors report through the Jetpack Stats hook, builds the
  * leaderboard rows from the data layer's merged comparison rows, and hands
  * them to the presentational `AuthorsLeaderboard`.
  */
-function AuthorsReport( { max }: AuthorsReportProps ) {
+function AuthorsReport() {
 	const { reportParams } = useWidgetRootContext();
-	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
+	const statsParams = useMemo(
+		() => ( { ...reportParams, max: WIDGET_ROW_LIMIT } ),
+		[ reportParams ]
+	);
 
-	const {
-		primary,
-		comparisonRows,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		refetch,
-	} = useStatsTopAuthors( statsParams, { maxRows: max } );
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+		useStatsTopAuthors( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
-	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasData;
+	const isInitialLoading = isLoading || primary.isPending;
 
 	const rows = useMemo(
 		() => buildTopAuthorsData( comparisonRows?.rows ?? [] ),
@@ -277,14 +265,13 @@ function AuthorsReport( { max }: AuthorsReportProps ) {
  * Passes host `attributes` into `WidgetRoot`, which resolves the report params:
  * the dashboard leaves `reportParams` out of `attributes`, so it falls back to
  * the date-range URL search params the picker writes to; Storybook injects
- * `attributes.reportParams` directly. The widget's own `max` is forwarded to
- * the inner component.
+ * `attributes.reportParams` directly.
  */
 export default function Authors( { attributes = {} }: AuthorsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<AuthorsReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
+				<AuthorsReport />
 			</div>
 		</WidgetRoot>
 	);

@@ -10,6 +10,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Status\Visitor;
 use Automattic\Jetpack\Tracking;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -29,11 +30,12 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 	}
 
 	// Content Guidelines AI is only offered on WordPress.com platform sites
-	// (Simple and Atomic) — a hard gate the jetpack_ai_enabled filter below
-	// cannot widen. Free-tier Simple/Atomic sites still load the bundle so
-	// the upgrade path can be shown — the paid-plan requirement is enforced
-	// by the suggest-guidelines API.
-	if ( ! ( new Host() )->is_wpcom_platform() ) {
+	// (Simple and Atomic) and WordPress VIP sites — a hard gate the
+	// jetpack_ai_enabled filter below cannot widen. Free-tier sites still load
+	// the bundle so the upgrade path can be shown — the paid-plan requirement
+	// is enforced by the suggest-guidelines API.
+	$host = new Host();
+	if ( ! $host->is_wpcom_platform() && ! $host->is_vip_site() ) {
 		return;
 	}
 
@@ -86,6 +88,10 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 	// and upgrade notice.
 	$initial_state = array(
 		'bannerDismissed' => class_exists( 'Jetpack_AI_Helper' ) && Jetpack_AI_Helper::is_guidelines_banner_dismissed(),
+		// Tags every Tracks event fired from this page as internal traffic. The
+		// feature is new and low-volume, so Automattician testing is otherwise a
+		// visible share of the numbers with no way to filter it out after the fact.
+		'isA11n'          => ( new Visitor() )->is_tracking_automattician(),
 	);
 
 	// Resolve the AI feature state server-side so the bundle can hydrate the
