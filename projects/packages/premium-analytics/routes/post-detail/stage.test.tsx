@@ -1,3 +1,4 @@
+import { useReportScope } from '@jetpack-premium-analytics/data';
 import { render, screen, within } from '@testing-library/react';
 import { usePostSummary } from './hooks';
 import { stage } from './stage';
@@ -6,9 +7,7 @@ import type { ReactNode } from 'react';
 let mockSearch: Record< string, unknown > = {};
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
-	// Minimal stub: the real module is heavy. Mirrors STATS_CHART_BUCKET_PERIODS
-	// in packages/data/src/processing/stats/chart-buckets.ts.
-	STATS_CHART_BUCKET_PERIODS: [ 'day', 'week', 'month' ],
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
@@ -23,9 +22,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: ( { showComparison }: { showComparison?: boolean } ) => (
-		<div>{ showComparison === false ? 'Date filters without comparison' : 'Date filters' }</div>
-	),
+	DateFiltersPanel: () => <div>Date filters</div>,
 	SectionTabPanel: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
@@ -58,9 +55,20 @@ jest.mock(
 		)
 );
 
+/**
+ * Reads the scope from where the page's widgets render.
+ *
+ * @return The declared scope, as text.
+ */
+function MockScopeProbe() {
+	const { offersComparison } = useReportScope();
+
+	return <div>{ offersComparison ? 'Post widgets' : 'Post widgets without comparison' }</div>;
+}
+
 jest.mock( '@wordpress/widget-dashboard', () => {
 	const WidgetDashboard = ( { children }: { children: ReactNode } ) => <>{ children }</>;
-	WidgetDashboard.Widgets = () => <div>Post widgets</div>;
+	WidgetDashboard.Widgets = () => <MockScopeProbe />;
 
 	return {
 		WidgetDashboard,
@@ -125,7 +133,8 @@ jest.mock( './components', () => ( {
 jest.mock( './hooks', () => ( {
 	usePostSummary: jest.fn(),
 	usePostDetailTabs: () => ( {
-		tabs: [],
+		// One tab, so the panel carrying the widget grid actually mounts.
+		tabs: [ { id: 'traffic', label: 'Traffic' } ],
 		activeTab: 'traffic',
 		setActiveTab: jest.fn(),
 		layout: [],
@@ -207,12 +216,15 @@ describe( 'post detail stage', () => {
 		expect( screen.queryByRole( 'link', { name: /^View (post|page)$/ } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'renders the date filters without the comparison control', () => {
+	// One declaration drives both halves: the panel reads it to drop the Compare
+	// control (covered in the ui package) and `WidgetRoot` reads it to strip the
+	// params. This asserts the declaration the page makes.
+	it( 'declares no comparison for the widgets it renders', () => {
 		mockSummary();
 
 		render( stage() );
 
-		expect( screen.getByText( 'Date filters without comparison' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Post widgets without comparison' ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the two-crumb trail when no report origin is present', () => {

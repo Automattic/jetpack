@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Charts: stop a bar chart's time axis dropping to a couple of ticks when it reaches for the year, and speed up how it picks them.

@@ -4,6 +4,7 @@
 import { STATS_CHART_BUCKET_PERIODS, toPostId } from '@jetpack-premium-analytics/data';
 import {
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	defaultPeriodForInterval,
@@ -50,7 +51,7 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 	const videoId = toPostId( reportParams.post_id );
 	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
-	const { current, isLoading, isFetching, isError, error, hasData, refetch } = useVideoViews(
+	const { current, isLoading, isFetching, isError, error, refetch } = useVideoViews(
 		videoId,
 		reportParams,
 		period
@@ -73,10 +74,8 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading && ! hasData }
-				// `isFetching` is deliberately not passed: the chart renders its
-				// own scoped overlay below, so WidgetState's full-widget one
-				// would double up and cover the metric headline.
+				isLoading={ isLoading }
+				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ videoId <= 0 }
 				error={ describeError( error, {
@@ -93,12 +92,14 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 						'jetpack-premium-analytics-pkg'
 					),
 				} }
+				// The chart is the whole content here, so its block replaces the
+				// generic stacked lines.
+				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
-					loading={ isFetching }
 				/>
 			</WidgetState>
 		</div>

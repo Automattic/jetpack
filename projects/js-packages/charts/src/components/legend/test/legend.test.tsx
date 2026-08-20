@@ -188,7 +188,8 @@ describe( 'BaseLegend', () => {
 			);
 			const labels = screen.getAllByText( /Long Label/ );
 			labels.forEach( label => {
-				expect( label ).toHaveStyle( { maxWidth: '10rem' } );
+				// Note getComputedStyle converts lengths to px.
+				expect( label ).toHaveStyle( { maxWidth: '160px' } );
 			} );
 		} );
 

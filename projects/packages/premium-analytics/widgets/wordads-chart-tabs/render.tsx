@@ -4,6 +4,7 @@
 import { megaphone } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -69,6 +70,7 @@ function WordAdsChartTabsInner() {
 					icon: megaphone,
 					description: __( 'No WordAds data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart
 					metrics={ metrics }

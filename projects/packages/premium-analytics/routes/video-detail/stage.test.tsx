@@ -1,3 +1,4 @@
+import { useReportScope } from '@jetpack-premium-analytics/data';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { useVideoSummary } from './hooks';
 import { stage } from './stage';
@@ -6,9 +7,7 @@ import type { ReactNode } from 'react';
 let mockSearch: Record< string, unknown > = {};
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
-	// Minimal stub: the real module is heavy. Mirrors STATS_CHART_BUCKET_PERIODS
-	// in packages/data/src/processing/stats/chart-buckets.ts.
-	STATS_CHART_BUCKET_PERIODS: [ 'day', 'week', 'month' ],
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
@@ -29,9 +28,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: ( { showComparison }: { showComparison?: boolean } ) => (
-		<div>{ showComparison === false ? 'Date filters without comparison' : 'Date filters' }</div>
-	),
+	DateFiltersPanel: () => <div>Date filters</div>,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
 	StatsPageIcon: () => null,
@@ -61,15 +58,31 @@ jest.mock(
 		)
 );
 
-// Captures each render's `layout` prop so tests can assert the reportParams
-// the page injects into its widget entries.
+/**
+ * Reads the scope from where the page's widgets render.
+ *
+ * @return The declared scope, as text.
+ */
+function MockScopeProbe() {
+	const { offersComparison } = useReportScope();
+
+	return (
+		<>
+			<div>Video widgets</div>
+			<div>{ offersComparison ? 'Scope offers comparison' : 'Scope offers no comparison' }</div>
+		</>
+	);
+}
+
+// Captures each render's `layout` prop so tests can assert what the page hands
+// the dashboard.
 const mockDashboardLayouts: unknown[] = [];
 jest.mock( '@wordpress/widget-dashboard', () => {
 	const WidgetDashboard = ( { children, layout }: { children: ReactNode; layout?: unknown } ) => {
 		mockDashboardLayouts.push( layout );
 		return <>{ children }</>;
 	};
-	WidgetDashboard.Widgets = () => <div>Video widgets</div>;
+	WidgetDashboard.Widgets = () => <MockScopeProbe />;
 
 	return { WidgetDashboard, DEFAULT_GRID: {}, ROW_HEIGHT_PRESETS: { small: 200 } };
 } );
@@ -317,15 +330,10 @@ describe( 'video detail stage', () => {
 		).toBeInTheDocument();
 	} );
 
-	it( 'renders the date filters without the comparison control', () => {
-		mockSummary( { title: 'Launch recap' } );
-
-		render( stage() );
-
-		expect( screen.getByText( 'Date filters without comparison' ) ).toBeInTheDocument();
-	} );
-
-	it( 'injects comparison-stripped report params into every layout entry', () => {
+	// One declaration drives both halves: the panel reads it to drop the Compare
+	// control (covered in the ui package) and `WidgetRoot` reads it to strip the
+	// params. This asserts the declaration the page makes.
+	it( 'declares no comparison for the widgets it renders', () => {
 		mockSummary( { title: 'Launch recap' } );
 		mockSearch = {
 			from: '2026-06-01',
@@ -339,16 +347,22 @@ describe( 'video detail stage', () => {
 
 		render( stage() );
 
+		expect( screen.getByText( 'Scope offers no comparison' ) ).toBeInTheDocument();
+	} );
+
+	// The layout the page hands the dashboard is the fixed composition; the
+	// no-comparison invariant is the scope above, not injected attributes.
+	it( 'hands the dashboard its fixed layout', () => {
+		mockSummary( { title: 'Launch recap' } );
+
+		render( stage() );
+
 		const layout = mockDashboardLayouts.at( -1 ) as Array< {
-			attributes?: { reportParams?: Record< string, unknown > };
+			attributes?: { reportParams?: unknown };
 		} >;
 		expect( layout.length ).toBeGreaterThan( 0 );
 		for ( const widget of layout ) {
-			expect( widget.attributes?.reportParams ).toEqual( {
-				from: '2026-06-01',
-				to: '2026-06-16',
-				post_id: '42',
-			} );
+			expect( widget.attributes ?? {} ).not.toHaveProperty( 'reportParams' );
 		}
 	} );
 } );
