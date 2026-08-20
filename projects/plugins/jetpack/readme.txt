@@ -332,14 +332,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 #### Enhancements
 - AI: Add a Jetpack AI module as the site-wide master switch on self-hosted and Atomic, preserving explicit opt-outs.
+- AI: Hide the AI sidebar when the writing assistant and SEO enhancer toggles are both off.
+- AI: Make the AI toolbar button follow the writing assistant toggle.
 - AI Assistant: Add feature settings controls for Jetpack AI tools.
 - AI Features: Group the feature toggles into a single Agent capabilities card.
 - AI settings: Make the Try it out links pre-open their target — the AI Assistant sidebar in the editor, and Image Studio's generate mode in the Media Library.
 - Content Guidelines AI: Enable AI guideline suggestions on WordPress VIP sites.
 - Forms: Add a Print action to form responses.
 - Forms: Add form fill duration to feedback entries.
-- AI: Hide the AI sidebar when the writing assistant and SEO enhancer toggles are both off.
-- AI: Make the AI toolbar button follow the writing assistant toggle.
 - Map Block: Add support for wide and full width alignments.
 - Newsletter: Explain why the Everyone audience is unavailable when a post has a paywall block, instead of linking to the block.
 - Newsletter: Rename the Access panel to Audience, describe who can read each post, and link out to set up paid subscribers.
@@ -361,7 +361,6 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Connection: Stop showing a duplicate account notice when your WordPress.com email differs from your site email only in letter case.
 - Connection: Update wording for some connection error notices.
 - Content Guidelines AI: Keep the empty-state banner from painting over the sticky page header while scrolling.
-- WordPress Posts: Escape remote site data before output.
 - Editor: Refresh the cached plan when returning from a plan purchase so paid blocks (such as the Forms file upload field) stop showing their upgrade nudge once the plan is active.
 - Escape the Premium Content block login button label on output.
 - Fix the premium block upgrade banner rendering collapsed and too narrow on the site frontend.
@@ -390,8 +389,8 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Premium Analytics: Keep the full set of ticks on the traffic chart's time axis, which could thin out to two labels on longer date ranges.
 - Premium Analytics: Keep the year and the day on the traffic chart's time axis, which could previously skip the tick that named them, and stop the same label falling on two ticks in a row.
 - Premium Analytics: Stop applying hidden date comparisons in dashboard sections that do not offer the control.
-- Premium Content: Restore the local account link from a verified magic-link token so subscription access persists.
 - Premium Content: Keep subscription login available when a WordPress session lacks a subscription token.
+- Premium Content: Restore the local account link from a verified magic-link token so subscription access persists.
 - Random Redirect: Avoid a fatal error when a theme or plugin already declares the module's redirect function.
 - Require a Jetpack site (blog) token for JSON API endpoints that declare no capabilities, such as the Backup helper script endpoints, and reject user tokens regardless of privilege.
 - Resolve Redirect endpoint: Validate every redirect hop, and return a 400 error when a URL cannot be fetched, is blocked, or exceeds the redirect limit, instead of a 200 response with an empty URL.
@@ -403,11 +402,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Sharing: Escape Tumblr share title, URL, and button label in official button output.
 - Sharing: Use an unpredictable name for share and Press This popups so another page cannot pre-register the same window name.
 - Sitemaps: Avoid a PHP notice when a sitemap query returns no posts.
+- Stats: Limit Top Posts & Pages processing to the number of posts requested.
 - Subscribers: Restore the option to assign imported subscribers to specific newsletter categories on CSV upload and manual add.
 - Subscriptions: Fix subscribe prompts and paywalled content incorrectly showing or blocking for readers who follow the site but have no active email subscription.
 - Tiled Gallery: Keep VIP gallery images off the external Photon domain and add the `jetpack_skip_photon_domain` filter.
-- Stats: Limit Top Posts & Pages processing to the number of posts requested.
 - WAF: Restrict firewall settings to administrators.
+- WordPress Posts: Escape remote site data before output.
 
 --------
 
