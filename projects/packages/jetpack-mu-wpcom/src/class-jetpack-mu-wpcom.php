@@ -38,10 +38,9 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/common/fatal-error-signature.php';
 		require_once __DIR__ . '/utils.php';
 
-		// The Plugin Conflicts Guardian only applies where plugins can be
-		// installed, which is Atomic. Its confirmation probe wires a
-		// `pre_option_active_plugins` filter at mu-plugin time, before WP
-		// loads active plugins.
+		// Atomic only — Simple sites can't install plugins. The confirmation
+		// probe wires its `pre_option_active_plugins` filter at mu-plugin
+		// time, before WP loads active plugins.
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
 		}

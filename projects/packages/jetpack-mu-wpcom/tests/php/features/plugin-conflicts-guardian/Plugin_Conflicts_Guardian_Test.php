@@ -41,9 +41,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	private $tmp_dir = null;
 
 	/**
-	 * The rollout gate only runs on Atomic, where plugins can be installed.
-	 * `Constants` (rather than a bare `defined()`) is what makes that
-	 * testable without defining IS_ATOMIC across the whole suite.
+	 * The rollout gate only runs on Atomic.
 	 */
 	public function set_up() {
 		parent::set_up();
@@ -1238,9 +1236,8 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A partial rollout has to bucket on a real ID, so a site whose WP.com
-	 * blog ID can't be resolved stays out. `get_wpcom_blog_id()` returns
-	 * false off WP.com, and 0/-1 stand in for that here.
+	 * A site whose WP.com blog ID can't be resolved stays out of a partial
+	 * rollout. `get_wpcom_blog_id()` returns false off WP.com.
 	 */
 	public function test_rollout_rejects_non_positive_blog_ids() {
 		add_filter( 'pcg_rollout_percentage', static fn() => 50 );
@@ -1305,10 +1302,9 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The regression this guards: the gate used to bucket on the local blog
-	 * ID, which is 1 on every Atomic single-site install — one shared bucket
-	 * for the whole fleet, so a partial rollout was all-or-nothing. Distinct
-	 * WP.com blog IDs must actually spread across buckets.
+	 * The regression this guards: bucketing on the local blog ID gave every
+	 * Atomic single-site the same bucket, making a partial rollout
+	 * all-or-nothing across the fleet.
 	 */
 	public function test_rollout_partial_percentage_spreads_across_wpcom_blog_ids() {
 		add_filter( 'pcg_rollout_percentage', static fn() => 20 );
@@ -1327,8 +1323,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Simple sites can't install plugins, so they're never in the cohort —
-	 * not even at 100%, which otherwise means every site.
+	 * Simple sites are never in the cohort, not even at 100%.
 	 */
 	public function test_rollout_gate_excludes_simple_sites() {
 		Constants::clear_single_constant( 'IS_ATOMIC' );
@@ -1339,8 +1334,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Full rollout doesn't need attribution — 100% means every site, including
-	 * one whose WP.com blog ID can't be resolved.
+	 * 100% means every site, including one we can't identify.
 	 */
 	public function test_rollout_full_includes_unresolvable_blog_ids() {
 		add_filter( 'pcg_rollout_percentage', static fn() => 100 );

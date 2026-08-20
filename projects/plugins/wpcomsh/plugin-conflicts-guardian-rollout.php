@@ -1,19 +1,14 @@
 <?php
 /**
- * Rollout percentage for the Plugin Conflicts Guardian.
- *
- * The guardian itself lives in the jetpack-mu-wpcom package, which ships on a
- * weekly release train. Its cohort size lives here instead so a ramp — or a
- * rollback — can be deployed when it's needed rather than when the train runs.
+ * Rollout percentage for the Plugin Conflicts Guardian, which ships in
+ * jetpack-mu-wpcom. It lives here so it can be deployed on demand.
  *
  * @package wpcomsh
  */
 
 /**
- * Percentage of Atomic sites the guardian is active on, 0-100.
- *
- * Bucketing is stable, so raising this only ever adds sites. Set to 0 to turn
- * the guardian off everywhere.
+ * Percentage of Atomic sites the guardian runs on, 0-100. Raising it only
+ * ever adds sites; 0 turns it off.
  */
 const WPCOMSH_PCG_ROLLOUT_PERCENTAGE = 1;
 

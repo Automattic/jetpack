@@ -11,10 +11,7 @@
 class PCG_Rollout {
 
 	/**
-	 * Off unless the host platform opts in. This package ships on a weekly
-	 * release train, so the live percentage is set by wpcomsh via
-	 * `pcg_rollout_percentage` — that's the piece that can be deployed when
-	 * a ramp (or a rollback) actually needs to happen.
+	 * Off by default; wpcomsh sets the live percentage.
 	 */
 	const DEFAULT_PERCENTAGE = 0;
 
@@ -36,9 +33,7 @@ class PCG_Rollout {
 		if ( ! $enabled ) {
 			return $enabled;
 		}
-		// Simple sites can't install or activate plugins, so there's nothing
-		// to guard — and including them would swamp the cohort with sites the
-		// feature never runs on.
+		// Simple sites can't install plugins, so there's nothing to guard.
 		if ( ! \Automattic\Jetpack\Constants::is_true( 'IS_ATOMIC' ) ) {
 			return false;
 		}
@@ -60,9 +55,7 @@ class PCG_Rollout {
 			return true;
 		}
 
-		// A partial rollout has to bucket on something; a site we can't
-		// identify stays out rather than sharing one bucket with every
-		// other unidentified site.
+		// A partial rollout needs a real ID to bucket on.
 		$blog_id = (int) $blog_id;
 		if ( $blog_id <= 0 ) {
 			return false;
