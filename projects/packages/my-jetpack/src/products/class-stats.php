@@ -124,7 +124,7 @@ class Stats extends Module_Product {
 	/**
 	 * Get the internationalized features list
 	 *
-	 * @return array CRM features list
+	 * @return array Stats features list
 	 */
 	public static function get_features() {
 		return array(
@@ -132,9 +132,11 @@ class Stats extends Module_Product {
 			__( 'Traffic stats and trends for post and pages', 'jetpack-my-jetpack' ),
 			__( 'Detailed statistics about links leading to your site', 'jetpack-my-jetpack' ),
 			__( 'GDPR compliant', 'jetpack-my-jetpack' ),
-			__( 'Access to upcoming advanced features', 'jetpack-my-jetpack' ),
+			/* translators: UTM refers to the Urchin Tracking Module campaign parameters appended to a URL. */
+			__( 'UTM tracking', 'jetpack-my-jetpack' ),
+			__( 'Device stats', 'jetpack-my-jetpack' ),
+			__( 'Region and city locations', 'jetpack-my-jetpack' ),
 			__( 'Priority support', 'jetpack-my-jetpack' ),
-			__( 'Commercial use', 'jetpack-my-jetpack' ),
 		);
 	}
 
