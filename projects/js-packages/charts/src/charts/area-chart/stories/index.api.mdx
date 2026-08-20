@@ -29,6 +29,7 @@ Stacked-by-default area chart component with responsive behaviour.
 | `animation` | `boolean` | `false` | Enable entry animation. Respects `prefers-reduced-motion` |
 | `showLegend` | `boolean` | `false` | Display chart legend |
 | `legend` | `SeriesChartLegendConfig` | - | Legend configuration object. See [SeriesChartLegendConfig](#serieschartlegendconfig-type) |
+| `defaultHiddenSeries` | `string[]` | — | Series labels to hide at mount. Revealable through an interactive legend; re-applied only on remount. |
 | `rescaleYOnVisibilityChange` | `boolean?` | `true` | Whether the value axis rescales to the visible series when the visible set changes. Set `false` to pin it to the full data range so the baseline doesn't move as series are hidden |
 | `gridVisibility` | `'x' \| 'y' \| 'xy' \| 'none'?` | grid shown | Control grid visibility |
 | `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }?` | calculated | Chart margins |
