@@ -201,30 +201,21 @@ function get_dashboard_default_section_layouts() {
 				'jpa/stats-top-posts',
 				1,
 				2,
-				2,
-				array(
-					'max' => 10,
-				)
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-referrers-widget-instance',
 				'jpa/referrers',
 				2,
 				1,
-				2,
-				array(
-					'max' => 10,
-				)
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-devices-widget-instance',
 				'jpa/devices',
 				3,
 				1,
-				2,
-				array(
-					'max' => 5,
-				)
+				2
 			),
 			// Row 3: locations map + top platforms.
 			get_dashboard_default_widget_instance(
@@ -232,20 +223,14 @@ function get_dashboard_default_section_layouts() {
 				'jpa/locations',
 				4,
 				3,
-				2,
-				array(
-					'max' => 10,
-				)
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-top-platforms-widget-instance',
 				'jpa/top-platforms',
 				5,
 				1,
-				2,
-				array(
-					'max' => 10,
-				)
+				2
 			),
 			// Row 4: VideoPress (sites running VideoPress only) + clicks + authors.
 			get_dashboard_default_widget_instance(
@@ -253,30 +238,21 @@ function get_dashboard_default_section_layouts() {
 				'jpa/videopress',
 				6,
 				1,
-				2,
-				array(
-					'max' => 7,
-				)
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-clicks-widget-instance',
 				'jpa/clicks',
 				7,
 				1,
-				2,
-				array(
-					'max' => 10,
-				)
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-authors-widget-instance',
 				'jpa/authors',
 				8,
 				2,
-				2,
-				array(
-					'max' => 7,
-				)
+				2
 			),
 			// Row 5: UTM insights + search terms + file downloads (Simple only).
 			get_dashboard_default_widget_instance(
@@ -287,7 +263,6 @@ function get_dashboard_default_section_layouts() {
 				2,
 				array(
 					'utmDimension' => 'utm_source,utm_medium',
-					'max'          => 10,
 				)
 			),
 			get_dashboard_default_widget_instance(
@@ -295,20 +270,14 @@ function get_dashboard_default_section_layouts() {
 				'jpa/search-terms',
 				10,
 				1,
-				2,
-				array(
-					'max' => 10,
-				)
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-file-downloads-widget-instance',
 				'jpa/file-downloads',
 				11,
 				1,
-				2,
-				array(
-					'max' => 10,
-				)
+				2
 			),
 		),
 		DASHBOARD_INSIGHTS_SECTION_ID    => array(
@@ -392,40 +361,28 @@ function get_dashboard_default_section_layouts() {
 				'jpa/most-commented-posts',
 				9,
 				1,
-				2,
-				array(
-					'max' => 10,
-				)
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-commented-authors-widget-instance',
 				'jpa/most-commented-authors',
 				10,
 				1,
-				2,
-				array(
-					'max' => 10,
-				)
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-shares-widget-instance',
 				'jpa/shares',
 				11,
 				1,
-				2,
-				array(
-					'max' => 10,
-				)
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-tags-widget-instance',
 				'jpa/tags',
 				12,
 				1,
-				2,
-				array(
-					'max' => 10,
-				)
+				2
 			),
 		),
 		DASHBOARD_SUBSCRIBERS_SECTION_ID => array(
@@ -448,10 +405,7 @@ function get_dashboard_default_section_layouts() {
 				'jpa/subscribers-list',
 				1,
 				2,
-				2,
-				array(
-					'max' => 6,
-				)
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-subscribers-emails-widget-instance',
@@ -460,7 +414,6 @@ function get_dashboard_default_section_layouts() {
 				2,
 				2,
 				array(
-					'max'    => 10,
 					'metric' => 'opens',
 				)
 			),
