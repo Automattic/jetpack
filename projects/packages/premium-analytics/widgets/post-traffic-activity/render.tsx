@@ -8,6 +8,7 @@ import {
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
 	CalendarHeatmapTooltip,
 	HeatmapChartUnresponsive,
+	HeatmapSkeleton,
 	WidgetRoot,
 	WidgetState,
 	buildCalendarHeatmapData,
@@ -188,6 +189,7 @@ function PostTrafficActivityInner() {
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
+					renderLoading={ <HeatmapSkeleton /> }
 				>
 					<div className={ styles.content }>
 						{ /* The pager only exists when the range exceeds one page (and

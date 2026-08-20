@@ -5,7 +5,7 @@ import { useReportCustomers, type FilterCondition } from '@jetpack-premium-analy
 import { customer } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { BarChart, WidgetState } from '../../components';
+import { BarChart, BarChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
@@ -66,6 +66,7 @@ function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps )
 				icon: customer,
 				description: __( 'No customer revenue in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <BarChartSkeleton columns={ 2 } /> }
 		>
 			<BarChart
 				chartData={ chartData }

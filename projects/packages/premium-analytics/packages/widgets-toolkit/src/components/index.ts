@@ -55,7 +55,13 @@ export {
 	type LeaderboardRowProps,
 	type LeaderboardRowVariant,
 } from './chart-leaderboard';
-export { BarChart, type BarChartProps, type BarChartData, type BarChartStyle } from './chart-bar';
+export {
+	BarChart,
+	BarChartSkeleton,
+	type BarChartProps,
+	type BarChartData,
+	type BarChartStyle,
+} from './chart-bar';
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';
 export {
 	AdaptiveCalendarHeatmap,
@@ -134,4 +140,11 @@ export {
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
 } from './wordads-earnings-history';
-export { GenericSkeleton, SkeletonRoot, type SkeletonRootProps } from './widget-skeleton';
+export {
+	GenericSkeleton,
+	HeatmapSkeleton,
+	MetricSparklineSkeleton,
+	type MetricSparklineSkeletonProps,
+	SkeletonRoot,
+	type SkeletonRootProps,
+} from './widget-skeleton';
