@@ -65,8 +65,28 @@ describe( 'TrafficChart bucket size', () => {
 		expect( requestedBucket() ).toBe( 'month' );
 	} );
 
-	it( 'draws the stored bucket over the page interval', () => {
+	// A fresh visit is the page's to decide: a bucket saved under one interval must
+	// not come back under whatever interval the next visit arrives on.
+	it( 'lets the page seed the bucket on a fresh mount, over a stored one', () => {
+		const setAttributes = jest.fn();
+
 		render(
+			<TrafficChartRender
+				attributes={ { reportParams: reportParams( 'month' ), granularity: 'day' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+
+		expect( requestedBucket() ).toBe( 'month' );
+		expect( setAttributes ).toHaveBeenCalledWith( { granularity: 'month' } );
+	} );
+
+	it( 'draws a bucket picked after mount over the page interval', () => {
+		const { rerender } = render(
+			<TrafficChartRender attributes={ { reportParams: reportParams( 'month' ) } } />
+		);
+
+		rerender(
 			<TrafficChartRender
 				attributes={ { reportParams: reportParams( 'month' ), granularity: 'day' } }
 			/>
@@ -125,12 +145,19 @@ describe( 'TrafficChart bucket size', () => {
 		const setAttributes = jest.fn();
 		const { rerender } = render(
 			<TrafficChartRender
-				attributes={ { reportParams: reportParams( 'month' ), granularity: 'day' } }
+				attributes={ { reportParams: reportParams( 'month' ) } }
 				setAttributes={ setAttributes }
 			/>
 		);
 
-		expect( setAttributes ).not.toHaveBeenCalled();
+		// The reader's own pick, made after the page seeded the bucket.
+		rerender(
+			<TrafficChartRender
+				attributes={ { reportParams: reportParams( 'month' ), granularity: 'day' } }
+				setAttributes={ setAttributes }
+			/>
+		);
+		setAttributes.mockClear();
 
 		rerender(
 			<TrafficChartRender
@@ -155,6 +182,7 @@ describe( 'TrafficChart bucket size', () => {
 				setAttributes={ setAttributes }
 			/>
 		);
+		setAttributes.mockClear();
 
 		rerender(
 			<TrafficChartRender

@@ -76,7 +76,10 @@ function TrafficChartInner( { granularity, chartType, setGranularity }: TrafficC
 		TRAFFIC_PERIODS
 	);
 
-	const previousPagePeriod = useRef( pagePeriod );
+	// Undefined until the first render commits, so a fresh mount counts as a move
+	// and the page gets to seed the bucket. Without that a bucket saved under one
+	// interval would come back under whatever interval the next visit arrives on.
+	const previousPagePeriod = useRef< TrafficPeriod >();
 	const pageMoved = previousPagePeriod.current !== pagePeriod;
 
 	// A layout saved before this widget offered hourly can still carry `auto`,

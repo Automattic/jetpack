@@ -23,13 +23,17 @@ const nominalOffset = /(?:Z|[+-]\d{2}:?\d{2})$/;
  * @return The bucket's wall clock as a local instant.
  */
 export function toChartDate( dateStart: string ): Date {
-	const wallClock = dateStart.replace( nominalOffset, '' );
+	const wallClock = dateStart.replace( nominalOffset, '' ).trim();
 
-	// A bare `yyyy-MM-dd` parses as UTC rather than as the local wall clock,
-	// which would reintroduce the same day shift. Most branches stamp a time via
-	// `formatDatePartWithTime`, but the `row.date_start` passthrough in
-	// `getRowIntervalFields` forwards whatever the API sent.
-	return new Date( wallClock.includes( 'T' ) ? wallClock : `${ wallClock }T00:00:00` );
+	// Rebuilt from its parts rather than parsed as-is: a bare `yyyy-MM-dd` parses
+	// as UTC rather than as the local wall clock, which would reintroduce the same
+	// day shift, and a space-separated stamp does not parse at all in every engine.
+	// Most branches stamp a time via `formatDatePartWithTime`, but the
+	// `row.date_start` passthrough in `getRowIntervalFields` forwards whatever the
+	// API sent, so both shapes reach here.
+	const [ datePart, timePart = '00:00:00' ] = wallClock.split( /[T ]/ );
+
+	return new Date( `${ datePart }T${ timePart }` );
 }
 
 /**
