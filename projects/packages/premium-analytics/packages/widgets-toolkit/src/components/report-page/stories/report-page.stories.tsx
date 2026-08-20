@@ -168,6 +168,7 @@ const STORY_DATE_FILTERS: ReportDateFilters = {
 	range: { from: STORY_RANGE?.from, to: STORY_RANGE?.to },
 	appliedPresetId: 'last-30-days',
 	appliedRange: { from: STORY_RANGE?.from, to: STORY_RANGE?.to },
+	appliedComparisonRange: { from: undefined, to: undefined },
 	interval: 'day',
 	appliedInterval: 'day',
 	intervalOptions: [ 'day' ],

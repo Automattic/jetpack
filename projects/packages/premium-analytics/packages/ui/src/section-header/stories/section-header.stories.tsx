@@ -1,5 +1,6 @@
 import {
 	computePrimaryRange,
+	getComparisonRangeFromPreset,
 	PRESET_ALL_TIME,
 	type ComparisonPresetId,
 	type IntervalType,
@@ -45,7 +46,10 @@ export default meta;
 
 type Story = StoryObj< typeof SectionHeader >;
 
-const STORYBOOK_TIMEZONE = 'America/New_York';
+// Nothing configures `@wordpress/date` in Storybook, so the subtitle renders in
+// UTC: ranges built in another zone show their end-of-day endpoints a calendar
+// day late, and stop agreeing with the length beside them.
+const STORYBOOK_TIMEZONE = 'UTC';
 
 type PrimaryFilterState = {
 	range: DateRange;
@@ -58,6 +62,9 @@ type PrimaryFilterState = {
 type AppliedDateState = {
 	range: DateRange;
 	comparisonPresetId?: ComparisonPresetId;
+	// Not the panel's `DateRange`: a derived window can come back with either
+	// endpoint missing, which the subtitle already tolerates.
+	comparisonRange?: { from?: Date; to?: Date };
 	presetId?: PrimaryPresetId;
 	interval?: IntervalType;
 };
@@ -86,6 +93,14 @@ function hasPrimaryDraft( staged: PrimaryFilterState, committed: PrimaryFilterSt
 		staged.range.to !== committed.range.to ||
 		staged.presetId !== committed.presetId
 	);
+}
+
+/**
+ * Derived on every commit rather than stored, because `buildRangePatch`
+ * re-derives the comparison whenever the primary range moves.
+ */
+function comparisonRangeFor( range: DateRange, presetId: ComparisonPresetId | undefined ) {
+	return presetId ? getComparisonRangeFromPreset( range, presetId ) : undefined;
 }
 
 /**
@@ -137,6 +152,7 @@ function RollingDateControls( {
 			range: stagedRef.current.range,
 			presetId: stagedRef.current.presetId,
 			comparisonPresetId,
+			comparisonRange: comparisonRangeFor( stagedRef.current.range, comparisonPresetId ),
 			interval: intervalFor( stagedRef.current.presetId ),
 		} );
 	}, [ onAppliedChange, comparisonPresetId, intervalFor ] );
@@ -161,6 +177,7 @@ function RollingDateControls( {
 					range: committed.range,
 					presetId: committed.presetId,
 					comparisonPresetId: nextPresetId,
+					comparisonRange: comparisonRangeFor( committed.range, nextPresetId ),
 					interval: intervalFor( committed.presetId ),
 				} );
 			}
@@ -179,6 +196,7 @@ function RollingDateControls( {
 					range: committed.range,
 					presetId: committed.presetId,
 					comparisonPresetId,
+					comparisonRange: comparisonRangeFor( committed.range, comparisonPresetId ),
 					interval: nextInterval,
 				} );
 			}

@@ -102,12 +102,14 @@ function Dashboard(): JSX.Element {
 	 * A header without the comparison control must not announce one.
 	 */
 	const comparisonPresetId = showComparison ? dateFilters.appliedComparisonPresetId : undefined;
+	const comparisonRange = showComparison ? dateFilters.appliedComparisonRange : undefined;
 	const sectionSubtitle = useMemo(
 		() =>
 			getSectionSubtitle( {
 				range: dateFilters.appliedRange,
 				presetId: dateFilters.appliedPresetId,
 				comparisonPresetId,
+				comparisonRange,
 				// The interval control renders as a glyph, so the subtitle is
 				// where the active bucket is readable. Both surfaces carry it.
 				interval: dateFilters.appliedInterval,
@@ -117,6 +119,7 @@ function Dashboard(): JSX.Element {
 			dateFilters.appliedPresetId,
 			dateFilters.appliedInterval,
 			comparisonPresetId,
+			comparisonRange,
 		]
 	);
 

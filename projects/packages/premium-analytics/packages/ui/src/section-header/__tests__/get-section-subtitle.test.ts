@@ -98,13 +98,50 @@ describe( 'getSectionSubtitle', () => {
 		).toContain( '(24 hours)' );
 	} );
 
-	it( 'names the compared period when a comparison is applied', () => {
+	it( 'names the days the compared period covers, in place of the preset', () => {
+		expect(
+			getSectionSubtitle( {
+				range: { from: at( 2026, 6, 1 ), to: endOf( 2026, 6, 7 ) },
+				comparisonPresetId: 'previous-period',
+				comparisonRange: { from: at( 2026, 5, 25 ), to: endOf( 2026, 5, 31 ) },
+			} )
+		).toMatch( /\(7 days\) vs\. May 25\u2009–\u200931, 2026$/ );
+	} );
+
+	it( 'names the days for a calendar-shifted preset too', () => {
+		expect(
+			getSectionSubtitle( {
+				range: { from: at( 2026, 6, 1 ), to: endOf( 2026, 6, 7 ) },
+				comparisonPresetId: 'previous-year',
+				comparisonRange: { from: at( 2025, 6, 1 ), to: endOf( 2025, 6, 7 ) },
+			} )
+		).toMatch( /\(7 days\) vs\. June 1\u2009–\u20097, 2025$/ );
+	} );
+
+	it( 'falls back to naming the preset when the comparison window is missing', () => {
 		expect(
 			getSectionSubtitle( {
 				range: currentYearRange( 7 ),
 				comparisonPresetId: 'previous-period',
 			} )
 		).toMatch( /\(7 days\) vs\. Previous period$/ );
+
+		expect(
+			getSectionSubtitle( {
+				range: currentYearRange( 7 ),
+				comparisonPresetId: 'previous-period',
+				comparisonRange: { from: at( 2026, 5, 25 ) },
+			} )
+		).toMatch( /\(7 days\) vs\. Previous period$/ );
+	} );
+
+	it( 'ignores a comparison window carried without a preset', () => {
+		expect(
+			getSectionSubtitle( {
+				range: currentYearRange( 7 ),
+				comparisonRange: { from: at( 2026, 5, 25 ), to: endOf( 2026, 5, 31 ) },
+			} )
+		).not.toContain( 'May' );
 	} );
 
 	it( 'omits the comparison when none is applied', () => {
@@ -138,11 +175,12 @@ describe( 'getSectionSubtitle', () => {
 		it( 'stays inside the parenthetical, ahead of the comparison', () => {
 			expect(
 				getSectionSubtitle( {
-					range: currentYearRange( 7 ),
+					range: { from: at( 2026, 6, 1 ), to: endOf( 2026, 6, 7 ) },
 					interval: 'day',
 					comparisonPresetId: 'previous-period',
+					comparisonRange: { from: at( 2026, 5, 25 ), to: endOf( 2026, 5, 31 ) },
 				} )
-			).toMatch( /\(7 days, daily\) vs\. Previous period$/ );
+			).toMatch( /\(7 days, daily\) vs\. May 25\u2009–\u200931, 2026$/ );
 		} );
 	} );
 

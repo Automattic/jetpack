@@ -10,7 +10,7 @@ import {
 	type IntervalType,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
-import { formatDateRangeLong } from '@jetpack-premium-analytics/formatters';
+import { formatDateRange, formatDateRangeLong } from '@jetpack-premium-analytics/formatters';
 import { __, _n, sprintf } from '@wordpress/i18n';
 
 type SectionSubtitleArgs = {
@@ -23,6 +23,13 @@ type SectionSubtitleArgs = {
 	 * The applied comparison preset, when a comparison is active.
 	 */
 	comparisonPresetId?: ComparisonPresetId;
+
+	/**
+	 * The window that preset resolved to. Named in the preset's place: the
+	 * preset stays readable on the comparison control beside the subtitle,
+	 * while only the dates say which days the deltas are measured against.
+	 */
+	comparisonRange?: { from?: Date; to?: Date };
 
 	/**
 	 * The applied primary preset. Only read to recognise the year surface,
@@ -113,7 +120,7 @@ function getIntervalCadenceLabel( interval: IntervalType ): string {
  * @example
  * getSectionSubtitle( { range, interval } )
  *   // 'Tuesday, July 21 – Monday, July 27 (7 days, daily)'
- *   // with comparison: '… (7 days, daily) vs. Previous period'
+ *   // with comparison: '… (7 days, daily) vs. July 14 – 20, 2026'
  *   // year surface: 'January 1, 2021 – July 30, 2026 (quarterly)'
  *
  * @return The subtitle, or undefined when the range is incomplete.
@@ -121,6 +128,7 @@ function getIntervalCadenceLabel( interval: IntervalType ): string {
 export function getSectionSubtitle( {
 	range,
 	comparisonPresetId,
+	comparisonRange,
 	presetId,
 	interval,
 }: SectionSubtitleArgs ): string | undefined {
@@ -175,10 +183,17 @@ export function getSectionSubtitle( {
 		return dateConfiguration;
 	}
 
+	/*
+	 * The medium form: the primary already leads with weekdays, and a second
+	 * weekday-led range after "vs." reads as a second selection rather than as
+	 * the baseline for the first.
+	 */
+	const comparisonRangeLabel = formatDateRange( comparisonRange );
+
 	return sprintf(
-		// translators: %1$s is a date range with its length, %2$s is the compared period, e.g. "Previous period".
+		// translators: %1$s is a date range with its length, %2$s is the compared period, e.g. "July 14 – 20, 2026".
 		__( '%1$s vs. %2$s', 'jetpack-premium-analytics-pkg' ),
 		dateConfiguration,
-		comparisonLabel
+		comparisonRangeLabel || comparisonLabel
 	);
 }

@@ -36,6 +36,12 @@ export type ReportDateFilters = {
 	appliedComparisonPresetId?: ComparisonPresetId;
 
 	/**
+	 * The applied comparison window, with both endpoints `undefined` when no
+	 * comparison is applied.
+	 */
+	appliedComparisonRange: PickerRange;
+
+	/**
 	 * The chart interval the control shows as checked.
 	 */
 	interval: IntervalType;
@@ -159,6 +165,19 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 	const appliedComparisonPresetId = useMemo(
 		() => ( hasComparisonEnabled( committed ) ? committed.compare_preset ?? undefined : undefined ),
 		[ committed ]
+	);
+
+	/*
+	 * Read from the params the widgets queried with, not re-derived from the
+	 * preset, so a surface naming the window cannot name a different one than
+	 * the numbers came from.
+	 */
+	const appliedComparisonRange = useMemo(
+		() =>
+			hasComparisonEnabled( committed )
+				? toPickerRange( committed.compare_from, committed.compare_to, timeZone )
+				: { from: undefined, to: undefined },
+		[ committed, timeZone ]
 	);
 
 	/*
@@ -299,6 +318,7 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		appliedRange,
 		comparisonPresetId,
 		appliedComparisonPresetId,
+		appliedComparisonRange,
 		interval,
 		appliedInterval,
 		intervalOptions,

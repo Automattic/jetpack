@@ -180,6 +180,25 @@ describe( 'useReportDateFilters', () => {
 			compare_to: '2026-06-30T23:59:59.999Z',
 		} );
 		expect( result.current.appliedComparisonPresetId ).toBe( 'previous-period' );
+		expect( result.current.appliedComparisonRange.from?.toISOString() ).toBe(
+			'2026-06-01T00:00:00.000Z'
+		);
+		expect( result.current.appliedComparisonRange.to?.toISOString() ).toBe(
+			'2026-06-30T23:59:59.999Z'
+		);
+	} );
+
+	it( 'carries no comparison window until one is applied', () => {
+		const { result } = renderDateFilters( {
+			from: '2026-07-01T00:00:00.000Z',
+			to: '2026-07-30T23:59:59.999Z',
+			preset: 'last-30-days',
+		} );
+
+		expect( result.current.appliedComparisonRange ).toEqual( {
+			from: undefined,
+			to: undefined,
+		} );
 	} );
 
 	it( 'commits an interval change on its own', () => {
@@ -226,6 +245,7 @@ describe( 'useReportDateFilters', () => {
 		} );
 
 		expect( mockNavigate ).not.toHaveBeenCalled();
+		expect( result.current.appliedComparisonRange.from ).toBeUndefined();
 
 		act( () => result.current.onApply() );
 
