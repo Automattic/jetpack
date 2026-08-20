@@ -14,7 +14,11 @@ jest.mock(
 	() => jest.requireActual( '../../../../../../tests/js/route-test-utils' ).mockWordPressRoute
 );
 
-type Attributes = { granularity?: string; reportParams?: Record< string, unknown > };
+type Attributes = {
+	granularity?: string;
+	granularityPickedFor?: string;
+	reportParams?: Record< string, unknown >;
+};
 
 // The subset of the resolved field the select actually reads.
 function fieldFor( values: Parameters< typeof granularityOptions >[ 0 ] ) {
@@ -46,8 +50,14 @@ function groupByControl( data: Attributes ) {
 }
 
 describe( 'PageGranularityField', () => {
-	it( 'names the stored bucket when there is one', () => {
-		expect( groupByControl( { granularity: 'week' } ) ).toHaveTextContent( 'By weeks' );
+	it( "names a reader's pick while the page still resolves to what it was picked against", () => {
+		const control = groupByControl( {
+			granularity: 'week',
+			granularityPickedFor: 'month',
+			reportParams: { from: '2025-01-01', to: '2026-06-30', interval: 'month' },
+		} );
+
+		expect( control ).toHaveTextContent( 'By weeks' );
 	} );
 
 	// The bug this guards: the control resolved the page's bucket from the URL
@@ -66,12 +76,27 @@ describe( 'PageGranularityField', () => {
 		expect( control ).toHaveTextContent( 'By hours' );
 	} );
 
+	// The invariant: the chart resolves the same values through the same rule, so
+	// a pick that has lapsed for one has lapsed for the other. Before this, the
+	// chart forced the page's bucket on a fresh mount while the control still
+	// showed the pick.
+	it( 'lets a pick lapse once the page moves, exactly as the chart does', () => {
+		const control = groupByControl( {
+			granularity: 'day',
+			granularityPickedFor: 'month',
+			reportParams: { from: '2026-01-01', to: '2026-06-30', interval: 'week' },
+		} );
+
+		expect( control ).toHaveTextContent( 'By weeks' );
+	} );
+
 	// The widget body already ignores a bucket it no longer offers. The control has
 	// to agree, or a layout saved with `auto` shows `By hours` over a chart drawing
 	// whatever the page implies.
 	it( 'ignores a stored bucket it no longer offers, as the chart does', () => {
 		const control = groupByControl( {
 			granularity: 'auto',
+			granularityPickedFor: 'month',
 			reportParams: { from: '2025-01-01', to: '2026-06-30', interval: 'month' },
 		} );
 

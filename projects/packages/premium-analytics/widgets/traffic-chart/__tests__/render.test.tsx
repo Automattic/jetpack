@@ -59,66 +59,50 @@ beforeEach( () => {
 } );
 
 describe( 'TrafficChart bucket size', () => {
-	it( 'follows the page interval when the widget has no bucket of its own', () => {
+	it( 'follows the page interval when nobody has picked a bucket', () => {
 		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'month' ) } } /> );
 
 		expect( requestedBucket() ).toBe( 'month' );
 	} );
 
-	// A fresh visit is the page's to decide: a bucket saved under one interval must
-	// not come back under whatever interval the next visit arrives on.
-	it( 'lets the page take the bucket back on a fresh mount, over a stored one', () => {
-		const setAttributes = jest.fn();
-
+	it( "draws a reader's pick while the page still resolves to what it was picked against", () => {
 		render(
 			<TrafficChartRender
-				attributes={ { reportParams: reportParams( 'month' ), granularity: 'day' } }
-				setAttributes={ setAttributes }
-			/>
-		);
-
-		expect( requestedBucket() ).toBe( 'month' );
-		expect( setAttributes ).toHaveBeenCalledWith( { granularity: undefined } );
-	} );
-
-	// The write is what dirties the saved dashboard layout, so a widget nobody has
-	// touched must not make one just by loading.
-	it( 'writes nothing when it has no stored bucket to hand back', () => {
-		const setAttributes = jest.fn();
-
-		render(
-			<TrafficChartRender
-				attributes={ { reportParams: reportParams( 'month' ) } }
-				setAttributes={ setAttributes }
-			/>
-		);
-
-		expect( requestedBucket() ).toBe( 'month' );
-		expect( setAttributes ).not.toHaveBeenCalled();
-	} );
-
-	it( 'draws a bucket picked after mount over the page interval', () => {
-		const { rerender } = render(
-			<TrafficChartRender attributes={ { reportParams: reportParams( 'month' ) } } />
-		);
-
-		rerender(
-			<TrafficChartRender
-				attributes={ { reportParams: reportParams( 'month' ), granularity: 'day' } }
+				attributes={ {
+					reportParams: reportParams( 'month' ),
+					granularity: 'day',
+					granularityPickedFor: 'month',
+				} }
 			/>
 		);
 
 		expect( requestedBucket() ).toBe( 'day' );
 	} );
 
-	// A layout saved before this widget offered hourly still carries `auto`, which
-	// is no longer a bucket and must not reach the request.
-	it( 'ignores a legacy `auto` and falls back to the page interval', () => {
+	// Otherwise a reader who looked at one widget by days would keep seeing days
+	// after moving the whole page to another range.
+	it( 'lets the pick lapse once the page interval moves', () => {
+		render(
+			<TrafficChartRender
+				attributes={ {
+					reportParams: reportParams( 'week' ),
+					granularity: 'day',
+					granularityPickedFor: 'month',
+				} }
+			/>
+		);
+
+		expect( requestedBucket() ).toBe( 'week' );
+	} );
+
+	// A pick from before this widget offered hourly can still name `auto`.
+	it( 'ignores a pick naming a bucket it no longer offers', () => {
 		render(
 			<TrafficChartRender
 				attributes={ {
 					reportParams: reportParams( 'month' ),
 					granularity: 'auto' as 'day',
+					granularityPickedFor: 'month' as 'day',
 				} }
 			/>
 		);
@@ -126,62 +110,18 @@ describe( 'TrafficChart bucket size', () => {
 		expect( requestedBucket() ).toBe( 'month' );
 	} );
 
-	// Otherwise a reader who looked at one widget by days would keep seeing days
-	// after moving the whole page to another range.
-	it( 'hands the page interval back to the host when the page moves', () => {
+	// The widget resolves this from its attributes alone, so it cannot need a
+	// host setter — and cannot dirty the saved layout just by rendering.
+	it( 'writes nothing, whatever it is handed', () => {
 		const setAttributes = jest.fn();
-		const { rerender } = render(
-			<TrafficChartRender
-				attributes={ { reportParams: reportParams( 'month' ) } }
-				setAttributes={ setAttributes }
-			/>
-		);
 
-		// The reader's own pick, made after the page seeded the bucket.
-		rerender(
+		render(
 			<TrafficChartRender
 				attributes={ { reportParams: reportParams( 'month' ), granularity: 'day' } }
-				setAttributes={ setAttributes }
-			/>
-		);
-		setAttributes.mockClear();
-
-		rerender(
-			<TrafficChartRender
-				attributes={ { reportParams: reportParams( 'week' ), granularity: 'day' } }
-				setAttributes={ setAttributes }
-			/>
-		);
-
-		expect( setAttributes ).toHaveBeenCalledWith( { granularity: undefined } );
-		// Drawn on the same render the page moved, rather than a render later:
-		// otherwise the outgoing bucket's requests go out and are thrown away.
-		expect( requestedBucket() ).toBe( 'week' );
-	} );
-
-	// The realign is keyed to the page's bucket moving, so an unrelated change to
-	// the report params must leave the reader's choice alone.
-	it( 'keeps the stored bucket while the page interval holds still', () => {
-		const setAttributes = jest.fn();
-		const { rerender } = render(
-			<TrafficChartRender
-				attributes={ { reportParams: reportParams( 'month' ), granularity: 'day' } }
-				setAttributes={ setAttributes }
-			/>
-		);
-		setAttributes.mockClear();
-
-		rerender(
-			<TrafficChartRender
-				attributes={ {
-					reportParams: { ...reportParams( 'month' ), to: '2026-07-31' } as ReportParams,
-					granularity: 'day',
-				} }
 				setAttributes={ setAttributes }
 			/>
 		);
 
 		expect( setAttributes ).not.toHaveBeenCalled();
-		expect( requestedBucket() ).toBe( 'day' );
 	} );
 } );

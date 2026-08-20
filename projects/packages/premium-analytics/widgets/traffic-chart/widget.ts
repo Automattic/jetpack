@@ -56,11 +56,13 @@ export const TRAFFIC_CHART_METRICS = [
  * `attributes.reportParams` when a host injects them (e.g. Storybook and
  * dashboard previews).
  *
- * @property granularity - Bucket size to group by. Follows the dashboard interval when absent.
- * @property chartType   - How to draw the selected metric. Defaults to `line`.
+ * @property granularity          - Bucket a reader picked. Follows the dashboard interval when absent.
+ * @property granularityPickedFor - The page bucket that pick was made against; it lapses when the page moves on.
+ * @property chartType            - How to draw the selected metric. Defaults to `line`.
  */
 export type TrafficChartAttributes = {
 	granularity?: TrafficChartGranularity;
+	granularityPickedFor?: TrafficChartGranularity;
 	chartType?: TrafficChartType;
 };
 
