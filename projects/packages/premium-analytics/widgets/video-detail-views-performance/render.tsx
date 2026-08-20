@@ -55,7 +55,7 @@ function VideoDetailViewsPerformanceInner( {
 	const { reportParams } = useWidgetRootContext();
 	const videoId = toPostId( reportParams.post_id );
 
-	const { current, isLoading, isFetching, isError, error, hasData, refetch } = useVideoViews(
+	const { current, isLoading, isFetching, isError, error, refetch } = useVideoViews(
 		videoId,
 		reportParams,
 		granularity
@@ -78,7 +78,7 @@ function VideoDetailViewsPerformanceInner( {
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading && ! hasData }
+				isLoading={ isLoading }
 				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ videoId <= 0 }

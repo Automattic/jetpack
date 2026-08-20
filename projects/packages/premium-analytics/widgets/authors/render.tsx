@@ -237,20 +237,12 @@ function AuthorsReport( { max }: AuthorsReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
-	const {
-		primary,
-		comparisonRows,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		refetch,
-	} = useStatsTopAuthors( statsParams, { maxRows: max } );
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+		useStatsTopAuthors( statsParams, { maxRows: max } );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
-	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasData;
+	const isInitialLoading = isLoading || primary.isPending;
 
 	const rows = useMemo(
 		() => buildTopAuthorsData( comparisonRows?.rows ?? [] ),

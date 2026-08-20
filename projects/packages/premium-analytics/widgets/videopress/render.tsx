@@ -109,20 +109,12 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 	// The hook merges comparison rows in the data layer and gates
 	// `hasComparison` on at least one visible row (`maxRows`) having a matching
 	// comparison row, so the chart never fabricates vs-zero deltas.
-	const {
-		primary,
-		comparisonRows,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		refetch,
-	} = useStatsVideoPlays( statsParams, { maxRows: max } );
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+		useStatsVideoPlays( statsParams, { maxRows: max } );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
-	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasData;
+	const isInitialLoading = isLoading || primary.isPending;
 
 	const rows = useMemo( () => toVideoPlaysRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
 	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
