@@ -67,7 +67,7 @@ describe( 'TrafficChart bucket size', () => {
 
 	// A fresh visit is the page's to decide: a bucket saved under one interval must
 	// not come back under whatever interval the next visit arrives on.
-	it( 'lets the page seed the bucket on a fresh mount, over a stored one', () => {
+	it( 'lets the page take the bucket back on a fresh mount, over a stored one', () => {
 		const setAttributes = jest.fn();
 
 		render(
@@ -78,7 +78,23 @@ describe( 'TrafficChart bucket size', () => {
 		);
 
 		expect( requestedBucket() ).toBe( 'month' );
-		expect( setAttributes ).toHaveBeenCalledWith( { granularity: 'month' } );
+		expect( setAttributes ).toHaveBeenCalledWith( { granularity: undefined } );
+	} );
+
+	// The write is what dirties the saved dashboard layout, so a widget nobody has
+	// touched must not make one just by loading.
+	it( 'writes nothing when it has no stored bucket to hand back', () => {
+		const setAttributes = jest.fn();
+
+		render(
+			<TrafficChartRender
+				attributes={ { reportParams: reportParams( 'month' ) } }
+				setAttributes={ setAttributes }
+			/>
+		);
+
+		expect( requestedBucket() ).toBe( 'month' );
+		expect( setAttributes ).not.toHaveBeenCalled();
 	} );
 
 	it( 'draws a bucket picked after mount over the page interval', () => {
@@ -110,35 +126,6 @@ describe( 'TrafficChart bucket size', () => {
 		expect( requestedBucket() ).toBe( 'month' );
 	} );
 
-	// Without an `Auto` option the host's select falls back to the first bucket
-	// offered, so leaving the attribute unset would show `By hours` over a chart
-	// drawing months. The widget seeds it instead.
-	it( 'seeds the stored bucket from the page when it has none', () => {
-		const setAttributes = jest.fn();
-
-		render(
-			<TrafficChartRender
-				attributes={ { reportParams: reportParams( 'month' ) } }
-				setAttributes={ setAttributes }
-			/>
-		);
-
-		expect( setAttributes ).toHaveBeenCalledWith( { granularity: 'month' } );
-	} );
-
-	it( 'seeds over a legacy `auto` too, so the control stops showing one', () => {
-		const setAttributes = jest.fn();
-
-		render(
-			<TrafficChartRender
-				attributes={ { reportParams: reportParams( 'week' ), granularity: 'auto' as 'day' } }
-				setAttributes={ setAttributes }
-			/>
-		);
-
-		expect( setAttributes ).toHaveBeenCalledWith( { granularity: 'week' } );
-	} );
-
 	// Otherwise a reader who looked at one widget by days would keep seeing days
 	// after moving the whole page to another range.
 	it( 'hands the page interval back to the host when the page moves', () => {
@@ -166,7 +153,7 @@ describe( 'TrafficChart bucket size', () => {
 			/>
 		);
 
-		expect( setAttributes ).toHaveBeenCalledWith( { granularity: 'week' } );
+		expect( setAttributes ).toHaveBeenCalledWith( { granularity: undefined } );
 		// Drawn on the same render the page moved, rather than a render later:
 		// otherwise the outgoing bucket's requests go out and are thrown away.
 		expect( requestedBucket() ).toBe( 'week' );

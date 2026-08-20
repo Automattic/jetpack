@@ -54,9 +54,9 @@ type TrafficChartInnerProps = {
 	 */
 	chartType?: TrafficChartType;
 	/**
-	 * Host setter, used to realign `granularity` when the page interval moves.
+	 * Host setter. Called with `undefined` to hand the bucket back to the page.
 	 */
-	setGranularity?: ( granularity: TrafficChartGranularity ) => void;
+	setGranularity?: ( granularity: TrafficChartGranularity | undefined ) => void;
 };
 
 /**
@@ -94,16 +94,21 @@ function TrafficChartInner( { granularity, chartType, setGranularity }: TrafficC
 	// the outgoing bucket first and are thrown away.
 	const period: TrafficPeriod = pageMoved ? pagePeriod : stored ?? pagePeriod;
 
-	// Store whatever is in force, so the header control names the bucket the chart
-	// drew. Without an `Auto` option an unset attribute would leave the host's
-	// select showing the first bucket on the list over a chart drawing another.
+	// The page taking the bucket back is the only thing this writes, and only when
+	// a reader had picked one — an unset attribute already reads as "whatever the
+	// page says", both here and in the header control. A widget nobody has touched
+	// therefore never writes, so it cannot dirty the saved layout just by loading.
 	useEffect( () => {
+		if ( ! pageMoved ) {
+			return;
+		}
+
 		previousPagePeriod.current = pagePeriod;
 
-		if ( period !== granularity ) {
-			setGranularity?.( period );
+		if ( granularity !== undefined ) {
+			setGranularity?.( undefined );
 		}
-	}, [ pagePeriod, period, granularity, setGranularity ] );
+	}, [ pageMoved, pagePeriod, granularity, setGranularity ] );
 
 	const {
 		metrics: metricTabs,
@@ -164,7 +169,7 @@ export default function TrafficChart( {
 	setError,
 }: TrafficChartWidgetProps ) {
 	const setGranularity = useCallback(
-		( granularity: TrafficChartGranularity ) => setAttributes?.( { granularity } ),
+		( granularity: TrafficChartGranularity | undefined ) => setAttributes?.( { granularity } ),
 		[ setAttributes ]
 	);
 

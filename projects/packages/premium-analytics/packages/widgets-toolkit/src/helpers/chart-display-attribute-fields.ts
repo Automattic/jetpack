@@ -5,6 +5,7 @@ import { SelectField, ToggleGroupField } from '@jetpack-premium-analytics/fields
 import { chartLine } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
+import { PageGranularityField } from '../fields/page-granularity-field';
 /**
  * Internal dependencies
  */
@@ -57,15 +58,23 @@ export function granularityOptions( values: readonly ChartGranularityOption[] ) 
  * The "Group by" attribute field (`relevance: 'high'`, so the widget host
  * renders it as an in-body dropdown). Widgets that follow the dashboard range
  * include `auto`; the detail charts pass explicit buckets only.
+ *
+ * `followsPageInterval` is for a chart that has no `auto` because following the
+ * page is its resting state: an unset attribute then means "whatever the page
+ * says", and the control resolves that the same way the chart does instead of
+ * falling back to the first bucket on the list.
  */
 export function granularityAttributeField<
 	Attributes extends { granularity?: ChartGranularityOption },
->( values: readonly ChartGranularityOption[] ): WidgetAttributeField< Attributes > {
+>(
+	values: readonly ChartGranularityOption[],
+	{ followsPageInterval = false }: { followsPageInterval?: boolean } = {}
+): WidgetAttributeField< Attributes > {
 	return {
 		id: 'granularity',
 		label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
 		type: 'text',
-		Edit: SelectField,
+		Edit: followsPageInterval ? PageGranularityField : SelectField,
 		elements: granularityOptions( values ),
 		relevance: 'high',
 	} as WidgetAttributeField< Attributes >;

@@ -68,7 +68,9 @@ export type TrafficChartAttributes = {
 export default {
 	icon: trendingUp,
 	attributes: [
-		granularityAttributeField( [ 'hour', 'day', 'week', 'month' ] ),
+		granularityAttributeField( [ 'hour', 'day', 'week', 'month' ], {
+			followsPageInterval: true,
+		} ),
 		chartTypeAttributeField(),
 	] as WidgetAttributeField< TrafficChartAttributes >[],
 	example: {
