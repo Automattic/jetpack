@@ -9,11 +9,6 @@
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
-	"autoload": {
-		"classmap": [
-			"src/"
-		]
-	},
 	"repositories": [
 		{
 			"type": "path",
