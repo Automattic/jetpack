@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f72ecf8586288800bf47ac20a2d474ae",
+    "content-hash": "3745206dbd8cf5703c828b18aedfa6a9",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -4315,6 +4315,50 @@
                 "source": "https://github.com/wikimedia/AhoCorasick/tree/v1.0.1"
             },
             "time": "2018-05-01T18:13:32+00:00"
+        },
+        {
+            "name": "wp-php-toolkit/reprint-server",
+            "version": "v0.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wp-php-toolkit/reprint-server",
+                "reference": "31991a8ec3185c2e6591ab33e296963fd2976bed"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wp-php-toolkit/reprint-server/zipball/31991a8ec3185c2e6591ab33e296963fd2976bed",
+                "reference": "31991a8ec3185c2e6591ab33e296963fd2976bed",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "replace": {
+                "wp-php-toolkit/reprint-exporter": "self.version"
+            },
+            "suggest": {
+                "ext-pdo": "Needed for the SQLite export path; recommended for MySQL exports (the wpdb fallback handles MySQL when absent).",
+                "ext-pdo_mysql": "Recommended for MySQL exports; falls back to wpdb when absent."
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/utils.php",
+                    "src/class-pdo-polyfill.php"
+                ],
+                "classmap": [
+                    "src/"
+                ],
+                "exclude-from-classmap": [
+                    "/src/class-pdo-polyfill.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Streaming export engine used by the Reprint Server WordPress plugin",
+            "time": "2026-08-19T20:45:39+00:00"
         }
     ],
     "packages-dev": [
