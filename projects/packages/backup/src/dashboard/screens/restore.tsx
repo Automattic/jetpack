@@ -6,26 +6,11 @@ import { Icon, backup as backupIcon, arrowLeft } from '@wordpress/icons';
 import { Link, useParams } from '@wordpress/route';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
+import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { useRestore } from '../hooks/use-restore';
 import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
-
-/**
- * Derive an ISO timestamp for the restore-point label from the WPCOM
- * rewind id. WPCOM rewind ids are unix-seconds (with an optional decimal
- * suffix), so we don't need to look the activity row up in cache just
- * to render "Restore point: …".
- *
- * @param rewindId - The rewind id from the URL.
- * @return ISO timestamp or null when the id isn't numeric.
- */
-function rewindIdToIso( rewindId: string ): string | null {
-	const seconds = Number.parseInt( rewindId, 10 );
-	if ( ! Number.isFinite( seconds ) || seconds <= 0 ) {
-		return null;
-	}
-	return new Date( seconds * 1000 ).toISOString();
-}
+import { isValidRewindId, rewindIdToIso } from '../types/rewind-id';
 
 // Stable so the submit button can point at the hint with
 // `aria-describedby`. A module constant rather than `useInstanceId`
@@ -41,13 +26,29 @@ const SELECTION_HINT_ID = 'jpb-restore__selection-hint';
  */
 export default function RestoreScreen() {
 	const { rewindId } = useParams( { from: '/restore/$rewindId' } );
-	const restorePoint = rewindIdToIso( rewindId );
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
 	const { state, submit, reset } = useRestore( rewindId );
 	const handleConfirm = useCallback( () => submit( items ), [ submit, items ] );
 	// An empty checklist would restore *everything* rather than nothing —
 	// see `hasSelectedItems`. On this screen that is unrecoverable.
 	const hasSelection = hasSelectedItems( items );
+
+	// A malformed id can only produce a failed restore, so the screen
+	// offers the way back and nothing else — see `InvalidRewindId`.
+	if ( ! isValidRewindId( rewindId ) ) {
+		return (
+			<InvalidRewindId
+				prefix="jpb-restore"
+				title={ __( "This restore link isn't valid.", 'jetpack-backup-pkg' ) }
+				body={ __(
+					'The address is missing a valid restore point. Go back to the overview and choose a backup to restore.',
+					'jetpack-backup-pkg'
+				) }
+			/>
+		);
+	}
+
+	const restorePoint = rewindIdToIso( rewindId );
 
 	return (
 		<DashboardLayout>
@@ -63,12 +64,10 @@ export default function RestoreScreen() {
 							<Text variant="heading-md" render={ <h3 /> }>
 								{ __( 'Restore backup', 'jetpack-backup-pkg' ) }
 							</Text>
-							{ restorePoint && (
-								<Text variant="body-sm" className="jpb-text-muted">
-									{ __( 'Restore point:', 'jetpack-backup-pkg' ) }{ ' ' }
-									{ dateI18n( 'M j, Y, g:i A', restorePoint, undefined ) }
-								</Text>
-							) }
+							<Text variant="body-sm" className="jpb-text-muted">
+								{ __( 'Restore point:', 'jetpack-backup-pkg' ) }{ ' ' }
+								{ dateI18n( 'M j, Y, g:i A', restorePoint, undefined ) }
+							</Text>
 						</Stack>
 					</Stack>
 					{ ( state.phase === 'idle' || state.phase === 'submitting' ) && (
