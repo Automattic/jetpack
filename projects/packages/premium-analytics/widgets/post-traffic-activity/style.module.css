@@ -52,3 +52,17 @@
 	min-width: 0;
 	min-height: 0;
 }
+
+/* The cells cap at the design's 64px, so up to a column of leftover width
+   remains inside the chart's full-width grid. Under the default content
+   distribution the grid hands all of it to the auto-sized weekday-label
+   track, which reads as dead space at the inline start that grows with the
+   tile until the next column fits; any non-stretch distribution stops that
+   absorption, and centering splits the leftover between the sides instead.
+   The grid is an inner chart element (only its `role` is addressable from
+   here), and `safe` falls back to start alignment at sub-minimum widths,
+   where a centered overflow would push the labels past the scroll origin. */
+.heatmap [role="grid"] {
+	justify-content: center;
+	justify-content: safe center;
+}
