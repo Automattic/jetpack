@@ -3,13 +3,13 @@
  */
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { chartBar } from '@wordpress/icons';
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
 import { errorStateIcon } from '../error-state-icon';
 import { WidgetState } from '../widget-state';
-import type { ReactElement } from 'react';
+import type { ReactElement, RefObject } from 'react';
 
 const CONTENT = <div>rows</div>;
 
@@ -44,6 +44,31 @@ function iconPathOf( element: ReactElement ): string | null {
 	const path = svgPathOf( container );
 	unmount();
 	return path;
+}
+
+/**
+ * Stand-in for whatever else claims focus in the same commit that unmounts a
+ * widget's focused element — another widget's own parking effect, a dialog
+ * autofocus. Rendered before the widget so its layout effect runs first.
+ *
+ * @param props        - Component props.
+ * @param props.steal  - Whether to take focus on this commit.
+ * @param props.target - Ref to the element to take focus to.
+ * @return Nothing; the component renders no markup.
+ */
+function StealFocus( {
+	steal,
+	target,
+}: {
+	steal: boolean;
+	target: RefObject< HTMLElement | null >;
+} ) {
+	useLayoutEffect( () => {
+		if ( steal ) {
+			target.current?.focus();
+		}
+	} );
+	return null;
 }
 
 function elapseFetchDelay() {
@@ -445,6 +470,38 @@ describe( 'WidgetState', () => {
 		elapseFetchDelay();
 
 		expect( row ).toHaveFocus();
+	} );
+
+	it( 'forgets a row it did not park focus for, so a later fall to <body> stays put', () => {
+		// Something else claiming focus in the same commit takes the widget out of
+		// the running. Left pointing at the detached row, it would answer the next
+		// unrelated fall to <body> — in tree order, ahead of the widget that
+		// actually lost its focused element.
+		const props = { isError: false, isEmpty: false };
+		const elsewhereRef: RefObject< HTMLButtonElement | null > = { current: null };
+		const tree = ( { steal, isLoading }: { steal: boolean; isLoading: boolean } ) => (
+			<>
+				<StealFocus steal={ steal } target={ elsewhereRef } />
+				<WidgetState { ...props } isLoading={ isLoading }>
+					<button type="button">Taiwan</button>
+				</WidgetState>
+				<button type="button" ref={ elsewhereRef }>
+					Elsewhere
+				</button>
+			</>
+		);
+
+		const { rerender } = render( tree( { steal: false, isLoading: false } ) );
+		act( () => screen.getByRole( 'button', { name: 'Taiwan' } ).focus() );
+
+		rerender( tree( { steal: true, isLoading: true } ) );
+		const elsewhere = screen.getByRole( 'button', { name: 'Elsewhere' } );
+		expect( elsewhere ).toHaveFocus();
+
+		act( () => elsewhere.blur() );
+		rerender( tree( { steal: false, isLoading: false } ) );
+
+		expect( document.body ).toHaveFocus();
 	} );
 
 	it( 'error wins over loading and empty (retry in flight after a failed fetch)', () => {

@@ -99,9 +99,17 @@ export function WidgetState( {
 		if ( ! target || ! root || ! ownerDocument ) {
 			return;
 		}
-		// Step in only for focus this widget just dropped: a target still in the
-		// document, or focus that went anywhere but <body>, is not ours to move.
-		if ( target.isConnected || ownerDocument.activeElement !== ownerDocument.body ) {
+		// A target still in the document is not something this widget dropped.
+		if ( target.isConnected ) {
+			return;
+		}
+		// Gone either way, so stop tracking it now. Held past the render that
+		// dropped it, it would let the next fall to <body> anywhere on the page
+		// pull focus in here.
+		focusedInside.current = null;
+		// Step in only for focus this widget just dropped: focus that went
+		// anywhere but <body> is not ours to move.
+		if ( ownerDocument.activeElement !== ownerDocument.body ) {
 			return;
 		}
 		root.focus( { preventScroll: true } );
