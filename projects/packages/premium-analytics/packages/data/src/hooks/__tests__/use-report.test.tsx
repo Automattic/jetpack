@@ -133,4 +133,48 @@ describe( 'useReport', () => {
 
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 	} );
+
+	// The stuck-skeleton bug (WOOA7S-1902): the Traffic chart switches its
+	// likes/comments request off at the hourly grain, and the same change moves
+	// that request's `period` — so `placeholderData` hands it the daily rows and
+	// React Query reports placeholder data forever, because a disabled query
+	// never fetches to replace them. Folded into the widget's own `isLoading`,
+	// that pinned the whole chart in its skeleton.
+	it( 'stops awaiting once a query is switched off mid-flight', async () => {
+		type Report = { summary: Record< string, unknown >; data: unknown[] };
+		const queryFactory = ( p: ReportParams, queryType: string ): UseQueryOptions< Report > => ( {
+			queryKey: [ 'switchable', queryType, p.period ],
+			queryFn: async () => ( { summary: { views: 1 }, data: [ { date_start: p.from } ] } ),
+			placeholderData: ( previousData?: Report ) => previousData,
+		} );
+
+		// Carries comparison params so both queries have a real `queryFn` — the
+		// disabled-comparison stub has none, and React Query logs about that.
+		const params = ( period: string ): ReportParams =>
+			( {
+				from: '2026-06-01',
+				to: '2026-06-07',
+				compare_from: '2026-05-01',
+				compare_to: '2026-05-07',
+				compare_preset: 'previous-period',
+				comp: '1',
+				interval: 'day',
+				period,
+				section: 'stats',
+			} ) as ReportParams;
+
+		const { result, rerender } = renderHook(
+			( { period, enabled }: { period: string; enabled: boolean } ) =>
+				useReport( queryFactory, params( period ), { enabled } ),
+			{ wrapper, initialProps: { period: 'day', enabled: true } }
+		);
+
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+
+		// Both at once, as the widget does it.
+		rerender( { period: 'hour', enabled: false } );
+
+		expect( result.current.isFetching ).toBe( false );
+		expect( result.current.isLoading ).toBe( false );
+	} );
 } );

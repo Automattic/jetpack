@@ -13,11 +13,19 @@ type PlaceholderAwareQuery = {
  * true when unchanged params are revalidated, where the numbers on screen are
  * still the right answer (WOOA7S-1934).
  *
- * @param query - A React Query result.
+ * Awaiting means something is coming. A disabled query has nothing coming, so
+ * it never awaits: pass `isEnabled` for a query a widget switches off, or the
+ * placeholder it is left holding reads as a load that never finishes and pins
+ * the widget in its skeleton. Switching a query off usually changes its params
+ * in the same render — a metric the bucket cannot serve, a view no longer
+ * selected — which is exactly what makes the result placeholder data.
+ *
+ * @param query     - A React Query result.
+ * @param isEnabled - Whether that query is enabled. Defaults to true.
  * @return Whether the result has nothing valid for the current params.
  */
-export function isAwaitingData( query: PlaceholderAwareQuery ): boolean {
-	return query.isLoading || query.isPlaceholderData;
+export function isAwaitingData( query: PlaceholderAwareQuery, isEnabled = true ): boolean {
+	return isEnabled && ( query.isLoading || query.isPlaceholderData );
 }
 
 /**
@@ -34,7 +42,8 @@ export function isAwaitingData( query: PlaceholderAwareQuery ): boolean {
  * @return The same result with `isLoading` widened.
  */
 export function withAwaitedDataLoading< TQuery extends PlaceholderAwareQuery >(
-	query: TQuery
+	query: TQuery,
+	isEnabled = true
 ): TQuery {
-	return { ...query, isLoading: isAwaitingData( query ) };
+	return { ...query, isLoading: isAwaitingData( query, isEnabled ) };
 }
