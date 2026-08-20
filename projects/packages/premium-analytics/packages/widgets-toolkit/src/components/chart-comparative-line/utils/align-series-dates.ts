@@ -36,7 +36,6 @@ export function alignSeriesDates(
 			return comparisonSeries;
 		}
 
-		// Check if alignment is needed by comparing first dates
 		const primaryFirstDate = primary.data[ 0 ]?.date;
 		const comparisonFirstDate = comparisonSeries.data[ 0 ]?.date;
 
@@ -46,24 +45,20 @@ export function alignSeriesDates(
 		const comparisonFirstMs =
 			comparisonFirstDate instanceof Date ? comparisonFirstDate.getTime() : comparisonFirstDate;
 
-		// If dates already align, return as-is
 		if ( primaryFirstMs === comparisonFirstMs ) {
 			return comparisonSeries;
 		}
 
-		// Align by index: each comparison point gets the primary point's date
 		return {
 			...comparisonSeries,
 			data: comparisonSeries.data.map( ( point, index ) => {
-				// Use corresponding primary date, or last primary date if comparison has more points
+				// A longer comparison series falls back to the last primary date.
 				const primaryDate =
 					primary.data[ index ]?.date ?? primary.data[ primary.data.length - 1 ]?.date;
 
 				return {
 					...point,
-					// Use primary's date for X-axis alignment
 					date: primaryDate,
-					// Preserve original date for tooltip display
 					realDate: point.date,
 				};
 			} ),

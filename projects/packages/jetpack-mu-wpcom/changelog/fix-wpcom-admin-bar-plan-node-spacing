@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin bar: fix spacing of the site plan submenu node by matching core's margin-top instead of zeroing padding.

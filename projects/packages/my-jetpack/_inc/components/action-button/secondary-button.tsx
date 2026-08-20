@@ -8,7 +8,7 @@ export type SecondaryButtonProps = {
 	variant?: 'primary' | 'secondary' | 'link' | 'tertiary';
 	label?: string;
 	shouldShowButton?: () => boolean;
-	onClick?: ( () => void ) | ( ( e: MouseEvent< HTMLButtonElement > ) => void );
+	onClick?: ( () => void ) | ( ( e: MouseEvent< HTMLElement > ) => void );
 	isExternalLink?: boolean;
 	disabled?: boolean;
 	isLoading?: boolean;

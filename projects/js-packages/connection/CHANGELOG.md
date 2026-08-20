@@ -2,6 +2,87 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.3.1] - 2026-08-19
+### Changed
+- Update dependencies.
+
+## [2.3.0] - 2026-08-13
+### Added
+- Connection: Expose the connection owner's identity so consumers can name the owner when their token is broken. [#51034]
+- Connection: Report whose account a connection error names as a single answer, so an error that cannot be placed is never treated as another user's. [#51034]
+
+### Fixed
+- Connection: Never take the connection error notice's CTA from another user's broken token, which reconnecting would not restore. [#51034]
+- Connection: Take the connection error notice's message and CTA from an error the viewer can resolve, so an informational error no longer hides a working button. [#51034]
+
+## [2.2.3] - 2026-08-06
+### Changed
+- Modernise the disconnect-confirm and thank-you step components. [#50864]
+- Update package dependencies. [#50509]
+
+## [2.2.2] - 2026-08-03
+### Changed
+- Update dependencies.
+
+## [2.2.1] - 2026-07-31
+### Changed
+- Connection UI: Make the disconnect survey a real radio group, drop the decorative arrow the options no longer need, and build the option cards on the shared Card component.
+
+## [2.2.0] - 2026-07-27
+### Added
+- Add a `./state/store-id` subpath export so `CONNECTION_STORE_ID` can be imported without pulling the package barrel. [#50714]
+- Render connection error notices without a reconnect button when the error's action is `none`. [#50662]
+
+## [2.1.0] - 2026-07-22
+### Removed
+- Connection UI: Unify error handling across Basic and Required Plan screens, modernize components, and remove the unused `ConnectUser` component. [#50663]
+
+## [2.0.2] - 2026-07-20
+### Changed
+- UI: Convert component files to TSX and update components. [#50370] [#50543]
+- UI: Convert remaining component files to TS / TSX. [#50620]
+- Update package dependencies. [#50510] [#50529]
+
+## [2.0.1] - 2026-07-13
+### Fixed
+- Disconnect UI: Fix owner disconnect dialog heading labeling and improve disconnect survey reliability. [#50284]
+
+## [2.0.0] - 2026-07-09
+### Added
+- Add a connection health-check thunk that surfaces broken-connection errors through the shared connection-error notice. [#50169]
+- Add an optional context prop to the connection error notice so consumers can name the affected feature above the shared cause and action. [#50169]
+
+### Changed
+- Update package dependencies. [#49272]
+
+### Removed
+- Remove the deprecated InPlaceConnection component and its export. [#50321]
+
+## [1.5.0] - 2026-07-06
+### Changed
+- Make `useConnectionErrorNotice` own CTA and action resolution and return resolved actions, so consumers no longer re-derive copy and handlers from `error_data`. [#50081]
+- Update package dependencies. [#50097] [#50183] [#50212]
+
+## [1.4.66] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [1.4.65] - 2026-06-25
+### Fixed
+- Connect screen: Accept React synthetic events on the connect button click handler to satisfy the `@wordpress/ui` 0.15 Button `onClick` type. [#49795]
+
+## [1.4.64] - 2026-06-24
+### Changed
+- Internal updates.
+
+## [1.4.63] - 2026-06-23
+### Changed
+- Update dependencies.
+
+## [1.4.62] - 2026-06-22
+### Changed
+- Update package dependencies. [#49691] [#49757]
+
 ## [1.4.61] - 2026-06-15
 ### Changed
 - Update package dependencies. [#49631]
@@ -1385,6 +1466,22 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.3.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.3.0...v2.3.1
+[2.3.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.2.3...v2.3.0
+[2.2.3]: https://github.com/Automattic/jetpack-connection-js/compare/v2.2.2...v2.2.3
+[2.2.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.2.1...v2.2.2
+[2.2.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.2.0...v2.2.1
+[2.2.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.1.0...v2.2.0
+[2.1.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.0.2...v2.1.0
+[2.0.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.5.0...v2.0.0
+[1.5.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.66...v1.5.0
+[1.4.66]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.65...v1.4.66
+[1.4.65]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.64...v1.4.65
+[1.4.64]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.63...v1.4.64
+[1.4.63]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.62...v1.4.63
+[1.4.62]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.61...v1.4.62
 [1.4.61]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.60...v1.4.61
 [1.4.60]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.59...v1.4.60
 [1.4.59]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.58...v1.4.59

@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.4.0] - 2026-08-19
+### Added
+- Visitor: Add is_tracking_automattician() to identify Automattician traffic for analytics reporting. [#51280]
+
+### Fixed
+- Status: detect local development sites served on a port, such as http://127.0.0.1:8080, and stop treating a production site as local when a domain like .test or .localhost appears in its URL path. [#51218]
+
+## [6.3.1] - 2026-08-13
+### Added
+- Identify WordPress Playground sites as local, so Jetpack starts in offline mode there. [#51216]
+
+## [6.3.0] - 2026-08-11
+### Removed
+- Remove Host::is_pressable(). Check the IS_PRESSABLE constant directly instead. [#51179]
+
+## [6.2.1] - 2026-08-06
+### Fixed
+- Offline mode: Avoid a redundant per-request database query on sites without a persistent object cache. [#50961]
+
+## [6.2.0] - 2026-08-03
+### Added
+- Add Host::is_pressable() to detect sites hosted on the Pressable platform via the IS_PRESSABLE constant. [#50369]
+
+## [6.1.9] - 2026-07-09
+### Changed
+- Update dependencies.
+
 ## [6.1.8] - 2026-06-15
 ### Changed
 - Internal updates.
@@ -548,6 +575,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a status package
 
+[6.4.0]: https://github.com/Automattic/jetpack-status/compare/v6.3.1...v6.4.0
+[6.3.1]: https://github.com/Automattic/jetpack-status/compare/v6.3.0...v6.3.1
+[6.3.0]: https://github.com/Automattic/jetpack-status/compare/v6.2.1...v6.3.0
+[6.2.1]: https://github.com/Automattic/jetpack-status/compare/v6.2.0...v6.2.1
+[6.2.0]: https://github.com/Automattic/jetpack-status/compare/v6.1.9...v6.2.0
+[6.1.9]: https://github.com/Automattic/jetpack-status/compare/v6.1.8...v6.1.9
 [6.1.8]: https://github.com/Automattic/jetpack-status/compare/v6.1.7...v6.1.8
 [6.1.7]: https://github.com/Automattic/jetpack-status/compare/v6.1.6...v6.1.7
 [6.1.6]: https://github.com/Automattic/jetpack-status/compare/v6.1.5...v6.1.6

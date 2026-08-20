@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
-import { Button, ThemeProvider, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Button, ThemeProvider } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useState } from 'react';
@@ -27,7 +28,7 @@ const VideoThumbnailSelectorModal = ( {
 	handleConfirmFrame,
 }: VideoThumbnailSelectorModalProps ) => {
 	const [ modalRef, setModalRef ] = useState< HTMLDivElement | null >( null );
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 
 	return (
 		<Modal

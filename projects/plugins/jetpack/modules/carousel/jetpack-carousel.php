@@ -639,7 +639,7 @@ class Jetpack_Carousel {
 						<div class="jp-carousel-pagination"></div>
 					</div>
 					<div class="jp-carousel-photo-title-container">
-						<h2 class="jp-carousel-photo-caption"></h2>
+						<div class="jp-carousel-photo-caption"></div>
 					</div>
 					<div class="jp-carousel-photo-icons-container">
 						<a href="#" class="jp-carousel-icon-btn jp-carousel-icon-info" aria-label="<?php esc_attr_e( 'Toggle photo metadata visibility', 'jetpack' ); ?>">
@@ -675,7 +675,7 @@ class Jetpack_Carousel {
 				<div class="jp-carousel-info-extra">
 					<div class="jp-carousel-info-content-wrapper">
 						<div class="jp-carousel-photo-title-container">
-							<h2 class="jp-carousel-photo-title"></h2>
+							<div class="jp-carousel-photo-title"></div>
 						</div>
 						<div class="jp-carousel-comments-wrapper">
 							<?php if ( $localize_strings['display_comments'] ) : ?>
@@ -755,13 +755,12 @@ class Jetpack_Carousel {
 						<div class="jp-carousel-image-meta">
 							<div class="jp-carousel-title-and-caption">
 								<div class="jp-carousel-photo-info">
-									<h3 class="jp-carousel-caption" itemprop="caption description"></h3>
+									<div class="jp-carousel-caption" itemprop="caption description"></div>
 								</div>
 
 								<div class="jp-carousel-photo-description"></div>
 							</div>
-							<ul class="jp-carousel-image-exif" style="display: none;"></ul>
-							<a class="jp-carousel-image-download" href="#" target="_blank" style="display: none;">
+							<a class="jp-carousel-image-download" href="#" aria-label="<?php esc_attr_e( 'Download image', 'jetpack' ); ?>" target="_blank" style="display: none;">
 								<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<mask id="mask0" mask-type="alpha" maskUnits="userSpaceOnUse" x="3" y="3" width="19" height="18">
 										<path fill-rule="evenodd" clip-rule="evenodd" d="M5.84615 5V19H19.7775V12H21.7677V19C21.7677 20.1 20.8721 21 19.7775 21H5.84615C4.74159 21 3.85596 20.1 3.85596 19V5C3.85596 3.9 4.74159 3 5.84615 3H12.8118V5H5.84615ZM14.802 5V3H21.7677V10H19.7775V6.41L9.99569 16.24L8.59261 14.83L18.3744 5H14.802Z" fill="white"/>
@@ -829,6 +828,14 @@ class Jetpack_Carousel {
 		}
 		$selected_images = array();
 		foreach ( $matches[0] as $image_html ) {
+			// This image already carries the attributes this method adds, so adding
+			// them again would emit every one of them twice. Tiled Gallery output
+			// reaches this filter twice: once as 'jetpack_tiled_galleries_block_content'
+			// from inside the block's render callback, and again as 'the_content' when
+			// single image galleries are enabled. See JETPACK-1990.
+			if ( str_contains( $image_html, 'data-attachment-id=' ) ) {
+				continue;
+			}
 			if (
 				preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id )
 				&& ! str_contains( $image_html, 'wp-block-jetpack-slideshow_image' )

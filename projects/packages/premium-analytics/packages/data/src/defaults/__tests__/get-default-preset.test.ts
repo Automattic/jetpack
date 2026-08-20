@@ -1,25 +1,21 @@
-/**
- * Mock WordPress dependencies so date.ts can load. The select mock
- * returns site settings with timezone: 'UTC' so getSiteTimezone()
- * returns UTC, making localTZDate create UTC-aware TZDates.
- */
-jest.mock( '@wordpress/core-data', () => ( {
-	store: 'core',
-} ) );
-
-jest.mock( '@wordpress/data', () => ( {
-	select: jest.fn( () => ( {
-		getEntityRecord: jest.fn( () => ( { timezone: 'UTC' } ) ),
-	} ) ),
-} ) );
-
 jest.mock( '../../utils/ensure-core-settings', () => ( {
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
 } ) );
 /**
+ * External dependencies
+ */
+import { getSettings, setSettings } from '@wordpress/date';
+/**
  * Internal dependencies
  */
 import { getDefaultPreset, getDefaultQueryParams } from '../reports';
+
+// `localTZDate()` defaults to the site zone, so pin it rather than letting the
+// machine timezone decide which calendar day the presets resolve to.
+setSettings( {
+	...getSettings(),
+	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+} );
 
 describe( 'getDefaultQueryParams - preset override', () => {
 	beforeEach( () => {

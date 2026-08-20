@@ -1,0 +1,221 @@
+import { describe, expect, it, jest, beforeEach } from '@jest/globals';
+import { renderHook } from '@testing-library/react';
+
+/**
+ * The real hooks, not the stubs the panel suite uses.
+ *
+ * panel.test.jsx mocks both of these so it can drive the rule builder without a block editor,
+ * which means the behaviour they actually implement -- which fields are offered as subjects,
+ * and what id a chosen one is given -- was never exercised. That id assignment is the part
+ * worth pinning: getting it wrong silently repoints a rule at the wrong field, or renames a
+ * field that may already have responses stored against its old id.
+ */
+
+const mockUpdateBlockAttributes = jest.fn();
+
+// A block-editor store standing in for one form. Keyed by client id, the way getBlock is.
+let blocks = {};
+let rootOf = {};
+
+await jest.unstable_mockModule( '@wordpress/data', () => ( {
+	useDispatch: () => ( { updateBlockAttributes: mockUpdateBlockAttributes } ),
+	useSelect: selector =>
+		selector( () => ( {
+			getBlock: clientId => blocks[ clientId ],
+			getBlockParentsByBlockName: ( clientId, name ) =>
+				'jetpack/contact-form' === name && rootOf[ clientId ] ? [ rootOf[ clientId ] ] : [],
+			getBlockRootClientId: clientId => rootOf[ clientId ] || '',
+		} ) ),
+} ) );
+
+await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
+	store: 'core/block-editor',
+} ) );
+
+await jest.unstable_mockModule( '@wordpress/blocks', () => ( {
+	getBlockType: name => ( { title: name.replace( 'jetpack/field-', '' ) } ),
+} ) );
+
+/**
+ * A stand-in block registry.
+ *
+ * The hook resolves a block's comparison behaviour through block-types, which reads the real
+ * registry -- and that side-effect imports every block in the package. Stubbing the boundary
+ * keeps this file about which fields are offered, not about what the registry contains.
+ */
+await jest.unstable_mockModule( '../../../../../src/blocks/contact-form/child-blocks.js', () => ( {
+	childBlocks: [
+		{ name: 'field-text', conditional_logic: { type: 'string' } },
+		{ name: 'field-select', conditional_logic: { type: 'choice' } },
+	],
+} ) );
+
+const { default: useSubjectFields, useEnsureFieldId } = await import(
+	'../../../../../src/blocks/shared/conditional-logic/hooks/use-subject-fields.js'
+);
+
+/**
+ * A field block, optionally carrying a label block and an explicit id.
+ *
+ * @param {string} clientId        - Block client id.
+ * @param {object} [options]       - Field options.
+ * @param {string} [options.label] - Text of the field's label block, if it has one.
+ * @param {string} [options.id]    - Explicit field id, if the field carries one.
+ * @param {string} [options.name]  - Block name; defaults to a text field.
+ * @return {object} A block instance shaped the way the store returns them.
+ */
+const field = ( clientId, { label, id, name = 'jetpack/field-text' } = {} ) => ( {
+	clientId,
+	name,
+	attributes: id ? { id } : {},
+	innerBlocks: label ? [ { name: 'jetpack/label', attributes: { label } } ] : [],
+} );
+
+const ensureFieldId = () => renderHook( () => useEnsureFieldId() ).result.current;
+const subjectsFor = clientId => renderHook( () => useSubjectFields( clientId ) ).result.current;
+
+beforeEach( () => {
+	mockUpdateBlockAttributes.mockClear();
+	blocks = {};
+	rootOf = {};
+} );
+
+describe( 'useEnsureFieldId', () => {
+	// Most fields carry no explicit id: the renderer derives one from the label at output
+	// time. A rule cannot reference a derived id safely, because editing the label would
+	// change it and the rule would quietly stop matching.
+	it( 'mints an id from the label for a field that has none', () => {
+		const assigned = ensureFieldId()( { clientId: 'c-1', id: '', label: 'Favorite Color' }, [] );
+
+		expect( assigned ).toBe( 'favorite-color' );
+		expect( mockUpdateBlockAttributes ).toHaveBeenCalledWith( 'c-1', { id: 'favorite-color' } );
+	} );
+
+	it( 'keeps an explicit id and writes nothing', () => {
+		const assigned = ensureFieldId()( { clientId: 'c-1', id: 'email_1', label: 'Email' }, [] );
+
+		expect( assigned ).toBe( 'email_1' );
+		expect( mockUpdateBlockAttributes ).not.toHaveBeenCalled();
+	} );
+
+	it( 'de-duplicates against ids already in the form', () => {
+		const assigned = ensureFieldId()( { clientId: 'c-1', id: '', label: 'Email' }, [ 'email' ] );
+
+		expect( assigned ).toBe( 'email-2' );
+		expect( mockUpdateBlockAttributes ).toHaveBeenCalledWith( 'c-1', { id: 'email-2' } );
+	} );
+
+	/**
+	 * The collision that made this guard necessary.
+	 *
+	 * useSubjectFields excludes the field owning the panel, so the owner's id is the one the
+	 * used-id list cannot see. Without it passed in, an unnamed "Email" subject chosen from a
+	 * panel on a field already using `email` is handed `email` unchanged -- and PHP's
+	 * duplicate guard then renames whichever parses second. Either the rule silently starts
+	 * evaluating a different field, or the owner's response key changes underneath a form
+	 * that may already have responses stored against it.
+	 */
+	it( "does not reuse the panel's own field id", () => {
+		const assigned = ensureFieldId()( { clientId: 'c-1', id: '', label: 'Email' }, [
+			'email',
+			'email-2',
+		] );
+
+		expect( assigned ).toBe( 'email-3' );
+		expect( assigned ).not.toBe( 'email' );
+	} );
+
+	it( 'falls back to a generic base when the label slugifies to nothing', () => {
+		const assigned = ensureFieldId()( { clientId: 'c-1', id: '', label: '!!!' }, [] );
+
+		expect( assigned ).toBe( 'field' );
+	} );
+
+	it( 'assigns nothing for a missing field', () => {
+		expect( ensureFieldId()( null, [] ) ).toBe( '' );
+		expect( mockUpdateBlockAttributes ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'useSubjectFields', () => {
+	it( 'lists sibling fields, excludes the panel’s own, and keeps id-less ones', () => {
+		blocks = {
+			form: {
+				clientId: 'form',
+				name: 'jetpack/contact-form',
+				innerBlocks: [
+					field( 'c-owner', { label: 'Owner', id: 'owner_1' } ),
+					field( 'c-name', { label: 'Name', id: 'name_1' } ),
+					field( 'c-colour', { label: 'Colour' } ),
+				],
+			},
+		};
+		rootOf = { 'c-owner': 'form' };
+
+		const found = subjectsFor( 'c-owner' );
+
+		expect( found.map( entry => entry.clientId ) ).toEqual( [ 'c-name', 'c-colour' ] );
+		// Listed despite having no explicit id -- requiring one would hide nearly every field.
+		expect( found.find( entry => entry.clientId === 'c-colour' ).id ).toBe( '' );
+		expect( found.find( entry => entry.clientId === 'c-name' ).id ).toBe( 'name_1' );
+	} );
+
+	// A rule referencing a later step always compares against an empty value. The author
+	// should be able to see that rather than be silently prevented from writing it.
+	it( 'numbers the step each field sits in', () => {
+		blocks = {
+			form: {
+				clientId: 'form',
+				name: 'jetpack/contact-form',
+				innerBlocks: [
+					{
+						clientId: 'step-1',
+						name: 'jetpack/form-step',
+						innerBlocks: [ field( 'c-a', { label: 'A' } ) ],
+					},
+					{
+						clientId: 'step-2',
+						name: 'jetpack/form-step',
+						innerBlocks: [ field( 'c-b', { label: 'B' } ) ],
+					},
+				],
+			},
+		};
+		rootOf = { 'c-owner': 'form' };
+
+		const bySteps = Object.fromEntries(
+			subjectsFor( 'c-owner' ).map( entry => [ entry.clientId, entry.step ] )
+		);
+
+		expect( bySteps ).toEqual( { 'c-a': 1, 'c-b': 2 } );
+	} );
+
+	it( 'falls back to the label, then the id, then a placeholder', () => {
+		blocks = {
+			form: {
+				clientId: 'form',
+				name: 'jetpack/contact-form',
+				innerBlocks: [
+					field( 'c-labelled', { label: 'Budget' } ),
+					field( 'c-id-only', { id: 'total_1' } ),
+					field( 'c-bare' ),
+				],
+			},
+		};
+		rootOf = { 'c-owner': 'form' };
+
+		const labels = Object.fromEntries(
+			subjectsFor( 'c-owner' ).map( entry => [ entry.clientId, entry.label ] )
+		);
+
+		expect( labels ).toEqual( {
+			'c-labelled': 'Budget',
+			'c-id-only': 'total_1',
+			'c-bare': 'Untitled field',
+		} );
+	} );
+
+	it( 'offers nothing when the field is not inside a form', () => {
+		expect( subjectsFor( 'c-orphan' ) ).toEqual( [] );
+	} );
+} );

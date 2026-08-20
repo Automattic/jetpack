@@ -5,6 +5,119 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-08-19
+### Changed
+- Charts: adapt bar chart time-axis tick labels to the data's bucket resolution and time span, support the `tickResolution` hint, and name each bar's bucket in its tooltip. [#51274]
+- Resolve an XY chart theme's color roles from a single computed-style snapshot, and rebuild the theme only when a series color changes rather than on every render. [#51342]
+
+### Fixed
+- Charts: keep a bar chart's time axis on the buckets it actually draws, so a labelled bar, a comparison series, or a series hidden from the legend can no longer strand a tick at the axis origin, and label such a bar by its label in both the axis and the tooltip. [#51343]
+- Charts: keep the year and the day on a bar chart's time axis, which could previously skip the tick that named them, and stop the same label falling on two ticks in a row. [#51339]
+- Charts: measure a horizontal chart's left margin from the labels it will actually draw, so a caller's tick formatter is applied exactly once and time-of-day labels stop reserving room for the string "Invalid Date". [#51272]
+- Charts: stop a bar chart's time axis dropping to a couple of ticks when it reaches for the year, and speed up how it picks them. [#51339]
+
+## [2.0.0] - 2026-08-10
+### Added
+- Time axis: Accept a tickResolution hint on the x-axis options so callers that know the data's bucket size can set tick formats directly instead of relying on inference. [#51017]
+
+### Changed
+- Time axis: Pick tick formats by bucket resolution as well as span — hour ticks (with the date at midnight boundaries) for sub-daily series spanning up to a week, and month ticks (with the year at January) instead of full dates for month-or-coarser buckets. [#51010]
+- Update package dependencies. [#50509]
+- Zoom: Expose the reset button's shadow as `--a8c-charts-elevation-xs`, replacing the `--wpds-elevation-xs` token removed in `@wordpress/theme` 1.0.0. [#50509]
+- Zoom: Restore the accessible tooltip on the reset control. `@wordpress/ui` is no longer bundled into the package output, so each consumer's bundler now resolves it. It remains a dependency and resolves from node_modules by default, but a bundler that externalizes `@wordpress/*` to `window.wp.*` must bundle `@wordpress/ui` instead — `window.wp.ui` does not exist. [#51016]
+
+### Fixed
+- Time axis: Show date ticks rather than hour ticks for a daily-bucket pair spanning exactly one day. [#51013]
+
+## [1.12.0] - 2026-08-03
+### Added
+- New `legend.collapseGroups` option folds series that share a `group` into a single legend item, labelled by the group's primary series; with `legend.interactive` that item toggles the whole group in one click. Off by default, so legends keep one item per series unless you opt in. Available on the bar, line and area charts. The line chart gains a `rescaleYOnVisibilityChange` prop (matching the area chart) to pin the value axis to the full data range while series are hidden; and when every series is hidden, the grid and axes are dropped so the empty state stands on its own. The area chart's `rescaleYOnLegendToggle` prop is deprecated in favour of `rescaleYOnVisibilityChange` (still honoured as an alias). [#50194]
+
+### Changed
+- Zoom: Render the reset control with the WordPress UI Button, fix keyboard activation, expose the selection rectangle's colors as `--a8c-charts-color-zoom-selection` and `--a8c-charts-color-zoom-selection-stroke`, and document the `zoomable` prop for the line and area charts. [#50796]
+
+## [1.11.0] - 2026-07-27
+### Added
+- Add a `fitRows` prop to LeaderboardChart so a chart in a fixed-height container shows only the rows that fit instead of scrolling. [#50688]
+
+### Changed
+- Standardize CSS custom properties on the `--a8c-charts-{category}-{name}` naming convention; existing override variables keep working via deprecated aliases. [#50656]
+
+### Fixed
+- Leaderboard: Distinguish unavailable percentage changes from missing comparison data. [#50690]
+
+## [1.10.3] - 2026-07-22
+### Fixed
+- LeaderboardChart: Keep row spacing and column alignment identical whether or not a row is interactive. [#50657]
+
+## [1.10.2] - 2026-07-20
+### Added
+- Add HeatmapChart min/max cell size bounds and floor an all-zero heatmap at the scale bottom instead of full intensity. [#50517]
+
+### Changed
+- Make calendar heatmaps render ragged edges by default, with out-of-range days skipped by hover and keyboard navigation. [#50520]
+- Update package dependencies. [#50510] [#50529]
+
+### Fixed
+- Keep aspectRatio charts within their parent on both axes so a height-constrained container no longer overflows vertically. [#50468]
+
+## [1.10.1] - 2026-07-13
+### Changed
+- HeatmapChart: Fix the grid's ARIA structure, shrink to fit short containers instead of scrolling, hide the colliding partial first-month calendar label, and keep in-cell text legible on themed and dark backgrounds. [#50136]
+- Reserve the y-axis tick label dx offset in the auto margin so the widest label no longer clips at the chart edge. [#50366]
+
+### Fixed
+- Leaderboard Chart: Avoid fabricated deltas for rows without matching comparison data. [#50196]
+
+## [1.10.0] - 2026-07-09
+### Added
+- Add GeoChart error reporting. [#50251]
+
+### Changed
+- Update package dependencies. [#49272]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names and migrate the Storybook decorator to the public ThemeProvider export (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+## [1.9.0] - 2026-07-06
+### Added
+- Add HeatmapChart for matrix and calendar/contribution-style data, with a compact mode and a composition color-scale legend. [#50065]
+
+### Changed
+- Bar Chart: Declare a local process type so the comparison-bars module type-checks when imported as source by other packages. [#49205]
+- Replace hardcoded surface, foreground, and UI colors with WPDS design tokens. [#49946]
+- Tokenize box-shadow, transition, and animation values with WPDS elevation and motion tokens, making elevation and motion themeable. [#49947]
+- Update package dependencies. [#50097] [#50183] [#50212]
+
+### Fixed
+- Conversion Funnel Chart: Let the funnel shrink to fit height-constrained cards instead of enforcing a 200px minimum that forced a scrollbar. [#50163]
+- GeoChart: Load the required Google Charts package explicitly. [#50018]
+- Line Chart: Fix typing on `.gradient.from` and `.gradient.to` to better match behavior and documentation. [#50212]
+
+## [1.8.1] - 2026-06-26
+### Fixed
+- Fix Bar Chart comparison mode — pair the keyboard tooltip with the focused bar, keep the value axis zero-based, and make the tooltip label/value separator translatable. [#49959]
+
+## [1.8.0] - 2026-06-24
+### Added
+- Add comparison mode to the Bar Chart — a translucent shadow bar (standard slot width, 50% opacity) rendered behind each primary bar, paired by group. Primary bars are narrowed to 1/widthFactor of the slot (default widthFactor 1.5 → ~67% width, centered), with widthFactor as the single control. [#49676]
+
+### Changed
+- Add an internal Center layout primitive and use it for centered chart wrappers. [#49164]
+
+## [1.7.0] - 2026-06-23
+### Added
+- Leaderboard interactive rows gain an opt-in `ariaLabel` for image-only labels, and the hover affordance now shrinks each bar in proportion to its length so small-share rows stay consistent. [#49812]
+
+### Changed
+- Add React 19 compatibility for consumers. [#49661]
+- Type `leaderboardChart.labelSpacing` as a WPDS `GapSize` token instead of `number` (the numeric value was silently ignored by `@wordpress/ui`'s Stack) to fix `@wordpress/ui` 0.15 type errors. [#49797]
+
+## [1.6.0] - 2026-06-22
+### Added
+- Allow Leaderboard items to be made interactive via a per-entry onClick, rendering the row as a keyboard-accessible button with a hover chevron. [#49733]
+
+### Changed
+- Update package dependencies. [#49594] [#49631] [#49691] [#49757]
+
 ## [1.5.3] - 2026-06-10
 ### Changed
 - Update package dependencies. [#49273]
@@ -863,6 +976,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[2.0.1]: https://github.com/Automattic/charts/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Automattic/charts/compare/v1.12.0...v2.0.0
+[1.12.0]: https://github.com/Automattic/charts/compare/v1.11.0...v1.12.0
+[1.11.0]: https://github.com/Automattic/charts/compare/v1.10.3...v1.11.0
+[1.10.3]: https://github.com/Automattic/charts/compare/v1.10.2...v1.10.3
+[1.10.2]: https://github.com/Automattic/charts/compare/v1.10.1...v1.10.2
+[1.10.1]: https://github.com/Automattic/charts/compare/v1.10.0...v1.10.1
+[1.10.0]: https://github.com/Automattic/charts/compare/v1.9.0...v1.10.0
+[1.9.0]: https://github.com/Automattic/charts/compare/v1.8.1...v1.9.0
+[1.8.1]: https://github.com/Automattic/charts/compare/v1.8.0...v1.8.1
+[1.8.0]: https://github.com/Automattic/charts/compare/v1.7.0...v1.8.0
+[1.7.0]: https://github.com/Automattic/charts/compare/v1.6.0...v1.7.0
+[1.6.0]: https://github.com/Automattic/charts/compare/v1.5.3...v1.6.0
 [1.5.3]: https://github.com/Automattic/charts/compare/v1.5.2...v1.5.3
 [1.5.2]: https://github.com/Automattic/charts/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/Automattic/charts/compare/v1.5.0...v1.5.1

@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\PremiumAnalytics\Analytics as Premium_Analytics;
+
 define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
 /**
  * Jetpack_Mu_Wpcom main class.
@@ -18,6 +20,10 @@ class Jetpack_Mu_Wpcom {
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
+
+	// Themes (by template slug) and plugins (by basename) known to break with React 19.
+	const REACT_19_INCOMPATIBLE_THEMES  = array( 'divi' );
+	const REACT_19_INCOMPATIBLE_PLUGINS = array( 'wp-table-builder/wp-table-builder.php' );
 
 	/**
 	 * Initialize the class.
@@ -32,9 +38,25 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/common/fatal-error-signature.php';
 		require_once __DIR__ . '/utils.php';
 
-		// PCG confirmation probe wires its `pre_option_active_plugins`
-		// filter at mu-plugin time, before WP loads active plugins.
-		require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
+		// Atomic only — Simple sites can't install plugins. The confirmation
+		// probe wires its `pre_option_active_plugins` filter at mu-plugin
+		// time, before WP loads active plugins.
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
+		}
+
+		/*
+		 * Feature flag overrides answer the jetpack-feature-flags resolution
+		 * filter, and a flag can be checked well before plugins_loaded, so this
+		 * is wired here at mu-plugin time rather than from load_features().
+		 * Registering the filter reads nothing — the option is only touched when
+		 * a flag is actually resolved.
+		 *
+		 * The overrides themselves are site-wide, but the screen that sets them
+		 * is Automatticians-only internal tooling and gates itself accordingly.
+		 */
+		require_once __DIR__ . '/features/wpcom-feature-flags/class-wpcom-feature-flags.php';
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Feature_Flags::init();
 
 		// Load features that don't need any special loading considerations.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_features' ) );
@@ -64,8 +86,10 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_premium_analytics' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_podcast' ) );
 		}
 
 		// These features run only on atomic sites.
@@ -95,15 +119,9 @@ class Jetpack_Mu_Wpcom {
 		// Filter to populate JetpackScriptData.site.wpcom.blog_id with the actual WP.com blog ID.
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'set_wpcom_blog_id_script_data' ), 10, 1 );
 
-		// Allow sites with the `classic-block-inserter-support` blog sticker to insert the Classic block.
-		if ( wpcom_has_blog_sticker( 'classic-block-inserter-support', get_wpcom_blog_id() ) ) {
-			add_filter( 'wp_classic_block_supports_inserter', '__return_true' );
-		}
-
-		// Enable the `gutenberg-classic-block-deprecation` Gutenberg experiment for all sites, with an opt-out via the `disable-classic-block-deprecation` blog sticker.
-		// Both filters are needed: `default_option_` fires when the option doesn't exist in the DB, `option_` fires when it does.
-		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
-		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
+		// Enable the `gutenberg-react-19` Gutenberg experiment on selected sites.
+		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
+		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
 
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
@@ -304,11 +322,12 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/logo-tool/logo-tool.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
-		require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
+		}
 		require_once __DIR__ . '/features/post-categories/quick-actions.php';
 		require_once __DIR__ . '/features/post-like-from-email/post-like-from-email.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
-		require_once __DIR__ . '/features/wpcom-admin-dashboard/wpcom-admin-dashboard.php';
 		require_once __DIR__ . '/features/wpcom-attachment-pages/wpcom-attachment-pages.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
@@ -360,8 +379,8 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_user_features() {
 		// To avoid potential collisions with ETK.
-		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
-			require_once __DIR__ . '/features/help-center/class-help-center.php';
+		if ( ! class_exists( 'A8C\FSE\Help_Center' ) && class_exists( \Automattic\Jetpack\Help_Center\Help_Center::class ) ) {
+			add_action( 'init', array( \Automattic\Jetpack\Help_Center\Help_Center::class, 'init' ), 10, 0 );
 		}
 
 		if ( ! is_wpcom_user() ) {
@@ -380,7 +399,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
-		require_once __DIR__ . '/features/wpcom-colourlovers-deprecate/wpcom-colourlovers-deprecate.php';
 		require_once __DIR__ . '/features/wpcom-comments/wpcom-comments.php';
 		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
 		require_once __DIR__ . '/features/wpcom-imports/wpcom-imports.php';
@@ -397,6 +415,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
+		require_once __DIR__ . '/features/wpcom-videopress/wpcom-videopress.php';
 
 		// Initialize Newsletter Settings so hooks like the Reading page notice
 		// are registered on Simple sites (where load-jetpack.php doesn't run).
@@ -438,11 +457,16 @@ class Jetpack_Mu_Wpcom {
 
 		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
 		require_once __DIR__ . '/features/wpcom-contact-form-flags/wpcom-contact-form-flags.php';
+	}
 
-		// Initialize the Podcast package here (rather than in
-		// load_wpcom_user_features) so feed-customization hooks register
-		// for anonymous requests too — Apple Podcasts / Spotify crawlers
-		// aren't logged in. Podcast::init() gates itself on host (Simple/WoA).
+	/**
+	 * Load the Podcast module on Simple sites.
+	 *
+	 * Atomic and self-hosted load Podcast through the Jetpack module system
+	 * (Jetpack::late_initialization). Simple doesn't boot that Jetpack class, so
+	 * initialize the module directly here.
+	 */
+	public static function load_podcast() {
 		\Automattic\Jetpack\Podcast\Podcast::init();
 	}
 
@@ -765,6 +789,43 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Whether Premium Analytics should be loaded on WordPress.com Simple.
+	 *
+	 * @return bool True when the Simple rollout gate is enabled.
+	 */
+	public static function should_load_wpcom_simple_premium_analytics() {
+		$blog_id = (int) get_wpcom_blog_id();
+		$enabled = $blog_id > 0 && wpcom_has_blog_sticker( 'jetpack-premium-analytics', $blog_id );
+
+		/**
+		 * Filters whether Premium Analytics loads on WordPress.com Simple.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether the Simple rollout gate is enabled.
+		 * @param int  $blog_id WPCOM blog ID.
+		 */
+		return (bool) apply_filters( 'jetpack_premium_analytics_wpcom_simple_enabled', $enabled, $blog_id );
+	}
+
+	/**
+	 * Load Premium Analytics on WordPress.com Simple sites behind the rollout gate.
+	 */
+	public static function load_wpcom_simple_premium_analytics() {
+		if ( ! self::should_load_wpcom_simple_premium_analytics() ) {
+			return;
+		}
+
+		Premium_Analytics::init_wpcom_simple(
+			array(
+				// A closure, not a string: we run on plugins_loaded, too early to translate.
+				// The package calls this back on admin_menu.
+				'menu_title' => fn () => __( 'Stats v2', 'jetpack-mu-wpcom' ),
+			)
+		);
+	}
+
+	/**
 	 * Load the Jetpack Custom CSS feature.
 	 */
 	public static function load_custom_css() {
@@ -803,14 +864,48 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Add `gutenberg-classic-block-deprecation` to the list of enabled Gutenberg experiments.
-	 * Skip sites that have the `disable-classic-block-deprecation` sticker enabled.
+	 * Add `gutenberg-react-19` to the list of enabled Gutenberg experiments.
+	 *
+	 * The `disable-gutenberg-react-19` blog sticker force-disables the experiment,
+	 * the `gutenberg-react-19` sticker opts the site in. With neither sticker,
+	 * the experiment is enabled on a certain percentage of Atomic sites,
+	 * known incompatible plugins and themes are excluded.
 	 *
 	 * @param mixed $experiments The current value of the gutenberg-experiments option.
 	 * @return mixed Original option value or the filtered experiments.
 	 */
-	public static function enable_gutenberg_classic_block_deprecation_experiment( $experiments ) {
-		if ( wpcom_has_blog_sticker( 'disable-classic-block-deprecation', get_wpcom_blog_id() ) ) {
+	public static function enable_gutenberg_react_19_experiment( $experiments ) {
+		$blog_id = get_wpcom_blog_id();
+
+		if ( wpcom_has_blog_sticker( 'disable-gutenberg-react-19', $blog_id ) ) {
+			return $experiments;
+		}
+
+		$is_enabled = wpcom_has_blog_sticker( 'gutenberg-react-19', $blog_id );
+
+		if ( ! $is_enabled && function_exists( 'wpcomsh_get_atomic_site_id' ) ) {
+			$site_id = wpcomsh_get_atomic_site_id();
+
+			// Don't enable if the site ID is unknown (zero).
+			if ( ! $site_id ) {
+				$is_enabled = false;
+			} elseif ( self::has_react_19_incompatible_extension() ) {
+				$is_enabled = false;
+			} else {
+				$current_segment = 2; // Segment of Atomic sites in the experiment, in %.
+				$site_segment    = $site_id % 100;
+
+				/*
+				 * Sites whose Atomic site ID ends in digits < $current_segment are in the segment.
+				 * Must stay in sync with the error reporting rollout in wpcomsh
+				 * (wpcomsh_enable_error_reporting_for_react_19), so that every site in
+				 * the experiment also reports JS errors.
+				 */
+				$is_enabled = $site_segment < $current_segment;
+			}
+		}
+
+		if ( ! $is_enabled ) {
 			return $experiments;
 		}
 
@@ -818,8 +913,32 @@ class Jetpack_Mu_Wpcom {
 			$experiments = array();
 		}
 
-		$experiments['gutenberg-classic-block-deprecation'] = true;
+		$experiments['gutenberg-react-19'] = true;
 		return $experiments;
+	}
+
+	/**
+	 * Whether the site runs an extension that's known to break with React 19.
+	 *
+	 * @return bool
+	 */
+	private static function has_react_19_incompatible_extension() {
+		// Outside wp-admin the plugin check is unavailable, and the experiment isn't needed.
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			return true;
+		}
+
+		if ( in_array( strtolower( get_template() ), self::REACT_19_INCOMPATIBLE_THEMES, true ) ) {
+			return true;
+		}
+
+		foreach ( self::REACT_19_INCOMPATIBLE_PLUGINS as $plugin_file ) {
+			if ( is_plugin_active( $plugin_file ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

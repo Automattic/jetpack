@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.39] - 2026-08-10
+### Changed
+- Update dependencies. [#51095]
+
+## [0.1.38] - 2026-07-27
+### Changed
+- Update dependencies. [#50719]
+- Update package dependencies. [#50751]
+
+## [0.1.37] - 2026-07-20
+### Changed
+- Update dependencies. [#50551]
+- Update package dependencies. [#50529]
+
+## [0.1.36] - 2026-07-13
+### Changed
+- Update dependencies. [#50360]
+
+## [0.1.35] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## [0.1.34] - 2026-06-29
+### Changed
+- Internal updates.
+
+## [0.1.33] - 2026-06-25
+### Changed
+- Update package dependencies. [#49831]
+
+## [0.1.32] - 2026-06-22
+### Changed
+- Update package dependencies. [#49631] [#49691] [#49757]
+
 ## [0.1.31] - 2026-06-09
 ### Changed
 - Update package dependencies. [#49273]
@@ -134,6 +168,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial version. [#44858]
 
+[0.1.39]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.38...v0.1.39
+[0.1.38]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.37...v0.1.38
+[0.1.37]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.36...v0.1.37
+[0.1.36]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.35...v0.1.36
+[0.1.35]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.34...v0.1.35
+[0.1.34]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.33...v0.1.34
+[0.1.33]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.32...v0.1.33
+[0.1.32]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.31...v0.1.32
 [0.1.31]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.30...v0.1.31
 [0.1.30]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.29...v0.1.30
 [0.1.29]: https://github.com/Automattic/jetpack-external-connections/compare/v0.1.28...v0.1.29

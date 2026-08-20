@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -116,6 +117,127 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A missing checkbox value on a real submission means the visitor unchecked it.
+	 * It must not be repopulated from the query string or configured default.
+	 *
+	 * @dataProvider submitted_unchecked_field_provider
+	 *
+	 * @param string $field_type  Field type.
+	 * @param array  $attributes  Additional field attributes.
+	 */
+	#[DataProvider( 'submitted_unchecked_field_provider' )]
+	public function test_submitted_unchecked_fields_do_not_fall_back_to_prefills( $field_type, $attributes ) {
+		$form  = new Contact_Form( array( 'id' => 'submitted-form' ) );
+		$field = new Contact_Form_Field(
+			array_merge(
+				array(
+					'id'      => 'choice',
+					'type'    => $field_type,
+					'default' => 'Yes',
+				),
+				$attributes
+			),
+			'',
+			$form
+		);
+
+		$_GET['choice']             = 'Yes';
+		$_POST['action']            = 'grunion-contact-form';
+		$_POST['contact-form-id']   = $form->get_attribute( 'id' );
+		$_POST['contact-form-hash'] = $form->hash;
+
+		$this->assertSame( '', $field->get_computed_field_value( $field_type, 'choice' ) );
+	}
+
+	/**
+	 * Field types represented by checkbox controls.
+	 *
+	 * @return array
+	 */
+	public static function submitted_unchecked_field_provider() {
+		return array(
+			'checkbox'          => array( 'checkbox', array() ),
+			'checkbox-multiple' => array( 'checkbox-multiple', array() ),
+			'explicit consent'  => array( 'consent', array( 'consenttype' => 'explicit' ) ),
+		);
+	}
+
+	/**
+	 * Explicit consent never renders checked, so prefills must not satisfy its conditions.
+	 *
+	 * @dataProvider explicit_consent_prefill_provider
+	 *
+	 * @param string $default   Configured default value.
+	 * @param string $get_value Query-string value.
+	 */
+	#[DataProvider( 'explicit_consent_prefill_provider' )]
+	public function test_explicit_consent_conditional_value_ignores_prefills( $default, $get_value ) {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'        => 'consent',
+				'id'          => 'choice',
+				'default'     => $default,
+				'consenttype' => 'explicit',
+			)
+		);
+
+		if ( '' !== $get_value ) {
+			$_GET['choice'] = $get_value;
+		}
+
+		$this->assertSame( '', $field->get_conditional_logic_value() );
+	}
+
+	/**
+	 * Prefills that cannot check an explicit-consent control.
+	 *
+	 * @return array
+	 */
+	public static function explicit_consent_prefill_provider() {
+		return array(
+			'configured default' => array( 'Yes', '' ),
+			'query string'       => array( '', 'Yes' ),
+		);
+	}
+
+	/**
+	 * Implicit consent is represented by a hidden input whose submitted value is always Yes.
+	 */
+	public function test_implicit_consent_computed_value_matches_its_hidden_input() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'        => 'consent',
+				'id'          => 'test_consent',
+				'consenttype' => 'implicit',
+			)
+		);
+
+		$this->assertSame( 'Yes', $field->get_computed_field_value( 'consent', 'test_consent' ) );
+	}
+
+	/**
+	 * JWT submissions omit the normal form action but still represent a submitted checkbox.
+	 */
+	public function test_submitted_unchecked_field_is_empty_for_jwt_submission() {
+		$form  = new Contact_Form( array( 'id' => 'submitted-form' ) );
+		$field = new Contact_Form_Field(
+			array(
+				'id'      => 'choice',
+				'type'    => 'checkbox',
+				'default' => 'Yes',
+			),
+			'',
+			$form
+		);
+
+		$_POST['contact-form-id']          = $form->get_attribute( 'id' );
+		$_POST['contact-form-hash']        = $form->hash;
+		$_POST['jetpack_contact_form_jwt'] = 'validated-by-submission-handler';
+
+		$this->assertSame( '', $field->get_computed_field_value( 'checkbox', 'choice' ) );
+	}
+
+	/**
 	 * Test logged-in user email return
 	 */
 	public function test_returns_logged_in_user_email() {
@@ -201,6 +323,12 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'value=\'Yes\'', $html );
 		$this->assertStringContainsString( 'consent-implicit', $html );
 		$this->assertStringContainsString( 'By submitting this form, you agree to our terms.', $html );
+
+		$processor = new \WP_HTML_Tag_Processor( $html );
+		$this->assertTrue( $processor->next_tag( array( 'tag_name' => 'DIV' ) ) );
+		$context = json_decode( (string) $processor->get_attribute( 'data-wp-context' ), true );
+		$this->assertIsArray( $context );
+		$this->assertSame( 'Yes', $context['fieldValue'] );
 	}
 
 	/**
@@ -242,5 +370,533 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		// Should default to implicit (hidden field)
 		$this->assertStringContainsString( 'type=\'hidden\'', $html );
 		$this->assertStringContainsString( 'consent-implicit', $html );
+	}
+
+	/**
+	 * Hidden fields can drive conditional logic, so the browser store must register them.
+	 */
+	public function test_render_hidden_field_registers_its_value_with_interactivity() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'    => 'hidden',
+				'id'      => 'campaign',
+				'default' => 'summer',
+			)
+		);
+
+		$processor = new \WP_HTML_Tag_Processor( $field->render() );
+		$this->assertTrue( $processor->next_tag( array( 'tag_name' => 'INPUT' ) ) );
+		$this->assertSame( 'campaign', $processor->get_attribute( 'data-jp-field-id' ) );
+		$this->assertSame( 'callbacks.initializeField', $processor->get_attribute( 'data-wp-init' ) );
+
+		$context = json_decode( (string) $processor->get_attribute( 'data-wp-context' ), true );
+		$this->assertIsArray( $context );
+		$this->assertSame( 'hidden', $context['fieldType'] );
+		$this->assertSame( 'summer', $context['fieldValue'] );
+	}
+
+	/**
+	 * Hidden field rendering and server-side visibility share one filtered value.
+	 */
+	public function test_hidden_field_value_filter_runs_once_for_render_and_conditional_logic() {
+		$filter_calls = 0;
+		$filter       = static function () use ( &$filter_calls ) {
+			++$filter_calls;
+			return 'filtered-' . $filter_calls;
+		};
+		add_filter( 'jetpack_forms_hidden_field_value', $filter );
+
+		$field = $this->get_new_field_instance(
+			array(
+				'type'    => 'hidden',
+				'id'      => 'campaign',
+				'default' => 'summer',
+			)
+		);
+
+		try {
+			$html = $field->render();
+			$this->assertSame( 'filtered-1', $field->get_conditional_logic_value() );
+			$this->assertStringContainsString( "value='filtered-1'", $html );
+			$this->assertSame( 1, $filter_calls );
+		} finally {
+			remove_filter( 'jetpack_forms_hidden_field_value', $filter );
+		}
+	}
+
+	/**
+	 * A submitted hidden value was filtered before it was rendered into the browser.
+	 */
+	public function test_submitted_hidden_field_value_is_not_filtered_again() {
+		$filter_calls = 0;
+		$filter       = static function ( $value ) use ( &$filter_calls ) {
+			++$filter_calls;
+			return 'prefix-' . $value;
+		};
+		add_filter( 'jetpack_forms_hidden_field_value', $filter );
+
+		$form  = new Contact_Form( array( 'id' => 'submitted-form' ) );
+		$field = new Contact_Form_Field(
+			array(
+				'type'    => 'hidden',
+				'id'      => 'campaign',
+				'default' => 'summer',
+			),
+			'',
+			$form
+		);
+
+		try {
+			$this->assertStringContainsString( "value='prefix-summer'", $field->render() );
+
+			$_POST['action']            = 'grunion-contact-form';
+			$_POST['contact-form-id']   = $form->get_attribute( 'id' );
+			$_POST['contact-form-hash'] = $form->hash;
+			$_POST['campaign']          = 'prefix-summer';
+
+			$this->assertSame( 'prefix-summer', $field->get_conditional_logic_value() );
+			$submission_html = $field->render();
+			$this->assertStringContainsString( "value='prefix-summer'", $submission_html );
+			$this->assertStringNotContainsString( 'prefix-prefix-summer', $submission_html );
+			$this->assertSame( 1, $filter_calls );
+		} finally {
+			remove_filter( 'jetpack_forms_hidden_field_value', $filter );
+		}
+	}
+
+	/**
+	 * A grouped field whose legend label is fully hidden via block visibility
+	 * must render no <legend>, but must move the label onto the <fieldset> as an
+	 * aria-label so the group keeps an accessible name. Covers both fieldset code
+	 * paths — radio/checkbox-multiple/image-select (via $fieldset_id) and rating
+	 * (via sprintf). See FORMS-694.
+	 *
+	 * @dataProvider data_grouped_field_types
+	 *
+	 * @param string $type       The grouped field type.
+	 * @param array  $extra_atts Extra attributes needed to make the field renderable.
+	 */
+	#[DataProvider( 'data_grouped_field_types' )]
+	public function test_render_grouped_field_hidden_legend_keeps_accessible_name( $type, $extra_atts ) {
+		$field = $this->get_new_field_instance(
+			array_merge(
+				array(
+					'type'                         => $type,
+					'id'                           => 'test_group',
+					'label'                        => 'Pick one',
+					'labelhiddenbyblockvisibility' => true,
+				),
+				$extra_atts
+			)
+		);
+
+		$html = $field->render();
+
+		// The legend is dropped (no visible group label)...
+		$this->assertStringNotContainsString( '<legend', $html );
+		// ...but the accessible name is preserved on the fieldset.
+		$this->assertStringContainsString( "aria-label='Pick one'", $html );
+	}
+
+	/**
+	 * When the legend label is NOT hidden, the grouped field renders a normal
+	 * <legend> and does not add the aria-label fallback to the fieldset. Guards
+	 * the render-level behavior above against regressions. See FORMS-694.
+	 *
+	 * @dataProvider data_grouped_field_types
+	 *
+	 * @param string $type       The grouped field type.
+	 * @param array  $extra_atts Extra attributes needed to make the field renderable.
+	 */
+	#[DataProvider( 'data_grouped_field_types' )]
+	public function test_render_grouped_field_visible_legend_has_no_aria_label( $type, $extra_atts ) {
+		$field = $this->get_new_field_instance(
+			array_merge(
+				array(
+					'type'  => $type,
+					'id'    => 'test_group',
+					'label' => 'Pick one',
+				),
+				$extra_atts
+			)
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( '<legend', $html );
+		$this->assertStringContainsString( 'Pick one', $html );
+		$this->assertStringNotContainsString( "aria-label='Pick one'", $html );
+	}
+
+	/**
+	 * Grouped field types keyed by the two distinct <fieldset> code paths.
+	 *
+	 * @return array
+	 */
+	public static function data_grouped_field_types() {
+		return array(
+			// $fieldset_id path (shared by radio, checkbox-multiple, image-select).
+			'radio'             => array( 'radio', array( 'options' => array( 'A', 'B' ) ) ),
+			'checkbox-multiple' => array( 'checkbox-multiple', array( 'options' => array( 'A', 'B' ) ) ),
+			// sprintf path.
+			'rating'            => array( 'rating', array() ),
+		);
+	}
+
+	/**
+	 * Per-viewport hide: a grouped field whose legend label carries a
+	 * wp-block-hidden-{viewport} class is still rendered (display:none only on
+	 * that viewport), but the <fieldset> also gets an aria-label so the group
+	 * keeps an accessible name where the legend is hidden. See FORMS-694.
+	 */
+	public function test_render_grouped_field_per_viewport_hidden_legend_keeps_accessible_name() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'         => 'radio',
+				'id'           => 'test_group',
+				'label'        => 'Pick one',
+				'options'      => array( 'A', 'B' ),
+				'labelclasses' => 'wp-block-hidden-mobile',
+			)
+		);
+
+		$html = $field->render();
+
+		// The legend is still rendered (per-viewport is display:none, not removed)...
+		$this->assertStringContainsString( '<legend', $html );
+		$this->assertStringContainsString( 'wp-block-hidden-mobile', $html );
+		// ...and the accessible name is also on the fieldset for the hidden viewport.
+		$this->assertStringContainsString( "aria-label='Pick one'", $html );
+	}
+
+	/**
+	 * Per-viewport hide: a single input whose label carries a
+	 * wp-block-hidden-{viewport} class gets an aria-label (the label text, not the
+	 * placeholder) so it keeps an accessible name where the label is hidden. See
+	 * FORMS-694.
+	 */
+	public function test_render_input_per_viewport_hidden_label_keeps_accessible_name() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'         => 'text',
+				'id'           => 'test_text',
+				'label'        => 'Your name',
+				'placeholder'  => 'e.g. Jane',
+				'labelclasses' => 'wp-block-hidden-tablet',
+			)
+		);
+
+		$html = $field->render();
+
+		// The accessible name falls back to the label, matching the visible label.
+		$this->assertStringContainsString( "aria-label='Your name'", $html );
+		$this->assertStringNotContainsString( "aria-label='e.g. Jane'", $html );
+	}
+
+	/**
+	 * The slider's <input type="range"> gets the hidden-label aria-label fallback
+	 * too — it renders a bare range input with no other accessible name. See
+	 * FORMS-694.
+	 */
+	public function test_render_slider_hidden_label_keeps_accessible_name() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'                         => 'slider',
+				'id'                           => 'test_slider',
+				'label'                        => 'Rate us',
+				'labelhiddenbyblockvisibility' => true,
+			)
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'type="range"', $html );
+		$this->assertStringContainsString( "aria-label='Rate us'", $html );
+	}
+
+	/**
+	 * When the label is hidden but empty and there is no placeholder, no
+	 * aria-label attribute is emitted (rather than an empty or fragment value).
+	 * See FORMS-694.
+	 */
+	public function test_render_input_hidden_empty_label_emits_no_aria_label() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'                         => 'text',
+				'id'                           => 'test_text',
+				'label'                        => '',
+				'labelhiddenbyblockvisibility' => true,
+			)
+		);
+
+		$html = $field->render();
+
+		$this->assertStringNotContainsString( 'aria-label', $html );
+	}
+
+	/**
+	 * The file field's dropzone button gets a distinct accessible name when its
+	 * label is hidden (field label prefixed to the instruction) so two
+	 * hidden-label upload fields aren't announced identically, and falls back to
+	 * the plain instruction otherwise. Tested directly because the full file
+	 * render short-circuits without an active Jetpack. See FORMS-694.
+	 *
+	 * @dataProvider data_file_dropzone_aria_label
+	 *
+	 * @param array  $atts     Field attributes.
+	 * @param string $expected Expected dropzone accessible name.
+	 */
+	#[DataProvider( 'data_file_dropzone_aria_label' )]
+	public function test_file_dropzone_aria_label( $atts, $expected ) {
+		$field  = $this->get_new_field_instance( array_merge( array( 'type' => 'file' ), $atts ) );
+		$method = new \ReflectionMethod( $field, 'get_file_dropzone_aria_label' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame( $expected, $method->invoke( $field ) );
+	}
+
+	/**
+	 * Data provider for test_file_dropzone_aria_label.
+	 *
+	 * @return array
+	 */
+	public static function data_file_dropzone_aria_label() {
+		return array(
+			'visible label'          => array( array( 'label' => 'Resume' ), 'Select a file to upload.' ),
+			'full-hidden label'      => array(
+				array(
+					'label'                        => 'Resume',
+					'labelhiddenbyblockvisibility' => true,
+				),
+				'Resume: Select a file to upload.',
+			),
+			'per-viewport hidden'    => array(
+				array(
+					'label'        => 'Resume',
+					'labelclasses' => 'wp-block-hidden-mobile',
+				),
+				'Resume: Select a file to upload.',
+			),
+			'hidden but empty label' => array(
+				array(
+					'label'                        => '',
+					'labelhiddenbyblockvisibility' => true,
+				),
+				'Select a file to upload.',
+			),
+		);
+	}
+
+	/**
+	 * The hidden-label aria-label fallback reaches the other single-input render
+	 * paths too — textarea, select and the country-selector phone input each move
+	 * the label onto the control when it's hidden. See FORMS-694.
+	 *
+	 * @dataProvider data_single_input_render_paths
+	 *
+	 * @param array $atts Field attributes (type plus anything needed to render).
+	 */
+	#[DataProvider( 'data_single_input_render_paths' )]
+	public function test_render_single_input_hidden_label_keeps_accessible_name( $atts ) {
+		$hidden = $this->get_new_field_instance(
+			array_merge( array( 'label' => 'Your name' ), $atts, array( 'labelhiddenbyblockvisibility' => true ) )
+		);
+		$this->assertStringContainsString( "aria-label='Your name'", $hidden->render() );
+
+		// And no stray aria-label when the label is visible.
+		$shown = $this->get_new_field_instance( array_merge( array( 'label' => 'Your name' ), $atts ) );
+		$this->assertStringNotContainsString( "aria-label='Your name'", $shown->render() );
+	}
+
+	/**
+	 * Data provider for test_render_single_input_hidden_label_keeps_accessible_name.
+	 *
+	 * @return array
+	 */
+	public static function data_single_input_render_paths() {
+		return array(
+			'textarea'          => array( array( 'type' => 'textarea' ) ),
+			'select'            => array(
+				array(
+					'type'    => 'select',
+					'options' => array( 'A', 'B' ),
+				),
+			),
+			'phone w/ selector' => array(
+				array(
+					'type'                => 'phone',
+					'showcountryselector' => true,
+				),
+			),
+		);
+	}
+
+	/**
+	 * Invoke the private file-field content sanitizer.
+	 *
+	 * Tested directly because the full file render short-circuits without an active
+	 * Jetpack (see test_file_dropzone_aria_label).
+	 *
+	 * @param string|null $content Raw field content.
+	 *
+	 * @return string
+	 */
+	private function sanitize_file_content( $content ) {
+		$field  = $this->get_new_field_instance( array( 'type' => 'file' ) );
+		$method = new \ReflectionMethod( $field, 'sanitize_file_field_content' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method->invoke( $field, $content );
+	}
+
+	/**
+	 * The file field's inner content is entity-decoded before output so the dropzone's
+	 * inner blocks render (they are stored esc_html()-encoded by
+	 * Contact_Form::parse_contact_field()). An author without unfiltered_html can abuse
+	 * that by storing entity-encoded markup, which post-save KSES never inspects because
+	 * it is plain text at that point. Decoded output must therefore be filtered.
+	 *
+	 * @dataProvider data_file_field_content_xss
+	 *
+	 * @param string $content Entity-encoded field content.
+	 */
+	#[DataProvider( 'data_file_field_content_xss' )]
+	public function test_file_field_content_strips_executable_markup( $content ) {
+		$output = $this->sanitize_file_content( $content );
+
+		$this->assertDoesNotMatchRegularExpression( '/<\s*script/i', $output );
+		$this->assertDoesNotMatchRegularExpression( '/<[^>]+\son[a-z]+\s*=/i', $output );
+		$this->assertStringNotContainsString( '<iframe', $output );
+	}
+
+	/**
+	 * Data provider for test_file_field_content_strips_executable_markup.
+	 *
+	 * @return array
+	 */
+	public static function data_file_field_content_xss() {
+		return array(
+			'img onerror'      => array( '&lt;img src=x onerror=alert(document.domain)&gt;' ),
+			'script tag'       => array( '&lt;script&gt;alert(1)&lt;/script&gt;' ),
+			'svg onload'       => array( '&lt;svg onload=alert(1)&gt;&lt;/svg&gt;' ),
+			'iframe'           => array( '&lt;iframe src="//evil.example"&gt;&lt;/iframe&gt;' ),
+			'div onmouseover'  => array( '&lt;div onmouseover=alert(1)&gt;hi&lt;/div&gt;' ),
+			'script in svg'    => array( '&lt;svg&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;/svg&gt;' ),
+			'body onload'      => array( '&lt;body onload=alert(1)&gt;' ),
+			'already-raw html' => array( '<img src=x onerror=alert(1)>' ),
+		);
+	}
+
+	/**
+	 * Double-encoding must not survive as live markup either: it decodes to escaped text
+	 * (&lt;img …&gt;), which the browser renders as characters rather than an element.
+	 */
+	public function test_file_field_content_double_encoding_stays_inert() {
+		$output = $this->sanitize_file_content( '&amp;lt;img src=x onerror=alert(1)&amp;gt;' );
+
+		$this->assertStringNotContainsString( '<img', $output );
+		$this->assertStringContainsString( '&lt;img', $output );
+	}
+
+	/**
+	 * Links using the javascript: scheme in the decoded content must lose that scheme.
+	 */
+	public function test_file_field_content_strips_javascript_urls() {
+		$output = $this->sanitize_file_content( '&lt;a href="javascript:alert(1)"&gt;x&lt;/a&gt;' );
+
+		$this->assertStringNotContainsString( 'javascript:', $output );
+	}
+
+	/**
+	 * The legitimate dropzone markup must still render. It reaches this method
+	 * esc_html()-encoded, and has to survive the round trip intact - including the
+	 * tabindex Contact_Form_Plugin::gutenblock_render_dropzone() adds to keep the
+	 * dropzone a single tab stop, and the inline SVG core/icon emits.
+	 */
+	public function test_file_field_content_preserves_dropzone_markup() {
+		$output = $this->sanitize_file_content(
+			esc_html(
+				'<div class="wp-block-jetpack-dropzone">'
+				. '<p class="has-text-align-center">Drag and drop or <strong>browse</strong></p>'
+				. '<div class="wp-block-button"><a class="wp-block-button__link" tabindex="-1">Choose file</a></div>'
+				. '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true"><path d="M12 3l4 4h-3v6h-2V7H8z"></path></svg>'
+				. '<hr class="wp-block-separator" />'
+				. '</div>'
+			)
+		);
+
+		$this->assertStringContainsString( 'wp-block-jetpack-dropzone', $output );
+		$this->assertStringContainsString( '<strong>browse</strong>', $output );
+		$this->assertStringContainsString( 'tabindex="-1"', $output );
+		$this->assertStringContainsString( '<svg', $output );
+		$this->assertStringContainsString( '<path', $output );
+		$this->assertStringContainsString( '<hr', $output );
+	}
+
+	/**
+	 * The core/image block is an allowed dropzone inner block, so responsive-image attributes
+	 * have to survive. The stock post allowlist omits srcset/sizes/decoding, which would
+	 * silently degrade the image to its full-size source.
+	 */
+	public function test_file_field_content_preserves_responsive_image_attributes() {
+		$output = $this->sanitize_file_content(
+			esc_html(
+				'<figure class="wp-block-image size-large"><img src="https://example.com/a.png"'
+				. ' alt="x" class="wp-image-1"'
+				. ' srcset="https://example.com/a-300.png 300w, https://example.com/a.png 900w"'
+				. ' sizes="(max-width: 900px) 100vw, 900px" decoding="async" loading="lazy" /></figure>'
+			)
+		);
+
+		$this->assertStringContainsString( 'srcset=', $output );
+		$this->assertStringContainsString( 'sizes=', $output );
+		$this->assertStringContainsString( 'decoding=', $output );
+		$this->assertStringContainsString( 'loading=', $output );
+	}
+
+	/**
+	 * The core/icon block serializes rotation as `rotate: <deg>`, which is not in WordPress's
+	 * safe_style_css list. Without the scoped filter the icon would render unrotated.
+	 */
+	public function test_file_field_content_preserves_icon_rotation() {
+		$output = $this->sanitize_file_content(
+			esc_html( '<svg style="width:48px;rotate: 45deg;" viewBox="0 0 24 24"><path d="M12 3l4 4h-3z"></path></svg>' )
+		);
+
+		$this->assertStringContainsString( 'rotate', $output );
+	}
+
+	/**
+	 * The safe_style_css filter that allows `rotate` must not outlive the sanitize call.
+	 */
+	public function test_file_field_content_rotate_filter_does_not_leak() {
+		$this->sanitize_file_content( esc_html( '<svg style="rotate: 45deg;"></svg>' ) );
+
+		$this->assertStringNotContainsString( 'rotate', safecss_filter_attr( 'width:48px;rotate: 45deg;' ) );
+	}
+
+	/**
+	 * `style` is not allowed on SVG children: safecss_filter_attr() strips the presentation
+	 * properties that would justify it, while still permitting position:fixed overlays.
+	 */
+	public function test_file_field_content_blocks_style_on_svg_children() {
+		$output = $this->sanitize_file_content(
+			esc_html( '<svg><path style="position:fixed;top:0;left:0;width:100vw;height:100vh" d="M0 0"></path></svg>' )
+		);
+
+		$this->assertStringNotContainsString( 'position:fixed', $output );
+		$this->assertStringContainsString( '<path', $output );
+	}
+
+	/**
+	 * Empty and non-string content is handled without notices.
+	 */
+	public function test_file_field_content_handles_empty_content() {
+		$this->assertSame( '', $this->sanitize_file_content( null ) );
+		$this->assertSame( '', $this->sanitize_file_content( '' ) );
 	}
 } // end class

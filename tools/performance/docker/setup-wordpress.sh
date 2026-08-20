@@ -88,6 +88,15 @@ define( 'NONCE_SALT',       '$(generate_salt)' );
 
 define( 'WP_DEBUG', false );
 
+// Keep the fixture network-hermetic. Without this, the fresh-install dashboard
+// render makes synchronous calls to api.wordpress.org (browse-happy / version /
+// update checks); on CI agents without egress those hang to a ~10s timeout and
+// dominate the LCP measurement. Blocking external HTTP makes them fail fast.
+// The wpcom connection simulator (mu-plugins/simulate-wpcom-connection.php)
+// short-circuits via the pre_http_request filter, which WordPress runs before
+// this block check, so the simulated connection still resolves.
+define( 'WP_HTTP_BLOCK_EXTERNAL', true );
+
 if ( ! defined( 'ABSPATH' ) ) {
     define( 'ABSPATH', __DIR__ . '/' );
 }

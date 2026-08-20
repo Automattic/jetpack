@@ -71,7 +71,7 @@ function ChecklistRow( { item, value, onChange }: RowProps ) {
 	);
 
 	return (
-		<Stack direction="column" gap="3xs" className="jpb-restore-checklist__row">
+		<Stack direction="column" gap="xs" className="jpb-restore-checklist__row">
 			<CheckboxControl
 				checked={ value[ item.key ] }
 				label={ item.label }
@@ -79,7 +79,7 @@ function ChecklistRow( { item, value, onChange }: RowProps ) {
 				__nextHasNoMarginBottom
 			/>
 			{ item.description && (
-				<Text size="small" className="jpb-restore-checklist__desc">
+				<Text variant="body-sm" className="jpb-restore-checklist__desc">
 					{ item.description }
 				</Text>
 			) }

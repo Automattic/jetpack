@@ -19,6 +19,7 @@ export {
 	type ColorableItem,
 } from './segment-styles';
 export { buildSalesByDeviceData, type SalesByDeviceData } from './build-sales-by-device-data';
+export { buildSalesByUtmData } from './build-sales-by-utm-data';
 export {
 	buildSessionsByDeviceData,
 	type SessionsByDeviceData,
@@ -28,7 +29,6 @@ export {
 	type BookingsByAttendanceData,
 } from './build-bookings-by-attendance-data';
 export { buildTotalReturnsData, type TotalReturnsData } from './build-total-returns-data';
-export { buildSalesByUtmData } from './build-sales-by-utm-data';
 export { formatLegendLabels } from './format-legend-labels';
 export { calculateDelta } from './calculate-delta';
 export { buildCouponUseData, type CouponUseData } from './build-coupon-use-data';
@@ -45,3 +45,45 @@ export {
 } from './build-visitors-by-location-data';
 export { flagUrl } from './flag-url';
 export { isEmptyChartData, isEmptyPieChartData, getEmptyChartDomain } from './chart-empty-state';
+export { getFixedYAxis, type FixedYAxis } from './fixed-y-axis';
+export { formatDisplayLabel } from './format-display-label';
+export {
+	buildCsv,
+	buildCsvDateRangeFilename,
+	saveCsv,
+	type CsvColumn,
+	type CsvDateRange,
+} from './build-csv';
+export { sharePercentage } from './share-percentage';
+export { getCombinedPeriodMax } from './get-combined-period-max';
+export { getVideoKey, getVideoLabel } from './video-plays';
+export { describeError } from './describe-error';
+export { summaryCount } from './summary-count';
+export { toDay } from './to-day';
+export { defaultPeriodForInterval } from './default-period-for-interval';
+export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
+export {
+	CHART_DISPLAY_CHART_TYPES,
+	chartTypeAttributeField,
+	granularityAttributeField,
+	type ChartDisplayChartType,
+	type ChartGranularityOption,
+} from './chart-display-attribute-fields';
+export {
+	CELL_GAP as CALENDAR_HEATMAP_CELL_GAP,
+	HEADER_HEIGHT as CALENDAR_HEATMAP_HEADER_HEIGHT,
+	compactCalendarHeatmapCapacity,
+	computeCalendarHeatmapLayout,
+	fitWeekColumns,
+	type CalendarHeatmapLayout,
+	type CalendarHeatmapLayoutInput,
+	type FitWeekColumnsInput,
+} from './calendar-heatmap-layout';
+export { formatViewCount } from './format-view-count';
+export {
+	buildDenseDaySeries,
+	resolveCalendarHeatmapWindow,
+	resolveCalendarHeatmapWindowDays,
+	type CalendarHeatmapWindow,
+	type CalendarHeatmapWindowBounds,
+} from './calendar-heatmap-window';

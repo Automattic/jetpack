@@ -5,6 +5,7 @@
  * API format: /jetpack-premium-analytics/v1/proxy/v2/analytics/reports/order-attribution/:view/summary
  * Values are strings (the sanitizer converts them to numbers)
  */
+import type { OrderAttributionByProductResponse } from '../../../../../data/src/api/report-order-attribution-by-product-fetch/report-order-attribution-by-product-fetch';
 import type { fetchReportOrderAttributionSummary } from '../../../../../data/src/api/report-order-attribution-summary-fetch/report-order-attribution-summary-fetch';
 
 /**
@@ -62,6 +63,57 @@ export const mockOrderAttributionDeviceData: OrderAttributionSummaryResponse = {
 		},
 	],
 };
+
+/**
+ * Order Attribution by Product mock data for booking-filtered device requests.
+ *
+ * The filtered by-product endpoint returns a flat shape and is normalized by
+ * the data package before widgets consume it.
+ */
+export const mockOrderAttributionByProductDeviceData: OrderAttributionByProductResponse = {
+	view: 'device',
+	order_by: 'net_sales',
+	data: [
+		{
+			item: 'Desktop Browser',
+			value: '52842.10',
+			intervals: [],
+		},
+		{
+			item: 'Mobile App',
+			value: '41795.50',
+			intervals: [],
+		},
+		{
+			item: 'Tablet Safari',
+			value: '16240.75',
+			intervals: [],
+		},
+	],
+};
+
+export const mockOrderAttributionByProductDeviceComparisonData: OrderAttributionByProductResponse =
+	{
+		view: 'device',
+		order_by: 'net_sales',
+		data: [
+			{
+				item: 'Desktop Browser',
+				value: '47182.40',
+				intervals: [],
+			},
+			{
+				item: 'Mobile App',
+				value: '44320.20',
+				intervals: [],
+			},
+			{
+				item: 'Tablet Safari',
+				value: '13780.50',
+				intervals: [],
+			},
+		],
+	};
 
 /**
  * Order Attribution by Channel mock data
@@ -154,6 +206,36 @@ export const mockOrderAttributionSourceData: OrderAttributionSummaryResponse = {
 			},
 			previous_period: {
 				value: '2900.00',
+				intervals: [],
+			},
+		},
+		// A collapsed source whose previous period dominates both periods: on the
+		// shared comparison scale its previous bar is the 100% reference while
+		// google's current bar stays at 75% (12000/16000), so bar widths agree
+		// with the deltas instead of both rendering full-width.
+		{
+			item: 'newsletter',
+			current_period: {
+				value: '3000.00',
+				intervals: [],
+			},
+			previous_period: {
+				value: '16000.00',
+				intervals: [],
+			},
+		},
+		// Ranked 5th by current-period sales, so the default maxEntries (4) hides
+		// this row. Its outsized previous value must NOT enter the denominator:
+		// visible bars stay scaled to 16000, not 60000 (see getCombinedPeriodMax's
+		// visible-rows-only contract).
+		{
+			item: 'affiliate',
+			current_period: {
+				value: '2500.00',
+				intervals: [],
+			},
+			previous_period: {
+				value: '60000.00',
 				intervals: [],
 			},
 		},

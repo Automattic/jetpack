@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the AI assistant dashboard banner layout on mobile so the copy reflows full width and the button stacks below.

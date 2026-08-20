@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Backup: report failed requests in the modernized dashboard instead of rendering them as empty states, and add a route-level error boundary. No-op when the modernization filter is off.

@@ -723,7 +723,7 @@ class VideoPress_Player {
 				. "' src='" . esc_attr( $iframe_url )
 				. "' frameborder='0' allowfullscreen"
 				. $cover
-				. " allow='clipboard-write'></iframe>";
+				. " allow='clipboard-write; presentation'></iframe>";
 
 		} else {
 			$videopress_options = wp_json_encode( $videopress_options, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );

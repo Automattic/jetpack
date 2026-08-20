@@ -1,2 +1,10 @@
-export { formatDate, formatDateRange } from './date';
+export {
+	formatDate,
+	formatWeekday,
+	formatDateRange,
+	formatDateRangeCompact,
+	formatDateRangeMinimal,
+	formatDateRangeLong,
+	type DateFormatName,
+} from './date';
 export { formatMetricValue } from './metric';

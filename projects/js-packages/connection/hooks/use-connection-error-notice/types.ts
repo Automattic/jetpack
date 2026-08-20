@@ -1,3 +1,10 @@
+import type { ConnectionOwner } from '../../types.ts';
+import type { ReactElement } from 'react';
+
+// Part of this hook's public result contract, so re-export it: the package
+// barrel forwards this module's types to consumers.
+export type { ConnectionOwner };
+
 export interface ConnectionErrorData {
 	action?: string;
 	action_label?: string;
@@ -9,8 +16,18 @@ export interface ConnectionErrorData {
 	secondary_action_label?: string;
 	secondary_action_variant?: 'primary' | 'secondary';
 	secondary_tracking_event?: string;
+	/** When true, the notice appends a "Contact Jetpack Support" link, e.g. because a reconnect may not fix it. */
+	support_link?: boolean;
 	[ key: string ]: unknown;
 }
+
+/**
+ * Who a connection error is relevant to:
+ * - `site`: blog-token / site-wide errors.
+ * - `owner`: errors tied to the connection owner's user token.
+ * - `user`: errors tied to another specific user's token.
+ */
+export type ConnectionErrorAudience = 'site' | 'owner' | 'user';
 
 export interface ConnectionErrorObject {
 	error_message: string;
@@ -18,6 +35,8 @@ export interface ConnectionErrorObject {
 	user_id?: string;
 	error_type?: string;
 	error_data?: ConnectionErrorData;
+	/** Optional audience metadata; readers must treat a missing value as site-wide. */
+	audience?: ConnectionErrorAudience;
 	[ key: string ]: unknown;
 }
 
@@ -34,6 +53,12 @@ export interface Action {
 	variant?: 'primary' | 'secondary';
 }
 
+/**
+ * Initiates a connection restore (or reconnect when restore is not possible).
+ * Returns the underlying API request promise.
+ */
+export type RestoreConnection = ( autoReconnectUser?: boolean ) => Promise< unknown >;
+
 export interface ConnectionErrorProps {
 	actionHandlers?: Record< string, ( error: ConnectionErrorObject ) => void >;
 	trackingCallback?: ( ( event: string, data: object ) => void ) | null;
@@ -41,9 +66,50 @@ export interface ConnectionErrorProps {
 		| ( (
 				error: ConnectionErrorObject,
 				helpers: {
-					restoreConnection: () => void;
+					restoreConnection: RestoreConnection;
 					isRestoringConnection: boolean;
 				}
 		  ) => Action[] )
 		| null;
+	/** Tracking event fired when the fallback "Restore Connection" CTA is clicked. */
+	reconnectTrackingEvent?: string;
+	/** Navigation handler for URL-based actions. Defaults to setting `window.location.href`. */
+	navigate?: ( url: string ) => void;
+	/** Optional feature-supplied context line rendered above the shared cause/action. */
+	context?: string | ReactElement;
+	/** Opt in to surfacing connection *health-check* failures. */
+	includeHealthErrors?: boolean;
+}
+
+/**
+ * The return shape of `useConnectionErrorNotice` — the package's stable,
+ * public data contract for connection-error consumers.
+ */
+export interface UseConnectionErrorNoticeResult {
+	/** Whether there is an effective connection error to surface. */
+	hasConnectionError: boolean;
+	/** The effective error's message, if any. */
+	connectionErrorMessage: string | undefined;
+	/** The full effective error object (with `error_type`, `error_data`, etc.). */
+	connectionError: ConnectionErrorObject | undefined;
+	/** All errors from the store, for advanced use cases. */
+	connectionErrors: ConnectionErrorMap;
+	/** Resolved, ready-to-render CTA actions for the effective error. */
+	actions: Action[];
+	/** Initiates a connection restore (or reconnect when restore is not possible). */
+	restoreConnection: RestoreConnection;
+	/** Whether a connection restore is currently in progress. */
+	isRestoringConnection: boolean;
+	/** The restore error message, if the last restore attempt failed. */
+	restoreConnectionError: string | null;
+	/** The connection owner of record. Derived server-side from the `master_user`. */
+	connectionOwner: ConnectionOwner | null;
+	/** Whether the current viewer is the owner of record. */
+	isCurrentUserConnectionOwner: boolean;
+	/**
+	 * The viewer's local WordPress user ID, so consumers can tell an error that is
+	 * theirs from one belonging to another user without subscribing to the store
+	 * a second time. Undefined when the connection data has not loaded.
+	 */
+	currentUserId: number | undefined;
 }

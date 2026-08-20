@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
+use WP_Error;
 
 /**
  * Publicize_Utils class.
@@ -147,5 +148,31 @@ class Publicize_Utils {
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We have done it above.
 		_doing_it_wrong( esc_html( $function_name ), implode( ' ', $messages ), $version );
+	}
+
+	/**
+	 * Forward remote response to client with error handling.
+	 *
+	 * @param array|WP_Error $response Response from WPCOM.
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function make_proper_response( $response ) {
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$body        = json_decode( wp_remote_retrieve_body( $response ), true );
+		$status_code = wp_remote_retrieve_response_code( $response );
+
+		if ( 200 === $status_code ) {
+			return $body;
+		}
+
+		return new WP_Error(
+			isset( $body['error'] ) ? 'remote-error-' . $body['error'] : 'remote-error',
+			$body['message'] ?? 'unknown remote error',
+			array( 'status' => $status_code )
+		);
 	}
 }

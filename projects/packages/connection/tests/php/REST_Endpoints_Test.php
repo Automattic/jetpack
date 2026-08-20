@@ -1157,6 +1157,31 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
+	 * Testing the `connection/data` endpoint when the owner's token is broken.
+	 *
+	 * `connectionOwner` and `isMaster` describe the *connected* owner, so they must go
+	 * null/false when the owner has no valid token, even though the master_user option
+	 * still names an owner. Record-based ownership identity is exposed separately via
+	 * the connection initial state.
+	 */
+	public function test_get_user_connection_data_with_broken_owner_token() {
+		// Full connection, but no token stored for the master user.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options_broken_owner_token' ), 10, 2 );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/data' );
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options_broken_owner_token' ), 10 );
+
+		$this->assertEquals( 200, $response->get_status() );
+
+		$response_data = $response->get_data();
+		$this->assertNull( $response_data['connectionOwner'] );
+		$this->assertFalse( $response_data['currentUser']['isMaster'] );
+	}
+
+	/**
 	 * Testing the `remote_register` endpoint without authentication on a fully connected site.
 	 * Response: failed authorization.
 	 */
@@ -1820,6 +1845,32 @@ class REST_Endpoints_Test extends TestCase {
 					self::$user_id           => 'new.usertoken.' . self::$user_id,
 					self::$secondary_user_id => 'new2.secondarytoken.' . self::$secondary_user_id,
 					self::$non_admin_user_id => 'new3.nonadmintoken.' . self::$non_admin_user_id,
+				);
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Intercept the `Jetpack_Options` call and mock the values.
+	 * Full connection set-up, but the master user has no token (broken owner token).
+	 *
+	 * @param mixed  $value The current option value.
+	 * @param string $name Option name.
+	 *
+	 * @return mixed
+	 */
+	public function mock_jetpack_options_broken_owner_token( $value, $name ) {
+		switch ( $name ) {
+			case 'blog_token':
+				return self::BLOG_TOKEN;
+			case 'id':
+				return self::BLOG_ID;
+			case 'master_user':
+				return self::$user_id;
+			case 'user_tokens':
+				return array(
+					self::$secondary_user_id => 'new2.secondarytoken.' . self::$secondary_user_id,
 				);
 		}
 

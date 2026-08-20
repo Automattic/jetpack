@@ -22,12 +22,11 @@ use function current_user_can;
 use function did_action;
 use function do_action;
 use function function_exists;
+use function is_admin;
 use function is_multisite;
 use function remove_action;
 use function remove_all_actions;
 use function sanitize_text_field;
-use function wp_print_inline_script_tag;
-use function wp_scripts;
 use function wp_unslash;
 
 /**
@@ -82,7 +81,6 @@ class Jetpack_Scan {
 		}
 
 		self::load_wp_build();
-		self::fix_boot_import_map_ordering();
 		self::bridge_wp_build_enqueue();
 
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ) );
@@ -101,10 +99,18 @@ class Jetpack_Scan {
 	 * Load wp-build generated registration files. Mirrors Newsletter / Forms.
 	 */
 	public static function load_wp_build() {
-		WP_Build_Polyfills::register(
-			'jetpack-scan',
-			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
-		);
+		// The polyfills force-replace core script handles (notably
+		// `wp-private-apis`, a stateful singleton shared by every @wordpress
+		// package on the page) during `wp_default_scripts`. Scope registration
+		// to the Scan admin page so it never runs on other admin pages such as
+		// the block editor. `$_GET['page']` is reliable this early — it's the
+		// raw query param, available well before `current_screen` exists.
+		if ( self::is_scan_admin_request() ) {
+			WP_Build_Polyfills::register(
+				'jetpack-scan',
+				array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+			);
+		}
 
 		$wp_build_index = dirname( __DIR__ ) . '/build/build.php';
 		if ( file_exists( $wp_build_index ) ) {
@@ -119,6 +125,26 @@ class Jetpack_Scan {
 			'admin_init',
 			'jetpack_scan_jetpack_scan_intercept_render'
 		);
+	}
+
+	/**
+	 * Whether the current request targets the Scan admin page.
+	 *
+	 * Used to scope the wp-build polyfill registration (which force-replaces
+	 * core script handles) to this one page, so it never affects other admin
+	 * pages. Reads the menu page slug directly so it is cheap and safe to call
+	 * at plugin-load time, before `current_screen` exists.
+	 *
+	 * @return bool True when serving the Scan page in wp-admin.
+	 */
+	public static function is_scan_admin_request() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! is_admin() || ! isset( $_GET['page'] ) ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return self::PAGE_SLUG === sanitize_text_field( wp_unslash( $_GET['page'] ) );
 	}
 
 	/**
@@ -155,67 +181,6 @@ class Jetpack_Scan {
 				// phpcs:enable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			},
 			9
-		);
-	}
-
-	/**
-	 * Fix import map ordering for the wp-build boot script.
-	 *
-	 * In wp-admin, `_wp_footer_scripts` (classic scripts) and
-	 * `print_import_map` both hook into `admin_print_footer_scripts` at
-	 * priority 10, but `_wp_footer_scripts` is registered first. This
-	 * causes the inline `import("@wordpress/boot")` to execute before
-	 * the import map exists.
-	 *
-	 * This fix moves the import() call from the classic inline script to
-	 * a `<script type="module">` printed at priority 20 (after the import
-	 * map).
-	 *
-	 * @todo Remove once @wordpress/build ships with the loader.js fix
-	 *       upstream (WordPress/gutenberg#76870) and Jetpack updates the
-	 *       dependency.
-	 */
-	public static function fix_boot_import_map_ordering() {
-		$handle = self::WP_BUILD_SLUG . '-prerequisites';
-
-		add_action(
-			'admin_enqueue_scripts',
-			static function () use ( $handle ) {
-				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				if ( ! isset( $_GET['page'] ) || self::PAGE_SLUG !== $_GET['page'] ) {
-					return;
-				}
-
-				$data = wp_scripts()->get_data( $handle, 'after' );
-				if ( empty( $data ) ) {
-					return;
-				}
-
-				$boot_script = null;
-				$remaining   = array();
-				foreach ( $data as $line ) {
-					if ( strpos( $line, '@wordpress/boot' ) !== false ) {
-						$boot_script = $line;
-					} else {
-						$remaining[] = $line;
-					}
-				}
-
-				if ( null === $boot_script ) {
-					return;
-				}
-
-				wp_scripts()->add_data( $handle, 'after', $remaining );
-
-				add_action(
-					'admin_print_footer_scripts',
-					static function () use ( $boot_script ) {
-						wp_print_inline_script_tag( $boot_script, array( 'type' => 'module' ) );
-					},
-					20
-				);
-			},
-			PHP_INT_MAX
 		);
 	}
 

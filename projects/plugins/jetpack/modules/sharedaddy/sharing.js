@@ -548,6 +548,8 @@
 
 			// Press This button
 			forEachNode( group.querySelectorAll( 'a.share-press-this' ), function ( pressThisButton ) {
+				// Unpredictable, but stable per page load so repeat clicks reuse the same popup.
+				var pressThisWindowName = 'wp-press-this-' + Math.random().toString( 36 ).slice( 2 );
 				pressThisButton.addEventListener( 'click', function ( event ) {
 					event.preventDefault();
 					event.stopPropagation();
@@ -570,7 +572,7 @@
 					if (
 						! window.open(
 							pressThisButton.getAttribute( 'href' ),
-							't',
+							pressThisWindowName,
 							'toolbar=0,resizable=1,scrollbars=1,status=1,width=720,height=570'
 						)
 					) {

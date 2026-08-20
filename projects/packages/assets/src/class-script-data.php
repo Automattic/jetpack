@@ -192,7 +192,7 @@ class Script_Data {
 	 * @return string
 	 */
 	protected static function get_site_title() {
-		$title = get_bloginfo( 'name' );
+		$title = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 
 		return $title ? $title : esc_url_raw( ( get_site_url() ) );
 	}
@@ -230,8 +230,9 @@ class Script_Data {
 			'display_name' => $current_user->display_name,
 			'id'           => $current_user->ID,
 			'capabilities' => array(
-				'manage_options' => current_user_can( 'manage_options' ),
-				'manage_modules' => current_user_can( 'jetpack_manage_modules' ),
+				'edit_others_posts' => current_user_can( 'edit_others_posts' ),
+				'manage_options'    => current_user_can( 'manage_options' ),
+				'manage_modules'    => current_user_can( 'jetpack_manage_modules' ),
 			),
 		);
 	}

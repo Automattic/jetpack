@@ -24,15 +24,20 @@ body.jetpack_page_jetpack-podcast {
 }
 
 .podcast__tab-content {
-	padding-block: 8px;
+	box-sizing: border-box;
 }
 
-// Form-style panels (Settings, Distribution, Welcome) sit in a centered
-// column. Episodes (DataViews) stays full-width on purpose so the table can
-// fill its bounded slot.
+// Form-style panels (Settings, Distribution, Welcome) sit in a centered column
+// with shared outer spacing. DataView-backed tabs keep their own layout.
+.podcast__tab-content--narrow,
+.podcast__tab-content--wide {
+	padding-block: 32px;
+	padding-inline: clamp(16px, 3vw, 32px);
+}
+
 .podcast__tab-content--narrow {
 	margin-inline: auto;
-	max-inline-size: 680px;
+	max-inline-size: 744px;
 }
 
 .podcast__tab-content--wide {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Chart widgets: Remove the Metrics selector from Traffic summary, Subscribers summary, WordAds, and Store performance — the metric tabs already choose what the chart plots.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the classic-theme footer-links control hidden until needed so it no longer overlaps the consent banner.

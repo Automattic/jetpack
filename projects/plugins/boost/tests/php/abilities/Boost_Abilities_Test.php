@@ -114,15 +114,23 @@ class Boost_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_every_spec_has_required_keys(): void {
-		$required = array( 'label', 'description', 'input_schema', 'execute_callback', 'permission_callback', 'meta' );
+		$required = array( 'label', 'description', 'input_schema', 'output_schema', 'execute_callback', 'permission_callback', 'meta' );
 		foreach ( Boost_Abilities::get_abilities() as $slug => $spec ) {
 			foreach ( $required as $key ) {
 				$this->assertArrayHasKey( $key, $spec, "Ability {$slug} missing key {$key}." );
 			}
 			$this->assertArrayHasKey( 'annotations', $spec['meta'] );
 			$this->assertArrayHasKey( 'show_in_rest', $spec['meta'] );
+			$this->assertTrue( $spec['meta']['show_in_rest'], "Ability {$slug} must be visible in REST." );
 			$this->assertArrayHasKey( 'additionalProperties', $spec['input_schema'] );
 			$this->assertFalse( $spec['input_schema']['additionalProperties'], "Ability {$slug} input_schema must set additionalProperties: false." );
+		}
+	}
+
+	public function test_every_spec_declares_an_output_schema_shape(): void {
+		foreach ( Boost_Abilities::get_abilities() as $slug => $spec ) {
+			$this->assertArrayHasKey( 'type', $spec['output_schema'], "Ability {$slug} output_schema must declare a type." );
+			$this->assertContains( $spec['output_schema']['type'], array( 'array', 'object' ), "Ability {$slug} output_schema must return a structured value." );
 		}
 	}
 
@@ -144,6 +152,133 @@ class Boost_Abilities_Test extends BaseTestCase {
 		$abilities = Boost_Abilities::get_abilities();
 		$this->assertTrue( $abilities['jetpack-boost/get-modules']['meta']['annotations']['readonly'] );
 		$this->assertTrue( $abilities['jetpack-boost/get-speed-score']['meta']['annotations']['readonly'] );
+	}
+
+	public function test_get_modules_public_read_contract_does_not_drift(): void {
+		$ability = Boost_Abilities::get_abilities()['jetpack-boost/get-modules'];
+
+		$this->assertSame( array( Boost_Abilities::class, 'can_view_modules' ), $ability['permission_callback'] );
+		$this->assertSame(
+			array(
+				'readonly'    => true,
+				'destructive' => false,
+				'idempotent'  => true,
+			),
+			$ability['meta']['annotations']
+		);
+
+		$this->assertSame( 'object', $ability['input_schema']['type'] );
+		$this->assertSame( array(), $ability['input_schema']['default'] );
+		$this->assertFalse( $ability['input_schema']['additionalProperties'] );
+		$this->assertSame( array( 'slug', 'status', 'search' ), array_keys( $ability['input_schema']['properties'] ) );
+		$this->assertSame( 'string', $ability['input_schema']['properties']['slug']['type'] );
+		$this->assertSame( 1, $ability['input_schema']['properties']['slug']['minLength'] );
+		$this->assertSame( array( 'active', 'inactive', 'available', 'optimizing' ), $ability['input_schema']['properties']['status']['enum'] );
+		$this->assertSame( 'string', $ability['input_schema']['properties']['search']['type'] );
+		$this->assertSame( 1, $ability['input_schema']['properties']['search']['minLength'] );
+
+		$this->assertSame( 'array', $ability['output_schema']['type'] );
+		$this->assertSame( 'object', $ability['output_schema']['items']['type'] );
+		$this->assertSame( array( 'slug', 'active', 'available', 'optimizing' ), array_keys( $ability['output_schema']['items']['properties'] ) );
+		$this->assertSame( 'string', $ability['output_schema']['items']['properties']['slug']['type'] );
+		$this->assertSame( 'boolean', $ability['output_schema']['items']['properties']['active']['type'] );
+		$this->assertSame( 'boolean', $ability['output_schema']['items']['properties']['available']['type'] );
+		$this->assertSame( 'boolean', $ability['output_schema']['items']['properties']['optimizing']['type'] );
+	}
+
+	public function test_get_speed_score_public_read_contract_does_not_drift(): void {
+		$ability = Boost_Abilities::get_abilities()['jetpack-boost/get-speed-score'];
+
+		$this->assertSame( array( Boost_Abilities::class, 'can_view_modules' ), $ability['permission_callback'] );
+		$this->assertSame(
+			array(
+				'readonly'    => true,
+				'destructive' => false,
+				'idempotent'  => true,
+			),
+			$ability['meta']['annotations']
+		);
+
+		$this->assertSame( 'object', $ability['input_schema']['type'] );
+		$this->assertSame( array(), $ability['input_schema']['default'] );
+		$this->assertSame( array(), $ability['input_schema']['properties'] );
+		$this->assertFalse( $ability['input_schema']['additionalProperties'] );
+
+		$this->assertSame( 'object', $ability['output_schema']['type'] );
+		$this->assertSame( array( 'mobile', 'desktop', 'timestamp', 'is_stale', 'has_history' ), array_keys( $ability['output_schema']['properties'] ) );
+		$this->assertSame( array( 'integer', 'null' ), $ability['output_schema']['properties']['mobile']['type'] );
+		$this->assertSame( array( 'integer', 'null' ), $ability['output_schema']['properties']['desktop']['type'] );
+		$this->assertSame( array( 'integer', 'null' ), $ability['output_schema']['properties']['timestamp']['type'] );
+		$this->assertSame( 'boolean', $ability['output_schema']['properties']['is_stale']['type'] );
+		$this->assertSame( 'boolean', $ability['output_schema']['properties']['has_history']['type'] );
+	}
+
+	public function test_set_module_status_public_write_contract_does_not_drift(): void {
+		$ability = Boost_Abilities::get_abilities()['jetpack-boost/set-module-status'];
+
+		$this->assertSame( array( Boost_Abilities::class, 'can_manage_modules' ), $ability['permission_callback'] );
+		$this->assertSame(
+			array(
+				'readonly'    => false,
+				'destructive' => false,
+				'idempotent'  => true,
+			),
+			$ability['meta']['annotations']
+		);
+		$this->assertTrue( $ability['meta']['show_in_rest'] );
+		$this->assertSame(
+			array(
+				'public' => true,
+				'type'   => 'tool',
+			),
+			$ability['meta']['mcp']
+		);
+
+		$this->assertSame( 'object', $ability['input_schema']['type'] );
+		$this->assertSame( array( 'slug', 'active' ), $ability['input_schema']['required'] );
+		$this->assertFalse( $ability['input_schema']['additionalProperties'] );
+		$this->assertSame( array( 'slug', 'active' ), array_keys( $ability['input_schema']['properties'] ) );
+		$this->assertSame( 'string', $ability['input_schema']['properties']['slug']['type'] );
+		$this->assertSame( 1, $ability['input_schema']['properties']['slug']['minLength'] );
+		$this->assertSame( 'boolean', $ability['input_schema']['properties']['active']['type'] );
+
+		$this->assertSame( 'object', $ability['output_schema']['type'] );
+		$this->assertSame( array( 'slug', 'active', 'changed' ), array_keys( $ability['output_schema']['properties'] ) );
+		$this->assertSame( 'string', $ability['output_schema']['properties']['slug']['type'] );
+		$this->assertSame( 'boolean', $ability['output_schema']['properties']['active']['type'] );
+		$this->assertSame( 'boolean', $ability['output_schema']['properties']['changed']['type'] );
+	}
+
+	public function test_clear_page_cache_public_write_contract_does_not_drift(): void {
+		$ability = Boost_Abilities::get_abilities()['jetpack-boost/clear-page-cache'];
+
+		$this->assertSame( array( Boost_Abilities::class, 'can_manage_modules' ), $ability['permission_callback'] );
+		$this->assertSame(
+			array(
+				'readonly'    => false,
+				'destructive' => false,
+				'idempotent'  => true,
+			),
+			$ability['meta']['annotations']
+		);
+		$this->assertTrue( $ability['meta']['show_in_rest'] );
+		$this->assertSame(
+			array(
+				'public' => true,
+				'type'   => 'tool',
+			),
+			$ability['meta']['mcp']
+		);
+
+		$this->assertSame( 'object', $ability['input_schema']['type'] );
+		$this->assertSame( array(), $ability['input_schema']['default'] );
+		$this->assertSame( array(), $ability['input_schema']['properties'] );
+		$this->assertFalse( $ability['input_schema']['additionalProperties'] );
+
+		$this->assertSame( 'object', $ability['output_schema']['type'] );
+		$this->assertSame( array( 'cleared', 'message' ), array_keys( $ability['output_schema']['properties'] ) );
+		$this->assertSame( 'boolean', $ability['output_schema']['properties']['cleared']['type'] );
+		$this->assertSame( 'string', $ability['output_schema']['properties']['message']['type'] );
 	}
 
 	/** -------------------- Registrar wiring -------------------- */

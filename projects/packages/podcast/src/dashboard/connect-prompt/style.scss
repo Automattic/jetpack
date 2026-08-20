@@ -1,0 +1,33 @@
+.podcast-connect-prompt {
+
+	&__inner {
+		text-align: center;
+	}
+
+	&__icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 48px;
+		height: 48px;
+		border-radius: 50%;
+		background: var(--jp-gray-0, #f6f7f7);
+		color: var(--jp-black, #1e1e1e);
+	}
+
+	&__description {
+		max-width: 420px;
+		color: var(--jp-gray-50, #646970);
+	}
+
+	a#{&}__cta {
+
+		&,
+		&:hover,
+		&:focus,
+		&:active {
+			color: var(--wp-ui-button-foreground-color);
+			-webkit-text-fill-color: var(--wp-ui-button-foreground-color);
+		}
+	}
+}

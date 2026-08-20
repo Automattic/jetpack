@@ -18,8 +18,30 @@ class Attachment_Handler_Test extends BaseTestCase {
 	 * Clean up after each test.
 	 */
 	public function tear_down() {
+		wp_set_current_user( 0 );
 		\WorDBless\Posts::init()->clear_all_posts();
 		parent::tear_down();
+	}
+
+	/**
+	 * Create a user with the given role and set as current user.
+	 *
+	 * @param string $role   The user role.
+	 * @param string $suffix Unique suffix for the login/email, so the same role can be created more than once.
+	 * @return int The new user ID.
+	 */
+	private function set_current_user_role( $role, $suffix = '_user' ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => $role . $suffix,
+				'user_pass'  => 'pass',
+				'user_email' => $role . $suffix . '@test.com',
+				'role'       => $role,
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		return $user_id;
 	}
 
 	/**
@@ -122,6 +144,7 @@ class Attachment_Handler_Test extends BaseTestCase {
 	 * Test that heartbeat_received returns statuses for requested IDs.
 	 */
 	public function test_heartbeat_received_returns_statuses() {
+		$this->set_current_user_role( 'author' );
 		$post_id = wp_insert_post(
 			array(
 				'post_type'      => 'attachment',
@@ -166,6 +189,7 @@ class Attachment_Handler_Test extends BaseTestCase {
 	 * Test that heartbeat_received casts IDs to integers.
 	 */
 	public function test_heartbeat_received_casts_ids_to_int() {
+		$this->set_current_user_role( 'author' );
 		$post_id = wp_insert_post(
 			array(
 				'post_type'      => 'attachment',
@@ -188,6 +212,7 @@ class Attachment_Handler_Test extends BaseTestCase {
 	 * Test that heartbeat_received omits IDs with no status meta.
 	 */
 	public function test_heartbeat_received_omits_ids_without_status() {
+		$this->set_current_user_role( 'author' );
 		$post_id = wp_insert_post(
 			array(
 				'post_type'      => 'attachment',
@@ -195,6 +220,88 @@ class Attachment_Handler_Test extends BaseTestCase {
 				'post_title'     => 'Test video',
 			)
 		);
+
+		$result = Attachment_Handler::heartbeat_received(
+			array(),
+			array( 'videopress_processing_ids' => array( $post_id ) )
+		);
+
+		$this->assertArrayNotHasKey( 'videopress_processing_status', $result );
+	}
+
+	/**
+	 * Test that heartbeat_received does not expose status to a user who cannot
+	 * edit the attachment.
+	 *
+	 * Without a capability check any logged-in user (e.g. a subscriber) could
+	 * enumerate the processing status of arbitrary attachments by supplying
+	 * their IDs.
+	 */
+	public function test_heartbeat_received_skips_attachments_user_cannot_edit() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_title'     => 'Test video',
+			)
+		);
+		add_post_meta( $post_id, 'videopress_status', 'processing' );
+
+		$this->set_current_user_role( 'subscriber' );
+
+		$result = Attachment_Handler::heartbeat_received(
+			array(),
+			array( 'videopress_processing_ids' => array( $post_id ) )
+		);
+
+		$this->assertArrayNotHasKey( 'videopress_processing_status', $result );
+	}
+
+	/**
+	 * Test that heartbeat_received does not expose another user's attachment
+	 * status to an author who cannot edit it.
+	 *
+	 * This is the core IDOR guard: a logged-in author with upload permissions
+	 * must not be able to read the processing status of attachments belonging
+	 * to other users.
+	 */
+	public function test_heartbeat_received_skips_other_users_attachments() {
+		$owner_id = $this->set_current_user_role( 'author', '_owner' );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_title'     => "Owner's video",
+				'post_author'    => $owner_id,
+			)
+		);
+		add_post_meta( $post_id, 'videopress_status', 'processing' );
+
+		$this->set_current_user_role( 'author' );
+
+		$result = Attachment_Handler::heartbeat_received(
+			array(),
+			array( 'videopress_processing_ids' => array( $post_id ) )
+		);
+
+		$this->assertArrayNotHasKey( 'videopress_processing_status', $result );
+	}
+
+	/**
+	 * Test that heartbeat_received returns no status for a logged-out user.
+	 */
+	public function test_heartbeat_received_requires_logged_in_user() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_title'     => 'Test video',
+			)
+		);
+		add_post_meta( $post_id, 'videopress_status', 'processing' );
+
+		wp_set_current_user( 0 );
 
 		$result = Attachment_Handler::heartbeat_received(
 			array(),

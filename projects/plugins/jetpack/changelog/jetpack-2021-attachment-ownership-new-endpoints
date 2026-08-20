@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Security: Verify attachment ownership before removing an uploaded package in the plugin and theme install endpoints.

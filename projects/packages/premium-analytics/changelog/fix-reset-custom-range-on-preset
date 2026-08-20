@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Date controls: reset the custom range when a preset is selected, so the picker no longer shows two different ranges at once.

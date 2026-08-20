@@ -1,0 +1,11 @@
+{
+	"version": "1.0.0",
+	"private": true,
+	"dependencies": {
+		"@types/react": "^18.3.28"
+	},
+	"route": {
+		"path": "/",
+		"page": "site-setup"
+	}
+}

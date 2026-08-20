@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Date controls: bucket a day-long range by hours. Switching to "Last 24 hours" from a range shown by days kept the daily bucket, drawing the whole window as a single bar.

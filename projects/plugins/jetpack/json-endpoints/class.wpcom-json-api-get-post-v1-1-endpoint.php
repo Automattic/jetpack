@@ -18,6 +18,10 @@ new WPCOM_JSON_API_Get_Post_v1_1_Endpoint(
 			'$post_ID' => '(int) The post ID',
 		),
 
+		// The %d token is substituted with the real post ID by the transport (build_concrete_rest_route).
+		'rest_route'                           => '/posts/%d',
+		'rest_min_jp_version'                  => '16.1-a.3',
+
 		'allow_fallback_to_jetpack_blog_token' => true,
 
 		'example_request'                      => 'https://public-api.wordpress.com/rest/v1.1/sites/en.blog.wordpress.com/posts/7',
@@ -38,6 +42,10 @@ new WPCOM_JSON_API_Get_Post_v1_1_Endpoint(
 			'$post_slug' => '(string) The post slug (a.k.a. sanitized name)',
 		),
 
+		// The slug:%s token is substituted with the real slug by the transport (build_concrete_rest_route).
+		'rest_route'                           => '/posts/slug:%s',
+		'rest_min_jp_version'                  => '16.1-a.3',
+
 		'allow_fallback_to_jetpack_blog_token' => true,
 
 		'example_request'                      => 'https://public-api.wordpress.com/rest/v1.1/sites/en.blog.wordpress.com/posts/slug:blogging-and-stuff',
@@ -57,9 +65,9 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_End
 	 * /sites/%s/posts/%d      -> $blog_id, $post_id
 	 * /sites/%s/posts/slug:%s -> $blog_id, $post_id
 	 *
-	 * @param string $path - the path.
-	 * @param int    $blog_id - the blog ID.
-	 * @param int    $post_id - the post ID.
+	 * @param string     $path - the path.
+	 * @param int        $blog_id - the blog ID.
+	 * @param int|string $post_id - the post ID, or the post slug for the `/posts/slug:` route.
 	 */
 	public function callback( $path = '', $blog_id = 0, $post_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );

@@ -4,4 +4,5 @@
 
 # Files to exclude from the mirror repo
 # (see also entries in the monorepo root .gitattributes)
-/src/**             production-exclude
+/src/**                production-exclude
+/tsconfig.rollup.json  production-exclude

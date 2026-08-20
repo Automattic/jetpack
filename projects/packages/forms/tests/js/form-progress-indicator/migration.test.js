@@ -13,12 +13,12 @@ await jest.unstable_mockModule( '@wordpress/i18n', () => ( {
 	__: jest.fn( text => text ),
 } ) );
 
-await jest.unstable_mockModule( '../../../src/blocks/form-progress-indicator/edit.js', () => ( {
+await jest.unstable_mockModule( '../../../src/blocks/form-progress-indicator/edit.jsx', () => ( {
 	default: jest.fn( () => null ),
 } ) );
 
 // Dynamically import settings after mocks are set up
-const settingsModule = await import( '../../../src/blocks/form-progress-indicator/index.js' );
+const settingsModule = await import( '../../../src/blocks/form-progress-indicator/index.jsx' );
 const { settings } = settingsModule;
 
 describe( 'Form Progress Indicator Block Migration', () => {

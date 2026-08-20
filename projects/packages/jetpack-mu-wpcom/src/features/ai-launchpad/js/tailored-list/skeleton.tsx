@@ -2,9 +2,7 @@ const PLACEHOLDER_COUNT = 5;
 
 /**
  * Loading placeholder for the tailored list's task column, shown while the AI
- * call is in flight. Rendered inside {@link Layout} so the heading and site
- * preview stay put; only these shimmering bars stand in for the task cards
- * until the real ones arrive.
+ * call is in flight.
  *
  * @return The skeleton element.
  */

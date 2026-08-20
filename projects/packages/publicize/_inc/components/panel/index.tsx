@@ -8,7 +8,6 @@ import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
-import useRefreshConnections from '../../hooks/use-refresh-connections';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
 import PublicizeForm from '../form';
@@ -27,8 +26,6 @@ type PublicizePanelProps = {
 const PublicizePanel = ( { prePublish }: PublicizePanelProps ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-
-	const refreshConnections = useRefreshConnections();
 
 	const { hidePublicizeFeature } = usePublicizeConfig();
 
@@ -52,8 +49,6 @@ const PublicizePanel = ( { prePublish }: PublicizePanelProps ) => {
 				title: __( 'Share to social media', 'jetpack-publicize-pkg' ),
 				className: styles.panel,
 		  };
-
-	refreshConnections();
 
 	return (
 		<PanelWrapper { ...wrapperProps }>

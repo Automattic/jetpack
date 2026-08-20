@@ -146,6 +146,8 @@ export interface FormResponse {
 	entry_title: string;
 	/** The permalink of the form that the response was submitted to. */
 	entry_permalink: string;
+	/** The ID of the jetpack_form post the response is tied to, or 0 for classic (embedded) forms. */
+	form_id: number;
 	/** Whether the response has a file attached. */
 	has_file: boolean;
 	/** Whether the response is unread. */
@@ -212,6 +214,8 @@ export interface JPFormsBlocksDefaults {
 	subject?: string;
 	/** The default recipient email address for the form. */
 	to?: string;
+	/** Which rule produced the default recipient: 'post_author' or 'site_admin'. */
+	toSource?: string;
 }
 
 /**
@@ -236,6 +240,10 @@ declare global {
 		};
 		jetpackForms?: {
 			generateStyleVariables: ( formNode: HTMLElement ) => Record< string, string >;
+		};
+		/** Shared client for live-updating Jetpack admin-menu notification badges (automattic/jetpack-menu-badges). */
+		jetpackMenuBadges?: {
+			setCount: ( menuSlug: string, count: number ) => void;
 		};
 	}
 }

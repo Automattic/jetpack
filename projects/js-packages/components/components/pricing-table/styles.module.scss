@@ -1,5 +1,3 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
-
 .container {
 	--padding: calc(var(--spacing-base) * 4);
 	--padding-horizontal: calc(var(--spacing-base) * 3);
@@ -98,11 +96,7 @@
 			background-image: url(./gradient.svg);
 			background-repeat: no-repeat;
 			background-size: 450px;
-			background-position-x: center;
-
-			@media (max-width: gb.$break-large) {
-				background-position-x: right;
-			}
+			background-position-x: right;
 		}
 
 		> :last-child {

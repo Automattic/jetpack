@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Reports: name a report and the records it is showing separately, so the breadcrumb reads "All pages" where the heading reads "Posts & pages report".

@@ -12,12 +12,32 @@ use Automattic\Jetpack\Search\Plan as Search_Plan;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Visitor;
 
+// Required directly rather than relying on the plugin bootstrap: on
+// WordPress.com Simple this helper is loaded outside load-jetpack.php
+// (see the GUIDELINES_BANNER_DISMISSED_META_KEY note below).
+require_once __DIR__ . '/class-jetpack-ai-settings.php';
+
 /**
  * Class Jetpack_AI_Helper
  *
  * @since 11.8
  */
 class Jetpack_AI_Helper {
+	/**
+	 * User meta key storing whether the user dismissed the Content Guidelines
+	 * AI empty-state banner. Written by the guidelines-banner-dismissed REST
+	 * endpoint and read by the Content Guidelines admin-page preload.
+	 *
+	 * Lives here rather than on the endpoint class because on WordPress.com
+	 * Simple the wpcom-endpoints classes are only loaded in REST requests,
+	 * while the preload needs the key during admin page loads.
+	 *
+	 * @since 16.1
+	 *
+	 * @var string
+	 */
+	const GUIDELINES_BANNER_DISMISSED_META_KEY = 'jetpack_content_guidelines_ai_banner_dismissed';
+
 	/**
 	 * Allow new completion every X seconds. Will return cached result otherwise.
 	 *
@@ -98,14 +118,50 @@ class Jetpack_AI_Helper {
 			$default = true;
 		}
 
-		/**
-		 * Filter whether the AI features are enabled in the Jetpack plugin.
-		 *
-		 * @since 11.8
-		 *
-		 * @param bool $default Are AI features enabled? Defaults to false.
-		 */
-		return apply_filters( 'jetpack_ai_enabled', $default );
+		// The jetpack_ai_enabled filter runs inside the helper; the host and
+		// master gates apply after the chain and cannot be filtered back on.
+		return Jetpack_AI_Settings::is_ai_enabled( $default );
+	}
+
+	/**
+	 * Return true if the Content Guidelines AI surfaces should be active on the
+	 * current site.
+	 *
+	 * Same platforms as is_enabled() (WPCOM Simple and Atomic), plus WordPress
+	 * VIP sites. Kept separate from is_enabled() so widening Content Guidelines
+	 * to VIP does not also open the general AI proxy endpoint there.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled_for_content_guidelines() {
+		$default = false;
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$default = true;
+		} else {
+			$host = new Automattic\Jetpack\Status\Host();
+			if ( $host->is_woa_site() || $host->is_vip_site() ) {
+				$default = true;
+			}
+		}
+
+		// The jetpack_ai_enabled filter runs inside the helper; the host and
+		// master gates apply after the chain and cannot be filtered back on.
+		return Jetpack_AI_Settings::is_ai_enabled( $default );
+	}
+
+	/**
+	 * Whether the current user has dismissed the Content Guidelines AI
+	 * empty-state banner.
+	 *
+	 * @since 16.1
+	 *
+	 * @return bool
+	 */
+	public static function is_guidelines_banner_dismissed() {
+		return (bool) get_user_meta( get_current_user_id(), self::GUIDELINES_BANNER_DISMISSED_META_KEY, true );
 	}
 
 	/**

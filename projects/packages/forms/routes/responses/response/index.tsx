@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import {
 	Modal,
 	Spinner,
@@ -9,7 +8,7 @@ import {
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -24,11 +23,12 @@ import PreviewFile from '../../../src/dashboard/components/inspector/preview-fil
 import ResponseFieldsIterator from '../../../src/dashboard/components/inspector/response-fields';
 import ResponseMeta from '../../../src/dashboard/components/inspector/response-meta';
 import useInboxData from '../../../src/dashboard/hooks/use-inbox-data.ts';
+import useMarkAsReadOnView from '../../../src/dashboard/hooks/use-mark-as-read-on-view';
 import { useMarkAsSpam } from '../../../src/dashboard/hooks/use-mark-as-spam.ts';
 import useConfigValue from '../../../src/hooks/use-config-value.ts';
 import { ResponseActions } from './actions';
 import { ResponseNavigation } from './navigation';
-import type { DispatchActions, SelectActions } from '../../../src/dashboard/inbox/stage/types.tsx';
+import type { SelectActions } from '../../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../../src/types/index.ts';
 import './style.scss';
 
@@ -56,12 +56,10 @@ function SingleResponseView( {
 } ) {
 	const [ previewFile, setPreviewFile ] = useState< { url: string; name: string } | null >( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
-	const [ hasMarkedAsRead, setHasMarkedAsRead ] = useState< number | null >( null );
 
 	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
 	const isNotesEnabled = useConfigValue( 'isNotesEnabled' ) ?? false;
 
-	const { editEntityRecord } = useDispatch( coreStore ) as unknown as DispatchActions;
 	const navigate = useNavigate();
 	const searchParams = useSearch( { from: '/responses/$view' } );
 
@@ -149,31 +147,8 @@ function SingleResponseView( {
 		return () => window.removeEventListener( 'keydown', handleKeyDown );
 	}, [ hasNext, hasPrevious, handleNext, handlePrevious, onClose ] );
 
-	// Mark as read when viewing
-	useEffect( () => {
-		if ( ! response || ! response.id || ! response.is_unread ) {
-			return;
-		}
-		if ( hasMarkedAsRead === response.id ) {
-			return;
-		}
-
-		setHasMarkedAsRead( response.id );
-
-		editEntityRecord( 'postType', 'feedback', response.id, {
-			is_unread: false,
-		} );
-
-		apiFetch( {
-			path: `/wp/v2/feedback/${ response.id }/read`,
-			method: 'POST',
-			data: { is_unread: false },
-		} ).catch( () => {
-			editEntityRecord( 'postType', 'feedback', response.id, {
-				is_unread: true,
-			} );
-		} );
-	}, [ response, editEntityRecord, hasMarkedAsRead ] );
+	// Mark as read when viewing, keeping the sidebar unread counter in sync.
+	useMarkAsReadOnView( response );
 
 	const handleFilePreview = useCallback(
 		( file: { url: string; name: string } ) => () => {

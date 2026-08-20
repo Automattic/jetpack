@@ -53,6 +53,7 @@ const MapEdit = ( {
 } ) => {
 	const {
 		address,
+		align,
 		mapDetails,
 		points,
 		zoom,
@@ -188,6 +189,7 @@ const MapEdit = ( {
 	 * @param {object}      delta     - Information about how far the element was resized.
 	 */
 	const onMapResize = ( event, direction, elt, delta ) => {
+		toggleSelection( true );
 		const ref = mapRef?.current?.mapRef ?? mapRef;
 
 		if ( ref ) {
@@ -211,6 +213,17 @@ const MapEdit = ( {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
+
+	// Changing the alignment changes the width of the block, so the map needs to be resized to match.
+	useEffect( () => {
+		if ( ! mapRef.current?.sizeMap ) {
+			return;
+		}
+
+		// Allow one cycle for the alignment change to take effect.
+		const timeout = setTimeout( mapRef.current.sizeMap, 0 );
+		return () => clearTimeout( timeout );
+	}, [ align ] );
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect( geoCodeAddress, [ address ] );
@@ -330,12 +343,11 @@ const MapEdit = ( {
 					minHeight={ MIN_HEIGHT }
 					enable={ RESIZABLE_BOX_ENABLE_OPTION }
 					onResizeStart={ () => toggleSelection( false ) }
-					onResize={ onMapResize }
-					onResizeStop={ ( event, direction, elt, delta ) => {
-						onMapResize( event, direction, elt, delta );
-						toggleSelection( true );
-						if ( mapRef.current && mapRef.current.sizeMap ) {
-							setTimeout( mapRef.current.sizeMap, 0 );
+					onResizeStop={ onMapResize }
+					onResize={ () => {
+						const ref = mapRef?.current?.mapRef ?? mapRef;
+						if ( ref?.current?.sizeMap ) {
+							setTimeout( ref.current.sizeMap, 0 );
 						}
 					} }
 				>
