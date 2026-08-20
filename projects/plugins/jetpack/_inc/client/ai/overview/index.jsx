@@ -63,6 +63,10 @@ const DOC_LINKS = [
 	{
 		slug: 'jetpack-ai-hub-overview-docs-agent-setup',
 		title: __( 'Setting up agentic workflows', 'jetpack' ),
+		// The guide covers WordPress.com plans and settings screens, so it has
+		// nothing to tell a site hosted elsewhere. Drop this once the Jetpack
+		// version of the page exists.
+		wpcomOnly: true,
 	},
 	{ slug: 'jetpack-ai-hub-overview-docs-billing', title: __( 'Billing & plans', 'jetpack' ) },
 	{
@@ -387,11 +391,13 @@ export default function AiOverview( {
 					{ __( 'Documentation', 'jetpack' ) }
 				</Text>
 				<Stack direction="column" gap="sm" align="flex-start">
-					{ DOC_LINKS.map( ( { slug, title } ) => (
-						<ExternalLink key={ slug } href={ getRedirectUrl( slug ) }>
-							{ title }
-						</ExternalLink>
-					) ) }
+					{ DOC_LINKS.filter( ( { wpcomOnly } ) => isWpcomHosted || ! wpcomOnly ).map(
+						( { slug, title } ) => (
+							<ExternalLink key={ slug } href={ getRedirectUrl( slug ) }>
+								{ title }
+							</ExternalLink>
+						)
+					) }
 				</Stack>
 			</div>
 		</Stack>

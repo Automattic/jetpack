@@ -267,8 +267,14 @@ describe( 'AiOverview', () => {
 
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Walkthrough videos' ) ).not.toBeInTheDocument();
-		// The docs section is host-agnostic and stays.
+		// The docs section stays, minus the one guide written for
+		// WordPress.com plans and settings screens.
 		expect( screen.getByText( 'Documentation' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: /Setting up agentic workflows/ } )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /MCP integration guide/ } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /Available capabilities/ } ) ).toBeInTheDocument();
 	} );
 
 	test( 'walkthrough videos: renders the four cards with their durations', async () => {
