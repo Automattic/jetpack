@@ -7,13 +7,14 @@ import {
 	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
 import { SelectField } from '@jetpack-premium-analytics/fields';
-import { useSearch } from '@wordpress/route';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import { defaultPeriodForInterval } from '../../helpers/default-period-for-interval';
 import { getStoreInfo } from '../../helpers/store-info';
+import { useAttributesWithSearchFallback } from '../../hooks/use-attributes-with-search-fallback';
+import type { ReportParamsFieldAttributes } from '../date-report-params-field';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
 
 /**
@@ -23,18 +24,15 @@ import type { DataFormControlProps } from '@jetpack-premium-analytics/externals'
  * @param elements - The field's options, ordered finest to coarsest.
  * @return The page's bucket.
  */
-function usePagePeriod( elements: { value: unknown }[] ): StatsPeriod | undefined {
-	// `useSearch` throws outside a matched route, which is how Storybook and
-	// Post-Launch render these controls, so the call is guarded rather than
-	// assumed — as `useAttributesWithSearchFallback` does for the same reason.
-	let search: Record< string, unknown > = {};
-
-	try {
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		search = useSearch( { strict: false } );
-	} catch {
-		// Do nothing
-	}
+function usePagePeriod(
+	elements: { value: unknown }[],
+	attributes: Partial< ReportParamsFieldAttributes >
+): StatsPeriod | undefined {
+	// Resolved exactly as the widget body resolves it, through the shared hook:
+	// a host that injects report params through attributes (Storybook, dashboard
+	// previews) must not leave the control naming one bucket while the chart
+	// draws another.
+	const { reportParams } = useAttributesWithSearchFallback( attributes );
 
 	// The field's options are the buckets the chart offers, ordered finest to
 	// coarsest — which is the order `defaultPeriodForInterval` clamps against.
@@ -45,7 +43,7 @@ function usePagePeriod( elements: { value: unknown }[] ): StatsPeriod | undefine
 	}
 
 	const { launchedDate } = getStoreInfo();
-	const { interval } = normalizeReportParams( search, getDefaultPreset( launchedDate ) );
+	const { interval } = normalizeReportParams( reportParams, getDefaultPreset( launchedDate ) );
 
 	return defaultPeriodForInterval( interval, allowed as [ StatsPeriod, ...StatsPeriod[] ] );
 }
@@ -65,7 +63,10 @@ function usePagePeriod( elements: { value: unknown }[] ): StatsPeriod | undefine
  */
 export default function PageGranularityField< Item >( props: DataFormControlProps< Item > ) {
 	const { field, data } = props;
-	const pagePeriod = usePagePeriod( field.elements ?? [] );
+	const pagePeriod = usePagePeriod(
+		field.elements ?? [],
+		data as Partial< ReportParamsFieldAttributes >
+	);
 
 	const pageSeededField = useMemo(
 		() => ( {
