@@ -6,7 +6,7 @@
 	overflow: hidden;
 }
 
-/* Hosts the WidgetState (or the no-video prompt); its `.ready` wrapper fills
+/* Hosts the WidgetState (or the no-video prompt); its `.root` wrapper fills
    this box so the list can scroll within the widget frame. */
 .content {
 	position: relative;

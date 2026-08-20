@@ -728,13 +728,15 @@ class Jetpack_Connector_Test extends TestCase {
 	 *
 	 * WordPress auto-prefixes submenu screen IDs (e.g. settings_page_<slug>), so using
 	 * $screen->id directly as the page= parameter would produce an invalid URL.
+	 *
+	 * The screen has to be a real WP_Screen: WP 7.0 made get_current_screen() return null
+	 * for anything else, so a stdClass stub silently takes the core-screen branch instead.
 	 */
 	public function test_connectors_page_path_gutenberg() {
 		$_SERVER['SCRIPT_NAME'] = '/wp-admin/options-general.php';
 
-		$screen                    = new \stdClass();
-		$screen->id                = Jetpack_Connector::GUTENBERG_CONNECTORS_SCREEN_ID;
-		$GLOBALS['current_screen'] = $screen;
+		set_current_screen( Jetpack_Connector::GUTENBERG_CONNECTORS_SCREEN_ID );
+		$this->assertSame( Jetpack_Connector::GUTENBERG_CONNECTORS_SCREEN_ID, get_current_screen()->id );
 
 		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connectors_page_path' );
 		if ( PHP_VERSION_ID < 80100 ) {

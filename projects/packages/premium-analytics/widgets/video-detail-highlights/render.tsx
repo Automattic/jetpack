@@ -4,6 +4,7 @@
 import { toPostId, useStatsSingleVideo } from '@jetpack-premium-analytics/data';
 import {
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	describeError,
@@ -121,6 +122,7 @@ function VideoDetailHighlightsInner() {
 								'jetpack-premium-analytics-pkg'
 						  ),
 				} }
+				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			</WidgetState>

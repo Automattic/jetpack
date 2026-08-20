@@ -81,7 +81,7 @@ outer component throws. `reportParams` always comes from context; the dashboard 
 picker owns it. Never read date range from `attributes`.
 
 The outer component must still pass host `attributes` into `<WidgetRoot>`. Do not
-drop them just because the inner component only needs one widget setting like `max`;
+drop them just because the inner component needs none of the widget's own settings;
 otherwise host-provided `reportParams` and comparison controls are discarded.
 
 <!-- TODO: link to the canonical widget API declaration (contract types). -->

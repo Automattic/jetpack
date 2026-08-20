@@ -12,6 +12,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
+use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
 use function add_action;
@@ -21,6 +22,8 @@ use function remove_filter;
 use function wp_insert_user;
 use function wp_set_current_user;
 
+require_once __DIR__ . '/trait-wpcom-request-mock.php';
+
 /**
  * Tests for the GET /jetpack/v4/site/capabilities route.
  *
@@ -28,6 +31,8 @@ use function wp_set_current_user;
  */
 #[CoversClass( Capabilities_Bridge::class )]
 class Rest_Capabilities_Bridge_Test extends TestCase {
+
+	use Wpcom_Request_Mock;
 
 	/**
 	 * REST Server.
@@ -56,7 +61,7 @@ class Rest_Capabilities_Bridge_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		remove_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
-		wp_set_current_user( 0 );
+		$this->reset_wpcom_request_mock();
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
@@ -89,5 +94,23 @@ class Rest_Capabilities_Bridge_Test extends TestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 403, $response->get_status() );
+	}
+	/**
+	 * A transport failure surfaces as the bridge's own error rather than
+	 * cURL's text.
+	 *
+	 * This is the callback behind `<Gates>`, so its message is the first
+	 * thing a reader sees when WPCOM is unreachable — the capabilities
+	 * error screen renders it verbatim.
+	 */
+	public function test_wraps_a_transport_failure() {
+		$this->arrange_wpcom_unreachable();
+
+		$response = Capabilities_Bridge::get_capabilities();
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'capabilities_fetch_failed', $response->get_error_code() );
+		$this->assertStringNotContainsString( 'cURL', $response->get_error_message() );
+		$this->assertSame( 502, $response->get_error_data()['status'] );
 	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widget settings: Drop the "Number of results" control and request a shared row limit instead; report pages own showing more rows.

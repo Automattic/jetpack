@@ -2426,7 +2426,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "9b5d503fe98b1865396194efdf29f3223f2af4c2"
+                "reference": "b7934844c0097ce6e85b91d2936d53ae0a4dd8db"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -2451,7 +2451,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.3.x-dev"
+                    "dev-trunk": "6.4.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
