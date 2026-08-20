@@ -354,7 +354,7 @@ export function DateFiltersPanel( {
 		() =>
 			withIntervalControl && intervalOptions && onIntervalChange ? (
 				<DateIntervalDropdown
-					allowed={ intervalOptions }
+					options={ intervalOptions }
 					value={ interval }
 					onChange={ onIntervalChange }
 				/>

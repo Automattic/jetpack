@@ -264,7 +264,7 @@ function YearDateControls( {
 			/>
 
 			<DateIntervalDropdown
-				allowed={ intervalOptions }
+				options={ intervalOptions }
 				value={ resolveStoryInterval( pickedInterval, intervalOptions ) }
 				onChange={ nextInterval => {
 					setPickedInterval( nextInterval );
