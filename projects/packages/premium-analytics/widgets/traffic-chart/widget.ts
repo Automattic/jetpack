@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import type { StatsPeriod } from '@jetpack-premium-analytics/data';
 import { trendingUp } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -15,11 +16,22 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
- * Bucket size the chart groups by. There is no `auto`: the bucket follows the
- * dashboard's interval control until a reader picks one here, and goes back to
- * following it the next time that control moves.
+ * The bucket sizes this chart draws, ordered finest to coarsest as
+ * `defaultPeriodForInterval` requires. There is no `auto`: the bucket follows
+ * the dashboard's interval control until a reader picks one here, and goes back
+ * to following it the next time that control moves.
+ *
+ * One list, because the chart clamps the page's interval against it and the
+ * header control offers it — two readings of the same set that must not drift.
  */
-export type TrafficChartGranularity = 'hour' | 'day' | 'week' | 'month';
+export const TRAFFIC_PERIODS = [
+	'hour',
+	'day',
+	'week',
+	'month',
+] as const satisfies readonly StatsPeriod[];
+
+export type TrafficChartGranularity = ( typeof TRAFFIC_PERIODS )[ number ];
 
 /**
  * How the selected metric is drawn. The shared chart-display list keeps every
@@ -68,9 +80,7 @@ export type TrafficChartAttributes = {
 export default {
 	icon: trendingUp,
 	attributes: [
-		granularityAttributeField( [ 'hour', 'day', 'week', 'month' ], {
-			followsPageInterval: true,
-		} ),
+		granularityAttributeField( TRAFFIC_PERIODS, { followsPageInterval: true } ),
 		chartTypeAttributeField(),
 	] as WidgetAttributeField< TrafficChartAttributes >[],
 	example: {

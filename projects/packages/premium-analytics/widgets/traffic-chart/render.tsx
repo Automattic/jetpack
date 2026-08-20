@@ -18,6 +18,7 @@ import { useCallback, useEffect, useRef } from 'react';
  */
 import styles from './style.module.css';
 import useTrafficChart, { type TrafficPeriod } from './use-traffic-chart';
+import { TRAFFIC_PERIODS } from './widget';
 import type { TrafficChartAttributes, TrafficChartGranularity, TrafficChartType } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -34,14 +35,6 @@ const DATA_FORMAT = {
 	type: 'number' as const,
 	options: { useMultipliers: true, decimals: 0 },
 };
-
-// Ordered finest to coarsest, as `defaultPeriodForInterval` requires.
-const TRAFFIC_PERIODS = [
-	'hour',
-	'day',
-	'week',
-	'month',
-] as const satisfies readonly TrafficPeriod[];
 
 type TrafficChartInnerProps = {
 	/**

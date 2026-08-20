@@ -68,13 +68,22 @@ export default function PageGranularityField< Item >( props: DataFormControlProp
 		data as Partial< ReportParamsFieldAttributes >
 	);
 
-	const pageSeededField = useMemo(
-		() => ( {
+	const pageSeededField = useMemo( () => {
+		const offered = new Set( ( field.elements ?? [] ).map( element => String( element.value ) ) );
+
+		return {
 			...field,
-			getValue: ( { item }: { item: Item } ) => field.getValue( { item } ) ?? pagePeriod,
-		} ),
-		[ field, pagePeriod ]
-	);
+			getValue: ( { item }: { item: Item } ) => {
+				const stored = field.getValue( { item } );
+
+				// A bucket the chart no longer offers — a layout saved with `auto`,
+				// say — is not a value this control can show. The chart falls back
+				// to the page's bucket for it, so the control has to as well, or
+				// the two name different buckets over the same series.
+				return stored !== undefined && offered.has( String( stored ) ) ? stored : pagePeriod;
+			},
+		};
+	}, [ field, pagePeriod ] );
 
 	return <SelectField { ...props } field={ pageSeededField } data={ data } />;
 }

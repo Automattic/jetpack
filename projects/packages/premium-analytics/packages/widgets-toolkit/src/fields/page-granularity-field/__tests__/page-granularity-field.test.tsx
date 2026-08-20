@@ -66,6 +66,18 @@ describe( 'PageGranularityField', () => {
 		expect( control ).toHaveTextContent( 'By hours' );
 	} );
 
+	// The widget body already ignores a bucket it no longer offers. The control has
+	// to agree, or a layout saved with `auto` shows `By hours` over a chart drawing
+	// whatever the page implies.
+	it( 'ignores a stored bucket it no longer offers, as the chart does', () => {
+		const control = groupByControl( {
+			granularity: 'auto',
+			reportParams: { from: '2025-01-01', to: '2026-06-30', interval: 'month' },
+		} );
+
+		expect( control ).toHaveTextContent( 'By months' );
+	} );
+
 	it( 'resolves a coarser page interval the same way', () => {
 		const control = groupByControl( {
 			reportParams: { from: '2025-01-01', to: '2026-06-30', interval: 'month' },

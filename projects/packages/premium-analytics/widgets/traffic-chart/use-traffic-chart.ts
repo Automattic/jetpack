@@ -4,7 +4,6 @@
 import {
 	useStatsVisits,
 	type ReportParams,
-	type StatsPeriod,
 	type StatsVisitsParams,
 	type StatsVisitsResponse,
 	type StatsVisitsStatFields,
@@ -14,7 +13,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { TRAFFIC_CHART_METRICS } from './widget';
+import { TRAFFIC_CHART_METRICS, type TrafficChartGranularity } from './widget';
 import { buildMetricTab, type MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
@@ -22,7 +21,7 @@ import { buildMetricTab, type MetricTab } from '@jetpack-premium-analytics/widge
  * one applies comes from the dashboard's interval control, along with the range
  * and comparison.
  */
-export type TrafficPeriod = Extract< StatsPeriod, 'hour' | 'day' | 'week' | 'month' >;
+export type TrafficPeriod = TrafficChartGranularity;
 
 type TrafficMetricId = ( typeof TRAFFIC_CHART_METRICS )[ number ][ 'id' ];
 

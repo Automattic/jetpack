@@ -1325,6 +1325,21 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
+	// The bucket count comes from the range, for whatever unit is asked for —
+	// there is no separate daily path, and `days` is not a second input to it.
+	it( 'counts the buckets from the range even when days says otherwise', () => {
+		const query = statsVisitsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+			days: 3,
+		} as Parameters< typeof statsVisitsQuery >[ 0 ] );
+
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [ expect.objectContaining( { unit: 'day', quantity: 7 } ) ] )
+		);
+	} );
+
 	it( 'builds UTM query keys from the selected UTM parameter', () => {
 		const query = statsUtmQuery( {
 			from: '2026-06-01',
