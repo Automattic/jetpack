@@ -1527,13 +1527,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$config = array(
-			'error_types'    => array(
+			'error_types'     => array(
 				'is_required'        => __( 'This field is required.', 'jetpack-forms' ),
 				'invalid_form_empty' => __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
 				'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
 				'network_error'      => __( 'Connection issue while submitting the form. Check that you are connected to the Internet and try again.', 'jetpack-forms' ),
 			),
-			'admin_ajax_url' => admin_url( 'admin-ajax.php' ),
+			'admin_ajax_url'  => admin_url( 'admin-ajax.php' ),
+			// Translated here rather than in view.js: the interactivity module is a script
+			// module with no i18n dependency, and the string has to match what
+			// get_submission_display_value() rendered server-side or hydration rewrites it.
+			'unchecked_label' => __( 'No', 'jetpack-forms' ),
 		);
 		wp_interactivity_config( 'jetpack/form', $config );
 		\wp_enqueue_script_module(
@@ -1961,7 +1965,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			$formatted_submission_data[] = array(
 				'label'          => Util::maybe_add_colon_to_label( $field_data['label'] ),
-				'value'          => self::maybe_transform_value( $field_data['value'] ),
+				'value'          => self::get_submission_display_value( $field_data['value'], $type ),
 				'images'         => $images,
 				'url'            => $url,
 				'files'          => $files,
@@ -1972,6 +1976,31 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		return $formatted_submission_data;
+	}
+
+	/**
+	 * The value a submitted field shows in the confirmation summary.
+	 *
+	 * An unticked checkbox submits nothing, so its value arrives empty and the summary drew
+	 * the field's label over a blank line -- which reads as a field that failed to record
+	 * rather than as the answer "no". The email renderer has always said "No" here, so this
+	 * says it too and the two descriptions of one submission agree.
+	 *
+	 * Mirrored by `getSubmissionDisplayValue()` in src/modules/form/helpers.js, which formats
+	 * the same data for an AJAX submission. The two must produce the same string or the
+	 * summary changes as the Interactivity API hydrates it.
+	 *
+	 * @param mixed  $value The submitted value.
+	 * @param string $type  The field type.
+	 *
+	 * @return mixed The value to display.
+	 */
+	private static function get_submission_display_value( $value, $type ) {
+		if ( 'checkbox' === $type && ! Feedback_Field::is_checked_value( $value ) ) {
+			return __( 'No', 'jetpack-forms' );
+		}
+
+		return self::maybe_transform_value( $value );
 	}
 
 	/**

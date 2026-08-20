@@ -26,7 +26,19 @@ const toFieldIdBase = label => {
 };
 
 /**
+ * The placeholder standing in for a field that has not been named.
+ *
+ * @return {string} The placeholder label.
+ */
+const untitledLabel = () => __( 'Untitled field', 'jetpack-forms' );
+
+/**
  * Read a field block's visible label.
+ *
+ * Two blocks keep their label somewhere other than a `jetpack/label` inner block: a checkbox
+ * and a consent field each write their inline label onto the standalone `jetpack/option`
+ * their template inserts. Reading only `jetpack/label` reported both as "Untitled field"
+ * however carefully they had been named, which is unusable in a form holding more than one.
  *
  * Falls back to the explicit id, then to a placeholder: a field with neither a label nor an
  * id is still selectable, and an empty entry in the dropdown would be unusable.
@@ -35,14 +47,40 @@ const toFieldIdBase = label => {
  * @return {string} A label suitable for the subject dropdown.
  */
 const getFieldLabel = block => {
-	const labelBlock = ( block.innerBlocks || [] ).find( inner => inner.name === 'jetpack/label' );
+	const innerBlocks = block.innerBlocks || [];
+	const labelBlock = innerBlocks.find( inner => inner.name === 'jetpack/label' );
 	const label = labelBlock?.attributes?.label;
 
 	if ( label && label.trim() ) {
 		return label.trim();
 	}
 
-	return block.attributes?.id || __( 'Untitled field', 'jetpack-forms' );
+	// A direct `jetpack/option` child only ever belongs to a checkbox or consent field: the
+	// choice fields nest theirs one level down under a `jetpack/options` wrapper, so this
+	// cannot pick up the first choice of a multiple-choice field by mistake.
+	const optionBlock = innerBlocks.find( inner => inner.name === 'jetpack/option' );
+	const optionLabel = optionBlock?.attributes?.label;
+
+	if ( optionLabel && optionLabel.trim() ) {
+		return optionLabel.trim();
+	}
+
+	const id = block.attributes?.id;
+
+	// An id is worth showing when the author chose it, but not when it is the one this panel
+	// minted a moment ago from the placeholder: choosing an unnamed field would then rename it
+	// from "Untitled field" to "untitled-field" inside the very dropdown it was picked from,
+	// so the summary and the builder appeared to name two different fields. The numeric suffix
+	// is matched too, since the second unnamed field of a form is handed `untitled-field-2`.
+	const placeholderId = toFieldIdBase( untitledLabel() );
+	const isMintedFromPlaceholder =
+		id === placeholderId || new RegExp( `^${ placeholderId }-\\d+$` ).test( id || '' );
+
+	if ( id && ! isMintedFromPlaceholder ) {
+		return id;
+	}
+
+	return untitledLabel();
 };
 
 /**

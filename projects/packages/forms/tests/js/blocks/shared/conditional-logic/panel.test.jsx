@@ -546,6 +546,32 @@ describe( 'ConditionalLogicPanel', () => {
 		expect( screen.getByRole( 'button', { name: 'Add condition' } ) ).toBeEnabled();
 	} );
 
+	/**
+	 * The builder opens with one empty condition waiting to be filled in, and that row used to
+	 * greet an author with the amber caution icon -- a warning about something they had not
+	 * done yet, which reads as an error before you have touched anything. Amber is kept for
+	 * the case it was meant for: a condition begun and left unfinished.
+	 */
+	it( 'stays neutral on a condition nobody has started', async () => {
+		await setup( withRules( [] ) );
+
+		const status = screen.getByLabelText( 'Choose a field to compare against.' );
+
+		// The class the muted colour hangs off, and the same condition that chooses
+		// between the draft icon and the caution icon.
+		expect( status ).toHaveClass( 'is-unstarted' );
+		expect( status ).not.toHaveClass( 'is-active' );
+	} );
+
+	it( 'warns once a condition has been started and left unfinished', async () => {
+		await setup( withRules( [ { field: 'name_1', operator: 'is', value: '' } ] ) );
+
+		const status = screen.getByLabelText( 'Give this condition a value.' );
+
+		expect( status ).not.toHaveClass( 'is-unstarted' );
+		expect( status ).not.toHaveClass( 'is-active' );
+	} );
+
 	it( 'marks a complete condition as active', async () => {
 		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
 

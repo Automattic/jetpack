@@ -107,3 +107,52 @@ export const getUrl = value => {
 
 	return null;
 };
+
+/**
+ * Whether a submitted value means the respondent ticked the box.
+ *
+ * An unticked box submits an empty value, and some stored responses use an explicit "No". The
+ * ticked value is a translated string ("Yes"), so this tests for emptiness and the "no"
+ * sentinel rather than matching "yes".
+ *
+ * Must agree with `Feedback_Field::is_checked_value()` in PHP, which renders the server-side
+ * icon and summary for the same submission.
+ *
+ * @param {*} value - The submitted value.
+ * @return {boolean} True when the box was ticked.
+ */
+export const isCheckedValue = value => {
+	if ( Array.isArray( value ) ) {
+		return value.length > 0;
+	}
+	if ( value === null || value === undefined ) {
+		return false;
+	}
+	const normalized = String( value ).trim().toLowerCase();
+	return normalized !== '' && normalized !== '0' && normalized !== 'no';
+};
+
+/**
+ * The value a submitted field shows in the confirmation summary.
+ *
+ * An unticked checkbox submits nothing, so its value arrives empty and the summary drew the
+ * field's label over a blank line -- which reads as a field that failed to record rather than
+ * as the answer "no". The email renderer has always said "No" here, so this says it too.
+ *
+ * Mirrors `Contact_Form::get_submission_display_value()`, which renders the same summary
+ * server-side; the two must agree or the value changes as the Interactivity API hydrates it.
+ * The label is translated in PHP and passed through the module config, since a script module
+ * carries no i18n dependency.
+ *
+ * @param {*}      value          - The submitted value.
+ * @param {string} type           - The field type.
+ * @param {string} uncheckedLabel - The localized label for an unticked checkbox.
+ * @return {*} The value to display.
+ */
+export const getSubmissionDisplayValue = ( value, type, uncheckedLabel ) => {
+	if ( 'checkbox' === type && ! isCheckedValue( value ) ) {
+		return uncheckedLabel;
+	}
+
+	return maybeTransformValue( value );
+};

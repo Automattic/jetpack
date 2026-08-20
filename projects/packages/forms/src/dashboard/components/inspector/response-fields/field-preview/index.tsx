@@ -7,6 +7,7 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { Badge, Link } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -46,6 +47,14 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 	const typeClassName = `is-field-type-${ fieldType }`;
 
 	const renderFieldValue = () => {
+		// An unticked checkbox submits nothing, so it fell through to the dash used for a
+		// field with no answer -- but the respondent did answer, and both the email and the
+		// confirmation summary say "No". A badge, because a ticked one is badged too and the
+		// pair should read as two answers to the same question.
+		if ( fieldType === 'checkbox' && ! isCheckedValue( value ) ) {
+			return <Badge intent="draft">{ __( 'No', 'jetpack-forms' ) }</Badge>;
+		}
+
 		// Image select fields
 		if ( fieldType === 'image-select' ) {
 			const choices = ( value as { choices?: unknown[] } )?.choices;

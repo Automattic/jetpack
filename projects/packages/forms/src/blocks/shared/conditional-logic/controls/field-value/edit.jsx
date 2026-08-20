@@ -1,7 +1,7 @@
 import { Icon, Notice, SelectControl, TextControl, Tooltip } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { caution, check, plus, trash } from '@wordpress/icons';
+import { caution, drafts, plus, published, trash } from '@wordpress/icons';
 import { Button, IconButton, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { RULE_TYPE_FIELD_VALUE } from '../../constants.js';
@@ -192,6 +192,12 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 	const operators = getOperatorsForTypeKey( subject?.typeKey || 'string' );
 	const isComplete = isRuleComplete( rule, subject );
 
+	// A row nobody has touched yet is not a mistake: the builder opens with one waiting, and
+	// showing it in amber greeted an author with a warning about something they had not done.
+	// Amber is kept for the case it was meant for -- a condition begun and left unfinished,
+	// which is the only one where a field will silently not react and nothing says why.
+	const isStarted = isRuleStarted( rule );
+
 	const activeReason = __( 'This condition is active.', 'jetpack-forms' );
 
 	// Why the condition will be skipped, phrased as the thing to do about it. The three cases
@@ -249,11 +255,19 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 					<span
 						className={ clsx( 'jetpack-contact-form__conditional-logic-rule-status', {
 							'is-active': isComplete,
+							'is-unstarted': ! isComplete && ! isStarted,
 						} ) }
 						role="img"
 						aria-label={ isComplete ? activeReason : inactiveReason }
 					>
-						<Icon icon={ isComplete ? check : caution } size={ 20 } />
+						{ /* An untouched row gets the draft icon: the same thing it says of a
+						     post nobody has finished, and it keeps the column aligned without
+						     passing judgement on a row yet. */ }
+						{ isComplete || isStarted ? (
+							<Icon icon={ isComplete ? published : caution } size={ 20 } />
+						) : (
+							<Icon icon={ drafts } size={ 20 } />
+						) }
 					</span>
 				</Tooltip>
 
