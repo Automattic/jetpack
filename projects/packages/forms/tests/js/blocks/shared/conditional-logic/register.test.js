@@ -30,8 +30,14 @@ await jest.unstable_mockModule( '../../../../../src/blocks/contact-form/child-bl
 	],
 } ) );
 
-const { FEATURE_FLAG, FILTER_NAMESPACE, isConditionalLogicField, registerConditionalLogicFilter } =
-	await import( '../../../../../src/blocks/shared/conditional-logic/register.jsx' );
+const {
+	ATTRIBUTE_FILTER_NAMESPACE,
+	FEATURE_FLAG,
+	FILTER_NAMESPACE,
+	addContainerLogicAttribute,
+	isConditionalLogicField,
+	registerConditionalLogicFilter,
+} = await import( '../../../../../src/blocks/shared/conditional-logic/register.jsx' );
 
 describe( 'conditional logic registration', () => {
 	it.each( [ 'jetpack/field-text', 'jetpack/field-radio', 'jetpack/field-checkbox' ] )(
@@ -67,6 +73,48 @@ describe( 'conditional logic registration', () => {
 		expect( isConditionalLogicField( 'jetpack/field-not-a-real-type' ) ).toBe( false );
 	} );
 
+	// A field block declares `conditionalLogic` in the package's own shared settings. A
+	// container is a core block this package does not own, so the attribute has to be added at
+	// registration time instead.
+	describe( 'container attribute', () => {
+		it( 'adds the attribute to core/group', () => {
+			const settings = addContainerLogicAttribute( { attributes: { layout: {} } }, 'core/group' );
+
+			expect( settings.attributes.conditionalLogic ).toEqual( {
+				type: 'object',
+				default: { enabled: false, action: 'show', logicalOperator: 'any', groups: [] },
+			} );
+			// Core's own attributes must survive.
+			expect( settings.attributes.layout ).toEqual( {} );
+		} );
+
+		it( 'gives each container its own groups array', () => {
+			// A default is shared by every instance of the block, so handing them all the same
+			// array would let one group's conditions surface on another if it were mutated.
+			const a = addContainerLogicAttribute( { attributes: {} }, 'core/group' );
+			const b = addContainerLogicAttribute( { attributes: {} }, 'core/group' );
+
+			expect( a.attributes.conditionalLogic.default.groups ).not.toBe(
+				b.attributes.conditionalLogic.default.groups
+			);
+		} );
+
+		it.each( [ 'core/columns', 'core/paragraph', 'jetpack/field-text' ] )(
+			'leaves %s alone',
+			name => {
+				const settings = { attributes: {} };
+
+				expect( addContainerLogicAttribute( settings, name ) ).toBe( settings );
+			}
+		);
+
+		it( 'does not overwrite an attribute the block already declares', () => {
+			const settings = { attributes: { conditionalLogic: { type: 'object', default: {} } } };
+
+			expect( addContainerLogicAttribute( settings, 'core/group' ) ).toBe( settings );
+		} );
+	} );
+
 	// Regression: this module ships in both dist/blocks/editor.js and
 	// dist/form-editor/jetpack-form-editor.js, and the Forms editor screen loads both.
 	// addFilter does not de-duplicate by namespace, so an unguarded registration wrapped
@@ -82,6 +130,10 @@ describe( 'conditional logic registration', () => {
 
 			expect( registerConditionalLogicFilter() ).toBe( true );
 			expect( hasFilter( 'editor.BlockEdit', FILTER_NAMESPACE ) ).toBeTruthy();
+			// A block's attributes are fixed when it registers, so this filter has to be in
+			// place before core/group registers or the panel writes an attribute the block
+			// does not declare and the parser drops it on reload.
+			expect( hasFilter( 'blocks.registerBlockType', ATTRIBUTE_FILTER_NAMESPACE ) ).toBeTruthy();
 			expect( mockHasFeatureFlag ).toHaveBeenCalledWith( FEATURE_FLAG );
 		} );
 

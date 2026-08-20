@@ -33,9 +33,17 @@ await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
 // Loading it first, then registering the mock, avoids both.
 const actualData = await import( '@wordpress/data' );
 
+// Whether the selected container sits inside a form. useSelect is reached only by the
+// container branch here — useSubjectFields, the panel's other store consumer, is mocked below.
+const mockFormParents = jest.fn( () => [] );
+
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	...actualData,
 	useDispatch: () => ( { toggleBlockHighlight: mockToggleBlockHighlight } ),
+	useSelect: mapSelect =>
+		mapSelect( () => ( {
+			getBlockParentsByBlockName: ( ...args ) => mockFormParents( ...args ),
+		} ) ),
 } ) );
 
 await jest.unstable_mockModule(
@@ -111,5 +119,48 @@ describe( 'withConditionalLogic', () => {
 		// Nothing to await: the lazy import is never reached for a block that has no
 		// conditional-logic support.
 		expect( screen.queryByRole( 'button', { name: 'Conditional logic' } ) ).not.toBeInTheDocument();
+	} );
+
+	/**
+	 * A container is a core block that exists on every editor screen, so unlike a field block
+	 * its name alone says nothing about whether conditions are meaningful. Only a container
+	 * inside a form has fields to be conditioned on.
+	 */
+	describe( 'container blocks', () => {
+		afterEach( () => mockFormParents.mockReturnValue( [] ) );
+
+		it( 'mounts the panel on a group inside a form', async () => {
+			mockFormParents.mockReturnValue( [ 'form-client-id' ] );
+
+			renderBlock( 'core/group' );
+
+			expect( screen.getByText( 'edit: core/group' ) ).toBeInTheDocument();
+			await expect(
+				screen.findByRole( 'button', { name: 'Conditional logic' } )
+			).resolves.toBeInTheDocument();
+			expect( mockFormParents ).toHaveBeenCalledWith( 'abc', 'jetpack/contact-form' );
+		} );
+
+		it( 'leaves a group outside a form alone', () => {
+			mockFormParents.mockReturnValue( [] );
+
+			renderBlock( 'core/group' );
+
+			expect( screen.getByText( 'edit: core/group' ) ).toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: 'Conditional logic' } )
+			).not.toBeInTheDocument();
+		} );
+
+		it( 'does not mount the panel on an unselected group inside a form', () => {
+			mockFormParents.mockReturnValue( [ 'form-client-id' ] );
+
+			renderBlock( 'core/group', false );
+
+			expect( screen.getByText( 'edit: core/group' ) ).toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: 'Conditional logic' } )
+			).not.toBeInTheDocument();
+		} );
 	} );
 } );

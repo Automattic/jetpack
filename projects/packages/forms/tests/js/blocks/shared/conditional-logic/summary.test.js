@@ -58,6 +58,25 @@ describe( 'getActiveConditions', () => {
 	} );
 } );
 
+describe( 'getSummaryHeading for a container', () => {
+	// A container is shown or hidden as a unit and takes the fields inside it with it, which
+	// is a different promise from hiding one field — so it gets its own four strings.
+	it.each( [
+		[ 'show', 'all', 'This group is shown only if:' ],
+		[ 'show', 'any', 'This group is shown if any of these are true:' ],
+		[ 'hide', 'all', 'This group is hidden only if:' ],
+		[ 'hide', 'any', 'This group is hidden if any of these are true:' ],
+	] )( 'describes %s/%s as "%s"', ( action, logicalOperator, expected ) => {
+		expect( getSummaryHeading( { action }, group( [], logicalOperator ), true ) ).toBe( expected );
+	} );
+
+	it( 'still says "field" when the subject is not a container', () => {
+		expect( getSummaryHeading( { action: 'show' }, group( [], 'all' ), false ) ).toBe(
+			'This field is shown only if:'
+		);
+	} );
+} );
+
 describe( 'getSummaryText', () => {
 	it( 'says the same thing on one line, for the toolbar tooltip', () => {
 		expect(
@@ -74,5 +93,16 @@ describe( 'getSummaryText', () => {
 
 	it( 'is empty when nothing is active', () => {
 		expect( getSummaryText( { action: 'show' }, group( [] ), FIELDS ) ).toBe( '' );
+	} );
+
+	it( 'uses the container wording when the subject is a container', () => {
+		expect(
+			getSummaryText(
+				{ action: 'show' },
+				group( [ { field: 'phone', operator: 'is', value: 'iPhone' } ] ),
+				FIELDS,
+				true
+			)
+		).toBe( 'This group is shown only if: Phone is “iPhone”' );
 	} );
 } );
