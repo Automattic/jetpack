@@ -922,6 +922,49 @@ function buildHourOfDayResponse( query: URLSearchParams ) {
 }
 
 /**
+ * The hourly slice of `stats/visits`.
+ *
+ * Two things set it apart from the coarser units, and both are what the real
+ * endpoint does: the bucket's date and hour are packed into a single `period`
+ * string rather than split across columns, and only Views carries a number —
+ * every other requested field comes back `null`.
+ *
+ * @param query   - Parsed query params (`quantity`, `stat_fields`).
+ * @param fields  - The requested stat fields, in order.
+ * @param endDate - The last bucket's instant.
+ * @return Raw hourly visits response in the WPCOM matrix shape.
+ */
+function buildHourlyVisitsResponse( query: URLSearchParams, fields: string[], endDate: Date ) {
+	const count = Math.max( 1, Math.min( 400, Number( query.get( 'quantity' ) ) || 24 ) );
+
+	const rows = Array.from( { length: count }, ( _, index ) => {
+		const bucket = new Date( endDate );
+		bucket.setUTCHours( bucket.getUTCHours() - ( count - 1 - index ), 0, 0, 0 );
+
+		const hour = bucket.getUTCHours();
+		const period = `${ bucket.toISOString().slice( 0, 10 ) } ${ String( hour ).padStart(
+			2,
+			'0'
+		) }:00:00`;
+		// A daily rhythm — quiet overnight, busiest mid-afternoon — so the shape
+		// reads as hourly traffic rather than noise.
+		const views = Math.max(
+			0,
+			Math.round( 70 + 55 * Math.sin( ( ( hour - 4 ) / 24 ) * 2 * Math.PI ) + 8 * Math.cos( hour ) )
+		);
+
+		return [ period, ...fields.map( field => ( field === 'views' ? views : null ) ) ];
+	} );
+
+	return {
+		date: endDate.toISOString().slice( 0, 10 ),
+		unit: 'hour',
+		fields: [ 'period', ...fields ],
+		data: rows,
+	};
+}
+
+/**
  * Builds the stats/visits time-series response for the traffic chart.
  *
  * Honours the `unit`, `date`, `start_date`, and `stat_fields` query params, and
@@ -940,6 +983,11 @@ function buildVisitsResponse( query: URLSearchParams ) {
 	const stepDays = VISITS_STEP_DAYS[ unit ] ?? 1;
 	const fields = ( query.get( 'stat_fields' ) || 'views,visitors' ).split( ',' );
 	const endDate = parseDateParam( query.get( 'date' ), new Date() );
+
+	if ( unit === 'hour' ) {
+		return buildHourlyVisitsResponse( query, fields, endDate );
+	}
+
 	const startDate = parseDateParam(
 		query.get( 'start_date' ),
 		new Date( endDate.getTime() - 29 * stepDays * DAY_MS )
