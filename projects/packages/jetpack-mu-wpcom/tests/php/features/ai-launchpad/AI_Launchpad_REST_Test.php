@@ -1343,6 +1343,42 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that the tailoring run's session id is persisted on the envelope, so every event
+	 * fired afterwards — on this page load and on later ones — is attributable to that run.
+	 */
+	public function test_tailored_persists_the_ai_session_id() {
+		$result = $this->call_api(
+			'PUT',
+			'/tailored',
+			self::valid_payload(),
+			array(
+				'source'        => 'ai',
+				'ai_session_id' => 'a755f9e8-8e0a-45be-81bc-524aaf8e2703',
+			)
+		);
+
+		$this->assertSame( 200, $result->get_status() );
+
+		$envelope = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$this->assertSame( 'a755f9e8-8e0a-45be-81bc-524aaf8e2703', $envelope['ai_session_id'] );
+		$this->assertSame( 'a755f9e8-8e0a-45be-81bc-524aaf8e2703', wpcom_ai_launchpad_standard_props()['ai_session_id'] );
+	}
+
+	/**
+	 * Test that a write without a session id leaves the key off the envelope rather than
+	 * persisting an empty string, so the props builder reports "none" for it.
+	 */
+	public function test_tailored_omits_a_missing_ai_session_id() {
+		$result = $this->call_api( 'PUT', '/tailored', self::valid_payload(), array( 'source' => 'ai' ) );
+
+		$this->assertSame( 200, $result->get_status() );
+
+		$envelope = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$this->assertArrayNotHasKey( 'ai_session_id', $envelope );
+		$this->assertSame( 'none', wpcom_ai_launchpad_standard_props()['ai_session_id'] );
+	}
+
+	/**
 	 * Test that the schema accepts the analytics-only inferred_goal (persisting it into the envelope, where
 	 * the Tracks context readers find it) and rejects an out-of-enum value.
 	 */
