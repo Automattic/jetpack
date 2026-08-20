@@ -1,4 +1,5 @@
 import { WidgetCard } from '../../../stories/widget-card';
+import { AnnualHighlightsSkeleton } from '../annual-highlights-skeleton';
 import { GenericSkeleton } from '../generic-skeleton';
 import { HeatmapSkeleton } from '../heatmap-skeleton';
 import { MetricSparklineSkeleton } from '../metric-sparkline-skeleton';
@@ -88,6 +89,33 @@ export const HeatmapShortTile: HeatmapStory = {
 	render: () => (
 		<WidgetCard width="720px" height="140px">
 			<HeatmapSkeleton />
+		</WidgetCard>
+	),
+};
+
+type AnnualHighlightsStory = StoryObj< typeof AnnualHighlightsSkeleton >;
+
+/**
+ * The shape the Annual highlights widget passes through `WidgetState`'s
+ * `renderLoading`: a row per selected metric, each an icon beside a label line
+ * with its value trailing.
+ */
+export const AnnualHighlights: AnnualHighlightsStory = {
+	render: () => (
+		<WidgetCard height="320px">
+			<AnnualHighlightsSkeleton />
+		</WidgetCard>
+	),
+};
+
+/**
+ * A height-1 dashboard tile. `safe center` packs the rows at the top once they
+ * stop fitting, so the tail is clipped instead of the first rows.
+ */
+export const AnnualHighlightsShortTile: AnnualHighlightsStory = {
+	render: () => (
+		<WidgetCard height="140px">
+			<AnnualHighlightsSkeleton />
 		</WidgetCard>
 	),
 };
