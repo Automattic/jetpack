@@ -321,3 +321,86 @@ describe( 'useSubjectFields', () => {
 		expect( subjectsFor( 'c-orphan' ) ).toEqual( [] );
 	} );
 } );
+
+describe( 'useSubjectFields for a container', () => {
+	/**
+	 * A container is a target, not a subject: it is shown or hidden as a unit and takes the
+	 * fields inside it with it. Offering one of those fields as a condition would be circular
+	 * -- the answer that reveals the group can only be given once the group is visible.
+	 */
+	it( 'excludes the fields inside the container owning the panel', () => {
+		const inside = field( 'c-inside', { label: 'Secret' } );
+		const group = {
+			clientId: 'c-group',
+			name: 'core/group',
+			attributes: {},
+			innerBlocks: [ inside ],
+		};
+		const outside = field( 'c-outside', { label: 'Name' } );
+
+		blocks = {
+			'c-form': {
+				clientId: 'c-form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [ outside, group ],
+			},
+		};
+		rootOf = { 'c-group': 'c-form' };
+
+		expect( subjectsFor( 'c-group' ).map( f => f.label ) ).toEqual( [ 'Name' ] );
+	} );
+
+	/**
+	 * The exclusion is the subtree, not just the block: a field nested deeper inside the
+	 * container is equally unusable as a subject.
+	 */
+	it( 'excludes fields nested deeper inside the container', () => {
+		const deep = field( 'c-deep', { label: 'Deep' } );
+		const group = {
+			clientId: 'c-group',
+			name: 'core/group',
+			attributes: {},
+			innerBlocks: [
+				{ clientId: 'c-inner', name: 'core/columns', attributes: {}, innerBlocks: [ deep ] },
+			],
+		};
+
+		blocks = {
+			'c-form': {
+				clientId: 'c-form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [ field( 'c-outside', { label: 'Name' } ), group ],
+			},
+		};
+		rootOf = { 'c-group': 'c-form' };
+
+		expect( subjectsFor( 'c-group' ).map( f => f.label ) ).toEqual( [ 'Name' ] );
+	} );
+
+	/**
+	 * A field beside the container is unaffected, so hiding a group does not shrink the
+	 * choices available to the fields around it.
+	 */
+	it( 'still offers fields inside a container the panel does not own', () => {
+		const group = {
+			clientId: 'c-group',
+			name: 'core/group',
+			attributes: {},
+			innerBlocks: [ field( 'c-inside', { label: 'Secret' } ) ],
+		};
+
+		blocks = {
+			'c-form': {
+				clientId: 'c-form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [ field( 'c-outside', { label: 'Name' } ), group ],
+			},
+		};
+		rootOf = { 'c-outside': 'c-form' };
+
+		expect( subjectsFor( 'c-outside' ).map( f => f.label ) ).toEqual( [ 'Secret' ] );
+	} );
+} );
