@@ -248,9 +248,28 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 	const updateHiddenSeries = useCallback(
 		( chartId: string, update: ( current: Set< string > ) => Set< string > ) => {
 			setHiddenSeries( prev => {
-				const newMap = new Map( prev );
-				const next = update( new Set( newMap.get( chartId ) ?? [] ) );
+				const current = prev.get( chartId );
+				const next = update( new Set( current ?? [] ) );
 
+				// No stored entry and nothing to add: writing an empty set would
+				// only be deleted again below, so bail out before touching the Map.
+				if ( ! current && next.size === 0 ) {
+					return prev;
+				}
+
+				// Same members as what's already stored: return `prev` unchanged so
+				// its identity is preserved. Consumers derived from `hiddenSeries`
+				// (e.g. `isSeriesVisible`) must not appear to change on a no-op write,
+				// or an effect keyed on them would re-fire forever.
+				if (
+					current &&
+					current.size === next.size &&
+					[ ...next ].every( label => current.has( label ) )
+				) {
+					return prev;
+				}
+
+				const newMap = new Map( prev );
 				if ( next.size === 0 ) {
 					newMap.delete( chartId );
 				} else {

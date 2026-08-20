@@ -12,8 +12,8 @@ describe( 'useDefaultHiddenSeries', () => {
 		return null;
 	};
 
-	const Chart = ( { defaults }: { defaults?: string[] } ) => {
-		useDefaultHiddenSeries( 'chart', defaults );
+	const Chart = ( { defaults, chartId = 'chart' }: { defaults?: string[]; chartId?: string } ) => {
+		useDefaultHiddenSeries( chartId, defaults );
 		return null;
 	};
 
@@ -81,5 +81,27 @@ describe( 'useDefaultHiddenSeries', () => {
 
 		expect( contextValue.isSeriesVisible( 'chart', 'Visitors' ) ).toBe( false );
 		expect( contextValue.isSeriesVisible( 'chart', 'Views' ) ).toBe( true );
+	} );
+
+	it( 're-seeds the defaults when chartId changes mid-mount', () => {
+		// Same mount, only the chartId prop changes (e.g. <LineChart chartId={ metric } ... />
+		// with `metric` going 'views' -> 'clicks'), so the component never unmounts.
+		const Harness = ( { chartId }: { chartId: string } ) => (
+			<GlobalChartsProvider>
+				<Grab />
+				<Chart chartId={ chartId } defaults={ [ 'Visitors' ] } />
+			</GlobalChartsProvider>
+		);
+
+		const { rerender } = render( <Harness chartId="views" /> );
+
+		expect( contextValue.isSeriesVisible( 'views', 'Visitors' ) ).toBe( false );
+
+		rerender( <Harness chartId="clicks" /> );
+
+		// The new chart id gets the same declared defaults seeded...
+		expect( contextValue.isSeriesVisible( 'clicks', 'Visitors' ) ).toBe( false );
+		// ...and the old id's hidden set is left as it was, not silently cleared.
+		expect( contextValue.isSeriesVisible( 'views', 'Visitors' ) ).toBe( false );
 	} );
 } );
