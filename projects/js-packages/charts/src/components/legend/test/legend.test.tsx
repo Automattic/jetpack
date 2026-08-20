@@ -797,6 +797,7 @@ describe( 'BaseLegend', () => {
 			const items = screen.getAllByTestId( 'legend-item' );
 			expect( items[ 0 ] ).not.toHaveAttribute( 'aria-pressed' );
 			expect( items[ 0 ] ).not.toHaveAttribute( 'tabindex' );
+			expect( items[ 0 ] ).toHaveAttribute( 'role', 'listitem' );
 		} );
 
 		it( 'names the hidden state accessibly on a non-interactive legend', () => {

@@ -231,7 +231,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 									}
 									onClick={ handleClick }
 									onKeyDown={ handleKeyDown }
-									role={ interactive ? 'button' : undefined }
+									role={ interactive ? 'button' : 'listitem' }
 									tabIndex={ interactive ? 0 : undefined }
 									aria-pressed={ interactive ? visible : undefined }
 									aria-label={ getLegendItemAriaLabel( label.text, visible, interactive ) }
