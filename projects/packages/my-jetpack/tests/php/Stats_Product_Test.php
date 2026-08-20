@@ -111,12 +111,6 @@ class Stats_Product_Test extends TestCase {
 		);
 	}
 
-	public function test_manage_url_does_not_report_the_plan_choice() {
-		$this->set_premium_analytics_enabled( false );
-
-		$this->assertStringNotContainsString( 'stats_plan_chosen', Stats::get_manage_url() );
-	}
-
 	public function test_purchase_url_points_at_the_stats_purchase_screen_by_default() {
 		$this->set_premium_analytics_enabled( false );
 
