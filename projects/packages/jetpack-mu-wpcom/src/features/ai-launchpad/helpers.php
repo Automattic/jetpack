@@ -314,14 +314,20 @@ if ( ! function_exists( 'wpcom_ai_launchpad_record_tracks_event' ) ) {
 	 * @return void
 	 */
 	function wpcom_ai_launchpad_record_tracks_event( $event_name, $props = array(), $rendered_task_ids = null ) {
-		$props = array_merge( wpcom_ai_launchpad_tracks_context( $rendered_task_ids ), $props );
-		// Null-valued props are omitted, mirroring the client recorder.
-		$props = array_filter(
-			$props,
+		$context = array_merge( wpcom_ai_launchpad_tracks_context( $rendered_task_ids ), $props );
+
+		// Null-valued context props are omitted, mirroring the client recorder: the Tracks
+		// pipeline would otherwise record them as literal "null" strings.
+		$context = array_filter(
+			$context,
 			static function ( $value ) {
 				return null !== $value;
 			}
 		);
+
+		// Merged outside that filter, and first, so the standard props are never dropped
+		// (`is_test: false` is a value, not a gap) and a call site still wins over both.
+		$props = array_merge( wpcom_ai_launchpad_standard_props(), $context );
 
 		/**
 		 * Fires for every server-side AI Launchpad analytics event, before it is sent to

@@ -1030,6 +1030,17 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		// The shared context rides along, populated from the persisted options.
 		$this->assertSame( 'write', $props['goal'] );
 		$this->assertSame( 'hiking', $props['niche'] );
+		// The AI standard props ride along too, and unlike the shared context they are never
+		// dropped — "none" and false are meaningful values, not missing ones.
+		$this->assertSame( 'web', $props['channel'] );
+		$this->assertSame( 'dashboard', $props['surface'] );
+		$this->assertSame( 'admin.php', $props['screen'] );
+		$this->assertSame( 'ai_launchpad', $props['agent_name'] );
+		$this->assertSame( \Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION, $props['agent_version'] );
+		$this->assertArrayHasKey( 'is_a11n', $props );
+		$this->assertFalse( $props['is_test'] );
+		$this->assertSame( 'ai', $props['source'] );
+		$this->assertSame( 'success', $props['outcome'] );
 		// Null context values are omitted from the recorded event, never "null" strings.
 		$this->assertArrayNotHasKey( 'inferred_goal', $props );
 		$this->assertJson( $props['rendered_list'] );
@@ -1123,6 +1134,29 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		// The latch prevents a re-fire on later reads.
 		$this->call_api( Requests::GET );
 		$this->assertCount( 2, $events );
+	}
+
+	/**
+	 * Test that a call-site property beats a standard property of the same name, so the
+	 * wrapper can never silently overwrite what a call site deliberately sent.
+	 */
+	public function test_call_site_props_win_over_the_standard_props() {
+		$this->seed_tailored_site();
+
+		$events = array();
+		$this->capture_tracks_events( $events );
+
+		wpcom_ai_launchpad_record_tracks_event(
+			'jetpack_ai_launchpad_task_completed',
+			array(
+				'task_id' => 'site_title',
+				'surface' => 'somewhere_else',
+			)
+		);
+
+		list( , $props ) = self::captured_event( $events );
+		$this->assertSame( 'somewhere_else', $props['surface'] );
+		$this->assertSame( 'web', $props['channel'] );
 	}
 
 	/**
