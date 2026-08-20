@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Import: harden decoding of imported post meta so values are restored as plain data.
