@@ -86,6 +86,7 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		Jetpack_Backup::enqueue_admin_scripts();
 
 		$this->assertFalse( wp_script_is( 'jetpack-backup', 'registered' ) );
+		$this->assertTrue( wp_script_is( 'wp-jp-i18n-loader', 'enqueued' ) );
 	}
 
 	public function test_enqueue_admin_scripts_enqueues_tracks_when_modernized() {
