@@ -13,6 +13,7 @@
  *
  * Useful for setting SameSite cookies in PHP 7.2 or earlier.
  *
+ * @deprecated since $$next-version$$. Use `setcookie()` instead now that we've dropped PHP 7.2 support.
  * @param string $name    Name of the cookie.
  * @param string $value   Value of the cookie.
  * @param array  $options Options to include with the cookie.
