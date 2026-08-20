@@ -10,7 +10,7 @@
 		"dev"
 	],
 	"require": {
-		"php": ">=7.2.5",
+		"php": ">=7.4",
 		"composer-runtime-api": "^2.2.0",
 		"symfony/console": "^5.4 || ^6.4 || ^7.1",
 		"symfony/process": "^5.4 || ^6.4 || ^7.1"
