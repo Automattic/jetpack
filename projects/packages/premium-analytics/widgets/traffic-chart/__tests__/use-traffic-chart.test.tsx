@@ -238,7 +238,14 @@ describe( 'useTrafficChart', () => {
 			const paths = visitsPaths();
 			expect( paths ).toHaveLength( 1 );
 			expect( paths[ 0 ] ).toContain( 'unit=hour' );
-			expect( paths[ 0 ] ).toContain( 'quantity=24' );
+			// The endpoint counts the hourly buckets from these two, so they have
+			// to reach it with their time of day intact.
+			expect( paths[ 0 ] ).toContain(
+				`start_date=${ encodeURIComponent( '2026-06-15T00:00:00+00:00' ) }`
+			);
+			expect( paths[ 0 ] ).toContain(
+				`date=${ encodeURIComponent( '2026-06-15T23:59:59+00:00' ) }`
+			);
 			expect( paths[ 0 ] ).toContain( 'stat_fields=views' );
 			expect( paths[ 0 ] ).not.toContain( 'visitors' );
 		} );
