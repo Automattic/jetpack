@@ -452,6 +452,37 @@ describe( 'LeaderboardChart', () => {
 			expect( screen.getByText( /all series are hidden/i ) ).toBeInTheDocument();
 		} );
 
+		it( 'omits the click instruction when the legend cannot be clicked', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LeaderboardChart
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-empty-copy-leaderboard"
+						data={ mockData }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const primaryLabel = screen.getAllByTestId( 'legend-item' )[ 0 ].textContent;
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-empty-copy-leaderboard', primaryLabel );
+			} );
+
+			expect( screen.getByText( 'All series are hidden.' ) ).toBeInTheDocument();
+			expect( screen.queryByText( /click legend items/i ) ).not.toBeInTheDocument();
+		} );
+
 		it( 'still renders the primary series when only the comparison is hidden programmatically', () => {
 			// Hiding every series routes through allSeriesHidden to the empty state and
 			// never exercises the per-series render path. Hiding only the comparison

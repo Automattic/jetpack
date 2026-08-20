@@ -271,9 +271,10 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 
 	const prefersReducedMotion = usePrefersReducedMotion();
 
-	// There are no rows to measure while an interactive legend has hidden every
-	// series. Pausing fitting restores the full row count and, when a series is shown
-	// again, re-runs the effect against the newly mounted grid.
+	// There are no rows to measure while every series is hidden, whether from an
+	// interactive legend click or a programmatic toggle. Pausing fitting restores
+	// the full row count and, when a series is shown again, re-runs the effect
+	// against the newly mounted grid.
 	const { contentRef, fittedCount, isMeasurable } = useFittedRowCount(
 		fitRows && ! allSeriesHidden,
 		data?.length ?? 0,
@@ -365,7 +366,9 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					) }
 					{ allSeriesHidden ? (
 						<div className={ styles.emptyState }>
-							{ __( 'All series are hidden. Click legend items to show data.', 'jetpack-charts' ) }
+							{ legendInteractive
+								? __( 'All series are hidden. Click legend items to show data.', 'jetpack-charts' )
+								: __( 'All series are hidden.', 'jetpack-charts' ) }
 						</div>
 					) : (
 						<Grid

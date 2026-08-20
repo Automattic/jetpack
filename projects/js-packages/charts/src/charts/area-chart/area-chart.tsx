@@ -432,10 +432,12 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 													width={ width }
 													height={ chartHeight }
 												>
-													{ __(
-														'All series are hidden. Click legend items to show data.',
-														'jetpack-charts'
-													) }
+													{ legendInteractive
+														? __(
+																'All series are hidden. Click legend items to show data.',
+																'jetpack-charts'
+														  )
+														: __( 'All series are hidden.', 'jetpack-charts' ) }
 												</SvgEmptyState>
 											) : null }
 
