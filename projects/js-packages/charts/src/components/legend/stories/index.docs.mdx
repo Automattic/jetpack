@@ -200,7 +200,7 @@ Alternatively, use the props-based approach with `showLegend` and the `legend` c
 
 ### Standalone Interactive Legend
 
-Interactive legends also work with standalone Legend components. A chart always honors series visibility — whether it changed from a legend click or a programmatic call like `setSeriesVisibility` — so `legend.interactive` on the chart does not control filtering. Set `interactive` on the standalone Legend so it renders clickable toggle controls, and give the chart and the Legend the same `chartId` so they share visibility state.
+Interactive legends also work with standalone Legend components. A chart always honors series visibility — whether it changed from a legend click or a programmatic call like `toggleSeriesVisibility` — so `legend.interactive` on the chart does not control filtering. Set `interactive` on the standalone Legend so it renders clickable toggle controls, and give the chart and the Legend the same `chartId` so they share visibility state.
 
 <Source
 	language="tsx"

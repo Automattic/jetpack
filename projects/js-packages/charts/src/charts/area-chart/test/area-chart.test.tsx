@@ -641,7 +641,7 @@ describe( 'AreaChart', () => {
 			);
 
 			act( () => {
-				context?.setSeriesVisibility( chartId, 'Series A', false );
+				context?.toggleSeriesVisibility( chartId, 'Series A' );
 			} );
 
 			const chart = screen.getByRole( 'grid', { name: /area chart/i } );

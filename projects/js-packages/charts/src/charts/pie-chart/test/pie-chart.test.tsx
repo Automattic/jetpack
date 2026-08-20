@@ -559,13 +559,13 @@ describe( 'PieChart', () => {
 		];
 
 		const Harness = () => {
-			const { setSeriesVisibility } = useGlobalChartsContext();
+			const { toggleSeriesVisibility } = useGlobalChartsContext();
 			return (
 				<>
-					<button onClick={ () => setSeriesVisibility( chartId, 'Segment A', false ) }>
+					<button onClick={ () => toggleSeriesVisibility( chartId, 'Segment A' ) }>
 						Hide Segment A
 					</button>
-					<button onClick={ () => setSeriesVisibility( chartId, 'Segment B', false ) }>
+					<button onClick={ () => toggleSeriesVisibility( chartId, 'Segment B' ) }>
 						Hide Segment B
 					</button>
 					<PieChart
