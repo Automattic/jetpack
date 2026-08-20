@@ -13,7 +13,6 @@
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-classic-theme-helper": "@dev",
-		"automattic/jetpack-comments": "@dev",
 		"automattic/jetpack-compat": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-constants": "@dev",

@@ -763,7 +763,9 @@ class Jetpack_Mu_Wpcom {
 		 *
 		 * @param bool $use_package Whether to load the comment experience from the package. Default false.
 		 */
-		if ( apply_filters( 'jetpack_comments_new_hotness', false ) ) {
+		// The package ships with mu-wpcom-plugin on Simple, not with wpcomsh on Atomic,
+		// so only defer to it when it is actually installed.
+		if ( apply_filters( 'jetpack_comments_new_hotness', false ) && class_exists( Comments::class ) ) {
 			Comments::init();
 			return;
 		}

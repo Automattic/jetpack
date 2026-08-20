@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b75cc6cc6217dbca51f8bee7af4e35e7",
+    "content-hash": "74895b9eb45499940ddc13e1a8d3496d",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -1554,7 +1554,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "a7c1861360b1c879ad74e68e9eb4d528e9964815"
+                "reference": "63ecd45c303b53eb998a2fa7fdc06467c31e4d14"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1562,7 +1562,6 @@
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
                 "automattic/jetpack-classic-theme-helper": "@dev",
-                "automattic/jetpack-comments": "@dev",
                 "automattic/jetpack-compat": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
@@ -5147,6 +5146,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "automattic/jetpack-comments": 20,
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-mu-wpcom": 20,
         "automattic/phpunit-select-config": 20
