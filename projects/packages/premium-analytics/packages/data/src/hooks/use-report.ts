@@ -74,9 +74,20 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 		enabled: queryEnabled && comparisonEnabled && ( comparisonQueryOptions.enabled ?? true ),
 	} );
 
+	// Whether each query is switched off outright, for the awaiting check below.
+	// `enabled` may also be a predicate, which only React Query can resolve, so
+	// anything but a literal `false` counts as live — the conservative side,
+	// since it only restores the previous behaviour.
+	const primaryIsLive = queryEnabled && primaryQueryOptions.enabled !== false;
+	const comparisonIsLive =
+		queryEnabled && comparisonEnabled && comparisonQueryOptions.enabled !== false;
+
 	// Widened past React Query's `isLoading` — see `isAwaitingData`. Its own
-	// flags stay reachable through `primary` and `comparison`.
-	const isLoading = isAwaitingData( primary ) || isAwaitingData( comparison );
+	// flags stay reachable through `primary` and `comparison`. Each query's
+	// liveness goes with it: a switched-off query has nothing coming, so the
+	// placeholder it is left holding must not read as a load still in flight.
+	const isLoading =
+		isAwaitingData( primary, primaryIsLive ) || isAwaitingData( comparison, comparisonIsLive );
 	const isFetching = primary.isFetching || comparison.isFetching;
 
 	/**

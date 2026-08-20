@@ -17,7 +17,7 @@ type Row = { range: string };
 
 const STALE_TIME = 5 * 60 * 1000;
 
-function Probe( { range }: { range: string } ) {
+function Probe( { range, enabled = true }: { range: string; enabled?: boolean } ) {
 	const query = useQuery< Row >( {
 		queryKey: [ 'report', range ],
 		queryFn: async () => {
@@ -25,12 +25,13 @@ function Probe( { range }: { range: string } ) {
 			return { range };
 		},
 		placeholderData: previousData => previousData,
+		enabled,
 	} );
 
 	return (
 		<>
 			<span data-testid="shown">{ query.data?.range ?? '—' }</span>
-			<span data-testid="awaiting">{ String( isAwaitingData( query ) ) }</span>
+			<span data-testid="awaiting">{ String( isAwaitingData( query, enabled ) ) }</span>
 			<span data-testid="fetching">{ String( query.isFetching ) }</span>
 		</>
 	);
@@ -43,11 +44,18 @@ function read( testId: string ) {
 describe( 'isAwaitingData', () => {
 	let client: QueryClient;
 	let setRange: ( range: string ) => void;
+	let setState: ( state: { range: string; enabled: boolean } ) => void;
 
 	function Host() {
 		const [ range, set ] = useState( 'january' );
 		setRange = set;
 		return <Probe range={ range } />;
+	}
+
+	function SwitchableHost() {
+		const [ state, set ] = useState( { range: 'january', enabled: true } );
+		setState = set;
+		return <Probe range={ state.range } enabled={ state.enabled } />;
 	}
 
 	function wrap( children: ReactNode ) {
@@ -134,5 +142,23 @@ describe( 'isAwaitingData', () => {
 		// The invalidation above leaves a refetch in flight; let it land inside
 		// the test rather than during teardown.
 		await settleOn( 'january' );
+	} );
+
+	// The stuck-skeleton bug: a widget that switches a query off (a metric the
+	// current bucket cannot serve, a view that is no longer selected) changes
+	// that query's params in the same render. `placeholderData` fills it from
+	// the previous params and React Query calls it placeholder — but nothing
+	// will ever fetch to replace it, so treating that as "awaiting" pins the
+	// widget in its skeleton forever.
+	it( 'stays false for a disabled query left holding placeholder data', async () => {
+		render( wrap( <SwitchableHost /> ) );
+		await waitFor( () => expect( read( 'shown' ) ).toBe( 'january' ) );
+
+		await act( async () => {
+			setState( { range: 'february', enabled: false } );
+		} );
+
+		expect( read( 'fetching' ) ).toBe( 'false' );
+		expect( read( 'awaiting' ) ).toBe( 'false' );
 	} );
 } );
