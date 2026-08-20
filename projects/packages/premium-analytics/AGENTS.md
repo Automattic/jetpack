@@ -598,9 +598,11 @@ the query factory — do not do it in the widget or the view hook.
 
 **Row count**
 
-List widgets request `WIDGET_ROW_LIMIT` from
+Stats list widgets request `WIDGET_ROW_LIMIT` from
 `@jetpack-premium-analytics/widgets-toolkit`. Do not add per-widget defaults or
 user-editable row counts; report pages handle larger result sets with pagination.
+This rule covers Stats widgets only — the store widgets under
+`packages/widgets-toolkit/src/widgets/` predate it and set their own limits.
 
 In helpers that cap rows after fetching, `max = 0` means "all rows". Use
 `slice( 0, max > 0 ? max : undefined )`, not `slice( 0, max )`. Endpoint request
