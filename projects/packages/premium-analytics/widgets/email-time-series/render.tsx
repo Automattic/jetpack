@@ -11,6 +11,7 @@ import {
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	buildReportMetricSeries,
@@ -132,13 +133,8 @@ function EmailTimeSeriesReport( { metric, granularity, chartType }: EmailTimeSer
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				// An empty placeholder response is still data to React Query, so a
-				// range change reports fetching rather than loading. Keep the loader
-				// until that new range resolves instead of flashing the empty state.
-				isLoading={ active.isLoading || ( ! hasPoints && active.isFetching ) }
-				// `isFetching` is deliberately not passed: the chart renders its
-				// own scoped overlay below, so WidgetState's full-widget one
-				// would double up and cover the metric headline.
+				isLoading={ active.isLoading }
+				isFetching={ active.isFetching }
 				isError={ active.isError }
 				isEmpty={ ! hasSelection || ! hasPoints }
 				error={ {
@@ -157,12 +153,14 @@ function EmailTimeSeriesReport( { metric, granularity, chartType }: EmailTimeSer
 								'jetpack-premium-analytics-pkg'
 						  ),
 				} }
+				// The chart is the whole content here, so its block replaces the
+				// generic stacked lines.
+				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
-					loading={ active.isFetching }
 				/>
 			</WidgetState>
 		</div>

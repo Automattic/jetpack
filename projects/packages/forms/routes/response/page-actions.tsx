@@ -136,6 +136,12 @@ export default function SingleResponseActions( {
 				runAction( response.is_unread ? actions.markAsReadAction : actions.markAsUnreadAction ),
 		};
 
+		// No request to serialize against, so it skips `runAction`.
+		const printResponse: Control = {
+			title: __( 'Print', 'jetpack-forms' ),
+			onClick: () => window.print(),
+		};
+
 		let statusControls: Control[];
 		if ( response.status === 'spam' ) {
 			statusControls = [
@@ -173,7 +179,7 @@ export default function SingleResponseActions( {
 			];
 		}
 
-		const groups: Control[][] = [ [ toggleRead ], statusControls ];
+		const groups: Control[][] = [ [ toggleRead, printResponse ], statusControls ];
 
 		if ( response.edit_form_url ) {
 			groups.push( [

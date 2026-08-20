@@ -4,8 +4,10 @@
 import { useStatsEmailSummary, type StatsEmailSummary } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	LeaderboardPostLabel,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
@@ -166,15 +168,15 @@ type EmailsReportProps = {
  * with the loading / error / empty states rendered through `<WidgetState>`.
  */
 function EmailsReport( { attributes }: EmailsReportProps ) {
-	const max = attributes?.max ?? 10;
 	const metric = attributes?.metric ?? 'opens';
-	// The summary endpoint accepts 1–30 rows and resets anything outside that
-	// range to 10, so request its maximum when the widget wants "all rows".
-	const quantity = max > 0 ? Math.min( max, 30 ) : 30;
 
-	const { data, isLoading, isFetching, isError, refetch } = useStatsEmailSummary( { quantity } );
+	// The summary endpoint accepts 1–30 rows and silently resets anything outside
+	// that range to 10, so the shared limit has to stay inside it.
+	const { data, isLoading, isFetching, isError, refetch } = useStatsEmailSummary( {
+		quantity: WIDGET_ROW_LIMIT,
+	} );
 
-	const rows = useMemo( () => toEmailRows( data, max ), [ data, max ] );
+	const rows = useMemo( () => toEmailRows( data, WIDGET_ROW_LIMIT ), [ data ] );
 
 	return (
 		<div className={ styles.widget }>
@@ -203,6 +205,7 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<EmailsLeaderboard rows={ rows } metric={ metric } />
 				</WidgetState>
@@ -216,8 +219,7 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 
 /**
  * The displayed rate is the `metric` attribute (`relevance: 'high'`), exposed
- * as a control by the widget host. The email summary still reads `max` from
- * props because it does not use report params.
+ * as a control by the widget host.
  */
 export default function Emails( { attributes = {} }: EmailsWidgetProps ) {
 	return (

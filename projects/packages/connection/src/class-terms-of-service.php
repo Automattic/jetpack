@@ -90,7 +90,17 @@ class Terms_Of_Service {
 	 * @return bool
 	 */
 	protected function get_raw_has_agreed() {
-		return \Jetpack_Options::get_option( self::OPTION_NAME, false );
+		if ( ! \Jetpack_Options::option_exists( self::OPTION_NAME ) ) {
+			// Seed an autoloaded default so it isn't re-queried every request on sites without a
+			// persistent object cache. add_option, not update_option (which no-ops when the new
+			// value equals the current default).
+			add_option( 'jetpack_' . self::OPTION_NAME, false, '', true );
+		}
+
+		// Read canonically on every path, including the request that just seeded, so callers still
+		// see any jetpack_options filter override (e.g. wpcomsh/masterbar forcing agreement while
+		// recording a Tracks event).
+		return \Jetpack_Options::get_option( self::OPTION_NAME );
 	}
 
 	/**

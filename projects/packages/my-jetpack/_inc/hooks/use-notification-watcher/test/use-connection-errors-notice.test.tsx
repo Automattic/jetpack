@@ -229,9 +229,10 @@ describe( 'useConnectionErrorsNotice', () => {
 
 		expect( noticeText ).toContain( 'The site token is broken.' );
 		expect( noticeText ).toContain( 'Your user token is broken.' );
-		// Each error carries its own scope and raw code.
-		expect( noticeText ).toContain( 'Site connection · Error code: no_valid_blog_token' );
-		expect( noticeText ).toContain( 'Your account · Error code: invalid_token' );
+		// With more than one error the title only counts them, so each error carries
+		// its own scope beneath the message.
+		expect( noticeText ).toContain( 'Site connection' );
+		expect( noticeText ).toContain( 'Your account' );
 
 		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe( '2 Jetpack Connection errors' );
 		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].options.tracksArgs ).toEqual( {
@@ -340,11 +341,9 @@ describe( 'useConnectionErrorsNotice', () => {
 		const noticeText = getNoticeText();
 
 		expect( noticeText.split( sharedMessage ).length - 1 ).toBe( 1 );
-		// Both errors still get their own scope and code beneath the shared headline.
-		expect( noticeText ).toContain(
-			"Connection owner's account (Site Owner) · Error code: invalid_connection_owner"
-		);
-		expect( noticeText ).toContain( 'Your account · Error code: invalid_token' );
+		// Both errors still get their own scope beneath the shared headline.
+		expect( noticeText ).toContain( "Connection owner's account (Site Owner)" );
+		expect( noticeText ).toContain( 'Your account' );
 		// Grouping is presentation only: the error count is unchanged.
 		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe( '2 Jetpack Connection errors' );
 		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].options.tracksArgs.error_count ).toBe( 2 );
@@ -441,7 +440,9 @@ describe( 'useConnectionErrorsNotice', () => {
 			expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe(
 				'Jetpack Connection error: Site connection'
 			);
-			expect( noticeText ).toContain( 'Error code: no_valid_blog_token' );
+			// `getNoticeText` renders the message alone, so this asserts the scope is not
+			// repeated below the title that already states it.
+			expect( noticeText ).not.toContain( 'Site connection' );
 			expect( mockSetNotice.mock.calls[ 0 ][ 0 ].options.tracksArgs.error_count ).toBe( 1 );
 		} );
 
@@ -583,7 +584,8 @@ describe( 'useConnectionErrorsNotice', () => {
 		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe(
 			'Jetpack Connection error: Your account (connection owner)'
 		);
-		expect( getNoticeText() ).toContain( 'Error code: invalid_connection_owner' );
+		// The scope lives in the title alone, so no detail line repeats it below.
+		expect( getNoticeText() ).not.toContain( 'Your account (connection owner)' );
 	} );
 
 	it( 'omits the owner name when the viewer may not see the owner identity', async () => {

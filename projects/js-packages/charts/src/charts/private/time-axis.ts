@@ -59,21 +59,43 @@ const formatHourTick = dateTimeFormat( { hour: 'numeric', hour12: true } );
 
 const formatMonthTick = dateTimeFormat( { month: 'short' } );
 
+/**
+ * A tick format, carrying the boundary test that decides its coarser label.
+ *
+ * A band scale samples by index, so `getBandTickValues` has to steer ticks onto
+ * the boundaries a format prints the date or the year at. Hanging the test off
+ * the format that branches on it keeps the two from drifting apart.
+ */
+export type TickFormat = ( ( timestamp: number ) => string ) & {
+	isAnchor?: ( date: Date ) => boolean;
+};
+
+const boundaryFormat = (
+	isAnchor: ( date: Date ) => boolean,
+	atBoundary: ( timestamp: number ) => string,
+	between: ( timestamp: number ) => string
+): TickFormat => {
+	const format: TickFormat = ( timestamp: number ) =>
+		isAnchor( new Date( timestamp ) ) ? atBoundary( timestamp ) : between( timestamp );
+	format.isAnchor = isAnchor;
+	return format;
+};
+
 // Hour ticks with the date at midnight boundaries, so multi-day spans of
 // sub-daily data keep their days identifiable.
-const formatDateOrHourTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.getHours() === 0 && date.getMinutes() === 0
-		? formatDateTick( timestamp )
-		: formatHourTick( timestamp );
-};
+const formatDateOrHourTick = boundaryFormat(
+	date => date.getHours() === 0 && date.getMinutes() === 0,
+	formatDateTick,
+	formatHourTick
+);
 
 // Month ticks with the year at January boundaries, for month-or-coarser
 // buckets where a full "Sep 1" date would misread as a daily point.
-const formatMonthOrYearTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.getMonth() === 0 ? formatYearTick( timestamp ) : formatMonthTick( timestamp );
-};
+const formatMonthOrYearTick = boundaryFormat(
+	date => date.getMonth() === 0,
+	formatYearTick,
+	formatMonthTick
+);
 
 // Overall time span of the data. Series with no dated points are dropped rather
 // than folded in: an empty comparison series is legitimate, and one undefined
@@ -154,7 +176,7 @@ export const getBucketResolution = (
 export const getFormatter = (
 	sortedData: ReturnType< typeof useChartDataTransform >,
 	tickResolution?: TickResolution
-) => {
+): TickFormat => {
 	const resolution = getBucketResolution( sortedData, tickResolution );
 
 	// The month regime only prints the year at January boundaries, so yearly
@@ -188,15 +210,6 @@ export const getFormatter = (
 		? formatDateTick
 		: formatYearTick;
 };
-
-// Tick formats that print a coarser unit at a boundary — the date at midnight,
-// the year at January — say what their neighbours leave out. A time scale
-// always lands on those boundaries; a band scale samples by index and has to be
-// steered onto them.
-const TICK_ANCHORS = new Map< ( timestamp: number ) => string, ( date: Date ) => boolean >( [
-	[ formatDateOrHourTick, date => date.getHours() === 0 && date.getMinutes() === 0 ],
-	[ formatMonthOrYearTick, date => date.getMonth() === 0 ],
-] );
 
 // Indices of the buckets whose label carries the coarser unit.
 const getAnchorIndices = ( domain: Date[], isAnchor: ( date: Date ) => boolean ) =>
@@ -250,14 +263,14 @@ const getCandidateSteps = ( length: number, maxTicks: number, anchorSpacing: num
  */
 export const getBandTickValues = (
 	domain: Date[],
-	tickFormatter: ( timestamp: number ) => string,
+	tickFormatter: TickFormat,
 	maxTicks: number
 ): Date[] => {
 	if ( ! domain.length ) {
 		return [];
 	}
 
-	const isAnchor = TICK_ANCHORS.get( tickFormatter );
+	const { isAnchor } = tickFormatter;
 	const anchorIndices = isAnchor ? getAnchorIndices( domain, isAnchor ) : [];
 
 	// Once per bucket rather than once per bucket per candidate: the sweep reads

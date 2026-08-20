@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Drop Phan suppressions for WP_Connector_Registry, declared by the WP 7.0 stubs.
+
+

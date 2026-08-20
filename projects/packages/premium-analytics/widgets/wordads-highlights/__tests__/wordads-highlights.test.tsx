@@ -102,16 +102,13 @@ describe( 'WordAdsHighlightsWidget', () => {
 		expect( values ).toEqual( [ '$0.00', '$0.00', '$0.00' ] );
 	} );
 
-	it( 'shows the loading overlay while the earnings request is pending', () => {
+	it( 'shows the loading skeleton while the earnings request is pending', () => {
 		// A promise that never settles keeps the query in its loading state.
 		mockApiFetch.mockReturnValue( new Promise( () => {} ) );
 
-		const { container } = render( <WordAdsHighlightsWidget attributes={ {} } /> );
+		render( <WordAdsHighlightsWidget attributes={ {} } /> );
 
-		// WidgetLoadingOverlay renders a WP Spinner (role="presentation", no
-		// accessible name), so the class is the only stable handle for it.
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- No accessible role/text on the spinner to query.
-		expect( container.querySelector( '.components-spinner' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Earnings' ) ).not.toBeInTheDocument();
 	} );
 

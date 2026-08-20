@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Drop Phan suppressions for the Abilities API, and stale WordPress 6.9 comments in the site switcher.
+
+

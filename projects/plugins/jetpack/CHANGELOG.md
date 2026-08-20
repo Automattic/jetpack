@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.1.2 - 2026-08-20
+### Bug fixes
+- Newsletter: Fix a fatal error on the settings page caused by Gutenberg removing a private API that DataViews toggle and radio fields relied on. [#51363]
+
 ## 16.1.1 - 2026-08-11
 ### Bug fixes
 - Error Handler: Prevent a fatal error when a request runs during a plugin update and an older version of the Error_Handler class is already loaded.

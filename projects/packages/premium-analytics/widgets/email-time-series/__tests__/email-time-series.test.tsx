@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -219,7 +219,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( screen.queryByTestId( 'metric-tabs-chart' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows loading instead of the stale empty state while a new range is fetching', async () => {
+	it( 'shows loading instead of the stale empty state once a new range drags on', async () => {
 		const emptyResponse = {
 			timeline: { unit: 'day', fields: [ 'date', 'opens_count' ], data: [] },
 		};
@@ -247,6 +247,9 @@ describe( 'EmailTimeSeriesWidget', () => {
 			screen.findByText( 'No activity for this email in this period.' )
 		).resolves.toBeInTheDocument();
 
+		// The skeleton waits out the shared delay, so drive it rather than
+		// sleeping. Switched on here so the fetches above resolve normally.
+		jest.useFakeTimers();
 		rerender(
 			<EmailTimeSeriesWidget
 				attributes={ {
@@ -261,13 +264,17 @@ describe( 'EmailTimeSeriesWidget', () => {
 				} }
 			/>
 		);
+		act( () => {
+			jest.advanceTimersByTime( 1000 );
+		} );
 
-		await expect(
-			screen.findByRole( 'presentation', { hidden: true } )
-		).resolves.toBeInTheDocument();
+		// The previous range's "no activity" is not an answer about this one, so
+		// it gives way to an announced skeleton.
+		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
 		expect(
 			screen.queryByText( 'No activity for this email in this period.' )
 		).not.toBeInTheDocument();
+		jest.useRealTimers();
 	} );
 
 	it( 'renders the empty state and makes no request without a selected email', async () => {

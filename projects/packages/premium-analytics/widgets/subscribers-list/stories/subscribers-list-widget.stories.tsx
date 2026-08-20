@@ -47,25 +47,16 @@ type DashboardStory = StoryObj< WidgetDashboardWithWidgetControls >;
  * The widget on its own, populated from mocked followers data.
  */
 export const Default: Story = {
-	render: () => <SubscribersListRender attributes={ { max: 6 } } />,
+	render: () => <SubscribersListRender attributes={ {} } />,
 	decorators: [ withWidgetCanvas ],
 };
-
-// Renders the widget with a `max` distinct from the other stories. The
-// followers query has no date range — its key carries the row count (`max`) —
-// so a unique `max` gives each forced-state story its own cache entry and it
-// hits the mock fresh instead of reading another story's cached success from
-// the shared query client.
-function renderSubscribersListWithMax( max: number ) {
-	return <SubscribersListRender attributes={ { max } } />;
-}
 
 /**
  * First load: the fetch is in flight, so the widget shows its loading state. The
  * mock is forced to never resolve for the duration of this story.
  */
 export const Loading: Story = {
-	render: () => renderSubscribersListWithMax( 5 ),
+	render: () => <SubscribersListRender attributes={ {} } />,
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
@@ -80,7 +71,7 @@ export const Loading: Story = {
  * re-runs the query — still mocked as failing while this story is active).
  */
 export const Error: Story = {
-	render: () => renderSubscribersListWithMax( 7 ),
+	render: () => <SubscribersListRender attributes={ {} } />,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
@@ -94,7 +85,7 @@ export const Error: Story = {
  * glyph and "No subscribers yet.").
  */
 export const Empty: Story = {
-	render: () => renderSubscribersListWithMax( 8 ),
+	render: () => <SubscribersListRender attributes={ {} } />,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
@@ -113,7 +104,7 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ SUBSCRIBERS_LIST_RENDER_MODULE }
 			renderComponent={ SubscribersListRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 6 } }
+			attributes={ {} }
 		/>
 	),
 	args: {

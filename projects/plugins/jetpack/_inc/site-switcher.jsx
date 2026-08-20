@@ -2,8 +2,6 @@
  * Site Switcher for Command Palette
  * Adds a dynamic "Switch to Site" command that searches across all user's WordPress.com sites
  *
- * Requires WordPress 6.9+ for admin-wide command palette support
- *
  * @package
  */
 
@@ -265,8 +263,7 @@ function JetpackSiteSwitcher() {
 	return null;
 }
 
-// Render the site switcher into wp-admin
-// This works with WordPress 6.9+ admin-wide command palette
+// Render the site switcher into the wp-admin command palette.
 if ( typeof window !== 'undefined' && window.wp && window.wp.element && window.wp.commands ) {
 	const { createRoot, createElement } = window.wp.element;
 
