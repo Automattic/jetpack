@@ -62,11 +62,6 @@ $default_matrix_vars = array(
 $matrix = array();
 
 // Add PHP tests.
-
-/*
- * PHP 7.2 and 7.3 have no WP-versus-PHP combination left to test: WordPress 7.0,
- * the minimum we support, requires PHP 7.4.
- */
 foreach ( array( '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ) as $php ) {
 	$matrix[] = array(
 		'name'    => "PHP tests: PHP $php WP latest",
