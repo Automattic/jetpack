@@ -23,6 +23,14 @@
 	outline-offset: calc(-1 * var(--wpds-border-width-focus));
 }
 
+/* The design system's neutral hover pill is grey on grey over the empty
+   cells, so the hover/pressed background tints from the same primary the
+   glyph and the darkest cell use instead. */
+.host .arrow:hover,
+.host .arrow:active {
+	background: color-mix(in srgb, var(--wp-admin-theme-color, #3858e9) 12%, transparent);
+}
+
 /* The appear animation slides each arrow in from its own edge. The offset is
    a logical margin rather than a translate so it flips with the writing
    direction, and it moves an absolutely positioned box, so nothing reflows. */
