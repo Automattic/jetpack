@@ -57,7 +57,7 @@ function forceSiteSummaryState( state: 'loading' | 'error' | 'empty' ) {
 const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 function renderShares() {
-	return <SharesRender attributes={ { max: 10, reportParams: getDefaultQueryParams() } } />;
+	return <SharesRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
 
 function SharesDashboardRender( props: WidgetRenderProps< unknown > ) {
@@ -130,7 +130,7 @@ function SharesDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls 
 			widgetType={ storyWidgetType }
 			renderModule={ SHARES_RENDER_MODULE }
 			renderComponent={ SharesDashboardRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( true ) } }
+			attributes={ { reportParams: getDefaultQueryParams( true ) } }
 		/>
 	);
 }

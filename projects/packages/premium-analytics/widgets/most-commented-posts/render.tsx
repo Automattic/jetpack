@@ -4,14 +4,15 @@
 import { useStatsCommentsRows } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	LeaderboardPostLabel,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	describeError,
 	sharePercentage,
-	toMaxRows,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -32,24 +33,15 @@ type MostCommentedPostsWidgetProps = WidgetRenderProps< MostCommentedPostsRender
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
-const DEFAULT_MAX = 10;
-
-interface MostCommentedPostsInnerProps {
-	/**
-	 * Maximum number of rows to display. `0` means all rows.
-	 */
-	max: number;
-}
-
 /**
  * Top commented posts inner component. The comment counts come from the
  * all-time `stats/comments` report, so there is no date range or comparison
  * period to read from context.
  */
-function MostCommentedPostsInner( { max }: MostCommentedPostsInnerProps ) {
+function MostCommentedPostsInner() {
 	const { rows, isLoading, isFetching, isError, error, refetch } = useStatsCommentsRows( {
 		group: 'posts',
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
@@ -85,6 +77,7 @@ function MostCommentedPostsInner( { max }: MostCommentedPostsInnerProps ) {
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
 						data={ leaderboardData }
@@ -117,7 +110,7 @@ function MostCommentedPostsInner( { max }: MostCommentedPostsInnerProps ) {
 export default function MostCommentedPosts( { attributes = {} }: MostCommentedPostsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<MostCommentedPostsInner max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
+			<MostCommentedPostsInner />
 		</WidgetRoot>
 	);
 }

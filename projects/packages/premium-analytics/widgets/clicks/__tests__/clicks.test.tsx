@@ -52,7 +52,7 @@ describe( 'ClicksWidget', () => {
 	it( 'drills down from top-level domains to clicked links', async () => {
 		render(
 			<ClicksWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
@@ -81,7 +81,7 @@ describe( 'ClicksWidget', () => {
 	it( 'renders childless top-level URLs as external links', async () => {
 		render(
 			<ClicksWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
@@ -90,7 +90,7 @@ describe( 'ClicksWidget', () => {
 	} );
 
 	it( 'links to the Clicks report', () => {
-		render( <ClicksWidget attributes={ { max: 10 } } /> );
+		render( <ClicksWidget attributes={ {} } /> );
 
 		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
@@ -101,7 +101,7 @@ describe( 'ClicksWidget', () => {
 	it( 'clears the stored drill-down when the selected link leaves the data', async () => {
 		const { rerender } = render(
 			<ClicksWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
@@ -130,7 +130,7 @@ describe( 'ClicksWidget', () => {
 		} );
 		rerender(
 			<ClicksWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
 			/>
 		);
 

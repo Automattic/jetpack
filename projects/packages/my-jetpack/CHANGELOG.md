@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.44.0] - 2026-08-20
+### Added
+- Error UI: Add a support link to broken-connection notices when reconnecting may not resolve the problem. [#51360]
+
+## [5.43.1] - 2026-08-19
+### Changed
+- Update package dependencies. [#51399]
+
 ## [5.43.0] - 2026-08-13
 ### Changed
 - Connection: Leave another user's broken token out of the connection error notice, since only that user can restore it. [#51034]
@@ -2845,6 +2853,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.44.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.43.1...5.44.0
+[5.43.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.43.0...5.43.1
 [5.43.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.3...5.43.0
 [5.42.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.2...5.42.3
 [5.42.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.1...5.42.2

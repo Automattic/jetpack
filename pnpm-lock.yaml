@@ -132,8 +132,8 @@ importers:
         specifier: 13.0.6
         version: 13.0.6
       minimatch:
-        specifier: 10.2.4
-        version: 10.2.4
+        specifier: 10.2.6
+        version: 10.2.6
     devDependencies:
       jest:
         specifier: 30.4.2
@@ -1010,8 +1010,8 @@ importers:
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -1969,8 +1969,8 @@ importers:
         specifier: ^4.24.0
         version: 4.28.4
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -2003,8 +2003,8 @@ importers:
         specifier: 6.51.0
         version: 6.51.0
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -2142,8 +2142,8 @@ importers:
         specifier: ^4.24.0
         version: 4.28.4
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -2292,6 +2292,8 @@ importers:
       webpack-cli:
         specifier: 7.2.1
         version: 7.2.1(webpack@5.107.2)
+
+  projects/packages/comments: {}
 
   projects/packages/connection:
     dependencies:
@@ -2782,8 +2784,8 @@ importers:
         specifier: ^4.24.0
         version: 4.28.4
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       glob:
         specifier: 13.0.6
         version: 13.0.6
@@ -3363,8 +3365,8 @@ importers:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.23)
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       jest:
         specifier: 30.4.2
         version: 30.4.2(@types/node@24.13.3)
@@ -3541,8 +3543,8 @@ importers:
         specifier: ^4.24.0
         version: 4.28.4
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -3897,8 +3899,8 @@ importers:
         specifier: ^4.24.0
         version: 4.28.4
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
@@ -4299,8 +4301,8 @@ importers:
         specifier: ^4.24.0
         version: 4.28.4
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       copy-webpack-plugin:
         specifier: 14.0.0
         version: 14.0.0(webpack@5.107.2)
@@ -4716,8 +4718,8 @@ importers:
         specifier: 0.14.0
         version: 0.14.0(@babel/core@7.29.7)
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       core-js:
         specifier: 3.38.1
         version: 3.38.1
@@ -5076,8 +5078,8 @@ importers:
         specifier: ^4.24.0
         version: 4.28.4
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       copy-webpack-plugin:
         specifier: 14.0.0
         version: 14.0.0(webpack@5.107.2)
@@ -5340,8 +5342,8 @@ importers:
         specifier: 37.0.0
         version: 37.0.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -5482,8 +5484,8 @@ importers:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.23)
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -5612,8 +5614,8 @@ importers:
         specifier: 6.51.0
         version: 6.51.0
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -6063,8 +6065,8 @@ importers:
         specifier: 30.4.1
         version: 30.4.1(@babel/core@7.29.7)
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       eval:
         specifier: 0.1.8
         version: 0.1.8
@@ -6157,8 +6159,8 @@ importers:
         specifier: 6.51.0
         version: 6.51.0
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -6290,8 +6292,8 @@ importers:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.23)
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       postcss:
         specifier: 8.5.23
         version: 8.5.23
@@ -6364,8 +6366,8 @@ importers:
   projects/plugins/social:
     devDependencies:
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
 
   projects/plugins/social/tests/e2e:
     devDependencies:
@@ -6446,8 +6448,8 @@ importers:
         specifier: 6.51.0
         version: 6.51.0
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       jest:
         specifier: 30.4.2
         version: 30.4.2
@@ -6534,8 +6536,8 @@ importers:
         specifier: 6.51.0
         version: 6.51.0
       concurrently:
-        specifier: 10.0.3
-        version: 10.0.3
+        specifier: 10.0.5
+        version: 10.0.5
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
@@ -13265,8 +13267,8 @@ packages:
   concat-with-sourcemaps@1.1.0:
     resolution: {integrity: sha512-4gEjHJFT9e+2W/77h/DS5SGUgwDaOwprX8L/gl5+3ixnzkVJJsZWDSelmN3Oilw3LNDZjZV0yqH1hLG3k6nghg==}
 
-  concurrently@10.0.3:
-    resolution: {integrity: sha512-hc3LH4UaKWd/bbyDK/IGVa4RB6PtQ3CUYwtrkzqHn+wIG3Hr5fhpRlk0L/gCa8ZE1L/Ufj50Zho69cI5w8SQBA==}
+  concurrently@10.0.5:
+    resolution: {integrity: sha512-JaP/CoftUrCcAFW/g//RbgEGwlelnEae6cfBLgH6ZdO6s8jPkn6p9SB9u6pdVxYXoiSnFqseOlHfrEfF82TVOg==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -16070,10 +16072,6 @@ packages:
   minimalistic-assert@1.0.1:
     resolution: {integrity: sha512-UtJcAD4yEaGtjPezWuO9wC4nwUnVH/8/Im3yEHQP4b67cXlD/Qr9hdITCU1xDbSEXg2XKNaP8jsReV7vQd00/A==}
 
-  minimatch@10.2.4:
-    resolution: {integrity: sha512-oRjTw/97aTBN0RHbYCdtF1MQfvusSIBQM0IZEgzl6426+8jSC0nF1a/GmnVLpfB9yyr6g6FTqWqiZVbxrtaCIg==}
-    engines: {node: 18 || 20 || >=22}
-
   minimatch@10.2.6:
     resolution: {integrity: sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A==}
     engines: {node: 18 || 20 || >=22}
@@ -17690,10 +17688,6 @@ packages:
 
   shell-escape@0.2.0:
     resolution: {integrity: sha512-uRRBT2MfEOyxuECseCZd28jC1AJ8hmqqneWQ4VWUTgCAFvb3wKU1jLqj6egC4Exrr88ogg3dp+zroH4wJuaXzw==}
-
-  shell-quote@1.8.4:
-    resolution: {integrity: sha512-VsC6n6vz1ihYYyZZwX7YZSF5l5x36ca17OC+a69h94YqB7X6XLwf+5MOgynYir2SLFUbl8gIYvBo8K8RoNQ6bQ==}
-    engines: {node: '>= 0.4'}
 
   shell-quote@1.9.0:
     resolution: {integrity: sha512-Iov+JwFv/2HcTpcwNMKd8+IWNb8tboQJNQTkAY/LLVK7gGH9jy+LGkVqPxfekHl+yMmiqXszdGWXgkfml7hjqA==}
@@ -21185,7 +21179,7 @@ snapshots:
     dependencies:
       '@eslint/object-schema': 3.0.5
       debug: 4.4.3
-      minimatch: 10.2.4
+      minimatch: 10.2.6
     transitivePeerDependencies:
       - supports-color
 
@@ -23573,7 +23567,7 @@ snapshots:
       '@typescript-eslint/types': 8.67.0
       '@typescript-eslint/visitor-keys': 8.67.0
       debug: 4.4.3
-      minimatch: 10.2.4
+      minimatch: 10.2.6
       semver: 7.7.3
       tinyglobby: 0.2.17
       ts-api-utils: 2.5.0(typescript@6.0.3)
@@ -37841,11 +37835,11 @@ snapshots:
     dependencies:
       source-map: 0.6.1
 
-  concurrently@10.0.3:
+  concurrently@10.0.5:
     dependencies:
       chalk: 5.6.2
       rxjs: 7.8.2
-      shell-quote: 1.8.4
+      shell-quote: 1.9.0
       supports-color: 10.2.2
       tree-kill: 1.2.2
       yargs: 18.0.0
@@ -39368,7 +39362,7 @@ snapshots:
 
   glob@13.0.6:
     dependencies:
-      minimatch: 10.2.4
+      minimatch: 10.2.6
       minipass: 7.1.3
       path-scurry: 2.0.2
 
@@ -41216,10 +41210,6 @@ snapshots:
 
   minimalistic-assert@1.0.1: {}
 
-  minimatch@10.2.4:
-    dependencies:
-      brace-expansion: 5.0.9
-
   minimatch@10.2.6:
     dependencies:
       brace-expansion: 5.0.9
@@ -42945,8 +42935,6 @@ snapshots:
 
   shell-escape@0.2.0: {}
 
-  shell-quote@1.8.4: {}
-
   shell-quote@1.9.0: {}
 
   side-channel-list@1.0.1:
@@ -43650,13 +43638,13 @@ snapshots:
     dependencies:
       '@istanbuljs/schema': 0.1.6
       glob: 13.0.6
-      minimatch: 10.2.4
+      minimatch: 10.2.6
 
   test-exclude@8.0.0:
     dependencies:
       '@istanbuljs/schema': 0.1.6
       glob: 13.0.6
-      minimatch: 10.2.4
+      minimatch: 10.2.6
 
   text-hex@1.0.0: {}
 

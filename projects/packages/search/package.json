@@ -98,7 +98,7 @@
 		"autoprefixer": "10.4.20",
 		"babel-jest": "30.4.1",
 		"babel-plugin-polyfill-corejs3": "0.14.0",
-		"concurrently": "10.0.3",
+		"concurrently": "10.0.5",
 		"core-js": "3.38.1",
 		"jest": "30.4.2",
 		"postcss": "8.5.23",

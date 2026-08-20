@@ -71,7 +71,7 @@
 		"@wordpress/i18n": "6.24.0",
 		"@wordpress/theme": "1.2.0",
 		"autoprefixer": "10.4.20",
-		"concurrently": "10.0.3",
+		"concurrently": "10.0.5",
 		"jest": "30.4.2",
 		"livereload": "0.10.3",
 		"path-browserify": "1.0.1",

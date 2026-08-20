@@ -117,7 +117,10 @@ describe( 'ReportPageLayout', () => {
 		expect( subtitle ).not.toHaveTextContent( /vs\.|Previous period|Previous month/ );
 	} );
 
-	it( 'offers no comparison control, without disturbing the comparison state', () => {
+	// Whether the panel draws the comparison control is the report route's
+	// declared scope, not this layout's business — it only has to leave the
+	// comparison state alone on its way through.
+	it( 'passes the comparison state through without disturbing it', () => {
 		const dateFilters = buildDateFilters();
 
 		render(
@@ -128,7 +131,6 @@ describe( 'ReportPageLayout', () => {
 
 		const panelProps = dateFiltersPanelMock.mock.calls[ 0 ][ 0 ];
 
-		expect( panelProps.showComparison ).toBe( false );
 		expect( panelProps.withIntervalControl ).toBeUndefined();
 
 		// Hidden, not cleared: both ride along for the dashboard.

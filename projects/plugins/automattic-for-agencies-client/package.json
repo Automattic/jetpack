@@ -50,7 +50,7 @@
 		"@types/react": "18.3.28",
 		"@wordpress/browserslist-config": "6.51.0",
 		"@wordpress/components": "37.0.0",
-		"concurrently": "10.0.3",
+		"concurrently": "10.0.5",
 		"jest": "30.4.2",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",

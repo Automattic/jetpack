@@ -16,7 +16,7 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '7.24.0';
+	const PACKAGE_VERSION = '7.25.0';
 
 	/**
 	 * Name of the feature flag gating field conditional logic.
