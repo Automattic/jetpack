@@ -1,4 +1,3 @@
 Significance: patch
 Type: changed
-
-Date controls: derive both the comparison control and the comparison params from one declaration per surface, instead of each page answering the same question twice.
+Comment: Unify the no-comparison surfaces on one report-scope declaration. Pure refactor, no behavior change.
