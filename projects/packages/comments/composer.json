@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-comments",
-	"description": "Jetpack Comments: the commenting experience for WordPress.com sites",
+	"description": "Replaces the default WordPress comment form with social login, subscription options, and block editing.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {

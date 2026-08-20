@@ -2,7 +2,7 @@
 	"name": "@automattic/jetpack-comments",
 	"version": "0.1.0-alpha",
 	"private": true,
-	"description": "Jetpack Comments: the commenting experience for WordPress.com sites",
+	"description": "Replaces the default WordPress comment form with social login, subscription options, and block editing.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/comments/#readme",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[Package] Comments"
