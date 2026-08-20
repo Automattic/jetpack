@@ -1909,7 +1909,7 @@ class Error_Handler {
 	 * the same codes this site itself raises for the same failure — WP.com is just
 	 * verifying signatures with the same scheme.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.10.4
 	 *
 	 * @param string $error_code    The Jetpack error code parsed from the fault string.
 	 * @param string $error_message The error message parsed from the fault string.

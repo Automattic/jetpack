@@ -11,6 +11,7 @@ import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
 import { customer } from '@jetpack-premium-analytics/icons';
 import {
 	SubscriberList,
+	SubscriberListSkeleton,
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
@@ -113,6 +114,7 @@ function SubscribersReport( { attributes }: SubscribersReportProps ) {
 			// nothing to show.
 			isError={ items.length === 0 && isError }
 			isEmpty={ items.length === 0 }
+			renderLoading={ <SubscriberListSkeleton rows={ max } /> }
 			error={ {
 				description: __(
 					"We couldn't load subscribers. Please try again in a moment.",

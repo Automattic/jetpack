@@ -3,6 +3,7 @@
  */
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	WidgetRoot,
 	WidgetState,
 	sharePercentage,
@@ -70,6 +71,7 @@ function SharesInner( { max = 10 }: SharesAttributes ) {
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ max } /> }
 				>
 					<LeaderboardChart
 						data={ leaderboardData }

@@ -8,6 +8,7 @@ import {
 import { megaphone } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	type DataFormat,
@@ -112,6 +113,7 @@ function WordAdsHighlightsReport( {
 						'jetpack-premium-analytics-pkg'
 					),
 				} }
+				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ CURRENCY_FORMAT } currencyCode="USD" />
 			</WidgetState>

@@ -11,6 +11,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
 	WidgetBackLink,
 	WidgetFooter,
@@ -303,6 +304,7 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 					icon: link,
 					description: __( 'No clicks in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <LeaderboardSkeleton rows={ max } /> }
 			>
 				<ClicksLeaderboard
 					rows={ activeRows }

@@ -12,6 +12,7 @@ import {
 	AdaptiveCalendarHeatmap,
 	CalendarHeatmapTooltip,
 	HeatmapChartUnresponsive,
+	HeatmapSkeleton,
 	WidgetRoot,
 	WidgetState,
 	describeError,
@@ -145,6 +146,7 @@ function TrafficViewsActivityInner() {
 						icon: seen,
 						description: emptyDescription,
 					} }
+					renderLoading={ <HeatmapSkeleton /> }
 				>
 					<HeatmapChartUnresponsive
 						{ ...chartProps }

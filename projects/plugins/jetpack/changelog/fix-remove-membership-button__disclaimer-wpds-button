@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Use the WordPress UI components instead of CSS in the editor block placeholder when Ads module is disabled.

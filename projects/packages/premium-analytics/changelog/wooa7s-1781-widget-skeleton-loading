@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Show a skeleton placeholder instead of a spinner while widget content loads.

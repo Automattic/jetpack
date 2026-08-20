@@ -107,7 +107,7 @@ class Activity_Log_Bridge {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			return $response;
+			return Rest_Controller::transport_error( $response, 'activity_log_fetch_failed' );
 		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );

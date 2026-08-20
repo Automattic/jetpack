@@ -5,6 +5,7 @@ import { useStatsVideoPlays } from '@jetpack-premium-analytics/data';
 import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
 	VideoTitleLink,
 	WidgetFooter,
@@ -151,6 +152,7 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 				icon: video,
 				description: __( 'No VideoPress plays in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <LeaderboardSkeleton rows={ max } /> }
 		>
 			<LeaderboardChart
 				data={ chartData }
