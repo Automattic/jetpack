@@ -23,11 +23,13 @@ export function A4AUpsell() {
 		query: { path: REST_API_GET_JETPACK_MANAGE_DATA },
 	} );
 
-	return isLoading ? (
-		<LoadingBlock height="200px" width="100%" />
-	) : (
-		! isError && data.isEnabled && ! data.isDismissed && (
-			<A4ABanner isAgencyAccount={ data.isAgencyAccount } />
-		)
-	);
+	if ( isLoading ) {
+		return <LoadingBlock height="200px" width="100%" />;
+	}
+
+	if ( isError || ! data.isEnabled || data.isDismissed ) {
+		return null;
+	}
+
+	return <A4ABanner isAgencyAccount={ data.isAgencyAccount } />;
 }

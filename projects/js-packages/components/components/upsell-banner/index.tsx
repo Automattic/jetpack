@@ -1,4 +1,4 @@
-import { Button as WPButton, Card, CardBody } from '@wordpress/components';
+import { Card, CardBody } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
@@ -39,12 +39,16 @@ const UpsellBanner: FC< UpsellBannerProps > = props => {
 		<Card isRounded={ true } size="large">
 			<CardBody className="upsell-banner" size="large">
 				{ onDismiss && (
-					<WPButton
+					<Button
 						className="upsell-banner--dismiss"
-						icon={ close }
+						variant="tertiary"
 						size="small"
-						label={ dismissLabel || __( 'Dismiss', 'jetpack-components' ) }
+						icon={ close }
+						iconSize={ 16 }
+						// Button wraps its children in a span, so the tooltip an icon-only
+						// WPButton would show on its own has to be asked for explicitly.
 						showTooltip={ true }
+						label={ dismissLabel || __( 'Dismiss', 'jetpack-components' ) }
 						onClick={ onDismiss }
 					/>
 				) }

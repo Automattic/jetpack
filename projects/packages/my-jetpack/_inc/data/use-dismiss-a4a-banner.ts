@@ -2,10 +2,6 @@ import { __ } from '@wordpress/i18n';
 import { QUERY_DISMISS_A4A_BANNER_KEY, REST_API_DISMISS_A4A_BANNER } from './constants';
 import useSimpleMutation from './use-simple-mutation';
 
-type DismissA4ABannerResponse = {
-	success: boolean;
-};
-
 /**
  * Dismiss the Automattic for Agencies banner for this site.
  *
@@ -16,7 +12,7 @@ type DismissA4ABannerResponse = {
  * @return The mutation result, exposing `dismiss` (the mutate fn) and its `isPending` state.
  */
 export default function useDismissA4ABanner() {
-	const { mutate: dismiss, isPending } = useSimpleMutation< DismissA4ABannerResponse >( {
+	const { mutate: dismiss, isPending } = useSimpleMutation( {
 		name: QUERY_DISMISS_A4A_BANNER_KEY,
 		query: {
 			path: REST_API_DISMISS_A4A_BANNER,
