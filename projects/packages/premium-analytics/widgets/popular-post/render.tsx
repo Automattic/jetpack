@@ -4,12 +4,13 @@
 import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	PostHighlightCard,
+	type PostHighlightCardMetric,
+	PostHighlightCardSkeleton,
+	type ReportParamsFieldAttributes,
 	WidgetRoot,
 	WidgetState,
 	describeError,
 	useWidgetRootContext,
-	type PostHighlightCardMetric,
-	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -71,6 +72,7 @@ function PopularPostReport() {
 				icon: trendingUp,
 				description: __( 'No post views in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <PostHighlightCardSkeleton /> }
 		>
 			{ post && (
 				<PostHighlightCard

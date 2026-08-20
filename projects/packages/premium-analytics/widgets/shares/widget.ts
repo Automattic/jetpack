@@ -1,16 +1,11 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { share } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-export type SharesAttributes = {
-	/**
-	 * Maximum number of rows to display.
-	 */
-	max?: number;
-};
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type SharesAttributes = Record< never, never >;
 
 /**
  * Widget type definition for the Shares widget.
@@ -24,16 +19,8 @@ export type SharesAttributes = {
  */
 export default {
 	icon: share,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
-	] as WidgetAttributeField< SharesAttributes >[],
+	attributes: [] as WidgetAttributeField< SharesAttributes >[],
 	example: {
-		attributes: {
-			max: 10,
-		},
+		attributes: {},
 	},
 };

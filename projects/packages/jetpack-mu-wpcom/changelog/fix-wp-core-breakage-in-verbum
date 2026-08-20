@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Unregister hook in Verbum_Block_Utils_Test to account for a WP Core change.
+
+

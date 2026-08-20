@@ -1779,12 +1779,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Fetch site data from .com including the site's current plan and the site's products.
 	 *
 	 * @since 5.5.0
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Connection\Manager::get_connected_site_data().
+	 * @deprecated 16.2 Use Automattic\Jetpack\Connection\Manager::get_connected_site_data().
 	 *
 	 * @return stdClass|WP_Error
 	 */
 	public static function site_data() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Connection\Manager::get_connected_site_data' );
+		_deprecated_function( __METHOD__, 'jetpack-16.2', 'Automattic\Jetpack\Connection\Manager::get_connected_site_data' );
 
 		return ( new Connection_Manager() )->get_connected_site_data();
 	}
@@ -1793,12 +1793,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Get site data, including for example, the site's current plan.
 	 *
 	 * @since 4.3.0
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Connection\REST_Connector::site_data_response().
+	 * @deprecated 16.2 Use Automattic\Jetpack\Connection\REST_Connector::site_data_response().
 	 *
 	 * @return WP_Error|WP_HTTP_Response|WP_REST_Response
 	 */
 	public static function get_site_data() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Connection\REST_Connector::site_data_response' );
+		_deprecated_function( __METHOD__, 'jetpack-16.2', 'Automattic\Jetpack\Connection\REST_Connector::site_data_response' );
 
 		return REST_Connector::site_data_response();
 	}
@@ -3698,7 +3698,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * same data under a different name: `jetpack_protect_global_whitelist` is populated
 	 * from `jetpack_waf_ip_allow_list`, and `jetpack_protect_key` is a shared secret.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.2
 	 *
 	 * @param array $options Option definitions keyed by option name.
 	 * @return array

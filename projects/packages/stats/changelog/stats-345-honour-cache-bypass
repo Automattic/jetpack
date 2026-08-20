@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Let a Stats page load asking for fresh data bypass the cached copy, so a site that has just connected or bought a plan is not shown what it saw before.

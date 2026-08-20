@@ -8,6 +8,7 @@ import {
 import { customer } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	type DataFormat,
@@ -105,6 +106,7 @@ function SubscriberHighlightsReport( {
 					icon: customer,
 					description: __( 'No subscriber counts available yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>
 				{ tiles.length === 0 ? (
 					<Text className={ styles.placeholder }>
