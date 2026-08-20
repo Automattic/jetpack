@@ -92,6 +92,21 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 			remove_all_filters( 'pre_option_' . $option );
 		}
 
+		/*
+		 * Reset the per-request statics too. They describe one request, so leaking
+		 * `migration_ran` into the next test would let a restore happen where the code
+		 * under test never saw a migration.
+		 */
+		$per_request = array(
+			'migration_ran'       => false,
+			'pre_migration_value' => false,
+		);
+		foreach ( $per_request as $property => $value ) {
+			$static = new \ReflectionProperty( RTC::class, $property );
+			$static->setAccessible( true );
+			$static->setValue( null, $value );
+		}
+
 		// Reset the static $initialized flag so hooks are re-registered in the next test.
 		$reflection = new \ReflectionProperty( RTC::class, 'initialized' );
 		if ( PHP_VERSION_ID < 80100 ) {
@@ -978,6 +993,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 
 		// Gutenberg's migration has removed the option by this point.
 		delete_option( RTC::OPTION_NEW );
+		RTC::note_migration_ran();
 		RTC::restore_opt_in();
 
 		$this->assertSame(
@@ -995,10 +1011,12 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 		update_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN, '1' );
 		delete_option( RTC::OPTION_NEW );
 
+		RTC::note_migration_ran();
 		RTC::restore_opt_in();
 
 		$this->assertSame( '1', get_option( RTC::OPTION_NEW ) );
-		// The flag is consumed, so this only ever happens once.
+		// Nothing was stored before the migration, so this came from the marker, which is
+		// consumed because it describes a moment that cannot recur.
 		$this->assertSame( '0', get_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN ) );
 	}
 
@@ -1045,15 +1063,98 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 		update_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN, '1' );
 		delete_option( RTC::OPTION_NEW );
 
+		RTC::note_migration_ran();
 		RTC::restore_opt_in();
 		$this->assertTrue( RTC::is_turned_on(), 'collaboration should be restored' );
 
-		// The user unchecks the box, which removes the row.
+		// The user unchecks the box, which removes the row. No migration ran, so nothing
+		// should put it back.
 		delete_option( RTC::OPTION_NEW );
 		RTC::restore_opt_in();
 
 		$this->assertFalse( RTC::is_turned_on(), 'collaboration should stay off' );
 		$this->assertSame( array(), RTC::filter_experiments( array() ) );
+	}
+
+	/**
+	 * Tests that a deliberate opt-in survives the migration running more than once.
+	 *
+	 * Regression test for the sandbox flip-flop: a sandbox on an older Gutenberg rewrites
+	 * `gutenberg_version_migration` to its own version, production disagrees and migrates
+	 * again, and the collaboration option is deleted on every pass. Restoring only once
+	 * meant the second deletion stuck and the site silently lost collaboration.
+	 */
+	public function test_opt_in_survives_repeated_migrations() {
+		$this->use_experiment_and_allow();
+		RTC::init();
+		add_option( RTC::OPTION_NEW, '1' );
+
+		for ( $pass = 1; $pass <= 3; $pass++ ) {
+			// Priority 0: we look before the migration can touch anything.
+			RTC::carry_over_opt_in();
+
+			// Priority 20: Gutenberg migrates and removes the option.
+			delete_option( RTC::OPTION_NEW );
+			RTC::note_migration_ran();
+
+			// Priority 30: we put it back.
+			RTC::restore_opt_in();
+
+			$this->assertSame( '1', get_option( RTC::OPTION_NEW ), "opt-in lost on pass {$pass}" );
+		}
+	}
+
+	/**
+	 * Tests that a stored opt-out survives the migration too.
+	 *
+	 * A stored '0' is a decision as much as a stored '1' is, and restoring the carried
+	 * marker rather than the actual previous value would quietly turn collaboration on.
+	 */
+	public function test_stored_opt_out_survives_the_migration() {
+		$this->use_experiment_and_allow();
+		RTC::init();
+		update_option( RTC::OPTION_PRE_EXPERIMENT_OPT_IN, '1' );
+		add_option( RTC::OPTION_NEW, '0' );
+
+		RTC::carry_over_opt_in();
+		delete_option( RTC::OPTION_NEW );
+		RTC::note_migration_ran();
+		RTC::restore_opt_in();
+
+		$this->assertSame( '0', get_option( RTC::OPTION_NEW ) );
+		$this->assertFalse( RTC::is_turned_on() );
+	}
+
+	/**
+	 * Tests that nothing is restored when no migration ran.
+	 *
+	 * This is what separates "the migration deleted it" from "the user switched it off".
+	 * Without the distinction, unchecking the box would be undone on the next request.
+	 */
+	public function test_no_restore_without_a_migration() {
+		$this->use_experiment_and_allow();
+		RTC::init();
+		add_option( RTC::OPTION_NEW, '1' );
+
+		RTC::carry_over_opt_in();
+
+		// The user unchecks the box. No migration involved.
+		delete_option( RTC::OPTION_NEW );
+		RTC::restore_opt_in();
+
+		$this->assertFalse( RTC::is_turned_on(), 'an unchecked box must stay unchecked' );
+	}
+
+	/**
+	 * Tests that init hooks the migration detector.
+	 */
+	public function test_init_watches_for_the_migration() {
+		RTC::init();
+
+		$this->assertSame(
+			10,
+			has_action( 'update_option_gutenberg_version_migration', array( RTC::class, 'note_migration_ran' ) )
+		);
 	}
 
 	/**

@@ -58,6 +58,25 @@ class RTC {
 	private static $initialized = false;
 
 	/**
+	 * The stored collaboration setting as it was before Gutenberg's migration could run,
+	 * captured on `init` priority 0. Null when nothing was stored, false before we looked.
+	 *
+	 * Per-request, deliberately: it answers "did the migration take this away from us just
+	 * now", which a persisted value cannot, because an absent option means either "the
+	 * migration deleted it" or "the user switched collaboration off".
+	 *
+	 * @var mixed
+	 */
+	private static $pre_migration_value = false;
+
+	/**
+	 * Whether Gutenberg's migration ran during this request.
+	 *
+	 * @var bool
+	 */
+	private static $migration_ran = false;
+
+	/**
 	 * Initialize the RTC package by registering hooks.
 	 *
 	 * @return void
@@ -83,6 +102,14 @@ class RTC {
 		add_action( 'init', array( __CLASS__, 'register_experiment_filters' ), 1 );
 		// Priority 30 so it lands after Gutenberg's migration deletes the option at 20.
 		add_action( 'init', array( __CLASS__, 'restore_opt_in' ), 30 );
+
+		/*
+		 * `_gutenberg_migrate_database()` writes this option as its final statement, so the
+		 * hook firing is proof the migration just ran. That distinction matters: an absent
+		 * collaboration option means "the migration removed it" or "the user switched it
+		 * off", and only the first is ours to undo.
+		 */
+		add_action( 'update_option_gutenberg_version_migration', array( __CLASS__, 'note_migration_ran' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_rtc_setting' ) );
 
 		// Hook into both old and new option names for backwards compatibility.
@@ -362,6 +389,15 @@ class RTC {
 			return;
 		}
 
+		/*
+		 * Runs before Gutenberg's migration at priority 20, so this is the last chance to
+		 * see the stored value. Captured on every request, not just the first, because the
+		 * migration can run more than once: a sandbox on an older Gutenberg rewrites
+		 * `gutenberg_version_migration` to its own version, and production then re-runs its
+		 * migration and deletes the option again.
+		 */
+		self::$pre_migration_value = self::get_stored_option( self::OPTION_NEW );
+
 		// Already looked. Recorded as '1' or '0', so anything but false means done.
 		if ( false !== get_option( self::OPTION_PRE_EXPERIMENT_OPT_IN, false ) ) {
 			return;
@@ -378,15 +414,31 @@ class RTC {
 	}
 
 	/**
-	 * Re-apply a carried opt-in after Gutenberg's migration has removed the option.
+	 * Record that Gutenberg's migration ran during this request.
+	 *
+	 * @return void
+	 */
+	public static function note_migration_ran() {
+		self::$migration_ran = true;
+	}
+
+	/**
+	 * Re-apply the collaboration setting after Gutenberg's migration has removed it.
 	 *
 	 * Deliberately writes a real option value instead of leaning on
 	 * `default_rtc_option()`. Unchecking the box on Settings > Writing does not store a
 	 * '0' — it removes the row entirely — so anything expressed as a default would
 	 * re-apply itself on the next request and make the setting impossible to switch off.
 	 *
-	 * The carried flag is consumed here so this runs once. From then on the stored option
-	 * is the only thing that decides, exactly as it is for a site that never opted in.
+	 * Two things have to be true before anything is written. The migration must have run
+	 * in this request, and the value must have been there when we looked at priority 0.
+	 * Together they separate "the migration took this away" from "the user switched it
+	 * off", which an absent option cannot distinguish on its own.
+	 *
+	 * This is not once-only. The migration re-runs whenever `gutenberg_version_migration`
+	 * disagrees with the running Gutenberg, which happens every time a sandbox on an older
+	 * version rewrites it and production migrates again. Restoring only once left those
+	 * sites losing a deliberate opt-in on the second pass.
 	 *
 	 * @return void
 	 */
@@ -395,17 +447,33 @@ class RTC {
 			return;
 		}
 
+		if ( ! self::$migration_ran ) {
+			return;
+		}
+
+		// Only restore into the gap the migration left. Never overwrite a real choice.
+		if ( null !== self::get_stored_option( self::OPTION_NEW ) ) {
+			return;
+		}
+
+		if ( null !== self::$pre_migration_value && false !== self::$pre_migration_value ) {
+			// Restore exactly what was there, so a stored opt-out survives too.
+			update_option( self::OPTION_NEW, self::$pre_migration_value );
+			return;
+		}
+
+		/*
+		 * Nothing was stored when we looked, so fall back to the marker recorded the first
+		 * time this package ran. That covers a site whose option was already gone by then,
+		 * for instance because the old option names were removed by an earlier migration.
+		 * Consumed here, since it describes a moment that has passed and cannot recur.
+		 */
 		if ( '1' !== get_option( self::OPTION_PRE_EXPERIMENT_OPT_IN ) ) {
 			return;
 		}
 
-		// Consume first, so a failure below cannot leave this re-applying every request.
 		update_option( self::OPTION_PRE_EXPERIMENT_OPT_IN, '0' );
-
-		// Only restore into the gap the migration left. Never overwrite a real choice.
-		if ( null === self::get_stored_option( self::OPTION_NEW ) ) {
-			update_option( self::OPTION_NEW, '1' );
-		}
+		update_option( self::OPTION_NEW, '1' );
 	}
 
 	/**

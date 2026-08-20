@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+RTC: keep the collaboration setting when Gutenberg's migration runs more than once
