@@ -28,6 +28,8 @@ function Probe( { range, enabled = true }: { range: string; enabled?: boolean } 
 		enabled,
 	} );
 
+	refetchProbe = query.refetch;
+
 	return (
 		<>
 			<span data-testid="shown">{ query.data?.range ?? '—' }</span>
@@ -36,6 +38,8 @@ function Probe( { range, enabled = true }: { range: string; enabled?: boolean } 
 		</>
 	);
 }
+
+let refetchProbe: () => Promise< unknown >;
 
 function read( testId: string ) {
 	return screen.getByTestId( testId ).textContent;
@@ -160,5 +164,27 @@ describe( 'isAwaitingData', () => {
 
 		expect( read( 'fetching' ) ).toBe( 'false' );
 		expect( read( 'awaiting' ) ).toBe( 'false' );
+	} );
+
+	// `refetch()` deliberately ignores `enabled`, so a switched-off query can
+	// still have a real request in flight. Only the placeholder arm is gated —
+	// gating the whole flag would report "not awaiting" over a genuine load and
+	// leave the widget showing its empty state until the request landed.
+	it( 'is true while a switched-off query is refetching by hand', async () => {
+		render( wrap( <Probe range="january" enabled={ false } /> ) );
+
+		expect( read( 'awaiting' ) ).toBe( 'false' );
+
+		let inFlight: Promise< unknown >;
+		act( () => {
+			inFlight = refetchProbe();
+		} );
+
+		await waitFor( () => expect( read( 'fetching' ) ).toBe( 'true' ) );
+		expect( read( 'awaiting' ) ).toBe( 'true' );
+
+		await act( async () => {
+			await inFlight;
+		} );
 	} );
 } );

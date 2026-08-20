@@ -25,7 +25,10 @@ type PlaceholderAwareQuery = {
  * @return Whether the result has nothing valid for the current params.
  */
 export function isAwaitingData( query: PlaceholderAwareQuery, isEnabled = true ): boolean {
-	return isEnabled && ( query.isLoading || query.isPlaceholderData );
+	// Only the placeholder arm is gated. `refetch()` ignores `enabled`, so a
+	// switched-off query can still have a real request in flight — and that one
+	// is awaiting data however the query was configured.
+	return query.isLoading || ( isEnabled && query.isPlaceholderData );
 }
 
 /**
@@ -38,7 +41,9 @@ export function isAwaitingData( query: PlaceholderAwareQuery, isEnabled = true )
  * uses (`isStale` flipping at `staleTime`, for one). Cheap next to a fetch, and
  * the alternative is handing widgets a flag whose name lies.
  *
- * @param query - A React Query result.
+ * @param query     - A React Query result.
+ * @param isEnabled - Whether that query is enabled. Defaults to true; see
+ *                  `isAwaitingData` for why a switched-off query never awaits.
  * @return The same result with `isLoading` widened.
  */
 export function withAwaitedDataLoading< TQuery extends PlaceholderAwareQuery >(
