@@ -2,9 +2,11 @@
  * External dependencies
  */
 import { render, screen } from '@testing-library/react';
+import { setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
+import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { ComparativeBarChart } from '../comparative-bar-chart';
 import type { ComparativeBarChartSeries } from '../types';
 
@@ -67,6 +69,11 @@ const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 const JULY_1 = new Date( '2026-07-01T00:00:00Z' );
 const JULY_2 = new Date( '2026-07-02T00:00:00Z' );
 
+// A tooltip label reads its point as the instant it is, in the site's timezone,
+// so this one is an instant and every label assertion fixes the site's zone.
+// Callers whose points are wall clocks pass their own `formatTooltipDate`.
+const JULY_2_2PM_TOKYO = new Date( '2026-07-02T05:00:00Z' );
+
 const SERIES: ComparativeBarChartSeries[] = [
 	{
 		label: 'July',
@@ -97,6 +104,7 @@ const SERIES_WITH_COMPARISON: ComparativeBarChartSeries[] = [
 type TooltipProps = {
 	tooltipData: { datumByKey: Record< string, { datum: { value: number } } > };
 	seriesStyles: { stroke: string; opacity?: number }[];
+	getLabel: ( datum: { date?: Date; realDate?: Date }, index: number, key: string ) => string;
 };
 
 /**
@@ -158,6 +166,30 @@ function tooltipRowsFor( hoveredDate: Date ): Record< string, number > {
 	);
 }
 
+/**
+ * The label the tooltip puts on a hovered point.
+ *
+ * @param hoveredDate - The point's date.
+ * @return The rendered row label.
+ */
+function tooltipLabelFor( hoveredDate: Date ): string {
+	/* eslint-disable testing-library/render-result-naming-convention --
+	   As above: this is the chart's `renderTooltip` prop, not testing-library's
+	   `render()`. */
+	const tooltipRenderer = recordedProps().renderTooltip;
+	const hovered = { date: hoveredDate, value: 100 };
+
+	const tooltipNode = tooltipRenderer( {
+		tooltipData: {
+			nearestDatum: { datum: hovered, key: 'July' },
+			datumByKey: { July: { datum: hovered, index: 0, key: 'July' } },
+		},
+	} );
+
+	return tooltipNode.props.getLabel( hovered, 0, 'July' );
+	/* eslint-enable testing-library/render-result-naming-convention */
+}
+
 const ZERO_SERIES: ComparativeBarChartSeries[] = [
 	{
 		label: 'July',
@@ -190,6 +222,51 @@ describe( 'ComparativeBarChart', () => {
 		);
 
 		expect( typeof recordedOptions().axis.x.tickFormat ).toBe( 'function' );
+	} );
+
+	it( 'declares the bucket size to the x-axis', () => {
+		render(
+			<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } tickResolution="hour" />
+		);
+
+		// Two hourly points an hour apart are also two daily points 24 hours apart
+		// as far as gap-measuring goes, so the axis needs telling which it is.
+		expect( recordedOptions().axis.x.tickResolution ).toBe( 'hour' );
+	} );
+
+	it( "labels a tooltip with the point's date, read in the site's timezone", () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'July 2, 2026' );
+	} );
+
+	// A date alone names 24 hourly buckets, so it cannot identify the one hovered
+	// — and the hour it gains has to be the one the axis tick under it shows.
+	it( 'adds the hour the point names at the hourly resolution', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render(
+			<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } tickResolution="hour" />
+		);
+
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'July 2, 2026 2:00 pm' );
+	} );
+
+	// How a point's date is read is the caller's to decide — Stats buckets are
+	// wall clocks rather than instants — while which format names it stays here.
+	it( 'hands the point and the format it picked to a caller-supplied formatter', () => {
+		const formatTooltipDate = jest.fn( () => 'the bucket' );
+		render(
+			<ComparativeBarChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				tickResolution="hour"
+				formatTooltipDate={ formatTooltipDate }
+			/>
+		);
+
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'the bucket' );
+		expect( formatTooltipDate ).toHaveBeenCalledWith( JULY_2_2PM_TOKYO, 'dateTime' );
 	} );
 
 	it( 'adds the previous-period value to the tooltip when comparing', () => {

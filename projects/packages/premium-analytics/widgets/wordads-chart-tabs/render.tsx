@@ -90,6 +90,7 @@ function WordAdsChartTabsInner( { granularity }: WordAdsChartTabsInnerProps ) {
 					metrics={ metrics }
 					dataFormat={ DATA_FORMAT }
 					groupLabel={ __( 'WordAds metric', 'jetpack-premium-analytics-pkg' ) }
+					pointsAreWallClocks
 				/>
 			</WidgetState>
 		</div>
