@@ -141,6 +141,143 @@ if ( ! function_exists( 'wpcom_ai_launchpad_tracks_context' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcom_ai_launchpad_is_test' ) ) {
+	/**
+	 * Whether this request comes from a development or test environment.
+	 *
+	 * Environment-based, never user-based. The AI property standard keeps `is_test` and
+	 * `is_a11n` independently filterable, so an Automattician working on a production site is
+	 * a11n but not test. The standard also lists a set of internal Atomic client IDs, which is
+	 * deliberately not implemented here: the reference implementation
+	 * (packages/agents-manager, is_dev_mode()) gates that clause behind AT_PROXIED_REQUEST,
+	 * which would make this user-based again, and ungated it would risk reporting real Atomic
+	 * sites as tests. Automattician sessions on real test sites are covered by is_a11n instead.
+	 *
+	 * @return bool
+	 */
+	function wpcom_ai_launchpad_is_test() {
+		$host = wp_parse_url( get_site_url(), PHP_URL_HOST );
+
+		if ( ! is_string( $host ) || '' === $host ) {
+			return false;
+		}
+
+		return 'localhost' === $host
+			|| '.jurassic.tube' === stristr( $host, '.jurassic.tube' )
+			|| '.jurassic.ninja' === stristr( $host, '.jurassic.ninja' );
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_is_a11n' ) ) {
+	/**
+	 * Whether an Automattician is acting on this site.
+	 *
+	 * Mirrors the platform split used elsewhere in the package: on Simple the platform's own
+	 * is_automattician() is authoritative, and on Atomic the a8c proxy is what identifies us.
+	 * Both branches fail closed when their primitive is missing.
+	 *
+	 * Records who is acting, not who owns the site — an Automattician working on a customer's
+	 * site is a11n, a customer working on an a8c-owned site is not.
+	 *
+	 * @return bool
+	 */
+	function wpcom_ai_launchpad_is_a11n() {
+		if ( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ) {
+			return function_exists( 'is_automattician' ) && (bool) is_automattician();
+		}
+
+		return \Automattic\Jetpack\Constants::is_true( 'AT_PROXIED_REQUEST' );
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_standard_props' ) ) {
+	/**
+	 * The AI standard Tracks properties, merged into every AI Launchpad event by both
+	 * recorders — the server one below and the client one in `js/lib/tracks.ts`, which reads
+	 * this same array from the page's `window.wpcomAiLaunchpadTracks` global.
+	 *
+	 * Every value is a string, an int or a bool, never null: the standard requires the string
+	 * "none" for a missing value, because null breaks group-by aggregations downstream.
+	 *
+	 * @return array The standard props.
+	 */
+	function wpcom_ai_launchpad_standard_props() {
+		$ai_output = get_option( 'wpcom_ai_launchpad_ai_output' );
+
+		$string_or_none = static function ( $value ) {
+			return is_string( $value ) && '' !== $value ? $value : 'none';
+		};
+
+		$source        = $string_or_none( is_array( $ai_output ) ? ( $ai_output['source'] ?? null ) : null );
+		$ai_session_id = $string_or_none( is_array( $ai_output ) ? ( $ai_output['ai_session_id'] ?? null ) : null );
+
+		// Redundant with $source by construction. The standard requires it and cross-product AI
+		// dashboards group by it, so it is derived here rather than stored a second time.
+		$outcome = 'none';
+		if ( 'ai' === $source ) {
+			$outcome = 'success';
+		} elseif ( 'fallback' === $source ) {
+			$outcome = 'error';
+		}
+
+		return array(
+			'channel'       => 'web',
+			'surface'       => 'dashboard',
+			// The Site Setup page's own $pagenow, hardcoded rather than read live: the two
+			// server-fired events fire inside REST requests, where $pagenow is index.php, and
+			// the two recorders have to report the same screen for the same user.
+			'screen'        => 'admin.php',
+			'ref'           => 'experiment_wpcom_launchpad_personalization_202607_v1',
+			'site_type'     => ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ? 'simple' : 'atomic',
+			'agent_name'    => 'ai_launchpad',
+			'agent_version' => \Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION,
+			'is_test'       => wpcom_ai_launchpad_is_test(),
+			'is_a11n'       => wpcom_ai_launchpad_is_a11n(),
+			// Explicit rather than left to the Tracks super prop: on the client the super prop
+			// is missing on about one page-view fire in twenty, which understates every
+			// per-site rate that uses `viewed` as its denominator.
+			'blog_id'       => (int) get_wpcom_blog_id(),
+			'source'        => $source,
+			'outcome'       => $outcome,
+			'ai_session_id' => $ai_session_id,
+		);
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_tracks_identity' ) ) {
+	/**
+	 * The Tracks user identity the client recorder pushes as `identifyUser`, on Atomic only.
+	 *
+	 * On Simple, wpcom's stats.php already pushes identifyUser for every admin page load. On
+	 * Atomic nothing does, so without this the client events would land anonymous. The local
+	 * user id is not usable there — Tracks wants the connected WordPress.com identity.
+	 *
+	 * Returns only the id and the login: the Tracks client helper also hands back an email
+	 * address, which must not reach a JS global.
+	 *
+	 * @return array|null The identity, or null on Simple / when no connected user is available.
+	 */
+	function wpcom_ai_launchpad_tracks_identity() {
+		if ( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ) {
+			return null;
+		}
+
+		if ( ! class_exists( 'Jetpack_Tracks_Client' ) ) {
+			return null;
+		}
+
+		$identity = \Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+		if ( ! is_array( $identity ) || empty( $identity['userid'] ) || empty( $identity['username'] ) ) {
+			return null;
+		}
+
+		return array(
+			'userid'   => (int) $identity['userid'],
+			'username' => (string) $identity['username'],
+		);
+	}
+}
+
 if ( ! function_exists( 'wpcom_ai_launchpad_record_tracks_event' ) ) {
 	/**
 	 * Records an AI Launchpad Tracks event server-side with the shared context merged in,
