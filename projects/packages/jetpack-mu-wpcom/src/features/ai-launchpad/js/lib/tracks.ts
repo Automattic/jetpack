@@ -1,8 +1,19 @@
-import type { GoalSlug, TailoredInferred, TrackEventProps } from './types.ts';
+import type { GoalSlug, TailoredInferred, TailorSource, TrackEventProps } from './types.ts';
+
+/** The Tracks bootstrap the Site Setup page sets before this module runs. */
+interface TracksBootstrap {
+	// The AI standard props, resolved server-side. See wpcom_ai_launchpad_standard_props().
+	props: TrackEventProps;
+	// The Tracks identity to push as identifyUser, on Atomic only — null on Simple, where
+	// wpcom's stats.php has already pushed it.
+	identity: { userid: number; username: string } | null;
+}
 
 declare global {
 	interface Window {
-		_tkq: Array< [ 'recordEvent', string, TrackEventProps ] >;
+		// Widened past [ 'recordEvent', … ]: the queue also carries identifyUser pushes.
+		_tkq: unknown[][];
+		wpcomAiLaunchpadTracks?: TracksBootstrap;
 	}
 }
 
@@ -28,6 +39,13 @@ export interface TracksContext {
 	rendered_list: string | null;
 	// The goal the AI infers from the site name and description alone.
 	inferred_goal: string | null;
+	// Whether the rendered list came from the AI or the deterministic fallback, the same value
+	// under the standard's name, and the id of the tailoring run that produced it. Null until a
+	// tailor completes in this page load, so the server-resolved values in the bootstrap global
+	// show through for a returning user.
+	source: string | null;
+	outcome: string | null;
+	ai_session_id: string | null;
 }
 
 const EMPTY_CONTEXT: TracksContext = {
@@ -38,6 +56,9 @@ const EMPTY_CONTEXT: TracksContext = {
 	audience: null,
 	rendered_list: null,
 	inferred_goal: null,
+	source: null,
+	outcome: null,
+	ai_session_id: null,
 };
 
 let context: TracksContext = { ...EMPTY_CONTEXT };
@@ -46,6 +67,9 @@ let context: TracksContext = { ...EMPTY_CONTEXT };
 // only ever fire once per page load — latched here so a re-render/remount of the
 // firing component can never double-count the funnel's terminal step.
 let wizardCompletedRecorded = false;
+
+// identifyUser only has to be pushed once per page load, and only where nothing else does it.
+let userIdentified = false;
 
 /**
  * Merges values into the shared event context. Call as data becomes available
@@ -61,6 +85,7 @@ export function setTracksContext( partial: Partial< TracksContext > ): void {
 export function resetTracksContext(): void {
 	context = { ...EMPTY_CONTEXT };
 	wizardCompletedRecorded = false;
+	userIdentified = false;
 }
 
 /**
@@ -94,9 +119,32 @@ export function contextFromTaskIds( ids: string[] ): Partial< TracksContext > {
 }
 
 /**
- * Records a Tracks event with the shared context merged in, so call sites can't
- * forget it. Null-valued props are omitted: the Tracks pipeline would otherwise
- * record them as literal "null" strings.
+ * Derives the tailoring-scoped context from a completed tailor call, so every event fired
+ * afterwards is attributable to that run and to whether the AI or the fallback produced it.
+ *
+ * `outcome` is redundant with `source` by construction. The AI property standard requires it
+ * and cross-product dashboards group by it, so it is derived rather than carried separately.
+ *
+ * @param source      - Whether the output came from the AI or the deterministic fallback.
+ * @param aiSessionId - The id minted for this tailoring run.
+ * @return The context slice to merge.
+ */
+export function contextFromTailorResult(
+	source: TailorSource,
+	aiSessionId: string
+): Partial< TracksContext > {
+	return {
+		source,
+		outcome: 'ai' === source ? 'success' : 'error',
+		ai_session_id: aiSessionId,
+	};
+}
+
+/**
+ * Records a Tracks event with the standard props and the shared context merged in, so call
+ * sites can't forget either. Null-valued context props are omitted: the Tracks pipeline would
+ * otherwise record them as literal "null" strings. The standard props merge outside that
+ * filter, and first, so `is_test: false` survives and a call site still wins over both.
  *
  * @param eventName - The Tracks event name, already feature-prefixed.
  * @param props     - Event properties. No PII: task IDs are fine, free text is not.
@@ -106,7 +154,30 @@ function record( eventName: string, props: TrackEventProps = {} ): void {
 		Object.entries( { ...context, ...props } ).filter( ( [ , value ] ) => value !== null )
 	);
 	window._tkq = window._tkq || [];
-	window._tkq.push( [ 'recordEvent', eventName, merged ] );
+	identifyUser();
+	window._tkq.push( [
+		'recordEvent',
+		eventName,
+		{ ...( window.wpcomAiLaunchpadTracks?.props ?? {} ), ...merged },
+	] );
+}
+
+/**
+ * Pushes the Tracks identity once per page load, before the first event.
+ *
+ * Only Atomic supplies one: on Simple wpcom's stats.php has already identified the user for
+ * every admin page load, and pushing a second time would be redundant.
+ */
+function identifyUser(): void {
+	if ( userIdentified ) {
+		return;
+	}
+	userIdentified = true;
+
+	const identity = window.wpcomAiLaunchpadTracks?.identity;
+	if ( identity ) {
+		window._tkq.push( [ 'identifyUser', identity.userid, identity.username ] );
+	}
 }
 
 /**
