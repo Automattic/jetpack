@@ -10,7 +10,13 @@
  */
 class PCG_Rollout {
 
-	const DEFAULT_PERCENTAGE = 5;
+	/**
+	 * Off unless the host platform opts in. This package ships on a weekly
+	 * release train, so the live percentage is set by wpcomsh via
+	 * `pcg_rollout_percentage` — that's the piece that can be deployed when
+	 * a ramp (or a rollback) actually needs to happen.
+	 */
+	const DEFAULT_PERCENTAGE = 0;
 
 	/**
 	 * Priority 100 leaves room for emergency overrides at higher priorities.
