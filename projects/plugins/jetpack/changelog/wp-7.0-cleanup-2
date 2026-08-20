@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: AI settings: rely on core's wp_supports_ai(), which ships in WordPress 7.0.
+
+
