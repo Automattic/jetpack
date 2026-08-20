@@ -260,21 +260,21 @@ describe( 'getSectionSubtitle', () => {
 
 		it( 'measures the running year under a non-year preset, unit and all', () => {
 			// The regression this guards: read mid-month the same dates measure in
-			// days and lead with the weekday, and on a month boundary they measure
-			// in months and carry the year instead.
+			// days, and on a month boundary in months, which is the length the
+			// year surface refuses to state.
 			expect(
 				getSectionSubtitle( {
 					range: { from: RUNNING_YEAR_FROM, to: endOf( 2026, 7, 30 ) },
 					presetId: 'custom',
 				} )
-			).toBe( 'Thursday, January 1 – Thursday, July 30 (211 days)' );
+			).toBe( 'January 1 – July 30 (211 days)' );
 
 			expect(
 				getSectionSubtitle( {
 					range: { from: RUNNING_YEAR_FROM, to: endOf( 2026, 7, 31 ) },
 					presetId: 'custom',
 				} )
-			).toBe( 'January 1, 2026 – July 31, 2026 (7 months)' );
+			).toBe( 'January 1 – July 31 (7 months)' );
 		} );
 	} );
 } );

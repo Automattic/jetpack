@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Name the dates a comparison covers in the dashboard header, instead of "Previous period".
+Name the dates a comparison covers in the dashboard header, instead of "Previous period", and drop the weekdays from ranges longer than a week.
