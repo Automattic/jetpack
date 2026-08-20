@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Apply series visibility set outside the interactive legend, and reflect it in the legend.
