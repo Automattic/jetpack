@@ -43,7 +43,7 @@
 		"automattic/jetpack-masterbar": "^0.27.36",
 		"automattic/jetpack-menu-badges": "^0.1.0",
 		"automattic/jetpack-my-jetpack": "^5.41.1",
-		"automattic/jetpack-newsletter": "^0.12.3",
+		"automattic/jetpack-newsletter": "^0.12.3.2",
 		"automattic/jetpack-paypal-payments": "^0.7.11",
 		"automattic/jetpack-plugins-installer": "^0.5.11",
 		"automattic/jetpack-podcast": "^1.4.3",

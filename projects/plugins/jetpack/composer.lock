@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "258efc734fc80d1e1f3d5c3fea30b2cd",
+    "content-hash": "45cf39b40734498b84777152b6f92bb2",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -2089,25 +2089,25 @@
         },
         {
             "name": "automattic/jetpack-newsletter",
-            "version": "v0.12.4",
+            "version": "v0.12.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-newsletter.git",
-                "reference": "42d032389a2056162eb9d733d14faaff40295381"
+                "reference": "9b87f7bfa8265bf9759f161d58af49c25d05bf85"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-newsletter/zipball/42d032389a2056162eb9d733d14faaff40295381",
-                "reference": "42d032389a2056162eb9d733d14faaff40295381",
+                "url": "https://api.github.com/repos/Automattic/jetpack-newsletter/zipball/9b87f7bfa8265bf9759f161d58af49c25d05bf85",
+                "reference": "9b87f7bfa8265bf9759f161d58af49c25d05bf85",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-admin-ui": "^0.9.15",
-                "automattic/jetpack-assets": "^4.4.10",
-                "automattic/jetpack-connection": "^8.9.0",
+                "automattic/jetpack-admin-ui": "^0.9.14",
+                "automattic/jetpack-assets": "^4.4.9",
+                "automattic/jetpack-connection": "^8.8.2",
                 "automattic/jetpack-plans": "^0.11.9",
                 "automattic/jetpack-redirect": "^3.0.15",
-                "automattic/jetpack-status": "^6.2.1",
+                "automattic/jetpack-status": "^6.2.0",
                 "automattic/jetpack-wp-build-polyfills": "^0.4.0",
                 "php": ">=7.2"
             },
@@ -2145,9 +2145,9 @@
             ],
             "description": "Jetpack Newsletter functionality",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-newsletter/tree/v0.12.4"
+                "source": "https://github.com/Automattic/jetpack-newsletter/tree/v0.12.3.2"
             },
-            "time": "2026-08-10T18:22:51+00:00"
+            "time": "2026-08-20T17:20:06+00:00"
         },
         {
             "name": "automattic/jetpack-password-checker",
