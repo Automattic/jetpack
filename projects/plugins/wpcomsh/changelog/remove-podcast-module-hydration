@@ -1,4 +1,5 @@
 Significance: patch
-Type: removed
+Type: changed
+Comment: Internal Podcast module wiring only; no user-visible change since 9.0.0.
 
-Podcast: Stop forcing the Jetpack Podcast module on, now that the Jetpack build on Atomic ships it by default and the site-level toggle should decide.
+
