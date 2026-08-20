@@ -42,7 +42,7 @@ export function anchorDateToUtc( value ) {
  * AVAILABLE (limit − used), so that is derived here.
  *
  * @param {object} data - Raw endpoint payload (dash-cased keys).
- * @return {object} { unlimited, isFree, requestsCount, requestsLimit, requestsAvailable, renewsOn, planLabel, showUpgrade }
+ * @return {object} { unlimited, isFree, requestsCount, requestsLimit, requestsAvailable, planLabel, showUpgrade }
  */
 export function normalizeUsage( data ) {
 	const currentTier = data?.[ 'current-tier' ] ?? null;
@@ -70,12 +70,6 @@ export function normalizeUsage( data ) {
 			? Math.max( 0, requestsLimit - requestsCount )
 			: null;
 
-	// The endpoint sends next-start as a bare calendar date with no offset;
-	// anchor it to UTC so formatters cannot parse it in the browser's timezone
-	// and render the previous day east of UTC.
-	const nextStart = data?.[ 'usage-period' ]?.[ 'next-start' ] ?? null;
-	const renewsOn = nextStart ? anchorDateToUtc( nextStart ) : null;
-
 	// Free is upgradable by definition, whatever the payload says about tiers.
 	const showUpgrade =
 		! unlimited &&
@@ -92,7 +86,6 @@ export function normalizeUsage( data ) {
 		requestsCount,
 		requestsLimit,
 		requestsAvailable,
-		renewsOn,
 		planLabel,
 		showUpgrade,
 	};

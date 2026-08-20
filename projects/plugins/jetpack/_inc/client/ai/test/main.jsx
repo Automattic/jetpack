@@ -47,14 +47,8 @@ const enabledSettings = () => ( {
  * @param {object}   options.featureGet  - GET /jetpack-ai/feature-settings body.
  * @param {object}   options.mcpGet      - GET /jetpack-ai/mcp-settings body.
  * @param {Function} options.featurePost - POST /jetpack-ai/feature-settings handler → Promise.
- * @param {object}   options.usageGet    - GET /jetpack-ai/ai-assistant-feature body.
  */
-function mockApiFetch( {
-	featureGet = enabledSettings(),
-	mcpGet = {},
-	featurePost,
-	usageGet = {},
-} = {} ) {
+function mockApiFetch( { featureGet = enabledSettings(), mcpGet = {}, featurePost } = {} ) {
 	apiFetch.mockImplementation( ( { path, method } = {} ) => {
 		if ( path?.includes( 'feature-settings' ) ) {
 			if ( method === 'POST' ) {
@@ -64,9 +58,6 @@ function mockApiFetch( {
 		}
 		if ( path?.includes( 'mcp-settings' ) ) {
 			return Promise.resolve( mcpGet );
-		}
-		if ( path?.includes( 'ai-assistant-feature' ) ) {
-			return Promise.resolve( usageGet );
 		}
 		return Promise.resolve( {} );
 	} );

@@ -67,7 +67,7 @@ describe( 'normalizeUsage', () => {
 		expect( usage.requestsAvailable ).toBe( 0 );
 	} );
 
-	test( 'unlimited: no numbers, no derived plan label, a renewal date, no upgrade', () => {
+	test( 'unlimited: no numbers, no derived plan label, no upgrade', () => {
 		const usage = normalizeUsage( unlimitedPayload() );
 
 		expect( usage.unlimited ).toBe( true );
@@ -77,7 +77,6 @@ describe( 'normalizeUsage', () => {
 		// The plan name can only come from the purchase; "Unlimited" would
 		// just repeat the requests cell.
 		expect( usage.planLabel ).toBeNull();
-		expect( usage.renewsOn ).toBe( '2026-09-01T00:00:00+00:00' );
 		expect( usage.showUpgrade ).toBe( false );
 	} );
 
@@ -115,7 +114,6 @@ describe( 'normalizeUsage', () => {
 			expect( usage.requestsCount ).toBeNull();
 			expect( usage.requestsLimit ).toBeNull();
 			expect( usage.requestsAvailable ).toBeNull();
-			expect( usage.renewsOn ).toBeNull();
 			expect( usage.unlimited ).toBe( false );
 			expect( usage.showUpgrade ).toBe( false );
 			expect( usage.planLabel ).toBeNull();
