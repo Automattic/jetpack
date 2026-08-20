@@ -4,23 +4,25 @@ import {
 	BlockControls,
 	InspectorControls,
 	useBlockProps,
+	useBlockEditingMode,
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
+import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
 import { Button, Placeholder, Spinner, withNotices, ResizableBox } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
-import { getActiveStyleName } from '../../shared/block-styles';
-import AddPoint from './add-point';
+import { getActiveStyleName } from '../../shared/block-styles.js';
+import AddPoint from './add-point/index.jsx';
 import metadata from './block.json';
-import Map from './component';
-import Controls from './controls';
+import Map from './component/index.jsx';
+import Controls from './controls.jsx';
 import { getCoordinates } from './get-coordinates.js';
 import previewPlaceholder from './map-preview.jpg';
-import styles from './styles';
-import getMapProvider from './utils/get-map-provider';
+import styles from './styles.js';
+import getMapProvider from './utils/get-map-provider.js';
 
 const icon = getBlockIconComponent( metadata );
 
@@ -50,6 +52,7 @@ const MapEdit = ( {
 	notices,
 	isSelected,
 	noticeOperations,
+	clientId,
 } ) => {
 	const {
 		address,
@@ -64,25 +67,49 @@ const MapEdit = ( {
 	} = attributes;
 
 	const { toggleSelection } = useDispatch( 'core/block-editor' );
+	const { insertBlock } = useDispatch( blockEditorStore );
 
-	const { isPreviewMode } = useSelect( select => {
-		const { getSettings } = select( blockEditorStore );
-		const settings = getSettings();
-		return {
-			isPreviewMode: settings.isPreviewMode,
-		};
-	}, [] );
+	const { isPreviewMode, blockIndex } = useSelect(
+		select => {
+			const { getSettings, getBlockIndex } = select( blockEditorStore );
+			const settings = getSettings();
+			return {
+				isPreviewMode: settings.isPreviewMode,
+				blockIndex: getBlockIndex( clientId ),
+			};
+		},
+		[ clientId ]
+	);
+
+	const onKeyDown = event => {
+		if ( [ 'INPUT', 'TEXTAREA', 'BUTTON' ].includes( event.target.tagName ) ) {
+			return;
+		}
+
+		if (
+			event.key === 'Enter' &&
+			! event.shiftKey &&
+			! event.ctrlKey &&
+			! event.altKey &&
+			! event.metaKey
+		) {
+			event.preventDefault();
+			insertBlock( createBlock( getDefaultBlockName() ), blockIndex + 1 );
+		}
+	};
 
 	const [ addPointVisibility, setAddPointVisibility ] = useState( false );
 	const [ apiState, setApiState ] = useState( API_STATE_LOADING );
-	const [ apiKey, setApiKey ] = useState( null );
+	const [ apiKey, setApiKey ] = useState(
+		'pk.eyJ1IjoiZHVtbXkiLCJhIjoiY2R1bW15In0.dummy_token_for_testing'
+	);
 	const [ apiKeyControl, setApiKeyControl ] = useState( null );
 	const [ apiKeySource, setApiKeySource ] = useState( null );
 	const [ apiRequestOutstanding, setApiRequestOutstanding ] = useState( null );
 	const mapRef = useRef( null );
-	const blockProps = useBlockProps();
+	const blockProps = useBlockProps( { onKeyDown } );
 	const { className } = blockProps;
-
+	const blockEditingMode = useBlockEditingMode();
 	const mapStyle = getActiveStyleName( styles, className );
 	const mapProvider = getMapProvider( { mapStyle } );
 
@@ -206,12 +233,12 @@ const MapEdit = ( {
 	};
 
 	useEffect( () => {
-		if ( mapProvider === 'mapbox' ) {
-			apiCall().then( geoCodeAddress );
-		} else {
-			setApiState( API_STATE_SUCCESS );
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		setApiState( API_STATE_SUCCESS );
+		// if ( mapProvider === 'mapbox' ) {
+		// 	apiCall().then( geoCodeAddress );
+		// } else {
+		// 	setApiState( API_STATE_SUCCESS );
+		// }
 	}, [] );
 
 	// Changing the alignment changes the width of the block, so the map needs to be resized to match.
@@ -231,8 +258,8 @@ const MapEdit = ( {
 	useEffect( () => {
 		// Fetch API key when switching from mapkit to mapbox
 		if ( className && ! apiKey ) {
-			setApiState( API_STATE_LOADING );
-			apiCall();
+			// setApiState( API_STATE_LOADING );
+			// apiCall();
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ className ] );
@@ -338,9 +365,9 @@ const MapEdit = ( {
 						width: '100%',
 					} }
 					grid={ [ 10, 10 ] }
-					showHandle={ isSelected }
+					showHandle={ isSelected && blockEditingMode === 'default' }
 					minHeight={ MIN_HEIGHT }
-					enable={ RESIZABLE_BOX_ENABLE_OPTION }
+					enable={ blockEditingMode === 'default' ? RESIZABLE_BOX_ENABLE_OPTION : false }
 					onResizeStart={ () => toggleSelection( false ) }
 					onResizeStop={ onMapResize }
 				>
