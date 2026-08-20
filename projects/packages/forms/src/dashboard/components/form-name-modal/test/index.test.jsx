@@ -56,6 +56,21 @@ describe( 'FormNameModal', () => {
 		expect( onClose ).toHaveBeenCalled();
 	} );
 
+	it( 'leaves the busy field read-only rather than disabled, so focus stays in the dialog', async () => {
+		const user = userEvent.setup();
+		setup( navigatingSave );
+
+		// Submitting from the field leaves focus in it. Disabling it here would eject focus to the
+		// document body, outside the dialog, where Modal's key handler never sees Escape. The Escape
+		// consequence itself is not assertable — @wordpress/components Modal does not respond to
+		// Escape under jsdom even when idle — so this pins the cause instead.
+		await user.type( screen.getByRole( 'textbox' ), 'Contact{Enter}' );
+
+		await expect( screen.findByText( BUSY ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'textbox' ) ).toHaveAttribute( 'readonly' );
+		expect( screen.getByRole( 'textbox' ) ).toBeEnabled();
+	} );
+
 	it( 'reopens idle after being dismissed mid-navigation', async () => {
 		const user = userEvent.setup();
 		const { rerender } = setup( navigatingSave );
@@ -102,5 +117,15 @@ describe( 'FormNameModal', () => {
 		await user.click( createButton() );
 
 		expect( onSave ).toHaveBeenCalledWith( 'Untitled Form' );
+	} );
+
+	it( 'closes itself when the save resolves', async () => {
+		const user = userEvent.setup();
+		// The contract callers rely on: onSave must not close the dialog, the dialog closes on resolve.
+		const { onClose } = setup();
+
+		await user.click( createButton() );
+
+		await waitFor( () => expect( onClose ).toHaveBeenCalled() );
 	} );
 } );
