@@ -74,7 +74,7 @@ const getFieldLabel = block => {
  * Walk a form's block tree collecting fields that can be referenced by a condition.
  *
  * @param {Array}  blocks    - Blocks to walk.
- * @param {string} excludeId - Client id to skip (the field owning the panel).
+ * @param {string} excludeId - Client id to skip, along with everything inside it.
  * @param {number} step      - Current step number, or null outside a multi-step form.
  * @param {Array}  found     - Accumulator.
  */
@@ -90,13 +90,21 @@ const walk = ( blocks, excludeId, step, found ) => {
 			return;
 		}
 
+		// The subtree as well as the block itself. For a field that subtree is only its own
+		// label and input, so this changes nothing; for a container it is the fields the
+		// container governs, and conditioning a group on a field it contains is circular —
+		// the answer that would reveal the group can only be given once the group is visible.
+		if ( block.clientId === excludeId ) {
+			return;
+		}
+
 		if ( 'jetpack/form-step' === block.name ) {
 			currentStep = ( currentStep || 0 ) + 1;
 		}
 
 		const typeKey = getTypeKeyForBlockName( block.name );
 
-		if ( typeKey && block.clientId !== excludeId ) {
+		if ( typeKey ) {
 			// Fields are listed whether or not they carry an explicit `id`. Most do not: the
 			// renderer derives one from the label at output time, so requiring the attribute
 			// here would hide nearly every field and leave only the ones that ship a default
@@ -127,7 +135,7 @@ const walk = ( blocks, excludeId, step, found ) => {
  * them — a rule referencing a later step always compares against an empty value, and the
  * author should be able to see that rather than be silently prevented from writing it.
  *
- * @param {string} clientId - The field block owning the panel.
+ * @param {string} clientId - The field or container block owning the panel.
  * @return {Array} Subject field descriptors.
  */
 const useSubjectFields = clientId =>
