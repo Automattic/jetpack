@@ -1,3 +1,3 @@
 Significance: patch
 Type: fixed
-Comment: Backup: fix the modernized file browser's preview, which corrupted the manifest path by percent-encoding an already-base64 value, and restore the per-file details pane so it shows each file's real size, hash and modification time. No-op when the modernization filter is off.
+Comment: Backup: fix the modernized file browser's preview, which corrupted the manifest path by percent-encoding an already-base64 value, and restore the per-file details pane so it shows each file's real size, hash and modification time. The manifest path and period are now schema-validated, since the path is interpolated into the upstream URL unescaped. No-op when the modernization filter is off.

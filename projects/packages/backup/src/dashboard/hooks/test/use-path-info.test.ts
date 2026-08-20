@@ -1,5 +1,26 @@
-import { formatFileSize, toFileDetails } from '../use-path-info';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderHook, waitFor } from '@testing-library/react';
+import apiFetch from '@wordpress/api-fetch';
+import { createElement, type ReactNode } from 'react';
+import { formatFileSize, toFileDetails, usePathInfo } from '../use-path-info';
 import type { PathInfoResponse } from '../../data/api/path-info';
+
+jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+const mockedApiFetch = apiFetch as unknown as jest.Mock;
+
+/**
+ * Fresh client per test, retries off so failures assert immediately.
+ *
+ * @return A wrapper providing an isolated QueryClient.
+ */
+function makeWrapper() {
+	const client = new QueryClient( {
+		defaultOptions: { queries: { retry: false } },
+	} );
+	const wrapper = ( { children }: { children: ReactNode } ) =>
+		createElement( QueryClientProvider, { client }, children );
+	return { wrapper };
+}
 
 const payload = ( overrides: Partial< PathInfoResponse > = {} ): PathInfoResponse => ( {
 	size: 3247,
@@ -35,18 +56,29 @@ describe( 'toFileDetails', () => {
 		} );
 	} );
 
-	// Same hazard `toFileNode` guards for: `mtime` is unvalidated upstream
-	// data, and `toISOString()` throws `RangeError` on an unrepresentable
-	// date. A finite-but-out-of-range value — an mtime that arrives in
-	// milliseconds rather than seconds — passes `Number.isFinite` and
-	// still blows up, so the `Date` itself has to be tested.
+	// Two separate hazards, both landing on `lastModified: null`.
+	//
+	// The falsy group is the nastier one. `Number()` turns `null`, `''`
+	// and `false` into `0`, which is a perfectly valid Date — 1 Jan 1970
+	// — and its ISO string is *truthy*, so the card's
+	// `lastModified ?? file.lastModified` fallback would prefer it and
+	// display 1970 for a file whose real date it already had from `/ls`.
+	// An mtime from a nullable upstream column is a plausible payload.
+	//
+	// The unrepresentable group is the `toFileNode` hazard: `Date` is
+	// only defined within ±8.64e15 ms, so a microsecond-scale timestamp
+	// is finite and still throws `RangeError` from `toISOString()`.
 	test.each( [
-		[ 'out-of-range', 1748888135000000 ],
+		[ 'null', null ],
+		[ 'zero', 0 ],
+		[ 'empty string', '' ],
+		[ 'false', false ],
+		[ 'microsecond-scale', 1748888135000000 ],
 		[ 'not a number', NaN ],
-	] )( 'drops lastModified rather than throwing on an %s mtime', ( _label, mtime ) => {
+	] )( 'reports no lastModified for a %s mtime, never 1970', ( _label, mtime ) => {
 		let details;
 		expect( () => {
-			details = toFileDetails( payload( { mtime } ) );
+			details = toFileDetails( payload( { mtime: mtime as unknown as number } ) );
 		} ).not.toThrow();
 
 		expect( details ).toMatchObject( { size: 3247, lastModified: null } );
@@ -76,5 +108,57 @@ describe( 'formatFileSize', () => {
 		[ 5368709120, '5 GB' ],
 	] )( 'formats %i bytes as %s', ( bytes, expected ) => {
 		expect( formatFileSize( bytes ) ).toBe( expected );
+	} );
+} );
+
+describe( 'usePathInfo', () => {
+	beforeEach( () => {
+		mockedApiFetch.mockReset();
+	} );
+
+	test( 'sends the file period and the raw manifest path, and projects the reply', async () => {
+		mockedApiFetch.mockResolvedValue( payload() );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => usePathInfo( '1748888135', 'f5:/wp-config.php' ), {
+			wrapper,
+		} );
+
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+
+		expect( mockedApiFetch ).toHaveBeenCalledWith( {
+			path: '/jetpack/v4/rewind/backup/path-info?file_period=1748888135&manifest_path=f5%3A%2Fwp-config.php',
+		} );
+		expect( result.current ).toMatchObject( {
+			size: 3247,
+			hash: '2b468ca8798605890addf85864109793',
+			lastModified: '2025-06-02T18:15:35.000Z',
+		} );
+	} );
+
+	// The card's hooks run before a file is chosen, and folder rows from
+	// `/ls` carry no manifest path at all. Both params are required
+	// upstream, so firing anyway would spend a request to earn a 400.
+	test.each( [
+		[ 'the period is missing', undefined, 'f5:/wp-config.php' ],
+		[ 'the manifest path is missing', '1748888135', undefined ],
+		[ 'the period is empty', '', 'f5:/wp-config.php' ],
+		[ 'both are missing', undefined, undefined ],
+	] )( 'issues no request when %s', ( _label, period, manifestPath ) => {
+		const { wrapper } = makeWrapper();
+
+		renderHook( () => usePathInfo( period, manifestPath ), { wrapper } );
+
+		expect( mockedApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	// How the card suppresses the fetch for a file it will not render
+	// details for.
+	test( 'issues no request when disabled despite having both params', () => {
+		const { wrapper } = makeWrapper();
+
+		renderHook( () => usePathInfo( '1748888135', 'f5:/wp-config.php', false ), { wrapper } );
+
+		expect( mockedApiFetch ).not.toHaveBeenCalled();
 	} );
 } );

@@ -44,6 +44,24 @@ class File_Browser_Bridge {
 	const PREVIEW_MAX_BYTES = 64 * 1024;
 
 	/**
+	 * Standard base64, with optional padding — the exact alphabet, and
+	 * nothing else.
+	 *
+	 * Notably excludes `%` and `.`, which is what makes it safe to
+	 * interpolate a matching value into a URL path unescaped.
+	 */
+	const BASE64_PATTERN = '^[A-Za-z0-9+/]*={0,2}$';
+
+	/**
+	 * A snapshot period: Unix seconds, digits only.
+	 *
+	 * Matches the upstream route's own `(?P<backup_id>\d+)` capture, so
+	 * a malformed value fails here with a clear 400 instead of an
+	 * opaque upstream 404.
+	 */
+	const PERIOD_PATTERN = '^[0-9]+$';
+
+	/**
 	 * Register routes.
 	 *
 	 * @return void
@@ -80,7 +98,11 @@ class File_Browser_Bridge {
 					'file_period'    => array(
 						'type'     => 'string',
 						'required' => true,
+						'pattern'  => self::PERIOD_PATTERN,
 					),
+					// Unconstrained on purpose: this one is forwarded in
+					// the request body, not the URL, and a manifest path
+					// can legitimately contain any byte a filename can.
 					'manifest_path'  => array(
 						'type'     => 'string',
 						'required' => true,
@@ -105,10 +127,16 @@ class File_Browser_Bridge {
 					'file_period'           => array(
 						'type'     => 'string',
 						'required' => true,
+						'pattern'  => self::PERIOD_PATTERN,
 					),
+					// Both of these land in the WPCOM URL *path*, and the
+					// manifest path deliberately goes in unescaped, so
+					// these patterns are the only guard on it. See
+					// `get_file_content()` for why escaping is not an option.
 					'encoded_manifest_path' => array(
 						'type'     => 'string',
 						'required' => true,
+						'pattern'  => self::BASE64_PATTERN,
 					),
 				),
 			)
@@ -226,6 +254,15 @@ class File_Browser_Bridge {
 		// upstream route captures it as `\S+`, so nothing needs
 		// escaping. `$file_period` is digits, so its encoding is a
 		// no-op either way.
+		//
+		// Because nothing escapes it here, `BASE64_PATTERN` on the arg
+		// definition is the guard. That matters: cURL applies RFC 3986
+		// dot-segment removal before the request leaves the host, so an
+		// unconstrained value containing `../` would climb out of this
+		// route — with a `?` swallowing the trailing `/url` — and turn
+		// a file proxy into an arbitrary authenticated WPCOM GET. The
+		// base64 alphabet contains neither `%` nor `.`, so the pattern
+		// closes that off without re-breaking the preview.
 		$url_response = Client::wpcom_json_api_request_as_user(
 			sprintf(
 				'/sites/%d/rewind/backup/%s/file/%s/url',
