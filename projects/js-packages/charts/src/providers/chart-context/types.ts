@@ -38,8 +38,12 @@ export interface GlobalChartsContextValue {
 	getChartData: ( id: string ) => ChartRegistration | undefined;
 	theme: CompleteChartTheme;
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles;
-	// Series visibility management shared by charts and legends.
+	// Series visibility management shared by charts, legends, and programmatic controls.
 	toggleSeriesVisibility: ( chartId: string, seriesLabel: string ) => void;
+	// Absolute counterpart to the toggle, for callers that know the target state.
+	setSeriesVisibility: ( chartId: string, seriesLabel: string, visible: boolean ) => void;
+	// Replaces a chart's entire hidden set. Used to apply `defaultHiddenSeries` at mount.
+	setChartHiddenSeries: ( chartId: string, seriesLabels: string[] ) => void;
 	isSeriesVisible: ( chartId: string, seriesLabel: string ) => boolean;
 	getHiddenSeries: ( chartId: string ) => Set< string >;
 	isColorPaletteResolved: boolean;

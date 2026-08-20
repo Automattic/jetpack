@@ -242,28 +242,63 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		[ providerTheme, resolveColor ]
 	);
 
-	// Series visibility management methods
-	const toggleSeriesVisibility = useCallback( ( chartId: string, seriesLabel: string ) => {
-		setHiddenSeries( prev => {
-			const newMap = new Map( prev );
-			const chartHidden = newMap.get( chartId ) || new Set();
-			const newSet = new Set( chartHidden );
+	// Series visibility management methods.
+	// One writer for the hidden-set shape: an empty set drops the chart's entry,
+	// which `isSeriesVisible` and `getHiddenSeries` both read as "nothing hidden".
+	const updateHiddenSeries = useCallback(
+		( chartId: string, update: ( current: Set< string > ) => Set< string > ) => {
+			setHiddenSeries( prev => {
+				const newMap = new Map( prev );
+				const next = update( new Set( newMap.get( chartId ) ?? [] ) );
 
-			if ( newSet.has( seriesLabel ) ) {
-				newSet.delete( seriesLabel );
-			} else {
-				newSet.add( seriesLabel );
-			}
+				if ( next.size === 0 ) {
+					newMap.delete( chartId );
+				} else {
+					newMap.set( chartId, next );
+				}
 
-			if ( newSet.size === 0 ) {
-				newMap.delete( chartId );
-			} else {
-				newMap.set( chartId, newSet );
-			}
+				return newMap;
+			} );
+		},
+		[]
+	);
 
-			return newMap;
-		} );
-	}, [] );
+	const toggleSeriesVisibility = useCallback(
+		( chartId: string, seriesLabel: string ) => {
+			updateHiddenSeries( chartId, current => {
+				if ( current.has( seriesLabel ) ) {
+					current.delete( seriesLabel );
+				} else {
+					current.add( seriesLabel );
+				}
+				return current;
+			} );
+		},
+		[ updateHiddenSeries ]
+	);
+
+	const setSeriesVisibility = useCallback(
+		( chartId: string, seriesLabel: string, visible: boolean ) => {
+			updateHiddenSeries( chartId, current => {
+				if ( visible ) {
+					current.delete( seriesLabel );
+				} else {
+					current.add( seriesLabel );
+				}
+				return current;
+			} );
+		},
+		[ updateHiddenSeries ]
+	);
+
+	// Replaces the chart's whole hidden set. `defaultHiddenSeries` has to mean
+	// "these and nothing else", which per-series writes cannot express.
+	const setChartHiddenSeries = useCallback(
+		( chartId: string, seriesLabels: string[] ) => {
+			updateHiddenSeries( chartId, () => new Set( seriesLabels ) );
+		},
+		[ updateHiddenSeries ]
+	);
 
 	const isSeriesVisible = useCallback(
 		( chartId: string, seriesLabel: string ) => {
@@ -290,6 +325,8 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			theme: providerTheme,
 			getElementStyles,
 			toggleSeriesVisibility,
+			setSeriesVisibility,
+			setChartHiddenSeries,
 			isSeriesVisible,
 			getHiddenSeries,
 			isColorPaletteResolved,
@@ -302,6 +339,8 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			providerTheme,
 			getElementStyles,
 			toggleSeriesVisibility,
+			setSeriesVisibility,
+			setChartHiddenSeries,
 			isSeriesVisible,
 			getHiddenSeries,
 			isColorPaletteResolved,
