@@ -29,6 +29,11 @@ import { queryClient } from '../src/dashboard/data/query-client';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
+// Testing Library's default `findBy` window is one second. These stages
+// render behind several sequential requests, and a loaded CI runner under
+// coverage has taken well over that for the same work locally-green here.
+const SETTLE = { timeout: 10000 };
+
 // jsdom implements no scrolling, and DataViews' list layout calls
 // `scrollIntoView` on the selected row — which only happens here because
 // these are the first tests to render the list with a row in it.
@@ -65,22 +70,32 @@ function activityEntry( gridicon: string ) {
 /**
  * Answer every endpoint the Overview reads.
  *
- * @param options          - Overrides.
- * @param options.backups  - What `/jetpack/v4/backups` returns.
- * @param options.activity - Rewindable-activity entries.
+ * @param options               - Overrides.
+ * @param options.backups       - What `/jetpack/v4/backups` resolves with. `null` is the
+ *                              shape a non-200 from WPCOM actually takes — the legacy
+ *                              route returns a bare `null`, which WordPress serves as
+ *                              HTTP 200, so the request resolves rather than rejecting.
+ * @param options.activity      - Rewindable-activity entries.
+ * @param options.activityFails - Make `/site/rewindable-activity` reject.
  */
-function mockEndpoints( { backups = [] as unknown[], activity = [] as unknown[] } = {} ) {
+function mockEndpoints( {
+	backups = [] as unknown[] | null,
+	activity = [] as unknown[],
+	activityFails = false,
+} = {} ) {
 	mockApiFetch.mockImplementation( ( o: { path?: string } ) => {
 		const path = o?.path ?? '';
 		if ( path.includes( '/site/capabilities' ) ) {
 			return Promise.resolve( { hasBackupPlan: true, hasScan: false } );
 		}
 		if ( path.includes( '/site/rewindable-activity' ) ) {
-			return Promise.resolve( {
-				current: { orderedItems: activity },
-				totalItems: activity.length,
-				totalPages: 1,
-			} );
+			return activityFails
+				? Promise.reject( new Error( 'Could not fetch the activity log.' ) )
+				: Promise.resolve( {
+						current: { orderedItems: activity },
+						totalItems: activity.length,
+						totalPages: 1,
+				  } );
 		}
 		if ( path.includes( '/site/backup/size' ) ) {
 			return Promise.resolve( { ok: true, backups_stopped: false } );
@@ -162,5 +177,92 @@ describe( 'Overview takeover', () => {
 		await expect(
 			screen.findByText( "We're having trouble backing up your site" )
 		).resolves.toBeInTheDocument();
+	} );
+
+	// The cell where the first-run panel and the activity-log error
+	// boundary were each individually right and jointly blind. An errored
+	// query is neither loading nor holding rows, so `hasRestorePoints`
+	// came back false with `isLoading` false — the veto lifted, the panel
+	// took the body over, and the error `<ActivityList>` was about to
+	// render went down with it. A failed request read as "your first
+	// backup is on its way".
+	it( 'does not take over when the activity request failed', async () => {
+		mockEndpoints( { backups: [], activityFails: true } );
+
+		render( <OverviewStage /> );
+
+		// The activity log says what went wrong...
+		await expect(
+			screen.findByText( "We couldn't load your site's activity.", undefined, SETTLE )
+		).resolves.toBeInTheDocument();
+		// ...instead of the panel claiming a first backup is coming.
+		expect(
+			screen.queryByText( 'Your first cloud backup will be ready soon' )
+		).not.toBeInTheDocument();
+	} );
+} );
+
+// Suppressing the takeover must not also suppress the *message*. Only the
+// panel carried "your backups are failing" and its support link, so every
+// case where the panel correctly stands down used to drop that too — which
+// the veto widening above would have made worse, not better.
+describe( 'Failing backups with the takeover suppressed', () => {
+	it( 'still reports the failure when restore points are listed', async () => {
+		mockEndpoints( { backups: [ UNUSABLE_BACKUP ], activity: [ activityEntry( 'cloud' ) ] } );
+
+		render( <OverviewStage /> );
+
+		// The list is kept...
+		await expect(
+			screen.findByText( 'Backup complete', undefined, SETTLE )
+		).resolves.toBeInTheDocument();
+		// ...and the reader is told anyway, with a way to get help.
+		expect( screen.getByText( "We're having trouble backing up your site." ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /Get in touch with us/ } ) ).toBeInTheDocument();
+	} );
+
+	it( 'still reports the failure when the activity request failed', async () => {
+		mockEndpoints( { backups: [ UNUSABLE_BACKUP ], activityFails: true } );
+
+		render( <OverviewStage /> );
+
+		await expect(
+			screen.findByText( "We're having trouble backing up your site.", undefined, SETTLE )
+		).resolves.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Backup-state read failure', () => {
+	// `/jetpack/v4/backups` answers a non-200 from WPCOM with a bare
+	// `null` body, which WordPress serves as HTTP 200 — so the request
+	// *resolves*, React Query records a success, and neither `error` nor
+	// a retry ever fires. The state was computed and documented
+	// ("we couldn't ask" must never be rendered as "you have none") and
+	// then rendered nowhere at all.
+	it( 'reports a null backups response instead of staying silent', async () => {
+		mockEndpoints( { backups: null, activity: [ activityEntry( 'cloud' ) ] } );
+
+		render( <OverviewStage /> );
+
+		await expect(
+			screen.findByText( "We couldn't check your site's backup status.", undefined, SETTLE )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'leaves the activity list usable while the backup state is unreadable', async () => {
+		mockEndpoints( { backups: null, activity: [ activityEntry( 'cloud' ) ] } );
+
+		render( <OverviewStage /> );
+
+		// The notice is a report, not a takeover: the restore points the
+		// reader came for are still listed beside it. Both halves are
+		// asserted — the row alone renders on trunk too, so without the
+		// notice assertion this test would pass with the fix reverted.
+		await expect(
+			screen.findByText( 'Backup complete', undefined, SETTLE )
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.getByText( "We couldn't check your site's backup status." )
+		).toBeInTheDocument();
 	} );
 } );

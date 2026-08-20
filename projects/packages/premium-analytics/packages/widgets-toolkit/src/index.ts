@@ -4,8 +4,12 @@
 export {
 	MetricDelta,
 	MetricTileGrid,
+	MetricTileGridSkeleton,
+	type MetricTileGridSkeletonProps,
 	MetricValue,
 	MetricWithComparison,
+	PeakDistribution,
+	type PeakDistributionProps,
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
 	ComparativeBarChart,
@@ -15,6 +19,7 @@ export {
 	Legend,
 	ReportMetricWidget,
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	type MetricTab,
 	type MetricTabDatum,
 	type MetricTabsChartProps,
@@ -27,6 +32,8 @@ export {
 	type LegendItem,
 	type SeriesStyle,
 	LeaderboardChart,
+	LeaderboardSkeleton,
+	type LeaderboardSkeletonProps,
 	type LeaderboardChartProps,
 	type LeaderboardChartData,
 	type LegendLabels,
@@ -118,12 +125,15 @@ export {
 	flattenEarningsBreakdown,
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
+	GenericSkeleton,
+	SkeletonRoot,
+	type SkeletonRootProps,
 } from './components';
 
 /**
  * Constants
  */
-export { WOO_COLORS, COLOR_GRAY_100 } from './constants';
+export { COLOR_GRAY_100 } from './constants';
 
 /**
  * Widget edit fields
@@ -170,6 +180,8 @@ export {
 	granularityAttributeField,
 	type ChartDisplayChartType,
 	type ChartGranularityOption,
+	CALENDAR_HEATMAP_CELL_GAP,
+	CALENDAR_HEATMAP_HEADER_HEIGHT,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
 	formatViewCount,

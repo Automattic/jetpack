@@ -8,7 +8,7 @@ import {
 import { megaphone, search, channel } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo, type CSSProperties } from 'react';
-import { LeaderboardChart, WidgetState } from '../../components';
+import { LeaderboardChart, LeaderboardSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
@@ -90,6 +90,7 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 				icon: emptyStateIcon,
 				description: __( 'No attribution data in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <LeaderboardSkeleton variant="bars" /> }
 		>
 			<LeaderboardChart
 				data={ chartData }

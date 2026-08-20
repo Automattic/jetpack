@@ -4,6 +4,7 @@
 import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	LeaderboardPostLabel,
 	ReportLink,
 	WidgetBackLink,
@@ -47,6 +48,11 @@ export type AuthorsLeaderboardProps = {
 	 */
 	rows?: AuthorLeaderboardRow[];
 	/**
+	 * Rows the report was asked for, so the loading skeleton draws the list that
+	 * is coming rather than a default-length one.
+	 */
+	max?: number;
+	/**
 	 * When `true`, the first fetch is in flight and there is no data to show yet.
 	 */
 	isLoading?: boolean;
@@ -89,6 +95,7 @@ export type AuthorsLeaderboardProps = {
  */
 export function AuthorsLeaderboard( {
 	rows = [],
+	max,
 	isLoading = false,
 	isFetching = false,
 	isError = false,
@@ -196,6 +203,7 @@ export function AuthorsLeaderboard( {
 						  )
 						: __( 'No author views in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <LeaderboardSkeleton rows={ max } /> }
 			>
 				<LeaderboardChart
 					data={ chartData }
@@ -255,6 +263,7 @@ function AuthorsReport( { max }: AuthorsReportProps ) {
 		<>
 			<AuthorsLeaderboard
 				rows={ rows }
+				max={ max }
 				isLoading={ isInitialLoading }
 				isFetching={ isFetching }
 				// The Stats queries carry `placeholderData: previousData => previousData`, so a
