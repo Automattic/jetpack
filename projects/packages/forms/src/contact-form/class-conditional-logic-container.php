@@ -114,7 +114,7 @@ class Conditional_Logic_Container {
 			return $block_content;
 		}
 
-		$logic = isset( $block['attrs']['conditionalLogic'] ) ? $block['attrs']['conditionalLogic'] : null;
+		$logic = $block['attrs']['conditionalLogic'] ?? null;
 
 		// `enabled` is derived in the editor from whether any rule exists, so a container the
 		// author opened the panel on but wrote no conditions in adds nothing to the page.
