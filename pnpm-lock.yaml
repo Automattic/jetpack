@@ -2290,6 +2290,8 @@ importers:
         specifier: 7.2.1
         version: 7.2.1(webpack@5.107.2)
 
+  projects/packages/comments: {}
+
   projects/packages/connection:
     dependencies:
       '@automattic/jetpack-connection':

@@ -1,16 +1,11 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { mobile } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-export type DevicesAttributes = {
-	/**
-	 * Maximum rows to display (0 = all). Defaults to 5.
-	 */
-	max?: number;
-};
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type DevicesAttributes = Record< never, never >;
 
 /**
  * Devices widget type definition.
@@ -21,16 +16,8 @@ export type DevicesAttributes = {
  */
 export default {
 	icon: mobile,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
-	] as WidgetAttributeField< DevicesAttributes >[],
+	attributes: [] as WidgetAttributeField< DevicesAttributes >[],
 	example: {
-		attributes: {
-			max: 5,
-		},
+		attributes: {},
 	},
 };

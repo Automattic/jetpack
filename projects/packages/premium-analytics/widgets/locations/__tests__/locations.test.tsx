@@ -56,7 +56,6 @@ const LOADING_STATE: LocationViewsState = {
 	isFetching: true,
 	hasData: false,
 	isError: false,
-	isPlaceholderData: false,
 	refetch: () => {},
 };
 

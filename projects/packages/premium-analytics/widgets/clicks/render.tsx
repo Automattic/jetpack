@@ -13,6 +13,7 @@ import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
@@ -215,18 +216,11 @@ export function ClicksLeaderboard( {
 	);
 }
 
-type ClicksInnerProps = {
-	/**
-	 * Maximum rows to display. 0 means all rows returned by the API.
-	 */
-	max: number;
-};
-
 /**
  * Clicks widget inner component. Reads report params from WidgetRoot context
  * and renders the leaderboard, with drill-down into a link's child clicks.
  */
-function ClicksInner( { max }: ClicksInnerProps ) {
+function ClicksInner() {
 	const { reportParams } = useWidgetRootContext();
 	const {
 		drillDownItem: selectedClickLabel,
@@ -235,11 +229,11 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 	} = useWidgetDrillDown< string >();
 	const statsParams = {
 		...reportParams,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} as StatsReportParams;
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } = useStatsClicks(
 		statsParams,
-		{ maxRows: max }
+		{ maxRows: WIDGET_ROW_LIMIT }
 	);
 
 	const rows = useMemo(
@@ -304,7 +298,7 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 					icon: link,
 					description: __( 'No clicks in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
-				renderLoading={ <LeaderboardSkeleton rows={ max } /> }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<ClicksLeaderboard
 					rows={ activeRows }
@@ -321,12 +315,10 @@ function ClicksInner( { max }: ClicksInnerProps ) {
  * comes from the shared dashboard date picker via WidgetRoot.
  */
 export default function ClicksWidget( { attributes = {} }: ClicksWidgetProps ) {
-	const max = attributes?.max ?? 10;
-
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<ClicksInner max={ max } />
+				<ClicksInner />
 				<WidgetFooter>
 					<ReportLink report="clicks" />
 				</WidgetFooter>

@@ -257,7 +257,6 @@ return [
         'modules/infinite-scroll.php' => ['PhanUndeclaredClassMethod'],
         'modules/infinite-scroll/infinity.php' => ['PhanTypeComparisonToArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
         'modules/likes.php' => ['PhanUndeclaredFunction'],
-        'modules/likes/jetpack-likes-settings.php' => ['PhanDeprecatedFunction'],
         'modules/markdown/easy-markdown.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument'],
         'modules/memberships/class-jetpack-memberships.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod'],
         'modules/monitor.php' => ['PhanTypeMismatchReturnProbablyReal'],

@@ -40,7 +40,6 @@ function getLocationsAttributes( {
 }: LocationsStoryControls ): ComponentProps< typeof LocationsRender >[ 'attributes' ] {
 	return {
 		geoGranularity,
-		max: 10,
 		reportParams: getDefaultQueryParams( withComparison ),
 	};
 }
@@ -55,7 +54,6 @@ function renderLocationsOnPreset( preset: PresetType ) {
 		<LocationsRender
 			attributes={ {
 				geoGranularity: 'country',
-				max: 10,
 				reportParams: getDefaultQueryParams( false, preset ),
 			} }
 		/>

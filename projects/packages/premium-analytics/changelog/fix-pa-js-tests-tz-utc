@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Pin JS tests to TZ=UTC so they pass on machines in timezones west of UTC; no runtime change.
+
+
