@@ -166,10 +166,10 @@ function sameRewindId( candidate: string, target: string ): boolean {
  * @return The best candidate, or null.
  */
 export function pickLiveRestore(
-	rows: RecentRestore[],
+	rows: RecentRestore[] | null,
 	rewindId: string | null
 ): RecentRestore | null {
-	const candidates = rows
+	const candidates = ( rows ?? [] )
 		.filter(
 			row => ! row.settled && ( rewindId === null || sameRewindId( row.rewind_id, rewindId ) )
 		)
@@ -239,15 +239,20 @@ export async function fetchRestoreStatus( restoreId: number ): Promise< RestoreS
  * this resolves rather than rejecting, and the empty list it returns in
  * that case means "could not read", not "no restores".
  *
- * @return The recent restores, or an empty list when the read failed.
+ * Returns `null` — not an empty list — when the read failed, because the
+ * two mean opposite things to a caller deciding whether it is safe to
+ * start a destructive operation, and an empty array quietly reads as
+ * "nothing is running".
+ *
+ * @return The recent restores, or null when the read failed.
  */
-export async function fetchRecentRestores(): Promise< RecentRestore[] > {
+export async function fetchRecentRestores(): Promise< RecentRestore[] | null > {
 	const data = await apiCall< unknown >( {
 		path: apiPath( '/restores' ),
 	} );
 
 	if ( ! Array.isArray( data ) ) {
-		return [];
+		return null;
 	}
 
 	return data
@@ -260,4 +265,29 @@ export async function fetchRecentRestores(): Promise< RecentRestore[] > {
 				typeof row.status === 'string' && SETTLED_ROW_STATUSES.has( row.status.toLowerCase() ),
 		} ) )
 		.filter( row => row.restore_id > 0 );
+}
+
+/**
+ * The restore this site has running right now, if any.
+ *
+ * Two reads, because the collection alone cannot answer it: its rows
+ * carry a status in a vocabulary that is not ours, so a row is only a
+ * candidate until the status route — which speaks the vocabulary the
+ * bridge maps — confirms it is `running`.
+ *
+ * Deliberately separate from `useAdoptedRestore`, which asks the same
+ * question at mount through two cached queries so its confirmation
+ * shares a key with the status poll and costs nothing extra. This one is
+ * for the moment of a destructive click, where a cached answer is the
+ * wrong answer.
+ *
+ * @return The running restore, or null when nothing is.
+ */
+export async function fetchRunningRestore(): Promise< RecentRestore | null > {
+	const candidate = pickLiveRestore( await fetchRecentRestores(), null );
+	if ( candidate === null ) {
+		return null;
+	}
+	const status = await fetchRestoreStatus( candidate.restore_id );
+	return 'running' === status.status ? candidate : null;
 }

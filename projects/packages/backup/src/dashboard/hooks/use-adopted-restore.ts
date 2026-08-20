@@ -1,11 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from '@wordpress/element';
-import {
-	fetchRecentRestores,
-	fetchRestoreStatus,
-	isTerminal,
-	pickLiveRestore,
-} from '../data/api/restore';
+import { fetchRecentRestores, fetchRestoreStatus, pickLiveRestore } from '../data/api/restore';
 import { keys } from '../data/query-client';
 
 export type AdoptedRestore = {
@@ -63,7 +58,7 @@ export function useAdoptedRestore( enabled: boolean ): Result {
 	// overwrites the same live site, so a second one is wrong whichever
 	// point it came from.
 	const candidate = useMemo(
-		() => ( enabled ? pickLiveRestore( collection.data ?? [], null ) : null ),
+		() => ( enabled ? pickLiveRestore( collection.data ?? null, null ) : null ),
 		[ enabled, collection.data ]
 	);
 
@@ -85,10 +80,22 @@ export function useAdoptedRestore( enabled: boolean ): Result {
 	const isChecking =
 		enabled && ( collection.isPending || ( candidate !== null && confirmation.isPending ) );
 
-	// A confirmation that failed to arrive is not evidence of a restore.
-	// Adopting on a failed read would take the form away from someone who
-	// may have nothing running at all.
-	const isLive = confirmation.data !== undefined && ! isTerminal( confirmation.data.status );
+	// Positive evidence only, and deliberately stricter than the poll's
+	// own `! isTerminal(…)`.
+	//
+	// That test counts `queued` as live, and `queued` is exactly what the
+	// bridge mints for a **404** — "that restore is not visible to this
+	// route" — so it reads absence of evidence as evidence of life. For a
+	// restore we are *watching*, erring that way is right: keep polling.
+	// For one we are deciding whether to adopt, it is backwards. A
+	// collection row spelled in a way we do not recognise as settled,
+	// pointing at a restore upstream cannot find, would take the form
+	// away and never give it back — and the adoption is what withholds
+	// the button that would have replaced it, so it cannot self-correct.
+	//
+	// The cost of being strict is a missed adoption, which is what this
+	// hook already accepts for a confirmation that fails to arrive.
+	const isLive = confirmation.data?.status === 'running';
 
 	return {
 		adopted:

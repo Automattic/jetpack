@@ -88,12 +88,29 @@ const AMBIGUOUS_STATUSES = new Set( [ 408, 502, 503, 504 ] );
 /**
  * Whether a failure leaves the outcome genuinely unknown.
  *
- * The bridges give every failure of one operation the same code — all
- * three initiate failures are `restore_initiate_failed` — so the code
- * cannot tell these apart. `data.transport` can: it is attached by
- * `Rest_Controller::transport_error()` and by nothing else, so its
- * presence means the request never reached WordPress.com's answer, not
- * that WordPress.com said no.
+ * The question is not "did something go wrong" but "did our code get far
+ * enough to give a verdict". Only a failure the bridge itself shaped
+ * carries one, and every such failure carries a `data.status`; the
+ * bridges give every failure of one operation the same code — all three
+ * initiate failures are `restore_initiate_failed` — so the code cannot
+ * tell them apart, but the presence of a verdict can.
+ *
+ * So the default is *ambiguous*, and a failure has to earn its way out.
+ * That inversion matters: the hop the bridges describe is site →
+ * WordPress.com, but the request also crosses browser → site, and that
+ * hop fails in shapes carrying no `data` at all — `fetch_error` when the
+ * request never completes, `invalid_json` when a proxy answers with an
+ * HTML gateway page. The second is the dangerous one and is not exotic:
+ * initiate is a blocking `wp_remote_post`, so a site whose proxy times
+ * out before WordPress.com replies returns that page *after* the restore
+ * has been queued. Read as a plain error, it offered the retry that
+ * starts a second concurrent restore.
+ *
+ * The one exception is knowable rather than assumed. If the browser
+ * reports no network, the request did not leave it, so nothing can have
+ * started. `navigator.onLine` is unreliable when true and reliable when
+ * false — which is the only direction relied on here — and it spares the
+ * reader a five-minute wait for the most common failure there is.
  *
  * @param error - The rejection from `apiCall`.
  * @return True when the caller must not assume nothing happened.
@@ -102,11 +119,25 @@ export function isAmbiguousFailure( error: unknown ): boolean {
 	if ( ! ( error instanceof ApiError ) ) {
 		return false;
 	}
+
+	// Proof the request never left, rather than an assumption about it.
+	if ( typeof navigator !== 'undefined' && navigator.onLine === false ) {
+		return false;
+	}
+
 	const data = error.data as { status?: unknown; transport?: unknown } | undefined;
 	if ( data?.transport ) {
 		return true;
 	}
-	return typeof data?.status === 'number' && AMBIGUOUS_STATUSES.has( data.status );
+	if ( typeof data?.status === 'number' ) {
+		// A verdict from the bridge. Ambiguous only for the statuses that
+		// mean the answer itself went missing.
+		return AMBIGUOUS_STATUSES.has( data.status );
+	}
+
+	// No verdict at all — the failure happened before our code could give
+	// one, so the outcome is unknown.
+	return true;
 }
 
 /**

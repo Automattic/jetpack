@@ -351,7 +351,16 @@ describe( 'useRestore — failing safe', () => {
 	} );
 
 	it( 'reports a refused submission and can be reset back to idle', async () => {
-		mockedApiFetch.mockRejectedValue( new Error( 'Could not start the backup restore.' ) );
+		// A refusal as the bridge actually shapes one. A bare `Error`
+		// stood in here before, which carries no `data` and so no verdict
+		// — and "no verdict" is precisely what now means *unknown*, since
+		// that is how a failure looks when it never reached our PHP at
+		// all. Modelling the real shape keeps this about refusals.
+		mockedApiFetch.mockRejectedValue( {
+			code: 'restore_initiate_failed',
+			message: 'Could not start the backup restore.',
+			data: { status: 500 },
+		} );
 		const { wrapper } = makeWrapper();
 
 		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
@@ -542,6 +551,34 @@ describe( 'useRestore — a restore already running when the screen opens', () =
 		expect( callsFor( '/rewind/restore/111/status' ) ).toBe( 0 );
 	} );
 
+	it( 'refuses to adopt on a status that only means "not visible"', async () => {
+		// `queued` is what the bridge mints for a **404** — "that restore
+		// is not visible to this route" — so reading it as a sign of life
+		// turns absence of evidence into evidence of life. Paired with a
+		// collection spelling we do not recognise as settled (`started` is
+		// the one WordPress.com's own docblock claims), a restore from
+		// January locks the screen out of restoring permanently: the form
+		// never returns, and the stale adoption is what withholds the
+		// button that would have replaced it.
+		respondWith( {
+			restores: [
+				{
+					restore_id: 111,
+					rewind_id: '1700000000.1',
+					when: '2026-01-01T00:00:00+00:00',
+					status: 'started',
+				},
+			],
+			status: statusPayload( { id: 111, status: 'queued', rewind_id: '1700000000.1' } ),
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'idle' ) );
+		expect( result.current.adopted ).toBeNull();
+	} );
+
 	it( 'withholds the form until it knows whether anything is running', async () => {
 		// Arming first and correcting later would put a live Confirm
 		// button on screen for exactly as long as the lookup takes.
@@ -561,6 +598,82 @@ describe( 'useRestore — a restore already running when the screen opens', () =
 
 		expect( result.current.state.phase ).toBe( 'checking' );
 	} );
+
+	it( 'reports an adopted restore finishing, instead of reverting to the form', async () => {
+		// The completion path of this whole feature. `adopted` was derived
+		// from the confirmation query, which shares its key with the
+		// caller's own poll — so the render that first read `finished` was
+		// the same render in which the adoption vanished, `restoreId`
+		// collapsed to null, and `deriveState` fell back to `idle`. The
+		// reader watched the bar climb and was then handed the armed
+		// Confirm button this screen exists to withhold, with no
+		// "Restore complete." and, on a failure, no error either.
+		let status: Record< string, unknown > = {
+			id: 912682,
+			status: 'running',
+			progress: 55,
+			rewind_id: OTHER_ID,
+			error_code: '',
+			message: '',
+		};
+		mockedApiFetch.mockImplementation( ( options: { path?: string } ) => {
+			if ( ( options?.path ?? '' ).includes( '/restores' ) ) {
+				return Promise.resolve( [
+					{
+						restore_id: 912682,
+						rewind_id: OTHER_ID,
+						when: '2026-08-20T10:00:00+00:00',
+						status: 'running',
+					},
+				] );
+			}
+			return Promise.resolve( status );
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'progress' ) );
+
+		status = { ...status, status: 'finished', progress: 100 };
+
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'success' ), {
+			timeout: 8000,
+		} );
+		expect( result.current.state ).toEqual( { phase: 'success' } );
+	}, 15000 );
+
+	it( 'reports an adopted restore failing, rather than silently re-arming', async () => {
+		let status: Record< string, unknown > = {
+			id: 912682,
+			status: 'running',
+			progress: 55,
+			rewind_id: OTHER_ID,
+			error_code: 'checksum_mismatch',
+			message: '',
+		};
+		mockedApiFetch.mockImplementation( ( options: { path?: string } ) => {
+			if ( ( options?.path ?? '' ).includes( '/restores' ) ) {
+				return Promise.resolve( [
+					{
+						restore_id: 912682,
+						rewind_id: OTHER_ID,
+						when: '2026-08-20T10:00:00+00:00',
+						status: 'running',
+					},
+				] );
+			}
+			return Promise.resolve( status );
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'progress' ) );
+
+		status = { ...status, status: 'failed', message: 'Restore aborted.' };
+
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'error' ), { timeout: 8000 } );
+		expect( result.current.state ).toMatchObject( { message: 'Restore aborted.' } );
+	}, 15000 );
 
 	it( 'drops the adoption when the candidate turns out to have finished', async () => {
 		// The collection's status vocabulary is not the status route's, so
@@ -822,6 +935,66 @@ describe( 'useRestore — a submission we never got an answer to', () => {
 		expect( result.current.state.phase ).toBe( 'error' );
 	} );
 
+	/**
+	 * Force `navigator.onLine`, restoring it afterwards.
+	 *
+	 * @param value - What the browser should claim.
+	 * @return A function that puts it back.
+	 */
+	function forceOnLine( value: boolean ) {
+		const original = Object.getOwnPropertyDescriptor( window.navigator, 'onLine' );
+		Object.defineProperty( window.navigator, 'onLine', { value, configurable: true } );
+		return () => {
+			if ( original ) {
+				Object.defineProperty( window.navigator, 'onLine', original );
+			}
+		};
+	}
+
+	// The hop this PR was written for is site → WordPress.com. These are
+	// the hop it left open: browser → site, which fails in shapes that
+	// carry no `data` at all, so nothing about them looked ambiguous.
+	it.each( [
+		[ 'a browser request that never completed', 'fetch_error' ],
+		[ "a gateway page from the site's own proxy", 'invalid_json' ],
+	] )( 'treats %s as unconfirmed', async ( _label, code ) => {
+		const restore = forceOnLine( true );
+		respondWith( {
+			initiateError: { code, message: 'Could not get a valid response from the server.' },
+			restores: [],
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		await settleAt( result, 'unconfirmed' );
+		// No control on screen: the whole point of the phase.
+		expect( result.current.state ).toMatchObject( { phase: 'unconfirmed' } );
+		restore();
+	} );
+
+	it( 'offers a retry at once when the browser says it was never online', async () => {
+		// The one case where "we do not know" is knowable: if the browser
+		// had no network, the request did not leave it. `navigator.onLine`
+		// is unreliable when true and reliable when false, which is the
+		// direction that matters here — and it saves the reader five
+		// minutes for the most common failure of all.
+		const restore = forceOnLine( false );
+		respondWith( {
+			initiateError: { code: 'fetch_error', message: 'You are probably offline.' },
+			restores: [],
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		await settleAt( result, 'error' );
+		expect( result.current.state ).toMatchObject( { phase: 'error' } );
+		restore();
+	} );
+
 	it( 'still reports a refusal immediately, because nothing started', async () => {
 		// WordPress.com answered. There is no ambiguity to resolve, so
 		// making the reader wait five minutes for a retry would be a
@@ -843,4 +1016,71 @@ describe( 'useRestore — a submission we never got an answer to', () => {
 			message: 'Could not start the backup restore.',
 		} );
 	} );
+} );
+
+describe( 'useRestore — a restore that starts after the screen loaded', () => {
+	// The mount lookup answers once. A reader who opens the screen, is
+	// interrupted, and comes back twenty minutes later after a colleague
+	// started a restore from Calypso is back in the original scenario,
+	// just displaced in time — and the click is the moment it matters.
+	it( 'adopts instead of starting a second restore', async () => {
+		let rows: unknown[] = [];
+		mockedApiFetch.mockImplementation( ( options: { path?: string; method?: string } ) => {
+			if ( options?.method === 'POST' ) {
+				return Promise.resolve( { id: 5, rewind_id: REWIND_ID } );
+			}
+			if ( ( options?.path ?? '' ).includes( '/restores' ) ) {
+				return Promise.resolve( rows );
+			}
+			return Promise.resolve(
+				statusPayload( { id: 912682, status: 'running', progress: 30, rewind_id: OTHER_ID } )
+			);
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'idle' ) );
+
+		// Someone else starts one while this screen sits armed.
+		rows = [
+			{
+				restore_id: 912682,
+				rewind_id: OTHER_ID,
+				when: '2026-08-20T10:00:00+00:00',
+				status: 'running',
+			},
+		];
+
+		submitAll( result );
+
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'progress' ) );
+		expect( result.current.adopted ).toEqual( { rewindId: OTHER_ID } );
+		// The whole point: no restore was started.
+		expect( initiateCall() ).toBeUndefined();
+	}, 15000 );
+
+	it( 'still starts the restore when the check cannot be read', async () => {
+		// Fail open on the read, closed on the evidence. Someone
+		// restoring is often mid-outage; refusing because a list could
+		// not be fetched would deny them the recovery they came for.
+		mockedApiFetch.mockImplementation( ( options: { path?: string; method?: string } ) => {
+			if ( options?.method === 'POST' ) {
+				return Promise.resolve( { id: 5, rewind_id: REWIND_ID } );
+			}
+			if ( ( options?.path ?? '' ).includes( '/restores' ) ) {
+				// The legacy route's non-200: a bare null, served as 200.
+				return Promise.resolve( null );
+			}
+			return Promise.resolve( statusPayload( { id: 5, status: 'running' } ) );
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'idle' ) );
+
+		submitAll( result );
+
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'progress' ) );
+		expect( initiateCall() ).toBeDefined();
+	}, 15000 );
 } );

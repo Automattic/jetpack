@@ -1,7 +1,7 @@
 import { Notice, ProgressBar, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, backup as backupIcon, arrowLeft } from '@wordpress/icons';
 import { Link, useParams } from '@wordpress/route';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
@@ -88,17 +88,44 @@ export default function RestoreScreen() {
 					{ state.phase === 'checking' && (
 						<Stack direction="row" gap="sm" align="center">
 							<Spinner />
-							<Text className="jpb-text-muted">
+							{ /*
+							 * `role="status"` because this is the whole page for as
+							 * long as it lasts, and every other branch announces
+							 * itself through `Notice`'s own live region — leaving
+							 * this one silent means a screen-reader user gets
+							 * nothing on load and then a form that appeared without
+							 * comment.
+							 */ }
+							<Text className="jpb-text-muted" role="status">
 								{ __( 'Checking for a restore in progress…', 'jetpack-backup-pkg' ) }
 							</Text>
 						</Stack>
 					) }
-					{ adopted && (
+					{ /*
+					 * Suppressed once we have lost track, where it would sit
+					 * directly above a warning saying the restore may still be
+					 * running and we can no longer see it — promising an end state
+					 * the notice beneath has just disowned.
+					 *
+					 * "from here" because the constraint is this screen's, not the
+					 * product's: nothing upstream refuses a second restore, and the
+					 * reader can still start one from WordPress.com.
+					 */ }
+					{ adopted && state.phase !== 'lost-track' && (
 						<Notice status="info" isDismissible={ false }>
-							{ __(
-								"A restore is already running for this site. You can't start another until it finishes.",
-								'jetpack-backup-pkg'
-							) }
+							{ restorePoint
+								? sprintf(
+										/* translators: %s is a date, e.g. "Aug 12, 2026". */
+										__(
+											"A restore of your %s backup is already running. You can't start another from here until it finishes.",
+											'jetpack-backup-pkg'
+										),
+										dateI18n( 'M j, Y', restorePoint, undefined )
+								  )
+								: __(
+										"A restore is already running for this site. You can't start another from here until it finishes.",
+										'jetpack-backup-pkg'
+								  ) }
 						</Notice>
 					) }
 					{ ( state.phase === 'idle' || state.phase === 'submitting' ) && (

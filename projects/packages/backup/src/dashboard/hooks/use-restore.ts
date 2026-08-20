@@ -5,12 +5,14 @@ import { isAmbiguousFailure } from '../data/api/_helpers';
 import {
 	fetchRecentRestores,
 	fetchRestoreStatus,
+	fetchRunningRestore,
 	initiateRestore,
 	isTerminal,
 	pickLiveRestore,
 } from '../data/api/restore';
 import { keys } from '../data/query-client';
 import { useAdoptedRestore } from './use-adopted-restore';
+import type { AdoptedRestore } from './use-adopted-restore';
 import type { RestoreStatus, RestoreStatusResponse } from '../data/api/restore';
 import type { RestoreItems, RestoreState } from '../types/restore';
 
@@ -254,8 +256,32 @@ export function useRestore( rewindId: string ): Result {
 		reset: resetMutation,
 		isPending,
 	} = useMutation( {
-		mutationFn: ( items: RestoreItems ) => initiateRestore( rewindId, items ),
-		onSuccess: result => {
+		mutationFn: async ( items: RestoreItems ) => {
+			// The mount lookup answered once, possibly a long time ago. A
+			// screen left open while a colleague started a restore from
+			// Calypso is the very scenario this hook exists for, just
+			// displaced in time — and the click is the moment it matters.
+			//
+			// Fail open on the read, closed on the evidence: a restore is
+			// refused only on positive proof that one is running. Someone
+			// reaching for a restore is often mid-outage, and denying them
+			// their recovery because a list could not be fetched would be
+			// the worse failure by far.
+			const running = await fetchRunningRestore().catch( () => null );
+			if ( running !== null ) {
+				return { adopt: running } as const;
+			}
+			return { started: await initiateRestore( rewindId, items ) } as const;
+		},
+		onSuccess: outcome => {
+			if ( 'adopt' in outcome ) {
+				setErrorMessage( null );
+				setAdopted( { id: outcome.adopt.restore_id, rewindId: outcome.adopt.rewind_id } );
+				setAliveAt( Date.now() );
+				setLostTrack( false );
+				return;
+			}
+			const result = outcome.started;
 			setErrorMessage( null );
 			setStartedRewindId( result.rewind_id || rewindId );
 			// Acceptance starts the clock: it is the last thing we know
@@ -287,16 +313,32 @@ export function useRestore( rewindId: string ): Result {
 	// restore on screen is ours, and the lookup would only be a second
 	// opinion about a question we can already answer.
 	const hasOwnSubmission = startedRewindId !== null || isPending;
-	const { adopted, isChecking } = useAdoptedRestore( ! hasOwnSubmission );
+	const { adopted: found, isChecking } = useAdoptedRestore( ! hasOwnSubmission );
 
-	// An adopted restore was accepted before this screen existed, so the
-	// silence deadline has to start from the moment we found it rather
-	// than from a submission that never happened here.
+	// Latched, not read live, and that distinction is the whole
+	// lifecycle. `useAdoptedRestore` derives its answer from a
+	// confirmation query that shares a key with the status poll below —
+	// so the render that first reads `finished` is the same render in
+	// which the live value goes null. Reading it directly meant
+	// `restoreId` collapsed to null at exactly that moment,
+	// `deriveState` fell through to `idle`, and the reader who had been
+	// watching a progress bar was handed the armed Confirm button this
+	// screen exists to withhold. Every terminal branch below was
+	// unreachable for an adopted restore.
+	//
+	// The lookup decides only *whether* to adopt. Once it has, the
+	// ordinary poll owns the rest, exactly as it does for a restore
+	// started here.
+	const [ adopted, setAdopted ] = useState< AdoptedRestore | null >( null );
 	useEffect( () => {
-		if ( adopted !== null && ! hasOwnSubmission ) {
+		if ( found !== null && ! hasOwnSubmission ) {
+			setAdopted( previous => previous ?? found );
+			// An adopted restore was accepted before this screen existed,
+			// so the silence deadline starts from the moment we found it
+			// rather than from a submission that never happened here.
 			setAliveAt( previous => previous ?? Date.now() );
 		}
-	}, [ adopted, hasOwnSubmission ] );
+	}, [ found, hasOwnSubmission ] );
 
 	// Recovery for the no-id case. The query stays a plain read of the
 	// collection; the matching is derived below, so nothing here depends
@@ -316,7 +358,7 @@ export function useRestore( rewindId: string ): Result {
 		if ( ! needsId || startedRewindId === null ) {
 			return null;
 		}
-		const match = pickLiveRestore( restoresQuery.data ?? [], startedRewindId );
+		const match = pickLiveRestore( restoresQuery.data ?? null, startedRewindId );
 		return match ? match.restore_id : null;
 	}, [ needsId, restoresQuery.data, startedRewindId ] );
 
@@ -382,6 +424,7 @@ export function useRestore( rewindId: string ): Result {
 
 	const submit = useCallback( ( items: RestoreItems ) => kickOff( items ), [ kickOff ] );
 	const reset = useCallback( () => {
+		setAdopted( null );
 		setSubmittedId( null );
 		setErrorMessage( null );
 		setUnconfirmed( null );

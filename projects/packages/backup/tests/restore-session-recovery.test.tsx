@@ -38,7 +38,7 @@ const URL_ID = '1786663613.9425';
 const RUNNING_ID = '1786512000.11';
 
 const CONFIRM = /Confirm restore/;
-const ALREADY_RUNNING = /A restore is already running/;
+const ALREADY_RUNNING = /is already running/;
 
 /**
  * Render the screen and return queries scoped to it.
@@ -153,9 +153,14 @@ describe( 'Restore screen — a restore already running', () => {
 
 		const view = within( renderScreen() );
 
-		await expect( view.findByText( ALREADY_RUNNING ) ).resolves.toBeInTheDocument();
 		// The running restore is of 1786512000 (12 Aug); the address names
-		// 1786663613 (13 Aug). The heading has to follow the restore.
+		// 1786663613 (13 Aug). Both the notice and the heading have to
+		// follow the restore, and the notice has to say so outright — a
+		// heading that silently changes date leaves the reader to work out
+		// why their checklist vanished.
+		const notice = await view.findByText( ALREADY_RUNNING );
+		expect( notice ).toHaveTextContent( /Aug 12, 2026/ );
+
 		const point = await view.findByText( /Restore point:/ );
 		expect( point ).toHaveTextContent( /Aug 12, 2026/ );
 		expect( point ).not.toHaveTextContent( /Aug 13, 2026/ );
@@ -178,5 +183,36 @@ describe( 'Restore screen — a restore already running', () => {
 
 		await expect( view.findByRole( 'button', { name: CONFIRM } ) ).resolves.toBeInTheDocument();
 		expect( view.queryByText( ALREADY_RUNNING ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'stops promising an end state once it has lost track of the restore', async () => {
+		// "You can't start another until it finishes" sat directly above
+		// "We've lost track of this restore. It may still be running" —
+		// two notices, no action, and the first promising an end state the
+		// second had just disowned.
+		let calls = 0;
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+			const path = options?.path ?? '';
+			if ( path.includes( '/restores' ) ) {
+				return Promise.resolve( [ restoreRow() ] );
+			}
+			if ( path.includes( '/rewind/restore/' ) ) {
+				calls += 1;
+				// Adopt on the first read, then lose the connection.
+				return calls === 1
+					? Promise.resolve( statusPayload() )
+					: Promise.reject( { code: 'fetch_error', message: 'Connection lost.' } );
+			}
+			return Promise.resolve( CAPABILITIES );
+		} );
+
+		const view = within( renderScreen() );
+
+		await expect(
+			view.findByText( /We've lost track of this restore/ )
+		).resolves.toBeInTheDocument();
+		expect( view.queryByText( ALREADY_RUNNING ) ).not.toBeInTheDocument();
+		// And still no way to start a second one.
+		expect( view.queryByRole( 'button', { name: CONFIRM } ) ).not.toBeInTheDocument();
 	} );
 } );
