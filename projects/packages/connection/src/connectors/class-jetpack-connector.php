@@ -76,8 +76,7 @@ class Jetpack_Connector {
 	 * @param \WP_Connector_Registry $registry Connector registry instance.
 	 */
 	public static function register_connector( $registry ) {
-		// @phan-suppress-previous-line PhanUndeclaredTypeParameter -- WP 7.0+ class.
-		$registry->register( // @phan-suppress-current-line PhanUndeclaredClassMethod -- WP 7.0+ class.
+		$registry->register(
 			'wordpress_com',
 			array(
 				'name'           => 'Jetpack Connection',

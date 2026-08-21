@@ -35,23 +35,19 @@ export function apiPath(
  * `'1777035492.615'` → `'1777035492'`).
  *
  * Truncating is a WPCOM-side requirement, not a local one — no route in
- * this package matches the id against `\d+`. Where the two remaining
- * callers stand:
+ * this package matches the id against `\d+`.
  *
- * `fetchFileTree` needs it. It sends the id in the body as `rewind_id`,
- * and the bridge forwards that to WPCOM as `backup_id`, which is an
- * integer identifier there.
+ * `fetchFileTree` is the only caller left, and it needs this: it sends
+ * the id in the body as `rewind_id`, and the bridge forwards that to
+ * WPCOM as `backup_id`, which is an integer identifier there.
  *
- * `initiateRestore` still calls it, but only because it targets the v1
- * activity-log route with the id in the *path*. That is a temporary
- * arrangement: the v2 restore route takes the id in the body, in full,
- * and the call moves with it when it is repointed. Note the Jetpack
- * route it goes through already accepts a decimal, so the truncation is
- * not protecting anything.
+ * Neither mutation calls it any more. Both `/rewind/downloads` and
+ * `/rewind/restores` take the id in the body in full, and truncating it
+ * for either addresses a different backup than the reader picked —
+ * download stopped in #51295, restore in #51338.
  *
- * Download no longer calls it at all: `/rewind/downloads` takes the id
- * in the body and truncating it there addresses a different backup than
- * the reader picked.
+ * Use `isValidRewindId` in `types/rewind-id` to check an id from the
+ * URL; this one assumes a well-formed id and only reshapes it.
  *
  * @param rewindId - Raw rewind id, possibly with a decimal suffix.
  * @return The integer-seconds portion only.
@@ -76,6 +72,72 @@ export class ApiError extends Error {
 		this.code = code;
 		this.data = data;
 	}
+}
+
+/**
+ * Statuses that mean the request may have been carried out even though
+ * we never saw a usable answer.
+ *
+ * A gateway timeout is not a refusal. WordPress.com may have accepted
+ * and queued the work and only the reply went missing, which for a
+ * destructive operation is the difference between "try again" and
+ * "start a second one".
+ */
+const AMBIGUOUS_STATUSES = new Set( [ 408, 502, 503, 504 ] );
+
+/**
+ * Whether a failure leaves the outcome genuinely unknown.
+ *
+ * The question is not "did something go wrong" but "did our code get far
+ * enough to give a verdict". Only a failure the bridge itself shaped
+ * carries one, and every such failure carries a `data.status`; the
+ * bridges give every failure of one operation the same code — all three
+ * initiate failures are `restore_initiate_failed` — so the code cannot
+ * tell them apart, but the presence of a verdict can.
+ *
+ * So the default is *ambiguous*, and a failure has to earn its way out.
+ * That inversion matters: the hop the bridges describe is site →
+ * WordPress.com, but the request also crosses browser → site, and that
+ * hop fails in shapes carrying no `data` at all — `fetch_error` when the
+ * request never completes, `invalid_json` when a proxy answers with an
+ * HTML gateway page. The second is the dangerous one and is not exotic:
+ * initiate is a blocking `wp_remote_post`, so a site whose proxy times
+ * out before WordPress.com replies returns that page *after* the restore
+ * has been queued. Read as a plain error, it offered the retry that
+ * starts a second concurrent restore.
+ *
+ * The one exception is knowable rather than assumed. If the browser
+ * reports no network, the request did not leave it, so nothing can have
+ * started. `navigator.onLine` is unreliable when true and reliable when
+ * false — which is the only direction relied on here — and it spares the
+ * reader a five-minute wait for the most common failure there is.
+ *
+ * @param error - The rejection from `apiCall`.
+ * @return True when the caller must not assume nothing happened.
+ */
+export function isAmbiguousFailure( error: unknown ): boolean {
+	if ( ! ( error instanceof ApiError ) ) {
+		return false;
+	}
+
+	// Proof the request never left, rather than an assumption about it.
+	if ( typeof navigator !== 'undefined' && navigator.onLine === false ) {
+		return false;
+	}
+
+	const data = error.data as { status?: unknown; transport?: unknown } | undefined;
+	if ( data?.transport ) {
+		return true;
+	}
+	if ( typeof data?.status === 'number' ) {
+		// A verdict from the bridge. Ambiguous only for the statuses that
+		// mean the answer itself went missing.
+		return AMBIGUOUS_STATUSES.has( data.status );
+	}
+
+	// No verdict at all — the failure happened before our code could give
+	// one, so the outcome is unknown.
+	return true;
 }
 
 /**

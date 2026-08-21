@@ -49,6 +49,7 @@ export {
 	sanitizeStatsEmailTimeSeriesResponse,
 } from './time-series';
 export { sanitizeStatsVisitsResponse } from './visits';
+export { sanitizeStatsHourOfDayResponse } from './hour-of-day';
 export { sanitizeStatsInsightsResponse } from './insights';
 export { mergeStatsUtmComparisonRows, sanitizeStatsUtmResponse } from './utm';
 export { sanitizeStatsEmailSummaryResponse } from './email-summary';
@@ -195,3 +196,4 @@ export type {
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
 } from './types';
+export type { StatsHourOfDayBucket, StatsHourOfDayReport } from './hour-of-day';

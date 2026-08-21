@@ -58,7 +58,7 @@ export type LeaderboardChartProps = {
 	emptyStateText?: string;
 
 	style?: React.CSSProperties & {
-		'--a8c--charts--leaderboard--bar--border-radius'?: string;
+		'--a8c-charts-border-radius-leaderboard-bar'?: string;
 	};
 
 	/**
@@ -127,7 +127,7 @@ export function LeaderboardChart( {
 			return undefined;
 		}
 		return {
-			'--a8c--charts--leaderboard--bar--border-radius': barBorderRadius,
+			'--a8c-charts-border-radius-leaderboard-bar': barBorderRadius,
 			...style,
 		} as React.CSSProperties;
 	}, [ theme, style ] );

@@ -264,6 +264,7 @@ export type { MetricKey, OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat
 export {
 	GeoChart,
 	GlobalChartsProvider,
+	GoogleDataTableColumnRoleType,
 	HeatmapChart,
 	HeatmapChartUnresponsive,
 	Sparkline,
