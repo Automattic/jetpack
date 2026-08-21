@@ -83,6 +83,48 @@ class Users_Connection_Admin_Test extends TestCase {
 	}
 
 	/**
+	 * Count every callback attached to a hook, across all priorities.
+	 *
+	 * @param string $hook Hook name.
+	 * @return int
+	 */
+	private function count_hook_callbacks( $hook ) {
+		if ( ! isset( $GLOBALS['wp_filter'][ $hook ] ) ) {
+			return 0;
+		}
+
+		$count = 0;
+		foreach ( $GLOBALS['wp_filter'][ $hook ]->callbacks as $callbacks ) {
+			$count += count( $callbacks );
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Check whether a hook holds a callback that belongs to the given object.
+	 *
+	 * @param string $hook     Hook name.
+	 * @param object $instance Object to look for.
+	 * @return bool
+	 */
+	private function hook_has_callback_from( $hook, $instance ) {
+		if ( ! isset( $GLOBALS['wp_filter'][ $hook ] ) ) {
+			return false;
+		}
+
+		foreach ( $GLOBALS['wp_filter'][ $hook ]->callbacks as $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				if ( is_array( $callback['function'] ) && isset( $callback['function'][0] ) && $callback['function'][0] === $instance ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Get the inline CSS attached to the column style handle.
 	 *
 	 * @return array
@@ -98,10 +140,16 @@ class Users_Connection_Admin_Test extends TestCase {
 	 */
 	public function test_init_does_not_print_styles_directly() {
 		$admin = $this->create_admin();
+
+		// SSO's User_Admin hooks this action as well, so the hook is occupied here to keep the assertions specific to this class.
+		add_action( 'admin_print_styles-users.php', '__return_false' );
+		$callbacks_before = $this->count_hook_callbacks( 'admin_print_styles-users.php' );
+
 		$admin->init();
 
 		$this->assertIsInt( has_action( 'admin_enqueue_scripts', array( $admin, 'enqueue_scripts' ) ) );
-		$this->assertFalse( has_action( 'admin_print_styles-users.php' ) );
+		$this->assertSame( $callbacks_before, $this->count_hook_callbacks( 'admin_print_styles-users.php' ) );
+		$this->assertFalse( $this->hook_has_callback_from( 'admin_print_styles-users.php', $admin ) );
 	}
 
 	/**
