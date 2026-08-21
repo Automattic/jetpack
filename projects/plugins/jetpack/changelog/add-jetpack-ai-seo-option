@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Jetpack AI: Add an AI SEO control that governs SEO generation as a whole. The AI settings page's SEO row and the sidebar's SEO suggestions follow it, so turning automatic generation off no longer removes the suggestions.
+Jetpack AI: Add an AI SEO control to the AI settings page. The AI sidebar's SEO suggestions follow it, separately from the automatic-generation setting.
