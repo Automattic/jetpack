@@ -74,7 +74,9 @@ class Comment_Form {
 		add_filter( 'comment_form_logged_in', array( $this, 'comment_form_logged_in' ) );
 		add_filter( 'comment_form_defaults', array( $this, 'comment_form_defaults' ), 20 );
 
-		add_filter( 'comment_form_submit_field', array( $this, 'render' ), 10, 2 );
+		// Past 10, where Jetpack Subscriptions adds its checkboxes: this replaces
+		// the field wholesale, so it has to see what everyone else has added.
+		add_filter( 'comment_form_submit_field', array( $this, 'render' ), 20, 2 );
 
 		add_action( 'comment_form_must_log_in_after', array( $this, 'render_must_log_in' ) );
 
@@ -82,8 +84,6 @@ class Comment_Form {
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ) );
 		add_action( 'pre_comment_on_post', array( $this, 'verify_nonce' ) );
-
-		remove_action( 'comment_form', 'subscription_comment_form' );
 	}
 
 	/**
@@ -223,6 +223,9 @@ class Comment_Form {
 		if ( ! self::enabled_for_post_type() ) {
 			return $submit_field;
 		}
+
+		// Fires after this filter, and would draw a subscribe option this form has no room for.
+		remove_action( 'comment_form', 'subscription_comment_form' );
 
 		$this->enqueue_assets( $args );
 
@@ -381,7 +384,8 @@ class Comment_Form {
 		);
 
 		if ( is_user_logged_in() ) {
-			$settings['logoutUrl'] = html_entity_decode( wp_logout_url( $permalink ), ENT_COMPAT );
+			// wp_logout_url() runs the URL through esc_html(), which encodes single quotes too.
+			$settings['logoutUrl'] = html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES );
 		}
 
 		return $settings;
@@ -425,7 +429,12 @@ class Comment_Form {
 	}
 
 	/**
-	 * Reject anything that did not come from a form this class rendered.
+	 * Require a comment to arrive with a nonce this site issued.
+	 *
+	 * Worth being plain about the strength of this. For a logged-in reader the
+	 * nonce is tied to their session and is real CSRF cover. For a logged-out one
+	 * it is the same string for everybody, for up to 24 hours, so it proves the
+	 * sender loaded a page from this site and nothing more.
 	 *
 	 * @param int $comment_post_id The post being commented on.
 	 * @return void
@@ -442,19 +451,52 @@ class Comment_Form {
 			return;
 		}
 
-		$current_user_id = get_current_user_id();
-		wp_set_current_user( 0 );
-		$valid_logged_out = wp_verify_nonce( $nonce, self::NONCE_ACTION );
-		wp_set_current_user( $current_user_id );
-
-		if ( $valid_logged_out ) {
+		if ( self::verify_logged_out_nonce( $nonce ) ) {
 			return;
 		}
 
 		wp_die(
-			esc_html__( 'Sorry, this comment could not be posted.', 'jetpack-comments' ),
+			esc_html__( 'Sorry, this comment could not be posted. Go back and try again.', 'jetpack-comments' ),
 			esc_html__( 'Comment Submission Failure', 'jetpack-comments' ),
-			array( 'response' => 403 )
+			array(
+				'response'  => 403,
+				'back_link' => true,
+			)
 		);
+	}
+
+	/**
+	 * Check a nonce against the one a logged-out reader would have been given.
+	 *
+	 * A page cache can hand a logged-in reader a copy rendered for nobody, so the
+	 * nonce they post is the anonymous one. wp_verify_nonce() hashes the user ID
+	 * together with wp_get_session_token(), and that token is read from the
+	 * logged-in cookie rather than from the current user, so clearing the user is
+	 * not enough on its own: the cookie has to go too, or the hash still carries
+	 * their session and can never match what an anonymous visitor was served.
+	 *
+	 * @param string $nonce The nonce submitted with the comment.
+	 * @return bool
+	 */
+	private static function verify_logged_out_nonce( $nonce ) {
+		if ( ! defined( 'LOGGED_IN_COOKIE' ) || ! isset( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
+			// Nothing to strip, so the check above already ran as this reader.
+			return false;
+		}
+
+		$user_id = get_current_user_id();
+
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Stashed and put back untouched, for core to read as it would have.
+		$cookie = $_COOKIE[ LOGGED_IN_COOKIE ];
+
+		unset( $_COOKIE[ LOGGED_IN_COOKIE ] );
+		wp_set_current_user( 0 );
+
+		$valid = (bool) wp_verify_nonce( $nonce, self::NONCE_ACTION );
+
+		$_COOKIE[ LOGGED_IN_COOKIE ] = $cookie;
+		wp_set_current_user( $user_id );
+
+		return $valid;
 	}
 }

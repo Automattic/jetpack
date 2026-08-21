@@ -4,6 +4,7 @@ import { EmailIcon, NameIcon, WebsiteIcon } from '../ui/icons';
 import { Toggle } from '../ui/toggle';
 import type { Commenter } from '../shared/types';
 
+import '../ui/style.scss';
 import './style.scss';
 
 /**
@@ -69,6 +70,7 @@ export const GuestFields = () => {
 						htmlFor={ field.name }
 					>
 						{ field.icon }
+						<span className="jetpack-comments__visually-hidden">{ field.label }</span>
 						<input
 							id={ field.name }
 							name={ field.name }
@@ -77,7 +79,6 @@ export const GuestFields = () => {
 							required={ field.required }
 							value={ commenter.value[ field.field ] }
 							placeholder={ field.placeholder }
-							aria-label={ field.label }
 							onInput={ event => update( field.field, event.currentTarget.value ) }
 						/>
 					</label>

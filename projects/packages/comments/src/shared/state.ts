@@ -3,15 +3,6 @@ import { createContext } from 'preact';
 import { readDraft } from '../form/draft';
 import type { Commenter, FormSettings } from './types';
 
-const EMPTY_FORM: FormSettings = {
-	postId: 0,
-	loginUrl: '',
-	logoutUrl: '',
-	submitId: 'submit',
-	submitName: 'submit',
-	submitLabel: '',
-};
-
 /**
  * Build one form's signals.
  *
@@ -48,4 +39,14 @@ export function createSignals( formSettings: FormSettings ) {
 	} as const;
 }
 
-export const CommentSignals = createContext( createSignals( EMPTY_FORM ) );
+export type CommentSignalsValue = ReturnType< typeof createSignals >;
+
+/**
+ * Every form renders inside a Provider, so this default is never the one in use.
+ * It is empty because createContext() insists on a value, and building real
+ * signals here would read the settings blob and sessionStorage at import time,
+ * before either is known to be there.
+ */
+export const CommentSignals = createContext< CommentSignalsValue >(
+	undefined as unknown as CommentSignalsValue
+);

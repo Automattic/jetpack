@@ -10,6 +10,11 @@ add_filter( 'jetpack_comments_new_hotness', '__return_true' );
 
 While it returns false the site's existing comment experience is untouched.
 
+Register it early. The two loaders below read it at different points, so the
+deadline is the earlier of the two: `plugins_loaded` on Simple, `after_setup_theme`
+for the Jetpack module. A plugin or mu-plugin makes both. A theme's `functions.php`
+only makes the second, so on Simple the filter would be read before it was added.
+
 ## What it does
 
 The form renders on the site the comment is posted to, and posts to that site's own `wp-comments-post.php`. No iframe, and no call to WordPress.com, so it behaves the same on Simple, Atomic and self-hosted.

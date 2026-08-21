@@ -20,7 +20,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-if ( Comments::is_enabled() ) {
+// Guarded because the module file and the package can land in either order on a staged deploy.
+if ( class_exists( Comments::class ) && Comments::is_enabled() ) {
 	Comments::init();
 } else {
 	Assets::add_resource_hint(

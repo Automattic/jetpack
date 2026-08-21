@@ -14,7 +14,6 @@ export const SubmitButton = () => {
 			type="submit"
 			className={ clsx( 'jetpack-comments__submit', { 'is-busy': isSavingComment.value } ) }
 			disabled={ isSubmitDisabled.value }
-			aria-disabled={ isSubmitDisabled.value }
 		>
 			{ commentParent.value ? strings.reply : formSettings.submitLabel }
 		</button>

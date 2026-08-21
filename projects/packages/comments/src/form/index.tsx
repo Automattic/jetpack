@@ -3,7 +3,7 @@ import { useContext, useEffect, useRef } from 'preact/hooks';
 import { CommentingAs, Identity } from '../identity';
 import { CommentSignals, createSignals } from '../shared/state';
 import { CommentField } from './comment-field';
-import { saveDraft } from './draft';
+import { markSubmitted, resolveSubmitted, saveDraft } from './draft';
 import { SubmitButton } from './submit-button';
 import type { FormSettings } from '../shared/types';
 
@@ -12,6 +12,10 @@ import './style.scss';
 type CommentFormProps = {
 	form: HTMLFormElement;
 };
+
+// Long enough to stop a synchronous write landing on every keystroke, short
+// enough that a reader who navigates away mid-sentence keeps it.
+const DRAFT_DEBOUNCE_MS = 300;
 
 const CommentForm = ( { form }: CommentFormProps ) => {
 	const { formSettings, commentParent, commentValue, isSavingComment } =
@@ -31,6 +35,9 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 
 		readParent();
 
+		// #comment_parent is a hidden input, whose `value` IDL attribute writes
+		// straight through to the content attribute, so the assignment core's
+		// comment-reply.js makes is one this sees.
 		const observer = new MutationObserver( readParent );
 		observer.observe( parentInput, { attributes: true, attributeFilter: [ 'value' ] } );
 
@@ -38,7 +45,12 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	}, [ form, commentParent ] );
 
 	useEffect( () => {
-		saveDraft( formSettings.postId, commentValue.value );
+		const timer = setTimeout(
+			() => saveDraft( formSettings.postId, commentValue.value ),
+			DRAFT_DEBOUNCE_MS
+		);
+
+		return () => clearTimeout( timer );
 	}, [ formSettings, commentValue.value ] );
 
 	useEffect( () => {
@@ -49,7 +61,9 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 
 			isSubmitting.current = true;
 			isSavingComment.value = true;
-			saveDraft( formSettings.postId, '' );
+			// Kept, not cleared: the server can still turn this away.
+			saveDraft( formSettings.postId, commentValue.peek() );
+			markSubmitted( formSettings.postId );
 		};
 
 		const onPageShow = ( event: PageTransitionEvent ) => {
@@ -59,14 +73,20 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 			}
 		};
 
+		// Flush whatever the debounce above is still holding. Safe for bfcache in
+		// a way beforeunload is not.
+		const onPageHide = () => saveDraft( formSettings.postId, commentValue.peek() );
+
 		form.addEventListener( 'submit', onSubmit );
 		window.addEventListener( 'pageshow', onPageShow );
+		window.addEventListener( 'pagehide', onPageHide );
 
 		return () => {
 			form.removeEventListener( 'submit', onSubmit );
 			window.removeEventListener( 'pageshow', onPageShow );
+			window.removeEventListener( 'pagehide', onPageHide );
 		};
-	}, [ form, formSettings, isSavingComment ] );
+	}, [ form, formSettings, isSavingComment, commentValue ] );
 
 	return (
 		<>
@@ -87,7 +107,18 @@ document.querySelectorAll< HTMLElement >( '.jetpack-comments' ).forEach( element
 		return;
 	}
 
-	const formSettings = JSON.parse( element.dataset.jetpackComments ?? '{}' ) as FormSettings;
+	let formSettings: FormSettings;
+
+	try {
+		// `||` rather than `??`: wp_json_encode() returns false on bad input, which
+		// reaches the attribute as an empty string that JSON.parse() would throw on.
+		formSettings = JSON.parse( element.dataset.jetpackComments || '{}' ) as FormSettings;
+	} catch {
+		return;
+	}
+
+	// Before the signals read the draft, so a comment that landed is not offered back.
+	resolveSubmitted( formSettings.postId );
 
 	render(
 		<CommentSignals.Provider value={ createSignals( formSettings ) }>
