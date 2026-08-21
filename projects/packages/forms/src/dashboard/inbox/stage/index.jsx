@@ -10,7 +10,7 @@ import { useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { Badge, Link } from '@wordpress/ui';
@@ -34,12 +34,8 @@ import IntegrationsButton from '../../components/integrations-button/index.tsx';
 import Page from '../../components/page/index.tsx';
 import TextWithFlag from '../../components/text-with-flag/index.tsx';
 import useInboxData from '../../hooks/use-inbox-data.ts';
-import {
-	buildResponseFieldColumns,
-	getResponseFieldColumns,
-	isResponseFieldColumnId,
-	mergeResponseFieldColumns,
-} from '../../response-field-columns.tsx';
+import useResponseFieldColumns from '../../hooks/use-response-field-columns.ts';
+import { buildResponseFieldColumns } from '../../response-field-columns.tsx';
 import { useDashboardSearchParams } from '../../router/dashboard-search-params-context.tsx';
 import { getPath, getItemId } from '../utils.js';
 import {
@@ -180,67 +176,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 	// A form's own fields become columns, so a single form's responses can be read
 	// across at a glance. The "All responses" view spans every form and has no
 	// shared field set, so it keeps the built-in columns only.
-	const [ responseFieldColumns, setResponseFieldColumns ] = useState( EMPTY_ARRAY );
-
-	useEffect( () => {
-		if ( ! isSingleFormView ) {
-			setResponseFieldColumns( EMPTY_ARRAY );
-			return;
-		}
-
-		const discovered = getResponseFieldColumns( records );
-
-		setResponseFieldColumns( previous => mergeResponseFieldColumns( previous, discovered ) );
-	}, [ isSingleFormView, records ] );
-
-	// Answer columns are discovered from the responses, so they cannot be part of
-	// `defaultView`. Show each one as soon as it turns up — but only the first time,
-	// so a column the user has since hidden stays hidden.
-	const shownFieldColumnIds = useRef( new Set() );
-
-	useEffect( () => {
-		const newIds = responseFieldColumns
-			.map( column => column.id )
-			.filter( id => ! shownFieldColumnIds.current.has( id ) );
-
-		if ( newIds.length === 0 ) {
-			return;
-		}
-
-		newIds.forEach( id => shownFieldColumnIds.current.add( id ) );
-
-		setView( previousView => {
-			const previousFields = previousView.fields || [];
-			const additions = newIds.filter( id => ! previousFields.includes( id ) );
-
-			if ( additions.length === 0 ) {
-				return previousView;
-			}
-
-			// Answers sit together, after Date and ahead of the remaining metadata.
-			const lastAnswerIndex = previousFields.reduce(
-				( last, id, index ) => ( isResponseFieldColumnId( id ) ? index : last ),
-				-1
-			);
-			const dateIndex = previousFields.indexOf( 'date' );
-			let insertAt;
-
-			if ( lastAnswerIndex !== -1 ) {
-				insertAt = lastAnswerIndex + 1;
-			} else {
-				insertAt = dateIndex === -1 ? 0 : dateIndex + 1;
-			}
-
-			return {
-				...previousView,
-				fields: [
-					...previousFields.slice( 0, insertAt ),
-					...additions,
-					...previousFields.slice( insertAt ),
-				],
-			};
-		} );
-	}, [ responseFieldColumns, setView ] );
+	const responseFieldColumns = useResponseFieldColumns( { formId: parent, records, setView } );
 
 	useEffect( () => {
 		const _filters = view.filters?.reduce( ( accumulator, { field, value } ) => {
@@ -626,6 +562,15 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 		} );
 	}, [ isInboxStatusToggleView, setView, urlFolder ] );
 
+	// Freezing the leading columns only makes sense once the table is wide enough to
+	// scroll, and only holds if the columns being frozen are the ones it assumes:
+	// the selection checkbox and the title. DataViews drops the title column when the
+	// user turns it off, which would freeze an answer column in its place.
+	const answerColumnsClassName =
+		responseFieldColumns.length > 0 && view.titleField && view.showTitle !== false
+			? 'has-field-columns'
+			: undefined;
+
 	const actions = useMemo( () => {
 		const mobileViewAction = {
 			...viewAction,
@@ -739,43 +684,37 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 			actions={ headerActions }
 			hasPadding={ false }
 		>
-			<div
-				className={ `jp-forms-responses-dataviews${
-					responseFieldColumns.length > 0 ? ' has-field-columns' : ''
-				}` }
-			>
-				<DataViews
-					paginationInfo={ paginationInfo }
-					fields={ fields }
-					actions={ actions }
-					data={ records || EMPTY_ARRAY }
-					isLoading={ isInboxLoading }
-					view={ view }
-					onChangeView={ onChangeView }
-					selection={ selection }
-					onChangeSelection={ onChangeSelection }
-					onClickItem={ onClickItem }
-					getItemId={ getItemId }
-					defaultLayouts={ defaultLayouts }
-					empty={
-						<EmptyResponses
-							status={ statusFilter }
-							isSearch={ !! view.search }
-							isSingleFormView={ isSingleFormView }
-							readStatusFilter={ readStatusFilter }
-						/>
-					}
-				>
-					<DataViewsHeaderRow
-						onLegacyStatusChange={ resetPage }
-						isInboxStatusToggleView={ isInboxStatusToggleView }
+			<DataViews
+				paginationInfo={ paginationInfo }
+				fields={ fields }
+				actions={ actions }
+				data={ records || EMPTY_ARRAY }
+				isLoading={ isInboxLoading }
+				view={ view }
+				onChangeView={ onChangeView }
+				selection={ selection }
+				onChangeSelection={ onChangeSelection }
+				onClickItem={ onClickItem }
+				getItemId={ getItemId }
+				defaultLayouts={ defaultLayouts }
+				empty={
+					<EmptyResponses
+						status={ statusFilter }
+						isSearch={ !! view.search }
+						isSingleFormView={ isSingleFormView }
+						readStatusFilter={ readStatusFilter }
 					/>
-					<div className="jp-forms-dataviews-layout-container">
-						<DataViews.Layout />
-						<DataViews.Footer />
-					</div>
-				</DataViews>
-			</div>
+				}
+			>
+				<DataViewsHeaderRow
+					onLegacyStatusChange={ resetPage }
+					isInboxStatusToggleView={ isInboxStatusToggleView }
+				/>
+				<div className="jp-forms-dataviews-layout-container">
+					<DataViews.Layout className={ answerColumnsClassName } />
+					<DataViews.Footer />
+				</div>
+			</DataViews>
 		</Page>
 	);
 

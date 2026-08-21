@@ -12,7 +12,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useMemo, useState, useCallback, useEffect, useRef } from '@wordpress/element';
+import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { caution } from '@wordpress/icons';
@@ -26,13 +26,8 @@ import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
-import {
-	buildResponseFieldColumns,
-	getResponseFieldColumns,
-	isResponseFieldColumnId,
-	mergeResponseFieldColumns,
-	type ResponseFieldColumn,
-} from '../../src/dashboard/response-field-columns.tsx';
+import useResponseFieldColumns from '../../src/dashboard/hooks/use-response-field-columns.ts';
+import { buildResponseFieldColumns } from '../../src/dashboard/response-field-columns.tsx';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import { getFormEditUrl } from '../../src/dashboard/utils.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
@@ -85,8 +80,6 @@ type QueryParams = {
 	search?: string;
 	fields_format?: string;
 };
-
-const EMPTY_FIELD_COLUMNS: ResponseFieldColumn[] = [];
 
 const DEFAULT_VIEW: View = {
 	type: 'table',
@@ -302,68 +295,11 @@ function StageInner() {
 	// A form's own fields become columns, so a single form's responses can be read
 	// across at a glance. The "All responses" view spans every form and has no
 	// shared field set, so it keeps the built-in columns only.
-	const [ responseFieldColumns, setResponseFieldColumns ] =
-		useState< ResponseFieldColumn[] >( EMPTY_FIELD_COLUMNS );
-
-	useEffect( () => {
-		if ( ! isSingleFormView ) {
-			setResponseFieldColumns( EMPTY_FIELD_COLUMNS );
-			return;
-		}
-
-		const discovered = getResponseFieldColumns( records );
-
-		setResponseFieldColumns( previous => mergeResponseFieldColumns( previous, discovered ) );
-	}, [ isSingleFormView, records ] );
-
-	// Answer columns are discovered from the responses, so they cannot be part of
-	// DEFAULT_VIEW. Show each one as soon as it turns up — but only the first time,
-	// so a column the user has since hidden stays hidden.
-	const shownFieldColumnIds = useRef( new Set< string >() );
-
-	useEffect( () => {
-		const newIds = responseFieldColumns
-			.map( column => column.id )
-			.filter( id => ! shownFieldColumnIds.current.has( id ) );
-
-		if ( newIds.length === 0 ) {
-			return;
-		}
-
-		newIds.forEach( id => shownFieldColumnIds.current.add( id ) );
-
-		setView( previousView => {
-			const previousFields = previousView.fields || [];
-			const additions = newIds.filter( id => ! previousFields.includes( id ) );
-
-			if ( additions.length === 0 ) {
-				return previousView;
-			}
-
-			// Answers sit together, after Date and ahead of the remaining metadata.
-			const lastAnswerIndex = previousFields.reduce(
-				( last, id, index ) => ( isResponseFieldColumnId( id ) ? index : last ),
-				-1
-			);
-			const dateIndex = previousFields.indexOf( 'date' );
-			let insertAt;
-
-			if ( lastAnswerIndex !== -1 ) {
-				insertAt = lastAnswerIndex + 1;
-			} else {
-				insertAt = dateIndex === -1 ? 0 : dateIndex + 1;
-			}
-
-			return {
-				...previousView,
-				fields: [
-					...previousFields.slice( 0, insertAt ),
-					...additions,
-					...previousFields.slice( insertAt ),
-				],
-			};
-		} );
-	}, [ responseFieldColumns, setView ] );
+	const responseFieldColumns = useResponseFieldColumns( {
+		formId: isSingleFormView ? sourceIdNumber : null,
+		records,
+		setView,
+	} );
 
 	const queryParams = useMemo( () => {
 		const queryArgs: QueryParams = {
@@ -714,6 +650,15 @@ function StageInner() {
 		]
 	);
 
+	// Freezing the leading columns only makes sense once the table is wide enough to
+	// scroll, and only holds if the columns being frozen are the ones it assumes:
+	// the selection checkbox and the title. DataViews drops the title column when the
+	// user turns it off, which would freeze an answer column in its place.
+	const answerColumnsClassName =
+		responseFieldColumns.length > 0 && view.titleField && view.showTitle !== false
+			? 'has-field-columns'
+			: undefined;
+
 	const actions = useMemo(
 		() =>
 			getRowActions( {
@@ -857,50 +802,44 @@ function StageInner() {
 					/>
 				</Stack>
 			) : (
-				<div
-					className={ `jp-forms-responses-dataviews${
-						responseFieldColumns.length > 0 ? ' has-field-columns' : ''
-					}` }
-				>
-					<DataViews
-						empty={
-							<EmptyResponses
-								isSearch={ !! view.search }
-								isSingleFormView={ isSingleFormView }
-								readStatusFilter={ readStatusFilter }
-								status={ statusView }
-								isNotCollecting={ isFormNotCollecting }
-								notCollectingEditUrl={ formEditUrl }
-							/>
-						}
-						data={ isQueryStale ? EMPTY_ARRAY : records || EMPTY_ARRAY }
-						fields={ fields as Field< unknown >[] }
-						view={ view }
-						onChangeView={ onChangeView }
-						paginationInfo={ paginationInfo }
-						isLoading={ isLoadingData || isQueryStale }
-						getItemId={ getItemId }
-						defaultLayouts={ defaultLayouts }
-						selection={ selection }
-						onChangeSelection={ onChangeSelection }
-						onClickItem={ onClickItem }
-						actions={ actions as Action< unknown >[] }
-					>
-						<DataViewsHeaderRow
-							activeTab="responses"
+				<DataViews
+					empty={
+						<EmptyResponses
+							isSearch={ !! view.search }
 							isSingleFormView={ isSingleFormView }
-							activeStatus={ statusView }
-							statusCounts={ {
-								inbox: totalItemsInbox ?? 0,
-								spam: totalItemsSpam ?? 0,
-								trash: totalItemsTrash ?? 0,
-							} }
-							onStatusChange={ onStatusChange }
+							readStatusFilter={ readStatusFilter }
+							status={ statusView }
+							isNotCollecting={ isFormNotCollecting }
+							notCollectingEditUrl={ formEditUrl }
 						/>
-						<DataViews.Layout />
-						<DataViews.Footer />
-					</DataViews>
-				</div>
+					}
+					data={ isQueryStale ? EMPTY_ARRAY : records || EMPTY_ARRAY }
+					fields={ fields as Field< unknown >[] }
+					view={ view }
+					onChangeView={ onChangeView }
+					paginationInfo={ paginationInfo }
+					isLoading={ isLoadingData || isQueryStale }
+					getItemId={ getItemId }
+					defaultLayouts={ defaultLayouts }
+					selection={ selection }
+					onChangeSelection={ onChangeSelection }
+					onClickItem={ onClickItem }
+					actions={ actions as Action< unknown >[] }
+				>
+					<DataViewsHeaderRow
+						activeTab="responses"
+						isSingleFormView={ isSingleFormView }
+						activeStatus={ statusView }
+						statusCounts={ {
+							inbox: totalItemsInbox ?? 0,
+							spam: totalItemsSpam ?? 0,
+							trash: totalItemsTrash ?? 0,
+						} }
+						onStatusChange={ onStatusChange }
+					/>
+					<DataViews.Layout className={ answerColumnsClassName } />
+					<DataViews.Footer />
+				</DataViews>
 			) }
 			<IntegrationsModal
 				isOpen={ isIntegrationsModalOpen }

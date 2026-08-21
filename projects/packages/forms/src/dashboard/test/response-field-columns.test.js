@@ -2,11 +2,10 @@ import { describe, expect, it } from '@jest/globals';
 import {
 	getResponseFieldColumns,
 	getResponseFieldValue,
-	isResponseFieldColumnId,
 	mergeResponseFieldColumns,
 } from '../response-field-columns.tsx';
 
-const collectionResponse = ( fields ) => ( { id: 1, fields } );
+const collectionResponse = fields => ( { id: 1, fields } );
 
 describe( 'getResponseFieldColumns', () => {
 	it( 'derives one column per field, keyed by the field key', () => {
@@ -119,13 +118,5 @@ describe( 'mergeResponseFieldColumns', () => {
 
 	it( 'keeps columns that the current page no longer carries', () => {
 		expect( mergeResponseFieldColumns( [ a, b ], [] ) ).toEqual( [ a, b ] );
-	} );
-} );
-
-describe( 'isResponseFieldColumnId', () => {
-	it( 'tells answer columns apart from the built-in ones', () => {
-		expect( isResponseFieldColumnId( 'field:1_Name' ) ).toBe( true );
-		expect( isResponseFieldColumnId( 'from' ) ).toBe( false );
-		expect( isResponseFieldColumnId( 'date' ) ).toBe( false );
 	} );
 } );

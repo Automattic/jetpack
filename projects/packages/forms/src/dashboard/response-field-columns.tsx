@@ -7,7 +7,7 @@ import { _n, sprintf } from '@wordpress/i18n';
  * Internal dependencies
  */
 import {
-	isCollectionFormatField,
+	isFieldsCollection,
 	isFileUploadField,
 	isImageSelectField,
 } from './components/inspector/utils.ts';
@@ -32,15 +32,6 @@ export type ResponseFieldColumn = {
 };
 
 /**
- * Tells a generated answer column apart from a built-in one.
- *
- * @param id - A DataViews field id.
- * @return     True when the id belongs to a form field column.
- */
-export const isResponseFieldColumnId = ( id: string ): boolean =>
-	typeof id === 'string' && id.startsWith( COLUMN_ID_PREFIX );
-
-/**
  * Reads a response's fields as a list, whatever shape they arrived in.
  *
  * `useInboxData` passes collection-format fields through untouched and flattens
@@ -56,18 +47,33 @@ const getFieldList = ( response: FormResponse ): ResponseField[] => {
 		return [];
 	}
 
-	const values = Array.isArray( fields ) ? fields : Object.values( fields );
-
-	if ( values.length === 0 ) {
-		return [];
-	}
-
-	if ( isCollectionFormatField( values[ 0 ] ) ) {
-		return values as ResponseField[];
+	// `isFieldsCollection` handles both true arrays and the numeric-keyed objects
+	// PHP's JSON encoding can produce.
+	if ( isFieldsCollection( fields ) ) {
+		return Object.values( fields ) as ResponseField[];
 	}
 
 	// Legacy shape: the label is the only stable identifier available.
 	return Object.entries( fields ).map( ( [ label, value ] ) => ( { key: label, label, value } ) );
+};
+
+/**
+ * Per-response key lookup, so a row's fields are walked once rather than once per cell.
+ *
+ * Keyed on the record object, which `useInboxData` keeps stable between fetches; entries
+ * fall away with the records themselves, so there is nothing to invalidate.
+ */
+const fieldsByKey = new WeakMap< FormResponse, Map< string, ResponseField > >();
+
+const getFieldMap = ( response: FormResponse ): Map< string, ResponseField > => {
+	let map = fieldsByKey.get( response );
+
+	if ( ! map ) {
+		map = new Map( getFieldList( response ).map( field => [ String( field.key ), field ] ) );
+		fieldsByKey.set( response, map );
+	}
+
+	return map;
 };
 
 /**
@@ -185,9 +191,7 @@ const getFieldText = ( field?: ResponseField ): string => {
  * @return           The value as text, or an empty string.
  */
 export const getResponseFieldValue = ( response: FormResponse, key: string ): string => {
-	const field = getFieldList( response ).find( item => String( item.key ) === key );
-
-	return decodeEntities( getFieldText( field ) ).trim();
+	return decodeEntities( getFieldText( getFieldMap( response ).get( key ) ) ).trim();
 };
 
 /**
