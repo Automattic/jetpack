@@ -61,7 +61,6 @@ describe( 'RowsCsvDownloadButton', () => {
 		mockGetScriptData.mockReturnValue( {
 			premium_analytics: {
 				initial_full_sync_finished: 1,
-				has_store_data: false,
 				csv_exports_enabled: false,
 			},
 		} as ReturnType< typeof getScriptData > );

@@ -114,6 +114,15 @@ final class Dashboard_Section {
 	);
 
 	/**
+	 * Whether the section's data only reaches WordPress.com through the analytics
+	 * full sync, so its numbers are incomplete until that sync has finished once.
+	 *
+	 * @since $$next-version$$
+	 * @var bool
+	 */
+	public $requires_sync = false;
+
+	/**
 	 * Availability flag or callback.
 	 *
 	 * @var bool|callable
@@ -196,6 +205,7 @@ final class Dashboard_Section {
 			'order'               => (int) $this->order,
 			'date_filter'         => $this->date_filter,
 			'date_filter_options' => $this->date_filter_options,
+			'requires_sync'       => $this->requires_sync,
 			'default_layout'      => $this->get_default_layout(),
 		);
 	}
@@ -245,6 +255,10 @@ final class Dashboard_Section {
 			$this->date_filter_options = array(
 				'with_date_comparison' => (bool) $options['with_date_comparison'],
 			);
+		}
+
+		if ( isset( $args['requires_sync'] ) ) {
+			$this->requires_sync = (bool) $args['requires_sync'];
 		}
 
 		if ( array_key_exists( 'is_available', $args ) ) {

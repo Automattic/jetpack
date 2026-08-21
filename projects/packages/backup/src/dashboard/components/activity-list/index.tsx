@@ -170,8 +170,22 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 		[ selectedId ]
 	);
 
+	// `isLoading` alone is only ever true on the very first load: the query
+	// sets `placeholderData: keepPreviousData`, so a page change keeps the
+	// previous rows and leaves React Query "not pending". Reporting it by
+	// itself told DataViews nothing was happening while the reader looked
+	// at rows from the page they had just left.
+	//
+	// This cannot swallow `emptyState`: DataViews initialises
+	// `hasInitiallyLoaded` to `!isLoading` and latches it true on the first
+	// non-loading render, and the spinner branch that would replace the
+	// `empty` slot is gated on `!hasInitiallyLoaded`. Past the first load a
+	// truthy `isLoading` only reaches the footer, which marks itself inert
+	// while the next page is fetched.
+	const isBusy = isLoading || isFetching;
+
 	return (
-		<Card.Root className="jpb-activity-list" aria-busy={ isLoading }>
+		<Card.Root className="jpb-activity-list" aria-busy={ isBusy }>
 			<DataViews< ActivityItem >
 				data={ items }
 				fields={ fields }
@@ -182,7 +196,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				getItemId={ getRowId }
 				selection={ selection }
 				onChangeSelection={ onChangeSelection }
-				isLoading={ isLoading }
+				isLoading={ isBusy }
 				search={ false }
 				empty={ emptyState }
 			/>
