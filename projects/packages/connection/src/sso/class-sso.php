@@ -328,12 +328,19 @@ class SSO {
 		// login stylesheet, which sets `.message` margins at the same specificity.
 		wp_register_style( $handle, false, array( 'login' ), Package_Version::PACKAGE_VERSION );
 		wp_enqueue_style( $handle );
-		wp_add_inline_style(
-			$handle,
-			'.jetpack-sso .message { margin-top: 20px; }'
-			. '.jetpack-sso #login .message:first-child,'
-			. '.jetpack-sso #login h1 + .message { margin-top: 0; }'
-		);
+
+		$css = <<<'CSS'
+.jetpack-sso .message {
+	margin-top: 20px;
+}
+
+.jetpack-sso #login .message:first-child,
+.jetpack-sso #login h1 + .message {
+	margin-top: 0;
+}
+CSS;
+
+		wp_add_inline_style( $handle, $css );
 	}
 
 	/**

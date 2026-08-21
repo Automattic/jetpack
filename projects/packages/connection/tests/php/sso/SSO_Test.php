@@ -306,7 +306,7 @@ class SSO_Test extends BaseTestCase {
 		$styles = wp_styles();
 		$this->assertSame( array( 'login' ), $styles->registered['jetpack-sso-login-styles']->deps );
 
-		$css = implode( '', (array) $styles->get_data( 'jetpack-sso-login-styles', 'after' ) );
+		$css = preg_replace( '/\s+/', ' ', implode( '', (array) $styles->get_data( 'jetpack-sso-login-styles', 'after' ) ) );
 		$this->assertStringContainsString( '.jetpack-sso .message { margin-top: 20px; }', $css );
 		$this->assertStringContainsString( '.jetpack-sso #login h1 + .message { margin-top: 0; }', $css );
 

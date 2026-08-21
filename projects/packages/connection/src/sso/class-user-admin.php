@@ -1229,21 +1229,81 @@ class User_Admin extends Base_Admin {
 		// No src: the handle only carries the inline CSS below.
 		wp_register_style( $handle, false, array(), Package_Version::PACKAGE_VERSION );
 		wp_enqueue_style( $handle );
-		wp_add_inline_style(
-			$handle,
-			'#the-list tr:has(.sso-disconnected-user) { background: #F5F1E1; }'
-			. '#the-list tr:has(.sso-pending-invite) { background: #E9F0F5; }'
-			. '.jetpack-sso-invitation { background: none; border: none; color: #50575e; padding: 0; text-align: unset; }'
-			. '.jetpack-sso-invitation.sso-disconnected-user { color: #0073aa; cursor: pointer; text-decoration: underline; }'
-			. '.jetpack-sso-invitation.sso-disconnected-user:hover,'
-			. '.jetpack-sso-invitation.sso-disconnected-user:focus,'
-			. '.jetpack-sso-invitation.sso-disconnected-user:active { color: #0096dd; }'
-			. '.sso-disconnected-user-icon { cursor: pointer; background: gray; border-radius: 10px; }'
-			. '.sso-disconnected-user-icon.dashicons { font-size: 1rem; height: 1rem; width: 1rem; background-color: #9D6E00; color: #F5F1E1; }'
-			. '.jetpack-sso-invitation-tooltip-icon { position: relative; cursor: pointer; display: inline-flex; align-items: center; column-gap: 6px; }'
-			. '.jetpack-sso-td-tooltip { left: -256px; }'
-			. '.jetpack-sso-invitation-tooltip { position: absolute; background: #f6f7f7; top: -85px; width: 250px; padding: 7px; color: #3c434a; font-size: .75rem; line-height: 17px; text-align: left; margin: 0; display: none; border-radius: 4px; font-family: sans-serif; box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.1); }'
-		);
+
+		$css = <<<'CSS'
+#the-list tr:has(.sso-disconnected-user) {
+	background: #F5F1E1;
+}
+
+#the-list tr:has(.sso-pending-invite) {
+	background: #E9F0F5;
+}
+
+.jetpack-sso-invitation {
+	background: none;
+	border: none;
+	color: #50575e;
+	padding: 0;
+	text-align: unset;
+}
+
+.jetpack-sso-invitation.sso-disconnected-user {
+	color: #0073aa;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.jetpack-sso-invitation.sso-disconnected-user:hover,
+.jetpack-sso-invitation.sso-disconnected-user:focus,
+.jetpack-sso-invitation.sso-disconnected-user:active {
+	color: #0096dd;
+}
+
+.sso-disconnected-user-icon {
+	cursor: pointer;
+	background: gray;
+	border-radius: 10px;
+}
+
+.sso-disconnected-user-icon.dashicons {
+	font-size: 1rem;
+	height: 1rem;
+	width: 1rem;
+	background-color: #9D6E00;
+	color: #F5F1E1;
+}
+
+.jetpack-sso-invitation-tooltip-icon {
+	position: relative;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	column-gap: 6px;
+}
+
+.jetpack-sso-td-tooltip {
+	left: -256px;
+}
+
+.jetpack-sso-invitation-tooltip {
+	position: absolute;
+	background: #f6f7f7;
+	top: -85px;
+	width: 250px;
+	padding: 7px;
+	color: #3c434a;
+	font-size: .75rem;
+	line-height: 17px;
+	text-align: left;
+	margin: 0;
+	display: none;
+	border-radius: 4px;
+	font-family: sans-serif;
+	box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.1);
+}
+CSS;
+
+		wp_add_inline_style( $handle, $css );
 	}
 
 	/**
