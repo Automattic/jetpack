@@ -31,6 +31,7 @@ const statsHookNames = [
 	'useStatsSubscribersReport',
 	'useStatsStreak',
 	'useStatsVisits',
+	'useStatsHourOfDay',
 	'useStatsInsights',
 	'useStatsUtm',
 	'useStatsHighlights',

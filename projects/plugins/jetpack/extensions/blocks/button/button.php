@@ -424,7 +424,7 @@ function get_attribute( $attributes, $attribute_name ) {
 		 *
 		 * Values outside 'a', 'button' and 'input' are ignored by the render callback.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.2
 		 *
 		 * @param string $element The default element. One of 'a', 'button', or 'input'.
 		 */

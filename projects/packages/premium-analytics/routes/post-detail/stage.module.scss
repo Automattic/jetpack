@@ -30,6 +30,10 @@
 	// clips content-sized widgets like the traffic activity heatmap
 	// (WOOA7S-1905). TODO with #51101: consider fixing upstream in Card.
 	section:first-of-type {
+		// Temporary solution. Fixed upstream https://github.com/WordPress/gutenberg/pull/80570
+		display: flex;
+		flex-direction: column;
+
 		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
 		--wp-ui-card-header-content-margin: var(--wpds-dimension-padding-lg);
 

@@ -144,7 +144,7 @@ function SiteOverviewReport( {
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ ( isLoading || primary.isPending ) && ! summary }
+				isLoading={ isLoading || primary.isPending }
 				isFetching={ isFetching }
 				isError={ ! summary && isError }
 				isEmpty={ isEmpty }

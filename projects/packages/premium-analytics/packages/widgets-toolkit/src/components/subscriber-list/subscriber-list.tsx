@@ -4,11 +4,13 @@
 import { Link, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { _n, sprintf } from '@wordpress/i18n';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
 import { ChartEmptyState } from '../chart-empty-state';
 import styles from './subscriber-list.module.scss';
+import { useFittedRosterRows } from './use-fitted-roster-rows';
 
 /**
  * A single row in the subscriber list: a person with an avatar, a name (which
@@ -43,10 +45,17 @@ export type SubscriberListProps = {
 	 */
 	emptyStateText?: string;
 	/**
-	 * Count of additional rows beyond those shown; renders an "N more" footer
-	 * when greater than zero.
+	 * Number of additional rows not included in `items`.
 	 */
 	moreCount?: number;
+	/**
+	 * Show only the whole rows that fit the available height instead of letting
+	 * the roster grow and the widget host scroll it. Hidden rows are added to
+	 * the "N more" footer, so the footer can appear with `moreCount` at zero.
+	 * Requires an ancestor with a definite height.
+	 * @default true
+	 */
+	fitRows?: boolean;
 	className?: string;
 };
 
@@ -67,62 +76,79 @@ export function SubscriberList( {
 	items = [],
 	emptyStateText,
 	moreCount = 0,
+	fitRows = true,
 	className,
 }: SubscriberListProps ) {
+	const { listRef, fittedCount } = useFittedRosterRows( fitRows, items.length, moreCount > 0 );
+
 	if ( items.length === 0 ) {
 		return <ChartEmptyState text={ emptyStateText } />;
 	}
 
-	return (
-		<Stack direction="column" className={ className }>
-			{ items.map( item => {
-				// Callers pass `href` straight from report data, so the scheme is
-				// guarded here at the sink rather than in each consuming widget.
-				const href = safeHttpUrl( item.href );
+	// Include fetched rows hidden by the fitting logic.
+	const hiddenCount = moreCount + ( items.length - fittedCount );
 
-				return (
-					<Stack
-						key={ item.id }
-						direction="row"
-						align="center"
-						justify="space-between"
-						gap="md"
-						className={ styles.row }
-					>
-						<Stack direction="row" align="center" gap="sm" className={ styles.person }>
-							<img
-								src={ item.avatarUrl || DEFAULT_AVATAR_URL }
-								onError={ ( e: React.SyntheticEvent< HTMLImageElement > ) => {
-									e.currentTarget.src = DEFAULT_AVATAR_URL;
-								} }
-								alt=""
-								aria-hidden="true"
-								className={ styles.avatar }
-							/>
-							{ href ? (
-								<Link
-									className={ styles.name }
-									href={ href }
-									variant="unstyled"
-									openInNewTab
-									title={ item.name }
-								>
-									{ item.name }
-								</Link>
-							) : (
-								<Text className={ styles.name }>{ item.name }</Text>
+	return (
+		<Stack
+			direction="column"
+			className={ clsx( styles.root, fitRows && styles.fitted, className ) }
+		>
+			<div ref={ listRef } className={ styles.list }>
+				{ items.map( ( item, index ) => {
+					// Callers pass `href` straight from report data, so the scheme is
+					// guarded here at the sink rather than in each consuming widget.
+					const href = safeHttpUrl( item.href );
+
+					return (
+						<Stack
+							key={ item.id }
+							direction="row"
+							align="center"
+							justify="space-between"
+							gap="md"
+							className={ styles.row }
+							data-roster-row
+							// Keep hidden rows mounted so they remain available for measurement.
+							aria-hidden={ index >= fittedCount ? true : undefined }
+							style={ index >= fittedCount ? { visibility: 'hidden' } : undefined }
+						>
+							<Stack direction="row" align="center" gap="sm" className={ styles.person }>
+								<img
+									src={ item.avatarUrl || DEFAULT_AVATAR_URL }
+									onError={ ( e: React.SyntheticEvent< HTMLImageElement > ) => {
+										e.currentTarget.src = DEFAULT_AVATAR_URL;
+									} }
+									alt=""
+									aria-hidden="true"
+									className={ styles.avatar }
+								/>
+								{ href ? (
+									<Link
+										className={ styles.name }
+										href={ href }
+										variant="unstyled"
+										openInNewTab
+										title={ item.name }
+									>
+										{ item.name }
+									</Link>
+								) : (
+									<Text className={ styles.name }>{ item.name }</Text>
+								) }
+							</Stack>
+							{ item.secondaryText && (
+								<Text className={ styles.since }>{ item.secondaryText }</Text>
 							) }
 						</Stack>
-						{ item.secondaryText && <Text className={ styles.since }>{ item.secondaryText }</Text> }
-					</Stack>
-				);
-			} ) }
-			{ moreCount > 0 && (
-				<Text className={ styles.more }>
+					);
+				} ) }
+			</div>
+			{ hiddenCount > 0 && (
+				<Text className={ styles.more } data-roster-footer>
 					{ sprintf(
 						// translators: %d is the number of additional subscribers not shown.
-						_n( '%d more', '%d more', moreCount, 'jetpack-premium-analytics-pkg' ),
-						moreCount
+						_n( '%d more', '%d more', hiddenCount, 'jetpack-premium-analytics-pkg' ),
+						hiddenCount
 					) }
 				</Text>
 			) }

@@ -210,7 +210,7 @@ class Jetpack_AI_Settings {
 	 * registration in init() stays for the package consumers that cannot
 	 * reference this class.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.2
 	 *
 	 * @param bool $default The call site's computed default. Defaults differ
 	 *                      between call sites — see apply_master_gates().
@@ -232,24 +232,14 @@ class Jetpack_AI_Settings {
 	/**
 	 * Gate 1: whether the host allows AI at all.
 	 *
-	 * Honors core's wp_supports_ai() (backed by the WP_AI_SUPPORT constant) when
-	 * available, falling back to the raw constant on WordPress versions that
-	 * predate the function. This is a server-owner decision: when it is off, no
-	 * AI settings should be shown and no upgrade should ever be offered.
+	 * Defers to core's wp_supports_ai(), which is backed by the WP_AI_SUPPORT
+	 * constant and its own filter. This is a server-owner decision: when it is
+	 * off, no AI settings should be shown and no upgrade should ever be offered.
 	 *
 	 * @return bool
 	 */
 	public static function host_allows_ai() {
-		if ( function_exists( 'wp_supports_ai' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above.
-			return (bool) wp_supports_ai();
-		}
-
-		if ( defined( 'WP_AI_SUPPORT' ) ) {
-			return (bool) WP_AI_SUPPORT;
-		}
-
-		return true;
+		return wp_supports_ai();
 	}
 
 	/**

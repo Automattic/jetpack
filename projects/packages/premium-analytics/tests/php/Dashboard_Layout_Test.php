@@ -355,7 +355,6 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'utmDimension' => 'utm_source,utm_medium',
-				'max'          => 10,
 			),
 			$layout_by_uuid[ $utm_widget_uuid ]['attributes']
 		);
@@ -378,7 +377,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			'default-total-views-widget-instance'          => array( 'jpa/total-views', 1, 1, 4 ),
 			'default-total-visitors-widget-instance'       => array( 'jpa/total-visitors', 1, 1, 5 ),
 			'default-popular-days-widget-instance'         => array( 'jpa/popular-days', 1, 1, 6 ),
-			'default-most-popular-day-widget-instance'     => array( 'jpa/most-popular-day', 1, 1, 7 ),
+			'default-popular-hours-widget-instance'        => array( 'jpa/popular-hours', 1, 1, 7 ),
 			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 4, 2, 8 ),
 			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 9 ),
 			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 10 ),
@@ -461,7 +460,6 @@ class Dashboard_Layout_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'max'    => 10,
 				'metric' => 'opens',
 			),
 			$layout_by_uuid['default-subscribers-emails-widget-instance']['attributes']
