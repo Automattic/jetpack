@@ -19,7 +19,6 @@ export const getAllHiddenMessage = (
 ): string => {
 	if ( itemType === 'segments' ) {
 		if ( interactive ) {
-			/* translators: Empty state shown when all pie segments are hidden and the legend can restore them. */
 			return _x(
 				'All segments are hidden. Click legend items to show data.',
 				'chart empty state: interactive segments',
@@ -27,12 +26,10 @@ export const getAllHiddenMessage = (
 			);
 		}
 
-		/* translators: Empty state shown when all pie segments are hidden and the legend cannot restore them. */
 		return _x( 'All segments are hidden.', 'chart empty state: segments', 'jetpack-charts' );
 	}
 
 	if ( interactive ) {
-		/* translators: Empty state shown when all chart series are hidden and the legend can restore them. */
 		return _x(
 			'All series are hidden. Click legend items to show data.',
 			'chart empty state: interactive series',
@@ -40,6 +37,5 @@ export const getAllHiddenMessage = (
 		);
 	}
 
-	/* translators: Empty state shown when all chart series are hidden and the legend cannot restore them. */
 	return _x( 'All series are hidden.', 'chart empty state: series', 'jetpack-charts' );
 };
