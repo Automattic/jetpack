@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Publicize;
 
 use PHPUnit\Framework\TestCase;
-use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
 
@@ -32,10 +31,20 @@ class Publicize_Script_Data_Test extends TestCase {
 	private $connections = array();
 
 	/**
+	 * The $publicize global as we found it.
+	 *
+	 * @var Publicize|null
+	 */
+	private $original_publicize;
+
+	/**
 	 * Setting up the test.
 	 */
 	public function setUp(): void {
 		parent::setUp();
+
+		global $publicize;
+		$this->original_publicize = $publicize;
 
 		foreach ( array( 'administrator', 'author', 'contributor' ) as $role ) {
 			$this->user_ids[ $role ] = wp_insert_user(
@@ -67,16 +76,42 @@ class Publicize_Script_Data_Test extends TestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 
+		/*
+		 * Restore rather than clear. Base_Controller::publicize_permissions_check()
+		 * 403s on a falsy $publicize, and the REST controller tests do not set the
+		 * global themselves — they inherit it from whichever test class ran before
+		 * them. Nulling it here would break the next class in the file order.
+		 */
 		global $publicize;
-		$publicize = null;
+		$publicize = $this->original_publicize;
 
 		wp_set_current_user( 0 );
 
-		WorDBless_Options::init()->clear_options();
+		/*
+		 * Clear only what this class created. WorDBless_Options::clear_options()
+		 * would wipe the whole option table, including the Jetpack options that
+		 * later test classes inherit from earlier ones.
+		 */
+		delete_transient( Connections::CONNECTIONS_TRANSIENT );
+
 		WorDBless_Posts::init()->clear_all_posts();
 		WorDBless_Users::init()->clear_all_users();
+	}
 
-		delete_transient( Connections::CONNECTIONS_TRANSIENT );
+	/**
+	 * Put a Publicize instance in the global.
+	 *
+	 * Built without its constructor on purpose: that registers hooks which would
+	 * outlive this class and leak into the test classes running after it. Every
+	 * method is the real one, so current_user_can_access_publicize_data() behaves
+	 * exactly as it does in production.
+	 *
+	 * @throws \ReflectionException If Publicize cannot be reflected.
+	 */
+	private function set_publicize_instance() {
+		global $publicize;
+
+		$publicize = ( new \ReflectionClass( Publicize::class ) )->newInstanceWithoutConstructor();
 	}
 
 	/**
@@ -94,8 +129,7 @@ class Publicize_Script_Data_Test extends TestCase {
 	 * A shared connection reaches a user who can publish.
 	 */
 	public function test_author_gets_connections() {
-		global $publicize;
-		$publicize = new Publicize();
+		$this->set_publicize_instance();
 
 		wp_set_current_user( $this->user_ids['author'] );
 
@@ -106,8 +140,7 @@ class Publicize_Script_Data_Test extends TestCase {
 	 * A Contributor gets no connection data, shared or otherwise.
 	 */
 	public function test_contributor_gets_no_connections() {
-		global $publicize;
-		$publicize = new Publicize();
+		$this->set_publicize_instance();
 
 		wp_set_current_user( $this->user_ids['contributor'] );
 
@@ -118,8 +151,7 @@ class Publicize_Script_Data_Test extends TestCase {
 	 * A logged-out request gets no connection data.
 	 */
 	public function test_logged_out_gets_no_connections() {
-		global $publicize;
-		$publicize = new Publicize();
+		$this->set_publicize_instance();
 
 		wp_set_current_user( 0 );
 
@@ -145,8 +177,7 @@ class Publicize_Script_Data_Test extends TestCase {
 	 * Sites that move Publicize to another capability keep working.
 	 */
 	public function test_jetpack_publicize_capability_filter_is_respected() {
-		global $publicize;
-		$publicize = new Publicize();
+		$this->set_publicize_instance();
 
 		$to_read = function () {
 			return 'read';
