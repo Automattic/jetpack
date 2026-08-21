@@ -39,37 +39,34 @@ const toFieldIdBase = label => {
  */
 const getFieldLabel = block => {
 	const innerBlocks = block.innerBlocks || [];
-	const labelBlock = innerBlocks.find( inner => inner.name === 'jetpack/label' );
-	const label = labelBlock?.attributes?.label;
+	// Direct children only: the choice fields nest their options under a `jetpack/options`
+	// wrapper, so a `jetpack/option` found here can only be a field's own inline label. The
+	// block also declares `isStandalone` for this, but position holds for older markup saved
+	// before that attribute existed.
+	const inlineLabel = name =>
+		innerBlocks.find( inner => inner.name === name )?.attributes?.label?.trim();
 
-	if ( label && label.trim() ) {
-		return label.trim();
-	}
+	const label = inlineLabel( 'jetpack/label' ) || inlineLabel( 'jetpack/option' );
 
-	// A direct child only: the choice fields nest their options under a `jetpack/options`
-	// wrapper, so this cannot pick up one of their choices by mistake.
-	const optionBlock = innerBlocks.find( inner => inner.name === 'jetpack/option' );
-	const optionLabel = optionBlock?.attributes?.label;
-
-	if ( optionLabel && optionLabel.trim() ) {
-		return optionLabel.trim();
+	if ( label ) {
+		return label;
 	}
 
 	const id = block.attributes?.id;
+	const untitled = __( 'Untitled field', 'jetpack-forms' );
+
+	if ( ! id ) {
+		return untitled;
+	}
 
 	// An author's id is worth showing; one this panel minted from the placeholder is not, or
 	// choosing an unnamed field renames it to "untitled-field" in the dropdown it was picked
-	// from. The suffix is matched too -- a second unnamed field is handed `untitled-field-2`.
-	const untitled = __( 'Untitled field', 'jetpack-forms' );
+	// from. `generateUniqueFormFieldId` only ever appends `-<n>`, so stripping that suffix is
+	// enough to recognize one.
 	const placeholderId = toFieldIdBase( untitled );
-	const isMinted =
-		id === placeholderId || new RegExp( `^${ placeholderId }-\\d+$` ).test( id || '' );
+	const isMinted = id === placeholderId || id.replace( /-\d+$/, '' ) === placeholderId;
 
-	if ( id && ! isMinted ) {
-		return id;
-	}
-
-	return untitled;
+	return isMinted ? untitled : id;
 };
 
 /**

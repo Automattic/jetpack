@@ -148,8 +148,8 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 			const nextSubject = fields.find( field => selectionValue( field ) === selection );
 
 			if ( ! nextSubject ) {
-				// The value is left alone; whether it still applies is decided by the next
-				// subject the author picks.
+				// The value is carried, normalized: whether it still applies is decided by
+				// the next subject the author picks.
 				onChange( index, { field: '', operator: OPERATORS.IS, value: rule.value ?? '' } );
 				return;
 			}
@@ -204,7 +204,15 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 
 	// The builder opens with one empty row, which is not a mistake -- so amber is kept for a
 	// condition begun and left unfinished, the only case where a field silently will not react.
+	// A complete rule is necessarily a started one, which is why three states need two flags.
 	const isStarted = isRuleStarted( rule );
+
+	let statusIcon = drafts;
+	if ( isComplete ) {
+		statusIcon = published;
+	} else if ( isStarted ) {
+		statusIcon = caution;
+	}
 
 	const activeReason = __( 'This condition is active.', 'jetpack-forms' );
 
@@ -214,7 +222,7 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 	let inactiveReason = __( 'Choose a field to compare against.', 'jetpack-forms' );
 	if ( missingSubject ) {
 		inactiveReason = __( 'The field this condition refers to no longer exists.', 'jetpack-forms' );
-	} else if ( isRuleStarted( rule ) ) {
+	} else if ( isStarted ) {
 		inactiveReason = __( 'Give this condition a value.', 'jetpack-forms' );
 	}
 
@@ -263,16 +271,12 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 					<span
 						className={ clsx( 'jetpack-contact-form__conditional-logic-rule-status', {
 							'is-active': isComplete,
-							'is-unstarted': ! isComplete && ! isStarted,
+							'is-unstarted': ! isStarted,
 						} ) }
 						role="img"
 						aria-label={ isComplete ? activeReason : inactiveReason }
 					>
-						{ isComplete || isStarted ? (
-							<Icon icon={ isComplete ? published : caution } size={ 20 } />
-						) : (
-							<Icon icon={ drafts } size={ 20 } />
-						) }
+						<Icon icon={ statusIcon } size={ 20 } />
 					</span>
 				</Tooltip>
 

@@ -228,7 +228,9 @@ export const canValueCarryOver = (
 		case 'number':
 			return Number.isFinite( Number( raw ) );
 
-		// A date or time input renders nothing for a value outside its own format.
+		// A date or time input renders nothing for a value outside its own format. Stricter
+		// than `evaluate.ts`'s parser on purpose: that answers what the evaluator can read,
+		// this answers what the control can show, so `15/03/2026` has to go.
 		case 'date':
 			return /^\d{4}-\d{2}-\d{2}$/.test( raw );
 

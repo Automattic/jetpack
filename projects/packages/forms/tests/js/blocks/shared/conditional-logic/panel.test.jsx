@@ -647,60 +647,29 @@ describe( 'ConditionalLogicPanel', () => {
 		} );
 	} );
 
-	// The value box is offered before a subject is chosen, so filling it in first is a normal
-	// order to work in -- and choosing the subject used to wipe it.
-	it( 'keeps a value typed before the subject was chosen', async () => {
+	/**
+	 * The value box is offered before a subject is chosen, so filling it in first is a normal
+	 * order to work in -- and choosing the subject used to wipe it. It is kept only where the
+	 * new subject can still show it.
+	 */
+	it.each( [
+		[ 'keeps a value typed before the subject was chosen', 'iPhone', 'name_1', 'is', 'iPhone' ],
+		// A checkbox compares against nothing, so the value has to go rather than sit unseen.
+		[ 'drops it for a subject that takes no value', 'iPhone', 'terms_1', 'is_checked', '' ],
+		[ 'keeps it for a dropdown that offers it', 'Large', 'size_1', 'is', 'Large' ],
+	] )( '%s', async ( _name, typed, selection, operator, expected ) => {
 		const { setAttributes } = await setup(
-			withRules( [ { field: '', operator: 'is', value: 'iPhone' } ] )
+			withRules( [ { field: '', operator: 'is', value: typed } ] )
 		);
 
-		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), 'name_1' );
+		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), selection );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			conditionalLogic: expect.objectContaining( {
 				groups: [
 					{
 						logicalOperator: 'all',
-						rules: [ { field: 'name_1', operator: 'is', value: 'iPhone' } ],
-					},
-				],
-			} ),
-		} );
-	} );
-
-	// A checkbox compares against nothing, so the value has to go rather than sit out of sight.
-	it( 'drops the typed value for a subject that takes none', async () => {
-		const { setAttributes } = await setup(
-			withRules( [ { field: '', operator: 'is', value: 'iPhone' } ] )
-		);
-
-		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), 'terms_1' );
-
-		expect( setAttributes ).toHaveBeenCalledWith( {
-			conditionalLogic: expect.objectContaining( {
-				groups: [
-					{
-						logicalOperator: 'all',
-						rules: [ { field: 'terms_1', operator: 'is_checked', value: '' } ],
-					},
-				],
-			} ),
-		} );
-	} );
-
-	it( 'keeps the typed value for a dropdown subject that offers it', async () => {
-		const { setAttributes } = await setup(
-			withRules( [ { field: '', operator: 'is', value: 'Large' } ] )
-		);
-
-		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), 'size_1' );
-
-		expect( setAttributes ).toHaveBeenCalledWith( {
-			conditionalLogic: expect.objectContaining( {
-				groups: [
-					{
-						logicalOperator: 'all',
-						rules: [ { field: 'size_1', operator: 'is', value: 'Large' } ],
+						rules: [ { field: selection, operator, value: expected } ],
 					},
 				],
 			} ),
