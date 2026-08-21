@@ -1,6 +1,6 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { XYChart, AnimatedAreaSeries, AnimatedAreaStack, Grid, Axis } from '@visx/xychart';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import {
 	useMemo,
@@ -437,7 +437,14 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 																'All series are hidden. Click legend items to show data.',
 																'jetpack-charts'
 														  )
-														: __( 'All series are hidden.', 'jetpack-charts' ) }
+														: // `_x` rather than `__` so the minifier cannot fold both
+														  // branches into one call with the condition inside the
+														  // msgid, which would leave neither string translatable.
+														  _x(
+																'All series are hidden.',
+																'Chart empty state, shown when the legend cannot be clicked.',
+																'jetpack-charts'
+														  ) }
 												</SvgEmptyState>
 											) : null }
 

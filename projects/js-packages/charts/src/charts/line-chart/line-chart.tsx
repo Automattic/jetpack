@@ -1,7 +1,7 @@
 import { formatNumberCompact, formatNumber } from '@automattic/number-formatters';
 import { LinearGradient } from '@visx/gradient';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import {
@@ -493,7 +493,14 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 																'All series are hidden. Click legend items to show data.',
 																'jetpack-charts'
 														  )
-														: __( 'All series are hidden.', 'jetpack-charts' ) }
+														: // `_x` rather than `__` so the minifier cannot fold both
+														  // branches into one call with the condition inside the
+														  // msgid, which would leave neither string translatable.
+														  _x(
+																'All series are hidden.',
+																'Chart empty state, shown when the legend cannot be clicked.',
+																'jetpack-charts'
+														  ) }
 												</SvgEmptyState>
 											) : null }
 

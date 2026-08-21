@@ -1,7 +1,7 @@
 import { formatNumber } from '@automattic/number-formatters';
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
@@ -611,7 +611,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 															'All series are hidden. Click legend items to show data.',
 															'jetpack-charts'
 													  )
-													: __( 'All series are hidden.', 'jetpack-charts' ) }
+													: // `_x` rather than `__` so the minifier cannot fold both
+													  // branches into one call with the condition inside the
+													  // msgid, which would leave neither string translatable.
+													  _x(
+															'All series are hidden.',
+															'Chart empty state, shown when the legend cannot be clicked.',
+															'jetpack-charts'
+													  ) }
 											</SvgEmptyState>
 										) : null }
 

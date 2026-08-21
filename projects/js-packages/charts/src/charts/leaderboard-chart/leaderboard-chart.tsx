@@ -1,6 +1,6 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { __experimentalGrid as Grid, VisuallyHidden } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -368,7 +368,14 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 						<div className={ styles.emptyState }>
 							{ legendInteractive
 								? __( 'All series are hidden. Click legend items to show data.', 'jetpack-charts' )
-								: __( 'All series are hidden.', 'jetpack-charts' ) }
+								: // `_x` rather than `__` so the minifier cannot fold both branches into
+								  // one call with the condition inside the msgid, which would leave neither
+								  // string translatable.
+								  _x(
+										'All series are hidden.',
+										'Chart empty state, shown when the legend cannot be clicked.',
+										'jetpack-charts'
+								  ) }
 						</div>
 					) : (
 						<Grid
