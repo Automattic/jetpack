@@ -1,8 +1,28 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
 // Sizing mirrors the core block editor welcome guide
 // (.edit-post-welcome-guide) so the form guide sits at the same scale
 // as the modal it replaces.
 .jetpack-forms-welcome-guide {
 	inline-size: 312px;
+
+	// Slides differ in heading and body length, so left alone the modal
+	// resizes as you page through — and because it is vertically centred,
+	// the whole dialog shifts along with the Previous/Next buttons.
+	// Reserving the tallest slide's height on the guide's own container
+	// anchors both: the container is `justify-content: space-between`, so the
+	// artwork stays flush to the top edge and the footer sits on the bottom
+	// one no matter how short the copy is. It has to go here rather than on
+	// the modal frame — the container's `min-height: 100%` is a percentage
+	// against an auto-height parent, so it resolves to nothing. Scoped to
+	// break-small and up, matching where core applies the guide's own
+	// min-height, so narrow screens can still shrink to fit.
+	@include gb.break-small() {
+
+		.components-guide__container {
+			min-block-size: 512px;
+		}
+	}
 
 	// The close button floats over the artwork, which runs dark to the top
 	// edge of the modal. Without this the default dark icon disappears into it.
