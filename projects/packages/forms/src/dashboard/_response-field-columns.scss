@@ -10,6 +10,12 @@
 	&.is-empty {
 		opacity: 0.5;
 	}
+
+	// Rating cells hold icons, not text, so the one-line text clamp does not apply.
+	&.is-rating {
+		max-inline-size: none;
+		overflow: visible;
+	}
 }
 
 // Answer columns push the table wider than the viewport, so it scrolls sideways.
@@ -47,6 +53,10 @@
 		// Breathing room so answers scrolling past never crowd the name.
 		padding-inline-end: var(--wpds-dimension-padding-2xl, 24px);
 		border-inline-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #f0f0f0);
+		// Answer columns compete for width, and the browser will happily shrink this
+		// one until the address under the name is cut mid-word. Hold enough room for
+		// an avatar plus a typical email before any of them get their share.
+		min-inline-size: 280px;
 	}
 
 	// No z-index on the frozen body cells: being positioned already paints them over

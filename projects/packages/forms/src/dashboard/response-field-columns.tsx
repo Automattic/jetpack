@@ -2,10 +2,12 @@
  * External dependencies
  */
 import { decodeEntities } from '@wordpress/html-entities';
-import { _n, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { inferFieldTypeFromLabel } from './components/inspector/response-fields/field-preview/field-preview-utils.ts';
+import FieldRating from './components/inspector/response-fields/field-rating/index.tsx';
 import {
 	isFieldsCollection,
 	isFileUploadField,
@@ -14,13 +16,16 @@ import {
 /**
  * Types
  */
-import type { FileItem, FormResponse, ResponseField } from '../types/index.ts';
+import type { FieldType, FileItem, FormResponse, ResponseField } from '../types/index.ts';
 import type { Field } from '@wordpress/dataviews';
 
 /**
  * Prefix keeping generated column ids clear of the built-in ones ( 'from', 'date', 'ip', … ).
  */
 const COLUMN_ID_PREFIX = 'field:';
+
+/** Announced in place of the em dash that marks a field this response left blank. */
+const NO_ANSWER_LABEL = __( 'No answer', 'jetpack-forms' );
 
 export type ResponseFieldColumn = {
 	/** The DataViews field id. */
@@ -29,6 +34,8 @@ export type ResponseFieldColumn = {
 	key: string;
 	/** The column header. */
 	label: string;
+	/** The form field type, so the cell can render the way the inspector does. */
+	type: FieldType;
 };
 
 /**
@@ -97,10 +104,18 @@ export const getResponseFieldColumns = ( responses: FormResponse[] ): ResponseFi
 				continue;
 			}
 
+			const label = decodeEntities( String( field.label || key ) );
+
 			columns.set( key, {
 				id: `${ COLUMN_ID_PREFIX }${ key }`,
 				key,
-				label: decodeEntities( String( field.label || key ) ),
+				label,
+				// Legacy responses carry no type (or a useless 'basic'); the inspector
+				// infers one from the label in that case, so match it.
+				type:
+					field.type && field.type !== 'basic'
+						? ( field.type as FieldType )
+						: inferFieldTypeFromLabel( label ) ?? 'text',
 			} );
 		}
 	}
@@ -214,7 +229,21 @@ export const buildResponseFieldColumns = (
 			const value = getResponseFieldValue( item, column.key );
 
 			if ( ! value ) {
-				return <span className="jp-forms__inbox__field-column is-empty">&mdash;</span>;
+				return (
+					<span className="jp-forms__inbox__field-column is-empty" aria-label={ NO_ANSWER_LABEL }>
+						&mdash;
+					</span>
+				);
+			}
+
+			// Ratings read as icons here just as they do in the response inspector;
+			// "4/5" in a table cell is meaningless at a glance.
+			if ( column.type === 'rating' ) {
+				return (
+					<span className="jp-forms__inbox__field-column is-rating">
+						<FieldRating value={ value } />
+					</span>
+				);
 			}
 
 			return (

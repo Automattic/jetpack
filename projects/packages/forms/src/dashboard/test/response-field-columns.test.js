@@ -17,8 +17,8 @@ describe( 'getResponseFieldColumns', () => {
 		] );
 
 		expect( columns ).toEqual( [
-			{ id: 'field:1_Name', key: '1_Name', label: 'Name' },
-			{ id: 'field:2_Email', key: '2_Email', label: 'Email' },
+			{ id: 'field:1_Name', key: '1_Name', label: 'Name', type: 'name' },
+			{ id: 'field:2_Email', key: '2_Email', label: 'Email', type: 'email' },
 		] );
 	} );
 
@@ -34,6 +34,33 @@ describe( 'getResponseFieldColumns', () => {
 		expect( columns.map( column => column.key ) ).toEqual( [ '1_Name', '2_Phone' ] );
 	} );
 
+	it( 'infers a type from the label for legacy responses that carry none', () => {
+		const [ column ] = getResponseFieldColumns( [
+			collectionResponse( [ { key: 'k', label: 'Rating', value: '4/5' } ] ),
+		] );
+
+		expect( column.type ).toBe( 'rating' );
+	} );
+
+	it( 'falls back to text when the label matches no known field type', () => {
+		// `inferFieldTypeFromLabel` matches on a label *prefix*, so a renamed field
+		// ("Please rate our website") is not recognized and its column renders as
+		// text. The response inspector behaves the same way, which is the point.
+		const [ column ] = getResponseFieldColumns( [
+			collectionResponse( [ { key: 'k', label: 'Please rate our website', value: '4/5' } ] ),
+		] );
+
+		expect( column.type ).toBe( 'text' );
+	} );
+
+	it( 'keeps an explicit field type over the label guess', () => {
+		const [ column ] = getResponseFieldColumns( [
+			collectionResponse( [ { key: 'k', label: 'Name', value: 'x', type: 'rating' } ] ),
+		] );
+
+		expect( column.type ).toBe( 'rating' );
+	} );
+
 	it( 'decodes entities in the column label', () => {
 		const [ column ] = getResponseFieldColumns( [
 			collectionResponse( [ { key: 'k', label: 'Tom &amp; Jerry', value: 'x' } ] ),
@@ -47,9 +74,11 @@ describe( 'getResponseFieldColumns', () => {
 			{ id: 1, fields: { Name: 'Ada', Message: 'Hello' } },
 		] );
 
+		// The legacy shape carries no type, so it is inferred from the label the way
+		// the response inspector does.
 		expect( columns ).toEqual( [
-			{ id: 'field:Name', key: 'Name', label: 'Name' },
-			{ id: 'field:Message', key: 'Message', label: 'Message' },
+			{ id: 'field:Name', key: 'Name', label: 'Name', type: 'name' },
+			{ id: 'field:Message', key: 'Message', label: 'Message', type: 'textarea' },
 		] );
 	} );
 
@@ -104,8 +133,8 @@ describe( 'getResponseFieldValue', () => {
 } );
 
 describe( 'mergeResponseFieldColumns', () => {
-	const a = { id: 'field:a', key: 'a', label: 'A' };
-	const b = { id: 'field:b', key: 'b', label: 'B' };
+	const a = { id: 'field:a', key: 'a', label: 'A', type: 'text' };
+	const b = { id: 'field:b', key: 'b', label: 'B', type: 'text' };
 
 	it( 'appends columns that are new', () => {
 		expect( mergeResponseFieldColumns( [ a ], [ a, b ] ) ).toEqual( [ a, b ] );
