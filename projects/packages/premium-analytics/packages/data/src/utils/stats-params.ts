@@ -78,8 +78,14 @@ export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
  * ends on the hour — the presets end at `23:59:59.999`, but a hand-edited or
  * deep-linked range need not.
  *
- * @param from - Range start.
- * @param to   - Range end.
+ * Unlike the calendar counters, this one reads the ends as instants rather than
+ * as calendar days, so both must carry a time of day. Bare `yyyy-MM-dd` ends
+ * both parse as midnight and undercount by a bucket-day — `2026-08-01` to
+ * `2026-08-07` counts 144 hours, not 168. Callers that can reach `hour` pass
+ * datetimes; see `getPeriodsBetweenInclusive`.
+ *
+ * @param from - Range start, as a datetime.
+ * @param to   - Range end, as a datetime.
  * @return The bucket count, at least 1.
  */
 function countHourBuckets( from: string, to: string ): number {
@@ -133,8 +139,9 @@ const BUCKET_COUNTERS: Record< StatsPeriod, ( from: string, to: string ) => numb
  * for day-based requests.
  *
  * @param period - The bucket granularity.
- * @param from   - Range start (`yyyy-MM-dd`, or a full ISO datetime).
- * @param to     - Range end (`yyyy-MM-dd`, or a full ISO datetime).
+ * @param from   - Range start (`yyyy-MM-dd`, or a full ISO datetime; `hour`
+ *               needs the datetime — see `countHourBuckets`).
+ * @param to     - Range end, same shapes and the same `hour` caveat.
  * @return The bucket count, at least 1.
  */
 export function getPeriodsBetweenInclusive(
