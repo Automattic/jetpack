@@ -90,7 +90,11 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		const providerTheme = useGlobalChartsTheme();
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
-		useDefaultHiddenSeries( chartId, defaultHiddenSeries );
+		const hiddenSeries = useDefaultHiddenSeries( chartId, defaultHiddenSeries );
+		const isSeriesVisible = useCallback(
+			( seriesLabel: string ) => ! hiddenSeries.has( seriesLabel ),
+			[ hiddenSeries ]
+		);
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
@@ -124,15 +128,15 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		);
 
 		const dataSorted = useChartDataTransform( data );
-		const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+		const { getElementStyles } = useGlobalChartsContext();
 
 		const seriesWithVisibility = useMemo( () => {
 			return dataSorted.map( ( series, index ) => ( {
 				series,
 				index,
-				isVisible: isSeriesVisible( chartId, series.label ),
+				isVisible: ! hiddenSeries.has( series.label ),
 			} ) );
-		}, [ dataSorted, chartId, isSeriesVisible ] );
+		}, [ dataSorted, hiddenSeries ] );
 
 		const allSeriesHidden = useMemo(
 			() => seriesWithVisibility.every( ( { isVisible } ) => ! isVisible ),
@@ -367,6 +371,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 				value={ {
 					chartId,
 					chartRef: internalChartRef,
+					isSeriesVisible,
 					chartWidth: width,
 					chartHeight: measuredChartHeight || 0,
 				} }

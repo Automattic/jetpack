@@ -6,6 +6,7 @@ import type { GlobalChartsContextValue } from '../types';
 
 describe( 'useDefaultHiddenSeries', () => {
 	let contextValue: GlobalChartsContextValue;
+	let resolvedHiddenSeries: Set< string >;
 
 	const Grab = () => {
 		contextValue = useGlobalChartsContext();
@@ -13,7 +14,7 @@ describe( 'useDefaultHiddenSeries', () => {
 	};
 
 	const Chart = ( { defaults, chartId = 'chart' }: { defaults?: string[]; chartId?: string } ) => {
-		useDefaultHiddenSeries( chartId, defaults );
+		resolvedHiddenSeries = useDefaultHiddenSeries( chartId, defaults );
 		return null;
 	};
 
@@ -38,6 +39,23 @@ describe( 'useDefaultHiddenSeries', () => {
 		);
 
 		expect( contextValue.getHiddenSeries( 'chart' ) ).toEqual( new Set() );
+	} );
+
+	it( 'reflects provider visibility changes after mount', () => {
+		render(
+			<GlobalChartsProvider>
+				<Grab />
+				<Chart />
+			</GlobalChartsProvider>
+		);
+
+		expect( resolvedHiddenSeries.has( 'Visitors' ) ).toBe( false );
+
+		act( () => {
+			contextValue.setSeriesVisibility( 'chart', 'Visitors', false );
+		} );
+
+		expect( resolvedHiddenSeries.has( 'Visitors' ) ).toBe( true );
 	} );
 
 	it( 'does not re-hide a series the user revealed', () => {

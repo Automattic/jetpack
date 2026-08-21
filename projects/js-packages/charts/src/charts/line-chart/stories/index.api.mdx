@@ -24,7 +24,7 @@ Main chart component with responsive behavior by default.
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Creates a rising effect where lines scale up from the bottom. Automatically respects user's `prefers-reduced-motion` system setting |
 | `showLegend` | `boolean` | `false` | Display chart legend |
 | `legend` | `SeriesChartLegendConfig` | `undefined` | Legend configuration object. See [SeriesChartLegendConfig](#serieschartlegendconfig-type) |
-| `defaultHiddenSeries` | `string[]` | — | Series labels to hide at mount. Revealable through an interactive legend; re-applied only on remount. |
+| `defaultHiddenSeries` | `string[]` | — | Series labels to hide at mount. Revealable through an interactive legend; re-applied on remount or when `chartId` changes. |
 | `rescaleYOnVisibilityChange` | `boolean?` | `true` | Whether the value axis rescales to the visible series when the visible set changes. Set `false` to pin it to the full data range so the baseline doesn't move as series are hidden |
 | `withStartGlyphs` | `boolean?` | `false` | Show markers at the first data point of each series |
 | `withLegendGlyph` | `boolean?` | `false` | Use custom glyphs in legend |

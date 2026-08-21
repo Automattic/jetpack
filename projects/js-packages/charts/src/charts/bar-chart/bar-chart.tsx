@@ -137,7 +137,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const legendCollapseGroups = legend.collapseGroups ?? false;
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
-	useDefaultHiddenSeries( chartId, defaultHiddenSeries );
+	const hiddenSeries = useDefaultHiddenSeries( chartId, defaultHiddenSeries );
+	const isSeriesVisible = useCallback(
+		( seriesLabel: string ) => ! hiddenSeries.has( seriesLabel ),
+		[ hiddenSeries ]
+	);
 	const theme = useXYChartTheme( data );
 
 	const dataSorted = useChartDataTransform( data );
@@ -156,14 +160,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 	const legendItems = useChartLegendItems( dataSorted, legendOptions );
 
-	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+	const { getElementStyles } = useGlobalChartsContext();
 
 	// A hidden series is unmounted, so it is not on the band scale either — the
 	// axis has to choose its tick values from what is left. Visibility is owned by
 	// the provider, whether it changed through the legend or programmatically.
 	const isSeriesRendered = useCallback(
-		( series: SeriesData ) => isSeriesVisible( chartId, series.label ),
-		[ chartId, isSeriesVisible ]
+		( series: SeriesData ) => isSeriesVisible( series.label ),
+		[ isSeriesVisible ]
 	);
 
 	const chartOptions = useBarChartOptions(
@@ -525,6 +529,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		<ChartInstanceContext.Provider
 			value={ {
 				chartId,
+				isSeriesVisible,
 				chartWidth: width,
 				chartHeight: measuredChartHeight || 0,
 			} }
