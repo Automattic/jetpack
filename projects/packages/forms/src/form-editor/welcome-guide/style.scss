@@ -1,10 +1,11 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
-// Sizing mirrors the core block editor welcome guide
-// (.edit-post-welcome-guide) so the form guide sits at the same scale
-// as the modal it replaces.
+// Wider than the core block editor welcome guide's 312px, to give the
+// artwork more room. Core caps the frame at `calc(100vw - 32px)` below
+// break-small, so this is the ceiling rather than a fixed width.
 .jetpack-forms-welcome-guide {
-	inline-size: 312px;
+	max-inline-size: 400px;
+	inline-size: 400px;
 
 	// Slides differ in heading and body length, so left alone the modal
 	// resizes as you page through — and because it is vertically centred,
@@ -20,7 +21,7 @@
 	@include gb.break-small() {
 
 		.components-guide__container {
-			min-block-size: 512px;
+			min-block-size: 532px;
 		}
 	}
 
