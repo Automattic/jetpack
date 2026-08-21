@@ -18,8 +18,3 @@ export interface ChartInstanceContextValue {
 }
 
 export const ChartInstanceContext = createContext< ChartInstanceContextValue | null >( null );
-
-// Backward compatibility exports
-export const SingleChartContext = ChartInstanceContext;
-export type SingleChartContextValue = ChartInstanceContextValue;
-export type SingleChartRef = ChartInstanceRef;
