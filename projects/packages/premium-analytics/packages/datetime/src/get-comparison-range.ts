@@ -4,16 +4,16 @@
 import {
 	differenceInDays,
 	differenceInMilliseconds,
+	endOfDay,
+	endOfMonth,
 	isFirstDayOfMonth,
 	isLastDayOfMonth,
+	startOfDay,
+	startOfMonth,
 	subDays,
 	subMilliseconds,
 	subMonths,
 	subYears,
-	startOfDay,
-	startOfMonth,
-	endOfDay,
-	endOfMonth,
 } from 'date-fns';
 
 export type DateRange = { from?: Date; to?: Date };
@@ -44,6 +44,17 @@ export function isComparisonPresetId( value: unknown ): value is ComparisonPrese
 }
 
 /**
+ * Count the calendar days in an inclusive range.
+ *
+ * @param from - Range start.
+ * @param to   - Range end.
+ * @return The inclusive day count.
+ */
+function getInclusiveDayCount( from: Date, to: Date ): number {
+	return differenceInDays( to, from ) + 1;
+}
+
+/**
  * Returns a comparison DateRange (as Date objects) derived from a reference range
  * and a given preset.
  *
@@ -53,9 +64,8 @@ export function isComparisonPresetId( value: unknown ): value is ComparisonPrese
  * - Day-aligned references (midnight to end of day) produce day-aligned
  *   comparison ranges. Sub-day references (rolling windows like the last 24
  *   hours) mirror the exact window instead.
- * - The comparison covers the same amount of time as the reference, except
- *   where the reference covers whole calendar months: `previous-month` and
- *   `previous-year` then shift the calendar and keep both ends on the month.
+ * - Comparison ranges match the reference duration, except that whole-month
+ *   `previous-month` and `previous-year` ranges preserve calendar boundaries.
  *
  * @param reference - The reference range to compare against (must include both `from` and `to`).
  * @param presetId  - One of the supported preset identifiers.
@@ -106,7 +116,7 @@ export function getComparisonRangeFromPreset(
 		bound === 1 ? endOfDay( startOfDay( date ) ) : startOfDay( date );
 
 	if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
-		const daysInclusive = differenceInDays( refTo, refFrom ) + 1;
+		const daysInclusive = getInclusiveDayCount( refFrom, refTo );
 		return {
 			from: clampDayBound( subDays( refFrom, daysInclusive ), 0 ),
 			to: clampDayBound( subDays( refTo, daysInclusive ), 1 ),
@@ -116,11 +126,7 @@ export function getComparisonRangeFromPreset(
 	if ( presetId === COMPARISON_PREVIOUS_MONTH || presetId === COMPARISON_PREVIOUS_YEAR ) {
 		const shiftBack = presetId === COMPARISON_PREVIOUS_MONTH ? subMonths : subYears;
 
-		// A whole-month reference keeps the calendar shift, because unequal
-		// lengths are the point there: March against February is 31 days
-		// against 28. Both ends re-snap to the month, which also repairs the
-		// shift's day-of-month clamp — January 1 through February 28 shifted a
-		// month back ends on January 28, mid-month.
+		// Keep whole-month comparisons aligned to calendar boundaries.
 		if ( isFirstDayOfMonth( refFrom ) && isLastDayOfMonth( refTo ) ) {
 			return {
 				from: clampDayBound( startOfMonth( shiftBack( refFrom, 1 ) ), 0 ),
@@ -128,17 +134,10 @@ export function getComparisonRangeFromPreset(
 			};
 		}
 
-		/*
-		 * Every other window keeps its length. Shifting each end on its own
-		 * lets month lengths resize it — July 21 - August 19 (30 days) landed
-		 * on June 21 - July 19 (29) — and the widgets divide raw totals, with
-		 * no per-day normalization, so a missing day biases every delta.
-		 * The end is the anchor, as in the sub-day branch above: the comparison
-		 * then ends exactly the named interval before the reference does, which
-		 * is the endpoint the label promises.
-		 */
+		// Anchor the end, then rebuild the start to preserve the day count. If the
+		// calendar shift clamps the end (Mar 31 to Feb 28), the start may move into January.
 		const to = shiftBack( refTo, 1 );
-		const daysInclusive = differenceInDays( refTo, refFrom ) + 1;
+		const daysInclusive = getInclusiveDayCount( refFrom, refTo );
 
 		return {
 			from: clampDayBound( subDays( to, daysInclusive - 1 ), 0 ),

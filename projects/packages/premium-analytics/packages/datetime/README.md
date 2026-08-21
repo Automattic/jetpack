@@ -123,14 +123,11 @@ if inputs are invalid
 **Supported presets:**
 
 - `previous-period` - Same duration, immediately before reference
-- `previous-month` - One month before reference dates
-- `previous-year` - One year before reference dates
+- `previous-month` - Same duration, anchored one month before the reference end
+- `previous-year` - Same duration, anchored one year before the reference end
 
-Every preset covers the same amount of time as the reference, so the deltas
-computed from it compare like with like. The one exception is a reference that
-covers whole calendar months: there `previous-month` and `previous-year` shift
-the calendar and re-snap to the month, because unequal lengths are the point —
-March against February is 31 days against 28.
+For whole-month references, `previous-month` and `previous-year` instead stay
+aligned to calendar month boundaries, so their duration can differ.
 
 ### Range Measurement and Stepping
 
