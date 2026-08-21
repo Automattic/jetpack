@@ -48,9 +48,10 @@ jest.mock( '@wordpress/route', () => {
 const props: PostHighlightCardProps = {
 	title: 'Quarterly update',
 	url: 'https://example.com/quarterly-update/',
-	// Noon, not midnight: the publish line formats in the host timezone, and a
-	// midnight instant slips to the previous day on hosts west of UTC.
-	date: '2026-06-05T12:00:00+00:00',
+	// Midnight on purpose: the publish line formats in the site timezone (UTC
+	// here), so the date must hold on hosts west of it. A host-zone regression
+	// would show Jun 4 under `test-tz`.
+	date: '2026-06-05T00:00:00+00:00',
 	metrics: [
 		{ key: 'views', label: 'Views', value: 42 },
 		{ key: 'likes', label: 'Likes', value: 3, note: 'All-time total.' },

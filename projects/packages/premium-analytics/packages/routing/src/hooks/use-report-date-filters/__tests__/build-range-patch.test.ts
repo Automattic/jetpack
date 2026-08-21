@@ -13,7 +13,7 @@ jest.mock( '@jetpack-premium-analytics/datetime', () => ( {
 /**
  * External dependencies
  */
-import { canStepForward, endOfDayTZ, stepDateRange } from '@jetpack-premium-analytics/datetime';
+import { canStepForward, stepDateRange } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
@@ -127,7 +127,8 @@ describe( 'buildRangePatch', () => {
 
 	it( 'extends calendar and manual edits to the end of the day', () => {
 		// The end of the *site's* day (pinned to UTC above), whatever the host.
-		const expected = endOfDayTZ( to, '+00:00' ).getTime();
+		// A literal instant, so the expectation cannot drift with `endOfDayTZ`.
+		const expected = new Date( '2026-07-10T23:59:59.999+00:00' ).getTime();
 
 		const custom = buildRangePatch( {
 			nextRange: { from, to },
