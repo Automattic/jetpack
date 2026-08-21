@@ -130,6 +130,23 @@ describe( 'ai-launchpad tracks', () => {
 		} );
 	} );
 
+	// An unmintable id must not be recorded as an empty string: the server never persisted it
+	// either, so leaving it null keeps both recorders reporting the bootstrap's 'none'.
+	it( 'contextFromTailorResult nulls an unminted session id', () => {
+		assert.deepEqual( contextFromTailorResult( 'fallback', '' ), {
+			source: 'fallback',
+			outcome: 'error',
+			ai_session_id: null,
+		} );
+	} );
+
+	it( 'records none, not an empty id, when the session id could not be minted', () => {
+		setTracksContext( contextFromTailorResult( 'fallback', '' ) );
+		trackTaskCtaClicked( { task_id: 'site_theme_selected' } );
+		assert.equal( lastProps().ai_session_id, 'none' );
+		assert.equal( lastProps().source, 'fallback' );
+	} );
+
 	it( 'merges the shared context into every event', () => {
 		setTracksContext( { goal: 'write', niche: 'hiking' } );
 		trackTaskCtaClicked( { task_id: 'site_theme_selected' } );

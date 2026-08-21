@@ -136,7 +136,11 @@ export function contextFromTailorResult(
 	return {
 		source,
 		outcome: 'ai' === source ? 'success' : 'error',
-		ai_session_id: aiSessionId,
+		// '' means crypto.randomUUID was unavailable, so no id was minted. Null rather than the
+		// empty string: null is what record()'s filter drops, letting the bootstrap's
+		// server-resolved value show through. The server never persisted the empty id either, so
+		// both recorders then report 'none' rather than disagreeing.
+		ai_session_id: '' !== aiSessionId ? aiSessionId : null,
 	};
 }
 
