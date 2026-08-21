@@ -48,6 +48,28 @@ describe( 'PeakDistribution', () => {
 		expect( screen.getByText( '0.3 views per day' ) ).toBeInTheDocument();
 	} );
 
+	it( 'bounds a daily average that would otherwise render as zero', () => {
+		// 18 views over a year is 0.049 a day, which one decimal rounds to "0.0".
+		render(
+			<PeakDistribution
+				label="7 pm"
+				value={ 18 / 366 }
+				points={ [ 18 / 366 ] }
+				valueDecimals={ 1 }
+				valueUnit="views-per-day"
+			/>
+		);
+
+		expect( screen.getByText( 'Fewer than 0.1 views per day' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '0.0 views per day' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'bounds a whole-number figure below one at a single view', () => {
+		render( <PeakDistribution label="Monday" value={ 0.4 } points={ [ 0.4 ] } /> );
+
+		expect( screen.getByText( 'Fewer than 1 view' ) ).toBeInTheDocument();
+	} );
+
 	it( 'uses the singular daily-average label for exactly one view', () => {
 		render(
 			<PeakDistribution label="7 pm" value={ 1 } points={ [ 1 ] } valueUnit="views-per-day" />
