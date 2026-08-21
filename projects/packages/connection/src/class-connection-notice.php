@@ -212,7 +212,7 @@ class Connection_Notice {
 		$rest_url        = wp_json_encode( esc_url_raw( get_rest_url() . 'jetpack/v4/connection/owner' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 		$rest_nonce      = wp_json_encode( wp_create_nonce( 'wp_rest' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 		$success_message = wp_json_encode( esc_html__( 'Success!', 'jetpack-connection' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-		$error_message   = esc_html__( 'Something went wrong. Please try again.', 'jetpack-connection' );
+		$error_message   = wp_json_encode( esc_html__( 'Something went wrong. Please try again.', 'jetpack-connection' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 
 		return <<<JS
 ( function() {
@@ -235,7 +235,7 @@ class Connection_Notice {
 			submitBtn.disabled = false;
 
 			results.classList.add( 'error-message' );
-			results.innerHTML = message || "{$error_message}";
+			results.innerHTML = message || {$error_message};
 		}
 
 		fetch(

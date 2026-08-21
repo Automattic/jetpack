@@ -91,6 +91,32 @@ class Connection_Notice_Test extends TestCase {
 	}
 
 	/**
+	 * A translation is attacker-adjacent input: it must reach the script as a JSON literal, so that
+	 * quotes, backslashes or newlines in it cannot terminate the string and break the script.
+	 */
+	public function test_delete_user_change_owner_notice_encodes_the_fallback_message() {
+		$translation = 'Backslash \\ and "quotes" and a' . "\n" . 'newline.';
+
+		$filter = function ( $translated, $text ) use ( $translation ) {
+			return 'Something went wrong. Please try again.' === $text ? $translation : $translated;
+		};
+		add_filter( 'gettext', $filter, 10, 2 );
+
+		$notice = new Connection_Notice();
+
+		ob_start();
+		$notice->delete_user_update_connection_owner_notice();
+		ob_end_clean();
+
+		remove_filter( 'gettext', $filter, 10 );
+
+		$inline_script = implode( '', (array) wp_scripts()->get_data( self::OWNER_SCRIPT_HANDLE, 'after' ) );
+
+		$this->assertSame( 1, preg_match( '/message \|\| ([^\n]+);/', $inline_script, $matches ) );
+		$this->assertSame( esc_html( $translation ), json_decode( $matches[1] ) );
+	}
+
+	/**
 	 * Set up the environment.
 	 */
 	protected function setUp(): void {
