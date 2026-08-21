@@ -158,15 +158,22 @@ class Form_Editor {
 	}
 
 	/**
-	 * Enqueue admin scripts for block editor.
-	 * Loads in all post block editor contexts (excluding the site editor) so that the
-	 * rename command is available and can be used when a form block is selected.
+	 * Enqueue admin scripts for the form editor.
+	 *
+	 * Scoped to the form post type. Everything the bundle registers is already
+	 * gated on `getCurrentPostType() === 'jetpack_form'` in JavaScript, so on any
+	 * other block editor screen it was downloaded and parsed only to do nothing.
 	 */
 	public static function enqueue_admin_scripts() {
 		$screen = get_current_screen();
 
-		// Only load in block editor contexts, not site editor
+		// Only load in block editor contexts, not site editor.
 		if ( ! $screen || $screen->id === 'site-editor' || ! $screen->is_block_editor ) {
+			return;
+		}
+
+		// Only load when editing a form.
+		if ( ! isset( $screen->post_type ) || Contact_Form::POST_TYPE !== $screen->post_type ) {
 			return;
 		}
 		$asset_file = __DIR__ . '/../../dist/form-editor/jetpack-form-editor.asset.php';
