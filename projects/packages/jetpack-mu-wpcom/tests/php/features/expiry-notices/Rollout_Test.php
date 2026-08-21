@@ -46,9 +46,9 @@ class Rollout_Test extends \WorDBless\BaseTestCase {
 		);
 	}
 
-	public function test_ships_at_the_intended_share(): void {
-		// Pinned so widening the rollout is a deliberate edit, not a drift.
-		$this->assertSame( 20, wpcom_expiry_notices_rollout_percentage() );
+	public function test_ships_stopped(): void {
+		// The rollout is stopped. Pinned so restarting it is a deliberate edit.
+		$this->assertSame( 0, wpcom_expiry_notices_rollout_percentage() );
 	}
 
 	public function test_enables_exactly_the_configured_share(): void {
@@ -123,81 +123,62 @@ class Rollout_Test extends \WorDBless\BaseTestCase {
 		}
 	}
 
-	public function test_the_option_pulls_a_site_into_the_rollout_early(): void {
-		$this->set_blog_id( 55 ); // 55 % 100 = 55, outside the share.
-		$this->assertFalse( wpcom_expiry_notices_is_enabled_for_site() );
-
+	public function test_the_option_cannot_pull_a_site_in_while_stopped(): void {
+		// The whole point of the stop: a site carrying the opt-in option from
+		// before the rollout was halted must not stay on the new notices.
+		$this->set_blog_id( 5 );
 		foreach ( array( '1', 1, 'true', 'yes', 'on', 'YES', ' 1 ' ) as $truthy ) {
 			update_option( 'wpcom_expiry_notices_enabled', $truthy );
-			$this->assertTrue(
-				wpcom_expiry_notices_is_enabled_for_site(),
-				sprintf( 'option value %s should read as opted in', var_export( $truthy, true ) )
-			);
-		}
-	}
-
-	public function test_the_option_holds_a_site_out_of_a_bucket_it_falls_in(): void {
-		$this->set_blog_id( 5 ); // 5 % 100 = 5, inside the share.
-		$this->assertTrue( wpcom_expiry_notices_is_enabled_for_site() );
-
-		foreach ( array( '0', 0, 'false', 'no', 'off', 'NO', ' 0 ' ) as $falsy ) {
-			update_option( 'wpcom_expiry_notices_enabled', $falsy );
 			$this->assertFalse(
 				wpcom_expiry_notices_is_enabled_for_site(),
-				sprintf( 'option value %s should read as opted out', var_export( $falsy, true ) )
+				sprintf( 'option value %s must not re-enable the notices', var_export( $truthy, true ) )
 			);
 		}
 	}
 
-	public function test_clearing_the_option_returns_the_site_to_the_share(): void {
-		$this->set_blog_id( 5 ); // Inside the share.
-		update_option( 'wpcom_expiry_notices_enabled', '0' );
-		$this->assertFalse( wpcom_expiry_notices_is_enabled_for_site() );
-
-		// Clearing must not read as "stay out" -- the site goes back under the
-		// normal rule, which for blog 5 means back in.
-		delete_option( 'wpcom_expiry_notices_enabled' );
-		$this->assertNull( wpcom_expiry_notices_rollout_override() );
-		$this->assertTrue( wpcom_expiry_notices_is_enabled_for_site() );
-	}
-
-	public function test_an_unrecognised_option_value_changes_nothing(): void {
-		// A typo must not flip a site either way -- it leaves the normal rule in
-		// place, so a fat-fingered rollout command is inert rather than wrong.
-		$this->set_blog_id( 5 ); // Inside the share.
-		foreach ( array( 'ture', 'enabled', 'maybe', '' ) as $nonsense ) {
-			update_option( 'wpcom_expiry_notices_enabled', $nonsense );
-			$this->assertNull( wpcom_expiry_notices_rollout_override(), "'{$nonsense}' should not be read as an instruction" );
-			$this->assertTrue( wpcom_expiry_notices_is_enabled_for_site() );
-		}
-
-		$this->set_blog_id( 55 ); // Outside the share.
-		foreach ( array( 'ture', 'enabled', 'maybe', '' ) as $nonsense ) {
-			update_option( 'wpcom_expiry_notices_enabled', $nonsense );
+	public function test_the_option_still_holds_a_site_out(): void {
+		$this->set_blog_id( 5 );
+		foreach ( array( '0', 'false', 'no', 'off' ) as $falsy ) {
+			update_option( 'wpcom_expiry_notices_enabled', $falsy );
 			$this->assertFalse( wpcom_expiry_notices_is_enabled_for_site() );
 		}
 	}
 
-	public function test_the_option_beats_a_zero_percent_rollout(): void {
-		// Useful before the share is opened at all: pick a site, see the notices.
-		$this->at_percentage( 0 );
-		$this->set_blog_id( 55 );
-		remove_all_filters( 'wpcom_expiry_notices_enabled' );
+	public function test_clearing_the_option_leaves_the_site_out(): void {
+		// There is no share to return to while the rollout is stopped.
+		$this->set_blog_id( 5 );
 		update_option( 'wpcom_expiry_notices_enabled', '1' );
-		$this->assertTrue( wpcom_expiry_notices_is_enabled_for_site() );
+		$this->assertFalse( wpcom_expiry_notices_is_enabled_for_site() );
+
+		delete_option( 'wpcom_expiry_notices_enabled' );
+		$this->assertNull( wpcom_expiry_notices_rollout_override() );
+		$this->assertFalse( wpcom_expiry_notices_is_enabled_for_site() );
 	}
 
-	public function test_the_filter_can_force_a_site_in_or_out(): void {
-		$this->set_blog_id( 55 ); // 55 % 100 = 55, outside the share.
+	public function test_an_unrecognised_option_value_changes_nothing(): void {
+		$this->set_blog_id( 5 );
+		foreach ( array( 'ture', 'enabled', 'maybe', '' ) as $nonsense ) {
+			update_option( 'wpcom_expiry_notices_enabled', $nonsense );
+			$this->assertNull( wpcom_expiry_notices_rollout_override(), "'{$nonsense}' should not be read as an instruction" );
+			$this->assertFalse( wpcom_expiry_notices_is_enabled_for_site() );
+		}
+	}
+
+	public function test_a_stopped_rollout_beats_the_option(): void {
+		// The inverse of what this asserted while the rollout was running.
+		$this->set_blog_id( 55 );
+		update_option( 'wpcom_expiry_notices_enabled', '1' );
+		$this->assertTrue( wpcom_expiry_notices_rollout_override() );
+		$this->assertFalse( wpcom_expiry_notices_is_enabled_for_site() );
+	}
+
+	public function test_the_filter_can_still_force_a_site_in(): void {
+		// Runs after the stop, so it stays available as an escape hatch -- for
+		// putting a single site back on the new notices to confirm a fix.
+		$this->set_blog_id( 5 );
 		$this->assertFalse( wpcom_expiry_notices_is_enabled_for_site() );
 
 		add_filter( 'wpcom_expiry_notices_enabled', '__return_true' );
 		$this->assertTrue( wpcom_expiry_notices_is_enabled_for_site() );
-		remove_all_filters( 'wpcom_expiry_notices_enabled' );
-
-		$this->set_blog_id( 5 ); // 5 % 100 = 5, inside the share.
-		$this->assertTrue( wpcom_expiry_notices_is_enabled_for_site() );
-		add_filter( 'wpcom_expiry_notices_enabled', '__return_false' );
-		$this->assertFalse( wpcom_expiry_notices_is_enabled_for_site() );
 	}
 }

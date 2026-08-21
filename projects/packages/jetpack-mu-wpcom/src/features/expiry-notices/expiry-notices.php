@@ -41,7 +41,7 @@ if ( ! function_exists( 'wpcom_expiry_get_purchases' ) ) {
  * two halves drift and a site ends up with both notices or neither.
  */
 function wpcom_expiry_notices_rollout_percentage(): int {
-	return 20;
+	return 0;
 }
 
 /**
@@ -122,17 +122,20 @@ function wpcom_expiry_notices_is_enabled_for_site(): bool {
 	$percentage = wpcom_expiry_notices_rollout_percentage();
 	$override   = wpcom_expiry_notices_rollout_override();
 
-	if ( null !== $override ) {
-		// Hand-picked, either way. Checked first so a site can be pulled in
-		// ahead of its bucket or held out of one it already falls in.
+	if ( $percentage <= 0 ) {
+		// Zero means zero, including for hand-picked sites. Checked before the
+		// override so that stopping the rollout is one number, and no site
+		// carrying the option stays on the new notices.
+		$enabled = false;
+	} elseif ( null !== $override ) {
+		// Hand-picked, either way. Pulls a site in ahead of its bucket, or
+		// holds one out of a bucket it already falls in.
 		$enabled = $override;
 	} elseif ( $percentage >= 100 ) {
 		// Fully rolled out. Answered before resolving an ID so that a site
 		// whose blog ID can't be read still gets the notices at the end of the
 		// ramp, rather than being stranded outside it forever.
 		$enabled = true;
-	} elseif ( $percentage <= 0 ) {
-		$enabled = false;
 	} else {
 		$blog_id = wpcom_expiry_notices_wpcom_blog_id();
 		$enabled = $blog_id > 0 && ( $blog_id % 100 ) < $percentage;
