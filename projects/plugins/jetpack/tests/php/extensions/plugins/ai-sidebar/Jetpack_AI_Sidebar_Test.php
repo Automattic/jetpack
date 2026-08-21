@@ -68,6 +68,11 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		// Off-Simple the `ai` module is the AI master switch; activate it so the
 		// AI-features gate behind these surfaces reads on.
 		$this->activate_ai_module_for_test();
+		// The AI controls only take effect on internal testing environments while
+		// they are unlaunched. These tests are about what the toggles do, so put
+		// the suite where they apply; the scoping itself is pinned in
+		// Jetpack_AI_Settings_Test.
+		$this->force_master_enforcement_for_test();
 		// Enable the sidebar by default via the override filter so the behaviour
 		// tests exercise the downstream wiring. has_ai_features() stays on the
 		// self-hosted connection path. The wpcom/Big Sky gating itself is covered

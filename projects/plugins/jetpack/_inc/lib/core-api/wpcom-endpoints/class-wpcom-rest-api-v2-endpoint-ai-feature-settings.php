@@ -24,7 +24,7 @@
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
-use Automattic\Jetpack\SEO\AI_SEO_Enhancer;
+use Automattic\Jetpack\SEO\Ai_Seo;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -221,7 +221,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 				),
 				'ai_seo'            => array(
 					'enabled'   => $stored['ai_seo'],
-					'available' => $this->is_seo_enhancer_available(),
+					'available' => $this->is_ai_seo_available(),
 				),
 				'ai_search'         => array(
 					'enabled'          => $stored['ai_search'],
@@ -232,14 +232,22 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 	}
 
 	/**
-	 * Whether the SEO feature row is available, so the settings page can hide
-	 * it. Reuses the SEO enhancer's shared gate (kill filter, seo-tools
-	 * module, ai-seo-enhancer plan slug) as the feature's availability.
+	 * Whether the AI SEO row is available, so the settings page can hide it.
+	 * The row governs user-initiated suggestions as well as automatic
+	 * generation, so it follows the package's shared AI SEO gate.
+	 *
+	 * Guarded with class_exists: the autoloader can pick an older jetpack-seo
+	 * copy from another plugin, predating this class. Without the gate's verdict
+	 * the row is hidden rather than offered.
 	 *
 	 * @return bool
 	 */
-	private function is_seo_enhancer_available() {
-		return AI_SEO_Enhancer::is_available();
+	private function is_ai_seo_available() {
+		if ( ! class_exists( Ai_Seo::class ) ) {
+			return false;
+		}
+
+		return Ai_Seo::is_available();
 	}
 
 	/**

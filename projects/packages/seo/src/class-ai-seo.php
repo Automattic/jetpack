@@ -1,7 +1,7 @@
 <?php
 /**
- * The AI SEO Enhancer's availability gate. This package owns the
- * `ai_seo_enhancer_enabled` option, so the shared predicate lives here.
+ * The AI SEO feature's availability gate. This package owns the SEO surfaces
+ * the feature writes to, so the shared predicate lives here.
  *
  * @package automattic/jetpack-seo-package
  */
@@ -12,14 +12,17 @@ use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 
 /**
- * Whether the AI SEO Enhancer is offered on this site.
+ * Whether AI SEO is offered on this site.
  */
-class AI_SEO_Enhancer {
+class Ai_Seo {
 
 	/**
-	 * Whether the site can offer the enhancer, independent of the admin's
-	 * toggle. Callers own the outer AI master and host gates. The AI sidebar's
-	 * SEO suggestions intentionally use a different plan slug — do not unify.
+	 * Whether the site can offer AI SEO, independent of the admin's toggle.
+	 * Callers own the outer AI master and host gates.
+	 *
+	 * The plan term is `advanced-seo`, the entitlement for the SEO title and
+	 * meta description fields every AI SEO surface writes to. Automatic
+	 * generation needs `ai-seo-enhancer` on top, checked where it runs.
 	 *
 	 * @since 0.8.2
 	 *
@@ -31,6 +34,6 @@ class AI_SEO_Enhancer {
 			/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
 			&& ! apply_filters( 'jetpack_disable_seo_tools', false )
 			&& ( new Modules() )->is_active( 'seo-tools' )
-			&& Current_Plan::supports( 'ai-seo-enhancer' );
+			&& Current_Plan::supports( 'advanced-seo' );
 	}
 }
