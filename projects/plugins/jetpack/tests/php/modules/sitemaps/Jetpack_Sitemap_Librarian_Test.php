@@ -23,38 +23,39 @@ class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
-	 * Empty the memoized posts table column list.
+	 * Create a scratch copy of the posts table carrying an extra column.
 	 *
-	 * The cache is static, so without this it would carry over between tests
-	 * in the same PHP process and make the memoization assertions below
-	 * depend on execution order.
+	 * Pointing $wpdb->posts at a table name the librarian has not seen before
+	 * guarantees a cold column cache without reaching into the cache itself,
+	 * and the marker column makes it obvious which table a column list came
+	 * from.
+	 *
+	 * @param string $suffix Distinguishes this table from other tests' tables.
+	 * @return string The scratch table name.
 	 */
-	private function reset_post_columns_cache() {
-		$property = new ReflectionProperty( Jetpack_Sitemap_Librarian::class, 'post_columns_cache' );
-		$property->setAccessible( true );
-		$property->setValue( null, array() );
+	private function create_scratch_posts_table( $suffix ) {
+		global $wpdb;
+
+		$table = $wpdb->posts . '_jp_' . $suffix;
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "CREATE TABLE $table LIKE $wpdb->posts" );
+		$wpdb->query( "ALTER TABLE $table ADD COLUMN jetpack_sitemap_marker VARCHAR(8) NULL" );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return $table;
 	}
 
 	/**
-	 * Call the private get_sanitized_post_columns() method.
+	 * Drop a table made by create_scratch_posts_table().
 	 *
-	 * @param Jetpack_Sitemap_Librarian $librarian Librarian instance.
-	 * @param object                    $wpdb      The WordPress database object.
-	 * @return string The sanitized post columns.
+	 * @param string $table Table name.
 	 */
-	private function get_sanitized_post_columns( $librarian, $wpdb ) {
-		$method = new ReflectionMethod( Jetpack_Sitemap_Librarian::class, 'get_sanitized_post_columns' );
-		$method->setAccessible( true );
+	private function drop_scratch_posts_table( $table ) {
+		global $wpdb;
 
-		return $method->invoke( $librarian, $wpdb );
-	}
-
-	/**
-	 * Leave the column cache empty for whatever runs next.
-	 */
-	public function tear_down() {
-		$this->reset_post_columns_cache();
-		parent::tear_down();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DROP TABLE IF EXISTS $table" );
 	}
 
 	/**
@@ -263,7 +264,10 @@ class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
 	 */
 	#[Group( 'jetpack-sitemap' )]
 	public function test_post_columns_lookup_is_memoized() {
-		$this->reset_post_columns_cache();
+		global $wpdb;
+
+		$original_table = $wpdb->posts;
+		$scratch        = $this->create_scratch_posts_table( 'memo' );
 
 		$lookups = 0;
 		$counter = function ( $query ) use ( &$lookups ) {
@@ -274,11 +278,17 @@ class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
 		};
 		add_filter( 'query', $counter );
 
-		$librarian = new Jetpack_Sitemap_Librarian();
-		$librarian->query_posts_after_id( 0, 1 );
-		$librarian->query_posts_after_id( 0, 1 );
+		try {
+			$wpdb->posts = $scratch;
 
-		remove_filter( 'query', $counter );
+			$librarian = new Jetpack_Sitemap_Librarian();
+			$librarian->query_posts_after_id( 0, 1 );
+			$librarian->query_posts_after_id( 5, 2 );
+		} finally {
+			$wpdb->posts = $original_table;
+			remove_filter( 'query', $counter );
+			$this->drop_scratch_posts_table( $scratch );
+		}
 
 		$this->assertSame( 1, $lookups );
 	}
@@ -295,33 +305,42 @@ class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
 	public function test_post_columns_cache_is_keyed_by_table() {
 		global $wpdb;
 
-		$this->reset_post_columns_cache();
-
-		$librarian      = new Jetpack_Sitemap_Librarian();
 		$original_table = $wpdb->posts;
-		$alt_table      = $wpdb->posts . '_jp_sitemap_alt';
+		$scratch        = $this->create_scratch_posts_table( 'keyed' );
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$wpdb->query( "CREATE TABLE $alt_table LIKE $original_table" );
-		$wpdb->query( "ALTER TABLE $alt_table ADD COLUMN jetpack_sitemap_marker VARCHAR(8) NULL" );
+		$original_select = '';
+		$scratch_select  = '';
+
+		$last_select = '';
+		$capture     = function ( $query ) use ( &$last_select ) {
+			if ( stripos( ltrim( $query ), 'SELECT' ) === 0 ) {
+				$last_select = $query;
+			}
+			return $query;
+		};
+		add_filter( 'query', $capture );
 
 		try {
-			$original_columns = $this->get_sanitized_post_columns( $librarian, $wpdb );
+			$librarian = new Jetpack_Sitemap_Librarian();
 
-			$wpdb->posts = $alt_table;
-			$alt_columns = $this->get_sanitized_post_columns( $librarian, $wpdb );
+			$librarian->query_posts_after_id( 0, 1 );
+			$original_select = $last_select;
+
+			$wpdb->posts = $scratch;
+			$librarian->query_posts_after_id( 0, 1 );
+			$scratch_select = $last_select;
 		} finally {
 			$wpdb->posts = $original_table;
-			$wpdb->query( "DROP TABLE $alt_table" );
+			remove_filter( 'query', $capture );
+			$this->drop_scratch_posts_table( $scratch );
 		}
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		// The second table's list is read fresh rather than served from the first table's entry.
-		$this->assertStringNotContainsString( 'jetpack_sitemap_marker', $original_columns );
-		$this->assertStringContainsString( 'jetpack_sitemap_marker', $alt_columns );
+		// The scratch table's list is read fresh rather than served from the real table's entry.
+		$this->assertStringNotContainsString( 'jetpack_sitemap_marker', $original_select );
+		$this->assertStringContainsString( 'jetpack_sitemap_marker', $scratch_select );
 
 		// Both lists still leave out the heavy columns.
-		$this->assertStringNotContainsString( 'post_content', $original_columns );
-		$this->assertStringNotContainsString( 'post_content', $alt_columns );
+		$this->assertStringNotContainsString( 'post_content', $original_select );
+		$this->assertStringNotContainsString( 'post_content', $scratch_select );
 	}
 }
