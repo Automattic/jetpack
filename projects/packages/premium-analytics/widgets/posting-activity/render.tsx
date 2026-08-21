@@ -72,22 +72,34 @@ function PostingActivityInner() {
 	const { reportParams } = useWidgetRootContext();
 
 	// Same window rule as the other calendar heatmap: floor and cap the picker's
-	// range at the history the viewport could show, so the two widgets fill their
-	// tiles with the same span instead of one running out of data early.
+	// range at the history the viewport could show, so the two widgets request
+	// the same span instead of one running out of data early — and the floored,
+	// year-quantized request stays cacheable across preset changes.
 	const viewportWidth = useViewportWidth();
 	const windowDays = resolveCalendarHeatmapWindowDays( viewportWidth );
+	const today = format( new Date(), 'yyyy-MM-dd' );
 	const streakRange = useMemo(
 		() =>
 			resolveCalendarHeatmapWindow(
 				reportParams,
 				{ minDays: windowDays, maxDays: windowDays },
-				format( new Date(), 'yyyy-MM-dd' )
+				today
 			),
-		[ reportParams, windowDays ]
+		[ reportParams, windowDays, today ]
 	);
 	const streakParams = useMemo(
 		() => ( { ...reportParams, startDate: streakRange.startDate, endDate: streakRange.endDate } ),
 		[ reportParams, streakRange ]
+	);
+
+	// What the heatmap may draw and page through is the picker's range, not the
+	// request window: the floor above fetches history past a short range, and
+	// with the pager those weeks would otherwise be reachable — selecting 2025
+	// must not page into 2024. Only the cap survives (paging never outruns the
+	// fetched data).
+	const displayRange = useMemo(
+		() => resolveCalendarHeatmapWindow( reportParams, { maxDays: windowDays }, today ),
+		[ reportParams, windowDays, today ]
 	);
 
 	const { data, isLoading, isFetching, isError, error, refetch } = useStatsStreak( streakParams );
@@ -98,7 +110,7 @@ function PostingActivityInner() {
 	const hasData = Object.keys( postsByDay ).length > 0;
 
 	return (
-		<AdaptiveCalendarHeatmap valueByDay={ postsByDay } period={ streakRange }>
+		<AdaptiveCalendarHeatmap valueByDay={ postsByDay } period={ displayRange }>
 			{ ( chartProps, pager ) => (
 				<WidgetState
 					isLoading={ isLoading }

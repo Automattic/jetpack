@@ -79,6 +79,15 @@ function TrafficViewsActivityInner() {
 	);
 	const isWindowClipped = periodWindow.startDate < fetchWindow.startDate;
 
+	// What the heatmap may draw and page through is the picker's range, not the
+	// request window: the fetch floor reaches past a short range, and with the
+	// pager those weeks would otherwise be reachable — selecting 2025 must not
+	// page into 2024. Only the cap survives (paging never outruns the fetch).
+	const displayWindow = useMemo(
+		() => resolveCalendarHeatmapWindow( reportParams, { maxDays: windowDays }, today ),
+		[ reportParams, windowDays, today ]
+	);
+
 	// stats/visits reads from/to; startDate/endDate are specific to stats/streak.
 	const params = useMemo(
 		() =>
@@ -128,7 +137,7 @@ function TrafficViewsActivityInner() {
 			: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' );
 
 	return (
-		<AdaptiveCalendarHeatmap valueByDay={ viewsByDay } period={ fetchWindow }>
+		<AdaptiveCalendarHeatmap valueByDay={ viewsByDay } period={ displayWindow }>
 			{ ( chartProps, pager ) => (
 				<WidgetState
 					isLoading={ isLoading }

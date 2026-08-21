@@ -284,10 +284,14 @@ describe( 'TrafficViewsActivityWidget', () => {
 			expect( chartDayValues() ).toContain( 'Tue, Jun 3, 2025:340' );
 		} );
 
-		it( 'spans the whole window even though the payload is sparse', () => {
+		it( 'spans the selected period even though the payload is sparse', () => {
 			renderWidget();
 
-			expect( screen.getByTestId( 'heatmap' ) ).toHaveAttribute( 'data-columns', '106' );
+			// The 2025 selection densifies to 53 week columns. Not the fetch
+			// window's 106: the request floors at the shared history window, but
+			// the grid must not draw (or let the pager reach) dates outside the
+			// selection — picking 2025 must not page into 2024.
+			expect( screen.getByTestId( 'heatmap' ) ).toHaveAttribute( 'data-columns', '53' );
 		} );
 	} );
 
