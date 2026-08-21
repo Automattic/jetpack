@@ -200,9 +200,7 @@ function PostTrafficActivityInner() {
 							     exist when the range exceeds one page (and only in the ready
 							     state, where the grid they step is visible). */ }
 							<CalendarHeatmapPagerOverlay
-								pager={
-									isPaged ? { canShowOlder, canShowNewer, showOlder, showNewer } : undefined
-								}
+								pager={ isPaged ? { canShowOlder, canShowNewer, showOlder, showNewer } : undefined }
 								className={ styles.chartHost }
 							>
 								<HeatmapChartUnresponsive
