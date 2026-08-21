@@ -220,17 +220,17 @@ export function DataViewsDrilldownNative< Item >( {
 			collapsible && isNarrowed
 				? collectAncestorIds( orderedData, matchedIds, getItemId, getItemParentId )
 				: NO_IDS;
-		const isExpanded = ( id: string ) =>
+		const isExpandedForRow = ( id: string ) =>
 			expandedByDefault !== toggledIds.has( id ) || forcedIds.has( id );
 		const visibleData = collapsible
-			? filterCollapsedRows( orderedData, getItemId, levels, isExpanded )
+			? filterCollapsedRows( orderedData, getItemId, levels, isExpandedForRow )
 			: orderedData;
 		// Resolve parents before folding so collapsed rows keep their controls.
 		// Forced-open ancestors stay non-interactive to preserve stored state.
 		const parentIds = collapsible
 			? findParentIds( orderedData, getItemId, getItemParentId )
 			: NO_IDS;
-		const toggleableIds = forcedIds.size
+		const toggleableRowIds = forcedIds.size
 			? new Set( [ ...parentIds ].filter( id => ! forcedIds.has( id ) ) )
 			: parentIds;
 
@@ -249,8 +249,8 @@ export function DataViewsDrilldownNative< Item >( {
 				totalItems: visibleData.length,
 				totalPages: Math.max( 1, Math.ceil( visibleData.length / perPage ) ),
 			},
-			toggleableIds,
-			isExpanded,
+			toggleableIds: toggleableRowIds,
+			isExpanded: isExpandedForRow,
 		};
 	}, [
 		data,
