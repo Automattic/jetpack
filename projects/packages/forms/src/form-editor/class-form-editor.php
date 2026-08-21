@@ -32,6 +32,20 @@ class Form_Editor {
 	const WELCOME_GUIDE_SCRIPT_HANDLE = 'jetpack-form-welcome-guide';
 
 	/**
+	 * Preference scope owned by Jetpack Forms. Mirrors PREFERENCE_SCOPE in welcome-guide/index.tsx.
+	 *
+	 * @var string
+	 */
+	const PREFERENCE_SCOPE = 'jetpack/forms';
+
+	/**
+	 * Query argument that force-opens the guide. Mirrors FORCE_QUERY_ARG in welcome-guide/should-show.ts.
+	 *
+	 * @var string
+	 */
+	const FORCE_QUERY_ARG = 'jetpack_forms_welcome_guide';
+
+	/**
 	 * Initialize the form editor.
 	 */
 	public static function init() {
@@ -213,14 +227,25 @@ class Form_Editor {
 	 * already demonstrated they do not need it — and that path never re-runs
 	 * this hook, so not loading here is what skips the guide for them.
 	 *
-	 * Loaded on every direct form editor load rather than only when the guide
-	 * will open, because it also supplies the "Form guide" item in the Options
-	 * menu that reopens it after dismissal. The artwork is only fetched once the
-	 * guide actually opens.
+	 * Loaded only when the guide will actually open, so a page that would never
+	 * show it does not pay for the bundle at all. The trade-off is that the
+	 * "Form guide" item in the Options menu, which lives in this bundle, is
+	 * absent once the guide has been dismissed — the query argument is then the
+	 * way back. The artwork is only fetched once the guide opens.
 	 */
 	private static function enqueue_welcome_guide() {
 		$screen = get_current_screen();
 		if ( ! $screen || ! isset( $screen->post_type ) || Contact_Form::POST_TYPE !== $screen->post_type ) {
+			return;
+		}
+
+		$is_forced   = self::is_welcome_guide_forced();
+		$preferences = self::get_persisted_preferences();
+		$is_eligible = self::is_welcome_guide_eligible( $preferences );
+
+		// Nothing to render and nothing to reopen, so skip the request entirely
+		// rather than shipping a bundle that would only sit idle.
+		if ( ! $is_forced && ( ! $is_eligible || self::is_welcome_guide_dismissed( $preferences ) ) ) {
 			return;
 		}
 
@@ -250,11 +275,62 @@ class Form_Editor {
 		wp_add_inline_script(
 			self::WELCOME_GUIDE_SCRIPT_HANDLE,
 			'window.jetpackFormsWelcomeGuide = ' . wp_json_encode(
-				array( 'isEligible' => self::is_welcome_guide_eligible() ),
+				array( 'isEligible' => $is_eligible ),
 				JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 			) . ';',
 			'before'
 		);
+	}
+
+	/**
+	 * Reads the current user's persisted editor preferences.
+	 *
+	 * The same blob backs both the core welcome modal's state and this guide's
+	 * dismissal, so it is read once and passed around.
+	 *
+	 * @return array The stored preferences, or an empty array.
+	 */
+	private static function get_persisted_preferences() {
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return array();
+		}
+
+		$preferences = get_user_meta( $user_id, 'wp_persisted_preferences', true );
+
+		return is_array( $preferences ) ? $preferences : array();
+	}
+
+	/**
+	 * Whether the user has already dismissed the welcome guide.
+	 *
+	 * @param array $preferences The user's persisted editor preferences.
+	 * @return bool Whether the guide has been dismissed.
+	 */
+	private static function is_welcome_guide_dismissed( array $preferences ) {
+		return isset( $preferences[ self::PREFERENCE_SCOPE ]['welcomeGuide'] )
+			&& false === $preferences[ self::PREFERENCE_SCOPE ]['welcomeGuide'];
+	}
+
+	/**
+	 * Whether the query argument that force-opens the guide is present.
+	 *
+	 * Mirrors isWelcomeGuideForced() in should-show.ts: present and not
+	 * explicitly falsy. Without this the argument would be useless, since the
+	 * bundle it overrides would never be loaded to read it.
+	 *
+	 * @return bool Whether the guide is being force-opened.
+	 */
+	private static function is_welcome_guide_forced() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display toggle, changes no state.
+		if ( ! isset( $_GET[ self::FORCE_QUERY_ARG ] ) ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display toggle, changes no state.
+		$value = sanitize_text_field( wp_unslash( $_GET[ self::FORCE_QUERY_ARG ] ) );
+
+		return '0' !== $value && 'false' !== $value;
 	}
 
 	/**
@@ -267,19 +343,19 @@ class Form_Editor {
 	 * have written.
 	 *
 	 * This only decides whether the guide opens by itself. The query argument
-	 * overrides it, and reopening from the Options menu is unaffected.
+	 * overrides it.
 	 *
+	 * @param array $preferences The user's persisted editor preferences.
 	 * @return bool Whether the guide should open on its own.
 	 */
-	private static function is_welcome_guide_eligible() {
+	private static function is_welcome_guide_eligible( array $preferences ) {
 		$user_id = get_current_user_id();
 		if ( ! $user_id ) {
 			return false;
 		}
 
-		$preferences        = get_user_meta( $user_id, 'wp_persisted_preferences', true );
 		$core_welcome_guide = null;
-		if ( is_array( $preferences ) && isset( $preferences['core/edit-post']['welcomeGuide'] ) ) {
+		if ( isset( $preferences['core/edit-post']['welcomeGuide'] ) ) {
 			$core_welcome_guide = $preferences['core/edit-post']['welcomeGuide'];
 		}
 
