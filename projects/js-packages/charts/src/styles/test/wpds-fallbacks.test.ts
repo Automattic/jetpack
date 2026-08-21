@@ -24,7 +24,19 @@ function specFallback( token: string ): string {
 	const declaration = { value: `var(${ token })` };
 	rewriteValue( declaration );
 
-	return declaration.value.slice( `var(${ token }, `.length, -1 );
+	// The plugin is expected to throw on a token the design system does not define. Should a
+	// future version return the reference untouched instead, slicing off a prefix that isn't
+	// there would yield a fragment of the token name and fail some later assertion with a
+	// value nothing wrote. Fail here, naming the token, rather than there.
+	const prefix = `var(${ token }, `;
+
+	if ( ! declaration.value.startsWith( prefix ) || ! declaration.value.endsWith( ')' ) ) {
+		throw new Error(
+			`@wordpress/theme did not supply a fallback for ${ token } — got "${ declaration.value }".`
+		);
+	}
+
+	return declaration.value.slice( prefix.length, -1 );
 }
 
 type Reference = {
@@ -80,7 +92,8 @@ function referencesIn( source: string, file: string ): Reference[] {
 }
 
 const references = globSync( '**/*.{scss,css,ts,tsx,mdx}', { cwd: SOURCE } )
-	.filter( file => ! file.includes( '/test/' ) )
+	// Paths are relative to `src`, so a top-level `src/test/` arrives without a leading slash.
+	.filter( file => ! /(^|\/)test\//.test( file ) )
 	.flatMap( file => referencesIn( readFileSync( join( SOURCE, file ), 'utf8' ), file ) );
 
 describe( 'design token references', () => {

@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Charts: the zoom selection now follows the WordPress admin color scheme when the design-system stylesheet is not loaded.
+Charts: Follow the WordPress admin color scheme for the zoom selection when the design-system stylesheet is not loaded.
