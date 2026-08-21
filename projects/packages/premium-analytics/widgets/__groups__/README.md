@@ -8,6 +8,12 @@ import '../top-posts/__tests__/top-posts.test';
 import '../clicks/__tests__/clicks.test';
 ```
 
+A group file holds nothing but those imports and comments, each import written on
+one line exactly as above. The Jest config reads the same lines to keep a member
+out of the ungrouped run, so a line it cannot parse would leave that suite running
+twice. `tests/js/test-groups.test.ts` fails on anything else in the file, and on
+any other file in this directory.
+
 ## Running
 
 Grouping is opt-in, via `PA_TEST_GROUPS=1`. `pnpm run test` sets it, unless a
@@ -21,10 +27,19 @@ pnpm run test -- widgets/clicks      # one suite
 
 ## Adding a widget suite to a group
 
-Members must declare the same `jest.mock()` calls because a mock registered by
-one member applies to the whole group. Do not list a suite in multiple groups.
-Leave suites with relative module mocks ungrouped because those mocks resolve
-from the suite's directory.
+Members must declare the same `jest.mock()` calls. The registry is shared, so
+only the factory of the first member that loads a module ever runs; every later
+member gets that same instance, however its own `jest.mock()` reads.
+
+That makes identical mock text necessary but not sufficient. A factory that
+closes over a variable declared in the suite — the way `email-breakdown` drives
+`useResizeObserver` from a `let mockResizeObserverWidth` — is wired to the first
+member's variable alone, and the other members' copies are never read. Group only
+suites whose mocks are self-contained; the guard test compares the mock text and
+cannot see this difference.
+
+Do not list a suite in multiple groups. Leave suites with relative module mocks
+ungrouped because those mocks resolve from the suite's directory.
 
 Keep groups at ten members or fewer and reset shared state in `beforeEach`.
 
