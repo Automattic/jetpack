@@ -6,9 +6,9 @@
  * with breadcrumbs in place of the tab bar.
  *
  * Overview and WordPress Agent share an internal-testing gate. Scheduled tasks
- * is controlled independently by a server-side feature flag. Without either flag
- * the page keeps its original MCP-only shape, with the MCP hub as the landing view
- * and no tab bar.
+ * is controlled independently by the ai-hub-scheduled-tasks server-side feature
+ * flag. Without either flag the page keeps its original MCP-only shape, with the
+ * MCP hub as the landing view and no tab bar.
  */
 
 import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
@@ -44,7 +44,7 @@ const getTabViews = () => {
 	if ( window?.jetpackAiSettings?.showFeaturesView ) {
 		views.push( 'overview', 'features' );
 	}
-	if ( window?.jetpackAiSettings?.showScheduledTasksView ) {
+	if ( window?.jetpackAiSettings?.featureFlags?.[ 'ai-hub-scheduled-tasks' ] ) {
 		views.push( 'scheduled-tasks' );
 	}
 	views.push( 'mcp' );

@@ -133,8 +133,8 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 		$this->assertArrayHasKey( 'showFeaturesView', $settings );
 		$this->assertFalse( $settings['showFeaturesView'] );
-		$this->assertArrayHasKey( 'showScheduledTasksView', $settings );
-		$this->assertFalse( $settings['showScheduledTasksView'] );
+		$this->assertArrayHasKey( 'featureFlags', $settings );
+		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
 	}
 
 	/**
@@ -147,7 +147,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['showFeaturesView'] );
-		$this->assertFalse( $settings['showScheduledTasksView'] );
+		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
 	}
 
 	/**
@@ -161,7 +161,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 				'owner'       => 'jetpack-ai',
 				'name'        => 'ai-hub-scheduled-tasks',
 			),
-			\Automattic\Jetpack\Feature_Flags\Feature_Flags::get( 'ai-hub-scheduled-tasks' )
+			\Automattic\Jetpack\Feature_Flags\Feature_Flags::get( Jetpack_AI_Feature_Flags::SCHEDULED_TASKS )
 		);
 	}
 
@@ -174,7 +174,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		( new Jetpack_AI_Page() )->page_admin_scripts();
 		$settings = $this->get_injected_settings();
 
-		$this->assertTrue( $settings['showScheduledTasksView'] );
+		$this->assertTrue( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
 	}
 
 	/**

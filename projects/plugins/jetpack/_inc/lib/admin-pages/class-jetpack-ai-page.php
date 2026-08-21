@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once __DIR__ . '/class.jetpack-admin-page.php';
-require_once dirname( __DIR__ ) . '/jetpack-ai-feature-flags.php';
+require_once dirname( __DIR__ ) . '/class-jetpack-ai-feature-flags.php';
 
 /**
  * Builds the Jetpack AI admin page and its sidebar menu entry.
@@ -151,7 +151,7 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	 * @return bool
 	 */
 	private static function is_scheduled_tasks_enabled() {
-		return Feature_Flags::is_enabled( 'ai-hub-scheduled-tasks' );
+		return Feature_Flags::is_enabled( Jetpack_AI_Feature_Flags::SCHEDULED_TASKS );
 	}
 
 	/**
@@ -238,13 +238,13 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			'jetpack-ai-admin',
 			'var jetpackAiSettings = ' . wp_json_encode(
 				array(
-					'blogId'                 => $blog_id ? (int) $blog_id : 0,
-					'activityLogUrl'         => $activity_log_url,
-					'seoSettingsUrl'         => $seo_settings_url,
-					'siteAdminUrl'           => admin_url(),
-					'apiRoot'                => esc_url_raw( rest_url() ),
-					'apiNonce'               => wp_create_nonce( 'wp_rest' ),
-					'pluginUrl'              => plugins_url( '', JETPACK__PLUGIN_FILE ),
+					'blogId'           => $blog_id ? (int) $blog_id : 0,
+					'activityLogUrl'   => $activity_log_url,
+					'seoSettingsUrl'   => $seo_settings_url,
+					'siteAdminUrl'     => admin_url(),
+					'apiRoot'          => esc_url_raw( rest_url() ),
+					'apiNonce'         => wp_create_nonce( 'wp_rest' ),
+					'pluginUrl'        => plugins_url( '', JETPACK__PLUGIN_FILE ),
 					// Route through the Jetpack redirect service so the upgrade
 					// destination for the MCP upsell can be retargeted without
 					// shipping a code change.
@@ -261,7 +261,9 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					'planAutoRenew'    => $plan_info['auto_renew'],
 					'showFeaturesView' => $show_gated_views,
 					// The tab and its Agents Manager sidebar ship disabled by default.
-					'showScheduledTasksView' => $show_scheduled_tasks_view,
+					'featureFlags'     => array(
+						Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,
+					),
 					// The walkthrough videos link to WordPress.com courses, so the
 					// Overview only shows them on WordPress.com-hosted sites (i4 thread).
 					'isWpcomHosted'    => ( new Host() )->is_woa_site(),
@@ -271,8 +273,8 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					// Tracks audience properties for the jetpack_mcp_* events, per the
 					// Tracks standards for AI product events (AIINT-586). The client
 					// sends them as the strings 'true'/'false' (AIINT-576).
-					'isA11n'                 => self::is_current_user_automattician(),
-					'isTest'                 => $is_internal_test,
+					'isA11n'           => self::is_current_user_automattician(),
+					'isTest'           => $is_internal_test,
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',

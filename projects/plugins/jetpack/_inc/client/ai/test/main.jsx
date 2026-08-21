@@ -220,7 +220,9 @@ describe( 'AI admin page (main.jsx)', () => {
 	} );
 
 	test( 'scheduled tasks flag: exposes the gated hash route and Figma empty state', async () => {
-		window.jetpackAiSettings = { showScheduledTasksView: true };
+		window.jetpackAiSettings = {
+			featureFlags: { 'ai-hub-scheduled-tasks': true },
+		};
 		window.location.hash = '#/scheduled-tasks';
 		window.__agentsManagerActions = {
 			// The sandbox's agents manager currently exposes readiness as a boolean.
