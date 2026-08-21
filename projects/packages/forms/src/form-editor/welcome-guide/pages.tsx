@@ -1,11 +1,16 @@
 /**
  * Welcome guide pages
  *
- * Slide content for the form editor welcome guide. Each page reserves an
- * image slot so artwork can be dropped in later without restructuring.
+ * Slide content for the form editor welcome guide. Each page pairs artwork
+ * with a heading and a short description.
  */
 
 import { __ } from '@wordpress/i18n';
+import addFieldsImage from './images/add-fields.png';
+import afterSubmitImage from './images/after-submit.png';
+import fieldSettingsImage from './images/field-settings.png';
+import publishImage from './images/publish.png';
+import welcomeImage from './images/welcome.png';
 import type { ReactNode } from 'react';
 
 interface GuidePage {
@@ -14,16 +19,19 @@ interface GuidePage {
 }
 
 /**
- * Placeholder for slide artwork.
+ * A slide's artwork.
  *
- * Reserves the image region so the guide keeps a stable size across slides
- * while the artwork is still being designed.
+ * The illustrations restate what the adjacent heading and text already say,
+ * so they carry an empty alt attribute rather than duplicating that copy for
+ * screen readers.
  *
- * @return The placeholder element.
+ * @param props     - Component props
+ * @param props.src - Source of the illustration to render
+ * @return The framed artwork.
  */
-const ImageSlot = () => (
+const Artwork = ( { src }: { src: string } ) => (
 	<div className="jetpack-forms-welcome-guide__image">
-		<div className="jetpack-forms-welcome-guide__image-slot" aria-hidden="true" />
+		<img alt="" src={ src } />
 	</div>
 );
 
@@ -38,7 +46,7 @@ const ImageSlot = () => (
 export function getWelcomeGuidePages(): GuidePage[] {
 	return [
 		{
-			image: <ImageSlot />,
+			image: <Artwork src={ welcomeImage } />,
 			content: (
 				<>
 					<h1 className="jetpack-forms-welcome-guide__heading">
@@ -54,7 +62,7 @@ export function getWelcomeGuidePages(): GuidePage[] {
 			),
 		},
 		{
-			image: <ImageSlot />,
+			image: <Artwork src={ addFieldsImage } />,
 			content: (
 				<>
 					<h1 className="jetpack-forms-welcome-guide__heading">
@@ -70,7 +78,7 @@ export function getWelcomeGuidePages(): GuidePage[] {
 			),
 		},
 		{
-			image: <ImageSlot />,
+			image: <Artwork src={ fieldSettingsImage } />,
 			content: (
 				<>
 					<h1 className="jetpack-forms-welcome-guide__heading">
@@ -86,7 +94,7 @@ export function getWelcomeGuidePages(): GuidePage[] {
 			),
 		},
 		{
-			image: <ImageSlot />,
+			image: <Artwork src={ afterSubmitImage } />,
 			content: (
 				<>
 					<h1 className="jetpack-forms-welcome-guide__heading">
@@ -102,7 +110,7 @@ export function getWelcomeGuidePages(): GuidePage[] {
 			),
 		},
 		{
-			image: <ImageSlot />,
+			image: <Artwork src={ publishImage } />,
 			content: (
 				<>
 					<h1 className="jetpack-forms-welcome-guide__heading">
