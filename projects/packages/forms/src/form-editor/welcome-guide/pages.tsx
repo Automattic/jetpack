@@ -6,11 +6,11 @@
  */
 
 import { __ } from '@wordpress/i18n';
-import addFieldsImage from './images/add-fields.png';
-import afterSubmitImage from './images/after-submit.png';
-import fieldSettingsImage from './images/field-settings.png';
-import publishImage from './images/publish.png';
-import welcomeImage from './images/welcome.png';
+import addFieldsImage from './images/add-fields.webp';
+import afterSubmitImage from './images/after-submit.webp';
+import fieldSettingsImage from './images/field-settings.webp';
+import publishImage from './images/publish.webp';
+import welcomeImage from './images/welcome.webp';
 import type { ReactNode } from 'react';
 
 export interface GuidePage {
