@@ -7,6 +7,7 @@
 	--jetpack-comments-font-color: rgba(0, 0, 0, 0.8);
 	--jetpack-comments-border-color: #dcdcde;
 	--jetpack-comments-background-color: rgba(255, 255, 255, 0.6);
+	--jetpack-comments-content-background-color: rgba(255, 255, 255, 0.6);
 	--jetpack-comments-accent-color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #0675c4));
 	--jetpack-comments-accent-hover-color: var(--wp-components-color-accent-darker-10, var(--wp-admin-theme-color-darker-10, #055d9c));
 	--jetpack-comments-accent-text-color: var(--wp-components-color-accent-inverted, #fff);
@@ -15,12 +16,14 @@
 	&.light {
 		--jetpack-comments-font-color: #3c434a;
 		--jetpack-comments-background-color: #fff;
+		--jetpack-comments-content-background-color: #fff;
 	}
 
 	&.dark {
 		--jetpack-comments-font-color: rgba(255, 255, 255, 0.8);
 		--jetpack-comments-border-color: rgba(255, 255, 255, 0.2);
 		--jetpack-comments-background-color: rgba(0, 0, 0, 0.7);
+		--jetpack-comments-content-background-color: rgba(255, 255, 255, 0.1);
 	}
 
 	color: var(--jetpack-comments-font-color);
@@ -60,7 +63,7 @@
 
 	&::placeholder {
 		color: var(--jetpack-comments-font-color);
-		opacity: 0.7;
+		opacity: 0.8;
 	}
 
 	&:focus-visible {

@@ -19,8 +19,8 @@ export const CommentingAs = () => {
 					className="jetpack-comments__avatar"
 					src={ user.avatarUrl }
 					alt=""
-					width="24"
-					height="24"
+					width="37"
+					height="37"
 				/>
 			) }
 			<span className="jetpack-comments__user-name">{ user.commentingAs }</span>

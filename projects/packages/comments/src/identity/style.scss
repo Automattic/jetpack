@@ -69,7 +69,7 @@
 
 		&::placeholder {
 			color: var(--jetpack-comments-font-color);
-			opacity: 0.7;
+			opacity: 0.8;
 		}
 
 		&:focus-visible {
@@ -103,7 +103,12 @@
 
 .jetpack-comments__avatar {
 	flex-shrink: 0;
-	border-radius: 50%;
+	// 39 not 37: the border-box reset puts the 1px frame inside the box.
+	inline-size: 39px;
+	block-size: 39px;
+	border: 1px solid var(--jetpack-comments-border-color);
+	border-radius: 4px;
+	background-color: var(--jetpack-comments-content-background-color);
 }
 
 .jetpack-comments__logout {
