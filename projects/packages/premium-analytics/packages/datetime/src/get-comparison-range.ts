@@ -4,12 +4,16 @@
 import {
 	differenceInDays,
 	differenceInMilliseconds,
+	isFirstDayOfMonth,
+	isLastDayOfMonth,
 	subDays,
 	subMilliseconds,
 	subMonths,
 	subYears,
 	startOfDay,
+	startOfMonth,
 	endOfDay,
+	endOfMonth,
 } from 'date-fns';
 
 export type DateRange = { from?: Date; to?: Date };
@@ -48,8 +52,10 @@ export function isComparisonPresetId( value: unknown ): value is ComparisonPrese
  *   the frame of the incoming dates (pass TZDate instances for site-local math).
  * - Day-aligned references (midnight to end of day) produce day-aligned
  *   comparison ranges. Sub-day references (rolling windows like the last 24
- *   hours) mirror the exact window instead, so the comparison always covers
- *   the same amount of time as the primary range.
+ *   hours) mirror the exact window instead.
+ * - The comparison covers the same amount of time as the reference, except
+ *   where the reference covers whole calendar months: `previous-month` and
+ *   `previous-year` then shift the calendar and keep both ends on the month.
  *
  * @param reference - The reference range to compare against (must include both `from` and `to`).
  * @param presetId  - One of the supported preset identifiers.
@@ -107,17 +113,36 @@ export function getComparisonRangeFromPreset(
 		};
 	}
 
-	if ( presetId === COMPARISON_PREVIOUS_MONTH ) {
-		return {
-			from: clampDayBound( subMonths( refFrom, 1 ), 0 ),
-			to: clampDayBound( subMonths( refTo, 1 ), 1 ),
-		};
-	}
+	if ( presetId === COMPARISON_PREVIOUS_MONTH || presetId === COMPARISON_PREVIOUS_YEAR ) {
+		const shiftBack = presetId === COMPARISON_PREVIOUS_MONTH ? subMonths : subYears;
 
-	if ( presetId === COMPARISON_PREVIOUS_YEAR ) {
+		// A whole-month reference keeps the calendar shift, because unequal
+		// lengths are the point there: March against February is 31 days
+		// against 28. Both ends re-snap to the month, which also repairs the
+		// shift's day-of-month clamp — January 1 through February 28 shifted a
+		// month back ends on January 28, mid-month.
+		if ( isFirstDayOfMonth( refFrom ) && isLastDayOfMonth( refTo ) ) {
+			return {
+				from: clampDayBound( startOfMonth( shiftBack( refFrom, 1 ) ), 0 ),
+				to: clampDayBound( endOfMonth( shiftBack( refTo, 1 ) ), 1 ),
+			};
+		}
+
+		/*
+		 * Every other window keeps its length. Shifting each end on its own
+		 * lets month lengths resize it — July 21 - August 19 (30 days) landed
+		 * on June 21 - July 19 (29) — and the widgets divide raw totals, with
+		 * no per-day normalization, so a missing day biases every delta.
+		 * The end is the anchor, as in the sub-day branch above: the comparison
+		 * then ends exactly the named interval before the reference does, which
+		 * is the endpoint the label promises.
+		 */
+		const to = shiftBack( refTo, 1 );
+		const daysInclusive = differenceInDays( refTo, refFrom ) + 1;
+
 		return {
-			from: clampDayBound( subYears( refFrom, 1 ), 0 ),
-			to: clampDayBound( subYears( refTo, 1 ), 1 ),
+			from: clampDayBound( subDays( to, daysInclusive - 1 ), 0 ),
+			to: clampDayBound( to, 1 ),
 		};
 	}
 

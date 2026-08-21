@@ -126,6 +126,12 @@ if inputs are invalid
 - `previous-month` - One month before reference dates
 - `previous-year` - One year before reference dates
 
+Every preset covers the same amount of time as the reference, so the deltas
+computed from it compare like with like. The one exception is a reference that
+covers whole calendar months: there `previous-month` and `previous-year` shift
+the calendar and re-snap to the month, because unequal lengths are the point —
+March against February is 31 days against 28.
+
 ### Range Measurement and Stepping
 
 #### `getDateRangeSpan( range? )`
