@@ -448,6 +448,83 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Asserts that the markup is a lone <amp-pixel> element and returns its src with the HTML
+	 * character references decoded. Escaping is free to pick either spelling of an encoded
+	 * ampersand, so the URL the browser ends up requesting is what the tests pin down.
+	 *
+	 * @param string $markup The emitted AMP pixel markup.
+	 * @return string The decoded src URL.
+	 */
+	private function amp_pixel_src( $markup ) {
+		$matched = (bool) preg_match( '~^<amp-pixel src="([^"]*)"></amp-pixel>$~', $markup, $matches );
+		$this->assertTrue( $matched, "Expected a single <amp-pixel> element, got: $markup" );
+		return html_entity_decode( $matches[1], ENT_QUOTES | ENT_HTML5 );
+	}
+
+	/**
+	 * Test for Tracking_Pixel::render_amp_footer.
+	 */
+	public function test_render_amp_footer_prints_the_pixel_url_intact() {
+		$_SERVER['HTTP_HOST'] = '127.0.0.1';
+		$data                 = array(
+			'v'    => 'ext',
+			'blog' => 1234,
+			'post' => 0,
+			'tz'   => false,
+			'srv'  => 'example.org',
+		);
+
+		ob_start();
+		Tracking_Pixel::render_amp_footer( $data );
+		$output = (string) ob_get_clean();
+
+		$expected_url = 'https://pixel.wp.com/g.gif?v=ext&blog=1234&post=0&tz&srv=example.org&host=127.0.0.1&rand=RANDOM&ref=DOCUMENT_REFERRER';
+		$this->assertSame( $expected_url, $this->amp_pixel_src( $output ) );
+	}
+
+	/**
+	 * Test for Tracking_Pixel::add_amp_pixel on an AMP request.
+	 */
+	public function test_add_amp_pixel_prints_the_pixel_on_an_amp_request() {
+		global $wp_the_query;
+		$wp_the_query->is_home = true;
+		$_SERVER['HTTP_HOST']  = '127.0.0.1';
+
+		$output = '';
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		try {
+			ob_start();
+			Tracking_Pixel::add_amp_pixel();
+			$output = (string) ob_get_clean();
+		} finally {
+			remove_filter( 'jetpack_is_amp_request', '__return_true' );
+		}
+
+		$expected_url = 'https://pixel.wp.com/g.gif?v=ext&blog=1234&post=0&tz&srv=example.org&utm_id=some_id&utm_source=a_source&arch_home=1&host=127.0.0.1&rand=RANDOM&ref=DOCUMENT_REFERRER';
+		$this->assertSame( $expected_url, $this->amp_pixel_src( $output ) );
+	}
+
+	/**
+	 * Test for Tracking_Pixel::add_amp_pixel on a request that is not AMP.
+	 */
+	public function test_add_amp_pixel_prints_nothing_on_a_non_amp_request() {
+		global $wp_the_query;
+		$wp_the_query->is_home = true;
+
+		$output = '';
+		add_filter( 'jetpack_is_amp_request', '__return_false' );
+		try {
+			ob_start();
+			Tracking_Pixel::add_amp_pixel();
+			$output = (string) ob_get_clean();
+		} finally {
+			remove_filter( 'jetpack_is_amp_request', '__return_false' );
+		}
+
+		$this->assertSame( '', $output );
+	}
+
+	/**
 	 * Mock filter function to test the use of stats_array filter.
 	 *
 	 * @param array $kvs The stats array in key values.

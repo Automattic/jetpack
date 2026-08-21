@@ -38,6 +38,12 @@ class Tracking_Pixel {
 		'utm_marketing_tactic',
 	);
 
+	private const AMP_PIXEL_ALLOWED_HTML = array(
+		'amp-pixel' => array(
+			'src' => true,
+		),
+	);
+
 	/**
 	 * Stats Build View Data.
 	 *
@@ -408,7 +414,7 @@ if ( document.readyState === "loading" ) {
 		}
 
 		$pixel = self::get_amp_footer( $data );
-		echo $pixel; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo wp_kses( $pixel, self::AMP_PIXEL_ALLOWED_HTML );
 	}
 
 	/**
@@ -455,7 +461,7 @@ if ( document.readyState === "loading" ) {
 	 * @param array $data Array of data for the AMP pixel tracker.
 	 */
 	public static function render_amp_footer( $data ) {
-		print self::get_amp_footer( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo wp_kses( self::get_amp_footer( $data ), self::AMP_PIXEL_ALLOWED_HTML );
 	}
 
 	/**

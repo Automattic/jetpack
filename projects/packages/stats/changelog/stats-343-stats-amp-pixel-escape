@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Escape the AMP tracking pixel markup at output with wp_kses().
