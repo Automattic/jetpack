@@ -2,13 +2,17 @@ import { useQuery } from '@tanstack/react-query';
 import { useCallback } from '@wordpress/element';
 import { fetchCapabilities, type Capabilities } from '../data/api/capabilities';
 import { keys } from '../data/query-client';
+import { useStickyError } from './use-sticky-error';
 
 const CAPABILITIES_STALE_MS = 5 * 60_000;
 
 type Result = {
 	data: Capabilities | undefined;
+	/** True only on the very first load, never during a retry. */
 	isLoading: boolean;
 	error: Error | null;
+	/** A retry is in flight and there is already something on screen. */
+	isRetrying: boolean;
 	refetch: () => void;
 };
 
@@ -41,10 +45,24 @@ export function useCapabilities( { enabled = true }: Args = {} ): Result {
 	const retry = useCallback( () => {
 		refetch();
 	}, [ refetch ] );
+	// Held across the refetch. React Query rewinds an errored query that
+	// holds no data back to `pending`, so without this the error vanishes
+	// in the same render as the click — and this is the query whose error
+	// screen wraps the entire dashboard body.
+	const error = useStickyError( query.error ?? null, query.isFetching );
+
 	return {
 		data: query.data,
-		isLoading: query.isLoading,
-		error: query.error ?? null,
+		// `isPending && isFetching` rather than React Query's `isLoading`:
+		// the rewind makes a retry pending again, so `isLoading` is true
+		// for the whole round trip and the error screen would be replaced
+		// by a spinner. This has to mean "nothing has ever been shown".
+		isLoading: query.isPending && query.isFetching && error === null,
+		error,
+		// Not `query.isRefetching`: that is `isFetching && ! isPending`,
+		// and the rewind makes a retry pending, so it stays false exactly
+		// when it is needed.
+		isRetrying: query.isFetching && ( error !== null || query.data !== undefined ),
 		refetch: retry,
 	};
 }

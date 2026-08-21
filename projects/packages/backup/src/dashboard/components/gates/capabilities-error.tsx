@@ -5,6 +5,8 @@ import { Stack, Text } from '@wordpress/ui';
 type Props = {
 	error: Error;
 	onRetry: () => void;
+	/** A retry is already in flight. */
+	isRetrying?: boolean;
 };
 
 /**
@@ -16,12 +18,13 @@ type Props = {
  * the plan is not the same as having no plan, so say so and offer a
  * retry.
  *
- * @param props         - Component props.
- * @param props.error   - The error the capabilities query failed with.
- * @param props.onRetry - Refetches the capabilities query.
+ * @param props            - Component props.
+ * @param props.error      - The error the capabilities query failed with.
+ * @param props.onRetry    - Refetches the capabilities query.
+ * @param props.isRetrying - Whether a retry is already in flight.
  * @return The rendered fallback.
  */
-export default function CapabilitiesErrorScreen( { error, onRetry }: Props ) {
+export default function CapabilitiesErrorScreen( { error, onRetry, isRetrying = false }: Props ) {
 	return (
 		<Card className="jpb-gates__card">
 			<Stack direction="column" gap="md" align="center">
@@ -37,7 +40,19 @@ export default function CapabilitiesErrorScreen( { error, onRetry }: Props ) {
 						'jetpack-backup-pkg'
 					) }
 				</Text>
-				<Button variant="primary" onClick={ onRetry }>
+				{ /*
+				 * Busy rather than merely clickable. The screen holds its
+				 * error across the retry now, so without this the DOM is
+				 * byte-identical before and after the click and a retry
+				 * that fails again reads as a dead button.
+				 */ }
+				<Button
+					variant="primary"
+					onClick={ onRetry }
+					isBusy={ isRetrying }
+					disabled={ isRetrying }
+					aria-disabled={ isRetrying }
+				>
 					{ __( 'Try again', 'jetpack-backup-pkg' ) }
 				</Button>
 			</Stack>

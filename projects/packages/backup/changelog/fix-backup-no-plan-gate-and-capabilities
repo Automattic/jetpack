@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Backup: give the modernized dashboard's no-plan screen a site-scoped upgrade link and a license-key path, point the connection prompts at My Jetpack instead of a page the standalone plugin does not register, refuse an unreadable capabilities response rather than reporting it as "no plan", and keep the capabilities error on screen while it is retried. No-op when the modernization filter is off.
+
+
