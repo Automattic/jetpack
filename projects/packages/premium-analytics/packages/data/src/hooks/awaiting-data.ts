@@ -1,6 +1,7 @@
 type PlaceholderAwareQuery = {
 	isLoading: boolean;
 	isPlaceholderData: boolean;
+	isFetching: boolean;
 };
 
 /**
@@ -9,26 +10,24 @@ type PlaceholderAwareQuery = {
  *
  * Broader than React Query's `isLoading`, which a range change leaves false:
  * `placeholderData` keeps the previous params' response mounted, and React
- * Query calls that a success. `isFetching` is no help either — it is equally
- * true when unchanged params are revalidated, where the numbers on screen are
- * still the right answer (WOOA7S-1934).
+ * Query calls that a success. Neither remaining flag says it alone — a
+ * revalidation of unchanged params is equally `isFetching`, and there the
+ * numbers on screen are still the right answer (WOOA7S-1934). Together they
+ * are exact: stale data on screen *and* a request in flight to replace it.
  *
- * Awaiting means something is coming. A disabled query has nothing coming, so
- * it never awaits: pass `isEnabled` for a query a widget switches off, or the
- * placeholder it is left holding reads as a load that never finishes and pins
- * the widget in its skeleton. Switching a query off usually changes its params
- * in the same render — a metric the bucket cannot serve, a view no longer
- * selected — which is exactly what makes the result placeholder data.
+ * The conjunction is also what unpins a query a widget switches off. Switching
+ * a query off usually changes its params in the same render — a metric the
+ * bucket cannot serve, a view no longer selected — so it is left holding
+ * placeholder data that no fetch will ever replace, since a disabled query does
+ * not fetch. Reading that as a load still in flight pinned the widget in its
+ * skeleton for good. Not fetching, so not awaiting. `refetch()` deliberately
+ * ignores `enabled`, so a switched-off query genuinely reloading still awaits.
  *
- * @param query     - A React Query result.
- * @param isEnabled - Whether that query is enabled. Defaults to true.
+ * @param query - A React Query result.
  * @return Whether the result has nothing valid for the current params.
  */
-export function isAwaitingData( query: PlaceholderAwareQuery, isEnabled = true ): boolean {
-	// Only the placeholder arm is gated. `refetch()` ignores `enabled`, so a
-	// switched-off query can still have a real request in flight — and that one
-	// is awaiting data however the query was configured.
-	return query.isLoading || ( isEnabled && query.isPlaceholderData );
+export function isAwaitingData( query: PlaceholderAwareQuery ): boolean {
+	return query.isLoading || ( query.isPlaceholderData && query.isFetching );
 }
 
 /**
@@ -41,14 +40,11 @@ export function isAwaitingData( query: PlaceholderAwareQuery, isEnabled = true )
  * uses (`isStale` flipping at `staleTime`, for one). Cheap next to a fetch, and
  * the alternative is handing widgets a flag whose name lies.
  *
- * @param query     - A React Query result.
- * @param isEnabled - Whether that query is enabled. Defaults to true; see
- *                  `isAwaitingData` for why a switched-off query never awaits.
+ * @param query - A React Query result.
  * @return The same result with `isLoading` widened.
  */
 export function withAwaitedDataLoading< TQuery extends PlaceholderAwareQuery >(
-	query: TQuery,
-	isEnabled = true
+	query: TQuery
 ): TQuery {
-	return { ...query, isLoading: isAwaitingData( query, isEnabled ) };
+	return { ...query, isLoading: isAwaitingData( query ) };
 }
