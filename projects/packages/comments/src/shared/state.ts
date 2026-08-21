@@ -1,16 +1,25 @@
 import { signal, computed } from '@preact/signals';
 import { createContext } from 'preact';
 import { readDraft } from '../comment-form/draft';
-import type { Commenter } from './types';
+import type { Commenter, FormSettings } from './types';
+
+const EMPTY_FORM: FormSettings = {
+	postId: 0,
+	loginUrl: '',
+	logoutUrl: '',
+	submitId: 'submit',
+	submitName: 'submit',
+	submitLabel: '',
+};
 
 /**
  * Build one form's signals.
  *
- * @param postId - The post this form comments on.
+ * @param formSettings - Values belonging to this form rather than to the page.
  * @return The signals for a single form.
  */
-export function createSignals( postId: number ) {
-	const commentValue = signal( readDraft( postId ) );
+export function createSignals( formSettings: FormSettings ) {
+	const commentValue = signal( readDraft( formSettings.postId ) );
 
 	const isEmptyComment = computed( () => commentValue.value.trim() === '' );
 
@@ -29,7 +38,7 @@ export function createSignals( postId: number ) {
 	);
 
 	return {
-		postId,
+		formSettings,
 		commentValue,
 		isEmptyComment,
 		isSavingComment,
@@ -39,4 +48,4 @@ export function createSignals( postId: number ) {
 	} as const;
 }
 
-export const CommentSignals = createContext( createSignals( 0 ) );
+export const CommentSignals = createContext( createSignals( EMPTY_FORM ) );

@@ -7,6 +7,7 @@ import { CommentSignals, createSignals } from '../shared/state';
 import { CommentField } from './comment-field';
 import { saveDraft } from './draft';
 import { SubmitButton } from './submit-button';
+import type { FormSettings } from '../shared/types';
 
 import './style.scss';
 
@@ -15,7 +16,8 @@ type CommentFormProps = {
 };
 
 const CommentForm = ( { form }: CommentFormProps ) => {
-	const { postId, commentParent, commentValue, isSavingComment } = useContext( CommentSignals );
+	const { formSettings, commentParent, commentValue, isSavingComment } =
+		useContext( CommentSignals );
 	const { isLoggedIn, mustLogIn } = JetpackComments;
 
 	const isSubmitting = useRef( false );
@@ -38,8 +40,8 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	}, [ form, commentParent ] );
 
 	useEffect( () => {
-		saveDraft( postId, commentValue.value );
-	}, [ postId, commentValue.value ] );
+		saveDraft( formSettings.postId, commentValue.value );
+	}, [ formSettings, commentValue.value ] );
 
 	useEffect( () => {
 		const onSubmit = () => {
@@ -49,7 +51,7 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 
 			isSubmitting.current = true;
 			isSavingComment.value = true;
-			saveDraft( postId, '' );
+			saveDraft( formSettings.postId, '' );
 		};
 
 		const onPageShow = ( event: PageTransitionEvent ) => {
@@ -66,7 +68,7 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 			form.removeEventListener( 'submit', onSubmit );
 			window.removeEventListener( 'pageshow', onPageShow );
 		};
-	}, [ form, postId, isSavingComment ] );
+	}, [ form, formSettings, isSavingComment ] );
 
 	return (
 		<>
@@ -88,10 +90,10 @@ document.querySelectorAll< HTMLElement >( '.jetpack-comments' ).forEach( element
 		return;
 	}
 
-	const postId = Number( form.querySelector< HTMLInputElement >( '#comment_post_ID' )?.value ?? 0 );
+	const formSettings = JSON.parse( element.dataset.jetpackComments ?? '{}' ) as FormSettings;
 
 	render(
-		<CommentSignals.Provider value={ createSignals( postId ) }>
+		<CommentSignals.Provider value={ createSignals( formSettings ) }>
 			<CommentForm form={ form } />
 		</CommentSignals.Provider>,
 		element

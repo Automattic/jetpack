@@ -145,7 +145,7 @@ class Comment_Form {
 
 		$this->enqueue_assets( $args );
 
-		return $this->markup();
+		return $this->markup( $args );
 	}
 
 	/**
@@ -170,10 +170,17 @@ class Comment_Form {
 	/**
 	 * The app's mount point, and the hidden fields it posts with.
 	 *
+	 * @param array $args Comment form arguments.
 	 * @return string
 	 */
-	private function markup() {
-		return '<div class="jetpack-comments ' . esc_attr( self::color_scheme() ) . '"></div>'
+	private function markup( $args = array() ) {
+		return '<div class="jetpack-comments ' . esc_attr( self::color_scheme() ) . '"'
+			. ' data-jetpack-comments="' . esc_attr(
+				(string) wp_json_encode(
+					self::form_settings( $args ),
+					JSON_UNESCAPED_SLASHES | JSON_HEX_AMP
+				)
+			) . '"></div>'
 			. '<div class="jetpack-comments__fields">'
 			. get_comment_id_fields( self::post_id() )
 			. wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false, false )
@@ -259,7 +266,6 @@ class Comment_Form {
 	 * @return array
 	 */
 	private function settings( $args ) {
-		$post_id = self::post_id();
 		$lengths = wp_get_comment_fields_max_lengths();
 
 		return array_merge(
@@ -267,14 +273,37 @@ class Comment_Form {
 				'requireNameEmail'   => (bool) get_option( 'require_name_email' ),
 				'showCookiesConsent' => (bool) get_option( 'show_comments_cookies_opt_in' ),
 				'mustLogIn'          => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
-				'loginUrl'           => wp_login_url( get_permalink( $post_id ) ),
 				'maxLength'          => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
-				'submitId'           => $args['id_submit'] ?? 'submit',
-				'submitName'         => $args['name_submit'] ?? 'submit',
 				'strings'            => self::strings( $args ),
 			),
-			Identity::settings( $post_id )
+			Identity::settings()
 		);
+	}
+
+	/**
+	 * Values belonging to one form, rather than to the page it sits on.
+	 *
+	 * @param array $args Comment form arguments.
+	 * @return array
+	 */
+	private static function form_settings( $args ) {
+		$post_id   = self::post_id();
+		$permalink = get_permalink( $post_id );
+
+		$settings = array(
+			'postId'      => $post_id,
+			'loginUrl'    => wp_login_url( $permalink ),
+			'logoutUrl'   => '',
+			'submitId'    => $args['id_submit'] ?? 'submit',
+			'submitName'  => $args['name_submit'] ?? 'submit',
+			'submitLabel' => $args['label_submit'] ?? _x( 'Comment', 'verb', 'jetpack-comments' ),
+		);
+
+		if ( is_user_logged_in() ) {
+			$settings['logoutUrl'] = html_entity_decode( wp_logout_url( $permalink ), ENT_COMPAT );
+		}
+
+		return $settings;
 	}
 
 	/**
@@ -285,7 +314,6 @@ class Comment_Form {
 	 */
 	private static function strings( $args ) {
 		$strings = array(
-			'submit'              => $args['label_submit'] ?? _x( 'Comment', 'verb', 'jetpack-comments' ),
 			'reply'               => _x( 'Reply', 'verb', 'jetpack-comments' ),
 			'commentLabel'        => _x( 'Comment', 'noun', 'jetpack-comments' ),
 			'replyLabel'          => _x( 'Reply', 'noun', 'jetpack-comments' ),

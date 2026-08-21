@@ -7,11 +7,18 @@ export type Commenter = {
 export type CurrentUser = {
 	displayName: string;
 	avatarUrl: string;
+};
+
+export type FormSettings = {
+	postId: number;
+	loginUrl: string;
 	logoutUrl: string;
+	submitId: string;
+	submitName: string;
+	submitLabel: string;
 };
 
 export type Strings = {
-	submit: string;
 	reply: string;
 	commentLabel: string;
 	replyLabel: string;
@@ -36,10 +43,7 @@ export type Settings = {
 	requireNameEmail: boolean;
 	showCookiesConsent: boolean;
 	mustLogIn: boolean;
-	loginUrl: string;
 	maxLength: number;
-	submitId: string;
-	submitName: string;
 	strings: Strings;
 	commenter: Commenter;
 	user: CurrentUser | null;

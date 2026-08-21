@@ -15,10 +15,9 @@ class Identity {
 	/**
 	 * Who is leaving the comment, as far as this site knows.
 	 *
-	 * @param int $post_id The post being commented on.
 	 * @return array
 	 */
-	public static function settings( $post_id ) {
+	public static function settings() {
 		$commenter = wp_get_current_commenter();
 
 		$settings = array(
@@ -36,7 +35,6 @@ class Identity {
 			$settings['user'] = array(
 				'displayName' => $user->display_name,
 				'avatarUrl'   => get_avatar_url( $user->ID, array( 'size' => 48 ) ),
-				'logoutUrl'   => html_entity_decode( wp_logout_url( get_permalink( $post_id ) ), ENT_COMPAT ),
 			);
 		}
 

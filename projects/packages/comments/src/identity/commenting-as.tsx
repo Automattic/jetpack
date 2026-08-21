@@ -1,3 +1,6 @@
+import { useContext } from 'preact/hooks';
+import { CommentSignals } from '../shared/state';
+
 import './style.scss';
 
 /**
@@ -6,13 +9,10 @@ import './style.scss';
  * @return The identity line, or nothing when there is no logged-in user.
  */
 export const CommentingAs = () => {
+	const { formSettings } = useContext( CommentSignals );
 	const { user, strings } = JetpackComments;
 
-	if ( ! user ) {
-		return null;
-	}
-
-	return (
+	return user ? (
 		<div className="jetpack-comments__user">
 			{ user.avatarUrl && (
 				<img
@@ -24,11 +24,11 @@ export const CommentingAs = () => {
 				/>
 			) }
 			<span className="jetpack-comments__user-name">
-				{ strings.commentingAs.replace( '%s', user.displayName ) }
+				{ strings.commentingAs.split( '%s' ).join( user.displayName ) }
 			</span>
-			<a className="jetpack-comments__logout" href={ user.logoutUrl }>
+			<a className="jetpack-comments__logout" href={ formSettings.logoutUrl }>
 				{ strings.logOut }
 			</a>
 		</div>
-	);
+	) : null;
 };

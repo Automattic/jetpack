@@ -1,3 +1,6 @@
+import { useContext } from 'preact/hooks';
+import { CommentSignals } from '../shared/state';
+
 import './style.scss';
 
 /**
@@ -6,12 +9,13 @@ import './style.scss';
  * @return The prompt, and a way to log in and come back.
  */
 export const LogInPrompt = () => {
-	const { loginUrl, strings } = JetpackComments;
+	const { formSettings } = useContext( CommentSignals );
+	const { strings } = JetpackComments;
 
 	return (
 		<div className="jetpack-comments__identity">
 			<p className="jetpack-comments__prompt">{ strings.mustLogInPrompt }</p>
-			<a className="jetpack-comments__login" href={ loginUrl }>
+			<a className="jetpack-comments__login" href={ formSettings.loginUrl }>
 				{ strings.logIn }
 			</a>
 		</div>
