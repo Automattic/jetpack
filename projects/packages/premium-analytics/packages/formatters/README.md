@@ -103,7 +103,7 @@ and then shifted into the site's timezone, landing on the previous day for any
 visitor ahead of the site. Parse site-local strings with `parseSiteDateTime` from
 `@jetpack-premium-analytics/datetime` first.
 
-## `formatDateRange( range? )`
+## `formatDateRange( range?, options? )`
 
 Format a date range into a human-readable string.
 Returns `''` when range or dates are missing.
@@ -143,9 +143,21 @@ translated WordPress range pattern instead:
 // '21/06/2025 – 25/06/2025'
 ```
 
-| Parameter | Type                         | Description       |
-| --------- | ---------------------------- | ----------------- |
-| `range`   | `{ from?: Date; to?: Date }` | Date range object |
+Pass `collapseSingleDay` where a window of a day or less should be named by
+the day it ends on. A day-aligned window already collapses, since both ends
+render the same date; a rolling one does not, because it straddles two calendar
+days without being about either of them in full:
+
+```typescript
+// The 24 hours ending at 3pm on June 21:
+formatDateRange( { from, to } ); // 'June 20 – 21, 2025'
+formatDateRange( { from, to }, { collapseSingleDay: true } ); // 'June 21, 2025'
+```
+
+| Parameter                   | Type                         | Default | Description                                   |
+| --------------------------- | ---------------------------- | ------- | --------------------------------------------- |
+| `range`                     | `{ from?: Date; to?: Date }` |         | Date range object                             |
+| `options.collapseSingleDay` | `boolean`                    | `false` | Name a window of a day or less by its end day |
 
 ## `formatDateRangeCompact( range? )` and `formatDateRangeMinimal( range? )`
 
