@@ -5,7 +5,7 @@ import { IconButton } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useEffect, useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -61,22 +61,43 @@ export function CalendarHeatmapPagerOverlay( {
 	const canShowNewer = pager?.canShowNewer ?? false;
 
 	// Keyboard paging can remove the very arrow being pressed — reaching an
-	// end unmounts it, dropping focus to `<body>`: `:focus-within` collapses
-	// and the surviving arrow fades out mid-interaction. Hand focus to that
-	// surviving arrow instead. Pointer users never enter here: their arrow
-	// removal happens under `:hover`, which keeps the overlay visible, and
-	// they leave `arrowHadFocus` behind only alongside a body-focus drop.
-	useEffect( () => {
+	// end unmounts it, and focus lands wherever the browser or the button's
+	// tooltip machinery drops it (the body, or a previously focused element):
+	// `:focus-within` collapses and the surviving arrow fades out
+	// mid-interaction. Hand focus to that surviving arrow instead — anywhere
+	// focus went in that same commit was a fallback, not a user choice, since
+	// an intentional move fires the blur that clears `arrowHadFocus` first.
+	// Layout effect plus one animation-frame re-check, because the fallback
+	// restore can itself land after this commit. Pointer users never enter
+	// here: their arrow removal happens under `:hover`, which keeps the
+	// overlay visible.
+	useLayoutEffect( () => {
 		const doc = hostRef.current?.ownerDocument;
-		if ( ! doc || ! arrowHadFocus.current || doc.activeElement !== doc.body ) {
+		if ( ! doc ) {
 			return;
 		}
 
-		if ( ! canShowOlder ) {
-			newerRef.current?.focus();
-		} else if ( ! canShowNewer ) {
-			olderRef.current?.focus();
-		}
+		const handOff = () => {
+			const active = doc.activeElement;
+			if ( ! arrowHadFocus.current || active === olderRef.current || active === newerRef.current ) {
+				return;
+			}
+
+			if ( ! canShowOlder ) {
+				newerRef.current?.focus();
+			} else if ( ! canShowNewer ) {
+				olderRef.current?.focus();
+			}
+		};
+
+		handOff();
+		const frame = doc.defaultView?.requestAnimationFrame( handOff );
+
+		return () => {
+			if ( frame !== undefined ) {
+				doc.defaultView?.cancelAnimationFrame( frame );
+			}
+		};
 	}, [ canShowOlder, canShowNewer ] );
 
 	const trackFocus = {
