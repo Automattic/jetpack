@@ -14,7 +14,16 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/expiry-not
 
 class Loader_Test extends \WorDBless\BaseTestCase {
 
+	public function set_up() {
+		parent::set_up();
+		// Put the site inside the rollout explicitly. Without this the gate falls
+		// to whatever jetpack_options a previously-run test happened to leave
+		// behind, so these pass or fail on test ordering.
+		update_option( 'wpcom_expiry_notices_enabled', '1' );
+	}
+
 	public function tear_down() {
+		delete_option( 'wpcom_expiry_notices_enabled' );
 		unregister_meta_key( 'user', Expiry_Notice_Dismiss::META_BANNER );
 		unregister_meta_key( 'user', Expiry_Notice_Dismiss::META_MODAL );
 		parent::tear_down();

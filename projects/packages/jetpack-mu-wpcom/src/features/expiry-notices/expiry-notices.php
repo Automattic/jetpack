@@ -109,6 +109,9 @@ function wpcom_expiry_notices_rollout_override(): ?bool {
 /**
  * Whether this site is in the share of sites running the new expiry notices.
  *
+ * Also narrows on the reader's locale, so despite the name this is not answered
+ * from the site alone.
+ *
  * Buckets on the blog ID modulo 100 rather than modulo the share itself, so
  * raising the percentage only ever adds sites. Modulo-the-share does not hold
  * that property — going from 10% as `id % 10 === 0` to 33% as `id % 3 === 0`
@@ -135,6 +138,13 @@ function wpcom_expiry_notices_is_enabled_for_site(): bool {
 		$enabled = $blog_id > 0 && ( $blog_id % 100 ) < $percentage;
 	}
 
+	// Narrow the ramp again to readers in an English locale, while the
+	// translations catch up.
+	if ( $enabled ) {
+		$locale  = get_user_locale();
+		$enabled = 'en' === $locale || 0 === strpos( $locale, 'en_' );
+	}
+
 	/**
 	 * Filters whether the new expiry notices are enabled for this site.
 	 *
@@ -151,11 +161,19 @@ function wpcom_expiry_notices_is_enabled_for_site(): bool {
 	return (bool) apply_filters( 'wpcom_expiry_notices_enabled', $enabled, $percentage );
 }
 
-// @codeCoverageIgnoreStart -- file-load admin-only require runs at bootstrap.
-if ( is_admin() && wpcom_expiry_notices_is_enabled_for_site() ) {
-	require_once __DIR__ . '/admin-banner.php';
+/**
+ * Load the wp-admin banner for sites in the rollout.
+ *
+ * On `init` because the gate reads the user's locale, and the current user is
+ * not settled when this file is required on `plugins_loaded`. The banner's own
+ * hooks fire later still, so nothing is lost by waiting.
+ */
+function wpcom_expiry_notices_maybe_load_admin_banner() {
+	if ( is_admin() && wpcom_expiry_notices_is_enabled_for_site() ) {
+		require_once __DIR__ . '/admin-banner.php';
+	}
 }
-// @codeCoverageIgnoreEnd
+add_action( 'init', 'wpcom_expiry_notices_maybe_load_admin_banner' ); // @codeCoverageIgnore
 
 /**
  * Register the dismiss meta keys. Gated on admin / REST so we don't pay the
