@@ -5,9 +5,10 @@
  * routing. The MCP tab owns the read | write | setup sub-views, which render
  * with breadcrumbs in place of the tab bar.
  *
- * Overview and WordPress Agent share an internal-testing gate; Scheduled tasks
- * has its own gate. Without either flag the page keeps its original MCP-only
- * shape, with the MCP hub as the landing view and no tab bar.
+ * Overview and WordPress Agent share an internal-testing gate. Scheduled tasks
+ * is controlled independently by a server-side feature flag. Without either flag
+ * the page keeps its original MCP-only shape, with the MCP hub as the landing view
+ * and no tab bar.
  */
 
 import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
@@ -35,7 +36,7 @@ const MCP_SUB_VIEWS = [ 'read', 'write', 'setup' ];
 
 // Views that only exist in internal testing environments. MCP Settings ships
 // publicly, so it is not in here.
-const GATED_VIEWS = [ 'overview', 'features', 'scheduled-tasks' ];
+const GATED_VIEWS = [ 'overview', 'features' ];
 
 // Read at call time, not module scope, so the flag reflects the injected page data.
 const getTabViews = () => {
@@ -260,9 +261,9 @@ export default function App() {
 							{ tabViews.map( tab => (
 								<Tabs.Tab key={ tab } value={ tab }>
 									{ VIEW_TITLES[ tab ] }
-									{ /* These views ship behind pre-release gates; label them so
-									     Automatticians don't mistake them for public UI. Remove with
-									     the gates. */ }
+									{ /* Overview and Features ship behind the internal-testing gate;
+									     label them so Automatticians don't mistake them for public UI.
+									     Remove with the gate. */ }
 									{ GATED_VIEWS.includes( tab ) && (
 										<Badge intent="medium" className="jetpack-ai-admin__tab-badge">
 											{ __( 'A12s only', 'jetpack' ) }

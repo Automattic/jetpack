@@ -12,6 +12,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Agents_Manager\Agents_Manager;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -21,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once __DIR__ . '/class.jetpack-admin-page.php';
+require_once dirname( __DIR__ ) . '/jetpack-ai-feature-flags.php';
 
 /**
  * Builds the Jetpack AI admin page and its sidebar menu entry.
@@ -65,6 +67,10 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	 * Request the existing Agents Manager shell for this page.
 	 */
 	public function load_agents_manager() {
+		if ( ! self::is_scheduled_tasks_enabled() ) {
+			return;
+		}
+
 		Agents_Manager::init();
 
 		add_filter( 'agents_manager_should_load', '__return_true' );
@@ -138,6 +144,17 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
+	 * Whether the Scheduled tasks tab and its Agents Manager sidebar are enabled.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function is_scheduled_tasks_enabled() {
+		return Feature_Flags::is_enabled( 'ai-hub-scheduled-tasks' );
+	}
+
+	/**
 	 * No additional styles needed: AdminPage from @automattic/jetpack-components
 	 * owns the full layout and does not need the wrap_ui admin.css / style.min.css
 	 * bundle (which zeroes out #wpcontent padding and conflicts with AdminPage's
@@ -179,8 +196,9 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		 * it answers only the cohort half, and page registration requires both
 		 * (see packages/seo Initializer::init()).
 		 */
-		$seo_settings_url = admin_url( 'admin.php?page=jetpack#/traffic' );
-		$is_internal_test = jetpack_is_internal_testing_environment();
+		$seo_settings_url          = admin_url( 'admin.php?page=jetpack#/traffic' );
+		$is_internal_test          = jetpack_is_internal_testing_environment();
+		$show_scheduled_tasks_view = self::is_scheduled_tasks_enabled();
 		if (
 			// The exact-symbol guard matters: the autoloader can select an older
 			// jetpack-seo copy from another plugin that has the class but not
@@ -201,12 +219,14 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		);
 
 		wp_set_script_translations( 'jetpack-ai-admin', 'jetpack' );
-		Connection_Initial_State::render_script( 'jetpack-ai-admin' );
+		if ( $show_scheduled_tasks_view ) {
+			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
+		}
 
 		// Pre-release gate for the Overview and Features views. Everything the
 		// gated views need hangs off this one flag, so opening them up to
 		// everyone is a single change here.
-		$show_gated_views = jetpack_is_internal_testing_environment();
+		$show_gated_views = $is_internal_test;
 
 		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array(
 			'name'       => '',
@@ -240,8 +260,8 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					// auto-renew, matching My Jetpack and the wpcom subscriptions page.
 					'planAutoRenew'    => $plan_info['auto_renew'],
 					'showFeaturesView' => $show_gated_views,
-					// Pre-release gate for the Scheduled tasks tab.
-					'showScheduledTasksView' => $show_gated_views,
+					// The tab and its Agents Manager sidebar ship disabled by default.
+					'showScheduledTasksView' => $show_scheduled_tasks_view,
 					// The walkthrough videos link to WordPress.com courses, so the
 					// Overview only shows them on WordPress.com-hosted sites (i4 thread).
 					'isWpcomHosted'    => ( new Host() )->is_woa_site(),

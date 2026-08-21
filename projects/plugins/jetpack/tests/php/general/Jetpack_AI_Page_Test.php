@@ -36,6 +36,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'agents_manager_agent_id' );
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks' );
 
 		parent::tear_down();
 	}
@@ -146,13 +147,54 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['showFeaturesView'] );
+		$this->assertFalse( $settings['showScheduledTasksView'] );
+	}
+
+	/**
+	 * The Scheduled tasks experience is registered as a default-off feature flag.
+	 */
+	public function test_scheduled_tasks_feature_flag_is_registered() {
+		$this->assertSame(
+			array(
+				'default'     => false,
+				'description' => 'Enable the Scheduled tasks tab and Agents Manager sidebar in AI Hub.',
+				'owner'       => 'jetpack-ai',
+				'name'        => 'ai-hub-scheduled-tasks',
+			),
+			\Automattic\Jetpack\Feature_Flags\Feature_Flags::get( 'ai-hub-scheduled-tasks' )
+		);
+	}
+
+	/**
+	 * WordPress.com can enable the Scheduled tasks experience through the feature flag filter.
+	 */
+	public function test_scheduled_tasks_view_can_be_enabled_by_feature_flag() {
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+		$settings = $this->get_injected_settings();
+
 		$this->assertTrue( $settings['showScheduledTasksView'] );
+	}
+
+	/**
+	 * The Agents Manager shell stays dormant while Scheduled tasks are disabled.
+	 */
+	public function test_agents_manager_shell_is_disabled_by_default() {
+		$page = new Jetpack_AI_Page();
+		$page->load_agents_manager();
+
+		$this->assertFalse( apply_filters( 'agents_manager_should_load', false ) );
+		$this->assertSame( array(), apply_filters( 'agents_manager_agent_providers', array() ) );
+		$this->assertSame( array(), apply_filters( 'jetpack_ai_sidebar_agents_manager_data', array() ) );
 	}
 
 	/**
 	 * The AI Hub page requests the generic Agents Manager shell.
 	 */
 	public function test_agents_manager_shell_uses_wp_orchestrator() {
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
+
 		$page = new Jetpack_AI_Page();
 		$page->load_agents_manager();
 
@@ -196,6 +238,8 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 * The AI Hub Agents Manager includes the scheduled task starter prompts.
 	 */
 	public function test_agents_manager_uses_scheduled_task_empty_view() {
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
+
 		$user_id = self::factory()->user->create(
 			array(
 				'display_name' => 'Sanja',
@@ -249,11 +293,24 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 */
 	public function test_connection_initial_state_is_injected() {
 		unset( $GLOBALS['wp_scripts'] );
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
 
 		( new Jetpack_AI_Page() )->page_admin_scripts();
 
 		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
 		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
+	}
+
+	/**
+	 * The Agents Manager connection state stays dormant with Scheduled tasks.
+	 */
+	public function test_connection_initial_state_is_not_injected_by_default() {
+		unset( $GLOBALS['wp_scripts'] );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
+		$this->assertStringNotContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
 	}
 
 	/**

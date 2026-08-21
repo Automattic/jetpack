@@ -220,7 +220,7 @@ describe( 'AI admin page (main.jsx)', () => {
 	} );
 
 	test( 'scheduled tasks flag: exposes the gated hash route and Figma empty state', async () => {
-		window.jetpackAiSettings = { showFeaturesView: true, showScheduledTasksView: true };
+		window.jetpackAiSettings = { showScheduledTasksView: true };
 		window.location.hash = '#/scheduled-tasks';
 		window.__agentsManagerActions = {
 			// The sandbox's agents manager currently exposes readiness as a boolean.
@@ -237,6 +237,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			screen.findByText( 'Schedule tasks for repeated work' )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Scheduled tasks' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'A12s only' ) ).not.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Create a task' } ) );
 		expect( window.__agentsManagerActions.chatNavigate ).toHaveBeenCalledWith( '/' );
