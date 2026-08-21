@@ -292,6 +292,29 @@ class SSO_Test extends BaseTestCase {
 	}
 
 	// ──────────────────────────────────────────────
+	// enqueue_login_styles
+	// ──────────────────────────────────────────────
+
+	/**
+	 * Test that the login styles reach the page through the style queue.
+	 */
+	public function test_enqueue_login_styles_queues_the_css_as_inline_style() {
+		$this->sso->enqueue_login_styles();
+
+		$this->assertTrue( wp_style_is( 'jetpack-sso-login-styles', 'enqueued' ) );
+
+		$styles = wp_styles();
+		$this->assertSame( array( 'login' ), $styles->registered['jetpack-sso-login-styles']->deps );
+
+		$css = implode( '', (array) $styles->get_data( 'jetpack-sso-login-styles', 'after' ) );
+		$this->assertStringContainsString( '.jetpack-sso .message { margin-top: 20px; }', $css );
+		$this->assertStringContainsString( '.jetpack-sso #login h1 + .message { margin-top: 0; }', $css );
+
+		wp_dequeue_style( 'jetpack-sso-login-styles' );
+		wp_deregister_style( 'jetpack-sso-login-styles' );
+	}
+
+	// ──────────────────────────────────────────────
 	// profile_page_url
 	// ──────────────────────────────────────────────
 

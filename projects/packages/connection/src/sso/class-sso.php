@@ -319,21 +319,21 @@ class SSO {
 	}
 
 	/**
-	 * Inlined admin styles for SSO.
+	 * Enqueue the SSO styles for the login screen.
 	 */
-	public function print_inline_admin_css() {
-		?>
-			<style>
-				.jetpack-sso .message {
-					margin-top: 20px;
-				}
+	public function enqueue_login_styles() {
+		$handle = 'jetpack-sso-login-styles';
 
-				.jetpack-sso #login .message:first-child,
-				.jetpack-sso #login h1 + .message {
-					margin-top: 0;
-				}
-			</style>
-		<?php
+		// No src: the handle only carries the inline CSS below. It depends on `login` so these rules stay after the core
+		// login stylesheet, which sets `.message` margins at the same specificity.
+		wp_register_style( $handle, false, array( 'login' ), Package_Version::PACKAGE_VERSION );
+		wp_enqueue_style( $handle );
+		wp_add_inline_style(
+			$handle,
+			'.jetpack-sso .message { margin-top: 20px; }'
+			. '.jetpack-sso #login .message:first-child,'
+			. '.jetpack-sso #login h1 + .message { margin-top: 0; }'
+		);
 	}
 
 	/**
@@ -559,7 +559,7 @@ class SSO {
 	 */
 	public function display_sso_login_form() {
 		add_filter( 'login_body_class', array( $this, 'login_body_class' ) );
-		add_action( 'login_head', array( $this, 'print_inline_admin_css' ) );
+		add_action( 'login_enqueue_scripts', array( $this, 'enqueue_login_styles' ) );
 
 		if ( ( new Status() )->in_safe_mode() ) {
 			add_filter( 'login_message', array( Notices::class, 'sso_not_allowed_in_safe_mode' ) );

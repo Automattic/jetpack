@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+SSO: enqueue the login and user-admin styles through wp_add_inline_style() instead of printing style elements.
