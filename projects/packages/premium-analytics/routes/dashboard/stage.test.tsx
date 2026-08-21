@@ -1,15 +1,32 @@
 /**
  * External dependencies
  */
-import { useReportScope } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { queryClient, useReportScope } from '@jetpack-premium-analytics/data';
+import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
 import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
 import { useActiveSection, useDashboardSections, useSectionDateFilter } from './hooks';
 import { stage as Dashboard } from './stage';
+import type { SyncStatus } from '@jetpack-premium-analytics/site-sync';
 import type { ReactNode } from 'react';
+
+// Read inside the mocked functions, never at factory time: the factories run
+// while `./stage` is still being imported, when these are in the temporal dead
+// zone.
+let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
+let mockIsSyncFinished: boolean;
+const mockTriggerSync = jest.fn( () => Promise.resolve() );
+
+jest.mock( '@jetpack-premium-analytics/site-sync', () => ( {
+	useSyncStatus: () => ( { ...mockSyncState, triggerSync: mockTriggerSync } ),
+} ) );
+
+jest.mock( '../site-readiness', () => ( {
+	isPremiumAnalyticsInitialSyncFinished: () => mockIsSyncFinished,
+} ) );
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -94,6 +111,26 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 
 jest.mock( './components', () => ( {
 	DashboardSections: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	SectionSyncNotice: ( {
+		percentage,
+		hasError,
+		isRetrying,
+		onRetry,
+	}: {
+		percentage: number;
+		hasError: boolean;
+		isRetrying: boolean;
+		onRetry: () => void;
+	} ) => (
+		<div>
+			<span>{ `notice ${ percentage }% ${ hasError ? 'error' : 'syncing' }${
+				isRetrying ? ' retrying' : ''
+			}` }</span>
+			<button type="button" onClick={ onRetry }>
+				Try again
+			</button>
+		</div>
+	),
 } ) );
 
 jest.mock( '../widget-module-i18n', () => ( {
@@ -108,6 +145,12 @@ jest.mock( './hooks', () => ( {
 	useDashboardSections: jest.fn(),
 	useSectionDateFilter: jest.fn(),
 } ) );
+
+beforeEach( () => {
+	mockSyncState = { data: undefined, error: null, isComplete: false };
+	mockIsSyncFinished = false;
+	mockTriggerSync.mockImplementation( () => Promise.resolve() );
+} );
 
 const useDashboardSectionsMock = jest.mocked( useDashboardSections );
 const useSectionDateFilterMock = jest.mocked( useSectionDateFilter );
@@ -204,5 +247,78 @@ describe( 'Dashboard report scope', () => {
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 		rerender( <Dashboard /> );
 		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'Dashboard sync notice', () => {
+	beforeEach( () => {
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+	} );
+
+	it( 'annotates a section whose data is still syncing', () => {
+		mockSection( { requires_sync: true } );
+		mockSyncState = { data: { percentage: 40 } as SyncStatus, error: null, isComplete: false };
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'notice 40% syncing' ) ).toBeInTheDocument();
+	} );
+
+	it( 'leaves a section that does not depend on the sync unannotated', () => {
+		mockSection();
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByText( /^notice/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'drops the notice once the sync has finished', () => {
+		mockSection( { requires_sync: true } );
+		mockIsSyncFinished = true;
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByText( /^notice/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'reports the retry as in flight until it settles', async () => {
+		mockSection( { requires_sync: true } );
+		mockSyncState = { data: undefined, error: new Error( 'nope' ), isComplete: false };
+
+		let settleTrigger: () => void = () => {};
+		mockTriggerSync.mockImplementation(
+			() =>
+				new Promise< void >( resolve => {
+					settleTrigger = resolve;
+				} )
+		);
+
+		render( <Dashboard /> );
+		expect( screen.getByText( 'notice 0% error' ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+		expect( mockTriggerSync ).toHaveBeenCalledTimes( 1 );
+		// A retry in flight reads as the error layout so the button it lives in
+		// survives the click, rather than unmounting mid-interaction.
+		expect( screen.getByText( 'notice 0% error retrying' ) ).toBeInTheDocument();
+
+		await act( async () => {
+			settleTrigger();
+		} );
+		expect( screen.getByText( 'notice 0% error' ) ).toBeInTheDocument();
+	} );
+
+	it( 'refetches the reports once the sync completes', () => {
+		const invalidate = jest.spyOn( queryClient, 'invalidateQueries' ).mockImplementation();
+		mockSection( { requires_sync: true } );
+		mockSyncState = { data: undefined, error: null, isComplete: true };
+
+		render( <Dashboard /> );
+
+		// Widgets that rendered mid-sync are holding numbers the sync has since
+		// filled in.
+		expect( invalidate ).toHaveBeenCalledWith( { queryKey: [ 'reports' ] } );
+		invalidate.mockRestore();
 	} );
 } );

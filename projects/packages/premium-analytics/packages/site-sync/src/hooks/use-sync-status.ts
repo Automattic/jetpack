@@ -32,7 +32,8 @@ function readMilestone(): number {
  * retried on the next tick and self-heals on the next success. If the
  * page-load milestone is already set, the status reports complete immediately
  * and no polling occurs. `triggerSync` POSTs the full-sync trigger and resumes
- * polling; it never rejects (failures surface via `error`).
+ * polling; it never rejects (failures surface via `error`), and a start that
+ * failed keeps reporting until a poll proves the sync is under way.
  *
  * @param options           - Hook options.
  * @param options.enabled   - Whether to watch the sync at all.
@@ -46,6 +47,11 @@ export function useSyncStatus( {
 	const milestoneRef = useRef< number >( readMilestone() );
 	const [ data, setData ] = useState< SyncStatus >();
 	const [ error, setError ] = useState< Error | null >( null );
+	// A start that failed leaves nothing running, so no amount of successful
+	// polling disproves it: only the analytics module appearing in the sync
+	// progress does. Held apart from the poll's own errors, which a single
+	// success clears, so the retry stays on screen until the sync is under way.
+	const startErrorRef = useRef< Error | null >( null );
 
 	const intervalRef = useRef< ReturnType< typeof setInterval > | null >( null );
 	// Consecutive fetch failures. Reset on every success and whenever polling
@@ -77,7 +83,11 @@ export function useSyncStatus( {
 				const status = toSyncStatus( raw, milestoneRef.current );
 				failureCountRef.current = 0;
 				setData( status );
-				setError( null );
+
+				if ( status.isStarted || isSyncComplete( status ) ) {
+					startErrorRef.current = null;
+				}
+				setError( startErrorRef.current );
 
 				if ( isSyncComplete( status ) ) {
 					clearPolling();
@@ -120,6 +130,7 @@ export function useSyncStatus( {
 
 	const triggerSync = useCallback( async () => {
 		clearPolling();
+		startErrorRef.current = null;
 		setError( null );
 
 		try {
@@ -131,7 +142,8 @@ export function useSyncStatus( {
 				e instanceof Error
 					? e.message
 					: __( 'Unable to start sync.', 'jetpack-premium-analytics-pkg' );
-			setError( new Error( message ) );
+			startErrorRef.current = new Error( message );
+			setError( startErrorRef.current );
 			// The request may still have reached the server despite the error. Resume
 			// observation so the next status response can establish what happened.
 			startPolling();

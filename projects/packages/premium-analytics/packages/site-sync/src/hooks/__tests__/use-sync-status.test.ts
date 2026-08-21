@@ -95,7 +95,7 @@ describe( 'useSyncStatus', () => {
 		);
 	} );
 
-	it( 'resumes polling after a trigger error', async () => {
+	it( 'resumes polling after a trigger error, and clears it once the sync shows up', async () => {
 		const { result } = renderHook( () => useSyncStatus() );
 
 		await waitFor( () => expect( result.current.data ).toBeDefined() );
@@ -109,6 +109,36 @@ describe( 'useSyncStatus', () => {
 			jest.advanceTimersByTime( POLL_INTERVAL );
 		} );
 		expect( mockFetch.mock.calls.length ).toBeGreaterThan( callsAfterFailure );
+		// The default poll reports the analytics module in progress: the request
+		// reached the server after all, so the failure it reported is moot.
+		await waitFor( () => expect( result.current.error ).toBeNull() );
+	} );
+
+	it( 'keeps a failed start reported while the sync stays unstarted', async () => {
+		// Nothing in the analytics bucket, and nothing running: whatever the failed
+		// trigger did, it did not start a sync.
+		mockFetch.mockResolvedValue( rawStatus( { started: false, progress: {} } ) );
+		const { result } = renderHook( () => useSyncStatus() );
+
+		await waitFor( () => expect( result.current.data ).toBeDefined() );
+		mockTrigger.mockRejectedValueOnce( new Error( 'nope' ) );
+		await act( async () => {
+			await result.current.triggerSync();
+		} );
+		expect( result.current.error?.message ).toBe( 'nope' );
+
+		// Successful polls keep arriving, and none of them disproves the failure —
+		// clearing it here would drop the retry and leave no way to start the sync.
+		await act( async () => {
+			jest.advanceTimersByTime( POLL_INTERVAL * 3 );
+		} );
+		expect( result.current.error?.message ).toBe( 'nope' );
+
+		// Only a retry that lands clears it.
+		mockFetch.mockResolvedValue( rawStatus() );
+		await act( async () => {
+			await result.current.triggerSync();
+		} );
 		await waitFor( () => expect( result.current.error ).toBeNull() );
 	} );
 
