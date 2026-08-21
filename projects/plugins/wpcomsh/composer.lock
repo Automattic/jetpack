@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c9d4bc712b476604df193f64608b93ab",
+    "content-hash": "0b7920d3395815adac1fafc57b65fe94",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -2765,16 +2765,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.11.6",
+            "version": "v2.11.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "90f66ebabaf540e078eb4f2b70e83c336795bfa7"
+                "reference": "ff8f1980da53ce4ad724edb3ca3e7188a7f1778e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/90f66ebabaf540e078eb4f2b70e83c336795bfa7",
-                "reference": "90f66ebabaf540e078eb4f2b70e83c336795bfa7",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/ff8f1980da53ce4ad724edb3ca3e7188a7f1778e",
+                "reference": "ff8f1980da53ce4ad724edb3ca3e7188a7f1778e",
                 "shasum": ""
             },
             "require-dev": {
@@ -2816,7 +2816,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2026-03-27T12:47:04+00:00"
+            "time": "2026-08-21T15:43:09+00:00"
         },
         {
             "name": "automattic/woocommerce-analytics",
