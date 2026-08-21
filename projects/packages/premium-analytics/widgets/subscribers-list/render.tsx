@@ -12,6 +12,7 @@ import { customer } from '@jetpack-premium-analytics/icons';
 import {
 	SubscriberList,
 	SubscriberListSkeleton,
+	WIDGET_ROW_LIMIT,
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
@@ -51,7 +52,8 @@ type SubscribersRosterProps = {
 	 */
 	items?: SubscriberListItem[];
 	/**
-	 * Count of subscribers beyond those shown; renders an "N more" footer.
+	 * Number of subscribers beyond those in `items`. Rows the roster hides to
+	 * fit the tile are added to this in the "N more" footer.
 	 */
 	moreCount?: number;
 };
@@ -63,38 +65,24 @@ type SubscribersRosterProps = {
  * `<WidgetState>` in the data-connected `SubscribersReport`. Takes
  * already-fetched rows via props so Storybook can exercise the populated state
  * without an analytics backend.
+ *
+ * Renders `<SubscriberList>` directly: an intermediate wrapper has auto height,
+ * which stops the roster's percentage height resolving against the tile and
+ * disables row fitting.
  */
-export const SubscribersRoster = ( { items = [], moreCount = 0 }: SubscribersRosterProps ) => {
-	return (
-		<div>
-			<SubscriberList items={ items } moreCount={ moreCount } />
-		</div>
-	);
-};
-
-type SubscribersReportProps = {
-	/**
-	 * Widget attributes.
-	 */
-	attributes?: SubscribersListAttributes;
-};
+export const SubscribersRoster = ( { items = [], moreCount = 0 }: SubscribersRosterProps ) => (
+	<SubscriberList items={ items } moreCount={ moreCount } />
+);
 
 /**
  * Fetches the latest subscribers through the designated `useStatsFollowers`
  * Stats hook and hands the normalized rows to the presentational roster, with
  * the loading / error / empty states rendered through `<WidgetState>`.
  */
-function SubscribersReport( { attributes }: SubscribersReportProps ) {
-	// Show six rows by default (matching the card design). A missing or
-	// non-positive setting falls back to that default — `?? 6` alone wouldn't,
-	// since an explicit `0` from the number field is not nullish. `max` goes
-	// straight to the paginated `stats/followers` endpoint, which has no
-	// client-side cap, so 0 does not mean "all rows" here.
-	const max = attributes?.max && attributes.max > 0 ? attributes.max : 6;
-
+function SubscribersReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsFollowers( {
 		type: 'all',
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} );
 
 	const report = data as StatsNormalizedReport< StatsFollowersItem > | undefined;
@@ -114,7 +102,7 @@ function SubscribersReport( { attributes }: SubscribersReportProps ) {
 			// nothing to show.
 			isError={ items.length === 0 && isError }
 			isEmpty={ items.length === 0 }
-			renderLoading={ <SubscriberListSkeleton rows={ max } /> }
+			renderLoading={ <SubscriberListSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			error={ {
 				description: __(
 					"We couldn't load subscribers. Please try again in a moment.",
@@ -136,14 +124,11 @@ type SubscribersListRenderAttributes = SubscribersListAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type SubscribersListWidgetProps = WidgetRenderProps< SubscribersListRenderAttributes >;
 
-/**
- * Attributes flow to the inner component via props rather than context: the
- * dashboard's WC-shaped `reportParams` does not fit the followers query.
- */
+/** The followers query does not use dashboard report parameters. */
 export default function SubscribersList( { attributes = {} }: SubscribersListWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SubscribersReport attributes={ attributes } />
+			<SubscribersReport />
 		</WidgetRoot>
 	);
 }

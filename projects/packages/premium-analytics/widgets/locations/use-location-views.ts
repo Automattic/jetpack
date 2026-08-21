@@ -45,7 +45,6 @@ interface LocationViewsState {
 	isFetching: boolean;
 	hasData: boolean;
 	isError: boolean;
-	isPlaceholderData: boolean;
 	refetch: () => void;
 }
 
@@ -90,18 +89,8 @@ export default function useLocationViews( {
 		...( countryFilter ? { filter_by_country: countryFilter } : {} ),
 	} as Parameters< typeof useStatsLocations >[ 0 ];
 
-	const {
-		primary,
-		comparison,
-		comparisonRows,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		refetch,
-	} = useStatsLocations( statsParams, { maxRows: max } );
-	const isPlaceholderData = primary.isPlaceholderData || comparison.isPlaceholderData;
+	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
+		useStatsLocations( statsParams, { maxRows: max } );
 
 	const items = ( comparisonRows?.rows ?? [] )
 		.map( toLocationView )
@@ -118,7 +107,6 @@ export default function useLocationViews( {
 		// flips true. Only surface the error when there's nothing to show, so a transient
 		// refetch failure doesn't replace populated rows with the error state.
 		isError: items.length === 0 && isError,
-		isPlaceholderData,
 		refetch,
 	};
 }

@@ -6,7 +6,7 @@ import { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
-import { getApiErrorStatus, shouldRetryApiError } from '../utils';
+import { getApiErrorStatus, shouldRetryApiError, StatsResponseShapeError } from '../utils';
 import { globalErrorManager } from './global-error-manager';
 
 // Both the retry policy and the global error detection below read the HTTP
@@ -36,6 +36,13 @@ const DEFAULT_GC_TIME = 10 * 60 * 1000;
  */
 const queryCache = new QueryCache( {
 	onError: error => {
+		if ( error instanceof StatsResponseShapeError ) {
+			// A response contract violation needs a developer-visible diagnostic;
+			// the widget intentionally replaces the detail with user-safe copy.
+			// eslint-disable-next-line no-console
+			console.warn( `Unexpected Stats response: ${ error.message }` );
+		}
+
 		const currentError = globalErrorManager.getError();
 
 		// Don't override network error (highest priority)

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Date comparison: end a sub-day previous period immediately before the reference window instead of one instant inside it.

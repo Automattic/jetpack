@@ -28,11 +28,9 @@ The package is migrating to WordPress UI and Theme as its defaults. When adding 
 - **UI primitives.** Prefer `Stack` and the stable `Text` from `@wordpress/ui` over ad-hoc flexbox or raw `<span>`/`<div>` for layout and text. Do not use `__experimental*` exports from `@wordpress/components` (e.g. `__experimentalText`, `__experimentalHStack`) — use the stable `@wordpress/ui` equivalents. Exception: `__experimentalGrid` has no stable alternative yet and is acceptable to use for now.
 - **Theming.** Theming flows through `@wordpress/theme`'s `ThemeProvider` (unlocked via private APIs in Storybook; see `src/stories/chart-decorator.tsx`). Do not manually override DS tokens in stories or components to achieve theming — pass a color through `ThemeProvider` instead.
 - **Chart element styles.** Read chart element styles via `getElementStyles` from `GlobalChartsProvider`, not directly from `theme`. This is the supported path for color/style resolution across themes.
-- **Package CSS variables.** Package-owned custom properties follow
-  `--a8c-charts-{category}-{name}` (see `TOKENS.md` for the catalog and its
-  `--wpds-*` mappings). Charts reference `--a8c-charts-*` roles with the mapped
-  `var(--wpds-*, <spec-fallback>)` as the inline fallback; there is no runtime
-  emission yet (that is CHARTS-203).
+- **Package CSS variables.** Package-owned custom properties follow `--a8c-charts-{category}-{name}`. `TOKENS.md` is the catalog; keep its tables in step with `src/styles/chart-scope.scss` (a test enforces this).
+- **One mapping point.** The catalog is emitted once on the `GlobalChartsProvider` wrapper by `chart-scope.scss`, and for anything that is a catalog role that stylesheet is the only place its `--wpds-*` mapping may be named. Values that are *not* chart roles — incidental typography and spacing, interaction motion — read their design-system token directly at the call site, as chrome that should track the host's theme rather than charts-level theming.
+- **JS token resolution is element-scoped.** Pass the element from `useChartScopeElement()` to `resolveCssVariable`; never resolve against `document.documentElement`. Resolving at the chart's scope element is what picks up an override set inside the provider tree. That element is the wrapper the chart renders into, not the element its `className` lands on, so an override set on the chart's own class reaches only CSS-painted colours — CHARTS-255 tracks closing that gap.
 - **Two consumption paths — this changes what a charts change can break.**
   `@wordpress/build` apps (premium-analytics, publicize, podcast, videopress)
   consume the Rolldown output in `dist/` and load it as a **WordPress Script
@@ -77,6 +75,7 @@ The package is migrating to WordPress UI and Theme as its defaults. When adding 
 - Reuse existing hooks/providers/utilities before adding new abstractions.
 - Avoid `!important` unless there is no viable alternative and the rationale is documented.
 - Add focused behavioral tests for changed behavior; avoid speculative tests for unimplemented behavior.
+- **Never silence `testing-library/no-node-access` (or `no-container`) in a new test.** Reach the element by role, label or `data-testid` instead — add a `data-testid` to the component if nothing else identifies it, as `GlobalChartsProvider`'s scope wrapper does with `charts-scope`. Node access (`container.firstChild`, `.parentElement`, `querySelector`) ties the assertion to a tree shape the test does not care about, so an unrelated wrapper breaks it. A disable is acceptable only for a node rendered by a third party — visx above all — which cannot be given an attribute; say so in the comment. Existing disables in the older test files predate this rule; do not copy them.
 - Verify behavior/UI changes in Storybook using browser automation, not only unit tests.
 - Prefer charts-scoped PR titles (e.g. `Charts: ...`, `CHARTS-###: ...`).
 - Include test steps and visual evidence (screenshots/GIFs) in PR descriptions for UI changes.

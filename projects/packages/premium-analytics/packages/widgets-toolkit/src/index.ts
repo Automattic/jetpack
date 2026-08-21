@@ -146,7 +146,7 @@ export {
 /**
  * Constants
  */
-export { COLOR_GRAY_100 } from './constants';
+export { COLOR_GRAY_100, WIDGET_ROW_LIMIT } from './constants';
 
 /**
  * Widget edit fields
@@ -182,7 +182,6 @@ export {
 	sharePercentage,
 	getVideoKey,
 	getVideoLabel,
-	toMaxRows,
 	describeError,
 	summaryCount,
 	toDay,
@@ -268,6 +267,7 @@ export type { MetricKey, OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat
 export {
 	GeoChart,
 	GlobalChartsProvider,
+	GoogleDataTableColumnRoleType,
 	HeatmapChart,
 	HeatmapChartUnresponsive,
 	Sparkline,

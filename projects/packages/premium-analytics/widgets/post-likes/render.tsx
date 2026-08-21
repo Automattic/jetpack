@@ -64,7 +64,7 @@ function PostLikesInner() {
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading && ! data }
+				isLoading={ isLoading }
 				isFetching={ isFetching }
 				// The query keeps prior data via `placeholderData`, so a transient
 				// refetch failure keeps the likes visible; only surface the error
