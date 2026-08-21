@@ -2,13 +2,12 @@
  * Form Editor Welcome Guide
  *
  * Replaces the generic block editor welcome modal with a guide that walks
- * through the parts of the form editor. Shows once per user, and can be
- * reopened from the editor's Options menu.
+ * through the parts of the form editor. Shows once per user, and takes over
+ * the editor's own "Welcome Guide" menu item so that reopens it too.
  */
 
 import { Guide } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { PluginMoreMenuItem } from '@wordpress/editor';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getWelcomeGuidePages } from './pages';
@@ -28,6 +27,9 @@ export const PREFERENCE_SCOPE = 'jetpack/forms';
 /** Preference name holding whether the guide is still pending. */
 export const PREFERENCE_NAME = 'welcomeGuide';
 
+/** Core's own welcome modal preference, which the Options menu item toggles. */
+const CORE_PREFERENCE_SCOPE = 'core/edit-post';
+
 const PREFERENCES_STORE = 'core/preferences';
 
 interface PreferencesSelectors {
@@ -43,6 +45,18 @@ export const FormWelcomeGuide = () => {
 		select =>
 			( select( PREFERENCES_STORE ) as PreferencesSelectors ).get(
 				PREFERENCE_SCOPE,
+				PREFERENCE_NAME
+			),
+		[]
+	);
+
+	// Core's own welcome modal preference. Its "Welcome Guide" item in the
+	// Options menu is a toggle on this value rather than a button, so flipping
+	// to true is the only signal that the user asked for a guide.
+	const coreWelcomeGuide = useSelect(
+		select =>
+			( select( PREFERENCES_STORE ) as PreferencesSelectors ).get(
+				CORE_PREFERENCE_SCOPE,
 				PREFERENCE_NAME
 			),
 		[]
@@ -102,11 +116,22 @@ export const FormWelcomeGuide = () => {
 		} );
 	}, [ isOpen ] );
 
+	// Take over the editor's "Welcome Guide" menu item. Selecting it sets core's
+	// preference to true, which would otherwise bring back the generic modal
+	// this guide replaces — so open this one instead and put the preference
+	// back. Writing false is deliberate and persists: it is the same state the
+	// user would have reached by dismissing core's modal themselves.
+	useEffect( () => {
+		if ( coreWelcomeGuide !== true ) {
+			return;
+		}
+
+		handleReopen();
+		set( CORE_PREFERENCE_SCOPE, PREFERENCE_NAME, false );
+	}, [ coreWelcomeGuide, handleReopen, set ] );
+
 	return (
 		<>
-			<PluginMoreMenuItem onClick={ handleReopen }>
-				{ __( 'Form guide', 'jetpack-forms' ) }
-			</PluginMoreMenuItem>
 			{ isOpen && (
 				<Guide
 					className="jetpack-forms-welcome-guide"
