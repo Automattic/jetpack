@@ -10,6 +10,14 @@ import { makeBaseConfig, defineConfig } from 'jetpack-js-tools/eslintrc/base.mjs
 export default defineConfig(
 	makeBaseConfig( import.meta.url ),
 	{
+		// Node runs these directly — the base config only grants node globals to
+		// `*.config.cjs`, and the test helpers beside the Jest config need them too.
+		files: [ 'tests/*.cjs', 'projects/packages/premium-analytics/tests/*.cjs' ],
+		languageOptions: {
+			globals: { __dirname: 'readonly', __filename: 'readonly' },
+		},
+	},
+	{
 		files: [ 'packages/datetime/**' ],
 		rules: {
 			'jsdoc/require-description': 'off',

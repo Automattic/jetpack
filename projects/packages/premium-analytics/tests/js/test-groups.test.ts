@@ -4,8 +4,17 @@
 import fs from 'fs';
 import path from 'path';
 import * as ts from 'typescript';
-
-const GROUPS_DIR = path.join( __dirname, '..', '..', 'widgets', '__groups__' );
+/**
+ * Internal dependencies
+ */
+import {
+	GROUPS_DIR,
+	groupFileNames,
+	parseGroupSource,
+	readGroup,
+	resolveSuite,
+	strayGroupDirEntries,
+} from '../group-members.cjs';
 
 /**
  * Gets top-level `jest.mock()` calls from a source file.
@@ -114,38 +123,13 @@ function mockSignature( file: string ): string[] | null {
 }
 
 /**
- * Resolves an extensionless suite path.
- *
- * @param {string} member - Extensionless suite path.
- * @return {string|null} The real file, or null when nothing resolves.
- */
-function resolveSuite( member: string ): string | null {
-	return [ '.tsx', '.ts' ].map( ext => member + ext ).find( fs.existsSync ) ?? null;
-}
-
-/**
- * Gets group file names.
- *
- * @return {string[]} Group file names, sorted for stable test titles.
- */
-function groupFiles(): string[] {
-	return fs
-		.readdirSync( GROUPS_DIR )
-		.filter( name => name.endsWith( '.test.tsx' ) )
-		.sort();
-}
-
-/**
  * Gets suites imported by a group.
  *
  * @param {string} groupFile - Group file name.
- * @return {string[]} Suites imported by the group.
+ * @return {string[]} Absolute extensionless paths of the suites the group lists.
  */
 function membersOf( groupFile: string ): string[] {
-	const source = fs.readFileSync( path.join( GROUPS_DIR, groupFile ), 'utf8' );
-	return [ ...source.matchAll( /^import '([^']+)';$/gm ) ].map( match =>
-		path.resolve( GROUPS_DIR, match[ 1 ] )
-	);
+	return readGroup( groupFile ).members;
 }
 
 describe( 'mock signature parser', () => {
@@ -162,11 +146,48 @@ describe( 'mock signature parser', () => {
 	} );
 } );
 
+describe( 'group file parser', () => {
+	it( 'reads the import lines a group file is made of', () => {
+		expect(
+			parseGroupSource( "// A note.\n\nimport '../clicks/__tests__/clicks.test';\n" )
+		).toEqual( { specifiers: [ '../clicks/__tests__/clicks.test' ], unreadable: [] } );
+	} );
+
+	it( 'reports a line it cannot read rather than skipping it', () => {
+		const source = [
+			"import '../clicks/__tests__/clicks.test'; // grouped",
+			'import "../emails/__tests__/emails.test";',
+			"\timport '../referrers/__tests__/referrers.test';",
+		].join( '\n' );
+
+		expect( parseGroupSource( source ) ).toEqual( {
+			specifiers: [],
+			unreadable: [
+				"import '../clicks/__tests__/clicks.test'; // grouped",
+				'import "../emails/__tests__/emails.test";',
+				"import '../referrers/__tests__/referrers.test';",
+			],
+		} );
+	} );
+} );
+
 describe( 'widget test groups', () => {
-	const groups = groupFiles();
+	const groups = groupFileNames();
 
 	it( 'has at least one group to check', () => {
 		expect( groups.length ).toBeGreaterThan( 0 );
+	} );
+
+	// The Jest config keeps a member out of the ungrouped run by matching the
+	// same import lines this test reads. Anything either side cannot read is
+	// left running twice — standalone and inside its group — with nothing here
+	// checking it, so a group file carries imports and comments and nothing else.
+	it.each( groups )( '%s carries nothing but member imports', groupFile => {
+		expect( readGroup( groupFile ).unreadable ).toEqual( [] );
+	} );
+
+	it( 'holds no file that neither the config nor this test reads', () => {
+		expect( strayGroupDirEntries() ).toEqual( [] );
 	} );
 
 	it.each( groups )( '%s only lists suites that exist', groupFile => {

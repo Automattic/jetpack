@@ -1,30 +1,10 @@
-const fs = require( 'fs' );
 const path = require( 'path' );
 const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
+// Shared with the guard test in `js/test-groups.test.ts`, so the two can never
+// disagree about which suites a group claims.
+const { GROUPS_DIR, groupedMemberFiles } = require( './group-members.cjs' );
 
 const rootDir = path.join( __dirname, '..' );
-const groupsDir = path.join( rootDir, 'widgets', '__groups__' );
-
-/**
- * Gets the test suites imported by group files.
- *
- * @return {string[]} Absolute paths of grouped member suites.
- */
-function groupedMembers() {
-	if ( ! fs.existsSync( groupsDir ) ) {
-		return [];
-	}
-	return fs
-		.readdirSync( groupsDir )
-		.filter( name => name.endsWith( '.test.tsx' ) )
-		.flatMap( name => {
-			const source = fs.readFileSync( path.join( groupsDir, name ), 'utf8' );
-			return [ ...source.matchAll( /^import '([^']+)';$/gm ) ]
-				.map( match => path.resolve( groupsDir, match[ 1 ] ) )
-				.map( member => [ '.tsx', '.ts' ].map( ext => member + ext ).find( fs.existsSync ) )
-				.filter( Boolean );
-		} );
-}
 
 const escapeRegExp = value => value.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
 
@@ -38,8 +18,8 @@ const useGroups =
 // Whichever mode is active, the other side's files must be ignored — otherwise the
 // grouped suites and their members would both run and every test would count twice.
 const groupingIgnorePatterns = useGroups
-	? groupedMembers().map( file => `^${ escapeRegExp( file ) }$` )
-	: [ `^${ escapeRegExp( groupsDir ) }/` ];
+	? groupedMemberFiles().map( file => `^${ escapeRegExp( file ) }$` )
+	: [ `^${ escapeRegExp( GROUPS_DIR ) }/` ];
 
 module.exports = {
 	...baseConfig,
