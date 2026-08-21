@@ -304,6 +304,16 @@ describe( 'TrafficViewsActivityWidget', () => {
 			expect( screen.queryByTestId( 'heatmap' ) ).not.toBeInTheDocument();
 		} );
 
+		it( 'shows the empty state when only the fetch window surplus has views', () => {
+			// The 2025 selection draws only 2025, but the request reaches back a
+			// further year; those older views must not suppress the empty state.
+			mockUseStatsVisits.mockReturnValue( visitsResult( report( [ [ '2024-03-05', 120 ] ] ) ) );
+			renderWidget();
+
+			expect( screen.getByText( 'No views in this period.' ) ).toBeInTheDocument();
+			expect( screen.queryByTestId( 'heatmap' ) ).not.toBeInTheDocument();
+		} );
+
 		it( 'names the days requested when the period outran the window', () => {
 			mockUseStatsVisits.mockReturnValue( visitsResult( report( [] ) ) );
 			renderWidget( {

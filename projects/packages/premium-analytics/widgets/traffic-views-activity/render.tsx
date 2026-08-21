@@ -117,8 +117,16 @@ function TrafficViewsActivityInner() {
 	);
 
 	// Key the empty state to the response rather than the densified calendar, whose
-	// missing dates are represented by null-valued cells.
-	const hasViews = ( report?.data ?? [] ).some( row => Number( row.views ?? 0 ) > 0 );
+	// missing dates are represented by null-valued cells — and to the drawn range
+	// only: the fetch reaches past a short selection, and views in that surplus
+	// history must not suppress the empty state for a selection that has none.
+	const hasViews = ( report?.data ?? [] ).some( row => {
+		const day = String( row.time_interval );
+
+		return (
+			Number( row.views ?? 0 ) > 0 && day >= displayWindow.startDate && day <= displayWindow.endDate
+		);
+	} );
 
 	// And where the period outran the window, the message names the days the request
 	// covers instead of the period: the site may well have views outside them. Both

@@ -105,9 +105,19 @@ function PostingActivityInner() {
 	const { data, isLoading, isFetching, isError, error, refetch } = useStatsStreak( streakParams );
 
 	// The endpoint returns only days with posts, so an empty response means the
-	// window has none — the component densifies the rest into empty cells.
+	// window has none — the component densifies the rest into empty cells. The
+	// check spans the drawn range only: the fetch reaches past a short
+	// selection, and posts in that surplus history must not suppress the empty
+	// state for a selection that has none.
 	const postsByDay = data ?? NO_POSTS_BY_DAY;
-	const hasData = Object.keys( postsByDay ).length > 0;
+	const hasData = useMemo(
+		() =>
+			Object.entries( postsByDay ).some(
+				( [ day, count ] ) =>
+					day >= displayRange.startDate && day <= displayRange.endDate && Number( count ) > 0
+			),
+		[ postsByDay, displayRange ]
+	);
 
 	return (
 		<AdaptiveCalendarHeatmap valueByDay={ postsByDay } period={ displayRange }>

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { IconButton } from '@jetpack-premium-analytics/externals';
-import { __ } from '@wordpress/i18n';
+import { __, isRTL } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useLayoutEffect, useRef } from 'react';
@@ -107,13 +107,15 @@ export function CalendarHeatmapPagerOverlay( {
 	return (
 		<div ref={ hostRef } className={ clsx( styles.host, className ) }>
 			{ children }
+			{ /* The insets are logical, so the arrows swap sides in RTL; the glyphs
+			     swap with them to keep pointing at their own edge. */ }
 			{ canShowOlder && (
 				<IconButton
 					ref={ olderRef }
 					type="button"
 					variant="minimal"
 					tone="neutral"
-					icon={ chevronLeft }
+					icon={ isRTL() ? chevronRight : chevronLeft }
 					label={ __( 'Older activity', 'jetpack-premium-analytics-pkg' ) }
 					onClick={ pager?.showOlder }
 					className={ clsx( styles.arrow, styles.older ) }
@@ -126,7 +128,7 @@ export function CalendarHeatmapPagerOverlay( {
 					type="button"
 					variant="minimal"
 					tone="neutral"
-					icon={ chevronRight }
+					icon={ isRTL() ? chevronLeft : chevronRight }
 					label={ __( 'Newer activity', 'jetpack-premium-analytics-pkg' ) }
 					onClick={ pager?.showNewer }
 					className={ clsx( styles.arrow, styles.newer ) }
