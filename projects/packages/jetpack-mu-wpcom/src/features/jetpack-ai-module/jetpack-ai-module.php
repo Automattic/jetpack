@@ -30,12 +30,12 @@ const OPTED_OUT_OPTION = 'wpcom_jetpack_ai_module_opted_out';
  * control anywhere to switch it back on, which is what happens on any release
  * before the one the module was introduced in.
  *
- * Two cases are left alone, so this defaults AI on rather than forcing it on:
- * an explicit opt-out, and internal testing environments, where the switch is
- * already reachable and the off state needs to stay testable.
+ * This only ever adds the module, so it defaults AI on rather than forcing it
+ * on. The option records that someone has made a choice; once they have, the
+ * stored module state is left to speak for itself.
  *
- * Remove this along with the gate on the module itself once the AI settings page
- * ships and the switch is reachable everywhere.
+ * Remove this once the AI settings page ships and the switch is reachable
+ * everywhere.
  *
  * @param array $modules Active module slugs.
  * @return array Active module slugs.
@@ -45,13 +45,7 @@ function keep_module_active( $modules ) {
 		return $modules;
 	}
 
-	// Keep an opt-out honoured even after auto-activation turns the module on,
-	// which it does once the release the module was introduced in ships.
 	if ( get_option( OPTED_OUT_OPTION ) ) {
-		return array_values( array_diff( $modules, array( 'ai' ) ) );
-	}
-
-	if ( function_exists( 'jetpack_is_internal_testing_environment' ) && \jetpack_is_internal_testing_environment() ) {
 		return $modules;
 	}
 
