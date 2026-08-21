@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-REST API: Add atomic_email_block field to the site endpoint response.

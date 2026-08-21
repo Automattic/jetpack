@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+GeoChart: Stop an HTML tooltip breaking its lines when it opens near a map edge.

@@ -3,8 +3,10 @@
  */
 import {
 	GeoChart,
+	GoogleDataTableColumnRoleType,
 	LeaderboardChart,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
@@ -23,15 +25,16 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { location as locationIcon } from '@jetpack-premium-analytics/icons';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import useLocationViews, { type GeoMode } from './use-location-views';
+import useLocationViews, { type GeoMode, type LocationView } from './use-location-views';
 import { type LocationsAttributes } from './widget';
 /**
  * Types
@@ -41,6 +44,11 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type LocationsRenderAttributes = LocationsAttributes & Partial< ReportParamsFieldAttributes >;
 type LocationsWidgetProps = WidgetRenderProps< LocationsRenderAttributes >;
 type DrillDownCountry = { code: string; name: string };
+type CountrySummary = {
+	countryFull: string;
+	value: number;
+	locations: LocationView[];
+};
 type GoogleChartsWindow = Window & {
 	google?: {
 		visualization?: {
@@ -79,14 +87,45 @@ function getGeoChartCountryId( countryCode: string ): string {
 	return countryCode.toUpperCase();
 }
 
-type LocationsInnerProps = Required< Pick< LocationsAttributes, 'max' | 'geoGranularity' > >;
+// A GeoChart tooltip is a single cell, so the summed locations share one HTML
+// string. The list is capped to keep a tooltip from overflowing the map.
+const MAX_TOOLTIP_LOCATIONS = 10;
+
+function buildCountryTooltip( country: CountrySummary ): string {
+	const listed = country.locations.slice( 0, MAX_TOOLTIP_LOCATIONS );
+	const lines = listed.map(
+		location => `${ location.label }: ${ formatMetricValue( location.value ) }`
+	);
+	const remaining = country.locations.length - listed.length;
+
+	if ( remaining > 0 ) {
+		lines.push(
+			sprintf(
+				/* translators: %d is the number of locations left out of the tooltip list. */
+				_n(
+					'…and %d more location',
+					'…and %d more locations',
+					remaining,
+					'jetpack-premium-analytics-pkg'
+				),
+				remaining
+			)
+		);
+	}
+
+	return lines.join( '<br />' );
+}
+
+type LocationsInnerProps = {
+	geoGranularity: NonNullable< LocationsAttributes[ 'geoGranularity' ] >;
+};
 
 /**
  * Locations widget inner component. Reads report params from WidgetRoot
  * context. Attributes arrive already normalized by the outer component, so
  * defaults are applied in exactly one place.
  */
-function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
+function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const [ unsupportedProvinceMapCountries, setUnsupportedProvinceMapCountries ] = useState<
 		Set< string >
@@ -113,7 +152,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 
 	const { data, hasComparison, isLoading, isFetching, isError, refetch } = useLocationViews( {
 		reportParams,
-		max,
+		max: WIDGET_ROW_LIMIT,
 		geoMode,
 		countryFilter: activeSelectedCountry?.code,
 	} );
@@ -132,7 +171,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	const useCountrySummaryMap =
 		geoMode === 'city' || ( geoMode === 'region' && ! activeSelectedCountry );
 	const countrySummaryRows = useMemo( () => {
-		const countryRows = new Map< string, { countryFull: string; value: number } >();
+		const countryRows = new Map< string, CountrySummary >();
 
 		if ( ! useCountrySummaryMap ) {
 			return [];
@@ -144,6 +183,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 			countryRows.set( countryCode, {
 				countryFull: location.countryFull,
 				value: ( current?.value ?? 0 ) + location.value,
+				locations: [ ...( current?.locations ?? [] ), location ],
 			} );
 		} );
 
@@ -225,23 +265,39 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 		}
 
 		if ( useCountrySummaryMap ) {
+			// A summed country no longer names the regions behind its value, so it
+			// carries them in a tooltip. Cities keep GeoChart's default tooltip.
+			const withTooltips = geoMode === 'region';
+			const summaryHeader: GoogleDataTableColumn[] = withTooltips
+				? [
+						...header,
+						{
+							type: 'string',
+							role: GoogleDataTableColumnRoleType.tooltip,
+							p: { html: true },
+						},
+				  ]
+				: header;
+
 			return [
-				header,
-				...countrySummaryRows.map(
-					( [ countryCode, location ] ): GoogleDataTableRow => [
+				summaryHeader,
+				...countrySummaryRows.map( ( [ countryCode, country ] ): GoogleDataTableRow => {
+					const row: GoogleDataTableRow = [
 						{
 							v: getGeoChartCountryId( countryCode ),
-							f: location.countryFull,
+							f: country.countryFull,
 						},
-						location.value,
-					]
-				),
+						country.value,
+					];
+
+					return withTooltips ? [ ...row, buildCountryTooltip( country ) ] : row;
+				} ),
 			];
 		}
 
 		const rows: GoogleDataTableRow[] = data.map( location => [ location.label, location.value ] );
 		return [ header, ...rows ];
-	}, [ countrySummaryRows, data, fallbackCountry, useCountrySummaryMap, useProvinceMap ] );
+	}, [ countrySummaryRows, data, fallbackCountry, geoMode, useCountrySummaryMap, useProvinceMap ] );
 
 	const leaderboardData = useMemo( () => {
 		const maxValue = getCombinedPeriodMax(
@@ -371,7 +427,6 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
  * Jetpack Stats Locations module.
  */
 export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
-	const max = attributes?.max ?? 10;
 	// Attributes are persisted, so a stale layout can carry a granularity this
 	// widget no longer knows. Normalize once, before it becomes both the endpoint
 	// path segment and the report tab.
@@ -385,7 +440,7 @@ export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<LocationsInner max={ max } geoGranularity={ geoGranularity } />
+				<LocationsInner geoGranularity={ geoGranularity } />
 				<WidgetFooter>
 					<ReportLink report="locations" section={ REPORT_SECTIONS[ geoGranularity ] } />
 				</WidgetFooter>

@@ -19,13 +19,14 @@ import {
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
+import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
 import { attachSubComponents, resolveFontSize } from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
-import { SingleChartContext } from '../private/single-chart-context';
 import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
 import styles from './pie-chart.module.scss';
@@ -307,7 +308,7 @@ const PieChartInternal = ( {
 	);
 
 	return (
-		<SingleChartContext.Provider value={ { chartId } }>
+		<ChartInstanceContext.Provider value={ { chartId } }>
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
@@ -328,7 +329,9 @@ const PieChartInternal = ( {
 					<>
 						{ withTooltips && tooltipOpen && tooltipData && (
 							<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-								<div role="tooltip">{ renderTooltip( { tooltipData } ) }</div>
+								<div className={ CHART_SCOPE_CLASS } role="tooltip">
+									{ renderTooltip( { tooltipData } ) }
+								</div>
 							</TooltipInPortal>
 						) }
 						{ htmlChildren }
@@ -492,7 +495,7 @@ const PieChartInternal = ( {
 					);
 				} }
 			</ChartLayout>
-		</SingleChartContext.Provider>
+		</ChartInstanceContext.Provider>
 	);
 };
 

@@ -66,7 +66,7 @@ describe( 'formatDateRangeLong', () => {
 		expect( formatDateRangeLong( { from: at( 2026, 7, 21 ) } ) ).toBe( '' );
 	} );
 
-	it( 'leads day-scale ranges with the weekday and omits the current year', () => {
+	it( 'leads a week-scale range with the weekday and omits the current year', () => {
 		expect(
 			formatDateRangeLong(
 				{ from: at( 2026, 7, 21 ), to: endOf( 2026, 7, 27 ) },
@@ -112,6 +112,33 @@ describe( 'formatDateRangeLong', () => {
 		).toBe( 'Tuesday, July 28 – Wednesday, July 29' );
 	} );
 
+	it( 'drops the weekday once the range runs longer than a week', () => {
+		// Past a week the weekday says where the window starts, not what it
+		// covers, and costs two words in front of each date.
+		expect(
+			formatDateRangeLong(
+				{ from: at( 2026, 7, 21 ), to: endOf( 2026, 8, 19 ) },
+				{ referenceYear: 2026 }
+			)
+		).toBe( 'July 21 – August 19' );
+	} );
+
+	it( 'keeps the weekday right up to a week', () => {
+		expect(
+			formatDateRangeLong(
+				{ from: at( 2026, 7, 22 ), to: endOf( 2026, 7, 28 ) },
+				{ referenceYear: 2026 }
+			)
+		).toBe( 'Wednesday, July 22 – Tuesday, July 28' );
+
+		expect(
+			formatDateRangeLong(
+				{ from: at( 2026, 7, 21 ), to: endOf( 2026, 7, 28 ) },
+				{ referenceYear: 2026 }
+			)
+		).toBe( 'July 21 – July 28' );
+	} );
+
 	it( 'adds the year once a day-scale range leaves the reference year', () => {
 		expect(
 			formatDateRangeLong(
@@ -130,13 +157,36 @@ describe( 'formatDateRangeLong', () => {
 		).toBe( 'Monday, December 29, 2025 – Sunday, January 4, 2026' );
 	} );
 
-	it( 'drops the weekday and always carries the year on month-scale ranges', () => {
+	it( 'adds the year once a weekday-less range leaves the reference year', () => {
+		expect(
+			formatDateRangeLong(
+				{ from: at( 2024, 7, 21 ), to: endOf( 2024, 8, 19 ) },
+				{ referenceYear: 2026 }
+			)
+		).toBe( 'July 21, 2024 – August 19, 2024' );
+	} );
+
+	it( 'drops the weekday on month-scale ranges, which pick up the year on their own', () => {
 		expect(
 			formatDateRangeLong(
 				{ from: at( 2025, 7, 1 ), to: endOf( 2026, 6, 30 ) },
 				{ referenceYear: 2026 }
 			)
 		).toBe( 'July 1, 2025 – June 30, 2026' );
+	} );
+
+	it( 'keeps the calendar shape for a running year still inside its first week', () => {
+		// Measured, this is a 3-day window and would lead with weekdays and
+		// drop the year — a shape the selection loses again the moment it
+		// grows past a week.
+		const range = { from: at( 2026, 1, 1 ), to: endOf( 2026, 1, 3 ) };
+
+		expect( formatDateRangeLong( range, { referenceYear: 2026, calendarScale: true } ) ).toBe(
+			'January 1, 2026 – January 3, 2026'
+		);
+		expect( formatDateRangeLong( range, { referenceYear: 2026 } ) ).toBe(
+			'Thursday, January 1 – Saturday, January 3'
+		);
 	} );
 
 	it( 'defaults the reference year to the current one', () => {

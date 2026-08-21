@@ -14,6 +14,7 @@ import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
 import { Link } from '@jetpack-premium-analytics/externals';
 import {
+	WIDGET_ROW_LIMIT,
 	calculateDelta,
 	getCombinedPeriodMax,
 	safeHttpUrl,
@@ -150,17 +151,10 @@ export function FileDownloadsLeaderboard( {
 	);
 }
 
-type FileDownloadsInnerProps = {
-	/**
-	 * Max rows to display.
-	 */
-	max: number;
-};
-
-function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
+function FileDownloadsInner() {
 	const { reportParams } = useWidgetRootContext();
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsFileDownloads( reportParams as StatsReportParams, { maxRows: max } );
+		useStatsFileDownloads( reportParams as StatsReportParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
 		() => toFileDownloadRows( comparisonRows?.rows ?? [] ),
@@ -192,7 +186,7 @@ function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
 						icon: download,
 						description: __( 'No file downloads in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
-					renderLoading={ <LeaderboardSkeleton rows={ max } /> }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<FileDownloadsLeaderboard rows={ rows } withComparison={ withComparison } />
 				</WidgetState>
@@ -209,12 +203,10 @@ function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
  * from the shared dashboard date picker via WidgetRoot.
  */
 export default function FileDownloadsWidget( { attributes = {} }: FileDownloadsWidgetProps ) {
-	const max = attributes?.max ?? 10;
-
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<FileDownloadsInner max={ max } />
+				<FileDownloadsInner />
 			</div>
 		</WidgetRoot>
 	);

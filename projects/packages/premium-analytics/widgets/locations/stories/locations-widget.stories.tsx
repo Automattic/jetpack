@@ -40,7 +40,6 @@ function getLocationsAttributes( {
 }: LocationsStoryControls ): ComponentProps< typeof LocationsRender >[ 'attributes' ] {
 	return {
 		geoGranularity,
-		max: 10,
 		reportParams: getDefaultQueryParams( withComparison ),
 	};
 }
@@ -55,7 +54,6 @@ function renderLocationsOnPreset( preset: PresetType ) {
 		<LocationsRender
 			attributes={ {
 				geoGranularity: 'country',
-				max: 10,
 				reportParams: getDefaultQueryParams( false, preset ),
 			} }
 		/>
@@ -123,8 +121,8 @@ export const WithComparison: StoryObj< LocationsStoryControls > = {
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
-// Regions mode — region rows worldwide in the leaderboard, aggregated by country
-// on the map.
+// Regions mode — region rows worldwide in the leaderboard, summed by country on
+// the map, where each country tooltip lists the regions behind its total.
 export const RegionsMode: StoryObj< LocationsStoryControls > = {
 	render: renderLocationsWidget,
 	args: { withComparison: false, geoGranularity: 'region' },

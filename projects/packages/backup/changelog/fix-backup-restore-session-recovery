@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Backup: adopt a restore that is already running when the modernized restore screen opens, instead of arming a Confirm button that would start a second concurrent one; match the recovered restore on recency rather than the first row, so a completed restore of the same backup is never reported as the one just started; hold a submission whose answer never arrived open until it is known whether it started; and stop polling the restores collection once the id is in hand. No-op when the modernization filter is off.
+
+
