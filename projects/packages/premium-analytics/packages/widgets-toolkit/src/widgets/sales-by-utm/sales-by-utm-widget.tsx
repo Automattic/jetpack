@@ -72,7 +72,7 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading && ! hasData }
+			isLoading={ isLoading }
 			isFetching={ isFetching }
 			// The report queries keep the previous period's data as placeholders
 			// across range changes, so only surface the error when there is
@@ -98,7 +98,7 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 				legendLabels={ legendLabels }
 				style={
 					{
-						'--a8c--charts--leaderboard--bar--border-radius': '0 1px 1px 0',
+						'--a8c-charts-border-radius-leaderboard-bar': '0 1px 1px 0',
 					} as CSSProperties
 				}
 			/>

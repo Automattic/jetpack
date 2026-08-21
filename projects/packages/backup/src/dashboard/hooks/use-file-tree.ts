@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useCallback, useMemo } from '@wordpress/element';
 import { fetchFileTree, type WpcomFileNode } from '../data/api/file-tree';
 import { keys } from '../data/query-client';
+import { useStickyError } from './use-sticky-error';
 import type { FileNode } from '../types/file-tree';
 
 const BASE_FOLDER_PATH = '/';
@@ -66,9 +67,11 @@ export function toFileNode( name: string, raw: WpcomFileNode, parentPath: string
 	// Testing the resulting `Date` rather than the parsed number is what
 	// makes this complete: `Number.isFinite` alone rejects non-numeric
 	// values but happily passes anything inside float range, and `Date` is
-	// only defined within ±8.64e15 ms. A `period` in milliseconds or
-	// microseconds — ordinary upstream drift for an unvalidated field —
-	// is finite and still unrepresentable.
+	// only defined within ±8.64e15 ms. A `period` in microseconds — one
+	// kind of upstream drift for an unvalidated field — is finite and
+	// still unrepresentable. Note a *millisecond*-scale value is not: it
+	// stays in range and renders a far-future date, which nothing here
+	// can distinguish from a genuine one.
 	const periodSeconds = raw.period ? Number.parseInt( raw.period, 10 ) : NaN;
 	const lastModifiedDate = new Date( periodSeconds * 1000 );
 	const lastModified = Number.isNaN( lastModifiedDate.getTime() )
@@ -125,11 +128,16 @@ export function useFileTree( rewindId: string, folderPath: string | null ): Resu
 		refetch();
 	}, [ refetch ] );
 
+	// Held across the retry: React Query rewinds this query to `pending`
+	// when it refetches after a failure, so without this the reason
+	// disappears the moment the reader clicks the retry button.
+	const error = useStickyError( query.error, query.isFetching );
+
 	return {
 		children,
 		isLoading: query.isLoading,
 		isFetching: query.isFetching,
-		error: query.error ?? null,
+		error,
 		refetch: retry,
 	};
 }

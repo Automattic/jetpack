@@ -45,7 +45,7 @@ function PostViewsInner( { granularity, chartType }: PostViewsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 
-	const { current, isLoading, isFetching, isError, hasData, refetch } = usePostViews(
+	const { current, isLoading, isFetching, isError, refetch } = usePostViews(
 		postId,
 		reportParams,
 		granularity
@@ -68,7 +68,7 @@ function PostViewsInner( { granularity, chartType }: PostViewsInnerProps ) {
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading && ! hasData }
+				isLoading={ isLoading }
 				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ postId <= 0 }

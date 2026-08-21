@@ -8,6 +8,11 @@ import {
 	useLayoutEffect,
 	useRef,
 } from 'react';
+// Side-effect import: emits the `--a8c-charts-*` catalog, scoped to the `a8c-charts-scope` class applied to this component's wrapper below. Every chart either sits under a `GlobalChartsProvider` or auto-mounts its own, so importing it here guarantees the catalog always reaches the bundle.
+//
+// This must be a direct import of the stylesheet, not through a re-export barrel: a barrel `.ts` file doesn't match this package's `sideEffects` glob (only `*.css`/`*.scss` do), so tsdown/Rolldown treats an unused barrel import as side-effect-free and drops it — taking the nested stylesheet import with it. The file also can't be named `*.module.scss`: it declares zero CSS-module class names (only a `:where()`-wrapped selector), and `@tsdown/css` marks a `.module.*` file's generated JS proxy `moduleSideEffects: false` (tree-shakeable unless a class name is read); a plain stylesheet gets `moduleSideEffects: "no-treeshake"` instead, so it always ships. `tools/assert-charts-scope-emitted.ts` fails `pnpm run build` if this regresses — a passing test suite alone does not catch a dropped stylesheet.
+import '../../styles/chart-scope.scss';
+import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
 import {
 	getItemShapeStyles,
 	getSeriesBarStyles,
@@ -16,11 +21,15 @@ import {
 	resolveCssVariable,
 	normalizeColorToHex,
 } from '../../utils';
+// Imported from the module rather than the `chart-scope` barrel: the barrel also pulls `use-standalone-scope-class`, which imports `GlobalChartsContext` back from this file. That cycle resolves today only because the binding is read lazily inside the hook body.
+import { ChartScopeContext } from '../chart-scope/chart-scope-context';
 import { getChartColor, type ColorCache } from './private/get-chart-color';
+import { themeOverrideVars } from './private/theme-override-vars';
+import { withCatalogPointers } from './private/with-catalog-pointers';
 import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
 import type { ChartTheme, CompleteChartTheme } from '../../types';
-import type { FC, ReactNode } from 'react';
+import type { CSSProperties, FC, ReactNode } from 'react';
 
 export const GlobalChartsContext = createContext< GlobalChartsContextValue | null >( null );
 
@@ -38,10 +47,26 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 
 	// Ref to the wrapper element for resolving scoped CSS variables
 	const wrapperRef = useRef< HTMLDivElement >( null );
+	const [ scopeNode, setScopeNode ] = useState< HTMLElement | null >( null );
+
+	const setWrapperNode = useCallback( ( node: HTMLDivElement | null ) => {
+		wrapperRef.current = node;
+		setScopeNode( node );
+	}, [] );
+
+	// themeOverrideVars reads the raw `theme` prop, never `providerTheme` — feeding it the restored theme below would make an overridden role's pointer look like a self-reference and drop the var (see themeOverrideVars' own doc comment).
+	const { vars: overrideVars, roles: overriddenRoles } = useMemo(
+		() => themeOverrideVars( theme ),
+		[ theme ]
+	);
 
 	const providerTheme: CompleteChartTheme = useMemo( () => {
-		return theme ? mergeThemes( defaultTheme, theme ) : defaultTheme;
-	}, [ theme ] );
+		if ( ! theme ) {
+			return defaultTheme;
+		}
+
+		return withCatalogPointers( mergeThemes( defaultTheme, theme ), overriddenRoles );
+	}, [ theme, overriddenRoles ] );
 
 	// Cache expensive color computations that only change when theme colors change
 	// Using useState + useLayoutEffect instead of useMemo to ensure CSS variables
@@ -186,11 +211,6 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		[ colorCache, groupToColorMap ]
 	);
 
-	const resolveThemeColor = useCallback< GlobalChartsContextValue[ 'resolveThemeColor' ] >(
-		value => ( value ? normalizeColorToHex( value, wrapperRef.current, resolveCssVariable ) : '' ),
-		[]
-	);
-
 	const getElementStyles = useCallback< GlobalChartsContextValue[ 'getElementStyles' ] >(
 		( { data, index, overrideColor, legendShape } ) => {
 			const isSeriesData = data && typeof data === 'object' && 'data' in data && 'options' in data;
@@ -269,7 +289,6 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			getChartData,
 			theme: providerTheme,
 			getElementStyles,
-			resolveThemeColor,
 			toggleSeriesVisibility,
 			isSeriesVisible,
 			getHiddenSeries,
@@ -282,7 +301,6 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			getChartData,
 			providerTheme,
 			getElementStyles,
-			resolveThemeColor,
 			toggleSeriesVisibility,
 			isSeriesVisible,
 			getHiddenSeries,
@@ -292,8 +310,13 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 
 	return (
 		<GlobalChartsContext.Provider value={ value }>
-			<div ref={ wrapperRef } style={ { display: 'contents' } }>
-				{ children }
+			<div
+				ref={ setWrapperNode }
+				className={ CHART_SCOPE_CLASS }
+				data-testid="charts-scope"
+				style={ { display: 'contents', ...overrideVars } as CSSProperties }
+			>
+				<ChartScopeContext.Provider value={ scopeNode }>{ children }</ChartScopeContext.Provider>
 			</div>
 		</GlobalChartsContext.Provider>
 	);

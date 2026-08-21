@@ -243,9 +243,9 @@ describe( 'SiteOverviewWidget', () => {
 			/>
 		);
 
-		await expect( screen.findByRole( 'status', { hidden: true } ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
-		expect( screen.getByText( '420' ) ).toBeInTheDocument();
+		// March's total is not April's, so it gives way to the skeleton.
+		await expect( screen.findByRole( 'status' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( '420' ) ).not.toBeInTheDocument();
 
 		resolveNextPeriod?.();
 		await expect( screen.findByText( '999' ) ).resolves.toBeInTheDocument();
