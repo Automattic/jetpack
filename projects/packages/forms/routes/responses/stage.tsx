@@ -56,6 +56,9 @@ type FeedbackFilters = {
 
 const EMPTY_ARRAY = [];
 
+/** Mobile shows the title column and the actions column, and nothing besides. */
+const EMPTY_FIELDS: string[] = [];
+
 // Sentinel value used in the Source filter to represent form-preview (test) responses.
 // Source IDs are numeric post IDs, so this non-numeric value is safe from collision.
 const FORM_PREVIEW_SOURCE_VALUE = 'form_preview';
@@ -160,7 +163,8 @@ function StageInner() {
 	const statusFilter = statusView === 'inbox' ? 'draft,publish' : statusView;
 	const dateSettings = getDateSettings();
 	// Matches the width at which boot flips the inspector from a side panel to a
-	// full-screen overlay.
+	// full-screen overlay. Also the width below which the responses table drops every
+	// column but the response and its actions, since it cannot usefully scroll sideways.
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
 	const sourceIdValue = ( searchParams as { sourceId?: string | number } )?.sourceId;
@@ -206,7 +210,11 @@ function StageInner() {
 	}, [ searchParams?.search ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const onChangeView = useCallback(
-		( newView: View ) => {
+		( incomingView: View ) => {
+			// DataViews is handed a collapsed column set on mobile; keep the real one so
+			// widening the window restores the columns the user had chosen.
+			const newView = isMobileViewport ? { ...incomingView, fields: view.fields } : incomingView;
+
 			if ( ! isSingleFormView ) {
 				// If the Folder filter changes (CFM-on behavior), treat it as a route param change.
 				const folderValue =
@@ -237,7 +245,15 @@ function StageInner() {
 				} );
 			}
 		},
-		[ isSingleFormView, navigate, searchParams, statusView, view.search ]
+		[
+			isMobileViewport,
+			isSingleFormView,
+			navigate,
+			searchParams,
+			statusView,
+			view.fields,
+			view.search,
+		]
 	);
 
 	const onChangeSelection = useCallback(
@@ -655,9 +671,17 @@ function StageInner() {
 	// the selection checkbox and the title. DataViews drops the title column when the
 	// user turns it off, which would freeze an answer column in its place.
 	const answerColumnsClassName =
-		responseFieldColumns.length > 0 && view.titleField && view.showTitle !== false
+		! isMobileViewport &&
+		responseFieldColumns.length > 0 &&
+		view.titleField &&
+		view.showTitle !== false
 			? 'has-field-columns'
 			: undefined;
+
+	const viewForDataViews = useMemo(
+		() => ( isMobileViewport ? { ...view, fields: EMPTY_FIELDS } : view ),
+		[ isMobileViewport, view ]
+	);
 
 	const actions = useMemo(
 		() =>
@@ -815,7 +839,7 @@ function StageInner() {
 					}
 					data={ isQueryStale ? EMPTY_ARRAY : records || EMPTY_ARRAY }
 					fields={ fields as Field< unknown >[] }
-					view={ view }
+					view={ viewForDataViews }
 					onChangeView={ onChangeView }
 					paginationInfo={ paginationInfo }
 					isLoading={ isLoadingData || isQueryStale }

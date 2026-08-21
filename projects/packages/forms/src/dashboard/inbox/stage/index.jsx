@@ -53,6 +53,9 @@ import { useView, defaultLayouts } from './views.js';
 
 const EMPTY_ARRAY = [];
 
+/** Mobile shows the title column and the actions column, and nothing besides. */
+const EMPTY_FIELDS = [];
+
 // Sentinel value used in the Source filter to represent form-preview (test) responses.
 // Source IDs are numeric post IDs, so this non-numeric value is safe from collision.
 const FORM_PREVIEW_SOURCE_VALUE = 'form_preview';
@@ -292,7 +295,11 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 	);
 
 	const onChangeView = useCallback(
-		newView => {
+		incomingView => {
+			// DataViews is handed a collapsed column set on mobile; keep the real one so
+			// widening the window restores the columns the user had chosen.
+			let newView = isMobileViewport ? { ...incomingView, fields: view.fields } : incomingView;
+
 			if ( ! isInboxStatusToggleView ) {
 				const folderValue = newView.filters?.find( filter => filter.field === 'folder' )?.value;
 				const nextFolder = [ 'inbox', 'spam', 'trash' ].includes( folderValue )
@@ -326,7 +333,15 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 			}
 			setView( newView );
 		},
-		[ isInboxStatusToggleView, setSearchParams, setSelectedResponses, setView, urlFolder ]
+		[
+			isInboxStatusToggleView,
+			isMobileViewport,
+			setSearchParams,
+			setSelectedResponses,
+			setView,
+			urlFolder,
+			view.fields,
+		]
 	);
 
 	const wrapperUnread = ( isUnread, itemValue ) => {
@@ -567,9 +582,19 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 	// the selection checkbox and the title. DataViews drops the title column when the
 	// user turns it off, which would freeze an answer column in its place.
 	const answerColumnsClassName =
-		responseFieldColumns.length > 0 && view.titleField && view.showTitle !== false
+		! isMobileViewport &&
+		responseFieldColumns.length > 0 &&
+		view.titleField &&
+		view.showTitle !== false
 			? 'has-field-columns'
 			: undefined;
+
+	// Narrow screens cannot make use of a table that scrolls sideways, so they get the
+	// response and its actions and nothing else.
+	const viewForDataViews = useMemo(
+		() => ( isMobileViewport ? { ...view, fields: EMPTY_FIELDS } : view ),
+		[ isMobileViewport, view ]
+	);
 
 	const actions = useMemo( () => {
 		const mobileViewAction = {
@@ -690,7 +715,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 				actions={ actions }
 				data={ records || EMPTY_ARRAY }
 				isLoading={ isInboxLoading }
-				view={ view }
+				view={ viewForDataViews }
 				onChangeView={ onChangeView }
 				selection={ selection }
 				onChangeSelection={ onChangeSelection }
