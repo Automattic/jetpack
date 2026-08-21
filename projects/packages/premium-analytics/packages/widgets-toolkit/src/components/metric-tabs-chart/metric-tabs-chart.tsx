@@ -2,9 +2,8 @@
  * External dependencies
  */
 import { SelectControl, Tabs, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
-import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 /**
@@ -57,7 +56,7 @@ export interface MetricTab {
 	 * Key of the metric to draw beside this one, hidden until the reader reveals
 	 * it from the legend. Pairs are declared per metric rather than derived, so
 	 * a widget decides which of its metrics are worth comparing. A key naming no
-	 * metric in the list is ignored.
+	 * metric in the list, or the metric itself, is ignored.
 	 */
 	counterpartKey?: string;
 }
@@ -86,29 +85,19 @@ export interface MetricTabsChartProps {
 }
 
 /**
- * Format a series' date range (first to last point).
- *
- * @param points - The series points, oldest first.
- * @return The formatted date range, or '' when empty.
- */
-function rangeLabel( points: MetricTabDatum[] ): string {
-	const first = points[ 0 ];
-	const last = points[ points.length - 1 ];
-	return first && last ? formatDateRange( { from: first.date, to: last.date } ) : '';
-}
-
-/**
- * Label the previous-period series. `collapseGroups` folds it into its metric's
- * legend item, so this never reaches the screen — it is the key the chart
- * addresses the series by, which is why it carries the metric name: a paired
- * chart holds two comparison series covering the very same dates, and a bare
- * range would name both of them identically.
+ * Label the previous-period series with a stable key. The chart provider stores
+ * visibility by label, so including the range would reveal a seeded-hidden
+ * comparison whenever the dashboard dates change without remounting the chart.
  *
  * @param metric - The metric the series belongs to.
  * @return The comparison series' label.
  */
 function comparisonLabel( metric: MetricTab ): string {
-	return `${ metric.label } · ${ rangeLabel( metric.previous ?? [] ) }`;
+	return sprintf(
+		/* translators: %s is a metric name, e.g. "Views". */
+		__( '%s · previous period', 'jetpack-premium-analytics-pkg' ),
+		metric.label
+	);
 }
 
 /**
@@ -272,7 +261,7 @@ export function MetricTabsChart( {
 	);
 	const counterpartFor = useCallback(
 		( metric: MetricTab ) =>
-			metric.counterpartKey
+			metric.counterpartKey && metric.counterpartKey !== metric.key
 				? metrics.find( candidate => candidate.key === metric.counterpartKey )
 				: undefined,
 		[ metrics ]

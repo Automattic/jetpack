@@ -12,6 +12,7 @@ import type { ComparativeBarChartSeries } from '../types';
 // through a provider jsdom cannot lay out, and what matters here is the option
 // object this wrapper composes.
 const mockBarSpy = jest.fn();
+const mockLegendSpy = jest.fn();
 
 jest.mock( '@jetpack-premium-analytics/externals', () => {
 	const { forwardRef } = jest.requireActual( 'react' );
@@ -22,7 +23,10 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 		// is observable.
 		return <div data-testid="bar-chart">{ props.children }</div>;
 	};
-	BarChart.Legend = () => <div data-testid="bar-chart-legend" />;
+	BarChart.Legend = ( props: Record< string, unknown > ) => {
+		mockLegendSpy( props );
+		return <div data-testid="bar-chart-legend" />;
+	};
 
 	return {
 		BarChart,
@@ -93,6 +97,10 @@ const SERIES_WITH_COMPARISON: ComparativeBarChartSeries[] = [
 	},
 ];
 
+const UNGROUPED_SERIES_WITH_COMPARISON = SERIES_WITH_COMPARISON.map(
+	( { label, data, options } ) => ( { label, data, options } )
+);
+
 // Two metrics on one chart, each with its previous period — what the traffic
 // chart draws once the reader reveals the counterpart metric.
 const PAIRED_SERIES: ComparativeBarChartSeries[] = [
@@ -135,6 +143,9 @@ function recordedProps(): {
 		yScale?: { domain: [ number, number ] };
 	};
 	margin: { left?: number; right: number };
+	chartId: string;
+	defaultHiddenSeries?: readonly string[];
+	legend: { collapseGroups: boolean; interactive: boolean };
 	gridVisibility?: string;
 	showZeroValues?: boolean;
 	withTooltips: boolean;
@@ -197,6 +208,7 @@ const ZERO_SERIES: ComparativeBarChartSeries[] = [
 describe( 'ComparativeBarChart', () => {
 	beforeEach( () => {
 		mockBarSpy.mockClear();
+		mockLegendSpy.mockClear();
 		mockChartHeight = Infinity;
 	} );
 
@@ -225,6 +237,14 @@ describe( 'ComparativeBarChart', () => {
 		// including to screen readers, which get the same tooltip content.
 		expect( tooltipRowsFor( JULY_1 ) ).toEqual( { July: 100, June: 80 } );
 		expect( tooltipRowsFor( JULY_2 ) ).toEqual( { July: 100, June: 120 } );
+	} );
+
+	it( 'adds an ungrouped previous-period value to the tooltip', () => {
+		render(
+			<ComparativeBarChart series={ UNGROUPED_SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } />
+		);
+
+		expect( tooltipRowsFor( JULY_1 ) ).toEqual( { July: 100, June: 80 } );
 	} );
 
 	it( 'leaves the tooltip alone when there is no comparison series', () => {
@@ -286,6 +306,36 @@ describe( 'ComparativeBarChart', () => {
 
 		// Re-pairing must not resurrect the shadow of a metric the reader hid.
 		expect( Object.keys( tooltip.props.tooltipData.datumByKey ) ).toEqual( [ 'July', 'June' ] );
+	} );
+
+	it( 'passes visibility settings through to the chart and legend', () => {
+		render(
+			<ComparativeBarChart
+				chartId="traffic"
+				series={ PAIRED_SERIES }
+				dataFormat={ DATA_FORMAT }
+				defaultHiddenSeries={ [ 'Visitors', 'Visitors · June' ] }
+				legendInteractive
+			/>
+		);
+
+		expect( recordedProps() ).toMatchObject( {
+			chartId: 'traffic',
+			defaultHiddenSeries: [ 'Visitors', 'Visitors · June' ],
+			legend: { collapseGroups: true, interactive: true },
+		} );
+		expect( mockLegendSpy ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { interactive: true } )
+		);
+	} );
+
+	it( 'keeps period legend items separate for a single metric', () => {
+		render( <ComparativeBarChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
+
+		expect( recordedProps().legend ).toEqual( {
+			collapseGroups: false,
+			interactive: false,
+		} );
 	} );
 
 	it( 'always formats the y axis', () => {

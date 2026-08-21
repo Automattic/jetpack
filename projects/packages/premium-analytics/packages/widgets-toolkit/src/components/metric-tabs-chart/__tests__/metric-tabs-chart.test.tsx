@@ -100,9 +100,9 @@ function recordedSeries( spy: jest.Mock ): ComparativeLineChartSeries[] {
 }
 
 /**
- * The props of the render that drew `label` as its active metric. The tabs
- * layout mounts a panel per metric, so the most recent call is not necessarily
- * the metric under test.
+ * The props of the render that drew `label` as its active metric. During a tab
+ * switch, the outgoing panel may render again before the incoming panel mounts,
+ * so the most recent call is not necessarily the metric under test.
  *
  * @param spy   - The chart stand-in to read.
  * @param label - The active metric's label, which is also its first series'.
@@ -202,13 +202,39 @@ describe( 'MetricTabsChart', () => {
 		const { series } = recordedPropsFor( mockLineSpy, 'Views' );
 
 		// The current period carries the bare metric name, which is what the
-		// collapsed legend item shows. Both metrics cover the same dates, so the
-		// comparison labels have to be told apart by something other than the range.
+		// collapsed legend item shows. Comparison labels remain distinct and stable
+		// when the selected dashboard range changes.
 		expect( series[ 0 ].label ).toBe( 'Views' );
 		expect( series[ 2 ].label ).toBe( 'Visitors' );
 		expect( new Set( series.map( item => item.label ) ).size ).toBe( series.length );
-		expect( series[ 1 ].label ).toContain( 'Views' );
-		expect( series[ 3 ].label ).toContain( 'Visitors' );
+		expect( series[ 1 ].label ).toBe( 'Views · previous period' );
+		expect( series[ 3 ].label ).toBe( 'Visitors · previous period' );
+	} );
+
+	it( 'keeps seeded-hidden labels stable when the dashboard range changes', () => {
+		const { rerender } = render(
+			<MetricTabsChart metrics={ [ VIEWS, VISITORS ] } dataFormat={ DATA_FORMAT } />
+		);
+		const before = recordedPropsFor( mockLineSpy, 'Views' );
+		const changedVisitors = {
+			...VISITORS,
+			previous: [
+				{ date: new Date( '2026-05-01T00:00:00Z' ), value: 25 },
+				{ date: new Date( '2026-05-02T00:00:00Z' ), value: 65 },
+			],
+		};
+
+		rerender(
+			<MetricTabsChart metrics={ [ VIEWS, changedVisitors ] } dataFormat={ DATA_FORMAT } />
+		);
+		const after = recordedPropsFor( mockLineSpy, 'Views' );
+
+		expect( after.chartId ).toBe( before.chartId );
+		expect( after.series[ 3 ].label ).toBe( before.series[ 3 ].label );
+		expect( after.defaultHiddenSeries ).toEqual( [
+			after.series[ 2 ].label,
+			after.series[ 3 ].label,
+		] );
 	} );
 
 	it( 'draws the counterpart alongside the active metric and seeds it hidden', () => {
@@ -243,8 +269,7 @@ describe( 'MetricTabsChart', () => {
 			after.series[ 3 ].label,
 		] );
 		expect( after.series[ 2 ].label ).toBe( 'Views' );
-		// The chart seeds its hidden series once per chart ID, so the ID has to
-		// move with the selection or the swap never reaches the chart.
+		// Each metric gets its own visibility bucket in the charts provider.
 		expect( after.chartId ).not.toBe( before.chartId );
 	} );
 
@@ -264,6 +289,16 @@ describe( 'MetricTabsChart', () => {
 		render( <MetricTabsChart metrics={ [ orphan ] } dataFormat={ DATA_FORMAT } /> );
 
 		expect( recordedProps( mockLineSpy ).series ).toHaveLength( 2 );
+		expect( recordedProps( mockLineSpy ).legendInteractive ).toBe( false );
+	} );
+
+	it( 'ignores a counterpart key that names the metric itself', () => {
+		const selfPaired = { ...METRIC, counterpartKey: METRIC.key };
+
+		render( <MetricTabsChart metrics={ [ selfPaired ] } dataFormat={ DATA_FORMAT } /> );
+
+		expect( recordedProps( mockLineSpy ).series ).toHaveLength( 2 );
+		expect( recordedProps( mockLineSpy ).defaultHiddenSeries ).toBeUndefined();
 		expect( recordedProps( mockLineSpy ).legendInteractive ).toBe( false );
 	} );
 

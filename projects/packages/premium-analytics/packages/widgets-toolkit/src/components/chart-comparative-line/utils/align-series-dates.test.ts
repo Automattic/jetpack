@@ -274,16 +274,17 @@ describe( 'alignSeriesDates', () => {
 				],
 			};
 
-			const comparison: ComparativeLineChartSeries = {
-				label: 'Comparison',
-				data: [
-					{ date: new Date( '2024-01-01' ), value: 50 },
-					{ date: new Date( '2024-01-02' ), value: 75 },
-				],
-			};
+			const comparison = createComparison(
+				'Comparison',
+				[ new Date( '2024-01-01' ), new Date( '2024-01-02' ) ],
+				[ 50, 75 ]
+			);
 
 			const result = alignSeriesDates( [ primary, comparison ] );
 
+			expect( result[ 1 ] ).not.toBe( comparison );
+			expect( result[ 1 ].data[ 0 ].date ).toEqual( new Date( '2024-01-08' ) );
+			expect( result[ 1 ].data[ 0 ].realDate ).toEqual( new Date( '2024-01-01' ) );
 			// Values should be preserved
 			expect( result[ 1 ].data[ 0 ].value ).toBe( 50 );
 			expect( result[ 1 ].data[ 1 ].value ).toBe( 75 );
@@ -300,6 +301,7 @@ describe( 'alignSeriesDates', () => {
 				label: 'Comparison',
 				data: [ { date: new Date( '2024-01-01' ), value: 50 } ],
 				options: {
+					type: 'comparison',
 					stroke: '#0000ff',
 					seriesLineStyle: { opacity: 0.5 },
 				},
@@ -307,8 +309,10 @@ describe( 'alignSeriesDates', () => {
 
 			const result = alignSeriesDates( [ primary, comparison ] );
 
+			expect( result[ 1 ] ).not.toBe( comparison );
 			expect( result[ 1 ].label ).toBe( 'Comparison' );
 			expect( result[ 1 ].options ).toEqual( {
+				type: 'comparison',
 				stroke: '#0000ff',
 				seriesLineStyle: { opacity: 0.5 },
 			} );

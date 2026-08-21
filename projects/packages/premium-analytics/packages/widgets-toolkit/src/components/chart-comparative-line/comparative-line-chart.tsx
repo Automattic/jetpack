@@ -15,7 +15,7 @@ import { type ComponentProps } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import { isEmptyChartData, getFixedYAxis } from '../../helpers';
+import { formatTooltipSeriesLabel, isEmptyChartData, getFixedYAxis } from '../../helpers';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
 import { alignSeriesDates } from './utils';
@@ -63,13 +63,6 @@ const DEFAULT_MARGIN = { right: 0 };
  * a sparkline (no y-axis, grid, or legend).
  */
 const COMPACT_CHART_HEIGHT = 140;
-
-/**
- * Collapse each metric's current and previous period into one legend item,
- * labelled by the current period. Constant so the chart's memoised legend
- * options are not rebuilt on every render.
- */
-const LEGEND_CONFIG = { collapseGroups: true } as const;
 
 function applyStylesToSeries(
 	series: ComparativeLineChartSeries[],
@@ -177,9 +170,9 @@ export function ComparativeLineChart( {
 		[ stylesProp, series ]
 	);
 
-	// A metric's previous period is folded into its legend item by
-	// `collapseGroups`, so a tooltip row is named after the group's current
-	// period rather than by the comparison's own internal label.
+	// In a paired chart, a metric's previous period is folded into its legend
+	// item, so name its tooltip row after the group's current period rather than
+	// by the comparison's internal label.
 	const { seriesNames, isPaired } = useMemo( () => {
 		const primaryByGroup = new Map< string, string >();
 		let currentCount = 0;
@@ -194,16 +187,20 @@ export function ComparativeLineChart( {
 			}
 		}
 
-		const names = new Map< string, { name: string; isComparison: boolean } >();
+		const names = new Map< string, string >();
 		for ( const item of series ) {
-			names.set( item.label, {
-				name: ( item.group !== undefined && primaryByGroup.get( item.group ) ) || item.label,
-				isComparison: item.options?.type === 'comparison',
-			} );
+			names.set(
+				item.label,
+				( item.group !== undefined && primaryByGroup.get( item.group ) ) || item.label
+			);
 		}
 
 		return { seriesNames: names, isPaired: currentCount > 1 };
 	}, [ series ] );
+	const legendConfig = useMemo(
+		() => ( { collapseGroups: isPaired, interactive: legendInteractive } ),
+		[ isPaired, legendInteractive ]
+	);
 
 	// Comparison points sit on the primary series' dates, so the tooltip reads
 	// the `realDate` preserved by `alignSeriesDates`. Dates alone name a row
@@ -212,9 +209,9 @@ export function ComparativeLineChart( {
 	const getTooltipLabel = useCallback(
 		( datum: { date: Date; realDate?: Date }, _index: number, key: string ): string => {
 			const entry = seriesNames.get( key );
-			const displayDate = entry?.isComparison ? datum.realDate ?? datum.date : datum.date;
+			const displayDate = datum.realDate ?? datum.date;
 			const date = formatDate( displayDate );
-			return isPaired && entry ? `${ entry.name } · ${ date }` : date;
+			return isPaired ? formatTooltipSeriesLabel( entry ?? key, date ) : date;
 		},
 		[ seriesNames, isPaired ]
 	);
@@ -309,10 +306,9 @@ export function ComparativeLineChart( {
 				data={ styledSeries }
 				options={ chartOptions }
 				defaultHiddenSeries={ defaultHiddenSeries }
-				// One item per metric: a metric's previous period rides its own
-				// item rather than claiming a second, so toggling a metric takes
-				// its comparison overlay with it.
-				legend={ LEGEND_CONFIG }
+				// Paired metrics collapse each current/comparison group into one item;
+				// single-metric charts retain their two period labels.
+				legend={ legendConfig }
 				// With the y-axis hidden, reclaim its reserved left margin for the line.
 				margin={ isCompact ? { ...margin, left: 0 } : margin }
 				maxWidth={ maxWidth }

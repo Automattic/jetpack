@@ -80,6 +80,7 @@ export {
 	type FitWeekColumnsInput,
 } from './calendar-heatmap-layout';
 export { formatViewCount } from './format-view-count';
+export { formatTooltipSeriesLabel } from './format-tooltip-series-label';
 export {
 	buildDenseDaySeries,
 	resolveCalendarHeatmapWindow,

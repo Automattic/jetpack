@@ -14,7 +14,7 @@ import { useCallback, useId, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import { isEmptyChartData, getFixedYAxis } from '../../helpers';
+import { formatTooltipSeriesLabel, isEmptyChartData, getFixedYAxis } from '../../helpers';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-bar-chart.module.scss';
@@ -36,13 +36,6 @@ const DEFAULT_MARGIN = { right: 0 };
  * so a metric switching chart type keeps the same breakpoint.
  */
 const COMPACT_CHART_HEIGHT = 140;
-
-/**
- * Collapse each metric's current and previous period into one legend item,
- * labelled by the current period. Constant so the chart's memoised legend
- * options are not rebuilt on every render.
- */
-const LEGEND_CONFIG = { collapseGroups: true } as const;
 
 /**
  * Inferred types from BarChart.
@@ -191,14 +184,13 @@ export function ComparativeBarChart( {
 	);
 
 	/**
-	 * A metric's previous period is folded into its legend item by
-	 * `collapseGroups`, so name a row after the group's current period rather
-	 * than by the comparison's own internal label. `isPaired` tracks whether the
-	 * chart draws more than one metric, which is when a date stops identifying
-	 * a row on its own.
+	 * In a paired chart, a metric's previous period is folded into its legend
+	 * item, so name its tooltip row after the group's current period rather than
+	 * by the comparison's internal label. `isPaired` tracks whether the chart
+	 * draws more than one metric, which is when a date stops identifying a row.
 	 */
-	const { seriesNames, isPaired } = useMemo( () => {
-		const primaryByGroup = new Map< string, string >();
+	const { primaryByGroup, seriesNames, isPaired } = useMemo( () => {
+		const groupNames = new Map< string, string >();
 		let currentCount = 0;
 
 		for ( const item of series ) {
@@ -206,8 +198,8 @@ export function ComparativeBarChart( {
 				continue;
 			}
 			currentCount++;
-			if ( item.group !== undefined && ! primaryByGroup.has( item.group ) ) {
-				primaryByGroup.set( item.group, item.label );
+			if ( item.group !== undefined && ! groupNames.has( item.group ) ) {
+				groupNames.set( item.group, item.label );
 			}
 		}
 
@@ -215,12 +207,16 @@ export function ComparativeBarChart( {
 		for ( const item of series ) {
 			names.set(
 				item.label,
-				( item.group !== undefined && primaryByGroup.get( item.group ) ) || item.label
+				( item.group !== undefined && groupNames.get( item.group ) ) || item.label
 			);
 		}
 
-		return { seriesNames: names, isPaired: currentCount > 1 };
+		return { primaryByGroup: groupNames, seriesNames: names, isPaired: currentCount > 1 };
 	}, [ series ] );
+	const legendConfig = useMemo(
+		() => ( { collapseGroups: isPaired, interactive: legendInteractive } ),
+		[ isPaired, legendInteractive ]
+	);
 
 	/**
 	 * Label a tooltip row by its point's own date. Comparison points carry the
@@ -235,7 +231,7 @@ export function ComparativeBarChart( {
 				return key;
 			}
 			const date = formatDate( displayDate );
-			return isPaired ? `${ seriesNames.get( key ) ?? key } · ${ date }` : date;
+			return isPaired ? formatTooltipSeriesLabel( seriesNames.get( key ) ?? key, date ) : date;
 		},
 		[ seriesNames, isPaired ]
 	);
@@ -274,7 +270,8 @@ export function ComparativeBarChart( {
 				// A hidden metric contributes no bar, so its group's current period is
 				// absent here. Re-adding its shadow would put a series the reader chose
 				// not to see back in the tooltip.
-				const primaryLabel = seriesNames.get( seriesData.label );
+				const primaryLabel =
+					seriesData.group !== undefined ? primaryByGroup.get( seriesData.group ) : undefined;
 				if ( primaryLabel && ! datumByKey[ primaryLabel ] ) {
 					continue;
 				}
@@ -291,7 +288,7 @@ export function ComparativeBarChart( {
 
 			return { ...tooltipData, datumByKey: augmented };
 		},
-		[ alignedSeries, seriesNames ]
+		[ alignedSeries, primaryByGroup ]
 	);
 
 	// `seriesStyles` follows `alignedSeries`; the tooltip's rows do not, so pair
@@ -365,10 +362,9 @@ export function ComparativeBarChart( {
 				data={ alignedSeries }
 				options={ chartOptions }
 				defaultHiddenSeries={ defaultHiddenSeries }
-				// One item per metric: a metric's previous period rides its own
-				// item rather than claiming a second, so toggling a metric takes
-				// its shadow bars with it.
-				legend={ LEGEND_CONFIG }
+				// Paired metrics collapse each current/comparison group into one item;
+				// single-metric charts retain their two period labels.
+				legend={ legendConfig }
 				margin={ margin }
 				maxWidth={ maxWidth }
 				gridVisibility={ isCompact ? 'none' : undefined }
