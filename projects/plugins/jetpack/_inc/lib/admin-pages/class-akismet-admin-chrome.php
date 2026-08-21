@@ -113,6 +113,17 @@ class Akismet_Admin_Chrome {
 				gap: 8px;
 				text-decoration: none;
 			}
+			/* wp-admin rings every `a:focus`, so a mouse click leaves the ring behind.
+				Restrict it to keyboard focus. */
+			.jp-akismet-header__title:focus:not( :focus-visible ) {
+				box-shadow: none;
+				outline: none;
+			}
+			.jp-akismet-header__title:focus-visible {
+				border-radius: 2px;
+				box-shadow: 0 0 0 2px #2271b1;
+				outline: 2px solid transparent;
+			}
 			/* 24×24 visual slot centering the 20px logo, matching My Jetpack/Boost. */
 			.jp-akismet-header__visual {
 				display: flex;
