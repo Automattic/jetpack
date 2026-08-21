@@ -48,7 +48,7 @@ class Rollout_Test extends \WorDBless\BaseTestCase {
 
 	public function test_ships_at_the_intended_share(): void {
 		// Pinned so widening the rollout is a deliberate edit, not a drift.
-		$this->assertSame( 20, wpcom_expiry_notices_rollout_percentage() );
+		$this->assertSame( 30, wpcom_expiry_notices_rollout_percentage() );
 	}
 
 	public function test_enables_exactly_the_configured_share(): void {
