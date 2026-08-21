@@ -18,6 +18,7 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-ai-page.p
 /**
  * Class Jetpack_AI_Page_Test
  *
+ * @covers \Jetpack_AI_Feature_Flags
  * @covers \Jetpack_AI_Page
  */
 #[CoversClass( Jetpack_AI_Feature_Flags::class )]
