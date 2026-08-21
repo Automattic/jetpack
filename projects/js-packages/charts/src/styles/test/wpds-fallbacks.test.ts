@@ -108,19 +108,11 @@ describe( 'design token references', () => {
 	// This is the check that keeps a hand-written value honest. It is what `499` — a font
 	// weight that was spec once and drifted — needed and did not have.
 	it( 'writes the design system value as that fallback', () => {
-		const drifted = references.filter(
-			reference =>
-				reference.fallback !== null &&
-				reference.fallback !== normalize( specFallback( reference.token ) )
-		);
+		const drifted = references
+			.filter( reference => reference.fallback !== null )
+			.map( reference => ( { ...reference, spec: normalize( specFallback( reference.token ) ) } ) )
+			.filter( reference => reference.fallback !== reference.spec );
 
-		expect(
-			drifted.map( ( { file, token, fallback } ) => ( {
-				file,
-				token,
-				fallback,
-				spec: normalize( specFallback( token ) ),
-			} ) )
-		).toEqual( [] );
+		expect( drifted ).toEqual( [] );
 	} );
 } );
