@@ -96,6 +96,12 @@ This plugin relies on WordPress.com, a service operated by Automattic, to record
 
 It connects to the following external services:
 
+**WordPress.com connection API (`https://jetpack.wordpress.com`)**
+
+* What it does: registers your site with WordPress.com and links it to your WordPress.com account. Every other service on this list needs that connection.
+* Data sent: when the site is registered, its address, home address, name, language, time zone, the plugin version, the path of the WordPress installation on the server, the date the site was created, the Stats site ID if the site already has one, the versions of the bundled Jetpack packages, the plugins that use the Jetpack connection, the email address and user ID of the administrator who starts the connection, and one-time secrets that WordPress.com uses to check the request. To approve the connection, your browser goes to this host with your WordPress user name and email address, the name, address and icon of the site, and the role you connect with. Your site then exchanges an authorization code for the tokens that sign all later requests. Disconnecting the site, or removing a user from the connection, also sends a request to this host.
+* When: when you connect the site, when you approve the connection with your WordPress.com account, when you disconnect the site or remove a user from the connection, and once a day when the plugin makes sure that it can still reach WordPress.com over a secure connection.
+
 **WordPress.com view-tracking pixel (`https://pixel.wp.com/g.gif`)**
 
 * What it does: records a page view each time a visitor loads a page on your site.
