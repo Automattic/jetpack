@@ -150,6 +150,29 @@ describe( 'useDefaultHiddenSeries', () => {
 		expect( contextValue.isSeriesVisible( 'chart', 'Visitors' ) ).toBe( false );
 	} );
 
+	it( 'keeps the same set across renders until visibility changes', () => {
+		// Charts memoize their rendered series off this set. A fresh identity per
+		// render invalidates those memos, which re-runs the accessible tooltip's
+		// effect and closes a tooltip the user is still navigating with.
+		const Harness = () => (
+			<GlobalChartsProvider>
+				<Grab />
+				<Chart defaults={ [ 'Visitors' ] } />
+			</GlobalChartsProvider>
+		);
+
+		const { rerender } = render( <Harness /> );
+		const seeded = resolvedHiddenSeries;
+
+		rerender( <Harness /> );
+		expect( resolvedHiddenSeries ).toBe( seeded );
+
+		act( () => {
+			contextValue.setSeriesVisibility( 'chart', 'Views', false );
+		} );
+		expect( resolvedHiddenSeries ).not.toBe( seeded );
+	} );
+
 	it( 're-seeds the defaults when chartId changes mid-mount', () => {
 		// Same mount, only the chartId prop changes (e.g. <LineChart chartId={ metric } ... />
 		// with `metric` going 'views' -> 'clicks'), so the component never unmounts.
