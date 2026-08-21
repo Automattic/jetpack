@@ -667,17 +667,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "79e4b5f4fd7096d4e88f1dbc616515ff328c5c69"
+                "reference": "fcb96cfb4a922c4aa12d8830738c3843f61b62dd"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-image-cdn": "@dev",
                 "php": ">=7.4"
-            },
-            "require-dev": {
-                "automattic/jetpack-test-environment": "@dev",
-                "automattic/phpunit-select-config": "@dev",
-                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -713,15 +708,6 @@
                     "Composer\\Config::disableProcessTimeout",
                     "pnpm run watch"
                 ],
-                "phpunit": [
-                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ],
-                "test-php-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-                ],
                 "typecheck": [
                     "pnpm run typecheck"
                 ]
@@ -729,7 +715,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Replaces the default WordPress comment form with social login, subscription options, and block editing.",
+            "description": "Replaces the default WordPress comment form.",
             "transport-options": {
                 "relative": true
             }
