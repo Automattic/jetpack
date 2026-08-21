@@ -85,6 +85,8 @@ const STATS_SUBSCRIBERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/s
 // is matched on its own rather than through routeStatsReport().
 const STATS_SUBSCRIBERS_COUNTS_PATH = '/jetpack-premium-analytics/v1/proxy/v2/subscribers/counts';
 const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
+const STATS_VIEWS_BY_HOUR_PATH =
+	'/jetpack-premium-analytics/v1/proxy/v1.1/stats/views-by/hour-of-day';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
 // Plan usage is served off the v2 base (not under /v1.1/stats), so it needs its
@@ -885,6 +887,41 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 const VISITS_STEP_DAYS: Record< string, number > = { day: 1, week: 7, month: 30, year: 365 };
 
 /**
+ * Build an hour-of-day response over the requested date range.
+ */
+function buildHourOfDayResponse( query: URLSearchParams ) {
+	const endDate = parseDateParam( query.get( 'date' ), new Date() );
+	const requestedDays = Number.parseInt( query.get( 'days' ) ?? '', 10 );
+	const fallbackDays = Number.isInteger( requestedDays ) && requestedDays > 0 ? requestedDays : 30;
+	const startDate = parseDateParam(
+		query.get( 'start_date' ),
+		new Date( endDate.getTime() - ( fallbackDays - 1 ) * DAY_MS )
+	);
+	const days = Math.max(
+		1,
+		Math.round( ( endDate.getTime() - startDate.getTime() ) / DAY_MS ) + 1
+	);
+
+	// Two peaks make the distribution easier to read in Storybook.
+	const data = Array.from( { length: 24 }, ( _, hour ) => {
+		const evening = 900 * Math.exp( -( ( hour - 19 ) ** 2 ) / 6 );
+		const morning = 420 * Math.exp( -( ( hour - 10 ) ** 2 ) / 8 );
+
+		return [ String( hour ).padStart( 2, '0' ), Math.round( ( 60 + evening + morning ) * days ) ];
+	} );
+
+	return {
+		date: endDate.toISOString().slice( 0, 10 ),
+		start_date: startDate.toISOString().slice( 0, 10 ),
+		days,
+		dimension: 'hour-of-day',
+		utc_offset: '+00:00',
+		fields: [ 'period', 'views' ],
+		data,
+	};
+}
+
+/**
  * Builds the stats/visits time-series response for the traffic chart.
  *
  * Honours the `unit`, `date`, `start_date`, and `stat_fields` query params, and
@@ -1111,6 +1148,16 @@ function getQueryParam( requestPath: string, key: string ): string | undefined {
 	const query = requestPath.split( '?' )[ 1 ];
 
 	return query ? new URLSearchParams( query ).get( key ) ?? undefined : undefined;
+}
+
+/**
+ * Parse the query string of a (possibly relative) apiFetch request path.
+ *
+ * @param requestPath - The request path, with or without a query string.
+ * @return The parsed params, empty when the path carries none.
+ */
+function queryParamsOf( requestPath: string ): URLSearchParams {
+	return new URLSearchParams( requestPath.split( '?' )[ 1 ] ?? '' );
 }
 
 /**
@@ -1381,6 +1428,18 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 			return new Promise< never >( () => {} );
 		}
 		if ( state === 'empty' ) {
+			if ( requestPath.startsWith( STATS_VIEWS_BY_HOUR_PATH ) ) {
+				// `sanitizeStatsHourOfDayResponse` throws on any other `dimension`, so the
+				// generic empty payload below would render the error state here instead.
+				return {
+					date: '2026-01-01',
+					start_date: '2025-12-03',
+					days: 30,
+					dimension: 'hour-of-day',
+					fields: [ 'period', 'views' ],
+					data: [],
+				};
+			}
 			// A valid response with no rows across the shapes report sanitizers read
 			// (`summary` / `days` / `data`), so the widget resolves to its empty state.
 			return { date: '2026-01-01', period: 'day', summary: {}, days: {}, data: [] };
@@ -1439,11 +1498,12 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 		);
 	}
 
+	if ( requestPath.startsWith( STATS_VIEWS_BY_HOUR_PATH ) ) {
+		return buildHourOfDayResponse( queryParamsOf( requestPath ) );
+	}
+
 	if ( requestPath.startsWith( STATS_VISITS_PATH ) ) {
-		const queryIndex = requestPath.indexOf( '?' );
-		return buildVisitsResponse(
-			new URLSearchParams( queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 ) )
-		);
+		return buildVisitsResponse( queryParamsOf( requestPath ) );
 	}
 
 	if ( requestPath.startsWith( STATS_EMAIL_SUMMARY_PATH ) ) {
