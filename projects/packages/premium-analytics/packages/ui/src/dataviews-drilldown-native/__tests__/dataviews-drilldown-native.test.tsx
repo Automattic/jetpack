@@ -73,6 +73,17 @@ describe( 'DataViewsDrilldownNative collapse', () => {
 		expect( screen.queryByRole( 'button', { name: 'Bing' } ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'names the toggle from the row value when the field has no getValue', () => {
+		// DataViews' own default: a field without `getValue` reads `item[field.id]`.
+		const bare: Field< Row >[] = [
+			{ id: 'referrer', label: 'Referrer', render: ( { item } ) => <span>{ item.referrer }</span> },
+			{ id: 'views', label: 'Views' },
+		];
+		renderTable( { collapsible: true, fields: bare } );
+
+		expect( screen.getByRole( 'button', { name: 'Search Engines' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'folds a row’s whole subtree away when collapsed, and back on expand', async () => {
 		const user = userEvent.setup();
 		renderTable( { collapsible: true } );

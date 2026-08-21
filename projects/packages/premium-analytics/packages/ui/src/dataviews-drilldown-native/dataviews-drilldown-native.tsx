@@ -236,7 +236,10 @@ export function DataViewsDrilldownNative< Item >( {
 				...field,
 				render: ( props: DataViewRenderFieldProps< Item > ) => {
 					const id = getItemId( props.item );
-					const label = field.getValue?.( { item: props.item } );
+					// DataViews' own default when a field omits `getValue`.
+					const label =
+						field.getValue?.( { item: props.item } ) ??
+						( props.item as Record< string, unknown > )[ field.id ];
 
 					return (
 						<span className={ styles.titleCell }>
