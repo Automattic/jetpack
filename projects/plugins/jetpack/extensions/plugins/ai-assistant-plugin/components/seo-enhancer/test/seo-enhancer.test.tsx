@@ -65,15 +65,7 @@ jest.mock( '@wordpress/data', () => {
 } );
 
 describe( 'SeoEnhancer', () => {
-	it( 'keeps the manual Generate metadata button in manual-only mode even while auto-generation is on', () => {
-		mockIsEnabled = true;
-
-		render( <SeoEnhancer disableAutoEnhance={ true } /> );
-
-		expect( screen.getByRole( 'button', { name: 'Generate metadata' } ) ).toBeInTheDocument();
-	} );
-
-	it( 'hides the auto-generate toggle in manual-only mode', () => {
+	it( 'hides the auto-generate toggle where automatic generation cannot run', () => {
 		mockIsEnabled = true;
 
 		render( <SeoEnhancer disableAutoEnhance={ true } /> );
@@ -81,12 +73,12 @@ describe( 'SeoEnhancer', () => {
 		expect( screen.queryByLabelText( 'Auto-generate metadata' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows the feature checkboxes in manual-only mode', () => {
-		mockIsEnabled = true;
+	it( 'shows the manual button while automatic generation is switched off', () => {
+		mockIsEnabled = false;
 
-		render( <SeoEnhancer disableAutoEnhance={ true } /> );
+		render( <SeoEnhancer disableAutoEnhance={ false } /> );
 
-		expect( screen.getByLabelText( 'SEO title' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Generate metadata' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'hides the manual button while automatic mode is available and on', () => {

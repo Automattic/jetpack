@@ -114,7 +114,7 @@ export function SeoEnhancer( {
 							) }
 						/>
 					) }
-					{ ( ! isEnabled || disableAutoEnhance ) && (
+					{ ! isEnabled && (
 						<div className="feature-checkboxes-container">
 							{ FEATURES.map( feature => (
 								<CheckboxControl
@@ -137,7 +137,7 @@ export function SeoEnhancer( {
 					) }
 				</BaseControl>
 			</PanelRow>
-			{ ( ! isEnabled || disableAutoEnhance ) && (
+			{ ! isEnabled && (
 				<PanelRow className="jetpack-seo-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true } className="ai-seo-enhancer-toggle">
 						<Button
