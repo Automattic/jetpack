@@ -216,35 +216,12 @@ class Publicize_Script_Data {
 
 		return array(
 			'connectionData' => array(
-				'connections' => self::current_user_can_access_publicize_data() ? Connections::get_all_for_user() : array(),
+				// Same gate the block editor assets are enqueued behind, so users who
+				// never get the Social UI are not handed connection details either.
+				'connections' => Utils::current_user_can_access_publicize_data() ? Connections::get_all_for_user() : array(),
 			),
 			'shareStatus'    => $share_status,
 		);
-	}
-
-	/**
-	 * Whether the current user may be handed Publicize data.
-	 *
-	 * `Publicize_Assets::should_enqueue_block_editor_scripts()` already requires this
-	 * capability before the editor UI loads. Without the same gate here, the script
-	 * data carried connection details to users who have nothing to render them with —
-	 * a Contributor, for instance.
-	 *
-	 * Falls back to evaluating the capability directly when the Publicize instance is
-	 * not available, so the check never depends on global initialization order.
-	 *
-	 * @return bool
-	 */
-	private static function current_user_can_access_publicize_data() {
-
-		$publicize = self::publicize();
-
-		if ( $publicize instanceof Publicize_Base ) {
-			return $publicize->current_user_can_access_publicize_data();
-		}
-
-		/** This filter is documented in projects/packages/publicize/src/class-publicize-base.php */
-		return current_user_can( apply_filters( 'jetpack_publicize_capability', 'publish_posts' ) );
 	}
 
 	/**
