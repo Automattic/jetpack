@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Backup: repoint the modernized restore flow at the v2 rewind routes, map WordPress.com's real status vocabulary, and keep a restore observable when it is queued without an id. Also refuses a `types` supplied as null, which both rewind bridges read as a whole-site operation. No-op when the modernization filter is off.
-
-

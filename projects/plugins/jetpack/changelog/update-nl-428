@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Subscriptions: Fix subscribe prompts and paywalled content incorrectly showing or blocking for readers who follow the site but have no active email subscription.

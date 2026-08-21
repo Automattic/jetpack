@@ -78,7 +78,7 @@ function get_dashboard_default_layout_for( $dashboard_name ) {
  * The callbacks are used directly because the section registry may not be
  * initialized when this route runs.
  *
- * @since $$next-version$$
+ * @since 0.3.0
  *
  * @return callable[] Resolved tab ID mapped to its availability callback.
  */

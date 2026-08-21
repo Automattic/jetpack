@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Newsletter: Fix a fatal error on the settings page caused by Gutenberg removing a private API that DataViews toggle and radio fields relied on.

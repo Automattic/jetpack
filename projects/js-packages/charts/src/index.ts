@@ -32,6 +32,8 @@ export {
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 	defaultTheme,
+	useChartScopeElement,
+	useChartRegistration,
 } from './providers';
 
 // Types - explicit exports (excludes internal types like DataPointPercentageCalculated)
@@ -60,7 +62,6 @@ export type {
 	ChartLegendConfig,
 	SeriesChartLegendConfig,
 	BaseChartProps,
-	GridProps,
 	GoogleDataTableColumn,
 	GoogleDataTableColumnRoleType,
 	GoogleDataTableRow,
@@ -122,6 +123,12 @@ export type { ArcData } from './charts/pie-semi-circle-chart';
 export type { SparklineProps, GradientConfig, SparklineDataPoint } from './charts/sparkline';
 
 // Utilities
-export { parseAsLocalDate, formatMetricValue, formatPercentage, mergeThemes } from './utils';
+export {
+	parseAsLocalDate,
+	formatMetricValue,
+	formatPercentage,
+	mergeThemes,
+	resolveCssVariable,
+} from './utils';
 export * from './utils/color-utils';
 export type { MetricValueType } from './utils';

@@ -1,8 +1,18 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { fetchRecentRestores, fetchRestoreStatus, initiateRestore } from '../data/api/restore';
+import { isAmbiguousFailure } from '../data/api/_helpers';
+import {
+	fetchRecentRestores,
+	fetchRestoreStatus,
+	fetchRunningRestore,
+	initiateRestore,
+	isTerminal,
+	pickLiveRestore,
+} from '../data/api/restore';
 import { keys } from '../data/query-client';
+import { useAdoptedRestore } from './use-adopted-restore';
+import type { AdoptedRestore } from './use-adopted-restore';
 import type { RestoreStatus, RestoreStatusResponse } from '../data/api/restore';
 import type { RestoreItems, RestoreState } from '../types/restore';
 
@@ -10,6 +20,13 @@ type Result = {
 	state: RestoreState;
 	submit: ( items: RestoreItems ) => void;
 	reset: () => void;
+	/**
+	 * Set when the restore on screen was already running before this
+	 * screen opened, rather than started here. Carries the backup it is
+	 * restoring, which need not be the one in the URL — see
+	 * `useAdoptedRestore`.
+	 */
+	adopted: { rewindId: string } | null;
 };
 
 /**
@@ -39,9 +56,6 @@ const POLL_INTERVAL_MS = 5000;
  */
 const QUIET_TIMEOUT_MS = 5 * 60 * 1000;
 
-/** Statuses that mean the restore is still going, or might be. */
-const LIVE_STATUSES: RestoreStatus[] = [ 'queued', 'running', 'unknown' ];
-
 /**
  * Whether a status reading counts as a sign of life, restarting the
  * silence deadline.
@@ -63,50 +77,11 @@ function isSignOfLife( status: RestoreStatus | undefined ): boolean {
 	return status === 'running';
 }
 
-/**
- * Whether a status reading ends the poll.
- *
- * @param status - The status the bridge reported, if any.
- * @return True when there is nothing left to wait for.
- */
-function isTerminal( status: RestoreStatus | undefined ): boolean {
-	return status !== undefined && ! LIVE_STATUSES.includes( status );
-}
-
-/**
- * Whether two rewind ids name the same backup.
- *
- * Adopting the wrong id would report someone else's restore as this one,
- * so this stays an equality test and never a prefix or integer-part
- * match: two restores of the same backup share an integer part.
- *
- * What it does tolerate is formatting. A rewind id is a unix timestamp
- * with a decimal suffix, and the value in `recent_restores[]` has been
- * round-tripped through VaultPress rather than echoed back by
- * WordPress.com — so a trailing zero gained or lost (`…613.9425` vs
- * `…613.94250`) would defeat a strict string comparison for two
- * representations of the same instant. Comparing them as numbers as well
- * closes that without widening what counts as a match.
- *
- * @param candidate - A rewind id from the restores collection.
- * @param target    - The rewind id this screen submitted.
- * @return True when both name the same backup.
- */
-function sameRewindId( candidate: string, target: string ): boolean {
-	if ( ! candidate || ! target ) {
-		return false;
-	}
-	if ( candidate === target ) {
-		return true;
-	}
-	const a = Number( candidate );
-	const b = Number( target );
-	return Number.isFinite( a ) && Number.isFinite( b ) && a === b;
-}
-
 type DeriveInput = {
 	errorMessage: string | null;
 	isPending: boolean;
+	isChecking: boolean;
+	unconfirmed: string | null;
 	startedRewindId: string | null;
 	restoreId: number | null;
 	statusError: Error | null;
@@ -127,8 +102,17 @@ type DeriveInput = {
  * @return The current phase.
  */
 function deriveState( input: DeriveInput ): RestoreState {
-	const { errorMessage, isPending, startedRewindId, restoreId, statusError, data, lostTrack } =
-		input;
+	const {
+		errorMessage,
+		isPending,
+		isChecking,
+		unconfirmed,
+		startedRewindId,
+		restoreId,
+		statusError,
+		data,
+		lostTrack,
+	} = input;
 
 	if ( errorMessage ) {
 		return { phase: 'error', message: errorMessage };
@@ -137,7 +121,27 @@ function deriveState( input: DeriveInput ): RestoreState {
 		return { phase: 'submitting' };
 	}
 	if ( startedRewindId === null ) {
-		return { phase: 'idle' };
+		// Nothing of our own, and we may not yet know whether the site has
+		// a restore running from somewhere else. Withholding the form is
+		// the whole point: see `useAdoptedRestore`.
+		return isChecking ? { phase: 'checking' } : { phase: 'idle' };
+	}
+	// A submission whose answer never arrived, and no restore found for it
+	// yet. The rule this serves is the one `RestoreState` states: a retry
+	// is offered only when we know nothing is running. Five minutes of
+	// looking and finding nothing is that knowledge — before it, offering
+	// one would risk a second concurrent restore.
+	if ( unconfirmed !== null && restoreId === null ) {
+		if ( lostTrack ) {
+			return {
+				phase: 'error',
+				message: __(
+					"Your restore didn't start, so nothing on your site has changed.",
+					'jetpack-backup-pkg'
+				),
+			};
+		}
+		return { phase: 'unconfirmed', detail: unconfirmed };
 	}
 	// A network failure mid-poll, surfaced rather than left sitting at
 	// the last known percent with no way out.
@@ -187,7 +191,17 @@ function deriveState( input: DeriveInput ): RestoreState {
  * Submit starts the restore, then a polled status query advances
  * idle → submitting → queued → progress → one of the terminal states.
  *
- * Two things make this more than a request and a poll.
+ * Four things make this more than a request and a poll.
+ *
+ * A restore may already be running before this screen ever mounts — from
+ * a reload, a second tab, or Calypso. None of this hook's state survives
+ * a page load, so the screen has to go and ask; until it has an answer it
+ * shows neither the form nor a progress bar. See `useAdoptedRestore`.
+ *
+ * A submission whose answer never arrived is not a failure. WordPress.com
+ * may have queued the restore and lost only the reply, so the outcome
+ * goes into the same recovery the no-id case uses rather than into
+ * `error` — whose only control resets to an armed Confirm button.
  *
  * WordPress.com may accept a restore without returning an id for it —
  * VaultPress does not reliably echo one, and the documented response for
@@ -208,6 +222,10 @@ function deriveState( input: DeriveInput ): RestoreState {
 export function useRestore( rewindId: string ): Result {
 	const [ submittedId, setSubmittedId ] = useState< number | null >( null );
 	const [ errorMessage, setErrorMessage ] = useState< string | null >( null );
+	// Non-null while a submission's outcome is unknown, holding the
+	// transport's own text. Distinct from `errorMessage`, which means
+	// WordPress.com answered and said no.
+	const [ unconfirmed, setUnconfirmed ] = useState< string | null >( null );
 	// Set once the restore is accepted, whether or not it came with an id.
 	// Distinguishes "queued, id unknown" from "not started".
 	const [ startedRewindId, setStartedRewindId ] = useState< string | null >( null );
@@ -238,8 +256,32 @@ export function useRestore( rewindId: string ): Result {
 		reset: resetMutation,
 		isPending,
 	} = useMutation( {
-		mutationFn: ( items: RestoreItems ) => initiateRestore( rewindId, items ),
-		onSuccess: result => {
+		mutationFn: async ( items: RestoreItems ) => {
+			// The mount lookup answered once, possibly a long time ago. A
+			// screen left open while a colleague started a restore from
+			// Calypso is the very scenario this hook exists for, just
+			// displaced in time — and the click is the moment it matters.
+			//
+			// Fail open on the read, closed on the evidence: a restore is
+			// refused only on positive proof that one is running. Someone
+			// reaching for a restore is often mid-outage, and denying them
+			// their recovery because a list could not be fetched would be
+			// the worse failure by far.
+			const running = await fetchRunningRestore().catch( () => null );
+			if ( running !== null ) {
+				return { adopt: running } as const;
+			}
+			return { started: await initiateRestore( rewindId, items ) } as const;
+		},
+		onSuccess: outcome => {
+			if ( 'adopt' in outcome ) {
+				setErrorMessage( null );
+				setAdopted( { id: outcome.adopt.restore_id, rewindId: outcome.adopt.rewind_id } );
+				setAliveAt( Date.now() );
+				setLostTrack( false );
+				return;
+			}
+			const result = outcome.started;
 			setErrorMessage( null );
 			setStartedRewindId( result.rewind_id || rewindId );
 			// Acceptance starts the clock: it is the last thing we know
@@ -251,9 +293,52 @@ export function useRestore( rewindId: string ): Result {
 			}
 		},
 		onError: ( err: Error ) => {
+			// We never saw an answer, so the restore may be running. Enter
+			// the same recovery the no-id case uses and let it decide:
+			// finding one adopts it, finding none for the whole silence
+			// deadline is what finally makes a retry safe to offer.
+			if ( isAmbiguousFailure( err ) ) {
+				setUnconfirmed( err.message || null );
+				setStartedRewindId( rewindId );
+				setAliveAt( Date.now() );
+				setLostTrack( false );
+				return;
+			}
 			setErrorMessage( err.message );
 		},
 	} );
+
+	// What this site already has running, if anything. Disabled the
+	// moment this screen has a submission of its own: from then on the
+	// restore on screen is ours, and the lookup would only be a second
+	// opinion about a question we can already answer.
+	const hasOwnSubmission = startedRewindId !== null || isPending;
+	const { adopted: found, isChecking } = useAdoptedRestore( ! hasOwnSubmission );
+
+	// Latched, not read live, and that distinction is the whole
+	// lifecycle. `useAdoptedRestore` derives its answer from a
+	// confirmation query that shares a key with the status poll below —
+	// so the render that first reads `finished` is the same render in
+	// which the live value goes null. Reading it directly meant
+	// `restoreId` collapsed to null at exactly that moment,
+	// `deriveState` fell through to `idle`, and the reader who had been
+	// watching a progress bar was handed the armed Confirm button this
+	// screen exists to withhold. Every terminal branch below was
+	// unreachable for an adopted restore.
+	//
+	// The lookup decides only *whether* to adopt. Once it has, the
+	// ordinary poll owns the rest, exactly as it does for a restore
+	// started here.
+	const [ adopted, setAdopted ] = useState< AdoptedRestore | null >( null );
+	useEffect( () => {
+		if ( found !== null && ! hasOwnSubmission ) {
+			setAdopted( previous => previous ?? found );
+			// An adopted restore was accepted before this screen existed,
+			// so the silence deadline starts from the moment we found it
+			// rather than from a submission that never happened here.
+			setAliveAt( previous => previous ?? Date.now() );
+		}
+	}, [ found, hasOwnSubmission ] );
 
 	// Recovery for the no-id case. The query stays a plain read of the
 	// collection; the matching is derived below, so nothing here depends
@@ -273,11 +358,26 @@ export function useRestore( rewindId: string ): Result {
 		if ( ! needsId || startedRewindId === null ) {
 			return null;
 		}
-		const match = restoresQuery.data?.find( row => sameRewindId( row.rewind_id, startedRewindId ) );
+		const match = pickLiveRestore( restoresQuery.data ?? null, startedRewindId );
 		return match ? match.restore_id : null;
 	}, [ needsId, restoresQuery.data, startedRewindId ] );
 
-	const restoreId = submittedId ?? recoveredId;
+	// Promote a recovered id into state, which is what closes the gate
+	// above. Left purely derived, `submittedId` stayed null forever, so
+	// `needsId` never went false and the collection was fetched every
+	// five seconds for the life of the tab — long after the restore had
+	// finished, and behind a screen with nothing left to recover.
+	useEffect( () => {
+		if ( recoveredId !== null && submittedId === null ) {
+			setSubmittedId( recoveredId );
+		}
+	}, [ recoveredId, submittedId ] );
+
+	// An adoption stands in for a submission on both counts: it names the
+	// restore to poll, and it is what the screen renders instead of the
+	// form.
+	const restoreId = submittedId ?? recoveredId ?? adopted?.id ?? null;
+	const activeRewindId = startedRewindId ?? adopted?.rewindId ?? null;
 
 	// Always-defined query key so @tanstack/query/exhaustive-deps stays
 	// happy; the `enabled` flag keeps the placeholder query from firing.
@@ -324,8 +424,10 @@ export function useRestore( rewindId: string ): Result {
 
 	const submit = useCallback( ( items: RestoreItems ) => kickOff( items ), [ kickOff ] );
 	const reset = useCallback( () => {
+		setAdopted( null );
 		setSubmittedId( null );
 		setErrorMessage( null );
+		setUnconfirmed( null );
 		setStartedRewindId( null );
 		setAliveAt( null );
 		setLostTrack( false );
@@ -336,12 +438,19 @@ export function useRestore( rewindId: string ): Result {
 	const state = deriveState( {
 		errorMessage,
 		isPending,
-		startedRewindId,
+		isChecking,
+		unconfirmed,
+		startedRewindId: activeRewindId,
 		restoreId,
 		statusError: statusQuery.error,
 		data: statusQuery.data,
 		lostTrack,
 	} );
 
-	return { state, submit, reset };
+	return {
+		state,
+		submit,
+		reset,
+		adopted: adopted && ! hasOwnSubmission ? { rewindId: adopted.rewindId } : null,
+	};
 }
