@@ -23,9 +23,9 @@ import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
 import { attachSubComponents } from '../../utils';
 import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
-import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation';
+import { SingleChartContext } from '../private/single-chart-context';
 import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './pie-semi-circle-chart.module.scss';
@@ -353,7 +353,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	);
 
 	return (
-		<ChartInstanceContext.Provider value={ { chartId } }>
+		<SingleChartContext.Provider value={ { chartId } }>
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
@@ -493,7 +493,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					);
 				} }
 			</ChartLayout>
-		</ChartInstanceContext.Provider>
+		</SingleChartContext.Provider>
 	);
 };
 
