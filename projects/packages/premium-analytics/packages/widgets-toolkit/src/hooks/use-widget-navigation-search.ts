@@ -9,12 +9,12 @@ import { useMemo } from 'react';
 import { useWidgetRootContext } from '../components/widget-root';
 
 /**
- * Build search params for a widget's post detail link.
+ * Build search params for navigation from a widget.
  *
- * @param section - Optional detail tab to open.
- * @return Search params for the detail route.
+ * @param section - Optional destination section to open.
+ * @return Search params carrying the widget's report window.
  */
-export function usePostDetailSearch( section?: string ) {
+export function useWidgetNavigationSearch( section?: string ) {
 	const { reportParams, navigationParams = reportParams } = useWidgetRootContext();
 
 	return useMemo(

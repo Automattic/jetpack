@@ -12,7 +12,7 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
-	usePostDetailSearch,
+	useWidgetNavigationSearch,
 	type MetricListItem,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -59,32 +59,28 @@ type EmailsListProps = {
 
 /** Render the latest emails with their open or click rate. */
 export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) => {
-	const search = usePostDetailSearch( METRIC_SECTION[ metric ] );
+	const search = useWidgetNavigationSearch( METRIC_SECTION[ metric ] );
 
-	const items = useMemo< MetricListItem[] >(
-		() =>
-			rows.map( row => {
-				const rate = metric === 'clicks' ? row.clicksRate : row.opensRate;
+	const items: MetricListItem[] = rows.map( row => {
+		const rate = metric === 'clicks' ? row.clicksRate : row.opensRate;
 
-				return {
-					id: row.id,
-					label: (
-						<PostTitleLink
-							id={ row.postId }
-							label={ row.label }
-							link={ row.link }
-							search={ search }
-							title={ row.label }
-						/>
-					),
-					value: formatMetricValue( rate / 100, 'percentage', {
-						decimals: 2,
-						signDisplay: 'never',
-					} ),
-				};
+		return {
+			id: row.id,
+			label: (
+				<PostTitleLink
+					id={ row.postId }
+					label={ row.label }
+					link={ row.link }
+					search={ search }
+					title={ row.label }
+				/>
+			),
+			value: formatMetricValue( rate / 100, 'percentage', {
+				decimals: 2,
+				signDisplay: 'never',
 			} ),
-		[ rows, metric, search ]
-	);
+		};
+	} );
 
 	return <MetricList className={ styles.list } items={ items } />;
 };

@@ -215,7 +215,7 @@ export {
 	useChartTheme,
 	useElementSize,
 	type ElementSize,
-	usePostDetailSearch,
+	useWidgetNavigationSearch,
 	useSegmentStyles,
 	useSeriesStyles,
 	useViewportWidth,

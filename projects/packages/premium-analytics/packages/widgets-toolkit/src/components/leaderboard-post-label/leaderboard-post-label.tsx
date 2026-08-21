@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { usePostDetailSearch } from '../../hooks/use-post-detail-search';
+import { useWidgetNavigationSearch } from '../../hooks/use-widget-navigation-search';
 import { LeaderboardRow, type LeaderboardRowVariant } from '../chart-leaderboard/leaderboard-row';
 import type { ReactElement } from 'react';
 
@@ -45,7 +45,7 @@ export function LeaderboardPostLabel( {
 	variant = 'compact',
 	className,
 }: LeaderboardPostLabelProps ): ReactElement {
-	const search = usePostDetailSearch( section );
+	const search = useWidgetNavigationSearch( section );
 
 	return (
 		<LeaderboardRow
