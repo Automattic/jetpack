@@ -56,8 +56,9 @@ class Jetpack_AI_Settings {
 	/**
 	 * Feature key => option name for every toggle on the AI settings page.
 	 *
-	 * `seo_enhancer` and `ai_search` reuse options owned by the SEO/Search
-	 * surfaces; the rest are registered by this class.
+	 * `ai_search` reuses an option owned by the Search surface; the rest are
+	 * registered by this class. The automatic-generation option is deliberately
+	 * absent: the Traffic page and the SEO dashboard own it.
 	 *
 	 * @var array
 	 */
@@ -66,13 +67,12 @@ class Jetpack_AI_Settings {
 		'image_editor'      => 'jetpack_ai_image_editor_enabled',
 		'feature_clip'      => 'jetpack_ai_feature_clip_enabled',
 		'ai_seo'            => 'jetpack_ai_seo_enabled',
-		'seo_enhancer'      => 'ai_seo_enhancer_enabled',
 		'ai_search'         => 'jetpack_search_ai_answers_enabled',
 	);
 
 	/**
-	 * Option defaults. The reused SEO/Search options keep their established
-	 * opt-in defaults; the new per-feature toggles default to on.
+	 * Option defaults. The reused Search option keeps its established opt-in
+	 * default; the new per-feature toggles default to on.
 	 *
 	 * @var array
 	 */
@@ -81,13 +81,12 @@ class Jetpack_AI_Settings {
 		'image_editor'      => true,
 		'feature_clip'      => true,
 		'ai_seo'            => true,
-		'seo_enhancer'      => false,
 		'ai_search'         => false,
 	);
 
 	/**
 	 * Feature keys whose options this class registers and syncs (the reused
-	 * SEO/Search options are registered by their owning surfaces).
+	 * Search option is registered by its owning surface).
 	 *
 	 * @var array
 	 */
@@ -202,17 +201,17 @@ class Jetpack_AI_Settings {
 	public static function apply_site_wide_gates( $enabled ) {
 		return (bool) $enabled
 			&& self::host_allows_ai()
-			&& ( ! self::is_master_rollout_active() || self::is_master_enabled() );
+			&& ( ! self::should_enforce_ai_controls() || self::is_master_enabled() );
 	}
 
 	/**
-	 * Whether master enforcement has rolled out here: the AI controls are still
-	 * limited to internal testing environments, so the master only enforces
-	 * there; Simple keeps its option contract. Remove at public launch.
+	 * Whether the AI controls — the master switch and the toggles this class owns
+	 * — take effect here. They are not publicly launched, so off Simple they apply
+	 * on internal testing environments only. Remove at public launch.
 	 *
 	 * @return bool
 	 */
-	private static function is_master_rollout_active() {
+	private static function should_enforce_ai_controls() {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			return true;
 		}
@@ -318,6 +317,9 @@ class Jetpack_AI_Settings {
 	 * carries host + master). Only the matching option is read: a code-level
 	 * override belongs on the option itself, through core's own option filters.
 	 *
+	 * Not {@see self::is_ai_seo_enabled()}, which is this check for the `ai_seo`
+	 * key plus its filter and the site-wide gates. Use that one at load points.
+	 *
 	 * @param string $feature Feature key (see FEATURE_OPTIONS).
 	 * @return bool False for unknown features.
 	 */
@@ -326,12 +328,12 @@ class Jetpack_AI_Settings {
 			return false;
 		}
 
-		// WordPress.com Simple has no per-feature toggles. It keeps the existing
-		// wp.com settings contract, so the features Jetpack owns stay on there and
-		// the host and master gates remain the only controls. The reused SEO and
-		// Search options are deliberately excluded: they have their own settings
-		// surfaces on Simple and must keep honoring their stored values.
-		if ( in_array( $feature, self::OWNED_FEATURES, true ) && ( new Host() )->is_wpcom_simple() ) {
+		// The toggles this class owns stay on wherever they do not apply: Simple keeps
+		// the existing wp.com settings contract, and elsewhere they are not publicly
+		// launched. The reused Search option ships today with its own settings
+		// surface, so it always honors its stored value.
+		if ( in_array( $feature, self::OWNED_FEATURES, true )
+			&& ( ( new Host() )->is_wpcom_simple() || ! self::should_enforce_ai_controls() ) ) {
 			return true;
 		}
 
@@ -345,6 +347,9 @@ class Jetpack_AI_Settings {
 	 * is effectively enabled: its own toggle (gate 4) through the filter, with
 	 * the host and master gates ANDed after the chain so no late-priority
 	 * callback can turn the feature back on — same finality as is_ai_enabled().
+	 *
+	 * Not {@see self::is_feature_enabled()} with `ai_seo`, which is the stored
+	 * toggle alone. This is the one load points and payloads should read.
 	 *
 	 * @since $$next-version$$
 	 *

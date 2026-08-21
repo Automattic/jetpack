@@ -389,25 +389,76 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Per-feature defaults: the new toggles default on; the reused SEO/Search
-	 * options keep their established opt-in (off) defaults; unknown keys are off.
+	 * Per-feature defaults: the new toggles default on; the reused Search option
+	 * keeps its established opt-in (off) default; unknown keys are off.
 	 */
 	public function test_feature_defaults() {
 		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) );
 		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'image_editor' ) );
 		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'ai_seo' ) );
-		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' ) );
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'ai_search' ) );
+		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' ), 'The automatic-generation option is not a key here.' );
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'no_such_feature' ) );
+	}
+
+	/**
+	 * The controls this class owns are not publicly launched, so a stored-off
+	 * toggle is inert outside internal testing environments: the feature keeps
+	 * the behavior the released version has.
+	 */
+	public function test_owned_toggles_are_inert_outside_internal_testing() {
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+		update_option( 'jetpack_ai_image_editor_enabled', 0 );
+		update_option( 'jetpack_ai_feature_clip_enabled', 0 );
+		update_option( 'jetpack_ai_seo_enabled', 0 );
+
+		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) );
+		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'image_editor' ) );
+		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'feature_clip' ) );
+		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'ai_seo' ) );
+	}
+
+	/**
+	 * On an internal testing environment the same stored values apply, so the
+	 * settings page can be exercised end to end there.
+	 */
+	public function test_owned_toggles_apply_on_internal_testing() {
+		$this->force_internal_testing_env();
+
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+		update_option( 'jetpack_ai_image_editor_enabled', 0 );
+		update_option( 'jetpack_ai_feature_clip_enabled', 0 );
+		update_option( 'jetpack_ai_seo_enabled', 0 );
+
+		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) );
+		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'image_editor' ) );
+		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'feature_clip' ) );
+		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'ai_seo' ) );
+	}
+
+	/**
+	 * The reused Search option is not one of the controls this class owns: it
+	 * ships today with its own settings surface, so it applies everywhere and
+	 * the rollout scoping must not touch it.
+	 */
+	public function test_reused_toggles_apply_outside_internal_testing() {
+		update_option( 'jetpack_search_ai_answers_enabled', 1 );
+
+		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'ai_search' ) );
+
+		update_option( 'jetpack_search_ai_answers_enabled', 0 );
+
+		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'ai_search' ) );
 	}
 
 	/**
 	 * The SEO feature (AI SEO metadata generation, manual and automatic) is a
 	 * listed control: its own option switches it off while every outer gate is
-	 * open.
+	 * open. Internal testing environment, where the owned toggles apply.
 	 */
 	public function test_seo_feature_follows_its_option() {
 		$this->force_ai_module_active();
+		$this->force_internal_testing_env();
 
 		$this->assertTrue( Jetpack_AI_Settings::is_ai_seo_enabled(), 'Defaults on with every gate open.' );
 
@@ -469,9 +520,11 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * A feature's option turns it off.
+	 * A feature's option turns it off where the owned toggles apply.
 	 */
 	public function test_feature_option_off() {
+		$this->force_internal_testing_env();
+
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
 
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) );
@@ -508,23 +561,22 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		update_option( 'ai_seo_enhancer_enabled', 0 );
 		update_option( 'jetpack_search_ai_answers_enabled', 0 );
 
-		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' ) );
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'ai_search' ) );
 
 		// ...and on must stay on, so the value is genuinely read rather than
 		// hardcoded in either direction.
-		update_option( 'ai_seo_enhancer_enabled', 1 );
 		update_option( 'jetpack_search_ai_answers_enabled', 1 );
 
-		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' ) );
 		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'ai_search' ) );
 	}
 
 	/**
-	 * Off Simple the same option still switches the feature off.
+	 * Off Simple the same option still switches the feature off, where the
+	 * owned toggles apply.
 	 */
 	public function test_owned_features_honor_their_option_off_wpcom_simple() {
 		Constants::set_constant( 'IS_WPCOM', false );
+		$this->force_internal_testing_env();
 
 		update_option( 'jetpack_ai_image_editor_enabled', 0 );
 

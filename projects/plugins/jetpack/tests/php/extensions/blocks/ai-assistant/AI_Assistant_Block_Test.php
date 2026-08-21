@@ -31,6 +31,11 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+		// The AI controls only take effect on internal testing environments while
+		// they are unlaunched. These tests are about what the toggles do, so put
+		// the suite where they apply; the scoping itself is pinned in
+		// Jetpack_AI_Settings_Test.
+		$this->force_master_enforcement_for_test();
 
 		Jetpack_Gutenberg::reset();
 		add_filter( 'jetpack_offline_mode', '__return_false' );
@@ -53,6 +58,7 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	 * Clean up after each test.
 	 */
 	public function tear_down() {
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		if ( Blocks::is_registered( self::BLOCK_NAME ) ) {
 			unregister_block_type( self::BLOCK_NAME );
 		}
