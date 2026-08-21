@@ -15,29 +15,13 @@ export interface DrilldownToggleProps {
 	label: string;
 	/** Whether the row's children are currently shown. */
 	expanded: boolean;
-	/**
-	 * Fold or unfold the row. Omitted on a row with no children, which renders
-	 * the empty slot instead: without it a childless row's title would sit a
-	 * chevron's width to the left of its siblings'.
-	 */
+	/** Fold or unfold the row. Omit to render an empty slot. */
 	onToggle?: () => void;
 }
 
 /**
- * The fold control for one drilldown row, in a slot every row reserves.
- *
- * A plain button rather than the design system's, because the control and the
- * empty slot have to occupy the identical box for titles at one depth to line
- * up, and `Button`'s own sizing wins over a passed class.
- *
- * State lives in `aria-expanded` rather than in the name, so a screen reader
- * announces the row's title once and its state alongside it.
- *
- * @param props          - The component props.
- * @param props.label    - The row's title, naming the control.
- * @param props.expanded - Whether the row's children are shown.
- * @param props.onToggle - Fold or unfold the row; omitted on a childless row.
- * @return The toggle slot.
+ * Render the fold control or an empty slot for a drilldown row.
+ * The fixed-size slot keeps titles aligned at each depth.
  */
 export function DrilldownToggle( { label, expanded, onToggle }: DrilldownToggleProps ) {
 	if ( ! onToggle ) {

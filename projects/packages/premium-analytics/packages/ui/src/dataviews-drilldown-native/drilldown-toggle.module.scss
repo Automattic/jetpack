@@ -1,5 +1,4 @@
-/* Control and placeholder share this box: titles at one depth only line up
- * if a childless row reserves exactly what a foldable row spends. */
+/* Reserve the control's space so sibling titles stay aligned. */
 .slot {
 	display: inline-flex;
 	flex-shrink: 0;

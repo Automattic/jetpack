@@ -24,8 +24,7 @@
 	visibility: hidden;
 }
 
-/* Keep the fold control on the title's baseline instead of
- * stacking above it. */
+/* Keep the fold control on the title's baseline. */
 .titleCell {
 	display: inline-flex;
 	gap: var(--wpds-dimension-gap-xs);

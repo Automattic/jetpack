@@ -48,7 +48,6 @@ function renderTable( props: Partial< DataViewsDrilldownNativeProps< Row > > = {
 	);
 }
 
-/** The referrer cell of every rendered row, in order. */
 const renderedRows = () =>
 	screen
 		.getAllByRole( 'row' )

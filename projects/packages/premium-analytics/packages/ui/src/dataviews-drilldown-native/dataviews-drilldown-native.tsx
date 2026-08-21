@@ -71,11 +71,7 @@ export interface DataViewsDrilldownNativeProps< Item > {
 	 * `dataviews-view-table__level` marker span ships unstyled upstream.
 	 */
 	hideLevelMarkers?: boolean;
-	/**
-	 * Add a fold control to rows that have children. Off by default: the native
-	 * level rendering this component wraps is a static display, and the collapse
-	 * layer is local until core ships its own (WordPress/gutenberg#80360).
-	 */
+	/** Add a fold control to rows that have children. */
 	collapsible?: boolean;
 	/** Whether rows start unfolded. Ignored unless `collapsible`. */
 	defaultExpanded?: 'all' | 'none';
@@ -94,8 +90,7 @@ export interface DataViewsDrilldownNativeProps< Item > {
  * (`view.showLevels` + `getItemLevel`), keeping the hierarchy legible across
  * interactions: search and filter keep each match under its ancestors, sort
  * orders within each level (not a flat global sort), and rows are emitted in
- * depth-first order before pagination. Pass `collapsible` to fold branches;
- * see `./collapsible-rows.ts` for that layer.
+ * depth-first order before pagination. Pass `collapsible` to fold branches.
  */
 export function DataViewsDrilldownNative< Item >( {
 	data,
