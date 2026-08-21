@@ -25,16 +25,12 @@ class Comment_Form_Test extends BaseTestCase {
 	public static function reset_comment_form() {
 		$instance = new \ReflectionProperty( Comment_Form::class, 'instance' );
 
-		// Required to reach a private property before PHP 8.1, and a deprecated
-		// no-op from 8.5, so it has to be conditional.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$instance->setAccessible( true );
 		}
 
 		$instance->setValue( null, null );
 
-		// wp_scripts() and wp_styles() are globals WorDBless leaves alone, so a
-		// registered handle and its inline data would otherwise outlive the test.
 		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited -- Resetting test state.
 		$GLOBALS['wp_scripts'] = null;
 		$GLOBALS['wp_styles']  = null;
@@ -362,7 +358,6 @@ class Comment_Form_Test extends BaseTestCase {
 		$this->assertSame( array( 'logged_in_as' => 'kept' ), apply_filters( 'comment_form_defaults', array( 'logged_in_as' => 'kept' ) ) );
 		$this->assertSame( '<p class="form-submit"></p>', $comment_form->render( '<p class="form-submit"></p>' ) );
 
-		// A submission for that post type is core's business, not ours.
 		$_POST[ Comment_Form::NONCE_NAME ] = 'not-a-nonce';
 		$comment_form->verify_nonce( $post_id );
 		$this->assertTrue( true );
@@ -431,7 +426,6 @@ class Comment_Form_Test extends BaseTestCase {
 
 		$comment_form->verify_nonce();
 
-		// wp_die() would have thrown; reaching here is the assertion.
 		$this->assertTrue( true );
 
 		unset( $_POST[ Comment_Form::NONCE_NAME ] );

@@ -56,7 +56,6 @@
 	}
 
 	input {
-		// Themes style bare inputs heavily, so start from nothing.
 		all: initial;
 		box-sizing: border-box;
 		inline-size: 100%;
@@ -111,7 +110,6 @@
 			border-color: transparent;
 
 			&::after {
-				// 36px track less the 14px knob less the 2px far gap.
 				inset-inline-start: 20px;
 				background: #fff;
 			}
@@ -129,10 +127,8 @@
 	display: block;
 	box-sizing: border-box;
 	flex-shrink: 0;
-	// A 36x18 inner track, so the 14px knob clears 2px on every side.
 	inline-size: 38px;
 	block-size: 20px;
-	// Optically centres the switch on the first line of its label.
 	margin-block-start: 1px;
 	padding: 0;
 	border: 1px solid currentColor;
@@ -143,8 +139,6 @@
 	&::after {
 		content: "";
 		position: absolute;
-		// Centred against the track rather than offset from the top, so the knob
-		// stays put whatever box-sizing the surrounding reset lands on.
 		inset-block: 0;
 		inset-inline-start: 2px;
 		margin-block: auto;
@@ -167,7 +161,6 @@
 	line-height: 22px;
 }
 
-// Sits in the submit row, pushing the button to the far side.
 .jetpack-comments__user {
 	display: flex;
 	align-items: center;

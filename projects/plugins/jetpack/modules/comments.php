@@ -21,7 +21,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( Comments::is_enabled() ) {
-	// The form renders on this site, so the remote hosts below are never hit.
 	Comments::init();
 } else {
 	Assets::add_resource_hint(
@@ -37,9 +36,6 @@ if ( Comments::is_enabled() ) {
 
 /*
  * Add the main commenting system.
- *
- * Loaded either way, because the class carries the module's settings screen. It
- * stands its own front end down when Comments::is_enabled().
  */
 require __DIR__ . '/comments/comments.php';
 require __DIR__ . '/comments/subscription-modal-on-comment/class-jetpack-subscription-modal-on-comment.php';

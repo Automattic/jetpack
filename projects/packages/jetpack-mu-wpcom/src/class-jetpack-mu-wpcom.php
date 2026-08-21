@@ -761,8 +761,6 @@ class Jetpack_Mu_Wpcom {
 				return;
 			}
 
-			// Jetpack Comments renders the form instead. Guarded because wpcom builds
-			// its own classmap, which may not carry the package yet.
 			if ( class_exists( '\Automattic\Jetpack\Comments\Comments' ) && \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
 				\Automattic\Jetpack\Comments\Comments::init();
 				return;

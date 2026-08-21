@@ -30,7 +30,7 @@ class Comment_Form {
 	const NONCE_NAME = 'jetpack_comments_form_nonce';
 
 	/**
-	 * Colour schemes the form knows how to draw.
+	 * Supported colour schemes.
 	 */
 	const COLOR_SCHEMES = array( 'transparent', 'light', 'dark' );
 
@@ -42,7 +42,7 @@ class Comment_Form {
 	private static $instance = null;
 
 	/**
-	 * Whether the settings blob has already been attached to the script.
+	 * Whether the settings blob has been printed.
 	 *
 	 * @var bool
 	 */
@@ -65,17 +65,12 @@ class Comment_Form {
 	 * Take over the core comment form.
 	 */
 	private function __construct() {
-		// Drops every field core would draw, the textarea included. With the array
-		// empty core skips the loop, so no comment_form_field_* filter runs either.
 		add_filter( 'comment_form_fields', array( $this, 'comment_form_fields' ) );
 		add_filter( 'comment_form_logged_in', array( $this, 'comment_form_logged_in' ) );
 		add_filter( 'comment_form_defaults', array( $this, 'comment_form_defaults' ), 20 );
 
-		// The app renders where the submit button would have been.
 		add_filter( 'comment_form_submit_field', array( $this, 'render' ), 10, 2 );
 
-		// On a site requiring registration core prints a notice and returns before
-		// the form, so the app needs drawing on that branch too.
 		add_action( 'comment_form_must_log_in_after', array( $this, 'render_must_log_in' ) );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ) );
@@ -83,10 +78,7 @@ class Comment_Form {
 	}
 
 	/**
-	 * Whether this form should replace core's for the post being displayed.
-	 *
-	 * Sites use this to keep the Jetpack comment form off a given post type. It
-	 * predates this package, and is the one documented way to opt out.
+	 * Whether this form should replace core's for a post's type.
 	 *
 	 * @param int|null $post_id Post being commented on. Defaults to the current one.
 	 * @return bool
@@ -119,10 +111,7 @@ class Comment_Form {
 	}
 
 	/**
-	 * Set up the arguments the form reads back out.
-	 *
-	 * These are defaults, so a theme passing any of them to comment_form() still
-	 * wins.
+	 * Set the form arguments the app reads back out.
 	 *
 	 * @param array $args Comment form arguments.
 	 * @return array
@@ -139,8 +128,6 @@ class Comment_Form {
 			'label_submit'         => _x( 'Comment', 'verb', 'jetpack-comments' ),
 		);
 
-		// The greeting the Comments settings screen writes. Only override the
-		// heading when one is actually set, so core's own default survives.
 		$greeting = get_option( 'highlander_comment_form_prompt' );
 		if ( is_string( $greeting ) && $greeting !== '' ) {
 			$defaults['title_reply'] = $greeting;
@@ -167,10 +154,7 @@ class Comment_Form {
 	}
 
 	/**
-	 * Draw the app where core would have printed its "you must log in" notice.
-	 *
-	 * Core returns before opening the form on that branch, so this supplies one.
-	 * The app finds its form with closest( 'form' ) and needs it either way.
+	 * Draw the app, and a form to hold it, on the must-log-in branch.
 	 *
 	 * @return void
 	 */
@@ -201,9 +185,6 @@ class Comment_Form {
 	/**
 	 * Hidden fields the form needs to post.
 	 *
-	 * Core emits `comment_post_ID` and `comment_parent` as part of the submit
-	 * field, which this form replaces wholesale.
-	 *
 	 * @return string
 	 */
 	private function hidden_fields() {
@@ -215,9 +196,6 @@ class Comment_Form {
 
 	/**
 	 * The post being commented on.
-	 *
-	 * Note that get_queried_object_id() is wrong inside a query loop, where the
-	 * form belongs to the looped post rather than to the page.
 	 *
 	 * @return int
 	 */
@@ -239,7 +217,7 @@ class Comment_Form {
 	}
 
 	/**
-	 * Register the bundle. Enqueuing waits until a form actually renders.
+	 * Register the bundle, and the stylesheet on a singular view.
 	 *
 	 * @return void
 	 */
@@ -258,9 +236,6 @@ class Comment_Form {
 			)
 		);
 
-		// Keeps the CSS out of the footer on classic themes, where the form renders
-		// after wp_head(). Query loops, where is_singular() is false, are covered by
-		// enqueue_assets().
 		if ( is_singular() && comments_open() ) {
 			wp_enqueue_style( self::HANDLE );
 		}
@@ -273,8 +248,6 @@ class Comment_Form {
 	 * @return void
 	 */
 	public function enqueue_assets( $args = array() ) {
-		// A block theme renders its whole template, this form included, before
-		// wp_head() runs, so wp_enqueue_scripts has not necessarily fired yet.
 		$this->register_assets();
 
 		if ( ! $this->settings_printed ) {
@@ -318,7 +291,7 @@ class Comment_Form {
 	}
 
 	/**
-	 * How long a comment the database will take.
+	 * Longest comment the database will accept.
 	 *
 	 * @return int
 	 */
@@ -330,9 +303,6 @@ class Comment_Form {
 
 	/**
 	 * The copy the app renders.
-	 *
-	 * The submit label comes from the comment form arguments, so a theme or plugin
-	 * that sets `label_submit` gets what it asked for.
 	 *
 	 * @param array $args Comment form arguments.
 	 * @return array
@@ -378,7 +348,6 @@ class Comment_Form {
 	 * @return void
 	 */
 	public function verify_nonce( $comment_post_id = 0 ) {
-		// Core drew the form for this post type, so core's own checks apply.
 		if ( ! self::enabled_for_post_type( $comment_post_id ) ) {
 			return;
 		}
@@ -390,8 +359,6 @@ class Comment_Form {
 			return;
 		}
 
-		// Logging in or out with the form already on screen submits a nonce minted
-		// for the other state, so give the logged-out one a second look.
 		$current_user_id = get_current_user_id();
 		wp_set_current_user( 0 );
 		$valid_logged_out = wp_verify_nonce( $nonce, self::NONCE_ACTION );

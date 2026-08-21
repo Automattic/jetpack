@@ -17,8 +17,6 @@ export const GuestFields = () => {
 	const { commenter } = useContext( CommentSignals );
 	const { requireNameEmail, showCookiesConsent, strings } = JetpackComments;
 
-	// Core ticks this for anyone who already has the cookies, and an unticked box
-	// tells wp_set_comment_cookies() to delete them.
 	const hasSavedDetails = !! JetpackComments.commenter.email;
 
 	const update = ( field: keyof Commenter, value: string ) => {

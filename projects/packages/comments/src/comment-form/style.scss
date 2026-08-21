@@ -37,7 +37,6 @@
 }
 
 .jetpack-comments__textarea {
-	// Themes style bare textareas heavily, so start from nothing.
 	all: initial;
 	box-sizing: border-box;
 	display: block;
@@ -54,7 +53,6 @@
 	font-weight: 400;
 	line-height: 1.4;
 	white-space: pre-wrap;
-	// Both come from the UA stylesheet that `all: initial` above discards.
 	overflow-wrap: break-word;
 	overflow: hidden;
 	resize: none;
@@ -81,7 +79,6 @@
 }
 
 .jetpack-comments__submit {
-	// Same reasoning as the textarea: themes have opinions about buttons.
 	all: unset;
 	display: inline-block;
 	padding: 7px 20px;

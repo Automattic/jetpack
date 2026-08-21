@@ -36,9 +36,6 @@ class Identity {
 			$settings['user'] = array(
 				'displayName' => $user->display_name,
 				'avatarUrl'   => get_avatar_url( $user->ID, array( 'size' => 48 ) ),
-				// wp_nonce_url() escapes for HTML, but this is handed to JavaScript,
-				// which assigns it verbatim. Left encoded, the nonce arrives as
-				// "amp;_wpnonce" and logging out hits the "are you sure" page.
 				'logoutUrl'   => html_entity_decode( wp_logout_url( get_permalink( $post_id ) ), ENT_COMPAT ),
 			);
 		}

@@ -46,6 +46,5 @@ export type Settings = {
 };
 
 declare global {
-	// Inlined by Comment_Form::enqueue_assets() ahead of the bundle.
 	const JetpackComments: Settings;
 }

@@ -130,7 +130,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since 1.4
 	 */
 	protected function setup_actions() {
-		// Jetpack Comments renders the form instead.
 		if ( \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
 			return;
 		}
@@ -158,7 +157,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since 1.6.2
 	 */
 	protected function setup_filters() {
-		// Jetpack Comments renders the form instead.
 		if ( \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
 			return;
 		}

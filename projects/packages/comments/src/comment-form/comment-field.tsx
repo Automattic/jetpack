@@ -16,8 +16,6 @@ export const CommentField = () => {
 	const { strings, maxLength } = JetpackComments;
 	const textarea = useRef< HTMLTextAreaElement >( null );
 
-	// Fits a restored draft on mount, then again whenever the textarea changes
-	// width, because rewrapped text needs a different height.
 	useEffect( () => {
 		const element = textarea.current;
 
@@ -27,7 +25,6 @@ export const CommentField = () => {
 
 		resize( element );
 
-		// Guarded on width so the height this writes cannot retrigger the observer.
 		let width = element.clientWidth;
 		const observer = new ResizeObserver( () => {
 			if ( element.clientWidth !== width ) {

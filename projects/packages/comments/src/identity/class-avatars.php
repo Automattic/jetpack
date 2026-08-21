@@ -10,21 +10,17 @@ namespace Automattic\Jetpack\Comments;
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 
 /**
- * Serves the avatar of a commenter whose picture WordPress cannot derive from
- * an email address.
+ * Avatars WordPress cannot derive from an email address.
  */
 class Avatars {
 
 	/**
-	 * Comment meta holding an avatar hosted somewhere WordPress cannot derive it
-	 * from an email address. Written by the comment experience this package
-	 * succeeds, and still read here so those comments keep their picture.
+	 * Comment meta holding a stored avatar URL.
 	 */
 	const AVATAR_META = 'hc_avatar';
 
 	/**
-	 * Hosts whose avatars are served. Anything else in the meta is ignored, so a
-	 * value that reached the database some other way cannot be rendered.
+	 * Hosts whose avatars are served.
 	 *
 	 * @var string[]
 	 */
@@ -41,10 +37,6 @@ class Avatars {
 
 	/**
 	 * Serve a stored avatar for comments that carry one.
-	 *
-	 * Hooked ahead of core's own resolution rather than onto the finished markup,
-	 * so the URL also reaches get_avatar_url() and everything built on it, the
-	 * REST API's author_avatar_urls included.
 	 *
 	 * @param array $args        Avatar arguments.
 	 * @param mixed $id_or_email What the avatar was requested for.
@@ -63,12 +55,8 @@ class Avatars {
 
 		$size = isset( $args['size'] ) ? (int) $args['size'] : 96;
 
-		// Resized and served over https when the CDN recognises the URL as an image.
-		// Anything else, Facebook's extensionless /picture included, comes back as-is.
 		$args['url'] = Image_CDN_Core::cdn_url( $stored, array( 'resize' => "$size,$size" ) );
 
-		// Core sets this false before the filter runs, and short-circuits before it
-		// would have flipped it. Left alone, get_avatar() marks the image default.
 		$args['found_avatar'] = true;
 
 		return $args;

@@ -18,8 +18,6 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	const { postId, commentParent, commentValue, isSavingComment } = useContext( CommentSignals );
 	const { isLoggedIn, mustLogIn } = JetpackComments;
 
-	// Checked synchronously, so a second click before the page navigates cannot
-	// post the comment twice.
 	const isSubmitting = useRef( false );
 
 	useEffect( () => {
@@ -31,7 +29,6 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 
 		commentParent.value = Number( parentInput.getAttribute( 'value' ) );
 
-		// WordPress moves the form and rewrites this value when Reply is clicked.
 		const observer = new MutationObserver( () => {
 			commentParent.value = Number( parentInput.getAttribute( 'value' ) );
 		} );
@@ -40,7 +37,9 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 		return () => observer.disconnect();
 	}, [ form, commentParent ] );
 
-	useEffect( () => saveDraft( postId, commentValue.value ), [ postId, commentValue.value ] );
+	useEffect( () => {
+		saveDraft( postId, commentValue.value );
+	}, [ postId, commentValue.value ] );
 
 	useEffect( () => {
 		const onSubmit = () => {
@@ -53,7 +52,6 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 			saveDraft( postId, '' );
 		};
 
-		// A bfcache restore leaves the form usable again.
 		const onPageShow = ( event: PageTransitionEvent ) => {
 			if ( event.persisted ) {
 				isSubmitting.current = false;
@@ -90,7 +88,6 @@ document.querySelectorAll< HTMLElement >( '.jetpack-comments' ).forEach( element
 		return;
 	}
 
-	// Read from the form rather than the settings, which are printed once per page.
 	const postId = Number( form.querySelector< HTMLInputElement >( '#comment_post_ID' )?.value ?? 0 );
 
 	render(
