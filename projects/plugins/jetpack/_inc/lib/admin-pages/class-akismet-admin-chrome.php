@@ -327,10 +327,10 @@ class Akismet_Admin_Chrome {
 		// The header renders on every Akismet page, so on the settings page itself the link
 		// is self-referential. `$plugin_page` is core's sanitized copy of the `page` query arg.
 		global $plugin_page;
-		$aria_current = 'akismet-key-config' === $plugin_page ? ' aria-current="page"' : '';
+		$aria_current = 'akismet-key-config' === $plugin_page ? 'page' : 'false';
 		?>
 		<header class="jp-akismet-header">
-			<a class="jp-akismet-header__title" href="<?php echo esc_url( admin_url( 'admin.php?page=akismet-key-config' ) ); ?>"<?php echo $aria_current; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static attribute. ?>>
+			<a class="jp-akismet-header__title" href="<?php echo esc_url( admin_url( 'admin.php?page=akismet-key-config' ) ); ?>" aria-current="<?php echo esc_attr( $aria_current ); ?>">
 				<span class="jp-akismet-header__visual" aria-hidden="true"><?php echo $this->akismet_logo( 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></span>
 				<h1><?php esc_html_e( 'Akismet Anti-spam', 'jetpack' ); ?></h1>
 			</a>
