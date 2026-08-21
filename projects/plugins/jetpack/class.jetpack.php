@@ -657,6 +657,7 @@ class Jetpack {
 		 * Check for and alert any deprecated hooks
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
+		add_action( 'init', array( __CLASS__, 'reconcile_ai_master_state' ), 20 );
 
 		// Note how this runs at an earlier plugin_loaded hook intentionally to accomodate for other plugins.
 		add_action( 'plugin_loaded', array( $this, 'add_configure_hook' ), 90 );
@@ -3019,55 +3020,47 @@ p {
 	}
 
 	/**
-	 * Option flag that records the AI master-switch opt-out reconciliation has run,
-	 * so it never runs twice.
+	 * Option flag that records the second AI master-state migration has completed.
 	 *
 	 * @var string
 	 */
-	const AI_MASTER_OPTOUT_MIGRATED_OPTION = 'jetpack_ai_master_optout_migrated';
+	const AI_MASTER_STATE_MIGRATED_OPTION = 'jetpack_ai_master_state_migrated_v2';
 
 	/**
-	 * Register the on-upgrade init hooks whose relative ORDER matters, extracted so
-	 * the ordering can be asserted in tests without invoking plugin_upgrade() (whose
-	 * guards make it unreliable to trigger under test). activate_new_modules()
-	 * (init, default priority 10) auto-activates "Auto Activate: Yes" modules
-	 * including the `ai` master; reconcile_ai_master_optout() must run at a LATER
-	 * priority to honor an explicit AI opt-out.
+	 * Register the on-upgrade module activation hook.
+	 *
+	 * The AI master-state migration is registered on every request in the constructor
+	 * so a site without a connected owner, an offline site, or a failed option write is
+	 * retried. It runs at priority 20, after activate_new_modules() at the default priority 10,
+	 * so an explicit legacy opt-out has the final word over automatic activation.
 	 *
 	 * @return void
 	 */
 	public static function register_upgrade_init_hooks() {
 		add_action( 'init', array( __CLASS__, 'activate_new_modules' ) );
-		add_action( 'init', array( __CLASS__, 'reconcile_ai_master_optout' ), 20 );
 	}
 
 	/**
-	 * Preserves an explicit Jetpack AI opt-out when the `ai` module becomes the site-wide
-	 * master switch off WordPress.com Simple (self-hosted and Atomic).
+	 * Migrates the legacy Jetpack AI master state to the `ai` module off WordPress.com Simple.
 	 *
-	 * The `ai` module is "Auto Activate: Yes", so on upgrade {@see self::activate_new_modules()}
-	 * turns it on for connected sites — the desired default-on / auto-enable-on-connection
-	 * behavior, which this method deliberately leaves alone. The one case it corrects is a site
-	 * that had explicitly disabled Jetpack AI (the `jetpack_ai_enabled` option present and falsey)
-	 * before the module shipped: that opt-out must survive the module becoming the master, so the
-	 * module is deactivated for exactly those sites. An absent or truthy option is left untouched.
+	 * An explicit falsey `jetpack_ai_enabled` value keeps the module inactive. An absent or truthy
+	 * value activates it. This repairs sites where the first 16.2 alpha skipped automatic module
+	 * activation because its prerelease version compared lower than the module's original 16.2
+	 * introduction boundary.
 	 *
-	 * Ordering is the whole point. `activate_new_modules()` is hooked on `init` at priority 10 and
-	 * auto-activates the module there; this method is hooked on `init` at priority 20 (see
-	 * {@see self::plugin_upgrade()}), so it runs AFTER the auto-activation and its deactivation is
-	 * the final state. A version-guarded block that ran inline during `plugins_loaded` would be
-	 * undone by the later auto-activation, which is why this is a late-init hook rather than an
-	 * inline upgrade step.
+	 * It runs at init priority 20, after upgrade auto-activation at priority 10. The migration is
+	 * registered on every request and marks itself complete only after a connected owner is available
+	 * outside offline mode and the desired durable module state is confirmed. Until it completes, an
+	 * explicit legacy opt-out remains authoritative over any interim module activation.
 	 *
 	 * WordPress.com Simple never runs modules — the option stays the master there — so this is a
-	 * no-op on Simple. The {@see self::AI_MASTER_OPTOUT_MIGRATED_OPTION} flag makes it run exactly
-	 * once, which matters because off-Simple the option is no longer the master after this runs:
-	 * a stale falsey option must not keep re-deactivating a module the user later turns back on.
+	 * no-op on Simple. The {@see self::AI_MASTER_STATE_MIGRATED_OPTION} flag makes it run exactly
+	 * once after it succeeds, so a stale legacy option cannot override later module changes.
 	 *
 	 * @return void
 	 */
-	public static function reconcile_ai_master_optout() {
-		if ( get_option( self::AI_MASTER_OPTOUT_MIGRATED_OPTION ) ) {
+	public static function reconcile_ai_master_state() {
+		if ( get_option( self::AI_MASTER_STATE_MIGRATED_OPTION ) ) {
 			return;
 		}
 
@@ -3076,14 +3069,37 @@ p {
 			return;
 		}
 
-		// A sentinel default distinguishes an absent option (leave auto-activation alone) from one
-		// explicitly stored falsey (an opt-out to preserve).
-		$stored = get_option( 'jetpack_ai_enabled', 'not-set' );
-		if ( 'not-set' !== $stored && ! (bool) $stored ) {
-			( new Modules() )->deactivate( 'ai' );
+		// A sentinel default distinguishes an absent option (default on) from one explicitly stored
+		// falsey (an opt-out to preserve).
+		$stored           = get_option( 'jetpack_ai_enabled', 'not-set' );
+		$should_be_active = 'not-set' === $stored || (bool) $stored;
+		$can_complete     = self::is_connection_ready()
+			&& self::connection()->has_connected_owner()
+			&& ! ( new Status() )->is_offline_mode();
+
+		// Enforce an explicit opt-out even while disconnected. Keep the migration pending until the
+		// full connection is ready so later default-module activation cannot undo the opt-out.
+		if ( $should_be_active && ! $can_complete ) {
+			return;
 		}
 
-		update_option( self::AI_MASTER_OPTOUT_MIGRATED_OPTION, true );
+		$active_modules = (array) Jetpack_Options::get_option( 'active_modules', array() );
+		$is_active      = in_array( 'ai', $active_modules, true );
+
+		if ( $should_be_active !== $is_active ) {
+			// Match default-module activation's durable update path. Modules::activate() adds a plan
+			// gate that the skipped upgrade activation does not use.
+			$active_modules = $should_be_active
+				? array_merge( $active_modules, array( 'ai' ) )
+				: array_diff( $active_modules, array( 'ai' ) );
+			self::update_active_modules( array_values( array_unique( $active_modules ) ) );
+		}
+
+		$active_modules = (array) Jetpack_Options::get_option( 'active_modules', array() );
+		if ( $can_complete && $should_be_active === in_array( 'ai', $active_modules, true ) ) {
+			update_option( self::AI_MASTER_STATE_MIGRATED_OPTION, true );
+			delete_option( 'jetpack_ai_master_optout_migrated' );
+		}
 	}
 
 	/**

@@ -4,7 +4,7 @@
  * Module Description: Turn your ideas into ready-to-publish content and generate images with the power of AI.
  * Sort Order: 40
  * Recommendation Order: 15
- * First Introduced: 16.2
+ * First Introduced: 16.2-a.2
  * Requires Connection: Yes
  * Requires User Connection: Yes
  * Auto Activate: Yes

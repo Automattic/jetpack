@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Jetpack AI: Restore AI after the 16.2 alpha upgrade while preserving explicit opt-outs.

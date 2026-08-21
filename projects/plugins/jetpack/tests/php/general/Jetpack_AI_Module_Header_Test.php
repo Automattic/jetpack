@@ -32,6 +32,7 @@ class Jetpack_AI_Module_Header_Test extends \WP_UnitTestCase {
 
 		$info = jetpack_get_module_info( 'ai' );
 		$this->assertIsArray( $info );
+		$this->assertSame( '16.2-a.2', $info['introduced'] );
 		$this->assertSame( 'Yes', $info['auto_activate'] );
 		$this->assertSame( 'Yes', $info['requires_connection'] );
 		$this->assertSame( 'Yes', $info['requires_user_connection'] );

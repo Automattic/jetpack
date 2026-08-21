@@ -284,7 +284,7 @@ class Jetpack_AI_Settings {
 		// The module alone is the master off-Simple. The option is deliberately NOT
 		// written here: WordPress.com derives the master state from the synced
 		// `active_modules` callable, and the stored option must keep its legacy
-		// pre-module value so Jetpack::reconcile_ai_master_optout() can read an
+		// pre-module value so Jetpack::reconcile_ai_master_state() can read an
 		// explicit opt-out on sites that upgrade later.
 		( new Modules() )->update_status( self::AI_MODULE, $enabled, false, false );
 	}

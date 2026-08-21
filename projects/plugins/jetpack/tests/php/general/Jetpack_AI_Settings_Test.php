@@ -255,7 +255,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	 * Off-Simple the module alone is the master: the setter must never write the
 	 * `jetpack_ai_enabled` option. WordPress.com reads the master state from the
 	 * synced active_modules list, and the option's only remaining off-Simple role
-	 * is the legacy pre-module opt-out that Jetpack::reconcile_ai_master_optout()
+	 * is the legacy pre-module opt-out that Jetpack::reconcile_ai_master_state()
 	 * reads once — a write here would clobber that signal and re-create a second,
 	 * driftable source of truth.
 	 */
