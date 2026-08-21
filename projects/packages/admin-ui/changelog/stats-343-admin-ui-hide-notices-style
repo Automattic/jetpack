@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Enqueue the CSS that hides core admin notices on Jetpack pages through wp_add_inline_style() instead of printing a style element.

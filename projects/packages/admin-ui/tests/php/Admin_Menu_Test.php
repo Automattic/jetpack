@@ -106,6 +106,8 @@ class Admin_Menu_Test extends TestCase {
 		wp_deregister_style( 'jetpack-admin-ui-upgrade-menu' );
 		wp_dequeue_script( 'jetpack-admin-ui-upgrade-menu' );
 		wp_deregister_script( 'jetpack-admin-ui-upgrade-menu' );
+		wp_dequeue_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
+		wp_deregister_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
 
 		$reflection = new \ReflectionClass( Admin_Menu::class );
 
@@ -209,35 +211,77 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Calling hide_core_admin_notices queues the inline style printer.
+	 * The core-notice CSS reaches the page through the style queue, not through a printed style element.
 	 *
 	 * @return void
 	 */
-	public function test_hide_core_admin_notices_queues_inline_style() {
+	public function test_hide_core_admin_notices_enqueues_the_css_as_an_inline_style() {
 		Admin_Menu::hide_core_admin_notices();
 
-		$this->assertNotFalse(
-			has_action( 'admin_print_styles', array( Admin_Menu::class, 'print_hide_core_admin_notices_style' ) ),
-			'Expected the inline style printer to be hooked to admin_print_styles.'
-		);
+		$this->assertTrue( wp_style_is( Admin_Menu::HIDE_CORE_NOTICES_HANDLE, 'enqueued' ) );
+		$this->assertFalse( wp_styles()->registered[ Admin_Menu::HIDE_CORE_NOTICES_HANDLE ]->src );
 
-		remove_action( 'admin_print_styles', array( Admin_Menu::class, 'print_hide_core_admin_notices_style' ) );
+		$css = implode( '', $this->get_hide_core_notices_css() );
+
+		$this->assertStringContainsString( '#wpbody-content > .notice', $css );
+		$this->assertStringContainsString( '#wpbody-content > .update-nag', $css );
+		$this->assertStringContainsString( '#wpbody-content > .updated', $css );
+		$this->assertStringContainsString( '#wpbody-content > .error', $css );
+		$this->assertStringNotContainsString( '<style', $css );
+		// JITMs render as `.jetpack-jitm-message`; the selector must not match them.
+		$this->assertStringNotContainsString( 'jetpack-jitm-message', $css );
 	}
 
 	/**
-	 * The printed style targets only direct-child core notices, leaving JITMs untouched.
+	 * The CSS loads on a Jetpack page's load hook and stays off every other admin screen.
 	 *
 	 * @return void
 	 */
-	public function test_print_hide_core_admin_notices_style_output() {
+	public function test_hide_core_admin_notices_css_is_scoped_to_jetpack_pages() {
+		$hook = Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'notices_scope_menu', '__return_null' );
+
+		do_action( 'load-toplevel_page_some_other_plugin' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+
+		$this->assertFalse(
+			wp_style_is( Admin_Menu::HIDE_CORE_NOTICES_HANDLE, 'registered' ),
+			'Expected no core-notice CSS on a screen that is not a Jetpack page.'
+		);
+
+		do_action( 'load-' . $hook ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+
+		$this->assertTrue( wp_style_is( Admin_Menu::HIDE_CORE_NOTICES_HANDLE, 'enqueued' ) );
+	}
+
+	/**
+	 * The CSS is attached once even when the hide callback runs more than once in a request.
+	 *
+	 * @return void
+	 */
+	public function test_hide_core_admin_notices_adds_the_css_once() {
+		for ( $i = 0; $i < 2; $i++ ) {
+			Admin_Menu::hide_core_admin_notices();
+		}
+
+		$this->assertCount( 1, $this->get_hide_core_notices_css() );
+
 		ob_start();
-		Admin_Menu::print_hide_core_admin_notices_style();
+		wp_styles()->do_items( array( Admin_Menu::HIDE_CORE_NOTICES_HANDLE ) );
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( 'id="jetpack-admin-ui-hide-core-notices"', $output );
-		$this->assertStringContainsString( '#wpbody-content > .notice', $output );
-		// JITMs render as `.jetpack-jitm-message`; the selector must not match them.
-		$this->assertStringNotContainsString( 'jetpack-jitm-message', $output );
+		$this->assertSame( 1, substr_count( $output, '<style' ) );
+		$this->assertSame( 1, substr_count( $output, '#wpbody-content > .notice' ) );
+		$this->assertStringContainsString( 'jetpack-admin-ui-hide-core-notices-inline-css', $output );
+	}
+
+	/**
+	 * Gets the inline CSS attached to the core-notice style handle.
+	 *
+	 * @return array
+	 */
+	private function get_hide_core_notices_css() {
+		$data = wp_styles()->get_data( Admin_Menu::HIDE_CORE_NOTICES_HANDLE, 'after' );
+
+		return is_array( $data ) ? $data : array();
 	}
 
 	/**
