@@ -3,11 +3,14 @@
  */
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Badge } from '@wordpress/ui';
+import { Badge, Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import { inferFieldTypeFromLabel } from './components/inspector/response-fields/field-preview/field-preview-utils.ts';
+import {
+	EMAIL_REGEX,
+	inferFieldTypeFromLabel,
+} from './components/inspector/response-fields/field-preview/field-preview-utils.ts';
 import FieldRating from './components/inspector/response-fields/field-rating/index.tsx';
 import {
 	isFieldsCollection,
@@ -229,6 +232,25 @@ export const getResponseFieldValue = ( response: FormResponse, key: string ): st
 };
 
 /**
+ * The link a field's value should open, when it is the kind of value worth acting on.
+ *
+ * @param type  - The form field type.
+ * @param value - The value as display text.
+ * @return        An href, or null when the value should render as plain text.
+ */
+const getFieldHref = ( type: FieldType, value: string ): string | null => {
+	if ( type === 'email' && EMAIL_REGEX.test( value ) ) {
+		return `mailto:${ value }`;
+	}
+
+	if ( type === 'telephone' || type === 'phone' ) {
+		return `tel:${ value.replace( /\s+/g, '' ) }`;
+	}
+
+	return null;
+};
+
+/**
  * Turns column descriptors into DataViews field definitions.
  *
  * @param columns - The column descriptors.
@@ -285,6 +307,20 @@ export const buildResponseFieldColumns = (
 				return (
 					<span className="jp-forms__inbox__field-column is-badges" title={ value }>
 						<Badge intent="draft">{ value }</Badge>
+					</span>
+				);
+			}
+
+			// An address or number in a table is worth acting on, so make it actionable.
+			// The inspector's own FieldEmail/FieldPhone are deliberately not reused here:
+			// they add a copy button and an async country-code lookup per value, which is
+			// the right weight for one open response and the wrong weight for every row.
+			const href = getFieldHref( column.type, value );
+
+			if ( href ) {
+				return (
+					<span className="jp-forms__inbox__field-column" title={ value }>
+						<Link href={ href }>{ value }</Link>
 					</span>
 				);
 			}
