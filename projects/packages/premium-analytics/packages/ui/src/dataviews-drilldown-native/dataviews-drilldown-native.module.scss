@@ -23,3 +23,11 @@
 .hideLevelMarkers :global(.dataviews-view-table__level) {
 	visibility: hidden;
 }
+
+/* Keep the fold control on the title's baseline instead of
+ * stacking above it. */
+.titleCell {
+	display: inline-flex;
+	gap: var(--wpds-dimension-gap-xs);
+	align-items: center;
+}
