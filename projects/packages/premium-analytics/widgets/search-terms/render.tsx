@@ -2,10 +2,12 @@
  * External dependencies
  */
 import {
+	WIDGET_ROW_LIMIT,
 	calculateDelta,
 	describeError,
 	getCombinedPeriodMax,
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
 	WidgetFooter,
 	WidgetRoot,
@@ -33,13 +35,13 @@ type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes >;
 /**
  * Search Terms widget inner component. Reads report params from WidgetRoot context.
  */
-function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
+function SearchTermsInner() {
 	const { reportParams } = useWidgetRootContext();
 
 	const { data, isLoading, isFetching, isError, error, hasComparison, refetch } =
 		useSearchTermViews( {
 			reportParams,
-			max,
+			max: WIDGET_ROW_LIMIT,
 		} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
@@ -92,6 +94,7 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 						icon: search,
 						description: __( 'No search terms in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
 						data={ leaderboardData }
@@ -119,7 +122,7 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 export default function SearchTerms( { attributes = {} }: SearchTermsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SearchTermsInner max={ attributes.max } />
+			<SearchTermsInner />
 		</WidgetRoot>
 	);
 }

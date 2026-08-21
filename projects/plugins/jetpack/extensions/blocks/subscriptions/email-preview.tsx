@@ -619,6 +619,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 					) }
 					{ ! isLoading && ! isError && (
 						<iframe
+							sandbox=""
 							srcDoc={ previewCache?.[ selectedAccess ] }
 							style={ {
 								width: deviceWidth,

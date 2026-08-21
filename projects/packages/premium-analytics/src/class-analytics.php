@@ -21,7 +21,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.3.0';
 
 	/**
 	 * Whether the class has been initialized.

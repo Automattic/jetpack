@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { readFileSync } from 'node:fs';
 import { defineConfig } from 'tsdown';
+import { assertChartsScopeEmitted } from './tools/assert-charts-scope-emitted.ts';
 import { assertNoDynamicRequire } from './tools/assert-no-dynamic-require.ts';
 import { removeDataTestId } from './tools/remove-data-testid.ts';
 
@@ -62,5 +63,6 @@ export default defineConfig( {
 			);
 		}
 		assertNoDynamicRequire( 'dist' );
+		assertChartsScopeEmitted( 'dist' );
 	},
 } );

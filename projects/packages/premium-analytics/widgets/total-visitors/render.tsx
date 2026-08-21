@@ -6,6 +6,7 @@ import { Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	describeError,
+	MetricSparklineSkeleton,
 	Sparkline,
 	useWidgetRootContext,
 	WidgetRoot,
@@ -99,6 +100,7 @@ function TotalVisitorsMetric() {
 					icon: people,
 					description: __( 'No visitors in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <MetricSparklineSkeleton /> }
 			>
 				<div className={ styles.body }>
 					{ /* Not `MetricValue`: it pins a 20px line-height at any font size, which

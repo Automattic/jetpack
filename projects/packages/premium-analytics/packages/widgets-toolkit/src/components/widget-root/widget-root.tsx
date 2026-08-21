@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { AnalyticsQueryClientProvider } from '@jetpack-premium-analytics/data';
+import {
+	AnalyticsQueryClientProvider,
+	useReportScope,
+	withoutComparison,
+} from '@jetpack-premium-analytics/data';
 import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
 import { useMemo, type ReactNode } from 'react';
 /**
@@ -47,9 +51,25 @@ type WidgetRootProps = {
  */
 export function WidgetRoot( { attributes, children, setError }: WidgetRootProps ) {
 	const chartTheme = useChartTheme();
-	const reportParams = useNormalizedReportParams( attributes );
+	const navigationParams = useNormalizedReportParams( attributes );
 
-	const contextValue = useMemo( () => ( { reportParams, setError } ), [ reportParams, setError ] );
+	/*
+	 * Stripped after resolution rather than at either source, so a surface that
+	 * offers no comparison holds the invariant by construction: neither the URL
+	 * nor a widget's own attributes can put a comparison in front of a reader
+	 * who has no control to switch it off. The params stay in the URL, for the
+	 * surfaces that do offer one to pick back up.
+	 */
+	const { offersComparison } = useReportScope();
+	const reportParams = useMemo(
+		() => ( offersComparison ? navigationParams : withoutComparison( navigationParams ) ),
+		[ navigationParams, offersComparison ]
+	);
+
+	const contextValue = useMemo(
+		() => ( { reportParams, navigationParams, setError } ),
+		[ reportParams, navigationParams, setError ]
+	);
 
 	return (
 		<AnalyticsQueryClientProvider>

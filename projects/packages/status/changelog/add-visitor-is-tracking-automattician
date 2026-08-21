@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Visitor: Add is_tracking_automattician() to identify Automattician traffic for analytics reporting.
