@@ -12,6 +12,7 @@ import {
 	useCallback,
 	useContext,
 } from 'react';
+import { ChartInstanceContext } from '../../../charts/private/chart-instance-context';
 import { useTextTruncation } from '../../../hooks';
 import { GlobalChartsContext, useGlobalChartsTheme } from '../../../providers';
 import { useStandaloneScopeClass } from '../../../providers/chart-scope';
@@ -150,6 +151,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 
 		const theme = useGlobalChartsTheme();
 		const context = useContext( GlobalChartsContext );
+		const chartInstanceContext = useContext( ChartInstanceContext );
 		const standaloneScopeClass = useStandaloneScopeClass();
 
 		const legendScale = scaleOrdinal( {
@@ -185,12 +187,15 @@ export const BaseLegend: ForwardRefExoticComponent<
 		// programmatically must read as hidden even when the legend cannot be clicked.
 		const isSeriesVisible = useCallback(
 			( seriesLabel: string ) => {
+				if ( chartInstanceContext?.isSeriesVisible ) {
+					return chartInstanceContext.isSeriesVisible( seriesLabel );
+				}
 				if ( ! chartId || ! context ) {
 					return true;
 				}
 				return context.isSeriesVisible( chartId, seriesLabel );
 			},
-			[ chartId, context ]
+			[ chartId, chartInstanceContext, context ]
 		);
 
 		// Create event handlers to avoid inline arrow functions

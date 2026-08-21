@@ -622,6 +622,24 @@ describe( 'BaseLegend', () => {
 			expect( buttons ).toHaveLength( 0 );
 		} );
 
+		it( 'uses chart-instance visibility before provider state', () => {
+			render(
+				<GlobalChartsProvider>
+					<ChartInstanceContext.Provider
+						value={ {
+							chartId: 'test-chart',
+							isSeriesVisible: label => label !== 'Item 1',
+						} }
+					>
+						<BaseLegend items={ defaultItems } chartId="test-chart" />
+					</ChartInstanceContext.Provider>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getByRole( 'listitem', { name: 'Item 1: hidden' } ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Item 2' ) ).toBeInTheDocument();
+		} );
+
 		it( 'works without chartId but does not toggle', async () => {
 			const user = userEvent.setup();
 
