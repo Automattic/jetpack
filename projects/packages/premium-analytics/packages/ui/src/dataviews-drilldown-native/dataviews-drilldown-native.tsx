@@ -4,7 +4,7 @@
 import { DataViews, filterSortAndPaginate } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -29,6 +29,14 @@ type GetItemLevelBaseProps< Item > = ViewBaseProps< Item >[ 'getItemLevel' ];
 const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
 const NO_IDS: ReadonlySet< string > = new Set();
 
+type CollapseContextValue = {
+	isExpanded: ( id: string ) => boolean;
+	toggleableIds: ReadonlySet< string >;
+	onToggle: ( id: string ) => void;
+};
+
+const CollapseContext = createContext< CollapseContextValue | null >( null );
+
 /**
  * `DataViews`' own `getItemId` prop is conditionally optional on `Item` having
  * an `id: string`, which TypeScript cannot discharge for an unresolved
@@ -49,6 +57,52 @@ const GenericDataViews = DataViews as unknown as < Item >( props: {
 	searchLabel?: string;
 	config?: { perPageSizes: number[] };
 } ) => ReturnType< typeof DataViews >;
+
+type CollapsibleTitleCellProps< Item > = DataViewRenderFieldProps< Item > & {
+	sourceField: Field< Item >;
+	getItemId: GetItemIdBaseProps< Item >;
+};
+
+function CollapsibleTitleCell< Item >( {
+	sourceField,
+	getItemId,
+	...props
+}: CollapsibleTitleCellProps< Item > ) {
+	const collapse = useContext( CollapseContext );
+
+	if ( ! collapse ) {
+		throw new Error( 'CollapsibleTitleCell must be rendered within CollapseContext.' );
+	}
+
+	const id = getItemId( props.item );
+	// DataViews' own default when a field omits `getValue`.
+	const label =
+		sourceField.getValue?.( { item: props.item } ) ??
+		( props.item as Record< string, unknown > )[ sourceField.id ];
+	const RenderTitle = sourceField.render;
+
+	return (
+		<span className={ styles.titleCell }>
+			<DrilldownToggle
+				label={ label ? String( label ) : __( 'Toggle group', 'jetpack-premium-analytics-pkg' ) }
+				expanded={ collapse.isExpanded( id ) }
+				onToggle={ collapse.toggleableIds.has( id ) ? () => collapse.onToggle( id ) : undefined }
+			/>
+			{ RenderTitle ? <RenderTitle { ...props } /> : String( label ?? '' ) }
+		</span>
+	);
+}
+
+function makeCollapsibleTitleField< Item >(
+	field: Field< Item >,
+	getItemId: GetItemIdBaseProps< Item >
+): Field< Item > {
+	function CollapsibleTitle( props: DataViewRenderFieldProps< Item > ) {
+		return <CollapsibleTitleCell { ...props } sourceField={ field } getItemId={ getItemId } />;
+	}
+
+	return { ...field, render: CollapsibleTitle };
+}
 
 export interface DataViewsDrilldownNativeProps< Item > {
 	/** Flat rows: parents and children mixed; children carry a parent id. */
@@ -131,7 +185,7 @@ export function DataViewsDrilldownNative< Item >( {
 	// Keep the hierarchy legible instead of the flat `filterSortAndPaginate`
 	// semantics: match, re-attach ancestors, re-emit in hierarchy order, then
 	// paginate. Runs over the in-memory rows, so the extra passes are cheap.
-	const { pageData, levelById, paginationInfo, parentIds, isRowExpanded } = useMemo( () => {
+	const { pageData, levelById, paginationInfo, toggleableIds, isExpanded } = useMemo( () => {
 		// 1. Match: apply the view's search + filters only (no sort, one page).
 		const matches = filterSortAndPaginate(
 			data,
@@ -171,6 +225,14 @@ export function DataViewsDrilldownNative< Item >( {
 		const visibleData = collapsible
 			? filterCollapsedRows( orderedData, getItemId, levels, isExpanded )
 			: orderedData;
+		// Resolve parents before folding so collapsed rows keep their controls.
+		// Forced-open ancestors stay non-interactive to preserve stored state.
+		const parentIds = collapsible
+			? findParentIds( orderedData, getItemId, getItemParentId )
+			: NO_IDS;
+		const toggleableIds = forcedIds.size
+			? new Set( [ ...parentIds ].filter( id => ! forcedIds.has( id ) ) )
+			: parentIds;
 
 		// 5. Paginate the rows that survived, so folded children stop consuming
 		//    pages. Folding cannot strand the reader past the last page: the rows
@@ -187,10 +249,8 @@ export function DataViewsDrilldownNative< Item >( {
 				totalItems: visibleData.length,
 				totalPages: Math.max( 1, Math.ceil( visibleData.length / perPage ) ),
 			},
-			// Resolved before the fold, so a collapsed row keeps the control that
-			// unfolds it once its children are gone from the visible rows.
-			parentIds: collapsible ? findParentIds( orderedData, getItemId, getItemParentId ) : NO_IDS,
-			isRowExpanded: isExpanded,
+			toggleableIds,
+			isExpanded,
 		};
 	}, [
 		data,
@@ -214,6 +274,10 @@ export function DataViewsDrilldownNative< Item >( {
 			return next;
 		} );
 	}, [] );
+	const collapseContextValue = useMemo(
+		() => ( { isExpanded, toggleableIds, onToggle: handleToggle } ),
+		[ isExpanded, toggleableIds, handleToggle ]
+	);
 
 	// The fold control belongs to the title cell — the only column DataViews
 	// renders levels on — so it is grafted onto the consumer's title field
@@ -223,40 +287,10 @@ export function DataViewsDrilldownNative< Item >( {
 			return fields;
 		}
 
-		return fields.map( field => {
-			if ( field.id !== view.titleField ) {
-				return field;
-			}
-
-			// Rendered as an element rather than called: DataViews types `render` as
-			// a component, so it may legitimately hold hooks of its own.
-			const RenderTitle = field.render;
-
-			return {
-				...field,
-				render: ( props: DataViewRenderFieldProps< Item > ) => {
-					const id = getItemId( props.item );
-					// DataViews' own default when a field omits `getValue`.
-					const label =
-						field.getValue?.( { item: props.item } ) ??
-						( props.item as Record< string, unknown > )[ field.id ];
-
-					return (
-						<span className={ styles.titleCell }>
-							<DrilldownToggle
-								label={
-									label ? String( label ) : __( 'Toggle group', 'jetpack-premium-analytics-pkg' )
-								}
-								expanded={ isRowExpanded( id ) }
-								onToggle={ parentIds.has( id ) ? () => handleToggle( id ) : undefined }
-							/>
-							{ RenderTitle ? <RenderTitle { ...props } /> : String( label ?? '' ) }
-						</span>
-					);
-				},
-			};
-		} );
-	}, [ collapsible, fields, view.titleField, getItemId, parentIds, isRowExpanded, handleToggle ] );
+		return fields.map( field =>
+			field.id === view.titleField ? makeCollapsibleTitleField( field, getItemId ) : field
+		);
+	}, [ collapsible, fields, view.titleField, getItemId ] );
 
 	// Resolved by id: DataViews clones each record internally, so the items
 	// reaching `getItemLevel` are never the objects the hierarchy walk saw.
@@ -276,21 +310,23 @@ export function DataViewsDrilldownNative< Item >( {
 	);
 
 	return (
-		<div className={ clsx( styles.root, hideLevelMarkers && styles.hideLevelMarkers ) }>
-			<GenericDataViews< Item >
-				view={ view }
-				onChangeView={ handleChangeView }
-				fields={ displayFields }
-				data={ pageData }
-				getItemId={ getItemId }
-				getItemLevel={ getItemLevel }
-				isLoading={ isLoading }
-				paginationInfo={ paginationInfo }
-				defaultLayouts={ { table: {} } }
-				empty={ empty }
-				searchLabel={ searchLabel }
-				config={ { perPageSizes } }
-			/>
-		</div>
+		<CollapseContext.Provider value={ collapseContextValue }>
+			<div className={ clsx( styles.root, hideLevelMarkers && styles.hideLevelMarkers ) }>
+				<GenericDataViews< Item >
+					view={ view }
+					onChangeView={ handleChangeView }
+					fields={ displayFields }
+					data={ pageData }
+					getItemId={ getItemId }
+					getItemLevel={ getItemLevel }
+					isLoading={ isLoading }
+					paginationInfo={ paginationInfo }
+					defaultLayouts={ { table: {} } }
+					empty={ empty }
+					searchLabel={ searchLabel }
+					config={ { perPageSizes } }
+				/>
+			</div>
+		</CollapseContext.Provider>
 	);
 }

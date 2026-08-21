@@ -50,8 +50,8 @@ This is the third of three comparison implementations of the same drill-down sur
 />
 ```
 
-- **`defaultExpanded`** picks the opening state, `'all'` (the default, matching the static rendering) or `'none'`. What the component stores is which rows the reader toggled *away* from that default, not the expanded ids — so rows that arrive later, from an async load or a filter change, follow the default instead of coming back folded.
-- **Search and filter win over a fold.** A narrowed table still has to answer the search that narrowed it, so the matches' ancestors unfold for as long as the search or filter is on, and fold back when it clears. Each match's own children stay as the reader left them.
+- **`defaultExpanded`** picks the opening state, `'all'` (the default, matching the static rendering) or `'none'`. What the component stores is which rows the reader toggled _away_ from that default, not the expanded ids — so rows that arrive later, from an async load or a filter change, follow the default instead of coming back folded.
+- **Search and filter win over a fold.** A narrowed table still has to answer the search that narrowed it, so the matches' ancestors unfold for as long as the search or filter is on, and fold back when it clears. Their fold controls are hidden while they are forced open. Each match's own children stay as the reader left them.
 - **Rows with no children still reserve the chevron's slot**, so their titles line up with their siblings' instead of sitting a chevron's width to the left.
 
 Everything the layer needs lives in `collapsible-rows.ts` and `drilldown-toggle.tsx`, plus the `collapsible` branches in the component. It is a workaround for what core defers: `hierarchyStyle: 'tree'` ([WordPress/gutenberg#74072](https://github.com/WordPress/gutenberg/issues/74072)) and the tree design discussion ([WordPress/gutenberg#80360](https://github.com/WordPress/gutenberg/issues/80360)). When one of those ships, delete those two files and the prop.

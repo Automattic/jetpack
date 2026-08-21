@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DataViewsDrilldownNative } from '../dataviews-drilldown-native';
 import type { DataViewsDrilldownNativeProps } from '../dataviews-drilldown-native';
@@ -104,6 +104,18 @@ describe( 'DataViewsDrilldownNative collapse', () => {
 		expect( screen.getByText( 'Google Search' ) ).toBeInTheDocument();
 	} );
 
+	it( 'keeps focus on a toggle after it changes the fold state', async () => {
+		const user = userEvent.setup();
+		renderTable( { collapsible: true } );
+		const toggle = screen.getByRole( 'button', { name: 'Search Engines' } );
+
+		toggle.focus();
+		await user.keyboard( '{Enter}' );
+
+		expect( screen.getByRole( 'button', { name: 'Search Engines' } ) ).toBe( toggle );
+		expect( toggle ).toHaveFocus();
+	} );
+
 	it( 'starts folded when asked, and still expands on demand', async () => {
 		const user = userEvent.setup();
 		renderTable( { collapsible: true, defaultExpanded: 'none' } );
@@ -132,6 +144,17 @@ describe( 'DataViewsDrilldownNative collapse', () => {
 		expect( screen.getByText( 'Google' ) ).toBeInTheDocument();
 		// A branch the search never touched stays folded.
 		expect( screen.queryByText( 'Facebook' ) ).not.toBeInTheDocument();
+		// Forced-open ancestors cannot change the stored fold state.
+		expect( screen.queryByRole( 'button', { name: 'Search Engines' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Google' } ) ).not.toBeInTheDocument();
+
+		await user.clear( screen.getByRole( 'searchbox' ) );
+
+		await waitFor( () => expect( screen.queryByText( 'Google' ) ).not.toBeInTheDocument() );
+		expect( screen.getByRole( 'button', { name: 'Search Engines' } ) ).toHaveAttribute(
+			'aria-expanded',
+			'false'
+		);
 	} );
 
 	it( 'counts only the visible rows when paginating', async () => {

@@ -1,10 +1,9 @@
 /**
  * External dependencies
  */
-import { Icon } from '@jetpack-premium-analytics/externals';
+import { Button } from '@jetpack-premium-analytics/externals';
 import { isRTL } from '@wordpress/i18n';
 import { chevronDown, chevronLeft, chevronRight } from '@wordpress/icons';
-import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -31,14 +30,16 @@ export function DrilldownToggle( { label, expanded, onToggle }: DrilldownToggleP
 	const collapsedIcon = isRTL() ? chevronLeft : chevronRight;
 
 	return (
-		<button
-			type="button"
-			className={ clsx( styles.slot, styles.toggle ) }
+		<Button
+			className={ styles.slot }
+			variant="minimal"
+			tone="neutral"
+			size="small"
 			aria-label={ label }
 			aria-expanded={ expanded }
 			onClick={ onToggle }
 		>
-			<Icon icon={ expanded ? chevronDown : collapsedIcon } size={ 16 } />
-		</button>
+			<Button.Icon icon={ expanded ? chevronDown : collapsedIcon } size={ 16 } />
+		</Button>
 	);
 }
