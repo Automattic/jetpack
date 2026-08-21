@@ -23,8 +23,16 @@ class Comment_Form_Test extends BaseTestCase {
 	 * @return void
 	 */
 	public static function reset_comment_form() {
-		$instance = new \ReflectionProperty( Comment_Form::class, 'instance' );
-		$instance->setValue( null, null );
+		// Bound to the class so it can reach the private property. Reflection would
+		// need setAccessible(), which is required before PHP 8.1 and deprecated in 8.5.
+		$reset = \Closure::bind(
+			static function () {
+				Comment_Form::$instance = null;
+			},
+			null,
+			Comment_Form::class
+		);
+		$reset();
 
 		// wp_scripts() and wp_styles() are globals WorDBless leaves alone, so a
 		// registered handle and its inline data would otherwise outlive the test.
