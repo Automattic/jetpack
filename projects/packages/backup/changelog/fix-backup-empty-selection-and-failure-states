@@ -1,3 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Backup: refuse a restore or download that selects no categories, tell the reader when the backup-state read failed or their backups are failing, and stop forwarding raw transport errors to the browser. No-op when the modernization filter is off.

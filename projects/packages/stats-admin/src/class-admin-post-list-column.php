@@ -60,7 +60,7 @@ class Admin_Post_List_Column {
 	 * Load CSS needed for Stats column width in WP-Admin area.
 	 *
 	 * @since 4.7.0
-	 * @since $$next-version$$ Added the `$hook_suffix` parameter.
+	 * @since 0.33.0 Added the `$hook_suffix` parameter.
 	 *
 	 * @param string $hook_suffix The current admin page.
 	 */

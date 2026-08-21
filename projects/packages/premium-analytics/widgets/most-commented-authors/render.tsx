@@ -6,13 +6,13 @@ import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
 	describeError,
 	sharePercentage,
-	toMaxRows,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -33,24 +33,15 @@ type MostCommentedAuthorsWidgetProps = WidgetRenderProps< MostCommentedAuthorsRe
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
-const DEFAULT_MAX = 10;
-
-interface MostCommentedAuthorsInnerProps {
-	/**
-	 * Maximum number of rows to display. `0` means all rows.
-	 */
-	max: number;
-}
-
 /**
  * Top commented authors inner component. The comment counts come from the
  * all-time `stats/comments` report, so there is no date range or comparison
  * period to read from context.
  */
-function MostCommentedAuthorsInner( { max }: MostCommentedAuthorsInnerProps ) {
+function MostCommentedAuthorsInner() {
 	const { rows, isLoading, isFetching, isError, error, refetch } = useStatsCommentsRows( {
 		group: 'authors',
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
@@ -93,7 +84,7 @@ function MostCommentedAuthorsInner( { max }: MostCommentedAuthorsInnerProps ) {
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
-					renderLoading={ <LeaderboardSkeleton rows={ max } /> }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
 						data={ leaderboardData }
@@ -128,7 +119,7 @@ export default function MostCommentedAuthors( {
 }: MostCommentedAuthorsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<MostCommentedAuthorsInner max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
+			<MostCommentedAuthorsInner />
 		</WidgetRoot>
 	);
 }

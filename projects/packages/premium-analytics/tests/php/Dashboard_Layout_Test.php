@@ -380,7 +380,6 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'utmDimension' => 'utm_source,utm_medium',
-				'max'          => 10,
 			),
 			$layout_by_uuid[ $utm_widget_uuid ]['attributes']
 		);
@@ -486,7 +485,6 @@ class Dashboard_Layout_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'max'    => 10,
 				'metric' => 'opens',
 			),
 			$layout_by_uuid['default-subscribers-emails-widget-instance']['attributes']

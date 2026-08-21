@@ -99,7 +99,7 @@ function is_woocommerce_dashboard_section_available_to_current_user() {
  * Sites without Jetpack have no module state to check, so the section remains
  * available. Modules::is_active() also returns true on WPCOM Simple.
  *
- * @since $$next-version$$
+ * @since 0.3.0
  *
  * @return bool True when the subscriptions module is active.
  */
@@ -109,7 +109,7 @@ function is_subscribers_dashboard_section_available() {
 	/**
 	 * Filters whether the Subscribers dashboard section is available.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @param bool $is_available Whether the subscriptions module was detected in the current request.
 	 */

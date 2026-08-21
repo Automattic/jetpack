@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 import {
 	DonutChartSkeleton,
 	Legend,
+	WIDGET_ROW_LIMIT,
 	describeError,
 	SemiCircleChart,
 	WidgetRoot,
@@ -43,18 +44,11 @@ function toRatio( percentage: number ) {
 	return percentage / 100;
 }
 
-type DevicesInnerProps = {
-	/**
-	 * Max rows to display.
-	 */
-	max: number;
-};
-
-function DevicesInner( { max }: DevicesInnerProps ) {
+function DevicesInner() {
 	const { reportParams } = useWidgetRootContext();
 	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useDeviceViews( {
 		reportParams,
-		max,
+		max: WIDGET_ROW_LIMIT,
 		deviceProperty: 'screensize',
 	} );
 
@@ -125,12 +119,10 @@ function DevicesInner( { max }: DevicesInnerProps ) {
  * Shows screen size breakdown (Desktop / Mobile / Tablet) as a semi-circle chart.
  */
 export default function DevicesWidget( { attributes = {} }: DevicesWidgetProps ) {
-	const max = attributes?.max ?? 5;
-
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<DevicesInner max={ max } />
+				<DevicesInner />
 			</div>
 		</WidgetRoot>
 	);
