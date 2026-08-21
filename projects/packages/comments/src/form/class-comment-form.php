@@ -30,6 +30,16 @@ class Comment_Form {
 	const NONCE_NAME = 'jetpack_comments_form_nonce';
 
 	/**
+	 * Colour schemes the form can be drawn in.
+	 */
+	const COLOR_SCHEMES = array( 'transparent', 'light', 'dark' );
+
+	/**
+	 * Colour scheme used when the site has not chosen one.
+	 */
+	const DEFAULT_COLOR_SCHEME = 'transparent';
+
+	/**
 	 * Singleton instance.
 	 *
 	 * @var Comment_Form|null
@@ -272,9 +282,9 @@ class Comment_Form {
 	 * @return string
 	 */
 	private static function color_scheme() {
-		$scheme = get_option( 'jetpack_comment_form_color_scheme', 'transparent' );
+		$scheme = get_option( 'jetpack_comment_form_color_scheme', self::DEFAULT_COLOR_SCHEME );
 
-		return in_array( $scheme, array( 'transparent', 'light', 'dark' ), true ) ? $scheme : 'transparent';
+		return in_array( $scheme, self::COLOR_SCHEMES, true ) ? $scheme : self::DEFAULT_COLOR_SCHEME;
 	}
 
 	/**
