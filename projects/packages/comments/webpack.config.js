@@ -30,7 +30,7 @@ export default {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
-		comments: path.join( __dirname, 'src/comment-form/index.tsx' ),
+		comments: path.join( __dirname, 'src/form/index.tsx' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,

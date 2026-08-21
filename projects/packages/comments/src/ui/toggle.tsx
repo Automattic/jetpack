@@ -1,5 +1,7 @@
 import type { ComponentChildren } from 'preact';
 
+import './style.scss';
+
 type ToggleProps = {
 	id: string;
 	name: string;

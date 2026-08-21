@@ -1,7 +1,7 @@
 import { useContext } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
-import { EmailIcon, NameIcon, WebsiteIcon } from './icons';
-import { Toggle } from './toggle';
+import { EmailIcon, NameIcon, WebsiteIcon } from '../ui/icons';
+import { Toggle } from '../ui/toggle';
 import type { Commenter } from '../shared/types';
 
 import './style.scss';

@@ -48,15 +48,21 @@ which is the shape worth copying.
 
 ## Layout
 
-`src/` is organized by feature, not by language. Each feature owns its PHP, its components and its styles.
+`src/` is organized by feature, not by language. Each feature owns its PHP, its components and its styles. A directory means several files collaborate; one class stays one file.
 
 ```
 src/
   class-comments.php    the filter, and what to boot
-  comment-form/         takeover, mount, nonce, textarea, submit
-  identity/             who is commenting, and avatars for who already did
+  class-avatars.php     avatars on comments already written
+  form/                 takeover, mount, nonce, layout, the text box, submit
+  identity/             who is commenting: guest fields, log-in prompt, attribution
+  ui/                   widgets shared across the form
   shared/               signals, and the PHP-to-JS settings shape
 ```
+
+Sections appear when there is something to put in them. Subscriptions, a block
+editor and submission handling each earn a directory once they exist, and a REST
+route belongs to the feature it serves rather than to a folder of endpoints.
 
 ## Where it loads from
 

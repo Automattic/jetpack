@@ -1,0 +1,72 @@
+/**
+ * Widgets shared across the form.
+ */
+
+.jetpack-comments__toggle {
+	all: unset;
+	display: inline-flex;
+	align-items: flex-start;
+	gap: 10px;
+	cursor: pointer;
+
+	input[type="checkbox"] {
+		all: unset;
+		position: absolute;
+		opacity: 0;
+		transform: scale(0);
+
+		&:checked + .jetpack-comments__toggle-switch {
+			background: var(--jetpack-comments-accent-color);
+			border-color: transparent;
+
+			&::after {
+				inset-inline-start: 20px;
+				background: #fff;
+			}
+		}
+
+		&:focus-visible + .jetpack-comments__toggle-switch {
+			outline: 1px solid var(--jetpack-comments-accent-color);
+			outline-offset: 1px;
+		}
+	}
+}
+
+.jetpack-comments__toggle-switch {
+	position: relative;
+	display: block;
+	box-sizing: border-box;
+	flex-shrink: 0;
+	inline-size: 38px;
+	block-size: 20px;
+	margin-block-start: 1px;
+	padding: 0;
+	border: 1px solid currentColor;
+	border-radius: 10px;
+	background: transparent;
+	cursor: pointer;
+
+	&::after {
+		content: "";
+		position: absolute;
+		inset-block: 0;
+		inset-inline-start: 2px;
+		margin-block: auto;
+		box-sizing: border-box;
+		inline-size: 14px;
+		block-size: 14px;
+		border-radius: 50%;
+		background: currentColor;
+		transition:
+			inset-inline-start 0.2s ease-in-out,
+			background 0.2s ease-in-out;
+	}
+}
+
+.jetpack-comments__toggle-text {
+	display: block;
+	flex: 1;
+	font-size: 14px;
+	font-weight: 500;
+	line-height: 22px;
+}

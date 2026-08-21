@@ -1,6 +1,6 @@
 import { signal, computed } from '@preact/signals';
 import { createContext } from 'preact';
-import { readDraft } from '../comment-form/draft';
+import { readDraft } from '../form/draft';
 import type { Commenter, FormSettings } from './types';
 
 const EMPTY_FORM: FormSettings = {

@@ -1,8 +1,6 @@
 import { render } from 'preact';
 import { useContext, useEffect, useRef } from 'preact/hooks';
-import { CommentingAs } from '../identity/commenting-as';
-import { GuestFields } from '../identity/guest-fields';
-import { LogInPrompt } from '../identity/log-in-prompt';
+import { CommentingAs, Identity } from '../identity';
 import { CommentSignals, createSignals } from '../shared/state';
 import { CommentField } from './comment-field';
 import { saveDraft } from './draft';
@@ -18,8 +16,6 @@ type CommentFormProps = {
 const CommentForm = ( { form }: CommentFormProps ) => {
 	const { formSettings, commentParent, commentValue, isSavingComment } =
 		useContext( CommentSignals );
-	const { isLoggedIn, mustLogIn } = JetpackComments;
-
 	const isSubmitting = useRef( false );
 
 	useEffect( () => {
@@ -75,10 +71,9 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	return (
 		<>
 			<CommentField />
-			{ mustLogIn && <LogInPrompt /> }
-			{ ! mustLogIn && ! isLoggedIn && <GuestFields /> }
+			<Identity />
 			<div className="jetpack-comments__footer">
-				{ isLoggedIn && <CommentingAs /> }
+				<CommentingAs />
 				<SubmitButton />
 			</div>
 		</>
