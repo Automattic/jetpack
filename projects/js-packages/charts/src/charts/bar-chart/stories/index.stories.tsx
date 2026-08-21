@@ -431,7 +431,7 @@ export const WithDefaultHiddenSeries: Story = {
 		docs: {
 			description: {
 				story:
-					'Great Britain is seeded hidden and struck through in the legend. Reload the story and watch the load: it must never appear, not even for one frame. Click it to reveal.',
+					'Great Britain is hidden from the initial render and marked inactive in the legend. Select its legend item to reveal it.',
 			},
 		},
 	},

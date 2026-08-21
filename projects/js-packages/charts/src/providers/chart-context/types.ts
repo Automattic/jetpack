@@ -41,7 +41,7 @@ export interface GlobalChartsContextValue {
 	// Series visibility management shared by charts, legends, and programmatic controls.
 	toggleSeriesVisibility: ( chartId: string, seriesLabel: string ) => void;
 	setSeriesVisibility: ( chartId: string, seriesLabel: string, visible: boolean ) => void;
-	setChartHiddenSeries: ( chartId: string, seriesLabels: string[] ) => void;
+	setChartHiddenSeries: ( chartId: string, seriesLabels: readonly string[] ) => void;
 	isSeriesVisible: ( chartId: string, seriesLabel: string ) => boolean;
 	getHiddenSeries: ( chartId: string ) => Set< string >;
 	isColorPaletteResolved: boolean;

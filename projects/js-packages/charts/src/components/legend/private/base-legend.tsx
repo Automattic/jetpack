@@ -169,15 +169,10 @@ export const BaseLegend: ForwardRefExoticComponent<
 		const handleLegendClick = useCallback(
 			( seriesLabels: string[] ) => {
 				if ( interactive && chartId && context ) {
-					// Converge the whole group on the representative's next state: only toggle series that
-					// currently match it, so a desynced group (e.g. one member hidden programmatically)
-					// ends up uniformly hidden/shown after one click.
 					const representativeVisible = context.isSeriesVisible( chartId, seriesLabels[ 0 ] );
-					seriesLabels.forEach( label => {
-						if ( context.isSeriesVisible( chartId, label ) === representativeVisible ) {
-							context.toggleSeriesVisibility( chartId, label );
-						}
-					} );
+					seriesLabels.forEach( label =>
+						context.setSeriesVisibility( chartId, label, ! representativeVisible )
+					);
 				}
 			},
 			[ interactive, chartId, context ]

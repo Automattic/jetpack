@@ -267,7 +267,7 @@ WithDefaultHiddenSeries.parameters = {
 	docs: {
 		description: {
 			story:
-				'London is seeded hidden and struck through in the legend. Reload the story and watch the load: it must never appear, not even for one frame. Click it to reveal.',
+				'London is hidden from the initial render and marked inactive in the legend. Select its legend item to reveal it.',
 		},
 	},
 };

@@ -304,7 +304,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 	);
 
 	const setChartHiddenSeries = useCallback(
-		( chartId: string, seriesLabels: string[] ) => {
+		( chartId: string, seriesLabels: readonly string[] ) => {
 			updateHiddenSeries( chartId, () => new Set( seriesLabels ) );
 		},
 		[ updateHiddenSeries ]

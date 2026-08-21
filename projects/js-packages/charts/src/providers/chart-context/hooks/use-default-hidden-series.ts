@@ -8,27 +8,28 @@ const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffec
  * Seeds a chart's hidden series once per mount or chart ID change.
  *
  * @param chartId      - The chart ID passed to the provider's visibility methods.
- * @param seriesLabels - Labels to hide at mount. Omit to leave visibility untouched.
+ * @param seriesLabels - Labels to hide from the first defined value. Later values are ignored.
  * @return The resolved hidden-series set.
  */
 export const useDefaultHiddenSeries = (
 	chartId: string,
-	seriesLabels?: string[]
+	seriesLabels?: readonly string[]
 ): Set< string > => {
 	const { getHiddenSeries, setChartHiddenSeries } = useGlobalChartsContext();
 	const seededChartId = useRef< string | undefined >( undefined );
 	// Read through a ref so the effect never depends on a new array identity.
 	const labelsRef = useRef( seriesLabels );
 	labelsRef.current = seriesLabels;
-	const shouldUseDefaults = seededChartId.current !== chartId && seriesLabels !== undefined;
+	const hasSeriesLabels = seriesLabels !== undefined;
+	const shouldUseDefaults = seededChartId.current !== chartId && hasSeriesLabels;
 
 	useIsomorphicLayoutEffect( () => {
-		if ( seededChartId.current === chartId || ! labelsRef.current ) {
+		if ( seededChartId.current === chartId || labelsRef.current === undefined ) {
 			return;
 		}
 		seededChartId.current = chartId;
 		setChartHiddenSeries( chartId, labelsRef.current );
-	}, [ chartId, setChartHiddenSeries ] );
+	}, [ chartId, hasSeriesLabels, setChartHiddenSeries ] );
 
 	return shouldUseDefaults ? new Set( seriesLabels ) : getHiddenSeries( chartId );
 };

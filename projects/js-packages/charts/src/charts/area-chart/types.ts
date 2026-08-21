@@ -3,12 +3,13 @@ import type {
 	DataPointDate,
 	SeriesData,
 	SeriesChartLegendConfig,
+	SeriesVisibilityProps,
 } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { CurveType } from '../line-chart/types';
 import type { ReactNode } from 'react';
 
-export interface AreaChartProps extends BaseChartProps< SeriesData[] > {
+export interface AreaChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
 	/**
 	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
 	 */
@@ -76,10 +77,5 @@ export interface AreaChartProps extends BaseChartProps< SeriesData[] > {
 	 * `rescaleYOnVisibilityChange` is not set.
 	 */
 	rescaleYOnLegendToggle?: boolean;
-	/**
-	 * Series labels to hide when the chart mounts. User changes persist until the
-	 * chart remounts or its ID changes.
-	 */
-	defaultHiddenSeries?: string[];
 	children?: ReactNode;
 }
