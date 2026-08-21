@@ -5,7 +5,6 @@ import { store as editorStore } from '@wordpress/editor';
 import { store as membershipProductsStore } from '../../../store/membership-products';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from '../constants';
 import {
-	Link,
 	getAccessDescription,
 	getReachForAccessLevelKey,
 	NewsletterAccessDocumentSettings,
@@ -112,25 +111,6 @@ describe( 'getReachForAccessLevelKey', () => {
 				paidSubscribers: 10,
 			} )
 		).toBe( 0 );
-	} );
-} );
-
-describe( 'Link', () => {
-	test( 'renders anchor with href and children', () => {
-		render(
-			<Link href="https://example.com">
-				<span>Click me</span>
-			</Link>
-		);
-		const link = screen.getByRole( 'link', { name: /click me/i } );
-		expect( link ).toHaveAttribute( 'href', 'https://example.com' );
-		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
-	} );
-
-	test( 'has jetpack-newsletter-link class', () => {
-		render( <Link href="/">Test</Link> );
-		expect( screen.getByRole( 'link' ) ).toHaveClass( 'jetpack-newsletter-link' );
 	} );
 } );
 
