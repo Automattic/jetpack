@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Sitemaps: improve generation performance by caching the post columns lookup and excluding stored sitemap content from index queries.
+Sitemaps: speed up sitemap generation and reduce its memory use on sites with many posts and images.
