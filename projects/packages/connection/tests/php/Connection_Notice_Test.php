@@ -17,6 +17,11 @@ class Connection_Notice_Test extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 
 	/**
+	 * Handle of the script that drives the "choose new owner" form.
+	 */
+	const OWNER_SCRIPT_HANDLE = 'jetpack-connection-owner-notice';
+
+	/**
 	 * Database query filter.
 	 *
 	 * @var callable
@@ -60,6 +65,7 @@ class Connection_Notice_Test extends TestCase {
 
 		$this->assertMatchesRegularExpression( '#Connect to WordPress.com#i', $output );
 		$this->assertMatchesRegularExpression( '#https:\/\/jetpack\.wordpress\.com\/jetpack\.authorize\/1\/\?response_type=code#i', $output ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+		$this->assertFalse( wp_script_is( self::OWNER_SCRIPT_HANDLE, 'enqueued' ) );
 
 		\Jetpack_Options::update_option( 'user_tokens', $tokens );
 	}
@@ -75,7 +81,13 @@ class Connection_Notice_Test extends TestCase {
 		$output = ob_get_clean();
 
 		$this->assertMatchesRegularExpression( '#Set new connection owner#i', $output );
-		$this->assertMatchesRegularExpression( '#' . preg_quote( 'http://example.org/index.php?rest_route=/jetpack/v4/connection/owner', '#' ) . '#i', $output );
+		$this->assertStringNotContainsString( '<script', $output );
+
+		$this->assertTrue( wp_script_is( self::OWNER_SCRIPT_HANDLE, 'enqueued' ) );
+
+		$inline_script = implode( '', (array) wp_scripts()->get_data( self::OWNER_SCRIPT_HANDLE, 'after' ) );
+		$this->assertStringContainsString( 'http://example.org/index.php?rest_route=/jetpack/v4/connection/owner', $inline_script );
+		$this->assertStringContainsString( 'jp-switch-connection-owner', $inline_script );
 	}
 
 	/**
@@ -156,6 +168,9 @@ class Connection_Notice_Test extends TestCase {
 		parent::tearDown();
 
 		global $current_screen;
+
+		wp_dequeue_script( self::OWNER_SCRIPT_HANDLE );
+		wp_deregister_script( self::OWNER_SCRIPT_HANDLE );
 
 		delete_transient( 'jetpack_connected_user_data_' . get_current_user_id() );
 
