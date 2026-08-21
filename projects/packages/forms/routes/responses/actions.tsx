@@ -297,10 +297,8 @@ type NavigateFunction = UseNavigateResult< string >;
 
 type GetActionsParams = {
 	navigate: NavigateFunction;
-	// Below the `medium` breakpoint boot renders the inspector as a full-screen
-	// fixed overlay rather than a side panel, so selecting a response already
-	// fills the viewport. When supplied, View selects instead of navigating —
-	// matching what tapping the response's title does.
+	// When supplied, View selects the response instead of navigating to the
+	// standalone page. The caller decides when that applies.
 	onSelectResponse?: ( id: string ) => void;
 };
 

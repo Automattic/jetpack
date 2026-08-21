@@ -7,7 +7,7 @@ import { formatNumber } from '@automattic/number-formatters';
  * WordPress dependencies
  */
 import { __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { useViewportMatch } from '@wordpress/compose';
+import { useEvent, useViewportMatch } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
@@ -249,6 +249,11 @@ function StageInner() {
 		},
 		[ searchParams, navigate ]
 	);
+
+	// Selecting a single response is what both clicking a row and (on small
+	// screens) the View action do. `useEvent` keeps the reference stable so the
+	// memoized row actions don't rebuild every time `searchParams` changes.
+	const selectResponse = useEvent( ( id: string ) => onChangeSelection( [ id ] ) );
 
 	const onStatusChange = useCallback(
 		( nextStatus: 'inbox' | 'spam' | 'trash' ) => {
@@ -637,9 +642,9 @@ function StageInner() {
 			getRowActions( {
 				navigate,
 				view: statusView,
-				onSelectResponse: isMobileViewport ? id => onChangeSelection( [ id ] ) : undefined,
+				onSelectResponse: isMobileViewport ? selectResponse : undefined,
 			} ),
-		[ navigate, statusView, isMobileViewport, onChangeSelection ]
+		[ navigate, statusView, isMobileViewport, selectResponse ]
 	);
 
 	const paginationInfo = useMemo(
@@ -725,9 +730,9 @@ function StageInner() {
 
 	const onClickItem = useCallback(
 		( item: unknown ) => {
-			onChangeSelection( [ String( ( item as { id: number | string } ).id ) ] );
+			selectResponse( String( ( item as { id: number | string } ).id ) );
 		},
-		[ onChangeSelection ]
+		[ selectResponse ]
 	);
 
 	return (
