@@ -104,12 +104,7 @@ class Users_Connection_Admin {
 			return;
 		}
 
-		// A request can run several instances of this class, and wp_add_inline_style() appends, so the CSS is added once per handle.
-		if ( ! wp_style_is( self::STYLE_HANDLE, 'registered' ) ) {
-			wp_register_style( self::STYLE_HANDLE, false, array(), Package_Version::PACKAGE_VERSION );
-			wp_add_inline_style( self::STYLE_HANDLE, self::get_connection_column_styles() );
-		}
-		wp_enqueue_style( self::STYLE_HANDLE );
+		self::enqueue_connection_column_styles();
 
 		Assets::register_script(
 			'jetpack-users-connection',
@@ -132,6 +127,28 @@ class Users_Connection_Admin {
 				'columnTooltip' => esc_html( self::get_column_tooltip_text() ),
 			)
 		);
+	}
+
+	/**
+	 * Enqueue the styles for the connection column as inline CSS on a source-less handle.
+	 */
+	private static function enqueue_connection_column_styles() {
+		// A request can run several instances of this class, and wp_add_inline_style() appends, so the CSS is added once per handle.
+		if ( ! wp_style_is( self::STYLE_HANDLE, 'registered' ) ) {
+			wp_register_style( self::STYLE_HANDLE, false, array(), Package_Version::PACKAGE_VERSION );
+			wp_add_inline_style( self::STYLE_HANDLE, self::get_connection_column_styles() );
+		}
+		wp_enqueue_style( self::STYLE_HANDLE );
+	}
+
+	/**
+	 * Add the styles for the connection column.
+	 *
+	 * @deprecated $$next-version$$ The CSS is enqueued on the `jetpack-connection-users-column` style handle by enqueue_scripts().
+	 */
+	public function add_connection_column_styles() {
+		_deprecated_function( __METHOD__, 'connection-$$next-version$$', __CLASS__ . '::enqueue_scripts' );
+		self::enqueue_connection_column_styles();
 	}
 
 	/**
