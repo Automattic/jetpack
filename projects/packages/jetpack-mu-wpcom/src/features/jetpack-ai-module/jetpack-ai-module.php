@@ -5,10 +5,12 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Jetpack_AI_Module;
+
 /**
  * Option recording that someone turned the `ai` module off on purpose.
  */
-const WPCOM_JETPACK_AI_MODULE_OPTED_OUT = 'wpcom_jetpack_ai_module_opted_out';
+const OPTED_OUT_OPTION = 'wpcom_jetpack_ai_module_opted_out';
 
 /**
  * Report the `ai` module as active so Jetpack AI keeps working.
@@ -29,16 +31,16 @@ const WPCOM_JETPACK_AI_MODULE_OPTED_OUT = 'wpcom_jetpack_ai_module_opted_out';
  * @param array $modules Active module slugs.
  * @return array Active module slugs.
  */
-function wpcom_keep_jetpack_ai_module_active( $modules ) {
+function keep_module_active( $modules ) {
 	if ( ! is_array( $modules ) ) {
 		return $modules;
 	}
 
-	if ( get_option( WPCOM_JETPACK_AI_MODULE_OPTED_OUT ) ) {
+	if ( get_option( OPTED_OUT_OPTION ) ) {
 		return $modules;
 	}
 
-	if ( function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment() ) {
+	if ( function_exists( 'jetpack_is_internal_testing_environment' ) && \jetpack_is_internal_testing_environment() ) {
 		return $modules;
 	}
 
@@ -48,7 +50,7 @@ function wpcom_keep_jetpack_ai_module_active( $modules ) {
 
 	return $modules;
 }
-add_filter( 'jetpack_active_modules', 'wpcom_keep_jetpack_ai_module_active' );
+add_filter( 'jetpack_active_modules', __NAMESPACE__ . '\\keep_module_active' );
 
 /**
  * Record an explicit opt-out so turning AI off sticks.
@@ -61,12 +63,12 @@ add_filter( 'jetpack_active_modules', 'wpcom_keep_jetpack_ai_module_active' );
  * @param bool   $success Whether the module was deactivated.
  * @return void
  */
-function wpcom_record_jetpack_ai_module_opt_out( $module, $success ) {
+function record_opt_out( $module, $success ) {
 	if ( 'ai' === $module && $success ) {
-		update_option( WPCOM_JETPACK_AI_MODULE_OPTED_OUT, true );
+		update_option( OPTED_OUT_OPTION, true );
 	}
 }
-add_action( 'jetpack_deactivate_module', 'wpcom_record_jetpack_ai_module_opt_out', 10, 2 );
+add_action( 'jetpack_deactivate_module', __NAMESPACE__ . '\\record_opt_out', 10, 2 );
 
 /**
  * Clear the opt-out when AI is turned back on.
@@ -75,9 +77,9 @@ add_action( 'jetpack_deactivate_module', 'wpcom_record_jetpack_ai_module_opt_out
  * @param bool   $success Whether the module was activated.
  * @return void
  */
-function wpcom_clear_jetpack_ai_module_opt_out( $module, $success ) {
+function clear_opt_out( $module, $success ) {
 	if ( 'ai' === $module && $success ) {
-		delete_option( WPCOM_JETPACK_AI_MODULE_OPTED_OUT );
+		delete_option( OPTED_OUT_OPTION );
 	}
 }
-add_action( 'jetpack_activate_module', 'wpcom_clear_jetpack_ai_module_opt_out', 10, 2 );
+add_action( 'jetpack_activate_module', __NAMESPACE__ . '\\clear_opt_out', 10, 2 );
