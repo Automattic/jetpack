@@ -959,7 +959,10 @@ class Feedback_Field {
 	/**
 	 * Get the value of the field for the API.
 	 *
-	 * @return string
+	 * File, image-select and checkbox-multiple fields answer with the structured
+	 * value the dashboard expects; everything else answers with a string.
+	 *
+	 * @return array|string The value for the API context.
 	 */
 	private function get_render_api_value() {
 		if ( $this->is_of_type( 'file' ) ) {
