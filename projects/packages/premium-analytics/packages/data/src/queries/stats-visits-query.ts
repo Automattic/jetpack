@@ -30,11 +30,13 @@ export const statsVisitsQuery = (
 ): StatsReportQueryOptions< 'visits' > => {
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const apiParams = statsQueryParamsToApiParams( statsParams );
+	// `start_date` + `date` bound the window at every unit, hourly included, and
+	// the endpoint recounts the buckets from them — a `quantity` alongside is
+	// ignored. So the range alone describes the request.
 	const visitsParams: StatsProxyParams = {
 		unit: apiParams.period,
 		date: apiParams.date,
 		start_date: apiParams.start_date,
-		...( apiParams.period === 'day' ? { quantity: apiParams.days } : {} ),
 		stat_fields: params.stat_fields ?? 'views,visitors',
 	};
 

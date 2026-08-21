@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Test-only change: group widget jest suites so they share one module registry.
+
+

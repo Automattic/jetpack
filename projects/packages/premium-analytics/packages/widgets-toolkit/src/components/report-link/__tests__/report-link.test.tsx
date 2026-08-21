@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
+import { withoutComparison, type ReportParams } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../widget-root';
 import { ReportLink } from '../report-link';
-import type { ReportParams } from '@jetpack-premium-analytics/data';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 
 type MockRouteLinkProps = {
@@ -60,7 +60,10 @@ const mockUseWidgetRootContext = jest.mocked( useWidgetRootContext );
 
 describe( 'ReportLink', () => {
 	beforeEach( () => {
-		mockUseWidgetRootContext.mockReturnValue( { reportParams: REPORT_PARAMS } );
+		mockUseWidgetRootContext.mockReturnValue( {
+			reportParams: withoutComparison( REPORT_PARAMS ),
+			navigationParams: REPORT_PARAMS,
+		} );
 	} );
 
 	it( 'links to the report with shared date params and no page-owned params', () => {

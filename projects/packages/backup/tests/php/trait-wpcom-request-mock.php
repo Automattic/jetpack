@@ -41,6 +41,18 @@ trait Wpcom_Request_Mock {
 	protected $captured_url = '';
 
 	/**
+	 * URLs of every request a bridge made to WPCOM, in call order.
+	 *
+	 * `get_file_content()` makes two outbound calls — the signed-URL
+	 * lookup and then the stream fetch — so `$captured_url` only ever
+	 * holds the second. A test asserting on how the first one was built
+	 * has to read this instead.
+	 *
+	 * @var string[]
+	 */
+	protected $captured_urls = array();
+
+	/**
 	 * Decoded body of the last request a bridge made to WPCOM.
 	 *
 	 * Stays null when no request was made, which is how a test asserts
@@ -82,8 +94,9 @@ trait Wpcom_Request_Mock {
 		add_filter(
 			'pre_http_request',
 			function ( $preempt, $args, $url ) use ( $body, $status ) {
-				$this->captured_url  = $url;
-				$this->captured_body = isset( $args['body'] ) ? json_decode( $args['body'], true ) : null;
+				$this->captured_url    = $url;
+				$this->captured_urls[] = $url;
+				$this->captured_body   = isset( $args['body'] ) ? json_decode( $args['body'], true ) : null;
 				return array(
 					'response' => array( 'code' => $status ),
 					'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
@@ -127,6 +140,7 @@ trait Wpcom_Request_Mock {
 		wp_set_current_user( 0 );
 
 		$this->captured_url  = '';
+		$this->captured_urls = array();
 		$this->captured_body = null;
 	}
 

@@ -8,6 +8,7 @@ import {
 import { normalizeActivityLog } from '../data/normalize/activity-log';
 import { keys } from '../data/query-client';
 import { useCanQueryWpcom } from './use-connection';
+import { useStickyError } from './use-sticky-error';
 import type { ActivityItem } from '../types/activity';
 
 type Args = {
@@ -82,6 +83,10 @@ function useActivityPageQuery( page: number, pageSize: number ) {
 export function useActivityLog( { page, pageSize }: Args ): Result {
 	const query = useActivityPageQuery( page, pageSize );
 	const { refetch } = query;
+	// Held across the retry: React Query rewinds this query to `pending`
+	// when it refetches after a failure, so without this the reason
+	// disappears the moment the reader clicks the retry button.
+	const error = useStickyError( query.error, query.isFetching );
 
 	const items = useMemo(
 		() => normalizeActivityLog( query.data?.current?.orderedItems ),
@@ -100,7 +105,7 @@ export function useActivityLog( { page, pageSize }: Args ): Result {
 		totalPages: query.data?.totalPages ?? Math.max( 1, Math.ceil( items.length / pageSize ) ),
 		isLoading: query.isLoading,
 		isFetching: query.isFetching,
-		error: query.error ?? null,
+		error,
 		refetch: retry,
 	};
 }

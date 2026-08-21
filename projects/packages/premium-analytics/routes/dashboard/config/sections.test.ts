@@ -1,4 +1,9 @@
-import { resolveSectionHeading, resolveSectionId, type DashboardSection } from './sections';
+import {
+	isSectionAwaitingSync,
+	resolveSectionHeading,
+	resolveSectionId,
+	type DashboardSection,
+} from './sections';
 
 const SECTIONS: DashboardSection[] = [
 	{
@@ -92,5 +97,26 @@ describe( 'resolveSectionHeading', () => {
 		// pins the client's own guard, since an empty heading would render an
 		// `<h2>` with no accessible name.
 		expect( resolveSectionHeading( { ...STORE, title: '' } ) ).toBe( 'Store' );
+	} );
+} );
+
+describe( 'isSectionAwaitingSync', () => {
+	const STORE_AWAITING: DashboardSection = { ...STORE, requires_sync: true };
+
+	it( 'waits when the section requires the sync and it has not finished', () => {
+		expect( isSectionAwaitingSync( STORE_AWAITING, false ) ).toBe( true );
+	} );
+
+	it( 'does not wait once the sync has finished', () => {
+		expect( isSectionAwaitingSync( STORE_AWAITING, true ) ).toBe( false );
+	} );
+
+	it( 'does not wait for a section whose data needs no sync', () => {
+		expect( isSectionAwaitingSync( SECTIONS[ 0 ], false ) ).toBe( false );
+	} );
+
+	// A payload served by a build predating the field must render, not wait forever.
+	it( 'does not wait when the field is absent', () => {
+		expect( isSectionAwaitingSync( LEGACY, false ) ).toBe( false );
 	} );
 } );

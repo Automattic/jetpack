@@ -6,7 +6,6 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Stack, Text } from '@wordpress/ui';
-import { addQueryArgs } from '@wordpress/url';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import { getVideoInfoQueryKeyPrefix } from '../../src/client/components/caption-manager-modal/use-video-tracks';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
@@ -15,9 +14,11 @@ import HeaderActions from '../../src/dashboard/components/video-details/header-a
 import PreviewPlayer from '../../src/dashboard/components/video-details/preview-player';
 import PrivacySharingCard from '../../src/dashboard/components/video-details/privacy-sharing-card';
 import RatingCard from '../../src/dashboard/components/video-details/rating-card';
+import SubtitlesCard from '../../src/dashboard/components/video-details/subtitles-card';
 import ThumbnailCard from '../../src/dashboard/components/video-details/thumbnail-card';
 import { useVideoDetailsForm } from '../../src/dashboard/components/video-details/use-video-details-form';
 import VideoDetailsCard from '../../src/dashboard/components/video-details/video-details-card';
+import VideoInfoCard from '../../src/dashboard/components/video-details/video-info-card';
 import VideoNav from '../../src/dashboard/components/video-nav';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
@@ -95,7 +96,6 @@ type EditorProps = {
 	onDelete: () => void;
 	onDownload: () => void;
 	onManageCaptions: () => void;
-	onAddToNewPost: () => void;
 	chaptersOpen: boolean;
 	setChaptersOpen: ( open: boolean ) => void;
 };
@@ -107,7 +107,6 @@ const Editor = ( {
 	onDelete,
 	onDownload,
 	onManageCaptions,
-	onAddToNewPost,
 	chaptersOpen,
 	setChaptersOpen,
 }: EditorProps ) => {
@@ -159,11 +158,30 @@ const Editor = ( {
 				// stylesheet can clamp long video titles in the current-item
 				// crumb (Breadcrumbs' own class names are CSS-module hashes).
 				<div className="vp-video-details__breadcrumbs">
-					<Breadcrumbs items={ [ getParentBreadcrumbItem(), { label: video.title } ] } />
+					{ /*
+					 * The crumb reads the FORM's title, not the saved record, so
+					 * the page heading tracks what is being typed without
+					 * committing it. Two side benefits over reading
+					 * `video.title`: no old→new flicker when the post-save
+					 * refetch lands, and the 2s processing `refetchInterval`
+					 * can't clobber the crumb mid-edit.
+					 *
+					 * `.trim()` matters. Breadcrumbs only short-circuits on
+					 * `items.length === 0`, so a whitespace-only title would
+					 * render an empty <h1> — and that <h1> is this page's only
+					 * accessible name.
+					 */ }
+					<Breadcrumbs
+						items={ [
+							getParentBreadcrumbItem(),
+							{ label: values.title.trim() || __( 'Untitled', 'jetpack-videopress-pkg' ) },
+						] }
+					/>
 				</div>
 			}
 			actions={
 				<HeaderActions
+					guid={ video.guid }
 					canSave={ isDirty && ! isSaving }
 					onSave={ handleSave }
 					onManageCaptions={ onManageCaptions }
@@ -180,27 +198,58 @@ const Editor = ( {
 				/>
 			) }
 			<div className="vp-video-details">
-				<PreviewPlayer video={ video } />
-				<ThumbnailCard
-					video={ video }
-					onAddToNewPost={ onAddToNewPost }
-					onManageSubtitles={ onManageCaptions }
-				/>
-				<VideoDetailsCard
-					video={ video }
-					title={ values.title }
-					description={ values.description }
-					onChange={ update }
-					onOpenChapters={ openChapters }
-					confirmNavigation={ confirmNavigation }
-				/>
-				<PrivacySharingCard
-					privacy={ values.privacy }
-					displayEmbed={ values.displayEmbed }
-					allowDownloads={ values.allowDownloads }
-					onChange={ update }
-				/>
-				<RatingCard value={ values.rating } onChange={ onRatingChange } />
+				{ /*
+				 * Placement rule for this screen: the canvas holds what a person
+				 * authors about this video — the words, the still, the captions.
+				 * The right-hand column holds the video itself, the values that
+				 * address it, and the settings picked once from a fixed set.
+				 *
+				 * The split is authoring vs. configuring rather than editable vs.
+				 * read-only, which is why Privacy & sharing and Rating sit beside
+				 * the read-outs: all three are things you set and leave, not
+				 * things you write.
+				 *
+				 * The player used to lead the canvas. It was measured at 502px
+				 * tall on a 1080p display — over half the visible page before a
+				 * single field had been read — while the settings it pushed
+				 * down could not fit their own column and grew a second
+				 * scrollbar with no visible boundary. Those are the same
+				 * problem, and moving one element fixes both.
+				 */ }
+				<div className="vp-video-details__layout">
+					<div className="vp-video-details__canvas">
+						<VideoDetailsCard
+							video={ video }
+							title={ values.title }
+							description={ values.description }
+							onChange={ update }
+							onOpenChapters={ openChapters }
+							confirmNavigation={ confirmNavigation }
+						/>
+						<ThumbnailCard video={ video } />
+						<SubtitlesCard video={ video } onManageSubtitles={ onManageCaptions } />
+					</div>
+					{ /*
+					 * Deliberately a sibling of the canvas rather than the first
+					 * child of the aside: it is placed by grid area, so the stacked
+					 * layout below 1100px can lead with the player while the
+					 * settings stay at the bottom.
+					 */ }
+					<PreviewPlayer video={ video } />
+					<aside
+						className="vp-video-details__inspector"
+						aria-label={ __( 'Video settings', 'jetpack-videopress-pkg' ) }
+					>
+						<VideoInfoCard video={ video } />
+						<PrivacySharingCard
+							privacy={ values.privacy }
+							displayEmbed={ values.displayEmbed }
+							allowDownloads={ values.allowDownloads }
+							onChange={ update }
+						/>
+						<RatingCard value={ values.rating } onChange={ onRatingChange } />
+					</aside>
+				</div>
 			</div>
 			<ChaptersHelpModal isOpen={ chaptersOpen } onClose={ closeChapters } />
 		</AdminPage>
@@ -229,7 +278,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 
 	/*
 	 * The caption manager runs on its own query client, so the page's caches
-	 * (the thumbnail card's Subtitles row) don't see its changes. Refresh the
+	 * (the info card's Subtitles row) don't see its changes. Refresh the
 	 * video info on close to pick up publishes and deletions.
 	 */
 	const closeCaptions = useCallback( () => {
@@ -322,20 +371,6 @@ const StageReady = ( { video }: StageReadyProps ) => {
 					}
 				} }
 				onManageCaptions={ () => setCaptionsOpen( true ) }
-				onAddToNewPost={ () => {
-					const nonce =
-						typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
-							? JPVIDEOPRESS_INITIAL_STATE?.API?.contentNonce
-							: undefined;
-					if ( ! video.guid || ! nonce ) {
-						return;
-					}
-					const url = addQueryArgs( 'post-new.php', {
-						videopress_guid: video.guid,
-						_wpnonce: nonce,
-					} );
-					window.open( url, '_blank' );
-				} }
 				chaptersOpen={ chaptersOpen }
 				setChaptersOpen={ setChaptersOpen }
 			/>

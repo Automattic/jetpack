@@ -8,7 +8,7 @@
  * Author: Automattic - Jetpack Stats team
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
- * Requires at least: 6.9
+ * Requires at least: 7.0
  * Requires PHP: 7.2
  * Text Domain: jetpack-stats
  *

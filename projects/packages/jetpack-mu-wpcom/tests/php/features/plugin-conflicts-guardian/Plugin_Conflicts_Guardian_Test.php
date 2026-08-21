@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -40,6 +41,14 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	private $tmp_dir = null;
 
 	/**
+	 * The rollout gate only runs on Atomic.
+	 */
+	public function set_up() {
+		parent::set_up();
+		Constants::set_constant( 'IS_ATOMIC', true );
+	}
+
+	/**
 	 * Clean up any temp directory and guard filter after each test.
 	 */
 	public function tear_down() {
@@ -57,6 +66,7 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		remove_all_filters( 'pcg_guard_updates' );
 		remove_all_filters( 'pcg_backup_root' );
 		remove_all_filters( 'pcg_rollout_percentage' );
+		Constants::clear_single_constant( 'IS_ATOMIC' );
 		// PCG_Rollout::init() registers itself on require_once. We tear
 		// the gate callbacks down by name (not via remove_all_filters,
 		// which would also drop any test-local pcg_guard_* filters set
@@ -1226,12 +1236,14 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Invalid or non-positive blog IDs are never enabled, even at 100%.
+	 * A site whose WP.com blog ID can't be resolved stays out of a partial
+	 * rollout. `get_wpcom_blog_id()` returns false off WP.com.
 	 */
 	public function test_rollout_rejects_non_positive_blog_ids() {
-		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
+		add_filter( 'pcg_rollout_percentage', static fn() => 50 );
 		$this->assertFalse( PCG_Rollout::is_enabled_for_blog( 0 ) );
 		$this->assertFalse( PCG_Rollout::is_enabled_for_blog( -1 ) );
+		$this->assertFalse( PCG_Rollout::is_enabled_for_blog( (int) false ) );
 	}
 
 	/**
@@ -1287,5 +1299,46 @@ class Plugin_Conflicts_Guardian_Test extends \WorDBless\BaseTestCase {
 		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
 		add_filter( 'pcg_guard_activation', static fn() => false, 1 );
 		$this->assertFalse( apply_filters( 'pcg_guard_activation', true ) );
+	}
+
+	/**
+	 * The regression this guards: bucketing on the local blog ID gave every
+	 * Atomic single-site the same bucket, making a partial rollout
+	 * all-or-nothing across the fleet.
+	 */
+	public function test_rollout_partial_percentage_spreads_across_wpcom_blog_ids() {
+		add_filter( 'pcg_rollout_percentage', static fn() => 20 );
+
+		$blog_ids = range( 200000000, 200000199 );
+		$in       = 0;
+		foreach ( $blog_ids as $blog_id ) {
+			if ( PCG_Rollout::is_enabled_for_blog( $blog_id ) ) {
+				++$in;
+			}
+		}
+
+		// Roughly 20% of 200 blogs, with generous slack for crc32 clumping.
+		$this->assertGreaterThan( 20, $in );
+		$this->assertLessThan( 60, $in );
+	}
+
+	/**
+	 * Simple sites are never in the cohort, not even at 100%.
+	 */
+	public function test_rollout_gate_excludes_simple_sites() {
+		Constants::clear_single_constant( 'IS_ATOMIC' );
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
+
+		$this->assertFalse( apply_filters( 'pcg_guard_activation', true ) );
+		$this->assertFalse( apply_filters( 'pcg_guard_updates', true ) );
+	}
+
+	/**
+	 * 100% means every site, including one we can't identify.
+	 */
+	public function test_rollout_full_includes_unresolvable_blog_ids() {
+		add_filter( 'pcg_rollout_percentage', static fn() => 100 );
+		$this->assertTrue( PCG_Rollout::is_enabled_for_blog( 0 ) );
+		$this->assertTrue( PCG_Rollout::is_enabled_for_blog( (int) false ) );
 	}
 }

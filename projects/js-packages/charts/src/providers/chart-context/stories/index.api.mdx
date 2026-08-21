@@ -32,7 +32,6 @@ interface GlobalChartsContextValue {
 	// Theme and styling
 	theme: CompleteChartTheme;
 	getElementStyles: (params: GetElementStylesParams) => ElementStyles;
-	resolveThemeColor: (value: string) => string;
 
 	// Series visibility management for interactive legends
 	toggleSeriesVisibility: (chartId: string, seriesLabel: string) => void;
@@ -44,9 +43,13 @@ interface GlobalChartsContextValue {
 }
 ```
 
-`isColorPaletteResolved` is `false` until the provider's color cache has been resolved from the DOM and painted. Chart components can use this to defer CSS transitions or animations that would otherwise interpolate from a fallback color to the resolved theme color on initial render.
+**Member notes:**
 
-`resolveThemeColor` resolves a color value — including a `--wpds-*` token or `var(...)` expression — to a hex string in the provider's own (theme-scoped) element. Use it when JS needs the *resolved* value of a themed color, such as reading `theme.backgroundColor` to compute text contrast. It resolves at call time, so the result tracks a light/dark theme switch where the token string is unchanged but its resolved value differs. Returns `''` for an empty input.
+| Member | Note |
+| ------ | ---- |
+| `isColorPaletteResolved` | `false` until the color cache has resolved from the DOM and painted. Use it to defer transitions that would otherwise interpolate from a fallback color. |
+
+For theming and CSS custom-property overrides, see the [Global Charts Context guide](?path=/docs/js-packages-charts-library-global-context--docs) and `TOKENS.md`.
 
 ## ChartRegistration Type
 
@@ -71,3 +74,21 @@ type ElementStyles = {
 ```
 
 `barStyles` carries bar-specific styling resolved from the theme by semantic series type (e.g. `barChart.barStyles.comparison`) — `{ widthFactor?, opacity? }`. It is `{}` for series with no matching bar style and for non-`SeriesData` inputs.
+
+## Token resolution in JS
+
+```typescript
+function useChartScopeElement(): HTMLElement | null;
+
+function normalizeColorToHex(
+	color: string,
+	element?: HTMLElement | null,
+	resolveCss?: ( value: string, el?: HTMLElement | null ) => string | null
+): string;
+
+function resolveCssVariable( value: string, element?: HTMLElement | null ): string | null;
+```
+
+`normalizeColorToHex` returns a `var(...)` input unchanged when `resolveCss` is omitted — it converts formats, it does not read the cascade.
+
+Which element to resolve against, and why it matters, is covered in the [Global Charts Context guide](?path=/docs/js-packages-charts-library-global-context--docs).

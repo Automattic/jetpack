@@ -7,13 +7,11 @@ import { Component } from 'react';
 import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
-import UpgradeNoticeContent from 'components/upgrade-notice-content';
 import { getCurrentVersion, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getJetpackStateNoticesErrorCode,
 	getJetpackStateNoticesMessageCode,
 	getJetpackStateNoticesErrorDescription,
-	getJetpackStateNoticesMessageContent,
 } from 'state/jetpack-notices';
 
 class JetpackStateNotices extends Component {
@@ -254,10 +252,9 @@ class JetpackStateNotices extends Component {
 			noticeText = '',
 			action;
 		const error = this.props.jetpackStateNoticesErrorCode,
-			message = this.props.jetpackStateNoticesMessageCode,
-			messageContent = this.props.jetpackStateNoticesMessageContent;
+			message = this.props.jetpackStateNoticesMessageCode;
 
-		if ( ! error && ! message && ! messageContent ) {
+		if ( ! error && ! message ) {
 			return;
 		}
 
@@ -266,19 +263,6 @@ class JetpackStateNotices extends Component {
 			if ( error !== 'access_denied' ) {
 				status = 'is-error';
 			}
-		}
-
-		// Show custom message for updated Jetpack.
-		if ( messageContent && messageContent.release_post_content && isJetpackSelfHostedSite() ) {
-			return (
-				<UpgradeNoticeContent
-					dismiss={ this.dismissJetpackStateNotice }
-					version={ this.props.currentVersion }
-					releasePostContent={ messageContent.release_post_content }
-					featuredImage={ messageContent.release_post_featured_image }
-					title={ messageContent.release_post_title }
-				/>
-			);
 		}
 
 		if ( message ) {
@@ -314,7 +298,6 @@ export default connect( state => {
 		jetpackStateNoticesErrorCode: getJetpackStateNoticesErrorCode( state ),
 		jetpackStateNoticesMessageCode: getJetpackStateNoticesMessageCode( state ),
 		jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state ),
-		jetpackStateNoticesMessageContent: getJetpackStateNoticesMessageContent( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
 	};
 } )( JetpackStateNotices );
