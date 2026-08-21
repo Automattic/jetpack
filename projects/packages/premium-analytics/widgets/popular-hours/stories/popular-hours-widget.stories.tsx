@@ -129,6 +129,30 @@ export const UnsupportedResponse: Story = {
 };
 
 /**
+ * A daily average too small to render at the card's precision.
+ */
+export const LowTraffic: Story = {
+	render: () => renderPopularHoursOnPreset( 'last-12-months' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		// 18 views over a year is 0.049 a day, which one decimal rounds to zero.
+		setReportMockResponse( 'stats/views-by/hour-of-day', {
+			date: '2026-01-01',
+			start_date: '2025-01-01',
+			days: 366,
+			dimension: 'hour-of-day',
+			fields: [ 'period', 'views' ],
+			data: [
+				[ '7', 4 ],
+				[ '19', 18 ],
+			],
+		} );
+		return () => setReportMockResponse( 'stats/views-by/hour-of-day', null );
+	},
+};
+
+/**
  * A report with no views.
  */
 export const Empty: Story = {

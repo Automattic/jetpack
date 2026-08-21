@@ -123,6 +123,25 @@ describe( 'PopularHoursWidget', () => {
 		expect( screen.getByText( '0.3 views per day' ) ).toBeInTheDocument();
 	} );
 
+	it( 'bounds an average too small for the widget to show', () => {
+		// 18 views over a year is 0.049 a day: below what one decimal can render.
+		mockUseStatsHourOfDay.mockReturnValue(
+			hourOfDayResult( {
+				...report(),
+				days: 366,
+				buckets: Array.from( { length: 24 }, ( _, hour ) => ( {
+					hour,
+					views: hour === 19 ? 18 : 0,
+				} ) ),
+			} )
+		);
+
+		renderWidget();
+
+		expect( screen.getByText( '7 pm' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Fewer than 0.1 views per day' ) ).toBeInTheDocument();
+	} );
+
 	it( 'plots all 24 hourly averages in hour order', () => {
 		mockUseStatsHourOfDay.mockReturnValue( hourOfDayResult( report() ) );
 

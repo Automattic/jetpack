@@ -9,9 +9,12 @@ import type { StatsHourOfDayParams, StatsHourOfDayReport } from '@jetpack-premiu
 
 export type PopularHourBucket = {
 	hour: number;
-	label: string;
 	total: number;
 	average: number;
+};
+
+export type PopularHourPeak = PopularHourBucket & {
+	label: string;
 };
 
 /**
@@ -53,15 +56,21 @@ export function usePopularHours() {
 		// caps ranges longer than a year.
 		return report.buckets.map( ( { hour, views } ) => ( {
 			hour,
-			label: formatHourOfDay( hour ),
 			total: views,
 			average: views / report.days,
 		} ) );
 	}, [ report ] );
 
+	// Only the peak carries a label, so the other 23 hours are never formatted.
+	const peak = useMemo< PopularHourPeak | undefined >( () => {
+		const bucket = pickPeakHour( buckets );
+
+		return bucket && { ...bucket, label: formatHourOfDay( bucket.hour ) };
+	}, [ buckets ] );
+
 	return {
 		buckets,
-		peak: useMemo( () => pickPeakHour( buckets ), [ buckets ] ),
+		peak,
 		isLoading,
 		isFetching,
 		isError,
