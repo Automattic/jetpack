@@ -45,6 +45,12 @@ jest.mock( '@wordpress/data', () => ( {
 	},
 } ) );
 
+// Importing this for real pulls @wordpress/components, and with it the rich-text
+// store, which the @wordpress/data mock above cannot satisfy.
+jest.mock( '@automattic/jetpack-components', () => ( {
+	getRedirectUrl: ( url: string ) => url,
+} ) );
+
 jest.mock( '@automattic/jetpack-ai-client', () => ( {
 	useAICheckout: () => ( { checkoutUrl: 'https://checkout.example.com' } ),
 	useAiFeature: () => ( {
@@ -186,6 +192,9 @@ jest.mock( '@wordpress/ui', () => ( {
 			children: React.ReactNode;
 			onClick?: () => void;
 		} ) => <button onClick={ onClick }>{ children }</button>,
+		ActionLink: ( { children, href }: { children: React.ReactNode; href: string } ) => (
+			<a href={ href }>{ children }</a>
+		),
 		CloseIcon: ( { onClick }: { onClick?: () => void } ) => (
 			<button onClick={ onClick }>Dismiss</button>
 		),
@@ -243,7 +252,7 @@ jest.mock( '../style.scss', () => ( {} ) );
 
 const AGENT_NOTICE_FEATURE = 'ai-sidebar-agent-notice';
 const AGENT_NOTICE_TEXT =
-	'AI tools have a new home with a new interface and content guidelines built in.';
+	'AI tools have moved to the WordPress Agent. Look for the four-pointed star icon in the admin bar at the top of the screen.';
 
 describe( 'AiAssistantPluginSidebar', () => {
 	beforeEach( () => {
@@ -299,7 +308,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 
 			expect(
 				within( screen.getByTestId( 'document-panel' ) ).getByRole( 'button', {
-					name: 'WordPress Agent',
+					name: 'Open WordPress Agent',
 				} )
 			).toBeInTheDocument();
 		} );
@@ -314,7 +323,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 
 			await user.click(
 				within( screen.getByTestId( testId ) ).getByRole( 'button', {
-					name: 'WordPress Agent',
+					name: 'Open WordPress Agent',
 				} )
 			);
 

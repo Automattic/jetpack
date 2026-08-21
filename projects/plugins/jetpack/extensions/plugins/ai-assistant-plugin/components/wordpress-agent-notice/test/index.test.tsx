@@ -128,7 +128,7 @@ describe( 'WordPressAgentNotice', () => {
 			render( <WordPressAgentNotice placement="document-settings" /> );
 
 			expect(
-				screen.getByRole( 'button', { name: 'WordPress Agent is already open' } )
+				screen.getByRole( 'button', { name: 'Open WordPress Agent (already open)' } )
 			).toBeInTheDocument();
 		} );
 	} );
@@ -143,7 +143,7 @@ describe( 'WordPressAgentNotice', () => {
 
 			expect(
 				screen.getByText(
-					'AI tools have a new home with a new interface and content guidelines built in.'
+					'AI tools have moved to the WordPress Agent. Look for the four-pointed star icon in the admin bar at the top of the screen.'
 				)
 			).toBeInTheDocument();
 		} );
@@ -151,7 +151,9 @@ describe( 'WordPressAgentNotice', () => {
 		it( 'offers no action it cannot carry out', () => {
 			render( <WordPressAgentNotice placement="document-settings" /> );
 
-			expect( screen.queryByRole( 'button', { name: 'WordPress Agent' } ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: 'Open WordPress Agent' } )
+			).not.toBeInTheDocument();
 		} );
 
 		it( 'can still be dismissed', async () => {
@@ -164,12 +166,29 @@ describe( 'WordPressAgentNotice', () => {
 		} );
 	} );
 
+	it( 'links to the documentation, through the Jetpack redirect service', () => {
+		render( <WordPressAgentNotice placement="document-settings" /> );
+
+		const link = screen.getByRole( 'link', { name: /Learn more/ } );
+		expect( link ).toHaveAttribute(
+			'href',
+			expect.stringContaining( 'source=jetpack-ai-docs-wordpress-agent' )
+		);
+	} );
+
+	it( 'keeps the documentation link when the Agent has not loaded', () => {
+		mockIsAgentReady = false;
+		render( <WordPressAgentNotice placement="document-settings" /> );
+
+		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toBeInTheDocument();
+	} );
+
 	it( 'tells the reader where the AI tools went', () => {
 		render( <WordPressAgentNotice placement="document-settings" /> );
 
 		expect(
 			screen.getByText(
-				'AI tools have a new home with a new interface and content guidelines built in.'
+				'AI tools have moved to the WordPress Agent. Look for the four-pointed star icon in the admin bar at the top of the screen.'
 			)
 		).toBeInTheDocument();
 	} );
@@ -178,7 +197,7 @@ describe( 'WordPressAgentNotice', () => {
 		const user = userEvent.setup();
 		render( <WordPressAgentNotice placement="document-settings" /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Open WordPress Agent' } ) );
 
 		expect( setWordPressAgentChatOpen ).toHaveBeenCalledWith( true );
 	} );
@@ -187,7 +206,7 @@ describe( 'WordPressAgentNotice', () => {
 		const user = userEvent.setup();
 		render( <WordPressAgentNotice placement="jetpack-sidebar" /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Open WordPress Agent' } ) );
 
 		expect( propertiesOf( 'jetpack_ai_agent_notice_click' ) ).toMatchObject( {
 			placement: 'jetpack-sidebar',
@@ -200,7 +219,7 @@ describe( 'WordPressAgentNotice', () => {
 		mockPostType = 'page';
 		render( <WordPressAgentNotice placement="document-settings" /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Open WordPress Agent' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
 
 		const expected = {
@@ -217,7 +236,7 @@ describe( 'WordPressAgentNotice', () => {
 		mockSiteType = siteType;
 		render( <WordPressAgentNotice placement="document-settings" /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Open WordPress Agent' } ) );
 
 		expect( propertiesOf( 'jetpack_ai_agent_notice_click' ) ).toMatchObject( {
 			site_type: siteType,
@@ -229,7 +248,7 @@ describe( 'WordPressAgentNotice', () => {
 		mockPostType = undefined;
 		render( <WordPressAgentNotice placement="document-settings" /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Open WordPress Agent' } ) );
 
 		expect( propertiesOf( 'jetpack_ai_agent_notice_click' ) ).not.toHaveProperty( 'post_type' );
 	} );
@@ -239,7 +258,7 @@ describe( 'WordPressAgentNotice', () => {
 		mockCurrentTier = undefined;
 		render( <WordPressAgentNotice placement="document-settings" /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Open WordPress Agent' } ) );
 
 		expect( propertiesOf( 'jetpack_ai_agent_notice_click' ) ).not.toHaveProperty(
 			'current_tier_slug'
@@ -250,7 +269,7 @@ describe( 'WordPressAgentNotice', () => {
 		const user = userEvent.setup();
 		render( <WordPressAgentNotice placement="document-settings" /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Open WordPress Agent' } ) );
 
 		expect( isDismissed() ).toBeFalsy();
 	} );
