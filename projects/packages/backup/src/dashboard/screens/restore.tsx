@@ -1,7 +1,7 @@
 import { Notice, ProgressBar, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, backup as backupIcon, arrowLeft } from '@wordpress/icons';
 import { Link, useParams } from '@wordpress/route';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
@@ -27,11 +27,20 @@ const SELECTION_HINT_ID = 'jpb-restore__selection-hint';
 export default function RestoreScreen() {
 	const { rewindId } = useParams( { from: '/restore/$rewindId' } );
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
-	const { state, submit, reset } = useRestore( rewindId );
+	const { state, submit, reset, adopted } = useRestore( rewindId );
 	const handleConfirm = useCallback( () => submit( items ), [ submit, items ] );
 	// An empty checklist would restore *everything* rather than nothing —
 	// see `hasSelectedItems`. On this screen that is unrecoverable.
 	const hasSelection = hasSelectedItems( items );
+
+	// When the restore on screen was already running before this screen
+	// opened, the heading has to name *its* backup. It need not be the one
+	// in the address: a restore of any point overwrites the same live
+	// site, so the screen adopts whatever is running rather than arming a
+	// button beside it, and then owes the reader an explanation of why
+	// their checklist is missing.
+	const shownRewindId =
+		adopted && isValidRewindId( adopted.rewindId ) ? adopted.rewindId : rewindId;
 
 	// A malformed id can only produce a failed restore, so the screen
 	// offers the way back and nothing else — see `InvalidRewindId`.
@@ -48,7 +57,7 @@ export default function RestoreScreen() {
 		);
 	}
 
-	const restorePoint = rewindIdToIso( rewindId );
+	const restorePoint = rewindIdToIso( shownRewindId );
 
 	return (
 		<DashboardLayout>
@@ -70,6 +79,55 @@ export default function RestoreScreen() {
 							</Text>
 						</Stack>
 					</Stack>
+					{ /*
+					 * The opening state of every cold load. Neither the form nor a
+					 * progress bar, because we do not yet know which is true — and
+					 * a Confirm button that appears and is withdrawn a moment later
+					 * is the same hazard as one that should never have appeared.
+					 */ }
+					{ state.phase === 'checking' && (
+						<Stack direction="row" gap="sm" align="center">
+							<Spinner />
+							{ /*
+							 * `role="status"` because this is the whole page for as
+							 * long as it lasts, and every other branch announces
+							 * itself through `Notice`'s own live region — leaving
+							 * this one silent means a screen-reader user gets
+							 * nothing on load and then a form that appeared without
+							 * comment.
+							 */ }
+							<Text className="jpb-text-muted" role="status">
+								{ __( 'Checking for a restore in progress…', 'jetpack-backup-pkg' ) }
+							</Text>
+						</Stack>
+					) }
+					{ /*
+					 * Suppressed once we have lost track, where it would sit
+					 * directly above a warning saying the restore may still be
+					 * running and we can no longer see it — promising an end state
+					 * the notice beneath has just disowned.
+					 *
+					 * "from here" because the constraint is this screen's, not the
+					 * product's: nothing upstream refuses a second restore, and the
+					 * reader can still start one from WordPress.com.
+					 */ }
+					{ adopted && state.phase !== 'lost-track' && (
+						<Notice status="info" isDismissible={ false }>
+							{ restorePoint
+								? sprintf(
+										/* translators: %s is a date, e.g. "Aug 12, 2026". */
+										__(
+											"A restore of your %s backup is already running. You can't start another from here until it finishes.",
+											'jetpack-backup-pkg'
+										),
+										dateI18n( 'M j, Y', restorePoint, undefined )
+								  )
+								: __(
+										"A restore is already running for this site. You can't start another from here until it finishes.",
+										'jetpack-backup-pkg'
+								  ) }
+						</Notice>
+					) }
 					{ ( state.phase === 'idle' || state.phase === 'submitting' ) && (
 						<>
 							<Notice status="warning" isDismissible={ false }>
@@ -172,6 +230,31 @@ export default function RestoreScreen() {
 								</Text>
 							) }
 							<Link to="/">{ __( 'Back to overview', 'jetpack-backup-pkg' ) }</Link>
+						</Stack>
+					) }
+					{ /*
+					 * We asked and never got an answer, so nothing has been ruled
+					 * out: WordPress.com may have queued the restore and lost only
+					 * the reply. No control here on purpose — offering "Try again"
+					 * now is exactly how a second concurrent restore starts. The
+					 * recovery poll is looking, and either finds the restore or
+					 * runs out the deadline, at which point a retry is safe and
+					 * the error branch below offers one.
+					 */ }
+					{ state.phase === 'unconfirmed' && (
+						<Stack direction="column" gap="sm">
+							<Notice status="warning" isDismissible={ false }>
+								{ __(
+									"We didn't hear back from WordPress.com. Checking whether your restore started…",
+									'jetpack-backup-pkg'
+								) }
+							</Notice>
+							{ state.detail && (
+								<Text variant="body-sm" className="jpb-text-muted">
+									{ state.detail }
+								</Text>
+							) }
+							<ProgressBar />
 						</Stack>
 					) }
 					{ /*
