@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Document the WordPress.com connection API in the readme.
+Document the WordPress.com connection, Sync and daily site report in the readme.
