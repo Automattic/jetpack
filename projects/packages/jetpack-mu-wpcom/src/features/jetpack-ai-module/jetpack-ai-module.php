@@ -7,6 +7,15 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Jetpack_AI_Module;
 
+use Automattic\Jetpack\Constants;
+
+// Atomic only. Simple runs no Jetpack modules and keeps the `jetpack_ai_enabled`
+// option as the AI master, so none of this applies there. The loader already
+// gates on IS_ATOMIC; this keeps the file safe wherever it is required from.
+if ( ! Constants::is_true( 'IS_ATOMIC' ) ) {
+	return;
+}
+
 /**
  * Option recording that someone turned the `ai` module off on purpose.
  */
@@ -36,8 +45,10 @@ function keep_module_active( $modules ) {
 		return $modules;
 	}
 
+	// Keep an opt-out honoured even after auto-activation turns the module on,
+	// which it does once the release the module was introduced in ships.
 	if ( get_option( OPTED_OUT_OPTION ) ) {
-		return $modules;
+		return array_values( array_diff( $modules, array( 'ai' ) ) );
 	}
 
 	if ( function_exists( 'jetpack_is_internal_testing_environment' ) && \jetpack_is_internal_testing_environment() ) {
