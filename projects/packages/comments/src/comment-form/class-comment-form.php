@@ -30,11 +30,6 @@ class Comment_Form {
 	const NONCE_NAME = 'jetpack_comments_form_nonce';
 
 	/**
-	 * Supported colour schemes.
-	 */
-	const COLOR_SCHEMES = array( 'transparent', 'light', 'dark' );
-
-	/**
 	 * Singleton instance.
 	 *
 	 * @var Comment_Form|null
@@ -179,16 +174,7 @@ class Comment_Form {
 	 */
 	private function markup() {
 		return '<div class="jetpack-comments ' . esc_attr( self::color_scheme() ) . '"></div>'
-			. $this->hidden_fields();
-	}
-
-	/**
-	 * Hidden fields the form needs to post.
-	 *
-	 * @return string
-	 */
-	private function hidden_fields() {
-		return '<div class="jetpack-comments__fields">'
+			. '<div class="jetpack-comments__fields">'
 			. get_comment_id_fields( self::post_id() )
 			. wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false, false )
 			. '</div>';
@@ -213,7 +199,7 @@ class Comment_Form {
 	private static function color_scheme() {
 		$scheme = get_option( 'jetpack_comment_form_color_scheme', 'transparent' );
 
-		return in_array( $scheme, self::COLOR_SCHEMES, true ) ? $scheme : 'transparent';
+		return in_array( $scheme, array( 'transparent', 'light', 'dark' ), true ) ? $scheme : 'transparent';
 	}
 
 	/**
@@ -274,6 +260,7 @@ class Comment_Form {
 	 */
 	private function settings( $args ) {
 		$post_id = self::post_id();
+		$lengths = wp_get_comment_fields_max_lengths();
 
 		return array_merge(
 			array(
@@ -281,24 +268,13 @@ class Comment_Form {
 				'showCookiesConsent' => (bool) get_option( 'show_comments_cookies_opt_in' ),
 				'mustLogIn'          => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
 				'loginUrl'           => wp_login_url( get_permalink( $post_id ) ),
-				'maxLength'          => self::comment_max_length(),
+				'maxLength'          => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
 				'submitId'           => $args['id_submit'] ?? 'submit',
 				'submitName'         => $args['name_submit'] ?? 'submit',
 				'strings'            => self::strings( $args ),
 			),
 			Identity::settings( $post_id )
 		);
-	}
-
-	/**
-	 * Longest comment the database will accept.
-	 *
-	 * @return int
-	 */
-	private static function comment_max_length() {
-		$lengths = wp_get_comment_fields_max_lengths();
-
-		return isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525;
 	}
 
 	/**
