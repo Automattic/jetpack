@@ -28,6 +28,7 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { presetForStoryInterval } from '../../stories/preset-for-story-interval';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostViewsRender from '../render';
 import widgetDefinition, { type PostViewsChartType } from '../widget';
@@ -65,7 +66,7 @@ function getPostViewsAttributes(
 	return {
 		chartType,
 		reportParams: {
-			...getDefaultQueryParams( withComparison ),
+			...getDefaultQueryParams( withComparison, presetForStoryInterval( interval ) ),
 			interval,
 			...( hasPostScope ? { post_id: MOCK_POST_ID } : {} ),
 		},
@@ -88,7 +89,8 @@ const meta = {
 		interval: {
 			control: 'radio',
 			options: [ 'day', 'week', 'month' ],
-			description: 'The page chart interval the widget buckets its daily history into.',
+			description:
+				'The page chart interval the widget buckets its daily history into. Monthly moves the story range to 90 days, the shortest preset that allows it.',
 		},
 		chartType: {
 			control: 'radio',
@@ -177,7 +179,8 @@ export const WidgetDashboardWithWidget: StoryObj< PostViewsDashboardStoryProps >
 		interval: {
 			control: 'radio',
 			options: [ 'day', 'week', 'month' ],
-			description: 'The page chart interval the widget buckets its daily history into.',
+			description:
+				'The page chart interval the widget buckets its daily history into. Monthly moves the story range to 90 days, the shortest preset that allows it.',
 		},
 	},
 };

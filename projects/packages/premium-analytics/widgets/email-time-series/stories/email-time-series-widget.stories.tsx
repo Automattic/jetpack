@@ -30,6 +30,7 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { presetForStoryInterval } from '../../stories/preset-for-story-interval';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import EmailTimeSeriesRender from '../render';
 import widgetDefinition from '../widget';
@@ -73,7 +74,7 @@ function getEmailTimeSeriesAttributes(
 ): ComponentProps< typeof EmailTimeSeriesRender >[ 'attributes' ] {
 	return {
 		reportParams: {
-			...getDefaultQueryParams( withComparison ),
+			...getDefaultQueryParams( withComparison, presetForStoryInterval( interval ) ),
 			interval,
 			post_id: MOCK_EMAIL_ID,
 		},
