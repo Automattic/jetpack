@@ -68,8 +68,8 @@ async function renderRows(): Promise< { folderRow: HTMLElement; fileRow: HTMLEle
 	);
 
 	return {
-		folderRow: await screen.findByRole( 'button', { name: 'wp-content' } ),
-		fileRow: screen.getByRole( 'button', { name: 'wp-config.php' } ),
+		folderRow: await screen.findByRole( 'button', { name: 'Folder: wp-content' } ),
+		fileRow: screen.getByRole( 'button', { name: 'File: wp-config.php' } ),
 	};
 }
 
@@ -117,5 +117,21 @@ describe( 'file browser row icons', () => {
 
 		expect( shapesIn( fileRow ) ).toContain( shapeOf( page ) );
 		expect( shapesIn( fileRow ) ).not.toContain( shapeOf( file ) );
+	} );
+
+	// The glyphs render `aria-hidden`, so nothing above reaches a screen
+	// reader. Without these the two row types are indistinguishable.
+	it( 'names the row type for assistive tech', async () => {
+		const { folderRow, fileRow } = await renderRows();
+
+		expect( folderRow ).toHaveAccessibleName( 'Folder: wp-content' );
+		expect( fileRow ).toHaveAccessibleName( 'File: wp-config.php' );
+	} );
+
+	it( 'reports the folder disclosure state', async () => {
+		const { folderRow, fileRow } = await renderRows();
+
+		expect( folderRow ).toHaveAttribute( 'aria-expanded', 'false' );
+		expect( fileRow ).not.toHaveAttribute( 'aria-expanded' );
 	} );
 } );
