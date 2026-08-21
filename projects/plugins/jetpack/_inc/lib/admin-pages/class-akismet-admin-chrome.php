@@ -113,13 +113,14 @@ class Akismet_Admin_Chrome {
 				gap: 8px;
 				text-decoration: none;
 			}
-			/* wp-admin rings every `a:focus`, so a mouse click leaves the ring behind.
-				Restrict it to keyboard focus. */
-			.jp-akismet-header__title:focus:not( :focus-visible ) {
+			/* Keep the ring to keyboard focus. Scoped to the container to outrank
+				wp-admin's `a:focus` and Akismet's `#akismet-plugin-container
+				a:focus-visible`, which both beat a bare class selector. */
+			#akismet-plugin-container .jp-akismet-header__title:focus:not( :focus-visible ) {
 				box-shadow: none;
 				outline: none;
 			}
-			.jp-akismet-header__title:focus-visible {
+			#akismet-plugin-container .jp-akismet-header__title:focus-visible {
 				border-radius: 2px;
 				box-shadow: 0 0 0 2px #2271b1;
 				outline: 2px solid transparent;
