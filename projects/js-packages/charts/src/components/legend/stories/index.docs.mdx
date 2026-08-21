@@ -218,6 +218,12 @@ Interactive legends also work with standalone Legend components. A chart always 
 	</GlobalChartsProvider>` }
 />
 
+### Programmatic Visibility
+
+Series visibility can also be controlled outside the legend. This example uses `toggleSeriesVisibility` to update a chart whose legend is not interactive. The chart and legend still reflect the shared visibility state, while the legend remains non-clickable.
+
+<Canvas of={ LegendStories.ProgrammaticVisibility } />
+
 ### Features
 
 - **Click/Tap Interaction**: Toggle series visibility by clicking on legend items
