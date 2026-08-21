@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI: Keep AI features available on sites where the new AI module has not been activated, so they are not turned off with no way to turn them back on.

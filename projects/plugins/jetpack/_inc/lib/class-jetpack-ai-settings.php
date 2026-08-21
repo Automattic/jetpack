@@ -252,11 +252,24 @@ class Jetpack_AI_Settings {
 	 * module machinery; there the option only carries the legacy pre-module
 	 * value the one-time opt-out migration reads, and is never written again.
 	 *
+	 * The module is only reachable from the My Jetpack AI card in internal
+	 * testing environments, which is why that card reports it active everywhere
+	 * else (see My_Jetpack\Products\Jetpack_Ai::is_module_active()). Enforcing
+	 * the module off-Simple without that same gate turns AI off on sites with no
+	 * way to turn it back on. Remove this gate when the AI settings page goes
+	 * public, alongside the My Jetpack override.
+	 *
 	 * @return bool
 	 */
 	public static function is_master_enabled() {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			return (bool) get_option( self::MASTER_OPTION, true );
+		}
+
+		// Guarded because Simple loads this file without load-jetpack.php.
+		if ( ! function_exists( 'jetpack_is_internal_testing_environment' )
+			|| ! jetpack_is_internal_testing_environment() ) {
+			return true;
 		}
 
 		return ( new Modules() )->is_active( self::AI_MODULE );

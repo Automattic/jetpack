@@ -49,9 +49,19 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Off-Simple the `ai` module only acts as the master inside an internal
+	 * testing environment, which is where these module-as-master tests live.
+	 */
+	public function set_up() {
+		parent::set_up();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+	}
+
+	/**
 	 * Reset the options and filters this test touches.
 	 */
 	public function tear_down() {
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		delete_option( Jetpack_AI_Settings::MASTER_OPTION );
 		foreach ( Jetpack_AI_Settings::FEATURE_OPTIONS as $option ) {
 			delete_option( $option );
@@ -179,6 +189,21 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		update_option( Jetpack_AI_Settings::MASTER_OPTION, 0 );
 		$this->force_ai_module_active();
 		$this->assertTrue( Jetpack_AI_Settings::is_master_enabled(), 'An active module means master on even with the option off.' );
+	}
+
+	/**
+	 * The `ai` module is only reachable from the My Jetpack card in internal
+	 * testing environments, so it must not gate AI anywhere else. Without this,
+	 * a site whose module never auto-activated loses AI with no way to restore
+	 * it.
+	 */
+	public function test_is_master_enabled_ignores_module_outside_internal_testing() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+
+		// The module is inactive here, and the option is irrelevant off-Simple.
+		$this->assertTrue( Jetpack_AI_Settings::is_master_enabled(), 'An inactive module must not turn AI off outside internal testing.' );
+		$this->assertTrue( apply_filters( 'jetpack_ai_enabled', true ), 'AI filters must stay open outside internal testing.' );
 	}
 
 	/**
