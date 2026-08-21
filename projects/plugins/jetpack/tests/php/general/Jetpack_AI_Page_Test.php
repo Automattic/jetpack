@@ -20,6 +20,7 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-ai-page.p
  *
  * @covers \Jetpack_AI_Page
  */
+#[CoversClass( Jetpack_AI_Feature_Flags::class )]
 #[CoversClass( Jetpack_AI_Page::class )]
 class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -154,6 +155,8 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 * The Scheduled tasks experience is registered as a default-off feature flag.
 	 */
 	public function test_scheduled_tasks_feature_flag_is_registered() {
+		Jetpack_AI_Feature_Flags::register();
+
 		$this->assertSame(
 			array(
 				'default'     => false,
@@ -175,6 +178,18 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
+	}
+
+	/**
+	 * The AI Hub page loads the Agents Manager shell with its admin page.
+	 */
+	public function test_add_page_actions_loads_agents_manager() {
+		$page = new Jetpack_AI_Page();
+		$page->add_page_actions( 'jetpack_page_jetpack-ai' );
+
+		$this->assertNotFalse(
+			has_action( 'load-jetpack_page_jetpack-ai', array( $page, 'load_agents_manager' ) )
+		);
 	}
 
 	/**
