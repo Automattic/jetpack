@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useAiFeature } from '@automattic/jetpack-ai-client';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteType } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { speak } from '@wordpress/a11y';
@@ -34,6 +35,8 @@ import type {
 export const AGENT_NOTICE_FEATURE = 'ai-sidebar-agent-notice';
 export const PREFERENCE_SCOPE = 'jetpack/ai-assistant';
 export const DISMISSED_PREFERENCE = 'wordpressAgentNoticeDismissed';
+
+const DOCS_URL = getRedirectUrl( 'jetpack-ai-docs-wordpress-agent' );
 
 // Addressed as a string on purpose: importing the store object would register
 // it as a side effect.
@@ -117,14 +120,14 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 		<Notice.Root intent="info" icon={ null } spokenMessage="">
 			<Notice.Description>
 				{ __(
-					'AI tools have a new home with a new interface and content guidelines built in.',
+					'AI tools have moved to the WordPress Agent. Look for the four-pointed star icon in the admin bar at the top of the screen.',
 					'jetpack'
 				) }
 			</Notice.Description>
 
-			{ isAgentReady && (
-				<Notice.Actions>
-					{ /* From @wordpress/components, to match the other buttons in the sidebar. */ }
+			<Notice.Actions>
+				{ /* From @wordpress/components, to match the other buttons in the sidebar. */ }
+				{ isAgentReady && (
 					<Button
 						variant="secondary"
 						icon={ bigSkyIcon }
@@ -132,17 +135,21 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 						disabled={ isChatOnScreen }
 						accessibleWhenDisabled
 						showTooltip={ isChatOnScreen }
-						// Keeps the product name at the front of the accessible name, which
-						// this prop replaces, while saying why the button is disabled.
+						// This prop replaces the accessible name, so it repeats the visible
+						// text before saying why the button is disabled.
 						label={
-							isChatOnScreen ? __( 'WordPress Agent is already open', 'jetpack' ) : undefined
+							isChatOnScreen ? __( 'Open WordPress Agent (already open)', 'jetpack' ) : undefined
 						}
 					>
 						{ /* translators: Button that opens the WordPress Agent chat. "WordPress Agent" is a product name. */ }
-						{ __( 'WordPress Agent', 'jetpack' ) }
+						{ __( 'Open WordPress Agent', 'jetpack' ) }
 					</Button>
-				</Notice.Actions>
-			) }
+				) }
+
+				<Notice.ActionLink href={ DOCS_URL } openInNewTab>
+					{ __( 'Learn more', 'jetpack' ) }
+				</Notice.ActionLink>
+			</Notice.Actions>
 
 			<Notice.CloseIcon onClick={ dismiss } />
 		</Notice.Root>
