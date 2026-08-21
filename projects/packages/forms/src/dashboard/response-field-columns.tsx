@@ -3,6 +3,7 @@
  */
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { Badge } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -26,6 +27,12 @@ const COLUMN_ID_PREFIX = 'field:';
 
 /** Announced in place of the em dash that marks a field this response left blank. */
 const NO_ANSWER_LABEL = __( 'No answer', 'jetpack-forms' );
+
+/**
+ * Field types whose answer is one of a fixed set of choices, so it reads as a badge
+ * rather than as free text. Mirrors the response inspector's own list.
+ */
+const BADGED_VALUE_FIELDS: FieldType[] = [ 'consent', 'checkbox', 'radio', 'select' ];
 
 export type ResponseFieldColumn = {
 	/** The DataViews field id. */
@@ -199,6 +206,18 @@ const getFieldText = ( field?: ResponseField ): string => {
 };
 
 /**
+ * Reads one field off a response, whatever shape the response arrived in.
+ *
+ * @param response - The form response.
+ * @param key      - The form field key.
+ * @return           The field, or undefined when this response has no such field.
+ */
+export const getResponseField = (
+	response: FormResponse,
+	key: string
+): ResponseField | undefined => getFieldMap( response ).get( key );
+
+/**
  * Reads one field's value off a response, as display text.
  *
  * @param response - The form response.
@@ -242,6 +261,30 @@ export const buildResponseFieldColumns = (
 				return (
 					<span className="jp-forms__inbox__field-column is-rating">
 						<FieldRating value={ value } />
+					</span>
+				);
+			}
+
+			// Answers picked from a fixed set of choices are badges, as in the inspector.
+			// Multi-select keeps one badge per choice rather than a comma-joined string.
+			const rawValue = getResponseField( item, column.key )?.value;
+
+			if ( column.type === 'checkbox-multiple' && Array.isArray( rawValue ) ) {
+				return (
+					<span className="jp-forms__inbox__field-column is-badges">
+						{ rawValue.map( ( choice, index ) => (
+							<Badge intent="draft" key={ index }>
+								{ decodeEntities( String( choice ) ) }
+							</Badge>
+						) ) }
+					</span>
+				);
+			}
+
+			if ( BADGED_VALUE_FIELDS.includes( column.type ) ) {
+				return (
+					<span className="jp-forms__inbox__field-column is-badges" title={ value }>
+						<Badge intent="draft">{ value }</Badge>
 					</span>
 				);
 			}

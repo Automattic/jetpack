@@ -16,6 +16,16 @@
 		max-inline-size: none;
 		overflow: visible;
 	}
+
+	// Choice answers are badges. They sit on one line and scroll rather than wrap,
+	// so a response that ticked six boxes cannot stretch every row in the table.
+	&.is-badges {
+		display: flex;
+		align-items: center;
+		gap: var(--wpds-dimension-padding-xs, 4px);
+		overflow: hidden;
+		white-space: nowrap;
+	}
 }
 
 // Answer columns push the table wider than the viewport, so it scrolls sideways.

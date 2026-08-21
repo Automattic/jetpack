@@ -1,5 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 import {
+	getResponseField,
 	getResponseFieldColumns,
 	getResponseFieldValue,
 	mergeResponseFieldColumns,
@@ -129,6 +130,17 @@ describe( 'getResponseFieldValue', () => {
 
 	it( 'renders a rating as submitted', () => {
 		expect( valueOf( '4/5' ) ).toBe( '4/5' );
+	} );
+} );
+
+describe( 'getResponseField', () => {
+	it( 'returns the field so a caller can read its raw value, not just the text', () => {
+		const response = collectionResponse( [
+			{ key: 'k', label: 'Sessions', value: [ 'Keynote', 'Panel' ], type: 'checkbox-multiple' },
+		] );
+
+		expect( getResponseField( response, 'k' ).value ).toEqual( [ 'Keynote', 'Panel' ] );
+		expect( getResponseField( response, 'missing' ) ).toBeUndefined();
 	} );
 } );
 
