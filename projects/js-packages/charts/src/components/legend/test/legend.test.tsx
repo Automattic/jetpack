@@ -2,7 +2,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useEffect, useMemo } from 'react';
-import { SingleChartContext } from '../../../charts/private/single-chart-context';
+import { ChartInstanceContext } from '../../../charts/private/chart-instance-context';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -473,9 +473,9 @@ describe( 'BaseLegend', () => {
 			return render(
 				<GlobalChartsProvider>
 					<ChartRegistrar chartType={ chartType } chartId={ chartId } />
-					<SingleChartContext.Provider value={ { chartId } }>
+					<ChartInstanceContext.Provider value={ { chartId } }>
 						<Legend shape={ explicitShape } />
-					</SingleChartContext.Provider>
+					</ChartInstanceContext.Provider>
 				</GlobalChartsProvider>
 			);
 		};

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Keep widget numbers on screen while unchanged data is refreshed in the background.

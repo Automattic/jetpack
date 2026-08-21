@@ -93,7 +93,7 @@ function is_woocommerce_dashboard_section_available_to_current_user() {
  * Sites without Jetpack have no module state to check, so the section remains
  * available. Modules::is_active() also returns true on WPCOM Simple.
  *
- * @since $$next-version$$
+ * @since 0.3.0
  *
  * @return bool True when the subscriptions module is active.
  */
@@ -103,7 +103,7 @@ function is_subscribers_dashboard_section_available() {
 	/**
 	 * Filters whether the Subscribers dashboard section is available.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @param bool $is_available Whether the subscriptions module was detected in the current request.
 	 */
@@ -168,6 +168,9 @@ function register_default_dashboard_sections() {
 			'description'    => __( 'Sales, orders, and what your customers are buying.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 40,
 			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available_to_current_user',
+			// Nothing backfills historical orders to WordPress.com but the analytics
+			// full sync. The site sections above read data it already holds.
+			'requires_sync'  => true,
 			'default_layout' => __NAMESPACE__ . '\\get_woocommerce_dashboard_section_default_layout',
 		),
 	);
@@ -294,6 +297,12 @@ function get_dashboard_section_schema() {
 						'default'     => true,
 					),
 				),
+				'readonly'    => true,
+			),
+			'requires_sync'       => array(
+				'description' => __( 'Whether the section\'s numbers stay incomplete until the analytics initial full sync has finished.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'boolean',
+				'default'     => false,
 				'readonly'    => true,
 			),
 			'default_layout'      => array(

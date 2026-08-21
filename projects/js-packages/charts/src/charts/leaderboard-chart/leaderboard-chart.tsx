@@ -17,8 +17,8 @@ import {
 } from '../../providers';
 import { formatMetricValue, attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import { useFittedRowCount, useLeaderboardLegendItems } from './hooks';
 import styles from './leaderboard-chart.module.scss';
@@ -285,7 +285,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
 		return (
-			<SingleChartContext.Provider value={ { chartId } }>
+			<ChartInstanceContext.Provider value={ { chartId } }>
 				<ChartLayout
 					legendPosition={ legendPosition }
 					legendElement={ false }
@@ -309,7 +309,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 							: __( 'No data available', 'jetpack-charts' ) }
 					</div>
 				</ChartLayout>
-			</SingleChartContext.Provider>
+			</ChartInstanceContext.Provider>
 		);
 	}
 
@@ -329,7 +329,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	);
 
 	return (
-		<SingleChartContext.Provider value={ { chartId } }>
+		<ChartInstanceContext.Provider value={ { chartId } }>
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
@@ -472,7 +472,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					) }
 				</div>
 			</ChartLayout>
-		</SingleChartContext.Provider>
+		</ChartInstanceContext.Provider>
 	);
 };
 

@@ -12,10 +12,7 @@ import { redirect } from '@wordpress/route';
  * Internal dependencies
  */
 import { ensureDashboardEntities } from '../dashboard-entities';
-import {
-	isPremiumAnalyticsInitialSyncFinished,
-	isPremiumAnalyticsSiteConnected,
-} from '../site-readiness';
+import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { resolveTabId } from './config';
 
 type PostDetailParams = { postId?: string };
@@ -34,8 +31,8 @@ function isValidPostId( value: string | undefined ): value is string {
 /**
  * Route lifecycle for the post/page detail page.
  *
- * Guards mirror the dashboard (not connected → /connect, sync pending →
- * /syncing). On first visit it seeds the URL search so the date picker and the
+ * Guards mirror the dashboard (not connected → /connect). On first visit it
+ * seeds the URL search so the date picker and the
  * widgets share a populated state, and it seeds `post_id` from the route param
  * so every widget on the page is scoped to this single resource. The
  * widget-modules discovery entity is registered here too (idempotently) so a
@@ -48,10 +45,6 @@ export const route = {
 	}: { params?: PostDetailParams; search?: PostDetailSearch } = {} ) => {
 		if ( ! isPremiumAnalyticsSiteConnected() ) {
 			throw redirect( { to: '/connect' } );
-		}
-
-		if ( ! isPremiumAnalyticsInitialSyncFinished() ) {
-			throw redirect( { to: '/syncing' } );
 		}
 
 		// A malformed path param (e.g. `/post/foo`) has no single-post view to

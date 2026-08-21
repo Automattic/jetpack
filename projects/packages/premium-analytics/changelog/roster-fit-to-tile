@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Latest subscribers, Latest likes and Latest comments: show only the rows that fit the tile and keep the "N more" footer visible.

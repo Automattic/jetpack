@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Leaderboard: Set the bar corner radius through `--a8c-charts-border-radius-leaderboard-bar`, replacing the deprecated `--a8c--charts--leaderboard--bar--border-radius` name that `@automattic/charts` no longer reads.

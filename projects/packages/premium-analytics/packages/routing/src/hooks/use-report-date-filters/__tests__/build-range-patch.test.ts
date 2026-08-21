@@ -197,8 +197,8 @@ describe( 'buildRangePatch', () => {
 		} );
 
 		expect( patch ).toMatchObject( {
-			compare_from: '2026-07-08T14:30:00.000Z',
-			compare_to: '2026-07-09T14:30:00.000Z',
+			compare_from: '2026-07-08T14:29:59.999Z',
+			compare_to: '2026-07-09T14:29:59.999Z',
 		} );
 	} );
 

@@ -8,7 +8,7 @@ import { GlobalChartsProvider, defaultTheme } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import LineChart, { LineChartUnresponsive } from '../line-chart';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
-import type { SingleChartRef } from '../../private/single-chart-context';
+import type { ChartInstanceRef } from '../../private/chart-instance-context';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();
@@ -904,7 +904,7 @@ describe( 'LineChart', () => {
 
 	describe( 'Chart Ref Interface', () => {
 		test( 'exposes getScales method via ref', () => {
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			renderUnwrappedWithTheme( {}, 'default', ref );
 
 			expect( ref.current?.getScales() ).toBeDefined();
@@ -913,7 +913,7 @@ describe( 'LineChart', () => {
 		} );
 
 		test( 'exposes getChartDimensions method via ref', () => {
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 			renderUnwrappedWithTheme( { width: 800, height: 400 }, 'default', ref );
 
 			const dimensions = ref.current?.getChartDimensions();
@@ -1405,7 +1405,7 @@ describe( 'LineChart', () => {
 				context = useGlobalChartsContext();
 				return null;
 			};
-			const ref = createRef< SingleChartRef >();
+			const ref = createRef< ChartInstanceRef >();
 
 			render(
 				<GlobalChartsProvider>

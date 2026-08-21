@@ -3,6 +3,7 @@
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { queryClient } from '@jetpack-premium-analytics/data';
+import { WIDGET_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import type { ReactNode } from 'react';
@@ -80,7 +81,7 @@ describe( 'TopPostsWidget', () => {
 	} );
 
 	it( 'routes post titles to the post-detail page with no outbound link', async () => {
-		render( <TopPostsWidget attributes={ { max: 10 } } /> );
+		render( <TopPostsWidget attributes={ {} } /> );
 
 		// The title navigates through the router to the internal post-detail
 		// route, so the dashboard does not reload.
@@ -103,9 +104,7 @@ describe( 'TopPostsWidget', () => {
 
 	it( 'carries the dashboard date range into the post-detail link', async () => {
 		render(
-			<TopPostsWidget
-				attributes={ { max: 10, reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
-			/>
+			<TopPostsWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
 		);
 
 		const titleLink = await screen.findByRole( 'link', { name: /^Hello World Post$/ } );
@@ -120,9 +119,7 @@ describe( 'TopPostsWidget', () => {
 
 	it( 'requests the dashboard date range from report params', async () => {
 		render(
-			<TopPostsWidget
-				attributes={ { max: 10, reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
-			/>
+			<TopPostsWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
 		);
 
 		await expect(
@@ -141,7 +138,7 @@ describe( 'TopPostsWidget', () => {
 	} );
 
 	it( 'links to the Posts & Pages report', () => {
-		render( <TopPostsWidget attributes={ { max: 10 } } /> );
+		render( <TopPostsWidget attributes={ {} } /> );
 
 		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
@@ -178,7 +175,6 @@ describe( 'TopPostsWidget', () => {
 		render(
 			<TopPostsWidget
 				attributes={ {
-					max: 10,
 					reportParams: {
 						from: '2026-03-01',
 						to: '2026-03-10',
@@ -238,7 +234,6 @@ describe( 'TopPostsWidget', () => {
 		render(
 			<TopPostsWidget
 				attributes={ {
-					max: 10,
 					reportParams: {
 						from: '2026-03-01',
 						to: '2026-03-10',
@@ -260,7 +255,7 @@ describe( 'TopPostsWidget', () => {
 	it( 'exposes the CSV export beside the report link in the widget footer', async () => {
 		render(
 			<DashboardWidgetChromeFixture>
-				<TopPostsWidget attributes={ { max: 10 } } />
+				<TopPostsWidget attributes={ {} } />
 			</DashboardWidgetChromeFixture>
 		);
 
@@ -282,12 +277,11 @@ describe( 'TopPostsWidget', () => {
 		mockGetScriptData.mockReturnValue( {
 			premium_analytics: {
 				initial_full_sync_finished: 1,
-				has_store_data: false,
 				csv_exports_enabled: false,
 			},
 		} as ReturnType< typeof getScriptData > );
 
-		render( <TopPostsWidget attributes={ { max: 10 } } /> );
+		render( <TopPostsWidget attributes={ {} } /> );
 
 		await expect(
 			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
@@ -308,7 +302,6 @@ describe( 'TopPostsWidget', () => {
 			<DashboardWidgetChromeFixture>
 				<TopPostsWidget
 					attributes={ {
-						max: 10,
 						reportParams: { from: '2026-03-01', to: '2026-03-10' },
 					} }
 				/>
@@ -326,7 +319,6 @@ describe( 'TopPostsWidget', () => {
 			<DashboardWidgetChromeFixture>
 				<TopPostsWidget
 					attributes={ {
-						max: 10,
 						reportParams: { from: '2026-05-01', to: '2026-05-10' },
 					} }
 				/>
@@ -375,7 +367,6 @@ describe( 'TopPostsWidget', () => {
 		render(
 			<TopPostsWidget
 				attributes={ {
-					max: 10,
 					reportParams: {
 						from: '2026-03-01',
 						to: '2026-03-10',
@@ -421,7 +412,6 @@ describe( 'TopPostsWidget', () => {
 		render(
 			<TopPostsWidget
 				attributes={ {
-					max: 10,
 					reportParams: {
 						from: '2026-03-01',
 						to: '2026-03-10',
@@ -445,39 +435,46 @@ describe( 'TopPostsWidget', () => {
 	it( 'renders the empty state when there are no views', async () => {
 		mockApiFetch.mockResolvedValue( { date: '2026-06-10', days: {} } );
 
-		render( <TopPostsWidget attributes={ { max: 10 } } /> );
+		render( <TopPostsWidget attributes={ {} } /> );
 
 		await expect( screen.findByText( 'No views in this period.' ) ).resolves.toBeInTheDocument();
 	} );
 
-	it( 'caps the visible posts list at max including the homepage entry', async () => {
-		// The API caps postviews at max but appends the homepage entry on top,
-		// so the widget re-caps the ranked list client-side.
+	it( 'caps the visible posts list at the row limit including the homepage entry', async () => {
+		// The API appends the homepage after applying its limit, so re-cap the list.
+		const posts = Array.from( { length: WIDGET_ROW_LIMIT }, ( _, index ) => ( {
+			id: index + 1,
+			href: `https://example.com/post-${ index + 1 }/`,
+			date: '2026-06-01',
+			title: `Post ${ index + 1 }`,
+			type: 'post',
+			views: ( WIDGET_ROW_LIMIT - index ) * 10,
+		} ) );
+
 		mockApiFetch.mockResolvedValue( {
 			date: '2026-06-10',
 			days: {},
 			summary: {
 				postviews: [
-					...TOP_POSTS_RESPONSE.summary.postviews,
+					...posts,
 					{
 						id: 0,
 						href: null,
 						date: null,
 						title: 'Homepage (Latest posts)',
 						type: 'homepage',
-						views: 12,
+						views: 15,
 					},
 				],
-				total_views: 61,
+				total_views: 565,
 			},
 		} );
 
-		render( <TopPostsWidget attributes={ { max: 2 } } /> );
+		render( <TopPostsWidget attributes={ {} } /> );
 
-		// Ranked: Hello World Post (42), Homepage (12) — About Page (7) is cut.
 		await expect( screen.findByText( 'Homepage (Latest posts)' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( /Hello World Post/ ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'About Page' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( /Post 1$/ ) ).toBeInTheDocument();
+		expect( screen.queryByText( `Post ${ WIDGET_ROW_LIMIT }` ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders aggregate archive rows when contentView is archives', async () => {
@@ -489,7 +486,7 @@ describe( 'TopPostsWidget', () => {
 			},
 		} );
 
-		render( <TopPostsWidget attributes={ { max: 10, contentView: 'archives' } } /> );
+		render( <TopPostsWidget attributes={ { contentView: 'archives' } } /> );
 
 		await expect( screen.findByText( 'Searches' ) ).resolves.toBeInTheDocument();
 		// Aggregate rows have no URL, so they must not render as links.
@@ -526,7 +523,7 @@ describe( 'TopPostsWidget', () => {
 			},
 		} );
 
-		render( <TopPostsWidget attributes={ { max: 10 } } /> );
+		render( <TopPostsWidget attributes={ {} } /> );
 
 		await expect( screen.findByText( 'Homepage (Latest posts)' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
@@ -560,7 +557,6 @@ describe( 'TopPostsWidget', () => {
 		render(
 			<TopPostsWidget
 				attributes={ {
-					max: 10,
 					contentView: 'archives',
 					reportParams: {
 						from: '2026-03-01',
@@ -601,7 +597,6 @@ describe( 'TopPostsWidget', () => {
 		render(
 			<TopPostsWidget
 				attributes={ {
-					max: 10,
 					contentView: 'archives',
 					reportParams: {
 						from: '2026-03-01',
@@ -629,21 +624,6 @@ describe( 'TopPostsWidget', () => {
 		).toBe( true );
 	} );
 
-	it( 'treats max=0 as "all rows" in the archives view', async () => {
-		mockApiFetch.mockResolvedValue( {
-			date: '2026-06-10',
-			summary: {
-				search: [ { value: 'pricing', href: 'https://example.com/?s=p', views: '3' } ],
-				post_type: [ { value: 'post', href: 'https://example.com/type/post/', views: '2' } ],
-			},
-		} );
-
-		render( <TopPostsWidget attributes={ { max: 0, contentView: 'archives' } } /> );
-
-		await expect( screen.findByText( 'Searches' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'Post types' ) ).toBeInTheDocument();
-	} );
-
 	it( 'drills down from grouped archive rows and back', async () => {
 		mockApiFetch.mockResolvedValue( {
 			date: '2026-06-10',
@@ -655,7 +635,7 @@ describe( 'TopPostsWidget', () => {
 			},
 		} );
 
-		render( <TopPostsWidget attributes={ { max: 10, contentView: 'archives' } } /> );
+		render( <TopPostsWidget attributes={ { contentView: 'archives' } } /> );
 
 		const drillDownButton = await screen.findByRole( 'button', {
 			name: /view searches archive pages/i,
@@ -691,7 +671,7 @@ describe( 'TopPostsWidget', () => {
 			},
 		} );
 
-		render( <TopPostsWidget attributes={ { max: 10, contentView: 'archives' } } /> );
+		render( <TopPostsWidget attributes={ { contentView: 'archives' } } /> );
 
 		// Level 0 → taxonomy groups.
 		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.

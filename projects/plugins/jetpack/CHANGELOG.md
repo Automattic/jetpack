@@ -2,6 +2,105 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.2-a.1 - 2026-08-20
+### Major Enhancements
+- Update minimum WordPress version to 7.0. [#51370]
+
+### Enhancements
+- AI: Add a Jetpack AI module as the site-wide master switch on self-hosted and Atomic, preserving explicit opt-outs. [#50718]
+- AI: Hide the AI sidebar when the writing assistant and SEO enhancer toggles are both off. [#50778]
+- AI: Make the AI toolbar button follow the writing assistant toggle. [#50778]
+- AI Assistant: Add feature settings controls for Jetpack AI tools. [#50287]
+- AI Features: Group the feature toggles into a single Agent capabilities card. [#51167]
+- AI settings: Make the Try it out links pre-open their target — the AI Assistant sidebar in the editor, and Image Studio's generate mode in the Media Library. [#50797]
+- Content Guidelines AI: Enable AI guideline suggestions on WordPress VIP sites. [#51391]
+- Forms: Add a Print action to form responses. [#51368]
+- Forms: Add form fill duration to feedback entries. [#45786]
+- Map Block: Add support for wide and full width alignments. [#50818]
+- Newsletter: Explain why the Everyone audience is unavailable when a post has a paywall block, instead of linking to the block. [#51394]
+- Newsletter: Rename the Access panel to Audience, describe who can read each post, and link out to set up paid subscribers. [#51262]
+- Podcast: Add a setting for how many episodes the podcast feed includes. [#51247]
+- Podcast: Split the Distribution directories into Automatic and Manual submission, explain why a disabled button is disabled, and link to your Pocket Casts show once it is live. [#48917]
+- Premium Analytics: Clarify traffic chart time-axis labels and bar tooltip periods. [#51274]
+- REST API: Add the `atomic_email_block` field to the site endpoint response. [#51038]
+- Search Blocks: Add a customizable No Results block while continuing to render existing Results List messages. [#51164]
+- Stats: Show the Stats dashboard before the site is connected to WordPress.com, so a plan can be picked and the site connected from there. [#51200]
+
+### Improved compatibility
+- Tested up to WordPress 7.1. [#51370]
+
+### Bug fixes
+- AI Assistant: Scroll the Form block's AI prompt into view when it opens, so it no longer sits over the form. [#51079]
+- Blocks: Fix an infinite refresh loop in the Goodreads block editor that regenerated the widget ID on every re-render and hammered the REST API. [#51150]
+- Blocks: Restrict Goodreads scripts to the expected Goodreads widget endpoints. [#51150]
+- Blocks: Treat WordPress.com public API requests as a block-editor context so editor-only extensions load, restoring block plan availability (such as the core/video upgrade nudge) in the mobile editor. [#50819]
+- Connection: Stop showing a duplicate account notice when your WordPress.com email differs from your site email only in letter case. [#51285]
+- Connection: Update wording for some connection error notices. [#51360]
+- Content Guidelines AI: Keep the empty-state banner from painting over the sticky page header while scrolling. [#51137]
+- Editor: Refresh the cached plan when returning from a plan purchase so paid blocks (such as the Forms file upload field) stop showing their upgrade nudge once the plan is active. [#50324]
+- Escape the Premium Content block login button label on output. [#51150]
+- Fix the premium block upgrade banner rendering collapsed and too narrow on the site frontend. [#50873]
+- Forms: Fix the first change made to a form after opening a page being discarded when saving. [#51393]
+- Forms: Keep response field icons and formatting after marking a response as spam. [#51288]
+- Forms: Make Group and Columns blocks fill the form width so nested fields render full-width. [#51266]
+- Forms: Preserve line breaks in multi-line answers in the responses dashboard. [#51369]
+- Forms: Show an empty checkbox icon next to checkbox fields the respondent left unchecked, instead of always showing a ticked one. [#51293]
+- Harden the subscriber authentication endpoint so it only redirects within the current site. [#51150]
+- Heartbeat: Restore identity crisis reporting in the WP-CLI status command. [#51196]
+- Likes: Fix Like buttons sometimes getting stuck on "Loading…" and never appearing. [#51113]
+- Likes: Include public custom post types in default visibility settings so Likes and Comment Likes render on CPTs without requiring manual configuration. [#49299]
+- Likes: Keep Settings > Sharing available when sharing buttons are turned off, so the Likes and Comment Likes settings stay reachable. [#51335]
+- Likes: Rename the settings heading on Settings > Sharing to reflect what it holds when sharing buttons are off. [#51335]
+- Map Block: Remove the duplicate alignment toolbar in the editor. [#51429]
+- Media API: Restrict the edit endpoints to attachments, so they no longer accept ordinary post IDs. [#51192]
+- Memberships: Ensure the configured post access level is evaluated correctly before authorizing access to paywalled content. [#51150]
+- Newsletter: Make the post-publish email confirmation more visible. [#51053]
+- Newsletter: Round the dashboard widget footer so it stops covering the rounded bottom corner of the WP Admin box. [#50869]
+- Newsletter: Save the post before generating an email preview, so the preview reflects the latest saved content (e.g. a newly-set featured image). [#51061]
+- Newsletter: Send the test email when pressing Enter, and show send errors as a proper error notice. [#51042]
+- Omnibar: Return admin bar nodes translated in the user's locale. [#51215]
+- Podcast Player: Keep showing the most recent episodes when a podcast feed becomes slow or unreachable, instead of failing to load. [#51212]
+- Podcast Player: Stop preloading episode audio before playback to avoid inflating podcast download metrics. [#51313]
+- Premium Analytics: Fix stray time-axis labels and invalid tooltip dates in mixed or compared charts. [#51343]
+- Premium Analytics: Keep the full set of ticks on the traffic chart's time axis, which could thin out to two labels on longer date ranges. [#51339]
+- Premium Analytics: Keep the year and the day on the traffic chart's time axis, which could previously skip the tick that named them, and stop the same label falling on two ticks in a row. [#51339]
+- Premium Analytics: Stop applying hidden date comparisons in dashboard sections that do not offer the control. [#51381]
+- Premium Content: Keep subscription login available when a WordPress session lacks a subscription token. [#50984]
+- Premium Content: Restore the local account link from a verified magic-link token so subscription access persists. [#50985]
+- Random Redirect: Avoid a fatal error when a theme or plugin already declares the module's redirect function. [#51037]
+- Require a Jetpack site (blog) token for JSON API endpoints that declare no capabilities, such as the Backup helper script endpoints, and reject user tokens regardless of privilege. [#51150]
+- Resolve Redirect endpoint: Validate every redirect hop, and return a 400 error when a URL cannot be fetched, is blocked, or exceeds the redirect limit, instead of a 200 response with an empty URL. [#51150]
+- REST API: Require the admin capability for all settings in a request that also updates Post by Email. [#51150]
+- Security: Enforce per-item permission checks when editing media through the JSON API. [#51150]
+- Security: External Media: Ensure imported files are always saved under a safe file name. [#51150]
+- Security: Verify attachment ownership before removing an uploaded package in the plugin and theme install endpoints. [#51150]
+- SEO: Hide the post list SEO columns for people who had customized Screen Options before those columns existed. [#51071]
+- Sharing: Escape Tumblr share title, URL, and button label in official button output. [#51150]
+- Sharing: Use an unpredictable name for share and Press This popups so another page cannot pre-register the same window name. [#51226]
+- Sitemaps: Avoid a PHP notice when a sitemap query returns no posts. [#51370]
+- Stats: Limit Top Posts & Pages processing to the number of posts requested. [#51105]
+- Subscribers: Restore the option to assign imported subscribers to specific newsletter categories on CSV upload and manual add. [#51007]
+- Subscriptions: Fix subscribe prompts and paywalled content incorrectly showing or blocking for readers who follow the site but have no active email subscription. [#51327]
+- Tiled Gallery: Keep VIP gallery images off the external Photon domain and add the `jetpack_skip_photon_domain` filter. [#50426]
+- WAF: Restrict firewall settings to administrators. [#51150]
+- WordPress Posts: Escape remote site data before output. [#51150]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin Bar: Expose the command palette node through the admin bar endpoint. [#51026]
+- Admin Page: Remove the release post update modal, which has had no content published for it since 2023. [#51402]
+- AI: Stop showing the AI sidebar when the SEO Enhancer is the only feature switched on and SEO tools are off. [#51169]
+- Button block: Add a filter for the default HTML element the block falls back to when it does not specify one. [#51046]
+- Connection: Deprecate `Jetpack::get_stat_data()` and `Jetpack::check_identity_crisis()` in favor of their package equivalents. [#51196]
+- Connection: Move the site data endpoint into the Connection package and deprecate `Jetpack_Core_Json_Api_Endpoints::site_data()` and `Jetpack_Core_Json_Api_Endpoints::get_site_data()`. [#51057]
+- Newsletter: Sandbox the email preview iframe for defense in depth. [#51329]
+- Reprint: Remove full-site export support from Jetpack while retaining Atomic exports through `wpcomsh`. [#51179]
+- Update lock file. [#50855]
+- Update package dependencies. [#50509] [#51008] [#51125] [#51331] [#51399]
+
+## 16.1.2 - 2026-08-20
+### Bug fixes
+- Newsletter: Fix a fatal error on the settings page caused by Gutenberg removing a private API that DataViews toggle and radio fields relied on. [#51363]
+
 ## 16.1.1 - 2026-08-11
 ### Bug fixes
 - Error Handler: Prevent a fatal error when a request runs during a plugin update and an older version of the Error_Handler class is already loaded.
