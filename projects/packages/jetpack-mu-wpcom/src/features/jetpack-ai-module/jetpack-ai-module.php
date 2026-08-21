@@ -8,34 +8,25 @@
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Jetpack_AI_Module;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Modules;
 
 // Atomic only. Simple runs no Jetpack modules and keeps the `jetpack_ai_enabled`
-// option as the AI master, so none of this applies there. The loader already
-// gates on IS_ATOMIC; this keeps the file safe wherever it is required from.
+// option as the AI master, so none of this applies there.
 if ( ! Constants::is_true( 'IS_ATOMIC' ) ) {
 	return;
 }
 
 /**
- * Option recording that someone turned the `ai` module off on purpose.
- */
-const OPTED_OUT_OPTION = 'wpcom_jetpack_ai_module_opted_out';
-
-/**
  * Report the `ai` module as active so Jetpack AI keeps working.
  *
- * The module is the site-wide AI master switch off WordPress.com Simple, but the
- * My Jetpack card that toggles it only renders in internal testing environments.
- * A site whose module never activated therefore has AI switched off with no
- * control anywhere to switch it back on, which is what happens on any release
- * before the one the module was introduced in.
+ * The module became the site-wide AI master switch off WordPress.com Simple, but
+ * it only auto-activates once the release that introduced it ships. Until then a
+ * site has AI switched off, which is not how Atomic behaved before the module
+ * existed, and the switch is not reachable to turn it back on.
  *
- * This only ever adds the module, so it defaults AI on rather than forcing it
- * on. The option records that someone has made a choice; once they have, the
- * stored module state is left to speak for itself.
- *
- * Remove this once the AI settings page ships and the switch is reachable
- * everywhere.
+ * AI is therefore on for everyone here, and cannot be turned off. That matches
+ * Atomic before the module, where there was no site-wide switch at all. Revert
+ * this once the release reaches Atomic and the module can be toggled for real.
  *
  * @param array $modules Active module slugs.
  * @return array Active module slugs.
@@ -45,7 +36,9 @@ function keep_module_active( $modules ) {
 		return $modules;
 	}
 
-	if ( get_option( OPTED_OUT_OPTION ) ) {
+	// Nothing to report active on a version that predates the module. Reads the
+	// available list, not the active one, so it does not re-enter this filter.
+	if ( ! ( new Modules() )->is_module( 'ai' ) ) {
 		return $modules;
 	}
 
@@ -56,35 +49,3 @@ function keep_module_active( $modules ) {
 	return $modules;
 }
 add_filter( 'jetpack_active_modules', __NAMESPACE__ . '\\keep_module_active' );
-
-/**
- * Record an explicit opt-out so turning AI off sticks.
- *
- * Deactivating removes the module from `active_modules`, which the filter above
- * would immediately undo. The option is what tells the two apart: a site that
- * never activated the module, and a site that turned it off.
- *
- * @param string $module  Module slug.
- * @param bool   $success Whether the module was deactivated.
- * @return void
- */
-function record_opt_out( $module, $success ) {
-	if ( 'ai' === $module && $success ) {
-		update_option( OPTED_OUT_OPTION, true );
-	}
-}
-add_action( 'jetpack_deactivate_module', __NAMESPACE__ . '\\record_opt_out', 10, 2 );
-
-/**
- * Clear the opt-out when AI is turned back on.
- *
- * @param string $module  Module slug.
- * @param bool   $success Whether the module was activated.
- * @return void
- */
-function clear_opt_out( $module, $success ) {
-	if ( 'ai' === $module && $success ) {
-		delete_option( OPTED_OUT_OPTION );
-	}
-}
-add_action( 'jetpack_activate_module', __NAMESPACE__ . '\\clear_opt_out', 10, 2 );
