@@ -297,6 +297,11 @@ type NavigateFunction = UseNavigateResult< string >;
 
 type GetActionsParams = {
 	navigate: NavigateFunction;
+	// Below the `medium` breakpoint boot renders the inspector as a full-screen
+	// fixed overlay rather than a side panel, so selecting a response already
+	// fills the viewport. When supplied, View selects instead of navigating —
+	// matching what tapping the response's title does.
+	onSelectResponse?: ( id: string ) => void;
 };
 
 type GetActionsReturn = {
@@ -322,7 +327,7 @@ type GetRowActionsParams = GetActionsParams & {
  * @param {GetActionsParams} params - Parameters for generating actions.
  * @return {GetActionsReturn} Object containing the actions.
  */
-export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
+export function getActions( { navigate, onSelectResponse }: GetActionsParams ): GetActionsReturn {
 	const viewAction: Action = {
 		id: 'view-response',
 		isPrimary: true,
@@ -337,6 +342,11 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 			const [ item ] = items;
 
 			if ( ! item ) {
+				return;
+			}
+
+			if ( onSelectResponse ) {
+				onSelectResponse( String( item.id ) );
 				return;
 			}
 
@@ -1286,7 +1296,11 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
  * @param {GetRowActionsParams} params - Parameters for generating actions.
  * @return {Action[]} Array of action configurations.
  */
-export function getRowActions( { navigate, view }: GetRowActionsParams ): Action[] {
+export function getRowActions( {
+	navigate,
+	view,
+	onSelectResponse,
+}: GetRowActionsParams ): Action[] {
 	const {
 		viewAction,
 		printAction,
@@ -1298,7 +1312,7 @@ export function getRowActions( { navigate, view }: GetRowActionsParams ): Action
 		deleteAction,
 		markAsReadAction,
 		markAsUnreadAction,
-	} = getActions( { navigate } );
+	} = getActions( { navigate, onSelectResponse } );
 
 	switch ( view ) {
 		case 'trash':

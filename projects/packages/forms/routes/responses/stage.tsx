@@ -7,6 +7,7 @@ import { formatNumber } from '@automattic/number-formatters';
  * WordPress dependencies
  */
 import { __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { useViewportMatch } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
@@ -156,6 +157,9 @@ function StageInner() {
 	const statusView = params.view === 'spam' || params.view === 'trash' ? params.view : 'inbox';
 	const statusFilter = statusView === 'inbox' ? 'draft,publish' : statusView;
 	const dateSettings = getDateSettings();
+	// Matches the width at which boot flips the inspector from a side panel to a
+	// full-screen overlay.
+	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
 	const sourceIdValue = ( searchParams as { sourceId?: string | number } )?.sourceId;
 	const sourceIdNumber =
@@ -633,8 +637,9 @@ function StageInner() {
 			getRowActions( {
 				navigate,
 				view: statusView,
+				onSelectResponse: isMobileViewport ? id => onChangeSelection( [ id ] ) : undefined,
 			} ),
-		[ navigate, statusView ]
+		[ navigate, statusView, isMobileViewport, onChangeSelection ]
 	);
 
 	const paginationInfo = useMemo(
