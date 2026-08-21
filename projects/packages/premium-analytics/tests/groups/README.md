@@ -1,12 +1,15 @@
-# Widget test groups
+# Test groups
 
-A file in this directory imports widget suites that can share one Jest module
-registry. This avoids repeatedly loading the same dependency graph.
+A file in this directory imports suites that can share one Jest module registry.
+This avoids repeatedly loading the same dependency graph.
 
 ```tsx
-import '../top-posts/__tests__/top-posts.test';
-import '../clicks/__tests__/clicks.test';
+import '../../widgets/top-posts/__tests__/top-posts.test';
+import '../../widgets/clicks/__tests__/clicks.test';
 ```
+
+A group is named `<area>-<what its members mock>`, because membership is decided
+by the mocks, not by where the suites live.
 
 A group file holds nothing but those imports and comments, each import written on
 one line exactly as above. The Jest config reads the same lines to keep a member
@@ -34,7 +37,7 @@ CI only ever runs the grouped mode, so the ungrouped fallback is covered by hand
 Run both after changing what the config ignores; a break there shows up as every
 suite counted twice, once standalone and once inside its group.
 
-## Adding a widget suite to a group
+## Adding a suite to a group
 
 Members must declare the same `jest.mock()` calls. The registry is shared, so
 only the factory of the first member that loads a module ever runs; every later
@@ -57,7 +60,7 @@ Keep groups at ten members or fewer and reset shared state in `beforeEach`.
 Re-run that suite on its own first:
 
 ```bash
-pnpm exec jest --config=tests/jest.config.cjs widgets/<name>
+pnpm exec jest --config=tests/jest.config.cjs <path/to/suite>
 ```
 
 If it passes alone, check for state left in the DOM, query cache, mocks, or

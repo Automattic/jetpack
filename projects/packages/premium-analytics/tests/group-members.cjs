@@ -1,5 +1,5 @@
 /**
- * Parsing of the widget test group files in `widgets/__groups__/`.
+ * Parsing of the test group files in `tests/groups/`.
  *
  * Both the Jest config and the guard test read the group files, and they must
  * agree on what a group lists: the config keeps every member out of the
@@ -13,7 +13,7 @@
 const fs = require( 'fs' );
 const path = require( 'path' );
 
-const GROUPS_DIR = path.join( __dirname, '..', 'widgets', '__groups__' );
+const GROUPS_DIR = path.join( __dirname, 'groups' );
 
 // Group files are suites in their own right, so Jest has to collect them.
 const GROUP_FILE = /\.test\.tsx?$/;

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Test-only change: move the jest test groups to tests/groups and group the widgets-toolkit suites.
+
+
