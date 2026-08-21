@@ -144,11 +144,22 @@ body.jetpack_page_jetpack-ai {
 		font-weight: 600;
 	}
 
-	&__detail dd,
-	&__summary {
+	&__detail dd {
 		margin: 0;
 		white-space: pre-wrap;
 		overflow-wrap: anywhere;
+	}
+
+	&__summary {
+		white-space: normal;
+
+		> :first-child {
+			margin-block-start: 0;
+		}
+
+		> :last-child {
+			margin-block-end: 0;
+		}
 	}
 
 	&__confirm-actions {

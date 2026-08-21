@@ -82,6 +82,37 @@ test( 'renders the table, opens details, and runs a task now', async () => {
 	);
 } );
 
+test( 'renders the latest result as safe Markdown', async () => {
+	hookResult.tasks = [
+		{
+			...task,
+			latest_run: {
+				...task.latest_run,
+				summary:
+					'**Views:** 4\n\n- Two visitors\n- [View report](https://example.com)\n\n<script>alert("nope")</script>',
+			},
+		},
+	];
+
+	render(
+		<ScheduledTasks
+			blogId={ 123 }
+			apiNonce="nonce"
+			createSuccessNotice={ jest.fn() }
+			createErrorNotice={ jest.fn() }
+		/>
+	);
+
+	await userEvent.click( screen.getByRole( 'button', { name: 'Weekly report' } ) );
+	expect( screen.getByText( 'Views:' ).tagName ).toBe( 'STRONG' );
+	expect( screen.getByText( 'Two visitors' ).tagName ).toBe( 'LI' );
+	expect( screen.getByRole( 'link', { name: 'View report' } ) ).toHaveAttribute(
+		'target',
+		'_blank'
+	);
+	expect( screen.getByText( /<script>alert\("nope"\)<\/script>/ ) ).toBeInTheDocument();
+} );
+
 test( 'requires confirmation before deleting', async () => {
 	render(
 		<ScheduledTasks

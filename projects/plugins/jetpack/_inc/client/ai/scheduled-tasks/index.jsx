@@ -1,9 +1,27 @@
 import { Button, Modal, Spinner } from '@wordpress/components';
 import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { RawHTML, useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
+import MarkdownIt from 'markdown-it';
 import { useScheduledTasks } from './use-scheduled-tasks';
+
+const markdownConverter = new MarkdownIt( {
+	breaks: true,
+	html: false,
+	linkify: true,
+} );
+
+const defaultLinkOpen =
+	markdownConverter.renderer.rules.link_open ||
+	( ( tokens, index, options, environment, renderer ) =>
+		renderer.renderToken( tokens, index, options ) );
+
+markdownConverter.renderer.rules.link_open = ( tokens, index, options, environment, renderer ) => {
+	tokens[ index ].attrSet( 'target', '_blank' );
+	tokens[ index ].attrSet( 'rel', 'noopener noreferrer' );
+	return defaultLinkOpen( tokens, index, options, environment, renderer );
+};
 
 const INITIAL_VIEW = {
 	type: 'table',
@@ -90,17 +108,9 @@ const SafeSummary = ( { text } ) => {
 		return <span>—</span>;
 	}
 	return (
-		<p className="jetpack-ai-scheduled-tasks__summary">
-			{ text.split( /(https?:\/\/[^\s]+)/g ).map( ( part, index ) =>
-				/^https?:\/\//.test( part ) ? (
-					<a key={ index } href={ part } target="_blank" rel="noopener noreferrer">
-						{ part }
-					</a>
-				) : (
-					part
-				)
-			) }
-		</p>
+		<RawHTML className="jetpack-ai-scheduled-tasks__summary">
+			{ markdownConverter.render( text ) }
+		</RawHTML>
 	);
 };
 
