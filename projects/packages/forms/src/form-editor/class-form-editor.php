@@ -165,22 +165,20 @@ class Form_Editor {
 	}
 
 	/**
-	 * Enqueue admin scripts for the form editor.
+	 * Enqueue admin scripts for block editor.
 	 *
-	 * Scoped to the form post type. Everything the bundle registers is already
-	 * gated on `getCurrentPostType() === 'jetpack_form'` in JavaScript, so on any
-	 * other block editor screen it was downloaded and parsed only to do nothing.
+	 * Loads in all post block editor contexts (excluding the site editor). This
+	 * cannot be narrowed to the form post type: `navigateToForm()` switches to a
+	 * form through Gutenberg's in-editor entity navigation, which never reloads
+	 * the page, so `admin_enqueue_scripts` does not run again. A page editor that
+	 * did not load this bundle up front would jump into a form with none of the
+	 * form editor behaviour available.
 	 */
 	public static function enqueue_admin_scripts() {
 		$screen = get_current_screen();
 
-		// Only load in block editor contexts, not site editor.
+		// Only load in block editor contexts, not site editor
 		if ( ! $screen || $screen->id === 'site-editor' || ! $screen->is_block_editor ) {
-			return;
-		}
-
-		// Only load when editing a form.
-		if ( ! isset( $screen->post_type ) || Contact_Form::POST_TYPE !== $screen->post_type ) {
 			return;
 		}
 		$asset_file = __DIR__ . '/../../dist/form-editor/jetpack-form-editor.asset.php';
@@ -209,14 +207,23 @@ class Form_Editor {
 	/**
 	 * Enqueue the welcome guide.
 	 *
-	 * Kept out of the editor bundle so the guide does not have to wait for the
-	 * whole editor to download and parse before it can render — it is one of the
-	 * first things a new user sees. Always loaded on the form editor, not only
-	 * when the guide will open, because it also supplies the "Form guide" item in
-	 * the Options menu that reopens it after dismissal. The artwork itself is
-	 * only fetched once the guide actually opens.
+	 * Unlike the editor bundle, this is scoped to the form post type. The guide
+	 * is for people meeting the block editor for the first time, so someone who
+	 * reaches a form through in-editor navigation from a post or page has
+	 * already demonstrated they do not need it — and that path never re-runs
+	 * this hook, so not loading here is what skips the guide for them.
+	 *
+	 * Loaded on every direct form editor load rather than only when the guide
+	 * will open, because it also supplies the "Form guide" item in the Options
+	 * menu that reopens it after dismissal. The artwork is only fetched once the
+	 * guide actually opens.
 	 */
 	private static function enqueue_welcome_guide() {
+		$screen = get_current_screen();
+		if ( ! $screen || ! isset( $screen->post_type ) || Contact_Form::POST_TYPE !== $screen->post_type ) {
+			return;
+		}
+
 		$asset_file = __DIR__ . '/../../dist/form-editor/jetpack-form-welcome-guide.asset.php';
 		if ( ! file_exists( $asset_file ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
