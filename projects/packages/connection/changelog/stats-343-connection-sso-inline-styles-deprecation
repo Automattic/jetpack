@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+SSO: deprecate print_inline_admin_css() in favour of enqueue_login_styles().

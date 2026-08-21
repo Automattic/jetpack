@@ -319,6 +319,16 @@ class SSO {
 	}
 
 	/**
+	 * Print the SSO styles for the login screen.
+	 *
+	 * @deprecated $$next-version$$ Use enqueue_login_styles().
+	 */
+	public function print_inline_admin_css() {
+		_deprecated_function( __METHOD__, 'connection-$$next-version$$', __CLASS__ . '::enqueue_login_styles' );
+		$this->enqueue_login_styles();
+	}
+
+	/**
 	 * Enqueue the SSO styles for the login screen.
 	 */
 	public function enqueue_login_styles() {
