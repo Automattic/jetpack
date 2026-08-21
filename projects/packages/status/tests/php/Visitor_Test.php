@@ -405,15 +405,16 @@ class Visitor_Test extends TestCase {
 	}
 
 	/**
-	 * Tests that the header sweep still runs when the site trusts a header the request did not
-	 * carry.
+	 * Tests that a request which does not carry the trusted header resolves to REMOTE_ADDR
+	 * rather than reopening the sweep. A request reaching a configured site without the header
+	 * its proxy sets has most likely bypassed that proxy, which makes REMOTE_ADDR the client.
 	 */
-	public function test_get_ip_falls_back_to_the_sweep_when_the_trusted_header_is_absent() {
+	public function test_get_ip_uses_remote_addr_when_the_trusted_header_is_absent() {
 		$_SERVER['REMOTE_ADDR']           = '10.0.0.5';
 		$_SERVER['HTTP_CF_CONNECTING_IP'] = '5.6.7.8';
 		$this->set_trusted_ip_header( 'HTTP_X_FORWARDED_FOR' );
 
-		$this->assertSame( '5.6.7.8', $this->visitor_obj->get_ip( true ) );
+		$this->assertSame( '10.0.0.5', $this->visitor_obj->get_ip( true ) );
 	}
 
 	/**
@@ -466,28 +467,30 @@ class Visitor_Test extends TestCase {
 	}
 
 	/**
-	 * Tests that a trusted header carrying no valid address does not end the search. It falls
-	 * through to the sweep, which finds nothing usable either, leaving REMOTE_ADDR.
+	 * Tests that a trusted header carrying no valid address yields nothing, rather than falling
+	 * back to another source. Brute force protection reads the same configuration through
+	 * IP\Utils::get_ip() and gets the same empty answer, which is the point of deferring to it.
 	 */
-	public function test_get_ip_falls_through_when_the_trusted_header_holds_no_address() {
+	public function test_get_ip_returns_an_empty_string_when_the_trusted_header_holds_no_address() {
 		$_SERVER['REMOTE_ADDR']          = '10.0.0.5';
 		$_SERVER['HTTP_X_FORWARDED_FOR'] = 'not-an-ip-address';
 		$this->set_trusted_ip_header( 'HTTP_X_FORWARDED_FOR' );
 
-		$this->assertSame( '10.0.0.5', $this->visitor_obj->get_ip( true ) );
+		$this->assertSame( '', $this->visitor_obj->get_ip( true ) );
 	}
 
 	/**
-	 * Tests the documented consequence of that fall-through: with a trusted header configured
-	 * but absent from the request, an address the client named in a header it fully controls is
-	 * still returned. Pins the behaviour the docblock calls a preference rather than a
-	 * guarantee, so a future change to make it a guarantee has to update this test knowingly.
+	 * Tests that a configured site never reads the client-controlled headers, whatever the
+	 * request sends. Omitting the trusted header and naming an address in one of the sweep's
+	 * headers is the way this would be stepped around, so pin it: the request cannot choose the
+	 * address Jetpack reports for it.
 	 */
-	public function test_get_ip_still_reads_client_headers_when_the_trusted_header_is_omitted() {
+	public function test_get_ip_ignores_client_headers_when_a_trusted_header_is_configured() {
 		$_SERVER['REMOTE_ADDR']           = '10.0.0.5';
 		$_SERVER['HTTP_CF_CONNECTING_IP'] = '1.2.3.4';
+		$_SERVER['HTTP_CLIENT_IP']        = '4.3.2.1';
 		$this->set_trusted_ip_header( 'HTTP_X_FORWARDED_FOR' );
 
-		$this->assertSame( '1.2.3.4', $this->visitor_obj->get_ip( true ) );
+		$this->assertSame( '10.0.0.5', $this->visitor_obj->get_ip( true ) );
 	}
 }

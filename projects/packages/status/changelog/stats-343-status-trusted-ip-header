@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Visitor: Prefer the site's trusted header, where one is configured, when resolving the visitor address.
+Visitor: Resolve the visitor address through the site's trusted header alone where one is configured, instead of also reading the forwarded headers.

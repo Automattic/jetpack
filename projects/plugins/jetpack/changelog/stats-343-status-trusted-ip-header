@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Stats: Prefer the visitor address identified by a proxied site's trusted header, where one is configured.
+Stats: Report the same visitor address the rest of Jetpack resolves on sites with a trusted IP header configured.

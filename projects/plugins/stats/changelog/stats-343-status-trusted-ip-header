@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Prefer the visitor address identified by a proxied site's trusted header, where one is configured.
+Report the same visitor address the rest of Jetpack resolves on sites with a trusted IP header configured.

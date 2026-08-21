@@ -21,11 +21,18 @@ class Visitor {
 	 * forwarded headers are tried in order, a comma-separated list yields its first valid entry,
 	 * and a header holding no valid address is skipped.
 	 *
-	 * A site with a trusted header configured is preferred over that sweep: that header, and how
-	 * far back to count in it, was worked out for this site's own proxy setup, so it beats
-	 * guessing. It is a preference, not a guarantee — a request that does not carry the trusted
-	 * header still falls through to the sweep, so the returned address is no more trustworthy
-	 * than the sweep's. See `get_trusted_header_ip()`.
+	 * A site with a trusted header configured does not use that sweep at all. Brute force
+	 * protection stores which header carries the visitor address, how far back to count in its
+	 * list, and whether that list runs in reverse, all worked out for this site's own proxy
+	 * setup. Once that answer exists it is the answer, including when the request did not carry
+	 * the header — `IP\Utils::get_ip()` falls back to `REMOTE_ADDR` itself in that case. Reading
+	 * the sweep afterwards would let a request that simply omits the trusted header pick its own
+	 * address out of a header it fully controls, and would hand Jetpack two answers for one
+	 * request, since brute force protection resolves the same visitor through `IP\Utils`.
+	 *
+	 * That is a guarantee about which source is consulted, not about the address itself: it
+	 * still assumes the proxy named in the stored configuration rewrites the header. A request
+	 * reaching the origin directly can present that header itself.
 	 *
 	 * The address is normalized by `IP\Utils::clean_ip()`: it is lowercased, anything following an
 	 * " unless " separator is dropped, and a port suffix, IPv6 brackets, or an `::ffff:` IPv4
@@ -38,9 +45,10 @@ class Visitor {
 	 */
 	public function get_ip( $check_all_headers = false ) {
 		if ( $check_all_headers ) {
-			$trusted_ip = $this->get_trusted_header_ip();
-			if ( false !== $trusted_ip ) {
-				return $trusted_ip;
+			$trusted_header_data = get_site_option( 'trusted_ip_header' );
+			if ( isset( $trusted_header_data->trusted_header ) ) {
+				$trusted_ip = IP_Utils::get_ip();
+				return false !== $trusted_ip ? $trusted_ip : '';
 			}
 
 			foreach ( array(
@@ -68,36 +76,6 @@ class Visitor {
 
 		$ip = empty( $_SERVER['REMOTE_ADDR'] ) ? false : IP_Utils::clean_ip( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip() validates it.
 		return false !== $ip ? $ip : '';
-	}
-
-	/**
-	 * Resolves the visitor address from the header that was verified for this site.
-	 *
-	 * Brute force protection stores the header to read, how many entries back from the end of
-	 * its list the visitor sits, and whether that list runs in reverse, in the
-	 * `trusted_ip_header` site option. That is an answer for this site's actual proxy setup,
-	 * which is more than the header sweep in `get_ip()` can work out on its own, so it is used
-	 * in preference to that sweep.
-	 *
-	 * `IP\Utils::get_ip()` owns the entry selection, so the two do not each decide separately
-	 * which entry of a forwarded list belongs to the visitor.
-	 *
-	 * This is NOT a trust boundary. A request that simply omits the trusted header returns
-	 * false here and lands back in `get_ip()`'s sweep, which reads headers the client controls,
-	 * so a caller can still be handed an address the request named for itself. Deciding whether
-	 * to trust the result is the caller's problem, unchanged by this method.
-	 *
-	 * @return string|false Visitor IP address, or false when the site has no trusted header,
-	 *                      the request did not carry it, or it held no valid address.
-	 */
-	private function get_trusted_header_ip() {
-		$trusted_header_data = get_site_option( 'trusted_ip_header' );
-
-		if ( ! isset( $trusted_header_data->trusted_header ) || ! isset( $_SERVER[ $trusted_header_data->trusted_header ] ) ) {
-			return false;
-		}
-
-		return IP_Utils::get_ip();
 	}
 
 	/**
