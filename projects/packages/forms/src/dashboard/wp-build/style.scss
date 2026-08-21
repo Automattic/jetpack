@@ -99,4 +99,16 @@ body.jetpack-forms-responses {
 			}
 		}
 	}
+
+	// The standalone single response page is a document-flow page, not a bounded
+	// app surface: the card must take its content height so the scrollable middle
+	// (`.jp-forms__single-response`) actually overflows and scrolls. The mixin's
+	// blanket `> *` rule would instead shrink the card to the viewport, and the
+	// card's own `overflow: hidden` then clips everything past the fold.
+	.jp-admin-page:has(.jp-forms__single-response) {
+
+		.jp-forms__single-response-card {
+			flex: 0 0 auto;
+		}
+	}
 }
