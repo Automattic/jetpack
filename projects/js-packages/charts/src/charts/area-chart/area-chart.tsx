@@ -27,11 +27,11 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
-import { attachSubComponents, resolveCssVariable } from '../../utils';
+import { attachSubComponents } from '../../utils';
 import { renderDefaultTooltip } from '../line-chart';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
 import { SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
@@ -43,7 +43,7 @@ import type { DataPointDate, Optional } from '../../types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 
-const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
+const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 	(
 		{
 			data,
@@ -91,7 +91,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
-		const internalChartRef = useRef< SingleChartRef >( null );
+		const internalChartRef = useRef< ChartInstanceRef >( null );
 
 		const zoom = useXZoom< Date >( {
 			enabled: zoomable,
@@ -365,7 +365,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		};
 
 		return (
-			<SingleChartContext.Provider
+			<ChartInstanceContext.Provider
 				value={ {
 					chartId,
 					chartRef: internalChartRef,
@@ -482,10 +482,8 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 														stacked={ stacked }
 														stackOffset={ stackOffset }
 														getElementStyles={ getElementStyles }
-														strokeColor={
-															resolveCssVariable( providerTheme.backgroundColor ) ??
-															providerTheme.backgroundColor
-														}
+														// useXYChartTheme resolved this role inside its memo, against the chart's scope element; reading it back avoids a getComputedStyle on every render.
+														strokeColor={ theme.backgroundColor ?? providerTheme.backgroundColor }
 													/>
 												</>
 											) }
@@ -505,7 +503,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 						);
 					} }
 				</ChartLayout>
-			</SingleChartContext.Provider>
+			</ChartInstanceContext.Provider>
 		);
 	}
 );
@@ -517,16 +515,16 @@ type AreaChartSubComponents = {
 type AreaChartBaseProps = Optional< AreaChartProps, 'width' | 'height' | 'size' >;
 
 type AreaChartComponent = React.ForwardRefExoticComponent<
-	AreaChartBaseProps & React.RefAttributes< SingleChartRef >
+	AreaChartBaseProps & React.RefAttributes< ChartInstanceRef >
 > &
 	AreaChartSubComponents;
 
 type AreaChartResponsiveComponent = React.ForwardRefExoticComponent<
-	AreaChartBaseProps & ResponsiveConfig & React.RefAttributes< SingleChartRef >
+	AreaChartBaseProps & ResponsiveConfig & React.RefAttributes< ChartInstanceRef >
 > &
 	AreaChartSubComponents;
 
-const AreaChartWithProvider = forwardRef< SingleChartRef, AreaChartProps >( ( props, ref ) => {
+const AreaChartWithProvider = forwardRef< ChartInstanceRef, AreaChartProps >( ( props, ref ) => {
 	const existingContext = useContext( GlobalChartsContext );
 
 	if ( existingContext ) {

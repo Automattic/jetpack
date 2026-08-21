@@ -5,20 +5,20 @@ import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportPageLayout,
+	ReportPageShell,
 	ReportRecordsTable,
 	ReportCsvAction,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { REPORTS } from '../registry';
 import { getTagRowId, getTagsFields, useTagsReportRecords } from './config';
-import styles from './page.module.css';
 import type { StatsTagsItem } from '@jetpack-premium-analytics/data';
 
 /**
@@ -73,48 +73,43 @@ function TagsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
+	const { getLabel, getTitle } = REPORTS.tags;
+
 	return (
-		<Page
+		<ReportPageShell
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={
-				<StatsBreadcrumbs
-					items={ [ { label: __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ) } ] }
-				/>
-			}
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			subTitle={ __( 'Your most visited tags and categories.', 'jetpack-premium-analytics-pkg' ) }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
-			className={ styles.page }
 		>
-			<div className={ styles.content }>
-				<ReportPageLayout>
-					{ /*
-					 * The error state replaces the table rather than sitting beside it:
-					 * `ReportRecordsTable`'s `empty` renders on row count, not fetch
-					 * status, so a failed refetch over cached rows would otherwise leave
-					 * stale data on screen with no notice and no way to retry.
-					 */ }
-					{ records.isError ? (
-						<ReportErrorState
-							title={ __( 'Unable to load tags and categories', 'jetpack-premium-analytics-pkg' ) }
-							onRetry={ retry }
-						/>
-					) : (
-						<ReportRecordsTable< StatsTagsItem >
-							data={ records.rows }
-							fields={ fields }
-							getItemId={ getTagRowId }
-							isLoading={ records.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search tags and categories', 'jetpack-premium-analytics-pkg' ) }
-						/>
-					) }
-				</ReportPageLayout>
-			</div>
-		</Page>
+			<ReportPageLayout title={ getTitle() }>
+				{ /*
+				 * The error state replaces the table rather than sitting beside it:
+				 * `ReportRecordsTable`'s `empty` renders on row count, not fetch
+				 * status, so a failed refetch over cached rows would otherwise leave
+				 * stale data on screen with no notice and no way to retry.
+				 */ }
+				{ records.isError ? (
+					<ReportErrorState
+						title={ __( 'Unable to load tags and categories', 'jetpack-premium-analytics-pkg' ) }
+						onRetry={ retry }
+					/>
+				) : (
+					<ReportRecordsTable< StatsTagsItem >
+						data={ records.rows }
+						fields={ fields }
+						getItemId={ getTagRowId }
+						isLoading={ records.isLoading }
+						initialView={ RECORDS_VIEW }
+						searchLabel={ __( 'Search tags and categories', 'jetpack-premium-analytics-pkg' ) }
+					/>
+				) }
+			</ReportPageLayout>
+		</ReportPageShell>
 	);
 }
 

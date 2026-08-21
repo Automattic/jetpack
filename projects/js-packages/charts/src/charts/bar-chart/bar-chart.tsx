@@ -22,8 +22,8 @@ import {
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { SingleChartContext } from '../private/single-chart-context';
 import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './bar-chart.module.scss';
@@ -147,7 +147,23 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ legendCollapseGroups ]
 	);
 	const legendItems = useChartLegendItems( dataSorted, legendOptions );
-	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
+
+	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+
+	// A hidden series is unmounted, so it is not on the band scale either — the
+	// axis has to choose its tick values from what is left.
+	const isSeriesRendered = useCallback(
+		( series: SeriesData ) =>
+			! chartId || ! legendInteractive || isSeriesVisible( chartId, series.label ),
+		[ chartId, legendInteractive, isSeriesVisible ]
+	);
+
+	const chartOptions = useBarChartOptions(
+		dataWithVisibleZeros,
+		horizontal,
+		options,
+		isSeriesRendered
+	);
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const chartRef = useRef< HTMLDivElement >( null );
 
@@ -182,23 +198,16 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		totalPoints,
 	} );
 
-	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
-
 	// Add visibility information to series when using interactive legends
-	const seriesWithVisibility = useMemo( () => {
-		if ( ! chartId || ! legendInteractive ) {
-			return dataWithVisibleZeros.map( ( series, index ) => ( {
+	const seriesWithVisibility = useMemo(
+		() =>
+			dataWithVisibleZeros.map( ( series, index ) => ( {
 				series,
 				index,
-				isVisible: true,
-			} ) );
-		}
-		return dataWithVisibleZeros.map( ( series, index ) => ( {
-			series,
-			index,
-			isVisible: isSeriesVisible( chartId, series.label ),
-		} ) );
-	}, [ dataWithVisibleZeros, chartId, isSeriesVisible, legendInteractive ] );
+				isVisible: isSeriesRendered( series ),
+			} ) ),
+		[ dataWithVisibleZeros, isSeriesRendered ]
+	);
 
 	// Check if all series are hidden
 	const allSeriesHidden = useMemo( () => {
@@ -505,7 +514,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	return (
-		<SingleChartContext.Provider
+		<ChartInstanceContext.Provider
 			value={ {
 				chartId,
 				chartWidth: width,
@@ -664,7 +673,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					);
 				} }
 			</ChartLayout>
-		</SingleChartContext.Provider>
+		</ChartInstanceContext.Provider>
 	);
 };
 

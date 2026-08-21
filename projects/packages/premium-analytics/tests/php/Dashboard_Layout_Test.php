@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -36,6 +37,10 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		Constants::clear_constants();
+		// The default layout now reaches Host::is_wpcom_platform(), which memoizes
+		// `is_woa_site` past Constants::clear_constants().
+		Cache::clear();
+		remove_all_filters( VIDEOPRESS_AVAILABLE_FILTER );
 		parent::tear_down();
 	}
 
@@ -240,6 +245,26 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The Top videos instance follows VideoPress, which this test env lacks.
+	 */
+	public function test_traffic_default_excludes_videopress_widget_without_videopress() {
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ), 'type' );
+
+		$this->assertNotContains( 'jpa/videopress', $layout_types, 'Top videos must not be part of the default layout without VideoPress.' );
+	}
+
+	/**
+	 * With VideoPress, the Top videos instance is back in the default layout.
+	 */
+	public function test_traffic_default_keeps_videopress_widget_with_videopress() {
+		add_filter( VIDEOPRESS_AVAILABLE_FILTER, '__return_true' );
+
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ), 'type' );
+
+		$this->assertContains( 'jpa/videopress', $layout_types );
+	}
+
+	/**
 	 * WPCOM Simple keeps Simple-only widgets in the default layout.
 	 */
 	public function test_traffic_default_keeps_simple_only_widgets_on_wpcom_simple() {
@@ -330,7 +355,6 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'utmDimension' => 'utm_source,utm_medium',
-				'max'          => 10,
 			),
 			$layout_by_uuid[ $utm_widget_uuid ]['attributes']
 		);
@@ -353,7 +377,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			'default-total-views-widget-instance'          => array( 'jpa/total-views', 1, 1, 4 ),
 			'default-total-visitors-widget-instance'       => array( 'jpa/total-visitors', 1, 1, 5 ),
 			'default-popular-days-widget-instance'         => array( 'jpa/popular-days', 1, 1, 6 ),
-			'default-most-popular-day-widget-instance'     => array( 'jpa/most-popular-day', 1, 1, 7 ),
+			'default-popular-hours-widget-instance'        => array( 'jpa/popular-hours', 1, 1, 7 ),
 			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 4, 2, 8 ),
 			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 9 ),
 			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 10 ),
@@ -436,7 +460,6 @@ class Dashboard_Layout_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'max'    => 10,
 				'metric' => 'opens',
 			),
 			$layout_by_uuid['default-subscribers-emails-widget-instance']['attributes']

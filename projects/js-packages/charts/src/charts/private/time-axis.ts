@@ -33,37 +33,86 @@ export const getCurveType = ( type?: CurveType, smoothing?: boolean ): typeof cu
 	}
 };
 
-const formatYearTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleDateString( undefined, { year: 'numeric' } );
+// Built once and reused: these run per bucket over the whole band domain when
+// the axis picks its tick values, and `toLocaleDateString` rebuilds its
+// formatter on every call once an options object is passed.
+const dateTimeFormat = ( options: Intl.DateTimeFormatOptions ) => {
+	let formatter: Intl.DateTimeFormat;
+	return ( timestamp: number ) => {
+		// `Intl.DateTimeFormat` throws on an invalid date where the `Date`
+		// methods it replaces return "Invalid Date", and charts are expected to
+		// render past a bad point rather than fail.
+		// visx hands its tick formatter a `Date`, so coerce before the check.
+		if ( ! Number.isFinite( Number( timestamp ) ) ) {
+			return new Date( timestamp ).toLocaleDateString();
+		}
+		formatter = formatter ?? new Intl.DateTimeFormat( undefined, options );
+		return formatter.format( timestamp );
+	};
 };
 
-const formatDateTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleDateString( undefined, { month: 'short', day: 'numeric' } );
+const formatYearTick = dateTimeFormat( { year: 'numeric' } );
+
+const formatDateTick = dateTimeFormat( { month: 'short', day: 'numeric' } );
+
+const formatHourTick = dateTimeFormat( { hour: 'numeric', hour12: true } );
+
+const formatMonthTick = dateTimeFormat( { month: 'short' } );
+
+/**
+ * A tick format, carrying the boundary test that decides its coarser label.
+ *
+ * A band scale samples by index, so `getBandTickValues` has to steer ticks onto
+ * the boundaries a format prints the date or the year at. Hanging the test off
+ * the format that branches on it keeps the two from drifting apart.
+ */
+export type TickFormat = ( ( timestamp: number ) => string ) & {
+	isAnchor?: ( date: Date ) => boolean;
 };
 
-const formatHourTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleTimeString( undefined, { hour: 'numeric', hour12: true } );
+const boundaryFormat = (
+	isAnchor: ( date: Date ) => boolean,
+	atBoundary: ( timestamp: number ) => string,
+	between: ( timestamp: number ) => string
+): TickFormat => {
+	const format: TickFormat = ( timestamp: number ) =>
+		isAnchor( new Date( timestamp ) ) ? atBoundary( timestamp ) : between( timestamp );
+	format.isAnchor = isAnchor;
+	return format;
 };
 
 // Hour ticks with the date at midnight boundaries, so multi-day spans of
 // sub-daily data keep their days identifiable.
-const formatDateOrHourTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.getHours() === 0 && date.getMinutes() === 0
-		? formatDateTick( timestamp )
-		: formatHourTick( timestamp );
-};
+const formatDateOrHourTick = boundaryFormat(
+	date => date.getHours() === 0 && date.getMinutes() === 0,
+	formatDateTick,
+	formatHourTick
+);
 
 // Month ticks with the year at January boundaries, for month-or-coarser
 // buckets where a full "Sep 1" date would misread as a daily point.
-const formatMonthOrYearTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.getMonth() === 0
-		? formatYearTick( timestamp )
-		: date.toLocaleDateString( undefined, { month: 'short' } );
+const formatMonthOrYearTick = boundaryFormat(
+	date => date.getMonth() === 0,
+	formatYearTick,
+	formatMonthTick
+);
+
+// Overall time span of the data. Series with no dated points are dropped rather
+// than folded in: an empty comparison series is legitimate, and one undefined
+// bound would turn the whole span into NaN. Null when nothing is dated.
+const getSpan = ( sortedData: ReturnType< typeof useChartDataTransform > ) => {
+	const bounds = sortedData
+		.map( datom => [ datom.data.at( 0 )?.date, datom.data.at( -1 )?.date ] )
+		.filter( ( [ first, last ] ) => first !== undefined && last !== undefined );
+
+	if ( ! bounds.length ) {
+		return null;
+	}
+
+	return {
+		minX: Math.min( ...bounds.map( ( [ first ] ) => Number( first ) ) ),
+		maxX: Math.max( ...bounds.map( ( [ , last ] ) => Number( last ) ) ),
+	};
 };
 
 // Smallest interval between consecutive points across all series, in hours.
@@ -85,64 +134,201 @@ const getPointSpacingInHours = ( sortedData: ReturnType< typeof useChartDataTran
 	);
 };
 
-// Nominal point spacing for a caller-declared bucket resolution. A month maps
-// to the shortest month so the month-or-coarser regime engages (see
-// getFormatter). Year is absent: it short-circuits to year ticks before the
-// spacing regimes run.
-const SPACING_BY_RESOLUTION: Record< Exclude< TickResolution, 'year' >, number > = {
-	hour: 1,
-	day: 24,
-	week: 24 * 7,
-	month: 28 * 24,
+// 23, not 24: a daily gap shrinks to 23 wall-clock hours across a
+// spring-forward DST transition.
+const SUB_DAILY_SPACING_HOURS = 23;
+
+// The shortest month, so monthly buckets clear it but weekly ones don't.
+const MONTHLY_SPACING_HOURS = 28 * 24;
+
+// The bucket size behind the data, as the resolution label the tick formats are
+// keyed on. Exported so consumers that label a single point — bar chart
+// tooltips — read the same classification the axis does instead of inferring
+// the resolution a second way. Weeks report as 'day': both are calendar-date
+// buckets as far as labelling goes.
+export const getBucketResolution = (
+	sortedData: ReturnType< typeof useChartDataTransform >,
+	tickResolution?: TickResolution
+): Exclude< TickResolution, 'week' > => {
+	if ( tickResolution ) {
+		return tickResolution === 'week' ? 'day' : tickResolution;
+	}
+
+	const spacingInHours = getPointSpacingInHours( sortedData );
+	if ( spacingInHours < SUB_DAILY_SPACING_HOURS ) {
+		return 'hour';
+	}
+	// Fewer than two points leaves the spacing unknowable, so fall back to
+	// calendar dates rather than reading Infinity as a very coarse bucket.
+	if ( ! Number.isFinite( spacingInHours ) || spacingInHours < MONTHLY_SPACING_HOURS ) {
+		return 'day';
+	}
+	// Twelve shortest months: above any monthly gap (31 days at most) and below
+	// any yearly one (365 days at least).
+	return spacingInHours < 12 * MONTHLY_SPACING_HOURS ? 'month' : 'year';
 };
 
-// Pick the most informative tick formatter for the data's resolution and time
+// Pick the most informative tick formatter for the data's bucket resolution and
+// time span. Month-or-coarser buckets are formatted from the resolution alone —
+// they carry no day to print at any span — while finer buckets narrow with the
 // span: hours within a day, hours with day boundaries for sub-daily data
-// spanning up to a week, calendar dates for daily-or-finer buckets within a
-// year, months (with the year at January) for month-or-coarser buckets,
-// otherwise just years. The resolution comes from `tickResolution` when the
-// caller knows it, and is inferred from point spacing otherwise.
+// spanning up to a week, calendar dates within a year, otherwise years.
 export const getFormatter = (
 	sortedData: ReturnType< typeof useChartDataTransform >,
 	tickResolution?: TickResolution
-) => {
+): TickFormat => {
+	const resolution = getBucketResolution( sortedData, tickResolution );
+
 	// The month regime only prints the year at January boundaries, so yearly
-	// buckets starting mid-year would render as month names; year ticks are
-	// correct for yearly buckets at any span.
-	if ( tickResolution === 'year' ) {
+	// buckets starting mid-year would render as bare month names.
+	if ( resolution === 'year' ) {
 		return formatYearTick;
 	}
 
-	const minX = Math.min( ...sortedData.map( datom => datom.data.at( 0 )?.date ) );
-	const maxX = Math.max( ...sortedData.map( datom => datom.data.at( -1 )?.date ) );
-
-	const spacingInHours = tickResolution
-		? SPACING_BY_RESOLUTION[ tickResolution ]
-		: getPointSpacingInHours( sortedData );
-	// 23, not 24: a daily gap shrinks to 23 wall-clock hours across a
-	// spring-forward DST transition.
-	const isSubDaily = spacingInHours < 23;
-
-	const diffInHours = Math.abs( differenceInHours( maxX, minX ) );
-	if ( diffInHours <= 24 && isSubDaily ) {
-		return formatHourTick;
+	if ( resolution === 'month' ) {
+		return formatMonthOrYearTick;
 	}
 
-	if ( diffInHours <= 24 * 7 && isSubDaily ) {
-		return formatDateOrHourTick;
+	const span = getSpan( sortedData );
+	if ( ! span ) {
+		return formatDateTick;
 	}
 
-	const diffInYears = Math.abs( differenceInYears( maxX, minX ) );
-	if ( diffInYears <= 1 ) {
-		// 28 days: the shortest month, so monthly buckets qualify but weekly
-		// don't. The finiteness check keeps all-single-point series — whose
-		// resolution is unknowable — on date ticks.
-		return Number.isFinite( spacingInHours ) && spacingInHours >= 28 * 24
-			? formatMonthOrYearTick
-			: formatDateTick;
+	const diffInHours = Math.abs( differenceInHours( span.maxX, span.minX ) );
+	if ( resolution === 'hour' ) {
+		if ( diffInHours <= 24 ) {
+			return formatHourTick;
+		}
+		if ( diffInHours <= 24 * 7 ) {
+			return formatDateOrHourTick;
+		}
 	}
 
-	return formatYearTick;
+	// Beyond a year, dates repeat often enough under tick sampling that the year
+	// is the only part worth printing.
+	return Math.abs( differenceInYears( span.maxX, span.minX ) ) <= 1
+		? formatDateTick
+		: formatYearTick;
+};
+
+// Indices of the buckets whose label carries the coarser unit.
+const getAnchorIndices = ( domain: Date[], isAnchor: ( date: Date ) => boolean ) =>
+	domain.reduce< number[] >( ( indices, date, index ) => {
+		if ( isAnchor( date ) ) {
+			indices.push( index );
+		}
+		return indices;
+	}, [] );
+
+// Index strides worth sampling the domain at. Both roundings of each tick count
+// are needed: flooring alone skips the stride that fits a mid-series anchor on
+// short domains. Anchors add the strides that can land on more than one of them
+// — those dividing their spacing, and the smallest whole multiple that still
+// fits, which carries spans too long for any divisor to reach.
+const getCandidateSteps = ( length: number, maxTicks: number, anchorSpacing: number | null ) => {
+	const steps = new Set< number >();
+	for ( let count = maxTicks; count > 1; count-- ) {
+		steps.add( Math.max( 1, Math.floor( ( length - 1 ) / ( count - 1 ) ) ) );
+		steps.add( Math.max( 1, Math.ceil( ( length - 1 ) / ( count - 1 ) ) ) );
+	}
+
+	if ( anchorSpacing ) {
+		for ( let divisor = 1; divisor <= anchorSpacing; divisor++ ) {
+			if ( anchorSpacing % divisor === 0 ) {
+				steps.add( anchorSpacing / divisor );
+			}
+		}
+		const minStep = Math.floor( ( length - 1 ) / Math.max( 1, maxTicks ) ) + 1;
+		steps.add( Math.ceil( minStep / anchorSpacing ) * anchorSpacing );
+	}
+
+	return steps;
+};
+
+/**
+ * Tick values for a band time axis.
+ *
+ * visx samples a band domain by index from offset zero, blind to which labels
+ * carry a boundary and without collapsing repeats — so the tick that prints the
+ * year or the date often isn't sampled at all, and a long series can show the
+ * same label twice. Choose the values instead: sweep the evenly spaced
+ * candidates, including those that step from anchor to anchor, and keep the one
+ * that reaches the most anchors without thinning the axis or putting two
+ * identical labels side by side.
+ *
+ * @param domain        - Band domain, in axis order.
+ * @param tickFormatter - Formatter the axis will render these values with.
+ * @param maxTicks      - Most ticks the axis should carry.
+ * @return Values to hand the axis as `tickValues`.
+ */
+export const getBandTickValues = (
+	domain: Date[],
+	tickFormatter: TickFormat,
+	maxTicks: number
+): Date[] => {
+	if ( ! domain.length ) {
+		return [];
+	}
+
+	const { isAnchor } = tickFormatter;
+	const anchorIndices = isAnchor ? getAnchorIndices( domain, isAnchor ) : [];
+
+	// Once per bucket rather than once per bucket per candidate: the sweep reads
+	// the same labels back for every step and offset.
+	const domainLabels = domain.map( date => tickFormatter( date.getTime() ) );
+
+	const candidates: number[][] = [];
+	const consider = ( indices: number[] ) => {
+		if ( ! indices.length || indices.length > maxTicks ) {
+			return;
+		}
+		const repeats = indices.some(
+			( index, position ) =>
+				position > 0 && domainLabels[ index ] === domainLabels[ indices[ position - 1 ] ]
+		);
+		if ( ! repeats ) {
+			candidates.push( indices );
+		}
+	};
+
+	const anchorSpacing = anchorIndices.length > 1 ? anchorIndices[ 1 ] - anchorIndices[ 0 ] : null;
+	for ( const step of getCandidateSteps( domain.length, maxTicks, anchorSpacing ) ) {
+		for ( let offset = 0; offset < step; offset++ ) {
+			const indices: number[] = [];
+			for ( let index = offset; index < domain.length; index += step ) {
+				indices.push( index );
+			}
+			consider( indices );
+		}
+	}
+
+	// Stepping the anchors themselves rather than the domain, so that anchors an
+	// uneven number of buckets apart are still all reachable — a wall-clock day
+	// is 23 buckets of hourly data across a spring-forward DST transition, and a
+	// fixed stride drifts off midnight for the rest of the span.
+	for ( let stride = 1; stride <= anchorIndices.length; stride++ ) {
+		consider( anchorIndices.filter( ( _, position ) => position % stride === 0 ) );
+	}
+
+	if ( ! candidates.length ) {
+		return [ domain[ 0 ] ];
+	}
+
+	// An anchor is worth at most one tick. Ranking anchors above density outright
+	// collapsed ordinary monthly axes to two ticks — worse than sampling by index,
+	// which at least stayed dense — while ignoring anchors leaves the year unnamed.
+	const densest = candidates.reduce( ( most, indices ) => Math.max( most, indices.length ), 0 );
+	const anchorsIn = ( indices: number[] ) =>
+		isAnchor ? indices.filter( index => isAnchor( domain[ index ] ) ).length : 0;
+
+	const best = candidates
+		.filter( indices => indices.length >= densest - 1 )
+		.reduce( ( chosen, indices ) => {
+			const gain = anchorsIn( indices ) - anchorsIn( chosen );
+			return gain > 0 || ( gain === 0 && indices.length > chosen.length ) ? indices : chosen;
+		} );
+
+	return best.map( index => domain[ index ] );
 };
 
 // Estimate the largest number of x-axis ticks that fit without producing
@@ -153,9 +339,12 @@ export const guessOptimalNumTicks = (
 	chartWidth: number,
 	tickFormatter: ( timestamp: number, index?: number, values?: unknown ) => string
 ) => {
-	const minX = Math.min( ...data.map( datom => datom.data.at( 0 )?.date ) );
-	const maxX = Math.max( ...data.map( datom => datom.data.at( -1 )?.date ) );
-	const xScale = scaleTime( { domain: [ minX, maxX ] } );
+	const span = getSpan( data );
+	if ( ! span ) {
+		return 1;
+	}
+
+	const xScale = scaleTime( { domain: [ span.minX, span.maxX ] } );
 
 	const upperBound = Math.min(
 		data[ 0 ]?.data.length || 3,

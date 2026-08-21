@@ -1,12 +1,9 @@
 /**
  * External dependencies
  */
-import {
-	normalizeReportParams,
-	type StatsTopPostsComparisonItem,
-} from '@jetpack-premium-analytics/data';
+import { type StatsTopPostsComparisonItem } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportPageLayout,
@@ -21,16 +18,18 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import {
 	buildArchiveCsvRows,
 	getArchivesFields,
 	getPostsFields,
 	getReportPostsTabs,
+	getTabTitle,
 	resolveTabId,
 	usePostsReportRecords,
 	type ArchiveRow,
@@ -107,11 +106,7 @@ function PostsReport(): JSX.Element {
 	// The route guard guarantees the report window params are seeded, so the
 	// URL search is the single source of truth for dates, interval, and
 	// comparison — resolve it with the same normalizer the widgets use.
-	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
-	const reportParams = useMemo(
-		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
-		[ search ]
-	);
+	const reportParams = useReportParams();
 
 	const tabs = useMemo( () => getReportPostsTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveTabId );
@@ -195,15 +190,13 @@ function PostsReport(): JSX.Element {
 			/>
 		);
 
+	const { getLabel } = REPORTS.posts;
+
 	return (
 		<ReportPageShell
 			tabbed
 			visual={ <StatsPageIcon /> }
-			breadcrumbs={
-				<StatsBreadcrumbs
-					items={ [ { label: __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' ) } ] }
-				/>
-			}
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics-pkg' ) }
 			actions={
 				canExport ? (
@@ -212,8 +205,9 @@ function PostsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
+				title={ getTabTitle( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-				filters={ <DateFiltersPanel { ...dateFilters } /> }
+				dateFilters={ dateFilters }
 			>
 				{ records.isError ? (
 					<ReportErrorState

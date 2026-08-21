@@ -2,7 +2,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useMemo } from 'react';
-import { SingleChartContext } from '../../../charts/private/single-chart-context';
+import { ChartInstanceContext } from '../../../charts/private/chart-instance-context';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -188,7 +188,8 @@ describe( 'BaseLegend', () => {
 			);
 			const labels = screen.getAllByText( /Long Label/ );
 			labels.forEach( label => {
-				expect( label ).toHaveStyle( { maxWidth: '10rem' } );
+				// Note getComputedStyle converts lengths to px.
+				expect( label ).toHaveStyle( { maxWidth: '160px' } );
 			} );
 		} );
 
@@ -472,9 +473,9 @@ describe( 'BaseLegend', () => {
 			return render(
 				<GlobalChartsProvider>
 					<ChartRegistrar chartType={ chartType } chartId={ chartId } />
-					<SingleChartContext.Provider value={ { chartId } }>
+					<ChartInstanceContext.Provider value={ { chartId } }>
 						<Legend shape={ explicitShape } />
-					</SingleChartContext.Provider>
+					</ChartInstanceContext.Provider>
 				</GlobalChartsProvider>
 			);
 		};

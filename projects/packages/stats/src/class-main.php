@@ -69,8 +69,7 @@ class Main {
 		// Generate the tracking code after wp() has queried for posts.
 		add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ), 1 );
 
-		add_action( 'wp_head', array( __CLASS__, 'hide_smile_css' ) );
-		add_action( 'embed_head', array( __CLASS__, 'hide_smile_css' ) );
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'hide_smile_css' ) );
 
 		// Map stats caps.
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_caps' ), 10, 3 );
@@ -188,9 +187,10 @@ class Main {
 		if ( ! self::should_track() ) {
 			return;
 		}
-		?>
-	<style>img#wpstats{display:none}</style>
-		<?php
+
+		wp_register_style( 'jetpack-stats', false, array(), Package_Version::PACKAGE_VERSION );
+		wp_enqueue_style( 'jetpack-stats' );
+		wp_add_inline_style( 'jetpack-stats', 'img#wpstats{display:none}' );
 	}
 
 	/**

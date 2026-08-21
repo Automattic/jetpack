@@ -4,6 +4,8 @@ export { BarChart, BarChartUnresponsive } from './charts/bar-chart';
 export { BarListChart, BarListChartUnresponsive } from './charts/bar-list-chart';
 export { ConversionFunnelChart } from './charts/conversion-funnel-chart';
 export { GeoChart, GeoChartUnresponsive } from './charts/geo-chart';
+// A value export, not a type: building a tooltip column header needs the enum member itself.
+export { GoogleDataTableColumnRoleType } from './types';
 export {
 	HeatmapChart,
 	HeatmapChartUnresponsive,
@@ -32,6 +34,8 @@ export {
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 	defaultTheme,
+	useChartScopeElement,
+	useChartRegistration,
 } from './providers';
 
 // Types - explicit exports (excludes internal types like DataPointPercentageCalculated)
@@ -60,9 +64,7 @@ export type {
 	ChartLegendConfig,
 	SeriesChartLegendConfig,
 	BaseChartProps,
-	GridProps,
 	GoogleDataTableColumn,
-	GoogleDataTableColumnRoleType,
 	GoogleDataTableRow,
 	LegendShape,
 	LegendShapeLabel,
@@ -122,6 +124,12 @@ export type { ArcData } from './charts/pie-semi-circle-chart';
 export type { SparklineProps, GradientConfig, SparklineDataPoint } from './charts/sparkline';
 
 // Utilities
-export { parseAsLocalDate, formatMetricValue, formatPercentage, mergeThemes } from './utils';
+export {
+	parseAsLocalDate,
+	formatMetricValue,
+	formatPercentage,
+	mergeThemes,
+	resolveCssVariable,
+} from './utils';
 export * from './utils/color-utils';
 export type { MetricValueType } from './utils';

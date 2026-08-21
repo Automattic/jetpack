@@ -1,7 +1,12 @@
 export { MetricDelta } from './metric-delta';
-export { MetricTileGrid } from './metric-tile';
+export {
+	MetricTileGrid,
+	MetricTileGridSkeleton,
+	type MetricTileGridSkeletonProps,
+} from './metric-tile';
 export { MetricValue } from './metric-value';
 export { MetricWithComparison } from './metric-with-comparison';
+export { PeakDistribution, type PeakDistributionProps } from './peak-distribution';
 export {
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
@@ -21,10 +26,11 @@ export {
 } from './widget-root';
 
 export { SemiCircleChart, type SemiCircleChartData } from './chart-semi-circle';
-export { DonutChart, type DonutChartData } from './chart-donut';
+export { DonutChart, DonutChartSkeleton, type DonutChartData } from './chart-donut';
 export { ReportMetricWidget } from './report-metric';
 export {
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	type MetricTab,
 	type MetricTabDatum,
 	type MetricTabsChartProps,
@@ -32,8 +38,10 @@ export {
 } from './metric-tabs-chart';
 export {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	type LeaderboardChartProps,
 	type LeaderboardChartData,
+	type LeaderboardSkeletonProps,
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
@@ -47,13 +55,22 @@ export {
 	type LeaderboardRowProps,
 	type LeaderboardRowVariant,
 } from './chart-leaderboard';
-export { BarChart, type BarChartProps, type BarChartData, type BarChartStyle } from './chart-bar';
+export {
+	BarChart,
+	BarChartSkeleton,
+	type BarChartProps,
+	type BarChartData,
+	type BarChartStyle,
+} from './chart-bar';
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';
 export {
 	AdaptiveCalendarHeatmap,
+	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
 	type AdaptiveCalendarHeatmapChartProps,
 	type AdaptiveCalendarHeatmapProps,
+	type CalendarHeatmapPager,
+	type CalendarHeatmapPagerOverlayProps,
 	type CalendarHeatmapTooltipProps,
 } from './calendar-heatmap';
 export { WidgetLoadingOverlay } from './widget-loading-overlay';
@@ -75,14 +92,17 @@ export {
 } from './leaderboard-post-label';
 export {
 	PostHighlightCard,
+	PostHighlightCardSkeleton,
 	type PostHighlightCardMetric,
 	type PostHighlightCardProps,
 } from './post-highlight-card';
 export { VideoTitleLink, type VideoTitleLinkProps } from './video-title-link';
 export {
 	SubscriberList,
+	SubscriberListSkeleton,
 	type SubscriberListItem,
 	type SubscriberListProps,
+	type SubscriberListSkeletonProps,
 } from './subscriber-list';
 export {
 	ReportDrilldownTable,
@@ -126,3 +146,13 @@ export {
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
 } from './wordads-earnings-history';
+export {
+	AnnualHighlightsSkeleton,
+	type AnnualHighlightsSkeletonProps,
+	GenericSkeleton,
+	HeatmapSkeleton,
+	MetricSparklineSkeleton,
+	type MetricSparklineSkeletonProps,
+	SkeletonRoot,
+	type SkeletonRootProps,
+} from './widget-skeleton';

@@ -1,4 +1,5 @@
 import { Stack, Text } from '@jetpack-premium-analytics/externals';
+import clsx from 'clsx';
 import { ReactNode } from 'react';
 import styles from './section-header.module.scss';
 
@@ -12,7 +13,19 @@ type SectionHeaderProps = {
 	subtitle?: string;
 
 	/**
-	 * Date controls anchored to the end of the header row.
+	 * Condenses the header into a compact bar once it pins: the subtitle fades
+	 * out and gives its row back, and the title drops a step on the type
+	 * scale. Only for surfaces that pin this header, and the surface must also
+	 * publish a `--section-header-pin` view timeline marking where it pins
+	 * (see the dashboard's pin marker in `routes/dashboard/stage.module.scss`).
+	 * Without that timeline, or without browser support for it, the header
+	 * keeps its resting layout.
+	 */
+	condenseOnScroll?: boolean;
+
+	/**
+	 * Date controls anchored to the end of the header row. Left out, the cell is
+	 * not rendered: an empty one costs a band of space in the stacked layout.
 	 */
 	children?: ReactNode;
 };
@@ -32,9 +45,14 @@ type SectionHeaderProps = {
  * @param {SectionHeaderProps} props - The props for the SectionHeader component.
  * @return The section header element.
  */
-export function SectionHeader( { title, subtitle, children }: SectionHeaderProps ) {
+export function SectionHeader( {
+	title,
+	subtitle,
+	condenseOnScroll = false,
+	children,
+}: SectionHeaderProps ) {
 	return (
-		<div className={ styles.container }>
+		<div className={ clsx( styles.container, condenseOnScroll && styles.condensing ) }>
 			<div className={ styles.layout }>
 				{ /* The `title` attribute is the only way back to a name the
 				     ellipsis cut off. */ }
@@ -42,14 +60,18 @@ export function SectionHeader( { title, subtitle, children }: SectionHeaderProps
 					{ title }
 				</Text>
 
-				<Stack direction="row" align="center" className={ styles.controls }>
-					{ children }
-				</Stack>
+				{ children ? (
+					<Stack direction="row" align="center" className={ styles.controls }>
+						{ children }
+					</Stack>
+				) : null }
 
 				{ subtitle ? (
-					<Text className={ styles.subtitle } variant="body-md">
-						{ subtitle }
-					</Text>
+					<div className={ styles.subtitleRow }>
+						<Text className={ styles.subtitle } variant="body-md">
+							{ subtitle }
+						</Text>
+					</div>
 				) : null }
 			</div>
 		</div>

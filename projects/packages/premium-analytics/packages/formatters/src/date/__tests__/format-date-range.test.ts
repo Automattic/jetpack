@@ -120,6 +120,37 @@ describe( 'formatDateRange', () => {
 		} );
 	} );
 
+	describe( 'collapseSingleDay', () => {
+		beforeEach( () => setSettings( EN_US_SETTINGS ) );
+
+		// A rolling window sits on no day boundary, so nothing but the option
+		// collapses it — the day-aligned case above collapses on its own.
+		it( 'names a rolling 24-hour window by the day it ends on', () => {
+			expect(
+				formatDateRange(
+					{ from: utcDate( 2025, 6, 20, 15 ), to: utcDate( 2025, 6, 21, 15 ) },
+					{ collapseSingleDay: true }
+				)
+			).toBe( 'June 21, 2025' );
+		} );
+
+		it( 'leaves the same window as a range without the option', () => {
+			expect(
+				formatDateRange( { from: utcDate( 2025, 6, 20, 15 ), to: utcDate( 2025, 6, 21, 15 ) } )
+			).toBe( `June 20${ SEP }21, 2025` );
+		} );
+
+		// An hour longer, and the window covers two days rather than one.
+		it( 'keeps both ends of a 25-hour window', () => {
+			expect(
+				formatDateRange(
+					{ from: utcDate( 2025, 6, 20, 14 ), to: utcDate( 2025, 6, 21, 15 ) },
+					{ collapseSingleDay: true }
+				)
+			).toBe( `June 20${ SEP }21, 2025` );
+		} );
+	} );
+
 	describe( 'es_ES site', () => {
 		beforeEach( () => setSettings( ES_ES_SETTINGS ) );
 

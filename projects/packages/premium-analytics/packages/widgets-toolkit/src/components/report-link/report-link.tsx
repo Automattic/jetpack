@@ -49,13 +49,13 @@ export type ReportLinkProps = {
  * @return The rendered report link.
  */
 export function ReportLink( { report, section, label, ariaLabel, className }: ReportLinkProps ) {
-	const { reportParams } = useWidgetRootContext();
+	const { reportParams, navigationParams = reportParams } = useWidgetRootContext();
 	const search = useMemo(
 		() => ( {
-			...pickReportDateParams( reportParams ),
+			...pickReportDateParams( navigationParams ),
 			...( section ? { section } : {} ),
 		} ),
-		[ reportParams, section ]
+		[ navigationParams, section ]
 	);
 
 	return (

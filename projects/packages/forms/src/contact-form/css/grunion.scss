@@ -1664,3 +1664,45 @@ on production builds, the attributes are being reordered, causing side-effects
 		display: block;
 	}
 }
+
+/* Conditional logic hides the entire field wrapper and its inputs. */
+.jetpack-field--conditionally-hidden {
+	display: none !important;
+}
+
+/*
+ * Ease a conditional field in and out rather than
+ * snapping it.
+ *
+ * Scoped to [data-jp-conditional] so only fields that
+ * carry a condition transition; every other field
+ * renders with no animation cost. `display` is in the
+ * transition with allow-discrete so the element still
+ * leaves the layout when the exit finishes, and
+ * @starting-style supplies the entry state for an
+ * element arriving from display: none. Browsers without
+ * those features show and hide instantly.
+ *
+ * None of this runs when the visitor has asked for
+ * reduced motion: the rule above is the whole
+ * behaviour in that case.
+ */
+@media not (prefers-reduced-motion) {
+
+	[data-jp-conditional] {
+		transition:
+			opacity 120ms ease-out,
+			transform 120ms ease-out,
+			display 120ms allow-discrete;
+
+		@starting-style {
+			opacity: 0;
+			transform: translateY(-4px);
+		}
+	}
+
+	.jetpack-field--conditionally-hidden[data-jp-conditional] {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+}

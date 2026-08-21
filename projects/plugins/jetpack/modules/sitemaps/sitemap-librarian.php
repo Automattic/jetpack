@@ -134,7 +134,8 @@ class Jetpack_Sitemap_Librarian {
 		);
 
 		$query = new WP_Query( $args );
-		return $query->posts ? $query->posts[0] : null;
+		$posts = $query->posts;
+		return is_array( $posts ) && $posts ? $posts[0] : null;
 	}
 	/**
 	 * Delete a sitemap by name and type.

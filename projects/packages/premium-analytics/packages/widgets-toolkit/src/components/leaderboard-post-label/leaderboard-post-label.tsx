@@ -59,13 +59,13 @@ export function LeaderboardPostLabel( {
 	variant = 'compact',
 	className,
 }: LeaderboardPostLabelProps ): ReactElement {
-	const { reportParams } = useWidgetRootContext();
+	const { reportParams, navigationParams = reportParams } = useWidgetRootContext();
 	const search = useMemo(
 		() => ( {
-			...pickReportDateParams( reportParams ),
+			...pickReportDateParams( navigationParams ),
 			...( section ? { section } : {} ),
 		} ),
-		[ reportParams, section ]
+		[ navigationParams, section ]
 	);
 
 	return (

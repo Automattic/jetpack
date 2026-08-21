@@ -94,7 +94,7 @@ const getDistributionIssues = (
  * Distribution Submit gate. Reads cover media + an episode probe alongside
  * saved settings; both subqueries are `enabled`-gated.
  *
- * @return `{ issues, isReady, isLoading }` — issues suppressed during load.
+ * @return `{ issues, isLoading }` — issues suppressed during load.
  */
 export function useValidationIssues() {
 	const { data: settings, isLoading: settingsLoading } = usePodcastSettings();
@@ -133,7 +133,6 @@ export function useValidationIssues() {
 
 	return {
 		issues,
-		isReady: ! isLoading && issues.length === 0,
 		isLoading,
 	};
 }

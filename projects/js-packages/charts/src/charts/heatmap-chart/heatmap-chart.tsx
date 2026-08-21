@@ -6,9 +6,11 @@ import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'r
 import {
 	GlobalChartsProvider,
 	useChartId,
+	useChartScopeElement,
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
+import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
 import { attachSubComponents } from '../../utils';
 import {
 	isValidHexColor,
@@ -16,10 +18,11 @@ import {
 	normalizeColorToHex,
 	prefersLightText,
 } from '../../utils/color-utils';
+import { resolveCssVariable } from '../../utils/resolve-css-var';
 import { Center } from '../private/center';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
 import {
@@ -58,7 +61,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	children,
 } ) => {
 	const chartId = useChartId( providedChartId );
-	const { getElementStyles, resolveThemeColor, theme } = useGlobalChartsContext();
+	const { getElementStyles, theme } = useGlobalChartsContext();
+	const scopeElement = useChartScopeElement();
 	const { heatmapChart: heatmapChartSettings } = theme;
 	const { nonLegendChildren } = useChartChildren( children, 'HeatmapChart' );
 
@@ -79,9 +83,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		overrideColor: primaryColor || heatmapChartSettings.primaryColor,
 	} );
 
-	// Resolve the background in the provider's theme scope so the blended-fill text
-	// color tracks a themed (e.g. dark) background.
-	const chartBackgroundHex = resolveThemeColor( theme.backgroundColor );
+	// Resolve the background against this chart's own scope element (not the provider's), matching where `--a8c-charts-color-heatmap-background` is substituted for the cell blend below — a chart-level override otherwise disagrees with a provider-level read.
+	const chartBackgroundHex = normalizeColorToHex(
+		theme.backgroundColor,
+		scopeElement,
+		resolveCssVariable
+	);
 
 	// Choose text color from the blended fill, not the raw value.
 	// If either color cannot resolve to hex, keep dark text.
@@ -306,7 +313,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	return (
 		<HeatmapContext.Provider value={ heatmapContext }>
-			<SingleChartContext.Provider value={ { chartId } }>
+			<ChartInstanceContext.Provider value={ { chartId } }>
 				<ChartLayout
 					legendPosition="bottom"
 					// Legend renders via trailingContent, not the legend slot.
@@ -443,13 +450,13 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 					</div>
 					{ withTooltips && tooltipOpen && tooltipData && (
 						<TooltipInPortal top={ tooltipTop } left={ tooltipLeft }>
-							<div role="tooltip" tabIndex={ -1 }>
+							<div className={ CHART_SCOPE_CLASS } role="tooltip" tabIndex={ -1 }>
 								{ ( renderTooltip ?? defaultRenderTooltip )( tooltipData ) }
 							</div>
 						</TooltipInPortal>
 					) }
 				</ChartLayout>
-			</SingleChartContext.Provider>
+			</ChartInstanceContext.Provider>
 		</HeatmapContext.Provider>
 	);
 };
