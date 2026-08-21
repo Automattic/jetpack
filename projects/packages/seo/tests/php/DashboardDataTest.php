@@ -27,6 +27,7 @@ class DashboardDataTest extends SeoTestCase {
 		\Jetpack_SEO_Utils::$enabled                    = true;
 		\Jetpack_SEO_Utils::$has_legacy_front_page_meta = false;
 		\Jetpack_Redux_State_Helper::$site_image        = '';
+		\Jetpack_AI_Settings::$is_ai_seo_enabled        = true;
 		delete_option( 'advanced_seo_title_formats' );
 		delete_option( 'jetpack_ai_seo_enabled' );
 		remove_all_filters( 'jetpack_active_modules' );
@@ -38,18 +39,34 @@ class DashboardDataTest extends SeoTestCase {
 	}
 
 	/**
-	 * With the AI SEO feature off the card would offer a toggle that cannot
-	 * generate, so the tab reports it unavailable.
+	 * With the AI SEO control off the card stays available and reports the
+	 * control's state, so the dashboard disables the toggle rather than hiding
+	 * it and the saved choice stays visible.
 	 */
-	public function test_get_ai_data_enhancer_unavailable_when_ai_seo_feature_off() {
+	public function test_get_ai_data_reports_the_ai_seo_control_state() {
 		self::set_plan( 'jetpack_business' );
 		self::set_seo_tools_active( true );
 
-		$available_by_default = Dashboard_Data::get_ai_data()['enhancer']['available'];
+		$on = Dashboard_Data::get_ai_data()['enhancer'];
 
-		update_option( 'jetpack_ai_seo_enabled', 0 );
+		\Jetpack_AI_Settings::$is_ai_seo_enabled = false;
 
-		$this->assertTrue( $available_by_default, 'Precondition: available while the feature is on.' );
+		$off = Dashboard_Data::get_ai_data()['enhancer'];
+
+		$this->assertTrue( $on['available'], 'Precondition: available while the control is on.' );
+		$this->assertTrue( $on['aiSeoEnabled'] );
+		$this->assertTrue( $off['available'], 'The card stays available so it can be disabled, not hidden.' );
+		$this->assertFalse( $off['aiSeoEnabled'] );
+	}
+
+	/**
+	 * The plan and the feature filter still veto availability outright — those
+	 * are entitlement questions, not a switched-off control.
+	 */
+	public function test_get_ai_data_enhancer_unavailable_without_the_entitlement() {
+		self::set_plan( 'jetpack_free' );
+		self::set_seo_tools_active( true );
+
 		$this->assertFalse( Dashboard_Data::get_ai_data()['enhancer']['available'] );
 	}
 

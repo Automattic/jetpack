@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Hide the SEO dashboard's AI SEO Enhancer card while the AI SEO feature is turned off.
+Disable the SEO dashboard's AI SEO Enhancer toggle, and explain why, while AI SEO is turned off.
