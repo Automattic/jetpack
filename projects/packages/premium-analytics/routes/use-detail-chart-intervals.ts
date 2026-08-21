@@ -15,7 +15,7 @@ import type { IntervalType } from '@jetpack-premium-analytics/data';
 const HONOURED_INTERVALS: readonly IntervalType[] = STATS_CHART_BUCKET_PERIODS;
 
 type DetailChartIntervals = {
-	withIntervalControl: boolean;
+	withIntervalControl: true;
 	interval: IntervalType;
 	intervalOptions: IntervalType[];
 };
@@ -24,10 +24,14 @@ type DetailChartIntervals = {
  * Narrow a detail page's interval control to the buckets its charts honour.
  *
  * Listing a bucket the charts coerce away makes the control lie: on Today,
- * Yesterday, or Last 24 hours the range allows only `hour`, so the menu would
- * show **By hours** as its one checked option while the chart drew a single
- * daily bucket. Those ranges get no control at all; a range that mixes honoured
- * and coerced buckets keeps only the honoured ones.
+ * Yesterday, or Last 24 hours the range allows only `hour`, so an unfiltered
+ * menu would show **By hours** as its one checked option while the chart drew a
+ * single daily bucket.
+ *
+ * The narrowing can leave nothing — a range finer than a day, or coarser than a
+ * month. The charts still draw their clamped bucket, so the control names that
+ * one rather than disappear, which is the policy the dashboard control already
+ * follows for a range with a single allowed bucket.
  *
  * @param interval        - The interval the date-filter controller resolved.
  * @param intervalOptions - The buckets that range allows, finest first.
@@ -39,19 +43,18 @@ export function useDetailChartIntervals(
 ): DetailChartIntervals {
 	return useMemo( () => {
 		const honoured = intervalOptions.filter( option => HONOURED_INTERVALS.includes( option ) );
+		const offered: IntervalType[] = honoured.length
+			? honoured
+			: [ defaultPeriodForInterval( interval, STATS_CHART_BUCKET_PERIODS ) ];
 
-		if ( ! honoured.length ) {
-			return { withIntervalControl: false, interval, intervalOptions: [] };
-		}
-
-		const [ finest, ...rest ] = honoured;
+		const [ finest, ...rest ] = offered;
 
 		return {
 			withIntervalControl: true,
 			// The same clamp the charts apply, so the checked item names the
 			// bucket they actually draw.
 			interval: defaultPeriodForInterval( interval, [ finest, ...rest ] ),
-			intervalOptions: [ finest, ...rest ],
+			intervalOptions: offered,
 		};
 	}, [ interval, intervalOptions ] );
 }

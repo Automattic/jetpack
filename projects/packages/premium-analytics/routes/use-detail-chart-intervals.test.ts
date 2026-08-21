@@ -28,13 +28,14 @@ describe( 'useDetailChartIntervals', () => {
 		} );
 	} );
 
-	it( 'hides the control when the range only allows hourly buckets', () => {
+	it( 'names the daily bucket when the range only allows hourly ones', () => {
 		// Today, Yesterday, and Last 24 hours: the charts sum daily history, so
-		// the one option on offer would redraw as a single daily bucket.
+		// the hour on offer redraws as a single daily bucket. The control stays,
+		// naming the bucket that is drawn.
 		expect( run( 'hour', [ 'hour' ] ) ).toEqual( {
-			withIntervalControl: false,
-			interval: 'hour',
-			intervalOptions: [],
+			withIntervalControl: true,
+			interval: 'day',
+			intervalOptions: [ 'day' ],
 		} );
 	} );
 
@@ -54,11 +55,11 @@ describe( 'useDetailChartIntervals', () => {
 		} );
 	} );
 
-	it( 'hides the control on a multi-year range, which offers neither', () => {
+	it( 'names the monthly bucket on a multi-year range, which offers neither', () => {
 		expect( run( 'year', [ 'quarter', 'year' ] ) ).toEqual( {
-			withIntervalControl: false,
-			interval: 'year',
-			intervalOptions: [],
+			withIntervalControl: true,
+			interval: 'month',
+			intervalOptions: [ 'month' ],
 		} );
 	} );
 } );
