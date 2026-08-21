@@ -21,6 +21,63 @@ use WP_Screen;
 class Form_Editor_Test extends BaseTestCase {
 
 	/**
+	 * IDs the stubbed form query should return.
+	 *
+	 * @var int[]
+	 */
+	private $stub_form_ids = array();
+
+	/**
+	 * Query vars the eligibility check asked for, captured by the stub.
+	 *
+	 * @var array|null
+	 */
+	private $captured_query_vars = null;
+
+	/**
+	 * The eligibility check queries for the user's own forms. WorDBless has no
+	 * real database behind WP_Query, so the query is short-circuited and its
+	 * arguments asserted instead.
+	 */
+	protected function set_up() {
+		parent::set_up();
+		Contact_Form::register_post_type();
+		$this->stub_form_ids       = array();
+		$this->captured_query_vars = null;
+		add_filter( 'posts_pre_query', array( $this, 'stub_form_query' ), 10, 2 );
+	}
+
+	/**
+	 * Undo the registration and clear anything left behind.
+	 */
+	protected function tear_down() {
+		remove_filter( 'posts_pre_query', array( $this, 'stub_form_query' ), 10 );
+		unregister_post_type( Contact_Form::POST_TYPE );
+		unset( $_GET[ Form_Editor::FORCE_QUERY_ARG ] );
+		parent::tear_down();
+	}
+
+	/**
+	 * Short-circuits the form lookup, recording what it was asked for.
+	 *
+	 * `posts_pre_query` runs regardless of `suppress_filters`, which get_posts()
+	 * sets by default.
+	 *
+	 * @param array|null $posts Posts to return, or null to run the real query.
+	 * @param \WP_Query  $query The query being run.
+	 * @return array|null
+	 */
+	public function stub_form_query( $posts, $query ) {
+		if ( Contact_Form::POST_TYPE !== ( $query->query_vars['post_type'] ?? '' ) ) {
+			return $posts;
+		}
+
+		$this->captured_query_vars = $query->query_vars;
+
+		return $this->stub_form_ids;
+	}
+
+	/**
 	 * Test that init() registers the expected hooks.
 	 */
 	public function test_init_registers_hooks() {
@@ -489,5 +546,224 @@ class Form_Editor_Test extends BaseTestCase {
 
 		// Clean up
 		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Invokes one of the class's private static helpers.
+	 *
+	 * @param string $method Method name.
+	 * @param array  $args   Arguments to pass.
+	 * @return mixed The method's return value.
+	 */
+	private function call_private( $method, array $args = array() ) {
+		$ref = new \ReflectionMethod( Form_Editor::class, $method );
+		$ref->setAccessible( true );
+
+		return $ref->invokeArgs( null, $args );
+	}
+
+	/**
+	 * Creates a user and makes them the current one.
+	 *
+	 * @return int The new user's ID.
+	 */
+	private function log_in_new_user() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'guide_user_' . wp_rand( 1000, 999999 ),
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		return $user_id;
+	}
+
+	/**
+	 * A user who has never dismissed the core welcome modal is new to the block
+	 * editor, so the guide stands in for it.
+	 */
+	public function test_eligible_when_core_welcome_modal_never_dismissed() {
+		$this->log_in_new_user();
+		$this->stub_form_ids = array( 1234 );
+
+		$this->assertTrue(
+			$this->call_private( 'is_welcome_guide_eligible', array( array() ) ),
+			'No stored core preference should count as a newcomer'
+		);
+		$this->assertTrue(
+			$this->call_private(
+				'is_welcome_guide_eligible',
+				array( array( 'core/edit-post' => array( 'welcomeGuide' => true ) ) )
+			),
+			'An explicitly pending core modal should count as a newcomer'
+		);
+	}
+
+	/**
+	 * Someone experienced with the block editor still gets the guide until they
+	 * have a form of their own.
+	 */
+	public function test_eligible_for_experienced_user_without_forms() {
+		$this->log_in_new_user();
+		$this->stub_form_ids = array();
+
+		$this->assertTrue(
+			$this->call_private(
+				'is_welcome_guide_eligible',
+				array( array( 'core/edit-post' => array( 'welcomeGuide' => false ) ) )
+			)
+		);
+	}
+
+	/**
+	 * Experienced and already owns a form: this is the one combination that
+	 * does not get the guide.
+	 */
+	public function test_not_eligible_for_experienced_user_with_a_form() {
+		$this->log_in_new_user();
+		$this->stub_form_ids = array( 1234 );
+
+		$this->assertFalse(
+			$this->call_private(
+				'is_welcome_guide_eligible',
+				array( array( 'core/edit-post' => array( 'welcomeGuide' => false ) ) )
+			)
+		);
+	}
+
+	/**
+	 * The lookup asks only for this user's forms, one row, IDs only.
+	 */
+	public function test_form_lookup_is_scoped_to_the_current_user() {
+		$user_id = $this->log_in_new_user();
+
+		$this->call_private(
+			'is_welcome_guide_eligible',
+			array( array( 'core/edit-post' => array( 'welcomeGuide' => false ) ) )
+		);
+
+		$this->assertIsArray( $this->captured_query_vars, 'The eligibility check should query for forms' );
+		$this->assertSame( $user_id, (int) $this->captured_query_vars['author'] );
+		$this->assertSame( Contact_Form::POST_TYPE, $this->captured_query_vars['post_type'] );
+		$this->assertSame( 'ids', $this->captured_query_vars['fields'] );
+		$this->assertSame( 1, (int) $this->captured_query_vars['posts_per_page'] );
+	}
+
+	/**
+	 * Opening post-new.php creates an auto-draft before the enqueue runs, so
+	 * counting it would hide the guide from the first-time author it is for.
+	 * Every other status counts, including trashed forms.
+	 */
+	public function test_form_lookup_counts_every_status_except_auto_draft() {
+		$this->log_in_new_user();
+
+		$this->call_private(
+			'is_welcome_guide_eligible',
+			array( array( 'core/edit-post' => array( 'welcomeGuide' => false ) ) )
+		);
+
+		$statuses = $this->captured_query_vars['post_status'];
+
+		$this->assertIsArray( $statuses );
+		$this->assertNotContains( 'auto-draft', $statuses, 'auto-draft must not count as owning a form' );
+
+		foreach ( array( 'publish', 'draft', 'private', 'pending', 'trash' ) as $status ) {
+			$this->assertContains( $status, $statuses, "$status should count as owning a form" );
+		}
+	}
+
+	/**
+	 * A newcomer is eligible without the lookup running at all.
+	 */
+	public function test_newcomer_short_circuits_before_querying_for_forms() {
+		$this->log_in_new_user();
+		$this->stub_form_ids = array( 1234 );
+
+		$this->assertTrue( $this->call_private( 'is_welcome_guide_eligible', array( array() ) ) );
+		$this->assertNull( $this->captured_query_vars, 'A newcomer should not need the form lookup' );
+	}
+
+	/**
+	 * Logged-out requests are never eligible.
+	 */
+	public function test_not_eligible_when_logged_out() {
+		wp_set_current_user( 0 );
+
+		$this->assertFalse( $this->call_private( 'is_welcome_guide_eligible', array( array() ) ) );
+	}
+
+	/**
+	 * Only an explicit false counts as a dismissal.
+	 */
+	public function test_is_welcome_guide_dismissed() {
+		$this->assertFalse( $this->call_private( 'is_welcome_guide_dismissed', array( array() ) ) );
+		$this->assertFalse(
+			$this->call_private(
+				'is_welcome_guide_dismissed',
+				array( array( 'jetpack/forms' => array( 'welcomeGuide' => true ) ) )
+			)
+		);
+		$this->assertTrue(
+			$this->call_private(
+				'is_welcome_guide_dismissed',
+				array( array( 'jetpack/forms' => array( 'welcomeGuide' => false ) ) )
+			)
+		);
+	}
+
+	/**
+	 * The force argument mirrors isWelcomeGuideForced() in should-show.ts:
+	 * present and not explicitly falsy.
+	 *
+	 * @param mixed $value    Query argument value, or null to omit it.
+	 * @param bool  $expected Expected result.
+	 * @dataProvider force_query_arg_values
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'force_query_arg_values' )]
+	public function test_is_welcome_guide_forced( $value, $expected ) {
+		unset( $_GET[ Form_Editor::FORCE_QUERY_ARG ] );
+		if ( null !== $value ) {
+			$_GET[ Form_Editor::FORCE_QUERY_ARG ] = $value;
+		}
+
+		$this->assertSame( $expected, $this->call_private( 'is_welcome_guide_forced' ) );
+
+		unset( $_GET[ Form_Editor::FORCE_QUERY_ARG ] );
+	}
+
+	/**
+	 * Force argument values and whether they enable the guide.
+	 *
+	 * @return array<string, array{mixed, bool}>
+	 */
+	public static function force_query_arg_values() {
+		return array(
+			'absent'         => array( null, false ),
+			'present, empty' => array( '', true ),
+			'one'            => array( '1', true ),
+			'zero'           => array( '0', false ),
+			'literal false'  => array( 'false', false ),
+			'anything else'  => array( 'yes', true ),
+		);
+	}
+
+	/**
+	 * Preferences come back as an array even when nothing is stored.
+	 */
+	public function test_get_persisted_preferences_defaults_to_an_array() {
+		$user_id = $this->log_in_new_user();
+
+		$this->assertSame( array(), $this->call_private( 'get_persisted_preferences' ) );
+
+		update_user_meta( $user_id, 'wp_persisted_preferences', array( 'jetpack/forms' => array( 'welcomeGuide' => false ) ) );
+		$this->assertSame(
+			array( 'jetpack/forms' => array( 'welcomeGuide' => false ) ),
+			$this->call_private( 'get_persisted_preferences' )
+		);
+
+		wp_set_current_user( 0 );
+		$this->assertSame( array(), $this->call_private( 'get_persisted_preferences' ) );
 	}
 }
