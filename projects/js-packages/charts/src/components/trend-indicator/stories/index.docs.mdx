@@ -125,20 +125,30 @@ Apply custom styles using the `className` or `style` props:
 
 By default the trend colors resolve to accessible WordPress Design System
 tokens. The component also exposes CSS custom properties so you can override
-them:
+them.
+
+Used inside a `GlobalChartsProvider`, `TrendIndicator` resolves these from the provider's catalog, so set the override on the provider wrapper or on an element between it and `TrendIndicator` — see TOKENS.md for the full precedence order. Used standalone (no provider above it), `TrendIndicator` declares its own catalog on itself, so the override must target the `TrendIndicator` element directly — via the `style` prop, or a rule matching the `className` you pass it:
+
+<Source
+	language="tsx"
+	code={`<TrendIndicator
+	direction="up"
+	value="+12%"
+	className="my-custom-trend"
+/>`}
+/>
 
 <Source
 	language="css"
-	code={`:root {
-	/* Defaults shown — these resolve to the WPDS tokens below: */
+	code={`/* Defaults shown — these resolve to the WPDS tokens below: */
+.my-custom-trend {
 	--a8c-charts-color-trend-up: var(--wpds-color-foreground-content-success-weak, #008030);
 	--a8c-charts-color-trend-down: var(--wpds-color-foreground-content-error-weak, #cc1818);
 	--a8c-charts-color-trend-neutral: var(--wpds-color-foreground-content-neutral-weak, #707070);
 }`}
 />
 
-Override these variables to match your design system. Make sure any custom
-colors meet contrast requirements.
+Setting these on an ancestor of a standalone `TrendIndicator` has no effect: the component's own catalog declaration on itself always beats a value merely inherited from further up the tree. Make sure any custom colors meet contrast requirements.
 
 ## Common Use Cases
 

@@ -193,7 +193,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 		const providerTheme = useGlobalChartsTheme();
 		const theme = useXYChartTheme( data );
-		// Gradient stops apply this as an SVG attribute, where CSS var() cannot resolve. useXYChartTheme has already resolved the same role inside its memo, so read it back rather than paying another getComputedStyle on every render.
+		// Gradient stops apply this as an SVG attribute, where CSS var() cannot resolve. useXYChartTheme has already resolved the same role inside its memo, against the chart's scope element, so read it back rather than paying another getComputedStyle on every render.
 		const resolvedBackgroundColor = theme.backgroundColor ?? providerTheme.backgroundColor;
 		const chartId = useChartId( providedChartId );
 		const chartRef = useRef< HTMLDivElement >( null );
