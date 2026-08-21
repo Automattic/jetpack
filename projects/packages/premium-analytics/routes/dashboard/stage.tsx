@@ -296,7 +296,7 @@ function Dashboard(): JSX.Element {
 											{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
 												<SectionSyncNotice
 													percentage={ syncStatus?.percentage ?? 0 }
-													hasError={ !! syncError || isRetryingSync }
+													hasError={ !! syncError }
 													onRetry={ retrySync }
 													isRetrying={ isRetryingSync }
 												/>

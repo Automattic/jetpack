@@ -44,9 +44,13 @@ export function SectionSyncNotice( {
 		'Something went wrong while syncing your store data, so the numbers below are incomplete.',
 		'jetpack-premium-analytics-pkg'
 	);
+	// A retry clears the error before it settles, so reading `hasError` alone
+	// would drop the failure layout mid-click: the button the user just pressed
+	// unmounts, and the announcement flips to "still syncing" and back.
+	const showError = hasError || isRetrying;
 	let message: string = syncingMessage;
 
-	if ( hasError ) {
+	if ( showError ) {
 		message = errorMessage;
 	} else if ( percentage > 0 && percentage < 100 ) {
 		// 100 before the milestone lands means everything queued has been sent and
@@ -69,13 +73,13 @@ export function SectionSyncNotice( {
 		 * users; the action label is already exposed by its button.
 		 */
 		<Notice.Root
-			intent={ hasError ? 'error' : 'info' }
-			spokenMessage={ hasError ? errorMessage : syncingMessage }
+			intent={ showError ? 'error' : 'info' }
+			spokenMessage={ showError ? errorMessage : syncingMessage }
 			className={ styles.notice }
 		>
 			<Notice.Description>{ message }</Notice.Description>
 
-			{ hasError && (
+			{ showError && (
 				<Notice.Actions>
 					<Notice.ActionButton
 						variant="outline"

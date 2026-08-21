@@ -299,8 +299,8 @@ describe( 'Dashboard sync notice', () => {
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
 		expect( mockTriggerSync ).toHaveBeenCalledTimes( 1 );
-		// A retry in flight reads as the error layout so the button it lives in
-		// survives the click, rather than unmounting mid-interaction.
+		// The notice derives its failure layout from these two together, so the
+		// stage's job is to report the retry as in flight for as long as it runs.
 		expect( screen.getByText( 'notice 0% error retrying' ) ).toBeInTheDocument();
 
 		await act( async () => {
