@@ -242,25 +242,18 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		[ providerTheme, resolveColor ]
 	);
 
-	// Series visibility management methods.
-	// One writer for the hidden-set shape: an empty set drops the chart's entry,
-	// which `isSeriesVisible` and `getHiddenSeries` both read as "nothing hidden".
+	// Keep hidden-series updates and no-op detection consistent across setters.
 	const updateHiddenSeries = useCallback(
 		( chartId: string, update: ( current: Set< string > ) => Set< string > ) => {
 			setHiddenSeries( prev => {
 				const current = prev.get( chartId );
 				const next = update( new Set( current ?? [] ) );
 
-				// No stored entry and nothing to add: writing an empty set would
-				// only be deleted again below, so bail out before touching the Map.
 				if ( ! current && next.size === 0 ) {
 					return prev;
 				}
 
-				// Same members as what's already stored: return `prev` unchanged so
-				// its identity is preserved. Consumers derived from `hiddenSeries`
-				// (e.g. `isSeriesVisible`) must not appear to change on a no-op write,
-				// or an effect keyed on them would re-fire forever.
+				// Preserve identity for no-op updates.
 				if (
 					current &&
 					current.size === next.size &&
@@ -310,8 +303,6 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		[ updateHiddenSeries ]
 	);
 
-	// Replaces the chart's whole hidden set. `defaultHiddenSeries` has to mean
-	// "these and nothing else", which per-series writes cannot express.
 	const setChartHiddenSeries = useCallback(
 		( chartId: string, seriesLabels: string[] ) => {
 			updateHiddenSeries( chartId, () => new Set( seriesLabels ) );

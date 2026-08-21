@@ -62,10 +62,8 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	 */
 	rescaleYOnVisibilityChange?: boolean;
 	/**
-	 * Series labels to hide when the chart first mounts, as if they had been
-	 * toggled off in the legend. The user can reveal them through an interactive
-	 * legend, and revealing sticks — the defaults are not re-applied on re-render.
-	 * A remount re-applies exactly this list and nothing else.
+	 * Series labels to hide when the chart mounts. User changes persist until the
+	 * chart remounts or its ID changes.
 	 */
 	defaultHiddenSeries?: string[];
 	children?: ReactNode;
