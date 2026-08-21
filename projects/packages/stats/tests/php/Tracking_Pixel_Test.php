@@ -420,66 +420,51 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 	}
 
 	/**
-	 * Test for Tracking_Pixel::test_get_footer_to_add for an amp request
+	 * Sample view data for the AMP pixel tests.
+	 *
+	 * @return array
 	 */
-	public function test_get_amp_footer() {
-		$_SERVER['HTTP_HOST'] = '127.0.0.1';
-		$data                 = array(
+	private function amp_pixel_data() {
+		return array(
 			'v'    => 'ext',
 			'blog' => 1234,
 			'post' => 0,
 			'tz'   => false,
 			'srv'  => 'example.org',
 		);
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
+	}
 
-		$method = new \ReflectionMethod( Tracking_Pixel::class, 'get_amp_footer' );
+	/**
+	 * Test for Tracking_Pixel::get_amp_pixel_url.
+	 */
+	public function test_get_amp_pixel_url() {
+		$_SERVER['HTTP_HOST'] = '127.0.0.1';
+
+		$method = new \ReflectionMethod( Tracking_Pixel::class, 'get_amp_pixel_url' );
 		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
-
-		$amp_footer_data = $method->invoke( new Tracking_Pixel(), $data );
-
-		remove_filter( 'jetpack_is_amp_request', '__return_true' );
-
-		$footer_to_add_should_be = '<amp-pixel src="https://pixel.wp.com/g.gif?v=ext&#038;blog=1234&#038;post=0&#038;tz&#038;srv=example.org&#038;host=127.0.0.1&#038;rand=RANDOM&#038;ref=DOCUMENT_REFERRER"></amp-pixel>';
-		$this->assertSame( $footer_to_add_should_be, $amp_footer_data );
-	}
-
-	/**
-	 * Asserts that the markup is a lone <amp-pixel> element and returns its src with the HTML
-	 * character references decoded. Escaping is free to pick either spelling of an encoded
-	 * ampersand, so the URL the browser ends up requesting is what the tests pin down.
-	 *
-	 * @param string $markup The emitted AMP pixel markup.
-	 * @return string The decoded src URL.
-	 */
-	private function amp_pixel_src( $markup ) {
-		$matched = (bool) preg_match( '~^<amp-pixel src="([^"]*)"></amp-pixel>$~', $markup, $matches );
-		$this->assertTrue( $matched, "Expected a single <amp-pixel> element, got: $markup" );
-		return html_entity_decode( $matches[1], ENT_QUOTES | ENT_HTML5 );
-	}
-
-	/**
-	 * Test for Tracking_Pixel::render_amp_footer.
-	 */
-	public function test_render_amp_footer_prints_the_pixel_url_intact() {
-		$_SERVER['HTTP_HOST'] = '127.0.0.1';
-		$data                 = array(
-			'v'    => 'ext',
-			'blog' => 1234,
-			'post' => 0,
-			'tz'   => false,
-			'srv'  => 'example.org',
-		);
-
-		ob_start();
-		Tracking_Pixel::render_amp_footer( $data );
-		$output = (string) ob_get_clean();
+		$pixel_url = $method->invoke( new Tracking_Pixel(), $this->amp_pixel_data() );
 
 		$expected_url = 'https://pixel.wp.com/g.gif?v=ext&blog=1234&post=0&tz&srv=example.org&host=127.0.0.1&rand=RANDOM&ref=DOCUMENT_REFERRER';
-		$this->assertSame( $expected_url, $this->amp_pixel_src( $output ) );
+		$this->assertSame( $expected_url, $pixel_url );
+	}
+
+	/**
+	 * Test for Tracking_Pixel::render_amp_footer. The Jetpack plugin calls this from its AMP
+	 * support layer, so the emitted markup is a contract: the ampersands stay encoded as &#038;
+	 * and the AMP placeholders RANDOM and DOCUMENT_REFERRER survive as query values.
+	 */
+	public function test_render_amp_footer_prints_the_pixel() {
+		$_SERVER['HTTP_HOST'] = '127.0.0.1';
+
+		ob_start();
+		Tracking_Pixel::render_amp_footer( $this->amp_pixel_data() );
+		$output = (string) ob_get_clean();
+
+		$expected = '<amp-pixel src="https://pixel.wp.com/g.gif?v=ext&#038;blog=1234&#038;post=0&#038;tz&#038;srv=example.org&#038;host=127.0.0.1&#038;rand=RANDOM&#038;ref=DOCUMENT_REFERRER"></amp-pixel>';
+		$this->assertSame( $expected, $output );
 	}
 
 	/**
@@ -500,8 +485,8 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			remove_filter( 'jetpack_is_amp_request', '__return_true' );
 		}
 
-		$expected_url = 'https://pixel.wp.com/g.gif?v=ext&blog=1234&post=0&tz&srv=example.org&utm_id=some_id&utm_source=a_source&arch_home=1&host=127.0.0.1&rand=RANDOM&ref=DOCUMENT_REFERRER';
-		$this->assertSame( $expected_url, $this->amp_pixel_src( $output ) );
+		$expected = '<amp-pixel src="https://pixel.wp.com/g.gif?v=ext&#038;blog=1234&#038;post=0&#038;tz&#038;srv=example.org&#038;utm_id=some_id&#038;utm_source=a_source&#038;arch_home=1&#038;host=127.0.0.1&#038;rand=RANDOM&#038;ref=DOCUMENT_REFERRER"></amp-pixel>';
+		$this->assertSame( $expected, $output );
 	}
 
 	/**
