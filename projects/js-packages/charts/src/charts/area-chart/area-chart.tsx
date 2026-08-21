@@ -27,7 +27,7 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
-import { attachSubComponents, resolveCssVariable } from '../../utils';
+import { attachSubComponents } from '../../utils';
 import { renderDefaultTooltip } from '../line-chart';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
@@ -482,10 +482,8 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 														stacked={ stacked }
 														stackOffset={ stackOffset }
 														getElementStyles={ getElementStyles }
-														strokeColor={
-															resolveCssVariable( providerTheme.backgroundColor ) ??
-															providerTheme.backgroundColor
-														}
+														// useXYChartTheme resolved this role inside its memo, against the chart's scope element; reading it back avoids a getComputedStyle on every render.
+														strokeColor={ theme.backgroundColor ?? providerTheme.backgroundColor }
 													/>
 												</>
 											) }

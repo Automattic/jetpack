@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useReportScope } from '@jetpack-premium-analytics/data';
 import {
 	getQuickSurfacePresets,
 	canStepForward,
@@ -117,14 +118,6 @@ export type DateFiltersPanelProps = {
 	timeZone: string;
 
 	/**
-	 * Whether to render the period-over-period Compare control. Pages whose
-	 * design has no comparison (the post/email detail page) opt out; their
-	 * widgets ignore comparison params, and hiding the control keeps the UI
-	 * honest about it.
-	 */
-	showComparison?: boolean;
-
-	/**
 	 * Element to measure for the responsive layout instead of the panel's own
 	 * root. Required when the panel sits in a shrink-to-fit slot (e.g. sharing
 	 * a header row with a title): there the root's width follows the panel's
@@ -174,10 +167,16 @@ export function DateFiltersPanel( {
 	onCancel,
 	canApply = true,
 	timeZone,
-	showComparison = true,
 	containerElement,
 	reservedInlineSize = 0,
 }: DateFiltersPanelProps ) {
+	/*
+	 * Read rather than taken as a prop: the same declaration keeps the params
+	 * away from the widgets, so a header can never offer a comparison nothing
+	 * below will read, or hide one the widgets are still fetching.
+	 */
+	const { offersComparison } = useReportScope();
+
 	// Unknown values (e.g. garbage from the URL) become undefined, which
 	// DateRangePopover reads as the custom preset.
 	const validatedPresetId = useMemo( () => {
@@ -434,7 +433,7 @@ export function DateFiltersPanel( {
 
 				{ /* Comparison before the interval: it qualifies the range the
 				     presets just set, while the interval only buckets the charts. */ }
-				{ showComparison && (
+				{ offersComparison && (
 					<BaseControl
 						className="date-filters-panel__comparison"
 						help={ comparisonControlProps.help }

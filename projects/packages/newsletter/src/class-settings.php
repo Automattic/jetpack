@@ -21,7 +21,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.12.4';
+	const PACKAGE_VERSION = '0.12.6';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 

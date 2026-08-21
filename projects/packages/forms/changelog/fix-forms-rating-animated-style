@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Rating field: keep the default left-aligned, borderless rendering under the Outlined and Animated form styles.

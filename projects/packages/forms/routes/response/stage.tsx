@@ -13,7 +13,7 @@ import {
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _x } from '@wordpress/i18n';
 import { useNavigate, useParams, useSearch } from '@wordpress/route';
@@ -225,6 +225,31 @@ function Stage(): React.JSX.Element {
 	// counter in sync. The shared hook latches on a ref, which also survives the
 	// "Mark as unread" menu item on this page re-running the effect.
 	useMarkAsReadOnView( response );
+
+	// Arrives from the list's Print action. `window.print()` blocks, so it must not
+	// fire while the page is still a spinner. The ref is keyed by id because
+	// prev/next moves between responses without remounting this route.
+	const hasPrintRequest = ( searchParams as { print?: number } )?.print === 1;
+	const printedForIdRef = useRef< number | null >( null );
+
+	useEffect( () => {
+		if ( ! hasPrintRequest || ! response || isLoading || printedForIdRef.current === id ) {
+			return;
+		}
+
+		printedForIdRef.current = id;
+
+		// Deliberately untimed: a deferred print would be cancelled when this effect
+		// re-runs, and `useEffect` already runs after the response is in the DOM.
+		window.print();
+
+		// `print()` blocks, so by here the dialog is closed. Drop the flag so a
+		// reload doesn't reprint.
+		navigate( {
+			search: { ...searchParams, print: undefined },
+			replace: true,
+		} );
+	}, [ hasPrintRequest, response, isLoading, id, navigate, searchParams ] );
 
 	const handleFilePreview = useCallback(
 		( file: PreviewFileItem ) => () => {

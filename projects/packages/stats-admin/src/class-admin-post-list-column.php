@@ -47,7 +47,7 @@ class Admin_Post_List_Column {
 	 */
 	public function __construct() {
 		// Add an icon to see stats in WordPress.com for a particular post.
-		add_action( 'admin_print_styles-edit.php', array( $this, 'stats_load_admin_css' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'stats_load_admin_css' ) );
 
 		add_filter( 'manage_posts_columns', array( $this, 'add_stats_post_table' ) );
 		add_filter( 'manage_pages_columns', array( $this, 'add_stats_post_table' ) );
@@ -60,16 +60,19 @@ class Admin_Post_List_Column {
 	 * Load CSS needed for Stats column width in WP-Admin area.
 	 *
 	 * @since 4.7.0
+	 * @since 0.33.0 Added the `$hook_suffix` parameter.
+	 *
+	 * @param string $hook_suffix The current admin page.
 	 */
-	public function stats_load_admin_css() {
-		?>
-		<style type="text/css">
-			.wp-list-table.fixed .column-stats {
-				width: 9em;
-				white-space: nowrap;
-			}
-		</style>
-		<?php
+	public function stats_load_admin_css( $hook_suffix = '' ) {
+		if ( 'edit.php' !== $hook_suffix ) {
+			return;
+		}
+
+		wp_add_inline_style(
+			'common',
+			'.wp-list-table.fixed .column-stats { width: 9em; white-space: nowrap; }'
+		);
 	}
 
 	/**

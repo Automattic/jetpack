@@ -2,8 +2,8 @@
 Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, lsarsfield, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon, dlocc
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
-Requires at least: 6.9
-Tested up to: 7.0
+Requires at least: 7.0
+Tested up to: 7.1
 Requires PHP: 7.2
 Stable tag: 4.7.0
 License: GPLv2 or later
@@ -26,7 +26,7 @@ Increase your website performance and speed up your website with one-click optim
 Improving Core Web Vitals helps you rank higher on Google. A faster website also improves your SEO, helps you reduce your bounce rate and increase your ecommerce conversion rate.
 
 - Largest Contentful Paint (LCP): Measures loading performance. Improve your LCP and improve your website loading speed.
-- First Input Delay (FID): Measures interactivity. To improve user experience pages should have a low FID.
+- Interaction to Next Paint (INP): Measures responsiveness. To improve user experience pages should have a low INP.
 - Cumulative Layout Shift (CLS): Measures visual stability. Lowering your CLS helps improve your user experience.
 
 ### Performance Modules
@@ -35,7 +35,7 @@ Optimize your website with the same techniques used on the world's most successf
 
 Each technique that is used to increase website performance is packaged up as a module that you can activate and try out.
 
-Currently, the plugin has 6 performance modules available:
+Currently, the plugin has 8 performance modules available:
 
 1. *Optimize CSS Loading* generates Critical CSS for your homepage, posts and pages. This can allow your content to show up on the screen much faster, particularly for viewers using mobile devices.
 
@@ -56,6 +56,10 @@ Currently, the plugin has 6 performance modules available:
 6. *Concatenate and Minify CSS and JS* combines and shrinks your JavaScript and CSS resources to reduce the number and size of requests to your server, ensuring your content loads faster.
 
    Read more about minifying files at [web.dev](https://web.dev/minify-css/)
+
+7. *Optimize LCP Images* improves the Largest Contentful Paint (LCP) of your Cornerstone Pages by optimizing their key image, so your most important content shows up sooner.
+
+8. *Prerender Cornerstone Pages* loads your Cornerstone Pages in the background before visitors click a link to them, so your most important pages appear almost instantly.
 
 Don’t want to have to manually generate your critical CSS each time you update your site? Let us do the heavy lifting for you with automated critical CSS – each time you update your site we will automatically regenerate your critical CSS and update your performance scores. Upgrading also gives you dedicated email support access.
 

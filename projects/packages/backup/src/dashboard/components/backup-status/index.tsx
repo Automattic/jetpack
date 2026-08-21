@@ -54,6 +54,33 @@ export function replacesOverview(
 }
 
 /**
+ * The one line that turns "your backups are failing" into something the
+ * reader can act on.
+ *
+ * Shared by the takeover panel and the banner rather than duplicated,
+ * because the two render in mutually exclusive situations and a reader
+ * who lands in either needs the same next step. Keeping one msgid also
+ * stops the two copies drifting apart in translation.
+ *
+ * @return The rendered support line.
+ */
+export function ContactSupportLine() {
+	const siteSuffix = useSiteSuffix();
+
+	return createInterpolateElement(
+		__( '<a>Get in touch with us</a> to get your site backups going again.', 'jetpack-backup-pkg' ),
+		{
+			a: (
+				<Link
+					openInNewTab
+					href={ getRedirectUrl( 'jetpack-contact-support', { site: siteSuffix } ) }
+				/>
+			),
+		}
+	);
+}
+
+/**
  * Full-width panel shown in place of the Overview body while the site
  * has no restore point to show.
  *
@@ -85,20 +112,7 @@ export default function BackupStatusPanel( { state, progress }: Props ) {
 					{ __( "We're having trouble backing up your site", 'jetpack-backup-pkg' ) }
 				</EmptyState.Title>
 				<EmptyState.Description>
-					{ createInterpolateElement(
-						__(
-							'<a>Get in touch with us</a> to get your site backups going again.',
-							'jetpack-backup-pkg'
-						),
-						{
-							a: (
-								<Link
-									openInNewTab
-									href={ getRedirectUrl( 'jetpack-contact-support', { site: siteSuffix } ) }
-								/>
-							),
-						}
-					) }
+					<ContactSupportLine />
 				</EmptyState.Description>
 			</EmptyState.Root>
 		);

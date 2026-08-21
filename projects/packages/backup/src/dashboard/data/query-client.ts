@@ -49,7 +49,15 @@ export const keys = {
 		[ 'backup', 'file-tree', rewindId, folderPath ] as const,
 	fileContents: ( rewindId: string, path: string ) =>
 		[ 'backup', 'file-contents', rewindId, path ] as const,
+	// Keyed on the file's own period, not the parent backup's rewindId:
+	// upstream records one row per file version and matches the period
+	// exactly, so two backups sharing a file share this entry.
+	pathInfo: ( filePeriod: string, manifestPath: string ) =>
+		[ 'backup', 'path-info', filePeriod, manifestPath ] as const,
 	downloadStatus: ( rewindId: string, downloadId: number ) =>
 		[ 'backup', 'download-status', rewindId, downloadId ] as const,
 	restoreStatus: ( restoreId: number ) => [ 'backup', 'restore-status', restoreId ] as const,
+	// The site's recent restores, not one restore's status: read to
+	// recover an id WordPress.com accepted but did not return.
+	recentRestores: () => [ 'backup', 'recent-restores' ] as const,
 };

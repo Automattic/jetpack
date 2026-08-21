@@ -8,6 +8,7 @@ import {
 	Link,
 	getAccessDescription,
 	getReachForAccessLevelKey,
+	NewsletterAccessDocumentSettings,
 	NewsletterAccessRadioButtons,
 	NewsletterEmailDocumentSettings,
 } from '../settings';
@@ -334,11 +335,130 @@ describe( 'NewsletterAccessRadioButtons', () => {
 		} );
 	} );
 
-	test( 'omits Everyone when the post has a paywall block', () => {
-		renderPanel( { postHasPaywallBlock: true, accessLevel: 'subscribers' } );
+	describe( 'when the post has a paywall block', () => {
+		const renderPaywalled = ( props = {}, selectOptions = {} ) =>
+			renderPanel(
+				{ postHasPaywallBlock: true, accessLevel: 'subscribers', ...props },
+				selectOptions
+			);
 
-		expect( screen.queryByRole( 'radio', { name: 'Everyone' } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'radio', { name: /^Subscribers/ } ) ).toBeInTheDocument();
+		// Removing the option instead would make the panel silently change shape. Keeping
+		// it visible and disabled matches how paid subscribers behaves when it is unavailable.
+		test( 'keeps Everyone visible but not selectable', () => {
+			renderPaywalled();
+
+			const everyone = screen.getByRole( 'radio', { name: 'Everyone' } );
+			expect( everyone ).toHaveAttribute( 'aria-disabled', 'true' );
+			expect( everyone ).not.toBeChecked();
+		} );
+
+		test( 'does not save the everybody level when the disabled option is clicked', async () => {
+			renderPaywalled();
+
+			await userEvent.click( screen.getByRole( 'radio', { name: 'Everyone' } ) );
+			expect( mockSetPostMeta ).not.toHaveBeenCalled();
+		} );
+
+		// The notice only helps a screen reader user if the option points at it, so the
+		// copy is asserted through the description as it is actually computed from
+		// aria-describedby rather than by reading the notice on its own.
+		test( 'explains why Everyone is unavailable, in a way the option points at', () => {
+			renderPaywalled();
+
+			expect( screen.getByText( 'Paywall active' ) ).toBeInTheDocument();
+
+			const everyone = screen.getByRole( 'radio', { name: 'Everyone' } );
+			expect( everyone ).toHaveAccessibleDescription( /^Paywall active/ );
+			expect( everyone ).toHaveAccessibleDescription(
+				/Choose who can read the full post\. Everyone can still read the content above the paywall\.$/
+			);
+		} );
+
+		// A native `disabled` attribute would drop the option out of the tab order and hide
+		// it from screen readers, taking the explanation with it.
+		test( 'keeps the disabled option focusable', () => {
+			renderPaywalled();
+
+			const everyone = screen.getByRole( 'radio', { name: 'Everyone' } );
+			expect( everyone ).toBeEnabled();
+
+			everyone.focus();
+			expect( everyone ).toHaveFocus();
+		} );
+
+		// Arrow keys select as they move within a native radio group, so an unselectable
+		// option must not share the group's name or it could be chosen by keyboard.
+		test( 'leaves the disabled option out of the keyboard group', () => {
+			renderPaywalled();
+
+			expect( screen.getByRole( 'radio', { name: 'Everyone' } ) ).not.toHaveAttribute( 'name' );
+			expect( screen.getByRole( 'radio', { name: /^Subscribers/ } ) ).toHaveAttribute( 'name' );
+		} );
+
+		test( 'still lets the remaining audiences be chosen', async () => {
+			renderPaywalled();
+
+			await userEvent.click( screen.getByRole( 'radio', { name: /^Paid subscribers/ } ) );
+			expect( mockSetPostMeta ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: 'paid_subscribers',
+				} )
+			);
+		} );
+
+		// Inserting a paywall block moves the post off "everybody". Until that lands, the
+		// option has to stay selectable or the group would show nothing selected at all.
+		test( 'leaves Everyone selectable while it is still the saved value', () => {
+			renderPaywalled( { accessLevel: 'everybody' } );
+
+			const everyone = screen.getByRole( 'radio', { name: 'Everyone' } );
+			expect( everyone ).toBeChecked();
+			expect( everyone ).not.toHaveAttribute( 'aria-disabled' );
+			expect( screen.queryByText( 'Paywall active' ) ).not.toBeInTheDocument();
+		} );
+
+		// The paywall block's own inspector opts out, because Gutenberg's block card
+		// directly above it already explains the paywall.
+		describe( 'when the caller opts out of the explanation', () => {
+			const renderOptedOut = () => renderPaywalled( { explainPaywallConstraint: false } );
+
+			test( 'hides the notice but keeps Everyone visible and disabled', () => {
+				renderOptedOut();
+
+				expect( screen.queryByText( 'Paywall active' ) ).not.toBeInTheDocument();
+				expect( screen.getByRole( 'radio', { name: 'Everyone' } ) ).toHaveAttribute(
+					'aria-disabled',
+					'true'
+				);
+			} );
+
+			// Gating the notice without gating aria-describedby would leave the option
+			// pointing at an id that is no longer rendered, which assistive tech reports as
+			// no description at all — worse than deliberately having none.
+			test( 'leaves no dangling description reference behind', () => {
+				renderOptedOut();
+
+				const everyone = screen.getByRole( 'radio', { name: 'Everyone' } );
+				expect( everyone ).not.toHaveAttribute( 'aria-describedby' );
+				expect( everyone ).toHaveAccessibleDescription( '' );
+			} );
+
+			test( 'still refuses to save the everybody level', async () => {
+				renderOptedOut();
+
+				await userEvent.click( screen.getByRole( 'radio', { name: 'Everyone' } ) );
+				expect( mockSetPostMeta ).not.toHaveBeenCalled();
+			} );
+		} );
+	} );
+
+	test( 'offers Everyone without explanation when there is no paywall block', () => {
+		renderPanel( { accessLevel: 'everybody' } );
+
+		const everyone = screen.getByRole( 'radio', { name: 'Everyone' } );
+		expect( everyone ).toBeChecked();
+		expect( everyone ).not.toHaveAttribute( 'aria-disabled' );
+		expect( screen.queryByText( 'Paywall active' ) ).not.toBeInTheDocument();
 	} );
 
 	// The counts report how many people can read each level. Switching the paid count to
@@ -352,6 +472,77 @@ describe( 'NewsletterAccessRadioButtons', () => {
 
 		expect( screen.getByRole( 'radio', { name: 'Subscribers (21)' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'radio', { name: 'Paid subscribers (2)' } ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'NewsletterAccessDocumentSettings', () => {
+	const PAYWALL_BLOCK = { name: 'jetpack/paywall', clientId: 'paywall-1' };
+
+	const createMockSelect =
+		( { blocks = [] } = {} ) =>
+		store => {
+			if ( store === 'jetpack/membership-products' ) {
+				return {
+					isApiStateLoading: () => false,
+					getConnectUrl: () => null,
+					getNewsletterTierProducts: () => [],
+				};
+			}
+			if ( store === 'core/block-editor' ) {
+				return { getBlocks: () => blocks };
+			}
+			if ( store === membershipProductsStore ) {
+				return {
+					getSubscriberCounts: () => ( { totalSubscribers: 10, paidSubscribers: 2 } ),
+					getNewsletterTierProducts: () => [],
+				};
+			}
+			if ( store === editorStore ) {
+				return {
+					getCurrentPostType: () => 'post',
+					getEditedPostVisibility: () => 'public',
+				};
+			}
+			return {};
+		};
+
+	const renderSettings = ( { blocks = [], accessLevel = 'subscribers' } = {} ) => {
+		mockUseSelect.mockImplementation( selector => selector( createMockSelect( { blocks } ) ) );
+		return render( <NewsletterAccessDocumentSettings accessLevel={ accessLevel } /> );
+	};
+
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockUseEntityProp.mockReturnValue( [ {}, jest.fn() ] );
+		jest.spyOn( wpData, 'useSelect' ).mockImplementation( selector => mockUseSelect( selector ) );
+	} );
+
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
+	// The card used to sit above the radio group with an "Edit the block." button that
+	// selected the paywall block without switching the sidebar to the Block tab, so it
+	// looked inert. The notice explains the constraint instead. Asserting the notice is
+	// present is what makes the card's absence meaningful: it proves the paywall block
+	// was detected in this render, rather than the card being missing for some other reason.
+	test( 'explains the paywall in the panel instead of linking out to the block', () => {
+		renderSettings( { blocks: [ PAYWALL_BLOCK ] } );
+
+		expect( screen.getByText( 'Paywall active' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /edit the block/i } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByText( /content below the paywall block is exclusive/i )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'leaves Everyone selectable when the post has no paywall block', () => {
+		renderSettings( { blocks: [ { name: 'core/paragraph', clientId: 'p-1' } ] } );
+
+		expect( screen.getByRole( 'radio', { name: 'Everyone' } ) ).not.toHaveAttribute(
+			'aria-disabled'
+		);
+		expect( screen.queryByText( 'Paywall active' ) ).not.toBeInTheDocument();
 	} );
 } );
 

@@ -7,6 +7,8 @@ import { Card, Fieldset, Notice, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import { Radio } from '../components/radio';
+import { Toggle } from '../components/toggle';
 import { getNewsletterScriptData } from '../script-data';
 import type { NewsletterSettings } from '../types';
 
@@ -35,13 +37,13 @@ export function EmailContentSection( {
 			id: 'wpcom_featured_image_in_email',
 			label: __( "Include the post's featured image in the new post emails", 'jetpack-newsletter' ),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit: Toggle,
 		},
 		{
 			id: 'wpcom_subscription_emails_use_excerpt',
 			label: __( 'For each new post email, include', 'jetpack-newsletter' ),
 			type: 'text' as const,
-			Edit: 'radio' as const,
+			Edit: Radio,
 			elements: [
 				{
 					value: '0',

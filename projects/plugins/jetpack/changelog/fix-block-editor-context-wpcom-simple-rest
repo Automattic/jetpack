@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Blocks: treat WordPress.com public API requests as a block-editor context so editor-only extensions load, restoring block plan availability (such as the core/video upgrade nudge) in the mobile editor.

@@ -8,6 +8,7 @@ import {
 import { normalizeActivityLog } from '../data/normalize/activity-log';
 import { keys } from '../data/query-client';
 import { useCanQueryWpcom } from './use-connection';
+import { useStickyError } from './use-sticky-error';
 import type { ActivityItem } from '../types/activity';
 
 type Args = {
@@ -82,6 +83,10 @@ function useActivityPageQuery( page: number, pageSize: number ) {
 export function useActivityLog( { page, pageSize }: Args ): Result {
 	const query = useActivityPageQuery( page, pageSize );
 	const { refetch } = query;
+	// Held across the retry: React Query rewinds this query to `pending`
+	// when it refetches after a failure, so without this the reason
+	// disappears the moment the reader clicks the retry button.
+	const error = useStickyError( query.error, query.isFetching );
 
 	const items = useMemo(
 		() => normalizeActivityLog( query.data?.current?.orderedItems ),
@@ -100,7 +105,7 @@ export function useActivityLog( { page, pageSize }: Args ): Result {
 		totalPages: query.data?.totalPages ?? Math.max( 1, Math.ceil( items.length / pageSize ) ),
 		isLoading: query.isLoading,
 		isFetching: query.isFetching,
-		error: query.error ?? null,
+		error,
 		refetch: retry,
 	};
 }
@@ -199,9 +204,20 @@ export function useDefaultBackupRewindId(): string | null {
  * is paginated over the full retention window and does not have that
  * blind spot.
  *
- * @return Whether a restore point is visible, and whether the answer has loaded.
+ * `isError` is reported separately from `isLoading` because callers must
+ * treat the two the same way and React Query does not. A failed query is
+ * not loading and holds no rows, so `hasRestorePoints` comes back a
+ * confident `false` for a question that was never actually answered —
+ * which is indistinguishable, to a caller reading only the first two
+ * values, from a site that genuinely has no restore points.
+ *
+ * @return Whether a restore point is visible, whether the answer has loaded, and whether asking failed.
  */
-export function useHasRestorePoints(): { hasRestorePoints: boolean; isLoading: boolean } {
+export function useHasRestorePoints(): {
+	hasRestorePoints: boolean;
+	isLoading: boolean;
+	isError: boolean;
+} {
 	const query = useActivityPageQuery( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE );
 	const hasRestorePoints = useMemo(
 		() =>
@@ -210,7 +226,7 @@ export function useHasRestorePoints(): { hasRestorePoints: boolean; isLoading: b
 			),
 		[ query.data ]
 	);
-	return { hasRestorePoints, isLoading: query.isLoading };
+	return { hasRestorePoints, isLoading: query.isLoading, isError: query.isError };
 }
 
 /**

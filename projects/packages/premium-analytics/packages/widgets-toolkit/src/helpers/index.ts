@@ -57,7 +57,6 @@ export {
 export { sharePercentage } from './share-percentage';
 export { getCombinedPeriodMax } from './get-combined-period-max';
 export { getVideoKey, getVideoLabel } from './video-plays';
-export { toMaxRows } from './to-max-rows';
 export { describeError } from './describe-error';
 export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
@@ -71,6 +70,8 @@ export {
 	type ChartGranularityOption,
 } from './chart-display-attribute-fields';
 export {
+	CELL_GAP as CALENDAR_HEATMAP_CELL_GAP,
+	HEADER_HEIGHT as CALENDAR_HEATMAP_HEADER_HEIGHT,
 	compactCalendarHeatmapCapacity,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,

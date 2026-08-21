@@ -124,26 +124,34 @@ class Dashboard {
 				/>
 			</div>
 		</div>
-		<script>
-			jQuery(document).ready(function($) {
-				// Load SVG sprite.
-				$.get("https://widgets.wp.com/odyssey-stats/common/gridicons-506499ddac13811fee8e.svg", function(data) {
-					var div = document.createElement("div");
-					div.innerHTML = new XMLSerializer().serializeToString(data.documentElement);
-					div.style = 'display: none';
-					document.body.insertBefore(div, document.body.childNodes[0]);
-				});
-				// we intercept on all anchor tags and change it to hashbang style.
-				$("#wpcom").on('click', 'a', function (e) {
-					const link = e && e.currentTarget && e.currentTarget.attributes && e.currentTarget.attributes.href && e.currentTarget.attributes.href.value;
-					if( link && link.startsWith( '/stats' ) ) {
-						location.hash = `#!${link}`;
-						return false;
-					}
-				});
-			});
-		</script>
 		<?php
+	}
+
+	/**
+	 * The dashboard bootstrap: load the icon sprite, and keep in-app links inside the dashboard.
+	 *
+	 * @return string
+	 */
+	private function get_bootstrap_script() {
+		return <<<'JS'
+jQuery(document).ready(function($) {
+	// Load SVG sprite.
+	$.get("https://widgets.wp.com/odyssey-stats/common/gridicons-506499ddac13811fee8e.svg", function(data) {
+		var div = document.createElement("div");
+		div.innerHTML = new XMLSerializer().serializeToString(data.documentElement);
+		div.style = 'display: none';
+		document.body.insertBefore(div, document.body.childNodes[0]);
+	});
+	// we intercept on all anchor tags and change it to hashbang style.
+	$("#wpcom").on('click', 'a', function (e) {
+		const link = e && e.currentTarget && e.currentTarget.attributes && e.currentTarget.attributes.href && e.currentTarget.attributes.href.value;
+		if( link && link.startsWith( '/stats' ) ) {
+			location.hash = `#!${link}`;
+			return false;
+		}
+	});
+});
+JS;
 	}
 
 	/**
@@ -158,6 +166,13 @@ class Dashboard {
 	 */
 	public function load_admin_scripts() {
 		( new Odyssey_Assets() )->load_admin_scripts( 'jp-stats-dashboard', 'build.min', array( 'config_variable_name' => 'jetpackStatsOdysseyAppConfigData' ) );
+
+		// The bootstrap runs on jQuery, which the Odyssey bundle does not depend on. It gets its own
+		// handle rather than jQuery being added to that bundle, which the dashboard widget shares
+		// and which has no use for it.
+		wp_register_script( 'jp-stats-dashboard-bootstrap', false, array( 'jquery' ), Main::VERSION, true );
+		wp_enqueue_script( 'jp-stats-dashboard-bootstrap' );
+		wp_add_inline_script( 'jp-stats-dashboard-bootstrap', $this->get_bootstrap_script() );
 
 		// The app is served from our CDN and so cannot bundle the connection package. Print the
 		// state Search and Protect print on their own pages, so it can read the connection status

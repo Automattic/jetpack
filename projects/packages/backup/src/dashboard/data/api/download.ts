@@ -1,4 +1,4 @@
-import { apiCall, apiPath, serializeTypes } from './_helpers';
+import { apiCall, apiPath, requireTypes } from './_helpers';
 import type { RestoreItems } from '../../types/restore';
 
 export type InitiateDownloadResponse = {
@@ -33,6 +33,10 @@ export type DownloadStatusResponse = {
 /**
  * Initiate a backup download.
  *
+ * Always names at least one category — `requireTypes` throws instead of
+ * letting the key be dropped, because an absent `types` asks WPCOM for
+ * the *whole* archive rather than for nothing.
+ *
  * @param rewindId - The backup's rewind id, in full — the decimal suffix is significant.
  * @param types    - Which categories to include in the download.
  * @return The download id.
@@ -44,9 +48,7 @@ export async function initiateDownload(
 	return apiCall< InitiateDownloadResponse >( {
 		path: apiPath( `/backups/download/${ rewindId }` ),
 		method: 'POST',
-		// Omitted entirely when nothing is selected: an empty `types`
-		// asks WPCOM for a download containing nothing.
-		data: { types: serializeTypes( types ) },
+		data: { types: requireTypes( types ) },
 	} );
 }
 
