@@ -219,6 +219,31 @@ class Jetpack_Options {
 	}
 
 	/**
+	 * Checks whether an option has a stored value, distinguishing an absent option from one stored
+	 * as a falsy value. Reads from the same storage as `get_option` (external storage or database)
+	 * but does not apply the `jetpack_options` filter, so a filter override is not mistaken for a
+	 * stored value.
+	 *
+	 * @since 8.11.0
+	 *
+	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix.
+	 *
+	 * @return bool Whether the option is stored.
+	 */
+	public static function option_exists( $name ) {
+		if ( self::should_use_external_storage( $name )
+			&& class_exists( 'Automattic\Jetpack\Connection\External_Storage' )
+			&& null !== \Automattic\Jetpack\Connection\External_Storage::get_value( $name )
+		) {
+			return true;
+		}
+
+		// A value no caller would ever store, so getting it back means the option is absent.
+		$sentinel = '__jetpack_option_absent__';
+		return $sentinel !== self::get_option_from_database( $name, $sentinel );
+	}
+
+	/**
 	 * Returns the requested option.  Looks in jetpack_options or jetpack_$name as appropriate.
 	 *
 	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.

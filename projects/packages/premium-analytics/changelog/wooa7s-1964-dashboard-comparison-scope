@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Date controls: Stop applying hidden date comparisons in dashboard sections that do not offer the control while preserving them when returning to supported sections.

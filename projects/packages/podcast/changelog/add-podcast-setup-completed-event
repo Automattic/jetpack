@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Record when each required podcast setting is first filled in, so setup completion can be measured.

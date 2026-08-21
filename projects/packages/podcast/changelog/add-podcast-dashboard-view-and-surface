@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Record dashboard views, the host platform, and what drove each option write, so podcast usage can be measured per environment.
