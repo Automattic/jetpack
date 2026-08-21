@@ -48,7 +48,6 @@ import {
 import { getAllowedBlocks } from './utils/get-allowed-blocks';
 import { shouldAutoOpenInserter } from './utils/inserter-utils';
 import { shouldRunSelectionEnforcement, shouldSelectFormBlock } from './utils/selection-utils';
-import { FormWelcomeGuide, JETPACK_FORM_WELCOME_GUIDE } from './welcome-guide';
 import type { WPPlugin } from '@wordpress/plugins';
 
 type PluginSettings = Omit< WPPlugin, 'name' >;
@@ -430,11 +429,10 @@ const setupFormEditorSubscription = () => {
 						render: FormPostPublishPanel,
 					} );
 
-					// Swap the generic block editor welcome modal for the form-specific one.
+					// Suppress the generic block editor welcome modal. The
+					// form-specific guide that replaces it registers itself from
+					// its own bundle (welcome-guide/bootstrap.tsx).
 					setCoreWelcomeGuideSuppressed( true );
-					registerPlugin( JETPACK_FORM_WELCOME_GUIDE, {
-						render: FormWelcomeGuide,
-					} );
 				} else {
 					// We just left the form editor.
 					document.body.classList.remove( 'post-type-jetpack_form' );
@@ -454,9 +452,6 @@ const setupFormEditorSubscription = () => {
 						unregisterPlugin( FORM_POST_PUBLISH_PANEL_PLUGIN );
 					}
 
-					if ( getPlugin( JETPACK_FORM_WELCOME_GUIDE ) ) {
-						unregisterPlugin( JETPACK_FORM_WELCOME_GUIDE );
-					}
 					setCoreWelcomeGuideSuppressed( false );
 
 					if ( state.categoriesSetUp ) {

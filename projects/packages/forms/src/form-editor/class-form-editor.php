@@ -25,6 +25,13 @@ class Form_Editor {
 	const SCRIPT_HANDLE = 'jetpack-form-editor';
 
 	/**
+	 * Script handle for the welcome guide.
+	 *
+	 * @var string
+	 */
+	const WELCOME_GUIDE_SCRIPT_HANDLE = 'jetpack-form-welcome-guide';
+
+	/**
 	 * Initialize the form editor.
 	 */
 	public static function init() {
@@ -186,6 +193,41 @@ class Form_Editor {
 		Assets::register_script(
 			self::SCRIPT_HANDLE,
 			'../../dist/form-editor/jetpack-form-editor.js',
+			__FILE__,
+			array(
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-forms',
+				'enqueue'      => true,
+				'dependencies' => $asset['dependencies'],
+				'version'      => $asset['version'],
+			)
+		);
+
+		self::enqueue_welcome_guide();
+	}
+
+	/**
+	 * Enqueue the welcome guide.
+	 *
+	 * Kept out of the editor bundle so the guide does not have to wait for the
+	 * whole editor to download and parse before it can render — it is one of the
+	 * first things a new user sees. Always loaded on the form editor, not only
+	 * when the guide will open, because it also supplies the "Form guide" item in
+	 * the Options menu that reopens it after dismissal. The artwork itself is
+	 * only fetched once the guide actually opens.
+	 */
+	private static function enqueue_welcome_guide() {
+		$asset_file = __DIR__ . '/../../dist/form-editor/jetpack-form-welcome-guide.asset.php';
+		if ( ! file_exists( $asset_file ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'Welcome guide asset file not found: ' . $asset_file );
+			return;
+		}
+
+		$asset = require $asset_file;
+		Assets::register_script(
+			self::WELCOME_GUIDE_SCRIPT_HANDLE,
+			'../../dist/form-editor/jetpack-form-welcome-guide.js',
 			__FILE__,
 			array(
 				'in_footer'    => true,
