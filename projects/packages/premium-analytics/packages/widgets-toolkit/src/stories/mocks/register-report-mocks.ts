@@ -127,7 +127,8 @@ const STATS_API_BASE = '/jetpack-premium-analytics/v1/proxy/v1.1/stats';
  * Days of mock data to generate (covering past requests).
  */
 const SPECTRUM_DAYS = 90;
-const DAY_MS = 24 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
 
 /**
  * Parameters for dynamic mock data generation.
@@ -929,13 +930,23 @@ function buildHourOfDayResponse( query: URLSearchParams ) {
  * string rather than split across columns, and only Views carries a number —
  * every other requested field comes back `null`.
  *
- * @param query   - Parsed query params (`quantity`, `stat_fields`).
+ * @param query   - Parsed query params (`start_date`, `quantity`, `stat_fields`).
  * @param fields  - The requested stat fields, in order.
  * @param endDate - The last bucket's instant.
  * @return Raw hourly visits response in the WPCOM matrix shape.
  */
 function buildHourlyVisitsResponse( query: URLSearchParams, fields: string[], endDate: Date ) {
-	const count = Math.max( 1, Math.min( 400, Number( query.get( 'quantity' ) ) || 24 ) );
+	// Counted from the range, as the endpoint does, rather than from `quantity`:
+	// a range-bounded request carries no `quantity`, so reading one would peg
+	// every hourly story to 24 buckets whatever window it asked for. `quantity`
+	// stays as the fallback for the range-less shape.
+	const startDate = query.get( 'start_date' )
+		? parseDateParam( query.get( 'start_date' ), endDate )
+		: null;
+	const spanHours = startDate
+		? Math.floor( ( endDate.getTime() - startDate.getTime() ) / HOUR_MS ) + 1
+		: Number( query.get( 'quantity' ) ) || 24;
+	const count = Math.max( 1, Math.min( 400, spanHours ) );
 
 	const rows = Array.from( { length: count }, ( _, index ) => {
 		const bucket = new Date( endDate );
