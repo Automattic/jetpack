@@ -427,4 +427,67 @@ class Visitor_Test extends TestCase {
 
 		$this->assertSame( '10.0.0.5', $this->visitor_obj->get_ip() );
 	}
+
+	/**
+	 * Tests that the configured number of segments decides how far back in the chain the visitor
+	 * sits. Two hops back from the end of a three entry chain is the middle entry; leftmost-wins
+	 * would have returned '1.1.1.1' and one segment would have returned '3.3.3.3'.
+	 */
+	public function test_get_ip_honors_the_segment_count_of_the_trusted_header() {
+		$_SERVER['REMOTE_ADDR']          = '10.0.0.5';
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = '1.1.1.1, 2.2.2.2, 3.3.3.3';
+		$this->set_trusted_ip_header( 'HTTP_X_FORWARDED_FOR', 2 );
+
+		$this->assertSame( '2.2.2.2', $this->visitor_obj->get_ip( true ) );
+	}
+
+	/**
+	 * Tests that a trusted header whose chain runs in reverse is counted from the other end.
+	 * The same header and segment count without the reverse flag resolves to '9.9.9.9'.
+	 */
+	public function test_get_ip_honors_the_reverse_flag_of_the_trusted_header() {
+		$_SERVER['REMOTE_ADDR']          = '10.0.0.5';
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = '5.6.7.8, 9.9.9.9';
+		$this->set_trusted_ip_header( 'HTTP_X_FORWARDED_FOR', 1, true );
+
+		$this->assertSame( '5.6.7.8', $this->visitor_obj->get_ip( true ) );
+	}
+
+	/**
+	 * The same request without the reverse flag, to show the flag is what moved the answer
+	 * rather than the header sweep happening to agree.
+	 */
+	public function test_get_ip_without_the_reverse_flag_counts_from_the_end() {
+		$_SERVER['REMOTE_ADDR']          = '10.0.0.5';
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = '5.6.7.8, 9.9.9.9';
+		$this->set_trusted_ip_header( 'HTTP_X_FORWARDED_FOR' );
+
+		$this->assertSame( '9.9.9.9', $this->visitor_obj->get_ip( true ) );
+	}
+
+	/**
+	 * Tests that a trusted header carrying no valid address does not end the search. It falls
+	 * through to the sweep, which finds nothing usable either, leaving REMOTE_ADDR.
+	 */
+	public function test_get_ip_falls_through_when_the_trusted_header_holds_no_address() {
+		$_SERVER['REMOTE_ADDR']          = '10.0.0.5';
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = 'not-an-ip-address';
+		$this->set_trusted_ip_header( 'HTTP_X_FORWARDED_FOR' );
+
+		$this->assertSame( '10.0.0.5', $this->visitor_obj->get_ip( true ) );
+	}
+
+	/**
+	 * Tests the documented consequence of that fall-through: with a trusted header configured
+	 * but absent from the request, an address the client named in a header it fully controls is
+	 * still returned. Pins the behaviour the docblock calls a preference rather than a
+	 * guarantee, so a future change to make it a guarantee has to update this test knowingly.
+	 */
+	public function test_get_ip_still_reads_client_headers_when_the_trusted_header_is_omitted() {
+		$_SERVER['REMOTE_ADDR']           = '10.0.0.5';
+		$_SERVER['HTTP_CF_CONNECTING_IP'] = '1.2.3.4';
+		$this->set_trusted_ip_header( 'HTTP_X_FORWARDED_FOR' );
+
+		$this->assertSame( '1.2.3.4', $this->visitor_obj->get_ip( true ) );
+	}
 }
