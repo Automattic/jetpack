@@ -1,4 +1,3 @@
 Significance: patch
 Type: fixed
-
-Show the activity log in the reader's language.
+Comment: Backup: forward the reader's locale to the modernized dashboard's activity list so WordPress.com renders the summaries in their language. No-op when the modernization filter is off.
