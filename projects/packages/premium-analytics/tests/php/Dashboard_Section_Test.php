@@ -377,6 +377,35 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Only store data waits on the analytics sync; the site sections render at once.
+	 */
+	public function test_only_the_store_section_requires_the_sync() {
+		$this->set_admin_user();
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+
+		register_default_dashboard_sections();
+
+		$this->assertSame(
+			array(
+				'traffic'     => false,
+				'insights'    => false,
+				'subscribers' => false,
+				'store'       => true,
+			),
+			array_column(
+				array_map(
+					static function ( Dashboard_Section $section ) {
+						return $section->to_array();
+					},
+					get_available_dashboard_sections( DASHBOARD_NAME )
+				),
+				'requires_sync',
+				'slug'
+			)
+		);
+	}
+
+	/**
 	 * The analytics sections carry their own heading; Store still falls back to its label.
 	 */
 	public function test_built_in_sections_declare_their_headings() {
@@ -425,6 +454,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'order',
 				'date_filter',
 				'date_filter_options',
+				'requires_sync',
 				'default_layout',
 			),
 			array_keys( $schema['properties'] )
@@ -602,6 +632,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 10,
 					'date_filter'         => 'range',
 					'date_filter_options' => array( 'with_date_comparison' => true ),
+					'requires_sync'       => false,
 					'default_layout'      => array(),
 				),
 			),
@@ -721,6 +752,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 10,
 					'date_filter'         => 'range',
 					'date_filter_options' => array( 'with_date_comparison' => true ),
+					'requires_sync'       => false,
 				),
 				array(
 					'id'                  => 'analytics/insights',
@@ -731,6 +763,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 20,
 					'date_filter'         => 'year',
 					'date_filter_options' => array( 'with_date_comparison' => false ),
+					'requires_sync'       => false,
 				),
 				array(
 					'id'                  => 'analytics/subscribers',
@@ -741,6 +774,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 30,
 					'date_filter'         => 'range',
 					'date_filter_options' => array( 'with_date_comparison' => true ),
+					'requires_sync'       => false,
 				),
 			),
 			array_map(
@@ -1082,6 +1116,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 10,
 					'date_filter'         => 'range',
 					'date_filter_options' => array( 'with_date_comparison' => true ),
+					'requires_sync'       => false,
 					'default_layout'      => array(),
 				),
 				array(
@@ -1093,6 +1128,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 20,
 					'date_filter'         => 'range',
 					'date_filter_options' => array( 'with_date_comparison' => true ),
+					'requires_sync'       => false,
 					'default_layout'      => array(),
 				),
 			),
@@ -1171,6 +1207,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 10,
 					'date_filter'         => 'range',
 					'date_filter_options' => array( 'with_date_comparison' => true ),
+					'requires_sync'       => false,
 					'default_layout'      => array(
 						array(
 							'uuid' => 'default-route-widget',
