@@ -9,7 +9,7 @@
 import { Guide } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginMoreMenuItem } from '@wordpress/editor';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getWelcomeGuidePages } from './pages';
 import { isWelcomeGuideForced, isWelcomeGuideOpen, shouldPersistDismissal } from './should-show';
@@ -75,6 +75,24 @@ export const FormWelcomeGuide = () => {
 	}, [] );
 
 	const isOpen = isWelcomeGuideOpen( { preference, isForced, isClosed, isReopened } );
+
+	// `Guide` mounts only the slide you are looking at, so each illustration
+	// otherwise starts downloading at the moment you reach it and lands a beat
+	// after the slide. Warming them all once the guide opens means every slide
+	// after the first is already in the browser cache by the time it renders.
+	// Gated on `isOpen` so an editor session that never shows the guide never
+	// fetches the artwork at all.
+	useEffect( () => {
+		if ( ! isOpen ) {
+			return;
+		}
+
+		getWelcomeGuidePages().forEach( ( { imageSrc } ) => {
+			// Assigning `src` is enough to start the request and populate the
+			// HTTP cache; the element itself is never added to the document.
+			new window.Image().src = imageSrc;
+		} );
+	}, [ isOpen ] );
 
 	return (
 		<>

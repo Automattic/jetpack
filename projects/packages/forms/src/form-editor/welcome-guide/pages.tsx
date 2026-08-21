@@ -13,9 +13,15 @@ import publishImage from './images/publish.png';
 import welcomeImage from './images/welcome.png';
 import type { ReactNode } from 'react';
 
-interface GuidePage {
+export interface GuidePage {
 	image: ReactNode;
 	content: ReactNode;
+	/**
+	 * The artwork's URL, alongside the rendered `image`. `Guide` ignores it,
+	 * but it lets the guide preload every slide without a second list of
+	 * sources that could fall out of step with the slides themselves.
+	 */
+	imageSrc: string;
 }
 
 /**
@@ -47,6 +53,7 @@ export function getWelcomeGuidePages(): GuidePage[] {
 	return [
 		{
 			image: <Artwork src={ welcomeImage } />,
+			imageSrc: welcomeImage,
 			content: (
 				<>
 					<h1 className="jetpack-forms-welcome-guide__heading">
@@ -63,6 +70,7 @@ export function getWelcomeGuidePages(): GuidePage[] {
 		},
 		{
 			image: <Artwork src={ addFieldsImage } />,
+			imageSrc: addFieldsImage,
 			content: (
 				<>
 					<h1 className="jetpack-forms-welcome-guide__heading">
@@ -79,6 +87,7 @@ export function getWelcomeGuidePages(): GuidePage[] {
 		},
 		{
 			image: <Artwork src={ fieldSettingsImage } />,
+			imageSrc: fieldSettingsImage,
 			content: (
 				<>
 					<h1 className="jetpack-forms-welcome-guide__heading">
@@ -95,6 +104,7 @@ export function getWelcomeGuidePages(): GuidePage[] {
 		},
 		{
 			image: <Artwork src={ afterSubmitImage } />,
+			imageSrc: afterSubmitImage,
 			content: (
 				<>
 					<h1 className="jetpack-forms-welcome-guide__heading">
@@ -111,6 +121,7 @@ export function getWelcomeGuidePages(): GuidePage[] {
 		},
 		{
 			image: <Artwork src={ publishImage } />,
+			imageSrc: publishImage,
 			content: (
 				<>
 					<h1 className="jetpack-forms-welcome-guide__heading">
