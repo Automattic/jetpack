@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Premium Analytics: Name the dates a comparison covers in the dashboard header, instead of "Previous period", and drop the weekdays from ranges longer than a week.
+Premium Analytics: Name the dates a comparison covers in the dashboard header, instead of "Previous period", drop the weekdays from ranges longer than a week, and leave the year off ranges that sit inside the current one.
