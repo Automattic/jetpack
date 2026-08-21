@@ -60,17 +60,12 @@ export function CalendarHeatmapPagerOverlay( {
 	const canShowOlder = pager?.canShowOlder ?? false;
 	const canShowNewer = pager?.canShowNewer ?? false;
 
-	// Keyboard paging can remove the very arrow being pressed — reaching an
-	// end unmounts it, and focus lands wherever the browser or the button's
-	// tooltip machinery drops it (the body, or a previously focused element):
-	// `:focus-within` collapses and the surviving arrow fades out
-	// mid-interaction. Hand focus to that surviving arrow instead — anywhere
-	// focus went in that same commit was a fallback, not a user choice, since
-	// an intentional move fires the blur that clears `arrowHadFocus` first.
-	// Layout effect plus one animation-frame re-check, because the fallback
-	// restore can itself land after this commit. Pointer users never enter
-	// here: their arrow removal happens under `:hover`, which keeps the
-	// overlay visible.
+	// Reaching an end unmounts the arrow being pressed, and focus falls
+	// wherever the browser or the removed button drops it, collapsing
+	// `:focus-within` mid-interaction — so hand focus to the surviving arrow.
+	// An intentional move away instead fires the blur that clears
+	// `arrowHadFocus` first, and the animation-frame re-check covers fallback
+	// restores that land after this commit.
 	useLayoutEffect( () => {
 		const doc = hostRef.current?.ownerDocument;
 		if ( ! doc ) {

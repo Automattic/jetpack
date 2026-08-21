@@ -22,7 +22,9 @@
 	   while hidden so the cells underneath keep their hover tooltips. */
 	opacity: 0;
 	pointer-events: none;
-	transition: opacity 0.2s ease-out, margin 0.2s ease-out;
+	transition:
+		opacity var(--wpds-motion-duration-md) var(--wpds-motion-easing-subtle),
+		margin var(--wpds-motion-duration-md) var(--wpds-motion-easing-subtle);
 
 	/* Draw the focus ring inside the button; the default outset ring gets
 	   clipped by the content area's overflow. */
@@ -42,16 +44,16 @@
    direction, and it moves an absolutely positioned box, so nothing reflows. */
 
 /* Inset past the chip's 6px shadow reach, so the widget's overflow clipping
-   cannot slice the shadow at the edges; the 8px slide then starts exactly at
+   cannot slice the shadow at the edges; the slide then starts exactly at
    the edge. */
 .older {
-	inset-inline-start: 8px;
-	margin-inline-start: -8px;
+	inset-inline-start: var(--wpds-dimension-gap-sm);
+	margin-inline-start: calc(-1 * var(--wpds-dimension-gap-sm));
 }
 
 .newer {
-	inset-inline-end: 8px;
-	margin-inline-end: -8px;
+	inset-inline-end: var(--wpds-dimension-gap-sm);
+	margin-inline-end: calc(-1 * var(--wpds-dimension-gap-sm));
 }
 
 .host:hover .arrow,
@@ -78,6 +80,6 @@
 
 	.host .arrow {
 		margin-inline: 0;
-		transition: opacity 0.2s ease-out;
+		transition: opacity var(--wpds-motion-duration-md) var(--wpds-motion-easing-subtle);
 	}
 }
