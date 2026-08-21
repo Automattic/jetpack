@@ -241,11 +241,11 @@ class Rest_Capabilities_Bridge_Test extends TestCase {
 	 */
 	public static function provide_unreadable_bodies() {
 		return array(
-			'not JSON at all'         => array( 'not JSON at all', '<html>502 Bad Gateway</html>' ),
-			'a bare scalar'           => array( 'a bare scalar', '"ok"' ),
-			'an empty body'           => array( 'an empty body', '' ),
-			'no capabilities key'     => array( 'no capabilities key', '{"error":"unauthorized"}' ),
-			'a non-list capabilities' => array( 'a non-list capabilities', '{"capabilities":"backup"}' ),
+			'not JSON at all'          => array( 'not JSON at all', '<html>502 Bad Gateway</html>' ),
+			'a bare scalar'            => array( 'a bare scalar', '"ok"' ),
+			'an empty body'            => array( 'an empty body', '' ),
+			'no capabilities key'      => array( 'no capabilities key', '{"error":"unauthorized"}' ),
+			'a non-list capabilities'  => array( 'a non-list capabilities', '{"capabilities":"backup"}' ),
 			// The likelier upstream drift of the two, and the one that
 			// slipped through: `is_array()` cannot tell a JSON list from a
 			// JSON object, and `in_array()` then compares against the
