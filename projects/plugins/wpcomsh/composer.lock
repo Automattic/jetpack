@@ -2358,10 +2358,9 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "d4fe2e9daa600ac417e3c400b63e533bfbc013a2"
+                "reference": "8c926a1a98e6899a9d82140b06f22924187aece7"
             },
             "require": {
-                "automattic/jetpack-blaze": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-jitm": "@dev",
@@ -2371,6 +2370,7 @@
                 "php": ">=7.2"
             },
             "require-dev": {
+                "automattic/jetpack-blaze": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
