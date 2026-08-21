@@ -50,6 +50,18 @@ export function hasSelectedItems( items: RestoreItems ): boolean {
  * either neighbour. A restore that finished but not cleanly should not
  * be dismissed as done, and should not be retried as if nothing landed.
  *
+ * `checking` is the opening state of every cold load: the screen does not
+ * yet know whether this site already has a restore running, and must show
+ * neither the form nor a progress bar until it does. It is short — one
+ * request, usually — but it cannot be skipped, because the alternative is
+ * an armed Confirm button that is withdrawn a moment later.
+ *
+ * `unconfirmed` is the submission whose answer never arrived. It is not
+ * `error`, because nothing has been ruled out: WordPress.com may have
+ * queued the restore and lost only the reply. It is not `queued` either,
+ * because that copy promises a restore is under way. The screen says what
+ * is true — we are finding out — and offers no control until it knows.
+ *
  * `lost-track` is separate from `error` for the same reason, and it
  * matters more. The two say opposite things about the live site: `error`
  * means nothing is running, `lost-track` means something probably is and
@@ -70,9 +82,11 @@ export function hasSelectedItems( items: RestoreItems ): boolean {
  * headline.
  */
 export type RestoreState =
+	| { phase: 'checking' }
 	| { phase: 'idle' }
 	| { phase: 'submitting' }
 	| { phase: 'queued' }
+	| { phase: 'unconfirmed'; detail: string | null }
 	| { phase: 'progress'; percent: number }
 	| { phase: 'success' }
 	| { phase: 'success-with-errors'; message: string }

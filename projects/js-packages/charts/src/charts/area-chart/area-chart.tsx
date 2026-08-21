@@ -482,7 +482,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 														stacked={ stacked }
 														stackOffset={ stackOffset }
 														getElementStyles={ getElementStyles }
-														// useXYChartTheme resolved this role inside its memo; reading it back avoids a getComputedStyle on every render.
+														// useXYChartTheme resolved this role inside its memo, against the chart's scope element; reading it back avoids a getComputedStyle on every render.
 														strokeColor={ theme.backgroundColor ?? providerTheme.backgroundColor }
 													/>
 												</>

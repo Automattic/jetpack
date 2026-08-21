@@ -98,7 +98,7 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 				legendLabels={ legendLabels }
 				style={
 					{
-						'--a8c--charts--leaderboard--bar--border-radius': '0 1px 1px 0',
+						'--a8c-charts-border-radius-leaderboard-bar': '0 1px 1px 0',
 					} as CSSProperties
 				}
 			/>
