@@ -13,19 +13,41 @@ import useWordAdsChart from '../use-wordads-chart';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
 
-jest.mock( '@wordpress/api-fetch' );
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
-// The chart itself is visx SVG rendering, outside this widget's concern.
+// The chart itself is visx SVG rendering, outside this widget's concern. Keep
+// the metrics observable so the tests can assert what the widget charts.
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
-	MetricTabsChart: () => <div data-testid="metric-tabs-chart" />,
+	MetricTabsChart: ( {
+		metrics,
+		chartType,
+	}: {
+		metrics: {
+			key: string;
+			label: string;
+			value: number;
+			current: { date: Date; value: number }[];
+		}[];
+		chartType?: string;
+	} ) => (
+		<div
+			data-testid="metric-tabs-chart"
+			data-metric-count={ metrics.length }
+			data-metric-label={ metrics[ 0 ]?.label }
+			data-metric-total={ String( metrics[ 0 ]?.value ) }
+			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
+			data-first-date={ metrics[ 0 ]?.current[ 0 ]?.date.toISOString() }
+			data-chart-type={ String( chartType ) }
+		/>
+	),
 } ) );
 
 // WidgetRoot reads URL search params as a fallback for report params; outside
 // a matched route the real hook warns and throws.
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
-const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
+const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 // Raw WPCOM `wordads/stats` matrix shape: two monthly buckets, so the summary
 // totals impressions (2000) and revenue (9.75), and CPM is the weighted average
