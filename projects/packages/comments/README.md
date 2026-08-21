@@ -19,7 +19,15 @@ The form renders on the site the comment is posted to, and posts to that site's 
 - An identity line and a log-out link for readers logged in to the site itself.
 - Reply threading, by watching the `comment_parent` input WordPress rewrites.
 
-Sites that require registration to comment fall back to core's "you must be logged in" message.
+Sites that require registration get the same form with a log-in prompt in place of the guest fields, and the submit button held disabled.
+
+## Not here yet
+
+Two parts of the experience this replaces are deliberately left for a later phase.
+
+**Social login.** Commenting as a WordPress.com or Facebook account, and the `hc_post_as`, `hc_foreign_user_id` and `hc_avatar` meta that carries it. Until it lands, a site that requires registration only offers a local account, so this is not yet a like-for-like replacement anywhere that relies on WordPress.com login.
+
+**Subscriptions.** The "email me new comments" and "email me new posts" options, and the modal after submitting. Jetpack Subscriptions adds its checkboxes through `comment_form_submit_field`, which this form replaces wholesale, so they are dropped while the filter is on. On Simple the older `subscription_comment_form` output is removed for the same reason, so that no host shows a subscribe option rather than one showing it and another not.
 
 ## What it stores
 
@@ -59,7 +67,7 @@ Two places check the filter, so one switch covers every environment:
 | Self-hosted, Atomic | `plugins/jetpack`, in the Comments module | `Jetpack_Comments`, and its iframe to `jetpack.wordpress.com` |
 | Simple | `packages/jetpack-mu-wpcom`, in `load_verbum_comments()` | `Verbum_Comments` |
 
-The Comments module still has to be active on the Jetpack plugin side. Its settings screen is left in place either way, so the greeting and color scheme it sets have no effect here.
+The Comments module still has to be active on the Jetpack plugin side. Its settings screen is left in place, and the greeting and color scheme it sets are both applied here.
 
 ## Security
 
