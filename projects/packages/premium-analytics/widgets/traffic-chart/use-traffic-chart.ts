@@ -82,13 +82,16 @@ export default function useTrafficChart(
 		() =>
 			TRAFFIC_CHART_METRICS.map( metric => {
 				const isViewsVisitors = metric.id === 'views' || metric.id === 'visitors';
-				return buildMetricTab( {
-					primary: isViewsVisitors ? vvPrimary : lcPrimary,
-					comparison: isViewsVisitors ? vvComparison : lcComparison,
-					hasComparison: isViewsVisitors ? vvHasComparison : lcHasComparison,
-					field: metric.id,
-					label: metric.label,
-				} );
+				return {
+					...buildMetricTab( {
+						primary: isViewsVisitors ? vvPrimary : lcPrimary,
+						comparison: isViewsVisitors ? vvComparison : lcComparison,
+						hasComparison: isViewsVisitors ? vvHasComparison : lcHasComparison,
+						field: metric.id,
+						label: metric.label,
+					} ),
+					counterpartKey: 'counterpartId' in metric ? metric.counterpartId : undefined,
+				};
 			} ),
 		[ vvPrimary, vvComparison, vvHasComparison, lcPrimary, lcComparison, lcHasComparison ]
 	);

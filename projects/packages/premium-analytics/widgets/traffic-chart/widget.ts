@@ -30,13 +30,22 @@ export type TrafficChartType = ChartDisplayChartType;
 /**
  * The metric tabs the chart shows, in display order: the id and label of each
  * metric. The id doubles as the visits `stat_fields` field the tab reads.
+ *
+ * Views and Visitors name each other as `counterpartId`, so whichever of the
+ * two is selected draws the other alongside it, hidden until the reader reveals
+ * it from the legend. Comments and Likes answer different questions from each
+ * other and stand alone.
  */
 export const TRAFFIC_CHART_METRICS = [
-	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
-	{ id: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ), counterpartId: 'visitors' },
+	{
+		id: 'visitors',
+		label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ),
+		counterpartId: 'views',
+	},
 	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
 	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
-] as const satisfies readonly { id: string; label: string }[];
+] as const satisfies readonly { id: string; label: string; counterpartId?: string }[];
 
 /**
  * Configurable attributes for the Traffic chart widget. Report params still

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Traffic summary: Add the paired metric to the chart, hidden until revealed from the legend, and name the legend by metric.

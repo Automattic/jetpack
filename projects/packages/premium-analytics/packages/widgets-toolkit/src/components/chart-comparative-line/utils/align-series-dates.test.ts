@@ -21,6 +21,17 @@ function createSeries(
 	};
 }
 
+/**
+ * Helper to create a previous-period series — the only kind that gets re-dated.
+ */
+function createComparison(
+	label: string,
+	dates: Date[],
+	values?: number[]
+): ComparativeLineChartSeries {
+	return { ...createSeries( label, dates, values ), options: { type: 'comparison' } };
+}
+
 describe( 'alignSeriesDates', () => {
 	describe( 'edge cases', () => {
 		it( 'returns empty array as-is', () => {
@@ -42,7 +53,7 @@ describe( 'alignSeriesDates', () => {
 		it( 'handles series with empty data arrays', () => {
 			const series: ComparativeLineChartSeries[] = [
 				{ label: 'Primary', data: [] },
-				{ label: 'Comparison', data: [] },
+				{ label: 'Comparison', data: [], options: { type: 'comparison' } },
 			];
 
 			const result = alignSeriesDates( series );
@@ -58,6 +69,7 @@ describe( 'alignSeriesDates', () => {
 			const comparison: ComparativeLineChartSeries = {
 				label: 'Comparison',
 				data: [],
+				options: { type: 'comparison' },
 			};
 
 			const result = alignSeriesDates( [ primary, comparison ] );
@@ -75,7 +87,7 @@ describe( 'alignSeriesDates', () => {
 				new Date( '2024-01-10' ),
 			] );
 
-			const comparison = createSeries( 'Last Week', [
+			const comparison = createComparison( 'Last Week', [
 				new Date( '2024-01-01' ), // Monday of last week
 				new Date( '2024-01-02' ),
 				new Date( '2024-01-03' ),
@@ -102,7 +114,7 @@ describe( 'alignSeriesDates', () => {
 				new Date( '2024-09-23' ), // Week 3
 			] );
 
-			const comparison = createSeries( 'Previous Period', [
+			const comparison = createComparison( 'Previous Period', [
 				new Date( '2024-06-14' ), // Week 1 starts Sat
 				new Date( '2024-06-17' ), // Week 2 starts Mon
 				new Date( '2024-06-24' ), // Week 3
@@ -125,7 +137,7 @@ describe( 'alignSeriesDates', () => {
 				new Date( '2024-01-09' ),
 			] );
 
-			const comparison = createSeries( 'Last Week', [
+			const comparison = createComparison( 'Last Week', [
 				new Date( '2024-01-01' ),
 				new Date( '2024-01-02' ),
 			] );
@@ -139,11 +151,27 @@ describe( 'alignSeriesDates', () => {
 
 		it( 'does not add realDate to primary series', () => {
 			const primary = createSeries( 'This Week', [ new Date( '2024-01-08' ) ] );
-			const comparison = createSeries( 'Last Week', [ new Date( '2024-01-01' ) ] );
+			const comparison = createComparison( 'Last Week', [ new Date( '2024-01-01' ) ] );
 
 			const result = alignSeriesDates( [ primary, comparison ] );
 
 			expect( result[ 0 ].data[ 0 ] ).not.toHaveProperty( 'realDate' );
+		} );
+
+		it( 'leaves a second current-period series where it is', () => {
+			const views = createSeries( 'Views', [ new Date( '2024-01-08' ), new Date( '2024-01-09' ) ] );
+			// A paired metric is not a comparison: its dates are its own, and
+			// re-dating them onto the first series would silently move the points.
+			const visitors = createSeries( 'Visitors', [
+				new Date( '2024-01-01' ),
+				new Date( '2024-01-02' ),
+			] );
+
+			const result = alignSeriesDates( [ views, visitors ] );
+
+			expect( result[ 1 ] ).toBe( visitors );
+			expect( result[ 1 ].data[ 0 ].date ).toEqual( new Date( '2024-01-01' ) );
+			expect( result[ 1 ].data[ 0 ] ).not.toHaveProperty( 'realDate' );
 		} );
 
 		it( 'returns series unchanged when dates already align', () => {
@@ -152,7 +180,7 @@ describe( 'alignSeriesDates', () => {
 				new Date( '2024-01-02' ),
 			] );
 
-			const comparison = createSeries( 'Series B', [
+			const comparison = createComparison( 'Series B', [
 				new Date( '2024-01-01' ), // Same start date
 				new Date( '2024-01-02' ),
 			] );
@@ -171,7 +199,7 @@ describe( 'alignSeriesDates', () => {
 				new Date( '2024-01-09' ),
 			] );
 
-			const comparison = createSeries( 'Comparison', [
+			const comparison = createComparison( 'Comparison', [
 				new Date( '2024-01-01' ),
 				new Date( '2024-01-02' ),
 				new Date( '2024-01-03' ), // Extra point
@@ -193,7 +221,7 @@ describe( 'alignSeriesDates', () => {
 				new Date( '2024-01-10' ),
 			] );
 
-			const comparison = createSeries( 'Comparison', [
+			const comparison = createComparison( 'Comparison', [
 				new Date( '2024-01-01' ),
 				new Date( '2024-01-02' ),
 			] );
@@ -213,12 +241,12 @@ describe( 'alignSeriesDates', () => {
 				new Date( '2024-03-02' ),
 			] );
 
-			const lastMonth = createSeries( 'Last Month', [
+			const lastMonth = createComparison( 'Last Month', [
 				new Date( '2024-02-01' ),
 				new Date( '2024-02-02' ),
 			] );
 
-			const lastYear = createSeries( 'Last Year', [
+			const lastYear = createComparison( 'Last Year', [
 				new Date( '2023-03-01' ),
 				new Date( '2023-03-02' ),
 			] );

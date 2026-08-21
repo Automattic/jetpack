@@ -15,7 +15,11 @@ import type { ComparativeLineChartSeries } from '../types';
  * - Partial intervals at period boundaries
  * - Any time granularity (daily, weekly, monthly)
  *
- * @param series - Array of series data where index 0 is primary and index 1+ are comparison
+ * Only series marked `options.type: 'comparison'` are moved. A chart can draw
+ * more than one metric — a second current period is not a comparison, and
+ * re-dating it onto the first would be wrong whenever the two disagree.
+ *
+ * @param series - Array of series data whose first entry sets the axis dates
  * @return New array with aligned series (comparison dates match primary, originals in realDate)
  */
 export function alignSeriesDates(
@@ -32,7 +36,7 @@ export function alignSeriesDates(
 	}
 
 	const alignedRest = rest.map( comparisonSeries => {
-		if ( ! comparisonSeries.data.length ) {
+		if ( ! comparisonSeries.data.length || comparisonSeries.options?.type !== 'comparison' ) {
 			return comparisonSeries;
 		}
 

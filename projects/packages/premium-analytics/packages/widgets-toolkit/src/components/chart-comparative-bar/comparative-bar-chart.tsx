@@ -38,6 +38,13 @@ const DEFAULT_MARGIN = { right: 0 };
 const COMPACT_CHART_HEIGHT = 140;
 
 /**
+ * Collapse each metric's current and previous period into one legend item,
+ * labelled by the current period. Constant so the chart's memoised legend
+ * options are not rebuilt on every render.
+ */
+const LEGEND_CONFIG = { collapseGroups: true } as const;
+
+/**
  * Inferred types from BarChart.
  */
 type BarChartProps = ComponentProps< typeof BarChart >;
@@ -80,6 +87,26 @@ export type ComparativeBarChartProps = {
 	 * Maximum chart width. Passed through to the underlying chart.
 	 */
 	maxWidth?: number;
+
+	/**
+	 * Chart identity the charts provider keys visibility on. Generated when
+	 * omitted; supply one that changes whenever `defaultHiddenSeries` should be
+	 * applied again.
+	 */
+	chartId?: string;
+
+	/**
+	 * Labels of the series to hide until the reader reveals them. Applied once
+	 * per `chartId`.
+	 */
+	defaultHiddenSeries?: readonly string[];
+
+	/**
+	 * Let the reader click legend items to show and hide series. Off by default:
+	 * a chart drawing one metric has nothing to compare, and clicking its only
+	 * item would just empty it.
+	 */
+	legendInteractive?: boolean;
 };
 
 /**
@@ -99,12 +126,16 @@ export type ComparativeBarChartProps = {
 export function ComparativeBarChart( {
 	series,
 	className,
+	chartId: providedChartId,
 	dataFormat,
 	tickFormat: xTickFormatType,
 	compactWhenShort = false,
 	maxWidth = Infinity,
+	defaultHiddenSeries,
+	legendInteractive = false,
 }: ComparativeBarChartProps ) {
-	const chartId = useId();
+	const fallbackChartId = useId();
+	const chartId = providedChartId ?? fallbackChartId;
 	const { getElementStyles } = useGlobalChartsContext();
 
 	// The measured Stack fills its container (flex), so its height is independent
@@ -160,9 +191,42 @@ export function ComparativeBarChart( {
 	);
 
 	/**
+	 * A metric's previous period is folded into its legend item by
+	 * `collapseGroups`, so name a row after the group's current period rather
+	 * than by the comparison's own internal label. `isPaired` tracks whether the
+	 * chart draws more than one metric, which is when a date stops identifying
+	 * a row on its own.
+	 */
+	const { seriesNames, isPaired } = useMemo( () => {
+		const primaryByGroup = new Map< string, string >();
+		let currentCount = 0;
+
+		for ( const item of series ) {
+			if ( item.options?.type === 'comparison' ) {
+				continue;
+			}
+			currentCount++;
+			if ( item.group !== undefined && ! primaryByGroup.has( item.group ) ) {
+				primaryByGroup.set( item.group, item.label );
+			}
+		}
+
+		const names = new Map< string, string >();
+		for ( const item of series ) {
+			names.set(
+				item.label,
+				( item.group !== undefined && primaryByGroup.get( item.group ) ) || item.label
+			);
+		}
+
+		return { seriesNames: names, isPaired: currentCount > 1 };
+	}, [ series ] );
+
+	/**
 	 * Label a tooltip row by its point's own date. Comparison points carry the
 	 * primary series' date for axis alignment, so read `realDate` when present
-	 * or the row would repeat the current period's date.
+	 * or the row would repeat the current period's date. With a pair on the
+	 * chart every date appears twice, so each row leads with its metric.
 	 */
 	const getTooltipLabel = useCallback(
 		( datum: { date?: Date; realDate?: Date }, _index: number, key: string ): string => {
@@ -170,9 +234,10 @@ export function ComparativeBarChart( {
 			if ( ! displayDate ) {
 				return key;
 			}
-			return formatDate( displayDate );
+			const date = formatDate( displayDate );
+			return isPaired ? `${ seriesNames.get( key ) ?? key } · ${ date }` : date;
 		},
-		[]
+		[ seriesNames, isPaired ]
 	);
 
 	/**
@@ -206,6 +271,14 @@ export function ComparativeBarChart( {
 					continue;
 				}
 
+				// A hidden metric contributes no bar, so its group's current period is
+				// absent here. Re-adding its shadow would put a series the reader chose
+				// not to see back in the tooltip.
+				const primaryLabel = seriesNames.get( seriesData.label );
+				if ( primaryLabel && ! datumByKey[ primaryLabel ] ) {
+					continue;
+				}
+
 				// Comparison dates were aligned onto the primary axis, so the hovered
 				// category matches on `date`; `realDate` still carries the true one and
 				// is what `getTooltipLabel` shows.
@@ -218,8 +291,12 @@ export function ComparativeBarChart( {
 
 			return { ...tooltipData, datumByKey: augmented };
 		},
-		[ alignedSeries ]
+		[ alignedSeries, seriesNames ]
 	);
+
+	// `seriesStyles` follows `alignedSeries`; the tooltip's rows do not, so pair
+	// them by key (see `ChartTooltip`'s `seriesKeys`).
+	const seriesKeys = useMemo( () => alignedSeries.map( item => item.label ), [ alignedSeries ] );
 
 	const renderTooltip = useCallback(
 		( params: RenderTooltipParams ) => (
@@ -227,11 +304,12 @@ export function ComparativeBarChart( {
 				tooltipData={ withComparisonDatum( params.tooltipData ) }
 				dataFormat={ dataFormat }
 				seriesStyles={ seriesStyles }
+				seriesKeys={ seriesKeys }
 				indicatorType="rect"
 				getLabel={ getTooltipLabel }
 			/>
 		),
-		[ dataFormat, seriesStyles, getTooltipLabel, withComparisonDatum ]
+		[ dataFormat, seriesStyles, seriesKeys, getTooltipLabel, withComparisonDatum ]
 	);
 
 	/**
@@ -286,6 +364,11 @@ export function ComparativeBarChart( {
 				className={ styles.chartContent }
 				data={ alignedSeries }
 				options={ chartOptions }
+				defaultHiddenSeries={ defaultHiddenSeries }
+				// One item per metric: a metric's previous period rides its own
+				// item rather than claiming a second, so toggling a metric takes
+				// its shadow bars with it.
+				legend={ LEGEND_CONFIG }
 				margin={ margin }
 				maxWidth={ maxWidth }
 				gridVisibility={ isCompact ? 'none' : undefined }
@@ -298,10 +381,11 @@ export function ComparativeBarChart( {
 				renderTooltip={ renderTooltip }
 			>
 				{ /* Circle swatches, not the bar's own shape: the legend only needs to name
-				     the two date ranges — the solid bar against its translucent shadow is
-				     what tells the periods apart in the chart itself. */ }
+				     the metrics — the solid bar against its translucent shadow is what
+				     tells the periods apart in the chart itself. */ }
 				{ ! isCompact && (
 					<BarChart.Legend
+						interactive={ legendInteractive }
 						shape="circle"
 						className={ styles.legend }
 						itemClassName={ styles.legendItem }
