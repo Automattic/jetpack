@@ -63,8 +63,13 @@ class Avatars {
 
 		$size = isset( $args['size'] ) ? (int) $args['size'] : 96;
 
-		// Proxied rather than hotlinked, which also resizes it and forces https.
+		// Resized and served over https when the CDN recognises the URL as an image.
+		// Anything else, Facebook's extensionless /picture included, comes back as-is.
 		$args['url'] = Image_CDN_Core::cdn_url( $stored, array( 'resize' => "$size,$size" ) );
+
+		// Core sets this false before the filter runs, and short-circuits before it
+		// would have flipped it. Left alone, get_avatar() marks the image default.
+		$args['found_avatar'] = true;
 
 		return $args;
 	}

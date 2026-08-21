@@ -30,7 +30,7 @@ export const CommentField = () => {
 			className="jetpack-comments__textarea"
 			ref={ textarea }
 			required
-			aria-label={ commentParent.value ? strings.reply : strings.submit }
+			aria-label={ commentParent.value ? strings.replyLabel : strings.commentLabel }
 			value={ commentValue.value }
 			placeholder={ commentParent.value ? strings.replyPlaceholder : strings.placeholder }
 			onInput={ event => {

@@ -4,12 +4,12 @@ import { CommentSignals } from '../shared/state';
 
 export const SubmitButton = () => {
 	const { commentParent, isSavingComment, isSubmitDisabled } = useContext( CommentSignals );
-	const { strings } = JetpackComments;
+	const { strings, submitId, submitName } = JetpackComments;
 
 	return (
 		<button
-			id="comment-submit"
-			name="submit"
+			id={ submitId }
+			name={ submitName }
 			type="submit"
 			className={ clsx( 'jetpack-comments__submit', { 'is-busy': isSavingComment.value } ) }
 			disabled={ isSubmitDisabled.value }

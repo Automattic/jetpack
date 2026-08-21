@@ -136,7 +136,7 @@ class Comment_Form {
 			'logged_in_as'         => '',
 			'comment_notes_before' => '',
 			'must_log_in'          => '',
-			'label_submit'         => __( 'Comment', 'jetpack-comments' ),
+			'label_submit'         => _x( 'Comment', 'verb', 'jetpack-comments' ),
 		);
 
 		// The greeting the Comments settings screen writes. Only override the
@@ -308,6 +308,8 @@ class Comment_Form {
 				'showCookiesConsent' => (bool) get_option( 'show_comments_cookies_opt_in' ),
 				'mustLogIn'          => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
 				'loginUrl'           => wp_login_url( get_permalink( $post_id ) ),
+				'submitId'           => $args['id_submit'] ?? 'submit',
+				'submitName'         => $args['name_submit'] ?? 'submit',
 				'strings'            => self::strings( $args ),
 			),
 			Identity::settings( $post_id )
@@ -325,15 +327,17 @@ class Comment_Form {
 	 */
 	private static function strings( $args ) {
 		$strings = array(
-			'submit'              => $args['label_submit'] ?? __( 'Comment', 'jetpack-comments' ),
-			'reply'               => __( 'Reply', 'jetpack-comments' ),
+			'submit'              => $args['label_submit'] ?? _x( 'Comment', 'verb', 'jetpack-comments' ),
+			'reply'               => _x( 'Reply', 'verb', 'jetpack-comments' ),
+			'commentLabel'        => _x( 'Comment', 'noun', 'jetpack-comments' ),
+			'replyLabel'          => _x( 'Reply', 'noun', 'jetpack-comments' ),
 			'placeholder'         => __( 'Write a comment...', 'jetpack-comments' ),
 			'replyPlaceholder'    => __( 'Write a reply...', 'jetpack-comments' ),
 			'name'                => __( 'Name', 'jetpack-comments' ),
 			'email'               => __( 'Email', 'jetpack-comments' ),
-			'emailNote'           => __( '(Address never made public)', 'jetpack-comments' ),
+			'emailPlaceholder'    => __( 'Email (Address never made public)', 'jetpack-comments' ),
 			'website'             => __( 'Website', 'jetpack-comments' ),
-			'optional'            => __( 'Optional', 'jetpack-comments' ),
+			'websitePlaceholder'  => __( 'Website (Optional)', 'jetpack-comments' ),
 			'guestPrompt'         => __( 'Leave a comment.', 'jetpack-comments' ),
 			'mustLogInPrompt'     => __( 'Log in to leave a comment.', 'jetpack-comments' ),
 			'logIn'               => __( 'Log in', 'jetpack-comments' ),

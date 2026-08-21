@@ -67,6 +67,17 @@ class Avatars_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Supplying a URL has to mark the avatar found, or get_avatar() calls it default.
+	 */
+	public function test_stored_avatar_is_not_marked_default() {
+		$comment = $this->comment_with_avatar( 'https://pbs.twimg.com/profile_images/1/avatar.jpg' );
+
+		$args = Avatars::avatar_data( array( 'found_avatar' => false ), $comment );
+
+		$this->assertTrue( $args['found_avatar'] );
+	}
+
+	/**
 	 * A Facebook avatar is served as stored.
 	 *
 	 * Those URLs carry no file extension, which the image CDN requires, so it

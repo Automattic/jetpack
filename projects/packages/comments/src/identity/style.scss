@@ -85,7 +85,10 @@
 	border-block-start: 1px solid var(--jetpack-comments-border-color);
 }
 
-.jetpack-comments__guest-field:last-child,
+.jetpack-comments__guest-field:last-child {
+	border-block-end: none;
+}
+
 .jetpack-comments__guest-field:has(+ .jetpack-comments__options) {
 	border-block-end: none;
 }

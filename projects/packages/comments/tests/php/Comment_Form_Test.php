@@ -123,6 +123,35 @@ class Comment_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The submit button keeps the identifiers the form was rendered with.
+	 */
+	public function test_submit_identifiers_come_from_the_form_arguments() {
+		Comment_Form::init()->enqueue_assets(
+			array(
+				'id_submit'   => 'my-submit',
+				'name_submit' => 'my_submit',
+			)
+		);
+
+		$settings = $this->inlined_settings();
+
+		$this->assertSame( 'my-submit', $settings['submitId'] );
+		$this->assertSame( 'my_submit', $settings['submitName'] );
+	}
+
+	/**
+	 * Core's own defaults apply when the form was rendered without them.
+	 */
+	public function test_submit_identifiers_fall_back_to_core_defaults() {
+		Comment_Form::init()->enqueue_assets();
+
+		$settings = $this->inlined_settings();
+
+		$this->assertSame( 'submit', $settings['submitId'] );
+		$this->assertSame( 'submit', $settings['submitName'] );
+	}
+
+	/**
 	 * Copy can be rewritten without touching the bundle.
 	 */
 	public function test_strings_are_filterable() {

@@ -17,6 +17,10 @@ export const GuestFields = () => {
 	const { commenter } = useContext( CommentSignals );
 	const { requireNameEmail, showCookiesConsent, strings } = JetpackComments;
 
+	// Core ticks this for anyone who already has the cookies, and an unticked box
+	// tells wp_set_comment_cookies() to delete them.
+	const hasSavedDetails = !! JetpackComments.commenter.email;
+
 	const update = ( field: keyof Commenter, value: string ) => {
 		commenter.value = { ...commenter.value, [ field ]: value };
 	};
@@ -29,7 +33,7 @@ export const GuestFields = () => {
 			autoComplete: 'email',
 			icon: <EmailIcon />,
 			label: strings.email,
-			placeholder: `${ strings.email } ${ strings.emailNote }`,
+			placeholder: strings.emailPlaceholder,
 			required: requireNameEmail,
 		},
 		{
@@ -49,7 +53,7 @@ export const GuestFields = () => {
 			autoComplete: 'url',
 			icon: <WebsiteIcon />,
 			label: strings.website,
-			placeholder: `${ strings.website } (${ strings.optional })`,
+			placeholder: strings.websitePlaceholder,
 			required: false,
 		},
 	];
@@ -86,6 +90,7 @@ export const GuestFields = () => {
 							id="wp-comment-cookies-consent"
 							name="wp-comment-cookies-consent"
 							value="yes"
+							defaultChecked={ hasSavedDetails }
 							label={ strings.saveDetails }
 						/>
 					</div>

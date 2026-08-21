@@ -13,13 +13,15 @@ export type CurrentUser = {
 export type Strings = {
 	submit: string;
 	reply: string;
+	commentLabel: string;
+	replyLabel: string;
 	placeholder: string;
 	replyPlaceholder: string;
 	name: string;
 	email: string;
-	emailNote: string;
+	emailPlaceholder: string;
 	website: string;
-	optional: string;
+	websitePlaceholder: string;
 	guestPrompt: string;
 	mustLogInPrompt: string;
 	logIn: string;
@@ -35,6 +37,8 @@ export type Settings = {
 	showCookiesConsent: boolean;
 	mustLogIn: boolean;
 	loginUrl: string;
+	submitId: string;
+	submitName: string;
 	strings: Strings;
 	commenter: Commenter;
 	user: CurrentUser | null;
