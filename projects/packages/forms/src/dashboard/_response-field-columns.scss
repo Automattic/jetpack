@@ -7,8 +7,11 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 
+	// Muted via colour, never `opacity`: an opacity below 1 creates a stacking context,
+	// which lifts the cell into the same paint layer as the frozen columns and lets it
+	// show through them while the table is scrolled sideways.
 	&.is-empty {
-		opacity: 0.5;
+		color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 	}
 
 	// Rating cells hold icons, not text, so the one-line text clamp does not apply.

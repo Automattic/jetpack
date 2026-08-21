@@ -234,17 +234,28 @@ export const getResponseFieldValue = ( response: FormResponse, key: string ): st
 /**
  * The link a field's value should open, when it is the kind of value worth acting on.
  *
+ * Mirrors the response inspector: an address opens a mail client, a number dials, and a
+ * web address opens in a new tab. A value that does not look like its type — an "email"
+ * that is not one, a "website" with no scheme — stays plain text there and here.
+ *
  * @param type  - The form field type.
  * @param value - The value as display text.
- * @return        An href, or null when the value should render as plain text.
+ * @return        The href and how to open it, or null when the value is plain text.
  */
-const getFieldHref = ( type: FieldType, value: string ): string | null => {
+export const getFieldLink = (
+	type: FieldType,
+	value: string
+): { href: string; openInNewTab: boolean } | null => {
 	if ( type === 'email' && EMAIL_REGEX.test( value ) ) {
-		return `mailto:${ value }`;
+		return { href: `mailto:${ value }`, openInNewTab: false };
 	}
 
 	if ( type === 'telephone' || type === 'phone' ) {
-		return `tel:${ value.replace( /\s+/g, '' ) }`;
+		return { href: `tel:${ value.replace( /\s+/g, '' ) }`, openInNewTab: false };
+	}
+
+	if ( type === 'url' && /^https?:\/\//.test( value ) ) {
+		return { href: value, openInNewTab: true };
 	}
 
 	return null;
@@ -311,16 +322,19 @@ export const buildResponseFieldColumns = (
 				);
 			}
 
-			// An address or number in a table is worth acting on, so make it actionable.
+			// An address, number or web address in a table is worth acting on, so make it
+			// actionable.
 			// The inspector's own FieldEmail/FieldPhone are deliberately not reused here:
 			// they add a copy button and an async country-code lookup per value, which is
 			// the right weight for one open response and the wrong weight for every row.
-			const href = getFieldHref( column.type, value );
+			const link = getFieldLink( column.type, value );
 
-			if ( href ) {
+			if ( link ) {
 				return (
 					<span className="jp-forms__inbox__field-column" title={ value }>
-						<Link href={ href }>{ value }</Link>
+						<Link href={ link.href } openInNewTab={ link.openInNewTab }>
+							{ value }
+						</Link>
 					</span>
 				);
 			}

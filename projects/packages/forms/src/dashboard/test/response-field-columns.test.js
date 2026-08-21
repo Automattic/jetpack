@@ -1,5 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 import {
+	getFieldLink,
 	getResponseField,
 	getResponseFieldColumns,
 	getResponseFieldValue,
@@ -130,6 +131,44 @@ describe( 'getResponseFieldValue', () => {
 
 	it( 'renders a rating as submitted', () => {
 		expect( valueOf( '4/5' ) ).toBe( '4/5' );
+	} );
+} );
+
+describe( 'getFieldLink', () => {
+	it( 'opens an address in a mail client', () => {
+		expect( getFieldLink( 'email', 'ada@example.com' ) ).toEqual( {
+			href: 'mailto:ada@example.com',
+			openInNewTab: false,
+		} );
+	} );
+
+	it( 'dials a phone number, without the spaces it is displayed with', () => {
+		expect( getFieldLink( 'telephone', '+1 415 555 0101' ) ).toEqual( {
+			href: 'tel:+14155550101',
+			openInNewTab: false,
+		} );
+		expect( getFieldLink( 'phone', '555 0101' ).href ).toBe( 'tel:5550101' );
+	} );
+
+	it( 'opens a web address in a new tab', () => {
+		expect( getFieldLink( 'url', 'https://example.com/a-page' ) ).toEqual( {
+			href: 'https://example.com/a-page',
+			openInNewTab: true,
+		} );
+		expect( getFieldLink( 'url', 'http://example.com' ).openInNewTab ).toBe( true );
+	} );
+
+	it( 'leaves a value that does not look like its type as plain text', () => {
+		// The response inspector applies the same two guards, so the table matches it.
+		expect( getFieldLink( 'email', 'not an address' ) ).toBeNull();
+		expect( getFieldLink( 'url', 'example.com' ) ).toBeNull();
+		expect( getFieldLink( 'url', 'javascript:alert(1)' ) ).toBeNull();
+	} );
+
+	it( 'leaves every other field type as plain text', () => {
+		expect( getFieldLink( 'text', 'https://example.com' ) ).toBeNull();
+		expect( getFieldLink( 'textarea', 'ada@example.com' ) ).toBeNull();
+		expect( getFieldLink( 'select', 'Newsletter' ) ).toBeNull();
 	} );
 } );
 
