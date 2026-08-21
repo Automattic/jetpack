@@ -4,6 +4,12 @@
 .jetpack-forms-welcome-guide {
 	inline-size: 312px;
 
+	// The close button floats over the artwork, which runs dark to the top
+	// edge of the modal. Without this the default dark icon disappears into it.
+	.components-modal__header .components-button svg {
+		fill: #fff;
+	}
+
 	.jetpack-forms-welcome-guide__image {
 		// Matches the artwork's own backdrop, so the slot stays the right
 		// colour while the image is still loading.
@@ -11,6 +17,9 @@
 		margin-block: 0 16px;
 
 		> img {
+			// Pinning the ratio keeps the modal from resizing between slides
+			// if a replacement illustration is exported at another size.
+			aspect-ratio: 800 / 520;
 			display: block;
 			inline-size: 100%;
 			object-fit: cover;
