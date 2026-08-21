@@ -12,7 +12,7 @@ const resize = ( textarea: HTMLTextAreaElement ) => {
 };
 
 export const CommentField = () => {
-	const { formSettings, commentValue, commentParent } = useContext( CommentSignals );
+	const { commentValue, commentParent } = useContext( CommentSignals );
 	const { strings, maxLength } = JetpackComments;
 	const textarea = useRef< HTMLTextAreaElement >( null );
 
@@ -43,7 +43,7 @@ export const CommentField = () => {
 
 	return (
 		<textarea
-			id={ `comment-${ formSettings.postId }` }
+			id="comment"
 			name="comment"
 			className="jetpack-comments__textarea"
 			ref={ textarea }

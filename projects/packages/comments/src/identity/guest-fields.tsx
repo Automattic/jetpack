@@ -14,7 +14,7 @@ import './style.scss';
  * @return The guest fields.
  */
 export const GuestFields = () => {
-	const { formSettings, commenter } = useContext( CommentSignals );
+	const { commenter } = useContext( CommentSignals );
 	const { requireNameEmail, showCookiesConsent, strings } = JetpackComments;
 
 	const hasSavedDetails = !! JetpackComments.commenter.email;
@@ -66,11 +66,11 @@ export const GuestFields = () => {
 					<label
 						key={ field.name }
 						className="jetpack-comments__guest-field"
-						htmlFor={ `${ field.name }-${ formSettings.postId }` }
+						htmlFor={ field.name }
 					>
 						{ field.icon }
 						<input
-							id={ `${ field.name }-${ formSettings.postId }` }
+							id={ field.name }
 							name={ field.name }
 							type={ field.type }
 							autoComplete={ field.autoComplete }
@@ -85,7 +85,7 @@ export const GuestFields = () => {
 				{ showCookiesConsent && (
 					<div className="jetpack-comments__options">
 						<Toggle
-							id={ `wp-comment-cookies-consent-${ formSettings.postId }` }
+							id="wp-comment-cookies-consent"
 							name="wp-comment-cookies-consent"
 							value="yes"
 							defaultChecked={ hasSavedDetails }

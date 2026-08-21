@@ -329,8 +329,6 @@ class Comment_Form {
 			'logIn'               => __( 'Log in', 'jetpack-comments' ),
 			'guestPromptRequired' => __( 'Provide your name and email to leave a comment.', 'jetpack-comments' ),
 			'saveDetails'         => __( 'Save my name, email, and website in this browser for the next time I comment.', 'jetpack-comments' ),
-			/* translators: %s is the display name of the logged-in user. */
-			'commentingAs'        => __( 'Commenting as %s', 'jetpack-comments' ),
 			'logOut'              => __( 'Log out', 'jetpack-comments' ),
 		);
 

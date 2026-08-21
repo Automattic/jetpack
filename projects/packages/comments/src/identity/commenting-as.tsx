@@ -23,9 +23,7 @@ export const CommentingAs = () => {
 					height="24"
 				/>
 			) }
-			<span className="jetpack-comments__user-name">
-				{ strings.commentingAs.split( '%s' ).join( user.displayName ) }
-			</span>
+			<span className="jetpack-comments__user-name">{ user.commentingAs }</span>
 			<a className="jetpack-comments__logout" href={ formSettings.logoutUrl }>
 				{ strings.logOut }
 			</a>

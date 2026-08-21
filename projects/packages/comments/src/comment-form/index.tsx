@@ -29,11 +29,13 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 			return;
 		}
 
-		commentParent.value = Number( parentInput.getAttribute( 'value' ) );
+		const readParent = () => {
+			commentParent.value = Number( parentInput.value ) || 0;
+		};
 
-		const observer = new MutationObserver( () => {
-			commentParent.value = Number( parentInput.getAttribute( 'value' ) );
-		} );
+		readParent();
+
+		const observer = new MutationObserver( readParent );
 		observer.observe( parentInput, { attributes: true, attributeFilter: [ 'value' ] } );
 
 		return () => observer.disconnect();

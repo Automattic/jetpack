@@ -5,8 +5,8 @@ export type Commenter = {
 };
 
 export type CurrentUser = {
-	displayName: string;
 	avatarUrl: string;
+	commentingAs: string;
 };
 
 export type FormSettings = {
@@ -34,7 +34,6 @@ export type Strings = {
 	logIn: string;
 	guestPromptRequired: string;
 	saveDetails: string;
-	commentingAs: string;
 	logOut: string;
 };
 
