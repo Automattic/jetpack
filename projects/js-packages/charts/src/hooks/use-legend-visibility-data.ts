@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 /**
- * Data point interface for charts with interactive legends.
+ * Data point interface for charts with visibility-aware legends.
  * Requires label for series identification, value for calculations,
  * and percentage (should be pre-calculated by the chart component).
  */
@@ -12,9 +12,9 @@ interface DataPointWithPercentage {
 }
 
 /**
- * Parameters for the useInteractiveLegendData hook.
+ * Parameters for the useLegendVisibilityData hook.
  */
-interface UseInteractiveLegendDataParams< T extends DataPointWithPercentage > {
+interface UseLegendVisibilityDataParams< T extends DataPointWithPercentage > {
 	/** The chart data with pre-calculated percentages */
 	data: T[];
 	/** Unique chart identifier, required for filtering */
@@ -24,9 +24,9 @@ interface UseInteractiveLegendDataParams< T extends DataPointWithPercentage > {
 }
 
 /**
- * Return value from the useInteractiveLegendData hook.
+ * Return value from the useLegendVisibilityData hook.
  */
-interface UseInteractiveLegendDataResult< T extends DataPointWithPercentage > {
+interface UseLegendVisibilityDataResult< T extends DataPointWithPercentage > {
 	/** Filtered data array containing only visible segments with recalculated percentages */
 	visibleData: T[];
 	/** Boolean indicating if all segments are hidden */
@@ -52,7 +52,7 @@ interface UseInteractiveLegendDataResult< T extends DataPointWithPercentage > {
  *
  * @example
  * ```tsx
- * const { visibleData, allSegmentsHidden, legendData } = useInteractiveLegendData({
+ * const { visibleData, allSegmentsHidden, legendData } = useLegendVisibilityData({
  *   data: chartData,
  *   chartId: 'my-pie-chart',
  *   isSeriesVisible: (id, label) => context.isSeriesVisible(id, label),
@@ -75,12 +75,12 @@ interface UseInteractiveLegendDataResult< T extends DataPointWithPercentage > {
  * @param params.isSeriesVisible - Function to check series visibility
  * @return Object containing visibleData, allSegmentsHidden flag, and legendData with recalculated percentages
  */
-export const useInteractiveLegendData = < T extends DataPointWithPercentage >( {
+export const useLegendVisibilityData = < T extends DataPointWithPercentage >( {
 	data,
 	chartId,
 	isSeriesVisible,
-}: UseInteractiveLegendDataParams< T > ): UseInteractiveLegendDataResult< T > => {
-	// Filter and recalculate data for interactive legends
+}: UseLegendVisibilityDataParams< T > ): UseLegendVisibilityDataResult< T > => {
+	// Filter and recalculate data based on shared legend visibility state.
 	// Note: data should already have percentages calculated by the chart component
 	const visibleData = useMemo( () => {
 		// Visibility filtering applies regardless of whether the legend is

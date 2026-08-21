@@ -535,6 +535,7 @@ describe( 'BaseLegend', () => {
 			expect( legendItems ).toHaveLength( 2 );
 			expect( legendItems[ 0 ] ).toHaveAttribute( 'tabIndex', '0' );
 			expect( legendItems[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+			expect( screen.queryByRole( 'list' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'handles click events to toggle visibility', async () => {
@@ -808,8 +809,27 @@ describe( 'BaseLegend', () => {
 			);
 
 			const items = screen.getAllByTestId( 'legend-item' );
-			expect( items[ 0 ] ).toHaveAttribute( 'aria-label', 'Series A: hidden' );
+			expect( items[ 0 ] ).toHaveAttribute( 'aria-label', 'Series A, 10: hidden' );
 			expect( items[ 1 ] ).not.toHaveAttribute( 'aria-label' );
+		} );
+
+		it( 'includes the item value in interactive accessible names', () => {
+			render(
+				<GlobalChartsProvider>
+					<HiddenSeriesHarness interactive={ true } />
+				</GlobalChartsProvider>
+			);
+
+			expect(
+				screen.getByRole( 'button', {
+					name: 'Series A, 10: hidden. Toggle visibility.',
+				} )
+			).toBeInTheDocument();
+			expect(
+				screen.getByRole( 'button', {
+					name: 'Series B, 20: visible. Toggle visibility.',
+				} )
+			).toBeInTheDocument();
 		} );
 	} );
 } );

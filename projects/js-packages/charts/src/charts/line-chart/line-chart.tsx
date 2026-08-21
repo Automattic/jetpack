@@ -1,7 +1,7 @@
 import { formatNumberCompact, formatNumber } from '@automattic/number-formatters';
 import { LinearGradient } from '@visx/gradient';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import {
@@ -34,7 +34,7 @@ import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
-import { SvgEmptyState } from '../private/svg-empty-state';
+import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
@@ -488,19 +488,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 													width={ width }
 													height={ chartHeight }
 												>
-													{ legendInteractive
-														? __(
-																'All series are hidden. Click legend items to show data.',
-																'jetpack-charts'
-														  )
-														: // `_x` rather than `__` so the minifier cannot fold both
-														  // branches into one call with the condition inside the
-														  // msgid, which would leave neither string translatable.
-														  _x(
-																'All series are hidden.',
-																'Chart empty state, shown when the legend cannot be clicked.',
-																'jetpack-charts'
-														  ) }
+													{ getAllHiddenMessage( legendInteractive, 'series' ) }
 												</SvgEmptyState>
 											) : null }
 

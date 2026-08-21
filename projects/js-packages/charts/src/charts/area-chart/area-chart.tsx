@@ -1,6 +1,6 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { XYChart, AnimatedAreaSeries, AnimatedAreaStack, Grid, Axis } from '@visx/xychart';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import {
 	useMemo,
@@ -32,7 +32,7 @@ import { renderDefaultTooltip } from '../line-chart';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { SvgEmptyState } from '../private/svg-empty-state';
+import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
@@ -432,19 +432,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 													width={ width }
 													height={ chartHeight }
 												>
-													{ legendInteractive
-														? __(
-																'All series are hidden. Click legend items to show data.',
-																'jetpack-charts'
-														  )
-														: // `_x` rather than `__` so the minifier cannot fold both
-														  // branches into one call with the condition inside the
-														  // msgid, which would leave neither string translatable.
-														  _x(
-																'All series are hidden.',
-																'Chart empty state, shown when the legend cannot be clicked.',
-																'jetpack-charts'
-														  ) }
+													{ getAllHiddenMessage( legendInteractive, 'series' ) }
 												</SvgEmptyState>
 											) : null }
 

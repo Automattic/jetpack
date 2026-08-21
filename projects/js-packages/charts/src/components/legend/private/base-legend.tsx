@@ -1,7 +1,7 @@
 import { Group } from '@visx/group';
 import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legend';
 import { scaleOrdinal } from '@visx/scale';
-import { __, sprintf } from '@wordpress/i18n';
+import { _x, sprintf } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import {
@@ -17,7 +17,7 @@ import { GlobalChartsContext, useGlobalChartsTheme } from '../../../providers';
 import { useStandaloneScopeClass } from '../../../providers/chart-scope';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '../utils';
 import styles from './base-legend.module.scss';
-import type { BaseLegendProps } from '../types';
+import type { BaseLegendItem, BaseLegendProps } from '../types';
 
 const ALIGNMENT_TO_FLEX = {
 	start: 'flex-start',
@@ -61,19 +61,38 @@ const LegendText = ( {
 
 // Interactive items get a toggle affordance; non-interactive items only need a label
 // when hidden, since a visible item's own text already serves as its accessible name.
-const getLegendItemAriaLabel = ( text: string, visible: boolean, interactive: boolean ) => {
+const getLegendItemAriaLabel = (
+	text: string,
+	value: BaseLegendItem[ 'value' ],
+	visible: boolean,
+	interactive: boolean
+) => {
+	const accessibleText =
+		value != null && value !== ''
+			? sprintf(
+					/* translators: 1: legend item label; 2: legend item value. */
+					_x( '%1$s, %2$s', 'legend item label and value', 'jetpack-charts' ),
+					text,
+					String( value )
+			  )
+			: text;
+
 	if ( interactive ) {
 		if ( visible ) {
 			return sprintf(
 				/* translators: %s: legend item label (e.g. a series or segment name) */
-				__( '%s: visible. Toggle visibility.', 'jetpack-charts' ),
-				text
+				_x(
+					'%s: visible. Toggle visibility.',
+					'visible interactive legend item',
+					'jetpack-charts'
+				),
+				accessibleText
 			);
 		}
 		return sprintf(
 			/* translators: %s: legend item label (e.g. a series or segment name) */
-			__( '%s: hidden. Toggle visibility.', 'jetpack-charts' ),
-			text
+			_x( '%s: hidden. Toggle visibility.', 'hidden interactive legend item', 'jetpack-charts' ),
+			accessibleText
 		);
 	}
 	if ( visible ) {
@@ -81,8 +100,8 @@ const getLegendItemAriaLabel = ( text: string, visible: boolean, interactive: bo
 	}
 	return sprintf(
 		/* translators: %s: legend item label (e.g. a series or segment name) */
-		__( '%s: hidden', 'jetpack-charts' ),
-		text
+		_x( '%s: hidden', 'hidden non-interactive legend item', 'jetpack-charts' ),
+		accessibleText
 	);
 };
 
@@ -218,7 +237,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 						align={ orientation === 'vertical' ? flexAlignment : undefined }
 						justify={ orientation === 'horizontal' ? flexAlignment : undefined }
 						wrap={ orientation === 'horizontal' ? 'wrap' : undefined }
-						role="list"
+						role={ interactive ? undefined : 'list' }
 						data-testid={ `legend-${ orientation }` }
 						className={ clsx( standaloneScopeClass, styles.legend, className ) }
 						style={ theme.legend?.containerStyles }
@@ -255,7 +274,12 @@ export const BaseLegend: ForwardRefExoticComponent<
 									role={ interactive ? 'button' : 'listitem' }
 									tabIndex={ interactive ? 0 : undefined }
 									aria-pressed={ interactive ? visible : undefined }
-									aria-label={ getLegendItemAriaLabel( label.text, visible, interactive ) }
+									aria-label={ getLegendItemAriaLabel(
+										label.text,
+										matchedItem?.value,
+										visible,
+										interactive
+									) }
 								>
 									{ items[ i ]?.renderGlyph ? (
 										<svg

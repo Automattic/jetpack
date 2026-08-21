@@ -1,6 +1,6 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { __experimentalGrid as Grid, VisuallyHidden } from '@wordpress/components';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -19,6 +19,7 @@ import { formatMetricValue, attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
+import { getAllHiddenMessage } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import { useFittedRowCount, useLeaderboardLegendItems } from './hooks';
 import styles from './leaderboard-chart.module.scss';
@@ -225,7 +226,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		legendLabels,
 	} );
 
-	// Track visibility of primary and comparison series for interactive legends
+	// Track visibility of primary and comparison series from the shared legend state.
 	const isPrimaryVisible = useMemo( () => {
 		if ( legendItems.length === 0 ) {
 			return true;
@@ -366,16 +367,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					) }
 					{ allSeriesHidden ? (
 						<div className={ styles.emptyState }>
-							{ legendInteractive
-								? __( 'All series are hidden. Click legend items to show data.', 'jetpack-charts' )
-								: // `_x` rather than `__` so the minifier cannot fold both branches into
-								  // one call with the condition inside the msgid, which would leave neither
-								  // string translatable.
-								  _x(
-										'All series are hidden.',
-										'Chart empty state, shown when the legend cannot be clicked.',
-										'jetpack-charts'
-								  ) }
+							{ getAllHiddenMessage( legendInteractive, 'series' ) }
 						</div>
 					) : (
 						<Grid

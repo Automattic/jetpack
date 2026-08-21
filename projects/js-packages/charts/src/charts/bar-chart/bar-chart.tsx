@@ -1,7 +1,7 @@
 import { formatNumber } from '@automattic/number-formatters';
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
-import { __, _x, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
@@ -24,7 +24,7 @@ import { attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { SvgEmptyState } from '../private/svg-empty-state';
+import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './bar-chart.module.scss';
 import {
@@ -198,7 +198,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		totalPoints,
 	} );
 
-	// Add visibility information to series when using interactive legends
+	// Add visibility information from the shared legend state.
 	const seriesWithVisibility = useMemo(
 		() =>
 			dataWithVisibleZeros.map( ( series, index ) => ( {
@@ -606,19 +606,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												width={ width }
 												height={ chartHeight }
 											>
-												{ legendInteractive
-													? __(
-															'All series are hidden. Click legend items to show data.',
-															'jetpack-charts'
-													  )
-													: // `_x` rather than `__` so the minifier cannot fold both
-													  // branches into one call with the condition inside the
-													  // msgid, which would leave neither string translatable.
-													  _x(
-															'All series are hidden.',
-															'Chart empty state, shown when the legend cannot be clicked.',
-															'jetpack-charts'
-													  ) }
+												{ getAllHiddenMessage( legendInteractive, 'series' ) }
 											</SvgEmptyState>
 										) : null }
 
