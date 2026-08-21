@@ -20,6 +20,10 @@ class Rollout_Test extends \WorDBless\BaseTestCase {
 		parent::tear_down();
 	}
 
+	/**
+	 * Blog 5 is inside the share and blog 55 outside it for any share from 6% to
+	 * 55%. Revisit these fixtures if the rollout is ever widened past that.
+	 */
 	private function set_blog_id( int $blog_id ): void {
 		update_option( 'jetpack_options', array( 'id' => $blog_id ) );
 	}
@@ -42,8 +46,9 @@ class Rollout_Test extends \WorDBless\BaseTestCase {
 		);
 	}
 
-	public function test_ships_at_ten_percent(): void {
-		$this->assertSame( 10, wpcom_expiry_notices_rollout_percentage() );
+	public function test_ships_at_the_intended_share(): void {
+		// Pinned so widening the rollout is a deliberate edit, not a drift.
+		$this->assertSame( 20, wpcom_expiry_notices_rollout_percentage() );
 	}
 
 	public function test_enables_exactly_the_configured_share(): void {
@@ -54,7 +59,13 @@ class Rollout_Test extends \WorDBless\BaseTestCase {
 				++$enabled;
 			}
 		}
-		$this->assertSame( 100, $enabled, '10% of 1000 sites should be in the rollout' );
+		// Derived from the shipped share, so widening the rollout does not need
+		// this number edited too.
+		$this->assertSame(
+			wpcom_expiry_notices_rollout_percentage() * 10,
+			$enabled,
+			'the rollout should cover exactly its share of 1000 sites'
+		);
 	}
 
 	public function test_the_same_site_always_lands_the_same_way(): void {
@@ -113,7 +124,7 @@ class Rollout_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_the_option_pulls_a_site_into_the_rollout_early(): void {
-		$this->set_blog_id( 55 ); // 55 % 100 = 55, outside 10%.
+		$this->set_blog_id( 55 ); // 55 % 100 = 55, outside the share.
 		$this->assertFalse( wpcom_expiry_notices_is_enabled_for_site() );
 
 		foreach ( array( '1', 1, 'true', 'yes', 'on', 'YES', ' 1 ' ) as $truthy ) {
@@ -126,7 +137,7 @@ class Rollout_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_the_option_holds_a_site_out_of_a_bucket_it_falls_in(): void {
-		$this->set_blog_id( 5 ); // 5 % 100 = 5, inside 10%.
+		$this->set_blog_id( 5 ); // 5 % 100 = 5, inside the share.
 		$this->assertTrue( wpcom_expiry_notices_is_enabled_for_site() );
 
 		foreach ( array( '0', 0, 'false', 'no', 'off', 'NO', ' 0 ' ) as $falsy ) {
@@ -139,7 +150,7 @@ class Rollout_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_clearing_the_option_returns_the_site_to_the_share(): void {
-		$this->set_blog_id( 5 ); // Inside 10%.
+		$this->set_blog_id( 5 ); // Inside the share.
 		update_option( 'wpcom_expiry_notices_enabled', '0' );
 		$this->assertFalse( wpcom_expiry_notices_is_enabled_for_site() );
 
@@ -153,14 +164,14 @@ class Rollout_Test extends \WorDBless\BaseTestCase {
 	public function test_an_unrecognised_option_value_changes_nothing(): void {
 		// A typo must not flip a site either way -- it leaves the normal rule in
 		// place, so a fat-fingered rollout command is inert rather than wrong.
-		$this->set_blog_id( 5 ); // Inside 10%.
+		$this->set_blog_id( 5 ); // Inside the share.
 		foreach ( array( 'ture', 'enabled', 'maybe', '' ) as $nonsense ) {
 			update_option( 'wpcom_expiry_notices_enabled', $nonsense );
 			$this->assertNull( wpcom_expiry_notices_rollout_override(), "'{$nonsense}' should not be read as an instruction" );
 			$this->assertTrue( wpcom_expiry_notices_is_enabled_for_site() );
 		}
 
-		$this->set_blog_id( 55 ); // Outside 10%.
+		$this->set_blog_id( 55 ); // Outside the share.
 		foreach ( array( 'ture', 'enabled', 'maybe', '' ) as $nonsense ) {
 			update_option( 'wpcom_expiry_notices_enabled', $nonsense );
 			$this->assertFalse( wpcom_expiry_notices_is_enabled_for_site() );
@@ -177,14 +188,14 @@ class Rollout_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_the_filter_can_force_a_site_in_or_out(): void {
-		$this->set_blog_id( 55 ); // 55 % 100 = 55, outside 10%.
+		$this->set_blog_id( 55 ); // 55 % 100 = 55, outside the share.
 		$this->assertFalse( wpcom_expiry_notices_is_enabled_for_site() );
 
 		add_filter( 'wpcom_expiry_notices_enabled', '__return_true' );
 		$this->assertTrue( wpcom_expiry_notices_is_enabled_for_site() );
 		remove_all_filters( 'wpcom_expiry_notices_enabled' );
 
-		$this->set_blog_id( 5 ); // 5 % 100 = 5, inside 10%.
+		$this->set_blog_id( 5 ); // 5 % 100 = 5, inside the share.
 		$this->assertTrue( wpcom_expiry_notices_is_enabled_for_site() );
 		add_filter( 'wpcom_expiry_notices_enabled', '__return_false' );
 		$this->assertFalse( wpcom_expiry_notices_is_enabled_for_site() );

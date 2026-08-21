@@ -41,7 +41,7 @@ if ( ! function_exists( 'wpcom_expiry_get_purchases' ) ) {
  * two halves drift and a site ends up with both notices or neither.
  */
 function wpcom_expiry_notices_rollout_percentage(): int {
-	return 10;
+	return 20;
 }
 
 /**
