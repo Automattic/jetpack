@@ -269,22 +269,27 @@ describe( 'AdaptiveCalendarHeatmap paging', () => {
 
 		try {
 			// The newest page shows first: nothing newer to step to, plenty older.
-			expect( read().lastVisibleLabel ).toBe( 'Wed, Dec 31, 2025' );
+			// The boundaries are pinned (not merely "changed"): this width draws 15
+			// week columns, so the newest page spans exactly these dates.
+			expect( read() ).toMatchObject( {
+				firstVisibleLabel: 'Mon, Sep 22, 2025',
+				lastVisibleLabel: 'Wed, Dec 31, 2025',
+			} );
 			expect( isUnavailable( older() ) ).toBe( false );
 			expect( isUnavailable( newer() ) ).toBe( true );
 
-			const newestPage = read();
 			await user.click( older()! );
 
-			// One page older: the window moved back a whole page of columns, and
-			// the way back to the newest page opened up.
-			const olderPage = read();
-			expect( olderPage.lastVisibleLabel ).not.toBe( newestPage.lastVisibleLabel );
-			expect( olderPage.columns ).toBe( newestPage.columns );
+			// One whole page older, contiguous with the newest page: it ends the
+			// day before that page starts, and spans the same 15 columns.
+			expect( read() ).toMatchObject( {
+				firstVisibleLabel: 'Mon, Jun 9, 2025',
+				lastVisibleLabel: 'Sun, Sep 21, 2025',
+			} );
 			expect( isUnavailable( newer() ) ).toBe( false );
 
 			await user.click( newer()! );
-			expect( read().lastVisibleLabel ).toBe( newestPage.lastVisibleLabel );
+			expect( read().lastVisibleLabel ).toBe( 'Wed, Dec 31, 2025' );
 		} finally {
 			restore();
 		}
@@ -309,6 +314,11 @@ describe( 'AdaptiveCalendarHeatmap paging', () => {
 			expect( oldest.firstVisibleLabel ).toBe( 'Wed, Jan 1, 2025' );
 			expect( oldest.columns ).toBe( newestColumns );
 			expect( isUnavailable( newer() ) ).toBe( false );
+
+			// The last click removed the arrow that held keyboard focus; the
+			// overlay hands focus to the surviving arrow so `:focus-within` (and
+			// paging back) survives.
+			expect( newer() ).toHaveFocus();
 		} finally {
 			restore();
 		}

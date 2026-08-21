@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { buildCalendarHeatmapData } from '@jetpack-premium-analytics/externals';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -134,13 +134,21 @@ export function AdaptiveCalendarHeatmap( {
 		};
 	}, [ size.width, size.height, heatmapData.length ] );
 
-	// Pages step back whole windows from the range end; a new period restarts at
-	// the newest page. A resize keeps the offset — it is clamped below instead,
-	// so dragging the tile wider cannot leave the window past the oldest data.
+	// Pages step back whole windows from the range end; a new period or a
+	// resized page span restarts at the newest page, mirroring the post-detail
+	// pager's reset on its page span — otherwise a stale offset reopens an
+	// unpredictable page after a widen-and-narrow round trip. Adjusted during
+	// render, not in an effect, so no frame paints at the stale offset.
 	const [ pageOffset, setPageOffset ] = useState( 0 );
-	useEffect( () => {
+	const [ pageContext, setPageContext ] = useState( { period, columns } );
+	if (
+		pageContext.period.startDate !== period.startDate ||
+		pageContext.period.endDate !== period.endDate ||
+		pageContext.columns !== columns
+	) {
+		setPageContext( { period, columns } );
 		setPageOffset( 0 );
-	}, [ period.startDate, period.endDate ] );
+	}
 
 	const total = heatmapData.length;
 	const isPaged = columns > 0 && total > columns;
@@ -166,11 +174,14 @@ export function AdaptiveCalendarHeatmap( {
 		};
 	}, [ heatmapData, rowLabels, columns, sizingProps, isPaged, offset, total ] );
 
-	const showOlder = useCallback( () => setPageOffset( previous => previous + 1 ), [] );
-	const showNewer = useCallback(
-		() => setPageOffset( previous => Math.max( 0, previous - 1 ) ),
-		[]
+	// Step from the clamped `offset`, never the raw state: the two could only
+	// drift while `columns` changed, which resets the offset above, but stepping
+	// the displayed page keeps the arrows honest even if that coupling changes.
+	const showOlder = useCallback(
+		() => setPageOffset( Math.min( offset + 1, maxOffset ) ),
+		[ offset, maxOffset ]
 	);
+	const showNewer = useCallback( () => setPageOffset( Math.max( 0, offset - 1 ) ), [ offset ] );
 
 	// Only while weeks are being trimmed: a range that fits has nothing to page.
 	const pager = useMemo< CalendarHeatmapPager | undefined >( () => {

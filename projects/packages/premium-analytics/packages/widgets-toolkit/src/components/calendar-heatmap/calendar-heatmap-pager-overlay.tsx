@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import { Button } from '@jetpack-premium-analytics/externals';
+import { IconButton } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
+import { useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -49,32 +50,72 @@ export function CalendarHeatmapPagerOverlay( {
 	className,
 	children,
 }: CalendarHeatmapPagerOverlayProps ) {
+	const hostRef = useRef< HTMLDivElement | null >( null );
+	const olderRef = useRef< HTMLButtonElement | null >( null );
+	const newerRef = useRef< HTMLButtonElement | null >( null );
+	// Whether an arrow holds focus. An unmounting node fires no blur, so this
+	// deliberately stays `true` across the removal the effect below handles.
+	const arrowHadFocus = useRef( false );
+
+	const canShowOlder = pager?.canShowOlder ?? false;
+	const canShowNewer = pager?.canShowNewer ?? false;
+
+	// Keyboard paging can remove the very arrow being pressed — reaching an
+	// end unmounts it, dropping focus to `<body>`: `:focus-within` collapses
+	// and the surviving arrow fades out mid-interaction. Hand focus to that
+	// surviving arrow instead. Pointer users never enter here: their arrow
+	// removal happens under `:hover`, which keeps the overlay visible, and
+	// they leave `arrowHadFocus` behind only alongside a body-focus drop.
+	useEffect( () => {
+		const doc = hostRef.current?.ownerDocument;
+		if ( ! doc || ! arrowHadFocus.current || doc.activeElement !== doc.body ) {
+			return;
+		}
+
+		if ( ! canShowOlder ) {
+			newerRef.current?.focus();
+		} else if ( ! canShowNewer ) {
+			olderRef.current?.focus();
+		}
+	}, [ canShowOlder, canShowNewer ] );
+
+	const trackFocus = {
+		onFocus: () => {
+			arrowHadFocus.current = true;
+		},
+		onBlur: () => {
+			arrowHadFocus.current = false;
+		},
+	};
+
 	return (
-		<div className={ clsx( styles.host, className ) }>
+		<div ref={ hostRef } className={ clsx( styles.host, className ) }>
 			{ children }
-			{ pager?.canShowOlder && (
-				<Button
+			{ canShowOlder && (
+				<IconButton
+					ref={ olderRef }
 					type="button"
 					variant="minimal"
 					tone="neutral"
-					onClick={ pager.showOlder }
-					aria-label={ __( 'Older activity', 'jetpack-premium-analytics-pkg' ) }
+					icon={ chevronLeft }
+					label={ __( 'Older activity', 'jetpack-premium-analytics-pkg' ) }
+					onClick={ pager?.showOlder }
 					className={ clsx( styles.arrow, styles.older ) }
-				>
-					<Button.Icon icon={ chevronLeft } size={ 24 } />
-				</Button>
+					{ ...trackFocus }
+				/>
 			) }
-			{ pager?.canShowNewer && (
-				<Button
+			{ canShowNewer && (
+				<IconButton
+					ref={ newerRef }
 					type="button"
 					variant="minimal"
 					tone="neutral"
-					onClick={ pager.showNewer }
-					aria-label={ __( 'Newer activity', 'jetpack-premium-analytics-pkg' ) }
+					icon={ chevronRight }
+					label={ __( 'Newer activity', 'jetpack-premium-analytics-pkg' ) }
+					onClick={ pager?.showNewer }
 					className={ clsx( styles.arrow, styles.newer ) }
-				>
-					<Button.Icon icon={ chevronRight } size={ 24 } />
-				</Button>
+					{ ...trackFocus }
+				/>
 			) }
 		</div>
 	);
