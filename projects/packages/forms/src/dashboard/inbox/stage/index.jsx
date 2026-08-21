@@ -35,7 +35,12 @@ import Page from '../../components/page/index.tsx';
 import TextWithFlag from '../../components/text-with-flag/index.tsx';
 import useInboxData from '../../hooks/use-inbox-data.ts';
 import useResponseFieldColumns from '../../hooks/use-response-field-columns.ts';
-import { buildResponseFieldColumns } from '../../response-field-columns.tsx';
+import {
+	buildResponseFieldColumns,
+	getFrozenColumnsClassName,
+	getResponseTableView,
+	keepColumnChoice,
+} from '../../response-field-columns.tsx';
 import { useDashboardSearchParams } from '../../router/dashboard-search-params-context.tsx';
 import { getPath, getItemId } from '../utils.js';
 import {
@@ -52,9 +57,6 @@ import {
 import { useView, defaultLayouts } from './views.js';
 
 const EMPTY_ARRAY = [];
-
-/** Mobile shows the title column and the actions column, and nothing besides. */
-const EMPTY_FIELDS = [];
 
 // Sentinel value used in the Source filter to represent form-preview (test) responses.
 // Source IDs are numeric post IDs, so this non-numeric value is safe from collision.
@@ -296,9 +298,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 
 	const onChangeView = useCallback(
 		incomingView => {
-			// DataViews is handed a collapsed column set on mobile; keep the real one so
-			// widening the window restores the columns the user had chosen.
-			let newView = isMobileViewport ? { ...incomingView, fields: view.fields } : incomingView;
+			let newView = keepColumnChoice( incomingView, view, isMobileViewport );
 
 			if ( ! isInboxStatusToggleView ) {
 				const folderValue = newView.filters?.find( filter => filter.field === 'folder' )?.value;
@@ -340,7 +340,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 			setSelectedResponses,
 			setView,
 			urlFolder,
-			view.fields,
+			view,
 		]
 	);
 
@@ -577,22 +577,16 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 		} );
 	}, [ isInboxStatusToggleView, setView, urlFolder ] );
 
-	// Freezing the leading columns only makes sense once the table is wide enough to
-	// scroll, and only holds if the columns being frozen are the ones it assumes:
-	// the selection checkbox and the title. DataViews drops the title column when the
-	// user turns it off, which would freeze an answer column in its place.
-	const answerColumnsClassName =
-		! isMobileViewport &&
-		responseFieldColumns.length > 0 &&
-		view.titleField &&
-		view.showTitle !== false
-			? 'has-field-columns'
-			: undefined;
+	const answerColumnsClassName = getFrozenColumnsClassName(
+		responseFieldColumns,
+		view,
+		isMobileViewport
+	);
 
 	// Narrow screens cannot make use of a table that scrolls sideways, so they get the
 	// response and its actions and nothing else.
 	const viewForDataViews = useMemo(
-		() => ( isMobileViewport ? { ...view, fields: EMPTY_FIELDS } : view ),
+		() => getResponseTableView( view, isMobileViewport ),
 		[ isMobileViewport, view ]
 	);
 

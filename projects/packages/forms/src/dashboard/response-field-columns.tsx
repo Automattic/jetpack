@@ -21,7 +21,7 @@ import {
  * Types
  */
 import type { FieldType, FileItem, FormResponse, ResponseField } from '../types/index.ts';
-import type { Field } from '@wordpress/dataviews';
+import type { Field, View } from '@wordpress/dataviews';
 
 /**
  * Prefix keeping generated column ids clear of the built-in ones ( 'from', 'date', 'ip', … ).
@@ -260,6 +260,64 @@ export const getFieldLink = (
 
 	return null;
 };
+
+/** A narrow screen shows the title column and the actions column, nothing else. */
+const NO_COLUMNS: string[] = [];
+
+/**
+ * The view to hand DataViews.
+ *
+ * A table that scrolls sideways is no use on a phone, so a narrow screen drops
+ * every column but the response and its actions. The caller's own view is left
+ * untouched, so widening the window restores the columns the user had chosen.
+ *
+ * @param view     - The stage's view state.
+ * @param isMobile - Whether the viewport is below the table's usable width.
+ * @return           The view to render with.
+ */
+export const getResponseTableView = ( view: View, isMobile: boolean ): View =>
+	isMobile ? { ...view, fields: NO_COLUMNS } : view;
+
+/**
+ * The view to persist when DataViews reports a change.
+ *
+ * On a narrow screen DataViews is working from a collapsed column set, so a sort
+ * or search there would otherwise write that empty set back over the user's real
+ * choice of columns.
+ *
+ * @param incomingView - The view DataViews handed back.
+ * @param currentView  - The stage's own view state.
+ * @param isMobile     - Whether the viewport is below the table's usable width.
+ * @return               The view to store.
+ */
+export const keepColumnChoice = (
+	incomingView: View,
+	currentView: View,
+	isMobile: boolean
+): View => ( isMobile ? { ...incomingView, fields: currentView.fields } : incomingView );
+
+/**
+ * The modifier that turns on the frozen leading columns, when they apply.
+ *
+ * Freezing only makes sense once answers have widened the table past the
+ * viewport, and only holds if the columns being frozen are the ones the
+ * stylesheet assumes: the selection checkbox and the title. DataViews drops the
+ * title column when the user turns it off, which would freeze an answer column
+ * in its place.
+ *
+ * @param columns  - The answer columns on screen.
+ * @param view     - The stage's view state.
+ * @param isMobile - Whether the viewport is below the table's usable width.
+ * @return           The class name, or undefined when the columns must not freeze.
+ */
+export const getFrozenColumnsClassName = (
+	columns: ResponseFieldColumn[],
+	view: View,
+	isMobile: boolean
+): string | undefined =>
+	! isMobile && columns.length > 0 && view.titleField && view.showTitle !== false
+		? 'has-field-columns'
+		: undefined;
 
 /**
  * Turns column descriptors into DataViews field definitions.

@@ -27,7 +27,12 @@ import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import useResponseFieldColumns from '../../src/dashboard/hooks/use-response-field-columns.ts';
-import { buildResponseFieldColumns } from '../../src/dashboard/response-field-columns.tsx';
+import {
+	buildResponseFieldColumns,
+	getFrozenColumnsClassName,
+	getResponseTableView,
+	keepColumnChoice,
+} from '../../src/dashboard/response-field-columns.tsx';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import { getFormEditUrl } from '../../src/dashboard/utils.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
@@ -55,9 +60,6 @@ type FeedbackFilters = {
 };
 
 const EMPTY_ARRAY = [];
-
-/** Mobile shows the title column and the actions column, and nothing besides. */
-const EMPTY_FIELDS: string[] = [];
 
 // Sentinel value used in the Source filter to represent form-preview (test) responses.
 // Source IDs are numeric post IDs, so this non-numeric value is safe from collision.
@@ -211,9 +213,7 @@ function StageInner() {
 
 	const onChangeView = useCallback(
 		( incomingView: View ) => {
-			// DataViews is handed a collapsed column set on mobile; keep the real one so
-			// widening the window restores the columns the user had chosen.
-			const newView = isMobileViewport ? { ...incomingView, fields: view.fields } : incomingView;
+			const newView = keepColumnChoice( incomingView, view, isMobileViewport );
 
 			if ( ! isSingleFormView ) {
 				// If the Folder filter changes (CFM-on behavior), treat it as a route param change.
@@ -245,15 +245,7 @@ function StageInner() {
 				} );
 			}
 		},
-		[
-			isMobileViewport,
-			isSingleFormView,
-			navigate,
-			searchParams,
-			statusView,
-			view.fields,
-			view.search,
-		]
+		[ isMobileViewport, isSingleFormView, navigate, searchParams, statusView, view ]
 	);
 
 	const onChangeSelection = useCallback(
@@ -666,20 +658,14 @@ function StageInner() {
 		]
 	);
 
-	// Freezing the leading columns only makes sense once the table is wide enough to
-	// scroll, and only holds if the columns being frozen are the ones it assumes:
-	// the selection checkbox and the title. DataViews drops the title column when the
-	// user turns it off, which would freeze an answer column in its place.
-	const answerColumnsClassName =
-		! isMobileViewport &&
-		responseFieldColumns.length > 0 &&
-		view.titleField &&
-		view.showTitle !== false
-			? 'has-field-columns'
-			: undefined;
+	const answerColumnsClassName = getFrozenColumnsClassName(
+		responseFieldColumns,
+		view,
+		isMobileViewport
+	);
 
 	const viewForDataViews = useMemo(
-		() => ( isMobileViewport ? { ...view, fields: EMPTY_FIELDS } : view ),
+		() => getResponseTableView( view, isMobileViewport ),
 		[ isMobileViewport, view ]
 	);
 

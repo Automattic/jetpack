@@ -1,6 +1,9 @@
 import { describe, expect, it } from '@jest/globals';
 import {
 	getFieldLink,
+	getFrozenColumnsClassName,
+	getResponseTableView,
+	keepColumnChoice,
 	getResponseField,
 	getResponseFieldColumns,
 	getResponseFieldValue,
@@ -131,6 +134,68 @@ describe( 'getResponseFieldValue', () => {
 
 	it( 'renders a rating as submitted', () => {
 		expect( valueOf( '4/5' ) ).toBe( '4/5' );
+	} );
+} );
+
+const DESKTOP_VIEW = { titleField: 'from', fields: [ 'date', 'field:1_Name', 'ip' ] };
+const COLUMNS = [ { id: 'field:1_Name', key: '1_Name', label: 'Name', type: 'text' } ];
+
+describe( 'getResponseTableView', () => {
+	it( 'hands DataViews the view untouched on a wide screen', () => {
+		expect( getResponseTableView( DESKTOP_VIEW, false ) ).toBe( DESKTOP_VIEW );
+	} );
+
+	it( 'drops every column but the title and actions on a narrow screen', () => {
+		const view = getResponseTableView( DESKTOP_VIEW, true );
+
+		expect( view.fields ).toEqual( [] );
+		// The title column is DataViews' own, so it survives; the caller's view is
+		// left alone so widening the window restores the columns.
+		expect( view.titleField ).toBe( 'from' );
+		expect( DESKTOP_VIEW.fields ).toEqual( [ 'date', 'field:1_Name', 'ip' ] );
+	} );
+} );
+
+describe( 'keepColumnChoice', () => {
+	it( 'persists what DataViews reports on a wide screen', () => {
+		const incoming = { ...DESKTOP_VIEW, sort: { field: 'date', direction: 'asc' } };
+
+		expect( keepColumnChoice( incoming, DESKTOP_VIEW, false ) ).toBe( incoming );
+	} );
+
+	it( 'keeps the real columns when a narrow screen reports a change', () => {
+		// Sorting on a phone must not write the collapsed column set back over the
+		// columns the user chose on a wide screen.
+		const incoming = { ...DESKTOP_VIEW, fields: [], sort: { field: 'date' } };
+		const kept = keepColumnChoice( incoming, DESKTOP_VIEW, true );
+
+		expect( kept.fields ).toEqual( [ 'date', 'field:1_Name', 'ip' ] );
+		expect( kept.sort ).toEqual( { field: 'date' } );
+	} );
+} );
+
+describe( 'getFrozenColumnsClassName', () => {
+	it( 'freezes the leading columns once there are answers to scroll past', () => {
+		expect( getFrozenColumnsClassName( COLUMNS, DESKTOP_VIEW, false ) ).toBe( 'has-field-columns' );
+	} );
+
+	it( 'does not freeze when there are no answer columns', () => {
+		expect( getFrozenColumnsClassName( [], DESKTOP_VIEW, false ) ).toBeUndefined();
+	} );
+
+	it( 'does not freeze on a narrow screen, where nothing scrolls sideways', () => {
+		expect( getFrozenColumnsClassName( COLUMNS, DESKTOP_VIEW, true ) ).toBeUndefined();
+	} );
+
+	it( 'does not freeze when the title column is hidden', () => {
+		// The stylesheet freezes the checkbox column's next sibling. Without a title
+		// column that is an answer column, which must not be frozen in its place.
+		expect(
+			getFrozenColumnsClassName( COLUMNS, { ...DESKTOP_VIEW, showTitle: false }, false )
+		).toBeUndefined();
+		expect(
+			getFrozenColumnsClassName( COLUMNS, { ...DESKTOP_VIEW, titleField: undefined }, false )
+		).toBeUndefined();
 	} );
 } );
 
