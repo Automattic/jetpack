@@ -30,6 +30,10 @@ equals sign: `--maxWorkers 2` leaves `2` looking like a filter and drops the run
 to ungrouped, while `--maxWorkers=2` keeps grouping on. The run stays correct
 either way, and the config prints which argument it read as a filter.
 
+CI only ever runs the grouped mode, so the ungrouped fallback is covered by hand.
+Run both after changing what the config ignores; a break there shows up as every
+suite counted twice, once standalone and once inside its group.
+
 ## Adding a widget suite to a group
 
 Members must declare the same `jest.mock()` calls. The registry is shared, so
