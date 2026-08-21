@@ -237,7 +237,7 @@ class Initializer {
 		// videopress.com/v is already registered in core.
 		// By explicitly declaring the provider here, we can speed things up by not relying on oEmbed discovery.
 		wp_oembed_add_provider( '#^https?://video.wordpress.com/v/.*#', 'https://public-api.wordpress.com/oembed/?for=' . $host, true );
-		// This is needed as it's not supported in oEmbed discovery
+		// This is needed as it's not supported in oEmbed discovery.
 		wp_oembed_add_provider( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', 'https://public-api.wordpress.com/oembed/?for=' . $host, true ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 
 		add_filter( 'embed_oembed_html', array( __CLASS__, 'video_enqueue_bridge_when_oembed_present' ), 10, 4 );
@@ -288,6 +288,14 @@ class Initializer {
 	public static function render_videopress_video_block( $block_attributes, $content, $block ) {
 		global $wp_embed;
 
+		// Pre-build and cache the GUID list for this post to optimize authorization checks.
+		// This is called once per page render and caches GUIDs from all VideoPress blocks
+		// (including those in synced patterns), allowing fast O(1) lookups during token requests.
+		$post_id = $block->context['postId'] ?? get_the_ID();
+		if ( ! empty( $post_id ) ) {
+			Access_Control::build_and_cache_post_guids( absint( $post_id ) );
+		}
+
 		// CSS classes.
 		$align        = $block_attributes['align'] ?? null;
 		$align_class  = $align ? ' align' . $align : '';
@@ -326,13 +334,13 @@ class Initializer {
 		 * If the caption is not stored into the block attributes,
 		 * try to get it from the <figcaption /> element.
 		 */
-		if ( $caption === null ) {
+		if ( null === $caption ) {
 			preg_match( '/<figcaption>(.*?)<\/figcaption>/', $content, $matches );
 			$caption = $matches[1] ?? null;
 		}
 
 		// If we have a caption, create the <figcaption /> element.
-		if ( $caption !== null ) {
+		if ( null !== $caption ) {
 			$figcaption = sprintf( '<figcaption>%s</figcaption>', wp_kses_post( $caption ) );
 		}
 
@@ -414,7 +422,8 @@ class Initializer {
 			 * This prevents the published page from showing a bare link.
 			 */
 			$fallback = function ( $output, $url ) use ( $videopress_url ) {
-				if ( $url !== html_entity_decode( $videopress_url, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) ) {
+				$decoded_url = html_entity_decode( $videopress_url, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+				if ( $decoded_url !== $url ) {
 					return $output;
 				}
 

@@ -41,7 +41,6 @@ function getTopPlatformsAttributes( {
 	platformDimension,
 }: TopPlatformsStoryControls ): ComponentProps< typeof TopPlatformsRender >[ 'attributes' ] {
 	return {
-		max: 10,
 		platformDimension,
 		reportParams: getDefaultQueryParams( withComparison ),
 	};
@@ -56,7 +55,6 @@ function renderTopPlatformsOnPreset( preset: PresetType ) {
 	return (
 		<TopPlatformsRender
 			attributes={ {
-				max: 10,
 				platformDimension: 'browser',
 				reportParams: getDefaultQueryParams( false, preset ),
 			} }

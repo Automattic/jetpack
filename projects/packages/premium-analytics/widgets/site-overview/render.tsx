@@ -5,6 +5,7 @@ import { useStatsSummary, type StatsSummaryResponse } from '@jetpack-premium-ana
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -143,7 +144,7 @@ function SiteOverviewReport( {
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ ( isLoading || primary.isPending ) && ! summary }
+				isLoading={ isLoading || primary.isPending }
 				isFetching={ isFetching }
 				isError={ ! summary && isError }
 				isEmpty={ isEmpty }
@@ -158,6 +159,7 @@ function SiteOverviewReport( {
 					icon: globe,
 					description: __( 'No stats recorded for this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				renderLoading={ <MetricTileGridSkeleton tiles={ visibleMetrics.length } /> }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			</WidgetState>

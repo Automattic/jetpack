@@ -95,31 +95,25 @@ describe( 'usePostDetailTabs', () => {
 		mockRouteSearch = {};
 	} );
 
-	it( 'injects comparison-stripped report params into every layout entry', () => {
+	/*
+	 * The page's no-comparison invariant is declared once by the stage, as a
+	 * report scope, and enforced in `WidgetRoot`. The layout this hook returns
+	 * is the fixed one, carrying no injected report params — see
+	 * `stage.test.tsx` for the scope the widgets actually read.
+	 */
+	it( 'returns the tab’s fixed layout untouched', () => {
 		mockSearch( 'post-traffic' );
 		mockRouteSearch = {
 			from: '2026-07-01',
 			to: '2026-07-07',
-			interval: 'day',
-			post_id: String( POST_ID ),
 			comp: '1',
 			compare_from: '2026-06-24',
-			compare_to: '2026-06-30',
-			compare_preset: 'previous-period',
 		};
 
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
 
 		expect( result.current.layout.length ).toBeGreaterThan( 0 );
-		for ( const widget of result.current.layout ) {
-			const attributes = widget.attributes as { reportParams?: unknown } | undefined;
-			expect( attributes?.reportParams ).toEqual( {
-				from: '2026-07-01',
-				to: '2026-07-07',
-				interval: 'day',
-				post_id: String( POST_ID ),
-			} );
-		}
+		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'post-traffic' ] );
 	} );
 
 	it( 'falls back from a hidden tab and replaces the URL', async () => {
@@ -158,17 +152,7 @@ describe( 'usePostDetailTabs', () => {
 			'email-clicks',
 		] );
 		expect( result.current.activeTab ).toBe( 'email-clicks' );
-		// The hook overlays each fixed entry with the comparison-stripped
-		// reportParams (empty here — the mocked route search is empty).
-		expect( result.current.layout ).toEqual(
-			POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ].map( widget => ( {
-				...widget,
-				attributes: {
-					...( widget.attributes as Record< string, unknown > | undefined ),
-					reportParams: {},
-				},
-			} ) )
-		);
+		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ] );
 		expect( stage ).not.toHaveBeenCalled();
 		expect( commit ).not.toHaveBeenCalled();
 	} );

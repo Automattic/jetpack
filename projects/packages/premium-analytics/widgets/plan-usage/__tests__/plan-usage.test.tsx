@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -139,7 +139,7 @@ describe( 'PlanUsageWidget', () => {
 		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'replaces the meter with the skeleton during a background refetch', async () => {
+	it( 'leaves the meter on screen through a background refetch (WOOA7S-1934)', async () => {
 		let resolveRefetch: ( value: unknown ) => void = () => {};
 		mockApiFetch.mockResolvedValueOnce( PLAN_USAGE_RESPONSE ).mockImplementationOnce(
 			() =>
@@ -156,8 +156,12 @@ describe( 'PlanUsageWidget', () => {
 			queryClient.refetchQueries();
 		} );
 
-		await expect( screen.findByRole( 'status', { hidden: true } ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+		// `aria-busy` lands after the same delay the skeleton used to, so waiting
+		// for it proves that window has elapsed.
+		await waitFor( () =>
+			expect( screen.getAllByRole( 'generic', { busy: true } ) ).toHaveLength( 1 )
+		);
+		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( '6,200 / 10,000 views' ) ).toBeInTheDocument();
 
 		await act( async () => {

@@ -21,7 +21,7 @@ class AI_SEO_Enhancer {
 	 * toggle. Callers own the outer AI master and host gates. The AI sidebar's
 	 * SEO suggestions intentionally use a different plan slug — do not unify.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.8.2
 	 *
 	 * @return bool
 	 */
