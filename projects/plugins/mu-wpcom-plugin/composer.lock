@@ -551,12 +551,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "c5827931c906c2cb1fd6e2a1713934860e19c08f"
+                "reference": "7c3f07038bbfb226940f8be1f2bd5b74b16f4ab3"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-image-cdn": "@dev",
-                "php": ">=8.1"
+                "php": ">=7.4"
             },
             "require-dev": {
                 "automattic/jetpack-test-environment": "@dev",
