@@ -9,7 +9,7 @@ import { useEnsureFieldId } from '../../hooks/use-subject-fields.js';
 import { getFieldDisplayName } from '../../util/field-label.js';
 import {
 	OPERATORS,
-	canValueCarryOver,
+	getCarriedOverValue,
 	getOperatorsForTypeKey,
 	getValueInputForTypeKey,
 	operatorNeedsValue,
@@ -178,11 +178,11 @@ const RuleRow = ( { rule, index, fields, ownFieldId, shouldFocus, onChange, onRe
 			// The value box is offered before a subject is chosen, so a value typed first is
 			// kept. Dropped when the new subject cannot represent it, which would otherwise
 			// leave an empty-looking box the evaluators were still comparing against.
-			const keepsValue =
-				operatorNeedsValue( operator ) &&
-				canValueCarryOver( rule.value, nextSubject.typeKey, nextSubject.options );
+			const carried = operatorNeedsValue( operator )
+				? getCarriedOverValue( rule.value, nextSubject.typeKey, nextSubject.options )
+				: null;
 
-			onChange( index, { field: fieldId, operator, value: keepsValue ? rule.value : '' } );
+			onChange( index, { field: fieldId, operator, value: carried ?? '' } );
 		},
 		[ ensureFieldId, fields, ownFieldId, index, onChange, rule.operator, rule.value ]
 	);

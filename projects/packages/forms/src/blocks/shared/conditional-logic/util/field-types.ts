@@ -196,48 +196,54 @@ export const operatorNeedsValue = ( operator: Operator | string ): boolean =>
 	! OPERATORS_WITHOUT_VALUE.has( operator );
 
 /**
- * Whether a value the author has already typed still means something under a new subject.
+ * The value a subject change carries over, or null when it cannot be carried.
  *
- * A value the new subject's control cannot represent would sit in the rule invisibly: an empty
- * box, with the evaluators still comparing against what it holds.
+ * Returns the value to store rather than a yes/no, because the decision is made on the
+ * trimmed form: handing back a verdict left the caller storing the padded original, which
+ * every control here then failed to display -- a dropdown has no option named `" Small "`,
+ * and a date input renders nothing for `" 2026-03-15 "`. One function owns both halves so
+ * they cannot disagree.
+ *
+ * A value the new subject's control cannot represent is dropped rather than kept out of
+ * sight, where the evaluators would go on comparing against it.
  *
  * @param value   - The value currently on the rule.
  * @param typeKey - The new subject's comparison behavior.
  * @param options - The new subject's selectable options, where it has any.
- * @return True when the value can be carried over as-is.
+ * @return The value to store, or null when the new subject cannot represent it.
  */
-export const canValueCarryOver = (
+export const getCarriedOverValue = (
 	value: unknown,
 	typeKey: TypeKey | string,
 	options: ReadonlyArray< { value: string } > = []
-): boolean => {
+): string | null => {
 	const raw = String( value ?? '' ).trim();
 
 	if ( '' === raw ) {
-		return false;
+		return null;
 	}
 
 	switch ( getValueInputForTypeKey( typeKey ) ) {
 		// No value box at all: `is checked` and friends compare against nothing.
 		case 'none':
-			return false;
+			return null;
 
 		case 'options':
-			return options.some( option => option.value === raw );
+			return options.some( option => option.value === raw ) ? raw : null;
 
 		case 'number':
-			return Number.isFinite( Number( raw ) );
+			return Number.isFinite( Number( raw ) ) ? raw : null;
 
 		// A date or time input renders nothing for a value outside its own format. Stricter
 		// than `evaluate.ts`'s parser on purpose: that answers what the evaluator can read,
 		// this answers what the control can show, so `15/03/2026` has to go.
 		case 'date':
-			return /^\d{4}-\d{2}-\d{2}$/.test( raw );
+			return /^\d{4}-\d{2}-\d{2}$/.test( raw ) ? raw : null;
 
 		case 'time':
-			return /^\d{2}:\d{2}(:\d{2})?$/.test( raw );
+			return /^\d{2}:\d{2}(:\d{2})?$/.test( raw ) ? raw : null;
 
 		default:
-			return true;
+			return raw;
 	}
 };

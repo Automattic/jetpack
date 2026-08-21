@@ -1,6 +1,6 @@
 import {
 	OPERATORS,
-	canValueCarryOver,
+	getCarriedOverValue,
 	getOperatorsForTypeKey,
 	getValueInputForTypeKey,
 	operatorNeedsValue,
@@ -91,49 +91,61 @@ describe( 'field-types', () => {
 } );
 
 /**
- * Whether a value already typed survives choosing a subject. The risk on the other side is
- * keeping one the new subject's control cannot show: an empty-looking box the evaluators are
- * still comparing against.
+ * What a value already typed becomes when a subject is chosen. The risk on the other side of
+ * keeping it is a value the new subject's control cannot show: an empty-looking box the
+ * evaluators are still comparing against.
  */
-describe( 'canValueCarryOver', () => {
+describe( 'getCarriedOverValue', () => {
 	it( 'keeps a value a text box can show', () => {
-		expect( canValueCarryOver( 'iPhone', 'string' ) ).toBe( true );
-		expect( canValueCarryOver( 'iPhone', 'hidden' ) ).toBe( true );
+		expect( getCarriedOverValue( 'iPhone', 'string' ) ).toBe( 'iPhone' );
+		expect( getCarriedOverValue( 'iPhone', 'hidden' ) ).toBe( 'iPhone' );
+	} );
+
+	/**
+	 * The decision is made on the trimmed value, so the trimmed value is what comes back --
+	 * returning the padded original left every control here unable to display it.
+	 */
+	it( 'returns the value in the form the control can show', () => {
+		expect( getCarriedOverValue( '  iPhone  ', 'string' ) ).toBe( 'iPhone' );
+		expect( getCarriedOverValue( ' 10 ', 'number' ) ).toBe( '10' );
+		expect( getCarriedOverValue( ' 2026-03-15 ', 'date' ) ).toBe( '2026-03-15' );
+		expect( getCarriedOverValue( ' 09:30 ', 'time' ) ).toBe( '09:30' );
+		expect( getCarriedOverValue( '  Small  ', 'choice', [ { value: 'Small' } ] ) ).toBe( 'Small' );
 	} );
 
 	it( 'has nothing to keep when the value is blank', () => {
-		expect( canValueCarryOver( '', 'string' ) ).toBe( false );
-		expect( canValueCarryOver( '   ', 'string' ) ).toBe( false );
-		expect( canValueCarryOver( null, 'string' ) ).toBe( false );
-		expect( canValueCarryOver( undefined, 'string' ) ).toBe( false );
+		expect( getCarriedOverValue( '', 'string' ) ).toBeNull();
+		expect( getCarriedOverValue( '   ', 'string' ) ).toBeNull();
+		expect( getCarriedOverValue( null, 'string' ) ).toBeNull();
+		expect( getCarriedOverValue( undefined, 'string' ) ).toBeNull();
 	} );
 
 	it( 'drops it for a subject that takes no value at all', () => {
-		expect( canValueCarryOver( 'iPhone', 'boolean' ) ).toBe( false );
-		expect( canValueCarryOver( 'iPhone', 'file' ) ).toBe( false );
+		expect( getCarriedOverValue( 'iPhone', 'boolean' ) ).toBeNull();
+		expect( getCarriedOverValue( 'iPhone', 'file' ) ).toBeNull();
 	} );
 
 	it( 'keeps it for a dropdown only when it is one of the options', () => {
 		const options = [ { value: 'Small' }, { value: 'Large' } ];
 
-		expect( canValueCarryOver( 'Small', 'choice', options ) ).toBe( true );
-		expect( canValueCarryOver( 'Medium', 'choice', options ) ).toBe( false );
+		expect( getCarriedOverValue( 'Small', 'choice', options ) ).toBe( 'Small' );
+		expect( getCarriedOverValue( 'Medium', 'choice', options ) ).toBeNull();
 		// A subject whose options have not been filled in yet can show nothing.
-		expect( canValueCarryOver( 'Small', 'choice' ) ).toBe( false );
+		expect( getCarriedOverValue( 'Small', 'choice' ) ).toBeNull();
 	} );
 
 	it( 'keeps it for a number subject only when it is a number', () => {
-		expect( canValueCarryOver( '10', 'number' ) ).toBe( true );
-		expect( canValueCarryOver( '-2.5', 'number' ) ).toBe( true );
-		expect( canValueCarryOver( 'ten', 'number' ) ).toBe( false );
+		expect( getCarriedOverValue( '10', 'number' ) ).toBe( '10' );
+		expect( getCarriedOverValue( '-2.5', 'number' ) ).toBe( '-2.5' );
+		expect( getCarriedOverValue( 'ten', 'number' ) ).toBeNull();
 	} );
 
 	// Outside its own format, the input renders nothing at all.
 	it( 'keeps it for date and time only in the format their inputs use', () => {
-		expect( canValueCarryOver( '2026-03-15', 'date' ) ).toBe( true );
-		expect( canValueCarryOver( '15/03/2026', 'date' ) ).toBe( false );
-		expect( canValueCarryOver( '09:30', 'time' ) ).toBe( true );
-		expect( canValueCarryOver( '09:30:00', 'time' ) ).toBe( true );
-		expect( canValueCarryOver( 'half nine', 'time' ) ).toBe( false );
+		expect( getCarriedOverValue( '2026-03-15', 'date' ) ).toBe( '2026-03-15' );
+		expect( getCarriedOverValue( '15/03/2026', 'date' ) ).toBeNull();
+		expect( getCarriedOverValue( '09:30', 'time' ) ).toBe( '09:30' );
+		expect( getCarriedOverValue( '09:30:00', 'time' ) ).toBe( '09:30:00' );
+		expect( getCarriedOverValue( 'half nine', 'time' ) ).toBeNull();
 	} );
 } );

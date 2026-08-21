@@ -657,6 +657,16 @@ describe( 'ConditionalLogicPanel', () => {
 		// A checkbox compares against nothing, so the value has to go rather than sit unseen.
 		[ 'drops it for a subject that takes no value', 'iPhone', 'terms_1', 'is_checked', '' ],
 		[ 'keeps it for a dropdown that offers it', 'Large', 'size_1', 'is', 'Large' ],
+		// Padding is what the representability check ignores, so it must not survive into the
+		// stored value: a dropdown has no option named "  Large  " and would render blank.
+		[
+			'stores a padded value the way the control can show it',
+			'  Large  ',
+			'size_1',
+			'is',
+			'Large',
+		],
+		[ 'trims a padded number too', ' 10 ', 'budget_1', 'equals', '10' ],
 	] )( '%s', async ( _name, typed, selection, operator, expected ) => {
 		const { setAttributes } = await setup(
 			withRules( [ { field: '', operator: 'is', value: typed } ] )
