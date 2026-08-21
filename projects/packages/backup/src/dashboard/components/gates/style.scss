@@ -28,12 +28,4 @@
 			color: #fff;
 		}
 	}
-
-	// Secondary to the CTA above it: someone who already owns Backup is
-	// the smaller audience on these screens, and giving this the same
-	// weight as the purchase button would make the pair read as a choice
-	// between equals.
-	&__license-link {
-		font-size: 13px;
-	}
 }

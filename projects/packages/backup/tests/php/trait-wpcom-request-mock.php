@@ -131,6 +131,12 @@ trait Wpcom_Request_Mock {
 			function ( $preempt, $args, $url ) use ( $body, $status ) {
 				$this->captured_url    = $url;
 				$this->captured_urls[] = $url;
+				// Recorded here too, or `captured_body` would mean both
+				// "no request was made" and "a request was made and this
+				// helper did not look" — and the trait documents the
+				// former as how a test proves a guard refused before
+				// reaching the network.
+				$this->captured_body = isset( $args['body'] ) ? json_decode( $args['body'], true ) : null;
 				return array(
 					'response' => array( 'code' => $status ),
 					'body'     => $body,

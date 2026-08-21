@@ -152,9 +152,17 @@ describe( 'Gates — retrying a failed capabilities read', () => {
 		const button = view.getByRole( 'button', { name: /Try again/ } );
 		await user.click( button );
 
+		// `aria-disabled`, not `toBeDisabled()`: the button stays natively
+		// enabled on purpose so it keeps keyboard focus. Losing focus to
+		// `<body>` would reproduce "the page went away" for AT users, in
+		// the one place there is nothing adjacent to land on.
 		await waitFor( () =>
-			expect( view.getByRole( 'button', { name: /Try again/ } ) ).toBeDisabled()
+			expect( view.getByRole( 'button', { name: /Try again/ } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			)
 		);
+		expect( view.getByRole( 'button', { name: /Try again/ } ) ).toBeEnabled();
 
 		pending.resolve( { hasBackupPlan: true, hasScan: false } );
 	} );

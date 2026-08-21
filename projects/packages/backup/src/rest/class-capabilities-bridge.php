@@ -101,7 +101,18 @@ class Capabilities_Bridge {
 		// the one every site without Backup gives — and refusing it would
 		// put a permanent error in front of precisely the people the
 		// upgrade screen is for.
-		if ( ! is_array( $body ) || ! isset( $body['capabilities'] ) || ! is_array( $body['capabilities'] ) ) {
+		// `wp_is_numeric_array()` and not `is_array()`, because the two
+		// differ on the shape most likely to arrive if upstream drifts: a
+		// keyed map. `is_array()` accepts `{"capabilities":{"backup":true}}`,
+		// and `in_array()` then compares against that map's *values* — so
+		// the site reads as having no plan, which is the outcome this
+		// whole guard exists to prevent. It returns true for an empty
+		// array, so the carve-out below survives.
+		if (
+			! is_array( $body )
+			|| ! isset( $body['capabilities'] )
+			|| ! wp_is_numeric_array( $body['capabilities'] )
+		) {
 			return new WP_Error(
 				'capabilities_unreadable',
 				__( "Could not read this site's plan details.", 'jetpack-backup-pkg' ),

@@ -64,7 +64,7 @@ describe( 'No-plan gate', () => {
 	it( 'sends the site through to checkout rather than a generic marketing page', async () => {
 		renderScreen( NoBackupPlanScreen );
 
-		const cta = screen.getByRole( 'link', { name: /Upgrade|Backup plans|Get Backup/i } );
+		const cta = screen.getByRole( 'link', { name: /^Upgrade now$/ } );
 
 		// Site-scoped: without this the reader lands on a page that has no
 		// idea which site they came from. And on the redirect service, as
@@ -81,9 +81,27 @@ describe( 'No-plan gate', () => {
 		// on the modernized page, so the absolute `adminUrl` the legacy
 		// header used is not available — and does not need to be, since
 		// this renders inside wp-admin already.
-		expect( screen.getByRole( 'link', { name: /license key/i } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: /^Use license key$/ } ) ).toHaveAttribute(
 			'href',
 			'admin.php?page=my-jetpack#/add-license'
+		);
+	} );
+
+	it( 'omits the site rather than sending the word "undefined"', async () => {
+		// `getRedirectUrl` walks its args with `for…in`, so a key that is
+		// present-but-undefined is encoded rather than skipped — and its
+		// presence also suppresses the helper's own site fallback. Passing
+		// no key at all is the only way to degrade cleanly.
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			siteSuffix: undefined,
+		} as unknown as typeof window.JP_CONNECTION_INITIAL_STATE;
+
+		renderScreen( NoBackupPlanScreen );
+
+		expect( screen.getByRole( 'link', { name: /^Upgrade now$/ } ) ).not.toHaveAttribute(
+			'href',
+			expect.stringContaining( 'undefined' )
 		);
 	} );
 
@@ -124,6 +142,6 @@ describe.each( [
 		// Legacy showed it whenever the site was not fully connected, not
 		// only on the no-plan screen — see `useShowActivateLicenseLink`.
 		renderScreen( Screen );
-		expect( screen.getByRole( 'link', { name: /license key/i } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /^Use license key$/ } ) ).toBeInTheDocument();
 	} );
 } );

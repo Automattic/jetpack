@@ -53,11 +53,12 @@ export function useCapabilities( { enabled = true }: Args = {} ): Result {
 
 	return {
 		data: query.data,
-		// `isPending && isFetching` rather than React Query's `isLoading`:
-		// the rewind makes a retry pending again, so `isLoading` is true
-		// for the whole round trip and the error screen would be replaced
-		// by a spinner. This has to mean "nothing has ever been shown".
-		isLoading: query.isPending && query.isFetching && error === null,
+		// React Query's own `isLoading` goes true again during a retry,
+		// because the rewind makes an errored data-less query pending —
+		// so on its own it would replace the error screen with a spinner
+		// for the whole round trip. The sticky error is what separates
+		// "nothing has ever been shown" from "we are asking again".
+		isLoading: query.isLoading && error === null,
 		error,
 		// Not `query.isRefetching`: that is `isFetching && ! isPending`,
 		// and the rewind makes a retry pending, so it stays false exactly

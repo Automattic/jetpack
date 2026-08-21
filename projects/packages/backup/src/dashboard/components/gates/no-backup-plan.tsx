@@ -28,9 +28,12 @@ import LicenseKeyLink from './license-key-link';
  */
 export default function NoBackupPlanScreen() {
 	const site = useSiteSuffix();
-	// `getRedirectUrl` omits the query arg entirely for an undefined
-	// site, so an unscoped link degrades rather than breaking.
-	const upgradeUrl = getRedirectUrl( 'backup-plugin-upgrade-10gb', { site } );
+	// The key is omitted rather than passed as undefined. `getRedirectUrl`
+	// walks its args with `for…in`, so a present-but-undefined `site` is
+	// encoded — the link would carry the literal string `undefined` — and
+	// its mere presence also suppresses the helper's own site fallback.
+	// Passing nothing is the only way this degrades cleanly.
+	const upgradeUrl = getRedirectUrl( 'backup-plugin-upgrade-10gb', site ? { site } : {} );
 
 	return (
 		<Card className="jpb-gates__card">

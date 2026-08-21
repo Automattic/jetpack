@@ -45,13 +45,24 @@ export default function CapabilitiesErrorScreen( { error, onRetry, isRetrying = 
 				 * error across the retry now, so without this the DOM is
 				 * byte-identical before and after the click and a retry
 				 * that fails again reads as a dead button.
+				 *
+				 * `accessibleWhenDisabled` is what keeps this from undoing
+				 * the fix for keyboard users. `Button` sets the *native*
+				 * `disabled` attribute unless it is passed
+				 * (`trulyDisabled = disabled && ! accessibleWhenDisabled`),
+				 * and a browser blurs the element it has just disabled —
+				 * so focus would land on `<body>`. This card is the entire
+				 * dashboard body on all three routes, so there is nothing
+				 * adjacent to land on: the page would disappear for
+				 * exactly the readers the visual fix does not reach. The
+				 * prop also applies `aria-disabled` itself.
 				 */ }
 				<Button
 					variant="primary"
 					onClick={ onRetry }
 					isBusy={ isRetrying }
 					disabled={ isRetrying }
-					aria-disabled={ isRetrying }
+					accessibleWhenDisabled
 				>
 					{ __( 'Try again', 'jetpack-backup-pkg' ) }
 				</Button>
