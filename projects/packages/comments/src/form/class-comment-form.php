@@ -110,15 +110,18 @@ class Comment_Form {
 		$respond_id = esc_attr( $args['respond_id'] );
 		$reply_url  = esc_url( add_query_arg( 'replytocom', $comment->comment_ID . '#' . $respond_id ) );
 
+		$reply_to = sprintf( $args['reply_to_text'], get_comment_author( $comment ) );
+
 		$link = sprintf(
-			'<a class="comment-reply-link" href="%s" onclick="return addComment.moveForm( \'%s-%d\', \'%d\', \'%s\', \'%d\' )">%s</a>',
+			'<a class="comment-reply-link" href="%s"%s onclick="return addComment.moveForm( \'%s-%d\', \'%d\', \'%s\', \'%d\' )">%s</a>',
 			$reply_url,
+			$args['show_reply_to_text'] ? '' : ' aria-label="' . esc_attr( $reply_to ) . '"',
 			esc_attr( $args['add_below'] ),
 			$comment->comment_ID,
 			$comment->comment_ID,
 			$respond_id,
 			$post->ID,
-			wp_kses( $args['reply_text'], self::reply_text_html() )
+			wp_kses( $args['show_reply_to_text'] ? $reply_to : $args['reply_text'], self::reply_text_html() )
 		);
 
 		return wp_kses( $args['before'], wp_kses_allowed_html( 'post' ) )
