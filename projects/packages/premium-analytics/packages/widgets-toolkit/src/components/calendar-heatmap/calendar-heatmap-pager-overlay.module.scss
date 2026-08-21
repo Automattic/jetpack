@@ -40,13 +40,17 @@
 /* The appear animation slides each arrow in from its own edge. The offset is
    a logical margin rather than a translate so it flips with the writing
    direction, and it moves an absolutely positioned box, so nothing reflows. */
+
+/* Inset past the chip's 6px shadow reach, so the widget's overflow clipping
+   cannot slice the shadow at the edges; the 8px slide then starts exactly at
+   the edge. */
 .older {
-	inset-inline-start: 0;
+	inset-inline-start: 8px;
 	margin-inline-start: -8px;
 }
 
 .newer {
-	inset-inline-end: 0;
+	inset-inline-end: 8px;
 	margin-inline-end: -8px;
 }
 
