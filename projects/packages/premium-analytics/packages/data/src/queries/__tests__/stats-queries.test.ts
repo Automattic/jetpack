@@ -1315,7 +1315,7 @@ describe( 'Stats query factories', () => {
 			to: '2026-06-07',
 			interval: 'day',
 			days: 3,
-		} as Parameters< typeof statsVisitsQuery >[ 0 ] );
+		} );
 		const apiParams = query.queryKey[ 5 ] as Record< string, unknown >;
 
 		expect( apiParams ).toEqual( {
@@ -1335,16 +1335,16 @@ describe( 'Stats query factories', () => {
 			to: '2026-06-15T23:59:59-07:00',
 			interval: 'hour',
 		} );
+		const apiParams = query.queryKey[ 5 ] as Record< string, unknown >;
 
-		expect( query.queryKey ).toEqual(
-			expect.arrayContaining( [
-				expect.objectContaining( {
-					unit: 'hour',
-					date: '2026-06-15T23:59:59-07:00',
-					start_date: '2026-06-15T00:00:00-07:00',
-				} ),
-			] )
-		);
+		// Exact rather than a superset: hour is the unit a re-added `quantity`
+		// would land on first, and a partial match would not notice it.
+		expect( apiParams ).toEqual( {
+			unit: 'hour',
+			date: '2026-06-15T23:59:59-07:00',
+			start_date: '2026-06-15T00:00:00-07:00',
+			stat_fields: 'views,visitors',
+		} );
 	} );
 
 	it( 'builds UTM query keys from the selected UTM parameter', () => {

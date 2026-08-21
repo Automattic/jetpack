@@ -1,4 +1,3 @@
 Significance: patch
 Type: changed
-
-Stats: Bound the visits request with its date range alone; the endpoint recounts its buckets from the range and ignores a bucket count sent alongside it.
+Comment: Drop a parameter the visits endpoint discards. The request changes; the response, and so everything a reader sees, does not.
