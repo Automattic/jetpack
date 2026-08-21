@@ -11,6 +11,13 @@ declare module '*.css';
 declare module '*.mdx';
 declare module '*.svg';
 
-interface Window {
-	JP_CONNECTION_INITIAL_STATE: ConnectionScriptData;
+// `declare global` is required: the top-level import above makes this file a
+// module, so a bare `interface Window` would declare a local type rather than
+// augment the real one.
+declare global {
+	interface Window {
+		JP_CONNECTION_INITIAL_STATE: ConnectionScriptData;
+		/** Set by Form_Editor::enqueue_welcome_guide(); absent off the form editor. */
+		jetpackFormsWelcomeGuide?: { isEligible: boolean };
+	}
 }

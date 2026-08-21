@@ -23,14 +23,21 @@ export interface WelcomeGuideContext {
 	preference: boolean | undefined;
 	/** Whether the force query argument is present and enabled. */
 	isForced: boolean;
+	/**
+	 * Whether this user is one the guide is meant for, as decided in PHP: new to
+	 * the block editor, or yet to author a form of their own. See
+	 * Form_Editor::is_welcome_guide_eligible().
+	 */
+	isEligible: boolean;
 }
 
 /**
  * Determines whether the welcome guide should be shown.
  *
  * The force flag wins over everything so the guide can be re-tested on demand.
- * Otherwise the guide shows until the user dismisses it, including the
- * first-run case where no preference has been persisted yet.
+ * Otherwise it opens only for the audience PHP identified, and only until the
+ * user dismisses it — including the first-run case where no preference has been
+ * persisted yet.
  *
  * @param context - Current guide context
  * @return Whether the guide should be shown
@@ -38,6 +45,10 @@ export interface WelcomeGuideContext {
 export function shouldShowWelcomeGuide( context: WelcomeGuideContext ): boolean {
 	if ( context.isForced ) {
 		return true;
+	}
+
+	if ( ! context.isEligible ) {
+		return false;
 	}
 
 	return context.preference !== false;
@@ -104,4 +115,22 @@ export function isWelcomeGuideForced( search: string ): boolean {
 	const value = params.get( FORCE_QUERY_ARG );
 
 	return value !== '0' && value !== 'false';
+}
+
+/**
+ * Reads the eligibility flag PHP attached to the page.
+ *
+ * Deliberately not derived in the browser: the equivalent client-side check
+ * would read the core welcome modal's preference through `core/preferences`,
+ * which returns the value the form editor itself defaults to false while
+ * suppressing that modal — so a genuine newcomer would read back as an
+ * experienced user. See Form_Editor::is_welcome_guide_eligible().
+ *
+ * Defaults to false when the flag is missing, so a page that somehow loads the
+ * guide without it stays quiet rather than opening for everyone.
+ *
+ * @return Whether the guide may open on its own for this user.
+ */
+export function isWelcomeGuideEligible(): boolean {
+	return window.jetpackFormsWelcomeGuide?.isEligible === true;
 }

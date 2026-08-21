@@ -7,6 +7,7 @@
 
 import {
 	FORCE_QUERY_ARG,
+	isWelcomeGuideEligible,
 	isWelcomeGuideForced,
 	isWelcomeGuideOpen,
 	shouldPersistDismissal,
@@ -16,24 +17,50 @@ import {
 describe( 'welcome-guide/should-show', () => {
 	describe( 'shouldShowWelcomeGuide', () => {
 		test( 'shows the guide on first run, when no preference is stored', () => {
-			expect( shouldShowWelcomeGuide( { preference: undefined, isForced: false } ) ).toBe( true );
+			expect(
+				shouldShowWelcomeGuide( { preference: undefined, isForced: false, isEligible: true } )
+			).toBe( true );
 		} );
 
 		test( 'shows the guide while the preference is still true', () => {
-			expect( shouldShowWelcomeGuide( { preference: true, isForced: false } ) ).toBe( true );
+			expect(
+				shouldShowWelcomeGuide( { preference: true, isForced: false, isEligible: true } )
+			).toBe( true );
 		} );
 
 		test( 'hides the guide once it has been dismissed', () => {
-			expect( shouldShowWelcomeGuide( { preference: false, isForced: false } ) ).toBe( false );
+			expect(
+				shouldShowWelcomeGuide( { preference: false, isForced: false, isEligible: true } )
+			).toBe( false );
+		} );
+
+		test( 'hides the guide from a user it is not meant for', () => {
+			expect(
+				shouldShowWelcomeGuide( { preference: undefined, isForced: false, isEligible: false } )
+			).toBe( false );
 		} );
 
 		test( 'forcing overrides a dismissed preference', () => {
-			expect( shouldShowWelcomeGuide( { preference: false, isForced: true } ) ).toBe( true );
+			expect(
+				shouldShowWelcomeGuide( { preference: false, isForced: true, isEligible: true } )
+			).toBe( true );
+		} );
+
+		test( 'forcing overrides ineligibility', () => {
+			expect(
+				shouldShowWelcomeGuide( { preference: undefined, isForced: true, isEligible: false } )
+			).toBe( true );
 		} );
 	} );
 
 	describe( 'isWelcomeGuideOpen', () => {
-		const base = { preference: undefined, isForced: false, isClosed: false, isReopened: false };
+		const base = {
+			preference: undefined,
+			isForced: false,
+			isEligible: true,
+			isClosed: false,
+			isReopened: false,
+		};
 
 		test( 'is open on first run', () => {
 			expect( isWelcomeGuideOpen( base ) ).toBe( true );
@@ -53,6 +80,39 @@ describe( 'welcome-guide/should-show', () => {
 
 		test( 'reopening overrides a dismissal made earlier in the same page load', () => {
 			expect( isWelcomeGuideOpen( { ...base, isClosed: true, isReopened: true } ) ).toBe( true );
+		} );
+
+		test( 'stays closed for a user the guide is not meant for', () => {
+			expect( isWelcomeGuideOpen( { ...base, isEligible: false } ) ).toBe( false );
+		} );
+
+		test( 'reopening from the Options menu works even when not eligible', () => {
+			expect( isWelcomeGuideOpen( { ...base, isEligible: false, isReopened: true } ) ).toBe( true );
+		} );
+	} );
+
+	describe( 'isWelcomeGuideEligible', () => {
+		afterEach( () => {
+			delete window.jetpackFormsWelcomeGuide;
+		} );
+
+		test( 'is false when PHP attached nothing', () => {
+			expect( isWelcomeGuideEligible() ).toBe( false );
+		} );
+
+		test( 'is true when PHP marked the user eligible', () => {
+			window.jetpackFormsWelcomeGuide = { isEligible: true };
+			expect( isWelcomeGuideEligible() ).toBe( true );
+		} );
+
+		test( 'is false when PHP marked the user ineligible', () => {
+			window.jetpackFormsWelcomeGuide = { isEligible: false };
+			expect( isWelcomeGuideEligible() ).toBe( false );
+		} );
+
+		test( 'does not treat a truthy non-boolean as eligible', () => {
+			window.jetpackFormsWelcomeGuide = { isEligible: '1' };
+			expect( isWelcomeGuideEligible() ).toBe( false );
 		} );
 	} );
 

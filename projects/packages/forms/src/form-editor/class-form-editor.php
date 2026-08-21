@@ -244,5 +244,70 @@ class Form_Editor {
 				'version'      => $asset['version'],
 			)
 		);
+
+		// Written as JSON rather than through wp_localize_script(), which casts
+		// booleans to '1' and ''.
+		wp_add_inline_script(
+			self::WELCOME_GUIDE_SCRIPT_HANDLE,
+			'window.jetpackFormsWelcomeGuide = ' . wp_json_encode(
+				array( 'isEligible' => self::is_welcome_guide_eligible() ),
+				JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+			) . ';',
+			'before'
+		);
+	}
+
+	/**
+	 * Whether the welcome guide should open on its own for the current user.
+	 *
+	 * Two audiences get it. Someone who has never dismissed the core welcome
+	 * modal is new to the block editor, and the form guide stands in for the
+	 * core one here. Everyone else gets it only until they have a form of their
+	 * own, as first-run onboarding — regardless of how many posts or pages they
+	 * have written.
+	 *
+	 * This only decides whether the guide opens by itself. The query argument
+	 * overrides it, and reopening from the Options menu is unaffected.
+	 *
+	 * @return bool Whether the guide should open on its own.
+	 */
+	private static function is_welcome_guide_eligible() {
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		$preferences        = get_user_meta( $user_id, 'wp_persisted_preferences', true );
+		$core_welcome_guide = null;
+		if ( is_array( $preferences ) && isset( $preferences['core/edit-post']['welcomeGuide'] ) ) {
+			$core_welcome_guide = $preferences['core/edit-post']['welcomeGuide'];
+		}
+
+		// Core only stores false once the modal has been dismissed, so anything
+		// else — including no stored value at all — means it is still pending.
+		if ( false !== $core_welcome_guide ) {
+			return true;
+		}
+
+		// Every status except auto-draft: opening this screen creates one before
+		// the enqueue runs, so counting it would hide the guide from the very
+		// first-time author it is meant for.
+		$statuses = array_values( array_diff( array_keys( get_post_stati() ), array( 'auto-draft' ) ) );
+
+		$existing_forms = get_posts(
+			array(
+				'post_type'     => Contact_Form::POST_TYPE,
+				'post_status'   => $statuses,
+				'author'        => $user_id,
+				'numberposts'   => 1,
+				'fields'        => 'ids',
+				'no_found_rows' => true,
+				'cache_results' => false,
+				'orderby'       => 'ID',
+				'order'         => 'ASC',
+			)
+		);
+
+		return empty( $existing_forms );
 	}
 }

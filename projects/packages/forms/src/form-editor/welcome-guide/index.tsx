@@ -12,7 +12,12 @@ import { PluginMoreMenuItem } from '@wordpress/editor';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getWelcomeGuidePages } from './pages';
-import { isWelcomeGuideForced, isWelcomeGuideOpen, shouldPersistDismissal } from './should-show';
+import {
+	isWelcomeGuideEligible,
+	isWelcomeGuideForced,
+	isWelcomeGuideOpen,
+	shouldPersistDismissal,
+} from './should-show';
 import './style.scss';
 
 export const JETPACK_FORM_WELCOME_GUIDE = 'jetpack-form-welcome-guide';
@@ -49,6 +54,9 @@ export const FormWelcomeGuide = () => {
 	// and re-reading it would reopen the guide after the user closes it.
 	const [ isForced ] = useState( () => isWelcomeGuideForced( window.location.search ) );
 
+	// Also fixed for the page load: PHP decides this per request.
+	const [ isEligible ] = useState( isWelcomeGuideEligible );
+
 	// Tracks closing within this page load. Needed on top of the preference so
 	// that a forced guide can still be dismissed.
 	const [ isClosed, setIsClosed ] = useState( false );
@@ -74,7 +82,7 @@ export const FormWelcomeGuide = () => {
 		setIsReopened( true );
 	}, [] );
 
-	const isOpen = isWelcomeGuideOpen( { preference, isForced, isClosed, isReopened } );
+	const isOpen = isWelcomeGuideOpen( { preference, isForced, isEligible, isClosed, isReopened } );
 
 	// `Guide` mounts only the slide you are looking at, so each illustration
 	// otherwise starts downloading at the moment you reach it and lands a beat
