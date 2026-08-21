@@ -58,6 +58,38 @@ describe( 'useDefaultHiddenSeries', () => {
 		expect( resolvedHiddenSeries.has( 'Visitors' ) ).toBe( true );
 	} );
 
+	it( 'seeds the first defined value and ignores later values for the same chart ID', () => {
+		const Harness = ( { defaults }: { defaults?: string[] } ) => (
+			<GlobalChartsProvider>
+				<Grab />
+				<Chart defaults={ defaults } />
+			</GlobalChartsProvider>
+		);
+
+		const { rerender } = render( <Harness /> );
+
+		rerender( <Harness defaults={ [ 'Visitors' ] } /> );
+		expect( contextValue.getHiddenSeries( 'chart' ) ).toEqual( new Set( [ 'Visitors' ] ) );
+
+		rerender( <Harness defaults={ [ 'Views' ] } /> );
+		expect( contextValue.getHiddenSeries( 'chart' ) ).toEqual( new Set( [ 'Visitors' ] ) );
+	} );
+
+	it( 'treats an empty array as a defined default', () => {
+		const Harness = ( { defaults }: { defaults: string[] } ) => (
+			<GlobalChartsProvider>
+				<Grab />
+				<Chart defaults={ defaults } />
+			</GlobalChartsProvider>
+		);
+
+		const { rerender } = render( <Harness defaults={ [] } /> );
+
+		rerender( <Harness defaults={ [ 'Visitors' ] } /> );
+
+		expect( contextValue.getHiddenSeries( 'chart' ) ).toEqual( new Set() );
+	} );
+
 	it( 'does not re-hide a series the user revealed', () => {
 		const Harness = () => (
 			<GlobalChartsProvider>
@@ -99,6 +131,23 @@ describe( 'useDefaultHiddenSeries', () => {
 
 		expect( contextValue.isSeriesVisible( 'chart', 'Visitors' ) ).toBe( false );
 		expect( contextValue.isSeriesVisible( 'chart', 'Views' ) ).toBe( true );
+	} );
+
+	it( 'retains provider visibility when remounted without defaults', () => {
+		const Harness = ( { defaults, mounted }: { defaults?: string[]; mounted: boolean } ) => (
+			<GlobalChartsProvider>
+				<Grab />
+				{ mounted && <Chart defaults={ defaults } /> }
+			</GlobalChartsProvider>
+		);
+
+		const { rerender } = render( <Harness defaults={ [ 'Visitors' ] } mounted /> );
+		expect( contextValue.isSeriesVisible( 'chart', 'Visitors' ) ).toBe( false );
+
+		rerender( <Harness mounted={ false } /> );
+		rerender( <Harness mounted /> );
+
+		expect( contextValue.isSeriesVisible( 'chart', 'Visitors' ) ).toBe( false );
 	} );
 
 	it( 're-seeds the defaults when chartId changes mid-mount', () => {

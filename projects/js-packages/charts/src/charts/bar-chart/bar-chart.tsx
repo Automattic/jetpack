@@ -43,13 +43,14 @@ import type {
 	DataPointDate,
 	SeriesData,
 	SeriesChartLegendConfig,
+	SeriesVisibilityProps,
 	Optional,
 } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { FC, ReactNode, ComponentType } from 'react';
 
-export interface BarChartProps extends BaseChartProps< SeriesData[] > {
+export interface BarChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
 	/**
 	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
 	 */
@@ -58,11 +59,6 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
 	showZeroValues?: boolean;
-	/**
-	 * Series labels to hide when the chart mounts. User changes persist until the
-	 * chart remounts or its ID changes.
-	 */
-	defaultHiddenSeries?: string[];
 	children?: ReactNode;
 }
 

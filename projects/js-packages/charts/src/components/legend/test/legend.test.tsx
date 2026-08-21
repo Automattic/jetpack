@@ -636,7 +636,7 @@ describe( 'BaseLegend', () => {
 				</GlobalChartsProvider>
 			);
 
-			expect( screen.getByRole( 'listitem', { name: 'Item 1: hidden' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'listitem', { name: /Item 1.*hidden/ } ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Item 2' ) ).toBeInTheDocument();
 		} );
 

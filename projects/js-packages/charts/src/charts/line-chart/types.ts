@@ -3,6 +3,7 @@ import type {
 	DataPointDate,
 	SeriesData,
 	SeriesChartLegendConfig,
+	SeriesVisibilityProps,
 	AnnotationStyles,
 	DataPoint,
 } from '../../types';
@@ -28,7 +29,7 @@ export type RenderLineGlyphProps< Datum extends object > = GlyphProps< Datum > &
 	position?: 'start' | 'end';
 };
 
-export interface LineChartProps extends BaseChartProps< SeriesData[] > {
+export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
 	/**
 	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
 	 */
@@ -61,11 +62,6 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	 * @default true
 	 */
 	rescaleYOnVisibilityChange?: boolean;
-	/**
-	 * Series labels to hide when the chart mounts. User changes persist until the
-	 * chart remounts or its ID changes.
-	 */
-	defaultHiddenSeries?: string[];
 	children?: ReactNode;
 }
 
