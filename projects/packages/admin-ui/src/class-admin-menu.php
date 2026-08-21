@@ -261,6 +261,18 @@ class Admin_Menu {
 	}
 
 	/**
+	 * Prints the inline style that hides WordPress core admin notices.
+	 *
+	 * @deprecated $$next-version$$ Use hide_core_admin_notices(), which enqueues the CSS.
+	 *
+	 * @return void
+	 */
+	public static function print_hide_core_admin_notices_style() {
+		_deprecated_function( __METHOD__, 'admin-ui-$$next-version$$', __CLASS__ . '::hide_core_admin_notices' );
+		self::hide_core_admin_notices();
+	}
+
+	/**
 	 * Gets the CSS that hides WordPress core admin notices.
 	 *
 	 * We only target direct children of #wpbody-content (where core renders notices via the
