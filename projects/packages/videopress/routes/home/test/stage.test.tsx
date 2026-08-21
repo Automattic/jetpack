@@ -28,7 +28,7 @@ jest.mock( '../../../src/dashboard/components/query-client-wrapper', () => ( {
 	default: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 } ) );
 
-jest.mock( '../../../src/dashboard/components/overview/free-tier-notice', () => ( {
+jest.mock( '../../../src/dashboard/components/free-tier-notice', () => ( {
 	__esModule: true,
 	default: () => <div data-testid="free-tier-notice" />,
 } ) );

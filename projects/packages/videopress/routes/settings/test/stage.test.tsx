@@ -17,6 +17,9 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 jest.mock( '@wordpress/route', () => ( {
 	__esModule: true,
 	useNavigate: jest.fn( () => jest.fn() ),
+	// DashboardLayout mounts the onboarding modal, which reads the route's
+	// search params for its `welcome=1` review affordance.
+	useSearch: jest.fn( () => ( {} ) ),
 } ) );
 
 // The AdminPage chrome needs the full admin shell; reduce it to the slots the
