@@ -47,7 +47,7 @@ export const GuestFields = () => {
 		{
 			field: 'url' as const,
 			name: 'url',
-			type: 'url',
+			type: 'text',
 			autoComplete: 'url',
 			icon: <WebsiteIcon />,
 			label: strings.website,

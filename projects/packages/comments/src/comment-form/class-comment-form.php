@@ -68,8 +68,76 @@ class Comment_Form {
 
 		add_action( 'comment_form_must_log_in_after', array( $this, 'render_must_log_in' ) );
 
+		add_filter( 'comment_reply_link', array( $this, 'comment_reply_link' ), 10, 4 );
+
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ) );
 		add_action( 'pre_comment_on_post', array( $this, 'verify_nonce' ) );
+
+		remove_action( 'comment_form', 'subscription_comment_form' );
+	}
+
+	/**
+	 * Keep Reply moving the form when the site requires registration.
+	 *
+	 * @param string      $reply_link Markup for the reply link.
+	 * @param array       $args       Reply link arguments.
+	 * @param \WP_Comment $comment    Comment being replied to.
+	 * @param \WP_Post    $post       Post being commented on.
+	 * @return string
+	 */
+	public function comment_reply_link( $reply_link, $args, $comment, $post ) {
+		if ( ! get_option( 'comment_registration' ) || ! self::enabled_for_post_type() ) {
+			return $reply_link;
+		}
+
+		$comment = get_comment( $comment );
+		$post    = get_post( $post );
+
+		if ( ! $comment instanceof \WP_Comment || ! $post instanceof \WP_Post ) {
+			return $reply_link;
+		}
+
+		$respond_id = esc_attr( $args['respond_id'] );
+		$reply_url  = esc_url( add_query_arg( 'replytocom', $comment->comment_ID . '#' . $respond_id ) );
+
+		$link = sprintf(
+			'<a class="comment-reply-link" href="%s" onclick="return addComment.moveForm( \'%s-%d\', \'%d\', \'%s\', \'%d\' )">%s</a>',
+			$reply_url,
+			esc_attr( $args['add_below'] ),
+			$comment->comment_ID,
+			$comment->comment_ID,
+			$respond_id,
+			$post->ID,
+			wp_kses( $args['reply_text'], self::reply_text_html() )
+		);
+
+		return wp_kses( $args['before'], wp_kses_allowed_html( 'post' ) )
+			. $link
+			. wp_kses( $args['after'], wp_kses_allowed_html( 'post' ) );
+	}
+
+	/**
+	 * Markup a theme may put inside its reply link, such as an icon.
+	 *
+	 * @return array
+	 */
+	private static function reply_text_html() {
+		return array(
+			'svg' => array(
+				'class'           => true,
+				'aria-hidden'     => true,
+				'aria-labelledby' => true,
+				'role'            => true,
+				'xmlns'           => true,
+				'width'           => true,
+				'height'          => true,
+				'viewbox'         => true,
+			),
+			'use' => array(
+				'href'       => true,
+				'xlink:href' => true,
+			),
+		);
 	}
 
 	/**
