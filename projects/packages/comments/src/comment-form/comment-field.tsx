@@ -13,14 +13,31 @@ const resize = ( textarea: HTMLTextAreaElement ) => {
 
 export const CommentField = () => {
 	const { commentValue, commentParent } = useContext( CommentSignals );
-	const { strings } = JetpackComments;
+	const { strings, maxLength } = JetpackComments;
 	const textarea = useRef< HTMLTextAreaElement >( null );
 
-	// A restored draft arrives already typed, so it needs the same treatment.
+	// Fits a restored draft on mount, then again whenever the textarea changes
+	// width, because rewrapped text needs a different height.
 	useEffect( () => {
-		if ( textarea.current && commentValue.value ) {
-			resize( textarea.current );
+		const element = textarea.current;
+
+		if ( ! element ) {
+			return;
 		}
+
+		resize( element );
+
+		// Guarded on width so the height this writes cannot retrigger the observer.
+		let width = element.clientWidth;
+		const observer = new ResizeObserver( () => {
+			if ( element.clientWidth !== width ) {
+				width = element.clientWidth;
+				resize( element );
+			}
+		} );
+		observer.observe( element );
+
+		return () => observer.disconnect();
 	}, [ commentValue ] );
 
 	return (
@@ -30,6 +47,7 @@ export const CommentField = () => {
 			className="jetpack-comments__textarea"
 			ref={ textarea }
 			required
+			maxLength={ maxLength }
 			aria-label={ commentParent.value ? strings.replyLabel : strings.commentLabel }
 			value={ commentValue.value }
 			placeholder={ commentParent.value ? strings.replyPlaceholder : strings.placeholder }

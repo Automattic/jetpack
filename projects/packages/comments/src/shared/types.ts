@@ -37,6 +37,7 @@ export type Settings = {
 	showCookiesConsent: boolean;
 	mustLogIn: boolean;
 	loginUrl: string;
+	maxLength: number;
 	submitId: string;
 	submitName: string;
 	strings: Strings;

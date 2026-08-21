@@ -130,6 +130,38 @@ class Comment_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The app is told the limit the database enforces.
+	 */
+	public function test_max_length_is_reported_to_the_app() {
+		Comment_Form::init()->enqueue_assets();
+
+		$settings = $this->inlined_settings();
+
+		$this->assertSame( 65525, $settings['maxLength'] );
+	}
+
+	/**
+	 * A site with a different column takes precedence over the default.
+	 */
+	public function test_max_length_follows_the_column_length() {
+		add_filter(
+			'wp_get_comment_fields_max_lengths',
+			function ( $lengths ) {
+				$lengths['comment_content'] = 500;
+				return $lengths;
+			}
+		);
+
+		Comment_Form::init()->enqueue_assets();
+
+		$settings = $this->inlined_settings();
+
+		$this->assertSame( 500, $settings['maxLength'] );
+
+		remove_all_filters( 'wp_get_comment_fields_max_lengths' );
+	}
+
+	/**
 	 * The submit button keeps the identifiers the form was rendered with.
 	 */
 	public function test_submit_identifiers_come_from_the_form_arguments() {

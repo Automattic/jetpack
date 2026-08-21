@@ -308,12 +308,24 @@ class Comment_Form {
 				'showCookiesConsent' => (bool) get_option( 'show_comments_cookies_opt_in' ),
 				'mustLogIn'          => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
 				'loginUrl'           => wp_login_url( get_permalink( $post_id ) ),
+				'maxLength'          => self::comment_max_length(),
 				'submitId'           => $args['id_submit'] ?? 'submit',
 				'submitName'         => $args['name_submit'] ?? 'submit',
 				'strings'            => self::strings( $args ),
 			),
 			Identity::settings( $post_id )
 		);
+	}
+
+	/**
+	 * How long a comment the database will take.
+	 *
+	 * @return int
+	 */
+	private static function comment_max_length() {
+		$lengths = wp_get_comment_fields_max_lengths();
+
+		return isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525;
 	}
 
 	/**
