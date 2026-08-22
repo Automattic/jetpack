@@ -8,6 +8,8 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Status\Visitor;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use function Automattic\Jetpack\Jetpack_Mu_Wpcom\Jetpack_AI_Module\keep_module_active;
 
 /**
@@ -16,13 +18,6 @@ use function Automattic\Jetpack\Jetpack_Mu_Wpcom\Jetpack_AI_Module\keep_module_a
  * actually ships that module.
  */
 class Jetpack_AI_Module_Test extends \WorDBless\BaseTestCase {
-
-	/**
-	 * Fake Jetpack plugin directory for the current test, if any.
-	 *
-	 * @var string|null
-	 */
-	private $plugin_dir = null;
 
 	/**
 	 * The feature only runs on Atomic.
@@ -34,34 +29,35 @@ class Jetpack_AI_Module_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Clean up constants and the fake plugin directory.
+	 * Clean up constants.
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
-		if ( $this->plugin_dir ) {
-			if ( is_file( $this->plugin_dir . 'modules/ai.php' ) ) {
-				unlink( $this->plugin_dir . 'modules/ai.php' );
-			}
-			rmdir( $this->plugin_dir . 'modules' );
-			rmdir( $this->plugin_dir );
-			$this->plugin_dir = null;
-		}
 		parent::tear_down();
 	}
 
 	/**
-	 * Point JETPACK__PLUGIN_DIR at a fake plugin directory, with or without a
-	 * modules/ai.php file in it.
+	 * Define a stand-in for the Jetpack plugin class whose is_module() answers
+	 * from a fixed list. Only for tests that run in their own process, so the
+	 * stub cannot leak into the rest of the suite.
 	 *
-	 * @param bool $with_ai_module Whether the fake plugin ships the `ai` module.
+	 * @param string[] $available Module slugs the fake Jetpack ships.
 	 */
-	private function set_fake_jetpack_plugin_dir( $with_ai_module ) {
-		$this->plugin_dir = sys_get_temp_dir() . '/jetpack-ai-module-test-' . uniqid() . '/';
-		mkdir( $this->plugin_dir . 'modules', 0777, true );
-		if ( $with_ai_module ) {
-			file_put_contents( $this->plugin_dir . 'modules/ai.php', "<?php\n" );
-		}
-		Constants::set_constant( 'JETPACK__PLUGIN_DIR', $this->plugin_dir );
+	private static function define_fake_jetpack( array $available ) {
+		self::assertFalse( class_exists( 'Jetpack', false ), 'Test assumes the real Jetpack class is absent.' );
+		$GLOBALS['jetpack_ai_module_test_available'] = $available;
+		$stub                                        = new class() {
+			/**
+			 * Stand-in for Jetpack::is_module().
+			 *
+			 * @param string $slug Module slug.
+			 * @return bool
+			 */
+			public static function is_module( $slug ) {
+				return in_array( $slug, $GLOBALS['jetpack_ai_module_test_available'], true );
+			}
+		};
+		class_alias( get_class( $stub ), 'Jetpack' );
 	}
 
 	/**
@@ -77,17 +73,30 @@ class Jetpack_AI_Module_Test extends \WorDBless\BaseTestCase {
 	 * Non-array input passes through untouched.
 	 */
 	public function test_keep_module_active_ignores_non_arrays() {
-		$this->set_fake_jetpack_plugin_dir( true );
-
 		$this->assertSame( 'nope', keep_module_active( 'nope' ) );
+	}
+
+	/**
+	 * Before the Jetpack plugin loads there is no Jetpack class to ask, so the
+	 * list must come back unchanged.
+	 */
+	public function test_keep_module_active_leaves_list_alone_before_jetpack_loads() {
+		$this->assertFalse( class_exists( 'Jetpack', false ), 'Test assumes the Jetpack plugin is not loaded.' );
+
+		$this->assertSame( array( 'stats' ), keep_module_active( array( 'stats' ) ) );
 	}
 
 	/**
 	 * `ai` is added once when the installed Jetpack ships the module, and never
 	 * duplicated.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_keep_module_active_adds_ai_once_when_module_shipped() {
-		$this->set_fake_jetpack_plugin_dir( true );
+		self::define_fake_jetpack( array( 'stats', 'ai' ) );
 
 		$this->assertSame( array( 'stats', 'ai' ), keep_module_active( array( 'stats' ) ) );
 		$this->assertSame( array( 'ai', 'stats' ), keep_module_active( array( 'ai', 'stats' ) ) );
@@ -97,19 +106,14 @@ class Jetpack_AI_Module_Test extends \WorDBless\BaseTestCase {
 	 * On a Jetpack that predates the module there is nothing to report active,
 	 * so the list is returned unchanged rather than gaining a module that does
 	 * not exist.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_keep_module_active_leaves_list_alone_on_older_jetpack() {
-		$this->set_fake_jetpack_plugin_dir( false );
-
-		$this->assertSame( array( 'stats' ), keep_module_active( array( 'stats' ) ) );
-	}
-
-	/**
-	 * Before the Jetpack plugin loads, JETPACK__PLUGIN_DIR is not defined. The
-	 * list must come back unchanged.
-	 */
-	public function test_keep_module_active_leaves_list_alone_before_jetpack_loads() {
-		$this->assertFalse( Constants::is_defined( 'JETPACK__PLUGIN_DIR' ), 'Test assumes the Jetpack plugin is not loaded.' );
+		self::define_fake_jetpack( array( 'stats' ) );
 
 		$this->assertSame( array( 'stats' ), keep_module_active( array( 'stats' ) ) );
 	}

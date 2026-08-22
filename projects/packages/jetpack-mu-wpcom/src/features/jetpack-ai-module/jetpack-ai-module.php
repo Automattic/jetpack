@@ -70,14 +70,10 @@ function keep_module_active( $modules ) {
 		return $modules;
 	}
 
-	// Nothing to report active on a version that predates the module, or before
-	// the Jetpack plugin has loaded at all (the constant is defined by the
-	// plugin's main file). Answered from disk on purpose: Modules lives in
-	// jetpack-status too, and the whole point of this file is that another
-	// plugin may be supplying an older copy of that package, so nothing here
-	// calls into it.
-	$plugin_dir = Constants::get_constant( 'JETPACK__PLUGIN_DIR' );
-	if ( ! $plugin_dir || ! is_file( $plugin_dir . 'modules/ai.php' ) ) {
+	// Nothing to report active before the Jetpack plugin has loaded, or on a
+	// version that predates the module. is_callable() covers both the class
+	// and the method being there before either is used.
+	if ( ! is_callable( array( 'Jetpack', 'is_module' ) ) || ! \Jetpack::is_module( 'ai' ) ) {
 		return $modules;
 	}
 
