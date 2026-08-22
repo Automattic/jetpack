@@ -42,6 +42,11 @@ if ( ! Constants::is_true( 'IS_ATOMIC' ) ) {
  * version it picks here is the same one it would pick later in the request.
  * (With `JETPACK_AUTOLOAD_DEBUG_EARLY_LOADS` set, the autoloader warns about
  * this load. That is expected.)
+ *
+ * Dev-only caveat: when the package is loaded through the Beta Tester plugin
+ * (`JETPACK_MU_WPCOM_LOAD_VIA_BETA_PLUGIN`), this runs at regular-plugin time
+ * from that plugin's plain Composer autoloader, so it pins that build's copy.
+ * No worse than without the preload; just not the guarantee above.
  */
 function preload_status_visitor() {
 	class_exists( Visitor::class );
@@ -58,8 +63,8 @@ function preload_status_visitor() {
  * AI is therefore on for everyone here, and cannot be turned off. That matches
  * Atomic before the module, where there was no site-wide switch at all.
  *
- * @param array $modules Active module slugs.
- * @return array Active module slugs.
+ * @param mixed $modules Active module slugs. Normally an array; anything else is passed through.
+ * @return mixed Active module slugs.
  */
 function keep_module_active( $modules ) {
 	if ( ! is_array( $modules ) ) {
