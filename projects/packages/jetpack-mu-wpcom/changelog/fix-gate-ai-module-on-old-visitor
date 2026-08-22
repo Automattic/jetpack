@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep Jetpack AI off where another plugin supplies an older copy of the Status package, so the block editor keeps working.
