@@ -43,6 +43,10 @@ class Jetpack_Mu_Wpcom {
 		// time, before WP loads active plugins.
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
+
+			// Must run before regular plugins load, so it lives here rather
+			// than in load_features(). See the file header for why.
+			require_once __DIR__ . '/features/jetpack-ai-module/preload-status-visitor.php';
 		}
 
 		/*

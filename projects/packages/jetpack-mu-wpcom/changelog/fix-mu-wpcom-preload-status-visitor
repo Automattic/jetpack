@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack AI: Load the newest copy of the Status package's Visitor class at mu-plugin time, so a plugin bundling an older copy no longer breaks the editor on Atomic.
