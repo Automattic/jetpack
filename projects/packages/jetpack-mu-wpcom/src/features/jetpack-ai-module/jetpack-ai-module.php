@@ -81,9 +81,12 @@ function keep_module_active( $modules ) {
 	}
 
 	// Nothing to report active before the Jetpack plugin has loaded, or on a
-	// version that predates the module. is_callable() covers both the class
-	// and the method being there before either is used.
-	if ( ! is_callable( array( 'Jetpack', 'is_module' ) ) || ! \Jetpack::is_module( 'ai' ) ) {
+	// version that predates the module.
+	if ( ! class_exists( 'Jetpack' ) ) {
+		return $modules;
+	}
+	// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; Jetpack is the standalone plugin on Atomic, not a package this one requires.
+	if ( ! \Jetpack::is_module( 'ai' ) ) {
 		return $modules;
 	}
 
