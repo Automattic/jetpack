@@ -43,6 +43,15 @@ class Jetpack_Mu_Wpcom {
 		// time, before WP loads active plugins.
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
+
+			// Must run before regular plugins load, so it lives here rather
+			// than in load_features(). See the file header for why.
+			//
+			// Temporary until 16.2 reaches Atomic. Removing it is a two-stage
+			// process so the wpcom mid-deploy safety check does not fail:
+			// first a PR that only removes this require (deploy it), then a
+			// follow-up that deletes the file.
+			require_once __DIR__ . '/features/jetpack-ai-module/jetpack-ai-module.php';
 		}
 
 		/*
