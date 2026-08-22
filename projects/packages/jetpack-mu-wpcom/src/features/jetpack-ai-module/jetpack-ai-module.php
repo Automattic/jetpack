@@ -4,8 +4,12 @@
  *
  * Loaded at mu-plugin time from Jetpack_Mu_Wpcom::init(), not from
  * load_features(), because the preload below has to run before any regular
- * plugin registers an autoloader. Remove this file, and its require, once 16.2
- * reaches Atomic and the module can be toggled for real.
+ * plugin registers an autoloader.
+ *
+ * Temporary until 16.2 reaches Atomic and the module can be toggled for real.
+ * Remove in two stages so the wpcom mid-deploy safety check does not fail:
+ * first a PR that only removes the require in init() (deploy it), then a
+ * follow-up that deletes this file.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -68,6 +72,12 @@ function preload_status_visitor() {
 function keep_module_active( $modules ) {
 	if ( ! is_array( $modules ) ) {
 		return $modules;
+	}
+
+	// Safety net. If an older Visitor got defined anyway, the AI surfaces would
+	// fatal, so keep the module off rather than on.
+	if ( ! method_exists( Visitor::class, 'is_tracking_automattician' ) ) {
+		return array_values( array_diff( $modules, array( 'ai' ) ) );
 	}
 
 	// Nothing to report active before the Jetpack plugin has loaded, or on a
