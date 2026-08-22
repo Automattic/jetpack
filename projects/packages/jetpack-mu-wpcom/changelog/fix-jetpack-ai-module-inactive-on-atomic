@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack AI: Keep AI features working on Atomic sites where the new AI module has not been activated.

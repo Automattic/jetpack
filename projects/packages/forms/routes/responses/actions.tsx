@@ -297,6 +297,9 @@ type NavigateFunction = UseNavigateResult< string >;
 
 type GetActionsParams = {
 	navigate: NavigateFunction;
+	// When supplied, View selects the response instead of navigating to the
+	// standalone page. The caller decides when that applies.
+	onSelectResponse?: ( id: string ) => void;
 };
 
 type GetActionsReturn = {
@@ -322,7 +325,7 @@ type GetRowActionsParams = GetActionsParams & {
  * @param {GetActionsParams} params - Parameters for generating actions.
  * @return {GetActionsReturn} Object containing the actions.
  */
-export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
+export function getActions( { navigate, onSelectResponse }: GetActionsParams ): GetActionsReturn {
 	const viewAction: Action = {
 		id: 'view-response',
 		isPrimary: true,
@@ -337,6 +340,11 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 			const [ item ] = items;
 
 			if ( ! item ) {
+				return;
+			}
+
+			if ( onSelectResponse ) {
+				onSelectResponse( String( item.id ) );
 				return;
 			}
 
@@ -1286,7 +1294,11 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
  * @param {GetRowActionsParams} params - Parameters for generating actions.
  * @return {Action[]} Array of action configurations.
  */
-export function getRowActions( { navigate, view }: GetRowActionsParams ): Action[] {
+export function getRowActions( {
+	navigate,
+	view,
+	onSelectResponse,
+}: GetRowActionsParams ): Action[] {
 	const {
 		viewAction,
 		printAction,
@@ -1298,7 +1310,7 @@ export function getRowActions( { navigate, view }: GetRowActionsParams ): Action
 		deleteAction,
 		markAsReadAction,
 		markAsUnreadAction,
-	} = getActions( { navigate } );
+	} = getActions( { navigate, onSelectResponse } );
 
 	switch ( view ) {
 		case 'trash':

@@ -323,6 +323,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			require_once __DIR__ . '/features/jetpack-ai-module/jetpack-ai-module.php';
 			require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
 		}
 		require_once __DIR__ . '/features/post-categories/quick-actions.php';
@@ -391,6 +392,7 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/survicate/class-survicate.php';
 		}
 		require_once __DIR__ . '/features/ai-assistant-banner/ai-assistant-banner.php';
+		require_once __DIR__ . '/features/expiry-notices/expiry-notices.php';
 		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
 		require_once __DIR__ . '/features/marketing/marketing.php';
 		require_once __DIR__ . '/features/pages/pages.php';
@@ -760,6 +762,12 @@ class Jetpack_Mu_Wpcom {
 			if ( self::should_disable_comment_experience( $blog_id ) ) {
 				return;
 			}
+
+			if ( class_exists( '\Automattic\Jetpack\Comments\Comments' ) && \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
+				\Automattic\Jetpack\Comments\Comments::init();
+				return;
+			}
+
 			require_once __DIR__ . '/features/verbum-comments/class-verbum-comments.php';
 			new \Automattic\Jetpack\Verbum_Comments();
 		}

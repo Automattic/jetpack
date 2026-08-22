@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Tests: drop the temporary Atomic AI module fallback so the module-as-master tests keep exercising the plugin's own behaviour.
