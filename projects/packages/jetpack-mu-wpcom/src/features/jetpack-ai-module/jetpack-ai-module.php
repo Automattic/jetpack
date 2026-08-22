@@ -1,8 +1,12 @@
 <?php
 /**
- * Retained, unloaded, so the file deletion deploys separately from the require removal.
+ * Keep Jetpack AI usable on Atomic sites whose `ai` module never activated.
  *
- * Nothing requires this file. It is deleted in a follow-up once this has deployed.
+ * Depends on preload-status-visitor.php, loaded at mu-plugin time. Reporting the
+ * module active makes Image Studio enqueue, and it calls a `Status\Visitor` method
+ * that an older copy of jetpack-status bundled by another plugin does not have.
+ * The preload makes sure the newest copy is the one defined. Never load this
+ * file without it.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -50,3 +54,4 @@ function keep_module_active( $modules ) {
 
 	return $modules;
 }
+add_filter( 'jetpack_active_modules', __NAMESPACE__ . '\\keep_module_active' );
