@@ -12,9 +12,17 @@ use function Automattic\Jetpack\Jetpack_Mu_Wpcom\Jetpack_AI_Module\keep_module_a
 
 /**
  * Loading the feature file on Atomic must define Visitor (the preload), and the
- * active-modules callback must only ever add `ai` when that module exists.
+ * active-modules callback must only ever add `ai` when the installed Jetpack
+ * actually ships that module.
  */
 class Jetpack_AI_Module_Test extends \WorDBless\BaseTestCase {
+
+	/**
+	 * Fake Jetpack plugin directory for the current test, if any.
+	 *
+	 * @var string|null
+	 */
+	private $plugin_dir = null;
 
 	/**
 	 * The feature only runs on Atomic.
@@ -26,34 +34,34 @@ class Jetpack_AI_Module_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Clean up constants and any availability filters a test added.
+	 * Clean up constants and the fake plugin directory.
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
-		remove_all_filters( 'jetpack_get_available_modules' );
-		remove_all_filters( 'jetpack_get_available_standalone_modules' );
+		if ( $this->plugin_dir ) {
+			if ( is_file( $this->plugin_dir . 'modules/ai.php' ) ) {
+				unlink( $this->plugin_dir . 'modules/ai.php' );
+			}
+			rmdir( $this->plugin_dir . 'modules' );
+			rmdir( $this->plugin_dir );
+			$this->plugin_dir = null;
+		}
 		parent::tear_down();
 	}
 
 	/**
-	 * Force the available module list, on both code paths
-	 * Modules::get_available() can take (with and without the Jetpack plugin).
+	 * Point JETPACK__PLUGIN_DIR at a fake plugin directory, with or without a
+	 * modules/ai.php file in it.
 	 *
-	 * @param string[] $slugs The module slugs to report as available.
+	 * @param bool $with_ai_module Whether the fake plugin ships the `ai` module.
 	 */
-	private function set_available_modules( array $slugs ) {
-		add_filter(
-			'jetpack_get_available_modules',
-			function () use ( $slugs ) {
-				return array_fill_keys( $slugs, '1.0' );
-			}
-		);
-		add_filter(
-			'jetpack_get_available_standalone_modules',
-			function () use ( $slugs ) {
-				return $slugs;
-			}
-		);
+	private function set_fake_jetpack_plugin_dir( $with_ai_module ) {
+		$this->plugin_dir = sys_get_temp_dir() . '/jetpack-ai-module-test-' . uniqid() . '/';
+		mkdir( $this->plugin_dir . 'modules', 0777, true );
+		if ( $with_ai_module ) {
+			file_put_contents( $this->plugin_dir . 'modules/ai.php', "<?php\n" );
+		}
+		Constants::set_constant( 'JETPACK__PLUGIN_DIR', $this->plugin_dir );
 	}
 
 	/**
@@ -69,14 +77,17 @@ class Jetpack_AI_Module_Test extends \WorDBless\BaseTestCase {
 	 * Non-array input passes through untouched.
 	 */
 	public function test_keep_module_active_ignores_non_arrays() {
+		$this->set_fake_jetpack_plugin_dir( true );
+
 		$this->assertSame( 'nope', keep_module_active( 'nope' ) );
 	}
 
 	/**
-	 * `ai` is added once when the module exists, and never duplicated.
+	 * `ai` is added once when the installed Jetpack ships the module, and never
+	 * duplicated.
 	 */
-	public function test_keep_module_active_adds_ai_once_when_available() {
-		$this->set_available_modules( array( 'stats', 'ai' ) );
+	public function test_keep_module_active_adds_ai_once_when_module_shipped() {
+		$this->set_fake_jetpack_plugin_dir( true );
 
 		$this->assertSame( array( 'stats', 'ai' ), keep_module_active( array( 'stats' ) ) );
 		$this->assertSame( array( 'ai', 'stats' ), keep_module_active( array( 'ai', 'stats' ) ) );
@@ -88,19 +99,17 @@ class Jetpack_AI_Module_Test extends \WorDBless\BaseTestCase {
 	 * not exist.
 	 */
 	public function test_keep_module_active_leaves_list_alone_on_older_jetpack() {
-		$this->set_available_modules( array( 'stats' ) );
+		$this->set_fake_jetpack_plugin_dir( false );
 
 		$this->assertSame( array( 'stats' ), keep_module_active( array( 'stats' ) ) );
 	}
 
 	/**
-	 * Before the Jetpack plugin loads, no modules are available at all. The list
-	 * must still come back unchanged: Modules::is_module() would say yes to any
-	 * slug against an empty list, which is why the callback checks the list
-	 * directly.
+	 * Before the Jetpack plugin loads, JETPACK__PLUGIN_DIR is not defined. The
+	 * list must come back unchanged.
 	 */
 	public function test_keep_module_active_leaves_list_alone_before_jetpack_loads() {
-		$this->set_available_modules( array() );
+		$this->assertFalse( Constants::is_defined( 'JETPACK__PLUGIN_DIR' ), 'Test assumes the Jetpack plugin is not loaded.' );
 
 		$this->assertSame( array( 'stats' ), keep_module_active( array( 'stats' ) ) );
 	}

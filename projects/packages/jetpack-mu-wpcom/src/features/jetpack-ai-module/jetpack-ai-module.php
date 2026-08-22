@@ -13,7 +13,6 @@
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Jetpack_AI_Module;
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Visitor;
 
 // Atomic only. Simple runs no Jetpack modules and keeps the `jetpack_ai_enabled`
@@ -72,12 +71,13 @@ function keep_module_active( $modules ) {
 	}
 
 	// Nothing to report active on a version that predates the module, or before
-	// the Jetpack plugin has loaded at all. Reads the available list, not the
-	// active one, so it does not re-enter this filter. Checked directly rather
-	// than via Modules::is_module(), which treats an empty available list as
-	// "anything goes" (a validate_file() quirk) and would add `ai` on a request
-	// that asks for active modules before Jetpack loads.
-	if ( ! in_array( 'ai', ( new Modules() )->get_available(), true ) ) {
+	// the Jetpack plugin has loaded at all (the constant is defined by the
+	// plugin's main file). Answered from disk on purpose: Modules lives in
+	// jetpack-status too, and the whole point of this file is that another
+	// plugin may be supplying an older copy of that package, so nothing here
+	// calls into it.
+	$plugin_dir = Constants::get_constant( 'JETPACK__PLUGIN_DIR' );
+	if ( ! $plugin_dir || ! is_file( $plugin_dir . 'modules/ai.php' ) ) {
 		return $modules;
 	}
 
