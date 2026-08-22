@@ -557,7 +557,10 @@ class Form_Editor_Test extends BaseTestCase {
 	 */
 	private function call_private( $method, array $args = array() ) {
 		$ref = new \ReflectionMethod( Form_Editor::class, $method );
-		$ref->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			// No-op since 8.1 and deprecated in 8.5, but required before that.
+			$ref->setAccessible( true );
+		}
 
 		return $ref->invokeArgs( null, $args );
 	}
@@ -644,11 +647,13 @@ class Form_Editor_Test extends BaseTestCase {
 			array( array( 'core/edit-post' => array( 'welcomeGuide' => false ) ) )
 		);
 
-		$this->assertIsArray( $this->captured_query_vars, 'The eligibility check should query for forms' );
-		$this->assertSame( $user_id, (int) $this->captured_query_vars['author'] );
-		$this->assertSame( Contact_Form::POST_TYPE, $this->captured_query_vars['post_type'] );
-		$this->assertSame( 'ids', $this->captured_query_vars['fields'] );
-		$this->assertSame( 1, (int) $this->captured_query_vars['posts_per_page'] );
+		$this->assertNotNull( $this->captured_query_vars, 'The eligibility check should query for forms' );
+		$query_vars = (array) $this->captured_query_vars;
+
+		$this->assertSame( $user_id, (int) $query_vars['author'] );
+		$this->assertSame( Contact_Form::POST_TYPE, $query_vars['post_type'] );
+		$this->assertSame( 'ids', $query_vars['fields'] );
+		$this->assertSame( 1, (int) $query_vars['posts_per_page'] );
 	}
 
 	/**
@@ -664,7 +669,9 @@ class Form_Editor_Test extends BaseTestCase {
 			array( array( 'core/edit-post' => array( 'welcomeGuide' => false ) ) )
 		);
 
-		$statuses = $this->captured_query_vars['post_status'];
+		$this->assertNotNull( $this->captured_query_vars, 'The eligibility check should query for forms' );
+		$query_vars = (array) $this->captured_query_vars;
+		$statuses   = $query_vars['post_status'];
 
 		$this->assertIsArray( $statuses );
 		$this->assertNotContains( 'auto-draft', $statuses, 'auto-draft must not count as owning a form' );
@@ -765,5 +772,169 @@ class Form_Editor_Test extends BaseTestCase {
 
 		wp_set_current_user( 0 );
 		$this->assertSame( array(), $this->call_private( 'get_persisted_preferences' ) );
+	}
+
+	/**
+	 * Puts the current screen in the form editor.
+	 *
+	 * @return \WP_Screen The screen that was set.
+	 */
+	private function set_form_editor_screen() {
+		$screen                  = WP_Screen::get( Contact_Form::POST_TYPE );
+		$screen->is_block_editor = true;
+		set_current_screen( $screen );
+
+		return $screen;
+	}
+
+	/**
+	 * Runs the enqueue with a clean script registry.
+	 */
+	private function run_enqueue() {
+		global $wp_scripts;
+
+		$wp_scripts = null;
+		wp_scripts();
+
+		Form_Editor::enqueue_admin_scripts();
+	}
+
+	/**
+	 * Clears everything the enqueue tests touch.
+	 */
+	private function clean_up_enqueue() {
+		set_current_screen( 'front' );
+		wp_deregister_script( Form_Editor::SCRIPT_HANDLE );
+		wp_deregister_script( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE );
+	}
+
+	/**
+	 * Skips when the guide bundle has not been built, matching the other
+	 * enqueue tests here.
+	 */
+	private function skip_without_guide_asset() {
+		if ( ! file_exists( __DIR__ . '/../../../dist/form-editor/jetpack-form-welcome-guide.asset.php' ) ) {
+			$this->markTestSkipped( 'Welcome guide asset file does not exist; skipping enqueue test.' );
+		}
+	}
+
+	/**
+	 * A user the guide is meant for gets the bundle, along with the flag the
+	 * script reads.
+	 */
+	public function test_welcome_guide_is_enqueued_for_an_eligible_user() {
+		$this->skip_without_guide_asset();
+		$this->log_in_new_user();
+		$this->stub_form_ids = array();
+
+		$this->set_form_editor_screen();
+		$this->run_enqueue();
+
+		$this->assertTrue(
+			wp_script_is( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'enqueued' ),
+			'The guide should load for a user it is meant for'
+		);
+
+		$inline = wp_scripts()->get_data( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'before' );
+		$this->assertStringContainsString(
+			'"isEligible":true',
+			is_array( $inline ) ? implode( '', $inline ) : (string) $inline,
+			'The eligibility flag should be printed for the script to read'
+		);
+
+		$this->clean_up_enqueue();
+	}
+
+	/**
+	 * Someone experienced who already owns a form never downloads the bundle.
+	 */
+	public function test_welcome_guide_is_not_enqueued_for_an_ineligible_user() {
+		$this->skip_without_guide_asset();
+		$user_id             = $this->log_in_new_user();
+		$this->stub_form_ids = array( 1234 );
+		update_user_meta(
+			$user_id,
+			'wp_persisted_preferences',
+			array( 'core/edit-post' => array( 'welcomeGuide' => false ) )
+		);
+
+		$this->set_form_editor_screen();
+		$this->run_enqueue();
+
+		$this->assertFalse( wp_script_is( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'enqueued' ) );
+		$this->assertTrue(
+			wp_script_is( Form_Editor::SCRIPT_HANDLE, 'enqueued' ),
+			'The editor bundle itself should still load'
+		);
+
+		$this->clean_up_enqueue();
+	}
+
+	/**
+	 * Once dismissed there is nothing to show, so the bundle is skipped.
+	 */
+	public function test_welcome_guide_is_not_enqueued_once_dismissed() {
+		$this->skip_without_guide_asset();
+		$user_id             = $this->log_in_new_user();
+		$this->stub_form_ids = array();
+		update_user_meta(
+			$user_id,
+			'wp_persisted_preferences',
+			array( 'jetpack/forms' => array( 'welcomeGuide' => false ) )
+		);
+
+		$this->set_form_editor_screen();
+		$this->run_enqueue();
+
+		$this->assertFalse( wp_script_is( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'enqueued' ) );
+
+		$this->clean_up_enqueue();
+	}
+
+	/**
+	 * The query argument overrides both, so the guide can always be re-tested.
+	 */
+	public function test_welcome_guide_is_enqueued_when_forced() {
+		$this->skip_without_guide_asset();
+		$user_id             = $this->log_in_new_user();
+		$this->stub_form_ids = array( 1234 );
+		update_user_meta(
+			$user_id,
+			'wp_persisted_preferences',
+			array(
+				'core/edit-post' => array( 'welcomeGuide' => false ),
+				'jetpack/forms'  => array( 'welcomeGuide' => false ),
+			)
+		);
+		$_GET[ Form_Editor::FORCE_QUERY_ARG ] = '1';
+
+		$this->set_form_editor_screen();
+		$this->run_enqueue();
+
+		$this->assertTrue(
+			wp_script_is( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'enqueued' ),
+			'The force argument should load the guide regardless'
+		);
+
+		$this->clean_up_enqueue();
+	}
+
+	/**
+	 * Other post types get the editor bundle but never the guide, which is what
+	 * keeps it away from the in-editor navigation path.
+	 */
+	public function test_welcome_guide_is_not_enqueued_outside_the_form_editor() {
+		$this->skip_without_guide_asset();
+		$this->log_in_new_user();
+		$this->stub_form_ids = array();
+
+		$screen                  = WP_Screen::get( 'post' );
+		$screen->is_block_editor = true;
+		set_current_screen( $screen );
+		$this->run_enqueue();
+
+		$this->assertFalse( wp_script_is( Form_Editor::WELCOME_GUIDE_SCRIPT_HANDLE, 'enqueued' ) );
+
+		$this->clean_up_enqueue();
 	}
 }
