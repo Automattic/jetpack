@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the block editor working on sites where another plugin supplies an older copy of the Status package.

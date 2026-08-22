@@ -43,6 +43,7 @@ class Jetpack_Mu_Wpcom {
 		// time, before WP loads active plugins.
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
+			require_once __DIR__ . '/common/pin-status-visitor.php';
 		}
 
 		/*
