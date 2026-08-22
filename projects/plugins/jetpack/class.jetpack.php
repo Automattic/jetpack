@@ -2209,7 +2209,20 @@ class Jetpack {
 	}
 
 	/**
-	 * Activate new modules.
+	 * Bring the site's active modules in line with the version of Jetpack now running.
+	 *
+	 * Hooked on `init` for every request, but does real work only on the first request after
+	 * the plugin's version number goes up. On that request it:
+	 *
+	 *  1. deactivates each active module whose code changed since the recorded version, so that
+	 *     module's activation routine runs again below;
+	 *  2. records the version now running, keeping the previously recorded one alongside it;
+	 *  3. hands off to {@see self::activate_default_modules()} with the version window between
+	 *     the two. That is what actually turns modules on: every "Auto Activate: Yes" module
+	 *     introduced within the window, plus the modules deactivated in step 1.
+	 *
+	 * A site that has never recorded a version is seeded first, so a fresh install takes the
+	 * same path with the entire default module set inside its window.
 	 *
 	 * @param bool $redirect Should this function redirect after activation.
 	 *
@@ -2220,60 +2233,184 @@ class Jetpack {
 			return;
 		}
 
-		$jetpack_old_version = Jetpack_Options::get_option( 'version' );
-		if ( ! $jetpack_old_version ) {
-			$old_version         = '1.1:' . time();
-			$version             = $old_version;
-			$jetpack_old_version = $version;
-			/** This action is documented in class.jetpack.php */
-			do_action( 'updating_jetpack_version', $version, false );
-			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
-		}
+		$previous = self::seed_version_option();
 
-		list( $jetpack_version ) = explode( ':', $jetpack_old_version );
+		list( $previous_version ) = explode( ':', $previous );
 
-		if ( version_compare( JETPACK__VERSION, $jetpack_version, '<=' ) ) {
+		if ( ! self::is_version_upgrade( $previous_version ) ) {
 			return;
 		}
 
-		$active_modules     = self::get_active_modules();
-		$reactivate_modules = array();
-		foreach ( $active_modules as $active_module ) {
-			$module = self::get_module( $active_module );
+		// Order is load-bearing: the new version is recorded only after the changed modules have
+		// been deactivated, since recording it is what stops this from running again.
+		$reactivate_modules = self::deactivate_modules_changed_since( $previous_version );
+
+		self::record_version_upgrade( $previous );
+
+		self::state( 'message', 'modules_activated' );
+
+		self::activate_default_modules( $previous_version, self::current_version(), $reactivate_modules, $redirect );
+
+		if ( $redirect ) {
+			self::redirect_after_activation();
+		}
+	}
+
+	/**
+	 * The Jetpack version this code is running as.
+	 *
+	 * Read through Constants rather than the bare constant so a caller — a test, most of all —
+	 * can stand in a version instead of being pinned to whatever release the plugin is at.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	private static function current_version() {
+		return Constants::get_constant( 'JETPACK__VERSION' );
+	}
+
+	/**
+	 * The version recorded for this site, seeding it if the site has never recorded one.
+	 *
+	 * An unrecorded site is treated as having run 1.1 — far enough back that every module falls
+	 * inside the upgrade window — so a first run activates the default module set instead of
+	 * doing nothing.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The recorded version, in `<version>:<timestamp>` form.
+	 */
+	private static function seed_version_option() {
+		$recorded = Jetpack_Options::get_option( 'version' );
+		if ( $recorded ) {
+			return $recorded;
+		}
+
+		$old_version = '1.1:' . time();
+		$version     = $old_version;
+
+		/** This action is documented in class.jetpack.php */
+		do_action( 'updating_jetpack_version', $version, false );
+		Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
+
+		return $version;
+	}
+
+	/**
+	 * Whether the code now running is newer than the version last recorded for this site.
+	 *
+	 * Equal versions and downgrades are both "not an upgrade" — module activation only ever
+	 * runs forwards.
+	 *
+	 * @internal Public only so it can be exercised directly by tests. Not a plugin API.
+	 * @since $$next-version$$
+	 *
+	 * @param string $previous_version Version recorded for this site, without its timestamp.
+	 *
+	 * @return bool
+	 */
+	public static function is_version_upgrade( $previous_version ) {
+		return version_compare( self::current_version(), $previous_version, '>' );
+	}
+
+	/**
+	 * Which of the given modules declare that they changed after $previous_version.
+	 *
+	 * Decides nothing and touches no state, so the rule is readable on its own. A module opts in
+	 * by declaring a `Changed:` header; no module shipped today declares one, which makes this
+	 * an empty list in practice.
+	 *
+	 * @internal Public only so it can be exercised directly by tests. Not a plugin API.
+	 * @since $$next-version$$
+	 *
+	 * @param string $previous_version Version recorded for this site, without its timestamp.
+	 * @param array  $modules          Map of module slug to module data, as returned by self::get_module().
+	 *
+	 * @return string[] Module slugs.
+	 */
+	public static function get_modules_changed_since( $previous_version, array $modules ) {
+		$changed = array();
+
+		foreach ( $modules as $slug => $module ) {
 			if ( ! isset( $module['changed'] ) ) {
 				continue;
 			}
 
-			if ( version_compare( $module['changed'], $jetpack_version, '<=' ) ) {
+			if ( version_compare( $module['changed'], $previous_version, '<=' ) ) {
 				continue;
 			}
 
-			$reactivate_modules[] = $active_module;
-			self::deactivate_module( $active_module );
+			$changed[] = $slug;
 		}
 
-		$new_version = JETPACK__VERSION . ':' . time();
+		return $changed;
+	}
+
+	/**
+	 * Deactivate every active module that changed after $previous_version, so that the
+	 * activation which follows runs their activation routines afresh.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $previous_version Version recorded for this site, without its timestamp.
+	 *
+	 * @return string[] Slugs of the deactivated modules, for the caller to reactivate.
+	 */
+	private static function deactivate_modules_changed_since( $previous_version ) {
+		$modules = array();
+		foreach ( self::get_active_modules() as $slug ) {
+			$modules[ $slug ] = self::get_module( $slug );
+		}
+
+		$changed = self::get_modules_changed_since( $previous_version, $modules );
+
+		foreach ( $changed as $slug ) {
+			self::deactivate_module( $slug );
+		}
+
+		return $changed;
+	}
+
+	/**
+	 * Record that the site is now running the current version, keeping what it ran before.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $previous Version recorded for this site, in `<version>:<timestamp>` form.
+	 *
+	 * @return void
+	 */
+	private static function record_version_upgrade( $previous ) {
+		$new_version = self::current_version() . ':' . time();
+
 		/** This action is documented in class.jetpack.php */
-		do_action( 'updating_jetpack_version', $new_version, $jetpack_old_version );
+		do_action( 'updating_jetpack_version', $new_version, $previous );
 		Jetpack_Options::update_options(
 			array(
 				'version'     => $new_version,
-				'old_version' => $jetpack_old_version,
+				'old_version' => $previous,
 			)
 		);
+	}
 
-		self::state( 'message', 'modules_activated' );
-
-		self::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules, $redirect );
-
-		if ( $redirect ) {
-			$page = 'jetpack'; // make sure we redirect to either settings or the jetpack page.
-			if ( isset( $_GET['page'] ) && in_array( $_GET['page'], array( 'jetpack', 'jetpack_modules' ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- we're not changing the site.
-				$page = sanitize_text_field( wp_unslash( $_GET['page'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- we're not changing the site.
-			}
-			wp_safe_redirect( self::admin_url( 'page=' . rawurlencode( $page ) ) );
-			exit( 0 );
+	/**
+	 * Send the admin back to the Jetpack screen now that activation is done.
+	 *
+	 * Kept apart because it ends the request: with `exit` out of activate_new_modules(), that
+	 * method stays reachable in tests.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return never
+	 */
+	private static function redirect_after_activation() {
+		$page = 'jetpack'; // make sure we redirect to either settings or the jetpack page.
+		if ( isset( $_GET['page'] ) && in_array( $_GET['page'], array( 'jetpack', 'jetpack_modules' ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- we're not changing the site.
+			$page = sanitize_text_field( wp_unslash( $_GET['page'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- we're not changing the site.
 		}
+		wp_safe_redirect( self::admin_url( 'page=' . rawurlencode( $page ) ) );
+		exit( 0 );
 	}
 
 	/**
