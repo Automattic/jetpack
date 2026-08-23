@@ -265,8 +265,8 @@ describe( 'useTrafficChart', () => {
 			}
 		} );
 
-		// A manual refetch ignores `enabled`, so the skipped request stays skipped
-		// only as long as `refetch` leaves it out itself.
+		// A manual refetch would ignore `enabled`; `useReport` gates its combined
+		// refetch on it, so the skipped request stays skipped through a retry.
 		it( 'still asks for Views alone when the retry action runs', async () => {
 			const { result } = renderHook( () => useTrafficChart( HOURLY_RANGE, 'hour' ), { wrapper } );
 

@@ -127,15 +127,8 @@ export default function useTrafficChart(
 	const { refetch: refetchLikesComments } = likesComments;
 	const refetch = useCallback( () => {
 		refetchViewsVisitors();
-
-		// A manual refetch ignores `enabled`, so the skipped hourly request has to
-		// be skipped here too — otherwise Retry issues the one request the grain
-		// cannot serve, and its failure re-errors a widget whose Views loaded.
-		// `useReport` gates its own comparison refetch the same way.
-		if ( ! isHourly ) {
-			refetchLikesComments();
-		}
-	}, [ isHourly, refetchViewsVisitors, refetchLikesComments ] );
+		refetchLikesComments();
+	}, [ refetchViewsVisitors, refetchLikesComments ] );
 
 	// Gate the error per query — the two independent queries back separate tabs, so
 	// one failing on first load must surface an error rather than render as empty
