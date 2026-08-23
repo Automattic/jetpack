@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { QueryClient, QueryClientProvider, type UseQueryOptions } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -176,5 +176,55 @@ describe( 'useReport', () => {
 
 		expect( result.current.isFetching ).toBe( false );
 		expect( result.current.isLoading ).toBe( false );
+	} );
+
+	// React Query's own `refetch()` deliberately ignores `enabled`, so the
+	// combined refetch applies the gate itself. Without it, a widget's Retry
+	// would issue the one request it switched off — and widgets would each need
+	// their own guard around the retry action.
+	it( 'leaves a switched-off query alone when the combined refetch runs', async () => {
+		const fetches: string[] = [];
+		const queryFactory = (
+			p: ReportParams,
+			queryType: string
+		): UseQueryOptions< { summary: Record< string, unknown > } > => ( {
+			queryKey: [ 'refetch-gate', queryType, p.from, p.to ],
+			queryFn: async () => {
+				fetches.push( queryType );
+				return { summary: { views: 1 } };
+			},
+		} );
+
+		const params: ReportParams = {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			compare_from: '2026-05-01',
+			compare_to: '2026-05-07',
+			compare_preset: 'previous-period',
+			comp: '1',
+			interval: 'day',
+			period: 'day',
+			section: 'stats',
+		};
+
+		const { result, rerender } = renderHook(
+			( { enabled }: { enabled: boolean } ) => useReport( queryFactory, params, { enabled } ),
+			{ wrapper, initialProps: { enabled: true } }
+		);
+
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		expect( fetches ).toEqual( [ 'primary', 'comparison' ] );
+
+		await act( async () => {
+			await result.current.refetch();
+		} );
+		expect( fetches ).toEqual( [ 'primary', 'comparison', 'primary', 'comparison' ] );
+
+		rerender( { enabled: false } );
+
+		await act( async () => {
+			await result.current.refetch();
+		} );
+		expect( fetches ).toEqual( [ 'primary', 'comparison', 'primary', 'comparison' ] );
 	} );
 } );
