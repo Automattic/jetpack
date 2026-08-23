@@ -759,6 +759,138 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the tracking signal matches the Status package's own answer whenever
+	 * that package is new enough to have one. The fallback below must never change
+	 * the result for sites running a current jetpack-status.
+	 */
+	public function test_tracking_automattician_defers_to_visitor_when_the_method_exists() {
+		$visitor = new \Automattic\Jetpack\Status\Visitor();
+
+		$this->assertTrue(
+			method_exists( $visitor, 'is_tracking_automattician' ),
+			'The bundled Status package should have the method; the fallback tests below cover the other case.'
+		);
+		$this->assertSame( $visitor->is_tracking_automattician(), ImageStudio\is_tracking_automattician() );
+	}
+
+	/**
+	 * Test that when the Visitor reports the signal, so does this function. Pairs with
+	 * the test above, which pins the false direction, to show the guard delegates in both.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_tracking_automattician_matches_the_visitor_when_it_reports_true() {
+		if ( function_exists( 'is_automattician' ) ) {
+			$this->markTestSkipped( 'is_automattician already defined; cannot stub.' );
+		}
+
+		eval( 'function is_automattician() { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		$visitor = new \Automattic\Jetpack\Status\Visitor();
+
+		$this->assertTrue( $visitor->is_tracking_automattician(), 'Precondition: the real Visitor reports the signal.' );
+		$this->assertSame( $visitor->is_tracking_automattician(), ImageStudio\is_tracking_automattician() );
+	}
+
+	/**
+	 * Test that an older Status package, whose Visitor has no is_tracking_automattician(),
+	 * reports no Automattician traffic rather than fataling.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_tracking_automattician_false_on_older_visitor_without_signals() {
+		$this->load_visitor_without_tracking_automattician();
+
+		$this->assertFalse( ImageStudio\is_tracking_automattician() );
+	}
+
+	/**
+	 * Test that on an older Status package the employee identity still reports the signal.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_tracking_automattician_on_older_visitor_for_employee_identity() {
+		$this->load_visitor_without_tracking_automattician();
+
+		if ( function_exists( 'is_automattician' ) ) {
+			$this->markTestSkipped( 'is_automattician already defined; cannot stub.' );
+		}
+
+		eval( 'function is_automattician() { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		$this->assertTrue( ImageStudio\is_tracking_automattician() );
+	}
+
+	/**
+	 * Test that on an older Status package a WordPress.com proxy still reports the signal.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_tracking_automattician_on_older_visitor_for_wpcom_proxy() {
+		$this->load_visitor_without_tracking_automattician();
+
+		if ( function_exists( 'wpcom_is_proxied_request' ) ) {
+			$this->markTestSkipped( 'wpcom_is_proxied_request already defined; cannot stub.' );
+		}
+
+		eval( 'function wpcom_is_proxied_request() { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		$this->assertTrue( ImageStudio\is_tracking_automattician() );
+	}
+
+	/**
+	 * Test that on an older Status package an Atomic proxied request still reports the
+	 * signal. This is the check the Visitor method would otherwise have made for us.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_tracking_automattician_on_older_visitor_for_at_proxied_request() {
+		$this->load_visitor_without_tracking_automattician();
+
+		if ( defined( 'AT_PROXIED_REQUEST' ) ) {
+			$this->markTestSkipped( 'AT_PROXIED_REQUEST already defined; cannot set it.' );
+		}
+
+		define( 'AT_PROXIED_REQUEST', true );
+
+		$this->assertTrue( ImageStudio\is_tracking_automattician() );
+	}
+
+	/**
+	 * Claim the Visitor class name with a copy that predates is_tracking_automattician(),
+	 * modelling another plugin's autoloader supplying an older jetpack-status.
+	 *
+	 * Callers must be process-isolated: the real class can never load afterwards.
+	 */
+	private function load_visitor_without_tracking_automattician() {
+		if ( class_exists( \Automattic\Jetpack\Status\Visitor::class, false ) ) {
+			$this->markTestSkipped( 'The real Visitor is already loaded; an older one cannot be substituted.' );
+		}
+
+		require_once __DIR__ . '/../../../lib/fixtures/Automattic/Jetpack/Status/class-visitor.php';
+
+		$this->assertFalse(
+			method_exists( new \Automattic\Jetpack\Status\Visitor(), 'is_tracking_automattician' ),
+			'The older Visitor did not take effect, so the fallback would not be exercised.'
+		);
+	}
+
+	/**
 	 * Test inline script includes canGenerateVideoClips property.
 	 */
 	public function test_inline_script_includes_can_generate_video_clips() {
