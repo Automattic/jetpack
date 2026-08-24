@@ -80,16 +80,11 @@ class REST_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Rotates the shared secret and opens the export window.
+	 * Rotates the shared secret.
 	 *
 	 * Generates a cryptographically random 64-character hex secret, stores it
-	 * in a WordPress option (autoload disabled), opens the 60-minute export
-	 * window, and returns the secret. The caller uses this secret to
-	 * authenticate export requests via HMAC.
-	 *
-	 * Rotating the secret intentionally also opens the export window so the
-	 * Pressable client flow is a single round trip: rotate, then immediately
-	 * stream from ?reprint-api-jetpack using HMAC.
+	 * in a WordPress option (autoload disabled), and returns it. The caller
+	 * uses this secret to authenticate export requests via HMAC.
 	 *
 	 * @return WP_REST_Response The new secret on success, or a 500 error.
 	 */
@@ -102,9 +97,6 @@ class REST_Controller extends WP_REST_Controller {
 				500
 			);
 		}
-
-		// Open the sliding export window so the client can stream right away.
-		Reprint_Exporter::open_export_window();
 
 		return new WP_REST_Response( array( 'secret' => $secret ), 200 );
 	}

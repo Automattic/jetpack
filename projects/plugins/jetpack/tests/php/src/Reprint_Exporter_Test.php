@@ -282,11 +282,10 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Rotating the secret generates, stores, and returns a 64-char hex secret,
-	 * and opens the export window.
+	 * Rotating the secret generates and stores a 64-char hex secret without
+	 * opening the export window.
 	 */
-	public function test_rotate_secret_generates_stores_and_enables() {
-		$before   = time();
+	public function test_rotate_secret_generates_stores_and_does_not_open_the_export_window() {
 		$response = ( new REST_Controller() )->rotate_secret();
 		$data     = $response->get_data();
 
@@ -294,10 +293,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'secret', $data );
 		$this->assertMatchesRegularExpression( '/^[0-9a-f]{64}$/', $data['secret'] );
 		$this->assertSame( $data['secret'], get_option( Reprint_Exporter::SECRET_OPTION ) );
-
-		$enabled_at = (int) get_option( Reprint_Exporter::ENABLED_OPTION );
-		$this->assertGreaterThanOrEqual( $before, $enabled_at );
-		$this->assertTrue( Reprint_Exporter::is_export_window_open() );
+		$this->assertFalse( get_option( Reprint_Exporter::ENABLED_OPTION, false ) );
 	}
 
 	/**
