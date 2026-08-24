@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix the file selection and open file carrying over when you switch to a different backup.
+Reset the file browser when you switch to a different backup.
