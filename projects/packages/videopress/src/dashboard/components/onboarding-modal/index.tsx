@@ -186,9 +186,11 @@ const VALUE_CARDS: ValueCard[] = [
 
 /**
  * First-run VideoPress welcome modal, to the VideoPress Revival Figma spec:
- * a deep-green video band up top — the intro film playing in the player the
- * modal is selling — over a white content area with the headline, three
- * value cards, and a Learn more / Upload a video footer.
+ * a deep-green brand band up top — the intro film playing in the player the
+ * modal is selling once a hosted asset is configured, the wireframe artwork
+ * on its own until then (see intro-video.tsx) — over a white content area
+ * with the headline, three value cards, and a Learn more / Upload a video
+ * footer.
  *
  * Built on `@wordpress/ui`'s `Dialog`, matching the modernized dashboard's
  * convention. (The Figma component maps to `@wordpress/components`' Button
@@ -282,13 +284,14 @@ export default function OnboardingModal(): ReactElement | null {
 		setIsDismissed( true );
 	}, [] );
 
-	// The primary CTA has to NAVIGATE, not just reveal: with the widened
-	// gate, the modal can open over the Library or Home routes, where nothing
-	// upload-shaped is underneath. On a true first run this is a no-op hop to
-	// the page already showing.
+	// The primary CTA lands on the Library, whose empty state is the upload
+	// flow: on a true first run this is a no-op hop to the dropzone already
+	// showing. On a site whose media library holds only local videos the
+	// Library lists them instead, with its header Upload button and page-wide
+	// dropzone one gesture away.
 	const goToUpload = useCallback( () => {
 		dismiss();
-		navigate( { href: '/upload' } );
+		navigate( { href: '/' } );
 	}, [ dismiss, navigate ] );
 
 	// Lands on the Library pre-filtered to local videos, where the existing
@@ -326,7 +329,8 @@ export default function OnboardingModal(): ReactElement | null {
 				{ /*
 				 * The band's background is the wireframe brand artwork — the
 				 * idle state the Figma spec shows — with the intro film
-				 * playing over it. The close affordance sits over the band:
+				 * playing over it when one is configured. The close
+				 * affordance sits over the band:
 				 * this modal has no title bar, because its heading belongs
 				 * with the copy below the video. Close renders BEFORE the
 				 * video in the DOM (position: absolute keeps the visuals
@@ -362,7 +366,7 @@ export default function OnboardingModal(): ReactElement | null {
 					</Dialog.Title>
 					<Dialog.Description className="vp-onboarding-modal__lede">
 						{ __(
-							'This is the same player every video on your site will use, hosted on your own site, not someone else’s platform. Upload one to see it live.',
+							'The same ad-free player every video on your site will use — your visitors stay on your site, and VideoPress handles the hosting and streaming. Upload one to see it live.',
 							'jetpack-videopress-pkg'
 						) }
 					</Dialog.Description>

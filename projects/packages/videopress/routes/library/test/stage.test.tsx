@@ -54,6 +54,19 @@ jest.mock( '../../../src/client/components/caption-manager-modal/lazy', () => ( 
 	default: () => <div data-testid="caption-manager-modal" />,
 } ) );
 
+// The onboarding flow has a suite of its own; here only the hand-over between
+// it and the listing is under test. The stub's button stands in for the flow's
+// own exit (a multi-file batch handing the surface back).
+jest.mock( '../../../src/dashboard/components/upload-onboarding', () => ( {
+	__esModule: true,
+	UPLOAD_CONTEXT: 'upload-onboarding',
+	default: ( { onExitToLibrary }: { onExitToLibrary: () => void } ) => (
+		<button type="button" data-testid="upload-onboarding" onClick={ onExitToLibrary }>
+			{ 'onboarding' }
+		</button>
+	),
+} ) );
+
 let mockLibraryTotal = 3;
 let mockItems: LibraryItem[] = [];
 jest.mock( '../../../src/dashboard/hooks/use-library', () => ( {
@@ -378,7 +391,7 @@ describe( 'library stage', () => {
 			confirmSpy.mockRestore();
 		} );
 
-		it( 'lands on Home when the batch empties the library', async () => {
+		it( 'swaps the onboarding empty state in when the batch empties the library', async () => {
 			mockLibraryTotal = 2;
 			const confirmSpy = jest.spyOn( window, 'confirm' ).mockReturnValue( true );
 			const action = mountAndGetDeleteAction();
@@ -387,8 +400,10 @@ describe( 'library stage', () => {
 				await action.callback?.( [ { id: '1' }, { id: '2' } ] as LibraryItem[], {} as never );
 			} );
 
-			// The emptied grid is a dead end — no dropzone, nothing to do next.
-			expect( mockNavigate ).toHaveBeenCalledWith( { href: '/home' } );
+			// The emptied grid is not a dead end: its empty state is the upload
+			// onboarding flow, in place, with no navigation.
+			expect( screen.getByTestId( 'upload-onboarding' ) ).toBeInTheDocument();
+			expect( mockNavigate ).not.toHaveBeenCalled();
 			confirmSpy.mockRestore();
 		} );
 
@@ -422,5 +437,71 @@ describe( 'library stage', () => {
 		// A date rebuilt on every render walks forward while the row is on
 		// screen, and this listing sorts by it.
 		expect( mockDataViewsProps?.data[ 0 ].uploadDate ).toBe( '2026-01-01T00:00:00.000Z' );
+	} );
+
+	describe( 'onboarding empty state', () => {
+		it( 'renders the upload flow instead of the grid when there are no videos', () => {
+			mockLibraryTotal = 0;
+
+			render( <Stage /> );
+
+			expect( screen.getByTestId( 'upload-onboarding' ) ).toBeInTheDocument();
+			expect( screen.queryByTestId( 'dataviews' ) ).not.toBeInTheDocument();
+			// The flow's dropzone is the one upload affordance: no header button,
+			// no page-wide DropZone racing it.
+			expect( screen.queryByRole( 'button', { name: 'Upload video' } ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'keeps the listing while videos exist', () => {
+			render( <Stage /> );
+
+			expect( screen.queryByTestId( 'upload-onboarding' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+		} );
+
+		it( 'keeps the listing when the queue already holds a non-flow upload', () => {
+			// A batch's in-flight rows render in the listing; the flow must not
+			// cover them just because the persisted count still reads zero.
+			mockLibraryTotal = 0;
+			mockQueue = [
+				{
+					id: 'q1',
+					context: 'upload-batch',
+					status: 'uploading',
+					progress: 0.5,
+					file: new File( [], 'a.mp4' ),
+					enqueuedAt: '2026-01-01T00:00:00',
+				},
+			];
+
+			render( <Stage /> );
+
+			expect( screen.queryByTestId( 'upload-onboarding' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+		} );
+
+		it( 'hands the surface back to the listing when the flow exits', async () => {
+			mockLibraryTotal = 0;
+			const user = userEvent.setup();
+
+			render( <Stage /> );
+			await user.click( screen.getByTestId( 'upload-onboarding' ) );
+
+			expect( screen.queryByTestId( 'upload-onboarding' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+		} );
+
+		it( 'holds the frozen empty decision even when the count moves', () => {
+			// The first upload flips the count mid-flow; an unfrozen check would
+			// yank the flow out from under the user the moment it succeeds.
+			mockLibraryTotal = 0;
+			const { rerender } = render( <Stage /> );
+			expect( screen.getByTestId( 'upload-onboarding' ) ).toBeInTheDocument();
+
+			mockLibraryTotal = 1;
+			rerender( <Stage /> );
+
+			expect( screen.getByTestId( 'upload-onboarding' ) ).toBeInTheDocument();
+		} );
 	} );
 } );

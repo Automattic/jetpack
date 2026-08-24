@@ -6,11 +6,10 @@ import { __ } from '@wordpress/i18n';
 import { Tabs } from '@wordpress/ui';
 import { useFirstRunState, type FirstRunState } from '../../hooks/use-first-run-state';
 
-export type DashboardTab = 'home' | 'upload' | 'stats' | 'library' | 'settings';
+export type DashboardTab = 'home' | 'stats' | 'library' | 'settings';
 
 export const TAB_PATHS: Record< DashboardTab, string > = {
 	home: '/home',
-	upload: '/upload',
 	stats: '/stats',
 	library: '/',
 	settings: '/settings',
@@ -18,7 +17,6 @@ export const TAB_PATHS: Record< DashboardTab, string > = {
 
 const TAB_LABELS: Record< DashboardTab, string > = {
 	home: __( 'Home', 'jetpack-videopress-pkg' ),
-	upload: __( 'Upload', 'jetpack-videopress-pkg' ),
 	// "Overview" route, surfaced to users as Analytics.
 	stats: __( 'Analytics', 'jetpack-videopress-pkg' ),
 	library: __( 'Library', 'jetpack-videopress-pkg' ),
@@ -28,21 +26,15 @@ const TAB_LABELS: Record< DashboardTab, string > = {
 // Left-to-right order every tab keeps whenever it is shown. `getTabOrder`
 // picks a subset of this; DashboardLayout falls back to it when it has to
 // re-insert the active tab (see its `visibleTabs`).
-export const CANONICAL_TAB_ORDER: DashboardTab[] = [
-	'home',
-	'upload',
-	'library',
-	'stats',
-	'settings',
-];
+export const CANONICAL_TAB_ORDER: DashboardTab[] = [ 'home', 'library', 'stats', 'settings' ];
 
 /**
  * The tab order for the current dashboard shape.
  *
- * On first run Upload leads: with nothing in the library, upload *is* the page.
- * Once there is something to come back to, Home leads and Upload stops being a
- * tab — the upload action moves to the header's top-right slot, so it is still
- * one click away rather than gone.
+ * On first run the Library leads: with nothing uploaded yet, its empty state
+ * IS the upload flow, so the landing tab and the one job coincide. Home joins
+ * the strip once there is something to come back to — a brand-new user's Home
+ * would only echo the same empty state.
  *
  * @param firstRunState - The resolved first-run state.
  * @return Ordered tab values.
@@ -50,7 +42,7 @@ export const CANONICAL_TAB_ORDER: DashboardTab[] = [
 export function getTabOrder( firstRunState: FirstRunState ): DashboardTab[] {
 	// Product Compass spec — never lead with Stats (a new user's Stats read as zeros).
 	return firstRunState === 'first-run'
-		? [ 'upload', 'library', 'stats', 'settings' ]
+		? [ 'library', 'stats', 'settings' ]
 		: [ 'home', 'library', 'stats', 'settings' ];
 }
 

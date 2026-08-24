@@ -1,13 +1,12 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
-import { DropZone, Tooltip } from '@wordpress/components';
+import { DropZone, Spinner, Tooltip } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
-import { Button } from '@wordpress/ui';
+import { Button, VisuallyHidden } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
-import { TAB_PATHS } from '../../src/dashboard/components/dashboard-tabs';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
 import FreeTierNotice, {
 	FREE_TIER_AT_LIMIT_MESSAGE,
@@ -22,6 +21,7 @@ import {
 	INVALID_FILE_NOTICE_ID,
 	videoFileAccept,
 } from '../../src/dashboard/components/upload-dropzone/video-files';
+import UploadOnboarding, { UPLOAD_CONTEXT } from '../../src/dashboard/components/upload-onboarding';
 import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
@@ -139,10 +139,38 @@ const StageInner = () => {
 		error: libraryError,
 		refetch,
 	} = useLibrary( view );
-	const { paginationInfo: totalPagination } = useLibrary( TOTAL_COUNT_VIEW );
+	const { paginationInfo: totalPagination, isLoading: isTotalLoading } =
+		useLibrary( TOTAL_COUNT_VIEW );
 	const libraryTotalRef = useRef( 0 );
 	libraryTotalRef.current = totalPagination?.totalItems ?? 0;
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
+
+	// Whether this mount shows the upload onboarding flow instead of the
+	// listing: the user has no videos, so upload *is* the page. Decided ONCE
+	// per mount when the unfiltered count settles — the same freeze
+	// DashboardLayout applies to the tab order, and for the same reason: the
+	// first upload flips the count mid-flow, and an unfrozen check would yank
+	// the flow out from under the user the moment their upload succeeds. A
+	// strict `=== 0` (not `?? 0`) so a failed count request reads as "show the
+	// listing", never as an empty library.
+	//
+	// A queue holding anything but this flow's own single-upload session means
+	// the listing owns the surface already (a batch's in-flight rows render
+	// there); the flow's own rows are adopted by the flow on mount instead.
+	const showOnboardingRef = useRef< boolean | null >( null );
+	if ( showOnboardingRef.current === null && ! isTotalLoading ) {
+		showOnboardingRef.current =
+			totalPagination?.totalItems === 0 &&
+			! uploadQueue.some( item => item.context !== UPLOAD_CONTEXT );
+	}
+	// The flow's own exit: a multi-file batch has no surface in the flow, so it
+	// hands the page back to the listing and the in-flight rows take over.
+	const [ onboardingDismissed, setOnboardingDismissed ] = useState( false );
+	const exitOnboarding = useCallback( () => setOnboardingDismissed( true ), [] );
+	const showOnboarding = ! onboardingDismissed && showOnboardingRef.current === true;
+	// The listing owns the header action, the at-limit notice, and the page
+	// dropzone only once it is actually the surface being shown.
+	const listingOwnsSurface = onboardingDismissed || showOnboardingRef.current === false;
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
@@ -389,10 +417,12 @@ const StageInner = () => {
 					// failure the failed rows survive and stay selected.
 					const requested = new Set( ids );
 					setSelection( prev => prev.filter( id => ! requested.has( id ) || failedIds.has( id ) ) );
-					// An emptied Library is a dead end: no dropzone under the
-					// "no results" state, nothing to do next. Home has both.
+					// An emptied Library is not a dead end: its empty state is
+					// the upload onboarding flow, so swap it back in rather than
+					// leaving a "no results" grid with nothing to do next.
 					if ( wasWholeLibrary && failedIds.size === 0 ) {
-						navigate( { href: TAB_PATHS.home } );
+						showOnboardingRef.current = true;
+						setOnboardingDismissed( false );
 					}
 				},
 				setPrivacy: ( ids: string[], privacy: LibraryItemPrivacy ) => {
@@ -456,7 +486,6 @@ const StageInner = () => {
 			createSuccessNotice,
 			createErrorNotice,
 			createInfoNotice,
-			navigate,
 		]
 	);
 
@@ -515,18 +544,84 @@ const StageInner = () => {
 		void refetch();
 	}, [ refetch ] );
 
+	// The viewport's four mutually exclusive surfaces, flattened out of nested
+	// ternaries so each branch can say why it exists.
+	const renderViewport = () => {
+		// A failed listing request would otherwise render as DataViews'
+		// "No results" — indistinguishable from an empty library. Surface
+		// the error explicitly with a Retry that refetches. Only when the
+		// QUERY has nothing valid to show: a failed *background* refresh
+		// keeps its cached rows (grid stays, self-heals on the next
+		// poll), while a failed view change / first load leaves data
+		// undefined (react-query drops keepPreviousData placeholders on
+		// error), so it lands here. Deliberately `items`, not
+		// `renderedItems` — the latter splices in in-flight upload rows,
+		// which must not mask a failed listing.
+		if ( isError && items.length === 0 ) {
+			return (
+				<FetchErrorNotice
+					className="vp-library__error"
+					message={ __( 'We couldn’t load your video library.', 'jetpack-videopress-pkg' ) }
+					error={ libraryError }
+					onRetry={ () => void refetch() }
+				/>
+			);
+		}
+
+		// The empty-vs-listing decision is pending (the unfiltered count hasn't
+		// settled). Painting the grid skeleton and then swapping in the
+		// onboarding flow reads as the page loading twice, so hold the surface
+		// with an explicit wait instead.
+		if ( showOnboardingRef.current === null ) {
+			return (
+				<div className="vp-library__deciding" role="status">
+					<Spinner />
+					<VisuallyHidden>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</VisuallyHidden>
+				</div>
+			);
+		}
+
+		if ( showOnboarding ) {
+			return <UploadOnboarding onExitToLibrary={ exitOnboarding } />;
+		}
+
+		return (
+			<DataViews< LibraryItem >
+				data={ renderedItems }
+				fields={ libraryFields }
+				actions={ actions }
+				view={ view }
+				onChangeView={ onChangeView }
+				selection={ selection }
+				onChangeSelection={ setSelection }
+				getItemId={ getItemId }
+				paginationInfo={ paginationInfo }
+				isLoading={ isLoading }
+				defaultLayouts={ defaultLayouts }
+			/>
+		);
+	};
+
 	return (
 		<DashboardLayout
 			activeTab="library"
 			hideFooter
+			// While the onboarding flow is the page, its single-upload edit
+			// session's player slot is the progress surface, so the shared
+			// upload pill stands down for the flow's own queue items — the
+			// same suppression the old /upload route passed.
+			uploadPillSuppressContext={ showOnboarding ? UPLOAD_CONTEXT : undefined }
 			// `isAtLimit` is false until the plan count lands, so a button
 			// painted before then reads `aria-disabled=false` on a site that is
 			// at its limit — briefly live, and refusing the click it invited.
 			// Home already holds its copy of this button back until it has
 			// something true to say; this one waits for the count that decides
 			// its state, and arrives alongside the grid it sits above.
+			// `listingOwnsSurface`: while the onboarding flow is the page, its
+			// dropzone is the one upload affordance — a second one in the
+			// header would race it.
 			actions={
-				isPlanSettled ? (
+				isPlanSettled && listingOwnsSurface ? (
 					<>
 						<input
 							ref={ filePickerRef }
@@ -564,49 +659,24 @@ const StageInner = () => {
 				) : undefined
 			}
 		>
-			{ isAtLimit && (
+			{ /* The flow's UploadCard renders its own at-limit notice, so the
+			     listing's copy stands down while the flow is the page. */ }
+			{ isAtLimit && listingOwnsSurface && (
 				<div className="vp-library__notice">
 					<FreeTierNotice />
 				</div>
 			) }
 			<UploadActionsProvider value={ { promoteLocal, retryUpload, openVideoDetails } }>
 				<div className={ `vp-library__viewport vp-library__viewport--${ view.type }` }>
-					<DropZone
-						label={ __( 'Drop videos to upload', 'jetpack-videopress-pkg' ) }
-						onFilesDrop={ onFilesDrop }
-					/>
-					{ isError && items.length === 0 ? (
-						// A failed listing request would otherwise render as DataViews'
-						// "No results" — indistinguishable from an empty library. Surface
-						// the error explicitly with a Retry that refetches. Only when the
-						// QUERY has nothing valid to show: a failed *background* refresh
-						// keeps its cached rows (grid stays, self-heals on the next
-						// poll), while a failed view change / first load leaves data
-						// undefined (react-query drops keepPreviousData placeholders on
-						// error), so it lands here. Deliberately `items`, not
-						// `renderedItems` — the latter splices in in-flight upload rows,
-						// which must not mask a failed listing.
-						<FetchErrorNotice
-							className="vp-library__error"
-							message={ __( 'We couldn’t load your video library.', 'jetpack-videopress-pkg' ) }
-							error={ libraryError }
-							onRetry={ () => void refetch() }
-						/>
-					) : (
-						<DataViews< LibraryItem >
-							data={ renderedItems }
-							fields={ libraryFields }
-							actions={ actions }
-							view={ view }
-							onChangeView={ onChangeView }
-							selection={ selection }
-							onChangeSelection={ setSelection }
-							getItemId={ getItemId }
-							paginationInfo={ paginationInfo }
-							isLoading={ isLoading }
-							defaultLayouts={ defaultLayouts }
+					{ /* The flow brings its own dropzone; two drop targets on one
+					     page would fight over the same files. */ }
+					{ listingOwnsSurface && (
+						<DropZone
+							label={ __( 'Drop videos to upload', 'jetpack-videopress-pkg' ) }
+							onFilesDrop={ onFilesDrop }
 						/>
 					) }
+					{ renderViewport() }
 				</div>
 			</UploadActionsProvider>
 			{ captionVideo && (

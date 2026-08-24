@@ -41,19 +41,22 @@ const mockLibraryCount = ( {
 };
 
 describe( 'getTabOrder', () => {
-	it( 'leads with Upload on first run', () => {
-		// With nothing in the library, upload *is* the page.
-		expect( getTabOrder( 'first-run' ) ).toEqual( [ 'upload', 'library', 'stats', 'settings' ] );
+	it( 'leads with Library on first run', () => {
+		// With nothing in the library, its empty state — the upload flow —
+		// *is* the page, and Home would only echo it.
+		expect( getTabOrder( 'first-run' ) ).toEqual( [ 'library', 'stats', 'settings' ] );
 	} );
 
 	it( 'leads with Home once the user is past first run', () => {
 		expect( getTabOrder( 'home' ) ).toEqual( [ 'home', 'library', 'stats', 'settings' ] );
 	} );
 
-	// Upload does not vanish, it moves: the action lives in the header's
-	// top-right slot once the tab is gone. Losing the tab must never mean
-	// losing the ability to upload.
-	it( 'drops Upload as a tab in the home state', () => {
+	// Upload is never a tab of its own: the Library's empty state carries the
+	// flow on first run, and the header's top-right slot carries the action
+	// everywhere else. Losing the tab must never mean losing the ability to
+	// upload.
+	it( 'never offers Upload as a tab', () => {
+		expect( getTabOrder( 'first-run' ) ).not.toContain( 'upload' );
 		expect( getTabOrder( 'home' ) ).not.toContain( 'upload' );
 	} );
 
@@ -101,11 +104,11 @@ describe( 'useDashboardTabOrder', () => {
 		expect( result.current ).toEqual( [ 'home', 'library', 'stats', 'settings' ] );
 	} );
 
-	it( 'leads with Upload from the first render when nothing is remembered', () => {
+	it( 'leads with Library from the first render when nothing is remembered', () => {
 		mockLibraryCount( { totalItems: 0, isLoading: true } );
 
 		const { result } = renderHook( () => useDashboardTabOrder() );
 
-		expect( result.current ).toEqual( [ 'upload', 'library', 'stats', 'settings' ] );
+		expect( result.current ).toEqual( [ 'library', 'stats', 'settings' ] );
 	} );
 } );

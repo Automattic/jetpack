@@ -14,37 +14,37 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, media, check, copy } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
 import { Card, Stack, Text } from '@wordpress/ui';
-import AddToContentMenu from '../../src/dashboard/components/add-to-content-menu';
-import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
-import { TAB_PATHS } from '../../src/dashboard/components/dashboard-tabs';
-import FreeTierNotice from '../../src/dashboard/components/free-tier-notice';
-import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
-import UploadDropzone from '../../src/dashboard/components/upload-dropzone';
+import { markFirstPublish, useFirstRunState } from '../../hooks/use-first-run-state';
+import { useFreeTier } from '../../hooks/use-free-tier';
+import { LIBRARY_QUERY_KEY } from '../../hooks/use-library';
+import { isAdoptableUpload, setUploadDraft, useUpload } from '../../hooks/use-upload';
+import { useVideo } from '../../hooks/use-video';
+import { isWpcomConnected } from '../../utils/connection';
+import AddToContentMenu from '../add-to-content-menu';
+import { TAB_PATHS } from '../dashboard-tabs';
+import FreeTierNotice from '../free-tier-notice';
+import UploadDropzone from '../upload-dropzone';
 import {
 	selectFilesForPlan,
 	UPLOAD_BATCH_CONTEXT,
 	UPLOAD_ONBOARDING_CONTEXT,
-} from '../../src/dashboard/components/upload-dropzone/select-files';
-import Editor from '../../src/dashboard/components/video-details/editor';
-import { markFirstPublish, useFirstRunState } from '../../src/dashboard/hooks/use-first-run-state';
-import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
-import { LIBRARY_QUERY_KEY } from '../../src/dashboard/hooks/use-library';
-import { isAdoptableUpload, setUploadDraft, useUpload } from '../../src/dashboard/hooks/use-upload';
-import { useVideo } from '../../src/dashboard/hooks/use-video';
-import { isWpcomConnected } from '../../src/dashboard/utils/connection';
+} from '../upload-dropzone/select-files';
+import Editor from '../video-details/editor';
 import './style.scss';
-import type { EditorUploadState } from '../../src/dashboard/components/video-details/editor';
-import type { VideoDetailsFormValues } from '../../src/dashboard/components/video-details/use-video-details-form';
-import type { LibraryItem } from '../../src/dashboard/types/library';
+import type { LibraryItem } from '../../types/library';
+import type { EditorUploadState } from '../video-details/editor';
+import type { VideoDetailsFormValues } from '../video-details/use-video-details-form';
 import type { ReactNode } from 'react';
 
 type Step = 'upload' | 'uploading' | 'edit' | 'details' | 'success';
 
 // Tags this flow's uploads in the shared queue so a remounted flow instance —
-// or one freshly navigated to from Home's emptied-library dropzone — can
-// re-find them. See the batchQueueIds initializer and StageInner's
-// adoption-aware initial step.
-const UPLOAD_CONTEXT = UPLOAD_ONBOARDING_CONTEXT;
+// or one freshly handed files by Home's emptied-library dropzone — can
+// re-find them. See the batchQueueIds initializer and UploadOnboarding's
+// adoption-aware initial step. Exported so the Library, which renders this
+// flow as its empty state, can suppress the upload pill for the flow's own
+// queue items the same way the old /upload route did.
+export const UPLOAD_CONTEXT = UPLOAD_ONBOARDING_CONTEXT;
 type UploadStatus = 'pending' | 'uploading' | 'success' | 'failed';
 
 type UploadedMedia = {
@@ -1097,29 +1097,31 @@ const StepFlow = ( {
 };
 
 /**
- * VideoPress first-run onboarding (the Upload tab for a brand-new account).
- * One job: activation — get the user to their first uploaded video. Content is
- * grounded in the growth-brain teardown (see ~/dev/active/videopress-revamp).
+ * VideoPress first-run onboarding (the Library's empty state for a brand-new
+ * account). One job: activation — get the user to their first uploaded video.
+ * Content is grounded in the growth-brain teardown (see
+ * ~/dev/active/videopress-revamp).
  *
  * The upload → uploading → details → success hand-off uses a disappearing-card step morph
  * modelled on the Cloudflare email-routing onboarding, and supports bulk
  * uploads (per-file progress, then an inline list of detail fields).
  *
- * The step state lives in `StageInner` rather than here: the parent's
- * "already has videos" redirect has to know whether the flow is in progress,
- * and the flow must not lose its place if that check ever re-runs.
+ * The step state lives in the default export rather than here, so the flow
+ * does not lose its place if this component's props change mid-session.
  *
- * @param props             - Component props.
- * @param props.isFree      - Whether the site is on the free tier.
- * @param props.isUnlimited - Whether the plan has unlimited video storage.
- * @param props.isAtLimit   - Whether the free-tier video limit is already used.
- * @param props.step        - The active step.
- * @param props.prev        - The exiting step (null when settled).
- * @param props.go          - Move to `next`, animating out of `prior`.
- * @param props.onExitDone  - Called when the exiting card has finished animating.
- * @return The onboarding tab element.
+ * @param props                 - Component props.
+ * @param props.isFree          - Whether the site is on the free tier.
+ * @param props.isUnlimited     - Whether the plan has unlimited video storage.
+ * @param props.isAtLimit       - Whether the free-tier video limit is already used.
+ * @param props.step            - The active step.
+ * @param props.prev            - The exiting step (null when settled).
+ * @param props.go              - Move to `next`, animating out of `prior`.
+ * @param props.onExitDone      - Called when the exiting card has finished animating.
+ * @param props.onExitToLibrary - Hand control back to the Library listing (a
+ *                              multi-file batch has no surface in this flow).
+ * @return The onboarding flow element.
  */
-const UploadOnboarding = ( {
+const UploadOnboardingFlow = ( {
 	isFree,
 	isUnlimited,
 	isAtLimit,
@@ -1127,6 +1129,7 @@ const UploadOnboarding = ( {
 	prev,
 	go,
 	onExitDone,
+	onExitToLibrary,
 }: {
 	isFree: boolean;
 	isUnlimited: boolean;
@@ -1135,6 +1138,7 @@ const UploadOnboarding = ( {
 	prev: Step | null;
 	go: ( next: Step, prior: Step ) => void;
 	onExitDone: () => void;
+	onExitToLibrary: () => void;
 } ) => {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
@@ -1210,15 +1214,17 @@ const UploadOnboarding = ( {
 			setPublishedVideos( [] );
 
 			if ( isConnected ) {
-				// Multi-file batches land on the Library: every file starts in
-				// the shared queue (same context tag as the single flow) and
-				// the Library splices the in-flight rows in at the top, with
-				// the upload pill carrying the batch from there. No
+				// Multi-file batches land on the Library listing: every file
+				// starts in the shared queue (same context tag as the single
+				// flow) and the Library splices the in-flight rows in at the
+				// top, with the upload pill carrying the batch from there.
+				// `onExitToLibrary` asks the Library — which renders this flow
+				// as its empty state — to swap the listing back in. No
 				// 'uploading' step — that interstitial survives only for the
 				// disconnected XHR fallback below.
 				if ( selectedForPlan.length > 1 ) {
 					selectedForPlan.forEach( file => startUpload( file, UPLOAD_BATCH_CONTEXT ) );
-					navigate( { href: '/' } );
+					onExitToLibrary();
 					return;
 				}
 				setUploads( [] );
@@ -1266,7 +1272,7 @@ const UploadOnboarding = ( {
 			createInfoNotice,
 			go,
 			isConnected,
-			navigate,
+			onExitToLibrary,
 			queryClient,
 			startUpload,
 			updateUpload,
@@ -1422,17 +1428,28 @@ const UploadOnboarding = ( {
 	);
 };
 
-const StageInner = () => {
+/**
+ * The upload onboarding flow, rendered by the Library as its empty state (the
+ * user has no videos yet, so upload *is* the page). Owns the step state and
+ * the free-tier reads; the Library owns when it appears and disappears.
+ *
+ * @param props                 - Component props.
+ * @param props.onExitToLibrary - Called when a multi-file batch starts and the
+ *                              Library listing (with its in-flight rows and
+ *                              the upload pill) should take over the surface.
+ * @return The onboarding flow element.
+ */
+export default function UploadOnboarding( { onExitToLibrary }: { onExitToLibrary: () => void } ) {
 	const { isAtLimit, isFree, isUnlimited } = useFreeTier();
 	const { uploadQueue } = useUpload();
 	// Arrival may already hold this flow's queue items — Home's emptied-library
-	// dropzone starts the upload under UPLOAD_CONTEXT and navigates here, and
-	// UploadOnboarding's batchQueueIds initializer adopts the rows themselves.
-	// Exactly one adopted item resumes straight into the edit session, upload
-	// running in its player slot. Two or more can only mean arrival mid-batch
-	// (connected multi-drops navigate to the Library instead), so the step
-	// stays 'upload' and the Library's in-flight rows and the pill own the
-	// batch — no new surface here.
+	// dropzone starts the upload under UPLOAD_CONTEXT and navigates to the
+	// Library, and UploadOnboardingFlow's batchQueueIds initializer adopts the
+	// rows themselves. Exactly one adopted item resumes straight into the edit
+	// session, upload running in its player slot. Two or more can only mean
+	// arrival mid-batch (connected multi-drops stay on the listing instead), so
+	// the step stays 'upload' and the Library's in-flight rows and the pill own
+	// the batch — no new surface here.
 	//
 	// Counted with the same adoption predicate as the batch pointer: a settled
 	// success is the flow's exit, and resuming into it is how a finished
@@ -1451,41 +1468,16 @@ const StageInner = () => {
 	}, [] );
 	const onExitDone = useCallback( () => setPrev( null ), [] );
 
-	/*
-	 * There is deliberately no "you already have videos, go to the Library"
-	 * eject here. Every in-app route to this page is a deliberate one — Home's
-	 * header button, the welcome modal's CTA, Home's emptied-library dropzone —
-	 * and the eject broke all three for anyone with a library, bouncing them
-	 * back the instant they arrived. The tab order already hides Upload for
-	 * returning users; a cold deep-link simply gets a working upload card.
-	 */
 	return (
-		// activeTab is fixed at 'upload' rather than following isAtLimit: the
-		// queue-aware count flips the limit the moment a free-tier file is
-		// dropped, and moving the children into a different Tabs.Panel remounts
-		// the whole flow mid-upload. The dropzone's disabled state is the gate.
-		//
-		// The pill suppression: while this stage is on screen, the single-flow
-		// edit session's player slot is the progress surface, so the shared
-		// upload pill stands down for this flow's own queue items.
-		<DashboardLayout activeTab="upload" uploadPillSuppressContext={ UPLOAD_CONTEXT }>
-			<UploadOnboarding
-				isFree={ isFree }
-				isUnlimited={ isUnlimited }
-				isAtLimit={ isAtLimit }
-				step={ step }
-				prev={ prev }
-				go={ go }
-				onExitDone={ onExitDone }
-			/>
-		</DashboardLayout>
+		<UploadOnboardingFlow
+			isFree={ isFree }
+			isUnlimited={ isUnlimited }
+			isAtLimit={ isAtLimit }
+			step={ step }
+			prev={ prev }
+			go={ go }
+			onExitDone={ onExitDone }
+			onExitToLibrary={ onExitToLibrary }
+		/>
 	);
-};
-
-const Stage = () => (
-	<QueryClientWrapper>
-		<StageInner />
-	</QueryClientWrapper>
-);
-
-export { Stage as stage };
+}

@@ -120,7 +120,7 @@ describe( 'OnboardingModal', () => {
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'sends the primary CTA to the upload route', async () => {
+	it( 'sends the primary CTA to the Library, whose empty state is the upload flow', async () => {
 		// With the widened gate the modal can open over Library or Home, so
 		// the primary must navigate rather than merely reveal what's beneath.
 		mockCounts( { videoPressCount: 0, localCount: 3, isSettled: true } );
@@ -129,7 +129,7 @@ describe( 'OnboardingModal', () => {
 		render( <OnboardingModal /> );
 		await user.click( screen.getByRole( 'button', { name: 'Upload a video' } ) );
 
-		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/upload' } );
+		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/' } );
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 	} );
 

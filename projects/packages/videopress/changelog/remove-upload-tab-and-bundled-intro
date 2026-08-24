@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Dashboard: Fold the Upload tab into the Library as its empty state, make Library the default tab, and stop bundling the welcome modal's intro video.

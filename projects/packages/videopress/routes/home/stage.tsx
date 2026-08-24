@@ -51,19 +51,19 @@ const StageInner = () => {
 	const { startUpload } = useUpload();
 	const { createInfoNotice } = useGlobalNotices();
 
-	// Header upload action. In the returning-user shape there is no Upload TAB,
-	// so this button is the tab strip's replacement — "one click away" rather
-	// than gone. It navigates to the upload route rather than picking a file
-	// here: that route owns the whole flow (progress, details, publish). A
-	// picker on Home is only safe when it navigates the moment the files are
-	// queued, which is what the emptied-library dropzone below does; a header
-	// picker that left the user on Home would upload with nowhere to report
-	// progress, which is exactly how it read before.
+	// Header upload action — "one click away" from Home rather than a tab of
+	// its own. It navigates to the Library rather than picking a file here:
+	// that surface owns the whole upload story (the onboarding flow on an
+	// empty library, in-flight rows and the pill otherwise). A picker on Home
+	// is only safe when it navigates the moment the files are queued, which is
+	// what the emptied-library dropzone below does; a header picker that left
+	// the user on Home would upload with nowhere to report progress, which is
+	// exactly how it read before.
 	const goToUpload = useCallback( () => {
 		if ( isAtLimit ) {
 			return;
 		}
-		navigate( { href: TAB_PATHS.upload } );
+		navigate( { href: TAB_PATHS.library } );
 	}, [ isAtLimit, navigate ] );
 
 	const openVideoDetails = useCallback(
@@ -74,13 +74,13 @@ const StageInner = () => {
 	);
 
 	// The emptied-library hand-off. Files start in the shared queue under the
-	// onboarding flow's context tag, then land where that flow expects them: a
-	// single file resumes /upload straight into its edit session (see the
-	// adoption-aware step in routes/upload/stage.tsx); a batch goes to the
-	// Library, whose in-flight rows and the upload pill own multi-file
-	// progress — the same split the /upload dropzone makes. No pill
-	// suppression here: navigation is immediate, so this screen never shows
-	// progress of its own.
+	// onboarding flow's context tag, then land on the Library, where that flow
+	// expects them: a single file resumes the Library's onboarding empty state
+	// straight into its edit session (see the adoption-aware step in
+	// upload-onboarding); a batch stays on the listing, whose in-flight rows
+	// and the upload pill own multi-file progress — the same split the flow's
+	// own dropzone makes. No pill suppression here: navigation is immediate,
+	// so this screen never shows progress of its own.
 	const allowMultiple = ! isFree || isUnlimited;
 	const onEmptyStateFiles = useCallback(
 		( selected: File[] ) => {
@@ -99,7 +99,7 @@ const StageInner = () => {
 			// announced once per file when the user chains through "Add details".
 			const context = files.length === 1 ? UPLOAD_ONBOARDING_CONTEXT : UPLOAD_BATCH_CONTEXT;
 			files.forEach( file => startUpload( file, context ) );
-			navigate( { href: files.length === 1 ? TAB_PATHS.upload : '/' } );
+			navigate( { href: TAB_PATHS.library } );
 		},
 		[ allowMultiple, createInfoNotice, navigate, startUpload ]
 	);

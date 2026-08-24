@@ -164,14 +164,14 @@ describe( 'home stage empty state', () => {
 		expect( actions ).not.toHaveTextContent( 'Add to a post or page' );
 	} );
 
-	it( 'starts a dropped file under the onboarding context and resumes /upload', async () => {
+	it( 'starts a dropped file under the onboarding context and lands on the Library', async () => {
 		const { container } = render( <Stage /> );
 
 		const file = makeFile( 'one.mp4' );
 		await dropOnDropzone( container, [ file ] );
 
 		expect( mockStartUpload ).toHaveBeenCalledWith( file, 'upload-onboarding' );
-		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/upload' } );
+		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/' } );
 	} );
 
 	it( 'hands a multi-file drop to the Library, every file in the queue', async () => {
@@ -181,8 +181,9 @@ describe( 'home stage empty state', () => {
 
 		expect( mockStartUpload ).toHaveBeenCalledTimes( 2 );
 		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/' } );
-		// The batch tag, not the single flow's: /upload must not adopt these as
-		// a session, and only one of them is a first-upload worth announcing.
+		// The batch tag, not the single flow's: the Library's onboarding empty
+		// state must not adopt these as a session, and only one of them is a
+		// first-upload worth announcing.
 		expect( mockStartUpload ).toHaveBeenCalledWith( expect.anything(), 'upload-batch' );
 	} );
 
@@ -196,7 +197,7 @@ describe( 'home stage empty state', () => {
 		expect( mockCreateInfoNotice ).toHaveBeenCalledWith(
 			'The free plan includes one video — uploading your first. Upgrade to add 1 more.'
 		);
-		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/upload' } );
+		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/' } );
 	} );
 
 	it( 'shows no dropzone while the library has videos', () => {

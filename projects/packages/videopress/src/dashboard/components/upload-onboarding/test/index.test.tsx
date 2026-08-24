@@ -1,19 +1,15 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { makeLibraryItem } from '../../../src/dashboard/test-utils/library-item';
-import {
-	createTestQueryClient,
-	createTestWrapper,
-} from '../../../src/dashboard/test-utils/query-client-wrapper';
+import { makeLibraryItem } from '../../../test-utils/library-item';
+import { createTestQueryClient, createTestWrapper } from '../../../test-utils/query-client-wrapper';
 import {
 	makeRenamedTextFile,
 	makeVideoFile,
 	settleFileCheck,
-} from '../../../src/dashboard/test-utils/video-file';
-import { stage as Stage } from '../stage';
-import type { LibraryItem } from '../../../src/dashboard/types/library';
+} from '../../../test-utils/video-file';
+import UploadOnboarding from '../index';
+import type { LibraryItem } from '../../../types/library';
 import type { QueryClient } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
@@ -21,50 +17,29 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 } ) );
 
 const mockNavigate = jest.fn();
+const mockExitToLibrary = jest.fn();
 jest.mock( '@wordpress/route', () => ( {
 	__esModule: true,
 	useNavigate: () => mockNavigate,
 } ) );
 
-// The full dashboard chrome (masthead, tabs, landing redirect) is not under
-// test; reduce it to a passthrough that still reports which tab the stage
-// claims — the at-limit remount bug lived in exactly that value.
-jest.mock( '../../../src/dashboard/components/dashboard-layout', () => ( {
-	__esModule: true,
-	default: ( { children, activeTab }: { children: ReactNode; activeTab: string } ) => (
-		<div data-testid="layout" data-active-tab={ activeTab }>
-			{ children }
-		</div>
-	),
-} ) );
-
-// The stage's own QueryClientWrapper carries the window-singleton client and
-// the connection gate; swap in a per-test client so cache state can't leak
-// between tests.
+// The Library renders the flow inside its own QueryClientWrapper; a per-test
+// client here keeps cache state from leaking between tests.
 let mockTestClient: QueryClient;
-jest.mock( '../../../src/dashboard/components/query-client-wrapper', () => {
-	const { QueryClientProvider } = jest.requireActual( '@tanstack/react-query' );
-	return {
-		__esModule: true,
-		default: ( { children }: { children: ReactNode } ) => (
-			<QueryClientProvider client={ mockTestClient }>{ children }</QueryClientProvider>
-		),
-	};
-} );
 
 let mockConnected = true;
-jest.mock( '../../../src/dashboard/utils/connection', () => ( {
+jest.mock( '../../../utils/connection', () => ( {
 	isWpcomConnected: () => mockConnected,
 } ) );
 
 const defaultFreeTier = { isAtLimit: false, isFree: false, isUnlimited: true, videoCount: 0 };
 let mockFreeTier = defaultFreeTier;
-jest.mock( '../../../src/dashboard/hooks/use-free-tier', () => ( {
+jest.mock( '../../../hooks/use-free-tier', () => ( {
 	useFreeTier: () => mockFreeTier,
 } ) );
 
 const mockMarkFirstPublish = jest.fn();
-jest.mock( '../../../src/dashboard/hooks/use-first-run-state', () => ( {
+jest.mock( '../../../hooks/use-first-run-state', () => ( {
 	useFirstRunState: () => 'home',
 	markFirstPublish: () => mockMarkFirstPublish(),
 } ) );
@@ -100,7 +75,7 @@ const mockStartUpload = jest.fn( ( file: File ): string => {
 const mockRetryUpload = jest.fn();
 const mockAcknowledgeUpload = jest.fn();
 const mockSetUploadDraft = jest.fn();
-jest.mock( '../../../src/dashboard/hooks/use-upload', () => ( {
+jest.mock( '../../../hooks/use-upload', () => ( {
 	useUpload: () => ( {
 		uploadQueue: mockQueue,
 		startUpload: mockStartUpload,
@@ -117,7 +92,7 @@ jest.mock( '../../../src/dashboard/hooks/use-upload', () => ( {
 // The bound record the edit step resolves once the queue reports a media id.
 // The mocked useVideo honors the hook's enabled-gate: no id, no video.
 let mockVideo: LibraryItem | undefined;
-jest.mock( '../../../src/dashboard/hooks/use-video', () => ( {
+jest.mock( '../../../hooks/use-video', () => ( {
 	useVideo: ( id: number | string ) => ( {
 		video: id ? mockVideo : undefined,
 		isLoading: false,
@@ -125,13 +100,13 @@ jest.mock( '../../../src/dashboard/hooks/use-video', () => ( {
 	useInvalidateVideo: () => jest.fn(),
 } ) );
 
-jest.mock( '../../../src/dashboard/hooks/use-update-video-meta', () => ( {
+jest.mock( '../../../hooks/use-update-video-meta', () => ( {
 	useUpdateVideoMeta: () => ( { mutate: jest.fn(), isPending: false } ),
 } ) );
-jest.mock( '../../../src/dashboard/hooks/use-update-chapters', () => ( {
+jest.mock( '../../../hooks/use-update-chapters', () => ( {
 	useUpdateChapters: () => ( { syncChapters: jest.fn() } ),
 } ) );
-jest.mock( '../../../src/dashboard/hooks/use-delete-video', () => ( {
+jest.mock( '../../../hooks/use-delete-video', () => ( {
 	useDeleteVideo: () => ( { mutateAsync: jest.fn(), isPending: false } ),
 } ) );
 const mockCreateInfoNotice = jest.fn();
@@ -146,21 +121,21 @@ jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
 // The dropzone's rejected-drop notice carries the upgrade route; the real hook
 // wants the connection package's initial state, which this stage test doesn't
 // hydrate.
-jest.mock( '../../../src/dashboard/hooks/use-videopress-upgrade', () => ( {
+jest.mock( '../../../hooks/use-videopress-upgrade', () => ( {
 	useVideoPressUpgrade: () => jest.fn(),
 } ) );
-jest.mock( '../../../src/client/components/caption-manager-modal/lazy', () => ( {
+jest.mock( '../../../../client/components/caption-manager-modal/lazy', () => ( {
 	__esModule: true,
 	default: () => <div data-testid="caption-manager-modal" />,
 } ) );
-jest.mock( '../../../src/client/components/caption-manager-modal/use-video-tracks', () => ( {
+jest.mock( '../../../../client/components/caption-manager-modal/use-video-tracks', () => ( {
 	getVideoInfoQueryKeyPrefix: ( guid: string ) => [ 'video-info', guid ],
 } ) );
 
 // The edit surface itself is covered by editor.test.tsx; here only the
 // routing and the session the stage feeds it matter, so the mock surfaces
 // the uploadSession as inspectable attributes.
-jest.mock( '../../../src/dashboard/components/video-details/editor', () => ( {
+jest.mock( '../../video-details/editor', () => ( {
 	__esModule: true,
 	default: ( {
 		uploadSession,
@@ -271,7 +246,9 @@ async function endUpload( outcome: MockXhrOutcome ) {
  * @return The render result.
  */
 function renderStage() {
-	return render( <Stage />, { wrapper: createTestWrapper( mockTestClient ) } );
+	return render( <UploadOnboarding onExitToLibrary={ mockExitToLibrary } />, {
+		wrapper: createTestWrapper( mockTestClient ),
+	} );
 }
 
 /**
@@ -356,13 +333,13 @@ describe( 'upload stage single-drop transition', () => {
 		expect( flow ).not.toHaveClass( 'is-sequenced' );
 	} );
 
-	it( 'starts every file in the shared queue and lands a connected multi-drop on the Library', async () => {
+	it( 'starts every file in the shared queue and hands a connected multi-drop to the listing', async () => {
 		const { container } = renderStage();
 
 		await dropFiles( container, [ makeFile( 'one.mp4' ), makeFile( 'two.mp4' ) ] );
 
 		expect( mockStartUpload ).toHaveBeenCalledTimes( 2 );
-		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/' } );
+		expect( mockExitToLibrary ).toHaveBeenCalled();
 		// Tagged apart from the single flow: a batch has no surface of its own,
 		// so it must not be adopted as one — nor announced once per file when
 		// the user chains through the pill's "Add details".
@@ -491,17 +468,6 @@ describe( 'upload stage single-drop transition', () => {
 
 		expect( screen.getByText( 'Drag and drop your videos here' ) ).toBeInTheDocument();
 		expect( mockNavigate ).not.toHaveBeenCalled();
-	} );
-
-	it( 'keeps the Upload tab active at the free-tier limit', () => {
-		// activeTab following isAtLimit moved the children into a different
-		// Tabs.Panel the moment a free-tier drop entered the queue, remounting
-		// the flow mid-upload.
-		mockFreeTier = { isAtLimit: true, isFree: true, isUnlimited: false, videoCount: 1 };
-
-		renderStage();
-
-		expect( screen.getByTestId( 'layout' ) ).toHaveAttribute( 'data-active-tab', 'upload' );
 	} );
 
 	it( 'says why a drop is refused at the free-tier limit instead of eating it', async () => {

@@ -25,15 +25,4 @@ body.jetpack_page_jetpack-videopress {
 		}
 	}
 
-	// Stands in for the strip and the body while the landing decision is
-	// pending, so the gap between them reads as loading rather than empty.
-	// Takes the same flex share the tabpanel above would have.
-	.vp-dashboard-layout__landing {
-		display: flex;
-		flex: 1 1 0;
-		align-items: center;
-		justify-content: center;
-		min-block-size: 240px;
-	}
-
 }
