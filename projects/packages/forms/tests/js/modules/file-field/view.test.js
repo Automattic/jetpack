@@ -611,9 +611,14 @@ describe( 'File Field View', () => {
 				maxFiles: 1,
 				allowedMimeTypes: ALLOWED_MIME_TYPES,
 			};
-			// The shared wrapper context is still emitted by unchanged PHP, but knows nothing about
-			// the file field.
-			mockContext = { fieldId: 'test-file', fieldType: 'file', fields: {} };
+			/*
+			 * The shared wrapper context is still emitted by unchanged PHP, which knows nothing
+			 * about the file field but does emit `fieldExtra`. For a file field that was
+			 * `get_field_extra()`'s untouched empty `$extra_attrs`, and `wp_json_encode()` writes
+			 * an empty PHP array as `[]` — truthy in JS. Leaving the key out here would let a
+			 * presence-only bridge guard pass a test it fails against real markup.
+			 */
+			mockContext = { fieldId: 'test-file', fieldType: 'file', fields: {}, fieldExtra: [] };
 		} );
 
 		test( 'adding a file through the old action name still reaches the shared field state', () => {
@@ -668,6 +673,16 @@ describe( 'File Field View', () => {
 				hasError: true,
 				error: 'This file type is not allowed.',
 			} );
+		} );
+
+		test( 'an allowed type is still accepted when the wrapper already emits an empty fieldExtra', () => {
+			legacyStore.actions.fileAdded( {
+				target: { files: [ { name: 'doc.pdf', type: 'application/pdf', size: 10 } ] },
+			} );
+
+			// Bridging keyed on presence rather than shape would leave an empty allowlist here and
+			// reject every file, which on a required field can never be cleared.
+			expect( legacyContext.files[ 0 ].hasError ).toBeFalsy();
 		} );
 
 		test( 'the old drag actions toggle the flag the old markup binds to', () => {

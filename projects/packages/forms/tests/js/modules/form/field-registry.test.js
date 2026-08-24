@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 /**
  * Tests for the shared field registry in src/modules/form/view.js — `registerField`,
- * `actions.updateField` and the `getValidator` lookup that routes between a field module's
+ * `actions.updateField` and the `validate()` lookup that routes between a field module's
  * registered validator and the shared `validateField()` helper.
  *
  * This is the highest blast-radius part of the form store: every field type goes through it,

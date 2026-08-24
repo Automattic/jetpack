@@ -1989,7 +1989,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 *
 	 * @param string $id - the field ID.
 	 * @param string $label - the field label.
-	 * @param string $class - the field CSS class.
+	 * @param string $class - unused. Kept for signature parity with the other render_*_field()
+	 *                        methods; this field writes its input inline rather than from an
+	 *                        attribute array.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param bool   $required_indicator Whether to display the required indicator.

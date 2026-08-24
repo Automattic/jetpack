@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-File upload field: Move the field's Interactivity API store into the shared jetpack/form store, matching the other fields. The jetpack/field-file store namespace is deprecated and now aliases the new names; it will be removed in a future release. Its config namespace is unchanged.
+File upload field: Rebuild the field on the same foundation as the other form fields, so it behaves consistently with them. Markup cached from an earlier release keeps working for one release.

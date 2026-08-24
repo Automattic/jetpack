@@ -110,6 +110,15 @@ const updateSelection = selectedCountry => {
 		...country,
 		selected: country.code === selectedCountry.code,
 	} ) );
+
+	/*
+	 * Revalidate against the country that was just picked. `fullPhoneNumber` is the only value
+	 * `validators.phone` judges, and every caller here rewrites it, so without this a number that
+	 * was invalid for the previous country keeps its stale `invalid_phone` after the visitor
+	 * selects the country that makes it valid — and the error blocks submission until the input
+	 * itself is touched again.
+	 */
+	actions.updateField( context.fieldId, context.phoneNumber );
 };
 
 const { actions } = store( NAMESPACE, {
@@ -119,7 +128,7 @@ const { actions } = store( NAMESPACE, {
 				// Defaults matter here: this validator also runs from `registerField()`, which is
 				// scoped to the field wrapper rather than to the phone wrapper that provides these
 				// keys, so during registration they are all undefined. See the scope contract on
-				// `getValidator()` in ../form/view.js.
+				// `validate()` in ../form/view.js.
 				const {
 					phoneNumber = '',
 					fullPhoneNumber = '',

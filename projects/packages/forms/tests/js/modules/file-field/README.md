@@ -37,10 +37,11 @@ Because the field lives in the shared store, `updateField` and `trackFirstIntera
 - Concurrent uploads share a single upload-token request
 
 **Focus**
-- `focusFilePreview` focuses the preview and returns nothing. The return value matters: the `data-wp-init` directive *invokes* a returned function immediately rather than treating it as effect cleanup, which is what used to move focus onto the (hidden) dropzone.
+- `focusFilePreview` focuses the preview and returns a cleanup function. The return value matters: `data-wp-init` resolves the callback without invoking it, calls it once, and hands what it returns to Preact as effect teardown — so the returned function runs when the preview unmounts and gives focus back to the dropzone.
 
 ### Limitations
 
 - **jsdom has no `URL.createObjectURL`.** It is stubbed in `beforeEach`. Without the stub, `addFileToContext` falls back to the icon path for every file, and an image-preview assertion would pass for the wrong reason.
-- **`XMLHttpRequest` is a hand-rolled double.** Upload progress and readystatechange are driven manually, so real network behaviour, aborts and partial transfers are not covered here.
+- **`XMLHttpRequest` is a hand-rolled double.** Upload progress and readystatechange are driven manually, so real network behavior, aborts and partial transfers are not covered here.
 - **The Interactivity API is mocked wholesale.** These tests verify module logic, not directive binding, reactivity or hydration — nothing here proves the `data-wp-*` attributes in `class-contact-form-field.php` resolve to the names the module registers. That pairing is only exercised end to end.
+- **The `store` mock returns its config object directly, so scope binding is invisible here.** In the real runtime `actions` is a proxy whose `get` trap wraps each function with `withScope()`, capturing the scope *at the moment of the property read*. Reading an action at module-evaluation time therefore captures an empty scope and throws on first use, while the mock happily returns the same function either way. The `jetpack/field-file` back-compat shim depends on getting this right, and no test in this file can fail if it regresses — verify that against the real package, not here.

@@ -412,6 +412,11 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 
 	actions: {
 		onFileDropzoneKeyDown: event => {
+			// Holding the key down would otherwise reopen the picker on every auto-repeat.
+			if ( event.repeat ) {
+				return;
+			}
+
 			if ( event.key === 'Enter' || event.key === ' ' ) {
 				event.preventDefault();
 				actions.openFilePicker( event );
@@ -604,6 +609,11 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 		},
 
 		removeFileKeydown: event => {
+			// Holding the key down would otherwise fire a second removal at the repeat rate.
+			if ( event.repeat ) {
+				return;
+			}
+
 			if ( event.key === 'Enter' || event.key === ' ' ) {
 				event.preventDefault();
 				actions.removeFile( event );
@@ -647,8 +657,17 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 
 				const dropzone = container?.querySelector( '.jetpack-form-file-field__dropzone-inner' );
 
+				/*
+				 * Nothing cancels this second timer, so check at fire time that focus is still
+				 * the orphan this callback exists to rescue. Destroying the focused preview drops
+				 * focus to `<body>`; if the visitor has since tabbed or clicked to a real element,
+				 * moving them to the dropzone would be stealing focus rather than restoring it.
+				 */
 				setTimeout( () => {
-					if ( dropzone?.isConnected ) {
+					const focusIsOrphaned =
+						! document.activeElement || document.activeElement === document.body;
+
+					if ( dropzone?.isConnected && focusIsOrphaned ) {
 						dropzone.focus( { focusVisible: true } );
 					}
 				}, PREVIEW_FOCUS_DELAY_MS );
@@ -691,7 +710,15 @@ const bridgeLegacyContext = () => {
 		shared.files = legacy.files;
 	}
 
-	if ( ! shared.fieldExtra ) {
+	/*
+	 * Test the shape rather than mere presence. The wrapper that carries old markup is the
+	 * unchanged PHP of the previous release, and it already emitted `fieldExtra` for a file
+	 * field as `get_field_extra()`'s untouched `$extra_attrs` — an empty array, which
+	 * `wp_json_encode()` writes as `[]` and JS reads as truthy. A `! shared.fieldExtra` guard
+	 * therefore never fires, `getFileFieldExtra()` falls back to an empty allowlist, and every
+	 * file is rejected as a disallowed type.
+	 */
+	if ( ! shared.fieldExtra?.allowedMimeTypes ) {
 		shared.fieldExtra = {
 			maxFiles: legacy.maxFiles,
 			allowedMimeTypes: legacy.allowedMimeTypes,
@@ -699,11 +726,21 @@ const bridgeLegacyContext = () => {
 	}
 };
 
+/*
+ * Look the delegate up by name at call time rather than closing over it.
+ *
+ * `actions` and `callbacks` are store proxies, and the proxy's `get` trap is what binds a
+ * function to a scope: it returns `withScope( fn )`, and `withScope()` captures `getScope()` at
+ * the moment of the property read. Reading `actions.removeFile` while this module is still
+ * evaluating captures an empty scope stack, so every later call would run `setScope( undefined )`
+ * and the first `getContext()` inside would throw on `scope.context`. Deferring the read to call
+ * time means the proxy binds the scope the runtime has already pushed for the directive.
+ */
 const withLegacyContext =
-	action =>
+	actionName =>
 	( ...args ) => {
 		bridgeLegacyContext();
-		return action( ...args );
+		return actions[ actionName ]( ...args );
 	};
 
 store( CONFIG_NAMESPACE, {
@@ -718,13 +755,13 @@ store( CONFIG_NAMESPACE, {
 		},
 	},
 	actions: {
-		handleKeyDown: withLegacyContext( actions.onFileDropzoneKeyDown ),
-		openFilePicker: withLegacyContext( actions.openFilePicker ),
-		fileAdded: withLegacyContext( actions.fileAdded ),
-		fileDropped: withLegacyContext( actions.fileDropped ),
-		removeFile: withLegacyContext( actions.removeFile ),
-		removeFileKeydown: withLegacyContext( actions.removeFileKeydown ),
-		resetFiles: withLegacyContext( actions.resetFiles ),
+		handleKeyDown: withLegacyContext( 'onFileDropzoneKeyDown' ),
+		openFilePicker: withLegacyContext( 'openFilePicker' ),
+		fileAdded: withLegacyContext( 'fileAdded' ),
+		fileDropped: withLegacyContext( 'fileDropped' ),
+		removeFile: withLegacyContext( 'removeFile' ),
+		removeFileKeydown: withLegacyContext( 'removeFileKeydown' ),
+		resetFiles: withLegacyContext( 'resetFiles' ),
 
 		// The old template binds `is-dropping` to the legacy context, so these write there directly
 		// rather than delegating to handlers that would set the flag on the shared context.
@@ -737,6 +774,7 @@ store( CONFIG_NAMESPACE, {
 		},
 	},
 	callbacks: {
-		focusElement: callbacks.focusFilePreview,
+		// Read through the proxy at call time, for the reason given on `withLegacyContext()`.
+		focusElement: ( ...args ) => callbacks.focusFilePreview( ...args ),
 	},
 } );
