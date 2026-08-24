@@ -174,12 +174,12 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.queryByText( '300' ) ).not.toBeInTheDocument();
 	} );
 
-	// Only the Stats widgets build wall clocks; the post and video charts hand over
-	// real instants (`parseSiteDateTime`). Re-anchoring one of those would shift its
-	// label by the offset between the viewer's timezone and the site's, so the
-	// reading has to stay opt-in. Asserted against the formatter rather than a
-	// literal, and over two site zones, so the check cannot come out vacuous on
-	// whichever timezone the machine running it happens to be in.
+	// Only the Stats widgets build wall clocks; the post and video charts hand
+	// over real instants (`parseSiteDateTime`), which re-anchoring would shift
+	// (see `chart-date.ts`) — so the reading has to stay opt-in. Asserted against
+	// the formatter rather than a literal, and over two site zones, so the check
+	// cannot come out vacuous on whichever timezone the machine running it
+	// happens to be in.
 	it.each( [ 'Asia/Tokyo', 'America/Los_Angeles' ] )(
 		'reads a point as the instant it is unless the producer says otherwise, on a site in %s',
 		siteZone => {

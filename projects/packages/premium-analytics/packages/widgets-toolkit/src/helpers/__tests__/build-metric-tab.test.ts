@@ -98,11 +98,9 @@ describe( 'buildMetricTab', () => {
 		expect( tab.previousValue ).toBeUndefined();
 		expect( tab.previous ).toBeUndefined();
 	} );
-	// The chart library renders a point through the *browser's* timezone, while a
-	// Stats bucket's `date_start` carries a nominal `+00:00` that is a label, not
-	// a real offset. Honouring it would move a midnight bucket to the previous
-	// day for every viewer west of UTC. These cases fail under the old
-	// `localTZDate` reading and are the only guard on that.
+	// Bucket stamps carry a nominal offset that must be dropped, not honoured
+	// (the full rationale lives on `toChartDate`). These cases fail under the
+	// old `localTZDate` reading and are the only guard on that.
 	describe( 'bucket stamps are read as the wall clock they name', () => {
 		// Pinned west of UTC on purpose: under a UTC runner the correct reading and
 		// the buggy one coincide, so these cases would pass either way. `TZ` is not
@@ -113,7 +111,13 @@ describe( 'buildMetricTab', () => {
 			env.TZ = 'America/Los_Angeles';
 		} );
 		afterAll( () => {
-			env.TZ = runnerTimeZone;
+			// Assigning `undefined` to an env var sets the literal string "undefined";
+			// an unset variable has to be deleted back off.
+			if ( runnerTimeZone === undefined ) {
+				delete env.TZ;
+			} else {
+				env.TZ = runnerTimeZone;
+			}
 		} );
 
 		const dateOf = ( dateStart: string ) =>

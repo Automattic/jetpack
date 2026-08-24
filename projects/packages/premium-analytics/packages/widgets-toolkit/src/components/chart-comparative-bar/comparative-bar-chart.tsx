@@ -86,9 +86,8 @@ export type ComparativeBarChartProps = {
 
 	/**
 	 * Renders a point's date for a tooltip row, in the named format this chart
-	 * picked for it. Defaults to reading the date as the instant it is. Callers
-	 * whose points are wall clocks rather than instants — Stats buckets, built by
-	 * `toChartDate` — pass a variant that re-anchors them first.
+	 * picked for it. Callers whose points are wall clocks (see `chart-date.ts`)
+	 * pass a variant that re-anchors them first; defaults to `formatDate`.
 	 */
 	formatTooltipDate?: ( date: Date, format: DateFormatName ) => string;
 

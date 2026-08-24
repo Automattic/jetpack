@@ -100,10 +100,9 @@ export interface MetricTabsChartProps {
 	tickResolution?: TickResolution;
 	/**
 	 * Whether each point's date is a Stats bucket's wall clock (as `toChartDate`
-	 * builds them) rather than a real instant. Wall clocks are re-anchored in the
-	 * site's timezone before a label reads them; instants are read as they are.
-	 * Defaults to instants — re-anchoring one would shift its label by the offset
-	 * between the viewer's timezone and the site's.
+	 * builds them) rather than a real instant. Wall clocks are re-anchored via
+	 * `fromChartDate` before a label reads them; instants must be read as they
+	 * are, hence the opt-in. Full rationale in `chart-date.ts`.
 	 */
 	pointsAreWallClocks?: boolean;
 }
