@@ -657,6 +657,45 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->teardown_post_for_test( $previous_post );
 	}
 
+	public function test_process_form_rejects_zero_form_id_with_jwt() {
+		$previous_post = $this->setup_token_test( null, 'Test User' );
+
+		// A valid signed token, but the posted id does not identify the signed form.
+		$_POST['contact-form-id'] = '0';
+
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->process_form_submission();
+
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when the posted id does not match the signed source.' );
+		$this->assertEquals( 'form_id_mismatch', $result->get_error_code(), 'Expected the error code to be "form_id_mismatch".' );
+		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
+
+		$this->teardown_post_for_test( $previous_post );
+	}
+
+	public function test_process_form_rejects_foreign_form_id_with_jwt() {
+		$previous_post = $this->setup_token_test( null, 'Test User' );
+
+		// Another real post is still not the source the token was signed for.
+		$other_post_id            = wp_insert_post(
+			array(
+				'post_title'  => 'Another Post',
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+		$_POST['contact-form-id'] = (string) $other_post_id;
+
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->process_form_submission();
+
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error for a form id that is not the signed source.' );
+		$this->assertEquals( 'form_id_mismatch', $result->get_error_code(), 'Expected the error code to be "form_id_mismatch".' );
+
+		wp_delete_post( $other_post_id, true );
+		$this->teardown_post_for_test( $previous_post );
+	}
+
 	public function test_process_form_with_deleted_parent_post() {
 		global $post;
 		$previous_post = $this->setup_token_test( null, 'Test User' );

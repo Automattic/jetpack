@@ -1644,6 +1644,22 @@ class Contact_Form_Plugin {
 				return $validation_error;
 			}
 
+			// Bind the posted `contact-form-id` to the form the JWT was signed for. The JWT
+			// authenticates the form's source, but the posted id is a separate, unsigned field;
+			// without this a submission could present one form's signed token while claiming a
+			// different (or empty) id, leaving the two out of sync for anything downstream that
+			// reads the raw id. For single-post forms the posted id is the source post id
+			// (optionally suffixed for multiple forms on a page, e.g. `5-2`), so compare on the
+			// integer id and reject a zero/empty/mismatched value.
+			$source = $form->get_source();
+			if ( 'single' === $source->get_source_type() ) {
+				$source_id = (int) $source->get_id();
+
+				if ( $source_id < 1 || (int) $id !== $source_id ) {
+					return Form_Submission_Error::system_error( 'form_id_mismatch', __( 'Form ID mismatch.', 'jetpack-forms' ) );
+				}
+			}
+
 			$form->validate();
 
 			if ( $form->has_errors() ) {
