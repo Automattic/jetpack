@@ -9,6 +9,7 @@ import { createReduxStore, dispatch, register } from '@wordpress/data';
 import {
 	AGENTS_MANAGER_READY_EVENT,
 	useIsWordPressAgentChatVisible,
+	resumeWordPressAgentChat,
 	setWordPressAgentChatOpen,
 	useIsWordPressAgentReady,
 } from '../open-agent';
@@ -16,6 +17,7 @@ import {
 type AgentsManagerActionsMock = {
 	isReady?: boolean;
 	setChatOpen?: jest.Mock;
+	resumeChat?: jest.Mock;
 };
 
 const setAgentsManagerActions = ( actions: AgentsManagerActionsMock | undefined ) => {
@@ -60,6 +62,25 @@ describe( 'setWordPressAgentChatOpen', () => {
 		setAgentsManagerActions( { isReady: true } );
 
 		expect( () => setWordPressAgentChatOpen( true ) ).not.toThrow();
+	} );
+} );
+
+describe( 'resumeWordPressAgentChat', () => {
+	afterEach( () => setAgentsManagerActions( undefined ) );
+
+	it( 'sends the chat back to its default screen', () => {
+		const resumeChat = jest.fn();
+		setAgentsManagerActions( { isReady: true, resumeChat } );
+
+		resumeWordPressAgentChat();
+
+		expect( resumeChat ).toHaveBeenCalled();
+	} );
+
+	it( 'does nothing when the Agents Manager exposes no resume action', () => {
+		setAgentsManagerActions( { isReady: true } );
+
+		expect( () => resumeWordPressAgentChat() ).not.toThrow();
 	} );
 } );
 

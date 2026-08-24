@@ -18,6 +18,7 @@ import { Notice } from '@wordpress/ui';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import bigSkyIcon from './big-sky-icon';
 import {
+	resumeWordPressAgentChat,
 	setWordPressAgentChatOpen,
 	useIsWordPressAgentChatVisible,
 	useIsWordPressAgentReady,
@@ -106,6 +107,9 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 
 	const openAgent = () => {
 		tracks.recordEvent( 'jetpack_ai_agent_notice_click', eventProperties );
+		// Reset the view first, as the editor's Ask AI button does, so the chat
+		// always opens on the same screen however it was last left.
+		resumeWordPressAgentChat();
 		setWordPressAgentChatOpen( true );
 	};
 
@@ -129,14 +133,12 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 			<Notice.Description>
 				{ createInterpolateElement(
 					// translators: <icon /> is replaced with the WordPress Agent's icon, so keep the tag
-					// as written. "Ask AI" is a button label; use the same wording as that button.
+					// as written. "Ask AI" is the label on a button in the editor toolbar.
 					__(
 						'AI tools have moved to the WordPress Agent. Look for the "Ask AI" <icon /> button at the top of the screen.',
 						'jetpack'
 					),
 					{
-						// Decorative only. Every SVG is hidden from screen readers, so the
-						// words beside it carry the description.
 						icon: (
 							<Icon icon={ bigSkyIcon } size={ 16 } style={ { verticalAlign: 'text-bottom' } } />
 						),
@@ -146,8 +148,6 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 
 			<Notice.Actions>
 				{ isAgentReady && (
-					// From @wordpress/components rather than @wordpress/ui, which has no
-					// tooltip, to match the other buttons in the sidebar.
 					<Button
 						variant="secondary"
 						icon={ bigSkyIcon }
