@@ -4,6 +4,7 @@
 import { useStatsSite } from '@jetpack-premium-analytics/data';
 import {
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	summaryCount,
 	WidgetRoot,
 	WidgetState,
@@ -126,6 +127,10 @@ function AllTimeStatsReport( {
 							? __( 'Select at least one metric to display.', 'jetpack-premium-analytics-pkg' )
 							: __( 'No stats recorded yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
+				// `tiles` is built from the summary, so it is empty until the
+				// response lands; the enabled metrics are the count the loaded
+				// grid will show.
+				renderLoading={ <MetricTileGridSkeleton tiles={ enabledMetrics.length } /> }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			</WidgetState>

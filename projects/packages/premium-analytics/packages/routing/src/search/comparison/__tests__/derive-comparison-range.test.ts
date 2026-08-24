@@ -63,13 +63,13 @@ describe( 'deriveComparisonRange', () => {
 		expect(
 			deriveComparisonRange( {
 				from: '2026-07-09T14:30:00.000Z',
-				to: '2026-07-10T14:30:00.000Z',
+				to: '2026-07-10T14:29:59.999Z',
 				comp: '1',
 				compare_preset: 'previous-period',
 			} )
 		).toEqual( {
 			compare_from: '2026-07-08T14:30:00.000+00:00',
-			compare_to: '2026-07-09T14:30:00.000+00:00',
+			compare_to: '2026-07-09T14:29:59.999+00:00',
 		} );
 	} );
 

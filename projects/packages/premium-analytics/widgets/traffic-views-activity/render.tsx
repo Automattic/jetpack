@@ -10,8 +10,10 @@ import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate } from '@jetpack-premium-analytics/formatters';
 import {
 	AdaptiveCalendarHeatmap,
+	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
 	HeatmapChartUnresponsive,
+	HeatmapSkeleton,
 	WidgetRoot,
 	WidgetState,
 	describeError,
@@ -77,6 +79,15 @@ function TrafficViewsActivityInner() {
 	);
 	const isWindowClipped = periodWindow.startDate < fetchWindow.startDate;
 
+	// What the heatmap may draw and page through is the picker's range, not the
+	// request window: the fetch floor reaches past a short range, and with the
+	// pager those weeks would otherwise be reachable — selecting 2025 must not
+	// page into 2024. Only the cap survives (paging never outruns the fetch).
+	const displayWindow = useMemo(
+		() => resolveCalendarHeatmapWindow( reportParams, { maxDays: windowDays }, today ),
+		[ reportParams, windowDays, today ]
+	);
+
 	// stats/visits reads from/to; startDate/endDate are specific to stats/streak.
 	const params = useMemo(
 		() =>
@@ -106,8 +117,16 @@ function TrafficViewsActivityInner() {
 	);
 
 	// Key the empty state to the response rather than the densified calendar, whose
-	// missing dates are represented by null-valued cells.
-	const hasViews = ( report?.data ?? [] ).some( row => Number( row.views ?? 0 ) > 0 );
+	// missing dates are represented by null-valued cells — and to the drawn range
+	// only: the fetch reaches past a short selection, and views in that surplus
+	// history must not suppress the empty state for a selection that has none.
+	const hasViews = ( report?.data ?? [] ).some( row => {
+		const day = String( row.time_interval );
+
+		return (
+			Number( row.views ?? 0 ) > 0 && day >= displayWindow.startDate && day <= displayWindow.endDate
+		);
+	} );
 
 	// And where the period outran the window, the message names the days the request
 	// covers instead of the period: the site may well have views outside them. Both
@@ -126,8 +145,8 @@ function TrafficViewsActivityInner() {
 			: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' );
 
 	return (
-		<AdaptiveCalendarHeatmap valueByDay={ viewsByDay } period={ fetchWindow }>
-			{ chartProps => (
+		<AdaptiveCalendarHeatmap valueByDay={ viewsByDay } period={ displayWindow }>
+			{ ( chartProps, pager ) => (
 				<WidgetState
 					isLoading={ isLoading }
 					isFetching={ isFetching }
@@ -145,13 +164,16 @@ function TrafficViewsActivityInner() {
 						icon: seen,
 						description: emptyDescription,
 					} }
+					renderLoading={ <HeatmapSkeleton /> }
 				>
-					<HeatmapChartUnresponsive
-						{ ...chartProps }
-						primaryColor="var(--wp-admin-theme-color, #3858e9)"
-						withTooltips
-						renderTooltip={ renderCellTooltip }
-					/>
+					<CalendarHeatmapPagerOverlay pager={ pager }>
+						<HeatmapChartUnresponsive
+							{ ...chartProps }
+							primaryColor="var(--wp-admin-theme-color, #3858e9)"
+							withTooltips
+							renderTooltip={ renderCellTooltip }
+						/>
+					</CalendarHeatmapPagerOverlay>
 				</WidgetState>
 			) }
 		</AdaptiveCalendarHeatmap>

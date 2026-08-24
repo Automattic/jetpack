@@ -1,18 +1,18 @@
 /**
  * External dependencies
  */
-import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
-import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
 import {
-	omitComparisonReportParams,
-	pickReportDateParams,
-	useReportDateFilters,
-} from '@jetpack-premium-analytics/routing';
+	AnalyticsQueryClientProvider,
+	GlobalErrorProvider,
+	ReportScopeProvider,
+} from '@jetpack-premium-analytics/data';
+import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
+import { pickReportDateParams, useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo, useState } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -21,6 +21,7 @@ import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
  * Internal dependencies
  */
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
+import { useDetailChartIntervals } from '../use-detail-chart-intervals';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { VideoSummaryCard } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
@@ -81,6 +82,10 @@ function VideoDetail(): JSX.Element {
 	// committed by the shared date-filter controller (WOOA7S-1816 — restored
 	// after the preset-measurement rework in #50906 landed).
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	const chartIntervals = useDetailChartIntervals(
+		dateFilters.interval,
+		dateFilters.intervalOptions
+	);
 
 	// The header row hosts the panel in a shrink-to-fit slot, so the panel
 	// measures the row itself to pick its responsive layout; see the
@@ -90,28 +95,9 @@ function VideoDetail(): JSX.Element {
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
 
-	/*
-	 * Same construction as post detail: the page has no period-over-period
-	 * comparison by design, but the comparison params stay in the URL so the
-	 * breadcrumb carries the dashboard's state back out. Without explicit
-	 * `reportParams`, every `WidgetRoot` falls back to reading the raw URL
-	 * search — comparison included. Today's three widgets all ignore the
-	 * comparison params in their own query mapping, so this is defensive:
-	 * injecting the stripped params into each layout entry makes the
-	 * page-wide no-comparison invariant hold by construction (matching post
-	 * detail), instead of relying on every current and future widget to keep
-	 * ignoring them.
-	 */
-	const layout = useMemo( () => {
-		const reportParams = omitComparisonReportParams( search );
-		return VIDEO_DETAIL_LAYOUT.map( widget => ( {
-			...widget,
-			attributes: {
-				...( widget.attributes as Record< string, unknown > | undefined ),
-				reportParams,
-			},
-		} ) );
-	}, [ search ] );
+	// The page's no-comparison invariant is the report scope the stage declares,
+	// so the layout is the fixed composition.
+	const layout = VIDEO_DETAIL_LAYOUT;
 
 	// Error and not-found responses have no trustworthy title, so only resolved
 	// videos add the title crumb or render the heading.
@@ -185,13 +171,18 @@ function VideoDetail(): JSX.Element {
 						<div className={ styles.dateFilters }>
 							{ /*
 							 * The design has no period-over-period comparison on this
-							 * page, so the Compare control is opted out; the layout memo
-							 * above strips the comparison params before they reach the
-							 * widgets.
+							 * page. The panel reads that from the scope the stage
+							 * declares, which is the same declaration that keeps the
+							 * params away from the widgets.
+							 *
+							 * The interval control is on: the views chart is bucketed by
+							 * it and carries no bucket control of its own. It is narrowed
+							 * to the buckets that chart can draw — see
+							 * `useDetailChartIntervals`.
 							 */ }
 							<DateFiltersPanel
 								{ ...dateFilters }
-								showComparison={ false }
+								{ ...chartIntervals }
 								containerElement={ headerElement }
 								reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
 							/>
@@ -217,7 +208,15 @@ export function stage(): JSX.Element {
 	return (
 		<AnalyticsQueryClientProvider>
 			<GlobalErrorProvider>
-				<VideoDetail />
+				{ /*
+				 * The page names no compared period and offers no control for one,
+				 * so nothing below may fetch or draw a comparison. The params stay
+				 * on the URL so the breadcrumb carries the dashboard's state back
+				 * out.
+				 */ }
+				<ReportScopeProvider offersComparison={ false }>
+					<VideoDetail />
+				</ReportScopeProvider>
 			</GlobalErrorProvider>
 		</AnalyticsQueryClientProvider>
 	);

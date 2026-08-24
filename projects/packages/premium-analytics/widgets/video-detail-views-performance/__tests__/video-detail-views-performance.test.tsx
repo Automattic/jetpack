@@ -96,6 +96,23 @@ const PRIMARY_WINDOW_RESPONSE = buildSingleVideoResponse( [
 	[ '2026-07-04', 7 ],
 ] );
 
+// A 28-day window, the shortest that allows a weekly interval: `WidgetRoot`
+// normalizes report params through `resolveIntervalForRange`, so an interval
+// the range disallows is coerced away before the widget ever sees it.
+const WEEKLY_WINDOW_PARAMS = {
+	...DEFAULT_PARAMS,
+	from: '2026-06-22T00:00:00.000+08:00',
+	to: '2026-07-19T23:59:59.999+08:00',
+	interval: 'week',
+	post_id: 105,
+};
+
+const WEEKLY_WINDOW_RESPONSE = buildSingleVideoResponse( [
+	[ '2026-06-25', 9 ],
+	[ '2026-07-02', 5 ],
+	[ '2026-07-04', 7 ],
+] );
+
 describe( 'VideoDetailViewsPerformanceWidget', () => {
 	beforeEach( () => {
 		// The data package's query client is a module-level singleton; drop its
@@ -164,19 +181,17 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		}
 	} );
 
-	it( 'buckets views into ISO weeks for the week granularity', async () => {
-		mockApiFetch.mockImplementation( respondByWindow( { '2026-07-01': PRIMARY_WINDOW_RESPONSE } ) );
+	it( 'buckets views into ISO weeks when the page interval is weekly', async () => {
+		mockApiFetch.mockImplementation( respondByWindow( { '2026-06-22': WEEKLY_WINDOW_RESPONSE } ) );
 
 		render(
-			<VideoDetailViewsPerformanceWidget
-				attributes={ { reportParams: WINDOW_PARAMS, granularity: 'week' } }
-			/>
+			<VideoDetailViewsPerformanceWidget attributes={ { reportParams: WEEKLY_WINDOW_PARAMS } } />
 		);
 
-		// 2026-07-01 (Wed) → 2026-07-07 spans two ISO weeks: Mon 6/29 (5 + 7
-		// views) and Mon 7/6 (zero).
+		// 2026-06-22 → 2026-07-19 spans four ISO weeks: Mon 6/22 (9 views),
+		// Mon 6/29 (5 + 7), Mon 7/6 and Mon 7/13 (zero).
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-values', '12,0' );
+		expect( chart ).toHaveAttribute( 'data-values', '9,12,0,0' );
 	} );
 
 	it( 'draws bars when the chartType attribute says so', async () => {

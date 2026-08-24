@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9ee69ea10c4501b70f0674d4e5051131",
+    "content-hash": "23b7fc46ebb3e1b291eefa477a5a8f97",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -662,6 +662,65 @@
             }
         },
         {
+            "name": "automattic/jetpack-comments",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/comments",
+                "reference": "fcb96cfb4a922c4aa12d8830738c3843f61b62dd"
+            },
+            "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-image-cdn": "@dev",
+                "php": ">=7.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-comments/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-comments",
+                "textdomain": "jetpack-comments",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-comments.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ],
+                "typecheck": [
+                    "pnpm run typecheck"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Replaces the default WordPress comment form.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-compat",
             "version": "dev-trunk",
             "dist": {
@@ -832,7 +891,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "2de1890393d86f2b486817aabd9ab3743f851004"
+                "reference": "8a31758b4a04ddbcc06cbab8ddbe9d158091807d"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -869,7 +928,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "8.10.x-dev"
+                    "dev-trunk": "8.11.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1613,7 +1672,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "397fbe195301460d2ac768a2abdf779dd5d047db"
+                "reference": "e0c15d3c20c66d96917d96b3afde33913aef9985"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1621,6 +1680,7 @@
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
                 "automattic/jetpack-classic-theme-helper": "@dev",
+                "automattic/jetpack-comments": "@dev",
                 "automattic/jetpack-compat": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
@@ -1829,7 +1889,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "3e434b0a0774d49bc15913fbb7df57f831dfbe10"
+                "reference": "abe8c32f79650596f7212335b762611998bd0ba3"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1855,7 +1915,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-podcast",
                 "branch-alias": {
-                    "dev-trunk": "1.4.x-dev"
+                    "dev-trunk": "1.5.x-dev"
                 },
                 "textdomain": "jetpack-podcast",
                 "version-constants": {
@@ -2037,7 +2097,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "a88eb719c066f4bdbbe6cf711f6ca06b589c21de"
+                "reference": "4be7f25cad64e6f7fc5e4170e0013f336bb5b0a1"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -2067,7 +2127,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 }
             },
             "autoload": {
@@ -2358,10 +2418,9 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "3525ee3e6045297e88f350cd6a5ace1526585522"
+                "reference": "8c926a1a98e6899a9d82140b06f22924187aece7"
             },
             "require": {
-                "automattic/jetpack-blaze": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-jitm": "@dev",
@@ -2371,6 +2430,7 @@
                 "php": ">=7.2"
             },
             "require-dev": {
+                "automattic/jetpack-blaze": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
@@ -2383,7 +2443,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.32.x-dev"
+                    "dev-trunk": "0.33.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
@@ -2426,7 +2486,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "9b5d503fe98b1865396194efdf29f3223f2af4c2"
+                "reference": "b7934844c0097ce6e85b91d2936d53ae0a4dd8db"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -2451,7 +2511,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.3.x-dev"
+                    "dev-trunk": "6.4.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -2765,16 +2825,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.11.6",
+            "version": "v2.11.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "90f66ebabaf540e078eb4f2b70e83c336795bfa7"
+                "reference": "ff8f1980da53ce4ad724edb3ca3e7188a7f1778e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/90f66ebabaf540e078eb4f2b70e83c336795bfa7",
-                "reference": "90f66ebabaf540e078eb4f2b70e83c336795bfa7",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/ff8f1980da53ce4ad724edb3ca3e7188a7f1778e",
+                "reference": "ff8f1980da53ce4ad724edb3ca3e7188a7f1778e",
                 "shasum": ""
             },
             "require-dev": {
@@ -2816,7 +2876,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2026-03-27T12:47:04+00:00"
+            "time": "2026-08-21T15:43:09+00:00"
         },
         {
             "name": "automattic/woocommerce-analytics",

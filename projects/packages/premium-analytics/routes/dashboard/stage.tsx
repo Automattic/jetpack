@@ -1,6 +1,11 @@
-import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
+import {
+	GlobalErrorProvider,
+	queryClient,
+	ReportScopeProvider,
+} from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { useSyncStatus } from '@jetpack-premium-analytics/site-sync';
 import {
 	DateFiltersPanel,
 	DateIntervalDropdown,
@@ -15,12 +20,18 @@ import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { DashboardSections } from './components';
-import { DATE_FILTER_YEAR, offersDateComparison, resolveSectionHeading } from './config';
+import { DashboardSections, SectionSyncNotice } from './components';
+import {
+	DATE_FILTER_YEAR,
+	isSectionAwaitingSync,
+	offersDateComparison,
+	resolveSectionHeading,
+} from './config';
 import {
 	useActiveSection,
 	useDashboardGridSettings,
@@ -41,6 +52,41 @@ function Dashboard(): JSX.Element {
 	const [ activeSection, setActiveSection ] = useActiveSection( sections );
 	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout( activeSection, sections );
 	const [ gridSettings ] = useDashboardGridSettings();
+
+	/*
+	 * Only a section whose data reaches WordPress.com through the analytics full
+	 * sync has incomplete numbers; the rest read data it already holds. The
+	 * watcher runs at the dashboard level rather than inside the notice below, so
+	 * the sync starts as soon as the dashboard opens instead of only once that
+	 * section is visited.
+	 */
+	const isSyncFinished = isPremiumAnalyticsInitialSyncFinished();
+	const sectionsAwaitSync = sections.some( section =>
+		isSectionAwaitingSync( section, isSyncFinished )
+	);
+	const {
+		data: syncStatus,
+		error: syncError,
+		isComplete: isSyncComplete,
+		triggerSync,
+	} = useSyncStatus( { enabled: sectionsAwaitSync, autoStart: true } );
+
+	const [ isRetryingSync, setIsRetryingSync ] = useState( false );
+	const retrySync = useCallback( async () => {
+		setIsRetryingSync( true );
+		try {
+			await triggerSync();
+		} finally {
+			setIsRetryingSync( false );
+		}
+	}, [ triggerSync ] );
+
+	// Widgets that rendered mid-sync cached numbers the sync has since filled in.
+	useEffect( () => {
+		if ( isSyncComplete ) {
+			queryClient.invalidateQueries( { queryKey: [ 'reports' ] } );
+		}
+	}, [ isSyncComplete ] );
 
 	const widgetModules = useSelect(
 		select =>
@@ -102,12 +148,14 @@ function Dashboard(): JSX.Element {
 	 * A header without the comparison control must not announce one.
 	 */
 	const comparisonPresetId = showComparison ? dateFilters.appliedComparisonPresetId : undefined;
+	const comparisonRange = showComparison ? dateFilters.appliedComparisonRange : undefined;
 	const sectionSubtitle = useMemo(
 		() =>
 			getSectionSubtitle( {
 				range: dateFilters.appliedRange,
 				presetId: dateFilters.appliedPresetId,
 				comparisonPresetId,
+				comparisonRange,
 				// The interval control renders as a glyph, so the subtitle is
 				// where the active bucket is readable. Both surfaces carry it.
 				interval: dateFilters.appliedInterval,
@@ -117,6 +165,7 @@ function Dashboard(): JSX.Element {
 			dateFilters.appliedPresetId,
 			dateFilters.appliedInterval,
 			comparisonPresetId,
+			comparisonRange,
 		]
 	);
 
@@ -189,67 +238,85 @@ function Dashboard(): JSX.Element {
 			 * report pages mount this same panel over records tables, which are
 			 * not, so the control is asked for rather than implied by the props.
 			 */
-			<DateFiltersPanel { ...dateFilters } withIntervalControl showComparison={ showComparison } />
+			<DateFiltersPanel { ...dateFilters } withIntervalControl />
 		);
 
 	return (
 		<GlobalErrorProvider>
-			<WidgetDashboard
-				widgetTypes={ widgetTypes }
-				isResolvingWidgetTypes={ isResolvingWidgetTypes }
-				resolveWidgetModule={ resolveWidgetModuleWithI18n }
-				layout={ layout }
-				onLayoutChange={ setLayout }
-				onLayoutReset={ resetLayout }
-				gridSettings={ gridSettings }
-				editMode={ editMode }
-				onEditChange={ setEditMode }
-			>
-				<Page
-					visual={ <StatsPageIcon /> }
-					breadcrumbs={ <StatsBreadcrumbs isRoot /> }
-					subTitle={ activeSectionRecord?.description }
-					actions={ <WidgetDashboard.Actions /> }
-					className={ styles.dashboard }
+			{ /*
+			 * The same answer the header uses to decide whether to render the
+			 * comparison control, declared once for the widgets below: hiding
+			 * the control does not strip the params, and a widget reading them
+			 * straight off the URL would show a comparison this section's
+			 * reader has no way to see or switch off.
+			 */ }
+			<ReportScopeProvider offersComparison={ showComparison }>
+				<WidgetDashboard
+					widgetTypes={ widgetTypes }
+					isResolvingWidgetTypes={ isResolvingWidgetTypes }
+					resolveWidgetModule={ resolveWidgetModuleWithI18n }
+					layout={ layout }
+					onLayoutChange={ setLayout }
+					onLayoutReset={ resetLayout }
+					gridSettings={ gridSettings }
+					editMode={ editMode }
+					onEditChange={ setEditMode }
 				>
-					<DashboardSections
-						sections={ sections }
-						value={ activeSection }
-						onChange={ setActiveSection }
+					<Page
+						visual={ <StatsPageIcon /> }
+						breadcrumbs={ <StatsBreadcrumbs isRoot /> }
+						subTitle={ activeSectionRecord?.description }
+						actions={ <WidgetDashboard.Actions /> }
+						className={ styles.dashboard }
 					>
-						{ sections.map( section => (
-							<SectionTabPanel
-								key={ section.slug }
-								value={ section.slug }
-								className={ styles.content }
-							>
-								{ /* Marks where the header below comes to rest, so its subtitle
+						<DashboardSections
+							sections={ sections }
+							value={ activeSection }
+							onChange={ setActiveSection }
+						>
+							{ sections.map( section => (
+								<SectionTabPanel
+									key={ section.slug }
+									value={ section.slug }
+									className={ styles.content }
+								>
+									{ /* Marks where the header below comes to rest, so its subtitle
 								     starts condensing there. Measured, never seen. */ }
-								<div className={ styles.pinMarker } aria-hidden="true" />
+									<div className={ styles.pinMarker } aria-hidden="true" />
 
-								<div ref={ setContainerElement } className={ styles.sectionHeader }>
-									<SectionHeader
-										title={ resolveSectionHeading( section ) }
-										subtitle={ sectionSubtitle }
-										condenseOnScroll
-									>
-										{ dateControls }
-									</SectionHeader>
-								</div>
+									<div ref={ setContainerElement } className={ styles.sectionHeader }>
+										<SectionHeader
+											title={ resolveSectionHeading( section ) }
+											subtitle={ sectionSubtitle }
+											condenseOnScroll
+										>
+											{ dateControls }
+										</SectionHeader>
+									</div>
 
-								{ activeSection === section.slug ? (
-									<>
-										<WidgetDashboard.NoWidgetsState />
-										<WidgetDashboard.Widgets className={ styles.widgets } />
-									</>
-								) : null }
-							</SectionTabPanel>
-						) ) }
-					</DashboardSections>
+									{ activeSection === section.slug ? (
+										<>
+											{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
+												<SectionSyncNotice
+													percentage={ syncStatus?.percentage ?? 0 }
+													hasError={ !! syncError }
+													onRetry={ retrySync }
+													isRetrying={ isRetryingSync }
+												/>
+											) : null }
 
-					<WidgetDashboard.Commands />
-				</Page>
-			</WidgetDashboard>
+											<WidgetDashboard.NoWidgetsState />
+											<WidgetDashboard.Widgets className={ styles.widgets } />
+										</>
+									) : null }
+								</SectionTabPanel>
+							) ) }
+						</DashboardSections>
+
+						<WidgetDashboard.Commands />
+					</Page>
+				</WidgetDashboard>
+			</ReportScopeProvider>
 		</GlobalErrorProvider>
 	);
 }

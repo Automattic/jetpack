@@ -21,6 +21,10 @@ class Jetpack_Mu_Wpcom {
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
 
+	// Themes (by template slug) and plugins (by basename) known to break with React 19.
+	const REACT_19_INCOMPATIBLE_THEMES  = array( 'divi' );
+	const REACT_19_INCOMPATIBLE_PLUGINS = array( 'wp-table-builder/wp-table-builder.php' );
+
 	/**
 	 * Initialize the class.
 	 */
@@ -34,9 +38,21 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/common/fatal-error-signature.php';
 		require_once __DIR__ . '/utils.php';
 
-		// PCG confirmation probe wires its `pre_option_active_plugins`
-		// filter at mu-plugin time, before WP loads active plugins.
-		require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
+		// Atomic only — Simple sites can't install plugins. The confirmation
+		// probe wires its `pre_option_active_plugins` filter at mu-plugin
+		// time, before WP loads active plugins.
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
+
+			// Must run before regular plugins load, so it lives here rather
+			// than in load_features(). See the file header for why.
+			//
+			// Temporary until 16.2 reaches Atomic. Removing it is a two-stage
+			// process so the wpcom mid-deploy safety check does not fail:
+			// first a PR that only removes this require (deploy it), then a
+			// follow-up that deletes the file.
+			require_once __DIR__ . '/features/jetpack-ai-module/jetpack-ai-module.php';
+		}
 
 		/*
 		 * Feature flag overrides answer the jetpack-feature-flags resolution
@@ -315,7 +331,9 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/logo-tool/logo-tool.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
-		require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
+		}
 		require_once __DIR__ . '/features/post-categories/quick-actions.php';
 		require_once __DIR__ . '/features/post-like-from-email/post-like-from-email.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
@@ -382,6 +400,7 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/survicate/class-survicate.php';
 		}
 		require_once __DIR__ . '/features/ai-assistant-banner/ai-assistant-banner.php';
+		require_once __DIR__ . '/features/expiry-notices/expiry-notices.php';
 		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
 		require_once __DIR__ . '/features/marketing/marketing.php';
 		require_once __DIR__ . '/features/pages/pages.php';
@@ -751,6 +770,12 @@ class Jetpack_Mu_Wpcom {
 			if ( self::should_disable_comment_experience( $blog_id ) ) {
 				return;
 			}
+
+			if ( class_exists( '\Automattic\Jetpack\Comments\Comments' ) && \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
+				\Automattic\Jetpack\Comments\Comments::init();
+				return;
+			}
+
 			require_once __DIR__ . '/features/verbum-comments/class-verbum-comments.php';
 			new \Automattic\Jetpack\Verbum_Comments();
 		}
@@ -859,7 +884,8 @@ class Jetpack_Mu_Wpcom {
 	 *
 	 * The `disable-gutenberg-react-19` blog sticker force-disables the experiment,
 	 * the `gutenberg-react-19` sticker opts the site in. With neither sticker,
-	 * the experiment is enabled on 1% of Atomic sites.
+	 * the experiment is enabled on a certain percentage of Atomic sites,
+	 * known incompatible plugins and themes are excluded.
 	 *
 	 * @param mixed $experiments The current value of the gutenberg-experiments option.
 	 * @return mixed Original option value or the filtered experiments.
@@ -879,8 +905,10 @@ class Jetpack_Mu_Wpcom {
 			// Don't enable if the site ID is unknown (zero).
 			if ( ! $site_id ) {
 				$is_enabled = false;
+			} elseif ( self::has_react_19_incompatible_extension() ) {
+				$is_enabled = false;
 			} else {
-				$current_segment = 1; // Segment of Atomic sites in the experiment, in %.
+				$current_segment = 5; // Segment of Atomic sites in the experiment, in %.
 				$site_segment    = $site_id % 100;
 
 				/*
@@ -903,6 +931,30 @@ class Jetpack_Mu_Wpcom {
 
 		$experiments['gutenberg-react-19'] = true;
 		return $experiments;
+	}
+
+	/**
+	 * Whether the site runs an extension that's known to break with React 19.
+	 *
+	 * @return bool
+	 */
+	private static function has_react_19_incompatible_extension() {
+		// Outside wp-admin the plugin check is unavailable, and the experiment isn't needed.
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			return true;
+		}
+
+		if ( in_array( strtolower( get_template() ), self::REACT_19_INCOMPATIBLE_THEMES, true ) ) {
+			return true;
+		}
+
+		foreach ( self::REACT_19_INCOMPATIBLE_PLUGINS as $plugin_file ) {
+			if ( is_plugin_active( $plugin_file ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

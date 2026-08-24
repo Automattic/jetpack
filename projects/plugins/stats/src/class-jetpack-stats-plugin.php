@@ -28,14 +28,6 @@ class Jetpack_Stats_Plugin {
 	const ADMIN_PAGE_SLUG = 'stats';
 
 	/**
-	 * My Jetpack's admin page slug.
-	 *
-	 * Landing on this page with no connection makes My Jetpack redirect to its own
-	 * onboarding step. See `My_Jetpack\Initializer::get_onboarding_redirect_args()`.
-	 */
-	const MY_JETPACK_PAGE_SLUG = 'my-jetpack';
-
-	/**
 	 * Register hooks to initialize the plugin.
 	 */
 	public static function bootstrap() {
@@ -92,54 +84,18 @@ class Jetpack_Stats_Plugin {
 		My_Jetpack_Initializer::init();
 
 		/**
-		 * `Config::ensure( 'stats_admin' )` starts the package but does not register the
-		 * dashboard page — the Jetpack plugin does that itself in `modules/stats.php`.
-		 * Register it here only when the Jetpack plugin is absent, so the two never
-		 * register the same `stats` menu slug.
+		 * Three places can register the `stats` menu slug, and only one of them may run.
+		 * `Stats_Admin\Main` registers the dashboard itself while the site has no connection,
+		 * and the Jetpack plugin registers it from `modules/stats.php` once the Stats module
+		 * loads. That leaves the connected site without the Jetpack plugin to this plugin.
 		 */
 		if ( self::is_jetpack_plugin_active() ) {
 			return;
 		}
 
-		// Every figure in the dashboard is read back from the WordPress.com API, which
-		// needs a connection token.
 		if ( ( new Connection_Manager() )->is_connected() ) {
 			Stats_Dashboard::init();
-		} else {
-			add_action( 'admin_menu', array( self::class, 'register_disconnected_menu' ), 999 );
 		}
-	}
-
-	/**
-	 * Register a Stats menu that routes to the connection flow.
-	 *
-	 * Runs at priority 999 to match `Stats_Admin\Dashboard`, which places itself between
-	 * the Jetpack plugin (998) and Admin_Menu (1000).
-	 */
-	public static function register_disconnected_menu() {
-		$page_suffix = add_menu_page(
-			__( 'Stats', 'jetpack-stats' ),
-			_x( 'Stats', 'product name shown in menu', 'jetpack-stats' ),
-			'view_stats',
-			self::ADMIN_PAGE_SLUG,
-			'__return_null',
-			'dashicons-chart-bar',
-			2
-		);
-
-		if ( $page_suffix ) {
-			add_action( 'load-' . $page_suffix, array( self::class, 'redirect_to_connection_flow' ) );
-		}
-	}
-
-	/**
-	 * Send the current request to My Jetpack, which redirects on to its onboarding step.
-	 *
-	 * @return never
-	 */
-	public static function redirect_to_connection_flow() {
-		wp_safe_redirect( admin_url( 'admin.php?page=' . self::MY_JETPACK_PAGE_SLUG ) );
-		exit( 0 );
 	}
 
 	/**
@@ -180,8 +136,9 @@ class Jetpack_Stats_Plugin {
 		// connection this is a no-op.
 		self::activate_stats_module();
 
-		// The stand-in menu forwards an unconnected site on to My Jetpack onboarding, so this
-		// redirect does not branch on the connection state.
+		// The Stats page is registered in both connection states, so this redirect does not
+		// branch on one. Without a connection the dashboard offers a plan and drives the
+		// connection itself.
 		if ( ( new Paths() )->is_current_request_activating_plugin_from_plugins_screen( JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH ) ) {
 			wp_safe_redirect( esc_url( admin_url( 'admin.php?page=' . self::ADMIN_PAGE_SLUG ) ) );
 			exit( 0 );

@@ -17,6 +17,8 @@ class Dashboard_Test extends Stats_TestCase {
 	public function tearDown(): void {
 		wp_dequeue_script( 'jp-stats-dashboard' );
 		wp_deregister_script( 'jp-stats-dashboard' );
+		wp_dequeue_script( 'jp-stats-dashboard-bootstrap' );
+		wp_deregister_script( 'jp-stats-dashboard-bootstrap' );
 		parent::tearDown();
 	}
 
@@ -78,6 +80,40 @@ class Dashboard_Test extends Stats_TestCase {
 		$inline_scripts = implode( '', (array) wp_scripts()->get_data( 'jp-stats-dashboard', 'before' ) );
 
 		$this->assertStringNotContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline_scripts );
+	}
+
+	/**
+	 * The bootstrap that loads the icon sprite is no longer part of the page markup, so it has to
+	 * reach the page through the script queue.
+	 */
+	public function test_load_admin_scripts_enqueues_the_bootstrap() {
+		( new Dashboard() )->load_admin_scripts();
+
+		$inline_scripts = implode( '', (array) wp_scripts()->get_data( 'jp-stats-dashboard-bootstrap', 'after' ) );
+
+		$this->assertTrue( wp_script_is( 'jp-stats-dashboard-bootstrap', 'enqueued' ) );
+		$this->assertStringContainsString( 'gridicons', $inline_scripts );
+	}
+
+	/**
+	 * The bootstrap runs on jQuery, which the Odyssey bundle does not depend on, so it has to say
+	 * so itself rather than rely on another admin feature having loaded it.
+	 */
+	public function test_bootstrap_declares_its_jquery_dependency() {
+		( new Dashboard() )->load_admin_scripts();
+
+		$this->assertContains( 'jquery', wp_scripts()->registered['jp-stats-dashboard-bootstrap']->deps );
+	}
+
+	/**
+	 * The dashboard markup carries no script tag of its own.
+	 */
+	public function test_render_prints_no_script_tag() {
+		ob_start();
+		( new Dashboard() )->render();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( '<script', $output );
 	}
 
 	/**

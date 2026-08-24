@@ -79,4 +79,10 @@ describe( 'formatDate', () => {
 
 		expect( formatDate( JUNE_21, 'full' ) ).toBe( 'Saturday, June 21, 2025' );
 	} );
+
+	it( 'appends the site time format for "dateTime"', () => {
+		setSettings( EN_US_SETTINGS );
+
+		expect( formatDate( JUNE_21, 'dateTime' ) ).toBe( 'June 21, 2025 12:00 am' );
+	} );
 } );

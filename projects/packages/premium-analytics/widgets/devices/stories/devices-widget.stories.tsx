@@ -35,20 +35,12 @@ interface DevicesDashboardStoryProps
 		DevicesStoryControls {}
 
 function renderDevicesWidget( { withComparison }: DevicesStoryControls ) {
-	return (
-		<DevicesRender
-			attributes={ { max: 5, reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
-	);
+	return <DevicesRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />;
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderDevicesOnPreset( preset: PresetType ) {
-	return (
-		<DevicesRender
-			attributes={ { max: 5, reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
-	);
+	return <DevicesRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />;
 }
 
 function DevicesDashboardRender( props: WidgetRenderProps< unknown > ) {
@@ -62,7 +54,7 @@ function DevicesDashboardStory( { withComparison, ...dashboardArgs }: DevicesDas
 			widgetType={ storyWidgetType }
 			renderModule={ DEVICES_RENDER_MODULE }
 			renderComponent={ DevicesDashboardRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 5, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }
