@@ -1,12 +1,13 @@
 /**
  * External dependencies
  */
-import { toPostId } from '@jetpack-premium-analytics/data';
+import { STATS_CHART_BUCKET_PERIODS, toPostId } from '@jetpack-premium-analytics/data';
 import {
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
+	defaultPeriodForInterval,
 	describeError,
 	useWidgetRootContext,
 	type MetricTab,
@@ -23,7 +24,6 @@ import useVideoViews from './use-video-views';
 import type {
 	VideoDetailViewsPerformanceAttributes,
 	VideoDetailViewsPerformanceChartType,
-	VideoDetailViewsPerformanceGranularity,
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -38,8 +38,6 @@ const DATA_FORMAT = {
 };
 
 type VideoDetailViewsPerformanceInnerProps = {
-	/** The granularity attribute: the chart's bucket size. */
-	granularity: VideoDetailViewsPerformanceGranularity;
 	/** How the views series is drawn. `MetricTabsChart` owns the default. */
 	chartType?: VideoDetailViewsPerformanceChartType;
 };
@@ -48,17 +46,15 @@ type VideoDetailViewsPerformanceInnerProps = {
  * Without a video scope (e.g. the widget added outside a video detail page) the
  * query never enables and the empty state shows.
  */
-function VideoDetailViewsPerformanceInner( {
-	granularity,
-	chartType,
-}: VideoDetailViewsPerformanceInnerProps ) {
+function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerformanceInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const videoId = toPostId( reportParams.post_id );
+	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
-	const { current, isLoading, isFetching, isError, error, hasData, refetch } = useVideoViews(
+	const { current, isLoading, isFetching, isError, error, refetch } = useVideoViews(
 		videoId,
 		reportParams,
-		granularity
+		period
 	);
 
 	// One "Views" metric: the headline is the window total (views are summed
@@ -78,7 +74,7 @@ function VideoDetailViewsPerformanceInner( {
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading && ! hasData }
+				isLoading={ isLoading }
 				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ videoId <= 0 }
@@ -114,20 +110,17 @@ function VideoDetailViewsPerformanceInner( {
  * Views performance widget: the scoped video's view trend over the dashboard
  * date range, with the window total as the metric headline. The view series
  * comes from the `stats/video/{id}` daily history for the selected window,
- * zero-filled and bucketed client-side per the granularity attribute.
+ * zero-filled and bucketed client-side at the page's chart interval.
  */
 export default function VideoDetailViewsPerformance( {
 	attributes = {},
 }: VideoDetailViewsPerformanceWidgetProps ) {
-	// Coerce unknown persisted values to the defaults.
-	const attrGranularity = attributes?.granularity;
-	const granularity =
-		attrGranularity === 'week' || attrGranularity === 'month' ? attrGranularity : 'day';
+	// Coerce unknown persisted values to the default.
 	const chartType = attributes?.chartType === 'bar' ? 'bar' : 'line';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<VideoDetailViewsPerformanceInner granularity={ granularity } chartType={ chartType } />
+			<VideoDetailViewsPerformanceInner chartType={ chartType } />
 		</WidgetRoot>
 	);
 }

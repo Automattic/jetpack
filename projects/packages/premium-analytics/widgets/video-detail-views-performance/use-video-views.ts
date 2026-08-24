@@ -4,6 +4,7 @@
 import {
 	useStatsSingleVideo,
 	type ReportParams,
+	type StatsChartBucketPeriod,
 	type StatsSingleVideoDataPoint,
 } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
@@ -17,10 +18,6 @@ import {
 	format,
 	parseISO,
 } from 'date-fns';
-/**
- * Internal dependencies
- */
-import type { VideoDetailViewsPerformanceGranularity } from './widget';
 
 /**
  * One chart point: a bucket-start date and the views summed into the bucket.
@@ -88,7 +85,7 @@ function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
  */
 function calendarBucketWindows(
 	dayWindow: DayWindow,
-	period: VideoDetailViewsPerformanceGranularity
+	period: StatsChartBucketPeriod
 ): BucketWindow[] {
 	// The URL is user-editable, so an inverted range must not reach
 	// `eachDayOfInterval()` (it throws).
@@ -161,7 +158,7 @@ function bucketDays(
 export default function useVideoViews(
 	videoId: number,
 	reportParams: ReportParams,
-	period: VideoDetailViewsPerformanceGranularity
+	period: StatsChartBucketPeriod
 ): VideoViewsState {
 	const primaryWindow = useMemo(
 		() => toDayWindow( reportParams.from, reportParams.to ),

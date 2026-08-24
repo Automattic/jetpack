@@ -10,10 +10,7 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import {
-	isPremiumAnalyticsInitialSyncFinished,
-	isPremiumAnalyticsSiteConnected,
-} from '../site-readiness';
+import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { getReportDefinition } from './registry';
 
 type ReportRouteParams = { report?: string };
@@ -27,7 +24,6 @@ type ReportRouteSearch = Record< string, string | undefined >;
  * component. Guards mirror the dashboard and post-detail routes:
  *
  * - Not connected → /connect
- * - Connected but sync pending → /syncing
  * - Unknown or missing `$report` → / (dashboard)
  *
  * The unknown-report guard uses the same reasoning as post-detail's invalid
@@ -48,10 +44,6 @@ export const route = {
 	}: { params?: ReportRouteParams; search?: ReportRouteSearch } = {} ) => {
 		if ( ! isPremiumAnalyticsSiteConnected() ) {
 			throw redirect( { to: '/connect' } );
-		}
-
-		if ( ! isPremiumAnalyticsInitialSyncFinished() ) {
-			throw redirect( { to: '/syncing' } );
 		}
 
 		// Validate the path param against the registry. An unknown or missing

@@ -22,9 +22,9 @@ import {
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { SingleChartContext } from '../private/single-chart-context';
-import { SvgEmptyState } from '../private/svg-empty-state';
+import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './bar-chart.module.scss';
 import {
@@ -151,11 +151,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 
 	// A hidden series is unmounted, so it is not on the band scale either — the
-	// axis has to choose its tick values from what is left.
+	// axis has to choose its tick values from what is left. Visibility is owned by
+	// the provider, whether it changed through the legend or programmatically.
 	const isSeriesRendered = useCallback(
-		( series: SeriesData ) =>
-			! chartId || ! legendInteractive || isSeriesVisible( chartId, series.label ),
-		[ chartId, legendInteractive, isSeriesVisible ]
+		( series: SeriesData ) => isSeriesVisible( chartId, series.label ),
+		[ chartId, isSeriesVisible ]
 	);
 
 	const chartOptions = useBarChartOptions(
@@ -198,7 +198,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		totalPoints,
 	} );
 
-	// Add visibility information to series when using interactive legends
+	// Add visibility information from the shared legend state.
 	const seriesWithVisibility = useMemo(
 		() =>
 			dataWithVisibleZeros.map( ( series, index ) => ( {
@@ -514,7 +514,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	return (
-		<SingleChartContext.Provider
+		<ChartInstanceContext.Provider
 			value={ {
 				chartId,
 				chartWidth: width,
@@ -606,10 +606,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												width={ width }
 												height={ chartHeight }
 											>
-												{ __(
-													'All series are hidden. Click legend items to show data.',
-													'jetpack-charts'
-												) }
+												{ getAllHiddenMessage( legendInteractive, 'series' ) }
 											</SvgEmptyState>
 										) : null }
 
@@ -673,7 +670,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					);
 				} }
 			</ChartLayout>
-		</SingleChartContext.Provider>
+		</ChartInstanceContext.Provider>
 	);
 };
 

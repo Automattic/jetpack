@@ -155,15 +155,14 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( requestedDates ).toEqual( [ '2026-07-01T00:00:00.000+08:00' ] );
 	} );
 
-	it( 'aggregates the daily buckets into ISO weeks for the weekly granularity', async () => {
+	it( 'aggregates the daily buckets into ISO weeks when the page interval is weekly', async () => {
 		mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
 
 		render(
 			<EmailTimeSeriesWidget
 				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					reportParams: { ...getDefaultQueryParams( false ), interval: 'week', post_id: 1234 },
 					metric: 'opens',
-					granularity: 'week',
 				} }
 			/>
 		);
@@ -172,7 +171,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-values', '15,7' );
 	} );
 
-	it( 'aggregates the daily buckets into calendar months for the monthly granularity', async () => {
+	it( 'aggregates the daily buckets into calendar months when the page interval is monthly', async () => {
 		mockApiFetch.mockResolvedValue( {
 			timeline: {
 				unit: 'day',
@@ -188,9 +187,18 @@ describe( 'EmailTimeSeriesWidget', () => {
 		render(
 			<EmailTimeSeriesWidget
 				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
+					// An explicit multi-month window: `WidgetRoot` normalizes report
+					// params through `resolveIntervalForRange`, and the default
+					// 30-day preset would coerce a monthly interval back to daily.
+					reportParams: {
+						...getDefaultQueryParams( false ),
+						preset: undefined,
+						from: '2026-05-01T00:00:00.000+08:00',
+						to: '2026-08-31T23:59:59.999+08:00',
+						interval: 'month',
+						post_id: 1234,
+					},
 					metric: 'opens',
-					granularity: 'month',
 				} }
 			/>
 		);
@@ -268,12 +276,9 @@ describe( 'EmailTimeSeriesWidget', () => {
 			jest.advanceTimersByTime( 1000 );
 		} );
 
-		// The skeleton, not the removed spinner — and a silent one: a refetch
-		// must not announce, only a first load does. `hidden: true` widens the
-		// query to include hidden nodes rather than requiring them, so it only
-		// pins the silence paired with the negative assertion above it.
-		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'status', { hidden: true } ) ).toBeInTheDocument();
+		// The previous range's "no activity" is not an answer about this one, so
+		// it gives way to an announced skeleton.
+		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
 		expect(
 			screen.queryByText( 'No activity for this email in this period.' )
 		).not.toBeInTheDocument();

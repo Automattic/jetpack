@@ -121,22 +121,33 @@ and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the pa
 
 ### Route guards must use the shared site-readiness helpers
 
-Every route's `beforeLoad` that checks connection or sync state must call
+Every route's `beforeLoad` that checks connection state, and every sync check, must call
 `isPremiumAnalyticsSiteConnected()` / `isPremiumAnalyticsInitialSyncFinished()` from
 `routes/site-readiness.ts` — never read `getScriptData()?.connection?.connectionStatus?.isRegistered`
 or `getScriptData()?.premium_analytics?.initial_full_sync_finished` directly. Simple has no Jetpack
 connection, so a direct read silently evaluates to "not connected" there.
 
-That's more than one broken route: it's a redirect loop. `/connect` and `/syncing` already go
-through the shared helpers and treat Simple as connected and synced, so if a route added later
-skips the helpers, Simple hits that route, gets redirected to `/connect`, and `/connect` — seeing
-Simple as already connected — immediately redirects back to `/`. From the user's side this looks
-like "the page just bounces to the dashboard," with nothing in the console pointing at the cause.
-This shipped once (Automattic/jetpack#50266): the `/reports/$report` route was left reading script
-data directly when the other four routes were migrated to the shared helpers, so it fell out of
-sync with `/connect`'s guard and the two routes bounced traffic between each other on Simple.
+That's more than one broken route: it's a redirect loop. `/connect` already goes through the
+shared helper and treats Simple as connected, so if a route added later skips the helpers, Simple
+hits that route, gets redirected to `/connect`, and `/connect` — seeing Simple as already
+connected — immediately redirects back to `/`. From the user's side this looks like "the page just
+bounces to the dashboard," with nothing in the console pointing at the cause. This shipped once
+(Automattic/jetpack#50266): the `/reports/$report` route was left reading script data directly
+when the other four routes were migrated to the shared helpers, so it fell out of sync with
+`/connect`'s guard and the two routes bounced traffic between each other on Simple.
 
-Adding a new route with a connection/sync guard: grep `routes/` for
+### Initial analytics sync must not block rendering
+
+The initial analytics full sync must not gate routes, sections, or widgets. A section that depends
+on synchronized data declares `requires_sync` in its server-provided configuration; never infer
+that dependency from the section slug in the SPA.
+
+Monitor and start the sync from the dashboard stage whenever any available section requires it,
+independent of the active section. Do not start it when no available section requires it. Use
+`isPremiumAnalyticsInitialSyncFinished()` for readiness checks so WordPress.com Simple remains
+supported.
+
+Adding a new route with a connection guard: grep `routes/` for
 `isPremiumAnalyticsSiteConnected` first and copy that shape — don't re-derive the check from
 script data.
 
@@ -295,7 +306,7 @@ export default function MyWidget( {
 }: WidgetRenderProps< MyWidgetRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<MyWidgetInner max={ attributes.max } />
+			<MyWidgetInner view={ attributes.view } />
 		</WidgetRoot>
 	);
 }
@@ -312,7 +323,7 @@ latter's `[key: string]: never` index signature collapses composed host fields s
 Dashboard state is read inside the component wrapped by `<WidgetRoot>`:
 
 ```tsx
-function MyWidgetInner( { max }: { max?: number } ) {
+function MyWidgetInner( { view }: { view?: string } ) {
 	const { reportParams } = useWidgetRootContext();
 	// Fetch data with hooks that accept reportParams.
 }
@@ -596,16 +607,17 @@ const items = report?.data?.[ 0 ]?.items ?? [];
 Date-range conversion (`from`/`to` → `period`/`end_date`/`days`) is handled inside
 the query factory — do not do it in the widget or the view hook.
 
-**`max` semantics**
+**Row count**
 
-`max = 0` means "all rows" — but only where the widget caps rows _after_ fetching,
-via `limitStatsRows()`. Use `slice( 0, max > 0 ? max : undefined )`, never
-`slice( 0, max )` (the latter returns an empty array when `max` is 0).
+Stats list widgets request `WIDGET_ROW_LIMIT` from
+`@jetpack-premium-analytics/widgets-toolkit`. Do not add per-widget defaults or
+user-editable row counts; report pages handle larger result sets with pagination.
+This rule covers Stats widgets only — the store widgets under
+`packages/widgets-toolkit/src/widgets/` predate it and set their own limits.
 
-Where `max` is instead passed straight to the endpoint as a request param, it is a
-page size and `0` carries no "all rows" meaning — clamp it to the widget's own
-default. `widgets/subscribers-list/render.tsx` is the current example: its
-`stats/followers` request is paginated, so it falls back to 6.
+In helpers that cap rows after fetching, `max = 0` means "all rows". Use
+`slice( 0, max > 0 ? max : undefined )`, not `slice( 0, max )`. Endpoint request
+parameters treat `max` as a page size, so `0` does not mean "all rows" there.
 
 **Loading / error / empty state**
 
@@ -619,10 +631,10 @@ interpolated into a shared frame) so translators see the whole sentence:
 
 ```tsx
 <WidgetState
-	isLoading={ isLoading }            // first load, no data yet
+	isLoading={ isLoading }            // nothing on screen answers the current params
 	isError={ isError }
 	isEmpty={ data.length === 0 }
-	// Optional: draws the delayed skeleton during refetches too.
+	// Optional: marks the widget busy while unchanged params revalidate.
 	isFetching={ isFetching }
 	error={ describeError( error, {
 		retryDescription: __( "We couldn't load search terms. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
@@ -640,9 +652,19 @@ area. Notes:
 - Expose `refetch` from the data/view hook so the error state's Retry can re-run the query.
 - The loading state defaults to `GenericSkeleton`. Pass a content-specific shape through
   `renderLoading` when needed, and build new shapes on `SkeletonRoot`.
-- Passing `isFetching` shows a delayed skeleton while keeping children mounted, preserving their
-  state through refetches. Keyboard focus inside the body is captured and restored across that
-  window, so a drill-down activated from the keyboard does not strand the reader.
+- **Pass the hook's `isLoading` straight through — never `isLoading && ! hasData`.** The hooks
+  widen it to "nothing on screen answers the current params", which covers a range change: the
+  queries carry `placeholderData`, so the previous range's numbers stay mounted. A `&& ! hasData`
+  guard sees those and cancels the skeleton, leaving one period's figures under another period's
+  heading.
+- `isFetching` draws nothing — it only marks the widget `aria-busy`. A revalidation of unchanged
+  params leaves the right numbers on screen, and blanking them reports a refresh nobody asked for
+  (WOOA7S-1934). Nothing unmounts, so children keep their own state and keyboard focus.
+- Every other branch *does* unmount the children, and a drill-down reaches the skeleton by
+  definition (it changes the params). `<WidgetState>` catches the focus that would otherwise fall
+  to `<body>` and parks it on its own root, so the next Tab continues from the widget instead of
+  the top of the page. Widgets need do nothing for this, but drill-down rows must be real
+  focusable controls for it to have anything to catch.
 - When a view hook masks `isError` (e.g. `rows.length === 0 && isError` to keep placeholder
   rows), gate `error` with the same predicate (`error: showError ? error : null`) so the two
   fields can't disagree.

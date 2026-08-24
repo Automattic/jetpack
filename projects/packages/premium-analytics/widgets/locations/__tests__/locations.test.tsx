@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
@@ -8,6 +9,7 @@ import type { AnchorHTMLAttributes, ReactNode } from 'react';
  * Internal dependencies
  */
 import LocationsWidget from '../render';
+import type { LocationView } from '../use-location-views';
 
 type MockRouteLinkProps = {
 	to: string;
@@ -39,10 +41,13 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 } ) );
 
-// Google Charts loads asynchronously and is outside this widget's concern.
+// Google Charts loads asynchronously and is outside this widget's concern. The
+// map rows are an assertion target, so the stand-in carries its data prop.
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
-	GeoChart: () => <div data-testid="geo-chart" />,
+	GeoChart: ( { data }: { data: unknown } ) => (
+		<div data-testid="geo-chart">{ JSON.stringify( data ) }</div>
+	),
 } ) );
 
 // Typed off the hook so the mocked state and the rows passed to
@@ -56,7 +61,6 @@ const LOADING_STATE: LocationViewsState = {
 	isFetching: true,
 	hasData: false,
 	isError: false,
-	isPlaceholderData: false,
 	refetch: () => {},
 };
 
@@ -66,6 +70,21 @@ jest.mock( '../use-location-views', () => ( {
 	__esModule: true,
 	default: ( ...args: unknown[] ) => mockUseLocationViews( ...( args as [] ) ),
 } ) );
+
+function locationView( label: string, countryCode: string, countryFull: string, value: number ) {
+	return { key: `${ countryCode }:${ label }`, label, countryCode, countryFull, value, region: '' };
+}
+
+function viewsState( data: LocationView[] ): LocationViewsState {
+	return { ...LOADING_STATE, data, isLoading: false, isFetching: false, hasData: data.length > 0 };
+}
+
+/**
+ * Read the rows GeoChart was handed, as `[ header, ...rows ]`.
+ */
+function readGeoChartData() {
+	return JSON.parse( screen.getByTestId( 'geo-chart' ).textContent ?? '[]' );
+}
 
 describe( 'LocationsWidget', () => {
 	beforeEach( () => {
@@ -149,5 +168,69 @@ describe( 'LocationsWidget', () => {
 		expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
 			expect.objectContaining( { geoMode: 'country', countryFilter: undefined } )
 		);
+	} );
+
+	describe( 'Regions view', () => {
+		it( 'sums each country regions onto one map row', () => {
+			mockUseLocationViews.mockReturnValue(
+				viewsState( [
+					locationView( 'Maharashtra', 'IN', 'India', 5447 ),
+					locationView( 'Delhi', 'IN', 'India', 520 ),
+					locationView( 'Illinois', 'US', 'United States', 2 ),
+				] )
+			);
+
+			render( <LocationsWidget attributes={ { geoGranularity: 'region' } } /> );
+			const [ , ...rows ] = readGeoChartData();
+
+			expect( rows ).toHaveLength( 2 );
+			expect( rows ).toContainEqual( [ { v: 'IN', f: 'India' }, 5967, expect.any( String ) ] );
+			expect( rows ).toContainEqual( [ { v: 'US', f: 'United States' }, 2, expect.any( String ) ] );
+		} );
+
+		it( 'lists a country regions in its tooltip', () => {
+			mockUseLocationViews.mockReturnValue(
+				viewsState( [
+					locationView( 'Maharashtra', 'IN', 'India', 5447 ),
+					locationView( 'Delhi', 'IN', 'India', 520 ),
+				] )
+			);
+
+			render( <LocationsWidget attributes={ { geoGranularity: 'region' } } /> );
+			const [ header, row ] = readGeoChartData();
+
+			expect( header[ 2 ] ).toMatchObject( { role: 'tooltip', p: { html: true } } );
+			expect( row[ 2 ] ).toBe(
+				`Maharashtra: ${ formatMetricValue( 5447 ) }<br />Delhi: ${ formatMetricValue( 520 ) }`
+			);
+		} );
+
+		it( 'counts the regions it leaves out of a long tooltip', () => {
+			mockUseLocationViews.mockReturnValue(
+				viewsState(
+					Array.from( { length: 12 }, ( _, index ) =>
+						locationView( `Region ${ index }`, 'IN', 'India', 12 - index )
+					)
+				)
+			);
+
+			render( <LocationsWidget attributes={ { geoGranularity: 'region' } } /> );
+			const [ , row ] = readGeoChartData();
+
+			expect( row[ 2 ].split( '<br />' ) ).toHaveLength( 11 );
+			expect( row[ 2 ] ).toContain( '…and 2 more locations' );
+		} );
+	} );
+
+	it( 'gives the Cities view no tooltip column', () => {
+		mockUseLocationViews.mockReturnValue(
+			viewsState( [ locationView( 'Mumbai', 'IN', 'India', 900 ) ] )
+		);
+
+		render( <LocationsWidget attributes={ { geoGranularity: 'city' } } /> );
+		const [ header, row ] = readGeoChartData();
+
+		expect( header ).toHaveLength( 2 );
+		expect( row ).toEqual( [ { v: 'IN', f: 'India' }, 900 ] );
 	} );
 } );

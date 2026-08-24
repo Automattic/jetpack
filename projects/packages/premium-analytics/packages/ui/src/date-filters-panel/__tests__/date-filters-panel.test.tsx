@@ -1,3 +1,4 @@
+import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateFiltersPanel } from '../date-filters-panel';
@@ -72,6 +73,20 @@ function renderPanel( props: Partial< ComponentProps< typeof DateFiltersPanel > 
 }
 
 describe( 'DateFiltersPanel', () => {
+	// The control follows the surface's declared scope rather than a prop, so a
+	// header can never offer a comparison the widgets below are stripping.
+	it( 'offers the comparison control by default', () => {
+		renderPanel();
+
+		expect( screen.getByRole( 'button', { name: 'Compare' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides the comparison control on a surface that offers none', () => {
+		render( <ReportScopeProvider offersComparison={ false }>{ panel() }</ReportScopeProvider> );
+
+		expect( screen.queryByRole( 'button', { name: 'Compare' } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'publishes the full-labels row width on its root', () => {
 		mockContainerResize();
 		const { container } = renderPanel();

@@ -60,7 +60,7 @@ class Admin_Post_List_Column {
 	 * Load CSS needed for Stats column width in WP-Admin area.
 	 *
 	 * @since 4.7.0
-	 * @since $$next-version$$ Added the `$hook_suffix` parameter.
+	 * @since 0.33.0 Added the `$hook_suffix` parameter.
 	 *
 	 * @param string $hook_suffix The current admin page.
 	 */
@@ -125,6 +125,19 @@ class Admin_Post_List_Column {
 						)
 					);
 				}
+
+				/**
+				 * Filters where the post list table's views column links to.
+				 *
+				 * Lets a newer analytics dashboard claim the entry point without this
+				 * package knowing about it.
+				 *
+				 * @since $$next-version$$
+				 *
+				 * @param string $stats_post_url Stats URL for the post.
+				 * @param int    $post_id        The post the row belongs to.
+				 */
+				$stats_post_url = apply_filters( 'jetpack_stats_post_list_column_url', $stats_post_url, $post_id );
 
 				static $post_views = null;
 

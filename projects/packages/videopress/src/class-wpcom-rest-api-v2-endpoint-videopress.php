@@ -772,6 +772,8 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					'content-type'  => 'application/json',
 					'Authorization' => 'X_UPLOAD_TOKEN token="' . $token . '" blog_id="' . $blog_id . '"',
 				),
+				// The WordPress.com poster update fetches and processes the image, which routinely exceeds WordPress's 5-second default timeout.
+				'timeout' => 30,
 			);
 
 			return $this->wpcom_poster_request(

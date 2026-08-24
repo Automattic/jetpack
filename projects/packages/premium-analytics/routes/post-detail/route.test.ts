@@ -17,7 +17,6 @@ jest.mock( '@wordpress/route', () => ( {
 	redirect: jest.fn( options => options ),
 } ) );
 jest.mock( '../site-readiness', () => ( {
-	isPremiumAnalyticsInitialSyncFinished: () => true,
 	isPremiumAnalyticsSiteConnected: () => true,
 } ) );
 jest.mock( './config', () => ( {

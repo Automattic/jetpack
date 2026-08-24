@@ -1,14 +1,15 @@
 .line-chart {
 	position: relative;
 
+	// Keep the collapsed state in `from` and never on the element: a dropped
+	// animation then fails visible. `both`, not `forwards`, for backwards fill.
 	&--animated {
 
 		path {
 			transform-origin: 0 95%;
-			transform: scaleY(0);
 			animation:
-				rise var(--wpds-motion-duration-xl, 400ms)
-				var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
+				rise var(--a8c-charts-motion-duration-entrance)
+				var(--a8c-charts-motion-easing-entrance) both;
 		}
 	}
 
@@ -18,8 +19,8 @@
 
 	&__tooltip,
 	&__annotation-label-popover {
-		background: var(--a8c-charts-color-background, var(--wpds-color-background-surface-neutral-strong, #fff));
-		color: var(--a8c-charts-color-label, var(--wpds-color-foreground-content-neutral, #1e1e1e));
+		background: var(--a8c-charts-color-surface);
+		color: var(--a8c-charts-color-label);
 		padding: var(--wpds-dimension-padding-sm, 8px);
 	}
 
@@ -109,6 +110,10 @@
 }
 
 @keyframes rise {
+
+	from {
+		transform: scaleY(0);
+	}
 
 	to {
 		transform: scaleY(1);
