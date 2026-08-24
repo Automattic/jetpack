@@ -11,7 +11,11 @@ export type {
 	FlattenStatsLeavesOptions,
 	StatsComparisonRowContext,
 } from './utils';
-export { bucketStatsTimeSeries, getStatsChartBucketKey } from './chart-buckets';
+export {
+	bucketStatsTimeSeries,
+	getStatsChartBucketKey,
+	STATS_CHART_BUCKET_PERIODS,
+} from './chart-buckets';
 export type { StatsChartBucketPeriod } from './chart-buckets';
 export { aggregateStatsDrilldownRows } from './drilldown-rows';
 export type {
@@ -45,6 +49,7 @@ export {
 	sanitizeStatsEmailTimeSeriesResponse,
 } from './time-series';
 export { sanitizeStatsVisitsResponse } from './visits';
+export { sanitizeStatsHourOfDayResponse } from './hour-of-day';
 export { sanitizeStatsInsightsResponse } from './insights';
 export { mergeStatsUtmComparisonRows, sanitizeStatsUtmResponse } from './utm';
 export { sanitizeStatsEmailSummaryResponse } from './email-summary';
@@ -191,3 +196,4 @@ export type {
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
 } from './types';
+export type { StatsHourOfDayBucket, StatsHourOfDayReport } from './hour-of-day';

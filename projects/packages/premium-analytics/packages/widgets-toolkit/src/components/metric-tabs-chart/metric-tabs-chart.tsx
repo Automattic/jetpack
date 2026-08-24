@@ -1,8 +1,18 @@
 /**
  * External dependencies
  */
-import { SelectControl, Tabs, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
-import { formatDateRange } from '@jetpack-premium-analytics/formatters';
+import {
+	SelectControl,
+	Tabs,
+	Text,
+	VisuallyHidden,
+	type TickResolution,
+} from '@jetpack-premium-analytics/externals';
+import {
+	formatDate,
+	formatDateRange,
+	type DateFormatName,
+} from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -10,6 +20,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { fromChartDate } from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
@@ -17,7 +28,7 @@ import { MetricWithComparison } from '../metric-with-comparison';
 import styles from './metric-tabs-chart.module.scss';
 import type { DataFormat } from '../../types';
 import type { ComparativeLineChartSeries } from '../chart-comparative-line/types';
-import type { ReactNode } from 'react';
+import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 
 /**
  * Width (px) budgeted per metric tab; below `metrics.length` times this the
@@ -53,6 +64,12 @@ export interface MetricTab {
 	dataFormat?: DataFormat;
 	/** Optional explanatory text, surfaced as the card's tooltip. */
 	description?: string;
+	/**
+	 * Why this metric has no data at the current bucket size. Set it and the card
+	 * shows a placeholder instead of a value, and the chart the reason instead of
+	 * a flat zero line. The tab stays selectable, so the reason is reachable.
+	 */
+	unavailable?: string;
 }
 
 /**
@@ -76,20 +93,44 @@ export interface MetricTabsChartProps {
 	controls?: ReactNode;
 	/** Accessible label for the metric tab list. */
 	groupLabel?: string;
+	/**
+	 * The series' bucket size, declared to the x-axis so tick formats follow the
+	 * known granularity rather than being inferred from point spacing.
+	 */
+	tickResolution?: TickResolution;
+	/**
+	 * Whether each point's date is a Stats bucket's wall clock (as `toChartDate`
+	 * builds them) rather than a real instant. Wall clocks are re-anchored via
+	 * `fromChartDate` before a label reads them; instants must be read as they
+	 * are, hence the opt-in. Full rationale in `chart-date.ts`.
+	 */
+	pointsAreWallClocks?: boolean;
 }
+
+/**
+ * Resolves a chart point's date to the instant its label should name. Which one
+ * applies is the producer's to declare, through `pointsAreWallClocks`.
+ */
+type ReadPointDate = ( date: Date ) => Date;
+
+const asInstant: ReadPointDate = date => date;
 
 /**
  * Format a series' legend label as its date range (first to last point), so the
  * legend reads as date ranges — consistent with the other comparative charts
  * (see `buildTimeSeriesChartData`). The selected card names the metric.
  *
- * @param points - The series points, oldest first.
+ * @param points        - The series points, oldest first.
+ * @param readPointDate - Resolves each end to the instant it names.
  * @return The formatted date range, or '' when empty.
  */
-function rangeLabel( points: MetricTabDatum[] ): string {
+function rangeLabel( points: MetricTabDatum[], readPointDate: ReadPointDate ): string {
 	const first = points[ 0 ];
 	const last = points[ points.length - 1 ];
-	return first && last ? formatDateRange( { from: first.date, to: last.date } ) : '';
+
+	return first && last
+		? formatDateRange( { from: readPointDate( first.date ), to: readPointDate( last.date ) } )
+		: '';
 }
 
 /**
@@ -103,21 +144,27 @@ function rangeLabel( points: MetricTabDatum[] ): string {
  * rather than a stroke. Bars therefore carry `type` alone and let the charts
  * theme resolve the shadow's colour and width factor.
  *
- * @param metric    - The metric to draw.
- * @param chartType - How the metric is drawn.
+ * @param metric        - The metric to draw.
+ * @param chartType     - How the metric is drawn.
+ * @param readPointDate - Resolves a point's date to the instant its label names.
  * @return The chart series.
  */
 function buildSeries(
 	metric: MetricTab,
-	chartType: MetricTabsChartType
+	chartType: MetricTabsChartType,
+	readPointDate: ReadPointDate
 ): ComparativeLineChartSeries[] {
 	const series: ComparativeLineChartSeries[] = [
-		{ label: rangeLabel( metric.current ), group: metric.key, data: metric.current },
+		{
+			label: rangeLabel( metric.current, readPointDate ),
+			group: metric.key,
+			data: metric.current,
+		},
 	];
 
 	if ( metric.previous?.length ) {
 		series.push( {
-			label: rangeLabel( metric.previous ),
+			label: rangeLabel( metric.previous, readPointDate ),
 			group: metric.key,
 			data: metric.previous,
 			options:
@@ -150,12 +197,23 @@ function MetricChart( {
 	metric,
 	dataFormat,
 	chartType,
+	tickResolution,
+	readPointDate,
 }: {
 	metric: MetricTab;
 	dataFormat: DataFormat;
 	chartType: MetricTabsChartType;
+	tickResolution?: TickResolution;
+	readPointDate: ReadPointDate;
 } ) {
-	const series = useMemo( () => buildSeries( metric, chartType ), [ metric, chartType ] );
+	const series = useMemo(
+		() => buildSeries( metric, chartType, readPointDate ),
+		[ metric, chartType, readPointDate ]
+	);
+	const formatTooltipDate = useCallback(
+		( date: Date, format: DateFormatName ) => formatDate( readPointDate( date ), format ),
+		[ readPointDate ]
+	);
 
 	// Resolve each series' colour + line style from the chart theme so the chart
 	// lines and the tooltip glyphs share the same styling — including the dashed
@@ -165,15 +223,88 @@ function MetricChart( {
 	const seriesStyles = useSeriesStyles( series );
 	const resolvedDataFormat = metric.dataFormat ?? dataFormat;
 
+	if ( metric.unavailable ) {
+		return <div className={ styles.unavailableChart }>{ metric.unavailable }</div>;
+	}
+
 	return chartType === 'bar' ? (
-		<ComparativeBarChart series={ series } dataFormat={ resolvedDataFormat } compactWhenShort />
+		<ComparativeBarChart
+			series={ series }
+			dataFormat={ resolvedDataFormat }
+			tickResolution={ tickResolution }
+			formatTooltipDate={ formatTooltipDate }
+			compactWhenShort
+		/>
 	) : (
 		<ComparativeLineChart
 			series={ series }
 			styles={ seriesStyles }
 			dataFormat={ resolvedDataFormat }
+			tickResolution={ tickResolution }
+			formatTooltipDate={ formatTooltipDate }
 			compactWhenShort
 		/>
+	);
+}
+
+/**
+ * A metric's card face: its label over the headline value and delta, or over a
+ * placeholder when the metric has nothing to report at this bucket size. Shared
+ * by the tab, single-metric, and dropdown-trigger layouts so the three cannot
+ * drift apart.
+ *
+ * @return The card's content.
+ */
+function MetricTabContent( {
+	metric,
+	dataFormat,
+	fontSize,
+	withDescription = false,
+}: {
+	metric: MetricTab;
+	dataFormat: DataFormat;
+	fontSize?: ComponentProps< typeof MetricWithComparison >[ 'fontSize' ];
+	withDescription?: boolean;
+} ) {
+	// The unavailable reason has no other channel here, so it is always exposed.
+	// The description is not: as a tab it already rides on `title`, and inside the
+	// dropdown trigger a hidden node would join the button's accessible name and
+	// be announced on every focus.
+	const note = metric.unavailable ?? ( withDescription ? metric.description : undefined );
+
+	return (
+		<span className={ styles.tabContent }>
+			<Text className={ styles.tabLabel }>{ metric.label }</Text>
+			{ metric.unavailable ? (
+				// Sized off the same token as the value it stands in for — the tab and
+				// trigger layouts ask for different ones, so a fixed size reads a step
+				// too large in one of them. `MetricWithComparison`'s own default.
+				<span
+					className={ styles.unavailableValue }
+					style={
+						{
+							'--jpa-unavailable-value-font-size': `var( --wpds-typography-font-size-${
+								fontSize ?? 'xl'
+							} )`,
+						} as CSSProperties
+					}
+					aria-hidden="true"
+				>
+					&mdash;
+				</span>
+			) : (
+				<MetricWithComparison
+					className={ styles.metricComparison }
+					value={ metric.value }
+					previousValue={ metric.previousValue }
+					dataFormat={ metric.dataFormat ?? dataFormat }
+					fontSize={ fontSize }
+					direction="row"
+					align="flex-end"
+				/>
+			) }
+			{ note && <VisuallyHidden>{ note }</VisuallyHidden> }
+		</span>
 	);
 }
 
@@ -200,7 +331,10 @@ export function MetricTabsChart( {
 	onMetricChange,
 	controls,
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
+	tickResolution,
+	pointsAreWallClocks = false,
 }: MetricTabsChartProps ) {
+	const readPointDate = pointsAreWallClocks ? fromChartDate : asInstant;
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
 	// Controlled open state: the dashboard's focusable drag-sortable wrapper
@@ -256,27 +390,24 @@ export function MetricTabsChart( {
 				<div className={ styles.header }>
 					<div className={ clsx( styles.tabs, styles.singleMetric ) }>
 						<div className={ styles.tab }>
-							<span className={ styles.tabContent }>
-								<Text className={ styles.tabLabel }>{ activeMetric.label }</Text>
-								<MetricWithComparison
-									className={ styles.metricComparison }
-									value={ activeMetric.value }
-									previousValue={ activeMetric.previousValue }
-									dataFormat={ activeMetric.dataFormat ?? dataFormat }
-									fontSize="2xl"
-									direction="row"
-									align="flex-end"
-								/>
-								{ activeMetric.description && (
-									<VisuallyHidden>{ activeMetric.description }</VisuallyHidden>
-								) }
-							</span>
+							<MetricTabContent
+								metric={ activeMetric }
+								dataFormat={ dataFormat }
+								fontSize="2xl"
+								withDescription
+							/>
 						</div>
 					</div>
 					{ controls }
 				</div>
 				<div className={ styles.chart }>
-					<MetricChart metric={ activeMetric } dataFormat={ dataFormat } chartType={ chartType } />
+					<MetricChart
+						metric={ activeMetric }
+						dataFormat={ dataFormat }
+						chartType={ chartType }
+						tickResolution={ tickResolution }
+						readPointDate={ readPointDate }
+					/>
 				</div>
 			</div>
 		);
@@ -330,17 +461,7 @@ export function MetricTabsChart( {
 							} }
 							triggerContent={
 								activeMetric && (
-									<span className={ styles.tabContent }>
-										<Text className={ styles.tabLabel }>{ activeMetric.label }</Text>
-										<MetricWithComparison
-											className={ styles.metricComparison }
-											value={ activeMetric.value }
-											previousValue={ activeMetric.previousValue }
-											dataFormat={ activeMetric.dataFormat ?? dataFormat }
-											direction="row"
-											align="flex-end"
-										/>
-									</span>
+									<MetricTabContent metric={ activeMetric } dataFormat={ dataFormat } />
 								)
 							}
 						/>
@@ -353,6 +474,8 @@ export function MetricTabsChart( {
 							metric={ activeMetric }
 							dataFormat={ dataFormat }
 							chartType={ chartType }
+							tickResolution={ tickResolution }
+							readPointDate={ readPointDate }
 						/>
 					) }
 				</div>
@@ -374,20 +497,9 @@ export function MetricTabsChart( {
 							key={ metric.key }
 							value={ metric.key }
 							className={ styles.tab }
-							title={ metric.description }
+							title={ metric.unavailable ?? metric.description }
 						>
-							<span className={ styles.tabContent }>
-								<Text className={ styles.tabLabel }>{ metric.label }</Text>
-								<MetricWithComparison
-									className={ styles.metricComparison }
-									value={ metric.value }
-									previousValue={ metric.previousValue }
-									dataFormat={ metric.dataFormat ?? dataFormat }
-									fontSize="2xl"
-									direction="row"
-									align="flex-end"
-								/>
-							</span>
+							<MetricTabContent metric={ metric } dataFormat={ dataFormat } fontSize="2xl" />
 						</Tabs.Tab>
 					) ) }
 				</Tabs.List>
@@ -397,7 +509,13 @@ export function MetricTabsChart( {
 			     metric's panel renders its chart; the rest stay empty. */ }
 			{ metrics.map( metric => (
 				<Tabs.Panel key={ metric.key } value={ metric.key } className={ styles.chart }>
-					<MetricChart metric={ metric } dataFormat={ dataFormat } chartType={ chartType } />
+					<MetricChart
+						metric={ metric }
+						dataFormat={ dataFormat }
+						chartType={ chartType }
+						tickResolution={ tickResolution }
+						readPointDate={ readPointDate }
+					/>
 				</Tabs.Panel>
 			) ) }
 		</Tabs.Root>

@@ -105,4 +105,15 @@ class Capabilities {
 		// The proxy accepts manage_options for every prefix.
 		return current_user_can( 'manage_options' ) || current_user_can( 'view_woocommerce_reports' );
 	}
+
+	/**
+	 * Whether the current user may view ad reports.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function current_user_can_view_ad_reports() {
+		return current_user_can( 'manage_options' );
+	}
 }

@@ -5,6 +5,8 @@ import {
 	AnalyticsQueryClientProvider,
 	getDefaultPreset,
 	normalizeReportParams,
+	useReportScope,
+	withoutComparison,
 } from '@jetpack-premium-analytics/data';
 import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
 import { useSearch } from '@wordpress/route';
@@ -80,12 +82,27 @@ export function WidgetRoot( { attributes, children, setError }: WidgetRootProps 
 	const { launchedDate } = getStoreInfo();
 	const defaultPreset = getDefaultPreset( launchedDate );
 
-	const reportParams = useMemo(
+	/*
+	 * Stripped after resolution rather than at either source, so a surface that
+	 * offers no comparison holds the invariant by construction: neither the URL
+	 * nor a widget's own attributes can put a comparison in front of a reader
+	 * who has no control to switch it off. The params stay in the URL, for the
+	 * surfaces that do offer one to pick back up.
+	 */
+	const { offersComparison } = useReportScope();
+	const navigationParams = useMemo(
 		() => normalizeReportParams( rawReportParams, defaultPreset ),
 		[ rawReportParams, defaultPreset ]
 	);
+	const reportParams = useMemo(
+		() => ( offersComparison ? navigationParams : withoutComparison( navigationParams ) ),
+		[ navigationParams, offersComparison ]
+	);
 
-	const contextValue = useMemo( () => ( { reportParams, setError } ), [ reportParams, setError ] );
+	const contextValue = useMemo(
+		() => ( { reportParams, navigationParams, setError } ),
+		[ reportParams, navigationParams, setError ]
+	);
 
 	return (
 		<AnalyticsQueryClientProvider>

@@ -8,6 +8,11 @@
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 // helpers.php defines the shared option reader the listeners depend on, so it loads first.
@@ -58,6 +63,7 @@ class AI_Launchpad {
 
 		self::load_wp_build();
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_jwt_initial_state' ), 20 );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks' ), 20 );
 	}
 
 	/**
@@ -182,5 +188,56 @@ class AI_Launchpad {
 				'wpcomBlogId' => get_wpcom_blog_id(),
 			)
 		);
+	}
+
+	/**
+	 * Attach the page's Tracks preconditions: the transport itself on Atomic, and the standard
+	 * event properties as a global the client recorder reads.
+	 *
+	 * On Simple, wpcom's stats.php loads the Tracks transport on every admin page and pushes
+	 * identifyUser and the blog_id super prop with it. On Atomic nothing does — wpcomsh only
+	 * enqueues jp-tracks inside the editor — so `window._tkq` stays an ordinary array, every
+	 * push accumulates in it, and the whole client-side funnel is discarded on unload.
+	 *
+	 * The transport is only enqueued where tracking is actually permitted: "not Simple" also
+	 * covers jurassic.ninja / jurassic.tube and self-hosted sites running this package, where
+	 * the server recorder already stays silent under a declined ToS or offline mode. Gating
+	 * here mirrors `wpcom_enqueue_tracking_scripts()` in `src/common/index.php`. The props/
+	 * identity global below stays ungated: it is inert without the transport.
+	 */
+	public static function enqueue_tracks() {
+		$handle = self::MENU_SLUG . '-prerequisites';
+
+		if ( ! wp_script_is( $handle, 'registered' ) ) {
+			return;
+		}
+
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			$tracking = new Tracking( 'jetpack-mu-wpcom', new Connection_Manager() );
+			if ( $tracking->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+				wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+			}
+		}
+
+		// JSON rather than wp_localize_script(), which stringifies every value: blog_id would
+		// reach Tracks as a string instead of an int.
+		$bootstrap = wp_json_encode(
+			array(
+				'props'    => wpcom_ai_launchpad_standard_props(),
+				'identity' => wpcom_ai_launchpad_tracks_identity(),
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+		);
+
+		// WordPress concatenates every `before` inline script queued for this handle into one
+		// <script> tag, so a false here (encode failure) would emit a syntax error that also
+		// takes out the other scripts sharing the handle — including JP_CONNECTION_INITIAL_STATE
+		// and Jetpack_Editor_Initial_State.wpcomBlogId, the JWT and blog id the page needs to
+		// function at all. Fall back to an empty object so this global stays inert instead.
+		if ( false === $bootstrap ) {
+			$bootstrap = '{}';
+		}
+
+		wp_add_inline_script( $handle, 'window.wpcomAiLaunchpadTracks = ' . $bootstrap . ';', 'before' );
 	}
 }

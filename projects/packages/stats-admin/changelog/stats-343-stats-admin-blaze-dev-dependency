@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Make the Blaze package a development-only dependency.

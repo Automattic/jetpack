@@ -1,10 +1,7 @@
 /**
- * External dependencies
- */
-import { localTZDate } from '@jetpack-premium-analytics/data';
-/**
  * Internal dependencies
  */
+import { toChartDate } from './chart-date';
 import type { MetricTab } from '../components';
 import type { DataFormat } from '../types';
 
@@ -54,7 +51,7 @@ function total( report: MetricReport | undefined, field: string ): number {
  */
 function toPoints( report: MetricReport | undefined, field: string ) {
 	return ( report?.data ?? [] ).map( point => ( {
-		date: localTZDate( point.date_start ),
+		date: toChartDate( point.date_start ),
 		value: Number( ( point as Record< string, unknown > )[ field ] ?? 0 ),
 	} ) );
 }

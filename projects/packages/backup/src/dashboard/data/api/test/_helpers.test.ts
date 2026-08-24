@@ -1,4 +1,4 @@
-import { ApiError, requireTypes, toIntRewindId } from '../_helpers';
+import { ApiError, isAmbiguousFailure, requireTypes, toIntRewindId } from '../_helpers';
 
 describe( 'toIntRewindId', () => {
 	test( 'returns the input unchanged when there is no decimal suffix', () => {
@@ -58,5 +58,70 @@ describe( 'requireTypes', () => {
 
 		expect( thrown ).toBeInstanceOf( ApiError );
 		expect( ( thrown as ApiError ).code ).toBe( 'no_types_selected' );
+	} );
+} );
+
+describe( 'isAmbiguousFailure', () => {
+	/**
+	 * Force `navigator.onLine`, restoring it afterwards.
+	 *
+	 * @param value - What the browser should claim.
+	 * @return A function that puts it back.
+	 */
+	function forceOnLine( value: boolean ) {
+		const original = Object.getOwnPropertyDescriptor( window.navigator, 'onLine' );
+		Object.defineProperty( window.navigator, 'onLine', { value, configurable: true } );
+		return () => {
+			if ( original ) {
+				Object.defineProperty( window.navigator, 'onLine', original );
+			}
+		};
+	}
+
+	let restoreOnLine: () => void;
+
+	beforeEach( () => {
+		restoreOnLine = forceOnLine( true );
+	} );
+
+	afterEach( () => restoreOnLine() );
+
+	// The question is "did our code get far enough to give a verdict",
+	// and only a bridge-shaped failure carries one.
+	test.each( [
+		[ 'a transport failure the bridge wrapped', { status: 502, transport: { code: 'x' } }, true ],
+		[ 'a gateway status with no transport payload', { status: 504 }, true ],
+		[ 'a request timeout', { status: 408 }, true ],
+		[ 'an upstream refusal', { status: 412 }, false ],
+		[ 'an authorization failure', { status: 401 }, false ],
+		// The `ok`-falsy branch: WordPress.com answered and said no, so
+		// nothing was queued and a retry is safe at once.
+		[ 'a refusal reported as 500', { status: 500 }, false ],
+	] )( 'reads %s as ambiguous=%p', ( _label, data, expected ) => {
+		expect( isAmbiguousFailure( new ApiError( 'restore_initiate_failed', 'x', data ) ) ).toBe(
+			expected
+		);
+	} );
+
+	// These carry no `data` at all — the failure happened before the
+	// bridge could answer. They are the browser → site hop, which the
+	// bridges' own vocabulary never describes.
+	test.each( [
+		[ 'a request that never completed', 'fetch_error' ],
+		[ 'a non-JSON gateway page', 'invalid_json' ],
+	] )( 'reads %s as ambiguous', ( _label, code ) => {
+		expect( isAmbiguousFailure( new ApiError( code, 'x' ) ) ).toBe( true );
+	} );
+
+	test( 'reads any failure as unambiguous when the browser was offline', () => {
+		restoreOnLine();
+		restoreOnLine = forceOnLine( false );
+		// Proof rather than assumption: the request never left, so
+		// nothing can have started, and the reader keeps their retry.
+		expect( isAmbiguousFailure( new ApiError( 'fetch_error', 'x' ) ) ).toBe( false );
+	} );
+
+	test( 'ignores anything that is not an ApiError', () => {
+		expect( isAmbiguousFailure( new Error( 'boom' ) ) ).toBe( false );
 	} );
 } );

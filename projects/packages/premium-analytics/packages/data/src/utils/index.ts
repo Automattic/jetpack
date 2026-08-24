@@ -1,5 +1,10 @@
 export { localTZDate, dateToISOStringWithLocalTZ, formatToTimezoneNaiveString } from './date';
-export { getApiErrorCode, getApiErrorStatus, shouldRetryApiError } from './api-error';
+export {
+	getApiErrorCode,
+	getApiErrorStatus,
+	shouldRetryApiError,
+	StatsResponseShapeError,
+} from './api-error';
 export { ensureCoreSettingsReady } from './ensure-core-settings';
 export { getDefaultIntervalForPeriod } from './interval';
 export { safeParseInt, safeParseFloat } from './parsing';

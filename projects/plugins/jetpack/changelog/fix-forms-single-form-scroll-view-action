@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Forms: On small screens, the View action now opens a response the same way tapping its title does.

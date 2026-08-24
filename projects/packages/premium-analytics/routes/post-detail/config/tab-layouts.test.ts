@@ -32,7 +32,7 @@ describe( 'post detail tab layouts', () => {
 			{
 				uuid: 'post-utm',
 				type: 'jpa/utm-insights--utm',
-				attributes: { utmDimension: 'utm_source,utm_medium', max: 10, showReportLink: false },
+				attributes: { utmDimension: 'utm_source,utm_medium', showReportLink: false },
 				placement: { width: 1, height: 2, order: 6 },
 			},
 		] );
@@ -55,19 +55,19 @@ describe( 'post detail tab layouts', () => {
 			{
 				uuid: 'email-opens-countries',
 				type: 'jpa/email-breakdown--location-opens',
-				attributes: { view: 'countries', metric: 'opens', max: 8 },
+				attributes: { view: 'countries', metric: 'opens' },
 				placement: { width: 1, height: 2, order: 3 },
 			},
 			{
 				uuid: 'email-opens-devices',
 				type: 'jpa/email-breakdown--platforms-opens',
-				attributes: { view: 'devices', metric: 'opens', max: 8 },
+				attributes: { view: 'devices', metric: 'opens' },
 				placement: { width: 1, height: 2, order: 4 },
 			},
 			{
 				uuid: 'email-opens-clients',
 				type: 'jpa/email-breakdown--clients-opens',
-				attributes: { view: 'clients', metric: 'opens', max: 8 },
+				attributes: { view: 'clients', metric: 'opens' },
 				placement: { width: 1, height: 2, order: 5 },
 			},
 		] );
@@ -90,25 +90,25 @@ describe( 'post detail tab layouts', () => {
 			{
 				uuid: 'email-clicks-devices',
 				type: 'jpa/email-breakdown--platforms-clicks',
-				attributes: { view: 'devices', metric: 'clicks', max: 8 },
+				attributes: { view: 'devices', metric: 'clicks' },
 				placement: { width: 1, height: 2, order: 3 },
 			},
 			{
 				uuid: 'email-clicks-clients',
 				type: 'jpa/email-breakdown--clients-clicks',
-				attributes: { view: 'clients', metric: 'clicks', max: 8 },
+				attributes: { view: 'clients', metric: 'clicks' },
 				placement: { width: 1, height: 2, order: 4 },
 			},
 			{
 				uuid: 'email-clicks-countries',
 				type: 'jpa/email-breakdown--location-clicks',
-				attributes: { view: 'countries', metric: 'clicks', max: 8, showMap: true },
+				attributes: { view: 'countries', metric: 'clicks', showMap: true },
 				placement: { width: 2, height: 2, order: 5 },
 			},
 			{
 				uuid: 'email-clicks-links',
 				type: 'jpa/email-breakdown--top-links',
-				attributes: { view: 'links', metric: 'clicks', max: 8 },
+				attributes: { view: 'links', metric: 'clicks' },
 				placement: { width: 2, height: 2, order: 6 },
 			},
 		] );

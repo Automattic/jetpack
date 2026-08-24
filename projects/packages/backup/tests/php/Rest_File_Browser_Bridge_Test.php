@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Backup\V0005\REST;
 
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -86,9 +87,54 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * Routes are gated on manage_options — a subscriber gets 403.
+	 * Every route in this file, with the params it needs to get past
+	 * validation and reach the permission gate.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: array<string, string>}>
 	 */
-	public function test_routes_require_manage_options() {
+	public static function provide_bridge_routes() {
+		return array(
+			'ls'           => array(
+				'POST',
+				'/jetpack/v4/rewind/backup/ls',
+				array(
+					'rewind_id' => '123',
+					'path'      => '/',
+				),
+			),
+			'file-content' => array(
+				'GET',
+				'/jetpack/v4/rewind/backup/file-content',
+				array(
+					'file_period'           => '123',
+					'encoded_manifest_path' => 'abc',
+				),
+			),
+			'path-info'    => array(
+				'GET',
+				'/jetpack/v4/rewind/backup/path-info',
+				array(
+					'file_period'   => '123',
+					'manifest_path' => 'f5:/wp-config.php',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Routes are gated on manage_options — a subscriber gets 403.
+	 *
+	 * Driven by a provider so the coverage keeps pace as routes are
+	 * added, rather than silently continuing to assert one of them.
+	 *
+	 * @param string                $method Request method.
+	 * @param string                $route  Route to dispatch.
+	 * @param array<string, string> $params Params needed to pass validation.
+	 *
+	 * @dataProvider provide_bridge_routes
+	 */
+	#[DataProvider( 'provide_bridge_routes' )]
+	public function test_routes_require_manage_options( $method, $route, array $params ) {
 		$subscriber_id = wp_insert_user(
 			array(
 				'user_login' => 'subscriber_user',
@@ -98,9 +144,10 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 		);
 		wp_set_current_user( $subscriber_id );
 
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backup/file-content' );
-		$request->set_param( 'file_period', '123' );
-		$request->set_param( 'encoded_manifest_path', 'abc' );
+		$request = new WP_REST_Request( $method, $route );
+		foreach ( $params as $key => $value ) {
+			$request->set_param( $key, $value );
+		}
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 403, $response->get_status() );
@@ -123,6 +170,157 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 		$this->assertInstanceOf( WP_Error::class, $response );
 		$this->assertStringNotContainsString( 'cURL', $response->get_error_message() );
 		$this->assertSame( 502, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * A manifest path that is not base64 is refused before dispatch.
+	 *
+	 * The value is interpolated into the WPCOM URL *path* unescaped —
+	 * it has to be, because percent-encoding it is what broke the
+	 * preview — so the schema is the only thing standing between an
+	 * admin and an arbitrary authenticated WPCOM GET. Dot segments are
+	 * the concrete hazard: cURL applies RFC 3986 dot-segment removal
+	 * before the request leaves the host, so `../` climbs out of the
+	 * intended route and a `?` swallows the trailing `/url`.
+	 *
+	 * `has_valid_params()` runs in `dispatch()` before the permission
+	 * callback is consulted, which is why this returns 400 rather than
+	 * the 403 an unauthenticated caller would otherwise get.
+	 */
+	public function test_file_content_refuses_a_manifest_path_that_is_not_base64() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backup/file-content' );
+		$request->set_param( 'file_period', '1748888135' );
+		$request->set_param( 'encoded_manifest_path', '../../../../../me/sites?f=' );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Every character base64 can emit survives that guard.
+	 *
+	 * `+` and `/` only turn up for non-ASCII filenames, which makes them
+	 * easy to leave untested and easy to break — a guard that rejected
+	 * them would make every file with a CJK or accented name
+	 * un-previewable. `/` is also the case where relying on the upstream
+	 * route's `\S+` capture is load-bearing, since it splits the
+	 * outbound path into an extra segment.
+	 *
+	 * Asserted by the absence of a validation failure: a well-formed
+	 * request falls through to the permission gate, which is a 401/403
+	 * here rather than a 400.
+	 */
+	public function test_file_content_accepts_base64_containing_plus_and_slash() {
+		// base64 of `f5:/wp-content/uploads/日本語.jpg`.
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backup/file-content' );
+		$request->set_param( 'file_period', '1748888135' );
+		$request->set_param( 'encoded_manifest_path', 'ZjU6L3dwLWNvbnRlbnQvdXBsb2Fkcy/ml6XmnKzoqp4uanBn' );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertNotSame( 'rest_invalid_param', $response->get_data()['code'] ?? '' );
+	}
+
+	/**
+	 * The path-info route registers when the modernization filter is on.
+	 */
+	public function test_path_info_route_registers_when_modernized() {
+		$routes = $this->server->get_routes();
+		$this->assertArrayHasKey( '/jetpack/v4/rewind/backup/path-info', $routes );
+	}
+
+	/**
+	 * The path-info leg is addressed by the file's own period and the
+	 * *raw* manifest path.
+	 *
+	 * Both halves are easy to get wrong and neither fails loudly. WPCOM
+	 * names the parameter `backup_id`, but VaultPress hands it straight
+	 * to an exact `period = %d` match against the row for this file
+	 * version — so the parent backup's rewindId, the backup period and
+	 * VaultPress's own id all resolve to nothing. And unlike the stream
+	 * leg, this route takes the manifest path unencoded in the request
+	 * body; base64-ing it here would look for a file literally named
+	 * `ZjU6L3dwLWNvbmZpZy5waHA=`.
+	 */
+	public function test_path_info_sends_the_file_period_and_the_raw_manifest_path() {
+		$this->arrange_wpcom(
+			array(
+				'size'  => 3247,
+				'hash'  => 'abc123',
+				'mtime' => 1748888135,
+			)
+		);
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backup/path-info' );
+		$request->set_param( 'file_period', '1748888135' );
+		$request->set_param( 'manifest_path', 'f5:/wp-config.php' );
+		File_Browser_Bridge::get_path_info( $request );
+
+		// Asserted whole rather than key by key: it pins that nothing
+		// extra is sent, and it fails loudly on a null body — the trait
+		// leaves it null when a guard refused before reaching the
+		// network, which per-key assertions would skip in silence.
+		$this->assertSame(
+			array(
+				'backup_id'      => '1748888135',
+				'manifest_path'  => 'f5:/wp-config.php',
+				'extension_type' => '',
+			),
+			$this->captured_body
+		);
+	}
+
+	/**
+	 * The manifest path reaches WPCOM as raw, unescaped base64.
+	 *
+	 * WPCOM's stream route runs a plain `base64_decode()` on this URL
+	 * segment, so percent-encoding it first is silently destructive:
+	 * PHP's non-strict decoder discards the `%` and keeps the `3` and
+	 * the `D`, both of which are valid base64 characters. The segment
+	 * `ZjU6L3dwLWNvbmZpZy5waHA%3D` therefore decodes to the non-empty
+	 * but wrong `f5:/wp-config.php7`, and VaultPress correctly reports
+	 * `File not found` for a file that is really there.
+	 *
+	 * Only paths whose base64 needs no `=` padding and happens to avoid
+	 * `+` and `/` survive the round trip — which is why `readme.html`
+	 * (15 bytes) previewed while `wp-config.php` (17 bytes) did not.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function provide_encoded_manifest_paths() {
+		return array(
+			// `f5:/wp-config.php` — the padded case, 68% of real paths.
+			'padded'         => array( 'ZjU6L3dwLWNvbmZpZy5waHA=' ),
+			// `f5:/wp-content/uploads/日本語.jpg`. `/` inside the base64
+			// splits the outbound path into an extra segment, which is
+			// the case where relying on the upstream route's greedy
+			// `\S+` capture actually carries weight. Non-ASCII filenames
+			// are the only way `+` and `/` arise, so without this the
+			// central claim of the fix goes unexercised.
+			'contains slash' => array( 'ZjU6L3dwLWNvbnRlbnQvdXBsb2Fkcy/ml6XmnKzoqp4uanBn' ),
+		);
+	}
+
+	/**
+	 * @param string $encoded The base64 manifest path to send.
+	 *
+	 * @dataProvider provide_encoded_manifest_paths
+	 */
+	#[DataProvider( 'provide_encoded_manifest_paths' )]
+	public function test_file_content_sends_the_manifest_path_as_raw_base64( $encoded ) {
+		$this->arrange_wpcom( array( 'url' => 'https://public-api.wordpress.com/signed-stream' ) );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backup/file-content' );
+		$request->set_param( 'file_period', '1748888135' );
+		$request->set_param( 'encoded_manifest_path', $encoded );
+		File_Browser_Bridge::get_file_content( $request );
+
+		$this->assertStringContainsString(
+			"/rewind/backup/1748888135/file/{$encoded}/url",
+			$this->captured_urls[0]
+		);
 	}
 
 	/**

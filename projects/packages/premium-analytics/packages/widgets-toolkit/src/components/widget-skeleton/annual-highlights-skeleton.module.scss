@@ -1,0 +1,50 @@
+/* Geometry from the design prototype's `annual` skeleton variant: a stack of
+ * rows, each an icon beside a label line with its value trailing. Lengths are
+ * on WPDS dimension tokens, except the value width: 46px stands in for the
+ * formatted count, and the scale's nearest step is 6px away. */
+$value-inline-size: 46px;
+
+/* `safe` keeps the centring from pushing the first rows out of the top of the
+ * tile: once they no longer fit it falls back to packing them at the start, so
+ * what gets clipped is the tail. */
+.rows {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	justify-content: safe center;
+	gap: var(--wpds-dimension-gap-lg);
+	min-block-size: 0;
+	overflow: hidden;
+}
+
+/* `flex: none` so the rows past the tile's height are clipped by the wrapper
+ * rather than squashed shorter than the icon they hold. */
+.row {
+	display: flex;
+	flex: none;
+	align-items: center;
+	column-gap: var(--wpds-dimension-gap-md);
+}
+
+/* `lg` (8px) is the nearest token to the prototype's 6px radius — this package
+ * has no 6px token. At 24px the browser does not clamp it. */
+.icon {
+	inline-size: var(--wpds-dimension-size-sm);
+	block-size: var(--wpds-dimension-size-sm);
+	border-radius: var(--wpds-border-radius-lg);
+}
+
+.label {
+	flex: 1 1 0;
+	min-inline-size: 0;
+	block-size: var(--wpds-dimension-size-4xs);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+/* Same nearest-token substitution for the prototype's 5px radius: `md` is
+ * 4px. */
+.value {
+	inline-size: $value-inline-size;
+	block-size: var(--wpds-dimension-size-2xs);
+	border-radius: var(--wpds-border-radius-md);
+}

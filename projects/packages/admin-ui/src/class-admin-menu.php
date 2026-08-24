@@ -47,6 +47,13 @@ class Admin_Menu {
 	const DESIGN_TOKENS_HANDLE = 'jetpack-admin-ui-design-tokens';
 
 	/**
+	 * Handle for the source-less stylesheet that hides WordPress core admin notices.
+	 *
+	 * @var string
+	 */
+	const HIDE_CORE_NOTICES_HANDLE = 'jetpack-admin-ui-hide-core-notices';
+
+	/**
 	 * Whether this class has been initialized
 	 *
 	 * @var boolean
@@ -236,36 +243,59 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Queues an inline style that hides WordPress core admin notices on the current Jetpack page.
+	 * Enqueues the stylesheet that hides WordPress core admin notices on the current Jetpack page.
 	 *
-	 * Hooked from the page's load-<hook> action so it only runs on Jetpack screens.
+	 * Hooked from the page's load-<hook> action so it only runs on Jetpack screens. That action
+	 * runs before admin_enqueue_scripts, so the handle is queued in time to be printed.
 	 *
 	 * @return void
 	 */
 	public static function hide_core_admin_notices() {
-		add_action( 'admin_print_styles', array( __CLASS__, 'print_hide_core_admin_notices_style' ) );
+		// wp_add_inline_style() appends, so the CSS is attached only while the handle is new to the request.
+		if ( ! wp_style_is( self::HIDE_CORE_NOTICES_HANDLE, 'registered' ) ) {
+			wp_register_style( self::HIDE_CORE_NOTICES_HANDLE, false, array(), self::PACKAGE_VERSION );
+			wp_add_inline_style( self::HIDE_CORE_NOTICES_HANDLE, self::get_hide_core_admin_notices_styles() );
+		}
+
+		wp_enqueue_style( self::HIDE_CORE_NOTICES_HANDLE );
 	}
 
 	/**
-	 * Prints the inline style that hides WordPress core admin notices.
+	 * Enqueues the CSS that hides WordPress core admin notices.
 	 *
-	 * We only target direct children of #wpbody-content (where core renders notices via the
-	 * admin_notices / all_admin_notices hooks). This intentionally leaves JITMs untouched —
-	 * they output `.jetpack-jitm-message`, not `.notice` — and leaves in-app/React notices
-	 * untouched, since those render deeper inside `.wrap`. An inline style is used (rather than
-	 * an enqueued build asset) so it also works on older Jetpack pages that ship no stylesheet.
+	 * Callers must run this before WordPress flushes the style queue in
+	 * print_admin_styles() (admin_print_styles, priority 20). Later than that,
+	 * the handle is never printed. The previous admin_print_styles priority-10
+	 * hook still works.
+	 *
+	 * @deprecated $$next-version$$ Use hide_core_admin_notices(), which enqueues the CSS.
 	 *
 	 * @return void
 	 */
 	public static function print_hide_core_admin_notices_style() {
-		?>
-		<style id="jetpack-admin-ui-hide-core-notices">
-			#wpbody-content > .notice,
-			#wpbody-content > .update-nag,
-			#wpbody-content > .updated,
-			#wpbody-content > .error { display: none !important; }
-		</style>
-		<?php
+		_deprecated_function( __METHOD__, 'admin-ui-$$next-version$$', __CLASS__ . '::hide_core_admin_notices' );
+		self::hide_core_admin_notices();
+	}
+
+	/**
+	 * Gets the CSS that hides WordPress core admin notices.
+	 *
+	 * We only target direct children of #wpbody-content (where core renders notices via the
+	 * admin_notices / all_admin_notices hooks). This intentionally leaves JITMs untouched —
+	 * they output `.jetpack-jitm-message`, not `.notice` — and leaves in-app/React notices
+	 * untouched, since those render deeper inside `.wrap`. The CSS rides on a source-less
+	 * handle rather than a build asset so it also reaches older Jetpack pages that ship no
+	 * stylesheet of their own.
+	 *
+	 * @return string CSS rules.
+	 */
+	private static function get_hide_core_admin_notices_styles() {
+		return '
+		#wpbody-content > .notice,
+		#wpbody-content > .update-nag,
+		#wpbody-content > .updated,
+		#wpbody-content > .error { display: none !important; }
+		';
 	}
 
 	/**

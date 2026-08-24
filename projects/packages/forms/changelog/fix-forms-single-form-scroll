@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Responses: Allow a single response to scroll when it is taller than the screen.

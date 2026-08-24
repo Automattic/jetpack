@@ -31,11 +31,12 @@ export function useChartTheme(): WooChartTheme {
 			tickLength: 4,
 			gridColor: '',
 			gridColorDark: '',
-			// Both overrides are load-bearing. `fill` restates the charts default, which cannot
-			// resolve until CHARTS-203 emits --a8c-charts-color-label: the default nests its
-			// var() fallbacks and resolveCssVariable() parses only one level. `fontSize` has to
-			// stay a plain number, since resolveFontSize() rejects var(); without it visx falls
-			// back to 11 and the chart margin and pie label measurements go with it.
+			// `fontSize` is load-bearing: it has to stay a plain number, since resolveFontSize()
+			// rejects var(); without it visx falls back to 11 and the chart margin and pie label
+			// measurements go with it. `fill` is not, any more — CHARTS-203 made the charts
+			// default a single-level pointer that resolves on its own, so this only restates it.
+			// Harmless, since the value publishes the theme layer and degrades rather than
+			// breaking, but it goes with the colour props in CHARTS-227.
 			svgLabelSmall: {
 				fill: 'var(--wpds-color-foreground-content-neutral)',
 				fontSize: 12,

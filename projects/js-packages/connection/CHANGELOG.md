@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.3.2] - 2026-08-20
+### Changed
+- Internal updates. [#51360]
+
+## [2.3.1] - 2026-08-19
+### Changed
+- Update dependencies.
+
 ## [2.3.0] - 2026-08-13
 ### Added
 - Connection: Expose the connection owner's identity so consumers can name the owner when their token is broken. [#51034]
@@ -1462,6 +1470,8 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.3.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.3.1...v2.3.2
+[2.3.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.2.3...v2.3.0
 [2.2.3]: https://github.com/Automattic/jetpack-connection-js/compare/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.2.1...v2.2.2

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Rename Tracks properties on the Jetpack AI MCP settings events: source is now ref, and tool_id is now ability_name, matching the AI product events standard.

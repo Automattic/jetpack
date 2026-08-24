@@ -1,3 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Explain in the phpcs comments why the dedicated-request URL check reads the request raw. No code change.

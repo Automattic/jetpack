@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop treating a user agent that starts with the iPad or Galaxy Tab name as a phone.

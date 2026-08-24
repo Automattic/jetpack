@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
-import { megaphone } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
+import { megaphone } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**

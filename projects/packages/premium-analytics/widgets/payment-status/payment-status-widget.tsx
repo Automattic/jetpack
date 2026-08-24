@@ -5,6 +5,7 @@ import { useReportOrders } from '@jetpack-premium-analytics/data';
 import { payment } from '@jetpack-premium-analytics/icons';
 import {
 	DonutChart,
+	DonutChartSkeleton,
 	PAYMENT_STATUS_FILTERS,
 	WidgetState,
 	buildPaymentStatusData,
@@ -41,7 +42,7 @@ export function PaymentStatusWidget() {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading && ! hasData }
+			isLoading={ isLoading }
 			isFetching={ isFetching }
 			// The report queries keep the previous period's data as placeholder across
 			// range changes, so only surface the error when there is nothing to show.
@@ -58,6 +59,7 @@ export function PaymentStatusWidget() {
 				icon: payment,
 				description: __( 'No order revenue in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <DonutChartSkeleton /> }
 		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">
 				<DonutChart
