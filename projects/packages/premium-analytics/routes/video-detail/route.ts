@@ -12,11 +12,7 @@ import { redirect } from '@wordpress/route';
  * Internal dependencies
  */
 import { ensureDashboardEntities } from '../dashboard-entities';
-import {
-	isPremiumAnalyticsInitialSyncFinished,
-	isPremiumAnalyticsSiteConnected,
-	isVideoPressAvailable,
-} from '../site-readiness';
+import { isPremiumAnalyticsSiteConnected, isVideoPressAvailable } from '../site-readiness';
 
 type VideoDetailParams = { videoId?: string };
 type VideoDetailSearch = Record< string, string | undefined >;
@@ -34,8 +30,8 @@ function isValidVideoId( value: string | undefined ): value is string {
 /**
  * Route lifecycle for the video detail page.
  *
- * The page is available only to connected sites running VideoPress, after the
- * initial analytics sync, and only for positive integer attachment IDs.
+ * The page is available only to connected sites running VideoPress, and only
+ * for positive integer attachment IDs.
  */
 export const route = {
 	beforeLoad: async ( {
@@ -44,10 +40,6 @@ export const route = {
 	}: { params?: VideoDetailParams; search?: VideoDetailSearch } = {} ) => {
 		if ( ! isPremiumAnalyticsSiteConnected() ) {
 			throw redirect( { to: '/connect' } );
-		}
-
-		if ( ! isPremiumAnalyticsInitialSyncFinished() ) {
-			throw redirect( { to: '/syncing' } );
 		}
 
 		// Kept apart from the id check below: a bookmarked URL on a site without

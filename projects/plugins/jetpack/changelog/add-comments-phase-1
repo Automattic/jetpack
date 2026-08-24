@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Comments: load the rebuilt Jetpack Comments form in place of the iframed one when the jetpack_comments_new_hotness filter returns true.

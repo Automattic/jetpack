@@ -284,16 +284,30 @@ describe( 'TrafficViewsActivityWidget', () => {
 			expect( chartDayValues() ).toContain( 'Tue, Jun 3, 2025:340' );
 		} );
 
-		it( 'spans the whole window even though the payload is sparse', () => {
+		it( 'spans the selected period even though the payload is sparse', () => {
 			renderWidget();
 
-			expect( screen.getByTestId( 'heatmap' ) ).toHaveAttribute( 'data-columns', '106' );
+			// The 2025 selection densifies to 53 week columns. Not the fetch
+			// window's 106: the request floors at the shared history window, but
+			// the grid must not draw (or let the pager reach) dates outside the
+			// selection — picking 2025 must not page into 2024.
+			expect( screen.getByTestId( 'heatmap' ) ).toHaveAttribute( 'data-columns', '53' );
 		} );
 	} );
 
 	describe( 'states', () => {
 		it( 'shows the empty state when the period has no views at all', () => {
 			mockUseStatsVisits.mockReturnValue( visitsResult( report( [ [ '2025-06-02', 0 ] ] ) ) );
+			renderWidget();
+
+			expect( screen.getByText( 'No views in this period.' ) ).toBeInTheDocument();
+			expect( screen.queryByTestId( 'heatmap' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'shows the empty state when only the fetch window surplus has views', () => {
+			// The 2025 selection draws only 2025, but the request reaches back a
+			// further year; those older views must not suppress the empty state.
+			mockUseStatsVisits.mockReturnValue( visitsResult( report( [ [ '2024-03-05', 120 ] ] ) ) );
 			renderWidget();
 
 			expect( screen.getByText( 'No views in this period.' ) ).toBeInTheDocument();

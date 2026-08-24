@@ -10,15 +10,15 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 420+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 220+ occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 210+ occurrences
     // PhanTypeMismatchReturn : 140+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 120+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 90+ occurrences
     // PhanTypeArraySuspiciousNullable : 70+ occurrences
     // PhanDeprecatedFunction : 60+ occurrences
+    // PhanDeprecatedProperty : 45+ occurrences
     // PhanRedefineFunction : 45+ occurrences
-    // PhanDeprecatedProperty : 40+ occurrences
-    // PhanUndeclaredMethod : 30+ occurrences
+    // PhanUndeclaredMethod : 35+ occurrences
     // PhanTypeMismatchDefault : 25+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 25+ occurrences
     // PhanTypeMismatchDimFetch : 20+ occurrences
@@ -428,7 +428,6 @@ return [
         'tests/php/sync/Jetpack_Sync_WP_Super_Cache_Test.php' => ['PhanTypeArraySuspiciousNullable'],
         'tests/php/sync/Jetpack_Sync_WooCommerce_Test.php' => ['PhanTypeMismatchArgument'],
         'tests/php/sync/Z_IJetpack_Sync_Replicastore_Test.php' => ['PhanTypeObjectUnsetDeclaredProperty'],
-        'tests/php/sync/server/class.jetpack-sync-test-object-factory.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/sync/server/class.jetpack-sync-test-replicastore.php' => ['PhanTypeInvalidLeftOperandOfAdd'],
         'tools/build-asset-cdn-json.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument'],
     ],

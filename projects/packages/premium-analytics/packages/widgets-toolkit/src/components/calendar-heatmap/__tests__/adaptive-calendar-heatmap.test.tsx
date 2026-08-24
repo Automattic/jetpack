@@ -2,11 +2,14 @@
  * External dependencies
  */
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
 import { AdaptiveCalendarHeatmap } from '../adaptive-calendar-heatmap';
+import { CalendarHeatmapPagerOverlay } from '../calendar-heatmap-pager-overlay';
 import type { AdaptiveCalendarHeatmapChartProps } from '../adaptive-calendar-heatmap';
+import type { CalendarHeatmapPager } from '../calendar-heatmap-pager-overlay';
 
 const PERIOD = { startDate: '2025-01-01', endDate: '2025-12-31' };
 const ONE_MONTH = { startDate: '2025-06-01', endDate: '2025-06-30' };
@@ -185,5 +188,182 @@ describe( 'AdaptiveCalendarHeatmap', () => {
 		expect( chart.width ).toBeNull();
 		expect( chart.height ).toBeNull();
 		expect( chart.showValues ).toBe( false );
+	} );
+} );
+
+describe( 'AdaptiveCalendarHeatmap paging', () => {
+	// Renders through the real pager overlay and stays mounted, so a test can
+	// click the arrows. The tile-size stub stays installed until `restore`.
+	function renderPaged( {
+		width,
+		height,
+		period = PERIOD,
+	}: {
+		width: number;
+		height: number;
+		period?: { startDate: string; endDate: string };
+	} ) {
+		const restore = stubTileSize( width, height );
+		render(
+			<AdaptiveCalendarHeatmap valueByDay={ VALUE_BY_DAY } period={ period }>
+				{ ( chartProps: AdaptiveCalendarHeatmapChartProps, pager?: CalendarHeatmapPager ) => (
+					<CalendarHeatmapPagerOverlay pager={ pager }>
+						<div
+							data-testid="chart"
+							data-columns={ chartProps.data.length }
+							data-first-visible-label={
+								chartProps.data
+									.flatMap( column => column.data )
+									.filter( cell => ! cell.hidden )
+									.map( cell => cell.label )[ 0 ]
+							}
+							data-last-visible-label={
+								chartProps.data
+									.flatMap( column => column.data )
+									.filter( cell => ! cell.hidden )
+									.map( cell => cell.label )
+									.slice( -1 )[ 0 ]
+							}
+						/>
+					</CalendarHeatmapPagerOverlay>
+				) }
+			</AdaptiveCalendarHeatmap>
+		);
+
+		const read = () => {
+			const chart = screen.getByTestId( 'chart' );
+			return {
+				columns: Number( chart.getAttribute( 'data-columns' ) ),
+				firstVisibleLabel: chart.getAttribute( 'data-first-visible-label' ),
+				lastVisibleLabel: chart.getAttribute( 'data-last-visible-label' ),
+			};
+		};
+
+		return { read, restore };
+	}
+
+	const older = () => screen.queryByRole( 'button', { name: 'Older activity' } );
+	const newer = () => screen.queryByRole( 'button', { name: 'Newer activity' } );
+	// An arrow with nowhere to go is not rendered at all (per the design), so
+	// "unavailable" is its absence.
+	const isUnavailable = ( button: HTMLElement | null ) => button === null;
+
+	it( 'exposes no pager when the whole period fits the tile', () => {
+		const { restore } = renderPaged( {
+			width: 1000,
+			height: ONE_ROW_TILE_HEIGHT,
+			period: ONE_MONTH,
+		} );
+
+		try {
+			expect( older() ).toBeNull();
+			expect( newer() ).toBeNull();
+		} finally {
+			restore();
+		}
+	} );
+
+	it( 'pages back through the weeks the tile could not draw', async () => {
+		const user = userEvent.setup();
+		const { read, restore } = renderPaged( { width: 240, height: ONE_ROW_TILE_HEIGHT } );
+
+		try {
+			// The newest page shows first: nothing newer to step to, plenty older.
+			// The boundaries are pinned (not merely "changed"): this width draws 15
+			// week columns, so the newest page spans exactly these dates.
+			expect( read() ).toMatchObject( {
+				firstVisibleLabel: 'Mon, Sep 22, 2025',
+				lastVisibleLabel: 'Wed, Dec 31, 2025',
+			} );
+			expect( isUnavailable( older() ) ).toBe( false );
+			expect( isUnavailable( newer() ) ).toBe( true );
+
+			await user.click( older()! );
+
+			// One whole page older, contiguous with the newest page: it ends the
+			// day before that page starts, and spans the same 15 columns.
+			expect( read() ).toMatchObject( {
+				firstVisibleLabel: 'Mon, Jun 9, 2025',
+				lastVisibleLabel: 'Sun, Sep 21, 2025',
+			} );
+			expect( isUnavailable( newer() ) ).toBe( false );
+
+			await user.click( newer()! );
+			expect( read().lastVisibleLabel ).toBe( 'Wed, Dec 31, 2025' );
+		} finally {
+			restore();
+		}
+	} );
+
+	it( 'clamps the oldest page to the period start and fills forward', async () => {
+		const user = userEvent.setup();
+		const { read, restore } = renderPaged( { width: 240, height: ONE_ROW_TILE_HEIGHT } );
+
+		try {
+			const newestColumns = read().columns;
+
+			// Walk to the oldest page; the guard caps a runaway loop, not the data.
+			for ( let clicks = 0; ! isUnavailable( older() ); clicks++ ) {
+				expect( clicks ).toBeLessThan( 60 );
+				await user.click( older()! );
+			}
+
+			const oldest = read();
+			// The page starts on the period's first day rather than padding
+			// out-of-range blanks before it, and it stays a full page wide.
+			expect( oldest.firstVisibleLabel ).toBe( 'Wed, Jan 1, 2025' );
+			expect( oldest.columns ).toBe( newestColumns );
+			expect( isUnavailable( newer() ) ).toBe( false );
+
+			// The last click removed the arrow that held keyboard focus; the
+			// overlay hands focus to the surviving arrow so `:focus-within` (and
+			// paging back) survives.
+			expect( newer() ).toHaveFocus();
+		} finally {
+			restore();
+		}
+	} );
+
+	it( 'restarts at the newest page when the period changes', async () => {
+		const user = userEvent.setup();
+		const restore = stubTileSize( 240, ONE_ROW_TILE_HEIGHT );
+
+		function harness( period: { startDate: string; endDate: string } ) {
+			return (
+				<AdaptiveCalendarHeatmap valueByDay={ VALUE_BY_DAY } period={ period }>
+					{ ( chartProps: AdaptiveCalendarHeatmapChartProps, pager?: CalendarHeatmapPager ) => (
+						<CalendarHeatmapPagerOverlay pager={ pager }>
+							<div
+								data-testid="chart"
+								data-last-visible-label={
+									chartProps.data
+										.flatMap( column => column.data )
+										.filter( cell => ! cell.hidden )
+										.map( cell => cell.label )
+										.slice( -1 )[ 0 ]
+								}
+							/>
+						</CalendarHeatmapPagerOverlay>
+					) }
+				</AdaptiveCalendarHeatmap>
+			);
+		}
+
+		try {
+			const view = render( harness( PERIOD ) );
+			await user.click( older()! );
+			expect( isUnavailable( newer() ) ).toBe( false );
+
+			view.rerender( harness( { startDate: '2024-01-01', endDate: '2024-12-31' } ) );
+
+			// Back on the newest page of the new period.
+			expect( screen.getByTestId( 'chart' ) ).toHaveAttribute(
+				'data-last-visible-label',
+				'Tue, Dec 31, 2024'
+			);
+			expect( isUnavailable( newer() ) ).toBe( true );
+		} finally {
+			restore();
+		}
 	} );
 } );

@@ -30,9 +30,9 @@ import {
 import { attachSubComponents } from '../../utils';
 import { renderDefaultTooltip } from '../line-chart';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
-import { SvgEmptyState } from '../private/svg-empty-state';
+import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
@@ -43,7 +43,7 @@ import type { DataPointDate, Optional } from '../../types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 
-const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
+const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 	(
 		{
 			data,
@@ -91,7 +91,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
-		const internalChartRef = useRef< SingleChartRef >( null );
+		const internalChartRef = useRef< ChartInstanceRef >( null );
 
 		const zoom = useXZoom< Date >( {
 			enabled: zoomable,
@@ -124,15 +124,12 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 
 		const seriesWithVisibility = useMemo( () => {
-			if ( ! chartId || ! legendInteractive ) {
-				return dataSorted.map( ( series, index ) => ( { series, index, isVisible: true } ) );
-			}
 			return dataSorted.map( ( series, index ) => ( {
 				series,
 				index,
 				isVisible: isSeriesVisible( chartId, series.label ),
 			} ) );
-		}, [ dataSorted, chartId, isSeriesVisible, legendInteractive ] );
+		}, [ dataSorted, chartId, isSeriesVisible ] );
 
 		const allSeriesHidden = useMemo(
 			() => seriesWithVisibility.every( ( { isVisible } ) => ! isVisible ),
@@ -157,7 +154,6 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		const fixedYDomain = useMemo< [ number, number ] | undefined >( () => {
 			if (
 				rescaleYOnVisibility ||
-				! legendInteractive ||
 				! dataSorted.length ||
 				! dataSorted[ 0 ].data.length ||
 				( stacked && stackOffset !== 'none' )
@@ -199,7 +195,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 			}
 			if ( max === -Infinity ) return undefined;
 			return [ Math.min( 0, min ), max ];
-		}, [ dataSorted, stacked, stackOffset, legendInteractive, rescaleYOnVisibility ] );
+		}, [ dataSorted, stacked, stackOffset, rescaleYOnVisibility ] );
 
 		const chartOptions = useMemo( () => {
 			const { tickResolution, ...xAxisOptions } = options?.axis?.x ?? {};
@@ -283,7 +279,6 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		);
 		const filteredRenderTooltip = useCallback(
 			( params: Parameters< typeof renderTooltip >[ 0 ] ) => {
-				if ( ! legendInteractive ) return renderTooltip( params );
 				const datumByKey = params?.tooltipData?.datumByKey;
 				if ( ! datumByKey ) return renderTooltip( params );
 				const filtered = Object.fromEntries(
@@ -307,7 +302,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 					} as typeof params.tooltipData,
 				} );
 			},
-			[ renderTooltip, legendInteractive, visibleLabels ]
+			[ renderTooltip, visibleLabels ]
 		);
 
 		// Defaults that depend on stacked vs overlapping mode.
@@ -354,7 +349,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 					dataKey={ seriesData?.label }
 					data={ seriesData.data as DataPointDate[] }
 					xAccessor={ accessors.xAccessor }
-					yAccessor={ isVisible || ! legendInteractive ? accessors.yAccessor : zeroYAccessor }
+					yAccessor={ isVisible ? accessors.yAccessor : zeroYAccessor }
 					fill={ color }
 					fillOpacity={ resolvedFillOpacity }
 					{ ...( stacked ? {} : { renderLine: resolvedWithStroke, curve } ) }
@@ -365,7 +360,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		};
 
 		return (
-			<SingleChartContext.Provider
+			<ChartInstanceContext.Provider
 				value={ {
 					chartId,
 					chartRef: internalChartRef,
@@ -437,10 +432,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 													width={ width }
 													height={ chartHeight }
 												>
-													{ __(
-														'All series are hidden. Click legend items to show data.',
-														'jetpack-charts'
-													) }
+													{ getAllHiddenMessage( legendInteractive, 'series' ) }
 												</SvgEmptyState>
 											) : null }
 
@@ -482,7 +474,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 														stacked={ stacked }
 														stackOffset={ stackOffset }
 														getElementStyles={ getElementStyles }
-														// useXYChartTheme resolved this role inside its memo; reading it back avoids a getComputedStyle on every render.
+														// useXYChartTheme resolved this role inside its memo, against the chart's scope element; reading it back avoids a getComputedStyle on every render.
 														strokeColor={ theme.backgroundColor ?? providerTheme.backgroundColor }
 													/>
 												</>
@@ -503,7 +495,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 						);
 					} }
 				</ChartLayout>
-			</SingleChartContext.Provider>
+			</ChartInstanceContext.Provider>
 		);
 	}
 );
@@ -515,16 +507,16 @@ type AreaChartSubComponents = {
 type AreaChartBaseProps = Optional< AreaChartProps, 'width' | 'height' | 'size' >;
 
 type AreaChartComponent = React.ForwardRefExoticComponent<
-	AreaChartBaseProps & React.RefAttributes< SingleChartRef >
+	AreaChartBaseProps & React.RefAttributes< ChartInstanceRef >
 > &
 	AreaChartSubComponents;
 
 type AreaChartResponsiveComponent = React.ForwardRefExoticComponent<
-	AreaChartBaseProps & ResponsiveConfig & React.RefAttributes< SingleChartRef >
+	AreaChartBaseProps & ResponsiveConfig & React.RefAttributes< ChartInstanceRef >
 > &
 	AreaChartSubComponents;
 
-const AreaChartWithProvider = forwardRef< SingleChartRef, AreaChartProps >( ( props, ref ) => {
+const AreaChartWithProvider = forwardRef< ChartInstanceRef, AreaChartProps >( ( props, ref ) => {
 	const existingContext = useContext( GlobalChartsContext );
 
 	if ( existingContext ) {

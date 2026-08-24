@@ -50,13 +50,12 @@ function toPoints( report: StatsSubscribersResponse | undefined ): SubscribersCh
 
 /**
  * Fetch the subscribers time series for the dashboard's date range at the
- * selected granularity, together with the dashboard comparison window.
+ * given bucket size, together with the dashboard comparison window.
  *
- * The dashboard date range drives the window and the previous-period overlay is
- * driven by the dashboard's comparison state; the in-body granularity control
- * only overrides which `unit` the range is bucketed into. Both windows are
- * fetched by `useStatsSubscribersReport`, which layers the comparison range on
- * top of `reportParams`.
+ * The dashboard drives all three: the range, the previous-period overlay via
+ * its comparison state, and `period` via its chart interval control. Both
+ * windows are fetched by `useStatsSubscribersReport`, which layers the
+ * comparison range on top of `reportParams`.
  */
 export default function useSubscribersChart(
 	reportParams: ReportParams,

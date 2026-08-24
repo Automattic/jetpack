@@ -4,6 +4,7 @@
 import {
 	useStatsPost,
 	type ReportParams,
+	type StatsChartBucketPeriod,
 	type StatsPostDay,
 } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
@@ -16,10 +17,6 @@ import {
 	format,
 	parseISO,
 } from 'date-fns';
-/**
- * Internal dependencies
- */
-import type { PostViewsGranularity } from './widget';
 
 /**
  * One chart point: a bucket-start date and the views summed into the bucket.
@@ -99,7 +96,7 @@ function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
  */
 function calendarBucketWindows(
 	dayWindow: DayWindow,
-	period: PostViewsGranularity
+	period: StatsChartBucketPeriod
 ): BucketWindow[] {
 	// The URL is user-editable, so an inverted range must not reach
 	// `eachDayOfInterval()` (it throws).
@@ -171,7 +168,7 @@ function bucketDays( days: StatsPostDay[], buckets: BucketWindow[] ): PostViewsP
 export default function usePostViews(
 	postId: number,
 	reportParams: ReportParams,
-	period: PostViewsGranularity
+	period: StatsChartBucketPeriod
 ): PostViewsState {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsPost( {
 		postId,

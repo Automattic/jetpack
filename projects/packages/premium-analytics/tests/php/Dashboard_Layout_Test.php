@@ -168,6 +168,31 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A stats reader cannot access the Ads tab layout.
+	 */
+	public function test_default_layout_route_refuses_the_ads_tab_for_a_view_stats_reader() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_ADS_SECTION_ID );
+
+		$this->assertSame( 404, $status );
+	}
+
+	/**
+	 * An administrator can access the Ads tab layout.
+	 */
+	public function test_default_layout_route_serves_the_ads_tab_to_an_administrator() {
+		$this->register_route_with_capabilities();
+		$this->login_as( 'administrator' );
+
+		list( $status, $types ) = $this->request_default_layout( DASHBOARD_ADS_SECTION_ID );
+
+		$this->assertSame( 200, $status );
+		$this->assertContains( 'jpa/wordads-highlights', $types );
+	}
+
+	/**
 	 * An unavailable tab does not expose its default layout.
 	 */
 	public function test_default_layout_route_refuses_an_unavailable_subscribers_tab() {
@@ -377,7 +402,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			'default-total-views-widget-instance'          => array( 'jpa/total-views', 1, 1, 4 ),
 			'default-total-visitors-widget-instance'       => array( 'jpa/total-visitors', 1, 1, 5 ),
 			'default-popular-days-widget-instance'         => array( 'jpa/popular-days', 1, 1, 6 ),
-			'default-most-popular-day-widget-instance'     => array( 'jpa/most-popular-day', 1, 1, 7 ),
+			'default-popular-hours-widget-instance'        => array( 'jpa/popular-hours', 1, 1, 7 ),
 			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 4, 2, 8 ),
 			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 9 ),
 			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 10 ),
@@ -485,6 +510,49 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->assertSame(
 			get_dashboard_default_layout_for( DASHBOARD_STORE_SECTION_ID ),
 			get_dashboard_default_layout_for( 'woocommerce/store' )
+		);
+	}
+
+	/**
+	 * The Ads tab receives its WordAds widgets in the Calypso order.
+	 */
+	public function test_seed_default_dashboard_layout_adds_ads_widgets() {
+		$layout         = seed_default_dashboard_layout( array(), DASHBOARD_ADS_SECTION_ID );
+		$layout_by_uuid = array_column( $layout, null, 'uuid' );
+
+		// uuid => [ type, width, height, order ]; widths fill the four-column grid.
+		$expected = array(
+			'default-wordads-highlights-widget-instance' => array( 'jpa/wordads-highlights', 4, 1, 0 ),
+			'default-wordads-chart-tabs-widget-instance' => array( 'jpa/wordads-chart-tabs', 4, 2, 1 ),
+			'default-wordads-earnings-history-widget-instance' => array( 'jpa/wordads-earnings-history', 4, 2, 2 ),
+			'default-wordads-sponsored-content-history-widget-instance' => array( 'jpa/wordads-sponsored-content-history', 2, 2, 3 ),
+			'default-wordads-adjustments-history-widget-instance' => array( 'jpa/wordads-adjustments-history', 2, 2, 4 ),
+		);
+
+		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );
+
+		foreach ( $expected as $uuid => $instance ) {
+			list( $type, $width, $height, $order ) = $instance;
+
+			$this->assertSame( $type, $layout_by_uuid[ $uuid ]['type'], $uuid );
+			$this->assertSame(
+				array(
+					'width'  => $width,
+					'height' => $height,
+					'order'  => $order,
+				),
+				$layout_by_uuid[ $uuid ]['placement'],
+				$uuid
+			);
+		}
+
+		$this->assertSame(
+			array( 'granularity' => 'auto' ),
+			$layout_by_uuid['default-wordads-chart-tabs-widget-instance']['attributes']
+		);
+		$this->assertSame(
+			get_dashboard_default_layout_for( DASHBOARD_ADS_SECTION_ID ),
+			get_dashboard_default_layout_for( 'analytics/ads' )
 		);
 	}
 

@@ -2290,6 +2290,64 @@ importers:
         specifier: 7.2.1
         version: 7.2.1(webpack@5.107.2)
 
+  projects/packages/comments:
+    dependencies:
+      '@preact/signals':
+        specifier: 1.2.2
+        version: 1.2.2(preact@10.28.2)
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
+      preact:
+        specifier: 10.28.2
+        version: 10.28.2
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.29.7
+        version: 7.29.7
+      '@babel/plugin-transform-react-jsx':
+        specifier: 7.29.7
+        version: 7.29.7(@babel/core@7.29.7)
+      '@babel/runtime':
+        specifier: 7.29.7
+        version: 7.29.7
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260707.2
+        version: 7.0.0-dev.20260707.2
+      '@wordpress/browserslist-config':
+        specifier: 6.51.0
+        version: 6.51.0
+      autoprefixer:
+        specifier: 10.4.20
+        version: 10.4.20(postcss@8.5.23)
+      babel-plugin-transform-rename-properties:
+        specifier: 0.1.0
+        version: 0.1.0(@babel/core@7.29.7)
+      browserslist:
+        specifier: ^4.24.0
+        version: 4.28.4
+      postcss:
+        specifier: 8.5.23
+        version: 8.5.23
+      postcss-loader:
+        specifier: 8.2.0
+        version: 8.2.0(postcss@8.5.23)(webpack@5.107.2)
+      sass-embedded:
+        specifier: 1.97.3
+        version: 1.97.3
+      sass-loader:
+        specifier: 16.0.5
+        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.107.2)
+      webpack:
+        specifier: 5.107.2
+        version: 5.107.2(postcss@8.5.23)(webpack-cli@7.2.1)
+      webpack-cli:
+        specifier: 7.2.1
+        version: 7.2.1(webpack@5.107.2)
+
   projects/packages/connection:
     dependencies:
       '@automattic/jetpack-connection':
@@ -12062,6 +12120,7 @@ packages:
   '@xmldom/xmldom@0.9.11':
     resolution: {integrity: sha512-tW8bcK3hsG0/uqSnNz6TK4BkcuZSezoU7DlnYssILmZDktPnSHHuDJJFM0AJv+13gz2r0iGdrj6qqKeUnxXEDg==}
     engines: {node: '>=14.6'}
+    deprecated: this version has critical issues, please update to the latest version
 
   '@xtuc/ieee754@1.2.0':
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}

@@ -52,7 +52,8 @@ type SubscribersRosterProps = {
 	 */
 	items?: SubscriberListItem[];
 	/**
-	 * Count of subscribers beyond those shown; renders an "N more" footer.
+	 * Number of subscribers beyond those in `items`. Rows the roster hides to
+	 * fit the tile are added to this in the "N more" footer.
 	 */
 	moreCount?: number;
 };
@@ -64,14 +65,14 @@ type SubscribersRosterProps = {
  * `<WidgetState>` in the data-connected `SubscribersReport`. Takes
  * already-fetched rows via props so Storybook can exercise the populated state
  * without an analytics backend.
+ *
+ * Renders `<SubscriberList>` directly: an intermediate wrapper has auto height,
+ * which stops the roster's percentage height resolving against the tile and
+ * disables row fitting.
  */
-export const SubscribersRoster = ( { items = [], moreCount = 0 }: SubscribersRosterProps ) => {
-	return (
-		<div>
-			<SubscriberList items={ items } moreCount={ moreCount } />
-		</div>
-	);
-};
+export const SubscribersRoster = ( { items = [], moreCount = 0 }: SubscribersRosterProps ) => (
+	<SubscriberList items={ items } moreCount={ moreCount } />
+);
 
 /**
  * Fetches the latest subscribers through the designated `useStatsFollowers`

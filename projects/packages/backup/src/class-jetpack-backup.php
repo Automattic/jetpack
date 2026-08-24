@@ -1044,7 +1044,7 @@ class Jetpack_Backup {
 	/**
 	 * Returns true when the wp-build modernization filter is enabled.
 	 *
-	 * @since $$next-version$$ Changed from private to public; the REST bridges gate their route registration on it.
+	 * @since 4.3.14 Changed from private to public; the REST bridges gate their route registration on it.
 	 *
 	 * @return bool
 	 */
