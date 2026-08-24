@@ -9,7 +9,7 @@
 
 namespace Automattic\Jetpack\Reprint_Export;
 
-use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use WP_REST_Controller;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -110,12 +110,14 @@ class REST_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Permission callback: only Jetpack-signed requests (public API proxy).
+	 * Permission callback: only requests signed with Jetpack's site-level token.
+	 *
+	 * User tokens are intentionally not sufficient because these endpoints return
+	 * or enable use of the secret that authorizes a full-site export.
 	 *
 	 * @return bool
 	 */
 	public function permission_check() {
-		return method_exists( Manager::class, 'verify_xml_rpc_signature' )
-			&& ( new Manager() )->verify_xml_rpc_signature();
+		return Rest_Authentication::is_signed_with_blog_token();
 	}
 }

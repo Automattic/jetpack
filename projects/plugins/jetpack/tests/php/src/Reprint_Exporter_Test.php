@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Reprint_Export\Reprint_Exporter;
 use Automattic\Jetpack\Reprint_Export\REST_Controller;
@@ -29,6 +30,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
+		Rest_Authentication::init()->reset_saved_auth_state();
 		remove_all_filters( 'jetpack_reprint_export_available' );
 		delete_option( Reprint_Exporter::SECRET_OPTION );
 		delete_option( Reprint_Exporter::ENABLED_OPTION );
@@ -209,6 +211,45 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 */
 	public function test_permission_check_denies_unsigned_request() {
 		$this->assertFalse( ( new REST_Controller() )->permission_check() );
+	}
+
+	/**
+	 * A user-token signature cannot access the export secret.
+	 */
+	public function test_permission_check_denies_user_token() {
+		$this->set_jetpack_rest_authentication_type( 'user' );
+
+		$this->assertFalse( ( new REST_Controller() )->permission_check() );
+	}
+
+	/**
+	 * A blog-token signature can access the export secret.
+	 */
+	public function test_permission_check_allows_blog_token() {
+		$this->set_jetpack_rest_authentication_type( 'blog' );
+
+		$this->assertTrue( ( new REST_Controller() )->permission_check() );
+	}
+
+	/**
+	 * Sets the Jetpack REST authentication state for a permission test.
+	 *
+	 * @param string $type Either 'user' or 'blog'.
+	 */
+	private function set_jetpack_rest_authentication_type( $type ) {
+		$instance   = Rest_Authentication::init();
+		$reflection = new ReflectionClass( $instance );
+
+		$status_property = $reflection->getProperty( 'rest_authentication_status' );
+		$type_property   = $reflection->getProperty( 'rest_authentication_type' );
+
+		if ( PHP_VERSION_ID < 80100 ) {
+			$status_property->setAccessible( true );
+			$type_property->setAccessible( true );
+		}
+
+		$status_property->setValue( $instance, true );
+		$type_property->setValue( $instance, $type );
 	}
 
 	/**

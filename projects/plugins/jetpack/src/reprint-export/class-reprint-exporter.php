@@ -16,10 +16,12 @@
  *
  * 1. Secret rotation via the generic Jetpack REST proxy. The
  *    /jetpack/v4/reprint/rotate-export-secret route only accepts
- *    Jetpack-signed requests, so it can only be invoked through the
- *    WordPress.com public API proxy. On success the site generates a random
- *    secret, stores it in the `reprint_exporter_secret` option, opens the
- *    export window, and returns the secret.
+ *    site-level Jetpack-signed requests, so it can only be invoked through
+ *    the WordPress.com public API proxy. User-token signatures are not
+ *    sufficient because the endpoint returns the secret for a full-site
+ *    export. On success the site generates a random secret, stores it in the
+ *    `reprint_exporter_secret` option, opens the export window, and returns
+ *    the secret.
  *
  * 2. Export streaming — the client (now holding the shared secret) talks
  *    directly to the site at ?reprint-api-jetpack using HMAC-signed requests. This
