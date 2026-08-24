@@ -28,14 +28,12 @@
 	],
 	"dependencies": {
 		"@automattic/calypso-color-schemes": "4.0.0",
-		"@automattic/color-studio": "4.1.0",
-		"postcss-custom-properties": "12.1.11"
+		"@automattic/color-studio": "4.1.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@csstools/postcss-global-data": "4.0.0",
 		"@wordpress/browserslist-config": "6.51.0",
 		"autoprefixer": "10.4.20",
 		"glob": "13.0.6",

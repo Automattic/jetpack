@@ -8,17 +8,17 @@
 
 // Design tokens aligned with the React-based Jetpack admin pages (Newsletter,
 // VideoPress, Activity Log). These mirror the WordPress Design System (WPDS)
-// tokens those pages consume, with hex fallbacks for when the token stylesheet
-// isn't enqueued on this legacy page. See @automattic/jetpack-base-styles.
+// tokens those pages consume; build-time PostCSS injects fallbacks. See
+// @automattic/jetpack-base-styles.
 $jp-surface: #fff;
-$jp-border: var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
-$jp-text: var(--wpds-color-foreground-content-neutral, #1e1e1e);
-$jp-text-muted: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+$jp-border: var(--wpds-color-stroke-surface-neutral-weak);
+$jp-text: var(--wpds-color-foreground-content-neutral);
+$jp-text-muted: var(--wpds-color-foreground-content-neutral-weak);
 $jp-primary: #3858e9;
 $jp-primary-hover: #2145c7;
 // Primary UI/body text size on the WPDS admin pages (Activity Log, etc.) is
 // 13px, not the 16px `$font-body` this legacy page used.
-$jp-font-ui: var(--wpds-typography-font-size-md, 13px);
+$jp-font-ui: var(--wpds-typography-font-size-md);
 
 .page-content.configure {
 	margin-top: 0;
