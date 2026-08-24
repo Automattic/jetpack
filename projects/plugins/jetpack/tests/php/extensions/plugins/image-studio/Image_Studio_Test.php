@@ -729,6 +729,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * hostname alone is enough — unlike the pre-release gates, which need the proxy.
 	 */
 	public function test_inline_script_dev_mode_follows_the_environment_check() {
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		update_option( 'siteurl', 'https://mysite.jurassic.ninja' );
 
 		$this->enable_and_enqueue_block_editor();
