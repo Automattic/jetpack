@@ -1,6 +1,6 @@
 import ErrorNotice from '../error-notice';
 import type { Meta } from '@storybook/react';
-import {Button} from '@automattic/jetpack-components'
+import { Button } from '@wordpress/ui';
 
 const meta: Meta< typeof ErrorNotice > = {
 	title: 'Plugins/Boost/ErrorNotice',
@@ -35,7 +35,7 @@ _default.args = {
 		support: <a href="#support" />,
 		link: <a href="#link" />,
 	},
-	actionButton: <Button variant="secondary">
+	actionButton: <Button variant="outline">
 		Contact Support
 	</Button>,
 };

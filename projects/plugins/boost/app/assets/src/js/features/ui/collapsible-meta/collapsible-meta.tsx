@@ -1,5 +1,5 @@
 import styles from './collapsible-meta.module.scss';
-import { Button } from '@automattic/jetpack-components';
+import { Button, Collapsible } from '@wordpress/ui';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import ChevronDown from '$svg/chevron-down';
@@ -32,49 +32,39 @@ const CollapsibleMeta = ( {
 }: CollapsibleMetaProps ) => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
 
-	const onToggle = () => {
-		const newIsExpanded = ! isExpanded;
-		setIsExpanded( newIsExpanded );
-		onToggleHandler?.( newIsExpanded );
+	const onOpenChange = ( open: boolean ) => {
+		setIsExpanded( open );
+		onToggleHandler?.( open );
 		if ( tracksEvent !== '' ) {
 			recordBoostEvent( tracksEvent, {
-				status: newIsExpanded ? 'open' : 'close',
+				status: open ? 'open' : 'close',
 			} );
 		}
 	};
 
-	/*
-	 * The header of the collapsible meta section.
-	 * It displays the header, extra buttons and the toggle button.
-	 */
-	const sectionHeader = (
-		<div className={ styles.header }>
-			{ header ? header : <div className={ styles.summary }>{ headerText }</div> }
-			<div className={ styles.actions }>
-				{ extraButtons && extraButtons }{ ' ' }
-				<Button
-					variant="link"
-					size="small"
-					weight="regular"
-					icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
-					className={ styles[ 'edit-button' ] }
-					onClick={ onToggle }
-				>
-					{ toggleText }
-				</Button>
-			</div>
-		</div>
-	);
-
-	/*
-	 * The content of the collapsible meta section.
-	 * It displays the (toggle, extra) buttons, main content of the expanded section or the summary.
-	 */
 	return (
-		<div className={ styles[ 'collapsible-meta' ] }>
-			{ sectionHeader }
-			{ isExpanded ? children : summary && <div className={ styles.summary }>{ summary }</div> }
-		</div>
+		<Collapsible.Root
+			className={ styles[ 'collapsible-meta' ] }
+			open={ isExpanded }
+			onOpenChange={ onOpenChange }
+		>
+			<div className={ styles.header }>
+				{ header ? header : <div className={ styles.summary }>{ headerText }</div> }
+				<div className={ styles.actions }>
+					{ extraButtons && extraButtons }{ ' ' }
+					<Collapsible.Trigger
+						render={
+							<Button variant="minimal" size="compact" className={ styles[ 'edit-button' ] } />
+						}
+					>
+						<Button.Icon icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> } />
+						{ toggleText }
+					</Collapsible.Trigger>
+				</div>
+			</div>
+			<Collapsible.Panel>{ children }</Collapsible.Panel>
+			{ ! isExpanded && summary && <div className={ styles.summary }>{ summary }</div> }
+		</Collapsible.Root>
 	);
 };
 

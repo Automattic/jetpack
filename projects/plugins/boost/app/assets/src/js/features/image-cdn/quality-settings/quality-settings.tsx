@@ -1,7 +1,8 @@
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
 import { __, sprintf } from '@wordpress/i18n';
 import styles from './quality-settings.module.scss';
-import { IconTooltip } from '@automattic/jetpack-components';
+import { Popover } from '@wordpress/ui';
+import InfoIcon from '$svg/info';
 import QualityControl from '../quality-control/quality-control';
 import { imageCdnSettingsSchema, useImageCdnQuality } from '../lib/stores';
 import { z } from 'zod';
@@ -118,18 +119,21 @@ const Summary = ( {
 const Header = () => (
 	<div className={ styles[ 'section-title' ] }>
 		<h4>{ __( 'Image Quality', 'jetpack-boost' ) }</h4>
-		<IconTooltip
-			offset={ 12 }
-			placement={ 'bottom' }
-			className={ styles[ 'info-icon' ] }
-			title={ __( 'Image Quality', 'jetpack-boost' ) }
-			iconSize={ 22 }
-		>
-			{ __(
-				'Select the quality for images served by the CDN. Choosing a lower quality will compress your images and load them faster. If you choose lossless, we will not compress your images.',
-				'jetpack-boost'
-			) }
-		</IconTooltip>
+		<Popover.Root>
+			<Popover.Trigger
+				className={ styles[ 'info-icon' ] }
+				aria-label={ __( 'More information', 'jetpack-boost' ) }
+			>
+				<InfoIcon />
+			</Popover.Trigger>
+			<Popover.Popup>
+				<Popover.Title>{ __( 'Image Quality', 'jetpack-boost' ) }</Popover.Title>
+				{ __(
+					'Select the quality for images served by the CDN. Choosing a lower quality will compress your images and load them faster. If you choose lossless, we will not compress your images.',
+					'jetpack-boost'
+				) }
+			</Popover.Popup>
+		</Popover.Root>
 	</div>
 );
 

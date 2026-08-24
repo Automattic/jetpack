@@ -3,8 +3,9 @@ import {
 	didScoresChange,
 	getScoreMovementPercentage,
 } from '@automattic/jetpack-boost-score-api';
-import { BoostScoreBar, Button } from '@automattic/jetpack-components';
+import { BoostScoreBar } from '@automattic/jetpack-components';
 import { sprintf, __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import ContextTooltip from './context-tooltip/context-tooltip';
 import RefreshIcon from '$svg/refresh';
 import PerformanceHistory from '$features/performance-history/performance-history';
@@ -119,14 +120,13 @@ const SpeedScore = () => {
 							<h2>{ heading }</h2>
 							{ status === 'loaded' && <ContextTooltip /> }
 							<Button
-								variant="link"
-								size="small"
-								weight="regular"
+								variant="minimal"
+								size="compact"
 								className={ styles[ 'action-button' ] }
 								onClick={ handleClickRefresh }
 								disabled={ status === 'loading' }
-								icon={ <RefreshIcon /> }
 							>
+								<Button.Icon icon={ <RefreshIcon /> } />
 								{ __( 'Refresh', 'jetpack-boost' ) }
 							</Button>
 						</div>
@@ -148,7 +148,9 @@ const SpeedScore = () => {
 							error={ error }
 							suggestion={ __( '<action>Try again</action>', 'jetpack-boost' ) }
 							vars={ {
-								action: <Button size="small" variant="link" onClick={ () => loadScore( true ) } />,
+								action: (
+									<Button size="compact" variant="minimal" onClick={ () => loadScore( true ) } />
+								),
 							} }
 						/>
 					) }

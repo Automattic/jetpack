@@ -1,7 +1,6 @@
 import { usePricing } from '$lib/stores/pricing';
 import { useProduct } from '$lib/stores/product';
 import {
-	Button,
 	PricingTable,
 	PricingTableColumn,
 	PricingTableHeader,
@@ -9,7 +8,7 @@ import {
 	ProductPrice,
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { Notice } from '@wordpress/ui';
+import { Button, Notice } from '@wordpress/ui';
 
 type BoostPricingTableProps = {
 	onPremiumCTA: () => void;
@@ -109,9 +108,9 @@ export const BoostPricingTable = ( {
 							/>
 							<Button
 								onClick={ onPremiumCTA }
-								isLoading={ chosenPaidPlan }
+								loading={ chosenPaidPlan }
 								disabled={ chosenFreePlan || chosenPaidPlan }
-								fullWidth
+								style={ { width: '100%' } }
 							>
 								{ __( 'Get Boost', 'jetpack-boost' ) }
 							</Button>
@@ -135,10 +134,10 @@ export const BoostPricingTable = ( {
 							/>
 							<Button
 								onClick={ onFreeCTA }
-								isLoading={ chosenFreePlan }
+								loading={ chosenFreePlan }
 								disabled={ chosenFreePlan || chosenPaidPlan }
-								fullWidth
-								variant="secondary"
+								style={ { width: '100%' } }
+								variant="outline"
 							>
 								{ __( 'Start for free', 'jetpack-boost' ) }
 							</Button>

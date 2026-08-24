@@ -1,6 +1,6 @@
 import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/ui';
 import { animated, useSpring } from '@react-spring/web';
 import clsx from 'clsx';
 import { useState } from 'react';
@@ -42,7 +42,7 @@ const FoldingElement: FC< PropTypes > = ( {
 	return (
 		<>
 			<Button
-				variant="link"
+				variant="minimal"
 				className={ clsx( styles[ 'foldable-element-control' ], {
 					visible: expanded,
 				} ) }

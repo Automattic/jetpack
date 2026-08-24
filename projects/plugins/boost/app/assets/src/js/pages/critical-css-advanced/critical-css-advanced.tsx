@@ -17,7 +17,7 @@ import styles from './critical-css-advanced.module.scss';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import clsx from 'clsx';
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/ui';
 import {
 	DismissedItem,
 	ProviderRecommendation,
@@ -136,7 +136,7 @@ const HeadingMeta = ( { dismissedIssues, showDismissedIssues }: HeadingMetaProps
 		>
 			<div ref={ ref }>
 				<p style={ { margin: 0 } }>
-					<Button variant="link" size="small" onClick={ () => setShowHidden( true ) }>
+					<Button variant="minimal" size="compact" onClick={ () => setShowHidden( true ) }>
 						{ sprintf(
 							/* translators: %d is a number of recommendations which were previously hidden by the user */
 							_n(

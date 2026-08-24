@@ -1,5 +1,7 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { external } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
-import { Button, getRedirectUrl } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/ui';
 import styles from './support.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
 
@@ -24,8 +26,9 @@ const Support = () => {
 						</p>
 					</div>
 					<div className={ styles.cta }>
-						<Button variant="secondary" onClick={ openPaidSupport } isExternalLink={ true }>
+						<Button variant="outline" onClick={ openPaidSupport }>
 							{ __( 'Contact Us', 'jetpack-boost' ) }
+							<Button.Icon icon={ external } />
 						</Button>
 					</div>
 				</div>

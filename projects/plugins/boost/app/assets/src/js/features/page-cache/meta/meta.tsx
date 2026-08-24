@@ -1,7 +1,7 @@
-import { Button, IconTooltip, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Notice, Link as WPLink } from '@wordpress/ui';
+import { Button, Notice, Popover, Link as WPLink } from '@wordpress/ui';
 import Lightning from '$svg/lightning';
 import styles from './meta.module.scss';
 import { useEffect, useState } from 'react';
@@ -97,14 +97,12 @@ const Meta = () => {
 
 	const extraButtons = (
 		<Button
-			variant="link"
-			size="small"
-			weight="regular"
-			iconSize={ 16 }
-			icon={ <Lightning /> }
+			variant="minimal"
+			size="compact"
 			onClick={ clearPageCache }
 			disabled={ runClearPageCacheAction.isPending }
 		>
+			<Button.Icon icon={ <Lightning /> } size={ 16 } />
 			{ __( 'Clear Cache', 'jetpack-boost' ) }
 		</Button>
 	);
@@ -269,26 +267,21 @@ const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 
 	return (
 		<div className={ styles[ 'example-wrapper' ] }>
-			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
-			<a
-				href="#"
-				className={ styles[ 'example-button' ] }
-				onClick={ e => {
-					recordBoostEvent( 'page_cache_see_example_clicked', {} );
-					e.preventDefault();
-					setShow( ! show );
-				} }
-			>
-				{ children }
-			</a>
-			<div className={ styles[ 'tooltip-wrapper' ] }>
-				<IconTooltip
-					placement="bottom-start"
-					popoverAnchorStyle="wrapper"
-					forceShow={ show }
-					offset={ -10 }
-					className={ styles.tooltip }
+			<Popover.Root open={ show } onOpenChange={ setShow }>
+				<Popover.Trigger
+					render={
+						// Content is provided by Popover.Trigger children at render time.
+						// eslint-disable-next-line jsx-a11y/anchor-is-valid, jsx-a11y/anchor-has-content
+						<a href="#" className={ styles[ 'example-button' ] } />
+					}
+					onClick={ ( e: React.MouseEvent ) => {
+						recordBoostEvent( 'page_cache_see_example_clicked', {} );
+						e.preventDefault();
+					} }
 				>
+					{ children }
+				</Popover.Trigger>
+				<Popover.Popup className={ styles.tooltip }>
 					<strong>{ __( 'Example:', 'jetpack-boost' ) }</strong>
 					<br />
 					checkout
@@ -296,8 +289,8 @@ const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 					gallery/.*
 					<br />
 					specific-page
-				</IconTooltip>
-			</div>
+				</Popover.Popup>
+			</Popover.Root>
 		</div>
 	);
 };

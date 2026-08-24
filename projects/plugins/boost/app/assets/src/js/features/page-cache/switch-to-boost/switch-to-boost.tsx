@@ -1,6 +1,6 @@
 import { useAsyncSuperCacheAction } from '$lib/stores/page-cache';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { Button } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/ui';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 
@@ -21,7 +21,7 @@ const SwitchToBoost = ( { onSwitch }: Props ) => {
 	}, [ disableSuperCache, onSwitch ] );
 
 	return (
-		<Button variant="secondary" onClick={ switchToBoost }>
+		<Button variant="outline" onClick={ switchToBoost }>
 			{ __( 'Switch to Boost Cache', 'jetpack-boost' ) }
 		</Button>
 	);
