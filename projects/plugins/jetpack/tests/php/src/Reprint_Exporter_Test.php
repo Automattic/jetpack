@@ -11,6 +11,8 @@ use Automattic\Jetpack\Reprint_Export\Reprint_Exporter;
 use Automattic\Jetpack\Reprint_Export\REST_Controller;
 use Automattic\RedefineExit\ExitException;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once __DIR__ . '/class-reprint-exporter-test-stub.php';
 
@@ -169,6 +171,33 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	public function test_maybe_init_registers_hooks_when_available() {
 		Constants::set_constant( 'IS_PRESSABLE', true );
 		Reprint_Exporter::maybe_init();
+
+		$this->assertSame( 1, $this->count_parse_request_hooks() );
+		$this->assertSame( 10, has_action( 'rest_api_init', array( Reprint_Exporter::class, 'register_rest_routes' ) ) );
+	}
+
+	/**
+	 * A connected site loads Reprint through module-extras.php.
+	 *
+	 * Because PHP includes `module-extras.php` only once, this needs a fresh
+	 * process after setting the connection state.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[PreserveGlobalState( false )]
+	#[RunInSeparateProcess]
+	public function test_module_extras_loads_reprint_on_connected_sites() {
+		add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		add_filter( 'jetpack_reprint_export_available', '__return_true' );
+		add_filter(
+			'jetpack_tools_to_include',
+			static function () {
+				return array( 'reprint-export.php' );
+			}
+		);
+
+		Jetpack::load_modules();
 
 		$this->assertSame( 1, $this->count_parse_request_hooks() );
 		$this->assertSame( 10, has_action( 'rest_api_init', array( Reprint_Exporter::class, 'register_rest_routes' ) ) );
