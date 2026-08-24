@@ -194,9 +194,6 @@ class Users_Connection_Admin {
 				width: auto;
 			}
 		}
-		td.column-user_jetpack {
-			vertical-align: middle;
-		}
 		.jetpack-connection-status {
 			display: inline-flex;
 			align-items: center;
