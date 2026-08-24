@@ -1,4 +1,12 @@
-import { ApiError, isAmbiguousFailure, requireTypes, toIntRewindId } from '../_helpers';
+import apiFetch from '@wordpress/api-fetch';
+import { __ } from '@wordpress/i18n';
+import { ApiError, apiCall, isAmbiguousFailure, requireTypes, toIntRewindId } from '../_helpers';
+
+jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '@wordpress/i18n', () => ( { __: jest.fn( ( text: string ) => text ) } ) );
+
+const mockedApiFetch = apiFetch as unknown as jest.Mock;
+const mockedTranslate = __ as jest.Mock;
 
 describe( 'toIntRewindId', () => {
 	test( 'returns the input unchanged when there is no decimal suffix', () => {
@@ -58,6 +66,25 @@ describe( 'requireTypes', () => {
 
 		expect( thrown ).toBeInstanceOf( ApiError );
 		expect( ( thrown as ApiError ).code ).toBe( 'no_types_selected' );
+	} );
+} );
+
+describe( 'apiCall', () => {
+	beforeEach( () => {
+		mockedApiFetch.mockReset();
+		mockedTranslate.mockClear();
+	} );
+
+	// A rejection with no `message` must still reach the reader in their
+	// own language. Asserting the rendered text would pass either way —
+	// the mocked `__` returns its input unchanged — so this pins the call
+	// instead, which only happens when the fallback is wrapped in `__()`.
+	test( 'translates the fallback message when the rejection carries none', async () => {
+		mockedApiFetch.mockRejectedValue( { code: 'some_code' } );
+
+		await expect( apiCall( { path: '/x' } ) ).rejects.toThrow( ApiError );
+
+		expect( mockedTranslate ).toHaveBeenCalledWith( 'Request failed', 'jetpack-backup-pkg' );
 	} );
 } );
 

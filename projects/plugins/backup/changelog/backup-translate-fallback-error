@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix an untranslated error message shown when a backup dashboard request fails without a reason.

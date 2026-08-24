@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix an untranslated fallback error message on the Backup dashboard.
