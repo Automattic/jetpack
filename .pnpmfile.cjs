@@ -262,6 +262,17 @@ async function fixDeps( pkg ) {
 		pkg.dependencies.glob = '^13';
 	}
 
+	// newspack-icons only imports SVG and Path from @wordpress/primitives, and neither changed in v4.
+	// packages/icons in Automattic/newspack-workspace already widens this range, but the published
+	// 1.1.1 predates that change. Drop this once a release carries the wider range; the guard on the
+	// exact old value means it stops applying by itself when that happens.
+	if (
+		pkg.name === 'newspack-icons' &&
+		pkg.peerDependencies?.[ '@wordpress/primitives' ] === '^3.0.0'
+	) {
+		pkg.peerDependencies[ '@wordpress/primitives' ] = '^3.0.0 || ^4.0.0';
+	}
+
 	// We don't use this in our E2E runs, and it brings in a lot of extraneous deps (and CVE-2026-54285).
 	// (if you bring this back, do it by reverting the pnpmfile changes in commit e90548654eacfa7493388331dd644a6f927d16c5, don't just delete this bit).
 	if ( pkg.name === '@wordpress/e2e-test-utils-playwright' ) {

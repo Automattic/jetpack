@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-ZW2BoUDYyI5nkZ8o3EkCzocg7Bspf+AzfFGBEEoeEK8=
+pnpmfileChecksum: sha256-qsbYMW63RtdDSj5Grv26xupmB3fZwagrVabCVnJNIKI=
 
 patchedDependencies:
   '@wordpress/build': 151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022
@@ -15756,7 +15756,7 @@ packages:
   newspack-icons@1.1.1:
     resolution: {integrity: sha512-puoKC6Op/icAUzArSuXnj89iCLmGrimldUKuLf1VKqyxw8z0ozOx2KmnJAUX6R0eCVuMEYpwRv/2XZE3E99MKw==}
     peerDependencies:
-      '@wordpress/primitives': ^3.0.0
+      '@wordpress/primitives': ^3.0.0 || ^4.0.0
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
 
   no-case@3.0.4:
