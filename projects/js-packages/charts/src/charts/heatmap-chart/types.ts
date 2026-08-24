@@ -13,6 +13,13 @@ export type HeatmapCell = {
 	 * days completing the first/last week fall outside the covered range.
 	 */
 	hidden?: boolean;
+	/**
+	 * Paint the cell as an empty slot that carries no claim about the day: it
+	 * looks like a no-value cell but is skipped by hover, tooltips, keyboard
+	 * navigation and the accessibility tree. For grid filler — slots drawn only
+	 * so a short range still fills its container, which were never measured.
+	 */
+	placeholder?: boolean;
 };
 
 /** A heatmap column (rendered left→right); its cells render top→bottom. */
