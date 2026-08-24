@@ -714,14 +714,21 @@ const bridgeLegacyContext = () => {
 	}
 
 	/*
-	 * Test the shape rather than mere presence. The wrapper that carries old markup is the
-	 * unchanged PHP of the previous release, and it already emitted `fieldExtra` for a file
-	 * field as `get_field_extra()`'s untouched `$extra_attrs` — an empty array, which
-	 * `wp_json_encode()` writes as `[]` and JS reads as truthy. A `! shared.fieldExtra` guard
-	 * therefore never fires, `getFileFieldExtra()` falls back to an empty allowlist, and every
-	 * file is rejected as a disallowed type.
+	 * Test for the key rather than for a truthy value or for `fieldExtra` itself.
+	 *
+	 * `! shared.fieldExtra` never fires: the wrapper carrying old markup is the unchanged PHP of
+	 * the previous release, which emitted `fieldExtra` for a file field as `get_field_extra()`'s
+	 * untouched `$extra_attrs` — an empty array, which `wp_json_encode()` writes as `[]` and JS
+	 * reads as truthy. The allowlist then stays empty and every file is rejected as a disallowed
+	 * type.
+	 *
+	 * Testing the value (`! shared.fieldExtra?.allowedMimeTypes`) fixes that but is not idempotent:
+	 * this runs inside the `hasFiles`/`hasMaxFiles` getters, which the runtime evaluates in a
+	 * computed, and a legacy context with no usable list would assign a fresh object on every
+	 * evaluation, invalidating the computed that just read it and spinning the main thread. Keying
+	 * on the property means the second call is always a no-op.
 	 */
-	if ( ! shared.fieldExtra?.allowedMimeTypes ) {
+	if ( ! shared.fieldExtra || ! ( 'allowedMimeTypes' in shared.fieldExtra ) ) {
 		shared.fieldExtra = {
 			maxFiles: legacy.maxFiles,
 			allowedMimeTypes: legacy.allowedMimeTypes,
