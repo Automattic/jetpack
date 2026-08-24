@@ -188,8 +188,8 @@ function _manually_load_muplugin() {
  * inactive module means AI is off. Remove this alongside the fallback itself,
  * once the release that introduced the module reaches Atomic.
  *
- * Runs on plugins_loaded because Jetpack_Mu_Wpcom::init() defers load_features()
- * to that hook, so the filter does not exist any earlier.
+ * Jetpack_Mu_Wpcom::init() registers the filter at mu-plugin time, so removing
+ * it late on plugins_loaded is always after registration.
  *
  * @return void
  */
