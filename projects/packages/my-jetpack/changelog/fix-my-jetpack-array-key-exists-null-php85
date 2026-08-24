@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a PHP 8.5 deprecation notice raised for products that do not ship a standalone plugin.
