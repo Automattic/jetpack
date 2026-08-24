@@ -6,6 +6,7 @@ import {
 	toPostId,
 	useStatsEmailClicksTimeSeries,
 	useStatsEmailOpensTimeSeries,
+	STATS_CHART_BUCKET_PERIODS,
 	type StatsEmailTimeSeriesReport,
 } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
@@ -15,6 +16,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	buildReportMetricSeries,
+	defaultPeriodForInterval,
 	useWidgetRootContext,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
@@ -28,7 +30,6 @@ import styles from './style.module.css';
 import type {
 	EmailTimeSeriesAttributes,
 	EmailTimeSeriesChartType,
-	EmailTimeSeriesGranularity,
 	EmailTimeSeriesMetric,
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -56,7 +57,6 @@ function metricLabel( metric: EmailTimeSeriesMetric ): string {
 
 type EmailTimeSeriesReportProps = {
 	metric: EmailTimeSeriesMetric;
-	granularity: EmailTimeSeriesGranularity;
 	/** How the timeline is drawn. `MetricTabsChart` owns the default. */
 	chartType?: EmailTimeSeriesChartType;
 };
@@ -64,16 +64,17 @@ type EmailTimeSeriesReportProps = {
 /**
  * Fetches the selected email's opens or clicks timeline over the dashboard
  * date range and draws it with the window total as the metric headline. The
- * endpoint reports daily buckets; weekly/monthly granularities aggregate them
+ * endpoint reports daily buckets; weekly/monthly intervals aggregate them
  * client-side. Only the active metric's query runs. The post detail design
  * has no period-over-period comparison, so comparison report params are
  * ignored — they ride along in the URL untouched so dashboard state survives
  * the round trip, and every widget on this page disregards them.
  */
-function EmailTimeSeriesReport( { metric, granularity, chartType }: EmailTimeSeriesReportProps ) {
+function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 	const hasSelection = postId > 0;
+	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
 	// Both hooks are called every render (hooks rule); only the active
 	// metric's query is enabled.
@@ -97,17 +98,17 @@ function EmailTimeSeriesReport( { metric, granularity, chartType }: EmailTimeSer
 			return undefined;
 		}
 
-		if ( granularity === 'day' ) {
+		if ( period === 'day' ) {
 			return report;
 		}
 
 		// The endpoint only buckets by hour/day; weeks/months aggregate client-side.
-		return bucketStatsTimeSeries( report, granularity, point => {
+		return bucketStatsTimeSeries( report, period, point => {
 			const value = Number( point[ field ] ?? 0 );
 
 			return { value, [ field ]: value };
 		} );
-	}, [ report, granularity, field ] );
+	}, [ report, period, field ] );
 
 	// One metric: the headline is the window total (the timeline is summed per
 	// bucket, so the sum of buckets is the range's opens/clicks).
@@ -174,17 +175,12 @@ function EmailTimeSeriesReport( { metric, granularity, chartType }: EmailTimeSer
  */
 export default function EmailTimeSeries( { attributes = {} }: EmailTimeSeriesWidgetProps ) {
 	const metric = attributes.metric ?? 'opens';
-	const granularity = attributes.granularity ?? 'day';
 	// Coerce unknown persisted values to the default.
 	const chartType = attributes.chartType === 'bar' ? 'bar' : 'line';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<EmailTimeSeriesReport
-				metric={ metric }
-				granularity={ granularity }
-				chartType={ chartType }
-			/>
+			<EmailTimeSeriesReport metric={ metric } chartType={ chartType } />
 		</WidgetRoot>
 	);
 }

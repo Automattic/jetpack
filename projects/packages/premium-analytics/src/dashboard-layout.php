@@ -393,10 +393,7 @@ function get_dashboard_default_section_layouts() {
 				'jpa/subscribers-chart',
 				0,
 				4,
-				2,
-				array(
-					'granularity' => 'auto',
-				)
+				2
 			),
 			// Row 2: latest subscribers + latest emails sent.
 			get_dashboard_default_widget_instance(

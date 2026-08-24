@@ -5,6 +5,7 @@ import { useStatsStreak } from '@jetpack-premium-analytics/data';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
 	AdaptiveCalendarHeatmap,
+	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
 	HeatmapChartUnresponsive,
 	HeatmapSkeleton,
@@ -71,34 +72,56 @@ function PostingActivityInner() {
 	const { reportParams } = useWidgetRootContext();
 
 	// Same window rule as the other calendar heatmap: floor and cap the picker's
-	// range at the history the viewport could show, so the two widgets fill their
-	// tiles with the same span instead of one running out of data early.
+	// range at the history the viewport could show, so the two widgets request
+	// the same span instead of one running out of data early — and the floored,
+	// year-quantized request stays cacheable across preset changes.
 	const viewportWidth = useViewportWidth();
 	const windowDays = resolveCalendarHeatmapWindowDays( viewportWidth );
+	const today = format( new Date(), 'yyyy-MM-dd' );
 	const streakRange = useMemo(
 		() =>
 			resolveCalendarHeatmapWindow(
 				reportParams,
 				{ minDays: windowDays, maxDays: windowDays },
-				format( new Date(), 'yyyy-MM-dd' )
+				today
 			),
-		[ reportParams, windowDays ]
+		[ reportParams, windowDays, today ]
 	);
 	const streakParams = useMemo(
 		() => ( { ...reportParams, startDate: streakRange.startDate, endDate: streakRange.endDate } ),
 		[ reportParams, streakRange ]
 	);
 
+	// What the heatmap may draw and page through is the picker's range, not the
+	// request window: the floor above fetches history past a short range, and
+	// with the pager those weeks would otherwise be reachable — selecting 2025
+	// must not page into 2024. Only the cap survives (paging never outruns the
+	// fetched data).
+	const displayRange = useMemo(
+		() => resolveCalendarHeatmapWindow( reportParams, { maxDays: windowDays }, today ),
+		[ reportParams, windowDays, today ]
+	);
+
 	const { data, isLoading, isFetching, isError, error, refetch } = useStatsStreak( streakParams );
 
 	// The endpoint returns only days with posts, so an empty response means the
-	// window has none — the component densifies the rest into empty cells.
+	// window has none — the component densifies the rest into empty cells. The
+	// check spans the drawn range only: the fetch reaches past a short
+	// selection, and posts in that surplus history must not suppress the empty
+	// state for a selection that has none.
 	const postsByDay = data ?? NO_POSTS_BY_DAY;
-	const hasData = Object.keys( postsByDay ).length > 0;
+	const hasData = useMemo(
+		() =>
+			Object.entries( postsByDay ).some(
+				( [ day, count ] ) =>
+					day >= displayRange.startDate && day <= displayRange.endDate && Number( count ) > 0
+			),
+		[ postsByDay, displayRange ]
+	);
 
 	return (
-		<AdaptiveCalendarHeatmap valueByDay={ postsByDay } period={ streakRange }>
-			{ chartProps => (
+		<AdaptiveCalendarHeatmap valueByDay={ postsByDay } period={ displayRange }>
+			{ ( chartProps, pager ) => (
 				<WidgetState
 					isLoading={ isLoading }
 					isFetching={ isFetching }
@@ -124,12 +147,14 @@ function PostingActivityInner() {
 				>
 					{ /* No legend: the cell tooltips carry the counts, and the legend's
 					     44px comes out of the cells. */ }
-					<HeatmapChartUnresponsive
-						{ ...chartProps }
-						primaryColor="var(--wp-admin-theme-color, #3858e9)"
-						withTooltips
-						renderTooltip={ renderCellTooltip }
-					/>
+					<CalendarHeatmapPagerOverlay pager={ pager }>
+						<HeatmapChartUnresponsive
+							{ ...chartProps }
+							primaryColor="var(--wp-admin-theme-color, #3858e9)"
+							withTooltips
+							renderTooltip={ renderCellTooltip }
+						/>
+					</CalendarHeatmapPagerOverlay>
 				</WidgetState>
 			) }
 		</AdaptiveCalendarHeatmap>

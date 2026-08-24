@@ -94,6 +94,15 @@ describe( 'PostingActivityWidget', () => {
 		expect( screen.getByTestId( 'tooltip-plural' ) ).toHaveTextContent( '3 postsWed, Jun 4, 2025' );
 	} );
 
+	it( 'shows the empty state when only the fetch window surplus has posts', () => {
+		// June 2025 is selected; the request reaches back a further year, and a
+		// post in that surplus history must not suppress the empty state.
+		mockUseStatsStreak.mockReturnValue( streakResult( { data: { '2024-03-05': 2 } } ) );
+		render( <PostingActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+
+		expect( screen.getByText( 'No posts published in this period.' ) ).toBeInTheDocument();
+	} );
+
 	it( 'updates the shared history window when the viewport is resized', () => {
 		render( <PostingActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
 

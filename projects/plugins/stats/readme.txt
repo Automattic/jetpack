@@ -96,11 +96,17 @@ This plugin relies on WordPress.com, a service operated by Automattic, to record
 
 It connects to the following external services:
 
+**WordPress.com connection API (`https://jetpack.wordpress.com`)**
+
+* What it does: registers your site with WordPress.com and links it to your WordPress.com account. The view tracking, the reporting API and the data sync do not work without it. The dashboard interface is the exception: it loads before the site is connected, so that the plugin can offer you the connection.
+* Data sent: when the site is registered, its address, home address, name, language, time zone, the path of the WordPress installation on the server, the date the site was created, the Stats site ID if the site already has one, the versions of the bundled Jetpack packages, the version of the Jetpack plugin if the site has that plugin, the plugins that use the Jetpack connection, the email address and user ID of the administrator who starts the connection, one-time secrets that WordPress.com uses to check the request, and either the WordPress.com user ID of that administrator or, if they have no connected WordPress.com account, a random identifier that is also kept in a `tk_ai` cookie in their browser. To approve the connection, your browser goes to this host with your WordPress user name and email address, the name, address and icon of the site, and the role you connect with. Your site then exchanges an authorization code for the tokens that sign all later requests. Disconnecting the site, or removing a user from the connection, also sends a request to this host.
+* When: when you connect the site, when you approve the connection with your WordPress.com account, when you disconnect the site or remove a user from the connection, and once a day when the plugin makes sure that it can still reach WordPress.com over a secure connection.
+
 **WordPress.com view-tracking pixel (`https://pixel.wp.com/g.gif`)**
 
-* What it does: records a page view each time a visitor loads a page on your site.
-* Data sent: the page viewed, the referring URL, the visitor's IP address, the user agent, and your site ID.
-* When: on every front-end page view.
+* What it does: records a page view each time a visitor loads a page on your site. Once a day, a scheduled task also uses this address to report the state of your site, so that WordPress.com can keep the service working with the software your site runs.
+* Data sent: for a page view, the page viewed, the referring URL, the visitor's IP address, the user agent, and your site ID. For the daily report, your WordPress and PHP versions, whether the site is public, whether it is served over HTTPS, whether it can reach WordPress.com over a secure connection, the site language and character set, whether the site is part of a network, the names of the active plugins and must-use plugins, the size of the uploads folder, the first two groups of digits of the server IP address, the versions of the bundled Jetpack packages, the plugins that use the Jetpack connection, and whether the plugin found a problem with the connection. Your visitors are not part of the daily report.
+* When: a page view is recorded on every front-end page view. The daily report is sent by a scheduled task, and not more than once every 23 hours.
 
 **WordPress.com measurement script (`https://stats.wp.com/e-{year}.js`)**
 
@@ -113,6 +119,12 @@ It connects to the following external services:
 * What it does: returns the aggregated statistics displayed in your Stats dashboard.
 * Data sent: your site ID and the report parameters (date ranges, metric requested). Requires an authenticated WordPress.com connection.
 * When: whenever you open the Stats dashboard or load a report.
+
+**WordPress.com Sync (`https://public-api.wordpress.com`)**
+
+* What it does: keeps a copy of your site's content and settings on WordPress.com. The reports need it to show post titles, authors and categories, and the service needs it to know how your site is set up. If your site cannot use this address, the same data goes to `https://jetpack.wordpress.com/xmlrpc.php` instead.
+* Data sent: your posts, pages, other post types and media, with their text, authors, categories, tags and publication state; your comments, with the name, email address and website that the commenter gave; your users, with their user names, email addresses, display names, roles and permissions, but never their passwords; your site settings, menus and theme; and the list of plugins and themes on the site with their versions and available updates.
+* When: continuously, as content and settings change, and in full when the site connects or when WordPress.com has to rebuild its copy.
 
 **WordPress.com dashboard assets (`https://widgets.wp.com/odyssey-stats/`)**
 
