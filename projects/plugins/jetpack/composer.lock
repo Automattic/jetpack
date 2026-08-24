@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a23192553f4bac264e9e68f7948bcaa5",
+    "content-hash": "ef34220a464e88f1d81b01cbd147e982",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -1015,6 +1015,65 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Features used with classic themes",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-comments",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/comments",
+                "reference": "3fbf003a1a3e41b7a54c3cc280dd4c215cdb9df8"
+            },
+            "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-image-cdn": "@dev",
+                "php": ">=7.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-comments/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-comments",
+                "textdomain": "jetpack-comments",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-comments.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ],
+                "typecheck": [
+                    "pnpm run typecheck"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Replaces the default WordPress comment form.",
             "transport-options": {
                 "relative": true
             }
@@ -6248,6 +6307,7 @@
         "automattic/jetpack-blocks": 20,
         "automattic/jetpack-boost-speed-score": 20,
         "automattic/jetpack-classic-theme-helper": 20,
+        "automattic/jetpack-comments": 20,
         "automattic/jetpack-compat": 20,
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,
