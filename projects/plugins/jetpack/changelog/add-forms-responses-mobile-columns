@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: On small screens, show only the response and its actions instead of a table that scrolls sideways.
