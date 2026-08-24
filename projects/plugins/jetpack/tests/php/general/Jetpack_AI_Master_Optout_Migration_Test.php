@@ -155,6 +155,74 @@ class Jetpack_AI_Master_Optout_Migration_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * The one-shot must not be consumed while the module is inactive.
+	 *
+	 * This ran on the alpha train before module auto-activation understood prerelease versions:
+	 * `ai` declares `First Introduced: 16.2` and version_compare() sorts `16.2-a.1` below `16.2`,
+	 * so the module could not auto-activate, yet this method still ran at init:20, found nothing to
+	 * do, and marked the migration complete. Once auto-activation was fixed the module would turn
+	 * on with the migration already spent, and an explicit opt-out would be silently overridden.
+	 */
+	public function test_migration_flag_is_not_consumed_while_the_module_is_inactive() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array() );
+		update_option( 'jetpack_ai_enabled', 0 );
+
+		Jetpack::reconcile_ai_master_optout();
+
+		$this->assertFalse(
+			get_option( Jetpack::AI_MASTER_OPTOUT_MIGRATED_OPTION, false ),
+			'The migration must stay pending until the module is genuinely active.'
+		);
+	}
+
+	/**
+	 * The companion: once the module really is active, the opt-out is honored and the one-shot is
+	 * spent. Together with the test above this pins the ordering the guard depends on.
+	 */
+	public function test_optout_is_honoured_on_the_upgrade_that_activates_the_module() {
+		$this->set_up_auto_activated_off_simple();
+		update_option( 'jetpack_ai_enabled', 0 );
+
+		Jetpack::reconcile_ai_master_optout();
+
+		$this->assertNotContains(
+			'ai',
+			(array) \Jetpack_Options::get_option( 'active_modules' ),
+			'The opt-out is honored on the upgrade that activates the module.'
+		);
+		$this->assertTrue(
+			(bool) get_option( Jetpack::AI_MASTER_OPTOUT_MIGRATED_OPTION ),
+			'And the one-shot is spent at that point, not before.'
+		);
+	}
+
+	/**
+	 * A module reported active only by a filter - the jetpack-mu-wpcom stopgap does exactly this on
+	 * Atomic - must not spend the one-shot either, since the module is not really on.
+	 */
+	public function test_migration_flag_is_not_consumed_by_a_filter_reported_module() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array() );
+		update_option( 'jetpack_ai_enabled', 0 );
+
+		$stopgap = function ( $modules ) {
+			$modules[] = 'ai';
+			return array_unique( $modules );
+		};
+		add_filter( 'jetpack_active_modules', $stopgap );
+
+		Jetpack::reconcile_ai_master_optout();
+
+		remove_filter( 'jetpack_active_modules', $stopgap );
+
+		$this->assertFalse(
+			get_option( Jetpack::AI_MASTER_OPTOUT_MIGRATED_OPTION, false ),
+			'A filter reporting the module active must not spend the migration.'
+		);
+	}
+
+	/**
 	 * The ordering contract, locked against the *production* registration (not a
 	 * priority hand-picked in the test): reconcile_ai_master_optout must be hooked
 	 * to run at a LATER init priority than activate_new_modules. Auto-activation

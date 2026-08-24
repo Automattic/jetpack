@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Jetpack AI: honor an explicit opt-out when the AI module activates on a prerelease build.

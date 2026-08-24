@@ -41,6 +41,7 @@ function jetpack_uninstall() {
 	Jetpack_Options::delete_all_known_options();
 
 	// Delete all legacy options.
+	delete_option( 'jetpack_prerelease_activated_modules' );
 	delete_option( 'jetpack_was_activated' );
 	delete_option( 'jetpack_auto_installed' );
 	delete_option( 'jetpack_register' );

@@ -6,6 +6,16 @@
  * version_compare() sorts a prerelease below its own release. These tests cover the rule that puts
  * it back in its release line, and the record that stops it being offered more than once.
  *
+ * On precise headers, and why a release number is the better thing to write. Because the ceiling is
+ * reduced to its release version, `First Introduced: 16.2-a.2` clears it on every alpha of 16.2 —
+ * exactly as `16.2` does — so precision never delays availability. It changes only the floor: once
+ * the site's recorded version reaches `16.2-a.2` the window itself excludes the module, so the
+ * record is no longer what dedupes it. That costs the retry. A module offered but not actually
+ * activated (`Auto Activate: public` on a non-public site, a conflicting plugin, a fatal) is never
+ * recorded, so a release-numbered header offers it again next upgrade; a precise header does not,
+ * and the module is stranded. This is not hypothetical: `modules/blocks.php` ships
+ * `First Introduced: 13.9-a.8`.
+ *
  * @package automattic/jetpack
  */
 
@@ -76,12 +86,23 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 	public function test_record_ignores_modules_that_are_not_really_active() {
 		\Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
 
-		Jetpack::record_prerelease_activated_modules( array( 'stats', 'ai' ) );
+		// Report a module active that is not in the option, the way the jetpack-mu-wpcom stopgap
+		// does for `ai` on Atomic. Without this filter the test cannot tell an implementation that
+		// reads the raw option from one that reads get_active_modules(), which is the entire point.
+		$stopgap = function ( $modules ) {
+			$modules[] = 'sso';
+			return array_unique( $modules );
+		};
+		add_filter( 'jetpack_active_modules', $stopgap );
+
+		Jetpack::record_prerelease_activated_modules( array( 'stats', 'sso' ) );
+
+		remove_filter( 'jetpack_active_modules', $stopgap );
 
 		$this->assertSame(
 			array( 'stats' ),
 			get_option( Jetpack::PRERELEASE_ACTIVATED_MODULES_OPTION ),
-			'Only the genuinely active module is recorded.'
+			'A module reported active only by a filter must not be recorded.'
 		);
 	}
 
@@ -140,7 +161,7 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	private function register_fake_modules( array $modules ) {
+	private function register_fake_modules( array $modules, array $changed = array() ) {
 		add_filter(
 			'jetpack_get_available_modules',
 			function () use ( $modules ) {
@@ -157,9 +178,12 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 
 		add_filter(
 			'jetpack_get_module',
-			function ( $mod, $slug ) use ( $modules ) {
+			function ( $mod, $slug ) use ( $modules, $changed ) {
 				if ( isset( $modules[ $slug ] ) ) {
 					$mod['introduced'] = $modules[ $slug ];
+				}
+				if ( isset( $changed[ $slug ] ) ) {
+					$mod['changed'] = $changed[ $slug ];
 				}
 				return $mod;
 			},
@@ -338,30 +362,60 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The jetpack-mu-wpcom stopgap reports `ai` active on Atomic without it being in the option.
-	 * Whatever branch activation takes, the record must never contain a module that is not really
-	 * in the raw option — otherwise removing the stopgap would suppress it permanently.
+	 * The record subtraction runs at priority 100, after handle_deprecated_modules() appends
+	 * replacement modules at 99. Running earlier would let a later filter put a recorded module
+	 * back into the list, undoing the user's opt-out.
 	 */
-	public function test_record_never_exceeds_the_raw_active_modules_option() {
-		$this->register_fake_modules( array( 'jptest-current' => '16.2' ) );
+	public function test_a_module_appended_by_a_later_filter_still_respects_the_record() {
+		update_option( Jetpack::PRERELEASE_ACTIVATED_MODULES_OPTION, array( 'jptest-late' ), false );
+		$this->register_fake_modules(
+			array(
+				'jptest'      => '16.2',
+				'jptest-late' => '16.2',
+			)
+		);
 
-		$stopgap = function ( $modules ) {
-			$modules[] = 'jptest-current';
-			return array_unique( $modules );
+		// Stands in for handle_deprecated_modules(), which appends at priority 99.
+		$appender = function ( $modules ) {
+			$modules[] = 'jptest-late';
+			return array_values( array_unique( $modules ) );
 		};
-		add_filter( 'jetpack_active_modules', $stopgap );
+		add_filter( 'jetpack_get_default_modules', $appender, 99 );
 
 		$this->run_upgrade( '16.1', '16.2-a.1' );
 
-		remove_filter( 'jetpack_active_modules', $stopgap );
+		remove_filter( 'jetpack_get_default_modules', $appender, 99 );
 
-		$record = get_option( Jetpack::PRERELEASE_ACTIVATED_MODULES_OPTION, array() );
-		$raw    = $this->raw_active_modules();
+		$raw = $this->raw_active_modules();
+		$this->assertContains( 'jptest', $raw, 'The unrecorded module still activates.' );
+		$this->assertNotContains(
+			'jptest-late',
+			$raw,
+			'A recorded module appended by a later filter must still be suppressed.'
+		);
+	}
 
-		$this->assertSame(
-			array(),
-			array_diff( $record, $raw ),
-			'Nothing may be recorded that is not genuinely in the raw active_modules option.'
+	/**
+	 * A module deactivated by this upgrade because its `Changed:` header moved is handed to
+	 * activate_default_modules() as $other_modules, which is merged in AFTER the filter. Being in
+	 * the record must therefore not stop it coming back - otherwise the record would turn a
+	 * routine reactivation into a permanent deactivation.
+	 */
+	public function test_reactivated_module_is_not_suppressed_by_the_record() {
+		\Jetpack_Options::update_option( 'active_modules', array( 'jptest' ) );
+		update_option( Jetpack::PRERELEASE_ACTIVATED_MODULES_OPTION, array( 'jptest' ), false );
+
+		$this->register_fake_modules(
+			array( 'jptest' => '16.2' ),
+			array( 'jptest' => '99.0' )
+		);
+
+		$this->run_upgrade( '16.2-a.1', '16.2-a.2' );
+
+		$this->assertContains(
+			'jptest',
+			$this->raw_active_modules(),
+			'A module reactivated after a Changed: bump must survive being in the record.'
 		);
 	}
 
