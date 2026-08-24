@@ -21,6 +21,7 @@ import { isAdoptableUpload, setUploadDraft, useUpload } from '../../hooks/use-up
 import { useVideo } from '../../hooks/use-video';
 import { isWpcomConnected } from '../../utils/connection';
 import AddToContentMenu from '../add-to-content-menu';
+import { TAB_PATHS } from '../dashboard-tabs';
 import FreeTierNotice from '../free-tier-notice';
 import UploadDropzone from '../upload-dropzone';
 import {
@@ -731,10 +732,10 @@ const SuccessCard = ( {
 					</Stack>
 				</Card.Content>
 				<div className="vp-success__actions">
-					{ /* Single video: the hand-off sits beside "Go to Library" in the footer. */ }
+					{ /* Single video: the hand-off sits beside "Go to Home" in the footer. */ }
 					<AddToContentMenu guid={ video?.videopressGuid } />
 					<Button variant="primary" __next40pxDefaultSize onClick={ onGoToHome }>
-						{ __( 'Go to Library', 'jetpack-videopress-pkg' ) }
+						{ __( 'Go to Home', 'jetpack-videopress-pkg' ) }
 					</Button>
 				</div>
 			</Card.Root>
@@ -794,7 +795,7 @@ const SuccessCard = ( {
 			</Card.Content>
 			<div className="vp-success__actions">
 				<Button variant="primary" __next40pxDefaultSize onClick={ onGoToHome }>
-					{ __( 'Go to Library', 'jetpack-videopress-pkg' ) }
+					{ __( 'Go to Home', 'jetpack-videopress-pkg' ) }
 				</Button>
 			</div>
 		</Card.Root>
@@ -1140,6 +1141,7 @@ const UploadOnboardingFlow = ( {
 	onExitToLibrary: () => void;
 } ) => {
 	const queryClient = useQueryClient();
+	const navigate = useNavigate();
 	const { createInfoNotice } = useGlobalNotices();
 	const batchRef = useRef( 0 );
 	const [ uploads, setUploads ] = useState< UploadItem[] >( [] );
@@ -1373,9 +1375,13 @@ const UploadOnboardingFlow = ( {
 		[ go, queryClient ]
 	);
 
-	// Publishing wraps the session up: hand the surface back to the Library
-	// listing, which now holds the published videos.
-	const goToHome = onExitToLibrary;
+	// Publishing the first video ends the first-run experience, so the hand-off
+	// goes to Home — the surface that answers "what happened since I was last
+	// here, and what do I want to do now" — rather than dropping the user into
+	// a bare file list.
+	const goToHome = useCallback( () => {
+		navigate( { href: TAB_PATHS.home } );
+	}, [ navigate ] );
 
 	const renderStep = ( s: Step ) => {
 		if ( s === 'upload' ) {

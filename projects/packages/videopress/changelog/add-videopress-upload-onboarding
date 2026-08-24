@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Open a video by clicking its thumbnail on the home screen, and give the upload icon the design system's empty-state treatment.
