@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Refresh the activity list automatically when a backup finishes.
