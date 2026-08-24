@@ -8,7 +8,7 @@ import WordPressAgentNotice, {
 	PREFERENCE_SCOPE,
 	useWordPressAgentNotice,
 } from '..';
-import { setWordPressAgentChatOpen } from '../open-agent';
+import { resumeWordPressAgentChat, setWordPressAgentChatOpen } from '../open-agent';
 
 const mockRecordEvent = jest.fn();
 let mockCurrentTier: { slug?: string } | undefined;
@@ -24,6 +24,7 @@ jest.mock( '../../../../../blocks/ai-assistant/lib/utils/get-feature-availabilit
 
 jest.mock( '../open-agent', () => ( {
 	setWordPressAgentChatOpen: jest.fn(),
+	resumeWordPressAgentChat: jest.fn(),
 	useIsWordPressAgentReady: () => mockIsAgentReady,
 	useIsWordPressAgentChatVisible: () => mockIsChatOnScreen,
 } ) );
@@ -211,6 +212,19 @@ describe( 'WordPressAgentNotice', () => {
 		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
 
 		expect( setWordPressAgentChatOpen ).toHaveBeenCalledWith( true );
+	} );
+
+	it( 'opens the chat on its default screen, not wherever it was last left', async () => {
+		const user = userEvent.setup();
+		render( <WordPressAgentNotice placement="document-settings" /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'WordPress Agent' } ) );
+
+		expect( resumeWordPressAgentChat ).toHaveBeenCalled();
+		// Resetting after the open would show the old screen first.
+		expect( ( resumeWordPressAgentChat as jest.Mock ).mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+			( setWordPressAgentChatOpen as jest.Mock ).mock.invocationCallOrder[ 0 ]
+		);
 	} );
 
 	it( 'records the placement when the action is clicked', async () => {

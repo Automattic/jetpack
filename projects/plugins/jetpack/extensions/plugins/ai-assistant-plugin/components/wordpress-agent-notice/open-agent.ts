@@ -26,6 +26,7 @@ type AgentsManagerSelect = {
 type AgentsManagerActions = {
 	isReady?: boolean;
 	setChatOpen?: ( isOpen: boolean ) => void;
+	resumeChat?: () => void;
 };
 
 type WindowWithAgentsManagerActions = Window & {
@@ -86,4 +87,19 @@ export function setWordPressAgentChatOpen( isOpen: boolean ): void {
 	}
 
 	setChatOpen( isOpen );
+}
+
+/**
+ * Sends the chat back to its default view. The chat otherwise reopens wherever
+ * it was last left, such as the history list.
+ */
+export function resumeWordPressAgentChat(): void {
+	const resumeChat = getAgentsManagerActions()?.resumeChat;
+
+	if ( ! resumeChat ) {
+		debug( 'Agents Manager exposed no resumeChat; the chat keeps its last view' );
+		return;
+	}
+
+	resumeChat();
 }
