@@ -148,6 +148,9 @@ class Reprint_Exporter {
 			return;
 		}
 
+		// A Reprint export happens over many separate requests and a full
+		// export can take longer than an hour. Keep the export window open
+		// while a client is actively exporting.
 		self::open_export_window();
 
 		$this->serve_export();
