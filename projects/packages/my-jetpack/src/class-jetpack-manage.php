@@ -152,18 +152,23 @@ class Jetpack_Manage {
 
 		if ( $partner === false ) {
 			$wpcom_response = Client::wpcom_json_api_request_as_user( '/jetpack-partners' );
+			$response_code  = (int) wp_remote_retrieve_response_code( $wpcom_response );
 
-			if ( is_wp_error( $wpcom_response ) || 200 !== wp_remote_retrieve_response_code( $wpcom_response ) ) {
-				// A failed request is not an answer, so leave the cache empty and retry next time.
+			// A network failure or a server-side error is not an answer about this site, so leave
+			// the cache empty and ask again next time.
+			if ( is_wp_error( $wpcom_response ) || 0 === $response_code || $response_code >= 500 ) {
 				return false;
 			}
 
-			$partner_data = json_decode( wp_remote_retrieve_body( $wpcom_response ) );
+			$partner_data = 200 === $response_code
+				? json_decode( wp_remote_retrieve_body( $wpcom_response ) )
+				: null;
 
 			// The jetpack-partners endpoint will return only one partner data into an array, it uses Jetpack_Partner::find_by_owner.
 			if ( ! is_array( $partner_data ) || count( $partner_data ) !== 1 || ! is_object( $partner_data[0] ) ) {
-				// "This site has no partner" is a real answer, so cache it too. Most sites are not
-				// partners, and without this they repeat the request on every page load that asks.
+				// "No partner" is a real answer and gets cached like any other. It arrives as a 403
+				// for a user with no partner account, which is most of them — without caching it,
+				// those sites repeat this request on every page load that asks.
 				$partner = self::NO_PARTNER;
 			} else {
 				$partner = $partner_data[0];

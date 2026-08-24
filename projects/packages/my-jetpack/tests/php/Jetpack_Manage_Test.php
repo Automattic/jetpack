@@ -233,6 +233,23 @@ class Jetpack_Manage_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The endpoint answers 403 for a user with no partner account; that is an answer, so cache it.
+	 */
+	public function test_is_agency_account_caches_a_forbidden_response() {
+		$this->connect_user( $this->admin_id );
+		$this->mock_http(
+			array( $this->partners_response( array( 'code' => 'rest_forbidden' ), 403 ) )
+		);
+
+		$first  = Jetpack_Manage::is_agency_account();
+		$second = Jetpack_Manage::is_agency_account();
+
+		$this->assertFalse( $first );
+		$this->assertFalse( $second );
+		$this->assertSame( 1, $this->http_request_count );
+	}
+
+	/**
 	 * A failed lookup is not an answer, so it must be retried rather than cached.
 	 */
 	public function test_is_agency_account_does_not_cache_a_failed_lookup() {
