@@ -2,7 +2,7 @@
 	"name": "@automattic/jetpack-comments",
 	"version": "0.1.0-alpha",
 	"private": true,
-	"description": "Replaces the default WordPress comment form with social login, subscription options, and block editing.",
+	"description": "Replaces the default WordPress comment form.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/comments/#readme",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[Package] Comments"
@@ -14,9 +14,37 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"type": "module",
 	"scripts": {
-		"build": "echo 'Not implemented.'",
-		"build-production": "echo 'Not implemented.'",
-		"clean": "true"
+		"build": "pnpm run clean && pnpm run build-js",
+		"build-js": "webpack --config webpack.config.js",
+		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
+		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
+		"clean": "rm -rf build/",
+		"typecheck": "tsgo --noEmit",
+		"validate": "pnpm exec validate-es build/",
+		"watch": "pnpm run build-js --watch"
+	},
+	"dependencies": {
+		"@preact/signals": "1.2.2",
+		"clsx": "2.1.1",
+		"preact": "10.28.2"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.29.7",
+		"@babel/plugin-transform-react-jsx": "7.29.7",
+		"@babel/runtime": "7.29.7",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
+		"@wordpress/browserslist-config": "6.51.0",
+		"autoprefixer": "10.4.20",
+		"babel-plugin-transform-rename-properties": "0.1.0",
+		"browserslist": "^4.24.0",
+		"postcss": "8.5.23",
+		"postcss-loader": "8.2.0",
+		"sass-embedded": "1.97.3",
+		"sass-loader": "16.0.5",
+		"webpack": "5.107.2",
+		"webpack-cli": "7.2.1"
 	}
 }

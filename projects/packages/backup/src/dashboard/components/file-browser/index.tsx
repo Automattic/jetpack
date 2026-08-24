@@ -1,12 +1,15 @@
 import { CheckboxControl, Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+// The upstream names don't describe what they draw: `file` is a folder
+// glyph, `page` is a document one, and there is no `folder` export.
+// `tests/file-browser-icons.test.tsx` holds these aliases in place.
 import {
 	Icon,
 	chevronRight,
 	chevronDown,
-	file as fileIcon,
-	category as folderIcon,
+	file as folderIcon,
+	page as fileIcon,
 } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
 import { useFileTree } from '../../hooks/use-file-tree';
@@ -597,13 +600,34 @@ function NodeRow( {
 					__nextHasNoMarginBottom
 				/>
 				{ nodeIsFolder ? (
-					<button type="button" className="jpb-file-browser__toggle" onClick={ handleToggleOpen }>
+					// The glyphs are `aria-hidden`, so the folder/file distinction they
+					// carry visually has to be spelled out for assistive tech.
+					<button
+						type="button"
+						className="jpb-file-browser__toggle"
+						aria-expanded={ open }
+						aria-label={ sprintf(
+							/* translators: %s: folder name. */
+							__( 'Folder: %s', 'jetpack-backup-pkg' ),
+							node.name
+						) }
+						onClick={ handleToggleOpen }
+					>
 						<Icon icon={ open ? chevronDown : chevronRight } size={ 16 } />
 						<Icon icon={ folderIcon } size={ 18 } />
 						<span>{ node.name }</span>
 					</button>
 				) : (
-					<button type="button" className="jpb-file-browser__file" onClick={ handleOpenFile }>
+					<button
+						type="button"
+						className="jpb-file-browser__file"
+						aria-label={ sprintf(
+							/* translators: %s: file name. */
+							__( 'File: %s', 'jetpack-backup-pkg' ),
+							node.name
+						) }
+						onClick={ handleOpenFile }
+					>
 						<Icon icon={ fileIcon } size={ 18 } />
 						<span>{ node.name }</span>
 					</button>

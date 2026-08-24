@@ -3,7 +3,7 @@
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -84,6 +84,20 @@ function routeRequests( comparison?: ComparisonFixtures ) {
 
 		return Promise.resolve( isViewsVisitors ? VIEWS_VISITORS_RESPONSE : LIKES_COMMENTS_RESPONSE );
 	} );
+}
+
+/**
+ * The `stats/visits` requests the hook issued. `apiFetch` is mocked wholesale, so
+ * it also records core-data's own `/wp/v2/settings` traffic (the site timezone
+ * resolves through it) — counting raw calls would make these assertions depend on
+ * when that happens to be warmed.
+ *
+ * @return One path per visits request, in call order.
+ */
+function visitsPaths(): string[] {
+	return mockApiFetch.mock.calls
+		.map( ( [ options ] ) => ( options as { path?: string } )?.path ?? '' )
+		.filter( path => path.includes( 'stats/visits' ) );
 }
 
 function wrapper( { children }: { children: ReactNode } ) {
@@ -192,5 +206,82 @@ describe( 'useTrafficChart', () => {
 			expect( metric.previous ).toBeUndefined();
 			expect( metric.previousValue ).toBeUndefined();
 		}
+	} );
+
+	describe( 'hourly', () => {
+		const HOURLY_RANGE: ReportParams = {
+			from: '2026-06-15T00:00:00+00:00',
+			to: '2026-06-15T23:59:59+00:00',
+			interval: 'hour',
+		};
+
+		// `stats/visits` fills Views alone at this grain, so the hook must not ask
+		// for the rest, and must say why they are missing rather than show a zero.
+		const HOURLY_VIEWS_RESPONSE = {
+			unit: 'hour',
+			fields: [ 'period', 'views' ],
+			data: [
+				[ '2026-06-15 09:00:00', 40 ],
+				[ '2026-06-15 10:00:00', 60 ],
+			],
+		};
+
+		beforeEach( () => {
+			mockApiFetch.mockImplementation( () => Promise.resolve( HOURLY_VIEWS_RESPONSE ) );
+		} );
+
+		it( 'requests only Views, as hourly buckets covering the range', async () => {
+			const { result } = renderHook( () => useTrafficChart( HOURLY_RANGE, 'hour' ), { wrapper } );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			const paths = visitsPaths();
+			expect( paths ).toHaveLength( 1 );
+			expect( paths[ 0 ] ).toContain( 'unit=hour' );
+			// The endpoint counts the hourly buckets from these two, so they have
+			// to reach it with their time of day intact.
+			expect( paths[ 0 ] ).toContain(
+				`start_date=${ encodeURIComponent( '2026-06-15T00:00:00+00:00' ) }`
+			);
+			expect( paths[ 0 ] ).toContain(
+				`date=${ encodeURIComponent( '2026-06-15T23:59:59+00:00' ) }`
+			);
+			expect( paths[ 0 ] ).toContain( 'stat_fields=views' );
+			expect( paths[ 0 ] ).not.toContain( 'visitors' );
+		} );
+
+		it( 'marks the metrics the endpoint cannot serve, leaving Views with its points', async () => {
+			const { result } = renderHook( () => useTrafficChart( HOURLY_RANGE, 'hour' ), { wrapper } );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			const [ views, visitors, likes, comments ] = result.current.metrics;
+			expect( views.unavailable ).toBeUndefined();
+			expect( views.value ).toBe( 100 );
+			expect( views.current ).toHaveLength( 2 );
+
+			for ( const metric of [ visitors, likes, comments ] ) {
+				expect( metric.unavailable ).toBe( "Hourly data isn't available for this metric." );
+			}
+		} );
+
+		// A manual refetch would ignore `enabled`; `useReport` gates its combined
+		// refetch on it, so the skipped request stays skipped through a retry.
+		it( 'still asks for Views alone when the retry action runs', async () => {
+			const { result } = renderHook( () => useTrafficChart( HOURLY_RANGE, 'hour' ), { wrapper } );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			act( () => result.current.refetch() );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			const paths = visitsPaths();
+			expect( paths ).toHaveLength( 2 );
+			for ( const path of paths ) {
+				expect( path ).toContain( 'stat_fields=views' );
+				expect( path ).not.toContain( 'likes' );
+			}
+		} );
 	} );
 } );

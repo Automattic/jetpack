@@ -38,7 +38,7 @@ export interface GlobalChartsContextValue {
 	getChartData: ( id: string ) => ChartRegistration | undefined;
 	theme: CompleteChartTheme;
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles;
-	// Series visibility management for interactive legends
+	// Series visibility management shared by charts and legends.
 	toggleSeriesVisibility: ( chartId: string, seriesLabel: string ) => void;
 	isSeriesVisible: ( chartId: string, seriesLabel: string ) => boolean;
 	getHiddenSeries: ( chartId: string ) => Set< string >;

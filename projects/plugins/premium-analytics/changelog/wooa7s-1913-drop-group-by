@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Set the chart interval once for the whole page instead of per chart widget.

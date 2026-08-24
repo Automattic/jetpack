@@ -171,7 +171,7 @@ describe( 'group file parser', () => {
 	} );
 } );
 
-describe( 'widget test groups', () => {
+describe( 'test groups', () => {
 	const groups = groupFileNames();
 
 	it( 'has at least one group to check', () => {
