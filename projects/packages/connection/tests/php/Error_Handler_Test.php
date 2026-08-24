@@ -3304,6 +3304,58 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that a code whose display config declares a `notice_link` carries it on
+	 * the displayable error, so every notice can offer it — not just the wp-admin
+	 * one. `xmlrpc_request_blocked` suppresses the reconnect CTA, so without the
+	 * link a JS notice would name the problem and offer nothing to do about it.
+	 */
+	public function test_get_displayable_errors_emits_notice_link() {
+		// User ID 0 is the blog token: site-wide, visible to any viewer.
+		$error = array(
+			'error_code'    => 'xmlrpc_request_blocked',
+			'user_id'       => '0',
+			'error_message' => 'Original message',
+			'error_data'    => array( 'action' => 'none' ),
+			'timestamp'     => time(),
+			'nonce'         => 'nonce_notice_link',
+			'error_type'    => 'local_state',
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'xmlrpc_request_blocked' => array( '0' => $error ) ) );
+
+		$displayed = $this->error_handler->get_displayable_errors()['xmlrpc_request_blocked']['0'];
+
+		$this->assertSame(
+			array(
+				'label' => 'Visit Site Health',
+				'url'   => admin_url( 'site-health.php' ),
+			),
+			$displayed['error_data']['notice_link']
+		);
+		// The link stands in for the CTA here, it does not restore one.
+		$this->assertSame( 'none', $displayed['error_data']['action'] );
+	}
+
+	/**
+	 * Test that a code with no `notice_link` in its display config does not grow one.
+	 */
+	public function test_get_displayable_errors_omits_notice_link_when_not_configured() {
+		$error = array(
+			'error_code'    => 'unknown_token',
+			'user_id'       => '0',
+			'error_message' => 'Original message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'nonce_no_notice_link',
+			'error_type'    => 'xmlrpc',
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'unknown_token' => array( '0' => $error ) ) );
+
+		$displayed = $this->error_handler->get_displayable_errors()['unknown_token']['0'];
+
+		$this->assertArrayNotHasKey( 'notice_link', $displayed['error_data'] );
+	}
+
+	/**
 	 * Test that an `invalid_connection_owner` error, reported with an empty token but an
 	 * explicit `user_id` in its error data (as Manager::get_connection_owner() reports it),
 	 * is stored under the owner's real user ID via the wp_error_to_array() fallback and is

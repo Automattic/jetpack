@@ -1,3 +1,4 @@
+import type { ConnectionErrorGroup } from '../../hooks/use-connection-error-notice/types';
 import type { ReactElement } from 'react';
 
 export interface ActionItem {
@@ -9,10 +10,12 @@ export interface ActionItem {
 }
 
 export interface ConnectionErrorNoticeProps {
-	message: string | ReactElement;
+	message?: string | ReactElement;
 	context?: string | ReactElement;
 	restoreConnectionCallback?: ( () => void ) | null;
 	isRestoringConnection?: boolean;
 	restoreConnectionError?: string | null;
 	actions?: ActionItem[];
+	errorGroups?: ConnectionErrorGroup[];
+	showSupportLink?: boolean;
 }

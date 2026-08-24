@@ -338,6 +338,23 @@ describe( 'useConnectionErrorNotice — error detection', () => {
 				expect( result.current.actions[ 0 ].label ).toBe( 'Restore Connection' );
 			} );
 
+			// Nothing left to show once it is filtered out. `connectionError` still
+			// names it — a caller reading the error's type gets an honest answer — but
+			// `hasConnectionError` must not, or every consumer gating its notice chrome
+			// on the flag renders that chrome around nothing, and `<ConnectionError />`
+			// falls back to printing the very message the filter removed.
+			it( 'is not a connection error to surface when it is the only one there is', () => {
+				mockConnection( {
+					connectionErrors: { invalid_token: { 99: othersError } },
+					userConnectionData: viewer,
+				} );
+
+				const { result } = renderHook( () => useConnectionErrorNotice() );
+				expect( result.current.hasConnectionError ).toBe( false );
+				expect( result.current.displayableErrors ).toEqual( [] );
+				expect( result.current.errorGroups ).toEqual( [] );
+			} );
+
 			// With one side of the comparison missing there is no basis for calling the
 			// error someone else's, and skipping it would leave the viewer with a
 			// message and no way to act on it.
