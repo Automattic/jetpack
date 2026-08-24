@@ -140,6 +140,13 @@ describe( 'Switching between backups', () => {
 			screen.findByText( 'Download 1 selected item', undefined, SETTLE )
 		).resolves.toBeInTheDocument();
 
+		// Open the file's preview as well. A regression that cleared the
+		// selection but left `openFile` set would otherwise pass.
+		await userEvent.click( screen.getByRole( 'button', { name: 'File: wp-config.php' } ) );
+		await expect(
+			screen.findByRole( 'button', { name: 'Close preview' }, SETTLE )
+		).resolves.toBeInTheDocument();
+
 		mockSearch.mockReturnValue( { selected: REWIND_B } );
 		rerender( <OverviewStage /> );
 
@@ -152,6 +159,7 @@ describe( 'Switching between backups', () => {
 
 		// The new backup's own file — same path, never checked here — must
 		// come up unselected, and the header must report zero selected.
+		expect( screen.queryByRole( 'button', { name: 'Close preview' } ) ).not.toBeInTheDocument();
 		expect( fileRowCheckbox() ).not.toBeChecked();
 		expect( screen.getByText( 'Download backup' ) ).toBeInTheDocument();
 		expect( screen.queryByText( /Download \d+ selected item/ ) ).not.toBeInTheDocument();
