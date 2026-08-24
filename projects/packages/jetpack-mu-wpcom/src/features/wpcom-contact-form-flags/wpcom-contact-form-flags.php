@@ -10,7 +10,8 @@
  *
  * With no filter on `jetpack_block_editor_feature_flags` from here, the
  * `central-form-management` flag falls through to the Forms package default, which
- * is true — see Contact_Form_Block::register_central_form_management_default().
+ * is true — see Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block::register_central_form_management_default()
+ * in `packages/forms`, which this package does not depend on.
  *
  * @package automattic/jetpack-mu-wpcom
  */
