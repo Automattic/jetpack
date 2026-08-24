@@ -19,18 +19,18 @@ import {
 export type VideoDetailViewsPerformanceGranularity = 'day' | 'week' | 'month';
 
 /**
- * How the views series is drawn. The shared chart-display list keeps every
+ * How the selected metric is drawn. The shared chart-display list keeps every
  * chart widget's dropdown identical and ties it to the toolkit's own union.
  */
 export type VideoDetailViewsPerformanceChartType = ChartDisplayChartType;
 
 /**
- * Configurable attributes for the Views performance widget. The video scope
+ * Configurable attributes for the Video performance widget. The video scope
  * and report params reach it through WidgetRoot: the detail page seeds
  * `post_id` into the URL, and the dashboard date picker owns the range.
  *
  * @property granularity - Bucket size within the dashboard range. Defaults to `day`.
- * @property chartType   - How to draw the views series. Defaults to `line`.
+ * @property chartType   - How to draw the selected metric. Defaults to `line`.
  */
 export type VideoDetailViewsPerformanceAttributes = {
 	granularity?: VideoDetailViewsPerformanceGranularity;
@@ -40,11 +40,12 @@ export type VideoDetailViewsPerformanceAttributes = {
 /**
  * Widget type definition.
  *
- * The video detail page's view-trend card: the scoped video's views over the
- * dashboard date range, with the window total as the metric headline. The
- * series comes from the `stats/video/{id}` daily history, bucketed
- * client-side; the `granularity` and `chartType` attributes (both
- * `relevance: 'high'`) are rendered by the widget host.
+ * The video detail page's performance card: the scoped video's views,
+ * impressions, hours watched, and retention rate over the dashboard date
+ * range as selectable metric tabs, each headlined by the window's canonical
+ * total. The series come from the `stats/video/{id}` `statType=all` daily
+ * history, bucketed client-side; the `granularity` and `chartType` attributes
+ * (both `relevance: 'high'`) are rendered by the widget host.
  */
 export default {
 	icon: seen,
