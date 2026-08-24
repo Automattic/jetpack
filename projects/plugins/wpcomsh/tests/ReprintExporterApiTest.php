@@ -18,6 +18,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		Rest_Authentication::init()->reset_saved_auth_state();
+		wp_set_current_user( 0 );
 		delete_option( 'reprint_exporter_secret' );
 		delete_option( 'reprint_exporter_enabled' );
 
@@ -389,12 +390,25 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the permission callback denies user-token requests.
+	 * Test that the permission callback denies non-administrative user-token requests.
 	 */
-	public function test_permission_callback_denies_user_token_request() {
+	public function test_permission_callback_denies_non_administrative_user_token_request() {
+		$user_id = $this->factory()->user->create( array( 'role' => 'subscriber' ) );
+		wp_set_current_user( $user_id );
 		$this->set_jetpack_rest_authentication_type( 'user' );
 
 		$this->assertFalse( $this->controller()->permission_check() );
+	}
+
+	/**
+	 * Test that the permission callback accepts administrative user-token requests.
+	 */
+	public function test_permission_callback_allows_administrative_user_token_request() {
+		$user_id = $this->factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		$this->set_jetpack_rest_authentication_type( 'user' );
+
+		$this->assertTrue( $this->controller()->permission_check() );
 	}
 
 	/**

@@ -33,6 +33,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		Constants::clear_constants();
 		Rest_Authentication::init()->reset_saved_auth_state();
+		wp_set_current_user( 0 );
 		remove_all_filters( 'jetpack_reprint_export_available' );
 		delete_option( Reprint_Exporter::SECRET_OPTION );
 		delete_option( Reprint_Exporter::ENABLED_OPTION );
@@ -243,12 +244,25 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A user-token signature cannot access the export secret.
+	 * A non-administrative user-token signature cannot access the export secret.
 	 */
-	public function test_permission_check_denies_user_token() {
+	public function test_permission_check_denies_non_administrative_user_token() {
+		$user_id = $this->factory()->user->create( array( 'role' => 'subscriber' ) );
+		wp_set_current_user( $user_id );
 		$this->set_jetpack_rest_authentication_type( 'user' );
 
 		$this->assertFalse( ( new REST_Controller() )->permission_check() );
+	}
+
+	/**
+	 * An administrative user-token signature can access the export secret.
+	 */
+	public function test_permission_check_allows_administrative_user_token() {
+		$user_id = $this->factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		$this->set_jetpack_rest_authentication_type( 'user' );
+
+		$this->assertTrue( ( new REST_Controller() )->permission_check() );
 	}
 
 	/**

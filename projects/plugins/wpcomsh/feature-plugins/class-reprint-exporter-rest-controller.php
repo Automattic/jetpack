@@ -68,13 +68,15 @@ class Reprint_Exporter_Rest_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Permission callback: only site-level Jetpack-signed requests.
+	 * Permission callback for site-level or administrative user requests.
 	 *
-	 * User tokens cannot access the shared secret for a full-site export.
+	 * A user-token request must map to a site administrator because rotating the
+	 * secret grants access to a full-site export.
 	 *
 	 * @return bool
 	 */
 	public function permission_check() {
-		return Rest_Authentication::is_signed_with_blog_token();
+		return Rest_Authentication::is_signed_with_blog_token()
+			|| ( Rest_Authentication::is_signed_with_user_token() && current_user_can( 'manage_options' ) );
 	}
 }
