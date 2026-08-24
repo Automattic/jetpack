@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Connection: take the error notice's copy, grouping and scope labels from the connection package.
+Connection: Take the error notice's copy, grouping and scope labels from the connection package.
