@@ -93,6 +93,7 @@ jest.mock( '@wordpress/editor', () => ( {
 } ) );
 
 jest.mock( '@wordpress/components', () => ( {
+	Icon: () => <span data-testid="agent-icon" />,
 	PanelBody: ( {
 		children,
 		title,
@@ -252,7 +253,7 @@ jest.mock( '../style.scss', () => ( {} ) );
 
 const AGENT_NOTICE_FEATURE = 'ai-sidebar-agent-notice';
 const AGENT_NOTICE_TEXT =
-	'AI tools have moved to the WordPress Agent. Look for the four-pointed star icon in the admin bar at the top of the screen.';
+	'AI tools have moved to the WordPress Agent. Look for the "Ask AI" button at the top of the screen.';
 
 describe( 'AiAssistantPluginSidebar', () => {
 	beforeEach( () => {
@@ -308,7 +309,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 
 			expect(
 				within( screen.getByTestId( 'document-panel' ) ).getByRole( 'button', {
-					name: 'Open WordPress Agent',
+					name: 'WordPress Agent',
 				} )
 			).toBeInTheDocument();
 		} );
@@ -323,7 +324,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 
 			await user.click(
 				within( screen.getByTestId( testId ) ).getByRole( 'button', {
-					name: 'Open WordPress Agent',
+					name: 'WordPress Agent',
 				} )
 			);
 
