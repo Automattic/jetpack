@@ -196,6 +196,26 @@ export const operatorNeedsValue = ( operator: Operator | string ): boolean =>
 	! OPERATORS_WITHOUT_VALUE.has( operator );
 
 /**
+ * Whether `<input type="date">` will show this value.
+ *
+ * The format has to match and the day has to exist: a well-formed date that does not exist rolls
+ * over rather than failing to parse -- `2026-02-31` becomes 2 March -- so what came back has to be
+ * compared against what went in.
+ *
+ * @param value - A trimmed candidate value.
+ * @return True when the date input can display it.
+ */
+const isDisplayableDate = ( value: string ): boolean => {
+	if ( ! /^\d{4}-\d{2}-\d{2}$/.test( value ) ) {
+		return false;
+	}
+
+	const parsed = new Date( `${ value }T00:00:00Z` );
+
+	return ! Number.isNaN( parsed.getTime() ) && parsed.toISOString().startsWith( value );
+};
+
+/**
  * The value a subject change carries over, or null when it cannot be carried.
  *
  * Returns the value to store rather than a yes/no, because the decision is made on the
@@ -231,17 +251,20 @@ export const getCarriedOverValue = (
 		case 'options':
 			return options.some( option => option.value === raw ) ? raw : null;
 
+		// The grammar a number input accepts, rather than whatever `Number()` can coerce: it
+		// blanks `.5`, `5.`, `+5` and `0x10`, all of which `Number()` reads happily.
 		case 'number':
-			return Number.isFinite( Number( raw ) ) ? raw : null;
+			return /^-?\d+(\.\d+)?([eE][-+]?\d+)?$/.test( raw ) ? raw : null;
 
-		// A date or time input renders nothing for a value outside its own format. Stricter
-		// than `evaluate.ts`'s parser on purpose: that answers what the evaluator can read,
-		// this answers what the control can show, so `15/03/2026` has to go.
+		// A date or time input renders nothing for a value outside its own format, and nothing
+		// for one that is well-formed but not a real date or clock time. Stricter than
+		// `evaluate.ts`'s parser on purpose: that answers what the evaluator can read, this
+		// answers what the control can show, so `15/03/2026` and `2026-02-31` both have to go.
 		case 'date':
-			return /^\d{4}-\d{2}-\d{2}$/.test( raw ) ? raw : null;
+			return isDisplayableDate( raw ) ? raw : null;
 
 		case 'time':
-			return /^\d{2}:\d{2}(:\d{2})?$/.test( raw ) ? raw : null;
+			return /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test( raw ) ? raw : null;
 
 		default:
 			return raw;
