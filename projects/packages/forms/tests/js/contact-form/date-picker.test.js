@@ -1,5 +1,6 @@
 /**
- * Tests for the contact form date picker's mobile keyboard behavior.
+ * Tests for the contact form date picker's mobile keyboard behavior and for
+ * the accessible name it must leave alone.
  *
  * On mobile, tapping the date field should open the date picker without
  * triggering the on-screen keyboard. We achieve this by marking the input
@@ -125,6 +126,64 @@ describe( 'contact form date picker', () => {
 			picker.close();
 
 			expect( input.readOnly ).toBe( false );
+		} );
+	} );
+
+	/*
+	 * `aria-label` overrides `<label>`, so any value the picker puts on the input
+	 * replaces the field's own label in the accessibility tree — however helpful
+	 * the text is. The picker used to set one, which is why this is asserted
+	 * rather than assumed.
+	 *
+	 * Each test checks the attribute and the reflected property: jsdom does not
+	 * reflect every ARIA property to its attribute, so asserting on only one of
+	 * them could pass while the other carries a name.
+	 */
+	describe( 'accessible name', () => {
+		let label;
+
+		beforeEach( () => {
+			setUserAgent( DESKTOP_UA );
+			setMaxTouchPoints( 0 );
+			input = createInput();
+			input.id = 'jp-date-field';
+
+			// The field the picker attaches to is labelled server-side. That
+			// label is the thing an aria-label on the input would displace.
+			label = document.createElement( 'label' );
+			label.setAttribute( 'for', input.id );
+			label.textContent = 'Birthday';
+			document.body.appendChild( label );
+		} );
+
+		afterEach( () => {
+			label?.remove();
+			label = undefined;
+		} );
+
+		it( 'leaves the input unnamed on attach, so its <label> supplies the accessible name', () => {
+			picker = DatePicker( input, {} );
+
+			expect( input ).not.toHaveAttribute( 'aria-label' );
+			expect( input.ariaLabel ?? null ).toBeNull();
+		} );
+
+		it( 'leaves the input unnamed once the picker is open', () => {
+			picker = DatePicker( input, {} );
+
+			picker.open();
+
+			expect( input ).not.toHaveAttribute( 'aria-label' );
+			expect( input.ariaLabel ?? null ).toBeNull();
+		} );
+
+		it( 'leaves the input unnamed when the down arrow key opens the picker', () => {
+			picker = DatePicker( input, {} );
+
+			input.dispatchEvent( new KeyboardEvent( 'keydown', { code: 'ArrowDown', bubbles: true } ) );
+
+			expect( input ).not.toHaveAttribute( 'aria-label' );
+			expect( input.ariaLabel ?? null ).toBeNull();
 		} );
 	} );
 } );
