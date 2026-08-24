@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Gate the pre-release AI card module toggle on Automattic-proxied requests rather than on the testing environment, so an unproxied request sees what an end user sees.

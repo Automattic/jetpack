@@ -2,10 +2,11 @@
 /**
  * Tests for the Jetpack AI admin page script data.
  *
- * The contract worth locking down: the pre-release a11n gate flag rides the
- * jetpackAiSettings inline script and follows
- * jetpack_is_internal_testing_environment(), so the Features view stays hidden
- * outside internal testing environments while the MCP-only page keeps working.
+ * The contract worth locking down: the pre-release gate flag rides the
+ * jetpackAiSettings inline script and follows the a8c proxy, so the Features view
+ * stays hidden on unproxied requests while the MCP-only page keeps working. The
+ * Tracks properties in the same payload keep following the broader environment
+ * check, which is what they are for.
  *
  * @package automattic/jetpack
  */
@@ -24,9 +25,29 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
-	 * Reset the proxied-request marker and the scripts registry.
+	 * Saved siteurl option for restoration in tear_down.
+	 *
+	 * @var string|null
+	 */
+	private $saved_siteurl;
+
+	/**
+	 * Record the siteurl option and clear the proxied-request marker.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		$this->saved_siteurl = get_option( 'siteurl' );
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+	}
+
+	/**
+	 * Reset the siteurl option, the proxied-request marker and the scripts registry.
 	 */
 	public function tear_down() {
+		if ( null !== $this->saved_siteurl ) {
+			update_option( 'siteurl', $this->saved_siteurl );
+		}
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		unset( $GLOBALS['wp_scripts'] );
 
@@ -54,7 +75,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Outside internal testing environments the Features view flag is off.
+	 * An unproxied request does not get the Features view flag.
 	 */
 	public function test_features_view_flag_is_off_by_default() {
 		$settings = $this->get_injected_settings();
@@ -64,15 +85,51 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * A proxied a8c request marks an internal testing environment and turns
-	 * the Features view flag on.
+	 * A proxied a8c request turns the Features view flag on.
 	 */
-	public function test_features_view_flag_follows_internal_testing_environment() {
+	public function test_features_view_flag_follows_the_a8c_proxy() {
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['showFeaturesView'] );
+	}
+
+	/**
+	 * The proxy marker rides every request, carrying '0' when the proxy is off, so
+	 * the gate has to read its value rather than the key's presence.
+	 */
+	public function test_features_view_flag_is_off_when_the_proxy_marker_is_zero() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '0';
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['showFeaturesView'] );
+	}
+
+	/**
+	 * A testing hostname on its own no longer opens the gate, which is the whole
+	 * point: an unproxied Jurassic Ninja visitor sees what an end user sees.
+	 */
+	public function test_features_view_flag_ignores_testing_hostnames() {
+		update_option( 'siteurl', 'https://mysite.jurassic.ninja' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( jetpack_is_internal_testing_environment() );
+		$this->assertFalse( $settings['showFeaturesView'] );
+	}
+
+	/**
+	 * The Tracks environment flag keeps following the broader check, so traffic from
+	 * a testing hostname stays tagged as test traffic even with the proxy off.
+	 */
+	public function test_tracks_is_test_still_follows_testing_hostnames() {
+		update_option( 'siteurl', 'https://mysite.jurassic.ninja' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['isTest'] );
 	}
 
 	/**

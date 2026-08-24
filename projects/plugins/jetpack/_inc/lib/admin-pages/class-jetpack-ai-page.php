@@ -138,9 +138,10 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					// destination for the MCP upsell can be retargeted without
 					// shipping a code change.
 					'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites' ),
-					// Pre-release gate: only internal testing environments see
-					// the Features view. Remove when the view goes public.
-					'showFeaturesView' => jetpack_is_internal_testing_environment(),
+					// Pre-release gate: only a8c-proxied requests see the Features
+					// view, so an unproxied request renders what an end user sees.
+					// Remove when the view goes public.
+					'showFeaturesView' => jetpack_is_a8c_proxied_request(),
 					// Tracks audience properties for the jetpack_mcp_* events, per the
 					// Tracks standards for AI product events (AIINT-586). The client
 					// sends them as the strings 'true'/'false' (AIINT-576).

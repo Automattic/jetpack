@@ -723,6 +723,23 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test the isDevMode reporting flag follows the broad environment check.
+	 *
+	 * It tags test traffic for analytics rather than gating anything, so a testing
+	 * hostname alone is enough — unlike the pre-release gates, which need the proxy.
+	 */
+	public function test_inline_script_dev_mode_follows_the_environment_check() {
+		update_option( 'siteurl', 'https://mysite.jurassic.ninja' );
+
+		$this->enable_and_enqueue_block_editor();
+
+		$data = $this->get_image_studio_inline_data();
+
+		$this->assertIsArray( $data );
+		$this->assertTrue( $data['isDevMode'] );
+	}
+
+	/**
 	 * Test that exact employee identity is sufficient for the tracking signal.
 	 *
 	 * @runInSeparateProcess

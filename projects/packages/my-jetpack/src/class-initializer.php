@@ -531,11 +531,10 @@ class Initializer {
 			// Only says which destination `manage_url` is: the legacy Stats page
 			// caches its report and wants a `force_refresh` hint the dashboard does not.
 			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
-			// Pre-release gate: only internal testing environments get the AI
-			// card's module toggle. The helper lives in the Jetpack plugin, so
-			// standalone installs resolve to false. Remove when the AI settings
-			// page goes public.
-			'showAiModuleToggle'       => function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment(),
+			// Pre-release gate: only a8c-proxied requests get the AI card's module
+			// toggle. The helper lives in the Jetpack plugin, so standalone installs
+			// resolve to false. Remove when the AI settings page goes public.
+			'showAiModuleToggle'       => function_exists( 'jetpack_is_a8c_proxied_request' ) && jetpack_is_a8c_proxied_request(),
 		);
 
 		return $flags;

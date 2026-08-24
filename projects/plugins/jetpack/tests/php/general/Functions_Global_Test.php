@@ -9,10 +9,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * @covers ::jetpack_get_future_removed_version
  * @covers ::jetpack_get_vary_headers
  * @covers ::jetpack_is_internal_testing_environment
+ * @covers ::jetpack_is_a8c_proxied_request
  */
 #[CoversFunction( 'jetpack_get_future_removed_version' )]
 #[CoversFunction( 'jetpack_get_vary_headers' )]
 #[CoversFunction( 'jetpack_is_internal_testing_environment' )]
+#[CoversFunction( 'jetpack_is_a8c_proxied_request' )]
 class Functions_Global_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -126,5 +128,52 @@ class Functions_Global_Test extends WP_UnitTestCase {
 	public function test_jetpack_is_internal_testing_environment_true_for_jurassic_tube() {
 		update_option( 'siteurl', 'https://mysite.jurassic.tube' );
 		$this->assertTrue( jetpack_is_internal_testing_environment() );
+	}
+
+	/**
+	 * Test jetpack_is_internal_testing_environment returns true for a proxied request.
+	 */
+	public function test_jetpack_is_internal_testing_environment_true_for_proxied_request() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->assertTrue( jetpack_is_internal_testing_environment() );
+	}
+
+	/**
+	 * Test jetpack_is_a8c_proxied_request returns false with no proxy marker.
+	 */
+	public function test_jetpack_is_a8c_proxied_request_false_without_a_marker() {
+		$this->assertFalse( jetpack_is_a8c_proxied_request() );
+	}
+
+	/**
+	 * Test jetpack_is_a8c_proxied_request reads the marker's value, not its presence.
+	 *
+	 * The marker is sent on every request, carrying '0' when the proxy is off, so a
+	 * check written with isset() alone would be permanently true.
+	 */
+	public function test_jetpack_is_a8c_proxied_request_false_when_marker_is_zero() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '0';
+		$this->assertFalse( jetpack_is_a8c_proxied_request() );
+	}
+
+	/**
+	 * Test jetpack_is_a8c_proxied_request returns true when the marker is set.
+	 */
+	public function test_jetpack_is_a8c_proxied_request_true_when_marker_is_one() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->assertTrue( jetpack_is_a8c_proxied_request() );
+	}
+
+	/**
+	 * Test a testing hostname alone does not make a request proxied.
+	 *
+	 * This split is the point of the two functions: with the proxy off, a Jurassic
+	 * Ninja visitor sees exactly what an end user sees.
+	 */
+	public function test_jetpack_is_a8c_proxied_request_ignores_testing_hostnames() {
+		update_option( 'siteurl', 'https://mysite.jurassic.ninja' );
+
+		$this->assertTrue( jetpack_is_internal_testing_environment() );
+		$this->assertFalse( jetpack_is_a8c_proxied_request() );
 	}
 }

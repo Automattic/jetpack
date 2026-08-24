@@ -506,6 +506,10 @@ if ( ! function_exists( 'jetpack_is_internal_testing_environment' ) ) {
 	 * for tagging analytics events as test traffic so they can be filtered out
 	 * of production reporting.
 	 *
+	 * Reporting signal only. To gate a pre-release feature on internal access, use
+	 * jetpack_is_a8c_proxied_request() instead: a testing hostname is true for
+	 * anyone reviewing a Jetpack change, and cannot be switched off per request.
+	 *
 	 * Not to be confused with Jetpack's legacy "Development Mode", which is now
 	 * Status::is_offline_mode() and controls whether Jetpack connects to
 	 * WordPress.com.
@@ -530,16 +534,7 @@ if ( ! function_exists( 'jetpack_is_internal_testing_environment' ) ) {
 			return true;
 		}
 
-		// Proxied A8C request via function.
-		if ( function_exists( 'wpcom_is_proxied_request' ) && wpcom_is_proxied_request() ) {
-			return true;
-		}
-
-		// Proxied A8C request via server variable or constant.
-		if (
-			( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
-			( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST )
-		) {
+		if ( jetpack_is_a8c_proxied_request() ) {
 			return true;
 		}
 
@@ -555,5 +550,36 @@ if ( ! function_exists( 'jetpack_is_internal_testing_environment' ) ) {
 		}
 
 		return false;
+	}
+}
+
+if ( ! function_exists( 'jetpack_is_a8c_proxied_request' ) ) {
+	/**
+	 * Check whether the current request comes through the Automattic proxy.
+	 *
+	 * The gate to reach for when limiting a pre-release feature to internal access.
+	 * It is a per-request switch: with the proxy off the page renders exactly what
+	 * an end user sees, so pre-release UI cannot hide end-user bugs.
+	 *
+	 * Access signal only, never authorization.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	function jetpack_is_a8c_proxied_request() {
+		// Proxied A8C request via function.
+		if ( function_exists( 'wpcom_is_proxied_request' ) && wpcom_is_proxied_request() ) {
+			return true;
+		}
+
+		// Proxied A8C request via server variable. The marker rides every request,
+		// carrying '0' when the proxy is off, so read its value and not its presence.
+		if ( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) {
+			return true;
+		}
+
+		// Proxied A8C request via constant.
+		return defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
 	}
 }

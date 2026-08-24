@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Jetpack AI: Gate the pre-release AI settings views on Automattic-proxied requests rather than on the testing environment, so an unproxied request sees what an end user sees.

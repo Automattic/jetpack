@@ -240,15 +240,30 @@ class Initializer_Test extends BaseTestCase {
 
 	/**
 	 * The AI card's pre-release toggle flag follows the Jetpack plugin's
-	 * internal-testing helper.
+	 * proxied-request helper.
 	 */
 	public function test_my_jetpack_flags_gate_the_ai_module_toggle() {
-		$GLOBALS['jetpack_mock_internal_testing_environment'] = true;
+		$GLOBALS['jetpack_mock_a8c_proxied_request'] = true;
 		$this->assertTrue( Initializer::get_my_jetpack_flags()['showAiModuleToggle'] );
 
-		$GLOBALS['jetpack_mock_internal_testing_environment'] = false;
+		$GLOBALS['jetpack_mock_a8c_proxied_request'] = false;
 		$this->assertFalse( Initializer::get_my_jetpack_flags()['showAiModuleToggle'] );
 
-		unset( $GLOBALS['jetpack_mock_internal_testing_environment'] );
+		unset( $GLOBALS['jetpack_mock_a8c_proxied_request'] );
+	}
+
+	/**
+	 * A testing environment with the proxy off does not open the toggle.
+	 *
+	 * Testing hostnames make the environment check true for anyone reviewing a
+	 * Jetpack change, which is why the gate reads the proxy instead.
+	 */
+	public function test_my_jetpack_flags_gate_the_ai_module_toggle_on_the_proxy_alone() {
+		$GLOBALS['jetpack_mock_internal_testing_environment'] = true;
+		$GLOBALS['jetpack_mock_a8c_proxied_request']          = false;
+
+		$this->assertFalse( Initializer::get_my_jetpack_flags()['showAiModuleToggle'] );
+
+		unset( $GLOBALS['jetpack_mock_internal_testing_environment'], $GLOBALS['jetpack_mock_a8c_proxied_request'] );
 	}
 }
