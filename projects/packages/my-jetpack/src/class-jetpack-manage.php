@@ -21,6 +21,16 @@ use WP_Rest_Response;
  */
 class Jetpack_Manage {
 	/**
+	 * Cached in place of partner data when the lookup found that this site has no partner.
+	 *
+	 * `get_transient()` returns `false` for a miss, so "no partner" needs a value of its own to be
+	 * distinguishable from "not looked up yet".
+	 *
+	 * @var string
+	 */
+	const NO_PARTNER = 'none';
+
+	/**
 	 * Initialize the class and hooks needed.
 	 */
 	public static function init() {
@@ -143,7 +153,8 @@ class Jetpack_Manage {
 		if ( $partner === false ) {
 			$wpcom_response = Client::wpcom_json_api_request_as_user( '/jetpack-partners' );
 
-			if ( 200 !== wp_remote_retrieve_response_code( $wpcom_response ) || is_wp_error( $wpcom_response ) ) {
+			if ( is_wp_error( $wpcom_response ) || 200 !== wp_remote_retrieve_response_code( $wpcom_response ) ) {
+				// A failed request is not an answer, so leave the cache empty and retry next time.
 				return false;
 			}
 
@@ -151,16 +162,18 @@ class Jetpack_Manage {
 
 			// The jetpack-partners endpoint will return only one partner data into an array, it uses Jetpack_Partner::find_by_owner.
 			if ( ! is_array( $partner_data ) || count( $partner_data ) !== 1 || ! is_object( $partner_data[0] ) ) {
-				return false;
+				// "This site has no partner" is a real answer, so cache it too. Most sites are not
+				// partners, and without this they repeat the request on every page load that asks.
+				$partner = self::NO_PARTNER;
+			} else {
+				$partner = $partner_data[0];
 			}
-
-			$partner = $partner_data[0];
 
 			// Cache the partner data for 1 hour.
 			set_transient( 'jetpack_partner_data', $partner, HOUR_IN_SECONDS );
 		}
 
-		return $partner->partner_type === 'agency';
+		return is_object( $partner ) && isset( $partner->partner_type ) && $partner->partner_type === 'agency';
 	}
 
 	/**
