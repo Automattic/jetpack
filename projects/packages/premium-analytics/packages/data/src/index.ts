@@ -121,6 +121,7 @@ export {
 	getStatsChartBucketKey,
 	getStatsReportItems,
 	selectStatsCommentsRows,
+	STATS_CHART_BUCKET_PERIODS,
 	sliceWordAdsStatsReport,
 } from './processing/stats';
 export type { FlattenStatsLeavesContext, FlattenStatsLeavesOptions } from './processing/stats';
