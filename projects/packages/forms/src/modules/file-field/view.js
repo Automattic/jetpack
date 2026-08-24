@@ -664,10 +664,13 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 				 * moving them to the dropzone would be stealing focus rather than restoring it.
 				 */
 				setTimeout( () => {
-					const focusIsOrphaned =
-						! document.activeElement || document.activeElement === document.body;
+					if ( ! dropzone?.isConnected ) {
+						return;
+					}
 
-					if ( dropzone?.isConnected && focusIsOrphaned ) {
+					const { activeElement, body } = dropzone.ownerDocument;
+
+					if ( ! activeElement || activeElement === body ) {
 						dropzone.focus( { focusVisible: true } );
 					}
 				}, PREVIEW_FOCUS_DELAY_MS );
