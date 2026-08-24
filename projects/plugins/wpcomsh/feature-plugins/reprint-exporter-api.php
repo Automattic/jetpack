@@ -28,11 +28,9 @@
  *
  *        { "path": "/wpcomsh/v1/reprint/rotate-export-secret" }
  *
- *    WPCOM then verifies the OAuth token, maps the caller to a user on the
- *    target site, and re-issues the request internally against
- *    /wpcomsh/v1/reprint/rotate-export-secret. The route's permission
- *    callback (is_super_admin()) runs against the mapped user. On
- *    success the site generates a random secret, stores it in the
+ *    WPCOM authorizes the OAuth caller, then re-issues the request against
+ *    /wpcomsh/v1/reprint/rotate-export-secret with the site's Jetpack blog
+ *    token. On success the site generates a random secret, stores it in the
  *    reprint_exporter_secret option, and returns it.
  *
  *    That secret is later used to authenticate export requests via HMAC.

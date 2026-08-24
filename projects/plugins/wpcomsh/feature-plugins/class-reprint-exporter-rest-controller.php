@@ -7,6 +7,8 @@
  * @package wpcomsh
  */
 
+use Automattic\Jetpack\Connection\Rest_Authentication;
+
 /**
  * Reprint Exporter REST controller.
  */
@@ -66,12 +68,13 @@ class Reprint_Exporter_Rest_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Permission callback: only Jetpack-signed requests (public API proxy).
+	 * Permission callback: only site-level Jetpack-signed requests.
+	 *
+	 * User tokens cannot access the shared secret for a full-site export.
 	 *
 	 * @return bool
 	 */
 	public function permission_check() {
-		return method_exists( 'Automattic\Jetpack\Connection\Manager', 'verify_xml_rpc_signature' )
-			&& ( new Automattic\Jetpack\Connection\Manager() )->verify_xml_rpc_signature();
+		return Rest_Authentication::is_signed_with_blog_token();
 	}
 }

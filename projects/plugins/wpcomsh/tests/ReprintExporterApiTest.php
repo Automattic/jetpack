@@ -5,6 +5,8 @@
  * @package wpcomsh
  */
 
+use Automattic\Jetpack\Connection\Rest_Authentication;
+
 /**
  * Class ReprintExporterApiTest.
  */
@@ -15,6 +17,7 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
+		Rest_Authentication::init()->reset_saved_auth_state();
 		delete_option( 'reprint_exporter_secret' );
 		delete_option( 'reprint_exporter_enabled' );
 
@@ -383,6 +386,45 @@ class ReprintExporterApiTest extends WP_UnitTestCase {
 	 */
 	public function test_permission_callback_denies_unsigned_request() {
 		$this->assertFalse( $this->controller()->permission_check() );
+	}
+
+	/**
+	 * Test that the permission callback denies user-token requests.
+	 */
+	public function test_permission_callback_denies_user_token_request() {
+		$this->set_jetpack_rest_authentication_type( 'user' );
+
+		$this->assertFalse( $this->controller()->permission_check() );
+	}
+
+	/**
+	 * Test that the permission callback accepts blog-token requests.
+	 */
+	public function test_permission_callback_allows_blog_token_request() {
+		$this->set_jetpack_rest_authentication_type( 'blog' );
+
+		$this->assertTrue( $this->controller()->permission_check() );
+	}
+
+	/**
+	 * Sets the Jetpack REST authentication state for a permission test.
+	 *
+	 * @param string $type Either 'user' or 'blog'.
+	 */
+	private function set_jetpack_rest_authentication_type( $type ) {
+		$instance   = Rest_Authentication::init();
+		$reflection = new ReflectionClass( $instance );
+
+		$status_property = $reflection->getProperty( 'rest_authentication_status' );
+		$type_property   = $reflection->getProperty( 'rest_authentication_type' );
+
+		if ( PHP_VERSION_ID < 80100 ) {
+			$status_property->setAccessible( true );
+			$type_property->setAccessible( true );
+		}
+
+		$status_property->setValue( $instance, true );
+		$type_property->setValue( $instance, $type );
 	}
 
 	/**
