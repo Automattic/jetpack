@@ -192,10 +192,7 @@ function get_dashboard_default_section_layouts() {
 				'jpa/traffic-chart',
 				0,
 				4,
-				2,
-				array(
-					'granularity' => 'auto',
-				)
+				2
 			),
 			// Row 2: most-viewed posts + referrers + devices.
 			get_dashboard_default_widget_instance(

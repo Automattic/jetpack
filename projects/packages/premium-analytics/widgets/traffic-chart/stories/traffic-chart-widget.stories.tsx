@@ -73,7 +73,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'Traffic over the selected period as selectable metric tabs — Views, Visitors, Likes, and Comments — over a comparative chart. The date range and comparison come from the dashboard controls; the "Group by" control is the `granularity` attribute and the "Chart type" control is the `chartType` attribute (both `relevance: \'high\'`), exposed by the widget host; which metric is plotted is the chart\'s own tab selection. When comparison is on, each tab shows its period-over-period delta and the previous period is overlaid — as a same-colour dashed line for `line`, or as the translucent shadow bar behind each bar for `bar`. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down. Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.',
+					"Traffic over the selected period as selectable metric tabs — Views, Visitors, Likes, and Comments — over a comparative chart. The date range and comparison come from the dashboard controls. \"Group by\" is the `granularity` attribute and \"Chart type\" the `chartType` attribute (both `relevance: 'high'`, so the host renders them in the widget header). The bucket opens on whatever the page's interval control resolves to, clamped to one the chart can draw; changing it redraws this widget alone and leaves the page's interval untouched, and it goes back to following the page the next time that interval moves. Which metric is plotted is the chart's own tab selection. When comparison is on, each tab shows its period-over-period delta and the previous period is overlaid — as a same-colour dashed line for `line`, or as the translucent shadow bar behind each bar for `bar`. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down; the likes and comments request is skipped at the hourly grain, which cannot fill either. Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.",
 			},
 		},
 	},
@@ -118,6 +118,30 @@ export const BarChartWithComparison: Story = {
 	render: renderTrafficChart,
 	args: { withComparison: true, ...DEFAULT_CHART_ARGS, chartType: 'bar' },
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * An hourly range (`Last 24 hours`), where the page's interval control resolves
+ * to `hour`. `stats/visits` fills Views alone at that grain, so the other three
+ * tabs show a placeholder and, when selected, the reason — rather than a `0`
+ * they cannot back up. The likes and comments request is skipped entirely.
+ *
+ * Mounted through the dashboard harness rather than the close-up canvas: hour
+ * ticks are the point of the story, and the canvas is too narrow to draw an
+ * axis at all.
+ */
+export const Hourly: StoryObj< WidgetDashboardWithWidgetControls > = {
+	render: args => (
+		<WidgetDashboardWithWidgetStory
+			{ ...args }
+			widgetType={ storyWidgetType }
+			renderModule={ TRAFFIC_CHART_RENDER_MODULE }
+			renderComponent={ TrafficChartRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ { reportParams: getDefaultQueryParams( false, 'last-24-hours' ) } }
+		/>
+	),
+	args: { ...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS },
+	argTypes: { ...widgetDashboardWithWidgetArgTypes },
 };
 
 export const Loading: Story = {
