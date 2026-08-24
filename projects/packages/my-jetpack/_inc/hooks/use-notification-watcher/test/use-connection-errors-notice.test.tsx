@@ -87,7 +87,11 @@ const setHookResult = ( value: Partial< ReturnType< typeof useConnectionErrorNot
 	let errors = value.connectionErrors ?? {};
 
 	if ( ! Object.keys( errors ).length && value.connectionError ) {
-		errors = { [ value.connectionError.error_code ?? 'error' ]: { 0: value.connectionError } };
+		errors = {
+			[ value.connectionError.error_code ?? 'error' ]: {
+				[ String( value.connectionError.user_id ?? 0 ) ]: value.connectionError,
+			},
+		};
 	}
 
 	const viewer = {
