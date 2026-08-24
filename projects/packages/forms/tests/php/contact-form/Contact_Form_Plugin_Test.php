@@ -667,7 +667,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$result = $plugin->process_form_submission();
 
 		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when the posted id does not match the signed source.' );
-		$this->assertEquals( 'form_id_mismatch', $result->get_error_code(), 'Expected the error code to be "form_id_mismatch".' );
+		$this->assertEquals( 'form_id_mismatch_post', $result->get_error_code(), 'Expected the error code to be "form_id_mismatch_post".' );
 		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
 
 		$this->teardown_post_for_test( $previous_post );
@@ -677,23 +677,79 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$previous_post = $this->setup_token_test( null, 'Test User' );
 
 		// Another real post is still not the source the token was signed for.
-		$other_post_id            = wp_insert_post(
+		$other_post_id = wp_insert_post(
 			array(
 				'post_title'  => 'Another Post',
 				'post_status' => 'publish',
 				'post_type'   => 'post',
 			)
 		);
+		$this->assertGreaterThan( 0, $other_post_id, 'Failed to create the second post the test relies on.' );
 		$_POST['contact-form-id'] = (string) $other_post_id;
 
 		$plugin = Contact_Form_Plugin::init();
 		$result = $plugin->process_form_submission();
 
 		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error for a form id that is not the signed source.' );
-		$this->assertEquals( 'form_id_mismatch', $result->get_error_code(), 'Expected the error code to be "form_id_mismatch".' );
+		$this->assertEquals( 'form_id_mismatch_post', $result->get_error_code(), 'Expected the error code to be "form_id_mismatch_post".' );
 
 		wp_delete_post( $other_post_id, true );
 		$this->teardown_post_for_test( $previous_post );
+	}
+
+	public function test_process_form_accepts_no_post_context_with_jwt() {
+		// A form rendered with no post in scope signs a ('single', 0) source and
+		// posts a non-numeric id ('jp-form'). The id gate must not treat that as a
+		// mismatch -- there is no post to bind to. Mirrors validate_parent_post().
+		global $post;
+		$this->get_current_user = wp_get_current_user();
+		wp_set_current_user( 0 );
+
+		$previous_post = $post;
+		$post          = null;
+
+		$form                              = new Contact_Form( array( 'to' => 'test@example.com' ), "[contact-field label='Name' type='name' required='1'/]" );
+		$_POST['jetpack_contact_form_jwt'] = $form->get_jwt();
+		$_POST['contact-form-hash']        = $form->hash;
+		$_POST['contact-form-id']          = 'jp-form';
+
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->process_form_submission();
+
+		// It should fall through to normal validation (Name is required and empty),
+		// not be rejected by the id gate.
+		$this->assertInstanceOf( Form_Submission_Error::class, $result );
+		$this->assertNotEquals( 'form_id_mismatch_post', $result->get_error_code(), 'A form with no post in scope must not be rejected by the id gate.' );
+
+		unset( $_POST['jetpack_contact_form_jwt'], $_POST['contact-form-hash'], $_POST['contact-form-id'] );
+		$post = $previous_post;
+		wp_set_current_user( $this->get_current_user->ID );
+	}
+
+	public function test_process_form_accepts_non_post_source_mismatch_with_jwt() {
+		// A widget (non-post) source is never bound to a post id, whatever the
+		// posted contact-form-id is.
+		global $post;
+		$this->get_current_user = wp_get_current_user();
+		wp_set_current_user( 0 );
+
+		$previous_post = $post;
+		$post          = null;
+
+		$form                              = new Contact_Form( array( 'to' => 'test@example.com', 'widget' => 'text-2' ), "[contact-field label='Name' type='name' required='1'/]" );
+		$_POST['jetpack_contact_form_jwt'] = $form->get_jwt();
+		$_POST['contact-form-hash']        = $form->hash;
+		$_POST['contact-form-id']          = 'widget-does-not-match';
+
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->process_form_submission();
+
+		$this->assertInstanceOf( Form_Submission_Error::class, $result );
+		$this->assertNotEquals( 'form_id_mismatch_post', $result->get_error_code(), 'A non-post source must not be bound to a post id.' );
+
+		unset( $_POST['jetpack_contact_form_jwt'], $_POST['contact-form-hash'], $_POST['contact-form-id'] );
+		$post = $previous_post;
+		wp_set_current_user( $this->get_current_user->ID );
 	}
 
 	public function test_process_form_with_deleted_parent_post() {

@@ -1647,16 +1647,19 @@ class Contact_Form_Plugin {
 			// Bind the posted `contact-form-id` to the form the JWT was signed for. The JWT
 			// authenticates the form's source, but the posted id is a separate, unsigned field;
 			// without this a submission could present one form's signed token while claiming a
-			// different (or empty) id, leaving the two out of sync for anything downstream that
-			// reads the raw id. For single-post forms the posted id is the source post id
-			// (optionally suffixed for multiple forms on a page, e.g. `5-2`), so compare on the
-			// integer id and reject a zero/empty/mismatched value.
-			$source = $form->get_source();
-			if ( 'single' === $source->get_source_type() ) {
-				$source_id = (int) $source->get_id();
+			// different id, leaving the two out of sync for anything downstream that reads the
+			// raw id. For a single-post form the posted id is the source post id (optionally
+			// suffixed for multiple forms on a page, e.g. `5-2`), so compare on the integer id.
+			//
+			// Only apply this when the source is an actual post: a form rendered with no post in
+			// scope has source id 0 (and a non-numeric posted id like `jp-form`), which is not a
+			// mismatch to reject. This mirrors validate_parent_post()'s `is_numeric && > 0` guard.
+			$source    = $form->get_source();
+			$source_id = $source->get_id();
 
-				if ( $source_id < 1 || (int) $id !== $source_id ) {
-					return Form_Submission_Error::system_error( 'form_id_mismatch', __( 'Form ID mismatch.', 'jetpack-forms' ) );
+			if ( 'single' === $source->get_source_type() && is_numeric( $source_id ) && (int) $source_id > 0 ) {
+				if ( (int) $id !== (int) $source_id ) {
+					return Form_Submission_Error::system_error( 'form_id_mismatch_post', __( 'Form ID mismatch.', 'jetpack-forms' ) );
 				}
 			}
 
