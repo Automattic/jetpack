@@ -2211,8 +2211,9 @@ class Jetpack {
 	/**
 	 * Bring the site's active modules in line with the version of Jetpack now running.
 	 *
-	 * Hooked on `init` for every request, but does real work only on the first request after
-	 * the plugin's version number goes up. On that request it:
+	 * Hooked on `init` by {@see self::register_upgrade_init_hooks()}, which plugin_upgrade() calls
+	 * only when the recorded version differs from the running one — so this does not run at all on
+	 * a steady-state request. When it does run it:
 	 *
 	 *  1. deactivates each active module whose code changed since the recorded version, so that
 	 *     module's activation routine runs again below;
@@ -2249,7 +2250,12 @@ class Jetpack {
 
 		self::state( 'message', 'modules_activated' );
 
-		self::activate_default_modules( $previous_version, self::current_version(), $reactivate_modules, $redirect );
+		self::activate_default_modules_once(
+			$previous_version,
+			self::release_version( self::current_version() ),
+			$reactivate_modules,
+			$redirect
+		);
 
 		if ( $redirect ) {
 			self::redirect_after_activation();
@@ -2268,6 +2274,141 @@ class Jetpack {
 	 */
 	private static function current_version() {
 		return Constants::get_constant( 'JETPACK__VERSION' );
+	}
+
+	/**
+	 * Option holding the module slugs this site has already auto-activated while running a
+	 * prerelease. Written only on prereleases; read on every version.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	const PRERELEASE_ACTIVATED_MODULES_OPTION = 'jetpack_prerelease_activated_modules';
+
+	/**
+	 * The release version a version string belongs to, with any prerelease suffix removed.
+	 *
+	 * `16.2-a.1` is 16.2 under development, but version_compare() sorts it below `16.2`, so a
+	 * module introduced in 16.2 looks like the future to every alpha of 16.2. Comparing release
+	 * versions is what puts a prerelease back in the release line it belongs to.
+	 *
+	 * Strips any suffix, so it covers the whole prerelease grammar the changelogger's
+	 * WordpressVersioning plugin defines, plus `+buildinfo`.
+	 *
+	 * @internal Public only so it can be exercised directly by tests. Not a plugin API.
+	 * @since $$next-version$$
+	 *
+	 * @param string $version A Jetpack version string.
+	 *
+	 * @return string The version with any prerelease or build suffix removed.
+	 */
+	public static function release_version( $version ) {
+		return preg_replace( '/[-+].*$/', '', (string) $version );
+	}
+
+	/**
+	 * Module slugs this site has already auto-activated while running a prerelease.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string[] Module slugs.
+	 */
+	private static function get_prerelease_activated_modules() {
+		$record = get_option( self::PRERELEASE_ACTIVATED_MODULES_OPTION, array() );
+
+		return is_array( $record ) ? $record : array();
+	}
+
+	/**
+	 * Record which of the offered modules actually ended up active.
+	 *
+	 * Deliberately compares against the raw `active_modules` option rather than
+	 * {@see self::get_active_modules()}: the latter applies `jetpack_active_modules`, and a module
+	 * a filter merely reports as active was never really offered to anyone. Recording it would
+	 * suppress it permanently once that filter went away.
+	 *
+	 * Modules that were already active and therefore skipped are still in the raw option, so they
+	 * are still recorded — which is the point. Recording only newly activated modules would let a
+	 * user's opt-out be undone by the next prerelease.
+	 *
+	 * @internal Public only so it can be exercised directly by tests. Not a plugin API.
+	 * @since $$next-version$$
+	 *
+	 * @param string[] $offered Module slugs that were offered for auto-activation.
+	 *
+	 * @return void
+	 */
+	public static function record_prerelease_activated_modules( array $offered ) {
+		$raw = Jetpack_Options::get_option( 'active_modules' );
+		$raw = is_array( $raw ) ? $raw : array();
+
+		$activated = array_intersect( $offered, $raw );
+		if ( ! $activated ) {
+			return;
+		}
+
+		$record = array_values(
+			array_unique( array_merge( self::get_prerelease_activated_modules(), $activated ) )
+		);
+
+		update_option( self::PRERELEASE_ACTIVATED_MODULES_OPTION, $record, false );
+	}
+
+	/**
+	 * Run activate_default_modules() without ever offering a module this site already handled.
+	 *
+	 * Modules this site has already auto-activated are subtracted through
+	 * `jetpack_get_default_modules`, so an upgrade never offers the same module twice and a user's
+	 * opt-out is not undone by the next prerelease or by the final release. A version window alone
+	 * cannot express "already offered", which is why the record exists.
+	 *
+	 * The subtraction lands before `$other_modules` is merged in by activate_default_modules(), so
+	 * modules being reactivated after a `Changed:` header bump are never suppressed.
+	 *
+	 * Two callers share this: the upgrade path, and the `activate_default_modules` admin action
+	 * that resumes an activation which redirected away after deactivating a conflicting plugin.
+	 * The resumed request matters — `exit` does not run `finally`, so the redirect abandons this
+	 * method mid-flight and the record write below never happens. Routing the resume through here
+	 * too is what repairs that: it subtracts the record on the way in and writes it on the way out.
+	 *
+	 * Callers that should keep the historical behavior — reconnection, multisite — still call
+	 * activate_default_modules() directly.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string|false $min_version   Lower bound, exclusive. The recorded version, raw.
+	 * @param string|false $max_version   Upper bound, inclusive. A release version.
+	 * @param string[]     $other_modules Modules to activate alongside the defaults.
+	 * @param bool|null    $redirect      Redirect when finished; null auto-detects.
+	 *
+	 * @return void
+	 */
+	private static function activate_default_modules_once( $min_version, $max_version, array $other_modules = array(), $redirect = null ) {
+		$is_prerelease = self::is_development_version();
+		$already       = self::get_prerelease_activated_modules();
+
+		$offered = array();
+
+		$adjust = function ( $modules ) use ( $already, &$offered ) {
+			$offered = array_values( array_diff( $modules, $already ) );
+
+			return $offered;
+		};
+
+		// Priority 100 puts this last: after filter_default_modules() has dropped modules whose
+		// conflicting plugin is active, and after handle_deprecated_modules() at 99. Running
+		// earlier would record modules that a later filter went on to remove.
+		add_filter( 'jetpack_get_default_modules', $adjust, 100 );
+
+		try {
+			self::activate_default_modules( $min_version, $max_version, $other_modules, $redirect );
+		} finally {
+			remove_filter( 'jetpack_get_default_modules', $adjust, 100 );
+		}
+
+		if ( $is_prerelease ) {
+			self::record_prerelease_activated_modules( $offered );
+		}
 	}
 
 	/**
@@ -3210,6 +3351,17 @@ p {
 
 		// Simple keeps the `jetpack_ai_enabled` option as the master; modules don't run there.
 		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		// Nothing to reconcile until the module is genuinely active. Burning the one-shot before
+		// then consumes the migration: on a prerelease the module could not auto-activate at all
+		// (its `First Introduced` sorted above the running version), so this ran, found nothing,
+		// and marked the migration done — after which an opt-out would never be honored. Read the
+		// raw option rather than get_active_modules(), which `jetpack_active_modules` can report
+		// active for a module that was never really turned on.
+		$raw = Jetpack_Options::get_option( 'active_modules' );
+		if ( ! is_array( $raw ) || ! in_array( 'ai', $raw, true ) ) {
 			return;
 		}
 
@@ -4464,7 +4616,7 @@ p {
 					$min_version   = isset( $_GET['min_version'] ) ? sanitize_text_field( wp_unslash( $_GET['min_version'] ) ) : false;
 					$max_version   = isset( $_GET['max_version'] ) ? sanitize_text_field( wp_unslash( $_GET['max_version'] ) ) : false;
 					$other_modules = isset( $_GET['other_modules'] ) && is_array( $_GET['other_modules'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_GET['other_modules'] ) ) : array();
-					self::activate_default_modules( $min_version, $max_version, $other_modules );
+					self::activate_default_modules_once( $min_version, $max_version, $other_modules );
 					wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
 					exit( 0 );
 				case 'disconnect':
