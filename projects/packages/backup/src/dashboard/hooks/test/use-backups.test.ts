@@ -207,9 +207,6 @@ describe( 'useBackups', () => {
 		expect( mockedApiFetch ).not.toHaveBeenCalled();
 	} );
 
-	// The regression this guards: finishing a backup never refreshed the
-	// activity list, so the reader had to reload the page to see their
-	// new restore point.
 	it( 'invalidates the activity log once when an in-progress backup finishes, not on every poll', async () => {
 		const inProgress: RawBackupEntry[] = [
 			{

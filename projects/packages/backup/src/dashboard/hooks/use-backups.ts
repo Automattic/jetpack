@@ -243,12 +243,8 @@ export function useBackups( { forcePoll = false }: Args = {} ): Result {
 		return summarizeBackups( backups );
 	}, [ data, error, backups ] );
 
-	// The activity log has no poll of its own (see query-client.ts's key
-	// split), so a backup that finishes while the page is open never
-	// shows up there on its own. Fire the invalidation on the
-	// `in-progress` -> anything-else edge, not on every poll tick or on
-	// mount, or a long-open tab would re-fetch the activity log every
-	// 5 seconds for nothing.
+	// The activity log has no poll of its own (see the key split in query-client.ts).
+	// Fire on the in-progress -> finished edge only; per-tick would refetch every 5s.
 	const wasInProgress = useRef( false );
 	useEffect( () => {
 		if ( wasInProgress.current && summary.state !== 'in-progress' ) {
