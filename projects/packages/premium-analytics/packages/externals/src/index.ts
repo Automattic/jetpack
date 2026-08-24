@@ -31,6 +31,7 @@ export {
 	buildCalendarHeatmapData,
 	lightenHexColor,
 	normalizeColorToHex,
+	parseAsLocalDate,
 	useGlobalChartsContext,
 	type BaseLegendItem,
 	type ChartTheme,
@@ -44,6 +45,7 @@ export {
 	type HeatmapTooltipData,
 	type LineStyles,
 	type SeriesData,
+	type TickResolution,
 } from '@automattic/charts';
 
 export { LineShape, RectShape } from '@automattic/charts/visx/legend';
