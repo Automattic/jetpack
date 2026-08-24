@@ -108,6 +108,34 @@ describe( 'useCreateForm', () => {
 			expect( settlement ).toBe( 'pending' );
 		} );
 
+		it( 'sends the typed title, trimmed, so the form is not created untitled', async () => {
+			// eslint-disable-next-line jest/prefer-spy-on -- jsdom has no global fetch to spy on.
+			global.fetch = jest.fn().mockResolvedValue( {
+				json: () => Promise.resolve( { post_url: 'https://example.com/wp-admin/post.php?post=7' } ),
+			} );
+			const { result } = renderHook( () => useCreateForm() );
+
+			await act( async () => {
+				await settlementOf( result.current.openNewForm( { formTitle: '  Contact  ' } ) );
+			} );
+
+			expect( global.fetch.mock.calls[ 0 ][ 1 ].body.get( 'formTitle' ) ).toBe( 'Contact' );
+		} );
+
+		it( 'omits the title when there is nothing but whitespace', async () => {
+			// eslint-disable-next-line jest/prefer-spy-on -- jsdom has no global fetch to spy on.
+			global.fetch = jest.fn().mockResolvedValue( {
+				json: () => Promise.resolve( { post_url: 'https://example.com/wp-admin/post.php?post=7' } ),
+			} );
+			const { result } = renderHook( () => useCreateForm() );
+
+			await act( async () => {
+				await settlementOf( result.current.openNewForm( { formTitle: '   ' } ) );
+			} );
+
+			expect( global.fetch.mock.calls[ 0 ][ 1 ].body.get( 'formTitle' ) ).toBeNull();
+		} );
+
 		it( 'rejects when the server reports failure, so the caller can recover', async () => {
 			// eslint-disable-next-line jest/prefer-spy-on -- jsdom has no global fetch to spy on.
 			global.fetch = jest.fn().mockResolvedValue( {

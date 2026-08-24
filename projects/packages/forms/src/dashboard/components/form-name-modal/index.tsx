@@ -6,7 +6,7 @@
  */
 
 import { Button, Modal, TextControl } from '@wordpress/components';
-import { useState, useCallback, useEffect } from '@wordpress/element';
+import { useState, useCallback, useLayoutEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import type { FormEvent } from 'react';
@@ -31,6 +31,10 @@ export type FormNameModalProps = {
 	 * If it resolves successfully, the modal closes automatically.
 	 * Do NOT close the modal from within this callback - the component handles
 	 * closing based on success/failure.
+	 *
+	 * There is a third outcome: a callback that hands off to a page navigation never settles at all
+	 * (see openNewForm in use-create-form). The modal then simply stays busy until the next page
+	 * takes over, which is what keeps the create flow's progress on screen.
 	 */
 	onSave: ( name: string ) => Promise< void >;
 
@@ -123,11 +127,23 @@ export function FormNameModal( {
 	const [ status, setStatus ] = useState< 'idle' | 'saving' | 'failed' >( 'idle' );
 	const isSaving = status === 'saving';
 
-	// Reset on open. Clearing the status matters as much as the name: a save that handed off to a
-	// page navigation never settles, so a dialog dismissed mid-navigation would otherwise reopen
-	// permanently busy in call sites that keep it mounted while closed.
-	useEffect( () => {
+	/*
+	 * Identifies the current save attempt. A save that is still in flight when the dialog is reopened
+	 * — or retried — belongs to a session the user has left behind, and its settlement must not reach
+	 * the new one. Only the attempt whose generation is still current may act when it finishes.
+	 */
+	const saveGeneration = useRef( 0 );
+
+	/*
+	 * Reset on open. Clearing the status matters as much as the name: a save that handed off to a
+	 * page navigation never settles, so a dialog dismissed mid-navigation would otherwise reopen
+	 * permanently busy in call sites that keep it mounted while closed. This runs as a layout effect
+	 * so the cleared state is committed before the browser paints the reopened dialog, rather than
+	 * flashing the previous session's name and busy button for a frame.
+	 */
+	useLayoutEffect( () => {
 		if ( isOpen ) {
+			saveGeneration.current += 1;
 			setName( initialValue );
 			setStatus( 'idle' );
 		}
@@ -143,14 +159,26 @@ export function FormNameModal( {
 			return;
 		}
 
+		const generation = ++saveGeneration.current;
+
 		setStatus( 'saving' );
 		const finalName = name.trim() || fallbackName || __( 'Untitled Form', 'jetpack-forms' );
 
 		try {
 			await onSave( finalName );
+
+			if ( saveGeneration.current !== generation ) {
+				// Superseded while in flight: closing now would shut a dialog the user has reopened.
+				return;
+			}
+
 			onClose();
 			setStatus( 'idle' );
 		} catch {
+			if ( saveGeneration.current !== generation ) {
+				return;
+			}
+
 			// onSave threw — keep the modal open, and say so, so the user can retry.
 			setStatus( 'failed' );
 		}
@@ -171,7 +199,7 @@ export function FormNameModal( {
 	}
 
 	return (
-		// Always dismissable: an onSave that hands off to a page load never settles, so a dialog that
+		// Always dismissible: an onSave that hands off to a page load never settles, so a dialog that
 		// refused to close while busy could never be closed again if that navigation failed to start.
 		<Modal title={ title } onRequestClose={ onClose } size="medium">
 			<form onSubmit={ onSubmitForm }>

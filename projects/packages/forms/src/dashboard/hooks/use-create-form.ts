@@ -42,7 +42,7 @@ type ClickHandlerProps = {
 };
 
 type CreateFormReturn = {
-	createForm: ( pattern: string ) => Promise< string >;
+	createForm: ( pattern: string, formTitle?: string ) => Promise< string | undefined >;
 
 	/**
 	 * Create a form and open it in the editor.
@@ -65,7 +65,7 @@ export default function useCreateForm(): CreateFormReturn {
 	const adminUrl = useConfigValue( 'adminUrl' );
 	const ajaxUrl = useConfigValue( 'ajaxUrl' );
 	const createForm = useCallback(
-		async ( formPattern: string ) => {
+		async ( formPattern: string, formTitle?: string ) => {
 			const data = new FormData();
 
 			data.append( 'action', 'create_new_form' );
@@ -73,6 +73,16 @@ export default function useCreateForm(): CreateFormReturn {
 
 			if ( formPattern ) {
 				data.append( 'pattern', formPattern );
+			}
+
+			/*
+			 * The naming modal is shared by every create entry point, so a title can arrive here even
+			 * though this path is only taken while the config that selects it is still loading. Send it
+			 * rather than dropping it, so the post is not created untitled behind the user's back.
+			 */
+			const trimmedFormTitle = formTitle?.trim();
+			if ( trimmedFormTitle ) {
+				data.append( 'formTitle', trimmedFormTitle );
 			}
 
 			// Fall back to window.ajaxurl for backwards compatibility.
@@ -105,7 +115,7 @@ export default function useCreateForm(): CreateFormReturn {
 					return await openFormLink( getNewFormEditorUrl( formTitle, adminUrl ) );
 				}
 
-				const postUrl = await createForm( formPattern );
+				const postUrl = await createForm( formPattern, formTitle );
 
 				if ( ! postUrl ) {
 					// Resolving here would look like success to callers that are waiting to hand off to a
@@ -120,7 +130,9 @@ export default function useCreateForm(): CreateFormReturn {
 				}`;
 				return await openFormLink( url );
 			} catch ( error ) {
-				console.error( error.message ); // eslint-disable-line no-console
+				// Log the error itself, not just its message: this is the only diagnostic the failing
+				// entry points leave behind, and the stack is what makes it actionable.
+				console.error( error ); // eslint-disable-line no-console
 				// Re-throw so callers can tell a started navigation from a failed creation, and keep
 				// their own UI (a busy button, an open modal) in the right state.
 				throw error;

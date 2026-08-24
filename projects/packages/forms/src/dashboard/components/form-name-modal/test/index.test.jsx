@@ -1,5 +1,5 @@
 import { describe, expect, it, jest } from '@jest/globals';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FormNameModal } from '../index.tsx';
 
@@ -41,7 +41,7 @@ const createButton = () => screen.getByRole( 'button', { name: 'Create' } );
 const inDialog = () => within( screen.getByRole( 'dialog' ) );
 
 describe( 'FormNameModal', () => {
-	it( 'stays open, busy and dismissable while a navigating save is in flight', async () => {
+	it( 'stays open, busy and dismissible while a navigating save is in flight', async () => {
 		const user = userEvent.setup();
 		const { onClose } = setup( navigatingSave );
 
@@ -108,6 +108,52 @@ describe( 'FormNameModal', () => {
 		await user.type( screen.getByRole( 'textbox' ), 'x' );
 
 		expect( inDialog().queryByText( ERROR ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'does not report an abandoned save into the session that replaced it', async () => {
+		const user = userEvent.setup();
+		let rejectFirstSave;
+		const { rerender } = setup( {
+			onSave: jest.fn( () => new Promise( ( _resolve, reject ) => ( rejectFirstSave = reject ) ) ),
+			busyMessage: BUSY,
+			errorMessage: ERROR,
+		} );
+
+		await user.click( createButton() );
+		await expect( screen.findByText( BUSY ) ).resolves.toBeInTheDocument();
+
+		// The user gives up on the wait and reopens the dialog for a fresh attempt.
+		rerender( false );
+		rerender( true );
+
+		await act( async () => {
+			rejectFirstSave( new Error( 'too late' ) );
+		} );
+
+		expect( inDialog().queryByText( ERROR ) ).not.toBeInTheDocument();
+		expect( createButton() ).toHaveAttribute( 'aria-disabled', 'false' );
+	} );
+
+	it( 'does not close a reopened dialog when an abandoned save resolves', async () => {
+		const user = userEvent.setup();
+		let resolveFirstSave;
+		const { onClose, rerender } = setup( {
+			onSave: jest.fn( () => new Promise( resolve => ( resolveFirstSave = resolve ) ) ),
+			busyMessage: BUSY,
+		} );
+
+		await user.click( createButton() );
+		await expect( screen.findByText( BUSY ) ).resolves.toBeInTheDocument();
+
+		rerender( false );
+		rerender( true );
+		onClose.mockClear();
+
+		await act( async () => {
+			resolveFirstSave();
+		} );
+
+		expect( onClose ).not.toHaveBeenCalled();
 	} );
 
 	it( 'falls back to a default name when nothing is typed', async () => {
