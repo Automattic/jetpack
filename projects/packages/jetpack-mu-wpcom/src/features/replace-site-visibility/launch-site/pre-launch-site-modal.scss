@@ -1,0 +1,17 @@
+// The preview thumbnail is rendered here and passed into the shared modal's
+// `preview` prop, so its styling stays in this app rather than in the package.
+.wpcom-pre-launch-site-modal__thumbnail {
+	flex-shrink: 0;
+	inline-size: 114px;
+	block-size: 88px;
+	overflow: hidden;
+	border-radius: 4px;
+	background-color: #f6f7f7;
+
+	iframe {
+		display: block;
+		// Undo any global `iframe { max-width: 100% }`, which would collapse the
+		// scaled-up preview iframe.
+		max-inline-size: none;
+	}
+}

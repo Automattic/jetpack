@@ -43,6 +43,7 @@
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/launchpad": "1.2.2",
+		"@automattic/site-launch-modals": "1.0.0",
 		"@automattic/typography": "1.0.0",
 		"@codemirror/autocomplete": "6.18.6",
 		"@codemirror/commands": "6.8.1",
