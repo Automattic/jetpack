@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0105b7ec7f509f1db01dc1a3d05a7b02",
+    "content-hash": "9ee69ea10c4501b70f0674d4e5051131",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -3610,16 +3610,16 @@
         },
         {
             "name": "wp-php-toolkit/reprint-server",
-            "version": "v0.10.1",
+            "version": "v0.10.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-php-toolkit/reprint-server",
-                "reference": "a12b9e6264b654fddf9e30f753a6c1ea3c137437"
+                "reference": "1a9318da103e1eb501819a141a1c40925a8bc63d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wp-php-toolkit/reprint-server/zipball/a12b9e6264b654fddf9e30f753a6c1ea3c137437",
-                "reference": "a12b9e6264b654fddf9e30f753a6c1ea3c137437",
+                "url": "https://api.github.com/repos/wp-php-toolkit/reprint-server/zipball/1a9318da103e1eb501819a141a1c40925a8bc63d",
+                "reference": "1a9318da103e1eb501819a141a1c40925a8bc63d",
                 "shasum": ""
             },
             "require": {
@@ -3635,14 +3635,10 @@
             "type": "library",
             "autoload": {
                 "files": [
-                    "src/utils.php",
-                    "src/class-pdo-polyfill.php"
+                    "src/utils.php"
                 ],
                 "classmap": [
                     "src/"
-                ],
-                "exclude-from-classmap": [
-                    "/src/class-pdo-polyfill.php"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -3650,7 +3646,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Streaming export engine used by the Reprint Server WordPress plugin",
-            "time": "2026-08-20T10:21:33+00:00"
+            "time": "2026-08-24T10:22:14+00:00"
         }
     ],
     "packages-dev": [
