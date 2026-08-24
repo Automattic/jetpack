@@ -5,7 +5,7 @@
  * Central Forms Management is enabled for every WordPress.com site, so nothing here
  * gates it any more. The `disable-central-forms-management` sticker is retired: it
  * was a rollback valve for the CFM rollout, and there is no longer anything to roll
- * back to. The functions below are kept, deprecated, so existing callers do not
+ * back to. Every function below is kept and deprecated, so existing callers do not
  * fatal; none of them is wired to anything.
  *
  * With no filter on `jetpack_block_editor_feature_flags` from here, the
@@ -21,11 +21,17 @@
  * Uses the appropriate sticker API depending on whether the site is
  * Simple (has_blog_sticker) or Atomic (wpcomsh_is_site_sticker_active).
  *
+ * Served the retired gating, and has no callers left.
+ *
+ * @deprecated $$next-version$$ The gating it served is retired.
+ *
  * @param string $sticker The sticker name to check.
  * @param int    $blog_id The blog ID to check.
  * @return bool
  */
 function wpcom_forms_has_blog_sticker( $sticker, $blog_id ) {
+	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-$$next-version$$' );
+
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
 		return (bool) wpcomsh_is_site_sticker_active( $sticker );
 	} elseif ( function_exists( 'has_blog_sticker' ) ) {
