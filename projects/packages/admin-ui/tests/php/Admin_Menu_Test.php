@@ -294,6 +294,7 @@ class Admin_Menu_Test extends TestCase {
 		add_filter( 'deprecated_function_trigger_error', '__return_false' );
 		add_action( 'deprecated_function_run', $capture );
 
+		// @phan-suppress-next-line PhanDeprecatedFunction -- This test is the contract for the deprecated shim.
 		Admin_Menu::print_hide_core_admin_notices_style();
 
 		remove_action( 'deprecated_function_run', $capture );
