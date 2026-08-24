@@ -194,6 +194,7 @@ export {
 	GRANULARITY_ATTRIBUTE,
 	GRANULARITY_PICKED_FOR_ATTRIBUTE,
 	buildMetricTab,
+	toChartDate,
 	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,
 	granularityAttributeField,
