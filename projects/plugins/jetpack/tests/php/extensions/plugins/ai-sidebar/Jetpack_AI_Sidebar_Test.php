@@ -699,7 +699,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * Master interplay, both directions. The master gate keeps flowing through
-	 * apply_site_wide_gates on the jetpack_ai_sidebar_enabled filter (re-attached
+	 * apply_master_gates on the jetpack_ai_sidebar_enabled filter (re-attached
 	 * here because set_up() strips the filter): master off hides the sidebar
 	 * regardless of the feature toggles, and master on cannot save a sidebar
 	 * whose features are both off.
@@ -707,7 +707,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	public function test_preview_master_gate_composes_with_feature_toggles() {
 		// Run the master gate after set_up()'s __return_true override so it
 		// narrows the forced-open base gate, as it does in production.
-		add_filter( 'jetpack_ai_sidebar_enabled', array( \Jetpack_AI_Settings::class, 'apply_site_wide_gates' ), 11 );
+		add_filter( 'jetpack_ai_sidebar_enabled', array( \Jetpack_AI_Settings::class, 'apply_master_gates' ), 11 );
 
 		// Master off + features on: hidden (existing rule, no regression).
 		// Off-Simple the master is the `ai` module; turn it off there.

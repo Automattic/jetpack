@@ -569,7 +569,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	/**
 	 * Test that a later jetpack_ai_enabled filter cannot re-enable Image Studio
 	 * once the master switch is off — the contract's "off must stay off" state
-	 * test. This is why the environment gate calls apply_site_wide_gates() directly
+	 * test. This is why the environment gate calls apply_master_gates() directly
 	 * instead of re-applying the filter: apply_filters() would let any
 	 * later-priority callback overturn the master switch.
 	 */

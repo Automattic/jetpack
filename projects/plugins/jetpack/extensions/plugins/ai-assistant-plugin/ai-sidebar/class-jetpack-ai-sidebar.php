@@ -353,7 +353,7 @@ class Jetpack_AI_Sidebar {
 		// sidebar whose features are all off, or one blocked by the host or
 		// master gates — the gates are final, as with is_ai_enabled().
 		return $enabled
-			&& \Jetpack_AI_Settings::apply_site_wide_gates( true )
+			&& \Jetpack_AI_Settings::apply_master_gates( true )
 			&& self::has_enabled_sidebar_features();
 	}
 
