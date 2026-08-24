@@ -29,12 +29,12 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
-import { attachSubComponents, resolveCssVariable } from '../../utils';
+import { attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
-import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
-import { SvgEmptyState } from '../private/svg-empty-state';
+import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
@@ -119,7 +119,7 @@ const validateData = ( data: SeriesData[] ) => {
 
 // Inner component to access DataContext and provide scale data to ref
 const LineChartScalesRef: FC< {
-	chartRef?: Ref< SingleChartRef >;
+	chartRef?: Ref< ChartInstanceRef >;
 	width: number;
 	height: number;
 	margin?: { top?: number; right?: number; bottom?: number; left?: number };
@@ -150,7 +150,7 @@ const LineChartScalesRef: FC< {
 	return null; // This component only provides the ref interface
 };
 
-const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
+const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 	(
 		{
 			data,
@@ -192,16 +192,14 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		const legendPosition = legend.position ?? 'bottom';
 
 		const providerTheme = useGlobalChartsTheme();
-		// Gradient stops apply this as an SVG attribute, where CSS var() cannot
-		// resolve, so resolve the WPDS token to a concrete value first.
-		const resolvedBackgroundColor =
-			resolveCssVariable( providerTheme.backgroundColor ) ?? providerTheme.backgroundColor;
 		const theme = useXYChartTheme( data );
+		// Gradient stops apply this as an SVG attribute, where CSS var() cannot resolve. useXYChartTheme has already resolved the same role inside its memo, against the chart's scope element, so read it back rather than paying another getComputedStyle on every render.
+		const resolvedBackgroundColor = theme.backgroundColor ?? providerTheme.backgroundColor;
 		const chartId = useChartId( providedChartId );
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
-		const internalChartRef = useRef< SingleChartRef >( null );
+		const internalChartRef = useRef< ChartInstanceRef >( null );
 
 		const zoom = useXZoom< Date >( {
 			enabled: zoomable,
@@ -237,29 +235,28 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		const dataSorted = useChartDataTransform( data );
 		const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 
-		// Add visibility information to series when using interactive legends
+		// Series visibility is owned by the provider, so it applies whether it changed
+		// through the interactive legend or programmatically.
 		const seriesWithVisibility = useMemo( () => {
-			if ( ! chartId || ! legendInteractive ) {
-				return dataSorted.map( ( series, index ) => ( { series, index, isVisible: true } ) );
-			}
 			return dataSorted.map( ( series, index ) => ( {
 				series,
 				index,
 				isVisible: isSeriesVisible( chartId, series.label ),
 			} ) );
-		}, [ dataSorted, chartId, isSeriesVisible, legendInteractive ] );
+		}, [ dataSorted, chartId, isSeriesVisible ] );
 
 		// Check if all series are hidden
 		const allSeriesHidden = useMemo( () => {
 			return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
 		}, [ seriesWithVisibility ] );
 
-		// When the interactive legend can hide series and rescaling is opted out, pin the value axis
-		// to the full data range so it stays put as series are toggled instead of visx rescaling the
-		// domain to whatever is currently visible and making the axis jump. Default is to rescale,
-		// matching the pre-existing behaviour and AreaChart's `rescaleYOnVisibilityChange`.
+		// When series visibility changes — via the interactive legend or programmatically —
+		// and rescaling is opted out, pin the value axis to the full data range so it stays
+		// put instead of visx rescaling the domain to whatever is currently visible and
+		// making the axis jump. Default is to rescale, matching the pre-existing behaviour
+		// and AreaChart's `rescaleYOnVisibilityChange`.
 		const stableYDomain = useMemo< [ number, number ] | undefined >( () => {
-			if ( ! legendInteractive || rescaleYOnVisibilityChange ) {
+			if ( rescaleYOnVisibilityChange ) {
 				return undefined;
 			}
 			let min = Infinity;
@@ -274,7 +271,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 				}
 			}
 			return min < max ? [ min, max ] : undefined;
-		}, [ legendInteractive, rescaleYOnVisibilityChange, dataSorted ] );
+		}, [ rescaleYOnVisibilityChange, dataSorted ] );
 
 		// Use the keyboard navigation hook
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -414,7 +411,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		return (
-			<SingleChartContext.Provider
+			<ChartInstanceContext.Provider
 				value={ {
 					chartId,
 					chartRef: internalChartRef,
@@ -491,10 +488,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 													width={ width }
 													height={ chartHeight }
 												>
-													{ __(
-														'All series are hidden. Click legend items to show data.',
-														'jetpack-charts'
-													) }
+													{ getAllHiddenMessage( legendInteractive, 'series' ) }
 												</SvgEmptyState>
 											) : null }
 
@@ -621,7 +615,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 						);
 					} }
 				</ChartLayout>
-			</SingleChartContext.Provider>
+			</ChartInstanceContext.Provider>
 		);
 	}
 );
@@ -636,16 +630,16 @@ type LineChartAnnotationComponents = {
 type LineChartBaseProps = Optional< LineChartProps, 'width' | 'height' | 'size' >;
 
 type LineChartComponent = React.ForwardRefExoticComponent<
-	LineChartBaseProps & React.RefAttributes< SingleChartRef >
+	LineChartBaseProps & React.RefAttributes< ChartInstanceRef >
 > &
 	LineChartAnnotationComponents;
 
 type LineChartResponsiveComponent = React.ForwardRefExoticComponent<
-	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< SingleChartRef >
+	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< ChartInstanceRef >
 > &
 	LineChartAnnotationComponents;
 
-const LineChartWithProvider = forwardRef< SingleChartRef, LineChartProps >( ( props, ref ) => {
+const LineChartWithProvider = forwardRef< ChartInstanceRef, LineChartProps >( ( props, ref ) => {
 	const existingContext = useContext( GlobalChartsContext );
 
 	// If we're already in a GlobalChartsProvider context, render the core component directly

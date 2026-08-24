@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Show progress while a new form's editor opens, and report it when creating a form fails.

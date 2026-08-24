@@ -1,4 +1,5 @@
 export {
+	isSectionAwaitingSync,
 	resolveSectionHeading,
 	resolveSectionId,
 	type DashboardSection,

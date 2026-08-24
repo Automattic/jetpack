@@ -13,7 +13,7 @@ import { Badge, Link } from '@wordpress/ui';
  */
 import FieldEmail from '../field-email/index.tsx';
 import FieldFile from '../field-file/index.tsx';
-import { fieldIcons } from '../field-icons.tsx';
+import { checkboxUncheckedFieldIcon, fieldIcons, isCheckedValue } from '../field-icons.tsx';
 import FieldImageSelect from '../field-image-select/index.tsx';
 import FieldPhone from '../field-phone/index.tsx';
 import FieldRating from '../field-rating/index.tsx';
@@ -21,7 +21,12 @@ import { EMAIL_REGEX, inferFieldTypeFromLabel } from './field-preview-utils.ts';
 import type { ResponseField, FieldType, FileItem } from '../../../../../types/index.ts';
 import './style.scss';
 
-const getFieldIcon = ( fieldType: FieldType ): React.ReactNode => {
+const getFieldIcon = ( fieldType: FieldType, value: unknown ): React.ReactNode => {
+	// A checkbox reflects the respondent's answer: an unchecked box gets the
+	// empty square rather than the ticked one.
+	if ( fieldType === 'checkbox' && ! isCheckedValue( value ) ) {
+		return <Icon icon={ checkboxUncheckedFieldIcon } />;
+	}
 	return <Icon icon={ fieldIcons[ fieldType ] ?? fieldIcons.text } />;
 };
 
@@ -37,7 +42,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 	// For legacy responses without a proper type (undefined or "basic"), try to infer from label
 	const fieldType: FieldType =
 		type && type !== 'basic' ? type : inferFieldTypeFromLabel( label ) ?? 'text';
-	const icon = getFieldIcon( fieldType );
+	const icon = getFieldIcon( fieldType, value );
 	const typeClassName = `is-field-type-${ fieldType }`;
 
 	const renderFieldValue = () => {

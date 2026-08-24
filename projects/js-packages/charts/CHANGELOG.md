@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2026-08-21
+### Changed
+- Emit the `--a8c-charts-*` token catalog on the charts provider, so any token can be overridden in CSS anywhere inside it or through the `theme` prop, and resolve tokens against the chart element so CSS-painted and SVG-painted colors honour the same override. A `theme`-prop override keeps the reach of the field it was set from: `svgLabelSmall.fill` moves the SVG axis labels without touching legend labels or heatmap cell values, and `backgroundColor` repaints the chart background without touching tooltips, the annotation label or the zoom-reset control.
+  
+  `useChartRegistration` and `useChartScopeElement` are now exported from the package root. Both were documented with a `@automattic/charts` import that did not resolve.
+  
+  Breaking changes:
+  
+  - An override set above `GlobalChartsProvider` — on `:root`, on `body`, or on any other ancestor — no longer applies, because the provider declares the role on its own wrapper and a declaration beats a value inherited from further up the tree. Replace `:root { --a8c-charts-… }` with `.a8c-charts-scope { --a8c-charts-… }`, which themes the whole page as before: it matches every provider wrapper, including the one a bare chart mounts for itself and the one a portal-rendered tooltip carries.
+  - `@wordpress/theme`'s `ThemeProvider` must sit above the charts provider rather than between it and a chart, or CSS-painted colors keep their light-mode defaults.
+  - The override names that predate the `--a8c-charts-{category}-{name}` convention are removed. Set `--a8c-charts-color-trend-up`, `--a8c-charts-color-trend-down` and `--a8c-charts-color-trend-neutral` in place of `--charts-trend-up-color`, `--charts-trend-down-color` and `--charts-trend-neutral-color`, and `--a8c-charts-border-radius-leaderboard-bar` in place of `--a8c--charts--leaderboard--bar--border-radius`.
+  - `--a8c-charts-color-focus` is removed. Focus and selection rings follow `--wpds-color-stroke-focus`, so override that token instead.
+  - The `GridProps` type is removed. It described a grid component that was never exported and is no longer part of the package; gridlines are drawn and coloured by the chart itself.
+  - `resolveThemeColor` is removed from the value returned by `useGlobalChartsContext`. It resolved against the `GlobalChartsProvider` wrapper, so it could not see an override set closer to a single chart — the reason every chart that needed a resolved color stopped calling it. Call `normalizeColorToHex( value, useChartScopeElement(), resolveCssVariable )` instead, which resolves at the scope the same override paints CSS at. `resolveCssVariable` is now exported for this. [#51308]
+
+## [2.0.1] - 2026-08-19
+### Changed
+- Charts: adapt bar chart time-axis tick labels to the data's bucket resolution and time span, support the `tickResolution` hint, and name each bar's bucket in its tooltip. [#51274]
+- Resolve an XY chart theme's color roles from a single computed-style snapshot, and rebuild the theme only when a series color changes rather than on every render. [#51342]
+
+### Fixed
+- Charts: keep a bar chart's time axis on the buckets it actually draws, so a labelled bar, a comparison series, or a series hidden from the legend can no longer strand a tick at the axis origin, and label such a bar by its label in both the axis and the tooltip. [#51343]
+- Charts: keep the year and the day on a bar chart's time axis, which could previously skip the tick that named them, and stop the same label falling on two ticks in a row. [#51339]
+- Charts: measure a horizontal chart's left margin from the labels it will actually draw, so a caller's tick formatter is applied exactly once and time-of-day labels stop reserving room for the string "Invalid Date". [#51272]
+- Charts: stop a bar chart's time axis dropping to a couple of ticks when it reaches for the year, and speed up how it picks them. [#51339]
+
 ## [2.0.0] - 2026-08-10
 ### Added
 - Time axis: Accept a tickResolution hint on the x-axis options so callers that know the data's bucket size can set tick formats directly instead of relying on inference. [#51017]
@@ -965,6 +991,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[3.0.0]: https://github.com/Automattic/charts/compare/v2.0.1...v3.0.0
+[2.0.1]: https://github.com/Automattic/charts/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/Automattic/charts/compare/v1.12.0...v2.0.0
 [1.12.0]: https://github.com/Automattic/charts/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/Automattic/charts/compare/v1.10.3...v1.11.0

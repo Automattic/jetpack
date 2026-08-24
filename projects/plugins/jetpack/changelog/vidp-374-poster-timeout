@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Fix a timeout error when updating a video poster from the media library.

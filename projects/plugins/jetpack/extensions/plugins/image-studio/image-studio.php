@@ -420,10 +420,17 @@ function get_tracking_site_type() {
  * @return bool True when the current visitor is an Automattician.
  */
 function is_tracking_automattician() {
-	$is_automattician = function_exists( 'is_automattician' ) && (bool) \is_automattician();
-	$is_wpcom_proxied = function_exists( 'wpcom_is_proxied_request' ) && \wpcom_is_proxied_request();
+	$visitor = new Visitor();
 
-	return $is_automattician || $is_wpcom_proxied || ( new Visitor() )->is_automattician_feature_flags_only();
+	// Another plugin can supply an older copy of jetpack-status through its own
+	// autoloader, where this method does not exist yet.
+	if ( ! method_exists( $visitor, 'is_tracking_automattician' ) ) {
+		return ( function_exists( 'is_automattician' ) && \is_automattician() )
+			|| ( function_exists( 'wpcom_is_proxied_request' ) && \wpcom_is_proxied_request() )
+			|| ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST );
+	}
+
+	return $visitor->is_tracking_automattician();
 }
 
 /**

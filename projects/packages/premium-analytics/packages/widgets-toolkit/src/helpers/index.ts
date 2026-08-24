@@ -57,21 +57,30 @@ export {
 export { sharePercentage } from './share-percentage';
 export { getCombinedPeriodMax } from './get-combined-period-max';
 export { getVideoKey, getVideoLabel } from './video-plays';
-export { toMaxRows } from './to-max-rows';
 export { describeError } from './describe-error';
 export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
 export { defaultPeriodForInterval } from './default-period-for-interval';
+export { granularitiesForRange } from './granularities-for-range';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
-export { withoutComparison } from './without-comparison';
+export { fromChartDate } from './chart-date';
+export { dateFormatForResolution } from './tick-resolution-date-format';
+export {
+	followedGranularity,
+	GRANULARITY_ATTRIBUTE,
+	GRANULARITY_PICKED_FOR_ATTRIBUTE,
+} from './followed-granularity';
 export {
 	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,
 	granularityAttributeField,
+	granularityOptions,
 	type ChartDisplayChartType,
 	type ChartGranularityOption,
 } from './chart-display-attribute-fields';
 export {
+	CELL_GAP as CALENDAR_HEATMAP_CELL_GAP,
+	HEADER_HEIGHT as CALENDAR_HEATMAP_HEADER_HEIGHT,
 	compactCalendarHeatmapCapacity,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,

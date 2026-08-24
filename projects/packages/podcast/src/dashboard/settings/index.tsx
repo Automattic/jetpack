@@ -1,3 +1,4 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	Button,
 	Card,
@@ -31,6 +32,8 @@ const EXPLICIT_OPTIONS: Array< { label: string; value: string } > = [
 	{ label: __( 'No', 'jetpack-podcast' ), value: 'no' },
 	{ label: __( 'Yes', 'jetpack-podcast' ), value: 'yes' },
 ];
+
+const feedLimitMax = getScriptData()?.podcast?.feed_limit_max;
 
 // Flatten the Apple Podcasts topic tree into one searchable token list for
 // `FormTokenField`. Display strings use `Primary » Subtopic` (matching
@@ -82,7 +85,8 @@ type StringFieldKey =
 // Spread directly onto `<TextControl>` etc. for `value` / `onChange` / `onBlur`.
 const useFieldEditor = (
 	stored: string,
-	onCommit: ( value: string ) => void
+	onCommit: ( value: string ) => void,
+	normalize?: ( value: string ) => string
 ): { value: string; onChange: ( v: string ) => void; onBlur: () => void } => {
 	const [ local, setLocal ] = useState( stored );
 	useEffect( () => {
@@ -92,8 +96,10 @@ const useFieldEditor = (
 		value: local,
 		onChange: setLocal,
 		onBlur: () => {
-			if ( local !== stored ) {
-				onCommit( local );
+			const next = normalize ? normalize( local ) : local;
+			setLocal( next );
+			if ( next !== stored ) {
+				onCommit( next );
 			}
 		},
 	};
@@ -209,6 +215,26 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 	const emailField = useFieldEditor(
 		draft?.podcasting_email ?? '',
 		commitField( 'podcasting_email' )
+	);
+
+	const normalizeFeedLimit = useCallback(
+		( value: string ) => {
+			const parsed = Number.parseInt( value, 10 );
+			if ( Number.isNaN( parsed ) || parsed < 1 ) {
+				return String( draft?.podcasting_feed_limit ?? '' );
+			}
+			return String( feedLimitMax ? Math.min( parsed, feedLimitMax ) : parsed );
+		},
+		[ draft?.podcasting_feed_limit ]
+	);
+	const commitFeedLimit = useCallback(
+		( value: string ) => commit( { podcasting_feed_limit: Number.parseInt( value, 10 ) } ),
+		[ commit ]
+	);
+	const feedLimitField = useFieldEditor(
+		String( draft?.podcasting_feed_limit ?? '' ),
+		commitFeedLimit,
+		normalizeFeedLimit
 	);
 
 	// Discrete-action handlers — these controls "commit" on each user choice
@@ -464,6 +490,21 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							) }
 							disabled={ isLocked }
 							{ ...emailField }
+						/>
+						<TextControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							type="number"
+							min={ 1 }
+							max={ feedLimitMax }
+							step={ 1 }
+							label={ __( 'Episodes in feed', 'jetpack-podcast' ) }
+							help={ __(
+								'How many of your most recent episodes the feed includes.',
+								'jetpack-podcast'
+							) }
+							disabled={ isLocked }
+							{ ...feedLimitField }
 						/>
 					</VStack>
 				</CardBody>

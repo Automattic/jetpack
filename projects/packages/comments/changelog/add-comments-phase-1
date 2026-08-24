@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the comment form: a textarea, guest name and email fields, and reply threading, rendered on the site itself. Off unless the jetpack_comments_new_hotness filter returns true.

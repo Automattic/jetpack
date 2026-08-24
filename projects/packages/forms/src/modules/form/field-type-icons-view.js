@@ -5,7 +5,7 @@ import { store, getContext, getElement } from '@wordpress/interactivity';
 /**
  * Internal dependencies
  */
-import { getFieldTypeIconHtml } from './field-type-icons.js';
+import { getFieldTypeIconHtml, getFieldTypeIconKey } from './field-type-icons.js';
 
 const NAMESPACE = 'jetpack/form';
 
@@ -22,18 +22,23 @@ store( NAMESPACE, {
 				return;
 			}
 
-			// If server already rendered an icon (has content), preserve it.
+			const context = getContext();
+			const fieldType = context.submission?.type || 'text';
+			const value = context.submission?.value;
+			// The rendered marker is the icon key, not the field type: a checkbox
+			// resolves to a different icon depending on the submitted value, so
+			// comparing types alone would leave a stale icon in place.
+			const iconKey = getFieldTypeIconKey( fieldType, value );
+
+			// If the server already rendered this exact icon, preserve it.
 			// This handles page reloads where PHP renders the SVG from disk.
-			if ( ref.dataset.renderedType && ref.innerHTML.trim() !== '' ) {
+			if ( ref.dataset.renderedType === iconKey && ref.innerHTML.trim() !== '' ) {
 				return;
 			}
 
 			// For AJAX submissions, render the icon via JS.
-			const context = getContext();
-			const fieldType = context.submission?.type || 'text';
-
-			ref.innerHTML = getFieldTypeIconHtml( fieldType );
-			ref.dataset.renderedType = fieldType;
+			ref.innerHTML = getFieldTypeIconHtml( fieldType, value );
+			ref.dataset.renderedType = iconKey;
 		},
 	},
 } );
