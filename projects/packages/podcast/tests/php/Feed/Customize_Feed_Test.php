@@ -34,6 +34,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		delete_option( 'podcasting_title' );
 		delete_option( 'podcasting_category_id' );
 		delete_option( 'podcasting_archive' );
+		delete_option( 'podcasting_feed_limit' );
 		remove_all_filters( 'pre_attachment_url_to_postid' );
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
 		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
@@ -550,14 +551,45 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringStartsWith( ' AND 1=1', $result );
 	}
 
+	public function test_apply_feed_limit_sets_posts_per_rss_for_podcast_feed() {
+		$this->seed_category_term( 17 );
+		update_option( 'podcasting_category_id', 17 );
+		update_option( 'podcasting_feed_limit', 25 );
+
+		$query = $this->build_podcast_feed_query_mock( 17, array(), true );
+		$query->expects( $this->once() )->method( 'set' )->with( 'posts_per_rss', 25 );
+
+		Customize_Feed::apply_feed_limit( $query );
+	}
+
 	/**
-	 * Build a `WP_Query` mock pre-stubbed for the podcast-feed happy path,
+	 * `pre_get_posts` runs for every query on the site, so the gate is what keeps
+	 * the podcast limit off everyone else's feeds.
+	 */
+	public function test_apply_feed_limit_ignores_queries_that_are_not_the_podcast_feed() {
+		$this->seed_category_term( 17 );
+		update_option( 'podcasting_category_id', 17 );
+		update_option( 'podcasting_feed_limit', 25 );
+
+		$query = $this->build_podcast_feed_query_mock( 999, array(), true );
+		$query->expects( $this->never() )->method( 'set' );
+
+		Customize_Feed::apply_feed_limit( $query );
+	}
+
+	/**
+	 * Build a `WP_Query` double pre-stubbed for the podcast-feed happy path,
 	 * with optional per-method overrides.
+	 *
+	 * A stub unless `$expects_calls` — only the `apply_feed_limit` tests assert on
+	 * a call, and handing every caller a mock makes PHPUnit flag the ones that
+	 * configure no expectations.
 	 *
 	 * @param int   $queried_term_id Term ID returned from `get_queried_object()`.
 	 * @param array $overrides       Map of method-name => return value to override defaults.
+	 * @param bool  $expects_calls   Whether the caller will set expectations on the double.
 	 */
-	private function build_podcast_feed_query_mock( int $queried_term_id, array $overrides = array() ) {
+	private function build_podcast_feed_query_mock( int $queried_term_id, array $overrides = array(), bool $expects_calls = false ) {
 		$defaults = array(
 			'is_main_query' => true,
 			'is_feed'       => true,
@@ -565,7 +597,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		);
 		$stubs    = array_merge( $defaults, $overrides );
 
-		$query = $this->createStub( \WP_Query::class );
+		$query = $expects_calls ? $this->createMock( \WP_Query::class ) : $this->createStub( \WP_Query::class );
 		foreach ( $stubs as $method => $value ) {
 			$query->method( $method )->willReturn( $value );
 		}

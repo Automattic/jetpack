@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4ade5e5ce385b334cac92844d0cf7cf3",
+    "content-hash": "2f5be28b601750a275a56095b4bae984",
     "packages": [],
     "packages-dev": [
         {
@@ -63,7 +63,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "de88fc94f6bd01bd589b58798f3bd5a3f6e90782"
+                "reference": "6f39c44b56d2f578aee80b632185ce2683ceb785"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -87,7 +87,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "8.1.x-dev"
+                    "dev-trunk": "9.0.x-dev"
                 }
             },
             "autoload": {
@@ -1117,16 +1117,16 @@
         },
         {
             "name": "php-stubs/wordpress-stubs",
-            "version": "v6.9.4",
+            "version": "v7.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wordpress-stubs.git",
-                "reference": "90a9412826b9944f93b10bf41d795b5fe68abcd5"
+                "reference": "4d0cc9d5c4efd2a46f8c53a40c38f1679a4194b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/90a9412826b9944f93b10bf41d795b5fe68abcd5",
-                "reference": "90a9412826b9944f93b10bf41d795b5fe68abcd5",
+                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/4d0cc9d5c4efd2a46f8c53a40c38f1679a4194b6",
+                "reference": "4d0cc9d5c4efd2a46f8c53a40c38f1679a4194b6",
                 "shasum": ""
             },
             "conflict": {
@@ -1136,7 +1136,7 @@
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
                 "nikic/php-parser": "^5.5",
                 "php": "^7.4 || ^8.0",
-                "php-stubs/generator": "^0.8.6",
+                "php-stubs/generator": "^0.9",
                 "phpdocumentor/reflection-docblock": "^6.0",
                 "phpstan/phpstan": "^2.1",
                 "phpunit/phpunit": "^9.5",
@@ -1163,22 +1163,22 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wordpress-stubs/issues",
-                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v6.9.4"
+                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v7.0.1"
             },
-            "time": "2026-05-01T20:36:01+00:00"
+            "time": "2026-07-10T10:10:02+00:00"
         },
         {
             "name": "php-stubs/wordpress-tests-stubs",
-            "version": "v7.0.2",
+            "version": "v7.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wordpress-tests-stubs.git",
-                "reference": "205a4e28bbd248a0d24bf45eb073826855b2fa2b"
+                "reference": "a4e8d3865a64ee9dbcc5c697e02b221c9e0317b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wordpress-tests-stubs/zipball/205a4e28bbd248a0d24bf45eb073826855b2fa2b",
-                "reference": "205a4e28bbd248a0d24bf45eb073826855b2fa2b",
+                "url": "https://api.github.com/repos/php-stubs/wordpress-tests-stubs/zipball/a4e8d3865a64ee9dbcc5c697e02b221c9e0317b0",
+                "reference": "a4e8d3865a64ee9dbcc5c697e02b221c9e0317b0",
                 "shasum": ""
             },
             "require-dev": {
@@ -1203,26 +1203,26 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wordpress-tests-stubs/issues",
-                "source": "https://github.com/php-stubs/wordpress-tests-stubs/tree/v7.0.2"
+                "source": "https://github.com/php-stubs/wordpress-tests-stubs/tree/v7.1.0"
             },
-            "time": "2026-07-23T13:02:04+00:00"
+            "time": "2026-08-20T07:25:45+00:00"
         },
         {
             "name": "php-stubs/wp-cli-stubs",
-            "version": "v2.12.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wp-cli-stubs.git",
-                "reference": "af16401e299a3fd2229bd0fa9a037638a4174a9d"
+                "reference": "335d4890308f9fbb3427c56412d30f157d21f697"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wp-cli-stubs/zipball/af16401e299a3fd2229bd0fa9a037638a4174a9d",
-                "reference": "af16401e299a3fd2229bd0fa9a037638a4174a9d",
+                "url": "https://api.github.com/repos/php-stubs/wp-cli-stubs/zipball/335d4890308f9fbb3427c56412d30f157d21f697",
+                "reference": "335d4890308f9fbb3427c56412d30f157d21f697",
                 "shasum": ""
             },
             "require": {
-                "php-stubs/wordpress-stubs": "^4.7 || ^5.0 || ^6.0"
+                "php-stubs/wordpress-stubs": ">=4.7"
             },
             "require-dev": {
                 "php": "~7.3 || ~8.0",
@@ -1232,6 +1232,7 @@
                 "symfony/polyfill-php73": "Symfony polyfill backporting some PHP 7.3+ features to lower PHP versions",
                 "szepeviktor/phpstan-wordpress": "WordPress extensions for PHPStan"
             },
+            "default-branch": true,
             "type": "library",
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -1247,9 +1248,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wp-cli-stubs/issues",
-                "source": "https://github.com/php-stubs/wp-cli-stubs/tree/v2.12.0"
+                "source": "https://github.com/php-stubs/wp-cli-stubs/tree/master"
             },
-            "time": "2025-06-10T09:58:05+00:00"
+            "time": "2026-05-26T12:27:53+00:00"
         },
         {
             "name": "phpcompatibility/php-compatibility",
@@ -3193,7 +3194,8 @@
     "stability-flags": {
         "automattic/jetpack-codesniffer": 20,
         "automattic/jetpack-phan-plugins": 20,
-        "automattic/jetpack-phpcs-filter": 20
+        "automattic/jetpack-phpcs-filter": 20,
+        "php-stubs/wp-cli-stubs": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

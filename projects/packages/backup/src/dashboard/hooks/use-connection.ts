@@ -59,6 +59,22 @@ export function useConnection(): Result {
 }
 
 /**
+ * The site's Calypso slug, e.g. `example.wordpress.com`.
+ *
+ * Read from the same connection global as `useConnection`, and used to
+ * scope Jetpack redirect links to this site. Returns undefined when the
+ * global is missing, in which case callers should emit an unscoped
+ * redirect rather than a broken one — `getRedirectUrl` omits the query
+ * arg for an undefined `site`.
+ *
+ * @return The site slug, or undefined.
+ */
+export function useSiteSuffix(): string | undefined {
+	const state = typeof window !== 'undefined' ? window.JP_CONNECTION_INITIAL_STATE : undefined;
+	return state?.siteSuffix || undefined;
+}
+
+/**
  * Whether this browser session can usefully call the Backup bridges.
  *
  * Every bridge route runs `Rest_Controller::permission_check()`, which

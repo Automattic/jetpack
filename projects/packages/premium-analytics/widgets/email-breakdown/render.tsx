@@ -5,6 +5,7 @@ import { toPostId } from '@jetpack-premium-analytics/data';
 import {
 	GeoChart,
 	LeaderboardChart,
+	WIDGET_ROW_LIMIT,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
@@ -147,10 +148,6 @@ type EmailBreakdownLeaderboardProps = {
 	 * When `true` and there are no rows yet, the loading state is shown.
 	 */
 	isLoading?: boolean;
-	/**
-	 * When `true`, a non-blocking busy overlay is shown over existing rows during
-	 * a background refetch.
-	 */
 	isFetching?: boolean;
 	/**
 	 * When `true`, the error state is rendered in place of the chart.
@@ -252,7 +249,6 @@ export const EmailBreakdownLeaderboard = ( {
 type EmailBreakdownReportProps = {
 	view: EmailBreakdownView;
 	metric: EmailBreakdownMetric;
-	max: number;
 	showMap: boolean;
 };
 
@@ -262,7 +258,7 @@ type EmailBreakdownReportProps = {
  * is scoped by the host through `reportParams.post_id` — the shared
  * single-resource "detail page" param — so the widget needs no id attribute.
  */
-function EmailBreakdownReport( { view, metric, max, showMap }: EmailBreakdownReportProps ) {
+function EmailBreakdownReport( { view, metric, showMap }: EmailBreakdownReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 
@@ -270,7 +266,7 @@ function EmailBreakdownReport( { view, metric, max, showMap }: EmailBreakdownRep
 		postId,
 		view,
 		metric,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} );
 
 	return (
@@ -301,12 +297,11 @@ function EmailBreakdownReport( { view, metric, max, showMap }: EmailBreakdownRep
 export default function EmailBreakdown( { attributes = {} }: EmailBreakdownWidgetProps ) {
 	const view = attributes.view ?? 'countries';
 	const metric = attributes.metric ?? 'opens';
-	const max = attributes.max ?? 10;
 	const showMap = attributes.showMap ?? false;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<EmailBreakdownReport view={ view } metric={ metric } max={ max } showMap={ showMap } />
+			<EmailBreakdownReport view={ view } metric={ metric } showMap={ showMap } />
 		</WidgetRoot>
 	);
 }

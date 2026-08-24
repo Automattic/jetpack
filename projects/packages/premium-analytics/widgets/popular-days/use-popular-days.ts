@@ -1,11 +1,8 @@
 /**
  * External dependencies
  */
-import { useStatsVisits } from '@jetpack-premium-analytics/data';
-import {
-	useWidgetRootContext,
-	withoutComparison,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import { useStatsVisits, withoutComparison } from '@jetpack-premium-analytics/data';
+import { useWidgetRootContext } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from 'react';
 /**
  * Internal dependencies

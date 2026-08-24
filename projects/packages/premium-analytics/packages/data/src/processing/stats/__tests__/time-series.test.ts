@@ -299,6 +299,55 @@ describe( 'Stats time-series normalizer', () => {
 		} );
 	} );
 
+	it( 'resolves hourly visits rows whose period packs the date and hour together', () => {
+		const result = sanitizeStatsTimeSeriesResponse(
+			{
+				unit: 'hour',
+				fields: [ 'period', 'views' ],
+				data: [
+					[ '2026-06-15 09:00:00', 3 ],
+					[ '2026-06-15 10:00:00', 5 ],
+					[ '2026-06-16 00:00:00', 1 ],
+				],
+			},
+			{ period: 'hour' }
+		);
+
+		expect( result.data ).toEqual( [
+			expect.objectContaining( {
+				time_interval: '2026-06-15 09:00',
+				date_start: '2026-06-15T09:00:00+00:00',
+				date_end: '2026-06-15T09:59:59+00:00',
+				value: 3,
+			} ),
+			expect.objectContaining( {
+				time_interval: '2026-06-15 10:00',
+				date_start: '2026-06-15T10:00:00+00:00',
+				value: 5,
+			} ),
+			expect.objectContaining( {
+				time_interval: '2026-06-16 00:00',
+				date_start: '2026-06-16T00:00:00+00:00',
+				value: 1,
+			} ),
+		] );
+	} );
+
+	it( 'leaves an hourly row that carries no parseable hour on its calendar bucket', () => {
+		const result = sanitizeStatsTimeSeriesResponse(
+			{ unit: 'hour', fields: [ 'period', 'views' ], data: [ [ '2026-06-15', 3 ] ] },
+			{ period: 'hour' }
+		);
+
+		expect( result.data[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				time_interval: '2026-06-15',
+				date_start: '2026-06-15T00:00:00+00:00',
+				date_end: '2026-06-15T23:59:59+00:00',
+			} )
+		);
+	} );
+
 	it( 'matches the row shape when rows are present and when they are not', () => {
 		const query = {
 			start_date: '2026-06-15T00:00:00-07:00',
@@ -312,6 +361,35 @@ describe( 'Stats time-series normalizer', () => {
 
 		expect( withoutRows.summary.date_start ).toBe( withRows.summary.date_start );
 		expect( withoutRows.summary.date_end ).toBe( withRows.summary.date_end );
+	} );
+
+	// The shape `stats/subscribers` returns.
+	it( 'orders newest-first payloads oldest first', () => {
+		const result = sanitizeStatsTimeSeriesResponse(
+			{
+				date: '2026-06-17',
+				unit: 'day',
+				fields: [ 'period', 'subscribers' ],
+				data: [
+					[ '2026-06-17', 12 ],
+					[ '2026-06-16', 11 ],
+					[ '2026-06-15', 9 ],
+				],
+			},
+			{ period: 'day' }
+		);
+
+		expect( result.data.map( row => row.time_interval ) ).toEqual( [
+			'2026-06-15',
+			'2026-06-16',
+			'2026-06-17',
+		] );
+		expect( result.summary ).toEqual(
+			expect.objectContaining( {
+				date_start: '2026-06-15T00:00:00+00:00',
+				date_end: '2026-06-17T23:59:59+00:00',
+			} )
+		);
 	} );
 
 	it( 'detects supported time-series payload shapes', () => {

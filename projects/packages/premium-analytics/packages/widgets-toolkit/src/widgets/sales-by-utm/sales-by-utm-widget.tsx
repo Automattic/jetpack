@@ -8,7 +8,7 @@ import {
 import { megaphone, search, channel } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo, type CSSProperties } from 'react';
-import { LeaderboardChart, WidgetState } from '../../components';
+import { LeaderboardChart, LeaderboardSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
@@ -72,7 +72,7 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading && ! hasData }
+			isLoading={ isLoading }
 			isFetching={ isFetching }
 			// The report queries keep the previous period's data as placeholders
 			// across range changes, so only surface the error when there is
@@ -90,6 +90,7 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 				icon: emptyStateIcon,
 				description: __( 'No attribution data in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <LeaderboardSkeleton variant="bars" /> }
 		>
 			<LeaderboardChart
 				data={ chartData }
@@ -97,7 +98,7 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 				legendLabels={ legendLabels }
 				style={
 					{
-						'--a8c--charts--leaderboard--bar--border-radius': '0 1px 1px 0',
+						'--a8c-charts-border-radius-leaderboard-bar': '0 1px 1px 0',
 					} as CSSProperties
 				}
 			/>

@@ -33,30 +33,52 @@ describe( 'getComparisonRangeFromPreset', () => {
 	} );
 
 	describe( 'rolling (sub-day) references', () => {
-		// A rolling 24-hour window ending mid-afternoon.
+		// A rolling 24-hour window ending mid-afternoon, ends inclusive as the
+		// presets build them (`endOfHour`).
 		const reference = {
 			from: new Date( 2026, 6, 9, 14, 30, 0, 0 ),
-			to: new Date( 2026, 6, 10, 14, 30, 0, 0 ),
+			to: new Date( 2026, 6, 10, 14, 29, 59, 999 ),
 		};
 
 		it( 'mirrors the exact previous window for previous-period', () => {
 			expect( getComparisonRangeFromPreset( reference, 'previous-period' ) ).toEqual( {
 				from: new Date( 2026, 6, 8, 14, 30, 0, 0 ),
-				to: new Date( 2026, 6, 9, 14, 30, 0, 0 ),
+				to: new Date( 2026, 6, 9, 14, 29, 59, 999 ),
+			} );
+		} );
+
+		it( 'ends immediately before the reference begins', () => {
+			const comparison = getComparisonRangeFromPreset( reference, 'previous-period' );
+
+			expect( ( comparison?.to?.getTime() ?? 0 ) + 1 ).toBe( reference.from.getTime() );
+		} );
+
+		it( 'mirrors the hour-snapped 24-hour preset window one day back', () => {
+			// The `last-24-hours` shape. Shifting by the exclusive span landed `to`
+			// on the reference's own `from`, pulling every hourly comparison bucket
+			// one hour late.
+			const last24Hours = {
+				from: new Date( 2026, 7, 17, 15, 0, 0, 0 ),
+				to: new Date( 2026, 7, 18, 14, 59, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( last24Hours, 'previous-period' ) ).toEqual( {
+				from: new Date( 2026, 7, 16, 15, 0, 0, 0 ),
+				to: new Date( 2026, 7, 17, 14, 59, 59, 999 ),
 			} );
 		} );
 
 		it( 'keeps the time of day for previous-month', () => {
 			expect( getComparisonRangeFromPreset( reference, 'previous-month' ) ).toEqual( {
 				from: new Date( 2026, 5, 9, 14, 30, 0, 0 ),
-				to: new Date( 2026, 5, 10, 14, 30, 0, 0 ),
+				to: new Date( 2026, 5, 10, 14, 29, 59, 999 ),
 			} );
 		} );
 
 		it( 'keeps the time of day for previous-year', () => {
 			expect( getComparisonRangeFromPreset( reference, 'previous-year' ) ).toEqual( {
 				from: new Date( 2025, 6, 9, 14, 30, 0, 0 ),
-				to: new Date( 2025, 6, 10, 14, 30, 0, 0 ),
+				to: new Date( 2025, 6, 10, 14, 29, 59, 999 ),
 			} );
 		} );
 	} );

@@ -2,8 +2,8 @@ import { render, screen } from '@testing-library/react';
 import { PresetRowProbe } from '../preset-row-probe';
 
 const presets = [
-	{ id: 'last-7-days', label: 'Last 7 days' },
-	{ id: 'last-30-days', label: 'Last 30 days' },
+	{ id: 'last-7-days', label: '7 days' },
+	{ id: 'last-30-days', label: '30 days' },
 ];
 
 function renderProbe() {
@@ -29,7 +29,7 @@ describe( 'PresetRowProbe', () => {
 
 		expect( measured ).toContainElement( screen.getByText( 'Chart interval' ) );
 		expect( measured ).toContainElement( screen.getByText( 'Add comparison' ) );
-		expect( measured ).toContainElement( screen.getByText( 'Last 7 days' ) );
+		expect( measured ).toContainElement( screen.getByText( '7 days' ) );
 	} );
 
 	it( 'keeps its copy of the row out of the accessibility tree', () => {

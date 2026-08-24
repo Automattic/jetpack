@@ -7,6 +7,15 @@ import { QUICK_SURFACE_PRESETS } from '../presets/types';
 const TIME_ZONE = 'America/New_York';
 
 describe( 'surface preset short labels', () => {
+	it( 'uses the designed full labels', () => {
+		expect( getQuickSurfacePresets( TIME_ZONE ).map( preset => preset.label ) ).toEqual( [
+			'Last 24 hours',
+			'7 days',
+			'30 days',
+			'12 months',
+		] );
+	} );
+
 	it( 'gives every quick surface preset a short label', () => {
 		const presets = getQuickSurfacePresets( TIME_ZONE );
 

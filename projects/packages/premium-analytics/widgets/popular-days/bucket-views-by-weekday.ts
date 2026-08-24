@@ -50,7 +50,7 @@ function readRowViews( row: Record< string, unknown > ) {
  * Fold a daily `stats/visits` series into one bucket per day of the week.
  *
  * Always seven buckets, so the chart keeps a stable shape; weekdays the range
- * never covered carry `occurrences: 0` and are skipped by `pickPeakWeekday`.
+ * never covered carry `occurrences: 0`.
  */
 export function bucketViewsByWeekday( rows: Record< string, unknown >[] ): PopularDayBucket[] {
 	const totals = Array.from( { length: 7 }, () => ( { total: 0, occurrences: 0 } ) );
@@ -86,10 +86,11 @@ export function bucketViewsByWeekday( rows: Record< string, unknown >[] ): Popul
  * Mean, not total: a selected range rarely spans a whole number of weeks — over
  * 30 days two weekdays occur five times and five occur four — so a total would
  * let that extra occurrence alone decide the winner.
+ * Returns no peak when the entire range received no views.
  */
 export function pickPeakWeekday( buckets: PopularDayBucket[] ): PopularDayBucket | undefined {
 	return buckets
-		.filter( bucket => bucket.occurrences > 0 )
+		.filter( bucket => bucket.occurrences > 0 && bucket.total > 0 )
 		.reduce< PopularDayBucket | undefined >(
 			( peak, bucket ) => ( ! peak || bucket.average > peak.average ? bucket : peak ),
 			undefined

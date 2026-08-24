@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 /**
  * Internal dependencies
  */
@@ -9,13 +9,25 @@ import { getReportDefinition } from './registry';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isSimpleSite: jest.fn( () => true ),
+	getScriptData: jest.fn(),
 } ) );
 
 const mockIsSimpleSite = isSimpleSite as jest.Mock;
+const mockGetScriptData = getScriptData as jest.Mock;
+
+/**
+ * Point the mocked script data at a site with or without VideoPress.
+ *
+ * @param hasVideoPress - Whether the site runs VideoPress.
+ */
+function setVideoPress( hasVideoPress: boolean ) {
+	mockGetScriptData.mockReturnValue( { premium_analytics: { has_videopress: hasVideoPress } } );
+}
 
 describe( 'getReportDefinition', () => {
 	beforeEach( () => {
 		mockIsSimpleSite.mockReturnValue( true );
+		setVideoPress( true );
 	} );
 
 	it( 'returns undefined for an unknown report', () => {
@@ -50,5 +62,21 @@ describe( 'getReportDefinition', () => {
 		mockIsSimpleSite.mockReturnValue( false );
 
 		expect( getReportDefinition( 'posts' )?.id ).toBe( 'posts' );
+	} );
+
+	it( 'returns the videos report on sites running VideoPress', () => {
+		expect( getReportDefinition( 'videos' )?.id ).toBe( 'videos' );
+	} );
+
+	it( 'hides the videos report without VideoPress', () => {
+		setVideoPress( false );
+
+		expect( getReportDefinition( 'videos' ) ).toBeUndefined();
+	} );
+
+	it( 'hides the videos report when the site never published the flag', () => {
+		mockGetScriptData.mockReturnValue( undefined );
+
+		expect( getReportDefinition( 'videos' ) ).toBeUndefined();
 	} );
 } );

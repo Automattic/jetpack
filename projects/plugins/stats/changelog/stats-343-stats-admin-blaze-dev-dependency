@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stop bundling the Blaze package, which nothing in the plugin starts.

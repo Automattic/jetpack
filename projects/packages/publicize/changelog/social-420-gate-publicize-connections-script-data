@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Only include social connection data in the script data for users who can access Publicize.

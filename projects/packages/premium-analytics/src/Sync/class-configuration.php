@@ -91,13 +91,9 @@ class Configuration {
 	/**
 	 * Whether WooCommerce is active in the current request.
 	 *
-	 * Public so the sync milestone tracker can decide which full sync gates the
-	 * dashboard: the `woocommerce_analytics` module when WooCommerce is active,
-	 * or Jetpack's generic initial full sync when it is not.
-	 *
 	 * @return bool
 	 */
-	public static function is_woocommerce_active(): bool {
+	private static function is_woocommerce_active(): bool {
 		return class_exists( 'WooCommerce' ) || function_exists( 'WC' );
 	}
 

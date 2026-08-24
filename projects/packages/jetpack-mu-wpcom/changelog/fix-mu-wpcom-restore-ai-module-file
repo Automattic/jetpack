@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Retain an unloaded file so its deletion deploys separately from the require removal.
+
