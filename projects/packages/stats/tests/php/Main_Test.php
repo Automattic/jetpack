@@ -263,6 +263,21 @@ class Main_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test Main::map_meta_caps does not grant access to a disallowed role.
+	 */
+	public function test_view_stats_meta_mapping_disallowed_role() {
+		$dummy_user_id = wp_insert_user(
+			array(
+				'user_login' => 'dummy_subscriber',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+
+		$this->assertFalse( user_can( $dummy_user_id, 'view_stats' ) );
+	}
+
+	/**
 	 * Test Main::should_track
 	 */
 	public function test_should_track_will_return_false_without_connection() {
