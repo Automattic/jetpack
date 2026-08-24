@@ -361,6 +361,7 @@
 	flex-wrap: wrap;
 	justify-content: flex-start;
 	align-items: baseline;
+	margin-bottom: 0; /* Override default margin on classic theme wp-block */
 
 	.components-base-control {
 		margin-top: -1px;
