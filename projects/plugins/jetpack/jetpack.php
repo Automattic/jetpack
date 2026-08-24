@@ -40,7 +40,7 @@ if ( ! defined( 'JETPACK__VERSION' ) ) {
 	define( 'JETPACK__VERSION', '16.2-a.1' );
 }
 defined( 'JETPACK__MINIMUM_WP_VERSION' ) || define( 'JETPACK__MINIMUM_WP_VERSION', '7.0' );
-defined( 'JETPACK__MINIMUM_PHP_VERSION' ) || define( 'JETPACK__MINIMUM_PHP_VERSION', '7.2' );
+defined( 'JETPACK__MINIMUM_PHP_VERSION' ) || define( 'JETPACK__MINIMUM_PHP_VERSION', '7.4' );
 
 /**
  * Constant used to fetch the connection owner token
