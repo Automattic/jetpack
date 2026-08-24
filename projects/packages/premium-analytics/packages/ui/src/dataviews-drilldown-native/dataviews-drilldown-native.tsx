@@ -33,6 +33,16 @@ type CollapseContextValue = {
 	isExpanded: ( id: string ) => boolean;
 	toggleableIds: ReadonlySet< string >;
 	onToggle: ( id: string ) => void;
+	/**
+	 * The consumer's own title field and id resolver, which the grafted cell
+	 * renders through. They travel by context rather than by closure so the
+	 * grafted `render` can stay one module-level component: a per-render
+	 * component identity would remount the cell and drop focus from the
+	 * toggle whenever the consumer's `fields` array is a fresh reference.
+	 * `Item` is erased here because one context serves every instantiation.
+	 */
+	titleField?: Field< unknown >;
+	getItemId: ( item: unknown ) => string;
 };
 
 const CollapseContext = createContext< CollapseContextValue | null >( null );
@@ -58,28 +68,29 @@ const GenericDataViews = DataViews as unknown as < Item >( props: {
 	config?: { perPageSizes: number[] };
 } ) => ReturnType< typeof DataViews >;
 
-type CollapsibleTitleCellProps< Item > = DataViewRenderFieldProps< Item > & {
-	sourceField: Field< Item >;
-	getItemId: GetItemIdBaseProps< Item >;
-};
-
-function CollapsibleTitleCell< Item >( {
-	sourceField,
-	getItemId,
-	...props
-}: CollapsibleTitleCellProps< Item > ) {
+/**
+ * The title field's cell with the fold control prepended.
+ *
+ * Module-level on purpose: this is the `render` the component grafts onto the
+ * consumer's title field, and a `render` rebuilt per render would remount the
+ * cell — taking the focused toggle with it.
+ */
+function CollapsibleTitleCell< Item >( props: DataViewRenderFieldProps< Item > ) {
 	const collapse = useContext( CollapseContext );
 
 	if ( ! collapse ) {
 		throw new Error( 'CollapsibleTitleCell must be rendered within CollapseContext.' );
 	}
 
+	const { titleField, getItemId } = collapse as unknown as {
+		titleField?: Field< Item >;
+		getItemId: GetItemIdBaseProps< Item >;
+	};
 	const id = getItemId( props.item );
-	// DataViews' own default when a field omits `getValue`.
-	const label =
-		sourceField.getValue?.( { item: props.item } ) ??
-		( props.item as Record< string, unknown > )[ sourceField.id ];
-	const RenderTitle = sourceField.render;
+	// `props.field` is DataViews' normalized field, so its `getValue` covers
+	// the dotted-path default a field without one gets upstream.
+	const label = props.field.getValue( { item: props.item } );
+	const RenderTitle = titleField?.render;
 
 	return (
 		<span className={ styles.titleCell }>
@@ -91,17 +102,6 @@ function CollapsibleTitleCell< Item >( {
 			{ RenderTitle ? <RenderTitle { ...props } /> : String( label ?? '' ) }
 		</span>
 	);
-}
-
-function makeCollapsibleTitleField< Item >(
-	field: Field< Item >,
-	getItemId: GetItemIdBaseProps< Item >
-): Field< Item > {
-	function CollapsibleTitle( props: DataViewRenderFieldProps< Item > ) {
-		return <CollapsibleTitleCell { ...props } sourceField={ field } getItemId={ getItemId } />;
-	}
-
-	return { ...field, render: CollapsibleTitle };
 }
 
 export interface DataViewsDrilldownNativeProps< Item > {
@@ -215,7 +215,7 @@ export function DataViewsDrilldownNative< Item >( {
 		// 4. Fold the collapsed branches away. A narrowed table must still answer
 		//    the search that narrowed it, so the matches' ancestors unfold for as
 		//    long as the search or filter is on.
-		const isNarrowed = !! view.search || ( view.filters?.length ?? 0 ) > 0;
+		const isNarrowed = matches.length !== data.length;
 		const forcedIds =
 			collapsible && isNarrowed
 				? collectAncestorIds( orderedData, matchedIds, getItemId, getItemParentId )
@@ -274,9 +274,20 @@ export function DataViewsDrilldownNative< Item >( {
 			return next;
 		} );
 	}, [] );
+	const titleField = useMemo(
+		() => fields.find( field => field.id === view.titleField ),
+		[ fields, view.titleField ]
+	);
 	const collapseContextValue = useMemo(
-		() => ( { isExpanded, toggleableIds, onToggle: handleToggle } ),
-		[ isExpanded, toggleableIds, handleToggle ]
+		() =>
+			( {
+				isExpanded,
+				toggleableIds,
+				onToggle: handleToggle,
+				titleField,
+				getItemId,
+			} ) as unknown as CollapseContextValue,
+		[ isExpanded, toggleableIds, handleToggle, titleField, getItemId ]
 	);
 
 	// The fold control belongs to the title cell — the only column DataViews
@@ -288,9 +299,9 @@ export function DataViewsDrilldownNative< Item >( {
 		}
 
 		return fields.map( field =>
-			field.id === view.titleField ? makeCollapsibleTitleField( field, getItemId ) : field
+			field.id === view.titleField ? { ...field, render: CollapsibleTitleCell } : field
 		);
-	}, [ collapsible, fields, view.titleField, getItemId ] );
+	}, [ collapsible, fields, view.titleField ] );
 
 	// Resolved by id: DataViews clones each record internally, so the items
 	// reaching `getItemLevel` are never the objects the hierarchy walk saw.

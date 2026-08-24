@@ -48,6 +48,18 @@ function renderTable( props: Partial< DataViewsDrilldownNativeProps< Row > > = {
 	);
 }
 
+const inlineFieldsTable = () => (
+	<DataViewsDrilldownNative< Row >
+		data={ rows }
+		fields={ fields.map( field => ( { ...field } ) ) }
+		getItemId={ item => item.id }
+		getItemParentId={ item => item.parentId }
+		initialView={ { fields: [ 'referrer', 'views' ], perPage: 25 } }
+		searchLabel="Search referrers"
+		collapsible
+	/>
+);
+
 const renderedRows = () =>
 	screen
 		.getAllByRole( 'row' )
@@ -114,6 +126,37 @@ describe( 'DataViewsDrilldownNative collapse', () => {
 
 		expect( screen.getByRole( 'button', { name: 'Search Engines' } ) ).toBe( toggle );
 		expect( toggle ).toHaveFocus();
+	} );
+
+	it( 'keeps the toggle mounted when the consumer rebuilds its fields array', () => {
+		const { rerender } = render( inlineFieldsTable() );
+		const toggle = screen.getByRole( 'button', { name: 'Search Engines' } );
+
+		toggle.focus();
+		rerender( inlineFieldsTable() );
+
+		// A per-render `render` component would remount the cell here, taking
+		// the focused toggle with it.
+		expect( screen.getByRole( 'button', { name: 'Search Engines' } ) ).toBe( toggle );
+		expect( toggle ).toHaveFocus();
+	} );
+
+	it( 'does not force branches open for a filter that narrows nothing', () => {
+		renderTable( {
+			collapsible: true,
+			defaultExpanded: 'none',
+			initialView: {
+				fields: [ 'referrer', 'views' ],
+				perPage: 25,
+				filters: [ { field: 'referrer', operator: 'isAny', value: [] } ],
+			},
+		} );
+
+		expect( renderedRows() ).toEqual( [
+			expect.stringContaining( 'Search Engines' ),
+			expect.stringContaining( 'Social' ),
+		] );
+		expect( screen.getByRole( 'button', { name: 'Search Engines' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'starts folded when asked, and still expands on demand', async () => {
