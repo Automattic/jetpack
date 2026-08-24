@@ -686,6 +686,31 @@ describe( 'ConditionalLogicPanel', () => {
 		} );
 	} );
 
+	/**
+	 * Clearing the subject puts the row back where it started, which is a place the value box
+	 * is still offered -- so wiping the value would throw away something the author can still
+	 * see and is still allowed to type. It is representability that decides, and there is no
+	 * subject yet to decide it against.
+	 */
+	it( 'keeps the value when the subject is cleared again', async () => {
+		const { setAttributes } = await setup(
+			withRules( [ { field: 'name_1', operator: 'is', value: 'iPhone' } ] )
+		);
+
+		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), '' );
+
+		expect( setAttributes ).toHaveBeenCalledWith( {
+			conditionalLogic: expect.objectContaining( {
+				groups: [
+					{
+						logicalOperator: 'all',
+						rules: [ { field: '', operator: 'is', value: 'iPhone' } ],
+					},
+				],
+			} ),
+		} );
+	} );
+
 	it( 'removes a condition', async () => {
 		const { setAttributes } = await setup(
 			withRules( [
