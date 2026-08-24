@@ -50,7 +50,7 @@ function wpcom_is_central_forms_management_enabled( $blog_id = null ) { // phpcs
 }
 
 /**
- * Disable Central Forms Management for excluded WordPress.com sites.
+ * No-op kept so existing callers do not fatal.
  *
  * @deprecated $$next-version$$ Nothing disables Central Forms Management any more.
  */
@@ -59,10 +59,11 @@ function wpcom_maybe_disable_central_forms_management() {
 }
 
 /**
- * Set the 'central-form-management' block editor feature flag.
+ * Pass-through kept so existing callers do not fatal.
  *
- * No longer hooked: the Forms package already defaults this flag to true, so
- * filtering it here only ever restated the default.
+ * This set the `central-form-management` block editor feature flag. It is no longer
+ * hooked: the Forms package already defaults the flag to true, so filtering here only
+ * ever restated the default.
  *
  * @deprecated $$next-version$$ The Forms package supplies the default.
  *
