@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Extract WidgetRoot report params resolution into a hook. No user-facing change.
