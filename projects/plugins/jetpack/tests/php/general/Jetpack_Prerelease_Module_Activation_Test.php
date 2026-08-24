@@ -115,8 +115,7 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 			)
 		);
 
-		$this->assertNotSame( 'yes', $autoload, 'The record must not be autoloaded.' );
-		$this->assertNotSame( 'on', $autoload, 'The record must not be autoloaded.' );
+		$this->assertNotContains( $autoload, array( 'yes', 'on' ), 'The record must not be autoloaded.' );
 	}
 
 	/**
@@ -160,8 +159,7 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 			'jetpack_get_module',
 			function ( $mod, $slug ) use ( $modules ) {
 				if ( isset( $modules[ $slug ] ) ) {
-					$mod['introduced']    = $modules[ $slug ];
-					$mod['auto_activate'] = 'Yes';
+					$mod['introduced'] = $modules[ $slug ];
 				}
 				return $mod;
 			},
@@ -171,45 +169,14 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Only modules introduced in the release line now running are candidates. Anything older is
-	 * out of reach, which is what makes an empty record safe on an established site.
+	 * The stored active_modules option, bypassing the `jetpack_active_modules` filter.
+	 *
+	 * The raw/filtered distinction is the whole point of this suite, so it gets a name.
+	 *
+	 * @return string[]
 	 */
-	public function test_current_line_modules_selects_only_the_running_release_line() {
-		Constants::set_constant( 'JETPACK__VERSION', '16.2-a.4' );
-		$this->register_fake_modules(
-			array(
-				'jptest-current' => '16.2',
-				'jptest-old'     => '16.1',
-				'jptest-future'  => '16.3',
-			)
-		);
-
-		$this->assertSame( array( 'jptest-current' ), array_values( Jetpack::get_current_line_modules() ) );
-	}
-
-	/**
-	 * A module whose header itself carries a prerelease suffix still belongs to its release line.
-	 */
-	public function test_current_line_modules_tolerates_a_prerelease_in_the_header() {
-		Constants::set_constant( 'JETPACK__VERSION', '16.2-a.4' );
-		$this->register_fake_modules( array( 'jptest-current' => '16.2-a.2' ) );
-
-		$this->assertSame( array( 'jptest-current' ), array_values( Jetpack::get_current_line_modules() ) );
-	}
-
-	/**
-	 * On a plain release the line is the release itself.
-	 */
-	public function test_current_line_modules_on_a_release_version() {
-		Constants::set_constant( 'JETPACK__VERSION', '16.2' );
-		$this->register_fake_modules(
-			array(
-				'jptest-current' => '16.2',
-				'jptest-old'     => '16.1',
-			)
-		);
-
-		$this->assertSame( array( 'jptest-current' ), array_values( Jetpack::get_current_line_modules() ) );
+	private function raw_active_modules() {
+		return (array) \Jetpack_Options::get_option( 'active_modules' );
 	}
 
 	/**
@@ -221,21 +188,16 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 	 * @return void
 	 */
 	private function run_upgrade( $from, $to ) {
+		// Setting the constant is enough: is_development_version() derives the answer from it.
 		Constants::set_constant( 'JETPACK__VERSION', $to );
 
-		$is_prerelease = function () use ( $to ) {
-			return (bool) preg_match( '/[-+]/', $to );
-		};
-
 		add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
-		add_filter( 'jetpack_development_version', $is_prerelease );
 
 		\Jetpack_Options::update_option( 'version', $from . ':' . ( time() - 86400 ) );
 
 		Jetpack::activate_new_modules( false );
 
 		remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
-		remove_filter( 'jetpack_development_version', $is_prerelease );
 	}
 
 	/**
@@ -247,7 +209,7 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 
 		$this->run_upgrade( '16.1', '16.2-a.1' );
 
-		$this->assertContains( 'jptest-current', (array) \Jetpack_Options::get_option( 'active_modules' ) );
+		$this->assertContains( 'jptest-current', $this->raw_active_modules() );
 		$this->assertContains(
 			'jptest-current',
 			get_option( Jetpack::PRERELEASE_ACTIVATED_MODULES_OPTION, array() )
@@ -255,44 +217,43 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Switching the module off must stick. The next alpha reopens a window that still contains it,
-	 * so only the record keeps it off.
+	 * Switching the module off must stick. Both the next alpha and the final release reopen a
+	 * window that still contains the module, so only the record keeps it off.
+	 *
+	 * @dataProvider provide_upgrades_after_opt_out
+	 *
+	 * @param string $from Version recorded before the second upgrade.
+	 * @param string $to   Version running for the second upgrade.
 	 */
-	public function test_opt_out_survives_the_next_alpha() {
+	#[DataProvider( 'provide_upgrades_after_opt_out' )]
+	public function test_opt_out_survives_later_upgrades( $from, $to ) {
 		$this->register_fake_modules( array( 'jptest-current' => '16.2' ) );
 		$this->run_upgrade( '16.1', '16.2-a.1' );
 
+		// Without this the test is vacuous: if the module never activated, "it is off" proves nothing.
 		$this->assertContains(
 			'jptest-current',
-			(array) \Jetpack_Options::get_option( 'active_modules' ),
+			$this->raw_active_modules(),
 			'Precondition: the first alpha activated the module.'
 		);
 
 		Jetpack::deactivate_module( 'jptest-current' );
 
-		$this->run_upgrade( '16.2-a.1', '16.2-a.2' );
+		$this->run_upgrade( $from, $to );
 
-		$this->assertNotContains( 'jptest-current', (array) \Jetpack_Options::get_option( 'active_modules' ) );
+		$this->assertNotContains( 'jptest-current', $this->raw_active_modules() );
 	}
 
 	/**
-	 * The same opt-out must survive the final release, whose window also contains the module.
+	 * The two upgrades whose window still contains a module introduced in 16.2.
+	 *
+	 * @return array
 	 */
-	public function test_opt_out_survives_the_final_release() {
-		$this->register_fake_modules( array( 'jptest-current' => '16.2' ) );
-		$this->run_upgrade( '16.1', '16.2-a.1' );
-
-		$this->assertContains(
-			'jptest-current',
-			(array) \Jetpack_Options::get_option( 'active_modules' ),
-			'Precondition: the first alpha activated the module.'
+	public static function provide_upgrades_after_opt_out() {
+		return array(
+			'next alpha'    => array( '16.2-a.1', '16.2-a.2' ),
+			'final release' => array( '16.2-a.9', '16.2' ),
 		);
-
-		Jetpack::deactivate_module( 'jptest-current' );
-
-		$this->run_upgrade( '16.2-a.9', '16.2' );
-
-		$this->assertNotContains( 'jptest-current', (array) \Jetpack_Options::get_option( 'active_modules' ) );
 	}
 
 	/**
@@ -305,7 +266,7 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 
 		$this->run_upgrade( '16.2-a.1', '16.2-a.2' );
 
-		$this->assertContains( 'jptest-late', (array) \Jetpack_Options::get_option( 'active_modules' ) );
+		$this->assertContains( 'jptest-late', $this->raw_active_modules() );
 	}
 
 	/**
@@ -316,7 +277,7 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 
 		$this->run_upgrade( '16.1', '16.2' );
 
-		$this->assertContains( 'jptest-current', (array) \Jetpack_Options::get_option( 'active_modules' ) );
+		$this->assertContains( 'jptest-current', $this->raw_active_modules() );
 		$this->assertFalse(
 			get_option( Jetpack::PRERELEASE_ACTIVATED_MODULES_OPTION, false ),
 			'A site that never runs a prerelease gains no new state.'
@@ -332,7 +293,7 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 
 		$this->run_upgrade( '16.2-a.1', '16.2-a.2' );
 
-		$this->assertNotContains( 'jptest-old', (array) \Jetpack_Options::get_option( 'active_modules' ) );
+		$this->assertNotContains( 'jptest-old', $this->raw_active_modules() );
 	}
 
 	/**
@@ -354,11 +315,11 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 		remove_filter( 'jetpack_active_modules', $stopgap );
 
 		$record = get_option( Jetpack::PRERELEASE_ACTIVATED_MODULES_OPTION, array() );
-		$raw    = (array) \Jetpack_Options::get_option( 'active_modules' );
+		$raw    = $this->raw_active_modules();
 
 		$this->assertSame(
 			array(),
-			array_values( array_diff( $record, $raw ) ),
+			array_diff( $record, $raw ),
 			'Nothing may be recorded that is not genuinely in the raw active_modules option.'
 		);
 	}
@@ -367,8 +328,12 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 	 * Pre-existing and surprising: activate_default_modules() seeds its working set from the
 	 * FILTERED module list, and Modules::update_active() diffs that against the RAW option, so a
 	 * module contributed only by `jetpack_active_modules` is written into the option as a side
-	 * effect of activating something else. Characterized so a change to either method cannot alter
-	 * it silently.
+	 * effect of activating something else.
+	 *
+	 * Kept in this file, despite testing neither new method, because it is the behavior
+	 * {@see Jetpack::record_prerelease_activated_modules()} exists to defend against: it is why
+	 * the record intersects the raw option rather than trusting get_active_modules(). If this test
+	 * ever fails, that design decision needs revisiting.
 	 */
 	public function test_filtered_active_modules_leak_into_the_stored_option() {
 		\Jetpack_Options::update_option( 'active_modules', array() );
@@ -385,7 +350,7 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 
 		$this->assertContains(
 			'stats',
-			(array) \Jetpack_Options::get_option( 'active_modules' ),
+			$this->raw_active_modules(),
 			'A module present only via jetpack_active_modules is persisted by update_active_modules().'
 		);
 	}
