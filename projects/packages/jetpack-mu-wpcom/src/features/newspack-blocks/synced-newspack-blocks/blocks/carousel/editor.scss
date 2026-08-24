@@ -1,4 +1,9 @@
+@use "newspack-colors" as np-colors;
 @use "../../shared/sass/placeholder";
+
+.wp-block:has(> .wpnbpc) {
+	max-width: 100%;
+}
 
 .wp-block-newspack-blocks-carousel {
 	.swiper-wrapper {
@@ -6,7 +11,7 @@
 		pointer-events: none;
 	}
 	.entry-title {
-		color: white;
+		color: np-colors.$neutral-000;
 	}
 	a {
 		color: inherit;
@@ -14,7 +19,7 @@
 		&:active,
 		&:focus,
 		&:hover {
-			color: rgba(255, 255, 255, 0.75);
+			color: rgba(np-colors.$neutral-000, 0.75);
 		}
 	}
 	.post-thumbnail img {
@@ -42,6 +47,7 @@
 		margin-right: 1.5em;
 	}
 }
+
 .editor-block-list__layout .editor-block-list__block .wpnbpc .entry-title a,
 .editor-block-list__layout .editor-block-list__block .wpnbpc .entry-meta .byline a {
 	color: inherit;

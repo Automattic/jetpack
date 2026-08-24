@@ -20,6 +20,11 @@ optimisticRepeatInstall: false
 autoInstallPeers: false
 dedupePeerDependents: false
 strictPeerDependencies: true
+peerDependencyRules:
+  allowedVersions:
+    # newspack-icons only uses SVG and Path, which are unchanged in primitives v4.
+    # Upstream has relaxed the range in their prereleases.
+    newspack-icons>@wordpress/primitives: '4'
 
 # No hoisting by default.
 hoistPattern: []

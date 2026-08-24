@@ -86,6 +86,15 @@ call_user_func(
 		<?php endif; ?>
 
 		<div class="entry-wrapper">
+			<?php
+			/**
+			 * Fires at the beginning of the entry wrapper for each article in the homepage articles block.
+			 *
+			 * @param int   $post_id    The current post ID.
+			 * @param array $attributes The block attributes array.
+			 */
+			do_action( 'newspack_blocks_content_loop_entry_wrapper_start', $post_id, $attributes );
+			?>
 			<?php if ( ! empty( $sponsors ) || ( $attributes['showCategory'] ) ) : ?>
 
 				<div class="cat-links <?php if ( ! empty( $sponsors ) ) : ?>sponsor-label<?php endif; // phpcs:ignore Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace ?>">
@@ -147,12 +156,27 @@ call_user_func(
 				</div>
 			<?php endif; ?>
 			<?php
+			/**
+			 * Fires before the main content (excerpt or full content) for each article in the homepage articles block.
+			 *
+			 * @param int   $post_id    The current post ID.
+			 * @param array $attributes The block attributes array.
+			 */
+			do_action( 'newspack_blocks_content_loop_content_start', $post_id, $attributes );
 			if ( $attributes['showExcerpt'] && ! $attributes['showFullContent'] ) :
 				the_excerpt();
 			endif;
 			if ( $attributes['showFullContent'] && ! $attributes['showExcerpt'] ) :
 				the_content();
 			endif;
+			/**
+			 * Fires after the main content (excerpt or full content) for each article in the homepage articles block.
+			 *
+			 * @param int   $post_id    The current post ID.
+			 * @param array $attributes The block attributes array.
+			 */
+			do_action( 'newspack_blocks_content_loop_content_end', $post_id, $attributes );
+
 			if ( $post_link && ! $attributes['showFullContent'] && $attributes['showReadMore'] ) :
 				?>
 				<a class="more-link" href="<?php echo esc_url( $post_link ); ?>" rel="bookmark">
@@ -225,7 +249,7 @@ call_user_func(
 					endif;
 					if ( $show_date ) :
 						$time_string = '<time class="entry-date published updated" datetime="%1$s">%2$s</time>';
-						if ( get_the_time( 'U' ) !== get_the_modified_time( 'U' ) ) :
+						if ( get_the_time( 'U' ) < get_the_modified_time( 'U' ) ) :
 							$time_string = '<time class="entry-date published" datetime="%1$s">%2$s</time><time class="updated" datetime="%3$s">%4$s</time>';
 						endif;
 						printf(
@@ -248,6 +272,15 @@ call_user_func(
 					?>
 				</div><!-- .entry-meta -->
 			<?php endif; ?>
+			<?php
+			/**
+			 * Fires at the end of the entry wrapper for each article in the homepage articles block.
+			 *
+			 * @param int   $post_id    The current post ID.
+			 * @param array $attributes The block attributes array.
+			 */
+			do_action( 'newspack_blocks_content_loop_entry_wrapper_end', $post_id, $attributes );
+			?>
 		</div><!-- .entry-wrapper -->
 	</article>
 

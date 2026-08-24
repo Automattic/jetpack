@@ -131,6 +131,10 @@ class Newspack_Blocks {
 	 * Enqueue placeholder blocks assets.
 	 */
 	public static function enqueue_placeholder_blocks_assets() {
+		if ( ! is_admin() ) {
+			// In non-editor environment, do nothing.
+			return;
+		}
 		$script_data = self::script_enqueue_helper( NEWSPACK_BLOCKS__BLOCKS_DIRECTORY . 'placeholder_blocks.js' );
 		if ( $script_data ) {
 			wp_enqueue_script(
@@ -207,9 +211,12 @@ class Newspack_Blocks {
 	/**
 	 * Enqueue block scripts and styles for editor.
 	 */
-	public static function enqueue_block_editor_assets() {
+	public static function enqueue_block_assets() {
+		if ( ! is_admin() ) {
+			// In non-editor environment, do nothing.
+			return;
+		}
 		$script_data = static::script_enqueue_helper( NEWSPACK_BLOCKS__BLOCKS_DIRECTORY . 'editor.js' );
-
 		if ( $script_data ) {
 			wp_enqueue_script(
 				'newspack-blocks-editor',
@@ -239,8 +246,7 @@ class Newspack_Blocks {
 
 			if ( class_exists( 'WP_REST_Newspack_Author_List_Controller' ) ) {
 				$localized_data['can_use_cap']    = class_exists( 'CoAuthors_Guest_Authors' );
-				$author_list_controller           = new WP_REST_Newspack_Author_List_Controller();
-				$localized_data['editable_roles'] = $author_list_controller->get_editable_roles();
+				$localized_data['editable_roles'] = Newspack_Blocks\get_authors_roles();
 			}
 
 			if ( class_exists( '\Newspack\Authors_Custom_Fields' ) ) {
@@ -261,23 +267,20 @@ class Newspack_Blocks {
 		}
 
 		$editor_style = plugins_url( NEWSPACK_BLOCKS__BLOCKS_DIRECTORY . 'editor.css', NEWSPACK_BLOCKS__PLUGIN_FILE );
-
+		$handle = 'newspack-blocks-editor';
 		wp_enqueue_style(
-			'newspack-blocks-editor',
+			$handle,
 			$editor_style,
 			array(),
 			NEWSPACK_BLOCKS__VERSION
 		);
+		wp_style_add_data( $handle, 'rtl', 'replace' );
 	}
 
 	/**
 	 * Enqueue block scripts and styles for view.
 	 */
 	public static function manage_view_scripts() {
-		if ( is_admin() ) {
-			// In editor environment, do nothing.
-			return;
-		}
 		$src_directory  = NEWSPACK_BLOCKS__PLUGIN_DIR . 'src/blocks/';
 		$dist_directory = NEWSPACK_BLOCKS__PLUGIN_DIR . 'dist/';
 		$iterator       = new DirectoryIterator( $src_directory );
@@ -292,6 +295,11 @@ class Newspack_Blocks {
 
 			if ( file_exists( $view_php_path ) ) {
 				include_once $view_php_path;
+				continue;
+			}
+
+			// Skip remaining logic in admin - only needed for frontend asset loading.
+			if ( is_admin() ) {
 				continue;
 			}
 
@@ -315,14 +323,16 @@ class Newspack_Blocks {
 	 * Enqueue block styles stylesheet.
 	 */
 	public static function enqueue_block_styles_assets() {
-		$style_path = NEWSPACK_BLOCKS__BLOCKS_DIRECTORY . 'block_styles' . ( is_rtl() ? '.rtl' : '' ) . '.css';
+		$style_path = NEWSPACK_BLOCKS__BLOCKS_DIRECTORY . 'block_styles.css';
 		if ( file_exists( NEWSPACK_BLOCKS__PLUGIN_DIR . $style_path ) ) {
+			$handle = 'newspack-blocks-block-styles-stylesheet';
 			wp_enqueue_style(
-				'newspack-blocks-block-styles-stylesheet',
+				$handle,
 				plugins_url( $style_path, NEWSPACK_BLOCKS__PLUGIN_FILE ),
 				array(),
 				NEWSPACK_BLOCKS__VERSION
 			);
+			wp_style_add_data( $handle, 'rtl', 'replace' );
 		}
 	}
 
@@ -334,18 +344,20 @@ class Newspack_Blocks {
 	public static function enqueue_view_assets( $type ) {
 		$style_path = apply_filters(
 			'newspack_blocks_enqueue_view_assets',
-			NEWSPACK_BLOCKS__BLOCKS_DIRECTORY . $type . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css',
+			NEWSPACK_BLOCKS__BLOCKS_DIRECTORY . $type . '/view.css',
 			$type,
 			is_rtl()
 		);
 
 		if ( file_exists( NEWSPACK_BLOCKS__PLUGIN_DIR . $style_path ) ) {
+			$handle = "newspack-blocks-{$type}";
 			wp_enqueue_style(
-				"newspack-blocks-{$type}",
+				$handle,
 				plugins_url( $style_path, NEWSPACK_BLOCKS__PLUGIN_FILE ),
 				array(),
 				NEWSPACK_BLOCKS__VERSION
 			);
+			wp_style_add_data( $handle, 'rtl', 'replace' );
 		}
 		$script_data = static::script_enqueue_helper( NEWSPACK_BLOCKS__BLOCKS_DIRECTORY . $type . '/view.js' );
 		if ( $script_data ) {
@@ -633,9 +645,7 @@ class Newspack_Blocks {
 			$args['orderby']        = 'post__in';
 		} else {
 			$args['posts_per_page'] = $posts_to_show;
-			if ( ! self::should_deduplicate_block( $attributes ) ) {
-				$args['post__not_in'] = [ get_the_ID() ]; // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
-			} else {
+			if ( self::should_deduplicate_block( $attributes ) ) {
 				if ( count( $newspack_blocks_all_specific_posts_ids ) ) {
 					$args['post__not_in'] = $newspack_blocks_all_specific_posts_ids; // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
 				}
