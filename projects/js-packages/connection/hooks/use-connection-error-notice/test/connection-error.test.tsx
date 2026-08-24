@@ -135,7 +135,7 @@ describe( 'ConnectionError', () => {
 					},
 				},
 				invalid_token: {
-					7: { error_message: 'Token broken.', audience: 'site', user_id: '0' },
+					7: { error_message: 'Token broken.', audience: 'user', user_id: '7' },
 				},
 			},
 			userConnectionData: { currentUser: { id: 7 } },
