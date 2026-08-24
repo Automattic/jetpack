@@ -201,18 +201,99 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The headline case: a module introduced in 16.2 turns on for a site running an alpha of 16.2,
-	 * instead of waiting for the final release.
+	 * The whole decision table in one place.
+	 *
+	 * Inputs: the version the site had recorded, the version now running, what the module's
+	 * `First Introduced` header says, and what the record already held. Outputs: whether the
+	 * module ends up in the raw `active_modules` option, and what the record holds afterwards
+	 * (`false` meaning the option was never created).
+	 *
+	 * Reading the table beats reading the code: the floor is the recorded version raw, the ceiling
+	 * is the running version reduced to its release, and the record is subtracted from whatever
+	 * survives both.
+	 *
+	 * @dataProvider provide_activation_matrix
+	 *
+	 * @param string         $previous      Version recorded for the site before the upgrade.
+	 * @param string         $current       Version now running.
+	 * @param string         $introduced    The module's `First Introduced` header.
+	 * @param string[]       $seed_record   Record contents before the upgrade.
+	 * @param bool           $expect_active Whether the module should end up active.
+	 * @param string[]|false $expect_record Record contents after, or false if no option.
 	 */
-	public function test_module_activates_on_the_first_alpha_of_its_release() {
-		$this->register_fake_modules( array( 'jptest-current' => '16.2' ) );
+	#[DataProvider( 'provide_activation_matrix' )]
+	public function test_activation_matrix( $previous, $current, $introduced, $seed_record, $expect_active, $expect_record ) {
+		if ( $seed_record ) {
+			update_option( Jetpack::PRERELEASE_ACTIVATED_MODULES_OPTION, $seed_record, false );
+		}
 
-		$this->run_upgrade( '16.1', '16.2-a.1' );
+		$this->register_fake_modules( array( 'jptest' => $introduced ) );
+		$this->run_upgrade( $previous, $current );
 
-		$this->assertContains( 'jptest-current', $this->raw_active_modules() );
-		$this->assertContains(
-			'jptest-current',
-			get_option( Jetpack::PRERELEASE_ACTIVATED_MODULES_OPTION, array() )
+		$this->assertSame(
+			$expect_active,
+			in_array( 'jptest', $this->raw_active_modules(), true ),
+			sprintf(
+				'introduced %s, upgrading %s -> %s: expected the module %s',
+				$introduced,
+				$previous,
+				$current,
+				$expect_active ? 'active' : 'inactive'
+			)
+		);
+
+		$record = get_option( Jetpack::PRERELEASE_ACTIVATED_MODULES_OPTION, false );
+
+		if ( false === $expect_record ) {
+			$this->assertFalse( $record, 'The record option should never have been created.' );
+			return;
+		}
+
+		$this->assertIsArray( $record );
+		sort( $record );
+		$this->assertSame( $expect_record, $record );
+	}
+
+	/**
+	 * Previous version, running version, module header, record before => active?, record after.
+	 *
+	 * @return array
+	 */
+	public static function provide_activation_matrix() {
+		$none = array();
+		$rec  = array( 'jptest' );
+
+		return array(
+			// A release-numbered module, which is what module authors should write.
+			'alpha activates a release-numbered module' => array( '16.1', '16.2-a.1', '16.2', $none, true, $rec ),
+			'a later alpha does the same'               => array( '16.1', '16.2-a.2', '16.2', $none, true, $rec ),
+			'module added mid-cycle'                    => array( '16.2-a.1', '16.2-a.2', '16.2', $none, true, $rec ),
+			'site skipped several alphas'               => array( '16.2-a.1', '16.2-a.5', '16.2', $none, true, $rec ),
+			'fresh install on an alpha'                 => array( '1.1', '16.2-a.5', '16.2', $none, true, $rec ),
+
+			// Out of range: the floor excludes older lines, the ceiling excludes future ones.
+			'earlier release line is left alone'        => array( '16.2-a.1', '16.2-a.2', '16.1', $none, false, false ),
+			'future release line is not offered yet'    => array( '16.1', '16.2-a.1', '16.3', $none, false, false ),
+			'previous line dropped on the next line'    => array( '16.2', '16.3-a.1', '16.2', $none, false, false ),
+
+			// Release versions behave exactly as before and write no record.
+			'release-only site records nothing'         => array( '16.1', '16.2', '16.2', $none, true, false ),
+			'point release behaves the same'            => array( '16.1', '16.2.1', '16.2', $none, true, false ),
+			'later release, module already past'        => array( '16.2', '16.3', '16.2', $none, false, false ),
+
+			// An existing record is what makes an opt-out stick.
+			'opt-out survives the next alpha'           => array( '16.2-a.1', '16.2-a.2', '16.2', $rec, false, $rec ),
+			'opt-out survives the final release'        => array( '16.2-a.9', '16.2', '16.2', $rec, false, $rec ),
+
+			// A header naming an exact alpha. Same availability, but the floor then dedupes
+			// instead of the record, which costs the retry - see the class docblock.
+			'precise header, alpha that ships it'       => array( '16.2-a.1', '16.2-a.2', '16.2-a.2', $none, true, $rec ),
+			'precise header, site already past it'      => array( '16.2-a.2', '16.2-a.3', '16.2-a.2', $none, false, false ),
+			'precise header, release-only site'         => array( '16.1', '16.2', '16.2-a.2', $none, true, false ),
+
+			// The upgrade gate itself.
+			'same version is not an upgrade'            => array( '16.2-a.1', '16.2-a.1', '16.2', $none, false, false ),
+			'downgrade is a no-op'                      => array( '16.3', '16.2-a.1', '16.2', $none, false, false ),
 		);
 	}
 
@@ -254,46 +335,6 @@ class Jetpack_Prerelease_Module_Activation_Test extends \WP_UnitTestCase {
 			'next alpha'    => array( '16.2-a.1', '16.2-a.2' ),
 			'final release' => array( '16.2-a.9', '16.2' ),
 		);
-	}
-
-	/**
-	 * A module whose file first ships mid-cycle is still offered, even though the site has already
-	 * been through earlier alphas of the same release. This is what the per-slug record buys that a
-	 * version window cannot.
-	 */
-	public function test_module_added_mid_cycle_is_still_offered() {
-		$this->register_fake_modules( array( 'jptest-late' => '16.2' ) );
-
-		$this->run_upgrade( '16.2-a.1', '16.2-a.2' );
-
-		$this->assertContains( 'jptest-late', $this->raw_active_modules() );
-	}
-
-	/**
-	 * A site that never runs a prerelease gains no new state at all.
-	 */
-	public function test_release_only_site_never_writes_the_record() {
-		$this->register_fake_modules( array( 'jptest-current' => '16.2' ) );
-
-		$this->run_upgrade( '16.1', '16.2' );
-
-		$this->assertContains( 'jptest-current', $this->raw_active_modules() );
-		$this->assertFalse(
-			get_option( Jetpack::PRERELEASE_ACTIVATED_MODULES_OPTION, false ),
-			'A site that never runs a prerelease gains no new state.'
-		);
-	}
-
-	/**
-	 * The empty starting record must not resurrect modules from earlier release lines that the
-	 * site owner switched off long ago.
-	 */
-	public function test_older_modules_are_never_resurrected() {
-		$this->register_fake_modules( array( 'jptest-old' => '16.1' ) );
-
-		$this->run_upgrade( '16.2-a.1', '16.2-a.2' );
-
-		$this->assertNotContains( 'jptest-old', $this->raw_active_modules() );
 	}
 
 	/**
