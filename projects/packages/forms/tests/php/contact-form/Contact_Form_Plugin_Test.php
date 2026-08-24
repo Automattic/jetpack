@@ -736,7 +736,13 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$previous_post = $post;
 		$post          = null;
 
-		$form                              = new Contact_Form( array( 'to' => 'test@example.com', 'widget' => 'text-2' ), "[contact-field label='Name' type='name' required='1'/]" );
+		$form                              = new Contact_Form(
+			array(
+				'to'     => 'test@example.com',
+				'widget' => 'text-2',
+			),
+			"[contact-field label='Name' type='name' required='1'/]"
+		);
 		$_POST['jetpack_contact_form_jwt'] = $form->get_jwt();
 		$_POST['contact-form-hash']        = $form->hash;
 		$_POST['contact-form-id']          = 'widget-does-not-match';
