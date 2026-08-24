@@ -693,6 +693,27 @@ describe( 'File Field View', () => {
 			expect( legacyContext.isDropping ).toBe( false );
 		} );
 
+		test( 'dropping clears the drag highlight on the context the old markup binds', () => {
+			legacyStore.actions.dragOver( { preventDefault: jest.fn() } );
+			expect( legacyContext.isDropping ).toBe( true );
+
+			legacyStore.actions.fileDropped( {
+				preventDefault: jest.fn(),
+				dataTransfer: {
+					items: [
+						{
+							kind: 'file',
+							webkitGetAsEntry: () => ( { isDirectory: false } ),
+							getAsFile: () => ( { name: 'doc.pdf', type: 'application/pdf', size: 10 } ),
+						},
+					],
+				},
+			} );
+
+			// The shared implementation resets the shared context; the old template watches this one.
+			expect( legacyContext.isDropping ).toBe( false );
+		} );
+
 		test( 'the old state getters resolve against the legacy context', () => {
 			expect( legacyStore.state.hasFiles ).toBe( false );
 			expect( legacyStore.state.hasMaxFiles ).toBe( false );

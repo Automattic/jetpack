@@ -791,7 +791,18 @@ store( CONFIG_NAMESPACE, {
 		handleKeyDown: withLegacyContext( 'onFileDropzoneKeyDown' ),
 		openFilePicker: withLegacyContext( 'openFilePicker' ),
 		fileAdded: withLegacyContext( 'fileAdded' ),
-		fileDropped: withLegacyContext( 'fileDropped' ),
+		/*
+		 * Delegating is not enough here. The shared implementation ends by clearing `isDropping`
+		 * on the shared context, but the old template binds `is-dropping` to the legacy one — the
+		 * same reason `dragOver`/`dragLeave` below stay local. Without this the dropzone keeps its
+		 * drag-hover highlight after a drop and only sheds it on the next `dragleave`.
+		 */
+		fileDropped: ( ...args ) => {
+			bridgeLegacyContext();
+			const result = actions.fileDropped( ...args );
+			getContext( CONFIG_NAMESPACE ).isDropping = false;
+			return result;
+		},
 		removeFile: withLegacyContext( 'removeFile' ),
 		removeFileKeydown: withLegacyContext( 'removeFileKeydown' ),
 		resetFiles: withLegacyContext( 'resetFiles' ),
