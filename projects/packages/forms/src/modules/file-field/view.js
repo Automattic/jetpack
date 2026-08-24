@@ -746,6 +746,29 @@ const withLegacyContext =
 		return actions[ actionName ]( ...args );
 	};
 
+/*
+ * The names above are strings, so renaming a shared action would not update them and nothing would
+ * notice until a visitor on stale cached HTML hit a `TypeError`. Reading each one here (without
+ * calling it) turns that into a console warning on every page load carrying the field. Reading is
+ * safe: the proxy's `get` trap only binds a scope for the caller it returns, and this discards it.
+ */
+const assertLegacyDelegatesExist = names => {
+	if ( ! globalThis.SCRIPT_DEBUG ) {
+		return;
+	}
+
+	const missing = names.filter( name => typeof actions[ name ] !== 'function' );
+
+	if ( missing.length ) {
+		// eslint-disable-next-line no-console
+		console.warn(
+			`jetpack/field-file back-compat shim: no such action(s) on jetpack/form: ${ missing.join(
+				', '
+			) }`
+		);
+	}
+};
+
 store( CONFIG_NAMESPACE, {
 	state: {
 		get hasFiles() {
@@ -781,3 +804,13 @@ store( CONFIG_NAMESPACE, {
 		focusElement: ( ...args ) => callbacks.focusFilePreview( ...args ),
 	},
 } );
+
+assertLegacyDelegatesExist( [
+	'onFileDropzoneKeyDown',
+	'openFilePicker',
+	'fileAdded',
+	'fileDropped',
+	'removeFile',
+	'removeFileKeydown',
+	'resetFiles',
+] );

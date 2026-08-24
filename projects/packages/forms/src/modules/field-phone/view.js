@@ -110,15 +110,27 @@ const updateSelection = selectedCountry => {
 		...country,
 		selected: country.code === selectedCountry.code,
 	} ) );
+};
 
-	/*
-	 * Revalidate against the country that was just picked. `fullPhoneNumber` is the only value
-	 * `validators.phone` judges, and every caller here rewrites it, so without this a number that
-	 * was invalid for the previous country keeps its stale `invalid_phone` after the visitor
-	 * selects the country that makes it valid — and the error blocks submission until the input
-	 * itself is touched again.
-	 */
-	actions.updateField( context.fieldId, context.phoneNumber );
+/**
+ * Revalidate the field after the visitor commits to a country.
+ *
+ * `fullPhoneNumber` is the only value `validators.phone` judges, so without this a number that was
+ * invalid for the previous country keeps its stale `invalid_phone` after the visitor picks the
+ * country that makes it valid, and the error blocks submission until the input is touched again.
+ *
+ * Only the paths that commit call this. `updateSelection()` also runs while the visitor merely
+ * arrows through the list, and revalidating there would reset `showFieldError` on every keypress,
+ * hiding an error that is still true of the number they have typed.
+ */
+const revalidateAfterCountryCommit = () => {
+	const context = getContext();
+
+	actions.updateField(
+		context.fieldId,
+		context.phoneNumber,
+		context.fields?.[ context.fieldId ]?.showFieldError ?? false
+	);
 };
 
 const { actions } = store( NAMESPACE, {
@@ -205,6 +217,7 @@ const { actions } = store( NAMESPACE, {
 			// this context.filtered is from the template iterator
 			context.selectedCountry = { ...context.filtered };
 			updateSelection( context.selectedCountry );
+			revalidateAfterCountryCommit();
 			context.comboboxOpen = false;
 			phoneInputRefs[ context.fieldId ]?.focus?.();
 		},
@@ -238,6 +251,7 @@ const { actions } = store( NAMESPACE, {
 						context.filteredCountries[ 0 ];
 					context.selectedCountry = selectedCountry;
 					updateSelection( context.selectedCountry );
+					revalidateAfterCountryCommit();
 					context.comboboxOpen = false;
 					// Focus on the ref input
 					phoneInputRefs[ context.fieldId ]?.focus?.();
